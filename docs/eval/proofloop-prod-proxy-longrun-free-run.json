@@ -1,0 +1,496 @@
+{
+  "schema": "proofloop-prod-proxy-longrun-v1",
+  "generatedAt": "2026-07-05T07:20:52.134Z",
+  "runId": "prod-proxy-free-spreadsheetbench-102-20-20260705",
+  "baseUrl": "https://noderoom.live",
+  "root": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom",
+  "matrixDigest": "e7f6800207bb133b2a4a7d08d5fd327d2dfdd477966179b7a23b93688ffe529f",
+  "budget": {
+    "capUsd": 0,
+    "unknownAttemptCostUsd": 0.02,
+    "historicalMeasuredSpendUsd": 0,
+    "queuedEstimatedNewSpendUsd": 0,
+    "fullMatrixEstimatedUsd": 0,
+    "fullCurrentModelMatrixFitsBudget": true,
+    "runnableQueueFitsBudget": true
+  },
+  "controlPlane": {
+    "goalContract": "Run every tracked prod proxy benchmark task through the live NodeRoom browser UI with memory mode off, score each model-task attempt, and refuse an all-task winner until the full matrix is proven.",
+    "evaluator": "Detached verifier receipts and scorecards decide pass/fail; model output or agent narration is not accepted as proof.",
+    "verifiers": [
+      "real prod URL must be https://noderoom.live",
+      "memoryModeAllowed=false for every attempt",
+      "browser evidence must include trace/cost/verifier receipts before a pass is promoted",
+      "official score claims stay false unless upstream scorer/judge artifacts are imported"
+    ],
+    "outerLoop": "state is persisted under .proofloop/prod-proxy-longrun/<runId>; running attempts carry a lease and can be resumed after process/network failure; budget checks run before every live attempt",
+    "orchestration": [
+      "cheap models are sorted first inside each runnable family",
+      "expensive or unknown-cost attempts are deferred when they would exceed the budget cap",
+      "blocked adapter families remain visible instead of being dropped from the denominator"
+    ],
+    "observability": [
+      "state.json",
+      "queue.jsonl",
+      "events.jsonl",
+      "dashboard.json",
+      "budget-ledger.json",
+      "adapter-gaps.json"
+    ],
+    "memory": [
+      "session memory is local-only under .proofloop/prod-proxy-longrun",
+      "durable lessons must be promoted separately; generated memory stores are not committed"
+    ]
+  },
+  "summary": {
+    "totalAttempts": 5416,
+    "passedExistingAttempts": 0,
+    "queuedAttempts": 5372,
+    "runningAttempts": 0,
+    "passedAttempts": 0,
+    "failedAttempts": 4,
+    "blockedAdapterAttempts": 40,
+    "blockedBudgetAttempts": 0,
+    "uniqueTaskTargets": 1354,
+    "modelCount": 4,
+    "families": 10,
+    "familiesWithQueuedAttempts": 8,
+    "familiesBlockedByAdapter": 2,
+    "currentAllTaskWinner": null,
+    "currentAdapterSmokeWinner": null
+  },
+  "modelCosts": [
+    {
+      "modelId": "cohere/north-mini-code:free",
+      "prodAdapterSmokePassed": 0,
+      "prodAdapterSmokeTotal": 0,
+      "costBasis": "estimated_smoke",
+      "estimatedCostPerAttemptUsd": 0,
+      "fullMatrixEstimatedUsd": 0,
+      "runnableQueueEstimatedUsd": 0,
+      "historicalMeasuredSpendUsd": 0
+    },
+    {
+      "modelId": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "prodAdapterSmokePassed": 0,
+      "prodAdapterSmokeTotal": 0,
+      "costBasis": "estimated_smoke",
+      "estimatedCostPerAttemptUsd": 0,
+      "fullMatrixEstimatedUsd": 0,
+      "runnableQueueEstimatedUsd": 0,
+      "historicalMeasuredSpendUsd": 0
+    },
+    {
+      "modelId": "nvidia/nemotron-3-super-120b-a12b:free",
+      "prodAdapterSmokePassed": 0,
+      "prodAdapterSmokeTotal": 0,
+      "costBasis": "estimated_smoke",
+      "estimatedCostPerAttemptUsd": 0,
+      "fullMatrixEstimatedUsd": 0,
+      "runnableQueueEstimatedUsd": 0,
+      "historicalMeasuredSpendUsd": 0
+    },
+    {
+      "modelId": "qwen/qwen3-coder:free",
+      "prodAdapterSmokePassed": 0,
+      "prodAdapterSmokeTotal": 0,
+      "costBasis": "estimated_smoke",
+      "estimatedCostPerAttemptUsd": 0,
+      "fullMatrixEstimatedUsd": 0,
+      "runnableQueueEstimatedUsd": 0,
+      "historicalMeasuredSpendUsd": 0
+    }
+  ],
+  "adapterGaps": [
+    {
+      "familyId": "proximitty-underwriting-pr0",
+      "taskCount": 4,
+      "attemptCount": 16,
+      "adapterStatus": "local_only",
+      "adapterVersion": "0.1.0",
+      "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
+      "firstBlocker": "Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios.",
+      "requiredAdapter": "proximitty-underwriting-prod-browser-room",
+      "evidence": [
+        "docs/eval/proofloop-prod-browser-adapters.json",
+        "proofloop/scenarios/proximitty-intake.spec.ts",
+        ".proofloop/runs/latest/run-result.json",
+        "proofloop/scenarios/proximitty-model-comparison.spec.ts",
+        "proofloop/scenarios/proximitty-risk-research.spec.ts",
+        "proofloop/scenarios/proximitty-underwriting-packet.spec.ts"
+      ]
+    },
+    {
+      "familyId": "noderoom-multi-user-conflict",
+      "taskCount": 6,
+      "attemptCount": 24,
+      "adapterStatus": "missing_generic_browser_adapter",
+      "adapterVersion": "0.1.0",
+      "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
+      "firstBlocker": "Internal deterministic conflict suite has not been promoted to prod browser model matrix tasks.",
+      "requiredAdapter": "noderoom-multi-user-conflict-prod-browser-room",
+      "evidence": [
+        "docs/eval/proofloop-prod-browser-adapters.json",
+        "docs/eval/official-benchmark-task-coverage.json"
+      ]
+    }
+  ],
+  "attemptsOmitted": {
+    "reason": "Tracked docs/eval JSON omits the full attempt queue; durable resumable state is written under .proofloop/prod-proxy-longrun/.",
+    "localStatePath": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/state.json",
+    "queuePath": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/queue.jsonl",
+    "totalAttempts": 5416,
+    "sample": [
+      {
+        "schema": "proofloop-prod-proxy-longrun-attempt-v1",
+        "attemptId": "spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d",
+        "familyId": "spreadsheetbench-v1-full-912",
+        "taskId": "102-20",
+        "modelId": "cohere/north-mini-code:free",
+        "title": "I need guidance with reformatting my Excel raw data using VBA. Specifically, I want to combine and sum up data from a co",
+        "status": "failed",
+        "adapterStatus": "prod_browser_available",
+        "realUserProdUiRequired": true,
+        "memoryModeAllowed": false,
+        "officialScoreClaim": false,
+        "estimatedCostUsd": 0,
+        "command": {
+          "shell": "npm run proofloop:live:spreadsheetbench-v1",
+          "env": {
+            "BENCH_BASE_URL": "https://noderoom.live",
+            "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+            "PLAYWRIGHT_REUSE_SERVER": "1",
+            "PLAYWRIGHT_RETRIES": "0",
+            "BENCH_AGENT_MODEL_MODE": "specific",
+            "BENCH_AGENT_MODEL_POLICY": "cohere/north-mini-code:free",
+            "PROOFLOOP_REAL_USER_MODE": "1",
+            "PROOFLOOP_FOCUS_MODE": "0",
+            "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+            "PROOFLOOP_RUN_ID": "prod-proxy-free-spreadsheetbench-102-20-20260705-spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d",
+            "PROOFLOOP_CASE_ID": "spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d",
+            "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/fresh-room",
+            "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d.json",
+            "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v1",
+            "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v1-912",
+            "SPREADSHEETBENCH_TASK_ID": "102-20",
+            "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d.json"
+          }
+        },
+        "evidence": [
+          "docs/eval/official-benchmark-task-coverage.json",
+          "docs/eval/spreadsheetbench-v1-912-stage.json",
+          "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+          "docs/eval/official-benchmark-readiness.json",
+          ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/agent/task.json",
+          ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/evaluator/evaluator.json",
+          "docs/eval/spreadsheetbench-live-room-proof.json"
+        ],
+        "blockers": [
+          "Existing SpreadsheetBench receipt is local live-browser only; rerun against https://noderoom.live.",
+          "Live command exited 1"
+        ],
+        "attempts": 1,
+        "exitCode": 1,
+        "completedAt": "2026-07-05T07:31:55.188Z"
+      },
+      {
+        "schema": "proofloop-prod-proxy-longrun-attempt-v1",
+        "attemptId": "spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133",
+        "familyId": "spreadsheetbench-v1-full-912",
+        "taskId": "102-20",
+        "modelId": "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "title": "I need guidance with reformatting my Excel raw data using VBA. Specifically, I want to combine and sum up data from a co",
+        "status": "failed",
+        "adapterStatus": "prod_browser_available",
+        "realUserProdUiRequired": true,
+        "memoryModeAllowed": false,
+        "officialScoreClaim": false,
+        "estimatedCostUsd": 0,
+        "command": {
+          "shell": "npm run proofloop:live:spreadsheetbench-v1",
+          "env": {
+            "BENCH_BASE_URL": "https://noderoom.live",
+            "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+            "PLAYWRIGHT_REUSE_SERVER": "1",
+            "PLAYWRIGHT_RETRIES": "0",
+            "BENCH_AGENT_MODEL_MODE": "specific",
+            "BENCH_AGENT_MODEL_POLICY": "nvidia/nemotron-3-ultra-550b-a55b:free",
+            "PROOFLOOP_REAL_USER_MODE": "1",
+            "PROOFLOOP_FOCUS_MODE": "0",
+            "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+            "PROOFLOOP_RUN_ID": "prod-proxy-free-spreadsheetbench-102-20-20260705-spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133",
+            "PROOFLOOP_CASE_ID": "spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133",
+            "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/fresh-room",
+            "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133.json",
+            "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v1",
+            "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v1-912",
+            "SPREADSHEETBENCH_TASK_ID": "102-20",
+            "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133.json"
+          }
+        },
+        "evidence": [
+          "docs/eval/official-benchmark-task-coverage.json",
+          "docs/eval/spreadsheetbench-v1-912-stage.json",
+          "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+          "docs/eval/official-benchmark-readiness.json",
+          ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/agent/task.json",
+          ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/evaluator/evaluator.json",
+          "docs/eval/spreadsheetbench-live-room-proof.json"
+        ],
+        "blockers": [
+          "Existing SpreadsheetBench receipt is local live-browser only; rerun against https://noderoom.live.",
+          "Live command exited 1"
+        ],
+        "attempts": 1,
+        "exitCode": 1,
+        "completedAt": "2026-07-05T07:33:36.516Z"
+      },
+      {
+        "schema": "proofloop-prod-proxy-longrun-attempt-v1",
+        "attemptId": "spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-super-120b-a12b_free--2d566b3b2f",
+        "familyId": "spreadsheetbench-v1-full-912",
+        "taskId": "102-20",
+        "modelId": "nvidia/nemotron-3-super-120b-a12b:free",
+        "title": "I need guidance with reformatting my Excel raw data using VBA. Specifically, I want to combine and sum up data from a co",
+        "status": "failed",
+        "adapterStatus": "prod_browser_available",
+        "realUserProdUiRequired": true,
+        "memoryModeAllowed": false,
+        "officialScoreClaim": false,
+        "estimatedCostUsd": 0,
+        "command": {
+          "shell": "npm run proofloop:live:spreadsheetbench-v1",
+          "env": {
+            "BENCH_BASE_URL": "https://noderoom.live",
+            "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+            "PLAYWRIGHT_REUSE_SERVER": "1",
+            "PLAYWRIGHT_RETRIES": "0",
+            "BENCH_AGENT_MODEL_MODE": "specific",
+            "BENCH_AGENT_MODEL_POLICY": "nvidia/nemotron-3-super-120b-a12b:free",
+            "PROOFLOOP_REAL_USER_MODE": "1",
+            "PROOFLOOP_FOCUS_MODE": "0",
+            "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+            "PROOFLOOP_RUN_ID": "prod-proxy-free-spreadsheetbench-102-20-20260705-spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-super-120b-a12b_free--2d566b3b2f",
+            "PROOFLOOP_CASE_ID": "spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-super-120b-a12b_free--2d566b3b2f",
+            "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/fresh-room",
+            "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-super-120b-a12b_free--2d566b3b2f.json",
+            "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v1",
+            "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v1-912",
+            "SPREADSHEETBENCH_TASK_ID": "102-20",
+            "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-super-120b-a12b_free--2d566b3b2f.json"
+          }
+        },
+        "evidence": [
+          "docs/eval/official-benchmark-task-coverage.json",
+          "docs/eval/spreadsheetbench-v1-912-stage.json",
+          "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+          "docs/eval/official-benchmark-readiness.json",
+          ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/agent/task.json",
+          ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/evaluator/evaluator.json",
+          "docs/eval/spreadsheetbench-live-room-proof.json"
+        ],
+        "blockers": [
+          "Existing SpreadsheetBench receipt is local live-browser only; rerun against https://noderoom.live.",
+          "Live command exited 1"
+        ],
+        "attempts": 1,
+        "exitCode": 1,
+        "completedAt": "2026-07-05T07:35:46.788Z"
+      },
+      {
+        "schema": "proofloop-prod-proxy-longrun-attempt-v1",
+        "attemptId": "spreadsheetbench-v1-full-912--102-20--qwen_qwen3-coder_free--f878fa4625",
+        "familyId": "spreadsheetbench-v1-full-912",
+        "taskId": "102-20",
+        "modelId": "qwen/qwen3-coder:free",
+        "title": "I need guidance with reformatting my Excel raw data using VBA. Specifically, I want to combine and sum up data from a co",
+        "status": "failed",
+        "adapterStatus": "prod_browser_available",
+        "realUserProdUiRequired": true,
+        "memoryModeAllowed": false,
+        "officialScoreClaim": false,
+        "estimatedCostUsd": 0,
+        "command": {
+          "shell": "npm run proofloop:live:spreadsheetbench-v1",
+          "env": {
+            "BENCH_BASE_URL": "https://noderoom.live",
+            "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+            "PLAYWRIGHT_REUSE_SERVER": "1",
+            "PLAYWRIGHT_RETRIES": "0",
+            "BENCH_AGENT_MODEL_MODE": "specific",
+            "BENCH_AGENT_MODEL_POLICY": "qwen/qwen3-coder:free",
+            "PROOFLOOP_REAL_USER_MODE": "1",
+            "PROOFLOOP_FOCUS_MODE": "0",
+            "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+            "PROOFLOOP_RUN_ID": "prod-proxy-free-spreadsheetbench-102-20-20260705-spreadsheetbench-v1-full-912--102-20--qwen_qwen3-coder_free--f878fa4625",
+            "PROOFLOOP_CASE_ID": "spreadsheetbench-v1-full-912--102-20--qwen_qwen3-coder_free--f878fa4625",
+            "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/fresh-room",
+            "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/spreadsheetbench-v1-full-912--102-20--qwen_qwen3-coder_free--f878fa4625.json",
+            "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v1",
+            "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v1-912",
+            "SPREADSHEETBENCH_TASK_ID": "102-20",
+            "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/spreadsheetbench-v1-full-912--102-20--qwen_qwen3-coder_free--f878fa4625.json"
+          }
+        },
+        "evidence": [
+          "docs/eval/official-benchmark-task-coverage.json",
+          "docs/eval/spreadsheetbench-v1-912-stage.json",
+          "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+          "docs/eval/official-benchmark-readiness.json",
+          ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/agent/task.json",
+          ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/evaluator/evaluator.json",
+          "docs/eval/spreadsheetbench-live-room-proof.json"
+        ],
+        "blockers": [
+          "Existing SpreadsheetBench receipt is local live-browser only; rerun against https://noderoom.live.",
+          "Live command exited 1"
+        ],
+        "attempts": 1,
+        "exitCode": 1,
+        "completedAt": "2026-07-05T07:38:17.073Z"
+      },
+      {
+        "schema": "proofloop-prod-proxy-longrun-attempt-v1",
+        "attemptId": "spreadsheetbench-v1-full-912--10281--cohere_north-mini-code_free--9b2c587eb3",
+        "familyId": "spreadsheetbench-v1-full-912",
+        "taskId": "10281",
+        "modelId": "cohere/north-mini-code:free",
+        "title": "I want to configure column 'J' under 'Densities' in my Excel sheet to return 'PASS' or 'FAIL' similar to what I have set",
+        "status": "queued",
+        "adapterStatus": "prod_browser_available",
+        "realUserProdUiRequired": true,
+        "memoryModeAllowed": false,
+        "officialScoreClaim": false,
+        "estimatedCostUsd": 0,
+        "command": {
+          "shell": "npm run proofloop:live:spreadsheetbench-v1",
+          "env": {
+            "BENCH_BASE_URL": "https://noderoom.live",
+            "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+            "PLAYWRIGHT_REUSE_SERVER": "1",
+            "PLAYWRIGHT_RETRIES": "0",
+            "BENCH_AGENT_MODEL_MODE": "specific",
+            "BENCH_AGENT_MODEL_POLICY": "cohere/north-mini-code:free",
+            "PROOFLOOP_REAL_USER_MODE": "1",
+            "PROOFLOOP_FOCUS_MODE": "0",
+            "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+            "PROOFLOOP_RUN_ID": "prod-proxy-free-spreadsheetbench-102-20-20260705-spreadsheetbench-v1-full-912--10281--cohere_north-mini-code_free--9b2c587eb3",
+            "PROOFLOOP_CASE_ID": "spreadsheetbench-v1-full-912--10281--cohere_north-mini-code_free--9b2c587eb3",
+            "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/fresh-room",
+            "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/spreadsheetbench-v1-full-912--10281--cohere_north-mini-code_free--9b2c587eb3.json",
+            "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v1",
+            "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v1-912",
+            "SPREADSHEETBENCH_TASK_ID": "10281",
+            "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/spreadsheetbench-v1-full-912--10281--cohere_north-mini-code_free--9b2c587eb3.json"
+          }
+        },
+        "evidence": [
+          "docs/eval/official-benchmark-task-coverage.json",
+          "docs/eval/spreadsheetbench-v1-912-stage.json",
+          "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+          "docs/eval/official-benchmark-readiness.json",
+          ".tmp/official-benchmarks/staged-v1-912/tasks/10281/agent/task.json",
+          ".tmp/official-benchmarks/staged-v1-912/tasks/10281/evaluator/evaluator.json"
+        ],
+        "blockers": [
+          "SpreadsheetBench task is ready for the generic prod browser workbook adapter but lacks a passing prod receipt."
+        ],
+        "attempts": 0
+      },
+      {
+        "schema": "proofloop-prod-proxy-longrun-attempt-v1",
+        "attemptId": "spreadsheetbench-v1-full-912--10281--nvidia_nemotron-3-ultra-550b-a55b_free--a0bb41ea84",
+        "familyId": "spreadsheetbench-v1-full-912",
+        "taskId": "10281",
+        "modelId": "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "title": "I want to configure column 'J' under 'Densities' in my Excel sheet to return 'PASS' or 'FAIL' similar to what I have set",
+        "status": "queued",
+        "adapterStatus": "prod_browser_available",
+        "realUserProdUiRequired": true,
+        "memoryModeAllowed": false,
+        "officialScoreClaim": false,
+        "estimatedCostUsd": 0,
+        "command": {
+          "shell": "npm run proofloop:live:spreadsheetbench-v1",
+          "env": {
+            "BENCH_BASE_URL": "https://noderoom.live",
+            "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+            "PLAYWRIGHT_REUSE_SERVER": "1",
+            "PLAYWRIGHT_RETRIES": "0",
+            "BENCH_AGENT_MODEL_MODE": "specific",
+            "BENCH_AGENT_MODEL_POLICY": "nvidia/nemotron-3-ultra-550b-a55b:free",
+            "PROOFLOOP_REAL_USER_MODE": "1",
+            "PROOFLOOP_FOCUS_MODE": "0",
+            "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+            "PROOFLOOP_RUN_ID": "prod-proxy-free-spreadsheetbench-102-20-20260705-spreadsheetbench-v1-full-912--10281--nvidia_nemotron-3-ultra-550b-a55b_free--a0bb41ea84",
+            "PROOFLOOP_CASE_ID": "spreadsheetbench-v1-full-912--10281--nvidia_nemotron-3-ultra-550b-a55b_free--a0bb41ea84",
+            "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/fresh-room",
+            "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/spreadsheetbench-v1-full-912--10281--nvidia_nemotron-3-ultra-550b-a55b_free--a0bb41ea84.json",
+            "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v1",
+            "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v1-912",
+            "SPREADSHEETBENCH_TASK_ID": "10281",
+            "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-free-spreadsheetbench-102-20-20260705/receipts/spreadsheetbench-v1-full-912--10281--nvidia_nemotron-3-ultra-550b-a55b_free--a0bb41ea84.json"
+          }
+        },
+        "evidence": [
+          "docs/eval/official-benchmark-task-coverage.json",
+          "docs/eval/spreadsheetbench-v1-912-stage.json",
+          "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+          "docs/eval/official-benchmark-readiness.json",
+          ".tmp/official-benchmarks/staged-v1-912/tasks/10281/agent/task.json",
+          ".tmp/official-benchmarks/staged-v1-912/tasks/10281/evaluator/evaluator.json"
+        ],
+        "blockers": [
+          "SpreadsheetBench task is ready for the generic prod browser workbook adapter but lacks a passing prod receipt."
+        ],
+        "attempts": 0
+      },
+      {
+        "schema": "proofloop-prod-proxy-longrun-attempt-v1",
+        "attemptId": "proximitty-underwriting-pr0--proximitty-intake--cohere_north-mini-code_free--22905d0536",
+        "familyId": "proximitty-underwriting-pr0",
+        "taskId": "proximitty-intake",
+        "modelId": "cohere/north-mini-code:free",
+        "title": "proximitty-intake.spec.ts",
+        "status": "blocked_adapter",
+        "adapterStatus": "local_only",
+        "realUserProdUiRequired": true,
+        "memoryModeAllowed": false,
+        "officialScoreClaim": false,
+        "estimatedCostUsd": 0,
+        "evidence": [
+          "proofloop/scenarios/proximitty-intake.spec.ts",
+          ".proofloop/runs/latest/run-result.json"
+        ],
+        "blockers": [
+          "Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios.",
+          "Promote Proximitty deterministic scenarios into a prod browser underwriting memo workflow with model selection and receipts."
+        ],
+        "attempts": 0
+      },
+      {
+        "schema": "proofloop-prod-proxy-longrun-attempt-v1",
+        "attemptId": "proximitty-underwriting-pr0--proximitty-intake--nvidia_nemotron-3-ultra-550b-a55b_free--bc9c929b55",
+        "familyId": "proximitty-underwriting-pr0",
+        "taskId": "proximitty-intake",
+        "modelId": "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "title": "proximitty-intake.spec.ts",
+        "status": "blocked_adapter",
+        "adapterStatus": "local_only",
+        "realUserProdUiRequired": true,
+        "memoryModeAllowed": false,
+        "officialScoreClaim": false,
+        "estimatedCostUsd": 0,
+        "evidence": [
+          "proofloop/scenarios/proximitty-intake.spec.ts",
+          ".proofloop/runs/latest/run-result.json"
+        ],
+        "blockers": [
+          "Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios.",
+          "Promote Proximitty deterministic scenarios into a prod browser underwriting memo workflow with model selection and receipts."
+        ],
+        "attempts": 0
+      }
+    ]
+  }
+}

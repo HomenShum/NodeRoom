@@ -38,10 +38,10 @@ describe("ProofLoop standalone runner dogfood plan", () => {
 
     expect(plan.summary.uniqueTaskTargets).toBe(1354);
     expect(plan.summary.modelTaskAttempts).toBe(5416);
-    expect(plan.summary.queuedAttempts).toBe(402);
-    expect(plan.summary.blockedAdapterAttempts).toBe(5004);
-    expect(plan.summary.adapterGapTasks).toBe(6);
-    expect(plan.summary.guardedLiveRunBatchTasks).toBe(3);
+    expect(plan.summary.queuedAttempts).toBe(3501);
+    expect(plan.summary.blockedAdapterAttempts).toBe(40);
+    expect(plan.summary.adapterGapTasks).toBe(2);
+    expect(plan.summary.guardedLiveRunBatchTasks).toBe(7);
     expect(plan.summary.officialScoreGapTasks).toBe(3);
     expect(plan.summary.tasks).toBe(12);
     expect(plan.summary.currentAllTaskWinner).toBeNull();
@@ -55,8 +55,10 @@ describe("ProofLoop standalone runner dogfood plan", () => {
     });
     const ids = plan.tasks.map((task) => task.id);
 
-    expect(ids).toContain("adapter-gap.spreadsheetbench-v1-full-912");
-    expect(ids).toContain("adapter-gap.spreadsheetbench-v2-full-321");
+    expect(ids).toContain("adapter-gap.proximitty-underwriting-pr0");
+    expect(ids).toContain("adapter-gap.noderoom-multi-user-conflict");
+    expect(ids).toContain("live-run.spreadsheetbench-v1-full-912");
+    expect(ids).toContain("live-run.spreadsheetbench-v2-full-321");
     expect(ids).toContain("live-run.bankertoolbench-full-100");
     expect(ids).toContain("official-score.finch");
 
@@ -67,11 +69,16 @@ describe("ProofLoop standalone runner dogfood plan", () => {
     expect(btb?.paidModelRequired).toBe(true);
     expect(btb?.commands.some((command) => command.command.includes("--max-attempts 1"))).toBe(true);
 
-    const spreadsheet = plan.tasks.find((task) => task.id === "adapter-gap.spreadsheetbench-v1-full-912");
-    expect(spreadsheet?.command).toBe("npm run benchmark:proofloop:prod-browser-adapters");
-    expect(spreadsheet?.estimatedCostUsd).toBe(0);
-    expect(spreadsheet?.paidModelRequired).toBe(false);
-    expect(spreadsheet?.commands.some((command) => command.command.includes("prod-browser-adapters"))).toBe(true);
+    const proximitty = plan.tasks.find((task) => task.id === "adapter-gap.proximitty-underwriting-pr0");
+    expect(proximitty?.command).toBe("npm run benchmark:proofloop:prod-browser-adapters");
+    expect(proximitty?.estimatedCostUsd).toBe(0);
+    expect(proximitty?.paidModelRequired).toBe(false);
+    expect(proximitty?.commands.some((command) => command.command.includes("prod-browser-adapters"))).toBe(true);
+
+    const spreadsheet = plan.tasks.find((task) => task.id === "live-run.spreadsheetbench-v1-full-912");
+    expect(spreadsheet?.command).toBe("npm run benchmark:proofloop:prod-proxy-longrun -- status");
+    expect(spreadsheet?.status).toBe("guarded-spend");
+    expect(spreadsheet?.paidModelRequired).toBe(true);
   });
 
   it("keeps generation cheap and avoids broad paid sweep commands", () => {

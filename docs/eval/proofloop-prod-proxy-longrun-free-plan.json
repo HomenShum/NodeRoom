@@ -1,10 +1,10 @@
 {
   "schema": "proofloop-prod-proxy-longrun-v1",
-  "generatedAt": "2026-07-05T04:29:50.942Z",
-  "runId": "prod-proxy-longrun-2026-07-05T04-29-50-942Z",
+  "generatedAt": "2026-07-05T07:41:37.108Z",
+  "runId": "prod-proxy-longrun-2026-07-05T07-41-37-108Z",
   "baseUrl": "https://noderoom.live",
   "root": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom",
-  "matrixDigest": "52472e1da1aeedaa17831001a45947440ea0fd2cac4876a94a646d5c29b303d7",
+  "matrixDigest": "de202a6b0124cda19cc2ba001c282d68d8ab72109a8b4b1ce3cd0b1bb16ac519",
   "budget": {
     "capUsd": 0,
     "unknownAttemptCostUsd": 0.02,
@@ -45,17 +45,17 @@
   "summary": {
     "totalAttempts": 5416,
     "passedExistingAttempts": 0,
-    "queuedAttempts": 412,
+    "queuedAttempts": 5376,
     "runningAttempts": 0,
     "passedAttempts": 0,
     "failedAttempts": 0,
-    "blockedAdapterAttempts": 5004,
+    "blockedAdapterAttempts": 40,
     "blockedBudgetAttempts": 0,
     "uniqueTaskTargets": 1354,
     "modelCount": 4,
     "families": 10,
-    "familiesWithQueuedAttempts": 4,
-    "familiesBlockedByAdapter": 6,
+    "familiesWithQueuedAttempts": 8,
+    "familiesBlockedByAdapter": 2,
     "currentAllTaskWinner": null,
     "currentAdapterSmokeWinner": null
   },
@@ -103,75 +103,6 @@
   ],
   "adapterGaps": [
     {
-      "familyId": "spreadsheetbench-v1-full-912",
-      "taskCount": 912,
-      "attemptCount": 3648,
-      "adapterStatus": "local_only",
-      "adapterVersion": "0.1.0",
-      "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
-      "firstBlocker": "Generic SpreadsheetBench official workbook upload -> agent edit -> export -> scorer browser adapter is not implemented for staged tasks.",
-      "requiredAdapter": "spreadsheetbench-v1-official-workbook-prod-browser",
-      "evidence": [
-        "docs/eval/proofloop-prod-browser-adapters.json",
-        "docs/eval/official-benchmark-task-coverage.json",
-        "docs/eval/spreadsheetbench-v1-912-stage.json",
-        "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
-        "docs/eval/official-benchmark-readiness.json",
-        ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/agent/task.json",
-        ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/evaluator/evaluator.json",
-        "docs/eval/spreadsheetbench-live-room-proof.json"
-      ]
-    },
-    {
-      "familyId": "spreadsheetbench-v2-full-321",
-      "taskCount": 321,
-      "attemptCount": 1284,
-      "adapterStatus": "missing_generic_browser_adapter",
-      "adapterVersion": "0.1.0",
-      "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
-      "firstBlocker": "Generic SpreadsheetBench official workbook upload -> agent edit -> export -> scorer browser adapter is not implemented for staged tasks.",
-      "requiredAdapter": "spreadsheetbench-v2-workflow-chart-prod-browser",
-      "evidence": [
-        "docs/eval/proofloop-prod-browser-adapters.json",
-        "docs/eval/official-benchmark-task-coverage.json",
-        "docs/eval/spreadsheetbench-v2-full-ingest.json",
-        "docs/eval/spreadsheetbench-v2-full-stage.json",
-        "docs/eval/spreadsheetbench-v2-stage-smoke.json",
-        "docs/eval/spreadsheetbench-v2-run-smoke.json",
-        "docs/eval/spreadsheetbench-chart-visual-probe.json",
-        ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_01_01/agent/task.json",
-        ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_01_01/evaluator/evaluator.json"
-      ]
-    },
-    {
-      "familyId": "accounting-live-proofloop",
-      "taskCount": 4,
-      "attemptCount": 16,
-      "adapterStatus": "http_only",
-      "adapterVersion": "0.1.0",
-      "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
-      "firstBlocker": "Current accounting live runner is Convex HTTP, not a prod browser room model matrix.",
-      "requiredAdapter": "accounting-live-config-to-prod-browser-room",
-      "evidence": [
-        "docs/eval/proofloop-prod-browser-adapters.json",
-        "proofloop/accounting/live.accounting.config.json"
-      ]
-    },
-    {
-      "familyId": "notion-live-proofloop",
-      "taskCount": 4,
-      "attemptCount": 16,
-      "adapterStatus": "http_only",
-      "adapterVersion": "0.1.0",
-      "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
-      "firstBlocker": "Current Notion live runner is Convex HTTP, not a prod browser room model matrix.",
-      "requiredAdapter": "notion-live-config-to-prod-browser-room",
-      "evidence": [
-        "docs/eval/proofloop-prod-browser-adapters.json",
-        "proofloop/notion/live.notion.config.json"
-      ]
-    },
-    {
       "familyId": "proximitty-underwriting-pr0",
       "taskCount": 4,
       "attemptCount": 16,
@@ -206,94 +137,10 @@
   ],
   "attemptsOmitted": {
     "reason": "Tracked docs/eval JSON omits the full attempt queue; durable resumable state is written under .proofloop/prod-proxy-longrun/.",
-    "localStatePath": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T04-29-50-942Z/state.json",
-    "queuePath": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T04-29-50-942Z/queue.jsonl",
+    "localStatePath": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/state.json",
+    "queuePath": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/queue.jsonl",
     "totalAttempts": 5416,
     "sample": [
-      {
-        "schema": "proofloop-prod-proxy-longrun-attempt-v1",
-        "attemptId": "bankertoolbench-full-100--707cba99-59a7-47bd-bc4d-7f36212e99f3--cohere_north-mini-code_free--64286d7b60",
-        "familyId": "bankertoolbench-full-100",
-        "taskId": "707cba99-59a7-47bd-bc4d-7f36212e99f3",
-        "modelId": "cohere/north-mini-code:free",
-        "title": "I am an investment banking analyst in the REGAL coverage group at XYZ bank. I'm covering Real Estate, Gaming and Lodging",
-        "status": "queued",
-        "adapterStatus": "prod_browser_available",
-        "realUserProdUiRequired": true,
-        "memoryModeAllowed": false,
-        "officialScoreClaim": false,
-        "estimatedCostUsd": 0,
-        "command": {
-          "shell": "npm run proofloop:live:btb",
-          "env": {
-            "BENCH_BASE_URL": "https://noderoom.live",
-            "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
-            "PLAYWRIGHT_REUSE_SERVER": "1",
-            "BENCH_AGENT_MODEL_MODE": "specific",
-            "BENCH_AGENT_MODEL_POLICY": "cohere/north-mini-code:free",
-            "PROOFLOOP_REAL_USER_MODE": "1",
-            "PROOFLOOP_FOCUS_MODE": "0",
-            "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-            "PROOFLOOP_RUN_ID": "prod-proxy-longrun-2026-07-05T04-29-50-942Z-bankertoolbench-full-100--707cba99-59a7-47bd-bc4d-7f36212e99f3--cohere_north-mini-code_free--64286d7b60",
-            "BTB_LIVE_ROOM_E2E": "1",
-            "BTB_UI_BUNDLE_ROOT": ".tmp/official-benchmarks/bankertoolbench-repo/btb-data",
-            "BTB_UI_TASK_ID": "707cba99-59a7-47bd-bc4d-7f36212e99f3",
-            "BTB_UI_VERIFIER_COMMAND": "npm run benchmark:bankertoolbench:proof",
-            "BTB_LIVE_ROOM_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T04-29-50-942Z/receipts/bankertoolbench-full-100--707cba99-59a7-47bd-bc4d-7f36212e99f3--cohere_north-mini-code_free--64286d7b60.json"
-          }
-        },
-        "evidence": [
-          ".tmp/official-benchmarks/bankertoolbench-repo/btb-data/tasks.jsonl",
-          "docs/eval/bankertoolbench/live-room/707cba99-59a7-47bd-bc4d-7f36212e99f3.json",
-          "docs/eval/fresh-room/FR-020/tasks/707cba99-59a7-47bd-bc4d-7f36212e99f3/latest.json"
-        ],
-        "blockers": [
-          "Existing BTB receipt is local live-browser only; rerun against https://noderoom.live."
-        ],
-        "attempts": 0
-      },
-      {
-        "schema": "proofloop-prod-proxy-longrun-attempt-v1",
-        "attemptId": "bankertoolbench-full-100--707cba99-59a7-47bd-bc4d-7f36212e99f3--nvidia_nemotron-3-ultra-550b-a55b_free--20fa6ae156",
-        "familyId": "bankertoolbench-full-100",
-        "taskId": "707cba99-59a7-47bd-bc4d-7f36212e99f3",
-        "modelId": "nvidia/nemotron-3-ultra-550b-a55b:free",
-        "title": "I am an investment banking analyst in the REGAL coverage group at XYZ bank. I'm covering Real Estate, Gaming and Lodging",
-        "status": "queued",
-        "adapterStatus": "prod_browser_available",
-        "realUserProdUiRequired": true,
-        "memoryModeAllowed": false,
-        "officialScoreClaim": false,
-        "estimatedCostUsd": 0,
-        "command": {
-          "shell": "npm run proofloop:live:btb",
-          "env": {
-            "BENCH_BASE_URL": "https://noderoom.live",
-            "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
-            "PLAYWRIGHT_REUSE_SERVER": "1",
-            "BENCH_AGENT_MODEL_MODE": "specific",
-            "BENCH_AGENT_MODEL_POLICY": "nvidia/nemotron-3-ultra-550b-a55b:free",
-            "PROOFLOOP_REAL_USER_MODE": "1",
-            "PROOFLOOP_FOCUS_MODE": "0",
-            "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-            "PROOFLOOP_RUN_ID": "prod-proxy-longrun-2026-07-05T04-29-50-942Z-bankertoolbench-full-100--707cba99-59a7-47bd-bc4d-7f36212e99f3--nvidia_nemotron-3-ultra-550b-a55b_free--20fa6ae156",
-            "BTB_LIVE_ROOM_E2E": "1",
-            "BTB_UI_BUNDLE_ROOT": ".tmp/official-benchmarks/bankertoolbench-repo/btb-data",
-            "BTB_UI_TASK_ID": "707cba99-59a7-47bd-bc4d-7f36212e99f3",
-            "BTB_UI_VERIFIER_COMMAND": "npm run benchmark:bankertoolbench:proof",
-            "BTB_LIVE_ROOM_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T04-29-50-942Z/receipts/bankertoolbench-full-100--707cba99-59a7-47bd-bc4d-7f36212e99f3--nvidia_nemotron-3-ultra-550b-a55b_free--20fa6ae156.json"
-          }
-        },
-        "evidence": [
-          ".tmp/official-benchmarks/bankertoolbench-repo/btb-data/tasks.jsonl",
-          "docs/eval/bankertoolbench/live-room/707cba99-59a7-47bd-bc4d-7f36212e99f3.json",
-          "docs/eval/fresh-room/FR-020/tasks/707cba99-59a7-47bd-bc4d-7f36212e99f3/latest.json"
-        ],
-        "blockers": [
-          "Existing BTB receipt is local live-browser only; rerun against https://noderoom.live."
-        ],
-        "attempts": 0
-      },
       {
         "schema": "proofloop-prod-proxy-longrun-attempt-v1",
         "attemptId": "spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d",
@@ -301,12 +148,35 @@
         "taskId": "102-20",
         "modelId": "cohere/north-mini-code:free",
         "title": "I need guidance with reformatting my Excel raw data using VBA. Specifically, I want to combine and sum up data from a co",
-        "status": "blocked_adapter",
-        "adapterStatus": "local_only",
+        "status": "queued",
+        "adapterStatus": "prod_browser_available",
         "realUserProdUiRequired": true,
         "memoryModeAllowed": false,
         "officialScoreClaim": false,
         "estimatedCostUsd": 0,
+        "command": {
+          "shell": "npm run proofloop:live:spreadsheetbench-v1",
+          "env": {
+            "BENCH_BASE_URL": "https://noderoom.live",
+            "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+            "PLAYWRIGHT_REUSE_SERVER": "1",
+            "PLAYWRIGHT_RETRIES": "0",
+            "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/receipts/playwright/spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d",
+            "BENCH_AGENT_MODEL_MODE": "specific",
+            "BENCH_AGENT_MODEL_POLICY": "cohere/north-mini-code:free",
+            "PROOFLOOP_REAL_USER_MODE": "1",
+            "PROOFLOOP_FOCUS_MODE": "0",
+            "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+            "PROOFLOOP_RUN_ID": "prod-proxy-longrun-2026-07-05T07-41-37-108Z-spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d",
+            "PROOFLOOP_CASE_ID": "spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d",
+            "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/receipts/fresh-room",
+            "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/receipts/spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d.json",
+            "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v1",
+            "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v1-912",
+            "SPREADSHEETBENCH_TASK_ID": "102-20",
+            "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/receipts/spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d.json"
+          }
+        },
         "evidence": [
           "docs/eval/official-benchmark-task-coverage.json",
           "docs/eval/spreadsheetbench-v1-912-stage.json",
@@ -317,8 +187,7 @@
           "docs/eval/spreadsheetbench-live-room-proof.json"
         ],
         "blockers": [
-          "Generic SpreadsheetBench official workbook upload -> agent edit -> export -> scorer browser adapter is not implemented for staged tasks.",
-          "Implement generic SpreadsheetBench V1 workbook upload -> NodeAgent edit -> export -> official scorer browser adapter."
+          "Existing SpreadsheetBench receipt is local live-browser only; rerun against https://noderoom.live."
         ],
         "attempts": 0
       },
@@ -329,12 +198,35 @@
         "taskId": "102-20",
         "modelId": "nvidia/nemotron-3-ultra-550b-a55b:free",
         "title": "I need guidance with reformatting my Excel raw data using VBA. Specifically, I want to combine and sum up data from a co",
-        "status": "blocked_adapter",
-        "adapterStatus": "local_only",
+        "status": "queued",
+        "adapterStatus": "prod_browser_available",
         "realUserProdUiRequired": true,
         "memoryModeAllowed": false,
         "officialScoreClaim": false,
         "estimatedCostUsd": 0,
+        "command": {
+          "shell": "npm run proofloop:live:spreadsheetbench-v1",
+          "env": {
+            "BENCH_BASE_URL": "https://noderoom.live",
+            "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+            "PLAYWRIGHT_REUSE_SERVER": "1",
+            "PLAYWRIGHT_RETRIES": "0",
+            "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/receipts/playwright/spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133",
+            "BENCH_AGENT_MODEL_MODE": "specific",
+            "BENCH_AGENT_MODEL_POLICY": "nvidia/nemotron-3-ultra-550b-a55b:free",
+            "PROOFLOOP_REAL_USER_MODE": "1",
+            "PROOFLOOP_FOCUS_MODE": "0",
+            "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+            "PROOFLOOP_RUN_ID": "prod-proxy-longrun-2026-07-05T07-41-37-108Z-spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133",
+            "PROOFLOOP_CASE_ID": "spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133",
+            "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/receipts/fresh-room",
+            "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/receipts/spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133.json",
+            "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v1",
+            "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v1-912",
+            "SPREADSHEETBENCH_TASK_ID": "102-20",
+            "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/prod-proxy-longrun-2026-07-05T07-41-37-108Z/receipts/spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133.json"
+          }
+        },
         "evidence": [
           "docs/eval/official-benchmark-task-coverage.json",
           "docs/eval/spreadsheetbench-v1-912-stage.json",
@@ -345,8 +237,53 @@
           "docs/eval/spreadsheetbench-live-room-proof.json"
         ],
         "blockers": [
-          "Generic SpreadsheetBench official workbook upload -> agent edit -> export -> scorer browser adapter is not implemented for staged tasks.",
-          "Implement generic SpreadsheetBench V1 workbook upload -> NodeAgent edit -> export -> official scorer browser adapter."
+          "Existing SpreadsheetBench receipt is local live-browser only; rerun against https://noderoom.live."
+        ],
+        "attempts": 0
+      },
+      {
+        "schema": "proofloop-prod-proxy-longrun-attempt-v1",
+        "attemptId": "proximitty-underwriting-pr0--proximitty-intake--cohere_north-mini-code_free--22905d0536",
+        "familyId": "proximitty-underwriting-pr0",
+        "taskId": "proximitty-intake",
+        "modelId": "cohere/north-mini-code:free",
+        "title": "proximitty-intake.spec.ts",
+        "status": "blocked_adapter",
+        "adapterStatus": "local_only",
+        "realUserProdUiRequired": true,
+        "memoryModeAllowed": false,
+        "officialScoreClaim": false,
+        "estimatedCostUsd": 0,
+        "evidence": [
+          "proofloop/scenarios/proximitty-intake.spec.ts",
+          ".proofloop/runs/latest/run-result.json"
+        ],
+        "blockers": [
+          "Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios.",
+          "Promote Proximitty deterministic scenarios into a prod browser underwriting memo workflow with model selection and receipts."
+        ],
+        "attempts": 0
+      },
+      {
+        "schema": "proofloop-prod-proxy-longrun-attempt-v1",
+        "attemptId": "proximitty-underwriting-pr0--proximitty-intake--nvidia_nemotron-3-ultra-550b-a55b_free--bc9c929b55",
+        "familyId": "proximitty-underwriting-pr0",
+        "taskId": "proximitty-intake",
+        "modelId": "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "title": "proximitty-intake.spec.ts",
+        "status": "blocked_adapter",
+        "adapterStatus": "local_only",
+        "realUserProdUiRequired": true,
+        "memoryModeAllowed": false,
+        "officialScoreClaim": false,
+        "estimatedCostUsd": 0,
+        "evidence": [
+          "proofloop/scenarios/proximitty-intake.spec.ts",
+          ".proofloop/runs/latest/run-result.json"
+        ],
+        "blockers": [
+          "Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios.",
+          "Promote Proximitty deterministic scenarios into a prod browser underwriting memo workflow with model selection and receipts."
         ],
         "attempts": 0
       }

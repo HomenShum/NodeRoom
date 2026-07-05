@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   buildProofloopProdProxyLongRunPlan,
+  loadProofloopProdProxyLongRunPlanByRunId,
   renderProofloopProdProxyLongRunMarkdown,
   writeProofloopProdProxyLongRunArtifacts,
 } from "../src/eval/proofloopProdProxyLongRun";
@@ -20,25 +21,23 @@ describe("ProofLoop prod proxy long-run queue", () => {
     expect(plan.summary.modelCount).toBe(4);
     expect(plan.summary.totalAttempts).toBe(5416);
     expect(plan.summary.passedExistingAttempts).toBeGreaterThanOrEqual(10);
-    expect(plan.summary.queuedAttempts).toBe(402);
-    expect(plan.summary.blockedAdapterAttempts).toBe(5004);
-    expect(plan.summary.blockedBudgetAttempts).toBe(0);
+    expect(plan.summary.queuedAttempts).toBe(3501);
+    expect(plan.summary.blockedAdapterAttempts).toBe(40);
+    expect(plan.summary.blockedBudgetAttempts).toBe(1865);
     expect(plan.budget.runnableQueueFitsBudget).toBe(true);
     expect(plan.budget.fullCurrentModelMatrixFitsBudget).toBe(false);
   });
 
-  it("keeps SpreadsheetBench full suites blocked until generic prod browser adapters exist", () => {
+  it("queues SpreadsheetBench full suites through the generic prod browser adapters", () => {
     const plan = buildProofloopProdProxyLongRunPlan({ runId: "test-longrun" });
-    const v1 = plan.adapterGaps.find((gap) => gap.familyId === "spreadsheetbench-v1-full-912");
-    const v2 = plan.adapterGaps.find((gap) => gap.familyId === "spreadsheetbench-v2-full-321");
+    const v1 = plan.attempts.find((attempt) => attempt.familyId === "spreadsheetbench-v1-full-912" && attempt.status === "queued");
+    const v2 = plan.attempts.find((attempt) => attempt.familyId === "spreadsheetbench-v2-full-321" && attempt.status === "queued");
 
-    expect(v1?.attemptCount).toBe(912 * 4);
-    expect(v1?.adapterVersion).toBe("0.1.0");
-    expect(v1?.adapterPlanPath).toBe("docs/eval/proofloop-prod-browser-adapters.json");
-    expect(v1?.requiredAdapter).toBe("spreadsheetbench-v1-official-workbook-prod-browser");
-    expect(v1?.firstBlocker).toContain("Generic SpreadsheetBench official workbook upload");
-    expect(v2?.attemptCount).toBe(321 * 4);
-    expect(v2?.requiredAdapter).toBe("spreadsheetbench-v2-workflow-chart-prod-browser");
+    expect(v1?.command?.shell).toBe("npm run proofloop:live:spreadsheetbench-v1");
+    expect(v1?.command?.env.SPREADSHEETBENCH_TRACK).toBe("spreadsheetbench-v1");
+    expect(v1?.command?.env.SPREADSHEETBENCH_LIVE_PROOF_PATH).toContain(".proofloop/prod-proxy-longrun/test-longrun/receipts/");
+    expect(v2?.command?.shell).toBe("npm run proofloop:live:spreadsheetbench-v2");
+    expect(v2?.command?.env.SPREADSHEETBENCH_TRACK).toBe("spreadsheetbench-v2");
   });
 
   it("plans free OpenRouter model probes without paid-spend assumptions", () => {
@@ -50,8 +49,8 @@ describe("ProofLoop prod proxy long-run queue", () => {
 
     expect(plan.summary.modelCount).toBe(2);
     expect(plan.summary.totalAttempts).toBe(2708);
-    expect(plan.summary.queuedAttempts).toBe(206);
-    expect(plan.summary.blockedAdapterAttempts).toBe(2502);
+    expect(plan.summary.queuedAttempts).toBe(2688);
+    expect(plan.summary.blockedAdapterAttempts).toBe(20);
     expect(plan.budget.queuedEstimatedNewSpendUsd).toBe(0);
     expect(plan.budget.fullMatrixEstimatedUsd).toBe(0);
     expect(plan.modelCosts.every((row) => row.estimatedCostPerAttemptUsd === 0)).toBe(true);
@@ -65,9 +64,25 @@ describe("ProofLoop prod proxy long-run queue", () => {
     expect(btb?.command?.shell).toBe("npm run proofloop:live:btb");
     expect(btb?.command?.env.PROOFLOOP_REAL_USER_MODE).toBe("1");
     expect(btb?.command?.env.PROOFLOOP_FOCUS_MODE).toBe("0");
+    expect(btb?.command?.env.PLAYWRIGHT_RETRIES).toBe("0");
+    expect(btb?.command?.env.PLAYWRIGHT_OUTPUT_DIR).toContain(".proofloop/prod-proxy-longrun/test-longrun/receipts/playwright/");
     expect(btb?.memoryModeAllowed).toBe(false);
     expect(finch?.command?.shell).toContain("--real-user");
     expect(finch?.command?.shell).toContain("--model");
+  });
+
+  it("queues accounting and Notion through the shared live-browser proof spec with memory profile disabled", () => {
+    const plan = buildProofloopProdProxyLongRunPlan({ runId: "test-longrun" });
+    const accounting = plan.attempts.find((attempt) => attempt.familyId === "accounting-live-proofloop" && attempt.status === "queued");
+    const notion = plan.attempts.find((attempt) => attempt.familyId === "notion-live-proofloop" && attempt.status === "queued");
+
+    expect(accounting?.command?.shell).toBe("npm run proofloop:live:accounting:browser");
+    expect(accounting?.command?.env.PROOFLOOP_TASKS_JSON).toBe("proofloop/accounting/live.accounting.config.json");
+    expect(accounting?.command?.env.PROOFLOOP_NODEAGENT_RUNTIME_PROFILE).toBe("");
+    expect(accounting?.command?.env.PROOFLOOP_SUITE_PROOF_PATH).toContain(".proofloop/prod-proxy-longrun/test-longrun/receipts/");
+    expect(notion?.command?.shell).toBe("npm run proofloop:live:notion:browser");
+    expect(notion?.command?.env.PROOFLOOP_TASKS_JSON).toBe("proofloop/notion/live.notion.config.json");
+    expect(notion?.memoryModeAllowed).toBe(false);
   });
 
   it("writes resumable state, queue, dashboard, budget, and gap artifacts", () => {
@@ -93,6 +108,21 @@ describe("ProofLoop prod proxy long-run queue", () => {
     expect(state.schema).toBe("proofloop-prod-proxy-longrun-v1");
     expect(queue).toHaveLength(5416);
     expect(dashboard.schema).toBe("proofloop-prod-proxy-longrun-dashboard-v1");
-    expect(markdown).toContain("Blocked by missing browser adapters: 5004");
+    expect(markdown).toContain("Blocked by missing browser adapters: 40");
+    expect(markdown).toContain("Blocked by budget: 1865");
+  });
+
+  it("loads a specific long-run state by run id for deterministic resume", () => {
+    const dir = mkdtempSync(join(tmpdir(), "proofloop-longrun-runid-"));
+    const plan = buildProofloopProdProxyLongRunPlan({
+      root: process.cwd(),
+      generatedAt: "2026-07-05T00:00:00.000Z",
+      runId: "specific-resume-target",
+    });
+
+    writeProofloopProdProxyLongRunArtifacts({ root: dir, plan });
+
+    expect(loadProofloopProdProxyLongRunPlanByRunId("specific-resume-target", dir)?.runId).toBe("specific-resume-target");
+    expect(loadProofloopProdProxyLongRunPlanByRunId("../specific-resume-target", dir)).toBeUndefined();
   });
 });

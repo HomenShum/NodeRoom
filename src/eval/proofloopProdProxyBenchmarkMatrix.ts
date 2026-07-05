@@ -147,11 +147,27 @@ export function buildProofloopProdProxyBenchmarkMatrix(args: {
   const proxySweep = readJson<ProxyModelSweep>(root, "docs/eval/proofloop-proxy-model-sweep.json");
   const models = args.models?.length ? args.models : modelIdsFromSweep(proxySweep);
   const families = [
-    spreadsheetFamily(root, official, "spreadsheetbench-v1-full-912", "SpreadsheetBench V1 full 912", ".tmp/official-benchmarks/staged-v1-912"),
-    spreadsheetFamily(root, official, "spreadsheetbench-v2-full-321", "SpreadsheetBench V2 full 321", ".tmp/official-benchmarks/staged-v2-full"),
+    spreadsheetFamily(root, official, {
+      id: "spreadsheetbench-v1-full-912",
+      title: "SpreadsheetBench V1 full 912",
+      track: "spreadsheetbench-v1",
+      stageRoot: ".tmp/official-benchmarks/staged-v1-912",
+      command: "npm run proofloop:live:spreadsheetbench-v1",
+      baseUrl,
+      models,
+    }),
+    spreadsheetFamily(root, official, {
+      id: "spreadsheetbench-v2-full-321",
+      title: "SpreadsheetBench V2 full 321",
+      track: "spreadsheetbench-v2",
+      stageRoot: ".tmp/official-benchmarks/staged-v2-full",
+      command: "npm run proofloop:live:spreadsheetbench-v2",
+      baseUrl,
+      models,
+    }),
     bankerToolBenchFamily(root, official, baseUrl, models),
-    accountingFamily(root),
-    notionFamily(root),
+    accountingFamily(root, baseUrl),
+    notionFamily(root, baseUrl),
     proximittyFamily(root),
     ...externalAdapterFamilies(baseUrl, models, proxySweep),
     internalFamily(official),
@@ -284,45 +300,68 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 `;
 }
 
-function spreadsheetFamily(root: string, official: OfficialCoverageReport | undefined, id: string, title: string, stageRoot: string): ProdProxyFamily {
-  const track = officialTrack(official, id);
-  const taskDirs = findStagedTaskDirs(root, stageRoot);
-  const localProof = id === "spreadsheetbench-v1-full-912"
+function spreadsheetFamily(root: string, official: OfficialCoverageReport | undefined, args: {
+  id: string;
+  title: string;
+  track: "spreadsheetbench-v1" | "spreadsheetbench-v2";
+  stageRoot: string;
+  command: string;
+  baseUrl: string;
+  models: string[];
+}): ProdProxyFamily {
+  const track = officialTrack(official, args.id);
+  const taskDirs = findStagedTaskDirs(root, args.stageRoot);
+  const localProof = args.id === "spreadsheetbench-v1-full-912"
     ? readJson<LiveReceipt>(root, "docs/eval/spreadsheetbench-live-room-proof.json")
     : undefined;
-  const blocker = "Generic SpreadsheetBench official workbook upload -> agent edit -> export -> scorer browser adapter is not implemented for staged tasks.";
+  const model = args.models[0] ?? DEFAULT_MODELS[0];
   const taskCount = taskDirs.length || track?.officialExpectedTasks || 0;
   const tasks = Array.from({ length: taskCount }, (_, index) => {
     const taskDir = taskDirs[index];
     const manifest = taskDir
-      ? readJson<{ taskId?: string; instruction?: string; inputFiles?: string[] }>(root, join(stageRoot, "tasks", taskDir, "agent", "task.json"))
+      ? readJson<{ taskId?: string; instruction?: string; inputFiles?: string[] }>(root, join(args.stageRoot, "tasks", taskDir, "agent", "task.json"))
       : undefined;
-    const taskId = manifest?.taskId ?? taskDir ?? `${id}-task-${String(index + 1).padStart(3, "0")}`;
+    const taskId = manifest?.taskId ?? taskDir ?? `${args.id}-task-${String(index + 1).padStart(3, "0")}`;
     const isLocalProofTask = index === 0 && localProof?.passed === true && localProof.memoryMode === false && !isProdUrl(localProof.baseUrl);
     return {
-      familyId: id,
+      familyId: args.id,
       taskId,
-      title: manifest?.instruction?.slice(0, 120) || `${track?.title ?? title} task ${index + 1}`,
-      status: isLocalProofTask ? "local_live_browser_only" as const : "blocked_missing_prod_browser_adapter" as const,
+      title: manifest?.instruction?.slice(0, 120) || `${track?.title ?? args.title} task ${index + 1}`,
+      status: "ready_for_prod_browser_run" as const,
       prodLiveBrowserPassed: false,
       localLiveBrowserOnly: isLocalProofTask,
       runner: {
-        available: false,
-        kind: "missing" as const,
+        available: true,
+        kind: "playwright_prod_browser" as const,
+        command: args.command,
+        env: {
+          BENCH_BASE_URL: args.baseUrl,
+          PLAYWRIGHT_BASE_URL: args.baseUrl,
+          PLAYWRIGHT_REUSE_SERVER: "1",
+          SPREADSHEETBENCH_TRACK: args.track,
+          SPREADSHEETBENCH_STAGE_ROOT: args.stageRoot,
+          SPREADSHEETBENCH_TASK_ID: taskId,
+          BENCH_AGENT_MODEL_MODE: "specific",
+          BENCH_AGENT_MODEL_POLICY: model,
+          PROOFLOOP_REAL_USER_MODE: "1",
+          PROOFLOOP_NODEAGENT_RUNTIME_PROFILE: "",
+        },
       },
       evidence: uniqueStrings([
         "docs/eval/official-benchmark-task-coverage.json",
         ...(track?.evidence ?? []),
         ...(taskDir ? [
-          join(stageRoot, "tasks", taskDir, "agent", "task.json").replace(/\\/g, "/"),
-          join(stageRoot, "tasks", taskDir, "evaluator", "evaluator.json").replace(/\\/g, "/"),
+          join(args.stageRoot, "tasks", taskDir, "agent", "task.json").replace(/\\/g, "/"),
+          join(args.stageRoot, "tasks", taskDir, "evaluator", "evaluator.json").replace(/\\/g, "/"),
         ] : []),
         ...(isLocalProofTask ? ["docs/eval/spreadsheetbench-live-room-proof.json"] : []),
       ]),
-      blockers: [blocker],
+      blockers: isLocalProofTask
+        ? ["Existing SpreadsheetBench receipt is local live-browser only; rerun against https://noderoom.live."]
+        : ["SpreadsheetBench task is ready for the generic prod browser workbook adapter but lacks a passing prod receipt."],
     };
   });
-  return familyFromTasks(id, track?.title ?? title, tasks);
+  return familyFromTasks(args.id, track?.title ?? args.title, tasks);
 }
 
 function bankerToolBenchFamily(root: string, official: OfficialCoverageReport | undefined, baseUrl: string, models: string[]): ProdProxyFamily {
@@ -394,21 +433,25 @@ function bankerToolBenchFamily(root: string, official: OfficialCoverageReport | 
   return familyFromTasks("bankertoolbench-full-100", track?.title ?? "BankerToolBench full 100", tasks);
 }
 
-function accountingFamily(root: string): ProdProxyFamily {
+function accountingFamily(root: string, baseUrl: string): ProdProxyFamily {
   return configBackedFamily(root, {
     id: "accounting-live-proofloop",
     title: "Accounting live proof-loop",
     configPath: "proofloop/accounting/live.accounting.config.json",
-    blocker: "Current accounting live runner is Convex HTTP, not a prod browser room model matrix.",
+    command: "npm run proofloop:live:accounting:browser",
+    baseUrl,
+    blocker: "Accounting live proof-loop has no passing prod live-browser receipt for this task/model yet.",
   });
 }
 
-function notionFamily(root: string): ProdProxyFamily {
+function notionFamily(root: string, baseUrl: string): ProdProxyFamily {
   return configBackedFamily(root, {
     id: "notion-live-proofloop",
     title: "Notion SDR/BDR live proof-loop",
     configPath: "proofloop/notion/live.notion.config.json",
-    blocker: "Current Notion live runner is Convex HTTP, not a prod browser room model matrix.",
+    command: "npm run proofloop:live:notion:browser",
+    baseUrl,
+    blocker: "Notion live proof-loop has no passing prod live-browser receipt for this task/model yet.",
   });
 }
 
@@ -497,22 +540,48 @@ function internalFamily(official: OfficialCoverageReport | undefined): ProdProxy
   return familyFromTasks("noderoom-multi-user-conflict", track?.title ?? "NodeRoom multi-user conflict suite", tasks);
 }
 
-function configBackedFamily(root: string, args: { id: string; title: string; configPath: string; blocker: string }): ProdProxyFamily {
+function configBackedFamily(root: string, args: {
+  id: string;
+  title: string;
+  configPath: string;
+  blocker: string;
+  command?: string;
+  baseUrl?: string;
+}): ProdProxyFamily {
   const config = readJson<LiveConfig>(root, args.configPath);
-  const tasks = (config?.tasks ?? []).map((task, index) => ({
-    familyId: args.id,
-    taskId: task.id ?? `${args.id}-${index + 1}`,
-    title: task.title ?? task.name ?? task.id ?? args.title,
-    status: "blocked_non_browser_runner" as const,
-    prodLiveBrowserPassed: false,
-    localLiveBrowserOnly: false,
-    runner: {
-      available: false,
-      kind: "http_or_deterministic_only" as const,
-    },
-    evidence: [args.configPath],
-    blockers: [args.blocker],
-  }));
+  const runnable = !!args.command;
+  const tasks = (config?.tasks ?? []).map((task, index) => {
+    const taskId = task.id ?? `${args.id}-${index + 1}`;
+    return {
+      familyId: args.id,
+      taskId,
+      title: task.title ?? task.name ?? task.id ?? args.title,
+      status: runnable ? "ready_for_prod_browser_run" as const : "blocked_non_browser_runner" as const,
+      prodLiveBrowserPassed: false,
+      localLiveBrowserOnly: false,
+      runner: {
+        available: runnable,
+        kind: runnable ? "playwright_prod_browser" as const : "http_or_deterministic_only" as const,
+        ...(args.command ? { command: args.command } : {}),
+        ...(args.command ? {
+          env: {
+            BENCH_BASE_URL: args.baseUrl ?? "https://noderoom.live",
+            PLAYWRIGHT_BASE_URL: args.baseUrl ?? "https://noderoom.live",
+            PLAYWRIGHT_REUSE_SERVER: "1",
+            PROOFLOOP_TASKS_JSON: args.configPath,
+            PROOFLOOP_TASK_IDS: taskId,
+            PROOFLOOP_REAL_USER_MODE: "1",
+            PROOFLOOP_FOCUS_MODE: "0",
+            PROOFLOOP_NODEAGENT_RUNTIME_PROFILE: "",
+          },
+        } : {}),
+      },
+      evidence: args.command
+        ? [args.configPath, "proofloop/live-browser-proof.spec.ts", "scripts/proofloop-live-playwright.ts"]
+        : [args.configPath],
+      blockers: [args.blocker],
+    };
+  });
   return familyFromTasks(args.id, args.title, tasks);
 }
 

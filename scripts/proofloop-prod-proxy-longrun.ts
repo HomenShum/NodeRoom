@@ -2,6 +2,7 @@ import {
   buildProofloopProdProxyLongRunPlan,
   executeProofloopProdProxyLongRun,
   loadLatestProofloopProdProxyLongRunPlan,
+  loadProofloopProdProxyLongRunPlanByRunId,
   renderProofloopProdProxyLongRunMarkdown,
   writeProofloopProdProxyLongRunArtifacts,
 } from "../src/eval/proofloopProdProxyLongRun";
@@ -28,15 +29,25 @@ const freeModelLimit = numberOption("--free-model-limit", 4);
 const resolvedModels = await resolveModels();
 
 if (command === "status") {
-  const latest = loadLatestProofloopProdProxyLongRunPlan();
+  const latest = runId ? loadProofloopProdProxyLongRunPlanByRunId(runId) : loadLatestProofloopProdProxyLongRunPlan();
   if (!latest) {
-    console.error("proofloop prod proxy longrun: no local run state found.");
+    console.error(runId
+      ? `proofloop prod proxy longrun: no local run state found for ${runId}.`
+      : "proofloop prod proxy longrun: no local run state found.");
     process.exitCode = 2;
   } else {
     console.log(renderStatus(latest));
   }
 } else if (command === "run" || command === "resume" || command === "plan") {
-  const existing = command === "resume" ? loadLatestProofloopProdProxyLongRunPlan() : undefined;
+  const existing = command === "resume"
+    ? runId
+      ? loadProofloopProdProxyLongRunPlanByRunId(runId)
+      : loadLatestProofloopProdProxyLongRunPlan()
+    : undefined;
+  if (command === "resume" && runId && !existing) {
+    console.error(`proofloop prod proxy longrun: no local run state found for ${runId}.`);
+    process.exit(2);
+  }
   const plan = existing ?? buildProofloopProdProxyLongRunPlan({
     generatedAt,
     runId,

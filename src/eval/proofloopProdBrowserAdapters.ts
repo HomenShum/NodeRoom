@@ -43,7 +43,7 @@ export type ProofloopProdBrowserAdapterLedger = {
   adapters: ProofloopProdBrowserAdapterSpec[];
 };
 
-const HARNESS_VERSION = "prod-browser-adapters-2026-07-05.1";
+const HARNESS_VERSION = "prod-browser-adapters-2026-07-05.3";
 
 export function buildProofloopProdBrowserAdapterLedger(args: {
   root?: string;
@@ -63,19 +63,21 @@ export function buildProofloopProdBrowserAdapterLedger(args: {
       id: "accounting-live-config-to-prod-browser-room",
       sourceBenchmark: "Accounting ProofLoop product suite",
       taskLoader: "proofloop/accounting/live.accounting.config.json",
-      browserScenario: "proofloop/benchmarks/accounting/live-room-scenario.spec.ts",
+      browserScenario: "proofloop/live-browser-proof.spec.ts",
       commandShape: "npm run proofloop:live:accounting:browser -- --prod --task-id <taskId> --model <modelId> --real-user",
       scorerBoundary: "Product proof-loop suite; no official accounting benchmark score is claimed unless an upstream scorer is imported.",
-      blocker: "Convert the current Convex HTTP live runner into a fresh-room browser scenario with model selection, trace receipts, and memory mode off.",
+      ready: true,
+      blocker: "No passing prod receipts are recorded for every accounting task/model yet; run the long-run queue to replace this with score evidence.",
     }),
     configBackedBrowserAdapter(families.get("notion-live-proofloop"), matrix.summary.modelCount, {
       id: "notion-live-config-to-prod-browser-room",
       sourceBenchmark: "Notion SDR/BDR ProofLoop product suite",
       taskLoader: "proofloop/notion/live.notion.config.json",
-      browserScenario: "proofloop/benchmarks/notion/live-room-scenario.spec.ts",
+      browserScenario: "proofloop/live-browser-proof.spec.ts",
       commandShape: "npm run proofloop:live:notion:browser -- --prod --task-id <taskId> --model <modelId> --real-user",
       scorerBoundary: "Product workflow suite; no official public benchmark score is claimed.",
-      blocker: "Convert the current Convex HTTP live runner into a fresh-room browser scenario with model selection, trace receipts, and memory mode off.",
+      ready: true,
+      blocker: "No passing prod receipts are recorded for every Notion task/model yet; run the long-run queue to replace this with score evidence.",
     }),
     configBackedBrowserAdapter(families.get("proximitty-underwriting-pr0"), matrix.summary.modelCount, {
       id: "proximitty-underwriting-prod-browser-room",
@@ -159,23 +161,24 @@ function spreadsheetV1Adapter(family: ProdProxyFamily | undefined, modelCount: n
   return {
     id: "spreadsheetbench-v1-official-workbook-prod-browser",
     familyId: "spreadsheetbench-v1-full-912",
-    version: "0.1.0",
-    status: "contract_scaffolded",
-    browserScenarioStatus: "missing",
+    version: "0.2.0",
+    status: "browser_scenario_ready",
+    browserScenarioStatus: "ready",
     taskCount: family?.taskCount ?? 912,
     attemptCountAtCurrentMatrix: (family?.taskCount ?? 912) * modelCount,
     sourceBenchmark: "SpreadsheetBench V1 full 912",
     taskLoader: ".tmp/official-benchmarks/staged-v1-912/tasks/<taskId>/agent/task.json",
-    browserScenario: "proofloop/benchmarks/spreadsheetbench-v1/live-room-scenario.spec.ts",
-    commandShape: "npm run proofloop:live:spreadsheetbench-v1 -- --prod --task-id <taskId> --model <modelId> --real-user",
-    existingSmoke: "e2e/benchmark-ui-spreadsheetbench.spec.ts proves one fixed nb-01 style browser path, not the generic 912-task adapter.",
+    browserScenario: "e2e/benchmark-ui-spreadsheetbench-generic.spec.ts",
+    commandShape: "SPREADSHEETBENCH_TASK_ID=<taskId> BENCH_AGENT_MODEL_POLICY=<modelId> npm run proofloop:live:spreadsheetbench-v1",
+    existingSmoke: "e2e/benchmark-ui-spreadsheetbench.spec.ts proves one fixed nb-01 style browser path; e2e/benchmark-ui-spreadsheetbench-generic.spec.ts is the generic staged-task adapter.",
     requiredArtifacts: commonArtifacts("spreadsheetbench-v1-official-score.json", "exported-workbook.xlsx"),
     scorerBoundary: "Official workbook scorer/golden metadata must remain evaluator-only until after NodeRoom exports candidate output.",
     blockers: [
-      "Implement generic task selection, official workbook upload, agent edit, workbook export/download, and official scorer handoff for every staged V1 task.",
+      "No passing prod receipts are recorded for every staged V1 task/model yet; run the long-run queue to replace this with score evidence.",
     ],
     changelog: [
       "2026-07-05.1: contract created; existing one-task smoke is explicitly not promoted to the full 912-task adapter.",
+      "2026-07-05.2: generic staged-task browser scenario added; tasks are runnable but not scored until receipts exist.",
     ],
   };
 }
@@ -184,23 +187,24 @@ function spreadsheetV2Adapter(family: ProdProxyFamily | undefined, modelCount: n
   return {
     id: "spreadsheetbench-v2-workflow-chart-prod-browser",
     familyId: "spreadsheetbench-v2-full-321",
-    version: "0.1.0",
-    status: "contract_scaffolded",
-    browserScenarioStatus: "missing",
+    version: "0.2.0",
+    status: "browser_scenario_ready",
+    browserScenarioStatus: "ready",
     taskCount: family?.taskCount ?? 321,
     attemptCountAtCurrentMatrix: (family?.taskCount ?? 321) * modelCount,
     sourceBenchmark: "SpreadsheetBench V2 full 321",
     taskLoader: ".tmp/official-benchmarks/staged-v2-full/tasks/<taskId>/agent/task.json",
-    browserScenario: "proofloop/benchmarks/spreadsheetbench-v2/live-room-scenario.spec.ts",
-    commandShape: "npm run proofloop:live:spreadsheetbench-v2 -- --prod --task-id <taskId> --model <modelId> --real-user",
-    existingSmoke: "e2e/benchmark-ui-spreadsheetbench-v2.spec.ts proves one synthetic debugging path, not the generic 321-task official bundle adapter.",
+    browserScenario: "e2e/benchmark-ui-spreadsheetbench-generic.spec.ts",
+    commandShape: "SPREADSHEETBENCH_TASK_ID=<taskId> BENCH_AGENT_MODEL_POLICY=<modelId> npm run proofloop:live:spreadsheetbench-v2",
+    existingSmoke: "e2e/benchmark-ui-spreadsheetbench-v2.spec.ts proves one synthetic debugging path; e2e/benchmark-ui-spreadsheetbench-generic.spec.ts is the generic staged-task adapter.",
     requiredArtifacts: commonArtifacts("spreadsheetbench-v2-official-score.json", "exported-workbook.xlsx", "chart-visual-grade.json"),
     scorerBoundary: "Workbook/static scorer and rendered/VLM chart grading must run after candidate export; chart rubrics stay evaluator-only.",
     blockers: [
-      "Implement generic V2 task selection, workbook/chart import, agent repair, workbook export, chart render capture, and official/static scorer handoff.",
+      "No passing prod receipts are recorded for every staged V2 task/model yet; run the long-run queue to replace this with score evidence.",
     ],
     changelog: [
       "2026-07-05.1: contract created; existing synthetic V2 smoke remains only an adapter seed.",
+      "2026-07-05.2: generic staged-task browser scenario added; tasks are runnable but not scored until receipts exist.",
     ],
   };
 }
@@ -216,14 +220,16 @@ function configBackedBrowserAdapter(
     commandShape: string;
     scorerBoundary: string;
     blocker: string;
+    ready?: boolean;
   },
 ): ProofloopProdBrowserAdapterSpec {
+  const ready = args.ready === true;
   return {
     id: args.id,
     familyId: family?.id ?? args.id,
-    version: "0.1.0",
-    status: "contract_scaffolded",
-    browserScenarioStatus: "missing",
+    version: ready ? "0.2.0" : "0.1.0",
+    status: ready ? "browser_scenario_ready" : "contract_scaffolded",
+    browserScenarioStatus: ready ? "ready" : "missing",
     taskCount: family?.taskCount ?? 0,
     attemptCountAtCurrentMatrix: (family?.taskCount ?? 0) * modelCount,
     sourceBenchmark: args.sourceBenchmark,
@@ -233,9 +239,14 @@ function configBackedBrowserAdapter(
     requiredArtifacts: commonArtifacts(`${args.id}-scorecard.json`),
     scorerBoundary: args.scorerBoundary,
     blockers: [args.blocker],
-    changelog: [
-      "2026-07-05.1: contract created; current non-browser runner remains evidence but not prod real-user proof.",
-    ],
+    changelog: ready
+      ? [
+        "2026-07-05.1: contract created; current non-browser runner remains evidence but not prod real-user proof.",
+        "2026-07-05.3: live-browser-proof spec promoted as the real-user browser scenario with benchmark runtime profile disabled.",
+      ]
+      : [
+        "2026-07-05.1: contract created; current non-browser runner remains evidence but not prod real-user proof.",
+      ],
   };
 }
 

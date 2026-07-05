@@ -56,8 +56,11 @@ const TASKS_JSON = process.env.PROOFLOOP_TASKS_JSON ?? "proofloop/accounting/liv
 const FRESH_PROOF_CASE_ID = process.env.PROOFLOOP_CASE_ID ?? "PL-LIVE";
 const FRESH_PROOF_ROOT = process.env.PROOFLOOP_FRESH_ROOM_ROOT ?? "docs/eval/fresh-room";
 const SUITE_PROOF_PATH = process.env.PROOFLOOP_SUITE_PROOF_PATH ?? "docs/eval/proofloop-live-room-proof.json";
+const REQUIRE_FOCUS_MODE = process.env.PROOFLOOP_FOCUS_MODE !== "0";
 const AGENT_MODEL_MODE = process.env.BENCH_AGENT_MODEL_MODE ?? process.env.PROOFLOOP_AGENT_MODEL_MODE ?? "specific";
 const AGENT_MODEL_POLICY = process.env.BENCH_AGENT_MODEL_POLICY ?? process.env.PROOFLOOP_AGENT_MODEL_POLICY ?? "z-ai/glm-5.2";
+const NODEAGENT_RUNTIME_PROFILE = process.env.PROOFLOOP_NODEAGENT_RUNTIME_PROFILE
+  ?? (process.env.PROOFLOOP_REAL_USER_MODE === "1" ? "" : "benchmark_completion");
 const TASK_ID_FILTER = parseProofloopTaskIds(process.env.PROOFLOOP_TASK_IDS);
 const FRESH_ROOM_PER_TASK = process.env.PROOFLOOP_FRESH_ROOM_PER_TASK !== "0";
 
@@ -126,10 +129,16 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
   const pageErrors: string[] = [];
   page.on("pageerror", (error) => pageErrors.push(String(error.message ?? error)));
 
-  await enableFocusModeForTest(page);
-  await page.addInitScript(() => {
-    try { window.localStorage?.setItem("noderoom.nodeagentRuntimeProfile", "benchmark_completion"); } catch { /* opaque storage in some frames */ }
-  });
+  if (REQUIRE_FOCUS_MODE) await enableFocusModeForTest(page);
+  await page.addInitScript((runtimeProfile) => {
+    try {
+      if (runtimeProfile) {
+        window.localStorage?.setItem("noderoom.nodeagentRuntimeProfile", runtimeProfile);
+      } else {
+        window.localStorage?.removeItem("noderoom.nodeagentRuntimeProfile");
+      }
+    } catch { /* opaque storage in some frames */ }
+  }, NODEAGENT_RUNTIME_PROFILE);
 
   await createFreshStarterRoom(page);
   console.log(`[proofloop-live] room created: ${page.url()}`);
@@ -137,12 +146,14 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
     await installCockpit(page, { suite: "live-browser", baseUrl: BASE });
     await emitCockpitEvent(page, { type: "run_start", message: `run ${RUN_ID} · ${tasks.length} tasks` }, COCKPIT_EVENTS_PATH);
   }
-  await expectFocusModeOn(page);
   await emitCockpitEvent(page, { type: "gate_pass", gate: "fresh_room_join" }, COCKPIT_EVENTS_PATH);
-  await openSheetSurfaceForFocusOverlay(page, tasks[0]?.name.includes("Runway") ? "Runway" : "Q3 variance");
-  await expectAttentionOverlayMounted(page);
-  await emitCockpitEvent(page, { type: "gate_pass", gate: "focus_mode_enabled" }, COCKPIT_EVENTS_PATH);
-  await emitCockpitEvent(page, { type: "gate_pass", gate: "focus_box_or_attention_overlay" }, COCKPIT_EVENTS_PATH);
+  if (REQUIRE_FOCUS_MODE) {
+    await expectFocusModeOn(page);
+    await openSheetSurfaceForFocusOverlay(page, tasks[0]?.name.includes("Runway") ? "Runway" : "Q3 variance");
+    await expectAttentionOverlayMounted(page);
+    await emitCockpitEvent(page, { type: "gate_pass", gate: "focus_mode_enabled" }, COCKPIT_EVENTS_PATH);
+    await emitCockpitEvent(page, { type: "gate_pass", gate: "focus_box_or_attention_overlay" }, COCKPIT_EVENTS_PATH);
+  }
   await selectAgentRoute(page);
 
   let suiteRoomUrl = page.url();
@@ -156,12 +167,14 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       suiteRoomUrl = page.url();
       console.log(`[proofloop-live] room created: ${suiteRoomUrl}`);
       if (COCKPIT_ENABLED) await installCockpit(page, { suite: "live-browser", baseUrl: BASE });
-      await expectFocusModeOn(page);
       await emitCockpitEvent(page, { type: "gate_pass", gate: "fresh_room_join" }, COCKPIT_EVENTS_PATH);
-      await openSheetSurfaceForFocusOverlay(page, task.name.includes("Runway") ? "Runway" : "Q3 variance");
-      await expectAttentionOverlayMounted(page);
-      await emitCockpitEvent(page, { type: "gate_pass", gate: "focus_mode_enabled" }, COCKPIT_EVENTS_PATH);
-      await emitCockpitEvent(page, { type: "gate_pass", gate: "focus_box_or_attention_overlay" }, COCKPIT_EVENTS_PATH);
+      if (REQUIRE_FOCUS_MODE) {
+        await expectFocusModeOn(page);
+        await openSheetSurfaceForFocusOverlay(page, task.name.includes("Runway") ? "Runway" : "Q3 variance");
+        await expectAttentionOverlayMounted(page);
+        await emitCockpitEvent(page, { type: "gate_pass", gate: "focus_mode_enabled" }, COCKPIT_EVENTS_PATH);
+        await emitCockpitEvent(page, { type: "gate_pass", gate: "focus_box_or_attention_overlay" }, COCKPIT_EVENTS_PATH);
+      }
       await selectAgentRoute(page);
     }
 
@@ -294,8 +307,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       "public_nodeagent_invocation",
       "no_memory_mode_shortcut",
       "agent_live_loop",
-      "focus_mode_enabled",
-      "focus_box_or_attention_overlay",
+      ...(REQUIRE_FOCUS_MODE ? (["focus_mode_enabled", "focus_box_or_attention_overlay"] as const) : []),
       "trace_video_artifacts",
       ...(streamingVisible ? (["visible_streaming_progress"] as const) : []),
       ...(jobDetailVisible ? (["job_detail_visible"] as const) : []),
@@ -326,8 +338,8 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
         artifactsCreatedFresh: [task.id],
       },
       ui: {
-        focusModeEnabled: true,
-        attentionOverlayVisible: true,
+        focusModeEnabled: REQUIRE_FOCUS_MODE,
+        attentionOverlayVisible: REQUIRE_FOCUS_MODE,
         streamingVisible,
         jobDetailVisible,
         roomTraceVisible,
@@ -361,6 +373,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       requireArtifactPlaceholderScan: true,
       requireAgentTerminalQuality: true,
       requireOfficialScorer: passed,
+      requireFocusMode: REQUIRE_FOCUS_MODE,
     });
     if (!validation.ok) console.warn(`[proofloop-live] receipt validation gaps for ${task.id}: ${validation.errors.join("; ")}`);
 
@@ -425,8 +438,8 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
         artifactsCreatedFresh: taskProofs.map((t) => t.taskId),
       },
       ui: {
-        focusModeEnabled: true,
-        attentionOverlayVisible: true,
+        focusModeEnabled: REQUIRE_FOCUS_MODE,
+        attentionOverlayVisible: REQUIRE_FOCUS_MODE,
         streamingVisible: taskProofs.some((t) => t.streamingVisible),
         roomTraceVisible: taskProofs.some((t) => t.roomTraceVisible),
         screenshotPaths: [],
@@ -445,8 +458,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
         "public_nodeagent_invocation",
         "no_memory_mode_shortcut",
         "agent_live_loop",
-        "focus_mode_enabled",
-        "focus_box_or_attention_overlay",
+        ...(REQUIRE_FOCUS_MODE ? (["focus_mode_enabled", "focus_box_or_attention_overlay"] as const) : []),
         "trace_video_artifacts",
         ...(passCount === taskProofs.length ? (["official_scorer_handoff"] as const) : []),
       ],
@@ -660,6 +672,8 @@ function proofloopLiveBrowserCommand(): string {
     process.env.PROOFLOOP_TEST_TIMEOUT_MS ? `PROOFLOOP_TEST_TIMEOUT_MS=${process.env.PROOFLOOP_TEST_TIMEOUT_MS}` : undefined,
     process.env.PROOFLOOP_MAX_TASK_TIMEOUT_MS ? `PROOFLOOP_MAX_TASK_TIMEOUT_MS=${process.env.PROOFLOOP_MAX_TASK_TIMEOUT_MS}` : undefined,
     process.env.PROOFLOOP_STREAM_WAIT_MS ? `PROOFLOOP_STREAM_WAIT_MS=${process.env.PROOFLOOP_STREAM_WAIT_MS}` : undefined,
+    `PROOFLOOP_FOCUS_MODE=${REQUIRE_FOCUS_MODE ? "1" : "0"}`,
+    `PROOFLOOP_NODEAGENT_RUNTIME_PROFILE=${NODEAGENT_RUNTIME_PROFILE}`,
     `BENCH_AGENT_MODEL_MODE=${AGENT_MODEL_MODE}`,
     `BENCH_AGENT_MODEL_POLICY=${AGENT_MODEL_POLICY}`,
     "npx playwright test --config playwright.proofloop.config.ts proofloop/live-browser-proof.spec.ts --headed",
@@ -688,7 +702,7 @@ function buildFreshRoomModelReceipt(telemetry: Array<LiveRunTelemetry | null | u
     tokensIn: finiteOrNull(costFields.tokensIn),
     tokensOut: finiteOrNull(costFields.tokensOut),
     costAccounting: costFields.costAccounting,
-    runtimeProfile: "benchmark_completion",
+    runtimeProfile: NODEAGENT_RUNTIME_PROFILE || "standard",
     provider,
   };
 }

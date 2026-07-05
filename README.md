@@ -410,11 +410,12 @@ The missing-family adapter contracts are versioned in
 [`docs/eval/PROOFLOOP_PROD_BROWSER_ADAPTERS.md`](docs/eval/PROOFLOOP_PROD_BROWSER_ADAPTERS.md)
 with JSON at
 [`docs/eval/proofloop-prod-browser-adapters.json`](docs/eval/proofloop-prod-browser-adapters.json).
-Current harness version: `prod-browser-adapters-2026-07-05.1`. These contracts
-cover the 5,004 currently blocked model-task attempts across SpreadsheetBench
-V1/V2, accounting, Notion, Proximitty, and internal multi-user conflict. They do
-not make those families pass; each remains blocked until the named prod browser
-scenario produces receipts.
+Current harness version: `prod-browser-adapters-2026-07-05.3`. SpreadsheetBench
+V1/V2, accounting, and Notion now have prod-browser scenarios. The remaining
+missing browser-scenario adapters are Proximitty and internal multi-user
+conflict: 10 task targets / 40 model-task attempts. Ready does not mean passed;
+each queued task/model still needs a receipt before an all-task winner can be
+claimed.
 
 For zero-dollar model scouting, the free OpenRouter gauge is
 [`docs/eval/PROOFLOOP_FREE_OPENROUTER_NODEAGENT_GAUGE.md`](docs/eval/PROOFLOOP_FREE_OPENROUTER_NODEAGENT_GAUGE.md)
@@ -434,16 +435,17 @@ Current generated status:
 | Prod live-browser verified task targets | 3 |
 | Local live-browser verified task targets | 105 |
 | Official scored task targets | 100 |
-| Prod-browser runnable task targets today | 103 |
-| Blocked task targets needing browser adapters | 1,251 |
+| Prod-browser runnable task targets today | 1,344 |
+| Blocked task targets needing browser adapters | 10 |
 | Required model-task attempts for current 4-model matrix | 5,416 |
 | Existing prod-browser model-task attempt passes | 10 |
-| Queued runnable model-task attempts | 402 |
-| Model-task attempts blocked by missing adapters | 5,004 |
-| Estimated new spend for currently runnable queue | $18.2744 |
+| Queued runnable model-task attempts under $100 default plan | 3,501 |
+| Model-task attempts blocked by missing adapters | 40 |
+| Estimated new spend for currently runnable default queue | $99.9525 |
 | Estimated full current-model matrix spend after adapters exist | $246.8125 |
 | Free OpenRouter model-task attempts in zero-budget plan | 5,416 |
-| Free OpenRouter currently runnable attempts | 412 |
+| Free OpenRouter currently runnable attempts | 5,376 |
+| Free OpenRouter live SpreadsheetBench V1 102-20 probe | 0/4 passed, $0.000000 |
 | Free OpenRouter NodeAgent tool-loop gauge | 3/4 passed, $0.000000 |
 
 The current cheapest fully passing prod live-browser proxy-adapter model is
@@ -455,6 +457,19 @@ V1 912 tasks, SpreadsheetBench V2 321 tasks, the 100 BankerToolBench tasks on
 `https://noderoom.live`, and the configured product-suite tasks through the
 same model matrix.
 
+Latest live free-router probe:
+[`docs/eval/PROOFLOOP_PROD_PROXY_LONGRUN_FREE_RUN.md`](docs/eval/PROOFLOOP_PROD_PROXY_LONGRUN_FREE_RUN.md)
+records run `prod-proxy-free-spreadsheetbench-102-20-20260705`, a real prod UI
+SpreadsheetBench V1 `102-20` one-case sweep across four current free OpenRouter
+models. All four failed; the harness kept the failures instead of naming a
+winner. Observed failure modes were agent timeout on compacted workbook reads,
+unchanged or mostly unchanged XLSX exports, and one canceled XLSX download.
+The accounting browser adapter was also live-smoked on prod in
+[`docs/eval/proofloop-live-accounting-free-smoke.json`](docs/eval/proofloop-live-accounting-free-smoke.json):
+`qwen/qwen3-coder:free` reached the real room and trace path for `variance-calc`
+but failed the proof gate after matching 4/5 expected patterns and timing out
+before job completion.
+
 Refresh the ledger with:
 
 ```bash
@@ -465,15 +480,16 @@ npm run benchmark:proofloop:prod-proxy-matrix
 npm run benchmark:proofloop:prod-browser-adapters
 npm run benchmark:proofloop:prod-proxy-longrun -- plan --budget-usd 100
 npm run benchmark:proofloop:prod-proxy-longrun -- plan --free-openrouter --free-model-limit 4 --budget-usd 0 --json-out docs/eval/proofloop-prod-proxy-longrun-free-plan.json --md-out docs/eval/PROOFLOOP_PROD_PROXY_LONGRUN_FREE.md
+npm run benchmark:proofloop:prod-proxy-longrun -- status --run-id prod-proxy-free-spreadsheetbench-102-20-20260705
 npm run benchmark:proofloop:free-model-gauge -- --limit 4
 ```
 
 Execute live attempts only through the budgeted/resumable runner:
 
 ```bash
-npm run benchmark:proofloop:prod-proxy-longrun -- run --allow-spend --budget-usd 100 --max-attempts 1
+npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1
 npm run benchmark:proofloop:prod-proxy-longrun -- status
-npm run benchmark:proofloop:prod-proxy-longrun -- resume --allow-spend --budget-usd 100 --max-attempts 1
+npm run benchmark:proofloop:prod-proxy-longrun -- resume --execute --run-id <run-id> --allow-spend --budget-usd 100 --max-attempts 1
 ```
 
 ### Key files
