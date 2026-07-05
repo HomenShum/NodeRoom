@@ -1,0 +1,360 @@
+{
+  "schema": "proofloop-full-proxy-benchmark-sweep-v1",
+  "generatedAt": "2026-07-05T01:19:04.062Z",
+  "baseUrl": "https://noderoom.live",
+  "policy": [
+    "Prod live-browser coverage requires a fresh room on noderoom.live, no memory mode, public @nodeagent invocation, visible progress, trace evidence, and task-specific verifier/scorer handoff.",
+    "Local live-browser receipts prove product mechanics but do not satisfy the prod-live requirement.",
+    "Staged official bundles and deterministic scorers do not count as model runs through the prod UI.",
+    "SpreadsheetBench V1 Verified 400 is tracked but not counted in the unique total because it overlaps the full V1 912-task bundle.",
+    "The current model winner can only be selected from the prod live-browser proxy tasks already run; a full all-task winner needs every family run through the same matrix."
+  ],
+  "summary": {
+    "families": 11,
+    "uniqueProxyTaskTargets": 1354,
+    "ledgerDeclaredTaskTargets": 1739,
+    "stagedTaskTargets": 1354,
+    "prodLiveBrowserVerifiedTaskTargets": 3,
+    "localLiveBrowserVerifiedTaskTargets": 105,
+    "officialScoredTaskTargets": 100,
+    "fullProdLiveBrowserCoverageReady": false
+  },
+  "modelRecommendation": {
+    "status": "current_prod_proxy_winner",
+    "modelId": "poolside/laguna-xs-2.1",
+    "basis": "Cheapest model with 100% pass rate on the current prod live-browser external-adapter proxy sweep; not yet proven across SpreadsheetBench/BTB/accounting/Notion/Proximitty full task families.",
+    "fullyPassingModels": [
+      {
+        "modelId": "poolside/laguna-xs-2.1",
+        "passed": 3,
+        "total": 3,
+        "estimatedCostUsdAtOpenRouterList": 0.032628,
+        "measuredCostUsd": 0.033,
+        "avgDurationMs": 107164.33
+      },
+      {
+        "modelId": "qwen/qwen3.7-plus",
+        "passed": 3,
+        "total": 3,
+        "estimatedCostUsdAtOpenRouterList": 0.199433,
+        "measuredCostUsd": 0.199,
+        "avgDurationMs": 191148.67
+      },
+      {
+        "modelId": "z-ai/glm-5.2",
+        "passed": 3,
+        "total": 3,
+        "estimatedCostUsdAtOpenRouterList": 0.245418,
+        "measuredCostUsd": 0.245,
+        "avgDurationMs": 128530.67
+      }
+    ]
+  },
+  "families": [
+    {
+      "id": "spreadsheetbench-v1-full-912",
+      "title": "SpreadsheetBench V1 full benchmark",
+      "family": "official_public",
+      "taskTargetCount": 912,
+      "taskTargetMeaning": "official published task count",
+      "countedInUniqueProxyTargetTotal": true,
+      "stagedTaskCount": 912,
+      "deterministicRunTaskCount": 912,
+      "modelRunCaseCount": 0,
+      "modelRunAttemptCount": 0,
+      "prodLiveBrowserVerifiedTaskCount": 0,
+      "localLiveBrowserVerifiedTaskCount": 1,
+      "officialScoredTaskCount": 0,
+      "status": "staged_not_prod_browser_run",
+      "evidence": [
+        "docs/eval/spreadsheetbench-v1-912-stage.json",
+        "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+        "docs/eval/official-benchmark-readiness.json",
+        "docs/eval/spreadsheetbench-live-room-proof.json"
+      ],
+      "runnableCommands": [
+        "npm run benchmark:spreadsheetbench:run-chunked",
+        "npm run benchmark:spreadsheetbench:score",
+        "npm run benchmark:official:ui-coverage"
+      ],
+      "blockers": [
+        "Run all 912 tasks through the model runner or an approved chunked official-policy runner before claiming a model score.",
+        "No spreadsheetbench-v1-full-912 receipt proves every task through a fresh prod browser room on noderoom.live."
+      ]
+    },
+    {
+      "id": "spreadsheetbench-v1-verified-400",
+      "title": "SpreadsheetBench Verified 400 subset",
+      "family": "official_subset",
+      "taskTargetCount": 400,
+      "taskTargetMeaning": "overlapping verified SpreadsheetBench V1 subset",
+      "countedInUniqueProxyTargetTotal": false,
+      "stagedTaskCount": 400,
+      "deterministicRunTaskCount": 400,
+      "modelRunCaseCount": 3,
+      "modelRunAttemptCount": 15,
+      "prodLiveBrowserVerifiedTaskCount": 0,
+      "localLiveBrowserVerifiedTaskCount": 1,
+      "officialScoredTaskCount": 0,
+      "status": "staged_not_prod_browser_run",
+      "evidence": [
+        "docs/eval/spreadsheetbench-v1-full-stage-smoke.json",
+        "docs/eval/spreadsheetbench-v1-copy-input-full-smoke.json",
+        "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json",
+        "docs/eval/spreadsheetbench-live-room-proof.json"
+      ],
+      "runnableCommands": [
+        "npm run benchmark:spreadsheetbench:run-chunked",
+        "npm run benchmark:spreadsheetbench:score",
+        "npm run benchmark:official:ui-coverage"
+      ],
+      "blockers": [
+        "397 verified task(s) still need model-run evidence; current N=5 smoke covers 3/400 cases.",
+        "Full verified-score promotion still needs official scoring parity, not only local workbook scoring.",
+        "No spreadsheetbench-v1-verified-400 receipt proves every task through a fresh prod browser room on noderoom.live."
+      ]
+    },
+    {
+      "id": "spreadsheetbench-v2-full-321",
+      "title": "SpreadsheetBench 2 full workflow benchmark",
+      "family": "official_public",
+      "taskTargetCount": 321,
+      "taskTargetMeaning": "official published task count",
+      "countedInUniqueProxyTargetTotal": true,
+      "stagedTaskCount": 321,
+      "deterministicRunTaskCount": 3,
+      "modelRunCaseCount": 3,
+      "modelRunAttemptCount": 3,
+      "prodLiveBrowserVerifiedTaskCount": 0,
+      "localLiveBrowserVerifiedTaskCount": 0,
+      "officialScoredTaskCount": 0,
+      "status": "staged_not_prod_browser_run",
+      "evidence": [
+        "docs/eval/spreadsheetbench-v2-full-ingest.json",
+        "docs/eval/spreadsheetbench-v2-full-stage.json",
+        "docs/eval/spreadsheetbench-v2-stage-smoke.json",
+        "docs/eval/spreadsheetbench-v2-run-smoke.json",
+        "docs/eval/spreadsheetbench-chart-visual-probe.json",
+        "docs/eval/spreadsheetbench-live-room-proof.json"
+      ],
+      "runnableCommands": [
+        "npm run benchmark:spreadsheetbench:run-chunked",
+        "npm run benchmark:spreadsheetbench:score",
+        "npm run benchmark:official:ui-coverage"
+      ],
+      "blockers": [
+        "Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable.",
+        "No spreadsheetbench-v2-full-321 receipt proves every task through a fresh prod browser room on noderoom.live."
+      ]
+    },
+    {
+      "id": "bankertoolbench-full-100",
+      "title": "BankerToolBench full investment-banking benchmark",
+      "family": "official_public",
+      "taskTargetCount": 100,
+      "taskTargetMeaning": "official BankerToolBench task count",
+      "countedInUniqueProxyTargetTotal": true,
+      "stagedTaskCount": 100,
+      "deterministicRunTaskCount": 0,
+      "modelRunCaseCount": 100,
+      "modelRunAttemptCount": 100,
+      "prodLiveBrowserVerifiedTaskCount": 0,
+      "localLiveBrowserVerifiedTaskCount": 100,
+      "officialScoredTaskCount": 100,
+      "status": "official_scored_not_prod_browser",
+      "evidence": [
+        "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
+        "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json",
+        "docs/eval/bankertoolbench-stage-smoke.json",
+        "docs/eval/bankertoolbench-run-positive-smoke.json",
+        "docs/eval/bankertoolbench-official-contract.json",
+        "docs/eval/fresh-room/FR-020/tasks",
+        "docs/eval/bankertoolbench/live-room"
+      ],
+      "runnableCommands": [
+        "npm run proofloop:live:btb",
+        "npm run benchmark:bankertoolbench:livesuite-gate -- --write --assert",
+        "npm run benchmark:bankertoolbench:fullsuite-gate"
+      ],
+      "blockers": [
+        "Existing BTB full-suite evidence is not a prod noderoom.live model matrix; prod receipts found 0/100."
+      ]
+    },
+    {
+      "id": "accounting-live-proofloop",
+      "title": "Accounting live proof-loop",
+      "family": "product_suite",
+      "taskTargetCount": 4,
+      "taskTargetMeaning": "configured live accounting product tasks",
+      "countedInUniqueProxyTargetTotal": true,
+      "stagedTaskCount": 4,
+      "deterministicRunTaskCount": 0,
+      "modelRunCaseCount": 0,
+      "modelRunAttemptCount": 0,
+      "prodLiveBrowserVerifiedTaskCount": 0,
+      "localLiveBrowserVerifiedTaskCount": 0,
+      "officialScoredTaskCount": 0,
+      "status": "ready_to_run",
+      "evidence": [
+        "proofloop/accounting/live.accounting.config.json",
+        "proofloop/accounting/benchmarks/benchmark-registry.json"
+      ],
+      "runnableCommands": [
+        "npm run proofloop:live:accounting"
+      ],
+      "blockers": [
+        "Current live accounting runner uses Convex HTTP, not a browser-driven prod room model matrix."
+      ]
+    },
+    {
+      "id": "notion-live-proofloop",
+      "title": "Notion SDR/BDR live proof-loop",
+      "family": "product_suite",
+      "taskTargetCount": 4,
+      "taskTargetMeaning": "configured live Notion/SDR product tasks",
+      "countedInUniqueProxyTargetTotal": true,
+      "stagedTaskCount": 4,
+      "deterministicRunTaskCount": 0,
+      "modelRunCaseCount": 0,
+      "modelRunAttemptCount": 0,
+      "prodLiveBrowserVerifiedTaskCount": 0,
+      "localLiveBrowserVerifiedTaskCount": 0,
+      "officialScoredTaskCount": 0,
+      "status": "ready_to_run",
+      "evidence": [
+        "proofloop/notion/live.notion.config.json"
+      ],
+      "runnableCommands": [
+        "npm run proofloop:live:notion"
+      ],
+      "blockers": [
+        "Current live Notion runner uses Convex HTTP, not a browser-driven prod room model matrix."
+      ]
+    },
+    {
+      "id": "proximitty-underwriting-pr0",
+      "title": "Proximitty underwriting PR0",
+      "family": "product_suite",
+      "taskTargetCount": 4,
+      "taskTargetMeaning": "configured underwriting proof-loop scenarios",
+      "countedInUniqueProxyTargetTotal": true,
+      "stagedTaskCount": 4,
+      "deterministicRunTaskCount": 4,
+      "modelRunCaseCount": 0,
+      "modelRunAttemptCount": 0,
+      "prodLiveBrowserVerifiedTaskCount": 0,
+      "localLiveBrowserVerifiedTaskCount": 4,
+      "officialScoredTaskCount": 0,
+      "status": "local_live_browser_verified",
+      "evidence": [
+        "proofloop/suites/proximitty-underwriting-pr0.json",
+        ".proofloop/runs/latest/run-result.json"
+      ],
+      "runnableCommands": [
+        "npm run proofloop:proximitty"
+      ],
+      "blockers": [
+        "Latest Proximitty proof is deterministic/local; it is not a prod noderoom.live model matrix."
+      ]
+    },
+    {
+      "id": "finch-prod-proxy-task",
+      "title": "finch prod live-browser proxy task",
+      "family": "external_adapter",
+      "taskTargetCount": 1,
+      "taskTargetMeaning": "local live-browser proxy task count, not upstream official task count",
+      "countedInUniqueProxyTargetTotal": true,
+      "stagedTaskCount": 1,
+      "deterministicRunTaskCount": 0,
+      "modelRunCaseCount": 3,
+      "modelRunAttemptCount": 4,
+      "prodLiveBrowserVerifiedTaskCount": 1,
+      "localLiveBrowserVerifiedTaskCount": 0,
+      "officialScoredTaskCount": 0,
+      "status": "prod_live_browser_verified",
+      "evidence": [
+        "proofloop/benchmarks/finch/adapter.json",
+        "docs/eval/proofloop-external-adapter-live-room-runs/finch.json",
+        "docs/eval/proofloop-proxy-model-sweep.json"
+      ],
+      "runnableCommands": [
+        "npm run benchmark:proofloop:external-adapter-live-room -- --prod --id finch --real-user"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "finauditing-prod-proxy-task",
+      "title": "finauditing prod live-browser proxy task",
+      "family": "external_adapter",
+      "taskTargetCount": 1,
+      "taskTargetMeaning": "local live-browser proxy task count, not upstream official task count",
+      "countedInUniqueProxyTargetTotal": true,
+      "stagedTaskCount": 1,
+      "deterministicRunTaskCount": 0,
+      "modelRunCaseCount": 4,
+      "modelRunAttemptCount": 4,
+      "prodLiveBrowserVerifiedTaskCount": 1,
+      "localLiveBrowserVerifiedTaskCount": 0,
+      "officialScoredTaskCount": 0,
+      "status": "prod_live_browser_verified",
+      "evidence": [
+        "proofloop/benchmarks/finauditing/adapter.json",
+        "docs/eval/proofloop-external-adapter-live-room-runs/finauditing.json",
+        "docs/eval/proofloop-proxy-model-sweep.json"
+      ],
+      "runnableCommands": [
+        "npm run benchmark:proofloop:external-adapter-live-room -- --prod --id finauditing --real-user"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "workstreambench-prod-proxy-task",
+      "title": "workstreambench prod live-browser proxy task",
+      "family": "external_adapter",
+      "taskTargetCount": 1,
+      "taskTargetMeaning": "local live-browser proxy task count, not upstream official task count",
+      "countedInUniqueProxyTargetTotal": true,
+      "stagedTaskCount": 1,
+      "deterministicRunTaskCount": 0,
+      "modelRunCaseCount": 3,
+      "modelRunAttemptCount": 4,
+      "prodLiveBrowserVerifiedTaskCount": 1,
+      "localLiveBrowserVerifiedTaskCount": 0,
+      "officialScoredTaskCount": 0,
+      "status": "prod_live_browser_verified",
+      "evidence": [
+        "proofloop/benchmarks/workstreambench/adapter.json",
+        "docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json",
+        "docs/eval/proofloop-proxy-model-sweep.json"
+      ],
+      "runnableCommands": [
+        "npm run benchmark:proofloop:external-adapter-live-room -- --prod --id workstreambench --real-user"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "noderoom-multi-user-conflict",
+      "title": "NodeRoom multi-user conflict suite",
+      "family": "internal",
+      "taskTargetCount": 6,
+      "taskTargetMeaning": "internal deterministic NodeRoom conflict scenarios",
+      "countedInUniqueProxyTargetTotal": true,
+      "stagedTaskCount": 6,
+      "deterministicRunTaskCount": 6,
+      "modelRunCaseCount": 0,
+      "modelRunAttemptCount": 0,
+      "prodLiveBrowserVerifiedTaskCount": 0,
+      "localLiveBrowserVerifiedTaskCount": 0,
+      "officialScoredTaskCount": 0,
+      "status": "staged_not_prod_browser_run",
+      "evidence": [
+        "docs/eval/multi-user-coordination-proof.json",
+        "evals/multiUserCoordinationProof.ts"
+      ],
+      "runnableCommands": [
+        "npm run eval:multiuser-coordination -- --strict"
+      ],
+      "blockers": []
+    }
+  ]
+}

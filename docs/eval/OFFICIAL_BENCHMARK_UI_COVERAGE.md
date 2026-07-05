@@ -1,6 +1,6 @@
 # Official Benchmark UI Coverage
 
-Generated: 2026-07-04T14:38:16.541Z
+Generated: 2026-07-05T01:18:55.574Z
 
 This ledger answers the live-browser question directly: has NodeRoom driven official benchmark tasks through a fresh room, public @nodeagent chat, UI upload/export, downloaded artifacts, and scorer/verifier handoff?
 
