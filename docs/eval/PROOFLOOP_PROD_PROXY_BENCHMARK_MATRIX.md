@@ -1,0 +1,66 @@
+# ProofLoop Prod Proxy Benchmark Matrix
+
+Generated: 2026-07-05T02:00:46.783Z
+Base URL: https://noderoom.live
+
+This is the execution matrix for the real prod-browser goal. It keeps the full task denominator visible and refuses to collapse the run into the existing 3-task external-adapter smoke.
+
+## Summary
+
+- Unique task targets: 1354
+- Models in matrix: 4
+- Model-task attempt targets: 5416
+- Prod live-browser verified task targets: 3
+- Local live-browser only task targets: 105
+- Runnable prod-browser task targets today: 103
+- Blocked task targets needing a browser adapter: 1251
+- Prod live-browser passed attempts recorded: 10
+- All tasks prod verified: no
+
+## Recommendation
+
+- All-task winner: none yet
+- Current prod adapter-smoke winner: poolside/laguna-xs-2.1
+- Basis: No all-task model winner is claimed until every tracked task target is run through the prod browser matrix. Current winner is limited to the completed external-adapter prod smoke.
+
+## Models
+
+| Model | Prod adapter smoke | Est. OpenRouter list cost | UI measured cost | Avg duration |
+|---|---:|---:|---:|---:|
+| `z-ai/glm-5.2` | 3/3 | $0.2454 | $0.2450 | 129s |
+| `deepseek/deepseek-v4-flash` | 1/3 | $0.0683 | $0.0690 | 476s |
+| `poolside/laguna-xs-2.1` | 3/3 | $0.0326 | $0.0330 | 107s |
+| `qwen/qwen3.7-plus` | 3/3 | $0.1994 | $0.1990 | 191s |
+
+## Families
+
+| Family | Tasks | Prod passed | Local only | Runnable now | Blocked |
+|---|---:|---:|---:|---:|---:|
+| `spreadsheetbench-v1-full-912` | 912 | 0 | 1 | 0 | 912 |
+| `spreadsheetbench-v2-full-321` | 321 | 0 | 0 | 0 | 321 |
+| `bankertoolbench-full-100` | 100 | 0 | 100 | 100 | 0 |
+| `accounting-live-proofloop` | 4 | 0 | 0 | 0 | 4 |
+| `notion-live-proofloop` | 4 | 0 | 0 | 0 | 4 |
+| `proximitty-underwriting-pr0` | 4 | 0 | 4 | 0 | 4 |
+| `finch-prod-proxy-task` | 1 | 1 | 0 | 1 | 0 |
+| `finauditing-prod-proxy-task` | 1 | 1 | 0 | 1 | 0 |
+| `workstreambench-prod-proxy-task` | 1 | 1 | 0 | 1 | 0 |
+| `noderoom-multi-user-conflict` | 6 | 0 | 0 | 0 | 6 |
+
+## Not Done
+
+- spreadsheetbench-v1-full-912: 912 task target(s) still lack prod live-browser proof. First blocker: Generic SpreadsheetBench official workbook upload -> agent edit -> export -> scorer browser adapter is not implemented for staged tasks.
+- spreadsheetbench-v2-full-321: 321 task target(s) still lack prod live-browser proof. First blocker: Generic SpreadsheetBench official workbook upload -> agent edit -> export -> scorer browser adapter is not implemented for staged tasks.
+- bankertoolbench-full-100: 100 task target(s) still lack prod live-browser proof. First blocker: Existing BTB receipt is local live-browser only; rerun against https://noderoom.live.
+- accounting-live-proofloop: 4 task target(s) still lack prod live-browser proof. First blocker: Current accounting live runner is Convex HTTP, not a prod browser room model matrix.
+- notion-live-proofloop: 4 task target(s) still lack prod live-browser proof. First blocker: Current Notion live runner is Convex HTTP, not a prod browser room model matrix.
+- proximitty-underwriting-pr0: 4 task target(s) still lack prod live-browser proof. First blocker: Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios.
+- noderoom-multi-user-conflict: 6 task target(s) still lack prod live-browser proof. First blocker: Internal deterministic conflict suite has not been promoted to prod browser model matrix tasks.
+
+## Runnable Command Shapes
+
+- `BENCH_BASE_URL=https://noderoom.live PLAYWRIGHT_BASE_URL=https://noderoom.live PLAYWRIGHT_REUSE_SERVER=1 BTB_LIVE_ROOM_E2E=1 BTB_UI_BUNDLE_ROOT=.tmp/official-benchmarks/bankertoolbench-repo/btb-data BTB_UI_TASK_ID=707cba99-59a7-47bd-bc4d-7f36212e99f3 BENCH_AGENT_MODEL_MODE=specific BENCH_AGENT_MODEL_POLICY=z-ai/glm-5.2 npm run proofloop:live:btb`
+- `BENCH_BASE_URL=https://noderoom.live PLAYWRIGHT_BASE_URL=https://noderoom.live npm run benchmark:proofloop:external-adapter-live-room -- --prod --id finch --real-user --model z-ai/glm-5.2 --model-mode specific`
+- `BENCH_BASE_URL=https://noderoom.live PLAYWRIGHT_BASE_URL=https://noderoom.live npm run benchmark:proofloop:external-adapter-live-room -- --prod --id finauditing --real-user --model z-ai/glm-5.2 --model-mode specific`
+- `BENCH_BASE_URL=https://noderoom.live PLAYWRIGHT_BASE_URL=https://noderoom.live npm run benchmark:proofloop:external-adapter-live-room -- --prod --id workstreambench --real-user --model z-ai/glm-5.2 --model-mode specific`
+
