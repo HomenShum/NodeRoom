@@ -384,6 +384,14 @@ with machine-readable JSON and a browser chart at
 It exists to prevent the old mistake where a `3/3` adapter smoke could be read
 as full benchmark coverage.
 
+The execution matrix is
+[`docs/eval/PROOFLOOP_PROD_PROXY_BENCHMARK_MATRIX.md`](docs/eval/PROOFLOOP_PROD_PROXY_BENCHMARK_MATRIX.md)
+with JSON and a browser chart at
+[`docs/eval/proofloop-prod-proxy-benchmark-matrix.html`](docs/eval/proofloop-prod-proxy-benchmark-matrix.html).
+It expands the goal into 1,354 task targets x 4 models = 5,416 model-task
+attempts, tracks which tasks can be run through prod browser today, and refuses
+to name an all-task winner until the matrix is complete.
+
 Current generated status:
 
 | Metric | Value |
@@ -394,6 +402,9 @@ Current generated status:
 | Prod live-browser verified task targets | 3 |
 | Local live-browser verified task targets | 105 |
 | Official scored task targets | 100 |
+| Prod-browser runnable task targets today | 103 |
+| Blocked task targets needing browser adapters | 1,251 |
+| Required model-task attempts for current 4-model matrix | 5,416 |
 
 The current cheapest fully passing prod live-browser proxy-adapter model is
 `poolside/laguna-xs-2.1` (`3/3`, estimated OpenRouter list cost `$0.0326`).
@@ -410,6 +421,7 @@ Refresh the ledger with:
 npm run benchmark:official:task-coverage
 npm run benchmark:official:ui-coverage
 npm run benchmark:proofloop:full-proxy-sweep
+npm run benchmark:proofloop:prod-proxy-matrix
 ```
 
 ### Key files
