@@ -10,7 +10,8 @@
  *     typed-cast api seam in ./usePublicRoomData. `{ ok:false, reason }` maps
  *     to an inline error — never a success state. A transport/missing-function
  *     throw falls back to the demo success, which is honest because nothing
- *     WAS stored, and it says so.
+ *     WAS stored, and it says so. The hosted confirmation-email sender is not
+ *     wired here yet; live success means "pending row stored", not "email sent".
  *   - Memory mode: never fakes a subscription — the success state is locked
  *     to a "demo — nothing was stored" hint.
  */
@@ -134,14 +135,16 @@ function SubscribeForm({
     }
     return (
       <>
-        <div className="h">Check your email to confirm</div>
+        <div className="h">Subscription request received</div>
         <div className="s" data-testid="ao-subscribe-success">
-          Nothing is sent until you confirm. The confirmation link activates your{" "}
-          {CADENCES.find((c) => c.key === cadence)?.label.toLowerCase()} for {roomTitle}.
+          Your {CADENCES.find((c) => c.key === cadence)?.label.toLowerCase()} for {roomTitle} is
+          pending confirmation. Automatic confirmation email delivery is not wired yet, so the
+          request is stored but no email has been sent.
         </div>
         <div className="ao-optin">
           <Ic name="shield" size={13} style={{ flex: "none" }} />
-          One-click unsubscribe in every digest.
+          Digests stay inactive until the subscription is confirmed. One-click unsubscribe appears
+          in every active digest.
         </div>
       </>
     );
@@ -215,8 +218,8 @@ function SubscribeForm({
       </button>
       <div className="ao-optin">
         <Ic name="shield" size={13} style={{ flex: "none" }} />
-        Check your email to confirm — nothing is sent until you do. One-click unsubscribe in every
-        digest.
+        Confirmation is required before digests activate. One-click unsubscribe appears in every
+        active digest.
       </div>
     </form>
   );

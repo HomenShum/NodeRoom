@@ -41,6 +41,7 @@ test.describe("#rooms/expositio-pulse — public read-only room", () => {
     await expect(proof).toContainText("Sources checked");
     await expect(proof).toContainText("1 / 1 allowed");
     await expect(proof).toContainText("Cost");
+    await expect(page.getByTestId("ao-change-postit")).toContainText(/What changed/i);
 
     // Read-only strip replaces the composer.
     await expect(page.locator(".ao-ro .hint")).toContainText(/viewing a public room/i);
@@ -193,8 +194,10 @@ test.describe("#rooms/expositio-pulse — public read-only room", () => {
     await expect(modal).toContainText("weekday 9:15, after the scan");
     await expect(modal).toContainText("Weekly digest");
     await expect(modal).toContainText("Act-now only");
-    // Double-opt-in note.
-    await expect(modal).toContainText(/Check your email to confirm/i);
+    // Confirmation is required, but this UI must not claim an email was sent
+    // until the hosted confirmation sender is wired and tested.
+    await expect(modal).toContainText(/Confirmation is required/i);
+    await expect(modal).not.toContainText(/Check your email/i);
 
     const daily = modal.getByRole("radio", { name: /Daily brief/ });
     const weekly = modal.getByRole("radio", { name: /Weekly digest/ });
@@ -230,6 +233,26 @@ test.describe("#rooms/expositio-pulse — public read-only room", () => {
     await expect(page.getByTestId("ao-subscribe-success")).toContainText(/no email was sent/i);
   });
 
+  test("live subscribe success is honest about pending storage vs email delivery", async ({ page }) => {
+    test.skip(
+      process.env.PLAYWRIGHT_EXPECT_ALWAYS_ON_LIVE !== "1" || !process.env.PLAYWRIGHT_LIVE_SUBSCRIBE_EMAIL,
+      "Requires a Convex-backed server and an explicit disposable/live test email."
+    );
+
+    await page.goto("/#rooms/expositio-pulse");
+    await expect(page.getByTestId("ao-room")).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator(".ao-public")).toHaveAttribute("data-ao-source", "live", { timeout: 30_000 });
+
+    await page.getByTestId("ao-subscribe-btn").click();
+    await page.getByTestId("ao-subscribe-email").fill(process.env.PLAYWRIGHT_LIVE_SUBSCRIBE_EMAIL);
+    await page.getByTestId("ao-subscribe-modal").getByRole("button", { name: /^Subscribe$/ }).click();
+
+    const success = page.getByTestId("ao-subscribe-success");
+    await expect(success).toContainText(/pending confirmation/i);
+    await expect(success).toContainText(/no email has been sent/i);
+    await expect(page.getByTestId("ao-subscribe-modal")).not.toContainText(/Check your email/i);
+  });
+
   test("invalid email is rejected inline, not silently accepted", async ({ page }) => {
     await page.getByTestId("ao-subscribe-btn").click();
     await page.getByTestId("ao-subscribe-email").fill("not-an-email");
@@ -257,6 +280,7 @@ test.describe("#rooms — cold landing, ops gate, unknown slugs", () => {
     await expect(page.locator(".ao-public")).toHaveAttribute("data-ao-source", "live", { timeout: 30_000 });
     await expect(page.getByTestId("ao-brief-live")).toBeVisible();
     await expect(page.locator(".ao-rtop")).not.toContainText("viewers this week");
+    await expect(page.getByTestId("ao-change-postit")).toContainText(/tracked/i);
 
     await page.getByTestId("ao-tab-papers").click();
     await expect(page.getByTestId("ao-paper-count")).toContainText("papers");

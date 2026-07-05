@@ -26,6 +26,10 @@ describe("NodeRoom design-system manifest", () => {
       "IdentityChips",
       "WalkthroughDock",
       "ScaleBinder",
+      "SharedDialog",
+      "PublicRoomFrame",
+      "PublicRoomControls",
+      "PublicRoomDataSurfaces",
     ]);
   });
 
@@ -47,6 +51,18 @@ describe("NodeRoom design-system manifest", () => {
     files["src/ui/Chat.tsx"] = files["src/ui/Chat.tsx"].replace('data-testid="agent-lock-released-receipt"', 'data-testid="agent-lock-hidden"');
     files["src/ui/RoomShell.tsx"] = files["src/ui/RoomShell.tsx"].replace("Attention overlay", "Focus Mode");
     files["src/ui/LeftRail.tsx"] = files["src/ui/LeftRail.tsx"].replace('data-testid="binder-search"', 'data-testid="binder-search-missing"');
+    files["src/ui/primitives/FocusTrapDialog.tsx"] = files["src/ui/primitives/FocusTrapDialog.tsx"].replace('role="dialog"', 'role="presentation"');
+    files["src/alwayson/SubscribeModal.tsx"] = files["src/alwayson/SubscribeModal.tsx"]
+      .split("FocusTrapDialog").join("LegacyModal")
+      .replace("Automatic confirmation email delivery is not wired yet", "Check your email to confirm");
+    files["src/alwayson/PublicRoomPage.tsx"] = files["src/alwayson/PublicRoomPage.tsx"]
+      .replace("data-ao-source={bundle.source}", "")
+      .split('data-testid="ao-change-postit"').join('data-testid="ao-change-postit-missing"')
+      .replace('role="tablist"', "")
+      .replace('data-testid="ao-paper-cards"', 'data-testid="ao-paper-cards-missing"');
+    files["src/alwayson/alwayson.css"] = files["src/alwayson/alwayson.css"]
+      .replace(".ao-btn:focus-visible", ".ao-btn:focus-missing")
+      .split(".ao-paper-cards").join(".ao-mobile-cards-missing");
     files["src/ui/panels/Artifact.tsx"] = files["src/ui/panels/Artifact.tsx"]
       .replace('data-testid="grid-render-window"', 'data-testid="grid-render-window-missing"')
       .replace("const hasEvidence = !isScaleSheet &&", "const hasEvidence =")
@@ -65,6 +81,16 @@ describe("NodeRoom design-system manifest", () => {
     expect(codes).toContain("agent-lock-released-receipt");
     expect(codes).toContain("focus-mode-duplicate-label");
     expect(codes).toContain("binder-search");
+    expect(codes).toContain("shared-dialog-role");
+    expect(codes).toContain("public-subscribe-shared-dialog");
+    expect(codes).toContain("public-subscribe-no-fake-email");
+    expect(codes).toContain("public-controls-focus");
+    expect(codes).toContain("public-mobile-card-surface");
+    expect(codes).toContain("public-mobile-card-breakpoint");
+    expect(codes).toContain("public-source-stamp");
+    expect(codes).toContain("public-change-postit");
+    expect(codes).toContain("public-tabs-keyboard");
+    expect(codes).toContain("public-paper-cards");
     expect(codes).toContain("grid-render-window");
     expect(codes).toContain("scale-passive-evidence-gate");
     expect(codes).toContain("scale-source-receipt-dedupe");
