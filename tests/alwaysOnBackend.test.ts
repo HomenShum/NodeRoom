@@ -106,6 +106,24 @@ describe("seedPublicRoom + public queries", () => {
     });
   });
 
+  it("re-seed migrates a pre-slash-fix source URL instead of inserting a twin", async () => {
+    // expositio.org 301s /papers -> /papers/; the scanner's redirect:"error"
+    // fetch refuses to follow, so rows seeded with the slashless URL failed
+    // every scan. Re-seeding must patch that row to the canonical URL.
+    const { t } = await seeded();
+    await t.run(async (ctx) => {
+      const source = (await ctx.db.query("publicRoomSources").collect())[0];
+      await ctx.db.patch(source._id, { url: "https://expositio.org/papers", status: "failed" });
+    });
+    await t.mutation(seedRef, {});
+    await t.run(async (ctx) => {
+      const sources = await ctx.db.query("publicRoomSources").collect();
+      expect(sources).toHaveLength(1);
+      expect(sources[0].url).toBe("https://expositio.org/papers/");
+      expect(sources[0].status).toBe("active");
+    });
+  });
+
   it("listPublicRooms returns demo-parity cards with ONLY card fields", async () => {
     const { t } = await seeded();
     const cards = await t.query(listPublicRoomsRef, {});
@@ -131,7 +149,7 @@ describe("seedPublicRoom + public queries", () => {
     expect(bundle.state.papers).toHaveLength(AO_PAPERS.length);
     expect(bundle.state.briefMarkdown).toContain("## What changed");
     expect(bundle.sources).toHaveLength(1);
-    expect(bundle.sources[0].url).toBe("https://expositio.org/papers");
+    expect(bundle.sources[0].url).toBe("https://expositio.org/papers/");
     expect(Array.isArray(bundle.runs)).toBe(true);
   });
 
@@ -353,7 +371,7 @@ describe("scanDuePublicRooms (deterministic scan)", () => {
     const summary = await t.action(scanRef, {});
     expect(summary).toMatchObject({ scanned: 1, completed: 1, failed: 0, capped: 0 });
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock.mock.calls[0][0]).toBe("https://expositio.org/papers");
+    expect(fetchMock.mock.calls[0][0]).toBe("https://expositio.org/papers/");
 
     await t.run(async (ctx) => {
       const runs = await ctx.db.query("publicRoomRuns").collect();
@@ -468,7 +486,7 @@ describe("scanDuePublicRooms (deterministic scan)", () => {
     vi.stubGlobal("fetch", fetchMock);
     await t.action(scanRef, {});
     // Only the legitimate expositio source was ever fetched.
-    expect(fetchMock.mock.calls.map((c) => c[0])).toEqual(["https://expositio.org/papers"]);
+    expect(fetchMock.mock.calls.map((c) => c[0])).toEqual(["https://expositio.org/papers/"]);
     await t.run(async (ctx) => {
       const runs = await ctx.db.query("publicRoomRuns").collect();
       const evilRun = runs.find((r) => String(r.publicRoomId) === String(evilRoomId))!;
@@ -657,7 +675,7 @@ describe("alwaysOnShape pure helpers", () => {
     const card = toPublicRoomCard(hostileRoom, 3);
     expect(findForbiddenPublicKeys(card)).toEqual([]);
     expect(JSON.stringify(card)).not.toContain("leak");
-    const hostileSource = { url: "https://expositio.org/papers", status: "active", lastContentHash: "leakhash" } as never;
+    const hostileSource = { url: "https://expositio.org/papers/", status: "active", lastContentHash: "leakhash" } as never;
     const bundle = toPublicRoomBundle(hostileRoom, null, [], [hostileSource]);
     expect(findForbiddenPublicKeys(bundle)).toEqual([]);
     expect(JSON.stringify(bundle)).not.toContain("leakhash");
