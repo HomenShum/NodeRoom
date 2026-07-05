@@ -375,6 +375,43 @@ fetched upscalex.ai + LinkedIn, correctly identified UpscaleX as an AI-native
 seed VC fund rather than a fundraising startup, and marked funding_round and
 investors as needs_review. Full report: [`docs/eval/nodemem-benchmark-report.json`](docs/eval/nodemem-benchmark-report.json).</sub>
 
+### ProofLoop full proxy benchmark sweep
+
+The canonical all-family benchmark status is now
+[`docs/eval/PROOFLOOP_FULL_PROXY_BENCHMARK_SWEEP.md`](docs/eval/PROOFLOOP_FULL_PROXY_BENCHMARK_SWEEP.md)
+with machine-readable JSON and a browser chart at
+[`docs/eval/proofloop-full-proxy-benchmark-sweep.html`](docs/eval/proofloop-full-proxy-benchmark-sweep.html).
+It exists to prevent the old mistake where a `3/3` adapter smoke could be read
+as full benchmark coverage.
+
+Current generated status:
+
+| Metric | Value |
+|---|---:|
+| Unique proxy task targets | 1,354 |
+| Official coverage ledger declared targets, including overlapping subsets/internal tracks | 1,739 |
+| Staged task targets | 1,354 |
+| Prod live-browser verified task targets | 3 |
+| Local live-browser verified task targets | 105 |
+| Official scored task targets | 100 |
+
+The current cheapest fully passing prod live-browser proxy-adapter model is
+`poolside/laguna-xs-2.1` (`3/3`, estimated OpenRouter list cost `$0.0326`).
+That is only the current prod adapter-smoke winner; it is not yet a full
+SpreadsheetBench/BankerToolBench/accounting/Notion/Proximitty all-task winner.
+Full prod coverage still requires browser-driving the staged SpreadsheetBench
+V1 912 tasks, SpreadsheetBench V2 321 tasks, the 100 BankerToolBench tasks on
+`https://noderoom.live`, and the configured product-suite tasks through the
+same model matrix.
+
+Refresh the ledger with:
+
+```bash
+npm run benchmark:official:task-coverage
+npm run benchmark:official:ui-coverage
+npm run benchmark:proofloop:full-proxy-sweep
+```
+
 ### Key files
 
 | File | Role |

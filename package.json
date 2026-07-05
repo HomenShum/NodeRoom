@@ -72,6 +72,7 @@
     "benchmark:proofloop:external-adapter": "tsx scripts/proofloop-external-adapter-run.ts",
     "benchmark:proofloop:external-adapter-live-room": "tsx scripts/proofloop-external-adapter-live-room-run.ts",
     "benchmark:proofloop:proxy-model-sweep": "tsx scripts/proofloop-proxy-model-sweep.ts",
+    "benchmark:proofloop:full-proxy-sweep": "tsx scripts/proofloop-full-proxy-benchmark-sweep.ts",
     "benchmark:proofloop:charts": "tsx scripts/proofloop-charts.ts",
     "benchmark:official:task-coverage": "tsx scripts/official-benchmark-task-coverage.ts",
     "benchmark:official:ui-coverage": "tsx scripts/official-benchmark-ui-coverage.ts",

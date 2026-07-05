@@ -1,0 +1,36 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>ProofLoop Full Proxy Benchmark Sweep</title>
+<style>
+body { font-family: Inter, system-ui, sans-serif; margin: 32px; color: #17201a; }
+table { border-collapse: collapse; width: 100%; margin: 18px 0 28px; }
+th, td { border-bottom: 1px solid #dde5dd; padding: 8px 10px; text-align: left; vertical-align: top; }
+th { color: #526154; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.meta { color: #526154; }
+.callout { border: 1px solid #dde5dd; background: #f8fbf8; border-radius: 6px; padding: 14px 16px; margin: 18px 0; }
+.bar { width: 100%; min-width: 160px; height: 12px; border-radius: 3px; background: #eef3ef; overflow: hidden; }
+.bar span { display: block; height: 100%; background: #2e9e6b; }
+</style>
+<h1>ProofLoop Full Proxy Benchmark Sweep</h1>
+<p class="meta">Generated 2026-07-05T01:19:04.062Z for prod base https://noderoom.live.</p>
+<div class="callout">
+  <strong>3/1354 unique task targets have prod live-browser proof.</strong>
+  <p>Current model pick: <code>poolside/laguna-xs-2.1</code>. Cheapest model with 100% pass rate on the current prod live-browser external-adapter proxy sweep; not yet proven across SpreadsheetBench/BTB/accounting/Notion/Proximitty full task families.</p>
+</div>
+<h2>Model candidates with full prod adapter-smoke passes</h2>
+<table><thead><tr><th>Model</th><th>Passes</th><th>Est. list cost</th><th>UI measured cost</th></tr></thead><tbody><tr><td><code>poolside/laguna-xs-2.1</code></td><td>3/3</td><td>$0.0326</td><td>$0.0330</td></tr>
+<tr><td><code>qwen/qwen3.7-plus</code></td><td>3/3</td><td>$0.1994</td><td>$0.1990</td></tr>
+<tr><td><code>z-ai/glm-5.2</code></td><td>3/3</td><td>$0.2454</td><td>$0.2450</td></tr></tbody></table>
+<h2>Families</h2>
+<table><thead><tr><th>Family</th><th>Status</th><th>Targets</th><th>Prod browser</th><th>Coverage</th><th>Next blocker</th></tr></thead><tbody><tr><td><code>spreadsheetbench-v1-full-912</code></td><td>staged_not_prod_browser_run</td><td>912</td><td>0</td><td><div class="bar"><span style="width:2%"></span></div></td><td>Run all 912 tasks through the model runner or an approved chunked official-policy runner before claiming a model score.</td></tr>
+<tr><td><code>spreadsheetbench-v1-verified-400</code></td><td>staged_not_prod_browser_run</td><td>400 overlap</td><td>0</td><td><div class="bar"><span style="width:2%"></span></div></td><td>397 verified task(s) still need model-run evidence; current N=5 smoke covers 3/400 cases.</td></tr>
+<tr><td><code>spreadsheetbench-v2-full-321</code></td><td>staged_not_prod_browser_run</td><td>321</td><td>0</td><td><div class="bar"><span style="width:2%"></span></div></td><td>Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable.</td></tr>
+<tr><td><code>bankertoolbench-full-100</code></td><td>official_scored_not_prod_browser</td><td>100</td><td>0</td><td><div class="bar"><span style="width:2%"></span></div></td><td>Existing BTB full-suite evidence is not a prod noderoom.live model matrix; prod receipts found 0/100.</td></tr>
+<tr><td><code>accounting-live-proofloop</code></td><td>ready_to_run</td><td>4</td><td>0</td><td><div class="bar"><span style="width:2%"></span></div></td><td>Current live accounting runner uses Convex HTTP, not a browser-driven prod room model matrix.</td></tr>
+<tr><td><code>notion-live-proofloop</code></td><td>ready_to_run</td><td>4</td><td>0</td><td><div class="bar"><span style="width:2%"></span></div></td><td>Current live Notion runner uses Convex HTTP, not a browser-driven prod room model matrix.</td></tr>
+<tr><td><code>proximitty-underwriting-pr0</code></td><td>local_live_browser_verified</td><td>4</td><td>0</td><td><div class="bar"><span style="width:2%"></span></div></td><td>Latest Proximitty proof is deterministic/local; it is not a prod noderoom.live model matrix.</td></tr>
+<tr><td><code>finch-prod-proxy-task</code></td><td>prod_live_browser_verified</td><td>1</td><td>1</td><td><div class="bar"><span style="width:100%"></span></div></td><td>none</td></tr>
+<tr><td><code>finauditing-prod-proxy-task</code></td><td>prod_live_browser_verified</td><td>1</td><td>1</td><td><div class="bar"><span style="width:100%"></span></div></td><td>none</td></tr>
+<tr><td><code>workstreambench-prod-proxy-task</code></td><td>prod_live_browser_verified</td><td>1</td><td>1</td><td><div class="bar"><span style="width:100%"></span></div></td><td>none</td></tr>
+<tr><td><code>noderoom-multi-user-conflict</code></td><td>staged_not_prod_browser_run</td><td>6</td><td>0</td><td><div class="bar"><span style="width:2%"></span></div></td><td>none</td></tr></tbody></table>
