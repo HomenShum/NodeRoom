@@ -46,6 +46,7 @@ playwright/.cache/
 .proofloop/live/
 .proofloop/codegraph/
 .proofloop/orchestrator/
+.proofloop/prod-proxy-longrun/
 .proofloop/workers/
 .proofloop/memory/
 .proofloop/memory.jsonl

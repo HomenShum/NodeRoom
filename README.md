@@ -396,6 +396,34 @@ It expands the goal into 1,354 task targets x 4 models = 5,416 model-task
 attempts, tracks which tasks can be run through prod browser today, and refuses
 to name an all-task winner until the matrix is complete.
 
+The long-running attempt queue is
+[`docs/eval/PROOFLOOP_PROD_PROXY_LONGRUN.md`](docs/eval/PROOFLOOP_PROD_PROXY_LONGRUN.md)
+with full JSON at
+[`docs/eval/proofloop-prod-proxy-longrun-plan.json`](docs/eval/proofloop-prod-proxy-longrun-plan.json).
+It is the runnable control surface for that matrix: every model-task attempt has
+a status, a budget estimate, a real-user prod-browser command when an adapter
+exists, and an explicit adapter blocker when one does not. Local run state,
+leases, receipts, and resume data live under `.proofloop/prod-proxy-longrun/`
+and are intentionally ignored.
+
+The missing-family adapter contracts are versioned in
+[`docs/eval/PROOFLOOP_PROD_BROWSER_ADAPTERS.md`](docs/eval/PROOFLOOP_PROD_BROWSER_ADAPTERS.md)
+with JSON at
+[`docs/eval/proofloop-prod-browser-adapters.json`](docs/eval/proofloop-prod-browser-adapters.json).
+Current harness version: `prod-browser-adapters-2026-07-05.1`. These contracts
+cover the 5,004 currently blocked model-task attempts across SpreadsheetBench
+V1/V2, accounting, Notion, Proximitty, and internal multi-user conflict. They do
+not make those families pass; each remains blocked until the named prod browser
+scenario produces receipts.
+
+For zero-dollar model scouting, the free OpenRouter gauge is
+[`docs/eval/PROOFLOOP_FREE_OPENROUTER_NODEAGENT_GAUGE.md`](docs/eval/PROOFLOOP_FREE_OPENROUTER_NODEAGENT_GAUGE.md)
+with JSON at
+[`docs/eval/proofloop-free-openrouter-nodeagent-gauge.json`](docs/eval/proofloop-free-openrouter-nodeagent-gauge.json).
+It runs current free tool-capable OpenRouter models through the NodeAgent tool
+loop only; it is not an official benchmark score. The latest gauge passed 3/4
+models at estimated cost `$0.000000`.
+
 Current generated status:
 
 | Metric | Value |
@@ -409,6 +437,14 @@ Current generated status:
 | Prod-browser runnable task targets today | 103 |
 | Blocked task targets needing browser adapters | 1,251 |
 | Required model-task attempts for current 4-model matrix | 5,416 |
+| Existing prod-browser model-task attempt passes | 10 |
+| Queued runnable model-task attempts | 402 |
+| Model-task attempts blocked by missing adapters | 5,004 |
+| Estimated new spend for currently runnable queue | $18.2744 |
+| Estimated full current-model matrix spend after adapters exist | $246.8125 |
+| Free OpenRouter model-task attempts in zero-budget plan | 5,416 |
+| Free OpenRouter currently runnable attempts | 412 |
+| Free OpenRouter NodeAgent tool-loop gauge | 3/4 passed, $0.000000 |
 
 The current cheapest fully passing prod live-browser proxy-adapter model is
 `poolside/laguna-xs-2.1` (`3/3`, estimated OpenRouter list cost `$0.0326`).
@@ -426,6 +462,18 @@ npm run benchmark:official:task-coverage
 npm run benchmark:official:ui-coverage
 npm run benchmark:proofloop:full-proxy-sweep
 npm run benchmark:proofloop:prod-proxy-matrix
+npm run benchmark:proofloop:prod-browser-adapters
+npm run benchmark:proofloop:prod-proxy-longrun -- plan --budget-usd 100
+npm run benchmark:proofloop:prod-proxy-longrun -- plan --free-openrouter --free-model-limit 4 --budget-usd 0 --json-out docs/eval/proofloop-prod-proxy-longrun-free-plan.json --md-out docs/eval/PROOFLOOP_PROD_PROXY_LONGRUN_FREE.md
+npm run benchmark:proofloop:free-model-gauge -- --limit 4
+```
+
+Execute live attempts only through the budgeted/resumable runner:
+
+```bash
+npm run benchmark:proofloop:prod-proxy-longrun -- run --allow-spend --budget-usd 100 --max-attempts 1
+npm run benchmark:proofloop:prod-proxy-longrun -- status
+npm run benchmark:proofloop:prod-proxy-longrun -- resume --allow-spend --budget-usd 100 --max-attempts 1
 ```
 
 ### Key files
