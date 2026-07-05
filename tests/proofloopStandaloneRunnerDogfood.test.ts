@@ -18,6 +18,7 @@ describe("ProofLoop standalone runner dogfood plan", () => {
     });
 
     expect(plan.schema).toBe("proofloop-runner-plan-v1");
+    expect(plan.mode).toBe("two-layer-certification-v1");
     expect(plan.standaloneRunner.command).toBe(
       "npx --yes github:HomenShum/proofloop runner run --plan docs/eval/proofloop-standalone-runner-dogfood-plan.json --budget-usd 100",
     );
@@ -40,10 +41,13 @@ describe("ProofLoop standalone runner dogfood plan", () => {
     expect(plan.summary.modelTaskAttempts).toBe(5416);
     expect(plan.summary.queuedAttempts).toBe(3516);
     expect(plan.summary.blockedAdapterAttempts).toBe(0);
+    expect(plan.summary.capabilityHeadlessTasks).toBe(7);
+    expect(plan.summary.browserCertificationTasks).toBe(9);
+    expect(plan.summary.browserRequiredForAllCapabilityTasks).toBe(false);
     expect(plan.summary.adapterGapTasks).toBe(0);
     expect(plan.summary.guardedLiveRunBatchTasks).toBe(9);
     expect(plan.summary.officialScoreGapTasks).toBe(3);
-    expect(plan.summary.tasks).toBe(12);
+    expect(plan.summary.tasks).toBe(19);
     expect(plan.summary.currentAllTaskWinner).toBeNull();
   });
 
@@ -55,6 +59,10 @@ describe("ProofLoop standalone runner dogfood plan", () => {
     });
     const ids = plan.tasks.map((task) => task.id);
 
+    expect(ids).toContain("capability.prod-proxy-denominator");
+    expect(ids).toContain("capability.free-openrouter-longrun-plan");
+    expect(ids).toContain("capability.accounting-proofloop");
+    expect(ids).toContain("capability.multi-user-coordination");
     expect(ids).toContain("live-run.proximitty-underwriting-pr0");
     expect(ids).toContain("live-run.noderoom-multi-user-conflict");
     expect(ids).toContain("live-run.spreadsheetbench-v1-full-912");
@@ -63,6 +71,7 @@ describe("ProofLoop standalone runner dogfood plan", () => {
     expect(ids).toContain("official-score.finch");
 
     const btb = plan.tasks.find((task) => task.id === "live-run.bankertoolbench-full-100");
+    expect(btb?.layer).toBe("browser-certification");
     expect(btb?.command).toBe("npm run benchmark:proofloop:prod-proxy-longrun -- status");
     expect(btb?.estimatedCostUsd).toBe(0);
     expect(btb?.status).toBe("guarded-spend");
@@ -70,12 +79,14 @@ describe("ProofLoop standalone runner dogfood plan", () => {
     expect(btb?.commands.some((command) => command.command.includes("--max-attempts 1"))).toBe(true);
 
     const proximitty = plan.tasks.find((task) => task.id === "live-run.proximitty-underwriting-pr0");
+    expect(proximitty?.layer).toBe("browser-certification");
     expect(proximitty?.command).toBe("npm run benchmark:proofloop:prod-proxy-longrun -- status");
     expect(proximitty?.estimatedCostUsd).toBe(0);
     expect(proximitty?.paidModelRequired).toBe(true);
     expect(proximitty?.commands.some((command) => command.command.includes("--max-attempts 1"))).toBe(true);
 
     const spreadsheet = plan.tasks.find((task) => task.id === "live-run.spreadsheetbench-v1-full-912");
+    expect(spreadsheet?.layer).toBe("browser-certification");
     expect(spreadsheet?.command).toBe("npm run benchmark:proofloop:prod-proxy-longrun -- status");
     expect(spreadsheet?.status).toBe("guarded-spend");
     expect(spreadsheet?.paidModelRequired).toBe(true);
@@ -94,6 +105,7 @@ describe("ProofLoop standalone runner dogfood plan", () => {
     ].join("\n");
 
     expect(plan.budget.generationCostUsd).toBe(0);
+    expect(plan.tasks.find((task) => task.id === "capability.prod-proxy-denominator")?.paidModelRequired).toBe(false);
     expect(allCommands).not.toContain("proofloop-proxy-model-sweep");
     expect(allCommands).not.toContain("proofloop-full-proxy-benchmark-sweep");
     expect(allCommands).not.toContain("benchmark:proofloop:proxy-model-sweep");
@@ -122,9 +134,10 @@ describe("ProofLoop standalone runner dogfood plan", () => {
     const markdown = readFileSync(join(dir, "docs/eval/runner-plan.md"), "utf8");
 
     expect(json.schema).toBe("proofloop-runner-plan-v1");
+    expect(markdown).toContain("Two-Layer Contract");
     expect(markdown).toContain("Run Or Resume");
     expect(markdown).toContain("npx --yes github:HomenShum/proofloop runner run --plan docs/eval/runner-plan.json --budget-usd 100");
-    expect(markdown).toContain("npm `proofloop@0.2.0` predates the durable runner");
+    expect(markdown).toContain("until the package release with the two-layer `this-repo --write-runner-plan` path is published");
     expect(renderProofloopStandaloneRunnerPlanMarkdown(plan)).toContain("No paid model sweeps were run");
   });
 

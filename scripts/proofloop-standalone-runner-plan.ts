@@ -39,7 +39,7 @@ const dogfoodReceipt = dogfoodRunId ? readProofloopRunnerDogfoodReceipt(process.
 writeProofloopStandaloneRunnerPlanArtifacts({ plan, jsonOut, mdOut, dogfoodReceipt });
 
 console.log(`proofloop standalone runner plan: ${plan.planId}`);
-console.log(`tasks: total=${plan.summary.tasks} adapter_gaps=${plan.summary.adapterGapTasks} live_batches=${plan.summary.guardedLiveRunBatchTasks} official_score_gaps=${plan.summary.officialScoreGapTasks}`);
+console.log(`tasks: total=${plan.summary.tasks} capability_headless=${plan.summary.capabilityHeadlessTasks} browser_certification=${plan.summary.browserCertificationTasks} adapter_gaps=${plan.summary.adapterGapTasks} live_batches=${plan.summary.guardedLiveRunBatchTasks} official_score_gaps=${plan.summary.officialScoreGapTasks}`);
 console.log(`runner: ${plan.standaloneRunner.command}`);
 if (dogfoodRunId) {
   console.log(dogfoodReceipt ? `dogfood: ${dogfoodReceipt.runId} ${dogfoodReceipt.status}` : `dogfood: ${dogfoodRunId} not found`);

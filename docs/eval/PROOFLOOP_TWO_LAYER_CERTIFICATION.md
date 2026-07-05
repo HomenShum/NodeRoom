@@ -1,7 +1,7 @@
 # ProofLoop Standalone Runner Dogfood
 
-Generated: 2026-07-05T19:49:21.424Z
-Plan ID: `proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z`
+Generated: 2026-07-05T19:48:29.628Z
+Plan ID: `proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z`
 Schema: `proofloop-runner-plan-v1`
 Mode: `two-layer-certification-v1`
 
@@ -14,7 +14,7 @@ Registry note: until the package release with the two-layer `this-repo --write-r
 ## Run Or Resume
 
 - Generate/refresh plan: `npm run benchmark:proofloop:standalone-runner-plan -- --budget-usd 100`
-- Run with standalone runner: `npx --yes github:HomenShum/proofloop runner run --plan docs/eval/proofloop-standalone-runner-dogfood-plan.json --budget-usd 100`
+- Run with standalone runner: `npx --yes github:HomenShum/proofloop runner run --plan docs/eval/proofloop-two-layer-certification-runner-plan.json --budget-usd 100`
 - Resume: rerun `npx --yes github:HomenShum/proofloop runner resume --run-id latest`; task IDs and evidence paths are stable for this plan file.
 - Local long-run status: `npm run benchmark:proofloop:prod-proxy-longrun -- status`
 - Local guarded live-attempt resume: `npm run benchmark:proofloop:prod-proxy-longrun -- resume --allow-spend --budget-usd 100 --max-attempts 1`

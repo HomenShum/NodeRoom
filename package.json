@@ -81,6 +81,7 @@
     "benchmark:proofloop:prod-proxy-matrix": "tsx scripts/proofloop-prod-proxy-benchmark-matrix.ts",
     "benchmark:proofloop:prod-proxy-longrun": "tsx scripts/proofloop-prod-proxy-longrun.ts",
     "benchmark:proofloop:standalone-runner-plan": "tsx scripts/proofloop-standalone-runner-plan.ts",
+    "benchmark:proofloop:two-layer-plan": "tsx scripts/proofloop-standalone-runner-plan.ts --json-out docs/eval/proofloop-two-layer-certification-runner-plan.json --md-out docs/eval/PROOFLOOP_TWO_LAYER_CERTIFICATION.md",
     "benchmark:proofloop:charts": "tsx scripts/proofloop-charts.ts",
     "benchmark:official:task-coverage": "tsx scripts/official-benchmark-task-coverage.ts",
     "benchmark:official:ui-coverage": "tsx scripts/official-benchmark-ui-coverage.ts",

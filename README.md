@@ -406,6 +406,23 @@ exists, and an explicit non-pass blocker until a receipt exists. Local run state
 leases, receipts, and resume data live under `.proofloop/prod-proxy-longrun/`
 and are intentionally ignored.
 
+The non-technical external-runner kickoff is the two-layer ProofLoop plan:
+[`docs/eval/PROOFLOOP_TWO_LAYER_CERTIFICATION.md`](docs/eval/PROOFLOOP_TWO_LAYER_CERTIFICATION.md)
+with runner JSON at
+[`docs/eval/proofloop-two-layer-certification-runner-plan.json`](docs/eval/proofloop-two-layer-certification-runner-plan.json).
+It is generated from the same denominator and long-run queue, but splits the
+work the way we want users to experience it: headless capability proofs first,
+prod browser/UI certification second, official scorer blockers third. Browser
+verification is **not** required for every capability task; it is reserved for
+room creation/join responsiveness, prod UI adapter proof, and representative
+real-user certification receipts.
+
+```bash
+npm run benchmark:proofloop:two-layer-plan
+npx --yes github:HomenShum/proofloop runner run --plan docs/eval/proofloop-two-layer-certification-runner-plan.json --budget-usd 100
+npx --yes github:HomenShum/proofloop runner resume --run-id latest
+```
+
 The missing-family adapter contracts are versioned in
 [`docs/eval/PROOFLOOP_PROD_BROWSER_ADAPTERS.md`](docs/eval/PROOFLOOP_PROD_BROWSER_ADAPTERS.md)
 with JSON at
@@ -486,6 +503,7 @@ npm run benchmark:official:ui-coverage
 npm run benchmark:proofloop:full-proxy-sweep
 npm run benchmark:proofloop:prod-proxy-matrix
 npm run benchmark:proofloop:prod-browser-adapters
+npm run benchmark:proofloop:two-layer-plan
 npm run benchmark:proofloop:prod-proxy-longrun -- plan --budget-usd 100
 npm run benchmark:proofloop:prod-proxy-longrun -- plan --free-openrouter --free-model-limit 4 --budget-usd 0 --json-out docs/eval/proofloop-prod-proxy-longrun-free-plan.json --md-out docs/eval/PROOFLOOP_PROD_PROXY_LONGRUN_FREE.md
 npm run benchmark:proofloop:prod-proxy-longrun -- status --run-id prod-proxy-free-spreadsheetbench-102-20-20260705
@@ -495,6 +513,7 @@ npm run benchmark:proofloop:free-model-gauge -- --limit 4
 Execute live attempts only through the budgeted/resumable runner:
 
 ```bash
+npx --yes github:HomenShum/proofloop runner run --plan docs/eval/proofloop-two-layer-certification-runner-plan.json --budget-usd 100
 npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1
 npm run benchmark:proofloop:prod-proxy-longrun -- status
 npm run benchmark:proofloop:prod-proxy-longrun -- resume --execute --run-id <run-id> --allow-spend --budget-usd 100 --max-attempts 1
