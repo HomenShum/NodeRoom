@@ -50,6 +50,31 @@ describe("Proof Loop goal supervisor", () => {
     expect(JSON.parse(readFileSync(join(goalDir, "blockers.json"), "utf8"))).toHaveLength(0);
     expect(readFileSync(join(goalDir, "ledger.jsonl"), "utf8")).toContain("task_needs_scaffold_or_run");
     expect(existsSync(join(root, ".proofloop", "lanes", "spreadsheetbench-full", "blocker-analysis.json"))).toBe(true);
+
+    const exportedJsonPath = join(root, "docs", "eval", "proofloop-goal-ledger.json");
+    const exportedMarkdownPath = join(root, "docs", "eval", "PROOFLOOP_GOAL_LEDGER.md");
+    expect(existsSync(exportedJsonPath)).toBe(true);
+    expect(existsSync(exportedMarkdownPath)).toBe(true);
+    const receipt = JSON.parse(readFileSync(exportedJsonPath, "utf8"));
+    expect(receipt.schema).toBe("proofloop-goal-ledger-export-v1");
+    expect(receipt.localStore.rawLocalStoresCommitted).toBe(false);
+    expect(receipt.exports).toEqual({
+      json: "docs/eval/proofloop-goal-ledger.json",
+      markdown: "docs/eval/PROOFLOOP_GOAL_LEDGER.md",
+    });
+    expect(receipt.summary.blockedReasonCount).toBe(1);
+    expect(receipt.goals[0].blockedReasons[0]).toMatchObject({
+      taskId: "spreadsheetbench-full",
+      status: "needs_scaffold_or_run",
+      reason: "full official bundle is not staged",
+      resumeCommand: "npm run benchmark:official:task-coverage -- --strict",
+    });
+    expect(receipt.goals[0].tasks.find((task: { id: string }) => task.id === "spreadsheetbench-full").evidence).toContain(
+      "docs/eval/official-benchmark-task-coverage.json",
+    );
+    const markdown = readFileSync(exportedMarkdownPath, "utf8");
+    expect(markdown).toContain("Raw `.proofloop` stores stay gitignored");
+    expect(markdown).toContain("full official bundle is not staged");
   });
 
   it("supervises repeatedly without treating a transcript summary as completion", () => {
@@ -77,6 +102,24 @@ describe("Proof Loop goal supervisor", () => {
     expect(tasks.find((task) => task.id === "company-task-coverage-ledger")?.command).toBe("npm run benchmark:proofloop:company-tasks");
     expect(tasks.find((task) => task.id === "harness-economics-ledger")?.command).toBe("npm run benchmark:proofloop:harness-economics");
     expect(tasks.find((task) => task.id === "harness-economics-ledger")?.evidence.join(" ")).toContain("openrouter-top-paid-tools-snapshot");
+    const npxPackage = tasks.find((task) => task.id === "proofloop-npx-package-proof");
+    expect(npxPackage?.command).toBe("npm run benchmark:proofloop:npx-package");
+    expect(npxPackage?.evidence.join(" ")).toContain("docs/eval/proofloop-npx-package-proof.json");
+    expect(npxPackage?.evidence.join(" ")).toContain("docs/eval/PROOFLOOP_NPX_PACKAGE_PROOF.md");
+    const preprod = tasks.find((task) => task.id === "preprod-readiness-ledger");
+    expect(preprod?.command).toBe("npm run benchmark:proofloop:preprod");
+    expect(preprod?.evidence.join(" ")).toContain("docs/eval/proofloop-preprod-readiness.json");
+    expect(preprod?.evidence.join(" ")).toContain("docs/eval/PROOFLOOP_PREPROD_READINESS.md");
+    expect(preprod?.evidence.join(" ")).toContain("docs/runbooks/PROOFLOOP_PREPROD_RUNBOOK.md");
+    expect(tasks.findIndex((task) => task.id === "harness-economics-ledger")).toBeLessThan(
+      tasks.findIndex((task) => task.id === "proofloop-npx-package-proof"),
+    );
+    expect(tasks.findIndex((task) => task.id === "proofloop-npx-package-proof")).toBeLessThan(
+      tasks.findIndex((task) => task.id === "preprod-readiness-ledger"),
+    );
+    expect(tasks.findIndex((task) => task.id === "preprod-readiness-ledger")).toBeLessThan(
+      tasks.findIndex((task) => task.id === "external-adapter-setup-doctor"),
+    );
     const setupDoctor = tasks.find((task) => task.id === "external-adapter-setup-doctor");
     expect(setupDoctor?.command).toContain("setup bankertoolbench --doctor");
     expect(setupDoctor?.command).toContain("setup finch --doctor");

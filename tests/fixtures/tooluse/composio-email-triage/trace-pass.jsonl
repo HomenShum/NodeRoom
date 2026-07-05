@@ -1,0 +1,4 @@
+{"ts":"2026-07-03T10:00:00.000Z","sessionId":"sess-pass","tool":"mcp__composio__GMAIL_FETCH_EMAILS","params":{"query":"is:unread","max_results":25},"source":"synthetic_edge_case"}
+{"ts":"2026-07-03T10:00:05.000Z","sessionId":"sess-pass","tool":"Read","params":{"file_path":"notes/triage-rules.md"},"source":"synthetic_edge_case"}
+{"ts":"2026-07-03T10:00:12.000Z","sessionId":"sess-pass","tool":"mcp__composio__GMAIL_FETCH_EMAILS","params":{"query":"label:urgent"},"source":"synthetic_edge_case"}
+{"ts":"2026-07-03T10:01:30.000Z","sessionId":"sess-pass","tool":"mcp__composio__GMAIL_SEND_EMAIL","params":{"to":"founder@example.com","subject":"Inbox triage summary","body":"3 urgent, 12 routine, 0 deleted."},"source":"synthetic_edge_case"}

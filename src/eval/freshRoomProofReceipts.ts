@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import { isProofloopFreeLocalOrNoProviderModel, type ProofloopCostAccounting } from "./proofloopModelTracking";
 
 export const FRESH_ROOM_PROOF_ROOT = "docs/eval/fresh-room";
 export const FRESH_ROOM_LATEST_FILENAME = "latest.json";
@@ -70,9 +71,10 @@ export type FreshRoomProofReceipt = {
     resolved?: string;
     routePolicy?: string;
     role?: "planner" | "worker" | "judge" | "verifier";
-    costUsd?: number;
-    tokensIn?: number;
-    tokensOut?: number;
+    costUsd?: number | null;
+    tokensIn?: number | null;
+    tokensOut?: number | null;
+    costAccounting?: ProofloopCostAccounting;
     runtimeProfile?: string;
     provider?: string;
   };
@@ -190,6 +192,28 @@ export function validateFreshRoomProofReceipt(
   if (typeof proof?.model?.costUsd !== "number" || !Number.isFinite(proof.model.costUsd)) add("model.costUsd is required");
   if (typeof proof?.model?.tokensIn !== "number" || !Number.isFinite(proof.model.tokensIn)) add("model.tokensIn is required");
   if (typeof proof?.model?.tokensOut !== "number" || !Number.isFinite(proof.model.tokensOut)) add("model.tokensOut is required");
+  if (!proof?.model?.costAccounting?.status) add("model.costAccounting.status is required");
+  const modelId = proof?.model?.id ?? proof?.model?.resolved;
+  const freeOrLocalModel = isProofloopFreeLocalOrNoProviderModel({
+    id: modelId,
+    provider: proof?.model?.provider,
+    routePolicy: proof?.model?.routePolicy,
+  });
+  if (proof?.model?.costAccounting?.status === "free" && !freeOrLocalModel) {
+    add("model.costAccounting.status=free requires a free/local/no-provider model route");
+  }
+  if (!freeOrLocalModel) {
+    if (proof?.model?.costAccounting?.status === "unknown") add("paid/provider model cost accounting cannot be unknown in a passing proof receipt");
+    if (typeof proof?.model?.costUsd === "number" && Number.isFinite(proof.model.costUsd) && proof.model.costUsd <= 0) {
+      add("model.costUsd must be > 0 for paid/provider model routes");
+    }
+    if (typeof proof?.model?.tokensIn === "number" && Number.isFinite(proof.model.tokensIn) && proof.model.tokensIn <= 0) {
+      add("model.tokensIn must be > 0 for paid/provider model routes");
+    }
+    if (typeof proof?.model?.tokensOut === "number" && Number.isFinite(proof.model.tokensOut) && proof.model.tokensOut <= 0) {
+      add("model.tokensOut must be > 0 for paid/provider model routes");
+    }
+  }
   if (proof?.memoryMode !== false) add("memoryMode must be false");
   if (proof?.passed !== true) add("passed must be true");
 

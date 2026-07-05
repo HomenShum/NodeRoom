@@ -36,6 +36,7 @@ describe("fresh-room proof receipt registry", () => {
       status: "passed",
       sourceReceipt: "docs/eval/fresh-room/FR-020/latest.json",
     });
+    expect(cases["FR-020"].gates.find((gate) => gate.id === "fresh_room_ui")?.status).toBe("pass");
     expect(cases["FR-020"].doesNotProve).toEqual(expect.arrayContaining([
       "100/100 task official BankerToolBench completion",
       "aggregate production benchmark score",
@@ -108,14 +109,54 @@ describe("fresh-room proof receipts", () => {
       provider: "openrouter",
       routePolicy: "specific",
       role: "planner",
-      costUsd: 0,
-      tokensIn: 0,
-      tokensOut: 0,
+      costUsd: 0.0042,
+      tokensIn: 1200,
+      tokensOut: 240,
+      costAccounting: { status: "actual", source: "browser_telemetry", note: "unit test telemetry" },
     };
 
     const validation = validateFreshRoomProofReceipt(receipt, { caseId: "FR-010" });
 
     expect(validation).toMatchObject({ ok: true, errors: [] });
+  });
+
+  it("accepts explicit local/free routes with zero cost and tokens", () => {
+    const receipt = validReceipt();
+    receipt.model = {
+      resolved: "local/deterministic",
+      provider: "local",
+      routePolicy: "deterministic",
+      role: "planner",
+      costUsd: 0,
+      tokensIn: 0,
+      tokensOut: 0,
+      costAccounting: { status: "free", source: "free_local", note: "deterministic local unit route" },
+    };
+
+    const validation = validateFreshRoomProofReceipt(receipt, { caseId: "FR-010" });
+
+    expect(validation).toMatchObject({ ok: true, errors: [] });
+  });
+
+  it("rejects paid/provider receipts with silent zero cost and token fields", () => {
+    const receipt = validReceipt();
+    receipt.model = {
+      id: "z-ai/glm-5.2",
+      provider: "openrouter",
+      routePolicy: "specific",
+      role: "planner",
+      costUsd: 0,
+      tokensIn: 0,
+      tokensOut: 0,
+      costAccounting: { status: "actual", source: "browser_telemetry", note: "claimed provider telemetry" },
+    };
+
+    const validation = validateFreshRoomProofReceipt(receipt, { caseId: "FR-010" });
+
+    expect(validation.ok).toBe(false);
+    expect(validation.errors.join("\n")).toContain("model.costUsd must be > 0 for paid/provider model routes");
+    expect(validation.errors.join("\n")).toContain("model.tokensIn must be > 0 for paid/provider model routes");
+    expect(validation.errors.join("\n")).toContain("model.tokensOut must be > 0 for paid/provider model routes");
   });
 
   it("rejects receipts that claim export/reopen/scorer gates without structured proof", () => {
@@ -237,9 +278,10 @@ function validReceipt(): FreshRoomProofReceipt {
       provider: "openrouter",
       routePolicy: "specific",
       role: "planner",
-      costUsd: 0,
-      tokensIn: 0,
-      tokensOut: 0,
+      costUsd: 0.0042,
+      tokensIn: 1200,
+      tokensOut: 240,
+      costAccounting: { status: "actual", source: "browser_telemetry", note: "unit test telemetry" },
     },
     memoryMode: false,
     freshness: {

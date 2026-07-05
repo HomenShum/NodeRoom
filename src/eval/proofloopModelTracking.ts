@@ -1,8 +1,24 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
+import { getModelPricing, resolveModelAlias } from "../nodeagent/models/modelCatalog";
 
 export type ProofloopModelRole = "planner" | "worker" | "judge" | "verifier";
+export type ProofloopCostAccountingStatus = "actual" | "estimated" | "free" | "unknown";
+export type ProofloopCostAccountingSource =
+  | "env"
+  | "browser_telemetry"
+  | "catalog_estimate"
+  | "free_local"
+  | "free_provider"
+  | "no_provider"
+  | "unknown";
+
+export type ProofloopCostAccounting = {
+  status: ProofloopCostAccountingStatus;
+  source: ProofloopCostAccountingSource;
+  note: string;
+};
 
 export type ProofloopModelRoute = {
   provider: string;
@@ -13,9 +29,12 @@ export type ProofloopModelRoute = {
   tokensIn: number;
   tokensOut: number;
   latencyMs: number;
+  costAccounting: ProofloopCostAccounting;
   selectionReason: string;
   source: "env" | "suite-default" | "deterministic-default";
 };
+
+export type ProofloopModelCostFields = Pick<ProofloopModelRoute, "costUsd" | "tokensIn" | "tokensOut" | "costAccounting">;
 
 export type ProofloopHarnessVersion = {
   suite: string;
@@ -45,14 +64,22 @@ export function proofloopModelRouteForRun(args: {
   const source: ProofloopModelRoute["source"] = explicit ? "env" : id === "local/deterministic" ? "deterministic-default" : "suite-default";
   const routePolicy = id === "local/deterministic" ? "deterministic" : explicit ? "specific" : "default";
   const role = args.role ?? roleForSuite(args.suite);
+  const provider = providerForModel(id);
+  const costFields = proofloopModelCostFieldsForRun({
+    modelId: id,
+    provider,
+    routePolicy,
+    costUsd: numberFromEnv(env.PROOFLOOP_MODEL_COST_USD ?? env.PROOFLOOP_PROVIDER_COST_USD),
+    tokensIn: numberFromEnv(env.PROOFLOOP_TOKENS_IN ?? env.PROOFLOOP_INPUT_TOKENS),
+    tokensOut: numberFromEnv(env.PROOFLOOP_TOKENS_OUT ?? env.PROOFLOOP_OUTPUT_TOKENS),
+    source: "env",
+  });
   return {
-    provider: providerForModel(id),
+    provider,
     id,
     routePolicy,
     role,
-    costUsd: numberFromEnv(env.PROOFLOOP_MODEL_COST_USD) ?? 0,
-    tokensIn: numberFromEnv(env.PROOFLOOP_TOKENS_IN) ?? 0,
-    tokensOut: numberFromEnv(env.PROOFLOOP_TOKENS_OUT) ?? 0,
+    ...costFields,
     latencyMs: numberFromEnv(env.PROOFLOOP_MODEL_LATENCY_MS ?? env.PROOFLOOP_LATENCY_MS ?? env.PROOFLOOP_DURATION_MS) ?? 0,
     selectionReason: env.PROOFLOOP_MODEL_SELECTION_REASON ?? defaultSelectionReason({
       suite: args.suite,
@@ -64,6 +91,100 @@ export function proofloopModelRouteForRun(args: {
     }),
     source,
   };
+}
+
+export function proofloopModelCostFieldsForRun(args: {
+  modelId: string;
+  provider?: string;
+  routePolicy?: string;
+  costUsd?: number | null;
+  tokensIn?: number | null;
+  tokensOut?: number | null;
+  source?: "env" | "browser_telemetry";
+}): ProofloopModelCostFields {
+  const provider = (args.provider ?? providerForModel(args.modelId)).trim();
+  const routePolicy = args.routePolicy ?? "specific";
+  const reportedCostUsd = finiteNonNegative(args.costUsd) ? args.costUsd : undefined;
+  const reportedTokensIn = finiteNonNegative(args.tokensIn) ? args.tokensIn : undefined;
+  const reportedTokensOut = finiteNonNegative(args.tokensOut) ? args.tokensOut : undefined;
+  const hasPositiveTokens = (reportedTokensIn ?? 0) > 0 && (reportedTokensOut ?? 0) > 0;
+  const telemetrySource = args.source ?? "env";
+  const freeOrLocal = isProofloopFreeLocalOrNoProviderModel({
+    id: args.modelId,
+    provider,
+    routePolicy,
+  });
+
+  if (freeOrLocal) {
+    return {
+      costUsd: reportedCostUsd ?? 0,
+      tokensIn: reportedTokensIn ?? 0,
+      tokensOut: reportedTokensOut ?? 0,
+      costAccounting: {
+        status: "free",
+        source: freeAccountingSource(args.modelId, provider),
+        note: "Zero cost is explicit because this route is local, no-provider, deterministic, or catalog-priced as free.",
+      },
+    };
+  }
+
+  if (reportedCostUsd !== undefined && reportedCostUsd > 0 && hasPositiveTokens) {
+    return {
+      costUsd: reportedCostUsd,
+      tokensIn: reportedTokensIn!,
+      tokensOut: reportedTokensOut!,
+      costAccounting: {
+        status: "actual",
+        source: telemetrySource,
+        note: "Cost and token counts came from run telemetry.",
+      },
+    };
+  }
+
+  if (hasPositiveTokens) {
+    const estimated = estimateModelCostUsd(args.modelId, reportedTokensIn!, reportedTokensOut!);
+    if (estimated !== undefined && estimated > 0) {
+      return {
+        costUsd: estimated,
+        tokensIn: reportedTokensIn!,
+        tokensOut: reportedTokensOut!,
+        costAccounting: {
+          status: "estimated",
+          source: "catalog_estimate",
+          note: `Estimated from catalog pricing because ${telemetrySource} did not report a positive provider cost.`,
+        },
+      };
+    }
+  }
+
+  return {
+    costUsd: Number.NaN,
+    tokensIn: reportedTokensIn ?? Number.NaN,
+    tokensOut: reportedTokensOut ?? Number.NaN,
+    costAccounting: {
+      status: "unknown",
+      source: "unknown",
+      note: "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage.",
+    },
+  };
+}
+
+export function isProofloopFreeLocalOrNoProviderModel(args: {
+  id?: string;
+  provider?: string;
+  routePolicy?: string;
+}): boolean {
+  const id = (args.id ?? "").trim();
+  const resolved = resolveModelAlias(id).toLowerCase();
+  const provider = (args.provider ?? "").trim().toLowerCase();
+  const routePolicy = (args.routePolicy ?? "").trim().toLowerCase();
+  if (!id) return false;
+  if (routePolicy === "deterministic") return true;
+  if (provider === "local" || provider === "none" || provider === "no-provider" || provider === "no_provider") return true;
+  if (resolved.startsWith("local/") || resolved === "local") return true;
+  if (resolved.endsWith(":free") || resolved.startsWith("openrouter/free")) return true;
+  const pricing = getModelPricing(resolveModelAlias(id));
+  return pricing != null && pricing.inputPer1M === 0 && pricing.outputPer1M === 0;
 }
 
 export function proofloopHarnessVersionForSuite(root: string, suite: string, extraFiles: string[] = []): ProofloopHarnessVersion {
@@ -91,6 +212,7 @@ export function proofloopHarnessVersionForSuite(root: string, suite: string, ext
 
 export function assertProofloopModelTracked(model: ProofloopModelRoute): string[] {
   const failures: string[] = [];
+  const freeOrLocal = isProofloopFreeLocalOrNoProviderModel(model);
   if (!model.id.trim()) failures.push("missing_model_id");
   if (!model.provider.trim()) failures.push("missing_model_provider");
   if (!model.role.trim()) failures.push("missing_model_role");
@@ -99,6 +221,14 @@ export function assertProofloopModelTracked(model: ProofloopModelRoute): string[
   if (!Number.isFinite(model.tokensIn)) failures.push("missing_model_tokens_in");
   if (!Number.isFinite(model.tokensOut)) failures.push("missing_model_tokens_out");
   if (!Number.isFinite(model.latencyMs)) failures.push("missing_model_latency_ms");
+  if (!model.costAccounting?.status) failures.push("missing_model_cost_accounting");
+  if (model.costAccounting?.status === "unknown" && !freeOrLocal) failures.push("unknown_paid_provider_cost_accounting");
+  if (model.costAccounting?.status === "free" && !freeOrLocal) failures.push("free_cost_accounting_requires_free_local_or_no_provider");
+  if (!freeOrLocal) {
+    if (model.costUsd === 0) failures.push("zero_paid_provider_cost_usd");
+    if (model.tokensIn === 0) failures.push("zero_paid_provider_tokens_in");
+    if (model.tokensOut === 0) failures.push("zero_paid_provider_tokens_out");
+  }
   if (!model.selectionReason.trim()) failures.push("missing_model_selection_reason");
   return failures;
 }
@@ -129,6 +259,24 @@ function numberFromEnv(value: string | undefined): number | undefined {
   if (!value) return undefined;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function finiteNonNegative(value: number | null | undefined): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0;
+}
+
+function estimateModelCostUsd(modelId: string, tokensIn: number, tokensOut: number): number | undefined {
+  const pricing = getModelPricing(resolveModelAlias(modelId));
+  if (!pricing) return undefined;
+  return Number(((tokensIn * pricing.inputPer1M + tokensOut * pricing.outputPer1M) / 1_000_000).toFixed(8));
+}
+
+function freeAccountingSource(modelId: string, provider: string): ProofloopCostAccountingSource {
+  const normalizedProvider = provider.trim().toLowerCase();
+  const normalizedModel = resolveModelAlias(modelId).toLowerCase();
+  if (normalizedProvider === "none" || normalizedProvider === "no-provider" || normalizedProvider === "no_provider") return "no_provider";
+  if (normalizedProvider === "local" || normalizedModel.startsWith("local/") || normalizedModel === "local") return "free_local";
+  return "free_provider";
 }
 
 function defaultSelectionReason(args: {

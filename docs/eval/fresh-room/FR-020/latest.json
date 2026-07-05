@@ -15,10 +15,15 @@
     "provider": "openrouter",
     "routePolicy": "specific",
     "role": "planner",
-    "costUsd": 0,
-    "tokensIn": 0,
-    "tokensOut": 0,
-    "runtimeProfile": "benchmark_completion"
+    "costUsd": 0.007238,
+    "tokensIn": 5000,
+    "tokensOut": 1400,
+    "runtimeProfile": "benchmark_completion",
+    "costAccounting": {
+      "status": "estimated",
+      "source": "catalog_estimate",
+      "note": "Estimated from catalog pricing using conservative prompt/output token estimates because this live receipt predates browser telemetry; replaces the prior silent zero-cost placeholder."
+    }
   },
   "prompt": "Official BankerToolBench task btb-0fc7bc3c: Build a buyer screen and short memo.",
   "memoryMode": false,
@@ -205,5 +210,10 @@
     "artifact_placeholder_scan",
     "official_scorer_handoff"
   ],
-  "passed": true
+  "passed": true,
+  "telemetry": {
+    "inputTokens": 5000,
+    "outputTokens": 1400,
+    "costUsd": 0.007238
+  }
 }

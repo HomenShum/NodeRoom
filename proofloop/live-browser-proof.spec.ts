@@ -31,6 +31,7 @@ import {
   validateFreshRoomProofReceipt,
   type FreshRoomProofReceipt,
 } from "../src/eval/freshRoomProofReceipts";
+import { proofloopModelCostFieldsForRun } from "../src/eval/proofloopModelTracking";
 import {
   filterProofloopTasksByIds,
   parseProofloopTaskIds,
@@ -85,7 +86,20 @@ type TaskProof = {
   placeholderFindings: string[];
   durationMs: number;
   receiptPath: string;
+  telemetry: LiveRunTelemetry | null;
   error?: string;
+};
+
+type LiveRunTelemetry = {
+  model: string;
+  toolCalls: number | null;
+  steps: number | null;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  latencyMs: number | null;
+  costUsd: number | null;
+  rawText: string;
+  rawTitle: string;
 };
 
 const CAVEAT_PATTERNS: Array<{ code: string; pattern: RegExp }> = [
@@ -245,6 +259,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       console.warn(`[proofloop-live] room trace not visible for task: ${task.id}`);
       await emitCockpitEvent(page, { type: "gate_fail", gate: "room_trace_visible" }, COCKPIT_EVENTS_PATH);
     }
+    const runTelemetry = await latestRunTelemetry(page);
 
     const artifactEvidenceText = await visibleTaskEvidenceText(page, task);
     const scoringText = task.expectArtifactEdit ? artifactEvidenceText : `${agentOutput}\n${artifactEvidenceText}`;
@@ -291,6 +306,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
     ];
 
     const generatedAt = new Date().toISOString();
+    const modelReceipt = buildFreshRoomModelReceipt([runTelemetry]);
     const receipt: FreshRoomProofReceipt = {
       schema: 1,
       caseId: FRESH_PROOF_CASE_ID,
@@ -301,18 +317,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       roomId: roomIdFromUrl(taskRoomUrl),
       roomUrl: taskRoomUrl,
       command: proofloopLiveBrowserCommand(),
-      model: {
-        id: AGENT_MODEL_POLICY,
-        requested: AGENT_MODEL_POLICY,
-        resolved: AGENT_MODEL_POLICY,
-        routePolicy: AGENT_MODEL_MODE,
-        role: "planner",
-        costUsd: 0,
-        tokensIn: 0,
-        tokensOut: 0,
-        runtimeProfile: "benchmark_completion",
-        provider: providerForAgentModelPolicy(AGENT_MODEL_POLICY),
-      },
+      model: modelReceipt,
       prompt: agentGoal.slice(0, 1_200),
       memoryMode: false,
       freshness: {
@@ -343,6 +348,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
         verdict: "not_run",
         reason: "No Gemini visual judge configured for proof-loop cell-writing tasks.",
       },
+      telemetry: freshRoomTelemetryFor([runTelemetry], modelReceipt),
       gatesProven,
       passed,
     };
@@ -387,6 +393,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       placeholderFindings,
       durationMs,
       receiptPath,
+      telemetry: runTelemetry,
       error,
     });
     if (!passed) taskFailures.push(`${task.id}: ${error ?? "unknown failure"}`);
@@ -400,6 +407,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
   await emitCockpitEvent(page, { type: "run_done", message: `${passCount}/${taskProofs.length} tasks passed` }, COCKPIT_EVENTS_PATH);
 
   const suiteReceiptPath = resolve(SUITE_PROOF_PATH);
+  const suiteModelReceipt = buildFreshRoomModelReceipt(taskProofs.map((t) => t.telemetry));
   writeFreshRoomProofReceipt(
     {
       schema: 1,
@@ -409,18 +417,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       baseUrl: BASE,
       roomUrl: suiteRoomUrl,
       command: proofloopLiveBrowserCommand(),
-      model: {
-        id: AGENT_MODEL_POLICY,
-        requested: AGENT_MODEL_POLICY,
-        resolved: AGENT_MODEL_POLICY,
-        routePolicy: AGENT_MODEL_MODE,
-        role: "planner",
-        costUsd: 0,
-        tokensIn: 0,
-        tokensOut: 0,
-        runtimeProfile: "benchmark_completion",
-        provider: providerForAgentModelPolicy(AGENT_MODEL_POLICY),
-      },
+      model: suiteModelReceipt,
       memoryMode: false,
       freshness: {
         roomCreatedAfterRunStart: true,
@@ -442,6 +439,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
         score: taskProofs.length > 0 ? passCount / taskProofs.length : 0,
         details: { taskProofs },
       },
+      telemetry: freshRoomTelemetryFor(taskProofs.map((t) => t.telemetry), suiteModelReceipt),
       gatesProven: [
         "fresh_room_join",
         "public_nodeagent_invocation",
@@ -666,6 +664,112 @@ function proofloopLiveBrowserCommand(): string {
     `BENCH_AGENT_MODEL_POLICY=${AGENT_MODEL_POLICY}`,
     "npx playwright test --config playwright.proofloop.config.ts proofloop/live-browser-proof.spec.ts --headed",
   ].filter(Boolean).join(" ");
+}
+
+function buildFreshRoomModelReceipt(telemetry: Array<LiveRunTelemetry | null | undefined>): NonNullable<FreshRoomProofReceipt["model"]> {
+  const provider = providerForAgentModelPolicy(AGENT_MODEL_POLICY);
+  const measured = aggregateTelemetry(telemetry);
+  const costFields = proofloopModelCostFieldsForRun({
+    modelId: AGENT_MODEL_POLICY,
+    provider,
+    routePolicy: AGENT_MODEL_MODE,
+    costUsd: measured.costUsd,
+    tokensIn: measured.inputTokens,
+    tokensOut: measured.outputTokens,
+    source: "browser_telemetry",
+  });
+  return {
+    id: AGENT_MODEL_POLICY,
+    requested: AGENT_MODEL_POLICY,
+    resolved: measured.model ?? AGENT_MODEL_POLICY,
+    routePolicy: AGENT_MODEL_MODE,
+    role: "planner",
+    costUsd: finiteOrNull(costFields.costUsd),
+    tokensIn: finiteOrNull(costFields.tokensIn),
+    tokensOut: finiteOrNull(costFields.tokensOut),
+    costAccounting: costFields.costAccounting,
+    runtimeProfile: "benchmark_completion",
+    provider,
+  };
+}
+
+function freshRoomTelemetryFor(
+  telemetry: Array<LiveRunTelemetry | null | undefined>,
+  model: NonNullable<FreshRoomProofReceipt["model"]>,
+): FreshRoomProofReceipt["telemetry"] | undefined {
+  const measured = aggregateTelemetry(telemetry);
+  if (
+    measured.costUsd === null &&
+    measured.inputTokens === null &&
+    measured.outputTokens === null &&
+    measured.latencyMs === null &&
+    measured.toolCalls === null
+  ) {
+    return undefined;
+  }
+  return {
+    ...(measured.latencyMs !== null ? { latencyMs: measured.latencyMs } : {}),
+    ...(measured.inputTokens !== null ? { inputTokens: measured.inputTokens } : {}),
+    ...(measured.outputTokens !== null ? { outputTokens: measured.outputTokens } : {}),
+    ...(measured.toolCalls !== null ? { toolCalls: measured.toolCalls } : {}),
+    ...(typeof model.costUsd === "number" && Number.isFinite(model.costUsd) ? { costUsd: model.costUsd } : {}),
+  };
+}
+
+function aggregateTelemetry(telemetry: Array<LiveRunTelemetry | null | undefined>): {
+  model: string | null;
+  costUsd: number | null;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  latencyMs: number | null;
+  toolCalls: number | null;
+} {
+  const rows = telemetry.filter((item): item is LiveRunTelemetry => item != null);
+  return {
+    model: rows.map((row) => row.model).find((value) => value.trim().length > 0) ?? null,
+    costUsd: sumNullable(rows.map((row) => row.costUsd)),
+    inputTokens: sumNullable(rows.map((row) => row.inputTokens)),
+    outputTokens: sumNullable(rows.map((row) => row.outputTokens)),
+    latencyMs: sumNullable(rows.map((row) => row.latencyMs)),
+    toolCalls: sumNullable(rows.map((row) => row.toolCalls)),
+  };
+}
+
+async function latestRunTelemetry(page: Page): Promise<LiveRunTelemetry | null> {
+  const locator = page.locator(".r-trace-tele").last();
+  if (!(await locator.isVisible({ timeout: 10_000 }).catch(() => false))) return null;
+  const rawText = ((await locator.textContent().catch(() => "")) ?? "").replace(/\s+/g, " ").trim();
+  const rawTitle = ((await locator.getAttribute("title").catch(() => "")) ?? "").replace(/\s+/g, " ").trim();
+  const costMatch = rawText.match(/\$\s*([0-9]+(?:\.[0-9]+)?)/);
+  const toolMatch = rawText.match(/(?:^|[^0-9A-Za-z])\s*([0-9,]+)\s+tools?\b/i);
+  const modelMatch = rawText.match(/^(.+?)\s+[^0-9A-Za-z\s]\s+/);
+  const model = modelMatch?.[1]?.trim() || rawText.replace(/\b[0-9,]+\s+tools?\b.*$/i, "").trim();
+  const titleMatch = rawTitle.match(/([0-9,]+)\s+steps\s+[^0-9]+([0-9,]+)\s+in\s+\+\s+([0-9,]+)\s+out\s+tokens\s+[^0-9]+([0-9,]+)ms/i);
+  return {
+    model,
+    toolCalls: toolMatch ? parseCount(toolMatch[1]) : null,
+    steps: titleMatch ? parseCount(titleMatch[1]) : null,
+    inputTokens: titleMatch ? parseCount(titleMatch[2]) : null,
+    outputTokens: titleMatch ? parseCount(titleMatch[3]) : null,
+    latencyMs: titleMatch ? parseCount(titleMatch[4]) : null,
+    costUsd: costMatch ? Number(costMatch[1]) : null,
+    rawText,
+    rawTitle,
+  };
+}
+
+function sumNullable(values: Array<number | null>): number | null {
+  const finite = values.filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+  if (finite.length === 0) return null;
+  return Number(finite.reduce((sum, value) => sum + value, 0).toFixed(8));
+}
+
+function parseCount(value: string): number {
+  return Number(value.replace(/,/g, ""));
+}
+
+function finiteOrNull(value: number): number | null {
+  return Number.isFinite(value) ? value : null;
 }
 
 async function waitForNewAgentStream(page: Page, previousCount: number, timeoutMs: number): Promise<Locator> {

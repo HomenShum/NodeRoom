@@ -30,11 +30,20 @@ import {
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { IMMUTABLE_FILES, VERIFIER_WEAKENING_PATTERNS } from "./scaffoldProposal";
+import { TOOL_USE_LOG_RELATIVE_PATH } from "./proofloopToolUse";
 
 export const PROOFLOOP_HOOK_COMMAND_PREFIX = "node .proofloop/hooks/";
 export const STOP_GATE_COMMAND = "node .proofloop/hooks/stop-gate.mjs";
 export const PRETOOLUSE_GUARD_COMMAND = "node .proofloop/hooks/pretooluse-guard.mjs";
+export const POSTTOOLUSE_LOG_COMMAND = "node .proofloop/hooks/posttooluse-log.mjs";
 export const PRETOOLUSE_MATCHER = "Edit|Write|MultiEdit|NotebookEdit";
+/**
+ * Matcher for the PostToolUse logger: ALL tools. Claude Code treats matchers
+ * as regexes (same convention as PRETOOLUSE_MATCHER above); ".*" matches every
+ * tool name regardless of anchoring, so MCP names like
+ * mcp__composio__GMAIL_SEND_EMAIL are captured too.
+ */
+export const POSTTOOLUSE_LOG_MATCHER = ".*";
 export const DEFAULT_MAX_STOP_BLOCKS = 5;
 export const DEFAULT_HOOKS_GOAL_ID = "official-scores";
 
@@ -47,11 +56,18 @@ export const DEFAULT_HOOKS_GOAL_ID = "official-scores";
  * rewriting promoted-regression history. This guard closes that gap at edit
  * time. `.proofloop/hooks/` is also protected so the agent cannot weaken its
  * own enforcement layer (config, counters, or the hook scripts themselves).
+ * `.proofloop/tooluse/` (the PostToolUse capture log) is protected because the
+ * expected-tool-use verifier (`proofloop tooluse verify`) treats that log as
+ * enforcement input -- an agent doctoring its own tool log to satisfy a
+ * contract is exactly the doctrine's reward-hacking pattern. Known bypass:
+ * Bash writes are not intercepted by this guard; CI re-verification is the
+ * backstop.
  */
 export const PROTECTED_EXTRA_PATHS: readonly string[] = [
   ".proofloop/regressions.json",
   ".proofloop/regressions/",
   ".proofloop/hooks/",
+  ".proofloop/tooluse/",
 ];
 
 /** Path prefixes whose NEW CONTENT is scanned for verifier-weakening patterns. */
@@ -81,6 +97,14 @@ export type ProofloopHooksConfig = {
    * the stop with an honest note -- that is the documented non-passed stop.
    */
   allowBlockedExternal: boolean;
+  /**
+   * Whether the PostToolUse logger (expected-tool-use capture) is installed.
+   * The capture is LOCAL: it records what this worker session's tool hooks
+   * saw, nothing more (no server-side attestation).
+   */
+  toolUseLog: boolean;
+  /** Repo-relative JSONL path the logger appends to. */
+  toolUseLogPath: string;
   immutableFiles: string[];
   protectedExtraPaths: string[];
   guardedContentPathPrefixes: string[];
@@ -96,6 +120,8 @@ export type ProofloopHooksInstallOptions = {
   /** Override the gate with a real command (switches gateMode to "command"). */
   gateCommand?: string;
   maxStopBlocks?: number;
+  /** false (`--no-tooluse-log`) skips the PostToolUse expected-tool-use logger. Default true. */
+  toolUseLog?: boolean;
   now?: () => Date;
 };
 
@@ -106,8 +132,11 @@ export type ProofloopHooksInstallResult = {
   configPath: string;
   stopGatePath: string;
   preToolUseGuardPath: string;
+  /** null when installed with toolUseLog: false. */
+  postToolUseLogPath: string | null;
   addedStopHook: boolean;
   addedPreToolUseHook: boolean;
+  addedPostToolUseLogHook: boolean;
 };
 
 export type ProofloopHooksUninstallOptions = {
@@ -130,6 +159,7 @@ export type ProofloopHooksStatus = {
     exists: boolean;
     stopHookInstalled: boolean;
     preToolUseHookInstalled: boolean;
+    postToolUseLogInstalled: boolean;
   }[];
   scripts: { path: string; exists: boolean }[];
   configPath: string;
@@ -137,6 +167,8 @@ export type ProofloopHooksStatus = {
   maxStopBlocks?: number;
   goalId?: string;
   gateMode?: string;
+  toolUseLog?: boolean;
+  toolUseLogPath?: string;
   sessionBlockCounts: Record<string, number>;
 };
 
@@ -165,10 +197,15 @@ export function installProofloopHooks(options: ProofloopHooksInstallOptions = {}
   const preToolUseGuardPath = join(hooksDir, "pretooluse-guard.mjs");
   writeFileSync(stopGatePath, stopGateScript(config), "utf8");
   writeFileSync(preToolUseGuardPath, preToolUseGuardScript(config), "utf8");
+  let postToolUseLogPath: string | null = null;
+  if (config.toolUseLog) {
+    postToolUseLogPath = join(hooksDir, "posttooluse-log.mjs");
+    writeFileSync(postToolUseLogPath, postToolUseLogScript(config), "utf8");
+  }
 
   const settingsPath = join(root, ".claude", options.local ? "settings.local.json" : "settings.json");
   const settings = readSettingsForMerge(settingsPath);
-  const merged = mergeHookEntries(settings);
+  const merged = mergeHookEntries(settings, { toolUseLog: config.toolUseLog });
   mkdirSync(dirname(settingsPath), { recursive: true });
   writeFileSync(settingsPath, `${JSON.stringify(settings, null, 2)}\n`, "utf8");
 
@@ -179,8 +216,10 @@ export function installProofloopHooks(options: ProofloopHooksInstallOptions = {}
     configPath,
     stopGatePath,
     preToolUseGuardPath,
+    postToolUseLogPath,
     addedStopHook: merged.addedStop,
     addedPreToolUseHook: merged.addedPreToolUse,
+    addedPostToolUseLogHook: merged.addedPostToolUseLog,
   };
 }
 
@@ -195,6 +234,8 @@ export function buildHooksConfig(options: ProofloopHooksInstallOptions = {}): Pr
     gateCommand,
     maxStopBlocks: options.maxStopBlocks && options.maxStopBlocks > 0 ? options.maxStopBlocks : DEFAULT_MAX_STOP_BLOCKS,
     allowBlockedExternal: true,
+    toolUseLog: options.toolUseLog !== false,
+    toolUseLogPath: TOOL_USE_LOG_RELATIVE_PATH,
     immutableFiles: [...IMMUTABLE_FILES],
     protectedExtraPaths: [...PROTECTED_EXTRA_PATHS],
     guardedContentPathPrefixes: [...GUARDED_CONTENT_PATH_PREFIXES],
@@ -211,7 +252,10 @@ export function buildHooksConfig(options: ProofloopHooksInstallOptions = {}): Pr
  * keys, and is idempotent (an entry whose command starts with
  * PROOFLOOP_HOOK_COMMAND_PREFIX is recognized as ours and not duplicated).
  */
-export function mergeHookEntries(settings: JsonRecord): { addedStop: boolean; addedPreToolUse: boolean } {
+export function mergeHookEntries(
+  settings: JsonRecord,
+  options: { toolUseLog?: boolean } = {},
+): { addedStop: boolean; addedPreToolUse: boolean; addedPostToolUseLog: boolean } {
   const hooks = asRecord(settings.hooks) ?? {};
   settings.hooks = hooks;
 
@@ -235,7 +279,22 @@ export function mergeHookEntries(settings: JsonRecord): { addedStop: boolean; ad
     });
     addedPreToolUse = true;
   }
-  return { addedStop, addedPreToolUse };
+
+  // Expected-tool-use capture: a SEPARATE additional PostToolUse entry (never
+  // touches any pre-existing PostToolUse groups the user may have).
+  let addedPostToolUseLog = false;
+  if (options.toolUseLog !== false) {
+    const postGroups = asGroupArray(hooks.PostToolUse);
+    hooks.PostToolUse = postGroups;
+    if (!groupsContainCommand(postGroups, POSTTOOLUSE_LOG_COMMAND)) {
+      postGroups.push({
+        matcher: POSTTOOLUSE_LOG_MATCHER,
+        hooks: [{ type: "command", command: POSTTOOLUSE_LOG_COMMAND }],
+      });
+      addedPostToolUseLog = true;
+    }
+  }
+  return { addedStop, addedPreToolUse, addedPostToolUseLog };
 }
 
 // ---------------------------------------------------------------------------
@@ -324,6 +383,7 @@ export function proofloopHooksStatus(options: { root?: string } = {}): Proofloop
       exists: parsed !== undefined,
       stopHookInstalled: hooks ? groupsContainCommand(asGroupArray(hooks.Stop), STOP_GATE_COMMAND) : false,
       preToolUseHookInstalled: hooks ? groupsContainCommand(asGroupArray(hooks.PreToolUse), PRETOOLUSE_GUARD_COMMAND) : false,
+      postToolUseLogInstalled: hooks ? groupsContainCommand(asGroupArray(hooks.PostToolUse), POSTTOOLUSE_LOG_COMMAND) : false,
     };
   });
 
@@ -340,7 +400,7 @@ export function proofloopHooksStatus(options: { root?: string } = {}): Proofloop
   return {
     root,
     settings,
-    scripts: ["stop-gate.mjs", "pretooluse-guard.mjs"].map((name) => {
+    scripts: ["stop-gate.mjs", "pretooluse-guard.mjs", "posttooluse-log.mjs"].map((name) => {
       const path = join(hooksDir, name);
       return { path, exists: existsSync(path) };
     }),
@@ -349,6 +409,8 @@ export function proofloopHooksStatus(options: { root?: string } = {}): Proofloop
     maxStopBlocks: typeof config?.maxStopBlocks === "number" ? config.maxStopBlocks : undefined,
     goalId: typeof config?.goalId === "string" ? config.goalId : undefined,
     gateMode: typeof config?.gateMode === "string" ? config.gateMode : undefined,
+    toolUseLog: typeof config?.toolUseLog === "boolean" ? config.toolUseLog : undefined,
+    toolUseLogPath: typeof config?.toolUseLogPath === "string" ? config.toolUseLogPath : undefined,
     sessionBlockCounts,
   };
 }
@@ -361,13 +423,13 @@ export function formatProofloopHooksStatus(status: ProofloopHooksStatus): string
       continue;
     }
     lines.push(
-      `  ${file.path}: Stop=${file.stopHookInstalled ? "installed" : "missing"} PreToolUse=${file.preToolUseHookInstalled ? "installed" : "missing"}`,
+      `  ${file.path}: Stop=${file.stopHookInstalled ? "installed" : "missing"} PreToolUse=${file.preToolUseHookInstalled ? "installed" : "missing"} PostToolUseLog=${file.postToolUseLogInstalled ? "installed" : "missing"}`,
     );
   }
   for (const script of status.scripts) {
     lines.push(`  ${script.path}: ${script.exists ? "present" : "MISSING"}`);
   }
-  lines.push(`  ${status.configPath}: ${status.configExists ? `present (goal=${status.goalId ?? "?"}, gateMode=${status.gateMode ?? "?"}, maxStopBlocks=${status.maxStopBlocks ?? "?"})` : "MISSING"}`);
+  lines.push(`  ${status.configPath}: ${status.configExists ? `present (goal=${status.goalId ?? "?"}, gateMode=${status.gateMode ?? "?"}, maxStopBlocks=${status.maxStopBlocks ?? "?"}, toolUseLog=${status.toolUseLog === undefined ? "?" : status.toolUseLog ? `on -> ${status.toolUseLogPath ?? "?"}` : "off"})` : "MISSING"}`);
   const counters = Object.entries(status.sessionBlockCounts);
   lines.push(
     counters.length
@@ -818,6 +880,108 @@ async function main() {
 
 main().catch((error) => {
   console.error("proofloop guard: unexpected error (" + (error?.message ?? error) + ") -- failing open and allowing.");
+  process.exit(0);
+});
+`;
+}
+
+function postToolUseLogScript(config: ProofloopHooksConfig): string {
+  return `#!/usr/bin/env node
+/**
+ * Proof Loop PostToolUse logger for Claude Code (expected-tool-use capture).
+ * Generated by \`proofloop hooks install\`; re-run install to refresh.
+ * Self-contained: plain Node, no project imports.
+ *
+ * ASSUMED Claude Code PostToolUse hook contract (re-verify against the current
+ * hooks docs at https://docs.claude.com/en/docs/claude-code/hooks):
+ *   - The hook receives JSON on stdin: { session_id, tool_name, tool_input, tool_response, ... }.
+ *   - It runs AFTER the tool call completed; exit codes cannot un-run the tool.
+ *   - The settings entry uses matcher ".*" (regex) so EVERY tool is captured,
+ *     including MCP names like mcp__composio__GMAIL_SEND_EMAIL.
+ *
+ * What it appends to ${config.toolUseLogPath} (one JSON object per line):
+ *   { ts, sessionId, tool, params, source: "posttooluse-hook" }
+ * params is a REDACTED deep copy of tool_input: any key matching
+ * /key|token|secret|password|authorization|bearer|credential/i becomes
+ * "[redacted]" (nested objects and arrays included).
+ *
+ * Record-forging note: the record is serialized with JSON.stringify, which
+ * GUARANTEES embedded newlines inside values are escaped to \\n INSIDE the one
+ * line. A raw-concatenation logger would let a tool param containing a newline
+ * plus JSON text forge a second, fake log record; JSON.stringify structurally
+ * prevents that.
+ *
+ * Failure policy: ALWAYS exit 0 (fail-open logger -- a broken logger must
+ * never block the user's tools); write failures are a stderr warning only.
+ * The VERIFIER (\`proofloop tooluse verify\`) is fail-closed instead.
+ *
+ * Integrity: the log dir is on the PreToolUse guard's protectedExtraPaths, so
+ * Edit/Write to it are refused at edit time (an agent doctoring its own tool
+ * log to pass a contract is the doctrine's reward-hacking pattern; see
+ * noderl/spec/anti-reward-hacking-doctrine.md). Known bypass: Bash-issued
+ * writes are not intercepted; CI re-verification is the backstop. This is
+ * LOCAL capture, not server-side attestation.
+ */
+import { appendFileSync, mkdirSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = resolve(SCRIPT_DIR, "..", "..");
+const LOG_PATH = join(REPO_ROOT, ...${JSON.stringify(config.toolUseLogPath.split("/"))});
+const REDACT_KEY_RE = /key|token|secret|password|authorization|bearer|credential/i;
+
+/**
+ * Deep-redact secret-looking keys. Uses null-prototype objects so a key
+ * literally named "__proto__" (JSON.parse creates it as an ordinary own
+ * property) is copied as a plain own key and can never mutate a prototype.
+ */
+function redact(value) {
+  if (Array.isArray(value)) return value.map(redact);
+  if (value && typeof value === "object") {
+    const out = Object.create(null);
+    for (const key of Object.keys(value)) {
+      out[key] = REDACT_KEY_RE.test(key) ? "[redacted]" : redact(value[key]);
+    }
+    return out;
+  }
+  return value;
+}
+
+async function readStdin() {
+  let text = "";
+  for await (const chunk of process.stdin) text += chunk;
+  return text;
+}
+
+async function main() {
+  let input;
+  try {
+    input = JSON.parse((await readStdin()) || "{}");
+  } catch {
+    process.exit(0); // nothing parseable to log; never block the tool
+  }
+  const tool = input && typeof input.tool_name === "string" && input.tool_name ? input.tool_name : null;
+  if (!tool) process.exit(0);
+  const record = {
+    ts: new Date().toISOString(),
+    sessionId: typeof input.session_id === "string" && input.session_id ? input.session_id : "unknown-session",
+    tool,
+    params: redact(input.tool_input && typeof input.tool_input === "object" ? input.tool_input : {}),
+    source: "posttooluse-hook",
+  };
+  try {
+    mkdirSync(dirname(LOG_PATH), { recursive: true });
+    // ONE line per record; JSON.stringify escapes any newline inside values.
+    appendFileSync(LOG_PATH, JSON.stringify(record) + "\\n", "utf8");
+  } catch (error) {
+    console.error("proofloop tooluse-log: could not append to " + LOG_PATH + " (" + (error?.message ?? error) + ") -- tool call unaffected.");
+  }
+  process.exit(0);
+}
+
+main().catch((error) => {
+  console.error("proofloop tooluse-log: unexpected error (" + (error?.message ?? error) + ") -- tool call unaffected.");
   process.exit(0);
 });
 `;

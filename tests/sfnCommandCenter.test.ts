@@ -129,6 +129,7 @@ describe("sfn command center", () => {
           costUsd: 0.026,
           tokensIn: 1200,
           tokensOut: 300,
+          costAccounting: { status: "actual", source: "browser_telemetry", note: "test fixture telemetry" },
         },
         memoryMode: false,
         freshness: {
@@ -327,6 +328,7 @@ describe("sfn command center", () => {
           costUsd: 0.026,
           tokensIn: 1200,
           tokensOut: 300,
+          costAccounting: { status: "actual", source: "browser_telemetry", note: "test fixture telemetry" },
         },
         memoryMode: false,
         freshness: {
@@ -410,6 +412,7 @@ describe("sfn command center", () => {
           costUsd: 0.026,
           tokensIn: 1200,
           tokensOut: 300,
+          costAccounting: { status: "actual", source: "browser_telemetry", note: "test fixture telemetry" },
         },
         memoryMode: false,
         freshness: {

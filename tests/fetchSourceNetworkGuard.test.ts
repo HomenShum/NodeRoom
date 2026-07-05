@@ -3,7 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const lookupMock = vi.hoisted(() => vi.fn());
 const undiciMocks = vi.hoisted(() => ({
   fetch: vi.fn(),
-  Agent: vi.fn().mockImplementation(() => ({ close: vi.fn(async () => undefined) })),
+  Agent: vi.fn(function MockAgent(_options: unknown) {
+    return { close: vi.fn(async () => undefined) };
+  }),
 }));
 vi.mock("node:dns/promises", () => ({ lookup: lookupMock }));
 vi.mock("undici", () => ({ Agent: undiciMocks.Agent, fetch: undiciMocks.fetch }));

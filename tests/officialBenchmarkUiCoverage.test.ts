@@ -120,6 +120,7 @@ function withBankerToolBenchProof<T>(overrides: Partial<FreshRoomProofReceipt>, 
       costUsd: 0.123,
       tokensIn: 1200,
       tokensOut: 340,
+      costAccounting: { status: "actual", source: "browser_telemetry", note: "test fixture telemetry" },
     },
     memoryMode: false,
     freshness: {

@@ -1,0 +1,190 @@
+{
+  "schema": "proofloop-npx-package-proof-v1",
+  "generatedAt": "2026-07-05T05:50:22.759Z",
+  "packageSpec": "proofloop@0.1.0",
+  "npmView": {
+    "ok": true,
+    "metadata": {
+      "name": "proofloop",
+      "version": "0.1.0",
+      "license": "MIT",
+      "author": "Homen Shum",
+      "dist.tarball": "https://registry.npmjs.org/proofloop/-/proofloop-0.1.0.tgz"
+    },
+    "zeroDependencies": true
+  },
+  "tempRoot": "<temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53",
+  "npmCache": "<temp>/proofloop-npm-cache-1783230622763-d6860d09b1375",
+  "claims": {
+    "registryLive": true,
+    "mitLicensed": true,
+    "zeroDependencies": true,
+    "cleanDoctorWorks": true,
+    "cleanHelpWorks": true,
+    "viteInitWorks": true,
+    "gateNpmTestFallbackPasses": true,
+    "hooksInstallAndStatusWork": true,
+    "stopHookBlocksFailingGate": true,
+    "forgeryGuardBlocksProofState": true,
+    "tooluseEmptyLogFailsClosed": true,
+    "tooluseDenyListFails": true
+  },
+  "steps": [
+    {
+      "id": "npm-view",
+      "title": "Registry metadata is live",
+      "command": "npm view proofloop@0.1.0 name version license dependencies author dist.tarball --json",
+      "cwd": "<temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\clean-dir",
+      "exitCode": 0,
+      "ok": true,
+      "stdoutTail": "{\n  \"name\": \"proofloop\",\n  \"version\": \"0.1.0\",\n  \"license\": \"MIT\",\n  \"author\": \"Homen Shum\",\n  \"dist.tarball\": \"https://registry.npmjs.org/proofloop/-/proofloop-0.1.0.tgz\"\n}\n",
+      "stderrTail": ""
+    },
+    {
+      "id": "clean-doctor",
+      "title": "Published npx doctor runs from a clean directory",
+      "command": "npx --yes proofloop@0.1.0 doctor",
+      "cwd": "<temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\clean-dir",
+      "exitCode": 0,
+      "ok": true,
+      "stdoutTail": "Proof Loop doctor -- environment + readiness\n\n  [OK  ] node v22.22.2 (need >= 20)\n  [OK  ] git on PATH\n  [MISS] inside a git repo\n  [OK  ] worker \"claude\" -> C:\\Users\\hshum\\.local\\bin\\claude.exe\n  [OK  ] worker \"codex\" -> C:\\Users\\hshum\\nodejs\\codex\n  [----] .claude/ present\n  [----] proofloop hooks installed\n  [MISS] proofloop.config.json present\n\nHere's what's missing before the loop is fully wired:\n  - this directory is not a git repo (run `git init`)\n  - proofloop.config.json (run `proofloop init`)\n\n",
+      "stderrTail": ""
+    },
+    {
+      "id": "clean-help",
+      "title": "Published npx help runs from a clean directory",
+      "command": "npx --yes proofloop@0.1.0 --help",
+      "cwd": "<temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\clean-dir",
+      "exitCode": 0,
+      "ok": true,
+      "stdoutTail": "proofloop -- bring any coding agent; Proof Loop makes it prove the app works.\n\nUsage: proofloop <command> [options]\n\nCommands:\n  init                       detect the app + write a starter proofloop.config.json\n  doctor                     environment + readiness report\n  gate [--check]             run gate.checks (exit 0 pass / 1 fail / 2 unusable)\n  hooks install|uninstall|status   Claude Code Stop/PreToolUse/PostToolUse hooks\n  tooluse verify|init        expected-tool-use contracts\n  ci install github          write the GitHub Actions gate workflow\n  prompt                     print the one-prompt kickoff\n  this-repo [--goal <text>]  guided local-loop setup (drives YOUR agent honestly)\n\nGlobal options:\n  --dir <path>               operate on this repo root (default: cwd)\n\nCommands: init, doctor, gate, hooks, tooluse, ci, prompt, this-repo\n",
+      "stderrTail": ""
+    },
+    {
+      "id": "git-init",
+      "title": "Stranger repo is independent git state",
+      "command": "git init",
+      "cwd": "<temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo",
+      "exitCode": 0,
+      "ok": true,
+      "stdoutTail": "Initialized empty Git repository in <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53/stranger-vite-repo/.git/\n",
+      "stderrTail": ""
+    },
+    {
+      "id": "vite-init",
+      "title": "Published npx init detects Vite",
+      "command": "npx --yes proofloop@0.1.0 init",
+      "cwd": "<temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo",
+      "exitCode": 0,
+      "ok": true,
+      "stdoutTail": "proofloop init: detected Vite (package.json depends on vite).\nproofloop init: wrote <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\proofloop.config.json\n\nNext steps:\n  1. Add real proof checks to proofloop.config.json gate.checks, e.g.:\n       { \"name\": \"build\", \"command\": \"npm run build\" }\n       { \"name\": \"tests\", \"command\": \"npm test\" }\n  2. Run `proofloop doctor` to confirm you're ready.\n  3. Paste `proofloop prompt` into your coding agent, then run `proofloop gate` to prove the work.\n  4. `proofloop hooks install` to make your agent refuse fake \"done\".\n",
+      "stderrTail": ""
+    },
+    {
+      "id": "gate-npm-test-fallback",
+      "title": "Published npx gate passes through npm-test fallback",
+      "command": "npx --yes proofloop@0.1.0 gate",
+      "cwd": "<temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo",
+      "exitCode": 0,
+      "ok": true,
+      "stdoutTail": "proofloop gate: no checks configured; falling back to `npm test` (package.json has a test script).\nproofloop gate: running check \"npm test\" -> npm test\n\n> stranger-vite-proofloop-e2e@0.0.0 test\n> node -e \"process.exit(0)\"\n\nproofloop gate: check \"npm test\" PASSED (773ms, exit 0)\nproofloop gate: PASSED\n  state: <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\.proofloop\\gate-state.json\n  ts:    2026-07-05T05:50:37.128Z\n  source: npm-test-fallback\n  checks:\n    - [pass] npm test (773ms)\n\n",
+      "stderrTail": ""
+    },
+    {
+      "id": "hooks-install",
+      "title": "Published npx installs Stop and tool-use hooks",
+      "command": "npx --yes proofloop@0.1.0 hooks install",
+      "cwd": "<temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo",
+      "exitCode": 0,
+      "ok": true,
+      "stdoutTail": "proofloop hooks: installed into <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\.claude\\settings.json\n  stop-gate:        <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\.proofloop\\hooks\\stop-gate.mjs (added)\n  pretooluse-guard: <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\.proofloop\\hooks\\pretooluse-guard.mjs (added)\n  posttooluse-log:  <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\.proofloop\\hooks\\posttooluse-log.mjs (added)\nThe Stop hook refuses fake \"done\" until `proofloop gate` passes.\n",
+      "stderrTail": ""
+    },
+    {
+      "id": "hooks-status",
+      "title": "Published npx reports installed hook status",
+      "command": "npx --yes proofloop@0.1.0 hooks status",
+      "cwd": "<temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo",
+      "exitCode": 0,
+      "ok": true,
+      "stdoutTail": "Proof Loop hooks status (<temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo)\n\n  <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\.claude\\settings.json: Stop=installed PreToolUse=installed PostToolUseLog=installed\n  <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\.claude\\settings.local.json: not present\n  <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\.proofloop\\hooks\\stop-gate.mjs: present\n  <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\.proofloop\\hooks\\pretooluse-guard.mjs: present\n  <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\.proofloop\\hooks\\posttooluse-log.mjs: present\n  <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\.proofloop\\hooks\\config.json: present (gate=check-only, maxStopBlocks=5, toolUseLog=on -> .proofloop/tooluse/log.jsonl)\n  block counters: none\n\n",
+      "stderrTail": ""
+    },
+    {
+      "id": "failing-gate",
+      "title": "Published npx gate records a failing npm-test fallback",
+      "command": "npx --yes proofloop@0.1.0 gate",
+      "cwd": "<temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo",
+      "exitCode": 1,
+      "ok": true,
+      "stdoutTail": "proofloop gate: no checks configured; falling back to `npm test` (package.json has a test script).\nproofloop gate: running check \"npm test\" -> npm test\n\n> stranger-vite-proofloop-e2e@0.0.0 test\n> node -e \"process.exit(1)\"\n\nproofloop gate: check \"npm test\" FAILED (886ms, exit 1)\nproofloop gate: FAILED\n  state: <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\.proofloop\\gate-state.json\n  ts:    2026-07-05T05:50:44.109Z\n  source: npm-test-fallback\n  checks:\n    - [FAIL] npm test (886ms)\n\n",
+      "stderrTail": ""
+    },
+    {
+      "id": "stop-hook-blocks-failing-gate",
+      "title": "Generated Stop hook blocks fake done while gate is failing",
+      "command": "C:\\nvm4w\\nodejs\\node.exe <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\.proofloop\\hooks\\stop-gate.mjs",
+      "cwd": "<temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo",
+      "exitCode": 0,
+      "ok": true,
+      "stdoutTail": "{\"decision\":\"block\",\"reason\":\"proofloop gate is failing: npm test: failing. Continue working: fix the failures, then re-run the gate. (block 1/5)\"}\n",
+      "stderrTail": ""
+    },
+    {
+      "id": "forgery-guard-blocks-gate-state",
+      "title": "Generated PreToolUse guard blocks forged proof-state writes",
+      "command": "C:\\nvm4w\\nodejs\\node.exe <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\.proofloop\\hooks\\pretooluse-guard.mjs",
+      "cwd": "<temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo",
+      "exitCode": 2,
+      "ok": true,
+      "stdoutTail": "",
+      "stderrTail": "proofloop guard: BLOCKED edit to protected proof state \".proofloop/gate-state.json\" (matches \".proofloop/\"). This path is gitignored or enforcement-critical, so git diff cannot review the change; it may only change through the proofloop CLI.\n"
+    },
+    {
+      "id": "tooluse-init",
+      "title": "Published npx writes expected-tool-use contract",
+      "command": "npx --yes proofloop@0.1.0 tooluse init",
+      "cwd": "<temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo",
+      "exitCode": 0,
+      "ok": true,
+      "stdoutTail": "proofloop: wrote <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\tooluse-contract.json\nproofloop: verify with `proofloop tooluse verify --contract <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\tooluse-contract.json` (exit 0 pass / 1 fail / 2 unusable)\n",
+      "stderrTail": ""
+    },
+    {
+      "id": "tooluse-empty-log-fails-closed",
+      "title": "Tool-use verifier fails closed when the log is absent",
+      "command": "npx --yes proofloop@0.1.0 tooluse verify --contract tooluse-contract.json",
+      "cwd": "<temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo",
+      "exitCode": 2,
+      "ok": true,
+      "stdoutTail": "",
+      "stderrTail": "proofloop tooluse: trace file not found: <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\.proofloop\\tooluse\\log.jsonl. Run `proofloop hooks install` so the PostToolUse logger captures tool calls, or pass --trace <file>.\nproofloop tooluse: contract or trace unusable -- refusing to report a verdict (fail-closed, exit 2).\n"
+    },
+    {
+      "id": "posttooluse-records-forbidden-call",
+      "title": "PostToolUse logger records a redacted forbidden call",
+      "command": "C:\\nvm4w\\nodejs\\node.exe <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\.proofloop\\hooks\\posttooluse-log.mjs",
+      "cwd": "<temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo",
+      "exitCode": 0,
+      "ok": true,
+      "stdoutTail": "",
+      "stderrTail": ""
+    },
+    {
+      "id": "tooluse-deny-list-fails",
+      "title": "Tool-use verifier fails on forbidden tools and missing required tools",
+      "command": "npx --yes proofloop@0.1.0 tooluse verify --contract tooluse-contract.json",
+      "cwd": "<temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo",
+      "exitCode": 1,
+      "ok": true,
+      "stdoutTail": "tool-use contract: FAIL\n  contract: <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\tooluse-contract.json\n  trace:    <temp>/proofloop-npx-package-proof-1783230622761-f46c6b69e4e53\\stranger-vite-repo\\.proofloop\\tooluse\\log.jsonl\n  session:  (all sessions)\n  calls=1 matchedRequired=0/2 malformedLines=0\n  violations:\n    - [missing_required] mcp__composio__GMAIL_FETCH_EMAILS: expected >= 1 call(s) on MCP server \"composio\", found 0 (triage must actually read the inbox through the Composio MCP server)\n    - [missing_required] mcp__composio__GMAIL_SEND_EMAIL: expected >= 1 call(s) on MCP server \"composio\", found 0 (exactly one summary email, to a real address)\n    - [forbidden_called] GITHUB_CREATE_ISSUE: call #0 matches forbidden rule /GITHUB_.*/: email triage must not touch repos\n\n",
+      "stderrTail": ""
+    }
+  ],
+  "summary": {
+    "passed": true,
+    "total": 15,
+    "passedChecks": 15,
+    "failedChecks": 0
+  }
+}

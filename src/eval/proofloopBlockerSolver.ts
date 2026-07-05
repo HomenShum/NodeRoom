@@ -598,10 +598,6 @@ function modelRoutesForLane(root: string, spec: LaneSpec): ProofloopModelRoute[]
     const model = byId.get(id);
     return {
       ...proofloopModelRouteForRun({ suite: spec.suite, cmd: `model-matrix ${spec.suite}`, env: { PROOFLOOP_MODEL_ID: id } }),
-      costUsd: 0,
-      tokensIn: 0,
-      tokensOut: 0,
-      latencyMs: 0,
       provider: id === "gpt-4.1-mini" ? "openai" : "openrouter",
       routePolicy: id === "deepseek/deepseek-v4-pro" ? "proxy" : "specific",
       selectionReason: model
