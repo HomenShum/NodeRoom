@@ -249,6 +249,20 @@ test.describe("#rooms — cold landing, ops gate, unknown slugs", () => {
     await expect(page.locator(".ao-rtop .crumb")).toContainText("Expositio Pulse");
   });
 
+  test("live Convex bundle stamps source=live when the backend room exists", async ({ page }) => {
+    test.skip(process.env.PLAYWRIGHT_EXPECT_ALWAYS_ON_LIVE !== "1", "Requires a Convex-backed server with expositio-pulse seeded.");
+
+    await page.goto("/#rooms/expositio-pulse");
+    await expect(page.getByTestId("ao-room")).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator(".ao-public")).toHaveAttribute("data-ao-source", "live", { timeout: 30_000 });
+    await expect(page.getByTestId("ao-brief-live")).toBeVisible();
+    await expect(page.locator(".ao-rtop")).not.toContainText("viewers this week");
+
+    await page.getByTestId("ao-tab-papers").click();
+    await expect(page.getByTestId("ao-paper-count")).toContainText("papers");
+    await expect(page.getByTestId("ao-paper-count")).not.toContainText("6 of 6 papers");
+  });
+
   test("ops=1 in the hash query reveals the Ops tab and the ops panel", async ({ page }) => {
     await page.goto("/?mode=memory#rooms/expositio-pulse?ops=1");
     await expect(page.getByTestId("ao-room")).toBeVisible({ timeout: 30_000 });

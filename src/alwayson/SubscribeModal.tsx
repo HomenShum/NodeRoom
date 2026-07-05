@@ -14,9 +14,10 @@
  *   - Memory mode: never fakes a subscription — the success state is locked
  *     to a "demo — nothing was stored" hint.
  */
-import { useEffect, useRef, useState, type FormEvent, type ReactElement, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactElement } from "react";
 import { useMutation } from "convex/react";
 import { HAS_CONVEX } from "../app/store";
+import { FocusTrapDialog } from "../ui/primitives/FocusTrapDialog";
 import { AoIcon as Ic } from "./AoIcon";
 import { alwaysOnApi } from "./usePublicRoomData";
 import "./alwayson.css";
@@ -64,63 +65,6 @@ function reasonMessage(reason: string): string {
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function ModalShell({ onClose, children }: { onClose: () => void; children: ReactNode }) {
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  // Escape closes (no undismissable chrome — design audit checks this).
-  useEffect(() => {
-    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-        return;
-      }
-      if (e.key !== "Tab") return;
-      const focusable = Array.from(
-        cardRef.current?.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        ) ?? [],
-      ).filter((el) => el.offsetParent !== null);
-      if (focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    };
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      previouslyFocused?.focus({ preventScroll: true });
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      className="ao-modal-scrim"
-      data-testid="ao-subscribe-modal"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Subscribe to this room"
-      onMouseDown={(e) => {
-        // Scrim click closes; clicks inside the card don't bubble here.
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div className="ao-panel ao-modal ao-modal-card" ref={cardRef}>
-        <button className="ao-btn ghost ao-modal-x" type="button" aria-label="Close" onClick={onClose}>
-          <Ic name="x" size={14} />
-        </button>
-        {children}
-      </div>
-    </div>
-  );
-}
 
 function SubscribeForm({
   roomTitle,
@@ -314,12 +258,21 @@ function DemoSubscribeForm({ roomTitle }: { roomTitle: string }) {
 
 export function SubscribeModal({ roomSlug, roomTitle, onClose }: SubscribeModalProps): ReactElement | null {
   return (
-    <ModalShell onClose={onClose}>
+    <FocusTrapDialog
+      className="ao-modal-scrim"
+      panelClassName="ao-panel ao-modal ao-modal-card"
+      ariaLabel="Subscribe to this room"
+      testId="ao-subscribe-modal"
+      onClose={onClose}
+    >
+      <button className="ao-btn ghost ao-modal-x" type="button" aria-label="Close" onClick={onClose}>
+        <Ic name="x" size={14} />
+      </button>
       {HAS_CONVEX ? (
         <LiveSubscribeForm roomSlug={roomSlug} roomTitle={roomTitle} />
       ) : (
         <DemoSubscribeForm roomTitle={roomTitle} />
       )}
-    </ModalShell>
+    </FocusTrapDialog>
   );
 }

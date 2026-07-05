@@ -2,9 +2,9 @@
  * Always-On Rooms — public room data source.
  *
  * usePublicRoomData(slug) reads convex `alwaysOn.getPublicRoomBundle` via the
- * repo's typed-cast precedent (see src/ui/mobile/MobileAppLive.tsx watchesApi —
- * convex/_generated lags until the next codegen, which must NOT be run
- * casually: codegen against the cloud deployment DEPLOYS).
+ * repo's explicit function-reference precedent (see convex/alwaysOn.ts and
+ * tests/alwaysOnBackend.test.ts). The generated `api` object can lag backend
+ * deployment, so this public surface must not silently depend on codegen.
  *
  * REAL server payload (convex/alwaysOnShape.ts toPublicRoomBundle):
  *   { room: { slug, title, description, status, mode, timezone, scanCadence,
@@ -31,8 +31,7 @@
  */
 import { useMemo } from "react";
 import { useQuery } from "convex/react";
-import type { FunctionReference } from "convex/server";
-import { api } from "../../convex/_generated/api";
+import { makeFunctionReference, type FunctionReference } from "convex/server";
 import {
   AO_PAPERS,
   AO_PROOF,
@@ -97,24 +96,26 @@ export function fallbackRoomBundle(slug: string): PublicRoomBundle | null {
   };
 }
 
-// convex/alwaysOn.ts is owned by the backend lane and is not in _generated
-// yet — same cast precedent as src/ui/mobile/MobileAppLive.tsx watchesApi.
-// Exported so SubscribeModal (subscribeToRoom) and AlwaysOnCards
-// (listPublicRooms) reach the backend through the same single cast (one seam
-// for the integration lane to replace with the generated api once codegen
-// runs). Keep this export's name and member shapes backward-compatible.
-export const alwaysOnApi = (api as unknown as {
-  alwaysOn: {
-    getPublicRoomBundle: FunctionReference<"query", "public", { slug: string }, unknown>;
-    listPublicRooms: FunctionReference<"query", "public", Record<string, never>, unknown>;
-    subscribeToRoom: FunctionReference<
-      "mutation",
-      "public",
-      { slug: string; email: string; cadence: "daily" | "weekly" | "act_now" },
-      unknown
-    >;
-  };
-}).alwaysOn;
+// convex/alwaysOn.ts is deployed, but _generated/api can lag and omit it.
+// Use the same explicit reference pattern as the backend/tests so live public
+// rooms do not fall back to demo just because codegen was not refreshed.
+export const alwaysOnApi: {
+  getPublicRoomBundle: FunctionReference<"query", "public", { slug: string }, unknown>;
+  listPublicRooms: FunctionReference<"query", "public", Record<string, never>, unknown>;
+  subscribeToRoom: FunctionReference<
+    "mutation",
+    "public",
+    { slug: string; email: string; cadence: "daily" | "weekly" | "act_now" },
+    unknown
+  >;
+} = {
+  getPublicRoomBundle: makeFunctionReference<"query", { slug: string }, unknown>("alwaysOn:getPublicRoomBundle"),
+  listPublicRooms: makeFunctionReference<"query", Record<string, never>, unknown>("alwaysOn:listPublicRooms"),
+  subscribeToRoom:
+    makeFunctionReference<"mutation", { slug: string; email: string; cadence: "daily" | "weekly" | "act_now" }, unknown>(
+      "alwaysOn:subscribeToRoom",
+    ),
+};
 
 function str(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value.slice(0, MAX_STR) : fallback;
