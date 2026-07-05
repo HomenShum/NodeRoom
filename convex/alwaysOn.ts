@@ -503,12 +503,15 @@ export const scanDuePublicRooms = internalAction({
   // force: operator affordance ("run one scan now" — e.g. after fixing a
   // source URL whose failed run consumed the day's slot). The cron always
   // passes {}; force never bypasses the credit caps, only the due window.
-  args: { force: v.optional(v.boolean()) },
+  // slug scopes operator re-scans so a one-room repair does not spend across
+  // every active room once more flagship rooms exist.
+  args: { force: v.optional(v.boolean()), slug: v.optional(v.string()) },
   handler: async (ctx, a) => {
     const now = Date.now();
     const roomsWithSources = (await ctx.runQuery(listRoomsForScanRef, {})) as RoomForScan[];
     const summary = { scanned: 0, completed: 0, skipped: 0, capped: 0, failed: 0, notDue: 0 };
     for (const { room, sources } of roomsWithSources) {
+      if (a.slug && room.slug !== a.slug) continue;
       if (!a.force && !isRoomDue(room.lastRunAt, room.scanCadence, now)) {
         summary.notDue += 1;
         continue;

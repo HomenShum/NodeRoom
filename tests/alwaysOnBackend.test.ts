@@ -426,6 +426,29 @@ describe("scanDuePublicRooms (deterministic scan)", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("operator force can re-scan one room by slug without waiting for cadence", async () => {
+    const { t, roomId } = await seeded();
+    await t.run(async (ctx) => ctx.db.patch(roomId, { lastRunAt: Date.now() - 60_000 }));
+    const fetchMock = vi.fn(async (_url: string) => htmlResponse(PAGE_V1));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const summary = await t.action(scanRef, { force: true, slug: SLUG });
+
+    expect(summary).toMatchObject({ scanned: 1, completed: 1, notDue: 0 });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("operator force scoped to another slug does not scan this room", async () => {
+    const { t } = await seeded();
+    const fetchMock = vi.fn(async (_url: string) => htmlResponse(PAGE_V1));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const summary = await t.action(scanRef, { force: true, slug: "missing-room" });
+
+    expect(summary).toMatchObject({ scanned: 0, completed: 0, failed: 0, capped: 0 });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("upstream outage → honest 'failed' run + failed source, never a fake success", async () => {
     const { t, roomId } = await seeded();
     vi.stubGlobal("fetch", vi.fn(async () => htmlResponse("service unavailable", 503)));
@@ -510,6 +533,18 @@ describe("scanDuePublicRooms (deterministic scan)", () => {
       expect(run.error).toBe("monthly_credit_cap_reached");
       expect((await ctx.db.get(roomId))!.lastRunStatus).toBe("capped");
     });
+  });
+
+  it("operator force still fails closed when the monthly cap is exhausted", async () => {
+    const { t, roomId } = await seeded();
+    await t.run(async (ctx) => ctx.db.patch(roomId, { lastRunAt: Date.now() - 60_000, monthlyCreditCap: 0 }));
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const summary = await t.action(scanRef, { force: true, slug: SLUG });
+
+    expect(summary).toMatchObject({ scanned: 1, capped: 1, completed: 0 });
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("per-run credit cap → 'capped' run and fetch-derived state writes withheld", async () => {
