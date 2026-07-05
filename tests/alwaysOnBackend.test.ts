@@ -18,6 +18,7 @@ import { convexTest } from "convex-test";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import schema from "../convex/schema";
 import { sha256Hex } from "../convex/lib";
+import { contentHash } from "../convex/alwaysOnCore";
 import type { Id } from "../convex/_generated/dataModel";
 import {
   MAX_PENDING_PER_EMAIL,
@@ -82,6 +83,17 @@ function htmlResponse(html: string, status = 200) {
 const PAGE_V1 = [
   '<a href="/papers/9001" data-discipline="Mathematics" data-topic="category theory">Adjunctions in the wild</a>',
   '<a href="/papers/9002" data-discipline="Physics">Effective field theories, effectively</a>',
+].join("\n");
+
+const LIVE_LIKE_EXPOSITIO_HTML = [
+  '<a href="/">Expositio</a>',
+  '<a href="/accounts/signup/">Create account</a>',
+  '<a href="/accounts/login/">Log in</a>',
+  '<a href="/papers/">Home</a>',
+  '<a href="/papers/?domain=mathematics#archive-shelf">Mathematics 7</a>',
+  '<a href="/papers/exp-20260629-089b18/">Tropical Curves</a>',
+  '<a href="/papers/exp-20260629-089b18/">Read paper</a>',
+  '<a href="/papers/exp-20260629-af4051/">The Stone-Weierstrass Theorem</a>',
 ].join("\n");
 
 afterEach(() => {
@@ -413,6 +425,84 @@ describe("scanDuePublicRooms (deterministic scan)", () => {
       expect(state.briefMeta.runNumber).toBe(27); // brief NOT re-rendered on an unchanged scan
       const room = (await ctx.db.get(roomId))!;
       expect(room.lastRunStatus).toBe("skipped");
+    });
+  });
+
+  it("reprocesses legacy raw HTML hashes after the extractor contract changes", async () => {
+    const { t } = await seeded();
+    const legacyHash = await contentHash(PAGE_V1);
+    await t.run(async (ctx) => {
+      const [source] = await ctx.db.query("publicRoomSources").collect();
+      await ctx.db.patch(source._id, { lastContentHash: legacyHash });
+    });
+    vi.stubGlobal("fetch", vi.fn(async () => htmlResponse(PAGE_V1)));
+
+    const summary = await t.action(scanRef, {});
+
+    expect(summary).toMatchObject({ scanned: 1, completed: 1, skipped: 0 });
+    await t.run(async (ctx) => {
+      const [source] = await ctx.db.query("publicRoomSources").collect();
+      expect(source.lastContentHash).toMatch(/^[0-9a-f]{64}$/);
+      expect(source.lastContentHash).not.toBe(legacyHash);
+      const [state] = await ctx.db.query("publicRoomStates").collect();
+      expect(state.papers.map((p) => p.title)).toContain("Adjunctions in the wild");
+    });
+  });
+
+  it("scrubs prior Expositio nav/filter pollution while preserving real paper rows", async () => {
+    const { t } = await seeded();
+    await t.run(async (ctx) => {
+      const [state] = await ctx.db.query("publicRoomStates").collect();
+      await ctx.db.patch(state._id, {
+        papers: [
+          ...state.papers,
+          {
+            title: "Create account",
+            discipline: "Unclassified",
+            topic: "general",
+            difficulty: "unrated",
+            status: "new" as const,
+            firstSeen: "legacy polluted run",
+            evidenceRef: "expositio.org /accounts/signup/",
+            href: "/accounts/signup/",
+          },
+          {
+            title: "Mathematics 7",
+            discipline: "Unclassified",
+            topic: "general",
+            difficulty: "unrated",
+            status: "new" as const,
+            firstSeen: "legacy polluted run",
+            evidenceRef: "expositio.org /papers/?domain=mathematics#archive-shelf",
+            href: "/papers/?domain=mathematics#archive-shelf",
+          },
+          {
+            title: "Read paper",
+            discipline: "Unclassified",
+            topic: "general",
+            difficulty: "unrated",
+            status: "new" as const,
+            firstSeen: "legacy polluted run",
+            evidenceRef: "expositio.org /papers/exp-20260629-089b18/",
+            href: "/papers/exp-20260629-089b18/",
+          },
+        ],
+      });
+    });
+    vi.stubGlobal("fetch", vi.fn(async () => htmlResponse(LIVE_LIKE_EXPOSITIO_HTML)));
+
+    const summary = await t.action(scanRef, {});
+
+    expect(summary).toMatchObject({ scanned: 1, completed: 1, failed: 0 });
+    await t.run(async (ctx) => {
+      const [state] = await ctx.db.query("publicRoomStates").collect();
+      const titles = state.papers.map((p) => p.title);
+      expect(titles).toContain("Tropical Curves");
+      expect(titles).toContain("The Stone-Weierstrass Theorem");
+      expect(titles).not.toContain("Create account");
+      expect(titles).not.toContain("Mathematics 7");
+      expect(titles).not.toContain("Read paper");
+      expect(state.papers).toHaveLength(AO_PAPERS.length + 2);
     });
   });
 

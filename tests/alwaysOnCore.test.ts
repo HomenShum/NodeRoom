@@ -152,6 +152,28 @@ describe("extractPapersFromHtml (deterministic, bounded parse)", () => {
     expect(items).toEqual([{ title: "A real paper title", href: "/papers/2" }]);
   });
 
+  it("ignores Expositio nav, auth, domain filters, and generic action links", () => {
+    const html = [
+      '<a href="/">Expositio</a>',
+      '<a href="/accounts/login/">Log in</a>',
+      '<a href="/accounts/signup/">Create account</a>',
+      '<a href="/papers/">Browse papers</a>',
+      '<a href="/papers/?domain=mathematics#archive-shelf">Mathematics 7</a>',
+      '<a href="/papers/submit/">Log in to submit</a>',
+      '<a href="/papers/exp-20260629-089b18/">Tropical Curves</a>',
+      '<a href="/papers/exp-20260629-089b18/">Read paper</a>',
+      '<a href="https://expositio.org/papers/exp-20260629-af4051/">The Stone-Weierstrass Theorem</a>',
+      '<a href="https://evil.example/papers/exp-20260629-af4051/">External mirror title</a>',
+    ].join("\n");
+    expect(extractPapersFromHtml(html)).toEqual([
+      { title: "Tropical Curves", href: "/papers/exp-20260629-089b18/" },
+      {
+        title: "The Stone-Weierstrass Theorem",
+        href: "https://expositio.org/papers/exp-20260629-af4051/",
+      },
+    ]);
+  });
+
   it("dedupes identical href+title pairs", () => {
     const html = '<a href="/p/1">Same paper</a><a href="/p/1">Same paper</a><a href="/p/1">Different title</a>';
     const items = extractPapersFromHtml(html);
