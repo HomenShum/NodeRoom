@@ -439,6 +439,17 @@ export function loadLatestProofloopProdProxyLongRunPlan(root = process.cwd()): P
   return latest ? readJson<ProofloopProdProxyLongRunPlan>(absoluteRoot, latest) : undefined;
 }
 
+export function loadProofloopProdProxyLongRunPlanByRunId(
+  runId: string,
+  root = process.cwd(),
+): ProofloopProdProxyLongRunPlan | undefined {
+  if (!runId || runId.includes("/") || runId.includes("\\") || runId.includes("..")) return undefined;
+  const absoluteRoot = resolve(root);
+  const path = join(LONGRUN_ROOT, runId, "state.json");
+  if (!existsSync(join(absoluteRoot, path))) return undefined;
+  return readJson<ProofloopProdProxyLongRunPlan>(absoluteRoot, path);
+}
+
 export function renderProofloopProdProxyLongRunMarkdown(plan: ProofloopProdProxyLongRunPlan): string {
   const lines = [
     "# ProofLoop Prod Proxy Long-Run Plan",
@@ -487,6 +498,19 @@ export function renderProofloopProdProxyLongRunMarkdown(plan: ProofloopProdProxy
       `| \`${gap.familyId}\` | ${gap.taskCount} | ${gap.attemptCount} | ${gap.adapterStatus} | ${gap.adapterVersion ?? "n/a"} | ${gap.requiredAdapter} | ${gap.firstBlocker} |`,
     ),
     "",
+    ...(plan.summary.failedAttempts > 0 ? [
+      "## Failed Attempts",
+      "",
+      "| Attempt | Family | Task | Model | Exit | First blocker |",
+      "|---|---|---|---|---:|---|",
+      ...plan.attempts
+        .filter((attempt) => attempt.status === "failed")
+        .slice(0, 20)
+        .map((attempt) =>
+          `| \`${attempt.attemptId}\` | \`${attempt.familyId}\` | \`${attempt.taskId}\` | \`${attempt.modelId}\` | ${attempt.exitCode ?? "n/a"} | ${attempt.blockers.at(-1) ?? "unknown"} |`,
+        ),
+      "",
+    ] : []),
     "## Commands",
     "",
     "- Plan without spend: `npm run benchmark:proofloop:prod-proxy-longrun -- plan`",
@@ -565,12 +589,17 @@ function commandForTask(args: {
     BENCH_BASE_URL: args.baseUrl,
     PLAYWRIGHT_BASE_URL: args.baseUrl,
     PLAYWRIGHT_REUSE_SERVER: "1",
+    PLAYWRIGHT_RETRIES: "0",
+    PLAYWRIGHT_OUTPUT_DIR: join(receiptDir, "playwright", args.attemptId).replace(/\\/g, "/"),
     BENCH_AGENT_MODEL_MODE: "specific",
     BENCH_AGENT_MODEL_POLICY: args.modelId,
     PROOFLOOP_REAL_USER_MODE: "1",
     PROOFLOOP_FOCUS_MODE: "0",
     PROOFLOOP_NODEAGENT_RUNTIME_PROFILE: "",
     PROOFLOOP_RUN_ID: `${args.runId}-${args.attemptId}`,
+    PROOFLOOP_CASE_ID: args.attemptId,
+    PROOFLOOP_FRESH_ROOM_ROOT: join(receiptDir, "fresh-room").replace(/\\/g, "/"),
+    PROOFLOOP_SUITE_PROOF_PATH: join(receiptDir, `${args.attemptId}.json`).replace(/\\/g, "/"),
   };
 
   const externalAdapterId = externalAdapterIdFromFamily(args.task.familyId);
@@ -591,6 +620,22 @@ function commandForTask(args: {
         BTB_UI_TASK_ID: args.task.taskId,
         BTB_UI_VERIFIER_COMMAND: "npm run benchmark:bankertoolbench:proof",
         BTB_LIVE_ROOM_PROOF_PATH: join(receiptDir, `${args.attemptId}.json`).replace(/\\/g, "/"),
+      },
+    };
+  }
+
+  if (args.task.familyId === "spreadsheetbench-v1-full-912" || args.task.familyId === "spreadsheetbench-v2-full-321") {
+    const track = args.task.familyId === "spreadsheetbench-v1-full-912" ? "spreadsheetbench-v1" : "spreadsheetbench-v2";
+    const stageRoot = args.task.runner.env?.SPREADSHEETBENCH_STAGE_ROOT
+      ?? (track === "spreadsheetbench-v1" ? ".tmp/official-benchmarks/staged-v1-912" : ".tmp/official-benchmarks/staged-v2-full");
+    return {
+      shell: args.task.runner.command ?? `npm run proofloop:live:${track}`,
+      env: {
+        ...baseEnv,
+        SPREADSHEETBENCH_TRACK: track,
+        SPREADSHEETBENCH_STAGE_ROOT: stageRoot,
+        SPREADSHEETBENCH_TASK_ID: args.task.taskId,
+        SPREADSHEETBENCH_LIVE_PROOF_PATH: join(receiptDir, `${args.attemptId}.json`).replace(/\\/g, "/"),
       },
     };
   }
@@ -808,6 +853,7 @@ function publicLongRunPlan(plan: ProofloopProdProxyLongRunPlan): Omit<ProofloopP
       queuePath: `${LONGRUN_ROOT}/${plan.runId}/queue.jsonl`,
       totalAttempts: attempts.length,
       sample: [
+        ...attempts.filter((attempt) => attempt.status === "failed").slice(0, 4),
         ...attempts.filter((attempt) => attempt.status === "queued").slice(0, 2),
         ...attempts.filter((attempt) => attempt.status === "blocked_adapter").slice(0, 2),
         ...attempts.filter((attempt) => attempt.status === "passed_existing").slice(0, 2),

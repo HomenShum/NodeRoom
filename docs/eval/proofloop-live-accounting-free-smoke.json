@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "caseId": "accounting-free-smoke-variance-calc",
+  "benchmark": "product-smoke",
+  "generatedAt": "2026-07-05T07:49:07.819Z",
+  "baseUrl": "https://noderoom.live",
+  "roomUrl": "https://noderoom.live/?room=PLMR7HIVFE&name=Proof+Loop",
+  "command": "PROOFLOOP_LIVE_BROWSER=1 PROOFLOOP_TASKS_JSON=proofloop/accounting/live.accounting.config.json PROOFLOOP_TASK_IDS=variance-calc PROOFLOOP_MAX_TASK_TIMEOUT_MS=600000 PROOFLOOP_STREAM_WAIT_MS=90000 PROOFLOOP_FOCUS_MODE=0 PROOFLOOP_NODEAGENT_RUNTIME_PROFILE= BENCH_AGENT_MODEL_MODE=specific BENCH_AGENT_MODEL_POLICY=qwen/qwen3-coder:free npx playwright test --config playwright.proofloop.config.ts proofloop/live-browser-proof.spec.ts --headed",
+  "model": {
+    "id": "qwen/qwen3-coder:free",
+    "requested": "qwen/qwen3-coder:free",
+    "resolved": "qwen/qwen3-coder:free",
+    "routePolicy": "specific",
+    "role": "planner",
+    "costUsd": 0,
+    "tokensIn": 0,
+    "tokensOut": 0,
+    "costAccounting": {
+      "status": "free",
+      "source": "free_provider",
+      "note": "Zero cost is explicit because this route is local, no-provider, deterministic, or catalog-priced as free."
+    },
+    "runtimeProfile": "standard",
+    "provider": "openrouter"
+  },
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "variance-calc"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": false,
+    "attentionOverlayVisible": false,
+    "streamingVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [],
+    "tracePath": ".proofloop\\runs\\accounting-free-smoke\\fresh-room\\accounting-free-smoke-variance-calc\\tasks\\variance-calc\\latest.json"
+  },
+  "artifacts": {
+    "created": [
+      "variance-calc"
+    ]
+  },
+  "scorer": {
+    "name": "Proof-loop suite aggregate",
+    "verdict": "fail",
+    "score": 0,
+    "details": {
+      "taskProofs": [
+        {
+          "taskId": "variance-calc",
+          "taskName": "Q3 Variance Calculation",
+          "passed": false,
+          "matchedPatterns": [
+            "variance",
+            "revenue",
+            "cogs",
+            "2,400"
+          ],
+          "unmatchedPatterns": [
+            "1,100"
+          ],
+          "streamingVisible": true,
+          "jobStatusVisible": true,
+          "jobDetailVisible": true,
+          "roomTraceVisible": true,
+          "jobCompleted": false,
+          "caveatFindings": [],
+          "blockingCaveats": [],
+          "placeholderFindings": [],
+          "durationMs": 312335,
+          "receiptPath": ".proofloop\\runs\\accounting-free-smoke\\fresh-room\\accounting-free-smoke-variance-calc\\tasks\\variance-calc\\latest.json",
+          "telemetry": {
+            "model": "qwen/qwen3-coder:free",
+            "toolCalls": 1,
+            "steps": 1,
+            "inputTokens": 0,
+            "outputTokens": 0,
+            "latencyMs": 29331,
+            "costUsd": 0,
+            "rawText": "qwen/qwen3-coder:free · 1 tools · $0.000",
+            "rawTitle": "1 steps · 0 in + 0 out tokens · 29331ms"
+          },
+          "error": "Job did not complete within timeout"
+        }
+      ]
+    }
+  },
+  "telemetry": {
+    "latencyMs": 29331,
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "toolCalls": 1,
+    "costUsd": 0
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "public_nodeagent_invocation",
+    "no_memory_mode_shortcut",
+    "agent_live_loop",
+    "trace_video_artifacts"
+  ],
+  "passed": false
+}

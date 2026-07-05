@@ -1,0 +1,124 @@
+{
+  "schema": "proofloop-proximitty-prod-browser-v1",
+  "suite": "proximitty-underwriting-pr0",
+  "runId": "proximitty-live-1783239367814",
+  "generatedAt": "2026-07-05T08:17:55.677Z",
+  "baseUrl": "https://noderoom.live",
+  "roomStartedAt": "2026-07-05T08:16:08.901Z",
+  "roomUrl": "https://noderoom.live/?room=NRLQ2M1OG0P&name=Proof+Loop",
+  "uploadedFiles": [
+    "company-profile.json",
+    "underwriting-policy.md",
+    "synthetic-financials.csv",
+    "risk-notes.md",
+    "source-pack.md"
+  ],
+  "model": {
+    "provider": "openrouter",
+    "mode": "specific",
+    "policy": "qwen/qwen3-coder:free",
+    "runtimeProfile": "standard",
+    "realUserMode": true,
+    "measuredCostUsd": 0.012,
+    "measuredTokensIn": 127150,
+    "measuredTokensOut": 7868,
+    "telemetry": [
+      {
+        "model": "z-ai/glm-4.7-flash",
+        "toolCalls": 11,
+        "steps": 8,
+        "inputTokens": 127150,
+        "outputTokens": 7868,
+        "latencyMs": 89510,
+        "costUsd": 0.012,
+        "rawText": "z-ai/glm-4.7-flash · 11 tools · $0.012",
+        "rawTitle": "8 steps · 127,150 in + 7,868 out tokens · 89510ms"
+      }
+    ]
+  },
+  "tasks": [
+    {
+      "id": "proximitty-intake",
+      "title": "Underwriting intake evidence checklist",
+      "userMessageNeedle": "evidence checklist",
+      "prompt": "Use the uploaded synthetic Proximitty underwriting files. Begin the answer with the phrase 'Synthetic evaluation only'. Create an evidence checklist for HarborPoint Robotics. Separate supported facts from needs_review items. Do not approve, decline, price, bind, lend, insure, or make a real decision.",
+      "passPatterns": [
+        {},
+        {},
+        {},
+        {}
+      ]
+    }
+  ],
+  "taskProofs": [
+    {
+      "taskId": "proximitty-intake",
+      "title": "Underwriting intake evidence checklist",
+      "prompt": "Use the uploaded synthetic Proximitty underwriting files. Begin the answer with the phrase 'Synthetic evaluation only'. Create an evidence checklist for HarborPoint Robotics. Separate supported facts from needs_review items. Do not approve, decline, price, bind, lend, insure, or make a real decision.",
+      "passed": true,
+      "matchedPatterns": [
+        "HarborPoint",
+        "evidence",
+        "needs_review|needs review",
+        "synthetic|demo"
+      ],
+      "unmatchedPatterns": [],
+      "failedGates": [],
+      "agent": {
+        "userMessageVisible": true,
+        "streamingVisible": true,
+        "jobStatusVisible": true,
+        "jobDetailVisible": true,
+        "roomTraceVisible": true,
+        "completionVisible": true,
+        "finalTextSample": " Game planGoal: Use the uploaded synthetic Proximitty underwriting files. Begin the answer with ...I'll help you create an evidence checklist for HarborPoint Robotics using the synthetic underwriting files. Let me start by examining the uploaded files and the spreadsheet structure.NodeAgent completed with recovered steps8 model turns - 10 tool actions - 3 earlierTrace details Step 8/128Gathered room files6 room artifacts returnedDefine ColumnscompletedUpdated Sheet 1tool_argument_errorUpdated Sheet 1text result returnedContext compactedI'll help you create an evidence checklist for HarborPoint Robotics using the synthetic underwriting files. Let me start by examining the uploaded files and the spreadsheet structure.Synthetic evaluation only. Created a HarborPoint Robotics evidence checklist in the Sheet 1 tab (artifact j97e866egs241zhev59n2wdvvd89ymwa, version 2).Supported facts (12):Core business: HarborPoint sells robotics-as-a-service to warehouse operators (source-pack.md).Financials: 2025 revenue 7.6M USD; EBITDA 1.12M USD; debt service 560K USD; cash 1.04M USD; accounts receivable 1.38M USD; inventory 1.48M USD; top customer concentration 41% (synthetic-financials.csv).Risk acknowledgement: Customer concentration is a material risk; two deployment milestones have been delayed (risk-notes.md).Needs review (2):UCC confirmation is not included (risk-notes.md).Missing legal, insurance, environmental, or lien issues (underwriting-policy.md).Spreadsheet schema defined: Fact/Claim, Source Reference, Status, Supporting Evidence. All entries include source citations; needs_review items must remain unapproved as policy.\n Game planGoal: Use the uploaded synthetic Proximitty underwriting files. Begin the answer with ...I'll help you create an evidence checklist for HarborPoint Robotics using the synthetic underwriting files. Let me start by examining the uploaded files and the spreadsheet structure.NodeAgent completed with recovered steps8 model turns - 10 tool actions - 3 earlierTrace details Step 8/128Gathered room files6 room artifacts returnedDefine ColumnscompletedUpdated Sheet 1tool_argument_errorUpdated Sheet 1text result returnedContext compactedI'll help you create an evidence checklist for HarborPoint Robotics using the synthetic underwriting files. Let me start by examining the uploaded files and the spreadsheet structure.Synthetic evaluation only. Created a HarborPoint Robotics evidence checklist in the Sheet 1 tab (artifact j97e866egs241zhev59n2wdvvd89ymwa, version 2).Supported facts (12):Core business: HarborPoint sells robotics-as-a-service to warehouse operators (source-pack.md).Financials: 2025 revenue 7.6M USD; EBITDA 1.12M USD; debt service 560K USD; cash 1.04M USD; accounts receivable 1.38M USD; inventory 1.48M USD; top customer concentration 41% (synthetic-financials.csv).Risk acknowledgement: Customer concentration is a material risk; two deployment milestones have been delayed (risk-notes.md).Needs review (2):UCC confirmation is not included (risk-notes.md).Missing legal, insurance, environmental, or lien issues (underwriting-policy.md).Spreadsheet schema defined: Fact/Claim, Source Reference, Status, Supporting Evidence. All entries include source citations; needs_review items must remain unapproved as policy.\nNRoom NodeAgentagent01:16 Game planGoal: Use the uploaded synthetic Proximitty underwriting files. Begin the answer with ...I'll help you create an evidence checklist for HarborPoint Robotics using the synthetic underwriting files. Let me start by examining the uploaded files and the spreadsheet structure.NodeAgent completed with recovered steps8 model turns - 10 tool actions - 3 earlierTrace details Step 8/128Gathered room files6 room artifacts returnedDefine ColumnscompletedUpdated Sheet 1tool_argument_errorUpdated Sheet 1text result returnedContext compactedI'll help you create an evidence checklist for HarborPoint Robotics using the synthetic underwriting files. Let me start by examining the uploaded files and the spreadsheet structure.Synthetic evaluation only. Created a HarborPoint Robotics evidence checklist in the Sheet 1 tab (artifact j97e866egs241zhev59n2wdvvd89ymwa, version 2).Supported facts (12):Core business: HarborPoint sells robotics-as-a-service to warehouse operators (source-pack.md).Financials: 2025 revenue 7.6M USD; EBITDA 1.12M USD; debt service 560K USD; cash 1.04M USD; accounts receivable 1.38M USD; inventory 1.48M USD; top customer concentration 41% (synthetic-financials.csv).Risk acknowledgement: Customer concentration is a material risk; two deployment milestones have been delayed (risk-notes.md).Needs review (2):UCC confirmation is not included (risk-notes.md).Missing legal, insurance, environmental, or lien issues (underwriting-policy.md).Spreadsheet schema defined: Fact/Claim, Source Reference, Status, Supporting Evidence. All entries include source citations; needs_review items must remain unapproved as policy. Copy",
+        "durationMs": 95850,
+        "telemetry": {
+          "model": "z-ai/glm-4.7-flash",
+          "toolCalls": 11,
+          "steps": 8,
+          "inputTokens": 127150,
+          "outputTokens": 7868,
+          "latencyMs": 89510,
+          "costUsd": 0.012,
+          "rawText": "z-ai/glm-4.7-flash · 11 tools · $0.012",
+          "rawTitle": "8 steps · 127,150 in + 7,868 out tokens · 89510ms"
+        },
+        "gatesProven": [
+          "public_nodeagent_invocation",
+          "visible_streaming_progress",
+          "agent_live_loop",
+          "job_detail_visible",
+          "agent_terminal_quality_gate",
+          "room_trace_visible"
+        ],
+        "gatesNotProven": {}
+      }
+    }
+  ],
+  "problemCounts": {
+    "pageErrors": 0,
+    "consoleProblems": 0,
+    "requestFailures": 0,
+    "badResponses": 0
+  },
+  "pageErrors": [],
+  "consoleProblems": [],
+  "requestFailures": [],
+  "badResponses": [],
+  "screenshotPaths": [
+    "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\proximitty-live-1783239367814\\proximitty-prod-browser\\visual-proof.png"
+  ],
+  "officialScoreClaim": false,
+  "demoSafety": "Synthetic evaluation only. Not a lending, insurance, legal, pricing, or underwriting decision.",
+  "status": "passed",
+  "evidence": {
+    "browserProofPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\proximitty-live-1783239367814\\proximitty-prod-browser\\browser-proof.json",
+    "liveUserContractPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\proximitty-live-1783239367814\\proximitty-prod-browser\\live-user-contract.json",
+    "nodeTracePath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\proximitty-live-1783239367814\\proximitty-prod-browser\\node-trace-v2.json",
+    "nodeEvalPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\proximitty-live-1783239367814\\proximitty-prod-browser\\node-eval.json",
+    "costLedgerPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\proximitty-live-1783239367814\\proximitty-prod-browser\\cost-ledger.json",
+    "verifierReceiptPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\proximitty-live-1783239367814\\proximitty-prod-browser\\verifier-receipt.json",
+    "scorecardPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\runs\\proximitty-live-1783239367814\\proximitty-prod-browser\\scorecard.md"
+  }
+}

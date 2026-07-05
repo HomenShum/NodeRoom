@@ -11,6 +11,8 @@ import { defineConfig, devices } from "@playwright/test";
 
 const traceMode = process.env.PLAYWRIGHT_TRACE === "on" ? "on" : "retain-on-failure";
 const videoMode = process.env.PLAYWRIGHT_RECORD_VIDEO === "1" ? "on" : "off";
+const retries = Number(process.env.PLAYWRIGHT_RETRIES ?? 1);
+const outputDir = process.env.PLAYWRIGHT_OUTPUT_DIR ?? "test-results";
 
 export default defineConfig({
   // Two real-user, live-Convex flows live here: the cheap-model room e2e (tests/) and the fullest
@@ -20,6 +22,7 @@ export default defineConfig({
   testMatch: [
     "tests/real-room-cheap-e2e.spec.ts",
     "e2e/benchmark-ui-spreadsheetbench.spec.ts",
+    "e2e/benchmark-ui-spreadsheetbench-generic.spec.ts",
     "e2e/benchmark-ui-bankertoolbench.spec.ts",
     "e2e/uploaded-artifact-live-rendering.spec.ts",
     "e2e/human-agent-concurrency.spec.ts",
@@ -31,9 +34,10 @@ export default defineConfig({
   ],
   fullyParallel: false,
   workers: 1,
-  retries: 1,
+  retries: Number.isFinite(retries) ? retries : 1,
   timeout: 320_000,
   expect: { timeout: 200_000 },
   reporter: "list",
+  outputDir,
   use: { ...devices["Desktop Chrome"], headless: true, trace: traceMode, video: videoMode },
 });

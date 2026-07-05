@@ -1,7 +1,7 @@
 # ProofLoop Prod Proxy Long-Run Plan
 
-Generated: 2026-07-05T08:12:15.277Z
-Run ID: `prod-proxy-longrun-2026-07-05T08-12-15-277Z`
+Generated: 2026-07-05T07:20:52.134Z
+Run ID: `prod-proxy-free-spreadsheetbench-102-20-20260705`
 Base URL: https://noderoom.live
 
 This is the durable attempt queue for the full prod-browser proxy benchmark matrix. It tracks model-task attempts, not only task families, and it keeps blocked adapters in the denominator.
@@ -12,10 +12,10 @@ This is the durable attempt queue for the full prod-browser proxy benchmark matr
 - Models: 4
 - Model-task attempts: 5416
 - Existing prod browser attempt passes: 0
-- Queued runnable attempts: 5416
-- Blocked by missing browser adapters: 0
+- Queued runnable attempts: 5372
+- Blocked by missing browser adapters: 40
 - Blocked by budget: 0
-- Failed attempts: 0
+- Failed attempts: 4
 - All-task winner: none
 - Current adapter-smoke winner: none
 
@@ -41,6 +41,17 @@ This is the durable attempt queue for the full prod-browser proxy benchmark matr
 
 | Family | Tasks | Attempts | Adapter status | Adapter version | Required adapter | First blocker |
 |---|---:|---:|---|---:|---|---|
+| `proximitty-underwriting-pr0` | 4 | 16 | local_only | 0.1.0 | proximitty-underwriting-prod-browser-room | Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios. |
+| `noderoom-multi-user-conflict` | 6 | 24 | missing_generic_browser_adapter | 0.1.0 | noderoom-multi-user-conflict-prod-browser-room | Internal deterministic conflict suite has not been promoted to prod browser model matrix tasks. |
+
+## Failed Attempts
+
+| Attempt | Family | Task | Model | Exit | First blocker |
+|---|---|---|---|---:|---|
+| `spreadsheetbench-v1-full-912--102-20--cohere_north-mini-code_free--0a13d22f5d` | `spreadsheetbench-v1-full-912` | `102-20` | `cohere/north-mini-code:free` | 1 | Live command exited 1 |
+| `spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-ultra-550b-a55b_free--610ec95133` | `spreadsheetbench-v1-full-912` | `102-20` | `nvidia/nemotron-3-ultra-550b-a55b:free` | 1 | Live command exited 1 |
+| `spreadsheetbench-v1-full-912--102-20--nvidia_nemotron-3-super-120b-a12b_free--2d566b3b2f` | `spreadsheetbench-v1-full-912` | `102-20` | `nvidia/nemotron-3-super-120b-a12b:free` | 1 | Live command exited 1 |
+| `spreadsheetbench-v1-full-912--102-20--qwen_qwen3-coder_free--f878fa4625` | `spreadsheetbench-v1-full-912` | `102-20` | `qwen/qwen3-coder:free` | 1 | Live command exited 1 |
 
 ## Commands
 
