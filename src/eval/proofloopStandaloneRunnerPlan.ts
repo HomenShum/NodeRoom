@@ -14,9 +14,15 @@ import {
 } from "./proofloopAdapterBlockers";
 
 export type ProofloopRunnerTaskKind =
+  | "capability-headless"
   | "adapter-gap"
   | "guarded-live-run-batch"
   | "official-score-gap";
+
+export type ProofloopRunnerTaskLayer =
+  | "capability-headless"
+  | "browser-certification"
+  | "official-scoring";
 
 export type ProofloopRunnerTaskStatus =
   | "ready"
@@ -36,6 +42,7 @@ export type ProofloopRunnerPlanTask = {
   estimatedCostUsd: number;
   timeoutMs?: number;
   kind: ProofloopRunnerTaskKind;
+  layer: ProofloopRunnerTaskLayer;
   status: ProofloopRunnerTaskStatus;
   title: string;
   familyId?: string;
@@ -60,6 +67,7 @@ export type ProofloopRunnerPlanTask = {
 
 export type ProofloopStandaloneRunnerPlan = {
   schema: "proofloop-runner-plan-v1";
+  mode: "two-layer-certification-v1";
   generatedAt: string;
   planId: string;
   title: string;
@@ -90,9 +98,12 @@ export type ProofloopStandaloneRunnerPlan = {
   };
   summary: {
     tasks: number;
+    capabilityHeadlessTasks: number;
+    browserCertificationTasks: number;
     adapterGapTasks: number;
     guardedLiveRunBatchTasks: number;
     officialScoreGapTasks: number;
+    browserRequiredForAllCapabilityTasks: false;
     uniqueTaskTargets: number;
     modelTaskAttempts: number;
     queuedAttempts: number;
@@ -151,6 +162,75 @@ const DEFAULT_DOCS_PATH = "docs/eval/PROOFLOOP_STANDALONE_RUNNER_DOGFOOD.md";
 const DEFAULT_BUDGET_USD = 100;
 const PROOFLOOP_NPX_RUNNER = "npx --yes github:HomenShum/proofloop";
 
+const CAPABILITY_HEADLESS_TASKS: Array<{
+  id: string;
+  title: string;
+  command: string;
+  objective: string;
+  timeoutMs: number;
+  evidence: string[];
+}> = [
+  {
+    id: "capability.official-readiness-ledger",
+    title: "Refresh official benchmark readiness ledger",
+    command: "npm run benchmark:official:readiness",
+    objective: "Keep official-score blockers explicit without relabeling proxy proof as official benchmark scores.",
+    timeoutMs: 120_000,
+    evidence: ["docs/eval/official-benchmark-readiness.json"],
+  },
+  {
+    id: "capability.prod-proxy-denominator",
+    title: "Refresh full prod proxy task denominator",
+    command: "npm run benchmark:proofloop:prod-proxy-matrix",
+    objective: "Regenerate the full proxy benchmark matrix so 1354 task targets and all model-task attempts stay in the denominator.",
+    timeoutMs: 180_000,
+    evidence: ["docs/eval/proofloop-prod-proxy-benchmark-matrix.json"],
+  },
+  {
+    id: "capability.prod-browser-adapters",
+    title: "Refresh prod browser adapter ledger",
+    command: "npm run benchmark:proofloop:prod-browser-adapters",
+    objective: "Verify which benchmark families have runnable prod browser adapters before any live UI certification run.",
+    timeoutMs: 180_000,
+    evidence: ["docs/eval/proofloop-prod-browser-adapters.json"],
+  },
+  {
+    id: "capability.free-openrouter-longrun-plan",
+    title: "Refresh free-model long-run plan",
+    command: "npm run benchmark:proofloop:prod-proxy-longrun -- plan --free-openrouter --free-model-limit 4 --budget-usd 0 --json-out docs/eval/proofloop-prod-proxy-longrun-free-plan.json --md-out docs/eval/PROOFLOOP_PROD_PROXY_LONGRUN_FREE.md",
+    objective: "Discover current free OpenRouter routes and queue zero-budget capability probes without running broad paid sweeps.",
+    timeoutMs: 240_000,
+    evidence: [
+      "docs/eval/proofloop-prod-proxy-longrun-free-plan.json",
+      "docs/eval/PROOFLOOP_PROD_PROXY_LONGRUN_FREE.md",
+    ],
+  },
+  {
+    id: "capability.accounting-proofloop",
+    title: "Run accounting proofloop harness",
+    command: "npm run proofloop:accounting",
+    objective: "Verify accounting task capability through the harness without spending live browser resources on every case.",
+    timeoutMs: 600_000,
+    evidence: [".proofloop/accounting"],
+  },
+  {
+    id: "capability.notion-proofloop",
+    title: "Run Notion SDR/BDR proofloop harness",
+    command: "npm run proofloop:notion",
+    objective: "Verify Notion-style task capability through the harness before browser certification.",
+    timeoutMs: 600_000,
+    evidence: [".proofloop/notion"],
+  },
+  {
+    id: "capability.multi-user-coordination",
+    title: "Run deterministic multi-user coordination proof",
+    command: "npm run eval:multiuser-coordination",
+    objective: "Verify lock, CAS, no-clobber, and conflict-resolution behavior independently of browser responsiveness checks.",
+    timeoutMs: 240_000,
+    evidence: ["docs/eval/multi-user-coordination-proof.json"],
+  },
+];
+
 export function buildProofloopStandaloneRunnerPlan(
   args: BuildProofloopStandaloneRunnerPlanArgs = {},
 ): ProofloopStandaloneRunnerPlan {
@@ -174,6 +254,7 @@ export function buildProofloopStandaloneRunnerPlan(
     .filter((receipt) => receipt.status !== "ready")
     .sort((a, b) => a.adapterId.localeCompare(b.adapterId));
   const tasks = [
+    ...capabilityHeadlessTasks(),
     ...adapterGapTasks(sourcePlan),
     ...guardedLiveRunBatchTasks(sourcePlan, budgetUsd),
     ...officialScoreGapTasks(officialScoreGaps),
@@ -183,6 +264,7 @@ export function buildProofloopStandaloneRunnerPlan(
 
   return {
     schema: "proofloop-runner-plan-v1",
+    mode: "two-layer-certification-v1",
     generatedAt,
     planId,
     title: "NodeRoom standalone ProofLoop runner dogfood plan",
@@ -213,9 +295,12 @@ export function buildProofloopStandaloneRunnerPlan(
     },
     summary: {
       tasks: tasks.length,
+      capabilityHeadlessTasks: tasks.filter((task) => task.layer === "capability-headless").length,
+      browserCertificationTasks: tasks.filter((task) => task.layer === "browser-certification").length,
       adapterGapTasks: tasks.filter((task) => task.kind === "adapter-gap").length,
       guardedLiveRunBatchTasks: tasks.filter((task) => task.kind === "guarded-live-run-batch").length,
       officialScoreGapTasks: tasks.filter((task) => task.kind === "official-score-gap").length,
+      browserRequiredForAllCapabilityTasks: false,
       uniqueTaskTargets: sourcePlan.summary.uniqueTaskTargets,
       modelTaskAttempts: sourcePlan.summary.totalAttempts,
       queuedAttempts: sourcePlan.summary.queuedAttempts,
@@ -250,12 +335,13 @@ export function renderProofloopStandaloneRunnerPlanMarkdown(
     `Generated: ${plan.generatedAt}`,
     `Plan ID: \`${plan.planId}\``,
     `Schema: \`${plan.schema}\``,
+    `Mode: \`${plan.mode}\``,
     "",
-    "This file is the NodeRoom handoff for dogfooding the standalone ProofLoop durable runner on the not-done proxy and benchmark work. It is generated from the existing prod proxy long-run queue and external adapter blocker receipts.",
+    "This file is the NodeRoom handoff for dogfooding the standalone ProofLoop durable runner on the not-done proxy and benchmark work. It keeps the existing prod proxy long-run queue and external adapter blocker receipts, then adds the two-layer split recommended for long-running proof work.",
     "",
-    "No paid model sweeps were run to generate this plan. The plan references the merged standalone package interface and does not vendor ProofLoop into NodeRoom.",
+    "No paid model sweeps were run to generate this plan. The plan references the standalone package interface and does not vendor ProofLoop into NodeRoom.",
     "",
-    "Registry note: npm `proofloop@0.2.0` predates the durable runner. Until the package is published with a runner-capable version, this dogfood plan uses `npx --yes github:HomenShum/proofloop` so the command resolves to the merged main branch.",
+    "Registry note: until the package release with the two-layer `this-repo --write-runner-plan` path is published, this dogfood plan uses `npx --yes github:HomenShum/proofloop` so the command resolves to the merged main branch.",
     "",
     "## Run Or Resume",
     "",
@@ -265,9 +351,18 @@ export function renderProofloopStandaloneRunnerPlanMarkdown(
     `- Local long-run status: \`${plan.resume.localLongRunStatusCommand}\``,
     `- Local guarded live-attempt resume: \`${plan.resume.localLongRunResumeCommand}\``,
     "",
+    "## Two-Layer Contract",
+    "",
+    "- Capability/headless lane runs harnesses, denominator refreshes, readiness ledgers, free-model planning, and deterministic multi-user checks without forcing every benchmark row through the browser.",
+    "- Browser/UI certification lane runs the real prod UI with memory mode off and verifier receipts for product responsiveness, room creation/join flows, and representative benchmark adapters.",
+    "- Official-scoring lane remains separate: proxy proof cannot be relabeled as an official benchmark score without the upstream scorer or judge contract.",
+    `- Browser required for every capability task: ${String(plan.summary.browserRequiredForAllCapabilityTasks)}`,
+    "",
     "## Summary",
     "",
     `- Runner tasks: ${plan.summary.tasks}`,
+    `- Capability/headless tasks: ${plan.summary.capabilityHeadlessTasks}`,
+    `- Browser-certification tasks: ${plan.summary.browserCertificationTasks}`,
     `- Adapter-gap tasks: ${plan.summary.adapterGapTasks}`,
     `- Guarded live-run batch tasks: ${plan.summary.guardedLiveRunBatchTasks}`,
     `- Official-score gap tasks: ${plan.summary.officialScoreGapTasks}`,
@@ -283,10 +378,10 @@ export function renderProofloopStandaloneRunnerPlanMarkdown(
     ...renderDogfoodReceiptLines(dogfoodReceipt),
     "## Tasks",
     "",
-    "| ID | Kind | Status | Scope | Attempts | Est. product spend |",
-    "|---|---|---|---|---:|---:|",
+    "| ID | Layer | Kind | Status | Scope | Attempts | Est. product spend |",
+    "|---|---|---|---|---|---:|---:|",
     ...plan.tasks.map((task) =>
-      `| \`${task.id}\` | ${task.kind} | ${task.status} | ${task.familyId ?? task.adapterId ?? "repo"} | ${task.counts.attempts ?? task.counts.queuedAttempts ?? task.counts.blockedAttempts ?? 0} | ${money(task.estimatedProductSpendUsd)} |`,
+      `| \`${task.id}\` | ${task.layer} | ${task.kind} | ${task.status} | ${task.familyId ?? task.adapterId ?? "repo"} | ${task.counts.attempts ?? task.counts.queuedAttempts ?? task.counts.blockedAttempts ?? 0} | ${money(task.estimatedProductSpendUsd)} |`,
     ),
     "",
     "## Guardrails",
@@ -365,6 +460,44 @@ function adapterGapTasks(plan: ProofloopProdProxyLongRunPlan): ProofloopRunnerPl
     .map((gap, index) => adapterGapTask(plan, gap, index));
 }
 
+function capabilityHeadlessTasks(): ProofloopRunnerPlanTask[] {
+  return CAPABILITY_HEADLESS_TASKS.map((task, index) => ({
+    id: task.id,
+    command: task.command,
+    estimatedCostUsd: 0,
+    timeoutMs: task.timeoutMs,
+    kind: "capability-headless",
+    layer: "capability-headless",
+    status: "ready",
+    title: task.title,
+    priority: 10 + index,
+    objective: task.objective,
+    prompt: [
+      task.objective,
+      "Run this as a headless capability check; do not substitute a screenshot or transcript for the command receipt.",
+      "If it fails, use ProofLoop repair/resume outputs to narrow the fix before spending browser/model budget.",
+    ].join("\n"),
+    estimatedProductSpendUsd: 0,
+    paidModelRequired: false,
+    counts: {},
+    commands: [
+      {
+        name: "run",
+        command: task.command,
+        requiresSpend: false,
+        writes: task.evidence,
+      },
+    ],
+    acceptance: [
+      "The command exits 0 under the durable runner.",
+      "The evidence paths are refreshed or an explicit blocker is recorded.",
+      "No prod browser or paid model sweep is required for this capability proof.",
+    ],
+    evidence: task.evidence,
+    blockers: [],
+  }));
+}
+
 function adapterGapTask(
   plan: ProofloopProdProxyLongRunPlan,
   gap: ProofloopProdProxyLongRunAdapterGap,
@@ -377,6 +510,7 @@ function adapterGapTask(
     estimatedCostUsd: 0,
     timeoutMs: 120_000,
     kind: "adapter-gap",
+    layer: "browser-certification",
     status: "ready",
     title: `Implement prod browser adapter for ${gap.familyId}`,
     familyId: gap.familyId,
@@ -453,6 +587,7 @@ function liveRunBatchTask(
     estimatedCostUsd: 0,
     timeoutMs: 120_000,
     kind: "guarded-live-run-batch",
+    layer: "browser-certification",
     status: "guarded-spend",
     title: `Run guarded prod proxy attempts for ${familyId}`,
     familyId,
@@ -513,6 +648,7 @@ function officialScoreGapTasks(receipts: ExternalAdapterBlockerReceipt[]): Proof
     estimatedCostUsd: 0,
     timeoutMs: 120_000,
     kind: "official-score-gap",
+    layer: "official-scoring",
     status: "blocked-external",
     title: `Import official score receipt for ${receipt.adapterId}`,
     adapterId: receipt.adapterId,
