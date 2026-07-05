@@ -33,7 +33,12 @@
 }
 
 /* Scroll container ---------------------------------------------------------- */
-.rs-scroll { display: block; scroll-behavior: smooth; }
+/* .r-screen.rs-scroll (not bare .rs-scroll): .r-screen{display:flex} from
+   styles.css lands LATER in the built bundle, so at equal specificity the
+   flex-row shell silently won and collapsed every story section into one
+   squeezed horizontal row (verified live at 1280 — hero 281px wide). The
+   compound selector out-specifies it regardless of bundle order. */
+.r-screen.rs-scroll { display: block; scroll-behavior: smooth; }
 
 /* Hero ---------------------------------------------------------------------- */
 .rs-hero {

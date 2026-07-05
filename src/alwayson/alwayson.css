@@ -1,0 +1,275 @@
+/* ============================================================================
+   Always-On Rooms — public room page styles.
+   Lifted from design-reference/alwayson/ao.css (§2 room frame, §4 subscribe
+   modal, §5 owner ops), with the html/body/#root globals dropped: the page
+   background moves onto the .ao-public scroll root. Every .ao-* rule kept is
+   verbatim from the specimen; rules this page (and the OpsPanel it hosts under
+   the Ops tab) demonstrably does not use — showcase chrome (.ao-sec*, .ao-head,
+   .ao-note, .ao-cols), §1 factory (.ao-compose, .ao-plan*, .ao-wont, .ao-prow)
+   and the §4 email render (.ao-email) — were deleted rather than shipped dead.
+   §3 landing cards (.ao-cards/.ao-card) ARE shipped: the landing gallery
+   (src/landing/AlwaysOnCards.tsx) imports this file and renders the specimen
+   card markup. Tokens only; the few raw values
+   (#C6684A, #5E6AD2, #97A0E8, rgba accent/indigo tints) come straight from the
+   specimen / design bundle.
+   ========================================================================== */
+
+/* ── page scroll root (replaces the specimen's body/html rules) ──────────── */
+/* Standalone scroll surface — deliberately NOT .r-screen (that is the
+   flex-row room shell); this page owns its own vertical scroll container. */
+.ao-public {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-family: var(--font-ui);
+  color: var(--text-primary);
+  background:
+    radial-gradient(1000px 540px at 10% -6%, rgba(217, 119, 87, .09), transparent 55%),
+    radial-gradient(1000px 640px at 100% 0%, rgba(94, 106, 210, .07), transparent 52%),
+    var(--bg-app);
+  /* paper surface token for the brief card — values from
+     design-reference/assets/colors_and_type.css (light / dark). */
+  --paper-bg: #FBF8F2;
+}
+[data-theme="dark"] .ao-public { --paper-bg: #1B1A18; }
+
+.ao-wrap { max-width: 1280px; margin: 0 auto; padding: 40px 28px 90px; }
+
+/* specimen's global .grow, scoped to this page so it cannot leak */
+.ao-public .grow { flex: 1; }
+.ao-modal .grow { flex: 1; }
+
+/* ── generic panel / buttons / chips ──────────────────────────────────────── */
+.ao-panel { background: var(--bg-primary); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-sm); }
+.ao-btn { display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border-radius: 9px; font-size: 12.5px; font-weight: 700;
+  border: 1px solid var(--line-strong); background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; letter-spacing: -.01em; }
+.ao-btn:hover { background: var(--bg-hover); }
+.ao-btn.pri { color: #fff; border: 0; background: linear-gradient(180deg, var(--accent-primary) 96%, #C6684A 96%); box-shadow: 0 3px 10px rgba(217, 119, 87, .28); }
+.ao-btn.pri:hover { filter: brightness(1.04); }
+.ao-btn.ghost { background: transparent; border-color: transparent; color: var(--text-muted); }
+.ao-btn.ghost:hover { background: var(--bg-hover); color: var(--text-secondary); }
+.ao-kicker { font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--text-tertiary); }
+.ao-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: .01em;
+  background: var(--bg-secondary); color: var(--text-tertiary); border: 1px solid var(--line); }
+.ao-chip.acc { background: var(--accent-tint); color: var(--accent-ink); border-color: var(--accent-border); }
+.ao-chip.ok { background: color-mix(in srgb, var(--success-ink) 13%, transparent); color: var(--success-ink); border-color: transparent; }
+/* addition (not in specimen): honest failed-state chip for runlog rows whose
+   status is "failed" — danger semantics, never green/amber. */
+.ao-chip.bad { background: color-mix(in srgb, var(--danger-ink) 14%, transparent); color: var(--danger-ink); border-color: transparent; }
+.ao-mono { font-family: var(--font-mono); }
+
+/* ── §2 public room frame ─────────────────────────────────────────────────── */
+.ao-frame { border: 1px solid var(--line-strong); border-radius: 16px; overflow: hidden; background: var(--bg-app); box-shadow: var(--shadow-lg); }
+.ao-rtop { display: flex; align-items: center; gap: 12px; padding: 0 16px; height: 52px; border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg-secondary) 70%, transparent); }
+.ao-rtop .crumb { font-size: 13.5px; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; }
+.ao-rtop .crumb span { color: var(--text-tertiary); font-weight: 500; }
+/* header room mark — lifted from the specimen's .ao-plan-top .agmark */
+.ao-mark { border-radius: 8px; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 12px;
+  background: linear-gradient(180deg, var(--accent-primary), #C6684A); flex: none; }
+.ao-tabs { display: flex; align-items: center; gap: 4px; padding: 8px 14px 0; border-bottom: 1px solid var(--line); }
+.ao-tab { display: inline-flex; align-items: center; gap: 7px; padding: 7px 13px; border-radius: 9px 9px 0 0; font-size: 12.5px; font-weight: 600;
+  color: var(--text-muted); cursor: pointer; border: 1px solid transparent; border-bottom: 0; background: none; }
+.ao-tab.on { color: var(--text-primary); background: var(--bg-app); border-color: var(--line); position: relative; top: 1px; }
+.ao-rbody { display: grid; grid-template-columns: minmax(0, 1.5fr) 330px; gap: 0; min-height: 520px; }
+@media (max-width: 980px) { .ao-rbody { grid-template-columns: 1fr; } }
+.ao-rmain { padding: 18px 20px 20px; min-width: 0; }
+.ao-rside { border-left: 1px solid var(--line); padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 14px;
+  background: color-mix(in srgb, var(--bg-secondary) 40%, transparent); }
+
+/* paper-surface brief */
+.ao-brief { background: var(--paper-bg, #1B1A18); border: 1px solid var(--line); border-left: 3px solid var(--accent-primary);
+  border-radius: 12px; padding: 20px 24px 22px; }
+.ao-brief .stamp { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.ao-brief h2 { font-size: 17px; font-weight: 800; letter-spacing: -.02em; margin: 0 0 4px; }
+.ao-brief .date { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); margin-bottom: 14px; }
+.ao-brief h3 { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--text-tertiary); margin: 16px 0 7px; }
+.ao-brief h3:first-of-type { margin-top: 0; }
+.ao-brief li, .ao-brief p { font-size: 13px; line-height: 1.7; color: var(--text-secondary); margin: 0 0 3px; }
+.ao-brief ul, .ao-brief ol { margin: 0; padding-left: 18px; }
+.ao-brief .cite { display: inline-block; font-family: var(--font-mono); font-size: 9px; font-weight: 700; color: var(--accent-ink);
+  vertical-align: super; margin-left: 2px; cursor: default; }
+.ao-brief .agent-line { display: flex; align-items: center; gap: 7px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line);
+  font-size: 11px; color: var(--text-tertiary); }
+.ao-brief .agent-line .dot { width: 7px; height: 7px; border-radius: 2px; background: var(--accent-primary); flex: none; }
+
+/* proof footer card */
+.ao-proof { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg-primary); }
+.ao-proof .ph { display: flex; align-items: center; gap: 8px; padding: 10px 13px; border-bottom: 1px solid var(--line);
+  font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--text-tertiary); }
+.ao-proof .rows { padding: 6px 13px 10px; }
+.ao-proof .pr { display: flex; align-items: baseline; gap: 10px; padding: 5px 0; font-size: 12px; border-bottom: 1px solid var(--line); }
+.ao-proof .pr:last-child { border-bottom: 0; }
+.ao-proof .pr .k { color: var(--text-tertiary); flex: 1; }
+.ao-proof .pr .v { font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; color: var(--text-secondary); }
+.ao-proof .pr .v.ok { color: var(--success-ink); }
+.ao-proof .pr .v a { color: var(--accent-ink); text-decoration: none; cursor: pointer; }
+
+.ao-postit { border: 1px solid var(--line); border-radius: 12px; padding: 12px 13px; background: var(--bg-primary); }
+.ao-postit .t { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px; }
+.ao-postit li { font-size: 12px; line-height: 1.6; color: var(--text-secondary); margin-left: 16px; }
+
+/* papers sheet */
+.ao-sheet table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+.ao-sheet th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-tertiary);
+  padding: 8px 12px; border-bottom: 1px solid var(--line-strong); white-space: nowrap; }
+.ao-sheet td { height: 42px; padding: 0 12px; border-bottom: 1px solid var(--line); font-size: 12.5px; color: var(--text-secondary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
+.ao-sheet td.tt { font-weight: 700; color: var(--text-primary); }
+.ao-sheet td .tag { font-size: 11px; color: var(--text-tertiary); }
+.ao-sheet tr:hover td { background: color-mix(in srgb, var(--bg-hover) 40%, transparent); }
+.ao-st { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 700; }
+.ao-st.new { background: var(--accent-tint); color: var(--accent-ink); border: 1px solid var(--accent-border); }
+.ao-st.updated { background: color-mix(in srgb, #5E6AD2 16%, transparent); color: #97A0E8; }
+.ao-st.tracked { background: var(--bg-secondary); color: var(--text-tertiary); border: 1px solid var(--line); }
+.ao-src { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 6px; background: var(--bg-secondary);
+  border: 1px solid var(--line); font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--text-muted); }
+
+/* topics graph */
+.ao-graph { border: 1px solid var(--line); border-radius: 12px; background:
+  radial-gradient(circle at 30% 20%, rgba(217, 119, 87, .05), transparent 40%),
+  radial-gradient(circle at 80% 70%, rgba(94, 106, 210, .05), transparent 45%),
+  var(--bg-primary); overflow: hidden; }
+.ao-graph-head { display: flex; align-items: center; gap: 8px; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+.ao-graph-head .t { font-size: 12.5px; font-weight: 800; letter-spacing: -.01em; }
+.ao-graph svg { display: block; width: 100%; height: auto; }
+.ao-graph .edge { stroke: var(--line-strong); stroke-width: 1; }
+.ao-graph .edge.rel { stroke-dasharray: 3 4; }
+.ao-gnode { cursor: pointer; }
+.ao-gnode text { font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; fill: var(--text-tertiary); }
+.ao-gnode.paper text { fill: var(--text-muted); }
+.ao-gnode.paper.new circle { fill: var(--accent-primary); }
+.ao-gnode.paper.new text { fill: var(--accent-ink); font-weight: 700; }
+.ao-gnode.topic circle { fill: #5E6AD2; }
+.ao-gnode.topic text { fill: #97A0E8; }
+.ao-gnode.paper circle { fill: var(--text-tertiary); }
+.ao-gnode:hover circle { stroke: var(--text-primary); stroke-width: 1.5; }
+.ao-gdisc rect { fill: var(--bg-secondary); stroke: var(--line-strong); rx: 8; }
+.ao-gdisc text { font-size: 10.5px; font-weight: 700; fill: var(--text-secondary); font-family: inherit; }
+.ao-glegend { display: flex; align-items: center; gap: 14px; padding: 9px 14px; border-top: 1px solid var(--line); font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); }
+.ao-glegend .d { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; vertical-align: -1px; }
+
+/* trace runlog */
+.ao-runlog { display: flex; flex-direction: column; }
+.ao-run { display: grid; grid-template-columns: 92px 22px minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 9px 4px; border-bottom: 1px solid var(--line); }
+.ao-run:last-child { border-bottom: 0; }
+.ao-run .t { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-tertiary); white-space: nowrap; }
+.ao-run .ic { width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; background: var(--bg-secondary); border: 1px solid var(--line); color: var(--text-tertiary); }
+.ao-run.skipped .ic { opacity: .55; }
+.ao-run .ev { min-width: 0; }
+.ao-run .ev .e { font-size: 12.5px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ao-run .ev .m { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ao-run .cost { font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; color: var(--text-muted); }
+.ao-run.skipped .ev .e, .ao-run.skipped .cost { color: var(--text-tertiary); font-weight: 500; }
+
+/* read-only composer */
+.ao-ro { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-top: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg-secondary) 60%, transparent); }
+.ao-ro .hint { font-size: 12px; color: var(--text-tertiary); }
+
+/* empty state */
+.ao-empty { border: 1px dashed var(--line-strong); border-radius: 12px; padding: 40px 20px; display: grid; place-items: center; gap: 8px; text-align: center; }
+.ao-empty .h { font-size: 13.5px; font-weight: 700; color: var(--text-secondary); }
+.ao-empty .b { font-size: 12px; color: var(--text-tertiary); max-width: 42ch; line-height: 1.6; }
+
+/* ── §3 landing cards (used by src/landing/AlwaysOnCards.tsx) ─────────────── */
+.ao-cards { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+@media (max-width: 980px) { .ao-cards { grid-template-columns: 1fr; } }
+.ao-card { border: 1px solid var(--line); border-radius: 14px; background: var(--bg-primary); padding: 16px 16px 14px;
+  display: flex; flex-direction: column; gap: 9px; transition: transform 180ms var(--ease-out-expo, cubic-bezier(.16,1,.3,1)), box-shadow 180ms, border-color 180ms; cursor: pointer; }
+.ao-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: color-mix(in srgb, var(--accent-primary) 30%, transparent); }
+.ao-card .top { display: flex; align-items: center; gap: 8px; }
+.ao-card .nm { font-size: 14.5px; font-weight: 800; letter-spacing: -.01em; }
+.ao-card .live { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--success-ink); }
+.ao-card .live .d { width: 6px; height: 6px; border-radius: 50%; background: var(--success-ink); animation: ao-pulse 2.4s infinite; }
+@keyframes ao-pulse { 0%,100% { opacity: 1 } 50% { opacity: .35 } }
+.ao-card .desc { font-size: 12.5px; line-height: 1.55; color: var(--text-muted); flex: 1; }
+.ao-card .meta { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-tertiary); }
+.ao-card .acts { display: flex; gap: 8px; padding-top: 4px; border-top: 1px solid var(--line); margin-top: 2px; padding-top: 10px; }
+/* specimen's global .grow, scoped for the landing gallery (which renders
+   .ao-card outside .ao-public, so the scoped rules above don't reach it) */
+.ao-card .grow { flex: 1; }
+
+/* ── §4 subscribe modal ───────────────────────────────────────────────────── */
+.ao-modal { padding: 18px; display: flex; flex-direction: column; gap: 13px; }
+.ao-modal .h { font-size: 15px; font-weight: 800; letter-spacing: -.01em; }
+.ao-modal .s { font-size: 12.5px; color: var(--text-muted); line-height: 1.55; margin-top: -8px; }
+.ao-field label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; }
+.ao-input { width: 100%; box-sizing: border-box; padding: 8px 12px; border-radius: 9px; border: 1px solid var(--line-strong);
+  background: var(--bg-secondary); color: var(--text-primary); font-size: 13px; font-family: inherit; }
+.ao-input:focus { outline: none; border-color: var(--accent-border); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 22%, transparent); }
+.ao-radio { display: flex; align-items: center; gap: 9px; padding: 8px 11px; border: 1px solid var(--line); border-radius: 9px; cursor: pointer; font-size: 12.5px; color: var(--text-secondary); }
+.ao-radio.on { border-color: var(--accent-border); background: var(--accent-tint); color: var(--text-primary); }
+.ao-radio .r { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--line-strong); flex: none; position: relative; }
+.ao-radio.on .r { border-color: var(--accent-primary); }
+.ao-radio.on .r::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--accent-primary); }
+.ao-radio .sub { font-size: 10.5px; color: var(--text-tertiary); margin-left: auto; }
+.ao-optin { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--text-tertiary); line-height: 1.5; }
+
+/* additions (not in specimen): modal scrim + dismiss affordances. The design
+   audit forbids undismissable chrome — scrim click, Escape, and the X all
+   close the dialog. */
+.ao-modal-scrim { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 20px;
+  background: color-mix(in srgb, var(--bg-app) 55%, transparent); backdrop-filter: blur(3px); }
+.ao-modal-card { width: min(430px, 100%); position: relative; box-shadow: var(--shadow-lg); }
+.ao-modal-x { position: absolute; top: 10px; right: 10px; padding: 5px 7px; }
+.ao-modal .err { font-size: 12px; color: var(--danger-ink); line-height: 1.5; }
+
+/* ── §5 owner ops (rendered under the Ops tab via AlwaysOnOpsPanel) ───────── */
+.ao-modes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 980px) { .ao-modes { grid-template-columns: repeat(2, 1fr); } }
+.ao-mode { border: 1px solid var(--line); border-radius: 12px; padding: 12px 13px; background: var(--bg-primary); cursor: pointer; display: flex; flex-direction: column; gap: 5px; }
+.ao-mode.on { border-color: var(--accent-border); background: var(--accent-tint); box-shadow: 0 0 0 1px var(--accent-border); }
+.ao-mode.locked { opacity: .6; cursor: not-allowed; }
+.ao-mode .nm { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 800; letter-spacing: -.01em; }
+.ao-mode .d { font-size: 11.5px; line-height: 1.5; color: var(--text-muted); }
+.ao-mode .badge { margin-left: auto; font-family: var(--font-mono); font-size: 9px; font-weight: 700; color: var(--text-tertiary); }
+
+.ao-caps { padding: 15px 17px; display: flex; flex-direction: column; gap: 12px; }
+.ao-cap { display: flex; flex-direction: column; gap: 6px; }
+.ao-cap .l { display: flex; align-items: baseline; gap: 8px; font-size: 12px; color: var(--text-muted); }
+.ao-cap .l .v { margin-left: auto; font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--text-secondary); }
+.ao-bar { height: 6px; border-radius: 999px; background: var(--bg-secondary); border: 1px solid var(--line); overflow: hidden; }
+.ao-bar .fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent-primary), #C6684A); }
+.ao-caprow { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); padding: 6px 0; border-bottom: 1px solid var(--line); }
+.ao-caprow:last-child { border-bottom: 0; }
+.ao-caprow .v { margin-left: auto; font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--text-secondary); }
+
+/* outbox state machine strip */
+.ao-sm { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.ao-sm .st { font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--text-muted); background: var(--bg-secondary); }
+.ao-sm .st.hot { background: var(--accent-tint); color: var(--accent-ink); border-color: var(--accent-border); }
+.ao-sm .arr { color: var(--text-tertiary); font-size: 11px; }
+.ao-sm .gate { font-size: 10px; font-weight: 700; color: var(--warning-ink); display: inline-flex; align-items: center; gap: 4px; }
+
+.ao-outbox table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.ao-outbox th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-tertiary); padding: 8px 14px; border-bottom: 1px solid var(--line-strong); }
+.ao-outbox td { padding: 9px 14px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ao-outbox td.em { font-weight: 600; color: var(--text-primary); }
+.ao-outbox td.mono { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-tertiary); }
+.ao-outbox tr:last-child td { border-bottom: 0; }
+.ao-ost { display: inline-flex; align-items: center; gap: 6px; padding: 2.5px 9px; border-radius: 999px; font-family: var(--font-mono); font-size: 10px; font-weight: 700; }
+.ao-ost.sent { background: color-mix(in srgb, var(--success-ink) 13%, transparent); color: var(--success-ink); }
+.ao-ost.approved { background: var(--accent-tint); color: var(--accent-ink); border: 1px solid var(--accent-border); }
+.ao-ost.draft_created { background: color-mix(in srgb, #5E6AD2 16%, transparent); color: #97A0E8; }
+.ao-ost.pending_draft { background: var(--bg-secondary); color: var(--text-tertiary); border: 1px solid var(--line); }
+.ao-ost.skipped { background: var(--bg-secondary); color: var(--text-tertiary); border: 1px dashed var(--line-strong); }
+.ao-ost.failed { background: color-mix(in srgb, var(--danger-ink, #DC2626) 14%, transparent); color: var(--danger-ink, #F87171); }
+
+.ao-substats { display: flex; gap: 10px; }
+.ao-substat { flex: 1; border: 1px solid var(--line); border-radius: 11px; padding: 10px 12px; background: var(--bg-primary); }
+.ao-substat .n { font-size: 19px; font-weight: 800; letter-spacing: -.02em; font-family: var(--font-mono); }
+.ao-substat .l { font-size: 10.5px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: .08em; margin-top: 2px; }
+
+/* ── honest-liveness additions ─────────────────────────────────────────────
+   Demo fallbacks must not wear success-green (green = success semantics
+   ONLY): the demo badge keeps the pulse dot with neutral ink. "capped" is a
+   needs-review state → amber warning tokens. The live brief renders real
+   state.briefMarkdown through MarkdownBody (.ao-brief-md): map the markdown's
+   h1/h2 onto the specimen's .ao-brief h2/h3 type scale (values lifted from
+   the .ao-brief rules above). */
+.ao-card .live.demo { color: var(--text-tertiary); }
+.ao-card .live.demo .d { background: var(--text-tertiary); }
+.ao-chip.warn { background: color-mix(in srgb, var(--warning-ink) 13%, transparent); color: var(--warning-ink); border-color: transparent; }
+.ao-brief .ao-brief-md h1 { font-size: 17px; font-weight: 800; letter-spacing: -.02em; margin: 0 0 6px; color: var(--text-primary); }
+.ao-brief .ao-brief-md h2 { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--text-tertiary); margin: 16px 0 7px; }
