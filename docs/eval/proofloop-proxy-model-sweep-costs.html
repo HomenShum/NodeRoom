@@ -12,15 +12,34 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 .bar .pass { background: #2e9e6b; }
 .bar .fail { background: #bd6257; }
 .meta { color: #526154; }
+.scope { border: 1px solid #dde5dd; background: #f8fbf8; border-radius: 6px; padding: 14px 16px; margin: 18px 0; }
 </style>
 <h1>ProofLoop Proxy Model Sweep</h1>
 <p class="meta">Generated 2026-07-04T22:44:07.928Z against https://noderoom.live. Real user mode: true. Runtime profile: standard.</p>
+<div class="scope">
+  <strong>Scope: proxy_adapter_smoke</strong>
+  <p>Passes are local live-browser proxy tasks per adapter, not full official benchmark tasks. This run includes 3 local proxy tasks and does not claim full official task coverage.</p>
+  <table><thead><tr><th>Adapter</th><th>Local proxy tasks</th><th>Task IDs</th></tr></thead><tbody><tr><td>finch</td><td>1</td><td>finch-local-financial-evidence-qa</td></tr>
+<tr><td>finauditing</td><td>1</td><td>finauditing-local-risk-and-misstatement-review</td></tr>
+<tr><td>workstreambench</td><td>1</td><td>workstreambench-local-spreadsheet-workstream</td></tr></tbody></table>
+  <p>Not included in this run:</p>
+  <ul>
+    <li>SpreadsheetBench V1 full 912-task model-run scorer matrix</li>
+    <li>SpreadsheetBench V2 full 321-task bundle/run/scorer/chart matrix</li>
+    <li>BankerToolBench full 100-task official/live-UI matrix</li>
+    <li>Proximitty underwriting proof-loop suite</li>
+    <li>Accounting proof-loop suite</li>
+    <li>Notion SDR/BDR proof-loop suite</li>
+    <li>NodeRoom internal model-route/professional workflow evals</li>
+    <li>Official Finch/FinAuditing/WorkstreamBench upstream scorers or judge credentials</li>
+  </ul>
+</div>
 <p>Cheapest fully passing model: <strong>poolside/laguna-xs-2.1</strong></p>
 <h2>Estimated Cost by Model</h2>
-<table><thead><tr><th>Model</th><th>Passes</th><th>Est. OpenRouter list cost</th><th>Relative cost</th></tr></thead><tbody><tr><td><code>z-ai/glm-5.2</code></td><td>3/3</td><td>$0.2454</td><td><div class="bar"><span class="pass" style="width:100%"></span></div></td></tr>
-<tr><td><code>deepseek/deepseek-v4-flash</code></td><td>1/3</td><td>$0.0683</td><td><div class="bar"><span class="fail" style="width:28%"></span></div></td></tr>
-<tr><td><code>poolside/laguna-xs-2.1</code></td><td>3/3</td><td>$0.0326</td><td><div class="bar"><span class="pass" style="width:13%"></span></div></td></tr>
-<tr><td><code>qwen/qwen3.7-plus</code></td><td>3/3</td><td>$0.1994</td><td><div class="bar"><span class="pass" style="width:81%"></span></div></td></tr></tbody></table>
+<table><thead><tr><th>Model</th><th>Proxy task passes</th><th>Est. OpenRouter list cost</th><th>Relative cost</th></tr></thead><tbody><tr><td><code>z-ai/glm-5.2</code></td><td>3/3 proxy tasks</td><td>$0.2454</td><td><div class="bar"><span class="pass" style="width:100%"></span></div></td></tr>
+<tr><td><code>deepseek/deepseek-v4-flash</code></td><td>1/3 proxy tasks</td><td>$0.0683</td><td><div class="bar"><span class="fail" style="width:28%"></span></div></td></tr>
+<tr><td><code>poolside/laguna-xs-2.1</code></td><td>3/3 proxy tasks</td><td>$0.0326</td><td><div class="bar"><span class="pass" style="width:13%"></span></div></td></tr>
+<tr><td><code>qwen/qwen3.7-plus</code></td><td>3/3 proxy tasks</td><td>$0.1994</td><td><div class="bar"><span class="pass" style="width:81%"></span></div></td></tr></tbody></table>
 <h2>Runs</h2>
 <table><thead><tr><th>Model</th><th>Adapter</th><th>Status</th><th>Room</th><th>Est. cost</th><th>Tokens in/out</th></tr></thead><tbody><tr><td><code>z-ai/glm-5.2</code></td><td>finch</td><td>passed</td><td><a href="https://noderoom.live/?room=NR1RHOT8YL9&amp;name=Proof+Loop">NR1RHOT8YL9</a></td><td>$0.0213</td><td>27092 / 175</td></tr>
 <tr><td><code>z-ai/glm-5.2</code></td><td>finauditing</td><td>passed</td><td><a href="https://noderoom.live/?room=NRLVLO8AUAH&amp;name=Proof+Loop">NRLVLO8AUAH</a></td><td>$0.0710</td><td>74593 / 5611</td></tr>

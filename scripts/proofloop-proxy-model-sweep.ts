@@ -1,7 +1,11 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { externalBenchmarkLocalTaskIds, type ExternalBenchmarkAdapterId } from "../proofloop/benchmarks/common/local-tasks";
+import {
+  externalBenchmarkLocalTaskIds,
+  loadExternalBenchmarkLocalTasks,
+  type ExternalBenchmarkAdapterId,
+} from "../proofloop/benchmarks/common/local-tasks";
 
 type OpenRouterModel = {
   id: string;
@@ -79,11 +83,25 @@ type SweepPayload = {
   baseUrl: string;
   realUserMode: boolean;
   runtimeProfile: string;
+  scope: SweepScope;
   models: string[];
   adapterIds: ExternalBenchmarkAdapterId[];
   openRouterCatalogSource: string;
   summary: ReturnType<typeof summarize>;
   rows: SweepRow[];
+};
+
+type SweepScope = {
+  mode: "proxy_adapter_smoke";
+  fullOfficialTaskCoverageClaim: false;
+  passDenominatorMeaning: string;
+  includedLocalProxyTaskCount: number;
+  includedAdapters: Array<{
+    adapterId: ExternalBenchmarkAdapterId;
+    localProxyTaskCount: number;
+    localProxyTaskIds: string[];
+  }>;
+  notIncludedInThisRun: string[];
 };
 
 const DEFAULT_MODELS = [
@@ -111,6 +129,7 @@ const generatedAt = new Date().toISOString();
 
 const catalog = await fetchOpenRouterCatalog();
 const pricingByModel = new Map(catalog.map((model) => [model.id, pricingFor(model, generatedAt)]));
+const scope = buildScope();
 const rows: SweepRow[] = [];
 let exitCode = 0;
 
@@ -251,6 +270,7 @@ function writeOutputs(rows: SweepRow[]): void {
     baseUrl: prod ? process.env.PROOFLOOP_PROD_URL ?? process.env.PLAYWRIGHT_BASE_URL ?? "https://noderoom.live" : process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:5173",
     realUserMode: realUser,
     runtimeProfile: realUser ? "standard" : "benchmark_completion",
+    scope,
     models,
     adapterIds,
     openRouterCatalogSource: OPENROUTER_MODELS_API,
@@ -296,6 +316,34 @@ function summarize(rows: SweepRow[]) {
   };
 }
 
+function buildScope(): SweepScope {
+  const includedAdapters = adapterIds.map((adapterId) => {
+    const tasks = loadExternalBenchmarkLocalTasks(adapterId);
+    return {
+      adapterId,
+      localProxyTaskCount: tasks.length,
+      localProxyTaskIds: tasks.map((task) => task.taskId),
+    };
+  });
+  return {
+    mode: "proxy_adapter_smoke",
+    fullOfficialTaskCoverageClaim: false,
+    passDenominatorMeaning: "Passes are local live-browser proxy tasks per adapter, not full official benchmark tasks.",
+    includedLocalProxyTaskCount: includedAdapters.reduce((sum, adapter) => sum + adapter.localProxyTaskCount, 0),
+    includedAdapters,
+    notIncludedInThisRun: [
+      "SpreadsheetBench V1 full 912-task model-run scorer matrix",
+      "SpreadsheetBench V2 full 321-task bundle/run/scorer/chart matrix",
+      "BankerToolBench full 100-task official/live-UI matrix",
+      "Proximitty underwriting proof-loop suite",
+      "Accounting proof-loop suite",
+      "Notion SDR/BDR proof-loop suite",
+      "NodeRoom internal model-route/professional workflow evals",
+      "Official Finch/FinAuditing/WorkstreamBench upstream scorers or judge credentials",
+    ],
+  };
+}
+
 function renderMarkdown(payload: SweepPayload): string {
   return renderMarkdownFromAny(payload);
 }
@@ -308,11 +356,26 @@ function renderMarkdownFromAny(payload: SweepPayload): string {
     `Base URL: ${payload.baseUrl}`,
     `Real user mode: ${payload.realUserMode}`,
     `Runtime profile: ${payload.runtimeProfile}`,
+    `Scope: ${payload.scope.mode}`,
+    `Full official task coverage claim: ${payload.scope.fullOfficialTaskCoverageClaim}`,
+    `Included local proxy tasks: ${payload.scope.includedLocalProxyTaskCount}`,
     `Cheapest fully passing model: ${payload.summary.cheapestFullyPassingModel ?? "none yet"}`,
+    "",
+    "## Scope",
+    "",
+    payload.scope.passDenominatorMeaning,
+    "",
+    "| Adapter | Local proxy task count | Local proxy task IDs |",
+    "| --- | ---: | --- |",
+    ...payload.scope.includedAdapters.map((adapter) => `| ${adapter.adapterId} | ${adapter.localProxyTaskCount} | ${adapter.localProxyTaskIds.join("<br>")} |`),
+    "",
+    "Not included in this run:",
+    "",
+    ...payload.scope.notIncludedInThisRun.map((item) => `- ${item}`),
     "",
     "## Cost Chart",
     "",
-    "| Model | Passes | Est. OpenRouter list cost | UI measured cost | Avg duration | Input $/M | Output $/M |",
+    "| Model | Proxy task passes | Est. OpenRouter list cost | UI measured cost | Avg duration | Input $/M | Output $/M |",
     "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
     ...payload.summary.byModel.map((row) => [
       row.modelId,
@@ -348,9 +411,11 @@ function renderHtml(payload: SweepPayload): string {
     const cost = row.estimatedCostUsdAtOpenRouterList ?? 0;
     const width = Math.max(2, Math.round((cost / maxCost) * 100));
     const passed = row.passed === row.total && row.total > 0;
-    return `<tr><td><code>${escapeHtml(row.modelId)}</code></td><td>${row.passed}/${row.total}</td><td>${money(cost)}</td><td><div class="bar"><span class="${passed ? "pass" : "fail"}" style="width:${width}%"></span></div></td></tr>`;
+    return `<tr><td><code>${escapeHtml(row.modelId)}</code></td><td>${row.passed}/${row.total} proxy tasks</td><td>${money(cost)}</td><td><div class="bar"><span class="${passed ? "pass" : "fail"}" style="width:${width}%"></span></div></td></tr>`;
   }).join("\n");
   const runRows = payload.rows.map((row) => `<tr><td><code>${escapeHtml(row.modelId)}</code></td><td>${row.adapterId}</td><td>${row.status}</td><td>${row.roomUrl ? `<a href="${escapeHtml(row.roomUrl)}">${escapeHtml(row.roomId ?? "room")}</a>` : "n/a"}</td><td>${money(row.estimatedCostUsdAtOpenRouterList)}</td><td>${row.measuredTokensIn ?? "n/a"} / ${row.measuredTokensOut ?? "n/a"}</td></tr>`).join("\n");
+  const scopeRows = payload.scope.includedAdapters.map((adapter) => `<tr><td>${escapeHtml(adapter.adapterId)}</td><td>${adapter.localProxyTaskCount}</td><td>${escapeHtml(adapter.localProxyTaskIds.join(", "))}</td></tr>`).join("\n");
+  const notIncluded = payload.scope.notIncludedInThisRun.map((item) => `<li>${escapeHtml(item)}</li>`).join("\n");
   return `<!doctype html>
 <meta charset="utf-8">
 <title>ProofLoop Proxy Model Sweep</title>
@@ -365,12 +430,20 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 .bar .pass { background: #2e9e6b; }
 .bar .fail { background: #bd6257; }
 .meta { color: #526154; }
+.scope { border: 1px solid #dde5dd; background: #f8fbf8; border-radius: 6px; padding: 14px 16px; margin: 18px 0; }
 </style>
 <h1>ProofLoop Proxy Model Sweep</h1>
 <p class="meta">Generated ${escapeHtml(payload.generatedAt)} against ${escapeHtml(payload.baseUrl)}. Real user mode: ${payload.realUserMode}. Runtime profile: ${escapeHtml(payload.runtimeProfile)}.</p>
+<div class="scope">
+  <strong>Scope: ${escapeHtml(payload.scope.mode)}</strong>
+  <p>${escapeHtml(payload.scope.passDenominatorMeaning)} This run includes ${payload.scope.includedLocalProxyTaskCount} local proxy task(s) and does not claim full official task coverage.</p>
+  <table><thead><tr><th>Adapter</th><th>Local proxy tasks</th><th>Task IDs</th></tr></thead><tbody>${scopeRows}</tbody></table>
+  <p>Not included in this run:</p>
+  <ul>${notIncluded}</ul>
+</div>
 <p>Cheapest fully passing model: <strong>${escapeHtml(payload.summary.cheapestFullyPassingModel ?? "none yet")}</strong></p>
 <h2>Estimated Cost by Model</h2>
-<table><thead><tr><th>Model</th><th>Passes</th><th>Est. OpenRouter list cost</th><th>Relative cost</th></tr></thead><tbody>${bars}</tbody></table>
+<table><thead><tr><th>Model</th><th>Proxy task passes</th><th>Est. OpenRouter list cost</th><th>Relative cost</th></tr></thead><tbody>${bars}</tbody></table>
 <h2>Runs</h2>
 <table><thead><tr><th>Model</th><th>Adapter</th><th>Status</th><th>Room</th><th>Est. cost</th><th>Tokens in/out</th></tr></thead><tbody>${runRows}</tbody></table>
 `;

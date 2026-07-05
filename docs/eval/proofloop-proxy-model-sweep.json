@@ -5,6 +5,45 @@
   "baseUrl": "https://noderoom.live",
   "realUserMode": true,
   "runtimeProfile": "standard",
+  "scope": {
+    "mode": "proxy_adapter_smoke",
+    "fullOfficialTaskCoverageClaim": false,
+    "passDenominatorMeaning": "Passes are local live-browser proxy tasks per adapter, not full official benchmark tasks.",
+    "includedLocalProxyTaskCount": 3,
+    "includedAdapters": [
+      {
+        "adapterId": "finch",
+        "localProxyTaskCount": 1,
+        "localProxyTaskIds": [
+          "finch-local-financial-evidence-qa"
+        ]
+      },
+      {
+        "adapterId": "finauditing",
+        "localProxyTaskCount": 1,
+        "localProxyTaskIds": [
+          "finauditing-local-risk-and-misstatement-review"
+        ]
+      },
+      {
+        "adapterId": "workstreambench",
+        "localProxyTaskCount": 1,
+        "localProxyTaskIds": [
+          "workstreambench-local-spreadsheet-workstream"
+        ]
+      }
+    ],
+    "notIncludedInThisRun": [
+      "SpreadsheetBench V1 full 912-task model-run scorer matrix",
+      "SpreadsheetBench V2 full 321-task bundle/run/scorer/chart matrix",
+      "BankerToolBench full 100-task official/live-UI matrix",
+      "Proximitty underwriting proof-loop suite",
+      "Accounting proof-loop suite",
+      "Notion SDR/BDR proof-loop suite",
+      "NodeRoom internal model-route/professional workflow evals",
+      "Official Finch/FinAuditing/WorkstreamBench upstream scorers or judge credentials"
+    ]
+  },
   "models": [
     "z-ai/glm-5.2",
     "deepseek/deepseek-v4-flash",
