@@ -108,6 +108,10 @@ test.describe("#mobile — terra surface renders (memory mode)", () => {
     // terra cream page surface (#FBF4E7).
     await expect(na).toHaveCSS("background-color", "rgb(251, 244, 231)");
     await expect(page.locator(".na-roomsw .nm")).toHaveText("Q3 Diligence");
+    // The mobile app is capture-first — #mobile lands on the note capture screen,
+    // not the library Home. The "N" mark (aria-label="Home") opens the Home
+    // library; assert its Recents section there (the surface this test protects).
+    await page.locator('.na-mark[aria-label="Home"]').click();
     await expect(page.locator(".na-kicker").filter({ hasText: "Recents" })).toBeVisible();
     // FAB lives in the dock (may sit below the phone fold) — assert presence, not visibility.
     await expect(page.locator(".na-fab-btn")).toHaveCount(1);

@@ -41,6 +41,12 @@ export function useEngineRev(): number {
 export function createFreshRoom(title: string, hostName: string): { roomId: string; me: Actor } {
   const { room, host } = engine.createRoom({ title: title || "Untitled room", hostName: hostName || "Host", autoAllow: true });
   const me: Actor = { kind: "user", id: host.id, name: host.name };
+  // Seed a starter variance sheet. engine.createRoom() creates a BARE room, so
+  // without this the StoryLab playground (its only caller) has no sheet — the
+  // grid seeds nothing and the L4/L7 lease drill silently no-ops on artId "".
+  // The grid + drills address cells as `${rowId}__${col}` (A/B/C), so an empty
+  // sheet is enough; LabGrid fills A/B and the drills write C.
+  engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Variance", by: me, seed: [] });
   return { roomId: room.id, me };
 }
 

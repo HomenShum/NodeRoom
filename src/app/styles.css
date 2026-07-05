@@ -630,7 +630,10 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-input-wrap { display: flex; align-items: center; gap: 8px; background: var(--bg-secondary); border: 1px solid var(--line-strong); border-radius: 11px; padding: var(--space-2) var(--space-2) var(--space-2) 12px; transition: border-color .15s, box-shadow .15s; }
 .r-input-wrap:focus-within { border-color: var(--accent-border); box-shadow: 0 0 0 3px var(--accent-tint); }
 .r-input-wrap input, .r-input-wrap textarea { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--text-primary); font-size: 13.5px; font-family: inherit; resize: none; line-height: 1.45; max-height: 120px; padding: 0; }
-.r-input-wrap input::placeholder, .r-input-wrap textarea::placeholder { color: var(--text-tertiary); }
+/* Composer placeholder uses --text-muted (not --text-tertiary): on the raised
+   --bg-secondary input it lifts contrast ~5.6:1 → ~6.75:1 (video-judge P2),
+   while entered text is --text-primary, so placeholder never reads as input. */
+.r-input-wrap input::placeholder, .r-input-wrap textarea::placeholder { color: var(--text-muted); }
 .r-ref-open .r-ref-title, .r-msg-ref .r-ref-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-input-wrap .r-chat-file-input { display: none; }
 .r-attach { width: 30px; height: 30px; flex: none; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-primary); color: var(--text-tertiary); transition: color var(--motion-fast), background var(--motion-fast), border-color var(--motion-fast); }
