@@ -4,11 +4,35 @@ Generated: 2026-07-04T22:44:07.928Z
 Base URL: https://noderoom.live
 Real user mode: true
 Runtime profile: standard
+Scope: proxy_adapter_smoke
+Full official task coverage claim: false
+Included local proxy tasks: 3
 Cheapest fully passing model: poolside/laguna-xs-2.1
+
+## Scope
+
+Passes are local live-browser proxy tasks per adapter, not full official benchmark tasks.
+
+| Adapter | Local proxy task count | Local proxy task IDs |
+| --- | ---: | --- |
+| finch | 1 | finch-local-financial-evidence-qa |
+| finauditing | 1 | finauditing-local-risk-and-misstatement-review |
+| workstreambench | 1 | workstreambench-local-spreadsheet-workstream |
+
+Not included in this run:
+
+- SpreadsheetBench V1 full 912-task model-run scorer matrix
+- SpreadsheetBench V2 full 321-task bundle/run/scorer/chart matrix
+- BankerToolBench full 100-task official/live-UI matrix
+- Proximitty underwriting proof-loop suite
+- Accounting proof-loop suite
+- Notion SDR/BDR proof-loop suite
+- NodeRoom internal model-route/professional workflow evals
+- Official Finch/FinAuditing/WorkstreamBench upstream scorers or judge credentials
 
 ## Cost Chart
 
-| Model | Passes | Est. OpenRouter list cost | UI measured cost | Avg duration | Input $/M | Output $/M |
+| Model | Proxy task passes | Est. OpenRouter list cost | UI measured cost | Avg duration | Input $/M | Output $/M |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | z-ai/glm-5.2 | 3/3 | $0.2454 | $0.2450 | 129s | 0.77 | 2.42 |
 | deepseek/deepseek-v4-flash | 1/3 | $0.0683 | $0.0690 | 476s | 0.09 | 0.18 |
