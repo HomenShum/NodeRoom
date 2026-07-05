@@ -83,6 +83,67 @@ test.describe("#rooms/expositio-pulse — public read-only room", () => {
     await expect(page.locator(".ao-brief h2")).toContainText("Expositio daily brief");
   });
 
+  test("mobile room chrome stays clickable without clipped controls or trace overlap", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+
+    const initial = await page.evaluate(() => {
+      const doc = document.documentElement;
+      const controls = Array.from(document.querySelectorAll(".ao-rtop button, .ao-tabs button")).map((el) => {
+        const r = el.getBoundingClientRect();
+        return {
+          text: (el.textContent || el.getAttribute("aria-label") || "").replace(/\s+/g, " ").trim(),
+          left: r.left,
+          right: r.right,
+          width: r.width,
+          height: r.height,
+        };
+      });
+      return {
+        pageOverflow: doc.scrollWidth > doc.clientWidth + 1,
+        clipped: controls.filter((c) => c.width > 0 && c.height > 0 && (c.left < -1 || c.right > window.innerWidth + 1)),
+      };
+    });
+    expect(initial.pageOverflow).toBe(false);
+    expect(initial.clipped).toEqual([]);
+
+    await page.getByTestId("ao-tab-trace").click();
+    const trace = await page.evaluate(() => {
+      return Array.from(document.querySelectorAll(".ao-run")).slice(0, 8).flatMap((row) => {
+        const rr = row.getBoundingClientRect();
+        return Array.from(row.children).flatMap((child) => {
+          const cr = child.getBoundingClientRect();
+          return cr.width > 0 && (cr.left < rr.left - 1 || cr.right > rr.right + 1)
+            ? [{ text: (child.textContent || "").replace(/\s+/g, " ").trim(), left: cr.left, right: cr.right, rowLeft: rr.left, rowRight: rr.right }]
+            : [];
+        });
+      });
+    });
+    expect(trace).toEqual([]);
+
+    await page.getByTestId("ao-tab-papers").click();
+    await expect(page.locator(".ao-sheet")).toBeVisible();
+    await expect(page.locator(".ao-sheet")).toContainText("Spectral sequences without tears");
+    await expect(page.getByTestId("ao-tab-trace")).toBeVisible();
+
+    await page.getByTestId("ao-subscribe-btn").click();
+    const modalMetrics = await page.evaluate(() => {
+      const modal = document.querySelector('[data-testid="ao-subscribe-modal"]');
+      const card = modal?.querySelector(".ao-modal-card");
+      const input = modal?.querySelector('input[type="email"]');
+      const r = card?.getBoundingClientRect();
+      return {
+        hasModal: Boolean(modal),
+        hasEmailInput: Boolean(input),
+        cardWithinViewport: Boolean(r && r.left >= -1 && r.right <= window.innerWidth + 1 && r.width > 0),
+      };
+    });
+    expect(modalMetrics).toEqual({ hasModal: true, hasEmailInput: true, cardWithinViewport: true });
+    await page.getByTestId("ao-subscribe-email").fill("reader@university.edu");
+    await expect(page.getByTestId("ao-subscribe-email")).toHaveValue("reader@university.edu");
+    await page.keyboard.press("Escape");
+    await expect(page.getByTestId("ao-subscribe-modal")).toHaveCount(0);
+  });
+
   test("subscribe button opens the modal; Escape closes it (no undismissable chrome)", async ({ page }) => {
     await page.getByTestId("ao-subscribe-btn").click();
     const modal = page.getByTestId("ao-subscribe-modal");
