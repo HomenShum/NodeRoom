@@ -117,7 +117,7 @@ Before marking either package ready:
 
 ```bash
 npm run typecheck -- --pretty false
-npm test -- --run tests/proofloopMultiRepoPackaging.test.ts tests/proofloopAppIntake.test.ts tests/proofloopPipeline.test.ts
+npm test -- --run tests/proofloopMultiRepoPackaging.test.ts tests/proofloopAgentFriendlyCli.test.ts tests/proofloopPipeline.test.ts
 npm run proofloop:package -- public-core --copy
 npm run proofloop:package -- private-hosted --copy
 ```

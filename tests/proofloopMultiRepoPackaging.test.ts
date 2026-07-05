@@ -26,9 +26,13 @@ describe("Proof Loop multi-repo packaging", () => {
     expect(manifest.repoName).toBe("proofloop");
     expect(manifest.visibility).toBe("public");
     expect(manifest.files).toContain("scripts/proofloop-cli.ts");
+    expect(manifest.files).toContain("scripts/proofloop-buyer-validation.ts");
     expect(manifest.files).toContain("scripts/proofloop-package.ts");
-    expect(manifest.files).toContain("src/eval/proofloopAppIntake.ts");
+    expect(manifest.files).toContain("src/eval/proofloopAgentFriendlyCli.ts");
+    expect(manifest.files).toContain("src/eval/proofloopAgentFriendlyProject.ts");
+    expect(manifest.files).toContain("src/eval/proofloopBuyerValidation.ts");
     expect(manifest.files).toContain("src/eval/proofloopMultiRepoPackaging.ts");
+    expect(manifest.files).toContain("docs/PROOFLOOP_BUYER_VALIDATION.md");
     expect(manifest.files).toContain("docs/PROOFLOOP_MULTI_REPO_PACKAGING.md");
     expect(manifest.files.some((file) => file.startsWith(".proofloop/"))).toBe(false);
     expect(manifest.files.some((file) => file.startsWith("docs/eval/fresh-room/"))).toBe(false);
@@ -66,6 +70,7 @@ describe("Proof Loop multi-repo packaging", () => {
 
     const packageJson = JSON.parse(readFileSync(join(process.cwd(), "package.json"), "utf8"));
     expect(packageJson.scripts["proofloop:package"]).toBe("tsx scripts/proofloop-package.ts");
+    expect(packageJson.scripts["proofloop:buyer-validation"]).toBe("tsx scripts/proofloop-buyer-validation.ts");
   });
 });
 
