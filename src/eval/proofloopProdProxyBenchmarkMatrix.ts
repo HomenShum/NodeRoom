@@ -198,6 +198,8 @@ export function renderProofloopProdProxyBenchmarkMatrixMarkdown(report: Proofloo
     "",
     `Generated: ${report.generatedAt ?? "unknown"}`,
     `Base URL: ${report.baseUrl}`,
+    `Production HTML: ${joinUrl(report.baseUrl, "/eval/proofloop-prod-proxy-benchmark-matrix.html")}`,
+    `Production JSON: ${joinUrl(report.baseUrl, "/eval/proofloop-prod-proxy-benchmark-matrix.json")}`,
     "",
     "This is the execution matrix for the real prod-browser goal. It keeps the full task denominator visible and refuses to collapse the run into the existing 3-task external-adapter smoke.",
     "",
@@ -706,6 +708,10 @@ function quoteShell(value: string): string {
 
 function uniqueStrings(values: string[]): string[] {
   return [...new Set(values.filter(Boolean))];
+}
+
+function joinUrl(baseUrl: string, path: string): string {
+  return `${baseUrl.replace(/\/+$/g, "")}/${path.replace(/^\/+/g, "")}`;
 }
 
 function escapeHtml(value: string): string {
