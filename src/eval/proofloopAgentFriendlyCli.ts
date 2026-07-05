@@ -180,6 +180,15 @@ export function proofloopCliManifest(): ProofloopCliManifest {
         responseShape: "goal status plus chart artifacts",
       },
       {
+        id: "goal",
+        usage: "proofloop goal export <goal-id>",
+        purpose: "Materialize local goal/process state into committed docs/eval receipts without committing raw .proofloop stores.",
+        writes: "proof-artifacts",
+        json: false,
+        options: ["init <goal-id>", "status <goal-id>", "export <goal-id>", "next <goal-id>", "block <goal-id>"],
+        responseShape: "docs/eval/proofloop-goal-ledger.json plus Markdown summary",
+      },
+      {
         id: "hooks",
         usage: "proofloop hooks install --worker claude-code",
         purpose: "Install stop/tool-use guards that refuse fake done and verifier weakening.",
@@ -304,6 +313,7 @@ export function renderProofloopAgentDocs(options: { agent?: ProofloopAgentKind }
     "- `npm run proofloop -- supervise --goal <goal-id>` continues the loop until pass/fail/blocker.",
     "- `npm run proofloop -- gate --goal <goal-id>` is the completion gate; do not replace it with a transcript summary.",
     "- `npm run proofloop -- resume --goal <goal-id> --dense` prints the next action when the loop stops.",
+    "- `npm run proofloop -- goal export <goal-id>` writes committed `docs/eval` goal-ledger receipts for blocker evidence.",
     "- `npm run proofloop -- repair latest` converts a failed run into the next focused repair prompt.",
     "- `npm run proofloop -- memory search \"<failure or fixture>\"` recalls compacted prior failures without dragging full logs into context.",
     "",

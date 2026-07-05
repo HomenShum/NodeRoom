@@ -36,7 +36,9 @@
  *   proofloop charts [latest|runId] write chart-pack.json, chart-pack.html, Vega-Lite specs, data, Markdown, and SVG
  *   proofloop orchestrator dogfood   run the durable repo-level ProofLoop Orchestrator
  *   proofloop this-repo --goal "..." dogfood the current repo against a natural-language goal
- *   proofloop hooks install         wire Claude Code Stop/PreToolUse proof-gate hooks
+ *   proofloop hooks install         wire Claude Code Stop/PreToolUse/PostToolUse proof-gate hooks
+ *   proofloop tooluse verify        check captured tool calls against an expected-tool-use contract
+ *   proofloop tooluse init          write a starter expected-tool-use contract (JSON)
  *   proofloop ci install github     write the proofloop-gate workflow into a target repo
  *   proofloop prompt                print the canonical one-prompt kickoff text
  *   proofloop promote <runId>       turn a failure into a tracked regression
@@ -62,9 +64,11 @@ import {
   gateProofloopGoal,
   initProofloopGoal,
   loadProofloopGoal,
+  proofloopGoalLedgerReceiptPaths,
   runNextProofloopGoalTask,
   superviseProofloopGoal,
   officialScoresGoalTasks,
+  writeProofloopGoalLedgerReceipt,
   type ProofloopGoalTask,
 } from "../src/eval/proofloopGoalSupervisor";
 import { installProofloopGithubCi } from "../src/eval/proofloopCi";
@@ -123,6 +127,7 @@ import {
   type ProofloopHarnessVersion,
   type ProofloopModelRoute,
 } from "../src/eval/proofloopModelTracking";
+import { runToolUseInit, runToolUseVerify } from "../src/eval/proofloopToolUse";
 
 const ROOT = process.cwd();
 const PROOFLOOP_DIR = join(ROOT, ".proofloop");
@@ -288,6 +293,8 @@ function main(): void {
       return usage(`unknown export target: ${args[0] ?? ""}`);
     case "hooks":
       return cmdHooks(args);
+    case "tooluse":
+      return cmdToolUse(args);
     case "ci":
       return cmdCi(args);
     case "prompt":
@@ -352,11 +359,14 @@ function usage(error?: string): void {
       "  graph index|blast-radius|search|export-cypher  code-graph substrate (repair blast radius)",
       "  promote <runId>      turn a failure into a tracked regression",
       "  export rl [runId]    export a run as agentic-RL trace data",
-      "  hooks install|uninstall|status [--worker claude-code] [--local] [--dir <path>] wire Claude Code Stop + PreToolUse proof-gate hooks",
+      "  hooks install|uninstall|status [--worker claude-code] [--local] [--dir <path>] [--no-tooluse-log] wire Claude Code Stop + PreToolUse + PostToolUse-capture hooks",
+      "  tooluse verify --contract <file> [--trace <file>] [--session <id>] [--json] check captured tool calls against a contract (exit 0 pass / 1 fail / 2 unusable)",
+      "  tooluse init [--template composio-email-triage] [--out <file>] write a starter expected-tool-use contract (JSON)",
       "  ci install github [--dir <path>] [--goal <goal-id>] write .github/workflows/proofloop-gate.yml into a target repo",
       "  prompt               print the canonical one-prompt Proof Loop kickoff text",
       "  goal init <goal-id> [--template official-scores] create a long-running proof ledger",
       "  goal status <goal-id> show persisted goal state",
+      "  goal export <goal-id> write docs/eval goal-ledger receipts from local state",
       "  goal next <goal-id>   run or classify the next unfinished goal task",
       "  goal block <goal-id> --task <id> --reason <text> [--resume-command <cmd>] add an external blocker",
       "  gate --goal <goal-id> pass only when the persisted goal ledger passed",
@@ -1041,6 +1051,15 @@ function cmdGoal(args: string[]): void {
       console.log(formatProofloopGoalStatus(loadProofloopGoal(goalId, { root: ROOT })));
       return;
     }
+    if (subcommand === "export") {
+      loadProofloopGoal(goalId, { root: ROOT });
+      const receipt = writeProofloopGoalLedgerReceipt({ root: ROOT });
+      const paths = proofloopGoalLedgerReceiptPaths(ROOT);
+      console.log(`Exported ProofLoop goal ledger receipt: ${paths.jsonRelative}`);
+      console.log(`Markdown summary: ${paths.markdownRelative}`);
+      console.log(`Goals exported: ${receipt.summary.goalCount}; blocked reasons: ${receipt.summary.blockedReasonCount}`);
+      return;
+    }
     if (subcommand === "next") {
       const result = runNextProofloopGoalTask(goalId, { root: ROOT });
       if (result.task) {
@@ -1173,14 +1192,21 @@ function cmdHooks(args: string[]): void {
         goalId: optionValueFromArgs(rest, "--goal"),
         gateCommand: optionValueFromArgs(rest, "--gate-command"),
         maxStopBlocks: maxStopBlocksRaw ? Number(maxStopBlocksRaw) : undefined,
+        toolUseLog: !rest.includes("--no-tooluse-log"),
       });
       console.log(`proofloop: wrote ${result.stopGatePath}`);
       console.log(`proofloop: wrote ${result.preToolUseGuardPath}`);
+      if (result.postToolUseLogPath) console.log(`proofloop: wrote ${result.postToolUseLogPath}`);
       console.log(`proofloop: wrote ${result.configPath}`);
       console.log(
-        `proofloop: ${result.addedStopHook || result.addedPreToolUseHook ? "merged hook entries into" : "hook entries already present in"} ${result.settingsPath}`,
+        `proofloop: ${result.addedStopHook || result.addedPreToolUseHook || result.addedPostToolUseLogHook ? "merged hook entries into" : "hook entries already present in"} ${result.settingsPath}`,
       );
       console.log("proofloop: Claude Code will now refuse to stop while the proof gate is failing.");
+      if (result.postToolUseLogPath) {
+        console.log(
+          "proofloop: tool calls are captured LOCALLY to .proofloop/tooluse/log.jsonl (session-side capture, not provider attestation); check them with `proofloop tooluse verify`.",
+        );
+      }
       return;
     }
     if (subcommand === "uninstall") {
@@ -1198,6 +1224,31 @@ function cmdHooks(args: string[]): void {
     console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
     process.exitCode = 1;
   }
+}
+
+function cmdToolUse(args: string[]): void {
+  const [subcommand, ...rest] = args;
+  if (subcommand === "verify") {
+    const contractPath = optionValueFromArgs(rest, "--contract");
+    if (!contractPath) return usage("proofloop tooluse verify requires --contract <file>");
+    process.exitCode = runToolUseVerify({
+      root: ROOT,
+      contractPath,
+      tracePath: optionValueFromArgs(rest, "--trace"),
+      session: optionValueFromArgs(rest, "--session"),
+      json: hasFlag(rest, "--json"),
+    });
+    return;
+  }
+  if (subcommand === "init") {
+    process.exitCode = runToolUseInit({
+      root: ROOT,
+      template: optionValueFromArgs(rest, "--template"),
+      outPath: optionValueFromArgs(rest, "--out"),
+    });
+    return;
+  }
+  return usage(`unknown tooluse command: ${subcommand ?? ""} (expected: verify|init)`);
 }
 
 function cmdCi(args: string[]): void {
@@ -1670,8 +1721,10 @@ function writeCostLedger(
 ): void {
   const ledger: CostLedger = {
     ...info,
-    costUsd: String(info.model.costUsd),
-    note: "Model identity and harness version are always serialized; token/cost values remain zero unless the route reports usage.",
+    costUsd: Number.isFinite(info.model.costUsd) ? String(info.model.costUsd) : "unknown",
+    note: info.model.costAccounting.status === "unknown"
+      ? "Paid/provider route usage was not reported; cost is recorded as unknown instead of a misleading zero."
+      : "Model identity, harness version, and cost accounting provenance are serialized for this run.",
   };
   writeJson(join(runDir, "cost-ledger.json"), ledger);
 }

@@ -1,0 +1,883 @@
+{
+  "schema": "proofloop-runner-plan-v1",
+  "generatedAt": "2026-07-05T05:31:18.498Z",
+  "planId": "proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z",
+  "title": "NodeRoom standalone ProofLoop runner dogfood plan",
+  "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom",
+  "source": {
+    "sourcePlanSchema": "proofloop-prod-proxy-longrun-v1",
+    "sourceRunId": "proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z",
+    "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274",
+    "longRunStatePath": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/state.json",
+    "longRunQueuePath": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/queue.jsonl",
+    "liveModelSweepsExecuted": false,
+    "localProofloopVendored": false
+  },
+  "standaloneRunner": {
+    "package": "proofloop",
+    "command": "npx --yes github:HomenShum/proofloop runner run --plan docs/eval/proofloop-standalone-runner-dogfood-plan.json --budget-usd 100",
+    "resumeCommand": "npx --yes github:HomenShum/proofloop runner resume --run-id latest",
+    "budgetUsd": 100,
+    "planPath": "docs/eval/proofloop-standalone-runner-dogfood-plan.json"
+  },
+  "budget": {
+    "capUsd": 100,
+    "historicalMeasuredSpendUsd": 0.502,
+    "queuedEstimatedProductSpendUsd": 18.2744,
+    "fullCurrentModelMatrixEstimatedUsd": 246.812536,
+    "runnableQueueFitsBudget": true,
+    "generationCostUsd": 0
+  },
+  "summary": {
+    "tasks": 12,
+    "adapterGapTasks": 6,
+    "guardedLiveRunBatchTasks": 3,
+    "officialScoreGapTasks": 3,
+    "uniqueTaskTargets": 1354,
+    "modelTaskAttempts": 5416,
+    "queuedAttempts": 402,
+    "blockedAdapterAttempts": 5004,
+    "currentAllTaskWinner": null,
+    "currentAdapterSmokeWinner": "poolside/laguna-xs-2.1"
+  },
+  "resume": {
+    "regeneratePlanCommand": "npm run benchmark:proofloop:standalone-runner-plan -- --budget-usd 100",
+    "runnerCommand": "npx --yes github:HomenShum/proofloop runner run --plan docs/eval/proofloop-standalone-runner-dogfood-plan.json --budget-usd 100",
+    "runnerResumeCommand": "npx --yes github:HomenShum/proofloop runner resume --run-id latest",
+    "localLongRunStatusCommand": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+    "localLongRunResumeCommand": "npm run benchmark:proofloop:prod-proxy-longrun -- resume --allow-spend --budget-usd 100 --max-attempts 1",
+    "docsPath": "docs/eval/PROOFLOOP_STANDALONE_RUNNER_DOGFOOD.md"
+  },
+  "verificationCommands": [
+    "npm test -- --run tests/proofloopStandaloneRunnerDogfood.test.ts",
+    "npm test -- --run tests/proofloopProdProxyLongRun.test.ts tests/proofloopProdProxyBenchmarkMatrix.test.ts tests/proofloopAdapterBlockers.test.ts",
+    "npm run benchmark:proofloop:standalone-runner-plan -- --budget-usd 100 --json-out docs/eval/proofloop-standalone-runner-dogfood-plan.json --md-out docs/eval/PROOFLOOP_STANDALONE_RUNNER_DOGFOOD.md"
+  ],
+  "tasks": [
+    {
+      "id": "adapter-gap.accounting-live-proofloop",
+      "command": "npm run benchmark:proofloop:prod-browser-adapters",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "adapter-gap",
+      "status": "ready",
+      "title": "Implement prod browser adapter for accounting-live-proofloop",
+      "familyId": "accounting-live-proofloop",
+      "priority": 100,
+      "objective": "Close the accounting-live-config-to-prod-browser-room gap without changing locked certification fixtures or weakening proof gates.",
+      "prompt": "Implement the missing prod browser adapter for accounting-live-proofloop.\nRequired adapter: accounting-live-config-to-prod-browser-room.\nFirst blocker: Current accounting live runner is Convex HTTP, not a prod browser room model matrix.\nUse real NodeRoom prod-browser flows with model selection, memory mode off, exported evidence, and verifier receipts.\nDo not edit immutable proof-loop assets or promote failures without an external approval path.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {
+        "taskTargets": 4,
+        "blockedAttempts": 16,
+        "attempts": 16
+      },
+      "commands": [
+        {
+          "name": "refresh-prod-browser-adapter-ledger",
+          "command": "npm run benchmark:proofloop:prod-browser-adapters",
+          "requiresSpend": false,
+          "writes": [
+            "docs/eval/proofloop-prod-browser-adapters.json"
+          ]
+        },
+        {
+          "name": "refresh-prod-proxy-longrun-plan",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- plan --budget-usd 100",
+          "requiresSpend": false,
+          "writes": [
+            "docs/eval/proofloop-prod-proxy-longrun-plan.json"
+          ]
+        }
+      ],
+      "acceptance": [
+        "A real prod browser adapter exists for the family and is reflected in docs/eval/proofloop-prod-browser-adapters.json.",
+        "The prod proxy long-run plan moves the family out of blocked_adapter without dropping it from the denominator.",
+        "Relevant deterministic proofloop tests pass."
+      ],
+      "evidence": [
+        "docs/eval/proofloop-prod-browser-adapters.json",
+        "proofloop/accounting/live.accounting.config.json"
+      ],
+      "blockers": [
+        "Current accounting live runner is Convex HTTP, not a prod browser room model matrix."
+      ],
+      "metadata": {
+        "adapterStatus": "http_only",
+        "adapterVersion": "0.1.0",
+        "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
+        "requiredAdapter": "accounting-live-config-to-prod-browser-room",
+        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
+      }
+    },
+    {
+      "id": "adapter-gap.noderoom-multi-user-conflict",
+      "command": "npm run benchmark:proofloop:prod-browser-adapters",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "adapter-gap",
+      "status": "ready",
+      "title": "Implement prod browser adapter for noderoom-multi-user-conflict",
+      "familyId": "noderoom-multi-user-conflict",
+      "priority": 101,
+      "objective": "Close the noderoom-multi-user-conflict-prod-browser-room gap without changing locked certification fixtures or weakening proof gates.",
+      "prompt": "Implement the missing prod browser adapter for noderoom-multi-user-conflict.\nRequired adapter: noderoom-multi-user-conflict-prod-browser-room.\nFirst blocker: Internal deterministic conflict suite has not been promoted to prod browser model matrix tasks.\nUse real NodeRoom prod-browser flows with model selection, memory mode off, exported evidence, and verifier receipts.\nDo not edit immutable proof-loop assets or promote failures without an external approval path.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {
+        "taskTargets": 6,
+        "blockedAttempts": 24,
+        "attempts": 24
+      },
+      "commands": [
+        {
+          "name": "refresh-prod-browser-adapter-ledger",
+          "command": "npm run benchmark:proofloop:prod-browser-adapters",
+          "requiresSpend": false,
+          "writes": [
+            "docs/eval/proofloop-prod-browser-adapters.json"
+          ]
+        },
+        {
+          "name": "refresh-prod-proxy-longrun-plan",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- plan --budget-usd 100",
+          "requiresSpend": false,
+          "writes": [
+            "docs/eval/proofloop-prod-proxy-longrun-plan.json"
+          ]
+        }
+      ],
+      "acceptance": [
+        "A real prod browser adapter exists for the family and is reflected in docs/eval/proofloop-prod-browser-adapters.json.",
+        "The prod proxy long-run plan moves the family out of blocked_adapter without dropping it from the denominator.",
+        "Relevant deterministic proofloop tests pass."
+      ],
+      "evidence": [
+        "docs/eval/proofloop-prod-browser-adapters.json",
+        "docs/eval/official-benchmark-task-coverage.json"
+      ],
+      "blockers": [
+        "Internal deterministic conflict suite has not been promoted to prod browser model matrix tasks."
+      ],
+      "metadata": {
+        "adapterStatus": "missing_generic_browser_adapter",
+        "adapterVersion": "0.1.0",
+        "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
+        "requiredAdapter": "noderoom-multi-user-conflict-prod-browser-room",
+        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
+      }
+    },
+    {
+      "id": "adapter-gap.notion-live-proofloop",
+      "command": "npm run benchmark:proofloop:prod-browser-adapters",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "adapter-gap",
+      "status": "ready",
+      "title": "Implement prod browser adapter for notion-live-proofloop",
+      "familyId": "notion-live-proofloop",
+      "priority": 102,
+      "objective": "Close the notion-live-config-to-prod-browser-room gap without changing locked certification fixtures or weakening proof gates.",
+      "prompt": "Implement the missing prod browser adapter for notion-live-proofloop.\nRequired adapter: notion-live-config-to-prod-browser-room.\nFirst blocker: Current Notion live runner is Convex HTTP, not a prod browser room model matrix.\nUse real NodeRoom prod-browser flows with model selection, memory mode off, exported evidence, and verifier receipts.\nDo not edit immutable proof-loop assets or promote failures without an external approval path.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {
+        "taskTargets": 4,
+        "blockedAttempts": 16,
+        "attempts": 16
+      },
+      "commands": [
+        {
+          "name": "refresh-prod-browser-adapter-ledger",
+          "command": "npm run benchmark:proofloop:prod-browser-adapters",
+          "requiresSpend": false,
+          "writes": [
+            "docs/eval/proofloop-prod-browser-adapters.json"
+          ]
+        },
+        {
+          "name": "refresh-prod-proxy-longrun-plan",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- plan --budget-usd 100",
+          "requiresSpend": false,
+          "writes": [
+            "docs/eval/proofloop-prod-proxy-longrun-plan.json"
+          ]
+        }
+      ],
+      "acceptance": [
+        "A real prod browser adapter exists for the family and is reflected in docs/eval/proofloop-prod-browser-adapters.json.",
+        "The prod proxy long-run plan moves the family out of blocked_adapter without dropping it from the denominator.",
+        "Relevant deterministic proofloop tests pass."
+      ],
+      "evidence": [
+        "docs/eval/proofloop-prod-browser-adapters.json",
+        "proofloop/notion/live.notion.config.json"
+      ],
+      "blockers": [
+        "Current Notion live runner is Convex HTTP, not a prod browser room model matrix."
+      ],
+      "metadata": {
+        "adapterStatus": "http_only",
+        "adapterVersion": "0.1.0",
+        "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
+        "requiredAdapter": "notion-live-config-to-prod-browser-room",
+        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
+      }
+    },
+    {
+      "id": "adapter-gap.proximitty-underwriting-pr0",
+      "command": "npm run benchmark:proofloop:prod-browser-adapters",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "adapter-gap",
+      "status": "ready",
+      "title": "Implement prod browser adapter for proximitty-underwriting-pr0",
+      "familyId": "proximitty-underwriting-pr0",
+      "priority": 103,
+      "objective": "Close the proximitty-underwriting-prod-browser-room gap without changing locked certification fixtures or weakening proof gates.",
+      "prompt": "Implement the missing prod browser adapter for proximitty-underwriting-pr0.\nRequired adapter: proximitty-underwriting-prod-browser-room.\nFirst blocker: Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios.\nUse real NodeRoom prod-browser flows with model selection, memory mode off, exported evidence, and verifier receipts.\nDo not edit immutable proof-loop assets or promote failures without an external approval path.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {
+        "taskTargets": 4,
+        "blockedAttempts": 16,
+        "attempts": 16
+      },
+      "commands": [
+        {
+          "name": "refresh-prod-browser-adapter-ledger",
+          "command": "npm run benchmark:proofloop:prod-browser-adapters",
+          "requiresSpend": false,
+          "writes": [
+            "docs/eval/proofloop-prod-browser-adapters.json"
+          ]
+        },
+        {
+          "name": "refresh-prod-proxy-longrun-plan",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- plan --budget-usd 100",
+          "requiresSpend": false,
+          "writes": [
+            "docs/eval/proofloop-prod-proxy-longrun-plan.json"
+          ]
+        }
+      ],
+      "acceptance": [
+        "A real prod browser adapter exists for the family and is reflected in docs/eval/proofloop-prod-browser-adapters.json.",
+        "The prod proxy long-run plan moves the family out of blocked_adapter without dropping it from the denominator.",
+        "Relevant deterministic proofloop tests pass."
+      ],
+      "evidence": [
+        "docs/eval/proofloop-prod-browser-adapters.json",
+        "proofloop/scenarios/proximitty-intake.spec.ts",
+        ".proofloop/runs/latest/run-result.json",
+        "proofloop/scenarios/proximitty-model-comparison.spec.ts",
+        "proofloop/scenarios/proximitty-risk-research.spec.ts",
+        "proofloop/scenarios/proximitty-underwriting-packet.spec.ts"
+      ],
+      "blockers": [
+        "Proximitty suite is deterministic/local; no prod browser room model matrix exists for these scenarios."
+      ],
+      "metadata": {
+        "adapterStatus": "local_only",
+        "adapterVersion": "0.1.0",
+        "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
+        "requiredAdapter": "proximitty-underwriting-prod-browser-room",
+        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
+      }
+    },
+    {
+      "id": "adapter-gap.spreadsheetbench-v1-full-912",
+      "command": "npm run benchmark:proofloop:prod-browser-adapters",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "adapter-gap",
+      "status": "ready",
+      "title": "Implement prod browser adapter for spreadsheetbench-v1-full-912",
+      "familyId": "spreadsheetbench-v1-full-912",
+      "priority": 104,
+      "objective": "Close the spreadsheetbench-v1-official-workbook-prod-browser gap without changing locked certification fixtures or weakening proof gates.",
+      "prompt": "Implement the missing prod browser adapter for spreadsheetbench-v1-full-912.\nRequired adapter: spreadsheetbench-v1-official-workbook-prod-browser.\nFirst blocker: Generic SpreadsheetBench official workbook upload -> agent edit -> export -> scorer browser adapter is not implemented for staged tasks.\nUse real NodeRoom prod-browser flows with model selection, memory mode off, exported evidence, and verifier receipts.\nDo not edit immutable proof-loop assets or promote failures without an external approval path.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {
+        "taskTargets": 912,
+        "blockedAttempts": 3648,
+        "attempts": 3648
+      },
+      "commands": [
+        {
+          "name": "refresh-prod-browser-adapter-ledger",
+          "command": "npm run benchmark:proofloop:prod-browser-adapters",
+          "requiresSpend": false,
+          "writes": [
+            "docs/eval/proofloop-prod-browser-adapters.json"
+          ]
+        },
+        {
+          "name": "refresh-prod-proxy-longrun-plan",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- plan --budget-usd 100",
+          "requiresSpend": false,
+          "writes": [
+            "docs/eval/proofloop-prod-proxy-longrun-plan.json"
+          ]
+        }
+      ],
+      "acceptance": [
+        "A real prod browser adapter exists for the family and is reflected in docs/eval/proofloop-prod-browser-adapters.json.",
+        "The prod proxy long-run plan moves the family out of blocked_adapter without dropping it from the denominator.",
+        "Relevant deterministic proofloop tests pass."
+      ],
+      "evidence": [
+        "docs/eval/proofloop-prod-browser-adapters.json",
+        "docs/eval/official-benchmark-task-coverage.json",
+        "docs/eval/spreadsheetbench-v1-912-stage.json",
+        "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+        "docs/eval/official-benchmark-readiness.json",
+        ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/agent/task.json",
+        ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/evaluator/evaluator.json",
+        "docs/eval/spreadsheetbench-live-room-proof.json"
+      ],
+      "blockers": [
+        "Generic SpreadsheetBench official workbook upload -> agent edit -> export -> scorer browser adapter is not implemented for staged tasks."
+      ],
+      "metadata": {
+        "adapterStatus": "local_only",
+        "adapterVersion": "0.1.0",
+        "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
+        "requiredAdapter": "spreadsheetbench-v1-official-workbook-prod-browser",
+        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
+      }
+    },
+    {
+      "id": "adapter-gap.spreadsheetbench-v2-full-321",
+      "command": "npm run benchmark:proofloop:prod-browser-adapters",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "adapter-gap",
+      "status": "ready",
+      "title": "Implement prod browser adapter for spreadsheetbench-v2-full-321",
+      "familyId": "spreadsheetbench-v2-full-321",
+      "priority": 105,
+      "objective": "Close the spreadsheetbench-v2-workflow-chart-prod-browser gap without changing locked certification fixtures or weakening proof gates.",
+      "prompt": "Implement the missing prod browser adapter for spreadsheetbench-v2-full-321.\nRequired adapter: spreadsheetbench-v2-workflow-chart-prod-browser.\nFirst blocker: Generic SpreadsheetBench official workbook upload -> agent edit -> export -> scorer browser adapter is not implemented for staged tasks.\nUse real NodeRoom prod-browser flows with model selection, memory mode off, exported evidence, and verifier receipts.\nDo not edit immutable proof-loop assets or promote failures without an external approval path.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {
+        "taskTargets": 321,
+        "blockedAttempts": 1284,
+        "attempts": 1284
+      },
+      "commands": [
+        {
+          "name": "refresh-prod-browser-adapter-ledger",
+          "command": "npm run benchmark:proofloop:prod-browser-adapters",
+          "requiresSpend": false,
+          "writes": [
+            "docs/eval/proofloop-prod-browser-adapters.json"
+          ]
+        },
+        {
+          "name": "refresh-prod-proxy-longrun-plan",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- plan --budget-usd 100",
+          "requiresSpend": false,
+          "writes": [
+            "docs/eval/proofloop-prod-proxy-longrun-plan.json"
+          ]
+        }
+      ],
+      "acceptance": [
+        "A real prod browser adapter exists for the family and is reflected in docs/eval/proofloop-prod-browser-adapters.json.",
+        "The prod proxy long-run plan moves the family out of blocked_adapter without dropping it from the denominator.",
+        "Relevant deterministic proofloop tests pass."
+      ],
+      "evidence": [
+        "docs/eval/proofloop-prod-browser-adapters.json",
+        "docs/eval/official-benchmark-task-coverage.json",
+        "docs/eval/spreadsheetbench-v2-full-ingest.json",
+        "docs/eval/spreadsheetbench-v2-full-stage.json",
+        "docs/eval/spreadsheetbench-v2-stage-smoke.json",
+        "docs/eval/spreadsheetbench-v2-run-smoke.json",
+        "docs/eval/spreadsheetbench-chart-visual-probe.json",
+        ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_01_01/agent/task.json",
+        ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_01_01/evaluator/evaluator.json"
+      ],
+      "blockers": [
+        "Generic SpreadsheetBench official workbook upload -> agent edit -> export -> scorer browser adapter is not implemented for staged tasks."
+      ],
+      "metadata": {
+        "adapterStatus": "missing_generic_browser_adapter",
+        "adapterVersion": "0.1.0",
+        "adapterPlanPath": "docs/eval/proofloop-prod-browser-adapters.json",
+        "requiredAdapter": "spreadsheetbench-v2-workflow-chart-prod-browser",
+        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
+      }
+    },
+    {
+      "id": "live-run.bankertoolbench-full-100",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for bankertoolbench-full-100",
+      "familyId": "bankertoolbench-full-100",
+      "priority": 300,
+      "objective": "Execute the queued real-user prod browser attempts for bankertoolbench-full-100 under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for bankertoolbench-full-100 through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash, poolside/laguna-xs-2.1, qwen/qwen3.7-plus, z-ai/glm-5.2.",
+      "estimatedProductSpendUsd": 18.2284,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 100,
+        "queuedAttempts": 400,
+        "attempts": 400
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        ".tmp/official-benchmarks/bankertoolbench-repo/btb-data/tasks.jsonl",
+        "docs/eval/bankertoolbench/live-room/067cb834-ad43-448b-a523-d0c9898656e0.json",
+        "docs/eval/bankertoolbench/live-room/06c284ef-6282-4d82-b9f5-6b9587f7d805.json",
+        "docs/eval/bankertoolbench/live-room/07727295-e199-4039-a0ee-582af96749cf.json",
+        "docs/eval/bankertoolbench/live-room/096a6840-718c-4ab4-8dff-10601ffe003c.json",
+        "docs/eval/fresh-room/FR-020/tasks/067cb834-ad43-448b-a523-d0c9898656e0/latest.json",
+        "docs/eval/fresh-room/FR-020/tasks/06c284ef-6282-4d82-b9f5-6b9587f7d805/latest.json",
+        "docs/eval/fresh-room/FR-020/tasks/07727295-e199-4039-a0ee-582af96749cf/latest.json",
+        "docs/eval/fresh-room/FR-020/tasks/096a6840-718c-4ab4-8dff-10601ffe003c/latest.json"
+      ],
+      "blockers": [
+        "Existing BTB receipt is local live-browser only; rerun against https://noderoom.live."
+      ],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash",
+          "poolside/laguna-xs-2.1",
+          "qwen/qwen3.7-plus",
+          "z-ai/glm-5.2"
+        ],
+        "sampleAttemptId": "bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492",
+        "sampleTaskId": "067cb834-ad43-448b-a523-d0c9898656e0",
+        "sampleCommand": "npm run proofloop:live:btb",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z-bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492",
+          "BTB_LIVE_ROOM_E2E": "1",
+          "BTB_UI_BUNDLE_ROOT": ".tmp/official-benchmarks/bankertoolbench-repo/btb-data",
+          "BTB_UI_TASK_ID": "067cb834-ad43-448b-a523-d0c9898656e0",
+          "BTB_UI_VERIFIER_COMMAND": "npm run benchmark:bankertoolbench:proof",
+          "BTB_LIVE_ROOM_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/receipts/bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492.json"
+        },
+        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
+      }
+    },
+    {
+      "id": "live-run.finch-prod-proxy-task",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for finch-prod-proxy-task",
+      "familyId": "finch-prod-proxy-task",
+      "priority": 301,
+      "objective": "Execute the queued real-user prod browser attempts for finch-prod-proxy-task under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for finch-prod-proxy-task through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash.",
+      "estimatedProductSpendUsd": 0.023,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 1,
+        "queuedAttempts": 1,
+        "attempts": 1
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        "docs/eval/proofloop-external-adapter-live-room-runs/finch.json",
+        "docs/eval/proofloop-proxy-model-sweep.json",
+        "proofloop/benchmarks/finch/adapter.json"
+      ],
+      "blockers": [],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash"
+        ],
+        "sampleAttemptId": "finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31",
+        "sampleTaskId": "finch-local-financial-evidence-qa",
+        "sampleCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --prod --id finch --real-user --model deepseek/deepseek-v4-flash --model-mode specific --json-out-dir .proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/receipts",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "deepseek/deepseek-v4-flash",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z-finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31"
+        },
+        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
+      }
+    },
+    {
+      "id": "live-run.workstreambench-prod-proxy-task",
+      "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "guarded-live-run-batch",
+      "status": "guarded-spend",
+      "title": "Run guarded prod proxy attempts for workstreambench-prod-proxy-task",
+      "familyId": "workstreambench-prod-proxy-task",
+      "priority": 302,
+      "objective": "Execute the queued real-user prod browser attempts for workstreambench-prod-proxy-task under the standalone runner budget guard.",
+      "prompt": "Run the queued prod proxy attempts for workstreambench-prod-proxy-task through https://noderoom.live with memory mode off.\nStart with max-attempts 1, refresh the long-run plan after every attempt, and stop if receipts or budget accounting are missing.\nDo not run broad paid model sweeps; only execute the queued attempts covered by this plan and the runner budget.\nModels in this batch: deepseek/deepseek-v4-flash.",
+      "estimatedProductSpendUsd": 0.023,
+      "paidModelRequired": true,
+      "counts": {
+        "taskTargets": 1,
+        "queuedAttempts": 1,
+        "attempts": 1
+      },
+      "commands": [
+        {
+          "name": "status",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- status",
+          "requiresSpend": false
+        },
+        {
+          "name": "single-guarded-attempt",
+          "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
+          "requiresSpend": true,
+          "writes": [
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/receipts/"
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every attempted row writes a verifier receipt, cost evidence, and updated state before it can be marked passed.",
+        "Memory mode remains disabled for the prod UI run.",
+        "The all-task winner remains null until every tracked task target has prod browser proof."
+      ],
+      "evidence": [
+        "docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json",
+        "docs/eval/proofloop-proxy-model-sweep.json",
+        "proofloop/benchmarks/workstreambench/adapter.json"
+      ],
+      "blockers": [],
+      "metadata": {
+        "modelIds": [
+          "deepseek/deepseek-v4-flash"
+        ],
+        "sampleAttemptId": "workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005",
+        "sampleTaskId": "workstreambench-local-spreadsheet-workstream",
+        "sampleCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --prod --id workstreambench --real-user --model deepseek/deepseek-v4-flash --model-mode specific --json-out-dir .proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z/receipts",
+        "sampleEnv": {
+          "BENCH_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
+          "PLAYWRIGHT_REUSE_SERVER": "1",
+          "BENCH_AGENT_MODEL_MODE": "specific",
+          "BENCH_AGENT_MODEL_POLICY": "deepseek/deepseek-v4-flash",
+          "PROOFLOOP_REAL_USER_MODE": "1",
+          "PROOFLOOP_FOCUS_MODE": "0",
+          "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T05-31-18-498Z-workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005"
+        },
+        "sourceMatrixDigest": "b8e8bddd47412bba66f18d154e6dc009515c18707fc3be00b922016bfa10e274"
+      }
+    },
+    {
+      "id": "official-score.finauditing",
+      "command": "npm run benchmark:proofloop:adapter-blockers",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "official-score-gap",
+      "status": "blocked-external",
+      "title": "Import official score receipt for finauditing",
+      "adapterId": "finauditing",
+      "priority": 500,
+      "objective": "Resolve the external official-score blocker for FinAuditing without relabeling proxy proof as an official score.",
+      "prompt": "Resolve the official scorer blocker for finauditing.\nUse the upstream scorer or judge contract named in the adapter receipt.\nIf credentials or upstream bundles are unavailable, keep the blocker explicit and refresh the receipt; do not self-grade or accept a proxy score as official.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {},
+      "commands": [
+        {
+          "name": "resume-1",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict",
+          "requiresSpend": true
+        },
+        {
+          "name": "resume-2",
+          "command": "npm run benchmark:proofloop:external-adapter -- --id finauditing --prod --user-emulation strict",
+          "requiresSpend": false
+        },
+        {
+          "name": "resume-3",
+          "command": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing",
+          "requiresSpend": false
+        },
+        {
+          "name": "resume-4",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict --cockpit",
+          "requiresSpend": true
+        },
+        {
+          "name": "resume-5",
+          "command": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
+          "requiresSpend": false
+        }
+      ],
+      "acceptance": [
+        "docs/eval/proofloop-official-scores/finauditing.json has a scored receipt from the upstream official scorer, or the blocker remains explicitly external.",
+        "docs/eval/proofloop-official-task-bundles/finauditing.json records the locked official task bundle when available.",
+        "The adapter blocker receipt is refreshed after any import or blocker change."
+      ],
+      "evidence": [
+        "proofloop/benchmarks/finauditing/adapter.json",
+        "https://arxiv.org/abs/2510.08886",
+        "https://github.com/The-FinAI/FinAuditing",
+        "https://huggingface.co/collections/TheFinAI/finauditing",
+        "https://open-finance-lab.github.io/SecureFinAI_Contest_2026/",
+        "docs/eval/proofloop-official-outputs/finauditing.json",
+        "docs/eval/proofloop-official-task-bundles/finauditing.json",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing"
+      ],
+      "blockers": [
+        "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score. FinMR evaluation uses an OpenAI LLM judge and this shell has no OPENAI_API_KEY. The full benchmark path also points to the separate FinBen framework, which is not yet wired to NodeRoom output artifacts."
+      ],
+      "metadata": {
+        "name": "FinAuditing",
+        "officialScoreStatus": "blocked_external",
+        "localImplementationStatus": "ready",
+        "officialCommandPlan": [
+          "Lock the official FinAuditing task source for FinSM, FinRE, and FinMR.",
+          "Run NodeRoom generated answers through the upstream FinAuditing metric/scorer for every official split.",
+          "Import the official scorer output into docs/eval/proofloop-adapter-blockers/finauditing.json before claiming score."
+        ],
+        "resumeSteps": [
+          "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict",
+          "npm run benchmark:proofloop:external-adapter -- --id finauditing --prod --user-emulation strict",
+          "npm run benchmark:proofloop:adapter-blockers -- --id finauditing",
+          "import docs/eval/proofloop-official-scores/finauditing.json from the upstream official scorer",
+          "stage docs/eval/proofloop-official-task-bundles/finauditing.json from the locked official task bundle",
+          "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict --cockpit",
+          "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
+        ],
+        "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/finauditing.json",
+        "officialTaskBundleManifestPath": "docs/eval/proofloop-official-task-bundles/finauditing.json"
+      }
+    },
+    {
+      "id": "official-score.finch",
+      "command": "npm run benchmark:proofloop:adapter-blockers",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "official-score-gap",
+      "status": "blocked-external",
+      "title": "Import official score receipt for finch",
+      "adapterId": "finch",
+      "priority": 501,
+      "objective": "Resolve the external official-score blocker for Finch / FinWorkBench without relabeling proxy proof as an official score.",
+      "prompt": "Resolve the official scorer blocker for finch.\nUse the upstream scorer or judge contract named in the adapter receipt.\nIf credentials or upstream bundles are unavailable, keep the blocker explicit and refresh the receipt; do not self-grade or accept a proxy score as official.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {},
+      "commands": [
+        {
+          "name": "resume-1",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict",
+          "requiresSpend": true
+        },
+        {
+          "name": "resume-2",
+          "command": "npm run benchmark:proofloop:external-adapter -- --id finch --prod --user-emulation strict",
+          "requiresSpend": false
+        },
+        {
+          "name": "resume-3",
+          "command": "npm run benchmark:proofloop:adapter-blockers -- --id finch",
+          "requiresSpend": false
+        },
+        {
+          "name": "resume-4",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict --cockpit",
+          "requiresSpend": true
+        },
+        {
+          "name": "resume-5",
+          "command": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
+          "requiresSpend": false
+        }
+      ],
+      "acceptance": [
+        "docs/eval/proofloop-official-scores/finch.json has a scored receipt from the upstream official scorer, or the blocker remains explicitly external.",
+        "docs/eval/proofloop-official-task-bundles/finch.json records the locked official task bundle when available.",
+        "The adapter blocker receipt is refreshed after any import or blocker change."
+      ],
+      "evidence": [
+        "proofloop/benchmarks/finch/adapter.json",
+        "https://arxiv.org/abs/2512.13168",
+        "https://github.com/FinWorkBench/Finch",
+        "https://huggingface.co/datasets/FinWorkBench/Finch",
+        "docs/eval/proofloop-official-outputs/finch.json",
+        "docs/eval/proofloop-official-task-bundles/finch.json",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finch"
+      ],
+      "blockers": [
+        "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. Upstream Finch content_parts rendering is 0/172; official Azure judge input remains incomplete even though model-output artifacts are complete."
+      ],
+      "metadata": {
+        "name": "Finch / FinWorkBench",
+        "officialScoreStatus": "blocked_external",
+        "localImplementationStatus": "ready",
+        "officialCommandPlan": [
+          "Clone/lock https://github.com/FinWorkBench/Finch and https://huggingface.co/datasets/FinWorkBench/Finch.",
+          "Run the upstream Finch prompt_build_pipeline against the locked official task split.",
+          "Run the upstream Finch call_gpt_judge scorer on NodeRoom output artifacts.",
+          "Import the official judge JSON into docs/eval/proofloop-adapter-blockers/finch.json before claiming score."
+        ],
+        "resumeSteps": [
+          "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict",
+          "npm run benchmark:proofloop:external-adapter -- --id finch --prod --user-emulation strict",
+          "npm run benchmark:proofloop:adapter-blockers -- --id finch",
+          "import docs/eval/proofloop-official-scores/finch.json from the upstream official scorer",
+          "stage docs/eval/proofloop-official-task-bundles/finch.json from the locked official task bundle",
+          "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict --cockpit",
+          "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
+        ],
+        "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/finch.json",
+        "officialTaskBundleManifestPath": "docs/eval/proofloop-official-task-bundles/finch.json"
+      }
+    },
+    {
+      "id": "official-score.workstreambench",
+      "command": "npm run benchmark:proofloop:adapter-blockers",
+      "estimatedCostUsd": 0,
+      "timeoutMs": 120000,
+      "kind": "official-score-gap",
+      "status": "blocked-external",
+      "title": "Import official score receipt for workstreambench",
+      "adapterId": "workstreambench",
+      "priority": 502,
+      "objective": "Resolve the external official-score blocker for WorkstreamBench without relabeling proxy proof as an official score.",
+      "prompt": "Resolve the official scorer blocker for workstreambench.\nUse the upstream scorer or judge contract named in the adapter receipt.\nIf credentials or upstream bundles are unavailable, keep the blocker explicit and refresh the receipt; do not self-grade or accept a proxy score as official.",
+      "estimatedProductSpendUsd": 0,
+      "paidModelRequired": false,
+      "counts": {},
+      "commands": [
+        {
+          "name": "resume-1",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict",
+          "requiresSpend": true
+        },
+        {
+          "name": "resume-2",
+          "command": "npm run benchmark:proofloop:external-adapter -- --id workstreambench --prod --user-emulation strict",
+          "requiresSpend": false
+        },
+        {
+          "name": "resume-3",
+          "command": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench",
+          "requiresSpend": false
+        },
+        {
+          "name": "resume-4",
+          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict --cockpit",
+          "requiresSpend": true
+        },
+        {
+          "name": "resume-5",
+          "command": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
+          "requiresSpend": false
+        }
+      ],
+      "acceptance": [
+        "docs/eval/proofloop-official-scores/workstreambench.json has a scored receipt from the upstream official scorer, or the blocker remains explicitly external.",
+        "docs/eval/proofloop-official-task-bundles/workstreambench.json records the locked official task bundle when available.",
+        "The adapter blocker receipt is refreshed after any import or blocker change."
+      ],
+      "evidence": [
+        "proofloop/benchmarks/workstreambench/adapter.json",
+        "https://arxiv.org/html/2605.22664v1"
+      ],
+      "blockers": [
+        "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score. No public official WorkstreamBench task bundle URL was found. No public official WorkstreamBench scorer repository or CLI was found. The paper describes LLM-as-judge evaluation over structured representations, so a claimable score requires the official rubric/task bundle/scorer release or author-provided supplementary package.",
+        "workstreambench: official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is missing: no public official bundle/scorer/rubric URL was found; obtain the upstream release or author-provided bundle before claiming an official score."
+      ],
+      "metadata": {
+        "name": "WorkstreamBench",
+        "officialScoreStatus": "blocked_external",
+        "localImplementationStatus": "ready",
+        "officialCommandPlan": [
+          "Lock the official WorkstreamBench task bundle and scorer from the paper/supplementary source.",
+          "Run every official workstream through NodeRoom live-user seeding and artifact export.",
+          "Run the official WorkstreamBench scorer and import the result into docs/eval/proofloop-adapter-blockers/workstreambench.json before claiming score."
+        ],
+        "resumeSteps": [
+          "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict",
+          "npm run benchmark:proofloop:external-adapter -- --id workstreambench --prod --user-emulation strict",
+          "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench",
+          "import docs/eval/proofloop-official-scores/workstreambench.json from the upstream official scorer",
+          "stage docs/eval/proofloop-official-task-bundles/workstreambench.json from the locked official task bundle",
+          "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict --cockpit",
+          "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
+        ],
+        "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/workstreambench.json",
+        "officialTaskBundleManifestPath": "docs/eval/proofloop-official-task-bundles/workstreambench.json"
+      }
+    }
+  ]
+}

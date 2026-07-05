@@ -4,6 +4,7 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  readdirSync,
   writeFileSync,
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -109,6 +110,101 @@ export type ProofloopGoalRunResult = {
   event?: ProofloopGoalEvent;
 };
 
+export type ProofloopGoalLedgerTaskExport = {
+  id: string;
+  title: string;
+  kind: ProofloopGoalTaskKind;
+  required: boolean;
+  status: ProofloopGoalTaskStatus;
+  command?: string;
+  evidence: string[];
+  blockers: string[];
+  resumeCommand?: string;
+  attempts: number;
+  startedAt?: string;
+  finishedAt?: string;
+  lastExitCode?: number;
+};
+
+export type ProofloopGoalBlockedReasonExport = {
+  taskId: string;
+  title: string;
+  kind: ProofloopGoalTaskKind;
+  status: ProofloopGoalTaskStatus;
+  reason: string;
+  evidence: string[];
+  resumeCommand?: string;
+};
+
+export type ProofloopGoalLedgerGoalExport = {
+  goalId: string;
+  objective: string;
+  status: ProofloopGoalStatus;
+  createdAt: string;
+  updatedAt: string;
+  terminalReason?: string;
+  localStatePath: string;
+  localQueuePath: string;
+  localBlockersPath: string;
+  localLedgerPath: string;
+  ledgerEvents: {
+    count: number;
+    latestTs?: string;
+    latestType?: ProofloopGoalEvent["type"];
+    latestTaskId?: string;
+  };
+  requiredTaskCount: number;
+  unblockedTasksRemaining: number;
+  blockedTasksRemaining: number;
+  taskStatusCounts: Record<ProofloopGoalTaskStatus, number>;
+  blockedReasons: ProofloopGoalBlockedReasonExport[];
+  tasks: ProofloopGoalLedgerTaskExport[];
+};
+
+export type ProofloopGoalLedgerReceipt = {
+  schema: "proofloop-goal-ledger-export-v1";
+  generatedAt: string;
+  exports: {
+    json: string;
+    markdown: string;
+  };
+  localStore: {
+    path: ".proofloop/goals";
+    rawLocalStoresCommitted: false;
+    note: string;
+  };
+  summary: {
+    goalCount: number;
+    statusCounts: Record<ProofloopGoalStatus, number>;
+    unblockedTasksRemaining: number;
+    blockedTasksRemaining: number;
+    blockedReasonCount: number;
+  };
+  goals: ProofloopGoalLedgerGoalExport[];
+};
+
+const GOAL_LEDGER_JSON_EXPORT = "docs/eval/proofloop-goal-ledger.json";
+const GOAL_LEDGER_MARKDOWN_EXPORT = "docs/eval/PROOFLOOP_GOAL_LEDGER.md";
+const GOAL_STATUSES: ProofloopGoalStatus[] = [
+  "initialized",
+  "running",
+  "passed",
+  "blocked_external",
+  "needs_scaffold_or_run",
+  "needs_human_approval",
+  "budget_exhausted",
+  "failed",
+];
+const TASK_STATUSES: ProofloopGoalTaskStatus[] = [
+  "pending",
+  "running",
+  "passed",
+  "blocked_external",
+  "needs_scaffold_or_run",
+  "needs_human_approval",
+  "failed",
+];
+
 export function officialScoresGoalTasks(): ProofloopGoalTask[] {
   return [
     commandTask({
@@ -156,6 +252,25 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
         "docs/eval/proofloop-harness-economics.json",
         "docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
         "docs/eval/openrouter-top-paid-tools-snapshot.json",
+      ],
+    }),
+    commandTask({
+      id: "proofloop-npx-package-proof",
+      title: "Published npx proofloop package proof",
+      command: "npm run benchmark:proofloop:npx-package",
+      evidence: [
+        "docs/eval/proofloop-npx-package-proof.json",
+        "docs/eval/PROOFLOOP_NPX_PACKAGE_PROOF.md",
+      ],
+    }),
+    commandTask({
+      id: "preprod-readiness-ledger",
+      title: "ProofLoop preprod readiness release gate",
+      command: "npm run benchmark:proofloop:preprod",
+      evidence: [
+        "docs/eval/proofloop-preprod-readiness.json",
+        "docs/eval/PROOFLOOP_PREPROD_READINESS.md",
+        "docs/runbooks/PROOFLOOP_PREPROD_RUNBOOK.md",
       ],
     }),
     commandTask({
@@ -382,6 +497,104 @@ export function loadProofloopGoal(goalId: string, options: ProofloopGoalOptions 
   return JSON.parse(readFileSync(path, "utf8")) as ProofloopGoalState;
 }
 
+export function proofloopGoalLedgerReceiptPaths(root?: string): { jsonPath: string; markdownPath: string; jsonRelative: string; markdownRelative: string } {
+  const resolved = resolveRoot(root);
+  return {
+    jsonPath: join(resolved, GOAL_LEDGER_JSON_EXPORT),
+    markdownPath: join(resolved, GOAL_LEDGER_MARKDOWN_EXPORT),
+    jsonRelative: GOAL_LEDGER_JSON_EXPORT,
+    markdownRelative: GOAL_LEDGER_MARKDOWN_EXPORT,
+  };
+}
+
+export function buildProofloopGoalLedgerReceipt(options: ProofloopGoalOptions = {}): ProofloopGoalLedgerReceipt {
+  const root = resolveRoot(options.root);
+  const goals = loadAllProofloopGoalStates(root).map((state) => exportGoalState(root, state));
+  const updatedAtValues = goals.map((goal) => goal.updatedAt).sort();
+  const generatedAt = updatedAtValues[updatedAtValues.length - 1] ?? isoNow(options);
+  return {
+    schema: "proofloop-goal-ledger-export-v1",
+    generatedAt,
+    exports: {
+      json: GOAL_LEDGER_JSON_EXPORT,
+      markdown: GOAL_LEDGER_MARKDOWN_EXPORT,
+    },
+    localStore: {
+      path: ".proofloop/goals",
+      rawLocalStoresCommitted: false,
+      note: "Raw .proofloop goal/process stores remain gitignored. This committed receipt copies durable status, blocker reasons, resume commands, and evidence paths only.",
+    },
+    summary: {
+      goalCount: goals.length,
+      statusCounts: countStatuses(GOAL_STATUSES, goals.map((goal) => goal.status)),
+      unblockedTasksRemaining: goals.reduce((sum, goal) => sum + goal.unblockedTasksRemaining, 0),
+      blockedTasksRemaining: goals.reduce((sum, goal) => sum + goal.blockedTasksRemaining, 0),
+      blockedReasonCount: goals.reduce((sum, goal) => sum + goal.blockedReasons.length, 0),
+    },
+    goals,
+  };
+}
+
+export function renderProofloopGoalLedgerMarkdown(receipt: ProofloopGoalLedgerReceipt): string {
+  const lines = [
+    "# ProofLoop Goal Ledger Receipt",
+    "",
+    `Generated: ${receipt.generatedAt}`,
+    "",
+    "This committed receipt summarizes local `.proofloop/goals` process state. Raw `.proofloop` stores stay gitignored; blocker reasons, resume commands, and evidence paths are copied here so blocked claims survive local disk cleanup.",
+    "",
+    `JSON receipt: \`${receipt.exports.json}\``,
+    "",
+    "## Summary",
+    "",
+    `- Goals: ${receipt.summary.goalCount}`,
+    `- Unblocked tasks remaining: ${receipt.summary.unblockedTasksRemaining}`,
+    `- Blocked tasks remaining: ${receipt.summary.blockedTasksRemaining}`,
+    `- Blocked reasons recorded: ${receipt.summary.blockedReasonCount}`,
+    `- Raw local stores committed: ${receipt.localStore.rawLocalStoresCommitted}`,
+    "",
+  ];
+
+  for (const goal of receipt.goals) {
+    lines.push(
+      `## Goal: ${goal.goalId}`,
+      "",
+      `- Status: ${goal.status}`,
+      `- Objective: ${goal.objective}`,
+      `- Updated: ${goal.updatedAt}`,
+      `- Local ledger: \`${goal.localLedgerPath}\` (${goal.ledgerEvents.count} event(s))`,
+      `- Required tasks: ${goal.requiredTaskCount}`,
+      `- Unblocked tasks remaining: ${goal.unblockedTasksRemaining}`,
+      `- Blocked tasks remaining: ${goal.blockedTasksRemaining}`,
+    );
+    if (goal.terminalReason) lines.push(`- Terminal reason: ${goal.terminalReason}`);
+    lines.push("", "### Blocked Reasons", "");
+    if (goal.blockedReasons.length === 0) {
+      lines.push("No blocker reasons recorded.", "");
+    } else {
+      lines.push("| Task | Status | Reason | Evidence | Resume |", "| --- | --- | --- | --- | --- |");
+      for (const blocker of goal.blockedReasons) {
+        lines.push(
+          `| ${md(blocker.taskId)} | ${md(blocker.status)} | ${md(blocker.reason)} | ${md(blocker.evidence.join("<br>"))} | ${md(blocker.resumeCommand ?? "")} |`,
+        );
+      }
+      lines.push("");
+    }
+  }
+
+  return lines.join("\n");
+}
+
+export function writeProofloopGoalLedgerReceipt(options: ProofloopGoalOptions = {}): ProofloopGoalLedgerReceipt {
+  const root = resolveRoot(options.root);
+  const receipt = buildProofloopGoalLedgerReceipt({ ...options, root });
+  const paths = proofloopGoalLedgerReceiptPaths(root);
+  writeJson(paths.jsonPath, receipt);
+  mkdirSync(dirname(paths.markdownPath), { recursive: true });
+  writeFileSync(paths.markdownPath, renderProofloopGoalLedgerMarkdown(receipt), "utf8");
+  return receipt;
+}
+
 export function runNextProofloopGoalTask(goalId: string, options: ProofloopGoalOptions = {}): ProofloopGoalRunResult {
   const root = resolveRoot(options.root);
   const now = isoNow(options);
@@ -573,6 +786,86 @@ export function formatProofloopGoalResume(state: ProofloopGoalState): string {
   return `${lines.join("\n")}\n`;
 }
 
+function loadAllProofloopGoalStates(root: string): ProofloopGoalState[] {
+  const goalsDir = join(root, ".proofloop", "goals");
+  if (!existsSync(goalsDir)) return [];
+  return readdirSync(goalsDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => JSON.parse(readFileSync(join(goalsDir, entry.name, "state.json"), "utf8")) as ProofloopGoalState)
+    .sort((a, b) => a.goalId.localeCompare(b.goalId));
+}
+
+function exportGoalState(root: string, state: ProofloopGoalState): ProofloopGoalLedgerGoalExport {
+  const paths = goalPaths(root, state.goalId);
+  const tasks = state.tasks.map((task): ProofloopGoalLedgerTaskExport => ({
+    id: task.id,
+    title: task.title,
+    kind: task.kind,
+    required: task.required !== false,
+    status: task.status,
+    command: task.command,
+    evidence: [...task.evidence],
+    blockers: [...task.blockers],
+    resumeCommand: task.resumeCommand,
+    attempts: task.attempts,
+    startedAt: task.startedAt,
+    finishedAt: task.finishedAt,
+    lastExitCode: task.lastExitCode,
+  }));
+  const blockedReasons = state.tasks.flatMap((task) =>
+    task.blockers.map((reason): ProofloopGoalBlockedReasonExport => ({
+      taskId: task.id,
+      title: task.title,
+      kind: task.kind,
+      status: task.status,
+      reason,
+      evidence: [...task.evidence],
+      resumeCommand: task.resumeCommand,
+    })),
+  );
+  return {
+    goalId: state.goalId,
+    objective: state.objective,
+    status: state.status,
+    createdAt: state.createdAt,
+    updatedAt: state.updatedAt,
+    terminalReason: state.terminalReason,
+    localStatePath: relativePath(root, paths.statePath),
+    localQueuePath: relativePath(root, paths.queuePath),
+    localBlockersPath: relativePath(root, paths.blockersPath),
+    localLedgerPath: relativePath(root, paths.ledgerPath),
+    ledgerEvents: ledgerEventStats(paths.ledgerPath),
+    requiredTaskCount: state.tasks.filter((task) => task.required !== false).length,
+    unblockedTasksRemaining: state.unblockedTasksRemaining,
+    blockedTasksRemaining: state.blockedTasksRemaining,
+    taskStatusCounts: countStatuses(TASK_STATUSES, state.tasks.map((task) => task.status)),
+    blockedReasons,
+    tasks,
+  };
+}
+
+function ledgerEventStats(path: string): ProofloopGoalLedgerGoalExport["ledgerEvents"] {
+  if (!existsSync(path)) return { count: 0 };
+  const events = readFileSync(path, "utf8").trim().split(/\r?\n/).filter(Boolean);
+  const latest = events.length ? JSON.parse(events[events.length - 1]) as Partial<ProofloopGoalEvent> : undefined;
+  return {
+    count: events.length,
+    latestTs: latest?.ts,
+    latestType: latest?.type,
+    latestTaskId: latest?.taskId,
+  };
+}
+
+function countStatuses<T extends string>(keys: readonly T[], values: T[]): Record<T, number> {
+  const counts = Object.fromEntries(keys.map((key) => [key, 0])) as Record<T, number>;
+  for (const value of values) counts[value] += 1;
+  return counts;
+}
+
+function md(value: string): string {
+  return value.replace(/\r?\n/g, "<br>").replace(/\|/g, "\\|");
+}
+
 function commandTask(args: { id: string; title: string; command: string; evidence: string[] }): ProofloopGoalTask {
   return {
     id: args.id,
@@ -658,10 +951,12 @@ function taskEvent(type: ProofloopGoalEvent["type"], state: ProofloopGoalState, 
 function writeState(root: string, state: ProofloopGoalState): ProofloopGoalState {
   const paths = goalPaths(root, state.goalId);
   mkdirSync(paths.dir, { recursive: true });
+  state.ledgerPath = relativePath(root, paths.ledgerPath);
   writeJson(paths.statePath, state);
   writeJson(paths.queuePath, state.tasks);
   writeJson(paths.blockersPath, state.tasks.filter((task) => task.status === "blocked_external"));
   appendFileSync(paths.heartbeatsPath, `${JSON.stringify({ ts: state.updatedAt, status: state.status })}\n`, "utf8");
+  writeProofloopGoalLedgerReceipt({ root });
   return state;
 }
 
@@ -669,6 +964,7 @@ function appendLedger(root: string, goalId: string, event: ProofloopGoalEvent): 
   const path = goalPaths(root, goalId).ledgerPath;
   mkdirSync(dirname(path), { recursive: true });
   appendFileSync(path, `${JSON.stringify(event)}\n`, "utf8");
+  writeProofloopGoalLedgerReceipt({ root });
   return event;
 }
 

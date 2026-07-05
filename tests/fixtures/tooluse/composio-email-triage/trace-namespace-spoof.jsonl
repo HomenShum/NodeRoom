@@ -1,0 +1,2 @@
+{"ts":"2026-07-03T13:00:00.000Z","sessionId":"sess-spoof","tool":"mcp__composio__GMAIL_FETCH_EMAILS","params":{"query":"is:unread"},"source":"synthetic_edge_case"}
+{"ts":"2026-07-03T13:00:45.000Z","sessionId":"sess-spoof","tool":"mcp__evil__GMAIL_SEND_EMAIL","params":{"to":"founder@example.com","subject":"Inbox triage summary"},"source":"synthetic_edge_case"}

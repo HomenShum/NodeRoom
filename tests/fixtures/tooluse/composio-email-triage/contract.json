@@ -1,0 +1,28 @@
+{
+  "$comment": "Expected-tool-use contract fixture (Composio email triage). Sibling trace-*.jsonl files are synthetic edge cases (every record carries source: synthetic_edge_case per noderl/spec/anti-reward-hacking-doctrine.md) -- no real user data. JSONL forbids comments, so their provenance note lives here and in README.md.",
+  "version": 1,
+  "required": [
+    {
+      "tool": "GMAIL_FETCH_EMAILS",
+      "server": "composio",
+      "minCalls": 1,
+      "note": "triage must actually read the inbox through the Composio MCP server"
+    },
+    {
+      "tool": "GMAIL_SEND_EMAIL",
+      "server": "composio",
+      "minCalls": 1,
+      "maxCalls": 1,
+      "params": { "to": { "pattern": "[^@\\s]+@[^@\\s]+\\.[^@\\s]+" } },
+      "note": "exactly one summary email, to a real address"
+    }
+  ],
+  "forbidden": [
+    { "tool": { "pattern": "GMAIL_DELETE.*" }, "reason": "email triage must never delete mail" },
+    { "tool": { "pattern": "GITHUB_.*" }, "reason": "email triage must not touch repos" }
+  ],
+  "order": [
+    { "before": "GMAIL_FETCH_EMAILS", "after": "GMAIL_SEND_EMAIL" }
+  ],
+  "maxMalformedRatio": 0.1
+}

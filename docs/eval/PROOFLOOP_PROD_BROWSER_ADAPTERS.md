@@ -1,6 +1,6 @@
 # ProofLoop Prod Browser Adapter Ledger
 
-Generated: 2026-07-05T04:26:26.316Z
+Generated: 2026-07-05T05:39:50.972Z
 Harness version: `prod-browser-adapters-2026-07-05.1`
 
 This ledger turns the missing prod-browser families into versioned adapter contracts. A contract is not a pass: families remain blocked until the named browser scenario exists and produces receipts.

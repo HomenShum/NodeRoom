@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-29T02:41:44.526Z",
+  "generatedAt": "2026-07-05T06:00:19.373Z",
   "policy": [
     "FR-020/FR-020A selective task proof and FR-020B full-suite proof are separate claims and may not be collapsed into one pass.",
     "FR-020B (official isolated/Harbor lane) and FR-020C (live product-UI lane) are separate full-suite claims; completion + scoring is not a 100% pass rate.",
@@ -60,17 +60,17 @@
           "status": "pass",
           "evidence": [
             "docs/eval/fresh-room/FR-020/latest.json",
-            "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/package-manifest.json"
+            "docs\\eval\\fresh-room\\FR-020\\tasks\\0fc7bc3c-a111-4222-8333-444455556666\\evidence\\package-manifest.json"
           ]
         },
         {
           "id": "visual_judge",
           "label": "Media judge or visual proof handoff",
-          "status": "pass",
+          "status": "partial",
           "evidence": [
-            "docs/eval/fresh-room/FR-020/latest.json",
-            "docs/eval/gemini-media-judges/btb-a31173e3-qwen-fresh-domain-proof-after-pdf-storage-fix-20260625/summary.md"
-          ]
+            "docs/eval/fresh-room/FR-020/latest.json"
+          ],
+          "blocker": "Visual judge did not pass or was not run."
         }
       ]
     },
@@ -111,17 +111,17 @@
           "status": "pass",
           "evidence": [
             "docs/eval/fresh-room/FR-020/latest.json",
-            "docs/eval/fresh-room/FR-020/tasks/a31173e3-e8aa-4ddb-b0d9-e4e7055c950b/evidence/package-manifest.json"
+            "docs\\eval\\fresh-room\\FR-020\\tasks\\0fc7bc3c-a111-4222-8333-444455556666\\evidence\\package-manifest.json"
           ]
         },
         {
           "id": "visual_judge",
           "label": "Media judge or visual proof handoff",
-          "status": "pass",
+          "status": "partial",
           "evidence": [
-            "docs/eval/fresh-room/FR-020/latest.json",
-            "docs/eval/gemini-media-judges/btb-a31173e3-qwen-fresh-domain-proof-after-pdf-storage-fix-20260625/summary.md"
-          ]
+            "docs/eval/fresh-room/FR-020/latest.json"
+          ],
+          "blocker": "Visual judge did not pass or was not run."
         }
       ]
     },

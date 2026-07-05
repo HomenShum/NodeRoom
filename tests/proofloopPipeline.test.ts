@@ -299,6 +299,10 @@ describe("proofloop npm scripts", () => {
     expect(pkg.scripts["proofloop:live:btb"]).toContain("proofloop-live-playwright.ts bankertoolbench");
     expect(pkg.scripts["benchmark:proofloop:board"]).toBeDefined();
     expect(pkg.scripts["benchmark:proofloop:charts"]).toBeDefined();
+    expect(pkg.scripts["benchmark:proofloop:npx-package"]).toContain("proofloop-npx-package-proof.ts");
+    expect(pkg.scripts["benchmark:proofloop:preprod"]).toContain("proofloop-preprod-readiness.ts");
+    expect(pkg.scripts["benchmark:proofloop:preprod:live"]).toContain("https://noderoom.live");
+    expect(pkg.scripts["benchmark:proofloop:preprod:live"]).toContain("--live-story");
     expect(pkg.scripts["proofloop:accounting:seed"]).toBeDefined();
     expect(pkg.scripts["proofloop:notion:seed"]).toBeDefined();
   });
