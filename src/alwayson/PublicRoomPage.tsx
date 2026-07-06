@@ -228,6 +228,23 @@ function ChangePostit({ bundle }: { bundle: PublicRoomBundle }) {
   );
 }
 
+/**
+ * Consolidation review (vs the shared sheet renderer, GenericSheet in
+ * src/ui/panels/Artifact.tsx): NOT consolidated — different data model, not a
+ * skinning problem. GenericSheet's signature is
+ * `{ roomId, me: Actor, art: Art, proof?: ActorProof, onError? }`; every one of
+ * those props exists to serve live collaborative editing this page has none
+ * of — per-cell CAS versioning + baseVersion conflicts, lock/lease (NA badge),
+ * PresenceLadder cursors, evidence receipts wired to a room proof chain, cell
+ * history/restore, formula markers. A public room has no roomId membership, no
+ * `art.elements` CAS store, no actor, no proof chain to receipt against — it
+ * renders a flat array (`bundle.papers`) fetched once from a Convex query.
+ * Adopting GenericSheet here would mean stubbing every one of those props with
+ * fakes, which is a fork of GenericSheet's behavior wearing a shared-component
+ * costume, not real reuse. The genuinely public-specific parts (search + status
+ * + topic filter chips, a responsive card-list fallback under `.ao-paper-cards`
+ * for narrow viewports) also don't exist on GenericSheet at all. Kept page-local.
+ */
 function PapersSheet({
   bundle,
   query,
@@ -354,6 +371,31 @@ function PapersSheet({
   );
 }
 
+/**
+ * Consolidation review (vs the shared trace step renderer, StepRow in
+ * src/ui/panels/TraceStepRow.tsx, used by TraceSurface + TraceFlow): NOT
+ * consolidated. Tried an adapter (bundle.runlog row -> TraceStep: label=event,
+ * detail=meta, status mapped to a TraceTone, metrics=[{label:"cost",value}])
+ * and it's a real dead end for two independent reasons, not one:
+ *  1. Visual identity conflict. `.ao-run` (alwayson.css) is a bare 5-column
+ *     CSS grid row (time | icon | event+meta | chip | cost) with a hairline
+ *     divider — the design-reference/alwayson specimen. `.r-tracevu-step` is a
+ *     bordered, backgrounded, hoverable card. Rendering StepRow inside
+ *     `.ao-run` means either fighting its box model with per-consumer CSS
+ *     overrides (a de-facto fork of its look, just written in CSS instead of
+ *     JSX), or accepting the card style and losing the specimen's dense grid —
+ *     both violate "keep the specimen look, don't fork the shared component."
+ *  2. Zero present reuse. StepRow's actual differentiated value is rendering
+ *     attachments — screenshots, lazy-loaded PDF citations, SSIM flicker
+ *     diffs, log blocks (see TraceStepRow.tsx). A scan run's runlog rows carry
+ *     NONE of these today (deterministic hash-check/extract/brief events
+ *     only), so adopting StepRow would import that machinery (including the
+ *     react-pdf/pdfjs-dist lazy chunk) into the public-room bundle for zero
+ *     executing benefit.
+ * Revisit if/when a scan run starts attaching real per-source evidence (e.g. a
+ * screenshot of the page that changed) — that's exactly StepRow's job, and the
+ * adapter sketch above is most of the mapping work already done.
+ */
 function RunLog({ bundle }: { bundle: PublicRoomBundle }) {
   return (
     <div className="ao-runlog">
@@ -403,7 +445,25 @@ const gfind = (id: string) => G.disc.find((n) => n.id === id) ?? G.topics.find((
 /* The hand-laid specimen graph cannot lay out arbitrary live data, so it is
    demo-only. Live mode renders honest counts + the actual topic/discipline
    sets derived from the live papers — no specimen numbers, no fake layout —
-   until a real graph index ships with the hosted room. */
+   until a real graph index ships with the hosted room.
+ *
+ * Consolidation review (vs the shared entity graph, KnowledgeGraph in
+ * src/ui/panels/KnowledgeGraph.tsx): NOT consolidated — incompatible data
+ * source, not a skinning problem. KnowledgeGraph derives its whole node/edge
+ * set from `useStore()` (the live RoomEngine: `Artifact`/sheet rows scanned by
+ * kind + keyword regex into companies/people/events/etc.) and renders via
+ * `@xyflow/react` with pan/zoom/multi-hop neighborhood highlighting and a
+ * double-click-to-open-artifact interaction — none of which exist on a public
+ * room: there is no store, no artifact-with-elements to open, and
+ * `bundle.papers` (a flat array from one Convex query) carries no
+ * relationship/edge data to hop across, only a title/discipline/topic per row.
+ * Forcing this widget through KnowledgeGraph would mean either synthesizing a
+ * fake in-memory RoomEngine just to satisfy `useStore()`, or forking
+ * KnowledgeGraph to accept external node/edge props it was never built for —
+ * plus it would pull xyflow's CSS/JS chunk into this page for a feature
+ * (pan/zoom/backlinks) that has no meaning on a static topic-count summary.
+ * Kept page-local; the live variant here is the honest placeholder until a
+ * real per-topic relationship index exists for a scan run to feed a graph. */
 function TopicsGraph({ bundle, onTopicSelect }: { bundle: PublicRoomBundle; onTopicSelect: (topic: string) => void }) {
   const topics = useMemo(() => [...new Set(bundle.papers.map((p) => p.topic).filter(Boolean))], [bundle.papers]);
   const disciplines = useMemo(() => [...new Set(bundle.papers.map((p) => p.discipline).filter(Boolean))], [bundle.papers]);
