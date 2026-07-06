@@ -99,6 +99,10 @@ const IDENTITIES: IdentitySpec[] = [
   },
 ];
 
+/** The identity definitions an auditor is asked to check (no compute fns). */
+export const IDENTITY_CATALOG: ReadonlyArray<{ id: string; label: string; required: string[] }> =
+  IDENTITIES.map((i) => ({ id: i.id, label: i.label, required: [...i.required] }));
+
 /** Run every identity against one filing's aligned facts. Pure, deterministic. */
 export function auditIdentities(company: CompanyXbrlFacts): IdentityResult[] {
   return IDENTITIES.map((spec) => {

@@ -57,6 +57,8 @@
     "benchmark:spreadsheetbench:score": "tsx scripts/spreadsheetbench-score.ts",
     "benchmark:spreadsheetbench:proof": "tsx scripts/spreadsheetbench-proof-check.ts",
     "benchmark:spreadsheetbench:stage-proof": "tsx scripts/spreadsheetbench-stage-proof-check.ts",
+    "benchmark:sec-xbrl:ingest": "tsx scripts/sec-xbrl-ingest.ts",
+    "benchmark:sec-xbrl": "tsx scripts/sec-xbrl-audit-bench.ts",
     "benchmark:spreadsheetbench:routes": "tsx scripts/spreadsheetbench-route-selection.ts",
     "benchmark:spreadsheetbench:chart-visual:grade": "tsx scripts/spreadsheetbench-chart-visual-grade.ts",
     "benchmark:spreadsheetbench:chart-visual:probe": "tsx scripts/spreadsheetbench-chart-visual-probe.ts --json-out docs/eval/spreadsheetbench-chart-visual-probe.json",
