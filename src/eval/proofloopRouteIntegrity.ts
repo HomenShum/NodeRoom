@@ -26,27 +26,24 @@ export function evaluateProofloopRouteIntegrity(args: {
 
   if (requestedModel && telemetryModels.length > 0) {
     const requestedIsFree = isFreeModelPolicy(requestedModel);
-    // Ground truth for the free-route contract is MEASURED COST, not the model
-    // name. A genuinely free model (e.g. z-ai/glm-4.7-flash) carries no ":free"
-    // suffix yet bills $0, so a proven-$0 run satisfies free-auto even when the
-    // resolved name isn't in the naming allowlist. Only a proven zero earns the
-    // pass — unknown cost (null) falls back to the name heuristic.
-    const billedNothing = measuredCostUsd === 0;
+    // A free-auto request MUST resolve to an ACTUAL free model (":free" suffix or
+    // the free-auto/free policy itself). A $0 reading does NOT prove free
+    // compliance: an errored run bills $0, and a paid model wrongly promoted onto
+    // a /free request (the file-egress promotion path -> z-ai/glm-4.7-flash)
+    // reads $0 until the account has credits, then 402s. So resolving to a
+    // non-free model is a mismatch REGARDLESS of this-run cost — that is exactly
+    // the signal that catches the promotion bug. (A prior version gave $0 a pass
+    // and silenced this alarm; that was wrong — do not reintroduce it.)
     const routeMatches = telemetryModels.every((model) => {
-      if (isFreeAutoPolicy(requestedModel)) return isFreeModelPolicy(model) || billedNothing;
+      if (isFreeAutoPolicy(requestedModel)) return isFreeModelPolicy(model);
       return normalizeModel(model) === normalizeModel(requestedModel);
     });
     if (!routeMatches) failures.push("model_route_mismatch");
-    // "used a PAID model" must mean money was actually spent — an unrecognized
-    // model name at $0 measured cost is not a paid model. Guard on measured
-    // cost so a free resolution can never be mislabeled paid (the >0 case is
-    // still caught here AND by free_route_billed_nonzero_cost below).
-    if (
-      requestedIsFree &&
-      typeof measuredCostUsd === "number" &&
-      measuredCostUsd > 0 &&
-      telemetryModels.some((model) => !isFreeModelPolicy(model))
-    ) {
+    // A free-requested route that resolved to a non-free-identity model used a
+    // paid model — flag by IDENTITY, independent of this-run cost (the promotion
+    // bills once the account has credits). Actual spend is ALSO caught by
+    // free_route_billed_nonzero_cost below; the two are complementary.
+    if (requestedIsFree && telemetryModels.some((model) => !isFreeModelPolicy(model))) {
       failures.push("free_route_used_paid_model");
     }
   }
