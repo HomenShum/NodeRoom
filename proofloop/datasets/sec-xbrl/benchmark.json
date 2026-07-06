@@ -1,0 +1,734 @@
+{
+  "source": "SEC EDGAR companyfacts (us-gaap), latest 10-K, (accn,end)-aligned",
+  "officialScoreClaim": false,
+  "generatedFor": "deterministic tie-out audit",
+  "items": [
+    {
+      "id": "0000320193-clean",
+      "company": {
+        "cik": "0000320193",
+        "name": "Apple Inc.",
+        "accn": "0000320193-25-000079",
+        "facts": {
+          "Assets": {
+            "val": 359241000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "Liabilities": {
+            "val": 285508000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "StockholdersEquity": {
+            "val": 73733000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "LiabilitiesAndStockholdersEquity": {
+            "val": 359241000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "AssetsCurrent": {
+            "val": 147957000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "AssetsNoncurrent": {
+            "val": 211284000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "LiabilitiesCurrent": {
+            "val": 165631000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "LiabilitiesNoncurrent": {
+            "val": 119877000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "NetIncomeLoss": {
+            "val": 112010000000,
+            "end": "2025-09-27",
+            "start": "2024-09-29"
+          },
+          "WeightedAverageNumberOfDilutedSharesOutstanding": {
+            "val": 15004697000,
+            "end": "2025-09-27",
+            "start": "2024-09-29"
+          },
+          "EarningsPerShareDiluted": {
+            "val": 7.46,
+            "end": "2025-09-27",
+            "start": "2024-09-29"
+          }
+        }
+      },
+      "injected": false,
+      "groundTruthViolatedIds": []
+    },
+    {
+      "id": "0000320193-assets_overstated_1b",
+      "company": {
+        "cik": "0000320193",
+        "name": "Apple Inc.",
+        "accn": "0000320193-25-000079",
+        "facts": {
+          "Assets": {
+            "val": 360241000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "Liabilities": {
+            "val": 285508000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "StockholdersEquity": {
+            "val": 73733000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "LiabilitiesAndStockholdersEquity": {
+            "val": 359241000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "AssetsCurrent": {
+            "val": 147957000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "AssetsNoncurrent": {
+            "val": 211284000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "LiabilitiesCurrent": {
+            "val": 165631000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "LiabilitiesNoncurrent": {
+            "val": 119877000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "NetIncomeLoss": {
+            "val": 112010000000,
+            "end": "2025-09-27",
+            "start": "2024-09-29"
+          },
+          "WeightedAverageNumberOfDilutedSharesOutstanding": {
+            "val": 15004697000,
+            "end": "2025-09-27",
+            "start": "2024-09-29"
+          },
+          "EarningsPerShareDiluted": {
+            "val": 7.46,
+            "end": "2025-09-27",
+            "start": "2024-09-29"
+          }
+        }
+      },
+      "injected": true,
+      "groundTruthViolatedIds": [
+        "balance_sheet_equation",
+        "assets_equal_liabilities_and_equity_total",
+        "assets_current_noncurrent_subtotal"
+      ]
+    },
+    {
+      "id": "0000320193-net_income_sign_error",
+      "company": {
+        "cik": "0000320193",
+        "name": "Apple Inc.",
+        "accn": "0000320193-25-000079",
+        "facts": {
+          "Assets": {
+            "val": 359241000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "Liabilities": {
+            "val": 285508000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "StockholdersEquity": {
+            "val": 73733000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "LiabilitiesAndStockholdersEquity": {
+            "val": 359241000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "AssetsCurrent": {
+            "val": 147957000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "AssetsNoncurrent": {
+            "val": 211284000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "LiabilitiesCurrent": {
+            "val": 165631000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "LiabilitiesNoncurrent": {
+            "val": 119877000000,
+            "end": "2025-09-27",
+            "start": null
+          },
+          "NetIncomeLoss": {
+            "val": -112010000000,
+            "end": "2025-09-27",
+            "start": "2024-09-29"
+          },
+          "WeightedAverageNumberOfDilutedSharesOutstanding": {
+            "val": 15004697000,
+            "end": "2025-09-27",
+            "start": "2024-09-29"
+          },
+          "EarningsPerShareDiluted": {
+            "val": 7.46,
+            "end": "2025-09-27",
+            "start": "2024-09-29"
+          }
+        }
+      },
+      "injected": true,
+      "groundTruthViolatedIds": [
+        "eps_reconciliation"
+      ]
+    },
+    {
+      "id": "0000789019-clean",
+      "company": {
+        "cik": "0000789019",
+        "name": "Microsoft Corp.",
+        "accn": "0000950170-25-100235",
+        "facts": {
+          "Assets": {
+            "val": 619003000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "Liabilities": {
+            "val": 275524000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "StockholdersEquity": {
+            "val": 343479000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "LiabilitiesAndStockholdersEquity": {
+            "val": 619003000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "AssetsCurrent": {
+            "val": 191131000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "AssetsNoncurrent": null,
+          "LiabilitiesCurrent": {
+            "val": 141218000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "LiabilitiesNoncurrent": null,
+          "NetIncomeLoss": {
+            "val": 101832000000,
+            "end": "2025-06-30",
+            "start": "2024-07-01"
+          },
+          "WeightedAverageNumberOfDilutedSharesOutstanding": {
+            "val": 7465000000,
+            "end": "2025-06-30",
+            "start": "2024-07-01"
+          },
+          "EarningsPerShareDiluted": {
+            "val": 13.64,
+            "end": "2025-06-30",
+            "start": "2024-07-01"
+          }
+        }
+      },
+      "injected": false,
+      "groundTruthViolatedIds": []
+    },
+    {
+      "id": "0000789019-assets_overstated_1b",
+      "company": {
+        "cik": "0000789019",
+        "name": "Microsoft Corp.",
+        "accn": "0000950170-25-100235",
+        "facts": {
+          "Assets": {
+            "val": 620003000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "Liabilities": {
+            "val": 275524000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "StockholdersEquity": {
+            "val": 343479000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "LiabilitiesAndStockholdersEquity": {
+            "val": 619003000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "AssetsCurrent": {
+            "val": 191131000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "AssetsNoncurrent": null,
+          "LiabilitiesCurrent": {
+            "val": 141218000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "LiabilitiesNoncurrent": null,
+          "NetIncomeLoss": {
+            "val": 101832000000,
+            "end": "2025-06-30",
+            "start": "2024-07-01"
+          },
+          "WeightedAverageNumberOfDilutedSharesOutstanding": {
+            "val": 7465000000,
+            "end": "2025-06-30",
+            "start": "2024-07-01"
+          },
+          "EarningsPerShareDiluted": {
+            "val": 13.64,
+            "end": "2025-06-30",
+            "start": "2024-07-01"
+          }
+        }
+      },
+      "injected": true,
+      "groundTruthViolatedIds": [
+        "balance_sheet_equation",
+        "assets_equal_liabilities_and_equity_total"
+      ]
+    },
+    {
+      "id": "0000789019-net_income_sign_error",
+      "company": {
+        "cik": "0000789019",
+        "name": "Microsoft Corp.",
+        "accn": "0000950170-25-100235",
+        "facts": {
+          "Assets": {
+            "val": 619003000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "Liabilities": {
+            "val": 275524000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "StockholdersEquity": {
+            "val": 343479000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "LiabilitiesAndStockholdersEquity": {
+            "val": 619003000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "AssetsCurrent": {
+            "val": 191131000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "AssetsNoncurrent": null,
+          "LiabilitiesCurrent": {
+            "val": 141218000000,
+            "end": "2025-06-30",
+            "start": null
+          },
+          "LiabilitiesNoncurrent": null,
+          "NetIncomeLoss": {
+            "val": -101832000000,
+            "end": "2025-06-30",
+            "start": "2024-07-01"
+          },
+          "WeightedAverageNumberOfDilutedSharesOutstanding": {
+            "val": 7465000000,
+            "end": "2025-06-30",
+            "start": "2024-07-01"
+          },
+          "EarningsPerShareDiluted": {
+            "val": 13.64,
+            "end": "2025-06-30",
+            "start": "2024-07-01"
+          }
+        }
+      },
+      "injected": true,
+      "groundTruthViolatedIds": [
+        "eps_reconciliation"
+      ]
+    },
+    {
+      "id": "0000021344-clean",
+      "company": {
+        "cik": "0000021344",
+        "name": "Coca-Cola Co.",
+        "accn": "0001628280-26-010047",
+        "facts": {
+          "Assets": {
+            "val": 104816000000,
+            "end": "2025-12-31",
+            "start": null
+          },
+          "Liabilities": null,
+          "StockholdersEquity": {
+            "val": 32169000000,
+            "end": "2025-12-31",
+            "start": null
+          },
+          "LiabilitiesAndStockholdersEquity": {
+            "val": 104816000000,
+            "end": "2025-12-31",
+            "start": null
+          },
+          "AssetsCurrent": {
+            "val": 31044000000,
+            "end": "2025-12-31",
+            "start": null
+          },
+          "AssetsNoncurrent": null,
+          "LiabilitiesCurrent": {
+            "val": 21281000000,
+            "end": "2025-12-31",
+            "start": null
+          },
+          "LiabilitiesNoncurrent": null,
+          "NetIncomeLoss": {
+            "val": 13107000000,
+            "end": "2025-12-31",
+            "start": "2025-01-01"
+          },
+          "WeightedAverageNumberOfDilutedSharesOutstanding": {
+            "val": 4313000000,
+            "end": "2025-12-31",
+            "start": "2025-01-01"
+          },
+          "EarningsPerShareDiluted": {
+            "val": 3.04,
+            "end": "2025-12-31",
+            "start": "2025-01-01"
+          }
+        }
+      },
+      "injected": false,
+      "groundTruthViolatedIds": []
+    },
+    {
+      "id": "0000021344-assets_overstated_1b",
+      "company": {
+        "cik": "0000021344",
+        "name": "Coca-Cola Co.",
+        "accn": "0001628280-26-010047",
+        "facts": {
+          "Assets": {
+            "val": 105816000000,
+            "end": "2025-12-31",
+            "start": null
+          },
+          "Liabilities": null,
+          "StockholdersEquity": {
+            "val": 32169000000,
+            "end": "2025-12-31",
+            "start": null
+          },
+          "LiabilitiesAndStockholdersEquity": {
+            "val": 104816000000,
+            "end": "2025-12-31",
+            "start": null
+          },
+          "AssetsCurrent": {
+            "val": 31044000000,
+            "end": "2025-12-31",
+            "start": null
+          },
+          "AssetsNoncurrent": null,
+          "LiabilitiesCurrent": {
+            "val": 21281000000,
+            "end": "2025-12-31",
+            "start": null
+          },
+          "LiabilitiesNoncurrent": null,
+          "NetIncomeLoss": {
+            "val": 13107000000,
+            "end": "2025-12-31",
+            "start": "2025-01-01"
+          },
+          "WeightedAverageNumberOfDilutedSharesOutstanding": {
+            "val": 4313000000,
+            "end": "2025-12-31",
+            "start": "2025-01-01"
+          },
+          "EarningsPerShareDiluted": {
+            "val": 3.04,
+            "end": "2025-12-31",
+            "start": "2025-01-01"
+          }
+        }
+      },
+      "injected": true,
+      "groundTruthViolatedIds": [
+        "assets_equal_liabilities_and_equity_total"
+      ]
+    },
+    {
+      "id": "0000021344-net_income_sign_error",
+      "company": {
+        "cik": "0000021344",
+        "name": "Coca-Cola Co.",
+        "accn": "0001628280-26-010047",
+        "facts": {
+          "Assets": {
+            "val": 104816000000,
+            "end": "2025-12-31",
+            "start": null
+          },
+          "Liabilities": null,
+          "StockholdersEquity": {
+            "val": 32169000000,
+            "end": "2025-12-31",
+            "start": null
+          },
+          "LiabilitiesAndStockholdersEquity": {
+            "val": 104816000000,
+            "end": "2025-12-31",
+            "start": null
+          },
+          "AssetsCurrent": {
+            "val": 31044000000,
+            "end": "2025-12-31",
+            "start": null
+          },
+          "AssetsNoncurrent": null,
+          "LiabilitiesCurrent": {
+            "val": 21281000000,
+            "end": "2025-12-31",
+            "start": null
+          },
+          "LiabilitiesNoncurrent": null,
+          "NetIncomeLoss": {
+            "val": -13107000000,
+            "end": "2025-12-31",
+            "start": "2025-01-01"
+          },
+          "WeightedAverageNumberOfDilutedSharesOutstanding": {
+            "val": 4313000000,
+            "end": "2025-12-31",
+            "start": "2025-01-01"
+          },
+          "EarningsPerShareDiluted": {
+            "val": 3.04,
+            "end": "2025-12-31",
+            "start": "2025-01-01"
+          }
+        }
+      },
+      "injected": true,
+      "groundTruthViolatedIds": [
+        "eps_reconciliation"
+      ]
+    },
+    {
+      "id": "0000200406-clean",
+      "company": {
+        "cik": "0000200406",
+        "name": "Johnson & Johnson",
+        "accn": "0000200406-26-000016",
+        "facts": {
+          "Assets": {
+            "val": 199210000000,
+            "end": "2025-12-28",
+            "start": null
+          },
+          "Liabilities": {
+            "val": 117666000000,
+            "end": "2025-12-28",
+            "start": null
+          },
+          "StockholdersEquity": null,
+          "LiabilitiesAndStockholdersEquity": {
+            "val": 199210000000,
+            "end": "2025-12-28",
+            "start": null
+          },
+          "AssetsCurrent": {
+            "val": 55624000000,
+            "end": "2025-12-28",
+            "start": null
+          },
+          "AssetsNoncurrent": null,
+          "LiabilitiesCurrent": {
+            "val": 54126000000,
+            "end": "2025-12-28",
+            "start": null
+          },
+          "LiabilitiesNoncurrent": null,
+          "NetIncomeLoss": {
+            "val": 26804000000,
+            "end": "2025-12-28",
+            "start": "2024-12-30"
+          },
+          "WeightedAverageNumberOfDilutedSharesOutstanding": {
+            "val": 2429400000,
+            "end": "2025-12-28",
+            "start": "2024-12-30"
+          },
+          "EarningsPerShareDiluted": {
+            "val": 11.03,
+            "end": "2025-12-28",
+            "start": "2024-12-30"
+          }
+        }
+      },
+      "injected": false,
+      "groundTruthViolatedIds": []
+    },
+    {
+      "id": "0000200406-assets_overstated_1b",
+      "company": {
+        "cik": "0000200406",
+        "name": "Johnson & Johnson",
+        "accn": "0000200406-26-000016",
+        "facts": {
+          "Assets": {
+            "val": 200210000000,
+            "end": "2025-12-28",
+            "start": null
+          },
+          "Liabilities": {
+            "val": 117666000000,
+            "end": "2025-12-28",
+            "start": null
+          },
+          "StockholdersEquity": null,
+          "LiabilitiesAndStockholdersEquity": {
+            "val": 199210000000,
+            "end": "2025-12-28",
+            "start": null
+          },
+          "AssetsCurrent": {
+            "val": 55624000000,
+            "end": "2025-12-28",
+            "start": null
+          },
+          "AssetsNoncurrent": null,
+          "LiabilitiesCurrent": {
+            "val": 54126000000,
+            "end": "2025-12-28",
+            "start": null
+          },
+          "LiabilitiesNoncurrent": null,
+          "NetIncomeLoss": {
+            "val": 26804000000,
+            "end": "2025-12-28",
+            "start": "2024-12-30"
+          },
+          "WeightedAverageNumberOfDilutedSharesOutstanding": {
+            "val": 2429400000,
+            "end": "2025-12-28",
+            "start": "2024-12-30"
+          },
+          "EarningsPerShareDiluted": {
+            "val": 11.03,
+            "end": "2025-12-28",
+            "start": "2024-12-30"
+          }
+        }
+      },
+      "injected": true,
+      "groundTruthViolatedIds": [
+        "assets_equal_liabilities_and_equity_total"
+      ]
+    },
+    {
+      "id": "0000200406-net_income_sign_error",
+      "company": {
+        "cik": "0000200406",
+        "name": "Johnson & Johnson",
+        "accn": "0000200406-26-000016",
+        "facts": {
+          "Assets": {
+            "val": 199210000000,
+            "end": "2025-12-28",
+            "start": null
+          },
+          "Liabilities": {
+            "val": 117666000000,
+            "end": "2025-12-28",
+            "start": null
+          },
+          "StockholdersEquity": null,
+          "LiabilitiesAndStockholdersEquity": {
+            "val": 199210000000,
+            "end": "2025-12-28",
+            "start": null
+          },
+          "AssetsCurrent": {
+            "val": 55624000000,
+            "end": "2025-12-28",
+            "start": null
+          },
+          "AssetsNoncurrent": null,
+          "LiabilitiesCurrent": {
+            "val": 54126000000,
+            "end": "2025-12-28",
+            "start": null
+          },
+          "LiabilitiesNoncurrent": null,
+          "NetIncomeLoss": {
+            "val": -26804000000,
+            "end": "2025-12-28",
+            "start": "2024-12-30"
+          },
+          "WeightedAverageNumberOfDilutedSharesOutstanding": {
+            "val": 2429400000,
+            "end": "2025-12-28",
+            "start": "2024-12-30"
+          },
+          "EarningsPerShareDiluted": {
+            "val": 11.03,
+            "end": "2025-12-28",
+            "start": "2024-12-30"
+          }
+        }
+      },
+      "injected": true,
+      "groundTruthViolatedIds": [
+        "eps_reconciliation"
+      ]
+    }
+  ]
+}
