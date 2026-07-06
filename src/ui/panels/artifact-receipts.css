@@ -115,8 +115,31 @@ td.r-cell:focus-within .r-hist-btn,
   background: color-mix(in srgb, var(--accent-primary) 18%, transparent);
   color: var(--accent-ink); font-size: 9.5px; font-weight: 800;
 }
-/* cells that carry a ladder reserve room on the right so the value never sits under it. */
-.r-sheet td.r-cell:has(.r-presence-ladder) { padding-right: 64px; }
+/* Narrow sheets (e.g. an 8-column underwriting grid at ~80px/col) can't fit both
+   a value and an 84px named flag — the flag + its 64px reserve eats the whole
+   cell and the value renders as "applicati…". So on sheet cells the named flag
+   COLLAPSES to a presence dot by default (data stays primary), and the full name
+   only appears on hover/selection — "default shows data, hover shows apparatus".
+   Cluster (4+) is already a compact +N pill and is left as-is. */
+.r-sheet td.r-cell .r-presence-ladder.sc-flagone .sc-flag,
+.r-sheet td.r-cell .r-presence-ladder.sc-flagstack .sc-flag {
+  max-width: 11px; width: 11px; min-width: 11px; height: 11px;
+  padding: 0; border-radius: 50%; color: transparent; overflow: hidden;
+  transition: max-width 120ms var(--ease-out-expo, ease), padding 120ms var(--ease-out-expo, ease);
+}
+.r-sheet td.r-cell:hover .r-presence-ladder.sc-flagone .sc-flag,
+.r-sheet td.r-cell:hover .r-presence-ladder.sc-flagstack .sc-flag,
+.r-sheet td.r-cell.sel .r-presence-ladder.sc-flagone .sc-flag,
+.r-sheet td.r-cell.sel .r-presence-ladder.sc-flagstack .sc-flag {
+  max-width: 84px; width: auto; min-width: 0; height: auto;
+  padding: 1px 7px; border-radius: 5px 5px 5px 0; color: #fff;
+}
+/* Reserve only a dot's width by default; the full name's reserve returns on hover/select. */
+.r-sheet td.r-cell:has(.r-presence-ladder) { padding-right: 22px; }
+.r-sheet td.r-cell:hover:has(.r-presence-ladder),
+.r-sheet td.r-cell.sel:has(.r-presence-ladder) { padding-right: 64px; }
+/* Cluster (4+) keeps its compact reserve. */
+.r-sheet td.r-cell:has(.r-presence-ladder.sc-cluster) { padding-right: 40px; }
 /* pinned focus row (kept mounted outside the virtualization window) reads normal — the pin is
    structural, never a visual highlight beyond the existing selection ring. */
 .r-sheet tr.r-row-pinned > td { /* no extra chrome; selection ring already conveys focus */ }
