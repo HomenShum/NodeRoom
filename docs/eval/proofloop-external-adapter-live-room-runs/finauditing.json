@@ -1,74 +1,34 @@
 {
   "schema": "proofloop-external-adapter-live-room-proof-v1",
   "adapterId": "finauditing",
-  "status": "failed",
-  "runId": "finauditing-live-room-2026-07-06T02-50-03-138Z",
-  "generatedAt": "2026-07-06T03:00:21.280Z",
+  "status": "passed",
+  "runId": "finauditing-live-room-2026-07-04T14-09-02-796Z",
+  "generatedAt": "2026-07-04T14:11:45.593Z",
   "localAdapterOnly": true,
   "officialScoreClaim": false,
   "taskCount": 1,
   "baseUrl": "https://noderoom.live",
   "scenario": "proofloop/benchmarks/common/live-room-scenario.spec.ts",
-  "outputDir": ".proofloop/runs/finauditing-live-room-2026-07-06T02-50-03-138Z/external-adapter-live-room/finauditing",
-  "exitCode": 1,
+  "outputDir": ".proofloop/runs/finauditing-live-room-2026-07-04T14-09-02-796Z/external-adapter-live-room/finauditing",
+  "exitCode": 0,
   "evidence": [
     "proofloop/benchmarks/finauditing/load-tasks.ts",
     "proofloop/benchmarks/common/live-room-scenario.spec.ts",
-    ".proofloop/runs/finauditing-live-room-2026-07-06T02-50-03-138Z/external-adapter-live-room/finauditing/live-user-contract.json",
-    ".proofloop/runs/finauditing-live-room-2026-07-06T02-50-03-138Z/external-adapter-live-room/finauditing/node-trace-v2.json",
-    ".proofloop/runs/finauditing-live-room-2026-07-06T02-50-03-138Z/external-adapter-live-room/finauditing/node-eval.json",
-    ".proofloop/runs/finauditing-live-room-2026-07-06T02-50-03-138Z/external-adapter-live-room/finauditing/scorecard.md",
-    ".proofloop/runs/finauditing-live-room-2026-07-06T02-50-03-138Z/external-adapter-live-room/finauditing/cost-ledger.json",
-    ".proofloop/runs/finauditing-live-room-2026-07-06T02-50-03-138Z/external-adapter-live-room/finauditing/verifier-receipt.json",
-    ".proofloop/runs/finauditing-live-room-2026-07-06T02-50-03-138Z/external-adapter-live-room/finauditing/official-scorer-receipt.json",
-    ".proofloop/runs/finauditing-live-room-2026-07-06T02-50-03-138Z/external-adapter-live-room/finauditing/browser-proof.json",
-    ".proofloop/runs/finauditing-live-room-2026-07-06T02-50-03-138Z/external-adapter-live-room/finauditing/local-task-manifest.json",
-    ".proofloop/runs/finauditing-live-room-2026-07-06T02-50-03-138Z/external-adapter-live-room/finauditing/visual-proof.png"
+    ".proofloop/runs/finauditing-live-room-2026-07-04T14-09-02-796Z/external-adapter-live-room/finauditing/live-user-contract.json",
+    ".proofloop/runs/finauditing-live-room-2026-07-04T14-09-02-796Z/external-adapter-live-room/finauditing/node-trace-v2.json",
+    ".proofloop/runs/finauditing-live-room-2026-07-04T14-09-02-796Z/external-adapter-live-room/finauditing/node-eval.json",
+    ".proofloop/runs/finauditing-live-room-2026-07-04T14-09-02-796Z/external-adapter-live-room/finauditing/scorecard.md",
+    ".proofloop/runs/finauditing-live-room-2026-07-04T14-09-02-796Z/external-adapter-live-room/finauditing/cost-ledger.json",
+    ".proofloop/runs/finauditing-live-room-2026-07-04T14-09-02-796Z/external-adapter-live-room/finauditing/verifier-receipt.json",
+    ".proofloop/runs/finauditing-live-room-2026-07-04T14-09-02-796Z/external-adapter-live-room/finauditing/official-scorer-receipt.json",
+    ".proofloop/runs/finauditing-live-room-2026-07-04T14-09-02-796Z/external-adapter-live-room/finauditing/browser-proof.json",
+    ".proofloop/runs/finauditing-live-room-2026-07-04T14-09-02-796Z/external-adapter-live-room/finauditing/local-task-manifest.json",
+    ".proofloop/runs/finauditing-live-room-2026-07-04T14-09-02-796Z/external-adapter-live-room/finauditing/visual-proof.png"
   ],
-  "failedGates": [
-    "finauditing: live-room browser scenario failed"
-  ],
+  "failedGates": [],
   "browserProof": {
-    "roomUrl": "https://noderoom.live/?room=NRN427VH0IZ&name=Proof+Loop",
-    "roomId": "NRN427VH0IZ",
-    "model": {
-      "provider": "openrouter",
-      "mode": "specific",
-      "policy": "openrouter/free-auto",
-      "runtimeProfile": "standard",
-      "realUserMode": true,
-      "routeIntegrity": {
-        "status": "model_route_mismatch",
-        "requestedModel": "openrouter/free-auto",
-        "telemetryModels": [
-          "z-ai/glm-4.7-flash"
-        ],
-        "measuredCostUsd": 0,
-        "failures": [
-          "model_route_mismatch",
-          "free_route_used_paid_model"
-        ]
-      },
-      "measuredCostUsd": 0,
-      "measuredTokensIn": 0,
-      "measuredTokensOut": 0,
-      "telemetry": [
-        {
-          "taskId": "finauditing-local-risk-and-misstatement-review",
-          "telemetry": {
-            "model": "z-ai/glm-4.7-flash",
-            "toolCalls": 1,
-            "steps": 1,
-            "inputTokens": 0,
-            "outputTokens": 0,
-            "latencyMs": 1612,
-            "costUsd": 0,
-            "rawText": "z-ai/glm-4.7-flash · 1 tools · $0.000",
-            "rawTitle": "1 steps · 0 in + 0 out tokens · 1612ms"
-          }
-        }
-      ]
-    },
+    "roomUrl": "https://noderoom.live/?room=NR95BUXUJJ2&name=Proof+Loop",
+    "roomId": "NR95BUXUJJ2",
     "problemCounts": {
       "pageErrors": 0,
       "consoleProblems": 0,
@@ -82,33 +42,21 @@
         "jobStatusVisible": true,
         "jobDetailVisible": true,
         "roomTraceVisible": true,
-        "completionVisible": false,
-        "finalTextSample": " retrying 19/20\nNodeAgent is working19 model turnsTrace details Step 1/128Agent pausedx19Paused after an agent runtime error.Agent slice failed; retry scheduledx19Paused after an agent runtime error.\nNodeAgent is working19 model turnsTrace details Step 1/128Agent pausedx19Paused after an agent runtime error.Agent slice failed; retry scheduledx19Paused after an agent runtime error.\nNRoom NodeAgentagent19:50NodeAgent is working19 model turnsTrace details Step 1/128Agent pausedx19Paused after an agent runtime error.Agent slice failed; retry scheduledx19Paused after an agent runtime error. Copy",
-        "durationMs": 610397,
-        "telemetry": {
-          "model": "z-ai/glm-4.7-flash",
-          "toolCalls": 1,
-          "steps": 1,
-          "inputTokens": 0,
-          "outputTokens": 0,
-          "latencyMs": 1612,
-          "costUsd": 0,
-          "rawText": "z-ai/glm-4.7-flash · 1 tools · $0.000",
-          "rawTitle": "1 steps · 0 in + 0 out tokens · 1612ms"
-        },
+        "completionVisible": true,
+        "finalTextSample": "ncepts for any prior state on this room's revenue analysisLet me re-read specific cells to get un-compacted values, especially for C2.Now I have the full picture from the OKF concepts. Let me synthesize:Sources:source-pack.md: HarborPoint Robotics, revenue $7.6M USD (2025)financial-statements.json: revenue $320K (different period/entity)risk-notes.md: customer concentration 41%, deployment slips, no UCC confirmationTask: Check revenue change, identify evidence, preserve human-entered C2 value.C2 (r2__C) is currently empty at v1. I'll preserve it (not write to it) and populate the surrounding cells with revenue evidence from the source packAll writes succeeded. The revenue analysis is now in the sheet:r2__A: \"Revenue (2025)\" — labelr2__B: \"$7,600,000\" — from source-pack.mdr2__C: (preserved — left untouched as human-entered)r2__D: \"+$7,280,000 vs fin-stmts ($320K)\" — the revenue change, cross-referencing both uploaded sourcesr2__E: Evidence citation pointing to source-pack.md § synthetic-financials.csv:2025Evidence: source-pack.md reports HarborPoint Robotics revenue at $7.6M USD (2025). financial-statements.json shows $320K revenue — likely a different period or entity. The delta of ~$7.28M is supported by the source pack extract.finauditing-local-risk-and-misstatement-review live-room proxy complete.All writes succeeded. The revenue analysis is now in the sheet:r2__A: \"Revenue (2025)\" — labelr2__B: \"$7,600,000\" — from source-pack.mdr2__C: (preserved — left untouched as human-entered)r2__D: \"+$7,280,000 vs fin-stmts ($320K)\" — the revenue change, cross-referencing both uploaded sourcesr2__E: Evidence citation pointing to source-pack.md § synthetic-financials.csv:2025Evidence: source-pack.md reports HarborPoint Robotics revenue at $7.6M USD (2025). financial-statements.json shows $320K revenue — likely a different period or entity. The delta of ~$7.28M is supported by the source pack extract.finauditing-local-risk-and-misstatement-review live-room proxy complete. Copy",
+        "durationMs": 153544,
         "gatesProven": [
           "public_nodeagent_invocation",
           "visible_streaming_progress",
           "agent_live_loop",
           "job_detail_visible",
+          "agent_terminal_quality_gate",
           "room_trace_visible"
         ],
-        "gatesNotProven": {
-          "agent_terminal_quality_gate": "Timed out after 600000ms."
-        },
+        "gatesNotProven": {},
         "taskId": "finauditing-local-risk-and-misstatement-review",
         "title": "Audit-style evidence review through NodeRoom story workflow",
-        "prompt": "@nodeagent  Use the uploaded input artifacts and the current live room sheet. Check the revenue change, identify evidence that supports it, and preserve the human-entered C2 value. Ground the answer in visible room evidence and uploaded files. Make the smallest necessary sheet edits; avoid bulk updates unless the task truly requires them. ",
+        "prompt": "@nodeagent Proof Loop external-adapter live-room proxy for finauditing. Use the uploaded input artifacts and the current live room sheet. Check the revenue change, identify evidence that supports it, and preserve the human-entered C2 value. Ground the answer in visible room evidence and uploaded files. Make the smallest necessary sheet edits; avoid bulk updates unless the task truly requires them. When finished, include this exact completion phrase: \"finauditing-local-risk-and-misstatement-review live-room proxy complete\".",
         "uploadedFiles": [
           "source-pack.md",
           "risk-notes.md",

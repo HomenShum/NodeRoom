@@ -36,6 +36,15 @@ export type LadderResult = {
 
 /** 2–3 actors render as a stack; 4 or more collapse to a cluster count. */
 export const LADDER_STACK_MAX = 3;
+/**
+ * Agent presence is a "just here" trail, not a sustained cursor. The server
+ * grants presence claims up to a 180s TTL, so a batch write (e.g. NodeAgent
+ * writing 55 underwriting cells) leaves EVERY cell flagged for minutes after the
+ * agent is done. Display-freshness policy: an agent counts as present on a cell
+ * only if it touched it within this window; older agent claims fade even though
+ * the server claim is still valid. Human presence is unaffected — a person
+ * editing a cell is genuinely live until their own claim expires. */
+export const AGENT_PRESENCE_TTL_MS = 12_000;
 /** Bound on the members preview — a 500-claim burst must not return a 500-entry array. */
 export const LADDER_MEMBER_CAP = 3;
 
@@ -66,6 +75,9 @@ export function ladderFor(claims: readonly PresenceClaim[], targetId: string, no
   for (const claim of claims) {
     if (claim.targetId !== targetId) continue;
     if ((claim.expiresAt ?? Infinity) <= now) continue;
+    // Fade an agent's presence once it has moved on, so a finished batch write
+    // doesn't leave a live flag on every cell it touched (see AGENT_PRESENCE_TTL_MS).
+    if (claim.actor?.kind === "agent" && now - claim.updatedAt > AGENT_PRESENCE_TTL_MS) continue;
     const actorId = claim.actor?.id;
     if (!actorId) continue;
     const prev = byActor.get(actorId);
