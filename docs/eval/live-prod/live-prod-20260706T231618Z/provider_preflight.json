@@ -1,0 +1,12 @@
+{
+  "name": "provider_preflight",
+  "command": "npm run proofloop:provider:preflight -- --min-balance-usd 1 --json-out \"C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T231618Z\\provider-route-preflight.json\" --key-source convex-env --convex-deployment zealous-goshawk-766 --soft",
+  "startedAt": "2026-07-06T23:18:00.644Z",
+  "completedAt": "2026-07-06T23:18:04.729Z",
+  "durationMs": 4085,
+  "status": "passed",
+  "exitCode": 0,
+  "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T231618Z\\provider_preflight.json",
+  "stdoutTail": "\n> noderoom@0.1.1 proofloop:provider:preflight\n> tsx scripts/provider-route-preflight.ts --min-balance-usd 1 --json-out C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T231618Z\\provider-route-preflight.json --key-source convex-env --convex-deployment zealous-goshawk-766 --soft\n\nwrote C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T231618Z\\provider-route-preflight.json\nFAIL provider preflight (openrouter): provider_insufficient_credits\n",
+  "stderrTail": ""
+}

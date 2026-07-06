@@ -33,6 +33,11 @@ const root = resolve(process.env.PROOFLOOP_LIVE_PROD_RECEIPT_ROOT ?? `docs/eval/
 const browserRoot = resolve(root, "browser-receipts");
 const continueOnFailure = process.argv.includes("--continue-on-failure") || process.env.PROOFLOOP_LIVE_PROD_CONTINUE_ON_FAILURE === "1";
 const skipBtb = process.argv.includes("--skip-btb") || process.env.PROOFLOOP_LIVE_PROD_SKIP_BTB === "1";
+const providerPreflightKeySource = process.env.PROOFLOOP_PROVIDER_PREFLIGHT_KEY_SOURCE ?? "convex-env";
+const providerPreflightConvexDeployment =
+  process.env.PROOFLOOP_PROVIDER_PREFLIGHT_CONVEX_DEPLOYMENT
+  ?? parseConvexDeployment(process.env.CONVEX_DEPLOYMENT)
+  ?? "zealous-goshawk-766";
 
 mkdirSync(root, { recursive: true });
 mkdirSync(browserRoot, { recursive: true });
@@ -101,7 +106,14 @@ await runStep(
 const providerReceiptPath = resolve(root, "provider-route-preflight.json");
 await runStep(
   "provider_preflight",
-  `npm run proofloop:provider:preflight -- --min-balance-usd ${process.env.PROOFLOOP_PROVIDER_PREFLIGHT_MIN_USD ?? "1"} --json-out ${quote(providerReceiptPath)} --soft`,
+  [
+    "npm run proofloop:provider:preflight --",
+    `--min-balance-usd ${process.env.PROOFLOOP_PROVIDER_PREFLIGHT_MIN_USD ?? "1"}`,
+    `--json-out ${quote(providerReceiptPath)}`,
+    `--key-source ${providerPreflightKeySource}`,
+    providerPreflightKeySource === "convex-env" ? `--convex-deployment ${providerPreflightConvexDeployment}` : "",
+    "--soft",
+  ].filter(Boolean).join(" "),
   {},
 );
 const providerOk = readJson(providerReceiptPath)?.ok === true;
@@ -216,4 +228,10 @@ function tail(value: string | Buffer | null | undefined): string {
 
 function quote(path: string): string {
   return `"${path.replace(/"/g, '\\"')}"`;
+}
+
+function parseConvexDeployment(value: string | undefined): string | undefined {
+  const clean = value?.split("#")[0]?.trim();
+  if (!clean) return undefined;
+  return clean.includes(":") ? clean.split(":").at(-1)?.trim() : clean;
 }

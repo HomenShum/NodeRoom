@@ -48,12 +48,12 @@ After deploying the Convex/runtime fixes and re-running the production suite:
 - Convex production-serving deployment `zealous-goshawk-766`: synced with `npm run convex:deploy`.
 - Vercel production deployment: `dpl_2shHR2jQwCufMaghDG2Dt1VbFRhh`, aliased to `https://noderoom.live` and `https://nodeagent.live`.
 - `npm run proofloop:live:prod -- --continue-on-failure`: passed after that redeploy.
-- Receipt: `docs/eval/live-prod/live-prod-20260706T230532Z/suite-receipt.json`.
+- Final corrected receipt after Convex-env provider preflight: `docs/eval/live-prod/live-prod-20260706T231618Z/suite-receipt.json`.
 - Production URL: `https://noderoom.live`.
 - Passed steps: QA story, HMDA live underwriting, HMDA verifier, uploaded artifact rendering, public `@nodeagent`, and deterministic generic ProofLoop browser.
-- Generic ProofLoop Q3 variance task passed in room `PLMR9TY0J9` with `5/5` required patterns in `17270ms`.
-- BTB was not run in the final slate because the provider preflight receipt failed with `missing_OPENROUTER_API_KEY`; the suite recorded this as an explicit provider-gated skip instead of starting a doomed benchmark job.
+- Generic ProofLoop Q3 variance task passed in room `PLMR9UBI6H` with `5/5` required patterns in `22015ms`.
+- BTB was not run in the final slate because the provider preflight receipt failed with `provider_insufficient_credits`. The corrected receipt verifies `OPENROUTER_API_KEY` is present in the production-serving Convex env, but the remaining credit bucket is below the configured threshold. The suite recorded this as an explicit provider-gated skip instead of starting a doomed benchmark job.
 
 ## Current Truth
 
-The live underwriting path is green on prod with verifier receipt. General prod upload/render, public NodeAgent smoke, and the scoped generic ProofLoop Q3 browser task are green against deployed prod. BTB remains provider-gated only: the harness now writes a provider preflight receipt and skips BTB when no funded OpenRouter key is present, while provider `402` errors are classified as non-retryable so prod cannot burn a `1000`-retry loop on insufficient credits.
+The live underwriting path is green on prod with verifier receipt. General prod upload/render, public NodeAgent smoke, and the scoped generic ProofLoop Q3 browser task are green against deployed prod. BTB remains provider-credit-gated only: the harness now checks the production-serving Convex env, verifies the OpenRouter key is present, writes a redacted preflight receipt, and skips BTB when credits are below threshold. Provider `402` errors are classified as non-retryable so prod cannot burn a `1000`-retry loop on insufficient credits.

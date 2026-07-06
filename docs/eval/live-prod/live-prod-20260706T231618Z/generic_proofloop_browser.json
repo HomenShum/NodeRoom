@@ -1,0 +1,12 @@
+{
+  "name": "generic_proofloop_browser",
+  "command": "npm run proofloop:live:browser",
+  "startedAt": "2026-07-06T23:17:29.820Z",
+  "completedAt": "2026-07-06T23:18:00.643Z",
+  "durationMs": 30823,
+  "status": "passed",
+  "exitCode": 0,
+  "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T231618Z\\generic_proofloop_browser.json",
+  "stdoutTail": "\n> noderoom@0.1.1 proofloop:live:browser\n> tsx scripts/proofloop-live-playwright.ts browser\n\n\nRunning 1 test using 1 worker\n\n[proofloop-live] room created: https://noderoom.live/?room=PLMR9UBI6H&name=Proof+Loop\n[proofloop-live] running task: Q3 Variance Calculation\n[proofloop-live] task config: id=variance-calc timeoutMs=45000 configuredTimeoutMs=45000\n[proofloop-live] task variance-calc: PASS — 5/5 patterns, completed=true, 22015ms\n[proofloop-live] verdict: 1/1 passed\n[proofloop-live] suite receipt written: C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T231618Z\\browser-receipts\\proofloop-live-room-proof.json\n  ok 1 [chromium] › proofloop\\live-browser-proof.spec.ts:113:1 › Live browser proof-loop: starter room -> agent tasks -> UI + terminal-quality verification (26.3s)\n\n  1 passed (28.4s)\n",
+  "stderrTail": ""
+}

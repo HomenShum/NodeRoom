@@ -1,0 +1,12 @@
+{
+  "name": "underwriting_live",
+  "command": "npm run proofloop:live:underwriting",
+  "startedAt": "2026-07-06T23:16:21.773Z",
+  "completedAt": "2026-07-06T23:16:53.281Z",
+  "durationMs": 31508,
+  "status": "passed",
+  "exitCode": 0,
+  "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T231618Z\\underwriting_live.json",
+  "stdoutTail": "\n> noderoom@0.1.1 proofloop:live:underwriting\n> node scripts/proofloop.mjs underwriting-live\n\n{\n  \"passed\": true,\n  \"roomUrl\": \"https://noderoom.live/?room=NR0J1SSA0CH&name=Host\",\n  \"jobStatus\": \"\",\n  \"backendStatus\": \"completed\",\n  \"matchedRows\": 10,\n  \"correct\": 10,\n  \"incorrect\": 0,\n  \"accuracy\": 1,\n  \"proofPath\": \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\a466\\\\noderoom\\\\docs\\\\eval\\\\underwriting-hmda-live-proof.json\"\n}\nproofloop: HMDA live underwriting acceptance PASS (https://noderoom.live/?room=NR0J1SSA0CH&name=Host)\n",
+  "stderrTail": ""
+}

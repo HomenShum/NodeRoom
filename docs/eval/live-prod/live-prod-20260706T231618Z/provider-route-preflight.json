@@ -1,0 +1,62 @@
+{
+  "schema": "provider-route-preflight-v1",
+  "generatedAt": "2026-07-06T23:18:04.642Z",
+  "provider": "openrouter",
+  "keySource": "convex-env",
+  "keyName": "OPENROUTER_API_KEY",
+  "convexDeployment": "zealous-goshawk-766",
+  "minBalanceUsd": 1,
+  "keyPresent": true,
+  "ok": false,
+  "status": "fail",
+  "reason": "provider_insufficient_credits",
+  "checks": [
+    {
+      "name": "openrouter_api_key_present",
+      "ok": true,
+      "detail": {
+        "keySource": "convex-env",
+        "keyName": "OPENROUTER_API_KEY",
+        "convexDeployment": "zealous-goshawk-766",
+        "present": true,
+        "commandExitCode": 0
+      }
+    },
+    {
+      "name": "openrouter_credits",
+      "ok": true,
+      "status": 200,
+      "detail": {
+        "minBalanceUsd": 1,
+        "responseShape": "object",
+        "totalCreditsPresent": true,
+        "totalUsagePresent": true,
+        "remainingBucket": "lt_min"
+      }
+    },
+    {
+      "name": "openrouter_key",
+      "ok": true,
+      "status": 200,
+      "detail": {
+        "reachable": true,
+        "responseShape": "object"
+      }
+    },
+    {
+      "name": "openrouter_min_balance",
+      "ok": false,
+      "detail": {
+        "minBalanceUsd": 1,
+        "responseShape": "object",
+        "totalCreditsPresent": true,
+        "totalUsagePresent": true,
+        "remainingBucket": "lt_min"
+      }
+    }
+  ],
+  "officialDocs": [
+    "https://openrouter.ai/docs/api/api-reference/credits/get-remaining-credits",
+    "https://openrouter.ai/docs/api/reference/limits"
+  ]
+}

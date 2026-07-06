@@ -1,4 +1,5 @@
 import "./benchmark/loadEnv";
+import { spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
@@ -7,6 +8,9 @@ type PreflightReceipt = {
   generatedAt: string;
   provider: "openrouter";
   model?: string;
+  keySource: "local-env" | "convex-env";
+  keyName: string;
+  convexDeployment?: string;
   minBalanceUsd: number;
   keyPresent: boolean;
   ok: boolean;
@@ -26,6 +30,12 @@ const provider = optionValue("--provider") ?? "openrouter";
 const model = optionValue("--model") ?? process.env.BENCH_AGENT_MODEL_POLICY ?? process.env.AGENT_TOP_PAID_MODEL ?? process.env.AGENT_MODEL;
 const minBalanceUsd = numericOption("--min-balance-usd", Number(process.env.PROOFLOOP_PROVIDER_PREFLIGHT_MIN_USD ?? 1));
 const jsonOut = optionValue("--json-out") ?? "docs/eval/provider-route-preflight.json";
+const keySource = keySourceOption();
+const keyName = optionValue("--key-name") ?? process.env.PROOFLOOP_PROVIDER_PREFLIGHT_KEY_NAME ?? "OPENROUTER_API_KEY";
+const convexDeployment =
+  optionValue("--convex-deployment")
+  ?? process.env.PROOFLOOP_PROVIDER_PREFLIGHT_CONVEX_DEPLOYMENT
+  ?? parseConvexDeployment(process.env.CONVEX_DEPLOYMENT);
 const soft = process.argv.includes("--soft");
 
 if (provider !== "openrouter") {
@@ -40,26 +50,34 @@ if (provider !== "openrouter") {
 }
 
 async function openRouterPreflight(): Promise<PreflightReceipt> {
-  const key = process.env.OPENROUTER_API_KEY ?? "";
+  const keyResult = loadOpenRouterKey();
+  const keyPresentCheck: PreflightReceipt["checks"][number] = {
+    name: "openrouter_api_key_present",
+    ok: Boolean(keyResult.key),
+    detail: keyResult.detail,
+    error: keyResult.error,
+  };
+  const key = keyResult.key;
   if (!key) {
     return baseReceipt({
       ok: false,
       status: "fail",
-      reason: "missing_OPENROUTER_API_KEY",
-      checks: [{ name: "openrouter_api_key_present", ok: false }],
+      reason: keyResult.reason,
+      checks: [keyPresentCheck],
     });
   }
 
   const base = (process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1").replace(/\/$/, "");
   const headers = { Authorization: `Bearer ${key}` };
-  const checks: PreflightReceipt["checks"] = [{ name: "openrouter_api_key_present", ok: true }];
+  const checks: PreflightReceipt["checks"] = [keyPresentCheck];
 
   const credits = await getJson(`${base}/credits`, headers);
+  const creditSummary = credits.ok ? summarizeCredits(credits.json) : undefined;
   checks.push({
     name: "openrouter_credits",
     ok: credits.ok,
     status: credits.status,
-    detail: credits.ok ? credits.json : undefined,
+    detail: creditSummary?.receiptDetail,
     error: credits.ok ? undefined : credits.error,
   });
 
@@ -68,7 +86,7 @@ async function openRouterPreflight(): Promise<PreflightReceipt> {
     name: "openrouter_key",
     ok: keyInfo.ok,
     status: keyInfo.status,
-    detail: keyInfo.ok ? keyInfo.json : undefined,
+    detail: keyInfo.ok ? { reachable: true, responseShape: responseShape(keyInfo.json) } : undefined,
     error: keyInfo.ok ? undefined : keyInfo.error,
   });
 
@@ -76,23 +94,63 @@ async function openRouterPreflight(): Promise<PreflightReceipt> {
     return baseReceipt({ ok: false, status: "fail", reason: providerFailureReason(credits.status, credits.error), checks });
   }
 
-  const data = objectRecord(objectRecord(credits.json)?.data);
-  const totalCredits = numberValue(data?.total_credits);
-  const totalUsage = numberValue(data?.total_usage);
-  const remaining = totalCredits === undefined || totalUsage === undefined ? undefined : totalCredits - totalUsage;
   checks.push({
     name: "openrouter_min_balance",
-    ok: remaining !== undefined && remaining >= minBalanceUsd,
-    detail: { totalCredits, totalUsage, remaining, minBalanceUsd },
+    ok: creditSummary?.remaining !== undefined && creditSummary.remaining >= minBalanceUsd,
+    detail: creditSummary?.receiptDetail ?? { minBalanceUsd, remainingBucket: "unknown" },
   });
 
-  if (remaining === undefined) {
+  if (creditSummary?.remaining === undefined) {
     return baseReceipt({ ok: false, status: "fail", reason: "openrouter_credits_shape_unrecognized", checks });
   }
-  if (remaining < minBalanceUsd) {
+  if (creditSummary.remaining < minBalanceUsd) {
     return baseReceipt({ ok: false, status: "fail", reason: "provider_insufficient_credits", checks });
   }
   return baseReceipt({ ok: true, status: "pass", checks });
+}
+
+function loadOpenRouterKey(): {
+  key: string;
+  reason: string;
+  detail?: Record<string, unknown>;
+  error?: string;
+} {
+  if (keySource === "local-env") {
+    const key = process.env[keyName] ?? "";
+    return {
+      key,
+      reason: key ? "" : `missing_${keyName}`,
+      detail: { keySource, keyName, present: Boolean(key) },
+    };
+  }
+
+  if (!convexDeployment) {
+    return {
+      key: "",
+      reason: "missing_convex_deployment_for_provider_preflight",
+      detail: { keySource, keyName, present: false },
+    };
+  }
+
+  const result = spawnSync("npx", ["convex", "env", "--deployment", convexDeployment, "get", keyName], {
+    cwd: process.cwd(),
+    encoding: "utf8",
+    shell: process.platform === "win32",
+    maxBuffer: 2 * 1024 * 1024,
+  });
+  const key = result.status === 0 ? String(result.stdout ?? "").trim() : "";
+  return {
+    key,
+    reason: key ? "" : `missing_${keyName}_in_convex_env`,
+    detail: {
+      keySource,
+      keyName,
+      convexDeployment,
+      present: Boolean(key),
+      commandExitCode: result.status,
+    },
+    error: key ? undefined : tail(String(result.stderr ?? result.error?.message ?? ""), 500),
+  };
 }
 
 function baseReceipt(args: {
@@ -106,8 +164,11 @@ function baseReceipt(args: {
     generatedAt: new Date().toISOString(),
     provider: "openrouter",
     model,
+    keySource,
+    keyName,
+    convexDeployment: keySource === "convex-env" ? convexDeployment : undefined,
     minBalanceUsd,
-    keyPresent: Boolean(process.env.OPENROUTER_API_KEY),
+    keyPresent: args.checks.some((check) => check.name === "openrouter_api_key_present" && check.ok),
     ok: args.ok,
     status: args.status,
     reason: args.reason,
@@ -116,6 +177,26 @@ function baseReceipt(args: {
       "https://openrouter.ai/docs/api/api-reference/credits/get-remaining-credits",
       "https://openrouter.ai/docs/api/reference/limits",
     ],
+  };
+}
+
+function summarizeCredits(json: unknown): {
+  remaining?: number;
+  receiptDetail: Record<string, unknown>;
+} {
+  const data = objectRecord(objectRecord(json)?.data);
+  const totalCredits = numberValue(data?.total_credits);
+  const totalUsage = numberValue(data?.total_usage);
+  const remaining = totalCredits === undefined || totalUsage === undefined ? undefined : totalCredits - totalUsage;
+  return {
+    remaining,
+    receiptDetail: {
+      minBalanceUsd,
+      responseShape: responseShape(json),
+      totalCreditsPresent: totalCredits !== undefined,
+      totalUsagePresent: totalUsage !== undefined,
+      remainingBucket: remaining === undefined ? "unknown" : remaining >= minBalanceUsd ? "gte_min" : "lt_min",
+    },
   };
 }
 
@@ -158,6 +239,18 @@ function optionValue(name: string): string | undefined {
   return index >= 0 && next && !next.startsWith("--") ? next : undefined;
 }
 
+function keySourceOption(): "local-env" | "convex-env" {
+  const raw = optionValue("--key-source") ?? process.env.PROOFLOOP_PROVIDER_PREFLIGHT_KEY_SOURCE ?? "local-env";
+  if (raw === "local-env" || raw === "convex-env") return raw;
+  throw new Error(`Unsupported provider preflight key source: ${raw}`);
+}
+
+function parseConvexDeployment(value: string | undefined): string | undefined {
+  const clean = value?.split("#")[0]?.trim();
+  if (!clean) return undefined;
+  return clean.includes(":") ? clean.split(":").at(-1)?.trim() : clean;
+}
+
 function numericOption(name: string, fallback: number): number {
   const raw = Number(optionValue(name) ?? fallback);
   return Number.isFinite(raw) ? Math.max(0, raw) : fallback;
@@ -169,4 +262,13 @@ function objectRecord(value: unknown): Record<string, unknown> | undefined {
 
 function numberValue(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function responseShape(value: unknown): string {
+  if (Array.isArray(value)) return "array";
+  return value === null ? "null" : typeof value;
+}
+
+function tail(value: string, length: number): string {
+  return value.slice(-length);
 }

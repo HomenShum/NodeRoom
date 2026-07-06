@@ -496,4 +496,18 @@ describe("long-running agent job source invariants", () => {
     expect(jobs).toContain("requireActorProof");
     expect(jobs).toContain("requireArtifactInRoom");
   });
+
+  it("preflights live-prod provider routes against Convex env without publishing raw balances", () => {
+    const preflight = readFileSync("scripts/provider-route-preflight.ts", "utf8");
+    const liveProd = readFileSync("scripts/proofloop-live-prod.ts", "utf8");
+
+    expect(preflight).toContain('"convex-env"');
+    expect(preflight).toContain('spawnSync("npx", ["convex", "env", "--deployment", convexDeployment, "get", keyName]');
+    expect(preflight).toContain("summarizeCredits");
+    expect(preflight).toContain("remainingBucket");
+    expect(preflight).not.toContain("detail: credits.ok ? credits.json");
+    expect(preflight).not.toContain("detail: keyInfo.ok ? keyInfo.json");
+    expect(liveProd).toContain('process.env.PROOFLOOP_PROVIDER_PREFLIGHT_KEY_SOURCE ?? "convex-env"');
+    expect(liveProd).toContain("--convex-deployment");
+  });
 });
