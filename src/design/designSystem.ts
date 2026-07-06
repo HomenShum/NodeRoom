@@ -79,6 +79,10 @@ const ARTIFACT_FILE = "src/ui/panels/Artifact.tsx";
 const SHELL_FILE = "src/ui/RoomShell.tsx";
 const LEFT_RAIL_FILE = "src/ui/LeftRail.tsx";
 const FOCUS_TRAP_FILE = "src/ui/primitives/FocusTrapDialog.tsx";
+const MOBILE_CSS_FILE = "src/ui/mobile/mobile.css";
+const MOBILE_ROOT_FILE = "src/ui/mobile/MobileRoot.tsx";
+const MOBILE_APP_FILE = "src/ui/mobile/MobileApp.tsx";
+const MOBILE_FRAME_FILE = "src/ui/mobile/MobileFrame.tsx";
 const ALWAYS_ON_CSS_FILE = "src/alwayson/alwayson.css";
 const ALWAYS_ON_PUBLIC_FILE = "src/alwayson/PublicRoomPage.tsx";
 const ALWAYS_ON_SUBSCRIBE_FILE = "src/alwayson/SubscribeModal.tsx";
@@ -90,6 +94,10 @@ export const designSystemFiles = [
   SHELL_FILE,
   LEFT_RAIL_FILE,
   FOCUS_TRAP_FILE,
+  MOBILE_CSS_FILE,
+  MOBILE_ROOT_FILE,
+  MOBILE_APP_FILE,
+  MOBILE_FRAME_FILE,
   ALWAYS_ON_CSS_FILE,
   ALWAYS_ON_PUBLIC_FILE,
   ALWAYS_ON_SUBSCRIBE_FILE,
@@ -203,6 +211,36 @@ export function getNodeRoomDesignManifest(): DesignManifest {
           avoid: ["One-off modal traps in feature bundles."],
         },
         {
+          name: "MobileTerracottaRoom",
+          selectors: [".na-app", ".na-nav", ".na-sheet", ".na-ios-bleed"],
+          role: "NodeAgent mobile room system: cream, terracotta, iOS-HIG navigation, and bottom sheets.",
+          must: [
+            "Use the terracotta mobile tokens, not the dark Always-On public-room shell.",
+            "Render the same .na-app shell in memory preview and live room mode.",
+            "Drop the synthetic device bezel on real phone widths and keep the route overflow-free.",
+            "Expose room, agent, inbox, artifact, and sheet actions through mobile-native controls.",
+          ],
+          avoid: [
+            "Calling public #rooms mobile parity proof for the #mobile product route.",
+            "Proving only #mobile?mode=memory when validating live user usage.",
+            "Replacing bottom sheets with clipped desktop tables on phones.",
+          ],
+        },
+        {
+          name: "MobileLiveBootstrap",
+          selectors: ["#mobile?demo=review", "#mobile?room=", ".na-join", "RoomJoinConsent"],
+          role: "Live mobile entry path that creates or joins a Convex room before mounting MobileTerracottaRoom.",
+          must: [
+            "Route demo creation through explicit consent before minting the room.",
+            "Replace the URL with #mobile?room=<code> after a live room is created or joined.",
+            "Mount MobileAppLive inside the same terracotta shell as memory mode.",
+          ],
+          avoid: [
+            "Auto-firing live room mutations from URL parsing.",
+            "Using ?mode=memory as proof of live room behavior.",
+          ],
+        },
+        {
           name: "PublicRoomFrame",
           selectors: [".ao-public", ".ao-frame", ".ao-proof"],
           role: "Always-On public room variant of the NodeRoom work surface.",
@@ -249,6 +287,8 @@ export function getNodeRoomDesignManifest(): DesignManifest {
         "walkthrough dock is dismissible",
         "phone top bar hides secondary utilities instead of clipping them",
         "shared dialog primitive backs both regular-room and public-room modals",
+        "mobile terracotta room is tracked separately from public Always-On rooms",
+        "mobile live bootstrap can enter a Convex room without memory-mode shortcuts",
         "public Always-On room exposes live/demo source, keyboard tabs, mobile cards, and proof receipts",
         "public subscription copy does not claim a confirmation email was sent before a sender exists",
         "token drift (off-palette hex, off-scale font-size, off-scale border-radius) is reported as warnings",
@@ -265,6 +305,10 @@ export function auditNodeRoomDesignSystem(files: Record<string, string>, checked
   const shell = files[SHELL_FILE] ?? "";
   const leftRail = files[LEFT_RAIL_FILE] ?? "";
   const focusTrap = files[FOCUS_TRAP_FILE] ?? "";
+  const mobileCss = files[MOBILE_CSS_FILE] ?? "";
+  const mobileRoot = files[MOBILE_ROOT_FILE] ?? "";
+  const mobileApp = files[MOBILE_APP_FILE] ?? "";
+  const mobileFrame = files[MOBILE_FRAME_FILE] ?? "";
   const alwaysOnCss = files[ALWAYS_ON_CSS_FILE] ?? "";
   const alwaysOnPublic = files[ALWAYS_ON_PUBLIC_FILE] ?? "";
   const alwaysOnSubscribe = files[ALWAYS_ON_SUBSCRIBE_FILE] ?? "";
@@ -341,6 +385,20 @@ export function auditNodeRoomDesignSystem(files: Record<string, string>, checked
   requireText(findings, focusTrap, FOCUS_TRAP_FILE, "role=\"dialog\"", "shared-dialog-role", "Shared dialog primitive does not expose role=dialog.", "Keep modal semantics centralized in FocusTrapDialog.");
   requireText(findings, focusTrap, FOCUS_TRAP_FILE, "aria-modal=\"true\"", "shared-dialog-modal", "Shared dialog primitive does not expose aria-modal.", "Keep modal semantics centralized in FocusTrapDialog.");
   requireText(findings, shell, SHELL_FILE, "FocusTrapDialog", "room-shell-shared-dialog", "Regular room shell modal is not using the shared dialog primitive.", "Use FocusTrapDialog for dismissible modal overlays.");
+  requireText(findings, mobileCss, MOBILE_CSS_FILE, "--bg-app:       #FBF4E7", "mobile-terracotta-cream-bg", "Mobile terracotta CSS no longer exposes the cream app surface.", "Keep #mobile on the terracotta mobile system, separate from public Always-On dark chrome.");
+  requireText(findings, mobileCss, MOBILE_CSS_FILE, "--accent-primary:       #C56A3C", "mobile-terracotta-accent", "Mobile terracotta CSS no longer exposes the #C56A3C accent.", "Keep the terra mobile accent token for the #mobile route.");
+  requireText(findings, mobileCss, MOBILE_CSS_FILE, "--font-serif: 'DM Serif Display'", "mobile-terracotta-serif", "Mobile terracotta CSS no longer uses the mobile serif display token.", "Keep the mobile-specific editorial type system.");
+  requireText(findings, mobileCss, MOBILE_CSS_FILE, ".na-nav {", "mobile-ios-nav", "Mobile terracotta bottom navigation is missing.", "Keep the iOS-HIG bottom tab bar on #mobile.");
+  requireText(findings, mobileCss, MOBILE_CSS_FILE, ".na-sheet {", "mobile-bottom-sheet", "Mobile terracotta bottom sheets are missing.", "Use bottom sheets for mobile details instead of clipped desktop panels.");
+  requireText(findings, mobileCss, MOBILE_CSS_FILE, ".na-handle", "mobile-sheet-handle", "Mobile terracotta sheet grabber is missing.", "Keep the grabber affordance on bottom sheets.");
+  requireText(findings, mobileFrame, MOBILE_FRAME_FILE, "const query = \"(max-width: 460px)\";", "mobile-real-phone-bleed", "Mobile frame no longer switches to full-bleed at real phone widths.", "Drop the synthetic bezel at phone width so production mobile is not a framed mockup.");
+  requireText(findings, mobileFrame, MOBILE_FRAME_FILE, "na-ios-bleed", "mobile-real-phone-shell", "Mobile full-bleed shell is missing.", "Keep the production phone shell distinct from the desktop presentation frame.");
+  requireText(findings, mobileApp, MOBILE_APP_FILE, "export function MobileApp({ live }", "mobile-live-prop", "MobileApp no longer accepts the live room binding.", "Keep one terracotta component tree for memory preview and live room mode.");
+  requireText(findings, mobileApp, MOBILE_APP_FILE, "if (!live) { setFirstJoinSeen(true); return; }", "mobile-live-first-join", "Mobile live first-join logic is missing.", "Keep live-room behavior explicit instead of treating memory preview as production usage.");
+  requireText(findings, mobileRoot, MOBILE_ROOT_FILE, "return <MobileLiveRoot />;", "mobile-live-root-route", "The #mobile route no longer reaches the live root when Convex is available.", "Do not validate production mobile usage through memory mode only.");
+  requireText(findings, mobileRoot, MOBILE_ROOT_FILE, "RoomJoinConsent", "mobile-live-consent", "Live mobile demo creation is no longer gated by consent.", "Keep explicit auto-approve/review consent before minting a live demo room.");
+  requireText(findings, mobileRoot, MOBILE_ROOT_FILE, "MobileAppLive", "mobile-live-app", "Live mobile room binding is missing.", "Mount MobileAppLive so the terracotta shell subscribes to the real room.");
+  requireText(findings, mobileRoot, MOBILE_ROOT_FILE, "history.replaceState(null, \"\", `#mobile?room=${reqCode}`", "mobile-live-room-url", "Live mobile room creation no longer replaces the URL with #mobile?room=<code>.", "Record the live room code in the URL after join/create so the session is reproducible.");
   requireText(findings, alwaysOnSubscribe, ALWAYS_ON_SUBSCRIBE_FILE, "FocusTrapDialog", "public-subscribe-shared-dialog", "Always-On subscription modal is not using the shared dialog primitive.", "Use FocusTrapDialog for public-room modal behavior parity.");
   requireText(findings, alwaysOnSubscribe, ALWAYS_ON_SUBSCRIBE_FILE, "Automatic confirmation email delivery is not wired yet", "public-subscribe-no-fake-email", "Always-On subscription success copy can imply an email was sent before delivery exists.", "Only claim pending storage until the confirmation sender is wired and tested.");
   requireText(findings, alwaysOnCss, ALWAYS_ON_CSS_FILE, ".ao-btn:focus-visible", "public-controls-focus", "Always-On controls are missing explicit focus-visible styling.", "Use the shared accent/focus token semantics for public controls.");
