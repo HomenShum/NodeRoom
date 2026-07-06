@@ -321,6 +321,19 @@ function configuredFileEgressModel() {
   return DEFAULT_FILE_EGRESS_MODEL;
 }
 
+function resolvedModelPolicyForRunner(modelPolicy: string): string {
+  if (modelPolicy !== "openrouter/free-auto") return modelPolicy;
+  const override = process.env.FREE_AUTO_JOB_MODEL?.trim();
+  if (!override) return modelPolicy;
+  if (isOpenRouterFreeRoute(override) || process.env.FREE_AUTO_ALLOW_PAID_MODEL === "1") return override;
+  return modelPolicy;
+}
+
+function isProviderCreditError(error: unknown): boolean {
+  const message = errorText(error);
+  return /\b402\b|insufficient credits|payment required|billing|credits?|quota[_ -]?exceeded/i.test(message);
+}
+
 function providerEgressArtifactsForClaimedJob(
   roomArtifacts: Array<{ title?: string; kind?: string; meta?: unknown; visibility?: string }>,
   claimed: Pick<ClaimedJob, "artifactTitle" | "artifactKind" | "artifactMeta" | "artifactVisibility">,
@@ -422,9 +435,7 @@ export const runFreeAutoJobSlice = internalAction({
     const egressArtifacts = providerEgressArtifactsForClaimedJob(roomArtifacts, claimed);
     let entrypoint = runnerEntrypoint(claimed);
     const modelPolicy = claimed.modelPolicy || (entrypoint === "free" ? "openrouter/free-auto" : process.env.AGENT_MODEL ?? "gemini-3.5-flash");
-    let resolvedModelPolicy = modelPolicy === "openrouter/free-auto"
-      ? process.env.FREE_AUTO_JOB_MODEL ?? modelPolicy
-      : modelPolicy;
+    let resolvedModelPolicy = resolvedModelPolicyForRunner(modelPolicy);
     let egressDecision = providerEgressDecision({
       model: resolvedModelPolicy,
       entrypoint,
@@ -945,7 +956,7 @@ export const runFreeAutoJobSlice = internalAction({
         usage: { inputTokens: 0, outputTokens: 0, modelCalls: 0 },
       };
       const { runId, telemetry } = await recordRun(fallback, { tool: "job_error", result: errorText(rootError) });
-      const retryable = !isProviderPolicyBlockedError(rootError);
+      const retryable = !isProviderPolicyBlockedError(rootError) && !isProviderCreditError(rootError);
       const canRetry = retryable && claimed.attempt < claimed.maxAttempts;
       const delayMs = canRetry ? backoffMs(claimed.attempt) : undefined;
       const scheduledNextAt = delayMs ? Date.now() + delayMs : undefined;

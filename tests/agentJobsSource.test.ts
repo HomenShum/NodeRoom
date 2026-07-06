@@ -111,7 +111,9 @@ describe("long-running agent job source invariants", () => {
     const jobs = readFileSync("convex/agentJobs.ts", "utf8");
 
     expect(runner).toContain('modelPolicy === "openrouter/free-auto"');
-    expect(runner).toContain("process.env.FREE_AUTO_JOB_MODEL ?? modelPolicy");
+    expect(runner).toContain("function resolvedModelPolicyForRunner");
+    expect(runner).toContain('process.env.FREE_AUTO_ALLOW_PAID_MODEL === "1"');
+    expect(runner).toContain("isOpenRouterFreeRoute(override)");
     expect(runner).toContain("const model = agentModel(resolvedModelPolicy, { entrypoint })");
     expect(runner).toContain("function runnerEntrypoint");
     expect(runner).toContain("defaultMaxStepsForEntrypoint(entrypoint)");
@@ -164,6 +166,7 @@ describe("long-running agent job source invariants", () => {
     expect(jobs).toContain('room?.autoAllow === false ? "host_review" : "auto_commit_safe"');
     expect(runner).toContain("isProviderPolicyBlockedError");
     expect(runner).toContain("const retryable = !isProviderPolicyBlockedError(rootError)");
+    expect(runner).toContain("!isProviderCreditError(rootError)");
     expect(runner).toContain('title: canRetry ? "Agent slice failed; retry scheduled" : retryable ? "Agent job failed" : "Agent route blocked"');
     expect(env).toContain("AGENT_FILE_EGRESS_MODEL=z-ai/glm-4.7-flash");
   });
