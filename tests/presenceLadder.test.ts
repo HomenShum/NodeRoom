@@ -11,7 +11,7 @@
  * counts), deterministic (same set → same order), and bounded (capped previews).
  */
 import { describe, expect, it } from "vitest";
-import { ladderFor, LADDER_MEMBER_CAP, LADDER_STACK_MAX } from "../src/ui/presenceLadder";
+import { ladderFor, LADDER_MEMBER_CAP, LADDER_STACK_MAX, AGENT_PRESENCE_TTL_MS } from "../src/ui/presenceLadder";
 import type { PresenceClaim } from "../src/app/store";
 
 const NOW = 1_750_000_000_000;
@@ -39,6 +39,26 @@ describe("ladderFor — thresholds (1 flag · 2–3 stack · 4+ cluster)", () =>
     expect(out.count).toBe(1);
     expect(out.members).toHaveLength(1);
     expect(out.members[0]).toMatchObject({ id: "u-priya", name: "Name u-priya", kind: "user", color: "#D97757", mode: "focus" });
+  });
+
+  it("fades an agent's presence once it moves on, but keeps a fresh one and never fades humans", () => {
+    const target = "sr_0004__owner";
+    // Post-write: NodeAgent's claim on this cell is server-valid (long TTL) but
+    // it last touched the cell well past the display-freshness window → fades.
+    const staleAgent = claim({
+      actorId: "agent-node", targetId: target, mode: "commit_lease",
+      actor: { kind: "agent", id: "agent-node", name: "Room NodeAgent" },
+      updatedAt: NOW - AGENT_PRESENCE_TTL_MS - 1, expiresAt: NOW + 120_000,
+    });
+    expect(ladderFor([staleAgent], target, NOW).mode).toBe("none");
+
+    // A fresh agent claim (still within the window) DOES show.
+    const freshAgent = { ...staleAgent, updatedAt: NOW - 2_000 };
+    expect(ladderFor([freshAgent], target, NOW).mode).toBe("flag");
+
+    // A human's stale-but-unexpired claim is NOT faded — people stay live until their own TTL.
+    const staleHuman = claim({ actorId: "u-priya", targetId: target, updatedAt: NOW - AGENT_PRESENCE_TTL_MS - 5_000, expiresAt: NOW + 120_000 });
+    expect(ladderFor([staleHuman], target, NOW).mode).toBe("flag");
   });
 
   it("an empty / fully-irrelevant claim set is honestly NONE, not a phantom flag", () => {

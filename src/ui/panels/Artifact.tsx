@@ -1740,6 +1740,14 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
   const [pages, setPages] = useState(1);
   const [sel, setSel] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<SheetStatusFilter>("any");
+  // Presence freshness (and the ≤1.5s committed flash) fade by wall-clock, but
+  // the reactive store won't push an event just because a claim aged — so tick to
+  // re-evaluate. Cheap: the sheet is virtualized, only visible cells re-render.
+  const [, setPresenceTick] = useState(0);
+  useEffect(() => {
+    const i = setInterval(() => setPresenceTick((t) => (t + 1) % 1_000_000), 6_000);
+    return () => clearInterval(i);
+  }, []);
   // QA P2 perf: derive rows/columns/pageSize once per artifact snapshot, not on every render
   // (paging state changes alone shouldn't re-walk the full element order).
   const { rows, columns, pageSize, totalRows, isScaleSheet } = useMemo(() => {
