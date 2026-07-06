@@ -1,0 +1,94 @@
+{
+  "type": "noderoom.nodeagent.document-ingestion.receipt",
+  "version": 1,
+  "ok": true,
+  "generatedAt": "2026-07-06T07:05:15.230Z",
+  "config": {
+    "documentShardSize": 2,
+    "documentBatchSize": 2,
+    "documentWorkerConcurrency": 2,
+    "memoryBatchSize": 2,
+    "memoryWorkerConcurrency": 2,
+    "chunkMaxChars": 120,
+    "chunkOverlapChars": 20
+  },
+  "documentPool": {
+    "sourceCount": 5,
+    "shardSize": 2,
+    "shardCount": 3,
+    "batchSize": 2,
+    "batchCount": 3,
+    "workerConcurrency": 2,
+    "attemptedSources": 5,
+    "documentsCreated": 4,
+    "documentsDeduped": 1,
+    "failedSources": 0,
+    "failures": []
+  },
+  "memoryPool": {
+    "documentCount": 4,
+    "chunkMaxChars": 120,
+    "chunkOverlapChars": 20,
+    "chunkCount": 7,
+    "batchSize": 2,
+    "batchCount": 4,
+    "workerConcurrency": 2,
+    "attemptedChunks": 7,
+    "memoryObjectsCreated": 20,
+    "memoryObjectsDeduped": 0,
+    "failedChunks": 0,
+    "failures": []
+  },
+  "proof": {
+    "sourceIds": [
+      "raw_duplicate_a",
+      "raw_duplicate_b",
+      "rss_liveflow_receivables",
+      "upload_underwriting_packet",
+      "url_acme_q2"
+    ],
+    "documentHashes": [
+      "5e447969",
+      "74890dfe",
+      "c2f45d04",
+      "cdaf408b"
+    ],
+    "chunkHashes": [
+      "01e156e4",
+      "0fb720b5",
+      "152566e4",
+      "2c2b4e9e",
+      "503694db",
+      "f0b90700",
+      "fae1bb13"
+    ],
+    "memoryObjectKeys": [
+      "embedding_stub:244bdb5b",
+      "embedding_stub:2bb00622",
+      "embedding_stub:384b02ff",
+      "embedding_stub:6192e102",
+      "embedding_stub:7608beae",
+      "embedding_stub:d5c24377",
+      "embedding_stub:fea39e77",
+      "entity:0361e52d",
+      "entity:424b2316",
+      "entity:7c1c50c2",
+      "entity:a53431e4",
+      "entity:d8ed3f9e",
+      "entity:de455a17",
+      "fact:07b17624",
+      "fact:0e747f52",
+      "fact:29667f2f",
+      "fact:29d3a4de",
+      "fact:4930aee7",
+      "fact:ac50f0a2",
+      "fact:b669ad28"
+    ],
+    "stageOrder": [
+      "document_pool",
+      "memory_pool"
+    ],
+    "resumeApplied": false
+  },
+  "warnings": []
+}
