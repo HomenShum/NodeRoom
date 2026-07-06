@@ -190,9 +190,63 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.job.modelPolicy).toBe("z-ai/glm-5.2");
   });
 
-  it("promotes free public asks with uploaded file context to the file-egress model before queuing", async () => {
+  it("blocks free public asks with uploaded file context unless paid file-egress promotion is explicit", async () => {
+    const previous = process.env.FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION;
+    delete process.env.FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION;
+    try {
+      const { t, proof, roomId, artifactId, actor } = await setupRoom({ seedElement: true });
+      const now = Date.now();
+      await t.run((ctx) =>
+        ctx.db.insert("artifacts", {
+          roomId,
+          kind: "note" as const,
+          title: "source_financials.csv",
+          version: 1,
+          order: ["source"],
+          updatedAt: now,
+          createdBy: actor,
+          visibility: "room" as const,
+          meta: { upload: { fileName: "source_financials.csv", mimeType: "text/csv", size: 96 } },
+        }),
+      );
+
+      const started = await t.mutation(api.agentJobs.startPublicAsk, {
+        roomId,
+        requester: proof,
+        goal: "compute the uploaded financial metrics and write the answers into Sheet 1",
+        contextArtifactId: String(artifactId),
+        routePolicy: "free_auto" as const,
+      });
+
+      const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+      expect(started).toMatchObject({
+        reused: false,
+        status: "blocked",
+        modelPolicy: "openrouter/free-auto",
+        routePolicy: "free_auto",
+      });
+      expect(detail?.job).toMatchObject({
+        entrypoint: "free",
+        routePolicy: "free_auto",
+        modelPolicy: "openrouter/free-auto",
+        approvalPolicy: "draft_first",
+        autoAllow: false,
+        status: "blocked",
+        error: "provider_egress_blocked:free_file_egress_requires_OPENROUTER_FREE_ALLOW_FILE_EGRESS",
+      });
+      expect(detail?.job.request).toMatchObject({ freeFileEgressPromotionBlocked: true });
+      expect(detail?.streamEvents[0]?.metadata).toMatchObject({ freeFileEgressPromotionBlocked: true });
+    } finally {
+      if (previous === undefined) delete process.env.FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION;
+      else process.env.FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION = previous;
+    }
+  });
+
+  it("promotes uploaded-file free public asks only when paid file-egress promotion is explicit", async () => {
     const previous = process.env.AGENT_FILE_EGRESS_MODEL;
+    const previousPromotion = process.env.FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION;
     process.env.AGENT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
+    process.env.FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION = "1";
     try {
       const { t, proof, roomId, artifactId, actor } = await setupRoom({ seedElement: true });
       const now = Date.now();
@@ -236,6 +290,8 @@ describe("agentJobs runtime contract", () => {
     } finally {
       if (previous === undefined) delete process.env.AGENT_FILE_EGRESS_MODEL;
       else process.env.AGENT_FILE_EGRESS_MODEL = previous;
+      if (previousPromotion === undefined) delete process.env.FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION;
+      else process.env.FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION = previousPromotion;
     }
   });
 

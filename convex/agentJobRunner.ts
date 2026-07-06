@@ -32,9 +32,11 @@ import type { Actor } from "../src/engine/types";
 import { journalSliceKey } from "../src/nodeagent/core/journal";
 import {
   FREE_FILE_EGRESS_BLOCK_REASON,
+  freeFileEgressPromotionAllowed,
   isOpenRouterFreeRoute,
-  isProviderPolicyBlockedError,
+  isProviderNonRetryableError,
   providerEgressDecision,
+  providerNonRetryableReason,
   type ProviderEgressArtifact,
   type ProviderEgressEntrypoint,
 } from "../src/nodeagent/guardrails/egressPolicy";
@@ -321,19 +323,6 @@ function configuredFileEgressModel() {
   return DEFAULT_FILE_EGRESS_MODEL;
 }
 
-function resolvedModelPolicyForRunner(modelPolicy: string): string {
-  if (modelPolicy !== "openrouter/free-auto") return modelPolicy;
-  const override = process.env.FREE_AUTO_JOB_MODEL?.trim();
-  if (!override) return modelPolicy;
-  if (isOpenRouterFreeRoute(override) || process.env.FREE_AUTO_ALLOW_PAID_MODEL === "1") return override;
-  return modelPolicy;
-}
-
-function isProviderCreditError(error: unknown): boolean {
-  const message = errorText(error);
-  return /\b402\b|insufficient credits|payment required|billing|credits?|quota[_ -]?exceeded/i.test(message);
-}
-
 function providerEgressArtifactsForClaimedJob(
   roomArtifacts: Array<{ title?: string; kind?: string; meta?: unknown; visibility?: string }>,
   claimed: Pick<ClaimedJob, "artifactTitle" | "artifactKind" | "artifactMeta" | "artifactVisibility">,
@@ -435,14 +424,17 @@ export const runFreeAutoJobSlice = internalAction({
     const egressArtifacts = providerEgressArtifactsForClaimedJob(roomArtifacts, claimed);
     let entrypoint = runnerEntrypoint(claimed);
     const modelPolicy = claimed.modelPolicy || (entrypoint === "free" ? "openrouter/free-auto" : process.env.AGENT_MODEL ?? "gemini-3.5-flash");
-    let resolvedModelPolicy = resolvedModelPolicyForRunner(modelPolicy);
+    let resolvedModelPolicy = modelPolicy === "openrouter/free-auto"
+      ? process.env.FREE_AUTO_JOB_MODEL ?? modelPolicy
+      : modelPolicy;
     let egressDecision = providerEgressDecision({
       model: resolvedModelPolicy,
       entrypoint,
       artifacts: egressArtifacts,
       env: process.env,
     });
-    const promotedForFileEgress = !egressDecision.ok && egressDecision.reason === FREE_FILE_EGRESS_BLOCK_REASON;
+    const freeFileEgressBlocked = !egressDecision.ok && egressDecision.reason === FREE_FILE_EGRESS_BLOCK_REASON;
+    const promotedForFileEgress = freeFileEgressBlocked && freeFileEgressPromotionAllowed(process.env);
     if (promotedForFileEgress) {
       entrypoint = "public_ask";
       resolvedModelPolicy = configuredFileEgressModel();
@@ -453,6 +445,7 @@ export const runFreeAutoJobSlice = internalAction({
         env: process.env,
       });
     }
+    const providerEgressBlock = !egressDecision.ok ? new Error(`provider_egress_blocked:${egressDecision.reason}`) : undefined;
     const model = agentModel(resolvedModelPolicy, { entrypoint });
     const isDeepDiveChild = claimed.activeReasoningFrame?.facet === "deep_dive";
     const contextMaxChars = envNumber(
@@ -663,6 +656,7 @@ export const runFreeAutoJobSlice = internalAction({
       } catch {
         publicStream = undefined;
       }
+      if (providerEgressBlock) throw providerEgressBlock;
       const activeFrameId = activeFrame?.frameId;
       const initialMessages = messagesFromCursor(claimed.cursor, activeFrameId);
       const resumeToolCalls = remainingToolCallsFromCursor(claimed.cursor, activeFrameId);
@@ -956,7 +950,8 @@ export const runFreeAutoJobSlice = internalAction({
         usage: { inputTokens: 0, outputTokens: 0, modelCalls: 0 },
       };
       const { runId, telemetry } = await recordRun(fallback, { tool: "job_error", result: errorText(rootError) });
-      const retryable = !isProviderPolicyBlockedError(rootError) && !isProviderCreditError(rootError);
+      const nonRetryableReason = providerNonRetryableReason(rootError);
+      const retryable = !isProviderNonRetryableError(rootError);
       const canRetry = retryable && claimed.attempt < claimed.maxAttempts;
       const delayMs = canRetry ? backoffMs(claimed.attempt) : undefined;
       const scheduledNextAt = delayMs ? Date.now() + delayMs : undefined;
@@ -976,7 +971,7 @@ export const runFreeAutoJobSlice = internalAction({
         title: canRetry ? "Agent slice failed; retry scheduled" : retryable ? "Agent job failed" : "Agent route blocked",
         text: fallback.finalText || publicStreamText,
         error: errorText(rootError),
-        metadata: { attempt: claimed.attempt, canRetry, retryable },
+        metadata: { attempt: claimed.attempt, canRetry, retryable, nonRetryableReason },
         createdAt: Date.now(),
       });
       if (!canRetry) {

@@ -10,6 +10,7 @@ import { classifyIntakeMessage, buildPlanPreview } from "../src/nodeagent/core/i
 import { buildRoomWorkReasoningPlan, roomWorkFacetFrameId, roomWorkPhaseFrameId, DEEP_DIVE_TOOL_ALLOWLIST, FRAME_TOOL_ALLOWLIST, type ReasoningFramePlan } from "../src/nodeagent/core/reasoningFrames";
 import {
   FREE_FILE_EGRESS_BLOCK_REASON,
+  freeFileEgressPromotionAllowed,
   isOpenRouterFreeRoute,
   providerEgressDecision,
   type ProviderEgressArtifact,
@@ -1840,7 +1841,8 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     artifacts: egressArtifacts,
     env: process.env,
   });
-  const promotedForFileEgress = !freeFileEgressDecision.ok && freeFileEgressDecision.reason === FREE_FILE_EGRESS_BLOCK_REASON;
+  const freeFileEgressBlocked = !freeFileEgressDecision.ok && freeFileEgressDecision.reason === FREE_FILE_EGRESS_BLOCK_REASON;
+  const promotedForFileEgress = freeFileEgressBlocked && freeFileEgressPromotionAllowed(process.env);
   if (promotedForFileEgress) {
     entrypoint = "public_ask";
     routePolicy = "explicit";
@@ -1878,6 +1880,14 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     planBlocked = planPreview.scheduling !== "run_now";
     blockedReason = planBlocked ? `plan_${planPreview.scheduling}: ${planPreview.conflicts?.[0]?.detail ?? intake.reason}` : undefined;
   }
+  if (freeFileEgressBlocked && !promotedForFileEgress) {
+    planBlocked = true;
+    blockedReason = `provider_egress_blocked:${FREE_FILE_EGRESS_BLOCK_REASON}`;
+    planPreview = {
+      scheduling: "blocked",
+      conflicts: [{ kind: "provider_egress", detail: blockedReason }],
+    };
+  }
   const approvalPolicy = promotedForFileEgress
     ? room?.autoAllow === false ? "host_review" : "auto_commit_safe"
     : a.approvalPolicy ?? defaultApprovalPolicyForEntrypoint(entrypoint);
@@ -1904,6 +1914,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     evidencePolicy,
     traceLevel,
     fileEgressPromoted: promotedForFileEgress || undefined,
+    freeFileEgressPromotionBlocked: freeFileEgressBlocked && !promotedForFileEgress || undefined,
   });
   const jobId = await ctx.db.insert("agentJobs", clean({
     roomId: a.roomId,
@@ -1962,7 +1973,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     status: "started",
     title: "Room NodeAgent",
     text: a.goal,
-    metadata: { entrypoint, scope, routePolicy, runtimePolicy, runtimeProfile, modelPolicy, fileEgressPromoted: promotedForFileEgress || undefined },
+    metadata: { entrypoint, scope, routePolicy, runtimePolicy, runtimeProfile, modelPolicy, fileEgressPromoted: promotedForFileEgress || undefined, freeFileEgressPromotionBlocked: freeFileEgressBlocked && !promotedForFileEgress || undefined },
     createdAt: now,
   });
   if (status === "blocked") {
@@ -1971,7 +1982,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
       sequence: 2,
       kind: "error",
       status: "failed",
-      title: "Plan blocked",
+      title: blockedReason?.startsWith("provider_egress_blocked:") ? "Route blocked" : "Plan blocked",
       error: blockedReason,
       metadata: { scheduling: planPreview?.scheduling, conflicts: planPreview?.conflicts },
       createdAt: now,

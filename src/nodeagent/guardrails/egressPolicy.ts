@@ -35,6 +35,7 @@ export type ProviderRouteDecision =
 
 const DEFAULT_ALLOWED_PROVIDERS: ProviderRouteProvider[] = ["openai", "anthropic", "gemini", "openrouter", "nebius", "local"];
 export const FREE_FILE_EGRESS_BLOCK_REASON = "free_file_egress_requires_OPENROUTER_FREE_ALLOW_FILE_EGRESS";
+export const FREE_FILE_EGRESS_PROMOTION_FLAG = "FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION";
 
 export function isOpenRouterFreeRoute(model: string): boolean {
   const normalized = model.trim().toLowerCase();
@@ -104,6 +105,30 @@ export function providerPolicyBlockedReason(error: unknown): string | undefined 
 
 export function isProviderPolicyBlockedError(error: unknown): boolean {
   return providerPolicyBlockedReason(error) !== undefined;
+}
+
+export function freeFileEgressPromotionAllowed(env: Env = process.env): boolean {
+  return env[FREE_FILE_EGRESS_PROMOTION_FLAG] === "1" || env.AGENT_ALLOW_FREE_FILE_EGRESS_PROMOTION === "1";
+}
+
+export function providerNonRetryableReason(error: unknown): string | undefined {
+  const policyReason = providerPolicyBlockedReason(error);
+  if (policyReason) return policyReason;
+  const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+  if (/\bProvider (?:request|stream) failed 402\b/i.test(message) || /\binsufficient credits?\b/i.test(message)) {
+    return "provider_insufficient_credits";
+  }
+  if (/\bProvider (?:request|stream) failed 401\b/i.test(message) || /\b(?:unauthorized|invalid api key)\b/i.test(message)) {
+    return "provider_auth_required";
+  }
+  if (/\bProvider (?:request|stream) failed 403\b/i.test(message) || /\bforbidden\b/i.test(message)) {
+    return "provider_forbidden";
+  }
+  return undefined;
+}
+
+export function isProviderNonRetryableError(error: unknown): boolean {
+  return providerNonRetryableReason(error) !== undefined;
 }
 
 export function providerRouteDecision(args: {
