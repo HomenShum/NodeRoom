@@ -347,7 +347,10 @@ export const runRoomAgent = action({
       maxChars: envNumber("AGENT_CONTEXT_MAX_CHARS", DEFAULT_CONTEXT_MAX_CHARS, 4_000, 120_000),
       keepRecent: envNumber("AGENT_CONTEXT_KEEP_RECENT", DEFAULT_CONTEXT_KEEP_RECENT, 2, 40),
     };
-    const cap = (s: string) => (s.length > 2000 ? s.slice(0, 2000) + "...[truncated]" : s);
+    const cap = (value: unknown) => {
+      const s = typeof value === "string" ? value : value === undefined ? "undefined" : JSON.stringify(value) ?? String(value);
+      return s.length > 2000 ? s.slice(0, 2000) + "...[truncated]" : s;
+    };
     const errorText = (error: unknown) => {
       if (error instanceof Error) return `${error.name}: ${error.message}`;
       return typeof error === "string" ? error : JSON.stringify(error) ?? String(error);

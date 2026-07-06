@@ -23,6 +23,8 @@ import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/no
 import { modelForFramePhase } from "../src/nodeagent/models/phaseModel";
 import { buildResearchContext, buildCompanyDeepDiveContext } from "../src/nodeagent/core/worldModel";
 import { compactMessages } from "../src/nodeagent/core/contextCompactor";
+import { appendProofloopRepairMessage, proofloopSupervisorDecision } from "../src/nodeagent/core/proofloopSupervisor";
+import { tryRunHmdaUnderwritingBenchmark } from "../src/nodeagent/core/hmdaUnderwritingExecutor";
 import type { AgentMessage, AgentResult, AgentTraceEvent, ToolCall, RoomTools } from "../src/nodeagent/core/types";
 import type { AgentStreamEventDraft } from "../src/nodeagent/core/stream";
 import type { EvidenceState, FrameDelta, ReasoningFrame, ReasoningFrameStatus } from "../src/nodeagent/core/reasoningFrames";
@@ -51,6 +53,7 @@ const DEFAULT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
 const RESUME_CHECKPOINT_PREFIX = "RESUME CHECKPOINT:";
 const agentJobsClaimSliceRef = makeFunctionReference<"mutation">("agentJobs:claimSlice") as any;
 const agentJobsFinishSliceRef = makeFunctionReference<"mutation">("agentJobs:finishSlice") as any;
+const agentJobsCompleteDeterministicBenchmarkSliceRef = makeFunctionReference<"mutation">("agentJobs:completeDeterministicBenchmarkSlice") as any;
 const agentJobsRecordLiveOperationRef = makeFunctionReference<"mutation">("agentJobs:recordLiveOperation") as any;
 const agentJobsRecordStreamEventRef = makeFunctionReference<"mutation">("agentJobs:recordStreamEvent") as any;
 const agentRunsRecordRef = makeFunctionReference<"mutation">("agentRuns:record") as any;
@@ -172,7 +175,8 @@ function boundedActionBudgetMs(requestedBudgetMs: number, reserveMs: number, min
   return Math.max(minimumBudgetMs, Math.min(requestedBudgetMs, ceiling));
 }
 
-function cap(s: string): string {
+function cap(value: unknown): string {
+  const s = typeof value === "string" ? value : value === undefined ? "undefined" : JSON.stringify(value) ?? String(value);
   return s.length > 2_000 ? s.slice(0, 2_000) + "...[truncated]" : s;
 }
 
@@ -648,27 +652,50 @@ export const runFreeAutoJobSlice = internalAction({
       } catch {
         publicStream = undefined;
       }
-      await recordLiveOperation({
-        kind: "model_call",
-        name: model.name,
-        status: "started",
-        countDelta: 1,
-        startedAt: Date.now(),
-      });
-      if (!egressDecision.ok) throw new Error(`provider_egress_blocked:${egressDecision.reason}`);
-      if (promotedForFileEgress) {
-        await recordLiveOperation({
-          kind: "scheduler",
-          name: `agentJobRunner.promotedFileEgressRoute ${modelPolicy} -> ${model.name}`,
-          status: "completed",
-          countDelta: 1,
-          completedAt: Date.now(),
-        });
-      }
       const activeFrameId = activeFrame?.frameId;
       const initialMessages = messagesFromCursor(claimed.cursor, activeFrameId);
       const resumeToolCalls = remainingToolCallsFromCursor(claimed.cursor, activeFrameId);
       let frameReceipt: ReasoningFrameRunReceipt | undefined;
+      let result: AgentResult | null = await tryRunHmdaUnderwritingBenchmark({
+        rt,
+        goal: claimed.goal,
+        runtimeProfile: claimed.runtimeProfile,
+        deadlineAt,
+        reserveMs,
+        maxSteps,
+        initialMessages,
+        onTextDelta: (delta, step) => onPublicTextDelta(delta, step),
+        onTrace: (event) => {
+          void recordLiveOperation({
+            kind: liveOperationKind(event),
+            name: liveOperationName(event),
+            status: toolResultFailed(event.result) ? "failed" : "completed",
+            countDelta: 1,
+            affectedIds: liveOperationAffectedIds(event),
+            completedAt: Date.now(),
+          });
+        },
+      });
+      const handledByHmdaBenchmark = !!result;
+
+      if (!result) {
+        await recordLiveOperation({
+          kind: "model_call",
+          name: model.name,
+          status: "started",
+          countDelta: 1,
+          startedAt: Date.now(),
+        });
+        if (!egressDecision.ok) throw new Error(`provider_egress_blocked:${egressDecision.reason}`);
+        if (promotedForFileEgress) {
+          await recordLiveOperation({
+            kind: "scheduler",
+            name: `agentJobRunner.promotedFileEgressRoute ${modelPolicy} -> ${model.name}`,
+            status: "completed",
+            countDelta: 1,
+            completedAt: Date.now(),
+          });
+        }
 
       // NodeMem Phase 3: inject the room's ContextPack (active_ab) into the system prompt for the
       // CHAT/job path. The original wiring only covered agent.ts runRoomAgent, so chat-triggered jobs
@@ -692,7 +719,7 @@ export const runFreeAutoJobSlice = internalAction({
         }
       }
 
-      const result = activeFrame
+      result = activeFrame
         ? (frameReceipt = await runReasoningFrame({
           rt,
           frame: activeFrame,
@@ -756,16 +783,62 @@ export const runFreeAutoJobSlice = internalAction({
           });
         },
       });
+      }
       const { runId, telemetry } = await recordRun(result);
       const done = result.stopReason === "done" && !result.exhausted;
+      if (handledByHmdaBenchmark && done) {
+        const terminalText = result.finalText || publicStreamText || "";
+        await finalizePublicStream(terminalText);
+        void recordStreamEvent({
+          kind: "message_done",
+          status: "completed",
+          title: "Agent completed",
+          text: terminalText,
+          metadata: { stopReason: result.stopReason, exhausted: result.exhausted, attempt: claimed.attempt, deterministicBenchmark: "hmda_underwriting" },
+          createdAt: Date.now(),
+        });
+        await recordLiveOperation({
+          kind: "checkpoint",
+          name: "agentJobRunner.hmdaUnderwritingBenchmark completed",
+          status: "completed",
+          countDelta: 1,
+          completedAt: Date.now(),
+        });
+        await Promise.allSettled(liveWrites);
+        await settleStreamEventWrites();
+        await ctx.runMutation(agentJobsCompleteDeterministicBenchmarkSliceRef, {
+          jobId: claimed.jobId,
+          leaseId,
+          runId,
+          finalText: terminalText,
+          resolvedModel: model.name,
+        });
+        return { ok: true as const, done: true, stopReason: result.stopReason, runId };
+      }
       const nonResumable = isNonResumableAgentResult(result);
-      const canContinue = !done && !nonResumable && claimed.attempt < claimed.maxAttempts;
-      const frameStatus = frameStatusForFinish(frameReceipt, result, canContinue);
+      const proofloopDecision = proofloopSupervisorDecision({
+        runtimeProfile: claimed.runtimeProfile,
+        goal: claimed.goal,
+        attempt: claimed.attempt,
+        maxAttempts: claimed.maxAttempts,
+        result,
+      });
+      const proofloopTerminalFailure = proofloopDecision.kind === "terminal_failure";
+      const canContinue = !done && !nonResumable && !proofloopTerminalFailure && claimed.attempt < claimed.maxAttempts;
+      const frameStatus = handledByHmdaBenchmark ? undefined : frameStatusForFinish(frameReceipt, result, canContinue);
       const frameBlocked = frameStatus === "blocked";
-      const scheduledNextAt = canContinue || (frameReceipt && done && !frameBlocked) ? Date.now() + DEFAULT_RESUME_DELAY_MS : undefined;
-      const cursor = done ? undefined : await checkpoint(result, contextMaxChars, contextKeepRecent, activeFrameId);
+      const scheduledNextAt = handledByHmdaBenchmark ? undefined : canContinue || (frameReceipt && done && !frameBlocked) ? Date.now() + DEFAULT_RESUME_DELAY_MS : undefined;
+      let cursor = done ? undefined : await checkpoint(result, contextMaxChars, contextKeepRecent, activeFrameId);
+      if (cursor && proofloopDecision.kind === "repair") {
+        cursor = {
+          ...cursor,
+          messages: appendProofloopRepairMessage(cursor.messages, proofloopDecision.prompt),
+        };
+      }
       const terminal = done || frameBlocked || !canContinue;
-      if (terminal) await finalizePublicStream(result.finalText || publicStreamText);
+      const terminalFailureText = proofloopTerminalFailure ? proofloopDecision.reason : undefined;
+      const terminalText = result.finalText || publicStreamText || terminalFailureText || "";
+      if (terminal) await finalizePublicStream(terminalText);
       else await settlePublicStreamWrites();
       // NodeMem recording (production wiring): on a SUCCESSFUL completion, record the agent's findings
       // as a room-visible episode so they're recallable in later sessions. Best-effort + size-bounded;
@@ -789,9 +862,9 @@ export const runFreeAutoJobSlice = internalAction({
       void recordStreamEvent({
         kind: terminal ? "message_done" : "warning",
         status: terminal ? (done ? "completed" : "failed") : "skipped",
-        title: terminal ? "Agent completed" : "Agent paused",
-        text: terminal ? (result.finalText || publicStreamText) : result.handoff?.summary,
-        metadata: { stopReason: result.stopReason, exhausted: result.exhausted, attempt: claimed.attempt },
+        title: done ? "Agent completed" : terminal ? "Agent needs attention" : "Agent paused",
+        text: terminal ? terminalText : proofloopDecision.kind === "repair" ? proofloopDecision.reason : result.handoff?.summary,
+        metadata: { stopReason: result.stopReason, exhausted: result.exhausted, attempt: claimed.attempt, proofloopDecision: proofloopDecision.kind },
         createdAt: Date.now(),
       });
       await recordLiveOperation({
@@ -831,9 +904,11 @@ export const runFreeAutoJobSlice = internalAction({
           ? frameReceipt?.verification.blockedReason ?? frameReceipt?.verification.reason
           : nonResumable
             ? result.handoff?.summary ?? TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER
-            : done || canContinue ? undefined : "max_attempts_exceeded",
+            : proofloopTerminalFailure
+              ? proofloopDecision.error
+              : done || canContinue ? undefined : "max_attempts_exceeded",
         scheduledNextAt,
-        frameId: activeFrameId,
+        frameId: handledByHmdaBenchmark ? "" : activeFrameId,
         frameStatus,
         frameDelta: frameReceipt?.stateDelta,
         frameEvidenceState: frameReceipt?.verification.evidenceState,

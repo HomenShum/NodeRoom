@@ -1,0 +1,409 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-06T06:55:08.719Z",
+  "task": "hmda-dc-2025-action-taken-underwriting-decision",
+  "baseUrl": "https://noderoom.live",
+  "roomUrl": "https://noderoom.live/?room=NRWEA6G7FWI&name=Host",
+  "memoryMode": false,
+  "prompt": "@nodeagent In this fresh live Noderoom room, use the uploaded file hmda_dc_2025_purchase_features.csv and the uploaded task note. The hidden local answer key is NOT uploaded. This is a retrospective HMDA benchmark, not a real lending decision. Predict each application's HMDA action_taken using only allowed values 1=loan originated and 3=application denied. Write Sheet 1 with exactly these columns: application_id, predicted_action_taken, predicted_label, confidence, brief_reason. Use one row per application_id from the uploaded CSV. The uploaded task note gives the risk-signal rule: low DTI, low LTV, and strong income lean originated; very high DTI, very high LTV, or low income lean denied. The packet has only 10 rows, so use compact reads and write the output table; do not burn the run on broad background research. Do not just explain in chat; actually write the table into Sheet 1.",
+  "harness": {
+    "version": "hmda-underwriting-live-proof-v1.0.0",
+    "proofContractVersion": "prod-live-hmda-underwriting-v1",
+    "runner": "scripts/underwriting-hmda-live-proof.mjs",
+    "browserHarness": "playwright-chromium-direct-v1",
+    "backendReceiptQuery": "agentJobs:benchmarkJobReceipt",
+    "scorer": "withheld-local-answer-key-v1",
+    "packetBuilder": "scripts/underwriting-hmda-live-packet.mjs",
+    "outputColumns": [
+      "application_id",
+      "predicted_action_taken",
+      "predicted_label",
+      "confidence",
+      "brief_reason"
+    ],
+    "requiredGates": [
+      "fresh production room on https://noderoom.live",
+      "memory mode disabled",
+      "answer key remains local-only and is not uploaded",
+      "visible Sheet 1 contains all output columns for all applications",
+      "withheld-key score reaches required accuracy",
+      "Convex backend job status is completed",
+      "reasoning frame status is completed",
+      "no page errors"
+    ]
+  },
+  "iterationLedger": {
+    "current": "I10-final-proofloop-contract",
+    "document": "docs/eval/UNDERWRITING_LIVE_PROOFLOOP.md"
+  },
+  "uploadedFiles": [
+    "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\.tmp\\underwriting-hmda-dc-2025\\live-packet\\hmda_dc_2025_purchase_features.csv",
+    "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\.tmp\\underwriting-hmda-dc-2025\\live-packet\\hmda_dc_2025_underwriting_task.md",
+    "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\.tmp\\underwriting-hmda-dc-2025\\live-packet\\hmda_dc_2025_source_manifest.md"
+  ],
+  "localOnlyAnswerKey": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\.tmp\\underwriting-hmda-dc-2025\\live-packet\\hmda_dc_2025_purchase_answer_key.local.json",
+  "packetManifest": {
+    "schema": 1,
+    "generatedAt": "2026-07-06T02:45:52.837Z",
+    "sourceUrl": "https://ffiec.cfpb.gov/v2/data-browser-api/view/csv?states=DC&years=2025&actions_taken=1,3&loan_purposes=1",
+    "raw": {
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\.tmp\\underwriting-hmda-dc-2025\\raw\\hmda-dc-2025-action-taken-1-3-purchase.csv",
+      "bytes": 2351789,
+      "sha256": "37c488e94e92d3bdf89105a47ff70b808bb6cbf0ac309d55a0484968a11c1832",
+      "rows": 6112,
+      "actionTakenDistribution": {
+        "1": 5474,
+        "3": 638
+      }
+    },
+    "packet": {
+      "perClass": 5,
+      "rows": 10,
+      "featureCsv": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\.tmp\\underwriting-hmda-dc-2025\\live-packet\\hmda_dc_2025_purchase_features.csv",
+      "task": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\.tmp\\underwriting-hmda-dc-2025\\live-packet\\hmda_dc_2025_underwriting_task.md",
+      "sourceManifest": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\.tmp\\underwriting-hmda-dc-2025\\live-packet\\hmda_dc_2025_source_manifest.md",
+      "answerKeyLocalOnly": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\.tmp\\underwriting-hmda-dc-2025\\live-packet\\hmda_dc_2025_purchase_answer_key.local.json",
+      "featureColumns": [
+        "application_id",
+        "activity_year",
+        "state_code",
+        "county_code",
+        "census_tract",
+        "conforming_loan_limit",
+        "derived_loan_product_type",
+        "derived_dwelling_category",
+        "preapproval",
+        "loan_type",
+        "loan_purpose",
+        "lien_status",
+        "loan_amount",
+        "loan_to_value_ratio",
+        "property_value",
+        "income",
+        "debt_to_income_ratio",
+        "applicant_credit_score_type",
+        "co-applicant_credit_score_type",
+        "submission_of_application",
+        "initially_payable_to_institution",
+        "aus-1",
+        "construction_method",
+        "occupancy_type",
+        "total_units",
+        "tract_population",
+        "tract_minority_population_percent",
+        "ffiec_msa_md_median_family_income",
+        "tract_to_msa_income_percentage",
+        "tract_owner_occupied_units",
+        "tract_one_to_four_family_homes",
+        "tract_median_age_of_housing_units"
+      ],
+      "selectionMethod": "balanced withheld-label packet; selected from public HMDA records by visible underwriting risk-signal contrast, then deterministically shuffled by source row hash so row order does not encode the target",
+      "withheldColumns": [
+        "action_taken",
+        "denial_reason-*",
+        "interest_rate",
+        "rate_spread",
+        "total_loan_costs",
+        "origination_charges",
+        "discount_points",
+        "lender_credits",
+        "derived_ethnicity",
+        "derived_race",
+        "derived_sex",
+        "applicant_ethnicity-*",
+        "applicant_race-*",
+        "applicant_sex",
+        "applicant_age"
+      ]
+    }
+  },
+  "model": {
+    "requested": "adaptive",
+    "runtimeProfile": "benchmark_completion"
+  },
+  "liveSignals": {
+    "chatMessageVisible": true,
+    "jobStatusVisible": true,
+    "jobStatus": "",
+    "jobStatusTexts": [],
+    "outputRowsComplete": true,
+    "pageErrors": [],
+    "consoleErrors": [],
+    "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\test-results-underwriting-direct\\underwriting-hmda-live-sheet.png"
+  },
+  "backend": {
+    "ok": true,
+    "convexUrl": "https://zealous-goshawk-766.convex.cloud",
+    "frames": [
+      {
+        "completedAt": 1783320900661,
+        "frameId": "rf_e4a2b342_execute_research",
+        "phase": "execute",
+        "status": "completed"
+      }
+    ],
+    "job": {
+      "attempts": 1,
+      "completedAt": 1783320900661,
+      "error": "",
+      "finalText": "Underwriting benchmark completed: read 10 HMDA rows from hmda_dc_2025_purchase_features.csv, wrote 55 Sheet 1 cells, and produced 10 action_taken predictions.",
+      "id": "ks703n4n51rjm5x5cfba10p5th8a1eed",
+      "latestRunId": "kd79zbw9f453at58bz43dd4txx8a04jc",
+      "maxAttempts": 1000,
+      "modelCallCount": 1,
+      "mutationCount": 57,
+      "nextRunAt": 0,
+      "status": "completed"
+    },
+    "operations": [
+      {
+        "kind": "checkpoint",
+        "name": "agentJobRunner.hmdaUnderwritingBenchmark completed",
+        "sequence": 1060,
+        "status": "completed"
+      },
+      {
+        "kind": "mutation",
+        "name": "say",
+        "sequence": 1059,
+        "status": "completed"
+      },
+      {
+        "affectedIds": [
+          "j974f9gsdcbq6te8xx7dcxxn3s8a0pff",
+          "r11__E"
+        ],
+        "kind": "mutation",
+        "name": "edit_cell",
+        "sequence": 1058,
+        "status": "completed"
+      },
+      {
+        "affectedIds": [
+          "j974f9gsdcbq6te8xx7dcxxn3s8a0pff",
+          "r11__D"
+        ],
+        "kind": "mutation",
+        "name": "edit_cell",
+        "sequence": 1057,
+        "status": "completed"
+      },
+      {
+        "affectedIds": [
+          "j974f9gsdcbq6te8xx7dcxxn3s8a0pff",
+          "r11__C"
+        ],
+        "kind": "mutation",
+        "name": "edit_cell",
+        "sequence": 1056,
+        "status": "completed"
+      },
+      {
+        "affectedIds": [
+          "j974f9gsdcbq6te8xx7dcxxn3s8a0pff",
+          "r11__B"
+        ],
+        "kind": "mutation",
+        "name": "edit_cell",
+        "sequence": 1055,
+        "status": "completed"
+      },
+      {
+        "affectedIds": [
+          "j974f9gsdcbq6te8xx7dcxxn3s8a0pff",
+          "r11__A"
+        ],
+        "kind": "mutation",
+        "name": "edit_cell",
+        "sequence": 1054,
+        "status": "completed"
+      },
+      {
+        "affectedIds": [
+          "j974f9gsdcbq6te8xx7dcxxn3s8a0pff",
+          "r10__E"
+        ],
+        "kind": "mutation",
+        "name": "edit_cell",
+        "sequence": 1053,
+        "status": "completed"
+      },
+      {
+        "affectedIds": [
+          "j974f9gsdcbq6te8xx7dcxxn3s8a0pff",
+          "r10__D"
+        ],
+        "kind": "mutation",
+        "name": "edit_cell",
+        "sequence": 1052,
+        "status": "completed"
+      },
+      {
+        "affectedIds": [
+          "j974f9gsdcbq6te8xx7dcxxn3s8a0pff",
+          "r10__C"
+        ],
+        "kind": "mutation",
+        "name": "edit_cell",
+        "sequence": 1051,
+        "status": "completed"
+      },
+      {
+        "affectedIds": [
+          "j974f9gsdcbq6te8xx7dcxxn3s8a0pff",
+          "r10__B"
+        ],
+        "kind": "mutation",
+        "name": "edit_cell",
+        "sequence": 1050,
+        "status": "completed"
+      },
+      {
+        "affectedIds": [
+          "j974f9gsdcbq6te8xx7dcxxn3s8a0pff",
+          "r10__A"
+        ],
+        "kind": "mutation",
+        "name": "edit_cell",
+        "sequence": 1049,
+        "status": "completed"
+      }
+    ],
+    "room": {
+      "code": "NRWEA6G7FWI",
+      "id": "k5762wetg0t115npk8kqnfv4258a00q8"
+    }
+  },
+  "scoring": {
+    "method": "withheld local answer key against live Sheet 1 cells",
+    "passAccuracy": 0.6,
+    "n": 10,
+    "matchedRows": 10,
+    "attempted": 10,
+    "correct": 10,
+    "incorrect": 0,
+    "unparseable": 0,
+    "missing": [],
+    "accuracy": 1,
+    "attemptedAccuracy": 1,
+    "confusion": {
+      "originated_as_originated": 5,
+      "originated_as_denied": 0,
+      "denied_as_originated": 0,
+      "denied_as_denied": 5
+    },
+    "predictions": [
+      {
+        "row": 2,
+        "application_id": "HMDA_DC_2025_001",
+        "predicted_action_taken": "1",
+        "predicted_label": "originated",
+        "confidence": "0.95",
+        "brief_reason": "low risk: DTI under 20%; LTV under 45%; strong reported income",
+        "predicted": 1,
+        "actual": 1,
+        "actual_label": "originated"
+      },
+      {
+        "row": 3,
+        "application_id": "HMDA_DC_2025_002",
+        "predicted_action_taken": "1",
+        "predicted_label": "originated",
+        "confidence": "0.95",
+        "brief_reason": "low risk: DTI under 20%; LTV under 45%; strong reported income",
+        "predicted": 1,
+        "actual": 1,
+        "actual_label": "originated"
+      },
+      {
+        "row": 4,
+        "application_id": "HMDA_DC_2025_003",
+        "predicted_action_taken": "3",
+        "predicted_label": "denied",
+        "confidence": "0.98",
+        "brief_reason": "high risk: DTI over 60%; LTV 80-89%; very low reported income",
+        "predicted": 3,
+        "actual": 3,
+        "actual_label": "denied"
+      },
+      {
+        "row": 5,
+        "application_id": "HMDA_DC_2025_004",
+        "predicted_action_taken": "3",
+        "predicted_label": "denied",
+        "confidence": "0.98",
+        "brief_reason": "high risk: DTI over 60%; LTV at or above 100%; low reported income; loan amount exceeds 5x reported income",
+        "predicted": 3,
+        "actual": 3,
+        "actual_label": "denied"
+      },
+      {
+        "row": 6,
+        "application_id": "HMDA_DC_2025_005",
+        "predicted_action_taken": "3",
+        "predicted_label": "denied",
+        "confidence": "0.98",
+        "brief_reason": "high risk: DTI over 60%; LTV 90-99%; very low reported income; loan amount exceeds 5x reported income",
+        "predicted": 3,
+        "actual": 3,
+        "actual_label": "denied"
+      },
+      {
+        "row": 7,
+        "application_id": "HMDA_DC_2025_006",
+        "predicted_action_taken": "1",
+        "predicted_label": "originated",
+        "confidence": "0.95",
+        "brief_reason": "low risk: DTI under 20%; LTV under 45%; strong reported income",
+        "predicted": 1,
+        "actual": 1,
+        "actual_label": "originated"
+      },
+      {
+        "row": 8,
+        "application_id": "HMDA_DC_2025_007",
+        "predicted_action_taken": "3",
+        "predicted_label": "denied",
+        "confidence": "0.98",
+        "brief_reason": "high risk: DTI over 60%; LTV 80-89%; very low reported income; loan amount exceeds 5x reported income",
+        "predicted": 3,
+        "actual": 3,
+        "actual_label": "denied"
+      },
+      {
+        "row": 9,
+        "application_id": "HMDA_DC_2025_008",
+        "predicted_action_taken": "1",
+        "predicted_label": "originated",
+        "confidence": "0.95",
+        "brief_reason": "low risk: DTI under 20%; LTV under 45%; strong reported income",
+        "predicted": 1,
+        "actual": 1,
+        "actual_label": "originated"
+      },
+      {
+        "row": 10,
+        "application_id": "HMDA_DC_2025_009",
+        "predicted_action_taken": "3",
+        "predicted_label": "denied",
+        "confidence": "0.98",
+        "brief_reason": "high risk: DTI over 60%; LTV at or above 100%; very low reported income; subordinate lien status",
+        "predicted": 3,
+        "actual": 3,
+        "actual_label": "denied"
+      },
+      {
+        "row": 11,
+        "application_id": "HMDA_DC_2025_010",
+        "predicted_action_taken": "1",
+        "predicted_label": "originated",
+        "confidence": "0.95",
+        "brief_reason": "low risk: DTI under 20%; LTV under 45%; strong reported income",
+        "predicted": 1,
+        "actual": 1,
+        "actual_label": "originated"
+      }
+    ]
+  },
+  "passed": true
+}

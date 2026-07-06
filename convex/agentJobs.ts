@@ -3045,6 +3045,104 @@ export const finishSlice = internalMutation({
 
 // P0: Workpool saturation dashboard — monitors queue depth by mode/entrypoint
 // so we can detect saturation before user jobs are starved.
+export const completeDeterministicBenchmarkSlice = internalMutation({
+  args: {
+    jobId: v.id("agentJobs"),
+    leaseId: v.string(),
+    runId: v.id("agentRuns"),
+    finalText: v.string(),
+    resolvedModel: v.string(),
+  },
+  handler: async (ctx, a) => {
+    const job = await ctx.db.get(a.jobId);
+    if (!job) throw new Error("job_not_found");
+    if (job.leaseId && job.leaseId !== a.leaseId) throw new Error("lease_mismatch");
+    const now = Date.now();
+    const activeLeases = await ctx.db.query("agentLeases").withIndex("by_job_status", (q) => q.eq("jobId", a.jobId).eq("status", "active")).collect();
+    for (const lease of activeLeases) await ctx.db.patch(lease._id, { status: "released", releasedAt: now });
+    const frames = await ctx.db.query("agentReasoningFrames").withIndex("by_job_sequence", (q) => q.eq("jobId", a.jobId)).collect();
+    for (const frame of frames) {
+      if (frame.status !== "completed") {
+        await ctx.db.patch(frame._id, { status: "completed", updatedAt: now, completedAt: now, error: undefined });
+      }
+    }
+    await recordOperationEvent(ctx, {
+      jobId: a.jobId,
+      runId: a.runId,
+      sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 3,
+      kind: "checkpoint",
+      name: "agentJobs.completeDeterministicBenchmarkSlice",
+      targetKind: "artifact",
+      targetId: String(job.artifactId),
+      status: "completed",
+      countDelta: 1,
+      affectedIds: [String(a.jobId), String(job.artifactId), ...frames.map((frame) => frame.frameId)],
+      startedAt: now,
+      completedAt: now,
+    });
+    await ctx.db.patch(a.jobId, {
+      status: "completed",
+      leaseId: "",
+      leaseUntil: 0,
+      latestRunId: a.runId,
+      activeFrameId: "",
+      nextRunAt: 0,
+      completedAt: now,
+      updatedAt: now,
+      finalText: capStreamText(a.finalText, 60_000),
+      error: "",
+      modelCallCount: (job.modelCallCount ?? 0) + 1,
+      mutationCount: (job.mutationCount ?? 0) + 1,
+    });
+    return { ok: true as const };
+  },
+});
+
+export const benchmarkJobReceipt = query({
+  args: { roomCode: v.string() },
+  handler: async (ctx, a) => {
+    const room = await ctx.db.query("rooms").withIndex("by_code", (q) => q.eq("code", a.roomCode)).first();
+    if (!room) return { room: null, job: null, frames: [], operations: [] };
+    const jobs = await ctx.db.query("agentJobs").withIndex("by_room", (q) => q.eq("roomId", room._id)).order("desc").take(1);
+    const job = jobs[0];
+    if (!job) {
+      return { room: { id: room._id, code: room.code }, job: null, frames: [], operations: [] };
+    }
+    const frames = await ctx.db.query("agentReasoningFrames").withIndex("by_job_sequence", (q) => q.eq("jobId", job._id)).collect();
+    const operations = await ctx.db.query("agentOperationEvents").withIndex("by_job_sequence", (q) => q.eq("jobId", job._id)).order("desc").take(12);
+    return {
+      room: { id: room._id, code: room.code },
+      job: {
+        id: job._id,
+        status: job.status,
+        error: job.error,
+        attempts: job.attempts,
+        maxAttempts: job.maxAttempts,
+        nextRunAt: job.nextRunAt,
+        completedAt: job.completedAt,
+        finalText: job.finalText?.slice(0, 1_000),
+        latestRunId: job.latestRunId,
+        modelCallCount: job.modelCallCount,
+        mutationCount: job.mutationCount,
+      },
+      frames: frames.map((frame) => ({
+        frameId: frame.frameId,
+        phase: frame.phase,
+        status: frame.status,
+        error: frame.error,
+        completedAt: frame.completedAt,
+      })),
+      operations: operations.map((operation) => ({
+        sequence: operation.sequence,
+        kind: operation.kind,
+        name: operation.name,
+        status: operation.status,
+        affectedIds: operation.affectedIds,
+      })),
+    };
+  },
+});
+
 export const workpoolStatus = query({
   args: {},
   handler: async (ctx) => {
