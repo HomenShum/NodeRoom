@@ -74,6 +74,7 @@ export const designRadiusScalePx = [4, 6, 8, 10, 12, 16, 9999] as const;
 export const canonicalTokenFile = "design-reference/assets/colors_and_type.css";
 
 const STYLE_FILE = "src/app/styles.css";
+const APP_FILE = "src/ui/App.tsx";
 const CHAT_FILE = "src/ui/Chat.tsx";
 const ARTIFACT_FILE = "src/ui/panels/Artifact.tsx";
 const SHELL_FILE = "src/ui/RoomShell.tsx";
@@ -83,12 +84,15 @@ const MOBILE_CSS_FILE = "src/ui/mobile/mobile.css";
 const MOBILE_ROOT_FILE = "src/ui/mobile/MobileRoot.tsx";
 const MOBILE_APP_FILE = "src/ui/mobile/MobileApp.tsx";
 const MOBILE_FRAME_FILE = "src/ui/mobile/MobileFrame.tsx";
+const MOBILE_FRAME_CSS_FILE = "src/ui/mobile/mobileFrame.css";
+const MOBILE_CONSENT_FILE = "src/ui/mobile/RoomJoinConsent.tsx";
 const ALWAYS_ON_CSS_FILE = "src/alwayson/alwayson.css";
 const ALWAYS_ON_PUBLIC_FILE = "src/alwayson/PublicRoomPage.tsx";
 const ALWAYS_ON_SUBSCRIBE_FILE = "src/alwayson/SubscribeModal.tsx";
 
 export const designSystemFiles = [
   STYLE_FILE,
+  APP_FILE,
   CHAT_FILE,
   ARTIFACT_FILE,
   SHELL_FILE,
@@ -98,6 +102,8 @@ export const designSystemFiles = [
   MOBILE_ROOT_FILE,
   MOBILE_APP_FILE,
   MOBILE_FRAME_FILE,
+  MOBILE_FRAME_CSS_FILE,
+  MOBILE_CONSENT_FILE,
   ALWAYS_ON_CSS_FILE,
   ALWAYS_ON_PUBLIC_FILE,
   ALWAYS_ON_SUBSCRIBE_FILE,
@@ -228,14 +234,19 @@ export function getNodeRoomDesignManifest(): DesignManifest {
         },
         {
           name: "MobileLiveBootstrap",
-          selectors: ["#mobile?demo=review", "#mobile?room=", ".na-join", "RoomJoinConsent"],
-          role: "Live mobile entry path that creates or joins a Convex room before mounting MobileTerracottaRoom.",
+          selectors: ["?demo=review", "?room=", "#mobile?demo=review", "#mobile?room=", ".na-join", "RoomJoinConsent"],
+          role: "Universal mobile entry path that routes phone-sized NodeRoom URLs into live terracotta create/join before mounting MobileTerracottaRoom.",
           must: [
+            "Route phone-sized standard NodeRoom URLs into #mobile before desktop or public-room shells render.",
+            "Keep a named surface=desktop harness escape for desktop responsive QA, not for normal users.",
             "Route demo creation through explicit consent before minting the room.",
+            "Support join, demo, and create intents from standard URL parameters.",
             "Replace the URL with #mobile?room=<code> after a live room is created or joined.",
             "Mount MobileAppLive inside the same terracotta shell as memory mode.",
           ],
           avoid: [
+            "Requiring real mobile users to know or type a #mobile hash.",
+            "Landing first-time phone users on the dark public-room shell.",
             "Auto-firing live room mutations from URL parsing.",
             "Using ?mode=memory as proof of live room behavior.",
           ],
@@ -300,6 +311,7 @@ export function getNodeRoomDesignManifest(): DesignManifest {
 export function auditNodeRoomDesignSystem(files: Record<string, string>, checkedAt = new Date().toISOString()): DesignAuditResult {
   const findings: DesignAuditFinding[] = [];
   const styles = files[STYLE_FILE] ?? "";
+  const app = files[APP_FILE] ?? "";
   const chat = files[CHAT_FILE] ?? "";
   const artifact = files[ARTIFACT_FILE] ?? "";
   const shell = files[SHELL_FILE] ?? "";
@@ -309,6 +321,8 @@ export function auditNodeRoomDesignSystem(files: Record<string, string>, checked
   const mobileRoot = files[MOBILE_ROOT_FILE] ?? "";
   const mobileApp = files[MOBILE_APP_FILE] ?? "";
   const mobileFrame = files[MOBILE_FRAME_FILE] ?? "";
+  const mobileFrameCss = files[MOBILE_FRAME_CSS_FILE] ?? "";
+  const mobileConsent = files[MOBILE_CONSENT_FILE] ?? "";
   const alwaysOnCss = files[ALWAYS_ON_CSS_FILE] ?? "";
   const alwaysOnPublic = files[ALWAYS_ON_PUBLIC_FILE] ?? "";
   const alwaysOnSubscribe = files[ALWAYS_ON_SUBSCRIBE_FILE] ?? "";
@@ -393,12 +407,20 @@ export function auditNodeRoomDesignSystem(files: Record<string, string>, checked
   requireText(findings, mobileCss, MOBILE_CSS_FILE, ".na-handle", "mobile-sheet-handle", "Mobile terracotta sheet grabber is missing.", "Keep the grabber affordance on bottom sheets.");
   requireText(findings, mobileFrame, MOBILE_FRAME_FILE, "const query = \"(max-width: 460px)\";", "mobile-real-phone-bleed", "Mobile frame no longer switches to full-bleed at real phone widths.", "Drop the synthetic bezel at phone width so production mobile is not a framed mockup.");
   requireText(findings, mobileFrame, MOBILE_FRAME_FILE, "na-ios-bleed", "mobile-real-phone-shell", "Mobile full-bleed shell is missing.", "Keep the production phone shell distinct from the desktop presentation frame.");
+  requireText(findings, app, APP_FILE, "normalizeMobileLandingUrl", "mobile-universal-landing-router", "The app entry no longer normalizes standard phone URLs into the mobile route.", "Route every phone-sized NodeRoom URL into #mobile before desktop/public shells render.");
+  requireText(findings, app, APP_FILE, "isMobileLandingViewport", "mobile-universal-viewport-gate", "Universal mobile routing is missing the phone viewport/user-agent gate.", "Keep desktop URLs on desktop while phone-sized users land in the mobile shell.");
+  requireText(findings, app, APP_FILE, "sourceParams.get(\"surface\") === \"desktop\"", "mobile-desktop-harness-escape", "Desktop responsive QA no longer has an explicit harness escape from universal mobile routing.", "Keep surface=desktop for deterministic desktop-shell QA on phone viewports.");
   requireText(findings, mobileApp, MOBILE_APP_FILE, "export function MobileApp({ live }", "mobile-live-prop", "MobileApp no longer accepts the live room binding.", "Keep one terracotta component tree for memory preview and live room mode.");
   requireText(findings, mobileApp, MOBILE_APP_FILE, "if (!live) { setFirstJoinSeen(true); return; }", "mobile-live-first-join", "Mobile live first-join logic is missing.", "Keep live-room behavior explicit instead of treating memory preview as production usage.");
   requireText(findings, mobileRoot, MOBILE_ROOT_FILE, "return <MobileLiveRoot />;", "mobile-live-root-route", "The #mobile route no longer reaches the live root when Convex is available.", "Do not validate production mobile usage through memory mode only.");
+  requireText(findings, mobileRoot, MOBILE_ROOT_FILE, "useMutation(api.rooms.create)", "mobile-live-create-path", "Mobile live bootstrap no longer supports standard ?create= room creation.", "Keep join, demo, and create parity with the desktop live URL contract.");
+  requireText(findings, mobileRoot, MOBILE_ROOT_FILE, "data-theme=\"light\"", "mobile-entry-light-shell", "Mobile join bootstrap is not using the terracotta light shell.", "First-time phone users should land on the terracotta mobile system, not the dark public shell.");
   requireText(findings, mobileRoot, MOBILE_ROOT_FILE, "RoomJoinConsent", "mobile-live-consent", "Live mobile demo creation is no longer gated by consent.", "Keep explicit auto-approve/review consent before minting a live demo room.");
   requireText(findings, mobileRoot, MOBILE_ROOT_FILE, "MobileAppLive", "mobile-live-app", "Live mobile room binding is missing.", "Mount MobileAppLive so the terracotta shell subscribes to the real room.");
   requireText(findings, mobileRoot, MOBILE_ROOT_FILE, "history.replaceState(null, \"\", `#mobile?room=${reqCode}`", "mobile-live-room-url", "Live mobile room creation no longer replaces the URL with #mobile?room=<code>.", "Record the live room code in the URL after join/create so the session is reproducible.");
+  requireText(findings, mobileConsent, MOBILE_CONSENT_FILE, "data-theme=\"light\"", "mobile-consent-light-shell", "Mobile consent bootstrap is not using the terracotta light shell.", "The explicit consent screen must match the mobile design system.");
+  requireText(findings, mobileFrameCss, MOBILE_FRAME_CSS_FILE, "#fbf4e7", "mobile-entry-frame-cream", "Mobile live entry frame no longer defaults to the cream terracotta backdrop.", "Keep mobile join/consent on the same cream surface as the room shell.");
+  requireText(findings, mobileFrameCss, MOBILE_FRAME_CSS_FILE, ".na-frame-root[data-theme=\"dark\"]", "mobile-entry-dark-opt-in", "Mobile frame CSS removed the explicit dark opt-in variant.", "Keep dark as an opt-in variant while the default mobile landing stays terracotta.");
   requireText(findings, alwaysOnSubscribe, ALWAYS_ON_SUBSCRIBE_FILE, "FocusTrapDialog", "public-subscribe-shared-dialog", "Always-On subscription modal is not using the shared dialog primitive.", "Use FocusTrapDialog for public-room modal behavior parity.");
   requireText(findings, alwaysOnSubscribe, ALWAYS_ON_SUBSCRIBE_FILE, "Automatic confirmation email delivery is not wired yet", "public-subscribe-no-fake-email", "Always-On subscription success copy can imply an email was sent before delivery exists.", "Only claim pending storage until the confirmation sender is wired and tested.");
   requireText(findings, alwaysOnCss, ALWAYS_ON_CSS_FILE, ".ao-btn:focus-visible", "public-controls-focus", "Always-On controls are missing explicit focus-visible styling.", "Use the shared accent/focus token semantics for public controls.");

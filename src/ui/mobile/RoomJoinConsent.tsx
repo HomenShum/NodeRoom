@@ -12,7 +12,8 @@
        re-prompts. Joiners (?room=) and memory mode (?mode=memory) skip this
        entirely; the parent (MobileRoot) gates whether the modal renders.
 
-   Visual: dark terra (.na-* namespace, terra tokens only — no new CSS vars).
+   Visual: terracotta mobile shell (.na-* namespace, terra tokens only — no
+   new CSS vars).
    ============================================================================ */
 import * as React from "react";
 import { Ico } from "./MobileIcons";
@@ -99,7 +100,7 @@ export function RoomJoinConsent({
   return (
     <div
       className="na-frame-root"
-      data-theme="dark"
+      data-theme="light"
       role="dialog"
       aria-modal="true"
       aria-labelledby="rjc-title"

@@ -44,6 +44,10 @@ describe("NodeRoom design-system manifest", () => {
 
   it("catches the regressions that made the prod grid read as AI-generated", () => {
     const files = currentDesignFiles();
+    files["src/ui/App.tsx"] = files["src/ui/App.tsx"]
+      .split("normalizeMobileLandingUrl").join("normalizeDesktopOnlyUrl")
+      .split("isMobileLandingViewport").join("isDesktopLandingViewport")
+      .split('sourceParams.get("surface") === "desktop"').join('sourceParams.get("surface") === "mobile-only"');
     files["src/app/styles.css"] = files["src/app/styles.css"]
       .replace(".r-cell.sel, .r-cell.editing { outline: 2px solid var(--accent-primary)", ".r-cell.sel, .r-cell.editing { outline: 2px solid rgb(46, 158, 107)")
       .replace(
@@ -69,9 +73,16 @@ describe("NodeRoom design-system manifest", () => {
       .replace("if (!live) { setFirstJoinSeen(true); return; }", "setFirstJoinSeen(true); return;");
     files["src/ui/mobile/MobileRoot.tsx"] = files["src/ui/mobile/MobileRoot.tsx"]
       .replace("return <MobileLiveRoot />;", "return <MobileApp />;")
+      .replace("useMutation(api.rooms.create)", "undefined as never")
+      .split('data-theme="light"').join('data-theme="dark"')
       .split("RoomJoinConsent").join("JoinConsentMissing")
       .split("MobileAppLive").join("MobileAppMemoryOnly")
       .replace("history.replaceState(null, \"\", `#mobile?room=${reqCode}`", "history.replaceState(null, \"\", `#mobile?mode=memory`");
+    files["src/ui/mobile/RoomJoinConsent.tsx"] = files["src/ui/mobile/RoomJoinConsent.tsx"]
+      .split('data-theme="light"').join('data-theme="dark"');
+    files["src/ui/mobile/mobileFrame.css"] = files["src/ui/mobile/mobileFrame.css"]
+      .split("#fbf4e7").join("#09090b")
+      .split('.na-frame-root[data-theme="dark"]').join('.na-frame-root[data-theme="always-dark"]');
     files["src/alwayson/SubscribeModal.tsx"] = files["src/alwayson/SubscribeModal.tsx"]
       .split("FocusTrapDialog").join("LegacyModal")
       .replace("Automatic confirmation email delivery is not wired yet", "Check your email to confirm");
@@ -110,12 +121,20 @@ describe("NodeRoom design-system manifest", () => {
     expect(codes).toContain("mobile-sheet-handle");
     expect(codes).toContain("mobile-real-phone-bleed");
     expect(codes).toContain("mobile-real-phone-shell");
+    expect(codes).toContain("mobile-universal-landing-router");
+    expect(codes).toContain("mobile-universal-viewport-gate");
+    expect(codes).toContain("mobile-desktop-harness-escape");
     expect(codes).toContain("mobile-live-prop");
     expect(codes).toContain("mobile-live-first-join");
     expect(codes).toContain("mobile-live-root-route");
+    expect(codes).toContain("mobile-live-create-path");
+    expect(codes).toContain("mobile-entry-light-shell");
     expect(codes).toContain("mobile-live-consent");
     expect(codes).toContain("mobile-live-app");
     expect(codes).toContain("mobile-live-room-url");
+    expect(codes).toContain("mobile-consent-light-shell");
+    expect(codes).toContain("mobile-entry-frame-cream");
+    expect(codes).toContain("mobile-entry-dark-opt-in");
     expect(codes).toContain("public-subscribe-shared-dialog");
     expect(codes).toContain("public-subscribe-no-fake-email");
     expect(codes).toContain("public-controls-focus");
