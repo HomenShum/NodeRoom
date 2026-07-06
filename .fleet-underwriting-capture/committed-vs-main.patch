@@ -1,0 +1,242 @@
+diff --git a/convex/agent.ts b/convex/agent.ts
+index 525bbb30..f135e56e 100644
+--- a/convex/agent.ts
++++ b/convex/agent.ts
+@@ -122,8 +122,8 @@ function modelNameForEgress(modelName: string, entrypoint: ProviderEgressEntrypo
+ 
+ type LiveOperationKind = "action" | "query" | "mutation" | "model_call" | "tool_call" | "scheduler" | "lease" | "checkpoint";
+ 
+-const QUERY_TOOLS = new Set(["snapshot", "list_artifacts", "awareness", "read_range", "search_sheet_context", "fetch_source", "read_notebook"]);
+-const MUTATION_TOOLS = new Set(["propose_lock", "release_lock", "edit_cell", "create_draft", "say", "update_wiki", "append_notebook_outline", "write_cell_result", "write_locked_cell", "write_locked_cell_result", "write_locked_cells", "write_locked_cell_results"]);
++const QUERY_TOOLS = new Set(["snapshot", "list_artifacts", "awareness", "read_range", "search_sheet_context", "fetch_source"]);
++const MUTATION_TOOLS = new Set(["propose_lock", "release_lock", "edit_cell", "create_draft", "say", "update_wiki", "write_cell_result", "write_locked_cell", "write_locked_cell_result", "write_locked_cells", "write_locked_cell_results"]);
+ 
+ function liveOperationKind(event: AgentTraceEvent): LiveOperationKind {
+   if (event.tool === "handoff" || event.tool === "compaction") return "checkpoint";
+@@ -141,21 +141,9 @@ function liveOperationName(event: AgentTraceEvent): string {
+ function toolResultFailed(result: unknown): boolean {
+   if (!result || typeof result !== "object") return false;
+   const object = result as Record<string, unknown>;
+-  if (object.pendingApproval === true) return false;
+   return object.ok === false || typeof object.error === "string";
+ }
+ 
+-function notebookAffectedIds(args: unknown, result: unknown): string[] {
+-  const artifactId = String((args as { artifactId?: unknown } | null)?.artifactId ?? "");
+-  const blockIds = Array.isArray((result as { blockIds?: unknown[] } | null)?.blockIds)
+-    ? (result as { blockIds: unknown[] }).blockIds.map((id) => String(id || "")).filter(Boolean)
+-    : [];
+-  const out = new Set<string>();
+-  if (artifactId) out.add(artifactId);
+-  for (const blockId of blockIds) out.add(artifactId ? `${artifactId}:blk:${blockId}` : blockId);
+-  return [...out].slice(0, 20);
+-}
+-
+ function liveOperationAffectedIds(event: AgentTraceEvent): string[] | undefined {
+   const out = new Set<string>();
+   const visit = (value: unknown) => {
+@@ -166,7 +154,6 @@ function liveOperationAffectedIds(event: AgentTraceEvent): string[] | undefined
+   visit(args?.artifactId);
+   visit(args?.elementId);
+   visit(args?.elementIds);
+-  if (event.tool === "append_notebook_outline") for (const id of notebookAffectedIds(event.args, event.result)) out.add(id);
+   return out.size ? [...out].slice(0, 20) : undefined;
+ }
+ 
+@@ -373,9 +360,7 @@ export const runRoomAgent = action({
+         ? [elementId]
+         : e.tool === "write_locked_cells" || e.tool === "write_locked_cell_results"
+           ? batchElementIds(e.args)
+-          : e.tool === "append_notebook_outline"
+-            ? notebookAffectedIds(e.args, e.result)
+-            : undefined;
++          : undefined;
+       const mutationReceiptId = typeof (e.result as { mutationReceiptId?: unknown } | null)?.mutationReceiptId === "string"
+         ? (e.result as { mutationReceiptId: Id<"agentMutationReceipts"> }).mutationReceiptId
+         : undefined;
+diff --git a/convex/agentJobRunner.ts b/convex/agentJobRunner.ts
+index c83561a3..d34c7ad6 100644
+--- a/convex/agentJobRunner.ts
++++ b/convex/agentJobRunner.ts
+@@ -128,8 +128,8 @@ type PublicAgentJobStream = {
+ 
+ type LiveOperationKind = "action" | "query" | "mutation" | "model_call" | "tool_call" | "scheduler" | "lease" | "checkpoint";
+ 
+-const QUERY_TOOLS = new Set(["snapshot", "list_artifacts", "awareness", "read_range", "search_sheet_context", "fetch_source", "read_notebook"]);
+-const MUTATION_TOOLS = new Set(["propose_lock", "release_lock", "edit_cell", "create_draft", "say", "update_wiki", "append_notebook_outline", "write_cell_result", "write_locked_cell", "write_locked_cell_result", "write_locked_cells", "write_locked_cell_results"]);
++const QUERY_TOOLS = new Set(["snapshot", "list_artifacts", "awareness", "read_range", "search_sheet_context", "fetch_source"]);
++const MUTATION_TOOLS = new Set(["propose_lock", "release_lock", "edit_cell", "create_draft", "say", "update_wiki", "write_cell_result", "write_locked_cell", "write_locked_cell_result", "write_locked_cells", "write_locked_cell_results"]);
+ 
+ function envNumber(name: string, fallback: number, min: number, max: number): number {
+   const raw = Number(process.env[name] ?? fallback);
+@@ -182,10 +182,9 @@ function errorText(error: unknown): string {
+ }
+ 
+ function stepStatus(e: { tool: string; result: unknown }): "ok" | "conflict" | "locked" | "error" {
+-  const r = (e.result ?? {}) as { ok?: boolean; conflict?: boolean; locked?: boolean; error?: unknown; drafted?: boolean; pendingApproval?: boolean };
++  const r = (e.result ?? {}) as { ok?: boolean; conflict?: boolean; locked?: boolean; error?: unknown; drafted?: boolean };
+   if (e.tool === "edit_cell") { if (r.conflict) return "conflict"; if (r.locked) return "locked"; }
+   if (e.tool.startsWith("write_locked_cell") && r.drafted) return "ok";
+-  if (r.pendingApproval) return "ok";
+   if (toolResultFailed(r)) return "error";
+   return "ok";
+ }
+@@ -193,7 +192,6 @@ function stepStatus(e: { tool: string; result: unknown }): "ok" | "conflict" | "
+ function toolResultFailed(result: unknown): boolean {
+   if (!result || typeof result !== "object") return false;
+   const object = result as Record<string, unknown>;
+-  if (object.pendingApproval === true) return false;
+   return object.ok === false || typeof object.error === "string";
+ }
+ 
+@@ -220,7 +218,6 @@ function liveOperationAffectedIds(event: AgentTraceEvent): string[] | undefined
+   visit(args?.artifactId);
+   visit(args?.elementId);
+   visit(args?.elementIds);
+-  if (event.tool === "append_notebook_outline") for (const id of notebookAffectedIds(event.args, event.result)) out.add(id);
+   return out.size ? [...out].slice(0, 20) : undefined;
+ }
+ 
+@@ -230,17 +227,6 @@ function batchElementIds(args: unknown) {
+   return ops.map((op) => String((op as { elementId?: unknown } | null)?.elementId ?? "")).filter(Boolean);
+ }
+ 
+-function notebookAffectedIds(args: unknown, result: unknown): string[] {
+-  const artifactId = String((args as { artifactId?: unknown } | null)?.artifactId ?? "");
+-  const blockIds = Array.isArray((result as { blockIds?: unknown[] } | null)?.blockIds)
+-    ? (result as { blockIds: unknown[] }).blockIds.map((id) => String(id || "")).filter(Boolean)
+-    : [];
+-  const out = new Set<string>();
+-  if (artifactId) out.add(artifactId);
+-  for (const blockId of blockIds) out.add(artifactId ? `${artifactId}:blk:${blockId}` : blockId);
+-  return [...out].slice(0, 20);
+-}
+-
+ function traceStep(e: AgentTraceEvent, i: number) {
+   const elementId = e.tool === "edit_cell" || e.tool === "write_locked_cell" || e.tool === "write_locked_cell_result"
+     ? (String((e.args as { elementId?: string }).elementId ?? "") || undefined)
+@@ -249,9 +235,7 @@ function traceStep(e: AgentTraceEvent, i: number) {
+     ? [elementId]
+     : e.tool === "write_locked_cells" || e.tool === "write_locked_cell_results"
+       ? batchElementIds(e.args)
+-      : e.tool === "append_notebook_outline"
+-        ? notebookAffectedIds(e.args, e.result)
+-        : undefined;
++      : undefined;
+   const mutationReceiptId = typeof (e.result as { mutationReceiptId?: unknown } | null)?.mutationReceiptId === "string"
+     ? (e.result as { mutationReceiptId: Id<"agentMutationReceipts"> }).mutationReceiptId
+     : undefined;
+diff --git a/convex/agentJobs.ts b/convex/agentJobs.ts
+index 1c8be0f4..458a7802 100644
+--- a/convex/agentJobs.ts
++++ b/convex/agentJobs.ts
+@@ -380,15 +380,13 @@ async function findEntityFacetCacheRows(ctx: any, args: {
+   return rows.sort((a: { updatedAt: number }, b: { updatedAt: number }) => b.updatedAt - a.updatedAt);
+ }
+ 
+-/** READ-ONLY cache lookup — shared by the public lookupEntityResearchCache
+- *  QUERY and mutation flows, so it must never write. Usage-recency touches
+- *  (lastUsedAt) are mutation-owned: see markEntityFacetCacheUsed. */
+ async function lookupEntityFacetCache(ctx: any, args: {
+   roomId: unknown;
+   actor: ActorValue;
+   entity: NormalizedRoomWorkEntity;
+   facet: string;
+   now: number;
++  markUsed?: boolean;
+ }): Promise<EntityFacetCacheHit | null> {
+   const [row] = await findEntityFacetCacheRows(ctx, {
+     roomId: args.roomId,
+@@ -398,6 +396,7 @@ async function lookupEntityFacetCache(ctx: any, args: {
+     facet: args.facet,
+   });
+   if (!row) return null;
++  if (args.markUsed) await ctx.db.patch(row._id, { lastUsedAt: args.now, updatedAt: row.updatedAt });
+   return {
+     cacheId: row._id,
+     entityType: row.entityType,
+@@ -1236,14 +1235,8 @@ export const startOrReuseRoomWork = mutation({
+     const cacheHits: EntityFacetCacheHit[] = [];
+     for (const entity of entities) {
+       for (const facet of facets) {
+-        const hit = await lookupEntityFacetCache(ctx, { roomId: a.roomId, actor, entity, facet, now });
+-        if (hit) {
+-          // Touch usage recency here (mutation-owned write; lastUsedAt only —
+-          // updatedAt is preserved). The lookup helper stays pure because the
+-          // read-only lookupEntityResearchCache query shares it.
+-          await ctx.db.patch(hit.cacheId, { lastUsedAt: now, updatedAt: hit.updatedAt });
+-          cacheHits.push(hit);
+-        }
++        const hit = await lookupEntityFacetCache(ctx, { roomId: a.roomId, actor, entity, facet, now, markUsed: true });
++        if (hit) cacheHits.push(hit);
+       }
+     }
+     const hitByKey = new Map(cacheHits.map((hit) => [`${hit.entityType}:${hit.entityKey}:${hit.facet}`, hit]));
+@@ -1650,10 +1643,6 @@ function goalPrefersCompanyResearch(goal: string): boolean {
+   return /(diligence|research|enrich|profile|source-?backed|funding|hiring|hipaa|security|buyer|watchlist|compan)/i.test(goal);
+ }
+ 
+-function goalPrefersDiligenceMemoNote(goal: string): boolean {
+-  return /\b(?:diligence\s+memo|memo)\b/i.test(goal) && /\b(?:note|notebook|draft|write|append|paragraph|heading|section)\b/i.test(goal);
+-}
+-
+ function goalPrefersPersonResearch(goal: string): boolean {
+   return /(deep[ -]?dive|person|founder|background|career|bio(?:graphy)?|education|publication|talk|award|patent|project|code (?:review|profile)|github profile|linkedin)/i.test(goal);
+ }
+@@ -1766,16 +1755,11 @@ async function resolvePublicAskArtifact(ctx: any, args: {
+   }
+ 
+   const title = (name: string) => visible.find((artifact: { title?: string }) => artifact.title === name);
+-  const active = byId(args.contextArtifactId);
+-  if (goalPrefersDiligenceMemoNote(args.goal)) {
+-    const memo = title("Diligence memo");
+-    if (memo) return memo;
+-    if (active?.kind === "note") return active;
+-  }
+   if (goalPrefersRunway(args.goal)) return title("Runway / milestones") ?? title("Q3 variance") ?? visible.find((artifact: { kind?: string }) => artifact.kind === "sheet") ?? visible[0];
+   if (goalPrefersCompanyResearch(args.goal)) return title("Company research") ?? visible.find((artifact: { kind?: string }) => artifact.kind === "sheet") ?? visible[0];
+   if (goalPrefersVariance(args.goal)) return title("Q3 variance") ?? visible.find((artifact: { kind?: string }) => artifact.kind === "sheet") ?? visible[0];
+ 
++  const active = byId(args.contextArtifactId);
+   if (active) return active;
+   return title("Q3 variance") ?? visible.find((artifact: { kind?: string }) => artifact.kind === "sheet") ?? visible[0];
+ }
+@@ -2120,7 +2104,7 @@ export const startPublicAsk = mutation({
+       modelPolicy: a.modelPolicy,
+       runtimeProfile: a.runtimeProfile,
+       maxAttempts: a.maxAttempts,
+-      mode: modeForArtifact(artifact) ?? (artifact.kind === "note" ? undefined : goalPrefersPersonResearch(a.goal) || goalPrefersCompanyResearch(a.goal) ? "research" : undefined),
++      mode: modeForArtifact(artifact) ?? (goalPrefersPersonResearch(a.goal) || goalPrefersCompanyResearch(a.goal) ? "research" : undefined),
+     });
+     return startDurableAgentJob(ctx, {
+       ...policy,
+@@ -2783,19 +2767,6 @@ async function extractCompletedCompaniesFromSheet(ctx: any, artifactId: unknown)
+   return companies;
+ }
+ 
+-function normalizedCompanyMentionText(value: string): string {
+-  return value.toLowerCase().replace(/[^a-z0-9]+/g, "");
+-}
+-
+-function filterCompaniesByGoalMention(goal: string, companies: Array<{ rowId: string; company: string; website: string }>): Array<{ rowId: string; company: string; website: string }> {
+-  const normalizedGoal = normalizedCompanyMentionText(goal);
+-  const explicitlyMentioned = companies.filter((company) => {
+-    const normalizedCompany = normalizedCompanyMentionText(company.company);
+-    return normalizedCompany.length >= 3 && normalizedGoal.includes(normalizedCompany);
+-  });
+-  return explicitlyMentioned.length ? explicitlyMentioned : companies;
+-}
+-
+ /** After the parent (execute) frame completes, spawn one deep-dive child frame per
+  *  completed company. Returns the number of child frames spawned. */
+ async function spawnDeepDiveFramesIfNeeded(ctx: any, args: {
+@@ -2815,8 +2786,7 @@ async function spawnDeepDiveFramesIfNeeded(ctx: any, args: {
+   if (!completedFrame || completedFrame.phase !== "execute") return 0;
+ 
+   // Extract completed companies from the sheet
+-  const completedCompanies = await extractCompletedCompaniesFromSheet(ctx, args.artifactId);
+-  const companies = filterCompaniesByGoalMention(completedFrame.goal, completedCompanies);
++  const companies = await extractCompletedCompaniesFromSheet(ctx, args.artifactId);
+   if (companies.length === 0) return 0;
+ 
+   const maxChildren = Math.min(companies.length, MAX_DEEP_DIVE_CHILD_FRAMES);

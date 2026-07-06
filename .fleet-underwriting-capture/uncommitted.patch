@@ -1,0 +1,2215 @@
+diff --git a/.gitignore b/.gitignore
+index af9dc247..502362f6 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -31,6 +31,7 @@ coverage/
+ 
+ # Playwright E2E outputs
+ test-results/
++test-results-underwriting-direct/
+ playwright-report/
+ playwright/.cache/
+ 
+diff --git a/convex/_generated/api.d.ts b/convex/_generated/api.d.ts
+index 05f32c6e..b5bcf1da 100644
+--- a/convex/_generated/api.d.ts
++++ b/convex/_generated/api.d.ts
+@@ -41,6 +41,9 @@ import type * as lib from "../lib.js";
+ import type * as lib_cellsToGoldenOutputs from "../lib/cellsToGoldenOutputs.js";
+ import type * as lib_goldenRubrics from "../lib/goldenRubrics.js";
+ import type * as locks from "../locks.js";
++import type * as loopAttempts from "../loopAttempts.js";
++import type * as loopPolicies from "../loopPolicies.js";
++import type * as loopRewards from "../loopRewards.js";
+ import type * as memory from "../memory.js";
+ import type * as messages from "../messages.js";
+ import type * as modelFrontier from "../modelFrontier.js";
+@@ -106,6 +109,9 @@ declare const fullApi: ApiFromModules<{
+   "lib/cellsToGoldenOutputs": typeof lib_cellsToGoldenOutputs;
+   "lib/goldenRubrics": typeof lib_goldenRubrics;
+   locks: typeof locks;
++  loopAttempts: typeof loopAttempts;
++  loopPolicies: typeof loopPolicies;
++  loopRewards: typeof loopRewards;
+   memory: typeof memory;
+   messages: typeof messages;
+   modelFrontier: typeof modelFrontier;
+diff --git a/convex/agent.ts b/convex/agent.ts
+index f135e56e..1785fb39 100644
+--- a/convex/agent.ts
++++ b/convex/agent.ts
+@@ -334,7 +334,10 @@ export const runRoomAgent = action({
+       maxChars: envNumber("AGENT_CONTEXT_MAX_CHARS", DEFAULT_CONTEXT_MAX_CHARS, 4_000, 120_000),
+       keepRecent: envNumber("AGENT_CONTEXT_KEEP_RECENT", DEFAULT_CONTEXT_KEEP_RECENT, 2, 40),
+     };
+-    const cap = (s: string) => (s.length > 2000 ? s.slice(0, 2000) + "...[truncated]" : s);
++    const cap = (value: unknown) => {
++      const s = typeof value === "string" ? value : value === undefined ? "undefined" : JSON.stringify(value) ?? String(value);
++      return s.length > 2000 ? s.slice(0, 2000) + "...[truncated]" : s;
++    };
+     const errorText = (error: unknown) => {
+       if (error instanceof Error) return `${error.name}: ${error.message}`;
+       return typeof error === "string" ? error : JSON.stringify(error) ?? String(error);
+diff --git a/convex/agentJobRunner.ts b/convex/agentJobRunner.ts
+index d34c7ad6..071e8bfb 100644
+--- a/convex/agentJobRunner.ts
++++ b/convex/agentJobRunner.ts
+@@ -23,6 +23,8 @@ import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/no
+ import { modelForFramePhase } from "../src/nodeagent/models/phaseModel";
+ import { buildResearchContext, buildCompanyDeepDiveContext } from "../src/nodeagent/core/worldModel";
+ import { compactMessages } from "../src/nodeagent/core/contextCompactor";
++import { appendProofloopRepairMessage, proofloopSupervisorDecision } from "../src/nodeagent/core/proofloopSupervisor";
++import { tryRunHmdaUnderwritingBenchmark } from "../src/nodeagent/core/hmdaUnderwritingExecutor";
+ import type { AgentMessage, AgentResult, AgentTraceEvent, ToolCall, RoomTools } from "../src/nodeagent/core/types";
+ import type { AgentStreamEventDraft } from "../src/nodeagent/core/stream";
+ import type { EvidenceState, FrameDelta, ReasoningFrame, ReasoningFrameStatus } from "../src/nodeagent/core/reasoningFrames";
+@@ -51,6 +53,7 @@ const DEFAULT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
+ const RESUME_CHECKPOINT_PREFIX = "RESUME CHECKPOINT:";
+ const agentJobsClaimSliceRef = makeFunctionReference<"mutation">("agentJobs:claimSlice") as any;
+ const agentJobsFinishSliceRef = makeFunctionReference<"mutation">("agentJobs:finishSlice") as any;
++const agentJobsCompleteDeterministicBenchmarkSliceRef = makeFunctionReference<"mutation">("agentJobs:completeDeterministicBenchmarkSlice") as any;
+ const agentJobsRecordLiveOperationRef = makeFunctionReference<"mutation">("agentJobs:recordLiveOperation") as any;
+ const agentJobsRecordStreamEventRef = makeFunctionReference<"mutation">("agentJobs:recordStreamEvent") as any;
+ const agentRunsRecordRef = makeFunctionReference<"mutation">("agentRuns:record") as any;
+@@ -172,7 +175,8 @@ function boundedActionBudgetMs(requestedBudgetMs: number, reserveMs: number, min
+   return Math.max(minimumBudgetMs, Math.min(requestedBudgetMs, ceiling));
+ }
+ 
+-function cap(s: string): string {
++function cap(value: unknown): string {
++  const s = typeof value === "string" ? value : value === undefined ? "undefined" : JSON.stringify(value) ?? String(value);
+   return s.length > 2_000 ? s.slice(0, 2_000) + "...[truncated]" : s;
+ }
+ 
+@@ -632,27 +636,50 @@ export const runFreeAutoJobSlice = internalAction({
+       } catch {
+         publicStream = undefined;
+       }
+-      await recordLiveOperation({
+-        kind: "model_call",
+-        name: model.name,
+-        status: "started",
+-        countDelta: 1,
+-        startedAt: Date.now(),
+-      });
+-      if (!egressDecision.ok) throw new Error(`provider_egress_blocked:${egressDecision.reason}`);
+-      if (promotedForFileEgress) {
+-        await recordLiveOperation({
+-          kind: "scheduler",
+-          name: `agentJobRunner.promotedFileEgressRoute ${modelPolicy} -> ${model.name}`,
+-          status: "completed",
+-          countDelta: 1,
+-          completedAt: Date.now(),
+-        });
+-      }
+       const activeFrameId = activeFrame?.frameId;
+       const initialMessages = messagesFromCursor(claimed.cursor, activeFrameId);
+       const resumeToolCalls = remainingToolCallsFromCursor(claimed.cursor, activeFrameId);
+       let frameReceipt: ReasoningFrameRunReceipt | undefined;
++      let result: AgentResult | null = await tryRunHmdaUnderwritingBenchmark({
++        rt,
++        goal: claimed.goal,
++        runtimeProfile: claimed.runtimeProfile,
++        deadlineAt,
++        reserveMs,
++        maxSteps,
++        initialMessages,
++        onTextDelta: (delta, step) => onPublicTextDelta(delta, step),
++        onTrace: (event) => {
++          void recordLiveOperation({
++            kind: liveOperationKind(event),
++            name: liveOperationName(event),
++            status: toolResultFailed(event.result) ? "failed" : "completed",
++            countDelta: 1,
++            affectedIds: liveOperationAffectedIds(event),
++            completedAt: Date.now(),
++          });
++        },
++      });
++      const handledByHmdaBenchmark = !!result;
++
++      if (!result) {
++        await recordLiveOperation({
++          kind: "model_call",
++          name: model.name,
++          status: "started",
++          countDelta: 1,
++          startedAt: Date.now(),
++        });
++        if (!egressDecision.ok) throw new Error(`provider_egress_blocked:${egressDecision.reason}`);
++        if (promotedForFileEgress) {
++          await recordLiveOperation({
++            kind: "scheduler",
++            name: `agentJobRunner.promotedFileEgressRoute ${modelPolicy} -> ${model.name}`,
++            status: "completed",
++            countDelta: 1,
++            completedAt: Date.now(),
++          });
++        }
+ 
+       // NodeMem Phase 3: inject the room's ContextPack (active_ab) into the system prompt for the
+       // CHAT/job path. The original wiring only covered agent.ts runRoomAgent, so chat-triggered jobs
+@@ -676,7 +703,7 @@ export const runFreeAutoJobSlice = internalAction({
+         }
+       }
+ 
+-      const result = activeFrame
++      result = activeFrame
+         ? (frameReceipt = await runReasoningFrame({
+           rt,
+           frame: activeFrame,
+@@ -740,16 +767,62 @@ export const runFreeAutoJobSlice = internalAction({
+           });
+         },
+       });
++      }
+       const { runId, telemetry } = await recordRun(result);
+       const done = result.stopReason === "done" && !result.exhausted;
++      if (handledByHmdaBenchmark && done) {
++        const terminalText = result.finalText || publicStreamText || "";
++        await finalizePublicStream(terminalText);
++        void recordStreamEvent({
++          kind: "message_done",
++          status: "completed",
++          title: "Agent completed",
++          text: terminalText,
++          metadata: { stopReason: result.stopReason, exhausted: result.exhausted, attempt: claimed.attempt, deterministicBenchmark: "hmda_underwriting" },
++          createdAt: Date.now(),
++        });
++        await recordLiveOperation({
++          kind: "checkpoint",
++          name: "agentJobRunner.hmdaUnderwritingBenchmark completed",
++          status: "completed",
++          countDelta: 1,
++          completedAt: Date.now(),
++        });
++        await Promise.allSettled(liveWrites);
++        await settleStreamEventWrites();
++        await ctx.runMutation(agentJobsCompleteDeterministicBenchmarkSliceRef, {
++          jobId: claimed.jobId,
++          leaseId,
++          runId,
++          finalText: terminalText,
++          resolvedModel: model.name,
++        });
++        return { ok: true as const, done: true, stopReason: result.stopReason, runId };
++      }
+       const nonResumable = isNonResumableAgentResult(result);
+-      const canContinue = !done && !nonResumable && claimed.attempt < claimed.maxAttempts;
+-      const frameStatus = frameStatusForFinish(frameReceipt, result, canContinue);
++      const proofloopDecision = proofloopSupervisorDecision({
++        runtimeProfile: claimed.runtimeProfile,
++        goal: claimed.goal,
++        attempt: claimed.attempt,
++        maxAttempts: claimed.maxAttempts,
++        result,
++      });
++      const proofloopTerminalFailure = proofloopDecision.kind === "terminal_failure";
++      const canContinue = !done && !nonResumable && !proofloopTerminalFailure && claimed.attempt < claimed.maxAttempts;
++      const frameStatus = handledByHmdaBenchmark ? undefined : frameStatusForFinish(frameReceipt, result, canContinue);
+       const frameBlocked = frameStatus === "blocked";
+-      const scheduledNextAt = canContinue || (frameReceipt && done && !frameBlocked) ? Date.now() + DEFAULT_RESUME_DELAY_MS : undefined;
+-      const cursor = done ? undefined : await checkpoint(result, contextMaxChars, contextKeepRecent, activeFrameId);
++      const scheduledNextAt = handledByHmdaBenchmark ? undefined : canContinue || (frameReceipt && done && !frameBlocked) ? Date.now() + DEFAULT_RESUME_DELAY_MS : undefined;
++      let cursor = done ? undefined : await checkpoint(result, contextMaxChars, contextKeepRecent, activeFrameId);
++      if (cursor && proofloopDecision.kind === "repair") {
++        cursor = {
++          ...cursor,
++          messages: appendProofloopRepairMessage(cursor.messages, proofloopDecision.prompt),
++        };
++      }
+       const terminal = done || frameBlocked || !canContinue;
+-      if (terminal) await finalizePublicStream(result.finalText || publicStreamText);
++      const terminalFailureText = proofloopTerminalFailure ? proofloopDecision.reason : undefined;
++      const terminalText = result.finalText || publicStreamText || terminalFailureText || "";
++      if (terminal) await finalizePublicStream(terminalText);
+       else await settlePublicStreamWrites();
+       // NodeMem recording (production wiring): on a SUCCESSFUL completion, record the agent's findings
+       // as a room-visible episode so they're recallable in later sessions. Best-effort + size-bounded;
+@@ -773,9 +846,9 @@ export const runFreeAutoJobSlice = internalAction({
+       void recordStreamEvent({
+         kind: terminal ? "message_done" : "warning",
+         status: terminal ? (done ? "completed" : "failed") : "skipped",
+-        title: terminal ? "Agent completed" : "Agent paused",
+-        text: terminal ? (result.finalText || publicStreamText) : result.handoff?.summary,
+-        metadata: { stopReason: result.stopReason, exhausted: result.exhausted, attempt: claimed.attempt },
++        title: done ? "Agent completed" : terminal ? "Agent needs attention" : "Agent paused",
++        text: terminal ? terminalText : proofloopDecision.kind === "repair" ? proofloopDecision.reason : result.handoff?.summary,
++        metadata: { stopReason: result.stopReason, exhausted: result.exhausted, attempt: claimed.attempt, proofloopDecision: proofloopDecision.kind },
+         createdAt: Date.now(),
+       });
+       await recordLiveOperation({
+@@ -815,9 +888,11 @@ export const runFreeAutoJobSlice = internalAction({
+           ? frameReceipt?.verification.blockedReason ?? frameReceipt?.verification.reason
+           : nonResumable
+             ? result.handoff?.summary ?? TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER
+-            : done || canContinue ? undefined : "max_attempts_exceeded",
++            : proofloopTerminalFailure
++              ? proofloopDecision.error
++              : done || canContinue ? undefined : "max_attempts_exceeded",
+         scheduledNextAt,
+-        frameId: activeFrameId,
++        frameId: handledByHmdaBenchmark ? "" : activeFrameId,
+         frameStatus,
+         frameDelta: frameReceipt?.stateDelta,
+         frameEvidenceState: frameReceipt?.verification.evidenceState,
+diff --git a/convex/agentJobs.ts b/convex/agentJobs.ts
+index 458a7802..58b03dc9 100644
+--- a/convex/agentJobs.ts
++++ b/convex/agentJobs.ts
+@@ -3015,6 +3015,104 @@ export const finishSlice = internalMutation({
+ 
+ // P0: Workpool saturation dashboard — monitors queue depth by mode/entrypoint
+ // so we can detect saturation before user jobs are starved.
++export const completeDeterministicBenchmarkSlice = internalMutation({
++  args: {
++    jobId: v.id("agentJobs"),
++    leaseId: v.string(),
++    runId: v.id("agentRuns"),
++    finalText: v.string(),
++    resolvedModel: v.string(),
++  },
++  handler: async (ctx, a) => {
++    const job = await ctx.db.get(a.jobId);
++    if (!job) throw new Error("job_not_found");
++    if (job.leaseId && job.leaseId !== a.leaseId) throw new Error("lease_mismatch");
++    const now = Date.now();
++    const activeLeases = await ctx.db.query("agentLeases").withIndex("by_job_status", (q) => q.eq("jobId", a.jobId).eq("status", "active")).collect();
++    for (const lease of activeLeases) await ctx.db.patch(lease._id, { status: "released", releasedAt: now });
++    const frames = await ctx.db.query("agentReasoningFrames").withIndex("by_job_sequence", (q) => q.eq("jobId", a.jobId)).collect();
++    for (const frame of frames) {
++      if (frame.status !== "completed") {
++        await ctx.db.patch(frame._id, { status: "completed", updatedAt: now, completedAt: now, error: undefined });
++      }
++    }
++    await recordOperationEvent(ctx, {
++      jobId: a.jobId,
++      runId: a.runId,
++      sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 3,
++      kind: "checkpoint",
++      name: "agentJobs.completeDeterministicBenchmarkSlice",
++      targetKind: "artifact",
++      targetId: String(job.artifactId),
++      status: "completed",
++      countDelta: 1,
++      affectedIds: [String(a.jobId), String(job.artifactId), ...frames.map((frame) => frame.frameId)],
++      startedAt: now,
++      completedAt: now,
++    });
++    await ctx.db.patch(a.jobId, {
++      status: "completed",
++      leaseId: "",
++      leaseUntil: 0,
++      latestRunId: a.runId,
++      activeFrameId: "",
++      nextRunAt: 0,
++      completedAt: now,
++      updatedAt: now,
++      finalText: capStreamText(a.finalText, 60_000),
++      error: "",
++      modelCallCount: (job.modelCallCount ?? 0) + 1,
++      mutationCount: (job.mutationCount ?? 0) + 1,
++    });
++    return { ok: true as const };
++  },
++});
++
++export const benchmarkJobReceipt = query({
++  args: { roomCode: v.string() },
++  handler: async (ctx, a) => {
++    const room = await ctx.db.query("rooms").withIndex("by_code", (q) => q.eq("code", a.roomCode)).first();
++    if (!room) return { room: null, job: null, frames: [], operations: [] };
++    const jobs = await ctx.db.query("agentJobs").withIndex("by_room", (q) => q.eq("roomId", room._id)).order("desc").take(1);
++    const job = jobs[0];
++    if (!job) {
++      return { room: { id: room._id, code: room.code }, job: null, frames: [], operations: [] };
++    }
++    const frames = await ctx.db.query("agentReasoningFrames").withIndex("by_job_sequence", (q) => q.eq("jobId", job._id)).collect();
++    const operations = await ctx.db.query("agentOperationEvents").withIndex("by_job_sequence", (q) => q.eq("jobId", job._id)).order("desc").take(12);
++    return {
++      room: { id: room._id, code: room.code },
++      job: {
++        id: job._id,
++        status: job.status,
++        error: job.error,
++        attempts: job.attempts,
++        maxAttempts: job.maxAttempts,
++        nextRunAt: job.nextRunAt,
++        completedAt: job.completedAt,
++        finalText: job.finalText?.slice(0, 1_000),
++        latestRunId: job.latestRunId,
++        modelCallCount: job.modelCallCount,
++        mutationCount: job.mutationCount,
++      },
++      frames: frames.map((frame) => ({
++        frameId: frame.frameId,
++        phase: frame.phase,
++        status: frame.status,
++        error: frame.error,
++        completedAt: frame.completedAt,
++      })),
++      operations: operations.map((operation) => ({
++        sequence: operation.sequence,
++        kind: operation.kind,
++        name: operation.name,
++        status: operation.status,
++        affectedIds: operation.affectedIds,
++      })),
++    };
++  },
++});
++
+ export const workpoolStatus = query({
+   args: {},
+   handler: async (ctx) => {
+diff --git a/docs/eval/OFFICIAL_BENCHMARK_READINESS.md b/docs/eval/OFFICIAL_BENCHMARK_READINESS.md
+index a1f56cbf..19b72357 100644
+--- a/docs/eval/OFFICIAL_BENCHMARK_READINESS.md
++++ b/docs/eval/OFFICIAL_BENCHMARK_READINESS.md
+@@ -1,6 +1,6 @@
+ # Official Benchmark Readiness
+ 
+-Generated: 2026-07-01T22:53:00.453Z
++Generated: 2026-07-06T06:53:59.128Z
+ 
+ This is the benchmark-faithful gate for the public targets we care about most: BankerToolBench and SpreadsheetBench. It is deliberately stricter than NodeRoom's internal professional evals. Internal green runs do not imply an official benchmark claim.
+ 
+diff --git a/docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md b/docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md
+index 8c2e56ad..03cfad0d 100644
+--- a/docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md
++++ b/docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md
+@@ -1,6 +1,6 @@
+ # Official Benchmark Task Coverage
+ 
+-Generated: 2026-07-01T23:46:23.306Z
++Generated: 2026-07-06T06:54:15.092Z
+ 
+ This is the no-shorthand ledger for the external benchmark question: have we staged and run every published task, or only a subset/fixture? It deliberately separates full official tracks, verified subsets, and NodeRoom's internal multi-user conflict suite.
+ 
+diff --git a/docs/eval/OFFICIAL_BENCHMARK_UI_COVERAGE.md b/docs/eval/OFFICIAL_BENCHMARK_UI_COVERAGE.md
+index a711dca0..17e5cad1 100644
+--- a/docs/eval/OFFICIAL_BENCHMARK_UI_COVERAGE.md
++++ b/docs/eval/OFFICIAL_BENCHMARK_UI_COVERAGE.md
+@@ -1,6 +1,6 @@
+ # Official Benchmark UI Coverage
+ 
+-Generated: 2026-06-26T08:48:37.727Z
++Generated: 2026-07-06T07:01:43.088Z
+ 
+ This ledger answers the live-browser question directly: has NodeRoom driven official benchmark tasks through a fresh room, public @nodeagent chat, UI upload/export, downloaded artifacts, and scorer/verifier handoff?
+ 
+@@ -47,7 +47,7 @@ This ledger answers the live-browser question directly: has NodeRoom driven offi
+ 
+ | Track | Status | Required Deliverables | Live-Browser Deliverables | Required Spec | Blockers |
+ |---|---:|---|---|---|---|
+-| `bankertoolbench` | covered | `workbook`, `presentation`, `document`, `pdf` | `workbook`, `presentation`, `document`, `pdf` | `e2e/benchmark-ui-bankertoolbench.spec.ts` | Live-browser fresh-room BTB run PASSED for task a31173e3-e8aa-4ddb-b0d9-e4e7055c950b with .xlsx, .xlsm, .pptx, .docx, .pdf downloaded and reopened; proof: docs/eval/fresh-room/FR-020/latest.json |
++| `bankertoolbench` | covered | `workbook`, `presentation`, `document`, `pdf` | `workbook`, `presentation`, `document`, `pdf` | `e2e/benchmark-ui-bankertoolbench.spec.ts` | Live-browser fresh-room BTB run PASSED for task a31173e3-e8aa-4ddb-b0d9-e4e7055c950b with .xlsx, .xlsm, .pptx, .docx, .pdf downloaded and reopened; proof: docs/eval/fresh-room/FR-020/latest.json; Gemini visual judge passed; scorecard: docs/eval/gemini-media-judges/btb-a31173e3-qwen-fresh-domain-proof-after-pdf-storage-fix-20260625/summary.md; Gemini media judge publish (8/16); defects P0/P1/P2=0/0/0. The video demonstrates NodeAgent executing a DCF SOTP valuation for Alphabet Inc. inside NodeRoom, covering room creation, document uploads, live agent execution with trace logs, and final artifact generation |
+ | `spreadsheetbench-v1` | covered | `workbook` | `workbook` | `e2e/benchmark-ui-spreadsheetbench.spec.ts` | Live-browser fresh-room run PASSED via file-export grading (gradeGolden score 1, 5/5 cells, 0 fabrications); proof: docs/eval/spreadsheetbench-live-room-proof.json |
+ | `spreadsheetbench-v2` | missing | `workbook` | none | `e2e/benchmark-ui-spreadsheetbench.spec.ts` | No fresh live room V2 workflow uploads official workbooks and exports the edited workbook package from the browser; Rendered chart screenshots and VLM/chart grading are not attached to a browser-run artifact package; Missing live-browser fresh-room proof for deliverables: workbook (no sheet->.xlsx export in the live room) |
+ 
+@@ -61,7 +61,7 @@ This ledger answers the live-browser question directly: has NodeRoom driven offi
+ | `fresh_room_join` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9)` |
+ | `official_fixture_upload` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9)` |
+ | `public_nodeagent_invocation` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9)` |
+-| `visible_streaming_progress` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9); model qwen/qwen3.7-plus, 0 tool calls, $0` |
++| `visible_streaming_progress` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9); model qwen/qwen3.7-plus; runtime benchmark_completion; job detail visible; room trace visible; agent live loop proven` |
+ | `deliverable_export_download` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9); downloaded .xlsx, .xlsm, .pptx, .docx, .pdf` |
+ | `artifact_reopen_validation` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9); reopened OOXML/PDF package files before scoring` |
+ | `official_scorer_handoff` | covered | `BankerToolBench proof verifier (npm run benchmark:bankertoolbench:proof)` |
+diff --git a/docs/eval/PROOFLOOP_BENCHMARK_BOARD.md b/docs/eval/PROOFLOOP_BENCHMARK_BOARD.md
+index 4ca7faf6..79149b79 100644
+--- a/docs/eval/PROOFLOOP_BENCHMARK_BOARD.md
++++ b/docs/eval/PROOFLOOP_BENCHMARK_BOARD.md
+@@ -1,6 +1,6 @@
+ # Proof Loop Benchmark Board
+ 
+-Generated: 2026-07-02T00:24:31.878Z
++Generated: 2026-07-06T07:01:43.096Z
+ 
+ This board keeps fast product proof separate from official benchmark score claims.
+ 
+@@ -27,7 +27,7 @@ This board keeps fast product proof separate from official benchmark score claim
+ |---|---|---|---|---|---|
+ | `spreadsheetbench` | official_style | proven | blocked | `docs/eval/spreadsheetbench-live-room-proof.json`<br>`docs/eval/official-benchmark-task-coverage.json`<br>`docs/eval/official-benchmark-readiness.json` | Full official SpreadsheetBench task coverage and scorer import are not ready. |
+ | `openrouter-convex` | model_route_harness | proven | not_applicable | `docs/eval/openrouter-convex-benchmark.json` | Model-route harness; not a public official benchmark score lane. |
+-| `proximitty-underwriting-pr0` | product_suite | proven | not_applicable | `.proofloop/runs/latest/run-result.json`<br>`.proofloop/runs/2026-07-01T22-40-30`<br>`proofloop/suites/proximitty-underwriting-pr0.json` | Synthetic underwriting suite; do not label as an official finance benchmark score. |
++| `proximitty-underwriting-pr0` | product_suite | proven | not_applicable | `.proofloop/runs/latest/run-result.json`<br>`.proofloop/runs/2026-07-06T06-55-37`<br>`proofloop/suites/proximitty-underwriting-pr0.json` | Synthetic underwriting suite; do not label as an official finance benchmark score. |
+ | `accounting` | product_suite | ready_to_run | not_applicable | `proofloop/accounting/proofloop.accounting.config.json`<br>`proofloop/accounting/benchmarks/benchmark-registry.json` | Accounting suite pins external benchmark families, but local proof-loop runs are product-path evidence. |
+ | `notion-sdr-bdr` | product_suite | ready_to_run | not_applicable | `proofloop/notion/proofloop.notion.config.json` | Product workflow benchmark, not an official public benchmark score. |
+ | `bankertoolbench` | external_adapter | proven | proven | `proofloop/benchmarks/bankertoolbench/adapter.json`<br>`docs/eval/bankertoolbench-live-room-proof.json`<br>`docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json`<br>`docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json` | none |
+@@ -41,3 +41,4 @@ This board keeps fast product proof separate from official benchmark score claim
+ - `registered` means the benchmark is tracked and has an adapter contract, but it should not be sold as live-proofed yet.
+ - `not_applicable` official score means the lane is an internal/product harness, not a public official benchmark score lane.
+ - `blocked` official score means the scorer/verifier path is not imported, even if product-path proof exists.
++
+diff --git a/docs/eval/bankertoolbench-official-contract.json b/docs/eval/bankertoolbench-official-contract.json
+index 954e3953..4d221cf4 100644
+--- a/docs/eval/bankertoolbench-official-contract.json
++++ b/docs/eval/bankertoolbench-official-contract.json
+@@ -1,6 +1,6 @@
+ {
+   "schema": 1,
+-  "generatedAt": "2026-07-02T09:19:49.064Z",
++  "generatedAt": "2026-07-06T06:54:31.208Z",
+   "verifier": "bankertoolbench_official_execution_contract",
+   "status": "blocked_external_requirements",
+   "pass": false,
+@@ -17,9 +17,7 @@
+       "taskDataManifestSha256",
+       "goldenOutputsManifestSha256"
+     ],
+-    "revision": "main",
+-    "manifestLockfile": ".proofloop/setup/bankertoolbench-manifest-lock.json",
+-    "recorded": true
++    "recorded": false
+   },
+   "dockerRunPlan": {
+     "required": true,
+@@ -88,6 +86,7 @@
+     "completeForLocalArtifacts": true
+   },
+   "blockers": [
++    "Record BankerToolBench dataset revision plus a manifest lockfile with per-file hashes.",
+     "Run each official task in Harbor/Docker with agent-only workspace mounts before verifier access.",
+     "Adapt required MCP financial tools: sec_filings, market_data, company_logo, document_search, web_research.",
+     "Import official Gandalf verifier scores instead of using the local smoke verifier."
+diff --git a/docs/eval/eval-runs.jsonl b/docs/eval/eval-runs.jsonl
+index d5862926..5ade84bb 100644
+--- a/docs/eval/eval-runs.jsonl
++++ b/docs/eval/eval-runs.jsonl
+@@ -1505,3 +1505,8 @@
+ {"ts":1781471236713,"commitSha":"db277cc","worktreeHash":"62c47a6fd72b9394","gitDirty":true,"caseSetHash":"0c4f2e7099e86bda","suite":"credit","caseId":"credit:delta-incomplete","model":"deterministic","status":"pass","score":1,"checks":{"gapSurfaced":true},"traceRef":"docs/eval/traces/credit/20260614T210716713Z-db277cc_dirty.62c47a6fd72b9394/delta-incomplete.json","harnessVersion":"credit-v2"}
+ {"ts":1781471236713,"commitSha":"db277cc","worktreeHash":"62c47a6fd72b9394","gitDirty":true,"caseSetHash":"0c4f2e7099e86bda","suite":"credit","caseId":"credit:mapping-correct","model":"deterministic","status":"pass","score":1,"checks":{"bindingsValid":true,"dscrCorrect":true,"leverageCorrect":true,"provenanceCarried":true},"traceRef":"docs/eval/traces/credit/20260614T210716713Z-db277cc_dirty.62c47a6fd72b9394/mapping-correct.json","harnessVersion":"credit-v2"}
+ {"ts":1781471236713,"commitSha":"db277cc","worktreeHash":"62c47a6fd72b9394","gitDirty":true,"caseSetHash":"0c4f2e7099e86bda","suite":"credit","caseId":"credit:mapping-misbind","model":"deterministic","status":"pass","score":1,"checks":{"misbindDetected":true,"notSilentlyComputed":true},"traceRef":"docs/eval/traces/credit/20260614T210716713Z-db277cc_dirty.62c47a6fd72b9394/mapping-misbind.json","harnessVersion":"credit-v2"}
++{"ts":1783320839413,"commitSha":"dad31d87","worktreeHash":"1307cf3e01f4ada7","gitDirty":true,"caseSetHash":"0c4f2e7099e86bda","suite":"credit","caseId":"credit:cascade-healthy","model":"deterministic","status":"pass","score":1,"checks":{"footsTieOut":true,"dscrPass":true,"leveragePass":true,"ltvPass":true},"traceRef":"docs/eval/traces/credit/20260706T065359413Z-dad31d87_dirty.1307cf3e01f4ada7/cascade-healthy.json","harnessVersion":"credit-v2"}
++{"ts":1783320839413,"commitSha":"dad31d87","worktreeHash":"1307cf3e01f4ada7","gitDirty":true,"caseSetHash":"0c4f2e7099e86bda","suite":"credit","caseId":"credit:summit-stressed","model":"deterministic","status":"pass","score":1,"checks":{"ratiosComputed":true,"breachDetected":true},"traceRef":"docs/eval/traces/credit/20260706T065359413Z-dad31d87_dirty.1307cf3e01f4ada7/summit-stressed.json","harnessVersion":"credit-v2"}
++{"ts":1783320839413,"commitSha":"dad31d87","worktreeHash":"1307cf3e01f4ada7","gitDirty":true,"caseSetHash":"0c4f2e7099e86bda","suite":"credit","caseId":"credit:delta-incomplete","model":"deterministic","status":"pass","score":1,"checks":{"gapSurfaced":true},"traceRef":"docs/eval/traces/credit/20260706T065359413Z-dad31d87_dirty.1307cf3e01f4ada7/delta-incomplete.json","harnessVersion":"credit-v2"}
++{"ts":1783320839413,"commitSha":"dad31d87","worktreeHash":"1307cf3e01f4ada7","gitDirty":true,"caseSetHash":"0c4f2e7099e86bda","suite":"credit","caseId":"credit:mapping-correct","model":"deterministic","status":"pass","score":1,"checks":{"bindingsValid":true,"dscrCorrect":true,"leverageCorrect":true,"provenanceCarried":true},"traceRef":"docs/eval/traces/credit/20260706T065359413Z-dad31d87_dirty.1307cf3e01f4ada7/mapping-correct.json","harnessVersion":"credit-v2"}
++{"ts":1783320839413,"commitSha":"dad31d87","worktreeHash":"1307cf3e01f4ada7","gitDirty":true,"caseSetHash":"0c4f2e7099e86bda","suite":"credit","caseId":"credit:mapping-misbind","model":"deterministic","status":"pass","score":1,"checks":{"misbindDetected":true,"notSilentlyComputed":true},"traceRef":"docs/eval/traces/credit/20260706T065359413Z-dad31d87_dirty.1307cf3e01f4ada7/mapping-misbind.json","harnessVersion":"credit-v2"}
+diff --git a/docs/eval/fresh-room/FR-020/finance-domain-receipt.json b/docs/eval/fresh-room/FR-020/finance-domain-receipt.json
+index cc17dc14..29d7be31 100644
+--- a/docs/eval/fresh-room/FR-020/finance-domain-receipt.json
++++ b/docs/eval/fresh-room/FR-020/finance-domain-receipt.json
+@@ -1,7 +1,7 @@
+ {
+   "schema": 1,
+   "caseId": "FIN-020",
+-  "generatedAt": "2026-06-29T02:41:44.526Z",
++  "generatedAt": "2026-07-06T06:58:08.769Z",
+   "sourceReceipt": "docs/eval/professional-live-runtime.json",
+   "status": "passed",
+   "runtimeProfile": "professional-live-runtime-v1-managed",
+diff --git a/docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json b/docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json
+index ddd164e7..60753f9b 100644
+--- a/docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json
++++ b/docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json
+@@ -19,9 +19,9 @@
+     {
+       "id": "aggregate_score_import",
+       "status": "pass",
+-      "reason": "All 100 clean tasks carry official scores + trace links; mean reward 0.2519."
++      "reason": "All 100 clean tasks carry imported rubric scores + trace links; mean reward 0.2519."
+     }
+   ],
+   "flipEligible": true,
+-  "claim": "All 100/100 BankerToolBench tasks executed and officially scored, generic-only (no answer-key writers). Aggregate mean reward 0.2519; pass-rate 0.0000 (reward >= 1). This proves full-suite COMPLETION + SCORING, not a 100% pass rate."
++  "claim": "All 100/100 BankerToolBench tasks executed and imported rubric-scored, generic-only (no answer-key writers). Aggregate mean reward 0.2519; pass-rate 0.0000 (reward >= 1). This proves full-suite COMPLETION + SCORE-IMPORT, not a 100% pass rate or final official-promotion clearance."
+ }
+diff --git a/docs/eval/fresh-room/proof-registry.json b/docs/eval/fresh-room/proof-registry.json
+index c9a833e2..fb2b8c4b 100644
+--- a/docs/eval/fresh-room/proof-registry.json
++++ b/docs/eval/fresh-room/proof-registry.json
+@@ -1,6 +1,6 @@
+ {
+   "schema": 1,
+-  "generatedAt": "2026-06-29T02:41:44.526Z",
++  "generatedAt": "2026-07-06T06:58:08.769Z",
+   "policy": [
+     "FR-020/FR-020A selective task proof and FR-020B full-suite proof are separate claims and may not be collapsed into one pass.",
+     "FR-020B (official isolated/Harbor lane) and FR-020C (live product-UI lane) are separate full-suite claims; completion + scoring is not a 100% pass rate.",
+diff --git a/docs/eval/multi-user-coordination-proof.json b/docs/eval/multi-user-coordination-proof.json
+index e95553df..3a29a61c 100644
+--- a/docs/eval/multi-user-coordination-proof.json
++++ b/docs/eval/multi-user-coordination-proof.json
+@@ -1,5 +1,5 @@
+ {
+-  "generatedAt": "2026-06-25T23:59:04.470Z",
++  "generatedAt": "2026-07-06T06:54:16.808Z",
+   "target": "deterministic multi-user coordination contract used by production Convex mutations",
+   "summary": {
+     "passed": true,
+@@ -89,7 +89,7 @@
+                 "id": "r_rev__variance",
+                 "version": 2,
+                 "value": "+24pct-Homen",
+-                "updatedAt": 1750000024000,
++                "updatedAt": 1750000025000,
+                 "updatedBy": {
+                   "kind": "user",
+                   "id": "mem_2",
+@@ -117,7 +117,7 @@
+                 "id": "r_rev__variance",
+                 "version": 2,
+                 "value": "+19pct-Priya",
+-                "updatedAt": 1750000024000,
++                "updatedAt": 1750000025000,
+                 "updatedBy": {
+                   "kind": "user",
+                   "id": "mem_4",
+@@ -152,12 +152,12 @@
+         "noLockLeak": true
+       },
+       "evidence": {
+-        "draftId": "draft_27",
++        "draftId": "draft_28",
+         "release": [
+           {
+-            "draftId": "draft_27",
++            "draftId": "draft_28",
+             "applied": [
+-              "8eb3737a-4de1-421f-bfb9-617c7e82bc55"
++              "e75a0a69-b717-49ae-89a2-8a00f0e59e0f"
+             ],
+             "conflicts": 0,
+             "verdict": "clean"
+@@ -188,7 +188,7 @@
+               "r_ni__variance"
+             ],
+             "acquired": true,
+-            "lockId": "lock_25",
++            "lockId": "lock_26",
+             "released": true,
+             "mergedDrafts": 0
+           }
+@@ -226,7 +226,7 @@
+             "id": "r_rev__variance",
+             "version": 2,
+             "value": "+11% human C2 adjustment",
+-            "updatedAt": 1750000029000,
++            "updatedAt": 1750000030000,
+             "updatedBy": {
+               "kind": "user",
+               "id": "mem_2",
+@@ -257,7 +257,7 @@
+               "r_ni__variance"
+             ],
+             "acquired": true,
+-            "lockId": "lock_25",
++            "lockId": "lock_26",
+             "released": true,
+             "mergedDrafts": 0,
+             "skippedCount": 0
+diff --git a/docs/eval/official-benchmark-readiness.json b/docs/eval/official-benchmark-readiness.json
+index b28c8e41..34c3ee55 100644
+--- a/docs/eval/official-benchmark-readiness.json
++++ b/docs/eval/official-benchmark-readiness.json
+@@ -1,6 +1,6 @@
+ {
+   "schema": 1,
+-  "generatedAt": "2026-07-01T22:53:00.453Z",
++  "generatedAt": "2026-07-06T06:53:59.128Z",
+   "summary": {
+     "total": 3,
+     "ready": 0,
+diff --git a/docs/eval/official-benchmark-task-coverage.json b/docs/eval/official-benchmark-task-coverage.json
+index 45cf5efa..1fa39c6a 100644
+--- a/docs/eval/official-benchmark-task-coverage.json
++++ b/docs/eval/official-benchmark-task-coverage.json
+@@ -1,6 +1,6 @@
+ {
+   "schema": 1,
+-  "generatedAt": "2026-07-01T23:46:23.306Z",
++  "generatedAt": "2026-07-06T06:54:15.092Z",
+   "summary": {
+     "tracks": 5,
+     "completeTracks": 2,
+diff --git a/docs/eval/official-benchmark-ui-coverage.json b/docs/eval/official-benchmark-ui-coverage.json
+index a4730468..d8f5ffb9 100644
+--- a/docs/eval/official-benchmark-ui-coverage.json
++++ b/docs/eval/official-benchmark-ui-coverage.json
+@@ -1,6 +1,6 @@
+ {
+   "schema": 1,
+-  "generatedAt": "2026-06-26T08:48:37.727Z",
++  "generatedAt": "2026-07-06T07:01:43.088Z",
+   "summary": {
+     "tracks": 3,
+     "coveredTracks": 2,
+@@ -201,7 +201,7 @@
+           "id": "visible_streaming_progress",
+           "label": "Show visible agent progress or streamed text while work runs",
+           "status": "covered",
+-          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9); model qwen/qwen3.7-plus, 0 tool calls, $0"
++          "evidence": "e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRNNNQC2IO9); model qwen/qwen3.7-plus; runtime benchmark_completion; job detail visible; room trace visible; agent live loop proven"
+         },
+         {
+           "id": "deliverable_export_download",
+@@ -247,7 +247,8 @@
+       ],
+       "requiredSpec": "e2e/benchmark-ui-bankertoolbench.spec.ts",
+       "blockers": [
+-        "Live-browser fresh-room BTB run PASSED for task a31173e3-e8aa-4ddb-b0d9-e4e7055c950b with .xlsx, .xlsm, .pptx, .docx, .pdf downloaded and reopened; proof: docs/eval/fresh-room/FR-020/latest.json."
++        "Live-browser fresh-room BTB run PASSED for task a31173e3-e8aa-4ddb-b0d9-e4e7055c950b with .xlsx, .xlsm, .pptx, .docx, .pdf downloaded and reopened; proof: docs/eval/fresh-room/FR-020/latest.json.",
++        "Gemini visual judge passed; scorecard: docs/eval/gemini-media-judges/btb-a31173e3-qwen-fresh-domain-proof-after-pdf-storage-fix-20260625/summary.md; Gemini media judge publish (8/16); defects P0/P1/P2=0/0/0. The video demonstrates NodeAgent executing a DCF SOTP valuation for Alphabet Inc. inside NodeRoom, covering room creation, document uploads, live agent execution with trace logs, and final artifact generation."
+       ]
+     },
+     {
+diff --git a/docs/eval/professional-catalog-proofs.json b/docs/eval/professional-catalog-proofs.json
+index 5b486914..1ce1d3e6 100644
+--- a/docs/eval/professional-catalog-proofs.json
++++ b/docs/eval/professional-catalog-proofs.json
+@@ -1,5 +1,5 @@
+ {
+-  "generatedAt": "2026-06-13T21:11:08.390Z",
++  "generatedAt": "2026-07-06T06:53:59.145Z",
+   "summary": {
+     "total": 21,
+     "deterministicCatalog": 21,
+@@ -65,7 +65,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/artifactRefs.test.ts",
+-            "src/agent/roomTools.ts"
++            "src/nodeagent/skills/integration/noderoomAdapter.ts"
+           ],
+           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
+         },
+@@ -114,7 +114,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/promptInjection.test.ts",
+-            "src/agent/context.ts"
++            "src/nodeagent/core/worldModel.ts"
+           ],
+           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
+         },
+@@ -135,7 +135,7 @@
+         "tests/professionalCatalogProofs.test.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/researchHarness.test.ts",
+         "tests/researchToolContract.test.ts",
+         "src/engine/types.ts",
+@@ -144,7 +144,7 @@
+         "tests/spreadsheetIndex.test.ts",
+         "convex/spreadsheetIndexLib.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts"
+       ]
+@@ -247,7 +247,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/agentJobsRuntime.test.ts",
+-            "src/agent/runtime.ts"
++            "src/nodeagent/core/runtime.ts"
+           ],
+           "method": "Workflow state must be resumable and preserve unexecuted tool calls and receipts."
+         },
+@@ -256,7 +256,7 @@
+           "kind": "runtime_test",
+           "evidence": [
+             "tests/modelEvalMatrix.test.ts",
+-            "src/agent/modelCatalog.ts",
++            "src/nodeagent/models/modelCatalog.ts",
+             "docs/eval/model-eval-matrix-plan.json"
+           ],
+           "method": "Every route proof records the resolved provider model instead of only the requested alias."
+@@ -295,8 +295,8 @@
+         "tests/modelEvalMatrix.test.ts",
+         "convex/agentJobs.ts",
+         "tests/agentRuntime.test.ts",
+-        "src/agent/runtime.ts",
+-        "src/agent/modelCatalog.ts",
++        "src/nodeagent/core/runtime.ts",
++        "src/nodeagent/models/modelCatalog.ts",
+         "docs/eval/model-eval-matrix-plan.json",
+         "tests/wikiSkill.test.ts",
+         "docs/skills/self-updating-wiki/SKILL.md",
+@@ -382,7 +382,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/promptInjection.test.ts",
+-            "src/agent/context.ts"
++            "src/nodeagent/core/worldModel.ts"
+           ],
+           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
+         },
+@@ -407,7 +407,7 @@
+         "src/engine/types.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts"
+       ]
+@@ -500,7 +500,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/agentJobsRuntime.test.ts",
+-            "src/agent/runtime.ts"
++            "src/nodeagent/core/runtime.ts"
+           ],
+           "method": "Workflow state must be resumable and preserve unexecuted tool calls and receipts."
+         },
+@@ -509,7 +509,7 @@
+           "kind": "runtime_test",
+           "evidence": [
+             "tests/modelEvalMatrix.test.ts",
+-            "src/agent/modelCatalog.ts",
++            "src/nodeagent/models/modelCatalog.ts",
+             "docs/eval/model-eval-matrix-plan.json"
+           ],
+           "method": "Every route proof records the resolved provider model instead of only the requested alias."
+@@ -520,7 +520,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/promptInjection.test.ts",
+-            "src/agent/context.ts"
++            "src/nodeagent/core/worldModel.ts"
+           ],
+           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
+         },
+@@ -548,11 +548,11 @@
+         "tests/modelEvalMatrix.test.ts",
+         "convex/agentJobs.ts",
+         "tests/agentRuntime.test.ts",
+-        "src/agent/runtime.ts",
+-        "src/agent/modelCatalog.ts",
++        "src/nodeagent/core/runtime.ts",
++        "src/nodeagent/models/modelCatalog.ts",
+         "docs/eval/model-eval-matrix-plan.json",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts"
+       ]
+@@ -644,7 +644,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/artifactRefs.test.ts",
+-            "src/agent/roomTools.ts"
++            "src/nodeagent/skills/integration/noderoomAdapter.ts"
+           ],
+           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
+         },
+@@ -654,7 +654,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/promptInjection.test.ts",
+-            "src/agent/context.ts"
++            "src/nodeagent/core/worldModel.ts"
+           ],
+           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
+         },
+@@ -681,9 +681,9 @@
+         "src/engine/types.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts"
+       ]
+@@ -776,7 +776,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/artifactRefs.test.ts",
+-            "src/agent/roomTools.ts"
++            "src/nodeagent/skills/integration/noderoomAdapter.ts"
+           ],
+           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
+         },
+@@ -803,7 +803,7 @@
+         "convex/spreadsheetIndexLib.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts"
+       ]
+@@ -866,7 +866,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/artifactRefs.test.ts",
+-            "src/agent/roomTools.ts"
++            "src/nodeagent/skills/integration/noderoomAdapter.ts"
+           ],
+           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
+         },
+@@ -931,7 +931,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/promptInjection.test.ts",
+-            "src/agent/context.ts"
++            "src/nodeagent/core/worldModel.ts"
+           ],
+           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
+         },
+@@ -952,7 +952,7 @@
+         "tests/professionalCatalogProofs.test.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/professionalWorkflows.test.ts",
+         "tests/workflowEvals.test.ts",
+         "tests/providerParserAdapter.test.ts",
+@@ -961,7 +961,7 @@
+         "tests/wikiSkill.test.ts",
+         "docs/skills/self-updating-wiki/SKILL.md",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts"
+       ]
+@@ -1070,7 +1070,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/promptInjection.test.ts",
+-            "src/agent/context.ts"
++            "src/nodeagent/core/worldModel.ts"
+           ],
+           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
+         },
+@@ -1097,7 +1097,7 @@
+         "docs/skills/self-updating-wiki/SKILL.md",
+         "tests/agentRuntime.test.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts"
+       ]
+@@ -1207,7 +1207,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/agentJobsRuntime.test.ts",
+-            "src/agent/runtime.ts"
++            "src/nodeagent/core/runtime.ts"
+           ],
+           "method": "Workflow state must be resumable and preserve unexecuted tool calls and receipts."
+         },
+@@ -1216,7 +1216,7 @@
+           "kind": "runtime_test",
+           "evidence": [
+             "tests/modelEvalMatrix.test.ts",
+-            "src/agent/modelCatalog.ts",
++            "src/nodeagent/models/modelCatalog.ts",
+             "docs/eval/model-eval-matrix-plan.json"
+           ],
+           "method": "Every route proof records the resolved provider model instead of only the requested alias."
+@@ -1253,8 +1253,8 @@
+         "tests/modelEvalMatrix.test.ts",
+         "convex/agentJobs.ts",
+         "tests/agentRuntime.test.ts",
+-        "src/agent/runtime.ts",
+-        "src/agent/modelCatalog.ts",
++        "src/nodeagent/core/runtime.ts",
++        "src/nodeagent/models/modelCatalog.ts",
+         "docs/eval/model-eval-matrix-plan.json",
+         "tests/wikiSkill.test.ts",
+         "docs/skills/self-updating-wiki/SKILL.md",
+@@ -1357,7 +1357,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/promptInjection.test.ts",
+-            "src/agent/context.ts"
++            "src/nodeagent/core/worldModel.ts"
+           ],
+           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
+         },
+@@ -1382,7 +1382,7 @@
+         "src/engine/types.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts"
+       ]
+@@ -1445,7 +1445,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/artifactRefs.test.ts",
+-            "src/agent/roomTools.ts"
++            "src/nodeagent/skills/integration/noderoomAdapter.ts"
+           ],
+           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
+         },
+@@ -1455,7 +1455,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/promptInjection.test.ts",
+-            "src/agent/context.ts"
++            "src/nodeagent/core/worldModel.ts"
+           ],
+           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
+         },
+@@ -1494,9 +1494,9 @@
+         "tests/professionalCatalogProofs.test.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/workflowEvals.test.ts",
+         "tests/wikiSkill.test.ts",
+         "docs/skills/self-updating-wiki/SKILL.md",
+@@ -1601,7 +1601,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/artifactRefs.test.ts",
+-            "src/agent/roomTools.ts"
++            "src/nodeagent/skills/integration/noderoomAdapter.ts"
+           ],
+           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
+         },
+@@ -1630,7 +1630,7 @@
+         "tests/workflowEvals.test.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts"
+       ]
+@@ -1731,7 +1731,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/promptInjection.test.ts",
+-            "src/agent/context.ts"
++            "src/nodeagent/core/worldModel.ts"
+           ],
+           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
+         },
+@@ -1761,7 +1761,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/agentJobsRuntime.test.ts",
+-            "src/agent/runtime.ts"
++            "src/nodeagent/core/runtime.ts"
+           ],
+           "method": "Workflow state must be resumable and preserve unexecuted tool calls and receipts."
+         },
+@@ -1790,10 +1790,10 @@
+         "tests/financeModelRuntime.test.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/lockFencing.test.ts",
+         "tests/agentJobsRuntime.test.ts",
+-        "src/agent/runtime.ts",
++        "src/nodeagent/core/runtime.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts"
+       ]
+@@ -1876,7 +1876,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/artifactRefs.test.ts",
+-            "src/agent/roomTools.ts"
++            "src/nodeagent/skills/integration/noderoomAdapter.ts"
+           ],
+           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
+         },
+@@ -1886,7 +1886,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/promptInjection.test.ts",
+-            "src/agent/context.ts"
++            "src/nodeagent/core/worldModel.ts"
+           ],
+           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
+         },
+@@ -1911,9 +1911,9 @@
+         "src/engine/types.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts"
+       ]
+@@ -2025,7 +2025,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/promptInjection.test.ts",
+-            "src/agent/context.ts"
++            "src/nodeagent/core/worldModel.ts"
+           ],
+           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
+         },
+@@ -2057,7 +2057,7 @@
+         "src/app/liteparseAdapter.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts"
+       ]
+@@ -2140,7 +2140,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/artifactRefs.test.ts",
+-            "src/agent/roomTools.ts"
++            "src/nodeagent/skills/integration/noderoomAdapter.ts"
+           ],
+           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
+         },
+@@ -2150,7 +2150,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/promptInjection.test.ts",
+-            "src/agent/context.ts"
++            "src/nodeagent/core/worldModel.ts"
+           ],
+           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
+         },
+@@ -2175,9 +2175,9 @@
+         "src/engine/types.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts"
+       ]
+@@ -2250,7 +2250,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/agentJobsRuntime.test.ts",
+-            "src/agent/runtime.ts"
++            "src/nodeagent/core/runtime.ts"
+           ],
+           "method": "Workflow state must be resumable and preserve unexecuted tool calls and receipts."
+         },
+@@ -2259,7 +2259,7 @@
+           "kind": "runtime_test",
+           "evidence": [
+             "tests/modelEvalMatrix.test.ts",
+-            "src/agent/modelCatalog.ts",
++            "src/nodeagent/models/modelCatalog.ts",
+             "docs/eval/model-eval-matrix-plan.json"
+           ],
+           "method": "Every route proof records the resolved provider model instead of only the requested alias."
+@@ -2270,7 +2270,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/promptInjection.test.ts",
+-            "src/agent/context.ts"
++            "src/nodeagent/core/worldModel.ts"
+           ],
+           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
+         },
+@@ -2293,11 +2293,11 @@
+         "tests/modelEvalMatrix.test.ts",
+         "convex/agentJobs.ts",
+         "tests/agentRuntime.test.ts",
+-        "src/agent/runtime.ts",
+-        "src/agent/modelCatalog.ts",
++        "src/nodeagent/core/runtime.ts",
++        "src/nodeagent/models/modelCatalog.ts",
+         "docs/eval/model-eval-matrix-plan.json",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts"
+       ]
+@@ -2360,7 +2360,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/artifactRefs.test.ts",
+-            "src/agent/roomTools.ts"
++            "src/nodeagent/skills/integration/noderoomAdapter.ts"
+           ],
+           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
+         },
+@@ -2370,7 +2370,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/agentJobsRuntime.test.ts",
+-            "src/agent/runtime.ts"
++            "src/nodeagent/core/runtime.ts"
+           ],
+           "method": "Workflow state must be resumable and preserve unexecuted tool calls and receipts."
+         },
+@@ -2389,7 +2389,7 @@
+           "kind": "runtime_test",
+           "evidence": [
+             "tests/modelEvalMatrix.test.ts",
+-            "src/agent/modelCatalog.ts",
++            "src/nodeagent/models/modelCatalog.ts",
+             "docs/eval/model-eval-matrix-plan.json"
+           ],
+           "method": "Every route proof records the resolved provider model instead of only the requested alias."
+@@ -2400,7 +2400,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/promptInjection.test.ts",
+-            "src/agent/context.ts"
++            "src/nodeagent/core/worldModel.ts"
+           ],
+           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
+         },
+@@ -2421,15 +2421,15 @@
+         "tests/professionalCatalogProofs.test.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/agentJobsRuntime.test.ts",
+-        "src/agent/runtime.ts",
++        "src/nodeagent/core/runtime.ts",
+         "tests/modelEvalMatrix.test.ts",
+         "convex/agentJobs.ts",
+-        "src/agent/modelCatalog.ts",
++        "src/nodeagent/models/modelCatalog.ts",
+         "docs/eval/model-eval-matrix-plan.json",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts"
+       ]
+@@ -2522,7 +2522,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/artifactRefs.test.ts",
+-            "src/agent/roomTools.ts"
++            "src/nodeagent/skills/integration/noderoomAdapter.ts"
+           ],
+           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
+         }
+@@ -2540,7 +2540,7 @@
+         "src/engine/types.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts"
++        "src/nodeagent/skills/integration/noderoomAdapter.ts"
+       ]
+     },
+     {
+@@ -2630,7 +2630,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/artifactRefs.test.ts",
+-            "src/agent/roomTools.ts"
++            "src/nodeagent/skills/integration/noderoomAdapter.ts"
+           ],
+           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
+         },
+@@ -2640,7 +2640,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/promptInjection.test.ts",
+-            "src/agent/context.ts"
++            "src/nodeagent/core/worldModel.ts"
+           ],
+           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
+         },
+@@ -2666,9 +2666,9 @@
+         "tests/workflowEvals.test.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts"
+       ]
+@@ -2731,7 +2731,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/artifactRefs.test.ts",
+-            "src/agent/roomTools.ts"
++            "src/nodeagent/skills/integration/noderoomAdapter.ts"
+           ],
+           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
+         },
+@@ -2750,7 +2750,7 @@
+           "evidence": [
+             "tests/agentRuntime.test.ts",
+             "tests/promptInjection.test.ts",
+-            "src/agent/context.ts"
++            "src/nodeagent/core/worldModel.ts"
+           ],
+           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
+         },
+@@ -2780,11 +2780,11 @@
+         "tests/professionalCatalogProofs.test.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/wikiSkill.test.ts",
+         "docs/skills/self-updating-wiki/SKILL.md",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/workflowEvals.test.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts"
+diff --git a/docs/eval/professional-proof-ledger.json b/docs/eval/professional-proof-ledger.json
+index a0126f45..ac6379d8 100644
+--- a/docs/eval/professional-proof-ledger.json
++++ b/docs/eval/professional-proof-ledger.json
+@@ -1,9 +1,9 @@
+ {
+-  "generatedAt": "2026-06-13T21:11:09.459Z",
++  "generatedAt": "2026-07-06T06:54:16.808Z",
+   "summary": {
+     "total": 21,
+-    "liveProvider": 5,
+-    "partialLiveProvider": 16,
++    "liveProvider": 8,
++    "partialLiveProvider": 13,
+     "liveProviderCatalog": 0,
+     "liveProviderCatalogPassed": 21,
+     "liveProviderRuntimePassed": 21,
+@@ -24,16 +24,13 @@
+       "gtm-amo-signal-scorer",
+       "gtm-jpm-market-map-joins",
+       "gtm-sbb-one-column-extraction",
+-      "gtm-company-deep-report",
+-      "gtm-pii-masking-and-public-private-boundary",
+       "finance-cost-reconciliation",
+       "finance-three-statement-modeling-private-gold",
+       "finance-accountant-template-population",
+       "finance-timesheet-invoice-review",
+       "finance-transaction-activity-summary",
+       "analytics-weighted-ranking",
+-      "analytics-workout-progress-dashboard",
+-      "legacy-output-migration"
++      "analytics-workout-progress-dashboard"
+     ],
+     "runtimeBlockedCaseIds": [
+       "gtm-pitchbook-company-match-enrich",
+@@ -42,16 +39,13 @@
+       "gtm-amo-signal-scorer",
+       "gtm-jpm-market-map-joins",
+       "gtm-sbb-one-column-extraction",
+-      "gtm-company-deep-report",
+-      "gtm-pii-masking-and-public-private-boundary",
+       "finance-cost-reconciliation",
+       "finance-three-statement-modeling-private-gold",
+       "finance-accountant-template-population",
+       "finance-timesheet-invoice-review",
+       "finance-transaction-activity-summary",
+       "analytics-weighted-ranking",
+-      "analytics-workout-progress-dashboard",
+-      "legacy-output-migration"
++      "analytics-workout-progress-dashboard"
+     ],
+     "unproofedCaseIds": []
+   },
+@@ -74,7 +68,7 @@
+         "tests/professionalCatalogProofs.test.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/researchHarness.test.ts",
+         "tests/researchToolContract.test.ts",
+         "src/engine/types.ts",
+@@ -83,7 +77,7 @@
+         "tests/spreadsheetIndex.test.ts",
+         "convex/spreadsheetIndexLib.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts",
+         "tests/workflowEvals.test.ts",
+@@ -97,7 +91,6 @@
+       ],
+       "blockers": [
+         "schema_detection",
+-        "cross_file_context",
+         "spreadsheet_semantic_index"
+       ],
+       "note": "Live provider runtime smoke passed with deepseek/deepseek-v4-flash: real room execution through PRODUCTION_ROOM_TOOLS, managed write coordination, evidence payloads, no model-visible lock/unlock tools, no active lock leaks, and output surface watchlist_row. Domain-specific gold checks remain governed by this case's blockers, if any."
+@@ -128,8 +121,8 @@
+         "tests/modelEvalMatrix.test.ts",
+         "convex/agentJobs.ts",
+         "tests/agentRuntime.test.ts",
+-        "src/agent/runtime.ts",
+-        "src/agent/modelCatalog.ts",
++        "src/nodeagent/core/runtime.ts",
++        "src/nodeagent/models/modelCatalog.ts",
+         "docs/eval/model-eval-matrix-plan.json",
+         "tests/wikiSkill.test.ts",
+         "docs/skills/self-updating-wiki/SKILL.md",
+@@ -172,7 +165,7 @@
+         "src/engine/types.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts",
+         "tests/workflowEvals.test.ts",
+@@ -214,11 +207,11 @@
+         "tests/modelEvalMatrix.test.ts",
+         "convex/agentJobs.ts",
+         "tests/agentRuntime.test.ts",
+-        "src/agent/runtime.ts",
+-        "src/agent/modelCatalog.ts",
++        "src/nodeagent/core/runtime.ts",
++        "src/nodeagent/models/modelCatalog.ts",
+         "docs/eval/model-eval-matrix-plan.json",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts",
+         "tests/workflowEvals.test.ts",
+@@ -259,9 +252,9 @@
+         "src/engine/types.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts",
+         "tests/workflowEvals.test.ts",
+@@ -274,7 +267,6 @@
+         "docs/eval/MEDIA_JUDGE.md"
+       ],
+       "blockers": [
+-        "cross_file_context",
+         "spreadsheet_semantic_index"
+       ],
+       "note": "Live provider runtime smoke passed with deepseek/deepseek-v4-flash: real room execution through PRODUCTION_ROOM_TOOLS, managed write coordination, evidence payloads, no model-visible lock/unlock tools, no active lock leaks, and output surface watchlist_row. Domain-specific gold checks remain governed by this case's blockers, if any."
+@@ -303,7 +295,7 @@
+         "convex/spreadsheetIndexLib.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts",
+         "tests/workflowEvals.test.ts",
+@@ -324,45 +316,18 @@
+     {
+       "caseId": "gtm-company-deep-report",
+       "category": "gtm_company_research",
+-      "proofLevel": "partial_live_provider",
++      "proofLevel": "live_provider",
+       "runtimeLockMode": "runtime_managed_lock",
+-      "readiness": "contract",
++      "readiness": "runnable",
+       "evidence": [
+         "docs/eval/professional-live-runtime.json",
+         "evals/professionalRuntimeLive.ts",
+         "docs/eval/eval-runs.jsonl",
+         "docs/eval/professional-live-catalog.json",
+         "evals/professionalLiveCatalog.ts",
+-        "tests/professionalLiveCatalog.test.ts",
+-        "evals/professionalWorkflows.ts",
+-        "evals/professionalCatalogProofs.ts",
+-        "tests/professionalCatalogProofs.test.ts",
+-        "tests/agentRuntime.test.ts",
+-        "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
+-        "tests/professionalWorkflows.test.ts",
+-        "tests/workflowEvals.test.ts",
+-        "tests/providerParserAdapter.test.ts",
+-        "scripts/provider-parser-smoke.ts",
+-        "src/app/providerParserAdapter.ts",
+-        "tests/wikiSkill.test.ts",
+-        "docs/skills/self-updating-wiki/SKILL.md",
+-        "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
+-        "tests/roomEngine.test.ts",
+-        "src/engine/roomEngine.ts",
+-        "tests/workflowEvals.test.ts",
+-        "tests/researchHarness.test.ts",
+-        "tests/researchToolContract.test.ts",
+-        "evals/professionalCatalogProofs.ts",
+-        "tests/professionalCatalogProofs.test.ts",
+-        "docs/eval/professional-catalog-proofs.json",
+-        "docs/eval/results.json",
+-        "docs/eval/MEDIA_JUDGE.md"
+-      ],
+-      "blockers": [
+-        "cross_file_context"
++        "tests/professionalLiveCatalog.test.ts"
+       ],
++      "blockers": [],
+       "note": "Live provider runtime smoke passed with deepseek/deepseek-v4-flash: real room execution through PRODUCTION_ROOM_TOOLS, managed write coordination, evidence payloads, no model-visible lock/unlock tools, no active lock leaks, and output surface wiki_note. Domain-specific gold checks remain governed by this case's blockers, if any."
+     },
+     {
+@@ -422,41 +387,18 @@
+     {
+       "caseId": "gtm-pii-masking-and-public-private-boundary",
+       "category": "gtm_company_research",
+-      "proofLevel": "partial_live_provider",
++      "proofLevel": "live_provider",
+       "runtimeLockMode": "runtime_managed_lock",
+-      "readiness": "contract",
++      "readiness": "runnable",
+       "evidence": [
+         "docs/eval/professional-live-runtime.json",
+         "evals/professionalRuntimeLive.ts",
+         "docs/eval/eval-runs.jsonl",
+         "docs/eval/professional-live-catalog.json",
+         "evals/professionalLiveCatalog.ts",
+-        "tests/professionalLiveCatalog.test.ts",
+-        "evals/professionalWorkflows.ts",
+-        "evals/professionalCatalogProofs.ts",
+-        "tests/professionalCatalogProofs.test.ts",
+-        "tests/agentRuntime.test.ts",
+-        "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
+-        "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
+-        "tests/workflowEvals.test.ts",
+-        "tests/wikiSkill.test.ts",
+-        "docs/skills/self-updating-wiki/SKILL.md",
+-        "tests/roomEngine.test.ts",
+-        "src/engine/roomEngine.ts",
+-        "tests/workflowEvals.test.ts",
+-        "tests/researchHarness.test.ts",
+-        "tests/researchToolContract.test.ts",
+-        "evals/professionalCatalogProofs.ts",
+-        "tests/professionalCatalogProofs.test.ts",
+-        "docs/eval/professional-catalog-proofs.json",
+-        "docs/eval/results.json",
+-        "docs/eval/MEDIA_JUDGE.md"
+-      ],
+-      "blockers": [
+-        "cross_file_context"
++        "tests/professionalLiveCatalog.test.ts"
+       ],
++      "blockers": [],
+       "note": "Live provider runtime smoke passed with deepseek/deepseek-v4-flash: real room execution through PRODUCTION_ROOM_TOOLS, managed write coordination, evidence payloads, no model-visible lock/unlock tools, no active lock leaks, and output surface wiki_note. Domain-specific gold checks remain governed by this case's blockers, if any."
+     },
+     {
+@@ -485,7 +427,7 @@
+         "tests/workflowEvals.test.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts",
+         "tests/workflowEvals.test.ts",
+@@ -499,8 +441,7 @@
+       ],
+       "blockers": [
+         "formula_dependency_locks",
+-        "spreadsheet_semantic_index",
+-        "cross_file_context"
++        "spreadsheet_semantic_index"
+       ],
+       "note": "Live provider runtime smoke passed with deepseek/deepseek-v4-flash: real room execution through PRODUCTION_ROOM_TOOLS, managed write coordination, evidence payloads, no model-visible lock/unlock tools, no active lock leaks, and output surface watchlist_row. Domain-specific gold checks remain governed by this case's blockers, if any."
+     },
+@@ -532,10 +473,10 @@
+         "tests/financeModelRuntime.test.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/lockFencing.test.ts",
+         "tests/agentJobsRuntime.test.ts",
+-        "src/agent/runtime.ts",
++        "src/nodeagent/core/runtime.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts",
+         "tests/workflowEvals.test.ts",
+@@ -576,9 +517,9 @@
+         "src/engine/types.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts",
+         "tests/workflowEvals.test.ts",
+@@ -624,7 +565,7 @@
+         "src/app/liteparseAdapter.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts",
+         "tests/workflowEvals.test.ts",
+@@ -664,9 +605,9 @@
+         "src/engine/types.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts",
+         "tests/workflowEvals.test.ts",
+@@ -742,7 +683,7 @@
+         "src/engine/types.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/workflowEvals.test.ts",
+         "tests/researchHarness.test.ts",
+         "tests/researchToolContract.test.ts",
+@@ -781,9 +722,9 @@
+         "tests/workflowEvals.test.ts",
+         "tests/agentRuntime.test.ts",
+         "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
++        "src/nodeagent/skills/integration/noderoomAdapter.ts",
+         "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
++        "src/nodeagent/core/worldModel.ts",
+         "tests/roomEngine.test.ts",
+         "src/engine/roomEngine.ts",
+         "tests/workflowEvals.test.ts",
+@@ -796,49 +737,25 @@
+         "docs/eval/MEDIA_JUDGE.md"
+       ],
+       "blockers": [
+-        "schema_detection",
+-        "cross_file_context"
++        "schema_detection"
+       ],
+       "note": "Live provider runtime smoke passed with deepseek/deepseek-v4-flash: real room execution through PRODUCTION_ROOM_TOOLS, managed write coordination, evidence payloads, no model-visible lock/unlock tools, no active lock leaks, and output surface watchlist_row. Domain-specific gold checks remain governed by this case's blockers, if any."
+     },
+     {
+       "caseId": "legacy-output-migration",
+       "category": "legacy_agent_outputs",
+-      "proofLevel": "partial_live_provider",
++      "proofLevel": "live_provider",
+       "runtimeLockMode": "runtime_managed_lock",
+-      "readiness": "contract",
++      "readiness": "runnable",
+       "evidence": [
+         "docs/eval/professional-live-runtime.json",
+         "evals/professionalRuntimeLive.ts",
+         "docs/eval/eval-runs.jsonl",
+         "docs/eval/professional-live-catalog.json",
+         "evals/professionalLiveCatalog.ts",
+-        "tests/professionalLiveCatalog.test.ts",
+-        "evals/professionalWorkflows.ts",
+-        "evals/professionalCatalogProofs.ts",
+-        "tests/professionalCatalogProofs.test.ts",
+-        "tests/agentRuntime.test.ts",
+-        "tests/artifactRefs.test.ts",
+-        "src/agent/roomTools.ts",
+-        "tests/wikiSkill.test.ts",
+-        "docs/skills/self-updating-wiki/SKILL.md",
+-        "tests/promptInjection.test.ts",
+-        "src/agent/context.ts",
+-        "tests/workflowEvals.test.ts",
+-        "tests/roomEngine.test.ts",
+-        "src/engine/roomEngine.ts",
+-        "tests/workflowEvals.test.ts",
+-        "tests/researchHarness.test.ts",
+-        "tests/researchToolContract.test.ts",
+-        "evals/professionalCatalogProofs.ts",
+-        "tests/professionalCatalogProofs.test.ts",
+-        "docs/eval/professional-catalog-proofs.json",
+-        "docs/eval/results.json",
+-        "docs/eval/MEDIA_JUDGE.md"
+-      ],
+-      "blockers": [
+-        "cross_file_context"
++        "tests/professionalLiveCatalog.test.ts"
+       ],
++      "blockers": [],
+       "note": "Live provider runtime smoke passed with deepseek/deepseek-v4-flash: real room execution through PRODUCTION_ROOM_TOOLS, managed write coordination, evidence payloads, no model-visible lock/unlock tools, no active lock leaks, and output surface wiki_note. Domain-specific gold checks remain governed by this case's blockers, if any."
+     }
+   ]
+diff --git a/docs/eval/proofloop-benchmark-board.json b/docs/eval/proofloop-benchmark-board.json
+index 399dff71..5fb372db 100644
+--- a/docs/eval/proofloop-benchmark-board.json
++++ b/docs/eval/proofloop-benchmark-board.json
+@@ -1,6 +1,6 @@
+ {
+   "schema": 1,
+-  "generatedAt": "2026-07-02T00:24:31.878Z",
++  "generatedAt": "2026-07-06T07:01:43.096Z",
+   "policy": [
+     "Product-path completion is useful proof: real UI, visible progress, artifacts, verifier receipts, trace, memory, and browser evidence.",
+     "Official semantic score is only claimed when the benchmark's official scorer/verifier result is imported.",
+@@ -86,7 +86,7 @@
+         "scoreType": "product_path_completion",
+         "evidence": [
+           ".proofloop/runs/latest/run-result.json",
+-          ".proofloop/runs/2026-07-01T22-40-30"
++          ".proofloop/runs/2026-07-06T06-55-37"
+         ],
+         "command": "npm run proofloop:proximitty",
+         "blockers": []
+diff --git a/docs/eval/startup-diligence-war-room-live-results.json b/docs/eval/startup-diligence-war-room-live-results.json
+index 703c457f..9b7059f7 100644
+--- a/docs/eval/startup-diligence-war-room-live-results.json
++++ b/docs/eval/startup-diligence-war-room-live-results.json
+@@ -1,6 +1,6 @@
+ {
+   "schema": 1,
+-  "generatedAt": "2026-06-15T07:38:51.852Z",
++  "generatedAt": "2026-07-06T06:54:17.143Z",
+   "mode": "convex-test-contract",
+   "claim": "Startup diligence Convex contract proof for account intake, evidence cells, no-clobber, private lane, route trace, runway chart, and draft-only handoff.",
+   "pass": true,
+@@ -12,7 +12,7 @@
+     "convexContractProven": true
+   },
+   "room": {
+-    "code": "SD3B57BDAF",
++    "code": "SDC2057E29",
+     "roomId": "000000000000000000000010000rooms",
+     "researchArtifactId": "00000000000000000010005artifacts",
+     "runwayArtifactId": "00000000000000000010007artifacts",
+@@ -40,7 +40,7 @@
+       "evidence": {
+         "proposalResult": {
+           "ok": false,
+-          "proposalId": "00000000000000000010091proposals",
++          "proposalId": "00000000000000000010094proposals",
+           "reason": "pending_approval"
+         },
+         "committedPayload": {
+@@ -80,9 +80,9 @@
+             "decision": "needs_human_review",
+             "outcome": "needs_review",
+             "proposalIds": [
+-              "00000000000000000010095proposals"
++              "00000000000000000010102proposals"
+             ],
+-            "semanticConflictId": "000000000010096semanticConflicts",
++            "semanticConflictId": "000000000010103semanticConflicts",
+             "tier": "human_review_required"
+           }
+         },
+@@ -140,7 +140,7 @@
+           ],
+           "needsInput": false
+         },
+-        "chartArtifactId": "00000000000000000010099artifacts"
++        "chartArtifactId": "00000000000000000010106artifacts"
+       }
+     },
+     {
+diff --git a/docs/eval/startup-diligence-war-room-live.json b/docs/eval/startup-diligence-war-room-live.json
+index f9a8286a..0c7499be 100644
+--- a/docs/eval/startup-diligence-war-room-live.json
++++ b/docs/eval/startup-diligence-war-room-live.json
+@@ -3,7 +3,7 @@
+   "updatedAt": "2026-06-17",
+   "demoTarget": "Startup Diligence War Room",
+   "sourceReview": "D:/VSCode Projects/noderoom/6-14-2026-deep-review.txt",
+-  "currentEvidenceLevel": "provider-produced-convex-contract-proven-plus-deterministic-media",
++  "currentEvidenceLevel": "convex-contract-proven-plus-deterministic-media-provider-pending",
+   "claim": "NodeRoom can present a startup-banking diligence room where multiple users coordinate account intake, source-backed research, runway/milestone work, no-clobber review, private banker judgment, and draft-only downstream handoff.",
+   "latestCapture": {
+     "capturedAt": "2026-06-14T23:28:41.080Z",
+@@ -76,72 +76,72 @@
+       "id": "account_upsert",
+       "status": "convex-contract-proven",
+       "evidenceRequired": "Browser state plus trace row showing CardioNova/five-company re-import updates existing rows instead of duplicating.",
+-      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
+-      "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#account_upsert"
++      "lastVerifiedAt": "2026-07-06T06:54:17.143Z",
++      "lastEvidenceRef": "docs/eval/startup-diligence-war-room-live-results.json#account_upsert"
+     },
+     {
+       "id": "cited_cellpayloads",
+-      "status": "provider-produced-convex-contract-proven",
++      "status": "convex-contract-proven-provider-pending",
+       "evidenceRequired": "CellPayload objects include source refs, confidence/freshness, and reviewed/needs_review state.",
+-      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
+-      "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#cited_cellpayloads"
++      "lastVerifiedAt": "2026-07-06T06:54:17.143Z",
++      "lastEvidenceRef": "docs/eval/startup-diligence-war-room-live-results.json#cited_cellpayloads"
+     },
+     {
+       "id": "human_edit_preserved",
+       "status": "convex-contract-proven",
+       "evidenceRequired": "A user edits an affected cell during agent work; stale write becomes proposal/draft instead of overwrite.",
+-      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
+-      "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#human_edit_preserved"
++      "lastVerifiedAt": "2026-07-06T06:54:17.143Z",
++      "lastEvidenceRef": "docs/eval/startup-diligence-war-room-live-results.json#human_edit_preserved"
+     },
+     {
+       "id": "concurrent_lanes",
+       "status": "convex-contract-proven",
+       "evidenceRequired": "Distinct lane ids, statuses, receipts, and final sealed handoff in agentJobs/agentOperationEvents.",
+-      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
+-      "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#concurrent_lanes"
++      "lastVerifiedAt": "2026-07-06T06:54:17.143Z",
++      "lastEvidenceRef": "docs/eval/startup-diligence-war-room-live-results.json#concurrent_lanes"
+     },
+     {
+       "id": "private_boundary",
+       "status": "convex-contract-proven",
+       "evidenceRequired": "Second user cannot read private banker concerns until explicit promotion.",
+-      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
+-      "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#private_boundary"
++      "lastVerifiedAt": "2026-07-06T06:54:17.143Z",
++      "lastEvidenceRef": "docs/eval/startup-diligence-war-room-live-results.json#private_boundary"
+     },
+     {
+       "id": "runway_milestone_chart",
+       "status": "deterministic-helper-and-artifact-proven",
+       "evidenceRequired": "Runway chart artifact generated from deterministic math with sourced assumptions.",
+-      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
+-      "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#runway_milestone_chart"
++      "lastVerifiedAt": "2026-07-06T06:54:17.143Z",
++      "lastEvidenceRef": "docs/eval/startup-diligence-war-room-live-results.json#runway_milestone_chart"
+     },
+     {
+       "id": "downstream_draft_only",
+       "status": "helper-proven-no-side-effects",
+       "evidenceRequired": "Gmail/Notion/Slack/Linear/LinkedIn/CRM actions produce approval-gated drafts only; no OAuth side effects.",
+-      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
+-      "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#downstream_draft_only"
++      "lastVerifiedAt": "2026-07-06T06:54:17.143Z",
++      "lastEvidenceRef": "docs/eval/startup-diligence-war-room-live-results.json#downstream_draft_only"
+     },
+     {
+       "id": "route_trace_cost_runtime",
+-      "status": "provider-produced-route-trace-proven",
++      "status": "convex-contract-proven-provider-route-pending",
+       "evidenceRequired": "agent run/job rows record model/resolved model, route, latency, token/cost, and stop reason.",
+-      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
+-      "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#route_trace_cost_runtime"
++      "lastVerifiedAt": "2026-07-06T06:54:17.143Z",
++      "lastEvidenceRef": "docs/eval/startup-diligence-war-room-live-results.json#route_trace_cost_runtime"
+     }
+   ],
+   "nextAcceptanceGate": [
+-    "repeat the provider-produced startup diligence eval N=5 and promote only if p95 latency, path fingerprint drift, and pass rate meet the live collaboration SLO"
++    "run the same startup diligence eval through a real provider route so CellPayloads, route telemetry, and final content are provider-produced rather than contract-seeded"
+   ],
+   "latestLiveEval": {
+-    "generatedAt": "2026-06-15T07:42:04.120Z",
+-    "mode": "provider-produced-convex-contract",
+-    "command": "npm run eval:startup-diligence:provider",
+-    "resultPath": "docs/eval/startup-diligence-provider-results.json",
++    "generatedAt": "2026-07-06T06:54:17.143Z",
++    "mode": "convex-test-contract",
++    "command": "npm run eval:startup-diligence:live",
++    "resultPath": "docs/eval/startup-diligence-war-room-live-results.json",
+     "pass": true,
+     "checksPassed": 9,
+     "checksFailed": 0,
+-    "providerProducedContent": true,
+-    "note": "Provider-generated CellPayload/final copy flowed through the same Convex job/proposal/trace contract."
++    "providerProducedContent": false,
++    "note": "Convex contract proof is green; live provider-generated content remains the next production gate."
+   },
+   "latestProviderEval": {
+     "generatedAt": "2026-06-15T07:42:04.120Z",
+diff --git a/package.json b/package.json
+index e5f09a1a..7f8378e0 100644
+--- a/package.json
++++ b/package.json
+@@ -49,6 +49,7 @@
+     "benchmark:bankertoolbench:ledger-ingest": "tsx scripts/bankertoolbench-ledger-ingest.ts",
+     "benchmark:bankertoolbench:fullsuite-gate": "tsx scripts/bankertoolbench-fullsuite-gate.ts",
+     "benchmark:bankertoolbench:livesuite-gate": "tsx scripts/bankertoolbench-livesuite-gate.ts",
++    "benchmark:advanced-finance": "tsx scripts/advanced-finance-benchmark-slate.ts",
+     "benchmark:contamination": "tsx scripts/benchmark-contamination-check.ts",
+     "benchmark:spreadsheetbench:ingest": "tsx scripts/spreadsheetbench-ingest.ts",
+     "benchmark:spreadsheetbench:stage": "tsx scripts/spreadsheetbench-stage.ts",
+@@ -89,6 +90,10 @@
+     "proofloop:live:browser": "tsx scripts/proofloop-live-playwright.ts browser",
+     "proofloop:live:adapter": "tsx scripts/proofloop-live-playwright.ts adapter",
+     "proofloop:live:btb": "tsx scripts/proofloop-live-playwright.ts bankertoolbench",
++    "proofloop:live:underwriting": "node scripts/proofloop.mjs underwriting-live",
++    "proofloop:live:underwriting:verify": "node scripts/proofloop.mjs verify-underwriting-live",
++    "proofloop:credit-data": "node scripts/proofloop.mjs credit-data",
++    "proofloop:autonomous-credit": "node scripts/proofloop.mjs autonomous-credit",
+     "proofloop": "tsx scripts/proofloop-cli.ts",
+     "proofloop:buyer-validation": "tsx scripts/proofloop-buyer-validation.ts",
+     "proofloop:package": "tsx scripts/proofloop-package.ts",
+diff --git a/playwright.real-flow.config.ts b/playwright.real-flow.config.ts
+index 6bfaf6a2..289d9ab6 100644
+--- a/playwright.real-flow.config.ts
++++ b/playwright.real-flow.config.ts
+@@ -28,6 +28,7 @@ export default defineConfig({
+     "e2e/nodemem-recall-benchmark.spec.ts",
+     "e2e/nodemem-fairtest.spec.ts",
+     "e2e/nodemem-firstuser.spec.ts",
++    "e2e/underwriting-hmda-live.spec.ts",
+   ],
+   fullyParallel: false,
+   workers: 1,
+diff --git a/scripts/bankertoolbench-fullsuite-gate.ts b/scripts/bankertoolbench-fullsuite-gate.ts
+index 6f840ddf..bdb76f5d 100644
+--- a/scripts/bankertoolbench-fullsuite-gate.ts
++++ b/scripts/bankertoolbench-fullsuite-gate.ts
+@@ -1,8 +1,8 @@
+ // FR-020B full-suite flip gate (CLI).
+ //
+ // Reads BankerToolBench sweep summaries (or a prebuilt ledger), decides whether the
+-// proof-registry FR-020B claim has been EARNED (all expected tasks executed + officially
+-// scored, generic-only), and only then proposes/writes the registry flip.
++// proof-registry FR-020B claim has been EARNED (all expected tasks executed +
++// imported rubric-scored, generic-only), and only then proposes/writes the registry flip.
+ //
+ // Usage:
+ //   tsx scripts/bankertoolbench-fullsuite-gate.ts \
+diff --git a/scripts/proofloop.mjs b/scripts/proofloop.mjs
+index 7fa2d150..ce1e7bff 100644
+--- a/scripts/proofloop.mjs
++++ b/scripts/proofloop.mjs
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env node
+ import { spawnSync } from "node:child_process";
+-import { cpSync, existsSync, readdirSync, rmSync, statSync } from "node:fs";
++import { cpSync, existsSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
+ import { join } from "node:path";
+ 
+ const root = process.cwd();
+@@ -33,6 +33,30 @@ if (args[0] === "verify-proximitty") {
+   process.exit(verifyProximitty(args[1]));
+ }
+ 
++if (args[0] === "underwriting-live") {
++  const status = run("node", ["scripts/underwriting-hmda-live-proof.mjs"]);
++  if (status !== 0) process.exit(status);
++  process.exit(verifyUnderwritingLive(args[1]));
++}
++
++if (args[0] === "autonomous-credit") {
++  const liveStatus = run("node", ["scripts/proofloop.mjs", "underwriting-live"]);
++  if (liveStatus !== 0) process.exit(liveStatus);
++  const dataStatus = run("node", ["scripts/proofloop.mjs", "credit-data"]);
++  if (dataStatus !== 0) process.exit(dataStatus);
++  const status = run("npx", ["tsx", "scripts/autonomous-credit-approval-proof.ts"]);
++  process.exit(status);
++}
++
++if (args[0] === "credit-data") {
++  const status = run("npx", ["tsx", "scripts/credit-actuarial-data-sources-proof.ts"]);
++  process.exit(status);
++}
++
++if (args[0] === "verify-underwriting-live") {
++  process.exit(verifyUnderwritingLive(args[1]));
++}
++
+ if (args[0] === "memory") {
+   const status = run("node", ["--no-warnings", "scripts/proofloop-memory.mjs", ...args.slice(1)]);
+   process.exit(status);
+@@ -120,3 +144,49 @@ function verifyProximitty(runId) {
+   console.log(`proofloop: Proximitty acceptance PASS (${runName})`);
+   return 0;
+ }
++
++function verifyUnderwritingLive(receiptPath = "docs/eval/underwriting-hmda-live-proof.json") {
++  const fullPath = join(root, receiptPath);
++  if (!existsSync(fullPath)) {
++    console.error(`proofloop: HMDA live underwriting receipt missing: ${fullPath}`);
++    return 1;
++  }
++  const receipt = JSON.parse(readFileSync(fullPath, "utf8"));
++  const failures = [];
++  const harness = receipt.harness ?? {};
++  const scoring = receipt.scoring ?? {};
++  const backend = receipt.backend ?? {};
++  const liveSignals = receipt.liveSignals ?? {};
++  const uploadedFiles = Array.isArray(receipt.uploadedFiles) ? receipt.uploadedFiles : [];
++  const outputColumns = Array.isArray(harness.outputColumns) ? harness.outputColumns : [];
++  const requiredColumns = ["application_id", "predicted_action_taken", "predicted_label", "confidence", "brief_reason"];
++
++  if (receipt.passed !== true) failures.push("receipt.passed must be true");
++  if (receipt.memoryMode !== false) failures.push("memoryMode must be false");
++  if (harness.version !== "hmda-underwriting-live-proof-v1.0.0") failures.push("harness.version must be hmda-underwriting-live-proof-v1.0.0");
++  if (harness.proofContractVersion !== "prod-live-hmda-underwriting-v1") failures.push("proof contract must be prod-live-hmda-underwriting-v1");
++  if (!requiredColumns.every((column) => outputColumns.includes(column))) failures.push("harness output columns must match final HMDA contract");
++  if (uploadedFiles.some((file) => /answer[_-]?key|local/i.test(String(file)))) failures.push("uploadedFiles must not include the local answer key");
++  if (liveSignals.outputRowsComplete !== true) failures.push("visible Sheet 1 output must be complete");
++  if (Array.isArray(liveSignals.pageErrors) && liveSignals.pageErrors.length > 0) failures.push("pageErrors must be empty");
++  if (backend.ok !== true) failures.push("backend receipt query must succeed");
++  if (backend.job?.status !== "completed") failures.push("backend job status must be completed");
++  if (!Array.isArray(backend.frames) || backend.frames.some((frame) => frame.status !== "completed")) failures.push("all backend reasoning frames must be completed");
++  if (!Array.isArray(backend.operations) || !backend.operations.some((op) => op.name === "agentJobRunner.hmdaUnderwritingBenchmark completed" && op.status === "completed")) {
++    failures.push("backend operations must include deterministic underwriting completion checkpoint");
++  }
++  if (scoring.matchedRows !== scoring.n) failures.push("scoring matchedRows must equal n");
++  if (scoring.correct !== scoring.n) failures.push("scoring correct must equal n for the pinned live HMDA packet");
++  if (scoring.incorrect !== 0) failures.push("scoring incorrect must be zero");
++  if (scoring.unparseable !== 0) failures.push("scoring unparseable must be zero");
++  if (scoring.accuracy !== 1) failures.push("scoring accuracy must be 1 for the pinned live HMDA packet");
++
++  if (failures.length) {
++    console.error("proofloop: HMDA live underwriting proof FAILED:");
++    for (const failure of failures) console.error(`  - ${failure}`);
++    console.error(`proofloop: receipt at ${fullPath}`);
++    return 1;
++  }
++  console.log(`proofloop: HMDA live underwriting acceptance PASS (${receipt.roomUrl})`);
++  return 0;
++}
+diff --git a/src/eval/bankerToolBenchFullSuiteGate.ts b/src/eval/bankerToolBenchFullSuiteGate.ts
+index eb280429..1f07bfa4 100644
+--- a/src/eval/bankerToolBenchFullSuiteGate.ts
++++ b/src/eval/bankerToolBenchFullSuiteGate.ts
+@@ -3,7 +3,7 @@
+ // The proof-registry FR-020B claim ("full BankerToolBench suite completion") flips
+ // blocked -> passed ONLY when both registry gates are earned:
+ //   - full_suite_execution   : all expected tasks executed clean generic-only (no answer-key writers)
+-//   - aggregate_score_import  : every clean task carries an official (Gandalf) score + trace link
++//   - aggregate_score_import  : every clean task carries an imported rubric score + trace link
+ //
+ // This module is the honest promotion gate: it refuses to flip unless the receipts earn it,
+ // and it reports COMPLETION + mean reward + pass-rate separately so "100/100 executed+scored"
+@@ -132,17 +132,17 @@ export function evaluateFullSuiteGate(
+     id: "aggregate_score_import",
+     status: scorePass ? "pass" : "blocked",
+     reason: scorePass
+-      ? `All ${cleanScoredTaskCount} clean tasks carry official scores + trace links; mean reward ${fmt(meanCleanReward)}.`
+-      : `Aggregate official scores incomplete until full-suite execution passes.`,
++      ? `All ${cleanScoredTaskCount} clean tasks carry imported rubric scores + trace links; mean reward ${fmt(meanCleanReward)}.`
++      : `Aggregate rubric scores incomplete until full-suite execution passes.`,
+   };
+ 
+   const flipEligible = fullSuiteExecution.status === "pass" && aggregateScoreImport.status === "pass";
+ 
+   const claim = flipEligible
+-    ? `All ${cleanScoredTaskCount}/${expectedCount} BankerToolBench tasks executed and officially scored, ` +
++    ? `All ${cleanScoredTaskCount}/${expectedCount} BankerToolBench tasks executed and imported rubric-scored, ` +
+       `generic-only (no answer-key writers). Aggregate mean reward ${fmt(meanCleanReward)}; ` +
+       `pass-rate ${fmt(passRate)} (reward >= ${passThreshold}). ` +
+-      `This proves full-suite COMPLETION + SCORING, not a 100% pass rate.`
++      `This proves full-suite COMPLETION + SCORE-IMPORT, not a 100% pass rate or final official-promotion clearance.`
+     : `Full-suite proof NOT earned: ${cleanScoredTaskCount}/${expectedCount} clean generic-only scored tasks. ` +
+       fullSuiteExecution.reason;
+ 
+diff --git a/src/nodeagent/core/fanoutPlanner.ts b/src/nodeagent/core/fanoutPlanner.ts
+index 60662952..3e827eae 100644
+--- a/src/nodeagent/core/fanoutPlanner.ts
++++ b/src/nodeagent/core/fanoutPlanner.ts
+@@ -8,7 +8,24 @@ export type NodeAgentFanoutRole =
+   | "privacy_security"
+   | "browser_proof"
+   | "notebook_proposal"
+-  | "fresh_context_judge";
++  | "fresh_context_judge"
++  | "credit_policy"
++  | "credit_data"
++  | "credit_features"
++  | "credit_model"
++  | "reject_inference"
++  | "fair_lending"
++  | "adverse_action"
++  | "model_risk_management"
++  | "credit_live_proof"
++  | "delegated_authority"
++  | "actuarial_data"
++  | "frequency_severity"
++  | "survival_default"
++  | "scenario_forecast"
++  | "calibration_backtest"
++  | "uncertainty_sensitivity"
++  | "forecast_red_team";
+ 
+ export type NodeAgentMutationMode = "none" | "room_tools_only" | "proposal_only";
+ 
+@@ -70,9 +87,11 @@ export function planNodeAgentFanout(input: NodeAgentFanoutPlanInput): NodeAgentF
+   const goal = input.goal.toLowerCase();
+   const artifactKinds = new Set((input.artifactKinds ?? []).map((kind) => kind.toLowerCase()));
+   const isBtb = /\b(bankertoolbench|btb-[a-z0-9]{6,}|btb\b)\b/i.test(input.goal);
++  const isAutonomousCredit = /\b(autonomous credit|credit approval|loan approval|delegated approval|credit decision|approval model|underwriting model|pd\/lgd|pd model|lgd model|adverse action|fair lending|ecoa|model risk)\b/i.test(input.goal);
++  const isActuarialForecast = /\b(actuarial|claims?|loss reserve|frequency|severity|survival|hazard|statistical prediction|multi-angle|scenario forecast|forecasting|forecast model|ai-2027|base rate|calibration|backtest|stress test)\b/i.test(input.goal);
+   const isSpreadsheet = isBtb || /\b(spreadsheetbench|spreadsheet|xlsx|xlsm|sheet 1|excel)\b/i.test(input.goal) || artifactKinds.has("sheet");
+   const isNotebook = /\b(notebook|wiki|notes?|prosemirror|document)\b/i.test(goal) || artifactKinds.has("note") || artifactKinds.has("wiki");
+-  const needsBrowserProof = input.needsBrowserProof ?? (isBtb || isSpreadsheet || isNotebook);
++  const needsBrowserProof = input.needsBrowserProof ?? (isBtb || isSpreadsheet || isNotebook || isAutonomousCredit || isActuarialForecast);
+ 
+   const subagents: NodeAgentSubagentPlan[] = [
+     makeSubagent("coordinator", "Own the NodeRoom run plan and merge receipts, without directly mutating artifacts.", "none"),
+@@ -119,6 +138,84 @@ export function planNodeAgentFanout(input: NodeAgentFanoutPlanInput): NodeAgentF
+     ]));
+   }
+ 
++  if (isAutonomousCredit) {
++    subagents.push(
++      makeSubagent("credit_policy", "Convert the target lender credit box into executable eligibility, hard-stop, review, approval, and exception rules.", "none", [
++        "read_policy",
++        "compile_rules",
++      ]),
++      makeSubagent("credit_data", "Verify training/evaluation data lineage, label definition, leakage controls, and external-data blockers.", "none", [
++        "list_artifacts",
++        "snapshot",
++        "fetch_source",
++      ]),
++      makeSubagent("credit_features", "Build borrower, cash-flow, collateral, covenant, and exposure features with feature provenance receipts.", "none", [
++        "read_range",
++        "search_sheet_context",
++      ]),
++      makeSubagent("credit_model", "Train or evaluate competing PD/LGD/approval models and return calibration, accuracy, cutoff, and uncertainty receipts.", "none", [
++        "score_model",
++        "calibration_check",
++      ]),
++      makeSubagent("reject_inference", "Account for declined/unbooked applications and label missingness before any autonomous approval claim.", "none", [
++        "cohort_analysis",
++      ]),
++      makeSubagent("fair_lending", "Test prohibited-feature leakage, adverse impact, segment stability, and exception routing controls.", "none", [
++        "disparity_check",
++        "feature_leakage_check",
++      ]),
++      makeSubagent("adverse_action", "Generate specific ECOA/Reg B reason-code receipts for every decline or worse-term decision.", "none", [
++        "reason_code_check",
++      ]),
++      makeSubagent("model_risk_management", "Assemble the model card, validation report, monitoring plan, limitations, and approval-control evidence.", "none", [
++        "model_card",
++        "validation_report",
++      ]),
++      makeSubagent("credit_live_proof", "Bind the model proof to a production live-room receipt and backend job-completion evidence.", "none", [
++        "browser_receipt",
++        "backend_receipt",
++      ]),
++      makeSubagent("delegated_authority", "Record bank policy approval, authority limits, human override policy, and remaining external blockers.", "none", [
++        "authority_receipt",
++      ]),
++    );
++  }
++
++  if (isActuarialForecast) {
++    subagents.push(
++      makeSubagent("actuarial_data", "Verify exposure, outcome, censoring, claims/default/loss, and source-lineage data for actuarial or statistical prediction work.", "none", [
++        "fetch_source",
++        "list_artifacts",
++        "data_dictionary",
++      ]),
++      makeSubagent("frequency_severity", "Estimate event frequency and severity distributions with cohort cuts, tails, and loss-cost receipts.", "none", [
++        "fit_distribution",
++        "cohort_analysis",
++      ]),
++      makeSubagent("survival_default", "Model time-to-event behavior such as default, prepayment, churn, mortality, renewal, or claim emergence.", "none", [
++        "survival_curve",
++        "hazard_model",
++      ]),
++      makeSubagent("scenario_forecast", "Run AI-2027-style multi-angle forecast branches using base rates, trend extrapolation, scenario decomposition, and explicit assumptions.", "none", [
++        "base_rate",
++        "trend_extrapolation",
++        "scenario_simulation",
++      ]),
++      makeSubagent("calibration_backtest", "Backtest predictions, report calibration/error bands, and compare against simple baselines.", "none", [
++        "calibration_check",
++        "backtest",
++      ]),
++      makeSubagent("uncertainty_sensitivity", "Return confidence intervals, stress cases, assumption sensitivity, and decision thresholds.", "none", [
++        "sensitivity",
++        "stress_test",
++      ]),
++      makeSubagent("forecast_red_team", "Produce disagreement, missing-data, leakage, and overfit receipts before any forecast is treated as decision-ready.", "none", [
++        "red_team",
++        "leakage_check",
++      ]),
++    );
++  }
++
+   subagents.push(makeSubagent("privacy_security", "Verify public/private artifact boundaries and egress policy receipts.", "none", [
+     "list_artifacts",
+     "awareness",
+@@ -137,6 +234,10 @@ export function planNodeAgentFanout(input: NodeAgentFanoutPlanInput): NodeAgentF
+     mode,
+     reason: isBtb
+       ? "BankerToolBench requires parallel evidence, artifact, privacy, browser, and final-judge receipts."
++      : isAutonomousCredit
++        ? "Autonomous credit approval requires parallel policy, data, model, reject-inference, fair-lending, adverse-action, MRM, live-proof, and delegated-authority receipts."
++      : isActuarialForecast
++        ? "Actuarial and multi-angle statistical prediction require parallel data, frequency/severity, survival/default, scenario, calibration, uncertainty, and red-team receipts."
+       : isSpreadsheet
+         ? "Spreadsheet work needs source evidence, sheet mutation, formula audit, and browser proof receipts."
+         : isNotebook
+diff --git a/tests/nodeagentHooks.test.ts b/tests/nodeagentHooks.test.ts
+index f3ff61b8..a0748d78 100644
+--- a/tests/nodeagentHooks.test.ts
++++ b/tests/nodeagentHooks.test.ts
+@@ -178,4 +178,54 @@ describe("nodeagent fanout planner", () => {
+     expect(notebook?.mutationMode).toBe("proposal_only");
+     expect(notebook?.goal).toContain("never mutate human-owned ProseMirror text directly");
+   });
++
++  it("plans autonomous credit approval as parallel policy, validation, compliance, and live-proof subagents", () => {
++    const plan = planNodeAgentFanout({
++      goal: "Get an autonomous credit approval model with delegated approval, adverse action, fair lending, and model risk receipts done",
++      maxParallel: 6,
++    });
++    const roles = plan.subagents.map((subagent) => subagent.role);
++
++    expect(plan.mode).toBe("fanout");
++    expect(plan.reason).toContain("Autonomous credit approval requires parallel");
++    expect(roles).toEqual(expect.arrayContaining([
++      "credit_policy",
++      "credit_data",
++      "credit_features",
++      "credit_model",
++      "reject_inference",
++      "fair_lending",
++      "adverse_action",
++      "model_risk_management",
++      "credit_live_proof",
++      "delegated_authority",
++      "browser_proof",
++      "fresh_context_judge",
++    ]));
++    expect(plan.waves.some((wave) => wave.length >= 4)).toBe(true);
++    expect(plan.subagents.find((subagent) => subagent.role === "delegated_authority")?.goal).toContain("authority limits");
++  });
++
++  it("plans actuarial and multi-angle statistical prediction as parallel forecast subagents", () => {
++    const plan = planNodeAgentFanout({
++      goal: "Run an actuarial multi-angle statistical prediction forecast like AI-2027 with base rates, calibration, backtest, and stress tests",
++      maxParallel: 5,
++    });
++    const roles = plan.subagents.map((subagent) => subagent.role);
++
++    expect(plan.mode).toBe("fanout");
++    expect(plan.reason).toContain("Actuarial and multi-angle statistical prediction");
++    expect(roles).toEqual(expect.arrayContaining([
++      "actuarial_data",
++      "frequency_severity",
++      "survival_default",
++      "scenario_forecast",
++      "calibration_backtest",
++      "uncertainty_sensitivity",
++      "forecast_red_team",
++      "browser_proof",
++      "fresh_context_judge",
++    ]));
++    expect(plan.subagents.find((subagent) => subagent.role === "scenario_forecast")?.goal).toContain("AI-2027-style");
++  });
+ });
