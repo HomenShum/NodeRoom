@@ -111,9 +111,7 @@ describe("long-running agent job source invariants", () => {
     const jobs = readFileSync("convex/agentJobs.ts", "utf8");
 
     expect(runner).toContain('modelPolicy === "openrouter/free-auto"');
-    expect(runner).toContain("function resolvedModelPolicyForRunner");
-    expect(runner).toContain('process.env.FREE_AUTO_ALLOW_PAID_MODEL === "1"');
-    expect(runner).toContain("isOpenRouterFreeRoute(override)");
+    expect(runner).toContain("process.env.FREE_AUTO_JOB_MODEL ?? modelPolicy");
     expect(runner).toContain("const model = agentModel(resolvedModelPolicy, { entrypoint })");
     expect(runner).toContain("function runnerEntrypoint");
     expect(runner).toContain("defaultMaxStepsForEntrypoint(entrypoint)");
@@ -147,7 +145,7 @@ describe("long-running agent job source invariants", () => {
     expect(artifacts).toContain("meta: a.meta");
   });
 
-  it("promotes uploaded-file free jobs to a configured non-free file-egress model instead of retry-looping", () => {
+  it("blocks uploaded-file free jobs unless paid file-egress promotion is explicit", () => {
     const agent = readFileSync("convex/agent.ts", "utf8");
     const jobs = readFileSync("convex/agentJobs.ts", "utf8");
     const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
@@ -159,16 +157,21 @@ describe("long-running agent job source invariants", () => {
       expect(source).toContain("AGENT_FILE_EGRESS_MODEL");
       expect(source).toContain("providerEgressDecision");
     }
+    expect(jobs).toContain("freeFileEgressPromotionAllowed(process.env)");
+    expect(jobs).toContain("freeFileEgressPromotionBlocked");
+    expect(jobs).toContain('blockedReason = `provider_egress_blocked:${FREE_FILE_EGRESS_BLOCK_REASON}`');
+    expect(runner).toContain("freeFileEgressPromotionAllowed(process.env)");
+    expect(runner).toContain("providerEgressBlock");
     for (const source of [jobs, runner]) expect(source).toContain('entrypoint = "public_ask"');
     expect(agent).toContain("modelNameForEgress");
     expect(jobs).toContain('routePolicy = "explicit"');
     expect(jobs).toContain("fileEgressPromoted");
     expect(jobs).toContain('room?.autoAllow === false ? "host_review" : "auto_commit_safe"');
-    expect(runner).toContain("isProviderPolicyBlockedError");
-    expect(runner).toContain("const retryable = !isProviderPolicyBlockedError(rootError)");
-    expect(runner).toContain("!isProviderCreditError(rootError)");
+    expect(runner).toContain("isProviderNonRetryableError");
+    expect(runner).toContain("const retryable = !isProviderNonRetryableError(rootError)");
     expect(runner).toContain('title: canRetry ? "Agent slice failed; retry scheduled" : retryable ? "Agent job failed" : "Agent route blocked"');
     expect(env).toContain("AGENT_FILE_EGRESS_MODEL=z-ai/glm-4.7-flash");
+    expect(env).toContain("FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION=0");
   });
 
   it("does not assume provider-produced batch tool args always carry an ops array", () => {

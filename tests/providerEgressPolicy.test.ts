@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   FREE_FILE_EGRESS_BLOCK_REASON,
+  freeFileEgressPromotionAllowed,
   hasFileDerivedProviderEgress,
+  isProviderNonRetryableError,
   isProviderPolicyBlockedError,
+  providerNonRetryableReason,
   providerEgressDecision,
   providerPolicyBlockedReason,
   providerRouteDecision,
@@ -214,5 +217,10 @@ describe("provider artifact egress policy", () => {
     expect(providerPolicyBlockedReason(new Error(`provider_egress_blocked:${FREE_FILE_EGRESS_BLOCK_REASON}`))).toBe(FREE_FILE_EGRESS_BLOCK_REASON);
     expect(isProviderPolicyBlockedError(new Error("provider_route_blocked:provider_not_allowed"))).toBe(true);
     expect(isProviderPolicyBlockedError(new Error("rate_limit_retryable"))).toBe(false);
+    expect(providerNonRetryableReason(new Error('Provider request failed 402: {"error":{"message":"Insufficient credits"}}'))).toBe("provider_insufficient_credits");
+    expect(isProviderNonRetryableError(new Error("Provider request failed 401: Unauthorized"))).toBe(true);
+    expect(isProviderNonRetryableError(new Error("Provider request failed 429: rate limited"))).toBe(false);
+    expect(freeFileEgressPromotionAllowed({ FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION: "0" })).toBe(false);
+    expect(freeFileEgressPromotionAllowed({ FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION: "1" })).toBe(true);
   });
 });

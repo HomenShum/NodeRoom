@@ -758,7 +758,7 @@ const AGENT_MODEL_PRESETS: Array<{ value: AgentModelSelection["mode"]; label: st
 
 function hintForModelSelection(mode: AgentModelSelection["mode"]): string {
   switch (mode) {
-    case "free": return "Routes NodeAgent through free-auto.";
+    case "free": return "Routes NodeAgent through free-auto; uploaded-file jobs need an explicit server-side paid promotion.";
     case "top_paid": return "Pins NodeAgent to the top paid route.";
     case "specific": return "Pins NodeAgent to an exact model policy.";
     default: return "Uses the adaptive NodeAgent route.";
