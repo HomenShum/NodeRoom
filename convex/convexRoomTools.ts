@@ -30,6 +30,7 @@ const artifactsCreateAgentFileArtifactRef = makeFunctionReference<"mutation">("a
 const artifactsSetArtifactMetaByAgentRef = makeFunctionReference<"mutation">("artifacts:setArtifactMetaByAgent") as any;
 const artifactsSetColumnsByAgentRef = makeFunctionReference<"mutation">("artifacts:setColumnsByAgent") as any;
 const presenceHeartbeatForAgentRef = makeFunctionReference<"mutation">("presence:heartbeatForAgent") as any;
+const presenceReleaseForAgentRef = makeFunctionReference<"mutation">("presence:releaseForAgent") as any;
 const draftsCreateDraftRef = makeFunctionReference<"mutation">("drafts:createDraft") as any;
 const messagesSendAgentRef = makeFunctionReference<"mutation">("messages:sendAgent") as any;
 const artifactsListForRoomRef = makeFunctionReference<"query">("artifacts:listForRoom") as any;
@@ -209,6 +210,19 @@ export class ConvexRoomTools implements RoomTools {
       return { ok: false, error: String(r.reason ?? "apply_notebook_outline_failed") };
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : "apply_notebook_outline_failed" };
+    } finally {
+      // Release the pre-write "drafting notes" intent claim — its promise is
+      // false the instant the write call above returns, success or failure.
+      if (this.actor.kind === "agent") {
+        await this.ctx.runMutation(presenceReleaseForAgentRef, {
+          roomId: this.roomId,
+          artifactId,
+          targetKind: "notebook_block",
+          targetId: args.parentBlockId ?? "agent-section",
+          actor: this.actor,
+          mode: "agent_intent",
+        }).catch(() => null);
+      }
     }
   }
 
@@ -255,6 +269,18 @@ export class ConvexRoomTools implements RoomTools {
       return { ok: false, error: String(r.reason ?? "update_notebook_block_failed") };
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : "update_notebook_block_failed" };
+    } finally {
+      // Same release-on-resolution as applyNotebookOutline above.
+      if (this.actor.kind === "agent") {
+        await this.ctx.runMutation(presenceReleaseForAgentRef, {
+          roomId: this.roomId,
+          artifactId,
+          targetKind: "notebook_block",
+          targetId: args.blockId,
+          actor: this.actor,
+          mode: "agent_intent",
+        }).catch(() => null);
+      }
     }
   }
 
@@ -329,12 +355,30 @@ export class ConvexRoomTools implements RoomTools {
         ttlMs: 20_000,
       });
     }
-    const r = await this.ctx.runMutation(artifactsApplyAgentCellEditRef, { roomId: this.roomId, artifactId, elementId, value, baseVersion, kind, actor: this.actor, jobId: this.jobId });
-    if (r.ok) return { ok: true, version: r.version, mutationReceiptId: r.mutationReceiptId ? String(r.mutationReceiptId) : undefined };
-    if (r.reason === "conflict") return { ok: false, conflict: true, expected: r.expected, actual: r.actual };
-    if (r.reason === "locked") return { ok: false, locked: true, holder: r.by };
-    if (r.reason === "pending_approval") return { ok: false, pendingApproval: true, proposalId: r.proposalId ? String(r.proposalId) : undefined };
-    return { ok: false, error: r.reason };
+    try {
+      const r = await this.ctx.runMutation(artifactsApplyAgentCellEditRef, { roomId: this.roomId, artifactId, elementId, value, baseVersion, kind, actor: this.actor, jobId: this.jobId });
+      if (r.ok) return { ok: true, version: r.version, mutationReceiptId: r.mutationReceiptId ? String(r.mutationReceiptId) : undefined };
+      if (r.reason === "conflict") return { ok: false, conflict: true, expected: r.expected, actual: r.actual };
+      if (r.reason === "locked") return { ok: false, locked: true, holder: r.by };
+      if (r.reason === "pending_approval") return { ok: false, pendingApproval: true, proposalId: r.proposalId ? String(r.proposalId) : undefined };
+      return { ok: false, error: r.reason };
+    } finally {
+      // Root-cause fix: release BOTH pre-write claims ("planning" +
+      // "checking CAS") the instant this call resolves, instead of letting
+      // them sit for their full TTL (up to 45s). Without this, a batch write
+      // (e.g. 55 underwriting cells) left every cell "present" for tens of
+      // seconds after the agent had already moved past it — the exact bug
+      // that showed a wall of terracotta "Room NodeAgent" chips post-write.
+      if (this.actor.kind === "agent") {
+        await this.ctx.runMutation(presenceReleaseForAgentRef, {
+          roomId: this.roomId,
+          artifactId,
+          targetKind: "cell",
+          targetId: elementId,
+          actor: this.actor,
+        }).catch(() => null);
+      }
+    }
   }
 
   async createDraft(ops: { elementId: string; value: unknown; baseVersion: number }[], blockedByLockId: string, note: string, artifactId: string = this.artifactId) {

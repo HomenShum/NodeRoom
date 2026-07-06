@@ -1,5 +1,6 @@
 // @vitest-environment edge-runtime
 import { convexTest } from "convex-test";
+import { makeFunctionReference } from "convex/server";
 import { describe, expect, it } from "vitest";
 import schema from "../convex/schema";
 import { api, internal } from "../convex/_generated/api";
@@ -209,5 +210,69 @@ describe("presence claims", () => {
       proof: s.hostProof,
     });
     expect(edit).toMatchObject({ ok: true, version: 2 });
+  });
+});
+
+describe("presence release (root-cause fix for lingering agent chips)", () => {
+  // releaseForAgent is new and not yet in convex/_generated/api (codegen
+  // deploys to prod, forbidden from a working branch) — typed-cast precedent,
+  // same as every other un-codegen'd module referenced elsewhere in this repo.
+  const releaseForAgentRef = makeFunctionReference<"mutation">("presence:releaseForAgent") as any;
+
+  it("deletes only the targeted cell's claims (both modes), leaving other cells' claims untouched", async () => {
+    const t = convexTest(schema, modules);
+    const s = await seedRoom(t);
+    const agent = { kind: "agent" as const, id: "agent_room", name: "Room NodeAgent", scope: "public" as const };
+    await t.run((ctx) => ctx.db.insert("agentSessions", { roomId: s.roomId, agentId: agent.id, agentName: agent.name, scope: "public" as const, status: "idle" as const, lastAction: "planning", updatedAt: Date.now() }));
+
+    await t.mutation(internal.presence.heartbeatForAgent, { roomId: s.roomId, artifactId: s.artifactId, targetKind: "cell", targetId: "C2", mode: "agent_intent", actor: agent, label: "planning" });
+    await t.mutation(internal.presence.heartbeatForAgent, { roomId: s.roomId, artifactId: s.artifactId, targetKind: "cell", targetId: "C2", mode: "commit_lease", actor: agent, label: "checking CAS" });
+    await t.mutation(internal.presence.heartbeatForAgent, { roomId: s.roomId, artifactId: s.artifactId, targetKind: "cell", targetId: "D2", mode: "agent_intent", actor: agent, label: "planning D2" });
+
+    const before = await t.query(api.presence.listForArtifact, { roomId: s.roomId, artifactId: s.artifactId, requester: s.hostProof });
+    expect(before).toHaveLength(3);
+
+    // Omit mode -> release BOTH claims on C2 in one call (what editCell's finally does).
+    const released = await t.mutation(releaseForAgentRef, { roomId: s.roomId, artifactId: s.artifactId, targetKind: "cell", targetId: "C2", actor: agent });
+    expect(released).toMatchObject({ ok: true, released: 2 });
+
+    const after = await t.query(api.presence.listForArtifact, { roomId: s.roomId, artifactId: s.artifactId, requester: s.hostProof });
+    expect(after).toHaveLength(1);
+    expect(after[0]).toMatchObject({ targetKind: "cell", targetId: "D2", mode: "agent_intent" });
+  });
+
+  it("scopes to one mode when mode is given, leaving the other mode's claim on the same cell alone", async () => {
+    const t = convexTest(schema, modules);
+    const s = await seedRoom(t);
+    const agent = { kind: "agent" as const, id: "agent_room", name: "Room NodeAgent", scope: "public" as const };
+    await t.run((ctx) => ctx.db.insert("agentSessions", { roomId: s.roomId, agentId: agent.id, agentName: agent.name, scope: "public" as const, status: "idle" as const, lastAction: "planning", updatedAt: Date.now() }));
+    await t.mutation(internal.presence.heartbeatForAgent, { roomId: s.roomId, artifactId: s.artifactId, targetKind: "cell", targetId: "C2", mode: "agent_intent", actor: agent, label: "planning" });
+    await t.mutation(internal.presence.heartbeatForAgent, { roomId: s.roomId, artifactId: s.artifactId, targetKind: "cell", targetId: "C2", mode: "commit_lease", actor: agent, label: "checking CAS" });
+
+    const released = await t.mutation(releaseForAgentRef, { roomId: s.roomId, artifactId: s.artifactId, targetKind: "cell", targetId: "C2", actor: agent, mode: "agent_intent" });
+    expect(released).toMatchObject({ ok: true, released: 1 });
+
+    const after = await t.query(api.presence.listForArtifact, { roomId: s.roomId, artifactId: s.artifactId, requester: s.hostProof });
+    expect(after).toHaveLength(1);
+    expect(after[0]).toMatchObject({ mode: "commit_lease" });
+  });
+
+  it("is a no-op (not an error) when there is nothing to release — an idempotent finally-block call", async () => {
+    const t = convexTest(schema, modules);
+    const s = await seedRoom(t);
+    const agent = { kind: "agent" as const, id: "agent_room", name: "Room NodeAgent", scope: "public" as const };
+
+    const released = await t.mutation(releaseForAgentRef, { roomId: s.roomId, artifactId: s.artifactId, targetKind: "cell", targetId: "no-such-cell", actor: agent });
+    expect(released).toMatchObject({ ok: true, released: 0 });
+  });
+
+  it("rejects a non-agent actor — same trust boundary as heartbeatForAgent", async () => {
+    const t = convexTest(schema, modules);
+    const s = await seedRoom(t);
+    const human = { kind: "user" as const, id: "member_1", name: "Sam" };
+
+    await expect(
+      t.mutation(releaseForAgentRef, { roomId: s.roomId, artifactId: s.artifactId, targetKind: "cell", targetId: "C2", actor: human }),
+    ).rejects.toThrow(/agent_actor_required/);
   });
 });

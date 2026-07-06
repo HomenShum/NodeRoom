@@ -161,6 +161,50 @@ export const heartbeatForAgent = internalMutation({
   },
 });
 
+/**
+ * Root-cause fix for presence lingering past a finished agent write: the
+ * heartbeat-then-write call sites in convex/convexRoomTools.ts (editCell,
+ * applyNotebookOutline, applyNotebookBlockEdit) set a presence claim BEFORE
+ * the write ("planning" / "checking CAS") but never released it after — so a
+ * batch write (e.g. 55 underwriting cells) left every cell "present" for the
+ * claim's full TTL (up to 45s) after the agent had moved on. The claim's
+ * promise ("I am doing X right now") is false the instant the write's
+ * mutation call returns, success or failure alike — so this is called from a
+ * try/finally around that call, unconditionally on the outcome. Internal
+ * (agent-authenticated, no actorProof) mirroring heartbeatForAgent's own trust
+ * boundary — this always runs from inside the same trusted RoomTools context
+ * that just wrote the heartbeat.
+ */
+export const releaseForAgent = internalMutation({
+  args: {
+    roomId: v.id("rooms"),
+    artifactId: v.optional(v.id("artifacts")),
+    targetKind: targetKindV,
+    targetId: v.string(),
+    actor: actorV,
+    /** Omit to release every mode (agent_intent + commit_lease) for this target. */
+    mode: v.optional(v.union(v.literal("agent_intent"), v.literal("commit_lease"))),
+  },
+  handler: async (ctx, a) => {
+    if (a.actor.kind !== "agent") throw new Error("agent_actor_required");
+    const rows = await ctx.db
+      .query("presenceClaims")
+      .withIndex("by_actor", (q) =>
+        q.eq("roomId", a.roomId)
+          .eq("artifactId", a.artifactId)
+          .eq("actorId", a.actor.id))
+      .take(PRESENCE_ROW_CAP);
+    let released = 0;
+    for (const row of rows) {
+      if (row.targetKind !== a.targetKind || row.targetId !== a.targetId) continue;
+      if (a.mode && row.mode !== a.mode) continue;
+      await ctx.db.delete(row._id);
+      released++;
+    }
+    return { ok: true as const, released };
+  },
+});
+
 export const clear = mutation({
   args: {
     roomId: v.id("rooms"),
