@@ -120,6 +120,27 @@ test.describe("#mobile — terra surface renders (memory mode)", () => {
   });
 });
 
+test.describe("mobile universal landing router", () => {
+  test("phone-sized public URLs land in the terracotta mobile shell", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/?mode=memory#rooms/expositio-pulse", { waitUntil: "domcontentloaded" });
+
+    await expect.poll(() => page.url()).toContain("#mobile?mode=memory&from=rooms%2Fexpositio-pulse");
+    const app = page.locator(".na-app");
+    await expect(app).toBeVisible({ timeout: 30_000 });
+    await expect(app).toHaveCSS("background-color", "rgb(251, 244, 231)");
+    await expect(page.locator('[data-testid="ao-room"]')).toHaveCount(0);
+  });
+
+  test("phone-sized standard live intents normalize before the mobile app boots", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/?mode=memory&create=NRMOB1&name=Codex&title=Mobile%20Room", { waitUntil: "domcontentloaded" });
+
+    await expect.poll(() => page.url()).toContain("#mobile?mode=memory&create=NRMOB1&name=Codex&title=Mobile+Room");
+    await expect(page.locator(".na-app")).toBeVisible({ timeout: 30_000 });
+  });
+});
+
 test.describe("#mobile - terra surface renders (live Convex room)", () => {
   test("demo consent creates a live room in the terracotta shell without memory mode", async ({ page }, testInfo) => {
     test.skip(
@@ -129,8 +150,9 @@ test.describe("#mobile - terra surface renders (live Convex room)", () => {
     test.setTimeout(75_000);
 
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/#mobile?demo=review&name=Codex", { waitUntil: "domcontentloaded" });
+    await page.goto("/?demo=review&name=Codex", { waitUntil: "domcontentloaded" });
     expect(page.url(), "live mobile proof must not use memory mode").not.toContain("mode=memory");
+    await expect.poll(() => page.url(), { message: "standard live URL should normalize into #mobile on phone viewports" }).toContain("#mobile?demo=review&name=Codex");
 
     await expect(page.locator(".na-join")).toBeVisible({ timeout: 30_000 });
     await expect(page.locator(".na-join")).toContainText(/Let agents commit edits/i);

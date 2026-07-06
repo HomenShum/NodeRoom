@@ -9,7 +9,7 @@ import { enableFocusModeForTest, expectFocusModeOn } from "./focusMode";
  */
 export async function enterDemoRoom(page: Page): Promise<void> {
   await enableFocusModeForTest(page);
-  await page.goto("/?mode=memory", { waitUntil: "domcontentloaded" });
+  await page.goto("/?mode=memory&surface=desktop", { waitUntil: "domcontentloaded" });
   // Suppress the first-run guided tour for non-tour specs — its card would overlay the UI under test.
   // (The dedicated tour spec clears this flag to exercise auto-start.)
   await page.evaluate(() => {

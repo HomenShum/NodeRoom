@@ -11,8 +11,9 @@
   display: grid;
   place-items: center;
   background:
-    radial-gradient(80% 50% at 50% 0%, rgba(217, 119, 87, 0.10), transparent 60%),
-    #0a0a0b;
+    radial-gradient(95% 65% at 50% -5%, #f3e8d8, transparent 58%),
+    radial-gradient(80% 55% at 100% 100%, rgba(197, 106, 60, 0.18), transparent 60%),
+    #fbf4e7;
   overflow: auto;
 }
 
@@ -23,20 +24,37 @@
   max-height: 100dvh;
   flex: none;
   border-radius: 44px;
-  border: 10px solid #18181b;
-  background: var(--bg-app, #09090b);
+  border: 10px solid #2f2118;
+  background: var(--bg-app, #fbf4e7);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.04),
-    0 40px 90px -30px rgba(0, 0, 0, 0.75);
+    0 0 0 1px rgba(197, 106, 60, 0.12),
+    0 40px 90px -30px rgba(53, 30, 18, 0.5);
   overflow: hidden;
   /* keep the rounded corners clipping the absolutely-positioned .na-app */
   isolation: isolate;
 }
 
+.na-frame-root[data-theme="dark"] {
+  background:
+    radial-gradient(80% 50% at 50% 0%, rgba(217, 119, 87, 0.10), transparent 60%),
+    #0a0a0b;
+}
+
+.na-frame-root[data-theme="dark"] .na-frame {
+  border-color: #18181b;
+  background: #09090b;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 40px 90px -30px rgba(0, 0, 0, 0.75);
+}
+
 /* Real phone widths: drop the bezel, fill the viewport. */
 @media (max-width: 520px) {
   .na-frame-root {
-    background: var(--bg-app, #09090b);
+    background: var(--bg-app, #fbf4e7);
+  }
+  .na-frame-root[data-theme="dark"] {
+    background: #09090b;
   }
   .na-frame {
     width: 100vw;

@@ -20,7 +20,7 @@ import { MobileAppLive } from "./MobileAppLive";
 import "./mobile.css";
 import "./mobileFrame.css";
 
-type Req = { kind: "idle" } | { kind: "join" | "demo"; code: string; name: string; autoAllow?: boolean };
+type Req = { kind: "idle" } | { kind: "join" | "create" | "demo"; code: string; name: string; title?: string; autoAllow?: boolean };
 interface LiveSession {
   roomId: string;
   memberId: string;
@@ -65,6 +65,7 @@ function MobileLiveRoot() {
   const code = req.kind === "idle" ? "" : req.code;
   const byCode = useQuery(api.rooms.byCode, code ? { code } : "skip");
   const join = useMutation(api.rooms.joinAnonymous);
+  const createRoom = useMutation(api.rooms.create);
   const createStarterRoom = useMutation(api.rooms.createStarterRoom);
   const leaveRoom = useMutation(api.rooms.leave);
 
@@ -131,6 +132,9 @@ function MobileLiveRoot() {
       } else if (req.kind === "demo") {
         const res = await createStarterRoom({ code: reqCode, title: "Startup Banking Diligence War Room", hostName: name, authToken: token, autoAllow: req.autoAllow ?? true });
         joined = { roomId: String(res.roomId), memberId: String(res.memberId) };
+      } else if (req.kind === "create") {
+        const res = await createRoom({ code: reqCode, title: req.title ?? "Blank NodeRoom", hostName: name, authToken: token, autoAllow: req.autoAllow ?? false });
+        joined = { roomId: String(res.roomId), memberId: String(res.memberId) };
       }
       if (!joined) throw new Error(`Room ${reqCode} was not found. Check the code or start a demo room.`);
       const next: LiveSession = { roomId: joined.roomId, memberId: joined.memberId, name, token };
@@ -148,7 +152,7 @@ function MobileLiveRoot() {
     })()
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setBusy(false));
-  }, [byCode, busy, join, createStarterRoom, req, session]);
+  }, [byCode, busy, join, createRoom, createStarterRoom, req, session]);
 
   // Consent modal sits above the JoinForm — the user explicitly grants the
   // autoAllow choice before the room mints. Tab refresh re-prompts (no
@@ -224,7 +228,7 @@ function JoinForm({
   onDemo: () => void;
 }) {
   return (
-    <div className="na-frame-root" data-theme="dark">
+    <div className="na-frame-root" data-theme="light">
       <div className="na-frame">
         <div className="na-join" data-accent="terracotta">
           <div className="na-mark na-join-mark">N</div>
@@ -268,11 +272,19 @@ function initialReq(): Req {
   const hash = window.location.hash; // e.g. "#mobile?room=NR7K9"
   const qIndex = hash.indexOf("?");
   const params = new URLSearchParams(qIndex >= 0 ? hash.slice(qIndex + 1) : window.location.search);
-  const name = cleanName(params.get("name") ?? "", "Guest");
+  const rawName = params.get("name") ?? "";
   const room = params.get("room");
   if (room) {
     const c = normalizeCode(room);
+    const name = cleanName(rawName, "Guest");
     return c ? { kind: "join", code: c, name } : { kind: "idle" };
+  }
+  const create = params.get("create");
+  if (create !== null) {
+    const c = normalizeCode(create && create !== "1" ? create : makeCode());
+    const name = cleanName(rawName, "Host");
+    const title = cleanTitle(params.get("title") ?? "", "Blank NodeRoom");
+    return c ? { kind: "create", code: c, name, title } : { kind: "idle" };
   }
   // URL-driven demo: do NOT auto-fire the mutation. Return idle so the parent
   // can read initialPendingDemo() and route through the consent modal first.
@@ -301,6 +313,10 @@ function normalizeCode(raw: string): string {
 
 function cleanName(raw: string, fallback: string): string {
   return raw.trim().slice(0, 40) || fallback;
+}
+
+function cleanTitle(raw: string, fallback: string): string {
+  return raw.trim().slice(0, 80) || fallback;
 }
 
 function makeCode(): string {

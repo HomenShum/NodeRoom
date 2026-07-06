@@ -43,14 +43,18 @@ type LiveRequest =
   | { kind: "join" | "create" | "demo"; code: string; name: string; title?: string };
 
 export function App() {
-  const [hash, setHash] = useState(() => (typeof window !== "undefined" ? window.location.hash : ""));
+  const [hash, setHash] = useState(() => readRoutableHash());
   const [memorySession, setMemorySession] = useState<Session | null>(() => initialMemorySession());
   const btbSessionRef = useRef<Session | null>(null);
   const upscalexSessionRef = useRef<Session | null>(null);
   useEffect(() => {
-    const onHash = () => setHash(window.location.hash);
+    const onHash = () => setHash(readRoutableHash());
     window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
+    window.addEventListener("popstate", onHash);
+    return () => {
+      window.removeEventListener("hashchange", onHash);
+      window.removeEventListener("popstate", onHash);
+    };
   }, []);
 
   // NodeAgent Mobile (Terracotta) — standalone mobile surface (mock-data demo).
@@ -125,6 +129,69 @@ export function App() {
   }
 
   return HAS_CONVEX ? <ConvexApp /> : <MemoryApp session={memorySession} onSession={setMemorySession} />;
+}
+
+function readRoutableHash(): string {
+  if (typeof window === "undefined") return "";
+  const normalized = normalizeMobileLandingUrl(window.location);
+  if (normalized) {
+    window.history.replaceState(null, "", normalized);
+  }
+  return window.location.hash;
+}
+
+function normalizeMobileLandingUrl(location: Location): string | null {
+  const sourceParams = new URLSearchParams(location.search);
+  if (typeof window === "undefined" || !isMobileLandingViewport() || isMobileHash(location.hash) || sourceParams.get("surface") === "desktop") {
+    return null;
+  }
+  const url = new URL(location.href);
+  const mobileParams = new URLSearchParams();
+  copyParam(sourceParams, mobileParams, "mode");
+
+  const room = sourceParams.get("room");
+  const demo = sourceParams.get("demo");
+  const create = sourceParams.get("create");
+  if (room) {
+    mobileParams.set("room", room);
+    copyParam(sourceParams, mobileParams, "name");
+  } else if (demo !== null) {
+    mobileParams.set("demo", demo || "1");
+    copyParam(sourceParams, mobileParams, "name");
+  } else if (create !== null) {
+    mobileParams.set("create", create || "1");
+    copyParam(sourceParams, mobileParams, "name");
+    copyParam(sourceParams, mobileParams, "title");
+  } else {
+    copyParam(sourceParams, mobileParams, "name");
+    const from = normalizeSourceHash(url.hash);
+    if (from) mobileParams.set("from", from);
+  }
+
+  url.search = "";
+  const query = mobileParams.toString();
+  url.hash = `mobile${query ? `?${query}` : ""}`;
+  return url.href === location.href ? null : url.href;
+}
+
+function isMobileHash(hash: string): boolean {
+  return hash === "#mobile" || hash === "#/mobile" || hash.startsWith("#mobile?") || hash.startsWith("#/mobile?");
+}
+
+function isMobileLandingViewport(): boolean {
+  if (typeof window === "undefined") return false;
+  const viewportMobile = window.matchMedia?.("(max-width: 760px)")?.matches ?? window.innerWidth <= 760;
+  const userAgentMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent);
+  return viewportMobile || userAgentMobile;
+}
+
+function copyParam(source: URLSearchParams, target: URLSearchParams, key: string): void {
+  const value = source.get(key);
+  if (value !== null) target.set(key, value);
+}
+
+function normalizeSourceHash(hash: string): string {
+  return hash.replace(/^#\/?/, "").trim();
 }
 
 function initialMemorySession(): Session | null {
