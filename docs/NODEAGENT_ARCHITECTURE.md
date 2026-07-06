@@ -1114,6 +1114,46 @@ production still requires the same registry metadata as any other tool:
 permission, scope, approval policy, idempotency key, operation events, mutation
 receipts, and trace retention.
 
+## Two-Pool Document Ingestion
+
+Bulk document memory is an orchestration problem, not just an embedding problem.
+NodeAgent separates ingestion into two independently scalable pools:
+
+```text
+sources
+  -> document work pool
+       - shard URLs, RSS items, uploads, and raw text
+       - batch network/parser/database work
+       - emit canonical documents with content hashes
+  -> memory work pool
+       - chunk canonical documents
+       - batch extraction, normalization, and embeddings
+       - emit memory objects with evidence and stable keys
+  -> receipt
+       - counts, hashes, failures, resume state, and proof surface
+```
+
+The first implementation is deterministic and local-first:
+
+- `src/nodeagent/ingestion/twoPoolOrchestrator.ts` defines the receipt contract,
+  sharding, bounded batch execution, resume/dedupe inputs, chunking, and default
+  deterministic workers.
+- `npm run nodeagent:ingestion:smoke` writes
+  `docs/eval/nodeagent-ingestion-orchestrator.json` and
+  `docs/eval/NODEAGENT_INGESTION_ORCHESTRATOR.md`.
+- External workers such as Prefect, Dask, Ray, vLLM, or hosted embedding queues
+  can replace the worker functions without changing the receipt shape.
+
+Invariants:
+
+- document identity is based on canonical source content hashes;
+- memory identity is based on chunk evidence and object keys;
+- retries and resumes pass known document hashes and memory object keys back into
+  the runner;
+- failures are recorded per source or chunk, while independent batches continue;
+- embeddings remain derived state and never block core graph mutation;
+- ProofLoop gates consume the receipt, not a worker's narrative claim.
+
 ## Embedding CRUD
 
 Embeddings are derived state. They must never block the core graph mutation.

@@ -122,6 +122,7 @@
     "proofloop:proximitty:models": "node proofloop/adapters/model-delta.mjs --suite=proximitty-underwriting-pr0 --run=latest",
     "proofloop:proximitty:clips": "node proofloop/adapters/generate-clips.mjs --suite=proximitty-underwriting-pr0 --run=latest",
     "nodeagent:frame:smoke": "tsx scripts/nodeagent-frame-smoke.ts",
+    "nodeagent:ingestion:smoke": "tsx scripts/nodeagent-ingestion-orchestrator-smoke.ts",
     "omnigent:nodeagent:smoke": "tsx scripts/omnigent-nodeagent-smoke.ts --json-out docs/eval/omnigent-nodeagent-smoke.json",
     "omniagent:nodeagent:smoke": "tsx scripts/omnigent-nodeagent-smoke.ts --json-out docs/eval/omnigent-nodeagent-smoke.json",
     "nodeagent:api-docs": "tsx scripts/nodeagent-api-docs.ts",

@@ -102,6 +102,17 @@ type TaskCoverageReceipt = {
   }>;
 };
 
+export function deriveExternalAdapterProductPathStatus(args: {
+  btbLivePassed: boolean;
+  liveRoomProofStatus?: "passed" | "failed";
+  storyRouteProofStatus?: "passed" | "failed";
+  readyToRun: boolean;
+}): ProofloopBenchmarkBoardStatus {
+  if (args.btbLivePassed || args.liveRoomProofStatus === "passed") return "proven";
+  if (args.storyRouteProofStatus === "passed") return "partial";
+  return args.readyToRun ? "ready_to_run" : "registered";
+}
+
 export function buildProofloopBenchmarkBoard(args: {
   root?: string;
   generatedAt?: string;
@@ -380,6 +391,12 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
   const readyToRun = validationErrors.length === 0 && implementationMissing.length === 0;
   const adapterProductProofPassed = adapterProductProof?.status === "passed";
   const adapterLiveRoomProofPassed = adapterLiveRoomProof?.status === "passed";
+  const adapterProductPathStatus = deriveExternalAdapterProductPathStatus({
+    btbLivePassed: livePassed,
+    liveRoomProofStatus: adapterLiveRoomProof?.status,
+    storyRouteProofStatus: adapterProductProof?.status,
+    readyToRun,
+  });
   const btbOfficialProven = btbFullSuite?.flipEligible === true;
   const adapterBlockerEvidence = !isBtb && adapterBlocker ? [`docs/eval/proofloop-adapter-blockers/${adapter.id}.json`] : [];
   const adapterOfficialEvidence = !isBtb && adapterBlocker
@@ -407,7 +424,7 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
     family: "external_adapter",
     liveUserContract: "required",
     productPathCompletion: {
-      status: livePassed || adapterLiveRoomProofPassed || adapterProductProofPassed ? "proven" : readyToRun ? "ready_to_run" : "registered",
+      status: adapterProductPathStatus,
       scoreType: "product_path_completion",
       evidence: [
         `proofloop/benchmarks/${adapter.id}/adapter.json`,
@@ -422,6 +439,7 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
         ...implementationMissing.map((file) => `${adapter.id}: missing implementation file ${file}`),
         ...(adapterLiveRoomProof?.status === "failed" ? adapterLiveRoomProof.failedGates ?? [`${adapter.id}: external adapter live-room proof failed`] : []),
         ...(adapterProductProof?.status === "failed" ? adapterProductProof.failedGates ?? [`${adapter.id}: external adapter product proof failed`] : []),
+        ...(adapterProductProofPassed && !adapterLiveRoomProof ? [`${adapter.id}: fresh live-room browser proof has not run`] : []),
       ],
     },
     officialSemanticScore: {
