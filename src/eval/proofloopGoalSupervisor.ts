@@ -104,8 +104,8 @@ export type ProofloopGoalRunResult = {
 export function officialScoresGoalTasks(): ProofloopGoalTask[] {
   return [
     commandTask({
-      id: "btb-fullsuite-official-score",
-      title: "BankerToolBench official full-suite score receipt",
+      id: "btb-fullsuite-score-import",
+      title: "BankerToolBench full-suite score-import receipt",
       command:
         "npm run benchmark:bankertoolbench:fullsuite-gate -- --summary docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json --receipt-out docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json --assert",
       evidence: [

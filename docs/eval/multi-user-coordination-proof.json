@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-25T23:59:04.470Z",
+  "generatedAt": "2026-07-06T06:54:16.808Z",
   "target": "deterministic multi-user coordination contract used by production Convex mutations",
   "summary": {
     "passed": true,
@@ -89,7 +89,7 @@
                 "id": "r_rev__variance",
                 "version": 2,
                 "value": "+24pct-Homen",
-                "updatedAt": 1750000024000,
+                "updatedAt": 1750000025000,
                 "updatedBy": {
                   "kind": "user",
                   "id": "mem_2",
@@ -117,7 +117,7 @@
                 "id": "r_rev__variance",
                 "version": 2,
                 "value": "+19pct-Priya",
-                "updatedAt": 1750000024000,
+                "updatedAt": 1750000025000,
                 "updatedBy": {
                   "kind": "user",
                   "id": "mem_4",
@@ -152,12 +152,12 @@
         "noLockLeak": true
       },
       "evidence": {
-        "draftId": "draft_27",
+        "draftId": "draft_28",
         "release": [
           {
-            "draftId": "draft_27",
+            "draftId": "draft_28",
             "applied": [
-              "8eb3737a-4de1-421f-bfb9-617c7e82bc55"
+              "e75a0a69-b717-49ae-89a2-8a00f0e59e0f"
             ],
             "conflicts": 0,
             "verdict": "clean"
@@ -188,7 +188,7 @@
               "r_ni__variance"
             ],
             "acquired": true,
-            "lockId": "lock_25",
+            "lockId": "lock_26",
             "released": true,
             "mergedDrafts": 0
           }
@@ -226,7 +226,7 @@
             "id": "r_rev__variance",
             "version": 2,
             "value": "+11% human C2 adjustment",
-            "updatedAt": 1750000029000,
+            "updatedAt": 1750000030000,
             "updatedBy": {
               "kind": "user",
               "id": "mem_2",
@@ -257,7 +257,7 @@
               "r_ni__variance"
             ],
             "acquired": true,
-            "lockId": "lock_25",
+            "lockId": "lock_26",
             "released": true,
             "mergedDrafts": 0,
             "skippedCount": 0

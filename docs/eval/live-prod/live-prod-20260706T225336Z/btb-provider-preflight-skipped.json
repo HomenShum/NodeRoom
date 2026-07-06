@@ -1,0 +1,10 @@
+{
+  "name": "bankertoolbench_live",
+  "command": "(skipped)",
+  "startedAt": "2026-07-06T22:55:15.473Z",
+  "completedAt": "2026-07-06T22:55:15.473Z",
+  "durationMs": 0,
+  "status": "skipped",
+  "reason": "BTB skipped because provider preflight did not pass",
+  "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T225336Z\\btb-provider-preflight-skipped.json"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "underwriting_verify",
+  "command": "npm run proofloop:live:underwriting:verify",
+  "startedAt": "2026-07-06T20:20:01.137Z",
+  "completedAt": "2026-07-06T20:20:01.610Z",
+  "durationMs": 473,
+  "status": "failed",
+  "exitCode": 1,
+  "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T201917Z\\underwriting_verify.json",
+  "stdoutTail": "\n> noderoom@0.1.1 proofloop:live:underwriting:verify\n> node scripts/proofloop.mjs verify-underwriting-live\n\n",
+  "stderrTail": "proofloop: HMDA live underwriting proof FAILED:\n  - backend operations must include deterministic underwriting completion checkpoint\nproofloop: receipt at C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\underwriting-hmda-live-proof.json\n"
+}

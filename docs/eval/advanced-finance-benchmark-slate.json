@@ -1,0 +1,690 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-06T22:55:52.674Z",
+  "harnessVersion": "advanced-finance-benchmark-slate-v0.1.0",
+  "passed": true,
+  "summary": {
+    "cases": 11,
+    "passed": 11,
+    "failed": 0,
+    "meanScore": 1,
+    "btbFullSuiteReady": true,
+    "btbLiveSuiteReady": true,
+    "publicCreditSources": 5,
+    "autonomousCreditLevel": "L3-guarded-evaluation-autonomy"
+  },
+  "cases": [
+    {
+      "id": "sec_xbrl_audit",
+      "title": "SEC/XBRL financial audit consistency",
+      "family": "financial_audit",
+      "officialClaim": false,
+      "difficulty": "bankertoolbench_level",
+      "checks": [
+        {
+          "id": "balance_sheet_equation",
+          "passed": true,
+          "evidence": {
+            "assets": 1250,
+            "liabilities": 780,
+            "equity": 470,
+            "revenue": 920,
+            "revenueFootnote": 920,
+            "cashFlowOperations": 144,
+            "netIncome": 118
+          }
+        },
+        {
+          "id": "semantic_consistency",
+          "passed": true,
+          "evidence": {
+            "revenue": 920,
+            "revenueFootnote": 920
+          }
+        },
+        {
+          "id": "cash_flow_plausibility",
+          "passed": true,
+          "evidence": {
+            "cashFlowOperations": 144,
+            "netIncome": 118
+          }
+        }
+      ],
+      "score": 1,
+      "passed": true,
+      "outputContract": [
+        "taxonomy fact extraction",
+        "numeric consistency checks",
+        "semantic footnote consistency",
+        "audit exception memo"
+      ]
+    },
+    {
+      "id": "sba_loan_tape_stratification",
+      "title": "SBA loan tape stratification and charge-off math",
+      "family": "credit_portfolio",
+      "officialClaim": false,
+      "difficulty": "bankertoolbench_level",
+      "checks": [
+        {
+          "id": "source_fields_verified",
+          "passed": true,
+          "evidence": {
+            "fieldsVerified": [
+              "GrossApproval",
+              "ApprovalDate",
+              "ApprovalFY",
+              "TermInMonths",
+              "LoanStatus",
+              "PaidInFullDate",
+              "ChargeOffDate",
+              "GrossChargeOffAmount"
+            ]
+          }
+        },
+        {
+          "id": "censoring_excludes_exempt",
+          "passed": true,
+          "evidence": {
+            "resolvedRows": 5,
+            "totalRows": 6
+          }
+        },
+        {
+          "id": "charge_off_rate",
+          "passed": true,
+          "evidence": {
+            "chargeOffRate": 0.4
+          }
+        },
+        {
+          "id": "loss_severity",
+          "passed": true,
+          "evidence": {
+            "severity": 0.09285714285714286,
+            "grossChargeOff": 195000,
+            "grossApproved": 2100000
+          }
+        }
+      ],
+      "score": 1,
+      "passed": true,
+      "outputContract": [
+        "loan-status cohort table",
+        "charge-off rate",
+        "gross charge-off severity",
+        "censoring note for exempt/active loans"
+      ]
+    },
+    {
+      "id": "lendingclub_pd_model",
+      "title": "LendingClub default probability scorer",
+      "family": "credit_modeling",
+      "officialClaim": false,
+      "difficulty": "bankertoolbench_level",
+      "checks": [
+        {
+          "id": "public_default_source_present",
+          "passed": true,
+          "evidence": {
+            "sourceStatus": "machine_accessible",
+            "resources": [
+              {
+                "name": "LC_loans_granting_model_dataset.csv",
+                "format": "CSV",
+                "size": 167468415,
+                "url": "https://zenodo.org/api/records/11295916/files/LC_loans_granting_model_dataset.csv/content",
+                "ok": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "auc_threshold",
+          "passed": true,
+          "evidence": {
+            "auc": 1
+          }
+        },
+        {
+          "id": "brier_threshold",
+          "passed": true,
+          "evidence": {
+            "brier": 0.09431666666666667
+          }
+        },
+        {
+          "id": "cutoff_policy",
+          "passed": true,
+          "evidence": {
+            "cutoff": 0.4,
+            "highRiskRows": [
+              {
+                "id": "lc4",
+                "pd": 0.42,
+                "defaulted": 1
+              },
+              {
+                "id": "lc5",
+                "pd": 0.63,
+                "defaulted": 1
+              },
+              {
+                "id": "lc6",
+                "pd": 0.77,
+                "defaulted": 1
+              }
+            ]
+          }
+        }
+      ],
+      "score": 1,
+      "passed": true,
+      "outputContract": [
+        "PD scores",
+        "AUC",
+        "Brier score",
+        "cutoff policy",
+        "reason-code-ready feature list"
+      ]
+    },
+    {
+      "id": "ma_accretion_dilution",
+      "title": "M&A accretion/dilution model",
+      "family": "investment_banking",
+      "officialClaim": false,
+      "difficulty": "bankertoolbench_level",
+      "checks": [
+        {
+          "id": "standalone_eps",
+          "passed": true,
+          "evidence": {
+            "standaloneEps": 4
+          }
+        },
+        {
+          "id": "pro_forma_eps",
+          "passed": true,
+          "evidence": {
+            "proFormaEps": 4.39453125,
+            "proFormaNetIncome": 562.5,
+            "proFormaShares": 128
+          }
+        },
+        {
+          "id": "accretion_positive",
+          "passed": true,
+          "evidence": {
+            "accretion": 0.0986328125
+          }
+        },
+        {
+          "id": "financing_tax_effect",
+          "passed": true,
+          "evidence": {
+            "afterTaxInterest": 26.25
+          }
+        }
+      ],
+      "score": 1,
+      "passed": true,
+      "outputContract": [
+        "standalone EPS",
+        "pro forma EPS",
+        "synergy and financing bridge",
+        "accretion/dilution conclusion"
+      ]
+    },
+    {
+      "id": "lbo_debt_capacity",
+      "title": "LBO debt capacity and return model",
+      "family": "investment_banking",
+      "officialClaim": false,
+      "difficulty": "bankertoolbench_level",
+      "checks": [
+        {
+          "id": "opening_debt",
+          "passed": true,
+          "evidence": {
+            "openingDebt": 600
+          }
+        },
+        {
+          "id": "debt_paydown",
+          "passed": true,
+          "evidence": {
+            "remainingDebt": 229
+          }
+        },
+        {
+          "id": "moic_threshold",
+          "passed": true,
+          "evidence": {
+            "moic": 3.066666666666667
+          }
+        },
+        {
+          "id": "irr_threshold",
+          "passed": true,
+          "evidence": {
+            "irr": 0.2512189536570637
+          }
+        }
+      ],
+      "score": 1,
+      "passed": true,
+      "outputContract": [
+        "sources and uses",
+        "debt schedule",
+        "exit equity value",
+        "MOIC/IRR",
+        "covenant headroom"
+      ]
+    },
+    {
+      "id": "venture_debt_startup_banking",
+      "title": "Venture debt and startup banking approval packet",
+      "family": "startup_banking",
+      "officialClaim": false,
+      "difficulty": "bankertoolbench_level",
+      "checks": [
+        {
+          "id": "runway",
+          "passed": true,
+          "evidence": {
+            "runwayMonths": 13.333333333333334
+          }
+        },
+        {
+          "id": "debt_to_arr",
+          "passed": true,
+          "evidence": {
+            "debtToArr": 0.3333333333333333
+          }
+        },
+        {
+          "id": "interest_burden",
+          "passed": true,
+          "evidence": {
+            "annualInterest": 132000
+          }
+        },
+        {
+          "id": "decision_policy",
+          "passed": true,
+          "evidence": {
+            "decision": "approve_with_covenants"
+          }
+        }
+      ],
+      "score": 1,
+      "passed": true,
+      "outputContract": [
+        "runway math",
+        "debt-to-ARR",
+        "interest burden",
+        "monitoring covenants",
+        "approval/review decision"
+      ]
+    },
+    {
+      "id": "actuarial_frequency_severity",
+      "title": "Actuarial frequency/severity and reserve estimate",
+      "family": "actuarial",
+      "officialClaim": false,
+      "difficulty": "bankertoolbench_level",
+      "checks": [
+        {
+          "id": "frequency",
+          "passed": true,
+          "evidence": {
+            "frequency": 0.008
+          }
+        },
+        {
+          "id": "severity",
+          "passed": true,
+          "evidence": {
+            "severity": 12750
+          }
+        },
+        {
+          "id": "pure_premium",
+          "passed": true,
+          "evidence": {
+            "purePremium": 102
+          }
+        },
+        {
+          "id": "reserve",
+          "passed": true,
+          "evidence": {
+            "reserve": 120360
+          }
+        }
+      ],
+      "score": 1,
+      "passed": true,
+      "outputContract": [
+        "exposure definition",
+        "claim count",
+        "severity distribution",
+        "pure premium",
+        "IBNR reserve"
+      ]
+    },
+    {
+      "id": "multi_angle_scenario_forecast",
+      "title": "AI-2027-style multi-angle scenario forecast",
+      "family": "statistical_forecasting",
+      "officialClaim": false,
+      "difficulty": "bankertoolbench_level",
+      "checks": [
+        {
+          "id": "driver_decomposition",
+          "passed": true,
+          "evidence": {
+            "computeFactor": 9.30040636712988,
+            "softwareFactor": 3.3374300344991257,
+            "drivers": {
+              "computeGrowthAnnual": 2.25,
+              "horizonYears": 2.75,
+              "softwareEfficiencyAnnual": 1.55,
+              "adoptionLagMonths": 9,
+              "downsidePenalty": 0.22
+            }
+          }
+        },
+        {
+          "id": "scenario_probabilities_sum",
+          "passed": true,
+          "evidence": {
+            "branches": [
+              {
+                "id": "base",
+                "probability": 0.5,
+                "multiplier": 1
+              },
+              {
+                "id": "slow_supply",
+                "probability": 0.25,
+                "multiplier": 0.35
+              },
+              {
+                "id": "fast_software",
+                "probability": 0.25,
+                "multiplier": 1.45
+              }
+            ],
+            "probabilitiesSum": 1
+          }
+        },
+        {
+          "id": "milestone_probability",
+          "passed": true,
+          "evidence": {
+            "pMilestoneHit": 0.75,
+            "threshold": 10
+          }
+        },
+        {
+          "id": "expected_capability_index",
+          "passed": true,
+          "evidence": {
+            "expectedCapabilityIndex": 23.000236557145264
+          }
+        },
+        {
+          "id": "backtest_error_bound",
+          "passed": true,
+          "evidence": {
+            "priorBacktest": {
+              "forecast": 1.8,
+              "actual": 1.7
+            },
+            "absolutePercentageError": 0.05882352941176476
+          }
+        }
+      ],
+      "score": 1,
+      "passed": true,
+      "outputContract": [
+        "target outcome and horizon",
+        "driver decomposition",
+        "trend extrapolation",
+        "scenario branch probabilities",
+        "expected-value simulation",
+        "backtest error receipt",
+        "red-team/update policy"
+      ]
+    },
+    {
+      "id": "data_room_qa_diligence",
+      "title": "Data-room Q&A with citation and gap detection",
+      "family": "diligence",
+      "officialClaim": false,
+      "difficulty": "bankertoolbench_level",
+      "checks": [
+        {
+          "id": "all_answers_cited",
+          "passed": true,
+          "evidence": {
+            "answers": [
+              {
+                "q": "What is runway?",
+                "answer": "13.3 months",
+                "cite": "deck:p12",
+                "gap": false
+              },
+              {
+                "q": "Is customer concentration above 25%?",
+                "answer": "No, largest customer is 19% of ARR.",
+                "cite": "crm:p3",
+                "gap": false
+              },
+              {
+                "q": "Where is SOC 2?",
+                "answer": "Gap: no signed SOC 2 report uploaded.",
+                "cite": "contracts:index",
+                "gap": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "gap_detected",
+          "passed": true,
+          "evidence": {
+            "answers": [
+              {
+                "q": "What is runway?",
+                "answer": "13.3 months",
+                "cite": "deck:p12",
+                "gap": false
+              },
+              {
+                "q": "Is customer concentration above 25%?",
+                "answer": "No, largest customer is 19% of ARR.",
+                "cite": "crm:p3",
+                "gap": false
+              },
+              {
+                "q": "Where is SOC 2?",
+                "answer": "Gap: no signed SOC 2 report uploaded.",
+                "cite": "contracts:index",
+                "gap": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "no_uncited_claims",
+          "passed": true,
+          "evidence": {
+            "answers": [
+              {
+                "q": "What is runway?",
+                "answer": "13.3 months",
+                "cite": "deck:p12",
+                "gap": false
+              },
+              {
+                "q": "Is customer concentration above 25%?",
+                "answer": "No, largest customer is 19% of ARR.",
+                "cite": "crm:p3",
+                "gap": false
+              },
+              {
+                "q": "Where is SOC 2?",
+                "answer": "Gap: no signed SOC 2 report uploaded.",
+                "cite": "contracts:index",
+                "gap": true
+              }
+            ]
+          }
+        }
+      ],
+      "score": 1,
+      "passed": true,
+      "outputContract": [
+        "question answer table",
+        "source citation per answer",
+        "unanswered gap ledger"
+      ]
+    },
+    {
+      "id": "board_pack_kpi_forecast",
+      "title": "Board-pack KPI forecast and variance alerts",
+      "family": "strategic_finance",
+      "officialClaim": false,
+      "difficulty": "bankertoolbench_level",
+      "checks": [
+        {
+          "id": "ending_arr",
+          "passed": true,
+          "evidence": {
+            "endingArr": 5260000
+          }
+        },
+        {
+          "id": "nrr",
+          "passed": true,
+          "evidence": {
+            "netRevenueRetention": 1.0083333333333333
+          }
+        },
+        {
+          "id": "runway",
+          "passed": true,
+          "evidence": {
+            "runway": 12.307692307692308
+          }
+        },
+        {
+          "id": "board_alerts",
+          "passed": true,
+          "evidence": {
+            "runway": 12.307692307692308,
+            "netRevenueRetention": 1.0083333333333333
+          }
+        }
+      ],
+      "score": 1,
+      "passed": true,
+      "outputContract": [
+        "ARR bridge",
+        "NRR",
+        "runway",
+        "variance alerts",
+        "board narrative"
+      ]
+    },
+    {
+      "id": "workstream_finance_workflow",
+      "title": "Workstream-style finance spreadsheet workflow",
+      "family": "workflow_agent",
+      "officialClaim": false,
+      "difficulty": "bankertoolbench_level",
+      "checks": [
+        {
+          "id": "workflow_sequence",
+          "passed": true,
+          "evidence": {
+            "workflow": [
+              "ingest_workbook",
+              "map_inputs",
+              "compute_variance",
+              "update_model",
+              "render_chart",
+              "write_memo"
+            ]
+          }
+        },
+        {
+          "id": "variance_math",
+          "passed": true,
+          "evidence": {
+            "variancePct": 0.092
+          }
+        },
+        {
+          "id": "multi_artifact_outputs",
+          "passed": true,
+          "evidence": {
+            "outputs": [
+              "workbook",
+              "chart",
+              "memo"
+            ]
+          }
+        }
+      ],
+      "score": 1,
+      "passed": true,
+      "outputContract": [
+        "updated workbook",
+        "chart",
+        "memo",
+        "operation trace"
+      ]
+    }
+  ],
+  "officialBlockers": [
+    {
+      "benchmark": "SpreadsheetBench",
+      "status": "partial",
+      "evidence": "docs/eval/official-benchmark-task-coverage.json",
+      "blocker": "Full official score still requires complete official task staging/model-run/scorer parity for all published tasks."
+    },
+    {
+      "benchmark": "FinAuditing",
+      "status": "adapter_blocked",
+      "evidence": "docs/eval/proofloop-adapter-blockers/finauditing.json",
+      "blocker": "Registered adapter exists, but implementation and official dataset/scorer import are not complete in this repo."
+    },
+    {
+      "benchmark": "WorkstreamBench",
+      "status": "adapter_blocked",
+      "evidence": "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+      "blocker": "Registered adapter exists, but implementation and official dataset/scorer import are not complete in this repo."
+    },
+    {
+      "benchmark": "Finch",
+      "status": "adapter_blocked",
+      "evidence": "docs/eval/proofloop-adapter-blockers/finch.json",
+      "blocker": "Registered adapter exists, but implementation and official dataset/scorer import are not complete in this repo."
+    }
+  ],
+  "methodology": {
+    "claim": "Repo-owned advanced finance benchmarks are deterministic scorer contracts, not official public benchmark scores.",
+    "btbLevelCriteria": [
+      "multi-step professional workflow",
+      "structured input artifacts",
+      "deterministic or auditable scorer",
+      "source/evidence contract",
+      "explicit blocker for official score promotion"
+    ]
+  },
+  "documentation": "docs/eval/ADVANCED_FINANCE_BENCHMARK_SLATE.md"
+}

@@ -96,7 +96,8 @@ test("fresh live room renders uploaded XLSX data through Convex-backed artifact 
 
   const payload = await workbookPayload();
   await page.locator(".r-file-input").setInputFiles(payload);
-  const binderRow = page.getByTestId("binder-artifact").filter({ hasText: payload.name }).first();
+  const displayTitle = payload.name.replace(/\.xlsx$/i, "").replace(/[-_]+/g, " ");
+  const binderRow = page.getByTestId("binder-artifact").filter({ hasText: displayTitle }).first();
   await expect(binderRow).toBeVisible({ timeout: 45_000 });
   await binderRow.click();
 

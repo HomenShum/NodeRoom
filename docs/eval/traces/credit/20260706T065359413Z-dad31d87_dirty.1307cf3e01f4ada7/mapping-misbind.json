@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-06T06:53:59.413Z",
+  "checks": {
+    "misbindDetected": true,
+    "notSilentlyComputed": true
+  },
+  "detail": {
+    "ok": false,
+    "reason": "mapping_rejected",
+    "wrong": [
+      "ebitda"
+    ]
+  }
+}

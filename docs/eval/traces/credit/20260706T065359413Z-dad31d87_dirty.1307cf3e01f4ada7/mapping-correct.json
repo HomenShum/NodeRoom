@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-06T06:53:59.413Z",
+  "checks": {
+    "bindingsValid": true,
+    "dscrCorrect": true,
+    "leverageCorrect": true,
+    "provenanceCarried": true
+  },
+  "detail": {
+    "ok": true,
+    "dscr": {
+      "ok": true,
+      "value": 1.4,
+      "inputs": {
+        "cashAvailable": 1.96,
+        "totalDebtService": 1.4
+      }
+    },
+    "lev": {
+      "ok": true,
+      "value": 3.2,
+      "inputs": {
+        "totalDebt": 6.4,
+        "ebitda": 2
+      }
+    },
+    "provenance": {
+      "ebitda": {
+        "cellRef": "B4",
+        "version": 3
+      },
+      "totalDebt": {
+        "cellRef": "B7",
+        "version": 2
+      },
+      "cashAvailable": {
+        "cellRef": "B11",
+        "version": 1
+      },
+      "totalDebtService": {
+        "cellRef": "B9",
+        "version": 5
+      }
+    }
+  }
+}

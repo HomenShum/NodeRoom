@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "caseId": "PL-LIVE",
+  "benchmark": "product-smoke",
+  "generatedAt": "2026-07-06T22:42:07.235Z",
+  "baseUrl": "https://noderoom.live",
+  "roomUrl": "https://noderoom.live/?room=PLMR9T1F0B&name=Proof+Loop",
+  "command": "PROOFLOOP_LIVE_BROWSER=1 npx playwright test --config playwright.proofloop.config.ts proofloop/live-browser-proof.spec.ts --headed",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "variance-calc"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [],
+    "tracePath": "docs\\eval\\live-prod\\q3-focused-18\\browser-receipts\\fresh-room\\PL-LIVE\\tasks\\variance-calc\\latest.json"
+  },
+  "artifacts": {
+    "created": [
+      "variance-calc"
+    ]
+  },
+  "scorer": {
+    "name": "Proof-loop suite aggregate",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "taskProofs": [
+        {
+          "taskId": "variance-calc",
+          "taskName": "Q3 Variance Calculation",
+          "passed": true,
+          "matchedPatterns": [
+            "variance",
+            "revenue",
+            "cogs",
+            "2,400",
+            "1,100"
+          ],
+          "unmatchedPatterns": [],
+          "streamingVisible": true,
+          "jobStatusVisible": true,
+          "jobDetailVisible": true,
+          "roomTraceVisible": true,
+          "jobCompleted": true,
+          "backendCompletion": null,
+          "caveatFindings": [],
+          "blockingCaveats": [],
+          "placeholderFindings": [],
+          "durationMs": 19432,
+          "receiptPath": "docs\\eval\\live-prod\\q3-focused-18\\browser-receipts\\fresh-room\\PL-LIVE\\tasks\\variance-calc\\latest.json"
+        }
+      ]
+    }
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "public_nodeagent_invocation",
+    "no_memory_mode_shortcut",
+    "agent_live_loop",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "trace_video_artifacts",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

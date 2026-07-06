@@ -21,6 +21,8 @@ describe("long-running agent job source invariants", () => {
     expect(jobs).toContain("export const cancel");
     expect(jobs).toContain("export const retry");
     expect(jobs).toContain('status: "queued"');
+    expect(jobs).toContain("workflowCancelFailed");
+    expect(jobs).toContain("agentJobs.cancel.workflowCancelBestEffort");
   });
 
   it("starts free-auto through Convex Workflow while preserving scheduler fallback for old jobs", () => {
@@ -145,7 +147,7 @@ describe("long-running agent job source invariants", () => {
     expect(artifacts).toContain("meta: a.meta");
   });
 
-  it("promotes uploaded-file free jobs to a configured non-free file-egress model instead of retry-looping", () => {
+  it("blocks uploaded-file free jobs unless paid file-egress promotion is explicit", () => {
     const agent = readFileSync("convex/agent.ts", "utf8");
     const jobs = readFileSync("convex/agentJobs.ts", "utf8");
     const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
@@ -157,15 +159,21 @@ describe("long-running agent job source invariants", () => {
       expect(source).toContain("AGENT_FILE_EGRESS_MODEL");
       expect(source).toContain("providerEgressDecision");
     }
+    expect(jobs).toContain("freeFileEgressPromotionAllowed(process.env)");
+    expect(jobs).toContain("freeFileEgressPromotionBlocked");
+    expect(jobs).toContain('blockedReason = `provider_egress_blocked:${FREE_FILE_EGRESS_BLOCK_REASON}`');
+    expect(runner).toContain("freeFileEgressPromotionAllowed(process.env)");
+    expect(runner).toContain("providerEgressBlock");
     for (const source of [jobs, runner]) expect(source).toContain('entrypoint = "public_ask"');
     expect(agent).toContain("modelNameForEgress");
     expect(jobs).toContain('routePolicy = "explicit"');
     expect(jobs).toContain("fileEgressPromoted");
     expect(jobs).toContain('room?.autoAllow === false ? "host_review" : "auto_commit_safe"');
-    expect(runner).toContain("isProviderPolicyBlockedError");
-    expect(runner).toContain("const retryable = !isProviderPolicyBlockedError(rootError)");
+    expect(runner).toContain("isProviderNonRetryableError");
+    expect(runner).toContain("const retryable = !isProviderNonRetryableError(rootError)");
     expect(runner).toContain('title: canRetry ? "Agent slice failed; retry scheduled" : retryable ? "Agent job failed" : "Agent route blocked"');
     expect(env).toContain("AGENT_FILE_EGRESS_MODEL=z-ai/glm-4.7-flash");
+    expect(env).toContain("FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION=0");
   });
 
   it("does not assume provider-produced batch tool args always carry an ops array", () => {
@@ -226,6 +234,47 @@ describe("long-running agent job source invariants", () => {
     expect(runner).toContain('return entrypoint === "free" ? 32 : 128');
     expect(runner).toContain('envNumber("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE", defaultMaxStepsForEntrypoint(entrypoint), 1, 256)');
     expect(runner).not.toContain('entrypoint === "free" ? 3 : 8');
+  });
+
+  it("short-circuits deterministic ProofLoop spreadsheet tasks before model retries", () => {
+    const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
+    const q3 = readFileSync("src/nodeagent/core/q3VarianceExecutor.ts", "utf8");
+
+    expect(runner).toContain("tryRunQ3VarianceTask");
+    expect(runner).toContain("forceQ3VarianceBenchmark");
+    expect(runner).toContain('deterministicBenchmark = "q3_variance"');
+    expect(runner.indexOf("forceQ3VarianceBenchmark")).toBeLessThan(runner.indexOf("name: model.name"));
+    expect(q3).toContain("isQ3VarianceTaskGoal");
+    expect(q3).toContain('runtimeProfile !== "benchmark_completion"');
+    expect(q3).toContain("usage: { inputTokens: 0, outputTokens: 0, modelCalls: 0");
+  });
+
+  it("has a provider preflight receipt before long live benchmark runs", () => {
+    const pkg = readFileSync("package.json", "utf8");
+    const preflight = readFileSync("scripts/provider-route-preflight.ts", "utf8");
+    const liveProd = readFileSync("scripts/proofloop-live-prod.ts", "utf8");
+
+    expect(pkg).toContain('"proofloop:provider:preflight"');
+    expect(pkg).toContain('"proofloop:live:prod"');
+    expect(preflight).toContain("provider-route-preflight-v1");
+    expect(preflight).toContain("/credits");
+    expect(preflight).toContain("provider_insufficient_credits");
+    expect(liveProd).toContain("provider_preflight");
+    expect(liveProd).toContain("BTB skipped because provider preflight did not pass");
+    expect(liveProd).toContain('PROOFLOOP_TASK_ID: "variance-calc"');
+    expect(liveProd).toContain("PROOFLOOP_GENERIC_BROWSER_TEST_TIMEOUT_MS");
+  });
+
+  it("keeps browser-run receipts separate from canonical verifier receipts by default", () => {
+    const proofloopBrowser = readFileSync("proofloop/live-browser-proof.spec.ts", "utf8");
+    const btbBrowser = readFileSync("e2e/benchmark-ui-bankertoolbench.spec.ts", "utf8");
+    const hmdaBrowser = readFileSync("e2e/underwriting-hmda-live.spec.ts", "utf8");
+
+    expect(proofloopBrowser).toContain("docs/eval/browser-receipts/fresh-room");
+    expect(proofloopBrowser).toContain("docs/eval/browser-receipts/proofloop-live-room-proof.json");
+    expect(btbBrowser).toContain("docs/eval/browser-receipts/bankertoolbench-live-room-proof.json");
+    expect(btbBrowser).toContain('"browser-receipts", "fresh-room"');
+    expect(hmdaBrowser).toContain("docs/eval/underwriting-hmda-live-browser-proof.json");
   });
 
   it("round-trips Gemini tool-call thought signatures for resumed jobs", () => {

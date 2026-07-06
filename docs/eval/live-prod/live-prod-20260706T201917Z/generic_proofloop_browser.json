@@ -1,0 +1,12 @@
+{
+  "name": "generic_proofloop_browser",
+  "command": "npm run proofloop:live:browser",
+  "startedAt": "2026-07-06T20:20:46.557Z",
+  "completedAt": "2026-07-06T20:45:52.463Z",
+  "durationMs": 1505906,
+  "status": "failed",
+  "exitCode": 1,
+  "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T201917Z\\generic_proofloop_browser.json",
+  "stdoutTail": "\n> noderoom@0.1.1 proofloop:live:browser\n> tsx scripts/proofloop-live-playwright.ts browser\n\n\nRunning 1 test using 1 worker\n\n[proofloop-live] room created: https://noderoom.live/?room=PLMR9O0932&name=Proof+Loop\n[proofloop-live] running task: Q3 Variance Calculation\n  x  1 [chromium] › proofloop\\live-browser-proof.spec.ts:94:1 › Live browser proof-loop: starter room -> agent tasks -> UI + terminal-quality verification (25.0m)\n\n\n  1) [chromium] › proofloop\\live-browser-proof.spec.ts:94:1 › Live browser proof-loop: starter room -> agent tasks -> UI + terminal-quality verification \n\n    \u001b[31mTest timeout of 1500000ms exceeded.\u001b[39m\n\n    Error: page.waitForTimeout: Target page, context or browser has been closed\n\n      177 |         break;\n      178 |       }\n    > 179 |       await page.waitForTimeout(5_000);\n          |                  ^\n      180 |     }\n      181 |     await emitCockpitEvent(page, { type: jobCompleted ? \"gate_pass\" : \"gate_fail\", gate: \"agent_job_completed\" }, COCKPIT_EVENTS_PATH);\n      182 |\n        at C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\proofloop\\live-browser-proof.spec.ts:179:18\n\n    Error Context: test-results\\live-browser-proof-Live-br-dcd4e-rminal-quality-verification-chromium\\error-context.md\n\n  Slow test file: [chromium] › proofloop\\live-browser-proof.spec.ts (25.0m)\n  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel\n  1 failed\n    [chromium] › proofloop\\live-browser-proof.spec.ts:94:1 › Live browser proof-loop: starter room -> agent tasks -> UI + terminal-quality verification \n",
+  "stderrTail": ""
+}

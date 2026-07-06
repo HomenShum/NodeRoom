@@ -71,7 +71,7 @@ describe("Proof Loop goal supervisor", () => {
   it("defines the official-score template with BTB command work and unresolved benchmark blockers", () => {
     const tasks = officialScoresGoalTasks();
 
-    expect(tasks.find((task) => task.id === "btb-fullsuite-official-score")?.command).toContain("bankertoolbench:fullsuite-gate");
+    expect(tasks.find((task) => task.id === "btb-fullsuite-score-import")?.command).toContain("bankertoolbench:fullsuite-gate");
     expect(tasks.find((task) => task.id === "external-adapter-blocker-receipts")?.command).toBe("npm run benchmark:proofloop:adapter-blockers");
     for (const id of ["finch-official-score", "finauditing-official-score", "workstreambench-official-score"]) {
       const task = tasks.find((candidate) => candidate.id === id);

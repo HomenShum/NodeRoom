@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-29T02:41:44.526Z",
+  "generatedAt": "2026-07-06T07:05:56.036Z",
   "policy": [
     "FR-020/FR-020A selective task proof and FR-020B full-suite proof are separate claims and may not be collapsed into one pass.",
     "FR-020B (official isolated/Harbor lane) and FR-020C (live product-UI lane) are separate full-suite claims; completion + scoring is not a 100% pass rate.",
@@ -130,9 +130,9 @@
       "title": "Full BankerToolBench suite completion (official isolated lane)",
       "lane": "bankertoolbench_full_suite",
       "status": "passed",
-      "claimBoundary": "FR-020B proves full-suite COMPLETION + official Gandalf scoring via the isolated (Harbor) generic-only lane. It does NOT prove a 100% rubric pass rate, nor live-browser UI for all 100 tasks (FR-020C is the live-UI lane).",
+      "claimBoundary": "FR-020B proves full-suite COMPLETION + imported rubric scoring via the isolated generic-only lane. It does NOT prove a 100% rubric pass rate, final official-promotion clearance, nor live-browser UI for all 100 tasks (FR-020C is the live-UI lane).",
       "proves": [
-        "Full BankerToolBench suite executed and officially scored generic-only (100/100 clean tasks, mean reward 0.2519)."
+        "Full BankerToolBench suite executed and imported rubric-scored generic-only (100/100 clean tasks, mean reward 0.2519)."
       ],
       "doesNotProve": [
         "A 100% rubric pass rate (observed pass-rate 0.0000 at reward >= 1).",
@@ -152,7 +152,7 @@
         },
         {
           "id": "aggregate_score_import",
-          "label": "Official aggregate verifier scores are imported and trace-linked",
+          "label": "Aggregate verifier scores are imported and trace-linked",
           "status": "pass",
           "evidence": [
             "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json"

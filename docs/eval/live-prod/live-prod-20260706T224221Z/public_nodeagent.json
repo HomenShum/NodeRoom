@@ -1,0 +1,12 @@
+{
+  "name": "public_nodeagent",
+  "command": "npx playwright test --config playwright.real-flow.config.ts e2e/public-nodeagent-real-room.spec.ts",
+  "startedAt": "2026-07-06T22:43:41.193Z",
+  "completedAt": "2026-07-06T22:44:01.251Z",
+  "durationMs": 20058,
+  "status": "passed",
+  "exitCode": 0,
+  "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T224221Z\\public_nodeagent.json",
+  "stdoutTail": "\nRunning 2 tests using 1 worker\n\n  ok 1 e2e\\public-nodeagent-real-room.spec.ts:48:1 › fresh room public @nodeagent first send starts one visible durable job (7.8s)\n  ok 2 e2e\\public-nodeagent-real-room.spec.ts:82:1 › blank room public @nodeagent ask materializes a visible sheet and stream (8.5s)\n\n  2 passed (18.5s)\n",
+  "stderrTail": ""
+}

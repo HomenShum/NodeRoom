@@ -1,0 +1,12 @@
+{
+  "name": "qa_story_prod",
+  "command": "npm run qa:story:prod",
+  "startedAt": "2026-07-06T22:42:21.491Z",
+  "completedAt": "2026-07-06T22:42:29.662Z",
+  "durationMs": 8171,
+  "status": "passed",
+  "exitCode": 0,
+  "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T224221Z\\qa_story_prod.json",
+  "stdoutTail": "\n> noderoom@0.1.1 qa:story:prod\n> node scripts/story-route-dogfood.mjs --base-url https://noderoom.live\n\n{\"ok\":true,\"baseUrl\":\"https://noderoom.live\",\"demoVisible\":true,\"variance\":\"3,250\",\"computedVisible\":true,\"finalVisible\":true}\n",
+  "stderrTail": ""
+}

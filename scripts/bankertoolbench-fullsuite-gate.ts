@@ -1,8 +1,8 @@
 // FR-020B full-suite flip gate (CLI).
 //
 // Reads BankerToolBench sweep summaries (or a prebuilt ledger), decides whether the
-// proof-registry FR-020B claim has been EARNED (all expected tasks executed + officially
-// scored, generic-only), and only then proposes/writes the registry flip.
+// proof-registry FR-020B claim has been EARNED (all expected tasks executed +
+// imported rubric-scored, generic-only), and only then proposes/writes the registry flip.
 //
 // Usage:
 //   tsx scripts/bankertoolbench-fullsuite-gate.ts \

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-02T09:19:49.064Z",
+  "generatedAt": "2026-07-06T06:54:31.208Z",
   "verifier": "bankertoolbench_official_execution_contract",
   "status": "blocked_external_requirements",
   "pass": false,
@@ -17,9 +17,7 @@
       "taskDataManifestSha256",
       "goldenOutputsManifestSha256"
     ],
-    "revision": "main",
-    "manifestLockfile": ".proofloop/setup/bankertoolbench-manifest-lock.json",
-    "recorded": true
+    "recorded": false
   },
   "dockerRunPlan": {
     "required": true,
@@ -88,6 +86,7 @@
     "completeForLocalArtifacts": true
   },
   "blockers": [
+    "Record BankerToolBench dataset revision plus a manifest lockfile with per-file hashes.",
     "Run each official task in Harbor/Docker with agent-only workspace mounts before verifier access.",
     "Adapt required MCP financial tools: sec_filings, market_data, company_logo, document_search, web_research.",
     "Import official Gandalf verifier scores instead of using the local smoke verifier."

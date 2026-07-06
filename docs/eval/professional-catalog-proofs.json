@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-13T21:11:08.390Z",
+  "generatedAt": "2026-07-06T06:53:59.145Z",
   "summary": {
     "total": 21,
     "deterministicCatalog": 21,
@@ -65,7 +65,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/artifactRefs.test.ts",
-            "src/agent/roomTools.ts"
+            "src/nodeagent/skills/integration/noderoomAdapter.ts"
           ],
           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
         },
@@ -114,7 +114,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/promptInjection.test.ts",
-            "src/agent/context.ts"
+            "src/nodeagent/core/worldModel.ts"
           ],
           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
         },
@@ -135,7 +135,7 @@
         "tests/professionalCatalogProofs.test.ts",
         "tests/agentRuntime.test.ts",
         "tests/artifactRefs.test.ts",
-        "src/agent/roomTools.ts",
+        "src/nodeagent/skills/integration/noderoomAdapter.ts",
         "tests/researchHarness.test.ts",
         "tests/researchToolContract.test.ts",
         "src/engine/types.ts",
@@ -144,7 +144,7 @@
         "tests/spreadsheetIndex.test.ts",
         "convex/spreadsheetIndexLib.ts",
         "tests/promptInjection.test.ts",
-        "src/agent/context.ts",
+        "src/nodeagent/core/worldModel.ts",
         "tests/roomEngine.test.ts",
         "src/engine/roomEngine.ts"
       ]
@@ -247,7 +247,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/agentJobsRuntime.test.ts",
-            "src/agent/runtime.ts"
+            "src/nodeagent/core/runtime.ts"
           ],
           "method": "Workflow state must be resumable and preserve unexecuted tool calls and receipts."
         },
@@ -256,7 +256,7 @@
           "kind": "runtime_test",
           "evidence": [
             "tests/modelEvalMatrix.test.ts",
-            "src/agent/modelCatalog.ts",
+            "src/nodeagent/models/modelCatalog.ts",
             "docs/eval/model-eval-matrix-plan.json"
           ],
           "method": "Every route proof records the resolved provider model instead of only the requested alias."
@@ -295,8 +295,8 @@
         "tests/modelEvalMatrix.test.ts",
         "convex/agentJobs.ts",
         "tests/agentRuntime.test.ts",
-        "src/agent/runtime.ts",
-        "src/agent/modelCatalog.ts",
+        "src/nodeagent/core/runtime.ts",
+        "src/nodeagent/models/modelCatalog.ts",
         "docs/eval/model-eval-matrix-plan.json",
         "tests/wikiSkill.test.ts",
         "docs/skills/self-updating-wiki/SKILL.md",
@@ -382,7 +382,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/promptInjection.test.ts",
-            "src/agent/context.ts"
+            "src/nodeagent/core/worldModel.ts"
           ],
           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
         },
@@ -407,7 +407,7 @@
         "src/engine/types.ts",
         "tests/agentRuntime.test.ts",
         "tests/promptInjection.test.ts",
-        "src/agent/context.ts",
+        "src/nodeagent/core/worldModel.ts",
         "tests/roomEngine.test.ts",
         "src/engine/roomEngine.ts"
       ]
@@ -500,7 +500,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/agentJobsRuntime.test.ts",
-            "src/agent/runtime.ts"
+            "src/nodeagent/core/runtime.ts"
           ],
           "method": "Workflow state must be resumable and preserve unexecuted tool calls and receipts."
         },
@@ -509,7 +509,7 @@
           "kind": "runtime_test",
           "evidence": [
             "tests/modelEvalMatrix.test.ts",
-            "src/agent/modelCatalog.ts",
+            "src/nodeagent/models/modelCatalog.ts",
             "docs/eval/model-eval-matrix-plan.json"
           ],
           "method": "Every route proof records the resolved provider model instead of only the requested alias."
@@ -520,7 +520,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/promptInjection.test.ts",
-            "src/agent/context.ts"
+            "src/nodeagent/core/worldModel.ts"
           ],
           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
         },
@@ -548,11 +548,11 @@
         "tests/modelEvalMatrix.test.ts",
         "convex/agentJobs.ts",
         "tests/agentRuntime.test.ts",
-        "src/agent/runtime.ts",
-        "src/agent/modelCatalog.ts",
+        "src/nodeagent/core/runtime.ts",
+        "src/nodeagent/models/modelCatalog.ts",
         "docs/eval/model-eval-matrix-plan.json",
         "tests/promptInjection.test.ts",
-        "src/agent/context.ts",
+        "src/nodeagent/core/worldModel.ts",
         "tests/roomEngine.test.ts",
         "src/engine/roomEngine.ts"
       ]
@@ -644,7 +644,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/artifactRefs.test.ts",
-            "src/agent/roomTools.ts"
+            "src/nodeagent/skills/integration/noderoomAdapter.ts"
           ],
           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
         },
@@ -654,7 +654,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/promptInjection.test.ts",
-            "src/agent/context.ts"
+            "src/nodeagent/core/worldModel.ts"
           ],
           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
         },
@@ -681,9 +681,9 @@
         "src/engine/types.ts",
         "tests/agentRuntime.test.ts",
         "tests/artifactRefs.test.ts",
-        "src/agent/roomTools.ts",
+        "src/nodeagent/skills/integration/noderoomAdapter.ts",
         "tests/promptInjection.test.ts",
-        "src/agent/context.ts",
+        "src/nodeagent/core/worldModel.ts",
         "tests/roomEngine.test.ts",
         "src/engine/roomEngine.ts"
       ]
@@ -776,7 +776,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/artifactRefs.test.ts",
-            "src/agent/roomTools.ts"
+            "src/nodeagent/skills/integration/noderoomAdapter.ts"
           ],
           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
         },
@@ -803,7 +803,7 @@
         "convex/spreadsheetIndexLib.ts",
         "tests/agentRuntime.test.ts",
         "tests/artifactRefs.test.ts",
-        "src/agent/roomTools.ts",
+        "src/nodeagent/skills/integration/noderoomAdapter.ts",
         "tests/roomEngine.test.ts",
         "src/engine/roomEngine.ts"
       ]
@@ -866,7 +866,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/artifactRefs.test.ts",
-            "src/agent/roomTools.ts"
+            "src/nodeagent/skills/integration/noderoomAdapter.ts"
           ],
           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
         },
@@ -931,7 +931,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/promptInjection.test.ts",
-            "src/agent/context.ts"
+            "src/nodeagent/core/worldModel.ts"
           ],
           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
         },
@@ -952,7 +952,7 @@
         "tests/professionalCatalogProofs.test.ts",
         "tests/agentRuntime.test.ts",
         "tests/artifactRefs.test.ts",
-        "src/agent/roomTools.ts",
+        "src/nodeagent/skills/integration/noderoomAdapter.ts",
         "tests/professionalWorkflows.test.ts",
         "tests/workflowEvals.test.ts",
         "tests/providerParserAdapter.test.ts",
@@ -961,7 +961,7 @@
         "tests/wikiSkill.test.ts",
         "docs/skills/self-updating-wiki/SKILL.md",
         "tests/promptInjection.test.ts",
-        "src/agent/context.ts",
+        "src/nodeagent/core/worldModel.ts",
         "tests/roomEngine.test.ts",
         "src/engine/roomEngine.ts"
       ]
@@ -1070,7 +1070,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/promptInjection.test.ts",
-            "src/agent/context.ts"
+            "src/nodeagent/core/worldModel.ts"
           ],
           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
         },
@@ -1097,7 +1097,7 @@
         "docs/skills/self-updating-wiki/SKILL.md",
         "tests/agentRuntime.test.ts",
         "tests/promptInjection.test.ts",
-        "src/agent/context.ts",
+        "src/nodeagent/core/worldModel.ts",
         "tests/roomEngine.test.ts",
         "src/engine/roomEngine.ts"
       ]
@@ -1207,7 +1207,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/agentJobsRuntime.test.ts",
-            "src/agent/runtime.ts"
+            "src/nodeagent/core/runtime.ts"
           ],
           "method": "Workflow state must be resumable and preserve unexecuted tool calls and receipts."
         },
@@ -1216,7 +1216,7 @@
           "kind": "runtime_test",
           "evidence": [
             "tests/modelEvalMatrix.test.ts",
-            "src/agent/modelCatalog.ts",
+            "src/nodeagent/models/modelCatalog.ts",
             "docs/eval/model-eval-matrix-plan.json"
           ],
           "method": "Every route proof records the resolved provider model instead of only the requested alias."
@@ -1253,8 +1253,8 @@
         "tests/modelEvalMatrix.test.ts",
         "convex/agentJobs.ts",
         "tests/agentRuntime.test.ts",
-        "src/agent/runtime.ts",
-        "src/agent/modelCatalog.ts",
+        "src/nodeagent/core/runtime.ts",
+        "src/nodeagent/models/modelCatalog.ts",
         "docs/eval/model-eval-matrix-plan.json",
         "tests/wikiSkill.test.ts",
         "docs/skills/self-updating-wiki/SKILL.md",
@@ -1357,7 +1357,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/promptInjection.test.ts",
-            "src/agent/context.ts"
+            "src/nodeagent/core/worldModel.ts"
           ],
           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
         },
@@ -1382,7 +1382,7 @@
         "src/engine/types.ts",
         "tests/agentRuntime.test.ts",
         "tests/promptInjection.test.ts",
-        "src/agent/context.ts",
+        "src/nodeagent/core/worldModel.ts",
         "tests/roomEngine.test.ts",
         "src/engine/roomEngine.ts"
       ]
@@ -1445,7 +1445,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/artifactRefs.test.ts",
-            "src/agent/roomTools.ts"
+            "src/nodeagent/skills/integration/noderoomAdapter.ts"
           ],
           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
         },
@@ -1455,7 +1455,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/promptInjection.test.ts",
-            "src/agent/context.ts"
+            "src/nodeagent/core/worldModel.ts"
           ],
           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
         },
@@ -1494,9 +1494,9 @@
         "tests/professionalCatalogProofs.test.ts",
         "tests/agentRuntime.test.ts",
         "tests/artifactRefs.test.ts",
-        "src/agent/roomTools.ts",
+        "src/nodeagent/skills/integration/noderoomAdapter.ts",
         "tests/promptInjection.test.ts",
-        "src/agent/context.ts",
+        "src/nodeagent/core/worldModel.ts",
         "tests/workflowEvals.test.ts",
         "tests/wikiSkill.test.ts",
         "docs/skills/self-updating-wiki/SKILL.md",
@@ -1601,7 +1601,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/artifactRefs.test.ts",
-            "src/agent/roomTools.ts"
+            "src/nodeagent/skills/integration/noderoomAdapter.ts"
           ],
           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
         },
@@ -1630,7 +1630,7 @@
         "tests/workflowEvals.test.ts",
         "tests/agentRuntime.test.ts",
         "tests/artifactRefs.test.ts",
-        "src/agent/roomTools.ts",
+        "src/nodeagent/skills/integration/noderoomAdapter.ts",
         "tests/roomEngine.test.ts",
         "src/engine/roomEngine.ts"
       ]
@@ -1731,7 +1731,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/promptInjection.test.ts",
-            "src/agent/context.ts"
+            "src/nodeagent/core/worldModel.ts"
           ],
           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
         },
@@ -1761,7 +1761,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/agentJobsRuntime.test.ts",
-            "src/agent/runtime.ts"
+            "src/nodeagent/core/runtime.ts"
           ],
           "method": "Workflow state must be resumable and preserve unexecuted tool calls and receipts."
         },
@@ -1790,10 +1790,10 @@
         "tests/financeModelRuntime.test.ts",
         "tests/agentRuntime.test.ts",
         "tests/promptInjection.test.ts",
-        "src/agent/context.ts",
+        "src/nodeagent/core/worldModel.ts",
         "tests/lockFencing.test.ts",
         "tests/agentJobsRuntime.test.ts",
-        "src/agent/runtime.ts",
+        "src/nodeagent/core/runtime.ts",
         "tests/roomEngine.test.ts",
         "src/engine/roomEngine.ts"
       ]
@@ -1876,7 +1876,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/artifactRefs.test.ts",
-            "src/agent/roomTools.ts"
+            "src/nodeagent/skills/integration/noderoomAdapter.ts"
           ],
           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
         },
@@ -1886,7 +1886,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/promptInjection.test.ts",
-            "src/agent/context.ts"
+            "src/nodeagent/core/worldModel.ts"
           ],
           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
         },
@@ -1911,9 +1911,9 @@
         "src/engine/types.ts",
         "tests/agentRuntime.test.ts",
         "tests/artifactRefs.test.ts",
-        "src/agent/roomTools.ts",
+        "src/nodeagent/skills/integration/noderoomAdapter.ts",
         "tests/promptInjection.test.ts",
-        "src/agent/context.ts",
+        "src/nodeagent/core/worldModel.ts",
         "tests/roomEngine.test.ts",
         "src/engine/roomEngine.ts"
       ]
@@ -2025,7 +2025,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/promptInjection.test.ts",
-            "src/agent/context.ts"
+            "src/nodeagent/core/worldModel.ts"
           ],
           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
         },
@@ -2057,7 +2057,7 @@
         "src/app/liteparseAdapter.ts",
         "tests/agentRuntime.test.ts",
         "tests/promptInjection.test.ts",
-        "src/agent/context.ts",
+        "src/nodeagent/core/worldModel.ts",
         "tests/roomEngine.test.ts",
         "src/engine/roomEngine.ts"
       ]
@@ -2140,7 +2140,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/artifactRefs.test.ts",
-            "src/agent/roomTools.ts"
+            "src/nodeagent/skills/integration/noderoomAdapter.ts"
           ],
           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
         },
@@ -2150,7 +2150,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/promptInjection.test.ts",
-            "src/agent/context.ts"
+            "src/nodeagent/core/worldModel.ts"
           ],
           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
         },
@@ -2175,9 +2175,9 @@
         "src/engine/types.ts",
         "tests/agentRuntime.test.ts",
         "tests/artifactRefs.test.ts",
-        "src/agent/roomTools.ts",
+        "src/nodeagent/skills/integration/noderoomAdapter.ts",
         "tests/promptInjection.test.ts",
-        "src/agent/context.ts",
+        "src/nodeagent/core/worldModel.ts",
         "tests/roomEngine.test.ts",
         "src/engine/roomEngine.ts"
       ]
@@ -2250,7 +2250,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/agentJobsRuntime.test.ts",
-            "src/agent/runtime.ts"
+            "src/nodeagent/core/runtime.ts"
           ],
           "method": "Workflow state must be resumable and preserve unexecuted tool calls and receipts."
         },
@@ -2259,7 +2259,7 @@
           "kind": "runtime_test",
           "evidence": [
             "tests/modelEvalMatrix.test.ts",
-            "src/agent/modelCatalog.ts",
+            "src/nodeagent/models/modelCatalog.ts",
             "docs/eval/model-eval-matrix-plan.json"
           ],
           "method": "Every route proof records the resolved provider model instead of only the requested alias."
@@ -2270,7 +2270,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/promptInjection.test.ts",
-            "src/agent/context.ts"
+            "src/nodeagent/core/worldModel.ts"
           ],
           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
         },
@@ -2293,11 +2293,11 @@
         "tests/modelEvalMatrix.test.ts",
         "convex/agentJobs.ts",
         "tests/agentRuntime.test.ts",
-        "src/agent/runtime.ts",
-        "src/agent/modelCatalog.ts",
+        "src/nodeagent/core/runtime.ts",
+        "src/nodeagent/models/modelCatalog.ts",
         "docs/eval/model-eval-matrix-plan.json",
         "tests/promptInjection.test.ts",
-        "src/agent/context.ts",
+        "src/nodeagent/core/worldModel.ts",
         "tests/roomEngine.test.ts",
         "src/engine/roomEngine.ts"
       ]
@@ -2360,7 +2360,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/artifactRefs.test.ts",
-            "src/agent/roomTools.ts"
+            "src/nodeagent/skills/integration/noderoomAdapter.ts"
           ],
           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
         },
@@ -2370,7 +2370,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/agentJobsRuntime.test.ts",
-            "src/agent/runtime.ts"
+            "src/nodeagent/core/runtime.ts"
           ],
           "method": "Workflow state must be resumable and preserve unexecuted tool calls and receipts."
         },
@@ -2389,7 +2389,7 @@
           "kind": "runtime_test",
           "evidence": [
             "tests/modelEvalMatrix.test.ts",
-            "src/agent/modelCatalog.ts",
+            "src/nodeagent/models/modelCatalog.ts",
             "docs/eval/model-eval-matrix-plan.json"
           ],
           "method": "Every route proof records the resolved provider model instead of only the requested alias."
@@ -2400,7 +2400,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/promptInjection.test.ts",
-            "src/agent/context.ts"
+            "src/nodeagent/core/worldModel.ts"
           ],
           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
         },
@@ -2421,15 +2421,15 @@
         "tests/professionalCatalogProofs.test.ts",
         "tests/agentRuntime.test.ts",
         "tests/artifactRefs.test.ts",
-        "src/agent/roomTools.ts",
+        "src/nodeagent/skills/integration/noderoomAdapter.ts",
         "tests/agentJobsRuntime.test.ts",
-        "src/agent/runtime.ts",
+        "src/nodeagent/core/runtime.ts",
         "tests/modelEvalMatrix.test.ts",
         "convex/agentJobs.ts",
-        "src/agent/modelCatalog.ts",
+        "src/nodeagent/models/modelCatalog.ts",
         "docs/eval/model-eval-matrix-plan.json",
         "tests/promptInjection.test.ts",
-        "src/agent/context.ts",
+        "src/nodeagent/core/worldModel.ts",
         "tests/roomEngine.test.ts",
         "src/engine/roomEngine.ts"
       ]
@@ -2522,7 +2522,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/artifactRefs.test.ts",
-            "src/agent/roomTools.ts"
+            "src/nodeagent/skills/integration/noderoomAdapter.ts"
           ],
           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
         }
@@ -2540,7 +2540,7 @@
         "src/engine/types.ts",
         "tests/agentRuntime.test.ts",
         "tests/artifactRefs.test.ts",
-        "src/agent/roomTools.ts"
+        "src/nodeagent/skills/integration/noderoomAdapter.ts"
       ]
     },
     {
@@ -2630,7 +2630,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/artifactRefs.test.ts",
-            "src/agent/roomTools.ts"
+            "src/nodeagent/skills/integration/noderoomAdapter.ts"
           ],
           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
         },
@@ -2640,7 +2640,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/promptInjection.test.ts",
-            "src/agent/context.ts"
+            "src/nodeagent/core/worldModel.ts"
           ],
           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
         },
@@ -2666,9 +2666,9 @@
         "tests/workflowEvals.test.ts",
         "tests/agentRuntime.test.ts",
         "tests/artifactRefs.test.ts",
-        "src/agent/roomTools.ts",
+        "src/nodeagent/skills/integration/noderoomAdapter.ts",
         "tests/promptInjection.test.ts",
-        "src/agent/context.ts",
+        "src/nodeagent/core/worldModel.ts",
         "tests/roomEngine.test.ts",
         "src/engine/roomEngine.ts"
       ]
@@ -2731,7 +2731,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/artifactRefs.test.ts",
-            "src/agent/roomTools.ts"
+            "src/nodeagent/skills/integration/noderoomAdapter.ts"
           ],
           "method": "Artifact ids and selected-room references must be canonical, clickable, and carried into tool context."
         },
@@ -2750,7 +2750,7 @@
           "evidence": [
             "tests/agentRuntime.test.ts",
             "tests/promptInjection.test.ts",
-            "src/agent/context.ts"
+            "src/nodeagent/core/worldModel.ts"
           ],
           "method": "Public/private boundaries and prompt-injection fencing are runtime tested; catalog cases must state masking rules."
         },
@@ -2780,11 +2780,11 @@
         "tests/professionalCatalogProofs.test.ts",
         "tests/agentRuntime.test.ts",
         "tests/artifactRefs.test.ts",
-        "src/agent/roomTools.ts",
+        "src/nodeagent/skills/integration/noderoomAdapter.ts",
         "tests/wikiSkill.test.ts",
         "docs/skills/self-updating-wiki/SKILL.md",
         "tests/promptInjection.test.ts",
-        "src/agent/context.ts",
+        "src/nodeagent/core/worldModel.ts",
         "tests/workflowEvals.test.ts",
         "tests/roomEngine.test.ts",
         "src/engine/roomEngine.ts"

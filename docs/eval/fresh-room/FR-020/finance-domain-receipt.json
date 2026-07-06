@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "caseId": "FIN-020",
-  "generatedAt": "2026-06-29T02:41:44.526Z",
+  "generatedAt": "2026-07-06T07:05:56.036Z",
   "sourceReceipt": "docs/eval/professional-live-runtime.json",
   "status": "passed",
   "runtimeProfile": "professional-live-runtime-v1-managed",

@@ -3,7 +3,7 @@
 // The proof-registry FR-020B claim ("full BankerToolBench suite completion") flips
 // blocked -> passed ONLY when both registry gates are earned:
 //   - full_suite_execution   : all expected tasks executed clean generic-only (no answer-key writers)
-//   - aggregate_score_import  : every clean task carries an official (Gandalf) score + trace link
+//   - aggregate_score_import  : every clean task carries an imported rubric score + trace link
 //
 // This module is the honest promotion gate: it refuses to flip unless the receipts earn it,
 // and it reports COMPLETION + mean reward + pass-rate separately so "100/100 executed+scored"
@@ -132,17 +132,17 @@ export function evaluateFullSuiteGate(
     id: "aggregate_score_import",
     status: scorePass ? "pass" : "blocked",
     reason: scorePass
-      ? `All ${cleanScoredTaskCount} clean tasks carry official scores + trace links; mean reward ${fmt(meanCleanReward)}.`
-      : `Aggregate official scores incomplete until full-suite execution passes.`,
+      ? `All ${cleanScoredTaskCount} clean tasks carry imported rubric scores + trace links; mean reward ${fmt(meanCleanReward)}.`
+      : `Aggregate rubric scores incomplete until full-suite execution passes.`,
   };
 
   const flipEligible = fullSuiteExecution.status === "pass" && aggregateScoreImport.status === "pass";
 
   const claim = flipEligible
-    ? `All ${cleanScoredTaskCount}/${expectedCount} BankerToolBench tasks executed and officially scored, ` +
+    ? `All ${cleanScoredTaskCount}/${expectedCount} BankerToolBench tasks executed and imported rubric-scored, ` +
       `generic-only (no answer-key writers). Aggregate mean reward ${fmt(meanCleanReward)}; ` +
       `pass-rate ${fmt(passRate)} (reward >= ${passThreshold}). ` +
-      `This proves full-suite COMPLETION + SCORING, not a 100% pass rate.`
+      `This proves full-suite COMPLETION + SCORE-IMPORT, not a 100% pass rate or final official-promotion clearance.`
     : `Full-suite proof NOT earned: ${cleanScoredTaskCount}/${expectedCount} clean generic-only scored tasks. ` +
       fullSuiteExecution.reason;
 

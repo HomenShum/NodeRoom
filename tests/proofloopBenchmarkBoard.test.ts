@@ -12,7 +12,7 @@ describe("Proof Loop benchmark board", () => {
       scoreType: "product_path_completion",
     });
     expect(entries.bankertoolbench.officialSemanticScore).toMatchObject({
-      status: "proven",
+      status: "blocked",
       scoreType: "official_semantic_score",
       metrics: {
         expectedCount: 100,
@@ -22,6 +22,7 @@ describe("Proof Loop benchmark board", () => {
         passRate: 0,
       },
     });
+    expect(entries.bankertoolbench.officialSemanticScore.blockers.join(" ")).toContain("dataset revision");
     expect(entries.spreadsheetbench.productPathCompletion.status).toBe("proven");
     expect(entries["openrouter-convex"].productPathCompletion.status).toBe("proven");
     expect(entries["openrouter-convex"].officialSemanticScore.status).toBe("not_applicable");
@@ -44,7 +45,7 @@ describe("Proof Loop benchmark board", () => {
     const markdown = renderProofloopBenchmarkBoardMarkdown(buildProofloopBenchmarkBoard({ generatedAt: "test" }));
 
     expect(markdown).toContain("# Proof Loop Benchmark Board");
-    expect(markdown).toContain("| `bankertoolbench` | external_adapter | proven | proven |");
+    expect(markdown).toContain("| `bankertoolbench` | external_adapter | proven | blocked |");
     expect(markdown).toContain("| `finch` | external_adapter | registered | blocked |");
     expect(markdown).toContain("Product-path completion is useful proof");
   });

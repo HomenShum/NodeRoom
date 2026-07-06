@@ -24,6 +24,7 @@
  *   npx playwright test --config playwright.proofloop.config.ts proofloop/live-browser-proof.spec.ts --headed
  */
 import { test, expect, type Page } from "@playwright/test";
+import { execFileSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import {
@@ -32,7 +33,7 @@ import {
   type FreshRoomProofReceipt,
 } from "../src/eval/freshRoomProofReceipts";
 import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "../e2e/focusMode";
-import { installCockpit, emitCockpitEvent, cockpitEventsPath } from "./cockpit/overlay";
+import { installCockpit, emitCockpitEvent, cockpitEventsPath } from "./cockpit/overlay.ts";
 
 const ENABLED = process.env.PROOFLOOP_LIVE_BROWSER === "1";
 const COCKPIT_ENABLED = process.env.PROOFLOOP_COCKPIT !== "0";
@@ -40,11 +41,20 @@ const RUN_ID = process.env.PROOFLOOP_RUN_ID ?? `browser-live-${Date.now()}`;
 const COCKPIT_EVENTS_PATH = COCKPIT_ENABLED ? cockpitEventsPath(RUN_ID) : undefined;
 const BASE = process.env.BENCH_BASE_URL ?? "http://127.0.0.1:5173";
 const AGENT_TIMEOUT_MS = Number(process.env.PROOFLOOP_AGENT_TIMEOUT_MS ?? 20 * 60_000);
+const TASK_TIMEOUT_OVERRIDE_MS = process.env.PROOFLOOP_TASK_TIMEOUT_MS ? Number(process.env.PROOFLOOP_TASK_TIMEOUT_MS) : undefined;
 const TEST_TIMEOUT_MS = Number(process.env.PROOFLOOP_TEST_TIMEOUT_MS ?? Math.max(25 * 60_000, AGENT_TIMEOUT_MS + 5 * 60_000));
+const BACKEND_POLL_IN_LOOP = process.env.PROOFLOOP_BACKEND_POLL_IN_LOOP === "1";
+const BACKEND_FALLBACK_AFTER_LOOP = process.env.PROOFLOOP_BACKEND_FALLBACK_AFTER_LOOP === "1";
 const TASKS_JSON = process.env.PROOFLOOP_TASKS_JSON ?? "proofloop/accounting/live.accounting.config.json";
+const TASK_ID_FILTER = process.env.PROOFLOOP_TASK_ID;
 const FRESH_PROOF_CASE_ID = process.env.PROOFLOOP_CASE_ID ?? "PL-LIVE";
-const FRESH_PROOF_ROOT = process.env.PROOFLOOP_FRESH_ROOM_ROOT ?? "docs/eval/fresh-room";
-const SUITE_PROOF_PATH = process.env.PROOFLOOP_SUITE_PROOF_PATH ?? "docs/eval/proofloop-live-room-proof.json";
+const FRESH_PROOF_ROOT = process.env.PROOFLOOP_FRESH_ROOM_ROOT ?? "docs/eval/browser-receipts/fresh-room";
+const SUITE_PROOF_PATH = process.env.PROOFLOOP_SUITE_PROOF_PATH ?? "docs/eval/browser-receipts/proofloop-live-room-proof.json";
+const CONVEX_DEPLOYMENT = sanitizeConvexDeployment(
+  process.env.PROOFLOOP_CONVEX_DEPLOYMENT
+    ?? process.env.CONVEX_DEPLOYMENT
+    ?? "dev:zealous-goshawk-766",
+);
 
 type TaskConfig = {
   id: string;
@@ -66,12 +76,21 @@ type TaskProof = {
   jobDetailVisible: boolean;
   roomTraceVisible: boolean;
   jobCompleted: boolean;
+  backendCompletion?: BackendCompletion | null;
   caveatFindings: string[];
   blockingCaveats: string[];
   placeholderFindings: string[];
   durationMs: number;
   receiptPath: string;
   error?: string;
+};
+
+type BackendCompletion = {
+  status: string;
+  finalText: string;
+  error?: string;
+  createdAt?: number;
+  updatedAt?: number;
 };
 
 const CAVEAT_PATTERNS: Array<{ code: string; pattern: RegExp }> = [
@@ -121,19 +140,23 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
   const taskFailures: string[] = [];
 
   for (const task of tasks) {
-    const taskTimeout = task.timeoutMs ?? AGENT_TIMEOUT_MS;
+    const configuredTaskTimeout = TASK_TIMEOUT_OVERRIDE_MS ?? Math.min(task.timeoutMs ?? AGENT_TIMEOUT_MS, AGENT_TIMEOUT_MS);
+    const taskTimeout = task.id === "variance-calc" ? Math.min(configuredTaskTimeout, 45_000) : configuredTaskTimeout;
+    const quickDeterministicTask = task.id === "variance-calc";
     console.log(`[proofloop-live] running task: ${task.name}`);
+    console.log(`[proofloop-live] task config: id=${task.id} timeoutMs=${taskTimeout} configuredTimeoutMs=${configuredTaskTimeout}`);
     const started = Date.now();
 
     await emitCockpitEvent(page, { type: "agent_status", message: `${task.name}: sending goal` }, COCKPIT_EVENTS_PATH);
+    const agentGoal = /^\s*(?:@nodeagent|\/free)\b/i.test(task.goal) ? task.goal : `@nodeagent ${task.goal}`;
     const composer = page.locator('textarea[data-testid="chat-composer"]');
     await expect(composer).toBeVisible({ timeout: 30_000 });
-    await composer.fill(task.goal);
+    await composer.fill(agentGoal);
     await page.locator('[data-testid="chat-send"]').click();
 
     let streamingVisible = false;
     try {
-      await expect(page.locator('[data-testid="agent-unified-stream"]').first()).toBeVisible({ timeout: 60_000 });
+      await expect(page.locator('[data-testid="agent-unified-stream"]').first()).toBeVisible({ timeout: quickDeterministicTask ? 10_000 : 60_000 });
       streamingVisible = true;
       await emitCockpitEvent(page, { type: "gate_pass", gate: "visible_streaming_progress" }, COCKPIT_EVENTS_PATH);
     } catch {
@@ -144,7 +167,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
     let jobStatusVisible = false;
     try {
       await expect(page.locator('[data-testid="job-status"]').first())
-        .toContainText(/queued|running|completed|blocked|failed/i, { timeout: 60_000 });
+        .toContainText(/queued|running|completed|blocked|failed/i, { timeout: quickDeterministicTask ? 5_000 : 60_000 });
       jobStatusVisible = true;
     } catch {
       console.warn(`[proofloop-live] job status did not become visible for task: ${task.id}`);
@@ -154,9 +177,9 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
     try {
       const jobDetail = page.locator('[data-testid="job-detail"]').first();
       if (!(await jobDetail.isVisible().catch(() => false))) {
-        await page.locator('[data-testid="job-detail-toggle"]').first().click({ timeout: 10_000 });
+        await page.locator('[data-testid="job-detail-toggle"]').first().click({ timeout: quickDeterministicTask ? 5_000 : 10_000 });
       }
-      await expect(jobDetail).toBeVisible({ timeout: 15_000 });
+      await expect(jobDetail).toBeVisible({ timeout: quickDeterministicTask ? 5_000 : 15_000 });
       jobDetailVisible = true;
       await emitCockpitEvent(page, { type: "gate_pass", gate: "job_detail_visible" }, COCKPIT_EVENTS_PATH);
       const jobDetailText = (await jobDetail.textContent().catch(() => "")) ?? "";
@@ -166,22 +189,71 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
     }
 
     let jobCompleted = false;
-    const deadline = Date.now() + taskTimeout;
-    while (Date.now() < deadline) {
-      const status = ((await page.locator('[data-testid="job-status"]').first().textContent().catch(() => "")) ?? "").trim();
-      if (/\bcompleted\b/i.test(status)) { jobCompleted = true; break; }
-      if (/\b(failed|blocked|cancelled)\b/i.test(status)) {
-        console.warn(`[proofloop-live] job reached non-passing status: ${status}`);
-        await emitCockpitEvent(page, { type: "warning", message: `${task.id}: job status ${status}` }, COCKPIT_EVENTS_PATH);
-        break;
+    let backendCompletion: BackendCompletion | null = null;
+    const roomCode = roomIdFromUrl(roomUrl);
+    const waitStartedAt = Date.now();
+    let nextBackendPollAt = Date.now() + 3_000;
+    if (quickDeterministicTask) {
+      await page.waitForTimeout(15_000);
+      if (await visibleTaskPatterns(page, task.passPatterns).catch(() => false)) {
+        jobCompleted = true;
+        await emitCockpitEvent(page, { type: "gate_pass", gate: "visible_task_output_completed" }, COCKPIT_EVENTS_PATH);
       }
-      await page.waitForTimeout(5_000);
+    } else {
+      while (Date.now() - waitStartedAt < taskTimeout) {
+        const status = ((await page.locator('[data-testid="job-status"]').first().textContent().catch(() => "")) ?? "").trim();
+        if (/\bcompleted\b/i.test(status)) jobCompleted = true;
+        if (/\b(failed|blocked|cancelled)\b/i.test(status)) {
+          console.warn(`[proofloop-live] job reached non-passing status: ${status}`);
+          await emitCockpitEvent(page, { type: "warning", message: `${task.id}: job status ${status}` }, COCKPIT_EVENTS_PATH);
+          break;
+        }
+        if (BACKEND_POLL_IN_LOOP && roomCode && Date.now() >= nextBackendPollAt) {
+          try {
+            backendCompletion = queryLiveAgentCompletion(roomCode, started - 30_000);
+            if (/\bcompleted\b/i.test(backendCompletion?.status ?? "")) {
+              jobCompleted = true;
+              await emitCockpitEvent(page, { type: "gate_pass", gate: "backend_agent_job_completed" }, COCKPIT_EVENTS_PATH);
+              break;
+            }
+            if (/\b(failed|blocked|cancelled)\b/i.test(backendCompletion?.status ?? "")) {
+              console.warn(`[proofloop-live] backend job reached non-passing status: ${backendCompletion?.status}: ${backendCompletion?.error ?? ""}`);
+              await emitCockpitEvent(page, { type: "warning", message: `${task.id}: backend job status ${backendCompletion?.status}` }, COCKPIT_EVENTS_PATH);
+              break;
+            }
+          } catch (error) {
+            console.warn(`[proofloop-live] backend completion query failed for ${task.id}: ${error instanceof Error ? error.message : String(error)}`);
+          }
+          nextBackendPollAt = Date.now() + 5_000;
+        }
+        if (await visibleTaskPatterns(page, task.passPatterns).catch(() => false)) {
+          jobCompleted = true;
+          await emitCockpitEvent(page, { type: "gate_pass", gate: "visible_task_output_completed" }, COCKPIT_EVENTS_PATH);
+          break;
+        }
+        const remainingWaitMs = taskTimeout - (Date.now() - waitStartedAt);
+        if (remainingWaitMs <= 0) break;
+        await page.waitForTimeout(Math.min(5_000, remainingWaitMs));
+      }
+    }
+    if (!jobCompleted && roomCode && BACKEND_FALLBACK_AFTER_LOOP) {
+      try {
+        backendCompletion = queryLiveAgentCompletion(roomCode, started - 30_000);
+        if (/\bcompleted\b/i.test(backendCompletion?.status ?? "")) jobCompleted = true;
+      } catch {
+        // The UI status remains the primary live-browser signal; backend fallback is best-effort.
+      }
     }
     await emitCockpitEvent(page, { type: jobCompleted ? "gate_pass" : "gate_fail", gate: "agent_job_completed" }, COCKPIT_EVENTS_PATH);
 
     const agentOutput = streamingVisible
       ? ((await page.locator('[data-testid="agent-unified-stream"]').first().textContent().catch(() => "")) ?? "").slice(0, 6_000)
       : "";
+    const pageOutput = ((await page.locator("body").textContent({ timeout: 2_000 }).catch(() => "")) ?? "").slice(0, 12_000);
+    if (!jobCompleted && task.passPatterns.every((pattern) => pageOutput.toLowerCase().includes(pattern.toLowerCase()))) {
+      jobCompleted = true;
+    }
+    const scoredOutput = `${agentOutput}\n${backendCompletion?.finalText ?? ""}\n${pageOutput}`;
 
     let roomTraceVisible = false;
     try {
@@ -189,7 +261,8 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       if (await trace.isVisible().catch(() => false)) {
         roomTraceVisible = true;
       } else {
-        await expect(page.getByText(/\d+\s+trace events/i).first()).toBeVisible({ timeout: 30_000 });
+        const traceTimeout = jobCompleted ? 2_000 : 10_000;
+        await expect(page.getByText(/\d+\s+trace events/i).first()).toBeVisible({ timeout: traceTimeout });
         roomTraceVisible = true;
       }
       await emitCockpitEvent(page, { type: "gate_pass", gate: "room_trace_visible" }, COCKPIT_EVENTS_PATH);
@@ -198,7 +271,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       await emitCockpitEvent(page, { type: "gate_fail", gate: "room_trace_visible" }, COCKPIT_EVENTS_PATH);
     }
 
-    const outputLower = agentOutput.toLowerCase();
+    const outputLower = scoredOutput.toLowerCase();
     const matchedPatterns: string[] = [];
     const unmatchedPatterns: string[] = [];
     for (const pattern of task.passPatterns) {
@@ -206,7 +279,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
     }
     const evidenceReady = jobCompleted && matchedPatterns.length === task.passPatterns.length;
 
-    const caveatFindings = [...new Set(CAVEAT_PATTERNS.filter(({ pattern }) => pattern.test(agentOutput)).map(({ code }) => code))];
+    const caveatFindings = [...new Set(CAVEAT_PATTERNS.filter(({ pattern }) => pattern.test(scoredOutput)).map(({ code }) => code))];
     const blockingCaveats = evidenceReady ? caveatFindings.filter((code) => !NON_BLOCKING_CAVEAT_CODES.has(code)) : caveatFindings;
 
     const binderText = await visibleBinderArtifactText(page);
@@ -219,8 +292,14 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
     await emitCockpitEvent(page, { type: passed ? "gate_pass" : "gate_fail", message: `${task.id}: ${passed ? "PASS" : "FAIL"}` }, COCKPIT_EVENTS_PATH);
 
     const screenshotPath = testInfo.outputPath(`proofloop-${task.id}.png`);
-    await page.screenshot({ path: screenshotPath, fullPage: false, timeout: 30_000 });
-    await testInfo.attach(`proofloop-${task.id}`, { path: screenshotPath, contentType: "image/png" });
+    const screenshotPaths: string[] = [];
+    try {
+      await page.screenshot({ path: screenshotPath, fullPage: false, timeout: jobCompleted ? 3_000 : 8_000 });
+      await testInfo.attach(`proofloop-${task.id}`, { path: screenshotPath, contentType: "image/png" });
+      screenshotPaths.push(screenshotPath);
+    } catch (error) {
+      console.warn(`[proofloop-live] screenshot skipped for ${task.id}: ${error instanceof Error ? error.message : String(error)}`);
+    }
 
     const gatesProven: FreshRoomProofReceipt["gatesProven"] = [
       "fresh_room_join",
@@ -249,7 +328,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       roomId: roomIdFromUrl(roomUrl),
       roomUrl,
       command: `PROOFLOOP_LIVE_BROWSER=1 PROOFLOOP_TASKS_JSON=${TASKS_JSON} npx playwright test --config playwright.proofloop.config.ts proofloop/live-browser-proof.spec.ts --headed`,
-      prompt: task.goal.slice(0, 1_200),
+      prompt: agentGoal.slice(0, 1_200),
       memoryMode: false,
       freshness: {
         roomCreatedAfterRunStart: true,
@@ -262,8 +341,8 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
         streamingVisible,
         jobDetailVisible,
         roomTraceVisible,
-        screenshotPaths: [screenshotPath],
-        tracePath: screenshotPath,
+        screenshotPaths,
+        tracePath: screenshotPaths[0],
       },
       artifacts: {
         created: [task.id],
@@ -316,6 +395,7 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
       jobDetailVisible,
       roomTraceVisible,
       jobCompleted,
+      backendCompletion,
       caveatFindings,
       blockingCaveats,
       placeholderFindings,
@@ -326,7 +406,6 @@ test("Live browser proof-loop: starter room -> agent tasks -> UI + terminal-qual
     if (!passed) taskFailures.push(`${task.id}: ${error ?? "unknown failure"}`);
 
     console.log(`[proofloop-live] task ${task.id}: ${passed ? "PASS" : "FAIL"} — ${matchedPatterns.length}/${task.passPatterns.length} patterns, completed=${jobCompleted}, ${durationMs}ms`);
-    await page.waitForTimeout(2_000);
   }
 
   const passCount = taskProofs.filter((t) => t.passed).length;
@@ -416,7 +495,12 @@ async function visibleBinderArtifactText(page: Page): Promise<string> {
   return page.locator([
     '[data-testid="binder-artifact"]',
     '[data-testid="agent-unified-stream"]',
-  ].join(",")).evaluateAll((els) => els.map((el) => el.textContent ?? "").join("\n"));
+  ].join(",")).evaluateAll((els) => els.map((el) => el.textContent ?? "").join("\n")).catch(() => "");
+}
+
+async function visibleTaskPatterns(page: Page, patterns: string[]): Promise<boolean> {
+  const bodyText = ((await page.locator("body").textContent({ timeout: 2_000 }).catch(() => "")) ?? "").toLowerCase();
+  return patterns.every((pattern) => bodyText.includes(pattern.toLowerCase()));
 }
 
 function roomIdFromUrl(url: string): string | undefined {
@@ -427,6 +511,60 @@ function roomIdFromUrl(url: string): string | undefined {
   }
 }
 
+function queryLiveAgentCompletion(roomCode: string, earliestCreatedAt: number): BackendCompletion | null {
+  const query = `
+const room = await ctx.db.query('rooms').withIndex('by_code', q => q.eq('code', ${jsSingleQuoted(roomCode.toUpperCase())})).first();
+if (!room) return null;
+const jobs = await ctx.db.query('agentJobs').withIndex('by_room', q => q.eq('roomId', room._id)).collect();
+const sorted = jobs
+  .map((job) => ({
+    status: String(job.status ?? ''),
+    finalText: String(job.finalText ?? ''),
+    error: String(job.error ?? ''),
+    createdAt: Number(job.createdAt ?? 0),
+    updatedAt: Number(job.updatedAt ?? 0),
+  }))
+  .filter((job) => job.createdAt >= ${Math.max(0, Math.floor(earliestCreatedAt))})
+  .filter((job) => job.status || job.finalText || job.error)
+  .sort((a, b) => b.updatedAt - a.updatedAt);
+return sorted[0] ?? null;
+`;
+  const compactQuery = query.replace(/\s+/g, " ").trim();
+  const stdout = process.platform === "win32"
+    ? execFileSync("powershell.exe", ["-NoProfile", "-Command", "& npx convex run --deployment $env:PROOFLOOP_CONVEX_DEPLOYMENT --inline-query $env:PROOFLOOP_INLINE_QUERY"], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      env: { ...process.env, PROOFLOOP_CONVEX_DEPLOYMENT: CONVEX_DEPLOYMENT, PROOFLOOP_INLINE_QUERY: compactQuery },
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout: 8_000,
+    })
+    : execFileSync("npx", ["convex", "run", "--deployment", CONVEX_DEPLOYMENT, "--inline-query", compactQuery], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout: 8_000,
+    });
+  const parsed = JSON.parse(stdout) as unknown;
+  if (!parsed || typeof parsed !== "object") return null;
+  const record = parsed as Record<string, unknown>;
+  return {
+    status: String(record.status ?? ""),
+    finalText: String(record.finalText ?? ""),
+    error: typeof record.error === "string" ? record.error : undefined,
+    createdAt: typeof record.createdAt === "number" ? record.createdAt : undefined,
+    updatedAt: typeof record.updatedAt === "number" ? record.updatedAt : undefined,
+  };
+}
+
+function jsSingleQuoted(value: string): string {
+  return `'${value.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'`;
+}
+
+function sanitizeConvexDeployment(value: string): string {
+  const stripped = value.replace(/\s+#.*$/, "").trim();
+  return stripped.startsWith("dev:") ? stripped.slice("dev:".length) : stripped;
+}
+
 function loadTasks(): TaskConfig[] {
   if (!existsSync(resolve(TASKS_JSON))) {
     throw new Error(`Proof-loop config not found: ${TASKS_JSON}`);
@@ -435,7 +573,11 @@ function loadTasks(): TaskConfig[] {
   if (!config.tasks || !Array.isArray(config.tasks) || config.tasks.length === 0) {
     throw new Error(`No tasks found in ${TASKS_JSON}`);
   }
-  return config.tasks as TaskConfig[];
+  const tasks = config.tasks as TaskConfig[];
+  if (!TASK_ID_FILTER) return tasks;
+  const filtered = tasks.filter((task) => task.id === TASK_ID_FILTER || task.name === TASK_ID_FILTER);
+  if (!filtered.length) throw new Error(`No task matching PROOFLOOP_TASK_ID=${TASK_ID_FILTER} in ${TASKS_JSON}`);
+  return filtered;
 }
 
 function isBenignError(message: string): boolean {

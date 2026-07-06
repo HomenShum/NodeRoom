@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-06T06:53:59.413Z",
+  "checks": {
+    "gapSurfaced": true
+  },
+  "detail": {
+    "borrower": {
+      "id": "delta-incomplete",
+      "name": "Delta Machining Co",
+      "reportedEbitda": 1.5,
+      "addBacks": {},
+      "ebitdaBuildLineItems": [
+        1.5
+      ],
+      "statedNormalizedEbitda": 1.5,
+      "totalDebt": 5,
+      "cashAvailable": 1.6,
+      "debtService": null,
+      "loan": 3.5,
+      "collateral": 5,
+      "policy": {
+        "minDscr": 1.25,
+        "maxLeverage": 4,
+        "maxLtv": 0.75
+      },
+      "expect": "insufficient_data"
+    },
+    "ebitda": {
+      "ok": true,
+      "value": 1.5,
+      "inputs": {
+        "reported": 1.5,
+        "total": 1.5
+      }
+    },
+    "lev": {
+      "ok": true,
+      "value": 3.33,
+      "inputs": {
+        "totalDebt": 5,
+        "ebitda": 1.5
+      }
+    },
+    "dscr": {
+      "ok": false,
+      "reason": "insufficient_data",
+      "missing": [
+        "totalDebtService"
+      ],
+      "detail": "DSCR needs finite cashAvailable and totalDebtService"
+    },
+    "ltv": {
+      "ok": true,
+      "value": 0.7,
+      "inputs": {
+        "loanAmount": 3.5,
+        "collateralValue": 5
+      }
+    },
+    "foot": {
+      "ok": true,
+      "foots": true,
+      "sum": 1.5,
+      "reported": 1.5,
+      "difference": 0
+    },
+    "dscrCov": {
+      "ok": false,
+      "reason": "insufficient_data",
+      "detail": "covenant actual is not a computable number"
+    },
+    "levCov": {
+      "ok": true,
+      "pass": true,
+      "actual": 3.33,
+      "threshold": 4,
+      "operator": "<=",
+      "headroom": 0.67
+    },
+    "ltvCov": {
+      "ok": true,
+      "pass": true,
+      "actual": 0.7,
+      "threshold": 0.75,
+      "operator": "<=",
+      "headroom": 0.05
+    }
+  }
+}

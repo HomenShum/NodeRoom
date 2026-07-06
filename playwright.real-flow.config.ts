@@ -11,6 +11,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 const traceMode = process.env.PLAYWRIGHT_TRACE === "on" ? "on" : "retain-on-failure";
 const videoMode = process.env.PLAYWRIGHT_RECORD_VIDEO === "1" ? "on" : "off";
+const baseURL = process.env.BENCH_BASE_URL ?? "http://localhost:5273";
 
 export default defineConfig({
   // Two real-user, live-Convex flows live here: the cheap-model room e2e (tests/) and the fullest
@@ -28,6 +29,8 @@ export default defineConfig({
     "e2e/nodemem-recall-benchmark.spec.ts",
     "e2e/nodemem-fairtest.spec.ts",
     "e2e/nodemem-firstuser.spec.ts",
+    "e2e/underwriting-hmda-live.spec.ts",
+    "e2e/public-nodeagent-real-room.spec.ts",
   ],
   fullyParallel: false,
   workers: 1,
@@ -35,5 +38,5 @@ export default defineConfig({
   timeout: 320_000,
   expect: { timeout: 200_000 },
   reporter: "list",
-  use: { ...devices["Desktop Chrome"], headless: true, trace: traceMode, video: videoMode },
+  use: { ...devices["Desktop Chrome"], baseURL, headless: true, trace: traceMode, video: videoMode },
 });

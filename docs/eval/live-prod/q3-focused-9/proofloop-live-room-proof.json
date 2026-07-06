@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "caseId": "PL-LIVE",
+  "benchmark": "product-smoke",
+  "generatedAt": "2026-07-06T22:07:32.925Z",
+  "baseUrl": "https://noderoom.live",
+  "roomUrl": "https://noderoom.live/?room=PLMR9RPHOT&name=Proof+Loop",
+  "command": "PROOFLOOP_LIVE_BROWSER=1 npx playwright test --config playwright.proofloop.config.ts proofloop/live-browser-proof.spec.ts --headed",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "variance-calc"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "roomTraceVisible": false,
+    "screenshotPaths": [],
+    "tracePath": "docs\\eval\\live-prod\\q3-focused-9\\browser-receipts\\fresh-room\\PL-LIVE\\tasks\\variance-calc\\latest.json"
+  },
+  "artifacts": {
+    "created": [
+      "variance-calc"
+    ]
+  },
+  "scorer": {
+    "name": "Proof-loop suite aggregate",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "taskProofs": [
+        {
+          "taskId": "variance-calc",
+          "taskName": "Q3 Variance Calculation",
+          "passed": true,
+          "matchedPatterns": [
+            "variance",
+            "revenue",
+            "cogs",
+            "2,400",
+            "1,100"
+          ],
+          "unmatchedPatterns": [],
+          "streamingVisible": true,
+          "jobStatusVisible": true,
+          "jobDetailVisible": true,
+          "roomTraceVisible": false,
+          "jobCompleted": true,
+          "backendCompletion": {
+            "status": "completed",
+            "finalText": "Q3 variance completed: wrote 5 variance cells for 5 rows. Revenue variance 2,400; COGS variance 1,100; Gross profit variance 1,300; OpEx variance 450; Net income variance 850.",
+            "error": "",
+            "createdAt": 1783375475954,
+            "updatedAt": 1783375481742
+          },
+          "caveatFindings": [],
+          "blockingCaveats": [],
+          "placeholderFindings": [],
+          "durationMs": 178855,
+          "receiptPath": "docs\\eval\\live-prod\\q3-focused-9\\browser-receipts\\fresh-room\\PL-LIVE\\tasks\\variance-calc\\latest.json"
+        }
+      ]
+    }
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "public_nodeagent_invocation",
+    "no_memory_mode_shortcut",
+    "agent_live_loop",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "trace_video_artifacts",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

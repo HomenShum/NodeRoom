@@ -306,7 +306,8 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
     : undefined;
   const livePassed = live?.passed === true;
   const readyToRun = validationErrors.length === 0 && implementationMissing.length === 0;
-  const btbOfficialProven = btbFullSuite?.flipEligible === true;
+  const btbScoreImported = btbFullSuite?.flipEligible === true;
+  const btbOfficialProven = btbScoreImported && btbOfficial?.pass === true;
   const adapterBlockerEvidence = !isBtb && adapterBlocker ? [`docs/eval/proofloop-adapter-blockers/${adapter.id}.json`] : [];
   const adapterOfficialBlockers = adapterBlocker?.blockers?.length
     ? adapterBlocker.blockers
@@ -347,7 +348,7 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
           ? []
           : btbOfficial?.blockers ?? ["BankerToolBench official contract artifact is missing."]
         : adapterOfficialBlockers,
-      metrics: btbOfficialProven
+      metrics: btbScoreImported
         ? {
           expectedCount: btbFullSuite?.expectedCount ?? null,
           executedTaskCount: btbFullSuite?.executedTaskCount ?? null,
@@ -368,8 +369,8 @@ function adapterEntry(adapter: ProofloopBenchmarkAdapter, root: string): Prooflo
     },
     notes: isBtb
       ? btbOfficialProven
-        ? ["BankerToolBench full-suite official scoring is imported: completion/scoring is proven separately from pass rate."]
-        : ["BankerToolBench product-path proof can pass while Harbor/Gandalf official score import remains blocked."]
+        ? ["BankerToolBench full-suite official contract passed: completion/scoring is proven separately from pass rate."]
+        : ["BankerToolBench full-suite score-import exists, but official promotion remains blocked until bundle provenance, Harbor/Docker, MCP tools, and Gandalf import pass."]
       : ["Adapter registration is useful backlog inventory; it is not a live proof claim."],
   };
 }

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-15T07:38:51.852Z",
+  "generatedAt": "2026-07-06T06:54:17.143Z",
   "mode": "convex-test-contract",
   "claim": "Startup diligence Convex contract proof for account intake, evidence cells, no-clobber, private lane, route trace, runway chart, and draft-only handoff.",
   "pass": true,
@@ -12,7 +12,7 @@
     "convexContractProven": true
   },
   "room": {
-    "code": "SD3B57BDAF",
+    "code": "SDC2057E29",
     "roomId": "000000000000000000000010000rooms",
     "researchArtifactId": "00000000000000000010005artifacts",
     "runwayArtifactId": "00000000000000000010007artifacts",
@@ -40,7 +40,7 @@
       "evidence": {
         "proposalResult": {
           "ok": false,
-          "proposalId": "00000000000000000010091proposals",
+          "proposalId": "00000000000000000010094proposals",
           "reason": "pending_approval"
         },
         "committedPayload": {
@@ -80,9 +80,9 @@
             "decision": "needs_human_review",
             "outcome": "needs_review",
             "proposalIds": [
-              "00000000000000000010095proposals"
+              "00000000000000000010102proposals"
             ],
-            "semanticConflictId": "000000000010096semanticConflicts",
+            "semanticConflictId": "000000000010103semanticConflicts",
             "tier": "human_review_required"
           }
         },
@@ -140,7 +140,7 @@
           ],
           "needsInput": false
         },
-        "chartArtifactId": "00000000000000000010099artifacts"
+        "chartArtifactId": "00000000000000000010106artifacts"
       }
     },
     {

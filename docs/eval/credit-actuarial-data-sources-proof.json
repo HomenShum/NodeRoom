@@ -1,0 +1,358 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-06T06:55:15.018Z",
+  "harnessVersion": "credit-actuarial-data-sources-proof-v0.1.0",
+  "passed": true,
+  "sources": [
+    {
+      "id": "sba_7a_504_foia",
+      "name": "SBA 7(a) and 504 FOIA loan data",
+      "authority": "U.S. Small Business Administration Office of Capital Access",
+      "sourceUrl": "https://data.sba.gov/en/dataset/7-a-504-foia",
+      "status": "machine_accessible",
+      "license": "Other (Public Domain)",
+      "latestKnownUpdate": "2026-04-28T14:42:49.973350",
+      "covers": [
+        "small business loan approvals",
+        "loan status",
+        "paid in full outcome",
+        "charge-off outcome",
+        "charge-off amount",
+        "term and approval timing"
+      ],
+      "blockers": [
+        "contains public SBA program outcomes, not a buyer's private underwriting overrides or servicing policy",
+        "FOIA-exempt active loans require censoring treatment"
+      ],
+      "evidence": [
+        "resources=7",
+        "csvFiles=6",
+        "verifiedPerformanceFields=GrossApproval,ApprovalDate,ApprovalFY,TermInMonths,LoanStatus,PaidInFullDate,ChargeOffDate,GrossChargeOffAmount"
+      ],
+      "resources": [
+        {
+          "name": "7a_504_FOIA Data Dictionary as of 260331.xlsx",
+          "format": "XLSX",
+          "size": 24539,
+          "url": "https://data.sba.gov/en/dataset/0ff8e8e9-b967-4f4e-987c-6ac78c575087/resource/6898b986-a895-47b4-bb7e-c6b286b23a7b/download/7a_504_foia_data_dictionary-asof-260331.xlsx",
+          "lastModified": "2026-04-28T14:32:22.920096",
+          "httpStatus": 200,
+          "ok": true
+        },
+        {
+          "name": "FOIA - 504 (FY1991-FY2009) asof 260331.csv",
+          "format": "CSV",
+          "size": 48391510,
+          "url": "https://data.sba.gov/en/dataset/0ff8e8e9-b967-4f4e-987c-6ac78c575087/resource/8854d636-599d-463f-a961-7dbdb3bab152/download/foia-504-fy1991-fy2009-asof-260331.csv",
+          "lastModified": "2026-04-28T14:33:37.752344",
+          "httpStatus": 200,
+          "ok": true
+        },
+        {
+          "name": "FOIA - 504 (FY2010-Present) asof 260331.csv",
+          "format": "CSV",
+          "size": 55816280,
+          "url": "https://data.sba.gov/en/dataset/0ff8e8e9-b967-4f4e-987c-6ac78c575087/resource/4ad7f0f1-9da6-4d90-8bdb-89a6f821a1a9/download/foia-504-fy2010-present-asof-260331.csv",
+          "lastModified": "2026-04-28T14:34:48.088601",
+          "httpStatus": 200,
+          "ok": true
+        },
+        {
+          "name": "FOIA - 7(a)(FY1991-FY1999) asof 260331.csv",
+          "format": "CSV",
+          "size": 125879784,
+          "url": "https://data.sba.gov/en/dataset/0ff8e8e9-b967-4f4e-987c-6ac78c575087/resource/182e9421-ccee-4562-acb3-93b34fb695f2/download/foia-7a-fy1991-fy1999-asof-260331.csv",
+          "lastModified": "2026-04-28T14:38:23.501793",
+          "httpStatus": 200,
+          "ok": true
+        },
+        {
+          "name": "FOIA - 7(a)(FY2000-FY2009) asof 260331.csv",
+          "format": "CSV",
+          "size": 281943053,
+          "url": "https://data.sba.gov/en/dataset/0ff8e8e9-b967-4f4e-987c-6ac78c575087/resource/186eb176-b53e-4cbe-ab93-e5c4fb50197d/download/foia-7a-fy2000-fy2009-asof-260331.csv",
+          "lastModified": "2026-04-28T14:39:23.974153",
+          "httpStatus": 200,
+          "ok": true
+        },
+        {
+          "name": "FOIA - 7(a) (FY2010-FY2019) asof 260331.csv",
+          "format": "CSV",
+          "size": 222986650,
+          "url": "https://data.sba.gov/en/dataset/0ff8e8e9-b967-4f4e-987c-6ac78c575087/resource/3f838176-6060-44db-9c91-b4acafbcb28c/download/foia-7a-fy2010-fy2019-asof-260331.csv",
+          "lastModified": "2026-04-28T14:41:28.969734",
+          "httpStatus": 200,
+          "ok": true
+        },
+        {
+          "name": "FOIA - 7(a) (FY2020-Present) asof 260331.csv",
+          "format": "CSV",
+          "size": 150849775,
+          "url": "https://data.sba.gov/en/dataset/0ff8e8e9-b967-4f4e-987c-6ac78c575087/resource/d67d3ccb-2002-4134-a288-481b51cd3479/download/foia-7a-fy2020-present-asof-260331.csv",
+          "lastModified": "2026-04-28T14:42:49.966150",
+          "httpStatus": 200,
+          "ok": true
+        }
+      ],
+      "fieldsVerified": [
+        "GrossApproval",
+        "ApprovalDate",
+        "ApprovalFY",
+        "TermInMonths",
+        "LoanStatus",
+        "PaidInFullDate",
+        "ChargeOffDate",
+        "GrossChargeOffAmount"
+      ]
+    },
+    {
+      "id": "fhfa_enterprise_pudb_2024",
+      "name": "FHFA Enterprise Public Use Database 2024",
+      "authority": "Federal Housing Finance Agency",
+      "sourceUrl": "https://www.fhfa.gov/data/public-use-database",
+      "status": "machine_accessible",
+      "license": "public use government dataset",
+      "latestKnownUpdate": "2024 release; page notes 2025 CSV release expected September 2026",
+      "covers": [
+        "single-family mortgage acquisitions",
+        "borrower income",
+        "race and sex fields for fair-lending segmentation",
+        "loan-to-value and debt-to-income fields",
+        "census-tract geography"
+      ],
+      "blockers": [
+        "acquisition public-use database is not monthly loan performance or loss history"
+      ],
+      "evidence": [
+        "zipStatus=200",
+        "zipContentType=application/zip",
+        "zipContentLength=10459181"
+      ],
+      "resources": [
+        {
+          "name": "2024 Single-Family National File A ZIP",
+          "format": "ZIP",
+          "url": "https://www.fhfa.gov/document/d/pud/2024_pudb_sf_nfa.zip",
+          "size": 10459181,
+          "httpStatus": 200,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ffiec_hmda_2025_dc_live_packet",
+      "name": "FFIEC/CFPB HMDA 2025 DC live underwriting packet",
+      "authority": "FFIEC / CFPB HMDA Platform",
+      "sourceUrl": "https://ffiec.cfpb.gov/v2/data-browser-api/view/csv?states=DC&years=2025&actions_taken=1,3&loan_purposes=1",
+      "status": "machine_accessible",
+      "license": "public HMDA modified loan/application register",
+      "latestKnownUpdate": "2025 HMDA public data",
+      "covers": [
+        "mortgage application action_taken labels",
+        "originated vs denied decision benchmark",
+        "borrower and tract fields for segmentation",
+        "public live-room withheld-label scoring dependency"
+      ],
+      "blockers": [
+        "HMDA action_taken is an application decision label, not realized repayment/default/loss performance"
+      ],
+      "evidence": [
+        "liveReceiptPassed=true",
+        "rows=unknown",
+        "actionTakenDistribution={}"
+      ]
+    },
+    {
+      "id": "freddie_mac_sf_lld",
+      "name": "Freddie Mac Single-Family Loan-Level Dataset",
+      "authority": "Freddie Mac",
+      "sourceUrl": "https://www.freddiemac.com/research/datasets/sf-loanlevel-dataset",
+      "status": "access_required",
+      "license": "free subject to dataset terms; commercial redistribution requires licensing agreement",
+      "latestKnownUpdate": "covers originations through 2025 with performance disclosed through September 30, 2025 per official page",
+      "covers": [
+        "mortgage loan-level acquisition data",
+        "monthly credit performance",
+        "foreclosure alternatives and REO outcomes",
+        "actual loss data including proceeds, recoveries, expenses, and deferred UPB"
+      ],
+      "blockers": [
+        "full download requires registration, sign-in, and terms acceptance"
+      ],
+      "evidence": [
+        "pageStatus=200",
+        "official page states performance and actual loss fields exist, but full data access is gated"
+      ]
+    },
+    {
+      "id": "fannie_mae_sf_performance",
+      "name": "Fannie Mae Single-Family Loan Performance Data",
+      "authority": "Fannie Mae",
+      "sourceUrl": "https://capitalmarkets.fanniemae.com/credit-risk-transfer/single-family-credit-risk-transfer/fannie-mae-single-family-loan-performance-data",
+      "status": "access_required",
+      "license": "registration and terms required; external commercial use/redistribution restricted without consent",
+      "latestKnownUpdate": "Q4 2025 release announced April 30, 2026 per official page",
+      "covers": [
+        "mortgage acquisition data",
+        "monthly performance data",
+        "liquidation, payoff, repurchase, short sale, and REO lifecycle fields",
+        "primary and HARP mapping datasets"
+      ],
+      "blockers": [
+        "full download requires registration, credentials, and terms acceptance"
+      ],
+      "evidence": [
+        "pageStatus=403",
+        "official page states API/download access exists after registration"
+      ]
+    },
+    {
+      "id": "lending_club_granting_model_zenodo",
+      "name": "Lending Club loan dataset for granting models",
+      "authority": "Zenodo / academic cleaned Lending Club granting-model dataset",
+      "sourceUrl": "https://zenodo.org/records/11295916",
+      "status": "machine_accessible",
+      "license": "cc-by-4.0",
+      "latestKnownUpdate": "2024-05-25",
+      "covers": [
+        "consumer loan application-time granting variables",
+        "default target",
+        "fully paid target",
+        "cleaned non-transitory loan-status population",
+        "public default-modeling proxy"
+      ],
+      "blockers": [
+        "not an official bank regulatory dataset",
+        "not a substitute for a buyer's own policy, channel, servicing, and override history"
+      ],
+      "evidence": [
+        "doi=10.5281/zenodo.11295916",
+        "files=LC_loans_granting_model_dataset.csv:167468415"
+      ],
+      "resources": [
+        {
+          "name": "LC_loans_granting_model_dataset.csv",
+          "format": "CSV",
+          "size": 167468415,
+          "url": "https://zenodo.org/api/records/11295916/files/LC_loans_granting_model_dataset.csv/content",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "lending_club_figshare_direct_files",
+      "name": "Lending Club",
+      "authority": "Figshare / Deepchecks Data",
+      "sourceUrl": "https://figshare.com/articles/dataset/Lending_Club/22121477",
+      "status": "machine_accessible",
+      "license": "CC0",
+      "latestKnownUpdate": "2023-03-06T17:34:43Z",
+      "covers": [
+        "train/test Lending Club files",
+        "public default-modeling proxy",
+        "direct file metadata and hashes"
+      ],
+      "blockers": [
+        "modified Kaggle-derived data; verify terms and suitability before buyer distribution"
+      ],
+      "evidence": [
+        "doi=10.6084/m9.figshare.22121477.v4",
+        "files=train_lending_club.csv:43010672,model.joblib:2444740,test_lending_club.csv:17444688"
+      ],
+      "resources": [
+        {
+          "name": "train_lending_club.csv",
+          "format": "text/plain",
+          "size": 43010672,
+          "url": "https://ndownloader.figshare.com/files/39316160",
+          "ok": true
+        },
+        {
+          "name": "model.joblib",
+          "format": "application/octet-stream",
+          "size": 2444740,
+          "url": "https://ndownloader.figshare.com/files/39316172",
+          "ok": true
+        },
+        {
+          "name": "test_lending_club.csv",
+          "format": "text/plain",
+          "size": 17444688,
+          "url": "https://ndownloader.figshare.com/files/39495787",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "home_credit_default_risk_kaggle",
+      "name": "Home Credit Default Risk",
+      "authority": "Kaggle competition dataset",
+      "sourceUrl": "https://www.kaggle.com/c/home-credit-default-risk",
+      "status": "cataloged",
+      "license": "Kaggle competition terms",
+      "latestKnownUpdate": "competition dataset",
+      "covers": [
+        "consumer repayment difficulty target",
+        "application and bureau-style features",
+        "credit default probability modeling practice"
+      ],
+      "blockers": [
+        "Kaggle account and competition terms required",
+        "not a regulated buyer portfolio"
+      ],
+      "evidence": [
+        "pageStatus=404"
+      ]
+    }
+  ],
+  "summary": {
+    "machineAccessibleSources": 5,
+    "publicPerformanceSources": 3,
+    "accessRequiredSources": 2,
+    "unreachableSources": 0,
+    "solvedLocally": [
+      "public default / charge-off / loan-status proxy data exists for benchmark and model-development work",
+      "public fair-lending segmentation proxies exist for mortgage acquisition and HMDA decision-label analysis",
+      "multi-angle actuarial forecasting can be run against public proxies with explicit caveats"
+    ],
+    "stillExternal": [
+      "buyer-owned private application, approval, override, servicing, repayment, default, and recovery data",
+      "buyer-approved protected-class proxy methodology and compliance signoff",
+      "buyer-granted delegated authority limits for production credit decisions"
+    ]
+  },
+  "actuarialPredictionContract": {
+    "taskFamilies": [
+      "credit default probability",
+      "loss given default / charge-off severity",
+      "loan-status transition and survival/default timing",
+      "reserve or expected-loss scenario analysis",
+      "insurance-style claim frequency and severity modeling",
+      "M&A, venture, startup-bank, or de novo portfolio outcome forecasting"
+    ],
+    "requiredReceipts": [
+      "exposure definition",
+      "outcome and censoring definition",
+      "frequency / severity split",
+      "time-to-event or vintage curve",
+      "base-rate and trend model",
+      "scenario branches",
+      "calibration and backtest",
+      "uncertainty interval",
+      "red-team disagreement ledger"
+    ]
+  },
+  "ai2027StyleForecastContract": {
+    "sourcePattern": "AI 2027 used trend extrapolations, tabletop exercises/wargames, expert feedback, research supplements, uncertainty ranges, branch scenarios, and updateable simulation models.",
+    "modules": [
+      "decompose the target outcome into separable drivers",
+      "build a base-rate and trend-extrapolation model for each driver",
+      "run scenario branches with explicit assumptions",
+      "collect expert or stakeholder forecasts and disagreements",
+      "simulate milestone timing or outcome distributions",
+      "publish confidence intervals and model code or receipt references",
+      "red-team failure modes and update when new evidence arrives"
+    ]
+  },
+  "documentation": "docs/eval/ACTUARIAL_MULTI_ANGLE_FORECASTING_PROOFLOOP.md"
+}

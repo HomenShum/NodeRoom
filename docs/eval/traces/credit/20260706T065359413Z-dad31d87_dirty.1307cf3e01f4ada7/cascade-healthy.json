@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-06T06:53:59.413Z",
+  "checks": {
+    "footsTieOut": true,
+    "dscrPass": true,
+    "leveragePass": true,
+    "ltvPass": true
+  },
+  "detail": {
+    "borrower": {
+      "id": "cascade-healthy",
+      "name": "Cascade Components LLC",
+      "reportedEbitda": 1.8,
+      "addBacks": {
+        "ownerComp": 0.15,
+        "oneTimeLegal": 0.05
+      },
+      "ebitdaBuildLineItems": [
+        1.8,
+        0.15,
+        0.05
+      ],
+      "statedNormalizedEbitda": 2,
+      "totalDebt": 6.4,
+      "cashAvailable": 1.96,
+      "debtService": 1.4,
+      "loan": 4,
+      "collateral": 6,
+      "policy": {
+        "minDscr": 1.25,
+        "maxLeverage": 4,
+        "maxLtv": 0.75
+      },
+      "expect": "approve"
+    },
+    "ebitda": {
+      "ok": true,
+      "value": 2,
+      "inputs": {
+        "reported": 1.8,
+        "ownerComp": 0.15,
+        "oneTimeLegal": 0.05,
+        "total": 2
+      }
+    },
+    "lev": {
+      "ok": true,
+      "value": 3.2,
+      "inputs": {
+        "totalDebt": 6.4,
+        "ebitda": 2
+      }
+    },
+    "dscr": {
+      "ok": true,
+      "value": 1.4,
+      "inputs": {
+        "cashAvailable": 1.96,
+        "totalDebtService": 1.4
+      }
+    },
+    "ltv": {
+      "ok": true,
+      "value": 0.6667,
+      "inputs": {
+        "loanAmount": 4,
+        "collateralValue": 6
+      }
+    },
+    "foot": {
+      "ok": true,
+      "foots": true,
+      "sum": 2,
+      "reported": 2,
+      "difference": 0
+    },
+    "dscrCov": {
+      "ok": true,
+      "pass": true,
+      "actual": 1.4,
+      "threshold": 1.25,
+      "operator": ">=",
+      "headroom": 0.15
+    },
+    "levCov": {
+      "ok": true,
+      "pass": true,
+      "actual": 3.2,
+      "threshold": 4,
+      "operator": "<=",
+      "headroom": 0.8
+    },
+    "ltvCov": {
+      "ok": true,
+      "pass": true,
+      "actual": 0.6667,
+      "threshold": 0.75,
+      "operator": "<=",
+      "headroom": 0.0833
+    }
+  }
+}

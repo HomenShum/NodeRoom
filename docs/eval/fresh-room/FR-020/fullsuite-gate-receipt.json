@@ -19,9 +19,9 @@
     {
       "id": "aggregate_score_import",
       "status": "pass",
-      "reason": "All 100 clean tasks carry official scores + trace links; mean reward 0.2519."
+      "reason": "All 100 clean tasks carry imported rubric scores + trace links; mean reward 0.2519."
     }
   ],
   "flipEligible": true,
-  "claim": "All 100/100 BankerToolBench tasks executed and officially scored, generic-only (no answer-key writers). Aggregate mean reward 0.2519; pass-rate 0.0000 (reward >= 1). This proves full-suite COMPLETION + SCORING, not a 100% pass rate."
+  "claim": "All 100/100 BankerToolBench tasks executed and imported rubric-scored, generic-only (no answer-key writers). Aggregate mean reward 0.2519; pass-rate 0.0000 (reward >= 1). This proves full-suite COMPLETION + SCORE-IMPORT, not a 100% pass rate or final official-promotion clearance."
 }

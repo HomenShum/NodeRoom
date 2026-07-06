@@ -1,0 +1,20 @@
+{
+  "schema": "provider-route-preflight-v1",
+  "generatedAt": "2026-07-06T22:44:58.477Z",
+  "provider": "openrouter",
+  "minBalanceUsd": 1,
+  "keyPresent": false,
+  "ok": false,
+  "status": "fail",
+  "reason": "missing_OPENROUTER_API_KEY",
+  "checks": [
+    {
+      "name": "openrouter_api_key_present",
+      "ok": false
+    }
+  ],
+  "officialDocs": [
+    "https://openrouter.ai/docs/api/api-reference/credits/get-remaining-credits",
+    "https://openrouter.ai/docs/api/reference/limits"
+  ]
+}

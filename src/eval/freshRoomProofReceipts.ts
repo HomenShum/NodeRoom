@@ -589,11 +589,11 @@ export function buildFreshRoomProofRegistry(args: { generatedAt?: string } = {})
       lane: "bankertoolbench_full_suite",
       status: fullSuiteReady ? "passed" : "blocked",
       claimBoundary: fullSuiteReady
-        ? "FR-020B proves full-suite COMPLETION + official Gandalf scoring via the isolated (Harbor) generic-only lane. It does NOT prove a 100% rubric pass rate, nor live-browser UI for all 100 tasks (FR-020C is the live-UI lane)."
-        : "FR-020B remains blocked until the full official BankerToolBench suite runs through isolated execution and official verifier scoring (generic-only).",
+        ? "FR-020B proves full-suite COMPLETION + imported rubric scoring via the isolated generic-only lane. It does NOT prove a 100% rubric pass rate, final official-promotion clearance, nor live-browser UI for all 100 tasks (FR-020C is the live-UI lane)."
+        : "FR-020B remains blocked until the full BankerToolBench suite runs through isolated execution and imported verifier scoring (generic-only).",
       proves: fullSuiteReady
         ? [
-            `Full BankerToolBench suite executed and officially scored generic-only (${fullSuiteVerdict?.cleanScoredTaskCount ?? 0}/${fullSuiteVerdict?.expectedCount ?? 100} clean tasks, mean reward ${fmtReward(fullSuiteVerdict?.meanCleanReward)}).`,
+            `Full BankerToolBench suite executed and imported rubric-scored generic-only (${fullSuiteVerdict?.cleanScoredTaskCount ?? 0}/${fullSuiteVerdict?.expectedCount ?? 100} clean tasks, mean reward ${fmtReward(fullSuiteVerdict?.meanCleanReward)}).`,
           ]
         : [],
       doesNotProve: [
@@ -610,7 +610,7 @@ export function buildFreshRoomProofRegistry(args: { generatedAt?: string } = {})
         ),
         boundaryGate(
           "aggregate_score_import",
-          "Official aggregate verifier scores are imported and trace-linked",
+          "Aggregate verifier scores are imported and trace-linked",
           fullSuiteReady ? "pass" : "blocked",
           [FULLSUITE_GATE_VERDICT],
           fullSuiteReady ? undefined : "No flip-eligible full-suite gate verdict present.",

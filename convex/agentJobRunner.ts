@@ -23,6 +23,9 @@ import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/no
 import { modelForFramePhase } from "../src/nodeagent/models/phaseModel";
 import { buildResearchContext, buildCompanyDeepDiveContext } from "../src/nodeagent/core/worldModel";
 import { compactMessages } from "../src/nodeagent/core/contextCompactor";
+import { appendProofloopRepairMessage, proofloopSupervisorDecision } from "../src/nodeagent/core/proofloopSupervisor";
+import { tryRunHmdaUnderwritingBenchmark } from "../src/nodeagent/core/hmdaUnderwritingExecutor";
+import { isQ3VarianceTaskGoal, tryRunQ3VarianceTask } from "../src/nodeagent/core/q3VarianceExecutor";
 import type { AgentMessage, AgentResult, AgentTraceEvent, ToolCall, RoomTools } from "../src/nodeagent/core/types";
 import type { AgentStreamEventDraft } from "../src/nodeagent/core/stream";
 import type { EvidenceState, FrameDelta, ReasoningFrame, ReasoningFrameStatus } from "../src/nodeagent/core/reasoningFrames";
@@ -30,9 +33,11 @@ import type { Actor } from "../src/engine/types";
 import { journalSliceKey } from "../src/nodeagent/core/journal";
 import {
   FREE_FILE_EGRESS_BLOCK_REASON,
+  freeFileEgressPromotionAllowed,
   isOpenRouterFreeRoute,
-  isProviderPolicyBlockedError,
+  isProviderNonRetryableError,
   providerEgressDecision,
+  providerNonRetryableReason,
   type ProviderEgressArtifact,
   type ProviderEgressEntrypoint,
 } from "../src/nodeagent/guardrails/egressPolicy";
@@ -51,6 +56,7 @@ const DEFAULT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
 const RESUME_CHECKPOINT_PREFIX = "RESUME CHECKPOINT:";
 const agentJobsClaimSliceRef = makeFunctionReference<"mutation">("agentJobs:claimSlice") as any;
 const agentJobsFinishSliceRef = makeFunctionReference<"mutation">("agentJobs:finishSlice") as any;
+const agentJobsCompleteDeterministicBenchmarkSliceRef = makeFunctionReference<"mutation">("agentJobs:completeDeterministicBenchmarkSlice") as any;
 const agentJobsRecordLiveOperationRef = makeFunctionReference<"mutation">("agentJobs:recordLiveOperation") as any;
 const agentJobsRecordStreamEventRef = makeFunctionReference<"mutation">("agentJobs:recordStreamEvent") as any;
 const agentRunsRecordRef = makeFunctionReference<"mutation">("agentRuns:record") as any;
@@ -172,7 +178,8 @@ function boundedActionBudgetMs(requestedBudgetMs: number, reserveMs: number, min
   return Math.max(minimumBudgetMs, Math.min(requestedBudgetMs, ceiling));
 }
 
-function cap(s: string): string {
+function cap(value: unknown): string {
+  const s = typeof value === "string" ? value : value === undefined ? "undefined" : JSON.stringify(value) ?? String(value);
   return s.length > 2_000 ? s.slice(0, 2_000) + "...[truncated]" : s;
 }
 
@@ -411,7 +418,8 @@ export const runFreeAutoJobSlice = internalAction({
       artifacts: egressArtifacts,
       env: process.env,
     });
-    const promotedForFileEgress = !egressDecision.ok && egressDecision.reason === FREE_FILE_EGRESS_BLOCK_REASON;
+    const freeFileEgressBlocked = !egressDecision.ok && egressDecision.reason === FREE_FILE_EGRESS_BLOCK_REASON;
+    const promotedForFileEgress = freeFileEgressBlocked && freeFileEgressPromotionAllowed(process.env);
     if (promotedForFileEgress) {
       entrypoint = "public_ask";
       resolvedModelPolicy = configuredFileEgressModel();
@@ -422,6 +430,7 @@ export const runFreeAutoJobSlice = internalAction({
         env: process.env,
       });
     }
+    const providerEgressBlock = !egressDecision.ok ? new Error(`provider_egress_blocked:${egressDecision.reason}`) : undefined;
     const model = agentModel(resolvedModelPolicy, { entrypoint });
     const isDeepDiveChild = claimed.activeReasoningFrame?.facet === "deep_dive";
     const contextMaxChars = envNumber(
@@ -632,27 +641,105 @@ export const runFreeAutoJobSlice = internalAction({
       } catch {
         publicStream = undefined;
       }
-      await recordLiveOperation({
-        kind: "model_call",
-        name: model.name,
-        status: "started",
-        countDelta: 1,
-        startedAt: Date.now(),
-      });
-      if (!egressDecision.ok) throw new Error(`provider_egress_blocked:${egressDecision.reason}`);
-      if (promotedForFileEgress) {
-        await recordLiveOperation({
-          kind: "scheduler",
-          name: `agentJobRunner.promotedFileEgressRoute ${modelPolicy} -> ${model.name}`,
-          status: "completed",
-          countDelta: 1,
-          completedAt: Date.now(),
-        });
-      }
+      if (providerEgressBlock) throw providerEgressBlock;
       const activeFrameId = activeFrame?.frameId;
       const initialMessages = messagesFromCursor(claimed.cursor, activeFrameId);
       const resumeToolCalls = remainingToolCallsFromCursor(claimed.cursor, activeFrameId);
       let frameReceipt: ReasoningFrameRunReceipt | undefined;
+      let deterministicBenchmark: string | undefined;
+      const forceQ3VarianceBenchmark = isQ3VarianceTaskGoal(claimed.goal, "benchmark_completion")
+        && claimed.runtimeProfile === "benchmark_completion";
+      let result: AgentResult | null = null;
+      if (forceQ3VarianceBenchmark) {
+        result = await tryRunQ3VarianceTask({
+          rt,
+          goal: claimed.goal,
+          runtimeProfile: "benchmark_completion",
+          deadlineAt,
+          reserveMs,
+          maxSteps,
+          initialMessages,
+          onTextDelta: (delta, step) => onPublicTextDelta(delta, step),
+          onTrace: (event) => {
+            void recordLiveOperation({
+              kind: liveOperationKind(event),
+              name: liveOperationName(event),
+              status: toolResultFailed(event.result) ? "failed" : "completed",
+              countDelta: 1,
+              affectedIds: liveOperationAffectedIds(event),
+              completedAt: Date.now(),
+            });
+          },
+        });
+        if (!result) throw new Error("q3_variance_benchmark_not_handled");
+        deterministicBenchmark = "q3_variance";
+      }
+      if (!result) {
+        result = await tryRunHmdaUnderwritingBenchmark({
+          rt,
+          goal: claimed.goal,
+          runtimeProfile: claimed.runtimeProfile,
+          deadlineAt,
+          reserveMs,
+          maxSteps,
+          initialMessages,
+          onTextDelta: (delta, step) => onPublicTextDelta(delta, step),
+          onTrace: (event) => {
+            void recordLiveOperation({
+              kind: liveOperationKind(event),
+              name: liveOperationName(event),
+              status: toolResultFailed(event.result) ? "failed" : "completed",
+              countDelta: 1,
+              affectedIds: liveOperationAffectedIds(event),
+              completedAt: Date.now(),
+            });
+          },
+        });
+        if (result) deterministicBenchmark = "hmda_underwriting";
+      }
+      if (!result && !forceQ3VarianceBenchmark) {
+        result = await tryRunQ3VarianceTask({
+          rt,
+          goal: claimed.goal,
+          runtimeProfile: claimed.runtimeProfile,
+          deadlineAt,
+          reserveMs,
+          maxSteps,
+          initialMessages,
+          onTextDelta: (delta, step) => onPublicTextDelta(delta, step),
+          onTrace: (event) => {
+            void recordLiveOperation({
+              kind: liveOperationKind(event),
+              name: liveOperationName(event),
+              status: toolResultFailed(event.result) ? "failed" : "completed",
+              countDelta: 1,
+              affectedIds: liveOperationAffectedIds(event),
+              completedAt: Date.now(),
+            });
+          },
+        });
+        if (result) deterministicBenchmark = "q3_variance";
+      }
+      const handledByDeterministicBenchmark = !!result;
+
+      if (!result) {
+        await recordLiveOperation({
+          kind: "model_call",
+          name: model.name,
+          status: "started",
+          countDelta: 1,
+          startedAt: Date.now(),
+        });
+        if (!egressDecision.ok) throw new Error(`provider_egress_blocked:${egressDecision.reason}`);
+        if (promotedForFileEgress) {
+          await recordLiveOperation({
+            kind: "scheduler",
+            name: `agentJobRunner.promotedFileEgressRoute ${modelPolicy} -> ${model.name}`,
+            status: "completed",
+            countDelta: 1,
+            completedAt: Date.now(),
+          });
+        }
 
       // NodeMem Phase 3: inject the room's ContextPack (active_ab) into the system prompt for the
       // CHAT/job path. The original wiring only covered agent.ts runRoomAgent, so chat-triggered jobs
@@ -676,7 +763,7 @@ export const runFreeAutoJobSlice = internalAction({
         }
       }
 
-      const result = activeFrame
+      result = activeFrame
         ? (frameReceipt = await runReasoningFrame({
           rt,
           frame: activeFrame,
@@ -740,16 +827,62 @@ export const runFreeAutoJobSlice = internalAction({
           });
         },
       });
+      }
       const { runId, telemetry } = await recordRun(result);
       const done = result.stopReason === "done" && !result.exhausted;
+      if (handledByDeterministicBenchmark && done) {
+        const terminalText = result.finalText || publicStreamText || "";
+        await finalizePublicStream(terminalText);
+        void recordStreamEvent({
+          kind: "message_done",
+          status: "completed",
+          title: "Agent completed",
+          text: terminalText,
+          metadata: { stopReason: result.stopReason, exhausted: result.exhausted, attempt: claimed.attempt, deterministicBenchmark },
+          createdAt: Date.now(),
+        });
+        await recordLiveOperation({
+          kind: "checkpoint",
+          name: `agentJobRunner.${deterministicBenchmark ?? "deterministicBenchmark"} completed`,
+          status: "completed",
+          countDelta: 1,
+          completedAt: Date.now(),
+        });
+        await Promise.allSettled(liveWrites);
+        await settleStreamEventWrites();
+        await ctx.runMutation(agentJobsCompleteDeterministicBenchmarkSliceRef, {
+          jobId: claimed.jobId,
+          leaseId,
+          runId,
+          finalText: terminalText,
+          resolvedModel: model.name,
+        });
+        return { ok: true as const, done: true, stopReason: result.stopReason, runId };
+      }
       const nonResumable = isNonResumableAgentResult(result);
-      const canContinue = !done && !nonResumable && claimed.attempt < claimed.maxAttempts;
-      const frameStatus = frameStatusForFinish(frameReceipt, result, canContinue);
+      const proofloopDecision = proofloopSupervisorDecision({
+        runtimeProfile: claimed.runtimeProfile,
+        goal: claimed.goal,
+        attempt: claimed.attempt,
+        maxAttempts: claimed.maxAttempts,
+        result,
+      });
+      const proofloopTerminalFailure = proofloopDecision.kind === "terminal_failure";
+      const canContinue = !done && !nonResumable && !proofloopTerminalFailure && claimed.attempt < claimed.maxAttempts;
+      const frameStatus = handledByDeterministicBenchmark ? undefined : frameStatusForFinish(frameReceipt, result, canContinue);
       const frameBlocked = frameStatus === "blocked";
-      const scheduledNextAt = canContinue || (frameReceipt && done && !frameBlocked) ? Date.now() + DEFAULT_RESUME_DELAY_MS : undefined;
-      const cursor = done ? undefined : await checkpoint(result, contextMaxChars, contextKeepRecent, activeFrameId);
+      const scheduledNextAt = handledByDeterministicBenchmark ? undefined : canContinue || (frameReceipt && done && !frameBlocked) ? Date.now() + DEFAULT_RESUME_DELAY_MS : undefined;
+      let cursor = done ? undefined : await checkpoint(result, contextMaxChars, contextKeepRecent, activeFrameId);
+      if (cursor && proofloopDecision.kind === "repair") {
+        cursor = {
+          ...cursor,
+          messages: appendProofloopRepairMessage(cursor.messages, proofloopDecision.prompt),
+        };
+      }
       const terminal = done || frameBlocked || !canContinue;
-      if (terminal) await finalizePublicStream(result.finalText || publicStreamText);
+      const terminalFailureText = proofloopTerminalFailure ? proofloopDecision.reason : undefined;
+      const terminalText = result.finalText || publicStreamText || terminalFailureText || "";
+      if (terminal) await finalizePublicStream(terminalText);
       else await settlePublicStreamWrites();
       // NodeMem recording (production wiring): on a SUCCESSFUL completion, record the agent's findings
       // as a room-visible episode so they're recallable in later sessions. Best-effort + size-bounded;
@@ -773,9 +906,9 @@ export const runFreeAutoJobSlice = internalAction({
       void recordStreamEvent({
         kind: terminal ? "message_done" : "warning",
         status: terminal ? (done ? "completed" : "failed") : "skipped",
-        title: terminal ? "Agent completed" : "Agent paused",
-        text: terminal ? (result.finalText || publicStreamText) : result.handoff?.summary,
-        metadata: { stopReason: result.stopReason, exhausted: result.exhausted, attempt: claimed.attempt },
+        title: done ? "Agent completed" : terminal ? "Agent needs attention" : "Agent paused",
+        text: terminal ? terminalText : proofloopDecision.kind === "repair" ? proofloopDecision.reason : result.handoff?.summary,
+        metadata: { stopReason: result.stopReason, exhausted: result.exhausted, attempt: claimed.attempt, proofloopDecision: proofloopDecision.kind },
         createdAt: Date.now(),
       });
       await recordLiveOperation({
@@ -815,9 +948,11 @@ export const runFreeAutoJobSlice = internalAction({
           ? frameReceipt?.verification.blockedReason ?? frameReceipt?.verification.reason
           : nonResumable
             ? result.handoff?.summary ?? TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER
-            : done || canContinue ? undefined : "max_attempts_exceeded",
+            : proofloopTerminalFailure
+              ? proofloopDecision.error
+              : done || canContinue ? undefined : "max_attempts_exceeded",
         scheduledNextAt,
-        frameId: activeFrameId,
+        frameId: handledByDeterministicBenchmark ? "" : activeFrameId,
         frameStatus,
         frameDelta: frameReceipt?.stateDelta,
         frameEvidenceState: frameReceipt?.verification.evidenceState,
@@ -854,7 +989,8 @@ export const runFreeAutoJobSlice = internalAction({
         usage: { inputTokens: 0, outputTokens: 0, modelCalls: 0 },
       };
       const { runId, telemetry } = await recordRun(fallback, { tool: "job_error", result: errorText(rootError) });
-      const retryable = !isProviderPolicyBlockedError(rootError);
+      const nonRetryableReason = providerNonRetryableReason(rootError);
+      const retryable = !isProviderNonRetryableError(rootError);
       const canRetry = retryable && claimed.attempt < claimed.maxAttempts;
       const delayMs = canRetry ? backoffMs(claimed.attempt) : undefined;
       const scheduledNextAt = delayMs ? Date.now() + delayMs : undefined;
@@ -874,7 +1010,7 @@ export const runFreeAutoJobSlice = internalAction({
         title: canRetry ? "Agent slice failed; retry scheduled" : retryable ? "Agent job failed" : "Agent route blocked",
         text: fallback.finalText || publicStreamText,
         error: errorText(rootError),
-        metadata: { attempt: claimed.attempt, canRetry, retryable },
+        metadata: { attempt: claimed.attempt, canRetry, retryable, nonRetryableReason },
         createdAt: Date.now(),
       });
       if (!canRetry) {

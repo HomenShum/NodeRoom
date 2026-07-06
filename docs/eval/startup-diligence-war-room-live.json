@@ -3,7 +3,7 @@
   "updatedAt": "2026-06-17",
   "demoTarget": "Startup Diligence War Room",
   "sourceReview": "D:/VSCode Projects/noderoom/6-14-2026-deep-review.txt",
-  "currentEvidenceLevel": "provider-produced-convex-contract-proven-plus-deterministic-media",
+  "currentEvidenceLevel": "convex-contract-proven-plus-deterministic-media-provider-pending",
   "claim": "NodeRoom can present a startup-banking diligence room where multiple users coordinate account intake, source-backed research, runway/milestone work, no-clobber review, private banker judgment, and draft-only downstream handoff.",
   "latestCapture": {
     "capturedAt": "2026-06-14T23:28:41.080Z",
@@ -76,72 +76,72 @@
       "id": "account_upsert",
       "status": "convex-contract-proven",
       "evidenceRequired": "Browser state plus trace row showing CardioNova/five-company re-import updates existing rows instead of duplicating.",
-      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
-      "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#account_upsert"
+      "lastVerifiedAt": "2026-07-06T06:54:17.143Z",
+      "lastEvidenceRef": "docs/eval/startup-diligence-war-room-live-results.json#account_upsert"
     },
     {
       "id": "cited_cellpayloads",
-      "status": "provider-produced-convex-contract-proven",
+      "status": "convex-contract-proven-provider-pending",
       "evidenceRequired": "CellPayload objects include source refs, confidence/freshness, and reviewed/needs_review state.",
-      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
-      "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#cited_cellpayloads"
+      "lastVerifiedAt": "2026-07-06T06:54:17.143Z",
+      "lastEvidenceRef": "docs/eval/startup-diligence-war-room-live-results.json#cited_cellpayloads"
     },
     {
       "id": "human_edit_preserved",
       "status": "convex-contract-proven",
       "evidenceRequired": "A user edits an affected cell during agent work; stale write becomes proposal/draft instead of overwrite.",
-      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
-      "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#human_edit_preserved"
+      "lastVerifiedAt": "2026-07-06T06:54:17.143Z",
+      "lastEvidenceRef": "docs/eval/startup-diligence-war-room-live-results.json#human_edit_preserved"
     },
     {
       "id": "concurrent_lanes",
       "status": "convex-contract-proven",
       "evidenceRequired": "Distinct lane ids, statuses, receipts, and final sealed handoff in agentJobs/agentOperationEvents.",
-      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
-      "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#concurrent_lanes"
+      "lastVerifiedAt": "2026-07-06T06:54:17.143Z",
+      "lastEvidenceRef": "docs/eval/startup-diligence-war-room-live-results.json#concurrent_lanes"
     },
     {
       "id": "private_boundary",
       "status": "convex-contract-proven",
       "evidenceRequired": "Second user cannot read private banker concerns until explicit promotion.",
-      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
-      "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#private_boundary"
+      "lastVerifiedAt": "2026-07-06T06:54:17.143Z",
+      "lastEvidenceRef": "docs/eval/startup-diligence-war-room-live-results.json#private_boundary"
     },
     {
       "id": "runway_milestone_chart",
       "status": "deterministic-helper-and-artifact-proven",
       "evidenceRequired": "Runway chart artifact generated from deterministic math with sourced assumptions.",
-      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
-      "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#runway_milestone_chart"
+      "lastVerifiedAt": "2026-07-06T06:54:17.143Z",
+      "lastEvidenceRef": "docs/eval/startup-diligence-war-room-live-results.json#runway_milestone_chart"
     },
     {
       "id": "downstream_draft_only",
       "status": "helper-proven-no-side-effects",
       "evidenceRequired": "Gmail/Notion/Slack/Linear/LinkedIn/CRM actions produce approval-gated drafts only; no OAuth side effects.",
-      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
-      "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#downstream_draft_only"
+      "lastVerifiedAt": "2026-07-06T06:54:17.143Z",
+      "lastEvidenceRef": "docs/eval/startup-diligence-war-room-live-results.json#downstream_draft_only"
     },
     {
       "id": "route_trace_cost_runtime",
-      "status": "provider-produced-route-trace-proven",
+      "status": "convex-contract-proven-provider-route-pending",
       "evidenceRequired": "agent run/job rows record model/resolved model, route, latency, token/cost, and stop reason.",
-      "lastVerifiedAt": "2026-06-15T07:42:04.120Z",
-      "lastEvidenceRef": "docs/eval/startup-diligence-provider-results.json#route_trace_cost_runtime"
+      "lastVerifiedAt": "2026-07-06T06:54:17.143Z",
+      "lastEvidenceRef": "docs/eval/startup-diligence-war-room-live-results.json#route_trace_cost_runtime"
     }
   ],
   "nextAcceptanceGate": [
-    "repeat the provider-produced startup diligence eval N=5 and promote only if p95 latency, path fingerprint drift, and pass rate meet the live collaboration SLO"
+    "run the same startup diligence eval through a real provider route so CellPayloads, route telemetry, and final content are provider-produced rather than contract-seeded"
   ],
   "latestLiveEval": {
-    "generatedAt": "2026-06-15T07:42:04.120Z",
-    "mode": "provider-produced-convex-contract",
-    "command": "npm run eval:startup-diligence:provider",
-    "resultPath": "docs/eval/startup-diligence-provider-results.json",
+    "generatedAt": "2026-07-06T06:54:17.143Z",
+    "mode": "convex-test-contract",
+    "command": "npm run eval:startup-diligence:live",
+    "resultPath": "docs/eval/startup-diligence-war-room-live-results.json",
     "pass": true,
     "checksPassed": 9,
     "checksFailed": 0,
-    "providerProducedContent": true,
-    "note": "Provider-generated CellPayload/final copy flowed through the same Convex job/proposal/trace contract."
+    "providerProducedContent": false,
+    "note": "Convex contract proof is green; live provider-generated content remains the next production gate."
   },
   "latestProviderEval": {
     "generatedAt": "2026-06-15T07:42:04.120Z",

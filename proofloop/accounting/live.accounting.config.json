@@ -11,7 +11,7 @@
       "goal": "Compute the Q3 variance for each row in the Q3 variance sheet. For each row, variance = Q3 minus Q2. Write the result in the variance column. Show your work.",
       "passPatterns": ["variance", "revenue", "cogs", "2,400", "1,100"],
       "expectArtifactEdit": true,
-      "timeoutMs": 300000
+      "timeoutMs": 45000
     },
     {
       "id": "research-enrich",

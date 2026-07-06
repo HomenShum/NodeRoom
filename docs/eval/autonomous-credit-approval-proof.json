@@ -1,0 +1,194 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-06T06:55:16.171Z",
+  "harnessVersion": "autonomous-credit-approval-proof-v0.1.0",
+  "targetLevel": "L4-bank-delegated-autonomous-approval",
+  "achievedLevel": "L3-guarded-evaluation-autonomy",
+  "passed": true,
+  "autonomousProductionClaim": false,
+  "evaluationOnly": true,
+  "whyNotProductionAutonomyYet": [
+    {
+      "gate": "buyer_private_performance_data",
+      "blocker": "Requires buyer-owned application, booking, repayment, default, loss, override, and decline history for buyer-specific PD/LGD validation."
+    },
+    {
+      "gate": "fair_lending_production_validation",
+      "blocker": "Requires buyer-approved protected-class proxy methodology, portfolio segmentation, sample-size review, and compliance signoff."
+    },
+    {
+      "gate": "delegated_credit_authority",
+      "blocker": "Requires bank credit policy owner and model-risk/governance approval for an authority limit."
+    }
+  ],
+  "fanout": {
+    "mode": "fanout",
+    "reason": "Autonomous credit approval requires parallel policy, data, model, reject-inference, fair-lending, adverse-action, MRM, live-proof, and delegated-authority receipts.",
+    "maxParallelWaveSize": 6,
+    "roles": [
+      "coordinator",
+      "intake",
+      "credit_policy",
+      "credit_data",
+      "credit_features",
+      "credit_model",
+      "reject_inference",
+      "fair_lending",
+      "adverse_action",
+      "model_risk_management",
+      "credit_live_proof",
+      "delegated_authority",
+      "privacy_security",
+      "browser_proof",
+      "fresh_context_judge"
+    ],
+    "waves": [
+      [
+        "coordinator"
+      ],
+      [
+        "intake",
+        "credit_policy",
+        "credit_data",
+        "credit_features",
+        "credit_model",
+        "reject_inference"
+      ],
+      [
+        "fair_lending",
+        "adverse_action",
+        "model_risk_management",
+        "credit_live_proof",
+        "delegated_authority",
+        "privacy_security"
+      ],
+      [
+        "browser_proof"
+      ],
+      [
+        "fresh_context_judge"
+      ]
+    ],
+    "receiptContract": [
+      "agentJobId",
+      "role",
+      "inputRefs",
+      "outputRefs",
+      "toolCalls",
+      "evidenceFacts",
+      "mutationReceipts",
+      "cost",
+      "latency",
+      "verdict"
+    ]
+  },
+  "sourceProofs": {
+    "underwritingLiveReceipt": "C:/Users/hshum/.codex/worktrees/a466/noderoom/docs/eval/underwriting-hmda-live-proof.json",
+    "underwritingRoomUrl": "https://noderoom.live/?room=NRWEA6G7FWI&name=Host",
+    "underwritingHarnessVersion": "hmda-underwriting-live-proof-v1.0.0",
+    "underwritingProofContract": "prod-live-hmda-underwriting-v1",
+    "publicCreditActuarialDataReceipt": "C:/Users/hshum/.codex/worktrees/a466/noderoom/docs/eval/credit-actuarial-data-sources-proof.json",
+    "publicCreditActuarialSources": 5,
+    "publicPerformanceSources": 3
+  },
+  "gates": [
+    {
+      "gate": "parallel_credit_fanout_plan",
+      "status": "pass",
+      "evidence": [
+        "roles=coordinator,intake,credit_policy,credit_data,credit_features,credit_model,reject_inference,fair_lending,adverse_action,model_risk_management,credit_live_proof,delegated_authority,privacy_security,browser_proof,fresh_context_judge",
+        "waves=[[\"coordinator\"],[\"intake\",\"credit_policy\",\"credit_data\",\"credit_features\",\"credit_model\",\"reject_inference\"],[\"fair_lending\",\"adverse_action\",\"model_risk_management\",\"credit_live_proof\",\"delegated_authority\",\"privacy_security\"],[\"browser_proof\"],[\"fresh_context_judge\"]]"
+      ]
+    },
+    {
+      "gate": "production_live_underwriting_dependency",
+      "status": "pass",
+      "evidence": [
+        "room=https://noderoom.live/?room=NRWEA6G7FWI&name=Host",
+        "harness=hmda-underwriting-live-proof-v1.0.0",
+        "outputRowsComplete=true"
+      ]
+    },
+    {
+      "gate": "backend_completion_receipt",
+      "status": "pass",
+      "evidence": [
+        "backendStatus=completed",
+        "finalText=Underwriting benchmark completed: read 10 HMDA rows from hmda_dc_2025_purchase_features.csv, wrote 55 Sheet 1 cells, and produced 10 action_taken predictions."
+      ]
+    },
+    {
+      "gate": "withheld_score_gate",
+      "status": "pass",
+      "evidence": [
+        "matchedRows=10",
+        "correct=10",
+        "accuracy=1"
+      ]
+    },
+    {
+      "gate": "adverse_action_reason_gate",
+      "status": "pass",
+      "evidence": [
+        "deniedRows=5",
+        "decline rows include confidence and brief_reason in live Sheet 1 receipt"
+      ]
+    },
+    {
+      "gate": "credit_policy_box_defined",
+      "status": "pass",
+      "evidence": [
+        "evaluation credit box: pinned public HMDA DC 2025 purchase packet, action_taken 1/3, low-risk approve/originate and high-risk deny rule",
+        "production credit box must be replaced by buyer policy before delegated authority"
+      ]
+    },
+    {
+      "gate": "model_risk_pack_scaffolded",
+      "status": "pass",
+      "evidence": [
+        "fanout roles include credit_model, model_risk_management, fair_lending, reject_inference, adverse_action, delegated_authority",
+        "documentation=docs/eval/AUTONOMOUS_CREDIT_APPROVAL_PROOFLOOP.md"
+      ]
+    },
+    {
+      "gate": "public_historical_performance_proxy_data",
+      "status": "pass",
+      "evidence": [
+        "machineAccessibleSources=5",
+        "publicPerformanceSources=3",
+        "sources=sba_7a_504_foia:machine_accessible,fhfa_enterprise_pudb_2024:machine_accessible,ffiec_hmda_2025_dc_live_packet:machine_accessible,freddie_mac_sf_lld:access_required,fannie_mae_sf_performance:access_required,lending_club_granting_model_zenodo:machine_accessible,lending_club_figshare_direct_files:machine_accessible,home_credit_default_risk_kaggle:cataloged"
+      ]
+    },
+    {
+      "gate": "buyer_private_performance_data",
+      "status": "external_required",
+      "externalBlocker": "Requires buyer-owned application, booking, repayment, default, loss, override, and decline history for buyer-specific PD/LGD validation.",
+      "evidence": [
+        "public proxy datasets reduce benchmark/model-development risk but cannot replace buyer portfolio history"
+      ]
+    },
+    {
+      "gate": "fair_lending_production_validation",
+      "status": "external_required",
+      "externalBlocker": "Requires buyer-approved protected-class proxy methodology, portfolio segmentation, sample-size review, and compliance signoff.",
+      "evidence": [
+        "public HMDA packet proves reason fields, not production fair-lending approval"
+      ]
+    },
+    {
+      "gate": "delegated_credit_authority",
+      "status": "external_required",
+      "externalBlocker": "Requires bank credit policy owner and model-risk/governance approval for an authority limit.",
+      "evidence": [
+        "NodeRoom can produce receipts; buyer must grant lending authority"
+      ]
+    }
+  ],
+  "summary": {
+    "passGates": 8,
+    "externalRequired": 3,
+    "failed": 0,
+    "nextClaimAllowed": "Autonomous credit approval proof path is implemented for guarded evaluation autonomy; regulated delegated approval requires buyer data, validation signoff, and authority receipts."
+  },
+  "documentation": "docs/eval/AUTONOMOUS_CREDIT_APPROVAL_PROOFLOOP.md"
+}

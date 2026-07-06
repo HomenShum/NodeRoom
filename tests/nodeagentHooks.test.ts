@@ -178,4 +178,54 @@ describe("nodeagent fanout planner", () => {
     expect(notebook?.mutationMode).toBe("proposal_only");
     expect(notebook?.goal).toContain("never mutate human-owned ProseMirror text directly");
   });
+
+  it("plans autonomous credit approval as parallel policy, validation, compliance, and live-proof subagents", () => {
+    const plan = planNodeAgentFanout({
+      goal: "Get an autonomous credit approval model with delegated approval, adverse action, fair lending, and model risk receipts done",
+      maxParallel: 6,
+    });
+    const roles = plan.subagents.map((subagent) => subagent.role);
+
+    expect(plan.mode).toBe("fanout");
+    expect(plan.reason).toContain("Autonomous credit approval requires parallel");
+    expect(roles).toEqual(expect.arrayContaining([
+      "credit_policy",
+      "credit_data",
+      "credit_features",
+      "credit_model",
+      "reject_inference",
+      "fair_lending",
+      "adverse_action",
+      "model_risk_management",
+      "credit_live_proof",
+      "delegated_authority",
+      "browser_proof",
+      "fresh_context_judge",
+    ]));
+    expect(plan.waves.some((wave) => wave.length >= 4)).toBe(true);
+    expect(plan.subagents.find((subagent) => subagent.role === "delegated_authority")?.goal).toContain("authority limits");
+  });
+
+  it("plans actuarial and multi-angle statistical prediction as parallel forecast subagents", () => {
+    const plan = planNodeAgentFanout({
+      goal: "Run an actuarial multi-angle statistical prediction forecast like AI-2027 with base rates, calibration, backtest, and stress tests",
+      maxParallel: 5,
+    });
+    const roles = plan.subagents.map((subagent) => subagent.role);
+
+    expect(plan.mode).toBe("fanout");
+    expect(plan.reason).toContain("Actuarial and multi-angle statistical prediction");
+    expect(roles).toEqual(expect.arrayContaining([
+      "actuarial_data",
+      "frequency_severity",
+      "survival_default",
+      "scenario_forecast",
+      "calibration_backtest",
+      "uncertainty_sensitivity",
+      "forecast_red_team",
+      "browser_proof",
+      "fresh_context_judge",
+    ]));
+    expect(plan.subagents.find((subagent) => subagent.role === "scenario_forecast")?.goal).toContain("AI-2027-style");
+  });
 });

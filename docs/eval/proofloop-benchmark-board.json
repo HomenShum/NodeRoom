@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-02T00:24:31.878Z",
+  "generatedAt": "2026-07-06T07:06:44.134Z",
   "policy": [
     "Product-path completion is useful proof: real UI, visible progress, artifacts, verifier receipts, trace, memory, and browser evidence.",
     "Official semantic score is only claimed when the benchmark's official scorer/verifier result is imported.",
@@ -12,9 +12,9 @@
     "productPathProven": 4,
     "productPathReadyToRun": 2,
     "externalAdaptersRegistered": 3,
-    "officialScoresClaimed": 1,
+    "officialScoresClaimed": 0,
     "officialScoresNotApplicable": 4,
-    "officialScoresBlockedOrNotClaimed": 4
+    "officialScoresBlockedOrNotClaimed": 5
   },
   "entries": [
     {
@@ -86,7 +86,7 @@
         "scoreType": "product_path_completion",
         "evidence": [
           ".proofloop/runs/latest/run-result.json",
-          ".proofloop/runs/2026-07-01T22-40-30"
+          ".proofloop/runs/2026-07-06T06-55-37"
         ],
         "command": "npm run proofloop:proximitty",
         "blockers": []
@@ -178,7 +178,7 @@
         "blockers": []
       },
       "officialSemanticScore": {
-        "status": "proven",
+        "status": "blocked",
         "scoreType": "official_semantic_score",
         "evidence": [
           "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
@@ -186,7 +186,12 @@
           "docs/eval/bankertoolbench-official-contract.json"
         ],
         "command": "npm run benchmark:bankertoolbench:proof",
-        "blockers": [],
+        "blockers": [
+          "Record BankerToolBench dataset revision plus a manifest lockfile with per-file hashes.",
+          "Run each official task in Harbor/Docker with agent-only workspace mounts before verifier access.",
+          "Adapt required MCP financial tools: sec_filings, market_data, company_logo, document_search, web_research.",
+          "Import official Gandalf verifier scores instead of using the local smoke verifier."
+        ],
         "metrics": {
           "expectedCount": 100,
           "executedTaskCount": 100,
@@ -195,11 +200,11 @@
           "passThreshold": 1,
           "passCount": 0,
           "passRate": 0,
-          "claim": "All 100/100 BankerToolBench tasks executed and officially scored, generic-only (no answer-key writers). Aggregate mean reward 0.2519; pass-rate 0.0000 (reward >= 1). This proves full-suite COMPLETION + SCORING, not a 100% pass rate."
+          "claim": "All 100/100 BankerToolBench tasks executed and imported rubric-scored, generic-only (no answer-key writers). Aggregate mean reward 0.2519; pass-rate 0.0000 (reward >= 1). This proves full-suite COMPLETION + SCORE-IMPORT, not a 100% pass rate or final official-promotion clearance."
         }
       },
       "notes": [
-        "BankerToolBench full-suite official scoring is imported: completion/scoring is proven separately from pass rate."
+        "BankerToolBench full-suite score-import exists, but official promotion remains blocked until bundle provenance, Harbor/Docker, MCP tools, and Gandalf import pass."
       ]
     },
     {

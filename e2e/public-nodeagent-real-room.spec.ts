@@ -65,7 +65,7 @@ test("fresh room public @nodeagent first send starts one visible durable job", a
 
   const stream = chat.getByTestId("agent-unified-stream").first();
   await expect(stream).toBeVisible({ timeout: 60_000 });
-  await expect(stream.locator('[data-part="step"], [data-part="tool"], [data-testid="agent-stream-text"]').first()).toBeVisible({
+  await expect(stream.locator('[data-testid="agent-progress-card"], [data-part="step-start"], [data-part^="tool-"], [data-testid="agent-stream-text"]').first()).toBeVisible({
     timeout: 60_000,
   });
   await expect(chat.getByTestId("agent-operation-stream")).toHaveCount(0);
@@ -94,7 +94,7 @@ test("blank room public @nodeagent ask materializes a visible sheet and stream",
 
   const stream = chat.getByTestId("agent-unified-stream").first();
   await expect(stream).toBeVisible({ timeout: 60_000 });
-  await expect(stream.locator('[data-part="step"], [data-part="tool"], [data-testid="agent-stream-text"]').first()).toBeVisible({
+  await expect(stream.locator('[data-testid="agent-progress-card"], [data-part="step-start"], [data-part^="tool-"], [data-testid="agent-stream-text"]').first()).toBeVisible({
     timeout: 60_000,
   });
   await expect(chat.getByTestId("agent-operation-stream")).toHaveCount(0);

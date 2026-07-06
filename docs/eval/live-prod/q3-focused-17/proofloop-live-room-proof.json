@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "caseId": "PL-LIVE",
+  "benchmark": "product-smoke",
+  "generatedAt": "2026-07-06T22:40:02.998Z",
+  "baseUrl": "https://noderoom.live",
+  "roomUrl": "https://noderoom.live/?room=PLMR9SSTXS&name=Proof+Loop",
+  "command": "PROOFLOOP_LIVE_BROWSER=1 npx playwright test --config playwright.proofloop.config.ts proofloop/live-browser-proof.spec.ts --headed",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "variance-calc"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "roomTraceVisible": false,
+    "screenshotPaths": [],
+    "tracePath": "docs\\eval\\live-prod\\q3-focused-17\\browser-receipts\\fresh-room\\PL-LIVE\\tasks\\variance-calc\\latest.json"
+  },
+  "artifacts": {
+    "created": [
+      "variance-calc"
+    ]
+  },
+  "scorer": {
+    "name": "Proof-loop suite aggregate",
+    "verdict": "fail",
+    "score": 0,
+    "details": {
+      "taskProofs": [
+        {
+          "taskId": "variance-calc",
+          "taskName": "Q3 Variance Calculation",
+          "passed": false,
+          "matchedPatterns": [],
+          "unmatchedPatterns": [
+            "variance",
+            "revenue",
+            "cogs",
+            "2,400",
+            "1,100"
+          ],
+          "streamingVisible": true,
+          "jobStatusVisible": true,
+          "jobDetailVisible": true,
+          "roomTraceVisible": false,
+          "jobCompleted": false,
+          "backendCompletion": null,
+          "caveatFindings": [],
+          "blockingCaveats": [],
+          "placeholderFindings": [],
+          "durationMs": 291996,
+          "receiptPath": "docs\\eval\\live-prod\\q3-focused-17\\browser-receipts\\fresh-room\\PL-LIVE\\tasks\\variance-calc\\latest.json",
+          "error": "Job did not complete within timeout"
+        }
+      ]
+    }
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "public_nodeagent_invocation",
+    "no_memory_mode_shortcut",
+    "agent_live_loop",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "trace_video_artifacts"
+  ],
+  "passed": false
+}
