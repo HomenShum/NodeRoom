@@ -76,8 +76,8 @@ The receipt includes:
 
 Latest accepted production run at the time this ledger was updated:
 
-- Room: `https://noderoom.live/?room=NRETUI2GU11&name=Host`
-- Generated: `2026-07-06T22:54:13.255Z`
+- Room: `https://noderoom.live/?room=NRA2FQZWBYN&name=Host`
+- Generated: `2026-07-06T23:06:16.018Z`
 - Accuracy: `10/10`, `accuracy: 1`
 - Backend status: `completed`
 

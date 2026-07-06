@@ -1,0 +1,104 @@
+{
+  "schema": "proofloop-live-prod-v1",
+  "runId": "live-prod-20260706T230532Z",
+  "generatedAt": "2026-07-06T23:07:28.752Z",
+  "baseUrl": "https://noderoom.live",
+  "receiptRoot": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z",
+  "passed": true,
+  "steps": [
+    {
+      "name": "qa_story_prod",
+      "command": "npm run qa:story:prod",
+      "startedAt": "2026-07-06T23:05:32.737Z",
+      "completedAt": "2026-07-06T23:05:42.615Z",
+      "durationMs": 9878,
+      "status": "passed",
+      "exitCode": 0,
+      "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\qa_story_prod.json",
+      "stdoutTail": "\n> noderoom@0.1.1 qa:story:prod\n> node scripts/story-route-dogfood.mjs --base-url https://noderoom.live\n\n{\"ok\":true,\"baseUrl\":\"https://noderoom.live\",\"demoVisible\":true,\"variance\":\"3,250\",\"computedVisible\":true,\"finalVisible\":true}\n",
+      "stderrTail": ""
+    },
+    {
+      "name": "underwriting_live",
+      "command": "npm run proofloop:live:underwriting",
+      "startedAt": "2026-07-06T23:05:42.617Z",
+      "completedAt": "2026-07-06T23:06:16.349Z",
+      "durationMs": 33732,
+      "status": "passed",
+      "exitCode": 0,
+      "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\underwriting_live.json",
+      "stdoutTail": "\n> noderoom@0.1.1 proofloop:live:underwriting\n> node scripts/proofloop.mjs underwriting-live\n\n{\n  \"passed\": true,\n  \"roomUrl\": \"https://noderoom.live/?room=NRA2FQZWBYN&name=Host\",\n  \"jobStatus\": \"\",\n  \"backendStatus\": \"completed\",\n  \"matchedRows\": 10,\n  \"correct\": 10,\n  \"incorrect\": 0,\n  \"accuracy\": 1,\n  \"proofPath\": \"C:\\\\Users\\\\hshum\\\\.codex\\\\worktrees\\\\a466\\\\noderoom\\\\docs\\\\eval\\\\underwriting-hmda-live-proof.json\"\n}\nproofloop: HMDA live underwriting acceptance PASS (https://noderoom.live/?room=NRA2FQZWBYN&name=Host)\n",
+      "stderrTail": ""
+    },
+    {
+      "name": "underwriting_verify",
+      "command": "npm run proofloop:live:underwriting:verify",
+      "startedAt": "2026-07-06T23:06:16.351Z",
+      "completedAt": "2026-07-06T23:06:16.874Z",
+      "durationMs": 523,
+      "status": "passed",
+      "exitCode": 0,
+      "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\underwriting_verify.json",
+      "stdoutTail": "\n> noderoom@0.1.1 proofloop:live:underwriting:verify\n> node scripts/proofloop.mjs verify-underwriting-live\n\nproofloop: HMDA live underwriting acceptance PASS (https://noderoom.live/?room=NRA2FQZWBYN&name=Host)\n",
+      "stderrTail": ""
+    },
+    {
+      "name": "uploaded_artifact_rendering",
+      "command": "npx playwright test --config playwright.real-flow.config.ts e2e/uploaded-artifact-live-rendering.spec.ts",
+      "startedAt": "2026-07-06T23:06:16.878Z",
+      "completedAt": "2026-07-06T23:06:39.723Z",
+      "durationMs": 22845,
+      "status": "passed",
+      "exitCode": 0,
+      "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\uploaded_artifact_rendering.json",
+      "stdoutTail": "\nRunning 2 tests using 1 worker\n\n  ok 1 e2e\\uploaded-artifact-live-rendering.spec.ts:89:1 › fresh live room renders uploaded XLSX data through Convex-backed artifact elements (6.0s)\n  ok 2 e2e\\uploaded-artifact-live-rendering.spec.ts:164:1 › fresh live room renders large uploaded PDFs from Convex storage URLs (10.3s)\n\n  2 passed (19.7s)\n",
+      "stderrTail": ""
+    },
+    {
+      "name": "public_nodeagent",
+      "command": "npx playwright test --config playwright.real-flow.config.ts e2e/public-nodeagent-real-room.spec.ts",
+      "startedAt": "2026-07-06T23:06:39.725Z",
+      "completedAt": "2026-07-06T23:06:58.425Z",
+      "durationMs": 18700,
+      "status": "passed",
+      "exitCode": 0,
+      "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\public_nodeagent.json",
+      "stdoutTail": "\nRunning 2 tests using 1 worker\n\n  ok 1 e2e\\public-nodeagent-real-room.spec.ts:48:1 › fresh room public @nodeagent first send starts one visible durable job (7.3s)\n  ok 2 e2e\\public-nodeagent-real-room.spec.ts:82:1 › blank room public @nodeagent ask materializes a visible sheet and stream (7.6s)\n\n  2 passed (17.0s)\n",
+      "stderrTail": ""
+    },
+    {
+      "name": "generic_proofloop_browser",
+      "command": "npm run proofloop:live:browser",
+      "startedAt": "2026-07-06T23:06:58.426Z",
+      "completedAt": "2026-07-06T23:07:27.412Z",
+      "durationMs": 28986,
+      "status": "passed",
+      "exitCode": 0,
+      "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\generic_proofloop_browser.json",
+      "stdoutTail": "\n> noderoom@0.1.1 proofloop:live:browser\n> tsx scripts/proofloop-live-playwright.ts browser\n\n\nRunning 1 test using 1 worker\n\n[proofloop-live] room created: https://noderoom.live/?room=PLMR9TY0J9&name=Proof+Loop\n[proofloop-live] running task: Q3 Variance Calculation\n[proofloop-live] task config: id=variance-calc timeoutMs=45000 configuredTimeoutMs=45000\n[proofloop-live] task variance-calc: PASS — 5/5 patterns, completed=true, 17270ms\n[proofloop-live] verdict: 1/1 passed\n[proofloop-live] suite receipt written: C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\browser-receipts\\proofloop-live-room-proof.json\n  ok 1 [chromium] › proofloop\\live-browser-proof.spec.ts:113:1 › Live browser proof-loop: starter room -> agent tasks -> UI + terminal-quality verification (21.8s)\n\n  1 passed (25.7s)\n",
+      "stderrTail": ""
+    },
+    {
+      "name": "provider_preflight",
+      "command": "npm run proofloop:provider:preflight -- --min-balance-usd 1 --json-out \"C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\provider-route-preflight.json\" --soft",
+      "startedAt": "2026-07-06T23:07:27.414Z",
+      "completedAt": "2026-07-06T23:07:28.748Z",
+      "durationMs": 1334,
+      "status": "passed",
+      "exitCode": 0,
+      "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\provider_preflight.json",
+      "stdoutTail": "\n> noderoom@0.1.1 proofloop:provider:preflight\n> tsx scripts/provider-route-preflight.ts --min-balance-usd 1 --json-out C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\provider-route-preflight.json --soft\n\nwrote C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\provider-route-preflight.json\nFAIL provider preflight (openrouter): missing_OPENROUTER_API_KEY\n",
+      "stderrTail": ""
+    },
+    {
+      "name": "bankertoolbench_live",
+      "command": "(skipped)",
+      "startedAt": "2026-07-06T23:07:28.751Z",
+      "completedAt": "2026-07-06T23:07:28.751Z",
+      "durationMs": 0,
+      "status": "skipped",
+      "reason": "BTB skipped because provider preflight did not pass",
+      "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\btb-provider-preflight-skipped.json"
+    }
+  ]
+}

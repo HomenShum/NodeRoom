@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "caseId": "PL-LIVE",
+  "benchmark": "product-smoke",
+  "taskId": "variance-calc",
+  "generatedAt": "2026-07-06T23:07:26.209Z",
+  "baseUrl": "https://noderoom.live",
+  "roomId": "PLMR9TY0J9",
+  "roomUrl": "https://noderoom.live/?room=PLMR9TY0J9&name=Proof+Loop",
+  "command": "PROOFLOOP_LIVE_BROWSER=1 PROOFLOOP_TASKS_JSON=proofloop/accounting/live.accounting.config.json npx playwright test --config playwright.proofloop.config.ts proofloop/live-browser-proof.spec.ts --headed",
+  "prompt": "@nodeagent Compute the Q3 variance for each row in the Q3 variance sheet. For each row, variance = Q3 minus Q2. Write the result in the variance column. Show your work.",
+  "memoryMode": false,
+  "freshness": {
+    "roomCreatedAfterRunStart": true,
+    "forbiddenPreloadedArtifactsAbsent": true,
+    "artifactsCreatedFresh": [
+      "variance-calc"
+    ]
+  },
+  "ui": {
+    "focusModeEnabled": true,
+    "attentionOverlayVisible": true,
+    "streamingVisible": true,
+    "jobDetailVisible": true,
+    "roomTraceVisible": true,
+    "screenshotPaths": [
+      "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\test-results\\live-browser-proof-Live-br-dcd4e-rminal-quality-verification-chromium\\proofloop-variance-calc.png"
+    ],
+    "tracePath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\test-results\\live-browser-proof-Live-br-dcd4e-rminal-quality-verification-chromium\\proofloop-variance-calc.png"
+  },
+  "artifacts": {
+    "created": [
+      "variance-calc"
+    ]
+  },
+  "scorer": {
+    "name": "Pass-pattern text scorer",
+    "command": "internal proofloop pattern match",
+    "verdict": "pass",
+    "score": 1,
+    "details": {
+      "matchedPatterns": [
+        "variance",
+        "revenue",
+        "cogs",
+        "2,400",
+        "1,100"
+      ],
+      "unmatchedPatterns": [],
+      "caveatFindings": [],
+      "blockingCaveats": [],
+      "placeholderFindings": []
+    }
+  },
+  "visualJudge": {
+    "verdict": "not_run",
+    "reason": "No Gemini visual judge configured for proof-loop cell-writing tasks."
+  },
+  "gatesProven": [
+    "fresh_room_join",
+    "public_nodeagent_invocation",
+    "no_memory_mode_shortcut",
+    "agent_live_loop",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "trace_video_artifacts",
+    "visible_streaming_progress",
+    "job_detail_visible",
+    "room_trace_visible",
+    "agent_terminal_quality_gate",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff"
+  ],
+  "passed": true
+}

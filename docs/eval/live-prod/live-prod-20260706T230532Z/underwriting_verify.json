@@ -1,0 +1,12 @@
+{
+  "name": "underwriting_verify",
+  "command": "npm run proofloop:live:underwriting:verify",
+  "startedAt": "2026-07-06T23:06:16.351Z",
+  "completedAt": "2026-07-06T23:06:16.874Z",
+  "durationMs": 523,
+  "status": "passed",
+  "exitCode": 0,
+  "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\underwriting_verify.json",
+  "stdoutTail": "\n> noderoom@0.1.1 proofloop:live:underwriting:verify\n> node scripts/proofloop.mjs verify-underwriting-live\n\nproofloop: HMDA live underwriting acceptance PASS (https://noderoom.live/?room=NRA2FQZWBYN&name=Host)\n",
+  "stderrTail": ""
+}

@@ -1,0 +1,12 @@
+{
+  "name": "provider_preflight",
+  "command": "npm run proofloop:provider:preflight -- --min-balance-usd 1 --json-out \"C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\provider-route-preflight.json\" --soft",
+  "startedAt": "2026-07-06T23:07:27.414Z",
+  "completedAt": "2026-07-06T23:07:28.748Z",
+  "durationMs": 1334,
+  "status": "passed",
+  "exitCode": 0,
+  "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\provider_preflight.json",
+  "stdoutTail": "\n> noderoom@0.1.1 proofloop:provider:preflight\n> tsx scripts/provider-route-preflight.ts --min-balance-usd 1 --json-out C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\provider-route-preflight.json --soft\n\nwrote C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\provider-route-preflight.json\nFAIL provider preflight (openrouter): missing_OPENROUTER_API_KEY\n",
+  "stderrTail": ""
+}

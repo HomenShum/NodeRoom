@@ -1,0 +1,12 @@
+{
+  "name": "uploaded_artifact_rendering",
+  "command": "npx playwright test --config playwright.real-flow.config.ts e2e/uploaded-artifact-live-rendering.spec.ts",
+  "startedAt": "2026-07-06T23:06:16.878Z",
+  "completedAt": "2026-07-06T23:06:39.723Z",
+  "durationMs": 22845,
+  "status": "passed",
+  "exitCode": 0,
+  "receiptPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-prod-20260706T230532Z\\uploaded_artifact_rendering.json",
+  "stdoutTail": "\nRunning 2 tests using 1 worker\n\n  ok 1 e2e\\uploaded-artifact-live-rendering.spec.ts:89:1 › fresh live room renders uploaded XLSX data through Convex-backed artifact elements (6.0s)\n  ok 2 e2e\\uploaded-artifact-live-rendering.spec.ts:164:1 › fresh live room renders large uploaded PDFs from Convex storage URLs (10.3s)\n\n  2 passed (19.7s)\n",
+  "stderrTail": ""
+}

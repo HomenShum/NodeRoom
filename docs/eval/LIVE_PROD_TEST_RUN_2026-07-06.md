@@ -45,11 +45,13 @@ Target: `https://noderoom.live`
 
 After deploying the Convex/runtime fixes and re-running the production suite:
 
-- `npm run proofloop:live:prod -- --continue-on-failure`: passed.
-- Receipt: `docs/eval/live-prod/live-prod-20260706T225336Z/suite-receipt.json`.
+- Convex production-serving deployment `zealous-goshawk-766`: synced with `npm run convex:deploy`.
+- Vercel production deployment: `dpl_2shHR2jQwCufMaghDG2Dt1VbFRhh`, aliased to `https://noderoom.live` and `https://nodeagent.live`.
+- `npm run proofloop:live:prod -- --continue-on-failure`: passed after that redeploy.
+- Receipt: `docs/eval/live-prod/live-prod-20260706T230532Z/suite-receipt.json`.
 - Production URL: `https://noderoom.live`.
 - Passed steps: QA story, HMDA live underwriting, HMDA verifier, uploaded artifact rendering, public `@nodeagent`, and deterministic generic ProofLoop browser.
-- Generic ProofLoop Q3 variance task passed in room `PLMR9TICQI` with `5/5` required patterns in `16630ms`.
+- Generic ProofLoop Q3 variance task passed in room `PLMR9TY0J9` with `5/5` required patterns in `17270ms`.
 - BTB was not run in the final slate because the provider preflight receipt failed with `missing_OPENROUTER_API_KEY`; the suite recorded this as an explicit provider-gated skip instead of starting a doomed benchmark job.
 
 ## Current Truth
