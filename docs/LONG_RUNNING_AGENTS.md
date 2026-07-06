@@ -127,9 +127,11 @@ FREE_AUTO_JOB_CONTEXT_KEEP_RECENT=10
 ```
 
 `FREE_AUTO_JOB_MODEL` only overrides jobs whose saved policy is
-`openrouter/free-auto`. A handed-off `@nodeagent` job keeps the model policy selected
-for the interactive slice, so Workflow continuation does not silently switch a
-Gemini/OpenAI/Claude run into the free-auto lane.
+`openrouter/free-auto`, and the runner only accepts a paid override when
+`FREE_AUTO_ALLOW_PAID_MODEL=1`. This keeps the free lane from silently becoming a
+credit-backed paid route. A handed-off `@nodeagent` job keeps the model policy
+selected for the interactive slice, so Workflow continuation does not silently
+switch a Gemini/OpenAI/Claude run into the free-auto lane.
 
 Default cap math:
 
