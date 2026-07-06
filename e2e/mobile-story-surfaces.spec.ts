@@ -119,3 +119,59 @@ test.describe("#mobile — terra surface renders (memory mode)", () => {
     await expect(page.locator(".na-skel")).toHaveCount(0);
   });
 });
+
+test.describe("#mobile - terra surface renders (live Convex room)", () => {
+  test("demo consent creates a live room in the terracotta shell without memory mode", async ({ page }, testInfo) => {
+    test.skip(
+      process.env.PLAYWRIGHT_EXPECT_MOBILE_LIVE !== "1",
+      "Requires a Convex-backed deployment; run with PLAYWRIGHT_BASE_URL=https://noderoom.live PLAYWRIGHT_REUSE_SERVER=1."
+    );
+    test.setTimeout(75_000);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/#mobile?demo=review&name=Codex", { waitUntil: "domcontentloaded" });
+    expect(page.url(), "live mobile proof must not use memory mode").not.toContain("mode=memory");
+
+    await expect(page.locator(".na-join")).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator(".na-join")).toContainText(/Let agents commit edits/i);
+    await page.getByRole("button", { name: /Continue with review-every-edit/i }).click();
+
+    const app = page.locator(".na-app");
+    await expect(app).toBeVisible({ timeout: 45_000 });
+    expect(page.url(), "live mobile proof should land on the shareable room URL").toContain("#mobile?room=");
+    expect(page.url(), "live mobile proof must still avoid memory mode after room creation").not.toContain("mode=memory");
+    await expect(app).toHaveCSS("background-color", "rgb(251, 244, 231)");
+    await expect(app).toContainText(/Startup Banking Diligence War Room/i);
+    await expect(page.locator('[data-testid="ao-room"]')).toHaveCount(0);
+    await expect(app).toContainText(/1 person is & 1 agent here/i);
+    await page.getByRole("button", { name: /Got it/i }).click();
+    await expect(app).not.toContainText(/1 person is & 1 agent here/i);
+
+    const metrics = await page.evaluate(() => {
+      const na = document.querySelector<HTMLElement>(".na-app");
+      const style = na ? getComputedStyle(na) : null;
+      return {
+        url: location.href,
+        hasNaApp: Boolean(na),
+        bgApp: style?.getPropertyValue("--bg-app").trim(),
+        accentPrimary: style?.getPropertyValue("--accent-primary").trim(),
+        overflowX: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - window.innerWidth,
+        textSample: (document.body.innerText || "").replace(/\s+/g, " ").trim().slice(0, 240),
+      };
+    });
+    expect(metrics).toMatchObject({
+      hasNaApp: true,
+      bgApp: "#FBF4E7",
+      accentPrimary: "#C56A3C",
+    });
+    expect(metrics.overflowX, "mobile live room should not horizontally overflow").toBeLessThanOrEqual(1);
+
+    await testInfo.attach("mobile-live-terracotta-receipt", {
+      body: JSON.stringify(metrics, null, 2),
+      contentType: "application/json",
+    });
+    const screenshotPath = testInfo.outputPath("mobile-live-terracotta.png");
+    await page.screenshot({ path: screenshotPath, fullPage: false });
+    await testInfo.attach("mobile-live-terracotta", { path: screenshotPath, contentType: "image/png" });
+  });
+});

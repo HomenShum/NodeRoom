@@ -27,6 +27,8 @@ describe("NodeRoom design-system manifest", () => {
       "WalkthroughDock",
       "ScaleBinder",
       "SharedDialog",
+      "MobileTerracottaRoom",
+      "MobileLiveBootstrap",
       "PublicRoomFrame",
       "PublicRoomControls",
       "PublicRoomDataSurfaces",
@@ -52,6 +54,24 @@ describe("NodeRoom design-system manifest", () => {
     files["src/ui/RoomShell.tsx"] = files["src/ui/RoomShell.tsx"].replace("Attention overlay", "Focus Mode");
     files["src/ui/LeftRail.tsx"] = files["src/ui/LeftRail.tsx"].replace('data-testid="binder-search"', 'data-testid="binder-search-missing"');
     files["src/ui/primitives/FocusTrapDialog.tsx"] = files["src/ui/primitives/FocusTrapDialog.tsx"].replace('role="dialog"', 'role="presentation"');
+    files["src/ui/mobile/mobile.css"] = files["src/ui/mobile/mobile.css"]
+      .replace("--bg-app:       #FBF4E7", "--bg-app:       #111111")
+      .replace("--accent-primary:       #C56A3C", "--accent-primary:       #5E6AD2")
+      .replace("--font-serif: 'DM Serif Display'", "--font-serif: 'Inter'")
+      .replace(".na-nav {", ".na-nav-missing {")
+      .replace(".na-sheet {", ".na-sheet-missing {")
+      .replace(".na-handle", ".na-grabber-missing");
+    files["src/ui/mobile/MobileFrame.tsx"] = files["src/ui/mobile/MobileFrame.tsx"]
+      .replace('const query = "(max-width: 460px)";', 'const query = "(max-width: 0px)";')
+      .replace("na-ios-bleed", "na-ios-framed-only");
+    files["src/ui/mobile/MobileApp.tsx"] = files["src/ui/mobile/MobileApp.tsx"]
+      .replace("export function MobileApp({ live }", "export function MobileApp({ demoOnlyLive }")
+      .replace("if (!live) { setFirstJoinSeen(true); return; }", "setFirstJoinSeen(true); return;");
+    files["src/ui/mobile/MobileRoot.tsx"] = files["src/ui/mobile/MobileRoot.tsx"]
+      .replace("return <MobileLiveRoot />;", "return <MobileApp />;")
+      .split("RoomJoinConsent").join("JoinConsentMissing")
+      .split("MobileAppLive").join("MobileAppMemoryOnly")
+      .replace("history.replaceState(null, \"\", `#mobile?room=${reqCode}`", "history.replaceState(null, \"\", `#mobile?mode=memory`");
     files["src/alwayson/SubscribeModal.tsx"] = files["src/alwayson/SubscribeModal.tsx"]
       .split("FocusTrapDialog").join("LegacyModal")
       .replace("Automatic confirmation email delivery is not wired yet", "Check your email to confirm");
@@ -82,6 +102,20 @@ describe("NodeRoom design-system manifest", () => {
     expect(codes).toContain("focus-mode-duplicate-label");
     expect(codes).toContain("binder-search");
     expect(codes).toContain("shared-dialog-role");
+    expect(codes).toContain("mobile-terracotta-cream-bg");
+    expect(codes).toContain("mobile-terracotta-accent");
+    expect(codes).toContain("mobile-terracotta-serif");
+    expect(codes).toContain("mobile-ios-nav");
+    expect(codes).toContain("mobile-bottom-sheet");
+    expect(codes).toContain("mobile-sheet-handle");
+    expect(codes).toContain("mobile-real-phone-bleed");
+    expect(codes).toContain("mobile-real-phone-shell");
+    expect(codes).toContain("mobile-live-prop");
+    expect(codes).toContain("mobile-live-first-join");
+    expect(codes).toContain("mobile-live-root-route");
+    expect(codes).toContain("mobile-live-consent");
+    expect(codes).toContain("mobile-live-app");
+    expect(codes).toContain("mobile-live-room-url");
     expect(codes).toContain("public-subscribe-shared-dialog");
     expect(codes).toContain("public-subscribe-no-fake-email");
     expect(codes).toContain("public-controls-focus");
