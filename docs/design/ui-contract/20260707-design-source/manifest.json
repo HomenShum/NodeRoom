@@ -1,0 +1,249 @@
+{
+  "schema": "noderoom-design-source-ui-contract-v1",
+  "capturedAt": "2026-07-07T06:28:36.584Z",
+  "sourceRoot": "C:/Users/hshum/Downloads/NodeAgent-handoff_07062026/nodeagent/project",
+  "localServer": "http://127.0.0.1:4187",
+  "outputRoot": "C:/Users/hshum/.codex/worktrees/a466/noderoom/docs/design/ui-contract/20260707-design-source",
+  "browser": "in-app browser via local-only static server",
+  "policy": "visual contract screenshots are source-design references; production parity must be checked against normal live room flows separately",
+  "pages": [
+    {
+      "id": "index",
+      "label": "Project index",
+      "purpose": "Primary handoff index and design inventory.",
+      "sourcePath": "C:\\Users\\hshum\\Downloads\\NodeAgent-handoff_07062026\\nodeagent\\project\\NodeRoom - Index.html",
+      "localUrl": "http://127.0.0.1:4187/NodeRoom%20-%20Index.html",
+      "viewport": {
+        "width": 1456,
+        "height": 940
+      },
+      "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\design\\ui-contract\\20260707-design-source\\index-1456x940.png",
+      "bytes": 121729,
+      "title": "NodeRoom — Index"
+    },
+    {
+      "id": "web-console",
+      "label": "Web / Console",
+      "purpose": "Desktop operator console and app shell.",
+      "sourcePath": "C:\\Users\\hshum\\Downloads\\NodeAgent-handoff_07062026\\nodeagent\\project\\web\\console\\console.html",
+      "localUrl": "http://127.0.0.1:4187/web/console/console.html",
+      "viewport": {
+        "width": 1456,
+        "height": 940
+      },
+      "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\design\\ui-contract\\20260707-design-source\\web-console-1456x940.png",
+      "bytes": 99383,
+      "title": "NodeRoom — Console"
+    },
+    {
+      "id": "web-rooms",
+      "label": "Web / Rooms",
+      "purpose": "Collaborative room surface and Q3 diligence look-and-feel reference.",
+      "sourcePath": "C:\\Users\\hshum\\Downloads\\NodeAgent-handoff_07062026\\nodeagent\\project\\web\\rooms\\rooms.html",
+      "localUrl": "http://127.0.0.1:4187/web/rooms/rooms.html",
+      "viewport": {
+        "width": 1456,
+        "height": 940
+      },
+      "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\design\\ui-contract\\20260707-design-source\\web-rooms-1456x940.png",
+      "bytes": 134071,
+      "title": "NodeRoom — Rooms"
+    },
+    {
+      "id": "web-states-scale",
+      "label": "Web / States & Scale",
+      "purpose": "Room under load, scale behavior, binder collapse, grid/chat/trace states.",
+      "sourcePath": "C:\\Users\\hshum\\Downloads\\NodeAgent-handoff_07062026\\nodeagent\\project\\web\\states-scale\\states-scale.html",
+      "localUrl": "http://127.0.0.1:4187/web/states-scale/states-scale.html",
+      "viewport": {
+        "width": 1456,
+        "height": 940
+      },
+      "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\design\\ui-contract\\20260707-design-source\\web-states-scale-1456x940.png",
+      "bytes": 160931,
+      "title": "NodeRoom — States &amp; Scale"
+    },
+    {
+      "id": "web-fix-pack",
+      "label": "Web / Prod UI Fix Pack",
+      "purpose": "Production UI corrections and calm-mode annotations.",
+      "sourcePath": "C:\\Users\\hshum\\Downloads\\NodeAgent-handoff_07062026\\nodeagent\\project\\web\\fix-pack\\fix-pack.html",
+      "localUrl": "http://127.0.0.1:4187/web/fix-pack/fix-pack.html",
+      "viewport": {
+        "width": 1456,
+        "height": 940
+      },
+      "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\design\\ui-contract\\20260707-design-source\\web-fix-pack-1456x940.png",
+      "bytes": 124006,
+      "title": "NodeRoom — Prod UI Fix Pack"
+    },
+    {
+      "id": "web-trace",
+      "label": "Web / Trace UI",
+      "purpose": "Evidence and run receipt surface.",
+      "sourcePath": "C:\\Users\\hshum\\Downloads\\NodeAgent-handoff_07062026\\nodeagent\\project\\web\\trace\\trace.html",
+      "localUrl": "http://127.0.0.1:4187/web/trace/trace.html",
+      "viewport": {
+        "width": 1456,
+        "height": 940
+      },
+      "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\design\\ui-contract\\20260707-design-source\\web-trace-1456x940.png",
+      "bytes": 107183,
+      "title": "NodeRoom — Trace UI"
+    },
+    {
+      "id": "web-notebook",
+      "label": "Web / Notebook",
+      "purpose": "Notebook and report-reading surface.",
+      "sourcePath": "C:\\Users\\hshum\\Downloads\\NodeAgent-handoff_07062026\\nodeagent\\project\\web\\notebook\\notebook.html",
+      "localUrl": "http://127.0.0.1:4187/web/notebook/notebook.html",
+      "viewport": {
+        "width": 1456,
+        "height": 940
+      },
+      "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\design\\ui-contract\\20260707-design-source\\web-notebook-1456x940.png",
+      "bytes": 96790,
+      "title": "NodeRoom — Notebook"
+    },
+    {
+      "id": "web-memory-wall",
+      "label": "Web / Memory Wall",
+      "purpose": "Optimistic multiplayer canvas.",
+      "sourcePath": "C:\\Users\\hshum\\Downloads\\NodeAgent-handoff_07062026\\nodeagent\\project\\web\\memory-wall\\memory-wall.html",
+      "localUrl": "http://127.0.0.1:4187/web/memory-wall/memory-wall.html",
+      "viewport": {
+        "width": 1456,
+        "height": 940
+      },
+      "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\design\\ui-contract\\20260707-design-source\\web-memory-wall-1456x940.png",
+      "bytes": 133819,
+      "title": "NodeRoom — Memory Wall"
+    },
+    {
+      "id": "web-always-on",
+      "label": "Web / Always-On Rooms",
+      "purpose": "Recurring rooms, digest, owner ops.",
+      "sourcePath": "C:\\Users\\hshum\\Downloads\\NodeAgent-handoff_07062026\\nodeagent\\project\\web\\always-on\\always-on.html",
+      "localUrl": "http://127.0.0.1:4187/web/always-on/always-on.html",
+      "viewport": {
+        "width": 1456,
+        "height": 940
+      },
+      "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\design\\ui-contract\\20260707-design-source\\web-always-on-1456x940.png",
+      "bytes": 142867,
+      "title": "NodeRoom — Always-On Rooms"
+    },
+    {
+      "id": "web-directions",
+      "label": "Web / Directions",
+      "purpose": "Landing and product direction exploration.",
+      "sourcePath": "C:\\Users\\hshum\\Downloads\\NodeAgent-handoff_07062026\\nodeagent\\project\\web\\directions\\directions.html",
+      "localUrl": "http://127.0.0.1:4187/web/directions/directions.html",
+      "viewport": {
+        "width": 1456,
+        "height": 940
+      },
+      "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\design\\ui-contract\\20260707-design-source\\web-directions-1456x940.png",
+      "bytes": 131476,
+      "title": "NodeRoom — Directions"
+    },
+    {
+      "id": "cross-feature-map",
+      "label": "Cross / Feature Map",
+      "purpose": "55-feature parity checklist with live specimens.",
+      "sourcePath": "C:\\Users\\hshum\\Downloads\\NodeAgent-handoff_07062026\\nodeagent\\project\\cross\\feature-map\\feature-map.html",
+      "localUrl": "http://127.0.0.1:4187/cross/feature-map/feature-map.html",
+      "viewport": {
+        "width": 1456,
+        "height": 940
+      },
+      "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\design\\ui-contract\\20260707-design-source\\cross-feature-map-1456x940.png",
+      "bytes": 90443,
+      "title": "NodeRoom — Feature Map"
+    },
+    {
+      "id": "cross-handoff",
+      "label": "Cross / Prod Parity Handoff",
+      "purpose": "Styled developer handoff and build-order contract.",
+      "sourcePath": "C:\\Users\\hshum\\Downloads\\NodeAgent-handoff_07062026\\nodeagent\\project\\cross\\handoff\\handoff.html",
+      "localUrl": "http://127.0.0.1:4187/cross/handoff/handoff.html",
+      "viewport": {
+        "width": 1456,
+        "height": 940
+      },
+      "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\design\\ui-contract\\20260707-design-source\\cross-handoff-1456x940.png",
+      "bytes": 73919,
+      "title": "NodeRoom — Prod Parity Handoff"
+    },
+    {
+      "id": "mobile-app",
+      "label": "Mobile / App",
+      "purpose": "Primary mobile app contract.",
+      "sourcePath": "C:\\Users\\hshum\\Downloads\\NodeAgent-handoff_07062026\\nodeagent\\project\\mobile\\app\\app.html",
+      "localUrl": "http://127.0.0.1:4187/mobile/app/app.html",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\design\\ui-contract\\20260707-design-source\\mobile-app-390x844.png",
+      "bytes": 16643,
+      "title": "NodeRoom — Mobile"
+    },
+    {
+      "id": "mobile-terracotta",
+      "label": "Mobile / Terracotta App",
+      "purpose": "Warm terracotta mobile visual variant.",
+      "sourcePath": "C:\\Users\\hshum\\Downloads\\NodeAgent-handoff_07062026\\nodeagent\\project\\mobile\\app-terracotta\\app-terracotta.html",
+      "localUrl": "http://127.0.0.1:4187/mobile/app-terracotta/app-terracotta.html",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\design\\ui-contract\\20260707-design-source\\mobile-terracotta-390x844.png",
+      "bytes": 21041,
+      "title": "NodeRoom — Mobile (Terracotta)"
+    },
+    {
+      "id": "mobile-at-scale",
+      "label": "Mobile / At Scale",
+      "purpose": "Mobile scale and density contract.",
+      "sourcePath": "C:\\Users\\hshum\\Downloads\\NodeAgent-handoff_07062026\\nodeagent\\project\\mobile\\at-scale\\at-scale.html",
+      "localUrl": "http://127.0.0.1:4187/mobile/at-scale/at-scale.html",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\design\\ui-contract\\20260707-design-source\\mobile-at-scale-390x844.png",
+      "bytes": 52059,
+      "title": "NodeRoom — Mobile at Scale"
+    },
+    {
+      "id": "mobile-gap-pack",
+      "label": "Mobile / Gap Pack",
+      "purpose": "Mobile missing-screen coverage contract.",
+      "sourcePath": "C:\\Users\\hshum\\Downloads\\NodeAgent-handoff_07062026\\nodeagent\\project\\mobile\\gap-pack\\gap-pack.html",
+      "localUrl": "http://127.0.0.1:4187/mobile/gap-pack/gap-pack.html",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\design\\ui-contract\\20260707-design-source\\mobile-gap-pack-390x844.png",
+      "bytes": 45204,
+      "title": "NodeRoom — Mobile Gap Pack"
+    },
+    {
+      "id": "mobile-capture-prototype",
+      "label": "Mobile / Capture Prototype",
+      "purpose": "Uploaded capture prototype reference.",
+      "sourcePath": "C:\\Users\\hshum\\Downloads\\NodeAgent-handoff_07062026\\nodeagent\\project\\mobile\\capture-prototype\\capture-prototype.html",
+      "localUrl": "http://127.0.0.1:4187/mobile/capture-prototype/capture-prototype.html",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\design\\ui-contract\\20260707-design-source\\mobile-capture-prototype-390x844.png",
+      "bytes": 47835,
+      "title": "NodeRoom Mobile Capture Prototype"
+    }
+  ]
+}
