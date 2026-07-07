@@ -132,7 +132,18 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     "--accent-tint": accentTheme.tint,
     "--accent-border": accentTheme.border,
   } as CSSProperties;
-  // Guided walkthrough is opt-in; the header "?" button opens it when requested.
+  // First-run: auto-start the guided walkthrough once per browser (opt out via the "done" flag);
+  // the settings panel's "Take the guided tour" replays it on demand.
+  const tourAutoStarted = useRef(false);
+  useEffect(() => {
+    if (tourAutoStarted.current) return;
+    let seen = false;
+    try { seen = localStorage.getItem(TOUR_KEY) === "done"; } catch { /* ignore */ }
+    tourAutoStarted.current = true;
+    // On compact screens the panels are stacked fixed overlays — opening all three would bury the
+    // chat the tour points at, so it starts from the chat-only default there.
+    if (!seen) { if (!isCompact) setShow({ left: true, stage: true, copilot: true }); setTourOpen(true); }
+  }, [isCompact]);
   // Drop a stale split-view pin if its artifact vanished. MUST run before the `!room` early return:
   // a LIVE room mounts with room=undefined and resolves a tick later, so a hook placed AFTER the
   // return changes the hook count between those two renders ("rendered more hooks than previous").
