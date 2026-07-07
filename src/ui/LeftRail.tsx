@@ -73,6 +73,11 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
   const locks = store.awareness(roomId).activeLocks;
   const allPublicMessages = store.listMessages(roomId, "public");
   const publicSessions = sessions.filter((s) => s.scope === "public");
+  const sheetRowCount = useMemo(() => arts.reduce((total, artifact) => total + (artifact.kind === "sheet" ? rowCount(artifact) : 0), 0), [arts]);
+  const largeBinder = arts.length >= 20 || sheetRowCount >= 500 || allPublicMessages.length >= 100 || traces.length >= 100;
+  const visibleMembers = largeBinder ? members.slice(0, 8) : members;
+  const visiblePublicSessions = largeBinder ? publicSessions.slice(0, Math.max(0, 8 - visibleMembers.length)) : publicSessions;
+  const collapsedPeopleCount = members.length + publicSessions.length - visibleMembers.length - visiblePublicSessions.length;
   const firstProposal = proposals[0] as { artifactId: string; op?: { elementId?: string } } | undefined;
   const openProposal = () => {
     if (!firstProposal) return;
@@ -102,6 +107,18 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
   );
   const workbookRows = useMemo(() => workbookTreeRows(arts, artId), [arts, artId]);
   const documentRows = useMemo(() => documentTreeRows(arts, artId), [arts, artId]);
+  const uploadCount = useMemo(() => arts.filter((artifact) => !!sourceFileLabel(artifact)).length, [arts]);
+  const binderGroups = useMemo(
+    () => [
+      { id: "pinned", label: "Pinned", count: pinnedRows.length },
+      { id: "recent", label: "Recent", count: recentRows.length },
+      { id: "workbooks", label: "Sheets", count: countTreeLeafRows(workbookRows) },
+      { id: "documents", label: "Docs", count: countTreeLeafRows(documentRows) },
+      { id: "uploads", label: "Uploads", count: uploadCount },
+      { id: "people", label: "People", count: members.length + publicSessions.length },
+    ],
+    [documentRows, members.length, pinnedRows.length, publicSessions.length, recentRows.length, uploadCount, workbookRows],
+  );
   const proofRows = useMemo(() => {
     const reviewMeta = firstProposal ? `${proposals.length} pending proposal${proposals.length === 1 ? "" : "s"}` : "no pending proposals";
     return [
@@ -160,12 +177,30 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
 
   return (
     <div className="r-panel left" style={style} data-testid="left-rail">
-      <div className="r-panel-head"><FolderOpen size={15} /><span className="h-title">Room Binder</span><span className="h-sub">{arts.length} items</span></div>
+      <div className="r-panel-head">
+        <FolderOpen size={15} />
+        <span className="h-title">Room Binder</span>
+        <span className="h-sub">{arts.length} items</span>
+        <span className="r-binder-count" data-testid="binder-scale-count" aria-label={`${arts.length} binder items`}>{arts.length}</span>
+      </div>
       <div className="r-rail">
-        <label className="r-rail-search" aria-label="Find in binder">
+        <label className="r-rail-search r-binder-search" data-testid="binder-search" aria-label="Find in binder">
           <Search size={13} />
           <input value={query} onChange={(e) => setQuery(e.currentTarget.value)} placeholder="Find in binder..." />
         </label>
+        <div className="r-binder-groups" data-testid="binder-scale-groups" aria-label="Binder groups">
+          {binderGroups.map((group) => (
+            <button
+              key={group.id}
+              type="button"
+              className="r-binder-group"
+              onClick={() => setOpenSections((current) => ({ ...current, [group.id]: true }))}
+            >
+              <span>{group.label}</span>
+              <b>{group.count}</b>
+            </button>
+          ))}
+        </div>
         <div className="r-rail-section">
           <div className="kicker r-rail-kicker">Live room chat</div>
           <button
@@ -245,7 +280,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
           {(searchNeedle || openSections.people) && (
           <div className="r-tree-rows">
           <div className="kicker r-rail-kicker">People & agents · {members.length} live</div>
-          {members.map((m) => {
+          {visibleMembers.map((m) => {
             const lock = locks.find((l) => l.holder.id === m.id);
             const range = lock ? rangeLabel(lock.elementIds) : "";
             const body = (
@@ -262,7 +297,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
               <div key={m.id} className="r-person">{body}</div>
             );
           })}
-          {publicSessions.map((s) => {
+          {visiblePublicSessions.map((s) => {
             const lock = locks.find((l) => l.sessionId === s.id);
             const range = lock ? rangeLabel(lock.elementIds) : "";
             const body = (
@@ -280,6 +315,11 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
               <div key={s.id} className="r-person">{body}</div>
             );
           })}
+          {collapsedPeopleCount > 0 && (
+            <div className="r-binder-more" data-testid="binder-people-collapsed">
+              {collapsedPeopleCount} more live participant{collapsedPeopleCount === 1 ? "" : "s"}
+            </div>
+          )}
           </div>
           )}
         </div>

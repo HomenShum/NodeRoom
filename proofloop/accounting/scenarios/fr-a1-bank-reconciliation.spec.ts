@@ -135,11 +135,10 @@ async function createFrA1Files(): Promise<string[]> {
 }
 
 async function openWorkbookSheet(page: Page, sheetName: string): Promise<void> {
-  const sheetIndex: Record<string, number> = { Reconciliation: 0, Exceptions: 1, JEs: 2, Memo: 3 };
+  const artifactTitle = `reconciliation.xlsx / ${sheetName}`;
   const artifact = page
-    .getByTestId("binder-artifact")
-    .filter({ hasText: /reconciliation\s*XLSX/i })
-    .nth(sheetIndex[sheetName] ?? 0);
+    .locator(`[data-testid="binder-artifact"][data-artifact-title=${JSON.stringify(artifactTitle)}]`)
+    .first();
   await expect(artifact).toBeVisible({ timeout: 30_000 });
   await artifact.click();
   await expect(page.getByTestId("sheet-grid")).toBeVisible({ timeout: 30_000 });
