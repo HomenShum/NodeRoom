@@ -7,7 +7,7 @@
  * r<row>__<col> ids — exactly what the user sees, not a Convex query and not a screenshot) and
  * grades each value against the nb-01 golden rubric's expected value, within its tolerance.
  *
- * The prompt supplies the nb-01 source figures inline (a fresh blank room has no uploaded files);
+ * The prompt supplies the nb-01 source figures inline (the scratch sheet has no uploaded files);
  * those figures compute to the golden values (25 / 40 / 44 / 2.40 / 3.50). A ✓ therefore means the
  * cheap model genuinely computed and wrote each cell to the displayed column — end to end, live.
  *
@@ -18,6 +18,7 @@
  */
 import { test, expect, type Page } from "@playwright/test";
 import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "../e2e/focusMode";
+import { createScratchSheetFromStarterHome } from "../e2e/liveStarter";
 
 const BASE = process.env.BENCH_BASE_URL ?? "http://localhost:5273";
 
@@ -148,7 +149,9 @@ test("real user: fresh room -> @nodeagent (cheap default) -> visible sheet match
 
   // Real user flow: join a fresh room, add a sheet.
   await page.locator('[data-testid="create-room"]').click({ timeout: 60_000 });
-  await page.locator('[data-testid="blank-cta-sheet"]').click({ timeout: 60_000 });
+  await page.locator('[data-testid="create-room-submit"]').waitFor({ state: "visible", timeout: 10_000 });
+  await page.locator('[data-testid="create-room-submit"]').click();
+  await createScratchSheetFromStarterHome(page);
   await expectFocusModeOn(page);
   await expectAttentionOverlayMounted(page);
 

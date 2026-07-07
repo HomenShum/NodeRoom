@@ -82,8 +82,23 @@ async function openFreshLiveSheet(page) {
   await page.getByTestId("create-room").click({ timeout: 60_000 });
   await waitVisible(page.getByTestId("create-room-submit"), 10_000);
   await page.getByTestId("create-room-submit").click();
-  await page.getByTestId("blank-cta-sheet").click({ timeout: 60_000 });
+  await createScratchSheetFromStarterHome(page);
   await waitVisible(page.getByText(/live convex/i), 30_000);
+}
+
+async function createScratchSheetFromStarterHome(page) {
+  await waitVisible(page.getByText(/live convex/i), 30_000);
+  await waitVisible(page.getByTestId("public-chat-panel"), 60_000);
+  await waitVisible(page.getByText("Company research", { exact: false }).first(), 60_000);
+  await waitVisible(page.getByText("CardioNova", { exact: false }).first(), 60_000);
+  const homeTab = page.getByTestId("home-tab");
+  if (await homeTab.isVisible().catch(() => false)) await homeTab.click({ timeout: 30_000 });
+  await waitVisible(page.getByTestId("blank-cta-sheet"), 30_000);
+  await page.getByTestId("blank-cta-sheet").click({ timeout: 30_000 });
+  const sheetRow = page.getByTestId("binder-artifact").filter({ hasText: "Sheet 1" }).first();
+  await waitVisible(sheetRow, 30_000);
+  await sheetRow.click({ timeout: 30_000 });
+  await waitVisible(page.getByTestId("sheet-grid").first(), 30_000);
 }
 
 async function ensureBinderOpen(page) {

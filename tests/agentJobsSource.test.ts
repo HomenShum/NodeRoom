@@ -234,6 +234,27 @@ describe("long-running agent job source invariants", () => {
     expect(runner).not.toContain('entrypoint === "free" ? 3 : 8');
   });
 
+  it("registers the live starter room proof command", () => {
+    const pkg = readFileSync("package.json", "utf8");
+    const starter = readFileSync("scripts/live-starter-room-proof.ts", "utf8");
+
+    expect(pkg).toContain('"proofloop:live:starter"');
+    expect(starter).toContain("noderoom-live-starter-room-proof-v1");
+    expect(starter).toContain("guidedTourCount");
+    expect(starter).toContain("walkDockCount");
+  });
+
+  it("keeps browser-run receipts separate from canonical verifier receipts by default", () => {
+    const proofloopBrowser = readFileSync("proofloop/live-browser-proof.spec.ts", "utf8");
+    const btbBrowser = readFileSync("e2e/benchmark-ui-bankertoolbench.spec.ts", "utf8");
+    const hmdaBrowser = readFileSync("e2e/underwriting-hmda-live.spec.ts", "utf8");
+
+    expect(proofloopBrowser).toContain("docs/eval/browser-receipts/fresh-room");
+    expect(proofloopBrowser).toContain("docs/eval/browser-receipts/proofloop-live-room-proof.json");
+    expect(btbBrowser).toContain("docs/eval/browser-receipts/bankertoolbench-live-room-proof.json");
+    expect(btbBrowser).toContain('"browser-receipts", "fresh-room"');
+    expect(hmdaBrowser).toContain("docs/eval/underwriting-hmda-live-browser-proof.json");
+  });
   it("round-trips Gemini tool-call thought signatures for resumed jobs", () => {
     const model = readFileSync("src/nodeagent/models/convexModel.ts", "utf8");
     const types = readFileSync("src/nodeagent/core/types.ts", "utf8");

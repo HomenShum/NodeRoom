@@ -1536,6 +1536,23 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
     if (!cur) return;
     local.setQuery(api.rooms.meta, q, { ...cur, room: { ...cur.room, autoAllow: !cur.room.autoAllow } } as typeof cur);
   });
+  const ensureStarterRoomStateMutation = useMutation(api.rooms.ensureStarterRoomState);
+  const starterBackfillAttemptedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!hasValidLiveSession || data === undefined || data === null) return;
+    const room = data.room as { title?: string } | undefined;
+    const members = (data.members ?? []) as Array<{ id: string; role: string }>;
+    const isHost = members.some((member) => String(member.id) === String(me.id) && member.role === "host");
+    if (!isHost) return;
+    const research = metaArtifacts.find((artifact) => artifact.kind === "sheet" && artifact.title === "Company research");
+    const rowCount = (research?.meta?.dataframe as { rowCount?: number } | undefined)?.rowCount ?? 0;
+    const sparse = metaArtifacts.length === 0 || room?.title === "Blank NodeRoom" || !research || rowCount < 100 || (research.order?.length ?? 0) < 1000;
+    if (!sparse) return;
+    const attemptKey = `${roomId}:${metaArtifacts.length}:${research?.id ?? "none"}:${rowCount}:${research?.order?.length ?? 0}`;
+    if (starterBackfillAttemptedRef.current === attemptKey) return;
+    starterBackfillAttemptedRef.current = attemptKey;
+    void ensureStarterRoomStateMutation({ roomId: rid, requester: proof }).catch(() => undefined);
+  }, [data, ensureStarterRoomStateMutation, hasValidLiveSession, me.id, metaArtifacts, proof, rid, roomId]);
   // Optimistic edit: text is reversible + predictable (patch same _id) + author-authoritative → optimistic-safe.
   // Match by _id across every loaded messages.list ref (public + the actor's private channel); the editor only
   // has the messageId, so do NOT reconstruct query args — update whichever loaded list holds the row.
