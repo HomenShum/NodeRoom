@@ -40,19 +40,19 @@ async function seed(t: ReturnType<typeof convexTest>, traceCount: number, msgCou
 
 const proof = (memberId: string) => ({ actor: { kind: "user" as const, id: String(memberId), name: "Homen" }, token: TOK });
 
-test("B2: collab.traces returns ONLY the most-recent 200, ascending — not the whole 250-row history", async () => {
+test("B2: collab.traces returns ONLY the most-recent 400, ascending — not the whole 450-row history", async () => {
   const t = convexTest(schema, modules);
-  const { roomId, memberId } = await seed(t, 250, 0);
+  const { roomId, memberId } = await seed(t, 450, 0);
 
   const traces = await t.query(api.collab.traces, { roomId, requester: proof(memberId) });
-  expect(traces.length).toBe(200); // bounded ceiling, not 250
-  expect(traces[0].summary).toBe("t51"); // oldest IN the window = 250 - 200 + 1
-  expect(traces[traces.length - 1].summary).toBe("t250"); // newest
+  expect(traces.length).toBe(400); // bounded ceiling, not 450
+  expect(traces[0].summary).toBe("t51"); // oldest IN the window = 450 - 400 + 1
+  expect(traces[traces.length - 1].summary).toBe("t450"); // newest
   for (let i = 1; i < traces.length; i++) expect(traces[i].ts).toBeGreaterThan(traces[i - 1].ts); // ascending
 
   // The window bounds only the reactive READ — the durable history is fully intact.
   const stored = await t.run((ctx) => ctx.db.query("traces").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect());
-  expect(stored.length).toBe(250);
+  expect(stored.length).toBe(450);
 });
 
 test("B2: a small room is returned whole — the window is a ceiling, not a floor", async () => {

@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "./focusMode";
+import { expectLiveStarterRoomReady } from "./liveStarter";
 
 const HAS_LIVE_BACKEND =
   !!process.env.E2E_CONVEX_URL ||
@@ -24,14 +25,14 @@ async function openFreshLiveDemoRoom(page: Page, code: string) {
   await ensureBinderOpen(page);
 }
 
-async function openFreshLiveBlankRoom(page: Page) {
+async function openFreshLiveStarterRoom(page: Page) {
   await enableFocusModeForTest(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByTestId("create-room").click({ timeout: 60_000 });
   await page.getByTestId("create-room-submit").waitFor({ state: "visible", timeout: 10_000 });
   await page.getByTestId("create-room-submit").click();
   await expect(page.getByTestId("public-chat-panel").getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
-  await expect(page.getByTestId("blank-room-state")).toBeVisible({ timeout: 60_000 });
+  await expectLiveStarterRoomReady(page);
   await expectFocusModeOn(page);
 }
 
@@ -79,9 +80,9 @@ test("fresh room public @nodeagent first send starts one visible durable job", a
   expect(visibleStarts).toBeLessThanOrEqual(1);
 });
 
-test("blank room public @nodeagent ask materializes a visible sheet and stream", async ({ page }) => {
+test("starter room public @nodeagent ask materializes a visible sheet and stream", async ({ page }) => {
   test.setTimeout(180_000);
-  await openFreshLiveBlankRoom(page);
+  await openFreshLiveStarterRoom(page);
 
   const chat = publicChat(page);
   const prompt = "@nodeagent create me a sheet and research liveflow";

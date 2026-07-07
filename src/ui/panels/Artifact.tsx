@@ -1758,7 +1758,27 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
     const pageSize = isScaleSheet ? SCALE_SHEET_RENDER_WINDOW : Math.max(25, Math.min(250, Math.floor(GENERIC_SHEET_CELL_WINDOW / Math.max(columns.length, 1))));
     return { rows, columns, pageSize, totalRows, isScaleSheet };
   }, [art]);
-  const cols = columns.map((col) => col.id);
+  const [gridQuery, setGridQuery] = useState("");
+  const [columnMenuOpen, setColumnMenuOpen] = useState(false);
+  const [hiddenColIds, setHiddenColIds] = useState<string[]>(() => {
+    try {
+      const raw = JSON.parse(localStorage.getItem(`noderoom:grid-hidden-cols:${art.id}`) || "[]") as unknown;
+      if (Array.isArray(raw) && raw.length) return raw.filter((id): id is string => typeof id === "string");
+      const defaults = (art.meta?.dataframe as { defaultHiddenColumnIds?: unknown } | undefined)?.defaultHiddenColumnIds;
+      return Array.isArray(defaults) ? defaults.filter((id): id is string => typeof id === "string") : [];
+    } catch {
+      const defaults = (art.meta?.dataframe as { defaultHiddenColumnIds?: unknown } | undefined)?.defaultHiddenColumnIds;
+      return Array.isArray(defaults) ? defaults.filter((id): id is string => typeof id === "string") : [];
+    }
+  });
+  useEffect(() => { try { localStorage.setItem(`noderoom:grid-hidden-cols:${art.id}`, JSON.stringify(hiddenColIds)); } catch { /* ignore */ } }, [art.id, hiddenColIds]);
+  const hiddenColSet = useMemo(() => new Set(hiddenColIds), [hiddenColIds]);
+  const visibleColumns = useMemo(() => {
+    const next = columns.filter((col) => !hiddenColSet.has(col.id));
+    return next.length ? next : columns.slice(0, 1);
+  }, [columns, hiddenColSet]);
+  const allCols = columns.map((col) => col.id);
+  const cols = visibleColumns.map((col) => col.id);
   const statusColId = columns.find((col) => /status/i.test(col.id) || /status/i.test(col.label ?? ""))?.id ?? "";
   const sourceRowIndexById = useMemo(() => new Map(rows.map((rid, index) => [rid, index + 1])), [rows]);
   const statusCounts = useMemo(() => {
@@ -1770,16 +1790,20 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
     }
     return counts;
   }, [art, rows, statusColId]);
+  const queryFilteredRows = useMemo(() => filterGenericSheetRows(art, rows, allCols, gridQuery), [art, rows, allCols, gridQuery]);
   const filteredRows = useMemo(() => {
-    if (statusFilter === "any" || !statusColId) return rows;
-    return rows.filter((rid) => {
+    if (statusFilter === "any" || !statusColId) return queryFilteredRows;
+    return queryFilteredRows.filter((rid) => {
       const raw = art.elements[sheetElementId(art, rid, statusColId)]?.value;
       return sheetStatusFilterForValue(displayCellValue(raw)) === statusFilter;
     });
-  }, [art, rows, statusColId, statusFilter]);
+  }, [art, queryFilteredRows, statusColId, statusFilter]);
   const colWidths = useMemo(
-    () => columns.map((col, i) => isScaleSheet ? scaleColumnWidth(col, i) : sheetColumnWidth(art, col, i)),
-    [art.meta?.excelGrid?.colWidths, columns, isScaleSheet],
+    () => visibleColumns.map((col) => {
+      const index = Math.max(0, columns.findIndex((candidate) => candidate.id === col.id));
+      return isScaleSheet ? scaleColumnWidth(col, index) : sheetColumnWidth(art, col, index);
+    }),
+    [art.meta?.excelGrid?.colWidths, columns, visibleColumns, isScaleSheet],
   );
   // TRUE ROW VIRTUALIZATION (scale sheets only): the scroll container reports its scrollTop +
   // client height, and `computeRowWindow` turns that into the half-open [start, end) render band
@@ -1987,6 +2011,13 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
       })}
     </tr>
   );
+  const toggleColumnHidden = (colId: string) => {
+    setHiddenColIds((current) => {
+      if (current.includes(colId)) return current.filter((id) => id !== colId);
+      if (columns.length - current.length <= 1) return current;
+      return [...current, colId];
+    });
+  };
   return (
     <>
       <div className="r-art-body">
@@ -1995,6 +2026,32 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
         <div className="r-sheet-bar">
           <span className="r-sheet-namebox" data-testid="sheet-namebox">{sel ? dataframeCellAddress(art, cols, isScaleSheet ? filteredRows : visibleRows, sel) : "—"}</span>
           <span className="r-sheet-valuebar" title={sel ? displayCellValue(art.elements[sel]?.value) : ""}>{sel ? displayCellValue(art.elements[sel]?.value) : ""}</span>
+          <label className="r-sheet-search" aria-label="Search sheet rows">
+            <Search size={12} />
+            <input value={gridQuery} onChange={(e) => { setGridQuery(e.currentTarget.value); setPages(1); }} placeholder="Find rows" />
+          </label>
+          <div className="r-sheet-status-filter" role="group" aria-label="Filter by status">
+            {(["any", "complete", "needs_review", "failed"] as const).map((status) => (
+              <button key={status} type="button" data-on={String(statusFilter === status)} onClick={() => { setStatusFilter(status); setPages(1); }}>
+                {status === "any" ? "all" : status === "needs_review" ? "review" : status}
+              </button>
+            ))}
+          </div>
+          <div className="r-sheet-colmenu">
+            <button type="button" className="r-sheet-colmenu-btn" aria-expanded={columnMenuOpen} onClick={() => setColumnMenuOpen((open: boolean) => !open)}>
+              <Columns2 size={12} /> {cols.length}/{columns.length}
+            </button>
+            {columnMenuOpen && (
+              <div className="r-sheet-colmenu-pop" role="menu">
+                {columns.map((col) => (
+                  <label key={col.id}>
+                    <input type="checkbox" checked={!hiddenColSet.has(col.id)} onChange={() => toggleColumnHidden(col.id)} />
+                    <span>{col.label}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
           <span className="grow" />
           <span className="r-cols-pill" data-testid="grid-column-count" title={columnCountTitle}>{columnCountLabel}</span>
           <div className="r-sheet-density" role="group" aria-label="Row density">
@@ -2040,9 +2097,9 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
             }}>
             <colgroup>
               <col style={{ width: 44 }} />
-              {columns.map((c, i) => <col key={c.id} style={{ width: colOverrides[c.id] ?? colWidths[i] }} />)}
+              {visibleColumns.map((c, i) => <col key={c.id} style={{ width: colOverrides[c.id] ?? colWidths[i] }} />)}
             </colgroup>
-            <thead><tr><th className="r-corner" aria-label="row number" />{columns.map((c, i) => <th key={c.id} className={selectedColId === c.id ? "hl" : undefined}>{c.label}<span className="r-col-resize" role="separator" aria-orientation="vertical" aria-label={`Resize ${c.label}`} onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); startColResize(c.id, colOverrides[c.id] ?? colWidths[i], e.clientX); }} /></th>)}</tr></thead>
+            <thead><tr><th className="r-corner" aria-label="row number" />{visibleColumns.map((c, i) => <th key={c.id} className={selectedColId === c.id ? "hl" : undefined}>{c.label}<span className="r-col-resize" role="separator" aria-orientation="vertical" aria-label={`Resize ${c.label}`} onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); startColResize(c.id, colOverrides[c.id] ?? colWidths[i], e.clientX); }} /></th>)}</tr></thead>
             <tbody>
               {/* Top spacer: stands in for the [0, start) rows NOT mounted, sized from the fixed 44px
                   row height so the scrollbar length + thumb position stay honest. Scale sheets only. */}
@@ -2077,10 +2134,28 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
         {/* Scale sheets scroll-virtualize (no paging button); other generic sheets keep the page button. */}
         {!isScaleSheet && visibleRows.length < filteredRows.length && <button className="r-mini-btn" onClick={() => setPages((n) => n + 1)}>Show next {pageSize}</button>}
         <span className="grow" />
-        <span className="mono tiny faint">{totalRows.toLocaleString()} rows | {cols.length} columns</span>
+        <span className="mono tiny faint">
+          {totalRows.toLocaleString()} rows | {cols.length}/{columns.length} columns | {renderedWindowLabel}
+        </span>
       </div>
     </>
   );
+}
+
+function filterGenericSheetRows(
+  art: Art,
+  rows: string[],
+  cols: string[],
+  query: string,
+): string[] {
+  const q = query.trim().toLowerCase();
+  return rows.filter((rowId) => {
+    if (q) {
+      const haystack = [rowId, ...cols.map((col) => displayCellValue(art.elements[sheetElementId(art, rowId, col)]?.value))].join(" ").toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
 }
 
 function columnsOf(art: Art): DataframeColumn[] {

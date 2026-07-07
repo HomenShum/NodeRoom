@@ -25,6 +25,7 @@ import { scanBankerToolBenchBundle, type BankerToolBenchTask } from "../src/eval
 import { assertBtbTaskCoverage, inferOfficialBtbTickers, type BtbTaskCoverageResult } from "../src/eval/btbTaskCoverage";
 import { writeFreshRoomProofReceipt, type FreshRoomExportReceipt } from "../src/eval/freshRoomProofReceipts";
 import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "./focusMode";
+import { createScratchSheetFromStarterHome } from "./liveStarter";
 import { installCockpit, emitCockpitEvent, cockpitEventsPath } from "../proofloop/cockpit/playwrightOverlay";
 
 const BASE = process.env.BENCH_BASE_URL ?? "http://localhost:5273";
@@ -45,7 +46,7 @@ const TEST_TIMEOUT_MS = Number(process.env.BTB_TEST_TIMEOUT_MS ?? Math.max(25 * 
 const RECORDING_PROOF = process.env.PLAYWRIGHT_RECORD_VIDEO === "1" || process.env.BTB_PROOF_HUMAN_PACING === "1";
 const PROOF_TRANSITION_PAUSE_MS = Number(process.env.BTB_PROOF_TRANSITION_PAUSE_MS ?? (RECORDING_PROOF ? 1_250 : 0));
 const PROOF_REVIEW_PAUSE_MS = Number(process.env.BTB_PROOF_REVIEW_PAUSE_MS ?? (RECORDING_PROOF ? 7_000 : 0));
-const PROOF_PATH = process.env.BTB_LIVE_ROOM_PROOF_PATH ?? "docs/eval/bankertoolbench-live-room-proof.json";
+const PROOF_PATH = process.env.BTB_LIVE_ROOM_PROOF_PATH ?? "docs/eval/browser-receipts/bankertoolbench-live-room-proof.json";
 const FRESH_PROOF_PATH = process.env.BTB_FRESH_ROOM_PROOF_PATH;
 const FRESH_PROOF_CASE_ID = "FR-020";
 const PACKAGE_MANIFEST_PATH = process.env.BTB_PACKAGE_MANIFEST_PATH ?? "test-results/bankertoolbench/package-manifest.json";
@@ -377,7 +378,7 @@ async function createFreshLiveRoom(page: Page): Promise<void> {
   await page.locator('[data-testid="create-room"]').click({ timeout: 60_000 });
   await page.locator('[data-testid="create-room-submit"]').waitFor({ state: "visible", timeout: 10_000 });
   await page.locator('[data-testid="create-room-submit"]').click();
-  await page.locator('[data-testid="blank-cta-sheet"]').click({ timeout: 60_000 });
+  await createScratchSheetFromStarterHome(page);
   await expect(page.getByText(/live convex/i)).toBeVisible({ timeout: 30_000 });
 }
 
@@ -1462,7 +1463,7 @@ function isInsidePath(parentPath: string, candidatePath: string): boolean {
 }
 
 function taskEvidenceRoot(taskId: string): string {
-  const receiptPath = FRESH_PROOF_PATH ?? join("docs", "eval", "fresh-room", FRESH_PROOF_CASE_ID, "tasks", safeTaskPathSegment(taskId), "latest.json");
+  const receiptPath = FRESH_PROOF_PATH ?? join("docs", "eval", "browser-receipts", "fresh-room", FRESH_PROOF_CASE_ID, "tasks", safeTaskPathSegment(taskId), "latest.json");
   return join(dirname(receiptPath), "evidence");
 }
 

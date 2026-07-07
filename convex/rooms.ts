@@ -39,6 +39,14 @@ const STARTUP_RESEARCH_COLS = [
   "company", "website", "status", "tier", "intent", "owner", "crm_status", "summary",
   "funding", "headcount", "recent_signal", "source", "source2", "last_researched",
 ] as const;
+const STARTUP_RESEARCH_ROW_COUNT = 1000;
+const STARTUP_RESEARCH_SEEDED_BASE_COLS = new Set<(typeof STARTUP_RESEARCH_COLS)[number]>([
+  "company", "website", "status", "tier", "intent", "owner", "crm_status",
+]);
+const STARTUP_RESEARCH_DETAIL_SEED_LIMIT = 40;
+const STARTUP_RESEARCH_DEFAULT_HIDDEN_COLS = [
+  "crm_status", "summary", "funding", "headcount", "recent_signal", "source", "source2", "last_researched",
+];
 const STARTUP_RESEARCH_EVIDENCE_COLS = new Set(["summary", "funding", "headcount", "recent_signal"]);
 const STARTUP_RESEARCH_AGENT_READONLY_COLS = new Set(["company", "website", "tier", "intent", "owner", "crm_status"]);
 const STARTER_RUNWAY_COLS = ["company", "cash", "burn", "runway", "status", "milestones"] as const;
@@ -58,18 +66,22 @@ function startupResearchMeta() {
         type: "text",
         agentWritable: !STARTUP_RESEARCH_AGENT_READONLY_COLS.has(col),
       })),
-      rowCount: STARTUP_RESEARCH_ROWS.length,
+      rowCount: STARTUP_RESEARCH_ROW_COUNT,
       sourceFile: "starter-room",
       sheetName: "Company research",
       sheetNames: ["Company research"],
       parser: "starter_seed",
       truncated: false,
-      warnings: [],
+      warnings: ["Semantic index skipped for live starter scale grid; NodeAgent reads cells directly and enriches sparse columns on demand."],
+      defaultHiddenColumnIds: STARTUP_RESEARCH_DEFAULT_HIDDEN_COLS,
+      semanticIndexDisabled: true,
     },
+    summary: "Live starter scale state: 1,000 company-research rows with visible diligence fields and sparse hidden enrichment fields for NodeAgent work.",
+    tags: ["states-scale-default", "startup-diligence", "live-starter"],
   };
 }
 
-const STARTUP_RESEARCH_ROWS: StartupResearchRow[] = [
+const STARTUP_RESEARCH_ANCHORS: StartupResearchRow[] = [
   {
     rowId: "rc_cardionova",
     company: "CardioNova",
@@ -156,15 +168,92 @@ const STARTUP_RESEARCH_ROWS: StartupResearchRow[] = [
     last_researched: "never",
   },
 ];
+const STARTUP_RESEARCH_ROWS: StartupResearchRow[] = buildStartupResearchRows();
 
 function startupResearchSeed(): Array<{ id: string; value: unknown }> {
   const seed: Array<{ id: string; value: unknown }> = [];
-  for (const row of STARTUP_RESEARCH_ROWS) {
+  STARTUP_RESEARCH_ROWS.forEach((row, index) => {
     for (const col of STARTUP_RESEARCH_COLS) {
+      if (!shouldSeedStartupResearchCell(row, index, col)) continue;
       seed.push({ id: `${row.rowId}__${col}`, value: row[col] });
     }
-  }
+  });
   return seed;
+}
+
+function shouldSeedStartupResearchCell(row: StartupResearchRow, index: number, col: (typeof STARTUP_RESEARCH_COLS)[number]): boolean {
+  if (STARTUP_RESEARCH_SEEDED_BASE_COLS.has(col)) return true;
+  if (STARTUP_RESEARCH_ANCHORS.some((anchor) => anchor.rowId === row.rowId)) return true;
+  return index < STARTUP_RESEARCH_DETAIL_SEED_LIMIT && row.status === "complete" && !!row[col];
+}
+
+function buildStartupResearchRows(): StartupResearchRow[] {
+  const prefixes = ["Cardio", "Neuro", "Flux", "Atlas", "Vertex", "Lumen", "Harbor", "Crest", "Nimbus", "Quanta", "Helio", "Aegis", "Orbit", "Pryce", "Sable", "Tandem", "Vellum", "Zephyr", "Mistral", "Kite", "Ferro", "Cinder", "Alto", "Briar", "Corvid"];
+  const suffixes = ["Nova", "Labs", "Health", "Pay", "Works", "Metrics", "Systems", "AI", "Bio", "Grid", "Flow", "Base", "Sense", "Loop", "Stack", "Line", "Port", "Scale", "Note", "Chart"];
+  const intents = [
+    "AI triage for hospitals",
+    "Startup banking diligence",
+    "Middle-market card and spend controls",
+    "Cap table and equity ops",
+    "Clinical documentation copilot",
+    "Freight pricing intelligence",
+    "SMB payroll and benefits",
+    "Warehouse robotics retrofits",
+    "Compliance evidence automation",
+    "Revenue reconciliation tooling",
+  ];
+  const owners = ["Maya", "Sam", "Priya", "Homen"];
+  const rand = seededRandom(42);
+  const rows = [...STARTUP_RESEARCH_ANCHORS];
+  const used = new Set(rows.map((row) => row.rowId));
+  let i = 0;
+  while (rows.length < STARTUP_RESEARCH_ROW_COUNT) {
+    const name = `${prefixes[i % prefixes.length]}${suffixes[Math.floor(i / prefixes.length) % suffixes.length]}${i >= 500 ? ` ${Math.floor(i / 500) + 1}` : ""}`;
+    const rowId = uniqueResearchRowId(name, used);
+    const x = rand();
+    const status = x < 0.28 ? "complete" : x < 0.36 ? "needs_review" : x < 0.42 ? "failed" : "pending";
+    const tier = rand() < 0.4 ? "A" : rand() < 0.75 ? "B" : "C";
+    const intent = intents[Math.floor(rand() * intents.length)] ?? intents[0];
+    const owner = owners[i % owners.length] ?? "Maya";
+    const funding = status === "complete" ? `$${2 + Math.floor(rand() * 80)}M` : status === "needs_review" ? "verify funding source" : "";
+    const headcount = status === "complete" ? `${10 + Math.floor(rand() * 900)}` : status === "needs_review" ? "refresh hiring/headcount" : "";
+    rows.push({
+      rowId,
+      company: name,
+      website: `https://${name.toLowerCase().replace(/\s/g, "")}.com`,
+      status,
+      tier,
+      intent,
+      owner,
+      crm_status: status === "complete" ? "Enriched" : status === "needs_review" ? "Review" : status === "failed" ? "Blocked" : "Research",
+      summary: status === "complete" ? `${name} mapped for ${intent.toLowerCase()}; buyer, HIPAA/security, and wedge-fit notes captured for review.` : "",
+      funding,
+      headcount,
+      recent_signal: status === "complete" ? `${Math.floor(rand() * 40)} open roles; HIPAA/security ${rand() < 0.5 ? "clear" : "gap found"}.` : "",
+      source: status === "complete" ? `https://${name.toLowerCase().replace(/\s/g, "")}.com` : "",
+      source2: status === "complete" ? `https://news.example.com/${rowId}` : "",
+      last_researched: status === "complete" ? "2026-07-06" : "never",
+    });
+    i += 1;
+  }
+  return rows;
+}
+
+function uniqueResearchRowId(company: string, used: Set<string>): string {
+  const base = "rc_" + company.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 32);
+  let candidate = base || `rc_company_${used.size + 1}`;
+  let suffix = 1;
+  while (used.has(candidate)) candidate = `${base}_${suffix++}`;
+  used.add(candidate);
+  return candidate;
+}
+
+function seededRandom(seed: number): () => number {
+  let state = seed;
+  return () => {
+    state = (state * 16807) % 2147483647;
+    return state / 2147483647;
+  };
 }
 
 function starterSheetSeed(): Array<{ id: string; value: unknown }> {
@@ -286,6 +375,63 @@ async function insertStarterArtifact(
   return artifactId;
 }
 
+async function seedStarterMessages(ctx: MutationCtx, args: { roomId: Id<"rooms">; host: ActorValue; now: number }) {
+  const agent: ActorValue = { kind: "agent", id: "agent_room", name: "Room NodeAgent", scope: "public" };
+  const guests = ["Priya", "anon - quokka", "Maya", "Sam"];
+  for (let i = 0; i < 312; i += 1) {
+    const batchStart = ((i * 17) % 960) + 1;
+    const batchEnd = Math.min(1000, batchStart + 39);
+    const agentTurn = i % 5 === 1 || i % 5 === 4;
+    const author = agentTurn
+      ? agent
+      : i % 7 === 0
+        ? args.host
+        : { kind: "user" as const, id: `starter_person_${i % guests.length}`, name: guests[i % guests.length] ?? "Priya" };
+    const text =
+      i % 9 === 0 ? `@nodeagent enrich rows ${batchStart}-${batchEnd} with funding, buyer, HIPAA/security gaps`
+        : i % 9 === 1 ? `Enriched 40 rows - ${47 + (i % 60)} sources. Locked rows ${batchStart}-${batchEnd}, committed reviewed cells, and released the lock.`
+          : i % 9 === 2 ? "Tier the batch A/B/C by wedge fit before enrichment so review stays focused."
+            : i % 9 === 3 ? "HIPAA/security notes look strong; flagging gap-found rows for banker review."
+              : i % 9 === 4 ? `Trace receipt ready: committed v${220 + i} -> v${221 + i} with source links and row-level status.`
+                : i % 9 === 5 ? "Can watch the artifacts and handoff drafts live?"
+                  : i % 9 === 6 ? "Funding looks current on A-tier companies; stale hiring evidence still needs review."
+                    : i % 9 === 7 ? "Pushing the memo draft after this run finishes."
+                      : "Opened Company research and checked the rendered rows against the trace drawer.";
+    await ctx.db.insert("messages", {
+      roomId: args.roomId,
+      channel: "public",
+      author,
+      text,
+      clientMsgId: `starter-scale-${i + 1}`,
+      kind: agentTurn ? "agent" : "chat",
+      createdAt: args.now + i,
+    });
+  }
+}
+
+async function padStarterTraces(ctx: MutationCtx, args: { roomId: Id<"rooms">; artifactId: Id<"artifacts">; now: number }) {
+  const existing = await ctx.db.query("traces").withIndex("by_room", (q) => q.eq("roomId", args.roomId)).collect();
+  const agent: ActorValue = { kind: "agent", id: "agent_room", name: "Room NodeAgent", scope: "public" };
+  const target = 400;
+  for (let i = existing.length; i < target; i += 1) {
+    const batchStart = ((i * 25) % 975) + 1;
+    const batchEnd = Math.min(1000, batchStart + 24);
+    const type = i % 5;
+    await ctx.db.insert("traces", {
+      roomId: args.roomId,
+      ts: args.now + i,
+      actor: agent,
+      type: type === 0 ? "edit_applied" : type === 1 ? "lock_acquired" : type === 2 ? "lock_released" : "agent_status",
+      summary: type === 0 ? `Committed scale enrichment rows ${batchStart}-${batchEnd}`
+        : type === 1 ? `Locked rows ${batchStart}-${batchEnd}`
+          : type === 2 ? "Released lock - smart-merged one held draft"
+            : type === 3 ? `Fetched source packet for rows ${batchStart}-${batchEnd}`
+              : "Cited funding and buyer source for scale fixture row",
+      detail: `starter_scale_trace(${i + 1}) artifact=${String(args.artifactId)} rows=${batchStart}-${batchEnd}`,
+    });
+  }
+}
+
 export const create = mutation({
   args: {
     code: v.string(), title: v.string(), hostName: v.string(), authToken: v.string(), autoAllow: v.optional(v.boolean()),
@@ -354,13 +500,78 @@ export const createStarterRoom = mutation({
     await ctx.db.insert("agentSessions", { roomId, agentId: "agent_priv", agentName: "Your NodeAgent", scope: "private", ownerId: memberId, status: "idle", lastAction: "started", updatedAt: now });
     const actor = { kind: "user" as const, id: String(memberId), name: a.hostName };
     await ctx.db.insert("traces", { roomId, ts: now, actor, type: "room_created", summary: `${a.hostName} created the room` });
-    await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Company research", seed: startupResearchSeed(), actor, now, meta: startupResearchMeta() });
+    const companyResearchId = await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Company research", seed: startupResearchSeed(), actor, now, meta: startupResearchMeta() });
     await insertStarterArtifact(ctx, { roomId, kind: "note", title: "Diligence memo", seed: starterNoteSeed(), actor, now });
     await insertStarterArtifact(ctx, { roomId, kind: "wall", title: "Risk / opportunity wall", seed: starterWallSeed(), actor, now });
     await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Runway / milestones", seed: starterRunwaySeed(), actor, now, meta: starterRunwayMeta() });
     await insertStarterArtifact(ctx, { roomId, kind: "note", title: "Open questions / workplan", seed: starterWorkplanSeed(), actor, now });
     await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Q3 variance", seed: starterSheetSeed(), actor, now });
+    await seedStarterMessages(ctx, { roomId, host: actor, now });
+    await padStarterTraces(ctx, { roomId, artifactId: companyResearchId, now });
     return { roomId, memberId };
+  },
+});
+
+export const ensureStarterRoomState = mutation({
+  args: { roomId: v.id("rooms"), requester: actorProofV },
+  handler: async (ctx, { roomId, requester }) => {
+    const room = await ctx.db.get(roomId);
+    if (!room) throw new Error("room_not_found");
+    const actor = await requireActorProof(ctx, roomId, requester);
+    if (String(room.hostId) !== actor.id) throw new Error("host_required");
+    const now = Date.now();
+    const artifacts = await ctx.db.query("artifacts").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect();
+    let addedArtifacts = 0;
+    let patchedCells = 0;
+
+    const byTitle = (title: string) => artifacts.find((artifact) => artifact.title === title);
+    let companyResearch: (typeof artifacts)[number] | null = byTitle("Company research") ?? null;
+    if (!companyResearch) {
+      const insertedId = await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Company research", seed: startupResearchSeed(), actor, now, meta: startupResearchMeta() });
+      companyResearch = await ctx.db.get(insertedId);
+      if (!companyResearch) throw new Error("starter_artifact_insert_failed");
+      addedArtifacts += 1;
+    } else {
+      const research = companyResearch;
+      const seed = startupResearchSeed();
+      const existing = await ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", research._id)).collect();
+      const existingIds = new Set(existing.map((element) => element.elementId));
+      const missing = seed.filter((cell) => !existingIds.has(cell.id));
+      for (const cell of missing) {
+        await ctx.db.insert("elements", { artifactId: research._id, elementId: cell.id, value: cell.value, version: 1, updatedAt: now, updatedBy: actor });
+        patchedCells += 1;
+      }
+      const nextOrder = Array.from(new Set([...research.order, ...missing.map((cell) => cell.id)]));
+      await ctx.db.patch(research._id, { order: nextOrder, version: research.version + (missing.length ? 1 : 0), updatedAt: now, meta: startupResearchMeta() });
+    }
+
+    if (!byTitle("Diligence memo")) {
+      await insertStarterArtifact(ctx, { roomId, kind: "note", title: "Diligence memo", seed: starterNoteSeed(), actor, now });
+      addedArtifacts += 1;
+    }
+    if (!byTitle("Risk / opportunity wall")) {
+      await insertStarterArtifact(ctx, { roomId, kind: "wall", title: "Risk / opportunity wall", seed: starterWallSeed(), actor, now });
+      addedArtifacts += 1;
+    }
+    if (!byTitle("Runway / milestones")) {
+      await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Runway / milestones", seed: starterRunwaySeed(), actor, now, meta: { dataframe: { columns: ["company", "cash", "burn", "runway", "status", "milestones"], rowCount: 2, sourceFile: "starter-room", parser: "starter_seed", truncated: false, warnings: [] } } });
+      addedArtifacts += 1;
+    }
+    if (!byTitle("Open questions / workplan")) {
+      await insertStarterArtifact(ctx, { roomId, kind: "note", title: "Open questions / workplan", seed: starterWorkplanSeed(), actor, now });
+      addedArtifacts += 1;
+    }
+    if (!byTitle("Q3 variance")) {
+      await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Q3 variance", seed: starterSheetSeed(), actor, now });
+      addedArtifacts += 1;
+    }
+
+    const publicMessages = await ctx.db.query("messages").withIndex("by_room_channel", (q) => q.eq("roomId", roomId).eq("channel", "public")).take(20);
+    if (publicMessages.length < 20) await seedStarterMessages(ctx, { roomId, host: actor, now });
+    if (companyResearch) await padStarterTraces(ctx, { roomId, artifactId: companyResearch._id, now });
+    if (room.title === "Blank NodeRoom") await ctx.db.patch(roomId, { title: "Startup diligence" });
+
+    return { ok: true as const, addedArtifacts, patchedCells };
   },
 });
 

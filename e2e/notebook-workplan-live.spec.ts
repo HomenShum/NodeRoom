@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { enableFocusModeForTest, expectFocusModeOn } from "./focusMode";
+import { expectLiveStarterRoomReady } from "./liveStarter";
 
 const HAS_BACKEND = !!process.env.E2E_CONVEX_URL && !!process.env.VITE_CONVEX_URL;
 test.skip(!process.env.E2E_LIVE || !HAS_BACKEND, "set E2E_LIVE=1, E2E_CONVEX_URL, and VITE_CONVEX_URL to run the live notebook work-plan vertical");
@@ -33,13 +34,7 @@ test("messy notebook note becomes read model, approved work plan, queued job, an
   await page.getByTestId("create-display-name").fill("Maya");
   await page.getByTestId("create-room-submit").click();
   await expect(page.getByTestId("public-chat-panel").getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
-  await expectFocusModeOn(page);
-  await expect(page.getByTestId("blank-room-state")).toBeVisible({ timeout: 30_000 });
-  await Promise.all([
-    page.waitForURL(/(?:\?|&)demo=/, { timeout: 60_000 }),
-    page.getByTestId("blank-cta-demo").click(),
-  ]);
-  await expect(page.getByTestId("public-chat-panel").getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
+  await expectLiveStarterRoomReady(page);
   await expectFocusModeOn(page);
 
   await openNoteSurface(page);

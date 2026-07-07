@@ -29,14 +29,11 @@ import type { Actor, Channel } from "../engine/types";
 
 const AUTO_ACCEPT_PREF_KEY = "noderoom:autoAcceptConsent:v1";
 const TOUR_KEY = "noderoom:tour:v1";
-const WALKDOCK_KEY = "noderoom:walkdock:v1";
 const NOTE_PRIORITY = ["Capture Notebook", "Note", "Diligence memo", "Open questions / workplan", "Agent wiki"];
-type AccentKey = "terra" | "indigo" | "green";
+type AccentKey = "terra";
 type ReplayPace = "brisk" | "standard" | "cinematic";
 const ACCENTS: Record<AccentKey, { label: string; primary: string; hover: string; ink: string; tint: string; border: string }> = {
   terra: { label: "Accent", primary: "#D97757", hover: "#C76648", ink: "#E59579", tint: "rgba(217,119,87,.16)", border: "rgba(217,119,87,.28)" },
-  indigo: { label: "Indigo", primary: "#6574D8", hover: "#5665C8", ink: "#A7B0FF", tint: "rgba(101,116,216,.16)", border: "rgba(101,116,216,.30)" },
-  green: { label: "Green", primary: "#24945F", hover: "#1F8354", ink: "#6BD49D", tint: "rgba(36,148,95,.16)", border: "rgba(36,148,95,.30)" },
 };
 
 export function roomIntroSafetyCopy(mode: "memory" | "convex"): string {
@@ -45,8 +42,11 @@ export function roomIntroSafetyCopy(mode: "memory" | "convex"): string {
     : "This live room uses the production backend: room state, edits, traces, and approvals persist for collaborators.";
 }
 
-export function preferredRoomArtifact<T extends { id: string; kind?: string; title?: string; order?: string[]; meta?: { dataframe?: { rowCount?: number }; excelGrid?: { rows?: number } } }>(arts: T[]): T | undefined {
-  const scaleResearch = arts.find((a) => a.kind === "sheet" && a.title === "Company research" && artifactRowCount(a) >= 1_000);
+export function preferredRoomArtifact<T extends { id: string; kind?: string; title?: string; order?: string[]; meta?: { dataframe?: { rowCount?: number }; excelGrid?: { rows?: number }; tags?: string[] } }>(arts: T[]): T | undefined {
+  const scaleResearch = arts.find((a) =>
+    a.kind === "sheet" &&
+    a.title === "Company research" &&
+    (artifactRowCount(a) >= 1_000 || a.meta?.tags?.includes("states-scale-default")));
   if (scaleResearch) return scaleResearch;
   // Default to the wall (post-it / inventory surface) so files feel like a game-item inventory.
   const wall = arts.find((a) => a.kind === "wall");
@@ -84,16 +84,15 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   // QA P0: below 981px the side panels render as fixed overlays over chat (styles.css), so they
   // start CLOSED — chat is the default single pane and the top-bar toggles are the panel switcher.
   const isCompact = typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(max-width: 980px)").matches;
-  // 981-1199px is the June-target "Room button" band: the binder is summoned over the stage (overlay,
-  // see styles.css) so the center Work Surface + Copilot keep full width. It starts closed; the
-  // top-bar binder toggle is the Room button that opens it.
+  // 981-1199px is the June-target "Room button" band: the binder floats over the stage (overlay,
+  // see styles.css) so the center Work Surface + Copilot keep full width while the scale binder
+  // stays present on non-mobile views.
   const isMid = typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(min-width: 981px) and (max-width: 1199px)").matches;
-  const scaleDemo = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("demo") === "scale";
   // Panels are a VIEWPORT decision, not a role/mode decision. The old `live && !isCompact` init read
   // `live` at mount — still false on a RELOAD while Convex queries load —
   // so every returning visitor (tour already seen, nothing to force panels open) landed in a chat-only
   // layout. Caught by the walkthrough capturer's reload path; see FRICTION_LOG 2026-06-09.
-  const [show, setShow] = useState({ left: scaleDemo && !isCompact, stage: true, copilot: !isCompact });
+  const [show, setShow] = useState({ left: !isCompact, stage: true, copilot: !isCompact });
   const [codeCopied, setCodeCopied] = useState(false);
   // Default the side panels lean (binder + Copilot) so the work surface gets the width budget --
   // the contract makes it the focus, and an idle Copilot does not need 380px. Both stay inside the
@@ -109,11 +108,8 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   const [autoAcceptModal, setAutoAcceptModal] = useState(false);
   const [rememberAutoAccept, setRememberAutoAccept] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
+  const [walkDockOpen, setWalkDockOpen] = useState(false);
   const [dockStep, setDockStep] = useState(0);
-  const [walkdockDismissed, setWalkdockDismissed] = useState(() => {
-    if (scaleDemo) return true;
-    try { return localStorage.getItem(WALKDOCK_KEY) === "dismissed"; } catch { return false; }
-  });
   const [tweaksOpen, setTweaksOpen] = useState(false);
   const [accent, setAccent] = useState<AccentKey>("terra");
   const [backgroundGlow, setBackgroundGlow] = useState(true);
@@ -122,7 +118,6 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   // Room-level rung of the presence ladder: facepile/live chip → PeoplePanel (role groups,
   // live location, Follow). Declared before the !room early return (stable hook count).
   const [peopleOpen, setPeopleOpen] = useState(false);
-  const tourAutoStarted = useRef(false);
   const accentTheme = ACCENTS[accent];
   const shellStyle = {
     "--accent-primary": accentTheme.primary,
@@ -131,16 +126,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     "--accent-tint": accentTheme.tint,
     "--accent-border": accentTheme.border,
   } as CSSProperties;
-  // First-run: auto-start the walkthrough once per browser. The header "?" button replays it.
-  useEffect(() => {
-    if (tourAutoStarted.current) return;
-    let seen = false;
-    try { seen = localStorage.getItem(TOUR_KEY) === "done"; } catch { /* ignore */ }
-    tourAutoStarted.current = true;
-    // On compact screens panels are stacked fixed overlays — opening all three would bury the chat
-    // the tour is pointing at, so the tour starts from the chat-only default there.
-    if (!seen && !scaleDemo) { if (!isCompact) setShow({ left: true, stage: true, copilot: true }); setTourOpen(true); }
-  }, [isCompact, scaleDemo]);
+  // Guided walkthrough is opt-in; the header "?" button opens it when requested.
   // Drop a stale split-view pin if its artifact vanished. MUST run before the `!room` early return:
   // a LIVE room mounts with room=undefined and resolves a tick later, so a hook placed AFTER the
   // return changes the hook count between those two renders ("rendered more hooks than previous").
@@ -276,11 +262,10 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   // Open the tour from a clean, known layout: all panels shown + the financial grid selected, ONCE.
   // Steps then anchor only to always-visible elements, so there are no per-step side-effects to thrash.
   const startTour = () => {
-    setWalkdockDismissed(false);
-    try { localStorage.removeItem(WALKDOCK_KEY); } catch { /* ignore */ }
     if (varianceArt) openArtifact(varianceArt.id);
     setShow({ left: true, stage: true, copilot: true });
     setCopilotTab("public");
+    setWalkDockOpen(true);
     setDockStep(0);
     setTourOpen(true);
   };
@@ -353,6 +338,11 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     if (rememberAutoAccept) localStorage.setItem(AUTO_ACCEPT_PREF_KEY, "host-consented");
     setAutoAcceptModal(false);
     store.toggleAutoAllow(roomId, me);
+  };
+  const dismissWalkDock = () => {
+    setWalkDockOpen(false);
+    setTourOpen(false);
+    try { localStorage.setItem(TOUR_KEY, "done"); } catch { /* ignore */ }
   };
   const toggleFocusMode = () => {
     setFocusMode((current) => {
@@ -549,19 +539,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
           />
         )}
       </div>
-      {!walkdockDismissed && (
-        <RoomWalkthroughDock
-          steps={tourSteps}
-          step={dockStep}
-          pace={replayPace}
-          onStep={selectDockStep}
-          onReplay={startTour}
-          onDismiss={() => {
-            setWalkdockDismissed(true);
-            try { localStorage.setItem(WALKDOCK_KEY, "dismissed"); } catch { /* ignore */ }
-          }}
-        />
-      )}
+      {walkDockOpen && <RoomWalkthroughDock steps={tourSteps} step={dockStep} pace={replayPace} onStep={selectDockStep} onReplay={startTour} onDismiss={dismissWalkDock} />}
       <SignalStatusStrip roomId={roomId} me={me} focusModeEnabled={focusMode.enabled} onOpenArtifact={openArtifact} />
       <RoomTweaksPanel
         open={tweaksOpen}
@@ -709,7 +687,7 @@ function RoomWalkthroughDock({
       <button className="r-btn ghost r-walkdock-replay" type="button" onClick={onReplay}>
         <Play size={13} /> Replay
       </button>
-      <button className="r-iconbtn r-iconbtn-sm r-walkdock-close" type="button" aria-label="Dismiss walkthrough dock" data-testid="walkthrough-dock-dismiss" onClick={onDismiss}>
+      <button className="r-iconbtn r-iconbtn-sm r-walkdock-close" type="button" aria-label="Dismiss walkthrough dock" title="Dismiss walkthrough dock" data-testid="walkthrough-dock-dismiss" onClick={onDismiss}>
         <X size={13} />
       </button>
     </div>
