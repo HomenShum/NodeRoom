@@ -95,11 +95,7 @@ async function createRoom(ctx: BrowserContext, code: string): Promise<Page> {
   await page.locator('[data-testid="public-chat-panel"] [data-testid="chat-composer"]').waitFor({ timeout: 60_000 });
   await page.getByTestId("tour-skip").click({ timeout: 8000 }).catch(() => {});
   // The current app creates blank rooms — load the sample workspace if the blank state is showing.
-  const blank = page.getByTestId("blank-room-state");
-  if (await blank.isVisible({ timeout: 3_000 }).catch(() => false)) {
-    await page.getByTestId("blank-cta-demo").click({ timeout: 10_000 });
-    await settle(page, 2_000);
-  }
+  await page.getByText("Company research", { exact: false }).first().waitFor({ timeout: 30_000 }).catch(() => {});
   // Click the Company research tab so the research sheet is visible.
   await page.locator('[data-testid="artifact-tabs"] button', { hasText: /Company research/i }).first().click({ timeout: 15_000 }).catch(() => {});
   await page.locator('[data-testid="sheet-grid"]').waitFor({ timeout: 15_000 }).catch(() => {});
@@ -175,11 +171,7 @@ async function seedResearch(page: Page, code: string, companies = DEFAULT_SEED_C
 }
 
 async function ensureSampleDiligenceWorkspace(page: Page) {
-  const blank = page.getByTestId("blank-room-state");
-  if (await blank.isVisible({ timeout: 3_000 }).catch(() => false)) {
-    const load = page.getByTestId("blank-cta-demo");
-    await load.click({ timeout: 10_000 });
-  }
+  await page.getByText("Company research", { exact: false }).first().waitFor({ timeout: 30_000 }).catch(() => {});
   await page.locator(".r-research").waitFor({ timeout: 30_000 });
 }
 

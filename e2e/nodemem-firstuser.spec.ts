@@ -10,6 +10,7 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "../convex/_generated/api";
 import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve as pathResolve } from "node:path";
+import { createScratchSheetFromStarterHome } from "./liveStarter";
 
 const BASE = process.env.BENCH_BASE_URL ?? "http://127.0.0.1:5273";
 const CONVEX_URL = process.env.VITE_CONVEX_URL ?? "";
@@ -29,14 +30,14 @@ test("first-user journey on the live UI", async ({ page }) => {
   await page.waitForTimeout(2500);
   await page.screenshot({ path: `${SHOTDIR}/01-landing.png` });
 
-  // 2) CREATE ROOM (blank sheet)
+  // 2) CREATE ROOM (starter room), then add a scratch sheet through Room Home
   await page.locator('[data-testid="create-room"]').click({ timeout: 60_000 });
   await page.locator('[data-testid="create-room-submit"]').waitFor({ state: "visible", timeout: 10_000 });
   await page.locator('[data-testid="create-room-submit"]').click();
-  await page.locator('[data-testid="blank-cta-sheet"]').click({ timeout: 60_000 });
+  await createScratchSheetFromStarterHome(page);
   await expect(page.getByText(/live convex/i)).toBeVisible({ timeout: 30_000 });
   await page.waitForTimeout(1500);
-  await page.screenshot({ path: `${SHOTDIR}/02-room-blank.png` });
+  await page.screenshot({ path: `${SHOTDIR}/02-room-starter-scratch.png` });
 
   const roomCode = (() => { try { return new URL(page.url()).searchParams.get("room") ?? ""; } catch { return ""; } })();
   const convex = new ConvexHttpClient(CONVEX_URL);

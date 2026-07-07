@@ -3,10 +3,11 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { basename, dirname, resolve } from "node:path";
 import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "./focusMode";
+import { createScratchSheetFromStarterHome } from "./liveStarter";
 
 const BASE = process.env.BENCH_BASE_URL ?? "https://noderoom.live";
 const PACKET_ROOT = resolve(process.env.UNDERWRITING_PACKET_ROOT ?? ".tmp/underwriting-hmda-dc-2025/live-packet");
-const PROOF_PATH = resolve(process.env.UNDERWRITING_LIVE_PROOF_PATH ?? "docs/eval/underwriting-hmda-live-proof.json");
+const PROOF_PATH = resolve(process.env.UNDERWRITING_LIVE_PROOF_PATH ?? "docs/eval/underwriting-hmda-live-browser-proof.json");
 const AGENT_COMPLETION_TIMEOUT_MS = Number(process.env.UNDERWRITING_AGENT_COMPLETION_TIMEOUT_MS ?? 15 * 60_000);
 const TEST_TIMEOUT_MS = Number(
   process.env.UNDERWRITING_TEST_TIMEOUT_MS ?? Math.max(8 * 60_000, AGENT_COMPLETION_TIMEOUT_MS + 4 * 60_000),
@@ -85,7 +86,7 @@ async function openFreshLiveSheet(page: Page): Promise<void> {
   await page.getByTestId("create-room").click({ timeout: 60_000 });
   await page.getByTestId("create-room-submit").waitFor({ state: "visible", timeout: 10_000 });
   await page.getByTestId("create-room-submit").click();
-  await page.getByTestId("blank-cta-sheet").click({ timeout: 60_000 });
+  await createScratchSheetFromStarterHome(page);
   await expect(page.getByText(/live convex/i)).toBeVisible({ timeout: 30_000 });
   await expectFocusModeOn(page);
   await expectAttentionOverlayMounted(page);

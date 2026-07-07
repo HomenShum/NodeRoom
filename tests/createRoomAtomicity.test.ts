@@ -37,6 +37,10 @@ const spreadsheetCellsOf = (t: T, artifactId: unknown) =>
   t.run(async (ctx) => (await ctx.db.query("spreadsheetCells").collect()).filter((e) => String(e.artifactId) === String(artifactId)));
 const membersIn = (t: T, roomId: unknown) =>
   t.run(async (ctx) => (await ctx.db.query("members").collect()).filter((m) => String(m.roomId) === String(roomId)));
+const messagesIn = (t: T, roomId: unknown) =>
+  t.run(async (ctx) => (await ctx.db.query("messages").collect()).filter((m) => String(m.roomId) === String(roomId)));
+const tracesIn = (t: T, roomId: unknown) =>
+  t.run(async (ctx) => (await ctx.db.query("traces").collect()).filter((m) => String(m.roomId) === String(roomId)));
 
 describe("atomic room create — no orphaned rooms", () => {
   it("createStarterRoom seeds a complete room (room + host + starter artifacts) in one transaction", async () => {
@@ -55,6 +59,15 @@ describe("atomic room create — no orphaned rooms", () => {
     expect(runwayColumns.map((column) => column.id)).toEqual(["company", "cash", "burn", "runway", "status", "milestones"]);
     expect(runwayColumns.every((column) => typeof column.label === "string" && typeof column.order === "number")).toBe(true);
     expect(await spreadsheetCellsOf(t, runway?._id)).toHaveLength(12);
+    const research = arts.find((a) => a.title === "Company research");
+    expect(research).toBeTruthy();
+    const dataframe = (research?.meta as { dataframe?: { rowCount?: number; defaultHiddenColumnIds?: string[]; semanticIndexDisabled?: boolean } } | undefined)?.dataframe;
+    expect(dataframe?.rowCount).toBe(1000);
+    expect(dataframe?.defaultHiddenColumnIds).toContain("summary");
+    expect(dataframe?.semanticIndexDisabled).toBe(true);
+    expect(research?.order.length).toBeGreaterThanOrEqual(7000);
+    expect(await messagesIn(t, res.roomId)).toHaveLength(312);
+    expect(await tracesIn(t, res.roomId)).toHaveLength(400);
     // Host member committed in the same transaction.
     const members = await membersIn(t, res.roomId);
     expect(members.some((m) => m.role === "host" && m.name === "Maya")).toBe(true);

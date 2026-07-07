@@ -302,6 +302,28 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-file.r-upload:disabled { opacity: .6; cursor: default; }
 .r-upload-error { margin: 5px var(--space-2) 0; color: var(--danger-ink); font-size: 10.5px; line-height: 1.35; }
 .r-upload-status { margin: 5px var(--space-2) 0; color: var(--text-tertiary); font-size: 10.5px; line-height: 1.35; }
+.r-rail-search { position: sticky; top: 0; z-index: 2; min-height: 30px; display: flex; align-items: center; gap: 6px; margin: 0 0 8px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-secondary); color: var(--text-muted); }
+.r-rail-search input { min-width: 0; width: 100%; border: 0; outline: 0; background: transparent; color: var(--text-primary); font: inherit; font-size: 12px; }
+.r-rail-search input::placeholder { color: var(--text-tertiary); }
+.r-tree-section { padding: 5px 0; }
+.r-tree-section-head { width: 100%; min-height: 26px; display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; align-items: center; gap: 5px; padding: 2px var(--space-2); border: 0; border-radius: 7px; background: transparent; color: var(--text-muted); text-align: left; font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; cursor: pointer; }
+.r-tree-section-head:hover { background: var(--bg-hover); color: var(--text-secondary); }
+.r-tree-section-head svg { transition: transform var(--motion-fast); }
+.r-tree-section-head[data-open="true"] svg { transform: rotate(90deg); }
+.r-tree-section-head span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-tree-section-head em { font-style: normal; font-family: var(--font-mono); font-size: 9.5px; color: var(--text-tertiary); }
+.r-tree-rows { display: grid; gap: 1px; }
+.r-tree-rows > .kicker.r-rail-kicker { display: none; }
+.r-tree-node { min-width: 0; }
+.r-tree-children { display: grid; gap: 1px; }
+.r-tree-row { min-height: 34px; padding-top: 5px; padding-bottom: 5px; }
+.r-tree-row[data-level="2"] { padding-left: 20px; }
+.r-tree-row[data-level="3"] { padding-left: 34px; }
+.r-tree-row[data-level="2"] .fi,
+.r-tree-row[data-level="3"] .fi { width: 22px; height: 22px; border-radius: 6px; }
+.r-tree-copy { min-width: 0; }
+.r-tree-count { margin-left: auto; flex: none; min-width: 18px; height: 18px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 999px; color: var(--text-tertiary); font-family: var(--font-mono); font-size: 9.5px; background: var(--bg-primary); }
+.r-tree-empty { padding: 6px var(--space-2); color: var(--text-tertiary); font-size: 11px; }
 .r-sidebar-chat {
   width: 100%;
   min-width: 0;
@@ -756,6 +778,14 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-agent-workflow-progress-label em { margin-left: 5px; padding: 1px 4px; border-radius: 999px; background: var(--bg-secondary); color: var(--text-tertiary); font-style: normal; font-size: 10px; font-weight: 800; }
 .r-agent-workflow-progress-preview { min-width: 0; color: var(--text-secondary); font-size: 11.5px; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-agent-workflow-progress-details { display: grid; gap: 5px; padding-top: var(--space-2); border-top: 1px solid var(--line); }
+.r-agent-failure-receipt { min-width: 0; display: grid; gap: 8px; padding: 8px; border: 1px solid var(--danger-border); border-radius: 8px; background: color-mix(in srgb, var(--danger-tint) 70%, var(--bg-secondary)); color: var(--text-secondary); }
+.r-agent-failure-head { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 8px; }
+.r-agent-failure-icon { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center; border: 1px solid var(--danger-border); background: var(--bg-primary); color: var(--danger-ink); }
+.r-agent-failure-head div { min-width: 0; display: grid; gap: 2px; }
+.r-agent-failure-head strong { min-width: 0; color: var(--text-primary); font-size: 12.5px; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-agent-failure-head span { color: var(--text-secondary); font-size: 11.5px; line-height: 1.35; overflow-wrap: anywhere; }
+.r-agent-failure-next { display: inline-flex; align-items: center; gap: 5px; color: var(--text-muted); font-size: 11px; line-height: 1.35; }
+.r-agent-failure-receipt .r-agent-workflow-progress-toggle { grid-column: auto; justify-self: start; }
 .r-agent-progress-bar { position: relative; display: flex; align-items: center; gap: 8px; height: 20px; border-radius: 6px; background: color-mix(in srgb, var(--bg-primary) 80%, transparent); border: 1px solid var(--line); overflow: hidden; }
 .r-agent-progress-bar-fill { position: absolute; inset: 0 auto 0 0; background: color-mix(in srgb, var(--accent-primary) 38%, transparent); transition: width .4s var(--ease-out-expo); border-radius: 5px 0 0 5px; }
 .r-agent-progress-bar-label { position: relative; z-index: 1; padding-left: 8px; font-size: 10.5px; font-weight: 700; color: var(--text-secondary); white-space: nowrap; }
@@ -867,6 +897,19 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-filter-chip[data-on="true"] { background: var(--accent-tint); border-color: var(--accent-border); color: var(--accent-ink); }
 .r-filter-chip[data-on="true"] b { color: var(--accent-ink); }
 .r-filter-chip:hover { border-color: var(--accent-border); color: var(--text-primary); }
+.r-sheet-search { flex: 0 1 150px; min-width: 110px; min-height: 24px; display: inline-flex; align-items: center; gap: 5px; padding: 0 7px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg-primary); color: var(--text-muted); }
+.r-sheet-search input { min-width: 0; width: 100%; border: 0; outline: 0; background: transparent; color: var(--text-primary); font: inherit; font-size: 11px; }
+.r-sheet-search input::placeholder { color: var(--text-tertiary); }
+.r-sheet-status-filter { flex: none; display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg-primary); }
+.r-sheet-status-filter button { min-height: 20px; padding: 0 6px; border: 0; border-radius: 5px; background: transparent; color: var(--text-tertiary); font-size: 10px; font-weight: 800; text-transform: capitalize; cursor: pointer; }
+.r-sheet-status-filter button[data-on="true"] { background: var(--accent-tint); color: var(--accent-ink); }
+.r-sheet-colmenu { position: relative; flex: none; }
+.r-sheet-colmenu-btn { min-height: 24px; display: inline-flex; align-items: center; gap: 4px; padding: 0 7px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg-primary); color: var(--text-muted); font-size: 10.5px; font-weight: 800; cursor: pointer; }
+.r-sheet-colmenu-btn[aria-expanded="true"] { color: var(--accent-ink); border-color: var(--accent-border); background: var(--accent-tint); }
+.r-sheet-colmenu-pop { position: absolute; right: 0; top: calc(100% + 5px); z-index: 35; width: min(220px, 76vw); max-height: 260px; overflow-y: auto; display: grid; gap: 1px; padding: 5px; border: 1px solid var(--line-strong); border-radius: 9px; background: var(--bg-primary); box-shadow: var(--shadow-lg); }
+.r-sheet-colmenu-pop label { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 6px; padding: 5px 6px; border-radius: 6px; color: var(--text-secondary); font-size: 11px; }
+.r-sheet-colmenu-pop label:hover { background: var(--bg-hover); }
+.r-sheet-colmenu-pop span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-sheet-density { display: inline-flex; gap: 2px; flex: none; border: 1px solid var(--line); border-radius: 7px; padding: 2px; }
 .r-sheet-density-btn { width: 22px; height: 20px; border: 0; background: transparent; color: var(--text-tertiary); font-size: 11px; font-weight: 700; border-radius: 5px; cursor: pointer; }
 .r-sheet-density-btn[data-on="true"] { background: var(--bg-primary); color: var(--accent-ink); }
@@ -1609,8 +1652,8 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
    ~760px floor; hovering peeks the binder back to full so files stay one motion away. Its resize
    handle is hidden — width is the band's job here, not a drag. */
 @media (min-width: 1200px) and (max-width: 1439px) {
-  .r-panel.left { width: 150px !important; transition: width .16s var(--ease-out-expo); }
-  .r-panel.left:hover { width: 248px !important; }
+  .r-panel.left { width: 224px !important; transition: width .16s var(--ease-out-expo); }
+  .r-panel.left:hover { width: 252px !important; }
   .r-panel.left + .r-resize { display: none; }
 }
 /* 981-1199 (June target "Room button"): the binder is summoned OVER the stage so the center Work
@@ -2580,3 +2623,298 @@ body.nr-honesty-on [data-evidence-class="unsourced"]     { background-color: col
    hosting an open popover overflow (generalizes the generic-sheet :has rule). */
 .r-sheet td.r-cell:has(.r-cite-wrap:hover),
 .r-sheet td.r-cell:has(.r-cite-wrap:focus-within) { overflow: visible; z-index: 20; }
+
+/* ===========================================================================
+   NodeAgent handoff noise pass
+   Source: NodeAgent-handoff_07062026/project/NodeRoom - Index.html +
+   shared/colors_and_type.css. Keep data visible; reveal apparatus on intent.
+   =========================================================================== */
+[data-theme="dark"] .r-top,
+[data-theme="dark"] .r-panel,
+[data-theme="dark"] .r-walkdock,
+[data-theme="dark"] .r-shell-bottom,
+[data-theme="dark"] .r-tweaks {
+  box-shadow: 0 0 0 1px rgba(255,255,255,.04);
+}
+
+.r-top {
+  background: color-mix(in srgb, var(--bg-primary) 84%, transparent);
+}
+
+.r-top .r-pill-auto,
+.r-top .r-live-count {
+  background: color-mix(in srgb, var(--bg-secondary) 72%, transparent);
+  border-color: color-mix(in srgb, var(--line) 82%, transparent);
+}
+
+.r-top .r-avatars,
+.r-top .r-live-count,
+.r-top .r-pill-auto {
+  opacity: .74;
+  transition: opacity var(--motion-fast), background var(--motion-fast), border-color var(--motion-fast);
+}
+
+.r-top:hover .r-avatars,
+.r-top:focus-within .r-avatars,
+.r-top:hover .r-live-count,
+.r-top:focus-within .r-live-count,
+.r-top:hover .r-pill-auto,
+.r-top:focus-within .r-pill-auto {
+  opacity: 1;
+}
+
+.r-tweak-swatches {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.r-tweak-swatch {
+  min-height: 30px;
+  border-radius: 8px;
+}
+
+.r-walkdock {
+  width: min(760px, calc(100% - 20px));
+  min-height: 34px;
+  margin: 0 auto 6px;
+  padding: 4px 6px;
+  grid-template-columns: auto auto minmax(0, 1fr) auto auto auto auto;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
+  border-color: color-mix(in srgb, var(--line) 86%, transparent);
+}
+
+.r-walkdock-main {
+  gap: 8px;
+}
+
+.r-walkdock-main span {
+  color: var(--accent-ink);
+}
+
+.r-walkdock-main strong {
+  color: var(--text-tertiary);
+}
+
+.r-walkdock:not(:hover):not(:focus-within) .r-walkdock-dots,
+.r-walkdock:not(:hover):not(:focus-within) .r-walkdock-pace,
+.r-walkdock:not(:hover):not(:focus-within) .r-walkdock-replay {
+  opacity: .28;
+}
+
+.r-walkdock:not(:hover):not(:focus-within) .r-walkdock-replay {
+  width: 30px;
+  padding-inline: 0;
+  font-size: 0;
+}
+
+.r-walkdock:not(:hover):not(:focus-within) .r-walkdock-replay svg {
+  margin: 0;
+}
+
+.r-walkdock-dots,
+.r-walkdock-pace,
+.r-walkdock-replay {
+  transition: opacity var(--motion-fast), width var(--motion-fast), padding var(--motion-fast);
+}
+
+.r-walkdock-dismiss {
+  color: var(--text-tertiary);
+}
+
+.r-shell-bottom {
+  min-height: 32px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
+  border-color: color-mix(in srgb, var(--line) 86%, transparent);
+}
+
+.r-shell-bottom .r-spine,
+.r-shell-bottom .r-focus-status,
+.r-shell-bottom .r-signal-tape {
+  opacity: .62;
+  transition: opacity var(--motion-fast), max-width var(--motion-base);
+}
+
+.r-shell-bottom:hover .r-spine,
+.r-shell-bottom:focus-within .r-spine,
+.r-shell-bottom:hover .r-focus-status,
+.r-shell-bottom:focus-within .r-focus-status,
+.r-shell-bottom:hover .r-signal-tape,
+.r-shell-bottom:focus-within .r-signal-tape {
+  opacity: 1;
+}
+
+.r-status-main {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.r-status-meta {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width var(--motion-base), opacity var(--motion-fast);
+}
+
+.r-shell-bottom:hover .r-status-meta,
+.r-shell-bottom:focus-within .r-status-meta {
+  max-width: 190px;
+  opacity: 1;
+}
+
+.r-signal-tape {
+  max-width: min(38vw, 360px);
+  overflow: hidden;
+}
+
+.r-shell-bottom:hover .r-signal-tape,
+.r-shell-bottom:focus-within .r-signal-tape {
+  max-width: min(58vw, 520px);
+}
+
+.r-signal-chip {
+  border-color: color-mix(in srgb, var(--line) 85%, transparent);
+  background: color-mix(in srgb, var(--bg-secondary) 80%, transparent);
+}
+
+.r-file .fm,
+.r-person .pr,
+.r-room-inv-meta,
+.r-room-inv-vis {
+  opacity: .46;
+  transition: opacity var(--motion-fast);
+}
+
+.r-file:hover .fm,
+.r-file:focus-within .fm,
+.r-person:hover .pr,
+.r-person:focus-within .pr,
+.r-room-inv-item:hover .r-room-inv-meta,
+.r-room-inv-item:focus-within .r-room-inv-meta,
+.r-room-inv-item:hover .r-room-inv-vis,
+.r-room-inv-item:focus-within .r-room-inv-vis {
+  opacity: 1;
+}
+
+.r-room-inv-add {
+  opacity: 0;
+  transition: opacity var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast);
+}
+
+.r-room-inventory:hover .r-room-inv-add,
+.r-room-inventory:focus-within .r-room-inv-add {
+  opacity: 1;
+}
+
+.r-job-strip {
+  min-height: 28px;
+  background: transparent;
+  border-bottom-color: color-mix(in srgb, var(--line) 74%, transparent);
+}
+
+.r-job-detail-toggle {
+  opacity: .58;
+}
+
+.r-job-strip:hover .r-job-detail-toggle,
+.r-job-strip:focus-within .r-job-detail-toggle {
+  opacity: 1;
+}
+
+.r-job-detail {
+  background: color-mix(in srgb, var(--bg-secondary) 42%, transparent);
+}
+
+.r-chat .r-bubble-ask {
+  display: block;
+  max-height: 168px;
+  overflow: hidden;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  line-height: 1.48;
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--bg-secondary) 58%, transparent);
+  border-color: color-mix(in srgb, var(--line) 82%, transparent);
+  border-left-color: var(--accent-primary);
+  box-shadow: inset 2px 0 0 var(--accent-primary);
+}
+
+.r-msg:hover .r-bubble-ask,
+.r-msg:focus-within .r-bubble-ask {
+  max-height: none;
+}
+
+.r-agent-stream,
+.r-agent-workflow-progress,
+.r-agent-plan-card,
+.r-agent-reasoning-card,
+.r-agent-part {
+  border-color: color-mix(in srgb, var(--line) 74%, transparent);
+  box-shadow: none;
+}
+
+.r-agent-workflow-progress,
+.r-agent-plan-card:not([open]),
+.r-agent-reasoning-card:not([open]),
+.r-agent-part:not([open]) {
+  background: color-mix(in srgb, var(--bg-secondary) 42%, transparent);
+}
+
+.r-agent-workflow-progress:not(:hover):not(:focus-within) .r-agent-workflow-progress-toggle,
+.r-agent-part:not(:hover):not(:focus-within):not([open]):not([data-status="failed"]),
+.r-agent-reasoning-card:not(:hover):not(:focus-within):not([open]) {
+  opacity: .72;
+}
+
+.r-agent-part:hover,
+.r-agent-part:focus-within,
+.r-agent-part[open],
+.r-agent-reasoning-card:hover,
+.r-agent-reasoning-card:focus-within,
+.r-agent-reasoning-card[open] {
+  opacity: 1;
+}
+
+.r-sheet[data-sheet-kind="generic"] td.r-cell .r-cell-meta:not(.failed):not(.gap) {
+  opacity: 0;
+  transform: translateY(-1px);
+  transition: opacity var(--motion-fast), transform var(--motion-fast);
+}
+
+.r-sheet[data-sheet-kind="generic"] td.r-cell:hover .r-cell-meta,
+.r-sheet[data-sheet-kind="generic"] td.r-cell:focus-within .r-cell-meta,
+.r-sheet[data-sheet-kind="generic"] td.r-cell.sel .r-cell-meta {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.r-cell .presencebadge {
+  opacity: 0;
+  transform: translateY(-50%) scale(.96);
+  transition: opacity var(--motion-fast), transform var(--motion-fast);
+}
+
+.r-cell:hover .presencebadge,
+.r-cell:focus-within .presencebadge,
+.r-cell.sel .presencebadge {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
+.r-cell.range:not(.sel) {
+  background: color-mix(in srgb, var(--accent-tint) 68%, transparent);
+  box-shadow: inset 0 0 0 1px var(--accent-border);
+}
+
+.r-tab[data-active="true"] {
+  box-shadow: inset 0 -2px 0 var(--accent-primary);
+}
+
+@media (max-width: 640px) {
+  .r-walkdock {
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+  }
+}

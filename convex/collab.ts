@@ -57,7 +57,7 @@ export const updateSession = internalMutation({
 // .collect() re-ships the whole room history to every subscriber on each new row. The UI only renders
 // recent traces (Signal Tape <=60, TraceStrip <=40); full history stays durable for audit/export.
 // TODO(load-older): cursor pagination (usePaginatedQuery) for scroll-back beyond this window.
-const TRACE_FEED_WINDOW = 200;
+const TRACE_FEED_WINDOW = 400;
 
 export const traces = query({
   args: { roomId: v.id("rooms"), requester: actorProofV },

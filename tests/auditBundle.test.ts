@@ -18,7 +18,7 @@
  *       agent traces never leak into Maya's bundle; Maya's own private-agent
  *       traces stay; exporting the other member's private sheet directly
  *       refuses; the owner can export their own private sheet
- *   (e) bounds: a 5,001-element sheet refuses with sheet_too_large (no partial
+ *   (e) bounds: a 25,001-element sheet refuses with sheet_too_large (no partial
  *       bundle), and a note artifact refuses with not_a_sheet
  */
 import { convexTest } from "convex-test";
@@ -308,23 +308,21 @@ describe("auditBundle.buildEvidenceBundle — signed evidence bundle export", ()
     expect(rileyParts[0].text).toContain("RILEY-SECRET-CELL-99");
   });
 
-  it("bounds: a 5,001-element sheet refuses with sheet_too_large (no partial bundle); a note refuses with not_a_sheet", async () => {
+  it("bounds: a 25,001-element sheet refuses with sheet_too_large (no partial bundle); a note refuses with not_a_sheet", async () => {
     const h = await seedRoom();
     const hugeId = await h.t.run(async (ctx) => {
       const now = Date.now();
+      const order = Array.from({ length: 25_001 }, (_, i) => `r${i}__v`);
       const artifactId = await ctx.db.insert("artifacts", {
         roomId: h.roomId,
         kind: "sheet",
         title: "Oversized import",
         version: 1,
-        order: [],
+        order,
         updatedAt: now,
         createdBy: h.actor,
         visibility: "room",
       });
-      for (let i = 0; i < 5_001; i++) {
-        await ctx.db.insert("elements", { artifactId, elementId: `r${i}__v`, value: i, version: 1, updatedAt: now, updatedBy: h.actor });
-      }
       return artifactId;
     });
     const before = await countBundleArtifacts(h);

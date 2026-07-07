@@ -61,7 +61,7 @@ export function Landing({
   const [joinErr, setJoinErr] = useState<string | null>(null);
   const [joinDialogCode, setJoinDialogCode] = useState<string | null>(null);
   const [createDialogCode, setCreateDialogCode] = useState<string | null>(null);
-  const [createTitle, setCreateTitle] = useState("Blank NodeRoom");
+  const [createTitle, setCreateTitle] = useState("Startup diligence");
   const live = mode === "live";
   const joinTrapRef = useFocusTrap(live && !!joinDialogCode);
   const createTrapRef = useFocusTrap(live && !!createDialogCode);
@@ -94,7 +94,7 @@ export function Landing({
   };
   const createRoom = () => {
     if (live) {
-      setCreateTitle("Blank NodeRoom");
+      setCreateTitle("Startup diligence");
       setCreateDialogCode(makeLandingRoomCode());
     } else onEnter?.(createFreshRoom("My room", name || "Host"));
   };
@@ -105,7 +105,7 @@ export function Landing({
   };
   const confirmLiveCreate = () => {
     if (!createDialogCode) return;
-    onLiveCreate?.(displayName("Host"), createTitle.trim() || "Blank NodeRoom", createDialogCode);
+    onLiveCreate?.(displayName("Host"), createTitle.trim() || "Startup diligence", createDialogCode);
     setCreateDialogCode(null);
   };
 

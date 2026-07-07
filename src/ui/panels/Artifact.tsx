@@ -247,16 +247,16 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   return (
     <div className="r-panel artifact" ref={surfaceRef} style={style} data-testid={surfaceKey === "secondary" ? "artifact-panel-secondary" : "artifact-panel"}>
       <div className="r-panel-head">
-        <div className="r-tabs" data-testid={surfaceKey === "secondary" ? "artifact-tabs-secondary" : "artifact-tabs"}>
+        <div className="r-tabs fx-tabs" data-testid={surfaceKey === "secondary" ? "artifact-tabs-secondary" : "artifact-tabs"}>
           {/* Home is a pinned, non-closeable pseudo-tab: the room command center is always one click away. */}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab r-hometab" data-active={String(homeOpen)} data-testid="home-tab" title="Room Home — command center, inventory, and work lanes" onClick={() => { setHomeOpen(true); setTraceOpen(false); setGraphOpen(false); }}>
+            <button type="button" className="r-tab fx-tab r-hometab" data-active={String(homeOpen)} data-testid="home-tab" title="Room Home — command center, inventory, and work lanes" onClick={() => { setHomeOpen(true); setTraceOpen(false); setGraphOpen(false); }}>
               <Home size={13} /> Home
             </button>
           )}
           {openIds
             ? openTabArts.map((a) => (
-                <button key={a.id} className="r-tab r-filetab" data-active={String(!traceOpen && !homeOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setGraphOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
+                <button key={a.id} className="r-tab fx-tab r-filetab" data-active={String(!traceOpen && !homeOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setGraphOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
                   {tabIcon(a)}
                   {renamingId === a.id ? (
                     <input className="r-filetab-rename" defaultValue={a.title} autoFocus aria-label="Rename file"
@@ -273,13 +273,13 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
                 </button>
               ))
             : TABS.filter((t) => artFor(t.id)).map((t) => (
-                <button key={t.id} className="r-tab" data-active={String(!traceOpen && !homeOpen && !graphOpen && activeTab === t.id)} onClick={() => { pick(t.id); setTraceOpen(false); setHomeOpen(false); setGraphOpen(false); }}>
+                <button key={t.id} className="r-tab fx-tab" data-active={String(!traceOpen && !homeOpen && !graphOpen && activeTab === t.id)} onClick={() => { pick(t.id); setTraceOpen(false); setHomeOpen(false); setGraphOpen(false); }}>
                   <t.Icon size={13} /> {t.label}
                 </button>
               ))}
           {openIds && openTabArts.length > 1 && (
-            <details className="r-tab-overflow" ref={tabMenuRef}>
-              <summary className="r-tab r-tab-overflow-btn" aria-label="All open tabs" title="All open tabs"><MoreHorizontal size={14} /></summary>
+            <details className="r-tab-overflow sc-tabmore" ref={tabMenuRef}>
+              <summary className="r-tab fx-tab r-tab-overflow-btn" aria-label="All open tabs" title="All open tabs"><MoreHorizontal size={14} /></summary>
               <div className="r-tab-overflow-menu" role="menu">
                 {openTabArts.map((a) => (
                   <button key={a.id} type="button" role="menuitem" className="r-tab-overflow-item" data-active={String(!traceOpen && !homeOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setGraphOpen(false); tabMenuRef.current?.removeAttribute("open"); }}>{tabIcon(a)} <span>{a.title}</span></button>
@@ -289,12 +289,12 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
           )}
           {/* Trace is a pinned work-surface tab alongside the artifacts (agent + QA provenance). */}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab r-tracetab" data-active={String(traceOpen)} data-testid="trace-tab" title="Agent + QA trace records" onClick={() => { setTraceOpen(true); setHomeOpen(false); setGraphOpen(false); }}>
+            <button type="button" className="r-tab fx-tab r-tracetab" data-active={String(traceOpen)} data-testid="trace-tab" title="Agent + QA trace records" onClick={() => { setTraceOpen(true); setHomeOpen(false); setGraphOpen(false); }}>
               <Activity size={13} /> Trace
             </button>
           )}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab r-graphtab" data-active={String(graphOpen)} data-testid="graph-tab" title="Knowledge graph — how this room's artifacts reference each other" onClick={() => { setGraphOpen(true); setHomeOpen(false); setTraceOpen(false); }}>
+            <button type="button" className="r-tab fx-tab r-graphtab" data-active={String(graphOpen)} data-testid="graph-tab" title="Knowledge graph — how this room's artifacts reference each other" onClick={() => { setGraphOpen(true); setHomeOpen(false); setTraceOpen(false); }}>
               <Share2 size={13} /> Graph
             </button>
           )}
@@ -317,7 +317,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
         {canToggleVis ? (
           <button
             type="button"
-            className={`r-tag r-tag-toggle ${visibility === "private" ? "private" : "public"}`}
+            className={`r-tag fx-shared r-tag-toggle ${visibility === "private" ? "private" : "public"}`}
             onClick={toggleVisibility}
             title={visibility === "private" ? "Share this sheet with the room" : "Make this sheet private to you"}
             data-testid="artifact-visibility-toggle"
@@ -326,7 +326,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
             {visibility === "private" ? "Private" : "Shared"}
           </button>
         ) : (
-          <span className={`r-tag ${visibility === "private" ? "private" : "public"}`}>
+          <span className={`r-tag fx-shared ${visibility === "private" ? "private" : "public"}`}>
             {visibility === "private" ? <Lock size={11} /> : <Users size={11} />}
             {visibility === "private" ? "Private" : visibility === "public" ? "Public" : "Shared"}
           </span>
@@ -1083,7 +1083,7 @@ function EditableCell({ value, disabled, align, onCommit, addLabel, onEditStart,
   if (disabled) return value ? <span className={valueClass(value)}>{value}</span> : <span className="nullcell">—</span>;
   if (editing) {
     return (
-      <input className="r-cell-input" autoFocus value={draft} style={align === "right" ? { textAlign: "right" } : undefined}
+      <input className="r-cell-input rm-cellin" autoFocus value={draft} style={align === "right" ? { textAlign: "right" } : undefined}
         onChange={(e) => setDraft(e.target.value)}
         onBlur={() => { setEditing(false); onEditEnd?.(); if (draft.trim() !== value) onCommit(draft.trim()); }}
         onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); if (e.key === "Escape") { setDraft(value); setEditing(false); onEditEnd?.(); } }} />
@@ -1702,11 +1702,11 @@ function renderGenericCellContent(col: string, value: string): ReactNode {
   if (!trimmed) return <span className="nullcell">-</span>;
   if (isGenericStatusColumn(col)) {
     const tone = statusTone(trimmed);
-    return <span className={`r-grid-status r-grid-status-${tone}`} data-testid="grid-status-chip" title={trimmed}>{statusText(trimmed)}</span>;
+    return <span className={`r-grid-status fx-st r-grid-status-${tone}`} data-testid="grid-status-chip" title={trimmed}>{statusText(trimmed)}</span>;
   }
   if (isGenericOwnerColumn(col)) {
     return (
-      <span className="r-owner-chip" data-testid="grid-owner-chip" title={trimmed}>
+      <span className="r-owner-chip fx-owner" data-testid="grid-owner-chip" title={trimmed}>
         <span className="r-owner-avatar" aria-hidden="true" style={{ background: coColor(trimmed) }}>{coInitials(trimmed)}</span>
         <span className="r-owner-name">{trimmed}</span>
       </span>
@@ -1717,12 +1717,12 @@ function renderGenericCellContent(col: string, value: string): ReactNode {
     const host = sourceHost(trimmed);
     const label = host.length > 32 ? `${host.slice(0, 29)}...` : host;
     return href ? (
-      <a className="r-source-chip" data-testid="grid-source-chip" href={href} target="_blank" rel="noreferrer" title={trimmed} onClick={(e) => e.stopPropagation()}>
+      <a className="r-source-chip fx-src" data-testid="grid-source-chip" href={href} target="_blank" rel="noreferrer" title={trimmed} onClick={(e) => e.stopPropagation()}>
         <span className="r-source-dot" aria-hidden="true" style={{ background: coColor(host) }} />
         <span>{label}</span>
       </a>
     ) : (
-      <span className="r-source-chip" data-testid="grid-source-chip" title={trimmed}>
+      <span className="r-source-chip fx-src" data-testid="grid-source-chip" title={trimmed}>
         <span className="r-source-dot" aria-hidden="true" style={{ background: coColor(host) }} />
         <span>{label}</span>
       </span>
@@ -1758,7 +1758,27 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
     const pageSize = isScaleSheet ? SCALE_SHEET_RENDER_WINDOW : Math.max(25, Math.min(250, Math.floor(GENERIC_SHEET_CELL_WINDOW / Math.max(columns.length, 1))));
     return { rows, columns, pageSize, totalRows, isScaleSheet };
   }, [art]);
-  const cols = columns.map((col) => col.id);
+  const [gridQuery, setGridQuery] = useState("");
+  const [columnMenuOpen, setColumnMenuOpen] = useState(false);
+  const [hiddenColIds, setHiddenColIds] = useState<string[]>(() => {
+    try {
+      const raw = JSON.parse(localStorage.getItem(`noderoom:grid-hidden-cols:${art.id}`) || "[]") as unknown;
+      if (Array.isArray(raw) && raw.length) return raw.filter((id): id is string => typeof id === "string");
+      const defaults = (art.meta?.dataframe as { defaultHiddenColumnIds?: unknown } | undefined)?.defaultHiddenColumnIds;
+      return Array.isArray(defaults) ? defaults.filter((id): id is string => typeof id === "string") : [];
+    } catch {
+      const defaults = (art.meta?.dataframe as { defaultHiddenColumnIds?: unknown } | undefined)?.defaultHiddenColumnIds;
+      return Array.isArray(defaults) ? defaults.filter((id): id is string => typeof id === "string") : [];
+    }
+  });
+  useEffect(() => { try { localStorage.setItem(`noderoom:grid-hidden-cols:${art.id}`, JSON.stringify(hiddenColIds)); } catch { /* ignore */ } }, [art.id, hiddenColIds]);
+  const hiddenColSet = useMemo(() => new Set(hiddenColIds), [hiddenColIds]);
+  const visibleColumns = useMemo(() => {
+    const next = columns.filter((col) => !hiddenColSet.has(col.id));
+    return next.length ? next : columns.slice(0, 1);
+  }, [columns, hiddenColSet]);
+  const allCols = columns.map((col) => col.id);
+  const cols = visibleColumns.map((col) => col.id);
   const statusColId = columns.find((col) => /status/i.test(col.id) || /status/i.test(col.label ?? ""))?.id ?? "";
   const sourceRowIndexById = useMemo(() => new Map(rows.map((rid, index) => [rid, index + 1])), [rows]);
   const statusCounts = useMemo(() => {
@@ -1770,16 +1790,20 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
     }
     return counts;
   }, [art, rows, statusColId]);
+  const queryFilteredRows = useMemo(() => filterGenericSheetRows(art, rows, allCols, gridQuery), [art, rows, allCols, gridQuery]);
   const filteredRows = useMemo(() => {
-    if (statusFilter === "any" || !statusColId) return rows;
-    return rows.filter((rid) => {
+    if (statusFilter === "any" || !statusColId) return queryFilteredRows;
+    return queryFilteredRows.filter((rid) => {
       const raw = art.elements[sheetElementId(art, rid, statusColId)]?.value;
       return sheetStatusFilterForValue(displayCellValue(raw)) === statusFilter;
     });
-  }, [art, rows, statusColId, statusFilter]);
+  }, [art, queryFilteredRows, statusColId, statusFilter]);
   const colWidths = useMemo(
-    () => columns.map((col, i) => isScaleSheet ? scaleColumnWidth(col, i) : sheetColumnWidth(art, col, i)),
-    [art.meta?.excelGrid?.colWidths, columns, isScaleSheet],
+    () => visibleColumns.map((col) => {
+      const index = Math.max(0, columns.findIndex((candidate) => candidate.id === col.id));
+      return isScaleSheet ? scaleColumnWidth(col, index) : sheetColumnWidth(art, col, index);
+    }),
+    [art.meta?.excelGrid?.colWidths, columns, visibleColumns, isScaleSheet],
   );
   // TRUE ROW VIRTUALIZATION (scale sheets only): the scroll container reports its scrollTop +
   // client height, and `computeRowWindow` turns that into the half-open [start, end) render band
@@ -1944,11 +1968,11 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
         const showMeta = !art.meta?.excelGrid && payload;
         const showReceipt = !!showMeta && (!isScaleSheet || locked || sel === id || isGenericStatusColumn(col)) && !isGenericSourceColumn(col);
         const metaTitle = evidenceTitle(payload);
-        const cls = "r-cell" + (isNumberLikeCell(raw) ? " num" : "") + (locked ? " locked" : "") + (proposed ? " proposed" : "") + (committed ? " committed" : "") + (hasVisibleEvidence ? " evidence" : "") + (showFormulaMarker ? " formula" : "") + (sel === id ? " sel" : "");
+        const cls = "r-cell" + (isNumberLikeCell(raw) ? " num" : "") + (locked ? " locked" : "") + (proposed ? " proposed" : "") + (committed ? " committed rm-wet" : "") + (hasVisibleEvidence ? " evidence" : "") + (showFormulaMarker ? " formula" : "") + (sel === id ? " sel fx-sel" : "");
         return (
           <td key={col} className={cls} title={[value || undefined, dataframeCellAddress(art, cols, filteredRows, id), metaTitle || undefined].filter(Boolean).join(" | ")} data-evidence-class={classifyEvidence(payload)} data-cell-key={id} data-element-id={id} data-testid="sheet-cell" data-has-evidence={hasVisibleEvidence ? "true" : undefined} data-has-formula={payload?.formula ? "true" : undefined} colSpan={span?.colSpan} rowSpan={span?.rowSpan} aria-selected={sel === id || undefined} onClick={(e) => { setSel(id); (e.currentTarget.closest("table") as HTMLElement | null)?.focus(); }} onDoubleClick={() => { setEditingId(id); setEditDraft(value); }}>
             {editingId === id ? (
-              <textarea className="r-cell-editor" autoFocus value={editDraft} data-testid="cell-editor"
+              <textarea className="r-cell-editor rm-cellin" autoFocus value={editDraft} data-testid="cell-editor"
                 style={{ width: "100%", minHeight: "28px", resize: "none", overflow: "hidden" }}
                 ref={(node) => { if (node) { node.style.height = "auto"; node.style.height = `${node.scrollHeight}px`; } }}
                 onChange={(e) => {
@@ -1965,7 +1989,7 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
                 {/* Stale chip: always visible (never hover-gated) when a checked source is >72h old; cells without evidence render nothing. */}
                 {!art.meta?.excelGrid && <StaleChip label={cellStaleness(payload, el?.updatedAt)} />}
                 {showReceipt && <EvidenceReceipt payload={payload} compact={isScaleSheet && !locked && sel !== id} checkedAt={el?.updatedAt} />}
-                {locked && <span className="lockbadge" data-testid="grid-lock-badge" title="Locked by NodeAgent"><Lock size={9} />NA</span>}
+                {locked && <span className="lockbadge fx-lock" data-testid="grid-lock-badge" title="Locked by NodeAgent"><Lock size={9} />NA</span>}
                 {/* Cursor ladder — flag / stacked flags / cluster count of OTHER people on this cell
                     (design-reference/scale "Presence at scale"). Passive read, pointer-events none. */}
                 <PresenceLadder rows={presenceRows} elementId={id} selfId={me.id} />
@@ -1987,14 +2011,47 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
       })}
     </tr>
   );
+  const toggleColumnHidden = (colId: string) => {
+    setHiddenColIds((current) => {
+      if (current.includes(colId)) return current.filter((id) => id !== colId);
+      if (columns.length - current.length <= 1) return current;
+      return [...current, colId];
+    });
+  };
   return (
     <>
       <div className="r-art-body">
         {/* Name-box + value bar: the A1 address + FULL value of the selected cell (recovery path for any
             clipped cell) + a row-density switcher (Excel/Sheets convention). */}
-        <div className="r-sheet-bar">
+        <div className="r-sheet-bar fx-shtool">
           <span className="r-sheet-namebox" data-testid="sheet-namebox">{sel ? dataframeCellAddress(art, cols, isScaleSheet ? filteredRows : visibleRows, sel) : "—"}</span>
           <span className="r-sheet-valuebar" title={sel ? displayCellValue(art.elements[sel]?.value) : ""}>{sel ? displayCellValue(art.elements[sel]?.value) : ""}</span>
+          <label className="r-sheet-search" aria-label="Search sheet rows">
+            <Search size={12} />
+            <input value={gridQuery} onChange={(e) => { setGridQuery(e.currentTarget.value); setPages(1); }} placeholder="Find rows" />
+          </label>
+          <div className="r-sheet-status-filter" role="group" aria-label="Filter by status">
+            {(["any", "complete", "needs_review", "failed"] as const).map((status) => (
+              <button key={status} type="button" data-on={String(statusFilter === status)} onClick={() => { setStatusFilter(status); setPages(1); }}>
+                {status === "any" ? "all" : status === "needs_review" ? "review" : status}
+              </button>
+            ))}
+          </div>
+          <div className="r-sheet-colmenu">
+            <button type="button" className="r-sheet-colmenu-btn" aria-expanded={columnMenuOpen} onClick={() => setColumnMenuOpen((open: boolean) => !open)}>
+              <Columns2 size={12} /> {cols.length}/{columns.length}
+            </button>
+            {columnMenuOpen && (
+              <div className="r-sheet-colmenu-pop" role="menu">
+                {columns.map((col) => (
+                  <label key={col.id}>
+                    <input type="checkbox" checked={!hiddenColSet.has(col.id)} onChange={() => toggleColumnHidden(col.id)} />
+                    <span>{col.label}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
           <span className="grow" />
           <span className="r-cols-pill" data-testid="grid-column-count" title={columnCountTitle}>{columnCountLabel}</span>
           <div className="r-sheet-density" role="group" aria-label="Row density">
@@ -2027,7 +2084,7 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
         )}
         <div className="r-sheet-wrap" ref={sheetWrapRef} data-testid="sheet-grid" data-scale-sheet={isScaleSheet ? "true" : undefined}>
           <AttentionOverlay boxes={overlayBoxes} resolver={overlayResolver} mode="live" />
-          <table className="r-sheet" data-noderoom-surface="workSurface.sheet" data-sheet-kind="generic" data-density={density} data-scale-sheet={isScaleSheet ? "true" : undefined} data-artifact-id={art.id}
+          <table className="r-sheet fx-sheet" data-noderoom-surface="workSurface.sheet" data-sheet-kind="generic" data-density={density} data-scale-sheet={isScaleSheet ? "true" : undefined} data-artifact-id={art.id}
             tabIndex={0}
             onKeyDown={(e) => {
               if (editingId) return;
@@ -2040,9 +2097,9 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
             }}>
             <colgroup>
               <col style={{ width: 44 }} />
-              {columns.map((c, i) => <col key={c.id} style={{ width: colOverrides[c.id] ?? colWidths[i] }} />)}
+              {visibleColumns.map((c, i) => <col key={c.id} style={{ width: colOverrides[c.id] ?? colWidths[i] }} />)}
             </colgroup>
-            <thead><tr><th className="r-corner" aria-label="row number" />{columns.map((c, i) => <th key={c.id} className={selectedColId === c.id ? "hl" : undefined}>{c.label}<span className="r-col-resize" role="separator" aria-orientation="vertical" aria-label={`Resize ${c.label}`} onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); startColResize(c.id, colOverrides[c.id] ?? colWidths[i], e.clientX); }} /></th>)}</tr></thead>
+            <thead><tr><th className="r-corner" aria-label="row number" />{visibleColumns.map((c, i) => <th key={c.id} className={selectedColId === c.id ? "hl" : undefined}>{c.label}<span className="r-col-resize" role="separator" aria-orientation="vertical" aria-label={`Resize ${c.label}`} onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); startColResize(c.id, colOverrides[c.id] ?? colWidths[i], e.clientX); }} /></th>)}</tr></thead>
             <tbody>
               {/* Top spacer: stands in for the [0, start) rows NOT mounted, sized from the fixed 44px
                   row height so the scrollbar length + thumb position stay honest. Scale sheets only. */}
@@ -2071,16 +2128,34 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
           </table>
         </div>
       </div>
-      <div className="r-sheet-foot">
+      <div className="r-sheet-foot fx-shfoot">
         <span className="kicker">{sheetKicker}</span>
         <span className="r-vpill next">v{art.version}</span>
         {/* Scale sheets scroll-virtualize (no paging button); other generic sheets keep the page button. */}
         {!isScaleSheet && visibleRows.length < filteredRows.length && <button className="r-mini-btn" onClick={() => setPages((n) => n + 1)}>Show next {pageSize}</button>}
         <span className="grow" />
-        <span className="mono tiny faint">{totalRows.toLocaleString()} rows | {cols.length} columns</span>
+        <span className="mono tiny faint">
+          {totalRows.toLocaleString()} rows | {cols.length}/{columns.length} columns | {renderedWindowLabel}
+        </span>
       </div>
     </>
   );
+}
+
+function filterGenericSheetRows(
+  art: Art,
+  rows: string[],
+  cols: string[],
+  query: string,
+): string[] {
+  const q = query.trim().toLowerCase();
+  return rows.filter((rowId) => {
+    if (q) {
+      const haystack = [rowId, ...cols.map((col) => displayCellValue(art.elements[sheetElementId(art, rowId, col)]?.value))].join(" ").toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
 }
 
 function columnsOf(art: Art): DataframeColumn[] {
@@ -2362,7 +2437,7 @@ function Sheet({ roomId, me, art, proof, onError }: { roomId: string; me: Actor;
       <div className="r-art-body">
         <div className="r-sheet-wrap" ref={sheetWrapRef}>
           <AttentionOverlay boxes={overlayBoxes} resolver={overlayResolver} mode="live" />
-          <table className="r-sheet" data-noderoom-surface="workSurface.sheet" data-artifact-id={art.id}>
+          <table className="r-sheet fx-sheet" data-noderoom-surface="workSurface.sheet" data-artifact-id={art.id}>
             <thead><tr><th className="r-corner" aria-label="row number" /><th>Account</th><th className="num">Q2</th><th className="num">Q3</th><th className="num">Variance</th><th>Note</th></tr></thead>
             <tbody>
               {rows.map((rid, i) => {
@@ -2377,7 +2452,7 @@ function Sheet({ roomId, me, art, proof, onError }: { roomId: string; me: Actor;
                 const nProposal = proposalFor(proposals, art.id, nId);
                 const committed = !lk && vEl && vEl.version > 1 && now - vEl.updatedAt < 1500;
                 const personalEditor = vEl?.updatedBy && (vEl.updatedBy as Actor).ownerId ? store.listMembers(roomId).find((mm) => mm.id === (vEl.updatedBy as Actor).ownerId) : undefined;
-                const vCls = "r-cell num" + (lk ? " locked" : "") + (vPresence ? ` presence presence-${vPresence.mode}` : "") + (drafting ? " draft" : "") + (committed ? " committed" : "") + (vProposal ? " proposed" : "");
+                const vCls = "r-cell num" + (lk ? " locked" : "") + (vPresence ? ` presence presence-${vPresence.mode}` : "") + (drafting ? " draft" : "") + (committed ? " committed rm-wet" : "") + (vProposal ? " proposed" : "");
                 return (
                   <tr key={rid}>
                     <td className="r-rownum" title={rid}>{i + 1}</td>
@@ -2388,7 +2463,7 @@ function Sheet({ roomId, me, art, proof, onError }: { roomId: string; me: Actor;
                       <EditableCell key={vId + ":" + (vEl?.version ?? 0)} value={displayCellValue(vEl?.value)} disabled={!!lk || drafting || !!vProposal} align="right" onEditStart={() => touchPresence(store, roomId, art.id, me, vId, "edit", selfPresenceColor)} onEditEnd={() => store.clearPresence({ roomId, artifactId: art.id, targetKind: "cell", targetId: vId, mode: "edit", actor: me })} onCommit={(s) => doCommit(vId, s)} />
                       <StaleChip label={cellStaleness(vPayload, vEl?.updatedAt)} />
                       {!lk && <EvidenceReceipt payload={vPayload} checkedAt={vEl?.updatedAt} />}
-                      {lk && <span className="lockbadge"><Lock size={9} /> NA</span>}
+                      {lk && <span className="lockbadge fx-lock"><Lock size={9} /> NA</span>}
                       {drafting && <span className="lockbadge"><Pencil size={9} /> draft</span>}
                       {historyOn && proof && !lk && (
                         <CellHistory roomId={roomId} artifactId={art.id} elementId={vId} requester={proof} currentValue={displayCellValue(vEl?.value)} shifted={!!vPayload?.evidence?.length} onFeedback={onError} />
@@ -2420,7 +2495,7 @@ function Sheet({ roomId, me, art, proof, onError }: { roomId: string; me: Actor;
           </table>
         </div>
       </div>
-      <div className="r-sheet-foot">
+      <div className="r-sheet-foot fx-shfoot">
         <span className="kicker">versionedSpreadsheetSync</span>
         <span className="r-vpill next">v{art.version}</span>
         <button className="r-mini-btn" disabled={!store.canUndo(roomId)} title="Undo last applied room edit (Ctrl+Z)" onClick={doUndo}><Undo2 size={12} /> Undo</button>

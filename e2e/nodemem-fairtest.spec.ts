@@ -25,6 +25,7 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "../convex/_generated/api";
 import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve as pathResolve, dirname } from "node:path";
+import { createScratchSheetFromStarterHome } from "./liveStarter";
 
 const BASE = process.env.BENCH_BASE_URL ?? "http://127.0.0.1:5273";
 const CONVEX_URL = process.env.VITE_CONVEX_URL ?? "";
@@ -101,7 +102,7 @@ for (const scale of ["small", "mid", "big"] as const) {
           await page.locator('[data-testid="create-room"]').click({ timeout: 60_000 });
           await page.locator('[data-testid="create-room-submit"]').waitFor({ state: "visible", timeout: 10_000 });
           await page.locator('[data-testid="create-room-submit"]').click();
-          await page.locator('[data-testid="blank-cta-sheet"]').click({ timeout: 60_000 });
+          await createScratchSheetFromStarterHome(page);
           await expect(page.getByText(/live convex/i)).toBeVisible({ timeout: 30_000 });
 
           const convex = new ConvexHttpClient(CONVEX_URL);

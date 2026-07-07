@@ -182,7 +182,7 @@ const CAPABILITY_HEADLESS_TASKS: Array<{
     id: "capability.prod-proxy-denominator",
     title: "Refresh full prod proxy task denominator",
     command: "npm run benchmark:proofloop:prod-proxy-matrix",
-    objective: "Regenerate the full proxy benchmark matrix so 1354 task targets and all model-task attempts stay in the denominator.",
+    objective: "Regenerate the full proxy benchmark matrix so current task targets and all model-task attempts stay in the denominator.",
     timeoutMs: 180_000,
     evidence: ["docs/eval/proofloop-prod-proxy-benchmark-matrix.json"],
   },
