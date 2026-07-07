@@ -624,7 +624,7 @@ function AgentProgressCard({ parts, live, terminalSuccessful }: { parts: Exclude
     hiddenCount ? `${hiddenCount} earlier` : undefined,
   ].filter(Boolean);
   return (
-    <section className="r-agent-workflow-progress" data-testid="agent-progress-card" data-status={hasFailure ? "failed" : hasRunning ? "running" : "done"}>
+    <section className="r-agent-workflow-progress sc-run" data-testid="agent-progress-card" data-status={hasFailure ? "failed" : hasRunning ? "running" : "done"}>
       <div className="r-agent-workflow-progress-head">
         <span className="r-agent-workflow-progress-icon" aria-hidden>{hasFailure ? <X size={13} /> : hasRunning ? <RefreshCw size={13} /> : <Check size={13} />}</span>
         <div className="r-agent-workflow-progress-copy">
@@ -911,7 +911,7 @@ function ChatRunGroup({ runId, live, count, children }: { runId: string; live: b
     return (
       <button
         type="button"
-        className="r-chat-run-summary"
+        className="r-chat-run-summary sc-run"
         data-testid="chat-run-summary"
         data-run-id={runId}
         onClick={() => setExpanded(true)}
@@ -924,7 +924,7 @@ function ChatRunGroup({ runId, live, count, children }: { runId: string; live: b
     );
   }
   return (
-    <section className="r-chat-run" data-testid="chat-run-group" data-run-id={runId} data-live={String(live)}>
+    <section className="r-chat-run sc-run" data-testid="chat-run-group" data-run-id={runId} data-live={String(live)}>
       {children}
       {!live && runCollapsedByDefault(count, true) && (
         <button type="button" className="r-chat-run-collapse" data-testid="chat-run-collapse" onClick={() => setExpanded(false)}>
@@ -1006,6 +1006,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     return store.listArtifacts(roomId).find((a) => a.id === activeArtifactId);
   }, [activeArtifactId, isPrivate, roomId, store]);
   const decisionState = isPrivate ? null : buildResearchDecisionState(activeArtifact);
+  const showDecisionCard = !!decisionState && messages.length === 0;
   const pinnedAgentResearchReceipt = isPrivate ? null : buildAgentResearchReceipt(activeArtifact);
   const contextualPrompts = useMemo(() => {
     if (decisionState) return decisionState.prompts;
@@ -1393,7 +1394,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     else if (e.key === "Escape") { if (slashOpen) setSlashOpen(false); else taRef.current?.blur(); }
   };
   const canSend = !uploadingFiles && (text.trim().length > 0 || refs.length > 0);
-  const rootClass = embedded ? `r-chat-embedded ${isPrivate ? "private" : "public"}` : `r-panel ${isPrivate ? "right" : "center"}`;
+  const rootClass = `${embedded ? `r-chat-embedded ${isPrivate ? "private" : "public"}` : `r-panel ${isPrivate ? "right" : "center"}`}${isPrivate ? "" : " fx-chat"}`;
 
   // One feed item — a chat/agent Bubble or the long-job result card. Shared by loose rows and
   // expanded run groups so every existing testid (receipts, unified stream) renders identically.
@@ -1411,7 +1412,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       agentStreamTerminalSuccessful={longJobTerminal && longJob?.status === "completed"}
     />
   ) : (
-    <div className="r-msg agent" key={item.key} data-testid="agent-job-result" data-state={item.status}>
+    <div className="r-msg fx-msg agent" key={item.key} data-testid="agent-job-result" data-state={item.status}>
       <span className="r-avatar agent sm" style={{ background: AGENT_AVATAR_COLOR }}>N</span>
       <div className="body">
         <div className="meta">
@@ -1529,7 +1530,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
         </div>
       )}
 
-      {decisionState && (
+      {showDecisionCard && (
         <DecisionAssistantPanel state={decisionState} onPrompt={applySlash} />
       )}
       {pinnedAgentResearchReceipt && (
@@ -1549,7 +1550,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             )}
           </div>
         )}
-        {agentErr && <div className="r-msg" role="alert" data-testid="agent-error" data-state="failed"><div className="body tiny" style={{ color: "var(--danger-ink)" }}>{agentErr}</div></div>}
+        {agentErr && <div className="r-msg fx-msg" role="alert" data-testid="agent-error" data-state="failed"><div className="body tiny" style={{ color: "var(--danger-ink)" }}>{agentErr}</div></div>}
         {feedRows.map((dayRow) => {
           if (dayRow.kind === "day") {
             return (
@@ -1572,7 +1573,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
           return renderFeedItem(runRow.row);
         })}
         {failedSends.map((f) => (
-          <div className="r-msg" key={"fail-" + f.cid} data-testid="chat-failed" data-state="failed">
+          <div className="r-msg fx-msg" key={"fail-" + f.cid} data-testid="chat-failed" data-state="failed">
             <span className="r-avatar sm" style={{ background: colorFor(store, roomId, me) }}>{initials(me.name)}</span>
             <div className="body">
               <div className="meta"><span className="who">{me.name}</span><span className="r-tag" style={{ color: "var(--danger-ink)", padding: "1px 5px", fontSize: 9 }}>failed to send</span></div>
@@ -1585,7 +1586,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
           </div>
         ))}
         {showAgentWorkingBubble && (
-          <div className="r-msg agent" aria-label={`${agentName} is ${longJobActive && longJob ? longJob.status : "thinking"}`}>
+          <div className="r-msg fx-msg agent" aria-label={`${agentName} is ${longJobActive && longJob ? longJob.status : "thinking"}`}>
             <span className="r-avatar agent sm" style={{ background: AGENT_AVATAR_COLOR }}>N</span>
             <div className="body">
               <div className="meta"><span className="who">{agentName}</span><span className="r-tag agent" style={{ padding: "1px 5px", fontSize: 9 }}>{longJobActive && longJob ? longJob.status : "thinking"}</span></div>
@@ -1668,7 +1669,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
         <div className="r-intake-preview-slot">
           {text.trim().length > 0 && <IntakePlanPreview roomId={roomId} text={text} targetArtifacts={refs.map((r) => r.id)} />}
         </div>
-        <div className="r-input-wrap r-input-stack">
+        <div className="r-input-wrap r-input-stack rm-chatin">
           <input
             ref={fileInputRef}
             className="r-chat-file-input"
@@ -1740,9 +1741,9 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             {/* The send button reflects the composer state — muted + disabled on empty input,
                 not a live accent button that does nothing (state-honesty). */}
             {longJobActive ? (
-              <button className="r-send r-send-stop" onClick={cancelJob} disabled={jobBusy !== null} data-testid="chat-stop" title="Stop generating" aria-label="Stop generating"><Square size={13} /></button>
+              <button className="r-send send r-send-stop" onClick={cancelJob} disabled={jobBusy !== null} data-testid="chat-stop" title="Stop generating" aria-label="Stop generating"><Square size={13} /></button>
             ) : (
-              <button className="r-send" onClick={() => send()} disabled={!canSend} data-testid="chat-send" aria-label="Send message"><Send size={15} /></button>
+              <button className="r-send send" onClick={() => send()} disabled={!canSend} data-testid="chat-send" aria-label="Send message"><Send size={15} /></button>
             )}
           </div>
         </div>
@@ -1891,7 +1892,7 @@ function AgentResearchReceiptStrip({
   onOpenArtifact?: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void;
 }) {
   return (
-    <div className="r-agent-receipt" data-testid="agent-research-receipt">
+    <div className="r-agent-receipt sc-run" data-testid="agent-research-receipt">
       <span className="r-agent-receipt-chip" data-testid="agent-source-receipt"><ShieldCheck size={12} /> {receipt.sourceCount} src</span>
       <span className="r-agent-receipt-version" data-testid="agent-version-receipt">
         <GitBranch size={12} /> v{receipt.fromVersion} -&gt; v{receipt.toVersion}
@@ -1987,7 +1988,7 @@ function Bubble({
   };
 
   return (
-    <div className={"r-msg" + (agent ? " agent" : "")} data-testid="chat-message" data-clientmsgid={m.clientMsgId} data-state={pending ? "pending" : "confirmed"} style={pending ? { opacity: 0.6 } : undefined}>
+    <div className={"r-msg fx-msg" + (agent ? " agent" : "")} data-testid="chat-message" data-clientmsgid={m.clientMsgId} data-state={pending ? "pending" : "confirmed"} style={pending ? { opacity: 0.6 } : undefined}>
       <span className={"r-avatar sm" + (agent ? " agent" : "")} style={avatarStyle}>{agent ? "N" : initials(m.author.name)}</span>
       <div className="body">
         <div className="meta">
@@ -1999,7 +2000,7 @@ function Bubble({
           <span className="time">{clock(m.createdAt)}</span>
         </div>
         {editing ? (
-          <div className="r-input-wrap" style={{ marginTop: 4 }}>
+          <div className="r-input-wrap rm-chatin" style={{ marginTop: 4 }}>
             <textarea autoFocus rows={1} value={draft} onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveEdit(); } else if (e.key === "Escape") { setDraft(parsed.body); setEditing(false); } }}
               aria-label="Edit message" />
@@ -2018,7 +2019,7 @@ function Bubble({
             ) : m.streamId && !m.text ? (
               <StreamedBody streamId={m.streamId} />
             ) : (
-              parsed.body && (ask ? <span className="r-bubble-ask">{parsed.body}</span> : <MarkdownBody text={parsed.body} />)
+              parsed.body && (ask ? <span className="r-bubble-ask fx-cmd">{parsed.body}</span> : <MarkdownBody text={parsed.body} />)
             )}
             {agentResearchReceipt && <AgentResearchReceiptStrip receipt={agentResearchReceipt} onOpenArtifact={onOpenArtifact} />}
           </>

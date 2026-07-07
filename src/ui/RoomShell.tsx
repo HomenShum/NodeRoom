@@ -432,12 +432,12 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   return (
     <TraceLensProvider>
     <div className="r-app" data-bg-glow={String(backgroundGlow)} style={shellStyle}>
-      <div className="r-top" data-noderoom-surface="shell.topbar">
-        <div className="r-mark">N</div>
+      <div className="r-top fx-top" data-noderoom-surface="shell.topbar">
+        <div className="r-mark fx-mark">N</div>
         <div className="r-brand">NodeRoom <span>· {room.title}</span></div>
         {/* The code chip LOOKS like a button, so it must be one — sharing the code is the core
             multiplayer flow (Meet/Figma mental model: click the code -> copy invite). */}
-        <button className="r-roomcode" type="button" title="Copy invite link" aria-label={codeCopied ? "Invite link copied" : `Copy invite link for room ${room.code}`} aria-live="polite"
+        <button className="r-roomcode fx-invite" type="button" title="Copy invite link" aria-label={codeCopied ? "Invite link copied" : `Copy invite link for room ${room.code}`} aria-live="polite"
           onClick={copyInvite}>
           <Link2 size={12} /> invite <b>{room.code}</b> {codeCopied ? <Check size={11} /> : <Copy size={11} />}
         </button>
@@ -475,9 +475,9 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
         )}
         <span className="r-spacer" />
         <div className="r-toggle-group">
-          <button className="r-iconbtn" data-mobile-label="Room" data-on={String(show.left)} title="Room Binder" aria-label="Toggle Room Binder panel" aria-pressed={show.left} onClick={toggleBinder}><PanelLeft size={16} /></button>
-          <button className="r-iconbtn" data-mobile-label="Work" data-on={String(!isCompact || show.stage)} title="Work Surface" aria-label={isCompact ? "Show Work Surface panel" : "Focus Work Surface"} aria-pressed={!isCompact || show.stage} onClick={showWorkSurface}><Table2 size={16} /></button>
-          <button className="r-iconbtn" data-mobile-label="Chat" data-on={String(show.copilot)} title="Copilot" aria-label="Toggle Copilot panel" aria-pressed={show.copilot} onClick={toggleCopilot}><PanelRight size={16} /></button>
+          <button className="r-iconbtn fx-iconbtn" data-mobile-label="Room" data-on={String(show.left)} title="Room Binder" aria-label="Toggle Room Binder panel" aria-pressed={show.left} onClick={toggleBinder}><PanelLeft size={16} /></button>
+          <button className="r-iconbtn fx-iconbtn" data-mobile-label="Work" data-on={String(!isCompact || show.stage)} title="Work Surface" aria-label={isCompact ? "Show Work Surface panel" : "Focus Work Surface"} aria-pressed={!isCompact || show.stage} onClick={showWorkSurface}><Table2 size={16} /></button>
+          <button className="r-iconbtn fx-iconbtn" data-mobile-label="Chat" data-on={String(show.copilot)} title="Copilot" aria-label="Toggle Copilot panel" aria-pressed={show.copilot} onClick={toggleCopilot}><PanelRight size={16} /></button>
         </div>
         <div className="r-pill-auto" data-testid="agent-commit-policy">
           <span className="r-pill-auto-label">Agent commits:</span>
@@ -496,7 +496,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
             specimen's "facepile + overflow" state. */}
         <button
           type="button"
-          className="r-people-trigger"
+          className="r-people-trigger fx-avs"
           data-testid="people-trigger"
           aria-haspopup="dialog"
           aria-expanded={peopleOpen}
@@ -509,20 +509,17 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
             {members.length > 4 && <span className="r-av r-people-more-av">+{members.length - 4}</span>}
             <span className="r-av agent" style={{ background: "#8F3F27" }}>◆</span>
           </span>
-          <span className="r-live-count">{members.length} live</span>
+          <span className="r-live-count fx-live">{members.length} live</span>
         </button>
         {/* Notifications bell — live (Convex) rooms only: the in-memory engine keeps no
             notification log, so memory mode renders NOTHING here (honest absence, the
             cell-history rule). Owns the W-key watch layer + the palette toggle event. */}
         {store.mode === "convex" && proof && <NotificationsInbox roomId={roomId} requester={proof} />}
-        <button className="r-iconbtn" title="Tweaks" aria-label="Open room tweaks" data-on={String(tweaksOpen)} onClick={() => setTweaksOpen((v) => !v)}><SlidersHorizontal size={16} /></button>
-        <button className="r-iconbtn" title="Take the guided tour" aria-label="Take the guided tour" data-testid="tour-button" onClick={startTour}><HelpCircle size={16} /></button>
-        <ThemeToggle />
-        <button className="r-iconbtn" title="Leave room" aria-label="Leave room" onClick={onLeave}><LogOut size={16} /></button>
+        <button className="r-iconbtn fx-iconbtn" title="Room controls" aria-label="Open room controls" data-on={String(tweaksOpen)} onClick={() => setTweaksOpen((v) => !v)}><SlidersHorizontal size={16} /></button>
       </div>
 
       <div className="r-workspace" data-shell="june-2026">
-        {show.left && <LeftRail roomId={roomId} me={me} artId={curArt?.id ?? artId} style={{ width: layout.left }} onPick={openArtifact} onOpenChat={openSidebarChat} />}
+        {show.left && <LeftRail roomId={roomId} me={me} artId={curArt?.id ?? artId} style={{ width: layout.left }} onPick={openArtifact} />}
         {show.left && <ResizeHandle label="Resize files panel" onPointerDown={(x) => startResize("left", x)} />}
         {(!isCompact || show.stage) && <Artifact roomId={roomId} me={me} proof={proof} artId={curArt?.id ?? artId} onArt={setArtId} sideArtId={sideArtId} onSideArtChange={setSideArtId} onOpenChat={openSidebarChat} style={{ flex: layout.stage }} />}
         {show.copilot && <ResizeHandle label="Resize Copilot panel" onPointerDown={(x) => startResize("right", x)} />}
@@ -549,6 +546,8 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
         onAccent={setAccent}
         onBackgroundGlow={setBackgroundGlow}
         onReplayPace={setReplayPace}
+        onStartTour={startTour}
+        onLeaveRoom={onLeave}
         onClose={() => setTweaksOpen(false)}
       />
       {autoAcceptModal && (
@@ -558,7 +557,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
           ariaLabelledby="auto-accept-title"
           onClose={() => setAutoAcceptModal(false)}
         >
-          <button className="r-iconbtn r-modal-x" aria-label="Close" onClick={() => setAutoAcceptModal(false)}><X size={15} /></button>
+          <button className="r-iconbtn fx-iconbtn r-modal-x" aria-label="Close" onClick={() => setAutoAcceptModal(false)}><X size={15} /></button>
           <div className="r-modal-icon"><ShieldCheck size={20} /></div>
           <h2 id="auto-accept-title">Turn on auto-accept?</h2>
           <p>Agent edits will apply directly after the tool layer validates locks, versions, permissions, and schema. You can turn this off any time to route agent edits into host-reviewed proposals.</p>
@@ -610,7 +609,7 @@ function CopilotPanel({
       <div className="r-panel-head r-copilot-head">
         <PanelRight size={14} />
         <span className="grow" />
-        <div className="r-copilot-tabs" role="tablist" aria-label="Copilot tabs">
+        <div className="r-copilot-tabs fx-seg" role="tablist" aria-label="Copilot tabs">
           <button type="button" role="tab" aria-selected={active === "public"} data-on={String(active === "public")} data-testid="copilot-tab-public" onClick={() => onActive("public")}>
             <MessageCircle size={12} /> Room
           </button>
@@ -702,6 +701,8 @@ function RoomTweaksPanel({
   onAccent,
   onBackgroundGlow,
   onReplayPace,
+  onStartTour,
+  onLeaveRoom,
   onClose,
 }: {
   open: boolean;
@@ -711,6 +712,8 @@ function RoomTweaksPanel({
   onAccent: (accent: AccentKey) => void;
   onBackgroundGlow: (on: boolean) => void;
   onReplayPace: (pace: ReplayPace) => void;
+  onStartTour: () => void;
+  onLeaveRoom: () => void;
   onClose: () => void;
 }) {
   if (!open) return null;
@@ -744,6 +747,10 @@ function RoomTweaksPanel({
         <span>Background glow</span>
         <button className="r-switch" type="button" role="switch" aria-checked={backgroundGlow} data-on={String(backgroundGlow)} onClick={() => onBackgroundGlow(!backgroundGlow)} />
       </label>
+      <div className="r-tweak-line">
+        <span>Theme mode</span>
+        <ThemeToggle />
+      </div>
       <div className="r-tweaks-section">
         <span className="r-tweaks-label"><Gauge size={12} /> Replay pace</span>
         <div className="r-tweak-segment" role="radiogroup" aria-label="Replay pace">
@@ -753,6 +760,15 @@ function RoomTweaksPanel({
             </button>
           ))}
         </div>
+      </div>
+      <div className="r-tweaks-section">
+        <span className="r-tweaks-label"><HelpCircle size={12} /> Room help</span>
+        <button className="r-btn secondary" type="button" data-testid="tour-button" onClick={() => { onStartTour(); onClose(); }}>
+          <HelpCircle size={13} /> Take guided tour
+        </button>
+        <button className="r-btn ghost" type="button" onClick={onLeaveRoom}>
+          <LogOut size={13} /> Leave room
+        </button>
       </div>
     </div>
   );
@@ -777,7 +793,7 @@ function ProgressSpine({ roomId }: { roomId: string }) {
   return (
     <div className="r-spine" data-testid="progress-spine" aria-label="Workflow progress" data-noderoom-surface="shell.progressSpine">
       {spine.map((label, i) => (
-        <span key={label} className="r-spine-step" data-state={i < stage ? "done" : i === stage ? "now" : "next"}>
+        <span key={label} className={`r-spine-step fx-step ${i < stage ? "done" : i === stage ? "on" : ""}`.trim()} data-state={i < stage ? "done" : i === stage ? "now" : "next"}>
           {i < stage ? <Check size={11} /> : <span className="r-spine-dot" />}
           {label}
         </span>
@@ -849,7 +865,7 @@ function SignalStatusStrip({
   }, [focusModeEnabled, latest, latestArt, onOpenArtifact]);
 
   return (
-    <div className="r-shell-bottom" data-testid="shell-bottom" data-noderoom-surface="shell.statusStrip">
+    <div className="r-shell-bottom fx-status" data-testid="shell-bottom" data-noderoom-surface="shell.statusStrip">
       <ProgressSpine roomId={roomId} />
       <div
         className="r-focus-status"
@@ -914,7 +930,7 @@ function clamp(n: number, min: number, max: number) {
 function ThemeToggle() {
   const [dark, setDark] = useState(() => (document.documentElement.dataset.theme ?? "dark") === "dark");
   return (
-    <button className="r-iconbtn" title="Toggle light / dark" aria-label={dark ? "Switch to light theme" : "Switch to dark theme"} aria-pressed={dark} onClick={() => { const n = dark ? "light" : "dark"; document.documentElement.dataset.theme = n; setDark(!dark); }}>
+    <button className="r-iconbtn fx-iconbtn" title="Toggle light / dark" aria-label={dark ? "Switch to light theme" : "Switch to dark theme"} aria-pressed={dark} onClick={() => { const n = dark ? "light" : "dark"; document.documentElement.dataset.theme = n; setDark(!dark); }}>
       {dark ? <Moon size={16} /> : <Sun size={16} />}
     </button>
   );

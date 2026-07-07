@@ -196,14 +196,14 @@ export function getNodeRoomDesignManifest(): DesignManifest {
         },
         {
           name: "ScaleBinder",
-          selectors: [".r-binder-search", ".r-binder-count", ".r-binder-group"],
+          selectors: [".r-binder-search", ".r-binder-count", ".r-tree-section-head", ".r-tree-row", ".sc-count"],
           role: "Large-room Binder navigation for hundreds of workbooks and dozens of live people.",
           must: [
             "Large rooms expose real workbook counts and search.",
-            "Pinned, recent, sheet, doc, notebook, and upload groups replace unbounded rails.",
+            "Pinned, recent, sheet, doc, notebook, and upload sections render as a nested tree.",
             "People lists collapse while preserving the live count.",
           ],
-          avoid: ["Rendering every artifact or participant row in the default scale viewport."],
+          avoid: ["Rendering every artifact or participant row in the default scale viewport.", "Summary-card groups that duplicate the tree navigation."],
         },
         {
           name: "SharedDialog",
@@ -294,7 +294,7 @@ export function getNodeRoomDesignManifest(): DesignManifest {
         "scale sheets expose filters and rendered-row window proof",
         "large sheets demote passive evidence overlays and duplicate source badges",
         "scale columns use domain widths instead of generic label-length compression",
-        "large binders expose count, search, grouped navigation, and collapsed people",
+        "large binders expose count, search, nested tree navigation, and collapsed people",
         "walkthrough dock is dismissible",
         "phone top bar hides secondary utilities instead of clipping them",
         "shared dialog primitive backs both regular-room and public-room modals",
@@ -392,8 +392,12 @@ export function auditNodeRoomDesignSystem(files: Record<string, string>, checked
 
   requireText(findings, shell, SHELL_FILE, "data-testid=\"walkthrough-dock-dismiss\"", "walkthrough-dismiss", "Walkthrough dock is not dismissible.", "Keep walkthrough chrome optional and dismissible.");
   requireText(findings, leftRail, LEFT_RAIL_FILE, "data-testid=\"binder-scale-count\"", "binder-scale-count", "Large Binder count badge is missing.", "Show the real artifact count in large rooms.");
-  requireText(findings, leftRail, LEFT_RAIL_FILE, "data-testid=\"binder-search\"", "binder-search", "Large Binder search is missing.", "Add search before grouped Binder navigation for large rooms.");
-  requireText(findings, leftRail, LEFT_RAIL_FILE, "data-testid=\"binder-scale-groups\"", "binder-scale-groups", "Large Binder grouped navigation is missing.", "Group pinned, recent, sheets, docs, notebooks, and uploads at scale.");
+  requireText(findings, leftRail, LEFT_RAIL_FILE, "data-testid=\"binder-search\"", "binder-search", "Large Binder search is missing.", "Add search before tree navigation for large rooms.");
+  requireText(findings, leftRail, LEFT_RAIL_FILE, "r-tree-section-head sc-sec fx-folder", "binder-tree-sections", "Large Binder tree section headers are missing.", "Group pinned, recent, sheets, docs, notebooks, and uploads as collapsible tree sections.");
+  requireText(findings, leftRail, LEFT_RAIL_FILE, "data-level", "binder-tree-levels", "Large Binder nested tree levels are missing.", "Preserve nested sheet/doc rows so hierarchy is visible at scale.");
+  if (leftRail.includes("binder-scale-groups") || leftRail.includes("r-binder-groups")) {
+    findings.push(finding("binder-summary-groups", "error", LEFT_RAIL_FILE, "Large Binder summary-card groups are still present.", "Keep the Binder tree-first; do not duplicate navigation with summary cards.", findLine(leftRail, "binder-scale-groups") || findLine(leftRail, "r-binder-groups")));
+  }
   requireText(findings, leftRail, LEFT_RAIL_FILE, "data-testid=\"binder-people-collapsed\"", "binder-people-collapsed", "Large-room people list does not collapse.", "Show a bounded people list plus a more-live summary.");
   requireText(findings, styles, STYLE_FILE, ".r-top > .r-iconbtn[title=\"Tweaks\"]", "phone-topbar-secondary-hidden", "Phone top bar does not explicitly hide secondary utilities.", "Hide or move secondary utilities on narrow phones so they do not clip offscreen.");
   requireText(findings, focusTrap, FOCUS_TRAP_FILE, "role=\"dialog\"", "shared-dialog-role", "Shared dialog primitive does not expose role=dialog.", "Keep modal semantics centralized in FocusTrapDialog.");

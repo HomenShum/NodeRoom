@@ -1,6 +1,6 @@
 /** Room Binder (`.r-panel.left`): source files, room artifacts, people, and public agents. */
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type DragEvent, type ReactNode } from "react";
-import { FolderOpen, Table2, FileText, StickyNote, BookOpen, Upload, Loader2, ShieldCheck, Activity, MessageCircle, ArrowRight, ChevronRight, Search, Layers, type LucideIcon } from "lucide-react";
+import { FolderOpen, Table2, FileText, StickyNote, BookOpen, Upload, Loader2, ShieldCheck, Activity, ChevronRight, Search, Layers, type LucideIcon } from "lucide-react";
 import { useStore } from "../app/store";
 import type { Actor, Artifact } from "../engine/types";
 import { ARTIFACT_REF_MIME, encodeArtifactRef } from "./artifactRefs";
@@ -46,7 +46,7 @@ type BinderTreeRow = {
   searchText: string;
 };
 
-export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roomId: string; me: Actor; artId: string; onPick: (id: string) => void; onOpenChat?: () => void; style?: CSSProperties }) {
+export function LeftRail({ roomId, me, artId, onPick, style }: { roomId: string; me: Actor; artId: string; onPick: (id: string) => void; style?: CSSProperties }) {
   const store = useStore();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -107,18 +107,6 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
   );
   const workbookRows = useMemo(() => workbookTreeRows(arts, artId), [arts, artId]);
   const documentRows = useMemo(() => documentTreeRows(arts, artId), [arts, artId]);
-  const uploadCount = useMemo(() => arts.filter((artifact) => !!sourceFileLabel(artifact)).length, [arts]);
-  const binderGroups = useMemo(
-    () => [
-      { id: "pinned", label: "Pinned", count: pinnedRows.length },
-      { id: "recent", label: "Recent", count: recentRows.length },
-      { id: "workbooks", label: "Sheets", count: countTreeLeafRows(workbookRows) },
-      { id: "documents", label: "Docs", count: countTreeLeafRows(documentRows) },
-      { id: "uploads", label: "Uploads", count: uploadCount },
-      { id: "people", label: "People", count: members.length + publicSessions.length },
-    ],
-    [documentRows, members.length, pinnedRows.length, publicSessions.length, recentRows.length, uploadCount, workbookRows],
-  );
   const proofRows = useMemo(() => {
     const reviewMeta = firstProposal ? `${proposals.length} pending proposal${proposals.length === 1 ? "" : "s"}` : "no pending proposals";
     return [
@@ -176,7 +164,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
   };
 
   return (
-    <div className="r-panel left" style={style} data-testid="left-rail">
+    <div className="r-panel left fx-side" style={style} data-testid="left-rail">
       <div className="r-panel-head">
         <FolderOpen size={15} />
         <span className="h-title">Room Binder</span>
@@ -184,41 +172,10 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
         <span className="r-binder-count" data-testid="binder-scale-count" aria-label={`${arts.length} binder items`}>{arts.length}</span>
       </div>
       <div className="r-rail">
-        <label className="r-rail-search r-binder-search" data-testid="binder-search" aria-label="Find in binder">
+        <label className="r-rail-search r-binder-search sc-search" data-testid="binder-search" aria-label="Find in binder">
           <Search size={13} />
           <input value={query} onChange={(e) => setQuery(e.currentTarget.value)} placeholder="Find in binder..." />
         </label>
-        <div className="r-binder-groups" data-testid="binder-scale-groups" aria-label="Binder groups">
-          {binderGroups.map((group) => (
-            <button
-              key={group.id}
-              type="button"
-              className="r-binder-group"
-              onClick={() => setOpenSections((current) => ({ ...current, [group.id]: true }))}
-            >
-              <span>{group.label}</span>
-              <b>{group.count}</b>
-            </button>
-          ))}
-        </div>
-        <div className="r-rail-section">
-          <div className="kicker r-rail-kicker">Live room chat</div>
-          <button
-            type="button"
-            className="r-sidebar-chat"
-            data-testid="sidebar-chat-peek"
-            onClick={onOpenChat}
-            disabled={!onOpenChat}
-            aria-label="Open sidebar chat"
-          >
-            <span className="r-sidebar-chat-ico"><MessageCircle size={14} /></span>
-            <span className="r-sidebar-chat-title">
-              <span>Room conversation</span>
-              <em>{allPublicMessages.length ? `${allPublicMessages.length} messages` : "empty"}</em>
-            </span>
-            <span className="r-sidebar-chat-open"><ArrowRight size={13} /></span>
-          </button>
-        </div>
 
         <TreeSection id="pinned" title="Pinned" count={pinnedRows.length} rows={filterTreeRows(pinnedRows, searchNeedle)} open={openSections.pinned} searching={!!searchNeedle} onToggle={toggleSection}>
           {(row) => <BinderTreeRowView key={row.id} row={row} artId={artId} onPick={onPick} />}
@@ -272,10 +229,10 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
         )}
 
         <div className="r-rail-section r-tree-section">
-          <button type="button" className="r-tree-section-head" data-open={String(!!searchNeedle || openSections.people)} onClick={() => toggleSection("people")} aria-expanded={!!searchNeedle || !!openSections.people}>
+          <button type="button" className="r-tree-section-head sc-sec fx-folder" data-open={String(!!searchNeedle || openSections.people)} onClick={() => toggleSection("people")} aria-expanded={!!searchNeedle || !!openSections.people}>
             <ChevronRight size={13} />
             <span>People & agents</span>
-            <em>{members.length + publicSessions.length} live</em>
+            <em className="sc-count">{members.length + publicSessions.length} live</em>
           </button>
           {(searchNeedle || openSections.people) && (
           <div className="r-tree-rows">
@@ -350,10 +307,10 @@ function TreeSection({
   const expanded = searching || !!open;
   return (
     <div className="r-rail-section r-tree-section">
-      <button type="button" className="r-tree-section-head" data-open={String(expanded)} onClick={() => onToggle(id)} aria-expanded={expanded}>
+      <button type="button" className="r-tree-section-head sc-sec fx-folder" data-open={String(expanded)} onClick={() => onToggle(id)} aria-expanded={expanded}>
         <ChevronRight size={13} />
         <span>{title}</span>
-        <em>{count}</em>
+        <em className="sc-count">{count}</em>
       </button>
       {expanded && (
         <div className="r-tree-rows" role="group">
@@ -373,10 +330,10 @@ function BinderTreeRowView({ row, artId, onPick }: { row: BinderTreeRow; artId: 
         <div className="fn"><span className="r-file-name">{row.title}</span>{row.badge && <span className="r-file-ext">{row.badge}</span>}</div>
         <div className="fm">{row.meta}</div>
       </span>
-      {row.children?.length ? <span className="r-tree-count">{row.children.length}</span> : null}
+      {row.children?.length ? <span className="r-tree-count sc-count">{row.children.length}</span> : null}
     </>
   );
-  const rowClass = `r-file r-tree-row${row.artifact || row.action ? "" : " r-file-static"}`;
+  const rowClass = `r-file r-tree-row fx-item${row.artifact || row.action ? "" : " r-file-static"}`;
   const rowProps = {
     className: rowClass,
     "data-level": row.level,
