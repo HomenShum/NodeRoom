@@ -1006,7 +1006,11 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     return store.listArtifacts(roomId).find((a) => a.id === activeArtifactId);
   }, [activeArtifactId, isPrivate, roomId, store]);
   const decisionState = isPrivate ? null : buildResearchDecisionState(activeArtifact);
-  const showDecisionCard = !!decisionState && messages.length === 0;
+  // The decision card summarises a completed research run — it must stay visible once research lands
+  // (i.e. after the @nodeagent request is sent, when messages exist). A prior `&& messages.length === 0`
+  // empty-state gate hid it the moment a message was sent, breaking the "summarizes a completed
+  // research run" contract (decision-assistant.spec).
+  const showDecisionCard = !!decisionState;
   const pinnedAgentResearchReceipt = isPrivate ? null : buildAgentResearchReceipt(activeArtifact);
   const contextualPrompts = useMemo(() => {
     if (decisionState) return decisionState.prompts;

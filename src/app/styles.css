@@ -65,7 +65,10 @@ input { font-family: inherit; }
    (fixes.css .fx-calm .fx-top { background: transparent }). */
 .r-top { height: 52px; flex: none; display: flex; align-items: center; gap: 12px; padding: 0 14px; border-bottom: 1px solid var(--line);
   background: transparent; position: relative; z-index: 40; }
-.r-mark { width: 28px; height: 28px; border-radius: 7px; flex: none; background: linear-gradient(180deg, var(--accent-primary), #C6684A); color: #fff; font-weight: 800; font-size: 15px; display: grid; place-items: center; box-shadow: 0 4px 12px rgba(217,119,87,.32); }
+/* Calm: no accent bloom on the brand mark. The 12px terracotta glow made the logo
+   demand attention like chrome; flattening it matches the flat-fill/no-glow primary-button
+   decision below (.r-btn.primary) so nothing in the shell floats on a colored shadow. */
+.r-mark { width: 28px; height: 28px; border-radius: 7px; flex: none; background: linear-gradient(180deg, var(--accent-primary), #C6684A); color: #fff; font-weight: 800; font-size: 15px; display: grid; place-items: center; }
 .r-brand { font-weight: 700; letter-spacing: -.01em; font-size: 14px; }
 .r-brand span { color: var(--text-muted); font-weight: 500; }
 /* The room code wears a button-like chip, so it must BE a button: sharing the code is the core
@@ -257,7 +260,11 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 /* Crisp hairline between binder sections (Linear/Notion grammar) — the kicker + divider
    carry the structure, so rows can run full-bleed without their own boxes. */
 .r-rail-section + .r-rail-section { border-top: 1px solid var(--line); }
-.r-rail-kicker { padding: 2px var(--space-2) 8px; }
+.r-rail-kicker { display: flex; align-items: baseline; gap: 7px; padding: 2px var(--space-2) 8px; }
+/* Quiet per-section count (spec .fx-side .sc-count calm): boxless ghost number, no accent —
+   distinct from the loud .r-binder-count header pill. Lifts on section hover. */
+.r-rail-kicker-count { margin-left: auto; font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; letter-spacing: normal; color: var(--text-tertiary); opacity: .7; transition: opacity var(--motion-fast) var(--ease-out-expo), color var(--motion-fast) var(--ease-out-expo); }
+.r-rail-section:hover .r-rail-kicker-count { opacity: 1; color: var(--text-secondary); }
 .r-rail-subkicker { padding-top: 8px; padding-bottom: 5px; }
 .r-binder-count { margin-left: auto; min-width: 28px; height: 20px; display: inline-flex; align-items: center; justify-content: center; padding: 0 7px; border-radius: 999px; border: 1px solid var(--accent-border); background: var(--accent-tint); color: var(--accent-ink); font-family: var(--font-mono); font-size: 10.5px; font-weight: 850; }
 .r-binder-search { margin: 4px 0 8px; display: flex; align-items: center; gap: 7px; height: 30px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-secondary); color: var(--text-tertiary); }
@@ -679,6 +686,17 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-send:hover { filter: brightness(1.05); } .r-send:active { transform: scale(.94); }
 .r-chat-jump { position: sticky; bottom: 10px; align-self: center; z-index: 5; display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--accent-border); background: var(--bg-primary); color: var(--accent-ink); font-size: 11.5px; font-weight: 650; box-shadow: 0 4px 14px rgba(0,0,0,.25); cursor: pointer; }
 .r-chat-jump:hover { background: var(--accent-tint); }
+.r-chat-run { display: flex; flex-direction: column; gap: var(--space-2); }
+.r-chat-run[data-live="true"] { border-left: 2px solid var(--accent-border); padding-left: 12px; margin-left: 2px; }
+.r-chat-run-summary { align-self: flex-start; display: inline-flex; align-items: center; gap: 7px; padding: 7px 11px; border-radius: 9px; border: 1px solid var(--line); background: var(--bg-secondary); font-size: 12px; font-weight: 700; color: var(--text-secondary); cursor: pointer; }
+.r-chat-run-summary:hover { border-color: var(--line-strong); color: var(--text-primary); }
+.r-chat-run-summary svg { color: var(--accent-ink); flex: none; }
+.r-chat-run-summary em { font-style: normal; font-weight: 600; color: var(--text-tertiary); }
+.r-chat-run-collapse { align-self: flex-start; display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border: 0; background: transparent; font-size: 11px; font-weight: 700; color: var(--text-tertiary); cursor: pointer; }
+.r-chat-run-collapse:hover { color: var(--text-secondary); }
+.r-chat-day { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
+.r-chat-day::before, .r-chat-day::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.r-chat-day span { font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--text-tertiary); }
 .r-send-stop { background: var(--text-secondary); color: #fff; }
 .r-send-stop:hover { filter: none; background: var(--text-primary); }
 /* Desktop loading skeleton (room-shaped) — replaces the bare "Loading room…" spinner-on-blank. */
@@ -919,8 +937,9 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-grid-status::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
 .r-grid-status-complete { color: var(--success-ink); }
 .r-grid-status-enriching { color: var(--accent-ink); }
-.r-grid-status-pending { color: var(--warning-ink); }
-.r-grid-status-needs-review, .r-grid-status-failed { color: var(--danger-ink); }
+.r-grid-status-pending { color: var(--text-tertiary); }
+.r-grid-status-needs-review { color: var(--warning-ink); }
+.r-grid-status-failed { color: var(--danger-ink); }
 .r-grid-status-neutral { color: var(--text-muted); }
 /* Calm owner chip (fixes.css .fx-calm .fx-owner): the avatar IS the identity at rest; the pill
    chrome goes, the name is hover/focus detail (revealed via the apparatus block below). */
@@ -979,11 +998,11 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-sheet[data-sheet-kind="generic"] tbody tr.r-row-locked > td.r-rownum { color: var(--accent-ink); box-shadow: inset 2px 0 0 var(--accent-primary); }
 .r-sheet[data-sheet-kind="generic"] tbody tr.r-row-locked:hover > td { background: color-mix(in srgb, var(--accent-primary) 12%, var(--bg-hover)); }
 .r-cell.locked { background: rgba(217,119,87,.10); } .r-cell.locked-other { background: rgba(94,106,210,.10); }
-.r-cell.draft { background: rgba(46,158,107,.10); outline: 1px dashed rgba(46,158,107,.5); outline-offset: -1px; }
+.r-cell.draft { background: rgba(217,119,87,.10); outline: 1px dashed rgba(217,119,87,.5); outline-offset: -1px; }
 .r-cell.proposed { background: rgba(217,119,87,.08); box-shadow: inset 0 0 0 1px rgba(217,119,87,.22); }
 .r-cell.committed { animation: wetink 1.4s var(--ease-out-expo); }
 .r-cell.ctr { text-align: center; }
-.r-cell.range:not(.sel) { background: rgba(46,158,107,.08); box-shadow: inset 0 0 0 1px rgba(46,158,107,.24); }
+.r-cell.range:not(.sel) { background: rgba(217,119,87,.08); box-shadow: inset 0 0 0 1px rgba(217,119,87,.24); }
 .r-cell.sel, .r-cell.editing { outline: 2px solid var(--accent-primary); outline-offset: -2px; z-index: 1; background: color-mix(in srgb, var(--accent-primary) 8%, transparent); }
 .r-cell.editing { overflow: visible; background: var(--bg-primary); box-shadow: 0 2px 8px rgba(0,0,0,.22); }
 .r-cell.cell-error { color: var(--danger-ink); font-weight: 700; }
@@ -1004,7 +1023,7 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-cell.presence { padding-right: 76px; }
 .r-cell.locked .lockbadge { background: rgba(217,119,87,.2); color: var(--accent-ink); }
 .r-cell.evidence.locked .lockbadge { right: 54px; }
-.r-cell.draft .lockbadge { background: rgba(46,158,107,.2); color: #2E9E6B; }
+.r-cell.draft .lockbadge { background: rgba(217,119,87,.2); color: var(--accent-ink); }
 .r-val-num { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-primary); }
 .r-val-pos { color: var(--success-ink); font-weight: 700; }
 .r-val-neg { color: var(--danger-ink); font-weight: 700; }

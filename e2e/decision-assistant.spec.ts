@@ -18,7 +18,10 @@ test("decision assistant summarizes a completed research run and pre-fills next 
   await chat.getByTestId("chat-send").click();
 
   await expect(chat.getByText(/Researched 1 company with structured fields/i)).toBeVisible({ timeout: 30_000 });
+  // Agent-commits policy moved into the settings panel (design-target parity); open it to read state.
+  await page.getByTestId("room-settings-btn").click();
   await expect(page.getByTestId("agent-commit-policy")).toContainText(/Agent commits:\s*auto-allow/i);
+  await page.getByTestId("room-settings-btn").click();
 
   const agentReceipt = chat.getByTestId("chat-feed").getByTestId("agent-research-receipt");
   await expect(agentReceipt).toBeVisible();

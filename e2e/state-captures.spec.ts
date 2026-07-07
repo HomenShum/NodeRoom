@@ -79,7 +79,7 @@ test("capture — top bar (RoomShell) states", async ({ page }) => {
   await enterDemoRoom(page);
   const top = page.locator(".r-top");
   await setTheme(page, "dark");
-  await shoot(top, "topbar", "default", "dark", 1860, "Room-code chip, auto-allow switch, avatars, panel toggles, theme, help, leave — all consistent height; one accent at most.");
+  await shoot(top, "topbar", "default", "dark", 1860, "Clean bar: brand, room-code chip, presence facepile + live, one settings icon — agent-commits, focus, theme, and leave now live in settings.");
   // Micro-states are captured on the CONTROL itself, not the 1860px bar — a one-shade hover change
   // is invisible in a full-width strip (diagnosed: the CSS is correct, the framing was the problem).
   const code = page.locator(".r-roomcode");
@@ -89,16 +89,20 @@ test("capture — top bar (RoomShell) states", async ({ page }) => {
   await code.click();
   await page.waitForTimeout(150);
   await shoot(code, "topbar", "roomcode-copied", "dark", 1860, "After click a check-mark replaces the copy glyph — copy feedback confirming the code was copied.");
-  // auto-allow on vs off, captured on the pill so the knob travel is visible
-  const pill = page.locator(".r-pill-auto");
+  // auto-allow on vs off, captured on the relocated control inside the settings panel
+  // (the pill moved out of the resting bar for design-target parity).
+  await page.getByTestId("room-settings-btn").click();
+  const pill = page.getByTestId("agent-commit-policy");
   await shoot(pill, "topbar", "autoallow-on", "dark", 1860, "Auto-allow ON: accent track, knob to the RIGHT.");
-  await page.locator(".r-pill-auto .r-switch").click();
+  await page.getByTestId("auto-allow-switch").click();
   await page.waitForTimeout(450); // let the .18s spring settle so the knob is fully LEFT, not mid-travel
   await shoot(pill, "topbar", "autoallow-off", "dark", 1860, "Auto-allow OFF: neutral track, knob to the LEFT — clearly distinct from ON.");
-  // Toggle theme via the REAL button so React-driven icons update (setTheme only sets the DOM attr).
-  await page.locator(".r-iconbtn[aria-label*='theme']").click();
+  // Toggle theme via the REAL button — relocated into the settings panel (design-target parity).
+  // Settings is still open from the auto-allow capture; flip theme there, then close and shoot.
+  await page.getByTestId("room-tweaks").getByRole("button", { name: /theme/i }).click();
+  await page.getByTestId("room-settings-btn").click(); // close settings, restore the resting bar
   await page.waitForTimeout(150);
-  await shoot(top, "topbar", "default", "light", 1860, "Top bar holds contrast in light theme; the theme-toggle icon reflects the light state; no invisible icons.");
+  await shoot(top, "topbar", "default", "light", 1860, "Top bar holds contrast in light theme; the icons stay legible; no invisible icons.");
   flushManifest();
 });
 
@@ -150,7 +154,9 @@ test("capture — Sheet cell + proposal states (Artifact)", async ({ page }) => 
   }
 
   // review mode → proposals (locked + proposal-pending + the accept/reject controls)
-  await page.locator(".r-pill-auto .r-switch").click();
+  await page.getByTestId("room-settings-btn").click();
+  await page.getByTestId("auto-allow-switch").click();
+  await page.getByTestId("room-settings-btn").click();
   await page.evaluate(() => (window as any).__runCollab());
   const inlineProp = panel.getByTestId("proposal-inline").first();
   await expect(inlineProp).toBeVisible({ timeout: 15_000 });

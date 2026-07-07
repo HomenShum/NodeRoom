@@ -74,10 +74,13 @@ async function proposalText(p: Page, key: string) {
   return (await p.locator(`[data-cell-key="${key}"] [data-testid="proposal-inline"] .r-inline-proposal-text`).innerText()).trim();
 }
 async function setAutoAllow(p: Page, on: boolean) {
+  // Agent-commits relocated into the settings panel (design-target parity); open it first.
+  await p.getByTestId("room-settings-btn").click();
   const sw = p.getByTestId("auto-allow-switch");
   await expect(sw).toBeVisible({ timeout: 10_000 });
   if ((await sw.getAttribute("data-on")) !== String(on)) await sw.click();
   await expect(sw).toHaveAttribute("data-on", String(on), { timeout: 10_000 });
+  await p.getByTestId("room-settings-btn").click(); // close settings, restore the resting bar
 }
 async function shoot(pages: Record<string, Page>, label: string) {
   for (const [name, p] of Object.entries(pages)) await p.screenshot({ path: `${SHOTS}/${label}-${name}.png` });
