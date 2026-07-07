@@ -11,6 +11,7 @@ type ArtifactDoc = {
 };
 
 const MAX_DEPENDENCY_EXPANSION = 1_000;
+const MAX_SEED_CELLS_TO_INDEX = 2_000;
 
 export async function syncSpreadsheetIndexFromSeed(
   ctx: MutationCtx,
@@ -26,6 +27,7 @@ export async function syncSpreadsheetIndexFromSeed(
   if (args.kind !== "sheet") return;
   const columns = dataframeColumns(args.meta);
   if (!columns.length) return;
+  if (spreadsheetIndexDisabled(args.meta) || args.seed.length > MAX_SEED_CELLS_TO_INDEX) return;
   const now = args.now ?? Date.now();
   const index = buildSpreadsheetSemanticIndex({ title: args.title, columns, seed: args.seed });
   await replaceSpreadsheetIndex(ctx, args.artifactId, index, now);
@@ -35,7 +37,9 @@ export async function syncSpreadsheetIndexFromDb(ctx: MutationCtx, artifact: Art
   if (artifact.kind !== "sheet") return;
   const columns = dataframeColumns(artifact.meta);
   if (!columns.length) return;
+  if (spreadsheetIndexDisabled(artifact.meta)) return;
   const elements = await ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", artifact._id)).collect();
+  if (elements.length > MAX_SEED_CELLS_TO_INDEX) return;
   const seed = elements.map((element) => ({ id: element.elementId, value: element.value }));
   const index = buildSpreadsheetSemanticIndex({ title: artifact.title, columns, seed });
   await replaceSpreadsheetIndex(ctx, artifact._id, index, Date.now());
@@ -129,4 +133,9 @@ function dataframeColumns(meta: unknown): DataframeColumn[] {
     const c = column as Partial<DataframeColumn>;
     return typeof c.id === "string" && typeof c.label === "string" && typeof c.order === "number";
   });
+}
+
+function spreadsheetIndexDisabled(meta: unknown): boolean {
+  const maybe = meta as { dataframe?: { semanticIndexDisabled?: unknown; skipSemanticIndex?: unknown } } | undefined;
+  return maybe?.dataframe?.semanticIndexDisabled === true || maybe?.dataframe?.skipSemanticIndex === true;
 }

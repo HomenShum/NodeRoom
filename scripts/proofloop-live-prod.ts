@@ -77,6 +77,14 @@ process.on("uncaughtException", (error) => {
 });
 
 await runStep("qa_story_prod", "npm run qa:story:prod", {});
+await runStep(
+  "live_starter_room",
+  "npm run proofloop:live:starter",
+  {
+    ...commonEnv,
+    PROOFLOOP_LIVE_STARTER_RECEIPT_ROOT: resolve(browserRoot, "live-starter-room"),
+  },
+);
 await runStep("underwriting_live", "npm run proofloop:live:underwriting", {});
 await runStep("underwriting_verify", "npm run proofloop:live:underwriting:verify", {});
 await runStep(

@@ -1,0 +1,76 @@
+{
+  "schema": "noderoom-live-starter-room-proof-v1",
+  "runId": "live-starter-20260707T044547Z",
+  "baseUrl": "https://noderoom.live",
+  "convexUrl": "https://zealous-goshawk-766.convex.cloud",
+  "startedAt": "2026-07-07T04:45:47.366Z",
+  "completedAt": "2026-07-07T04:46:12.623Z",
+  "passed": true,
+  "failures": [],
+  "roomCode": "NRRNWUB1MXL",
+  "roomId": "k574wy5acwhnxwy2xd6zp22qnh8a28vv",
+  "screenshotPath": "C:\\Users\\hshum\\.codex\\worktrees\\a466\\noderoom\\docs\\eval\\live-prod\\live-starter-20260707T044547Z\\browser-receipts\\live-starter-room\\live-starter-room.png",
+  "checks": {
+    "roomTitle": "Startup diligence",
+    "artifactCount": 6,
+    "artifactTitles": [
+      "Company research",
+      "Diligence memo",
+      "Risk / opportunity wall",
+      "Runway / milestones",
+      "Open questions / workplan",
+      "Q3 variance"
+    ],
+    "companyResearch": {
+      "rowCount": 1000,
+      "elementCount": 7105,
+      "hiddenColumns": [
+        "crm_status",
+        "summary",
+        "funding",
+        "headcount",
+        "recent_signal",
+        "source",
+        "source2",
+        "last_researched"
+      ],
+      "semanticIndexDisabled": true,
+      "tags": [
+        "states-scale-default",
+        "startup-diligence",
+        "live-starter"
+      ]
+    },
+    "publicMessageCount": 312,
+    "traceCount": 400,
+    "dom": {
+      "url": "https://noderoom.live/?room=NRRNWUB1MXL&name=Host",
+      "title": "NodeRoom — live collaborative room with NodeAgents",
+      "bodySample": "N NodeRoom · Startup diligence invite NRRNWUB1MXL ● live convex Auto-allow Focus H ◆ 1 live Room Binder 6 items LIVE ROOM CHAT Room conversation 312 messages PINNED 1 Company research Open now - Sheet · v1 · 1000 rows RECENT 6 Company research Sheet · v1 · 1000 rows Diligence memo edited recently Risk / opportunity wall 3 notes Runway / milestones Sheet · v1 · 2 rows Open questions / workplan edited recently Q3 variance Sheet · v1 · 5 rows WORKBOOKS & WORK PRODUCTS 3 Room sheets 3 sheets 3 Company research Sheet · v1 · 1000 rows Q3 variance Sheet · v1 · 5 rows Runway / milestones Sheet · v1 · 2 rows DOCS, NOTES & UPLOADS 3 Boards 1 item 1 Risk / opportunity wall 3 notes Notes & memos 2 items 2 Diligence memo edited recently Open questions / workplan edited recently Upload file CSV, XLSX, text, image, PDF REVIEW & PROOF 2 Review queue no pending proposals Permissions host controls - 400 trace events PEOPLE & AGENTS 2 LIVE H Host Host ◆ Room NodeAgent Public agent · idle Home Runway / milestones Company research Diligence memo Risk / opportunity wall Trace Graph Shared — All Complete Review Failed 6/14 S M L COMPANY WEBSITE STATUS TIER INTENT OWNER 1 CardioNova https://cardionova.example pending A AI triage for hospitals Maya 2 Mercury https://mercury.com complete A Startup banking diligence Maya 3 Ramp https://ramp.com pending A Middle market card + spend controls Sam 4 Brex https://brex.com pending B Startup finance workflow Priya 5 Pulley https://pulley.com pending B Cap table and equity workflow diligence Maya 6 CardioNova https://cardionova.com complete B Middle-market card and spend controls Maya 7 NeuroNova https://neuronova.com pending A Startup banking diligence Sam 8 FluxNova https://fluxnova.com pending B Middle-market card and spend controls Priya 9 AtlasNova https://atlasnova.com complete A Cap table and equity ops Homen 10 VertexNova https://vertexnova.com pending A Freight pricing intelligence Maya 11 LumenNova https://lumennova.com complete B Clinical ",
+      "blankCtaCount": 0,
+      "binderTitles": [
+        "Company researchOpen now - Sheet · v1 · 1000 rows",
+        "Company researchSheet · v1 · 1000 rows",
+        "Diligence memoedited recently",
+        "Risk / opportunity wall3 notes",
+        "Runway / milestonesSheet · v1 · 2 rows",
+        "Open questions / workplanedited recently",
+        "Q3 varianceSheet · v1 · 5 rows",
+        "Company researchSheet · v1 · 1000 rows",
+        "Q3 varianceSheet · v1 · 5 rows",
+        "Runway / milestonesSheet · v1 · 2 rows",
+        "Risk / opportunity wall3 notes",
+        "Diligence memoedited recently",
+        "Open questions / workplanedited recently"
+      ],
+      "visibleRows": 25,
+      "visibleCells": 150,
+      "publicChatMessages": 312,
+      "traceRows": 0,
+      "guidedTourCount": 0,
+      "walkDockCount": 0
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  }
+}

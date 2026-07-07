@@ -8,7 +8,8 @@
  * DERIVED from the receipts. NodeRoom honestly supports 6 of the 7 today; this spec runs every one
  * it can and is explicit about the one it cannot:
  *
- *   1. FRESH ROOM      — real. create-room (live Convex) -> blank-cta-sheet. A new room every run.
+ *   1. FRESH ROOM      — real. create-room (live Convex) -> starter room -> Home CTA scratch sheet.
+ *                        A new room every run.
  *   2. IMPORT          — real. The actual nb-01 SOURCE FILES (source_financials.csv,
  *                        source_shares.txt) are uploaded through the live LeftRail `.r-file-input`
  *                        (the same affordance e2e/excel-grid.spec.ts proves end-to-end). The figures
@@ -57,6 +58,7 @@ import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import ExcelJS from "exceljs";
 import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "./focusMode";
+import { createScratchSheetFromStarterHome } from "./liveStarter";
 import { gradeGolden, type GoldenRubric, type GoldenOutputs } from "../src/benchmarks/golden/grader";
 import {
   SPREADSHEETBENCH_LIVE_ROOM_PROOF_PATH,
@@ -160,7 +162,7 @@ function assertNotCheating(expected: Record<string, { value: number; tol?: numbe
 const SOURCE_FINANCIALS_CSV = "year,revenue,cogs,net_income\n2024,1200,720,144\n2025,1500,840,210\n";
 const SOURCE_SHARES_TXT = "shares_outstanding_millions: 60\n";
 
-// The literal task instruction. Explicit about the deliverable target (the blank sheet's r<row>
+// The literal task instruction. Explicit about the deliverable target (the scratch sheet's r<row>
 // cells) and the batch write tool — the cheap model narrates instead of writing when the target is
 // ambiguous (observed with the inline-prompt variant). The figures are NOT inlined: the agent must
 // read them from the uploaded source_financials.csv / source_shares.txt.
@@ -253,7 +255,7 @@ test("SpreadsheetBench V1 fresh-room contract: import nb-01 CSV -> @nodeagent ->
   await page.locator('[data-testid="create-room"]').click({ timeout: 60_000 });
   await page.locator('[data-testid="create-room-submit"]').waitFor({ state: "visible", timeout: 10_000 });
   await page.locator('[data-testid="create-room-submit"]').click();
-  await page.locator('[data-testid="blank-cta-sheet"]').click({ timeout: 60_000 });
+  await createScratchSheetFromStarterHome(page);
   // Confirm this is a live Convex room (not a memory fallback): the header shows the live badge.
   await expect(page.getByText(/live convex/i)).toBeVisible({ timeout: 30_000 });
   await expectFocusModeOn(page);
@@ -277,7 +279,7 @@ test("SpreadsheetBench V1 fresh-room contract: import nb-01 CSV -> @nodeagent ->
   await expect(page.getByTestId("binder-artifact").filter({ hasText: "source_financials.csv" })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId("binder-artifact").filter({ hasText: "source_shares.txt" })).toBeVisible({ timeout: 30_000 });
 
-  // Re-open the blank Sheet 1 as the active artifact so the agent's contextArtifactId targets it and
+  // Re-open scratch Sheet 1 as the active artifact so the agent's contextArtifactId targets it and
   // its r<row> cells are the ones rendered for the grade.
   await page.getByTestId("binder-artifact").filter({ hasText: "Sheet 1" }).first().click({ timeout: 30_000 });
   await expect(page.locator('[data-element-id="r1__A"]')).toBeVisible({ timeout: 30_000 });

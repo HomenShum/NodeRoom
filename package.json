@@ -92,6 +92,7 @@
     "proofloop:live:browser": "tsx scripts/proofloop-live-playwright.ts browser",
     "proofloop:live:adapter": "tsx scripts/proofloop-live-playwright.ts adapter",
     "proofloop:live:btb": "tsx scripts/proofloop-live-playwright.ts bankertoolbench",
+    "proofloop:live:starter": "tsx scripts/live-starter-room-proof.ts",
     "proofloop:live:prod": "tsx scripts/proofloop-live-prod.ts",
     "proofloop:provider:preflight": "tsx scripts/provider-route-preflight.ts",
     "proofloop:live:underwriting": "node scripts/proofloop.mjs underwriting-live",

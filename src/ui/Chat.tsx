@@ -227,6 +227,9 @@ function humanAgentFailureText(text: string): string {
   if (/provider_egress_blocked:free_file_egress_requires_OPENROUTER_FREE_ALLOW_FILE_EGRESS/i.test(normalized)) {
     return "Provider blocked file egress for this free OpenRouter model. Use a route with file egress enabled or the local parser lane.";
   }
+  if (/(openrouter|provider).*(402|insufficient credit)|(?:402|insufficient credit).*(openrouter|provider)/i.test(normalized)) {
+    return "Provider route blocked by insufficient credits. Add OpenRouter credits or switch NodeAgent to a funded model route before rerunning.";
+  }
   return normalized;
 }
 
@@ -439,7 +442,7 @@ function compactAgentProgressRows(parts: Exclude<AgentStreamPart, { type: "text"
 }
 
 function AgentProgressCard({ parts, live, terminalSuccessful }: { parts: Exclude<AgentStreamPart, { type: "text" }>[]; live?: boolean; terminalSuccessful?: boolean }) {
-  const [detailsOpen, setDetailsOpen] = useState(() => parts.some((part) => agentPartState(part) === "failed"));
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const stepStarts = parts.filter((part): part is Extract<AgentStreamPart, { type: "step-start" }> => part.type === "step-start");
   const stepCount = stepStarts.length;
   const maxSteps = stepStarts[0]?.metadata?.maxSteps as number | undefined;
@@ -504,8 +507,37 @@ function AgentProgressCard({ parts, live, terminalSuccessful }: { parts: Exclude
   );
 }
 
+function AgentFailureReceiptCard({ text, status }: { text: string; status: string }) {
+  const [open, setOpen] = useState(false);
+  const cleaned = text.replace(/^Agent job \w+:\s*/i, "");
+  const friendly = humanAgentFailureText(cleaned);
+  const providerBlocked = /insufficient credits?|402|provider route blocked/i.test(friendly);
+  const title = status === "cancelled" ? "NodeAgent run cancelled" : "NodeAgent needs attention";
+  const next = providerBlocked
+    ? "Fund OpenRouter or switch to a funded model route, then retry this job."
+    : status === "blocked"
+    ? "The run checkpointed before mutating shared room state. Inspect details or retry after fixing the blocker."
+    : "Inspect details or retry the job after resolving the failure.";
+  return (
+    <section className="r-agent-failure-receipt" data-testid="agent-failure-receipt" data-status={status}>
+      <div className="r-agent-failure-head">
+        <span className="r-agent-failure-icon" aria-hidden>{status === "cancelled" ? <Square size={13} /> : <X size={13} />}</span>
+        <div>
+          <strong>{title}</strong>
+          <span>{friendly || "The run stopped before producing a final answer."}</span>
+        </div>
+      </div>
+      <div className="r-agent-failure-next"><ShieldCheck size={12} /> {next}</div>
+      <button type="button" className="r-agent-workflow-progress-toggle" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+        Failure receipt {open ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+      </button>
+      {open ? <pre className="r-agent-part-payload">{text}</pre> : null}
+    </section>
+  );
+}
+
 function AgentPlanCard({ part }: { part: Extract<AgentStreamPart, { type: "plan" }>; live?: boolean }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   return (
     <details className="r-agent-plan-card" data-testid="agent-plan-card" open={open} onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}>
       <summary>
@@ -1062,6 +1094,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
         {isPrivate ? <Lock size={14} /> : <MessageCircle size={14} />}
         <span className="h-title">{isPrivate ? "Your NodeAgent" : "Public chat"}</span>
         <span className={"r-tag " + (isPrivate ? "private" : "public")}>{isPrivate ? <><Lock size={10} /> Private</> : <><Globe size={10} /> Everyone</>}</span>
+        {!isPrivate && messages.length > 0 && <span className="r-tag">{messages.length}</span>}
         <span className="grow" />
         {!isPrivate && <span className="r-tag agent" style={{ gap: 6 }}><span className="r-avatar agent sm" style={{ background: AGENT_AVATAR_COLOR, width: 18, height: 18, fontSize: 9 }}>N</span>Room NodeAgent</span>}
         {showLongJobChrome && longJob && (() => { const bad = ["failed", "blocked"].includes(longJob.status); return (
@@ -1086,7 +1119,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
           <span>{longJob.modelPolicy}</span>
           {latestAttempt && <span>attempt {latestAttempt.attempt}: {latestAttempt.resolvedModel} · {latestAttempt.stopReason} · {shortMs(latestAttempt.ms)}</span>}
           {longJob.nextRunAt && longJob.status !== "completed" && <span>next {clock(longJob.nextRunAt)}</span>}
-          {longJobVisibleError && <span>{longJobVisibleError}</span>}
+          {longJobVisibleError && <span>{humanAgentFailureText(longJobVisibleError)}</span>}
           <button className="r-job-detail-toggle" type="button" data-testid="job-detail-toggle" onClick={() => setJobDetailsOpen((open) => !open)} aria-expanded={jobDetailsOpen}>
             {jobDetailsOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />} Details
           </button>
@@ -1186,7 +1219,13 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
                 <span className={"r-tag agent" + (["failed", "blocked"].includes(item.status) ? " danger" : "")} style={{ padding: "1px 5px", fontSize: 9 }}>{item.status}</span>
                 <span className="time">{clock(item.createdAt)}</span>
               </div>
-              {item.streamParts.length ? <AgentUnifiedStream parts={item.streamParts} live={false} fallbackText={item.text} terminalSuccessful={!["failed", "blocked"].includes(item.status)} /> : <MarkdownBody text={item.text} />}
+              {item.streamParts.length ? (
+                <AgentUnifiedStream parts={item.streamParts} live={false} fallbackText={item.text} terminalSuccessful={!["failed", "blocked"].includes(item.status)} />
+              ) : ["failed", "blocked", "cancelled"].includes(item.status) ? (
+                <AgentFailureReceiptCard text={item.text} status={item.status} />
+              ) : (
+                <MarkdownBody text={item.text} />
+              )}
             </div>
           </div>
         ))}

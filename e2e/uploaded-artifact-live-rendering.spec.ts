@@ -9,6 +9,7 @@ import { test, expect, type Page } from "@playwright/test";
 import ExcelJS from "exceljs";
 import { writeFileSync } from "node:fs";
 import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "./focusMode";
+import { expectLiveStarterRoomReady } from "./liveStarter";
 
 const BASE = process.env.BENCH_BASE_URL ?? "https://noderoom.live";
 
@@ -72,7 +73,7 @@ async function createFreshLiveRoom(page: Page): Promise<void> {
   await page.getByTestId("create-room").click({ timeout: 60_000 });
   await page.getByTestId("create-room-submit").waitFor({ state: "visible", timeout: 10_000 });
   await page.getByTestId("create-room-submit").click();
-  await page.getByTestId("blank-cta-sheet").click({ timeout: 60_000 });
+  await expectLiveStarterRoomReady(page);
   await expect(page.getByText(/live convex/i)).toBeVisible({ timeout: 30_000 });
   await expectFocusModeOn(page);
   await expectAttentionOverlayMounted(page);

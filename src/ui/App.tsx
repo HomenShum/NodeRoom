@@ -134,7 +134,6 @@ function ConvexApp() {
   const code = request.kind === "idle" ? "" : request.code;
   const byCode = useQuery(api.rooms.byCode, code ? { code } : "skip");
   const join = useMutation(api.rooms.joinAnonymous);
-  const createRoom = useMutation(api.rooms.create);
   const createStarterRoom = useMutation(api.rooms.createStarterRoom);
   const leaveRoom = useMutation(api.rooms.leave);
   const [session, setSession] = useState<LiveSession | null>(() => {
@@ -156,7 +155,7 @@ function ConvexApp() {
       return;
     }
     const name = cleanLiveName(rawName, kind === "create" ? "Host" : "Guest");
-    const title = kind === "create" ? cleanLiveTitle(rawTitle ?? "", "Blank NodeRoom") : undefined;
+    const title = kind === "create" ? cleanLiveTitle(rawTitle ?? "", "Startup diligence") : undefined;
     setError(null);
     setSession(kind === "join" ? loadLiveSession(liveSessionKey(normalizedCode)) : null);
     setRequest({ kind, code: normalizedCode, name, title });
@@ -195,13 +194,12 @@ function ConvexApp() {
         });
         joined = { roomId: String(result.roomId), memberId: String(result.memberId) };
       } else if (request.kind === "create") {
-        // A new room starts blank at the DATA layer by design (deep-review §0:
-        // "A new room starts blank. NodeAgent does not."). No seeded artifacts —
-        // the room fills from chat / upload / the in-room demo CTA. Passing no
-        // seedArtifacts also matches the deployed `rooms.create` validator exactly.
-        const result = await createRoom({
+        // Real-user create uses the same atomic starter mutation as demo create.
+        // No separate deterministic route is involved; the ordinary landing flow
+        // creates the scaled room a host should actually see.
+        const result = await createStarterRoom({
           code: request.code,
-          title: request.title ?? "Blank NodeRoom",
+          title: request.title ?? "Startup diligence",
           hostName: name,
           authToken: token,
           autoAllow: true,
@@ -216,7 +214,7 @@ function ConvexApp() {
     })()
       .catch((e) => { setError(friendlyLiveError(e)); })
       .finally(() => { setBusy(false); });
-  }, [byCode, busy, createRoom, createStarterRoom, join, request, session]);
+  }, [byCode, busy, createStarterRoom, join, request, session]);
 
   if (request.kind === "idle" || !session) {
     return (
@@ -263,7 +261,7 @@ function initialLiveRequest(): LiveRequest {
   }
   if (createParam !== null) {
     const code = normalizeLiveRoomCode(createParam && createParam !== "1" ? createParam : makeLiveRoomCode());
-    const title = cleanLiveTitle(params.get("title") ?? "", "Blank NodeRoom");
+    const title = cleanLiveTitle(params.get("title") ?? "", "Startup diligence");
     return code ? { kind: "create", code, name, title } : { kind: "idle" };
   }
   if (joinParam) {

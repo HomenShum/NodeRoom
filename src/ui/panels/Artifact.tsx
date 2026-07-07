@@ -40,7 +40,7 @@ const WIKI_TITLE = "Agent wiki";
 const RESEARCH_TITLE = "Company research";
 const BRIEF_TITLE = "Today's Brief";
 const MAX_OPEN_TABS = 12; // BOUND: cap open work-surface tabs (agent loops can churn artifacts); evict oldest.
-const GENERIC_SHEET_CELL_WINDOW = 5_000;
+const GENERIC_SHEET_CELL_WINDOW = 360;
 const BLANK_SHEET_ROWS = 12;
 const BLANK_SHEET_COLUMNS = ["A", "B", "C", "D", "E", "F", "G", "H"] as const;
 type TabId = "wiki" | "brief" | "sheet" | "research" | "note" | "wall";
@@ -1096,12 +1096,37 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
     const pageSize = Math.max(25, Math.min(250, Math.floor(GENERIC_SHEET_CELL_WINDOW / Math.max(columns.length, 1))));
     return { rows, columns, pageSize };
   }, [art]);
-  const cols = columns.map((col) => col.id);
-  const colWidths = useMemo(
-    () => columns.map((col, i) => sheetColumnWidth(art, col, i)),
-    [art.meta?.excelGrid?.colWidths, columns],
+  const [gridQuery, setGridQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "complete" | "needs_review" | "failed">("all");
+  const [columnMenuOpen, setColumnMenuOpen] = useState(false);
+  const [hiddenColIds, setHiddenColIds] = useState<string[]>(() => {
+    try {
+      const raw = JSON.parse(localStorage.getItem(`noderoom:grid-hidden-cols:${art.id}`) || "[]") as unknown;
+      if (Array.isArray(raw) && raw.length) return raw.filter((id): id is string => typeof id === "string");
+      const defaults = (art.meta?.dataframe as { defaultHiddenColumnIds?: unknown } | undefined)?.defaultHiddenColumnIds;
+      return Array.isArray(defaults) ? defaults.filter((id): id is string => typeof id === "string") : [];
+    } catch {
+      const defaults = (art.meta?.dataframe as { defaultHiddenColumnIds?: unknown } | undefined)?.defaultHiddenColumnIds;
+      return Array.isArray(defaults) ? defaults.filter((id): id is string => typeof id === "string") : [];
+    }
+  });
+  useEffect(() => { try { localStorage.setItem(`noderoom:grid-hidden-cols:${art.id}`, JSON.stringify(hiddenColIds)); } catch { /* ignore */ } }, [art.id, hiddenColIds]);
+  const hiddenColSet = useMemo(() => new Set(hiddenColIds), [hiddenColIds]);
+  const visibleColumns = useMemo(() => {
+    const next = columns.filter((col) => !hiddenColSet.has(col.id));
+    return next.length ? next : columns.slice(0, 1);
+  }, [columns, hiddenColSet]);
+  const allCols = columns.map((col) => col.id);
+  const cols = visibleColumns.map((col) => col.id);
+  const filteredRows = useMemo(
+    () => filterGenericSheetRows(art, rows, allCols, gridQuery, statusFilter),
+    [art, rows, allCols, gridQuery, statusFilter],
   );
-  const visibleRows = rows.slice(0, pageSize * pages);
+  const colWidths = useMemo(
+    () => visibleColumns.map((col) => sheetColumnWidth(art, col, Math.max(0, columns.findIndex((candidate) => candidate.id === col.id)))),
+    [art.meta?.excelGrid?.colWidths, columns, visibleColumns],
+  );
+  const visibleRows = filteredRows.slice(0, pageSize * pages);
   const { mergeAnchor, mergeCovered } = useMemo(() => expandSheetMerges(art.meta?.excelGrid?.merges), [art.meta?.excelGrid?.merges]);
   const selected = parseSheetElementId(art, sel);
   const selectedRowId = selected.rowId;
@@ -1163,6 +1188,15 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
     if (visibleRows[ri] && cols[ci]) setSel(sheetElementId(art, visibleRows[ri], cols[ci]));
   };
   const beginEdit = (id: string) => { setEditingId(id); setEditDraft(displayCellValue(art.elements[id]?.value)); };
+  const toggleColumnHidden = (colId: string) => {
+    setHiddenColIds((current) => {
+      if (current.includes(colId)) return current.filter((id) => id !== colId);
+      if (columns.length - current.length <= 1) return current;
+      return [...current, colId];
+    });
+  };
+  const renderedStart = visibleRows.length ? filteredRows.indexOf(visibleRows[0]) + 1 : 0;
+  const renderedEnd = visibleRows.length ? renderedStart + visibleRows.length - 1 : 0;
   return (
     <>
       <div className="r-art-body">
@@ -1171,6 +1205,32 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
         <div className="r-sheet-bar">
           <span className="r-sheet-namebox" data-testid="sheet-namebox">{sel ? dataframeCellAddress(art, cols, visibleRows, sel) : "—"}</span>
           <span className="r-sheet-valuebar" title={sel ? displayCellValue(art.elements[sel]?.value) : ""}>{sel ? displayCellValue(art.elements[sel]?.value) : ""}</span>
+          <label className="r-sheet-search" aria-label="Search sheet rows">
+            <Search size={12} />
+            <input value={gridQuery} onChange={(e) => { setGridQuery(e.currentTarget.value); setPages(1); }} placeholder="Find rows" />
+          </label>
+          <div className="r-sheet-status-filter" role="group" aria-label="Filter by status">
+            {(["all", "complete", "needs_review", "failed"] as const).map((status) => (
+              <button key={status} type="button" data-on={String(statusFilter === status)} onClick={() => { setStatusFilter(status); setPages(1); }}>
+                {status === "needs_review" ? "review" : status}
+              </button>
+            ))}
+          </div>
+          <div className="r-sheet-colmenu">
+            <button type="button" className="r-sheet-colmenu-btn" aria-expanded={columnMenuOpen} onClick={() => setColumnMenuOpen((open: boolean) => !open)}>
+              <Columns2 size={12} /> {cols.length}/{columns.length}
+            </button>
+            {columnMenuOpen && (
+              <div className="r-sheet-colmenu-pop" role="menu">
+                {columns.map((col) => (
+                  <label key={col.id}>
+                    <input type="checkbox" checked={!hiddenColSet.has(col.id)} onChange={() => toggleColumnHidden(col.id)} />
+                    <span>{col.label}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
           <span className="grow" />
           <div className="r-sheet-density" role="group" aria-label="Row density">
             {([["compact", "S"], ["default", "M"], ["comfortable", "L"]] as const).map(([d, label]) => (
@@ -1193,9 +1253,9 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
             }}>
             <colgroup>
               <col style={{ width: 44 }} />
-              {columns.map((c, i) => <col key={c.id} style={{ width: colOverrides[c.id] ?? colWidths[i] }} />)}
+              {visibleColumns.map((c, i) => <col key={c.id} style={{ width: colOverrides[c.id] ?? colWidths[i] }} />)}
             </colgroup>
-            <thead><tr><th className="r-corner" aria-label="row number" />{columns.map((c, i) => <th key={c.id} className={selectedColId === c.id ? "hl" : undefined}>{c.label}<span className="r-col-resize" role="separator" aria-orientation="vertical" aria-label={`Resize ${c.label}`} onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); startColResize(c.id, colOverrides[c.id] ?? colWidths[i], e.clientX); }} /></th>)}</tr></thead>
+            <thead><tr><th className="r-corner" aria-label="row number" />{visibleColumns.map((c, i) => <th key={c.id} className={selectedColId === c.id ? "hl" : undefined}>{c.label}<span className="r-col-resize" role="separator" aria-orientation="vertical" aria-label={`Resize ${c.label}`} onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); startColResize(c.id, colOverrides[c.id] ?? colWidths[i], e.clientX); }} /></th>)}</tr></thead>
             <tbody>
               {visibleRows.map((rid, i) => (
                 <tr key={rid}>
@@ -1253,10 +1313,48 @@ function GenericSheet({ roomId, me, art, onError }: { roomId: string; me: Actor;
         <span className="r-vpill next">v{art.version}</span>
         {visibleRows.length < rows.length && <button className="r-mini-btn" onClick={() => setPages((n) => n + 1)}>Show next {pageSize}</button>}
         <span className="grow" />
-        <span className="mono tiny faint">{rows.length} rows | {cols.length} columns</span>
+        <span className="mono tiny faint">
+          {rows.length} rows | {cols.length}/{columns.length} columns | rendered {renderedStart}-{renderedEnd}{filteredRows.length !== rows.length ? ` of ${filteredRows.length} filtered` : ""}
+        </span>
       </div>
     </>
   );
+}
+
+function filterGenericSheetRows(
+  art: Art,
+  rows: string[],
+  cols: string[],
+  query: string,
+  status: "all" | "complete" | "needs_review" | "failed",
+): string[] {
+  const q = query.trim().toLowerCase();
+  return rows.filter((rowId) => {
+    if (q) {
+      const haystack = [rowId, ...cols.map((col) => displayCellValue(art.elements[sheetElementId(art, rowId, col)]?.value))].join(" ").toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    if (status === "all") return true;
+    return cols.some((col) => genericCellStatusForValue(art.elements[sheetElementId(art, rowId, col)]?.value, col) === status);
+  });
+}
+
+function genericCellStatusForValue(value: unknown, columnId?: string): "complete" | "needs_review" | "failed" {
+  const payload = asCellPayload(value);
+  if (payload) return genericCellStatus(payload);
+  if (columnId === "status") {
+    const text = displayCellValue(value).toLowerCase().replace(/[\s-]+/g, "_");
+    if (text === "failed" || text === "blocked") return "failed";
+    if (text === "needs_review" || text === "review" || text === "gap") return "needs_review";
+  }
+  return "complete";
+}
+
+function genericCellStatus(payload: CellPayload | null): "complete" | "needs_review" | "failed" {
+  if (!payload) return "complete";
+  if (payload.error || payload.status === "failed") return "failed";
+  if (payload.status === "needs_review" || payload.status === "gap") return "needs_review";
+  return "complete";
 }
 
 function columnsOf(art: Art): DataframeColumn[] {

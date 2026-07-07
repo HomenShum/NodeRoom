@@ -256,9 +256,12 @@ describe("long-running agent job source invariants", () => {
 
     expect(pkg).toContain('"proofloop:provider:preflight"');
     expect(pkg).toContain('"proofloop:live:prod"');
+    expect(pkg).toContain('"proofloop:live:starter"');
     expect(preflight).toContain("provider-route-preflight-v1");
     expect(preflight).toContain("/credits");
     expect(preflight).toContain("provider_insufficient_credits");
+    expect(liveProd).toContain("live_starter_room");
+    expect(liveProd).toContain("PROOFLOOP_LIVE_STARTER_RECEIPT_ROOT");
     expect(liveProd).toContain("provider_preflight");
     expect(liveProd).toContain("BTB skipped because provider preflight did not pass");
     expect(liveProd).toContain('PROOFLOOP_TASK_ID: "variance-calc"');

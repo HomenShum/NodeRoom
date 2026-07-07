@@ -25,6 +25,7 @@ import { scanBankerToolBenchBundle, type BankerToolBenchTask } from "../src/eval
 import { assertBtbTaskCoverage, inferOfficialBtbTickers, type BtbTaskCoverageResult } from "../src/eval/btbTaskCoverage";
 import { writeFreshRoomProofReceipt, type FreshRoomExportReceipt } from "../src/eval/freshRoomProofReceipts";
 import { enableFocusModeForTest, expectAttentionOverlayMounted, expectFocusModeOn } from "./focusMode";
+import { createScratchSheetFromStarterHome } from "./liveStarter";
 import { installCockpit, emitCockpitEvent, cockpitEventsPath } from "../proofloop/cockpit/overlay.ts";
 
 const BASE = process.env.BENCH_BASE_URL ?? "http://localhost:5273";
@@ -363,7 +364,7 @@ async function createFreshLiveRoom(page: Page): Promise<void> {
   await page.locator('[data-testid="create-room"]').click({ timeout: 60_000 });
   await page.locator('[data-testid="create-room-submit"]').waitFor({ state: "visible", timeout: 10_000 });
   await page.locator('[data-testid="create-room-submit"]').click();
-  await page.locator('[data-testid="blank-cta-sheet"]').click({ timeout: 60_000 });
+  await createScratchSheetFromStarterHome(page);
   await expect(page.getByText(/live convex/i)).toBeVisible({ timeout: 30_000 });
 }
 
