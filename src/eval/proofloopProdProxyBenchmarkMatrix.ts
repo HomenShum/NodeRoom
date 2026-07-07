@@ -355,7 +355,7 @@ function spreadsheetFamily(root: string, official: OfficialCoverageReport | unde
     ? readJson<LiveReceipt>(root, "docs/eval/spreadsheetbench-live-room-proof.json")
     : undefined;
   const model = args.models[0] ?? DEFAULT_MODELS[0];
-  const taskCount = taskDirs.length || track?.officialExpectedTasks || 0;
+  const taskCount = Math.max(taskDirs.length, track?.officialExpectedTasks ?? 0);
   const tasks = Array.from({ length: taskCount }, (_, index) => {
     const taskDir = taskDirs[index];
     const manifest = taskDir
@@ -415,14 +415,17 @@ function bankerToolBenchFamily(root: string, official: OfficialCoverageReport | 
     : undefined;
   const receiptMap = btbReceiptMap(root);
   const receiptSummaries = btbReceiptSummaries(root);
-  const sourceTasks = report?.tasks?.length
+  const scannedTasks = report?.tasks?.length
     ? report.tasks.map((task) => ({
       id: task.id,
       title: task.agentTask.instruction.slice(0, 120) || task.harborTaskId,
       receipt: receiptMap.get(task.id) ?? receiptMap.get(task.harborTaskId),
       evidence: [`${bundleRoot}/tasks.jsonl`],
     }))
-    : Array.from({ length: expectedCount }, (_, index) => {
+    : [];
+  const sourceTasks = Array.from({ length: Math.max(scannedTasks.length, expectedCount) }, (_, index) => {
+    const scanned = scannedTasks[index];
+    if (scanned) return scanned;
       const receipt = receiptSummaries[index];
       const taskId = receipt?.taskId ?? `btb-official-${String(index + 1).padStart(3, "0")}`;
       return {

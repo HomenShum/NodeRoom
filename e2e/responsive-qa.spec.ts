@@ -4,7 +4,7 @@
  * Drives the app in MEMORY mode (no backend) across four viewports and asserts:
  *   1. no horizontal overflow,
  *   2. Work Surface is the primary visible surface,
- *   3. Room Binder + Copilot are visible on desktop and reachable overlays on compact screens,
+ *   3. Room Binder tree + Copilot are visible on desktop and reachable overlays on compact screens,
  *   4. artifact tabs stay in viewport,
  *   5. shell-level Signal Tape + Status Strip remain visible.
  */
@@ -61,11 +61,15 @@ for (const vp of VIEWPORTS) {
 
     const artifact = page.getByTestId("artifact-panel");
     const leftRail = page.getByTestId("left-rail");
-    const sidebarChat = page.getByTestId("sidebar-chat-peek");
     const copilot = page.getByTestId("copilot-panel");
     const tabs = page.getByTestId("artifact-tabs");
     const toggles = page.locator(".r-toggle-group");
     const bottom = page.getByTestId("shell-bottom");
+    const expectBinderTree = async (label: string) => {
+      await expect(leftRail.getByTestId("binder-search"), `${label}: binder search is visible`).toBeVisible();
+      await expect(leftRail.locator(".r-tree-section-head").first(), `${label}: binder section headers are visible`).toBeVisible();
+      await expect(leftRail.locator("[data-level]").first(), `${label}: nested binder rows are visible`).toBeVisible();
+    };
 
     await expect(artifact, "Work Surface is the primary surface").toBeVisible();
     await expect(tabs, "artifact tabs are reachable").toBeVisible();
@@ -92,7 +96,7 @@ for (const vp of VIEWPORTS) {
     if (vp.width > 1199) {
       // Full desktop: binder + Copilot both in flow (the binder is a narrow rail at 1200-1439).
       await expect(leftRail, "Room Binder visible on full desktop").toBeVisible();
-      await expect(sidebarChat, "Room Binder includes sidebar chat preview").toBeVisible();
+      await expectBinderTree("full desktop");
       await expect(copilot, "Copilot visible on desktop").toBeVisible();
       await expect(publicChat(page).getByTestId("chat-composer")).toBeVisible();
     } else if (vp.width > 980) {
@@ -103,7 +107,7 @@ for (const vp of VIEWPORTS) {
 
       await toggleButtons.nth(0).click();
       await expect(leftRail, "Room button opens the binder overlay").toBeVisible();
-      await expect(sidebarChat, "Room Binder overlay includes sidebar chat preview").toBeVisible();
+      await expectBinderTree("Room button overlay");
       await expect(copilot, "Copilot remains usable while the binder overlays").toBeVisible();
       await toggleButtons.nth(0).click();
       await expect(leftRail).toBeHidden();
@@ -113,14 +117,10 @@ for (const vp of VIEWPORTS) {
 
       await toggleButtons.nth(0).click();
       await expect(leftRail, "Room Binder overlay opens").toBeVisible();
-      await expect(sidebarChat, "Room Binder overlay includes sidebar chat preview").toBeVisible();
-      await sidebarChat.click();
-      await expect(copilot, "Sidebar chat preview opens Chat").toBeVisible();
-      await expect(publicChat(page).getByTestId("chat-composer")).toBeVisible();
-      await expect(leftRail, "Sidebar chat preview closes Binder on compact screens").toBeHidden();
+      await expectBinderTree("compact Binder overlay");
       await toggleButtons.nth(1).click();
       await expect(leftRail).toBeHidden();
-      await expect(artifact, "Work Surface returns after sidebar chat").toBeVisible();
+      await expect(artifact, "Work Surface returns after Binder overlay").toBeVisible();
 
       await toggleButtons.nth(2).click();
       await expect(copilot, "Copilot overlay opens").toBeVisible();

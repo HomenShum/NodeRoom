@@ -244,8 +244,8 @@ export function PeoplePanel({ roomId, me, open, onClose, onOpenArtifact }: {
   return (
     <>
       {open && (
-        <div className="r-people-panel" role="dialog" aria-label="People in this room" data-testid="people-panel">
-          <div className="r-people-search">
+        <div className="r-people-panel sc-ppanel" role="dialog" aria-label="People in this room" data-testid="people-panel">
+          <div className="r-people-search sc-search">
             <Search size={13} />
             <input placeholder="Find people…" aria-label="Find people" value={query} onChange={(e) => setQuery(e.currentTarget.value)} />
             {query && <button type="button" aria-label="Clear people filter" onClick={() => setQuery("")}><X size={11} /></button>}
@@ -263,12 +263,12 @@ export function PeoplePanel({ roomId, me, open, onClose, onOpenArtifact }: {
             const shown = expanded[g.key] ? rows : rows.slice(0, cap);
             return (
               <div key={g.key} data-testid={`people-group-${g.key}`}>
-                <div className="r-people-group">{g.label}<span className="r-people-count">{rows.length}</span></div>
+                <div className="r-people-group sc-sec">{g.label}<span className="r-people-count sc-count">{rows.length}</span></div>
                 {shown.map(({ row, loc }) => {
                   const st = statusFor(loc);
                   const isMe = row.kind === "user" && row.id === me.id;
                   return (
-                    <div className="r-people-row" key={row.id} data-testid="people-row" data-person-id={row.id}>
+                    <div className="r-people-row sc-prow" key={row.id} data-testid="people-row" data-person-id={row.id}>
                       <span className={row.kind === "agent" ? "a agent" : "a"} style={{ background: row.color ?? "#8F3F27" }} aria-hidden="true">
                         {row.kind === "agent" ? "◆" : initialsOf(row.name)}
                       </span>
@@ -276,7 +276,7 @@ export function PeoplePanel({ roomId, me, open, onClose, onOpenArtifact }: {
                         <span className="nm">{row.name}{isMe ? " (you)" : ""}</span>
                         <span className="mt" data-testid="people-location">{loc ? loc.text : "In the room"}</span>
                       </span>
-                      <span className={`r-people-st ${st}`}>{st}</span>
+                      <span className={`r-people-st sc-pst ${st}`}>{st}</span>
                       {row.kind === "user" && !isMe && loc && (
                         <button
                           type="button"
