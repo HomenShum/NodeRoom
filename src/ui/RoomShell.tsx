@@ -5,8 +5,8 @@
  * Convex.
  */
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, Link2, ShieldCheck, X, HelpCircle, Copy, Check, MessageCircle, Sparkles, SlidersHorizontal, Palette, Gauge, Play, ChevronLeft, ChevronRight, Crosshair, WifiOff } from "lucide-react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, ShieldCheck, X, HelpCircle, Copy, Check, MessageCircle, Sparkles, SlidersHorizontal, Palette, Gauge, Play, ChevronLeft, ChevronRight, Crosshair, WifiOff } from "lucide-react";
 import { useStore, type ActorProof } from "../app/store";
 import { OFFLINE_QUEUE_MAX } from "../notifications/offlineQueue";
 import { Chat } from "./Chat";
@@ -93,7 +93,10 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   // `live` at mount — still false on a RELOAD while Convex queries load —
   // so every returning visitor (tour already seen, nothing to force panels open) landed in a chat-only
   // layout. Caught by the walkthrough capturer's reload path; see FRICTION_LOG 2026-06-09.
-  const [show, setShow] = useState({ left: scaleDemo && !isCompact, stage: true, copilot: !isCompact });
+  // Binder opens by default on WIDE (design target shows all three panels; the panel toggles moved
+  // into settings there, so it can't rely on a top-bar toggle to open). Mid keeps it as a summoned
+  // overlay (Room button); compact keeps it closed. Copilot follows the prior non-compact default.
+  const [show, setShow] = useState({ left: !isCompact && (scaleDemo || !isMid), stage: true, copilot: !isCompact });
   const [codeCopied, setCodeCopied] = useState(false);
   // Default the side panels lean (binder + Copilot) so the work surface gets the width budget --
   // the contract makes it the focus, and an idle Copilot does not need 380px. Both stay inside the
@@ -116,7 +119,10 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   });
   const [tweaksOpen, setTweaksOpen] = useState(false);
   const [accent, setAccent] = useState<AccentKey>("terra");
-  const [backgroundGlow, setBackgroundGlow] = useState(true);
+  // Calm default: the twin corner-glow warmed and lifted the whole field, reading lighter and
+  // busier than the design target's near-black. Rest dark; the glow is opt-in via Tweaks for
+  // anyone who wants the "agents are working" ambience back.
+  const [backgroundGlow, setBackgroundGlow] = useState(false);
   const [replayPace, setReplayPace] = useState<ReplayPace>("standard");
   const [focusMode, setFocusMode] = useState<FocusModeClientState>(() => readFocusModeClientState());
   // Room-level rung of the presence ladder: facepile/live chip → PeoplePanel (role groups,
@@ -439,6 +445,15 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     window.addEventListener("pointerup", up);
   };
 
+  // One definition of the panel toggles, placed either in the top bar (compact/mid) or the
+  // settings panel (wide) — never both at once, so it never renders twice.
+  const panelToggles = (
+    <div className="r-toggle-group">
+      <button className="r-iconbtn" data-mobile-label="Room" data-on={String(show.left)} title="Room Binder" aria-label="Toggle Room Binder panel" aria-pressed={show.left} onClick={toggleBinder}><PanelLeft size={16} /></button>
+      <button className="r-iconbtn" data-mobile-label="Work" data-on={String(!isCompact || show.stage)} title="Work Surface" aria-label={isCompact ? "Show Work Surface panel" : "Focus Work Surface"} aria-pressed={!isCompact || show.stage} onClick={showWorkSurface}><Table2 size={16} /></button>
+      <button className="r-iconbtn" data-mobile-label="Chat" data-on={String(show.copilot)} title="Copilot" aria-label="Toggle Copilot panel" aria-pressed={show.copilot} onClick={toggleCopilot}><PanelRight size={16} /></button>
+    </div>
+  );
   return (
     <TraceLensProvider>
     <div className="r-app" data-bg-glow={String(backgroundGlow)} style={shellStyle}>
@@ -449,7 +464,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
             multiplayer flow (Meet/Figma mental model: click the code -> copy invite). */}
         <button className="r-roomcode" type="button" title="Copy invite link" aria-label={codeCopied ? "Invite link copied" : `Copy invite link for room ${room.code}`} aria-live="polite"
           onClick={copyInvite}>
-          <Link2 size={12} /> invite <b>{room.code}</b> {codeCopied ? <Check size={11} /> : <Copy size={11} />}
+          <b>{room.code}</b> {codeCopied ? <Check size={11} /> : <Copy size={11} />}
         </button>
         {store.mode === "convex" && <span className="r-tag" style={{ background: "var(--bg-secondary)", color: "var(--text-muted)" }}>● live convex</span>}
         {/* Offline edit-hold pill — quiet amber (needs review) next to the sync tag. Held state
@@ -484,23 +499,11 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
           </button>
         )}
         <span className="r-spacer" />
-        <div className="r-toggle-group">
-          <button className="r-iconbtn" data-mobile-label="Room" data-on={String(show.left)} title="Room Binder" aria-label="Toggle Room Binder panel" aria-pressed={show.left} onClick={toggleBinder}><PanelLeft size={16} /></button>
-          <button className="r-iconbtn" data-mobile-label="Work" data-on={String(!isCompact || show.stage)} title="Work Surface" aria-label={isCompact ? "Show Work Surface panel" : "Focus Work Surface"} aria-pressed={!isCompact || show.stage} onClick={showWorkSurface}><Table2 size={16} /></button>
-          <button className="r-iconbtn" data-mobile-label="Chat" data-on={String(show.copilot)} title="Copilot" aria-label="Toggle Copilot panel" aria-pressed={show.copilot} onClick={toggleCopilot}><PanelRight size={16} /></button>
-        </div>
-        <div className="r-pill-auto" data-testid="agent-commit-policy">
-          <span className="r-pill-auto-label">Agent commits:</span>
-          <b>{room.autoAllow ? "auto-allow" : "review"}</b>
-          {/* The highest-blast-radius control (gates whether agent edits apply without review):
-              a real ARIA switch, not a bare button, so assistive tech reads its on/off state. */}
-          <button className="r-switch" role="switch" aria-checked={room.autoAllow} aria-label="Auto-allow agent edits without host review" data-testid="auto-allow-switch" data-on={String(room.autoAllow)} disabled={!isHost} title={isHost ? "Auto-approve agent edits" : "Only the host can change auto-allow"} onClick={toggleAutoAccept} />
-        </div>
-        <div className="r-pill-auto r-focus-mode-control" data-testid="focus-mode-control" data-on={String(focusMode.enabled)}>
-          <Crosshair size={12} />
-          Focus
-          <button className="r-switch" role="switch" aria-checked={focusMode.enabled} aria-label="Focus Mode follows the selected agent job" data-testid="focus-mode-switch" data-on={String(focusMode.enabled)} title="Follow the current agent job on the work surface" onClick={toggleFocusMode} />
-        </div>
+        {/* Panel toggles ride the top bar on compact/mid; on wide (design-target parity) they
+            move into the settings panel, so the resting wide bar stays clean but stays available. */}
+        {(isCompact || isMid) && panelToggles}
+        {/* Design-target parity: the resting bar carries no labeled setting pills. Agent-commits
+            and Focus live inside the settings panel (sliders icon), keeping their testids/ARIA. */}
         {/* Facepile + live chip are ONE trigger: the room-level presence ladder opens the
             people panel (role groups · live location · Follow). Overflow avatar (+N) is the
             specimen's "facepile + overflow" state. */}
@@ -525,10 +528,8 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
             notification log, so memory mode renders NOTHING here (honest absence, the
             cell-history rule). Owns the W-key watch layer + the palette toggle event. */}
         {store.mode === "convex" && proof && <NotificationsInbox roomId={roomId} requester={proof} />}
-        <button className="r-iconbtn" title="Tweaks" aria-label="Open room tweaks" data-on={String(tweaksOpen)} onClick={() => setTweaksOpen((v) => !v)}><SlidersHorizontal size={16} /></button>
-        <button className="r-iconbtn" title="Take the guided tour" aria-label="Take the guided tour" data-testid="tour-button" onClick={startTour}><HelpCircle size={16} /></button>
-        <ThemeToggle />
-        <button className="r-iconbtn" title="Leave room" aria-label="Leave room" onClick={onLeave}><LogOut size={16} /></button>
+        {/* One settings icon closes the bar — appearance, the guided tour, and Leave moved inside it. */}
+        <button className="r-iconbtn" title="Room settings" aria-label="Open room settings" data-testid="room-settings-btn" data-on={String(tweaksOpen)} onClick={() => setTweaksOpen((v) => !v)}><SlidersHorizontal size={16} /></button>
       </div>
 
       <div className="r-workspace" data-shell="june-2026">
@@ -568,9 +569,17 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
         accent={accent}
         backgroundGlow={backgroundGlow}
         replayPace={replayPace}
+        autoAllow={room.autoAllow}
+        canAutoAllow={isHost}
+        focusEnabled={focusMode.enabled}
+        panelToggles={isCompact || isMid ? null : panelToggles}
         onAccent={setAccent}
         onBackgroundGlow={setBackgroundGlow}
         onReplayPace={setReplayPace}
+        onToggleAutoAllow={toggleAutoAccept}
+        onToggleFocus={toggleFocusMode}
+        onStartTour={startTour}
+        onLeave={onLeave}
         onClose={() => setTweaksOpen(false)}
       />
       {autoAcceptModal && (
@@ -721,18 +730,34 @@ function RoomTweaksPanel({
   accent,
   backgroundGlow,
   replayPace,
+  autoAllow,
+  canAutoAllow,
+  focusEnabled,
+  panelToggles,
   onAccent,
   onBackgroundGlow,
   onReplayPace,
+  onToggleAutoAllow,
+  onToggleFocus,
+  onStartTour,
+  onLeave,
   onClose,
 }: {
   open: boolean;
   accent: AccentKey;
   backgroundGlow: boolean;
   replayPace: ReplayPace;
+  autoAllow: boolean;
+  canAutoAllow: boolean;
+  focusEnabled: boolean;
+  panelToggles: ReactNode;
   onAccent: (accent: AccentKey) => void;
   onBackgroundGlow: (on: boolean) => void;
   onReplayPace: (pace: ReplayPace) => void;
+  onToggleAutoAllow: () => void;
+  onToggleFocus: () => void;
+  onStartTour: () => void;
+  onLeave: () => void;
   onClose: () => void;
 }) {
   if (!open) return null;
@@ -742,6 +767,12 @@ function RoomTweaksPanel({
         <span>Tweaks</span>
         <button className="r-iconbtn r-iconbtn-sm" type="button" aria-label="Close tweaks" onClick={onClose}><X size={13} /></button>
       </div>
+      {panelToggles && (
+        <div className="r-tweaks-section">
+          <span className="r-tweaks-label"><PanelLeft size={12} /> Panels</span>
+          {panelToggles}
+        </div>
+      )}
       <div className="r-tweaks-section">
         <span className="r-tweaks-label"><Palette size={12} /> Theme</span>
         <div className="r-tweak-swatches" role="radiogroup" aria-label="Accent theme">
@@ -775,6 +806,25 @@ function RoomTweaksPanel({
             </button>
           ))}
         </div>
+      </div>
+      {/* Relocated from the top bar for design-target parity — same controls, testids, ARIA.
+          Agent commits stays the highest-blast-radius switch: host-only, ARIA switch, honest state. */}
+      <div className="r-tweaks-section">
+        <span className="r-tweaks-label"><Sparkles size={12} /> Agent</span>
+        <label className="r-tweak-line" data-testid="agent-commit-policy">
+          <span>Agent commits: <b>{autoAllow ? "auto-allow" : "review"}</b></span>
+          <button className="r-switch" type="button" role="switch" aria-checked={autoAllow} aria-label="Auto-allow agent edits without host review" data-testid="auto-allow-switch" data-on={String(autoAllow)} disabled={!canAutoAllow} title={canAutoAllow ? "Auto-approve agent edits" : "Only the host can change auto-allow"} onClick={onToggleAutoAllow} />
+        </label>
+        <label className="r-tweak-line r-focus-mode-control" data-testid="focus-mode-control" data-on={String(focusEnabled)}>
+          <span><Crosshair size={12} /> Focus mode</span>
+          <button className="r-switch" type="button" role="switch" aria-checked={focusEnabled} aria-label="Focus Mode follows the selected agent job" data-testid="focus-mode-switch" data-on={String(focusEnabled)} title="Follow the current agent job on the work surface" onClick={onToggleFocus} />
+        </label>
+      </div>
+      <div className="r-tweaks-section">
+        <span className="r-tweaks-label">Room</span>
+        <label className="r-tweak-line"><span>Appearance</span><ThemeToggle /></label>
+        <button className="r-btn ghost r-tweak-action" type="button" data-testid="tour-button" onClick={onStartTour}><HelpCircle size={14} /> Take the guided tour</button>
+        <button className="r-btn ghost r-tweak-action" type="button" onClick={onLeave}><LogOut size={14} /> Leave room</button>
       </div>
     </div>
   );

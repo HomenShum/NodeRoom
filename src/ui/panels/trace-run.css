@@ -76,6 +76,11 @@
 .trc-st { flex: none; font-family: var(--font-mono); font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 5px; }
 .trc-st.err { background: var(--danger-tint); color: var(--danger-ink); }
 .trc-st.retry { background: var(--warning-tint); color: var(--warning-ink); }
+/* Per-span cost chip (spec .trc-cost). Staged CSS: RunSpan carries no per-span
+   cost today (only RunSummary.costUsd is the run total), so no chip is emitted —
+   this rule stays inert until a real per-span cost lands. No fabricated $0/spike. */
+.trc-cost { flex: none; font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--text-muted); }
+.trc-cost.spike { color: var(--warning-ink); }
 
 .trc-track { position: relative; height: 14px; border-radius: 4px;
   background: color-mix(in srgb, var(--line) 40%, transparent); overflow: hidden; }

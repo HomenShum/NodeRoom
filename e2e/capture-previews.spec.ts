@@ -166,7 +166,10 @@ test("real-app preview — review mode: agent edits arrive as proposals, host ap
   await expect(panel).toBeVisible();
 
   // Turn auto-allow OFF -> every agent write becomes an inline proposal needing approval.
-  await page.locator(".r-pill-auto .r-switch").click();
+  // (agent-commits moved into the settings panel for design-target parity — open it to toggle.)
+  await page.getByTestId("room-settings-btn").click();
+  await page.getByTestId("auto-allow-switch").click();
+  await page.getByTestId("room-settings-btn").click();
 
   // Sheet area only — proposal chips, approve buttons, and the committed value all live here;
   // the ticker below churns pixels that defeat dedupe and judge as frozen dead air.

@@ -49,6 +49,10 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
   const locks = store.awareness(roomId).activeLocks;
   const allPublicMessages = store.listMessages(roomId, "public");
   const largeBinder = arts.length >= 80;
+  // Spec .sc-search is an always-on binder search. We render it once the binder is non-trivial
+  // (deliberate pragmatic deviation from the spec's unconditional persistence — an 8-item floor
+  // avoids a search box on near-empty rooms). Same .r-binder-search element + testid either way.
+  const showBinderSearch = arts.length >= 8;
   const binderCounts = useMemo(() => scaleBinderCounts(arts), [arts]);
   const normalizedQuery = binderQuery.trim().toLowerCase();
   const visibleArts = normalizedQuery
@@ -136,10 +140,10 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
         {largeBinder && <span className="r-binder-count" data-testid="binder-scale-count">{arts.length}</span>}
       </div>
       <div className="r-rail">
-        {largeBinder && (
+        {showBinderSearch && (
           <label className="r-binder-search" data-testid="binder-search">
             <Search size={13} />
-            <input value={binderQuery} onChange={(e) => setBinderQuery(e.currentTarget.value)} placeholder={`Search ${arts.length} workbooks`} aria-label="Search room binder" />
+            <input value={binderQuery} onChange={(e) => setBinderQuery(e.currentTarget.value)} placeholder={largeBinder ? `Search ${arts.length} workbooks` : "Find in binder…"} aria-label="Search room binder" />
           </label>
         )}
         <div className="r-rail-section">
@@ -162,7 +166,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
         </div>
 
         <div className="r-rail-section">
-          <div className="kicker r-rail-kicker">Workbooks & work products</div>
+          <div className="kicker r-rail-kicker">Workbooks & work products<span className="r-rail-kicker-count">{arts.length}</span></div>
           {largeBinder && !normalizedQuery ? (
             <>
               <div className="r-binder-groups" data-testid="binder-scale-groups">
@@ -180,7 +184,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
             <>
               {visibleArts.slice(0, largeBinder ? 24 : visibleArts.length).map(renderArtifactButton)}
               {largeBinder && visibleArts.length > 24 && <div className="r-binder-more">{visibleArts.length - 24} more results - refine search</div>}
-              {largeBinder && !visibleArts.length && <div className="r-binder-more">No matching workbooks.</div>}
+              {normalizedQuery && !visibleArts.length && <div className="r-binder-more">No matching workbooks.</div>}
             </>
           )}
           <input ref={inputRef} className="r-file-input" type="file" multiple onChange={(e) => void onUpload(e.currentTarget.files)} />
@@ -199,7 +203,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
         </div>
 
         <div className="r-rail-section">
-          <div className="kicker r-rail-kicker">Review & proof</div>
+          <div className="kicker r-rail-kicker">Review & proof<span className="r-rail-kicker-count">{proposals.length}</span></div>
           {firstProposal ? (
             <button type="button" className="r-file" data-testid="binder-review-queue" title="Open the first pending proposal" onClick={openProposal}>
             <span className="fi"><Activity size={14} /></span>
@@ -218,7 +222,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
         </div>
 
         <div className="r-rail-section">
-          <div className="kicker r-rail-kicker">People & agents · {members.length} live</div>
+          <div className="kicker r-rail-kicker">People & agents<span className="r-rail-kicker-count">{members.length} live</span></div>
           {(largeBinder ? members.slice(0, 8) : members).map((m) => {
             const lock = locks.find((l) => l.holder.id === m.id);
             const range = lock ? rangeLabel(lock.elementIds) : "";

@@ -64,7 +64,6 @@ for (const vp of VIEWPORTS) {
     const sidebarChat = page.getByTestId("sidebar-chat-peek");
     const copilot = page.getByTestId("copilot-panel");
     const tabs = page.getByTestId("artifact-tabs");
-    const toggles = page.locator(".r-toggle-group");
     const bottom = page.getByTestId("shell-bottom");
 
     await expect(artifact, "Work Surface is the primary surface").toBeVisible();
@@ -76,6 +75,17 @@ for (const vp of VIEWPORTS) {
     expect(tabBox!.x, "tab bar starts inside viewport").toBeGreaterThanOrEqual(0);
     expect(tabBox!.x + tabBox!.width, "tab bar ends inside viewport").toBeLessThanOrEqual(vp.width + 1);
 
+    // Panel toggles stay available (the responsive contract), but LOCATION is viewport-aware:
+    // compact/mid keep them in the top bar; wide (>=1200px, design-target parity) moves them into
+    // the settings panel so the resting wide bar stays clean.
+    const wide = vp.width >= 1200;
+    if (wide) {
+      await expect(page.locator(".r-top .r-toggle-group"), "wide top bar carries no panel toggles").toHaveCount(0);
+      await page.getByTestId("room-settings-btn").click();
+    }
+    const toggles = wide
+      ? page.locator('[data-testid="room-tweaks"] .r-toggle-group')
+      : page.locator(".r-top .r-toggle-group");
     await expect(toggles, "panel toggles stay available").toBeVisible();
     const toggleBox = await toggles.boundingBox();
     expect(toggleBox, "panel toggle group must have a bounding box").not.toBeNull();
@@ -88,6 +98,7 @@ for (const vp of VIEWPORTS) {
       expect(b, `panel toggle ${i} has a bounding box`).not.toBeNull();
       expect(Math.min(b!.width, b!.height), `panel toggle ${i} meets the >=24px floor`).toBeGreaterThanOrEqual(24);
     }
+    if (wide) await page.getByTestId("room-settings-btn").click();
 
     if (vp.width > 1199) {
       // Full desktop: binder + Copilot both in flow (the binder is a narrow rail at 1200-1439).

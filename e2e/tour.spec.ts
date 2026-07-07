@@ -40,6 +40,7 @@ test.describe("guided tour (memory mode)", () => {
     expect(seen).toBe("done");
 
     // The "?" button replays it on demand.
+    await page.getByTestId("room-settings-btn").click(); // guided tour moved into the settings panel
     await page.getByTestId("tour-button").click();
     await expect(page.getByTestId("guided-tour")).toBeVisible();
     await expect(page.getByTestId("guided-tour").getByText("1 / 7")).toBeVisible();

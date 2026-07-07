@@ -43,10 +43,13 @@ async function cellText(page: Page, key: string) {
 }
 
 async function setReviewMode(page: Page) {
+  // Agent-commits relocated into the settings panel (design-target parity); open it first.
+  await page.getByTestId("room-settings-btn").click();
   const sw = page.getByTestId("auto-allow-switch");
   await expect(sw).toBeVisible({ timeout: 10_000 });
   if ((await sw.getAttribute("data-on")) !== "false") await sw.click();
   await expect(sw).toHaveAttribute("data-on", "false", { timeout: 10_000 });
+  await page.getByTestId("room-settings-btn").click(); // close settings, restore the resting bar
 }
 
 async function editCell(page: Page, key: string, value: string) {

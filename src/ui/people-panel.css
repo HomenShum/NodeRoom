@@ -3,7 +3,10 @@
    (design-reference/scale/scale.css: .sc-ppanel / .sc-pgroup / .sc-prow /
    .sc-pst / .sc-follow / .sc-more-av; follow pill from scale-states.jsx
    "follow mode"). Namespace: .r-people-*. Tokens only — the specimen's raw
-   #5E6AD2/#97A0E8 indigo maps to the existing --info/--info-ink tokens.
+   #5E6AD2 indigo IS the --info token, so the viewing-status ink uses --info
+   (the exact spec swatch, matching editing/running which use saturated
+   semantic tokens). --info-ink (#8C92E0, lighter) stays as the follow-pressed
+   / follow-pill TEXT ink; those borders already use --info.
    =========================================================================== */
 
 /* Top-bar trigger wrapping the existing facepile + live chip (both keep their
@@ -45,7 +48,7 @@
 /* Status word — specimen .sc-pst (editing/viewing/running/idle semantics). */
 .r-people-st { flex: none; font-family: var(--font-mono); font-size: 9px; font-weight: 700; }
 .r-people-st.editing { color: var(--accent-ink); }
-.r-people-st.viewing { color: var(--info-ink); }
+.r-people-st.viewing { color: var(--info); }
 .r-people-st.running { color: var(--success-ink); }
 .r-people-st.idle { color: var(--text-tertiary); }
 
