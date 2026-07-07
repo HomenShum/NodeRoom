@@ -92,7 +92,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   // `live` at mount — still false on a RELOAD while Convex queries load —
   // so every returning visitor (tour already seen, nothing to force panels open) landed in a chat-only
   // layout. Caught by the walkthrough capturer's reload path; see FRICTION_LOG 2026-06-09.
-  const [show, setShow] = useState({ left: !isCompact, stage: true, copilot: !isCompact });
+  const [show, setShow] = useState({ left: !isCompact && !isMid, stage: true, copilot: !isCompact });
   const [codeCopied, setCodeCopied] = useState(false);
   // Default the side panels lean (binder + Copilot) so the work surface gets the width budget --
   // the contract makes it the focus, and an idle Copilot does not need 380px. Both stay inside the

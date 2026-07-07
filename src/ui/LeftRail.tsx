@@ -102,7 +102,7 @@ export function LeftRail({ roomId, me, artId, onPick, onOpenChat, style }: { roo
     return out;
   }, [arts, artId]);
   const recentRows = useMemo(
-    () => [...arts].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6).map((artifact) => artifactTreeRow(artifact, artId, 1, { id: `recent-${artifact.id}` })),
+    () => [...arts].filter((artifact) => artifact.kind !== "sheet").sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6).map((artifact) => artifactTreeRow(artifact, artId, 1, { id: `recent-${artifact.id}` })),
     [arts, artId],
   );
   const workbookRows = useMemo(() => workbookTreeRows(arts, artId), [arts, artId]);
