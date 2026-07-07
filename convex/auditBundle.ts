@@ -19,7 +19,7 @@
  * (file-generation traces whose fileName carries the bundle prefix).
  *
  * Honesty gates:
- *   - BOUND: sheets over 5,000 elements are refused with
+ *   - BOUND: sheets over 25,000 elements are refused with
  *     { ok:false, reason:"sheet_too_large" }; every read uses .take; parts
  *     over the byte cap refuse with "bundle_too_large" instead of silently
  *     truncating the file.
@@ -41,10 +41,10 @@ import { action, internalQuery } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { actorProofV, requireActorProof, sha256Hex, type ActorValue } from "./lib";
 
-/** BOUND: refuse sheets over this many elements (task contract). */
-const MAX_BUNDLE_ELEMENTS = 5_000;
+/** BOUND: refuse sheets over this many elements. This supports the 1,000-row live starter while still preventing runaway exports. */
+const MAX_BUNDLE_ELEMENTS = 25_000;
 /** Latest-N trace excerpt the bundle attests to. */
-const TRACE_EXCERPT_LIMIT = 200;
+const TRACE_EXCERPT_LIMIT = 500;
 /** Raw trace read window before exclusion filtering (auditLog.list take×N precedent). */
 const TRACE_RAW_WINDOW = 600;
 /** BOUND: per-field truncation caps so one giant cell can't balloon a part. */
@@ -109,7 +109,8 @@ export const collectEvidenceBundleData = internalQuery({
     const createdBy = art.createdBy as ActorValue | undefined;
     const owned = !!createdBy && createdBy.kind === "user" && createdBy.id === by.id;
     if ((art.visibility ?? "room") === "private" && !owned) return { ok: false, reason: "artifact_not_visible" };
-    // BOUND: read one past the cap so "over 5,000" is detected without collect().
+    if (art.order.length > MAX_BUNDLE_ELEMENTS) return { ok: false, reason: "sheet_too_large" };
+    // BOUND: read one past the cap so oversized sheets are detected without collect().
     const els = await ctx.db
       .query("elements")
       .withIndex("by_artifact", (q) => q.eq("artifactId", a.artifactId))
