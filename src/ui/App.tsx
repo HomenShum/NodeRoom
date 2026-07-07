@@ -16,7 +16,7 @@ const RoomTour = lazy(() => import("../landing/roomTour/RoomTour").then((m) => (
 // paint (same precedent as RoomTour above).
 const PublicRoomPage = lazy(() => import("../alwayson/PublicRoomPage").then((m) => ({ default: m.PublicRoomPage })));
 import { EngineStoreProvider, ConvexStoreProvider, HAS_CONVEX } from "../app/store";
-import { createFreshRoom, enterBankerToolBenchRoomAsHost, enterDemoRoomAsHost, enterScaleDemoRoomAsHost, enterUpScaleXRoomAsHost } from "../app/roomStore";
+import { createFreshRoom, enterBankerToolBenchRoomAsHost, enterDemoRoomAsHost, enterHackwithBayRoomAsHost, enterScaleDemoRoomAsHost, enterUpScaleXRoomAsHost } from "../app/roomStore";
 import type { Actor } from "../engine/types";
 
 const liveSessionKey = (code: string) => `noderoom:live:${code.toUpperCase()}`;
@@ -46,6 +46,7 @@ export function App() {
   const [hash, setHash] = useState(() => readRoutableHash());
   const [memorySession, setMemorySession] = useState<Session | null>(() => initialMemorySession());
   const btbSessionRef = useRef<Session | null>(null);
+  const hackwithBaySessionRef = useRef<Session | null>(null);
   const upscalexSessionRef = useRef<Session | null>(null);
   useEffect(() => {
     const onHash = () => setHash(readRoutableHash());
@@ -106,6 +107,15 @@ export function App() {
       <EngineStoreProvider roomId={btbSessionRef.current.roomId} me={btbSessionRef.current.me}>
         <RoomShell roomId={btbSessionRef.current.roomId} me={btbSessionRef.current.me} onLeave={() => { window.location.hash = ""; }} />
         {HAS_CONVEX ? <BtbLiveLedgerPanel /> : null}
+      </EngineStoreProvider>
+    );
+  }
+
+  if (hash === "#hackwithbay" || hash === "#/hackwithbay") {
+    hackwithBaySessionRef.current ??= enterHackwithBayRoomAsHost();
+    return (
+      <EngineStoreProvider roomId={hackwithBaySessionRef.current.roomId} me={hackwithBaySessionRef.current.me}>
+        <RoomShell roomId={hackwithBaySessionRef.current.roomId} me={hackwithBaySessionRef.current.me} onLeave={() => { window.location.hash = ""; }} />
       </EngineStoreProvider>
     );
   }
