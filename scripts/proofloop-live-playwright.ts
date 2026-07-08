@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { setupProofloopAdapter } from "../src/eval/proofloopSetup";
 
 const suite = process.argv[2];
 const passthrough = process.argv.slice(3);
@@ -11,6 +12,11 @@ if (suite === "bankertoolbench") {
   env.BTB_LIVE_ROOM_E2E = "1";
   env.BTB_UI_BUNDLE_ROOT = env.BTB_UI_BUNDLE_ROOT ?? ".tmp/official-benchmarks/btb-fixture";
   env.BTB_UI_VERIFIER_COMMAND = env.BTB_UI_VERIFIER_COMMAND ?? "npm run benchmark:bankertoolbench:proof";
+  env.BENCH_BASE_URL = env.BENCH_BASE_URL ?? "http://localhost:5273";
+  env.PLAYWRIGHT_BASE_URL = env.PLAYWRIGHT_BASE_URL ?? env.BENCH_BASE_URL;
+  const taskId = flagValue("--task-id") ?? env.BTB_UI_TASK_ID;
+  if (taskId) env.BTB_UI_TASK_ID = taskId;
+  await ensureBankerToolBenchFixture(env);
   args = [
     "playwright",
     "test",
@@ -146,4 +152,41 @@ function flagValue(name: string): string | undefined {
   const index = passthrough.indexOf(name);
   if (index >= 0) return passthrough[index + 1];
   return undefined;
+}
+
+async function ensureBankerToolBenchFixture(runEnv: NodeJS.ProcessEnv): Promise<void> {
+  const fixtureRoot = runEnv.BTB_UI_BUNDLE_ROOT ?? ".tmp/official-benchmarks/btb-fixture";
+  const limit = positiveInteger(runEnv.BTB_SETUP_LIMIT) ?? 1;
+  const maxBytes = positiveInteger(runEnv.BTB_SETUP_MAX_BYTES);
+  const allowDownload = runEnv.BTB_SETUP_ALLOW_DOWNLOAD !== "0";
+  const receipt = await setupProofloopAdapter({
+    adapterId: "bankertoolbench",
+    projectRoot: process.cwd(),
+    fixtureRoot,
+    dataset: runEnv.BTB_SETUP_DATASET,
+    revision: runEnv.BTB_SETUP_REVISION,
+    limit,
+    maxBytes,
+    taskId: runEnv.BTB_UI_TASK_ID,
+    allowDownload,
+  });
+  if (receipt.status !== "ready") {
+    console.error(`BankerToolBench fixture is not ready: ${receipt.message}`);
+    console.error(`Receipt: ${resolve(process.cwd(), ".proofloop", "setup", "bankertoolbench-local-setup.json")}`);
+    process.exit(1);
+  }
+  if (!runEnv.BTB_UI_TASK_ID && receipt.taskIds[0]) runEnv.BTB_UI_TASK_ID = receipt.taskIds[0];
+  console.log([
+    "BankerToolBench fixture ready:",
+    `root=${receipt.root ?? fixtureRoot}`,
+    `task=${runEnv.BTB_UI_TASK_ID ?? "(auto)"}`,
+    `downloaded=${receipt.downloadedFiles.length}`,
+  ].join(" "));
+}
+
+function positiveInteger(raw: string | undefined): number | undefined {
+  if (!raw) return undefined;
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < 1) throw new Error(`Expected positive integer, got ${raw}`);
+  return Math.floor(value);
 }

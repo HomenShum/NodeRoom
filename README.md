@@ -375,6 +375,116 @@ fetched upscalex.ai + LinkedIn, correctly identified UpscaleX as an AI-native
 seed VC fund rather than a fundraising startup, and marked funding_round and
 investors as needs_review. Full report: [`docs/eval/nodemem-benchmark-report.json`](docs/eval/nodemem-benchmark-report.json).</sub>
 
+### Fresh real-user benchmark runbook
+
+The live BankerToolBench proof is intentionally a first-user browser run, not a
+seeded replay. The benchmark starts at `/`, clicks **Create a room**, enters a
+fresh live Convex room, creates a scratch sheet from the starter Home surface,
+uploads official-shaped benchmark input files through the Binder upload control,
+sends a public `@nodeagent` task prompt, waits for visible agent/job progress,
+exports the generated deliverable package, reopens the files, and then hands the
+package to the verifier.
+
+Noderoom's one-command local path is:
+
+```powershell
+cd "D:\VSCode Projects\noderoom"
+npm ci
+npm run dev -- --host 127.0.0.1 --port 5273 --strictPort
+
+# In a second shell:
+npm run proofloop -- setup bankertoolbench --allow-download --limit 1 --max-bytes 250000000
+npm run proofloop:live:btb
+```
+
+`npm run proofloop:live:btb` now performs the local BTB fixture setup itself if
+`.tmp/official-benchmarks/btb-fixture` is missing. It defaults the browser base
+URL to `http://localhost:5273`, sets `BTB_LIVE_ROOM_E2E=1`, and launches:
+
+```powershell
+npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed
+```
+
+The successful July 8, 2026 local run used task
+`707cba99-59a7-47bd-bc4d-7f36212e99f3` (`btb-707cba99`), created fresh room
+`NRRL0J4CHJ9`, uploaded:
+
+- `betas_by_industry_category_for_WACC.xlsx`
+- `Equity_Risk_Premium_for_WACC.xlsx`
+- `btb-707cba99-official-task-brief.txt`
+
+The agent then emitted a package with all required deliverable extensions:
+`.xlsx`, `.xlsm`, `.pptx`, `.docx`, and `.pdf`. The receipt is
+[`docs/eval/browser-receipts/bankertoolbench-live-room-proof.json`](docs/eval/browser-receipts/bankertoolbench-live-room-proof.json).
+The verifier tail in that receipt shows:
+
+```text
+BankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4
+```
+
+When driving the same flow through the forked Proofloop CLI, install the CLI
+from the branch under test, then run it inside Noderoom:
+
+```powershell
+cd "D:\VSCode Projects\beta-fund-hackerbay-3-demo-proofloop\proofloop"
+git switch agent/advisory-confidence-rubric
+git pull --ff-only truefork agent/advisory-confidence-rubric
+cd cli
+python -m pip install -e .
+
+cd "D:\VSCode Projects\noderoom"
+proofloop task setup --benchmark bankertoolbench --refresh-adapter
+proofloop task loop `
+  --benchmark bankertoolbench `
+  --task-source huggingface:Handshake-AI-Research/bankertoolbench `
+  --pick-task next `
+  --max-iterations 3 `
+  --require-marker "status 200" `
+  -- npm run proofloop:live:btb
+proofloop task export-memory
+```
+
+On Windows, if the forked Proofloop runner cannot resolve PowerShell shims for
+`npm` or `codex`, pass the `.cmd` paths explicitly. For example:
+
+```powershell
+proofloop task loop `
+  --benchmark bankertoolbench `
+  --task-source huggingface:Handshake-AI-Research/bankertoolbench `
+  --pick-task next `
+  --max-iterations 3 `
+  --require-marker "status 200" `
+  --codex-command "C:\Users\hshum\nodejs\codex.cmd exec --json" `
+  -- C:\nvm4w\nodejs\npm.cmd run proofloop:live:btb
+```
+
+The portable pattern for any GitHub app that wants real benchmark tasks in a
+fresh real-user session is:
+
+1. Add a local setup command that materializes an official-shaped fixture from
+   the benchmark source into a gitignored directory. Agent-visible files must
+   exclude gold outputs, rubrics, canaries, answer keys, and evaluator-only
+   paths.
+2. Add a live browser spec that starts at the public landing route, creates a
+   brand-new user workspace/session through the UI, and never jumps directly to
+   a seeded internal route.
+3. Upload benchmark inputs through the same UI a user would use. Do not mount
+   files directly into app state unless the product's real user path does that.
+4. Invoke the product agent from the public UI. The proof must show visible
+   streaming, job status, trace/progress surfaces, and any relevant backend/API
+   traffic.
+5. Export or recover the generated artifacts from the product path, then reopen
+   them by file type before scoring.
+6. Run the verifier only after candidate artifacts exist. Record the candidate
+   manifest, verifier command, verifier output tail, base URL, room/session URL,
+   model route, downloaded files, screenshots, traces, and marker gates in a
+   durable receipt.
+7. Keep certification and exploration separate. The locked certification loop
+   runs immutable verifier/scorer logic; any repair or scenario-generation loop
+   can propose changes but must not self-promote its own score.
+8. Use one explicit local server port per checkout and record it in the receipt.
+   Stale dev servers from another worktree can make a valid proof look broken.
+
 ### ProofLoop full proxy benchmark sweep
 
 The canonical all-family benchmark status is now
