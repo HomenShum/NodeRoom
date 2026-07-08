@@ -3,17 +3,153 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>NodeRoom — live collaborative room with NodeAgents</title>
-    <meta name="description" content="A live room where humans and NodeAgents edit a shared spreadsheet, note, and post-it wall together — with a lock -> draft -> smart-merge collaboration model." />
+    <title>NodeRoom - live collaborative AI rooms with NodeAgents</title>
+    <meta name="description" content="NodeRoom is a live collaborative AI room where teams and NodeAgents work across shared files, spreadsheets, notes, and traces with source-backed changes." />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="https://noderoom.live/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="NodeRoom" />
+    <meta property="og:title" content="NodeRoom - live collaborative AI rooms with NodeAgents" />
+    <meta property="og:description" content="Host a room where humans and NodeAgents collaborate on files, spreadsheets, notes, and source-backed decisions." />
+    <meta property="og:url" content="https://noderoom.live/" />
+    <meta property="og:image" content="https://noderoom.live/qa-trace/demo-room-desktop.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="NodeRoom - live collaborative AI rooms with NodeAgents" />
+    <meta name="twitter:description" content="A live room for human and AI collaboration on source-backed work." />
+    <meta name="twitter:image" content="https://noderoom.live/qa-trace/demo-room-desktop.png" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23151413'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23d97757'/%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-    <!-- NodeAgent Mobile (Terracotta) skin fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=DM+Serif+Display:ital@0;1&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+    </noscript>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "NodeRoom",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "url": "https://noderoom.live/",
+        "description": "A live collaborative AI room where humans and NodeAgents work together across shared files, spreadsheets, notes, and traceable source-backed changes.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    </script>
+    <script>
+      (function () {
+        var scopedRoom = /(?:[?&](?:room|demo|create)=|#(?:mobile|\/?mobile|rooms\/|\/?rooms\/|btb|\/?btb|hackwithbay|\/?hackwithbay|upscalex|\/?upscalex|frontier|\/?frontier|room-tour|\/?room-tour|story|\/?story))/i;
+        if (!scopedRoom.test(window.location.search + window.location.hash)) return;
+        document.documentElement.setAttribute("data-app-route", "private");
+        var robots = document.querySelector('meta[name="robots"]') || document.createElement("meta");
+        robots.setAttribute("name", "robots");
+        robots.setAttribute("content", "noindex,nofollow");
+        if (!robots.parentElement) document.head.appendChild(robots);
+      })();
+    </script>
+    <style>
+      html, body { margin: 0; min-height: 100%; background: #151413; color: #f4efe9; font-family: Inter, Manrope, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      #root { min-height: 100vh; }
+      .nr-ssr-landing { min-height: 100vh; display: flex; flex-direction: column; background: #151413; }
+      html[data-app-route="private"] .nr-ssr-landing { display: none; }
+      .nr-ssr-top { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; }
+      .nr-ssr-brand { display: inline-flex; align-items: center; gap: 10px; color: #f4efe9; font-size: 14px; font-weight: 800; }
+      .nr-ssr-nav { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+      .nr-ssr-mark { display: inline-grid; width: 30px; height: 30px; place-items: center; border-radius: 8px; background: #d97757; color: #1b1512; font-weight: 900; }
+      .nr-ssr-main { width: min(1040px, calc(100% - 40px)); margin: auto; padding: 44px 0 52px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 420px); gap: 44px; align-items: center; }
+      .nr-ssr-kicker { display: inline-flex; align-items: center; gap: 8px; color: #f0b38f; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+      .nr-ssr-dot { width: 8px; height: 8px; border-radius: 50%; background: #68c690; box-shadow: 0 0 0 5px rgba(104, 198, 144, .14); }
+      .nr-ssr-title { margin: 16px 0 16px; max-width: 650px; font-size: clamp(42px, 7vw, 76px); line-height: .92; letter-spacing: 0; }
+      .nr-ssr-title span { color: #d97757; }
+      .nr-ssr-copy { max-width: 620px; margin: 0 0 24px; color: #cfc5bb; font-size: 18px; line-height: 1.6; }
+      .nr-ssr-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+      .nr-ssr-button { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 8px; background: #d97757; color: #1b1512; font-weight: 800; text-decoration: none; }
+      .nr-ssr-code { display: inline-flex; align-items: center; min-height: 42px; padding: 0 14px; border: 1px solid rgba(244, 239, 233, .18); border-radius: 8px; color: #f4efe9; font-size: 13px; text-decoration: none; }
+      .nr-ssr-proof { margin-top: 22px; display: inline-flex; flex-wrap: wrap; gap: 10px; color: #e8ded5; font-size: 13px; }
+      .nr-ssr-proof span { border: 1px solid rgba(244, 239, 233, .14); border-radius: 999px; padding: 8px 11px; background: rgba(255, 255, 255, .05); }
+      .nr-ssr-shot { border: 1px solid rgba(244, 239, 233, .14); border-radius: 18px; background: #201b18; box-shadow: 0 24px 70px rgba(0, 0, 0, .34); overflow: hidden; }
+      .nr-ssr-shot-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid rgba(244, 239, 233, .1); color: #cfc5bb; font-size: 12px; }
+      .nr-ssr-sheet { width: 100%; border-collapse: collapse; font-size: 14px; }
+      .nr-ssr-sheet th, .nr-ssr-sheet td { padding: 14px 16px; border-bottom: 1px solid rgba(244, 239, 233, .08); text-align: left; }
+      .nr-ssr-sheet th { color: #a99d92; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+      .nr-ssr-sheet td:last-child, .nr-ssr-sheet th:last-child { text-align: right; color: #f0b38f; font-weight: 800; }
+      .nr-ssr-agent { padding: 16px; color: #d8cec5; line-height: 1.5; }
+      @media (max-width: 860px) {
+        .nr-ssr-top { padding: 14px 16px; }
+        .nr-ssr-nav { justify-content: flex-start; }
+        .nr-ssr-main { width: min(100% - 32px, 640px); grid-template-columns: 1fr; padding-top: 30px; }
+        .nr-ssr-title { font-size: clamp(38px, 13vw, 58px); }
+        .nr-ssr-copy { font-size: 16px; }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/app/main.tsx"></script>
+    <div id="root">
+      <main class="nr-ssr-landing" aria-label="NodeRoom landing preview">
+        <header class="nr-ssr-top">
+          <div class="nr-ssr-brand"><span class="nr-ssr-mark">N</span><span>NodeRoom</span></div>
+          <nav class="nr-ssr-nav" aria-label="NodeRoom public pages">
+            <a class="nr-ssr-code" href="/brand/noderoom/">What is NodeRoom?</a>
+            <a class="nr-ssr-code" href="/solutions/">Solutions</a>
+            <a class="nr-ssr-code" href="/use-cases/">Use cases</a>
+          </nav>
+        </header>
+        <section class="nr-ssr-main">
+          <div>
+            <span class="nr-ssr-kicker"><span class="nr-ssr-dot"></span>NodeAgents in live rooms</span>
+            <h1 class="nr-ssr-title">Diligence that <span>shows its work.</span></h1>
+            <p class="nr-ssr-copy">NodeRoom is a live collaborative AI room where humans and NodeAgents work across shared files, spreadsheets, notes, and traceable source-backed changes.</p>
+            <div class="nr-ssr-actions">
+              <a class="nr-ssr-button" href="/?mode=memory&amp;surface=desktop">Create a room</a>
+              <a class="nr-ssr-code" href="/learn/">Learn the workflow</a>
+              <a class="nr-ssr-code" href="/solutions/collaborative-ai-workspace/">Collaborative AI workspace</a>
+            </div>
+            <div class="nr-ssr-proof" aria-label="NodeRoom proof points">
+              <span>Source-backed changes</span>
+              <span>Shared rooms</span>
+              <span>Private app routes stay noindex</span>
+            </div>
+          </div>
+          <aside class="nr-ssr-shot" aria-label="NodeRoom product preview">
+            <div class="nr-ssr-shot-head"><strong>Q3 diligence room</strong><span>v43</span></div>
+            <table class="nr-ssr-sheet">
+              <thead><tr><th>Account</th><th>Q3</th><th>Variance</th></tr></thead>
+              <tbody>
+                <tr><td>Revenue</td><td>$12,400</td><td>+24%</td></tr>
+                <tr><td>COGS</td><td>$5,100</td><td>+27.5%</td></tr>
+                <tr><td>Gross profit</td><td>$7,300</td><td>+21.7%</td></tr>
+              </tbody>
+            </table>
+            <div class="nr-ssr-agent">Room NodeAgent cited the source, committed the sheet cells, and left a visible trace for review.</div>
+          </aside>
+        </section>
+      </main>
+    </div>
+    <script type="module">
+      (function () {
+        var started = false;
+        var start = function () {
+          if (started) return;
+          started = true;
+          import("/src/app/main.tsx");
+        };
+        var appSearch = /(?:[?&](?:mode|surface|room|demo|create)=)/i.test(window.location.search);
+        var appHash = /^#(?:mobile|\/?mobile|rooms\/|\/?rooms\/|btb|\/?btb|hackwithbay|\/?hackwithbay|upscalex|\/?upscalex|frontier|\/?frontier|room-tour|\/?room-tour|story|\/?story)/i.test(window.location.hash);
+        if (document.documentElement.getAttribute("data-app-route") === "private" || appSearch || appHash) {
+          start();
+          return;
+        }
+        ["pointerdown", "keydown", "touchstart", "wheel", "scroll"].forEach(function (eventName) {
+          window.addEventListener(eventName, start, { once: true, passive: true });
+        });
+      })();
+    </script>
   </body>
 </html>

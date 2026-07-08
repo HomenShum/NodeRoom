@@ -1,0 +1,26 @@
+User-agent: *
+Allow: /
+Disallow: /*?room=
+Disallow: /*?demo=
+Disallow: /*?create=
+Disallow: /convex/
+Disallow: /api/
+Disallow: /eval/
+Disallow: /pdf-fixtures/
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://noderoom.live/sitemap.xml

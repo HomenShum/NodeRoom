@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://noderoom.live/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://noderoom.live/brand/noderoom/</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://noderoom.live/solutions/</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://noderoom.live/solutions/collaborative-ai-workspace/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://noderoom.live/solutions/ai-agent-collaboration/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://noderoom.live/solutions/source-backed-ai-workflows/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://noderoom.live/solutions/ai-diligence-room/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://noderoom.live/solutions/ai-research-workspace/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://noderoom.live/use-cases/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://noderoom.live/use-cases/startups/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://noderoom.live/use-cases/sales/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://noderoom.live/use-cases/finance/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://noderoom.live/use-cases/students/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://noderoom.live/compare/slack-ai/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://noderoom.live/compare/notion-ai/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://noderoom.live/compare/google-docs/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://noderoom.live/blog/</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://noderoom.live/learn/</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://noderoom.live/pricing/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://noderoom.live/faq/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+</urlset>

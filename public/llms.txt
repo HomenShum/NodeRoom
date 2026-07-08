@@ -1,0 +1,26 @@
+# NodeRoom
+> NodeRoom is a live collaborative AI room where humans and NodeAgents work together across shared files, spreadsheets, notes, and source-backed trace receipts.
+
+## Official pages
+- [NodeRoom home](https://noderoom.live/): Primary product landing page.
+- [What is NodeRoom?](https://noderoom.live/brand/noderoom/): Official brand and entity disambiguation page.
+- [Solutions](https://noderoom.live/solutions/): Search-intent hub for collaborative AI rooms.
+- [Collaborative AI workspace](https://noderoom.live/solutions/collaborative-ai-workspace/): Shared workspace for people and AI agents.
+- [AI agent collaboration](https://noderoom.live/solutions/ai-agent-collaboration/): NodeAgent coordination and visible room state.
+- [Source-backed AI workflows](https://noderoom.live/solutions/source-backed-ai-workflows/): Cited changes, traces, and reviewable receipts.
+- [AI diligence room](https://noderoom.live/solutions/ai-diligence-room/): Evidence-backed diligence and review workflows.
+- [AI research workspace](https://noderoom.live/solutions/ai-research-workspace/): Research sources, notes, tables, and artifacts in one room.
+- [Use cases](https://noderoom.live/use-cases/): Startup diligence, sales research, finance workflows, and student projects.
+- [Learn](https://noderoom.live/learn/): How collaborative AI rooms work.
+- [FAQ](https://noderoom.live/faq/): Product, privacy, indexing, and workflow questions.
+
+## Key facts
+- NodeRoom is the official product name.
+- NodeAgents are AI agents that work inside NodeRoom rooms.
+- Public marketing and education pages are crawlable.
+- Live room, demo, create, and scoped app URLs should remain noindex.
+- NodeRoom is a workflow and evaluation surface, not financial, legal, lending, or insurance advice.
+
+## Preferred descriptions
+- Short: NodeRoom is a collaborative AI room for source-backed work.
+- Medium: NodeRoom gives teams a live room where people and NodeAgents collaborate across files, spreadsheets, notes, and traceable source-backed changes.
