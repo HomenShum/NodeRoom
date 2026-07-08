@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "taskId": "707cba99-59a7-47bd-bc4d-7f36212e99f3",
+  "harborTaskId": "btb-707cba99",
+  "generatedAt": "2026-07-08T00:32:18.712Z",
+  "baseUrl": "http://localhost:5273",
+  "roomUrl": "http://localhost:5273/?room=NRRL0J4CHJ9&name=Host",
+  "memoryMode": false,
+  "expectedExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "visibleExtensions": [
+    ".xlsx",
+    ".xlsm",
+    ".pptx",
+    ".docx",
+    ".pdf"
+  ],
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.xlsx",
+      "path": "docs\\eval\\browser-receipts\\fresh-room\\FR-020\\tasks\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\evidence\\btb-xlsx-btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.xlsx",
+      "extension": ".xlsx",
+      "bytes": 6926,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9744wcggadbmek7sfmct527kd8a40pn",
+      "contentQualityDetail": "placeholder/caveat content scan passed (603 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.xlsm",
+      "path": "docs\\eval\\browser-receipts\\fresh-room\\FR-020\\tasks\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\evidence\\btb-xlsm-btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.xlsm",
+      "extension": ".xlsm",
+      "bytes": 6926,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j974zct3tb5pq0vyqn5j1vfxhn8a5frf",
+      "contentQualityDetail": "placeholder/caveat content scan passed (603 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.pptx",
+      "path": "docs\\eval\\browser-receipts\\fresh-room\\FR-020\\tasks\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\evidence\\btb-pptx-btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.pptx",
+      "extension": ".pptx",
+      "bytes": 6266,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97fq8e3hvvjvtqv37tmxszg558a491t",
+      "contentQualityDetail": "placeholder/caveat content scan passed (608 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.docx",
+      "path": "docs\\eval\\browser-receipts\\fresh-room\\FR-020\\tasks\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\evidence\\btb-docx-btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.docx",
+      "extension": ".docx",
+      "bytes": 2233,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j979a0zytqhphg68azcfthc99h8a4nks",
+      "contentQualityDetail": "placeholder/caveat content scan passed (589 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.pdf",
+      "path": "docs\\eval\\browser-receipts\\fresh-room\\FR-020\\tasks\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\evidence\\btb-pdf-btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.pdf",
+      "extension": ".pdf",
+      "bytes": 1109,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j973nq4fhp53tk8kr0m350rr5n8a43dh",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1689 chars)"
+    }
+  ],
+  "packageManifestPath": "docs\\eval\\browser-receipts\\fresh-room\\FR-020\\tasks\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\evidence\\package-manifest.json",
+  "verifierCommand": "npm run benchmark:bankertoolbench:proof",
+  "verifierOutputTail": "\n> noderoom@0.1.1 benchmark:bankertoolbench:proof\n> tsx scripts/bankertoolbench-proof-check.ts\n\nBankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4\n",
+  "screenshot": "docs\\eval\\browser-receipts\\fresh-room\\FR-020\\tasks\\707cba99-59a7-47bd-bc4d-7f36212e99f3\\evidence\\bankertoolbench-live-room.png",
+  "model": {
+    "provider": "openrouter",
+    "id": "z-ai/glm-5.2",
+    "routePolicy": "specific",
+    "role": "planner",
+    "costUsd": 0,
+    "tokensIn": 0,
+    "tokensOut": 0
+  },
+  "passed": true,
+  "gatesProven": [
+    "fresh_room_join",
+    "official_fixture_upload",
+    "public_nodeagent_invocation",
+    "visible_streaming_progress",
+    "focus_mode_enabled",
+    "focus_box_or_attention_overlay",
+    "agent_terminal_quality_gate",
+    "deliverable_export_download",
+    "artifact_reopen_validation",
+    "artifact_placeholder_scan",
+    "official_scorer_handoff",
+    "trace_video_artifacts",
+    "no_memory_mode_shortcut"
+  ]
+}

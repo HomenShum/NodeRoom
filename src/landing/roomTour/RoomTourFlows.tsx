@@ -43,6 +43,7 @@ export function Landing({
         <div className="rt-cta-row">
           <button
             className="rt-btn primary"
+            data-testid="create-room"
             onClick={onCreate}
             style={{ padding: "11px 18px", fontSize: 14 }}
           >
@@ -141,6 +142,7 @@ export function CreateModal({
           </CodePeek>
           <button
             className="rt-btn primary"
+            data-testid="create-room-submit"
             onClick={() => onEnter(code, title)}
             style={{ width: "100%", justifyContent: "center", marginTop: 16, padding: "11px" }}
           >

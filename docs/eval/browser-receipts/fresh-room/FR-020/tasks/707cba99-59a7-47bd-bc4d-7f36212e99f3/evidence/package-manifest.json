@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "taskId": "707cba99-59a7-47bd-bc4d-7f36212e99f3",
+  "harborTaskId": "btb-707cba99",
+  "generatedAt": "2026-07-08T00:32:18.098Z",
+  "baseUrl": "http://localhost:5273",
+  "roomUrl": "http://localhost:5273/?room=NRRL0J4CHJ9&name=Host",
+  "downloadedFiles": [
+    {
+      "kind": "workbook",
+      "filename": "btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.xlsx",
+      "path": "D:\\VSCode Projects\\noderoom\\test-results\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsx-btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.xlsx",
+      "extension": ".xlsx",
+      "bytes": 6926,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j9744wcggadbmek7sfmct527kd8a40pn",
+      "contentQualityDetail": "placeholder/caveat content scan passed (603 chars)"
+    },
+    {
+      "kind": "workbook",
+      "filename": "btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.xlsm",
+      "path": "D:\\VSCode Projects\\noderoom\\test-results\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-xlsm-btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.xlsm",
+      "extension": ".xlsm",
+      "bytes": 6926,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains xl/workbook.xml; recovered from Convex room artifact j974zct3tb5pq0vyqn5j1vfxhn8a5frf",
+      "contentQualityDetail": "placeholder/caveat content scan passed (603 chars)"
+    },
+    {
+      "kind": "presentation",
+      "filename": "btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.pptx",
+      "path": "D:\\VSCode Projects\\noderoom\\test-results\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pptx-btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.pptx",
+      "extension": ".pptx",
+      "bytes": 6266,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains ppt/presentation.xml; recovered from Convex room artifact j97fq8e3hvvjvtqv37tmxszg558a491t",
+      "contentQualityDetail": "placeholder/caveat content scan passed (608 chars)"
+    },
+    {
+      "kind": "document",
+      "filename": "btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.docx",
+      "path": "D:\\VSCode Projects\\noderoom\\test-results\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-docx-btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.docx",
+      "extension": ".docx",
+      "bytes": 2233,
+      "magic": "PK\\x03\\x04",
+      "reopened": true,
+      "reopenDetail": "ZIP package contains word/document.xml; recovered from Convex room artifact j979a0zytqhphg68azcfthc99h8a4nks",
+      "contentQualityDetail": "placeholder/caveat content scan passed (589 chars)"
+    },
+    {
+      "kind": "pdf",
+      "filename": "btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.pdf",
+      "path": "D:\\VSCode Projects\\noderoom\\test-results\\e2e-benchmark-ui-bankertoo-d0047-odeagent---package-verifier\\btb-pdf-btb-707cba99-btb-707cba99-risk-opportunity-assessment-regal-lvs.pdf",
+      "extension": ".pdf",
+      "bytes": 1109,
+      "magic": "%PDF",
+      "reopened": true,
+      "reopenDetail": "PDF header reopened; recovered from Convex room artifact j973nq4fhp53tk8kr0m350rr5n8a43dh",
+      "contentQualityDetail": "placeholder/caveat content scan passed (1689 chars)"
+    }
+  ]
+}
