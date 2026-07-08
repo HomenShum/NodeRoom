@@ -22,6 +22,15 @@ import {
   sheetSeed,
   tupleSheetSeed,
 } from "./bankerToolBenchRoomSeed";
+import {
+  HACKWITHBAY_BRIEF_NOTE,
+  HACKWITHBAY_CHECKLIST_COLUMNS,
+  HACKWITHBAY_CHECKLIST_ROWS,
+  HACKWITHBAY_GRAPH_COLUMNS,
+  HACKWITHBAY_GRAPH_ROWS,
+  HACKWITHBAY_ROOM_TITLE,
+  hackwithBaySeed,
+} from "./hackwithBayRoomSeed";
 
 export const engine = new RoomEngine({ now: () => Date.now() });
 export const demo: DemoRoom = buildDemoRoom(engine);
@@ -588,6 +597,99 @@ export function enterBankerToolBenchRoomAsHost(): { roomId: string; me: Actor } 
 
   btbRoom = { roomId: room.id, me };
   return btbRoom;
+}
+
+let hackwithBayRoom: { roomId: string; me: Actor } | null = null;
+
+/** #hackwithbay - a focused hackathon room that maps the BTB graph-agent demo. */
+export function enterHackwithBayRoomAsHost(): { roomId: string; me: Actor } {
+  if (hackwithBayRoom) return hackwithBayRoom;
+
+  const { room, host } = engine.createRoom({ title: HACKWITHBAY_ROOM_TITLE, hostName: "HackwithBay Host", autoAllow: true });
+  const me: Actor = { kind: "user", id: host.id, name: host.name };
+  const agent: Actor = { kind: "agent", id: "agent_hackwithbay", name: "Nebius NodeAgent", scope: "public" };
+
+  engine.createArtifact({
+    roomId: room.id,
+    kind: "note",
+    title: "HackwithBay Demo Brief",
+    by: me,
+    seed: [{ id: "doc", value: HACKWITHBAY_BRIEF_NOTE }],
+    meta: { summary: "Architecture and demo choreography for the HackwithBay 3.0 BankerToolBench graph-agent room.", tags: ["hackwithbay", "btb", "demo-brief"] },
+  });
+
+  engine.createArtifact({
+    roomId: room.id,
+    kind: "sheet",
+    title: "HackwithBay Integration Map",
+    by: me,
+    seed: hackwithBaySeed(HACKWITHBAY_GRAPH_ROWS, HACKWITHBAY_GRAPH_COLUMNS),
+    meta: {
+      dataframe: {
+        columns: HACKWITHBAY_GRAPH_COLUMNS,
+        rowCount: HACKWITHBAY_GRAPH_ROWS.length,
+        sourceFile: "hackwithbay-3.0-node-room-map",
+        parser: "hackwithbay_seed",
+        truncated: false,
+        warnings: [],
+      },
+      summary: "Load-bearing roles for Butterbase, Neo4j, RocketRide, Cognee, Nebius, Daytona, and Opsera in the BTB graph-agent demo.",
+      tags: ["hackwithbay", "knowledge-graph", "btb"],
+    },
+  });
+
+  engine.createArtifact({
+    roomId: room.id,
+    kind: "sheet",
+    title: "Provider Setup Checklist",
+    by: me,
+    seed: hackwithBaySeed(HACKWITHBAY_CHECKLIST_ROWS, HACKWITHBAY_CHECKLIST_COLUMNS),
+    meta: {
+      dataframe: {
+        columns: HACKWITHBAY_CHECKLIST_COLUMNS,
+        rowCount: HACKWITHBAY_CHECKLIST_ROWS.length,
+        sourceFile: "hackwithbay-provider-setup",
+        parser: "hackwithbay_seed",
+        truncated: false,
+        warnings: [],
+      },
+      summary: "Accounts, secrets, and demo receipts needed before the live hackathon run.",
+      tags: ["hackwithbay", "setup", "providers"],
+    },
+  });
+
+  engine.postMessage({
+    roomId: room.id,
+    channel: "public",
+    author: me,
+    text: "@nodeagent Run BankerToolBench task btb-067cb834 from uploaded sources, use the Nebius route, sync claims to Neo4j/Cognee, execute the validation script in Daytona, and return graph receipts.",
+    clientMsgId: "hackwithbay-seed-user",
+    kind: "chat",
+  });
+  engine.postMessage({
+    roomId: room.id,
+    channel: "public",
+    author: agent,
+    text: "Ready for the hackathon lane. Configure the provider keys, then I can run the BTB task through the room workflow and attach RocketRide, Neo4j, Cognee, Nebius, and Daytona receipts.",
+    clientMsgId: "hackwithbay-seed-agent",
+    kind: "agent",
+    toolParts: [
+      { tool: "rocketride.ingest_btb_task", status: "running", detail: "waiting for deployed workflow endpoint" },
+      { tool: "neo4j.write_graph", status: "running", detail: "waiting for Aura credentials" },
+      { tool: "daytona.run_code", status: "running", detail: "waiting for sandbox API key" },
+    ],
+  });
+  engine.trace(
+    room.id,
+    agent,
+    "agent_status",
+    "HackwithBay 3.0 route seeded for BTB upload, graph memory, Nebius agent chat, Daytona code execution, and provider setup receipts.",
+    { route: "#/hackwithbay", btbTask: BTB_UI_EVIDENCE.taskId },
+    "This is a demo map until provider accounts and keys are configured.",
+  );
+
+  hackwithBayRoom = { roomId: room.id, me };
+  return hackwithBayRoom;
 }
 
 export function joinRoomByCode(code: string, name: string): { roomId: string; me: Actor } | null {
