@@ -114,9 +114,9 @@ export function Landing({
       <div className="r-screen">
         <div className="r-landing-shell">
           <header className="r-landing-top">
-            <button className="r-landing-brand" type="button" onClick={() => { window.location.hash = ""; }} aria-label="NodeAgent home">
+            <button className="r-landing-brand" type="button" onClick={() => { window.location.hash = ""; }} aria-label="NodeRoom home">
               <span className="r-mark">N</span>
-              <span>NodeAgent</span>
+              <span>NodeRoom</span>
             </button>
             <button className="r-iconbtn" type="button" aria-label="Toggle light / dark" title="Toggle light / dark" onClick={toggleTheme}>
               <Moon size={16} />
@@ -126,7 +126,7 @@ export function Landing({
           <main className="r-landing">
             <div className="r-land2-grid">
               <div>
-                <span className="r-eyebrow"><span className="r-dot-live" /> NodeAgent · live diligence rooms</span>
+                <span className="r-eyebrow"><span className="r-dot-live" /> NodeRoom · live diligence rooms</span>
                 <h1 className="r-h1">
                   Diligence that <span className="accent">shows its work.</span>
                 </h1>

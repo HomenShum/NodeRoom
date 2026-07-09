@@ -13,7 +13,7 @@ describe("design prototype parity", () => {
     const landing = source("src/ui/Landing.tsx");
 
     expect(landing).toContain("Diligence that shows its work");
-    expect(landing).toContain("NodeAgent · live diligence rooms");
+    expect(landing).toContain("NodeRoom · live diligence rooms");
     // The key visual is the scripted product-demo loop, every frame present.
     for (const frame of ["lock", "cite", "commit", "draft", "smart-merge", "v43"]) {
       expect(landing).toContain(`"${frame}"`);

@@ -1856,7 +1856,7 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-cta-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 2px; }
 .r-cta-row[data-live="true"] { gap: 10px; align-items: stretch; }
 .r-cta-row[data-live="true"] > .r-btn { min-height: 44px; }
-.r-cta-row[data-live="true"] > .r-btn.primary { padding: var(--space-3) 18px; font-size: 14px; }
+.r-cta-row[data-live="true"] > .r-btn.primary { min-height: 48px; padding: var(--space-3) 22px; font-size: 14px; font-weight: 800; box-shadow: 0 14px 34px rgba(176, 86, 47, .24); }
 .r-demo-room { color: var(--text-secondary); }
 .r-join-inline { display: flex; align-items: center; gap: 6px; background: var(--bg-secondary); border: 1px solid var(--line-strong); border-radius: 11px; padding: 6px 6px 6px 14px; }
 .r-cta-row[data-live="true"] .r-join-inline { min-height: 44px; padding: 4px 5px 4px 16px; }

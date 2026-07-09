@@ -20,8 +20,7 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23151413'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23d97757'/%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=DM+Serif+Display:ital@0;1&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -39,6 +38,21 @@
         }
       }
     </script>
+    <script>
+      (() => {
+        // SEO private-route guard: room|demo|create routes must be noindex,nofollow.
+        const params = new URLSearchParams(window.location.search);
+        const isPrivateRoute =
+          params.has("room") ||
+          params.has("demo") ||
+          params.has("create") ||
+          window.location.hash.startsWith("#room");
+        if (!isPrivateRoute) return;
+        const robots = document.querySelector('meta[name="robots"]');
+        if (robots) robots.setAttribute("content", "noindex,nofollow");
+        document.documentElement.setAttribute("data-app-route", "private");
+      })();
+    </script>
     <style>
       html, body { margin: 0; min-height: 100%; background: #151413; color: #f4efe9; font-family: Inter, Manrope, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
       #root { min-height: 100vh; }
@@ -55,8 +69,8 @@
       .nr-ssr-title span { color: #d97757; }
       .nr-ssr-copy { max-width: 620px; margin: 0 0 24px; color: #cfc5bb; font-size: 18px; line-height: 1.6; }
       .nr-ssr-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-      .nr-ssr-button { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 8px; background: #d97757; color: #1b1512; font-weight: 800; text-decoration: none; }
-      .nr-ssr-code { display: inline-flex; align-items: center; min-height: 42px; padding: 0 14px; border: 1px solid rgba(244, 239, 233, .18); border-radius: 8px; color: #f4efe9; font-size: 13px; text-decoration: none; }
+      .nr-ssr-button { display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 8px; background: #d97757; color: #1b1512; font-weight: 850; font-size: 15px; text-decoration: none; box-shadow: 0 14px 36px rgba(217, 119, 87, .24); }
+      .nr-ssr-code { display: inline-flex; align-items: center; min-height: 42px; padding: 0 14px; border: 1px solid rgba(244, 239, 233, .18); border-radius: 8px; color: #d9cfc6; font-size: 13px; text-decoration: none; }
       .nr-ssr-proof { margin-top: 22px; display: inline-flex; flex-wrap: wrap; gap: 10px; color: #e8ded5; font-size: 13px; }
       .nr-ssr-proof span { border: 1px solid rgba(244, 239, 233, .14); border-radius: 999px; padding: 8px 11px; background: rgba(255, 255, 255, .05); }
       .nr-ssr-shot { border: 1px solid rgba(244, 239, 233, .14); border-radius: 18px; background: #201b18; box-shadow: 0 24px 70px rgba(0, 0, 0, .34); overflow: hidden; }
