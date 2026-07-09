@@ -1,6 +1,6 @@
 # ProofLoop Preprod Readiness
 
-Generated: 2026-07-05T05:51:00.979Z
+Generated: 2026-07-08T19:48:48.066Z
 
 Source rubric: [kevincui1034/preprod-check](https://github.com/kevincui1034/preprod-check) 1.2.0, MIT.
 
@@ -9,7 +9,7 @@ This receipt ports the preprod-check categories into a deterministic ProofLoop r
 ## Summary
 
 - Package version: 0.1.1
-- Git commit: 1849538afbbdf3cddf9179af6ad4816d22bd1f79 (dirty)
+- Git commit: 8ef3fd5a2961b431118f5ff94132d4d0ee8ab8b2 (dirty)
 - Release gate: passed
 - Checks: 18 passed, 0 failed, 2 manual, 0 skipped
 - Critical/High: 16/17 verified passed
@@ -63,7 +63,8 @@ This receipt ports the preprod-check categories into a deterministic ProofLoop r
 | x-content-type-options | nosniff | nosniff | pass |
 | x-frame-options | DENY | DENY | pass |
 | referrer-policy | strict-origin-when-cross-origin | strict-origin-when-cross-origin | pass |
-| permissions-policy | camera=() | camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), interest-cohort=() | pass |
+| permissions-policy | camera=() | camera=(), microphone=(self), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), interest-cohort=() | pass |
+| permissions-policy | microphone=(self) | camera=(), microphone=(self), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), interest-cohort=() | pass |
 | cross-origin-opener-policy | same-origin | same-origin | pass |
 
 ## Verified Critical/High

@@ -43,6 +43,16 @@
       ]
     },
     {
+      "id": "voice-gateway",
+      "description": "Voice session state, STT/TTS adapters, transcript-to-RoomCommand classification, RoomStore bridge, narration, and voice QA smoke checks.",
+      "patterns": [
+        "convex/http.ts",
+        "convex/voice.ts",
+        "src/voice/**",
+        "scripts/voice-qa-smoke.ts"
+      ]
+    },
+    {
       "id": "provider-parser",
       "description": "Provider parser adapters, file ids, upload/import parsing, and parser smoke checks.",
       "patterns": [
@@ -57,6 +67,7 @@
       "description": "HALO loop, eval trust policy, budget and boundary checks, generated reports, QA matrix, and documentation gates.",
       "patterns": [
         "README.md",
+        ".env.example",
         "package-lock.json",
         "package.json",
         "docs/AGENT_EVAL.md",

@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "suite": "finch",
-  "generatedAt": "2026-07-04T02:24:04.983Z",
+  "generatedAt": "2026-07-08T21:36:32.791Z",
   "status": "needs_generation",
   "expectedOutputs": [
     "complete NodeRoom model-output artifact manifest for all 172 official Finch task ids",
@@ -11,6 +11,7 @@
   "currentEvidence": [
     ".proofloop/setup/finch-local-setup.json",
     "proofloop/benchmarks/finch/adapter.json",
+    "docs/eval/proofloop-external-adapter-live-room-runs/finch.json",
     "docs/eval/proofloop-external-adapter-runs/finch.json",
     "docs/eval/proofloop-adapter-blockers/finch.json",
     "docs/eval/proofloop-official-task-bundles/finch.json",

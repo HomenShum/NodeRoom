@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-06T07:05:07.214Z",
+  "generatedAt": "2026-07-08T21:36:38.196Z",
   "policy": [
     "Product-path completion is useful proof: real UI, visible progress, artifacts, verifier receipts, trace, memory, and browser evidence.",
     "Official semantic score is only claimed when the benchmark's official scorer/verifier result is imported.",
@@ -10,8 +10,8 @@
   ],
   "summary": {
     "total": 9,
-    "productPathProven": 5,
-    "productPathReadyToRun": 3,
+    "productPathProven": 7,
+    "productPathReadyToRun": 2,
     "externalAdaptersRegistered": 0,
     "officialScoresClaimed": 1,
     "officialScoresNotApplicable": 4,
@@ -88,10 +88,11 @@
       "family": "product_suite",
       "liveUserContract": "required",
       "productPathCompletion": {
-        "status": "ready_to_run",
+        "status": "proven",
         "scoreType": "product_path_completion",
         "evidence": [
-          "proofloop/suites/proximitty-underwriting-pr0.json"
+          ".proofloop/runs/latest/run-result.json",
+          ".proofloop/runs/2026-07-02T20-31-20"
         ],
         "command": "npm run proofloop:proximitty",
         "blockers": []
@@ -269,7 +270,7 @@
       "family": "external_adapter",
       "liveUserContract": "required",
       "productPathCompletion": {
-        "status": "partial",
+        "status": "proven",
         "scoreType": "product_path_completion",
         "evidence": [
           "proofloop/benchmarks/finauditing/adapter.json",
@@ -278,9 +279,7 @@
           "docs/eval/proofloop-adapter-blockers/finauditing.json"
         ],
         "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict --cockpit",
-        "blockers": [
-          "finauditing: live-room browser scenario failed"
-        ]
+        "blockers": []
       },
       "officialSemanticScore": {
         "status": "needs_scaffold_or_run",
@@ -309,7 +308,7 @@
         "metrics": {
           "missingImplementationFiles": 0,
           "localAdapterTasks": 1,
-          "liveRoomProductProof": false,
+          "liveRoomProductProof": true,
           "storyRouteProductProof": true,
           "liveRoomBaseUrl": "https://noderoom.live",
           "localAdapterOnly": true,
@@ -320,7 +319,7 @@
         }
       },
       "notes": [
-        "Story-route adapter proof passed, but the stronger fresh live-room proxy proof has not passed yet."
+        "Fresh live-room Proof Loop adapter proof passed; official score is still blocked on upstream scorer import."
       ]
     },
     {

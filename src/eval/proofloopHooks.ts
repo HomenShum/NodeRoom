@@ -19,7 +19,7 @@
  * `<root>/.proofloop/hooks/` next to a `config.json` snapshot, so the target
  * repo needs no TypeScript toolchain to enforce the gate.
  *
- * v0 supports one worker: Claude Code (`--worker claude-code`).
+ * v0 supports Claude Code and Codex hook hosts.
  */
 import {
   existsSync,
@@ -68,6 +68,10 @@ export const PROTECTED_EXTRA_PATHS: readonly string[] = [
   ".proofloop/regressions/",
   ".proofloop/hooks/",
   ".proofloop/tooluse/",
+  ".claude/settings.json",
+  ".claude/settings.local.json",
+  ".codex/hooks.json",
+  ".codex/hooks.local.json",
 ];
 
 /** Path prefixes whose NEW CONTENT is scanned for verifier-weakening patterns. */
@@ -79,7 +83,7 @@ export const GUARDED_CONTENT_PATH_PREFIXES: readonly string[] = [
 
 export type ProofloopHooksConfig = {
   schema: "proofloop-hooks-v1";
-  worker: "claude-code";
+  worker: ProofloopHookWorker;
   generatedAt: string;
   /** Goal id whose persisted ledger the Stop gate checks. */
   goalId: string;
@@ -124,6 +128,8 @@ export type ProofloopHooksInstallOptions = {
   toolUseLog?: boolean;
   now?: () => Date;
 };
+
+export type ProofloopHookWorker = "claude-code" | "codex";
 
 export type ProofloopHooksInstallResult = {
   root: string;
@@ -176,15 +182,13 @@ type JsonRecord = Record<string, unknown>;
 
 type HookEntry = { type?: unknown; command?: unknown; timeout?: unknown };
 type HookGroup = { matcher?: unknown; hooks?: unknown };
+type CodexHookEntry = { event?: unknown; matcher?: unknown; command?: unknown };
 
 // ---------------------------------------------------------------------------
 // install
 
 export function installProofloopHooks(options: ProofloopHooksInstallOptions = {}): ProofloopHooksInstallResult {
-  const worker = options.worker ?? "claude-code";
-  if (worker !== "claude-code") {
-    throw new Error(`Unsupported worker: ${worker}. v0 supports only --worker claude-code.`);
-  }
+  const worker = parseHookWorker(options.worker ?? "claude-code");
   const root = resolve(options.root ?? process.cwd());
   const hooksDir = join(root, ".proofloop", "hooks");
   mkdirSync(hooksDir, { recursive: true });
@@ -203,9 +207,11 @@ export function installProofloopHooks(options: ProofloopHooksInstallOptions = {}
     writeFileSync(postToolUseLogPath, postToolUseLogScript(config), "utf8");
   }
 
-  const settingsPath = join(root, ".claude", options.local ? "settings.local.json" : "settings.json");
+  const settingsPath = hookSettingsPath(root, worker, options.local === true);
   const settings = readSettingsForMerge(settingsPath);
-  const merged = mergeHookEntries(settings, { toolUseLog: config.toolUseLog });
+  const merged = worker === "codex"
+    ? mergeCodexHookEntries(settings, { toolUseLog: config.toolUseLog })
+    : mergeHookEntries(settings, { toolUseLog: config.toolUseLog });
   mkdirSync(dirname(settingsPath), { recursive: true });
   writeFileSync(settingsPath, `${JSON.stringify(settings, null, 2)}\n`, "utf8");
 
@@ -225,9 +231,10 @@ export function installProofloopHooks(options: ProofloopHooksInstallOptions = {}
 
 export function buildHooksConfig(options: ProofloopHooksInstallOptions = {}): ProofloopHooksConfig {
   const gateCommand = options.gateCommand?.trim() || null;
+  const worker = parseHookWorker(options.worker ?? "claude-code");
   return {
     schema: "proofloop-hooks-v1",
-    worker: "claude-code",
+    worker,
     generatedAt: (options.now?.() ?? new Date()).toISOString(),
     goalId: options.goalId ?? DEFAULT_HOOKS_GOAL_ID,
     gateMode: gateCommand ? "command" : "check-only",
@@ -297,6 +304,32 @@ export function mergeHookEntries(
   return { addedStop, addedPreToolUse, addedPostToolUseLog };
 }
 
+/**
+ * Codex hook configuration uses a flat hooks array. We keep the same command
+ * scripts as Claude Code because they consume stdin JSON and are host-neutral.
+ */
+export function mergeCodexHookEntries(
+  settings: JsonRecord,
+  options: { toolUseLog?: boolean } = {},
+): { addedStop: boolean; addedPreToolUse: boolean; addedPostToolUseLog: boolean } {
+  if (settings.hooks !== undefined && !Array.isArray(settings.hooks)) {
+    throw new Error("Refusing to overwrite Codex hooks because .codex hooks must be a flat array.");
+  }
+  const hooks = asCodexHookArray(settings.hooks);
+  settings.hooks = hooks;
+  const add = (event: string, command: string, matcher?: string): boolean => {
+    if (hooks.some((entry) => entry?.event === event && entry?.command === command)) return false;
+    hooks.push({ event, ...(matcher ? { matcher } : {}), command });
+    return true;
+  };
+  const addedStop = add("Stop", STOP_GATE_COMMAND);
+  const addedPreToolUse = add("PreToolUse", PRETOOLUSE_GUARD_COMMAND, PRETOOLUSE_MATCHER);
+  const addedPostToolUseLog = options.toolUseLog === false
+    ? false
+    : add("PostToolUse", POSTTOOLUSE_LOG_COMMAND, POSTTOOLUSE_LOG_MATCHER);
+  return { addedStop, addedPreToolUse, addedPostToolUseLog };
+}
+
 // ---------------------------------------------------------------------------
 // uninstall
 
@@ -305,8 +338,7 @@ export function uninstallProofloopHooks(options: ProofloopHooksUninstallOptions 
   const cleanedSettingsPaths: string[] = [];
   let removedEntries = 0;
 
-  for (const fileName of ["settings.json", "settings.local.json"]) {
-    const settingsPath = join(root, ".claude", fileName);
+  for (const settingsPath of hookSettingsCandidatePaths(root)) {
     const settings = readJsonRecord(settingsPath);
     if (!settings) continue;
     const removed = removeOurHookEntries(settings);
@@ -329,7 +361,16 @@ export function uninstallProofloopHooks(options: ProofloopHooksUninstallOptions 
 /** Remove ONLY entries whose command carries our marker prefix. */
 export function removeOurHookEntries(settings: JsonRecord): number {
   const hooks = asRecord(settings.hooks);
-  if (!hooks) return 0;
+  if (!hooks) {
+    const codexHooks = Array.isArray(settings.hooks) ? (settings.hooks as CodexHookEntry[]) : undefined;
+    if (!codexHooks) return 0;
+    const kept = codexHooks.filter((entry) => {
+      const isOurs = typeof entry?.command === "string" && entry.command.startsWith(PROOFLOOP_HOOK_COMMAND_PREFIX);
+      return !isOurs;
+    });
+    settings.hooks = kept;
+    return codexHooks.length - kept.length;
+  }
   let removed = 0;
   for (const eventName of Object.keys(hooks)) {
     const groups = hooks[eventName];
@@ -374,16 +415,17 @@ export function proofloopHooksStatus(options: { root?: string } = {}): Proofloop
   const configPath = join(hooksDir, "config.json");
   const config = readJsonRecord(configPath);
 
-  const settings = ["settings.json", "settings.local.json"].map((fileName) => {
-    const path = join(root, ".claude", fileName);
+  const settings = hookSettingsCandidatePaths(root).map((path) => {
     const parsed = readJsonRecord(path);
+    const codex = path.replace(/\\/g, "/").includes("/.codex/");
     const hooks = parsed ? asRecord(parsed.hooks) : undefined;
+    const codexHooks = parsed ? asCodexHookArray(parsed.hooks) : [];
     return {
       path,
       exists: parsed !== undefined,
-      stopHookInstalled: hooks ? groupsContainCommand(asGroupArray(hooks.Stop), STOP_GATE_COMMAND) : false,
-      preToolUseHookInstalled: hooks ? groupsContainCommand(asGroupArray(hooks.PreToolUse), PRETOOLUSE_GUARD_COMMAND) : false,
-      postToolUseLogInstalled: hooks ? groupsContainCommand(asGroupArray(hooks.PostToolUse), POSTTOOLUSE_LOG_COMMAND) : false,
+      stopHookInstalled: codex ? codexHooksContainCommand(codexHooks, "Stop", STOP_GATE_COMMAND) : hooks ? groupsContainCommand(asGroupArray(hooks.Stop), STOP_GATE_COMMAND) : false,
+      preToolUseHookInstalled: codex ? codexHooksContainCommand(codexHooks, "PreToolUse", PRETOOLUSE_GUARD_COMMAND) : hooks ? groupsContainCommand(asGroupArray(hooks.PreToolUse), PRETOOLUSE_GUARD_COMMAND) : false,
+      postToolUseLogInstalled: codex ? codexHooksContainCommand(codexHooks, "PostToolUse", POSTTOOLUSE_LOG_COMMAND) : hooks ? groupsContainCommand(asGroupArray(hooks.PostToolUse), POSTTOOLUSE_LOG_COMMAND) : false,
     };
   });
 
@@ -456,7 +498,7 @@ export function proofloopKickoffPrompt(): string {
     "   harness files. Fix the work, not the verifier.",
     "7. Check where you are anytime: `proofloop status` and `proofloop resume --goal official-scores`.",
     "",
-    "Mechanical enforcement for Claude Code is available: `proofloop hooks install` wires a Stop hook",
+    "Mechanical enforcement for Claude Code and Codex is available: `proofloop hooks install --worker <claude-code|codex>` wires a Stop hook",
     "that refuses fake \"done\" until the gate passes, plus a PreToolUse guard against verifier edits.",
   ].join("\n");
 }
@@ -1018,6 +1060,25 @@ function readJsonRecord(path: string): JsonRecord | undefined {
   }
 }
 
+function parseHookWorker(value: string): ProofloopHookWorker {
+  if (value === "claude-code" || value === "codex") return value;
+  throw new Error(`Unsupported worker: ${value}. Expected --worker claude-code or --worker codex.`);
+}
+
+function hookSettingsPath(root: string, worker: ProofloopHookWorker, local: boolean): string {
+  if (worker === "codex") return join(root, ".codex", local ? "hooks.local.json" : "hooks.json");
+  return join(root, ".claude", local ? "settings.local.json" : "settings.json");
+}
+
+function hookSettingsCandidatePaths(root: string): string[] {
+  return [
+    hookSettingsPath(root, "claude-code", false),
+    hookSettingsPath(root, "claude-code", true),
+    hookSettingsPath(root, "codex", false),
+    hookSettingsPath(root, "codex", true),
+  ];
+}
+
 function asRecord(value: unknown): JsonRecord | undefined {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as JsonRecord) : undefined;
 }
@@ -1026,9 +1087,17 @@ function asGroupArray(value: unknown): HookGroup[] {
   return Array.isArray(value) ? (value as HookGroup[]) : [];
 }
 
+function asCodexHookArray(value: unknown): CodexHookEntry[] {
+  return Array.isArray(value) ? (value as CodexHookEntry[]) : [];
+}
+
 function groupsContainCommand(groups: HookGroup[], command: string): boolean {
   return groups.some((group) => {
     const entries = Array.isArray(group?.hooks) ? (group.hooks as HookEntry[]) : [];
     return entries.some((entry) => entry?.command === command);
   });
+}
+
+function codexHooksContainCommand(hooks: CodexHookEntry[], event: string, command: string): boolean {
+  return hooks.some((entry) => entry?.event === event && entry?.command === command);
 }

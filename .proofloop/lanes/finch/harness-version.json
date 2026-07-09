@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "suite": "finch",
-  "harnessVersion": "finch-harness-e1fc4f3c0d4c",
-  "generatedAt": "2026-07-04T02:24:04.983Z",
+  "harnessVersion": "finch-harness-a5eac3e3cc84",
+  "generatedAt": "2026-07-08T21:36:32.791Z",
   "previousVersion": null,
   "changes": [
     "retry upstream Finch content_parts rendering against the complete model-output manifest",
@@ -22,17 +22,17 @@
     {
       "path": "scripts/proofloop-cli.ts",
       "exists": true,
-      "sha256": "6bb51201f090bda3a6f5e7a4c55a8a7f84fffd825e081898a50a5ce535b986ef"
+      "sha256": "a50c4b1afe9559532944106114053ea79eb26f7252ec9bb3ffcd4ec402bc2e67"
     },
     {
       "path": "scripts/proofloop.mjs",
       "exists": true,
-      "sha256": "95aec6cc8e95fa03a45904081f01150202473050e6defbec38dd9c6d0ff55fc9"
+      "sha256": "3f6008055f124098d6c28aed469aff2165583dc44d4275854bea5f91826ba3f9"
     },
     {
       "path": "src/eval/proofloopGoalSupervisor.ts",
       "exists": true,
-      "sha256": "02b7d804b71038ffb0f33d13e8e832a8cc2ad416c77795f53afa305212651df0"
+      "sha256": "928a1ec86f5cee7ced97a5ec6eaddd1a07a3a3fa35436eefdfe902864cb6cd1a"
     },
     {
       "path": "src/eval/proofloopLoopArtifacts.ts",
@@ -42,17 +42,17 @@
     {
       "path": "src/eval/proofloopModelTracking.ts",
       "exists": true,
-      "sha256": "7ea29d78b38dc9234f7c6e0994ef359b65b72e229185598a3f49e9f2941580e7"
+      "sha256": "5c0fc9e9daa64add3c40833546a2b5bbd86a2fac14801c86302d3a1434f65bc2"
     },
     {
       "path": "src/eval/proofloopBlockerSolver.ts",
       "exists": true,
-      "sha256": "0e787203927832e15fd72db090ebcefcb8b4c7b321085b12a24f2a54da324348"
+      "sha256": "e840ede52b09036a5c28427238eef1457930133a6841cd8e12d3983e932c8538"
     },
     {
       "path": "proofloop/benchmarks/finch/adapter.json",
       "exists": true,
-      "sha256": "d878402cf74c5bbf9548978e12b2a4bb7ebd753ad05b93f5ca120bc82116c387"
+      "sha256": "9cb926196b3ee226476bdf06297f6aa612476f392ea39894846fba1c4b0c0055"
     },
     {
       "path": "docs/eval/openrouter-top-paid-tools-snapshot.json",
@@ -62,7 +62,7 @@
     {
       "path": "docs/eval/official-benchmark-task-coverage.json",
       "exists": true,
-      "sha256": "6751aa99645e7130b4a39159f88a5e2da05ce4e4a52830e83db29f87deb9e96d"
+      "sha256": "b5bc3b4632b279270af6c223c00998465a3d4bb5f6a8971d6f083967e1dd80eb"
     }
   ]
 }

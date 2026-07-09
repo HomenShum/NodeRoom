@@ -3,7 +3,7 @@
   "kind": "blocker_solver_memory",
   "suite": "finch",
   "blockerId": "finch-official-score",
-  "generatedAt": "2026-07-04T02:24:04.983Z",
+  "generatedAt": "2026-07-08T21:36:32.791Z",
   "classes": [
     "missing_judge_credentials",
     "missing_official_scorer",

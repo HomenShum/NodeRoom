@@ -142,4 +142,76 @@ describe("Proof Loop model tracking", () => {
     expect(route.tokensOut).toBe(320);
     expect(assertProofloopModelTracked(route)).toEqual([]);
   });
+
+  it("normalizes LangChain, LiteLLM, and OpenRouter proxy route strings into tracked receipts", () => {
+    const langchainRoute = proofloopModelRouteForRun({
+      suite: "interop",
+      cmd: "nodeagent via langchain",
+      env: {
+        NODEROOM_LANGCHAIN_ROUTE: "langchain:openai:gpt-5.4-mini",
+        PROOFLOOP_TOKENS_IN: "1000",
+        PROOFLOOP_TOKENS_OUT: "250",
+      },
+    });
+    expect(langchainRoute).toMatchObject({
+      id: "gpt-5.4-mini",
+      provider: "openai",
+      routePolicy: "proxy",
+      costAccounting: { status: "estimated", source: "catalog_estimate" },
+    });
+    expect(assertProofloopModelTracked(langchainRoute)).toEqual([]);
+
+    const litellmRoute = proofloopModelRouteForRun({
+      suite: "interop",
+      cmd: "nodeagent via litellm",
+      env: {
+        PROOFLOOP_MODEL_ID: "litellm:anthropic/claude-sonnet-4.6",
+        PROOFLOOP_TOKENS_IN: "1000",
+        PROOFLOOP_TOKENS_OUT: "250",
+      },
+    });
+    expect(litellmRoute).toMatchObject({
+      id: "claude-sonnet-4-6",
+      provider: "anthropic",
+      routePolicy: "proxy",
+    });
+    expect(assertProofloopModelTracked(litellmRoute)).toEqual([]);
+
+    const openrouterRoute = proofloopModelRouteForRun({
+      suite: "interop",
+      cmd: "nodeagent via openrouter proxy prefix",
+      env: {
+        PROOFLOOP_MODEL_ID: "openrouter:deepseek/deepseek-v4-pro",
+        PROOFLOOP_TOKENS_IN: "1000",
+        PROOFLOOP_TOKENS_OUT: "250",
+      },
+    });
+    expect(openrouterRoute).toMatchObject({
+      id: "deepseek/deepseek-v4-pro",
+      provider: "openrouter",
+      routePolicy: "proxy",
+    });
+    expect(assertProofloopModelTracked(openrouterRoute)).toEqual([]);
+  });
+
+  it("tracks direct Nebius model routes without misclassifying them as OpenRouter", () => {
+    const route = proofloopModelRouteForRun({
+      suite: "nebius-live",
+      cmd: "nodeagent direct nebius",
+      env: {
+        PROOFLOOP_MODEL_ID: "nebius/MiniMaxAI/MiniMax-M2.5",
+        PROOFLOOP_TOKENS_IN: "2000",
+        PROOFLOOP_TOKENS_OUT: "500",
+      },
+    });
+
+    expect(route).toMatchObject({
+      id: "nebius/MiniMaxAI/MiniMax-M2.5",
+      provider: "nebius",
+      routePolicy: "specific",
+      costAccounting: { status: "estimated", source: "catalog_estimate" },
+    });
+    expect(route.costUsd).toBeGreaterThan(0);
+    expect(assertProofloopModelTracked(route)).toEqual([]);
+  });
 });
