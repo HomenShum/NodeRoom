@@ -1,6 +1,6 @@
 /** Public/private Copilot chat surfaces. Reads via useStore(). */
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type ClipboardEvent, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
-import { Lock, MessageCircle, Globe, Send, Square, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2, Brain, Target, Mic, MicOff, Search, AlertTriangle } from "lucide-react";
+import { Lock, MessageCircle, Globe, Send, Square, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ChevronRight, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2, Brain, Target, Mic, MicOff, Search, AlertTriangle } from "lucide-react";
 import { useQuery } from "convex/react";
 import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentModelSelection, type PrivateStreamAccess, type RoomStore } from "../app/store";
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
@@ -43,7 +43,7 @@ function colorFor(store: RoomStore, roomId: string, a: Actor): string {
 function initials(name: string): string {
   return name.replace(/[^A-Za-z ]/g, "").split(/[ ]/).filter(Boolean).map((s) => s[0]).slice(0, 2).join("").toUpperCase() || "?";
 }
-const clock = (ts: number) => { const d = new Date(ts); return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`; };
+const clock = (ts: number) => { const d = new Date(ts); return `${d.getHours()}:${String(d.getMinutes()).padStart(2, "0")}`; };
 
 type ContextualPrompt = { label: string; insert: string };
 type DecisionMetric = { label: string; value: string; tone?: "good" | "warn" | "muted" };
@@ -1940,7 +1940,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     else if (e.key === "Escape") { if (slashOpen) setSlashOpen(false); else taRef.current?.blur(); }
   };
   const canSend = !uploadingFiles && (text.trim().length > 0 || refs.length > 0);
-  const rootClass = `${embedded ? `r-chat-embedded ${isPrivate ? "private" : "public"}` : `r-panel ${isPrivate ? "right" : "center"}`}${isPrivate ? "" : " fx-chat"}`;
+  const rootClass = `${embedded ? `r-chat-embedded nr-chat-panel ${isPrivate ? "private" : "public"}` : `r-panel nr-panel nr-chat-panel ${isPrivate ? "right nr-panel--right" : "center nr-panel--center"}`}${isPrivate ? "" : " fx-chat"}`;
 
   // One feed item — a chat/agent Bubble or the long-job result card. Shared by loose rows and
   // expanded run groups so every existing testid (receipts, unified stream) renders identically.
@@ -2245,7 +2245,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             tabIndex={-1}
           />
           <textarea ref={taRef} rows={1} value={text} onChange={onChange} onKeyDown={onKeyDown} onPaste={onPaste}
-            placeholder={isPrivate ? (roomLane ? "Tell your agent to act in the room…" : "Ask privately…") : "Message the room or @nodeagent..."}
+            placeholder={isPrivate ? (roomLane ? "Tell your agent to act in the room…" : "Ask privately…") : "Message the room or @nod"}
             data-testid="chat-composer"
             aria-label={isPrivate ? "Ask privately" : "Message the room"} />
           {/* One calm toolbar row (assistant-ui/shadcn): attach + an unobtrusive searchable
@@ -2444,23 +2444,23 @@ function AgentResearchReceiptStrip({
 }) {
   return (
     <div className="r-agent-receipt sc-run" data-testid="agent-research-receipt">
-      <span className="r-agent-receipt-chip" data-testid="agent-source-receipt"><ShieldCheck size={12} /> {receipt.sourceCount} src</span>
+      <button
+        type="button"
+        className="r-agent-receipt-main"
+        data-testid="agent-view-row"
+        onClick={() => onOpenArtifact?.(receipt.artifactId, { split: true, elementId: receipt.cellId })}
+      >
+        <ChevronRight size={12} />
+        <span>Reconciled 2 rows · <b data-testid="agent-source-receipt">{receipt.sourceCount} sources</b></span>
+      </button>
       <span className="r-agent-receipt-version" data-testid="agent-version-receipt">
-        <GitBranch size={12} /> v{receipt.fromVersion} -&gt; v{receipt.toVersion}
+        v{receipt.fromVersion} -&gt; v{receipt.toVersion}
       </span>
       <span className="r-agent-receipt-chip" data-testid="agent-lock-released-receipt"><Lock size={12} /> lock released</span>
       <span className="r-agent-receipt-quote" style={{ gridColumn: "1 / -1" }}>
         <b>{receipt.company}</b>
         <span>{receipt.sourceLabel}: {receipt.sourceDetail}</span>
       </span>
-      <button
-        type="button"
-        className="r-msg-act promote"
-        data-testid="agent-view-row"
-        onClick={() => onOpenArtifact?.(receipt.artifactId, { split: true, elementId: receipt.cellId })}
-      >
-        <Target size={12} /> View row
-      </button>
     </div>
   );
 }
@@ -2569,7 +2569,7 @@ function Bubble({
               <AgentUnifiedStream parts={agentStreamParts} live={agentStreamLive} terminalSuccessful={agentStreamTerminalSuccessful} />
             ) : m.streamId && !m.text ? (
               <StreamedBody streamId={m.streamId} />
-            ) : (
+            ) : agentResearchReceipt ? null : (
               parsed.body && (ask ? <span className="r-bubble-ask fx-cmd">{parsed.body}</span> : <MarkdownBody text={parsed.body} />)
             )}
             {agentResearchReceipt && <AgentResearchReceiptStrip receipt={agentResearchReceipt} onOpenArtifact={onOpenArtifact} />}

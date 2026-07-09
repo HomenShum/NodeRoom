@@ -259,6 +259,7 @@ export interface RoomStore {
   listArtifacts(roomId: string): Artifact[];
   getArtifact(id: string): Artifact | undefined;
   listMessages(roomId: string, channel: Channel): Message[];
+  actorProof(): ActorProof | null;
   privateStreamAccess(streamId: string): PrivateStreamAccess | null;
   listTraces(roomId: string): TraceEvent[];
   /** Live web/SEC source captures (screenshot + box) as Trace records — [] in memory mode. */
@@ -824,6 +825,7 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     listArtifacts: (id) => engine.listArtifacts(id),
     getArtifact: (id) => engine.getArtifact(id),
     listMessages: (id, ch) => engine.listMessages(id, ch),
+    actorProof: () => null,
     privateStreamAccess: () => null,
     listTraces: (id) => engine.listTraces(id),
     listCaptureRecords: () => [], // in-memory engine doesn't capture live sources
@@ -1830,6 +1832,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       listArtifacts: () => artifacts,
       getArtifact: (id) => artifacts.find((a) => a.id === id),
       listMessages: (_id, ch) => (ch === "public" ? reshapeMsgs(pub) : reshapeMsgs(priv)),
+      actorProof: () => proof,
       privateStreamAccess: (streamId) => ({ requester: proof, driven: locallyCreatedPrivateStreams.has(streamId) }),
       listTraces: () => allTraces,
       listCaptureRecords: () => mergedCaptures,
