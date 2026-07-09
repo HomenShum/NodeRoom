@@ -1,0 +1,47 @@
+{
+  "generatedAt": "2026-07-08T21:17:29.891Z",
+  "model": "gemini-3.5-flash",
+  "mediaPath": ".tmp-qa\\semantic-graph\\semantic-graph-cardionova-detail.png",
+  "mediaType": "image/png",
+  "scoreScale": "0-5; model 0-10 outputs are normalized",
+  "review": {
+    "overall": "partial",
+    "summary": "The UI displays a polished entity graph for 'CardioNova diligence' that maps connections between companies, people, funding, and evidence. It features strong support for evidence citations and linking back to spreadsheets (indicated by 'Back to sheet' and cell reference buttons). However, active chat components, agent execution traces, post-it walls, and real-time multi-user presence indicators are not visible in this specific view.",
+    "scores": {
+      "filesAndSpreadsheet": 3.5,
+      "publicPrivateChatAgent": 1,
+      "convexLiveState": 3,
+      "traceAcceptAllAutoAccept": 0,
+      "notesWikiSpreadsheet": 4,
+      "wallPostIts": 0,
+      "multiUserSignals": 1.5,
+      "evidenceCitations": 4.5
+    },
+    "observedEvidence": [
+      "A 'Back to sheet' navigation button is clearly visible, showing integration with spreadsheets.",
+      "Interactive Entity graph with multiple tabs: Mind Map, Evidence, Domain, Runtime, and Entity.",
+      "Search and filtering features specifically for Company, Person, Funding, Evidence, Agent, and Human.",
+      "Right-hand side details panel for 'CardioNova' containing an 'Open referenced cell or block' CTA.",
+      "Detailed 'People and Agents' section identifying actions taken manually by users (Maya, Homen).",
+      "Evidence and Sources section detailing source-backed facts ('Primary source', 'Security source') and cited sources connected to node structures."
+    ],
+    "missingEvidence": [
+      "No active public or private chat agent interface visible in the current viewport.",
+      "No room trace showing proposals, accept-all, or auto-accept behaviors.",
+      "No visual representation of a collaborative post-it wall.",
+      "No live presence avatars or multi-user activity indicators (only static history lists for Maya and Homen)."
+    ],
+    "workflowPainPoints": [
+      {
+        "user": "finance_banking",
+        "painPoint": "Difficulty linking disparate source documents and human research notes to key company entities during diligence.",
+        "observed": true,
+        "note": "The entity graph directly addresses this pain point by visually linking source documents, primary/security sources, and individual investigators to the entity 'CardioNova'."
+      }
+    ],
+    "recommendedEvalAdditions": [
+      "Test navigation toggling between the Entity graph and the source spreadsheet view to ensure smooth state preservation.",
+      "Add test scenarios that trigger visual indicator updates in the Entity view when a collaborative user modifies an associated cell in the spreadsheet."
+    ]
+  }
+}
