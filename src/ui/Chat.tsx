@@ -1,13 +1,13 @@
 /** Public/private Copilot chat surfaces. Reads via useStore(). */
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type ClipboardEvent, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
-import { Lock, MessageCircle, Globe, Send, Square, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2, Brain, Target, Mic, MicOff } from "lucide-react";
+import { Lock, MessageCircle, Globe, Send, Square, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2, Brain, Target, Mic, MicOff, Search, AlertTriangle } from "lucide-react";
 import { useQuery } from "convex/react";
 import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentModelSelection, type PrivateStreamAccess, type RoomStore } from "../app/store";
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
 import { api } from "../../convex/_generated/api";
 import type { Actor, Artifact, CellPayload, Channel, Message } from "../engine/types";
-import { llmModelCatalog, resolveModelAlias, type LlmProvider } from "../nodeagent/models/modelCatalog";
+import { getProviderForModel, llmModelCatalog, modelPricing, resolveModelAlias, type LlmProvider } from "../nodeagent/models/modelCatalog";
 import {
   displayArtifactRefMessage,
   encodeArtifactRefLine,
@@ -239,7 +239,7 @@ export function driverFor(streamId: string): PrivateStreamDriver {
 }
 
 function agentErrorText(e: unknown): string {
-  const msg = e instanceof Error ? e.message : String(e);
+  const msg = agentErrorMessage(e);
   return msg && msg !== "[object Object]" ? `Agent request failed — ${msg}` : "Agent request failed. Try again.";
 }
 
@@ -762,20 +762,333 @@ const AGENT_MODEL_PROVIDER_LABELS: Record<LlmProvider, string> = {
   xai: "xAI",
   nebius: "Nebius",
 };
-const AGENT_MODEL_PRESETS: Array<{ value: AgentModelSelection["mode"]; label: string }> = [
-  { value: "adaptive", label: "Adaptive" },
-  { value: "free", label: "Free" },
-  { value: "top_paid", label: "Top paid" },
-  { value: "specific", label: "Specific model" },
+type AgentModelPresetOption = {
+  value: AgentModelSelection["mode"];
+  label: string;
+  badge: string;
+  detail: string;
+};
+type SpecificModelChoice = {
+  provider: LlmProvider;
+  providerLabel: string;
+  model: string;
+  priceLabel: string;
+  contextLabel: string;
+  searchText: string;
+};
+type AgentFailureNotice = {
+  message: string;
+  errorClass: string;
+  routeLabel: string;
+  modelLabel: string;
+  requestText: string;
+  source: "public" | "private";
+  jobId?: string;
+  createdAt: number;
+};
+
+const AGENT_MODEL_PRESETS: AgentModelPresetOption[] = [
+  { value: "adaptive", label: "Adaptive", badge: "recommended", detail: "Server router chooses the best available NodeAgent route with fallbacks." },
+  { value: "free", label: "Free", badge: "$0", detail: "Uses the governed free-auto route and proposal-first writes." },
+  { value: "top_paid", label: "Top paid", badge: "best", detail: "Pins the strongest configured paid route for higher-recall work." },
+  { value: "specific", label: "Specific model", badge: "pin", detail: "Pin one provider/model from the approved NodeAgent catalog." },
 ];
 
-function hintForModelSelection(mode: AgentModelSelection["mode"]): string {
-  switch (mode) {
-    case "free": return "Routes NodeAgent through free-auto; uploaded-file jobs need an explicit server-side paid promotion.";
-    case "top_paid": return "Pins NodeAgent to the top paid route.";
-    case "specific": return "Pins NodeAgent to an exact model policy.";
-    default: return "Uses the adaptive NodeAgent route.";
-  }
+function compactContextWindow(tokens: number | undefined): string {
+  if (!tokens || tokens <= 0) return "context n/a";
+  if (tokens >= 1_000_000) return `${Math.round(tokens / 1_000_000)}M ctx`;
+  if (tokens >= 1000) return `${Math.round(tokens / 1000)}k ctx`;
+  return `${tokens} ctx`;
+}
+
+function modelPriceLabel(model: string): string {
+  const pricing = modelPricing[model];
+  if (!pricing) return "catalog";
+  if (pricing.inputPer1M === 0 && pricing.outputPer1M === 0) return "free";
+  return `$${pricing.inputPer1M.toLocaleString("en-US", { maximumFractionDigits: 3 })}/$${pricing.outputPer1M.toLocaleString("en-US", { maximumFractionDigits: 3 })}`;
+}
+
+function modelContextLabel(model: string): string {
+  return compactContextWindow(modelPricing[model]?.contextWindow);
+}
+
+function modelProviderLabel(model: string, fallbackProvider?: LlmProvider): string {
+  const provider = getProviderForModel(model) ?? fallbackProvider;
+  return provider ? AGENT_MODEL_PROVIDER_LABELS[provider] : "Custom";
+}
+
+function agentModelTestId(model: string): string {
+  return model.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "custom";
+}
+
+function normalizeModelSearch(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function modelSelectionRouteLabel(selection: AgentModelSelection): string {
+  if (selection.mode === "free") return "Free route";
+  if (selection.mode === "top_paid") return "Top paid route";
+  if (selection.mode === "specific") return "Specific model";
+  return "Adaptive route";
+}
+
+function modelSelectionModelLabel(selection: AgentModelSelection): string {
+  if (selection.mode === "specific") return selection.modelPolicy || "custom model";
+  if (selection.mode === "free") return "openrouter/free-auto";
+  if (selection.mode === "top_paid") return "server top paid";
+  return "server adaptive";
+}
+
+function agentErrorMessage(e: unknown): string {
+  const msg = e instanceof Error ? e.message : String(e);
+  return msg && msg !== "[object Object]" ? msg : "Unknown agent failure";
+}
+
+function classifyAgentFailure(message: string): string {
+  if (/rate|429|quota|limit/i.test(message)) return "Rate limit";
+  if (/auth|api.?key|401|403|credential|permission/i.test(message)) return "Provider auth";
+  if (/model|404|not found|unsupported/i.test(message)) return "Model unavailable";
+  if (/timeout|abort|deadline/i.test(message)) return "Timeout";
+  if (/network|fetch|connection|econn/i.test(message)) return "Network";
+  if (/free|paid|budget|credit/i.test(message)) return "Route policy";
+  return "Agent runtime";
+}
+
+function buildAgentFailureNotice(
+  e: unknown,
+  args: { selection: AgentModelSelection; requestText: string; source: AgentFailureNotice["source"]; jobId?: string },
+): AgentFailureNotice {
+  const message = agentErrorMessage(e);
+  return {
+    message,
+    errorClass: classifyAgentFailure(message),
+    routeLabel: modelSelectionRouteLabel(args.selection),
+    modelLabel: modelSelectionModelLabel(args.selection),
+    requestText: args.requestText,
+    source: args.source,
+    jobId: args.jobId,
+    createdAt: Date.now(),
+  };
+}
+
+function agentFailureDiagnostics(failure: AgentFailureNotice): string {
+  return [
+    "NodeRoom agent failure",
+    `class=${failure.errorClass}`,
+    `route=${failure.routeLabel}`,
+    `model=${failure.modelLabel}`,
+    `source=${failure.source}`,
+    failure.jobId ? `jobId=${failure.jobId}` : "jobId=(none)",
+    `createdAt=${new Date(failure.createdAt).toISOString()}`,
+    `message=${failure.message}`,
+    `request=${failure.requestText}`,
+  ].join("\n");
+}
+
+function AgentModelPicker({
+  mode,
+  modelPolicy,
+  defaultModel,
+  choices,
+  onModeChange,
+  onSpecificModelChange,
+}: {
+  mode: AgentModelSelection["mode"];
+  modelPolicy: string;
+  defaultModel: string;
+  choices: SpecificModelChoice[];
+  onModeChange: (mode: AgentModelSelection["mode"]) => void;
+  onSpecificModelChange: (model: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const rootRef = useRef<HTMLDivElement>(null);
+  const selectedChoice = choices.find((choice) => choice.model === (modelPolicy || defaultModel));
+  const selectedPreset = AGENT_MODEL_PRESETS.find((preset) => preset.value === mode) ?? AGENT_MODEL_PRESETS[0];
+  const triggerLabel = mode === "specific" ? (selectedChoice?.model ?? (modelPolicy || "Specific model")) : selectedPreset.label;
+  const triggerBadge = mode === "specific" ? (selectedChoice?.priceLabel ?? "custom") : selectedPreset.badge;
+  const triggerDetail = mode === "specific"
+    ? `${selectedChoice?.providerLabel ?? modelProviderLabel(modelPolicy)} · ${selectedChoice?.contextLabel ?? modelContextLabel(modelPolicy)}`
+    : selectedPreset.detail;
+  const filteredChoices = useMemo(() => {
+    const q = normalizeModelSearch(search);
+    if (!q) return choices;
+    return choices.filter((choice) => choice.searchText.includes(q));
+  }, [choices, search]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onMouseDown = (event: MouseEvent) => {
+      const target = event.target;
+      if (target instanceof Node && rootRef.current && !rootRef.current.contains(target)) setOpen(false);
+    };
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onMouseDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onMouseDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  const choosePreset = (next: AgentModelSelection["mode"]) => {
+    onModeChange(next);
+    if (next === "specific" && !modelPolicy && defaultModel) onSpecificModelChange(defaultModel);
+    if (next !== "specific") setOpen(false);
+  };
+  const chooseModel = (model: string) => {
+    onModeChange("specific");
+    onSpecificModelChange(model);
+    setSearch("");
+    setOpen(false);
+  };
+
+  return (
+    <div className="r-model-picker" ref={rootRef}>
+      <select
+        className="r-model-compat"
+        value={mode}
+        onChange={(e: ChangeEvent<HTMLSelectElement>) => choosePreset(e.target.value as AgentModelSelection["mode"])}
+        data-testid="chat-model-preset"
+        aria-hidden="true"
+        tabIndex={-1}
+      >
+        {AGENT_MODEL_PRESETS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+      </select>
+      <input
+        className="r-model-compat"
+        value={modelPolicy || defaultModel}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+          onModeChange("specific");
+          onSpecificModelChange(e.target.value);
+        }}
+        data-testid="chat-model-specific"
+        aria-hidden="true"
+        tabIndex={-1}
+      />
+      <button
+        type="button"
+        className="r-model-trigger"
+        data-testid="chat-model-trigger"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls="agent-model-picker-list"
+        title={triggerDetail}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <Brain size={13} />
+        <span className="r-model-trigger-label">{triggerLabel}</span>
+        <span className="r-model-trigger-badge">{triggerBadge}</span>
+        <ChevronDown size={13} />
+      </button>
+      {open && (
+        <div className="r-model-popover" data-testid="chat-model-popover">
+          <div className="r-model-search">
+            <Search size={13} />
+            <input
+              value={search}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+              placeholder="Search provider or model"
+              data-testid="chat-model-search"
+              autoFocus
+            />
+          </div>
+          <div className="r-model-presets" role="group" aria-label="Agent route presets">
+            {AGENT_MODEL_PRESETS.map((preset) => (
+              <button
+                key={preset.value}
+                type="button"
+                className="r-model-preset"
+                data-selected={String(mode === preset.value)}
+                data-testid={`chat-model-preset-${preset.value}`}
+                onClick={() => choosePreset(preset.value)}
+              >
+                <span>
+                  <b>{preset.label}</b>
+                  <small>{preset.detail}</small>
+                </span>
+                <em>{preset.badge}</em>
+              </button>
+            ))}
+          </div>
+          <div className="r-model-list" id="agent-model-picker-list" role="listbox" aria-label="Specific NodeAgent models">
+            {filteredChoices.length === 0 ? (
+              <div className="r-model-empty">No matching models</div>
+            ) : filteredChoices.map((choice) => (
+              <button
+                key={`${choice.provider}-${choice.model}`}
+                type="button"
+                className="r-model-option"
+                role="option"
+                aria-selected={mode === "specific" && (modelPolicy || defaultModel) === choice.model}
+                data-selected={String(mode === "specific" && (modelPolicy || defaultModel) === choice.model)}
+                data-testid={`chat-model-option-${agentModelTestId(choice.model)}`}
+                onClick={() => chooseModel(choice.model)}
+              >
+                <span className="r-model-option-main">
+                  <b>{choice.model}</b>
+                  <small>{choice.providerLabel}</small>
+                </span>
+                <span className="r-model-option-badges">
+                  <em data-free={String(choice.priceLabel === "free")}>{choice.priceLabel}</em>
+                  <em>{choice.contextLabel}</em>
+                  <em>tools</em>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AgentFailureRecoveryCard({
+  failure,
+  onRetry,
+  onUseAdaptive,
+  onUseFree,
+  onDismiss,
+}: {
+  failure: AgentFailureNotice;
+  onRetry: () => void;
+  onUseAdaptive: () => void;
+  onUseFree: () => void;
+  onDismiss: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+  const allowRouteRecovery = failure.source === "public";
+  const copyDiagnostics = () => {
+    const diagnostics = agentFailureDiagnostics(failure);
+    void navigator.clipboard?.writeText(diagnostics).catch(() => undefined);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1400);
+  };
+  return (
+    <div className="r-agent-failure" role="alert" data-testid="agent-error" data-state="failed">
+      <div className="r-agent-failure-head">
+        <AlertTriangle size={15} />
+        <span>
+          <b>{failure.errorClass}</b>
+          <small>{failure.message}</small>
+        </span>
+        <button type="button" className="r-agent-failure-dismiss" onClick={onDismiss} aria-label="Dismiss agent failure"><X size={13} /></button>
+      </div>
+      <div className="r-agent-failure-meta">
+        <span>{failure.routeLabel}</span>
+        <span>{failure.modelLabel}</span>
+        {failure.jobId && <span>job {failure.jobId}</span>}
+      </div>
+      <div className="r-agent-failure-actions">
+        <button type="button" className="r-msg-act promote" data-testid="agent-error-retry" onClick={onRetry}><RefreshCw size={12} /> Retry</button>
+        {allowRouteRecovery && <button type="button" className="r-msg-act" data-testid="agent-error-use-adaptive" onClick={onUseAdaptive}>Adaptive</button>}
+        {allowRouteRecovery && <button type="button" className="r-msg-act" data-testid="agent-error-use-free" onClick={onUseFree}>Free</button>}
+        <button type="button" className="r-msg-act" data-testid="agent-error-copy" onClick={copyDiagnostics}>{copied ? <Check size={12} /> : <Copy size={12} />} {copied ? "Copied" : "Copy diagnostics"}</button>
+      </div>
+    </div>
+  );
 }
 
 function parsePublicNodeAgentRequest(text: string): { goal: string; forceFree?: boolean } | null {
@@ -980,7 +1293,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const [failedSends, setFailedSends] = useState<Array<{ cid: string; text: string }>>([]);
   const [jobBusy, setJobBusy] = useState<null | "cancel" | "retry">(null);
   const [jobErr, setJobErr] = useState<string | null>(null);
-  const [agentErr, setAgentErr] = useState<string | null>(null); // C7/C2: honest surface for failed agent dispatches
+  const [agentErr, setAgentErr] = useState<AgentFailureNotice | null>(null); // C7/C2: honest surface for failed agent dispatches
   const [refOpenErr, setRefOpenErr] = useState<string | null>(null);
   const [roomLane, setRoomLane] = useState(false); // private panel: false = whisper to me, true = act in the room
   const [modelSelectionMode, setModelSelectionMode] = useState<AgentModelSelection["mode"]>("adaptive");
@@ -1083,6 +1396,20 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       models: Array.from(new Set((llmModelCatalog[provider]?.agent ?? []).map((model) => resolveModelAlias(model.trim())))),
     }))
     .filter((group) => group.models.length > 0), []);
+  const specificModelChoices = useMemo<SpecificModelChoice[]>(() => specificModelGroups.flatMap((group) =>
+    group.models.map((model) => {
+      const providerLabel = modelProviderLabel(model, group.provider);
+      const priceLabel = modelPriceLabel(model);
+      const contextLabel = modelContextLabel(model);
+      return {
+        provider: group.provider,
+        providerLabel,
+        model,
+        priceLabel,
+        contextLabel,
+        searchText: normalizeModelSearch(`${model} ${providerLabel} ${priceLabel} ${contextLabel}`),
+      };
+    })), [specificModelGroups]);
   const defaultSpecificModel = specificModelGroups[0]?.models[0] ?? "";
   const slashOptions = useMemo(() => [] as { label: string; insert: string; hint: string }[], [store.mode]);
   type MentionItem =
@@ -1198,7 +1525,8 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
 
   const grow = () => { const el = taRef.current; if (el) { el.style.height = "auto"; el.style.height = Math.min(el.scrollHeight, 120) + "px"; } };
 
-  const composerModelSelection = (forceFree?: boolean): AgentModelSelection => {
+  const composerModelSelection = (forceFree?: boolean, override?: AgentModelSelection): AgentModelSelection => {
+    if (override) return override;
     if (forceFree) return { mode: "free" };
     return modelSelectionMode === "specific"
       ? { mode: "specific", modelPolicy: specificModelPolicy || defaultSpecificModel || "gemini-3.5-flash" }
@@ -1389,7 +1717,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       });
   };
 
-  const send = (raw?: string) => {
+  const send = (raw?: string, overrideModelSelection?: AgentModelSelection) => {
     const t = (raw ?? text).trim();
     if (!t && refs.length === 0) return;
     const messageRefs = refs;
@@ -1402,12 +1730,12 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
 
     const publicNodeAgentRequest = !isPrivate ? parsePublicNodeAgentRequest(t) : null;
     if (publicNodeAgentRequest) {
-      const modelSelection = composerModelSelection(publicNodeAgentRequest.forceFree);
+      const modelSelection = composerModelSelection(publicNodeAgentRequest.forceFree, overrideModelSelection);
       beginThinking();
       lastAgentInputRef.current = t;
       void store.askAgent({ goal: publicNodeAgentRequest.goal, references: messageRefs, modelSelection, contextArtifactId: activeArtifactId }).catch((e) => {
         if (aliveRef.current) {
-          setAgentErr(agentErrorText(e));
+          setAgentErr(buildAgentFailureNotice(e, { selection: modelSelection, requestText: t, source: "public", jobId: longJob?.id }));
           setThinking(false);
         }
       });
@@ -1439,7 +1767,9 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       // Live private NodeAgent. Private lane → replies only to you. Room lane → acts in the shared room
       // (edits the sheet + posts public chat) as your personal agent, attributed to you.
       beginThinking();
-      void store.askPrivateAgent({ goal: t, references: messageRefs }, { publish: roomLane }).catch((e) => { if (aliveRef.current) setAgentErr(agentErrorText(e)); }).finally(() => { if (aliveRef.current) setThinking(false); });
+      void store.askPrivateAgent({ goal: t, references: messageRefs }, { publish: roomLane }).catch((e) => {
+        if (aliveRef.current) setAgentErr(buildAgentFailureNotice(e, { selection: { mode: "adaptive" }, requestText: t, source: "private", jobId: longJob?.id }));
+      }).finally(() => { if (aliveRef.current) setThinking(false); });
     }
   };
 
@@ -1763,7 +2093,15 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             )}
           </div>
         )}
-        {agentErr && <div className="r-msg fx-msg" role="alert" data-testid="agent-error" data-state="failed"><div className="body tiny" style={{ color: "var(--danger-ink)" }}>{agentErr}</div></div>}
+        {agentErr && (
+          <AgentFailureRecoveryCard
+            failure={agentErr}
+            onRetry={() => send(agentErr.requestText)}
+            onUseAdaptive={() => { setModelSelectionMode("adaptive"); send(agentErr.requestText, { mode: "adaptive" }); }}
+            onUseFree={() => { setModelSelectionMode("free"); send(agentErr.requestText, { mode: "free" }); }}
+            onDismiss={() => setAgentErr(null)}
+          />
+        )}
         {feedRows.map((dayRow) => {
           if (dayRow.kind === "day") {
             return (
@@ -1935,41 +2273,17 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
               {voiceListening ? <MicOff size={15} /> : <Mic size={15} />}
             </button>
             {showModelSelection && (
-              <select
-                className="r-model-select"
-                value={modelSelectionMode}
-                onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-                  const next = e.target.value as AgentModelSelection["mode"];
+              <AgentModelPicker
+                mode={modelSelectionMode}
+                modelPolicy={specificModelPolicy}
+                defaultModel={defaultSpecificModel}
+                choices={specificModelChoices}
+                onModeChange={(next) => {
                   setModelSelectionMode(next);
                   if (next === "specific" && !specificModelPolicy && defaultSpecificModel) setSpecificModelPolicy(defaultSpecificModel);
                 }}
-                data-testid="chat-model-preset"
-                aria-label="Agent route"
-                title={hintForModelSelection(modelSelectionMode)}
-              >
-                {AGENT_MODEL_PRESETS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-              </select>
-            )}
-            {showModelSelection && modelSelectionMode === "specific" && (
-              <>
-                {/* Free-text combobox (preserves the central-routing capability to pin any
-                    provider-model, not just catalog presets) — kept compact in the toolbar. */}
-                <input
-                  className="r-model-select r-model-select-wide"
-                  value={specificModelPolicy || defaultSpecificModel || ""}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSpecificModelPolicy(e.target.value)}
-                  list="agent-model-options"
-                  placeholder="provider-model"
-                  data-testid="chat-model-specific"
-                  aria-label="Specific agent model"
-                  title="Pinned model — type any provider-model"
-                />
-                <datalist id="agent-model-options">
-                  {specificModelGroups.map((group) => (
-                    group.models.map((model) => <option key={`${group.provider}-${model}`} value={model}>{`${group.label} - ${model}`}</option>)
-                  ))}
-                </datalist>
-              </>
+                onSpecificModelChange={setSpecificModelPolicy}
+              />
             )}
             <span className="r-composer-spacer" aria-hidden="true" />
             {/* The send button reflects the composer state — muted + disabled on empty input,
