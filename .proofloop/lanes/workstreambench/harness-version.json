@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "suite": "workstreambench",
-  "harnessVersion": "workstreambench-harness-18a17cb8d352",
-  "generatedAt": "2026-07-08T21:36:34.791Z",
+  "harnessVersion": "workstreambench-harness-757cc2c39623",
+  "generatedAt": "2026-07-09T06:33:22.276Z",
   "previousVersion": null,
   "changes": [
     "continue upstream research",
@@ -23,12 +23,12 @@
     {
       "path": "scripts/proofloop-cli.ts",
       "exists": true,
-      "sha256": "a50c4b1afe9559532944106114053ea79eb26f7252ec9bb3ffcd4ec402bc2e67"
+      "sha256": "2bf63ef5b2d7b1b636cd696510391cc6426905fdaec2f5a804c129f2c54a0833"
     },
     {
       "path": "scripts/proofloop.mjs",
       "exists": true,
-      "sha256": "3f6008055f124098d6c28aed469aff2165583dc44d4275854bea5f91826ba3f9"
+      "sha256": "aa54350433278440315d719552948910005572cda963ddeb1dace0ff61f256c4"
     },
     {
       "path": "src/eval/proofloopGoalSupervisor.ts",
@@ -63,7 +63,7 @@
     {
       "path": "docs/eval/official-benchmark-task-coverage.json",
       "exists": true,
-      "sha256": "b5bc3b4632b279270af6c223c00998465a3d4bb5f6a8971d6f083967e1dd80eb"
+      "sha256": "bb96d083a6bb1ee733cfd9320b56706aac7ae337dd4ecd3aa03ced9e59c6769f"
     }
   ]
 }

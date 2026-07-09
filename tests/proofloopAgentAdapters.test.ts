@@ -90,7 +90,7 @@ describe("ProofLoop agent adapters", () => {
     expect(setupPack).toContain("MCP bridge config");
   });
 
-  it("keeps Windsurf marked as needing a non-interactive launcher unless one is configured", async () => {
+  it("sets up Windsurf with the native chat launcher while leaving transcript proof to receipts", async () => {
     const root = tempRoot();
 
     const receipt = await setupProofloopAgentAdapter({
@@ -99,9 +99,11 @@ describe("ProofLoop agent adapters", () => {
       generatedAt: "2026-07-08T00:00:00.000Z",
     });
 
-    expect(receipt.status).toBe("needs_adapter");
-    expect(receipt.gateEnforcement.join(" ")).toContain("adapter-required");
+    expect(receipt.status).toBe("ready");
+    expect(receipt.launchCommand).toBe("npm run proofloop -- agents launch windsurf --prompt {promptPath}");
+    expect(receipt.gateEnforcement.join(" ")).toContain("native launch receipt");
     expect(receipt.instructionPaths).toEqual([".windsurf/rules/proofloop.md"]);
+    expect(readFileSync(join(root, receipt.setupPackPath), "utf8")).toContain("agents launch windsurf");
   });
 
   it("writes Devin handoff docs with the hosted API native launcher ready", async () => {

@@ -3,7 +3,7 @@
   "blockerId": "finch-official-score",
   "suite": "finch",
   "title": "Finch / FinWorkBench official score",
-  "generatedAt": "2026-07-08T21:36:32.791Z",
+  "generatedAt": "2026-07-09T06:33:22.260Z",
   "phase": "solve",
   "classes": [
     "missing_judge_credentials",

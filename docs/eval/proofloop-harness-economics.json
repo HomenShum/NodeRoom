@@ -1,8 +1,8 @@
 {
   "schema": "proofloop-harness-economics-v1",
-  "generatedAt": "2026-07-08T21:36:23.501Z",
+  "generatedAt": "2026-07-09T06:32:52.609Z",
   "git": {
-    "commit": "8ef3fd5a2961b431118f5ff94132d4d0ee8ab8b2",
+    "commit": "e4078098f39a067f8c5e613afbf4d667d2f2f993",
     "dirty": true
   },
   "packageVersion": "0.1.1",
@@ -18,7 +18,7 @@
     {
       "path": "scripts/proofloop.mjs",
       "exists": true,
-      "sha256": "3f6008055f124098d6c28aed469aff2165583dc44d4275854bea5f91826ba3f9"
+      "sha256": "aa54350433278440315d719552948910005572cda963ddeb1dace0ff61f256c4"
     },
     {
       "path": "scripts/proofloop-runner.ts",

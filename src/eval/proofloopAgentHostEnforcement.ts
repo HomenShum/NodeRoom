@@ -324,6 +324,9 @@ function nativeLaunchCommand(args: {
   if (args.hostId === "cursor") {
     return fillCommandTemplate(`node ${shellQuote(launcherScriptPath(args.root, "scripts/proofloop-cursor-launch.mjs"))} --prompt-file {promptPath} --export {exportPath} --run-dir {runDir}`, args);
   }
+  if (args.hostId === "windsurf") {
+    return fillCommandTemplate(`node ${shellQuote(launcherScriptPath(args.root, "scripts/proofloop-windsurf-launch.mjs"))} --prompt-file {promptPath} --export {exportPath} --run-dir {runDir}`, args);
+  }
   if (args.hostId === "devin-cli") {
     return fillCommandTemplate(`python ${shellQuote(launcherScriptPath(args.root, "scripts/proofloop-devin-cli-launch.py"))} --prompt-file {promptPath} --export {exportPath} --run-dir {runDir}`, args);
   }

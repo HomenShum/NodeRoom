@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "suite": "workstreambench",
-  "generatedAt": "2026-07-08T21:36:34.791Z",
+  "generatedAt": "2026-07-09T06:33:22.276Z",
   "status": "blocked_external",
   "expectedOutputs": [
     "upstream official task bundle lock",
@@ -11,7 +11,6 @@
   "currentEvidence": [
     ".proofloop/setup/workstreambench-local-setup.json",
     "proofloop/benchmarks/workstreambench/adapter.json",
-    "docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json",
     "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
     "docs/eval/proofloop-adapter-blockers/workstreambench.json",
     "docs/eval/proofloop-official-scores/workstreambench.json"

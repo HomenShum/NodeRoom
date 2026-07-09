@@ -881,6 +881,7 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-filetab-x:hover { background: var(--bg-hover); color: var(--text-primary); }
 .r-artifact-export { min-height: 28px; white-space: nowrap; flex: 0 0 auto; }
 .r-artifact-export svg { flex: none; }
+.r-export-status { flex: 0 1 150px; min-width: 0; color: var(--text-tertiary); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .r-art-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
 .r-art-body > .r-sheet-wrap { flex: 1; }
 /* honest error state — a hand edit that lost a CAS race */

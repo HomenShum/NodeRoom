@@ -61,7 +61,7 @@ function launchConfiguredCommand(command, promptText, repairPromptPath, exportPa
 }
 
 function launchCursorAgent(promptText) {
-  const binary = process.env.PROOFLOOP_GENERIC_BRIDGE_BINARY || findBinary(["cursor-agent", "cursor"]);
+  const binary = process.env.PROOFLOOP_GENERIC_BRIDGE_BINARY || findCursorBinary();
   if (!binary) {
     return {
       delegate: "cursor-agent",
@@ -100,6 +100,17 @@ function findBinary(candidates) {
     });
     if ((check.status ?? 1) === 0) return candidate;
   }
+  return undefined;
+}
+
+function findCursorBinary() {
+  const pathBinary = findBinary(["cursor-agent", "cursor"]);
+  if (pathBinary) return pathBinary;
+  if (process.platform !== "win32") return undefined;
+  const localAppData = process.env.LOCALAPPDATA;
+  if (!localAppData) return undefined;
+  const localShim = join(localAppData, "cursor-agent", "cursor-agent.cmd");
+  if (existsSync(localShim)) return localShim;
   return undefined;
 }
 

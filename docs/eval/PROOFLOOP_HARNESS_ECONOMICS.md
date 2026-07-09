@@ -1,13 +1,13 @@
 # Proof Loop Harness Economics
 
-Generated: 2026-07-08T21:36:23.501Z
+Generated: 2026-07-09T06:32:52.609Z
 
 This ledger records harness/config versions and cheaper model routes for Proof Loop product gates while preserving official scorer boundaries.
 
 ## Summary
 
 - Package version: 0.1.1
-- Git commit: 8ef3fd5a2961b431118f5ff94132d4d0ee8ab8b2 (dirty)
+- Git commit: e4078098f39a067f8c5e613afbf4d667d2f2f993 (dirty)
 - Harness files tracked: 23
 - Missing harness files: 0
 - OpenRouter candidates: 25
@@ -71,7 +71,7 @@ This ledger records harness/config versions and cheaper model routes for Proof L
 
 ## Harness File Hashes
 
-- `scripts/proofloop.mjs`: 3f6008055f124098d6c28aed469aff2165583dc44d4275854bea5f91826ba3f9
+- `scripts/proofloop.mjs`: aa54350433278440315d719552948910005572cda963ddeb1dace0ff61f256c4
 - `scripts/proofloop-runner.ts`: c4be8ba68615eabc03144a2ff93b39b1d42916b82ae372d99d4f6eda2d851f0a
 - `scripts/live-proofloop-runner.ts`: 76e00595a762ad80bf60ee4d13a0eb8c3ca7b0548e77cb98a34643379fd8d411
 - `proofloop/live-browser-proof.spec.ts`: 2d86a7229a14a890d685633db3555ff3faef3880e19935fff9b599110d9b072b

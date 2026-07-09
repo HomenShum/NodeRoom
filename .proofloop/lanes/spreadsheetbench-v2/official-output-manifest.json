@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "suite": "spreadsheetbench-v2",
-  "generatedAt": "2026-07-08T21:36:31.791Z",
+  "generatedAt": "2026-07-09T06:33:22.252Z",
   "status": "needs_generation",
   "expectedOutputs": [
     "321 official V2 task manifests",

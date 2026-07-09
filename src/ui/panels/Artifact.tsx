@@ -164,7 +164,10 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   // Knowledge graph: a derived node-link view of how this room's artifacts reference each other.
   const [graphOpen, setGraphOpen] = useState(false);
   const [editErr, setEditErr] = useState<string | null>(null);
+  const [exportBusy, setExportBusy] = useState(false);
+  const [exportErr, setExportErr] = useState<string | null>(null);
   useEffect(() => { if (!editErr) return; const t = setTimeout(() => setEditErr(null), 4000); return () => clearTimeout(t); }, [editErr]);
+  useEffect(() => { if (!exportErr) return; const t = setTimeout(() => setExportErr(null), 6000); return () => clearTimeout(t); }, [exportErr]);
   useEffect(() => { setTab(tabForArt(artId)); }, [artId, wiki?.id, sheet?.id, research?.id, note?.id, wall?.id, arts.length]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -256,6 +259,19 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
     if (next === "private" && typeof window !== "undefined" && !window.confirm("Make this sheet private to you? Teammates will no longer see it in the room.")) return;
     void store.setArtifactVisibility({ roomId, artifactId: selected.id, visibility: next, actor: me });
   };
+  const handleExportXlsx = async () => {
+    if (!sheet || exportBusy) return;
+    setExportBusy(true);
+    setExportErr(null);
+    try {
+      await exportSheetAsXlsx(sheet, surfaceRef.current, arts);
+    } catch (error) {
+      console.error("XLSX export failed", error);
+      setExportErr("XLSX export failed");
+    } finally {
+      setExportBusy(false);
+    }
+  };
 
   return (
     <div className="r-panel artifact nr-panel nr-panel--artifact nr-panel--work" ref={surfaceRef} style={style} data-testid={surfaceKey === "secondary" ? "artifact-panel-secondary" : "artifact-panel"}>
@@ -323,11 +339,18 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
             aria-label="Export workbook to XLSX"
             title="Download this sheet as an .xlsx workbook"
             data-testid="artifact-export-xlsx"
-            onClick={() => { void exportSheetAsXlsx(sheet, surfaceRef.current, arts); }}
+            aria-busy={exportBusy}
+            disabled={exportBusy}
+            onClick={() => { void handleExportXlsx(); }}
           >
             <Download size={11} />
-            Export XLSX
+            {exportBusy ? "Preparing..." : "Export XLSX"}
           </button>
+        )}
+        {activeTab === "sheet" && sheet && (exportBusy || exportErr) && (
+          <span className="r-export-status" role={exportErr ? "alert" : "status"} data-testid="artifact-export-xlsx-status">
+            {exportBusy ? "Building workbook" : exportErr}
+          </span>
         )}
         {canToggleVis ? (
           <button
@@ -2354,10 +2377,10 @@ async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null, all
   anchor.download = `${sanitizeFilename(exportWorkbookBaseName(art, exportSheets))}.xlsx`;
   anchor.style.display = "none";
   document.body.appendChild(anchor);
-  anchor.click();
+  anchor.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, view: window }));
   document.body.removeChild(anchor);
-  // Free the object URL on the next tick so Chrome/Firefox have finished the download negotiation.
-  setTimeout(() => URL.revokeObjectURL(url), 0);
+  // Keep the object URL alive long enough for Chromium/WebKit to finish download negotiation.
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 function workbookExportSheets(active: Art, allArts: Art[]): Art[] {

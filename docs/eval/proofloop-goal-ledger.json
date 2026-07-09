@@ -1,6 +1,6 @@
 {
   "schema": "proofloop-goal-ledger-export-v1",
-  "generatedAt": "2026-07-09T06:26:25.073Z",
+  "generatedAt": "2026-07-09T06:34:11.873Z",
   "exports": {
     "json": "docs/eval/proofloop-goal-ledger.json",
     "markdown": "docs/eval/PROOFLOOP_GOAL_LEDGER.md"
@@ -13,8 +13,8 @@
   "summary": {
     "goalCount": 3,
     "statusCounts": {
-      "initialized": 1,
-      "running": 0,
+      "initialized": 0,
+      "running": 1,
       "passed": 2,
       "blocked_external": 0,
       "needs_scaffold_or_run": 0,
@@ -22,7 +22,7 @@
       "budget_exhausted": 0,
       "failed": 0
     },
-    "unblockedTasksRemaining": 11,
+    "unblockedTasksRemaining": 0,
     "blockedTasksRemaining": 5,
     "blockedReasonCount": 10
   },
@@ -30,25 +30,25 @@
     {
       "goalId": "official-scores",
       "objective": "Make official benchmark scores real, tested, shipped, and externally blocked only with proof.",
-      "status": "initialized",
+      "status": "running",
       "createdAt": "2026-07-04T02:23:35.184Z",
-      "updatedAt": "2026-07-09T06:26:25.073Z",
+      "updatedAt": "2026-07-09T06:34:11.873Z",
       "localStatePath": ".proofloop/goals/official-scores/state.json",
       "localQueuePath": ".proofloop/goals/official-scores/queue.json",
       "localBlockersPath": ".proofloop/goals/official-scores/blockers.json",
       "localLedgerPath": ".proofloop/goals/official-scores/ledger.jsonl",
       "ledgerEvents": {
-        "count": 201,
-        "latestTs": "2026-07-09T06:26:25.073Z",
+        "count": 228,
+        "latestTs": "2026-07-09T06:34:11.873Z",
         "latestType": "goal_gate"
       },
       "requiredTaskCount": 16,
-      "unblockedTasksRemaining": 11,
+      "unblockedTasksRemaining": 0,
       "blockedTasksRemaining": 5,
       "taskStatusCounts": {
-        "pending": 16,
+        "pending": 5,
         "running": 0,
-        "passed": 0,
+        "passed": 11,
         "blocked_external": 0,
         "needs_scaffold_or_run": 0,
         "needs_human_approval": 0,
@@ -212,63 +212,75 @@
           "title": "BankerToolBench official full-suite score receipt",
           "kind": "command",
           "required": true,
-          "status": "pending",
+          "status": "passed",
           "command": "npm run benchmark:bankertoolbench:fullsuite-gate -- --summary docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json --receipt-out docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json --assert",
           "evidence": [
             "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
             "docs/eval/btb-clean-capability-full100-parallel-v3-gpt41mini.json"
           ],
           "blockers": [],
-          "attempts": 0
+          "attempts": 1,
+          "startedAt": "2026-07-09T06:32:46.956Z",
+          "finishedAt": "2026-07-09T06:32:47.966Z",
+          "lastExitCode": 0
         },
         {
           "id": "official-task-coverage-ledger",
           "title": "Official benchmark task coverage ledger",
           "kind": "command",
           "required": true,
-          "status": "pending",
+          "status": "passed",
           "command": "npm run benchmark:official:task-coverage",
           "evidence": [
             "docs/eval/official-benchmark-task-coverage.json",
             "docs/eval/OFFICIAL_BENCHMARK_TASK_COVERAGE.md"
           ],
           "blockers": [],
-          "attempts": 0
+          "attempts": 1,
+          "startedAt": "2026-07-09T06:32:48.014Z",
+          "finishedAt": "2026-07-09T06:32:49.209Z",
+          "lastExitCode": 0
         },
         {
           "id": "benchmark-normalization-ledger",
           "title": "Proof Loop benchmark normalization ledger",
           "kind": "command",
           "required": true,
-          "status": "pending",
+          "status": "passed",
           "command": "npm run benchmark:proofloop:normalized",
           "evidence": [
             "docs/eval/proofloop-normalized-benchmarks.json",
             "docs/eval/PROOFLOOP_NORMALIZED_BENCHMARKS.md"
           ],
           "blockers": [],
-          "attempts": 0
+          "attempts": 1,
+          "startedAt": "2026-07-09T06:32:49.250Z",
+          "finishedAt": "2026-07-09T06:32:50.692Z",
+          "lastExitCode": 0
         },
         {
           "id": "company-task-coverage-ledger",
           "title": "Company/task archetype coverage ledger",
           "kind": "command",
           "required": true,
-          "status": "pending",
+          "status": "passed",
           "command": "npm run benchmark:proofloop:company-tasks",
           "evidence": [
             "docs/eval/proofloop-company-task-coverage.json",
             "docs/eval/PROOFLOOP_COMPANY_TASK_COVERAGE.md"
           ],
           "blockers": [],
-          "attempts": 0
+          "attempts": 1,
+          "startedAt": "2026-07-09T06:32:50.730Z",
+          "finishedAt": "2026-07-09T06:32:51.741Z",
+          "lastExitCode": 0
         },
         {
           "id": "harness-economics-ledger",
           "title": "Harness version and OpenRouter proxy economics ledger",
           "kind": "command",
           "required": true,
-          "status": "pending",
+          "status": "passed",
           "command": "npm run benchmark:proofloop:harness-economics",
           "evidence": [
             "docs/eval/proofloop-harness-economics.json",
@@ -276,14 +288,17 @@
             "docs/eval/openrouter-top-paid-tools-snapshot.json"
           ],
           "blockers": [],
-          "attempts": 0
+          "attempts": 1,
+          "startedAt": "2026-07-09T06:32:51.775Z",
+          "finishedAt": "2026-07-09T06:32:52.921Z",
+          "lastExitCode": 0
         },
         {
           "id": "external-adapter-setup-doctor",
           "title": "External adapter setup/doctor receipts before blocked status",
           "kind": "command",
           "required": true,
-          "status": "pending",
+          "status": "passed",
           "command": "npm run proofloop -- setup bankertoolbench --doctor && npm run proofloop -- setup finch --doctor && npm run proofloop -- setup finauditing --doctor && npm run proofloop -- setup workstreambench --doctor",
           "evidence": [
             ".proofloop/setup/bankertoolbench-local-setup.json",
@@ -292,14 +307,17 @@
             ".proofloop/setup/workstreambench-local-setup.json"
           ],
           "blockers": [],
-          "attempts": 0
+          "attempts": 1,
+          "startedAt": "2026-07-09T06:32:52.960Z",
+          "finishedAt": "2026-07-09T06:33:01.384Z",
+          "lastExitCode": 0
         },
         {
           "id": "external-adapter-local-product-proofs",
           "title": "External adapter local product-path browser proofs",
           "kind": "command",
           "required": true,
-          "status": "pending",
+          "status": "passed",
           "command": "npm run benchmark:proofloop:external-adapter -- --prod --user-emulation strict",
           "evidence": [
             "docs/eval/proofloop-external-adapter-runs/finch.json",
@@ -307,14 +325,17 @@
             "docs/eval/proofloop-external-adapter-runs/workstreambench.json"
           ],
           "blockers": [],
-          "attempts": 0
+          "attempts": 1,
+          "startedAt": "2026-07-09T06:33:01.416Z",
+          "finishedAt": "2026-07-09T06:33:19.604Z",
+          "lastExitCode": 0
         },
         {
           "id": "external-adapter-blocker-receipts",
           "title": "External adapter typed blocker receipts",
           "kind": "command",
           "required": true,
-          "status": "pending",
+          "status": "passed",
           "command": "npm run benchmark:proofloop:adapter-blockers",
           "evidence": [
             "docs/eval/proofloop-adapter-blockers/finch.json",
@@ -322,14 +343,17 @@
             "docs/eval/proofloop-adapter-blockers/workstreambench.json"
           ],
           "blockers": [],
-          "attempts": 0
+          "attempts": 1,
+          "startedAt": "2026-07-09T06:33:19.646Z",
+          "finishedAt": "2026-07-09T06:33:20.376Z",
+          "lastExitCode": 0
         },
         {
           "id": "blocked-lane-solver",
           "title": "Blocked official-lane research/scaffold/model-sweep solver",
           "kind": "command",
           "required": true,
-          "status": "pending",
+          "status": "passed",
           "command": "npm run proofloop -- solve-blockers --goal official-scores",
           "evidence": [
             ".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json",
@@ -339,14 +363,17 @@
             ".proofloop/lanes/workstreambench/blocker-analysis.json"
           ],
           "blockers": [],
-          "attempts": 0
+          "attempts": 1,
+          "startedAt": "2026-07-09T06:33:20.403Z",
+          "finishedAt": "2026-07-09T06:33:22.351Z",
+          "lastExitCode": 0
         },
         {
           "id": "proofloop-chart-pack",
           "title": "Proof Loop chart pack from model/task/harness ledgers",
           "kind": "command",
           "required": true,
-          "status": "pending",
+          "status": "passed",
           "command": "npm run proofloop -- charts latest",
           "evidence": [
             ".proofloop/runs/latest/charts/chart-pack.json",
@@ -377,21 +404,27 @@
             "docs/eval/proofloop-charts/svg/workflow-completion.svg"
           ],
           "blockers": [],
-          "attempts": 0
+          "attempts": 1,
+          "startedAt": "2026-07-09T06:33:22.383Z",
+          "finishedAt": "2026-07-09T06:33:24.441Z",
+          "lastExitCode": 0
         },
         {
           "id": "proofloop-benchmark-board",
           "title": "9-lane Proof Loop benchmark board",
           "kind": "command",
           "required": true,
-          "status": "pending",
+          "status": "passed",
           "command": "npm run benchmark:proofloop:board",
           "evidence": [
             "docs/eval/proofloop-benchmark-board.json",
             "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md"
           ],
           "blockers": [],
-          "attempts": 0
+          "attempts": 1,
+          "startedAt": "2026-07-09T06:33:24.472Z",
+          "finishedAt": "2026-07-09T06:33:25.212Z",
+          "lastExitCode": 0
         },
         {
           "id": "spreadsheetbench-v1-full-official-score",

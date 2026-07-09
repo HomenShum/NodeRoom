@@ -3,7 +3,7 @@
   "kind": "blocker_solver_memory",
   "suite": "finauditing",
   "blockerId": "finauditing-official-score",
-  "generatedAt": "2026-07-08T21:36:33.791Z",
+  "generatedAt": "2026-07-09T06:33:22.268Z",
   "classes": [
     "missing_judge_credentials",
     "missing_official_scorer"

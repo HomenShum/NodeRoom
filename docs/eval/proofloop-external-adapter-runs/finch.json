@@ -2,26 +2,26 @@
   "schema": "proofloop-external-adapter-product-proof-v1",
   "adapterId": "finch",
   "status": "passed",
-  "runId": "finch-2026-07-04T00-37-26-529Z",
-  "generatedAt": "2026-07-04T00:37:35.041Z",
+  "runId": "finch-2026-07-09T06-33-02-102Z",
+  "generatedAt": "2026-07-09T06:33:09.484Z",
   "localAdapterOnly": true,
   "officialScoreClaim": false,
   "taskCount": 1,
   "baseUrl": "https://noderoom.live",
   "scenario": "proofloop/benchmarks/finch/browser-scenario.spec.ts",
-  "outputDir": ".proofloop/runs/finch-2026-07-04T00-37-26-529Z/external-adapter/finch",
+  "outputDir": ".proofloop/runs/finch-2026-07-09T06-33-02-102Z/external-adapter/finch",
   "exitCode": 0,
   "evidence": [
     "proofloop/benchmarks/finch/load-tasks.ts",
     "proofloop/benchmarks/finch/browser-scenario.spec.ts",
-    ".proofloop/runs/finch-2026-07-04T00-37-26-529Z/external-adapter/finch/browser-proof.json",
-    ".proofloop/runs/finch-2026-07-04T00-37-26-529Z/external-adapter/finch/local-task-manifest.json",
-    ".proofloop/runs/finch-2026-07-04T00-37-26-529Z/external-adapter/finch/visual-proof.png"
+    ".proofloop/runs/finch-2026-07-09T06-33-02-102Z/external-adapter/finch/browser-proof.json",
+    ".proofloop/runs/finch-2026-07-09T06-33-02-102Z/external-adapter/finch/local-task-manifest.json",
+    ".proofloop/runs/finch-2026-07-09T06-33-02-102Z/external-adapter/finch/visual-proof.png"
   ],
   "failedGates": [],
   "browserProof": {
     "url": "https://noderoom.live/#story",
-    "title": "NodeRoom — live collaborative room with NodeAgents",
+    "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
     "visibleSignals": {
       "variance": "3,250",
       "demoVisible": true,
@@ -38,7 +38,7 @@
   "officialSemanticScore": {
     "status": "blocked_external",
     "blockers": [
-      "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. No NodeRoom model-output directory exists with one output artifact per official Finch task id, so the upstream prompt_build_pipeline.py cannot build claimable content_parts.jsonl for scoring."
+      "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. Upstream Finch content_parts rendering is 0/172; official Azure judge input remains incomplete even though model-output artifacts are complete."
     ],
     "verifierCommand": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
   }

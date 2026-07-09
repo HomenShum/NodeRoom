@@ -292,7 +292,7 @@ function defaultLaunchCommand(adapterId: ProofloopAgentAdapterId, env: NodeJS.Pr
   if (adapterId === "codex") return env.PROOFLOOP_CODEX_COMMAND?.trim() || "codex exec --json";
   if (adapterId === "claude-code") return env.PROOFLOOP_CLAUDE_CODE_COMMAND?.trim() || env.CLAUDE_CODE_COMMAND?.trim() || "claude --print --input-format text";
   if (adapterId === "cursor") return env.PROOFLOOP_CURSOR_COMMAND?.trim() || env.PROOFLOOP_CURSOR_CLI_COMMAND?.trim() || "npm run proofloop -- agents launch cursor --prompt {promptPath}";
-  if (adapterId === "windsurf") return env.PROOFLOOP_WINDSURF_COMMAND?.trim() || env.PROOFLOOP_CASCADE_COMMAND?.trim();
+  if (adapterId === "windsurf") return env.PROOFLOOP_WINDSURF_COMMAND?.trim() || env.PROOFLOOP_CASCADE_COMMAND?.trim() || "npm run proofloop -- agents launch windsurf --prompt {promptPath}";
   if (adapterId === "devin") return env.PROOFLOOP_DEVIN_API_COMMAND?.trim() || "npm run proofloop -- agents launch devin-api --prompt {promptPath}";
   if (adapterId === "generic-cli") return env.PROOFLOOP_GENERIC_AGENT_COMMAND?.trim();
   return undefined;

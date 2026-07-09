@@ -1,6 +1,6 @@
 # ProofLoop Goal Ledger Receipt
 
-Generated: 2026-07-09T06:26:25.073Z
+Generated: 2026-07-09T06:34:11.873Z
 
 This committed receipt summarizes local `.proofloop/goals` process state. Raw `.proofloop` stores stay gitignored; blocker reasons, resume commands, and evidence paths are copied here so blocked claims survive local disk cleanup.
 
@@ -9,19 +9,19 @@ JSON receipt: `docs/eval/proofloop-goal-ledger.json`
 ## Summary
 
 - Goals: 3
-- Unblocked tasks remaining: 11
+- Unblocked tasks remaining: 0
 - Blocked tasks remaining: 5
 - Blocked reasons recorded: 10
 - Raw local stores committed: false
 
 ## Goal: official-scores
 
-- Status: initialized
+- Status: running
 - Objective: Make official benchmark scores real, tested, shipped, and externally blocked only with proof.
-- Updated: 2026-07-09T06:26:25.073Z
-- Local ledger: `.proofloop/goals/official-scores/ledger.jsonl` (201 event(s))
+- Updated: 2026-07-09T06:34:11.873Z
+- Local ledger: `.proofloop/goals/official-scores/ledger.jsonl` (228 event(s))
 - Required tasks: 16
-- Unblocked tasks remaining: 11
+- Unblocked tasks remaining: 0
 - Blocked tasks remaining: 5
 
 ### Blocked Reasons
