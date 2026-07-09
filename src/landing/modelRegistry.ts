@@ -1,18 +1,16 @@
 /* ============================================================================
-   Curated 2026 model registry — the source of truth for the mobile composer's
-   model chips + the chat job-meta label. The server-side NodeAgent router
-   already accepts every id below (via
-   prefix-based provider routing); the env var `AGENT_MODEL` on Convex prod
-   picks the actual default. This file exists so the UI no longer displays
-   "Haiku/Sonnet/Opus" when the agent is actually running on something else.
+   Curated 2026 model registry: source of truth for exact mobile composer
+   model chips and chat job-meta labels. "Auto-route" is not an entry here;
+   mobile maps it to AgentModelSelection { mode: "adaptive" }, so the server
+   remains responsible for policy and final resolved model selection.
 
    Provider routing recap:
-     • gpt-* / o1-* / o4-*  → openai (direct)
-     • claude-*             → anthropic (direct)
-     • gemini-*             → gemini (direct)
-     • anything with "/"    → openrouter (the substrate Homen prefers)
-     • "auto"               → resolves to gemini-3.5-flash
-     • "free"/"openrouter/free-auto" → free-auto sentinel
+     - gpt-* / o1-* / o4-*  -> openai (direct)
+     - claude-*             -> anthropic (direct)
+     - gemini-*             -> gemini (direct)
+     - anything with "/"    -> openrouter
+     - AgentModelSelection mode "adaptive" lets the server choose
+     - "free"/"openrouter/free-auto" -> free-auto sentinel
    ============================================================================ */
 
 export type CostClass = "free" | "standard" | "premium";

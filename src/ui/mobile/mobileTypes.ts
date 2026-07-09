@@ -5,6 +5,7 @@
    cycles between the controller and the leaf components.
    ============================================================================ */
 import type { Dispatch, SetStateAction } from "react";
+import type { AgentModelSelection } from "../../app/store";
 import type {
   TabId,
   SheetId,
@@ -222,7 +223,7 @@ export interface MobileLive {
   agentPrivate: AgentMsg[];
   agentRoom: AgentMsg[];
   askPrivateAgent: (goal: string) => Promise<RowEditResult>;
-  askRoomAgent: (goal: string) => Promise<RowEditResult>;
+  askRoomAgent: (goal: string, modelSelection?: AgentModelSelection) => Promise<RowEditResult>;
   row: Row;
   editRowField: (elementId: string, value: string, baseVersion: number) => Promise<RowEditResult>;
   inboxItems: InboxItem[];

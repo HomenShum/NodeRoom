@@ -58,6 +58,7 @@ import { loadTweaks, saveTweaks } from "./mobileTweaks";
 import { IOSDevice, MobileStage } from "./MobileFrame";
 import { haptic } from "./mobileUtil";
 import { MODEL_REGISTRY } from "../../landing/modelRegistry";
+import type { AgentModelSelection } from "../../app/store";
 
 // ── static config (ported verbatim from na-app.jsx) ─────────────────────────
 const TABS: Record<TabId, { icon: IconName; label: string }> = {
@@ -124,13 +125,17 @@ interface ModelOpt {
   desc: string;
   icon: IconName;
 }
-// Mobile composer chips — derived from the curated 2026 registry. "Auto-route"
-// stays at the top as a meta-option; the rest are real model ids the agent
-// runtime will honor (provider routing in convexModel.ts).
+// Mobile composer chips: room-agent asks pass this selection through the
+// existing NodeRoom model route contract. Private live asks use the server
+// default until the private-agent API grows explicit route selection.
 const MODELS: ModelOpt[] = [
   { id: "auto", name: "Auto-route", desc: "Picks the cheapest model that can do the job", icon: "route" },
   ...MODEL_REGISTRY.map((m): ModelOpt => ({ id: m.id, name: m.displayName, desc: m.sub, icon: m.icon as IconName })),
 ];
+
+export function mobileAgentModelSelection(modelId: string): AgentModelSelection {
+  return modelId === "auto" ? { mode: "adaptive" } : { mode: "specific", modelPolicy: modelId };
+}
 
 interface AttachOpt {
   id: string;
@@ -459,7 +464,11 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
   };
 
   const cycleScope = (): void => setScope((s) => SCOPES[(SCOPES.indexOf(s) + 1) % SCOPES.length]);
-  const toggleScope = (): void => setScope((s) => (s === "Private" ? "Room" : "Private"));
+  const toggleScope = (): void => setScope((s) => {
+    const next = s === "Private" ? "Room" : "Private";
+    if (composerMode === "agent") setAgentLane(next === "Room" ? "room" : "private");
+    return next;
+  });
   const switchRoom = (id: string): void => {
     // Live mode is bound to exactly one room — tapping it just closes the sheet.
     if (live) {
@@ -482,8 +491,21 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     closeSheet();
     toast("Left " + room.name);
   };
+  const setAskMode = (mode: ComposerMode): void => {
+    setComposerMode(mode);
+    if (mode === "room") {
+      setScope("Room");
+      setAgentLane("room");
+      setModelMenu(false);
+    } else if (mode === "note" || mode === "source") {
+      setScope("Private");
+      setModelMenu(false);
+    } else if (scope === "Room") {
+      setAgentLane("room");
+    }
+  };
   const openAsk = (mode?: ComposerMode): void => {
-    if (mode) setComposerMode(mode);
+    if (mode) setAskMode(mode);
     setAskOpen(true);
   };
   const closeAsk = (): void => setAskOpen(false);
@@ -493,6 +515,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     setTab("room");
     setComposerMode("room");
     setAgentLane("room");
+    setScope("Room");
     setDraft(handle + " ");
     openAsk("room");
   };
@@ -608,8 +631,10 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     const ln = lane || agentLane;
     if (live) {
       // Live: route through the room/private agent; replies stream back via the store.
-      const ask = ln === "room" ? live.askRoomAgent : live.askPrivateAgent;
-      void ask(text).then((r) => { if (!r.ok) toast("Agent error — " + (r.reason ?? "try again")); });
+      const request = ln === "room"
+        ? live.askRoomAgent(text, mobileAgentModelSelection(model))
+        : live.askPrivateAgent(text);
+      void request.then((r) => { if (!r.ok) toast("Agent error — " + (r.reason ?? "try again")); });
       return;
     }
     pushAgent(ln, { role: "user", text });
@@ -728,6 +753,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     setComposerMode("agent");
     setTab("agent");
     setAgentLane("room");
+    setScope("Room");
     openAsk("agent");
   };
   const reviewAct: FabAction | null = openCount
@@ -749,7 +775,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
       a.push({ icon: "pen", label: "New capture", run: () => { setNote(""); toast("Blank capture"); } });
     } else if (tab === "room") {
       hero = "pen";
-      a.push({ icon: "pen", label: "Message room", run: () => { setComposerMode("room"); setAgentLane("room"); openAsk("room"); } });
+      a.push({ icon: "pen", label: "Message room", run: () => { setComposerMode("room"); setAgentLane("room"); setScope("Room"); openAsk("room"); } });
       a.push({ icon: "history", label: "Agent jobs", run: () => openSheet("jobs") });
       if (reviewAct) a.push(reviewAct);
       a.push({ icon: "building", label: "Switch room", run: () => openSheet("rooms") });
@@ -889,6 +915,8 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
   };
   const Screen = SCREENS[tab] || Home;
   const activeModel = MODELS.find((m) => m.id === model) || MODELS[0];
+  const modelRoutingAvailable = composerMode === "agent" && (!live || agentLane === "room");
+  const visibleModel = modelRoutingAvailable ? activeModel : MODELS[0];
   const askModeMeta: Record<ComposerMode, { ph: string; ctx: string }> = {
     note: { ph: "Capture a thought, paste a source…", ctx: "Current note" },
     room: { ph: "Message the room…  @agent to ask", ctx: room.name },
@@ -1316,10 +1344,17 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                     )}
                   </div>
                   <div className="na-ask-pop">
-                    <button className="na-model-chip" data-on={modelMenu ? "true" : undefined} onClick={() => { setModelMenu((v) => !v); setAttachMenu(false); }} aria-label="Model">
-                      {Ico(activeModel.icon)}<span>{activeModel.name}</span>{Ico("chevD")}
+                    <button
+                      className="na-model-chip"
+                      data-on={modelMenu && modelRoutingAvailable ? "true" : undefined}
+                      disabled={!modelRoutingAvailable}
+                      onClick={() => { setModelMenu((v) => !v); setAttachMenu(false); }}
+                      aria-label={modelRoutingAvailable ? "Model route" : "Model route unavailable"}
+                      title={modelRoutingAvailable ? "Model route for room agent asks" : "Model routing applies to room-agent asks"}
+                    >
+                      {Ico(visibleModel.icon)}<span>{visibleModel.name}</span>{modelRoutingAvailable && Ico("chevD")}
                     </button>
-                    {modelMenu && (
+                    {modelMenu && modelRoutingAvailable && (
                       <div className="na-menu" role="menu">
                         {MODELS.map((m) => (
                           <button key={m.id} className="na-menu-row" data-active={model === m.id} onClick={() => { setModel(m.id); setModelMenu(false); toast(m.name + " selected"); }}>
@@ -1342,7 +1377,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
               </div>
               <div className="na-ask-modes">
                 {(["note", "room", "agent", "source"] as ComposerMode[]).map((id) => (
-                  <button key={id} className="na-mode" data-mode={id} data-active={composerMode === id} onClick={() => setComposerMode(id)}>
+                  <button key={id} className="na-mode" data-mode={id} data-active={composerMode === id} onClick={() => setAskMode(id)}>
                     {Ico(({ note: "pen", room: "room", agent: "sparkles", source: "link" } as Record<ComposerMode, IconName>)[id])}
                     {id[0].toUpperCase() + id.slice(1)}
                   </button>
@@ -1373,7 +1408,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
               <>
                 <div className="na-voice-top">
                   <span className="na-voice-scope">{Ico(scope === "Room" ? "users" : "lock")}{scope === "Room" ? "Room can hear this" : "Private to you"}</span>
-                  <span className="na-voice-model">{Ico(activeModel.icon)}{activeModel.name}</span>
+                  <span className="na-voice-model">{Ico(visibleModel.icon)}{visibleModel.name}</span>
                 </div>
                 <div className="na-voice-mid">
                   <div className="na-orb"><span /><span /><span /></div>

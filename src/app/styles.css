@@ -647,10 +647,6 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-composer-bar { display: flex; align-items: center; gap: 6px; }
 .r-composer-spacer { flex: 1; }
 .r-composer-bar .r-attach { width: 28px; height: 28px; }
-.r-model-select { height: 28px; max-width: 132px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--text-muted); font: inherit; font-size: 11.5px; font-weight: 600; padding: 0 6px; cursor: pointer; transition: color var(--motion-fast), background var(--motion-fast), border-color var(--motion-fast); }
-.r-model-select:hover { color: var(--text-secondary); background: var(--bg-hover); }
-.r-model-select:focus-visible { outline: none; border-color: var(--accent-border); box-shadow: var(--focus-ring); }
-.r-model-select-wide { max-width: 176px; }
 .r-model-picker { position: relative; flex: none; min-width: 0; }
 .r-model-compat { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .r-model-trigger { height: 28px; max-width: 238px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-primary); color: var(--text-secondary); font: inherit; font-size: 11.5px; font-weight: 750; padding: 0 7px; cursor: pointer; transition: background var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast), box-shadow var(--motion-fast); }

@@ -35,7 +35,7 @@ The room is a 4-panel `.r-workspace` (12px gap, 12px pad). Panel widths: rail `2
 |---|---|---|
 | Panel card | `.r-panel` (`.left/.center/.artifact/.right`) | staggered `panelIn` reveal |
 | Top bar | `.r-top` | logo · room code · segmented panel toggle · auto-allow · avatar stack · theme |
-| Chat | `.r-chat` / `.r-msg` / `.r-bubble-ask` / `.r-composer` | avatars, agent tag, public `@nodeagent` mention, hidden `/ask`/`/free` compatibility aliases, route/model picker, **typing indicator** (`.r-typing`) |
+| Chat | `.r-chat` / `.r-msg` / `.r-bubble-ask` / `.r-composer` | avatars, agent tag, public `@nodeagent` mention, hidden `/ask`/`/free` compatibility aliases, visible searchable route/model picker, hidden `chat-model-*` proof hooks only for legacy scripts, **typing indicator** (`.r-typing`) |
 | Spreadsheet | `.r-sheet` | CAS cells: `.locked` (NA badge) · `.draft` · `.committed` (wet-ink); `.r-val-pos` green; version pill |
 | Trace | `.r-trace` | typed color-coded icons (lock/read/draft/commit/merge) |
 | Switch / button / tag | `.r-switch` / `.r-btn` / `.r-tag` | one focus ring: `--focus-ring` |

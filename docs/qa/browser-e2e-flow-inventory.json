@@ -92,8 +92,8 @@
           "priority": "release_floor",
           "status": "partial",
           "suggestedSpec": "tests/chatReasoningFrames.test.tsx",
-          "steps": ["Open public Convex chat.", "Switch Adaptive, Free, Top paid, Specific model.", "Choose an exact model.", "Send @nodeagent."],
-          "assertions": ["Specific model input appears only for Specific model.", "Selected model is passed to the durable route.", "Free policy routes through the same public path."]
+          "steps": ["Open public Convex chat.", "Open the visible searchable model picker.", "Switch Adaptive, Free, Top paid, or choose an exact model.", "Send @nodeagent."],
+          "assertions": ["Searchable picker exposes route presets and exact model options.", "Hidden chat-model-* compatibility hooks remain value-bearing but are not visible UI.", "Selected model is passed to the durable route.", "Free policy routes through the same public path."]
         },
         {
           "id": "public-nodeagent.hidden-slash-aliases",
