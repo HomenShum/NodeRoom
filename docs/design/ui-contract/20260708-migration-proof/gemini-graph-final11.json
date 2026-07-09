@@ -1,0 +1,27 @@
+{
+  "generatedAt": "2026-07-08T20:14:08.633Z",
+  "model": "gemini-3.5-flash",
+  "referencePath": ".tmp-qa\\interiors\\standalone-graph.png",
+  "candidatePath": ".tmp-qa\\interiors\\live-graph.png",
+  "review": {
+    "verdict": "close",
+    "summary": "The implementation is highly accurate, matching the reference design's layout, color palette, and typography perfectly. The only notable visual bug is in the entity graph, where the relationship lines (edges) lack the distinct, solid triangular arrowheads that indicate directionality in the reference design.",
+    "visualSimilarityScore": 0.94,
+    "differences": [
+      {
+        "severity": "P1",
+        "category": "component-detail",
+        "reference": "Graph edges feature clear, solid triangular arrowheads pointing to destination nodes to indicate directionality.",
+        "candidate": "Graph edges are rendered as simple lines without visible or distinct triangular arrowheads, obscuring the direction of relationships.",
+        "fix": "Configure the graph rendering library (SVG marker-end or Canvas path drawing) to render solid triangular arrowheads on relationship edges matching the reference style."
+      }
+    ],
+    "keep": [
+      "Sidebar layout, collapsible sections, and typography",
+      "Top navigation bar, tabs, and header controls",
+      "Right chat panel layout, message styling, and input box",
+      "Dark mode color palette and high contrast ratios",
+      "Bottom status bar layout and indicators"
+    ]
+  }
+}

@@ -3,7 +3,7 @@
  * THE NOTEBOOK IS PAPER — the NodeRoom notebook design on the shipped editors.
  *
  * Scenario: Maya reviews an agent-enriched diligence note in a dark-shell
- * room. The note must read ink-on-parchment (.nbk-frame re-pins the light
+ * room. The note must read ink-on-neutral paper (.nbk-frame re-pins the light
  * tokens), the .nbk-bar shows the artifact title plus block / needs-review
  * meta chips, agent-authored blocks carry the lighter .nbk-agent ink with the
  * terracotta margin dot, needs_review blocks get the amber chip, agent
@@ -151,7 +151,7 @@ describe("paper frame — Maya opens the diligence note on the dark shell (legac
     expect(review.textContent).toContain("1 needs_review");
   });
 
-  it("re-pins the light ink tokens inside .nbk-frame (parchment survives the dark shell)", () => {
+  it("re-pins neutral Cloud paper tokens inside .nbk-frame on the dark shell", () => {
     // jsdom does not cascade external stylesheets, so the token contract is
     // asserted against the shipped CSS itself: the re-pin block must scope the
     // light values under .nbk-frame (class presence is asserted in the DOM test
@@ -162,11 +162,11 @@ describe("paper frame — Maya opens the diligence note on the dark shell (legac
     // this exact bug ate the whole token re-pin block in a real Chromium once.
     expect(css.match(/\*\//g)?.length).toBe(css.match(/\/\*/g)?.length);
     const framePin = css.slice(css.indexOf(".nbk-frame {"), css.indexOf("}", css.indexOf(".nbk-frame {")));
-    expect(framePin).toContain("--bg-notebook: #FFFCF6");
+    expect(framePin).toContain("--bg-notebook: #F7F8FA");
     expect(framePin).toContain("--text-primary: #111827");
     expect(framePin).toContain("--text-secondary: #374151");
     expect(framePin).toContain("--accent: #D97757");
-    // The frame paints itself with the parchment token and the wet-ink pass
+    // The frame paints itself with the neutral paper token and the wet-ink pass
     // respects prefers-reduced-motion (the CSS handles it).
     expect(css).toContain("background: var(--bg-notebook)");
     expect(css).toMatch(/@media \(prefers-reduced-motion: no-preference\)[\s\S]*nbk-wet/);

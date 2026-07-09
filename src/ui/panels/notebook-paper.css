@@ -1,8 +1,7 @@
 /* ============================================================================
    NodeRoom Notebook — THE NOTEBOOK IS PAPER.
-   Lifted from design-reference/notebook/notebook.css (values verbatim; the
-   specimen is the source of truth). Core thesis from the specimen: the
-   notebook stays ink-on-parchment (#FFFCF6 frame) even in the dark shell.
+   Adapted from design-reference/notebook/notebook.css. Core thesis retained:
+   the notebook stays ink-on-neutral paper (#F7F8FA frame) even in the dark shell.
    The app's dark theme flips the text, bg, and line tokens near-white, so the
    frame RE-PINS the light values for everything inside it. Every rule is
    scoped under .nbk-frame: the dark .r-note chrome cannot leak in, and paper
@@ -13,7 +12,7 @@
   /* Specimen token re-pin block (notebook.css L16-24), mapped onto this app's
      token names (src/app/styles.css :root) plus the specimen's own names used
      by the lifted rules below. */
-  --bg-surface: #FFFFFF; --bg-muted: #F5F4F1; --bg-notebook: #FFFCF6; --bg-inspector: #FAFAF7;
+  --bg-surface: #FFFFFF; --bg-muted: #EFF2F5; --bg-notebook: #F7F8FA; --bg-inspector: #F2F4F7;
   --text-primary: #111827; --text-secondary: #374151; --text-muted: #6B7280; --text-tertiary: #9CA3AF; --text-faint: #9CA3AF;
   --border-subtle: rgba(15,23,42,.06); --border-default: rgba(15,23,42,.10); --border-strong: rgba(15,23,42,.16);
   --border-color: rgba(15,23,42,.10); --line: rgba(15,23,42,.10); --line-strong: rgba(15,23,42,.16);
@@ -21,9 +20,9 @@
   --accent-tint: rgba(217,119,87,.08); --accent-border: rgba(217,119,87,.25);
   --success: #047857; --success-ink: #047857; --success-tint: rgba(4,120,87,.08);
   --warning: #B45309; --warning-ink: #B45309; --warning-tint: rgba(180,83,9,.08); --warning-border: rgba(180,83,9,.28);
-  --bg-primary: #FFFFFF; --bg-secondary: #F5F4F1; --bg-hover: #EEEBE6;
-  /* light shadow re-pin (styles.css :root value; dark theme swaps it for a white ring) */
-  --shadow-md: 0 0 0 1px rgba(0,0,0,.03), 0 4px 14px rgba(0,0,0,.08);
+  --bg-primary: #FFFFFF; --bg-secondary: #EFF2F5; --bg-hover: #E7EBF0;
+  /* Cloud paper stays flat; the shell already supplies depth. */
+  --shadow-md: none;
   --font-sans: var(--font-ui);
   /* serif for the quote ink — design-reference/terra/na.css L11, verbatim */
   --font-serif: 'DM Serif Display', Georgia, 'Times New Roman', serif;
@@ -32,9 +31,9 @@
 /* the sheet frame (specimen L25-26) + panel-filling layout so the paper
    scrolls inside its own frame on the dark shell */
 .nbk-frame {
-  margin: 14px 18px;
+  margin: 12px 16px;
   border: 1px solid var(--border-default, rgba(15,23,42,.1));
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
   box-shadow: var(--shadow-md, 0 4px 8px rgba(0,0,0,.05));
   background: var(--bg-notebook);
@@ -44,7 +43,29 @@
   flex: 1;
   min-height: 0;
 }
-.nbk-body { flex: 1; min-height: 0; overflow: auto; }
+.nbk-body { position: relative; flex: 1; min-height: 0; overflow: auto; background: #fbf8f1; }
+.nbk-body::before {
+  content: "";
+  position: absolute;
+  top: 84px;
+  bottom: 0;
+  left: 72px;
+  border-left: 1px dotted rgba(148,163,184,.28);
+  pointer-events: none;
+}
+.nbk-body::after {
+  content: "+\A⋮";
+  white-space: pre;
+  position: absolute;
+  top: 152px;
+  left: 57px;
+  color: #d97757;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  opacity: .74;
+  pointer-events: none;
+}
 .nbk-foot { flex: none; border-top: 1px solid var(--border-subtle); background: var(--bg-inspector); }
 
 /* top chrome above the sheet (specimen L29-33) */
@@ -96,7 +117,7 @@
 .nbk-frame .r-note .ProseMirror [data-status="needs_review"]::after,
 .nbk-frame .r-agent-notes-body .ProseMirror [data-status="needs_review"]::after,
 .nbk-frame .nbk-review::after {
-  content: "needs_review"; display: inline-flex; align-items: center; margin-left: 8px; padding: 2px 9px;
+  content: "needs review"; display: inline-flex; align-items: center; margin-left: 8px; padding: 2px 9px;
   border-radius: 999px; border: none; vertical-align: 1px;
   font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: .02em;
   color: var(--warning, #B45309); background: rgba(180,83,9,.08);
@@ -124,6 +145,7 @@
   font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; color: var(--text-muted);
   background: var(--bg-muted); border: 1px solid var(--border-subtle); }
 .nbk-chip b { color: var(--accent); font-weight: 700; }
+.nbk-save-dot { width: 6px; height: 6px; border-radius: 50%; background: #059669; }
 
 /* footnotes at doc end (specimen L80-83 for .n/.t/.m; container layout ours) */
 .nbk-frame .nb-footnotes { margin: 4px 26px 20px; padding-top: 12px; border-top: 1px solid var(--border-subtle);
@@ -140,7 +162,295 @@
 /* ── paper overrides: keep the dark shell's notebook chrome out of the frame ── */
 
 /* the sheet itself is the paper — no panel background, ink from re-pinned tokens */
-.nbk-frame .r-note { background: transparent; }
+.nbk-frame .r-note {
+  width: min(100%, 760px);
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 48px 56px;
+  background: transparent;
+}
+
+.nbk-frame .r-note .ProseMirror {
+  max-width: 68ch;
+  margin: 0 auto;
+}
+
+.nbk-frame .r-note .ProseMirror h1 {
+  margin: 4px 0 16px;
+  color: #0f172a;
+  font-size: clamp(28px, 4.2vw, 38px);
+  line-height: 1.04;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.nbk-frame .r-note .ProseMirror h1::before {
+  content: "Q3 Diligence · Binder · Notebooks · CardioNova brief";
+  display: block;
+  margin: 0 0 12px;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.nbk-frame .r-note .ProseMirror h1 + p[data-status="draft"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -2px 0 28px;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.nbk-frame .r-note .ProseMirror h1 + p[data-status="draft"] code {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(15,23,42,.08);
+  background: rgba(15,23,42,.045);
+  color: #64748b;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.nbk-frame .r-note .ProseMirror h1 + p[data-status="draft"] code:last-child::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.nbk-frame .r-note .ProseMirror h2 {
+  margin: 30px 0 12px;
+  color: #111827;
+  font-size: 21px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.nbk-frame .r-note .ProseMirror h2:has(+ p[data-status="needs_review"]) {
+  display: none;
+}
+
+.nbk-frame .r-note .ProseMirror p,
+.nbk-frame .r-note .ProseMirror li {
+  font-size: 16px;
+  line-height: 1.58;
+  color: #1f2937;
+}
+
+.nbk-frame .r-note .ProseMirror p.nbk-agent::before {
+  content: none;
+}
+
+.nbk-frame .r-note .ProseMirror a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.nbk-frame .r-note .ProseMirror p[data-status="needs_review"] {
+  margin: 18px 0 8px;
+  padding: 16px 18px;
+  border: 1px solid rgba(217,119,87,.26);
+  border-radius: 10px;
+  background: rgba(217,119,87,.045);
+}
+
+.nbk-frame .r-note .ProseMirror h2 + p[data-status="needs_review"] {
+  position: relative;
+  margin: 24px 0 0;
+  padding: 42px 18px 12px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  background: rgba(217,119,87,.055);
+}
+
+.nbk-frame .r-note .ProseMirror h2 + p[data-status="needs_review"]::before {
+  content: "CLAIM";
+  position: absolute;
+  top: 16px;
+  left: 18px;
+  color: #c45d33;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.nbk-frame .r-note .ProseMirror h2 + p[data-status="needs_review"] + ul {
+  list-style: none;
+  margin: 0 0 26px;
+  padding: 0 18px 16px;
+  border: 1px solid rgba(217,119,87,.26);
+  border-top: 0;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  background: rgba(217,119,87,.055);
+}
+
+.nbk-frame .r-note .ProseMirror h2 + p[data-status="needs_review"] + ul li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 5px 0;
+  padding: 5px 10px;
+  border-radius: 7px;
+  background: transparent;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.nbk-frame .r-note .ProseMirror h2 + p[data-status="needs_review"] + ul li::before {
+  content: none;
+}
+
+.nbk-frame .r-note .ProseMirror h2 + p[data-status="needs_review"] + ul li code {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  padding: 3px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(4,120,87,.10);
+  color: #047857;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.nbk-frame .r-note .ProseMirror h2 + p[data-status="needs_review"] + ul li code::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.nbk-frame .r-note .ProseMirror h2 + p[data-status="needs_review"] + ul li[data-status="needs_review"],
+.nbk-frame .r-note .ProseMirror h2 + p[data-status="needs_review"] + ul li:has(code[data-tone="conflict"]),
+.nbk-frame .r-note .ProseMirror h2 + p[data-status="needs_review"] + ul li[data-blockid="nb-src-2"] {
+  background: rgba(217,119,87,.075);
+}
+
+.nbk-frame .r-note .ProseMirror h2 + p[data-status="needs_review"] + ul li[data-status="needs_review"] code,
+.nbk-frame .r-note .ProseMirror h2 + p[data-status="needs_review"] + ul li code[data-tone="conflict"],
+.nbk-frame .r-note .ProseMirror h2 + p[data-status="needs_review"] + ul li[data-blockid="nb-src-2"] code {
+  background: rgba(180,83,9,.12);
+  color: #b45309;
+}
+
+.nbk-frame .r-note .ProseMirror blockquote {
+  position: relative;
+  margin: 18px 0 4px 28px;
+  padding: 0 0 0 28px;
+  border-left: 0;
+  color: #1f2937;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.nbk-frame .r-note .ProseMirror blockquote::before {
+  content: "“";
+  position: absolute;
+  top: -20px;
+  left: -4px;
+  color: rgba(217,119,87,.68);
+  font-size: 42px;
+  font-family: Georgia, serif;
+  font-weight: 700;
+}
+
+.nbk-frame .r-note .ProseMirror p[data-status="quote_source"] {
+  margin: 0 0 14px 56px;
+  color: #64748b;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.nbk-frame .r-note .ProseMirror p[data-status="synced"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(15,23,42,.10);
+  border-bottom: 0;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  background: rgba(255,255,255,.74);
+  color: #64748b;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.nbk-frame .r-note .ProseMirror p[data-status="synced"] strong {
+  color: #475569;
+}
+
+.nbk-frame .r-note .ProseMirror ul {
+  margin: 8px 0 22px;
+  padding-left: 22px;
+}
+
+.nbk-frame .r-note .ProseMirror table {
+  width: 100%;
+  margin: 18px 0 8px;
+  border-collapse: collapse;
+  overflow: hidden;
+  border: 1px solid rgba(15,23,42,.10);
+  border-radius: 10px;
+  background: rgba(255,255,255,.72);
+  font-size: 13px;
+}
+
+.nbk-frame .r-note .ProseMirror th,
+.nbk-frame .r-note .ProseMirror td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(15,23,42,.08);
+  text-align: left;
+}
+
+.nbk-frame .r-note .ProseMirror th {
+  color: #64748b;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.nbk-frame .r-note .ProseMirror tr:last-child td {
+  border-bottom: 0;
+}
+
+.nbk-frame .r-note .ProseMirror pre {
+  margin: 0 0 8px;
+  padding: 14px 16px;
+  border: 1px solid rgba(15,23,42,.10);
+  border-radius: 10px;
+  background: rgba(255,255,255,.72);
+  color: #334155;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.nbk-frame .r-note .ProseMirror p[data-status="synced"] + pre {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
 
 /* agent notes block: quiet paper section, not a dark panel */
 .nbk-frame .r-agent-notes { margin: 4px 26px 12px; max-width: 680px;

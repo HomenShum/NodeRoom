@@ -1,0 +1,37 @@
+{
+  "capturedAt": "2026-07-08T05:12:43.908Z",
+  "baseUrl": "http://127.0.0.1:5187",
+  "route": "?mode=memory&surface=desktop&demo=<id>&name=Founder",
+  "screenshots": [
+    "after-shell-desktop-1456x940.png",
+    "after-shell-mobile-390x844.png"
+  ],
+  "checks": {
+    "desktopInitial": {
+      "shellBottom": 1,
+      "leftRail": 1,
+      "artifactPanel": 1,
+      "chatComposer": 1,
+      "roomTrace": 1,
+      "fileTabs": 5
+    },
+    "desktopTabs": {
+      "tabBefore": "Risk / opportunity wall",
+      "tabAfter": "Company research",
+      "changed": true
+    },
+    "desktopSettings": {
+      "settingsVisible": 1,
+      "autoAllowSwitch": 1,
+      "focusSwitch": 1,
+      "desktopPanelControlsInSettings": 2
+    },
+    "mobile": {
+      "shellBottom": 1,
+      "artifactPanel": 1,
+      "panelControls": 2,
+      "chatComposerAfterToggle": 1
+    },
+    "consoleErrors": []
+  }
+}

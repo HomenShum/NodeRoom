@@ -1,0 +1,53 @@
+{
+  "generatedAt": "2026-07-08T07:49:07.975Z",
+  "model": "gemini-3.5-flash",
+  "referencePath": "C:\\Users\\hshum\\AppData\\Local\\Temp\\codex-clipboard-056504f3-0ff7-430e-9709-2df1b146c18a.png",
+  "candidatePath": ".tmp-qa\\live-candidate-1456x940.png",
+  "review": {
+    "verdict": "partial",
+    "summary": "The candidate implementation captures the overall dark-themed layout but has several key visual and structural discrepancies. These include incorrect icons in the tab bar, simplified status column styling in the main grid, verbose sidebar category headers, and differences in the bottom status bar and chat panel headers.",
+    "visualSimilarityScore": 0.82,
+    "differences": [
+      {
+        "severity": "P1",
+        "category": "topbar-tabs",
+        "reference": "Active tab 'Company research' has an orange table/document icon.",
+        "candidate": "Active tab 'Company research' has a white search icon.",
+        "fix": "Update the icon for the active 'Company research' tab to use the orange table icon as shown in the reference."
+      },
+      {
+        "severity": "P1",
+        "category": "grid-density",
+        "reference": "Company names are bold, and the 'STATUS' column features rich, color-coded pills (e.g., green 'complete', orange 'enriching' with a 'NA' badge, red 'failed').",
+        "candidate": "Company names are regular weight, and the 'STATUS' column uses a generic grey 'pending' style for all rows without rich colors or secondary badges.",
+        "fix": "Apply bold font-weight to the Company column text. Implement the color-coded status pills and secondary badges (like 'NA') to match the reference design."
+      },
+      {
+        "severity": "P1",
+        "category": "left-rail",
+        "reference": "Sidebar categories are cleanly segmented into 'SHEETS', 'DOCS', 'NOTEBOOKS', and 'UPLOADS'.",
+        "candidate": "Sidebar categories are grouped into verbose headers like 'WORKBOOKS & WORK PRODUCTS' and 'DOCS, NOTES & UPLOADS'.",
+        "fix": "Revert the sidebar category names and structural hierarchy to match the reference ('SHEETS', 'DOCS', 'NOTEBOOKS', 'UPLOADS')."
+      },
+      {
+        "severity": "P2",
+        "category": "bottom-status",
+        "reference": "The bottom-most bar displays 'Room NodeAgent • reconciled Q3 variance • v42' in green text on the right side.",
+        "candidate": "The bottom-most bar displays 'Room NodeAgent (public) session started' with a green dot in the center-left, and lacks the version/reconciliation info on the right.",
+        "fix": "Update the bottom status bar content and alignment to display the green reconciliation and version details on the right side."
+      },
+      {
+        "severity": "P2",
+        "category": "right-chat",
+        "reference": "The chat panel header is clean, showing 'Public chat 7' and 'Room / Private' toggle buttons.",
+        "candidate": "The chat panel header includes an extra 'Shared' tab and icon, cluttering the header space.",
+        "fix": "Remove the redundant 'Shared' tab from the chat panel header to match the clean layout of the reference."
+      }
+    ],
+    "keep": [
+      "Dark theme color palette and overall three-pane layout grid.",
+      "The styling of the 'DATAFRAME' badge and row/column count in the bottom panel.",
+      "The chat input box styling at the bottom right, including the attachment and send buttons."
+    ]
+  }
+}

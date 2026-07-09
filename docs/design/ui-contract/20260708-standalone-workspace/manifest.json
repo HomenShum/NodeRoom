@@ -1,0 +1,56 @@
+{
+  "schema": "noderoom-standalone-workspace-ui-contract-v1",
+  "capturedAt": "2026-07-08T04:54:16.000Z",
+  "sourcePath": "C:/Users/hshum/Downloads/NodeRoom Workspace (standalone).html",
+  "sourceTitle": "NodeRoom - Workspace",
+  "sourceBytes": 3386754,
+  "sourceSha256": "C8EE4877E6CF5914AF29B6FDC411D33AA43DA8C8EAB200D530A633E4206A976B",
+  "viewport": {
+    "width": 1456,
+    "height": 940,
+    "deviceScaleFactor": 1
+  },
+  "policy": "Screenshots are visual contract references only. Production behavior remains sourced from the current app and must be verified through normal product flows.",
+  "pages": [
+    {
+      "id": "rooms",
+      "label": "Rooms",
+      "localUrl": "file:///C:/Users/hshum/Downloads/NodeRoom%20Workspace%20(standalone).html#rooms",
+      "screenshotPath": "docs/design/ui-contract/20260708-standalone-workspace/rooms-1456x940.png",
+      "bytes": 293646,
+      "sha256": "E0B0E58A8FFF3B492BDA46C5D609D5CFFC3F602C6738A030FB9981E1A74CF319"
+    },
+    {
+      "id": "states",
+      "label": "States & Scale",
+      "localUrl": "file:///C:/Users/hshum/Downloads/NodeRoom%20Workspace%20(standalone).html#states",
+      "screenshotPath": "docs/design/ui-contract/20260708-standalone-workspace/states-scale-1456x940.png",
+      "bytes": 347484,
+      "sha256": "3624C791949490FB812EE60241B8ADB750B85FC04020A7AB39E961333FD75836"
+    },
+    {
+      "id": "fixPack",
+      "label": "Prod UI Fix Pack",
+      "localUrl": "file:///C:/Users/hshum/Downloads/NodeRoom%20Workspace%20(standalone).html#fixPack",
+      "screenshotPath": "docs/design/ui-contract/20260708-standalone-workspace/fix-pack-1456x940.png",
+      "bytes": 305082,
+      "sha256": "8DC0DD980F9281B9ABCF1A7B4EBAD92290C336FF77D2EF6D4B1566130A8BBA38"
+    },
+    {
+      "id": "trace",
+      "label": "Trace UI",
+      "localUrl": "file:///C:/Users/hshum/Downloads/NodeRoom%20Workspace%20(standalone).html#trace",
+      "screenshotPath": "docs/design/ui-contract/20260708-standalone-workspace/trace-1456x940.png",
+      "bytes": 241130,
+      "sha256": "4EE2EE9DDC36E95DC3BE0CBD5FA5F361EFFCCEB3573240F48C2FEF981471FC7A"
+    },
+    {
+      "id": "knowledgeMap",
+      "label": "Knowledge Map",
+      "localUrl": "file:///C:/Users/hshum/Downloads/NodeRoom%20Workspace%20(standalone).html#knowledgeMap",
+      "screenshotPath": "docs/design/ui-contract/20260708-standalone-workspace/knowledge-map-1456x940.png",
+      "bytes": 258883,
+      "sha256": "0CFE26C86FA2AE57FE8277303663F7D64EE3CE0642944B76A4CE809B57C36AE2"
+    }
+  ]
+}

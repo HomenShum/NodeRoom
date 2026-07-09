@@ -1,0 +1,45 @@
+{
+  "capturedAt": "2026-07-08T05:25:22.364Z",
+  "base": "http://127.0.0.1:5188",
+  "route": {
+    "room": "/#upscalex",
+    "mobile": "/#mobile?mode=memory",
+    "alwaysOn": "/#rooms/expositio-pulse"
+  },
+  "screenshots": [
+    "after-shared-states-room-1456x940.png",
+    "after-shared-states-command-palette-1456x940.png",
+    "after-shared-states-room-controls-1456x940.png",
+    "after-shared-states-auto-accept-modal-1456x940.png",
+    "after-shared-states-people-panel-1456x940.png",
+    "after-shared-states-mobile-390x844.png",
+    "after-shared-states-alwayson-subscribe-1280x900.png",
+    "after-shared-states-alwayson-error-1280x900.png"
+  ],
+  "assertions": {
+    "shellBottom": 1,
+    "guidedTourInitial": 0,
+    "commandPalette": 1,
+    "guidedTourDuringPalette": 0,
+    "roomTweaks": 1,
+    "autoAcceptModal": 1,
+    "peoplePanel": 1,
+    "notificationsInbox": 0,
+    "mobileSurface": 1,
+    "alwaysOnSubscribe": 1,
+    "alwaysOnError": 1,
+    "peoplePanelVisible": true,
+    "mobileCloudTokens": {
+      "bg": "#0B0D10",
+      "surface": "#151A20",
+      "text": "#F4F7FB",
+      "serif": "'DM Serif Display', Georgia, 'Times New Roman', serif"
+    },
+    "mobileNoteComposerOverlap": null
+  },
+  "notes": [
+    "notificationsInbox=0 is expected on #upscalex because NotificationsInbox renders only for Convex rooms with proof"
+  ],
+  "consoleErrors": [],
+  "consoleWarnings": []
+}

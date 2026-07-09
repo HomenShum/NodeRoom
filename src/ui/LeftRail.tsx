@@ -1,6 +1,6 @@
 /** Room Binder (`.r-panel.left`): source files, room artifacts, people, and public agents. */
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type DragEvent, type ReactNode } from "react";
-import { FolderOpen, Table2, FileText, StickyNote, BookOpen, Upload, Loader2, ShieldCheck, Activity, ChevronRight, Search, Layers, type LucideIcon } from "lucide-react";
+import { FolderOpen, Table2, FileText, StickyNote, BookOpen, Upload, Loader2, ShieldCheck, Activity, ChevronRight, Search, type LucideIcon } from "lucide-react";
 import { useStore } from "../app/store";
 import type { Actor, Artifact } from "../engine/types";
 import { ARTIFACT_REF_MIME, encodeArtifactRef } from "./artifactRefs";
@@ -164,7 +164,7 @@ export function LeftRail({ roomId, me, artId, onPick, style }: { roomId: string;
   };
 
   return (
-    <div className="r-panel left fx-side" style={style} data-testid="left-rail">
+    <div className="r-panel left fx-side nr-panel nr-panel--left nr-surface-rail" style={style} data-testid="left-rail">
       <div className="r-panel-head">
         <FolderOpen size={15} />
         <span className="h-title">Room Binder</span>
@@ -183,10 +183,10 @@ export function LeftRail({ roomId, me, artId, onPick, style }: { roomId: string;
         <TreeSection id="recent" title="Recent" count={recentRows.length} rows={filterTreeRows(recentRows, searchNeedle)} open={openSections.recent} searching={!!searchNeedle} onToggle={toggleSection}>
           {(row) => <BinderTreeRowView key={row.id} row={row} artId={artId} onPick={onPick} />}
         </TreeSection>
-        <TreeSection id="workbooks" title="Workbooks & work products" count={countTreeLeafRows(workbookRows)} rows={filterTreeRows(workbookRows, searchNeedle)} open={openSections.workbooks} searching={!!searchNeedle} onToggle={toggleSection}>
+        <TreeSection id="workbooks" title="Sheets" count={countTreeLeafRows(workbookRows)} rows={filterTreeRows(workbookRows, searchNeedle)} open={openSections.workbooks} searching={!!searchNeedle} onToggle={toggleSection}>
           {(row) => <BinderTreeRowView key={row.id} row={row} artId={artId} onPick={onPick} />}
         </TreeSection>
-        <TreeSection id="documents" title="Docs, notes & uploads" count={countTreeLeafRows(documentRows)} rows={filterTreeRows(documentRows, searchNeedle)} open={openSections.documents} searching={!!searchNeedle} onToggle={toggleSection}>
+        <TreeSection id="documents" title="Docs" count={countTreeLeafRows(documentRows)} rows={filterTreeRows(documentRows, searchNeedle)} open={openSections.documents} searching={!!searchNeedle} onToggle={toggleSection}>
           {(row) => <BinderTreeRowView key={row.id} row={row} artId={artId} onPick={onPick} />}
         </TreeSection>
         <div className="r-rail-section">
@@ -403,7 +403,7 @@ function workbookTreeRows(arts: Artifact[], artId: string): BinderTreeRow[] {
       title: compactFileTitle(label),
       meta: `${items.length} sheet${items.length === 1 ? "" : "s"}`,
       badge: fileExtension(label).toUpperCase(),
-      Icon: Layers,
+      Icon: Table2,
       level: 1,
       children,
       searchText: [label, ...children.map((child) => child.searchText)].join(" ").toLowerCase(),

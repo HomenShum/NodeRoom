@@ -1,0 +1,106 @@
+{
+  "capturedAt": "2026-07-08T06:43:09.033Z",
+  "base": "http://127.0.0.1:5188",
+  "screenshots": [
+    "after-interiors-spreadsheet-grid-1456x940.png",
+    "after-interiors-notebook-editor-1456x940.png",
+    "after-interiors-proposal-cards-1456x940.png",
+    "after-interiors-trace-flow-1456x940.png",
+    "after-interiors-trace-observability-1456x940.png",
+    "after-interiors-trace-runs-1456x940.png"
+  ],
+  "assertions": {
+    "spreadsheetGrid": 1,
+    "notebookEditor": 1,
+    "proposalCards": 1,
+    "traceFlow": 1,
+    "traceObservability": 1,
+    "traceRuns": 1,
+    "proposalCardVisibleAfterScroll": true
+  },
+  "styles": {
+    "gridWrap": {
+      "backgroundColor": "color(srgb 0.0638431 0.0751373 0.0903529)",
+      "borderColor": "rgb(242, 244, 247)",
+      "borderRadius": "0px",
+      "boxShadow": "none",
+      "color": "rgb(242, 244, 247)",
+      "fontSize": "16px",
+      "letterSpacing": "normal"
+    },
+    "gridHeader": {
+      "backgroundColor": "color(srgb 0.0768878 0.0903561 0.107746)",
+      "borderColor": "rgba(255, 255, 255, 0.08)",
+      "borderRadius": "0px",
+      "boxShadow": "none",
+      "color": "rgb(138, 148, 160)",
+      "fontSize": "10.5px",
+      "letterSpacing": "normal"
+    },
+    "gridCell": {
+      "backgroundColor": "color(srgb 0.206861 0.146275 0.135926 / 0.513255)",
+      "borderColor": "color(srgb 1 1 1 / 0.0454902)",
+      "borderRadius": "0px",
+      "boxShadow": "rgba(217, 119, 87, 0.28) 0px 0px 0px 1px inset, rgb(217, 119, 87) 2px 0px 0px 0px inset",
+      "color": "rgb(198, 204, 212)",
+      "fontSize": "12px",
+      "letterSpacing": "normal"
+    },
+    "notebookFrame": {
+      "backgroundColor": "rgb(247, 248, 250)",
+      "borderColor": "rgba(255, 255, 255, 0.08)",
+      "borderRadius": "10px",
+      "boxShadow": "none",
+      "color": "rgb(17, 24, 39)",
+      "fontSize": "16px",
+      "letterSpacing": "normal"
+    },
+    "notebookEditor": {
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "borderColor": "rgb(17, 24, 39)",
+      "borderRadius": "0px",
+      "boxShadow": "none",
+      "color": "rgb(17, 24, 39)",
+      "fontSize": "16px",
+      "letterSpacing": "normal"
+    },
+    "proposalCard": {
+      "backgroundColor": "color(srgb 0.128766 0.11988 0.129915 / 0.76502)",
+      "borderColor": "color(srgb 0.865693 0.519323 0.406223 / 0.222431)",
+      "borderRadius": "8px",
+      "boxShadow": "rgb(217, 119, 87) 2px 0px 0px 0px inset",
+      "color": "rgb(242, 244, 247)",
+      "fontSize": "11.5px",
+      "letterSpacing": "normal"
+    },
+    "traceFlowGraph": {
+      "backgroundColor": "color(srgb 0.0836078 0.0981961 0.116706 / 0.72)",
+      "borderColor": "rgba(255, 255, 255, 0.08)",
+      "borderRadius": "8px",
+      "boxShadow": "none",
+      "color": "rgb(242, 244, 247)",
+      "fontSize": "16px",
+      "letterSpacing": "normal"
+    },
+    "traceObservabilityTable": {
+      "backgroundColor": "color(srgb 0.0836078 0.0981961 0.116706 / 0.72)",
+      "borderColor": "rgba(255, 255, 255, 0.08)",
+      "borderRadius": "8px",
+      "boxShadow": "none",
+      "color": "rgb(242, 244, 247)",
+      "fontSize": "16px",
+      "letterSpacing": "normal"
+    },
+    "traceRunTree": {
+      "backgroundColor": "color(srgb 0.0836078 0.0981961 0.116706 / 0.72)",
+      "borderColor": "rgba(255, 255, 255, 0.08)",
+      "borderRadius": "8px",
+      "boxShadow": "none",
+      "color": "rgb(242, 244, 247)",
+      "fontSize": "16px",
+      "letterSpacing": "normal"
+    }
+  },
+  "consoleErrors": [],
+  "consoleWarnings": []
+}

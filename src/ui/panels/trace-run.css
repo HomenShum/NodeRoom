@@ -71,6 +71,7 @@
   color: var(--trc-k, var(--text-muted)); border-color: color-mix(in srgb, var(--trc-k, var(--text-muted)) 40%, transparent); }
 .trc-lbl { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; overflow: hidden;
   text-overflow: ellipsis; min-width: 0; font-family: var(--font-mono); }
+.trc-lbl-cloud + .trc-lbl { display: none; }
 .trc-row[data-sel="true"] .trc-lbl { color: var(--text-primary); }
 .trc-roll { margin-left: 6px; font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); }
 .trc-st { flex: none; font-family: var(--font-mono); font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 5px; }
@@ -115,3 +116,231 @@
 .trc-foot b { color: var(--text-secondary); }
 .trc-foot .grow { flex: 1; }
 .trc-empty { padding: 28px 20px; font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+/* Cloud interior pass: keep the OTel semantics, quiet the visual chrome. */
+.nr-app-shell .trc-panel {
+  margin: 8px 10px;
+  border-color: var(--nr-line-subtle);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--nr-surface-panel) 92%, #09090b);
+  box-shadow: none;
+}
+
+.nr-app-shell .trc-toolbar,
+.nr-app-shell .trc-foot {
+  border-color: var(--nr-line-subtle);
+  background: color-mix(in srgb, var(--nr-surface-muted) 38%, transparent);
+}
+
+.nr-app-shell .trc-run,
+.nr-app-shell .trc-track,
+.nr-app-shell .trc-rowdetail,
+.nr-app-shell .trc-derr {
+  border-color: var(--nr-line-subtle);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--nr-surface-muted) 58%, transparent);
+  box-shadow: none;
+}
+
+.nr-app-shell .trc-row {
+  padding: 6px 12px;
+  border-top: 1px solid color-mix(in srgb, var(--nr-line-subtle) 54%, transparent);
+  border-left-width: 2px;
+}
+
+.nr-app-shell .trc-row:first-child {
+  border-top-color: transparent;
+}
+
+.nr-app-shell .trc-row:hover {
+  background: color-mix(in srgb, var(--nr-surface-hover) 60%, transparent);
+}
+
+.nr-app-shell .trc-row[data-sel="true"] {
+  background: color-mix(in srgb, var(--accent-tint) 58%, transparent);
+  border-left-color: var(--nr-accent);
+}
+
+.nr-app-shell .trc-kind,
+.nr-app-shell .trc-st,
+.nr-app-shell .trc-filter button,
+.nr-app-shell .trc-views button {
+  letter-spacing: 0;
+}
+
+.nr-app-shell .trc-views button[data-on="true"],
+.nr-app-shell .trc-filter button.on {
+  border-color: var(--accent-border);
+  background: color-mix(in srgb, var(--accent-tint) 72%, transparent);
+  color: var(--accent-ink);
+}
+
+.nr-app-shell .trc-bar {
+  opacity: .9;
+}
+
+.nr-app-shell .r-tracevu-runs {
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  overflow: hidden;
+}
+
+.nr-app-shell .r-tracevu-runs .trc-cloud-head {
+  flex: none;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--nr-line-subtle);
+  background: transparent;
+}
+
+.nr-app-shell .r-tracevu-runs .trc-cloud-head > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nr-app-shell .r-tracevu-runs .trc-cloud-head strong {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.nr-app-shell .r-tracevu-runs .trc-cloud-head span {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.2;
+}
+
+.nr-app-shell .r-tracevu-runs .trc-back {
+  margin-left: auto;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--nr-line-subtle);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--nr-surface-muted) 58%, transparent);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.nr-app-shell .r-tracevu-runs .trc-back:hover {
+  color: var(--text-primary);
+  background: var(--nr-surface-hover);
+}
+
+.nr-app-shell .r-tracevu-runs .r-tracevu-list {
+  display: none;
+}
+
+.nr-app-shell .r-tracevu-runs .trc-views {
+  flex: none;
+  align-self: center;
+  padding: 0;
+}
+
+.nr-app-shell .r-tracevu-runs .r-tracevu-rec {
+  flex: 0 0 auto;
+  max-width: 280px;
+  min-height: 30px;
+  margin: 0;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--nr-surface-muted) 42%, transparent);
+}
+
+.nr-app-shell .r-tracevu-runs .r-tracevu-rec-title {
+  max-width: 220px;
+}
+
+.nr-app-shell .r-tracevu-runs .r-tracevu-rec-sub {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nr-app-shell .r-tracevu-runs .r-tracevu-rec-sub,
+.nr-app-shell .r-tracevu-runs .r-tracevu-rec-meta {
+  display: none;
+}
+
+.nr-app-shell .r-tracevu-runs .r-tracevu-detail {
+  flex: 1 1 auto;
+  min-height: 0;
+  border-left: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+.nr-app-shell .r-tracevu-runs .trc-panel {
+  height: 100%;
+  margin: 0;
+  border-width: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.nr-app-shell .r-tracevu-runs .trc-toolbar {
+  min-height: 50px;
+  padding: 9px 16px;
+  background: transparent;
+}
+
+.nr-app-shell .r-tracevu-runs .trc-run {
+  border-color: color-mix(in srgb, var(--nr-accent) 42%, transparent);
+  background: color-mix(in srgb, var(--accent-tint) 58%, transparent);
+}
+
+.nr-app-shell .r-tracevu-runs .trc-run::before {
+  content: none;
+}
+
+.nr-app-shell .r-tracevu-runs .trc-run b {
+  max-width: 300px;
+}
+
+.nr-app-shell .r-tracevu-runs .trc-version-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--nr-line-subtle);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--info) 13%, var(--nr-surface-muted));
+  color: #b9cdfd;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.nr-app-shell .r-tracevu-runs .trc-kind[data-kind="mission"],
+.nr-app-shell .r-tracevu-runs .trc-bar[data-kind="mission"] { --trc-k: #a66a51; }
+.nr-app-shell .r-tracevu-runs .trc-kind[data-kind="context"],
+.nr-app-shell .r-tracevu-runs .trc-bar[data-kind="context"] { --trc-k: #9a745f; }
+.nr-app-shell .r-tracevu-runs .trc-kind[data-kind="privacy"],
+.nr-app-shell .r-tracevu-runs .trc-bar[data-kind="privacy"] { --trc-k: #8e7767; }
+.nr-app-shell .r-tracevu-runs .trc-kind[data-kind="retrieval"],
+.nr-app-shell .r-tracevu-runs .trc-bar[data-kind="retrieval"] { --trc-k: #9a7757; }
+.nr-app-shell .r-tracevu-runs .trc-kind[data-kind="synthesis"],
+.nr-app-shell .r-tracevu-runs .trc-bar[data-kind="synthesis"] { --trc-k: #b06a50; }
+.nr-app-shell .r-tracevu-runs .trc-kind[data-kind="notebook"],
+.nr-app-shell .r-tracevu-runs .trc-bar[data-kind="notebook"] { --trc-k: #7c8a64; }
+
+.nr-app-shell .r-tracevu-runs .trc-scroll {
+  max-height: none;
+  height: calc(100% - 92px);
+  padding: 8px 0 12px;
+}
+
+.nr-app-shell .r-tracevu-runs .trc-row {
+  grid-template-columns: minmax(270px, 38%) minmax(220px, 1fr) 64px;
+  padding-block: 7px;
+}

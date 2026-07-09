@@ -1,0 +1,181 @@
+{
+  "capturedAt": "2026-07-08T07:08:40.796Z",
+  "base": "http://127.0.0.1:5188",
+  "screenshots": [
+    "after-composition-parity-home-1456x940.png",
+    "after-composition-parity-trace-1456x940.png",
+    "after-composition-parity-company-research-1456x940.png"
+  ],
+  "checks": {
+    "hero": 0,
+    "appShell": 1,
+    "leftRail": 1,
+    "artifactPanel": 1,
+    "copilotPanel": 1,
+    "traceSurface": 1,
+    "chatComposer": 1,
+    "tourCards": 0,
+    "rects": {
+      "appShell": {
+        "x": 6,
+        "y": 6,
+        "width": 1444,
+        "height": 928
+      },
+      "topbar": {
+        "x": 7,
+        "y": 7,
+        "width": 1442,
+        "height": 52
+      },
+      "workspace": {
+        "x": 7,
+        "y": 59,
+        "width": 1442,
+        "height": 832
+      },
+      "status": {
+        "x": 7,
+        "y": 891,
+        "width": 1442,
+        "height": 42
+      }
+    },
+    "styles": {
+      "appShell": {
+        "display": "flex",
+        "backgroundColor": "rgb(9, 9, 11)",
+        "borderColor": "rgba(255, 255, 255, 0.08)",
+        "borderRadius": "16px",
+        "boxShadow": "none",
+        "margin": "6px",
+        "padding": "0px",
+        "width": "1444px",
+        "height": "928px",
+        "color": "rgb(242, 244, 247)",
+        "fontSize": "16px",
+        "letterSpacing": "normal"
+      },
+      "topbar": {
+        "display": "flex",
+        "backgroundColor": "color(srgb 0.0591373 0.0680784 0.0818824)",
+        "borderColor": "rgb(242, 244, 247) rgb(242, 244, 247) rgba(255, 255, 255, 0.08)",
+        "borderRadius": "0px",
+        "boxShadow": "rgba(255, 255, 255, 0.04) 0px 0px 0px 1px",
+        "margin": "0px",
+        "padding": "0px 16px",
+        "width": "1442px",
+        "height": "52px",
+        "color": "rgb(242, 244, 247)",
+        "fontSize": "16px",
+        "letterSpacing": "normal"
+      },
+      "workspace": {
+        "display": "flex",
+        "backgroundColor": "rgb(9, 9, 11)",
+        "borderColor": "rgb(242, 244, 247)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "margin": "0px",
+        "padding": "0px",
+        "width": "1442px",
+        "height": "832px",
+        "color": "rgb(242, 244, 247)",
+        "fontSize": "16px",
+        "letterSpacing": "normal"
+      },
+      "leftPanel": {
+        "display": "flex",
+        "backgroundColor": "color(srgb 0.0591373 0.0680784 0.0818824)",
+        "borderColor": "rgb(242, 244, 247) rgba(255, 255, 255, 0.08) rgb(242, 244, 247) rgb(242, 244, 247)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "margin": "0px",
+        "padding": "0px",
+        "width": "276.625px",
+        "height": "832px",
+        "color": "rgb(242, 244, 247)",
+        "fontSize": "16px",
+        "letterSpacing": "normal"
+      },
+      "workPanel": {
+        "display": "flex",
+        "backgroundColor": "color(srgb 0.0647843 0.0758431 0.0910588)",
+        "borderColor": "rgb(242, 244, 247)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "margin": "0px",
+        "padding": "0px",
+        "width": "791.938px",
+        "height": "832px",
+        "color": "rgb(242, 244, 247)",
+        "fontSize": "16px",
+        "letterSpacing": "normal"
+      },
+      "rightPanel": {
+        "display": "flex",
+        "backgroundColor": "color(srgb 0.0597647 0.0689412 0.082902)",
+        "borderColor": "rgb(242, 244, 247) rgb(242, 244, 247) rgb(242, 244, 247) rgba(255, 255, 255, 0.08)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "margin": "0px",
+        "padding": "0px",
+        "width": "349.438px",
+        "height": "832px",
+        "color": "rgb(242, 244, 247)",
+        "fontSize": "16px",
+        "letterSpacing": "normal"
+      },
+      "status": {
+        "display": "flex",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(255, 255, 255, 0.08)",
+        "borderRadius": "0px",
+        "boxShadow": "rgba(255, 255, 255, 0.04) 0px 0px 0px 1px",
+        "margin": "0px",
+        "padding": "4px 10px",
+        "width": "1442px",
+        "height": "42px",
+        "color": "rgb(242, 244, 247)",
+        "fontSize": "16px",
+        "letterSpacing": "normal"
+      },
+      "inactiveBinderRow": {
+        "display": "flex",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "8px",
+        "boxShadow": "none",
+        "margin": "0px",
+        "padding": "5px 8px",
+        "width": "255.625px",
+        "height": "41.8594px",
+        "color": "rgb(198, 204, 212)",
+        "fontSize": "13.3333px",
+        "letterSpacing": "normal"
+      },
+      "activeBinderRow": {
+        "display": "flex",
+        "backgroundColor": "color(srgb 0.85098 0.466667 0.341176 / 0.0996863)",
+        "borderColor": "rgba(217, 119, 87, 0.28)",
+        "borderRadius": "8px",
+        "boxShadow": "none",
+        "margin": "0px",
+        "padding": "5px 8px",
+        "width": "255.625px",
+        "height": "41.8594px",
+        "color": "rgb(198, 204, 212)",
+        "fontSize": "13.3333px",
+        "letterSpacing": "normal"
+      }
+    },
+    "consoleNote": "tour pre-marked done for unobscured screenshot capture"
+  },
+  "consoleErrors": [],
+  "consoleWarnings": [],
+  "companyResearch": {
+    "companyResearchText": true,
+    "sheetCells": 77,
+    "consoleNote": "company research tab capture after maximized live-room frame correction"
+  }
+}

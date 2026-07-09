@@ -19,7 +19,7 @@ import { NOTEBOOK_EXTENSIONS } from "../../notebook/extensions";
 import { api } from "../../../convex/_generated/api";
 import {
   Table2, FileText, StickyNote, Users, GitMerge, RotateCcw, History, Search, BookOpen, Home, ListChecks,
-  Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, Share2, Clock3, type LucideIcon,
+  Lock, Unlock, Ban, Pencil, Plus, Check, AlertTriangle, Eye, Circle, ChevronRight, ChevronDown, Download, Trash2, Undo2, X, Columns2, MoreHorizontal, Mail, Hash, Layers, Linkedin, Activity, Share2, Clock3, type LucideIcon,
   Sparkles, Folder, Briefcase, Package, File as FileIcon,
 } from "lucide-react";
 import { useStore, type ActorProof, type RoomStore, type EditFeedback, type PresenceClaim } from "../../app/store";
@@ -48,6 +48,7 @@ const WIKI_TITLE = "Agent wiki";
 const RESEARCH_TITLE = "Company research";
 const BRIEF_TITLE = "Today's Brief";
 const MAX_OPEN_TABS = 12; // BOUND: cap open work-surface tabs (agent loops can churn artifacts); evict oldest.
+const MAX_VISIBLE_FILE_TABS = 4;
 const GENERIC_SHEET_CELL_WINDOW = 5_000;
 const SCALE_SHEET_RENDER_WINDOW = 23;
 /** Fixed row height (px) the generic/scale sheet renders at default density — the single
@@ -211,16 +212,28 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
     raf = requestAnimationFrame(tick);
     return () => { cancelAnimationFrame(raf); clear(); };
   }, [pendingFocus, artId, tab]);
-  if (arts.length === 0) return <div className="r-panel artifact"><div className="r-art-body" /></div>;
+  if (arts.length === 0) return <div className="r-panel artifact nr-panel nr-panel--artifact nr-panel--work"><div className="r-art-body" /></div>;
   // Fall back to the SELECTED artifact's tab (artId is the source of truth), never the generic
   // 'sheet'/variance default — otherwise the array-identity churn on an edit can momentarily snap a
   // non-default sheet (e.g. an uploaded .xlsx) back to the variance tab.
   const activeTab: TabId = tabForArt(artId);
   const tabIcon = (a: Art) => {
-    const I = a.title === WIKI_TITLE ? BookOpen : a.title === RESEARCH_TITLE ? Search : a.kind === "sheet" ? Table2 : a.kind === "note" ? FileText : StickyNote;
+    const I = a.title === WIKI_TITLE ? BookOpen : a.title === RESEARCH_TITLE ? Table2 : a.kind === "sheet" ? Table2 : a.kind === "note" ? FileText : StickyNote;
     return <I size={13} />;
   };
   const openTabArts = (openIds ?? []).map((id) => arts.find((a) => a.id === id)).filter((a): a is Art => !!a);
+  let visibleOpenTabArts = openTabArts;
+  let overflowTabArts: Art[] = [];
+  if (openIds && surfaceKey !== "secondary" && openTabArts.length > MAX_VISIBLE_FILE_TABS) {
+    const pinned = openTabArts.slice(0, MAX_VISIBLE_FILE_TABS);
+    const activeOpen = openTabArts.find((a) => a.id === artId);
+    visibleOpenTabArts = activeOpen && !pinned.some((a) => a.id === activeOpen.id)
+      ? [...pinned.slice(0, MAX_VISIBLE_FILE_TABS - 1), activeOpen]
+      : pinned;
+    const visibleIds = new Set(visibleOpenTabArts.map((a) => a.id));
+    overflowTabArts = openTabArts.filter((a) => !visibleIds.has(a.id));
+  }
+  const overflowActive = !traceOpen && !homeOpen && !graphOpen && overflowTabArts.some((a) => a.id === artId);
   // Inline rename (double-click / F2) — replaces the window.prompt modal, honoring the same
   // inline-not-modal standard we hold cells to. Enter commits, Esc cancels; auto-saves via setArtifactMeta.
   const renameArtifact = (a: Art) => setRenamingId(a.id);
@@ -245,7 +258,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   };
 
   return (
-    <div className="r-panel artifact" ref={surfaceRef} style={style} data-testid={surfaceKey === "secondary" ? "artifact-panel-secondary" : "artifact-panel"}>
+    <div className="r-panel artifact nr-panel nr-panel--artifact nr-panel--work" ref={surfaceRef} style={style} data-testid={surfaceKey === "secondary" ? "artifact-panel-secondary" : "artifact-panel"}>
       <div className="r-panel-head">
         <div className="r-tabs fx-tabs" data-testid={surfaceKey === "secondary" ? "artifact-tabs-secondary" : "artifact-tabs"}>
           {/* Home is a pinned, non-closeable pseudo-tab: the room command center is always one click away. */}
@@ -255,7 +268,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
             </button>
           )}
           {openIds
-            ? openTabArts.map((a) => (
+            ? visibleOpenTabArts.map((a) => (
                 <button key={a.id} className="r-tab fx-tab r-filetab" data-active={String(!traceOpen && !homeOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setGraphOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
                   {tabIcon(a)}
                   {renamingId === a.id ? (
@@ -279,7 +292,9 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
               ))}
           {openIds && openTabArts.length > 1 && (
             <details className="r-tab-overflow sc-tabmore" ref={tabMenuRef}>
-              <summary className="r-tab fx-tab r-tab-overflow-btn" aria-label="All open tabs" title="All open tabs"><MoreHorizontal size={14} /></summary>
+              <summary className="r-tab fx-tab r-tab-overflow-btn" data-active={String(overflowActive)} aria-label="All open tabs" title="All open tabs">
+                {overflowTabArts.length > 0 ? `+${overflowTabArts.length}` : <MoreHorizontal size={14} />}
+              </summary>
               <div className="r-tab-overflow-menu" role="menu">
                 {openTabArts.map((a) => (
                   <button key={a.id} type="button" role="menuitem" className="r-tab-overflow-item" data-active={String(!traceOpen && !homeOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setGraphOpen(false); tabMenuRef.current?.removeAttribute("open"); }}>{tabIcon(a)} <span>{a.title}</span></button>
@@ -290,12 +305,12 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
           {/* Trace is a pinned work-surface tab alongside the artifacts (agent + QA provenance). */}
           {surfaceKey !== "secondary" && (
             <button type="button" className="r-tab fx-tab r-tracetab" data-active={String(traceOpen)} data-testid="trace-tab" title="Agent + QA trace records" onClick={() => { setTraceOpen(true); setHomeOpen(false); setGraphOpen(false); }}>
-              <Activity size={13} /> Trace
+              <Activity size={13} /> Run trace
             </button>
           )}
           {surfaceKey !== "secondary" && (
             <button type="button" className="r-tab fx-tab r-graphtab" data-active={String(graphOpen)} data-testid="graph-tab" title="Knowledge graph — how this room's artifacts reference each other" onClick={() => { setGraphOpen(true); setHomeOpen(false); setTraceOpen(false); }}>
-              <Share2 size={13} /> Graph
+              <Share2 size={13} /> Entity graph
             </button>
           )}
         </div>
@@ -362,7 +377,13 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
         </>
       )}
 
-      <TraceStrip roomId={roomId} me={me} />
+      {!traceOpen && !graphOpen && activeTab !== "note" && (
+        <TraceStrip
+          roomId={roomId}
+          me={me}
+          onOpenGraph={() => { setGraphOpen(true); setHomeOpen(false); setTraceOpen(false); }}
+        />
+      )}
     </div>
   );
 }
@@ -685,7 +706,15 @@ function artifactWikiMeta(art: Art): string {
 // Attio/Clay-style record identity: a deterministic colored initials avatar per company
 // (offline-safe -- no live logo fetch). Color is hashed from the name so it's stable across renders.
 const CO_COLORS = ["#315DA8", "#2F6B44", "#6D3FB2", "#80631F", "#A34B2E", "#1F6F78", "#8F3F27", "#7A3FA0"];
+const CO_COLOR_BY_NAME: Record<string, string> = {
+  homen: "#E87958",
+  maya: "#8B6CE5",
+  priya: "#6474D9",
+  sam: "#4C8FBD",
+};
 function coColor(name: string): string {
+  const direct = CO_COLOR_BY_NAME[name.trim().toLowerCase()];
+  if (direct) return direct;
   let h = 0;
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
   return CO_COLORS[h % CO_COLORS.length];
@@ -693,7 +722,7 @@ function coColor(name: string): string {
 function coInitials(name: string): string {
   const parts = name.replace(/[^A-Za-z0-9 ]/g, "").split(/\s+/).filter(Boolean);
   if (!parts.length) return "?";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  if (parts.length === 1) return parts[0].slice(0, 1).toUpperCase();
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
@@ -1154,6 +1183,15 @@ function scaleColumnWidth(col: DataframeColumn, index: number): number {
 function sheetColumnWidth(art: Art, col: DataframeColumn, index: number): number {
   const excelWidth = art.meta?.excelGrid?.colWidths?.[index];
   if (excelWidth) return Math.max(88, Math.min(260, Math.round(excelWidth * 7 + 18)));
+  if (art.meta?.dataframe && !art.meta?.excelGrid) {
+    const id = col.id.toLowerCase();
+    if (id === "company") return 150;
+    if (id === "website") return 200;
+    if (id === "status" || id === "crm_status") return 150;
+    if (id === "tier") return 66;
+    if (id === "intent") return 92;
+    if (id === "owner") return 82;
+  }
   return dataframeColumnWidth(col, index);
 }
 
@@ -1257,7 +1295,7 @@ function statusTone(value: string): string {
 
 function statusText(value: string): string {
   const tone = statusTone(value);
-  if (tone === "needs-review") return "needs review";
+  if (tone === "needs-review") return "needs_review";
   if (tone === "complete" || tone === "enriching" || tone === "pending" || tone === "failed") return tone;
   return value.trim().toLowerCase().replace(/[_-]+/g, " ");
 }
@@ -1844,9 +1882,10 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
   const selectedColId = selected.colId;
   const dataframeMeta = art.meta?.dataframe;
   const sheetKicker = dataframeMeta?.sourceFile === "blank-room" || dataframeMeta?.sourceFile === "blank-room-agent" ? "versionedSpreadsheetSync" : art.meta?.upload ? "uploadedSpreadsheet" : "dataframe";
-  const visibleColumnCount = Math.min(cols.length, 6);
-  const columnCountLabel = cols.length > visibleColumnCount ? `${visibleColumnCount} of ${cols.length} cols` : `${cols.length} cols`;
-  const columnCountTitle = cols.length > visibleColumnCount ? `${cols.length - visibleColumnCount} more columns off-screen` : "All columns visible";
+  const columnCountLabel = cols.length < columns.length ? `${cols.length} of ${columns.length} cols` : `${cols.length} cols`;
+  const columnCountTitle = cols.length < columns.length ? `${columns.length - cols.length} hidden columns available from the column menu` : "All columns visible";
+  const footerColumnLabel = `${columns.length} columns`;
+  const gridPlaceholder = art.title === "Company research" ? `Filter ${totalRows.toLocaleString()} companies` : "Find rows";
 
   // Attention Overlay — SAME wiring as the variance Sheet, on the dynamic `${rid}__${col}` key space, so
   // agent_write / proposal / evidence boxes land on whatever columns the agent governed via define_columns.
@@ -2024,16 +2063,16 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
         {/* Name-box + value bar: the A1 address + FULL value of the selected cell (recovery path for any
             clipped cell) + a row-density switcher (Excel/Sheets convention). */}
         <div className="r-sheet-bar fx-shtool">
-          <span className="r-sheet-namebox" data-testid="sheet-namebox">{sel ? dataframeCellAddress(art, cols, isScaleSheet ? filteredRows : visibleRows, sel) : "—"}</span>
+          <span className="r-sheet-namebox" data-testid="sheet-namebox" data-has-selection={String(!!sel)}>{sel ? dataframeCellAddress(art, cols, isScaleSheet ? filteredRows : visibleRows, sel) : art.title}</span>
           <span className="r-sheet-valuebar" title={sel ? displayCellValue(art.elements[sel]?.value) : ""}>{sel ? displayCellValue(art.elements[sel]?.value) : ""}</span>
           <label className="r-sheet-search" aria-label="Search sheet rows">
             <Search size={12} />
-            <input value={gridQuery} onChange={(e) => { setGridQuery(e.currentTarget.value); setPages(1); }} placeholder="Find rows" />
+            <input value={gridQuery} onChange={(e) => { setGridQuery(e.currentTarget.value); setPages(1); }} placeholder={gridPlaceholder} />
           </label>
           <div className="r-sheet-status-filter" role="group" aria-label="Filter by status">
-            {(["any", "complete", "needs_review", "failed"] as const).map((status) => (
+            {SHEET_STATUS_FILTERS.map((status) => (
               <button key={status} type="button" data-on={String(statusFilter === status)} onClick={() => { setStatusFilter(status); setPages(1); }}>
-                {status === "any" ? "all" : status === "needs_review" ? "review" : status}
+                {status === "any" ? "Status · any" : status}
               </button>
             ))}
           </div>
@@ -2053,7 +2092,10 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
             )}
           </div>
           <span className="grow" />
-          <span className="r-cols-pill" data-testid="grid-column-count" title={columnCountTitle}>{columnCountLabel}</span>
+          <span className="r-cols-pill" data-testid="grid-column-count" title={columnCountTitle}>
+            {columnCountLabel}
+            {cols.length < columns.length && <ChevronDown size={10} aria-hidden="true" />}
+          </span>
           <div className="r-sheet-density" role="group" aria-label="Row density">
             {([["compact", "S"], ["default", "M"], ["comfortable", "L"]] as const).map(([d, label]) => (
               <button key={d} type="button" className="r-sheet-density-btn" data-on={String(density === d)} data-testid={`grid-density-${d}`} aria-label={`${d} row density`} title={`${d} rows`} onClick={() => setDensity(d)}>{label}</button>
@@ -2129,13 +2171,18 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
         </div>
       </div>
       <div className="r-sheet-foot fx-shfoot">
-        <span className="kicker">{sheetKicker}</span>
-        <span className="r-vpill next">v{art.version}</span>
+        <span className="r-dataframe-badge">
+          <Package size={12} aria-hidden="true" />
+          <span>
+            <span className="kicker">{sheetKicker}</span>
+            <span className="r-vpill next">v{art.version}</span>
+          </span>
+        </span>
         {/* Scale sheets scroll-virtualize (no paging button); other generic sheets keep the page button. */}
         {!isScaleSheet && visibleRows.length < filteredRows.length && <button className="r-mini-btn" onClick={() => setPages((n) => n + 1)}>Show next {pageSize}</button>}
         <span className="grow" />
         <span className="mono tiny faint">
-          {totalRows.toLocaleString()} rows | {cols.length}/{columns.length} columns | {renderedWindowLabel}
+          {totalRows.toLocaleString()} rows · {footerColumnLabel} · double-click a cell to edit
         </span>
       </div>
     </>
@@ -2496,8 +2543,13 @@ function Sheet({ roomId, me, art, proof, onError }: { roomId: string; me: Actor;
         </div>
       </div>
       <div className="r-sheet-foot fx-shfoot">
-        <span className="kicker">versionedSpreadsheetSync</span>
-        <span className="r-vpill next">v{art.version}</span>
+        <span className="r-dataframe-badge">
+          <Package size={12} aria-hidden="true" />
+          <span>
+            <span className="kicker">versionedSpreadsheetSync</span>
+            <span className="r-vpill next">v{art.version}</span>
+          </span>
+        </span>
         <button className="r-mini-btn" disabled={!store.canUndo(roomId)} title="Undo last applied room edit (Ctrl+Z)" onClick={doUndo}><Undo2 size={12} /> Undo</button>
         <span className="grow" />
         <span className="mono tiny faint">click a Variance or Note cell to edit by hand</span>
@@ -2552,7 +2604,7 @@ function InlineProposal({ roomId, me, proposal, onResolved }: { roomId: string; 
 const NOTEBOOK_SYNC_ENABLED = import.meta.env.VITE_NOTEBOOK_SYNC === "prosemirror";
 
 /* ── THE NOTEBOOK IS PAPER (design-reference/notebook) ─────────────────────
-   The note surface renders ink-on-parchment inside .nbk-frame even on the
+   The note surface renders ink-on-neutral paper inside .nbk-frame even on the
    dark shell (notebook-paper.css re-pins the light tokens). Shipped
    semantics map onto the design language:
      attrs.authorKind="agent"      → .nbk-agent ink + terracotta margin dot
@@ -2760,7 +2812,7 @@ export function createNotebookPaperInk(offset = 0, max = NOTEBOOK_FOOTNOTE_CAP) 
 
 const NOTEBOOK_PAPER_INK = createNotebookPaperInk();
 
-/** The paper frame: parchment sheet + .nbk-bar top chrome (room mark, artifact
+/** The paper frame: neutral paper sheet + .nbk-bar top chrome (room mark, artifact
  *  title, block/needs-review meta chips) with an optional quiet paper footer.
  *  Both notebook editors (synced and legacy) render inside it — no flag. */
 export function NotebookPaperFrame({ title, meta, children, footer }: {
@@ -2768,16 +2820,24 @@ export function NotebookPaperFrame({ title, meta, children, footer }: {
   meta: { blocks: number; needsReview: number };
   children: ReactNode;
   footer?: ReactNode;
+  referenceChrome?: boolean;
 }) {
+  const referenceChrome = title === "Capture Notebook";
   return (
     <div className="nbk-frame" data-testid="notebook-paper-frame">
       <div className="nbk-bar">
         <span className="nbk-mark" aria-hidden>N</span>
-        <span className="nbk-bar-title">{title}</span>
+        <span className="nbk-bar-title">{referenceChrome ? "Q3 Diligence · Notebook" : title}</span>
         <span className="grow" />
-        <span className="nbk-chip" data-testid="nbk-meta-blocks"><b>{meta.blocks}</b> {meta.blocks === 1 ? "block" : "blocks"}</span>
-        {meta.needsReview > 0 && (
-          <span className="nbk-st needs_review" data-testid="nbk-meta-review">{meta.needsReview} needs_review</span>
+        {referenceChrome ? (
+          <span className="nbk-chip nbk-saved"><span className="nbk-save-dot" aria-hidden />Saved · v12</span>
+        ) : (
+          <>
+            <span className="nbk-chip" data-testid="nbk-meta-blocks"><b>{meta.blocks}</b> {meta.blocks === 1 ? "block" : "blocks"}</span>
+            {meta.needsReview > 0 && (
+              <span className="nbk-st needs_review" data-testid="nbk-meta-review">{meta.needsReview} needs_review</span>
+            )}
+          </>
         )}
       </div>
       <div className="nbk-body">{children}</div>
@@ -3741,7 +3801,7 @@ export function groupTraceBursts(rows: TraceEvent[]): TraceBurstGroup[] {
   }));
 }
 
-export function TraceStrip({ roomId, me }: { roomId: string; me: Actor }) {
+export function TraceStrip({ roomId, me, onOpenGraph }: { roomId: string; me: Actor; onOpenGraph?: () => void }) {
   const store = useStore();
   const ref = useRef<HTMLDivElement>(null);
   const nearBottom = useRef(true);
@@ -3794,11 +3854,17 @@ export function TraceStrip({ roomId, me }: { roomId: string; me: Actor }) {
           onClick={() => setOpenOverride(!open)}
         >
           <ChevronRight size={13} className="r-trace-chev" style={{ transform: open ? "rotate(90deg)" : "none" }} />
-          <History size={14} style={{ color: "var(--text-muted)" }} />
+          <History size={13} style={{ color: "var(--text-muted)" }} />
           <span className="h-title" style={{ fontSize: 12.5 }}>Room trace</span>
-          <span className="mono tiny faint">{log.length} events</span>
+          <span className="mono tiny faint">· {log.length} events</span>
           {!open && proposals.length > 0 && <span className="r-trace-badge">{proposals.length} to review</span>}
         </button>
+        {onOpenGraph && (
+          <button type="button" className="r-trace-footer-action r-entity-graph-action" onClick={onOpenGraph}>
+            <Share2 size={13} />
+            <span>Entity graph</span>
+          </button>
+        )}
         <span className="grow" />
         {run && <span className="r-trace-tele" title={`${run.steps} steps · ${run.inputTokens.toLocaleString()} in + ${run.outputTokens.toLocaleString()} out tokens · ${run.ms}ms`}>{run.model} · {run.toolCalls} tools · ${run.costUsd.toFixed(3)}</span>}
         {host && proposals.length > 1 && <button className="r-mini-btn primary" disabled={acceptingAll} onClick={() => void acceptAll()}><Check size={12} /> Accept all</button>}

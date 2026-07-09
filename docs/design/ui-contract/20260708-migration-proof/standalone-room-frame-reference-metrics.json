@@ -1,0 +1,25 @@
+{
+  "capturedAt": "2026-07-08T08:22:38.906Z",
+  "htmlPath": "C:\\Users\\hshum\\Downloads\\NodeRoom Workspace (standalone).html",
+  "selector": ".fx-frame",
+  "viewport": {
+    "width": 1764,
+    "height": 1200
+  },
+  "screenshot": ".tmp-qa\\standalone-room-frame-reference.png",
+  "consoleMessages": [
+    "info: %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools\nYou might need to use a local HTTP server (instead of file://): https://reactjs.org/link/react-devtools-faq font-weight:bold",
+    "warning: You are using the in-browser Babel transformer. Be sure to precompile your scripts for production - https://babeljs.io/docs/setup/"
+  ],
+  "metrics": {
+    "url": "file:///C:/Users/hshum/Downloads/NodeRoom%20Workspace%20(standalone).html#rooms",
+    "title": "NodeRoom · Rooms",
+    "bodyText": "N NodeRoom Workspace · all surfaces PRODUCT SURFACES Rooms Every feature, live in-room Console Single-mission runtime Memory Wall Optimistic canvas Always-On Rooms Recurring rooms Trace UI Run receipts & spans Notebook Saved-report paper States & Scale Every state, at scale Prod UI Fix Pack The grid, fixed Knowledge Map Findings & relationships ↖ All docs & mobile Rooms · one diligence room NodeRoom — a live diligence room, reconciled and receipted The whole product, live in one room: a searchable Room Binder, an editable dataframe grid, and public chat where @nodeagent reconciles and commits through bounded tools. Open the Diligence wall, a notebook, or the run trace and each mounts live, in-room — a single reference for the build. N NodeRoom · Q3 diligence SFT-RFT H P AQ N 5 live Room Binder 71 PINNED 3 Q3 variance Sync reliability Diligence wall RECENT 4 NetSuite export — Q3 close Company research Board read Reconciliation memo SHEETS 3 Financials 2 Q3 variance Runway / burn Diligen",
+    "bodyRect": {
+      "x": 0,
+      "y": 0,
+      "width": 1764,
+      "height": 1200
+    }
+  }
+}

@@ -1,0 +1,29 @@
+:root {
+  --nr-font-ui: var(--font-ui, -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif);
+  --nr-font-mono: var(--font-mono, "JetBrains Mono", ui-monospace, SFMono-Regular, monospace);
+  --nr-accent: var(--accent-primary, #D97757);
+  --nr-accent-hover: var(--accent-hover, #C76648);
+  --nr-accent-ink: var(--accent-ink, #AD5F45);
+  --nr-surface-app: var(--bg-app, #fafafa);
+  --nr-surface-panel: var(--bg-primary, #ffffff);
+  --nr-surface-muted: var(--bg-secondary, #f3f4f6);
+  --nr-surface-hover: var(--bg-hover, #e5e7eb);
+  --nr-line-subtle: var(--line, rgba(0,0,0,.06));
+  --nr-line-strong: var(--line-strong, rgba(0,0,0,.12));
+  --nr-radius-control: 8px;
+  --nr-radius-panel: 12px;
+  --nr-radius-shell: 14px;
+  --nr-shadow-rest: 0 0 0 1px rgba(0,0,0,.03), 0 1px 2px rgba(0,0,0,.05);
+  --nr-shadow-overlay: var(--shadow-lg, 0 18px 50px -18px rgba(0,0,0,.30));
+}
+
+[data-theme="dark"] {
+  --nr-surface-app: #101317;
+  --nr-surface-panel: color-mix(in srgb, var(--bg-primary, #111418) 88%, #0b0d10);
+  --nr-surface-muted: color-mix(in srgb, var(--bg-secondary, #171b20) 86%, #0b0d10);
+  --nr-surface-hover: color-mix(in srgb, var(--bg-hover, #20262d) 84%, #111418);
+  --nr-line-subtle: rgba(255,255,255,.08);
+  --nr-line-strong: rgba(255,255,255,.14);
+  --nr-shadow-rest: 0 0 0 1px rgba(255,255,255,.045);
+  --nr-shadow-overlay: 0 0 0 1px rgba(255,255,255,.07), 0 28px 80px -26px rgba(0,0,0,.82);
+}

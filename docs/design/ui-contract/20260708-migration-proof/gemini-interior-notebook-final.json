@@ -1,0 +1,39 @@
+{
+  "generatedAt": "2026-07-08T10:19:49.059Z",
+  "model": "gemini-3.5-flash",
+  "referencePath": ".tmp-qa/interiors/standalone-notebook.png",
+  "candidatePath": ".tmp-qa/interiors/live-notebook.png",
+  "review": {
+    "verdict": "far",
+    "summary": "The candidate implementation is a static documentation/marketing page instead of the full interactive live-room application shell. It completely lacks the top navigation bar, the left 'Room Binder' sidebar, the right 'Public chat' panel, and the bottom status bar present in the reference design.",
+    "visualSimilarityScore": 0.3,
+    "differences": [
+      {
+        "severity": "P0",
+        "category": "overall-frame",
+        "reference": "Full interactive live-room application shell with a top bar, left 'Room Binder' sidebar, central workspace, right 'Public chat' panel, and bottom status bar.",
+        "candidate": "A static documentation/marketing page layout with a simple left navigation rail ('PRODUCT SURFACES') and a large header explaining the notebook feature.",
+        "fix": "Rebuild the entire application frame to include the top bar, left Room Binder, right chat panel, and bottom status bar as specified in the reference live-room design."
+      },
+      {
+        "severity": "P1",
+        "category": "component-detail",
+        "reference": "The 'needs review' badge in the claim box is positioned inline next to the claim text.",
+        "candidate": "The 'needs review' badge is positioned in the top-right corner of the claim box.",
+        "fix": "Move the 'needs review' badge inline next to the claim text to match the reference layout."
+      },
+      {
+        "severity": "P1",
+        "category": "pane-proportions",
+        "reference": "The notebook document is embedded inside a multi-pane layout with tight margins and a floating '+' icon next to the 'Funding' header.",
+        "candidate": "The notebook document is displayed in a wide, centered container with a red vertical line and drag handles on the left margin.",
+        "fix": "Adjust the notebook container width and margins to fit the central pane of the live-room shell, and remove the documentation-specific margin decorations."
+      }
+    ],
+    "keep": [
+      "The warm cream background color of the notebook document.",
+      "The typography and styling of the 'CardioNova — diligence brief' title and tags.",
+      "The styling of the verified and conflict source pills."
+    ]
+  }
+}

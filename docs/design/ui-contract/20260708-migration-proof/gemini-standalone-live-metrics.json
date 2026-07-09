@@ -1,0 +1,926 @@
+{
+  "capturedAt": "2026-07-08T08:35:15.541Z",
+  "screenshot": ".tmp-qa\\live-candidate-1456x940.png",
+  "consoleMessages": [
+    "debug: [vite] connecting...",
+    "debug: [vite] connected.",
+    "info: %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+  ],
+  "metrics": {
+    "url": "http://127.0.0.1:5188/?mode=memory&surface=desktop&demo=1&name=Homen",
+    "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+    "single": [
+      {
+        "selector": ".nr-app-shell",
+        "text": "NNodeRoom · Q3 diligencer-86w HPAQ◆5 liveRoom Binder9 item 9Pinned2Company re earchOpen now - Sheet · v1 · 14 row Agent wikiPinned - v1 · live TOCRecent6Diligen",
+        "rect": {
+          "x": 6,
+          "y": 6,
+          "width": 1444,
+          "height": 928
+        },
+        "style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "backgroundColor": "rgb(9, 9, 11)",
+          "borderColor": "rgba(255, 255, 255, 0.08)",
+          "borderRadius": "16px",
+          "padding": "0px",
+          "margin": "6px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "color": "rgb(242, 244, 247)"
+        }
+      },
+      {
+        "selector": ".nr-topbar",
+        "text": "NNodeRoom · Q3 diligencer-86w HPAQ◆5 live",
+        "rect": {
+          "x": 7,
+          "y": 7,
+          "width": 1442,
+          "height": 52
+        },
+        "style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "backgroundColor": "color(srgb 0.0591373 0.0680784 0.0818824)",
+          "borderColor": "rgb(242, 244, 247) rgb(242, 244, 247) rgba(255, 255, 255, 0.08)",
+          "borderRadius": "0px",
+          "padding": "0px 16px",
+          "margin": "0px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "color": "rgb(242, 244, 247)"
+        }
+      },
+      {
+        "selector": ".nr-workspace",
+        "text": "Room Binder9 item 9Pinned2Company re earchOpen now - Sheet · v1 · 14 row Agent wikiPinned - v1 · live TOCRecent6Diligence memoedited recentlyOpen que tion  / wo",
+        "rect": {
+          "x": 7,
+          "y": 59,
+          "width": 1442,
+          "height": 832
+        },
+        "style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "backgroundColor": "rgb(9, 9, 11)",
+          "borderColor": "rgb(242, 244, 247)",
+          "borderRadius": "0px",
+          "padding": "0px",
+          "margin": "0px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "color": "rgb(242, 244, 247)"
+        }
+      },
+      {
+        "selector": "[data-testid='left-rail']",
+        "text": "Room Binder9 item 9Pinned2Company re earchOpen now - Sheet · v1 · 14 row Agent wikiPinned - v1 · live TOCRecent6Diligence memoedited recentlyOpen que tion  / wo",
+        "rect": {
+          "x": 7,
+          "y": 59,
+          "width": 268,
+          "height": 832
+        },
+        "style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "backgroundColor": "color(srgb 0.0591373 0.0680784 0.0818824)",
+          "borderColor": "rgb(242, 244, 247) rgba(255, 255, 255, 0.08) rgb(242, 244, 247) rgb(242, 244, 247)",
+          "borderRadius": "0px",
+          "padding": "0px",
+          "margin": "0px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "color": "rgb(242, 244, 247)"
+        }
+      },
+      {
+        "selector": "[data-testid='work-surface']",
+        "text": "HomeQ3 varianceCompany re earchCapture NotebookRi k / opportunity wallAgent wiki Q3 variance Company re earch Capture Notebook Ri k / opportunity wall Agent wik",
+        "rect": {
+          "x": 275,
+          "y": 59,
+          "width": 820,
+          "height": 832
+        },
+        "style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgb(242, 244, 247)",
+          "borderRadius": "0px",
+          "padding": "0px",
+          "margin": "0px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "color": "rgb(242, 244, 247)"
+        }
+      },
+      {
+        "selector": "[data-testid='artifact-panel']",
+        "text": "HomeQ3 varianceCompany re earchCapture NotebookRi k / opportunity wallAgent wiki Q3 variance Company re earch Capture Notebook Ri k / opportunity wall Agent wik",
+        "rect": {
+          "x": 275,
+          "y": 59,
+          "width": 820,
+          "height": 832
+        },
+        "style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "backgroundColor": "color(srgb 0.0647843 0.0758431 0.0910588)",
+          "borderColor": "rgb(242, 244, 247)",
+          "borderRadius": "0px",
+          "padding": "0px",
+          "margin": "0px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "color": "rgb(242, 244, 247)"
+        }
+      },
+      {
+        "selector": "[data-testid='copilot-panel']",
+        "text": "Public chat7RoomPrivatePublic chat Everyone7NRoom NodeAgentReady for reviewCardioNova i  ready for review6/14 complete6/14Complete2Source 4Updated4Pending4 fiel",
+        "rect": {
+          "x": 1095,
+          "y": 59,
+          "width": 354,
+          "height": 832
+        },
+        "style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "backgroundColor": "color(srgb 0.0597647 0.0689412 0.082902)",
+          "borderColor": "rgb(242, 244, 247) rgb(242, 244, 247) rgb(242, 244, 247) rgba(255, 255, 255, 0.08)",
+          "borderRadius": "0px",
+          "padding": "0px",
+          "margin": "0px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "color": "rgb(242, 244, 247)"
+        }
+      },
+      {
+        "selector": "[data-testid='shell-bottom']",
+        "text": "IntakeEvidenceDraftReviewExportRoom NodeAgent ·reconciled Q3 variance · v42Room NodeAgent · edit_appliedCredit 20 demo",
+        "rect": {
+          "x": 7,
+          "y": 891,
+          "width": 1442,
+          "height": 42
+        },
+        "style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(255, 255, 255, 0.08)",
+          "borderRadius": "0px",
+          "padding": "4px 10px",
+          "margin": "0px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "color": "rgb(242, 244, 247)"
+        }
+      },
+      {
+        "selector": "[data-testid='sheet-grid']",
+        "text": "▲Locked — held by another▲Locked — held by anothercompanyweb ite tatu tierintentowner1CardioNovahttp ://cardionova.comcompleteACap table and ho pital AI diligen",
+        "rect": {
+          "x": 291,
+          "y": 145,
+          "width": 788,
+          "height": 704
+        },
+        "style": {
+          "display": "block",
+          "gridTemplateColumns": "none",
+          "backgroundColor": "rgb(17, 20, 24)",
+          "borderColor": "rgb(242, 244, 247)",
+          "borderRadius": "0px",
+          "padding": "0px",
+          "margin": "0px 16px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "color": "rgb(242, 244, 247)"
+        }
+      },
+      {
+        "selector": ".r-sheet-bar",
+        "text": "Company re earchStatu  · anycompleteenrichingpendingneed _reviewfailed 6/146 of 14 col SML",
+        "rect": {
+          "x": 291,
+          "y": 110,
+          "width": 788,
+          "height": 35
+        },
+        "style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "backgroundColor": "color(srgb 0.0901961 0.105882 0.12549 / 0.36)",
+          "borderColor": "rgba(255, 255, 255, 0.08)",
+          "borderRadius": "0px",
+          "padding": "5px 0px",
+          "margin": "0px 16px",
+          "fontSize": "11.5px",
+          "fontWeight": "400",
+          "color": "rgb(242, 244, 247)"
+        }
+      },
+      null,
+      {
+        "selector": ".r-copilot-head",
+        "text": "Public chat7RoomPrivate",
+        "rect": {
+          "x": 1096,
+          "y": 59,
+          "width": 353,
+          "height": 50
+        },
+        "style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgb(242, 244, 247) rgb(242, 244, 247) rgba(255, 255, 255, 0.08)",
+          "borderRadius": "0px",
+          "padding": "0px 14px",
+          "margin": "0px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "color": "rgb(242, 244, 247)"
+        }
+      },
+      {
+        "selector": ".r-chat",
+        "text": "TodayHHomen01:35Can the room reconcile Q3 variance again t the NetSuite clo e before the board read? Copy EditHHomen01:35@nodeagent reconcile Q3 revenue and COG",
+        "rect": {
+          "x": 1096,
+          "y": 109,
+          "width": 353,
+          "height": 702
+        },
+        "style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgb(242, 244, 247)",
+          "borderRadius": "0px",
+          "padding": "14px 16px 8px",
+          "margin": "0px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "color": "rgb(242, 244, 247)"
+        }
+      },
+      {
+        "selector": ".r-composer",
+        "text": "Review  ource Find evidence gap Enrich pendingEnter  end ; Shift+Enter newline; @nodeagent act",
+        "rect": {
+          "x": 1096,
+          "y": 811,
+          "width": 353,
+          "height": 80
+        },
+        "style": {
+          "display": "block",
+          "gridTemplateColumns": "none",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(255, 255, 255, 0.1) rgb(242, 244, 247) rgb(242, 244, 247)",
+          "borderRadius": "0px",
+          "padding": "6px 10px",
+          "margin": "0px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "color": "rgb(242, 244, 247)"
+        }
+      },
+      {
+        "selector": ".r-input-wrap",
+        "text": "",
+        "rect": {
+          "x": 1106,
+          "y": 818,
+          "width": 333,
+          "height": 67
+        },
+        "style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "backgroundColor": "rgb(23, 27, 32)",
+          "borderColor": "rgba(255, 255, 255, 0.08)",
+          "borderRadius": "8px",
+          "padding": "6px 8px",
+          "margin": "0px",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "color": "rgb(242, 244, 247)"
+        }
+      }
+    ],
+    "lists": {
+      "tabs": [
+        {
+          "text": "Home",
+          "rect": {
+            "x": 287,
+            "y": 59,
+            "width": 75,
+            "height": 50
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "0px",
+          "fontSize": "12px",
+          "color": "rgb(153, 163, 174)"
+        },
+        {
+          "text": "Q3 variance",
+          "rect": {
+            "x": 366,
+            "y": 59,
+            "width": 130,
+            "height": 50
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "0px",
+          "fontSize": "12px",
+          "color": "rgb(153, 163, 174)"
+        },
+        {
+          "text": "Company re earch",
+          "rect": {
+            "x": 500,
+            "y": 59,
+            "width": 170,
+            "height": 50
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "0px",
+          "fontSize": "12px",
+          "color": "rgb(242, 244, 247)"
+        },
+        {
+          "text": "Capture Notebook",
+          "rect": {
+            "x": 674,
+            "y": 59,
+            "width": 166,
+            "height": 50
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "0px",
+          "fontSize": "12px",
+          "color": "rgb(153, 163, 174)"
+        },
+        {
+          "text": "Ri k / opportunity wall",
+          "rect": {
+            "x": 844,
+            "y": 59,
+            "width": 184,
+            "height": 50
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "0px",
+          "fontSize": "12px",
+          "color": "rgb(153, 163, 174)"
+        },
+        {
+          "text": "Agent wiki",
+          "rect": {
+            "x": 1032,
+            "y": 59,
+            "width": 121,
+            "height": 50
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "0px",
+          "fontSize": "12px",
+          "color": "rgb(153, 163, 174)"
+        },
+        {
+          "text": "",
+          "rect": {
+            "x": 1157,
+            "y": 59,
+            "width": 36,
+            "height": 50
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "0px",
+          "fontSize": "12px",
+          "color": "rgb(153, 163, 174)"
+        },
+        {
+          "text": "Trace",
+          "rect": {
+            "x": 1197,
+            "y": 59,
+            "width": 74,
+            "height": 50
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "0px",
+          "fontSize": "12px",
+          "color": "rgb(153, 163, 174)"
+        }
+      ],
+      "railRows": [
+        {
+          "text": "Company re earchOpen now - Sheet · v1 · 14 row",
+          "rect": {
+            "x": 23,
+            "y": 190,
+            "width": 235,
+            "height": 38
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "8px",
+          "fontSize": "13.3333px",
+          "color": "rgb(198, 204, 212)"
+        },
+        {
+          "text": "Agent wikiPinned - v1 · live TOC",
+          "rect": {
+            "x": 23,
+            "y": 229,
+            "width": 235,
+            "height": 38
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "8px",
+          "fontSize": "13.3333px",
+          "color": "rgb(198, 204, 212)"
+        },
+        {
+          "text": "Diligence memoedited recently",
+          "rect": {
+            "x": 23,
+            "y": 304,
+            "width": 235,
+            "height": 38
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "8px",
+          "fontSize": "13.3333px",
+          "color": "rgb(198, 204, 212)"
+        },
+        {
+          "text": "Open que tion  / workplanedited recently",
+          "rect": {
+            "x": 23,
+            "y": 343,
+            "width": 235,
+            "height": 38
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "8px",
+          "fontSize": "13.3333px",
+          "color": "rgb(198, 204, 212)"
+        },
+        {
+          "text": "Ri k / opportunity wall3 note",
+          "rect": {
+            "x": 23,
+            "y": 382,
+            "width": 235,
+            "height": 38
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "8px",
+          "fontSize": "13.3333px",
+          "color": "rgb(198, 204, 212)"
+        },
+        {
+          "text": "Capture Notebookedited recently",
+          "rect": {
+            "x": 23,
+            "y": 421,
+            "width": 235,
+            "height": 38
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "8px",
+          "fontSize": "13.3333px",
+          "color": "rgb(198, 204, 212)"
+        },
+        {
+          "text": "Agent wikiv1 · live TOC",
+          "rect": {
+            "x": 23,
+            "y": 460,
+            "width": 235,
+            "height": 38
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "8px",
+          "fontSize": "13.3333px",
+          "color": "rgb(198, 204, 212)"
+        },
+        {
+          "text": "Today'  Briefedited recently",
+          "rect": {
+            "x": 23,
+            "y": 499,
+            "width": 235,
+            "height": 38
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "8px",
+          "fontSize": "13.3333px",
+          "color": "rgb(198, 204, 212)"
+        }
+      ],
+      "sheetHeaders": [
+        {
+          "text": "",
+          "rect": {
+            "x": 291,
+            "y": 145,
+            "width": 44,
+            "height": 32
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(255, 255, 255, 0.08) rgb(138, 148, 160)",
+          "borderRadius": "0px",
+          "fontSize": "10px",
+          "color": "rgb(138, 148, 160)"
+        },
+        {
+          "text": "company",
+          "rect": {
+            "x": 335,
+            "y": 145,
+            "width": 151,
+            "height": 32
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "color(srgb 1 1 1 / 0.0580392) rgb(138, 148, 160)",
+          "borderRadius": "0px",
+          "fontSize": "10px",
+          "color": "rgb(138, 148, 160)"
+        },
+        {
+          "text": "web ite",
+          "rect": {
+            "x": 486,
+            "y": 145,
+            "width": 201,
+            "height": 32
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "color(srgb 1 1 1 / 0.0580392) rgb(138, 148, 160)",
+          "borderRadius": "0px",
+          "fontSize": "10px",
+          "color": "rgb(138, 148, 160)"
+        },
+        {
+          "text": "tatu",
+          "rect": {
+            "x": 687,
+            "y": 145,
+            "width": 151,
+            "height": 32
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "color(srgb 1 1 1 / 0.0580392) rgb(138, 148, 160)",
+          "borderRadius": "0px",
+          "fontSize": "10px",
+          "color": "rgb(138, 148, 160)"
+        },
+        {
+          "text": "tier",
+          "rect": {
+            "x": 838,
+            "y": 145,
+            "width": 66,
+            "height": 32
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "color(srgb 1 1 1 / 0.0580392) rgb(138, 148, 160)",
+          "borderRadius": "0px",
+          "fontSize": "10px",
+          "color": "rgb(138, 148, 160)"
+        },
+        {
+          "text": "intent",
+          "rect": {
+            "x": 904,
+            "y": 145,
+            "width": 93,
+            "height": 32
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "color(srgb 1 1 1 / 0.0580392) rgb(138, 148, 160)",
+          "borderRadius": "0px",
+          "fontSize": "10px",
+          "color": "rgb(138, 148, 160)"
+        },
+        {
+          "text": "owner",
+          "rect": {
+            "x": 997,
+            "y": 145,
+            "width": 83,
+            "height": 32
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "color(srgb 1 1 1 / 0.0580392) rgb(138, 148, 160)",
+          "borderRadius": "0px",
+          "fontSize": "10px",
+          "color": "rgb(138, 148, 160)"
+        }
+      ],
+      "sheetRows": [
+        {
+          "text": "1CardioNovahttp ://cardionova.comcompleteACap table and ho pital AI diligenceMMaya",
+          "rect": {
+            "x": 291,
+            "y": 177,
+            "width": 788,
+            "height": 44
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgb(128, 128, 128)",
+          "borderRadius": "0px",
+          "fontSize": "12px",
+          "color": "rgb(198, 204, 212)"
+        },
+        {
+          "text": "2NeuroNovahttp ://neuronova.comenrichingNABMiddle-market clinical workflowSSam",
+          "rect": {
+            "x": 291,
+            "y": 221,
+            "width": 788,
+            "height": 44
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgb(128, 128, 128)",
+          "borderRadius": "0px",
+          "fontSize": "12px",
+          "color": "rgb(198, 204, 212)"
+        },
+        {
+          "text": "3FluxNovahttp ://fluxnova.comcompleteAStartup trea ury automationPPriya",
+          "rect": {
+            "x": 291,
+            "y": 265,
+            "width": 788,
+            "height": 44
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgb(128, 128, 128)",
+          "borderRadius": "0px",
+          "fontSize": "12px",
+          "color": "rgb(198, 204, 212)"
+        },
+        {
+          "text": "4Atla Novahttp ://atla nova.compendingCWarehou e op  underwritingHHomen",
+          "rect": {
+            "x": 291,
+            "y": 309,
+            "width": 788,
+            "height": 44
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgb(128, 128, 128)",
+          "borderRadius": "0px",
+          "fontSize": "12px",
+          "color": "rgb(198, 204, 212)"
+        },
+        {
+          "text": "5VertexNovahttp ://vertexnova.comcompleteAClinical data exchangeMMaya",
+          "rect": {
+            "x": 291,
+            "y": 353,
+            "width": 788,
+            "height": 44
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgb(128, 128, 128)",
+          "borderRadius": "0px",
+          "fontSize": "12px",
+          "color": "rgb(198, 204, 212)"
+        },
+        {
+          "text": "6LumenNovahttp ://lumennova.compendingBCap table automationSSam",
+          "rect": {
+            "x": 291,
+            "y": 397,
+            "width": 788,
+            "height": 44
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgb(128, 128, 128)",
+          "borderRadius": "0px",
+          "fontSize": "12px",
+          "color": "rgb(198, 204, 212)"
+        },
+        {
+          "text": "7HarborNovahttp ://harbornova.comcompleteAAI triage and intakePPriya",
+          "rect": {
+            "x": 291,
+            "y": 441,
+            "width": 788,
+            "height": 44
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgb(128, 128, 128)",
+          "borderRadius": "0px",
+          "fontSize": "12px",
+          "color": "rgb(198, 204, 212)"
+        },
+        {
+          "text": "8Cre tNovahttp ://cre tnova.compendingARevenue operation HHomen",
+          "rect": {
+            "x": 291,
+            "y": 485,
+            "width": 788,
+            "height": 44
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgb(128, 128, 128)",
+          "borderRadius": "0px",
+          "fontSize": "12px",
+          "color": "rgb(198, 204, 212)"
+        }
+      ],
+      "chatMessages": [
+        {
+          "text": "HHomen01:35Can the room reconcile Q3 variance again t the NetSuite clo e before the board read? Copy Edit",
+          "rect": {
+            "x": 1112,
+            "y": 130,
+            "width": 321,
+            "height": 84
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "8px",
+          "fontSize": "16px",
+          "color": "rgb(242, 244, 247)"
+        },
+        {
+          "text": "HHomen01:35@nodeagent reconcile Q3 revenue and COGS variance Copy Edit",
+          "rect": {
+            "x": 1112,
+            "y": 226,
+            "width": 321,
+            "height": 92
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "8px",
+          "fontSize": "16px",
+          "color": "rgb(242, 244, 247)"
+        },
+        {
+          "text": "NRoom NodeAgentagent01:35Reconciled 2 row  · 2  ource v1 -> v1 lock relea edCardioNovaPrimary  ource: CardioNova: produc",
+          "rect": {
+            "x": 1112,
+            "y": 330,
+            "width": 321,
+            "height": 97
+          },
+          "backgroundColor": "color(srgb 0.0901961 0.105882 0.12549 / 0.46)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "8px",
+          "fontSize": "16px",
+          "color": "rgb(242, 244, 247)"
+        },
+        {
+          "text": "PPriya01:35The +27.5% on COGS i  volume, not price - noting it on the row  o it  urvive  the  ync. Copy",
+          "rect": {
+            "x": 1112,
+            "y": 439,
+            "width": 321,
+            "height": 84
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "8px",
+          "fontSize": "16px",
+          "color": "rgb(242, 244, 247)"
+        },
+        {
+          "text": "AQanon · quokka01:35anon - quokka joined a  gue t · view + chat Copy",
+          "rect": {
+            "x": 1112,
+            "y": 535,
+            "width": 321,
+            "height": 63
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "8px",
+          "fontSize": "16px",
+          "color": "rgb(242, 244, 247)"
+        },
+        {
+          "text": "NRoom NodeAgentagent01:35Reconciled 2 row  · 2  ource v1 -> v1 lock relea edCardioNovaPrimary  ource: CardioNova: produc",
+          "rect": {
+            "x": 1112,
+            "y": 610,
+            "width": 321,
+            "height": 97
+          },
+          "backgroundColor": "color(srgb 0.0901961 0.105882 0.12549 / 0.46)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "8px",
+          "fontSize": "16px",
+          "color": "rgb(242, 244, 247)"
+        },
+        {
+          "text": "HHomen01:35Good. Draft the reconciliation memo and clip the variance exhibit for the board read. Copy Edit",
+          "rect": {
+            "x": 1112,
+            "y": 719,
+            "width": 321,
+            "height": 84
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgba(0, 0, 0, 0)",
+          "borderRadius": "8px",
+          "fontSize": "16px",
+          "color": "rgb(242, 244, 247)"
+        }
+      ],
+      "statusChildren": [
+        {
+          "text": "IntakeEvidenceDraftReviewExport",
+          "rect": {
+            "x": 17,
+            "y": 902,
+            "width": 328,
+            "height": 22
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgb(138, 148, 160)",
+          "borderRadius": "0px",
+          "fontSize": "10.5px",
+          "color": "rgb(138, 148, 160)"
+        },
+        {
+          "text": "",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "backgroundColor": "rgba(217, 119, 87, 0.16)",
+          "borderColor": "rgba(217, 119, 87, 0.28)",
+          "borderRadius": "7px",
+          "fontSize": "10.5px",
+          "color": "rgb(229, 149, 121)"
+        },
+        {
+          "text": "Room NodeAgent ·reconciled Q3 variance · v42Room NodeAgent · edit_applied",
+          "rect": {
+            "x": 779,
+            "y": 902,
+            "width": 540,
+            "height": 22
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgb(153, 163, 174)",
+          "borderRadius": "0px",
+          "fontSize": "11.5px",
+          "color": "rgb(153, 163, 174)"
+        },
+        {
+          "text": "Credit 20 demo",
+          "rect": {
+            "x": 1331,
+            "y": 902,
+            "width": 108,
+            "height": 22
+          },
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "borderColor": "rgb(153, 163, 174) rgb(153, 163, 174) rgb(153, 163, 174) rgba(255, 255, 255, 0.1)",
+          "borderRadius": "0px",
+          "fontSize": "16px",
+          "color": "rgb(153, 163, 174)"
+        }
+      ]
+    }
+  }
+}
