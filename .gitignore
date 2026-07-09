@@ -60,6 +60,7 @@ playwright/.cache/
 .proofloop/dogfood/
 .proofloop/hooks/
 .proofloop/mcp/
+.proofloop/secrets/
 .proofloop/memory.jsonl
 .proofloop/live-memory.jsonl
 # Legacy local promoted-regression mirror. Canonical promoted regressions are tracked in proofloop/regressions/.
@@ -104,3 +105,6 @@ docs/agents/
 
 # SEO journey media is regenerable and belongs in release/media storage when needed.
 docs/seo/journey-artifacts/
+
+# Prod dogfood raw traces/videos are local proof output; keep compact receipts in docs/qa/*.md.
+docs/qa/prod-dogfood/

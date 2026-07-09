@@ -24,17 +24,23 @@ if (!binary) {
   process.exit(2);
 }
 
+const extraArgs = splitArgs(process.env.PROOFLOOP_CURSOR_EXTRA_ARGS);
+const modelArgs = process.env.PROOFLOOP_CURSOR_MODEL ? ["--model", process.env.PROOFLOOP_CURSOR_MODEL] : [];
+const commonArgs = ["-p", "--trust", "--output-format", "text", ...modelArgs, ...extraArgs, prompt];
 const launch = binary === "cursor"
-  ? { cmd: binary, args: ["agent", "-p", "--output-format", "text", prompt] }
-  : { cmd: binary, args: ["-p", "--output-format", "text", prompt] };
+  ? { cmd: binary, args: ["agent", ...commonArgs] }
+  : { cmd: binary, args: commonArgs };
 const startedAt = new Date().toISOString();
 const result = spawnSync(launch.cmd, launch.args, {
   cwd: process.cwd(),
   encoding: "utf8",
   stdio: ["ignore", "pipe", "pipe"],
   env: process.env,
+  shell: process.platform === "win32",
 });
 const finishedAt = new Date().toISOString();
+const spawnError = result.error instanceof Error ? result.error.message : undefined;
+const stderr = [result.stderr ?? "", spawnError ? `spawn error: ${spawnError}\n` : ""].join("");
 mkdirSync(dirname(exportPath), { recursive: true });
 writeFileSync(exportPath, `${JSON.stringify({
   schema: "proofloop-cursor-session-export-v1",
@@ -46,10 +52,11 @@ writeFileSync(exportPath, `${JSON.stringify({
   command: `${launch.cmd} ${launch.args.slice(0, -1).join(" ")} <prompt>`,
   exitCode: result.status ?? 1,
   stdout: result.stdout ?? "",
-  stderr: result.stderr ?? "",
+  stderr,
+  ...(spawnError ? { spawnError } : {}),
 }, null, 2)}\n`, "utf8");
 process.stdout.write(result.stdout ?? "");
-process.stderr.write(result.stderr ?? "");
+process.stderr.write(stderr);
 process.exit(result.status ?? 1);
 
 function optionValue(values, name) {
@@ -69,4 +76,9 @@ function findBinary(candidates) {
     if ((check.status ?? 1) === 0) return candidate;
   }
   return undefined;
+}
+
+function splitArgs(value) {
+  if (!value?.trim()) return [];
+  return value.match(/"[^"]*"|'[^']*'|\S+/g)?.map((part) => part.replace(/^["']|["']$/g, "")) ?? [];
 }

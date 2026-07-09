@@ -1,6 +1,6 @@
 {
   "schema": "proofloop-goal-ledger-export-v1",
-  "generatedAt": "2026-07-09T03:30:14.421Z",
+  "generatedAt": "2026-07-09T03:48:28.296Z",
   "exports": {
     "json": "docs/eval/proofloop-goal-ledger.json",
     "markdown": "docs/eval/PROOFLOOP_GOAL_LEDGER.md"
@@ -32,14 +32,14 @@
       "objective": "Make official benchmark scores real, tested, shipped, and externally blocked only with proof.",
       "status": "initialized",
       "createdAt": "2026-07-04T02:23:35.184Z",
-      "updatedAt": "2026-07-09T03:30:14.421Z",
+      "updatedAt": "2026-07-09T03:48:28.296Z",
       "localStatePath": ".proofloop/goals/official-scores/state.json",
       "localQueuePath": ".proofloop/goals/official-scores/queue.json",
       "localBlockersPath": ".proofloop/goals/official-scores/blockers.json",
       "localLedgerPath": ".proofloop/goals/official-scores/ledger.jsonl",
       "ledgerEvents": {
-        "count": 191,
-        "latestTs": "2026-07-09T03:30:14.421Z",
+        "count": 193,
+        "latestTs": "2026-07-09T03:48:28.296Z",
         "latestType": "goal_gate"
       },
       "requiredTaskCount": 16,
