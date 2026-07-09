@@ -1,0 +1,153 @@
+{
+  "generatedAt": "2026-07-08T08:13:49.879Z",
+  "baseUrl": "http://127.0.0.1:5262",
+  "routes": [
+    {
+      "url": "http://127.0.0.1:5262/brand/noderoom/",
+      "status": 200,
+      "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+      "metrics": {
+        "domContentLoadedMs": 188.29999999701977,
+        "loadEventMs": 188.39999999850988,
+        "firstContentfulPaintMs": 184,
+        "largestContentfulPaintMs": 184,
+        "cumulativeLayoutShift": 0.01590103329603735,
+        "transferSizeBytes": 333624,
+        "encodedBodySizeBytes": 331524
+      },
+      "budgets": {
+        "lcpGoodMs": 2500,
+        "clsGood": 0.1,
+        "loadEventBudgetMs": 3500
+      },
+      "statusText": "pass",
+      "findings": []
+    },
+    {
+      "url": "http://127.0.0.1:5262/solutions/",
+      "status": 200,
+      "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+      "metrics": {
+        "domContentLoadedMs": 31.399999998509884,
+        "loadEventMs": 31.399999998509884,
+        "firstContentfulPaintMs": 36,
+        "largestContentfulPaintMs": 36,
+        "cumulativeLayoutShift": 0.01590103329603735,
+        "transferSizeBytes": 333624,
+        "encodedBodySizeBytes": 331524
+      },
+      "budgets": {
+        "lcpGoodMs": 2500,
+        "clsGood": 0.1,
+        "loadEventBudgetMs": 3500
+      },
+      "statusText": "pass",
+      "findings": []
+    },
+    {
+      "url": "http://127.0.0.1:5262/solutions/collaborative-ai-workspace/",
+      "status": 200,
+      "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+      "metrics": {
+        "domContentLoadedMs": 18.5,
+        "loadEventMs": 18.69999999552965,
+        "firstContentfulPaintMs": 52,
+        "largestContentfulPaintMs": 52,
+        "cumulativeLayoutShift": 0.01590103329603735,
+        "transferSizeBytes": 333624,
+        "encodedBodySizeBytes": 331524
+      },
+      "budgets": {
+        "lcpGoodMs": 2500,
+        "clsGood": 0.1,
+        "loadEventBudgetMs": 3500
+      },
+      "statusText": "pass",
+      "findings": []
+    },
+    {
+      "url": "http://127.0.0.1:5262/solutions/ai-agent-collaboration/",
+      "status": 200,
+      "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+      "metrics": {
+        "domContentLoadedMs": 34.19999999552965,
+        "loadEventMs": 34.19999999552965,
+        "firstContentfulPaintMs": 40,
+        "largestContentfulPaintMs": 40,
+        "cumulativeLayoutShift": 0.01590103329603735,
+        "transferSizeBytes": 333624,
+        "encodedBodySizeBytes": 331524
+      },
+      "budgets": {
+        "lcpGoodMs": 2500,
+        "clsGood": 0.1,
+        "loadEventBudgetMs": 3500
+      },
+      "statusText": "pass",
+      "findings": []
+    },
+    {
+      "url": "http://127.0.0.1:5262/solutions/source-backed-ai-workflows/",
+      "status": 200,
+      "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+      "metrics": {
+        "domContentLoadedMs": 12.600000001490116,
+        "loadEventMs": 13,
+        "firstContentfulPaintMs": 36,
+        "largestContentfulPaintMs": 36,
+        "cumulativeLayoutShift": 0.01590103329603735,
+        "transferSizeBytes": 333624,
+        "encodedBodySizeBytes": 331524
+      },
+      "budgets": {
+        "lcpGoodMs": 2500,
+        "clsGood": 0.1,
+        "loadEventBudgetMs": 3500
+      },
+      "statusText": "pass",
+      "findings": []
+    },
+    {
+      "url": "http://127.0.0.1:5262/solutions/ai-diligence-room/",
+      "status": 200,
+      "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+      "metrics": {
+        "domContentLoadedMs": 15.5,
+        "loadEventMs": 15.899999998509884,
+        "firstContentfulPaintMs": 40,
+        "largestContentfulPaintMs": 40,
+        "cumulativeLayoutShift": 0.01590103329603735,
+        "transferSizeBytes": 333624,
+        "encodedBodySizeBytes": 331524
+      },
+      "budgets": {
+        "lcpGoodMs": 2500,
+        "clsGood": 0.1,
+        "loadEventBudgetMs": 3500
+      },
+      "statusText": "pass",
+      "findings": []
+    },
+    {
+      "url": "http://127.0.0.1:5262/solutions/ai-research-workspace/",
+      "status": 200,
+      "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+      "metrics": {
+        "domContentLoadedMs": 17.19999999552965,
+        "loadEventMs": 17.599999994039536,
+        "firstContentfulPaintMs": 48,
+        "largestContentfulPaintMs": 48,
+        "cumulativeLayoutShift": 0.01590103329603735,
+        "transferSizeBytes": 333624,
+        "encodedBodySizeBytes": 331524
+      },
+      "budgets": {
+        "lcpGoodMs": 2500,
+        "clsGood": 0.1,
+        "loadEventBudgetMs": 3500
+      },
+      "statusText": "pass",
+      "findings": []
+    }
+  ]
+}

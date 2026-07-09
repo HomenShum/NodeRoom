@@ -1,0 +1,889 @@
+{
+  "generatedAt": "2026-07-08T08:13:01.850Z",
+  "baseUrl": "https://noderoom.live",
+  "summary": {
+    "pass": 116,
+    "warn": 0,
+    "fail": 0
+  },
+  "routes": [
+    {
+      "route": "/",
+      "path": "index.html",
+      "exists": true,
+      "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+      "description": "NodeRoom is a live collaborative AI room where teams and NodeAgents work across shared files, spreadsheets, notes, and traces with source-backed changes.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/"
+    },
+    {
+      "route": "/brand/noderoom/",
+      "path": "public/brand/noderoom/index.html",
+      "exists": true,
+      "title": "NodeRoom - official collaborative AI room app",
+      "description": "NodeRoom is the official collaborative AI room app for source-backed work with humans, shared files, spreadsheets, notes, and NodeAgents.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/brand/noderoom/"
+    },
+    {
+      "route": "/solutions/",
+      "path": "public/solutions/index.html",
+      "exists": true,
+      "title": "NodeRoom solutions - collaborative AI workspace search hub",
+      "description": "Explore NodeRoom solution pages for collaborative AI workspaces, AI agent collaboration, source-backed workflows, AI diligence rooms, and AI research workspaces.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/solutions/"
+    },
+    {
+      "route": "/solutions/collaborative-ai-workspace/",
+      "path": "public/solutions/collaborative-ai-workspace/index.html",
+      "exists": true,
+      "title": "Collaborative AI workspace - NodeRoom shared AI rooms",
+      "description": "NodeRoom is a collaborative AI workspace where teams and NodeAgents work together across shared files, spreadsheets, notes, and trace receipts.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/solutions/collaborative-ai-workspace/"
+    },
+    {
+      "route": "/solutions/ai-agent-collaboration/",
+      "path": "public/solutions/ai-agent-collaboration/index.html",
+      "exists": true,
+      "title": "AI agent collaboration workspace - NodeRoom NodeAgents",
+      "description": "NodeRoom supports AI agent collaboration by giving people and NodeAgents a shared room, visible changes, source context, and trace receipts.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/solutions/ai-agent-collaboration/"
+    },
+    {
+      "route": "/solutions/source-backed-ai-workflows/",
+      "path": "public/solutions/source-backed-ai-workflows/index.html",
+      "exists": true,
+      "title": "Source-backed AI workflows - NodeRoom trace receipts",
+      "description": "NodeRoom supports source-backed AI workflows with shared room context, cited changes, reviewable traces, and visible NodeAgent receipts.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/solutions/source-backed-ai-workflows/"
+    },
+    {
+      "route": "/solutions/ai-diligence-room/",
+      "path": "public/solutions/ai-diligence-room/index.html",
+      "exists": true,
+      "title": "AI diligence room - NodeRoom for source-backed review",
+      "description": "NodeRoom can be used as an AI diligence room for startup research, finance review, buyer notes, and source-backed decision workflows.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/solutions/ai-diligence-room/"
+    },
+    {
+      "route": "/solutions/ai-research-workspace/",
+      "path": "public/solutions/ai-research-workspace/index.html",
+      "exists": true,
+      "title": "AI research workspace - NodeRoom for source-backed research",
+      "description": "NodeRoom is an AI research workspace where teams collect sources, notes, files, spreadsheet context, and NodeAgent traces in one room.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/solutions/ai-research-workspace/"
+    },
+    {
+      "route": "/use-cases/",
+      "path": "public/use-cases/index.html",
+      "exists": true,
+      "title": "NodeRoom use cases - collaborative AI rooms for teams",
+      "description": "Explore how NodeRoom supports startup diligence, sales research, finance workflows, and student project rooms with traceable NodeAgent work.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/use-cases/"
+    },
+    {
+      "route": "/use-cases/startups/",
+      "path": "public/use-cases/startups/index.html",
+      "exists": true,
+      "title": "Startup diligence rooms - NodeRoom",
+      "description": "Use NodeRoom to run startup diligence with source-backed research, shared artifacts, spreadsheet evidence, and visible NodeAgent traces.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/use-cases/startups/"
+    },
+    {
+      "route": "/use-cases/sales/",
+      "path": "public/use-cases/sales/index.html",
+      "exists": true,
+      "title": "Sales research rooms - NodeRoom",
+      "description": "Prepare account research, buyer notes, and qualification artifacts in NodeRoom with shared context and traceable AI assistance.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/use-cases/sales/"
+    },
+    {
+      "route": "/use-cases/finance/",
+      "path": "public/use-cases/finance/index.html",
+      "exists": true,
+      "title": "Finance workflow rooms - NodeRoom",
+      "description": "Use NodeRoom for finance workflows that need spreadsheet review, source-backed notes, locks, smart merges, and traceable agent work.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/use-cases/finance/"
+    },
+    {
+      "route": "/use-cases/students/",
+      "path": "public/use-cases/students/index.html",
+      "exists": true,
+      "title": "Student project rooms - NodeRoom",
+      "description": "Use NodeRoom to coordinate student research, shared notes, draft artifacts, and transparent AI assistance in one collaborative room.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/use-cases/students/"
+    },
+    {
+      "route": "/compare/slack-ai/",
+      "path": "public/compare/slack-ai/index.html",
+      "exists": true,
+      "title": "NodeRoom vs Slack AI - collaborative AI room comparison",
+      "description": "Compare NodeRoom with Slack AI for collaborative work that needs shared artifacts, source-backed changes, and visible agent traces.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/compare/slack-ai/"
+    },
+    {
+      "route": "/compare/notion-ai/",
+      "path": "public/compare/notion-ai/index.html",
+      "exists": true,
+      "title": "NodeRoom vs Notion AI - AI workspace comparison",
+      "description": "Compare NodeRoom with Notion AI for live collaborative rooms, source-backed agent work, shared files, spreadsheets, and trace receipts.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/compare/notion-ai/"
+    },
+    {
+      "route": "/compare/google-docs/",
+      "path": "public/compare/google-docs/index.html",
+      "exists": true,
+      "title": "NodeRoom vs Google Docs - collaborative AI workspace comparison",
+      "description": "Compare NodeRoom with Google Docs for AI-assisted rooms that need shared artifacts, spreadsheets, source-backed changes, and trace receipts.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/compare/google-docs/"
+    },
+    {
+      "route": "/blog/",
+      "path": "public/blog/index.html",
+      "exists": true,
+      "title": "NodeRoom blog - collaborative AI room notes",
+      "description": "NodeRoom notes on collaborative AI rooms, proof loops, source-backed agent work, browser QA, and product evaluation.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/blog/"
+    },
+    {
+      "route": "/learn/",
+      "path": "public/learn/index.html",
+      "exists": true,
+      "title": "Learn NodeRoom - how collaborative AI rooms work",
+      "description": "Learn how NodeRoom combines rooms, shared artifacts, NodeAgents, trace receipts, locks, and smart merges for collaborative AI workflows.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/learn/"
+    },
+    {
+      "route": "/pricing/",
+      "path": "public/pricing/index.html",
+      "exists": true,
+      "title": "NodeRoom pricing - collaborative AI rooms",
+      "description": "NodeRoom pricing and status page for collaborative AI rooms, public demos, and future team plans.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/pricing/"
+    },
+    {
+      "route": "/faq/",
+      "path": "public/faq/index.html",
+      "exists": true,
+      "title": "NodeRoom FAQ - collaborative AI room questions",
+      "description": "Answers to common questions about NodeRoom rooms, NodeAgents, source receipts, private routes, SEO pages, and collaborative AI workflows.",
+      "h1Count": 1,
+      "canonical": "https://noderoom.live/faq/"
+    }
+  ],
+  "findings": [
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/ has a title",
+      "path": "index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/ has a meta description",
+      "path": "index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/ has a canonical URL",
+      "path": "index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/ has one H1",
+      "path": "index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/brand/noderoom/ has a title",
+      "path": "public/brand/noderoom/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/brand/noderoom/ has a meta description",
+      "path": "public/brand/noderoom/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/brand/noderoom/ has a canonical URL",
+      "path": "public/brand/noderoom/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/brand/noderoom/ has one H1",
+      "path": "public/brand/noderoom/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/solutions/ has a title",
+      "path": "public/solutions/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/solutions/ has a meta description",
+      "path": "public/solutions/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/solutions/ has a canonical URL",
+      "path": "public/solutions/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/solutions/ has one H1",
+      "path": "public/solutions/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/solutions/collaborative-ai-workspace/ has a title",
+      "path": "public/solutions/collaborative-ai-workspace/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/solutions/collaborative-ai-workspace/ has a meta description",
+      "path": "public/solutions/collaborative-ai-workspace/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/solutions/collaborative-ai-workspace/ has a canonical URL",
+      "path": "public/solutions/collaborative-ai-workspace/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/solutions/collaborative-ai-workspace/ has one H1",
+      "path": "public/solutions/collaborative-ai-workspace/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/solutions/ai-agent-collaboration/ has a title",
+      "path": "public/solutions/ai-agent-collaboration/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/solutions/ai-agent-collaboration/ has a meta description",
+      "path": "public/solutions/ai-agent-collaboration/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/solutions/ai-agent-collaboration/ has a canonical URL",
+      "path": "public/solutions/ai-agent-collaboration/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/solutions/ai-agent-collaboration/ has one H1",
+      "path": "public/solutions/ai-agent-collaboration/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/solutions/source-backed-ai-workflows/ has a title",
+      "path": "public/solutions/source-backed-ai-workflows/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/solutions/source-backed-ai-workflows/ has a meta description",
+      "path": "public/solutions/source-backed-ai-workflows/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/solutions/source-backed-ai-workflows/ has a canonical URL",
+      "path": "public/solutions/source-backed-ai-workflows/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/solutions/source-backed-ai-workflows/ has one H1",
+      "path": "public/solutions/source-backed-ai-workflows/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/solutions/ai-diligence-room/ has a title",
+      "path": "public/solutions/ai-diligence-room/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/solutions/ai-diligence-room/ has a meta description",
+      "path": "public/solutions/ai-diligence-room/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/solutions/ai-diligence-room/ has a canonical URL",
+      "path": "public/solutions/ai-diligence-room/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/solutions/ai-diligence-room/ has one H1",
+      "path": "public/solutions/ai-diligence-room/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/solutions/ai-research-workspace/ has a title",
+      "path": "public/solutions/ai-research-workspace/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/solutions/ai-research-workspace/ has a meta description",
+      "path": "public/solutions/ai-research-workspace/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/solutions/ai-research-workspace/ has a canonical URL",
+      "path": "public/solutions/ai-research-workspace/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/solutions/ai-research-workspace/ has one H1",
+      "path": "public/solutions/ai-research-workspace/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/use-cases/ has a title",
+      "path": "public/use-cases/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/use-cases/ has a meta description",
+      "path": "public/use-cases/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/use-cases/ has a canonical URL",
+      "path": "public/use-cases/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/use-cases/ has one H1",
+      "path": "public/use-cases/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/use-cases/startups/ has a title",
+      "path": "public/use-cases/startups/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/use-cases/startups/ has a meta description",
+      "path": "public/use-cases/startups/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/use-cases/startups/ has a canonical URL",
+      "path": "public/use-cases/startups/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/use-cases/startups/ has one H1",
+      "path": "public/use-cases/startups/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/use-cases/sales/ has a title",
+      "path": "public/use-cases/sales/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/use-cases/sales/ has a meta description",
+      "path": "public/use-cases/sales/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/use-cases/sales/ has a canonical URL",
+      "path": "public/use-cases/sales/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/use-cases/sales/ has one H1",
+      "path": "public/use-cases/sales/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/use-cases/finance/ has a title",
+      "path": "public/use-cases/finance/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/use-cases/finance/ has a meta description",
+      "path": "public/use-cases/finance/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/use-cases/finance/ has a canonical URL",
+      "path": "public/use-cases/finance/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/use-cases/finance/ has one H1",
+      "path": "public/use-cases/finance/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/use-cases/students/ has a title",
+      "path": "public/use-cases/students/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/use-cases/students/ has a meta description",
+      "path": "public/use-cases/students/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/use-cases/students/ has a canonical URL",
+      "path": "public/use-cases/students/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/use-cases/students/ has one H1",
+      "path": "public/use-cases/students/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/compare/slack-ai/ has a title",
+      "path": "public/compare/slack-ai/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/compare/slack-ai/ has a meta description",
+      "path": "public/compare/slack-ai/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/compare/slack-ai/ has a canonical URL",
+      "path": "public/compare/slack-ai/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/compare/slack-ai/ has one H1",
+      "path": "public/compare/slack-ai/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/compare/notion-ai/ has a title",
+      "path": "public/compare/notion-ai/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/compare/notion-ai/ has a meta description",
+      "path": "public/compare/notion-ai/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/compare/notion-ai/ has a canonical URL",
+      "path": "public/compare/notion-ai/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/compare/notion-ai/ has one H1",
+      "path": "public/compare/notion-ai/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/compare/google-docs/ has a title",
+      "path": "public/compare/google-docs/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/compare/google-docs/ has a meta description",
+      "path": "public/compare/google-docs/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/compare/google-docs/ has a canonical URL",
+      "path": "public/compare/google-docs/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/compare/google-docs/ has one H1",
+      "path": "public/compare/google-docs/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/blog/ has a title",
+      "path": "public/blog/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/blog/ has a meta description",
+      "path": "public/blog/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/blog/ has a canonical URL",
+      "path": "public/blog/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/blog/ has one H1",
+      "path": "public/blog/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/learn/ has a title",
+      "path": "public/learn/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/learn/ has a meta description",
+      "path": "public/learn/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/learn/ has a canonical URL",
+      "path": "public/learn/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/learn/ has one H1",
+      "path": "public/learn/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/pricing/ has a title",
+      "path": "public/pricing/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/pricing/ has a meta description",
+      "path": "public/pricing/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/pricing/ has a canonical URL",
+      "path": "public/pricing/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/pricing/ has one H1",
+      "path": "public/pricing/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "title",
+      "detail": "/faq/ has a title",
+      "path": "public/faq/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "meta_description",
+      "detail": "/faq/ has a meta description",
+      "path": "public/faq/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "canonical",
+      "detail": "/faq/ has a canonical URL",
+      "path": "public/faq/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "single_h1",
+      "detail": "/faq/ has one H1",
+      "path": "public/faq/index.html"
+    },
+    {
+      "status": "pass",
+      "check": "og_title",
+      "detail": "Root has OG title",
+      "path": "index.html"
+    },
+    {
+      "status": "pass",
+      "check": "twitter_card",
+      "detail": "Root has Twitter card",
+      "path": "index.html"
+    },
+    {
+      "status": "pass",
+      "check": "json_ld",
+      "detail": "Root has JSON-LD",
+      "path": "index.html"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /brand/noderoom/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /solutions/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /solutions/collaborative-ai-workspace/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /solutions/ai-agent-collaboration/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /solutions/source-backed-ai-workflows/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /solutions/ai-diligence-room/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /solutions/ai-research-workspace/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /use-cases/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /use-cases/startups/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /use-cases/sales/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /use-cases/finance/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /use-cases/students/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /compare/slack-ai/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /compare/notion-ai/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /compare/google-docs/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /blog/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /learn/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /pricing/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "sitemap_route",
+      "detail": "Sitemap includes /faq/",
+      "path": "public/sitemap.xml"
+    },
+    {
+      "status": "pass",
+      "check": "robots_sitemap",
+      "detail": "robots.txt points to sitemap",
+      "path": "public/robots.txt"
+    },
+    {
+      "status": "pass",
+      "check": "robots_private_disallow",
+      "detail": "robots.txt disallows /*?room=",
+      "path": "public/robots.txt"
+    },
+    {
+      "status": "pass",
+      "check": "robots_private_disallow",
+      "detail": "robots.txt disallows /*?demo=",
+      "path": "public/robots.txt"
+    },
+    {
+      "status": "pass",
+      "check": "robots_private_disallow",
+      "detail": "robots.txt disallows /*?create=",
+      "path": "public/robots.txt"
+    },
+    {
+      "status": "pass",
+      "check": "llms_txt_h1",
+      "detail": "llms.txt has an H1 title",
+      "path": "public/llms.txt"
+    },
+    {
+      "status": "pass",
+      "check": "llms_txt_brand",
+      "detail": "llms.txt includes brand/entity page",
+      "path": "public/llms.txt"
+    },
+    {
+      "status": "pass",
+      "check": "llms_txt_solutions",
+      "detail": "llms.txt includes solutions hub",
+      "path": "public/llms.txt"
+    },
+    {
+      "status": "pass",
+      "check": "ai_crawler_allow",
+      "detail": "robots.txt explicitly allows GPTBot",
+      "path": "public/robots.txt"
+    },
+    {
+      "status": "pass",
+      "check": "ai_crawler_allow",
+      "detail": "robots.txt explicitly allows OAI-SearchBot",
+      "path": "public/robots.txt"
+    },
+    {
+      "status": "pass",
+      "check": "ai_crawler_allow",
+      "detail": "robots.txt explicitly allows ChatGPT-User",
+      "path": "public/robots.txt"
+    },
+    {
+      "status": "pass",
+      "check": "ai_crawler_allow",
+      "detail": "robots.txt explicitly allows ClaudeBot",
+      "path": "public/robots.txt"
+    },
+    {
+      "status": "pass",
+      "check": "ai_crawler_allow",
+      "detail": "robots.txt explicitly allows PerplexityBot",
+      "path": "public/robots.txt"
+    },
+    {
+      "status": "pass",
+      "check": "private_noindex_guard",
+      "detail": "Root shell has private-route noindex guard",
+      "path": "index.html"
+    }
+  ]
+}

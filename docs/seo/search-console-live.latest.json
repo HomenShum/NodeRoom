@@ -1,0 +1,72 @@
+{
+  "generatedAt": "2026-07-08T07:00:00.000Z",
+  "source": "Chrome/CDP Google Search Console UI",
+  "targetProperty": "https://noderoom.live/",
+  "targetAccess": {
+    "available": false,
+    "message": "Search Console reported no access to the https://noderoom.live/ property for the signed-in account.",
+    "propertyPickerListedNodeRoom": false
+  },
+  "visibleProperties": [
+    "sc-domain:celebrityvoiceai.com",
+    "sc-domain:homenshum.com",
+    "https://next-app-khaki-five.vercel.app/"
+  ],
+  "fallbackProperty": {
+    "property": "https://next-app-khaki-five.vercel.app/",
+    "range": {
+      "from": "2026-04-07",
+      "to": "2026-07-06"
+    },
+    "lastUpdate": "2.5 hours before live read",
+    "performance": {
+      "clicks": 1,
+      "impressions": 75,
+      "ctr": "1.3%",
+      "averagePosition": 9.7
+    },
+    "topQueries": [
+      {
+        "query": "nodebench",
+        "clicks": 1,
+        "impressions": 8
+      },
+      {
+        "query": "nodebench ai company",
+        "clicks": 0,
+        "impressions": 32
+      },
+      {
+        "query": "www.node-bench.com",
+        "clicks": 0,
+        "impressions": 9
+      }
+    ],
+    "topPages": [
+      {
+        "page": "https://next-app-khaki-five.vercel.app/onboarding",
+        "clicks": 1,
+        "impressions": 69
+      },
+      {
+        "page": "https://next-app-khaki-five.vercel.app/",
+        "clicks": 0,
+        "impressions": 11
+      }
+    ],
+    "indexing": {
+      "lastUpdate": "2026-06-29",
+      "indexedPages": 2,
+      "notIndexedPages": 0,
+      "status": "No issues detected in the last 90 days"
+    },
+    "sitemap": {
+      "path": "/sitemap.xml",
+      "submitted": "2026-01-23",
+      "lastRead": "2026-01-24",
+      "status": "Success",
+      "discoveredPages": 15,
+      "discoveredVideos": 0
+    }
+  }
+}
