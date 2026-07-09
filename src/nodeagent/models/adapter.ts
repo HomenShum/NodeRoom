@@ -32,6 +32,11 @@ const openrouter = () => createOpenAI({
   headers: { "HTTP-Referer": "https://noderoom.local", "X-Title": "NodeRoom benchmark" },
 });
 
+const nebius = () => createOpenAI({
+  apiKey: envValue("NEBIUS_API_KEY"),
+  baseURL: envValue("NEBIUS_BASE_URL") ?? "https://api.tokenfactory.nebius.com/v1",
+});
+
 /** Route an id to its provider via the catalog (native prefixes → direct SDK; else → OpenRouter). */
 function providerFor(modelId: string): LanguageModel {
   switch (getProviderForModel(modelId)) {
@@ -39,6 +44,7 @@ function providerFor(modelId: string): LanguageModel {
     case "anthropic": return anthropic(modelId);
     case "gemini": return google(modelId);
     case "openrouter": return openrouter().chat(modelId); // OpenRouter speaks Chat Completions, not the Responses API
+    case "nebius": return nebius().chat(modelId.replace(/^nebius\//i, ""));
     default: throw new Error(`model(): no provider for "${modelId}" (add it to modelCatalog.modelPricing)`);
   }
 }

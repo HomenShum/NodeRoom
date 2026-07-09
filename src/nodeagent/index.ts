@@ -59,6 +59,7 @@ export * from "./skills/integration/noderoomAdapter";
 export * from "./skills/integration/downstreamPublish";
 export * from "./skills/integration/omnigentAdapter";
 export * from "./skills/mcp";
+export * from "./integrations";
 
 export * from "./components/CellEditor";
 export * from "./components/CostDashboard";
