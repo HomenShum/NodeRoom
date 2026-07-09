@@ -1,9 +1,11 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   buildAgentRepairPrompt,
+  collectProofloopAgentTrace,
+  launchProofloopAgentAdapter,
   setupProofloopAgentAdapter,
   writeAgentRepairAttemptReceipt,
   type AgentRunResult,
@@ -162,10 +164,52 @@ describe("ProofLoop agent adapters", () => {
       runResult: { status: "needs_command" },
     });
   });
+
+  it("runs generic-cli through the Cursor bridge contract and collects trace evidence", () => {
+    const root = tempRoot();
+    const runDir = join(root, ".proofloop", "runs", verdict.runId);
+    const promptPath = join(runDir, "generic-cli-repair-prompt.md");
+    const workerPath = join(root, "fake-generic-worker.mjs");
+    const bridgePath = join(process.cwd(), "scripts", "proofloop-generic-cursor-bridge.mjs");
+    mkdirSync(runDir, { recursive: true });
+    writeFileSync(promptPath, "Repair without changing verifier thresholds.\n", "utf8");
+    writeFileSync(workerPath, fakeGenericWorkerSource(), "utf8");
+
+    const result = launchProofloopAgentAdapter({
+      adapterId: "generic-cli",
+      promptPath,
+      targetDir: root,
+      command: `node "${bridgePath}"`,
+      env: {
+        ...process.env,
+        PROOFLOOP_GENERIC_BRIDGE_COMMAND: `node "${workerPath}"`,
+      },
+    });
+
+    expect(result.status).toBe("launched");
+    expect(readFileSync(join(root, result.stdoutPath ?? ""), "utf8")).toContain("generic bridge received verifier prompt");
+    expect(readFileSync(join(runDir, "generic-cli-trace.json"), "utf8")).toContain("proofloop-generic-cli-bridge-trace-v1");
+
+    const trace = collectProofloopAgentTrace({ adapterId: "generic-cli", runDir, root });
+    expect(trace.evidenceFiles).toEqual(expect.arrayContaining([
+      ".proofloop/runs/bankertoolbench-001/generic-cli-trace.json",
+      ".proofloop/runs/bankertoolbench-001/generic-cli-stdout.log",
+      ".proofloop/runs/bankertoolbench-001/generic-cli-stderr.log",
+    ]));
+  });
 });
 
 function tempRoot(): string {
   const root = mkdtempSync(join(tmpdir(), "proofloop-agent-adapter-"));
   tempRoots.push(root);
   return root;
+}
+
+function fakeGenericWorkerSource(): string {
+  return [
+    "import { readFileSync } from 'node:fs';",
+    "const prompt = readFileSync(0, 'utf8');",
+    "if (!prompt.includes('verifier')) process.exit(3);",
+    "console.log('generic bridge received verifier prompt');",
+  ].join("\n");
 }

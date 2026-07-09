@@ -61,6 +61,7 @@ playwright/.cache/
 .proofloop/hooks/
 .proofloop/mcp/
 .proofloop/secrets/
+.proofloop/tooluse/
 .proofloop/memory.jsonl
 .proofloop/live-memory.jsonl
 # Legacy local promoted-regression mirror. Canonical promoted regressions are tracked in proofloop/regressions/.
@@ -79,6 +80,7 @@ docs/walkthroughs/*.mp4
 remotion/public/audio/
 remotion/public/video/
 public/episodes/
+__pycache__/
 
 # Playwright probe artifacts (screenshots + JSON, regenerable from test runs)
 tests/.artifacts/

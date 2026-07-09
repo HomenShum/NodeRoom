@@ -501,7 +501,7 @@ function adapterSpecificInstruction(adapterId: ProofloopAgentAdapterId, status: 
   if (adapterId === "devin") {
     return [
       "Devin handoff:",
-      "- Local Devin CLI uses devin --prompt-file --print --export.",
+      "- Local Devin CLI uses scripts/proofloop-devin-cli-launch.py to run devin --prompt-file --print --export with stdout/stderr, timeout, and session export receipts.",
       "- Hosted Devin API uses scripts/proofloop-devin-api-launch.mjs with PROOFLOOP_DEVIN_API_KEY and PROOFLOOP_DEVIN_ORG_ID.",
       "- Default ProofLoop launch uses the hosted Devin API path; use `agents launch devin-cli` when a local Devin CLI is available.",
       "- Store API credentials in the host secret manager. ProofLoop setup receipts should record missing credentials without blocking unrelated local proof lanes.",

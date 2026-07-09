@@ -325,7 +325,7 @@ function nativeLaunchCommand(args: {
     return fillCommandTemplate(`node ${shellQuote(launcherScriptPath(args.root, "scripts/proofloop-cursor-launch.mjs"))} --prompt-file {promptPath} --export {exportPath} --run-dir {runDir}`, args);
   }
   if (args.hostId === "devin-cli") {
-    return fillCommandTemplate("devin --prompt-file {promptPath} --print --export {exportPath}", args);
+    return fillCommandTemplate(`python ${shellQuote(launcherScriptPath(args.root, "scripts/proofloop-devin-cli-launch.py"))} --prompt-file {promptPath} --export {exportPath} --run-dir {runDir}`, args);
   }
   if (args.hostId === "devin" || args.hostId === "devin-api") {
     return fillCommandTemplate(`node ${shellQuote(launcherScriptPath(args.root, "scripts/proofloop-devin-api-launch.mjs"))} --prompt-file {promptPath} --export {exportPath} --run-dir {runDir}`, args);

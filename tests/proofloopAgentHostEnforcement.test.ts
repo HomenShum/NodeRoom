@@ -108,6 +108,25 @@ describe("ProofLoop native agent host enforcement", () => {
     expect(readFileSync(join(root, launch.exportPath ?? ""), "utf8")).toContain("proofloop-devin-api-session-export-v1");
   });
 
+  it("launches local Devin CLI through the repository wrapper in dry-run mode", () => {
+    const root = tempRoot();
+    const promptPath = join(root, "repair-prompt.md");
+    write(promptPath, "Fix the failing ProofLoop receipt.\n");
+
+    const launch = launchNativeAgentHost({
+      root,
+      hostId: "devin-cli",
+      promptPath,
+      generatedAt: "2026-07-09T00:00:00.000Z",
+      env: { PROOFLOOP_DEVIN_CLI_DRY_RUN: "1" },
+    });
+
+    expect(launch.status).toBe("launch_ready");
+    expect(launch.command).toContain("proofloop-devin-cli-launch.py");
+    expect(readFileSync(join(root, launch.exportPath ?? ""), "utf8")).toContain("proofloop-devin-cli-session-export-v1");
+    expect(readFileSync(join(root, launch.stdoutPath ?? ""), "utf8")).toContain("dry-run Devin CLI session");
+  });
+
   it("collects a Windsurf Cascade transcript as session evidence", () => {
     const root = tempRoot();
     const transcriptPath = join(root, "cascade-transcript.jsonl");

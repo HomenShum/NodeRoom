@@ -2,7 +2,7 @@
   "schema": "proofloop-chart-pack-v1",
   "runId": "2026-07-02T20-31-20",
   "suite": "proximitty-underwriting-pr0",
-  "generatedAt": "2026-07-09T03:30:14.493Z",
+  "generatedAt": "2026-07-09T06:24:23.287Z",
   "sourceRefs": {
     "nodeTraceV2": ".proofloop/runs/latest/node-trace-v2.json",
     "nodeEval": ".proofloop/runs/latest/node-eval.json",
