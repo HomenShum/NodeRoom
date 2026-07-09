@@ -1,8 +1,8 @@
 {
   "schema": "proofloop-harness-economics-v1",
-  "generatedAt": "2026-07-04T14:38:18.801Z",
+  "generatedAt": "2026-07-08T21:36:23.501Z",
   "git": {
-    "commit": "80f8ee7a6f8deab1099192b6739a5820ddcf72b9",
+    "commit": "8ef3fd5a2961b431118f5ff94132d4d0ee8ab8b2",
     "dirty": true
   },
   "packageVersion": "0.1.1",
@@ -18,7 +18,7 @@
     {
       "path": "scripts/proofloop.mjs",
       "exists": true,
-      "sha256": "95aec6cc8e95fa03a45904081f01150202473050e6defbec38dd9c6d0ff55fc9"
+      "sha256": "3f6008055f124098d6c28aed469aff2165583dc44d4275854bea5f91826ba3f9"
     },
     {
       "path": "scripts/proofloop-runner.ts",
@@ -33,7 +33,7 @@
     {
       "path": "proofloop/live-browser-proof.spec.ts",
       "exists": true,
-      "sha256": "3f068a7eb60e83829a71e63cfd41aa419e064be596c54706fb70f7ca5c8e93c1"
+      "sha256": "2d86a7229a14a890d685633db3555ff3faef3880e19935fff9b599110d9b072b"
     },
     {
       "path": "proofloop/cockpit/playwrightOverlay.ts",
@@ -93,17 +93,17 @@
     {
       "path": "src/eval/proofloopGoalSupervisor.ts",
       "exists": true,
-      "sha256": "670bb2971cc3506e0ecf393036a7310a0b900327554debf6501b50b2556f50fc"
+      "sha256": "928a1ec86f5cee7ced97a5ec6eaddd1a07a3a3fa35436eefdfe902864cb6cd1a"
     },
     {
       "path": "src/eval/proofloopBlockerSolver.ts",
       "exists": true,
-      "sha256": "0e787203927832e15fd72db090ebcefcb8b4c7b321085b12a24f2a54da324348"
+      "sha256": "e840ede52b09036a5c28427238eef1457930133a6841cd8e12d3983e932c8538"
     },
     {
       "path": "src/eval/proofloopModelTracking.ts",
       "exists": true,
-      "sha256": "7ea29d78b38dc9234f7c6e0994ef359b65b72e229185598a3f49e9f2941580e7"
+      "sha256": "5c0fc9e9daa64add3c40833546a2b5bbd86a2fac14801c86302d3a1434f65bc2"
     },
     {
       "path": "src/eval/proofloopBenchmarkNormalization.ts",
@@ -113,7 +113,7 @@
     {
       "path": "src/eval/proofloopBenchmarkBoard.ts",
       "exists": true,
-      "sha256": "7e591c8fb0cc2902b093ba5d2c578458e809153f0508855c9ac3f5e075ac20ca"
+      "sha256": "7942b9b1290149a2cdc1dca12f5eb8f869f97953da2f67c77c1d54ec603d3c66"
     },
     {
       "path": "src/eval/proofloopCompanyTaskCoverage.ts",

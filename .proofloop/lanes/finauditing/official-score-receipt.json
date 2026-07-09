@@ -2,7 +2,7 @@
   "schema": 1,
   "suite": "finauditing",
   "blockerId": "finauditing-official-score",
-  "generatedAt": "2026-07-04T02:24:04.988Z",
+  "generatedAt": "2026-07-08T21:36:33.791Z",
   "status": "needs_scaffold_or_run",
   "officialScoreClaimable": false,
   "officialSemanticScore": null,

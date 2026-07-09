@@ -58,7 +58,8 @@ if (args[0] === "verify-underwriting-live") {
 }
 
 if (args[0] === "memory") {
-  const status = run("node", ["--no-warnings", "scripts/proofloop-memory.mjs", ...args.slice(1)]);
+  const memoryArgs = normalizeMemoryArgs(args.slice(1));
+  const status = run("node", ["--no-warnings", "scripts/proofloop-memory.mjs", ...memoryArgs]);
   process.exit(status);
 }
 
@@ -78,6 +79,27 @@ function run(cmd, stepArgs) {
     env: process.env,
   });
   return result.status ?? 1;
+}
+
+function normalizeMemoryArgs(memoryArgs) {
+  const [command, ...rest] = memoryArgs;
+  if (command === "recall") return ["search", ...rest];
+  if (command === "remember-run") return ["compact", ...stripOption(rest, "--backend")];
+  return memoryArgs;
+}
+
+function stripOption(values, optionName) {
+  const out = [];
+  for (let index = 0; index < values.length; index++) {
+    const value = values[index];
+    if (value === optionName) {
+      if (values[index + 1] && !values[index + 1].startsWith("--")) index++;
+      continue;
+    }
+    if (value.startsWith(`${optionName}=`)) continue;
+    out.push(value);
+  }
+  return out;
 }
 
 function latestRunDir() {

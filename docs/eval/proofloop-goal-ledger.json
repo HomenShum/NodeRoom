@@ -1,6 +1,6 @@
 {
   "schema": "proofloop-goal-ledger-export-v1",
-  "generatedAt": "2026-07-04T02:23:35.184Z",
+  "generatedAt": "2026-07-09T03:23:27.050Z",
   "exports": {
     "json": "docs/eval/proofloop-goal-ledger.json",
     "markdown": "docs/eval/PROOFLOOP_GOAL_LEDGER.md"
@@ -11,11 +11,11 @@
     "note": "Raw .proofloop goal/process stores remain gitignored. This committed receipt copies durable status, blocker reasons, resume commands, and evidence paths only."
   },
   "summary": {
-    "goalCount": 1,
+    "goalCount": 3,
     "statusCounts": {
       "initialized": 1,
       "running": 0,
-      "passed": 0,
+      "passed": 2,
       "blocked_external": 0,
       "needs_scaffold_or_run": 0,
       "needs_human_approval": 0,
@@ -32,15 +32,15 @@
       "objective": "Make official benchmark scores real, tested, shipped, and externally blocked only with proof.",
       "status": "initialized",
       "createdAt": "2026-07-04T02:23:35.184Z",
-      "updatedAt": "2026-07-04T02:23:35.184Z",
+      "updatedAt": "2026-07-09T03:23:27.050Z",
       "localStatePath": ".proofloop/goals/official-scores/state.json",
       "localQueuePath": ".proofloop/goals/official-scores/queue.json",
       "localBlockersPath": ".proofloop/goals/official-scores/blockers.json",
       "localLedgerPath": ".proofloop/goals/official-scores/ledger.jsonl",
       "ledgerEvents": {
-        "count": 184,
-        "latestTs": "2026-07-04T02:23:35.184Z",
-        "latestType": "goal_initialized"
+        "count": 189,
+        "latestTs": "2026-07-09T03:23:27.050Z",
+        "latestType": "goal_gate"
       },
       "requiredTaskCount": 16,
       "unblockedTasksRemaining": 11,
@@ -492,6 +492,302 @@
           ],
           "resumeCommand": "obtain the official WorkstreamBench task bundle and scorer/rubric from an upstream release or authors, lock it in docs/eval/proofloop-official-task-bundles/workstreambench.json, use npm run benchmark:proofloop:harness-economics for proxy triage, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
           "attempts": 0
+        }
+      ]
+    },
+    {
+      "goalId": "voice-agent-implementation",
+      "objective": "Implement the Room OS capability-donor voice layer in NodeRoom, including chat-composer mic, authenticated provider STT/TTS fallback, and no direct durable voice mutations; prove it with deterministic voice tests, UI tests, provider boundary tests, Convex analyzer dry-run, architecture budget, NodeAgent smokes, and proofloop doctor.",
+      "status": "passed",
+      "createdAt": "2026-07-08T07:16:46.186Z",
+      "updatedAt": "2026-07-08T07:17:30.519Z",
+      "terminalReason": "All required tasks passed from persisted proof ledger state.",
+      "localStatePath": ".proofloop/goals/voice-agent-implementation/state.json",
+      "localQueuePath": ".proofloop/goals/voice-agent-implementation/queue.json",
+      "localBlockersPath": ".proofloop/goals/voice-agent-implementation/blockers.json",
+      "localLedgerPath": ".proofloop/goals/voice-agent-implementation/ledger.jsonl",
+      "ledgerEvents": {
+        "count": 82,
+        "latestTs": "2026-07-08T07:17:30.519Z",
+        "latestType": "goal_gate"
+      },
+      "requiredTaskCount": 8,
+      "unblockedTasksRemaining": 0,
+      "blockedTasksRemaining": 0,
+      "taskStatusCounts": {
+        "pending": 0,
+        "running": 0,
+        "passed": 8,
+        "blocked_external": 0,
+        "needs_scaffold_or_run": 0,
+        "needs_human_approval": 0,
+        "failed": 0
+      },
+      "blockedReasons": [],
+      "tasks": [
+        {
+          "id": "voice-unit-doc-composer-provider-tests",
+          "title": "Voice architecture, state, adapter, composer, and provider tests",
+          "kind": "command",
+          "required": true,
+          "status": "passed",
+          "command": "npm test -- --run tests/voiceAgentArchitectureDocs.test.ts tests/voiceSession.test.ts tests/roomVoiceAdapter.test.ts tests/chatVoiceComposer.test.tsx tests/voiceProviderHttp.test.ts",
+          "evidence": [
+            "tests/voiceAgentArchitectureDocs.test.ts",
+            "tests/voiceSession.test.ts",
+            "tests/roomVoiceAdapter.test.ts",
+            "tests/chatVoiceComposer.test.tsx",
+            "tests/voiceProviderHttp.test.ts"
+          ],
+          "blockers": [],
+          "attempts": 1,
+          "startedAt": "2026-07-08T07:16:51.497Z",
+          "finishedAt": "2026-07-08T07:16:54.630Z",
+          "lastExitCode": 0
+        },
+        {
+          "id": "typecheck",
+          "title": "TypeScript typecheck",
+          "kind": "command",
+          "required": true,
+          "status": "passed",
+          "command": "npm run typecheck -- --pretty false",
+          "evidence": [
+            "src/voice/types.ts",
+            "src/voice/gateway.ts",
+            "src/voice/roomVoiceAdapter.ts",
+            "src/voice/adapters/providerHttp.ts",
+            "src/voice/adapters/providerSpeech.ts",
+            "src/ui/Chat.tsx",
+            "src/app/store.tsx",
+            "convex/http.ts",
+            "convex/voice.ts"
+          ],
+          "blockers": [],
+          "attempts": 1,
+          "startedAt": "2026-07-08T07:16:54.655Z",
+          "finishedAt": "2026-07-08T07:17:12.640Z",
+          "lastExitCode": 0
+        },
+        {
+          "id": "voice-qa-smoke",
+          "title": "Voice QA smoke",
+          "kind": "command",
+          "required": true,
+          "status": "passed",
+          "command": "npm run voice:qa:smoke",
+          "evidence": [
+            "scripts/voice-qa-smoke.ts"
+          ],
+          "blockers": [],
+          "attempts": 1,
+          "startedAt": "2026-07-08T07:17:12.661Z",
+          "finishedAt": "2026-07-08T07:17:13.216Z",
+          "lastExitCode": 0
+        },
+        {
+          "id": "convex-codegen-dry-run",
+          "title": "Convex codegen dry-run analyzer",
+          "kind": "command",
+          "required": true,
+          "status": "passed",
+          "command": "npx convex codegen --dry-run --typecheck disable",
+          "evidence": [
+            "convex/http.ts",
+            "convex/voice.ts"
+          ],
+          "blockers": [],
+          "attempts": 1,
+          "startedAt": "2026-07-08T07:17:13.235Z",
+          "finishedAt": "2026-07-08T07:17:19.754Z",
+          "lastExitCode": 0
+        },
+        {
+          "id": "architecture-budget",
+          "title": "Architecture budget with explicit composer UI approval",
+          "kind": "command",
+          "required": true,
+          "status": "passed",
+          "command": "npm run architecture:budget -- --strict --human-approved --changed=.env.example --changed=docs/architecture-budget.json --changed=package.json --changed=docs/architecture/VOICE_AGENT_MERGE_ADR.md --changed=docs/architecture/ROOM_OS_TO_NODEROOM_MAP.md --changed=tests/voiceAgentArchitectureDocs.test.ts --changed=tests/voiceSession.test.ts --changed=tests/roomVoiceAdapter.test.ts --changed=tests/chatVoiceComposer.test.tsx --changed=tests/voiceProviderHttp.test.ts --changed=scripts/voice-qa-smoke.ts --changed=src/voice/types.ts --changed=src/voice/stateMachines.ts --changed=src/voice/commandClassifier.ts --changed=src/voice/gateway.ts --changed=src/voice/roomVoiceAdapter.ts --changed=src/voice/narration.ts --changed=src/voice/adapters/mock.ts --changed=src/voice/adapters/browserSpeech.ts --changed=src/voice/adapters/providerHttp.ts --changed=src/voice/adapters/providerSpeech.ts --changed=src/voice/index.ts --changed=src/app/store.tsx --changed=src/ui/Chat.tsx --changed=src/app/styles.css --changed=convex/http.ts --changed=convex/voice.ts --evidence=tests/voiceAgentArchitectureDocs.test.ts --evidence=tests/voiceSession.test.ts --evidence=tests/roomVoiceAdapter.test.ts --evidence=tests/chatVoiceComposer.test.tsx --evidence=tests/voiceProviderHttp.test.ts",
+          "evidence": [
+            "docs/architecture-budget.json",
+            "tests/voiceAgentArchitectureDocs.test.ts",
+            "tests/voiceSession.test.ts",
+            "tests/roomVoiceAdapter.test.ts",
+            "tests/chatVoiceComposer.test.tsx",
+            "tests/voiceProviderHttp.test.ts"
+          ],
+          "blockers": [],
+          "attempts": 1,
+          "startedAt": "2026-07-08T07:17:19.778Z",
+          "finishedAt": "2026-07-08T07:17:20.332Z",
+          "lastExitCode": 0
+        },
+        {
+          "id": "nodeagent-frame-smoke",
+          "title": "NodeAgent frame smoke",
+          "kind": "command",
+          "required": true,
+          "status": "passed",
+          "command": "npm run nodeagent:frame:smoke",
+          "evidence": [
+            "scripts/nodeagent-frame-smoke.ts"
+          ],
+          "blockers": [],
+          "attempts": 1,
+          "startedAt": "2026-07-08T07:17:20.350Z",
+          "finishedAt": "2026-07-08T07:17:20.994Z",
+          "lastExitCode": 0
+        },
+        {
+          "id": "omnigent-nodeagent-smoke",
+          "title": "Omnigent NodeAgent smoke",
+          "kind": "command",
+          "required": true,
+          "status": "passed",
+          "command": "npm run omnigent:nodeagent:smoke",
+          "evidence": [
+            "docs/eval/omnigent-nodeagent-smoke.json"
+          ],
+          "blockers": [],
+          "attempts": 1,
+          "startedAt": "2026-07-08T07:17:21.015Z",
+          "finishedAt": "2026-07-08T07:17:21.787Z",
+          "lastExitCode": 0
+        },
+        {
+          "id": "proofloop-doctor",
+          "title": "ProofLoop doctor",
+          "kind": "command",
+          "required": true,
+          "status": "passed",
+          "command": "npm run proofloop -- doctor --json",
+          "evidence": [
+            "scripts/proofloop.mjs"
+          ],
+          "blockers": [],
+          "attempts": 1,
+          "startedAt": "2026-07-08T07:17:21.810Z",
+          "finishedAt": "2026-07-08T07:17:23.435Z",
+          "lastExitCode": 0
+        }
+      ]
+    },
+    {
+      "goalId": "voice-agent-merge-packet",
+      "objective": "Create a reviewed Room OS to NodeRoom voice-agent merge packet and prove the architecture invariants with deterministic tests, NodeAgent smokes, and proofloop setup checks.",
+      "status": "passed",
+      "createdAt": "2026-07-08T05:02:23.434Z",
+      "updatedAt": "2026-07-08T05:04:06.638Z",
+      "terminalReason": "All required tasks passed from persisted proof ledger state.",
+      "localStatePath": ".proofloop/goals/voice-agent-merge-packet/state.json",
+      "localQueuePath": ".proofloop/goals/voice-agent-merge-packet/queue.json",
+      "localBlockersPath": ".proofloop/goals/voice-agent-merge-packet/blockers.json",
+      "localLedgerPath": ".proofloop/goals/voice-agent-merge-packet/ledger.jsonl",
+      "ledgerEvents": {
+        "count": 29,
+        "latestTs": "2026-07-08T05:04:06.638Z",
+        "latestType": "goal_gate"
+      },
+      "requiredTaskCount": 5,
+      "unblockedTasksRemaining": 0,
+      "blockedTasksRemaining": 0,
+      "taskStatusCounts": {
+        "pending": 0,
+        "running": 0,
+        "passed": 5,
+        "blocked_external": 0,
+        "needs_scaffold_or_run": 0,
+        "needs_human_approval": 0,
+        "failed": 0
+      },
+      "blockedReasons": [],
+      "tasks": [
+        {
+          "id": "voice-architecture-doc-contract",
+          "title": "Voice architecture merge packet doc contract",
+          "kind": "command",
+          "required": true,
+          "status": "passed",
+          "command": "npm test -- --run tests/voiceAgentArchitectureDocs.test.ts",
+          "evidence": [
+            "docs/architecture/VOICE_AGENT_MERGE_ADR.md",
+            "docs/architecture/ROOM_OS_TO_NODEROOM_MAP.md",
+            "tests/voiceAgentArchitectureDocs.test.ts"
+          ],
+          "blockers": [],
+          "attempts": 1,
+          "startedAt": "2026-07-08T05:02:30.667Z",
+          "finishedAt": "2026-07-08T05:02:31.942Z",
+          "lastExitCode": 0
+        },
+        {
+          "id": "nodeagent-frame-smoke",
+          "title": "NodeAgent frame smoke",
+          "kind": "command",
+          "required": true,
+          "status": "passed",
+          "command": "npm run nodeagent:frame:smoke",
+          "evidence": [
+            "src/nodeagent/core/frameRunner.ts",
+            "src/nodeagent/core/runtime.ts"
+          ],
+          "blockers": [],
+          "attempts": 1,
+          "startedAt": "2026-07-08T05:02:31.959Z",
+          "finishedAt": "2026-07-08T05:02:37.005Z",
+          "lastExitCode": 0
+        },
+        {
+          "id": "omnigent-nodeagent-smoke",
+          "title": "Omnigent NodeAgent compatibility smoke",
+          "kind": "command",
+          "required": true,
+          "status": "passed",
+          "command": "npm run omnigent:nodeagent:smoke",
+          "evidence": [
+            "examples/omnigent/nodeagent-room.yaml",
+            "docs/eval/omnigent-nodeagent-smoke.json"
+          ],
+          "blockers": [],
+          "attempts": 1,
+          "startedAt": "2026-07-08T05:02:37.019Z",
+          "finishedAt": "2026-07-08T05:02:37.839Z",
+          "lastExitCode": 0
+        },
+        {
+          "id": "architecture-budget-gate",
+          "title": "Architecture budget gate for voice merge packet",
+          "kind": "command",
+          "required": true,
+          "status": "passed",
+          "command": "npm run architecture:budget -- --strict --changed=docs/architecture/VOICE_AGENT_MERGE_ADR.md --changed=docs/architecture/ROOM_OS_TO_NODEROOM_MAP.md --changed=tests/voiceAgentArchitectureDocs.test.ts --evidence=tests/voiceAgentArchitectureDocs.test.ts",
+          "evidence": [
+            "tests/voiceAgentArchitectureDocs.test.ts"
+          ],
+          "blockers": [],
+          "attempts": 1,
+          "startedAt": "2026-07-08T05:02:37.853Z",
+          "finishedAt": "2026-07-08T05:02:38.375Z",
+          "lastExitCode": 0
+        },
+        {
+          "id": "proofloop-doctor",
+          "title": "ProofLoop doctor setup gate",
+          "kind": "command",
+          "required": true,
+          "status": "passed",
+          "command": "npm run proofloop -- doctor --json",
+          "evidence": [
+            "AGENTS.md",
+            ".proofloop/config.json",
+            ".proofloop/manifest.json"
+          ],
+          "blockers": [],
+          "attempts": 1,
+          "startedAt": "2026-07-08T05:02:38.390Z",
+          "finishedAt": "2026-07-08T05:02:40.040Z",
+          "lastExitCode": 0
         }
       ]
     }

@@ -7,6 +7,10 @@ import {
   readBenchmarkAdapter,
   type BenchmarkAdapterId,
 } from "./proofloopBenchmarkAdapters";
+import {
+  loadExternalBenchmarkLocalTasks,
+  type ExternalBenchmarkAdapterId,
+} from "../../proofloop/benchmarks/common/local-tasks";
 
 export type ProofloopSetupStatus = "ready" | "needs_download" | "blocked" | "needs_local_adapter_implementation";
 
@@ -46,6 +50,7 @@ export type ProofloopSetupOptions = {
 export async function setupProofloopAdapter(options: ProofloopSetupOptions): Promise<ProofloopSetupReceipt> {
   const projectRoot = resolve(options.projectRoot ?? process.cwd());
   if (options.adapterId === "bankertoolbench") return setupBankerToolBench(projectRoot, options);
+  if (isExternalBenchmarkAdapterId(options.adapterId)) return setupExternalLocalAdapter(projectRoot, options.adapterId, options.generatedAt ?? new Date().toISOString());
   return setupUnsupportedAdapter(projectRoot, options.adapterId, options.generatedAt ?? new Date().toISOString());
 }
 
@@ -191,6 +196,55 @@ function setupUnsupportedAdapter(projectRoot: string, adapterId: string, generat
       `Run npm run benchmark:proofloop:external-adapter-live-room -- --id ${adapterId} --prod --user-emulation strict.`,
       `Run npm run benchmark:proofloop:adapter-blockers -- --id ${adapterId} --strict.`,
     ],
+  });
+}
+
+function setupExternalLocalAdapter(projectRoot: string, adapterId: ExternalBenchmarkAdapterId, generatedAt: string): ProofloopSetupReceipt {
+  const adapter = readBenchmarkAdapterIfExists(adapterId, projectRoot);
+  const tasks = loadExternalBenchmarkLocalTasks(adapterId);
+  const expectedFiles = [
+    `proofloop/benchmarks/${adapterId}/adapter.json`,
+    adapter?.taskLoader ?? `proofloop/benchmarks/${adapterId}/load-tasks.ts`,
+    adapter?.browserScenario ?? `proofloop/benchmarks/${adapterId}/browser-scenario.spec.ts`,
+    ...tasks.flatMap((task) => task.inputRefs),
+  ].filter((file): file is string => Boolean(file));
+  const missingFiles = expectedFiles.filter((file) => !existsSync(join(projectRoot, ...file.split("/"))));
+  const manifestRelativePath = `.proofloop/setup/${adapterId}-local-task-manifest.json`;
+  const manifestPath = join(projectRoot, ...manifestRelativePath.split("/"));
+  mkdirSync(dirname(manifestPath), { recursive: true });
+  writeFileSync(manifestPath, `${JSON.stringify({
+    schema: "proofloop-external-local-task-manifest-v1",
+    adapterId,
+    generatedAt,
+    tasks,
+  }, null, 2)}\n`, "utf8");
+
+  return writeSetupReceipt(projectRoot, {
+    schema: 1,
+    adapterId,
+    generatedAt,
+    productRule: "Proof Loop validates local proxy benchmark task adapters before declaring external benchmark lanes blocked.",
+    status: missingFiles.length ? "blocked" : "ready",
+    taskIds: tasks.map((task) => task.taskId),
+    downloadedFiles: [],
+    fixtureFiles: [manifestRelativePath, ...expectedFiles],
+    manifestLockfile: manifestRelativePath,
+    totalBytes: totalRelativeFileBytes(projectRoot, expectedFiles.filter((file) => !missingFiles.includes(file))),
+    requiredFiles: missingFiles.length ? missingFiles : undefined,
+    message: missingFiles.length
+      ? `${adapterId} local setup is missing ${missingFiles.length} required file(s).`
+      : `${adapterId} local proxy task adapter is ready with ${tasks.length} task(s).`,
+    nextCommands: [
+      `npm run proofloop -- setup ${adapterId} --strict`,
+      `npm run benchmark:proofloop:external-adapter-live-room -- --id ${adapterId} --prod --user-emulation strict`,
+      `npm run benchmark:proofloop:adapter-blockers -- --id ${adapterId} --strict`,
+    ],
+    scan: {
+      taskCount: tasks.length,
+      taskIds: tasks.map((task) => task.taskId),
+      officialScoreClaim: false,
+      missingFiles,
+    },
   });
 }
 
@@ -372,6 +426,10 @@ function totalRelativeFileBytes(root: string, files: string[]): number {
 
 function isBenchmarkAdapterId(adapterId: string): adapterId is BenchmarkAdapterId {
   return BENCHMARK_ADAPTER_IDS.includes(adapterId as BenchmarkAdapterId);
+}
+
+function isExternalBenchmarkAdapterId(adapterId: string): adapterId is ExternalBenchmarkAdapterId {
+  return adapterId === "finch" || adapterId === "finauditing" || adapterId === "workstreambench";
 }
 
 function rel(projectRoot: string, absolutePath: string): string {

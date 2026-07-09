@@ -61,7 +61,7 @@ describe("ProofLoop agent-friendly CLI manifest", () => {
     expect(manifest.recommendedInvocation).toBe("npm run proofloop -- <command>");
     expect(manifest.projectManifestPath).toBe(".proofloop/manifest.json");
     expect(commandIds).toEqual(
-      expect.arrayContaining(["manifest", "doctor", "docs", "init", "template", "workflow", "ui", "this-repo", "supervise", "gate", "hooks", "ci"]),
+      expect.arrayContaining(["manifest", "doctor", "docs", "init", "template", "workflow", "ui", "this-repo", "agents", "mcp", "supervise", "gate", "hooks", "providers", "codex", "ci"]),
     );
     expect(manifest.commands.find((command) => command.id === "manifest")?.writes).toBe("none");
     expect(manifest.commands.find((command) => command.id === "doctor")?.json).toBe(true);
@@ -76,6 +76,7 @@ describe("ProofLoop agent-friendly CLI manifest", () => {
     expect(commands).toContain("npm run proofloop -- init --features agents,live --agent auto");
     expect(commands).toContain("npm run proofloop -- doctor --json");
     expect(formatProofloopDocsTopic(proofloopDocsTopic("agents"), { dense: true })).toContain("never claim completion");
+    expect(proofloopDocsTopic("agents").sections.flatMap((section) => section.commands ?? [])).toContain("npm run proofloop -- mcp serve");
   });
 });
 
@@ -174,7 +175,8 @@ describe("ProofLoop project manifest, package scripts, templates, and UI contrac
     expect(second.changed).toBe(false);
     expect(scripts.proofloop).toBe("node scripts/proofloop.mjs");
     expect(scripts["proofloop:init"]).toBe("npm run proofloop -- init --agent auto --live");
-    expect(scripts["proofloop:resume"]).toBe("npm run proofloop -- resume --goal default --dense");
+    expect(scripts["proofloop:gate"]).toBe("npm run proofloop -- gate --goal official-scores");
+    expect(scripts["proofloop:resume"]).toBe("npm run proofloop -- resume --goal official-scores --dense");
     expect(scripts["proofloop:doctor"]).toBe("npm run proofloop -- doctor --json");
   });
 
@@ -184,6 +186,7 @@ describe("ProofLoop project manifest, package scripts, templates, and UI contrac
       name: "demo",
       scripts: {
         proofloop: "node scripts/proofloop.mjs",
+        "proofloop:gate": "npm run proofloop -- gate --goal default",
         "proofloop:resume": "npm run proofloop -- resume --goal default",
         "proofloop:doctor": "custom-doctor",
       },
@@ -192,8 +195,10 @@ describe("ProofLoop project manifest, package scripts, templates, and UI contrac
     const result = syncProofloopPackageScripts(root);
     const scripts = JSON.parse(readFileSync(join(root, "package.json"), "utf8")).scripts;
 
+    expect(result.updated).toContain("proofloop:gate");
     expect(result.updated).toContain("proofloop:resume");
-    expect(scripts["proofloop:resume"]).toBe("npm run proofloop -- resume --goal default --dense");
+    expect(scripts["proofloop:gate"]).toBe("npm run proofloop -- gate --goal official-scores");
+    expect(scripts["proofloop:resume"]).toBe("npm run proofloop -- resume --goal official-scores --dense");
     expect(scripts["proofloop:doctor"]).toBe("custom-doctor");
   });
 

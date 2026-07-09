@@ -27,6 +27,7 @@
  *   proofloop memory search <query> search local compacted memory
  *   proofloop storybook [runId]     write trace-storybook.html for a run
  *   proofloop repair [runId]        write/print the smallest repair prompt
+ *   proofloop codex reprompt [runId] write/print the Codex relaunch prompt for a failed run
  *   proofloop rerun [runId]         alias for replay
  *   proofloop storyboard [runId]    write storyboard.json/md
  *   proofloop clips [runId]         write clip manifest and social assets
@@ -39,6 +40,7 @@
  *   proofloop hooks install         wire Claude Code Stop/PreToolUse/PostToolUse proof-gate hooks
  *   proofloop tooluse verify        check captured tool calls against an expected-tool-use contract
  *   proofloop tooluse init          write a starter expected-tool-use contract (JSON)
+ *   proofloop mcp serve             run a stdio MCP bridge exposing ProofLoop commands as tools
  *   proofloop ci install github     write the proofloop-gate workflow into a target repo
  *   proofloop prompt                print the canonical one-prompt kickoff text
  *   proofloop promote <runId>       turn a failure into a tracked regression
@@ -103,8 +105,30 @@ import {
   uninstallProofloopHooks,
 } from "../src/eval/proofloopHooks";
 import { writeLoopArtifactsForMeta } from "../src/eval/proofloopLoopArtifacts";
+import {
+  PROOFLOOP_AGENT_ADAPTER_IDS,
+  buildAgentRepairPrompt,
+  launchProofloopAgentAdapter,
+  parseProofloopAgentAdapterId,
+  setupProofloopAgentAdapter,
+  writeAgentRepairAttemptReceipt,
+  type AgentRunResult,
+  type ProofloopAgentAdapterId,
+} from "../src/eval/proofloopAgentAdapters";
+import {
+  PROOFLOOP_NATIVE_AGENT_HOST_IDS,
+  collectNativeAgentSession,
+  launchNativeAgentHost,
+  parseProofloopNativeAgentHostId,
+  verifyNativeAgentEnforcement,
+} from "../src/eval/proofloopAgentHostEnforcement";
 import { promoteProofloopRegression } from "../src/eval/proofloopRegressions";
 import { setupProofloopAdapter, setupReceiptPath } from "../src/eval/proofloopSetup";
+import {
+  PROOFLOOP_PROVIDER_IDS,
+  parseProofloopProviderId,
+  setupProofloopProviders,
+} from "../src/eval/proofloopProviderSetup";
 import {
   compareProofloopModelsForSuite,
   solveProofloopBlocker,
@@ -127,7 +151,9 @@ import {
   type ProofloopHarnessVersion,
   type ProofloopModelRoute,
 } from "../src/eval/proofloopModelTracking";
+import { writeCodexRelaunchPacket } from "../src/eval/proofloopCodexRelaunch";
 import { runToolUseInit, runToolUseVerify } from "../src/eval/proofloopToolUse";
+import { runProofloopMcpServer } from "../src/eval/proofloopMcpServer";
 
 const ROOT = process.cwd();
 const PROOFLOOP_DIR = join(ROOT, ".proofloop");
@@ -206,6 +232,11 @@ const DEFAULT_CONFIG: ProofloopConfig = {
       kind: "browser",
       receiptGlob: "external-adapter-live-room-run",
     },
+    "proofloop-gate": {
+      cmd: "npm run proofloop -- gate --goal official-scores",
+      kind: "cli",
+      receiptGlob: "none",
+    },
   },
 };
 
@@ -233,10 +264,19 @@ function main(): void {
       const flagArgs = suiteArg ? args.slice(1) : args;
       return cmdRun(suiteArg, flagArgs);
     }
+    case "codex-loop":
+      return cmdCodexLoop(args);
+    case "codex":
+      return cmdCodex(args);
+    case "agents":
+      void cmdAgents(args);
+      return;
     case "show":
       return cmdShow(args[0]);
     case "report":
       return cmdShow(args[0]);
+    case "brief":
+      return cmdBrief(args);
     case "log":
       return cmdLog();
     case "diff":
@@ -252,8 +292,13 @@ function main(): void {
       return usage(`unknown mem target: ${args[0] ?? ""}`);
     case "memory":
       return cmdMemory(args);
+    case "search":
+      return cmdSearch(args);
     case "setup":
       void cmdSetup(args);
+      return;
+    case "providers":
+      void cmdProviders(args);
       return;
     case "solve-blockers":
       return cmdSolveBlockers(args);
@@ -269,6 +314,8 @@ function main(): void {
       return cmdOrchestrator(args);
     case "this-repo":
       return cmdThisRepo(args);
+    case "dashboard":
+      return cmdDashboard(args);
     case "graph":
       return cmdGraph(args);
     case "storybook":
@@ -295,6 +342,8 @@ function main(): void {
       return cmdHooks(args);
     case "tooluse":
       return cmdToolUse(args);
+    case "mcp":
+      return cmdMcp(args);
     case "ci":
       return cmdCi(args);
     case "prompt":
@@ -326,9 +375,13 @@ function usage(error?: string): void {
       "  workflow --list [--dense] list generated proof workflows",
       "  ui list|contract|component <name> [--dense] print agent-readable UI contracts",
       "  status               is the repo currently proven or broken?",
-      "  run [suite]          run a suite, record a proof run",
+      "  run [suite] [--agent codex --closed-loop] run a suite, record a proof run",
+      "  codex-loop [suite]   rerun failed suites by feeding repair prompts back to Codex",
+      "  codex reprompt [runId] write/print Codex relaunch prompt for a failed run",
+      "  agents list|setup|launch|collect|verify [agent] install and enforce native agent launch, trace, and gate adapters",
       "  show [runId|latest]  print a proof run's scorecard/receipt",
       "  report [runId|latest] alias for show",
+      "  brief [runId|latest]  write chart/report pack and print a short proof brief",
       "  log                  list past proof runs",
       "  diff <a> <b>         compare two proof runs",
       "  replay <runId>       re-run a past run's exact command",
@@ -337,17 +390,22 @@ function usage(error?: string): void {
       "  mem write [runId]    write run reward/failure to Proofloop memory",
       "  memory init          create local-first SQLite/FTS memory",
       "  memory compact latest compact a proof run into recall memory",
+      "  memory seed-dogfood  seed UI/fake-success and official-score-boundary recall examples",
+      "  memory remember-run latest [--backend cognee] alias for compacted local memory",
       "  memory search <query> search local compacted memory",
+      "  memory recall <query> alias for memory search",
       "  memory show <id>     print one compacted memory episode",
       "  memory export --redacted write a redacted compacted-memory export",
       "  memory doctor        verify local memory/index health",
       "  setup <adapter>      prepare local fixtures/adapters before proof runs",
+      "  providers setup [all|provider] verify provider credentials/endpoints and write setup receipts",
       "  solve-blockers --goal <goal-id> convert blocked lanes into scaffold/model-run artifacts",
       "  blocker list|solve|research|scaffold|run inspect or advance one blocker",
       "  compare-models <suite> write a model matrix for a suite",
       "  promote-harness <suite> write/update harness-version.json for a suite",
       "  storybook [runId]    write trace-storybook.html",
       "  repair [runId]       write/print repair-prompt.md",
+      "  codex reprompt [runId] write/print Codex relaunch prompt for a failed run",
       "  storyboard [runId]   write storyboard.json/md",
       "  clips [runId]        write clip manifest and social assets",
       "  release-video [runId] render final-release-video.mp4 from trace cards",
@@ -356,12 +414,15 @@ function usage(error?: string): void {
       "  charts [latest|runId] write chart-pack.json, chart-pack.html, Vega-Lite specs, data, Markdown, and SVG",
       "  orchestrator dogfood run the durable repo-level ProofLoop Orchestrator",
       "  this-repo --goal <text> dogfood this repo with ProofLoop Orchestrator",
-      "  graph index|blast-radius|search|export-cypher  code-graph substrate (repair blast radius)",
+      "  dashboard export [latest|runId] write dashboard.json/html proof export",
+      "  graph index|ingest|query|blast-radius|search|export-cypher  code-graph substrate (repair blast radius)",
+      "  search --hybrid <query> search graph and compacted memory together",
       "  promote <runId>      turn a failure into a tracked regression",
       "  export rl [runId]    export a run as agentic-RL trace data",
-      "  hooks install|uninstall|status [--worker claude-code] [--local] [--dir <path>] [--no-tooluse-log] wire Claude Code Stop + PreToolUse + PostToolUse-capture hooks",
+      "  hooks install|uninstall|status [--worker claude-code|codex] [--local] [--dir <path>] [--no-tooluse-log] wire Stop + PreToolUse + PostToolUse-capture hooks",
       "  tooluse verify --contract <file> [--trace <file>] [--session <id>] [--json] check captured tool calls against a contract (exit 0 pass / 1 fail / 2 unusable)",
       "  tooluse init [--template composio-email-triage] [--out <file>] write a starter expected-tool-use contract (JSON)",
+      "  mcp serve            run stdio MCP bridge tools for setup, repair prompts, providers, graph, memory, dashboard, and gates",
       "  ci install github [--dir <path>] [--goal <goal-id>] write .github/workflows/proofloop-gate.yml into a target repo",
       "  prompt               print the canonical one-prompt Proof Loop kickoff text",
       "  goal init <goal-id> [--template official-scores] create a long-running proof ledger",
@@ -430,6 +491,7 @@ function cmdInit(args: string[]): void {
     writeFileSync(MEMORY_PATH, "");
     console.log(`proofloop: wrote ${rel(MEMORY_PATH)}`);
   }
+  ensureOfficialScoresGoal();
   const scripts = syncProofloopPackageScripts(ROOT);
   if (scripts.changed) {
     if (scripts.added.length) console.log(`proofloop: added package script(s): ${scripts.added.join(", ")}`);
@@ -451,7 +513,7 @@ function cmdInit(args: string[]): void {
     }
   }
   if (initFeatures(args).has("github")) {
-    const result = installProofloopGithubCi({ root: ROOT, sourceRoot: ROOT, goalId: "default" });
+    const result = installProofloopGithubCi({ root: ROOT, sourceRoot: ROOT, goalId: "official-scores" });
     console.log(`proofloop: wrote ${rel(result.workflowPath)} (gate goal: ${result.goalId})`);
   }
   if (initFeatures(args).has("live") || args.includes("--live")) {
@@ -462,6 +524,16 @@ function cmdInit(args: string[]): void {
   const manifest = writeProofloopProjectManifest(ROOT);
   console.log(`proofloop: ${manifest.changed ? "wrote" : "kept"} ${rel(manifest.path)}`);
   console.log("proofloop: initialized. Run `proofloop status` next.");
+}
+
+function ensureOfficialScoresGoal(): void {
+  try {
+    loadProofloopGoal("official-scores", { root: ROOT });
+    console.log("proofloop: goal official-scores already exists");
+  } catch {
+    initProofloopGoal({ root: ROOT, goalId: "official-scores", template: "official-scores" });
+    console.log("proofloop: initialized goal official-scores");
+  }
 }
 
 function cmdTemplate(args: string[]): void {
@@ -563,13 +635,30 @@ function cmdStatus(): void {
 }
 
 function cmdRun(suiteArg: string | undefined, extraArgs: string[] = []): void {
+  let flags: RunFlags;
+  try {
+    flags = parseRunFlags(extraArgs);
+  } catch (error) {
+    console.error(`proofloop: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+    return;
+  }
+  if (flags.closedLoop) {
+    return runAgentClosedLoop(flags.agent ?? "codex", suiteArg, extraArgs);
+  }
+  const meta = runSuiteAndRecord(suiteArg, extraArgs);
+  if (!meta) return;
+  if (!meta.passed) process.exitCode = 1;
+}
+
+function runSuiteAndRecord(suiteArg: string | undefined, extraArgs: string[] = []): RunMeta | undefined {
   const config = loadConfig();
   const suite = suiteArg ?? config.defaultSuite;
   const suiteConfig = config.suites[suite];
   if (!suiteConfig) {
     console.error(`proofloop: unknown suite "${suite}". Known: ${Object.keys(config.suites).join(", ")}`);
     process.exitCode = 1;
-    return;
+    return undefined;
   }
 
   const flags = parseRunFlags(extraArgs);
@@ -640,8 +729,149 @@ function cmdRun(suiteArg: string | undefined, extraArgs: string[] = []): void {
   console.log(`proofloop: node trace -- ${rel(paths.nodeTracePath)}`);
   console.log(`proofloop: node eval  -- ${rel(paths.nodeEvalPath)}`);
   console.log(`proofloop: contract   -- ${rel(paths.liveUserContractPath)}`);
+  if (!passed) {
+    const relaunch = writeCodexRelaunchForRun(meta, paths);
+    if (relaunch.wrote) {
+      console.log(`proofloop: codex reprompt -- ${rel(relaunch.promptPath)}`);
+      console.log(`proofloop: codex packet   -- ${rel(relaunch.packetPath)}`);
+    }
+  }
   writeChartsAfterCommand(runId, join(".proofloop", "runs", runId, "charts"), { writeRunArtifacts: false });
-  if (!passed) process.exitCode = 1;
+  return meta;
+}
+
+function cmdCodexLoop(args: string[]): void {
+  const suiteArg = args[0]?.startsWith("--") ? undefined : args[0];
+  const rest = suiteArg ? args.slice(1) : args;
+  return runAgentClosedLoop("codex", suiteArg, rest);
+}
+
+function runAgentClosedLoop(agentId: ProofloopAgentAdapterId, suiteArg: string | undefined, args: string[]): void {
+  let flags: RunFlags;
+  try {
+    flags = parseRunFlags(args);
+  } catch (error) {
+    console.error(`proofloop agent-loop: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+    return;
+  }
+  const maxAttempts = flags.maxAttempts ?? 2;
+  if (maxAttempts < 1) return usage("proofloop closed-loop requires --max-attempts >= 1");
+  const runArgs = stripOptions(args, new Set(["--agent", "--closed-loop", "--max-attempts", "--agent-command", "--codex-command", "--dry-run"]));
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const meta = runSuiteAndRecord(suiteArg, runArgs);
+    if (!meta) return;
+    if (meta.passed) {
+      console.log(`proofloop agent-loop: ${agentId} ${meta.suite} passed on attempt ${attempt}/${maxAttempts}`);
+      process.exitCode = 0;
+      return;
+    }
+
+    const paths = ensureLoopArtifacts(meta);
+    const repairPrompt = readFileSync(paths.repairPromptPath, "utf8");
+    const agentPrompt = buildAgentRepairPrompt({ adapterId: agentId, verdict: meta, repairPrompt, attempt, maxAttempts });
+    const runDir = resolveRunDir(meta);
+    const promptPath = join(runDir, `${agentId}-repair-prompt.md`);
+    writeFileSync(promptPath, agentPrompt, "utf8");
+
+    const terminalAttempt = attempt === maxAttempts;
+    let runResult: AgentRunResult = {
+      adapterId: agentId,
+      status: terminalAttempt ? "failed" : flags.dryRun ? "needs_command" : "needs_adapter",
+      launched: false,
+      command: flags.agentCommand,
+      promptPath: rel(promptPath),
+      message: terminalAttempt ? "Max attempts exhausted before relaunch." : "Agent relaunch not attempted.",
+    };
+
+    if (terminalAttempt) {
+      writeAgentRepairAttemptReceipt({ root: ROOT, runDir, adapterId: agentId, meta, repairPromptPath: promptPath, attempt, maxAttempts, runResult });
+      console.error(`proofloop agent-loop: ${agentId} ${meta.suite} still failing after ${attempt}/${maxAttempts}; prompt at ${rel(promptPath)}`);
+      process.exitCode = 1;
+      return;
+    }
+
+    console.log(`proofloop agent-loop: ${agentId} ${meta.suite} failed; repair prompt ${rel(promptPath)}`);
+    if (flags.dryRun) {
+      runResult = {
+        adapterId: agentId,
+        status: flags.agentCommand ? "needs_command" : "needs_adapter",
+        launched: false,
+        command: flags.agentCommand,
+        promptPath: rel(promptPath),
+        message: `Dry run, not launching ${agentId}.`,
+      };
+      writeAgentRepairAttemptReceipt({ root: ROOT, runDir, adapterId: agentId, meta, repairPromptPath: promptPath, attempt, maxAttempts, runResult });
+      console.log(`proofloop agent-loop: dry run, not launching ${agentId}.`);
+      process.exitCode = 1;
+      return;
+    }
+
+    runResult = launchProofloopAgentAdapter({
+      adapterId: agentId,
+      promptPath,
+      targetDir: ROOT,
+      command: flags.agentCommand,
+      env: {
+        ...process.env,
+        PROOFLOOP_FAILED_RUN_ID: meta.runId,
+        PROOFLOOP_FAILED_SUITE: meta.suite,
+      },
+    });
+    writeAgentRepairAttemptReceipt({ root: ROOT, runDir, adapterId: agentId, meta, repairPromptPath: promptPath, attempt, maxAttempts, runResult });
+    if (!runResult.launched || runResult.exitCode !== 0) {
+      console.error(`proofloop agent-loop: ${runResult.message}`);
+      process.exitCode = runResult.exitCode ?? 1;
+      return;
+    }
+  }
+}
+
+function cmdCodex(args: string[]): void {
+  const subcommand = args[0] ?? "reprompt";
+  if (subcommand !== "reprompt" && subcommand !== "relaunch") {
+    return usage(`unknown codex command: ${subcommand}`);
+  }
+  const meta = requireRunForCodex(args[1]);
+  if (!meta) return;
+  const paths = ensureLoopArtifacts(meta);
+  const result = writeCodexRelaunchForRun(meta, paths);
+  if (!result.wrote) {
+    console.log(`proofloop codex: ${meta.runId} passed; no relaunch prompt written.`);
+    return;
+  }
+  console.log(readFileSync(result.promptPath, "utf8"));
+}
+
+function requireRunForCodex(runIdArg: string | undefined): RunMeta | undefined {
+  const requested = runIdArg ?? "latest";
+  const meta = requested === "latest" ? resolveRun("latest-failed") ?? resolveRun("latest") : resolveRun(requested);
+  if (!meta) {
+    console.error(`proofloop codex: no run found for "${requested}"`);
+    process.exitCode = 1;
+    return undefined;
+  }
+  if (requested === "latest" && meta.passed) {
+    console.log("proofloop codex: no failed run found; latest run is passing.");
+  } else if (requested === "latest") {
+    console.log(`proofloop codex: selected latest failed run ${meta.runId}`);
+  }
+  return meta;
+}
+
+function writeCodexRelaunchForRun(meta: RunMeta, paths: ReturnType<typeof writeLoopArtifactsForMeta>) {
+  const runDir = resolveRunDir(meta);
+  return writeCodexRelaunchPacket({
+    meta,
+    runDir,
+    repairPromptPath: paths.repairPromptPath,
+    nodeTracePath: paths.nodeTracePath,
+    nodeEvalPath: paths.nodeEvalPath,
+    liveUserContractPath: paths.liveUserContractPath,
+    costLedgerPath: join(runDir, "cost-ledger.json"),
+    root: ROOT,
+  });
 }
 
 function cmdShow(runIdArg: string | undefined): void {
@@ -742,12 +972,44 @@ function cmdMemWrite(runIdArg: string | undefined): void {
 }
 
 function cmdMemory(args: string[]): void {
+  const [command, ...rest] = args;
+  if (command === "remember-run") {
+    console.log("proofloop memory: remember-run is an alias for local compacted memory; backend sync is not required for product-path proof.");
+    return cmdMemory(["compact", ...stripOptions(rest, new Set(["--backend"]))]);
+  }
+  if (command === "recall") {
+    console.log("proofloop memory: recall is an alias for local memory search.");
+    return cmdMemory(["search", ...rest]);
+  }
   const result = spawnSync("node", ["--no-warnings", "scripts/proofloop-memory.mjs", ...args], {
     cwd: ROOT,
     stdio: "inherit",
     shell: process.platform === "win32",
   });
   process.exitCode = result.status ?? 1;
+}
+
+function cmdSearch(args: string[]): void {
+  const hybrid = hasFlag(args, "--hybrid");
+  const queryArgs = args.filter((arg) => arg !== "--hybrid");
+  const query = queryArgs.filter((arg) => !arg.startsWith("--")).join(" ").trim();
+  if (!query) return usage("proofloop search requires <query>");
+  if (!hybrid) return cmdMemory(["search", ...queryArgs]);
+
+  console.log("proofloop search: graph results");
+  try {
+    runGraphSearch(ROOT, queryArgs);
+  } catch (error) {
+    console.error(`proofloop search: graph unavailable (${error instanceof Error ? error.message : String(error)})`);
+  }
+  console.log("");
+  console.log("proofloop search: memory results");
+  const result = spawnSync("node", ["--no-warnings", "scripts/proofloop-memory.mjs", "search", ...queryArgs], {
+    cwd: ROOT,
+    stdio: "inherit",
+    shell: process.platform === "win32",
+  });
+  process.exitCode = result.status && result.status !== 0 ? result.status : process.exitCode;
 }
 
 async function cmdSetup(args: string[]): Promise<void> {
@@ -772,6 +1034,144 @@ async function cmdSetup(args: string[]): Promise<void> {
     if (hasFlag(rest, "--strict") && receipt.status !== "ready") process.exitCode = 1;
   } catch (error) {
     console.error(`proofloop setup: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+async function cmdProviders(args: string[]): Promise<void> {
+  const [subcommand, providerArg] = args;
+  if (subcommand !== "setup") return usage("usage: proofloop providers setup [all|butterbase|neo4j|rocketride|daytona|cognee|nebius|opsera]");
+  try {
+    const providerIds = !providerArg || providerArg === "all"
+      ? [...PROOFLOOP_PROVIDER_IDS]
+      : [parseProofloopProviderId(providerArg)];
+    const receipts = await setupProofloopProviders(providerIds, { root: ROOT });
+    for (const receipt of receipts) {
+      console.log(`proofloop provider: ${receipt.providerId} ${receipt.status}`);
+      console.log(`proofloop provider: receipt ${rel(join(ROOT, ".proofloop", "setup", "providers", `${receipt.providerId}.json`))}`);
+      const blocking = receipt.checks.filter((check) => check.status !== "ready");
+      for (const check of blocking) console.log(`  - ${check.id}: ${check.detail}`);
+    }
+    if (args.includes("--strict") && receipts.some((receipt) => receipt.status !== "ready")) process.exitCode = 1;
+  } catch (error) {
+    console.error(`proofloop provider: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+async function cmdAgents(args: string[]): Promise<void> {
+  const [subcommand, agentArg] = args;
+  if (!subcommand || subcommand === "list") {
+    console.log(PROOFLOOP_NATIVE_AGENT_HOST_IDS.join("\n"));
+    return;
+  }
+  if (subcommand === "launch") return cmdAgentsLaunch(args.slice(1));
+  if (subcommand === "collect") return cmdAgentsCollect(args.slice(1));
+  if (subcommand === "verify") return cmdAgentsVerify(args.slice(1));
+  if (subcommand !== "setup") {
+    return usage("usage: proofloop agents setup|launch|collect|verify [all|codex|claude-code|cursor|windsurf|devin|devin-cli|devin-api|generic-cli] [--local] [--command <cmd>] [--strict]");
+  }
+  try {
+    const command = optionValueFromArgs(args, "--command") ?? optionValueFromArgs(args, "--agent-command");
+    const setupAgentArg = agentArg === "devin-cli" || agentArg === "devin-api" ? "devin" : agentArg;
+    const adapterIds = !agentArg || agentArg === "all"
+      ? [...PROOFLOOP_AGENT_ADAPTER_IDS]
+      : [parseProofloopAgentAdapterId(setupAgentArg)];
+    const receipts = [];
+    for (const adapterId of adapterIds) {
+      receipts.push(await setupProofloopAgentAdapter({
+        adapterId,
+        root: ROOT,
+        local: args.includes("--local") || !args.includes("--global"),
+        command,
+      }));
+    }
+    for (const receipt of receipts) {
+      console.log(`proofloop agent: ${receipt.adapterId} ${receipt.status}`);
+      console.log(`proofloop agent: receipt ${receipt.receiptPath}`);
+      console.log(`  ${receipt.message}`);
+      if (receipt.settingsPath) console.log(`  hooks: ${receipt.settingsPath}`);
+      if (receipt.launchCommand) console.log(`  launch: ${receipt.launchCommand}`);
+      console.log(`  setup pack: ${receipt.setupPackPath}`);
+      console.log(`  mcp bridge: ${receipt.mcpConfigPath}`);
+      for (const command of receipt.nextCommands.slice(0, 1)) console.log(`  next: ${command}`);
+    }
+    if (args.includes("--strict") && receipts.some((receipt) => receipt.status !== "ready")) process.exitCode = 1;
+  } catch (error) {
+    console.error(`proofloop agent: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+function cmdAgentsLaunch(args: string[]): void {
+  const [hostArg, ...rest] = args;
+  if (!hostArg) return usage("usage: proofloop agents launch <host> --prompt <file> [--run-dir <dir>] [--command <cmd>] [--strict]");
+  const promptPath = optionValueFromArgs(rest, "--prompt") ?? optionValueFromArgs(rest, "--prompt-path");
+  if (!promptPath) return usage("proofloop agents launch requires --prompt <file>");
+  try {
+    const hostId = parseProofloopNativeAgentHostId(hostArg);
+    const receipt = launchNativeAgentHost({
+      root: ROOT,
+      hostId,
+      promptPath,
+      runDir: optionValueFromArgs(rest, "--run-dir"),
+      command: optionValueFromArgs(rest, "--command") ?? optionValueFromArgs(rest, "--agent-command"),
+    });
+    console.log(`proofloop agent launch: ${receipt.hostId} ${receipt.status}`);
+    console.log(`proofloop agent launch: receipt ${receipt.receiptPath}`);
+    console.log(`  ${receipt.message}`);
+    if (receipt.command) console.log(`  command: ${receipt.command}`);
+    if (receipt.exportPath) console.log(`  export: ${receipt.exportPath}`);
+    for (const command of receipt.nextCommands.slice(0, 2)) console.log(`  next: ${command}`);
+    if (receipt.status !== "launch_ready") process.exitCode = 1;
+  } catch (error) {
+    console.error(`proofloop agent launch: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+function cmdAgentsCollect(args: string[]): void {
+  const [hostArg, ...rest] = args;
+  if (!hostArg) return usage("usage: proofloop agents collect <host> [--run-dir <dir>] [--session <file>] [--session-id <id>] [--strict]");
+  try {
+    const hostId = parseProofloopNativeAgentHostId(hostArg);
+    const receipt = collectNativeAgentSession({
+      root: ROOT,
+      hostId,
+      runDir: optionValueFromArgs(rest, "--run-dir"),
+      sessionPath: optionValueFromArgs(rest, "--session") ?? optionValueFromArgs(rest, "--session-path"),
+      sessionId: optionValueFromArgs(rest, "--session-id"),
+    });
+    console.log(`proofloop agent collect: ${receipt.hostId} ${receipt.status}`);
+    console.log(`proofloop agent collect: receipt ${receipt.receiptPath}`);
+    console.log(`  ${receipt.message}`);
+    for (const evidence of receipt.evidenceFiles.slice(0, 5)) console.log(`  evidence: ${evidence}`);
+    for (const command of receipt.nextCommands.slice(0, 2)) console.log(`  next: ${command}`);
+    if (hasFlag(rest, "--strict") && receipt.status !== "trace_ready") process.exitCode = 1;
+  } catch (error) {
+    console.error(`proofloop agent collect: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+function cmdAgentsVerify(args: string[]): void {
+  const [hostArg, ...rest] = args;
+  if (!hostArg) return usage("usage: proofloop agents verify <host> [--run-dir <dir>] [--goal <goal-id>] [--strict]");
+  try {
+    const hostId = parseProofloopNativeAgentHostId(hostArg);
+    const receipt = verifyNativeAgentEnforcement({
+      root: ROOT,
+      hostId,
+      runDir: optionValueFromArgs(rest, "--run-dir"),
+      goalId: normalizeGoalId(optionValueFromArgs(rest, "--goal")) ?? "official-scores",
+    });
+    console.log(`proofloop agent verify: ${receipt.hostId} ${receipt.status}`);
+    console.log(`proofloop agent verify: receipt ${receipt.receiptPath}`);
+    for (const check of receipt.checks) console.log(`  - ${check.id}: ${check.status} (${check.detail})`);
+    for (const command of receipt.nextCommands.slice(0, 2)) console.log(`  next: ${command}`);
+    if (hasFlag(rest, "--strict") && receipt.status !== "ready") process.exitCode = 1;
+  } catch (error) {
+    console.error(`proofloop agent verify: ${error instanceof Error ? error.message : String(error)}`);
     process.exitCode = 1;
   }
 }
@@ -892,12 +1292,52 @@ function cmdCharts(args: string[]): void {
   }
 }
 
+function cmdBrief(args: string[]): void {
+  const target = args[0] && !args[0].startsWith("--") ? args[0] : "latest";
+  const outDir = optionValueFromArgs(args, "--out-dir") ?? "docs/eval/proofloop-charts";
+  try {
+    const result = writeProofloopChartPack({ root: ROOT, target, outDir, generatedAt: new Date().toISOString() });
+    console.log(`proofloop brief: target ${target}`);
+    console.log(`proofloop brief: report ${result.paths.markdown}`);
+    console.log(`proofloop brief: chart pack ${result.paths.json}`);
+    console.log(`proofloop brief: html ${result.paths.html}`);
+    console.log(`proofloop brief: workflows=${result.pack.summary.workflowItems ?? 0} official=${result.pack.summary.officialBenchmarkItems ?? 0} charts=${Object.keys(result.paths.svgs).length}`);
+    if (!result.validation.ok) {
+      for (const error of result.validation.errors) console.error(`proofloop brief: chart validation ${error}`);
+      process.exitCode = 1;
+    }
+  } catch (error) {
+    console.error(`proofloop brief: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
 function cmdGraph(args: string[]): void {
   const [subcommand, ...rest] = args;
-  if (!subcommand) return usage("proofloop graph requires index|blast-radius|search|export-cypher");
+  if (!subcommand) return usage("proofloop graph requires index|ingest|query|blast-radius|search|export-cypher");
   try {
     if (subcommand === "index") return runGraphIndex(ROOT, rest);
+    if (subcommand === "ingest") {
+      const backend = optionValueFromArgs(rest, "--backend") ?? "local";
+      const stripped = stripOptions(rest, new Set(["--backend"]));
+      runGraphIndex(ROOT, stripped);
+      if (backend === "neo4j") {
+        const out = optionValueFromArgs(rest, "--out") ?? join(ROOT, ".proofloop", "codegraph", "neo4j-export.cypher");
+        runGraphExportCypher(ROOT, ["--out", out, ...stripped]);
+        console.log("proofloop graph: Neo4j ingest compatibility wrote a Cypher export for a bring-your-own Neo4j server.");
+      }
+      return;
+    }
     if (subcommand === "blast-radius") return runGraphBlastRadius(ROOT, rest);
+    if (subcommand === "query") {
+      if (optionValueFromArgs(rest, "--failure") === "latest") {
+        const failed = resolveRun("latest-failed");
+        const query = failed?.failedGates?.join(" ") || failed?.suite || "failure latest";
+        console.log(`proofloop graph: query latest failure -> ${query}`);
+        return runGraphSearch(ROOT, [query]);
+      }
+      return runGraphSearch(ROOT, rest);
+    }
     if (subcommand === "search") return runGraphSearch(ROOT, rest);
     if (subcommand === "export-cypher") return runGraphExportCypher(ROOT, rest);
     return usage(`unknown graph command: ${subcommand}`);
@@ -1089,7 +1529,7 @@ function cmdGoal(args: string[]): void {
 }
 
 function cmdGoalGate(args: string[]): void {
-  const goalId = optionValueFromArgs(args, "--goal") ?? args[0];
+  const goalId = normalizeGoalId(optionValueFromArgs(args, "--goal") ?? args[0]);
   if (!goalId) return usage("proofloop gate requires --goal <goal-id>");
   try {
     const state = gateProofloopGoal(goalId, { root: ROOT });
@@ -1103,7 +1543,7 @@ function cmdGoalGate(args: string[]): void {
 }
 
 function cmdGoalSupervise(args: string[]): void {
-  const goalId = optionValueFromArgs(args, "--goal") ?? args[0];
+  const goalId = normalizeGoalId(optionValueFromArgs(args, "--goal") ?? args[0]);
   if (!goalId) return usage("proofloop supervise requires --goal <goal-id>");
   const maxStepsRaw = optionValueFromArgs(args, "--max-steps");
   const maxSteps = maxStepsRaw ? Number(maxStepsRaw) : undefined;
@@ -1119,7 +1559,7 @@ function cmdGoalSupervise(args: string[]): void {
 }
 
 function cmdGoalResume(args: string[]): void {
-  const goalId = optionValueFromArgs(args, "--goal") ?? args.find((arg) => !arg.startsWith("--")) ?? "default";
+  const goalId = normalizeGoalId(optionValueFromArgs(args, "--goal") ?? args.find((arg) => !arg.startsWith("--")) ?? "official-scores");
   if (!goalId) return usage("proofloop resume requires --goal <goal-id>");
   try {
     const state = loadProofloopGoal(goalId, { root: ROOT });
@@ -1179,6 +1619,53 @@ function cmdThisRepo(args: string[]): void {
   process.exitCode = result.status ?? 1;
 }
 
+function cmdDashboard(args: string[]): void {
+  const [subcommand, targetArg, ...rest] = args;
+  if (subcommand !== "export" && subcommand !== "screenshot") {
+    return usage("proofloop dashboard export [latest|runId] [--out-dir <path>]");
+  }
+  const target = targetArg && !targetArg.startsWith("--") ? targetArg : "latest";
+  const options = targetArg && !targetArg.startsWith("--") ? rest : args.slice(1);
+  const outDir = optionValueFromArgs(options, "--out-dir") ?? join(".proofloop", "dashboard", target);
+  try {
+    const meta = resolveRun(target);
+    const chartPack = writeProofloopChartPack({
+      root: ROOT,
+      target,
+      outDir: join(outDir, "charts"),
+      generatedAt: new Date().toISOString(),
+      writeRunArtifacts: false,
+    });
+    mkdirSync(resolve(ROOT, outDir), { recursive: true });
+    const payload = {
+      schema: "proofloop-dashboard-export-v1",
+      generatedAt: new Date().toISOString(),
+      target,
+      latestRun: meta ? {
+        runId: meta.runId,
+        suite: meta.suite,
+        passed: meta.passed,
+        score: meta.score,
+        minScore: meta.minScore,
+        failedGates: meta.failedGates ?? [],
+        receiptPaths: meta.receiptPaths,
+      } : null,
+      chartPack: chartPack.paths,
+      validation: chartPack.validation,
+    };
+    const jsonPath = resolve(ROOT, outDir, "dashboard.json");
+    const htmlPath = resolve(ROOT, outDir, "dashboard.html");
+    writeJson(jsonPath, payload);
+    writeFileSync(htmlPath, dashboardHtml(payload), "utf8");
+    console.log(`proofloop dashboard: json ${rel(jsonPath)}`);
+    console.log(`proofloop dashboard: html ${rel(htmlPath)}`);
+    if (!chartPack.validation.ok) process.exitCode = 1;
+  } catch (error) {
+    console.error(`proofloop dashboard: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
 function cmdHooks(args: string[]): void {
   const [subcommand, ...rest] = args;
   const root = optionValueFromArgs(rest, "--dir") ?? ROOT;
@@ -1201,7 +1688,7 @@ function cmdHooks(args: string[]): void {
       console.log(
         `proofloop: ${result.addedStopHook || result.addedPreToolUseHook || result.addedPostToolUseLogHook ? "merged hook entries into" : "hook entries already present in"} ${result.settingsPath}`,
       );
-      console.log("proofloop: Claude Code will now refuse to stop while the proof gate is failing.");
+      console.log("proofloop: configured worker will now refuse to stop while the proof gate is failing.");
       if (result.postToolUseLogPath) {
         console.log(
           "proofloop: tool calls are captured LOCALLY to .proofloop/tooluse/log.jsonl (session-side capture, not provider attestation); check them with `proofloop tooluse verify`.",
@@ -1251,6 +1738,12 @@ function cmdToolUse(args: string[]): void {
   return usage(`unknown tooluse command: ${subcommand ?? ""} (expected: verify|init)`);
 }
 
+function cmdMcp(args: string[]): void {
+  const [subcommand] = args;
+  if (subcommand !== "serve") return usage("usage: proofloop mcp serve");
+  runProofloopMcpServer({ root: ROOT });
+}
+
 function cmdCi(args: string[]): void {
   const [subcommand, provider, ...rest] = args;
   if (subcommand !== "install" || provider !== "github") {
@@ -1260,7 +1753,7 @@ function cmdCi(args: string[]): void {
     const result = installProofloopGithubCi({
       root: optionValueFromArgs(rest, "--dir") ?? ROOT,
       sourceRoot: ROOT,
-      goalId: optionValueFromArgs(rest, "--goal"),
+      goalId: normalizeGoalId(optionValueFromArgs(rest, "--goal")),
     });
     console.log(`proofloop: wrote ${result.workflowPath} (gate goal: ${result.goalId})`);
   } catch (error) {
@@ -1274,6 +1767,71 @@ function cmdPrompt(): void {
 }
 
 // ---------------------------------------------------------------------------
+
+function dashboardHtml(payload: {
+  schema: string;
+  generatedAt: string;
+  target: string;
+  latestRun: {
+    runId: string;
+    suite: string;
+    passed: boolean;
+    score?: number;
+    minScore?: number;
+    failedGates: string[];
+    receiptPaths: string[];
+  } | null;
+  chartPack: unknown;
+  validation: { ok: boolean; errors: string[] };
+}): string {
+  const run = payload.latestRun;
+  const title = `ProofLoop Dashboard Export: ${payload.target}`;
+  const verdict = run ? (run.passed ? "PASS" : "NEEDS_REPAIR") : "NO_RUN";
+  const rows = run
+    ? [
+      ["Run", run.runId],
+      ["Suite", run.suite],
+      ["Verdict", verdict],
+      ["Score", `${run.score ?? "n/a"}${run.minScore === undefined ? "" : `/${run.minScore}`}`],
+      ["Failed Gates", run.failedGates.join(", ") || "none"],
+      ["Receipts", run.receiptPaths.join("\n") || "none"],
+    ]
+    : [["Run", "none"], ["Verdict", verdict]];
+  return `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${escapeHtml(title)}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 32px; color: #111827; }
+    h1 { font-size: 24px; margin: 0 0 8px; }
+    .meta { color: #4b5563; margin-bottom: 24px; }
+    table { border-collapse: collapse; width: 100%; max-width: 960px; }
+    th, td { border: 1px solid #d1d5db; padding: 10px 12px; text-align: left; vertical-align: top; }
+    th { width: 180px; background: #f3f4f6; }
+    pre { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>${escapeHtml(title)}</h1>
+  <div class="meta">Generated ${escapeHtml(payload.generatedAt)}. Validation: ${payload.validation.ok ? "ok" : "failed"}.</div>
+  <table>
+    <tbody>
+      ${rows.map(([key, value]) => `<tr><th>${escapeHtml(key)}</th><td><pre>${escapeHtml(value)}</pre></td></tr>`).join("\n      ")}
+    </tbody>
+  </table>
+</body>
+</html>
+`;
+}
+
+function escapeHtml(value: unknown): string {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 function loadConfig(): ProofloopConfig {
   if (!existsSync(CONFIG_PATH)) {
@@ -1322,6 +1880,11 @@ function goalCanBeLoaded(goalId: string): boolean {
   return existsSync(join(PROOFLOOP_DIR, "goals", safeGoalId, "state.json"));
 }
 
+function normalizeGoalId(goalId: string | undefined): string | undefined {
+  if (!goalId) return goalId;
+  return goalId === "default" ? "official-scores" : goalId;
+}
+
 function findBlockerTask(goalId: string, blockerId: string): ProofloopBlockerTaskLike {
   const blockers = blockerTasksForGoal(goalId);
   const task = blockers.find((candidate) => candidate.id === blockerId || candidate.id.includes(blockerId));
@@ -1365,6 +1928,7 @@ function requireRun(runIdArg: string | undefined): RunMeta | undefined {
 function resolveRun(runIdArg: string | undefined): RunMeta | undefined {
   const runs = listRuns().sort((a, b) => b.startedAt.localeCompare(a.startedAt));
   if (!runIdArg || runIdArg === "latest") return runs[0];
+  if (runIdArg === "latest-failed" || runIdArg === "failed") return runs.find((r) => !r.passed);
   return runs.find((r) => r.runId === runIdArg);
 }
 
@@ -1615,7 +2179,17 @@ type CockpitEvent = {
   metadata?: Record<string, unknown>;
 };
 
-type RunFlags = { prod: boolean; headed: boolean; cockpit: boolean; userEmulationStrict: boolean };
+type RunFlags = {
+  prod: boolean;
+  headed: boolean;
+  cockpit: boolean;
+  userEmulationStrict: boolean;
+  closedLoop: boolean;
+  dryRun: boolean;
+  agent?: ProofloopAgentAdapterId;
+  maxAttempts?: number;
+  agentCommand?: string;
+};
 
 function optionValueFromArgs(args: string[], name: string): string | undefined {
   const inlinePrefix = `${name}=`;
@@ -1624,6 +2198,21 @@ function optionValueFromArgs(args: string[], name: string): string | undefined {
   const index = args.indexOf(name);
   const next = args[index + 1];
   return index >= 0 && next && !next.startsWith("--") ? next : undefined;
+}
+
+function stripOptions(args: string[], names: Set<string>): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    const equalsName = [...names].find((name) => arg.startsWith(`${name}=`));
+    if (equalsName) continue;
+    if (names.has(arg)) {
+      if (arg !== "--dry-run" && args[i + 1] && !args[i + 1].startsWith("--")) i++;
+      continue;
+    }
+    out.push(arg);
+  }
+  return out;
 }
 
 function optionValuesFromArgs(args: string[], name: string): string[] {
@@ -1673,18 +2262,41 @@ function numberOption(args: string[], name: string): number | undefined {
 }
 
 function parseRunFlags(args: string[]): RunFlags {
-  const flags: RunFlags = { prod: false, headed: false, cockpit: false, userEmulationStrict: false };
+  const flags: RunFlags = { prod: false, headed: false, cockpit: false, userEmulationStrict: false, closedLoop: false, dryRun: false };
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === "--prod") flags.prod = true;
     if (arg === "--headed") flags.headed = true;
     if (arg === "--cockpit") flags.cockpit = true;
+    if (arg === "--closed-loop") flags.closedLoop = true;
+    if (arg === "--dry-run") flags.dryRun = true;
+    if (arg.startsWith("--agent=")) flags.agent = parseProofloopAgentAdapterId(arg.slice("--agent=".length));
+    if (arg === "--agent" && args[i + 1]) {
+      flags.agent = parseProofloopAgentAdapterId(args[i + 1]);
+      i++;
+    }
+    if (arg.startsWith("--max-attempts=")) flags.maxAttempts = Number(arg.slice("--max-attempts=".length));
+    if (arg === "--max-attempts" && args[i + 1]) {
+      flags.maxAttempts = Number(args[i + 1]);
+      i++;
+    }
+    if (arg.startsWith("--agent-command=")) flags.agentCommand = arg.slice("--agent-command=".length);
+    if (arg === "--agent-command" && args[i + 1]) {
+      flags.agentCommand = args[i + 1];
+      i++;
+    }
+    if (arg.startsWith("--codex-command=")) flags.agentCommand = arg.slice("--codex-command=".length);
+    if (arg === "--codex-command" && args[i + 1]) {
+      flags.agentCommand = args[i + 1];
+      i++;
+    }
     if (arg === "--user-emulation" && args[i + 1] === "strict") {
       flags.userEmulationStrict = true;
       i++;
     }
     if (arg === "--user-emulation=strict") flags.userEmulationStrict = true;
   }
+  if (flags.maxAttempts !== undefined && !Number.isFinite(flags.maxAttempts)) flags.maxAttempts = undefined;
   return flags;
 }
 

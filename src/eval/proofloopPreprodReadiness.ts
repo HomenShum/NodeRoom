@@ -130,6 +130,7 @@ const REQUIRED_SECURITY_HEADERS: Array<{ header: string; expected: string }> = [
   { header: "x-frame-options", expected: "DENY" },
   { header: "referrer-policy", expected: "strict-origin-when-cross-origin" },
   { header: "permissions-policy", expected: "camera=()" },
+  { header: "permissions-policy", expected: "microphone=(self)" },
   { header: "cross-origin-opener-policy", expected: "same-origin" },
 ];
 

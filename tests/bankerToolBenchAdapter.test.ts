@@ -11,6 +11,16 @@ afterEach(() => {
 });
 
 describe("BankerToolBench official bundle ingest", () => {
+  it("keeps Harbor as an ATIF-capable isolated certification lane", () => {
+    const adapterSource = readFileSync(join(process.cwd(), "btb_noderoom_agent", "harbor_adapter.py"), "utf8");
+
+    expect(adapterSource).toContain("SUPPORTS_ATIF = True");
+    expect(adapterSource).toContain('"schema_version": "ATIF-v1.6"');
+    expect(adapterSource).toContain("/logs/agent/trajectory.json");
+    expect(adapterSource).toContain("/home/agent/workspace/banker_workspace/nodeagent_trace.json");
+    expect(adapterSource).toContain("boundary_box_receipts.json");
+  });
+
   it("ingests task jsonl, input files, and weighted rubric without exposing evaluator-only metadata to the agent", () => {
     const root = tempRoot();
     const taskId = "0fc7bc3c-a111-4222-8333-444455556666";

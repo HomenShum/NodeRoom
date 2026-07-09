@@ -80,6 +80,8 @@ expect(headerMap.get("x-content-type-options") === "nosniff", "X-Content-Type-Op
 expect(headerMap.get("x-frame-options") === "DENY", "X-Frame-Options must be DENY");
 expect(headerMap.has("referrer-policy"), "Referrer-Policy must be configured");
 expect(headerMap.has("permissions-policy"), "Permissions-Policy must be configured");
+expect(headerMap.get("permissions-policy")?.includes("camera=()"), "Permissions-Policy must deny camera");
+expect(headerMap.get("permissions-policy")?.includes("microphone=(self)"), "Permissions-Policy must allow first-party microphone access for voice");
 expect(headerMap.get("cross-origin-opener-policy") === "same-origin", "Cross-Origin-Opener-Policy must be same-origin");
 
 const viteConfig = read("vite.config.ts");

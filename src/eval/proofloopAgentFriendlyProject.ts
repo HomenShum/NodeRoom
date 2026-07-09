@@ -63,8 +63,8 @@ export type WriteProofloopLiveScaffoldResult = {
 const PACKAGE_SCRIPT_DEFAULTS: Record<string, string> = {
   "proofloop:init": "npm run proofloop -- init --agent auto --live",
   "proofloop:live": "npm run proofloop -- this-repo --live",
-  "proofloop:gate": "npm run proofloop -- gate --goal default",
-  "proofloop:resume": "npm run proofloop -- resume --goal default --dense",
+  "proofloop:gate": "npm run proofloop -- gate --goal official-scores",
+  "proofloop:resume": "npm run proofloop -- resume --goal official-scores --dense",
   "proofloop:doctor": "npm run proofloop -- doctor --json",
   "proofloop:report": "npm run proofloop -- report latest",
   "proofloop:charts": "npm run proofloop -- charts latest",
@@ -72,7 +72,8 @@ const PACKAGE_SCRIPT_DEFAULTS: Record<string, string> = {
 
 const LEGACY_PACKAGE_SCRIPT_DEFAULTS: Record<string, string[]> = {
   "proofloop:init": ["npm run proofloop -- init"],
-  "proofloop:resume": ["npm run proofloop -- resume --goal default"],
+  "proofloop:gate": ["npm run proofloop -- gate --goal default"],
+  "proofloop:resume": ["npm run proofloop -- resume --goal default", "npm run proofloop -- resume --goal default --dense"],
   "proofloop:doctor": ["npm run proofloop -- doctor"],
 };
 
@@ -161,8 +162,8 @@ export function buildProofloopProjectManifest(root = process.cwd()): ProofloopPr
     proofCommands: {
       init: `${proof} init --agent auto --live`,
       live: `${proof} this-repo --live`,
-      gate: `${proof} gate --goal default`,
-      resume: `${proof} resume --goal default --dense`,
+      gate: `${proof} gate --goal official-scores`,
+      resume: `${proof} resume --goal official-scores --dense`,
       doctor: `${proof} doctor --json`,
       manifest: `${proof} manifest --dense`,
       report: `${proof} report latest`,
@@ -323,8 +324,8 @@ export function writeProofloopLiveScaffold(root: string, options: { force?: bool
         "goal: prove the primary user workflow through the real product UI",
         "commands:",
         "  live: npm run proofloop -- this-repo --live",
-        "  gate: npm run proofloop -- gate --goal default",
-        "  resume: npm run proofloop -- resume --goal default --dense",
+        "  gate: npm run proofloop -- gate --goal official-scores",
+        "  resume: npm run proofloop -- resume --goal official-scores --dense",
         "evidence:",
         "  - .proofloop/manifest.json",
         "  - .proofloop/runs/latest/scorecard.md",

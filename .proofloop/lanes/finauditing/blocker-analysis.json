@@ -3,7 +3,7 @@
   "blockerId": "finauditing-official-score",
   "suite": "finauditing",
   "title": "FinAuditing official score",
-  "generatedAt": "2026-07-04T02:24:04.988Z",
+  "generatedAt": "2026-07-08T21:36:33.791Z",
   "phase": "solve",
   "classes": [
     "missing_judge_credentials",
@@ -54,9 +54,14 @@
       "id": "deepseek/deepseek-v4-pro",
       "routePolicy": "proxy",
       "role": "planner",
-      "costUsd": 0,
-      "tokensIn": 0,
-      "tokensOut": 0,
+      "costUsd": null,
+      "tokensIn": null,
+      "tokensOut": null,
+      "costAccounting": {
+        "status": "unknown",
+        "source": "unknown",
+        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+      },
       "latencyMs": 0,
       "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finauditing proxy comparison.",
       "source": "env"
@@ -66,9 +71,14 @@
       "id": "z-ai/glm-5.2",
       "routePolicy": "specific",
       "role": "planner",
-      "costUsd": 0,
-      "tokensIn": 0,
-      "tokensOut": 0,
+      "costUsd": null,
+      "tokensIn": null,
+      "tokensOut": null,
+      "costAccounting": {
+        "status": "unknown",
+        "source": "unknown",
+        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+      },
       "latencyMs": 0,
       "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finauditing proxy comparison.",
       "source": "env"
@@ -78,9 +88,14 @@
       "id": "qwen/qwen3.6-flash",
       "routePolicy": "specific",
       "role": "planner",
-      "costUsd": 0,
-      "tokensIn": 0,
-      "tokensOut": 0,
+      "costUsd": null,
+      "tokensIn": null,
+      "tokensOut": null,
+      "costAccounting": {
+        "status": "unknown",
+        "source": "unknown",
+        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+      },
       "latencyMs": 0,
       "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finauditing proxy comparison.",
       "source": "env"
@@ -90,9 +105,14 @@
       "id": "qwen/qwen3.6-35b-a3b",
       "routePolicy": "specific",
       "role": "planner",
-      "costUsd": 0,
-      "tokensIn": 0,
-      "tokensOut": 0,
+      "costUsd": null,
+      "tokensIn": null,
+      "tokensOut": null,
+      "costAccounting": {
+        "status": "unknown",
+        "source": "unknown",
+        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+      },
       "latencyMs": 0,
       "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finauditing proxy comparison.",
       "source": "env"
@@ -102,9 +122,14 @@
       "id": "gpt-4.1-mini",
       "routePolicy": "specific",
       "role": "planner",
-      "costUsd": 0,
-      "tokensIn": 0,
-      "tokensOut": 0,
+      "costUsd": null,
+      "tokensIn": null,
+      "tokensOut": null,
+      "costAccounting": {
+        "status": "unknown",
+        "source": "unknown",
+        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+      },
       "latencyMs": 0,
       "selectionReason": "Candidate selected from suite default matrix for finauditing; live metadata was not present in the local snapshot.",
       "source": "suite-default"
@@ -114,9 +139,14 @@
       "id": "ibm-granite/granite-4.1-8b",
       "routePolicy": "specific",
       "role": "planner",
-      "costUsd": 0,
-      "tokensIn": 0,
-      "tokensOut": 0,
+      "costUsd": null,
+      "tokensIn": null,
+      "tokensOut": null,
+      "costAccounting": {
+        "status": "unknown",
+        "source": "unknown",
+        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+      },
       "latencyMs": 0,
       "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finauditing proxy comparison.",
       "source": "env"

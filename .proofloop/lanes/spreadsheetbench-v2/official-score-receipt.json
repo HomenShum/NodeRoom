@@ -2,7 +2,7 @@
   "schema": 1,
   "suite": "spreadsheetbench-v2",
   "blockerId": "spreadsheetbench-v2-full-official-score",
-  "generatedAt": "2026-07-04T02:24:04.978Z",
+  "generatedAt": "2026-07-08T21:36:31.791Z",
   "status": "needs_scaffold_or_run",
   "officialScoreClaimable": false,
   "officialSemanticScore": null,

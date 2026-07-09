@@ -70,6 +70,15 @@ function setGateConfig(root: string, patch: Record<string, unknown>): void {
 }
 
 function ourEntryCount(settings: any): { stop: number; pre: number; post: number } {
+  if (Array.isArray(settings.hooks)) {
+    const count = (event: string, command: string) =>
+      settings.hooks.filter((entry: any) => entry.event === event && entry.command === command).length;
+    return {
+      stop: count("Stop", STOP_GATE_COMMAND),
+      pre: count("PreToolUse", PRETOOLUSE_GUARD_COMMAND),
+      post: count("PostToolUse", POSTTOOLUSE_LOG_COMMAND),
+    };
+  }
   const count = (groups: any[] | undefined, command: string) =>
     (groups ?? []).flatMap((group: any) => group.hooks ?? []).filter((entry: any) => entry.command === command).length;
   return {
@@ -141,8 +150,48 @@ describe("proofloop hooks install / uninstall", () => {
     expect(readFileSync(join(broken, ".claude", "settings.json"), "utf8")).toBe("{ not json");
   });
 
-  it("rejects unsupported workers in v0", () => {
-    expect(() => installProofloopHooks({ root: tempRoot(), worker: "codex" })).toThrow(/Unsupported worker/);
+  it("installs Codex hook entries without clobbering existing hooks", () => {
+    const root = tempRoot();
+    const hooksPath = join(root, ".codex", "hooks.json");
+    writeJson(hooksPath, {
+      hooks: [
+        { event: "PostToolUse", command: "node scripts/my-own-codex-log.js" },
+      ],
+    });
+
+    const result = installProofloopHooks({ root, worker: "codex" });
+
+    expect(result.settingsPath).toBe(hooksPath);
+    const settings = readJson(hooksPath);
+    expect(settings.hooks[0].command).toBe("node scripts/my-own-codex-log.js");
+    expect(ourEntryCount(settings)).toEqual({ stop: 1, pre: 1, post: 1 });
+    expect(settings.hooks.find((entry: any) => entry.event === "PreToolUse" && entry.command === PRETOOLUSE_GUARD_COMMAND).matcher).toBe("Edit|Write|MultiEdit|NotebookEdit");
+    expect(settings.hooks.find((entry: any) => entry.event === "PostToolUse" && entry.command === POSTTOOLUSE_LOG_COMMAND).matcher).toBe(POSTTOOLUSE_LOG_MATCHER);
+
+    installProofloopHooks({ root, worker: "codex" });
+    expect(ourEntryCount(readJson(hooksPath))).toEqual({ stop: 1, pre: 1, post: 1 });
+
+    const status = proofloopHooksStatus({ root });
+    expect(status.settings.find((file) => file.path.endsWith(".codex\\hooks.json") || file.path.endsWith(".codex/hooks.json"))?.stopHookInstalled).toBe(true);
+  });
+
+  it("installs Codex local hook enforcement with Stop, PreToolUse, and PostToolUse status", () => {
+    const root = tempRoot();
+    const hooksPath = join(root, ".codex", "hooks.local.json");
+
+    const result = installProofloopHooks({ root, worker: "codex", local: true });
+
+    expect(result.settingsPath).toBe(hooksPath);
+    const settings = readJson(hooksPath);
+    expect(ourEntryCount(settings)).toEqual({ stop: 1, pre: 1, post: 1 });
+    const status = proofloopHooksStatus({ root });
+    const localStatus = status.settings.find((file) => file.path.endsWith(".codex\\hooks.local.json") || file.path.endsWith(".codex/hooks.local.json"));
+    expect(localStatus).toMatchObject({
+      stopHookInstalled: true,
+      preToolUseHookInstalled: true,
+      postToolUseLogInstalled: true,
+    });
+    expect(existsSync(join(root, ".proofloop", "hooks", "stop-gate.mjs"))).toBe(true);
   });
 
   it("uninstall removes only our marked entries and status reports both states", () => {

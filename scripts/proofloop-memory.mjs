@@ -60,6 +60,8 @@ function main() {
       return cmdCompact(args[0]);
     case "index":
       return cmdIndex();
+    case "seed-dogfood":
+      return cmdSeedDogfood();
     case "search":
       return cmdSearch(args);
     case "show":
@@ -85,6 +87,7 @@ function usage(error) {
     "  init                         create local-first memory layout",
     "  compact [runId|latest]        compact one proof run into episode memory",
     "  index                         build .proofloop/memory/index.db with SQLite + FTS5",
+    "  seed-dogfood                  seed UI/fake-success recall examples for dogfood",
     "  search <query> [--suite=x]    search compacted memories",
     "  show <memory-id>              print one compacted memory episode",
     "  export --redacted [--out=x]   export redacted compacted memory",
@@ -170,6 +173,81 @@ function cmdIndex() {
   db.close();
   appendRedactionLog({ type: "index", episodeCount: episodes.length, index: rel(INDEX_PATH) });
   console.log(`proofloop memory: indexed ${episodes.length} episode(s) into ${rel(INDEX_PATH)}`);
+}
+
+function cmdSeedDogfood() {
+  ensureMemoryLayout();
+  const createdAt = new Date().toISOString();
+  const episodes = [
+    {
+      id: "pmem_seed_ui_overflow_fake_success",
+      runId: "seed-ui-overflow-fake-success",
+      repo: repoId(),
+      app: "noderoom",
+      suite: "dogfood",
+      goal: "Recall similar UI overflow or fake success failures before launch claims.",
+      modelPolicy: "seeded-local",
+      harnessVersion: "dogfood-seed-v1",
+      outcome: { passed: false, score: 0, costUsd: 0, durationMs: 0 },
+      failure: {
+        category: "ui_affordance",
+        symptom: "Mobile/desktop text overflow or overlapping status copy was hidden behind a green-looking proof surface.",
+        rootCause: "The UI used optimistic copy and lacked viewport proof before launch messaging.",
+        fixSummary: "Add responsive text constraints, browser proof artifacts, and honest failed-state copy before claiming success.",
+      },
+      evidenceRefs: {
+        scorecard: "docs/dogfood/friction-log.md",
+        verifierReceipt: ".proofloop/dogfood/DOGFOOD_REPORT.json",
+      },
+      searchableText: [
+        "similar UI overflow or fake success failures",
+        "mobile desktop text overflow overlapping copy",
+        "honest status no fake success",
+        "dashboard proof browser screenshot deterministic export",
+        "fix responsive constraints failed-state copy visual proof",
+      ].join("\n"),
+      createdAt,
+    },
+    {
+      id: "pmem_seed_official_score_boundary",
+      runId: "seed-official-score-boundary",
+      repo: repoId(),
+      app: "noderoom",
+      suite: "official-scores",
+      goal: "Keep product-path proof separate from official benchmark scorer claims.",
+      modelPolicy: "seeded-local",
+      harnessVersion: "dogfood-seed-v1",
+      outcome: { passed: false, score: 0, costUsd: 0, durationMs: 0 },
+      failure: {
+        category: "proofloop_gap",
+        symptom: "Proxy proof or product-path receipts risk being described as official benchmark scores.",
+        rootCause: "Launch copy did not preserve the Harbor/Gandalf/upstream scorer boundary.",
+        fixSummary: "Label proxy receipts as product proof and require imported upstream scorer receipts for official-score claims.",
+      },
+      evidenceRefs: {
+        scorecard: "docs/eval/PROOFLOOP_TWO_LAYER_CERTIFICATION.md",
+        verifierReceipt: "docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+      },
+      searchableText: [
+        "official score blockers product-path proof proxy proof",
+        "Harbor Gandalf upstream official scorer receipts",
+        "do not overclaim benchmark score",
+        "proxy receipts are product proof only",
+      ].join("\n"),
+      createdAt,
+    },
+  ];
+
+  for (const episode of episodes) {
+    upsertJsonl(join(COMPACTED_DIR, "episodes.jsonl"), episode, "id");
+    upsertJsonl(MEMORY_JSONL, episode, "id");
+    upsertJsonl(join(COMPACTED_DIR, "failures.jsonl"), episode, "id");
+    upsertJsonl(join(COMPACTED_DIR, "scaffold-deltas.jsonl"), scaffoldDeltaFromEpisode(episode), "id");
+    upsertJsonl(join(COMPACTED_DIR, "model-deltas.jsonl"), modelDeltaFromEpisode(episode), "id");
+  }
+  appendRedactionLog({ type: "seed-dogfood", episodeCount: episodes.length });
+  cmdIndex();
+  console.log(`proofloop memory: seeded ${episodes.length} dogfood recall episode(s)`);
 }
 
 function cmdSearch(args) {

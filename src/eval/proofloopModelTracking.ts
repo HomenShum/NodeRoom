@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
+import { normalizeInteropModelRoute } from "../nodeagent/integrations/modelInterop";
 import { getModelPricing, resolveModelAlias } from "../nodeagent/models/modelCatalog";
 
 export type ProofloopModelRole = "planner" | "worker" | "judge" | "verifier";
@@ -54,17 +55,19 @@ export function proofloopModelRouteForRun(args: {
 }): ProofloopModelRoute {
   const env = args.env ?? process.env;
   const explicit =
+    env.NODEROOM_LANGCHAIN_ROUTE ??
     env.PROOFLOOP_MODEL_ID ??
     env.NODEAGENT_MODEL_ID ??
     env.NODEAGENT_MODEL ??
     env.BTB_MODEL_ID ??
     env.OPENROUTER_MODEL;
   const inferred = explicit ?? defaultModelForSuite(args.suite, args.cmd);
-  const id = inferred.trim();
+  const normalized = normalizeInteropModelRoute(inferred);
+  const id = normalized.modelId.trim();
   const source: ProofloopModelRoute["source"] = explicit ? "env" : id === "local/deterministic" ? "deterministic-default" : "suite-default";
-  const routePolicy = id === "local/deterministic" ? "deterministic" : explicit ? "specific" : "default";
+  const routePolicy = normalized.routePolicy === "proxy" ? "proxy" : id === "local/deterministic" ? "deterministic" : explicit ? "specific" : "default";
   const role = args.role ?? roleForSuite(args.suite);
-  const provider = providerForModel(id);
+  const provider = normalized.provider || providerForModel(id);
   const costFields = proofloopModelCostFieldsForRun({
     modelId: id,
     provider,
@@ -85,6 +88,8 @@ export function proofloopModelRouteForRun(args: {
       suite: args.suite,
       cmd: args.cmd,
       id,
+      requestedId: normalized.requested,
+      runtime: normalized.runtime,
       source,
       role,
       routePolicy,
@@ -242,6 +247,7 @@ function defaultModelForSuite(suite: string, cmd: string): string {
 
 function providerForModel(modelId: string): string {
   if (modelId === "local/deterministic" || modelId.startsWith("local/")) return "local";
+  if (modelId.toLowerCase().startsWith("nebius/")) return "nebius";
   if (modelId.includes("/")) return "openrouter";
   if (/^(?:gpt-|o\d|chatgpt-)/i.test(modelId)) return "openai";
   if (/^claude/i.test(modelId)) return "anthropic";
@@ -283,6 +289,8 @@ function defaultSelectionReason(args: {
   suite: string;
   cmd: string;
   id: string;
+  requestedId?: string;
+  runtime?: string;
   source: ProofloopModelRoute["source"];
   role: ProofloopModelRole;
   routePolicy: ProofloopModelRoute["routePolicy"];
@@ -292,6 +300,9 @@ function defaultSelectionReason(args: {
   }
   if (args.routePolicy === "deterministic") {
     return `Deterministic local route selected because ${args.suite} does not require a live model.`;
+  }
+  if (args.routePolicy === "proxy") {
+    return `Proxy ${args.role} route selected through ${args.runtime ?? "external runtime"} for ${args.suite}: ${args.requestedId ?? args.id} -> ${args.id}.`;
   }
   if (/finch|finauditing|workstream|spreadsheet/i.test(`${args.suite} ${args.cmd}`)) {
     return `Default finance benchmark ${args.role} route selected for ${args.suite} blocker solving and proxy comparison.`;

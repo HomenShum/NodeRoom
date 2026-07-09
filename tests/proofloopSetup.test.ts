@@ -1,9 +1,10 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { setupProofloopAdapter, setupReceiptPath } from "../src/eval/proofloopSetup";
+import { loadExternalBenchmarkLocalTasks } from "../proofloop/benchmarks/common/local-tasks";
 
 const tempRoots: string[] = [];
 
@@ -45,7 +46,7 @@ describe("Proof Loop adapter setup", () => {
     expect(existsSync(join(root, ".proofloop", "setup", "bankertoolbench-manifest-lock.json"))).toBe(true);
   });
 
-  it("writes typed setup receipts for adapters whose local setup recipe is still missing", async () => {
+  it("writes typed setup receipts for external adapters with missing local proxy inputs", async () => {
     const root = tempRoot();
     const receipt = await setupProofloopAdapter({
       adapterId: "finch",
@@ -53,9 +54,26 @@ describe("Proof Loop adapter setup", () => {
       generatedAt: "2026-07-02T00:00:00.000Z",
     });
 
-    expect(receipt.status).toBe("needs_local_adapter_implementation");
-    expect(receipt.requiredFiles?.join(" ")).toContain("proofloop/benchmarks/finch/browser-scenario.spec.ts");
-    expect(readFileSync(setupReceiptPath(root, "finch"), "utf8")).toContain("needs_local_adapter_implementation");
+    expect(receipt.status).toBe("blocked");
+    expect(receipt.requiredFiles?.join(" ")).toContain("proofloop/benchmarks/finch/adapter.json");
+    expect(receipt.nextCommands.join(" ")).toContain("external-adapter-live-room -- --id finch");
+    expect(readFileSync(setupReceiptPath(root, "finch"), "utf8")).toContain("missing");
+  });
+
+  it("marks external local proxy adapters ready after required files are present", async () => {
+    const root = tempRoot();
+    writeExternalAdapterFixture(root, "workstreambench");
+
+    const receipt = await setupProofloopAdapter({
+      adapterId: "workstreambench",
+      projectRoot: root,
+      generatedAt: "2026-07-02T00:00:00.000Z",
+    });
+
+    expect(receipt.status).toBe("ready");
+    expect(receipt.taskIds).toEqual(["workstreambench-local-spreadsheet-workstream"]);
+    expect(receipt.manifestLockfile).toBe(".proofloop/setup/workstreambench-local-task-manifest.json");
+    expect(existsSync(join(root, ".proofloop", "setup", "workstreambench-local-task-manifest.json"))).toBe(true);
   });
 });
 
@@ -82,4 +100,33 @@ function writeBtbFixture(root: string): void {
     })}\n`,
     "utf8",
   );
+}
+
+function writeExternalAdapterFixture(root: string, adapterId: "finch" | "finauditing" | "workstreambench"): void {
+  const adapterDir = join(root, "proofloop", "benchmarks", adapterId);
+  mkdirSync(adapterDir, { recursive: true });
+  const adapter = {
+    schema: 1,
+    id: adapterId,
+    source: { name: adapterId },
+    taskLoader: `proofloop/benchmarks/${adapterId}/load-tasks.ts`,
+    seedInputsThroughUi: true,
+    browserScenario: `proofloop/benchmarks/${adapterId}/browser-scenario.spec.ts`,
+    verifierCommand: `npm run benchmark:proofloop:adapter-blockers -- --id ${adapterId} --strict`,
+    expectedArtifacts: [],
+    scoringMode: "hybrid",
+    scoreFields: ["productPathCompletion", "officialSemanticScore"],
+    liveUserCommand: `npm run benchmark:proofloop:external-adapter-live-room -- --id ${adapterId} --prod --user-emulation strict --cockpit`,
+  };
+  writeFile(join(root, `proofloop/benchmarks/${adapterId}/adapter.json`), JSON.stringify(adapter, null, 2));
+  writeFile(join(root, `proofloop/benchmarks/${adapterId}/load-tasks.ts`), "export function loadTasks(){ return []; }\n");
+  writeFile(join(root, `proofloop/benchmarks/${adapterId}/browser-scenario.spec.ts`), "export {};\n");
+  for (const task of loadExternalBenchmarkLocalTasks(adapterId)) {
+    for (const inputRef of task.inputRefs) writeFile(join(root, ...inputRef.split("/")), "fixture\n");
+  }
+}
+
+function writeFile(path: string, body: string): void {
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, body, "utf8");
 }

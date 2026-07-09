@@ -13,7 +13,7 @@ function passingLiveProbe(): LivePreprodProbe {
     "x-content-type-options": "nosniff",
     "x-frame-options": "DENY",
     "referrer-policy": "strict-origin-when-cross-origin",
-    "permissions-policy": "camera=(), microphone=()",
+    "permissions-policy": "camera=(), microphone=(self)",
     "cross-origin-opener-policy": "same-origin",
   };
   return {
