@@ -9,7 +9,7 @@
  */
 
 import { RoomEngine } from "./roomEngine";
-import type { Actor, ChangeOp, ToolPart } from "./types";
+import type { Actor, CellPayload, ChangeOp, ToolPart } from "./types";
 
 export const SHEET_COLS = ["label", "q2", "q3", "variance", "note"] as const;
 export const SHEET_ROWS = [
@@ -29,11 +29,20 @@ const RESEARCH_EVIDENCE_COLS = new Set(["summary", "funding", "headcount", "rece
 const RESEARCH_AGENT_READONLY_COLS = new Set(["company", "website", "tier", "intent", "owner", "crm_status"]);
 
 export const RESEARCH_COMPANIES = [
-  { id: "rc_cardionova", company: "CardioNova", url: "https://cardionova.example", source2Url: "https://cardionova.example/security", tier: "A", intent: "AI triage for hospitals", owner: "Maya", crmStatus: "New" },
-  { id: "rc_mercury", company: "Mercury", url: "https://mercury.com", source2Url: "https://www.linkedin.com/company/mercurybank/", tier: "A", intent: "Startup banking diligence", owner: "Maya", crmStatus: "Watch" },
-  { id: "rc_ramp", company: "Ramp", url: "https://ramp.com", source2Url: "https://www.linkedin.com/company/ramp/", tier: "A", intent: "Middle market card + spend controls", owner: "Sam", crmStatus: "Target" },
-  { id: "rc_brex", company: "Brex", url: "https://www.brex.com", source2Url: "https://www.linkedin.com/company/brexhq/", tier: "A", intent: "Startup banking and expense workflow", owner: "Maya", crmStatus: "Warm" },
-  { id: "rc_pulley", company: "Pulley", url: "https://pulley.com", source2Url: "https://www.linkedin.com/company/pulley/", tier: "B", intent: "Cap table and equity ops", owner: "Sam", crmStatus: "Research" },
+  { id: "rc_cardionova", company: "CardioNova", url: "https://cardionova.com", source2Url: "https://cardionova.com/security", status: "complete", tier: "A", intent: "Cap table and hospital AI diligence", owner: "Maya", crmStatus: "New" },
+  { id: "rc_neuronova", company: "NeuroNova", url: "https://neuronova.com", source2Url: "https://neuronova.com/security", status: "enriching", tier: "B", intent: "Middle-market clinical workflow", owner: "Sam", crmStatus: "Watch" },
+  { id: "rc_fluxnova", company: "FluxNova", url: "https://fluxnova.com", source2Url: "https://fluxnova.com/security", status: "complete", tier: "A", intent: "Startup treasury automation", owner: "Priya", crmStatus: "Ready" },
+  { id: "rc_atlasnova", company: "AtlasNova", url: "https://atlasnova.com", source2Url: "https://atlasnova.com/security", status: "pending", tier: "C", intent: "Warehouse ops underwriting", owner: "Homen", crmStatus: "Queued" },
+  { id: "rc_vertexnova", company: "VertexNova", url: "https://vertexnova.com", source2Url: "https://vertexnova.com/security", status: "complete", tier: "A", intent: "Clinical data exchange", owner: "Maya", crmStatus: "Ready" },
+  { id: "rc_lumennova", company: "LumenNova", url: "https://lumennova.com", source2Url: "https://lumennova.com/security", status: "pending", tier: "B", intent: "Cap table automation", owner: "Sam", crmStatus: "Queued" },
+  { id: "rc_harbornova", company: "HarborNova", url: "https://harbornova.com", source2Url: "https://harbornova.com/security", status: "complete", tier: "A", intent: "AI triage and intake", owner: "Priya", crmStatus: "Ready" },
+  { id: "rc_crestnova", company: "CrestNova", url: "https://crestnova.com", source2Url: "https://crestnova.com/security", status: "pending", tier: "A", intent: "Revenue operations", owner: "Homen", crmStatus: "Queued" },
+  { id: "rc_nimbusnova", company: "NimbusNova", url: "https://nimbusnova.com", source2Url: "https://nimbusnova.com/security", status: "enriching", tier: "B", intent: "Freight risk workflow", owner: "Maya", crmStatus: "Researching" },
+  { id: "rc_quantanova", company: "QuantaNova", url: "https://quantanova.com", source2Url: "https://quantanova.com/security", status: "failed", tier: "A", intent: "SMB payments evidence", owner: "Sam", crmStatus: "Blocked" },
+  { id: "rc_helionova", company: "HelioNova", url: "https://helionova.com", source2Url: "https://helionova.com/security", status: "complete", tier: "B", intent: "Startup climate ops", owner: "Priya", crmStatus: "Ready" },
+  { id: "rc_orbitnova", company: "OrbitNova", url: "https://orbitnova.com", source2Url: "https://orbitnova.com/security", status: "pending", tier: "C", intent: "Logistics diligence", owner: "Homen", crmStatus: "Queued" },
+  { id: "rc_pulsenova", company: "PulseNova", url: "https://pulsenova.com", source2Url: "https://pulsenova.com/security", status: "needs_review", tier: "A", intent: "Pulse survey evidence", owner: "Maya", crmStatus: "Review" },
+  { id: "rc_verdenova", company: "VerdeNova", url: "https://verdenova.com", source2Url: "https://verdenova.com/security", status: "complete", tier: "B", intent: "Carbon accounting workflow", owner: "Sam", crmStatus: "Ready" },
 ];
 /** Scripted enrichment targets for the no-keys path (the live LLM researches for real instead). */
 export const RESEARCH_PLAN = [
@@ -43,7 +52,40 @@ export const RESEARCH_PLAN = [
   { rowId: "rc_brex", summary: "Corporate cards, banking-adjacent cash workflow, and expense automation for startups.", funding: "Late-stage fintech with major venture backing; verify latest financing.", headcount: "Scaled global fintech team.", recentSignal: "Startup banking and expense workflow overlaps the diligence reference workflow.", sourceUrl: "https://www.brex.com", source2Url: "https://www.linkedin.com/company/brexhq/" },
   { rowId: "rc_pulley", summary: "Cap table and equity operations platform for startup finance and legal teams.", funding: "Venture-backed SaaS profile; refresh latest funding and hiring signals.", headcount: "Mid-market startup ops team; verify current headcount.", recentSignal: "Equity ops connects to startup banking onboarding and founder services.", sourceUrl: "https://pulley.com", source2Url: "https://www.linkedin.com/company/pulley/" },
 ];
-export const CAPTURE_NOTEBOOK_DOC = "<h1>Capture Notebook</h1><p>Who did you talk to? What changed? What should we verify next? Drop messy notes here, then pause — NodeRoom will notice the signals worth returning to.</p>";
+export const CAPTURE_NOTEBOOK_DOC = [
+  "<h1>CardioNova — diligence brief</h1>",
+  "<p><strong>Funding.</strong> CardioNova closed a <strong>$14M Series A</strong> led by Meridian Health Ventures in February. The round funds hospital-triage deployments in three systems; recognized Q3 revenue reconciles to <strong>$12,400</strong> against the NetSuite close.</p>",
+  "<blockquote>We only sell where the triage model has run against the hospital's own historical admits.</blockquote>",
+  "<h2>Claim</h2>",
+  "<p data-status=\"needs_review\"><strong>Series A totals $14M, led by Meridian Health Ventures.</strong></p>",
+  "<ul>",
+  "<li data-author-kind=\"agent\">verified — Crunchbase confirms the lead investor and amount.</li>",
+  "<li data-author-kind=\"agent\" data-status=\"needs_review\">conflict — PitchBook lists total raised at $12M.</li>",
+  "</ul>",
+  "<h2>Embedded sheet context</h2>",
+  "<pre><code>ACCOUNT        Q3        VARIANCE\nRevenue        $12,400   +24%\nCOGS           $5,100    +27.5%\nGross profit   $7,300    +21.7%</code></pre>",
+  "<h2>Risk</h2>",
+  "<ul><li>Deck claims runway of ~14 months at current burn; hiring plan adds 6 heads in Q4.</li><li>Security source still needs a named hospital deployment reference.</li></ul>",
+].join("");
+const CAPTURE_NOTEBOOK_CLOUD_DOC = [
+  "<h1 data-blockid=\"nb-title\">CardioNova &mdash; diligence brief</h1>",
+  "<p data-blockid=\"nb-meta\" data-status=\"draft\"><code>notebook &middot; v12</code> <code>3 sources</code> <code>draft</code></p>",
+  "<h2 data-blockid=\"nb-funding\">Funding</h2>",
+  "<p data-blockid=\"nb-funding-p\" data-author-kind=\"agent\">CardioNova closed a <strong>$14M Series A</strong> led by Meridian Health Ventures in <a href=\"https://crunchbase.com/org/cardionova\">February</a>. The round funds hospital-triage deployments in three systems; recognized Q3 revenue reconciles to <strong>$12,400</strong> against the <a href=\"https://netsuite.example.com/close/q3\">NetSuite close</a>.</p>",
+  "<h2 data-blockid=\"nb-claim-h\">Claim</h2>",
+  "<p data-blockid=\"nb-claim\" data-status=\"needs_review\"><strong>Series A totals $14M, led by Meridian Health Ventures.</strong></p>",
+  "<ul>",
+  "<li data-blockid=\"nb-src-1\" data-author-kind=\"agent\"><code data-tone=\"verified\">verified</code> Crunchbase &mdash; <a href=\"https://crunchbase.com/org/cardionova\">&ldquo;$14M, led by Meridian Health Ventures&rdquo;</a></li>",
+  "<li data-blockid=\"nb-src-2\" data-author-kind=\"agent\"><code data-tone=\"conflict\">conflict</code> PitchBook lists total raised at <a href=\"https://pitchbook.com/profiles/company/cardionova\">$12M</a>.</li>",
+  "</ul>",
+  "<blockquote data-blockid=\"nb-quote\">We only sell where the triage model has run against the hospital's own historical admits.</blockquote>",
+  "<p data-blockid=\"nb-quote-source\" data-status=\"quote_source\">CEO, first partner call &middot; captured to room memory</p>",
+  "<p data-blockid=\"nb-sheet-head\" data-status=\"synced\"><strong>Q3 variance &middot; Sheet</strong> synced &middot; v247</p>",
+  "<pre data-blockid=\"nb-sheet\"><code>ACCOUNT        Q3        VARIANCE\nRevenue        $12,400   +24%\nCOGS           $5,100    +27.5%\nGross profit   $7,300    +21.7%</code></pre>",
+  "<h2 data-blockid=\"nb-risk-h\">Risk</h2>",
+  "<ul><li data-blockid=\"nb-risk-1\">Deck claims runway of ~14 months at current burn; hiring plan adds 6 heads in Q4.</li><li data-blockid=\"nb-risk-2\">Security source still needs a named hospital deployment reference.</li></ul>",
+].join("");
+
 export const WIKI_DOC = "Living wiki for room state, file inventory, agent sessions, workflows, backend map, and recent trace evidence. It updates from artifacts, sessions, runs, and traces.";
 export const BRIEF_DOC = "Today's Brief — the room's ranked next actions, assembled from evidence, runway, and review state. Derived from the room and updated as it changes.";
 
@@ -59,6 +101,7 @@ function researchMeta() {
         agentWritable: !RESEARCH_AGENT_READONLY_COLS.has(col),
       })),
       rowCount: RESEARCH_COMPANIES.length,
+      defaultHiddenColumnIds: ["crm_status", "summary", "funding", "headcount", "recent_signal", "source", "source2", "last_researched"],
       sourceFile: "starter-room",
       sheetName: "Company research",
       sheetNames: ["Company research"],
@@ -67,6 +110,52 @@ function researchMeta() {
       warnings: [],
     },
   };
+}
+
+function researchEvidence(row: (typeof RESEARCH_COMPANIES)[number]): NonNullable<CellPayload["evidence"]> {
+  return [
+    {
+      id: `${row.id}-primary-source`,
+      kind: "source",
+      label: "Primary source",
+      url: row.url,
+      snippet: `${row.company}: product, buyer, and diligence context captured from the company site.`,
+      confidence: 0.88,
+    },
+    {
+      id: `${row.id}-security-source`,
+      kind: "source",
+      label: "Security source",
+      url: row.source2Url,
+      snippet: `${row.company}: security and operating-risk evidence attached to the company row.`,
+      confidence: 0.84,
+    },
+  ];
+}
+
+function researchPayload(value: string, status: CellPayload["status"], evidence: NonNullable<CellPayload["evidence"]>): CellPayload {
+  return { value, status, evidence, confidence: 0.87, updatedByRunId: "demo-research-seed" };
+}
+
+function researchSeedValue(row: (typeof RESEARCH_COMPANIES)[number], col: (typeof RESEARCH_COLS)[number]): unknown {
+  const evidence = researchEvidence(row);
+  const completed = row.status === "complete";
+  switch (col) {
+    case "company": return row.company;
+    case "website": return row.url;
+    case "status": return row.status;
+    case "tier": return row.tier;
+    case "intent": return row.intent;
+    case "owner": return row.owner;
+    case "crm_status": return row.crmStatus;
+    case "summary": return completed ? researchPayload(`${row.company} has sourced product, buyer, and deployment notes ready for partner review.`, "complete", evidence) : "";
+    case "funding": return completed ? researchPayload("Funding profile captured; refresh before final IC use.", "complete", evidence) : "";
+    case "headcount": return completed ? researchPayload("Source-backed operating range attached.", "complete", evidence) : "";
+    case "recent_signal": return completed ? researchPayload("Recent diligence signal is source-backed and ready to cite.", "complete", evidence) : "";
+    case "source": return completed ? researchPayload(row.url, "complete", [evidence[0]]) : "";
+    case "source2": return completed ? researchPayload(row.source2Url, "complete", [evidence[1]]) : "";
+    case "last_researched": return completed ? researchPayload("2026-07-03", "complete", evidence) : "";
+  }
 }
 
 function runwaySeed() {
@@ -122,7 +211,7 @@ export interface DemoRoom {
 }
 
 export function buildDemoRoom(engine: RoomEngine): DemoRoom {
-  const { room, host } = engine.createRoom({ title: "Startup diligence", hostName: "Homen", autoAllow: true });
+  const { room, host } = engine.createRoom({ title: "Q3 diligence", hostName: "Homen", autoAllow: true });
   const me: Actor = { kind: "user", id: host.id, name: "Homen" };
   const priyaM = engine.joinRoom({ code: room.code, name: "Priya", anon: false })!.member;
   const quokkaM = engine.joinRoom({ code: room.code, name: "anon · quokka" })!.member;
@@ -137,18 +226,14 @@ export function buildDemoRoom(engine: RoomEngine): DemoRoom {
     seed.push({ id: `${r.id}__variance`, value: "" });
     seed.push({ id: `${r.id}__note`, value: "" });
   }
-  engine.createArtifact({ roomId: room.id, kind: "note", title: "Capture Notebook", by: me, seed: [{ id: "doc", value: CAPTURE_NOTEBOOK_DOC }] });
+  engine.createArtifact({ roomId: room.id, kind: "note", title: "Capture Notebook", by: me, seed: [{ id: "doc", value: CAPTURE_NOTEBOOK_CLOUD_DOC }] });
   const wikiId = engine.createArtifact({ roomId: room.id, kind: "note", title: "Agent wiki", by: me, seed: [{ id: "doc", value: WIKI_DOC }] }).id;
   engine.createArtifact({ roomId: room.id, kind: "note", title: "Today's Brief", by: me, seed: [{ id: "doc", value: BRIEF_DOC }] });
   const sheetId = engine.createArtifact({ roomId: room.id, kind: "sheet", title: "Q3 variance", by: me, seed }).id;
 
   const researchSeed: Array<{ id: string; value: unknown }> = [];
   for (const c of RESEARCH_COMPANIES) {
-    const vals: Record<(typeof RESEARCH_COLS)[number], string> = {
-      company: c.company, website: c.url, status: "pending", tier: c.tier, intent: c.intent, owner: c.owner, crm_status: c.crmStatus,
-      summary: "", funding: "", headcount: "", recent_signal: "", source: "", source2: "", last_researched: "",
-    };
-    for (const col of RESEARCH_COLS) researchSeed.push({ id: `${c.id}__${col}`, value: vals[col] });
+    for (const col of RESEARCH_COLS) researchSeed.push({ id: `${c.id}__${col}`, value: researchSeedValue(c, col) });
   }
   // Research imports the CRM rows — company/website/tier/intent/owner/crm_status SEEDED (agentWritable:false,
   // so the agent must preserve them) with the diligence/ENRICH columns blank. The agent fills the blanks; it
@@ -172,12 +257,64 @@ export function buildDemoRoom(engine: RoomEngine): DemoRoom {
   }).id;
 
   const room_ = engine.startSession({ roomId: room.id, agentId: "agent_room", agentName: "Room NodeAgent", scope: "public" });
-  const privA = engine.startSession({ roomId: room.id, agentId: "agent_priv", agentName: "Your NodeAgent", scope: "private", ownerId: me.id });
+  const roomAgent: Actor = { kind: "agent", id: "agent_room", name: "Room NodeAgent", scope: "public" };
+  const enrichingLock = engine.proposeLock({
+    roomId: room.id,
+    artifactId: researchId,
+    elementIds: ["rc_neuronova__status", "rc_nimbusnova__status"],
+    holder: { kind: "agent", id: "agent_room", name: "Room NodeAgent", scope: "public" },
+    sessionId: room_.id,
+    reason: "enriching companies with source-backed receipts",
+  });
+  if (enrichingLock.ok) engine.updateSession(room_.id, { status: "working", heldLockId: enrichingLock.lock.id, lastAction: "enriching company research rows" });
 
-  engine.postMessage({ roomId: room.id, channel: "public", author: priya, text: "Starting the startup-banking diligence room - CardioNova first, then the bulk batch.", clientMsgId: "seed1", kind: "chat" });
-  engine.postMessage({ roomId: room.id, channel: "public", author: quokka, text: "joined as a guest. can watch the artifacts and handoff drafts live?", clientMsgId: "seed2", kind: "chat" });
-  engine.postMessage({ roomId: room.id, channel: { private: me.id }, author: me, text: "Private: flag any missing runway assumptions before we publish to the room.", clientMsgId: "seed3", kind: "chat" });
-  engine.postMessage({ roomId: room.id, channel: { private: me.id }, author: { kind: "agent", id: "agent_priv", name: "Your NodeAgent", scope: "private", ownerId: me.id }, text: "I will keep unknown cash, burn, pricing, hiring, and funding inputs as explicit gaps until a source supports them. This stays private until you promote it.", clientMsgId: "seed4", kind: "agent" });
+  engine.postMessage({ roomId: room.id, channel: "public", author: me, text: "Can the room reconcile Q3 variance against the NetSuite close before the board read?", clientMsgId: "seed-01-homen-question", kind: "chat" });
+  engine.postMessage({ roomId: room.id, channel: "public", author: me, text: "@nodeagent reconcile Q3 revenue and COGS variance", clientMsgId: "seed-02-homen-command", kind: "chat" });
+  engine.postMessage({ roomId: room.id, channel: "public", author: { kind: "agent", id: "agent_room", name: "Room NodeAgent", scope: "public" }, text: "Researched 2 companies with 2 sources and committed the first reconciliation batch.", clientMsgId: "seed-03-agent-reconciled", kind: "agent" });
+  engine.postMessage({ roomId: room.id, channel: "public", author: priya, text: "The +27.5% on COGS is volume, not price - noting it on the row so it survives the sync.", clientMsgId: "seed-04-priya-cogs", kind: "chat" });
+  engine.postMessage({ roomId: room.id, channel: "public", author: quokka, text: "anon - quokka joined as guest · view + chat", clientMsgId: "seed-05-quokka-joined", kind: "chat" });
+  engine.postMessage({ roomId: room.id, channel: "public", author: { kind: "agent", id: "agent_room", name: "Room NodeAgent", scope: "public" }, text: "Researched 3 companies with 3 sources and prepared the next versioned handoff.", clientMsgId: "seed-06-agent-handoff", kind: "agent" });
+  engine.postMessage({ roomId: room.id, channel: "public", author: me, text: "Good. Draft the reconciliation memo and clip the variance exhibit for the board read.", clientMsgId: "seed-07-homen-memo", kind: "chat" });
+  engine.postMessage({ roomId: room.id, channel: { private: me.id }, author: me, text: "Private: flag any missing runway assumptions before we publish to the room.", clientMsgId: "seed-private-1", kind: "chat" });
+  engine.postMessage({ roomId: room.id, channel: { private: me.id }, author: { kind: "agent", id: "agent_priv", name: "Your NodeAgent", scope: "private", ownerId: me.id }, text: "I will keep unknown cash, burn, pricing, hiring, and funding inputs as explicit gaps until a source supports them. This stays private until you promote it.", clientMsgId: "seed-private-2", kind: "agent" });
+  engine.trace(room.id, roomAgent, "agent_status", "context.gather · Q3 revenue and COGS variance", { artifactId: sheetId }, "context.gather · sheet, chat request, NetSuite export → ok");
+  engine.trace(room.id, roomAgent, "lock_acquired", "privacy.filter · scoped to room-visible evidence", { artifactId: sheetId }, "privacy.filter · public room scope → ok");
+  engine.trace(room.id, roomAgent, "edit_applied", "retrieval.search · source-backed variance notes", { artifactId: sheetId }, "retrieval.search · NetSuite export + sheet cells → ok");
+  engine.trace(room.id, roomAgent, "edit_applied", "synthesis.answer · reconciled Q3 variance · v42", { artifactId: sheetId }, "synthesis.answer · Revenue + COGS variance → committed");
+  engine.trace(room.id, roomAgent, "notebook_read_model", "notebook.write · draft board memo evidence", { artifactId: noteId }, "notebook.write · memo outline + citations → queued");
+  const chatBase = new Date();
+  chatBase.setHours(9, 38, 0, 0);
+  const chatOffsets = new Map([
+    ["seed-01-homen-question", 0],
+    ["seed-02-homen-command", 0],
+    ["seed-03-agent-reconciled", 1],
+    ["seed-04-priya-cogs", 3],
+    ["seed-05-quokka-joined", 4],
+    ["seed-06-agent-handoff", 6],
+    ["seed-07-homen-memo", 8],
+  ]);
+  for (const msg of engine.listMessages(room.id, "public")) {
+    const offset = chatOffsets.get(msg.clientMsgId);
+    if (offset !== undefined) msg.createdAt = chatBase.getTime() + offset * 60_000;
+  }
+
+  const span = (id: string, parent: string, startMs: number, durationMs: number, kind: string, extra = "") =>
+    `span.id=${id}; span.parent=${parent}; span.start_ms=${startMs}; span.duration_ms=${durationMs}; span.kind=${kind}${extra ? `; ${extra}` : ""}`;
+  engine.trace(room.id, roomAgent, "agent_status", "context.gather - Q3 revenue and COGS variance", { artifactId: sheetId }, `${span("ctx", "run", 0, 900, "context", "span.name=context.gather")} - sheet, chat request, NetSuite export -> ok`);
+  engine.trace(room.id, roomAgent, "lock_acquired", "privacy.filter - scoped to room-visible evidence", { artifactId: sheetId }, `${span("priv", "ctx", 520, 280, "privacy", "span.name=privacy.filter")} - public room scope -> ok`);
+  engine.trace(room.id, roomAgent, "edit_applied", "retrieval.search - source-backed variance notes", { artifactId: sheetId }, `${span("ret", "run", 1200, 4300, "retrieval", "span.name=retrieval.search; span.status=retry")} - NetSuite export + sheet cells -> retry`);
+  engine.trace(room.id, roomAgent, "edit_applied", "fetch cardionova.com", { artifactId: sheetId }, `${span("fetch-cardionova", "ret", 1500, 380, "retrieval", "span.name=fetch_cardionova.com")} - fetched source`);
+  engine.trace(room.id, roomAgent, "edit_applied", "fetch crunchbase.com", { artifactId: sheetId }, `${span("fetch-crunchbase", "ret", 1900, 610, "retrieval", "span.name=fetch_crunchbase.com")} - fetched source`);
+  engine.trace(room.id, roomAgent, "proposal_resolve_failed", "fetch pitchbook.com - error", { artifactId: sheetId }, `${span("fetch-pitchbook", "ret", 2600, 540, "retrieval", "span.name=fetch_pitchbook.com; span.status=error")} - provider profile unavailable`);
+  engine.trace(room.id, roomAgent, "edit_applied", "retry pitchbook.com", { artifactId: sheetId }, `${span("retry-pitchbook", "ret", 3300, 470, "retrieval", "span.name=retry_pitchbook.com; span.status=retryok")} - alternate source ok`);
+  engine.trace(room.id, roomAgent, "edit_applied", "36 more fetches", { artifactId: sheetId }, `${span("fetch-rollup", "ret", 3900, 3800, "retrieval", "span.name=36_more_fetches")} - batched source fetches`);
+  engine.trace(room.id, roomAgent, "edit_applied", "synthesis.answer - reconciled Q3 variance - v42", { artifactId: sheetId }, `${span("syn", "run", 6200, 3100, "synthesis", "span.name=synthesis.answer; attr.tokens.in=48,200; attr.tokens.out=2,100; attr.cost=$0.14_-_spike_vs_run_avg_$0.05; attr.confidence=0.82_-_draft")} - Revenue + COGS variance -> committed`);
+  engine.trace(room.id, roomAgent, "agent_status", "tokens.in 48,200", { artifactId: sheetId }, `${span("tok-in", "syn", 6420, 40, "synthesis", "span.name=tokens.in")} - 48,200`);
+  engine.trace(room.id, roomAgent, "agent_status", "tokens.out 2,100", { artifactId: sheetId }, `${span("tok-out", "syn", 6480, 40, "synthesis", "span.name=tokens.out")} - 2,100`);
+  engine.trace(room.id, roomAgent, "agent_status", "cost $0.14 - spike vs run avg $0.05", { artifactId: sheetId }, `${span("cost", "syn", 6540, 40, "synthesis", "span.name=cost")} - $0.14`);
+  engine.trace(room.id, roomAgent, "agent_status", "confidence 0.82 - draft", { artifactId: sheetId }, `${span("conf", "syn", 6600, 40, "synthesis", "span.name=confidence")} - 0.82 draft`);
+  engine.trace(room.id, roomAgent, "notebook_read_model", "notebook.write - draft board memo evidence", { artifactId: noteId }, `${span("nb-write", "run", 10300, 1100, "notebook", "span.name=notebook.write")} - memo outline + citations -> queued`);
+  const privA = engine.startSession({ roomId: room.id, agentId: "agent_priv", agentName: "Your NodeAgent", scope: "private", ownerId: me.id });
 
   return {
     roomId: room.id, me, members: { homen: me, priya, quokka },
