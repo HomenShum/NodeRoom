@@ -1418,6 +1418,8 @@ button.na-row:hover .chevR { transform: translateX(3px); color: var(--na-accent)
 .na-model-chip { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-secondary); font: inherit; font-size: 13px; font-weight: 550; cursor: pointer; transition: background var(--duration-normal); }
 .na-model-chip:hover { background: var(--bg-hover); }
 .na-model-chip:active { transform: scale(0.96); }
+.na-model-chip:disabled { opacity: .58; cursor: not-allowed; transform: none; }
+.na-model-chip:disabled:hover { background: var(--bg-secondary); }
 .na-model-chip[data-on="true"] { border-color: color-mix(in srgb, var(--na-accent) 45%, transparent); color: var(--text-primary); }
 .na-model-chip > svg:first-child { width: 15px; height: 15px; color: var(--na-accent); }
 .na-model-chip > svg:last-child { width: 13px; height: 13px; color: var(--text-tertiary); }

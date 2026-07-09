@@ -7,10 +7,13 @@ This is the concrete browser test inventory for NodeRoom's core workflows. The m
 ## Product Rule
 
 - Public room agent invocation is `@nodeagent ...`.
-- The composer model picker records route preference: Adaptive, Free, Top paid,
-  or Specific model. Browser specs should assert the server-resolved policy on
-  the job detail; the client does not own `modelPolicy`, approval, evidence,
-  allowlist, or rate-limit policy.
+- The composer model picker is a visible searchable chip/popover that records
+  route preference: Adaptive, Free, Top paid, or an exact model. Browser specs
+  should assert the server-resolved policy on the job detail; the client does
+  not own `modelPolicy`, approval, evidence, allowlist, or rate-limit policy.
+- Hidden `chat-model-preset` and `chat-model-specific` controls are
+  value-bearing compatibility hooks for proof scripts only. They are not the
+  taught or user-visible UX.
 - `/ask` and `/free` are compatibility aliases only. They should remain accepted by the runtime, but they are not the taught UX in chips, docs, or walkthroughs.
 - Private lane messages go to the user's private NodeAgent without requiring a mention.
 
@@ -27,7 +30,7 @@ This is the concrete browser test inventory for NodeRoom's core workflows. The m
 | --- | --- | --- | --- |
 | Room entry and shell | Create demo room; panel toggles; usable desktop/compact shell | Join by room code from a second context | Partial: shell and responsive specs exist; join-by-code needs a dedicated two-context spec |
 | Public chat | Send public message; edit own message | Forced failure and retry | Covered for send/edit; failure injection missing |
-| Public `@nodeagent` | Mention agent; switch route picker; hidden slash alias mapping | Trace detail and live resolved-model drilldown | Partial: unit coverage for model routing; browser route smoke still needs a dedicated spec |
+| Public `@nodeagent` | Mention agent; switch visible searchable route picker; hidden slash alias mapping | Trace detail and live resolved-model drilldown | Partial: unit coverage covers picker routing and proof-hook compatibility; browser route smoke still needs a dedicated spec |
 | Private agent | Private reply stays private | Promote private output; Room-mode shared action | Covered for private/public browser leak in production-preview; promote and Room-mode browser proof still need hardening |
 | Durable jobs | Start Free route through model picker | Cancel, retry, detail drawer, reload resume | Covered in production-preview for free-route strip, details, cancel, and retry; live reload/resume remains open |
 | Spreadsheet editing | Manual edit, keyboard commit, undo | Locked-cell rejection and stale conflict feedback | Partial: keyboard model covered; peer-visible undo/conflict gates need expansion |

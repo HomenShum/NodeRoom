@@ -77,6 +77,9 @@ describe("Chat model picker polish", () => {
     mockStore.current = store;
     render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
 
+    expect(screen.getByTestId("chat-model-preset").getAttribute("data-compat-only")).toBe("legacy-proof-hook");
+    expect(screen.getByTestId("chat-model-specific").getAttribute("data-compat-only")).toBe("legacy-proof-hook");
+
     fireEvent.change(screen.getByTestId("chat-model-preset"), { target: { value: "specific" } });
     fireEvent.change(screen.getByTestId("chat-model-specific"), { target: { value: "claude-sonnet-4.6" } });
     fireEvent.change(screen.getByTestId("chat-composer"), { target: { value: "@nodeagent review the latest CardioNova diligence notes" } });

@@ -445,10 +445,10 @@ export function MobileAppLive({ roomId, me, proof, onLeave }: { roomId: string; 
         return { ok: false, reason: e instanceof Error ? e.message : "agent_failed" };
       }
     },
-    askRoomAgent: async (goal: string) => {
+    askRoomAgent: async (goal, modelSelection) => {
       void store.postMessage({ roomId, channel: "public", author: me, text: goal, clientMsgId: crypto.randomUUID(), kind: "chat" });
       try {
-        await store.askAgent({ goal });
+        await store.askAgent(modelSelection ? { goal, modelSelection } : { goal });
         return { ok: true };
       } catch (e) {
         return { ok: false, reason: e instanceof Error ? e.message : "agent_failed" };

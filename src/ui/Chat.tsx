@@ -947,11 +947,13 @@ function AgentModelPicker({
 
   return (
     <div className="r-model-picker" ref={rootRef}>
+      {/* Compatibility hooks for existing proof scripts. The visible product UI is the trigger/popover below. */}
       <select
         className="r-model-compat"
         value={mode}
         onChange={(e: ChangeEvent<HTMLSelectElement>) => choosePreset(e.target.value as AgentModelSelection["mode"])}
         data-testid="chat-model-preset"
+        data-compat-only="legacy-proof-hook"
         aria-hidden="true"
         tabIndex={-1}
       >
@@ -965,6 +967,7 @@ function AgentModelPicker({
           onSpecificModelChange(e.target.value);
         }}
         data-testid="chat-model-specific"
+        data-compat-only="legacy-proof-hook"
         aria-hidden="true"
         tabIndex={-1}
       />
@@ -2245,9 +2248,9 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             placeholder={isPrivate ? (roomLane ? "Tell your agent to act in the room…" : "Ask privately…") : "Message the room or @nodeagent..."}
             data-testid="chat-composer"
             aria-label={isPrivate ? "Ask privately" : "Message the room"} />
-          {/* One calm toolbar row (assistant-ui/shadcn): attach + an unobtrusive model chip on the
-              left, send on the right. The route picker lives here as a ghost <select> — no labels,
-              no helper sentence (moved to title=), revealed-on-relevance instead of always-stacked. */}
+          {/* One calm toolbar row (assistant-ui/shadcn): attach + an unobtrusive searchable
+              model chip on the left, send on the right. AgentModelPicker keeps hidden
+              value hooks only for legacy proof scripts. */}
           <div className="r-composer-bar">
             <button
               className="r-attach"
