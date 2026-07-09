@@ -216,7 +216,13 @@
     "proofloop:resume": "npm run proofloop -- resume --goal default --dense",
     "proofloop:doctor": "npm run proofloop -- doctor --json",
     "proofloop:report": "npm run proofloop -- report latest",
-    "proofloop:charts": "npm run proofloop -- charts latest"
+    "proofloop:charts": "npm run proofloop -- charts latest",
+    "voice:qa:smoke": "tsx scripts/voice-qa-smoke.ts",
+    "voice:free-audio:proofloop": "tsx scripts/voice-free-audio-proofloop.ts",
+    "voice:free-audio:live-proof": "tsx scripts/voice-free-audio-live-proof.ts",
+    "voice:local-audio:setup": "tsx scripts/voice-local-audio-setup.ts",
+    "voice:browser-mic:proof": "tsx scripts/voice-browser-mic-proof.ts",
+    "voice:prod-deploy:proof": "tsx scripts/voice-prod-deploy-proof.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.84",

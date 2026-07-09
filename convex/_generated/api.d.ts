@@ -76,6 +76,7 @@ import type * as spreadsheetIndexLib from "../spreadsheetIndexLib.js";
 import type * as streaming from "../streaming.js";
 import type * as streamingModel from "../streamingModel.js";
 import type * as usageLimits from "../usageLimits.js";
+import type * as voice from "../voice.js";
 import type * as watches from "../watches.js";
 import type * as watchesTables from "../watchesTables.js";
 
@@ -154,6 +155,7 @@ declare const fullApi: ApiFromModules<{
   streaming: typeof streaming;
   streamingModel: typeof streamingModel;
   usageLimits: typeof usageLimits;
+  voice: typeof voice;
   watches: typeof watches;
   watchesTables: typeof watchesTables;
 }>;

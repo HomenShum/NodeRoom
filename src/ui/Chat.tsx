@@ -1,6 +1,6 @@
 /** Public/private Copilot chat surfaces. Reads via useStore(). */
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type ClipboardEvent, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
-import { Lock, MessageCircle, Globe, Send, Square, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2, Brain, Target } from "lucide-react";
+import { Lock, MessageCircle, Globe, Send, Square, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2, Brain, Target, Mic, MicOff } from "lucide-react";
 import { useQuery } from "convex/react";
 import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentModelSelection, type PrivateStreamAccess, type RoomStore } from "../app/store";
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
@@ -18,6 +18,16 @@ import {
 } from "./artifactRefs";
 import { IntakePlanPreview } from "./IntakePlanPreview";
 import { MarkdownBody } from "./MarkdownBody";
+import {
+  classifyVoiceTranscript,
+  confirmCommand,
+  createVoiceSpeechToTextAdapters,
+  dispatchRoomCommand,
+  type RoomCommand,
+  type SpeechToTextAdapter,
+  type VoiceDispatchResult,
+  type VoiceRoomStore,
+} from "../voice";
 import "./chat-scale.css";
 
 const AGENT_AVATAR_COLOR = "#8F3F27";
@@ -975,10 +985,17 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const [roomLane, setRoomLane] = useState(false); // private panel: false = whisper to me, true = act in the room
   const [modelSelectionMode, setModelSelectionMode] = useState<AgentModelSelection["mode"]>("adaptive");
   const [specificModelPolicy, setSpecificModelPolicy] = useState("");
+  const [voiceListening, setVoiceListening] = useState(false);
+  const [voiceTranscript, setVoiceTranscript] = useState("");
+  const [voiceErr, setVoiceErr] = useState<string | null>(null);
+  const [pendingVoiceCommand, setPendingVoiceCommand] = useState<RoomCommand | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadBusyRef = useRef(false);
+  const voiceAbortRef = useRef<AbortController | null>(null);
+  const voiceSttRef = useRef<SpeechToTextAdapter | null>(null);
+  const voiceSessionIdRef = useRef<string | null>(null);
   const lastAgentInputRef = useRef<string | null>(null); // last public-agent request, for Regenerate
   const nearBottom = useRef(true);
   const [showJump, setShowJump] = useState(false); // "Jump to latest" pill when scrolled up ≥2 viewports
@@ -994,7 +1011,12 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const privTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     aliveRef.current = true;
-    return () => { aliveRef.current = false; if (privTimerRef.current) clearTimeout(privTimerRef.current); };
+    return () => {
+      aliveRef.current = false;
+      if (privTimerRef.current) clearTimeout(privTimerRef.current);
+      voiceAbortRef.current?.abort();
+      void voiceSttRef.current?.stop?.();
+    };
   }, []);
   const messages = store.listMessages(roomId, channel);
   const isPrivate = variant === "private";
@@ -1176,6 +1198,197 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
 
   const grow = () => { const el = taRef.current; if (el) { el.style.height = "auto"; el.style.height = Math.min(el.scrollHeight, 120) + "px"; } };
 
+  const composerModelSelection = (forceFree?: boolean): AgentModelSelection => {
+    if (forceFree) return { mode: "free" };
+    return modelSelectionMode === "specific"
+      ? { mode: "specific", modelPolicy: specificModelPolicy || defaultSpecificModel || "gemini-3.5-flash" }
+      : { mode: modelSelectionMode };
+  };
+
+  const voiceSessionId = () => {
+    if (!voiceSessionIdRef.current) voiceSessionIdRef.current = `voice-${crypto.randomUUID()}`;
+    return voiceSessionIdRef.current;
+  };
+
+  const composerSpeechToTextAdapters = (): SpeechToTextAdapter[] => {
+    const requester = store.actorProof?.() ?? null;
+    const adapters = createVoiceSpeechToTextAdapters(
+      CONVEX_SITE_URL && requester
+        ? {
+        siteUrl: CONVEX_SITE_URL,
+        roomId,
+        requester,
+          providerMaxMs: 30_000,
+        }
+        : null,
+    );
+    if (!adapters.length) throw new Error("voice_input_unavailable");
+    return adapters;
+  };
+
+  const voiceDispatchError = (result: VoiceDispatchResult): string => {
+    if (result.ok) return "";
+    if (result.kind === "no_active_job") return "No active agent job to cancel.";
+    if (result.kind === "rejected") return "Voice command cancelled.";
+    return result.reason || "Voice command failed.";
+  };
+
+  const clearVoiceInput = () => {
+    setText("");
+    setRefs([]);
+    setVoiceTranscript("");
+    requestAnimationFrame(grow);
+  };
+
+  const dispatchVoiceFromComposer = (command: RoomCommand) => {
+    setPendingVoiceCommand(null);
+    setVoiceErr(null);
+    const agentCommand = command.kind === "public_agent_request" || command.kind === "private_agent_request";
+    if (agentCommand) beginThinking();
+    if (command.kind === "public_agent_request") lastAgentInputRef.current = command.transcript || `@nodeagent ${command.commandText}`;
+    clearVoiceInput();
+    void dispatchRoomCommand(store as unknown as VoiceRoomStore, command)
+      .then((result) => {
+        if (!aliveRef.current) return;
+        if (!result.ok) {
+          setVoiceErr(voiceDispatchError(result));
+          if (agentCommand) setThinking(false);
+        }
+      })
+      .catch((e) => {
+        if (!aliveRef.current) return;
+        setVoiceErr(agentErrorText(e));
+        if (agentCommand) setThinking(false);
+      })
+      .finally(() => {
+        if (!aliveRef.current) return;
+        if (command.kind === "private_agent_request") setThinking(false);
+      });
+  };
+
+  const handleVoiceTranscript = (transcript: string, confidence?: number) => {
+    const command = classifyVoiceTranscript({
+      roomId,
+      actor: me,
+      channel,
+      transcript,
+      privateMode: isPrivate,
+      publishPrivateToRoom: roomLane,
+      modelSelection: composerModelSelection(),
+      contextArtifactId: activeArtifactId,
+      references: refs,
+      now: Date.now(),
+    });
+    if (command.kind === "confirm_pending_command") {
+      if (pendingVoiceCommand) dispatchVoiceFromComposer(confirmCommand(pendingVoiceCommand));
+      else setVoiceErr("No voice command is waiting for confirmation.");
+      return;
+    }
+    if (command.kind === "reject_pending_command") {
+      setPendingVoiceCommand(null);
+      setVoiceErr(null);
+      clearVoiceInput();
+      return;
+    }
+    if (command.requiresConfirmation && !command.confirmed) {
+      setPendingVoiceCommand(command);
+      setVoiceTranscript(transcript);
+      setVoiceErr(confidence !== undefined && confidence < 0.7 ? "Low-confidence transcript. Confirm before routing it." : null);
+      return;
+    }
+    dispatchVoiceFromComposer(command);
+  };
+
+  const stopVoiceInput = (opts: { cancel?: boolean } = {}) => {
+    if (opts.cancel !== false) voiceAbortRef.current?.abort();
+    void voiceSttRef.current?.stop?.();
+    voiceAbortRef.current = null;
+    voiceSttRef.current = null;
+    setVoiceListening(false);
+  };
+
+  const recoverableVoiceStartError = (error: unknown): boolean => {
+    const text = error instanceof Error ? `${error.name}:${error.message}` : String(error);
+    return /voice_provider_microphone_unavailable|voice_provider_media_recorder_unavailable|voice_input_unavailable|speech_recognition_unavailable|microphone_unavailable|media_recorder_unavailable|notallowed|permission|denied|not-allowed|audio-capture|no-speech/i.test(text);
+  };
+
+  const toggleVoiceInput = () => {
+    if (voiceListening) {
+      stopVoiceInput({ cancel: false });
+      return;
+    }
+    setVoiceErr(null);
+    setPendingVoiceCommand(null);
+    setVoiceTranscript("");
+    const controller = new AbortController();
+    let adapters: SpeechToTextAdapter[];
+    try {
+      adapters = composerSpeechToTextAdapters();
+    } catch (e) {
+      setVoiceErr(e instanceof Error && /voice_input_unavailable|speech_recognition_unavailable/i.test(e.message)
+        ? "Voice input is not available in this browser."
+        : agentErrorText(e));
+      return;
+    }
+    voiceAbortRef.current = controller;
+    setVoiceListening(true);
+    void (async () => {
+      let lastError: unknown = null;
+      for (const stt of adapters) {
+        if (controller.signal.aborted) return;
+        voiceSttRef.current = stt;
+        try {
+          const stream = await stt.start({
+            roomId,
+            actor: me,
+            channel,
+            privateMode: isPrivate,
+            publishPrivateToRoom: roomLane,
+            modelSelection: composerModelSelection(),
+            contextArtifactId: activeArtifactId,
+            references: refs,
+            locale: typeof navigator === "undefined" ? undefined : navigator.language,
+            sessionId: voiceSessionId(),
+            signal: controller.signal,
+          });
+          for await (const chunk of stream) {
+            if (!aliveRef.current || controller.signal.aborted) return;
+            const heard = chunk.text.trim();
+            if (heard) {
+              setVoiceTranscript(heard);
+              setText(heard);
+              requestAnimationFrame(grow);
+            }
+            if (chunk.isFinal && heard) {
+              stopVoiceInput({ cancel: true });
+              handleVoiceTranscript(heard, chunk.confidence);
+              return;
+            }
+          }
+          return;
+        } catch (error) {
+          lastError = error;
+          void stt.stop?.();
+          if (!recoverableVoiceStartError(error)) throw error;
+        }
+      }
+      throw lastError ?? new Error("voice_input_unavailable");
+    })()
+      .catch((e) => {
+        if (!aliveRef.current || controller.signal.aborted) return;
+        setVoiceErr(e instanceof Error && /voice_input_unavailable|speech_recognition_unavailable|microphone_unavailable|media_recorder_unavailable/i.test(e.message)
+          ? "Voice input is not available in this browser."
+          : agentErrorText(e));
+      })
+      .finally(() => {
+        if (aliveRef.current && voiceAbortRef.current === controller) {
+          voiceAbortRef.current = null;
+          voiceSttRef.current = null;
+          setVoiceListening(false);
+        }
+      });
+  };
+
   const send = (raw?: string) => {
     const t = (raw ?? text).trim();
     if (!t && refs.length === 0) return;
@@ -1189,11 +1402,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
 
     const publicNodeAgentRequest = !isPrivate ? parsePublicNodeAgentRequest(t) : null;
     if (publicNodeAgentRequest) {
-      const modelSelection: AgentModelSelection = publicNodeAgentRequest.forceFree
-        ? { mode: "free" }
-        : modelSelectionMode === "specific"
-        ? { mode: "specific", modelPolicy: specificModelPolicy || defaultSpecificModel || "gemini-3.5-flash" }
-        : { mode: modelSelectionMode };
+      const modelSelection = composerModelSelection(publicNodeAgentRequest.forceFree);
       beginThinking();
       lastAgentInputRef.current = t;
       void store.askAgent({ goal: publicNodeAgentRequest.goal, references: messageRefs, modelSelection, contextArtifactId: activeArtifactId }).catch((e) => {
@@ -1670,6 +1879,15 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
         {refOpenErr && <div className="r-upload-error" role="alert" data-testid="artifact-ref-open-error">{refOpenErr}</div>}
         {uploadingFiles && <div className="r-upload-status" role="status" data-testid="chat-upload-status">Uploading files...</div>}
         {uploadError && <div className="r-upload-error" role="alert" data-testid="chat-upload-error">{uploadError}</div>}
+        {voiceListening && <div className="r-voice-status" role="status" data-testid="chat-voice-status"><Mic size={12} /> {voiceTranscript || "Listening"}</div>}
+        {voiceErr && <div className="r-upload-error r-voice-error" role="alert" data-testid="chat-voice-error">{voiceErr}</div>}
+        {pendingVoiceCommand && (
+          <div className="r-voice-confirm" data-testid="chat-voice-confirm" role="group" aria-label="Confirm voice command">
+            <span>{pendingVoiceCommand.confirmationPrompt ?? "Confirm voice command"}</span>
+            <button type="button" onClick={() => dispatchVoiceFromComposer(confirmCommand(pendingVoiceCommand))} data-testid="chat-voice-confirm-yes">Confirm</button>
+            <button type="button" onClick={() => { setPendingVoiceCommand(null); clearVoiceInput(); }} data-testid="chat-voice-confirm-no">Cancel</button>
+          </div>
+        )}
         <div className="r-intake-preview-slot">
           {text.trim().length > 0 && <IntakePlanPreview roomId={roomId} text={text} targetArtifacts={refs.map((r) => r.id)} />}
         </div>
@@ -1703,6 +1921,18 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
               title="Attach files"
             >
               <Paperclip size={15} />
+            </button>
+            <button
+              className="r-attach r-voice-btn"
+              type="button"
+              onClick={toggleVoiceInput}
+              data-active={String(voiceListening)}
+              data-testid="chat-voice"
+              aria-pressed={voiceListening}
+              aria-label={voiceListening ? "Stop voice input" : "Start voice input"}
+              title={voiceListening ? "Stop voice input" : "Start voice input"}
+            >
+              {voiceListening ? <MicOff size={15} /> : <Mic size={15} />}
             </button>
             {showModelSelection && (
               <select

@@ -250,6 +250,7 @@ function maxAttemptsForRuntimeProfile(runtimeProfile: AgentRuntimeProfile | unde
 
 export interface RoomStore {
   mode: "memory" | "convex";
+  actorProof?(): ActorProof | null;
   getRoom(roomId: string): Room | undefined;
   /** Distinguishes a still-loading subscription from a room that resolved to not-found, so callers
    *  can show an honest terminal state + escape hatch instead of a forever "Loading room…". */
@@ -1792,6 +1793,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
 
     return {
       mode: "convex",
+      actorProof: () => proof,
       // Live credit wallet (read-only from the client). reserve/settle are server-only
       // internalMutations driven by the agent run path (enforcement), never the client.
       creditBalance: () => {
