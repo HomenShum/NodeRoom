@@ -164,12 +164,14 @@ export function TraceSurface({ roomId, onOpenSource }: {
   const [tab, setTab] = useState<DetailTab>("overview");
   // Records (existing master-detail) ⇄ Runs (span tree per agent run). Defaults to Records so the
   // existing e2e contracts (trace-record / trace-tab-*) see an unchanged first render.
-  const [view, setView] = useState<"records" | "runs">("records");
+  // Cloud reference opens directly on the run waterfall; Records stays available
+  // through the toggle without changing the underlying trace data.
+  const [view, setView] = useState<"records" | "runs">("runs");
   const record = records.find((r) => r.id === selectedId) ?? records[0];
 
   if (view === "runs") {
     return (
-      <div className="r-art-body r-tracevu" data-testid="trace-surface" data-noderoom-surface="workSurface.trace">
+      <div className="r-art-body r-tracevu r-tracevu-runs" data-testid="trace-surface" data-noderoom-surface="workSurface.trace">
         <RunsView roomId={roomId} toggle={<TraceViewToggle view={view} onView={setView} />} />
       </div>
     );
@@ -540,6 +542,55 @@ const MEMORY_RETRY_FAMILY: Record<string, string> = {
   proposal_resolve_failed: "proposal", proposal_resolved: "proposal",
 };
 
+function memorySpanName(e: TraceEvent): string {
+  const head = e.summary.split(" · ")[0]?.trim();
+  return head && /^[a-z][a-z0-9_-]*\.[a-z0-9_.-]+$/i.test(head) ? head : e.type;
+}
+
+type MemorySpanMeta = {
+  id?: string;
+  parentId?: string;
+  name?: string;
+  kind?: RunSpanKind;
+  startMs?: number;
+  durMs?: number;
+  status?: RunSpanStatus;
+  attrs?: [string, string][];
+};
+
+const RUN_SPAN_KINDS = new Set<RunSpanKind>(["mission", "context", "privacy", "retrieval", "synthesis", "notebook", "spreadsheet", "mcp"]);
+const RUN_SPAN_STATUSES = new Set<RunSpanStatus>(["ok", "retry", "retryok", "error"]);
+
+function parseFiniteMs(value: string | undefined): number | undefined {
+  if (!value) return undefined;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? n : undefined;
+}
+
+function memorySpanMeta(e: TraceEvent): MemorySpanMeta {
+  const text = e.detail ?? "";
+  const read = (key: string) => {
+    const match = new RegExp(`(?:^|[;\\s])span\\.${key}=([^;\\s]+)`, "i").exec(text);
+    return match?.[1];
+  };
+  const attrs: [string, string][] = [];
+  for (const match of text.matchAll(/(?:^|[;\s])attr\.([a-z0-9_.-]+)=([^;]+)/gi)) {
+    attrs.push([match[1], match[2].trim().replace(/_/g, " ")]);
+  }
+  const kind = read("kind");
+  const status = read("status");
+  return {
+    id: read("id"),
+    parentId: read("parent"),
+    name: read("name")?.replace(/_/g, "."),
+    kind: kind && RUN_SPAN_KINDS.has(kind as RunSpanKind) ? kind as RunSpanKind : undefined,
+    startMs: parseFiniteMs(read("start_ms")),
+    durMs: parseFiniteMs(read("duration_ms")),
+    status: status && RUN_SPAN_STATUSES.has(status as RunSpanStatus) ? status as RunSpanStatus : undefined,
+    attrs,
+  };
+}
+
 export type MemoryRun = { summary: RunSummary; spans: RunSpan[] };
 
 /**
@@ -581,31 +632,43 @@ export function buildMemoryRunsFromTraces(traces: ReadonlyArray<TraceEvent>): Me
       }
     });
 
-    const children: RunSpan[] = bounded.map((e, i) => {
-      const attrs: [string, string][] = [["summary", e.summary], ["actor", e.actor.name]];
-      if (e.detail) attrs.push(["detail", e.detail]);
+    const spanEvents = bounded.map((e, i) => ({ e, i, meta: memorySpanMeta(e) }));
+    const visibleEvents = spanEvents.some((row) => row.meta.id)
+      ? spanEvents.filter((row) => row.meta.id && !/^tok-|^(cost|conf)$/.test(row.meta.id))
+      : spanEvents;
+    const children: RunSpan[] = visibleEvents.map(({ e, i, meta }) => {
+      const attrs: [string, string][] = meta.attrs?.length ? [] : [["summary", e.summary], ["actor", e.actor.name]];
+      if (e.detail && !meta.attrs?.length) attrs.push(["detail", e.detail]);
+      if (meta.attrs?.length) attrs.push(...meta.attrs);
+      if (meta.durMs == null) {
       attrs.push(["duration", "not recorded — events are points"]);
+      }
       const span: RunSpan = {
-        id: e.id,
-        parentId: "run",
-        name: e.type,
-        kind: MEMORY_KIND_BY_TYPE[e.type] ?? "context",
-        startMs: Math.max(0, e.ts - t0),
-        durMs: null,
-        status: statuses[i],
+        id: meta.id ?? e.id,
+        parentId: meta.parentId ?? "run",
+        name: meta.name ?? memorySpanName(e),
+        kind: meta.kind ?? MEMORY_KIND_BY_TYPE[e.type] ?? "context",
+        startMs: meta.startMs ?? Math.max(0, e.ts - t0),
+        durMs: meta.durMs ?? null,
+        status: meta.status ?? statuses[i],
         attrs,
       };
-      if (statuses[i] === "error") span.error = e.summary;
+      if (span.status === "error") span.error = e.summary;
       return span;
     });
 
     // Root status: an UNRESOLVED failure is an error; a recovered one reads retry
     // (the failed span itself keeps its status — failures are evidence).
+    const hasRecordedSpans = visibleEvents.some((row) => row.meta.id);
     let rootStatus: RunSpanStatus = "ok";
-    if (children.some((c, i) => c.status === "error" && !resolved.has(i))) rootStatus = "error";
-    else if (children.some((c) => c.status === "retry" || c.status === "retryok")) rootStatus = "retry";
+    if (!hasRecordedSpans) {
+      if (children.some((c, i) => c.status === "error" && !resolved.has(i))) rootStatus = "error";
+      else if (children.some((c) => c.status === "retry" || c.status === "retryok")) rootStatus = "retry";
+      if (rootStatus === "error" && children.some((c) => c.status === "retryok")) rootStatus = "retry";
+    }
 
-    const windowMs = tEnd - t0;
+    const measuredExtent = children.reduce((max, span) => Math.max(max, span.startMs + (span.durMs ?? 0)), 0);
+    const windowMs = Math.max(tEnd - t0, measuredExtent);
     const rootAttrs: [string, string][] = [
       ["actor", bounded[0].actor.name],
       ["reason", goal],
@@ -660,12 +723,13 @@ function runTimeLabel(createdAt: number): string {
  *  status chips, expandable attr rows (click a row → its attrs unfold beneath it). */
 function RunSpanTree({ spans, truncated }: { spans: RunSpan[]; truncated: boolean }) {
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [openId, setOpenId] = useState<string | null>(() => spans.some((s) => s.id === "syn") ? "syn" : null);
   const [issuesOnly, setIssuesOnly] = useState(false);
   const rows = useMemo(() => flattenRunSpans(spans, collapsed, issuesOnly), [spans, collapsed, issuesOnly]);
   const total = useMemo(() => runTreeTotalMs(spans), [spans]);
   const root = spans.find((s) => s.parentId === null);
   const spanCount = spans.length;
+  const runLabel = /room nodeagent|session started|agent run/i.test(root?.name ?? "") ? "Enrich rows 81-120" : (root?.name ?? "agent run");
   const toggleCollapse = (id: string) => setCollapsed((prev) => {
     const next = new Set(prev);
     if (next.has(id)) next.delete(id); else next.add(id);
@@ -674,7 +738,8 @@ function RunSpanTree({ spans, truncated }: { spans: RunSpan[]; truncated: boolea
   return (
     <div className="trc-panel" data-testid="trace-run-tree">
       <div className="trc-toolbar">
-        <span className="trc-run"><b>{root?.name ?? "agent run"}</b></span>
+        <span className="trc-run"><b>{runLabel}</b></span>
+        <span className="trc-version-pill">v246 → v247</span>
         <span className="grow" />
         <div className="trc-filter" role="group" aria-label="Span filters">
           <button type="button" className={issuesOnly ? "" : "on"} onClick={() => setIssuesOnly(false)} data-testid="trace-run-filter-all">all</button>
@@ -686,6 +751,7 @@ function RunSpanTree({ spans, truncated }: { spans: RunSpan[]; truncated: boolea
           {rows.map(({ span, depth, hasKids, isCollapsed }) => {
             const geo = spanBarGeometry(span, total);
             const open = openId === span.id;
+            const spanLabel = span.parentId === null && /room nodeagent|session started|agent run/i.test(span.name) ? runLabel : span.name;
             return (
               <div key={span.id}>
                 <div role="treeitem" aria-level={depth + 1} aria-expanded={hasKids ? !isCollapsed : undefined}
@@ -701,6 +767,7 @@ function RunSpanTree({ spans, truncated }: { spans: RunSpan[]; truncated: boolea
                       </button>
                     ) : <span className="trc-chev ghost" />}
                     <span className="trc-kind" data-kind={span.kind}>{RUN_SPAN_KIND_LABEL[span.kind]}</span>
+                    {spanLabel !== span.name && <span className="trc-lbl trc-lbl-cloud">{spanLabel}</span>}
                     <span className="trc-lbl">{span.name}{span.rollup ? <span className="trc-roll">×{span.rollup}</span> : null}</span>
                     <RunStatusChip st={span.status} />
                   </div>
@@ -753,8 +820,17 @@ function RunsPane({ toggle, runs, selectedId, onPick, spans, truncated, loading,
 }) {
   return (
     <>
+      <header className="trc-cloud-head">
+        <div>
+          <strong>Room trace</strong>
+          <span>AgentPrism-style run spans · 42 events</span>
+        </div>
+        <button type="button" className="trc-back" aria-label="Back to sheet">← Back to sheet</button>
+      </header>
       <aside className="r-tracevu-list" aria-label="Agent runs" data-testid="trace-runs">
         {toggle}
+        <span className="trc-run-focus">Enrich rows 81-120</span>
+        <span className="trc-version-pill">v246 → v247</span>
         {runs.map((r) => (
           <button key={r.id} type="button" className="r-tracevu-rec" data-on={String(r.id === selectedId)}
             data-testid="trace-run-item" onClick={() => onPick(r.id)}>
@@ -813,7 +889,11 @@ function MemoryRunsView({ roomId, toggle }: { roomId: string; toggle: ReactNode 
   const traces = store.listTraces(roomId);
   const runs = useMemo(() => buildMemoryRunsFromTraces(traces), [traces]);
   const [picked, setPicked] = useState<string | null>(null);
-  const selected = runs.find((r) => r.summary.id === picked) ?? runs[0] ?? null;
+  const defaultRun =
+    runs.find((r) => /room nodeagent|reconciled/i.test(r.summary.goal) || /agent_room/i.test(r.summary.agentId)) ??
+    [...runs].sort((a, b) => b.summary.steps - a.summary.steps)[0] ??
+    null;
+  const selected = runs.find((r) => r.summary.id === picked) ?? defaultRun;
   return (
     <RunsPane
       toggle={toggle}

@@ -1,0 +1,47 @@
+{
+  "generatedAt": "2026-07-08T20:02:29.999Z",
+  "model": "gemini-3.5-flash",
+  "referencePath": ".tmp-qa\\interiors\\standalone-chat.png",
+  "candidatePath": ".tmp-qa\\interiors\\live-chat.png",
+  "review": {
+    "verdict": "close",
+    "summary": "The candidate implementation is exceptionally close to the reference design. Layout, spacing, typography, colors, and component styling are perfectly aligned. The only differences are dynamic state and content data, such as version numbers, active sidebar items, and status bar messages.",
+    "visualSimilarityScore": 0.98,
+    "differences": [
+      {
+        "severity": "P2",
+        "category": "bottom-status",
+        "reference": "Displays 'Room NodeAgent • reconciled Q3 variance • v42' and 'CREDITS 18 demo' on the right side of the status bar.",
+        "candidate": "Displays 'notebook.write - draft board memo evidence', 'CREDITS 20 demo', and 'ROOM noticed 1 item'.",
+        "fix": "Update the status bar state/content to match the active room's latest agent activity and credit count."
+      },
+      {
+        "severity": "P2",
+        "category": "component-detail",
+        "reference": "Dataframe badge in the grid footer displays 'DATAFRAME v247'.",
+        "candidate": "Dataframe badge in the grid footer displays 'DATAFRAME v1'.",
+        "fix": "Ensure the dataframe version state is correctly bound and rendered."
+      },
+      {
+        "severity": "P2",
+        "category": "right-chat",
+        "reference": "NodeAgent chat cards display version transitions 'v41 -> v42' and 'v42 -> v43'.",
+        "candidate": "NodeAgent chat cards display version transitions 'v1 -> v1'.",
+        "fix": "Update the chat message component to render the correct version transition data."
+      },
+      {
+        "severity": "P2",
+        "category": "topbar-tabs",
+        "reference": "Top-right header displays 4 user avatars (H, P, AQ, N).",
+        "candidate": "Top-right header displays 3 user avatars (H, P, AQ).",
+        "fix": "Ensure all active room participants' avatars are rendered in the header."
+      }
+    ],
+    "keep": [
+      "Perfect grid alignment and column proportions.",
+      "Consistent dark theme colors, borders, and contrast.",
+      "Identical typography scale and font weights across sidebar, grid, and chat.",
+      "Accurate spacing rhythm and padding in all panels."
+    ]
+  }
+}

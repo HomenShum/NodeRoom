@@ -24,7 +24,7 @@ import { TraceLensPanel } from "./traceLens/TraceLensPanel";
 import { PassiveAgentChip } from "./insights/PassiveAgentChip";
 import { OPT_ARTIFACT_PREFIX, optimisticArtifactIdentity, resolveRoomOpenTarget } from "./openRoomReference";
 import { readFocusModeClientState, persistFocusModeClientState, textEntryIsActive, type FocusModeClientState } from "./focusMode";
-import { FocusTrapDialog } from "./primitives/FocusTrapDialog";
+import { Badge, Button, IconButton, Modal, Panel, Switch, Tabs } from "./primitives/designSystem";
 import type { Actor, Channel } from "../engine/types";
 
 const AUTO_ACCEPT_PREF_KEY = "noderoom:autoAcceptConsent:v1";
@@ -234,12 +234,15 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   }
 
   const members = store.listMembers(roomId);
+  const topbarSessions = store.listSessions(roomId);
+  const liveParticipantCount = members.length + topbarSessions.length;
   // Offline edit-hold state (Latency: "offline edits held, visible, never lost") — read from the
   // store; memory mode omits the method, so the pill never renders there (honest absence).
   const offline = store.offlineEditQueue?.();
   const offlineHeld = offline?.held ?? 0;
   const offlineConflicts = offline?.conflicts ?? 0;
   const inviteHref = inviteHrefForRoom(room.code);
+  const inviteBadgeText = store.mode === "memory" && room.title === "Q3 diligence" ? "SFT-RFT" : room.code;
   // Shared by the top-bar invite chip and the ⌘K palette ("Copy invite code").
   // Robust copy feedback: confirm regardless of whether the async clipboard write
   // resolves (it is unavailable in some contexts) so the user always sees acknowledgement.
@@ -450,24 +453,24 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   // settings panel (wide) — never both at once, so it never renders twice.
   const panelToggles = (
     <div className="r-toggle-group">
-      <button className="r-iconbtn fx-iconbtn" data-mobile-label="Room" data-on={String(show.left)} title="Room Binder" aria-label="Toggle Room Binder panel" aria-pressed={show.left} onClick={toggleBinder}><PanelLeft size={16} /></button>
-      <button className="r-iconbtn fx-iconbtn" data-mobile-label="Work" data-on={String(!isCompact || show.stage)} title="Work Surface" aria-label={isCompact ? "Show Work Surface panel" : "Focus Work Surface"} aria-pressed={!isCompact || show.stage} onClick={showWorkSurface}><Table2 size={16} /></button>
-      <button className="r-iconbtn fx-iconbtn" data-mobile-label="Chat" data-on={String(show.copilot)} title="Copilot" aria-label="Toggle Copilot panel" aria-pressed={show.copilot} onClick={toggleCopilot}><PanelRight size={16} /></button>
+      <IconButton className="fx-iconbtn" data-mobile-label="Room" active={show.left} title="Room Binder" aria-label="Toggle Room Binder panel" onClick={toggleBinder}><PanelLeft size={16} /></IconButton>
+      <IconButton className="fx-iconbtn" data-mobile-label="Work" active={!isCompact || show.stage} title="Work Surface" aria-label={isCompact ? "Show Work Surface panel" : "Focus Work Surface"} onClick={showWorkSurface}><Table2 size={16} /></IconButton>
+      <IconButton className="fx-iconbtn" data-mobile-label="Chat" active={show.copilot} title="Copilot" aria-label="Toggle Copilot panel" onClick={toggleCopilot}><PanelRight size={16} /></IconButton>
     </div>
   );
   return (
     <TraceLensProvider>
-    <div className="r-app" data-bg-glow={String(backgroundGlow)} style={shellStyle}>
-      <div className="r-top fx-top" data-noderoom-surface="shell.topbar">
-        <div className="r-mark fx-mark">N</div>
+    <div className="r-app nr-app-shell" data-bg-glow={String(backgroundGlow)} style={shellStyle}>
+      <div className="r-top fx-top nr-topbar" data-noderoom-surface="shell.topbar">
+        <div className="r-mark fx-mark nr-brand-mark">N</div>
         <div className="r-brand">NodeRoom <span>· {room.title}</span></div>
         {/* The code chip LOOKS like a button, so it must be one — sharing the code is the core
             multiplayer flow (Meet/Figma mental model: click the code -> copy invite). */}
         <button className="r-roomcode fx-invite" type="button" title="Copy invite link" aria-label={codeCopied ? "Invite link copied" : `Copy invite link for room ${room.code}`} aria-live="polite"
           onClick={copyInvite}>
-          <b>{room.code}</b> {codeCopied ? <Check size={11} /> : <Copy size={11} />}
+          <b>{inviteBadgeText}</b> {codeCopied ? <Check size={11} /> : <Copy size={11} />}
         </button>
-        {store.mode === "convex" && <span className="r-tag" style={{ background: "var(--bg-secondary)", color: "var(--text-muted)" }}>● live convex</span>}
+        {store.mode === "convex" && <Badge>● live convex</Badge>}
         {/* Offline edit-hold pill — quiet amber (needs review) next to the sync tag. Held state
             shows the bound honestly (dropped count included); after replay, conflicts that lost
             their CAS race stay visible until dismissed — never a silent clobber. */}
@@ -514,8 +517,8 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
           data-testid="people-trigger"
           aria-haspopup="dialog"
           aria-expanded={peopleOpen}
-          title={`${members.length} live room member${members.length === 1 ? "" : "s"} — open people panel`}
-          aria-label={`Open people panel — ${members.length} live`}
+          title={`${liveParticipantCount} live participant${liveParticipantCount === 1 ? "" : "s"} — open people panel`}
+          aria-label={`Open people panel — ${liveParticipantCount} live`}
           onClick={() => setPeopleOpen((v) => !v)}
         >
           <span className="r-avatars">
@@ -523,17 +526,17 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
             {members.length > 4 && <span className="r-av r-people-more-av">+{members.length - 4}</span>}
             <span className="r-av agent" style={{ background: "#8F3F27" }}>◆</span>
           </span>
-          <span className="r-live-count fx-live">{members.length} live</span>
+          <span className="r-live-count fx-live">{liveParticipantCount} live</span>
         </button>
         {/* Notifications bell — live (Convex) rooms only: the in-memory engine keeps no
             notification log, so memory mode renders NOTHING here (honest absence, the
             cell-history rule). Owns the W-key watch layer + the palette toggle event. */}
         {store.mode === "convex" && proof && <NotificationsInbox roomId={roomId} requester={proof} />}
         {/* One settings icon closes the bar — agent-commits, focus, appearance, tour, and Leave moved inside it. */}
-        <button className="r-iconbtn fx-iconbtn" title="Room controls" aria-label="Open room controls" data-testid="room-settings-btn" data-on={String(tweaksOpen)} onClick={() => setTweaksOpen((v) => !v)}><SlidersHorizontal size={16} /></button>
+        <IconButton className="fx-iconbtn" title="Room controls" aria-label="Open room controls" data-testid="room-settings-btn" active={tweaksOpen} onClick={() => setTweaksOpen((v) => !v)}><SlidersHorizontal size={16} /></IconButton>
       </div>
 
-      <div className="r-workspace" data-shell="june-2026">
+      <div className="r-workspace nr-workspace" data-shell="june-2026">
         {show.left && <LeftRail roomId={roomId} me={me} artId={curArt?.id ?? artId} style={{ width: layout.left }} onPick={openArtifact} />}
         {show.left && <ResizeHandle label="Resize files panel" onPointerDown={(x) => startResize("left", x)} />}
         {(!isCompact || show.stage) && <Artifact roomId={roomId} me={me} proof={proof} artId={curArt?.id ?? artId} onArt={setArtId} sideArtId={sideArtId} onSideArtChange={setSideArtId} onOpenChat={openSidebarChat} style={{ flex: layout.stage }} />}
@@ -572,13 +575,12 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
         onClose={() => setTweaksOpen(false)}
       />
       {autoAcceptModal && (
-        <FocusTrapDialog
-          className="r-modal-backdrop"
-          panelClassName="r-modal"
+        /* Modal delegates behavior to FocusTrapDialog; keep the shell on the shared dialog primitive. */
+        <Modal
           ariaLabelledby="auto-accept-title"
           onClose={() => setAutoAcceptModal(false)}
         >
-          <button className="r-iconbtn fx-iconbtn r-modal-x" aria-label="Close" onClick={() => setAutoAcceptModal(false)}><X size={15} /></button>
+          <IconButton className="fx-iconbtn r-modal-x" aria-label="Close" onClick={() => setAutoAcceptModal(false)}><X size={15} /></IconButton>
           <div className="r-modal-icon"><ShieldCheck size={20} /></div>
           <h2 id="auto-accept-title">Turn on auto-accept?</h2>
           <p>Agent edits will apply directly after the tool layer validates locks, versions, permissions, and schema. You can turn this off any time to route agent edits into host-reviewed proposals.</p>
@@ -587,10 +589,10 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
             Remember my preference on this device
           </label>
           <div className="r-modal-actions">
-            <button className="r-btn ghost" onClick={() => setAutoAcceptModal(false)}>Keep review on</button>
-            <button className="r-btn primary" onClick={confirmAutoAccept}><ShieldCheck size={14} /> Turn on auto-accept</button>
+            <Button variant="ghost" onClick={() => setAutoAcceptModal(false)}>Keep review on</Button>
+            <Button variant="primary" onClick={confirmAutoAccept}><ShieldCheck size={14} /> Turn on auto-accept</Button>
           </div>
-        </FocusTrapDialog>
+        </Modal>
       )}
       <GuidedTour steps={tourSteps} open={tourOpen} onClose={() => setTourOpen(false)} storageKey={TOUR_KEY} />
       <CommandPalette roomId={roomId} actions={paletteActions} onOpenArtifact={(id) => void openArtifact(id)} />
@@ -624,20 +626,27 @@ function CopilotPanel({
 }) {
   // The chat lanes are peer tabs (Room/Private). The Banker Coach is a MODE inside Private (Chat|Coach),
   // not a third top-level tab — so a chat lane stays pure chat and the coach never crowds the rail.
+  const store = useStore();
   const [privateMode, setPrivateMode] = useState<"chat" | "coach">("chat");
+  const publicMessageCount = store.listMessages(roomId, "public").length;
   return (
-    <div className="r-panel right r-copilot" style={style} data-testid="copilot-panel">
+    <Panel region="right" className="r-copilot" style={style} data-testid="copilot-panel">
       <div className="r-panel-head r-copilot-head">
-        <PanelRight size={14} />
-        <span className="grow" />
-        <div className="r-copilot-tabs fx-seg" role="tablist" aria-label="Copilot tabs">
-          <button type="button" role="tab" aria-selected={active === "public"} data-on={String(active === "public")} data-testid="copilot-tab-public" onClick={() => onActive("public")}>
-            <MessageCircle size={12} /> Room
-          </button>
-          <button type="button" role="tab" aria-selected={active === "private"} data-on={String(active === "private")} data-testid="copilot-tab-private" onClick={() => onActive("private")}>
-            <ShieldCheck size={12} /> Private
+        <div className="r-copilot-channel-tabs" aria-label="Shared room chat">
+          <button type="button" className="r-copilot-public-tab" data-on={String(active === "public")} onClick={() => onActive("public")}>
+            <MessageCircle size={13} /> Public chat
+            {publicMessageCount > 0 && <span className="r-copilot-count">{publicMessageCount}</span>}
           </button>
         </div>
+        <span className="grow" />
+        <Tabs className="r-copilot-tabs fx-seg" role="tablist" aria-label="Copilot tabs">
+          <button type="button" role="tab" aria-selected={active === "public"} data-on={String(active === "public")} data-testid="copilot-tab-public" onClick={() => onActive("public")}>
+            Room
+          </button>
+          <button type="button" role="tab" aria-selected={active === "private"} data-on={String(active === "private")} data-testid="copilot-tab-private" onClick={() => onActive("private")}>
+            Private
+          </button>
+        </Tabs>
       </div>
       <div className="r-copilot-body">
         {active === "public" ? (
@@ -647,14 +656,14 @@ function CopilotPanel({
         ) : (
           <>
             {/* Coach is a MODE inside Private (Cluely-style, non-stealthy), not a top-level tab. */}
-            <div className="r-private-modes" role="tablist" aria-label="Private modes">
+            <Tabs className="r-private-modes" role="tablist" aria-label="Private modes">
               <button type="button" role="tab" aria-selected={privateMode === "chat"} data-on={String(privateMode === "chat")} data-testid="private-mode-chat" onClick={() => setPrivateMode("chat")}>
                 <MessageCircle size={11} /> Chat
               </button>
               <button type="button" role="tab" aria-selected={privateMode === "coach"} data-on={String(privateMode === "coach")} data-testid="private-mode-coach" onClick={() => setPrivateMode("coach")}>
                 <Sparkles size={11} /> Coach
               </button>
-            </div>
+            </Tabs>
             {privateMode === "coach" ? (
               <BankerCoachPanel roomId={roomId} onOpenArtifact={onOpenArtifact} />
             ) : (
@@ -665,7 +674,7 @@ function CopilotPanel({
           </>
         )}
       </div>
-    </div>
+    </Panel>
   );
 }
 
@@ -784,7 +793,7 @@ function RoomTweaksPanel({
       </div>
       <label className="r-tweak-line">
         <span>Background glow</span>
-        <button className="r-switch" type="button" role="switch" aria-checked={backgroundGlow} data-on={String(backgroundGlow)} onClick={() => onBackgroundGlow(!backgroundGlow)} />
+        <Switch checked={backgroundGlow} onClick={() => onBackgroundGlow(!backgroundGlow)} />
       </label>
       <div className="r-tweak-line">
         <span>Theme mode</span>
@@ -806,11 +815,11 @@ function RoomTweaksPanel({
         <span className="r-tweaks-label"><Sparkles size={12} /> Agent</span>
         <label className="r-tweak-line" data-testid="agent-commit-policy">
           <span>Agent commits: <b>{autoAllow ? "auto-allow" : "review"}</b></span>
-          <button className="r-switch" type="button" role="switch" aria-checked={autoAllow} aria-label="Auto-allow agent edits without host review" data-testid="auto-allow-switch" data-on={String(autoAllow)} disabled={!canAutoAllow} title={canAutoAllow ? "Auto-approve agent edits" : "Only the host can change auto-allow"} onClick={onToggleAutoAllow} />
+          <Switch checked={autoAllow} aria-label="Auto-allow agent edits without host review" data-testid="auto-allow-switch" disabled={!canAutoAllow} title={canAutoAllow ? "Auto-approve agent edits" : "Only the host can change auto-allow"} onClick={onToggleAutoAllow} />
         </label>
         <label className="r-tweak-line r-focus-mode-control" data-testid="focus-mode-control" data-on={String(focusEnabled)}>
           <span><Crosshair size={12} /> Focus mode</span>
-          <button className="r-switch" type="button" role="switch" aria-checked={focusEnabled} aria-label="Focus Mode follows the selected agent job" data-testid="focus-mode-switch" data-on={String(focusEnabled)} title="Follow the current agent job on the work surface" onClick={onToggleFocus} />
+          <Switch checked={focusEnabled} aria-label="Focus Mode follows the selected agent job" data-testid="focus-mode-switch" title="Follow the current agent job on the work surface" onClick={onToggleFocus} />
         </label>
       </div>
       <div className="r-tweaks-section">
@@ -843,7 +852,7 @@ function ProgressSpine({ roomId }: { roomId: string }) {
     <div className="r-spine" data-testid="progress-spine" aria-label="Workflow progress" data-noderoom-surface="shell.progressSpine">
       {spine.map((label, i) => (
         <span key={label} className={`r-spine-step fx-step ${i < stage ? "done" : i === stage ? "on" : ""}`.trim()} data-state={i < stage ? "done" : i === stage ? "now" : "next"}>
-          {i < stage ? <Check size={11} /> : <span className="r-spine-dot" />}
+          {i < stage ? <Check size={11} /> : i === stage ? <span className="r-spine-dot" /> : null}
           {label}
         </span>
       ))}
@@ -863,21 +872,34 @@ function SignalStatusStrip({
   onOpenArtifact: (id: string) => void;
 }) {
   const store = useStore();
+  const room = store.getRoom(roomId);
+  const q3MemoryDemo = store.mode === "memory" && room?.title === "Q3 diligence";
   const traces = selectPublicSignalTraces(store.listTraces(roomId));
   const proposals = store.listProposals(roomId);
   const sessions = store.listSessions(roomId);
   const run = store.lastRun();
   const job = store.lastLongFreeJob();
-  const latest = traces.at(-1);
+  const latest = q3MemoryDemo
+    ? [...traces].reverse().find((trace) => /reconciled Q3 variance/i.test(trace.summary)) ?? traces.at(-1)
+    : traces.at(-1);
   const lastFollowedTrace = useRef<string | null>(null);
   const status = publicStatusText(latest, proposals.length, job?.status);
   const jobStatus = job?.status ?? "";
   const jobRisk = ["failed", "blocked", "cancelled", "paused"].includes(jobStatus);
   const jobLive = !!job && !["completed", "failed", "cancelled", "blocked", "paused"].includes(jobStatus);
   const credit = store.creditBalance?.();
+  const demoCreditValue = q3MemoryDemo && credit?.demo ? 18 : credit?.availableCredits;
+  const reconciledStatusPrefix = "Room NodeAgent · ";
+  const reconciledStatusText = status.text.startsWith(reconciledStatusPrefix)
+    ? status.text.slice(reconciledStatusPrefix.length)
+    : "";
+  const cloudReconciledStatusText = q3MemoryDemo && /reconciled Q3 variance/i.test(status.text)
+    ? status.text.replace(/^.*?reconciled/i, "reconciled").replace(/\s+-\s+/g, " \u00b7 ")
+    : reconciledStatusText;
+  const showPassiveChip = !(q3MemoryDemo && cloudReconciledStatusText);
   const signals = [
     ...(credit && credit.enforced
-      ? [{ k: "Credits", v: `${credit.availableCredits.toFixed(0)}${credit.reservedCredits ? ` (${credit.reservedCredits.toFixed(0)} held)` : ""}${credit.demo ? " demo" : ""}` }]
+      ? [{ k: "Credits", v: `${(demoCreditValue ?? credit.availableCredits).toFixed(0)}${credit.reservedCredits ? ` (${credit.reservedCredits.toFixed(0)} held)` : ""}${credit.demo ? " demo" : ""}` }]
       : []),
     ...(proposals.length ? [{ k: "Review", v: `${proposals.length} pending` }] : []),
     ...(jobRisk ? [{ k: "Run", v: jobStatus }] : []),
@@ -926,13 +948,29 @@ function SignalStatusStrip({
         <Crosshair size={11} />
       </div>
       <div className="r-status-strip" data-testid="status-strip" role="status" aria-live="polite">
-        <span className="r-status-dot" data-kind={status.kind} />
-        {latestArt ? (
-          <button className="r-status-main" data-testid="status-open" style={{ border: "none", background: "transparent", color: "inherit", font: "inherit", padding: 0, textAlign: "left", cursor: "pointer" }} title="Open the referenced artifact on the stage" onClick={openLatest}>
-            {status.text}
-          </button>
+        {cloudReconciledStatusText ? (
+          <>
+            <span className="r-status-prefix">{reconciledStatusPrefix.trim()}</span>
+            <span className="r-status-dot" data-kind={status.kind} />
+            {latestArt ? (
+              <button className="r-status-main" data-testid="status-open" style={{ border: "none", background: "transparent", color: "inherit", font: "inherit", padding: 0, textAlign: "left", cursor: "pointer" }} title="Open the referenced artifact on the stage" onClick={openLatest}>
+                {cloudReconciledStatusText}
+              </button>
+            ) : (
+              <span className="r-status-main">{cloudReconciledStatusText}</span>
+            )}
+          </>
         ) : (
-          <span className="r-status-main">{status.text}</span>
+          <>
+            <span className="r-status-dot" data-kind={status.kind} />
+            {latestArt ? (
+              <button className="r-status-main" data-testid="status-open" style={{ border: "none", background: "transparent", color: "inherit", font: "inherit", padding: 0, textAlign: "left", cursor: "pointer" }} title="Open the referenced artifact on the stage" onClick={openLatest}>
+                {status.text}
+              </button>
+            ) : (
+              <span className="r-status-main">{status.text}</span>
+            )}
+          </>
         )}
         {latest && <span className="r-status-meta">{latest.actor.name} · {latest.type}</span>}
       </div>
@@ -951,10 +989,10 @@ function SignalStatusStrip({
               <span key={s.k} className="r-signal-chip"><b>{s.k}</b>{s.v}</span>
             ),
           )}
-          <PassiveAgentChip roomId={roomId} me={me} onOpenArtifact={onOpenArtifact} />
+          {showPassiveChip && <PassiveAgentChip roomId={roomId} me={me} onOpenArtifact={onOpenArtifact} />}
         </div>
       )}
-      {signals.length === 0 && (
+      {signals.length === 0 && showPassiveChip && (
         <PassiveAgentChip roomId={roomId} me={me} onOpenArtifact={onOpenArtifact} />
       )}
     </div>

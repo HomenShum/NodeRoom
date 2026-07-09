@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-07-08T08:35:47.450Z",
+  "model": "gemini-3.5-flash",
+  "referencePath": ".tmp-qa\\standalone-room-frame-reference.png",
+  "candidatePath": ".tmp-qa\\live-candidate-1456x940.png",
+  "review": {
+    "verdict": "close",
+    "summary": "The candidate implementation is exceptionally close to the reference design. Layout, typography, color contrast, component styling, and spacing are highly accurate. The only differences are minor content/seed-data variations (such as specific tab names, sidebar items, badge values, and timestamps) which do not negatively impact the layout integrity.",
+    "visualSimilarityScore": 0.98,
+    "differences": [
+      {
+        "severity": "P2",
+        "category": "topbar-tabs",
+        "reference": "Tabs show 'Run trace' and 'Diligence wall' with a '+3' overflow indicator.",
+        "candidate": "Tabs show 'Capture Notebook' and 'Risk / opportunity ...' with no overflow indicator.",
+        "fix": "Sync the active tab list and overflow logic with the reference design data."
+      },
+      {
+        "severity": "P2",
+        "category": "left-rail",
+        "reference": "Room Binder count is 71; Pinned items include 'Q3 variance', 'Sync reliability', and 'Diligence wall'.",
+        "candidate": "Room Binder count is 9; Pinned items include 'Company research' and 'Agent wiki'.",
+        "fix": "Update the sidebar seed data to match the reference room state."
+      },
+      {
+        "severity": "P2",
+        "category": "bottom-status",
+        "reference": "Footer shows 'DATAFRAME v247' and 'Room trace · 42 events'.",
+        "candidate": "Footer shows 'DATAFRAME v1' and 'Room trace · 8 events'.",
+        "fix": "Update the version and event count data to match the reference state."
+      }
+    ],
+    "keep": [
+      "Perfect dark theme color palette and contrast ratios.",
+      "Consistent grid density, row heights, and column alignments.",
+      "Accurate typography hierarchy and font weights across all panels.",
+      "Identical chat panel layout, message styling, and input box design."
+    ]
+  }
+}

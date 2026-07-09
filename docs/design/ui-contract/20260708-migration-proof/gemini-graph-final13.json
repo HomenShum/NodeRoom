@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-07-08T20:18:08.298Z",
+  "model": "gemini-3.5-flash",
+  "referencePath": ".tmp-qa\\interiors\\standalone-graph.png",
+  "candidatePath": ".tmp-qa\\interiors\\live-graph.png",
+  "review": {
+    "verdict": "partial",
+    "summary": "The overall layout, theme, and component structure are highly consistent, but there are significant differences in the sidebar hierarchy, topbar navigation tabs, and specific data badges within the right chat panel.",
+    "visualSimilarityScore": 0.88,
+    "differences": [
+      {
+        "severity": "P1",
+        "category": "left-rail",
+        "reference": "Room Binder count is 71. Pinned section contains 'Q3 variance', 'Sync reliability', and 'Diligence wall'. Sheets section is named 'Financials' containing 'Q3 variance' and 'Runway / burn'. Docs section has different items and counts.",
+        "candidate": "Room Binder count is 9. Pinned section contains 'Company research' and 'Agent wiki'. Sheets section is named 'Room sheets' containing 'Company research', 'Q3 variance', and 'Runway / milestones'. Docs section contains nested items like 'Boards' and 'Risk / opportunity wall'.",
+        "fix": "Reconfigure the left sidebar navigation hierarchy, item names, icons, and counts to match the reference specification."
+      },
+      {
+        "severity": "P1",
+        "category": "topbar-tabs",
+        "reference": "Tabs display: 'Home', 'Q3 variance', 'Company research', 'Run trace', 'Diligence wall', and an overflow indicator '+3'.",
+        "candidate": "Tabs display: 'Home', 'Q3 variance', 'Company research', 'Capture Notebook', and 'Risk / opportunity ...'.",
+        "fix": "Update the topbar tab items and ensure the overflow indicator (+3) is implemented when tabs exceed the container width."
+      },
+      {
+        "severity": "P2",
+        "category": "right-chat",
+        "reference": "First agent message shows 'Reconciled 2 rows • 2 sources' with version badge 'v41 → v42'. Second agent message shows 'Reconciled 2 rows • 3 sources' with version badge 'v42 → v43'.",
+        "candidate": "Both agent messages show 'Reconciled 2 rows • 2 sources' with version badge 'v1 → v1'.",
+        "fix": "Correct the source counts and version transition badges in the agent message components to reflect the correct historical progression."
+      }
+    ],
+    "keep": [
+      "Overall dark theme and color palette",
+      "Central entity graph visualization layout, node positions, and styling",
+      "Header bar elements including logo, room name, pill badge, user avatars, and live indicator",
+      "Bottom status bar items and styling on both left and right sides"
+    ]
+  }
+}

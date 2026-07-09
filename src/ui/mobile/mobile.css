@@ -2095,3 +2095,170 @@ button.na-row:hover .chevR { transform: translateX(3px); color: var(--na-accent)
 
 /* calm / reduced motion: gap-pack rows do not slide */
 .na-app[data-motion="reduced"] .gp-prow, .na-app[data-motion="reduced"] .na-srow { transition: none; }
+
+/* Cloud Design migration overlay for the standalone mobile surface. */
+.na-app {
+  --bg-app:       #0B0D10;
+  --bg-primary:   #101419;
+  --bg-secondary: #151A20;
+  --bg-tertiary:  #1B222A;
+  --bg-hover:     #222A32;
+
+  --text-primary:   #F4F7FB;
+  --text-secondary: #C7D0DB;
+  --text-muted:     #9AA6B2;
+  --text-tertiary:  #707D8B;
+  --ink-agent:      #C7D0DB;
+
+  --border-color:  #252D36;
+  --border-strong: #384351;
+
+  --accent-primary:       #D97757;
+  --accent-primary-hover: #C76648;
+  --accent-primary-bg:    #2A1812;
+
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.22);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.30), 0 1px 2px -1px rgb(0 0 0 / 0.26);
+  --shadow-md: 0 8px 20px -14px rgb(0 0 0 / 0.80);
+  --shadow-lg: 0 18px 44px -28px rgb(0 0 0 / 0.90);
+  --shadow-xl: 0 28px 70px -36px rgb(0 0 0 / 0.95);
+  --shadow-accent: 0 10px 28px -14px rgb(217 119 87 / 0.58);
+
+  --color-1-400: rgba(255,255,255,0.10);
+  --color-1-700: rgba(0,0,0,0.34);
+
+  --na-ok:   #69B78F; --na-ok-bg:  #10251C;
+  --na-warn: #D8A23E; --na-warn-bg:#2C2110;
+  --na-bad:  #E26D61; --na-bad-bg: #2A1514;
+  --na-priv: #9BA6FF; --na-priv-bg:#20233C;
+
+  --vis-private: #9BA6FF; --vis-private-bg:#20233C;
+  --vis-room:    #D97757; --vis-room-bg:  #2A1812;
+  --vis-mention: #C792EA; --vis-mention-bg:#261B34;
+  --vis-shared:  #69B78F; --vis-shared-bg:#10251C;
+}
+
+.na-app[data-theme="dark"] {
+  --bg-app: #0B0D10; --bg-primary: #101419; --bg-secondary: #151A20;
+  --bg-tertiary: #1B222A; --bg-hover: #222A32;
+  --text-primary: #F4F7FB; --text-secondary: #C7D0DB; --text-muted: #9AA6B2; --text-tertiary: #707D8B;
+  --ink-agent: #C7D0DB;
+  --border-color: #252D36; --border-strong: #384351;
+  --accent-primary: #D97757; --accent-primary-hover: #C76648; --accent-primary-bg: #2A1812;
+  --na-ok: #69B78F; --na-ok-bg: #10251C;
+  --na-warn: #D8A23E; --na-warn-bg: #2C2110;
+  --na-bad: #E26D61; --na-bad-bg: #2A1514;
+  --na-priv: #9BA6FF; --na-priv-bg: #20233C;
+  --vis-private: #9BA6FF; --vis-private-bg:#20233C;
+  --vis-room: #D97757; --vis-room-bg: #2A1812;
+  --vis-mention: #C792EA; --vis-mention-bg:#261B34;
+  --vis-shared: #69B78F; --vis-shared-bg:#10251C;
+}
+
+.na-app[data-accent="clay"] {
+  --na-accent: #C76648;
+  --na-accent-hover: #D97757;
+  --na-accent-bg: #2A1812;
+}
+
+.na-app[data-accent="ochre"] {
+  --na-accent: #D8A23E;
+  --na-accent-hover: #E2B95E;
+  --na-accent-bg: #2C2110;
+}
+
+.na-app,
+.na-app * {
+  letter-spacing: 0 !important;
+}
+
+.na-app .na-top,
+.na-app .na-sheet-foot,
+.na-app .na-compose-dock,
+.na-app .na-present,
+.na-app .na-gridfull-foot {
+  background: var(--bg-app);
+}
+
+.na-app .na-card,
+.na-app .na-task,
+.na-app .na-taskrow,
+.na-app .na-rcard,
+.na-app .na-favrow,
+.na-app .na-row,
+.na-app .na-thumb,
+.na-app .na-sheet,
+.na-app .na-slideframe,
+.na-app .na-present-cell,
+.na-app .na-stat,
+.na-app .na-json,
+.na-app .na-export-prov,
+.na-app .na-compose-row,
+.na-app .na-patch-tray,
+.na-app .na-seg,
+.na-app .gp-seg,
+.na-app .gp-qr,
+.na-app .gp-code,
+.na-app .gp-onb,
+.na-app .ms-row {
+  border-color: var(--border-color);
+  background: var(--bg-secondary);
+  box-shadow: none;
+}
+
+.na-app .na-card[data-selected="true"],
+.na-app .na-seg button[data-active="true"],
+.na-app .gp-seg > span.on,
+.na-app .ms-chips > span.on,
+.na-app .na-viewtoggle button[data-active="true"] {
+  border-color: color-mix(in srgb, var(--accent-primary) 42%, var(--border-color));
+  background: color-mix(in srgb, var(--accent-primary-bg) 84%, var(--bg-secondary));
+  color: var(--text-primary);
+  box-shadow: none;
+}
+
+.na-app .na-note-area,
+.na-app .na-join-input,
+.na-app .na-zinput-wrap,
+.na-app .na-compose-box,
+.na-app .na-compose-row,
+.na-app .na-search {
+  border-color: var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.na-app .na-note-area:focus,
+.na-app .na-join-input:focus,
+.na-app .na-zinput-wrap:focus-within,
+.na-app .na-compose-row:focus-within {
+  border-color: color-mix(in srgb, var(--accent-primary) 58%, var(--border-color));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 16%, transparent);
+}
+
+.na-app .na-note.paper .na-note-area {
+  min-height: clamp(132px, 24vh, 220px);
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.na-app .na-note.paper .na-note-area:focus {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.na-app .na-scrim,
+.na-app .gp-onb-dim {
+  background: rgba(5, 7, 10, .58);
+  backdrop-filter: blur(8px);
+}
+
+.na-app .na-pill.accent,
+.na-app .na-compose-target,
+.na-app .na-sheet-export.primary,
+.na-app .na-noticed {
+  border-color: color-mix(in srgb, var(--accent-primary) 34%, var(--border-color));
+  background: color-mix(in srgb, var(--accent-primary-bg) 78%, var(--bg-secondary));
+}

@@ -1,0 +1,14 @@
+{
+  "capturedAt": "2026-07-08T21:16:38.700Z",
+  "defaultMetrics": {
+    "nodes": 16,
+    "edges": 30
+  },
+  "selectedMetrics": {
+    "nodes": 16,
+    "edges": 30,
+    "hasDetail": true,
+    "hasMinimap": true,
+    "controls": "Company 15Person 10Funding 6Source 20Evidence 12Artifact 9Row 16Block 8Trace 26Question 2Agent 4EvidenceAgentHuman"
+  }
+}

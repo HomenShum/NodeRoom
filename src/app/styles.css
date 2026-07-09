@@ -675,6 +675,12 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-model-option-badges em { font-style: normal; border: 1px solid var(--line); border-radius: 999px; background: var(--bg-secondary); color: var(--text-muted); font-family: var(--font-mono); font-size: 9px; font-weight: 850; padding: 1px 5px; white-space: nowrap; }
 .r-model-option-badges em[data-free="true"] { color: var(--accent-ink); border-color: var(--accent-border); background: var(--accent-tint); }
 .r-model-empty { padding: 16px 8px; color: var(--text-muted); font-size: 12px; text-align: center; }
+.r-voice-btn[data-active="true"] { color: var(--accent-ink); border-color: var(--accent-border); background: var(--accent-tint); }
+.r-voice-status { margin: 5px var(--space-2) 0; display: flex; align-items: center; gap: 6px; color: var(--accent-ink); font-size: 10.5px; line-height: 1.35; min-height: 18px; }
+.r-voice-confirm { margin: 6px var(--space-2) 0; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 6px; padding: 7px 8px; border: 1px solid var(--accent-border); border-radius: 8px; background: var(--accent-tint); color: var(--text-secondary); font-size: 11px; line-height: 1.35; }
+.r-voice-confirm span { min-width: 0; overflow-wrap: anywhere; }
+.r-voice-confirm button { min-height: 26px; padding: 0 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg-primary); color: var(--text-secondary); font: inherit; font-size: 11px; font-weight: 700; cursor: pointer; }
+.r-voice-confirm button:hover, .r-voice-confirm button:focus-visible { border-color: var(--accent-border); color: var(--accent-ink); outline: none; }
 .r-ref-composer { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
 .r-ref-chip { display: inline-flex; align-items: center; min-width: 0; max-width: 100%; border: 1px solid var(--accent-border); border-radius: 8px; overflow: hidden; background: var(--accent-tint); color: var(--accent-ink); }
 .r-ref-open { min-width: 0; max-width: 210px; display: inline-flex; align-items: center; gap: 5px; padding: 4px var(--space-2); border: 0; background: transparent; color: inherit; font-size: 11px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1358,6 +1364,9 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 /* Knowledge graph — derived node-link view of the room's artifacts (reuses @xyflow/react). */
 .r-graphtab { color: var(--text-muted); }
 .r-graphtab[data-active="true"] { color: var(--accent-ink); }
+.r-panel.artifact .r-tabs > .r-graphtab {
+  display: none;
+}
 .r-graphvu { display: flex; flex-direction: column; flex: 1; min-height: 0; height: 100%; overflow: hidden; }
 .r-graphvu-head { flex: none; display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--line); font-size: 12.5px; font-weight: 700; color: var(--text-secondary); background: var(--bg-primary); }
 .r-graphvu-count { color: var(--text-muted); font-weight: 500; font-size: 11.5px; }
@@ -1406,6 +1415,16 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-graphvu-search input:focus { border-color: var(--accent-primary); }
 .r-graphvu-search-clear { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 2px; display: flex; }
 .r-graphvu-search-clear:hover { color: var(--text-primary); }
+.r-graphvu-sembar { flex: none; display: grid; grid-template-columns: minmax(180px, 280px) minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 1px solid var(--line); background: var(--bg-primary); }
+.r-graphvu-semsearch { display: flex; align-items: center; gap: 6px; min-width: 0; height: 30px; padding: 0 9px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg-secondary); color: var(--text-muted); }
+.r-graphvu-semsearch input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; color: var(--text-primary); font: inherit; font-size: 12px; }
+.r-graphvu-semsearch button { display: flex; align-items: center; justify-content: center; border: 0; background: transparent; color: var(--text-muted); cursor: pointer; }
+.r-graphvu-semsearch button:hover { color: var(--text-primary); }
+.r-graphvu-semchips { display: flex; align-items: center; gap: 6px; min-width: 0; overflow-x: auto; scrollbar-width: thin; }
+.r-graphvu-semtoggles { display: flex; align-items: center; gap: 5px; }
+.r-graphvu-semtoggles button { height: 28px; padding: 0 9px; border: 1px solid var(--line); border-radius: 7px; background: transparent; color: var(--text-secondary); font: inherit; font-size: 11px; font-weight: 800; cursor: pointer; }
+.r-graphvu-semtoggles button:hover { color: var(--text-primary); background: var(--bg-hover); }
+.r-graphvu-semtoggles button[data-on="true"] { border-color: var(--accent-border); background: var(--accent-tint); color: var(--accent-ink); }
 /* Body: canvas + backlinks side panel. */
 .r-graphvu-body { display: flex; flex: 1; min-height: 0; overflow: hidden; }
 /* Backlinks panel — shows all references to the focused node. */
@@ -1417,6 +1436,194 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-graphvu-backlink-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
 .r-graphvu-backlink-label { flex: 1; font-size: 12px; font-weight: 600; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-graphvu-backlink-kind { flex: none; font-size: 10px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; }
+.r-entity-detail { flex: none; width: min(315px, 30vw); min-width: 260px; border-left: 1px solid var(--line); display: flex; flex-direction: column; overflow: hidden; background: var(--bg-primary); }
+.r-entity-detail-head { flex: none; display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.r-entity-detail-title { min-width: 0; flex: 1; display: flex; align-items: center; gap: 7px; color: var(--text-primary); font-size: 12px; font-weight: 850; }
+.r-entity-detail-title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-entity-detail-close { width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 7px; background: var(--bg-secondary); color: var(--text-muted); cursor: pointer; }
+.r-entity-detail-close:hover { color: var(--text-primary); background: var(--bg-hover); }
+.r-entity-detail-meta { flex: none; display: flex; flex-wrap: wrap; gap: 5px; padding: 9px 12px 0; }
+.r-entity-detail-meta span { max-width: 100%; padding: 3px 7px; border: 1px solid var(--line); border-radius: 999px; color: var(--text-muted); background: var(--bg-secondary); font: 10px/1.2 var(--font-mono); text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-entity-detail-actions { flex: none; display: flex; gap: 7px; padding: 10px 12px 0; }
+.r-entity-detail-actions button,
+.r-entity-detail-actions a { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 9px; border: 1px solid var(--accent-border); border-radius: 7px; background: var(--accent-tint); color: var(--accent-ink); font-size: 11px; font-weight: 800; text-decoration: none; cursor: pointer; }
+.r-entity-detail-sections { flex: 1; min-height: 0; overflow: auto; padding: 10px 8px 14px; }
+.r-entity-detail-section { padding: 8px 0; border-top: 1px solid color-mix(in srgb, var(--line) 70%, transparent); }
+.r-entity-detail-section:first-child { border-top: 0; }
+.r-entity-detail-section h3 { margin: 0 0 6px; padding: 0 4px; color: var(--text-muted); font-size: 10px; font-weight: 850; letter-spacing: 0; text-transform: uppercase; }
+.r-entity-detail-row { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; padding: 7px 8px; border: 0; border-radius: 7px; background: transparent; text-align: left; cursor: pointer; }
+.r-entity-detail-row:disabled { cursor: default; }
+.r-entity-detail-row:not(:disabled):hover { background: var(--bg-hover); }
+.r-entity-detail-row-main { min-width: 0; color: var(--text-primary); font-size: 12px; font-weight: 750; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-entity-detail-row-sub { color: var(--text-muted); font: 10.5px/1.25 var(--font-mono); text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-entity-detail-edge { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 2px 4px; padding: 5px 7px; border-radius: 7px; background: color-mix(in srgb, var(--bg-secondary) 70%, transparent); color: var(--text-secondary); font-size: 11px; }
+.r-entity-detail-edge span:last-child { color: var(--text-muted); font: 10px var(--font-mono); text-transform: uppercase; }
+.r-graphvu-agent { flex: none; width: min(292px, 27vw); min-width: 252px; border-left: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; overflow: auto; padding: 12px; background: color-mix(in srgb, var(--bg-primary) 92%, var(--bg-secondary)); }
+.r-graphvu-agent-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--text-secondary); font-size: 11px; font-weight: 850; text-transform: uppercase; }
+.r-graphvu-agent-head span { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.r-graphvu-agent-head strong { padding: 3px 7px; border: 1px solid var(--line); border-radius: 999px; color: var(--text-muted); background: var(--bg-secondary); font: 10px/1.1 var(--font-mono); }
+.r-graphvu-agent-context { display: grid; gap: 3px; padding-bottom: 2px; }
+.r-graphvu-agent-context strong { color: var(--text-primary); font-size: 12.5px; font-weight: 850; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-graphvu-agent-context span { color: var(--text-muted); font: 10.5px/1.35 var(--font-mono); text-transform: uppercase; }
+.r-graphvu-agent-suggestions { display: grid; gap: 6px; }
+.r-graphvu-agent-suggestions button { width: 100%; padding: 7px 8px; border: 1px solid var(--line); border-radius: 7px; background: transparent; color: var(--text-secondary); font: inherit; font-size: 11.5px; font-weight: 750; text-align: left; cursor: pointer; }
+.r-graphvu-agent-suggestions button:hover:not(:disabled) { border-color: var(--accent-border); background: var(--accent-tint); color: var(--accent-ink); }
+.r-graphvu-agent-suggestions button:disabled { opacity: .55; cursor: default; }
+.r-graphvu-agent-form { display: grid; grid-template-columns: minmax(0, 1fr) 34px; gap: 7px; align-items: stretch; }
+.r-graphvu-agent-form textarea { min-width: 0; min-height: 76px; resize: vertical; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); padding: 8px 9px; outline: 0; font: inherit; font-size: 12px; line-height: 1.35; }
+.r-graphvu-agent-form textarea:focus { border-color: var(--accent-border); }
+.r-graphvu-agent-form button { width: 34px; border: 1px solid var(--accent-border); border-radius: 8px; background: var(--accent-tint); color: var(--accent-ink); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.r-graphvu-agent-form button:disabled { opacity: .45; cursor: default; }
+.r-graphvu-agent-message { padding: 8px 9px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg-secondary); color: var(--text-muted); font-size: 11.5px; line-height: 1.4; }
+.r-graphvu-agent-message-error { border-color: var(--danger-border); background: var(--danger-tint); color: var(--danger-ink); }
+@media (max-width: 1180px) { .r-graphvu-agent { display: none; } }
+
+/* Cloud entity graph: default surface is a quiet radial map. The older search/filter controls
+   remain available from the non-Entity sub-tabs, but the first read matches the standalone. */
+.r-graphvu[data-mode="entity"] .r-graphvu-filters,
+.r-graphvu[data-mode="entity"] .r-graphvu-search {
+  display: none;
+}
+.r-graphvu[data-mode="entity"] > .r-graphvu-head .r-graphvu-count {
+  font-size: 0;
+}
+.r-graphvu[data-mode="entity"] > .r-graphvu-head .r-graphvu-count::after {
+  content: "CardioNova diligence · people · entities · evidence";
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.r-graphvu[data-mode="entity"] > .r-graphvu-head .r-graphvu-team {
+  display: none;
+}
+.r-graphvu[data-mode="entity"] > .r-graphvu-head > svg {
+  display: none;
+}
+.r-graphvu[data-mode="entity"] > .r-graphvu-head::after {
+  content: "← Back to sheet";
+  margin-left: auto;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+.r-graphvu-modebar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg-secondary) 24%, transparent);
+}
+.r-graphvu-modebar button {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.r-graphvu-modebar button:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+.r-graphvu-modebar button[data-on="true"] {
+  color: var(--accent-ink);
+  border-color: var(--accent-border);
+  background: var(--accent-tint);
+}
+.r-graphvu-modebar .grow { flex: 1; }
+.r-graphvu[data-mode="entity"] .r-graphvu-modebar .r-graphvu-count {
+  display: none;
+}
+.r-graphvu[data-mode="entity"] .r-graphvu-canvas .react-flow {
+  background:
+    radial-gradient(circle at center, color-mix(in srgb, var(--bg-secondary) 10%, transparent), transparent 48%),
+    var(--bg-primary);
+}
+.r-graphvu[data-mode="entity"] .r-graphvu-canvas .react-flow__background {
+  display: none;
+}
+.r-graphvu[data-mode="entity"] .r-graphvu-node {
+  min-height: 26px;
+  padding: 5px 10px;
+  border-radius: 7px;
+  border-width: 1px;
+  border-left-width: 1px;
+  border-color: rgba(148,163,184,.24);
+  border-left-color: rgba(148,163,184,.24) !important;
+  background: color-mix(in srgb, var(--bg-secondary) 76%, var(--bg-primary));
+  box-shadow: none !important;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0;
+  cursor: grab;
+  user-select: none;
+  transition: border-color .12s ease, background .12s ease, opacity .15s ease, transform .12s ease;
+}
+.r-graphvu[data-mode="entity"] .react-flow__node.dragging .r-graphvu-node,
+.r-graphvu[data-mode="entity"] .r-graphvu-node:active {
+  cursor: grabbing;
+  border-color: rgba(249,132,94,.56);
+  background: color-mix(in srgb, var(--bg-secondary) 86%, var(--accent-primary));
+  transform: translateY(-1px);
+}
+.r-graphvu[data-mode="entity"] .r-graphvu-node-dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+}
+.r-graphvu[data-mode="entity"] .r-graphvu-node-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.r-graphvu[data-mode="entity"] .r-graphvu-node-deg {
+  display: none;
+}
+.r-graphvu[data-mode="entity"] .react-flow__edge-path {
+  stroke-width: 1px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.r-graphvu[data-mode="entity"] .react-flow__controls {
+  top: 14px;
+  right: 16px;
+  display: flex;
+  flex-direction: row;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: none;
+  background: var(--bg-secondary);
+}
+.r-graphvu[data-mode="entity"] .react-flow__controls-button {
+  width: 28px;
+  height: 28px;
+  border-right: 1px solid var(--line);
+  border-bottom: 0;
+}
+.r-graphvu[data-mode="entity"] .react-flow__controls-button:last-child {
+  border-right: 0;
+}
+.r-graphvu[data-mode="entity"] .react-flow__minimap {
+  width: 150px;
+  height: 100px;
+  right: 16px;
+  bottom: 14px;
+  border-color: var(--line);
+  background: color-mix(in srgb, var(--bg-secondary) 72%, var(--bg-primary));
+}
 /* Scale: collapsible groups + content-visibility windowing keep hundreds of steps cheap. */
 .r-tracevu-groups { display: flex; flex-direction: column; gap: 8px; }
 .r-tracevu-group { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }

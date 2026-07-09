@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-07-08T10:19:44.854Z",
+  "model": "gemini-3.5-flash",
+  "referencePath": ".tmp-qa/interiors/standalone-trace.png",
+  "candidatePath": ".tmp-qa/interiors/live-trace.png",
+  "review": {
+    "verdict": "close",
+    "summary": "The candidate implementation shows an exceptionally high level of fidelity to the reference design. The layout, spacing, color palette, and typography are almost perfectly matched. Minor discrepancies exist in icon choices in the left sidebar, specific text/status values in the bottom bar, and version badge data in the chat panel.",
+    "visualSimilarityScore": 0.92,
+    "differences": [
+      {
+        "severity": "P2",
+        "category": "left-rail",
+        "reference": "Sidebar items use specific icons (e.g., grid icon for 'Q3 variance', document icon for 'Sync reliability').",
+        "candidate": "Sidebar items use different icons (e.g., book icon for 'Agent wiki', different document outline styles).",
+        "fix": "Align the icon set used in the sidebar to match the reference design's specific icon mappings."
+      },
+      {
+        "severity": "P2",
+        "category": "component-detail",
+        "reference": "Version badges in the NodeAgent chat messages show incremented versions (e.g., 'v41 -> v42', 'v42 -> v43').",
+        "candidate": "Version badges show static placeholder values ('v1 -> v1').",
+        "fix": "Update the version badge component in the chat panel to correctly render the dynamic version transition values."
+      },
+      {
+        "severity": "P2",
+        "category": "bottom-status",
+        "reference": "Bottom right status bar displays 'Room NodeAgent · reconciled Q3 variance · v42' and 'CREDITS 18 demo'.",
+        "candidate": "Bottom right status bar displays 'notebook.write - draft board memo evidence', 'CREDITS 20 demo', and an extra 'ROOM noticed 1 item' badge.",
+        "fix": "Ensure the status bar content and badge states match the active room context and credit counts of the reference."
+      }
+    ],
+    "keep": [
+      "Overall dark mode color palette and high-contrast orange accents.",
+      "Pane proportions and layout grid (left rail, central trace view, right chat panel).",
+      "Typography hierarchy, font sizes, and weights across all panels.",
+      "The styling, colors, and layout of the central 'Run trace' tree and its expanded details panel."
+    ]
+  }
+}

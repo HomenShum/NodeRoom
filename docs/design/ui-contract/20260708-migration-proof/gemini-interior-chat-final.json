@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-07-08T09:56:03.832Z",
+  "model": "gemini-3.5-flash",
+  "referencePath": ".tmp-qa/interiors/standalone-chat.png",
+  "candidatePath": ".tmp-qa/interiors/live-chat.png",
+  "review": {
+    "verdict": "close",
+    "summary": "The candidate implementation is exceptionally close to the reference design. The layout, panel proportions, typography, color palette, and component styling (including the complex grid, status pills, and chat panel) are highly accurate. Differences are almost entirely limited to dynamic content, active data states, and badge labels.",
+    "visualSimilarityScore": 0.96,
+    "differences": [
+      {
+        "severity": "P2",
+        "category": "component-detail",
+        "reference": "Top bar workspace badge displays 'SFT-RFT'.",
+        "candidate": "Top bar workspace badge displays 'r-86w'.",
+        "fix": "Update the workspace badge content to match the reference target if this is not a dynamic user-specific ID."
+      },
+      {
+        "severity": "P2",
+        "category": "bottom-status",
+        "reference": "Bottom status bar displays 'Room NodeAgent • reconciled Q3 variance • v42' on the right.",
+        "candidate": "Bottom status bar displays 'notebook.write - draft board memo evidence' and an orange 'ROOM noticed 1 item' warning badge.",
+        "fix": "Ensure status bar notifications and active room states align with the specified design spec when in the default room view."
+      }
+    ],
+    "keep": [
+      "Excellent panel proportions and layout division between the left rail, central grid, and right chat panel.",
+      "Perfect color contrast, dark theme consistency, and typography hierarchy.",
+      "Accurate rendering of grid components, including status dots, badges, and the bottom dataframe status bar.",
+      "Well-implemented chat message styling, including the custom agent message blocks and input field."
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "generatedAt": "2026-07-08T10:32:40.941Z",
+  "model": "gemini-3.5-flash",
+  "referencePath": ".tmp-qa/interiors/standalone-graph.png",
+  "candidatePath": ".tmp-qa/interiors/live-graph.png",
+  "review": {
+    "verdict": "partial",
+    "summary": "The implementation captures the dark theme and general three-pane layout well. However, there are significant differences in the top navigation tab structure, the graph layout algorithm (which suffers from overlapping lines in the candidate), and minor component details like icons, time formatting, and input placeholders.",
+    "visualSimilarityScore": 0.82,
+    "differences": [
+      {
+        "severity": "P1",
+        "category": "topbar-tabs",
+        "reference": "Top navigation tabs contain document names (Home, Q3 variance, etc.) without an active orange underline. 'Entity graph' is displayed as a header below the tab bar.",
+        "candidate": "Top navigation tabs include 'Entity graph' as an active tab with an orange underline.",
+        "fix": "Remove 'Entity graph' from the top tab bar and style it as a section header below the tabs, matching the reference navigation hierarchy."
+      },
+      {
+        "severity": "P1",
+        "category": "component-detail",
+        "reference": "Graph nodes are cleanly distributed with minimal line crossings and clear directional arrows.",
+        "candidate": "Graph nodes at the bottom (Clinical trial, Core product, Patent portfolio, etc.) are poorly positioned, causing multiple connection lines to overlap and cross messily.",
+        "fix": "Adjust the graph layout engine's node-spacing and routing parameters to prevent overlapping lines and match the clean distribution of the reference."
+      },
+      {
+        "severity": "P2",
+        "category": "left-rail",
+        "reference": "'SHEETS' section header uses a spreadsheet grid icon.",
+        "candidate": "'SHEETS' section header uses a stacked layers icon.",
+        "fix": "Change the icon for the 'SHEETS' section in the left rail to the spreadsheet grid icon."
+      },
+      {
+        "severity": "P2",
+        "category": "component-detail",
+        "reference": "Chat timestamps use a 12-hour format without leading zeros (e.g., '9:38').",
+        "candidate": "Chat timestamps use leading zeros (e.g., '09:38').",
+        "fix": "Update the timestamp formatter to omit leading zeros for hours."
+      },
+      {
+        "severity": "P2",
+        "category": "component-detail",
+        "reference": "Chat input placeholder text is 'Message the room or @nod'.",
+        "candidate": "Chat input placeholder text is 'Message the room or @nodeagent...'.",
+        "fix": "Update the placeholder text in the chat input box to match the reference."
+      }
+    ],
+    "keep": [
+      "Three-pane layout structure (Left rail, Central workspace, Right chat panel)",
+      "Dark mode color palette and contrast ratios",
+      "Sub-tabs styling under the graph header (Mind Map, Evidence, Domain, Runtime, Entity with orange capsule border)",
+      "Bottom status bar layout and styling"
+    ]
+  }
+}

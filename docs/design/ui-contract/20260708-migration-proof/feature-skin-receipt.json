@@ -1,0 +1,30 @@
+{
+  "capturedAt": "2026-07-08T05:19:31.572Z",
+  "baseUrl": "http://127.0.0.1:5188",
+  "screenshots": [
+    "after-feature-skin-home-1456x940.png",
+    "after-feature-skin-sheet-1456x940.png",
+    "after-feature-skin-trace-1456x940.png",
+    "after-feature-skin-mobile-390x844.png",
+    "after-feature-skin-alwayson-1280x900.png"
+  ],
+  "checks": {
+    "desktop": {
+      "shellBottom": 1,
+      "artifactPanel": 1,
+      "fileTabs": 5,
+      "chatComposer": 1
+    },
+    "mobile": {
+      "shellBottom": 1,
+      "artifactPanel": 1,
+      "panelControls": 2
+    },
+    "alwaysOn": {
+      "room": 1,
+      "tabs": 5,
+      "subscribe": 1
+    },
+    "consoleErrors": []
+  }
+}
