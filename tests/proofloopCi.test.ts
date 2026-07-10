@@ -13,6 +13,8 @@ import { afterEach, describe, expect, it } from "vitest";
 import { installProofloopGithubCi, PROOFLOOP_CI_GOAL_PLACEHOLDER } from "../src/eval/proofloopCi";
 
 const tempRoots: string[] = [];
+const repoWorkflowPath = join(process.cwd(), ".github", "workflows", "proofloop-gate.yml");
+const repoWorkflowBaseline = existsSync(repoWorkflowPath) ? readFileSync(repoWorkflowPath, "utf8") : null;
 
 afterEach(() => {
   for (const root of tempRoots.splice(0)) {
@@ -53,8 +55,9 @@ describe("proofloop ci install github", () => {
   });
 
   it("never creates the workflow in this repo itself", () => {
-    // The installer only ever ran against temp dirs above; assert the
-    // IMMUTABLE .github/workflows/ of this repo did not gain our file.
-    expect(existsSync(join(process.cwd(), ".github", "workflows", "proofloop-gate.yml"))).toBe(false);
+    // This repo now intentionally owns a gate workflow. The installer tests must
+    // leave that immutable source file exactly as they found it.
+    const current = existsSync(repoWorkflowPath) ? readFileSync(repoWorkflowPath, "utf8") : null;
+    expect(current).toBe(repoWorkflowBaseline);
   });
 });

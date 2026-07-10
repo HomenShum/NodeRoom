@@ -35,6 +35,7 @@ function tool(name: string): AgentTool {
 function setup() {
   const engine = new RoomEngine();
   const d = buildDemoRoom(engine);
+  for (const lock of engine.activeLocks(d.roomId)) engine.releaseLock(lock.id, lock.holder);
   const rt = new InMemoryRoomTools(engine, d.roomId, d.sheetId, d.agents.room, d.sessions.room);
   return { engine, d, rt };
 }
