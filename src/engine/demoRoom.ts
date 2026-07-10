@@ -45,13 +45,17 @@ export const RESEARCH_COMPANIES = [
   { id: "rc_verdenova", company: "VerdeNova", url: "https://verdenova.com", source2Url: "https://verdenova.com/security", status: "complete", tier: "B", intent: "Carbon accounting workflow", owner: "Sam", crmStatus: "Ready" },
 ];
 /** Scripted enrichment targets for the no-keys path (the live LLM researches for real instead). */
-export const RESEARCH_PLAN = [
-  { rowId: "rc_cardionova", summary: "AI triage workflow for hospital intake; verify buyer, deployment references, and HIPAA/security claims before IC use.", funding: "Series B profile is claimed in call notes; requires sourced confirmation.", headcount: "Unknown; agent should use provider research or leave a gap reason.", recentSignal: "Banker call flagged hospital intake automation as the key diligence angle.", sourceUrl: "https://cardionova.example", source2Url: "https://cardionova.example/security" },
-  { rowId: "rc_mercury", summary: "Startup banking and treasury platform relevant to founder-led operating accounts.", funding: "Late-stage startup banking profile; refresh from primary sources before partner use.", headcount: "Scaled fintech team; update with provider/API data.", recentSignal: "Startup treasury and operating-account workflow remains the main bank adjacency.", sourceUrl: "https://mercury.com", source2Url: "https://www.linkedin.com/company/mercurybank/" },
-  { rowId: "rc_ramp", summary: "Spend management, cards, procurement, and AP platform for finance teams.", funding: "Late-stage fintech profile; refresh current round and valuation from sources.", headcount: "Scaled finance automation team.", recentSignal: "Procurement and card controls are relevant to middle-market banking conversations.", sourceUrl: "https://ramp.com", source2Url: "https://www.linkedin.com/company/ramp/" },
-  { rowId: "rc_brex", summary: "Corporate cards, banking-adjacent cash workflow, and expense automation for startups.", funding: "Late-stage fintech with major venture backing; verify latest financing.", headcount: "Scaled global fintech team.", recentSignal: "Startup banking and expense workflow overlaps the diligence reference workflow.", sourceUrl: "https://www.brex.com", source2Url: "https://www.linkedin.com/company/brexhq/" },
-  { rowId: "rc_pulley", summary: "Cap table and equity operations platform for startup finance and legal teams.", funding: "Venture-backed SaaS profile; refresh latest funding and hiring signals.", headcount: "Mid-market startup ops team; verify current headcount.", recentSignal: "Equity ops connects to startup banking onboarding and founder services.", sourceUrl: "https://pulley.com", source2Url: "https://www.linkedin.com/company/pulley/" },
-];
+export const RESEARCH_PLAN = RESEARCH_COMPANIES
+  .filter((row) => row.status !== "complete")
+  .map((row) => ({
+    rowId: row.id,
+    summary: `${row.company} requires sourced product, buyer, deployment, and operating-risk research before partner use.`,
+    funding: `${row.company} funding profile requires confirmation from the attached primary sources.`,
+    headcount: `${row.company} operating scale requires a current source-backed headcount range.`,
+    recentSignal: `${row.intent}; refresh the latest supporting signal before review.`,
+    sourceUrl: row.url,
+    source2Url: row.source2Url,
+  }));
 export const CAPTURE_NOTEBOOK_DOC = [
   "<h1>CardioNova — diligence brief</h1>",
   "<p><strong>Funding.</strong> CardioNova closed a <strong>$14M Series A</strong> led by Meridian Health Ventures in February. The round funds hospital-triage deployments in three systems; recognized Q3 revenue reconciles to <strong>$12,400</strong> against the NetSuite close.</p>",
