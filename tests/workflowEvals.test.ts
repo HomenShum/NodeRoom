@@ -25,7 +25,8 @@ describe("WORKFLOW EVAL — GTM enrichment (persona: Maya, sales-ops; fill pendi
     const d = buildDemoRoom(engine);
     const rt = new InMemoryRoomTools(engine, d.roomId, d.researchId, d.agents.room, d.sessions.room);
     const goal = "Research every pending company on the Company research sheet; fill blanks with sourced values + evidence, mark complete, preserve CRM columns.";
-    const r = await runAgent({ rt, goal, model: scriptedModel(companyResearchPlan(RESEARCH_PLAN as CompanyResearchTarget[])), tools: ROOM_TOOLS, maxSteps: 60, contextBuilder: buildResearchContext });
+    const maxSteps = 14 * RESEARCH_PLAN.length + 4;
+    const r = await runAgent({ rt, goal, model: scriptedModel(companyResearchPlan(RESEARCH_PLAN as CompanyResearchTarget[])), tools: ROOM_TOOLS, maxSteps, contextBuilder: buildResearchContext });
     expect(r.stopReason).toBe("done");
 
     const el = (id: string) => engine.getArtifact(d.researchId)!.elements[id]?.value;
