@@ -31,9 +31,10 @@ Generated benchmark receipts, videos, trace archives, and unrelated evaluation W
 | Application TypeScript | Pass |
 | Convex TypeScript | Pass |
 | Production Vite build | Pass; existing large-chunk advisory |
-| Full release-branch Vitest | Pass, 297 files / 2,033 tests |
+| Full release-branch Vitest | Pass, 297 files / 2,035 tests |
 | Auth/session focused tests | Pass |
 | First-run + story + terracotta + live Convex Playwright | Pass, 28/28 |
+| Product-memory Playwright | Pass, 29/29 |
 | Deployed authenticated fresh-phone Playwright | Pass, 2/2 at 390x844 |
 | Accounting ProofLoop | Pass, 100/85 |
 | Notion SDR/BDR ProofLoop | Pass, 100/80 |
@@ -51,13 +52,14 @@ The owning shared lane separately passed 309 Vitest files / 2,073 tests and its 
 ## Authenticated Preview Receipt
 
 - Isolated Convex preview: `hushed-jellyfish-969`, with strict account identity enforcement enabled.
-- Matching Vercel preview deployment: `dpl_2L37KLrWLmQRDnCybZKruzefWzJC`, built from release revision `7ef26a1a`.
+- Matching Vercel preview: `https://noderoom-8zygh5f55-hshum2018-gmailcoms-projects.vercel.app` (`dpl_46RsPag86vzETb9MwvBRq3rEtGT1`), built from release runtime revision `55b55a0c`.
 - Fresh-phone Create proof: landing explanation, review-first consent, account creation, empty room, public message, reload persistence, sign-out, and fail-closed rejoin.
 - Fresh-phone Sample proof: explicit synthetic-data consent, account creation, live governed deck, Plan to Slides to scoped request, accepted job receipt without a fabricated patch, Evidence, PPTX download, and integrity receipt.
 - The deployed run found and repaired three product defects: missing governed-deck recents, review state resetting on reactive object identity, and oversized provenance requests rejected by the server.
-- The final post-preview delta is confined to an honestly marked memory-mode `Create a room` entry contract, its focused test, and reviewed visual baselines; production-path behavior is unchanged.
+- The final runtime repair keeps embedded job controls reachable, reveals the split control on keyboard focus, updates stale accessibility selectors, and prevents a named completed-company request from mutating unrelated pending rows.
+- The named-company browser proof confirms CardioNova remains source-backed and complete while AtlasNova remains pending.
 
-The preview is launch evidence, not a production promotion. Its deployment protection bypass is temporary and is revoked after testing.
+The preview is launch evidence, not a production promotion. Its temporary deployment-protection bypass was revoked after testing; the project reports an empty `protectionBypass` map.
 
 ## Production Auth Receipt
 
