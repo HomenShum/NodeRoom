@@ -2032,25 +2032,39 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
         {!isPrivate && messages.length > 0 && <span className="r-tag">{messages.length}</span>}
         <span className="grow" />
         {!isPrivate && <span className="r-tag agent" style={{ gap: 6 }}><span className="r-avatar agent sm" style={{ background: AGENT_AVATAR_COLOR, width: 18, height: 18, fontSize: 9 }}>N</span>Room NodeAgent</span>}
-        {showLongJobChrome && longJob && (() => { const bad = ["failed", "blocked"].includes(longJob.status); return (
+        {!embedded && showLongJobChrome && longJob && (() => { const bad = ["failed", "blocked"].includes(longJob.status); return (
           <span className={"r-tag" + (bad ? " danger" : "")} role={bad ? "status" : undefined} data-testid="job-status" title="Latest long-running free-auto job"><Timer size={10} /> {longJob.status} {longJob.attempts}/{longJob.maxAttempts}</span>
         ); })()}
-        {canCancelLongJob && (
+        {!embedded && canCancelLongJob && (
           <button className="r-iconbtn r-iconbtn-sm" title={jobBusy === "cancel" ? "Cancelling…" : "Cancel long-running job"} aria-label="Cancel long-running job" data-testid="job-cancel" disabled={jobBusy !== null} onClick={cancelJob}>
             <X size={13} />
           </button>
         )}
-        {canRetryLongJob && (
+        {!embedded && canRetryLongJob && (
           <button className="r-iconbtn r-iconbtn-sm" title={jobBusy === "retry" ? "Retrying…" : "Retry long-running job"} aria-label="Retry long-running job" data-testid="job-retry" disabled={jobBusy !== null} onClick={retryJob}>
             <RefreshCw size={13} />
           </button>
         )}
-        {jobErr && <span className="r-tag" role="alert" data-testid="job-error" style={{ color: "var(--danger-ink)" }}>{jobErr}</span>}
+        {!embedded && jobErr && <span className="r-tag" role="alert" data-testid="job-error" style={{ color: "var(--danger-ink)" }}>{jobErr}</span>}
       </div>
       {isPrivate && <div className="r-private-banner"><Sparkles size={12} /> Only you can read this lane in NodeRoom; requests and room context are sent to the configured model provider</div>}
       {!isPrivate && showLongJobChrome && longJob && (
         <div className="r-job-strip">
           <Timer size={12} />
+          {embedded && (() => { const bad = ["failed", "blocked"].includes(longJob.status); return (
+            <span className={"r-tag" + (bad ? " danger" : "")} role={bad ? "status" : undefined} data-testid="job-status" title="Latest long-running free-auto job">{longJob.status} {longJob.attempts}/{longJob.maxAttempts}</span>
+          ); })()}
+          {embedded && canCancelLongJob && (
+            <button className="r-iconbtn r-iconbtn-sm" title={jobBusy === "cancel" ? "Cancelling…" : "Cancel long-running job"} aria-label="Cancel long-running job" data-testid="job-cancel" disabled={jobBusy !== null} onClick={cancelJob}>
+              <X size={13} />
+            </button>
+          )}
+          {embedded && canRetryLongJob && (
+            <button className="r-iconbtn r-iconbtn-sm" title={jobBusy === "retry" ? "Retrying…" : "Retry long-running job"} aria-label="Retry long-running job" data-testid="job-retry" disabled={jobBusy !== null} onClick={retryJob}>
+              <RefreshCw size={13} />
+            </button>
+          )}
+          {embedded && jobErr && <span className="r-tag" role="alert" data-testid="job-error" style={{ color: "var(--danger-ink)" }}>{jobErr}</span>}
           <span>{longJob.modelPolicy}</span>
           {latestAttempt && <span>attempt {latestAttempt.attempt}: {latestAttempt.resolvedModel} · {latestAttempt.stopReason} · {shortMs(latestAttempt.ms)}</span>}
           {longJob.nextRunAt && longJob.status !== "completed" && <span>next {clock(longJob.nextRunAt)}</span>}

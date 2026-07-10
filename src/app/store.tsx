@@ -938,17 +938,37 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
         const research = artifacts.find((a) => a.kind === "sheet" && a.title === "Company research");
         if (research) {
           const actor: Actor = { kind: "agent", id: pub.agentId, name: pub.agentName, scope: "public" };
-          const pendingRows = researchRowIds(research)
+          const allRows = researchRowIds(research);
+          const pendingRows = allRows
             .filter((rowId) => String(research.elements[`${rowId}__status`]?.value ?? "pending") === "pending");
-          // Scope to the company named in the goal (e.g. "diligence CardioNova") so the run finishes
-          // fast and live; only fan out to the whole watchlist when the goal explicitly asks for it.
+          // A named company always wins over the generic pending-watchlist fallback. Completed named
+          // rows return an honest no-op instead of silently redirecting the run to unrelated rows.
           const g = input.goal.toLowerCase();
           const wantsAll = /\b(all|every|batch|watchlist|bulk|each|companies)\b/.test(g);
-          const named = wantsAll ? [] : pendingRows.filter((rowId) => {
+          const named = wantsAll ? [] : allRows.filter((rowId) => {
             const name = String(research.elements[`${rowId}__company`]?.value ?? "").toLowerCase();
             return name.length > 1 && g.includes(name);
           });
-          const rows = named.length ? named : pendingRows;
+          const namedPending = named.filter((rowId) => pendingRows.includes(rowId));
+          if (named.length > 0 && namedPending.length === 0) {
+            const companies = named
+              .map((rowId) => String(research.elements[`${rowId}__company`]?.value ?? rowId))
+              .join(", ");
+            const statuses = [...new Set(named.map((rowId) => String(research.elements[`${rowId}__status`]?.value ?? "pending")))];
+            const state = statuses.length === 1 && statuses[0] === "complete"
+              ? "already sourced and complete"
+              : `already ${statuses.map((status) => status.replace(/_/g, " ")).join("/")}`;
+            engine.postMessage({
+              roomId,
+              channel: "public",
+              author: actor,
+              text: `${companies} ${named.length === 1 ? "is" : "are"} ${state}. No unrelated company rows were changed.`,
+              clientMsgId: crypto.randomUUID(),
+              kind: "agent",
+            });
+            return;
+          }
+          const rows = namedPending.length ? namedPending : pendingRows;
           const pending = rows.map((rowId) => researchTargetFor(research, rowId));
           if (pending.length === 0) {
             engine.postMessage({ roomId, channel: "public", author: actor, text: "Every company on the research sheet is already sourced and complete.", clientMsgId: crypto.randomUUID(), kind: "agent" });

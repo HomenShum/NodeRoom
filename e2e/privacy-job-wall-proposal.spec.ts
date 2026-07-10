@@ -14,18 +14,20 @@ test.describe("privacy, job, wall, and proposal browser coverage", () => {
     await page.getByTestId("copilot-tab-private").click();
     const privateChat = page.getByTestId("private-chat-panel");
     await expect(privateChat).toBeVisible();
+    const privateReplies = privateChat.getByTestId("chat-message").filter({ hasText: "This stays private" });
+    const initialPrivateReplyCount = await privateReplies.count();
 
     await privateChat.getByTestId("chat-composer").fill(secret);
     await privateChat.getByTestId("chat-send").click();
 
     await expect(privateChat.getByTestId("chat-message").filter({ hasText: secret })).toBeVisible();
-    await expect(privateChat.getByTestId("chat-message").filter({ hasText: "Reading the room context for that" })).toBeVisible();
+    await expect(privateReplies).toHaveCount(initialPrivateReplyCount + 1);
 
     await page.getByTestId("copilot-tab-public").click();
     const roomChat = publicChat(page);
     await expect(roomChat).toBeVisible();
     await expect(roomChat.getByTestId("chat-message").filter({ hasText: secret })).toHaveCount(0);
-    await expect(roomChat.getByTestId("chat-message").filter({ hasText: "Reading the room context for that" })).toHaveCount(0);
+    await expect(roomChat.getByTestId("chat-message").filter({ hasText: "This stays private" })).toHaveCount(0);
   });
 
   test("wall post-its can be added, edited through blur commit, and deleted", async ({ page }) => {
@@ -103,7 +105,7 @@ test.describe("privacy, job, wall, and proposal browser coverage", () => {
   });
 
   test("semantic conflict proposal reject removes the CRS suggestion without overwriting the host value", async ({ page }) => {
-    await page.getByTestId("left-rail").getByRole("button", { name: /Q3 variance/ }).click();
+    await page.getByTestId("left-rail").locator('[data-testid="binder-artifact"][data-artifact-title="Q3 variance"]').first().click();
     const panel = page.getByTestId("artifact-panel");
     const revenueVariance = panel.locator('[data-cell-key="r_rev__variance"]');
     await expect(revenueVariance).toBeVisible();

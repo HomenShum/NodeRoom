@@ -195,6 +195,7 @@ test.describe("chat — optimistic send + edit (memory mode)", () => {
     // Quick chips are context-aware (they vary by the active artifact — diligence/runway/enrich/
     // organize/memo), so assert the durable contract, not a fixed prompt pair: @nodeagent chips are
     // present and the legacy /ask + /free slash chips are gone.
+    await chat.getByTestId("chat-composer").focus();
     const agentChips = chat.locator(".r-composer-hint .r-chip").filter({ hasText: /^@nodeagent / });
     await expect(agentChips.first()).toBeVisible();
     await expect(chat.locator(".r-composer-hint .r-chip").filter({ hasText: /^\/(ask|free)\b/ })).toHaveCount(0);

@@ -190,7 +190,7 @@ async function openDesktopArtifact(page: Page, label: string): Promise<void> {
 test.describe("full modern UX release bar", () => {
   test.setTimeout(120_000);
 
-  test("desktop public agent shows immediate progress, mutates artifacts, and keeps browser health clean", async ({
+  test("desktop public agent responds promptly, mutates artifacts, and keeps browser health clean", async ({
     page,
   }, testInfo) => {
     await page.setViewportSize({ width: 1440, height: 900 });
@@ -206,8 +206,8 @@ test.describe("full modern UX release bar", () => {
     });
 
     await page.goto("/?mode=memory", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("button", { name: "NodeAgent home" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Diligence that shows its work." })).toBeVisible();
+    await expect(page.getByRole("button", { name: "NodeRoom home" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Work with AI.*Review every change/i })).toBeVisible();
     await expect(page.getByTestId("join-room-code")).toHaveAttribute("placeholder", "ENTER CODE");
     await page.getByTestId("start-demo-room").focus();
     await expect(page.getByTestId("start-demo-room")).toBeFocused();
@@ -220,6 +220,7 @@ test.describe("full modern UX release bar", () => {
     await expectNoHorizontalOverflow(page, "desktop room shell");
 
     const chat = publicChat(page);
+    await chat.getByTestId("chat-composer").focus();
     await expect(chat.getByRole("button", { name: "@nodeagent diligence CardioNova" })).toBeVisible();
     await chat.getByRole("button", { name: "@nodeagent diligence CardioNova" }).click();
     await expect(chat.getByTestId("chat-composer")).toHaveValue(CARDIONOVA_PROMPT);
@@ -228,16 +229,20 @@ test.describe("full modern UX release bar", () => {
     await chat.getByTestId("chat-send").click();
     await expect(chat.getByTestId("chat-message").filter({ hasText: CARDIONOVA_PROMPT })).toBeVisible();
     await expect(
-      chat.locator(".r-msg.agent").filter({ hasText: /thinking|running/i }).last(),
-      "public lane should show an active agent turn before the final answer",
-    ).toBeVisible({ timeout: 2_500 });
-    expect(Date.now() - sendStart, "active agent turn latency").toBeLessThan(2_500);
-    await expect(chat.getByTestId("chat-message").filter({ hasText: "Researched 1 company" })).toBeVisible({
-      timeout: 20_000,
-    });
+      chat.getByTestId("chat-message").filter({ hasText: /CardioNova is already sourced and complete/i }).last(),
+    ).toContainText(/No unrelated company rows were changed/i, { timeout: 20_000 });
+    expect(Date.now() - sendStart, "named complete-row response latency").toBeLessThan(2_500);
 
     await openDesktopArtifact(page, "Company research");
     const panel = page.getByTestId("artifact-panel");
+    const columnMenu = panel.locator(".r-sheet-colmenu");
+    await panel.locator(".r-sheet-bar").hover();
+    await columnMenu.locator(".r-sheet-colmenu-btn").click();
+    for (const column of ["summary", "funding", "source", "source2", "last researched"]) {
+      const checkbox = columnMenu.getByRole("checkbox", { name: column, exact: true });
+      if (!(await checkbox.isChecked())) await checkbox.check();
+    }
+    await columnMenu.locator(".r-sheet-colmenu-btn").click();
     const cardioRow = panel.locator(".r-research-row", { hasText: "CardioNova" });
     const statusCell = panel.locator('[data-cell-key="rc_cardionova__status"]').or(cardioRow.locator("td").nth(1)).first();
     const summaryCell = panel.locator('[data-cell-key="rc_cardionova__summary"]').or(cardioRow.locator("td").nth(3)).first();
@@ -245,12 +250,14 @@ test.describe("full modern UX release bar", () => {
     const sourceCell = panel.locator('[data-cell-key="rc_cardionova__source"]').or(cardioRow.locator(".r-research-src")).first();
     const source2Cell = panel.locator('[data-cell-key="rc_cardionova__source2"]').or(cardioRow.locator(".r-research-src")).first();
     const freshCell = panel.locator('[data-cell-key="rc_cardionova__last_researched"]').or(cardioRow.locator("td").nth(6)).first();
+    const atlasStatusCell = panel.locator('[data-cell-key="rc_atlasnova__status"]');
     await expect(statusCell).toContainText(/complete/i);
-    await expect(summaryCell).toContainText(/AI triage workflow/i);
-    await expect(fundingCell).toContainText(/Series B profile/i);
-    await expect(sourceCell).toContainText(/cardionova\.example/);
-    await expect(source2Cell).toContainText(/cardionova\.example|wikipedia|fresh/i);
-    await expect(freshCell).not.toBeEmpty();
+    await expect(summaryCell).toContainText(/sourced product, buyer, and deployment notes/i);
+    await expect(fundingCell).toContainText(/Funding profile captured/i);
+    await expect(sourceCell).toContainText(/cardionova\.com/i);
+    await expect(source2Cell).toHaveAttribute("title", /cardionova\.com\/security/i);
+    await expect(freshCell).toContainText("2026-07-03");
+    await expect(atlasStatusCell).toContainText(/pending/i);
 
     await openDesktopArtifact(page, "Q3 variance");
     await expect(panel.locator('[data-cell-key="r_gp__variance"]')).toBeVisible();
@@ -281,8 +288,8 @@ test.describe("full modern UX release bar", () => {
     const app = page.locator(".na-app");
     await expect(app).toBeVisible({ timeout: 30_000 });
     await expect(app).toHaveCSS("background-color", "rgb(251, 244, 231)");
-    await expect(page.locator(".na-roomsw .nm")).toHaveText("Q3 Diligence");
-    await expect(page.locator('[aria-label="Capture note"]')).toBeVisible();
+    await expect(page.getByRole("button", { name: "Switch room, current room Q3 Diligence" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Capture", exact: true })).toBeVisible();
     await expectNoHorizontalOverflow(page, "mobile capture");
     await page.getByRole("button", { name: "Home" }).click();
     await expect(page.locator(".na-kicker").filter({ hasText: "Recents" })).toBeVisible();

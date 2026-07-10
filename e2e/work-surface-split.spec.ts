@@ -42,7 +42,9 @@ test.describe("center-stage split mode", () => {
       }
 
       // Desktop tier: control present and enabled (the seeded room has multiple artifacts).
+      await toggle.focus();
       await expect(toggle).toBeVisible();
+      await expect(toggle).toBeFocused();
       await expect(toggle).toBeEnabled();
       await expect(toggle).toHaveAttribute("aria-pressed", "false");
 
@@ -68,7 +70,7 @@ test.describe("center-stage split mode", () => {
     });
   }
 
-  test("banker coach evidence opens its source beside the primary work surface", async ({ page }) => {
+  test("banker coach evidence opens its literal external source without replacing the primary work surface", async ({ page, context }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await enterDemoRoom(page);
 
@@ -78,19 +80,19 @@ test.describe("center-stage split mode", () => {
     await page.getByTestId("copilot-tab-private").click();
     await page.getByTestId("private-mode-coach").click();
     const coach = page.getByTestId("banker-coach-panel");
-    const sourceCard = coach.getByTestId("coach-evidence-card").filter({ hasText: "Agent wiki" });
+    const sourceCard = coach.getByRole("link", { name: /Open source cardionova\.com for Primary source/ }).first();
 
     await expect(coach).toBeVisible();
     await expect(sourceCard).toBeVisible();
+    await expect(sourceCard).toHaveAttribute("href", "https://cardionova.com");
+    const sourcePagePromise = context.waitForEvent("page");
     await sourceCard.click();
+    const sourcePage = await sourcePagePromise;
+    await expect.poll(() => sourcePage.url()).toMatch(/^https:\/\/cardionova\.com\/?/);
+    await sourcePage.close();
 
-    await expect(stage).toHaveAttribute("data-split", "true");
+    await expect(stage).toHaveAttribute("data-split", "false");
     await expect(primary).toBeVisible();
-    await expect(secondary).toBeVisible();
-    const a = await primary.boundingBox();
-    const b = await secondary.boundingBox();
-    expect(a).not.toBeNull();
-    expect(b).not.toBeNull();
-    expect(b!.x).toBeGreaterThan(a!.x);
+    await expect(secondary).toHaveCount(0);
   });
 });
