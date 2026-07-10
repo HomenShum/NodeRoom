@@ -87,11 +87,13 @@ function scopeTable(P: D.Plan): React.ReactElement {
 export function PlanSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   const P = ctx.livePlan ?? D.PLAN;
   const run = ctx.runState; // 'plan' | 'running' | 'done'
-  const [thread, setThread] = useState<Array<{ role: "user" | "agent"; text: string }>>([]);
+  const effectiveRun = ctx.isLive ? "plan" : run;
+  const [thread, setThread] = useState<Array<{ role: "user" | "agent" | "status"; text: string }>>([]);
   const [draft, setDraft] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const scope = [
-    ...P.willRead.map((t) => ({ st: run === "plan" ? "todo" : run === "running" ? "running" : "done", tx: t, kind: "read" })),
-    ...P.willCreate.map((t) => ({ st: run === "done" ? "done" : "todo", tx: t, kind: "create" })),
+    ...P.willRead.map((t) => ({ st: effectiveRun === "plan" ? "todo" : effectiveRun === "running" ? "running" : "done", tx: t, kind: "read" })),
+    ...P.willCreate.map((t) => ({ st: effectiveRun === "done" ? "done" : "todo", tx: t, kind: "create" })),
   ];
   const mark = (s: { st: string; tx: string; kind: string }) =>
     s.kind === "create"
@@ -114,7 +116,32 @@ export function PlanSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
     if (/safe|write|overwrite|private/.test(s)) return "Read-only — I propose every change as a diff and never write a cell or note until you approve. Your private notes stay out of scope.";
     return "I’ll keep this read-only and propose a diff. Tap Approve to run, or tell me how to adjust the scope.";
   };
-  const ask = (q: string) => setThread((t) => [...t, { role: "user", text: q }, { role: "agent", text: reply(q) }]);
+  const ask = (q: string): void => {
+    if (!ctx.isLive) {
+      setThread((t) => [...t, { role: "user", text: q }, { role: "agent", text: reply(q) }]);
+      return;
+    }
+    if (submitting) return;
+    setSubmitting(true);
+    setThread((t) => [...t, { role: "user", text: q }, { role: "status", text: "Submitting this scope through the live room agent..." }]);
+    const goal = [
+      `Review the proposed mobile work plan for ${P.entity}.`,
+      `User request: ${q}`,
+      `Allowed reads: ${P.willRead.join(", ") || "none listed"}.`,
+      `Proposed outputs: ${P.willCreate.join(", ") || "none listed"}.`,
+      "Keep the run review-first, source-backed, and trace-linked. Do not write without the room policy's approval path.",
+    ].join("\n");
+    const request = ctx.requestRoomAgent?.(goal) ?? Promise.resolve({ ok: false, reason: "room_agent_unavailable" });
+    void request.then((result) => {
+      setSubmitting(false);
+      setThread((t) => [...t, {
+        role: "status",
+        text: result.ok
+          ? "Live request accepted. Follow its progress in Agent jobs and review any proposed write in Inbox."
+          : `The live request was not accepted: ${result.reason ?? "try again"}`,
+      }]);
+    });
+  };
   const send = () => {
     const q = draft.trim();
     if (!q) return;
@@ -123,7 +150,12 @@ export function PlanSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   };
 
   const chips: Array<{ label: string; icon: IconName; primary?: boolean; onClick: () => void }> =
-    run === "plan"
+    ctx.isLive
+      ? [
+          { label: "Run with NodeAgent", icon: "bolt", primary: true, onClick: () => ask("Run this plan as a governed room-agent job") },
+          { label: "Edit scope", icon: "pen", onClick: () => ask("Edit scope") },
+        ]
+      : run === "plan"
       ? [
           { label: "Approve research", icon: "bolt", primary: true, onClick: ctx.approveResearch },
           { label: "Run read-only", icon: "eye", onClick: ctx.runReadOnly },
@@ -154,16 +186,18 @@ export function PlanSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
             "NodeAgent",
             React.createElement(
               "span",
-              { className: "na-zstatus", "data-run": run },
-              run === "plan" ? "ready for approval" : run === "running" ? "working…" : "read-only run complete",
+              { className: "na-zstatus", "data-run": effectiveRun },
+              ctx.isLive ? "live scope preview" : run === "plan" ? "ready for approval" : run === "running" ? "working…" : "read-only run complete",
             ),
           ),
           React.createElement(
             "p",
             { className: "na-ztext" },
-            run === "done"
+            !ctx.isLive && run === "done"
               ? "Done — I stayed read-only and attached evidence. Review the diff before anything is written."
-              : "Here’s the scope. I’ll only read these sources and propose changes as a diff — nothing is written until you approve.",
+              : ctx.isLive
+                ? "This preview is derived from the live room. Submitting it creates a governed room-agent job; completion is shown only by live jobs, proposals, and traces."
+                : "Here’s the scope. I’ll only read these sources and propose changes as a diff — nothing is written until you approve.",
           ),
           React.createElement(
             "div",
@@ -171,15 +205,17 @@ export function PlanSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
             React.createElement("div", { className: "na-todos-head" }, Ico("check"), "Plan", React.createElement("span", { className: "c" }, doneN + " / " + scope.length)),
             scope.map((s, i) => React.createElement("div", { key: i, className: "na-todo", "data-st": s.st }, mark(s), React.createElement("span", { className: "tx" }, s.tx))),
           ),
-          run === "plan" &&
+          effectiveRun === "plan" &&
             React.createElement(
               "div",
               { className: "na-zstats" },
               P.stats.map((s, i) => React.createElement("span", { key: i, className: "na-zstat" + (s.mono ? " mono" : "") }, React.createElement("b", null, s.v), s.l)),
             ),
-          React.createElement("div", { className: "na-guard" }, Ico("shield"), "Plan hash " + P.hash + " locks scope + cost before the job runs."),
+          React.createElement("div", { className: "na-guard" }, Ico("shield"), ctx.isLive
+            ? "Submitting this preview uses the live room-agent policy and produces job, proposal, and trace receipts."
+            : "Plan hash " + P.hash + " locks scope + cost before the job runs."),
         ),
-        run === "running" &&
+        !ctx.isLive && run === "running" &&
           React.createElement(
             "div",
             { className: "na-zmsg agent" },
@@ -191,7 +227,7 @@ export function PlanSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
             : React.createElement(
                 "div",
                 { key: i, className: "na-zmsg agent" },
-                React.createElement("div", { className: "na-zhead" }, React.createElement("span", { className: "av" }, Ico("sparkles")), "NodeAgent"),
+                React.createElement("div", { className: "na-zhead" }, React.createElement("span", { className: "av" }, Ico(m.role === "status" ? "shield" : "sparkles")), m.role === "status" ? "NodeRoom" : "NodeAgent"),
                 React.createElement("p", { className: "na-ztext" }, m.text),
               ),
         ),
@@ -216,8 +252,8 @@ export function PlanSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
           className: "na-zinput",
           value: draft,
           type: "text",
-          placeholder: run === "running" ? "Working inside approved scope…" : "Adjust the plan or ask before approving…",
-          disabled: run === "running",
+          placeholder: submitting ? "Submitting to the live room agent..." : run === "running" ? "Working inside approved scope…" : "Adjust the plan or ask before approving…",
+          disabled: submitting || (!ctx.isLive && run === "running"),
           onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDraft(e.target.value),
           onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key === "Enter") {
@@ -226,7 +262,7 @@ export function PlanSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
             }
           },
         }),
-        React.createElement("button", { className: "na-zsend", disabled: !draft.trim() || run === "running", onClick: send, "aria-label": "Send" }, Ico("arrowUp")),
+        React.createElement("button", { className: "na-zsend", disabled: !draft.trim() || submitting || (!ctx.isLive && run === "running"), onClick: send, "aria-label": "Send" }, Ico("arrowUp")),
       ),
     ),
   );
@@ -240,7 +276,8 @@ type EvidenceFollowup = { match: string[]; text: string };
 export function EvidenceSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   const E = (ctx.liveEvidence ?? D.EVIDENCE) as D.Evidence & { followups?: EvidenceFollowup[]; fallback?: string };
   const [draft, setDraft] = useState("");
-  const [thread, setThread] = useState<Array<{ role: "user" | "agent"; text: string }>>([]);
+  const [thread, setThread] = useState<Array<{ role: "user" | "agent" | "status"; text: string }>>([]);
+  const [submitting, setSubmitting] = useState(false);
   const cites = E.support.filter((s): s is EvidenceCite => s.kind === "cite") as EvidenceCite[];
   const gaps = E.support.filter((s): s is EvidenceGap => s.kind === "gap") as EvidenceGap[];
   const reply = (q: string): string => {
@@ -248,18 +285,45 @@ export function EvidenceSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
     const hit = (E.followups || []).find((f) => f.match.some((m) => s.includes(m)));
     return hit ? hit.text : (E.fallback as string);
   };
+  const ask = (q: string): void => {
+    if (!ctx.isLive) {
+      setThread((t) => [...t, { role: "user", text: q }, { role: "agent", text: reply(q) }]);
+      return;
+    }
+    if (submitting) return;
+    setSubmitting(true);
+    setThread((t) => [...t, { role: "user", text: q }, { role: "status", text: "Submitting this evidence question through the live room agent..." }]);
+    const goal = [
+      `Answer a mobile evidence follow-up for this live claim: ${E.claim}.`,
+      `Question: ${q}`,
+      "Use only source artifacts and trace evidence already available to the room. State unresolved gaps and do not invent an answer.",
+    ].join("\n");
+    const request = ctx.requestRoomAgent?.(goal) ?? Promise.resolve({ ok: false, reason: "room_agent_unavailable" });
+    void request.then((result) => {
+      setSubmitting(false);
+      setThread((t) => [...t, {
+        role: "status",
+        text: result.ok
+          ? "Live request accepted. Read the answer in the Agent tab and use its trace receipt for verification."
+          : `The live request was not accepted: ${result.reason ?? "try again"}`,
+      }]);
+    });
+  };
   const send = () => {
     const q = draft.trim();
     if (!q) return;
-    setThread((t) => [...t, { role: "user", text: q }, { role: "agent", text: reply(q) }]);
+    ask(q);
     setDraft("");
   };
-  const quick = [
+  const quick = ctx.isLive ? [
+    { label: "What supports this?", q: "What live room sources support this claim?" },
+    { label: "What remains open?", q: "What evidence gaps remain unresolved?" },
+    { label: "What source is needed?", q: "What primary source would close the largest gap?" },
+  ] : [
     { label: "What’s the round size?", q: "round size" },
     { label: "Who’s the lead?", q: "lead investor" },
     { label: "How do I close the gap?", q: "close the gap" },
   ];
-  const ask = (q: string) => setThread((t) => [...t, { role: "user", text: q }, { role: "agent", text: reply(q) }]);
   return React.createElement(
     React.Fragment,
     null,
@@ -303,9 +367,7 @@ export function EvidenceSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
           React.createElement(
             "p",
             { className: "na-ztext" },
-            "I found ",
-            React.createElement("b", null, cites.length + " supporting sources"),
-            " but no primary confirmation of round size or lead investor.",
+            E.answer || `${cites.length} supporting source${cites.length === 1 ? "" : "s"} are attached to this claim.`,
           ),
           gaps.map((g, i) => React.createElement("div", { key: i, className: "na-srcgap", style: { marginTop: 10 } }, Ico("gap"), g.text)),
         ),
@@ -315,7 +377,7 @@ export function EvidenceSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
             : React.createElement(
                 "div",
                 { key: i, className: "na-zmsg agent" },
-                React.createElement("div", { className: "na-zhead" }, React.createElement("span", { className: "av" }, Ico("sparkles")), "NodeAgent"),
+                React.createElement("div", { className: "na-zhead" }, React.createElement("span", { className: "av" }, Ico(m.role === "status" ? "shield" : "sparkles")), m.role === "status" ? "NodeRoom" : "NodeAgent"),
                 React.createElement("p", { className: "na-ztext" }, m.text),
               ),
         ),
@@ -340,6 +402,7 @@ export function EvidenceSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
           value: draft,
           type: "text",
           placeholder: "Ask about this claim…",
+          disabled: submitting,
           onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDraft(e.target.value),
           onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key === "Enter") {
@@ -348,7 +411,7 @@ export function EvidenceSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
             }
           },
         }),
-        React.createElement("button", { className: "na-zsend", disabled: !draft.trim(), onClick: send, "aria-label": "Send" }, Ico("arrowUp")),
+        React.createElement("button", { className: "na-zsend", disabled: !draft.trim() || submitting, onClick: send, "aria-label": "Send" }, Ico("arrowUp")),
       ),
     ),
   );
@@ -366,7 +429,11 @@ type CoachTopic = {
 
 export function CoachSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   const coach = (ctx.liveCoach ?? D.COACH) as unknown as { entity?: string; topics: CoachTopic[] };
-  const sourceTopics = coach.topics.length ? coach.topics : (D.COACH as unknown as { topics: CoachTopic[] }).topics;
+  const sourceTopics = coach.topics.length
+    ? coach.topics
+    : ctx.isLive
+      ? []
+      : (D.COACH as unknown as { topics: CoachTopic[] }).topics;
   const [topics, setTopics] = useState<CoachTopic[]>(sourceTopics);
   const [topicIdx, setTopicIdx] = useState(0);
   const [newTopic, setNewTopic] = useState("");
@@ -381,6 +448,20 @@ export function CoachSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
     setAnswer("");
     setGraded(false);
   }, [sourceTopics]);
+  if (!C) {
+    return (
+      <>
+        <SheetHead title="Coach" sub="Local practice" ctx={ctx} />
+        <div className="na-sheet-body" data-testid="mobile-live-coach-empty">
+          <div className="na-empty">
+            <div className="eico">{Ico("coach")}</div>
+            <strong>No live coaching topics</strong>
+            <span>Add a source-backed finding before starting a local practice session.</span>
+          </div>
+        </div>
+      </>
+    );
+  }
   const pickTopic = (i: number) => {
     setTopicIdx(i);
     setTab("howto");
@@ -442,7 +523,7 @@ export function CoachSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   return React.createElement(
     React.Fragment,
     null,
-    <SheetHead title="Coach" sub="Review readiness · CardioNova" ctx={ctx} />,
+    <SheetHead title="Coach" sub={ctx.isLive ? `Local practice · ${coach.entity ?? "room evidence"}` : "Review readiness · CardioNova"} ctx={ctx} />,
     React.createElement(
       "div",
       { className: "na-sheet-body" },

@@ -11,8 +11,9 @@ import * as D from "./mobileData";
 import { Ico } from "./MobileIcons";
 import type { IconName } from "./MobileIcons";
 import { Pill } from "./MobileScreens";
-import type { Tone } from "./mobileData";
+import type { Deck, Evidence, Tone } from "./mobileData";
 import type { MobileCtx } from "./mobileTypes";
+import { buildDeckPptxExport, deckPptxMimeType } from "../workArtifacts/deckPptxExport";
 
 const { useState, useRef } = React;
 
@@ -60,10 +61,53 @@ interface PendingPatch {
   slideId: string;
 }
 
+const LIVE_DECK_GOAL_MAX_CHARS = 1_800;
+const LIVE_DECK_PROVENANCE_IDS = 4;
+
+function clipped(value: string, maxChars: number): string {
+  const clean = value.trim();
+  return clean.length <= maxChars ? clean : `${clean.slice(0, Math.max(0, maxChars - 3))}...`;
+}
+
+function provenanceSummary(values: string[]): string {
+  if (values.length === 0) return "none attached";
+  const shown = values.slice(0, LIVE_DECK_PROVENANCE_IDS).join(", ");
+  const remaining = values.length - LIVE_DECK_PROVENANCE_IDS;
+  return remaining > 0 ? `${shown} (+${remaining} more on storyboard)` : shown;
+}
+
+export function buildLiveDeckRequest(input: {
+  deckId: string;
+  slideIndex: number;
+  slideId: string;
+  slideTitle: string;
+  target: RegionInfo | null;
+  requestedChange: string;
+  sourceIds: string[];
+  traceIds: string[];
+}): string {
+  const request = [
+    `Create a governed deck patch proposal for work artifact ${clipped(input.deckId, 120)}. Do not directly mutate the deck.`,
+    `Slide ${input.slideIndex} (${clipped(input.slideId, 80)}): ${clipped(input.slideTitle, 180)}.`,
+    input.target
+      ? `Element scope: ${clipped(input.target.label, 160)}. Current text: ${clipped(input.target.text || "(empty)", 280)}.`
+      : "Scope: whole slide.",
+    `Requested change: ${clipped(input.requestedChange, 480)}`,
+    `Use only room source artifacts: ${provenanceSummary(input.sourceIds)}.`,
+    `Relevant traces: ${provenanceSummary(input.traceIds)}.`,
+    "Return a sourced proposal for host review.",
+  ].join("\n");
+  return request.slice(0, LIVE_DECK_GOAL_MAX_CHARS);
+}
+
 const STATUS_TONE: Record<string, string> = { approved: 'ok', needs_review: 'warn', draft: 'mute', proposed: 'accent', exported: 'ok' };
 
 export function ArtifactSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
-  const DECK = D.DECK;
+  const liveDeck = ctx.isLive ? ctx.liveDeck ?? null : undefined;
+  const emptyLiveDeck = ctx.isLive && !liveDeck;
+  const DECK: Deck = liveDeck ?? D.DECK;
+  const EVIDENCE: Evidence = ctx.isLive && ctx.liveEvidence ? ctx.liveEvidence : D.EVIDENCE;
+  const livePreview = !!liveDeck;
   const [tab, setTab] = useState<string>('slides');
   const [active, setActive] = useState<number>(0);
   const [slides, setSlides] = useState<DeckSlide[]>(DECK.slides);
@@ -77,9 +121,17 @@ export function ArtifactSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   const composerRef = useRef<HTMLInputElement>(null);
   const mid = useRef<number>(1);
   const slide = slides[active];
+  const deckContentKey = DECK.slides.map((item) => `${item.id}:${item.status}:${item.html}`).join("|");
+  React.useEffect(() => {
+    setSlides(DECK.slides);
+    setActive(0);
+    setTarget(null);
+    setPending(null);
+    setDeckChat([]);
+  }, [DECK.id, deckContentKey]);
 
   const buildPatch = (): DeckPatch => ({
-    target: target ? target.label : ('Slide ' + slide.index + ' · ' + slide.title),
+    target: target ? target.label : ('Slide ' + slide.index + ' - ' + slide.title),
     before: (target && target.text) ? target.text : DECK.patchSample.before,
     after: DECK.patchSample.after,
     evidence: DECK.patchSample.evidence,
@@ -93,26 +145,64 @@ export function ArtifactSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   const send = (txt?: string): void => {
     const text = (txt !== undefined ? txt : draft).trim(); if (!text) return;
     const push = (m: Omit<DeckChatMsg, 'id'>): void => setDeckChat((c) => [...c, Object.assign({ id: 'm' + (mid.current++) }, m)]);
-    push({ role: 'user', text, target: target ? target.label : null });
+    const requestTarget = target;
+    push({ role: 'user', text, target: requestTarget ? requestTarget.label : null });
     setDraft('');
+    if (livePreview) {
+      const request = buildLiveDeckRequest({
+        deckId: liveDeck?.workArtifactId ?? DECK.id,
+        slideIndex: slide.index,
+        slideId: slide.id,
+        slideTitle: slide.title,
+        target: requestTarget,
+        requestedChange: text,
+        sourceIds: liveDeck?.sourceIds ?? [],
+        traceIds: liveDeck?.traceIds ?? [],
+      });
+      push({ role: 'agent', variant: 'status', text: 'Sending this scoped request through the live room agent...' });
+      setTarget(null);
+      const run = ctx.requestRoomAgent?.(request) ?? Promise.resolve({ ok: false, reason: 'room_agent_unavailable' });
+      void run.then((result) => {
+        push({
+          role: 'agent',
+          chip: result.ok ? 'request' : 'bad',
+          text: result.ok
+            ? 'Live request accepted. The sourced proposal and trace will appear in Inbox when the run finishes.'
+            : 'The live request was not accepted: ' + (result.reason ?? 'try again'),
+        });
+      });
+      return;
+    }
     const patch = buildPatch();
     const slideId = slide.id;
     setTimeout(() => {
-      push({ role: 'agent', variant: 'status', text: 'Drafting a sourced patch for ' + patch.target + '…' });
+      push({ role: 'agent', variant: 'status', text: 'Drafting a sourced patch for ' + patch.target + '...' });
       setTimeout(() => { push({ role: 'agent', patch: patch }); setPending({ patch: patch, slideId: slideId }); }, 850);
     }, 320);
     setTarget(null);
   };
   const acceptPatch = (): void => {
     if (!pending) return;
+    if (livePreview) {
+      ctx.toast('Open Inbox to accept the live proposal. No preview-only patch was applied.');
+      setPending(null);
+      return;
+    }
     const patch = pending.patch;
     setSlides((prev) => prev.map((s) => s.id === pending.slideId
       ? Object.assign({}, s, { status: 'approved', html: s.html.replace(patch.before, patch.after) })
       : s));
     setComments((prev) => [{ id: 'c' + Date.now(), slide: slide.index, target: patch.target, text: 'Requested via composer', status: 'accepted' }, ...prev]);
-    setDeckChat((c) => [...c, { id: 'm' + (mid.current++), role: 'agent', chip: 'ok', text: 'Applied the patch and marked the slide approved.' }]);
+    setDeckChat((c) => [...c, {
+      id: 'm' + (mid.current++),
+      role: 'agent',
+      chip: 'ok',
+      text: livePreview
+        ? 'Applied the patch to this preview. Room writes still require the Review queue and trace receipt.'
+        : 'Applied the patch and marked the slide approved.',
+    }]);
     setPending(null);
-    ctx.toast('Patch applied to slide ' + slide.index);
+    ctx.toast(livePreview ? 'Patch applied to preview slide ' + slide.index : 'Patch applied to slide ' + slide.index);
   };
   const rejectPatch = (): void => {
     if (!pending) return;
@@ -134,6 +224,10 @@ export function ArtifactSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
     ['export', 'Export', 'download'],
   ];
 
+  if (emptyLiveDeck) {
+    return React.createElement(LiveDeckEmpty, { ctx });
+  }
+
   return React.createElement(React.Fragment, null,
     present && ReactDOM.createPortal(
       React.createElement(PresentOverlay, { slides, title: DECK.title, start: active, onClose: () => setPresent(false) }),
@@ -143,13 +237,13 @@ export function ArtifactSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
       ctx.canBack ? React.createElement('button', { className: 'na-headback', onClick: ctx.backSheet, 'aria-label': 'Back' }, Ico('chevL')) : null,
       React.createElement('div', { className: 'st' },
         React.createElement('strong', null, DECK.title),
-        React.createElement('span', null, DECK.audience + ' · ' + slides.length + ' slides · ' + DECK.privacy)),
+        React.createElement('span', null, DECK.audience + ' - ' + slides.length + ' slides - ' + DECK.privacy)),
       React.createElement('button', { className: 'na-close', onClick: ctx.closeSheet, 'aria-label': 'Close' }, Ico('x'))),
 
     // tab bar
-    React.createElement('div', { className: 'na-art-tabs' },
+    React.createElement('div', { className: 'na-art-tabs', role: 'tablist', 'aria-label': 'Deck views' },
       TABS.map(([id, label, icon]) => React.createElement('button', {
-        key: id, className: 'na-art-tab', 'data-active': tab === id,
+        key: id, className: 'na-art-tab', role: 'tab', 'aria-selected': tab === id, 'data-active': tab === id,
         onClick: () => { setTab(id); },
       }, Ico(icon), label,
         id === 'comments' && comments.length ? React.createElement('span', { className: 'n' }, comments.length) : null))),
@@ -158,7 +252,7 @@ export function ArtifactSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
       tab === 'plan' && React.createElement(PlanView, { DECK }),
       tab === 'slides' && React.createElement(SlidesView, { slides, active, setActive, slide, deckChat, onSelectRegion: selectRegion, onPresent: () => setPresent(true), onExport: () => setTab('export') }),
       tab === 'comments' && React.createElement(CommentsView, { comments, onNew: () => { setTab('slides'); } }),
-      tab === 'evidence' && React.createElement(EvidenceView, { ctx }),
+      tab === 'evidence' && React.createElement(EvidenceView, { ctx, evidence: EVIDENCE }),
       tab === 'export' && React.createElement(ExportView, { DECK, ctx, exported, onExport: (ver?: string) => { setExported(true); ctx.toast((ver ? ver + ' · ' : '') + 'CardioNova_update.pptx downloaded'); } })),
 
     // bottom region ─ a chat composer on the Slides tab (mirrors the sheet workbench)
@@ -173,12 +267,12 @@ export function ArtifactSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
         React.createElement('span', { className: 'mk' }, Ico('sparkles')),
         React.createElement('input', {
           ref: composerRef, className: 'na-compose-input', value: draft, type: 'text',
-          placeholder: target ? 'Describe the change for this element…' : 'Ask NodeAgent to revise a slide…  or tap any element to scope it',
+          placeholder: target ? 'Describe the change for this element...' : 'Ask NodeAgent to revise a slide... or tap any element to scope it',
           onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDraft(e.target.value),
           onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') { e.preventDefault(); send(); } },
         }),
         React.createElement('button', { className: 'na-compose-send', disabled: !draft.trim(), onClick: () => send(), 'aria-label': 'Send' }, Ico('arrowUp'))),
-      React.createElement('p', { className: 'na-compose-note' }, Ico('lock'), 'Preview only — the agent proposes a sourced patch; the slide changes only when you accept.')),
+      React.createElement('p', { className: 'na-compose-note' }, Ico('lock'), 'Preview only - the agent proposes a sourced patch; the slide changes only when you accept.')),
 
     // plan tab keeps its approve action
     tab === 'plan' && React.createElement('div', { className: 'na-sheet-foot' },
@@ -186,7 +280,23 @@ export function ArtifactSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
 }
 
 // ── PLAN (z.ai-style agent chat transcript) ──
-function PlanView({ DECK }: { DECK: typeof D.DECK }): React.ReactElement {
+function LiveDeckEmpty({ ctx }: { ctx: MobileCtx }): React.ReactElement {
+  return React.createElement(React.Fragment, null,
+    React.createElement('div', { className: 'na-sheet-head' },
+      ctx.canBack ? React.createElement('button', { className: 'na-headback', onClick: ctx.backSheet, 'aria-label': 'Back' }, Ico('chevL')) : null,
+      React.createElement('div', { className: 'st' },
+        React.createElement('strong', null, 'No deck artifact yet'),
+        React.createElement('span', null, 'Live room - waiting for storyboard or deck output')),
+      React.createElement('button', { className: 'na-close', onClick: ctx.closeSheet, 'aria-label': 'Close' }, Ico('x'))),
+    React.createElement('div', { className: 'na-sheet-body' },
+      React.createElement('div', { className: 'na-empty', 'data-testid': 'mobile-live-deck-empty' },
+        React.createElement('div', { className: 'eico' }, Ico('layers')),
+        React.createElement('strong', null, 'No live deck to review'),
+        React.createElement('span', null, 'This room has not produced a storyboard or deck artifact yet. Synthetic sample slides are not substituted in live rooms.'),
+        React.createElement('button', { className: 'na-btn', onClick: () => ctx.openSheet('review'), style: { marginTop: 4 } }, Ico('shield'), 'Open review queue'))));
+}
+
+function PlanView({ DECK }: { DECK: Deck }): React.ReactElement {
   const P = DECK.plan;
   const mark = (st: string): React.ReactElement => st === 'done'
     ? React.createElement('span', { className: 'na-todo-mark done' }, Ico('check'))
@@ -254,17 +364,29 @@ function SlidesView({ slides, active, setActive, slide, deckChat, onSelectRegion
   return React.createElement(React.Fragment, null,
     React.createElement('div', { className: 'na-thumbs' },
       slides.map((s, i) => React.createElement('button', {
-        key: s.id, className: 'na-thumb', 'data-active': i === active, onClick: () => setActive(i),
+        key: s.id, className: 'na-thumb', 'data-active': i === active, 'aria-pressed': i === active, onClick: () => setActive(i),
       },
         React.createElement('span', { className: 'na-thumb-prev' },
           React.createElement('iframe', { title: s.title, srcDoc: s.html, sandbox: 'allow-same-origin', scrolling: 'no', tabIndex: -1, style: { width: '960px', height: '600px', border: 0, transform: 'scale(0.092)', transformOrigin: 'top left', pointerEvents: 'none' } })),
         React.createElement('span', { className: 'na-thumb-foot' },
           React.createElement('span', { className: 'ti' }, s.index),
           React.createElement('span', { className: 'tt' }, s.title),
-          React.createElement('span', { className: 'td', 'data-tone': STATUS_TONE[s.status] })))),
+          React.createElement('span', { className: 'td', 'data-tone': STATUS_TONE[s.status] }))))),
     React.createElement('div', { className: 'na-slide-toolbar' },
-      React.createElement('span', { className: 'hint' }, Ico('target'), 'Tap a component to comment'),
+      React.createElement('span', { className: 'hint' }, Ico('target'), 'Tap a component or use a scope button'),
       React.createElement('div', { className: 'na-slide-tools' },
+        React.createElement('button', {
+          className: 'na-tool',
+          onClick: () => onSelectRegion({ label: 'h1 - "' + slide.title + '"', text: slide.title }),
+          'aria-label': 'Scope revision request to the slide title',
+          title: 'Scope title',
+        }, Ico('target')),
+        React.createElement('button', {
+          className: 'na-tool',
+          onClick: () => onSelectRegion({ label: 'Slide ' + slide.index + ' - whole slide', text: slide.title }),
+          'aria-label': 'Scope revision request to the whole slide',
+          title: 'Scope slide',
+        }, Ico('layers')),
         React.createElement('button', { className: 'na-tool', onClick: onPresent, 'aria-label': 'View all slides', title: 'View all' }, Ico('expand')),
         React.createElement('button', { className: 'na-tool', 'data-on': zoomedIn, onClick: () => setZoomedIn((v) => !v), 'aria-label': zoomedIn ? 'Fit slide' : 'Zoom in', title: zoomedIn ? 'Fit' : 'Zoom' }, Ico('search')),
         React.createElement('button', { className: 'na-tool', onClick: onExport, 'aria-label': 'Export deck', title: 'Export' }, Ico('download')))),
@@ -295,7 +417,9 @@ function SlidesView({ slides, active, setActive, slide, deckChat, onSelectRegion
               m.variant === 'status'
                 ? React.createElement('p', { className: 'na-ztext muted' }, React.createElement('i', { className: 'spin sm' }), m.text)
                 : React.createElement('p', { className: 'na-ztext' }, m.text),
-              m.chip ? React.createElement('span', { className: 'na-zchip', 'data-tone': m.chip }, Ico(m.chip === 'ok' ? 'check' : 'x'), m.chip === 'ok' ? 'patch applied' : 'kept original') : null))) : null));
+              m.chip ? React.createElement('span', { className: 'na-zchip', 'data-tone': m.chip },
+                Ico(m.chip === 'bad' ? 'x' : 'check'),
+                m.chip === 'request' ? 'request accepted' : m.chip === 'ok' ? 'patch applied' : 'request rejected') : null))) : null);
 }
 
 // ── PATCH PROPOSAL ──
@@ -407,8 +531,8 @@ function CommentsView({ comments, onNew }: { comments: DeckComment[]; onNew: () 
 }
 
 // ── EVIDENCE COVERAGE (sourced answer + follow-up chat) ──
-function EvidenceView({ ctx }: { ctx: MobileCtx }): React.ReactElement {
-  const E = D.EVIDENCE;
+function EvidenceView({ ctx, evidence }: { ctx: MobileCtx; evidence: Evidence }): React.ReactElement {
+  const E = evidence;
   const [open, setOpen] = useState<boolean>(true);
   const [thread, setThread] = useState<{ role: 'user' | 'agent'; text: string }[]>([]);
   const [draft, setDraft] = useState<string>('');
@@ -433,7 +557,7 @@ function EvidenceView({ ctx }: { ctx: MobileCtx }): React.ReactElement {
       React.createElement('button', { className: 'na-srctoggle', onClick: () => setOpen((v) => !v) },
         Ico('shield'), 'Used ' + cites.length + ' sources',
         React.createElement('span', { className: 'cx', 'data-open': open }, Ico('chevD'))),
-      React.createElement('span', { className: 'na-srcclaim' }, E.claim, ' · ', React.createElement('em', null, 'needs_review'))),
+      React.createElement('span', { className: 'na-srcclaim' }, E.claim, ' - ', React.createElement('em', null, E.status))),
     open ? React.createElement('div', { className: 'na-srclist' },
       cites.map((s) => React.createElement('button', { key: s.n, className: 'na-srcrow', onClick: () => ctx && ctx.openSource && ctx.openSource(s) },
         React.createElement('span', { className: 'n' }, s.n),
@@ -465,32 +589,79 @@ function EvidenceView({ ctx }: { ctx: MobileCtx }): React.ReactElement {
 
 // ── EXPORT (ready · download · version history) ──
 function ExportView({ DECK, ctx, exported, onExport }: {
-  DECK: typeof D.DECK;
+  DECK: Deck;
   ctx: MobileCtx;
   exported: boolean;
   onExport: (ver?: string) => void;
 }): React.ReactElement {
+  const livePreview = ctx.isLive && !!ctx.liveDeck;
+  const [exporting, setExporting] = useState(false);
+  const [receipt, setReceipt] = useState<{ fileName: string; slideCount: number; integrityHash: string; at: string } | null>(null);
+  const shownExported = exported || !!receipt;
+  const triggerExport = async (ver?: string): Promise<void> => {
+    if (livePreview) {
+      if (!ctx.liveDeck?.storyboard || exporting) {
+        ctx.toast('This live deck has no governed storyboard export source. Nothing was downloaded.');
+        return;
+      }
+      setExporting(true);
+      try {
+        const generatedAt = Date.now();
+        const output = await buildDeckPptxExport(ctx.liveDeck.storyboard, generatedAt);
+        const blob = new Blob([output.bytes as BlobPart], { type: deckPptxMimeType() });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = output.fileName;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(url);
+        const at = new Date(generatedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        setReceipt({ fileName: output.fileName, slideCount: output.slideCount, integrityHash: output.integrityHash, at });
+        ctx.toast(`Downloaded ${output.fileName} - ${output.slideCount} slides - ${at}`);
+      } catch (reason) {
+        ctx.toast('Deck export failed - ' + (reason instanceof Error ? reason.message : 'try again'));
+      } finally {
+        setExporting(false);
+      }
+      return;
+    }
+    onExport(ver);
+  };
   return React.createElement(React.Fragment, null,
     React.createElement('div', { className: 'na-export' },
       React.createElement('div', { className: 'na-export-ico' }, Ico('download')),
       React.createElement('div', { className: 'na-export-main' },
-        React.createElement('strong', null, exported ? 'CardioNova_update.pptx' : DECK.exportFormat + ' export ready'),
-        React.createElement('span', null, slidesLabel(DECK) + ' · ' + DECK.exportSize)),
-      React.createElement(Pill, { tone: exported ? 'ok' : 'accent' }, exported ? 'exported' : 'ready')),
-    React.createElement('button', { className: 'na-btn primary full', onClick: () => onExport() }, Ico('download'), exported ? 'Download again' : 'Download PPTX'),
-    React.createElement('div', { className: 'na-kicker', style: { marginTop: 8 } }, 'Past versions'),
-    React.createElement('div', { className: 'na-vers' },
-      DECK.versions.map((v, i) => React.createElement('div', { key: i, className: 'na-ver', 'data-cur': !!v.current },
-        React.createElement('span', { className: 'vtag' }, v.v),
-        React.createElement('span', { className: 'vmain' },
-          React.createElement('strong', null, v.label),
-          React.createElement('span', { className: 'vt' }, v.t)),
-        React.createElement('div', { className: 'na-ver-acts' },
-          !v.current && React.createElement('button', { className: 'na-ver-act', onClick: () => ctx && ctx.toast('Restored ' + v.v + ' · deck reverted') }, 'Restore'),
-          React.createElement('button', { className: 'na-ver-dl', onClick: () => onExport(v.v), 'aria-label': 'Download ' + v.v, title: 'Download ' + v.v }, Ico('download')))))));
+        React.createElement('strong', null, receipt?.fileName ?? (shownExported ? 'CardioNova_update.pptx' : DECK.exportFormat + ' export ready')),
+        React.createElement('span', null, receipt ? `${receipt.slideCount} slides - ${receipt.at} - hash ${receipt.integrityHash}` : slidesLabel(DECK) + ' - ' + DECK.exportSize)),
+      React.createElement(Pill, { tone: shownExported ? 'ok' : 'accent' }, shownExported ? 'exported' : 'ready')),
+    livePreview && React.createElement('p', { className: 'na-compose-note', style: { marginTop: 10 }, role: 'status', 'data-testid': 'mobile-deck-export-receipt' },
+      Ico('shield'), receipt
+        ? `Downloaded ${receipt.fileName} - ${receipt.slideCount} slides - ${receipt.at} - integrity ${receipt.integrityHash}`
+        : 'The live storyboard exports as real PPTX bytes. Completion is shown only after the browser download starts.'),
+    React.createElement('button', { className: 'na-btn primary full', disabled: exporting, onClick: () => { void triggerExport(); } }, Ico('download'), exporting ? 'Building PPTX...' : shownExported ? 'Download again' : 'Download PPTX'),
+    livePreview
+      ? React.createElement('p', {
+          className: 'na-compose-note',
+          style: { marginTop: 12 },
+          role: 'note',
+          'data-testid': 'mobile-live-deck-version-note',
+        }, Ico('history'), 'Live version restore and historical downloads are not wired on mobile. Use the current governed export or open the deck on desktop.')
+      : React.createElement(React.Fragment, null,
+          React.createElement('div', { className: 'na-kicker', style: { marginTop: 8 } }, 'Past versions'),
+          React.createElement('div', { className: 'na-vers' },
+            DECK.versions.map((v, i) => React.createElement('div', { key: i, className: 'na-ver', 'data-cur': !!v.current },
+              React.createElement('span', { className: 'vtag' }, v.v),
+              React.createElement('span', { className: 'vmain' },
+                React.createElement('strong', null, v.label),
+                React.createElement('span', { className: 'vt' }, v.t)),
+              React.createElement('div', { className: 'na-ver-acts' },
+                !v.current && React.createElement('button', { className: 'na-ver-act', onClick: () => ctx.toast('Restored ' + v.v + ' - deck reverted') }, 'Restore'),
+                React.createElement('button', { className: 'na-ver-dl', onClick: () => { void triggerExport(v.v); }, 'aria-label': 'Download ' + v.v, title: 'Download ' + v.v }, Ico('download'))))))));
 }
 
-function slidesLabel(DECK: typeof D.DECK): string { return DECK.slides.length + ' slides'; }
+function slidesLabel(DECK: Deck): string { return DECK.slides.length + ' slides'; }
 
 // ── PRESENT (full-deck viewer — see the whole PowerPoint) ──
 function PresentOverlay({ slides, title, start, onClose }: {

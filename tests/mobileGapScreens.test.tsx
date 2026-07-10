@@ -23,7 +23,7 @@
  *    including the diagonal-scroll rejection and the drift-cancels-long-press
  *    rule — pinned as pure functions so the thresholds cannot silently drift.
  */
-import { render, screen, fireEvent, cleanup, within } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, within, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   ReviewSheet,
@@ -169,16 +169,17 @@ describe("ShareSheet", () => {
     expect(screen.getByText(/not a scannable QR/i)).toBeTruthy();
   });
 
-  it("honestly captions role/expiry as backend-pending, not shipped", () => {
+  it("states the enforced editor access and non-expiring link contract", () => {
     render(<ShareSheet ctx={makeCtx()} />);
-    expect(screen.getByTestId("gap-share-stub-caption").textContent).toMatch(/permissions backend/i);
+    expect(screen.getByTestId("gap-share-access-copy").textContent).toMatch(/join as a member, edit shared content/i);
+    expect(screen.getByTestId("gap-share-access-copy").textContent).toMatch(/does not currently expire/i);
   });
 
-  it("copies the invite and toasts on tap", () => {
+  it("does not claim the invite was copied when the clipboard is unavailable", async () => {
     const ctx = makeCtx();
     render(<ShareSheet ctx={ctx} />);
     fireEvent.click(screen.getByTestId("gap-invite-code"));
-    expect(ctx.toast).toHaveBeenCalled();
+    await waitFor(() => expect(ctx.toast).toHaveBeenCalledWith(expect.stringMatching(/was not copied/i)));
   });
 });
 

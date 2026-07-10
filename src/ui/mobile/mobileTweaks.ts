@@ -9,7 +9,7 @@ import type { TweaksConfig, PassiveMode, Density, AccentName, CopyTone, MotionNa
 
 export const DEFAULT_TWEAKS: TweaksConfig = {
   passive: "suggest",
-  navModel: "capture",
+  navModel: "home",
   density: "comfortable",
   accent: "terracotta",
   navStyle: "tabs",

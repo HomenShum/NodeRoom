@@ -1,8 +1,10 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { App } from "../ui/App";
 import { ErrorBoundary } from "./ErrorBoundary";
+import { launchAuthRequired } from "../auth/launchAuth";
 
 const url = import.meta.env.VITE_CONVEX_URL as string | undefined;
 const client = url ? new ConvexReactClient(url) : null;
@@ -18,7 +20,11 @@ if (el) {
     createRoot(el).render(
       <React.StrictMode>
         <ErrorBoundary clearSessionPrefix="noderoom:">
-          {client ? <ConvexProvider client={client}>{app}</ConvexProvider> : app}
+          {client
+            ? launchAuthRequired()
+              ? <ConvexAuthProvider client={client}>{app}</ConvexAuthProvider>
+              : <ConvexProvider client={client}>{app}</ConvexProvider>
+            : app}
         </ErrorBoundary>
       </React.StrictMode>,
     );

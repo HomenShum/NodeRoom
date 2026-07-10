@@ -2,6 +2,9 @@ export type ArtifactRef = {
   id: string;
   title: string;
   kind: string;
+  contextKind?: "artifact" | "deck_slide" | "notebook_block" | "graph_node" | "trace" | "proposal";
+  contextId?: string;
+  elementId?: string;
 };
 
 export const ARTIFACT_REF_MIME = "application/x-noderoom-artifact";
@@ -11,8 +14,11 @@ const ARTIFACT_URI_PREFIX = "noderoom-artifact:";
 
 export function encodeArtifactRef(ref: ArtifactRef): string {
   const title = ref.title.replace(/[\]\r\n]/g, " ").trim() || "Artifact";
-  const kind = encodeURIComponent(ref.kind || "artifact");
-  return `[${title}](${ARTIFACT_URI_PREFIX}${encodeURIComponent(ref.id)}?kind=${kind})`;
+  const params = new URLSearchParams({ kind: ref.kind || "artifact" });
+  if (ref.contextKind && ref.contextKind !== "artifact") params.set("context", ref.contextKind);
+  if (ref.contextId) params.set("contextId", ref.contextId);
+  if (ref.elementId) params.set("elementId", ref.elementId);
+  return `[${title}](${ARTIFACT_URI_PREFIX}${encodeURIComponent(ref.id)}?${params.toString()})`;
 }
 
 export function encodeArtifactRefLine(refs: ArtifactRef[]): string {
@@ -34,7 +40,15 @@ export function parseArtifactRefMessage(text: string): { refs: ArtifactRef[]; bo
     const [encodedId, query = ""] = match[2].split("?");
     try {
       const params = new URLSearchParams(query);
-      refs.push({ title: match[1], id: decodeURIComponent(encodedId), kind: params.get("kind") || "artifact" });
+      const contextKind = params.get("context");
+      refs.push({
+        title: match[1],
+        id: decodeURIComponent(encodedId),
+        kind: params.get("kind") || "artifact",
+        ...(isContextKind(contextKind) ? { contextKind } : {}),
+        ...(params.get("contextId") ? { contextId: params.get("contextId")! } : {}),
+        ...(params.get("elementId") ? { elementId: params.get("elementId")! } : {}),
+      });
     } catch {
       return { refs: [], body: text };
     }
@@ -57,10 +71,31 @@ export function readDraggedArtifactRef(dataTransfer: DataTransfer): ArtifactRef 
   try {
     const parsed = JSON.parse(raw) as Partial<ArtifactRef>;
     if (typeof parsed.id !== "string" || typeof parsed.title !== "string" || typeof parsed.kind !== "string") return null;
-    return { id: parsed.id, title: parsed.title, kind: parsed.kind };
+    return {
+      id: parsed.id,
+      title: parsed.title,
+      kind: parsed.kind,
+      ...(isContextKind(parsed.contextKind) ? { contextKind: parsed.contextKind } : {}),
+      ...(typeof parsed.contextId === "string" ? { contextId: parsed.contextId } : {}),
+      ...(typeof parsed.elementId === "string" ? { elementId: parsed.elementId } : {}),
+    };
   } catch {
     return null;
   }
+}
+
+export function artifactRefKey(ref: ArtifactRef): string {
+  return [ref.id, ref.contextKind ?? "artifact", ref.contextId ?? "", ref.elementId ?? ""].join(":");
+}
+
+export function artifactRefContextSuffix(refs: ArtifactRef[]): string {
+  const scoped = refs.filter((ref) => ref.contextKind && ref.contextKind !== "artifact");
+  if (!scoped.length) return "";
+  return `\n\nReferenced work context:\n${scoped.map((ref) => `- ${ref.contextKind!.replace(/_/g, " ")}: ${ref.title} (artifact ${ref.id}${ref.contextId ? `, target ${ref.contextId}` : ""}${ref.elementId ? `, element ${ref.elementId}` : ""})`).join("\n")}`;
+}
+
+function isContextKind(value: unknown): value is NonNullable<ArtifactRef["contextKind"]> {
+  return typeof value === "string" && ["artifact", "deck_slide", "notebook_block", "graph_node", "trace", "proposal"].includes(value);
 }
 
 export function hasDraggedArtifactRef(dataTransfer: DataTransfer): boolean {

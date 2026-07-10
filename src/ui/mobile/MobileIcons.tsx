@@ -124,6 +124,11 @@ const ICONS = {
     React.createElement("circle", { cx: 15, cy: 18, r: 1.2, fill: "currentColor", stroke: "none" }),
   ),
   menu: make(P("M3 6h18"), P("M3 12h18"), P("M3 18h18")),
+  more: make(
+    React.createElement("circle", { cx: 5, cy: 12, r: 1.5, fill: "currentColor", stroke: "none" }),
+    React.createElement("circle", { cx: 12, cy: 12, r: 1.5, fill: "currentColor", stroke: "none" }),
+    React.createElement("circle", { cx: 19, cy: 12, r: 1.5, fill: "currentColor", stroke: "none" }),
+  ),
   compose: make(
     P("M11 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"),
     P("M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"),

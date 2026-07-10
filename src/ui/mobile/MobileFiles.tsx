@@ -18,6 +18,22 @@ function reviewCount(ctx: MobileCtx): number {
 
 export function Files({ ctx }: { ctx: MobileCtx }) {
   const toReview = reviewCount(ctx);
+  const files = ctx.isLive
+    ? ctx.recents.map((item) => ({ id: item.id, icon: item.icon, name: item.title, meta: item.meta, tone: "accent" as const, kind: item.kind }))
+    : D.FILES;
+  const openFile = (file: (typeof files)[number]): void => {
+    if (file.kind === "deck") {
+      ctx.openSheet("artifact" as SheetId);
+      return;
+    }
+    if (file.kind === "sheet" && (!ctx.isLive || /company research/i.test(file.name))) {
+      ctx.openSheet("sheetart" as SheetId);
+      return;
+    }
+    ctx.toast(ctx.isLive
+      ? `${file.name} is live, but its mobile artifact view is not wired yet. Open it on desktop.`
+      : `Opening ${file.name} - best on desktop`);
+  };
   return React.createElement(
     React.Fragment,
     null,
@@ -28,19 +44,19 @@ export function Files({ ctx }: { ctx: MobileCtx }) {
       React.createElement(
         "div",
         { className: "na-card-body", style: { paddingTop: "var(--na-pad)" } },
-        D.FILES.map((f) =>
+        files.length === 0
+          ? React.createElement("div", { className: "na-empty" },
+              React.createElement("div", { className: "eico" }, Ico("file")),
+              React.createElement("strong", null, "No artifacts yet"),
+              React.createElement("span", null, "Add the first artifact from the desktop work surface."))
+          : files.map((f) =>
           React.createElement(
             "div",
             {
               key: f.id,
               className: "na-row",
               style: { cursor: "pointer" },
-              onClick: () =>
-                f.kind === "sheet"
-                  ? ctx.openSheet("sheetart" as SheetId)
-                  : f.kind === ("deck" as typeof f.kind)
-                    ? ctx.openSheet("artifact" as SheetId)
-                    : ctx.toast("Opening " + f.name + " — best on desktop"),
+              onClick: () => openFile(f),
             },
             React.createElement("span", { className: "ri", style: riStyle(f.tone) }, Ico(f.icon)),
             React.createElement(
@@ -55,8 +71,8 @@ export function Files({ ctx }: { ctx: MobileCtx }) {
       ),
     ),
 
-    React.createElement("div", { className: "na-kicker" }, "Spreadsheet · row preview"),
-    React.createElement(
+    ctx.row.fields.length > 0 ? React.createElement("div", { className: "na-kicker" }, "Spreadsheet · live row preview") : null,
+    ctx.row.fields.length > 0 ? React.createElement(
       "button",
       {
         className: "na-card tap accent",
@@ -92,12 +108,14 @@ export function Files({ ctx }: { ctx: MobileCtx }) {
           "Tap to open the full row — view, ask the agent, or approve. Modeling stays on desktop.",
         ),
       ),
-    ),
+    ) : null,
 
     React.createElement(
       "p",
       { className: "na-prose", style: { fontSize: 11.5, color: "var(--text-tertiary)", margin: "2px 2px 0" } },
-      "Mobile shows artifacts as cards and lets you edit a field or approve a change. Full grids, formulas, and side-by-side sources open on desktop.",
+      ctx.isLive
+        ? "Only live-backed mobile views open here. Full grids, formulas, unsupported artifact types, and verified XLSX export remain on desktop."
+        : "Mobile shows artifacts as cards and lets you edit a field or approve a change. Full grids, formulas, and side-by-side sources open on desktop.",
     ),
   );
 }
@@ -159,18 +177,23 @@ export function RowSheet({ ctx }: { ctx: MobileCtx }) {
       React.createElement(
         "div",
         { className: "na-btn-row" },
-        React.createElement("button", { className: "na-btn", onClick: () => ctx.toast("Edit one field — full row on desktop") }, Ico("pen"), "Edit row"),
+        React.createElement("button", { className: "na-btn", onClick: () => ctx.openSheet("sheetart") }, Ico("pen"), ctx.isLive ? "Edit live field" : "Edit row"),
         React.createElement(
           "button",
           {
             className: "na-btn primary",
             onClick: () => {
+              if (ctx.isLive) {
+                ctx.closeSheet();
+                ctx.setTab("inbox");
+                return;
+              }
               ctx.toast("Row proposal approved");
               ctx.closeSheet();
             },
           },
           Ico("check"),
-          "Approve",
+          ctx.isLive ? "Review proposals" : "Approve",
         ),
       ),
     ),

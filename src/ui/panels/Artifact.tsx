@@ -39,6 +39,7 @@ import { prepareDownstreamDrafts, type PreparedDownstreamDraft } from "../../nod
 import { isWorkbookPreviewDoc, workbookPreviewArtifactFromDataUrl } from "./workbookFilePreview";
 import { isOfficePreviewDoc, officePreviewFromDataUrl, type OfficePreview } from "./officeFilePreview";
 import { RoomHome } from "../room/RoomHome";
+import { WorkArtifactsPanel } from "../workArtifacts/WorkArtifactsPanel";
 
 /** Downstream handoff destinations → compact icon + short label (replaces 5 wide ghost buttons). */
 const HANDOFF_ICONS: Record<string, LucideIcon> = { gmail: Mail, notion: FileText, slack: Hash, linear: Layers, linkedin: Linkedin };
@@ -161,13 +162,18 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   // Home is a persistent pinned pseudo-tab (primary surface only) — like Trace, it overlays the
   // work surface with the Room Home command center (inventory + work lanes) without disturbing openIds.
   const [homeOpen, setHomeOpen] = useState(false);
+  // Read-only proof bundle: a unified view over room artifacts, proposals, traces, graph, decks,
+  // and exports. It adapts existing state; it does not own mutations.
+  const [workArtifactsOpen, setWorkArtifactsOpen] = useState(false);
   // Knowledge graph: a derived node-link view of how this room's artifacts reference each other.
   const [graphOpen, setGraphOpen] = useState(false);
   const [editErr, setEditErr] = useState<string | null>(null);
   const [exportBusy, setExportBusy] = useState(false);
   const [exportErr, setExportErr] = useState<string | null>(null);
+  const [exportOk, setExportOk] = useState<string | null>(null);
   useEffect(() => { if (!editErr) return; const t = setTimeout(() => setEditErr(null), 4000); return () => clearTimeout(t); }, [editErr]);
   useEffect(() => { if (!exportErr) return; const t = setTimeout(() => setExportErr(null), 6000); return () => clearTimeout(t); }, [exportErr]);
+  useEffect(() => { if (!exportOk) return; const t = setTimeout(() => setExportOk(null), 6000); return () => clearTimeout(t); }, [exportOk]);
   useEffect(() => { setTab(tabForArt(artId)); }, [artId, wiki?.id, sheet?.id, research?.id, note?.id, wall?.id, arts.length]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -236,7 +242,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
     const visibleIds = new Set(visibleOpenTabArts.map((a) => a.id));
     overflowTabArts = openTabArts.filter((a) => !visibleIds.has(a.id));
   }
-  const overflowActive = !traceOpen && !homeOpen && !graphOpen && overflowTabArts.some((a) => a.id === artId);
+  const overflowActive = !traceOpen && !homeOpen && !workArtifactsOpen && !graphOpen && overflowTabArts.some((a) => a.id === artId);
   // Inline rename (double-click / F2) — replaces the window.prompt modal, honoring the same
   // inline-not-modal standard we hold cells to. Enter commits, Esc cancels; auto-saves via setArtifactMeta.
   const renameArtifact = (a: Art) => setRenamingId(a.id);
@@ -263,8 +269,10 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
     if (!sheet || exportBusy) return;
     setExportBusy(true);
     setExportErr(null);
+    setExportOk(null);
     try {
-      await exportSheetAsXlsx(sheet, surfaceRef.current, arts);
+      const receipt = await exportSheetAsXlsx(sheet, surfaceRef.current, arts);
+      setExportOk(`Downloaded ${receipt.fileName} · ${receipt.rowCount.toLocaleString()} rows · ${receipt.sheetCount} sheet${receipt.sheetCount === 1 ? "" : "s"} · ${receipt.byteCount.toLocaleString()} bytes · ${receipt.at}`);
     } catch (error) {
       console.error("XLSX export failed", error);
       setExportErr("XLSX export failed");
@@ -279,13 +287,13 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
         <div className="r-tabs fx-tabs" data-testid={surfaceKey === "secondary" ? "artifact-tabs-secondary" : "artifact-tabs"}>
           {/* Home is a pinned, non-closeable pseudo-tab: the room command center is always one click away. */}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab fx-tab r-hometab" data-active={String(homeOpen)} data-testid="home-tab" title="Room Home — command center, inventory, and work lanes" onClick={() => { setHomeOpen(true); setTraceOpen(false); setGraphOpen(false); }}>
+            <button type="button" className="r-tab fx-tab r-hometab" data-active={String(homeOpen)} data-testid="home-tab" title="Room Home — command center, inventory, and work lanes" onClick={() => { setHomeOpen(true); setWorkArtifactsOpen(false); setTraceOpen(false); setGraphOpen(false); }}>
               <Home size={13} /> Home
             </button>
           )}
           {openIds
             ? visibleOpenTabArts.map((a) => (
-                <button key={a.id} className="r-tab fx-tab r-filetab" data-active={String(!traceOpen && !homeOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setGraphOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
+                <button key={a.id} className="r-tab fx-tab r-filetab" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(false); setGraphOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
                   {tabIcon(a)}
                   {renamingId === a.id ? (
                     <input className="r-filetab-rename" defaultValue={a.title} autoFocus aria-label="Rename file"
@@ -302,7 +310,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
                 </button>
               ))
             : TABS.filter((t) => artFor(t.id)).map((t) => (
-                <button key={t.id} className="r-tab fx-tab" data-active={String(!traceOpen && !homeOpen && !graphOpen && activeTab === t.id)} onClick={() => { pick(t.id); setTraceOpen(false); setHomeOpen(false); setGraphOpen(false); }}>
+                <button key={t.id} className="r-tab fx-tab" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !graphOpen && activeTab === t.id)} onClick={() => { pick(t.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(false); setGraphOpen(false); }}>
                   <t.Icon size={13} /> {t.label}
                 </button>
               ))}
@@ -313,19 +321,24 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
               </summary>
               <div className="r-tab-overflow-menu" role="menu">
                 {openTabArts.map((a) => (
-                  <button key={a.id} type="button" role="menuitem" className="r-tab-overflow-item" data-active={String(!traceOpen && !homeOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setGraphOpen(false); tabMenuRef.current?.removeAttribute("open"); }}>{tabIcon(a)} <span>{a.title}</span></button>
+                  <button key={a.id} type="button" role="menuitem" className="r-tab-overflow-item" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(false); setGraphOpen(false); tabMenuRef.current?.removeAttribute("open"); }}>{tabIcon(a)} <span>{a.title}</span></button>
                 ))}
               </div>
             </details>
           )}
+          {surfaceKey !== "secondary" && (
+            <button type="button" className="r-tab fx-tab r-artifact-bundletab" data-active={String(workArtifactsOpen)} data-testid="work-artifacts-tab" title="Room proof bundle — artifacts, proposals, traces, graph, and exports" onClick={() => { setWorkArtifactsOpen(true); setHomeOpen(false); setTraceOpen(false); setGraphOpen(false); }}>
+              <Package size={13} /> Artifacts
+            </button>
+          )}
           {/* Trace is a pinned work-surface tab alongside the artifacts (agent + QA provenance). */}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab fx-tab r-tracetab" data-active={String(traceOpen)} data-testid="trace-tab" title="Agent + QA trace records" onClick={() => { setTraceOpen(true); setHomeOpen(false); setGraphOpen(false); }}>
+            <button type="button" className="r-tab fx-tab r-tracetab" data-active={String(traceOpen)} data-testid="trace-tab" title="Agent + QA trace records" onClick={() => { setTraceOpen(true); setHomeOpen(false); setWorkArtifactsOpen(false); setGraphOpen(false); }}>
               <Activity size={13} /> Run trace
             </button>
           )}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab fx-tab r-graphtab" data-active={String(graphOpen)} data-testid="graph-tab" title="Knowledge graph — how this room's artifacts reference each other" onClick={() => { setGraphOpen(true); setHomeOpen(false); setTraceOpen(false); }}>
+            <button type="button" className="r-tab fx-tab r-graphtab" data-active={String(graphOpen)} data-testid="graph-tab" title="Knowledge graph — how this room's artifacts reference each other" onClick={() => { setGraphOpen(true); setHomeOpen(false); setWorkArtifactsOpen(false); setTraceOpen(false); }}>
               <Share2 size={13} /> Entity graph
             </button>
           )}
@@ -347,9 +360,9 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
             {exportBusy ? "Preparing..." : "Export XLSX"}
           </button>
         )}
-        {activeTab === "sheet" && sheet && (exportBusy || exportErr) && (
+        {activeTab === "sheet" && sheet && (exportBusy || exportErr || exportOk) && (
           <span className="r-export-status" role={exportErr ? "alert" : "status"} data-testid="artifact-export-xlsx-status">
-            {exportBusy ? "Building workbook" : exportErr}
+            {exportBusy ? "Building workbook" : exportErr ?? exportOk}
           </span>
         )}
         {canToggleVis ? (
@@ -382,6 +395,8 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
         />
       ) : traceOpen ? (
         <TraceSurface roomId={roomId} onOpenSource={openTraceSource} />
+      ) : workArtifactsOpen ? (
+        <WorkArtifactsPanel roomId={roomId} me={me} onOpenArtifact={(id) => { onArt(id); setWorkArtifactsOpen(false); }} />
       ) : graphOpen ? (
         <KnowledgeGraph roomId={roomId} onOpenArtifact={(id) => { onArt(id); setGraphOpen(false); }} />
       ) : (
@@ -400,7 +415,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
         </>
       )}
 
-      {!traceOpen && !graphOpen && activeTab !== "note" && (
+      {!traceOpen && !workArtifactsOpen && !graphOpen && activeTab !== "note" && (
         <TraceStrip
           roomId={roomId}
           me={me}
@@ -2305,11 +2320,18 @@ function sanitizeFilename(name: string): string {
  * by the toolbar button (data-testid="artifact-export-xlsx") that is gated to the live sheet
  * surfaces, including uploaded workbooks now rendered through the shared Sheet 1 grid.
  *
- * TODO(mobile-export): the mobile #mobile route currently has a Download XLSX button that emits a
- * fake toast (flagged by R31). Wire it to this same path (extract into a shared helper) in a
- * follow-up PR; out of scope here.
+ * Mobile live sheets deliberately keep XLSX disabled until they can identify the selected artifact
+ * and return this same byte-backed receipt; no success toast substitutes for a download.
  */
-async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null, allArts: Art[] = [art]): Promise<void> {
+interface XlsxDownloadReceipt {
+  fileName: string;
+  rowCount: number;
+  sheetCount: number;
+  byteCount: number;
+  at: string;
+}
+
+async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null, allArts: Art[] = [art]): Promise<XlsxDownloadReceipt> {
   const ExcelJSModule = await import("exceljs");
   const ExcelJS = (ExcelJSModule as { default?: typeof import("exceljs") }).default ?? (ExcelJSModule as unknown as typeof import("exceljs"));
   const workbook = new ExcelJS.Workbook();
@@ -2381,6 +2403,13 @@ async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null, all
   document.body.removeChild(anchor);
   // Keep the object URL alive long enough for Chromium/WebKit to finish download negotiation.
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  return {
+    fileName: anchor.download,
+    rowCount: rows.length,
+    sheetCount: workbook.worksheets.length,
+    byteCount: buffer.byteLength,
+    at: new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
+  };
 }
 
 function workbookExportSheets(active: Art, allArts: Art[]): Art[] {

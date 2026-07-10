@@ -16,7 +16,7 @@
 import { convexTest } from "convex-test";
 import { describe, expect, it } from "vitest";
 import schema from "../convex/schema";
-import { api } from "../convex/_generated/api";
+import { api, internal } from "../convex/_generated/api";
 
 const modules = import.meta.glob("../convex/**/*.ts");
 // Node-only agent modules aren't needed for room/artifact mutations and don't import in edge-runtime.
@@ -133,6 +133,45 @@ describe("atomic room create — no orphaned rooms", () => {
     // Still exactly one, still-complete room — the rejected attempt added nothing.
     expect(await allRooms(t)).toHaveLength(1);
     expect(await artifactsIn(t, first.roomId)).toHaveLength(STARTER_TITLES.length);
+  });
+
+  it("resumes the original host on a lost create response when the room token is retried", async () => {
+    const t = convexTest(schema, modules);
+    const created = await t.mutation(api.rooms.createStarterRoom, {
+      code: "RESUME1", title: "Recovery room", hostName: "Maya", authToken: HOST_TOKEN, deferHeavySeed: true,
+    });
+
+    const resumed = await t.mutation(api.rooms.joinAnonymous, {
+      code: "RESUME1", name: "Maya", authToken: HOST_TOKEN, anon: false,
+    });
+    if (!resumed || "error" in resumed) throw new Error("resume failed");
+
+    expect(String(resumed.memberId)).toBe(String(created.memberId));
+    expect(resumed.resumed).toBe(true);
+    expect(await membersIn(t, created.roomId)).toHaveLength(1);
+    expect((await tracesIn(t, created.roomId)).filter((trace) => trace.type === "member_joined")).toHaveLength(0);
+  });
+
+  it("fast live create returns the room shell before the scale fixture backfills", async () => {
+    const t = convexTest(schema, modules);
+    const created = await t.mutation(api.rooms.createStarterRoom, {
+      code: "FAST01", title: "Startup diligence", hostName: "Maya", authToken: HOST_TOKEN, autoAllow: true, deferHeavySeed: true,
+    });
+    const pending = await t.query(api.rooms.meta, {
+      roomId: created.roomId,
+      requester: { actor: { kind: "user", id: String(created.memberId), name: "Maya" }, token: HOST_TOKEN },
+    });
+    expect(pending?.room.starterBackfill).toBe("pending");
+    expect(pending?.artifacts.some((artifact) => artifact.title === "Q3 variance")).toBe(true);
+    expect(pending?.artifacts.some((artifact) => artifact.title === "Company research")).toBe(false);
+
+    await t.mutation(internal.rooms.finishStarterRoom, { roomId: created.roomId, memberId: created.memberId });
+    const ready = await t.query(api.rooms.meta, {
+      roomId: created.roomId,
+      requester: { actor: { kind: "user", id: String(created.memberId), name: "Maya" }, token: HOST_TOKEN },
+    });
+    expect(ready?.room.starterBackfill).toBe("ready");
+    expect(ready?.artifacts.some((artifact) => artifact.title === "Company research")).toBe(true);
   });
 
   it("create with seedArtifacts seeds a custom artifact (+ meta) atomically in one transaction", async () => {

@@ -8,12 +8,13 @@ function source(path: string): string {
 describe("design prototype parity", () => {
   // Landing framing moved from the room prototype to landing-v2
   // (design-reference/room/landing-v2.jsx, Prod Parity Handoff §1):
-  // "Diligence that shows its work." + looping demo + live-proof pill.
+  // Literal first-run value + looping demo + live-proof pill.
   test("desktop landing keeps the landing-v2 design framing", () => {
     const landing = source("src/ui/Landing.tsx");
 
-    expect(landing).toContain("Diligence that shows its work");
-    expect(landing).toContain("NodeRoom · live diligence rooms");
+    expect(landing).toContain("Work with AI.");
+    expect(landing).toContain("Review every change.");
+    expect(landing).toContain("Shared workrooms for people and NodeAgents");
     // The key visual is the scripted product-demo loop, every frame present.
     for (const frame of ["lock", "cite", "commit", "draft", "smart-merge", "v43"]) {
       expect(landing).toContain(`"${frame}"`);
@@ -24,6 +25,8 @@ describe("design prototype parity", () => {
     // Entry flows survive the redesign — e2e depends on these testids.
     expect(landing).toContain("start-demo-room");
     expect(landing).toContain("create-room-submit");
+    expect(landing).toContain("<span>Create a room</span>");
+    expect(landing).toContain('className="r-btn-context">Sample');
     // The old prototype copy is fully retired, not half-migrated.
     expect(landing).not.toContain("NodeAgent · live collaborative rooms");
     expect(landing).not.toContain("Chat, a shared workspace, and NodeAgents");

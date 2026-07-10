@@ -2,8 +2,11 @@ import { describe, expect, it } from "vitest";
 import type { Actor, Artifact, DataframeColumn, Element, Proposal, TraceEvent } from "../src/engine/types";
 import { buildSemanticGraph } from "../src/ui/graph/semanticGraph";
 import { applySemanticGraphFilters } from "../src/ui/graph/semanticGraphFilters";
+import { selectSemanticGraphCluster, summarizeSemanticGraphClusters } from "../src/ui/graph/semanticGraphClusters";
 import { layoutSemanticGraph } from "../src/ui/graph/semanticGraphLayout";
+import { rankSemanticConnectionPaths } from "../src/ui/graph/semanticGraphPaths";
 import { selectSemanticNeighborhood } from "../src/ui/graph/semanticGraphSelectors";
+import { buildDeckStoryboardFromRoom } from "../src/ui/workArtifacts/deckStoryboard";
 
 const human: Actor = { kind: "user", id: "u-priya", name: "Priya" };
 const agent: Actor = { kind: "agent", id: "room-agent", name: "Room NodeAgent", scope: "public" };
@@ -70,6 +73,26 @@ const notebook: Artifact = {
   order: ["b1"],
   elements: {
     b1: cell("b1", { text: "Priya researched CardioNova and found the PitchBook source." }),
+  },
+};
+
+const richNotebook: Artifact = {
+  id: "art-rich-note",
+  roomId: "room-1",
+  kind: "note",
+  title: "Diligence notebook",
+  version: 2,
+  createdBy: human,
+  updatedAt: 7,
+  order: ["doc"],
+  elements: {
+    doc: cell("doc", `
+      <h1 data-blockid="nb-title">CardioNova diligence notebook</h1>
+      <p data-blockid="nb-human">Priya researched CardioNova and summarized the board memo.</p>
+      <p data-blockid="nb-agent" data-author-kind="agent" data-status="needs_review">
+        Runway claim needs transcript source <a href="https://runway.example/cardionova">runway source</a>.
+      </p>
+    `),
   },
 };
 
@@ -157,6 +180,69 @@ describe("semantic entity graph", () => {
     expect(selectedLabels).toContain("CardioNova");
     expect(selection.sections.some((section) => section.id === "researched-companies")).toBe(true);
     expect(selection.sections.some((section) => section.id === "rows-blocks")).toBe(true);
+    expect(selection.paths?.some((path) => path.label.includes("Priya") && path.label.includes("CardioNova"))).toBe(true);
+  });
+
+  it("ranks relevant person-to-company evidence paths for graph highlighting", () => {
+    const graph = buildSemanticGraph({ roomId: "room-1", artifacts: [researchSheet, notebook], traces: [trace], proposals: [proposal] });
+    const person = graph.nodes.find((node) => node.kind === "person" && node.label === "Priya");
+    expect(person).toBeTruthy();
+
+    const paths = rankSemanticConnectionPaths(graph, person!.id, { maxHops: 3, maxPaths: 8 });
+
+    expect(paths.length).toBeGreaterThan(0);
+    expect(paths.some((path) => path.label.includes("Priya") && path.label.includes("researched") && path.label.includes("CardioNova"))).toBe(true);
+    expect(paths.some((path) => path.label.includes("Series A source") || path.label.includes("pitchbook.example"))).toBe(true);
+    expect(paths[0].score).toBeGreaterThanOrEqual(paths[paths.length - 1].score);
+  });
+
+  it("derives graph nodes from structured notebook blocks and citations", () => {
+    const graph = buildSemanticGraph({ roomId: "room-1", artifacts: [researchSheet, richNotebook], traces: [trace] });
+
+    expect(graph.nodes.some((node) => node.kind === "notebook_block" && node.label.includes("CardioNova diligence notebook"))).toBe(true);
+    expect(graph.nodes.some((node) => node.kind === "notebook_block" && node.label.includes("Runway claim needs transcript source"))).toBe(true);
+    expect(graph.nodes.some((node) => node.kind === "source" && node.label === "runway.example")).toBe(true);
+    expect(graph.nodes.some((node) => node.kind === "open_question" && node.label.includes("Runway claim"))).toBe(true);
+    expect(graph.edges.some((edge) => edge.kind === "mentioned_in" && edge.label === "mentions")).toBe(true);
+    expect(graph.edges.some((edge) => edge.kind === "cited" && edge.label === "cites source")).toBe(true);
+  });
+
+  it("links storyboard deck claims back to source artifacts, notebook blocks, proposals, traces, and evidence", () => {
+    const storyboard = buildDeckStoryboardFromRoom({
+      roomId: "room-1",
+      roomTitle: "Startup diligence",
+      artifacts: [researchSheet, richNotebook],
+      traces: [trace],
+      proposals: [proposal],
+    });
+    const graph = buildSemanticGraph({
+      roomId: "room-1",
+      artifacts: [researchSheet, richNotebook],
+      traces: [trace],
+      proposals: [proposal],
+      decks: [storyboard],
+    });
+
+    const deck = graph.nodes.find((node) => node.kind === "deck" && node.label === "Startup diligence readout");
+    const noteSlide = graph.nodes.find((node) => node.kind === "deck_slide" && node.label === "Diligence notebook");
+    const verifiedClaim = graph.nodes.find((node) => node.kind === "deck_claim" && node.refs.some((ref) => ref.evidenceId === "ev-funding"));
+    const reviewClaim = graph.nodes.find((node) => node.kind === "deck_claim" && node.refs.some((ref) => ref.proposalId === "proposal-1") && node.status === "needs_review");
+
+    expect(deck).toBeTruthy();
+    expect(noteSlide).toBeTruthy();
+    expect(verifiedClaim).toBeTruthy();
+    expect(reviewClaim).toBeTruthy();
+    expect(graph.edges.some((edge) => edge.kind === "belongs_to" && edge.label === "contains slide" && edge.source === deck!.id)).toBe(true);
+    expect(graph.edges.some((edge) => edge.kind === "derived_from" && edge.label === "draws from artifact" && edge.refs.some((ref) => ref.artifactId === "art-rich-note"))).toBe(true);
+    expect(graph.edges.some((edge) => edge.kind === "supported_by" && edge.label === "supported by evidence" && edge.source === verifiedClaim!.id)).toBe(true);
+    expect(graph.edges.some((edge) => edge.kind === "reviewed" && edge.label === "needs proposal review" && edge.source === reviewClaim!.id)).toBe(true);
+    expect(graph.edges.some((edge) => edge.kind === "derived_from" && edge.label === "derived from trace" && edge.source === reviewClaim!.id)).toBe(true);
+
+    const notePaths = rankSemanticConnectionPaths(graph, noteSlide!.id, { maxHops: 4, maxPaths: 16 });
+    const reviewPaths = rankSemanticConnectionPaths(graph, reviewClaim!.id, { maxHops: 4, maxPaths: 16 });
+
+    expect(notePaths.some((path) => path.label.includes("contains block") && path.label.includes("CardioNova diligence notebook"))).toBe(true);
+    expect(reviewPaths.some((path) => path.label.includes("needs proposal review") && path.label.includes("pending set proposal"))).toBe(true);
   });
 
   it("filters to source-backed evidence without static mock nodes", () => {
@@ -184,6 +270,23 @@ describe("semantic entity graph", () => {
     const second = layoutSemanticGraph(graph, { selectedId: company!.id });
     expect(first.get(company!.id)).toEqual({ x: 0, y: 0 });
     expect([...first.entries()]).toEqual([...second.entries()]);
+  });
+
+  it("ranks clusters and isolates them with bounded neighbor expansion", () => {
+    const graph = buildSemanticGraph({ roomId: "room-1", artifacts: [researchSheet, richNotebook], traces: [trace], proposals: [proposal] });
+    const summaries = summarizeSemanticGraphClusters(graph);
+    const companyCluster = summaries.find((cluster) => cluster.kind === "company" && cluster.label.includes("CardioNova"));
+    expect(companyCluster).toBeTruthy();
+    expect(companyCluster!.nodeCount).toBeGreaterThan(1);
+    expect(companyCluster!.relevanceScore).toBeGreaterThan(0);
+
+    const isolated = selectSemanticGraphCluster(graph, companyCluster!.id, { neighborDepth: 0 });
+    const expanded = selectSemanticGraphCluster(graph, companyCluster!.id, { neighborDepth: 1, maxNodes: 40 });
+    expect(isolated.nodes.length).toBe(companyCluster!.nodeCount);
+    expect(isolated.edges.every((edge) => isolated.nodes.some((node) => node.id === edge.source) && isolated.nodes.some((node) => node.id === edge.target))).toBe(true);
+    expect(expanded.nodes.length).toBeGreaterThanOrEqual(isolated.nodes.length);
+    expect(expanded.nodes.length).toBeLessThanOrEqual(40);
+    expect(expanded.clusters.some((cluster) => cluster.id === companyCluster!.id)).toBe(true);
   });
 
   it("keeps a 250-plus-node fixture derivable, filterable, and layoutable", () => {

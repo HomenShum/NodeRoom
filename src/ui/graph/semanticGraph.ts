@@ -1,4 +1,6 @@
 import type { Actor, Artifact, CellEvidence, CellPayload, DataframeColumn, Element } from "../../engine/types";
+import type { DeckClaimStatus, DeckStoryboardStatus } from "../workArtifacts/deckStoryboard";
+import { buildNotebookArtifactStructure, type NotebookBlockDigest } from "../workArtifacts/notebookStructure";
 import {
   CELL_STATUS_TO_SEMANTIC_STATUS,
   type SemanticGraphCluster,
@@ -143,6 +145,8 @@ const extractUrls = (text: string): string[] => {
   return [...new Set(matches.map((url) => url.replace(/[.,;:)]+$/, "")))];
 };
 
+const unique = (values: Array<string | undefined>): string[] => [...new Set(values.filter((value): value is string => Boolean(value)))];
+
 const actorNodeKind = (actor: Actor): SemanticGraphNodeKind => actor.kind === "agent" ? "agent_job" : "person";
 
 const actorLabel = (actor: Actor): string => actor.kind === "agent" ? actor.name.replace(/\s*\(.*?\)\s*$/g, "") : actor.name;
@@ -221,6 +225,18 @@ const ensureArtifactNode = (graph: MutableGraph, artifact: Artifact): SemanticGr
   weight: artifact.kind === "sheet" ? 3 : 2,
   meta: { artifactKind: artifact.kind, version: artifact.version },
 });
+
+const deckStatus = (status: DeckStoryboardStatus): SemanticGraphStatus => {
+  if (status === "approved") return "source_backed";
+  if (status === "needs_review") return "needs_review";
+  return "manual";
+};
+
+const claimStatus = (status: DeckClaimStatus): SemanticGraphStatus => {
+  if (status === "verified") return "source_backed";
+  if (status === "needs_review") return "needs_review";
+  return "manual";
+};
 
 const inferFactKind = (column: DataframeColumn, text: string): SemanticGraphNodeKind => {
   if (columnMatches(column, PROJECT_RE)) return "project";
@@ -521,78 +537,128 @@ const existingEntityNodes = (graph: MutableGraph): SemanticGraphNode[] => [...gr
   node.kind === "company" || node.kind === "person" || node.kind === "project" || node.kind === "achievement" || node.kind === "funding" || node.kind === "event"
 ));
 
-const deriveTextArtifacts = (graph: MutableGraph, artifacts: Artifact[]): void => {
+const notebookBlockStatus = (block: NotebookBlockDigest): SemanticGraphStatus => {
+  if (block.status === "needs_review") return "needs_review";
+  if (block.sourceIds.length > 0) return "source_backed";
+  if (block.role === "agent") return "graph_inferred";
+  return "manual";
+};
+
+const connectTextBlock = (
+  graph: MutableGraph,
+  artifact: Artifact,
+  artifactNode: SemanticGraphNode,
+  block: {
+    id: string;
+    elementId: string;
+    label: string;
+    status: SemanticGraphStatus;
+    sourceIds: string[];
+    refs?: SemanticGraphRef[];
+  },
+  mentionable: SemanticGraphNode[],
+): void => {
+  const blockNode = ensureNode(graph, {
+    id: scopedNodeId("notebook_block", artifact.id, block.id),
+    kind: "notebook_block",
+    label: truncate(block.label, LABEL_LIMIT),
+    subtitle: artifact.title,
+    status: block.status,
+    refs: block.refs?.length ? block.refs : [{ artifactId: artifact.id, artifactTitle: artifact.title, elementId: block.elementId }],
+  });
+  ensureEdge(graph, {
+    id: edgeId("belongs_to", artifactNode.id, blockNode.id, block.id),
+    source: artifactNode.id,
+    target: blockNode.id,
+    kind: "belongs_to",
+    label: "contains block",
+    status: block.status,
+    refs: [{ artifactId: artifact.id, artifactTitle: artifact.title, elementId: block.elementId }],
+  });
+  connectCellActor(graph, artifact.elements[block.elementId], blockNode.id, { artifactId: artifact.id, artifactTitle: artifact.title, elementId: block.elementId }, "authored");
+  const lower = block.label.toLowerCase();
+  for (const target of mentionable) {
+    if (lower.includes(target.label.toLowerCase())) {
+      ensureEdge(graph, {
+        id: edgeId("mentioned_in", blockNode.id, target.id, block.id),
+        source: blockNode.id,
+        target: target.id,
+        kind: "mentioned_in",
+        label: "mentions",
+        status: block.status === "manual" ? "graph_inferred" : block.status,
+        refs: [{ artifactId: artifact.id, artifactTitle: artifact.title, elementId: block.elementId }],
+      });
+    }
+  }
+  for (const sourceId of unique([...block.sourceIds, ...extractUrls(block.label)])) {
+    const sourceNode = createSourceNode(graph, sourceId, { artifactId: artifact.id, artifactTitle: artifact.title, elementId: block.elementId, sourceUrl: sourceId }, "source_backed");
+    ensureEdge(graph, {
+      id: edgeId("cited", blockNode.id, sourceNode.id, sourceId),
+      source: blockNode.id,
+      target: sourceNode.id,
+      kind: "cited",
+      label: "cites source",
+      status: "source_backed",
+      refs: [{ artifactId: artifact.id, artifactTitle: artifact.title, elementId: block.elementId, sourceUrl: sourceId }],
+    });
+  }
+  if (QUESTION_RE.test(block.label) || block.status === "needs_review") {
+    const question = ensureNode(graph, {
+      id: scopedNodeId("open_question", artifact.id, `${block.id}:${block.label}`),
+      kind: "open_question",
+      label: truncate(block.label, LABEL_LIMIT),
+      subtitle: artifact.title,
+      status: "needs_review",
+      refs: [{ artifactId: artifact.id, artifactTitle: artifact.title, elementId: block.elementId }],
+    });
+    ensureEdge(graph, {
+      id: edgeId("reviewed", blockNode.id, question.id, block.id),
+      source: blockNode.id,
+      target: question.id,
+      kind: "reviewed",
+      label: block.status === "needs_review" ? "needs review" : "raises question",
+      status: "needs_review",
+      refs: [{ artifactId: artifact.id, artifactTitle: artifact.title, elementId: block.elementId }],
+    });
+  }
+};
+
+const deriveTextArtifacts = (graph: MutableGraph, input: SemanticGraphInput): void => {
+  const artifacts = input.artifacts;
   const mentionable = existingEntityNodes(graph).filter((node) => node.label.length >= 3);
   for (const artifact of artifacts.filter((item) => item.kind !== "sheet")) {
     const artifactNode = ensureArtifactNode(graph, artifact);
+    if (artifact.kind === "note") {
+      const notebook = buildNotebookArtifactStructure(artifact, { traces: input.traces, proposals: input.proposals });
+      for (const block of notebook.blocks.slice(0, 120)) {
+        connectTextBlock(graph, artifact, artifactNode, {
+          id: block.blockId ?? block.id,
+          elementId: block.elementId,
+          label: block.text,
+          status: notebookBlockStatus(block),
+          sourceIds: block.sourceIds,
+          refs: [{
+            artifactId: artifact.id,
+            artifactTitle: artifact.title,
+            elementId: block.blockId ?? block.elementId,
+            label: block.kind,
+          }],
+        }, mentionable);
+      }
+      continue;
+    }
     for (const elementId of elementIdsOf(artifact).slice(0, 120)) {
       const element = artifact.elements[elementId];
       if (!element) continue;
       const text = semanticCellText(element.value);
       if (!text) continue;
-      const blockNode = ensureNode(graph, {
-        id: scopedNodeId("notebook_block", artifact.id, elementId),
-        kind: "notebook_block",
-        label: truncate(text, LABEL_LIMIT),
-        subtitle: artifact.title,
+      connectTextBlock(graph, artifact, artifactNode, {
+        id: elementId,
+        elementId,
+        label: text,
         status: "manual",
-        refs: [{ artifactId: artifact.id, artifactTitle: artifact.title, elementId }],
-      });
-      ensureEdge(graph, {
-        id: edgeId("belongs_to", artifactNode.id, blockNode.id, elementId),
-        source: artifactNode.id,
-        target: blockNode.id,
-        kind: "belongs_to",
-        label: "contains block",
-        status: "manual",
-        refs: [{ artifactId: artifact.id, artifactTitle: artifact.title, elementId }],
-      });
-      connectCellActor(graph, element, blockNode.id, { artifactId: artifact.id, artifactTitle: artifact.title, elementId }, "authored");
-      const lower = text.toLowerCase();
-      for (const target of mentionable) {
-        if (lower.includes(target.label.toLowerCase())) {
-          ensureEdge(graph, {
-            id: edgeId("mentioned_in", blockNode.id, target.id, elementId),
-            source: blockNode.id,
-            target: target.id,
-            kind: "mentioned_in",
-            label: "mentions",
-            status: "graph_inferred",
-            refs: [{ artifactId: artifact.id, artifactTitle: artifact.title, elementId }],
-          });
-        }
-      }
-      for (const url of extractUrls(text)) {
-        const sourceNode = createSourceNode(graph, url, { artifactId: artifact.id, artifactTitle: artifact.title, elementId }, "source_backed");
-        ensureEdge(graph, {
-          id: edgeId("cited", blockNode.id, sourceNode.id, url),
-          source: blockNode.id,
-          target: sourceNode.id,
-          kind: "cited",
-          label: "cites source",
-          status: "source_backed",
-          refs: [{ artifactId: artifact.id, artifactTitle: artifact.title, elementId, sourceUrl: url }],
-        });
-      }
-      if (QUESTION_RE.test(text)) {
-        const question = ensureNode(graph, {
-          id: scopedNodeId("open_question", artifact.id, `${elementId}:${text}`),
-          kind: "open_question",
-          label: truncate(text, LABEL_LIMIT),
-          subtitle: artifact.title,
-          status: "needs_review",
-          refs: [{ artifactId: artifact.id, artifactTitle: artifact.title, elementId }],
-        });
-        ensureEdge(graph, {
-          id: edgeId("reviewed", blockNode.id, question.id, elementId),
-          source: blockNode.id,
-          target: question.id,
-          kind: "reviewed",
-          label: "raises question",
-          status: "needs_review",
-          refs: [{ artifactId: artifact.id, artifactTitle: artifact.title, elementId }],
-        });
-      }
+        sourceIds: extractUrls(text),
+      }, mentionable);
     }
   }
 };
@@ -705,6 +771,205 @@ const deriveProposals = (graph: MutableGraph, input: SemanticGraphInput): void =
         status: proposalNode.status,
         refs: [{ proposalId: proposal.id, artifactId: proposal.artifactId }],
       });
+    }
+  }
+};
+
+const findNodeWithRef = (
+  graph: MutableGraph,
+  predicate: (ref: SemanticGraphRef) => boolean,
+  kind?: SemanticGraphNodeKind,
+): SemanticGraphNode | undefined => [...graph.nodes.values()].find((node) => (!kind || node.kind === kind) && node.refs.some(predicate));
+
+const deriveDeckStoryboards = (graph: MutableGraph, input: SemanticGraphInput): void => {
+  for (const deck of input.decks ?? []) {
+    const deckNode = ensureNode(graph, {
+      id: nodeId("deck", deck.deckId),
+      kind: "deck",
+      label: truncate(deck.title, LABEL_LIMIT),
+      subtitle: `${deck.slides.length} storyboard slides`,
+      status: deckStatus(deck.storyboardStatus),
+      refs: [{ deckId: deck.deckId, label: "storyboard" }],
+      weight: 3,
+      meta: { planHash: deck.planHash, version: deck.version },
+    });
+
+    for (const slide of deck.slides) {
+      const slideNode = ensureNode(graph, {
+        id: scopedNodeId("deck_slide", deck.deckId, slide.slideId),
+        kind: "deck_slide",
+        label: truncate(slide.title, LABEL_LIMIT),
+        subtitle: slide.purpose,
+        status: deckStatus(slide.status),
+        refs: [{
+          deckId: deck.deckId,
+          slideId: slide.slideId,
+          artifactId: slide.sourceArtifactIds[0],
+          label: "storyboard slide",
+        }],
+        weight: 2,
+        meta: {
+          claimCount: slide.claims.length,
+          unresolvedCount: slide.unresolvedGaps.length,
+        },
+      });
+      ensureEdge(graph, {
+        id: edgeId("belongs_to", deckNode.id, slideNode.id, slide.slideId),
+        source: deckNode.id,
+        target: slideNode.id,
+        kind: "belongs_to",
+        label: "contains slide",
+        status: slideNode.status,
+        refs: [{ deckId: deck.deckId, slideId: slide.slideId }],
+      });
+
+      for (const sourceArtifactId of slide.sourceArtifactIds) {
+        const sourceArtifact = input.artifacts.find((artifact) => artifact.id === sourceArtifactId);
+        const sourceArtifactNode = sourceArtifact ? ensureArtifactNode(graph, sourceArtifact) : ensureNode(graph, {
+          id: nodeId("artifact", sourceArtifactId),
+          kind: "artifact",
+          label: sourceArtifactId,
+          subtitle: "source artifact",
+          status: "graph_inferred",
+          refs: [{ artifactId: sourceArtifactId }],
+        });
+        ensureEdge(graph, {
+          id: edgeId("derived_from", slideNode.id, sourceArtifactNode.id, `${deck.deckId}:${slide.slideId}:${sourceArtifactId}`),
+          source: slideNode.id,
+          target: sourceArtifactNode.id,
+          kind: "derived_from",
+          label: "uses artifact",
+          status: slideNode.status,
+          refs: [{ deckId: deck.deckId, slideId: slide.slideId, artifactId: sourceArtifactId, artifactTitle: sourceArtifact?.title }],
+        });
+      }
+
+      for (const claim of slide.claims) {
+        const status = claimStatus(claim.status);
+        const claimNode = ensureNode(graph, {
+          id: scopedNodeId("deck_claim", deck.deckId, claim.claimId),
+          kind: "deck_claim",
+          label: truncate(claim.text, LABEL_LIMIT),
+          subtitle: claim.status === "verified" ? "verified deck claim" : claim.status === "needs_review" ? "deck claim needs review" : "manual deck claim",
+          status,
+          refs: [{
+            deckId: deck.deckId,
+            slideId: slide.slideId,
+            claimId: claim.claimId,
+            artifactId: claim.sourceArtifactId,
+            traceId: claim.traceId,
+            proposalId: claim.proposalId,
+            evidenceId: claim.evidenceId,
+            label: "deck claim",
+          }],
+          weight: claim.status === "verified" ? 3 : 2,
+        });
+        ensureEdge(graph, {
+          id: edgeId("belongs_to", slideNode.id, claimNode.id, claim.claimId),
+          source: slideNode.id,
+          target: claimNode.id,
+          kind: "belongs_to",
+          label: "contains claim",
+          status,
+          refs: [{ deckId: deck.deckId, slideId: slide.slideId, claimId: claim.claimId }],
+        });
+
+        if (claim.sourceArtifactId) {
+          const sourceArtifact = input.artifacts.find((artifact) => artifact.id === claim.sourceArtifactId);
+          const sourceArtifactNode = sourceArtifact ? ensureArtifactNode(graph, sourceArtifact) : ensureNode(graph, {
+            id: nodeId("artifact", claim.sourceArtifactId),
+            kind: "artifact",
+            label: claim.sourceArtifactId,
+            subtitle: "source artifact",
+            status: "graph_inferred",
+            refs: [{ artifactId: claim.sourceArtifactId }],
+          });
+          ensureEdge(graph, {
+            id: edgeId("derived_from", claimNode.id, sourceArtifactNode.id, claim.claimId),
+            source: claimNode.id,
+            target: sourceArtifactNode.id,
+            kind: "derived_from",
+            label: "draws from artifact",
+            status,
+            refs: [{
+              deckId: deck.deckId,
+              slideId: slide.slideId,
+              claimId: claim.claimId,
+              artifactId: claim.sourceArtifactId,
+              artifactTitle: sourceArtifact?.title,
+            }],
+            weight: claim.status === "verified" ? 2 : 1,
+          });
+        }
+
+        if (claim.evidenceId) {
+          const evidenceNode = findNodeWithRef(graph, (ref) => ref.evidenceId === claim.evidenceId);
+          if (evidenceNode) {
+            ensureEdge(graph, {
+              id: edgeId("supported_by", claimNode.id, evidenceNode.id, claim.evidenceId),
+              source: claimNode.id,
+              target: evidenceNode.id,
+              kind: "supported_by",
+              label: "supported by evidence",
+              status: evidenceNode.status,
+              refs: [{ deckId: deck.deckId, slideId: slide.slideId, claimId: claim.claimId, evidenceId: claim.evidenceId }],
+              weight: 2,
+            });
+          }
+        }
+
+        if (claim.traceId) {
+          const traceNode = findNodeWithRef(graph, (ref) => ref.traceId === claim.traceId, "trace_step");
+          if (traceNode) {
+            ensureEdge(graph, {
+              id: edgeId("derived_from", claimNode.id, traceNode.id, claim.traceId),
+              source: claimNode.id,
+              target: traceNode.id,
+              kind: "derived_from",
+              label: "derived from trace",
+              status: strongestStatus(status, traceNode.status),
+              refs: [{ deckId: deck.deckId, slideId: slide.slideId, claimId: claim.claimId, traceId: claim.traceId }],
+            });
+          }
+        }
+
+        if (claim.proposalId) {
+          const proposalNode = findNodeWithRef(graph, (ref) => ref.proposalId === claim.proposalId, "proposal");
+          if (proposalNode) {
+            ensureEdge(graph, {
+              id: edgeId("reviewed", claimNode.id, proposalNode.id, claim.proposalId),
+              source: claimNode.id,
+              target: proposalNode.id,
+              kind: "reviewed",
+              label: "needs proposal review",
+              status: "needs_review",
+              refs: [{ deckId: deck.deckId, slideId: slide.slideId, claimId: claim.claimId, proposalId: claim.proposalId }],
+              weight: 2,
+            });
+          }
+        }
+      }
+
+      for (const gap of slide.unresolvedGaps.slice(0, 6)) {
+        const question = ensureNode(graph, {
+          id: scopedNodeId("open_question", deck.deckId, `${slide.slideId}:${gap}`),
+          kind: "open_question",
+          label: truncate(gap, LABEL_LIMIT),
+          subtitle: slide.title,
+          status: "needs_review",
+          refs: [{ deckId: deck.deckId, slideId: slide.slideId, artifactId: slide.sourceArtifactIds[0], label: "deck gap" }],
+          weight: 2,
+        });
+        ensureEdge(graph, {
+          id: edgeId("reviewed", slideNode.id, question.id, gap),
+          source: slideNode.id,
+          target: question.id,
+          kind: "reviewed",
+          label: "needs deck evidence",
+          status: "needs_review",
+          refs: [{ deckId: deck.deckId, slideId: slide.slideId, artifactId: slide.sourceArtifactIds[0] }],
+        });
+      }
     }
   }
 };
@@ -864,9 +1129,10 @@ export function buildSemanticGraph(input: SemanticGraphInput): SemanticGraphView
     if (context) deriveSheet(graph, context, input.maxRowsPerSheet ?? DEFAULT_MAX_ROWS_PER_SHEET);
   }
 
-  deriveTextArtifacts(graph, input.artifacts);
+  deriveTextArtifacts(graph, input);
   deriveTraces(graph, input);
   deriveProposals(graph, input);
+  deriveDeckStoryboards(graph, input);
   deriveSessions(graph, input);
 
   return finalizeGraph(graph, input, false);

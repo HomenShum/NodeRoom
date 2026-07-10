@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "phase": "before",
+  "captured_at": "2026-07-09",
+  "judge_provider": "local_critic_baseline",
+  "external_gemini_status": "completed_after_implementation",
+  "taste_score": 5.9,
+  "topbar_taste_score": 4.8,
+  "contract_adherence_score": 3.1,
+  "reference_similarity_score": 7.4,
+  "ship_readiness": "needs_work",
+  "topbar_issues": [
+    "Header is 134px tall before content at phone widths.",
+    "Synthetic clock, signal, Wi-Fi, and battery render in production phone mode.",
+    "Room context is an outlined pill with a 34px target.",
+    "The only right action changes meaning among Jobs, Review, and Notifications.",
+    "Persistent people, agent, review, and cost telemetry competes with the artifact home."
+  ],
+  "semantic_issues": [
+    "Review count is not attached to a stable Review command.",
+    "Theme tokens are declared twice and can be selected by cascade order.",
+    "Global letter-spacing important reset erases intentional typography."
+  ],
+  "geometry_issues": [
+    "34px room and 38px icon controls miss the approved 44px target.",
+    "Long-title resilience relies on a centered pill rather than a minmax title track."
+  ],
+  "navigation_issues": [
+    "Header action semantics are dynamic.",
+    "The FAB Go-to tier duplicates bottom navigation.",
+    "Pulse destinations duplicate sheets and room status navigation."
+  ],
+  "timestamped_observations": [
+    "2026-07-09: four local viewports had zero body overflow but all rendered synthetic production status chrome.",
+    "2026-07-09: noderoom.live exposed the public landing but not the deployed mobile workroom on the inspected hash route."
+  ],
+  "recommended_fixes": [
+    "Adopt MOBILE_HEADER_CONTRACT.md.",
+    "Extract semantic tokens and shell styles.",
+    "Make preview chrome explicit.",
+    "Add stable Review and Overflow commands and remove the pulse strip.",
+    "Strengthen static and computed-style regression tests."
+  ],
+  "regressions": [],
+  "positive_observations": [
+    "Terracotta palette and artifact-card home are distinctive.",
+    "The governed deck/evidence surfaces demonstrate the product quickly.",
+    "All baseline viewports had no horizontal body overflow or console errors."
+  ]
+}

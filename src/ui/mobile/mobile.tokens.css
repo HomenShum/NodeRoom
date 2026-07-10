@@ -1,0 +1,167 @@
+/* Canonical NodeRoom mobile tokens. Light terracotta is the product default;
+   dark is an explicit selector over the same semantic names. */
+.na-app,
+.na-frame-root,
+.na-stage {
+  color-scheme: light;
+  --mobile-safe-top: env(safe-area-inset-top, 0px);
+  --mobile-safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  --mobile-bg-app: #fbf4e7;
+  --mobile-bg-surface: #f3e8d8;
+  --mobile-bg-elevated: #fffaf2;
+  --mobile-bg-inset: #eaddc6;
+  --mobile-bg-hover: #e2d9c8;
+  --mobile-text-primary: #2b1d14;
+  --mobile-text-secondary: #5c4938;
+  --mobile-text-muted: #705541;
+  --mobile-text-faint: #765d48;
+  --mobile-border: #e2d9c8;
+  --mobile-border-strong: #c8b89e;
+  --mobile-accent: #9f4f2a;
+  --mobile-accent-hover: #793719;
+  --mobile-accent-soft: #fbede3;
+  --mobile-attention: #8b5510;
+  --mobile-attention-soft: #fbefd8;
+  --mobile-success: #4a6128;
+  --mobile-success-soft: #eef3e0;
+  --mobile-danger: #8b2812;
+  --mobile-danger-soft: #fbe8e0;
+  --mobile-private: #4f4f8b;
+  --mobile-private-soft: #ece9f4;
+
+  /* Compatibility bridge for feature CSS while semantic names become the
+     public contract. Feature styles must not redeclare theme values. */
+  --bg-app: var(--mobile-bg-app);
+  --bg-primary: var(--mobile-bg-app);
+  --bg-secondary: var(--mobile-bg-surface);
+  --bg-tertiary: var(--mobile-bg-inset);
+  --bg-hover: var(--mobile-bg-hover);
+  --text-primary: var(--mobile-text-primary);
+  --text-secondary: var(--mobile-text-secondary);
+  --text-muted: var(--mobile-text-muted);
+  --text-tertiary: var(--mobile-text-faint);
+  --ink-agent: var(--mobile-text-secondary);
+  --border-color: var(--mobile-border);
+  --border-strong: var(--mobile-border-strong);
+  --accent-primary: var(--mobile-accent);
+  --accent-primary-hover: var(--mobile-accent-hover);
+  --accent-primary-bg: var(--mobile-accent-soft);
+  --accent-ink: var(--mobile-accent-hover);
+  --accent-tint: var(--mobile-accent-soft);
+  --accent-border: color-mix(in srgb, var(--mobile-accent) 34%, var(--mobile-border));
+  --warning-ink: var(--mobile-attention);
+  --success-ink: var(--mobile-success);
+  --ok: var(--mobile-success);
+  --na-accent: var(--mobile-accent);
+  --na-accent-hover: var(--mobile-accent-hover);
+  --na-accent-bg: var(--mobile-accent-soft);
+  --na-ok: var(--mobile-success);
+  --na-ok-bg: var(--mobile-success-soft);
+  --na-warn: var(--mobile-attention);
+  --na-warn-bg: var(--mobile-attention-soft);
+  --na-bad: var(--mobile-danger);
+  --na-bad-bg: var(--mobile-danger-soft);
+  --na-priv: var(--mobile-private);
+  --na-priv-bg: var(--mobile-private-soft);
+  --vis-private: var(--mobile-private);
+  --vis-private-bg: var(--mobile-private-soft);
+  --vis-room: #b45309;
+  --vis-room-bg: var(--mobile-accent-soft);
+  --vis-mention: #8b3fb0;
+  --vis-mention-bg: #f3e8f8;
+  --vis-shared: #1f7a52;
+  --vis-shared-bg: #e4f2ea;
+
+  --font-ui: 'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-serif: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --shadow-xs: 0 1px 2px rgb(43 29 20 / 0.05);
+  --shadow-sm: 0 1px 3px rgb(43 29 20 / 0.08);
+  --shadow-md: 0 4px 8px -2px rgb(43 29 20 / 0.08);
+  --shadow-lg: 0 10px 20px -4px rgb(43 29 20 / 0.10);
+  --shadow-xl: 0 20px 30px -8px rgb(43 29 20 / 0.12);
+  --shadow-accent: 0 6px 16px -6px rgb(156 79 37 / 0.42);
+  --glint: var(--shadow-xs);
+  --color-1-400: rgb(255 244 231 / 0.55);
+  --color-1-700: rgb(43 29 20 / 0.18);
+  --duration-fast: 120ms;
+  --duration-normal: 220ms;
+  --duration-slow: 380ms;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --na-gap: 12px;
+  --na-pad: 14px;
+  --na-card-r: 8px;
+  --na-fs-body: 14px;
+  --na-fs-sm: 12.5px;
+  --na-fs-note: 18px;
+}
+
+.na-app[data-theme="dark"],
+.na-frame-root[data-theme="dark"],
+.na-stage[data-dark="true"] {
+  color-scheme: dark;
+  --mobile-bg-app: #0b0d10;
+  --mobile-bg-surface: #151a20;
+  --mobile-bg-elevated: #1b222a;
+  --mobile-bg-inset: #1b222a;
+  --mobile-bg-hover: #222a32;
+  --mobile-text-primary: #f4f7fb;
+  --mobile-text-secondary: #c7d0db;
+  --mobile-text-muted: #b1bbc7;
+  --mobile-text-faint: #8996a4;
+  --mobile-border: #252d36;
+  --mobile-border-strong: #384351;
+  --mobile-accent: #d97757;
+  --mobile-accent-hover: #e59579;
+  --mobile-accent-soft: #2a1812;
+  --mobile-attention: #d8a23e;
+  --mobile-attention-soft: #2c2110;
+  --mobile-success: #69b78f;
+  --mobile-success-soft: #10251c;
+  --mobile-danger: #e26d61;
+  --mobile-danger-soft: #2a1514;
+  --mobile-private: #9ba6ff;
+  --mobile-private-soft: #20233c;
+  --vis-room: #d97757;
+  --vis-mention: #c792ea;
+  --vis-mention-bg: #261b34;
+  --vis-shared: #69b78f;
+  --vis-shared-bg: #10251c;
+  --color-1-400: rgb(244 247 251 / 0.10);
+  --color-1-700: rgb(0 0 0 / 0.30);
+}
+
+.na-app[data-accent="clay"] {
+  --mobile-accent: #9c4f25;
+  --mobile-accent-hover: #7e3f1c;
+  --mobile-accent-soft: #f4d5bf;
+}
+
+.na-app[data-accent="ochre"] {
+  --mobile-accent: #c07b1c;
+  --mobile-accent-hover: #9c6418;
+  --mobile-accent-soft: #fbefd8;
+}
+
+.na-app[data-theme="dark"][data-accent="clay"] {
+  --mobile-accent: #d97757;
+  --mobile-accent-hover: #e59579;
+  --mobile-accent-soft: #2a1812;
+}
+
+.na-app[data-theme="dark"][data-accent="ochre"] {
+  --mobile-accent: #d8a23e;
+  --mobile-accent-hover: #e5b45a;
+  --mobile-accent-soft: #2c2110;
+}
+
+.na-app[data-density="compact"] {
+  --na-gap: 9px;
+  --na-pad: 12px;
+  --na-card-r: 8px;
+  --na-fs-body: 13px;
+  --na-fs-sm: 11.5px;
+  --na-fs-note: 17px;
+}

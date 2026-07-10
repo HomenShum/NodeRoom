@@ -39,6 +39,7 @@ import type { Actor, Artifact, ArtifactMeta, ArtifactVisibility, Channel, Lock, 
 import type { UploadedArtifactInput, UploadedSourceFile } from "./uploadedArtifact";
 import type { ArtifactRef } from "../ui/artifactRefs";
 import { OfflineEditQueue, isNetworkError, type OfflineQueueSnapshot } from "../notifications/offlineQueue";
+import { executeNotebookKernel, type NotebookKernelRequest, type NotebookKernelResult } from "../notebook/notebookKernel";
 
 export type { OfflineQueueSnapshot } from "../notifications/offlineQueue";
 
@@ -286,6 +287,8 @@ export interface RoomStore {
   awareness(roomId: string, agentId?: string): { activeLocks: Lock[] };
   /** Apply a hand edit (CAS). Returns feedback so the UI can surface a conflict honestly. */
   applyEdit(args: { roomId: string; op: ChangeOp; actor: Actor }): Promise<EditFeedback>;
+  /** Execute a bounded read-only notebook kernel. Persistence remains an ordinary artifact CAS write. */
+  executeNotebookKernel(args: { roomId: string; request: NotebookKernelRequest }): Promise<NotebookKernelResult>;
   /** Offline edit-hold: live-mode CAS edits that failed on a TRANSPORT error (not a server answer)
    *  are held (bounded, oldest-dropped-with-count) and replayed on reconnect through the same
    *  applyEdit path. Optional — memory mode has no transport to lose, so it omits it. */
@@ -426,9 +429,14 @@ function targetArtifact(artifacts: Artifact[], refs?: ArtifactRef[]): Artifact |
 
 function canonicalRefs(artifacts: Artifact[], refs?: ArtifactRef[]): ArtifactRef[] | undefined {
   const canonical = refs
-    ?.map((ref) => artifacts.find((a) => a.id === ref.id))
-    .filter((art): art is Artifact => !!art)
-    .map((art) => ({ id: art.id, title: art.title, kind: art.kind }));
+    ?.map((ref) => ({ ref, art: artifacts.find((a) => a.id === ref.id) }))
+    .filter((entry): entry is { ref: ArtifactRef; art: Artifact } => !!entry.art)
+    .map(({ ref, art }) => ({
+      ...ref,
+      id: art.id,
+      title: ref.contextKind && ref.contextKind !== "artifact" ? ref.title : art.title,
+      kind: art.kind,
+    }));
   return canonical?.length ? canonical : undefined;
 }
 
@@ -876,6 +884,7 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       if (r.ok) pushUndo(undoStack.current, withAppliedVersion(undo, r.toVersion));
       return r.ok ? { ok: true, version: r.toVersion } : { ok: false, reason: r.reason };
     },
+    executeNotebookKernel: async ({ request }) => executeNotebookKernel(request, { backend: "memory", now: Date.now() }),
     canUndo: (id) => (undoStack.current.get(id)?.length ?? 0) > 0,
     undoLastEdit: async (id, actor) => {
       const stack = undoStack.current.get(id) ?? [];
@@ -1542,9 +1551,29 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const starterBackfillAttemptedRef = useRef<string | null>(null);
   useEffect(() => {
     if (!hasValidLiveSession || data === undefined || data === null) return;
-    const room = data.room as { title?: string } | undefined;
+    const room = data.room as { title?: string; experience?: "workspace" | "sample"; starterBackfill?: "pending" | "ready"; createdAt?: number } | undefined;
     const members = (data.members ?? []) as Array<{ id: string; role: string }>;
     const isHost = members.some((member) => String(member.id) === String(me.id) && member.role === "host");
+    // Fast live creates schedule the scale fixture after the small room shell commits. Do not race
+    // that server-owned backfill. If it remains pending for 30s, the host starts a bounded repair
+    // watchdog through the same idempotent seed path.
+    if (room?.starterBackfill === "pending") {
+      if (!isHost) return;
+      let cancelled = false;
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      let attempts = 0;
+      const repair = () => {
+        if (cancelled || attempts >= 3) return;
+        attempts += 1;
+        void ensureStarterRoomStateMutation({ roomId: rid, requester: proof }).catch(() => {
+          if (!cancelled && attempts < 3) timer = setTimeout(repair, 15_000);
+        });
+      };
+      const age = Date.now() - (room.createdAt ?? Date.now());
+      timer = setTimeout(repair, Math.max(0, 30_000 - age));
+      return () => { cancelled = true; if (timer) clearTimeout(timer); };
+    }
+    if (room?.experience === "workspace") return;
     if (!isHost) return;
     const research = metaArtifacts.find((artifact) => artifact.kind === "sheet" && artifact.title === "Company research");
     const rowCount = (research?.meta?.dataframe as { rowCount?: number } | undefined)?.rowCount ?? 0;
@@ -1707,6 +1736,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const runPrivateAgent = useAction(api.agent.runPrivateAgent);
   const runCaptureAction = useAction(api.capturesNode.capture);
   const runSecFacts = useAction(api.sec.facts);
+  const runNotebookKernel = useAction((api as any).notebookKernel.execute) as (args: { roomId: string; requester: ActorProof; kind: NotebookKernelRequest["kind"]; input: string; tables?: NotebookKernelRequest["tables"] }) => Promise<NotebookKernelResult>;
   const recordCitationMut = useMutation(api.captures.recordCitation);
   const createPrivateReplyStream = useMutation(api.streaming.createPrivateReplyStream);
   const startAgentJob = useMutation(api.agentJobs.start);
@@ -1884,6 +1914,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           return { ok: false, reason: e instanceof Error ? e.message : "edit_failed" };
         }
       },
+      executeNotebookKernel: async ({ request }) => runNotebookKernel({ roomId: rid, requester: proof, kind: request.kind, input: request.input, tables: request.tables }),
       offlineEditQueue: () => offlineSnap,
       acknowledgeOfflineConflicts: () => {
         offlineQueue.resetConflicts();
@@ -2265,7 +2296,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         return result.rowId ? { artifactId: targetArt.id as string, rowId: result.rowId as string, created: result.created } : undefined;
       },
     };
-  }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, applyEditCore, offlineQueue, offlineSnap, scheduleOfflineReplay, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, startPublicAskJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, creditMode, creditBalanceQ, creditUsageQ, rid, roomId, proof, me.id, me.name]);
+  }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, applyEditCore, offlineQueue, offlineSnap, scheduleOfflineReplay, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, runNotebookKernel, createPrivateReplyStream, startAgentJob, startPublicAskJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, creditMode, creditBalanceQ, creditUsageQ, rid, roomId, proof, me.id, me.name]);
 
   // E2E test seam: expose runCollab/runSemanticConflictDrill via window so tests can trigger
   // collaboration and conflict drills without the removed CollabBar buttons.

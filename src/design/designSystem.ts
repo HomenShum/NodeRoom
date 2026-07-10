@@ -81,6 +81,9 @@ const SHELL_FILE = "src/ui/RoomShell.tsx";
 const LEFT_RAIL_FILE = "src/ui/LeftRail.tsx";
 const FOCUS_TRAP_FILE = "src/ui/primitives/FocusTrapDialog.tsx";
 const MOBILE_CSS_FILE = "src/ui/mobile/mobile.css";
+const MOBILE_TOKENS_FILE = "src/ui/mobile/mobile.tokens.css";
+const MOBILE_SHELL_FILE = "src/ui/mobile/mobile.shell.css";
+const MOBILE_HEADER_FILE = "src/ui/mobile/shell/MobileHeader.tsx";
 const MOBILE_ROOT_FILE = "src/ui/mobile/MobileRoot.tsx";
 const MOBILE_APP_FILE = "src/ui/mobile/MobileApp.tsx";
 const MOBILE_FRAME_FILE = "src/ui/mobile/MobileFrame.tsx";
@@ -99,6 +102,9 @@ export const designSystemFiles = [
   LEFT_RAIL_FILE,
   FOCUS_TRAP_FILE,
   MOBILE_CSS_FILE,
+  MOBILE_TOKENS_FILE,
+  MOBILE_SHELL_FILE,
+  MOBILE_HEADER_FILE,
   MOBILE_ROOT_FILE,
   MOBILE_APP_FILE,
   MOBILE_FRAME_FILE,
@@ -219,11 +225,11 @@ export function getNodeRoomDesignManifest(): DesignManifest {
         {
           name: "MobileTerracottaRoom",
           selectors: [".na-app", ".na-nav", ".na-sheet", ".na-ios-bleed"],
-          role: "NodeAgent mobile room system: cream, terracotta, iOS-HIG navigation, and bottom sheets.",
+          role: "NodeRoom mobile system: cream, terracotta, stable room commands, bottom navigation, and governed sheets.",
           must: [
             "Use the terracotta mobile tokens, not the dark Always-On public-room shell.",
             "Render the same .na-app shell in memory preview and live room mode.",
-            "Drop the synthetic device bezel on real phone widths and keep the route overflow-free.",
+            "Render synthetic device chrome only in explicit preview mode and keep production full-bleed.",
             "Expose room, agent, inbox, artifact, and sheet actions through mobile-native controls.",
           ],
           avoid: [
@@ -318,6 +324,9 @@ export function auditNodeRoomDesignSystem(files: Record<string, string>, checked
   const leftRail = files[LEFT_RAIL_FILE] ?? "";
   const focusTrap = files[FOCUS_TRAP_FILE] ?? "";
   const mobileCss = files[MOBILE_CSS_FILE] ?? "";
+  const mobileTokens = files[MOBILE_TOKENS_FILE] ?? "";
+  const mobileShell = files[MOBILE_SHELL_FILE] ?? "";
+  const mobileHeader = files[MOBILE_HEADER_FILE] ?? "";
   const mobileRoot = files[MOBILE_ROOT_FILE] ?? "";
   const mobileApp = files[MOBILE_APP_FILE] ?? "";
   const mobileFrame = files[MOBILE_FRAME_FILE] ?? "";
@@ -403,12 +412,61 @@ export function auditNodeRoomDesignSystem(files: Record<string, string>, checked
   requireText(findings, focusTrap, FOCUS_TRAP_FILE, "role=\"dialog\"", "shared-dialog-role", "Shared dialog primitive does not expose role=dialog.", "Keep modal semantics centralized in FocusTrapDialog.");
   requireText(findings, focusTrap, FOCUS_TRAP_FILE, "aria-modal=\"true\"", "shared-dialog-modal", "Shared dialog primitive does not expose aria-modal.", "Keep modal semantics centralized in FocusTrapDialog.");
   requireText(findings, shell, SHELL_FILE, "FocusTrapDialog", "room-shell-shared-dialog", "Regular room shell modal is not using the shared dialog primitive.", "Use FocusTrapDialog for dismissible modal overlays.");
-  requireText(findings, mobileCss, MOBILE_CSS_FILE, "--bg-app:       #FBF4E7", "mobile-terracotta-cream-bg", "Mobile terracotta CSS no longer exposes the cream app surface.", "Keep #mobile on the terracotta mobile system, separate from public Always-On dark chrome.");
-  requireText(findings, mobileCss, MOBILE_CSS_FILE, "--accent-primary:       #C56A3C", "mobile-terracotta-accent", "Mobile terracotta CSS no longer exposes the #C56A3C accent.", "Keep the terra mobile accent token for the #mobile route.");
-  requireText(findings, mobileCss, MOBILE_CSS_FILE, "--font-serif: 'DM Serif Display'", "mobile-terracotta-serif", "Mobile terracotta CSS no longer uses the mobile serif display token.", "Keep the mobile-specific editorial type system.");
-  requireText(findings, mobileCss, MOBILE_CSS_FILE, ".na-nav {", "mobile-ios-nav", "Mobile terracotta bottom navigation is missing.", "Keep the iOS-HIG bottom tab bar on #mobile.");
-  requireText(findings, mobileCss, MOBILE_CSS_FILE, ".na-sheet {", "mobile-bottom-sheet", "Mobile terracotta bottom sheets are missing.", "Use bottom sheets for mobile details instead of clipped desktop panels.");
-  requireText(findings, mobileCss, MOBILE_CSS_FILE, ".na-handle", "mobile-sheet-handle", "Mobile terracotta sheet grabber is missing.", "Keep the grabber affordance on bottom sheets.");
+  const mobileDarkSelector = '.na-app[data-theme="dark"],';
+  const mobileDarkStart = mobileTokens.indexOf(mobileDarkSelector);
+  const mobileLightTokens = mobileDarkStart >= 0 ? mobileTokens.slice(0, mobileDarkStart) : "";
+  requireText(findings, mobileLightTokens, MOBILE_TOKENS_FILE, "--mobile-bg-app: #fbf4e7", "mobile-terracotta-cream-bg", "Canonical mobile tokens no longer expose the cream app surface.", "Keep #mobile light terracotta by default in mobile.tokens.css.");
+  requireText(findings, mobileLightTokens, MOBILE_TOKENS_FILE, "--mobile-accent: #9f4f2a", "mobile-terracotta-accent", "Canonical mobile tokens no longer expose the contrast-safe #9F4F2A terracotta accent.", "Keep primary/provenance semantics on the accessible terracotta token.");
+  requireText(findings, mobileLightTokens, MOBILE_TOKENS_FILE, "--font-serif: 'DM Serif Display'", "mobile-terracotta-serif", "Canonical mobile tokens no longer use the mobile serif display token.", "Keep the mobile-specific editorial type system.");
+  requireText(findings, mobileTokens, MOBILE_TOKENS_FILE, mobileDarkSelector, "mobile-dark-explicit-selector", "Mobile dark values are not behind an explicit data-theme selector.", "Override the same semantic mobile token names under data-theme=dark.");
+  requireText(findings, mobileLightTokens, MOBILE_TOKENS_FILE, "--mobile-attention:", "mobile-semantic-attention", "The mobile attention token is missing from the canonical light selector.", "Keep Review/held semantics distinct from the brand accent.");
+  requireText(findings, mobileLightTokens, MOBILE_TOKENS_FILE, "--mobile-success:", "mobile-semantic-success", "The mobile success token is missing from the canonical light selector.", "Reserve green for healthy/completed state.");
+  requireText(findings, mobileLightTokens, MOBILE_TOKENS_FILE, "--mobile-danger:", "mobile-semantic-danger", "The mobile danger token is missing from the canonical light selector.", "Reserve red for failure/destructive state.");
+
+  for (const [content, file] of [[mobileCss, MOBILE_CSS_FILE], [mobileFrameCss, MOBILE_FRAME_CSS_FILE]] as const) {
+    const declaration = firstMatchingLine(content, (line) => /--mobile-(?:bg|text|border|accent|attention|success|danger)[\w-]*\s*:/.test(line));
+    if (declaration) {
+      findings.push(finding("mobile-theme-single-owner", "error", file, "A feature or frame stylesheet redeclares canonical mobile theme tokens.", "Keep all mobile theme values in mobile.tokens.css; feature files may only consume them.", declaration.line));
+    }
+  }
+  const globalLetterReset = firstMatchingLine(mobileCss, (line) => /letter-spacing:\s*0\s*!important/.test(line));
+  if (globalLetterReset) {
+    findings.push(finding("mobile-global-letter-spacing-reset", "error", MOBILE_CSS_FILE, "Mobile CSS globally forces letter-spacing with !important.", "Preserve intentional mono, kicker, and display typography; remove the broad reset.", globalLetterReset.line));
+  }
+  if (mobileCss.includes("Cloud Design migration overlay") || mobileFrameCss.includes("Cloud Design migration overlay")) {
+    findings.push(finding("mobile-late-theme-overlay", "error", MOBILE_CSS_FILE, "A late mobile migration overlay can override canonical theme ownership.", "Remove late theme overlays and consume semantic tokens instead."));
+  }
+
+  requireText(findings, mobileApp, MOBILE_APP_FILE, "<MobileHeader", "mobile-header-adapter", "MobileApp does not use the stable MobileHeader adapter.", "Keep store-free header presentation in shell/MobileHeader.tsx.");
+  requireText(findings, mobileHeader, MOBILE_HEADER_FILE, 'data-testid="mobile-room-context"', "mobile-header-room-context", "The stable room-context control is missing.", "Use one transparent room-context button with a truncating title.");
+  requireText(findings, mobileHeader, MOBILE_HEADER_FILE, 'data-testid="mobile-review-action"', "mobile-header-review-action", "The stable Review action is missing.", "Attach review count only to the Review/Inbox action.");
+  requireText(findings, mobileHeader, MOBILE_HEADER_FILE, 'data-testid="mobile-overflow-action"', "mobile-header-overflow-action", "The stable overflow action is missing.", "Overflow must always open secondary room commands and never carry a review count.");
+  requireText(findings, mobileHeader, MOBILE_HEADER_FILE, 'Ico("more"', "mobile-header-overflow-glyph", "The overflow action does not use a recognizable overflow glyph.", "Use a neutral ellipsis glyph; a hamburger implies primary navigation.");
+  requireText(findings, mobileHeader, MOBILE_HEADER_FILE, 'return count > 9 ? "9+"', "mobile-header-badge-bound", "Review badge formatting is not bounded to 1-9 and 9+.", "Bound the visual badge while retaining the exact count in the accessible name.");
+  requireText(findings, mobileShell, MOBILE_SHELL_FILE, "height: 52px", "mobile-header-height", "The approved 52px mobile header row is missing.", "Keep header geometry stable across phone widths.");
+  const mobileHeaderActionBlock = cssBlock(mobileShell, ".mobile-header-action {");
+  if (!mobileHeaderActionBlock || !/\bwidth:\s*44px/.test(mobileHeaderActionBlock) || !/\bheight:\s*44px/.test(mobileHeaderActionBlock)) {
+    findings.push(finding("mobile-header-touch-target", "error", MOBILE_SHELL_FILE, "The mobile header does not expose 44x44 icon targets.", "Keep Review and Overflow at 44x44 CSS pixels.", findLine(mobileShell, ".mobile-header-action")));
+  }
+  requireText(findings, mobileShell, MOBILE_SHELL_FILE, "var(--mobile-safe-top)", "mobile-header-safe-area", "The production header does not consume the real safe-area token.", "Use env(safe-area-inset-top) through the canonical mobile safe-area token.");
+  if (mobileApp.includes('title={tab === "agent"') || mobileApp.includes('openCount ? "Review inbox" : "Notifications"')) {
+    findings.push(finding("mobile-header-dynamic-command", "error", MOBILE_APP_FILE, "A mobile header command changes meaning based on unrelated tab/count state.", "Review, Jobs, and Overflow must have stable semantic identities."));
+  }
+  requireText(findings, mobileApp, MOBILE_APP_FILE, 'data-testid="mobile-bottom-nav"', "mobile-bottom-nav-rendered", "MobileApp does not render the approved persistent primary navigation.", "Keep all primary mobile destinations in the bottom navigation, not in Overflow or the FAB.");
+  if (mobileApp.includes("na-fab-badge")) {
+    findings.push(finding("mobile-review-badge-duplicate", "error", MOBILE_APP_FILE, "The Review count is duplicated on the contextual FAB.", "Keep the attention count only on the stable Review action.", findLine(mobileApp, "na-fab-badge")));
+  }
+
+  const productionFrameBranch = mobileFrame.match(/if \(!previewDeviceChrome\) \{([\s\S]*?)\n  \}/)?.[1] ?? "";
+  requireText(findings, mobileFrame, MOBILE_FRAME_FILE, "previewDeviceChrome = false", "mobile-preview-explicit", "Synthetic device chrome is not an explicit opt-in.", "Default production mobile to full-bleed and require preview=device for simulation.");
+  requireText(findings, mobileFrame, MOBILE_FRAME_FILE, 'data-device-preview="false"', "mobile-production-frame-marker", "The production full-bleed frame marker is missing.", "Expose a deterministic production-vs-preview contract.");
+  if (productionFrameBranch.includes("<StatusBar") || productionFrameBranch.includes("na-preview-island") || productionFrameBranch.includes("na-preview-home-indicator")) {
+    findings.push(finding("mobile-production-synthetic-status", "error", MOBILE_FRAME_FILE, "Production mobile renders synthetic operating-system chrome.", "Render clock, signal, battery, island, and home indicator only in explicit preview mode."));
+  }
+  requireText(findings, mobileApp, MOBILE_APP_FILE, "applyVisibilityScope", "mobile-scope-delivery-alignment", "Ask visibility is not coupled to its delivery lane.", "Update scope, composer mode, and agent lane together so privacy copy matches delivery.");
+  requireRegex(findings, mobileCss, MOBILE_CSS_FILE, /(?:^|\n)\.na-nav\s*\{/, "mobile-ios-nav", "Mobile terracotta bottom navigation is missing.", "Keep the bottom tab bar on #mobile.");
+  requireRegex(findings, mobileCss, MOBILE_CSS_FILE, /(?:^|\n)\.na-sheet\s*\{/, "mobile-bottom-sheet", "Mobile terracotta bottom sheets are missing.", "Use bottom sheets for mobile details instead of clipped desktop panels.");
+  requireRegex(findings, mobileCss, MOBILE_CSS_FILE, /(?:^|\n)\.na-handle\s*\{/, "mobile-sheet-handle", "Mobile terracotta sheet grabber is missing.", "Keep the grabber affordance on bottom sheets.");
   requireText(findings, mobileFrame, MOBILE_FRAME_FILE, "const query = \"(max-width: 460px)\";", "mobile-real-phone-bleed", "Mobile frame no longer switches to full-bleed at real phone widths.", "Drop the synthetic bezel at phone width so production mobile is not a framed mockup.");
   requireText(findings, mobileFrame, MOBILE_FRAME_FILE, "na-ios-bleed", "mobile-real-phone-shell", "Mobile full-bleed shell is missing.", "Keep the production phone shell distinct from the desktop presentation frame.");
   requireText(findings, app, APP_FILE, "normalizeMobileLandingUrl", "mobile-universal-landing-router", "The app entry no longer normalizes standard phone URLs into the mobile route.", "Route every phone-sized NodeRoom URL into #mobile before desktop/public shells render.");
@@ -421,7 +479,10 @@ export function auditNodeRoomDesignSystem(files: Record<string, string>, checked
   requireText(findings, mobileRoot, MOBILE_ROOT_FILE, "data-theme=\"light\"", "mobile-entry-light-shell", "Mobile join bootstrap is not using the terracotta light shell.", "First-time phone users should land on the terracotta mobile system, not the dark public shell.");
   requireText(findings, mobileRoot, MOBILE_ROOT_FILE, "RoomJoinConsent", "mobile-live-consent", "Live mobile demo creation is no longer gated by consent.", "Keep explicit auto-approve/review consent before minting a live demo room.");
   requireText(findings, mobileRoot, MOBILE_ROOT_FILE, "MobileAppLive", "mobile-live-app", "Live mobile room binding is missing.", "Mount MobileAppLive so the terracotta shell subscribes to the real room.");
-  requireText(findings, mobileRoot, MOBILE_ROOT_FILE, "history.replaceState(null, \"\", `#mobile?room=${reqCode}`", "mobile-live-room-url", "Live mobile room creation no longer replaces the URL with #mobile?room=<code>.", "Record the live room code in the URL after join/create so the session is reproducible.");
+  if (!mobileRoot.includes('params.set(request.kind === "join" ? "room" : request.kind, request.code)')
+    || !mobileRoot.includes('history.replaceState(null, "", `#mobile?${params.toString()}`)')) {
+    findings.push(finding("mobile-live-room-url", "error", MOBILE_ROOT_FILE, "Live mobile room creation no longer replaces the URL with #mobile?room=<code>.", "Record the live room code in the URL after join/create so the session is reproducible."));
+  }
   requireText(findings, mobileConsent, MOBILE_CONSENT_FILE, "data-theme=\"light\"", "mobile-consent-light-shell", "Mobile consent bootstrap is not using the terracotta light shell.", "The explicit consent screen must match the mobile design system.");
   requireText(findings, mobileFrameCss, MOBILE_FRAME_CSS_FILE, "#fbf4e7", "mobile-entry-frame-cream", "Mobile live entry frame no longer defaults to the cream terracotta backdrop.", "Keep mobile join/consent on the same cream surface as the room shell.");
   requireText(findings, mobileFrameCss, MOBILE_FRAME_CSS_FILE, ".na-frame-root[data-theme=\"dark\"]", "mobile-entry-dark-opt-in", "Mobile frame CSS removed the explicit dark opt-in variant.", "Keep dark as an opt-in variant while the default mobile landing stays terracotta.");

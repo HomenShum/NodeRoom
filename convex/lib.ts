@@ -99,7 +99,7 @@ export async function hashToken(token: string): Promise<string> {
   return `v1:${salt}:${await sha256Hex(`${salt}:${token}`)}`;
 }
 
-async function verifyTokenHash(token: string, storedHash?: string): Promise<boolean> {
+export async function authTokenMatchesHash(token: string, storedHash?: string): Promise<boolean> {
   requireStrongAuthToken(token);
   if (!storedHash) return false;
   if (storedHash?.startsWith("v1:")) {
@@ -149,13 +149,18 @@ export async function requireActorProof(ctx: DbCtx, roomId: Id<"rooms">, proof: 
   }
   if (member.revokedAt != null) throw new Error("actor_revoked");
   const identity = await ctx.auth.getUserIdentity();
+  if (productionIdentityRequired()) {
+    if (!identity) throw new Error("production_identity_required");
+    if (!member.authSubject || member.authSubject !== identity.subject) throw new Error("identity_mismatch");
+    return { kind: "user" as const, id: String(member._id), name: member.name };
+  }
   if (identity && member.authSubject && member.authSubject === identity.subject) {
     return { kind: "user" as const, id: String(member._id), name: member.name };
   }
   if (!token) throw new Error("invalid_actor_token");
   let valid = false;
   try {
-    valid = await verifyTokenHash(token, member.authTokenHash);
+    valid = await authTokenMatchesHash(token, member.authTokenHash);
   } catch {
     throw new Error("invalid_actor_token");
   }

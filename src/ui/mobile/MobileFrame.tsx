@@ -77,27 +77,27 @@ export function IOSDevice({
   dark = false,
   width = 402,
   height = 874,
+  previewDeviceChrome = false,
 }: {
   children?: React.ReactNode;
   dark?: boolean;
   width?: number;
   height?: number;
+  previewDeviceChrome?: boolean;
 }): React.ReactElement {
-  const compact = useCompact();
-  if (compact) {
-    // Real phone: the device IS the frame — full-bleed, no synthetic chrome.
+  if (!previewDeviceChrome) {
     return (
-      <div className="na-ios-bleed" style={{ position: "fixed", inset: 0, background: dark ? "#000" : "#FBF4E7", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 30, pointerEvents: "none" }}>
-          <StatusBar dark={dark} />
-        </div>
+      <div className="na-ios-bleed" data-device-preview="false">
         {children}
       </div>
     );
   }
+
   return (
     <div
       className="na-ios"
+      data-device-preview="true"
+      data-testid="mobile-device-preview"
       style={{
         width,
         height,
@@ -110,16 +110,16 @@ export function IOSDevice({
         WebkitFontSmoothing: "antialiased",
       }}
     >
-      {/* dynamic island */}
-      <div style={{ position: "absolute", top: 11, left: "50%", transform: "translateX(-50%)", width: 126, height: 37, borderRadius: 24, background: "#000", zIndex: 50 }} />
-      {/* status bar */}
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 10 }}>
+      <div
+        className="na-preview-island"
+        style={{ position: "absolute", top: 11, left: "50%", transform: "translateX(-50%)", width: 126, height: 37, borderRadius: 24, background: "#000", zIndex: 50 }}
+      />
+      <div className="na-preview-status" style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 10 }}>
         <StatusBar dark={dark} />
       </div>
-      {/* screen content — .na-app fills this (position:absolute; inset:0) */}
       {children}
-      {/* home indicator — always on top */}
       <div
+        className="na-preview-home-indicator"
         style={{
           position: "absolute",
           bottom: 0,
@@ -145,10 +145,23 @@ export function IOSDevice({
  * widths; goes full-bleed (cream, or black in dark mode) when compact. Mirrors
  * the terra standalone's <body> styling.
  */
-export function MobileStage({ dark = false, children }: { dark?: boolean; children?: React.ReactNode }): React.ReactElement {
+export function MobileStage({
+  dark = false,
+  previewDeviceChrome = false,
+  children,
+}: {
+  dark?: boolean;
+  previewDeviceChrome?: boolean;
+  children?: React.ReactNode;
+}): React.ReactElement {
   const compact = useCompact();
   return (
-    <div className="na-stage" data-compact={compact ? "true" : undefined} data-dark={dark ? "true" : undefined}>
+    <div
+      className="na-stage"
+      data-compact={!previewDeviceChrome || compact ? "true" : undefined}
+      data-dark={dark ? "true" : undefined}
+      data-preview={previewDeviceChrome ? "device" : "production"}
+    >
       {children}
     </div>
   );
