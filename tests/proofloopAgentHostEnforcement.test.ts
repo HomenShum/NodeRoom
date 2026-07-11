@@ -73,12 +73,12 @@ describe("ProofLoop native agent host enforcement", () => {
       hostId: "cursor",
       promptPath,
       generatedAt: "2026-07-09T00:00:00.000Z",
-      env: {},
+      env: { PROOFLOOP_CURSOR_BINARY: join(root, "missing-cursor-cli") },
     });
 
     expect(launch.status).toBe("failed");
     expect(launch.command).toContain("proofloop-cursor-launch.mjs");
-    expect(readFileSync(join(root, launch.stderrPath ?? ""), "utf8")).toContain("Cursor CLI not found");
+    expect(readFileSync(join(root, launch.stderrPath ?? ""), "utf8")).toMatch(/not recognized|spawn error|ENOENT/i);
     const verified = verifyNativeAgentEnforcement({
       root,
       hostId: "cursor",

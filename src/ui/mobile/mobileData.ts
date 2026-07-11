@@ -370,6 +370,9 @@ export interface RowField {
   v: string;
   status: string;
   tone: Tone;
+  /** Present for fields projected from a live artifact element. */
+  elementId?: string;
+  version?: number;
 }
 
 export interface RowCard {

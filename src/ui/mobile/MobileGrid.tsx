@@ -193,6 +193,12 @@ export function buildPatch(S: SheetData, row: SheetRow, col: SheetColumn, cell: 
 }
 
 export function SheetArtifact({ ctx }: { ctx: MobileCtx }): React.ReactElement {
+  return ctx.isLive
+    ? React.createElement(LiveSheetArtifact, { ctx })
+    : React.createElement(SampleSheetArtifact, { ctx });
+}
+
+function SampleSheetArtifact({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   const S: SheetData = D.SHEET;
   const [tab, setTab] = useState<string>("grid");
   const [rows, setRows] = useState<SheetRow[]>(S.rows);
@@ -392,6 +398,88 @@ export function SheetArtifact({ ctx }: { ctx: MobileCtx }): React.ReactElement {
         }),
         React.createElement("button", { className: "na-compose-send", disabled: !draft.trim(), onClick: () => tab === "plan" ? planSend() : send(), "aria-label": "Send" }, Ico("arrowUp"))),
       React.createElement("p", { className: "na-compose-note" }, Ico("lock"), "Read-only — the agent proposes a sourced diff; nothing changes until you approve.")));
+}
+
+function LiveSheetArtifact({ ctx }: { ctx: MobileCtx }): React.ReactElement {
+  const [editing, setEditing] = useState<string | null>(null);
+  const [value, setValue] = useState("");
+  const [busy, setBusy] = useState(false);
+  const fields = ctx.row.fields;
+
+  const startEdit = (elementId: string, current: string): void => {
+    setEditing(elementId);
+    setValue(current);
+  };
+  const commit = (): void => {
+    const field = fields.find((candidate) => candidate.elementId === editing);
+    if (!field?.elementId || busy) return;
+    setBusy(true);
+    void ctx.editRowField(field.elementId, value.trim(), field.version ?? 0).then((result) => {
+      setBusy(false);
+      if (!result.ok) {
+        ctx.toast("Edit not applied - " + (result.reason ?? "reload and try again"));
+        return;
+      }
+      setEditing(null);
+      ctx.toast("Live field updated - receipt recorded");
+    });
+  };
+
+  return React.createElement(
+    React.Fragment,
+    null,
+    React.createElement(
+      "div",
+      { className: "na-sheet-head" },
+      React.createElement("div", { className: "st" },
+        React.createElement("strong", null, ctx.row.entity || "Live sheet"),
+        React.createElement("span", null, ctx.row.sub || "Live room artifact")),
+      React.createElement("button", { className: "na-close", onClick: ctx.closeSheet, "aria-label": "Close" }, Ico("x")),
+    ),
+    React.createElement(
+      "div",
+      { className: "na-sheet-body", "data-testid": "mobile-live-sheet" },
+      fields.length === 0
+        ? React.createElement("div", { className: "na-empty" },
+            React.createElement("div", { className: "eico" }, Ico("table")),
+            React.createElement("strong", null, "No mobile row is available"),
+            React.createElement("span", null, "Open this artifact on desktop for the full grid. No sample data is substituted."))
+        : React.createElement("div", { className: "na-card na-rowcard" },
+            React.createElement("div", { className: "na-card-body", style: { paddingTop: "var(--na-pad)" } },
+              fields.map((field) => React.createElement("div", { key: field.elementId ?? field.k, className: "field" },
+                React.createElement("span", { className: "k" }, field.k),
+                editing === field.elementId
+                  ? React.createElement("span", { className: "na-live-field-edit" },
+                      React.createElement("input", {
+                        value,
+                        onChange: (event: React.ChangeEvent<HTMLInputElement>) => setValue(event.target.value),
+                        onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => {
+                          if (event.key === "Enter") commit();
+                          if (event.key === "Escape") setEditing(null);
+                        },
+                        autoFocus: true,
+                        "aria-label": `Edit ${field.k}`,
+                      }),
+                      React.createElement("button", { type: "button", disabled: busy, onClick: commit, "aria-label": `Save ${field.k}` }, Ico("check")),
+                      React.createElement("button", { type: "button", onClick: () => setEditing(null), "aria-label": "Cancel edit" }, Ico("x")))
+                  : React.createElement("button", {
+                      type: "button",
+                      className: "v na-roweditable",
+                      disabled: !field.elementId,
+                      onClick: () => field.elementId && startEdit(field.elementId, field.v),
+                      "aria-label": field.elementId ? `Edit ${field.k}, current value ${field.v}` : `${field.k}, ${field.v}`,
+                    }, field.v || "Empty"),
+                React.createElement(Pill, { tone: field.tone }, field.status || "live"),
+              )))),
+      React.createElement("p", { className: "na-prose", style: { fontSize: 11.5, color: "var(--text-tertiary)" } },
+        "This is a live row projection. Full-grid browsing and XLSX export remain on desktop until the mobile artifact adapter can prove the selected artifact ID and download receipt."),
+    ),
+    React.createElement("div", { className: "na-sheet-foot" },
+      React.createElement("div", { className: "na-btn-row" },
+        React.createElement("button", { className: "na-btn", onClick: () => ctx.openSheet("evidence") }, Ico("file"), "Open evidence"),
+        React.createElement("button", { className: "na-btn primary", onClick: ctx.askAboutRow }, Ico("sparkles"), "Ask NodeAgent")),
+      React.createElement("button", { className: "na-btn full", disabled: true, title: "Use desktop for a verified XLSX download" }, Ico("download"), "Export on desktop")),
+  );
 }
 
 // ── GRID (records as cards · inline edit · tap a status to source it) ──────

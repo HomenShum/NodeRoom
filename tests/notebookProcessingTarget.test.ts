@@ -162,8 +162,11 @@ describe("notebook target processing slice", () => {
   }, 30_000);
 
   it("rechecks active membership before processing a queued dirty event", async () => {
-    const { t, roomId, artifactId, proof } = await seedNotebookRoom();
-    const ensured = await t.mutation(api.prosemirror.ensureNotebookDoc, { roomId, artifactId, requester: proof });
+    const { t, code, roomId, artifactId } = await seedNotebookRoom();
+    const joined = await t.mutation(api.rooms.joinAnonymous, { code, name: "Guest", authToken: GUEST_TOKEN });
+    if (!joined || "error" in joined) throw new Error("guest join failed");
+    const guestProof = { actor: { kind: "user" as const, id: String(joined.memberId), name: "Guest" }, token: GUEST_TOKEN };
+    const ensured = await t.mutation(api.prosemirror.ensureNotebookDoc, { roomId, artifactId, requester: guestProof });
     await t.mutation(api.prosemirror.submitSnapshot, {
       id: ensured.prosemirrorDocId,
       version: 2,
@@ -172,12 +175,12 @@ describe("notebook target processing slice", () => {
     const dirty = await t.mutation(api.notebookProcessing.markNotebookDirty, {
       roomId,
       artifactId,
-      requester: proof,
+      requester: guestProof,
       observedSnapshotVersion: 2,
       quietMs: 1_000,
     });
 
-    await t.mutation(api.rooms.leave, { roomId, requester: proof });
+    await t.mutation(api.rooms.leave, { roomId, requester: guestProof });
     await makeDirtyDue(t, dirty.dirtyEventId);
     const processed = await t.action(internal.notebookProcessing.processNotebookDirtyEvent, {
       dirtyEventId: dirty.dirtyEventId,

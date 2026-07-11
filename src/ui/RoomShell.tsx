@@ -28,6 +28,7 @@ import { Badge, Button, IconButton, Modal, Panel, Switch, Tabs } from "./primiti
 import type { Actor, Channel } from "../engine/types";
 
 const AUTO_ACCEPT_PREF_KEY = "noderoom:autoAcceptConsent:v1";
+const ACTIVE_ARTIFACT_PREF_PREFIX = "noderoom:activeArtifact:v1:";
 const TOUR_KEY = "noderoom:tour:v1";
 const NOTE_PRIORITY = ["Capture Notebook", "Note", "Diligence memo", "Open questions / workplan", "Agent wiki"];
 type AccentKey = "terra";
@@ -66,6 +67,39 @@ function artifactRowCount(artifact: { order?: string[]; meta?: { dataframe?: { r
   return rows.size;
 }
 
+function activeArtifactStorageKey(roomId: string): string {
+  return `${ACTIVE_ARTIFACT_PREF_PREFIX}${roomId}`;
+}
+
+function readPersistedRoomArtifact<T extends { id: string; kind?: string; title?: string }>(roomId: string, arts: T[]): T | undefined {
+  if (typeof window === "undefined" || arts.length === 0) return undefined;
+  try {
+    const raw = localStorage.getItem(activeArtifactStorageKey(roomId));
+    if (!raw) return undefined;
+    const parsed = JSON.parse(raw) as { id?: unknown; kind?: unknown; title?: unknown };
+    const id = typeof parsed.id === "string" ? parsed.id : "";
+    const title = typeof parsed.title === "string" ? parsed.title : "";
+    const kind = typeof parsed.kind === "string" ? parsed.kind : "";
+    return arts.find((a) => a.id === id)
+      ?? arts.find((a) => !!title && a.title === title && (!kind || a.kind === kind));
+  } catch {
+    return undefined;
+  }
+}
+
+function persistRoomArtifact(roomId: string, artifact: { id: string; kind?: string; title?: string }): void {
+  if (typeof window === "undefined" || !artifact.id || artifact.id.startsWith(OPT_ARTIFACT_PREFIX)) return;
+  try {
+    localStorage.setItem(activeArtifactStorageKey(roomId), JSON.stringify({
+      id: artifact.id,
+      kind: artifact.kind,
+      title: artifact.title,
+    }));
+  } catch {
+    /* ignore */
+  }
+}
+
 function initials(name: string): string {
   return name.replace(/[^A-Za-z· ]/g, "").split(/[ ·]/).filter(Boolean).map((s) => s[0]).slice(0, 2).join("").toUpperCase() || "?";
 }
@@ -78,7 +112,7 @@ export function inviteHrefForRoom(code: string, href = typeof window !== "undefi
   return url.toString();
 }
 
-export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: Actor; onLeave: () => void; proof?: ActorProof }) {
+export function RoomShell({ roomId, me, onLeave, onSignOut, proof }: { roomId: string; me: Actor; onLeave: () => void; onSignOut?: () => void; proof?: ActorProof }) {
   const store = useStore();
   const room = store.getRoom(roomId);
   // QA P0: below 981px the side panels render as fixed overlays over chat (styles.css), so they
@@ -121,6 +155,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   const [backgroundGlow, setBackgroundGlow] = useState(false);
   const [replayPace, setReplayPace] = useState<ReplayPace>("standard");
   const [focusMode, setFocusMode] = useState<FocusModeClientState>(() => readFocusModeClientState());
+  const restoredArtifactRoomRef = useRef<string | null>(null);
   // Room-level rung of the presence ladder: facepile/live chip → PeoplePanel (role groups,
   // live location, Follow). Declared before the !room early return (stable hook count).
   const [peopleOpen, setPeopleOpen] = useState(false);
@@ -132,8 +167,8 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     "--accent-tint": accentTheme.tint,
     "--accent-border": accentTheme.border,
   } as CSSProperties;
-  // First-run: auto-start the guided walkthrough once per browser (opt out via the "done" flag);
-  // the settings panel's "Take the guided tour" replays it on demand.
+  // First-run: surface the non-modal dock once per browser. The full guided tour stays
+  // behind the explicit settings/replay action so a fresh room remains immediately usable.
   const tourAutoStarted = useRef(false);
   useEffect(() => {
     if (tourAutoStarted.current) return;
@@ -142,7 +177,12 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     tourAutoStarted.current = true;
     // On compact screens the panels are stacked fixed overlays — opening all three would bury the
     // chat the tour points at, so it starts from the chat-only default there.
-    if (!seen) { if (!isCompact) setShow({ left: true, stage: true, copilot: true }); setTourOpen(true); }
+    if (!seen) {
+      if (!isCompact) setShow({ left: true, stage: true, copilot: true });
+      setDockStep(0);
+      setWalkDockOpen(true);
+      try { localStorage.setItem(TOUR_KEY, "done"); } catch { /* ignore */ }
+    }
   }, [isCompact]);
   // Drop a stale split-view pin if its artifact vanished. MUST run before the `!room` early return:
   // a LIVE room mounts with room=undefined and resolves a tick later, so a hook placed AFTER the
@@ -154,8 +194,24 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     const optimistic = optimisticArtifactIdentity(artId);
     if (!optimistic) return;
     const real = arts.find((a) => !a.id.startsWith(OPT_ARTIFACT_PREFIX) && a.kind === optimistic.kind && a.title === optimistic.title);
-    if (real) setArtId(real.id);
-  }, [artId, arts]);
+    if (real) {
+      setArtId(real.id);
+      persistRoomArtifact(roomId, real);
+    }
+  }, [artId, arts, roomId]);
+  useEffect(() => {
+    if (arts.length === 0 || restoredArtifactRoomRef.current === roomId) return;
+    restoredArtifactRoomRef.current = roomId;
+    const restored = readPersistedRoomArtifact(roomId, arts);
+    if (restored) {
+      setArtId(restored.id);
+      return;
+    }
+    if (!artId || !arts.some((a) => a.id === artId)) {
+      const fallback = preferredRoomArtifact(arts);
+      if (fallback) setArtId(fallback.id);
+    }
+  }, [roomId, arts, artId]);
   // Slow-load affordance — only after a grace period so a normal fast load never sees it. Declared
   // here (before the early return) so hook order stays stable across the undefined→room tick.
   const [slowLoad, setSlowLoad] = useState(false);
@@ -218,7 +274,22 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
         </div>
         <div className="r-skel-surface">
           <span className="r-skeleton" style={{ height: 30, width: "42%" }} />
-          {Array.from({ length: 9 }).map((_, i) => <span key={i} className="r-skeleton" style={{ height: 18 }} />)}
+          <div className="r-panel r-live-boot-card r-live-boot-card--hydrate" data-testid="live-room-hydration-status">
+            <div className="row between gap8">
+              <span className="kicker">Reload recovery</span>
+              <span className="mono tiny faint">live room</span>
+            </div>
+            <div className="r-live-boot-status" aria-live="polite">
+              <strong>Restoring room state</strong>
+              <span>Reconnecting artifacts, chat, and collaborator presence after reload.</span>
+            </div>
+            <div className="r-live-boot-steps" aria-label="Room reload progress">
+              <span className="r-live-boot-step" data-state="done"><i aria-hidden="true" />Opening room</span>
+              <span className="r-live-boot-step" data-state="now"><i aria-hidden="true" />Restoring artifacts</span>
+              <span className="r-live-boot-step" data-state="next"><i aria-hidden="true" />Syncing chat</span>
+            </div>
+            {Array.from({ length: 6 }).map((_, i) => <span key={i} className="r-skeleton" style={{ height: 18, width: `${96 - (i % 3) * 5}%` }} />)}
+          </div>
         </div>
         <div className="r-skel-chat">
           {Array.from({ length: 5 }).map((_, i) => <span key={i} className="r-skeleton" style={{ height: i % 2 ? 42 : 24, width: i % 2 ? "86%" : "62%" }} />)}
@@ -252,7 +323,14 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
   };
   const isHost = members.some((m) => m.id === me.id && m.role === "host");
   const privChannel: Channel = { private: me.id };
-  const curArt = arts.find((a) => a.id === artId) ?? preferredRoomArtifact(arts);
+  const pendingPersistedArt = restoredArtifactRoomRef.current === roomId ? undefined : readPersistedRoomArtifact(roomId, arts);
+  const curArt = pendingPersistedArt ?? arts.find((a) => a.id === artId) ?? preferredRoomArtifact(arts);
+  const selectArtifact = (id: string) => {
+    restoredArtifactRoomRef.current = roomId;
+    setArtId(id);
+    const selectedArtifact = arts.find((a) => a.id === id);
+    if (selectedArtifact) persistRoomArtifact(roomId, selectedArtifact);
+  };
   const openArtifact = (id: string, opts?: { split?: boolean; elementId?: string }): boolean => {
     const artifactsNow = store.listArtifacts(roomId);
     const proposalsNow = store.listProposals(roomId);
@@ -271,7 +349,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     if (opts?.split && canSplitNow && targetArtifactId !== artId) {
       setSideArtId(targetArtifactId);
     } else {
-      setArtId(targetArtifactId);
+      selectArtifact(targetArtifactId);
     }
     const elementId = opts?.elementId ?? target?.elementId;
     if (elementId) requestAnimationFrame(() => focusStage({ artifactId: targetArtifactId, elementId }));
@@ -323,7 +401,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
     {
       selector: '[data-testid="copilot-panel"]',
       title: "Public and private lanes",
-      body: "Switch Copilot between the public room lane and your private NodeAgent. Private findings stay yours until you promote them into the shared review flow.",
+      body: "Switch Copilot between room chat and your private NodeAgent. Only you can read the private lane in NodeRoom; requests still go to the configured model provider.",
       placement: "left",
     },
     {
@@ -536,10 +614,20 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
         <IconButton className="fx-iconbtn" title="Room controls" aria-label="Open room controls" data-testid="room-settings-btn" active={tweaksOpen} onClick={() => setTweaksOpen((v) => !v)}><SlidersHorizontal size={16} /></IconButton>
       </div>
 
+      {room.experience === "sample" ? (
+        <div className="r-sample-banner" data-testid="desktop-sample-banner" role="status">
+          <ShieldCheck size={13} />
+          <span>
+            <b>{room.starterBackfill === "pending" ? "Sample still loading." : "Sample workspace."}</b>{" "}
+            Companies, sources, messages, and traces are synthetic{room.starterBackfill === "pending" ? "; missing sample artifacts retry automatically" : ""}.
+          </span>
+        </div>
+      ) : null}
+
       <div className="r-workspace nr-workspace" data-shell="june-2026">
         {show.left && <LeftRail roomId={roomId} me={me} artId={curArt?.id ?? artId} style={{ width: layout.left }} onPick={openArtifact} />}
         {show.left && <ResizeHandle label="Resize files panel" onPointerDown={(x) => startResize("left", x)} />}
-        {(!isCompact || show.stage) && <Artifact roomId={roomId} me={me} proof={proof} artId={curArt?.id ?? artId} onArt={setArtId} sideArtId={sideArtId} onSideArtChange={setSideArtId} onOpenChat={openSidebarChat} style={{ flex: layout.stage }} />}
+        {(!isCompact || show.stage) && <Artifact roomId={roomId} me={me} proof={proof} artId={curArt?.id ?? artId} onArt={selectArtifact} sideArtId={sideArtId} onSideArtChange={setSideArtId} onOpenChat={openSidebarChat} style={{ flex: layout.stage }} />}
         {show.copilot && <ResizeHandle label="Resize Copilot panel" onPointerDown={(x) => startResize("right", x)} />}
         {show.copilot && (
           <CopilotPanel
@@ -572,6 +660,8 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
         onToggleFocus={toggleFocusMode}
         onStartTour={startTour}
         onLeaveRoom={onLeave}
+        onSignOut={onSignOut}
+        canLeave={!isHost}
         onClose={() => setTweaksOpen(false)}
       />
       {autoAcceptModal && (
@@ -634,7 +724,7 @@ function CopilotPanel({
       <div className="r-panel-head r-copilot-head">
         <div className="r-copilot-channel-tabs" aria-label="Shared room chat">
           <button type="button" className="r-copilot-public-tab" data-on={String(active === "public")} onClick={() => onActive("public")}>
-            <MessageCircle size={13} /> Public chat
+            <MessageCircle size={13} /> Room chat
             {publicMessageCount > 0 && <span className="r-copilot-count">{publicMessageCount}</span>}
           </button>
         </div>
@@ -739,6 +829,8 @@ function RoomTweaksPanel({
   onToggleFocus,
   onStartTour,
   onLeaveRoom,
+  onSignOut,
+  canLeave,
   onClose,
 }: {
   open: boolean;
@@ -756,6 +848,8 @@ function RoomTweaksPanel({
   onToggleFocus: () => void;
   onStartTour: () => void;
   onLeaveRoom: () => void;
+  onSignOut?: () => void;
+  canLeave: boolean;
   onClose: () => void;
 }) {
   if (!open) return null;
@@ -826,7 +920,16 @@ function RoomTweaksPanel({
         <span className="r-tweaks-label">Room</span>
         <label className="r-tweak-line"><span>Appearance</span><ThemeToggle /></label>
         <button className="r-btn ghost r-tweak-action" type="button" data-testid="tour-button" onClick={() => { onStartTour(); onClose(); }}><HelpCircle size={14} /> Take the guided tour</button>
-        <button className="r-btn ghost r-tweak-action" type="button" onClick={onLeaveRoom}><LogOut size={14} /> Leave room</button>
+        <button
+          className="r-btn ghost r-tweak-action"
+          type="button"
+          disabled={!canLeave}
+          title={canLeave ? "Leave room" : "Host transfer is required before leaving"}
+          onClick={onLeaveRoom}
+        >
+          <LogOut size={14} /> {canLeave ? "Leave room" : "Host owns this room"}
+        </button>
+        {onSignOut && <button className="r-btn ghost r-tweak-action" type="button" onClick={onSignOut}><LogOut size={14} /> Sign out of NodeRoom</button>}
       </div>
     </div>
   );

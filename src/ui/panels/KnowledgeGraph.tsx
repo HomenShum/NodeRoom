@@ -42,9 +42,11 @@ import type { Artifact as Art, Actor, DataframeColumn } from "../../engine/types
 import { EntityGraphDetailPanel } from "../graph/EntityGraphDetailPanel";
 import { buildSemanticGraph } from "../graph/semanticGraph";
 import { applySemanticGraphFilters } from "../graph/semanticGraphFilters";
+import { selectSemanticGraphCluster, summarizeSemanticGraphClusters } from "../graph/semanticGraphClusters";
 import { layoutSemanticGraph } from "../graph/semanticGraphLayout";
 import { selectSemanticEdge, selectSemanticNeighborhood } from "../graph/semanticGraphSelectors";
 import type { SemanticGraphEdge, SemanticGraphNode, SemanticGraphNodeKind, SemanticGraphStats } from "../graph/semanticGraphTypes";
+import { buildDeckStoryboardFromRoom } from "../workArtifacts/deckStoryboard";
 
 const MAX_NODES = 200; // BOUND: keep the canvas legible + the O(n^2) layout cheap.
 const MAX_SOURCES = 30; // BOUND: cap source nodes (URLs can proliferate).
@@ -58,6 +60,7 @@ const KIND_COLOR: Record<string, string> = {
   project: "#60d0e0", publication: "#c060d0", achievement: "#ffd040",
   investment: "#e07060", source: "#888888", category: "#a0a0a0",
   artifact: "#6aa9ff", spreadsheet_row: "#6aa9ff", notebook_block: "#c0a0ff",
+  deck: "#ffd16a", deck_slide: "#f0a040", deck_claim: "#5fd0a0",
   evidence_fact: "#ffd16a", funding: "#e07060", trace_step: "#60d0e0",
   proposal: "#c060d0", open_question: "#f0a040", agent_job: "#ff9e6a",
 };
@@ -67,11 +70,12 @@ const KIND_LABEL: Record<string, string> = {
   project: "Project", publication: "Publication", achievement: "Achievement",
   investment: "Investment", source: "Source", category: "Category",
   artifact: "Artifact", spreadsheet_row: "Row", notebook_block: "Block",
+  deck: "Deck", deck_slide: "Slide", deck_claim: "Claim",
   evidence_fact: "Evidence", funding: "Funding", trace_step: "Trace",
   proposal: "Proposal", open_question: "Question", agent_job: "Agent",
 };
 const ENTITY_KINDS: GKind[] = ["company", "person", "event", "project", "publication", "achievement", "investment", "source", "category"];
-const SEMANTIC_ENTITY_KINDS: SemanticGraphNodeKind[] = ["company", "person", "project", "achievement", "funding", "event", "source", "evidence_fact", "artifact", "spreadsheet_row", "notebook_block", "trace_step", "proposal", "open_question", "agent_job"];
+const SEMANTIC_ENTITY_KINDS: SemanticGraphNodeKind[] = ["company", "person", "project", "achievement", "funding", "event", "source", "evidence_fact", "artifact", "deck", "deck_slide", "deck_claim", "spreadsheet_row", "notebook_block", "trace_step", "proposal", "open_question", "agent_job"];
 const colorOf = (k: string): string => KIND_COLOR[k] ?? "var(--accent-primary)";
 const CLOUD_ENTITY_COLOR: Array<[RegExp, string]> = [
   [/^CardioNova$/i, "#6F7CF6"],
@@ -302,6 +306,7 @@ function GraphAgentPanel({ selectedNode, selectedEdge, stats, value, status, mes
 export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onOpenArtifact: (id: string) => void }): ReactElement {
   const store = useStore();
   const arts = store.listArtifacts(roomId);
+  const room = store.getRoom(roomId);
   const members = store.listMembers(roomId);
   const traces = store.listTraces(roomId);
   const proposals = store.listProposals(roomId);
@@ -313,11 +318,15 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
   const [semanticEvidenceOnly, setSemanticEvidenceOnly] = useState(false);
   const [semanticAgentOnly, setSemanticAgentOnly] = useState(false);
   const [semanticHumanOnly, setSemanticHumanOnly] = useState(false);
+  const [activeClusterId, setActiveClusterId] = useState<string | null>(null);
+  const [clusterNeighborDepth, setClusterNeighborDepth] = useState<0 | 1 | 2>(0);
+  const [semanticFocusDepth, setSemanticFocusDepth] = useState<1 | 2 | 3>(2);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [hoveredEdge, setHoveredEdge] = useState<string | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<string | null>(null);
   const [view, setView] = useState<"mind" | "evidence" | "domain" | "runtime" | "entity">("entity");
   const [manualEntityPos, setManualEntityPos] = useState<Record<string, { x: number; y: number }>>({});
+  const [nodeMeasurements, setNodeMeasurements] = useState<Record<string, { width: number; height: number }>>({});
   const [graphAgentPrompt, setGraphAgentPrompt] = useState("");
   const [graphAgentStatus, setGraphAgentStatus] = useState<"idle" | "running" | "sent" | "error">("idle");
   const [graphAgentMessage, setGraphAgentMessage] = useState<string | null>(null);
@@ -326,6 +335,11 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
   const proposalSig = proposals.map((p) => `${p.id}:${p.status}:${p.createdAt}:${p.resolvedAt ?? ""}`).join("|");
   const sessionSig = sessions.map((s) => `${s.id}:${s.status}:${s.updatedAt}`).join("|");
   const memberSig = members.map((m) => `${m.id}:${m.name}:${m.lastSeenAt}`).join("|");
+  const storyboard = useMemo(() => (
+    arts.length > 0
+      ? buildDeckStoryboardFromRoom({ roomId, roomTitle: room?.title, artifacts: arts, traces, proposals })
+      : null
+  ), [roomId, room?.title, sig, traceSig, proposalSig]);
 
   const semanticGraph = useMemo(() => buildSemanticGraph({
     roomId,
@@ -333,10 +347,11 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
     members,
     traces,
     proposals,
+    decks: storyboard ? [storyboard] : [],
     sessions,
     maxRowsPerSheet: 160,
     maxEvidenceFacts: 260,
-  }), [roomId, sig, traceSig, proposalSig, sessionSig, memberSig]);
+  }), [roomId, sig, traceSig, proposalSig, sessionSig, memberSig, storyboard]);
 
   const semanticAllowedKinds = useMemo(() => new Set(SEMANTIC_ENTITY_KINDS.filter((kind) => !semanticHiddenKinds.has(kind))), [semanticHiddenKinds]);
   const semanticView = useMemo(() => applySemanticGraphFilters(semanticGraph, {
@@ -346,21 +361,27 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
     agentActionsOnly: semanticAgentOnly,
     humanEditsOnly: semanticHumanOnly,
   }), [semanticGraph, view, search, semanticAllowedKinds, semanticEvidenceOnly, semanticAgentOnly, semanticHumanOnly]);
+  const semanticClusterSummaries = useMemo(() => summarizeSemanticGraphClusters(semanticView), [semanticView]);
+  const semanticClusterView = useMemo(() => selectSemanticGraphCluster(semanticView, activeClusterId, {
+    neighborDepth: clusterNeighborDepth,
+    maxNodes: 100,
+  }), [activeClusterId, clusterNeighborDepth, semanticView]);
   const semanticRenderGraph = useMemo(() => {
-    const focusedCenter = focus ? semanticView.nodes.find((node) => node.id === focus) : undefined;
+    const focusedCenter = focus ? semanticClusterView.nodes.find((node) => node.id === focus) : undefined;
     const useDefaultSlice = view === "entity" &&
       !search.trim() &&
       !focusedCenter &&
       !selectedEdge &&
+      !activeClusterId &&
       semanticHiddenKinds.size === 0 &&
       !semanticEvidenceOnly &&
       !semanticAgentOnly &&
       !semanticHumanOnly;
-    if (!useDefaultSlice && !focusedCenter) return semanticView;
-    const center = focusedCenter ?? semanticView.nodes.find((node) => node.kind === "company" && /cardionova/i.test(node.label)) ??
-      [...semanticView.nodes].filter((node) => node.kind === "company").sort((a, b) => b.weight - a.weight)[0];
-    if (!center) return semanticView;
-    const nodeById = new Map(semanticView.nodes.map((node) => [node.id, node]));
+    if (!useDefaultSlice && !focusedCenter) return semanticClusterView;
+    const center = focusedCenter ?? semanticClusterView.nodes.find((node) => node.kind === "company" && /cardionova/i.test(node.label)) ??
+      [...semanticClusterView.nodes].filter((node) => node.kind === "company").sort((a, b) => b.weight - a.weight)[0];
+    if (!center) return semanticClusterView;
+    const nodeById = new Map(semanticClusterView.nodes.map((node) => [node.id, node]));
     const priority = (nodeIdValue: string) => {
       const node = nodeById.get(nodeIdValue);
       if (!node) return -1;
@@ -374,7 +395,7 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
       return score;
     };
     const keep = new Set<string>([center.id]);
-    const directEdges = semanticView.edges.filter((edge) => edge.source === center.id || edge.target === center.id)
+    const directEdges = semanticClusterView.edges.filter((edge) => edge.source === center.id || edge.target === center.id)
       .sort((a, b) => {
         const ao = a.source === center.id ? a.target : a.source;
         const bo = b.source === center.id ? b.target : b.source;
@@ -389,31 +410,31 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
     for (const edge of directEdges.slice(0, 8)) {
       if (keep.size >= secondLimit) break;
       const anchor = edge.source === center.id ? edge.target : edge.source;
-      for (const next of semanticView.edges.filter((candidate) => candidate.source === anchor || candidate.target === anchor).sort((a, b) => priority(b.source) + priority(b.target) - priority(a.source) - priority(a.target)).slice(0, 2)) {
+      for (const next of semanticClusterView.edges.filter((candidate) => candidate.source === anchor || candidate.target === anchor).sort((a, b) => priority(b.source) + priority(b.target) - priority(a.source) - priority(a.target)).slice(0, 2)) {
         if (keep.size >= secondLimit) break;
         keep.add(next.source === anchor ? next.target : next.source);
       }
     }
-    const nodes = semanticView.nodes.filter((node) => keep.has(node.id));
-    const edges = semanticView.edges.filter((edge) => keep.has(edge.source) && keep.has(edge.target));
+    const nodes = semanticClusterView.nodes.filter((node) => keep.has(node.id));
+    const edges = semanticClusterView.edges.filter((edge) => keep.has(edge.source) && keep.has(edge.target));
     const edgeIds = new Set(edges.map((edge) => edge.id));
-    const clusters = semanticView.clusters.map((cluster) => ({
+    const clusters = semanticClusterView.clusters.map((cluster) => ({
       ...cluster,
       nodeIds: cluster.nodeIds.filter((nodeIdValue) => keep.has(nodeIdValue)),
       edgeIds: cluster.edgeIds.filter((edgeIdValue) => edgeIds.has(edgeIdValue)),
     })).filter((cluster) => cluster.nodeIds.length > 1);
     return {
-      ...semanticView,
+      ...semanticClusterView,
       nodes,
       edges,
       clusters,
       stats: { ...semanticView.stats, visibleNodes: nodes.length, visibleEdges: edges.length },
     };
-  }, [view, search, focus, selectedEdge, semanticHiddenKinds, semanticEvidenceOnly, semanticAgentOnly, semanticHumanOnly, semanticView]);
+  }, [view, search, focus, selectedEdge, activeClusterId, semanticHiddenKinds, semanticEvidenceOnly, semanticAgentOnly, semanticHumanOnly, semanticClusterView]);
   const semanticNodeIds = useMemo(() => new Set(semanticRenderGraph.nodes.map((node) => node.id)), [semanticRenderGraph]);
   const semanticSelection = useMemo(() => (
-    selectedEdge ? selectSemanticEdge(semanticRenderGraph, selectedEdge) : selectSemanticNeighborhood(semanticRenderGraph, semanticNodeIds.has(focus ?? "") ? focus : null, 2)
-  ), [semanticRenderGraph, selectedEdge, focus, semanticNodeIds]);
+    selectedEdge ? selectSemanticEdge(semanticRenderGraph, selectedEdge) : selectSemanticNeighborhood(semanticRenderGraph, semanticNodeIds.has(focus ?? "") ? focus : null, semanticFocusDepth)
+  ), [semanticRenderGraph, selectedEdge, focus, semanticFocusDepth, semanticNodeIds]);
   const askGraphAgent = useCallback(async (rawPrompt: string) => {
     const prompt = rawPrompt.trim();
     if (!prompt) return;
@@ -448,7 +469,10 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
       setGraphAgentMessage(caught instanceof Error ? caught.message : String(caught));
     }
   }, [roomId, semanticGraph.stats.backedFacts, semanticGraph.stats.openQuestions, semanticRenderGraph.edges.length, semanticRenderGraph.nodes.length, semanticSelection, store]);
-  const semanticLayout = useMemo(() => layoutSemanticGraph(semanticRenderGraph, { selectedId: semanticNodeIds.has(focus ?? "") ? focus : null }), [semanticRenderGraph, semanticNodeIds, focus]);
+  const semanticLayout = useMemo(() => layoutSemanticGraph(semanticRenderGraph, {
+    selectedId: semanticNodeIds.has(focus ?? "") ? focus : null,
+    mode: activeClusterId ? "cluster-lanes" : focus ? "entity-focus" : "constellation",
+  }), [activeClusterId, semanticRenderGraph, semanticNodeIds, focus]);
   const semanticDegree = useMemo(() => {
     const degree = new Map<string, number>();
     for (const node of semanticRenderGraph.nodes) degree.set(node.id, 0);
@@ -935,6 +959,7 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
           draggable: graphDragEnabled,
           className: `r-graphvu-node${isFocus ? " r-graphvu-node-focus" : ""}${isGap ? " r-graphvu-node-gap" : ""} r-graphvu-node-radial${presenceColor ? " r-graphvu-node-presence" : ""}`,
           style: { width: Math.min(184, Math.max(92, label.length * 7 + 36)) },
+          measured: nodeMeasurements[nd.id],
         };
       });
     }
@@ -975,10 +1000,11 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
         draggable: graphDragEnabled,
         className: `r-graphvu-node${isFocus ? " r-graphvu-node-focus" : ""}${isGap ? " r-graphvu-node-gap" : ""}${isRadial ? " r-graphvu-node-radial" : ""}${presenceColor ? " r-graphvu-node-presence" : ""}`,
         style: { width: 136 + Math.min(deg, 5) * 10 },
+        measured: nodeMeasurements[nd.id],
       };
     });
     return [...entityNodes];
-  }, [view, selectedEdge, semanticSelection, semanticRenderGraph, manualEntityPos, semanticLayout, semanticDegree, presenceMap, graphDragEnabled, base, lit, focus, hiddenKinds, searchMatches, radialPos, entityDefaultPos, entityDefaultIds]);
+  }, [view, selectedEdge, semanticSelection, semanticRenderGraph, manualEntityPos, nodeMeasurements, semanticLayout, semanticDegree, presenceMap, graphDragEnabled, base, lit, focus, hiddenKinds, searchMatches, radialPos, entityDefaultPos, entityDefaultIds]);
 
   const nodePositionMap = useMemo(() => new Map(nodes.map((node) => [node.id, node.position])), [nodes]);
 
@@ -1099,6 +1125,18 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
   });
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
+    setNodeMeasurements((prev) => {
+      let next: Record<string, { width: number; height: number }> | null = null;
+      for (const change of changes) {
+        if (change.type !== "dimensions" || !change.dimensions) continue;
+        const { width, height } = change.dimensions;
+        const current = prev[change.id];
+        if (current?.width === width && current.height === height) continue;
+        if (!next) next = { ...prev };
+        next[change.id] = { width, height };
+      }
+      return next ?? prev;
+    });
     if (!graphDragEnabled) return;
     setManualEntityPos((prev) => {
       let next: Record<string, { x: number; y: number }> | null = null;
@@ -1160,6 +1198,24 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
             <button type="button" data-on={String(semanticAgentOnly)} onClick={() => setSemanticAgentOnly((value) => !value)}>Agent</button>
             <button type="button" data-on={String(semanticHumanOnly)} onClick={() => setSemanticHumanOnly((value) => !value)}>Human</button>
           </div>
+          <div className="r-graphvu-cluster-controls" data-testid="entity-graph-cluster-controls">
+            <select value={activeClusterId ?? ""} aria-label="Graph cluster" onChange={(event) => {
+              setActiveClusterId(event.target.value || null);
+              setFocus(null);
+              setSelectedEdge(null);
+            }}>
+              <option value="">All clusters</option>
+              {semanticClusterSummaries.slice(0, 40).map((cluster) => (
+                <option key={cluster.id} value={cluster.id}>{cluster.label} ({cluster.nodeCount})</option>
+              ))}
+            </select>
+            <div className="r-graphvu-depth" role="group" aria-label="Cluster expansion depth">
+              {[0, 1, 2].map((depth) => <button key={depth} type="button" data-on={String(clusterNeighborDepth === depth)} onClick={() => setClusterNeighborDepth(depth as 0 | 1 | 2)}>{depth}</button>)}
+            </div>
+            <div className="r-graphvu-depth" role="group" aria-label="Focus path depth">
+              {[1, 2, 3].map((depth) => <button key={depth} type="button" data-on={String(semanticFocusDepth === depth)} onClick={() => setSemanticFocusDepth(depth as 1 | 2 | 3)}>{depth}h</button>)}
+            </div>
+          </div>
         </div>
       )}
 
@@ -1182,7 +1238,7 @@ export function KnowledgeGraph({ roomId, onOpenArtifact }: { roomId: string; onO
       <div className="r-graphvu-body">
         <div className="r-graphvu-canvas">
           <ReactFlow
-            key={view === "entity" ? `entity-${search}-${focus ?? ""}-${selectedEdge ?? ""}-${semanticRenderGraph.nodes.length}-${semanticRenderGraph.edges.length}` : view}
+            key={view === "entity" ? `entity-${search}-${focus ?? ""}-${selectedEdge ?? ""}-${activeClusterId ?? "all"}-${clusterNeighborDepth}-${semanticFocusDepth}-${semanticRenderGraph.nodes.length}-${semanticRenderGraph.edges.length}` : view}
             nodes={nodes}
             edges={view === "entity" ? semanticEdges : edges}
             nodeTypes={nodeTypes}

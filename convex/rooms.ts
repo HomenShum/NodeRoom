@@ -2,9 +2,10 @@
  * (mutations are deterministic — no Math.random/uuid inside). Anonymous join is a
  * stand-in for `@convex-dev/auth`'s Anonymous provider (see docs/STACK.md). */
 import { v } from "convex/values";
-import { mutation, query, type MutationCtx } from "./_generated/server";
+import { internal } from "./_generated/api";
+import { internalMutation, mutation, query, type MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
-import { actorProofV, getRequiredProductionIdentity, hashToken, requireActorProof, type ActorValue } from "./lib";
+import { actorProofV, authTokenMatchesHash, getRequiredProductionIdentity, hashToken, requireActorProof, type ActorValue } from "./lib";
 import { syncSpreadsheetIndexFromSeed } from "./spreadsheetIndexLib";
 import { assertCreateArtifactLimits } from "./artifacts";
 
@@ -459,7 +460,7 @@ export const create = mutation({
     for (const art of seedArtifacts) assertCreateArtifactLimits(art);
     const existing = await ctx.db.query("rooms").withIndex("by_code", (q) => q.eq("code", code)).first();
     if (existing) throw new Error("room_code_taken");
-    const roomId = await ctx.db.insert("rooms", { code, title: a.title, hostId: "", autoAllow: a.autoAllow ?? false, status: "live", createdAt: now });
+    const roomId = await ctx.db.insert("rooms", { code, title: a.title, hostId: "", autoAllow: a.autoAllow ?? false, status: "live", createdAt: now, experience: "workspace", starterBackfill: "ready" });
     const memberId = await ctx.db.insert("members", { roomId, name: a.hostName, role: "host", anon: false, color: palette[0], authTokenHash: await hashToken(a.authToken), authSubject: identity?.subject, lastSeenAt: now });
     await ctx.db.patch(roomId, { hostId: memberId });
     await ctx.db.insert("agentSessions", { roomId, agentId: "agent_room", agentName: "Room NodeAgent", scope: "public", status: "idle", lastAction: "started", updatedAt: now });
@@ -475,7 +476,10 @@ export const create = mutation({
 });
 
 export const createStarterRoom = mutation({
-  args: { code: v.string(), title: v.string(), hostName: v.string(), authToken: v.string(), autoAllow: v.optional(v.boolean()) },
+  args: {
+    code: v.string(), title: v.string(), hostName: v.string(), authToken: v.string(), autoAllow: v.optional(v.boolean()),
+    deferHeavySeed: v.optional(v.boolean()),
+  },
   handler: async (ctx, a) => {
     const now = Date.now();
     const identity = await getRequiredProductionIdentity(ctx);
@@ -484,7 +488,17 @@ export const createStarterRoom = mutation({
     if (a.title.length > MAX_TITLE_LEN || a.hostName.length > MAX_NAME_LEN) throw new Error("field_too_long");
     const existing = await ctx.db.query("rooms").withIndex("by_code", (q) => q.eq("code", code)).first();
     if (existing) throw new Error("room_code_taken");
-    const roomId = await ctx.db.insert("rooms", { code, title: a.title, hostId: "", autoAllow: a.autoAllow ?? false, status: "live", createdAt: now });
+    const deferHeavySeed = a.deferHeavySeed === true;
+    const roomId = await ctx.db.insert("rooms", {
+      code,
+      title: a.title,
+      hostId: "",
+      autoAllow: a.autoAllow ?? false,
+      status: "live",
+      createdAt: now,
+      experience: "sample",
+      starterBackfill: deferHeavySeed ? "pending" : "ready",
+    });
     const memberId = await ctx.db.insert("members", {
       roomId,
       name: a.hostName,
@@ -500,15 +514,42 @@ export const createStarterRoom = mutation({
     await ctx.db.insert("agentSessions", { roomId, agentId: "agent_priv", agentName: "Your NodeAgent", scope: "private", ownerId: memberId, status: "idle", lastAction: "started", updatedAt: now });
     const actor = { kind: "user" as const, id: String(memberId), name: a.hostName };
     await ctx.db.insert("traces", { roomId, ts: now, actor, type: "room_created", summary: `${a.hostName} created the room` });
-    const companyResearchId = await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Company research", seed: startupResearchSeed(), actor, now, meta: startupResearchMeta() });
     await insertStarterArtifact(ctx, { roomId, kind: "note", title: "Diligence memo", seed: starterNoteSeed(), actor, now });
     await insertStarterArtifact(ctx, { roomId, kind: "wall", title: "Risk / opportunity wall", seed: starterWallSeed(), actor, now });
     await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Runway / milestones", seed: starterRunwaySeed(), actor, now, meta: starterRunwayMeta() });
     await insertStarterArtifact(ctx, { roomId, kind: "note", title: "Open questions / workplan", seed: starterWorkplanSeed(), actor, now });
     await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Q3 variance", seed: starterSheetSeed(), actor, now });
-    await seedStarterMessages(ctx, { roomId, host: actor, now });
-    await padStarterTraces(ctx, { roomId, artifactId: companyResearchId, now });
+    if (deferHeavySeed) {
+      // Keep the first room frame free to render before the scale fixture starts its large write set.
+      await ctx.scheduler.runAfter(1_000, internal.rooms.finishStarterRoom, { roomId, memberId });
+    } else {
+      const companyResearchId = await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Company research", seed: startupResearchSeed(), actor, now, meta: startupResearchMeta() });
+      await seedStarterMessages(ctx, { roomId, host: actor, now });
+      await padStarterTraces(ctx, { roomId, artifactId: companyResearchId, now });
+    }
     return { roomId, memberId };
+  },
+});
+
+export const finishStarterRoom = internalMutation({
+  args: { roomId: v.id("rooms"), memberId: v.id("members") },
+  handler: async (ctx, { roomId, memberId }) => {
+    const room = await ctx.db.get(roomId);
+    if (!room || room.starterBackfill !== "pending") return { ok: false as const, reason: "not_pending" as const };
+    const member = await ctx.db.get(memberId);
+    if (!member || String(member.roomId) !== String(roomId)) return { ok: false as const, reason: "member_missing" as const };
+    const now = Date.now();
+    const actor: ActorValue = { kind: "user", id: String(memberId), name: member.name };
+    const artifacts = await ctx.db.query("artifacts").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect();
+    const companyResearch = artifacts.find((artifact) => artifact.title === "Company research");
+    const companyResearchId = companyResearch
+      ? companyResearch._id
+      : await insertStarterArtifact(ctx, { roomId, kind: "sheet", title: "Company research", seed: startupResearchSeed(), actor, now, meta: startupResearchMeta() });
+    const existingMessages = await ctx.db.query("messages").withIndex("by_room_channel", (q) => q.eq("roomId", roomId).eq("channel", "public")).take(1);
+    if (existingMessages.length === 0) await seedStarterMessages(ctx, { roomId, host: actor, now });
+    await padStarterTraces(ctx, { roomId, artifactId: companyResearchId, now });
+    await ctx.db.patch(roomId, { starterBackfill: "ready" });
+    return { ok: true as const };
   },
 });
 
@@ -519,6 +560,7 @@ export const ensureStarterRoomState = mutation({
     if (!room) throw new Error("room_not_found");
     const actor = await requireActorProof(ctx, roomId, requester);
     if (String(room.hostId) !== actor.id) throw new Error("host_required");
+    if (room.experience === "workspace") return { ok: false as const, reason: "not_sample_workspace" as const };
     const now = Date.now();
     const artifacts = await ctx.db.query("artifacts").withIndex("by_room", (q) => q.eq("roomId", roomId)).collect();
     let addedArtifacts = 0;
@@ -570,6 +612,7 @@ export const ensureStarterRoomState = mutation({
     if (publicMessages.length < 20) await seedStarterMessages(ctx, { roomId, host: actor, now });
     if (companyResearch) await padStarterTraces(ctx, { roomId, artifactId: companyResearch._id, now });
     if (room.title === "Blank NodeRoom") await ctx.db.patch(roomId, { title: "Startup diligence" });
+    if (room.starterBackfill !== "ready") await ctx.db.patch(roomId, { starterBackfill: "ready" });
 
     return { ok: true as const, addedArtifacts, patchedCells };
   },
@@ -586,14 +629,26 @@ export const joinAnonymous = mutation({
     if (a.name.length > MAX_NAME_LEN) throw new Error("field_too_long");
     const existing = await ctx.db.query("members").withIndex("by_room", (q) => q.eq("roomId", room._id)).collect();
     const activeMembers = existing.filter((m) => m.revokedAt == null);
+    const identityMatch = identity ? activeMembers.find((member) => member.authSubject === identity.subject) : undefined;
+    // Lost-response recovery: retrying with the same room-scoped token resumes the
+    // original member (including the host) instead of consuming another seat.
+    // Authenticated users also resume across browsers without consuming another
+    // room seat or relying on the first browser's room token.
+    const tokenMatches = identityMatch ? [] : await Promise.all(activeMembers.map((member) => authTokenMatchesHash(a.authToken, member.authTokenHash)));
+    const resumed = identityMatch ?? activeMembers[tokenMatches.findIndex(Boolean)];
+    if (resumed) {
+      await ctx.db.patch(resumed._id, { lastSeenAt: now });
+      return { roomId: room._id, memberId: resumed._id, name: resumed.name, resumed: true as const };
+    }
     // Abuse gates: room capacity + join-rate window (joins are members created in the last 60s).
     if (activeMembers.length >= MAX_MEMBERS_PER_ROOM) return { error: "room_full" as const };
     const recentJoins = existing.filter((m) => m._creationTime > now - 60_000).length;
     if (recentJoins >= MAX_JOINS_PER_MINUTE) return { error: "join_rate_limited" as const };
     const count = activeMembers.length;
-    const memberId = await ctx.db.insert("members", { roomId: room._id, name: a.name, role: "member", anon, color: palette[count % palette.length], authTokenHash: await hashToken(a.authToken), authSubject: identity?.subject, lastSeenAt: now });
+    const authTokenHash = await hashToken(a.authToken);
+    const memberId = await ctx.db.insert("members", { roomId: room._id, name: a.name, role: "member", anon, color: palette[count % palette.length], authTokenHash, authSubject: identity?.subject, lastSeenAt: now });
     await ctx.db.insert("traces", { roomId: room._id, ts: now, actor: { kind: "user", id: memberId, name: a.name }, type: "member_joined", summary: `${a.name} joined${anon ? " (anon)" : ""}` });
-    return { roomId: room._id, memberId };
+    return { roomId: room._id, memberId, name: a.name };
   },
 });
 
@@ -603,6 +658,9 @@ export const leave = mutation({
     const actor = await requireActorProof(ctx, roomId, requester);
     const member = await ctx.db.get(actor.id as Id<"members">);
     if (!member || String(member.roomId) !== String(roomId)) throw new Error("actor_not_in_room");
+    if (member.role === "host") {
+      return { ok: false as const, reason: "host_transfer_required" as const };
+    }
     const now = Date.now();
     await ctx.db.patch(member._id, { lastSeenAt: now, revokedAt: now });
     await ctx.db.insert("traces", {
@@ -637,7 +695,7 @@ export const byCode = query({
   args: { code: v.string() },
   handler: async (ctx, { code }) => {
     const r = await ctx.db.query("rooms").withIndex("by_code", (q) => q.eq("code", code.toUpperCase())).first();
-    return r ? { roomId: r._id } : null;
+    return r ? { roomId: r._id, experience: r.experience ?? "workspace" as const } : null;
   },
 });
 
@@ -692,7 +750,7 @@ export const full = query({
         };
       });
     return {
-      room: { id: room._id, code: room.code, title: room.title, hostId: room.hostId, autoAllow: room.autoAllow, status: room.status, createdAt: room.createdAt },
+      room: { id: room._id, code: room.code, title: room.title, hostId: room.hostId, autoAllow: room.autoAllow, status: room.status, createdAt: room.createdAt, experience: room.experience, starterBackfill: room.starterBackfill },
       members, artifacts, locks, sessions, drafts,
     };
   },
@@ -742,7 +800,7 @@ export const meta = query({
         };
       });
     return {
-      room: { id: room._id, code: room.code, title: room.title, hostId: room.hostId, autoAllow: room.autoAllow, status: room.status, createdAt: room.createdAt },
+      room: { id: room._id, code: room.code, title: room.title, hostId: room.hostId, autoAllow: room.autoAllow, status: room.status, createdAt: room.createdAt, experience: room.experience, starterBackfill: room.starterBackfill },
       members, artifacts, locks, sessions, drafts,
     };
   },

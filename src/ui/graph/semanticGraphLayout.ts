@@ -7,6 +7,9 @@ import type {
 
 const KIND_ORDER: Record<string, number> = {
   artifact: 0,
+  deck: 0,
+  deck_slide: 1,
+  deck_claim: 1,
   spreadsheet_row: 1,
   notebook_block: 1,
   company: 2,

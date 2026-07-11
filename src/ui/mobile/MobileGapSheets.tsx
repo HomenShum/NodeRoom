@@ -79,7 +79,7 @@ export function ReviewSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
 
         <div className="ms-actions gp-review-actions">
           <button type="button" onClick={() => ctx.openSheet("evidence")}>{Ico("shield", { width: 12, height: 12 })}Evidence</button>
-          <button type="button" className="pri" onClick={() => { ctx.setTab("inbox"); ctx.closeSheet(); }}>{Ico("download", { width: 12, height: 12 })}Export</button>
+          <button type="button" className="pri" onClick={() => { ctx.setTab("inbox"); ctx.closeSheet(); }}>{Ico("inbox", { width: 12, height: 12 })}Open Inbox</button>
         </div>
       </div>
     </>
@@ -129,49 +129,43 @@ export function TraceSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
 export function ShareSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   const code = ctx.inviteCode || ctx.room.code || "";
   const [copied, setCopied] = React.useState(false);
-  const doCopy = () => {
+  const doCopy = async (): Promise<void> => {
     const link = typeof window !== "undefined" ? window.location.origin + "/#mobile?room=" + code : code;
     try {
-      void navigator?.clipboard?.writeText(link);
+      if (!navigator.clipboard?.writeText) throw new Error("clipboard unavailable");
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      ctx.toast("Invite link copied");
+      setTimeout(() => setCopied(false), 1500);
     } catch {
-      /* clipboard unavailable — the code is still shown for manual copy */
+      setCopied(false);
+      ctx.toast("Invite link was not copied. Select the room code and copy it manually.");
     }
-    setCopied(true);
-    ctx.toast("Invite code copied");
-    setTimeout(() => setCopied(false), 1500);
   };
   // Decorative pattern seeded off the real code so it is stable per room — but it
   // is NOT a scannable QR. Labelled honestly below.
   const seed = Array.from(code).reduce((a, ch) => a + ch.charCodeAt(0), code.length);
   return (
     <>
-      <SheetHead title="Share room" sub="anyone with the code can join — no account" onClose={ctx.closeSheet} />
+      <SheetHead title="Share room" sub="treat this link like an access code" onClose={ctx.closeSheet} />
       <div className="na-sheet-body">
         <div className="gp-qr" role="img" aria-label="Decorative code pattern (not scannable)" data-testid="gap-share-pattern">
           {Array.from({ length: 49 }, (_, i) => <i key={i} className={(i * 7 + seed) % 5 < 2 ? "o" : ""} />)}
         </div>
         <div className="gp-cap" style={{ textAlign: "center" }}>Decorative pattern — not a scannable QR yet</div>
 
-        <button type="button" className="gp-code" onClick={doCopy} data-testid="gap-invite-code" aria-label={"Copy invite code " + code}>
+        <button type="button" className="gp-code" onClick={() => { void doCopy(); }} data-testid="gap-invite-code" aria-label={"Copy invite link for room " + code}>
           {code ? "code: " + code : "code: —"}
           {Ico(copied ? "check" : "link", { width: 15, height: 15 })}
         </button>
 
-        <div className="gp-lbl">New joiners are</div>
-        <div className="gp-seg" data-testid="gap-role-seg" aria-disabled="true">
-          <span className="on">Guest · view + chat</span>
-          <span>Member · edit</span>
-        </div>
-        <div className="gp-lbl">Access expires</div>
-        <div className="ms-chips" style={{ padding: 0 }} aria-disabled="true">
-          {["after run", "7 days", "never"].map((s, i) => <span key={s} className={i === 0 ? "on" : ""}>{s}</span>)}
-        </div>
-        <div className="gp-cap" data-testid="gap-share-stub-caption">
-          Role &amp; expiry presets are preview-only — coming with the permissions backend. The invite code above is live.
+        <div className="gp-cap" data-testid="gap-share-access-copy">
+          Anyone allowed by this deployment who has the link can join as a member, edit shared content,
+          upload files, use room chat, and run NodeAgent. This link does not currently expire.
         </div>
 
         <div className="ms-actions">
-          <button type="button" onClick={doCopy}>{Ico("link", { width: 12, height: 12 })}Copy link</button>
+          <button type="button" onClick={() => { void doCopy(); }}>{Ico("link", { width: 12, height: 12 })}Copy link</button>
         </div>
       </div>
     </>
@@ -223,22 +217,22 @@ export function ManageSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   );
 }
 
-// ── 8 · First-join overlay (extends RoomJoinConsent patterns; not a duplicate) ─
-// A single welcome card shown once per session over the dimmed room. Uses the
-// same terra card language as RoomJoinConsent but is a lightweight one-card
-// overlay (no radio choice — that decision already happened at consent).
+// ── 8 · First-join notice (extends RoomJoinConsent patterns; not a duplicate) ─
+// A single welcome card shown once per session. It is intentionally non-modal:
+// the room, dock, chat, and sheets remain usable before the user dismisses it.
 export function FirstJoinOverlay({
   people,
   agents,
+  sample = false,
   onDismiss,
 }: {
   people: number;
   agents: number;
+  sample?: boolean;
   onDismiss: () => void;
 }): React.ReactElement {
   return (
-    <div className="gp-onb-wrap" data-testid="gap-firstjoin" role="dialog" aria-modal="true" aria-labelledby="gp-onb-title">
-      <div className="gp-onb-dim" onClick={onDismiss} />
+    <div className="gp-onb-wrap" data-testid="gap-firstjoin" role="status" aria-live="polite" aria-labelledby="gp-onb-title">
       <div className="gp-onb">
         <div className="faces" aria-hidden>
           <span className="fx-av">{Ico("users", { width: 14, height: 14 })}</span>
@@ -248,11 +242,12 @@ export function FirstJoinOverlay({
           {agents > 0 ? ` & ${agents} agent${agents === 1 ? "" : "s"} here` : " here"}
         </h4>
         <p>
-          You joined this room — watch every artifact live, chat, and follow anyone. Locks and
-          receipts apply to every edit, yours and the agent&rsquo;s.
+          {sample
+            ? "This workspace contains synthetic companies, sources, messages, and traces. Use it to inspect the review flow."
+            : "Everyone in this room can read room messages and edit shared artifacts. Locks and receipts apply to your edits and the agent’s."}
         </p>
         <div className="acts">
-          <button type="button" className="pri" onClick={onDismiss}>Got it</button>
+          <button type="button" className="pri" aria-label="Dismiss first-join welcome" onClick={onDismiss}>Got it</button>
         </div>
       </div>
     </div>

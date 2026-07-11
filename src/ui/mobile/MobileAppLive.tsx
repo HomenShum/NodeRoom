@@ -4,7 +4,7 @@
    expects, then renders MobileApp with `live` set. This component always runs
    under a store provider (mounted by MobileRoot), so useStore() is safe here.
    Wired surfaces (this pass): room metadata + the public room chat (the wedge).
-   Other panels remain sample data until their live wiring lands.
+   Unsupported panels render explicit unavailable states instead of sample data.
    ============================================================================ */
 import { useCallback, useMemo, useRef } from "react";
 import { useMutation, useQuery } from "convex/react";
@@ -12,9 +12,10 @@ import { api } from "../../../convex/_generated/api";
 import type { FunctionReference } from "convex/server";
 import { useStore, type ActorProof } from "../../app/store";
 import type { Actor, Message, Member, CellStatus, Artifact, CellEvidence, CellPayload, TraceEvent } from "../../engine/types";
-import type { RoomMsg, Person, AgentMsg, Row, Tone, InboxItem, Job, RecentItem, RecentSig, Plan, Evidence, EvidenceSupport, Coach, PipelineStage, TraceRow, ManageGroup, ManagedPerson, OfflineHold, NotifRow } from "./mobileData";
-import { MOBILE_TRACE_MAX } from "./mobileData";
-import type { MobileLive } from "./mobileTypes";
+import type { RoomMsg, Person, AgentMsg, Row, Tone, InboxItem, Job, RecentItem, RecentSig, Plan, Evidence, EvidenceSupport, Coach, PipelineStage, TraceRow, ManageGroup, ManagedPerson, OfflineHold, NotifRow, DeckStatus, SlideStatus } from "./mobileData";
+import { MOBILE_TRACE_MAX, slideDoc } from "./mobileData";
+import type { MobileDeckArtifact, MobileLive } from "./mobileTypes";
+import { buildDeckStoryboardFromRoom, deckArtifactInputFromStoryboard, type DeckStoryboard } from "../workArtifacts";
 import { groupPeople, liveLocationFor } from "../PeoplePanel";
 import { MobileApp } from "./MobileApp";
 
@@ -96,7 +97,7 @@ function reshapeAgentMsgs(messages: Message[]): AgentMsg[] {
     m.author.kind === "user" ? { id: m.id, role: "user", text: m.text } : { id: m.id, role: "agent", variant: "text", text: m.text });
 }
 
-// ── live CardioNova row (the Company research sheet) ────────────────────────
+// ── live sheet row projection; the synthetic sample keeps its named row ─────
 const RESEARCH_ROW = "rc_cardionova";
 const ROW_FIELDS: { col: string; label: string }[] = [
   { col: "intent", label: "Product" },
@@ -127,10 +128,47 @@ function cellTone(s?: CellStatus): Tone {
   return "mute";
 }
 
+export function projectMobileSheetRow(artifact: Artifact | undefined, sampleResearch = false): Row {
+  if (!artifact) return { entity: "No live sheet", sub: "No live sheet artifact is available", fields: [] };
+  const fields = sampleResearch
+    ? ROW_FIELDS.map(({ col, label }) => {
+        const elementId = `${RESEARCH_ROW}__${col}`;
+        const el = artifact.elements[elementId];
+        const payload = cellPayload(el?.value);
+        return { k: label, v: cellDisplay(payload.value), status: payload.status ?? "", tone: cellTone(payload.status), elementId, version: el?.version ?? 0 };
+      })
+    : (artifact.order.length ? artifact.order : Object.keys(artifact.elements)).slice(0, 8).map((elementId) => {
+        const el = artifact.elements[elementId];
+        const payload = cellPayload(el?.value);
+        const columnId = elementId.includes("__") ? elementId.slice(elementId.lastIndexOf("__") + 2) : elementId;
+        const column = artifact.meta?.dataframe?.columns.find((candidate) => candidate.id === columnId);
+        return {
+          k: column?.label ?? elementId,
+          v: cellDisplay(payload.value),
+          status: payload.status ?? "",
+          tone: cellTone(payload.status),
+          elementId,
+          version: el?.version ?? 0,
+        };
+      });
+  return {
+    entity: sampleResearch ? "CardioNova" : artifact.title,
+    sub: `${artifact.title} · live sheet preview`,
+    fields,
+  };
+}
+
+export function resolveMobileExperience(
+  serverExperience: "workspace" | "sample" | undefined,
+  sessionHint: "workspace" | "sample" | undefined,
+): "workspace" | "sample" {
+  return serverExperience ?? sessionHint ?? "workspace";
+}
+
 // Live room artifacts -> Home recents. Real titles/kinds/edit-times; the sheet
 // signature samples the first cells' tones (elements are already loaded).
-function buildRecents(artifacts: Artifact[]): RecentItem[] {
-  return artifacts.slice(0, 8).map((a): RecentItem => {
+export function buildRecents(artifacts: Artifact[], deck?: MobileDeckArtifact): RecentItem[] {
+  const artifactRecents = artifacts.map((a): RecentItem => {
     const icon = a.kind === "sheet" ? "table" : a.kind === "wall" ? "layers" : "note";
     const count = a.order?.length ?? Object.keys(a.elements).length;
     const sig: RecentSig =
@@ -147,6 +185,23 @@ function buildRecents(artifacts: Artifact[]): RecentItem[] {
       sig,
     };
   });
+  if (!deck) return artifactRecents.slice(0, 8);
+  const activeSlide = deck.slides.findIndex((slide) => slide.status === "needs_review" || slide.status === "proposed");
+  const deckRecent: RecentItem = {
+    id: deck.id,
+    icon: "layers",
+    title: deck.title,
+    meta: `${deck.slides.length} slides - ${deck.sourceIds.length} sources - ${deck.status}`,
+    kind: "deck",
+    peek: deck.slides[0]?.title ?? deck.fallbackReason ?? "Governed storyboard",
+    sig: {
+      type: "deck",
+      count: deck.slides.length,
+      active: activeSlide >= 0 ? activeSlide : 0,
+      status: deck.status,
+    },
+  };
+  return [deckRecent, ...artifactRecents].slice(0, 8);
 }
 
 function sourceHost(e: CellEvidence): string | undefined {
@@ -253,7 +308,117 @@ function buildLiveCoach(evidence: Evidence, artifacts: Artifact[], proposals: In
   };
 }
 
-export function MobileAppLive({ roomId, me, proof, onLeave }: { roomId: string; me: Actor; proof?: ActorProof; onLeave?: () => void }) {
+function escapeSlideText(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function storyboardSlideStatus(status: DeckStoryboard["slides"][number]["status"], verified: boolean): SlideStatus {
+  if (status === "needs_review") return "needs_review";
+  return verified ? "approved" : "draft";
+}
+
+function storyboardDeckStatus(storyboard: DeckStoryboard): DeckStatus {
+  return storyboard.storyboardStatus === "needs_review" || storyboard.unresolvedGaps.length > 0 ? "proposed" : "approved";
+}
+
+function mobileDeckFromStoryboard(storyboard: DeckStoryboard): MobileDeckArtifact {
+  const workArtifact = deckArtifactInputFromStoryboard(storyboard);
+  const slides = storyboard.slides.map((slide, index) => {
+    const verified = slide.claims.length > 0 && slide.claims.every((claim) => claim.status === "verified");
+    const claims = slide.claims.slice(0, 4).map((claim) =>
+      `<li>${escapeSlideText(claim.text)}${claim.status === "verified" ? "" : " - needs review"}</li>`,
+    ).join("");
+    const gaps = slide.unresolvedGaps.slice(0, 3).map((gap) => `<li>${escapeSlideText(gap)}</li>`).join("");
+    return {
+      id: slide.slideId,
+      index: index + 1,
+      title: slide.title,
+      status: storyboardSlideStatus(slide.status, verified),
+      html: slideDoc(
+        `<div class="k">Live storyboard - ${escapeSlideText(slide.purpose)}</div><div class="spacer"></div>` +
+          `<h1 class="mid">${escapeSlideText(slide.title)}</h1>` +
+          `<ul style="margin-top:18px">${claims || "<li>No claims extracted yet</li>"}</ul>` +
+          (gaps ? `<p style="margin-top:14px">Open gaps:</p><ul>${gaps}</ul>` : "") +
+          `<div class="spacer"></div><span class="badge ${slide.status === "needs_review" ? "nr" : "ok"}">${slide.status}</span>`,
+      ),
+    };
+  });
+  const firstGap = storyboard.unresolvedGaps[0] ?? storyboard.requiredEvidence[0] ?? "Unsupported claim";
+  return {
+    id: storyboard.deckId,
+    storyboard,
+    roomId: storyboard.roomId,
+    workArtifactId: workArtifact.id,
+    traceIds: storyboard.traceIds,
+    sourceIds: storyboard.sourceArtifactIds,
+    proposalIds: storyboard.proposalIds,
+    readonly: true,
+    fallbackReason: "Live mobile renders the governed storyboard; revision requests route through the room agent and proposals.",
+    title: storyboard.title,
+    audience: storyboard.audience,
+    status: storyboardDeckStatus(storyboard),
+    planHash: storyboard.planHash,
+    privacy: "Room",
+    exportState: storyboard.unresolvedGaps.length ? "not_started" : "ready",
+    exportFormat: "PPTX",
+    exportSize: "receipt pending",
+    sourceGaps: storyboard.unresolvedGaps.length,
+    plan: {
+      goal: storyboard.objective,
+      todos: [
+        { text: "Read live room artifacts", status: storyboard.sourceArtifactIds.length ? "done" : "todo" },
+        { text: "Map claims to evidence", status: storyboard.requiredEvidence.length ? "running" : "done" },
+        { text: "Review pending proposals", status: storyboard.proposalIds.length ? "running" : "done" },
+        { text: "Produce export receipt", status: storyboard.unresolvedGaps.length ? "todo" : "done" },
+      ],
+      ran: Math.max(1, storyboard.sourceArtifactIds.length + storyboard.traceIds.length),
+      guard: "Read-only storyboard projection - live revision requests must produce a host-reviewed proposal.",
+      willRead: storyboard.sourceArtifactIds.length ? storyboard.sourceArtifactIds.map((id) => `Artifact ${id}`) : ["Live room artifacts"],
+      willCreate: ["Governed patch request", "PPTX download receipt"],
+      wontWrite: ["Deck HTML", "Notebook text", "Sheet cells"],
+      stats: [
+        { v: String(storyboard.slides.length), l: "slides", mono: true },
+        { v: String(storyboard.unresolvedGaps.length), l: "gaps", mono: true },
+        { v: String(storyboard.proposalIds.length), l: "proposals", mono: true },
+      ],
+    },
+    slides,
+    patchSample: {
+      target: storyboard.proposalIds[0] ? `Proposal ${storyboard.proposalIds[0]}` : "Storyboard claim",
+      before: firstGap,
+      after: "Keep the claim marked needs_review until a source-backed proposal is accepted.",
+      evidence: storyboard.slides.flatMap((slide) => slide.claims).slice(0, 2).map((claim, index) => ({
+        n: String(index + 1),
+        text: claim.text,
+        verified: claim.status === "verified",
+      })),
+    },
+    receipt: {
+      reads: { planned: storyboard.sourceArtifactIds.length, actual: storyboard.sourceArtifactIds.length },
+      writes: { planned: 0, actual: 0 },
+      cost: { planned: "room policy", actual: "not run from mobile" },
+      coverage: `${storyboard.requiredEvidence.length} claims need evidence`,
+      gaps: storyboard.unresolvedGaps,
+      files: ["Mobile storyboard preview", "PPTX export with integrity receipt"],
+    },
+    versions: [
+      { v: `v${storyboard.version}`, label: "Live storyboard projection", t: "now", current: true },
+    ],
+  };
+}
+
+export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave, onSignOut }: {
+  roomId: string;
+  me: Actor;
+  proof?: ActorProof;
+  experienceHint?: "workspace" | "sample";
+  onLeave?: () => void;
+  onSignOut?: () => void;
+}) {
   const store = useStore();
   const room = store.getRoom(roomId);
   // First-load signal: in the Convex store getRoom() is the ONLY accessor that
@@ -271,23 +436,18 @@ export function MobileAppLive({ roomId, me, proof, onLeave }: { roomId: string; 
   const privateMsgs = store.listMessages(roomId, { private: me.id });
 
   const artifacts = store.listArtifacts(roomId);
-  const researchSheet = artifacts.find((a) => a.kind === "sheet" && a.title === "Company research");
-  const researchArt = researchSheet ? store.getArtifact(researchSheet.id) : undefined;
-  const liveRow: Row = useMemo(() => ({
-    entity: "CardioNova",
-    sub: "healthtech · row in Company research",
-    fields: researchArt
-      ? ROW_FIELDS.map(({ col, label }) => {
-          const elementId = `${RESEARCH_ROW}__${col}`;
-          const el = researchArt.elements[elementId];
-          const p = cellPayload(el?.value);
-          return { k: label, v: cellDisplay(p.value), status: p.status ?? "", tone: cellTone(p.status), elementId, version: el?.version ?? 0 };
-        })
-      : [],
-  }), [researchArt]);
+  const sampleResearchSheet = room?.experience === "sample"
+    ? artifacts.find((a) => a.kind === "sheet" && a.title === "Company research")
+    : undefined;
+  const mobileSheet = sampleResearchSheet ?? artifacts.find((a) => a.kind === "sheet");
+  const mobileSheetArtifact = mobileSheet ? store.getArtifact(mobileSheet.id) : undefined;
+  const liveRow: Row = useMemo(
+    () => projectMobileSheetRow(mobileSheetArtifact, !!sampleResearchSheet),
+    [mobileSheetArtifact, sampleResearchSheet],
+  );
   const editRowField = async (elementId: string, value: string, baseVersion: number) => {
-    if (!researchSheet) return { ok: false, reason: "no_sheet" };
-    return store.applyEdit({ roomId, op: { opId: crypto.randomUUID(), artifactId: researchSheet.id, elementId, kind: "set", value, baseVersion }, actor: me });
+    if (!mobileSheet) return { ok: false, reason: "no_sheet" };
+    return store.applyEdit({ roomId, op: { opId: crypto.randomUUID(), artifactId: mobileSheet.id, elementId, kind: "set", value, baseVersion }, actor: me });
   };
 
   const proposals = store.listProposals(roomId);
@@ -351,14 +511,27 @@ export function MobileAppLive({ roomId, me, proof, onLeave }: { roomId: string; 
   }, [artifacts, job, inboxItems.length]);
 
   // ── gap pack: recent trace rows (bounded — agentic-reliability BOUND) ──
+  const traceEvents = store.listTraces(roomId);
   const traceRows: TraceRow[] = useMemo(() => {
-    const events = store.listTraces(roomId);
-    return events
+    return traceEvents
       .slice()
       .sort((a, b) => b.ts - a.ts)
       .slice(0, MOBILE_TRACE_MAX)
       .map((e): TraceRow => ({ id: e.id, kind: traceKind(e.type), text: e.summary, time: relTime(e.ts) }));
-  }, [store, roomId]);
+  }, [traceEvents]);
+
+  const liveDeck = useMemo(() => {
+    if (artifacts.length === 0 && proposals.length === 0) return undefined;
+    const storyboard = buildDeckStoryboardFromRoom({
+      roomId,
+      roomTitle: room?.title ?? "Room",
+      artifacts,
+      traces: traceEvents,
+      proposals,
+      maxSlides: 5,
+    });
+    return mobileDeckFromStoryboard(storyboard);
+  }, [artifacts, proposals, room?.title, roomId, traceEvents]);
 
   // ── gap pack: role-grouped people + live location (same as desktop PeoplePanel) ──
   const peopleGroups: ManageGroup[] = useMemo(() => {
@@ -414,7 +587,7 @@ export function MobileAppLive({ roomId, me, proof, onLeave }: { roomId: string; 
   // Results are byte-identical to the inline calls; deps are the exact inputs.
   const roomMsgs = useMemo(() => reshapeMessages(messages), [messages]);
   const people = useMemo(() => buildPeople(members), [members]);
-  const recents = useMemo(() => buildRecents(artifacts), [artifacts]);
+  const recents = useMemo(() => buildRecents(artifacts, liveDeck), [artifacts, liveDeck]);
   const agentPrivate = useMemo(() => reshapeAgentMsgs(privateMsgs), [privateMsgs]);
   const agentRoom = useMemo(
     () => reshapeAgentMsgs(messages.filter((m) => m.author.kind === "agent" || m.author.id === me.id)),
@@ -424,6 +597,8 @@ export function MobileAppLive({ roomId, me, proof, onLeave }: { roomId: string; 
   const live: MobileLive = {
     roomName: room?.title ?? "Room",
     roomCode: room?.code ?? "",
+    experience: resolveMobileExperience(room?.experience, experienceHint),
+    starterBackfill: room?.starterBackfill,
     liveCount: members.length,
     roomMsgs,
     people,
@@ -431,6 +606,7 @@ export function MobileAppLive({ roomId, me, proof, onLeave }: { roomId: string; 
     plan: livePlan,
     evidence: liveEvidence,
     coach: liveCoach,
+    deck: liveDeck,
     postRoomMessage: async (text: string) => {
       return store.postMessage({ roomId, channel: "public", author: me, text, clientMsgId: crypto.randomUUID(), kind: "chat" });
     },
@@ -472,6 +648,7 @@ export function MobileAppLive({ roomId, me, proof, onLeave }: { roomId: string; 
       return r.ok ? { ok: true } : { ok: false, reason: r.reason };
     },
     onLeave,
+    onSignOut,
     loading,
 
     // ── gap pack ──
@@ -497,14 +674,15 @@ export function MobileAppLive({ roomId, me, proof, onLeave }: { roomId: string; 
     isRowWatched: (rowId: string) => watchedRowIds.has(rowId),
     flagRowNeedsReview: async (rowId: string) => {
       // Route through the existing CAS edit path: set the row's status column to
-      // needs_review. Uses the research sheet the row belongs to when present.
-      if (!researchSheet) return { ok: false, reason: "no_sheet" };
+      // needs_review only when that live sheet exposes an existing status cell.
+      if (!mobileSheet || !mobileSheetArtifact) return { ok: false, reason: "no_sheet" };
       const elementId = `${rowId}__status`;
-      const el = researchArt?.elements[elementId];
+      const el = mobileSheetArtifact.elements[elementId];
+      if (!el) return { ok: false, reason: "status_field_unavailable" };
       const baseVersion = el?.version ?? 0;
       return store.applyEdit({
         roomId,
-        op: { opId: crypto.randomUUID(), artifactId: researchSheet.id, elementId, kind: "set", value: "needs_review", baseVersion },
+        op: { opId: crypto.randomUUID(), artifactId: mobileSheet.id, elementId, kind: "set", value: "needs_review", baseVersion },
         actor: me,
       });
     },

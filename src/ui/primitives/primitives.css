@@ -1998,7 +1998,8 @@
     pointer-events: none;
   }
 
-  .nr-app-shell .r-panel-head:hover [data-testid="artifact-split-toggle"] {
+  .nr-app-shell .r-panel-head:hover [data-testid="artifact-split-toggle"],
+  .nr-app-shell .r-panel-head:focus-within [data-testid="artifact-split-toggle"] {
     width: 28px;
     min-width: 28px;
     padding: 0;

@@ -133,7 +133,7 @@ type PublicAgentJobStream = {
 
 type LiveOperationKind = "action" | "query" | "mutation" | "model_call" | "tool_call" | "scheduler" | "lease" | "checkpoint";
 
-const QUERY_TOOLS = new Set(["snapshot", "list_artifacts", "awareness", "read_range", "search_sheet_context", "fetch_source", "read_notebook"]);
+const QUERY_TOOLS = new Set(["snapshot", "list_artifacts", "awareness", "read_range", "search_sheet_context", "inspect_workbook", "verify_workbook", "fetch_source", "read_notebook"]);
 const MUTATION_TOOLS = new Set(["propose_lock", "release_lock", "edit_cell", "create_draft", "say", "update_wiki", "append_notebook_outline", "write_cell_result", "write_locked_cell", "write_locked_cell_result", "write_locked_cells", "write_locked_cell_results"]);
 
 function envNumber(name: string, fallback: number, min: number, max: number): number {

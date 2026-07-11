@@ -21,8 +21,8 @@ function Seg({
 }) {
   return React.createElement(
     "div",
-    { className: "na-seg" },
-    options.map((o) => React.createElement("button", { key: o.v, type: "button", "data-active": value === o.v, onClick: () => onChange(o.v) }, o.label)),
+    { className: "na-seg", role: "radiogroup" },
+    options.map((o) => React.createElement("button", { key: o.v, type: "button", role: "radio", "aria-checked": value === o.v, "data-active": value === o.v, onClick: () => onChange(o.v) }, o.label)),
   );
 }
 
@@ -35,137 +35,144 @@ function SetRow({ label, hint, children }: { label: string; hint?: string; child
   );
 }
 
-export function SettingsSheet({ ctx }: { ctx: MobileCtx }) {
+export function SettingsSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   const t = ctx.t;
   const set = ctx.setTweak;
-  return React.createElement(
-    React.Fragment,
-    null,
-    React.createElement(
-      "div",
-      { className: "na-sheet-head" },
-      React.createElement("div", { className: "st" }, React.createElement("strong", null, "Settings"), React.createElement("span", null, "Make this room yours · saved on this device")),
-      React.createElement("button", { className: "na-close", onClick: ctx.closeSheet, "aria-label": "Close" }, Ico("x")),
-    ),
-    React.createElement(
-      "div",
-      { className: "na-sheet-body" },
 
-      React.createElement("div", { className: "na-kicker" }, "Appearance"),
-      React.createElement(
-        SetRow,
-        { label: "Accent" },
-        React.createElement(Seg, {
-          value: t.accent,
-          options: [{ v: "terracotta", label: "Terracotta" }, { v: "amber", label: "Amber" }, { v: "neutral", label: "Neutral" }],
-          onChange: (v) => set("accent", v as AccentName),
-        }),
-      ),
-      React.createElement(
-        SetRow,
-        { label: "Theme" },
-        React.createElement(Seg, {
-          value: t.dark ? "dark" : "light",
-          options: [{ v: "dark", label: "Dark" }, { v: "light", label: "Light" }],
-          onChange: (v) => set("dark", v === "dark"),
-        }),
-      ),
-      React.createElement(
-        SetRow,
-        { label: "Density" },
-        React.createElement(Seg, {
-          value: t.density,
-          options: [{ v: "comfortable", label: "Comfortable" }, { v: "compact", label: "Compact" }],
-          onChange: (v) => set("density", v as Density),
-        }),
-      ),
+  return (
+    <>
+      <div className="na-sheet-head">
+        <div className="st">
+          <strong>Settings</strong>
+          <span>Room policy and device preferences</span>
+        </div>
+        <button className="na-close" onClick={ctx.closeSheet} aria-label="Close">{Ico("x")}</button>
+      </div>
+      <div className="na-sheet-body">
+        <div className="na-kicker">Appearance</div>
+        <SetRow label="Theme" hint="Light is the NodeRoom mobile default">
+          <Seg
+            value={t.dark ? "dark" : "light"}
+            options={[{ v: "light", label: "Light" }, { v: "dark", label: "Dark" }]}
+            onChange={(v) => set("dark", v === "dark")}
+          />
+        </SetRow>
 
-      React.createElement("div", { className: "na-kicker" }, "Navigation"),
-      React.createElement(
-        SetRow,
-        { label: "Nav style" },
-        React.createElement(Seg, {
-          value: t.navStyle,
-          options: [{ v: "tabs", label: "Tabs" }, { v: "dock", label: "Dock" }],
-          onChange: (v) => set("navStyle", v as NavStyle),
-        }),
-      ),
-      React.createElement(
-        SetRow,
-        { label: "Default surface", hint: "Which tab opens first" },
-        React.createElement(Seg, {
-          value: t.navModel,
-          options: [{ v: "capture", label: "Capture" }, { v: "room", label: "Room" }, { v: "agent", label: "Agent" }, { v: "inbox", label: "Inbox" }],
-          onChange: (v) => set("navModel", v as TabId),
-        }),
-      ),
+        <div className="na-kicker">Agent policy</div>
+        <div className="gp-set">
+          <div className="cn-nrow" data-testid="gap-autoallow-row">
+            Agent commits: {ctx.autoAllow ? "auto-allow" : "review"}
+            <span className="grow" />
+            <button
+              type="button"
+              className="fx-toggle"
+              role="switch"
+              aria-checked={ctx.autoAllow ? "true" : "false"}
+              aria-label="Auto-allow agent commits"
+              data-testid="gap-autoallow-toggle"
+              data-on={ctx.autoAllow ? "true" : "false"}
+              disabled={!ctx.canApprove}
+              title={ctx.canApprove ? "Change agent edit policy" : "Only the room host can change this policy"}
+              onClick={() => { if (ctx.canApprove) ctx.setAutoAllow(!ctx.autoAllow); }}
+            >
+              <span className={"sw" + (ctx.autoAllow ? "" : " off")} />
+            </button>
+          </div>
+          <div className="gp-cap">
+            {ctx.canApprove
+              ? "Review means artifact edits wait for host approval. Agent runs can still create job, trace, provider, and chat records."
+              : "Only the room host can change this policy. Review currently keeps artifact edits pending for host approval."}
+          </div>
+        </div>
 
-      React.createElement("div", { className: "na-kicker" }, "Voice & motion"),
-      React.createElement(
-        SetRow,
-        { label: "Copy tone", hint: "How NodeRoom talks to you" },
-        React.createElement(Seg, {
-          value: t.copyTone,
-          options: [{ v: "analyst", label: "Analyst" }, { v: "calm", label: "Calm" }, { v: "command", label: "Command" }],
-          onChange: (v) => set("copyTone", v as CopyTone),
-        }),
-      ),
-      React.createElement(
-        SetRow,
-        { label: "Motion" },
-        React.createElement(Seg, {
-          value: t.motion,
-          options: [{ v: "expressive", label: "Expressive" }, { v: "minimal", label: "Minimal" }, { v: "reduced", label: "Reduced" }],
-          onChange: (v) => set("motion", v as MotionName),
-        }),
-      ),
+        <div className="na-kicker">Notifications</div>
+        <div className="gp-set" data-testid="gap-notif-rows">
+          {ctx.notifRows.map((n) => (
+            <div key={n.label} className="cn-nrow" data-testid="gap-notif-row">
+              {n.label}
+              <span className="grow" />
+              <span className={"mode" + (n.mode === "instant" ? " instant" : "")}>{n.mode}</span>
+              <span className="fx-toggle" aria-hidden="true" data-on={n.on ? "true" : "false"}>
+                <span className={"sw" + (n.on ? "" : " off")} />
+              </span>
+            </div>
+          ))}
+          {!ctx.notifBacked ? (
+            <div className="gp-cap" data-testid="gap-notif-caption">
+              Notification tiers are preview-only here - coming with the notifications backend.
+            </div>
+          ) : null}
+        </div>
 
-      React.createElement("div", { className: "na-kicker" }, "Intelligence"),
-      React.createElement(
-        SetRow,
-        { label: "Passive intelligence", hint: "How forward the agent is on your notes" },
-        React.createElement(Seg, {
-          value: t.passive,
-          options: [{ v: "off", label: "Off" }, { v: "suggest", label: "Suggest" }, { v: "index", label: "Index" }, { v: "research", label: "Research" }],
-          onChange: (v) => set("passive", v as PassiveMode),
-        }),
-      ),
+        <details className="na-settings-advanced">
+          <summary>Advanced</summary>
+          <div className="na-settings-advanced-body">
+            <div className="na-kicker">Visual variants</div>
+            <SetRow label="Accent">
+              <Seg
+                value={t.accent}
+                options={[{ v: "terracotta", label: "Terracotta" }, { v: "clay", label: "Clay" }, { v: "ochre", label: "Ochre" }]}
+                onChange={(v) => set("accent", v as AccentName)}
+              />
+            </SetRow>
+            <SetRow label="Density">
+              <Seg
+                value={t.density}
+                options={[{ v: "comfortable", label: "Comfortable" }, { v: "compact", label: "Compact" }]}
+                onChange={(v) => set("density", v as Density)}
+              />
+            </SetRow>
 
-      // ── gap pack: Agent auto-allow + notification tiers ──
-      // (design-reference/mobile-scale/gaps-app.jsx PSettings)
-      React.createElement("div", { className: "na-kicker" }, "Agent"),
-      React.createElement("div", { className: "gp-set" },
-        React.createElement("div", { className: "cn-nrow", "data-testid": "gap-autoallow-row" },
-          "Agent commits: auto-allow",
-          React.createElement("span", { className: "grow" }),
-          React.createElement("button", {
-            type: "button",
-            className: "fx-toggle",
-            role: "switch",
-            "aria-checked": ctx.autoAllow ? "true" : "false",
-            "aria-label": "Auto-allow agent commits",
-            "data-testid": "gap-autoallow-toggle",
-            "data-on": ctx.autoAllow ? "true" : "false",
-            onClick: () => ctx.setAutoAllow(!ctx.autoAllow),
-          }, React.createElement("span", { className: "sw" + (ctx.autoAllow ? "" : " off") })),
-        ),
-        React.createElement("div", { className: "gp-cap" }, "Off = every commit waits in Review. Locks and receipts apply either way."),
-      ),
+            <div className="na-kicker">Navigation experiments</div>
+            <SetRow label="Nav style">
+              <Seg
+                value={t.navStyle}
+                options={[{ v: "tabs", label: "Tabs" }, { v: "dock", label: "Dock" }]}
+                onChange={(v) => set("navStyle", v as NavStyle)}
+              />
+            </SetRow>
+            <SetRow label="Default surface" hint="Which tab opens first">
+              <Seg
+                value={t.navModel}
+                options={[
+                  { v: "home", label: "Home" },
+                  { v: "capture", label: "Capture" },
+                  { v: "room", label: "Room" },
+                  { v: "agent", label: "Agent" },
+                  { v: "inbox", label: "Inbox" },
+                  { v: "files", label: "Files" },
+                ]}
+                onChange={(v) => set("navModel", v as TabId)}
+              />
+            </SetRow>
 
-      React.createElement("div", { className: "na-kicker" }, "Notifications"),
-      React.createElement("div", { className: "gp-set", "data-testid": "gap-notif-rows" },
-        ctx.notifRows.map((n) =>
-          React.createElement("div", { key: n.label, className: "cn-nrow", "data-testid": "gap-notif-row" },
-            n.label,
-            React.createElement("span", { className: "grow" }),
-            React.createElement("span", { className: "mode" + (n.mode === "instant" ? " instant" : "") }, n.mode),
-            React.createElement("span", { className: "fx-toggle", "aria-hidden": "true", "data-on": n.on ? "true" : "false" },
-              React.createElement("span", { className: "sw" + (n.on ? "" : " off") })),
-          ),
-        ),
-        !ctx.notifBacked && React.createElement("div", { className: "gp-cap", "data-testid": "gap-notif-caption" },
-          "Notification tiers are preview-only here — coming with the notifications backend."),
-      ),
-    ),
+            <div className="na-kicker">Voice and motion</div>
+            <SetRow label="Copy tone">
+              <Seg
+                value={t.copyTone}
+                options={[{ v: "analyst", label: "Analyst" }, { v: "calm", label: "Calm" }, { v: "command", label: "Command" }]}
+                onChange={(v) => set("copyTone", v as CopyTone)}
+              />
+            </SetRow>
+            <SetRow label="Motion">
+              <Seg
+                value={t.motion}
+                options={[{ v: "expressive", label: "Expressive" }, { v: "minimal", label: "Minimal" }, { v: "reduced", label: "Reduced" }]}
+                onChange={(v) => set("motion", v as MotionName)}
+              />
+            </SetRow>
+
+            <div className="na-kicker">Agent experiments</div>
+            <SetRow label="Passive intelligence">
+              <Seg
+                value={t.passive}
+                options={[{ v: "off", label: "Off" }, { v: "suggest", label: "Suggest" }, { v: "index", label: "Index" }, { v: "research", label: "Research" }]}
+                onChange={(v) => set("passive", v as PassiveMode)}
+              />
+            </SetRow>
+          </div>
+        </details>
+      </div>
+    </>
   );
 }

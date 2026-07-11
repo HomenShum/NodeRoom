@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "../../convex/_generated/api";
 import { Landing } from "./Landing";
 import { RoomShell } from "./RoomShell";
@@ -18,8 +19,11 @@ const PublicRoomPage = lazy(() => import("../alwayson/PublicRoomPage").then((m) 
 import { EngineStoreProvider, ConvexStoreProvider, HAS_CONVEX } from "../app/store";
 import { createFreshRoom, enterBankerToolBenchRoomAsHost, enterDemoRoomAsHost, enterHackwithBayRoomAsHost, enterScaleDemoRoomAsHost, enterUpScaleXRoomAsHost } from "../app/roomStore";
 import type { Actor } from "../engine/types";
+import { authIntentLabel, clearPersistedRoomSessions, launchAuthRequired } from "../auth/launchAuth";
+import { AccountGate } from "./auth/AccountGate";
 
 const liveSessionKey = (code: string) => `noderoom:live:${code.toUpperCase()}`;
+const livePendingKey = (code: string) => `noderoom:livePending:${code.toUpperCase()}`;
 
 // NOTE: starter-room seed content lives server-side in convex/rooms.ts and is
 // written atomically by the `createStarterRoom` mutation. It used to be duplicated here and seeded
@@ -36,11 +40,18 @@ interface LiveSession {
   memberId: string;
   name: string;
   token: string;
+  experience?: "workspace" | "sample";
+}
+
+interface PendingLiveRequest {
+  name?: string;
+  title?: string;
+  token?: string;
 }
 
 type LiveRequest =
   | { kind: "idle" }
-  | { kind: "join" | "create" | "demo"; code: string; name: string; title?: string };
+  | { kind: "join" | "create" | "demo"; code: string; name: string; title?: string; autoAllow?: boolean };
 
 export function App() {
   const [hash, setHash] = useState(() => readRoutableHash());
@@ -155,6 +166,15 @@ function normalizeMobileLandingUrl(location: Location): string | null {
   if (typeof window === "undefined" || !isMobileLandingViewport() || isMobileHash(location.hash) || sourceParams.get("surface") === "desktop") {
     return null;
   }
+  // A fresh phone visitor stays on the same explanatory landing page. Only an
+  // explicit room intent enters the compact product shell, and existing hash
+  // destinations (public rooms, story, benchmarks) retain their route.
+  const existingRoute = normalizeSourceHash(location.hash);
+  if (existingRoute) return null;
+  const intent = sourceParams.get("intent");
+  const actionable = sourceParams.has("room") || sourceParams.has("demo") || sourceParams.has("create") ||
+    intent === "create" || intent === "join" || intent === "sample" || sourceParams.has("mode") || sourceParams.get("surface") === "mobile";
+  if (!actionable) return null;
   const url = new URL(location.href);
   const mobileParams = new URLSearchParams();
   copyParam(sourceParams, mobileParams, "mode");
@@ -173,10 +193,12 @@ function normalizeMobileLandingUrl(location: Location): string | null {
     copyParam(sourceParams, mobileParams, "name");
     copyParam(sourceParams, mobileParams, "title");
   } else {
+    copyParam(sourceParams, mobileParams, "intent");
     copyParam(sourceParams, mobileParams, "name");
-    const from = normalizeSourceHash(url.hash);
-    if (from) mobileParams.set("from", from);
   }
+  copyParam(sourceParams, mobileParams, "confirmed");
+  copyParam(sourceParams, mobileParams, "policy");
+  copyParam(sourceParams, mobileParams, "sample");
 
   url.search = "";
   const query = mobileParams.toString();
@@ -222,11 +244,28 @@ function MemoryApp({ session, onSession }: { session: Session | null; onSession:
   );
 }
 
+type LaunchAuthState = { isLoading: boolean; isAuthenticated: boolean };
+
 function ConvexApp() {
+  return launchAuthRequired()
+    ? <AuthenticatedConvexApp />
+    : <ConvexRoomApp auth={{ isLoading: false, isAuthenticated: true }} />;
+}
+
+function AuthenticatedConvexApp() {
+  const auth = useConvexAuth();
+  const { signOut } = useAuthActions();
+  return <ConvexRoomApp auth={auth} signOut={signOut} />;
+}
+
+function ConvexRoomApp({ auth, signOut }: { auth: LaunchAuthState; signOut?: () => Promise<void> }) {
+  const requiresAuth = launchAuthRequired();
+  const authReady = !requiresAuth || auth.isAuthenticated;
   const [request, setRequest] = useState<LiveRequest>(() => initialLiveRequest());
   const code = request.kind === "idle" ? "" : request.code;
   const byCode = useQuery(api.rooms.byCode, code ? { code } : "skip");
   const join = useMutation(api.rooms.joinAnonymous);
+  const createRoom = useMutation(api.rooms.create);
   const createStarterRoom = useMutation(api.rooms.createStarterRoom);
   const leaveRoom = useMutation(api.rooms.leave);
   const [session, setSession] = useState<LiveSession | null>(() => {
@@ -241,29 +280,35 @@ function ConvexApp() {
   // flashing the UI and re-hammering the join mutation. Mirrors RoomShell's tourAutoStarted ref.
   const attemptedRef = useRef<LiveRequest | null>(null);
 
-  const start = (kind: "join" | "create" | "demo", rawCode: string, rawName: string, rawTitle?: string) => {
+  const start = (kind: "join" | "create" | "demo", rawCode: string, rawName: string, rawTitle?: string, autoAllow = false) => {
     const normalizedCode = normalizeLiveRoomCode(rawCode);
     if (!normalizedCode) {
       setError("Enter a 6-12 character room code.");
       return;
     }
-    const name = cleanLiveName(rawName, kind === "create" ? "Host" : "Guest");
-    const title = kind === "create" ? cleanLiveTitle(rawTitle ?? "", "Startup diligence") : undefined;
+    const name = cleanLiveName(rawName, kind === "join" ? "Guest" : "Host");
+    const title = kind === "create" ? cleanLiveTitle(rawTitle ?? "", "My workspace") : undefined;
+    const restored = kind === "join" ? loadLiveSession(liveSessionKey(normalizedCode)) : null;
+    const pending = readLivePending(normalizedCode);
+    saveLivePending(normalizedCode, { name, title, token: pending?.token ?? randomToken() });
     setError(null);
-    setSession(kind === "join" ? loadLiveSession(liveSessionKey(normalizedCode)) : null);
-    setRequest({ kind, code: normalizedCode, name, title });
-    writeLiveUrl(kind, normalizedCode, name, title);
+    setSession(restored);
+    setRequest({ kind, code: normalizedCode, name, title, autoAllow });
+    writeLiveUrl(kind, normalizedCode, name, title, { confirmed: !restored, autoAllow });
   };
 
   useEffect(() => {
-    if (request.kind === "idle" || session || busy || byCode === undefined) return;
+    if (!authReady || request.kind === "idle" || session || busy || byCode === undefined) return;
     if (attemptedRef.current === request) return; // already tried this exact request — don't retry on failure
     attemptedRef.current = request;
     setBusy(true);
-    const token = randomToken();
+    const pending = readLivePending(request.code);
+    const token = pending?.token ?? randomToken();
+    saveLivePending(request.code, { name: request.name, title: request.title, token });
     const name = request.name;
     void (async () => {
-      let joined: { roomId: string; memberId: string } | null = null;
+      let joined: { roomId: string; memberId: string; name?: string } | null = null;
+      let experience: "workspace" | "sample" = request.kind === "demo" ? "sample" : "workspace";
       // Idempotent create: if the room already exists — a create whose success response was lost, or a
       // reload of a `?create=` URL — don't dead-end with "already exists". Adopt it by joining. There is
       // never a half-built room to recover from because createStarterRoom (below) seeds room + all four
@@ -272,7 +317,8 @@ function ConvexApp() {
       if (byCode) {
         const result = await join({ code: request.code, name, authToken: token, anon: request.kind === "join" });
         if (isJoinFailure(result)) throw new Error(joinFailureMessage(result.error));
-        joined = result ? { roomId: String(result.roomId), memberId: String(result.memberId) } : null;
+        joined = result ? { roomId: String(result.roomId), memberId: String(result.memberId), name: result.name } : null;
+        experience = byCode.experience ?? experience;
       } else if (request.kind === "demo") {
         // ONE mutation = ONE Convex transaction: room + host member + all four starter artifacts commit
         // all-or-nothing. A mid-seed failure (e.g. an oversized/invalid seed) rolls the room back, so a
@@ -283,42 +329,65 @@ function ConvexApp() {
           title: "Startup Banking Diligence War Room",
           hostName: name,
           authToken: token,
-          autoAllow: true,
+          autoAllow: request.autoAllow ?? false,
+          deferHeavySeed: true,
         });
         joined = { roomId: String(result.roomId), memberId: String(result.memberId) };
       } else if (request.kind === "create") {
-        // Real-user create uses the same atomic starter mutation as demo create.
-        // No separate deterministic route is involved; the ordinary landing flow
-        // creates the scaled room a host should actually see.
-        const result = await createStarterRoom({
+        const result = await createRoom({
           code: request.code,
-          title: request.title ?? "Startup diligence",
+          title: request.title ?? "My workspace",
           hostName: name,
           authToken: token,
-          autoAllow: true,
+          autoAllow: request.autoAllow ?? false,
         });
         joined = { roomId: String(result.roomId), memberId: String(result.memberId) };
       }
       if (!joined) throw new Error(`Room ${request.code} was not found. Create it or check the code.`);
-      const next = { roomId: joined.roomId, memberId: joined.memberId, name, token };
+      const next: LiveSession = { roomId: joined.roomId, memberId: joined.memberId, name: joined.name ?? name, token, experience };
       try { localStorage.setItem(liveSessionKey(request.code), JSON.stringify(next)); } catch { /* ignore */ }
-      if (request.kind === "create" || request.kind === "demo") writeLiveUrl("join", request.code, name);
+      clearLivePending(request.code);
+      writeLiveUrl("join", request.code, name, undefined, { sample: experience === "sample" });
       setSession(next);
     })()
       .catch((e) => { setError(friendlyLiveError(e)); })
       .finally(() => { setBusy(false); });
-  }, [byCode, busy, createStarterRoom, join, request, session]);
+  }, [authReady, byCode, busy, createRoom, createStarterRoom, join, request, session]);
 
-  if (request.kind === "idle" || !session) {
+  if (requiresAuth && (request.kind !== "idle" || session) && !auth.isAuthenticated) {
+    const actionKind = request.kind === "idle" ? "join" : request.kind;
+    return (
+      <AccountGate
+        action={authIntentLabel(actionKind)}
+        loading={auth.isLoading}
+        onCancel={() => {
+          if (code) {
+            clearLivePending(code);
+            try { localStorage.removeItem(liveSessionKey(code)); } catch { /* ignore */ }
+          }
+          setSession(null);
+          setRequest({ kind: "idle" });
+          setError(null);
+          clearLiveUrl();
+        }}
+      />
+    );
+  }
+
+  if (!session) {
+    if (request.kind !== "idle" && !error) {
+      return <LiveRoomBootShell code={code} kind={request.kind} />;
+    }
     return (
       <Landing
         mode="live"
-        defaultCode={code || ""}
+        defaultCode={code || initialLandingCode()}
         busy={busy}
         joinError={error}
-        onLiveDemo={(name) => start("demo", makeLiveRoomCode(), name)}
+        initialIntent={initialLandingIntent()}
+        onLiveDemo={(name, autoAllow) => start("demo", makeLiveRoomCode(), name, undefined, autoAllow)}
         onLiveJoin={(roomCode, name) => start("join", roomCode, name)}
-        onLiveCreate={(name, title, roomCode) => start("create", roomCode ?? makeLiveRoomCode(), name, title)}
+        onLiveCreate={(name, title, roomCode, autoAllow) => start("create", roomCode || makeLiveRoomCode(), name, title, autoAllow)}
       />
     );
   }
@@ -326,20 +395,104 @@ function ConvexApp() {
   const me: Actor = { kind: "user", id: session.memberId, name: session.name };
   const proof = { actor: me, token: session.token };
   const leave = () => {
-    void leaveRoom({ roomId: session.roomId as never, requester: proof }).catch(() => undefined);
-    try { localStorage.removeItem(liveSessionKey(request.code)); } catch { /* ignore */ }
-    setSession(null);
-    setRequest({ kind: "idle" });
-    setError(null);
-    clearLiveUrl();
+    void leaveRoom({ roomId: session.roomId as never, requester: proof })
+      .then((result) => {
+        if (!result.ok) {
+          window.alert("The room host cannot leave until ownership transfer is available. Your session remains active.");
+          return;
+        }
+        try { if (code) localStorage.removeItem(liveSessionKey(code)); } catch { /* ignore */ }
+        setSession(null);
+        setRequest({ kind: "idle" });
+        setError(null);
+        clearLiveUrl();
+      })
+      .catch(() => setError("Could not leave the room. Your session remains active; try again."));
   };
+  const signOutAccount = signOut ? () => {
+    void signOut()
+      .then(() => {
+        try { clearPersistedRoomSessions(localStorage); } catch { /* ignore */ }
+        setSession(null);
+        setRequest({ kind: "idle" });
+        setError(null);
+        clearLiveUrl();
+      })
+      .catch(() => setError("Could not sign out. Your room session remains active; try again."));
+  } : undefined;
 
   return (
     <ConvexStoreProvider roomId={session.roomId} me={me} proof={proof}>
-      <RoomShell roomId={session.roomId} me={me} onLeave={leave} proof={proof} />
+      <RoomShell roomId={session.roomId} me={me} onLeave={leave} onSignOut={signOutAccount} proof={proof} />
     </ConvexStoreProvider>
   );
 }
+
+function LiveRoomBootShell({ code, kind }: { code: string; kind: "join" | "create" | "demo" }) {
+  const label = kind === "join" ? "Joining room" : kind === "demo" ? "Creating sample room" : "Creating empty room";
+  const steps = kind === "demo" ? SAMPLE_BOOT_STEPS : kind === "create" ? CREATE_BOOT_STEPS : JOIN_BOOT_STEPS;
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setStep((current) => Math.min(current + 1, steps.length - 1));
+    }, 1800);
+    return () => window.clearInterval(timer);
+  }, [steps.length]);
+  const activeStep = steps[Math.min(step, steps.length - 1)];
+  return (
+    <div className="r-app" data-bg-glow="false" data-testid="live-room-boot-shell">
+      <div className="r-screen r-skel-shell" aria-busy="true" aria-label={label}>
+        <div className="r-skel-rail">
+          <span className="r-skeleton" style={{ height: 26, width: "72%" }} />
+          {Array.from({ length: 6 }).map((_, i) => <span key={i} className="r-skeleton" style={{ height: 14, width: `${88 - (i % 3) * 16}%` }} />)}
+        </div>
+        <div className="r-skel-surface">
+          <span className="r-skeleton" style={{ height: 30, width: "42%" }} />
+          <div className="r-panel r-live-boot-card">
+            <div className="row between gap8">
+              <span className="r-brand">NodeRoom <span>· {label}</span></span>
+              {code ? <span className="mono tiny faint">{code}</span> : null}
+            </div>
+            <div className="r-live-boot-status" aria-live="polite">
+              <strong>{activeStep.title}</strong>
+              <span>{activeStep.body}</span>
+            </div>
+            <div className="r-live-boot-steps" aria-label="Room startup progress">
+              {steps.map((bootStep, index) => (
+                <span key={bootStep.title} className="r-live-boot-step" data-state={index < step ? "done" : index === step ? "now" : "next"}>
+                  <i aria-hidden="true" />
+                  {bootStep.title}
+                </span>
+              ))}
+            </div>
+            {Array.from({ length: 8 }).map((_, i) => <span key={i} className="r-skeleton" style={{ height: 18, width: `${96 - (i % 4) * 5}%` }} />)}
+          </div>
+        </div>
+        <div className="r-skel-chat">
+          {Array.from({ length: 5 }).map((_, i) => <span key={i} className="r-skeleton" style={{ height: i % 2 ? 42 : 24, width: i % 2 ? "86%" : "62%" }} />)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const JOIN_BOOT_STEPS = [
+  { title: "Checking room", body: "Verifying the code and restoring any room-scoped session in this browser." },
+  { title: "Joining workspace", body: "Creating or restoring your room membership." },
+  { title: "Syncing room", body: "Loading artifacts, chat, and current review state." },
+];
+
+const CREATE_BOOT_STEPS = [
+  { title: "Creating room", body: "Opening an empty code-access workspace with Review enabled." },
+  { title: "Starting NodeAgents", body: "Preparing room and private agent lanes without running a task." },
+  { title: "Syncing workspace", body: "Connecting the empty room so reload recovery is ready." },
+];
+
+const SAMPLE_BOOT_STEPS = [
+  { title: "Creating sample", body: "Opening a room clearly marked as synthetic sample data." },
+  { title: "Loading sample artifacts", body: "Adding demonstration sheets, notes, sources, and traces." },
+  { title: "Syncing workspace", body: "Connecting the sample room so reload recovery is ready." },
+];
 
 function initialLiveRequest(): LiveRequest {
   if (typeof window === "undefined") return { kind: "idle" };
@@ -348,31 +501,63 @@ function initialLiveRequest(): LiveRequest {
   const demoParam = params.get("demo");
   const createParam = params.get("create");
   const joinParam = params.get("room");
-  if (demoParam !== null) {
+  const confirmed = params.get("confirmed") === "1";
+  const autoAllow = params.get("policy") === "auto";
+  if (demoParam !== null && confirmed) {
     const code = normalizeLiveRoomCode(demoParam && demoParam !== "1" ? demoParam : makeLiveRoomCode());
-    return code ? { kind: "demo", code, name } : { kind: "idle" };
+    const pending = readLivePending(code);
+    return code ? { kind: "demo", code, name: cleanLiveName(pending?.name ?? params.get("name") ?? "", "Host"), autoAllow } : { kind: "idle" };
   }
-  if (createParam !== null) {
+  if (createParam !== null && confirmed) {
     const code = normalizeLiveRoomCode(createParam && createParam !== "1" ? createParam : makeLiveRoomCode());
-    const title = cleanLiveTitle(params.get("title") ?? "", "Startup diligence");
-    return code ? { kind: "create", code, name, title } : { kind: "idle" };
+    const pending = readLivePending(code);
+    const title = cleanLiveTitle(pending?.title ?? params.get("title") ?? "", "My workspace");
+    return code ? { kind: "create", code, name: cleanLiveName(pending?.name ?? params.get("name") ?? "", "Host"), title, autoAllow } : { kind: "idle" };
   }
   if (joinParam) {
     const code = normalizeLiveRoomCode(joinParam);
-    return code ? { kind: "join", code, name } : { kind: "idle" };
+    const saved = code ? loadLiveSession(liveSessionKey(code)) : null;
+    const pending = code ? readLivePending(code) : null;
+    return code && (confirmed || saved) ? { kind: "join", code, name: saved?.name ?? cleanLiveName(pending?.name ?? name, "Guest") } : { kind: "idle" };
   }
   return { kind: "idle" };
 }
 
-function writeLiveUrl(kind: "join" | "create" | "demo", code: string, name: string, title?: string) {
+function initialLandingIntent(): "create" | "join" | "sample" | null {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  const explicit = params.get("intent");
+  if (explicit === "create" || explicit === "join") return explicit;
+  if (explicit === "sample" || explicit === "demo") return "sample";
+  if (params.has("create") && params.get("confirmed") !== "1") return "create";
+  if (params.has("demo") && params.get("confirmed") !== "1") return "sample";
+  const room = normalizeLiveRoomCode(params.get("room") ?? "");
+  if (room && !loadLiveSession(liveSessionKey(room))) return "join";
+  return null;
+}
+
+function initialLandingCode(): string {
+  if (typeof window === "undefined") return "";
+  return normalizeLiveRoomCode(new URLSearchParams(window.location.search).get("room") ?? "");
+}
+
+function writeLiveUrl(
+  kind: "join" | "create" | "demo",
+  code: string,
+  _name: string,
+  title?: string,
+  options: { confirmed?: boolean; autoAllow?: boolean; sample?: boolean } = {},
+) {
   if (typeof window === "undefined") return;
   const url = new URL(window.location.href);
   url.hash = "";
   url.search = "";
   url.searchParams.set(kind === "demo" ? "demo" : kind === "create" ? "create" : "room", code);
-  if (name) url.searchParams.set("name", name);
   if (kind === "create" && title) url.searchParams.set("title", title);
-  window.history.pushState(null, "", url);
+  if (options.confirmed) url.searchParams.set("confirmed", "1");
+  if (options.autoAllow) url.searchParams.set("policy", "auto");
+  if (options.sample) url.searchParams.set("sample", "1");
+  window.history.replaceState(null, "", url);
 }
 
 
@@ -411,6 +596,8 @@ function friendlyLiveError(error: unknown): string {
   if (/room_code_taken/.test(message)) return "That room code already exists. Join it instead.";
   if (/weak_room_code/.test(message)) return "Room codes must be 6-12 letters or numbers.";
   if (/field_too_long/.test(message)) return "Name or title is too long.";
+  if (/production_identity_required/.test(message)) return "Sign in before creating or joining a live room.";
+  if (/identity_mismatch/.test(message)) return "This room session belongs to a different account. Sign in with the original account or join again.";
   if (/Failed to fetch|NetworkError/i.test(message)) return "Network error while connecting to the live backend. Try again.";
   return message;
 }
@@ -439,13 +626,41 @@ function loadLiveSession(key: string): LiveSession | null {
       isPersistedLiveName(parsed.name) &&
       isPersistedLiveToken(parsed.token)
     ) {
-      return { roomId: parsed.roomId, memberId: parsed.memberId, name: parsed.name, token: parsed.token };
+      return {
+        roomId: parsed.roomId,
+        memberId: parsed.memberId,
+        name: parsed.name,
+        token: parsed.token,
+        experience: parsed.experience === "sample" ? "sample" : parsed.experience === "workspace" ? "workspace" : undefined,
+      };
     }
     localStorage.removeItem(key);
     return null;
   } catch {
     return null;
   }
+}
+
+function saveLivePending(code: string, value: PendingLiveRequest): void {
+  try {
+    const current = readLivePending(code) ?? {};
+    sessionStorage.setItem(livePendingKey(code), JSON.stringify({ ...current, ...value }));
+  } catch {
+    /* ignore */
+  }
+}
+
+function readLivePending(code: string): PendingLiveRequest | null {
+  try {
+    const raw = sessionStorage.getItem(livePendingKey(code));
+    return raw ? JSON.parse(raw) as PendingLiveRequest : null;
+  } catch {
+    return null;
+  }
+}
+
+function clearLivePending(code: string): void {
+  try { sessionStorage.removeItem(livePendingKey(code)); } catch { /* ignore */ }
 }
 
 function isPersistedLiveId(value: unknown): value is string {

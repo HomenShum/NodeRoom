@@ -35,7 +35,14 @@ async function seedNotebookRoom() {
 
 describe("native notebook ProseMirror sync boundary", () => {
   it("does not expose the doc capability without active requester proof", async () => {
-    const { t, roomId, artifactId, proof } = await seedNotebookRoom();
+    const { t, roomId, artifactId } = await seedNotebookRoom();
+    const joined = await t.mutation(api.rooms.joinAnonymous, {
+      code: "NBPROOF",
+      name: "Guest",
+      authToken: GUEST_TOKEN,
+    });
+    if (!joined || "error" in joined) throw new Error("guest join failed");
+    const guestProof = { actor: { kind: "user" as const, id: String(joined.memberId), name: "Guest" }, token: GUEST_TOKEN };
 
     await expect(t.query(api.prosemirror.getNotebookDoc as any, { roomId, artifactId }))
       .rejects.toThrow();
@@ -43,19 +50,19 @@ describe("native notebook ProseMirror sync boundary", () => {
     const ensured = await t.mutation(api.prosemirror.ensureNotebookDoc, {
       roomId,
       artifactId,
-      requester: proof,
+      requester: guestProof,
     });
     expect(ensured.prosemirrorDocId).toMatch(/^nb:/);
 
     const doc = await t.query(api.prosemirror.getNotebookDoc, {
       roomId,
       artifactId,
-      requester: proof,
+      requester: guestProof,
     });
     expect(doc?.prosemirrorDocId).toBe(ensured.prosemirrorDocId);
 
-    await t.mutation(api.rooms.leave, { roomId, requester: proof });
-    await expect(t.query(api.prosemirror.getNotebookDoc, { roomId, artifactId, requester: proof }))
+    await t.mutation(api.rooms.leave, { roomId, requester: guestProof });
+    await expect(t.query(api.prosemirror.getNotebookDoc, { roomId, artifactId, requester: guestProof }))
       .rejects.toThrow(/actor_revoked/);
   }, 30_000);
 

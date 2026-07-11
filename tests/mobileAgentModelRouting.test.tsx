@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { render, cleanup } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Actor } from "../src/engine/types";
+import type { Actor, Artifact, Proposal, TraceEvent } from "../src/engine/types";
 import type { MobileLive } from "../src/ui/mobile/mobileTypes";
 
 const captured = vi.hoisted(() => ({ live: null as MobileLive | null }));
@@ -32,6 +32,53 @@ import { mobileAgentModelSelection } from "../src/ui/mobile/MobileApp";
 
 const me: Actor = { kind: "user", id: "u1", name: "Maya" };
 
+const liveArtifact: Artifact = {
+  id: "artifact-1",
+  roomId: "r1",
+  kind: "sheet",
+  title: "ARR bridge",
+  version: 1,
+  elements: {
+    A1: {
+      id: "A1",
+      version: 1,
+      value: {
+        value: "ARR bridge increased 12 percent and needs reviewer approval.",
+        status: "needs_review",
+        evidence: [{ id: "ev-1", kind: "source", label: "ARR worksheet", url: "https://example.test/arr" }],
+      },
+      updatedAt: 2,
+      updatedBy: me,
+    },
+  },
+  order: ["A1"],
+  updatedAt: 2,
+  createdBy: me,
+  visibility: "room",
+  meta: { summary: "ARR bridge needs review." },
+};
+
+const liveProposal: Proposal = {
+  id: "proposal-1",
+  roomId: "r1",
+  artifactId: "artifact-1",
+  op: { opId: "op-1", artifactId: "artifact-1", elementId: "A1", kind: "set", value: "approved ARR bridge", baseVersion: 1 },
+  author: me,
+  status: "pending",
+  createdAt: 3,
+  review: { kind: "agent_edit", status: "needs_review", reason: "Reviewer approval required." },
+};
+
+const liveTrace: TraceEvent = {
+  id: "trace-1",
+  roomId: "r1",
+  ts: 4,
+  actor: me,
+  type: "edit_proposed",
+  summary: "Proposed ARR bridge update",
+  refs: { artifactId: "artifact-1", proposalId: "proposal-1" },
+};
+
 function baseStore(): any {
   return {
     getRoom: () => ({ id: "r1", title: "Live Room", code: "R-123", autoAllow: false }),
@@ -40,6 +87,7 @@ function baseStore(): any {
     listArtifacts: () => [],
     getArtifact: () => undefined,
     listProposals: () => [],
+    listPresence: () => [],
     lastLongFreeJob: () => null,
     listSessions: () => [],
     listTraces: () => [],
@@ -95,5 +143,32 @@ describe("mobile agent model routing", () => {
 
     expect(storeRef.current.askPrivateAgent).toHaveBeenCalledWith({ goal: "summarize privately" });
     expect(storeRef.current.askAgent).not.toHaveBeenCalled();
+  });
+
+  it("does not pass a sample deck into live mode when no live artifact or proposal exists", () => {
+    render(<MobileAppLive roomId="r1" me={me} />);
+
+    expect(captured.live).toBeTruthy();
+    expect(captured.live!.deck).toBeUndefined();
+  });
+
+  it("derives the mobile live deck from work artifacts, proposals, and traces", () => {
+    storeRef.current = {
+      ...baseStore(),
+      listArtifacts: () => [liveArtifact],
+      getArtifact: () => liveArtifact,
+      listProposals: () => [liveProposal],
+      listTraces: () => [liveTrace],
+    };
+
+    render(<MobileAppLive roomId="r1" me={me} />);
+
+    expect(captured.live?.deck).toBeTruthy();
+    expect(captured.live!.deck!.title).toBe("Live Room readout");
+    expect(captured.live!.deck!.sourceIds).toEqual(["artifact-1"]);
+    expect(captured.live!.deck!.proposalIds).toContain("proposal-1");
+    expect(captured.live!.deck!.traceIds).toContain("trace-1");
+    expect(captured.live!.deck!.slides[0].title).toBe("ARR bridge");
+    expect(captured.live!.deck!.exportSize).toBe("receipt pending");
   });
 });

@@ -65,6 +65,23 @@ input { font-family: inherit; }
    (fixes.css .fx-calm .fx-top { background: transparent }). */
 .r-top { height: 52px; flex: none; display: flex; align-items: center; gap: 12px; padding: 0 14px; border-bottom: 1px solid var(--line);
   background: transparent; position: relative; z-index: 40; }
+.r-sample-banner {
+  min-height: 32px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-primary) 28%, var(--line));
+  background: color-mix(in srgb, var(--accent-primary) 10%, var(--bg-primary));
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.35;
+  text-align: center;
+}
+.r-sample-banner svg,
+.r-sample-banner b { color: var(--accent-ink); }
 /* Calm: no accent bloom on the brand mark. The 12px terracotta glow made the logo
    demand attention like chrome; flattening it matches the flat-fill/no-glow primary-button
    decision below (.r-btn.primary) so nothing in the shell floats on a colored shadow. */
@@ -114,6 +131,7 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-btn.ghost { background: transparent; border-color: transparent; color: var(--text-muted); }
 .r-btn.ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
 .r-btn:disabled { opacity: .5; cursor: default; }
+.r-btn-context { padding: 2px 5px; border: 1px solid rgba(255, 255, 255, .45); border-radius: 4px; font-size: 9px; font-weight: 800; line-height: 1; text-transform: uppercase; }
 .r-pill-auto { display: inline-flex; align-items: center; gap: 8px; padding: 5px 6px 5px var(--space-3); border-radius: 9px; border: 1px solid var(--line); background: transparent; font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; flex-shrink: 0; } /* calm: hairline carries it */
 .r-pill-auto b { color: var(--accent-ink); font-size: 11px; font-weight: 800; letter-spacing: .01em; }
 .r-pill-auto-label { color: var(--text-muted); font-size: 11px; font-weight: 750; }
@@ -683,6 +701,7 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-voice-confirm button:hover, .r-voice-confirm button:focus-visible { border-color: var(--accent-border); color: var(--accent-ink); outline: none; }
 .r-ref-composer { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
 .r-ref-chip { display: inline-flex; align-items: center; min-width: 0; max-width: 100%; border: 1px solid var(--accent-border); border-radius: 8px; overflow: hidden; background: var(--accent-tint); color: var(--accent-ink); }
+.r-ref-chip:not([data-context-kind="artifact"]) { border-color: var(--line-strong); background: var(--bg-secondary); color: var(--text-secondary); }
 .r-ref-open { min-width: 0; max-width: 210px; display: inline-flex; align-items: center; gap: 5px; padding: 4px var(--space-2); border: 0; background: transparent; color: inherit; font-size: 11px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-ref-remove { width: 24px; height: 24px; flex: none; display: grid; place-items: center; border: 0; border-left: 1px solid var(--accent-border); background: transparent; color: inherit; }
 .r-ref-open:hover, .r-ref-remove:hover { background: rgba(217,119,87,.14); }
@@ -698,6 +717,7 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-attach { width: 30px; height: 30px; flex: none; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-primary); color: var(--text-tertiary); transition: color var(--motion-fast), background var(--motion-fast), border-color var(--motion-fast); }
 .r-attach:hover:not(:disabled), .r-attach:focus-visible { color: var(--accent-ink); border-color: var(--accent-border); background: var(--accent-tint); }
 .r-attach:disabled { cursor: not-allowed; opacity: .55; }
+.r-context-btn[data-active="true"] { color: var(--accent-ink); border-color: var(--accent-border); background: var(--accent-tint); }
 .r-composer { position: relative; }
 .r-composer-kbd { font-size: 10px; color: var(--text-tertiary); margin-left: auto; align-self: center; }
 /* slash-command popover (assistant-ui trigger menu) */
@@ -706,6 +726,16 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-slash-item:hover, .r-slash-item[aria-selected="true"] { background: var(--accent-tint); }
 .r-slash-item .cmd { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--accent-ink); }
 .r-slash-item .hint { font-size: 11px; color: var(--text-muted); }
+.r-context-picker { position: absolute; left: 12px; right: 12px; bottom: calc(100% - 4px); z-index: 12; max-height: min(420px, 58vh); display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 6px; padding: 7px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--bg-primary); box-shadow: var(--shadow-lg); }
+.r-context-picker-search { height: 32px; display: flex; align-items: center; gap: 7px; padding: 0 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg-secondary); color: var(--text-muted); }
+.r-context-picker-search input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; color: var(--text-primary); font: inherit; font-size: 12px; }
+.r-context-picker-search button { display: inline-grid; place-items: center; width: 24px; height: 24px; border: 0; background: transparent; color: var(--text-muted); }
+.r-context-picker-list { min-height: 0; overflow: auto; display: grid; align-content: start; gap: 2px; }
+.r-context-picker-list > button { width: 100%; min-width: 0; min-height: 38px; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--text-secondary); text-align: left; }
+.r-context-picker-list > button:hover, .r-context-picker-list > button:focus-visible { outline: none; border-color: var(--accent-border); background: var(--bg-hover); color: var(--text-primary); }
+.r-context-picker-list > button span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11.5px; font-weight: 750; }
+.r-context-picker-list > button em { max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-muted); font: normal 9.5px/1.2 var(--font-mono); }
+.r-context-picker-list > p { margin: 0; padding: 16px 8px; color: var(--text-muted); font-size: 11.5px; text-align: center; }
 /* message action bar (assistant-ui) — revealed on hover/focus */
 .r-msg-actions { display: flex; gap: 6px; margin-top: 5px; opacity: 0; transition: opacity var(--motion-fast); }
 .r-msg:hover .r-msg-actions, .r-msg:focus-within .r-msg-actions { opacity: 1; }
@@ -749,6 +779,16 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-skel-surface { flex: 1; min-width: 0; padding: 18px 22px; display: flex; flex-direction: column; gap: 12px; }
 .r-skel-chat { width: 360px; flex: none; border-left: 1px solid var(--line); padding: 16px 14px; display: flex; flex-direction: column; gap: 12px; }
 .r-skel-slow { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+.r-live-boot-card { flex: 1; padding: 14px; gap: 12px; }
+.r-live-boot-card--hydrate { min-height: 260px; }
+.r-live-boot-status { display: grid; gap: 4px; padding: 11px 12px; border: 1px solid var(--accent-border); border-radius: 9px; background: var(--accent-tint); }
+.r-live-boot-status strong { color: var(--accent-ink); font-size: 13px; letter-spacing: 0; }
+.r-live-boot-status span { color: var(--text-secondary); font-size: 12px; line-height: 1.45; }
+.r-live-boot-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.r-live-boot-step { min-width: 0; display: flex; align-items: center; gap: 6px; min-height: 28px; padding: 4px 7px; border: 1px solid var(--line); border-radius: 8px; color: var(--text-tertiary); font-size: 10.5px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.r-live-boot-step i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; opacity: .62; }
+.r-live-boot-step[data-state="now"] { color: var(--accent-ink); border-color: var(--accent-border); background: var(--accent-tint); }
+.r-live-boot-step[data-state="done"] { color: var(--success-ink); border-color: color-mix(in srgb, var(--success) 35%, transparent); background: color-mix(in srgb, var(--success) 10%, transparent); }
 .r-chip-regen { display: inline-flex; align-items: center; gap: 4px; }
 .r-composer-hint { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 .r-chip { font-size: 11px; padding: 3px 8px; border-radius: 7px; background: var(--bg-secondary); border: 1px solid var(--line); color: var(--text-muted); font-family: var(--font-mono); cursor: pointer; }
@@ -1416,7 +1456,7 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-graphvu-search input:focus { border-color: var(--accent-primary); }
 .r-graphvu-search-clear { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 2px; display: flex; }
 .r-graphvu-search-clear:hover { color: var(--text-primary); }
-.r-graphvu-sembar { flex: none; display: grid; grid-template-columns: minmax(180px, 280px) minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 1px solid var(--line); background: var(--bg-primary); }
+.r-graphvu-sembar { flex: none; display: grid; grid-template-columns: minmax(180px, 250px) minmax(0, 1fr) auto auto; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 1px solid var(--line); background: var(--bg-primary); }
 .r-graphvu-semsearch { display: flex; align-items: center; gap: 6px; min-width: 0; height: 30px; padding: 0 9px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg-secondary); color: var(--text-muted); }
 .r-graphvu-semsearch input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; color: var(--text-primary); font: inherit; font-size: 12px; }
 .r-graphvu-semsearch button { display: flex; align-items: center; justify-content: center; border: 0; background: transparent; color: var(--text-muted); cursor: pointer; }
@@ -1426,6 +1466,16 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-graphvu-semtoggles button { height: 28px; padding: 0 9px; border: 1px solid var(--line); border-radius: 7px; background: transparent; color: var(--text-secondary); font: inherit; font-size: 11px; font-weight: 800; cursor: pointer; }
 .r-graphvu-semtoggles button:hover { color: var(--text-primary); background: var(--bg-hover); }
 .r-graphvu-semtoggles button[data-on="true"] { border-color: var(--accent-border); background: var(--accent-tint); color: var(--accent-ink); }
+.r-graphvu-cluster-controls { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.r-graphvu-cluster-controls select { min-width: 142px; max-width: 210px; height: 28px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg-secondary); color: var(--text-secondary); font: 700 11px/1 var(--font-sans); padding: 0 24px 0 8px; }
+.r-graphvu-cluster-controls select:focus-visible { outline: none; border-color: var(--accent-border); box-shadow: var(--focus-ring); }
+.r-graphvu-depth { display: inline-flex; align-items: center; padding: 2px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg-secondary); }
+.r-graphvu-depth button { display: inline-grid; place-items: center; min-width: 23px; height: 22px; padding: 0 4px; border: 0; border-radius: 5px; background: transparent; color: var(--text-muted); font: 800 9.5px/1 var(--font-mono); }
+.r-graphvu-depth button[data-on="true"] { background: var(--accent-tint); color: var(--accent-ink); }
+@media (max-width: 1380px) {
+  .r-graphvu-sembar { grid-template-columns: minmax(180px, 240px) minmax(0, 1fr) auto; }
+  .r-graphvu-cluster-controls { grid-column: 1 / -1; }
+}
 /* Body: canvas + backlinks side panel. */
 .r-graphvu-body { display: flex; flex: 1; min-height: 0; overflow: hidden; }
 /* Backlinks panel — shows all references to the focused node. */
@@ -1457,6 +1507,7 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-entity-detail-row:not(:disabled):hover { background: var(--bg-hover); }
 .r-entity-detail-row-main { min-width: 0; color: var(--text-primary); font-size: 12px; font-weight: 750; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-entity-detail-row-sub { color: var(--text-muted); font: 10.5px/1.25 var(--font-mono); text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-entity-detail-path .r-entity-detail-row-main { white-space: normal; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 .r-entity-detail-edge { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 2px 4px; padding: 5px 7px; border-radius: 7px; background: color-mix(in srgb, var(--bg-secondary) 70%, transparent); color: var(--text-secondary); font-size: 11px; }
 .r-entity-detail-edge span:last-child { color: var(--text-muted); font: 10px var(--font-mono); text-transform: uppercase; }
 .r-graphvu-agent { flex: none; width: min(292px, 27vw); min-width: 252px; border-left: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; overflow: auto; padding: 12px; background: color-mix(in srgb, var(--bg-primary) 92%, var(--bg-secondary)); }
@@ -1546,9 +1597,7 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
   display: none;
 }
 .r-graphvu[data-mode="entity"] .r-graphvu-canvas .react-flow {
-  background:
-    radial-gradient(circle at center, color-mix(in srgb, var(--bg-secondary) 10%, transparent), transparent 48%),
-    var(--bg-primary);
+  background: var(--bg-primary);
 }
 .r-graphvu[data-mode="entity"] .r-graphvu-canvas .react-flow__background {
   display: none;
@@ -2174,7 +2223,7 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-text-input.mono { font-family: var(--font-mono); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 
 .r-room-modal-scrim { position: fixed; inset: 0; z-index: 95; display: grid; place-items: center; padding: 24px; background: rgba(0,0,0,.5); }
-.r-room-modal { width: min(480px, 100%); background: var(--bg-primary); border: 1px solid var(--line-strong); border-radius: 18px; box-shadow: var(--shadow-lg); overflow: hidden; }
+.r-room-modal { width: min(520px, 100%); max-height: min(860px, calc(100dvh - 32px)); background: var(--bg-primary); border: 1px solid var(--line-strong); border-radius: 18px; box-shadow: var(--shadow-lg); overflow-x: hidden; overflow-y: auto; }
 .r-room-modal-head { padding: 20px 22px 0; }
 .r-room-modal-body { padding: 16px 22px 22px; }
 .r-room-modal h2 { margin: 10px 32px 6px 0; font-size: 20px; letter-spacing: 0; line-height: 1.15; color: var(--text-primary); }
@@ -2191,6 +2240,27 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-room-codepeek .cm { color: var(--text-tertiary); }
 .r-room-codepeek .pr { color: #7AA2E3; }
 .r-room-modal-submit { width: 100%; justify-content: center; margin-top: 16px; padding: var(--space-3); }
+.r-first-run-notice { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 10px; align-items: start; margin-top: 14px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg-secondary); color: var(--text-secondary); }
+.r-first-run-notice > svg { margin-top: 2px; color: var(--accent-ink); }
+.r-first-run-notice strong, .r-first-run-notice span { display: block; }
+.r-first-run-notice strong { color: var(--text-primary); font-size: 12.5px; }
+.r-first-run-notice span { margin-top: 3px; font-size: 12px; line-height: 1.45; }
+.r-first-run-notice.sample { border-color: var(--attention-border, var(--line-strong)); background: var(--attention-soft, var(--bg-secondary)); }
+.r-first-run-policy { display: grid; gap: 8px; margin: 16px 0 0; padding: 0; border: 0; }
+.r-first-run-policy legend { margin-bottom: 8px; color: var(--text-primary); font-size: 12.5px; font-weight: 700; }
+.r-first-run-policy label { min-height: 54px; display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 10px; align-items: start; padding: 10px 11px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg-secondary); cursor: pointer; }
+.r-first-run-policy label[data-selected="true"] { border-color: var(--accent-border); background: var(--accent-soft); }
+.r-first-run-policy label:focus-within { box-shadow: var(--focus-ring); }
+.r-first-run-policy input { margin: 3px 0 0; accent-color: var(--accent-primary); }
+.r-first-run-policy strong, .r-first-run-policy small { display: block; }
+.r-first-run-policy strong { color: var(--text-primary); font-size: 12.5px; }
+.r-first-run-policy small { margin-top: 3px; color: var(--text-muted); font-size: 11.5px; line-height: 1.4; }
+@media (max-width: 560px) {
+  .r-room-modal-scrim { padding: 8px; align-items: end; }
+  .r-room-modal { width: 100%; max-height: calc(100dvh - 8px); border-radius: 14px 14px 0 0; }
+  .r-room-modal-head { padding: 16px 16px 0; }
+  .r-room-modal-body { padding: 12px 16px calc(18px + env(safe-area-inset-bottom)); }
+}
 
 /* P1 — inactive lane toggle had NO hover (only the active state was styled). */
 .r-lane-btn:not([data-on="true"]):hover { background: var(--bg-hover); color: var(--text-secondary); }

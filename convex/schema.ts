@@ -16,6 +16,7 @@
 
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { authTables } from "@convex-dev/auth/server";
 import { refutationVerdictV } from "./lib";
 import { notificationEventsTable, watchesTable } from "./watchesTables";
 
@@ -143,6 +144,7 @@ const agentArtifactStatusV = v.union(
 );
 
 export default defineSchema({
+  ...authTables,
   rooms: defineTable({
     code: v.string(),
     title: v.string(),
@@ -150,6 +152,8 @@ export default defineSchema({
     autoAllow: v.boolean(),
     status: v.union(v.literal("live"), v.literal("ended")),
     createdAt: v.number(),
+    experience: v.optional(v.union(v.literal("workspace"), v.literal("sample"))),
+    starterBackfill: v.optional(v.union(v.literal("pending"), v.literal("ready"))),
   }).index("by_code", ["code"]),
 
   members: defineTable({

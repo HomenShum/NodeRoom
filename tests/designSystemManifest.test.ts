@@ -59,25 +59,49 @@ describe("NodeRoom design-system manifest", () => {
     files["src/ui/LeftRail.tsx"] = files["src/ui/LeftRail.tsx"].replace('data-testid="binder-search"', 'data-testid="binder-search-missing"');
     files["src/ui/primitives/FocusTrapDialog.tsx"] = files["src/ui/primitives/FocusTrapDialog.tsx"].replace('role="dialog"', 'role="presentation"');
     files["src/ui/mobile/mobile.css"] = files["src/ui/mobile/mobile.css"]
-      .replace("--bg-app:       #FBF4E7", "--bg-app:       #111111")
-      .replace("--accent-primary:       #C56A3C", "--accent-primary:       #5E6AD2")
-      .replace("--font-serif: 'DM Serif Display'", "--font-serif: 'Inter'")
       .replace(".na-nav {", ".na-nav-missing {")
       .replace(".na-sheet {", ".na-sheet-missing {")
-      .replace(".na-handle", ".na-grabber-missing");
+      .replace(".na-handle", ".na-grabber-missing")
+      .concat('\n.na-app { --mobile-bg-app: #111111; letter-spacing: 0 !important; }\n/* Cloud Design migration overlay */');
+    files["src/ui/mobile/mobile.tokens.css"] = files["src/ui/mobile/mobile.tokens.css"]
+      .replace("--mobile-bg-app: #fbf4e7", "--mobile-bg-app: #111111")
+      .replace("--mobile-accent: #9f4f2a", "--mobile-accent: #5e6ad2")
+      .replace("--font-serif: 'DM Serif Display'", "--font-serif: 'Inter'")
+      .replace('.na-app[data-theme="dark"]', '.na-app[data-theme="always-dark"]')
+      .replace("--mobile-attention:", "--mobile-attention-missing:")
+      .replace("--mobile-success:", "--mobile-success-missing:")
+      .replace("--mobile-danger:", "--mobile-danger-missing:");
+    files["src/ui/mobile/mobile.shell.css"] = files["src/ui/mobile/mobile.shell.css"]
+      .replace("height: 52px", "height: 40px")
+      .replace("width: 44px", "width: 36px")
+      .replace("var(--mobile-safe-top)", "0px");
+    files["src/ui/mobile/shell/MobileHeader.tsx"] = files["src/ui/mobile/shell/MobileHeader.tsx"]
+      .replace('data-testid="mobile-room-context"', 'data-testid="mobile-room-context-missing"')
+      .replace('data-testid="mobile-review-action"', 'data-testid="mobile-review-action-missing"')
+      .replace('data-testid="mobile-overflow-action"', 'data-testid="mobile-overflow-action-missing"')
+      .replace('Ico("more"', 'Ico("menu"')
+      .replace('return count > 9 ? "9+"', 'return String(count)');
     files["src/ui/mobile/MobileFrame.tsx"] = files["src/ui/mobile/MobileFrame.tsx"]
       .replace('const query = "(max-width: 460px)";', 'const query = "(max-width: 0px)";')
-      .replace("na-ios-bleed", "na-ios-framed-only");
+      .replace("na-ios-bleed", "na-ios-framed-only")
+      .split("previewDeviceChrome = false").join("previewDeviceChrome = true")
+      .replace('data-device-preview="false">', 'data-device-preview="false"><StatusBar dark={dark} />')
+      .replace('data-device-preview="false"', 'data-device-preview="missing"');
     files["src/ui/mobile/MobileApp.tsx"] = files["src/ui/mobile/MobileApp.tsx"]
       .replace("export function MobileApp({ live }", "export function MobileApp({ demoOnlyLive }")
-      .replace("if (!live) { setFirstJoinSeen(true); return; }", "setFirstJoinSeen(true); return;");
+      .replace("if (!live) { setFirstJoinSeen(true); return; }", "setFirstJoinSeen(true); return;")
+      .replace("<MobileHeader", "<LegacyDynamicHeader")
+      .split("applyVisibilityScope").join("setCosmeticScopeOnly")
+      .replace('data-testid="mobile-bottom-nav"', 'data-testid="mobile-bottom-nav-missing"')
+      .concat('\nconst dynamicHeaderRegression = openCount ? "Review inbox" : "Notifications";\nconst duplicateReviewBadge = "na-fab-badge";');
     files["src/ui/mobile/MobileRoot.tsx"] = files["src/ui/mobile/MobileRoot.tsx"]
       .replace("return <MobileLiveRoot />;", "return <MobileApp />;")
       .replace("useMutation(api.rooms.create)", "undefined as never")
       .split('data-theme="light"').join('data-theme="dark"')
       .split("RoomJoinConsent").join("JoinConsentMissing")
       .split("MobileAppLive").join("MobileAppMemoryOnly")
-      .replace("history.replaceState(null, \"\", `#mobile?room=${reqCode}`", "history.replaceState(null, \"\", `#mobile?mode=memory`");
+      .replace('params.set(request.kind === "join" ? "room" : request.kind, request.code)', 'params.set("mode", "memory")')
+      .replace('history.replaceState(null, "", `#mobile?${params.toString()}`)', 'history.replaceState(null, "", "#mobile?mode=memory")');
     files["src/ui/mobile/RoomJoinConsent.tsx"] = files["src/ui/mobile/RoomJoinConsent.tsx"]
       .split('data-theme="light"').join('data-theme="dark"');
     files["src/ui/mobile/mobileFrame.css"] = files["src/ui/mobile/mobileFrame.css"]
@@ -116,6 +140,29 @@ describe("NodeRoom design-system manifest", () => {
     expect(codes).toContain("mobile-terracotta-cream-bg");
     expect(codes).toContain("mobile-terracotta-accent");
     expect(codes).toContain("mobile-terracotta-serif");
+    expect(codes).toContain("mobile-dark-explicit-selector");
+    expect(codes).toContain("mobile-semantic-attention");
+    expect(codes).toContain("mobile-semantic-success");
+    expect(codes).toContain("mobile-semantic-danger");
+    expect(codes).toContain("mobile-theme-single-owner");
+    expect(codes).toContain("mobile-global-letter-spacing-reset");
+    expect(codes).toContain("mobile-late-theme-overlay");
+    expect(codes).toContain("mobile-header-adapter");
+    expect(codes).toContain("mobile-header-room-context");
+    expect(codes).toContain("mobile-header-review-action");
+    expect(codes).toContain("mobile-header-overflow-action");
+    expect(codes).toContain("mobile-header-overflow-glyph");
+    expect(codes).toContain("mobile-header-badge-bound");
+    expect(codes).toContain("mobile-header-height");
+    expect(codes).toContain("mobile-header-touch-target");
+    expect(codes).toContain("mobile-header-safe-area");
+    expect(codes).toContain("mobile-header-dynamic-command");
+    expect(codes).toContain("mobile-bottom-nav-rendered");
+    expect(codes).toContain("mobile-review-badge-duplicate");
+    expect(codes).toContain("mobile-preview-explicit");
+    expect(codes).toContain("mobile-production-frame-marker");
+    expect(codes).toContain("mobile-production-synthetic-status");
+    expect(codes).toContain("mobile-scope-delivery-alignment");
     expect(codes).toContain("mobile-ios-nav");
     expect(codes).toContain("mobile-bottom-sheet");
     expect(codes).toContain("mobile-sheet-handle");

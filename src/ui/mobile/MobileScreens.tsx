@@ -27,6 +27,22 @@ export function Pill({
 
 // ── CAPTURE ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 export function Capture({ ctx }: { ctx: MobileCtx }): React.ReactElement {
+  if (ctx.isLive) {
+    return React.createElement(
+      React.Fragment,
+      null,
+      React.createElement("div", { className: "na-kicker" }, "Capture notebook"),
+      React.createElement("div", { className: "na-empty", "data-testid": "mobile-live-capture-unavailable" },
+        React.createElement("div", { className: "eico" }, Ico("pen")),
+        React.createElement("strong", null, "Live capture is not connected on mobile yet"),
+        React.createElement("span", null, "Nothing typed here would persist, so the prototype editor is disabled in live rooms. Use room chat or open the capture notebook on desktop."),
+        React.createElement("button", { type: "button", className: "na-btn primary", onClick: () => ctx.setTab("room") }, "Open room chat")),
+    );
+  }
+  return React.createElement(SampleCapture, { ctx });
+}
+
+function SampleCapture({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   const { t, note, setNote, saveState, detected, noticed, copy } = ctx;
   const [cap, setCap] = React.useState<"note" | "detected">("note");
   const ex = ctx.extract || { groups: [] };
@@ -381,7 +397,7 @@ export function Inbox({ ctx }: { ctx: MobileCtx }): React.ReactElement {
       "Noteworthy findings, approvals, and coach prompts land here.",
     );
 
-  const render = view === "row" ? row : card;
+  const render = ctx.isLive ? card : view === "row" ? row : card;
   return React.createElement(
     React.Fragment,
     null,
@@ -389,7 +405,7 @@ export function Inbox({ ctx }: { ctx: MobileCtx }): React.ReactElement {
       "div",
       { className: "na-inbox-head" },
       React.createElement("span", { className: "na-kicker", style: { margin: 0 } }, "Needs you"),
-      React.createElement(
+      !ctx.isLive && React.createElement(
         "div",
         { className: "na-viewtoggle" },
         React.createElement(Tooltip, {
@@ -891,9 +907,15 @@ function openMeta(kind: string): { icon: IconName; label: string } {
 }
 
 export function Home({ ctx }: { ctx: MobileCtx }): React.ReactElement {
-  const go = (k: string) => {
-    if (k === "note") ctx.setTab("capture");
-    else if (k === "sheet" || k === "row") ctx.openSheet("sheetart");
+  const go = (k: string, item?: D.RecentItem) => {
+    if (k === "note") {
+      if (ctx.isLive) ctx.toast(`${item?.title ?? "This note"} is live, but mobile note editing is not wired yet. Open it on desktop.`);
+      else ctx.setTab("capture");
+    }
+    else if (k === "sheet" || k === "row") {
+      if (!ctx.isLive || /company research/i.test(item?.title ?? "")) ctx.openSheet("sheetart");
+      else ctx.toast(`${item?.title ?? "This sheet"} is live, but its mobile row adapter is not available. Open it on desktop.`);
+    }
     else if (k === "plan") ctx.openSheet("plan");
     else if (k === "deck") ctx.openSheet("artifact");
     else if (k === "evidence") ctx.openSheet("evidence");
@@ -916,8 +938,23 @@ export function Home({ ctx }: { ctx: MobileCtx }): React.ReactElement {
       React.createElement("div", { className: "na-kicker" }, "Recents"),
       SkeletonRecents(),
     );
-  if (recents.length === 0 && favorites.length === 0 && briefings.length === 0)
-    return emptyState("home", "Nothing here yet", "Artifacts, favorites, and briefings from this room appear here.");
+  if (recents.length === 0 && favorites.length === 0 && briefings.length === 0) {
+    if (!ctx.isLive) return emptyState("home", "Nothing here yet", "Artifacts, favorites, and briefings from this room appear here.");
+    const startFirstArtifact = (): void => {
+      ctx.setComposerMode("agent");
+      ctx.setAgentLane("room");
+      ctx.setDraft("Help me define the first source-backed artifact for this room. Start with a read-only plan and state what source you need.");
+      ctx.setTab("agent");
+    };
+    return React.createElement(
+      "div",
+      { className: "na-empty", "data-testid": "mobile-empty-room-start" },
+      React.createElement("div", { className: "eico" }, Ico("sparkles")),
+      React.createElement("strong", null, "Start one reviewable task"),
+      React.createElement("span", null, "Ask the room agent for a read-only plan. The request and its result are visible to room members."),
+      React.createElement("button", { className: "na-btn primary", onClick: startFirstArtifact }, Ico("sparkles"), "Ask NodeAgent"),
+    );
+  }
   return React.createElement(
     React.Fragment,
     null,
@@ -933,7 +970,7 @@ export function Home({ ctx }: { ctx: MobileCtx }): React.ReactElement {
             recents.map((r: D.RecentItem) =>
               React.createElement(
                 "button",
-                { key: r.id, className: "na-rcard", "data-kind": r.kind, onClick: () => go(r.kind) },
+                { key: r.id, className: "na-rcard", "data-kind": r.kind, onClick: () => go(r.kind, r) },
                 React.createElement(
                   "span",
                   { className: "rc-head" },

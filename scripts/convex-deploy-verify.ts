@@ -19,11 +19,13 @@ import { spawnSync } from "node:child_process";
 import { diffDeployState, expectedIdentifiersFromSource } from "../src/eval/convexDeployVerify";
 
 function main() {
+  const prod = process.argv.includes("--prod");
   const convexDir = join(process.cwd(), "convex");
   const files = readdirSync(convexDir).filter((name) => name.endsWith(".ts") && !name.startsWith("_"));
   const expected = files.flatMap((name) => expectedIdentifiersFromSource(readFileSync(join(convexDir, name), "utf8"), basename(name, ".ts")));
 
-  const result = spawnSync("npx", ["convex", "function-spec", "--env-file", ".env.local"], {
+  const specArgs = ["convex", "function-spec", ...(prod ? ["--prod"] : ["--env-file", ".env.local"] )];
+  const result = spawnSync("npx", specArgs, {
     encoding: "utf8",
     shell: true,
     maxBuffer: 64 * 1024 * 1024,
@@ -63,7 +65,7 @@ function main() {
     process.exit(1);
   }
 
-  console.log(`[deploy-verify] OK — all ${expected.length} exported convex functions in this working tree are live in the deployed function-spec.`);
+  console.log(`[deploy-verify] OK — all ${expected.length} exported convex functions in this working tree are live in the ${prod ? "production" : "development"} function-spec.`);
 }
 
 main();

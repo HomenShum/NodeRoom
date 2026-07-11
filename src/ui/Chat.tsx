@@ -1,6 +1,6 @@
 /** Public/private Copilot chat surfaces. Reads via useStore(). */
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type ClipboardEvent, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
-import { Lock, MessageCircle, Globe, Send, Square, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ChevronRight, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2, Brain, Target, Mic, MicOff, Search, AlertTriangle } from "lucide-react";
+import { Lock, MessageCircle, Globe, Send, Square, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, Link2, X, Timer, RefreshCw, ChevronDown, ChevronUp, ChevronRight, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2, Brain, Target, Mic, MicOff, Search, AlertTriangle } from "lucide-react";
 import { useQuery } from "convex/react";
 import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentModelSelection, type PrivateStreamAccess, type RoomStore } from "../app/store";
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
@@ -10,6 +10,8 @@ import type { Actor, Artifact, CellPayload, Channel, Message } from "../engine/t
 import { getProviderForModel, llmModelCatalog, modelPricing, resolveModelAlias, type LlmProvider } from "../nodeagent/models/modelCatalog";
 import {
   displayArtifactRefMessage,
+  artifactRefContextSuffix,
+  artifactRefKey,
   encodeArtifactRefLine,
   hasDraggedArtifactRef,
   parseArtifactRefMessage,
@@ -473,6 +475,8 @@ function titleCaseToolName(toolName: string): string {
 
 function agentActionLabel(toolName: string): string {
   switch (toolName) {
+    case "inspect_workbook": return "Inspected workbook";
+    case "verify_workbook": return "Verified workbook changes";
     case "list_artifacts": return "Gathered room files";
     case "read_range": return "Read source data";
     case "write_locked_cells": return "Updated Sheet 1";
@@ -1279,6 +1283,8 @@ type ChatProps = {
   testId?: string;
 };
 
+type ContextPickerOption = { key: string; label: string; hint: string; ref: ArtifactRef };
+
 export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId, style, onOpenArtifact, coach, embedded = false, testId }: ChatProps) {
   const store = useStore();
   const [text, setText] = useState("");
@@ -1298,6 +1304,8 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const [jobErr, setJobErr] = useState<string | null>(null);
   const [agentErr, setAgentErr] = useState<AgentFailureNotice | null>(null); // C7/C2: honest surface for failed agent dispatches
   const [refOpenErr, setRefOpenErr] = useState<string | null>(null);
+  const [contextPickerOpen, setContextPickerOpen] = useState(false);
+  const [contextQuery, setContextQuery] = useState("");
   const [roomLane, setRoomLane] = useState(false); // private panel: false = whisper to me, true = act in the room
   const [modelSelectionMode, setModelSelectionMode] = useState<AgentModelSelection["mode"]>("adaptive");
   const [specificModelPolicy, setSpecificModelPolicy] = useState("");
@@ -1427,14 +1435,44 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     if (!isPrivate && mention.start === 0 && "nodeagent".includes(q)) {
       items.push({ kind: "agent", key: "__nodeagent__", label: "nodeagent", hint: "Ask the room agent" });
     }
-    const already = new Set(refs.map((r) => r.id));
+    const already = new Set(refs.map(artifactRefKey));
     for (const a of store.listArtifacts(roomId)) {
-      if (already.has(a.id) || (q !== "" && !a.title.toLowerCase().includes(q))) continue;
-      items.push({ kind: "artifact", key: a.id, label: a.title, hint: a.kind, ref: { id: a.id, title: a.title, kind: a.kind } });
+      const ref = { id: a.id, title: a.title, kind: a.kind, contextKind: "artifact" as const };
+      if (already.has(artifactRefKey(ref)) || (q !== "" && !a.title.toLowerCase().includes(q))) continue;
+      items.push({ kind: "artifact", key: a.id, label: a.title, hint: a.kind, ref });
       if (items.length >= 7) break;
     }
     return items;
   }, [mention, refs, roomId, store, isPrivate]);
+  const contextOptions = useMemo<ContextPickerOption[]>(() => {
+    const artifacts = store.listArtifacts(roomId);
+    const byId = new Map(artifacts.map((artifact) => [artifact.id, artifact]));
+    const options: ContextPickerOption[] = [];
+    const push = (ref: ArtifactRef, hint: string) => options.push({ key: artifactRefKey(ref), label: ref.title, hint, ref });
+    for (const artifact of artifacts) {
+      push({ id: artifact.id, title: artifact.title, kind: artifact.kind, contextKind: "artifact" }, artifact.kind);
+      const value = artifact.elements.deck_storyboard?.value as { slides?: Array<{ slideId?: string; title?: string }> } | undefined;
+      for (const [index, slide] of (value?.slides ?? []).slice(0, 24).entries()) {
+        if (!slide.slideId || !slide.title) continue;
+        push({ id: artifact.id, title: `Slide ${index + 1}: ${slide.title}`, kind: artifact.kind, contextKind: "deck_slide", contextId: slide.slideId, elementId: "deck_storyboard" }, "deck slide");
+      }
+    }
+    for (const proposal of store.listProposals(roomId).slice(0, 30)) {
+      const artifact = byId.get(proposal.artifactId);
+      if (!artifact) continue;
+      push({ id: artifact.id, title: `Proposal: ${proposal.op.elementId}`, kind: artifact.kind, contextKind: "proposal", contextId: proposal.id, elementId: proposal.op.elementId }, proposal.status);
+    }
+    const traces = typeof store.listTraces === "function" ? store.listTraces(roomId) : [];
+    for (const trace of traces.slice(-30).reverse()) {
+      const artifactId = trace.refs?.artifactId;
+      const artifact = artifactId ? byId.get(artifactId) : undefined;
+      if (!artifact) continue;
+      push({ id: artifact.id, title: `Trace: ${trace.summary}`, kind: artifact.kind, contextKind: "trace", contextId: trace.id, elementId: trace.refs?.elementId }, trace.type.replace(/_/g, " "));
+    }
+    const selected = new Set(refs.map(artifactRefKey));
+    const query = contextQuery.trim().toLowerCase();
+    return options.filter((option) => !selected.has(option.key) && (!query || `${option.label} ${option.hint}`.toLowerCase().includes(query))).slice(0, 60);
+  }, [contextQuery, refs, roomId, store]);
   const latestAttempt = longJobAttempts.at(-1);
   const canCancelLongJob = !!longJob && !["completed", "failed", "blocked", "cancelled"].includes(longJob.status);
   const canRetryLongJob = !!longJob && ["failed", "blocked", "cancelled", "paused"].includes(longJob.status);
@@ -1728,7 +1766,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     const cid = crypto.randomUUID();
     void store.postMessage({ roomId, channel, author: me, text: messageText, clientMsgId: cid, kind: "chat" })
       .then((fb) => { if (fb && !fb.ok) setFailedSends((f) => { if (f.some((x) => x.cid === cid)) return f; const next = [...f, { cid, text: messageText }]; return next.length > MAX_FAILED_SENDS ? next.slice(-MAX_FAILED_SENDS) : next; }); });
-    setText(""); setRefs([]); setSlashOpen(false); setSlashIndex(0); setMention(null); setMentionIndex(0);
+    setText(""); setRefs([]); setSlashOpen(false); setSlashIndex(0); setMention(null); setMentionIndex(0); setContextPickerOpen(false); setContextQuery("");
     requestAnimationFrame(grow);
 
     const publicNodeAgentRequest = !isPrivate ? parsePublicNodeAgentRequest(t) : null;
@@ -1736,7 +1774,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       const modelSelection = composerModelSelection(publicNodeAgentRequest.forceFree, overrideModelSelection);
       beginThinking();
       lastAgentInputRef.current = t;
-      void store.askAgent({ goal: publicNodeAgentRequest.goal, references: messageRefs, modelSelection, contextArtifactId: activeArtifactId }).catch((e) => {
+      void store.askAgent({ goal: `${publicNodeAgentRequest.goal}${artifactRefContextSuffix(messageRefs)}`, references: messageRefs, modelSelection, contextArtifactId: activeArtifactId }).catch((e) => {
         if (aliveRef.current) {
           setAgentErr(buildAgentFailureNotice(e, { selection: modelSelection, requestText: t, source: "public", jobId: longJob?.id }));
           setThinking(false);
@@ -1770,7 +1808,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       // Live private NodeAgent. Private lane → replies only to you. Room lane → acts in the shared room
       // (edits the sheet + posts public chat) as your personal agent, attributed to you.
       beginThinking();
-      void store.askPrivateAgent({ goal: t, references: messageRefs }, { publish: roomLane }).catch((e) => {
+      void store.askPrivateAgent({ goal: `${t}${artifactRefContextSuffix(messageRefs)}`, references: messageRefs }, { publish: roomLane }).catch((e) => {
         if (aliveRef.current) setAgentErr(buildAgentFailureNotice(e, { selection: { mode: "adaptive" }, requestText: t, source: "private", jobId: longJob?.id }));
       }).finally(() => { if (aliveRef.current) setThinking(false); });
     }
@@ -1813,19 +1851,25 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const addRef = (ref: ArtifactRef) => {
     const art = store.listArtifacts(roomId).find((a) => a.id === ref.id);
     if (!art) return;
-    const canonical = { id: art.id, title: art.title, kind: art.kind };
-    setRefs((cur) => cur.some((r) => r.id === canonical.id) ? cur : [...cur, canonical]);
+    const canonical: ArtifactRef = {
+      ...ref,
+      id: art.id,
+      title: ref.contextKind && ref.contextKind !== "artifact" ? ref.title : art.title,
+      kind: art.kind,
+    };
+    const key = artifactRefKey(canonical);
+    setRefs((cur) => cur.some((r) => artifactRefKey(r) === key) ? cur : [...cur, canonical]);
   };
   const appendRefs = (nextRefs: ArtifactRef[]) => {
     setRefs((cur) => {
-      const seen = new Set(cur.map((r) => r.id));
-      const additions = nextRefs.filter((r) => !seen.has(r.id));
+      const seen = new Set(cur.map(artifactRefKey));
+      const additions = nextRefs.filter((r) => !seen.has(artifactRefKey(r)));
       return additions.length ? [...cur, ...additions] : cur;
     });
   };
-  const removeRef = (id: string) => setRefs((cur) => cur.filter((r) => r.id !== id));
+  const removeRef = (key: string) => setRefs((cur) => cur.filter((r) => artifactRefKey(r) !== key));
   const openComposerRef = (ref: ArtifactRef) => {
-    const opened = onOpenArtifact?.(ref.id, { split: true });
+    const opened = onOpenArtifact?.(ref.id, { split: true, elementId: ref.elementId });
     if (opened === false) setRefOpenErr(`Couldn't open ${ref.title}. The artifact or proposal no longer exists.`);
     else setRefOpenErr(null);
   };
@@ -1983,30 +2027,44 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     >
       <div className="r-panel-head">
         {isPrivate ? <Lock size={14} /> : <MessageCircle size={14} />}
-        <span className="h-title">{isPrivate ? "Your NodeAgent" : "Public chat"}</span>
+        <span className="h-title">{isPrivate ? "Your NodeAgent" : "Room chat"}</span>
         <span className={"r-tag " + (isPrivate ? "private" : "public")}>{isPrivate ? <><Lock size={10} /> Private</> : <><Globe size={10} /> Everyone</>}</span>
         {!isPrivate && messages.length > 0 && <span className="r-tag">{messages.length}</span>}
         <span className="grow" />
         {!isPrivate && <span className="r-tag agent" style={{ gap: 6 }}><span className="r-avatar agent sm" style={{ background: AGENT_AVATAR_COLOR, width: 18, height: 18, fontSize: 9 }}>N</span>Room NodeAgent</span>}
-        {showLongJobChrome && longJob && (() => { const bad = ["failed", "blocked"].includes(longJob.status); return (
+        {!embedded && showLongJobChrome && longJob && (() => { const bad = ["failed", "blocked"].includes(longJob.status); return (
           <span className={"r-tag" + (bad ? " danger" : "")} role={bad ? "status" : undefined} data-testid="job-status" title="Latest long-running free-auto job"><Timer size={10} /> {longJob.status} {longJob.attempts}/{longJob.maxAttempts}</span>
         ); })()}
-        {canCancelLongJob && (
+        {!embedded && canCancelLongJob && (
           <button className="r-iconbtn r-iconbtn-sm" title={jobBusy === "cancel" ? "Cancelling…" : "Cancel long-running job"} aria-label="Cancel long-running job" data-testid="job-cancel" disabled={jobBusy !== null} onClick={cancelJob}>
             <X size={13} />
           </button>
         )}
-        {canRetryLongJob && (
+        {!embedded && canRetryLongJob && (
           <button className="r-iconbtn r-iconbtn-sm" title={jobBusy === "retry" ? "Retrying…" : "Retry long-running job"} aria-label="Retry long-running job" data-testid="job-retry" disabled={jobBusy !== null} onClick={retryJob}>
             <RefreshCw size={13} />
           </button>
         )}
-        {jobErr && <span className="r-tag" role="alert" data-testid="job-error" style={{ color: "var(--danger-ink)" }}>{jobErr}</span>}
+        {!embedded && jobErr && <span className="r-tag" role="alert" data-testid="job-error" style={{ color: "var(--danger-ink)" }}>{jobErr}</span>}
       </div>
-      {isPrivate && <div className="r-private-banner"><Sparkles size={12} /> Reads room context; output stays yours until you promote it</div>}
+      {isPrivate && <div className="r-private-banner"><Sparkles size={12} /> Only you can read this lane in NodeRoom; requests and room context are sent to the configured model provider</div>}
       {!isPrivate && showLongJobChrome && longJob && (
         <div className="r-job-strip">
           <Timer size={12} />
+          {embedded && (() => { const bad = ["failed", "blocked"].includes(longJob.status); return (
+            <span className={"r-tag" + (bad ? " danger" : "")} role={bad ? "status" : undefined} data-testid="job-status" title="Latest long-running free-auto job">{longJob.status} {longJob.attempts}/{longJob.maxAttempts}</span>
+          ); })()}
+          {embedded && canCancelLongJob && (
+            <button className="r-iconbtn r-iconbtn-sm" title={jobBusy === "cancel" ? "Cancelling…" : "Cancel long-running job"} aria-label="Cancel long-running job" data-testid="job-cancel" disabled={jobBusy !== null} onClick={cancelJob}>
+              <X size={13} />
+            </button>
+          )}
+          {embedded && canRetryLongJob && (
+            <button className="r-iconbtn r-iconbtn-sm" title={jobBusy === "retry" ? "Retrying…" : "Retry long-running job"} aria-label="Retry long-running job" data-testid="job-retry" disabled={jobBusy !== null} onClick={retryJob}>
+              <RefreshCw size={13} />
+            </button>
+          )}
+          {embedded && jobErr && <span className="r-tag" role="alert" data-testid="job-error" style={{ color: "var(--danger-ink)" }}>{jobErr}</span>}
           <span>{longJob.modelPolicy}</span>
           {latestAttempt && <span>attempt {latestAttempt.attempt}: {latestAttempt.resolvedModel} · {latestAttempt.stopReason} · {shortMs(latestAttempt.ms)}</span>}
           {longJob.nextRunAt && longJob.status !== "completed" && <span>next {clock(longJob.nextRunAt)}</span>}
@@ -2205,14 +2263,31 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             ))}
           </div>
         )}
+        {contextPickerOpen && (
+          <div className="r-context-picker" data-testid="chat-context-picker" role="dialog" aria-label="Attach work context">
+            <div className="r-context-picker-search">
+              <Search size={12} />
+              <input autoFocus value={contextQuery} onChange={(event) => setContextQuery(event.target.value)} placeholder="Find artifacts, slides, proposals, or traces" />
+              <button type="button" aria-label="Close context picker" onClick={() => { setContextPickerOpen(false); setContextQuery(""); }}><X size={12} /></button>
+            </div>
+            <div className="r-context-picker-list" role="listbox">
+              {contextOptions.map((option) => (
+                <button key={option.key} type="button" role="option" onClick={() => { addRef(option.ref); setContextPickerOpen(false); setContextQuery(""); requestAnimationFrame(() => taRef.current?.focus()); }}>
+                  <span>{option.label}</span><em>{option.hint}</em>
+                </button>
+              ))}
+              {contextOptions.length === 0 && <p>No matching room context.</p>}
+            </div>
+          </div>
+        )}
         {refs.length > 0 && (
           <div className="r-ref-composer" aria-label="Message references">
             {refs.map((ref) => (
-              <span key={ref.id} className="r-ref-chip">
+              <span key={artifactRefKey(ref)} className="r-ref-chip" data-context-kind={ref.contextKind ?? "artifact"}>
                 <button className="r-ref-open" type="button" onClick={() => openComposerRef(ref)}>
-                  <Paperclip size={12} /> <span className="r-ref-title">{ref.title}</span>
+                  {ref.contextKind && ref.contextKind !== "artifact" ? <Link2 size={12} /> : <Paperclip size={12} />} <span className="r-ref-title">{ref.title}</span>
                 </button>
-                <button className="r-ref-remove" type="button" aria-label={`Remove ${ref.title}`} onClick={() => removeRef(ref.id)}><X size={11} /></button>
+                <button className="r-ref-remove" type="button" aria-label={`Remove ${ref.title}`} onClick={() => removeRef(artifactRefKey(ref))}><X size={11} /></button>
               </span>
             ))}
           </div>
@@ -2274,6 +2349,18 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
               title={voiceListening ? "Stop voice input" : "Start voice input"}
             >
               {voiceListening ? <MicOff size={15} /> : <Mic size={15} />}
+            </button>
+            <button
+              className="r-attach r-context-btn"
+              type="button"
+              data-testid="chat-context"
+              data-active={String(contextPickerOpen)}
+              aria-expanded={contextPickerOpen}
+              aria-label="Attach work context"
+              title="Attach work context"
+              onClick={() => setContextPickerOpen((open) => !open)}
+            >
+              <Link2 size={15} />
             </button>
             {showModelSelection && (
               <AgentModelPicker
@@ -2533,7 +2620,7 @@ function Bubble({
     } else setEditing(false);
   };
   const openRef = (ref: ArtifactRef) => {
-    const opened = onOpenArtifact?.(ref.id, { split: true });
+    const opened = onOpenArtifact?.(ref.id, { split: true, elementId: ref.elementId });
     if (opened === false) setOpenErr(`Couldn't open ${ref.title}. The artifact or proposal no longer exists.`);
     else setOpenErr(null);
   };
@@ -2561,7 +2648,7 @@ function Bubble({
             {parsed.refs.length > 0 && (
               <div className="r-msg-refs">
                 {parsed.refs.map((ref) => (
-                  <ArtifactEmbed key={ref.id} roomId={roomId} ref={ref} store={store} onOpen={openRef} />
+                  <ArtifactEmbed key={artifactRefKey(ref)} roomId={roomId} ref={ref} store={store} onOpen={openRef} />
                 ))}
               </div>
             )}
