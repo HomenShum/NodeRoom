@@ -15,7 +15,7 @@ export interface DeckPptxExport {
 }
 
 const PPTX_MIME = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-const ZIP_DATE = new Date(0);
+const ZIP_DATE = new Date(Date.UTC(1980, 0, 1, 0, 0, 0));
 
 function stableHash(value: unknown): string {
   const text = JSON.stringify(value);
@@ -203,7 +203,7 @@ const THEME = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 </a:theme>`;
 
 function addFile(zip: JSZip, path: string, body: string): void {
-  zip.file(path, body, { date: ZIP_DATE });
+  zip.file(path, body, { date: ZIP_DATE, createFolders: false });
 }
 
 export async function buildDeckPptxExport(storyboard: DeckStoryboard, generatedAt = 0): Promise<DeckPptxExport> {

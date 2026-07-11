@@ -36,6 +36,7 @@ Generated benchmark receipts, videos, trace archives, and unrelated evaluation W
 | First-run + story + terracotta + live Convex Playwright | Pass, 28/28 |
 | Product-memory Playwright | Pass, 29/29 |
 | Deployed authenticated fresh-phone Playwright | Pass, 2/2 at 390x844 |
+| Deterministic PPTX export regression | Pass; fixed-time files with no clock-stamped folder entries |
 | Accounting ProofLoop | Pass, 100/85 |
 | Notion SDR/BDR ProofLoop | Pass, 100/80 |
 | Linux + Windows mobile visual baselines | Reviewed and refreshed; local gate 3/3 |
@@ -61,6 +62,24 @@ The owning shared lane separately passed 309 Vitest files / 2,073 tests and its 
 
 The preview is launch evidence, not a production promotion. Its temporary deployment-protection bypass was revoked after testing; the project reports an empty `protectionBypass` map.
 
+## Rollback And Migration Rehearsal Receipt
+
+- Authoritative source rollback: `.proofloop/rollback/zealous-goshawk-766-20260710-153059.zip`.
+- Source rollback size: `5,078,797,442` bytes; `13,378` ZIP entries, including `13,106` `_storage` entries.
+- Source rollback SHA-256: `CE13AF578BD4A36D660C26BCBEF58C4D7580EE6FE8414F492522169F106A2FBD`.
+- Full 7-Zip test: pass; `13,378` files and `10,186,870,607` uncompressed bytes.
+- Current production rollback: `.proofloop/rollback/aromatic-bass-102-20260710-175955.zip`.
+- Production rollback size: `462,953` bytes; `186` ZIP entries, including `2` `_storage` entries.
+- Production rollback SHA-256: `9CFC030A0BE758DE32E2A342B65C46A4CB697E7D9A25107A650C446DA306EC83`.
+- Full production 7-Zip test: pass.
+- Isolated rehearsal deployment: `agreeable-civet-283`, created with a one-day expiry and no public frontend.
+- Clean release functions/schema deployed before import; its function-spec hash matched the authenticated preview at `d6890534fca6cd8a58abadf6a70f4e1e4a5a64fe1e5702a666aa92676bfa0e19`.
+- `--replace-all` rehearsal import: pass after `1h59m45s`; `8,312,277` documents and all `13,105` stored files imported.
+- Post-import checks: `1,998` rooms, `13,105` stored files, full 4,096-row samples for artifacts/messages/elements, and valid artifact-to-room, artifact-to-element, message-to-room, and upload-to-storage references.
+- The rehearsal deploy key was revoked and its temporary local environment file was deleted. The deployment expires automatically.
+
+The rollback artifact is now proven. It is intentionally gitignored and remains local because it contains room data and stored files.
+
 ## Production Auth Receipt
 
 - A dedicated `NodeRoom Production` GitHub OAuth application was created with homepage `https://noderoom.live` and callback on the actual production Convex site.
@@ -73,22 +92,22 @@ The preview is launch evidence, not a production promotion. Its temporary deploy
 
 1. `noderoom.live` still serves the stale public build and points at Convex development deployment `zealous-goshawk-766`.
 2. The actual Convex production deployment remains `aromatic-bass-102` with an older function/schema surface.
-3. The public-facing development deployment contains at least 1,000 rooms and is the authoritative current data source.
-4. A storage-inclusive development export exceeded 10 minutes and produced no archive.
-5. A database-only development export also exceeded 10 minutes and produced no archive.
-6. No destructive import, production backend deploy, frontend promotion, or identity enforcement is permitted without a verified rollback artifact or an approved non-destructive migration.
+3. The public-facing development deployment contains `1,998` rooms and is the authoritative current data source.
+4. The source snapshot contains `2,688` legacy member rows but zero `users`, `authAccounts`, or `authSessions` rows. Enabling strict account identity without an explicit legacy-room claim/disposition policy can strand existing rooms.
+5. The isolated import took almost two hours. Production needs a scheduled write freeze, a fresh cutover snapshot, and post-import delta reconciliation; the verified snapshot is rollback evidence, not a zero-downtime cutover artifact.
+6. No production import or identity enforcement is permitted until an owner approves the legacy anonymous-room policy and supervised maintenance window in `NODEROOM_PRODUCTION_MIGRATION_RUNBOOK_20260710.md`.
 7. Vercel production still needs explicit hosted `VITE_CONVEX_URL`, `VITE_CONVEX_SITE_URL`, `VITE_NODEROOM_AUTH_REQUIRED=1`, and `VITE_NODEROOM_AUTH_PROVIDER=github` configuration.
 8. The independent taste gate previously remained at 5.5/6.0 and still requires its owning review before launch promotion.
 
 ## Safe Resume Sequence
 
-1. Obtain a verified Convex export through the dashboard/support path, including file storage, or approve a non-destructive dual-read migration.
-2. Compare development and production snapshots without exposing room codes or content.
-3. Preserve the passing isolated preview receipt while production rollback work proceeds.
-4. Obtain the owning independent taste-gate approval.
-5. Deploy the production Convex revision and verify its function spec before changing Vercel production coordinates.
-6. Deploy the matching frontend, test GitHub sign-in, then enable production identity enforcement.
-7. Run fresh-phone Create, invited-member Join, reload recovery, proposal accept/reject, trace, and export receipt against `https://noderoom.live`.
-8. Promote only when the production journey, rollback proof, and independent taste gate all pass.
+1. Decide whether legacy anonymous rooms are migrated through an account-claim flow, retained temporarily without strict identity, or explicitly retired.
+2. Schedule a supervised maintenance window of at least three hours and freeze writes to `zealous-goshawk-766`.
+3. Capture and validate fresh source and destination snapshots immediately before cutover.
+4. Follow `NODEROOM_PRODUCTION_MIGRATION_RUNBOOK_20260710.md`; verify function-spec, table, storage, and referential parity before changing Vercel production coordinates.
+5. Configure the matching production frontend and GitHub auth, then test sign-in before enabling strict identity.
+6. Run fresh-phone Create, invited-member Join/claim, reload recovery, proposal accept/reject, trace, and export receipt against `https://noderoom.live`.
+7. Obtain the owning independent taste-gate approval.
+8. Promote only when migration, authenticated production journey, rollback drill, and independent taste gate all pass.
 
 Local clean-branch dogfood: `http://127.0.0.1:4175`

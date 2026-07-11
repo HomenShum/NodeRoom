@@ -53,6 +53,7 @@ playwright/.cache/
 .proofloop/orchestrator/
 .proofloop/prod-proxy-longrun/
 .proofloop/runner/
+.proofloop/rollback/
 .proofloop/workers/
 .proofloop/memory/
 .proofloop/agents/

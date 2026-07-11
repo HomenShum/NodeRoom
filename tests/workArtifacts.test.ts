@@ -780,10 +780,13 @@ describe("work artifact adapters", () => {
     const presentationRels = await zip.file("ppt/_rels/presentation.xml.rels")!.async("string");
     const core = await zip.file("docProps/core.xml")!.async("string");
     const slide1 = await zip.file("ppt/slides/slide1.xml")!.async("string");
+    const zipEntries = Object.values(zip.files);
 
     expect(pptx.exportVersion).toBe(1);
     expect(pptx.integrityHash).toBe(second.integrityHash);
     expect(Buffer.from(pptx.bytes).equals(Buffer.from(second.bytes))).toBe(true);
+    expect(zipEntries.every((entry) => !entry.dir)).toBe(true);
+    expect(new Set(zipEntries.map((entry) => entry.date.getTime())).size).toBe(1);
     expect([...pptx.bytes.slice(0, 2)].map((value) => String.fromCharCode(value)).join("")).toBe("PK");
     expect(pptx.slideCount).toBe(2);
     expect(pptx.needsReviewCount).toBeGreaterThan(0);
