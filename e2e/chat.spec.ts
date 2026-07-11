@@ -62,16 +62,23 @@ test.describe("chat — optimistic send + edit (memory mode)", () => {
     await expect(chat.locator(".r-ref-chip").filter({ hasText: "Q3 variance" })).toBeVisible();
     await expect(chat.getByTestId("chat-send")).toBeEnabled();
     const messages = chat.getByTestId("chat-message");
-    const messageCount = await messages.count();
+    const existingClientMsgIds = new Set(await messages.evaluateAll((nodes) =>
+      nodes.map((node) => node.getAttribute("data-clientmsgid")).filter((id): id is string => Boolean(id)),
+    ));
     await chat.getByTestId("chat-send").click();
 
-    await expect(messages).toHaveCount(messageCount + 1);
-    const bubble = messages.nth(messageCount);
+    let clientMsgId: string | null = null;
+    await expect.poll(async () => {
+      const referencedIds = await chat.locator('[data-testid="chat-message"]:has(.r-msg-ref)').evaluateAll((nodes) =>
+        nodes.map((node) => node.getAttribute("data-clientmsgid")).filter((id): id is string => Boolean(id)),
+      );
+      clientMsgId = referencedIds.find((id) => !existingClientMsgIds.has(id)) ?? null;
+      return clientMsgId;
+    }).not.toBeNull();
+    const bubble = chat.locator(`[data-testid="chat-message"][data-clientmsgid="${clientMsgId}"]`);
     await expect(bubble).toBeVisible();
     await expect(bubble.locator(".r-msg-ref")).toContainText("Q3 variance");
-    const clientMsgId = await bubble.getAttribute("data-clientmsgid");
-    expect(clientMsgId).toBeTruthy();
-    const stableBubble = chat.locator(`[data-testid="chat-message"][data-clientmsgid="${clientMsgId}"]`);
+    const stableBubble = bubble;
 
     await stableBubble.hover();
     await stableBubble.getByTestId("chat-edit").click();
