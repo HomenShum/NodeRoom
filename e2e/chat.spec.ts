@@ -61,9 +61,12 @@ test.describe("chat — optimistic send + edit (memory mode)", () => {
     }, { mime: ARTIFACT_REF_MIME, ref });
     await expect(chat.locator(".r-ref-chip").filter({ hasText: "Q3 variance" })).toBeVisible();
     await expect(chat.getByTestId("chat-send")).toBeEnabled();
+    const messages = chat.getByTestId("chat-message");
+    const messageCount = await messages.count();
     await chat.getByTestId("chat-send").click();
 
-    const bubble = chat.getByTestId("chat-message").filter({ hasText: "Q3 variance" }).last();
+    await expect(messages).toHaveCount(messageCount + 1);
+    const bubble = messages.nth(messageCount);
     await expect(bubble).toBeVisible();
     await expect(bubble.locator(".r-msg-ref")).toContainText("Q3 variance");
     const clientMsgId = await bubble.getAttribute("data-clientmsgid");
