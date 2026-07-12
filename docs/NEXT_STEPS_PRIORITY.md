@@ -1,5 +1,50 @@
 # Next Steps Priority
 
+Last updated: **2026-07-12** (rolled forward from the 2026-06-21 sequence, kept as
+history below). Source for the current picture: `docs/audit/DIRECTION_AUDIT_2026-07-12.md`.
+
+## What July closed (per receipts — do not re-do)
+
+- Official-scores goal `passed` (`docs/eval/PROOFLOOP_GOAL_LEDGER.md`); the
+  certification board is now honest at **4 receipt-backed official scores**
+  (bankertoolbench, finch, finauditing, workstreambench) with SpreadsheetBench
+  correctly `needs_scaffold_or_run` (audit C15 fixed 2026-07-12).
+- `dev-audience-ready` goal `passed`.
+- The July work-artifacts implementation + dogfood push
+  (`docs/synthesis/WORK_ARTIFACTS_*`) is complete per its receipts.
+
+## Current priority order (2026-07-12)
+
+Evidence-ranked from the audit's open items. Items 1–2 are correctness/honesty
+debts; 3–5 are hygiene; 6 is the one genuine strategic fork that needs an owner
+decision.
+
+1. **Set the prod `GLOBAL_MAX_USD_PER_MONTH` env var to 150 and deploy.** Code
+   default is now 150 (audit C2) but takes effect only on `npm run convex:deploy`;
+   confirm the prod env var matches before relying on the $150 ceiling.
+2. **Commit / decide the remaining uncommitted truth.** The July direction docs and
+   the QA run-artifact retention policy (fixloop vs prod-dogfood) are still
+   unresolved — see the audit's "required commit sequence".
+3. **Consolidate the duplicated code the audit found** — the two budget policy
+   modules are done (C1); remaining: prune the ~250-script long tail, the media
+   skill trio, and the forked Gemini judge scripts (see
+   `docs/audit/CLAUDE_USAGE_ANALYSIS_2026-07-12.md` rebuild queue).
+4. **Finish the doc hygiene pass** — README slimming, the false "NOT BUILT" headers
+   on shipped features (PDF citation box, capture pipeline, skill RAG), and the
+   architecture docs naming phantom Convex tables (audit C6–C10).
+5. **SpreadsheetBench official score** — the one benchmark still genuinely open:
+   it needs full model-run evidence + the workbook scorer import before it can flip
+   from `needs_scaffold_or_run` to a real official score. Everything is staged.
+6. **STRATEGIC FORK (owner decision):** the buyer-validation gate
+   (`proofloop:buyer-validation`) and the multi-repo packaging plan currently
+   pull in different directions (audit policy decision (d)). Pick which leads the
+   next 90 days before spending on either — this is not a call the harness should
+   make for you.
+
+---
+
+## Historical — June 2026 sequence (below is the 2026-06-21 snapshot)
+
 Last updated: 2026-06-21
 
 This is the working priority order after the June 2026 benchmark and Semantic

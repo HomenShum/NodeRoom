@@ -2,6 +2,14 @@
 
 Last updated: 2026-06-18
 
+> **RECONCILED 2026-07-12 (direction audit, C24):** the **official-scores** gate has
+> since passed (`docs/eval/PROOFLOOP_GOAL_LEDGER.md`, receipt 2026-07-11) — treat any
+> "official benchmark score" gap below as closed for the 4 receipt-backed lanes
+> (SpreadsheetBench excepted; still `needs_scaffold_or_run`). The **GTM / banker /
+> multi-file production-scale** gaps below were NOT touched by the July receipts and
+> remain authoritative. Current priority order:
+> `docs/NEXT_STEPS_PRIORITY.md` (July section).
+
 NodeRoom is production-shaped, but it is not yet fully production-proven. The
 core harness exists: versioned room artifacts, bounded agent tools, lock/CAS
 mutation, draft recovery, unified durable `agentJobs`, room-work reasoning
