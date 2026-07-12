@@ -111,3 +111,15 @@ docs/seo/journey-artifacts/
 
 # Prod dogfood raw traces/videos are local proof output; keep compact receipts in docs/qa/*.md.
 docs/qa/prod-dogfood/
+
+# Launch control plane: approvals, browser credentials, and mutable outbox state stay local.
+.launch/approval.json
+.launch/chrome-profile/
+.launch/outbox/distribution.sqlite
+.launch/outbox/distribution.sqlite-*
+.launch/outbox/previews/
+.launch/cdp/screenshots/
+.launch/cdp/traces/
+.launch/cdp/har/
+.launch/cdp/videos/
+.launch/generated/

@@ -21,14 +21,31 @@ export const proposeLock = internalMutation({
     await requireAgentSession(ctx, a.roomId, a.sessionId, a.holder);
     const elementIds = await expandElementIdsWithSpreadsheetDependencies(ctx, a.artifactId, a.elementIds);
 
+    let ownedLock: Awaited<ReturnType<typeof activeLockOn>> | null = null;
     for (const id of elementIds) {
       const lk = await activeLockOn(ctx, a.artifactId, id);
-      if (lk && lk.holder.id !== a.holder.id) {
+      if (lk && (!sameActor(lk.holder, a.holder) || String(lk.sessionId) !== String(a.sessionId))) {
         return { ok: false as const, reason: `range already locked by ${lk.holder.name}`, lockId: lk._id };
+      }
+      if (lk) {
+        if (ownedLock && String(ownedLock._id) !== String(lk._id)) {
+          return { ok: false as const, reason: "range spans multiple active locks", lockId: lk._id };
+        }
+        ownedLock = lk;
       }
     }
 
     const now = Date.now();
+    if (ownedLock) {
+      const requested = [...elementIds].sort().join("\n");
+      const held = [...ownedLock.elementIds].sort().join("\n");
+      if (requested !== held) {
+        return { ok: false as const, reason: "holder already owns a different active range", lockId: ownedLock._id };
+      }
+      await ctx.db.patch(ownedLock._id, { expiresAt: now + LOCK_TTL_MS, reason: a.reason });
+      return { ok: true as const, lockId: ownedLock._id, idempotent: true as const };
+    }
+
     // Lease TTL (shared LOCK_TTL_MS) — a crashed holder's lock auto-expires; the write path renews it.
     const lockId = await ctx.db.insert("locks", {
       roomId: a.roomId,

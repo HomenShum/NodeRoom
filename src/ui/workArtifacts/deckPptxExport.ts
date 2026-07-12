@@ -2,7 +2,7 @@ import JSZip from "jszip";
 import type { DeckSlidePlan, DeckStoryboard } from "./deckStoryboard";
 
 export interface DeckPptxExport {
-  exportVersion: 1;
+  exportVersion: 2;
   deckId: string;
   planHash: string;
   title: string;
@@ -10,6 +10,7 @@ export interface DeckPptxExport {
   slideCount: number;
   needsReviewCount: number;
   integrityHash: string;
+  integrityAlgorithm: "sha256";
   fileName: string;
   bytes: Uint8Array;
 }
@@ -17,14 +18,9 @@ export interface DeckPptxExport {
 const PPTX_MIME = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 const ZIP_DATE = new Date(Date.UTC(1980, 0, 1, 0, 0, 0));
 
-function stableHash(value: unknown): string {
-  const text = JSON.stringify(value);
-  let hash = 2166136261;
-  for (let index = 0; index < text.length; index += 1) {
-    hash ^= text.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-  return (hash >>> 0).toString(16).padStart(8, "0");
+async function sha256Hex(bytes: Uint8Array): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", Uint8Array.from(bytes));
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 function slug(value: string): string {
@@ -211,20 +207,6 @@ export async function buildDeckPptxExport(storyboard: DeckStoryboard, generatedA
     (sum, slide) => sum + slide.unresolvedGaps.length + slide.claims.filter((claim) => claim.status !== "verified").length,
     0,
   );
-  const hashBase = {
-    deckId: storyboard.deckId,
-    planHash: storyboard.planHash,
-    title: storyboard.title,
-    slides: storyboard.slides.map((slide) => ({
-      id: slide.slideId,
-      title: slide.title,
-      purpose: slide.purpose,
-      status: slide.status,
-      claims: slide.claims.map((claim) => [claim.claimId, claim.text, claim.status, claim.evidenceId, claim.traceId, claim.proposalId]),
-      gaps: slide.unresolvedGaps,
-    })),
-  };
-  const integrityHash = stableHash(hashBase);
   const zip = new JSZip();
 
   addFile(zip, "[Content_Types].xml", contentTypesXml(storyboard));
@@ -250,9 +232,10 @@ export async function buildDeckPptxExport(storyboard: DeckStoryboard, generatedA
     platform: "UNIX",
     streamFiles: false,
   });
+  const integrityHash = await sha256Hex(bytes);
 
   return {
-    exportVersion: 1,
+    exportVersion: 2,
     deckId: storyboard.deckId,
     planHash: storyboard.planHash,
     title: storyboard.title,
@@ -260,6 +243,7 @@ export async function buildDeckPptxExport(storyboard: DeckStoryboard, generatedA
     slideCount: storyboard.slides.length,
     needsReviewCount,
     integrityHash,
+    integrityAlgorithm: "sha256",
     fileName: deckPptxFileName(storyboard.title, integrityHash),
     bytes,
   };

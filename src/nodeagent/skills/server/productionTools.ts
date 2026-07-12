@@ -6,6 +6,7 @@
  * server-only tools such as capture_source.
  */
 import { PRODUCTION_ROOM_TOOLS } from "../spreadsheet/cellMutator";
+import { workbookSessionTool } from "../spreadsheet/workbookSessionTool";
 import { captureSourceFirecrawlTool } from "../search/captureSourceFirecrawlTool";
 import { secFactsTool } from "../search/secFactsTool";
 import { citeInFileTool } from "../search/citeInFileTool";
@@ -18,9 +19,11 @@ import { youComFinanceResearchTool } from "../search/youComFinanceResearchTool";
 import { tavilySearchTool } from "../search/tavilySearchTool";
 import { SKILL_SEARCH_TOOLS, LOAD_SKILL_TOOLS } from "../../tools";
 import { PLAN_AND_DISPATCH_TOOL } from "../../core/subagentDispatcher";
+import { launchAdmissionModeFromEnv } from "../../../launch/budgetPolicy";
 
 export const SERVER_PRODUCTION_ROOM_TOOLS = [
   ...PRODUCTION_ROOM_TOOLS,
+  workbookSessionTool,
   captureSourceFirecrawlTool,
   secFactsTool,
   citeInFileTool,
@@ -39,3 +42,23 @@ export const SERVER_PRODUCTION_ROOM_TOOLS = [
 ];
 
 export const SERVER_PRODUCTION_TOOL_NAMES = SERVER_PRODUCTION_ROOM_TOOLS.map((tool) => tool.name);
+
+/** These tools can create provider charges that are not yet included in the parent run's durable
+ * settlement. They remain available in development/benchmark, but launch postures fail closed by
+ * omitting them until aggregate per-attempt/tool metering is implemented and certified. */
+export const LAUNCH_UNMETERED_PROVIDER_TOOL_NAMES = new Set([
+  "capture_source",
+  "founder_profile",
+  "you_search",
+  "you_research",
+  "you_finance_research",
+  "tavily_search",
+  "okf_semantic_search",
+  "plan_and_dispatch",
+]);
+
+export function serverProductionRoomToolsForEnv(env: Record<string, string | undefined>) {
+  const mode = launchAdmissionModeFromEnv(env);
+  if (mode !== "private_pilot" && mode !== "public_launch") return SERVER_PRODUCTION_ROOM_TOOLS;
+  return SERVER_PRODUCTION_ROOM_TOOLS.filter((tool) => !LAUNCH_UNMETERED_PROVIDER_TOOL_NAMES.has(tool.name));
+}

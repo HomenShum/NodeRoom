@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "updatedAt": "2026-07-12T19:37:39.360Z",
+  "blockers": [
+    {
+      "id": "current-revision-proof-bundle",
+      "lane": "A",
+      "severity": "critical",
+      "owner": "NodeRoom engineering",
+      "status": "clean_commit_and_gate_required",
+      "exactAction": "Commit the exact successor candidate, confirm a clean worktree, run the immutable CI profile, and verify its bundle against that HEAD. The baseline PR and preview do not certify these changes.",
+      "evidence": ["scripts/launch-gate.ts", "src/launch/policy.ts", ".launch/deployment-manifest.json"],
+      "resumeCommand": "npm run launch:gate:ci"
+    },
+    {
+      "id": "legacy-room-policy",
+      "lane": "B",
+      "severity": "critical",
+      "owner": "NodeRoom release owner",
+      "status": "needs_human_approval",
+      "exactAction": "Choose account claim, temporary compatibility, archival/retirement, or another explicit disposition for 1,998 legacy rooms.",
+      "evidence": ["docs/release/NODEROOM_PRODUCTION_MIGRATION_RUNBOOK_20260710.md"],
+      "resumeCommand": "npm run launch:proof:prod"
+    },
+    {
+      "id": "production-cutover-window",
+      "lane": "B",
+      "severity": "critical",
+      "owner": "NodeRoom release owner",
+      "status": "needs_human_approval",
+      "exactAction": "Approve a supervised write freeze of at least three hours and set productionMigrationApproved only immediately before the staffed cutover.",
+      "evidence": ["docs/release/NODEROOM_MOBILE_LAUNCH_READINESS_20260710.md"],
+      "resumeCommand": "npm run launch:proof:prod"
+    },
+    {
+      "id": "pilot-spend-controls",
+      "lane": "F",
+      "severity": "high",
+      "owner": "NodeRoom engineering",
+      "status": "local_proof_passed_deployment_pending",
+      "exactAction": "After deployment approval, deploy the exact clean candidate to an isolated preview with strict frontend and server identity, NODEAGENT_LAUNCH_MODE=private_pilot, CREDITS_ENFORCED=true, VITE_CREDITS_LIVE=true, and a bounded NODEAGENT_NEW_ROOM_GRANT_CREDITS value. Prove the server posture plus atomic admission, active hard-cap commitment, idempotent settlement, cap breach, concurrency, provider failure, and every kill switch through authenticated browser journeys.",
+      "evidence": ["convex/providerSpend.ts", "convex/credits.ts", "convex/usageLimits.ts", "convex/modelSpendMeter.ts", "convex/launchPosture.ts", "tests/providerSpend.test.ts", "tests/launchToolPolicy.test.ts", "tests/modelSpendMeter.test.ts", "tests/launchUsageLimits.test.ts", "tests/convexCredits.test.ts", "tests/launchPosture.test.ts"],
+      "resumeCommand": "npm run launch:gate:candidate"
+    },
+    {
+      "id": "current-revision-auth-first-user",
+      "lane": "B-F",
+      "severity": "critical",
+      "owner": "NodeRoom release owner and engineering",
+      "status": "deployment_approval_and_proof_required",
+      "exactAction": "Deploy the exact clean candidate with VITE_APP_COMMIT, VITE_BACKEND_REVISION, VITE_CONVEX_URL, VITE_NODEROOM_AUTH_REQUIRED=1, NODEROOM_REQUIRE_CONVEX_IDENTITY=1, enforced credits, private-pilot mode, and a bounded grant. Bind LAUNCH_EXPECTED_CONVEX_URL to that same Convex deployment, verify its function specification and launchPosture receipt, then run the extended fresh authenticated 390x844 spec through create -> bounded initial credits -> public durable job reaches terminal state -> proposal/evidence -> accept and reject paths -> SHA-256 export receipt -> reload receipt hydration -> successful invited second-user join and rejoin. Record screenshots, video, trace, cost, and browser receipt.",
+      "evidence": ["e2e/deployed-auth-first-user.spec.ts", "scripts/launch-deployed-auth-proof.ts", "scripts/convex-deploy-verify.ts", "convex/launchPosture.ts", ".launch/deployment-manifest.json"],
+      "resumeCommand": "npm run launch:proof:deployed-auth"
+    },
+    {
+      "id": "trusted-deployment-verifier",
+      "lane": "A-B-C-F",
+      "severity": "critical",
+      "owner": "NodeRoom release owner and engineering",
+      "status": "implemented_not_run",
+      "exactAction": "Provide authorized Convex deployment credentials/configuration, then set PLAYWRIGHT_BASE_URL, PLAYWRIGHT_DEPLOYED_AUTH=1, LAUNCH_EXPECTED_APP_COMMIT, LAUNCH_EXPECTED_BACKEND_REVISION, and LAUNCH_EXPECTED_CONVEX_URL for the isolated deployment. Run the non-skipping verifier: it must prove the deployed function specification, exact frontend Convex target, strict server identity, enforced credits, bounded grant, unpaused launch posture, and authenticated browser journey. Then run the immutable pilot profile, which requires browser and cost evidence.",
+      "evidence": ["scripts/launch-deployed-auth-proof.ts", "scripts/convex-deploy-verify.ts", "src/launch/deployedProof.ts", "src/launch/policy.ts", "src/app/main.tsx", "convex/launchPosture.ts"],
+      "resumeCommand": "npm run launch:proof:deployed-auth"
+    },
+    {
+      "id": "product-hunt-read-only-sample",
+      "lane": "C-G",
+      "severity": "medium",
+      "owner": "NodeRoom product",
+      "status": "local_interactive_sample_only",
+      "exactAction": "Decide whether the Product Hunt sample must be strictly read-only. If yes, disable all sample mutation controls and prove that contract; otherwise change the launch requirement and public copy through an explicit product decision. Keep the current 'Synthetic local sample' label until then.",
+      "evidence": ["src/ui/mobile/MobileRoot.tsx", "e2e/first-run-launch.spec.ts", ".launch/decisions.json"],
+      "resumeCommand": "npm run launch:gate:product-hunt"
+    },
+    {
+      "id": "workbook-session-deployed-proof",
+      "lane": "C-E",
+      "severity": "high",
+      "owner": "NodeRoom engineering",
+      "status": "local_proof_passed_deployment_pending",
+      "exactAction": "Deploy the candidate to an isolated authenticated preview and prove workbook read -> stage -> preview -> proposal-aware publish -> host accept/reject -> trace/receipt -> reload -> export/reopen on a phone and desktop.",
+      "evidence": ["docs/architecture/WORKBOOK_REPL.md", "tests/workbookSession.test.ts"],
+      "resumeCommand": "npm run launch:proof:deployed-auth"
+    },
+    {
+      "id": "launch-feature-restrictions-disclosure",
+      "lane": "C-F",
+      "severity": "medium",
+      "owner": "NodeRoom product and support",
+      "status": "deployment_copy_proof_pending",
+      "exactAction": "Verify deployed user-facing failure states for intentionally disabled launch capabilities: unmetered voice, direct capture, external semantic embeddings, nested provider tools, inline public provider actions, retries/fallbacks, and unapproved deep work. Users must receive a bounded explanation and recovery path rather than a generic error.",
+      "evidence": [".launch/kill-switches.md", "src/nodeagent/skills/server/productionTools.ts", "tests/launchToolPolicy.test.ts"],
+      "resumeCommand": "npm run launch:proof:deployed-auth"
+    },
+    {
+      "id": "independent-taste-gate",
+      "lane": "D",
+      "severity": "high",
+      "owner": "Independent design reviewer",
+      "status": "needs_human_approval",
+      "exactAction": "Review the current desktop/mobile production candidate and write .launch/receipts/production/taste-gate.json.",
+      "evidence": ["docs/design/mobile/MOBILE_TASTE_AUDIT.md"],
+      "resumeCommand": "npm run launch:gate:product-hunt"
+    },
+    {
+      "id": "public-actions-approval",
+      "lane": "G-J",
+      "severity": "critical",
+      "owner": "NodeRoom release owner",
+      "status": "needs_human_approval",
+      "exactAction": "Approve public repositories, Product Hunt submission, public distribution, and email independently in .launch/approval.json.",
+      "evidence": [".launch/approval.example.json"],
+      "resumeCommand": "npm run launch:gate:product-hunt"
+    }
+  ]
+}

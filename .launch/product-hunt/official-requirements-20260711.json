@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "checkedAt": "2026-07-11T08:00:00.000Z",
+  "sources": [
+    {
+      "title": "Product Hunt Launch Guide",
+      "url": "https://www.producthunt.com/launch",
+      "supports": ["makers may hunt their own products", "do not ask directly for upvotes", "ask visitors to engage and comment"]
+    },
+    {
+      "title": "Prepare for your Product Hunt launch",
+      "url": "https://www.producthunt.com/launch/preparing-for-launch",
+      "supports": ["12:01 a.m. Pacific is a rule of thumb", "schedule up to one month ahead", "prepare a maker first comment", "YouTube is supported for video"]
+    },
+    {
+      "title": "How do I share my post?",
+      "url": "https://help.producthunt.com/en/articles/2690626-how-do-i-share-my-post",
+      "supports": ["avoid mass messaging", "avoid incentives", "avoid coordinated voting", "share organically and engage commenters"]
+    },
+    {
+      "title": "Product Hunt Featuring Guidelines",
+      "url": "https://help.producthunt.com/en/articles/9883485-product-hunt-featuring-guidelines",
+      "supports": ["products should be live", "usefulness and high craft influence featuring"]
+    },
+    {
+      "title": "How to schedule a post",
+      "url": "https://help.producthunt.com/en/articles/2724119-how-to-schedule-a-post",
+      "supports": ["draft and scheduled states are distinct", "scheduled drafts can be edited", "schedule window is within 30 days"]
+    }
+  ],
+  "conclusions": [
+    "NodeRoom should be self-hunted by a maker using a personal account.",
+    "The launch should ask people to visit, try, comment, and give feedback, never to upvote.",
+    "The owner should choose a staffed time; 12:01 a.m. Pacific is optional guidance, not a success hack.",
+    "Do not schedule while noderoom.live lacks the approved production user journey and independent taste pass."
+  ]
+}

@@ -573,7 +573,7 @@ export function CoachSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
       React.createElement(
         "div",
         { className: "na-tabs" },
-        ([["howto", "How to answer"], ["answer", "Your answer"], ["feedback", "Feedback"]] as Array<[string, string]>).map(([id, lab]) =>
+        ([["howto", "How to answer"], ["answer", "Your answer"], ["feedback", ctx.isLive ? "Checklist" : "Feedback"]] as Array<[string, string]>).map(([id, lab]) =>
           React.createElement("button", { key: id, className: "na-tab", "data-active": tab === id, onClick: () => setTab(id) }, lab),
         ),
       ),
@@ -611,6 +611,7 @@ export function CoachSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
             placeholder: "Explain it in your own words…",
             onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => setAnswer(e.target.value),
           }),
+          ctx.isLive && React.createElement("p", { className: "na-ask-note", role: "note" }, "Local practice only. Your answer is not sent to a model or scored."),
           React.createElement(
             "button",
             {
@@ -622,7 +623,7 @@ export function CoachSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
               },
             },
             Ico("checkCircle"),
-            "Get feedback",
+            ctx.isLive ? "Show evidence checklist" : "Get feedback",
           ),
         ),
 
@@ -631,8 +632,8 @@ export function CoachSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
           ? React.createElement(
               "div",
               { style: { display: "flex", flexDirection: "column", gap: 8 } },
-              fbRow("checkCircle", "ok", "What went well", C.feedback.well),
-              fbRow("target", "warn", "What you missed", C.feedback.missed),
+              fbRow("checkCircle", "ok", ctx.isLive ? "Reference framing" : "What went well", C.feedback.well),
+              fbRow("target", "warn", ctx.isLive ? "Gap to address" : "What you missed", C.feedback.missed),
               fbRow("link", "accent", "Source to cite", C.feedback.cite),
               React.createElement(
                 "div",
@@ -641,7 +642,7 @@ export function CoachSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
                   "div",
                   { className: "na-card-head accent" },
                   React.createElement("div", { className: "na-card-title" }, React.createElement("strong", null, "Suggested wording")),
-                  React.createElement(Pill, { tone: "priv", icon: "quote" }, "model"),
+                  React.createElement(Pill, { tone: "priv", icon: "quote" }, ctx.isLive ? "local guide" : "model"),
                 ),
                 React.createElement(
                   "div",

@@ -15,6 +15,7 @@ import { actorProofV } from "./lib";
 import { runCapture } from "../src/nodeagent/capture/pipeline";
 import { firecrawlSubstrate } from "../src/nodeagent/capture/substrate/firecrawl";
 import { aiSdkReasoner } from "../src/nodeagent/capture/reasoning";
+import { beginProviderSpend, completeProviderSpend } from "./providerSpend";
 
 // Import-only the Firecrawl substrate + pipeline + reasoner (NOT the barrel / browserbase) so the
 // Convex bundle never pulls playwright-core.
@@ -32,13 +33,38 @@ export const capture = action({
   },
   handler: async (ctx, a): Promise<{ ok: boolean; error?: string; recordId: string }> => {
     await ctx.runQuery(assertMemberRef, { roomId: a.roomId, requester: a.requester }); // admission control
-
-    const r = await runCapture({
-      url: a.url,
+    const providerSpend = await beginProviderSpend(ctx, {
+      roomId: a.roomId,
+      requesterId: a.requester.actor.id,
+      route: "capture",
+      metering: "unavailable",
+      creditMode: "standard",
       goal: a.goal,
-      reasoner: aiSdkReasoner(a.modelId),
-      substrate: firecrawlSubstrate(),
-      allowHosts: a.allowHosts,
+      modelHint: a.modelId ?? "capture-reasoner",
+    });
+    if (!providerSpend.execute) throw new Error(`provider_spend_duplicate:${providerSpend.duplicateReason}`);
+
+    let r;
+    try {
+      r = await runCapture({
+        url: a.url,
+        goal: a.goal,
+        reasoner: aiSdkReasoner(a.modelId),
+        substrate: firecrawlSubstrate(),
+        allowHosts: a.allowHosts,
+      });
+    } catch (error) {
+      await completeProviderSpend(ctx, providerSpend, {
+        model: a.modelId ?? "capture-reasoner",
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
+    await completeProviderSpend(ctx, providerSpend, {
+      model: a.modelId ?? "capture-reasoner",
+      success: r.ok,
+      error: r.error,
     });
 
     const steps: Array<{ phase: string; label: string; status: string; detail?: string; box?: { x: number; y: number; w: number; h: number }; screenshotId?: string }> = [];

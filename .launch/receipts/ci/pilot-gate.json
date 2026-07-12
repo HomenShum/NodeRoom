@@ -1,0 +1,254 @@
+{
+  "schema": "noderoom-launch-gate-v1",
+  "gate": "pilot",
+  "generatedAt": "2026-07-12T19:53:21.185Z",
+  "status": "blocked",
+  "approvalSource": ".launch/approval.example.json",
+  "checks": [
+    {
+      "id": "approval:schema",
+      "status": "pass",
+      "detail": "Approval loaded from .launch/approval.example.json.",
+      "evidence": [
+        ".launch/approval.example.json"
+      ]
+    },
+    {
+      "id": "approval:privatePilotApproved",
+      "status": "fail",
+      "detail": "privatePilotApproved must be explicitly true.",
+      "evidence": [
+        ".launch/approval.example.json"
+      ]
+    },
+    {
+      "id": "code.release-candidate",
+      "status": "fail",
+      "detail": "PR #190 at 77757c42 remains the prior green baseline. The successor branch contains the workbook, spend, export, and first-run changes and needs a clean current-revision proof bundle before it is a release candidate.",
+      "evidence": [
+        "https://github.com/HomenShum/NodeRoom/pull/190",
+        ".launch/deployment-manifest.json"
+      ]
+    },
+    {
+      "id": "code.typecheck",
+      "status": "fail",
+      "detail": "Application TypeScript passed on the current working tree; trusted clean-commit receipt is pending.",
+      "evidence": [
+        ".launch/generated/ci/receipts/deterministic/application-typecheck.json"
+      ]
+    },
+    {
+      "id": "code.convex-typecheck",
+      "status": "fail",
+      "detail": "Convex TypeScript passed on the current working tree; trusted clean-commit receipt is pending.",
+      "evidence": [
+        ".launch/generated/ci/receipts/deterministic/convex-typecheck.json"
+      ]
+    },
+    {
+      "id": "code.tests",
+      "status": "fail",
+      "detail": "The current working tree passes 310/310 Vitest files and 2,117/2,117 tests. Product-memory browser proof passes 29/29, the launch-surface browser proof passes 19/19, the unchanged accounting certification suite passes 100/85, and Notion/GTM ProofLoop passes 100/80. Trusted clean-commit receipts are pending.",
+      "evidence": [
+        "tests/proofStaleness.test.ts",
+        "tests/launchCopyContract.test.ts",
+        "e2e/first-run-launch.spec.ts",
+        "e2e/mobile-terracotta-contract.spec.ts",
+        ".proofloop/runs/2026-07-12T19-48-01/scorecard.md",
+        ".proofloop/runs/2026-07-12T10-29-31/scorecard.md"
+      ]
+    },
+    {
+      "id": "code.production-build",
+      "status": "fail",
+      "detail": "The current working-tree production build passes with the existing large-chunk advisory; clean-commit immutable receipt is pending.",
+      "evidence": [
+        ".launch/generated/ci/receipts/deterministic/production-build.json"
+      ]
+    },
+    {
+      "id": "pilot.authenticated-preview",
+      "status": "fail",
+      "detail": "The prior authenticated preview passed, but it does not contain the successor branch's current schema, spend admission, bounded grants, durable export receipts, launch posture query, or function-spec-bound verifier.",
+      "evidence": [
+        "docs/release/NODEROOM_MOBILE_LAUNCH_READINESS_20260710.md",
+        ".launch/deployment-manifest.json",
+        "scripts/launch-deployed-auth-proof.ts"
+      ]
+    },
+    {
+      "id": "pilot.first-user-journey",
+      "status": "fail",
+      "detail": "The no-account local sample passes locally. A fresh authenticated phone user must still prove create -> initial credits -> public durable job -> proposal/evidence -> accept/reject -> export receipt -> reload on the deployed current revision.",
+      "evidence": [
+        "e2e/first-run-launch.spec.ts",
+        "e2e/deployed-auth-first-user.spec.ts"
+      ]
+    },
+    {
+      "id": "pilot.export-reopen",
+      "status": "fail",
+      "detail": "Deterministic PPTX bytes, SHA-256, browser delivery status, and durable receipt behavior pass locally; deployed authenticated persistence and reopen are pending.",
+      "evidence": [
+        "tests/workArtifacts.test.ts",
+        "tests/artifactExportReceipts.test.ts",
+        "tests/mobileDeckLive.test.tsx"
+      ]
+    },
+    {
+      "id": "pilot.reload-persistence",
+      "status": "fail",
+      "detail": "Prior-preview reload and fail-closed rejoin passed. Current-revision receipt hydration and a successful second-user join/rejoin still need deployed proof.",
+      "evidence": [
+        "e2e/deployed-auth-first-user.spec.ts"
+      ]
+    },
+    {
+      "id": "pilot.current-revision-auth-phone",
+      "status": "fail",
+      "detail": "No current-revision deployment has yet passed function-spec parity, exact frontend/Convex binding, strict server identity and spend posture, plus a fresh authenticated phone journey covering create, bounded grant, durable public job, proposal/evidence review, accept/reject, SHA-256 export receipt, reload, and successful second-user join/rejoin.",
+      "evidence": [
+        "e2e/deployed-auth-first-user.spec.ts",
+        "scripts/launch-deployed-auth-proof.ts",
+        "convex/launchPosture.ts",
+        ".launch/deployment-manifest.json"
+      ]
+    },
+    {
+      "id": "pilot.issue-delete-support",
+      "status": "fail",
+      "detail": "A complete in-product issue, deletion request, and support contact journey is not yet proven.",
+      "evidence": [
+        ".launch/support-playbook.md"
+      ]
+    },
+    {
+      "id": "privacy.public-private-isolation",
+      "status": "fail",
+      "detail": "Existing deterministic tests cover fail-closed membership and private/public separation; the changed current revision needs clean-commit and deployed authenticated proof.",
+      "evidence": [
+        "tests/authSessionPolicy.test.ts",
+        "e2e/chat.spec.ts"
+      ]
+    },
+    {
+      "id": "privacy.beta-data-policy",
+      "status": "fail",
+      "detail": "Pilot policy must explicitly restrict confidential banking data and MNPI until approved.",
+      "evidence": [
+        ".launch/product-hunt/faq.md"
+      ]
+    },
+    {
+      "id": "controls.job-cap",
+      "status": "fail",
+      "detail": "Local tests prove atomic begin admission/reservation, atomic idempotent finish settlement/telemetry, hard-cap-sized active commitments, bounded fresh-room grants, and no retry/fallback in launch. Isolated deployed breach proof is pending.",
+      "evidence": [
+        "convex/providerSpend.ts",
+        "convex/credits.ts",
+        "convex/modelSpendMeter.ts",
+        "tests/providerSpend.test.ts",
+        "tests/convexCredits.test.ts",
+        "tests/modelSpendMeter.test.ts",
+        "tests/freshRoomLaunchCredits.test.ts"
+      ]
+    },
+    {
+      "id": "controls.workspace-cap",
+      "status": "fail",
+      "detail": "Local tests prove room/user projected exposure and concurrency admission, including direct-provider commitments without job double-counting. Isolated deployed proof is pending.",
+      "evidence": [
+        "convex/usageLimits.ts",
+        "tests/launchUsageLimits.test.ts",
+        "tests/providerSpend.test.ts"
+      ]
+    },
+    {
+      "id": "controls.global-spend-cap",
+      "status": "fail",
+      "detail": "The canonical launch envelope now includes active commitments and atomic direct-provider admission; isolated cap-breach and provider-error billing proof are pending.",
+      "evidence": [
+        "src/nodeagent/core/creditModel.ts",
+        "src/launch/budgetPolicy.ts",
+        "convex/providerSpend.ts",
+        "tests/providerSpend.test.ts"
+      ]
+    },
+    {
+      "id": "controls.kill-switch",
+      "status": "fail",
+      "detail": "Environment-backed global, provider, maintenance, and room pause switches are wired. Launch also fails closed for unmetered nested provider tools, direct inline public runs, external embeddings, voice, and capture; deployed browser proof is pending.",
+      "evidence": [
+        ".launch/kill-switches.md",
+        "src/nodeagent/skills/server/productionTools.ts",
+        "tests/launchToolPolicy.test.ts",
+        "tests/launchBudgetPolicy.test.ts"
+      ]
+    },
+    {
+      "id": "product.finance-claim-scope",
+      "status": "fail",
+      "detail": "The expired June finance provider batch is preserved as historical research and removed from current launch promotion. Local staleness and launch-copy tests pass; clean-commit immutable verification is pending.",
+      "evidence": [
+        "evals/proofStaleness.ts",
+        "tests/proofStaleness.test.ts",
+        "tests/launchCopyContract.test.ts",
+        "docs/eval/finance-model-live.json"
+      ]
+    },
+    {
+      "id": "product.workbook-session",
+      "status": "fail",
+      "detail": "The bounded job-scoped workbook session passes local contract, persistence, idempotency, and provider-schema proof; authenticated deployed proposal/accept/reject/export proof is pending.",
+      "evidence": [
+        "docs/architecture/WORKBOOK_REPL.md",
+        "tests/workbookSession.test.ts"
+      ]
+    },
+    {
+      "id": "product.launch-feature-scope",
+      "status": "fail",
+      "detail": "Private/public launch intentionally disables unmetered voice, direct capture, external semantic embeddings, nested provider tools, inline public provider actions, model retries/fallbacks, and unapproved deep work. These limits require user-facing deployment verification before launch.",
+      "evidence": [
+        ".launch/kill-switches.md",
+        "src/nodeagent/skills/server/productionTools.ts",
+        "src/launch/budgetPolicy.ts",
+        "tests/launchToolPolicy.test.ts"
+      ]
+    },
+    {
+      "id": "operations.support-ready",
+      "status": "fail",
+      "detail": "Support owner, rotation, and tested escalation channel are not approved.",
+      "evidence": [
+        ".launch/support-playbook.md"
+      ]
+    }
+  ],
+  "blockers": [
+    "approval:privatePilotApproved: privatePilotApproved must be explicitly true.",
+    "code.release-candidate: PR #190 at 77757c42 remains the prior green baseline. The successor branch contains the workbook, spend, export, and first-run changes and needs a clean current-revision proof bundle before it is a release candidate.",
+    "code.typecheck: Application TypeScript passed on the current working tree; trusted clean-commit receipt is pending.",
+    "code.convex-typecheck: Convex TypeScript passed on the current working tree; trusted clean-commit receipt is pending.",
+    "code.tests: The current working tree passes 310/310 Vitest files and 2,117/2,117 tests. Product-memory browser proof passes 29/29, the launch-surface browser proof passes 19/19, the unchanged accounting certification suite passes 100/85, and Notion/GTM ProofLoop passes 100/80. Trusted clean-commit receipts are pending.",
+    "code.production-build: The current working-tree production build passes with the existing large-chunk advisory; clean-commit immutable receipt is pending.",
+    "pilot.authenticated-preview: The prior authenticated preview passed, but it does not contain the successor branch's current schema, spend admission, bounded grants, durable export receipts, launch posture query, or function-spec-bound verifier.",
+    "pilot.first-user-journey: The no-account local sample passes locally. A fresh authenticated phone user must still prove create -> initial credits -> public durable job -> proposal/evidence -> accept/reject -> export receipt -> reload on the deployed current revision.",
+    "pilot.export-reopen: Deterministic PPTX bytes, SHA-256, browser delivery status, and durable receipt behavior pass locally; deployed authenticated persistence and reopen are pending.",
+    "pilot.reload-persistence: Prior-preview reload and fail-closed rejoin passed. Current-revision receipt hydration and a successful second-user join/rejoin still need deployed proof.",
+    "pilot.current-revision-auth-phone: No current-revision deployment has yet passed function-spec parity, exact frontend/Convex binding, strict server identity and spend posture, plus a fresh authenticated phone journey covering create, bounded grant, durable public job, proposal/evidence review, accept/reject, SHA-256 export receipt, reload, and successful second-user join/rejoin.",
+    "pilot.issue-delete-support: A complete in-product issue, deletion request, and support contact journey is not yet proven.",
+    "privacy.public-private-isolation: Existing deterministic tests cover fail-closed membership and private/public separation; the changed current revision needs clean-commit and deployed authenticated proof.",
+    "privacy.beta-data-policy: Pilot policy must explicitly restrict confidential banking data and MNPI until approved.",
+    "controls.job-cap: Local tests prove atomic begin admission/reservation, atomic idempotent finish settlement/telemetry, hard-cap-sized active commitments, bounded fresh-room grants, and no retry/fallback in launch. Isolated deployed breach proof is pending.",
+    "controls.workspace-cap: Local tests prove room/user projected exposure and concurrency admission, including direct-provider commitments without job double-counting. Isolated deployed proof is pending.",
+    "controls.global-spend-cap: The canonical launch envelope now includes active commitments and atomic direct-provider admission; isolated cap-breach and provider-error billing proof are pending.",
+    "controls.kill-switch: Environment-backed global, provider, maintenance, and room pause switches are wired. Launch also fails closed for unmetered nested provider tools, direct inline public runs, external embeddings, voice, and capture; deployed browser proof is pending.",
+    "product.finance-claim-scope: The expired June finance provider batch is preserved as historical research and removed from current launch promotion. Local staleness and launch-copy tests pass; clean-commit immutable verification is pending.",
+    "product.workbook-session: The bounded job-scoped workbook session passes local contract, persistence, idempotency, and provider-schema proof; authenticated deployed proposal/accept/reject/export proof is pending.",
+    "product.launch-feature-scope: Private/public launch intentionally disables unmetered voice, direct capture, external semantic embeddings, nested provider tools, inline public provider actions, model retries/fallbacks, and unapproved deep work. These limits require user-facing deployment verification before launch.",
+    "operations.support-ready: Support owner, rotation, and tested escalation channel are not approved."
+  ],
+  "resumeCommand": "npm run launch:gate:pilot"
+}

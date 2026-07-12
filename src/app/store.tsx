@@ -56,6 +56,7 @@ export type AgentJobTelemetry = {
   scope?: string;
   runtime?: string;
   runtimeProfile?: AgentRuntimeProfile;
+  creditMode?: AgentCreditMode;
   attempts: number;
   maxAttempts: number;
   modelPolicy: string;
@@ -80,7 +81,7 @@ export type AgentJobTelemetry = {
 /** Shape of a free-auto agent job row from the convex jobs subscription (used by lastLongFreeJob + activeLongFreeJobs). */
 type FreeJobRow = {
   _id: string; status: string; entrypoint?: string; scope?: string; runtime?: string; attempts: number; maxAttempts: number;
-  runtimeProfile?: AgentRuntimeProfile; modelPolicy: string; approvalPolicy?: string; evidencePolicy?: string; handoff?: { reason?: string }; nextRunAt?: number;
+  runtimeProfile?: AgentRuntimeProfile; creditMode?: AgentCreditMode; modelPolicy: string; approvalPolicy?: string; evidencePolicy?: string; handoff?: { reason?: string }; nextRunAt?: number;
   finalText?: string; error?: string; latestRunId?: string; actionSliceCount?: number; queryCount?: number; mutationCount?: number;
   modelCallCount?: number; toolCallCount?: number; schedulerHandoffCount?: number; receiptCount?: number; createdAt?: number; updatedAt: number;
 };
@@ -96,6 +97,7 @@ function mapConvexFreeJob(j: FreeJobRow): AgentJobTelemetry {
     scope: j.scope,
     runtime: j.runtime,
     runtimeProfile: j.runtimeProfile,
+    creditMode: j.creditMode,
     attempts: j.attempts,
     maxAttempts: j.maxAttempts,
     modelPolicy: j.modelPolicy,
@@ -1849,7 +1851,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       // internalMutations driven by the agent run path (enforcement), never the client.
       creditBalance: () => {
         const b = creditBalanceQ;
-        if (!b) return { availableCredits: 0, reservedCredits: 0, lifetimeSpentCredits: 0, availableUsd: 0, reservedUsd: 0, lifetimeSpentUsd: 0, demo: false, enforced: false };
+        if (!b) return { availableCredits: 0, reservedCredits: 0, lifetimeSpentCredits: 0, availableUsd: 0, reservedUsd: 0, lifetimeSpentUsd: 0, demo: false, enforced: false, enrolled: false, paused: false };
         return {
           availableCredits: b.availableCredits,
           reservedCredits: b.reservedCredits,
@@ -1859,6 +1861,8 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           lifetimeSpentUsd: b.lifetimeSpentUsd,
           demo: false,
           enforced: b.enforced,
+          enrolled: b.enrolled,
+          paused: b.paused,
         };
       },
       creditMode: () => creditMode,
@@ -2047,12 +2051,14 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         const route = durableRouteForModelSelection(input.modelSelection);
         const runtimeProfile = input.runtimeProfile ?? browserNodeAgentRuntimeProfile();
         const maxAttempts = maxAttemptsForRuntimeProfile(runtimeProfile, input.maxAttempts);
+        const selectedCreditMode = input.mode ?? creditMode;
         await startPublicAskJob({
           roomId: rid,
           requester: proof,
           routePolicy: route.routePolicy,
           ...(route.modelPolicy ? { modelPolicy: route.modelPolicy } : {}),
           ...(runtimeProfile ? { runtimeProfile } : {}),
+          creditMode: selectedCreditMode,
           ...(maxAttempts !== undefined ? { maxAttempts } : {}),
           references,
           contextArtifactId: input.contextArtifactId,
@@ -2065,7 +2071,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         if (opts?.publish) {
           const target = targetArtifact(artifacts, references);
           if (target) {
-            await runAgent({ roomId: rid, artifactId: target.id as never, requester: proof, mode: target.title === "Company research" ? "research" : undefined, goal, asOwner: { id: me.id, name: me.name } });
+            await runAgent({ roomId: rid, artifactId: target.id as never, requester: proof, mode: target.title === "Company research" ? "research" : undefined, creditMode: input.mode ?? creditMode, goal, asOwner: { id: me.id, name: me.name } });
             return;
           }
         }

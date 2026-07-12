@@ -46,6 +46,7 @@ This file is the model-facing contract: every production tool must expose a non-
 | `export_downstream_draft` | write | `artifact` | `artifact` |
 | `set_artifact_meta` | write | `artifactId` | `artifactId` |
 | `define_columns` | write | `baseVersion`, `columns` | `baseVersion`, `columns` |
+| `workbook_session` | mixed | `action`, `commandId` | `action`, `commandId` |
 | `capture_source` | write | `goal`, `url` | `goal`, `url` |
 | `sec_facts` | read | `company`, `concept` | `company`, `concept` |
 | `cite_in_file` | write | none | `target` |
@@ -967,6 +968,29 @@ This file is the model-facing contract: every production tool must expose a non-
   "args": {
     "baseVersion": 1,
     "columns": []
+  }
+}
+```
+
+### workbook_session
+
+- Purpose: Use the job's single governed workbook patch session.
+- When to use: Use for a durable job's bounded read, stage, preview, proposal-aware publish, and discard workflow on its primary sheet.
+- When not to use: Do not use as a code evaluator, for cross-artifact writes, or without a current session revision; use dedicated source and artifact tools for those jobs.
+- Mutability: mixed.
+- Canonical Zod properties: `action`, `commandId`, `expectedRevision`, `operations`, `range`, `reason`.
+- Canonical required fields: `action`, `commandId`.
+- Provider required fields: `action`, `commandId`.
+- Expected errors: missing_required_arg; invalid_arg_type; cas_conflict; lock_blocked; permission_denied; formula_protected.
+- Recovery path: On revision conflict, preview and issue a new command id. On needs_rebase, read the changed cells and stage a new patch. On lock_blocked, keep the stage pending and retry later; proposed outcomes wait for host accept or reject.
+- Example call:
+
+```json
+{
+  "tool": "workbook_session",
+  "args": {
+    "action": "preview",
+    "commandId": "preview-assumptions-1"
   }
 }
 ```

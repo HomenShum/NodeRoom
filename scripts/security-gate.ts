@@ -111,6 +111,10 @@ const frontendEnvAllowlist = new Set([
   "SSR",
   "VITE_CONVEX_URL",
   "VITE_CONVEX_SITE_URL",
+  // Public release identity only; deployed proof compares these non-secret
+  // values with the exact app and backend revisions.
+  "VITE_APP_COMMIT",
+  "VITE_BACKEND_REVISION",
   "VITE_NOTEBOOK_SYNC",
 ]);
 

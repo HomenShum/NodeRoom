@@ -12,16 +12,36 @@ are enforced in code (see below), so a breach surfaces as a diagnosable error, n
 | OpenRouter (agent runs) | **$75/mo hard cap** | The metered experiment |
 | Buffer | $25 | Absorbs the month Convex upgrades mid-cycle |
 
-## Enforcement (all shipped, armed on dev and prod)
+## Enforcement contract
 
 ```
-AGENT_MAX_USD_PER_SLICE   = 0.50   # per-slice ceiling (convex/agentJobRunner.ts + convex/agent.ts, priceStep)
-ROOM_MAX_USD_PER_DAY      = 3      # per-room rolling-day cap (agentRuns.roomSpendSince)
-GLOBAL_MAX_USD_PER_MONTH  = 75     # cross-room rolling-30d cap (agentRuns.globalSpendSince)
+NODEAGENT_LAUNCH_MODE     = private_pilot | public_launch
+CREDITS_ENFORCED          = true
+NODEAGENT_NEW_ROOM_GRANT_CREDITS = 1..20 (explicit; 0 disables automatic enrollment)
+global monthly            = $75
+per-room daily            = $3
+per-room monthly          = $50
+per-user daily            = $3
+foreground concurrency    = 10 global | 2 per room
+deep concurrency          = 1 per room
 ```
 
-The global cap's breach error self-diagnoses:
-`global_monthly_spend_cap:spentUsd=76.20:rooms=14:runs=312`
+`src/nodeagent/core/creditModel.ts` owns these values. `src/launch/budgetPolicy.ts` applies
+projected-cost, wallet, concurrency, benchmark-boundary, and kill-switch checks before admission.
+`convex/agentJobs.ts` repeats the check at every lease claim; `convex/agentJobRunner.ts` settles the
+attempt-specific hold from recorded usage.
+
+Launch reservations hold the larger of the route estimate and the mode's LLM hard cap. Unresolved
+reservations count toward global, room, and user spend before another request is admitted. Direct
+private-provider work uses the same rule through one atomic `providerSpend:begin` mutation; stable
+keys return `execute:false`, so a duplicate request cannot egress twice against one hold.
+
+Until aggregate metering is certified, private-pilot and public-launch postures deliberately omit
+provider-priced nested tools (`capture_source`, You.com, Tavily, Apify, external semantic search,
+and dynamic subagents), disable model retries/fallbacks, and reject hosted voice, direct capture,
+and external OKF embeddings. Local hashing, deterministic sample mode, direct model calls, and
+governed workbook tools remain available. Deep mode remains approval-gated and is not admitted by
+the default $3/day room/user envelope.
 
 | Breach pattern | Reading | Action |
 |---|---|---|

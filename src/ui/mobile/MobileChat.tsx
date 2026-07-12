@@ -209,12 +209,14 @@ export function JobsSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
     const result = await ctx.jobAct(j.id, action);
     ctx.toast(result.ok ? (action === "cancel" ? "Job cancelled" : "Job retry requested") : `Job action failed - ${result.reason ?? "try again"}`);
   };
-  const row = (j: Job, kind: "running" | "queued" | "completed") => React.createElement("div", { key: j.id, className: "na-jrow", "data-kind": kind, "data-nav": !!j.trace, onClick: j.trace ? () => ctx.openTrace(j.trace as string) : undefined },
+  type JobGroupKind = "running" | "queued" | "attention" | "completed";
+  const row = (j: Job, kind: JobGroupKind) => React.createElement("div", { key: j.id, className: "na-jrow", "data-kind": kind, "data-status": j.status, "data-nav": !!j.trace, onClick: j.trace ? () => ctx.openTrace(j.trace as string) : undefined },
     React.createElement("span", { className: "na-jdot", "data-kind": kind },
       kind === "running" ? React.createElement("i", { className: "spin" }) : null),
     React.createElement("div", { className: "na-jmain" },
       React.createElement("div", { className: "na-jtop" },
         React.createElement("strong", null, j.title),
+        React.createElement("span", { className: "na-jstate", "data-status": j.status }, jobStatusLabel(j.status)),
         React.createElement("span", { className: "na-jtrace", "data-nav": !!j.trace }, j.trace ? D.refLabel(j.trace) : (j.route || kind))),
       React.createElement("div", { className: "na-jsub" }, j.sub,
         j.cost ? React.createElement("span", { className: "sep" }, j.cost) : null,
@@ -222,15 +224,15 @@ export function JobsSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
         j.trace ? React.createElement("span", { className: "sep go" }, "View steps") : null),
       kind === "running" ? React.createElement("div", { className: "na-jprog" },
         React.createElement("i", { style: { width: (j.pct || 50) + "%" } })) : null),
-    kind === "running"
+    j.status === "running" || j.status === "retrying"
       ? React.createElement(Tooltip, { label: "Stop job", side: "left", children: React.createElement("button", { className: "na-jstop", onClick: (e: React.MouseEvent) => { e.stopPropagation(); void runAction(j, "cancel"); }, "aria-label": "Stop job", title: "Stop job" }, Ico("x")) })
-      : kind === "completed"
+      : j.status === "failed" || j.status === "cancelled" || j.status === "paused"
         ? React.createElement(Tooltip, { label: "Retry job", side: "left", children: React.createElement("button", { className: "na-jstop", onClick: (e: React.MouseEvent) => { e.stopPropagation(); void runAction(j, "retry"); }, "aria-label": "Retry job", title: "Retry job" }, Ico("history")) })
         : j.trace
           ? React.createElement("span", { className: "na-jstop ghost", "aria-hidden": true }, Ico("chevR"))
           : React.createElement("span", { className: "na-jwait" }, Ico("clock")));
 
-  const group = (label: string, list: Job[], kind: "running" | "queued" | "completed") => list.length
+  const group = (label: string, list: Job[], kind: JobGroupKind) => list.length
     ? React.createElement("div", { className: "na-jgroup", key: kind },
         React.createElement("div", { className: "na-jhead" }, label, React.createElement("span", { className: "c" }, list.length)),
         list.map((j) => row(j, kind)))
@@ -245,5 +247,18 @@ export function JobsSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
     React.createElement("div", { className: "na-sheet-body" },
       group("Running", J.running, "running"),
       group("Queued", J.queued, "queued"),
+      group("Needs attention", J.attention, "attention"),
       group("Completed", J.completed, "completed")));
+}
+
+function jobStatusLabel(status: Job["status"]): string {
+  if (status === "retrying") return "Retrying";
+  if (status === "cancelled") return "Cancelled";
+  if (status === "completed") return "Completed";
+  if (status === "running") return "Running";
+  if (status === "queued") return "Queued";
+  if (status === "paused") return "Paused";
+  if (status === "blocked") return "Blocked";
+  if (status === "failed") return "Failed";
+  return "Unknown";
 }

@@ -1,5 +1,10 @@
 # Finance Model Eval
 
+> Launch status (2026-07-12): the committed June provider batch is historical,
+> not a current route promotion. Its 30-day freshness window expired. The
+> deterministic harness remains supported; rerun the private N=5 command below
+> before restoring any live full-solve claim.
+
 This is the professional finance-modeling eval for uploaded three-statement
 workbooks. It exists because a spreadsheet agent is not proven by a validator
 alone: the agent must perform the workflow through the same tools a user sees

@@ -303,6 +303,8 @@ export default defineSchema({
   proposals: defineTable({
     roomId: v.id("rooms"),
     artifactId: v.id("artifacts"),
+    createdByJobId: v.optional(v.id("agentJobs")),
+    createdByRunId: v.optional(v.id("agentRuns")),
     op: v.any(),
     author: actor,
     review: v.optional(v.any()),
@@ -336,6 +338,7 @@ export default defineSchema({
 
   agentSessions: defineTable({
     roomId: v.id("rooms"),
+    jobId: v.optional(v.id("agentJobs")),
     agentId: v.string(),
     agentName: v.string(),
     scope: v.union(v.literal("public"), v.literal("private")),
@@ -344,7 +347,9 @@ export default defineSchema({
     heldLockId: v.optional(v.string()),
     lastAction: v.string(),
     updatedAt: v.number(),
-  }).index("by_room", ["roomId"]),
+  })
+    .index("by_room", ["roomId"])
+    .index("by_job", ["jobId"]),
 
   messages: defineTable({
     roomId: v.id("rooms"),
@@ -389,6 +394,27 @@ export default defineSchema({
 
   /** Live web/SEC source captures — a screenshot + extracted values WITH the on-screen box each came
    *  from (visual provenance). Written by the capture action; rendered as a Trace record. */
+  /** Durable browser-delivery receipts for governed artifact exports. The client hashes the exact
+   * bytes it offers to the browser; deliveryStatus distinguishes confirmed file-system writes from
+   * browsers that expose only a download-start event. */
+  artifactExportReceipts: defineTable({
+    roomId: v.id("rooms"),
+    requesterId: v.string(),
+    deckId: v.string(),
+    workArtifactId: v.string(),
+    planHash: v.string(),
+    format: v.literal("pptx"),
+    fileName: v.string(),
+    byteLength: v.number(),
+    slideCount: v.number(),
+    integrityAlgorithm: v.literal("sha256"),
+    integrityHash: v.string(),
+    deliveryStatus: v.union(v.literal("saved"), v.literal("download_started")),
+    createdAt: v.number(),
+  })
+    .index("by_room_deck", ["roomId", "deckId", "createdAt"])
+    .index("by_room_hash", ["roomId", "integrityHash", "createdAt"]),
+
   captureRecords: defineTable({
     roomId: v.id("rooms"),
     url: v.string(),
@@ -845,6 +871,7 @@ export default defineSchema({
   agentRuns: defineTable({
     jobId: v.optional(v.id("agentJobs")),
     roomId: v.id("rooms"),
+    requesterId: v.optional(v.string()),
     agentId: v.string(),
     model: v.string(),
     goal: v.string(),
@@ -863,14 +890,17 @@ export default defineSchema({
     handoff: v.optional(v.any()),
     idempotencyKey: v.optional(v.string()),
     createdAt: v.number(),
-  }).index("by_room", ["roomId", "createdAt"]).index("by_idempotency", ["idempotencyKey", "createdAt"]),
+  })
+    .index("by_room", ["roomId", "createdAt"])
+    .index("by_requester", ["requesterId", "createdAt"])
+    .index("by_idempotency", ["idempotencyKey", "createdAt"]),
 
   // ── Credit ledger (pilot wallet). The credit math + caps live in
   // src/nodeagent/core/creditModel.ts (the single source of truth, imported here).
   // roomCredits = materialized balance (fast reads + transactional reserve/settle);
   // creditLedger = append-only audit trail; creditGrants = append-only top-ups.
-  // A room with NO roomCredits row is "not enrolled" → unenforced (live stays clean
-  // until grants are seeded). NOT pruned by retention.
+  // A room with NO roomCredits row is not enrolled. Development can remain unmetered; launch
+  // postures reject it until a grant is seeded. NOT pruned by retention.
   roomCredits: defineTable({
     roomId: v.id("rooms"),
     availableCredits: v.number(),
@@ -900,12 +930,36 @@ export default defineSchema({
     usd: v.number(),
     jobId: v.optional(v.id("agentJobs")),
     runId: v.optional(v.id("agentRuns")),
+    requesterId: v.optional(v.string()),
+    projectedUsd: v.optional(v.number()),
     reason: v.optional(v.string()),
     note: v.optional(v.string()),
     createdAt: v.number(),
     /** Reserve rows past this with no settle are swept + refunded (crashed-run holds). */
     expiresAt: v.optional(v.number()),
   }).index("by_room", ["roomId", "createdAt"]).index("by_reservation", ["reservationKey"]).index("by_expiry", ["expiresAt"]),
+
+  /** Materialized state for active credit commitments. The append-only ledger remains the audit
+   * source; this table makes unresolved exposure queryable without an N+1 ledger scan. */
+  creditReservations: defineTable({
+    roomId: v.id("rooms"),
+    reservationKey: v.string(),
+    requesterId: v.string(),
+    mode: creditModeV,
+    projectedUsd: v.number(),
+    heldCredits: v.number(),
+    jobId: v.optional(v.id("agentJobs")),
+    status: v.union(v.literal("active"), v.literal("resolved")),
+    resolution: v.optional(v.string()),
+    actualUsd: v.optional(v.number()),
+    createdAt: v.number(),
+    expiresAt: v.number(),
+    resolvedAt: v.optional(v.number()),
+  })
+    .index("by_reservation", ["reservationKey"])
+    .index("by_status_createdAt", ["status", "createdAt"])
+    .index("by_room_status_createdAt", ["roomId", "status", "createdAt"])
+    .index("by_requester_status_createdAt", ["requesterId", "status", "createdAt"]),
 
   /** APPEND-ONLY step-level trace — the agent's full (tool · args → result) decision
    * sequence per run. The audit + trajectory-eval record: never updated, linked to a
@@ -928,6 +982,7 @@ export default defineSchema({
     routePolicy: v.optional(routePolicyV),
     runtimePolicy: v.optional(runtimePolicyV),
     runtimeProfile: v.optional(runtimeProfileV),
+    creditMode: v.optional(creditModeV),
     idempotencyKey: v.optional(v.string()),
     mode: v.optional(v.union(v.literal("variance"), v.literal("research"), v.literal("coach_eval"))),
     planPreview: v.optional(v.any()),
@@ -1141,15 +1196,40 @@ export default defineSchema({
 
   agentDraftOperations: defineTable({
     jobId: v.id("agentJobs"),
+    roomId: v.optional(v.id("rooms")),
+    artifactId: v.optional(v.id("artifacts")),
+    commandId: v.optional(v.string()),
+    sessionRevision: v.optional(v.number()),
+    executorToken: v.optional(v.string()),
+    executorExpiresAt: v.optional(v.number()),
+    proposalIds: v.optional(v.array(v.string())),
     proposedBy: actor,
     operationName: v.string(),
     input: v.any(),
     affectedIds: v.array(v.string()),
-    status: v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected"), v.literal("needs_rebase"), v.literal("applied")),
+    status: v.union(v.literal("pending"), v.literal("approved"), v.literal("proposed"), v.literal("rejected"), v.literal("needs_rebase"), v.literal("applied")),
     approvalRequiredBy: v.optional(v.string()),
+    result: v.optional(v.any()),
     createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
     resolvedAt: v.optional(v.number()),
-  }).index("by_job_status", ["jobId", "status"]),
+  })
+    .index("by_job_status", ["jobId", "status"])
+    .index("by_job_artifact_command", ["jobId", "artifactId", "commandId"])
+    .index("by_job_artifact_created", ["jobId", "artifactId", "createdAt"])
+    .index("by_job_artifact_status", ["jobId", "artifactId", "status"])
+    .index("by_job_artifact_operation_status", ["jobId", "artifactId", "operationName", "status"]),
+
+  agentWorkbookSessions: defineTable({
+    jobId: v.id("agentJobs"),
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    revision: v.number(),
+    status: v.union(v.literal("active"), v.literal("publishing"), v.literal("awaiting_approval")),
+    activeCommandId: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_job_artifact", ["jobId", "artifactId"]),
 
   agentLeases: defineTable({
     jobId: v.id("agentJobs"),

@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "status": "draft",
+  "name": "NodeRoom",
+  "url": "https://noderoom.live",
+  "tagline": "Turn rough company inputs into source-backed shared workpapers",
+  "descriptionPath": ".launch/product-hunt/description.md",
+  "topics": ["Productivity", "Artificial Intelligence", "Finance", "Collaboration"],
+  "thumbnail": null,
+  "gallery": [],
+  "video": null,
+  "makerCommentPath": ".launch/product-hunt/maker-comment.md",
+  "firstCommentPath": ".launch/product-hunt/first-comment.md",
+  "demoUrl": null,
+  "proofUrl": null,
+  "privacyUrl": null,
+  "termsUrl": null,
+  "supportUrl": null,
+  "approved": false,
+  "scheduledAt": null,
+  "submittedAt": null,
+  "submissionUrl": null
+}

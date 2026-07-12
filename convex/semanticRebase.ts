@@ -71,6 +71,8 @@ export async function planAndRecordRebase(
     currentUpdatedBy: ActorValue | undefined;
     actor: ActorValue; // the agent
     autoAllow: boolean;
+    createdByJobId?: Id<"agentJobs">;
+    createdByRunId?: Id<"agentRuns">;
   },
 ): Promise<RebasePlan> {
   const now = Date.now();
@@ -150,6 +152,8 @@ export async function planAndRecordRebase(
     const proposalId = existing?._id ?? await ctx.db.insert("proposals", {
       roomId: args.roomId,
       artifactId: args.artifactId,
+      ...(args.createdByJobId ? { createdByJobId: args.createdByJobId } : {}),
+      ...(args.createdByRunId ? { createdByRunId: args.createdByRunId } : {}),
       op: { opId: op.opId, artifactId: String(args.artifactId), elementId, kind: args.kind, value: args.proposedValue, baseVersion: args.currentVersion },
       author: args.actor,
       review: {

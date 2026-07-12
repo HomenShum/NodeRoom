@@ -782,7 +782,11 @@ describe("work artifact adapters", () => {
     const slide1 = await zip.file("ppt/slides/slide1.xml")!.async("string");
     const zipEntries = Object.values(zip.files);
 
-    expect(pptx.exportVersion).toBe(1);
+    expect(pptx.exportVersion).toBe(2);
+    expect(pptx.integrityAlgorithm).toBe("sha256");
+    expect(pptx.integrityHash).toMatch(/^[a-f0-9]{64}$/);
+    const digest = await crypto.subtle.digest("SHA-256", Uint8Array.from(pptx.bytes));
+    expect(pptx.integrityHash).toBe(Buffer.from(digest).toString("hex"));
     expect(pptx.integrityHash).toBe(second.integrityHash);
     expect(Buffer.from(pptx.bytes).equals(Buffer.from(second.bytes))).toBe(true);
     expect(zipEntries.every((entry) => !entry.dir)).toBe(true);

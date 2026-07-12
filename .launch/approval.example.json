@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "privatePilotApproved": false,
+  "productionMigrationApproved": false,
+  "productionDeployApproved": false,
+  "publicReposApproved": false,
+  "productHuntSubmissionApproved": false,
+  "publicDistributionApproved": false,
+  "emailSendApproved": false,
+  "maxLaunchSpendUsd": 100,
+  "targetLaunchAt": null,
+  "approvedBy": null,
+  "approvedAt": null
+}

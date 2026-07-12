@@ -52,4 +52,37 @@ describe("spreadsheet semantic index", () => {
       expect.objectContaining({ parentElementId: "u1__q2", childElementId: "u1__variance", parentCoordinate: "B2" }),
     ]));
   });
+
+  it("indexes uploaded A1-keyed workbook cells without reconstructing rowId column ids", () => {
+    const index = buildSpreadsheetSemanticIndex({
+      title: "Uploaded model",
+      columns: [
+        { id: "A", label: "A", order: 0 },
+        { id: "B", label: "B", order: 1 },
+        { id: "C", label: "C", order: 2 },
+      ],
+      seed: [
+        { id: "A1", value: payload("Metric") },
+        { id: "B1", value: payload("Value") },
+        { id: "C1", value: payload("Double") },
+        { id: "A2", value: payload("Revenue") },
+        { id: "B2", value: payload(12_400) },
+        { id: "C2", value: payload(24_800, "=B2*2") },
+      ],
+    });
+
+    expect(index.cells.find((cell) => cell.elementId === "B2")).toMatchObject({
+      coordinate: "B2",
+      rowHeader: "Revenue",
+      columnHeader: "Value",
+      rawValue: "12400",
+    });
+    expect(index.dependencies).toContainEqual(expect.objectContaining({
+      parentElementId: "B2",
+      childElementId: "C2",
+      parentCoordinate: "B2",
+      childCoordinate: "C2",
+    }));
+    expect(index.chunks.flatMap((chunk) => chunk.elementIds)).toContain("C2");
+  });
 });

@@ -224,11 +224,13 @@ export function FirstJoinOverlay({
   people,
   agents,
   sample = false,
+  credits,
   onDismiss,
 }: {
   people: number;
   agents: number;
   sample?: boolean;
+  credits?: { availableCredits: number; availableUsd: number; reservedCredits: number; requiredCredits: number; paused: boolean };
   onDismiss: () => void;
 }): React.ReactElement {
   return (
@@ -246,6 +248,15 @@ export function FirstJoinOverlay({
             ? "This workspace contains synthetic companies, sources, messages, and traces. Use it to inspect the review flow."
             : "Everyone in this room can read room messages and edit shared artifacts. Locks and receipts apply to your edits and the agent’s."}
         </p>
+        {!sample && credits ? (
+          <p className="gp-onb-credit" data-testid="mobile-firstjoin-credits">
+            <strong>{credits.availableCredits.toFixed(1)} credits (${credits.availableUsd.toFixed(2)}) available.</strong>{" "}
+            {credits.paused
+              ? "Live work is paused for this room."
+              : `${credits.requiredCredits.toFixed(1)} credits may be held for a standard run and unused credit is released after settlement.`}
+            {credits.reservedCredits > 0 ? ` ${credits.reservedCredits.toFixed(1)} credits are held now.` : ""}
+          </p>
+        ) : null}
         <div className="acts">
           <button type="button" className="pri" aria-label="Dismiss first-join welcome" onClick={onDismiss}>Got it</button>
         </div>

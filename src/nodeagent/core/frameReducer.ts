@@ -44,7 +44,14 @@ function collectTraceStrings(trace: AgentTraceEvent[], fieldNames: string[]): st
 function changedArtifacts(trace: AgentTraceEvent[]): string[] {
   const out: string[] = [];
   for (const event of trace) {
-    if (!WRITE_TOOL_NAMES.has(event.tool)) continue;
+    const workbookPublish = event.tool === "workbook_session"
+      && asRecord(event.args)?.action === "publish"
+      && Array.isArray(asRecord(event.result)?.outcomes)
+      && (asRecord(event.result)!.outcomes as unknown[]).some((outcome) => {
+        const status = asRecord(outcome)?.status;
+        return status === "applied" || status === "proposed";
+      });
+    if (!WRITE_TOOL_NAMES.has(event.tool) && !workbookPublish) continue;
     const artifactIds = collectStringField(event.args, "artifactId");
     out.push(...(artifactIds.length ? artifactIds : ["primary_artifact"]));
   }

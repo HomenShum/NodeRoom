@@ -94,9 +94,15 @@ const OPENROUTER_TITLE = "NodeRoom benchmark";
 const DEFAULT_MAX_OUTPUT_TOKENS = 8_192;
 const TRANSIENT_RE = /(\b429\b|\b5\d\d\b|rate.?limit|overloaded|temporar|timed?.?out|ECONNRESET|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|fetch failed|socket hang up|service unavailable)/i;
 
-export function convexModel(modelId: string, options: { entrypoint?: ProviderRouteEntrypoint } = {}): AgentModel {
+export function convexModel(modelId: string, options: {
+  entrypoint?: ProviderRouteEntrypoint;
+  maxRetries?: number;
+  allowFallback?: boolean;
+} = {}): AgentModel {
   const aliasModelId = resolveModelAlias(modelId);
   const entrypoint = options.entrypoint ?? "system";
+  const maxRetries = Math.max(0, Math.min(3, Math.floor(options.maxRetries ?? 3)));
+  const allowFallback = options.allowFallback !== false;
   let resolvedModelId = aliasModelId;
   return {
     get name() {
@@ -106,7 +112,7 @@ export function convexModel(modelId: string, options: { entrypoint?: ProviderRou
       // Gateway PII firewall — redact PII/secrets from the system + user content before the prompt leaves.
       const safeSystem = redactPII(system).text;
       const safeMessages = messages.map((m) => (m.role === "user" && m.content ? { ...m, content: redactPII(m.content).text } : m));
-      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, signal, onTextDelta, toolChoice);
+      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, maxRetries, allowFallback, signal, onTextDelta, toolChoice);
       resolvedModelId = resolvedModel;
       return step;
     },
@@ -124,6 +130,8 @@ async function generateConvexAgentStep(
   messages: AgentMessage[],
   tools: AgentTool[],
   entrypoint: ProviderRouteEntrypoint,
+  maxRetries: number,
+  allowFallback: boolean,
   signal?: AbortSignal,
   onTextDelta?: (text: string) => void | Promise<void>,
   toolChoice?: AgentToolChoice,
@@ -137,7 +145,7 @@ async function generateConvexAgentStep(
     });
     let lastError: unknown;
     const attempted: string[] = [];
-    for (const candidate of candidates) {
+    for (const candidate of allowFallback ? candidates : candidates.slice(0, 1)) {
       attempted.push(candidate.id);
       try {
         const providerRoute = assertProviderRouteAllowed({ model: candidate.id, entrypoint, env: process.env });
@@ -153,7 +161,7 @@ async function generateConvexAgentStep(
             signal,
             onTextDelta,
             toolChoice,
-          }), signal), providerRoute),
+          }), signal, maxRetries), providerRoute),
           resolvedModel: candidate.id,
         };
       } catch (error) {
@@ -167,15 +175,15 @@ async function generateConvexAgentStep(
   try {
     const providerRoute = assertProviderRouteAllowed({ model: modelId, entrypoint, env: process.env });
     return {
-      step: withProviderRoute(await withRetry(() => providerStep(modelId, system, messages, tools, signal, onTextDelta, toolChoice), signal), providerRoute),
+      step: withProviderRoute(await withRetry(() => providerStep(modelId, system, messages, tools, signal, onTextDelta, toolChoice), signal, maxRetries), providerRoute),
       resolvedModel: modelId,
     };
   } catch (error) {
     const fb = fallbackModelFor(modelId);
-    if (!fb || signal?.aborted) throw error;
+    if (!allowFallback || !fb || signal?.aborted) throw error;
     const providerRoute = assertProviderRouteAllowed({ model: fb, entrypoint, env: process.env });
     return {
-      step: withProviderRoute(await withRetry(() => providerStep(fb, system, messages, tools, signal, onTextDelta, toolChoice), signal), providerRoute),
+      step: withProviderRoute(await withRetry(() => providerStep(fb, system, messages, tools, signal, onTextDelta, toolChoice), signal, maxRetries), providerRoute),
       resolvedModel: fb,
     };
   }
@@ -825,6 +833,32 @@ export function toolParameters(toolName: string): JsonObject {
   const schemas: Record<string, JsonObject> = {
     read_range: { type: "object", properties: { elementIds: stringOrStringArray, artifactId: string }, required: [] },
     search_sheet_context: { type: "object", properties: { query: string, artifactId: string, limit: integer }, required: ["query"] },
+    workbook_session: {
+      type: "object",
+      properties: {
+        action: { type: "string", enum: ["read", "stage", "preview", "publish", "discard"] },
+        commandId: string,
+        expectedRevision: integer,
+        range: {
+          type: "object",
+          properties: { start: string, end: string },
+          required: ["start", "end"],
+        },
+        operations: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              elementId: string,
+              value: { anyOf: [string, number, boolean, { type: "null" }] },
+            },
+            required: ["elementId", "value"],
+          },
+        },
+        reason: string,
+      },
+      required: ["action", "commandId"],
+    },
     list_artifacts: { type: "object", properties: {}, required: [] },
     propose_lock: { type: "object", properties: { elementIds: stringOrStringArray, reason: string, artifactId: string }, required: ["elementIds", "reason"] },
     edit_cell: { type: "object", properties: { elementId: string, value: any, baseVersion: integer, kind: { type: "string", enum: ["set", "create", "delete"] }, artifactId: string }, required: ["elementId", "value", "baseVersion"] },

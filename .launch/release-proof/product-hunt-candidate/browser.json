@@ -1,0 +1,16 @@
+{
+  "schema": "noderoom-browser-evidence-v1",
+  "capturedAt": "2026-07-11T08:00:00.000Z",
+  "viewport": "390x844",
+  "releaseSuites": {
+    "firstRunStoryTerracottaLive": { "passed": 28, "failed": 0 },
+    "productMemory": { "passed": 29, "failed": 0 },
+    "deployedAuthenticatedPhone": { "passed": 2, "failed": 0 }
+  },
+  "deployedJourneys": [
+    "account-create-room-message-reload-signout-fail-closed-rejoin",
+    "sample-consent-deck-plan-slides-scoped-request-evidence-pptx-receipt"
+  ],
+  "sourceReceipt": "docs/release/NODEROOM_MOBILE_LAUNCH_READINESS_20260710.md",
+  "productionUrlTested": false
+}

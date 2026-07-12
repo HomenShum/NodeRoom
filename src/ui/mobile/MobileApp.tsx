@@ -60,6 +60,7 @@ import { loadTweaks, saveTweaks } from "./mobileTweaks";
 import { IOSDevice, MobileStage } from "./MobileFrame";
 import { MobileHeader, type MobileHeaderAction } from "./shell/MobileHeader";
 import { haptic } from "./mobileUtil";
+import { liveAgentCreditBlockReason } from "./mobileCredits";
 import { MODEL_REGISTRY } from "../../landing/modelRegistry";
 import type { AgentModelSelection } from "../../app/store";
 
@@ -723,15 +724,25 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
   const pushRoom = (msg: Omit<RoomMsg, "id">): void =>
     setRoomMsgs((prev) => [...prev, { id: "m" + mid.current++, ...msg }]);
 
-  const sendAgent = (text: string, lane?: AgentLane): void => {
+  const agentCreditBlockReason = live ? liveAgentCreditBlockReason(live.credits) : null;
+  const requestLiveRoomAgent = (goal: string) => {
+    if (!live) return Promise.resolve({ ok: false, reason: "offline_sample" });
+    if (agentCreditBlockReason) return Promise.resolve({ ok: false, reason: agentCreditBlockReason });
+    return live.askRoomAgent(goal, mobileAgentModelSelection(model));
+  };
+  const sendAgent = (text: string, lane?: AgentLane): boolean => {
     const ln = lane || agentLane;
     if (live) {
+      if (agentCreditBlockReason) {
+        toast(agentCreditBlockReason);
+        return false;
+      }
       // Live: route through the room/private agent; replies stream back via the store.
       const request = ln === "room"
-        ? live.askRoomAgent(text, mobileAgentModelSelection(model))
+        ? requestLiveRoomAgent(text)
         : live.askPrivateAgent(text);
       void request.then((r) => { if (!r.ok) toast("Agent error — " + (r.reason ?? "try again")); });
-      return;
+      return true;
     }
     pushAgent(ln, { role: "user", text });
     if (/runway|explain|prep|coach/i.test(text)) {
@@ -741,21 +752,20 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
           openSheet("coach");
         }, 500),
       );
-      return;
+      return true;
     }
     agentReply(text).forEach(({ delay, msg }) => timers.current.push(setTimeout(() => pushAgent(ln, msg), delay)));
+    return true;
   };
 
-  const sendComposer = (): void => {
+  const sendComposer = (): boolean => {
     const text = draft.trim();
-    if (!text) return;
+    if (!text) return false;
     haptic();
     if (composerMode === "note") {
       if (live) {
-        sendAgent(text);
-        setTab("agent");
-        setDraft("");
-        return;
+        toast("Live capture is not connected on mobile yet. Nothing was saved or sent.");
+        return false;
       }
       setNote((n) => (n ? n + "\n" + text : text));
       setTab("capture");
@@ -770,7 +780,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
           setTab("room");
           setDraft("");
         });
-        return;
+        return true;
       }
       pushRoom({ who: "homen", kind: "msg", t: "now", text });
       if (/@agent|research|agent/i.test(text)) {
@@ -780,19 +790,20 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     } else if (composerMode === "source") {
       if (live) {
         toast("Source capture is not wired on mobile yet. Nothing was uploaded.");
-        return;
+        return false;
       }
       toast("Source captured for evidence");
     } else {
-      sendAgent(text);
+      if (!sendAgent(text)) return false;
       setTab("agent");
     }
     setDraft("");
+    return true;
   };
   const sendAsk = (): void => {
     const had = draft.trim();
-    sendComposer();
-    if (had) setAskOpen(false);
+    const sent = sendComposer();
+    if (had && sent) setAskOpen(false);
   };
 
   // Retry a failed optimistic send (re-posts the message text). Reachable only
@@ -844,12 +855,13 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
 
   // "Search sources" — spins up a read-only research run (vs "Open evidence")
   const startSearch = (_item?: unknown): void => {
+    const claim = live?.evidence.claim ?? D.EVIDENCE.claim;
+    if (!sendAgent(`Search approved room sources for this unresolved claim: ${claim}. Return a source-backed proposal and trace any gaps.`, "room")) return;
     closeSheet();
     setTab("agent");
     setComposerMode("agent");
     setAgentLane("room");
     toast("Searching sources · read-only run");
-    sendAgent("Search sources for the paid-pilot claim", "room");
   };
 
   // ── inbox source (live items when bound, else the sample inbox) ──
@@ -876,9 +888,14 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
       a.push({ icon: "building", label: "Switch room", run: () => openSheet("rooms") });
     } else if (tab === "capture") {
       hero = "sparkles";
-      a.push({ icon: "sparkles", label: "Extract fields", run: () => { setComposerMode("note"); setTab("capture"); toast("Re-running extraction"); } });
-      a.push({ icon: "arrowUp", label: "Send to agent", run: askAgent });
-      a.push({ icon: "pen", label: "New capture", run: () => { setNote(""); toast("Blank capture"); } });
+      if (live) {
+        a.push({ icon: "message", label: "Open room chat", run: () => setTab("room") });
+        a.push({ icon: "sparkles", label: "Ask NodeAgent", run: askAgent });
+      } else {
+        a.push({ icon: "sparkles", label: "Extract fields", run: () => { setComposerMode("note"); setTab("capture"); toast("Re-running extraction"); } });
+        a.push({ icon: "arrowUp", label: "Send to agent", run: askAgent });
+        a.push({ icon: "pen", label: "New capture", run: () => { setNote(""); toast("Blank capture"); } });
+      }
     } else if (tab === "room") {
       hero = "pen";
       a.push({ icon: "pen", label: "Message room", run: () => { setComposerMode("room"); setAgentLane("room"); setScope("Room"); openAsk("room"); } });
@@ -906,7 +923,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     { id: "jobs", icon: "history", label: "Agent jobs", meta: jobCount ? String(jobCount) : undefined, onSelect: () => openSheet("jobs") },
     { id: "people", icon: "users", label: "People", meta: String(room.people), onSelect: () => openSheet("manage") },
     { id: "activity", icon: "sparkles", label: "Room activity", meta: String(room.agents), onSelect: () => openPulse("agents") },
-    { id: "usage", icon: "signal", label: "Usage", onSelect: () => openPulse("cost") },
+    { id: "usage", icon: "signal", label: "Usage", meta: live?.credits ? `${live.credits.availableCredits.toFixed(1)} cr` : undefined, onSelect: () => openPulse("cost") },
     { id: "trace", icon: "history", label: "Trace", onSelect: () => openSheet("trace") },
     { id: "share", icon: "link", label: "Share", onSelect: () => openSheet("share") },
     { id: "settings", icon: "settings", label: "Settings", onSelect: () => openSheet("settings") },
@@ -961,9 +978,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     people: live?.people ?? D.PEOPLE,
     isLive: !!live,
     runQuick,
-    requestRoomAgent: live
-      ? (goal: string) => live.askRoomAgent(goal, mobileAgentModelSelection(model))
-      : async () => ({ ok: false, reason: "offline_sample" }),
+    requestRoomAgent: requestLiveRoomAgent,
     openRow,
     askAboutRow,
     row: live?.row ?? D.ROW,
@@ -995,7 +1010,9 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     livePlan: live?.plan,
     liveEvidence: live?.evidence,
     liveCoach: live?.coach,
+    credits: live?.credits,
     liveDeck: live?.deck,
+    recordDeckExportReceipt: live?.recordDeckExportReceipt ?? (async () => ({ ok: false, reason: "offline" })),
 
     // ── gap pack: live projections override the memory-mode samples ──
     pipeline: live ? live.pipeline : D.PIPELINE,
@@ -1087,7 +1104,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
 
           {/* ── first-join welcome (live rooms only; once per session) ── */}
           {live && !firstJoinSeen && !live.loading && (
-            <FirstJoinOverlay people={liveHumans.length} agents={liveAgents.length} sample={live.experience === "sample"} onDismiss={dismissFirstJoin} />
+            <FirstJoinOverlay people={liveHumans.length} agents={liveAgents.length} sample={live.experience === "sample"} credits={live.credits} onDismiss={dismissFirstJoin} />
           )}
 
           {/* ── command dock: contextual expandable FAB + direct text bar ── */}
@@ -1246,7 +1263,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
               const heads: Record<string, [string, string]> = {
                 people: ["People", room.people + " in " + room.name],
                 agents: ["Agents", room.agents + " agents · " + (openCount ? openCount + " to review" : "all caught up")],
-                cost: ["Spend today", (live ? "Metered server-side" : D.ROOM.costToday) + " · " + room.name],
+                cost: ["Usage and limits", (live?.credits ? `${live.credits.availableCredits.toFixed(1)} credits available` : live ? "Wallet unavailable" : D.ROOM.costToday) + " · " + room.name],
               };
               const h = heads[pulseView];
               return (
@@ -1367,11 +1384,37 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                         )}
                       </>
                     )}
-                    {pulseView === "cost" && (live ? (
-                      <p className="na-ask-note" style={{ textAlign: "left", padding: "10px 2px" }}>
-                        Per-run cost isn’t surfaced to mobile for this live room yet. Agent actions are metered server-side, and approvals show an estimate before anything runs.
-                      </p>
+                    {pulseView === "cost" && (live ? (live.credits ? (
+                      <>
+                        <div className="na-spend" data-testid="mobile-live-credit-summary">
+                          {[
+                            ["Available", `${live.credits.availableCredits.toFixed(1)} credits`, `$${live.credits.availableUsd.toFixed(2)}`],
+                            ["Held now", `${live.credits.reservedCredits.toFixed(1)} credits`, `$${live.credits.reservedUsd.toFixed(2)}`],
+                            ["Spent in this room", `${live.credits.lifetimeSpentCredits.toFixed(1)} credits`, "settled"],
+                            ["Standard estimate", `$${live.credits.estimateUsdLow.toFixed(2)}-$${live.credits.estimateUsdHigh.toFixed(2)}`, "before run"],
+                            ["Maximum standard hold", `${live.credits.requiredCredits.toFixed(1)} credits`, `$${live.credits.hardCapUsd.toFixed(2)} cap`],
+                          ].map((r) => (
+                            <div key={r[0]} className="na-spend-row">
+                              <span className="rm"><strong>{r[0]}</strong><span>{r[1]}</span></span>
+                              <span className="amt mono">{r[2]}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="na-ask-note" style={{ textAlign: "left", padding: "8px 2px 0" }} data-testid="mobile-live-credit-status">
+                          {live.credits.paused
+                            ? "Live work is paused for this room."
+                            : !live.credits.enrolled
+                              ? "This room is not enrolled for live work."
+                              : live.credits.enforced
+                                ? "The hold is reserved before provider egress. Unused credit is released after idempotent settlement."
+                                : "This deployment reports credits but does not enforce them; it is not launch-ready."}
+                        </p>
+                      </>
                     ) : (
+                      <p className="na-ask-note" style={{ textAlign: "left", padding: "10px 2px" }}>
+                        This deployment is not returning a live wallet. Do not start paid work until credits and limits are available.
+                      </p>
+                    )) : (
                       <>
                         <div className="na-spend">
                           {[["Research runs", "2 runs", "$0.018"], ["Web searches", "3 searches", "$0.006"], ["Captures + enrich", "4 items", "$0.004"], ["Coach drills", "1 drill", "$0.002"]].map((r) => (
@@ -1491,11 +1534,16 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                     )}
                   </div>
                   <span className="sp" />
-                  <button className="na-ask-mic" onClick={listening ? stopVoice : startVoice} data-listening={listening ? "true" : undefined} aria-label="Dictate">{Ico("mic")}</button>
+                  <button className="na-ask-mic" onClick={listening ? stopVoice : startVoice} data-listening={listening ? "true" : undefined} aria-label={live ? "Voice input unavailable in live mobile" : "Dictate"} title={live ? "Voice input is unavailable until live mobile metering is certified" : "Dictate"}>{Ico("mic")}</button>
                   {draft.trim() ? (
-                    <button className="na-ask-send" onClick={sendAsk} aria-label="Send">{Ico("arrowUp")}</button>
+                    <button
+                      className="na-ask-send"
+                      disabled={Boolean(live && ((composerMode === "agent" && agentCreditBlockReason) || composerMode === "note" || composerMode === "source"))}
+                      onClick={sendAsk}
+                      aria-label="Send"
+                    >{Ico("arrowUp")}</button>
                   ) : (
-                    <button className="na-ask-voice" onClick={() => { setAttachMenu(false); setModelMenu(false); setVoiceLive(true); }} aria-label="Voice mode">{Ico("voice")}</button>
+                    <button className="na-ask-voice" disabled={!!live} onClick={() => { if (!live) { setAttachMenu(false); setModelMenu(false); setVoiceLive(true); } }} aria-label={live ? "Voice mode unavailable in live mobile" : "Voice mode"} title={live ? "Voice mode is unavailable until live mobile metering is certified" : "Voice mode"}>{Ico("voice")}</button>
                   )}
                 </div>
               </div>
@@ -1516,9 +1564,15 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                   </span>
                 </div>
               ) : null}
-              <p className="na-ask-note">
-                {composerMode === "agent"
-                  ? "NodeAgent proposes a work plan before it reads the web or writes anything."
+              <p className="na-ask-note" data-testid={composerMode === "agent" && live ? "mobile-agent-cost-estimate" : undefined}>
+                {composerMode === "agent" && live
+                  ? agentCreditBlockReason ?? `Standard work estimates $${live.credits!.estimateUsdLow.toFixed(2)}-$${live.credits!.estimateUsdHigh.toFixed(2)}. Up to ${live.credits!.requiredCredits.toFixed(1)} credits ($${live.credits!.hardCapUsd.toFixed(2)}) may be held before provider egress; unused credit is released after settlement.`
+                  : composerMode === "note" && live
+                    ? "Live capture is unavailable on mobile. Nothing typed here will be saved or sent."
+                    : composerMode === "source" && live
+                      ? "Live source upload is unavailable on mobile. Nothing typed here will be uploaded."
+                  : composerMode === "agent"
+                    ? "NodeAgent proposes a work plan before it reads the web or writes anything."
                   : composerMode === "source"
                     ? "Captured for the Evidence Accountant — never auto-trusted."
                     : "Raw text stays " + scope.toLowerCase() + ". Only structured signals surface."}

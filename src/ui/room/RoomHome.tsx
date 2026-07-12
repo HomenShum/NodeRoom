@@ -212,11 +212,19 @@ export function RoomHome({
             })}
             {(() => {
               const bal = store.creditBalance?.();
-              return bal && bal.enforced ? (
+              if (!bal) return null;
+              const label = bal.paused
+                ? "Runs paused"
+                : bal.enforced
+                  ? `${bal.availableCredits.toFixed(0)} credits${bal.demo ? " · demo" : ""}`
+                  : store.mode === "convex"
+                    ? "Live credits unavailable"
+                    : "Demo credits unavailable";
+              return (
                 <span className="r-credit-modes-balance" data-testid="credit-balance">
-                  {bal.availableCredits.toFixed(0)} credits{bal.demo ? " · demo" : ""}
+                  {label}
                 </span>
-              ) : null;
+              );
             })()}
           </div>
         )}

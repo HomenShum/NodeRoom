@@ -8,7 +8,9 @@ import { convexTest } from "convex-test";
 import { describe, expect, it } from "vitest";
 import schema from "../convex/schema";
 import { internal } from "../convex/_generated/api";
-import { estimateCostFor } from "../src/nodeagent/core/creditModel";
+import { estimateCostFor, reserveCreditsFor } from "../src/nodeagent/core/creditModel";
+
+const providerSpendInternal = (internal as any).providerSpend;
 
 const modules = import.meta.glob("../convex/**/*.ts");
 for (const m of ["../convex/agent.ts", "../convex/agentJobRunner.ts", "../convex/agentWorkflows.ts", "../convex/embeddingRunner.ts", "../convex/capturesNode.ts"]) {
@@ -37,6 +39,33 @@ async function readRoomCredits(t: ReturnType<typeof convexTest>, roomId: any) {
   return t.run(async (ctx: any) => ctx.db.query("roomCredits").withIndex("by_room", (q: any) => q.eq("roomId", roomId)).first());
 }
 
+async function seedQueuedJob(t: ReturnType<typeof convexTest>, roomId: any, now: number) {
+  return t.run(async (ctx: any) => {
+    const artifactId = await ctx.db.insert("artifacts", {
+      roomId,
+      kind: "sheet",
+      title: "Queued credit job",
+      version: 1,
+      order: [],
+      updatedAt: now,
+    });
+    const jobId = await ctx.db.insert("agentJobs", {
+      roomId,
+      artifactId,
+      requester: { kind: "user", id: "requester-1", name: "Requester" },
+      goal: "Run after a credit hold",
+      status: "queued",
+      modelPolicy: "gpt-5.4-mini",
+      attempts: 0,
+      maxAttempts: 3,
+      nextRunAt: now + 10_000,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return { artifactId, jobId };
+  });
+}
+
 describe("convex credits — grant + reserve + settle", () => {
   it("grant seeds the balance; reserve holds; settle debits actual + refunds the rest", async () => {
     const t = convexTest(schema, modules);
@@ -45,12 +74,28 @@ describe("convex credits — grant + reserve + settle", () => {
     let rc = await readRoomCredits(t, roomId);
     expect(rc?.availableCredits).toBe(20);
 
-    const r = await t.mutation(internal.credits.reserve, { roomId, mode: "standard", reservationKey: "job_1" });
+    const r = await t.mutation(internal.credits.reserve, {
+      roomId,
+      mode: "standard",
+      reservationKey: "job_1",
+      requesterId: "pilot-user-1",
+      projectedUsd: 3,
+    });
+    const projectedHold = reserveCreditsFor(3);
     expect(r.ok).toBe(true);
-    expect(r.heldCredits).toBe(STD_HOLD);
+    expect(r.heldCredits).toBe(projectedHold);
     rc = await readRoomCredits(t, roomId);
-    expect(rc?.reservedCredits).toBe(STD_HOLD);
-    expect(rc?.availableCredits).toBe(20 - STD_HOLD);
+    expect(rc?.reservedCredits).toBe(projectedHold);
+    expect(rc?.availableCredits).toBe(20 - projectedHold);
+    let commitment = await t.run(async (ctx) => ctx.db.query("creditReservations")
+      .withIndex("by_reservation", (q) => q.eq("reservationKey", "job_1"))
+      .unique());
+    expect(commitment).toMatchObject({
+      requesterId: "pilot-user-1",
+      projectedUsd: 3,
+      status: "active",
+      heldCredits: projectedHold,
+    });
 
     // Settle cheaper than the hold → unused refunded, reserved released.
     const cheapUsd = estimateCostFor("standard").estimateUsd / 2;
@@ -60,6 +105,10 @@ describe("convex credits — grant + reserve + settle", () => {
     rc = await readRoomCredits(t, roomId);
     expect(rc?.reservedCredits).toBe(0);
     expect((rc?.availableCredits ?? 0) + (rc?.lifetimeSpentCredits ?? 0)).toBeCloseTo(20, 1);
+    commitment = await t.run(async (ctx) => ctx.db.query("creditReservations")
+      .withIndex("by_reservation", (q) => q.eq("reservationKey", "job_1"))
+      .unique());
+    expect(commitment).toMatchObject({ status: "resolved", resolution: "settled", actualUsd: cheapUsd });
   });
 });
 
@@ -76,6 +125,24 @@ describe("convex credits — enrollment scoping", () => {
     // Settle on the same un-enrolled room is a graceful no-op.
     const s = await t.mutation(internal.credits.settle, { roomId, reservationKey: "free", actualUsd: 5 });
     expect(s.ok).toBe(true);
+  });
+
+  it("strict launch enrollment rejects an un-enrolled room and records the reason", async () => {
+    const t = convexTest(schema, modules);
+    const roomId = await seedRoom(t);
+    const r = await t.mutation(internal.credits.reserve, {
+      roomId,
+      mode: "standard",
+      reservationKey: "strict-launch",
+      requireEnrollment: true,
+    });
+    expect(r.ok).toBe(false);
+    expect((r as any).reason).toBe("credits_not_enrolled");
+    const rows = await t.run(async (ctx) => ctx.db.query("creditLedger")
+      .withIndex("by_reservation", (q) => q.eq("reservationKey", "strict-launch"))
+      .collect());
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ kind: "reject", reason: "credits_not_enrolled" });
   });
 });
 
@@ -138,6 +205,35 @@ describe("convex credits — idempotency", () => {
     expect(rc?.lifetimeSpentCredits).toBeLessThanOrEqual(QUICK_HOLD + 0.5); // not double-charged
   });
 
+  it("rejects reuse after settle and refund have resolved a reservation key", async () => {
+    const t = convexTest(schema, modules);
+    const roomId = await seedRoom(t);
+    await t.mutation(internal.credits.grantCredits, { roomId, credits: 20, source: "pilot" });
+    await t.mutation(internal.credits.reserve, { roomId, mode: "standard", reservationKey: "resolved" });
+    await t.mutation(internal.credits.settle, { roomId, reservationKey: "resolved", actualUsd: 0 });
+
+    const beforeReuse = await readRoomCredits(t, roomId);
+    const reuse = await t.mutation(internal.credits.reserve, {
+      roomId,
+      mode: "standard",
+      reservationKey: "resolved",
+    });
+    const afterReuse = await readRoomCredits(t, roomId);
+    expect(reuse).toMatchObject({ ok: false, reason: "reservation_resolved", heldCredits: 0 });
+    expect(afterReuse).toMatchObject({
+      availableCredits: beforeReuse?.availableCredits,
+      reservedCredits: beforeReuse?.reservedCredits,
+      lifetimeSpentCredits: beforeReuse?.lifetimeSpentCredits,
+    });
+
+    const rows = await t.run(async (ctx) => ctx.db.query("creditLedger")
+      .withIndex("by_reservation", (q) => q.eq("reservationKey", "resolved"))
+      .collect());
+    expect(rows.filter((row) => row.kind === "reserve")).toHaveLength(1);
+    expect(rows.some((row) => row.kind === "settle")).toBe(true);
+    expect(rows.some((row) => row.kind === "refund")).toBe(true);
+  });
+
   it("settle for an unknown reservation is rejected honestly", async () => {
     const t = convexTest(schema, modules);
     const roomId = await seedRoom(t);
@@ -145,6 +241,20 @@ describe("convex credits — idempotency", () => {
     const s = await t.mutation(internal.credits.settle, { roomId, reservationKey: "ghost", actualUsd: 1 });
     expect(s.ok).toBe(false);
     expect((s as any).reason).toBe("unknown_reservation");
+  });
+
+  it("rejects a reservation key reused across rooms", async () => {
+    const t = convexTest(schema, modules);
+    const roomA = await seedRoom(t);
+    const roomB = await seedRoom(t);
+    await t.mutation(internal.credits.grantCredits, { roomId: roomA, credits: 20, source: "pilot" });
+    await t.mutation(internal.credits.grantCredits, { roomId: roomB, credits: 20, source: "pilot" });
+    await t.mutation(internal.credits.reserve, { roomId: roomA, mode: "standard", reservationKey: "cross-room" });
+    const duplicate = await t.mutation(internal.credits.reserve, { roomId: roomB, mode: "standard", reservationKey: "cross-room" });
+    const settle = await t.mutation(internal.credits.settle, { roomId: roomB, reservationKey: "cross-room", actualUsd: 0.1 });
+    expect(duplicate).toMatchObject({ ok: false, reason: "reservation_room_mismatch" });
+    expect(settle).toMatchObject({ ok: false, reason: "reservation_room_mismatch" });
+    expect((await readRoomCredits(t, roomB))?.availableCredits).toBe(20);
   });
 });
 
@@ -191,6 +301,40 @@ describe("convex credits — overspend, pause, sweep", () => {
     expect(rc?.availableCredits).toBe(20); // fully refunded
   });
 
+  it("blocks a linked queued job when its expired hold is swept", async () => {
+    const t = convexTest(schema, modules);
+    const roomId = await seedRoom(t);
+    const t0 = 1_500_000;
+    const { jobId } = await seedQueuedJob(t, roomId, t0);
+    await t.mutation(internal.credits.grantCredits, { roomId, credits: 20, source: "pilot", now: t0 });
+    await t.mutation(internal.credits.reserve, {
+      roomId,
+      mode: "standard",
+      reservationKey: "queued-expired",
+      jobId,
+      now: t0,
+    });
+
+    const swept = await t.mutation(internal.credits.sweepExpiredReservations, {
+      now: t0 + 2 * 60 * 60 * 1000,
+    });
+    expect(swept.swept).toBe(1);
+    const job = await t.run(async (ctx) => ctx.db.get(jobId));
+    expect(job).toMatchObject({
+      status: "blocked",
+      error: "credit_reservation_expired",
+      nextRunAt: 0,
+    });
+
+    const reuse = await t.mutation(internal.credits.reserve, {
+      roomId,
+      mode: "standard",
+      reservationKey: "queued-expired",
+      jobId,
+    });
+    expect(reuse).toMatchObject({ ok: false, reason: "reservation_resolved" });
+  });
+
   it("COST-AWARE sweep: a finished-but-unsettled run is charged its ACTUAL cost, not fully refunded", async () => {
     const t = convexTest(schema, modules);
     const roomId = await seedRoom(t);
@@ -235,6 +379,40 @@ describe("convex credits — overspend, pause, sweep", () => {
     expect(rc?.availableCredits).toBe(20 - DEEP_HOLD);
   });
 
+  it("COST-AWARE sweep: any unpriced model call captures the hold even when other calls have known cost", async () => {
+    const t = convexTest(schema, modules);
+    const roomId = await seedRoom(t);
+    const t0 = 3_500_000;
+    await t.mutation(internal.credits.grantCredits, { roomId, credits: 20, source: "pilot", now: t0 });
+    await t.mutation(internal.credits.reserve, { roomId, mode: "deep", reservationKey: "partially-unpriced", now: t0 });
+    await t.run(async (ctx: any) => {
+      await ctx.db.insert("agentRuns", {
+        roomId,
+        agentId: "a",
+        model: "z-ai/glm-5.2",
+        goal: "g",
+        steps: 1,
+        toolCalls: 0,
+        conflictsSurvived: 0,
+        inputTokens: 1000,
+        outputTokens: 100,
+        costUsd: 0.5,
+        ms: 100,
+        exhausted: false,
+        idempotencyKey: "partially-unpriced",
+        handoff: { modelSpend: { modelCalls: 2, unpricedModelCalls: 1, costUsd: 0.5 } },
+        createdAt: t0 + 1000,
+      });
+    });
+
+    const swept = await t.mutation(internal.credits.sweepExpiredReservations, { now: t0 + 2 * 60 * 60 * 1000 });
+    expect(swept).toMatchObject({ swept: 1, captured: 1 });
+    const rc = await readRoomCredits(t, roomId);
+    expect(rc?.lifetimeSpentCredits).toBe(DEEP_HOLD);
+    expect(rc?.reservedCredits).toBe(0);
+    expect(rc?.availableCredits).toBe(20 - DEEP_HOLD);
+  });
+
   it("admin snapshot rolls up enrolled rooms and spend", async () => {
     const t = convexTest(schema, modules);
     const a = await seedRoom(t);
@@ -247,5 +425,77 @@ describe("convex credits — overspend, pause, sweep", () => {
     expect(snap.enrolledRooms).toBe(2);
     expect(snap.totalSpentCredits).toBeGreaterThan(0);
     expect(snap.topSpenders.length).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe("agent run requester attribution", () => {
+  it("persists requesterId when claimOrReuse creates a run", async () => {
+    const t = convexTest(schema, modules);
+    const roomId = await seedRoom(t);
+    const claim = await t.mutation(internal.agentRuns.claimOrReuse, {
+      roomId,
+      requesterId: "requester-42",
+      agentId: "agent-public",
+      model: "gpt-5.4-mini",
+      goal: "Attribute this run",
+      idempotencyKey: "requester-attribution",
+    });
+
+    expect(claim.reused).toBe(false);
+    const run = await t.run(async (ctx) => ctx.db.get(claim.runId));
+    expect(run?.requesterId).toBe("requester-42");
+  });
+
+  it("settles direct provider reservations and records the cost basis on the claimed run", async () => {
+    const t = convexTest(schema, modules);
+    const roomId = await seedRoom(t);
+    await t.mutation(internal.credits.grantCredits, { roomId, credits: 20, source: "pilot" });
+    const reservationKey = "provider:private-agent:1";
+    const runId = await t.mutation(internal.agentRuns.claim, {
+      roomId,
+      requesterId: "requester-42",
+      agentId: "provider:private_agent",
+      model: "test-model",
+      goal: "Explain the room",
+      idempotencyKey: reservationKey,
+    });
+    await t.mutation(internal.credits.reserve, {
+      roomId,
+      mode: "quick",
+      reservationKey,
+      requesterId: "requester-42",
+      projectedUsd: 0.75,
+      requireEnrollment: true,
+    });
+
+    await t.mutation(providerSpendInternal.finish, {
+      roomId,
+      requesterId: "requester-42",
+      route: "private_agent",
+      creditMode: "quick",
+      reservationKey,
+      runId,
+      creditsReserved: true,
+      projectedUsd: 0.75,
+      model: "test-model",
+      inputTokens: 100,
+      outputTokens: 20,
+      actualUsd: 0.02,
+      costBasis: "actual",
+      success: true,
+      startedAt: Date.now() - 10,
+    });
+
+    const run = await t.run(async (ctx) => ctx.db.get(runId));
+    expect(run).toMatchObject({
+      requesterId: "requester-42",
+      costUsd: 0.02,
+      stopReason: "done",
+      handoff: { providerSpend: { route: "private_agent", costBasis: "actual", projectedUsd: 0.75 } },
+    });
+    const state = await t.run(async (ctx) => ctx.db.query("creditReservations")
+      .withIndex("by_reservation", (q) => q.eq("reservationKey", reservationKey))
+      .unique());
+    expect(state).toMatchObject({ status: "resolved", resolution: "settled", actualUsd: 0.02 });
   });
 });

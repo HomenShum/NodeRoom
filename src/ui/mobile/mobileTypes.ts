@@ -18,7 +18,7 @@ import type {
   AgentMsg,
   Person,
   Row,
-  Job,
+  Jobs,
   Extraction,
   RoomEntry,
   SourceRef,
@@ -40,6 +40,31 @@ import type {
 export type { TabId, SheetId, ComposerMode } from "./mobileData";
 
 export type RowEditResult = { ok: boolean; reason?: string; version?: number };
+export type MobileDeckExportReceipt = {
+  receiptId?: string;
+  fileName: string;
+  byteLength: number;
+  slideCount: number;
+  integrityAlgorithm: "sha256";
+  integrityHash: string;
+  deliveryStatus: "saved" | "download_started";
+  createdAt: number;
+};
+export type MobileCreditSummary = {
+  mode: "quick" | "standard" | "deep";
+  availableCredits: number;
+  reservedCredits: number;
+  lifetimeSpentCredits: number;
+  availableUsd: number;
+  reservedUsd: number;
+  estimateUsdLow: number;
+  estimateUsdHigh: number;
+  hardCapUsd: number;
+  requiredCredits: number;
+  enforced: boolean;
+  enrolled: boolean;
+  paused: boolean;
+};
 
 export type SaveState = "saving" | "saved" | "idle";
 export type RunState = "plan" | "running" | "done";
@@ -120,7 +145,7 @@ export interface MobileCtx {
   /** In-place cell edit with CAS (baseVersion); resolves with the live edit result. */
   editRowField: (elementId: string, value: string, baseVersion: number) => Promise<RowEditResult>;
   inboxItems: InboxItem[];
-  jobs: { running: Job[]; queued: Job[]; completed: Job[] };
+  jobs: Jobs;
   canApprove: boolean;
   resolveProposalById: (id: string, approve: boolean) => Promise<RowEditResult>;
   jobAct: (id: string, action: "cancel" | "retry") => Promise<RowEditResult>;
@@ -175,9 +200,11 @@ export interface MobileCtx {
   livePlan?: Plan;
   liveEvidence?: Evidence;
   liveCoach?: Coach;
+  credits?: MobileCreditSummary;
   /** Live-derived storyboard/deck review payload. Undefined in live rooms means
    *  no deck exists yet; mobile must not fall back to sample deck data. */
   liveDeck?: MobileDeckArtifact;
+  recordDeckExportReceipt: (receipt: Omit<MobileDeckExportReceipt, "receiptId">) => Promise<RowEditResult>;
 
   // ── polish: live hydration + optimistic send ──
   /** True while a live room is still hydrating (skeletons render only when true). */
@@ -221,6 +248,8 @@ export interface MobileLive {
   experience: "workspace" | "sample";
   starterBackfill?: "pending" | "ready";
   liveCount: number;
+  /** Live wallet and conservative standard-run exposure shown before a phone user sends work. */
+  credits?: MobileCreditSummary;
   roomMsgs: RoomMsg[];
   people: Record<string, Person>;
   /** Live room artifacts mapped to Home recents (favorites/briefings stay [] — no live source). */
@@ -229,6 +258,7 @@ export interface MobileLive {
   evidence: Evidence;
   coach: Coach;
   deck?: MobileDeckArtifact;
+  recordDeckExportReceipt: (receipt: Omit<MobileDeckExportReceipt, "receiptId">) => Promise<RowEditResult>;
   postRoomMessage: (text: string) => Promise<RowEditResult>;
   agentPrivate: AgentMsg[];
   agentRoom: AgentMsg[];
@@ -237,7 +267,7 @@ export interface MobileLive {
   row: Row;
   editRowField: (elementId: string, value: string, baseVersion: number) => Promise<RowEditResult>;
   inboxItems: InboxItem[];
-  jobs: { running: Job[]; queued: Job[]; completed: Job[] };
+  jobs: Jobs;
   canApprove: boolean;
   resolveProposalById: (id: string, approve: boolean) => Promise<RowEditResult>;
   jobAct: (id: string, action: "cancel" | "retry") => Promise<RowEditResult>;
@@ -272,4 +302,5 @@ export interface MobileDeckArtifact extends Deck {
   proposalIds: string[];
   readonly?: boolean;
   fallbackReason?: string;
+  exportReceipt?: MobileDeckExportReceipt;
 }

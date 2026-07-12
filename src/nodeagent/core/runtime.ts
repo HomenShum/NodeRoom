@@ -216,6 +216,31 @@ function countToolResults(messages: AgentMessage[], toolNames: Set<string>, outc
   return count;
 }
 
+function workbookPublishSucceeded(result: unknown): boolean {
+  const record = result && typeof result === "object" && !Array.isArray(result) ? result as Record<string, unknown> : {};
+  if (record.action !== "publish" || record.ok !== true || !Array.isArray(record.outcomes)) return false;
+  return record.outcomes.some((outcome) => {
+    const status = outcome && typeof outcome === "object" ? (outcome as Record<string, unknown>).status : undefined;
+    return status === "applied" || status === "proposed";
+  });
+}
+
+function countWorkbookPublishResults(messages: AgentMessage[]): number {
+  let count = 0;
+  for (const message of messages) {
+    if (message.role !== "tool" || message.toolName !== "workbook_session") continue;
+    try { if (workbookPublishSucceeded(message.content ? JSON.parse(message.content) : undefined)) count++; }
+    catch { /* malformed tool history is not write proof */ }
+  }
+  return count;
+}
+
+function workbookCallMayMutate(call: ToolCall): boolean {
+  if (call.tool !== "workbook_session") return false;
+  const action = call.args && typeof call.args === "object" ? (call.args as Record<string, unknown>).action : undefined;
+  return action === "stage" || action === "publish" || action === "discard";
+}
+
 const MANAGED_SCALAR_WRITE_TOOLS = new Set(["write_locked_cell", "write_locked_cell_result"]);
 const WRITE_TARGET_KEYS = ["elementId", "cellId", "id", "cell", "cellKey", "targetCell", "target", "targetId", "element_id", "cell_id"];
 const WRITE_VALUE_KEYS = ["value", "newValue", "new_value", "result", "text", "content", "expectedValue", "expected_value"];
@@ -582,7 +607,7 @@ export async function runAgent(opts: {
     if (opts.initialMessages?.length) messages.push(...opts.initialMessages);
     else messages.push(...await (opts.contextBuilder ?? buildContext)(rt, goal));
     if (messages.length) {
-      writeCalls = countToolCalls(messages, WRITE_TOOLS);
+      writeCalls = countToolCalls(messages, WRITE_TOOLS) + countWorkbookPublishResults(messages);
       lockCalls = countToolCalls(messages, new Set(["propose_lock"]));
       readNudged = countUserNotes(messages, "HARNESS NOTE: every tool call so far has been a read.") > 0;
       requiredNoToolNudges = countUserNotesContaining(messages, TOOL_REQUIRED_NO_CALL_MARKER);
@@ -800,7 +825,7 @@ export async function runAgent(opts: {
         if (packageCalls.length > 0 && packageCalls.length < out.toolCalls.length) {
           toolCallsForTurn = packageCalls;
           truncatedBtbToolCalls = out.toolCalls.length - packageCalls.length;
-        } else if (packageCalls.length === 0 && out.toolCalls.length > BTB_READ_TOOL_TURN_LIMIT && out.toolCalls.every((call) => !WRITE_TOOLS.has(call.tool))) {
+        } else if (packageCalls.length === 0 && out.toolCalls.length > BTB_READ_TOOL_TURN_LIMIT && out.toolCalls.every((call) => !WRITE_TOOLS.has(call.tool) && !workbookCallMayMutate(call))) {
           toolCallsForTurn = out.toolCalls.slice(0, BTB_READ_TOOL_TURN_LIMIT);
           truncatedBtbToolCalls = out.toolCalls.length - toolCallsForTurn.length;
         }
@@ -832,6 +857,7 @@ export async function runAgent(opts: {
         // the error handoff (the throwing call itself records a tool_result before re-throwing).
         pendingToolCalls = toolCallsForTurn.slice(callIndex + 1);
         const result = await executeCall(call, step);
+        if (call.tool === "workbook_session" && workbookPublishSucceeded(result)) writeCalls++;
         if (btbPackageTools.has(call.tool)) {
           if (toolResultFailed(result)) {
             btbPackageFailures++;

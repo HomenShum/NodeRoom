@@ -43,8 +43,11 @@ export interface CreditBalance {
   lifetimeSpentUsd: number;
   /** Memory-mode demo balance (labeled "demo credits" in the UI). */
   demo: boolean;
-  /** Whether credits actually gate jobs here. Live is unenforced until the backend deploys. */
+  /** Whether credits gate jobs in this store/deployment. Launch postures require true. */
   enforced: boolean;
+  /** Live wallet enrollment and operator pause state. Optional for in-memory demos. */
+  enrolled?: boolean;
+  paused?: boolean;
 }
 
 export interface ReserveArgs {

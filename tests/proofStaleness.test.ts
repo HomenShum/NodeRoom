@@ -10,6 +10,7 @@ import {
   checkMarketedProofs,
   evaluateProofStaleness,
   DEFAULT_PROOF_MAX_AGE_DAYS,
+  HISTORICAL_PROOFS,
   MARKETED_PROOFS,
 } from "../evals/proofStaleness";
 
@@ -50,9 +51,13 @@ describe("proof staleness gate — proofs decay, claims follow", () => {
   });
 
   it("keeps every marketed proof on disk fresh RIGHT NOW (red here = re-verify or pull the claim)", () => {
-    expect(MARKETED_PROOFS.length).toBeGreaterThanOrEqual(1);
     for (const result of checkMarketedProofs()) {
       expect(result.ok, `${result.path}: ${result.reason}`).toBe(true);
     }
+    expect(HISTORICAL_PROOFS).toContainEqual(expect.objectContaining({
+      path: "docs/eval/finance-model-live.json",
+      status: "historical_not_marketed",
+    }));
+    expect(MARKETED_PROOFS.some((entry) => entry.path === "docs/eval/finance-model-live.json")).toBe(false);
   });
 });

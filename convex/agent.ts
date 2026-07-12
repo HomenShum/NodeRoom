@@ -34,7 +34,7 @@ type RunResult = {
 };
 import { AgentRunError, runAgent } from "../src/nodeagent/core/runtime";
 import type { AgentTraceEvent } from "../src/nodeagent/core/types";
-import { SERVER_PRODUCTION_ROOM_TOOLS as PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/server/productionTools";
+import { serverProductionRoomToolsForEnv } from "../src/nodeagent/skills/server/productionTools";
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/systemPrompt";
 import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
 import { buildResearchContext, buildNoteContext, buildWallContext } from "../src/nodeagent/core/worldModel";
@@ -52,6 +52,17 @@ import {
 } from "../src/nodeagent/guardrails/egressPolicy";
 import { buildPlanPreview, classifyIntakeMessage } from "../src/nodeagent/core/intakePreflight";
 import { makeConvexStepJournal } from "./agentStepJournalClient";
+import {
+  creditModeForJob,
+  creditsEnforcedFromEnv,
+  evaluateLaunchAdmission,
+  launchAdmissionModeFromEnv,
+  launchPauseStateFromEnv,
+  providerAttemptPolicyFromEnv,
+} from "../src/launch/budgetPolicy";
+import { CREDIT_MODE_SPECS } from "../src/nodeagent/core/creditModel";
+import { beginProviderSpend, completeProviderSpend } from "./providerSpend";
+import { ModelSpendMeter } from "./modelSpendMeter";
 
 const CONVEX_ACTION_LIMIT_MS = 10 * 60_000;
 const DEFAULT_ACTION_RESERVE_MS = 30_000;
@@ -67,14 +78,12 @@ const agentJobsRecordLiveOperationRef = makeFunctionReference<"mutation">("agent
 const agentRunsClaimOrReuseRef = makeFunctionReference<"mutation">("agentRuns:claimOrReuse") as any;
 const agentRunsFinishRef = makeFunctionReference<"mutation">("agentRuns:finish") as any;
 const agentStepsRecordRef = makeFunctionReference<"mutation">("agentSteps:record") as any;
-const roomSpendSinceRef = makeFunctionReference<"query">("agentRuns:roomSpendSince") as any;
-const globalSpendSinceRef = makeFunctionReference<"query">("agentRuns:globalSpendSince") as any;
-// Credit wallet (Phase B). reserve→settle around the run. INERT unless CREDITS_ENFORCED=true; even
-// then it only meters ENROLLED rooms (credits.reserve passes through unmetered for un-granted rooms),
-// so the live /ask path is unchanged until Homen seeds grants + flips the flag.
+const launchAdmissionSnapshotRef = makeFunctionReference<"query">("usageLimits:launchAdmissionSnapshot") as any;
+// Wallet reserve/settle is optional in development. Pilot/public launch posture requires both
+// CREDITS_ENFORCED=true and an enrolled room before any provider-backed work is admitted.
 const creditsReserveRef = makeFunctionReference<"mutation">("credits:reserve") as any;
 const creditsSettleRef = makeFunctionReference<"mutation">("credits:settle") as any;
-const creditsEnforced = (): boolean => process.env.CREDITS_ENFORCED === "true";
+const creditsRoomGateRef = makeFunctionReference<"query">("credits:roomGate") as any;
 const artifactsListProposalsRef = makeFunctionReference<"query">("artifacts:listProposals") as any;
 const postPrivateReplyRef = makeFunctionReference<"mutation">("messages:postPrivateAgentReply") as any;
 const messagesSendAgentRef = makeFunctionReference<"mutation">("messages:sendAgent") as any;
@@ -178,10 +187,15 @@ export const runRoomAgent = action({
     goal: v.string(),
     maxSteps: v.optional(v.number()),
     mode: v.optional(v.union(v.literal("variance"), v.literal("research"))),
+    creditMode: v.optional(v.union(v.literal("quick"), v.literal("standard"), v.literal("deep"))),
     // When set, run as this member's PERSONAL agent acting publicly (attributed via ownerId) instead of the shared Room agent.
     asOwner: v.optional(v.object({ id: v.string(), name: v.string() })),
   },
   handler: async (ctx, a): Promise<RunResult> => {
+    const launchPosture = launchAdmissionModeFromEnv(process.env);
+    if (launchPosture === "private_pilot" || launchPosture === "public_launch") {
+      throw new Error("launch_admission:inline_provider_action_disabled_use_durable_job");
+    }
     const t0 = Date.now();
     if (a.goal.length > 2_000) throw new Error("goal_too_long");
     const roomState = await ctx.runQuery(roomsFullRef, { roomId: a.roomId, requester: a.requester });
@@ -206,38 +220,34 @@ export const runRoomAgent = action({
       actor = { kind: "agent", id: session.agentId, name: session.agentName, scope: "public" };
       sessionId = String(session.id);
     }
-    // Production gate — cumulative daily spend cap. Per-run/slice ceilings bound ONE run; this bounds
-    // the SUM across runs so a public /ask surface can't be driven into runaway cost (the cross-run
-    // gap the spend ceilings cannot cover). Substrate: agentRuns.costUsd + the by_room index.
-    const dailyCapUsd = envNumber("ROOM_MAX_USD_PER_DAY", 10, 0.1, 10_000);
-    const spentToday: number = await ctx.runQuery(roomSpendSinceRef, { roomId: a.roomId, since: t0 - 24 * 60 * 60 * 1000 });
-    if (spentToday >= dailyCapUsd) throw new Error("room_daily_spend_cap");
-    // Experiment gate — global monthly budget across ALL rooms ($100 experiment: $75 LLM envelope).
-    // The error carries distinct-room attribution so a breach is diagnosable at a glance:
-    // many rooms = real-user growth (the signal we WANT — raise budget / start charging);
-    // one room = runaway (the daily cap above should have contained it first — investigate).
-    // truncated:true fails closed: an undercounted window must not wave runs through.
-    const monthlyCapUsd = envNumber("GLOBAL_MAX_USD_PER_MONTH", 75, 1, 1_000_000);
-    const monthly = await ctx.runQuery(globalSpendSinceRef, { since: t0 - 30 * 24 * 60 * 60 * 1000 });
-    if (monthly.truncated || monthly.totalUsd >= monthlyCapUsd) {
-      throw new Error(`global_monthly_spend_cap:spentUsd=${monthly.totalUsd.toFixed(2)}:rooms=${monthly.distinctRooms}:runs=${monthly.runCount}`);
-    }
+    // One policy owns projected spend, wallet enrollment, concurrency, benchmark boundaries, and
+    // runtime kill switches for both this interactive path and durable workflow jobs.
+    const creditMode = creditModeForJob({ creditMode: a.creditMode, mode: a.mode });
+    const launchMode = launchAdmissionModeFromEnv(process.env);
+    const creditEnforced = creditsEnforcedFromEnv(process.env);
+    const [usage, roomCredit] = await Promise.all([
+      ctx.runQuery(launchAdmissionSnapshotRef, { roomId: a.roomId, requesterId: a.requester.actor.id }),
+      ctx.runQuery(creditsRoomGateRef, { roomId: a.roomId }),
+    ]);
+    const launchAdmission = evaluateLaunchAdmission({
+      launchMode,
+      creditMode,
+      creditsEnforced: creditEnforced,
+      roomEnrolled: roomCredit.enrolled,
+      roomPaused: roomCredit.paused,
+      availableCredits: roomCredit.availableCredits,
+      ...launchPauseStateFromEnv(process.env),
+      usage,
+    });
+    if (!launchAdmission.allowed) throw new Error(`launch_admission:${launchAdmission.code}`);
     // MVP demo posture: the old 10-step interactive default visibly paused mid-workflow in
     // live browser verification. Keep a hard bound, but bias the public `/ask` lane toward
     // completion so a normal demo does not require the user to know a manual "resume" command.
-    const requestedSteps = a.maxSteps ?? (a.mode === "research" ? 80 : 40);
-    const maxSteps = Math.max(1, Math.min(requestedSteps, a.mode === "research" ? 96 : 64));
-    const idempotencyKey = runIdempotencyKey({ roomId: String(a.roomId), artifactId: String(a.artifactId), actorId: String(a.requester.actor.id), goal: a.goal });
-    // Credit wallet reserve (flag-gated). Blocks an out-of-credits / paused ENROLLED room like the
-    // spend caps above; un-enrolled rooms pass through unmetered. Settled with actual cost after finish
-    // (and the sweep cron refunds the hold if a run dies before settling). Keyed by idempotencyKey so a
-    // reused run does not double-hold.
-    const creditReservationKey = idempotencyKey;
-    const creditMode = a.mode === "research" ? "deep" : "standard";
-    if (creditsEnforced()) {
-      const reservation = await ctx.runMutation(creditsReserveRef, { roomId: a.roomId, mode: creditMode, reservationKey: creditReservationKey });
-      if (reservation && reservation.ok === false) throw new Error(`credit_${reservation.reason}`);
-    }
+    const defaultSteps = creditMode === "quick" ? 16 : creditMode === "deep" ? 80 : 40;
+    const stepCeiling = creditMode === "quick" ? 24 : creditMode === "deep" ? 96 : 64;
+    const requestedSteps = a.maxSteps ?? defaultSteps;
+    const maxSteps = Math.max(1, Math.min(requestedSteps, stepCeiling));
+    const idempotencyKey = `${runIdempotencyKey({ roomId: String(a.roomId), artifactId: String(a.artifactId), actorId: String(a.requester.actor.id), goal: a.goal })}:${creditMode}`;
     const intake = classifyIntakeMessage(a.goal);
     const pendingProposals = await ctx.runQuery(artifactsListProposalsRef, { roomId: a.roomId, requester: a.requester }) as Array<{ artifactId?: unknown; op?: unknown }>;
     const pendingProposalRefs = pendingProposals
@@ -262,6 +272,7 @@ export const runRoomAgent = action({
         modelPolicy: "not_started",
         idempotencyKey,
         mode: a.mode,
+        creditMode,
         maxAttempts: 1,
         approvalPolicy: "auto_commit_safe",
         evidencePolicy: "public_only",
@@ -279,6 +290,7 @@ export const runRoomAgent = action({
           approvalPolicy: "auto_commit_safe",
           evidencePolicy: "public_only",
           maxSteps,
+          creditMode,
           traceLevel: "full_operation_ledger",
           idempotencyKey,
         },
@@ -292,9 +304,6 @@ export const runRoomAgent = action({
         clientMsgId: `plan-blocked-${String(jobClaim.jobId)}`,
         kind: "agent",
       });
-      // Release the credit hold immediately — this run was blocked before any spend (no run yet).
-      // (Other early exits before the run, e.g. egress-blocked, are reclaimed by the sweep cron.)
-      if (creditsEnforced()) await ctx.runMutation(creditsSettleRef, { roomId: a.roomId, reservationKey: creditReservationKey, actualUsd: 0 });
       return {
         finalText,
         jobId: jobClaim.jobId,
@@ -328,7 +337,11 @@ export const runRoomAgent = action({
     const requestedModelName = a.mode === "research"
       ? (process.env.AGENT_RESEARCH_MODEL ?? "minimax/minimax-m3")
       : (process.env.AGENT_MODEL ?? "gemini-3.5-flash");
-    const model = agentModel(modelNameForEgress(requestedModelName, "public_ask", egressArtifacts), { entrypoint: "public_ask" });
+    const modelSpendMeter = new ModelSpendMeter();
+    const model = modelSpendMeter.wrap(agentModel(modelNameForEgress(requestedModelName, "public_ask", egressArtifacts), {
+      entrypoint: "public_ask",
+      ...providerAttemptPolicyFromEnv(process.env),
+    }));
     const egressDecision = providerEgressDecision({
       model: model.name,
       entrypoint: "public_ask",
@@ -422,6 +435,7 @@ export const runRoomAgent = action({
       modelPolicy: model.name,
       idempotencyKey,
       mode: a.mode,
+      creditMode,
       maxAttempts: a.mode === "research" ? 40 : 20,
       approvalPolicy: "auto_commit_safe",
       evidencePolicy: "public_only",
@@ -436,6 +450,7 @@ export const runRoomAgent = action({
         approvalPolicy: "auto_commit_safe",
         evidencePolicy: "public_only",
         maxSteps,
+        creditMode,
         traceLevel: "full_operation_ledger",
         idempotencyKey,
       },
@@ -457,7 +472,7 @@ export const runRoomAgent = action({
       }),
       modelName: () => model.name,
     });
-    const claim = await ctx.runMutation(agentRunsClaimOrReuseRef, { jobId, roomId: a.roomId, agentId: actor.id, model: model.name, goal: a.goal, idempotencyKey }) as {
+    const claim = await ctx.runMutation(agentRunsClaimOrReuseRef, { jobId, roomId: a.roomId, requesterId: a.requester.actor.id, agentId: actor.id, model: model.name, goal: a.goal, idempotencyKey }) as {
       runId: Id<"agentRuns">;
       reused: boolean;
       row: null | {
@@ -478,6 +493,71 @@ export const runRoomAgent = action({
       };
     }
     const runId = claim.runId;
+    const creditReservationKey = `agent-run:${String(runId)}`;
+    if (creditEnforced) {
+      const reservation = await ctx.runMutation(creditsReserveRef, {
+        roomId: a.roomId,
+        mode: creditMode,
+        reservationKey: creditReservationKey,
+        requesterId: a.requester.actor.id,
+        projectedUsd: launchAdmission.projectedUsd,
+        requireEnrollment: launchMode === "private_pilot" || launchMode === "public_launch",
+      });
+      if (reservation && reservation.ok === false) {
+        const reason = `credit_${reservation.reason}`;
+        const ms = Date.now() - t0;
+        await ctx.runMutation(agentRunsFinishRef, {
+          runId,
+          model: model.name,
+          steps: 0,
+          toolCalls: 0,
+          conflictsSurvived: 0,
+          inputTokens: 0,
+          outputTokens: 0,
+          costUsd: 0,
+          ms,
+          exhausted: false,
+          stopReason: "launch_admission",
+        });
+        await ctx.runMutation(agentJobsFinishInteractiveRef, {
+          jobId,
+          runId,
+          status: "blocked",
+          finalText: "NodeAgent did not start because this room cannot reserve the selected run budget.",
+          error: reason,
+          resolvedModel: model.name,
+          stopReason: "launch_admission",
+          ms,
+          inputTokens: 0,
+          outputTokens: 0,
+          costUsd: 0,
+          modelCalls: 0,
+          toolCalls: 0,
+        });
+        return {
+          finalText: "NodeAgent did not start because this room cannot reserve the selected run budget.",
+          jobId,
+          roomId: a.roomId,
+          agentId: actor.id,
+          model: model.name,
+          goal: a.goal,
+          steps: 0,
+          toolCalls: 0,
+          conflictsSurvived: 0,
+          inputTokens: 0,
+          outputTokens: 0,
+          costUsd: 0,
+          ms,
+          exhausted: false,
+          stopReason: "launch_admission",
+          remainingMs: null,
+          deadlineAt,
+          modelCalls: 0,
+          runId,
+          handoff: { reason },
+        };
+      }
+    }
     let liveSequence = 1_000;
     const liveWrites: Array<Promise<unknown>> = [];
     const recordLiveOperation = (args: {
@@ -516,9 +596,12 @@ export const runRoomAgent = action({
       const partial = error instanceof AgentRunError ? error.partial : undefined;
       const rootError = error instanceof AgentRunError ? error.cause : error;
       const ms = Date.now() - t0;
-      const inputTokens = partial?.usage.inputTokens ?? 0;
-      const outputTokens = partial?.usage.outputTokens ?? 0;
-      const costUsd = priceRun(model.name, inputTokens, outputTokens);
+      const measured = modelSpendMeter.snapshot();
+      const inputTokens = measured.modelCalls ? measured.inputTokens : partial?.usage.inputTokens ?? 0;
+      const outputTokens = measured.modelCalls ? measured.outputTokens : partial?.usage.outputTokens ?? 0;
+      const cachedInputTokens = measured.modelCalls ? measured.cachedInputTokens : partial?.usage.cachedInputTokens ?? 0;
+      const modelCalls = measured.modelCalls || partial?.usage.modelCalls || 0;
+      const costUsd = measured.modelCalls ? measured.costUsd : priceRun(model.name, inputTokens, outputTokens);
       const conflictsSurvived = partial?.trace.filter((t) => t.tool === "edit_cell" && (t.result as { conflict?: boolean })?.conflict).length ?? 0;
       const telemetry = {
         roomId: a.roomId, agentId: actor.id, model: model.name, goal: a.goal,
@@ -527,11 +610,11 @@ export const runRoomAgent = action({
         stopReason: partial?.stopReason ?? "error",
         remainingMs: partial?.budget.remainingMs,
         deadlineAt,
-        handoff: partial?.handoff,
+        handoff: { ...(partial?.handoff ?? {}), modelSpend: measured },
       };
-      await ctx.runMutation(agentRunsFinishRef, { runId, model: model.name, steps: telemetry.steps, toolCalls: telemetry.toolCalls, conflictsSurvived, inputTokens, outputTokens, costUsd, ms, exhausted: telemetry.exhausted, stopReason: telemetry.stopReason, remainingMs: telemetry.remainingMs, deadlineAt, handoff: telemetry.handoff });
+      await ctx.runMutation(agentRunsFinishRef, { runId, model: model.name, steps: telemetry.steps, toolCalls: telemetry.toolCalls, conflictsSurvived, inputTokens, outputTokens, cachedInputTokens, costUsd, ms, exhausted: telemetry.exhausted, stopReason: telemetry.stopReason, remainingMs: telemetry.remainingMs, deadlineAt, handoff: telemetry.handoff });
       // Settle the credit hold with the ACTUAL (failure-path) cost. No-op unless enforced + enrolled.
-      if (creditsEnforced()) await ctx.runMutation(creditsSettleRef, { roomId: a.roomId, reservationKey: creditReservationKey, actualUsd: costUsd, runId });
+      if (creditEnforced) await ctx.runMutation(creditsSettleRef, { roomId: a.roomId, reservationKey: creditReservationKey, actualUsd: costUsd, runId });
       await recordLiveOperation({
         kind: "checkpoint",
         name: "agent.runRoomAgent failed",
@@ -552,7 +635,7 @@ export const runRoomAgent = action({
         inputTokens,
         outputTokens,
         costUsd,
-        modelCalls: partial?.usage.modelCalls ?? 0,
+        modelCalls,
         toolCalls: telemetry.toolCalls,
       });
       const priorSteps = partial?.trace.map(traceStep) ?? [];
@@ -595,7 +678,7 @@ export const runRoomAgent = action({
         rt,
         goal: a.goal,
         model,
-        tools: PRODUCTION_ROOM_TOOLS,
+        tools: serverProductionRoomToolsForEnv(process.env),
         systemPrompt,
         maxSteps,
         // Route the JIT context by artifact kind so the agent can edit ANY artifact, not just the
@@ -609,7 +692,10 @@ export const runRoomAgent = action({
         // P0-4: interactive runs get the same token + dollar ceiling as the durable lane.
         spendLimits: {
           maxTokens: envNumber("AGENT_MAX_TOKENS_PER_RUN", 250_000, 1_000, 4_000_000),
-          maxCostUsd: envNumber("AGENT_MAX_USD_PER_RUN", 2, 0.01, 100),
+          maxCostUsd: Math.min(
+            envNumber("AGENT_MAX_USD_PER_RUN", 2, 0.01, 100),
+            CREDIT_MODE_SPECS[creditMode].hardCapUsd,
+          ),
         },
         priceStep: (modelName, inputTokens, outputTokens) => priceRun(modelName, inputTokens, outputTokens),
         onTrace: (event) => {
@@ -629,21 +715,26 @@ export const runRoomAgent = action({
     }
     const ms = Date.now() - t0;
 
-    const costUsd = priceRun(model.name, result.usage.inputTokens, result.usage.outputTokens);
+    const measured = modelSpendMeter.snapshot();
+    const inputTokens = measured.modelCalls ? measured.inputTokens : result.usage.inputTokens;
+    const outputTokens = measured.modelCalls ? measured.outputTokens : result.usage.outputTokens;
+    const cachedInputTokens = measured.modelCalls ? measured.cachedInputTokens : result.usage.cachedInputTokens ?? 0;
+    const modelCalls = measured.modelCalls || result.usage.modelCalls;
+    const costUsd = measured.modelCalls ? measured.costUsd : priceRun(model.name, inputTokens, outputTokens);
     const conflictsSurvived = result.trace.filter((t) => t.tool === "edit_cell" && (t.result as { conflict?: boolean })?.conflict).length;
     const telemetry = {
       roomId: a.roomId, agentId: actor.id, model: model.name, goal: a.goal,
       steps: result.steps, toolCalls: result.trace.length, conflictsSurvived,
-      inputTokens: result.usage.inputTokens, outputTokens: result.usage.outputTokens, cachedInputTokens: result.usage.cachedInputTokens ?? 0, costUsd, ms, exhausted: result.exhausted,
+      inputTokens, outputTokens, cachedInputTokens, costUsd, ms, exhausted: result.exhausted,
       stopReason: result.stopReason,
       remainingMs: result.budget.remainingMs,
       deadlineAt,
-      handoff: result.handoff,
+      handoff: { ...(result.handoff ?? {}), modelSpend: measured },
     };
     // Patch the claimed run row with final telemetry + the APPEND-ONLY step-level trace (audit + trajectory eval).
-    await ctx.runMutation(agentRunsFinishRef, { runId, model: model.name, steps: telemetry.steps, toolCalls: telemetry.toolCalls, conflictsSurvived, inputTokens: telemetry.inputTokens, outputTokens: telemetry.outputTokens, costUsd, ms, exhausted: telemetry.exhausted, stopReason: telemetry.stopReason, remainingMs: telemetry.remainingMs, deadlineAt, handoff: telemetry.handoff });
+    await ctx.runMutation(agentRunsFinishRef, { runId, model: model.name, steps: telemetry.steps, toolCalls: telemetry.toolCalls, conflictsSurvived, inputTokens: telemetry.inputTokens, outputTokens: telemetry.outputTokens, cachedInputTokens: telemetry.cachedInputTokens, costUsd, ms, exhausted: telemetry.exhausted, stopReason: telemetry.stopReason, remainingMs: telemetry.remainingMs, deadlineAt, handoff: telemetry.handoff });
     // Settle the credit hold with the ACTUAL cost. No-op unless enforced + enrolled.
-    if (creditsEnforced()) await ctx.runMutation(creditsSettleRef, { roomId: a.roomId, reservationKey: creditReservationKey, actualUsd: costUsd, runId });
+    if (creditEnforced) await ctx.runMutation(creditsSettleRef, { roomId: a.roomId, reservationKey: creditReservationKey, actualUsd: costUsd, runId });
     const done = result.stopReason === "done" && !result.exhausted;
     const scheduledNextAt = done ? undefined : Date.now() + 5_000;
     const cursor = done ? undefined : await checkpointCursor(result);
@@ -651,7 +742,7 @@ export const runRoomAgent = action({
       kind: "model_call",
       name: model.name,
       status: "completed",
-      countDelta: result.usage.modelCalls,
+      countDelta: modelCalls,
       completedAt: Date.now(),
     });
     await recordLiveOperation({
@@ -667,7 +758,7 @@ export const runRoomAgent = action({
       runId,
       status: done ? "completed" : "paused",
       finalText: result.finalText,
-      handoff: result.handoff,
+      handoff: telemetry.handoff,
       cursor,
       scheduledNextAt,
       scheduleWorkflow: !done,
@@ -677,7 +768,7 @@ export const runRoomAgent = action({
       inputTokens: telemetry.inputTokens,
       outputTokens: telemetry.outputTokens,
       costUsd,
-      modelCalls: result.usage.modelCalls,
+      modelCalls,
       toolCalls: telemetry.toolCalls,
     });
     await ctx.runMutation(agentStepsRecordRef, {
@@ -706,8 +797,8 @@ export const runRoomAgent = action({
       jobId,
       ...telemetry,
       remainingMs: result.budget.remainingMs ?? null,
-      handoff: result.handoff ?? null,
-      modelCalls: result.usage.modelCalls,
+      handoff: telemetry.handoff ?? null,
+      modelCalls,
       runId,
     };
   },
@@ -773,7 +864,10 @@ export const runPrivateAgent = action({
     const requester = roomState.members.find((m: { id: unknown }) => String(m.id) === a.requester.actor.id) as { id: unknown; name: string } | undefined;
     if (!requester) throw new Error("member_required");
     const egressArtifacts = providerEgressArtifactsFromRoomState(roomState);
-    const model = agentModel(modelNameForEgress(process.env.AGENT_MODEL ?? "gemini-3.5-flash", "private_agent", egressArtifacts), { entrypoint: "private_agent" });
+    const model = agentModel(modelNameForEgress(process.env.AGENT_MODEL ?? "gemini-3.5-flash", "private_agent", egressArtifacts), {
+      entrypoint: "private_agent",
+      ...providerAttemptPolicyFromEnv(process.env),
+    });
     const egressDecision = providerEgressDecision({
       model: model.name,
       entrypoint: "private_agent",
@@ -781,15 +875,42 @@ export const runPrivateAgent = action({
       env: process.env,
     });
     if (!egressDecision.ok) throw new Error(`provider_egress_blocked:${egressDecision.reason}`);
+    const providerSpend = await beginProviderSpend(ctx, {
+      roomId: a.roomId,
+      requesterId: a.requester.actor.id,
+      route: "private_agent",
+      metering: "actual",
+      creditMode: "quick",
+      goal: a.goal,
+      modelHint: model.name,
+    });
+    if (!providerSpend.execute) throw new Error(`provider_spend_duplicate:${providerSpend.duplicateReason}`);
     const system = privateAgentSystemPrompt(requester.name);
     const userMsg = `ROOM CONTEXT\n${summarizeRoomForPrivate(roomState)}\n\n${requester.name} asks: ${a.goal}`;
     let answer = "";
+    let inputTokens = 0;
+    let outputTokens = 0;
+    let cachedInputTokens: number | undefined;
+    let providerError: string | undefined;
     try {
       const step = await model.next({ system, messages: [{ role: "user", content: userMsg }], tools: [] });
       answer = (step.text ?? "").trim();
+      inputTokens = step.usage?.inputTokens ?? 0;
+      outputTokens = step.usage?.outputTokens ?? 0;
+      cachedInputTokens = step.usage?.cachedInputTokens;
     } catch (error) {
-      answer = `(private agent error: ${error instanceof Error ? error.message : "model call failed"})`;
+      providerError = error instanceof Error ? error.message : "model call failed";
+      answer = `(private agent error: ${providerError})`;
     }
+    await completeProviderSpend(ctx, providerSpend, {
+      model: model.name,
+      success: !providerError,
+      inputTokens,
+      outputTokens,
+      cachedInputTokens,
+      actualUsd: inputTokens || outputTokens ? priceRun(model.name, inputTokens, outputTokens) : undefined,
+      error: providerError,
+    });
     if (!answer) answer = "I read the room but have nothing to add yet — ask me something specific about the data.";
     const clientMsgId = `priv-${String(requester.id)}-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
     await ctx.runMutation(postPrivateReplyRef, { roomId: a.roomId, ownerId: String(requester.id), text: answer, clientMsgId });

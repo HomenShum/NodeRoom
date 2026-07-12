@@ -22,12 +22,25 @@ export type ProofRegistryEntry = {
   maxAgeDays?: number;
 };
 
+export type HistoricalProofRegistryEntry = ProofRegistryEntry & {
+  status: "historical_not_marketed";
+  pulledAt: string;
+  reenableCommand: string;
+};
+
 export const DEFAULT_PROOF_MAX_AGE_DAYS = 30;
 
-export const MARKETED_PROOFS: ProofRegistryEntry[] = [
+// Empty is valid when every time-sensitive provider claim has been pulled from
+// launch-facing copy. Re-adding a claim here makes freshness fail closed again.
+export const MARKETED_PROOFS: ProofRegistryEntry[] = [];
+
+export const HISTORICAL_PROOFS: HistoricalProofRegistryEntry[] = [
   {
     path: "docs/eval/finance-model-live.json",
-    claim: "3-statement modeling full-solve champion (README scoreboard + AGENT_EVAL Mode 1)",
+    claim: "Historical June 2026 3-statement modeling full-solve batch; not a current launch claim",
+    status: "historical_not_marketed",
+    pulledAt: "2026-07-12T10:15:00.000Z",
+    reenableCommand: "npx tsx evals/financeModelLive.ts --real deepseek/deepseek-v4-flash --workbook <private.xlsx> --level=full --runs=5 --timeout-ms=420000 --record",
   },
 ];
 

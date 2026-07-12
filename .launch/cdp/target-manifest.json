@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "remoteDebuggingAddress": "127.0.0.1",
+  "remoteDebuggingPort": 9222,
+  "profilePath": ".launch/chrome-profile",
+  "targets": [
+    { "id": "preview", "url": "https://noderoom-k4fasy9ao-hshum2018-gmailcoms-projects.vercel.app", "allowed": true },
+    { "id": "production", "url": "https://noderoom.live", "allowed": "read-only-until-productionDeployApproved" },
+    { "id": "product-hunt", "url": "https://www.producthunt.com/", "allowed": "draft-only-until-productHuntSubmissionApproved" },
+    { "id": "github", "url": "https://github.com/HomenShum", "allowed": "read-only-until-publicReposApproved" }
+  ],
+  "captureSensitiveHeaders": false,
+  "captureCookies": false,
+  "captureBrowserStorage": false
+}

@@ -230,6 +230,48 @@ export type NotebookEnrichmentPlan =
   | { ok: true; targets: Array<{ entityKey: string; displayName: string; entityType: string; blockId: string; hasExistingEnrichment: boolean }>; skipped: number }
   | { ok: false; reason: string };
 
+export type WorkbookSessionScalar = string | number | boolean | null;
+export interface WorkbookSessionOperation {
+  elementId: string;
+  value: WorkbookSessionScalar;
+}
+export interface WorkbookSessionRequest {
+  action: "read" | "stage" | "preview" | "publish" | "discard";
+  commandId: string;
+  expectedRevision?: number;
+  range?: { start: string; end: string };
+  operations?: WorkbookSessionOperation[];
+  reason?: string;
+}
+export interface WorkbookSessionCell {
+  elementId: string;
+  value: unknown;
+  version: number;
+  stagedValue?: WorkbookSessionScalar;
+  baseVersion?: number;
+}
+export interface WorkbookSessionPublishOutcome {
+  elementId: string;
+  status: "applied" | "proposed" | "rejected" | "needs_rebase" | "locked" | "error";
+  version?: number;
+  mutationReceiptId?: string;
+  proposalId?: string;
+  expected?: number;
+  actual?: number;
+  detail?: string;
+}
+export interface WorkbookSessionResult {
+  ok: boolean;
+  action: WorkbookSessionRequest["action"];
+  revision: number;
+  idempotent?: boolean;
+  reason?: string;
+  cells?: WorkbookSessionCell[];
+  staged?: WorkbookSessionCell[];
+  outcomes?: WorkbookSessionPublishOutcome[];
+  pendingCount?: number;
+}
+
 export interface RoomTools {
   /** Optional portable knowledge layer. Present for OKF-aware rooms/evals; absent rooms keep working. */
   okf?: OkfRetrievalPort;
@@ -289,6 +331,8 @@ export interface RoomTools {
   editCell(elementId: string, value: unknown, baseVersion: number, artifactId?: string, kind?: "set" | "create" | "delete"): Promise<EditOutcome>;
   /** Queue ops to merge when a blocking lock releases (no clobber). Defaults to the primary artifact. */
   createDraft(ops: { elementId: string; value: unknown; baseVersion: number }[], blockedByLockId: string, note: string, artifactId?: string): Promise<{ draftId: string }>;
+  /** Persistent, job-scoped workbook patch session. Server-only and deliberately not a general-purpose REPL. */
+  workbookSession?(request: WorkbookSessionRequest): Promise<WorkbookSessionResult>;
   /** Post a status line to the agent's chat channel. */
   say(text: string): Promise<void>;
   /** Fetch a source URL for sourced enrichment — bounded (SSRF-guarded, timeout, size cap). */

@@ -12,10 +12,39 @@ import { Ico } from "./MobileIcons";
 import type { IconName } from "./MobileIcons";
 import { Pill } from "./MobileScreens";
 import type { Deck, Evidence, Tone } from "./mobileData";
-import type { MobileCtx } from "./mobileTypes";
+import type { MobileCtx, MobileDeckExportReceipt } from "./mobileTypes";
 import { buildDeckPptxExport, deckPptxMimeType } from "../workArtifacts/deckPptxExport";
+import { liveAgentCreditBlockReason } from "./mobileCredits";
 
-const { useState, useRef } = React;
+const { useEffect, useState, useRef } = React;
+
+type SaveFileHandle = { createWritable: () => Promise<{ write: (data: Blob) => Promise<void>; close: () => Promise<void> }> };
+
+async function deliverPptx(fileName: string, bytes: Uint8Array): Promise<MobileDeckExportReceipt["deliveryStatus"]> {
+  const picker = (window as unknown as {
+    showSaveFilePicker?: (options: { suggestedName: string; types: Array<{ description: string; accept: Record<string, string[]> }> }) => Promise<SaveFileHandle>;
+  }).showSaveFilePicker;
+  const blob = new Blob([bytes as BlobPart], { type: deckPptxMimeType() });
+  if (picker) {
+    const handle = await picker({
+      suggestedName: fileName,
+      types: [{ description: "PowerPoint presentation", accept: { [deckPptxMimeType()]: [".pptx"] } }],
+    });
+    const writable = await handle.createWritable();
+    await writable.write(blob);
+    await writable.close();
+    return "saved";
+  }
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = fileName;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+  return "download_started";
+}
 
 // ── runtime shapes (deck workbench local state) ──
 interface DeckSlide {
@@ -108,6 +137,7 @@ export function ArtifactSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   const DECK: Deck = liveDeck ?? D.DECK;
   const EVIDENCE: Evidence = ctx.isLive && ctx.liveEvidence ? ctx.liveEvidence : D.EVIDENCE;
   const livePreview = !!liveDeck;
+  const creditBlockReason = livePreview ? liveAgentCreditBlockReason(ctx.credits) : null;
   const [tab, setTab] = useState<string>('slides');
   const [active, setActive] = useState<number>(0);
   const [slides, setSlides] = useState<DeckSlide[]>(DECK.slides);
@@ -144,6 +174,7 @@ export function ArtifactSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   // send a message → agent proposes a localized, sourced patch you accept inline
   const send = (txt?: string): void => {
     const text = (txt !== undefined ? txt : draft).trim(); if (!text) return;
+    if (creditBlockReason) { ctx.toast(creditBlockReason); return; }
     const push = (m: Omit<DeckChatMsg, 'id'>): void => setDeckChat((c) => [...c, Object.assign({ id: 'm' + (mid.current++) }, m)]);
     const requestTarget = target;
     push({ role: 'user', text, target: requestTarget ? requestTarget.label : null });
@@ -262,7 +293,7 @@ export function ArtifactSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
         Ico('target'), React.createElement('span', null, target.label),
         React.createElement('button', { onClick: clearTarget, 'aria-label': 'Clear' }, Ico('x'))),
       !target && React.createElement('div', { className: 'na-compose-quick' },
-        DECK_QUICK.map((q) => React.createElement('button', { key: q.label, className: q.primary ? 'primary' : '', onClick: () => send(q.text) }, Ico(q.icon), q.label))),
+        DECK_QUICK.map((q) => React.createElement('button', { key: q.label, className: q.primary ? 'primary' : '', disabled: !!creditBlockReason, onClick: () => send(q.text) }, Ico(q.icon), q.label))),
       React.createElement('div', { className: 'na-compose-row' },
         React.createElement('span', { className: 'mk' }, Ico('sparkles')),
         React.createElement('input', {
@@ -271,8 +302,15 @@ export function ArtifactSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
           onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDraft(e.target.value),
           onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') { e.preventDefault(); send(); } },
         }),
-        React.createElement('button', { className: 'na-compose-send', disabled: !draft.trim(), onClick: () => send(), 'aria-label': 'Send' }, Ico('arrowUp'))),
-      React.createElement('p', { className: 'na-compose-note' }, Ico('lock'), 'Preview only - the agent proposes a sourced patch; the slide changes only when you accept.')),
+        React.createElement('button', { className: 'na-compose-send', disabled: !draft.trim() || !!creditBlockReason, onClick: () => send(), 'aria-label': 'Send' }, Ico('arrowUp'))),
+      React.createElement('p', { className: 'na-compose-note', 'data-testid': livePreview ? 'mobile-deck-cost-estimate' : undefined }, Ico('lock'),
+        creditBlockReason
+          ? creditBlockReason
+          : livePreview && ctx.credits
+            ? `Live request - estimate $${ctx.credits.estimateUsdLow.toFixed(2)}-$${ctx.credits.estimateUsdHigh.toFixed(2)}; up to ${ctx.credits.requiredCredits.toFixed(1)} credits ($${ctx.credits.hardCapUsd.toFixed(2)}) may be held before provider egress. The result must return as a sourced proposal.`
+            : livePreview
+              ? 'Live request - the result must return through Jobs, Inbox, and trace before any slide change.'
+              : 'Preview only - the agent proposes a sourced patch; the slide changes only when you accept.')),
 
     // plan tab keeps its approve action
     tab === 'plan' && React.createElement('div', { className: 'na-sheet-foot' },
@@ -534,8 +572,10 @@ function CommentsView({ comments, onNew }: { comments: DeckComment[]; onNew: () 
 function EvidenceView({ ctx, evidence }: { ctx: MobileCtx; evidence: Evidence }): React.ReactElement {
   const E = evidence;
   const [open, setOpen] = useState<boolean>(true);
-  const [thread, setThread] = useState<{ role: 'user' | 'agent'; text: string }[]>([]);
+  const [thread, setThread] = useState<{ role: 'user' | 'agent' | 'status'; text: string }[]>([]);
   const [draft, setDraft] = useState<string>('');
+  const [submitting, setSubmitting] = useState(false);
+  const creditBlockReason = ctx.isLive ? liveAgentCreditBlockReason(ctx.credits) : null;
   const cites = E.support.filter((s) => s.kind === 'cite');
   const gaps = E.support.filter((s) => s.kind === 'gap');
   const answerNodes = [
@@ -549,6 +589,31 @@ function EvidenceView({ ctx, evidence }: { ctx: MobileCtx; evidence: Evidence })
   };
   const send = (): void => {
     const q = draft.trim(); if (!q) return;
+    if (ctx.isLive) {
+      if (creditBlockReason || submitting) {
+        if (creditBlockReason) ctx.toast(creditBlockReason);
+        return;
+      }
+      setSubmitting(true);
+      setThread((t) => [...t, { role: 'user', text: q }, { role: 'status', text: 'Submitting this evidence question through the live room agent...' }]);
+      setDraft('');
+      const goal = [
+        `Answer a governed mobile deck-evidence follow-up for this claim: ${E.claim}.`,
+        `Question: ${q}`,
+        'Use only live room sources and trace evidence. State unresolved gaps, do not invent an answer, and do not mutate the deck.',
+      ].join('\n');
+      const request = ctx.requestRoomAgent?.(goal) ?? Promise.resolve({ ok: false, reason: 'room_agent_unavailable' });
+      void request.then((result) => {
+        setSubmitting(false);
+        setThread((t) => [...t, {
+          role: 'status',
+          text: result.ok
+            ? 'Live request accepted. Read the answer in the Agent tab and verify it from the trace.'
+            : `The live request was not accepted: ${result.reason ?? 'try again'}`,
+        }]);
+      });
+      return;
+    }
     setThread((t) => [...t, { role: 'user', text: q }, { role: 'agent', text: reply(q) }]);
     setDraft('');
   };
@@ -573,18 +638,19 @@ function EvidenceView({ ctx, evidence }: { ctx: MobileCtx; evidence: Evidence })
       thread.map((m, i) => m.role === 'user'
         ? React.createElement('div', { key: i, className: 'na-zmsg user' }, m.text)
         : React.createElement('div', { key: i, className: 'na-zmsg agent' },
-            React.createElement('div', { className: 'na-zhead' }, React.createElement('span', { className: 'av' }, Ico('sparkles')), 'NodeAgent'),
+            React.createElement('div', { className: 'na-zhead' }, React.createElement('span', { className: 'av' }, Ico(m.role === 'status' ? 'shield' : 'sparkles')), m.role === 'status' ? 'NodeRoom' : 'NodeAgent'),
             React.createElement('p', { className: 'na-ztext' }, m.text)))) : null,
     // composer
     React.createElement('div', { className: 'na-zcompose' },
       React.createElement('span', { className: 'mk' }, Ico('sparkles')),
       React.createElement('input', {
-        className: 'na-zinput', value: draft, type: 'text',
+        className: 'na-zinput', value: draft, type: 'text', disabled: submitting,
         placeholder: 'Ask a follow-up about this claim…',
         onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDraft(e.target.value),
         onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') { e.preventDefault(); send(); } },
       }),
-      React.createElement('button', { className: 'na-zsend', disabled: !draft.trim(), onClick: send, 'aria-label': 'Send' }, Ico('arrowUp'))));
+      React.createElement('button', { className: 'na-zsend', disabled: !draft.trim() || submitting || !!creditBlockReason, onClick: send, 'aria-label': 'Send' }, Ico('arrowUp'))),
+    creditBlockReason && React.createElement('p', { className: 'na-compose-note', role: 'status' }, Ico('lock'), creditBlockReason));
 }
 
 // ── EXPORT (ready · download · version history) ──
@@ -596,7 +662,14 @@ function ExportView({ DECK, ctx, exported, onExport }: {
 }): React.ReactElement {
   const livePreview = ctx.isLive && !!ctx.liveDeck;
   const [exporting, setExporting] = useState(false);
-  const [receipt, setReceipt] = useState<{ fileName: string; slideCount: number; integrityHash: string; at: string } | null>(null);
+  const [receipt, setReceipt] = useState<MobileDeckExportReceipt | null>(ctx.liveDeck?.exportReceipt ?? null);
+  const [receiptSyncError, setReceiptSyncError] = useState<string | null>(null);
+  useEffect(() => {
+    if (ctx.liveDeck?.exportReceipt) {
+      setReceipt(ctx.liveDeck.exportReceipt);
+      setReceiptSyncError(null);
+    }
+  }, [ctx.liveDeck?.exportReceipt]);
   const shownExported = exported || !!receipt;
   const triggerExport = async (ver?: string): Promise<void> => {
     if (livePreview) {
@@ -608,18 +681,25 @@ function ExportView({ DECK, ctx, exported, onExport }: {
       try {
         const generatedAt = Date.now();
         const output = await buildDeckPptxExport(ctx.liveDeck.storyboard, generatedAt);
-        const blob = new Blob([output.bytes as BlobPart], { type: deckPptxMimeType() });
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = output.fileName;
-        document.body.appendChild(anchor);
-        anchor.click();
-        anchor.remove();
-        URL.revokeObjectURL(url);
-        const at = new Date(generatedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-        setReceipt({ fileName: output.fileName, slideCount: output.slideCount, integrityHash: output.integrityHash, at });
-        ctx.toast(`Downloaded ${output.fileName} - ${output.slideCount} slides - ${at}`);
+        const deliveryStatus = await deliverPptx(output.fileName, output.bytes);
+        const nextReceipt: MobileDeckExportReceipt = {
+          fileName: output.fileName,
+          byteLength: output.bytes.byteLength,
+          slideCount: output.slideCount,
+          integrityAlgorithm: output.integrityAlgorithm,
+          integrityHash: output.integrityHash,
+          deliveryStatus,
+          createdAt: generatedAt,
+        };
+        setReceipt(nextReceipt);
+        const recorded = await ctx.recordDeckExportReceipt(nextReceipt);
+        if (!recorded.ok) {
+          setReceiptSyncError(recorded.reason ?? "receipt_sync_failed");
+          ctx.toast(`${deliveryStatus === "saved" ? "Saved" : "Download started"}; receipt sync failed`);
+        } else {
+          setReceiptSyncError(null);
+          ctx.toast(`${deliveryStatus === "saved" ? "Saved" : "Download started"} ${output.fileName} - ${output.slideCount} slides`);
+        }
       } catch (reason) {
         ctx.toast('Deck export failed - ' + (reason instanceof Error ? reason.message : 'try again'));
       } finally {
@@ -634,12 +714,14 @@ function ExportView({ DECK, ctx, exported, onExport }: {
       React.createElement('div', { className: 'na-export-ico' }, Ico('download')),
       React.createElement('div', { className: 'na-export-main' },
         React.createElement('strong', null, receipt?.fileName ?? (shownExported ? 'CardioNova_update.pptx' : DECK.exportFormat + ' export ready')),
-        React.createElement('span', null, receipt ? `${receipt.slideCount} slides - ${receipt.at} - hash ${receipt.integrityHash}` : slidesLabel(DECK) + ' - ' + DECK.exportSize)),
+        React.createElement('span', null, receipt
+          ? `${receipt.slideCount} slides - ${Math.ceil(receipt.byteLength / 1024)} KB - SHA-256 ${receipt.integrityHash}`
+          : slidesLabel(DECK) + ' - ' + DECK.exportSize)),
       React.createElement(Pill, { tone: shownExported ? 'ok' : 'accent' }, shownExported ? 'exported' : 'ready')),
     livePreview && React.createElement('p', { className: 'na-compose-note', style: { marginTop: 10 }, role: 'status', 'data-testid': 'mobile-deck-export-receipt' },
       Ico('shield'), receipt
-        ? `Downloaded ${receipt.fileName} - ${receipt.slideCount} slides - ${receipt.at} - integrity ${receipt.integrityHash}`
-        : 'The live storyboard exports as real PPTX bytes. Completion is shown only after the browser download starts.'),
+        ? `${receipt.deliveryStatus === "saved" ? "Saved" : "Download started"} ${receipt.fileName} - ${receipt.slideCount} slides - ${new Date(receipt.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} - SHA-256 ${receipt.integrityHash}${receiptSyncError ? ` - receipt sync failed: ${receiptSyncError}` : " - receipt synced"}`
+        : 'The live storyboard exports as real PPTX bytes. NodeRoom records whether the file was saved or only handed to the browser.'),
     React.createElement('button', { className: 'na-btn primary full', disabled: exporting, onClick: () => { void triggerExport(); } }, Ico('download'), exporting ? 'Building PPTX...' : shownExported ? 'Download again' : 'Download PPTX'),
     livePreview
       ? React.createElement('p', {

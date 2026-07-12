@@ -97,7 +97,8 @@ describe("long-running agent job source invariants", () => {
     expect(runner).toContain("function maxStepsForJob");
     expect(runner).toContain("BENCHMARK_AGENT_MAX_STEPS_PER_SLICE");
     expect(runner).toContain("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE");
-    expect(runner).toContain("defaultMaxStepsForEntrypoint(entrypoint), 1, 256");
+    expect(runner).toContain('const defaultSteps = selectedCreditMode === "quick"');
+    expect(runner).toContain('selectedCreditMode === "deep"');
     expect(runner).toContain("BENCHMARK_AGENT_MAX_TOKENS_PER_SLICE");
     expect(runner).toContain("BENCHMARK_AGENT_MAX_USD_PER_SLICE");
     expect(store).toContain("noderoom.nodeagentRuntimeProfile");
@@ -106,13 +107,35 @@ describe("long-running agent job source invariants", () => {
     expect(spec).toContain('window.localStorage.setItem("noderoom.nodeagentRuntimeProfile", "benchmark_completion")');
   });
 
+  it("enforces launch admission and settles every durable slice reservation", () => {
+    const jobs = readFileSync("convex/agentJobs.ts", "utf8");
+    const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
+    const policy = readFileSync("src/launch/budgetPolicy.ts", "utf8");
+    const store = readFileSync("src/app/store.tsx", "utf8");
+
+    expect(policy).toContain("evaluateLaunchAdmission");
+    expect(policy).toContain("benchmark_profile_internal_only");
+    expect(jobs).toContain("durableLaunchAdmission");
+    expect(jobs).toContain("reserveRoomCredits");
+    expect(jobs).toContain("agentJobs.claimSlice.launchAdmission");
+    expect(runner).toContain('makeFunctionReference<"mutation">("credits:settle")');
+    expect(runner).toContain("durableCreditReservationKey(claimed.jobId, claimed.attempt)");
+    expect(runner).toContain("CREDIT_MODE_SPECS.standard.hardCapUsd");
+    expect(runner).toContain("CREDIT_MODE_SPECS.deep.hardCapUsd");
+    expect(runner).toContain("CREDIT_MODE_SPECS.quick.hardCapUsd");
+    expect(jobs).toContain("creditMode: launchAdmission?.creditMode ?? a.creditMode");
+    expect(store).toContain("const selectedCreditMode = input.mode ?? creditMode");
+    expect(store).toContain("creditMode: selectedCreditMode");
+  });
+
   it("keeps /ask model policy during workflow handoff while allowing /free overrides", () => {
     const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
     const jobs = readFileSync("convex/agentJobs.ts", "utf8");
 
     expect(runner).toContain('modelPolicy === "openrouter/free-auto"');
     expect(runner).toContain("process.env.FREE_AUTO_JOB_MODEL ?? modelPolicy");
-    expect(runner).toContain("const model = agentModel(resolvedModelPolicy, { entrypoint })");
+    expect(runner).toContain("const model = modelSpendMeter.wrap(agentModel(resolvedModelPolicy");
+    expect(runner).toContain("providerAttemptPolicyFromEnv(process.env)");
     expect(runner).toContain("function runnerEntrypoint");
     expect(runner).toContain("defaultMaxStepsForEntrypoint(entrypoint)");
     expect(jobs).toContain("artifactMeta: art.meta");
@@ -126,8 +149,9 @@ describe("long-running agent job source invariants", () => {
 
     expect(model).toContain("assertProviderRouteAllowed");
     expect(model).toContain("providerRoute");
-    expect(agent).toContain('{ entrypoint: "public_ask" }');
-    expect(agent).toContain('{ entrypoint: "private_agent" }');
+    expect(agent).toContain('entrypoint: "public_ask"');
+    expect(agent).toContain('entrypoint: "private_agent"');
+    expect(agent).toContain("providerAttemptPolicyFromEnv(process.env)");
     expect(streaming).toContain("assertProviderEgressAllowed");
     expect(streaming).toContain('entrypoint: "private_agent"');
     expect(streamingModel).toContain("private_stream_provider_unsupported");
@@ -230,7 +254,7 @@ describe("long-running agent job source invariants", () => {
     const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
 
     expect(runner).toContain('return entrypoint === "free" ? 32 : 128');
-    expect(runner).toContain('envNumber("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE", defaultMaxStepsForEntrypoint(entrypoint), 1, 256)');
+    expect(runner).toContain('envNumber("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE", defaultSteps, 1, 256)');
     expect(runner).not.toContain('entrypoint === "free" ? 3 : 8');
   });
 

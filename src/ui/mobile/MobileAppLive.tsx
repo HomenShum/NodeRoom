@@ -12,12 +12,14 @@ import { api } from "../../../convex/_generated/api";
 import type { FunctionReference } from "convex/server";
 import { useStore, type ActorProof } from "../../app/store";
 import type { Actor, Message, Member, CellStatus, Artifact, CellEvidence, CellPayload, TraceEvent } from "../../engine/types";
-import type { RoomMsg, Person, AgentMsg, Row, Tone, InboxItem, Job, RecentItem, RecentSig, Plan, Evidence, EvidenceSupport, Coach, PipelineStage, TraceRow, ManageGroup, ManagedPerson, OfflineHold, NotifRow, DeckStatus, SlideStatus } from "./mobileData";
+import type { RoomMsg, Person, AgentMsg, Row, Tone, InboxItem, RecentItem, RecentSig, Plan, Evidence, EvidenceSupport, Coach, PipelineStage, TraceRow, ManageGroup, ManagedPerson, OfflineHold, NotifRow, DeckStatus, SlideStatus } from "./mobileData";
 import { MOBILE_TRACE_MAX, slideDoc } from "./mobileData";
-import type { MobileDeckArtifact, MobileLive } from "./mobileTypes";
+import type { MobileDeckArtifact, MobileDeckExportReceipt, MobileLive } from "./mobileTypes";
 import { buildDeckStoryboardFromRoom, deckArtifactInputFromStoryboard, type DeckStoryboard } from "../workArtifacts";
 import { groupPeople, liveLocationFor } from "../PeoplePanel";
 import { MobileApp } from "./MobileApp";
+import { projectMobileJobs } from "./mobileJobProjection";
+import { reserveCreditsFor } from "../../nodeagent/core/creditModel";
 
 const AGENT_KEY = "room_na";
 
@@ -33,6 +35,19 @@ const watchesApi = (api as unknown as {
     setWatch: FunctionReference<"mutation", "public", SetWatchArgs, { on: boolean; changed: boolean }>;
   };
 }).watches;
+
+type DeckReceiptArgs = RoomScopedArgs & { deckId: string };
+type RecordDeckReceiptArgs = RoomScopedArgs & Omit<MobileDeckExportReceipt, "receiptId" | "createdAt"> & {
+  deckId: string;
+  workArtifactId: string;
+  planHash: string;
+};
+const exportReceiptsApi = (api as unknown as {
+  artifactExportReceipts: {
+    latestDeckReceipt: FunctionReference<"query", "public", DeckReceiptArgs, MobileDeckExportReceipt | null>;
+    recordDeckDownload: FunctionReference<"mutation", "public", RecordDeckReceiptArgs, MobileDeckExportReceipt>;
+  };
+}).artifactExportReceipts;
 
 /** Map a room TraceEvent.type to the short chip vocabulary the mobile Trace sheet uses. */
 function traceKind(type: TraceEvent["type"]): string {
@@ -325,7 +340,7 @@ function storyboardDeckStatus(storyboard: DeckStoryboard): DeckStatus {
   return storyboard.storyboardStatus === "needs_review" || storyboard.unresolvedGaps.length > 0 ? "proposed" : "approved";
 }
 
-function mobileDeckFromStoryboard(storyboard: DeckStoryboard): MobileDeckArtifact {
+function mobileDeckFromStoryboard(storyboard: DeckStoryboard, exportReceipt?: MobileDeckExportReceipt): MobileDeckArtifact {
   const workArtifact = deckArtifactInputFromStoryboard(storyboard);
   const slides = storyboard.slides.map((slide, index) => {
     const verified = slide.claims.length > 0 && slide.claims.every((claim) => claim.status === "verified");
@@ -358,6 +373,7 @@ function mobileDeckFromStoryboard(storyboard: DeckStoryboard): MobileDeckArtifac
     proposalIds: storyboard.proposalIds,
     readonly: true,
     fallbackReason: "Live mobile renders the governed storyboard; revision requests route through the room agent and proposals.",
+    exportReceipt,
     title: storyboard.title,
     audience: storyboard.audience,
     status: storyboardDeckStatus(storyboard),
@@ -452,6 +468,28 @@ export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave, onSi
 
   const proposals = store.listProposals(roomId);
   const job = store.lastLongFreeJob();
+  const creditBalance = store.creditBalance?.();
+  const creditMode = store.creditMode?.() ?? "standard";
+  const creditEstimate = store.estimateCredits?.(creditMode);
+  const credits = creditBalance && creditEstimate && (creditBalance.enforced || creditBalance.enrolled || creditBalance.demo)
+    ? {
+        mode: creditMode,
+        availableCredits: creditBalance.availableCredits,
+        reservedCredits: creditBalance.reservedCredits,
+        lifetimeSpentCredits: creditBalance.lifetimeSpentCredits,
+        availableUsd: creditBalance.availableUsd,
+        reservedUsd: creditBalance.reservedUsd,
+        estimateUsdLow: creditEstimate.estimateUsdLow,
+        estimateUsdHigh: creditEstimate.estimateUsdHigh,
+        hardCapUsd: creditEstimate.hardCapUsd,
+        requiredCredits: reserveCreditsFor(creditBalance.enforced
+          ? Math.max(creditEstimate.estimateUsdHigh, creditEstimate.hardCapUsd)
+          : creditEstimate.estimateUsdHigh),
+        enforced: creditBalance.enforced,
+        enrolled: creditBalance.enrolled ?? false,
+        paused: creditBalance.paused ?? false,
+      }
+    : undefined;
   const isHost = members.some((m) => m.id === me.id && m.role === "host");
   const inboxItems: InboxItem[] = useMemo(() => proposals.map((p): InboxItem => ({
     id: p.id,
@@ -465,18 +503,7 @@ export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave, onSi
     kind: "plan",
     preview: "doc",
   })), [proposals]);
-  const jobs: { running: Job[]; queued: Job[]; completed: Job[] } = useMemo(() => {
-    const oneJob: Job | null = job
-      ? { id: job.id, title: job.entrypoint ?? "Agent job", sub: job.status + (job.error ? " · " + job.error : ""), cost: "", route: job.modelPolicy as Job["route"], trace: job.id }
-      : null;
-    const out: { running: Job[]; queued: Job[]; completed: Job[] } = { running: [], queued: [], completed: [] };
-    if (job && oneJob) {
-      const s = job.status;
-      const bucket = s === "running" ? "running" : s === "queued" || s === "paused" || s === "blocked" || s === "retrying" ? "queued" : "completed";
-      out[bucket].push(oneJob);
-    }
-    return out;
-  }, [job]);
+  const jobs = useMemo(() => projectMobileJobs(job), [job]);
   const liveEvidence = useMemo(() => buildLiveEvidence(artifacts), [artifacts]);
   const livePlan = useMemo(() => buildLivePlan(artifacts, inboxItems, job), [artifacts, inboxItems, job]);
   const liveCoach = useMemo(() => buildLiveCoach(liveEvidence, artifacts, inboxItems), [liveEvidence, artifacts, inboxItems]);
@@ -520,9 +547,9 @@ export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave, onSi
       .map((e): TraceRow => ({ id: e.id, kind: traceKind(e.type), text: e.summary, time: relTime(e.ts) }));
   }, [traceEvents]);
 
-  const liveDeck = useMemo(() => {
+  const liveStoryboard = useMemo(() => {
     if (artifacts.length === 0 && proposals.length === 0) return undefined;
-    const storyboard = buildDeckStoryboardFromRoom({
+    return buildDeckStoryboardFromRoom({
       roomId,
       roomTitle: room?.title ?? "Room",
       artifacts,
@@ -530,8 +557,16 @@ export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave, onSi
       proposals,
       maxSlides: 5,
     });
-    return mobileDeckFromStoryboard(storyboard);
   }, [artifacts, proposals, room?.title, roomId, traceEvents]);
+  const exportReceiptArgs = proof && liveStoryboard
+    ? { roomId: roomId as never, requester: proof, deckId: liveStoryboard.deckId }
+    : "skip";
+  const persistedExportReceipt = useQuery(exportReceiptsApi.latestDeckReceipt, exportReceiptArgs) ?? undefined;
+  const recordDeckExportReceiptMut = useMutation(exportReceiptsApi.recordDeckDownload);
+  const liveDeck = useMemo(
+    () => liveStoryboard ? mobileDeckFromStoryboard(liveStoryboard, persistedExportReceipt ?? undefined) : undefined,
+    [liveStoryboard, persistedExportReceipt],
+  );
 
   // ── gap pack: role-grouped people + live location (same as desktop PeoplePanel) ──
   const peopleGroups: ManageGroup[] = useMemo(() => {
@@ -600,6 +635,7 @@ export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave, onSi
     experience: resolveMobileExperience(room?.experience, experienceHint),
     starterBackfill: room?.starterBackfill,
     liveCount: members.length,
+    credits,
     roomMsgs,
     people,
     recents,
@@ -607,14 +643,37 @@ export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave, onSi
     evidence: liveEvidence,
     coach: liveCoach,
     deck: liveDeck,
+    recordDeckExportReceipt: async (receipt) => {
+      if (!proof || !liveStoryboard) return { ok: false, reason: "no_live_storyboard_proof" };
+      try {
+        const workArtifact = deckArtifactInputFromStoryboard(liveStoryboard);
+        await recordDeckExportReceiptMut({
+          roomId: roomId as never,
+          requester: proof,
+          deckId: liveStoryboard.deckId,
+          workArtifactId: workArtifact.id,
+          planHash: liveStoryboard.planHash,
+          fileName: receipt.fileName,
+          byteLength: receipt.byteLength,
+          slideCount: receipt.slideCount,
+          integrityAlgorithm: receipt.integrityAlgorithm,
+          integrityHash: receipt.integrityHash,
+          deliveryStatus: receipt.deliveryStatus,
+        });
+        return { ok: true };
+      } catch (error) {
+        return { ok: false, reason: error instanceof Error ? error.message : "export_receipt_failed" };
+      }
+    },
     postRoomMessage: async (text: string) => {
       return store.postMessage({ roomId, channel: "public", author: me, text, clientMsgId: crypto.randomUUID(), kind: "chat" });
     },
     agentPrivate,
     agentRoom,
     askPrivateAgent: async (goal: string) => {
-      void store.postMessage({ roomId, channel: { private: me.id }, author: me, text: goal, clientMsgId: crypto.randomUUID(), kind: "chat" });
       try {
+        const posted = await store.postMessage({ roomId, channel: { private: me.id }, author: me, text: goal, clientMsgId: crypto.randomUUID(), kind: "chat" });
+        if (!posted.ok) return { ok: false, reason: posted.reason ?? "request_message_failed" };
         await store.askPrivateAgent({ goal });
         return { ok: true };
       } catch (e) {
@@ -622,8 +681,9 @@ export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave, onSi
       }
     },
     askRoomAgent: async (goal, modelSelection) => {
-      void store.postMessage({ roomId, channel: "public", author: me, text: goal, clientMsgId: crypto.randomUUID(), kind: "chat" });
       try {
+        const posted = await store.postMessage({ roomId, channel: "public", author: me, text: goal, clientMsgId: crypto.randomUUID(), kind: "chat" });
+        if (!posted.ok) return { ok: false, reason: posted.reason ?? "request_message_failed" };
         await store.askAgent(modelSelection ? { goal, modelSelection } : { goal });
         return { ok: true };
       } catch (e) {

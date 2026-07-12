@@ -120,14 +120,14 @@ Note → Spreadsheet navigation, but not the grounding action itself.)*
   linked formulas through CAS, release the range, and grade both final artifact
   values and trace receipts.
 - **Evidence:** `docs/eval/traces/finance-model/finance_model_solve_synthetic.json`
-  for committed media; `docs/eval/finance-model-live.json` for the latest
-  redacted private live proof; full private traces stay under gitignored
+  for committed workflow media; `docs/eval/finance-model-live.json` preserves
+  the historical June private batch; full private traces stay under gitignored
   `docs/eval/finance-model-runs/`.
 - **Gate:** `npm run eval:finance-model`, `npm run eval:finance-model -- --gold
   "C:\path\to\modeling-test.xlsx"`, `tests/financeModelRuntime.test.ts`,
   `evals/financeModelRuntime.ts`, and `evals/financeModelLive.ts --level=full`.
-  Current full live promotion: `deepseek/deepseek-v4-flash` (16/16, 174.8s,
-  $0.0792).
+  No full live route is currently launch-promoted; rerun the private five-run
+  batch before using this preview as current provider proof.
 
 ## HALO Trace Skill Previews
 

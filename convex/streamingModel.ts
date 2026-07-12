@@ -11,6 +11,12 @@ import { assertProviderRouteAllowed } from "../src/nodeagent/guardrails/egressPo
 import { openAiCompatibleTokenLimitParam } from "../src/nodeagent/models/openAiTokenLimit";
 
 export type StreamAppend = (text: string) => Promise<void>;
+export type PrivateStreamResult = {
+  text: string;
+  model: string;
+  usage?: { inputTokens: number; outputTokens: number; cachedInputTokens?: number };
+};
+type StreamBodyResult = Omit<PrivateStreamResult, "model">;
 
 const DEFAULT_MAX_OUTPUT_TOKENS = 4_096;
 
@@ -54,26 +60,30 @@ export async function streamPrivateReplyText(
   system: string,
   userMsg: string,
   append: StreamAppend,
-): Promise<string> {
+): Promise<PrivateStreamResult> {
   const route = assertProviderRouteAllowed({ model: modelId, entrypoint: "private_agent", env: process.env });
   const safeSystem = redactPII(system).text;
   const safeUser = redactPII(userMsg).text;
-  if (route.provider === "gemini") return geminiStream(route.resolvedModel, safeSystem, safeUser, append);
-  if (route.provider === "openai") {
-    return openAiCompatibleStream(
+  let result: StreamBodyResult;
+  if (route.provider === "gemini") {
+    result = await geminiStream(route.resolvedModel, safeSystem, safeUser, append);
+  } else if (route.provider === "openai") {
+    result = await openAiCompatibleStream(
       "https://api.openai.com/v1/chat/completions",
       requireEnv("OPENAI_API_KEY"), {}, route.resolvedModel, safeSystem, safeUser, append,
     );
-  }
+  } else {
   // vendor/model ids (deepseek/…, anthropic/…, z-ai/…) ride OpenRouter's OpenAI-compatible SSE.
-  if (route.provider !== "openrouter") throw new Error(`private_stream_provider_unsupported:${route.provider}`);
-  const openRouterBaseUrl = optionalEnv("OPENROUTER_BASE_URL") ?? "https://openrouter.ai/api/v1";
-  return openAiCompatibleStream(
-    `${openRouterBaseUrl}/chat/completions`,
-    requireEnv("OPENROUTER_API_KEY"),
-    { "HTTP-Referer": "https://noderoom.live", "X-Title": "NodeRoom" },
-    route.resolvedModel, safeSystem, safeUser, append,
-  );
+    if (route.provider !== "openrouter") throw new Error(`private_stream_provider_unsupported:${route.provider}`);
+    const openRouterBaseUrl = optionalEnv("OPENROUTER_BASE_URL") ?? "https://openrouter.ai/api/v1";
+    result = await openAiCompatibleStream(
+      `${openRouterBaseUrl}/chat/completions`,
+      requireEnv("OPENROUTER_API_KEY"),
+      { "HTTP-Referer": "https://noderoom.live", "X-Title": "NodeRoom" },
+      route.resolvedModel, safeSystem, safeUser, append,
+    );
+  }
+  return { ...result, model: route.resolvedModel };
 }
 
 /** Minimal SSE line reader: handles cross-chunk line splits; awaits the handler so chunk order
@@ -102,7 +112,7 @@ async function readSse(res: Response, onData: (data: string) => Promise<void>): 
   }
 }
 
-async function geminiStream(modelId: string, system: string, userMsg: string, append: StreamAppend): Promise<string> {
+async function geminiStream(modelId: string, system: string, userMsg: string, append: StreamAppend): Promise<StreamBodyResult> {
   const key = requireEnv("GOOGLE_GENERATIVE_AI_API_KEY");
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelId)}:streamGenerateContent?alt=sse&key=${encodeURIComponent(key)}`;
   const res = await fetch(url, {
@@ -115,14 +125,25 @@ async function geminiStream(modelId: string, system: string, userMsg: string, ap
     }),
   });
   let full = "";
+  let usage: StreamBodyResult["usage"];
   await readSse(res, async (data) => {
     try {
-      const parsed = JSON.parse(data) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
+      const parsed = JSON.parse(data) as {
+        candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+        usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number; cachedContentTokenCount?: number };
+      };
       const delta = (parsed.candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? "").join("");
       if (delta) { full += delta; await append(delta); }
+      if (parsed.usageMetadata) {
+        usage = {
+          inputTokens: parsed.usageMetadata.promptTokenCount ?? 0,
+          outputTokens: parsed.usageMetadata.candidatesTokenCount ?? 0,
+          cachedInputTokens: parsed.usageMetadata.cachedContentTokenCount,
+        };
+      }
     } catch { /* non-JSON keepalive line — skip */ }
   });
-  return full;
+  return { text: full, usage };
 }
 
 async function openAiCompatibleStream(
@@ -133,25 +154,37 @@ async function openAiCompatibleStream(
   system: string,
   userMsg: string,
   append: StreamAppend,
-): Promise<string> {
+): Promise<StreamBodyResult> {
   const res = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}`, ...extraHeaders },
     body: JSON.stringify({
       model: modelId,
       stream: true,
+      stream_options: { include_usage: true },
       ...openAiCompatibleTokenLimitParam(modelId, endpoint, maxOutputTokens()),
       ...openAiCompatibleProviderOptions(modelId, endpoint),
       messages: [{ role: "system", content: system }, { role: "user", content: userMsg }],
     }),
   });
   let full = "";
+  let usage: StreamBodyResult["usage"];
   await readSse(res, async (data) => {
     try {
-      const parsed = JSON.parse(data) as { choices?: Array<{ delta?: { content?: string } }> };
+      const parsed = JSON.parse(data) as {
+        choices?: Array<{ delta?: { content?: string } }>;
+        usage?: { prompt_tokens?: number; completion_tokens?: number; prompt_tokens_details?: { cached_tokens?: number } };
+      };
       const delta = parsed.choices?.[0]?.delta?.content ?? "";
       if (delta) { full += delta; await append(delta); }
+      if (parsed.usage) {
+        usage = {
+          inputTokens: parsed.usage.prompt_tokens ?? 0,
+          outputTokens: parsed.usage.completion_tokens ?? 0,
+          cachedInputTokens: parsed.usage.prompt_tokens_details?.cached_tokens,
+        };
+      }
     } catch { /* keepalive/comment line — skip */ }
   });
-  return full;
+  return { text: full, usage };
 }

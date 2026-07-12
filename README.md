@@ -1049,34 +1049,24 @@ HALO regression handoff evidence. `/free` remains a hidden compatibility alias,
 not the taught UX. *(Preview retired pending a judged real-app recording; the
 contract is tested in `tests/agentJobsRuntime.test.ts` and the L7 RESUME rung.)*
 
-### Finance Model Solve
+### Finance Model Solve Research (Historical)
 
 ![Finance model solve](docs/eval/workflow-previews/finance-model-solve.gif)
 
-User uploads a three-statement modeling test and asks NodeAgent to solve it.
-The eval seeds the `Your Model` sheet, locks the critical forecast cells, reads
-versions, writes linked formulas through CAS, releases the lock, and grades the
-final artifact plus trace against a gold oracle. The GIF above is a committed
-synthetic trace replay so the media can stay public; the private workbook runs
-locally and its answer-key formulas never enter the agent's context or the repo
-(`evals/financeModelLive.ts`; content-based leakage gate). The private live
-proof is the redacted summary in `docs/eval/finance-model-live.json`.
+The finance-model harness seeds a `Your Model` sheet, locks critical forecast
+cells, reads versions, writes linked formulas through CAS, releases the lock,
+and grades the artifact and trace against a private gold oracle. The GIF above
+is a synthetic trace replay; it is workflow documentation, not live launch
+proof. Private answer-key formulas never enter the model context or this repo.
 
-**The live scoreboard is the point, and it's honest:** the full-solve champion
-claim is a **measured reliability batch, not a best run**.
-`deepseek/deepseek-v4-flash` passed **5/5 model-owned runs** of the full
-private-workbook lane (16/16 linked forecast cells each, lock → read →
-CAS-write → release, no answer-key leakage) **across three room variants** —
-clean room, a room salted with distractor artifacts that reuse the target cell
-ids, and a concurrent human edit landing mid-run (the human's cell survives;
-their write into the locked range is rejected). Median 105.0s, p95 $0.1068/run,
-$0.4424 total, zero provider-owned failures
-(`docs/eval/finance-model-live.json`, attempt-by-attempt ledger included; the
-claim goes stale-red in CI 30 days after `generatedAt` — `npm run
-proofs:staleness`). The free route `nex-agi/nex-n2-pro:free` is promoted only
-through the income rung for now (6/6 in 74.1s at $0); its full rerun hit an
-OpenRouter invalid-JSON provider failure after lock/read — recorded as
-`failureOwner: provider`, not a model failure, and not a promotion.
+The June 2026 provider batch remains in
+`docs/eval/finance-model-live.json` as historical research. Its 30-day freshness
+window expired on 2026-07-11, so NodeRoom does **not** currently market an
+autonomous three-statement full-solve champion, full Excel parity, or a promoted
+finance-model route. Re-enable that claim only after the private five-run batch
+is rerun and `npm run proofs:staleness` passes. The launch claim is narrower:
+NodeRoom supports governed, source-backed work artifacts and bounded workbook
+sessions with human review.
 
 The HALO ladder also renders trace-replayed skill previews from real ladder JSON
 (`l1-read` through `l6-long-horizon`) in `docs/eval/workflow-previews/`, so a
@@ -1800,7 +1790,7 @@ NodeAgent to work**. The full per-case inventory (with file refs and recorded re
 
 | Interaction mode | Running today | Designed, to build |
 |---|---|---|
-| **1 - Do it for me** (autonomous solve) | variance/footnote/note/wall goldens - GTM research enrichment (v3 cheap/free smoke, 18/28 routes 9/9) - executable professional subset (GTM runtime enrichment, messy-sheet parsing, cross-file note write, grounded wiki update, finance reconciliation) - chat-first lead capture through live room tools (`deepseek/deepseek-v4-flash`, 100%) - credit cascade + cell-mapping rejection - 3-statement modeling test Solve (private full lane, measured: `deepseek/deepseek-v4-flash` 5/5 model-owned across base/distractor/concurrent-edit rooms, median 105.0s, p95 $0.1068/run) | background chat-to-research intake - SEC model-build flagship - N-doc research (benchmark v4) - file-drop ingestion (10-K/XLSX/receipts) - knowledge-organization pack |
+| **1 - Do it for me** (autonomous solve) | variance/footnote/note/wall goldens - GTM research enrichment (v3 cheap/free smoke, 18/28 routes 9/9) - executable professional subset (GTM runtime enrichment, messy-sheet parsing, cross-file note write, grounded wiki update, finance reconciliation) - chat-first lead capture through live room tools (`deepseek/deepseek-v4-flash`, 100%) - credit cascade + cell-mapping rejection | background chat-to-research intake - fresh autonomous three-statement model proof (the June batch is historical, not launch-promoted) - SEC model-build flagship - N-doc research (benchmark v4) - file-drop ingestion (10-K/XLSX/receipts) - knowledge-organization pack |
 | **2 · Do it with us** (live collaboration) | ladder **L1–L7 scripted** + **L1–L4 live** across 11 routes (full passes: `gemini-3.5-flash`, `nemotron-3-ultra` — the research champion fails L1/L4, proving lanes promote separately) · multi-turn provenance · sustained concurrent room · lease fencing/takeover | L5–L7 live · modeling test (Collaborate: split IS/BS/CF under locks) · L8 roles/redaction · L9 entity resolution · L10 cross-artifact · live adversarial-source rung |
 | **3 · Work under review** (proposals) | review-mode inline proposals + room-policy briefing regression | contractor-time professional approval fixture · L8 formalizes role-gated approve/promote/redact |
 | **4 · Advise me privately** (read-only consult) | private no-tools reply path · private-draft redaction · prompt-injection fencing 4/4 | sensitive-query guardrail (decline with stated reason) |

@@ -1,0 +1,21 @@
+{
+  "schema": "noderoom-historical-preview-evidence-v1",
+  "appCommit": "77757c42a9783072efca1317ef85789557dfea3f",
+  "backendRevision": "d6890534fca6cd8a58abadf6a70f4e1e4a5a64fe1e5702a666aa92676bfa0e19",
+  "generatedAt": "2026-07-11T08:00:00.000Z",
+  "files": [
+    { "path": "browser.json", "sha256": "42389017a4e99c11ba59674f119c390535a24d1a813f8f5e7507375557d7f43a", "kind": "browser" },
+    { "path": "cost.json", "sha256": "792dbb1be43cdfb2e242d044fd8fc183f986d150bd7a638ba40caeb08dd0c85a", "kind": "cost" },
+    { "path": "deterministic.json", "sha256": "f43706a6a65666da4f22a4e769c4e2d0ee232ed1c2d595fa19d1114b6486dbf6", "kind": "deterministic" },
+    { "path": "limitations.json", "sha256": "7c15de7a32ff84486aee04eae80951c08bca28cdd1665031e7e2203644cd579e", "kind": "metadata" },
+    { "path": "release.json", "sha256": "df921d47086f228aa3868d0ac75420a0a2ba3d02148bbf9ee784339d6d3bd522", "kind": "metadata" },
+    { "path": "security.json", "sha256": "a18f0dc7364314941822a4b439600242d48bf5dd365a412cf7cf2703b0726175", "kind": "security" },
+    { "path": "trace.json", "sha256": "9f73b33f07acb789a7c12f9fd883aa03d9b3cbddb0091fe0c0b6a5afe7e28b5a", "kind": "trace" },
+    { "path": "visual.json", "sha256": "b7c4e022d5e422041eff4561809b6953b08af3ed0bc84ef5a5ad1d5487e49e55", "kind": "visual" }
+  ],
+  "claims": [
+    { "claim": "The release candidate passed its recorded deterministic and CI gates.", "evidence": ["release.json", "deterministic.json", "security.json"] },
+    { "claim": "The authenticated mobile preview passed the two recorded fresh-user journeys.", "evidence": ["browser.json", "trace.json"] },
+    { "claim": "This bundle does not claim production promotion, official benchmark readiness, full Excel parity, or completed launch spend controls.", "evidence": ["limitations.json", "cost.json", "visual.json"] }
+  ]
+}

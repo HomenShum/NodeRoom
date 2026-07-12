@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "gate": "credit_simulation_v1",
-  "generatedAt": "2026-07-03T18:58:55.332Z",
+  "generatedAt": "2026-07-11T12:36:30.960Z",
   "calibration": {
     "capturedAt": "2026-06-27",
     "deployment": "zealous-goshawk-766",
@@ -33,10 +33,10 @@
     "dominantModel": "z-ai/glm-5.2"
   },
   "caps": {
-    "globalMonthlyUsd": 150,
-    "perRoomDailyUsd": 5,
+    "globalMonthlyUsd": 75,
+    "perRoomDailyUsd": 3,
     "perRoomMonthlyUsd": 50,
-    "perUserDailyUsd": 2,
+    "perUserDailyUsd": 3,
     "concurrentForegroundJobsGlobal": 10,
     "concurrentForegroundJobsPerRoom": 2,
     "concurrentDeepJobsPerRoom": 1
@@ -44,41 +44,41 @@
   "modeEstimates": {
     "quick": {
       "mode": "quick",
-      "llmUsd": 0.0823,
+      "llmUsd": 0.0523,
       "substrateUsd": 0.045,
-      "estimateUsd": 0.1273,
-      "estimateUsdLow": 0.08,
-      "estimateUsdHigh": 0.18,
+      "estimateUsd": 0.0973,
+      "estimateUsdLow": 0.06,
+      "estimateUsdHigh": 0.14,
       "hardCapUsd": 0.75,
-      "creditsLow": 0.32,
-      "creditsHigh": 0.72,
+      "creditsLow": 0.24,
+      "creditsHigh": 0.56,
       "creditsRequired": 1,
       "requiresApproval": false
     },
     "standard": {
       "mode": "standard",
-      "llmUsd": 0.2406,
+      "llmUsd": 0.1531,
       "substrateUsd": 0.162,
-      "estimateUsd": 0.4026,
-      "estimateUsdLow": 0.24,
-      "estimateUsdHigh": 0.56,
+      "estimateUsd": 0.3151,
+      "estimateUsdLow": 0.19,
+      "estimateUsdHigh": 0.44,
       "hardCapUsd": 3,
-      "creditsLow": 0.96,
-      "creditsHigh": 2.24,
-      "creditsRequired": 3,
+      "creditsLow": 0.76,
+      "creditsHigh": 1.76,
+      "creditsRequired": 2,
       "requiresApproval": false
     },
     "deep": {
       "mode": "deep",
-      "llmUsd": 0.8784,
+      "llmUsd": 0.5586,
       "substrateUsd": 1.258,
-      "estimateUsd": 2.1364,
-      "estimateUsdLow": 1.28,
-      "estimateUsdHigh": 2.99,
+      "estimateUsd": 1.8166,
+      "estimateUsdLow": 1.09,
+      "estimateUsdHigh": 2.54,
       "hardCapUsd": 10,
-      "creditsLow": 5.12,
-      "creditsHigh": 11.96,
-      "creditsRequired": 12,
+      "creditsLow": 4.36,
+      "creditsHigh": 10.16,
+      "creditsRequired": 11,
       "requiresApproval": true
     }
   },
@@ -101,7 +101,7 @@
           "mode": "quick",
           "runs": 240,
           "cachedRuns": 36,
-          "llmUsd": 16.7892,
+          "llmUsd": 10.6692,
           "substrateUsd": 9.18,
           "creditsBurned": 204
         },
@@ -109,30 +109,30 @@
           "mode": "standard",
           "runs": 120,
           "cachedRuns": 18,
-          "llmUsd": 24.5412,
+          "llmUsd": 15.6162,
           "substrateUsd": 16.524,
-          "creditsBurned": 306
+          "creditsBurned": 204
         },
         {
           "mode": "deep",
           "runs": 24,
           "cachedRuns": 3.6,
-          "llmUsd": 17.9194,
+          "llmUsd": 11.3954,
           "substrateUsd": 25.6632,
-          "creditsBurned": 244.8
+          "creditsBurned": 224.4
         }
       ],
-      "llmCostUsd": 59.2498,
+      "llmCostUsd": 37.6808,
       "substrateCostUsd": 51.3672,
       "convexMarginalUsd": 0.2861,
-      "providerCostUsd": 110.617,
-      "totalCostUsd": 110.9,
-      "creditsBurned": 754.8,
-      "perUserPerDayUsd": 0.9242,
-      "perRoomPerDayUsd": 0.7394,
-      "perRunAvgUsd": 0.2888,
+      "providerCostUsd": 89.048,
+      "totalCostUsd": 89.33,
+      "creditsBurned": 632.4,
+      "perUserPerDayUsd": 0.7445,
+      "perRoomPerDayUsd": 0.5956,
+      "perRunAvgUsd": 0.2326,
       "peakConcurrency": 2,
-      "costLimitPerDayUsd": 5,
+      "costLimitPerDayUsd": 3,
       "exceedsPerRoomDailyCap": false,
       "exceedsPerRoomMonthlyCap": false,
       "exceedsConcurrencyCap": false,
@@ -156,7 +156,7 @@
           "mode": "quick",
           "runs": 60,
           "cachedRuns": 0,
-          "llmUsd": 4.938,
+          "llmUsd": 3.138,
           "substrateUsd": 2.7,
           "creditsBurned": 60
         },
@@ -164,30 +164,30 @@
           "mode": "standard",
           "runs": 15,
           "cachedRuns": 0,
-          "llmUsd": 3.609,
+          "llmUsd": 2.2965,
           "substrateUsd": 2.43,
-          "creditsBurned": 45
+          "creditsBurned": 30
         },
         {
           "mode": "deep",
           "runs": 3,
           "cachedRuns": 0,
-          "llmUsd": 2.6352,
+          "llmUsd": 1.6758,
           "substrateUsd": 3.774,
-          "creditsBurned": 36
+          "creditsBurned": 33
         }
       ],
-      "llmCostUsd": 11.1822,
+      "llmCostUsd": 7.1103,
       "substrateCostUsd": 8.904,
       "convexMarginalUsd": 0.0581,
-      "providerCostUsd": 20.0862,
-      "totalCostUsd": 20.14,
-      "creditsBurned": 141,
-      "perUserPerDayUsd": 0.6715,
-      "perRoomPerDayUsd": 0.2238,
-      "perRunAvgUsd": 0.2583,
+      "providerCostUsd": 16.0143,
+      "totalCostUsd": 16.07,
+      "creditsBurned": 123,
+      "perUserPerDayUsd": 0.5357,
+      "perRoomPerDayUsd": 0.1786,
+      "perRunAvgUsd": 0.2061,
       "peakConcurrency": 1,
-      "costLimitPerDayUsd": 5,
+      "costLimitPerDayUsd": 3,
       "exceedsPerRoomDailyCap": false,
       "exceedsPerRoomMonthlyCap": false,
       "exceedsConcurrencyCap": false,
@@ -211,7 +211,7 @@
           "mode": "quick",
           "runs": 90,
           "cachedRuns": 18,
-          "llmUsd": 5.9256,
+          "llmUsd": 3.7656,
           "substrateUsd": 3.24,
           "creditsBurned": 72
         },
@@ -219,9 +219,9 @@
           "mode": "standard",
           "runs": 30,
           "cachedRuns": 6,
-          "llmUsd": 5.7744,
+          "llmUsd": 3.6744,
           "substrateUsd": 3.888,
-          "creditsBurned": 72
+          "creditsBurned": 48
         },
         {
           "mode": "deep",
@@ -232,17 +232,17 @@
           "creditsBurned": 0
         }
       ],
-      "llmCostUsd": 11.7,
+      "llmCostUsd": 7.44,
       "substrateCostUsd": 7.128,
       "convexMarginalUsd": 0.0894,
-      "providerCostUsd": 18.828,
-      "totalCostUsd": 18.92,
-      "creditsBurned": 144,
-      "perUserPerDayUsd": 0.6306,
-      "perRoomPerDayUsd": 0.6306,
-      "perRunAvgUsd": 0.1576,
+      "providerCostUsd": 14.568,
+      "totalCostUsd": 14.66,
+      "creditsBurned": 120,
+      "perUserPerDayUsd": 0.4886,
+      "perRoomPerDayUsd": 0.4886,
+      "perRunAvgUsd": 0.1221,
       "peakConcurrency": 2,
-      "costLimitPerDayUsd": 5,
+      "costLimitPerDayUsd": 3,
       "exceedsPerRoomDailyCap": false,
       "exceedsPerRoomMonthlyCap": false,
       "exceedsConcurrencyCap": false,
@@ -266,7 +266,7 @@
           "mode": "quick",
           "runs": 300,
           "cachedRuns": 0,
-          "llmUsd": 24.69,
+          "llmUsd": 15.69,
           "substrateUsd": 13.5,
           "creditsBurned": 300
         },
@@ -274,35 +274,35 @@
           "mode": "standard",
           "runs": 150,
           "cachedRuns": 0,
-          "llmUsd": 36.09,
+          "llmUsd": 22.965,
           "substrateUsd": 24.3,
-          "creditsBurned": 450
+          "creditsBurned": 300
         },
         {
           "mode": "deep",
           "runs": 30,
           "cachedRuns": 0,
-          "llmUsd": 26.352,
+          "llmUsd": 16.758,
           "substrateUsd": 37.74,
-          "creditsBurned": 360
+          "creditsBurned": 330
         }
       ],
-      "llmCostUsd": 87.132,
+      "llmCostUsd": 55.413,
       "substrateCostUsd": 75.54,
       "convexMarginalUsd": 0.3576,
-      "providerCostUsd": 162.672,
-      "totalCostUsd": 163.03,
-      "creditsBurned": 1110,
-      "perUserPerDayUsd": 0.5434,
-      "perRoomPerDayUsd": 5.4343,
-      "perRunAvgUsd": 0.3396,
+      "providerCostUsd": 130.953,
+      "totalCostUsd": 131.31,
+      "creditsBurned": 930,
+      "perUserPerDayUsd": 0.4377,
+      "perRoomPerDayUsd": 4.377,
+      "perRunAvgUsd": 0.2736,
       "peakConcurrency": 5,
-      "costLimitPerDayUsd": 5,
+      "costLimitPerDayUsd": 3,
       "exceedsPerRoomDailyCap": true,
       "exceedsPerRoomMonthlyCap": true,
       "exceedsConcurrencyCap": true,
       "warnings": [
-        "per-room/day $5.43 > cap $5.00 — runs will hit the room daily cap.",
+        "per-room/day $4.38 > cap $3.00 — runs will hit the room daily cap.",
         "per-room/month projects > $50 cap.",
         "peak concurrency 5 > per-room foreground cap 2 — excess queues (expected for burst)."
       ]
@@ -325,7 +325,7 @@
           "mode": "quick",
           "runs": 30,
           "cachedRuns": 0,
-          "llmUsd": 2.469,
+          "llmUsd": 1.569,
           "substrateUsd": 1.35,
           "creditsBurned": 30
         },
@@ -333,9 +333,9 @@
           "mode": "standard",
           "runs": 9,
           "cachedRuns": 0,
-          "llmUsd": 2.1654,
+          "llmUsd": 1.3779,
           "substrateUsd": 1.458,
-          "creditsBurned": 27
+          "creditsBurned": 18
         },
         {
           "mode": "deep",
@@ -346,17 +346,17 @@
           "creditsBurned": 0
         }
       ],
-      "llmCostUsd": 4.6344,
+      "llmCostUsd": 2.9469,
       "substrateCostUsd": 2.808,
       "convexMarginalUsd": 0.0291,
-      "providerCostUsd": 7.4424,
-      "totalCostUsd": 7.47,
-      "creditsBurned": 57,
-      "perUserPerDayUsd": 0.249,
-      "perRoomPerDayUsd": 0.1245,
-      "perRunAvgUsd": 0.1916,
+      "providerCostUsd": 5.7549,
+      "totalCostUsd": 5.78,
+      "creditsBurned": 48,
+      "perUserPerDayUsd": 0.1928,
+      "perRoomPerDayUsd": 0.0964,
+      "perRunAvgUsd": 0.1483,
       "peakConcurrency": 1,
-      "costLimitPerDayUsd": 5,
+      "costLimitPerDayUsd": 3,
       "exceedsPerRoomDailyCap": false,
       "exceedsPerRoomMonthlyCap": false,
       "exceedsConcurrencyCap": false,
@@ -380,7 +380,7 @@
           "mode": "quick",
           "runs": 1500,
           "cachedRuns": 675,
-          "llmUsd": 67.8975,
+          "llmUsd": 43.1475,
           "substrateUsd": 37.125,
           "creditsBurned": 825
         },
@@ -401,17 +401,17 @@
           "creditsBurned": 0
         }
       ],
-      "llmCostUsd": 67.8975,
+      "llmCostUsd": 43.1475,
       "substrateCostUsd": 37.125,
       "convexMarginalUsd": 1.1175,
-      "providerCostUsd": 105.0225,
-      "totalCostUsd": 106.14,
+      "providerCostUsd": 80.2725,
+      "totalCostUsd": 81.39,
       "creditsBurned": 825,
-      "perUserPerDayUsd": 3.538,
-      "perRoomPerDayUsd": 3.538,
-      "perRunAvgUsd": 0.0708,
+      "perUserPerDayUsd": 2.713,
+      "perRoomPerDayUsd": 2.713,
+      "perRunAvgUsd": 0.0543,
       "peakConcurrency": 4,
-      "costLimitPerDayUsd": 5,
+      "costLimitPerDayUsd": 3,
       "exceedsPerRoomDailyCap": false,
       "exceedsPerRoomMonthlyCap": true,
       "exceedsConcurrencyCap": true,
@@ -438,7 +438,7 @@
           "mode": "quick",
           "runs": 30,
           "cachedRuns": 3,
-          "llmUsd": 2.2221,
+          "llmUsd": 1.4121,
           "substrateUsd": 1.215,
           "creditsBurned": 27
         },
@@ -446,30 +446,30 @@
           "mode": "standard",
           "runs": 60,
           "cachedRuns": 6,
-          "llmUsd": 12.9924,
+          "llmUsd": 8.2674,
           "substrateUsd": 8.748,
-          "creditsBurned": 162
+          "creditsBurned": 108
         },
         {
           "mode": "deep",
           "runs": 9,
           "cachedRuns": 0.9,
-          "llmUsd": 7.115,
+          "llmUsd": 4.5247,
           "substrateUsd": 10.1898,
-          "creditsBurned": 97.2
+          "creditsBurned": 89.1
         }
       ],
-      "llmCostUsd": 22.3295,
+      "llmCostUsd": 14.2042,
       "substrateCostUsd": 20.1528,
       "convexMarginalUsd": 0.0738,
-      "providerCostUsd": 42.4823,
-      "totalCostUsd": 42.56,
-      "creditsBurned": 286.2,
-      "perUserPerDayUsd": 1.4185,
-      "perRoomPerDayUsd": 0.7093,
-      "perRunAvgUsd": 0.4299,
+      "providerCostUsd": 34.357,
+      "totalCostUsd": 34.43,
+      "creditsBurned": 224.1,
+      "perUserPerDayUsd": 1.1477,
+      "perRoomPerDayUsd": 0.5738,
+      "perRunAvgUsd": 0.3478,
       "peakConcurrency": 2,
-      "costLimitPerDayUsd": 5,
+      "costLimitPerDayUsd": 3,
       "exceedsPerRoomDailyCap": false,
       "exceedsPerRoomMonthlyCap": false,
       "exceedsConcurrencyCap": false,
@@ -481,29 +481,29 @@
     "usdPerCredit": 0.25,
     "demoGrantCredits": 20,
     "demoGrantUsd": 5,
-    "sumTotalCostUsd": 469.16,
-    "sumCreditsBurned": 3318
+    "sumTotalCostUsd": 372.97,
+    "sumCreditsBurned": 2902.5
   },
   "headroom": {
-    "budgetUsd": 150,
+    "budgetUsd": 75,
     "pilotVc": {
-      "workspaces": 1,
-      "users": 4,
-      "perWorkspaceMonthlyUsd": 110.9
+      "workspaces": 0,
+      "users": 0,
+      "perWorkspaceMonthlyUsd": 89.33
     },
     "financeFriend": {
-      "workspaces": 7,
-      "users": 7,
-      "perWorkspaceMonthlyUsd": 20.14
+      "workspaces": 4,
+      "users": 4,
+      "perWorkspaceMonthlyUsd": 16.07
     },
     "gtmSales": {
-      "workspaces": 7,
-      "users": 7,
-      "perWorkspaceMonthlyUsd": 18.92
+      "workspaces": 5,
+      "users": 5,
+      "perWorkspaceMonthlyUsd": 14.66
     }
   },
   "passed": false,
   "failures": [
-    "conference-room: per-room/day $5.43 > cap $5.00 — runs will hit the room daily cap.; per-room/month projects > $50 cap.; peak concurrency 5 > per-room foreground cap 2 — excess queues (expected for burst)."
+    "conference-room: per-room/day $4.38 > cap $3.00 — runs will hit the room daily cap.; per-room/month projects > $50 cap.; peak concurrency 5 > per-room foreground cap 2 — excess queues (expected for burst)."
   ]
 }

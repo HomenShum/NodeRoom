@@ -5,10 +5,11 @@ import { SourceOverlay, TraceOverlay } from "../src/ui/mobile/MobileOverlay";
 import { Composer, RoomChat } from "../src/ui/mobile/MobileChat";
 import { projectMobileSheetRow, resolveMobileExperience } from "../src/ui/mobile/MobileAppLive";
 import { Home } from "../src/ui/mobile/MobileScreens";
-import { EvidenceSheet, PlanSheet } from "../src/ui/mobile/MobileSheets";
+import { CoachSheet, EvidenceSheet, PlanSheet } from "../src/ui/mobile/MobileSheets";
 import * as D from "../src/ui/mobile/mobileData";
 import type { MobileCtx } from "../src/ui/mobile/mobileTypes";
 import type { Artifact } from "../src/engine/types";
+import { liveAgentCreditBlockReason } from "../src/ui/mobile/mobileCredits";
 
 afterEach(() => {
   cleanup();
@@ -46,6 +47,24 @@ function liveCtx(overrides: Partial<MobileCtx> = {}): MobileCtx {
 }
 
 describe("mobile live-room honesty", () => {
+  it("fails closed before live provider work when the wallet cannot prove a hold", () => {
+    expect(liveAgentCreditBlockReason(undefined)).toContain("wallet unavailable");
+    expect(liveAgentCreditBlockReason({
+      mode: "standard",
+      availableCredits: 1,
+      reservedCredits: 0,
+      lifetimeSpentCredits: 0,
+      availableUsd: 0.25,
+      reservedUsd: 0,
+      estimateUsdLow: 0.12,
+      estimateUsdHigh: 0.28,
+      hardCapUsd: 2,
+      requiredCredits: 8,
+      enforced: true,
+      enrolled: true,
+      paused: false,
+    })).toContain("8.0 credits");
+  });
   it("routes live plan approval through the room agent instead of completing a local sample timer", async () => {
     const requestRoomAgent = vi.fn(async (_goal: string) => ({ ok: true }));
     render(<PlanSheet ctx={liveCtx({ requestRoomAgent })} />);
@@ -69,6 +88,17 @@ describe("mobile live-room honesty", () => {
     await waitFor(() => expect(requestRoomAgent).toHaveBeenCalledTimes(1));
     expect(requestRoomAgent.mock.calls[0][0]).toMatch(/Live renewal claim/);
     expect(await screen.findByText(/Read the answer in the Agent tab/i)).toBeTruthy();
+  });
+
+  it("labels live coaching as an unscored local evidence checklist", () => {
+    render(<CoachSheet ctx={liveCtx({ liveCoach: D.COACH })} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Your answer" }));
+    expect(screen.getByText(/not sent to a model or scored/i)).toBeTruthy();
+    fireEvent.change(screen.getByPlaceholderText(/Explain it in your own words/i), { target: { value: "My practice answer" } });
+    fireEvent.click(screen.getByRole("button", { name: "Show evidence checklist" }));
+    expect(screen.getByText("local guide")).toBeTruthy();
+    expect(screen.queryByText("model")).toBeNull();
   });
 
   it("never substitutes a sample trace when a live trace id collides", () => {

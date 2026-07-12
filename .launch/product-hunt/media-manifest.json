@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "status": "incomplete",
+  "items": [
+    { "id": "logo", "type": "logo", "path": null, "status": "missing", "required": true },
+    { "id": "thumbnail", "type": "thumbnail", "path": null, "status": "missing", "required": true },
+    { "id": "gallery-rough-input", "type": "screenshot", "path": null, "status": "missing", "required": true },
+    { "id": "gallery-agent-lanes", "type": "screenshot", "path": null, "status": "missing", "required": true },
+    { "id": "gallery-workpaper", "type": "screenshot", "path": null, "status": "missing", "required": true },
+    { "id": "gallery-evidence-trace", "type": "screenshot", "path": null, "status": "missing", "required": true },
+    { "id": "gallery-export-collaboration", "type": "screenshot", "path": null, "status": "missing", "required": true },
+    { "id": "workflow-video", "type": "video", "path": null, "durationSeconds": null, "status": "missing", "required": true },
+    { "id": "social-card", "type": "social-card", "path": null, "status": "missing", "required": true }
+  ],
+  "rules": {
+    "videoMinimumSeconds": 60,
+    "videoMaximumSeconds": 90,
+    "showRealProduct": true,
+    "showRoughPrompt": true,
+    "showSourceUpload": true,
+    "showAgentWork": true,
+    "showArtifact": true,
+    "showEvidence": true,
+    "showTrace": true,
+    "showExport": true,
+    "showCollaboration": true,
+    "noAbstractAiBlobs": true
+  }
+}

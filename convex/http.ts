@@ -16,6 +16,8 @@ import { streamingComponent } from "./streaming";
 import { streamPrivateReplyText } from "./streamingModel";
 import { privateAgentSystemPrompt } from "./agent";
 import { auth } from "./auth";
+import { beginProviderSpend, completeProviderSpend } from "./providerSpend";
+import { convexPriceRun } from "../src/nodeagent/models/convexModel";
 
 const http = httpRouter();
 auth.addHttpRoutes(http);
@@ -80,8 +82,34 @@ http.route({
       return textResponse("forbidden", 403);
     }
 
+    let providerSpend;
+    try {
+      providerSpend = await beginProviderSpend(ctx, {
+        roomId: roomId as never,
+        requesterId: requester.actor.id,
+        route: "voice_stt",
+        metering: "unavailable",
+        creditMode: "quick",
+        goal: "Transcribe a private voice command",
+        modelHint: "voice-stt",
+      });
+      if (!providerSpend.execute) return textResponse(`provider_spend_duplicate:${providerSpend.duplicateReason}`, 409);
+    } catch (error) {
+      return textResponse(providerSpendError(error), 429);
+    }
     const transcription = await transcribeVoiceAudio(audio);
-    if (!transcription.ok) return textResponse(transcription.error, transcription.status);
+    if (!transcription.ok) {
+      await completeProviderSpend(ctx, providerSpend, {
+        model: "voice-stt",
+        success: false,
+        error: transcription.error,
+      });
+      return textResponse(transcription.error, transcription.status);
+    }
+    await completeProviderSpend(ctx, providerSpend, {
+      model: transcription.value.model,
+      success: true,
+    });
     return new Response(JSON.stringify({
       text: transcription.value.text,
       model: transcription.value.model,
@@ -125,12 +153,38 @@ http.route({
         return textResponse("forbidden", 403);
       }
 
+      let providerSpend;
+      try {
+        providerSpend = await beginProviderSpend(ctx, {
+          roomId: roomId as never,
+          requesterId: requester.actor.id,
+          route: "voice_tts",
+          metering: "unavailable",
+          creditMode: "quick",
+          goal: "Synthesize a private voice reply",
+          modelHint: "voice-tts",
+        });
+        if (!providerSpend.execute) return textResponse(`provider_spend_duplicate:${providerSpend.duplicateReason}`, 409);
+      } catch (error) {
+        return textResponse(providerSpendError(error), 429);
+      }
       const synthesis = await synthesizeVoiceAudio(text, typeof body?.voice === "string" ? body.voice : undefined).catch((error) => ({
         ok: false as const,
         status: 502,
         error: providerExceptionText("voice synthesis failed", error),
       }));
-      if (!synthesis.ok) return textResponse(synthesis.error, synthesis.status);
+      if (!synthesis.ok) {
+        await completeProviderSpend(ctx, providerSpend, {
+          model: "voice-tts",
+          success: false,
+          error: synthesis.error,
+        });
+        return textResponse(synthesis.error, synthesis.status);
+      }
+      await completeProviderSpend(ctx, providerSpend, {
+        model: synthesis.value.model,
+        success: true,
+      });
       return new Response(new Uint8Array(synthesis.value.audio), {
         status: 200,
         headers: {
@@ -171,13 +225,48 @@ http.route({
       const system = privateAgentSystemPrompt(meta.requesterName);
       const userMsg = `ROOM CONTEXT\n${meta.roomContext}\n\n${meta.requesterName} asks: ${meta.goal}`;
       let answer = "";
+      let providerSpend;
       try {
-        answer = await streamPrivateReplyText(process.env.AGENT_MODEL ?? "gemini-3.5-flash", system, userMsg, append);
+        providerSpend = await beginProviderSpend(streamCtx, {
+          roomId: meta.roomId,
+          requesterId: meta.ownerId,
+          route: "private_stream",
+          metering: "actual",
+          creditMode: "quick",
+          goal: meta.goal,
+          modelHint: process.env.AGENT_MODEL ?? "gemini-3.5-flash",
+          reservationKey: `private-stream:${streamId}`,
+        });
+        if (!providerSpend.execute) return;
+      } catch (error) {
+        const msg = `(private agent unavailable: ${error instanceof Error ? error.message.slice(0, 160) : "launch admission failed"})`;
+        await append(msg);
+        await streamCtx.runMutation(internal.streaming.finalizeStreamMessage, { roomId: meta.roomId, clientMsgId: meta.clientMsgId, text: msg });
+        return;
+      }
+      try {
+        const streamed = await streamPrivateReplyText(process.env.AGENT_MODEL ?? "gemini-3.5-flash", system, userMsg, append);
+        answer = streamed.text;
+        await completeProviderSpend(streamCtx, providerSpend, {
+          model: streamed.model,
+          success: true,
+          inputTokens: streamed.usage?.inputTokens,
+          outputTokens: streamed.usage?.outputTokens,
+          cachedInputTokens: streamed.usage?.cachedInputTokens,
+          actualUsd: streamed.usage
+            ? convexPriceRun(streamed.model, streamed.usage.inputTokens, streamed.usage.outputTokens)
+            : undefined,
+        });
       } catch (error) {
         // HONEST_STATUS: the partial text persists, the error is visible text, never a silent 2xx void.
         const msg = `(private agent error: ${error instanceof Error ? error.message.slice(0, 160) : "model call failed"})`;
         await append(answer ? `\n${msg}` : msg);
         answer = answer ? `${answer}\n${msg}` : msg;
+        await completeProviderSpend(streamCtx, providerSpend, {
+          model: process.env.AGENT_MODEL ?? "provider_failed",
+          success: false,
+          error: error instanceof Error ? error.message : "model call failed",
+        }).catch(() => undefined);
       }
       if (!answer.trim()) {
         answer = "I read the room but have nothing to add yet — ask me something specific about the data.";
@@ -523,6 +612,11 @@ function isAudioFile(value: unknown): value is File {
 
 function textResponse(text: string, status: number): Response {
   return new Response(text, { status, headers: CORS });
+}
+
+function providerSpendError(error: unknown): string {
+  const message = error instanceof Error ? error.message : "launch admission failed";
+  return message.slice(0, 240);
 }
 
 function providerExceptionText(fallback: string, error: unknown): string {

@@ -1,0 +1,123 @@
+schema: 1
+campaign:
+  product: NodeRoom
+  status: draft
+  launchDate: null
+  canonicalUrl: https://noderoom.live
+  productHuntUrl: null
+  demoUrl: null
+  publicOpsRoom: null
+  proofUrl: null
+  repos:
+    - name: HomenShum/proofloop
+      status: awaiting_public_repo_approval
+    - name: HomenShum/nodereach
+      status: awaiting_public_repo_approval
+  publicDistributionApproved: false
+  emailSendApproved: false
+audiences:
+  - vc_finance_operators
+  - startup_bankers
+  - gtm_sales_operators
+  - ai_agent_engineers
+  - coding_agent_builders
+  - convex_community
+  - product_hunt_community
+channels:
+  - id: producthunt
+    status: draft
+    audience: product_hunt_community
+    cta: Visit NodeRoom, try the sample workflow, and share specific feedback.
+    url: null
+    owner: release_owner
+    approval: productHuntSubmissionApproved
+    idempotencyKey: noderoom-ph-launch-v1
+    receiptPath: .launch/receipts/product-hunt/submission.json
+  - id: github
+    status: draft
+    audience: coding_agent_builders
+    cta: Inspect the release, run the proof command, and report reproducible issues.
+    url: null
+    owner: release_owner
+    approval: publicReposApproved
+    idempotencyKey: noderoom-github-release-v1
+    receiptPath: .launch/receipts/github/releases.json
+  - id: linkedin
+    status: draft
+    audience: vc_finance_operators
+    cta: See the source-backed workflow and tell us where it breaks on real work.
+    url: null
+    owner: release_owner
+    approval: publicDistributionApproved
+    idempotencyKey: noderoom-linkedin-launch-v1
+    receiptPath: .launch/receipts/distribution/linkedin.json
+  - id: x
+    status: draft
+    audience: ai_agent_engineers
+    cta: Watch the governed workflow and inspect the proof receipts.
+    url: null
+    owner: release_owner
+    approval: publicDistributionApproved
+    idempotencyKey: noderoom-x-launch-v1
+    receiptPath: .launch/receipts/distribution/x.json
+  - id: hackernews
+    status: draft
+    audience: coding_agent_builders
+    cta: Try the technical demo and challenge the execution and proof architecture.
+    url: null
+    owner: release_owner
+    approval: publicDistributionApproved
+    idempotencyKey: noderoom-hn-launch-v1
+    receiptPath: .launch/receipts/distribution/hackernews.json
+  - id: reddit
+    status: draft
+    audience: ai_agent_engineers
+    cta: Discuss the implementation only in communities where the post is relevant and allowed.
+    url: null
+    owner: release_owner
+    approval: publicDistributionApproved
+    idempotencyKey: noderoom-reddit-launch-v1
+    receiptPath: .launch/receipts/distribution/reddit.json
+  - id: discord_slack
+    status: draft
+    audience: convex_community
+    cta: Visit the demo and share product or integration feedback.
+    url: null
+    owner: release_owner
+    approval: publicDistributionApproved
+    idempotencyKey: noderoom-community-launch-v1
+    receiptPath: .launch/receipts/distribution/communities.json
+  - id: opt_in_email
+    status: draft
+    audience: opted_in_contacts_only
+    cta: Visit, try, and reply with feedback. No upvote request.
+    url: null
+    owner: release_owner
+    approval: emailSendApproved
+    idempotencyKey: noderoom-opt-in-email-launch-v1
+    receiptPath: .launch/receipts/distribution/email.json
+  - id: one_to_one_dm
+    status: draft
+    audience: invited_design_partners
+    cta: Try one supported workflow and tell us whether you would return with another task.
+    url: null
+    owner: release_owner
+    approval: publicDistributionApproved
+    idempotencyKey: noderoom-private-pilot-followup-v1
+    receiptPath: .launch/receipts/distribution/one-to-one.json
+waves:
+  T-7: [private_pilot_followup, repo_previews, launch_page_qa]
+  T-3: [teaser_clip, waitlist, partner_outreach]
+  T-1: [opted_in_reminder, repository_release_candidates, support_rotation]
+  launch: [producthunt, github, landing_banner, linkedin, x, approved_communities, opt_in_email, one_to_one_dm]
+  T+1: [lessons_and_fixes, top_feedback, public_metrics]
+  T+3: [technical_deep_dive, proofloop_post, nodereach_post]
+  T+7: [retrospective, metrics, roadmap, customer_stories]
+rules:
+  noDirectUpvoteRequest: true
+  noUnsolicitedBulkEmail: true
+  noFabricatedAdoption: true
+  noFabricatedTestimonials: true
+  noUnsupportedBenchmarkClaims: true
+  requireApprovedManifest: true
+  requireIdempotencyReceipt: true

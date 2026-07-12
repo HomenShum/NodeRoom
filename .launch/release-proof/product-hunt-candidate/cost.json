@@ -1,0 +1,10 @@
+{
+  "schema": "noderoom-cost-evidence-v1",
+  "capturedAt": "2026-07-11T08:00:00.000Z",
+  "authenticatedPreviewFlowCostUsd": null,
+  "productionLaunchBudgetUsd": 100,
+  "globalSpendCapProven": false,
+  "jobReservationProven": false,
+  "status": "incomplete",
+  "note": "No cost claim is supported until reservation, settlement, and cap receipts are captured for the release workflow."
+}

@@ -16,10 +16,58 @@ import {
   type ProviderEgressArtifact,
 } from "../src/nodeagent/guardrails/egressPolicy";
 import { parseBulkCompanyIngest } from "../src/nodeagent/skills/finance/bulkIngest";
+import {
+  creditModeForJob,
+  creditsEnforcedFromEnv,
+  durableCreditReservationKey,
+  evaluateLaunchAdmission,
+  launchAdmissionModeFromEnv,
+  launchPauseStateFromEnv,
+} from "../src/launch/budgetPolicy";
+import { collectLaunchUsageSnapshot } from "./usageLimits";
+import { getRoomCreditGate, reserveRoomCredits, settleRoomCredits } from "./credits";
 
 // BOUND: cap a single bulk-diligence fan-out so one command can't enqueue unbounded jobs.
 const MAX_BULK_COMPANIES = 50;
 const DEFAULT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
+
+async function durableLaunchAdmission(ctx: any, args: {
+  roomId: Id<"rooms">;
+  requesterId: string;
+  creditMode?: "quick" | "standard" | "deep";
+  runtimeProfile?: "benchmark_completion";
+  mode?: string;
+  excludeJobId?: Id<"agentJobs">;
+}) {
+  const launchMode = launchAdmissionModeFromEnv(process.env);
+  const creditsEnforced = creditsEnforcedFromEnv(process.env);
+  const creditMode = creditModeForJob(args);
+  const [usage, roomCredit] = await Promise.all([
+    collectLaunchUsageSnapshot(ctx, {
+      roomId: args.roomId,
+      requesterId: args.requesterId,
+      excludeJobId: args.excludeJobId,
+    }),
+    getRoomCreditGate(ctx, args.roomId),
+  ]);
+  const admission = evaluateLaunchAdmission({
+    launchMode,
+    creditMode,
+    runtimeProfile: args.runtimeProfile,
+    creditsEnforced,
+    roomEnrolled: roomCredit.enrolled,
+    roomPaused: roomCredit.paused,
+    availableCredits: roomCredit.availableCredits,
+    ...launchPauseStateFromEnv(process.env),
+    usage,
+  });
+  return {
+    admission,
+    creditMode,
+    creditsEnforced,
+    requireEnrollment: launchMode === "private_pilot" || launchMode === "public_launch",
+  };
+}
 function companyKeyOf(name: string): string {
   return name.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
 }
@@ -42,6 +90,7 @@ const traceLevelV = v.union(v.literal("summary"), v.literal("standard"), v.liter
 const routePolicyV = v.union(v.literal("fast_default"), v.literal("free_auto"), v.literal("top_paid"), v.literal("explicit"));
 const runtimePolicyV = v.union(v.literal("workflow_sliced"));
 const runtimeProfileV = v.union(v.literal("benchmark_completion"));
+const creditModeV = v.union(v.literal("quick"), v.literal("standard"), v.literal("deep"));
 const publicAskReferenceV = v.object({
   id: v.string(),
   title: v.optional(v.string()),
@@ -227,10 +276,11 @@ function compactJobContinuation(value: unknown, limit = MAX_JOB_CONTINUATION_CHA
   return encodedSize(compacted) <= limit ? compacted : compactStreamPayload(compacted, limit);
 }
 
-function defaultJobIdempotencyKey(args: { roomId: unknown; artifactId: unknown; actorId: string; goal: string; entrypoint: string; runtimeProfile?: AgentRuntimeProfile }) {
+function defaultJobIdempotencyKey(args: { roomId: unknown; artifactId: unknown; actorId: string; goal: string; entrypoint: string; runtimeProfile?: AgentRuntimeProfile; creditMode?: "quick" | "standard" | "deep" }) {
   const normalizedGoal = args.goal.trim().replace(/\s+/g, " ").toLowerCase();
   const profileSuffix = args.runtimeProfile ? `:${args.runtimeProfile}` : "";
-  return `${args.entrypoint}:${String(args.roomId)}:${String(args.artifactId)}:${args.actorId}:${normalizedGoal}${profileSuffix}`;
+  const creditSuffix = args.creditMode ? `:${args.creditMode}` : "";
+  return `${args.entrypoint}:${String(args.roomId)}:${String(args.artifactId)}:${args.actorId}:${normalizedGoal}${profileSuffix}${creditSuffix}`;
 }
 
 function stableJson(value: unknown): string {
@@ -893,6 +943,7 @@ export const createOrReuse = mutation({
     autoAllow: v.optional(v.boolean()),
     traceLevel: v.optional(traceLevelV),
     runtimeProfile: v.optional(runtimeProfileV),
+    creditMode: v.optional(creditModeV),
     request: v.optional(v.any()),
     maxAttempts: v.optional(v.number()),
     initialStatus: v.optional(v.union(v.literal("running"), v.literal("blocked"))),
@@ -919,6 +970,7 @@ export const createOrReuse = mutation({
       autoAllow: a.autoAllow ?? false,
       traceLevel: a.traceLevel ?? "standard",
       runtimeProfile: a.runtimeProfile,
+      creditMode: a.creditMode,
       request: a.request,
       initialStatus: a.initialStatus,
       planPreview: a.planPreview,
@@ -1565,6 +1617,7 @@ type DurableStartAgentJobArgs = {
   routePolicy?: RoutePolicy;
   runtimePolicy?: RuntimePolicy;
   runtimeProfile?: AgentRuntimeProfile;
+  creditMode?: "quick" | "standard" | "deep";
   modelPolicy?: string;
   mode?: "variance" | "research";
   maxAttempts?: number;
@@ -1857,6 +1910,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     goal: a.goal,
     entrypoint,
     runtimeProfile,
+    creditMode: creditModeForJob({ creditMode: a.creditMode, runtimeProfile, mode: a.mode }),
   });
   const prior = await ctx.db.query("agentJobs").withIndex("by_idempotency", (q: any) => q.eq("idempotencyKey", idempotencyKey)).order("desc").take(5);
   const reusable = prior.find((job: any) => String(job.roomId) === String(a.roomId) && String(job.artifactId) === String(a.artifactId) && !terminalStatuses.has(job.status));
@@ -1864,9 +1918,26 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     return { jobId: reusable._id as Id<"agentJobs">, reused: true as const, status: reusable.status as string, workflowId: reusable.workflowId as string | undefined, latestRunId: reusable.latestRunId as Id<"agentRuns"> | undefined, modelPolicy: reusable.modelPolicy as string, routePolicy, runtimePolicy };
   }
 
+  const launchAdmission = execution === "workflow"
+    ? await durableLaunchAdmission(ctx, {
+      roomId: a.roomId,
+      requesterId: actor.id,
+      creditMode: a.creditMode,
+      runtimeProfile,
+      mode: a.mode,
+    })
+    : undefined;
   let planPreview = a.planPreview as { scheduling?: string; conflicts?: Array<{ kind?: string; detail?: string }> } | undefined;
-  let planBlocked = a.initialStatus === "blocked";
-  let blockedReason = a.error;
+  let planBlocked = a.initialStatus === "blocked" || launchAdmission?.admission.allowed === false;
+  let blockedReason = launchAdmission?.admission.allowed === false
+    ? `launch_admission:${launchAdmission.admission.code}`
+    : a.error;
+  if (launchAdmission?.admission.allowed === false) {
+    planPreview = {
+      scheduling: "blocked",
+      conflicts: [{ kind: "launch_admission", detail: blockedReason }],
+    };
+  }
   if (execution === "workflow") {
     // Central admission gate: every workflow-backed durable route gets the same intent classification,
     // affected-set check, blocked-job trace, and no-provider-spend fail-closed behavior.
@@ -1876,9 +1947,12 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
       .filter((p: any) => String(p.artifactId) === String(a.artifactId))
       .map((p: any) => (p.op as { elementId?: string } | null)?.elementId)
       .filter((id: unknown): id is string => typeof id === "string");
-    planPreview = buildPlanPreview({ decision: intake, targetArtifacts: [String(a.artifactId)], intendedWriteSet: elementIds, pendingProposals: pendingProposalRefs });
-    planBlocked = planPreview.scheduling !== "run_now";
-    blockedReason = planBlocked ? `plan_${planPreview.scheduling}: ${planPreview.conflicts?.[0]?.detail ?? intake.reason}` : undefined;
+    const intakePlanPreview = buildPlanPreview({ decision: intake, targetArtifacts: [String(a.artifactId)], intendedWriteSet: elementIds, pendingProposals: pendingProposalRefs });
+    if (!planBlocked) {
+      planPreview = intakePlanPreview;
+      planBlocked = planPreview.scheduling !== "run_now";
+      blockedReason = planBlocked ? `plan_${planPreview.scheduling}: ${planPreview.conflicts?.[0]?.detail ?? intake.reason}` : undefined;
+    }
   }
   if (freeFileEgressBlocked && !promotedForFileEgress) {
     planBlocked = true;
@@ -1909,12 +1983,14 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     routePolicy,
     runtimePolicy,
     runtimeProfile,
+    creditMode: launchAdmission?.creditMode ?? a.creditMode,
     modelPolicy,
     approvalPolicy,
     evidencePolicy,
     traceLevel,
     fileEgressPromoted: promotedForFileEgress || undefined,
     freeFileEgressPromotionBlocked: freeFileEgressBlocked && !promotedForFileEgress || undefined,
+    launchAdmission: launchAdmission?.admission,
   });
   const jobId = await ctx.db.insert("agentJobs", clean({
     roomId: a.roomId,
@@ -1933,6 +2009,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     routePolicy,
     runtimePolicy,
     runtimeProfile,
+    creditMode: launchAdmission?.creditMode ?? a.creditMode,
     idempotencyKey,
     mode: a.mode,
     planPreview,
@@ -1954,6 +2031,31 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     updatedAt: now,
     completedAt: status === "blocked" ? now : undefined,
   }));
+  let admittedStatus = status;
+  let admittedBlockedReason = blockedReason;
+  if (execution === "workflow" && status !== "blocked" && launchAdmission?.creditsEnforced) {
+    const reservation = await reserveRoomCredits(ctx, {
+      roomId: a.roomId,
+      mode: launchAdmission.creditMode,
+      reservationKey: durableCreditReservationKey(jobId, 1),
+      jobId,
+      requesterId: actor.id,
+      projectedUsd: launchAdmission.admission.projectedUsd,
+      requireEnrollment: launchAdmission.requireEnrollment,
+    });
+    if (!reservation.ok) {
+      admittedStatus = "blocked";
+      admittedBlockedReason = `launch_admission:${reservation.reason}`;
+      await ctx.db.patch(jobId, {
+        status: "blocked",
+        error: admittedBlockedReason,
+        nextRunAt: 0,
+        schedulerHandoffCount: 0,
+        completedAt: now,
+        updatedAt: now,
+      });
+    }
+  }
   await recordOperationEvent(ctx, {
     jobId,
     sequence: 1,
@@ -1976,14 +2078,14 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     metadata: { entrypoint, scope, routePolicy, runtimePolicy, runtimeProfile, modelPolicy, fileEgressPromoted: promotedForFileEgress || undefined, freeFileEgressPromotionBlocked: freeFileEgressBlocked && !promotedForFileEgress || undefined },
     createdAt: now,
   });
-  if (status === "blocked") {
+  if (admittedStatus === "blocked") {
     await recordStreamEventRow(ctx, {
       jobId,
       sequence: 2,
       kind: "error",
       status: "failed",
-      title: blockedReason?.startsWith("provider_egress_blocked:") ? "Route blocked" : "Plan blocked",
-      error: blockedReason,
+      title: admittedBlockedReason?.startsWith("provider_egress_blocked:") ? "Route blocked" : "Plan blocked",
+      error: admittedBlockedReason,
       metadata: { scheduling: planPreview?.scheduling, conflicts: planPreview?.conflicts },
       createdAt: now,
     });
@@ -1992,11 +2094,11 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
       sequence: 3,
       kind: "message_done",
       status: "failed",
-      text: blockedReason,
+      text: admittedBlockedReason,
       createdAt: now,
     });
-    await ctx.db.insert("traces", { roomId: a.roomId, ts: now, actor, type: "plan_blocked", summary: `PlanPreview blocked this run (${planPreview?.scheduling ?? "blocked"}) on ${String(a.artifactId)}`, detail: `plan_preview - ${planPreview?.scheduling ?? "blocked"} - conflicts=${(planPreview?.conflicts ?? []).map((c) => c.kind).join(",") || "none"} - ${blockedReason ?? ""}`.slice(0, 480) });
-    return { jobId, reused: false as const, status, modelPolicy, routePolicy, runtimePolicy };
+    await ctx.db.insert("traces", { roomId: a.roomId, ts: now, actor, type: "plan_blocked", summary: `PlanPreview blocked this run (${planPreview?.scheduling ?? "blocked"}) on ${String(a.artifactId)}`, detail: `plan_preview - ${planPreview?.scheduling ?? "blocked"} - conflicts=${(planPreview?.conflicts ?? []).map((c) => c.kind).join(",") || "none"} - ${admittedBlockedReason ?? ""}`.slice(0, 480) });
+    return { jobId, reused: false as const, status: "blocked" as const, modelPolicy, routePolicy, runtimePolicy };
   }
   if (execution === "inline") return { jobId, reused: false as const, status, modelPolicy, routePolicy, runtimePolicy };
   // Seed a minimal execute-phase reasoning frame for research-mode workflow jobs
@@ -2078,6 +2180,13 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
       summary: "Workflow admission failed",
       detail: safeMessage,
     });
+    if (launchAdmission?.creditsEnforced) {
+      await settleRoomCredits(ctx, {
+        roomId: a.roomId,
+        reservationKey: durableCreditReservationKey(jobId, 1),
+        actualUsd: 0,
+      });
+    }
     return { jobId, reused: false as const, status: "failed" as const, modelPolicy, routePolicy, runtimePolicy };
   }
   await ctx.db.patch(jobId, { workflowId, updatedAt: now });
@@ -2095,6 +2204,7 @@ export const start = mutation({
     routePolicy: v.optional(routePolicyV),
     runtimePolicy: v.optional(runtimePolicyV),
     runtimeProfile: v.optional(runtimeProfileV),
+    creditMode: v.optional(creditModeV),
     modelPolicy: v.optional(v.string()),
     mode: v.optional(v.union(v.literal("variance"), v.literal("research"))),
     maxAttempts: v.optional(v.number()),
@@ -2118,6 +2228,7 @@ export const startPublicAsk = mutation({
     routePolicy: v.optional(routePolicyV),
     modelPolicy: v.optional(v.string()),
     runtimeProfile: v.optional(runtimeProfileV),
+    creditMode: v.optional(creditModeV),
     maxAttempts: v.optional(v.number()),
   },
   handler: async (ctx, a): Promise<DurableStartAgentJobResult> => {
@@ -2130,6 +2241,7 @@ export const startPublicAsk = mutation({
       routePolicy: a.routePolicy,
       modelPolicy: a.modelPolicy,
       runtimeProfile: a.runtimeProfile,
+      creditMode: a.creditMode,
       maxAttempts: a.maxAttempts,
       mode: modeForArtifact(artifact) ?? (artifact.kind === "note" ? undefined : goalPrefersPersonResearch(a.goal) || goalPrefersCompanyResearch(a.goal) ? "research" : undefined),
     });
@@ -2143,6 +2255,7 @@ export const startPublicAsk = mutation({
         contextArtifactId: a.contextArtifactId,
         source: "public_chat",
         runtimeProfile: a.runtimeProfile,
+        creditMode: a.creditMode,
       },
     });
   },
@@ -2343,7 +2456,7 @@ export const detail = query({
     const leases = (await Promise.all((["active", "released", "expired", "stolen"] as const).map((status) =>
       ctx.db.query("agentLeases").withIndex("by_job_status", (q) => q.eq("jobId", jobId).eq("status", status)).take(5)
     ))).flat();
-    const draftOperations = (await Promise.all((["pending", "approved", "rejected", "needs_rebase", "applied"] as const).map((status) =>
+    const draftOperations = (await Promise.all((["pending", "approved", "proposed", "rejected", "needs_rebase", "applied"] as const).map((status) =>
       ctx.db.query("agentDraftOperations").withIndex("by_job_status", (q) => q.eq("jobId", jobId).eq("status", status)).take(5)
     ))).flat();
     const latestRun = job.latestRunId ? await ctx.db.get(job.latestRunId) : null;
@@ -2675,26 +2788,83 @@ export const claimSlice = internalMutation({
       await ctx.db.patch(jobId, { status: "failed", error: "artifact_room_mismatch", updatedAt: now });
       return null;
     }
-    let session = (await ctx.db.query("agentSessions").withIndex("by_room", (q) => q.eq("roomId", job.roomId)).collect())
-      .find((s) => s.scope === "public");
+    const attempt = job.attempts + 1;
+    const launchAdmission = await durableLaunchAdmission(ctx, {
+      roomId: job.roomId,
+      requesterId: job.requester.id,
+      creditMode: job.creditMode,
+      runtimeProfile: job.runtimeProfile,
+      mode: job.mode,
+      excludeJobId: jobId,
+    });
+    if (!launchAdmission.admission.allowed) {
+      const error = `launch_admission:${launchAdmission.admission.code}`;
+      await ctx.db.patch(jobId, {
+        status: "blocked",
+        error,
+        leaseId: "",
+        leaseUntil: 0,
+        nextRunAt: 0,
+        completedAt: now,
+        updatedAt: now,
+      });
+      await recordOperationEvent(ctx, {
+        jobId,
+        sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 2,
+        kind: "checkpoint",
+        name: "agentJobs.claimSlice.launchAdmission",
+        targetKind: "artifact",
+        targetId: String(job.artifactId),
+        status: "failed",
+        countDelta: 1,
+        affectedIds: [String(jobId), String(job.artifactId)],
+        startedAt: now,
+        completedAt: now,
+      });
+      return null;
+    }
+    if (launchAdmission.creditsEnforced) {
+      const reservation = await reserveRoomCredits(ctx, {
+        roomId: job.roomId,
+        mode: launchAdmission.creditMode,
+        reservationKey: durableCreditReservationKey(jobId, attempt),
+        jobId,
+        requesterId: job.requester.id,
+        projectedUsd: launchAdmission.admission.projectedUsd,
+        requireEnrollment: launchAdmission.requireEnrollment,
+      });
+      if (!reservation.ok) {
+        await ctx.db.patch(jobId, {
+          status: "blocked",
+          error: `launch_admission:${reservation.reason}`,
+          leaseId: "",
+          leaseUntil: 0,
+          nextRunAt: 0,
+          completedAt: now,
+          updatedAt: now,
+        });
+        return null;
+      }
+    }
+    let session = await ctx.db.query("agentSessions").withIndex("by_job", (q) => q.eq("jobId", jobId)).first();
     if (!session) {
       const sessionId = await ctx.db.insert("agentSessions", {
         roomId: job.roomId,
-        agentId: "agent_room",
+        jobId,
+        agentId: `agent_job_${String(jobId)}`,
         agentName: "Room NodeAgent",
         scope: "public",
         status: "idle",
         lastAction: "started",
         updatedAt: now,
       });
-      session = await ctx.db.get(sessionId) ?? undefined;
+      session = await ctx.db.get(sessionId);
     }
     if (!session) {
       await ctx.db.patch(jobId, { status: "blocked", error: "agent_session_create_failed", updatedAt: now });
       return null;
     }
 
-    const attempt = job.attempts + 1;
     const leaseUntil = now + Math.max(1_000, leaseMs);
     const frameClaim = await claimReasoningFrameForSlice(ctx, { jobId, now });
     await ctx.db.patch(jobId, {
@@ -2747,6 +2917,7 @@ export const claimSlice = internalMutation({
       routePolicy: job.routePolicy,
       runtimePolicy: job.runtimePolicy,
       runtimeProfile: job.runtimeProfile,
+      creditMode: job.creditMode,
       mode: job.mode,
       modelPolicy: job.modelPolicy,
       createdAt: job.createdAt,

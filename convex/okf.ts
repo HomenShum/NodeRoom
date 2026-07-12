@@ -1180,7 +1180,7 @@ export const claimOutbox = internalMutation({
         continue;
       }
       await ctx.db.patch(job._id, { status: "running", attempts: job.attempts + 1, leaseId: a.leaseId, leaseUntil: now + a.leaseMs, updatedAt: now });
-      claimed.push({ jobId: job._id, roomId: job.roomId, conceptId: job.conceptId, contentHash: job.contentHash, title: concept.title, text: concept.searchText, visibility: concept.visibility, ownerId: concept.ownerId });
+      claimed.push({ jobId: job._id, roomId: job.roomId, conceptId: job.conceptId, contentHash: job.contentHash, title: concept.title, text: concept.searchText, visibility: concept.visibility, ownerId: concept.ownerId, attempts: job.attempts + 1 });
     }
     return claimed;
   },

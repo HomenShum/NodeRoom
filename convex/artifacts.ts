@@ -21,6 +21,7 @@ import { planAndRecordRebase } from "./semanticRebase";
 import { enqueueArtifactSnapshotForOkf } from "./okf";
 import { enqueueRoomActivity } from "./roomActivity";
 import { enqueueFileProcessingJob } from "./fileProcessing";
+import { resolveWorkbookProposal } from "./workbookSessions";
 // Shared COLUMN normalizer — the SAME id/order/BOUND rules as the in-memory RoomEngine lane, so the
 // governed-columns schema can never drift between the two lanes. (docs/architecture/AGENT_GOVERNED_COLUMNS.md)
 import { normalizeColumns, columnIdOfElement, type ColumnInput } from "../src/engine/columns";
@@ -618,6 +619,8 @@ type ApplyCellEditArgs = {
   runId?: Id<"agentRuns">;
   /** Internal: set when this apply IS a semantic-rebase auto-merge, so it does not re-trigger rebase. */
   _rebased?: boolean;
+  /** Internal: final host approval reuses the canonical write path without opening another proposal. */
+  _approvedProposal?: boolean;
 };
 
 type ProposalOp = {
@@ -709,34 +712,27 @@ function versionLogSnapshot(value: unknown): { value: unknown; truncated: boolea
     : { value, truncated: false };
 }
 
-async function applyApprovedProposal(ctx: MutationCtx, roomId: Id<"rooms">, artifactId: Id<"artifacts">, op: ProposalOp, author: ActorValue) {
+async function applyApprovedProposal(
+  ctx: MutationCtx,
+  roomId: Id<"rooms">,
+  artifactId: Id<"artifacts">,
+  op: ProposalOp,
+  author: ActorValue,
+  provenance: { jobId?: Id<"agentJobs">; runId?: Id<"agentRuns"> } = {},
+) {
   if (String(op.artifactId) !== String(artifactId)) throw new Error("proposal_artifact_mismatch");
-  const art = await requireArtifactInRoom(ctx, roomId, artifactId);
-  const el = await getElement(ctx, artifactId, op.elementId);
-  const actual = el?.version ?? 0;
-  if (actual !== op.baseVersion) {
-    return { ok: false as const, reason: "conflict" as const, expected: op.baseVersion, actual };
-  }
-  if (blocksFormulaScalar(el?.value, op.value, author, op.kind)) {
-    return { ok: false as const, reason: "formula_protected" as const };
-  }
-  const policyViolation = agentWritePolicyViolation(art, op.elementId, op.value, author, op.kind);
-  if (policyViolation) return { ok: false as const, reason: policyViolation };
-  const now = Date.now();
-  const nextOrder = op.kind === "create" && !el ? [...art.order, op.elementId] : op.kind === "delete" ? art.order.filter((id) => id !== op.elementId) : art.order;
-  if (op.kind === "delete") {
-    if (el) await ctx.db.delete(el._id);
-  } else if (el) {
-    await ctx.db.patch(el._id, { value: op.value, version: actual + 1, updatedAt: now, updatedBy: author });
-  } else {
-    await ctx.db.insert("elements", { artifactId, elementId: op.elementId, value: op.value, version: 1, updatedAt: now, updatedBy: author });
-  }
-  await ctx.db.patch(artifactId, { version: art.version + 1, updatedAt: now, order: nextOrder });
-  const nextVersion = op.kind === "delete" ? actual : actual + 1;
-  const summary = op.kind === "delete" ? `${author.name} deleted ${op.elementId}` : `${author.name} set ${op.elementId} = ${formatCellForTrace(op.value)}`;
-  await ctx.db.insert("traces", { roomId, ts: now, actor: author, type: "edit_applied", summary, detail: `edit_cell - ${op.elementId} = ${formatCellForTrace(op.value)} - v${actual} -> v${nextVersion}` });
-  await enqueueArtifactSnapshotForOkf(ctx, { roomId, artifactId });
-  return { ok: true as const, version: nextVersion };
+  return applyCellEditCore(ctx, {
+    roomId,
+    artifactId,
+    elementId: op.elementId,
+    kind: op.kind,
+    value: op.value,
+    baseVersion: op.baseVersion,
+    actor: author,
+    jobId: provenance.jobId,
+    runId: provenance.runId,
+    _approvedProposal: true,
+  });
 }
 
 // Exported for elementHistory.restoreElementVersion — restore IS this same CAS write
@@ -775,7 +771,7 @@ export async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) 
       // build a durable semantic-conflict packet, classify it, and rebase — auto-merge the safe ones
       // through the CAS spine, route the rest to a review proposal (or record under auto-allow). A
       // human's own stale write stays a plain conflict (humans drive their own retries).
-      if (a.actor.kind === "agent" && !a._rebased) {
+      if (a.actor.kind === "agent" && !a._rebased && !a._approvedProposal) {
         try {
           const rebaseRoom = await ctx.db.get(a.roomId);
           const rebase = await planAndRecordRebase(ctx, {
@@ -791,6 +787,8 @@ export async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) 
             currentUpdatedBy: el?.updatedBy,
             actor: a.actor,
             autoAllow: !!rebaseRoom?.autoAllow,
+            createdByJobId: a.jobId,
+            createdByRunId: a.runId,
           });
           // The full loop completes via review: an approved rebased proposal re-runs the CAS in
           // resolveProposal (the "final CAS from resolution"). Deterministic auto-merge never fires
@@ -815,13 +813,15 @@ export async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) 
     const policyViolation = agentWritePolicyViolation(art, a.elementId, a.value, a.actor, kind);
     if (policyViolation) return { ok: false as const, reason: policyViolation };
     const room = await ctx.db.get(a.roomId);
-    if (a.actor.kind === "agent" && room && !room.autoAllow) {
+    if (a.actor.kind === "agent" && room && !room.autoAllow && !a._approvedProposal) {
       const pending = await ctx.db.query("proposals").withIndex("by_room_status", (q) => q.eq("roomId", a.roomId).eq("status", "pending")).collect();
       const existing = pending.find((proposal) => samePendingProposal(proposal, a, kind));
       if (existing) return { ok: false as const, reason: "pending_approval" as const, proposalId: existing._id };
       const proposalId = await ctx.db.insert("proposals", {
         roomId: a.roomId,
         artifactId: a.artifactId,
+        ...(a.jobId ? { createdByJobId: a.jobId } : {}),
+        ...(a.runId ? { createdByRunId: a.runId } : {}),
         op: { opId: `proposal_${a.elementId}_${Date.now()}`, artifactId: String(a.artifactId), elementId: a.elementId, kind, value: a.value, baseVersion: a.baseVersion },
         author: a.actor,
         status: "pending",
@@ -1259,7 +1259,14 @@ export const resolveProposal = mutation({
 
     const now = Date.now();
     if (approve) {
-      const result = await applyApprovedProposal(ctx, proposal.roomId, proposal.artifactId, parseProposalOp(proposal.op), proposal.author as ActorValue);
+      const result = await applyApprovedProposal(
+        ctx,
+        proposal.roomId,
+        proposal.artifactId,
+        parseProposalOp(proposal.op),
+        proposal.author as ActorValue,
+        { jobId: proposal.createdByJobId, runId: proposal.createdByRunId },
+      );
       if (!result.ok) {
         await ctx.db.insert("traces", {
           roomId: proposal.roomId,
@@ -1272,6 +1279,14 @@ export const resolveProposal = mutation({
         return result;
       }
       await ctx.db.patch(proposalId, { status: "approved", resolvedAt: now });
+      await resolveWorkbookProposal(ctx, {
+        proposalId,
+        jobId: proposal.createdByJobId,
+        artifactId: proposal.artifactId,
+        resolution: "applied",
+        version: result.version,
+        mutationReceiptId: result.mutationReceiptId,
+      });
       await ctx.db.insert("traces", {
         roomId: proposal.roomId,
         ts: now,
@@ -1283,6 +1298,12 @@ export const resolveProposal = mutation({
       return result;
     }
     await ctx.db.patch(proposalId, { status: "rejected", resolvedAt: now });
+    await resolveWorkbookProposal(ctx, {
+      proposalId,
+      jobId: proposal.createdByJobId,
+      artifactId: proposal.artifactId,
+      resolution: "rejected",
+    });
     await ctx.db.insert("traces", {
       roomId: proposal.roomId,
       ts: now,

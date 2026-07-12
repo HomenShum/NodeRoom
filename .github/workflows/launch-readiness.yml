@@ -1,0 +1,40 @@
+name: Launch Readiness Control Plane
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+jobs:
+  launch-control:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm test -- --run tests/launchControlPlane.test.ts
+      - run: npm run launch:doctor
+      - run: npm run launch:gate:ci -- --out .launch/generated/ci
+      - run: npm run launch:proof:verify -- --bundle .launch/generated/ci --expect-commit ${{ github.sha }}
+      - name: Package launch proof
+        run: tar -czf launch-proof-${{ github.sha }}.tgz -C .launch/generated/ci .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: launch-proof-${{ github.sha }}
+          path: launch-proof-${{ github.sha }}.tgz
+          if-no-files-found: error
+      - uses: actions/attest-build-provenance@v2
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        with:
+          subject-path: launch-proof-${{ github.sha }}.tgz
+      - name: Confirm irreversible approvals stay local
+        shell: bash
+        run: test ! -f .launch/approval.json

@@ -52,6 +52,68 @@ describe("A1 column helpers", () => {
   });
 });
 
+describe("Formula reference safety", () => {
+  test("accepts Excel's final cell and rejects out-of-bounds addresses", () => {
+    const resolved: string[] = [];
+    const resolver: CellResolver = {
+      getCell: (ref) => { resolved.push(ref); return 7; },
+    };
+
+    expect(evaluateFormula("=$XFD$1048576", resolver)).toEqual({ value: 7 });
+    expect(evaluateFormula("=SUM($XFD$1048576:$XFD$1048576)", resolver)).toEqual({ value: 7 });
+    expect(resolved).toEqual(["XFD1048576", "XFD1048576"]);
+
+    for (const formula of ["=XFE1", "=A1048577", "=SUM(XFD1:XFE1)", "=SUM(A1048576:A1048577)"]) {
+      expect(evaluateFormula(formula, resolver)).toEqual({ error: "#REF!" });
+    }
+    expect(resolved).toEqual(["XFD1048576", "XFD1048576"]);
+  });
+
+  test("checks the per-range cap before allocation or resolver calls", () => {
+    let calls = 0;
+    const resolver: CellResolver = { getCell: () => { calls++; return 1; } };
+
+    expect(evaluateFormula("=SUM(A1:A10000)", resolver)).toEqual({ value: 10_000 });
+    expect(calls).toBe(10_000);
+
+    calls = 0;
+    for (const formula of ["=SUM(A1:A10001)", "=SUM(A1:XFD1048576)", "=INDEX(A1:A10001,1)"]) {
+      expect(evaluateFormula(formula, resolver)).toEqual({ error: "#REF!" });
+    }
+    expect(calls).toBe(0);
+  });
+
+  test("reserves ranges against one cumulative resolver budget", () => {
+    let calls = 0;
+    const resolver: CellResolver = {
+      getCell: (ref) => {
+        calls++;
+        if (ref.startsWith("D")) throw new Error("rejected range must not reach the resolver");
+        return 1;
+      },
+    };
+
+    const result = evaluateFormula("=SUM(A1:A10000,B1:B9999,C1,D1:D2)", resolver);
+    expect(result).toEqual({ error: "#REF!" });
+    expect(calls).toBe(20_000);
+  });
+
+  test("reserves 2D criteria ranges before reading their cells", () => {
+    let calls = 0;
+    const resolver: CellResolver = {
+      getCell: (ref) => {
+        calls++;
+        if (ref.startsWith("B")) throw new Error("over-budget sum range must not be read");
+        return 1;
+      },
+    };
+
+    const result = evaluateFormula("=SUMIF(A1:A10000,C1,B1:B10000)", resolver);
+    expect(result).toEqual({ error: "#REF!" });
+    expect(calls).toBe(10_001);
+  });
+});
+
 describe("Banker builds a Q3 P&L (happy path)", () => {
   // The driver inputs a banker types, then the derived rows as formulas.
   const sheet = makeSheet({

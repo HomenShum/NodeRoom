@@ -1,0 +1,13 @@
+{
+  "schema": "noderoom-release-evidence-v1",
+  "capturedAt": "2026-07-11T08:00:00.000Z",
+  "repository": "HomenShum/NodeRoom",
+  "pullRequest": 190,
+  "appCommit": "77757c42a9783072efca1317ef85789557dfea3f",
+  "backendFunctionSpecHash": "d6890534fca6cd8a58abadf6a70f4e1e4a5a64fe1e5702a666aa92676bfa0e19",
+  "ci": {
+    "status": "pass",
+    "checks": ["verify-linux", "verify-windows", "Accounting Proof-Loop", "Notion SDR/BDR Proof-Loop", "design-qa", "proofloop-gate", "scaffold-check", "GitGuardian", "Vercel"]
+  },
+  "scope": "Authenticated preview and release-candidate evidence only; not a production launch receipt."
+}

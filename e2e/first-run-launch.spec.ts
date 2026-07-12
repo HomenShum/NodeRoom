@@ -4,6 +4,13 @@ async function liveSessionKeys(page: import("@playwright/test").Page): Promise<s
   return page.evaluate(() => Object.keys(localStorage).filter((key) => key.startsWith("noderoom:live:")));
 }
 
+async function pendingRoomKeys(page: import("@playwright/test").Page): Promise<string[]> {
+  return page.evaluate(() => [
+    ...Object.keys(localStorage),
+    ...Object.keys(sessionStorage),
+  ].filter((key) => key.startsWith("noderoom:livePending:") || key.startsWith("noderoom:mobilePending:")));
+}
+
 test.describe("fresh-user launch contract", () => {
   test("a fresh phone stays on the explanatory landing until Create is chosen", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
@@ -22,9 +29,49 @@ test.describe("fresh-user launch contract", () => {
 
     await page.getByRole("button", { name: "Back" }).click();
     await expect(page.getByRole("heading", { name: "NodeRoom" })).toBeVisible();
+    expect(await liveSessionKeys(page)).toEqual([]);
+  });
+
+  test("a fresh unauthenticated phone opens and reloads the public sample without a live session", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+
+    expect(await liveSessionKeys(page)).toEqual([]);
+    expect(await pendingRoomKeys(page)).toEqual([]);
+    await page.getByRole("link", { name: "Try a sample room", exact: true }).click();
+
+    const sample = page.getByTestId("public-memory-sample");
+    await expect(sample).toBeVisible({ timeout: 30_000 });
+    await expect(sample).toHaveAttribute("data-sample-provenance", "synthetic-memory");
+    await expect(sample).toHaveAttribute("data-read-only", "false");
+    await expect(page.getByTestId("public-sample-provenance")).toContainText("Synthetic local sample");
+    await expect(page.getByTestId("public-sample-provenance")).toContainText("No account, live room, provider calls, or credits");
+    expect(page.url()).toContain("#mobile?mode=memory&sample=public");
+    await expect(page.getByTestId("account-auth-gate")).toHaveCount(0);
+    await expect(page.getByRole("dialog", { name: /Create this sample room/i })).toHaveCount(0);
+    expect(await liveSessionKeys(page)).toEqual([]);
+    expect(await pendingRoomKeys(page)).toEqual([]);
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("public-memory-sample")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("public-sample-provenance")).toContainText("Synthetic local sample");
+    expect(await liveSessionKeys(page)).toEqual([]);
+    expect(await pendingRoomKeys(page)).toEqual([]);
+  });
+
+  test("public Sample controls converge on the same memory-only route", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/#mobile", { waitUntil: "domcontentloaded" });
     await page.getByTestId("mobile-sample-room").click();
-    await expect(page.getByRole("heading", { name: "Create this sample room?" })).toBeVisible();
-    await expect(page.getByText(/demonstration artifacts and trace data/i)).toBeVisible();
+    await expect(page.getByTestId("public-memory-sample")).toBeVisible({ timeout: 30_000 });
+    expect(page.url()).toContain("#mobile?mode=memory&sample=public");
+    expect(await liveSessionKeys(page)).toEqual([]);
+
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/?surface=desktop", { waitUntil: "domcontentloaded" });
+    await page.getByTestId("try-sample-room").click();
+    await expect(page.getByTestId("public-memory-sample")).toBeVisible({ timeout: 30_000 });
+    expect(page.url()).toContain("#mobile?mode=memory&sample=public");
     expect(await liveSessionKeys(page)).toEqual([]);
   });
 
@@ -69,6 +116,41 @@ test.describe("fresh-user launch contract", () => {
     }));
     expect(overflow.horizontal).toBeLessThanOrEqual(1);
     expect(overflow.vertical).toBeGreaterThanOrEqual(0);
+  });
+
+  test("Create consent takes focus, traps Tab, cancels on Escape, and keeps 44px targets", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/#mobile?intent=create", { waitUntil: "domcontentloaded" });
+
+    const dialog = page.getByRole("dialog", { name: "Create this workspace?" });
+    const title = page.getByRole("heading", { name: "Create this workspace?" });
+    const review = page.getByRole("radio", { name: /Review every edit/i });
+    const back = page.getByRole("button", { name: "Back" });
+    await expect(dialog).toBeVisible({ timeout: 30_000 });
+    await expect(title).toBeFocused();
+
+    const targetSizes = await dialog.locator(".na-consent-card, .na-consent > .na-btn").evaluateAll((nodes) => (
+      nodes.map((node) => {
+        const rect = node.getBoundingClientRect();
+        return { width: rect.width, height: rect.height };
+      })
+    ));
+    expect(targetSizes.length).toBeGreaterThanOrEqual(4);
+    for (const size of targetSizes) {
+      expect(size.width).toBeGreaterThanOrEqual(44);
+      expect(size.height).toBeGreaterThanOrEqual(44);
+    }
+
+    await page.keyboard.press("Shift+Tab");
+    await expect(back).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(review).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "NodeRoom" })).toBeVisible();
+    expect(page.url()).toContain("#mobile");
+    expect(page.url()).not.toContain("confirmed=1");
+    expect(await liveSessionKeys(page)).toEqual([]);
   });
 
   test("mobile sheets trap focus, close on Escape, and restore the trigger", async ({ page }) => {

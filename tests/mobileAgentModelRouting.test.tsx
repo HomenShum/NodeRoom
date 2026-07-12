@@ -152,6 +152,49 @@ describe("mobile agent model routing", () => {
     expect(captured.live!.deck).toBeUndefined();
   });
 
+  it("projects the live wallet and hard-cap-sized launch hold into mobile", () => {
+    storeRef.current = {
+      ...baseStore(),
+      creditBalance: () => ({
+        availableCredits: 20,
+        reservedCredits: 2,
+        lifetimeSpentCredits: 1,
+        availableUsd: 5,
+        reservedUsd: 0.5,
+        lifetimeSpentUsd: 0.25,
+        demo: false,
+        enforced: true,
+        enrolled: true,
+        paused: false,
+      }),
+      creditMode: () => "standard",
+      estimateCredits: () => ({
+        mode: "standard",
+        llmUsd: 0.1,
+        substrateUsd: 0.1,
+        estimateUsd: 0.2,
+        estimateUsdLow: 0.12,
+        estimateUsdHigh: 0.28,
+        hardCapUsd: 2,
+        creditsLow: 0.48,
+        creditsHigh: 1.12,
+        creditsRequired: 1.12,
+        requiresApproval: false,
+      }),
+    };
+
+    render(<MobileAppLive roomId="r1" me={me} />);
+
+    expect(captured.live?.credits).toEqual(expect.objectContaining({
+      availableCredits: 20,
+      reservedCredits: 2,
+      requiredCredits: 8,
+      hardCapUsd: 2,
+      enforced: true,
+      enrolled: true,
+    }));
+  });
+
   it("derives the mobile live deck from work artifacts, proposals, and traces", () => {
     storeRef.current = {
       ...baseStore(),

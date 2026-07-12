@@ -1085,7 +1085,7 @@ function SignalStatusStrip({
                 <b>{s.k}</b>{s.v}
               </button>
             ) : s.k === "Credits" ? (
-              <span key={s.k} className="r-signal-chip r-credit-chip" data-testid="signal-credits" title="Demo credits — 1 credit = $0.25. The live wallet meters real spend (not metered until the credit backend deploys).">
+              <span key={s.k} className="r-signal-chip r-credit-chip" data-testid="signal-credits" title="1 credit = $0.25. Live rooms show enforced wallet spend; demo rooms label simulated credits.">
                 <b>{s.k}</b>{s.v}
               </span>
             ) : (

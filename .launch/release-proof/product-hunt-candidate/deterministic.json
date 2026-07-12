@@ -1,0 +1,14 @@
+{
+  "schema": "noderoom-deterministic-evidence-v1",
+  "capturedAt": "2026-07-11T08:00:00.000Z",
+  "typecheck": "pass",
+  "convexTypecheck": "pass",
+  "productionBuild": "pass-with-existing-large-chunk-advisory",
+  "vitest": { "files": 297, "tests": 2035, "status": "pass" },
+  "nodeagentFrameSmoke": "pass",
+  "omnigentCompatibilitySmoke": "pass-outer-cli-unavailable",
+  "proofloopDoctor": { "passed": 11, "total": 11 },
+  "accountingProofLoop": "pass",
+  "notionProofLoop": "pass",
+  "deterministicPptx": "pass"
+}

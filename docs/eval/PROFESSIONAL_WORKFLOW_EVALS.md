@@ -166,7 +166,7 @@ facts are manual evidence until a fetched or artifact source verifies them.
 | Parser/OCR/layout | Provider-first parser adapter plus LiteParse fallback smoke | Add PDF/DOCX/PPTX/image OCR fixtures when those files are available |
 | Wiki | Grounded update tool and self-updating wiki skill rules | Add agent-generated wiki run from professional fixtures |
 | Privacy | Public/private room boundary and PII-aware eval cases | Add redaction tests for fake contact/event/transaction fixtures |
-| Private finance gold packs | `eval:finance-model-private` validates local workbook shape and answer-key formulas; `eval:finance-model` runs the NodeAgent lock/read/CAS/release solve workflow; `evals/financeModelLive.ts --level=full` has a live 16-cell pass on `deepseek/deepseek-v4-flash` | Add Guide and Collaborate mode runtime evals, then export/import completed model workbooks |
+| Private finance gold packs | `eval:finance-model-private` validates local workbook shape and answer-key formulas; `eval:finance-model` runs the deterministic NodeAgent lock/read/CAS/release solve workflow. The June live 16-cell batch is historical and not launch-promoted after its freshness window expired. | Rerun the private five-run live batch, then add Guide/Collaborate and export/import completed workbooks |
 
 ## Private Finance Modeling Gold Pack
 
@@ -205,11 +205,10 @@ live run writes full traces under gitignored `docs/eval/finance-model-runs/`;
 the committed `docs/eval/finance-model-live.json` summary contains only
 redacted booleans, labels, route, cost, and timing.
 
-Current live promotion: `deepseek/deepseek-v4-flash` clears the full 16-cell
-Solve lane across the committed N=5 aggregate: 5/5 passed, median 105007ms,
-p95 cost `$0.106829`, total cost `$0.442385`. `nex-agi/nex-n2-pro:free`
-clears the income rung but is not promoted for full solve until it clears
-without provider failure.
+Historical live batch: the June 2026 `deepseek/deepseek-v4-flash` N=5 aggregate
+is preserved in the redacted receipt. Its 30-day freshness window expired, so
+no full-solve route is currently launch-promoted. Rerun the private batch and
+pass `npm run proofs:staleness` before restoring a live promotion.
 
 Or set:
 

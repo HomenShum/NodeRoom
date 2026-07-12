@@ -25,6 +25,8 @@ type LandingProps = {
   onLiveCreate?: (name: string, title: string, code: string, autoAllow: boolean) => void;
 };
 
+const PUBLIC_SAMPLE_HREF = "/#mobile?mode=memory&sample=public";
+
 /** Minimal focus-trap + focus-restore for the room dialogs (Tab cycles within; focus returns to the
  *  trigger on close). Escape-to-close + autofocus are wired on the modal itself. */
 function useFocusTrap(active: boolean) {
@@ -62,7 +64,8 @@ export function Landing({
   const [name, setName] = useState("");
   const [joinErr, setJoinErr] = useState<string | null>(null);
   const [joinDialogCode, setJoinDialogCode] = useState<string | null>(null);
-  const initialHostKind = initialIntent === "create" ? "workspace" : initialIntent === "sample" ? "sample" : null;
+  const publicSampleIntent = initialIntent === "sample" && hasPublicSampleIntent();
+  const initialHostKind = initialIntent === "create" ? "workspace" : initialIntent === "sample" && !publicSampleIntent ? "sample" : null;
   const [hostKind, setHostKind] = useState<"workspace" | "sample" | null>(initialHostKind);
   const [createDialogCode, setCreateDialogCode] = useState<string | null>(() => initialHostKind ? makeLandingRoomCode() : null);
   const [createTitle, setCreateTitle] = useState(initialHostKind === "sample" ? "Startup Banking Diligence War Room" : "My workspace");
@@ -75,6 +78,10 @@ export function Landing({
   const displayName = (fallback = "Guest") => name.trim() || fallback;
   useEffect(() => {
     if (!live || !initialIntent) return;
+    if (publicSampleIntent) {
+      window.location.replace(PUBLIC_SAMPLE_HREF);
+      return;
+    }
     if (initialIntent === "join") {
       if (defaultCode) setJoinDialogCode(defaultCode);
       else requestAnimationFrame(() => joinInputRef.current?.focus());
@@ -86,7 +93,7 @@ export function Landing({
     } catch {
       /* ignore */
     }
-  }, [defaultCode, initialIntent, live]);
+  }, [defaultCode, initialIntent, live, publicSampleIntent]);
   const toggleTheme = () => {
     if (typeof document === "undefined") return;
     const root = document.documentElement;
@@ -122,7 +129,7 @@ export function Landing({
     setAutoAllow(false);
     setCreateDialogCode(makeLandingRoomCode());
   };
-  const enterDemo = () => { if (live) openHostDialog("sample"); else onEnter?.(enterDemoRoomAsHost(name)); };
+  const enterDemo = () => { if (live) window.location.assign(PUBLIC_SAMPLE_HREF); else onEnter?.(enterDemoRoomAsHost(name)); };
   const createRoom = () => { if (live) openHostDialog("workspace"); else onEnter?.(createFreshRoom("My room", name || "Host")); };
   const confirmLiveJoin = () => {
     if (!joinDialogCode) return;
@@ -363,6 +370,11 @@ function enterMobileProduct(params: { intent?: "create" | "sample"; room?: strin
   window.location.assign(url);
 }
 
+function hasPublicSampleIntent(): boolean {
+  if (typeof window === "undefined") return false;
+  return new URLSearchParams(window.location.search).get("intent") === "sample";
+}
+
 function makeLandingRoomCode(): string {
   const bytes = new Uint8Array(5);
   crypto.getRandomValues(bytes);
@@ -452,7 +464,7 @@ function LandingDemoLoop() {
       <div className="r-land2-shot-top">
         <div className="r-land2-shot-mark">N</div>
         <div className="r-land2-shot-code"><Users size={11} /> Q3 <b>X-7K</b></div>
-        <span className="r-land2-demo-chip"><span className="rec" /> Live demo</span>
+        <span className="r-land2-demo-chip"><span className="rec" /> Synthetic walkthrough</span>
         <div className="r-land2-shot-avs">
           <div className="r-land2-shot-av" style={{ background: "var(--accent-primary)" }}>HS</div>
           <div className="r-land2-shot-av" style={{ background: "#5E6AD2" }}>PR</div>
@@ -567,7 +579,7 @@ function LandingProofPill({ live }: { live: boolean }) {
 /* ── feature strip micro-shots ────────────────────────────────────────────── */
 
 const LANDING_FEATURES: Array<{ shot: "code" | "panels" | "lock"; h: string; p: string }> = [
-  { shot: "code", h: "Share a code, not a seat", p: "Public by default. Anyone joins the room with six characters — no account." },
+  { shot: "code", h: "Share a code, not a seat", p: "Code-access rooms use six characters. Protected rooms ask members to sign in." },
   { shot: "panels", h: "Open only what you need", p: "Files, chat, a live artifact, and your private agent — one to four panels." },
   { shot: "lock", h: "Locks, then smart-merge", p: "Agents lock the rows they touch and merge drafts on release. No collisions." },
 ];
@@ -577,7 +589,7 @@ function MicroShot({ kind }: { kind: "code" | "panels" | "lock" }) {
     return (
       <div className="r-land2-ms center">
         <div className="r-land2-shot-code" style={{ fontSize: 13, padding: "5px 11px" }}>Q3X<b>-7K</b></div>
-        <div className="r-land2-ms-row center">no account · join as guest</div>
+        <div className="r-land2-ms-row center">room code · access checked</div>
       </div>
     );
   }

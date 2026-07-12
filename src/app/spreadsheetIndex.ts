@@ -55,21 +55,25 @@ export function buildSpreadsheetSemanticIndex(args: {
 }): SpreadsheetSemanticIndex {
   const columns = [...args.columns].sort((a, b) => a.order - b.order);
   const colById = new Map(columns.map((col, idx) => [col.id, { col, idx }]));
-  const rowIds = orderedRowIds(args.seed);
+  const a1Layout = isA1Layout(args.seed);
+  const rowIds = orderedRowIds(args.seed, a1Layout);
   const valueByElementId = new Map(args.seed.map((cell) => [cell.id, cell.value]));
   const cells: SemanticCellIndexEntry[] = [];
 
   for (const rowId of rowIds) {
-    const rowIndex = rowIds.indexOf(rowId) + 1;
-    const rowHeader = rowHeaderFor(rowId, columns, valueByElementId);
+    const rowIndex = a1Layout ? Number(rowId) : rowIds.indexOf(rowId) + 1;
+    const rowHeader = rowHeaderFor(rowId, columns, valueByElementId, a1Layout);
     for (const column of columns) {
       const info = colById.get(column.id);
       if (!info) continue;
-      const elementId = `${rowId}__${column.id}`;
+      const elementId = elementIdFor(rowId, column.id, info.idx, a1Layout);
       if (!valueByElementId.has(elementId)) continue;
       const raw = payloadRawValue(valueByElementId.get(elementId));
       const formula = payloadFormula(valueByElementId.get(elementId));
-      const coordinate = `${columnLetters(info.idx)}${rowIndex + 1}`;
+      const coordinate = a1Layout ? elementId : `${columnLetters(info.idx)}${rowIndex + 1}`;
+      const columnHeader = a1Layout
+        ? payloadRawValue(valueByElementId.get(`${columnLetters(info.idx)}1`)).trim() || column.label
+        : column.label;
       const formulaText = formula ? ` | Formula: ${formula}` : "";
       cells.push({
         elementId,
@@ -79,7 +83,7 @@ export function buildSpreadsheetSemanticIndex(args: {
         rowIndex,
         colIndex: info.idx + 1,
         rowHeader,
-        columnHeader: column.label,
+        columnHeader,
         rawValue: raw,
         formula,
         semanticSummary: `Sheet: ${args.title} | Cell: ${coordinate} | Row: ${rowHeader} | Column: ${column.label} | Value: ${raw}${formulaText}`,
@@ -119,21 +123,30 @@ export function columnLettersToIndex(letters: string): number {
   return n - 1;
 }
 
-function orderedRowIds(seed: SpreadsheetSeedCell[]): string[] {
+function orderedRowIds(seed: SpreadsheetSeedCell[], a1Layout: boolean): string[] {
   const rowIds: string[] = [];
   for (const cell of seed) {
-    const rowId = cell.id.split("__")[0];
+    const rowId = a1Layout ? cell.id.match(/^\$?[A-Z]{1,3}\$?([0-9]+)$/i)?.[1] : cell.id.split("__")[0];
     if (rowId && !rowIds.includes(rowId)) rowIds.push(rowId);
   }
-  return rowIds;
+  return a1Layout ? rowIds.sort((a, b) => Number(a) - Number(b)) : rowIds;
 }
 
-function rowHeaderFor(rowId: string, columns: DataframeColumn[], valueByElementId: Map<string, unknown>): string {
-  for (const column of columns) {
-    const raw = payloadRawValue(valueByElementId.get(`${rowId}__${column.id}`)).trim();
+function rowHeaderFor(rowId: string, columns: DataframeColumn[], valueByElementId: Map<string, unknown>, a1Layout: boolean): string {
+  for (const [index, column] of columns.entries()) {
+    const elementId = elementIdFor(rowId, column.id, index, a1Layout);
+    const raw = payloadRawValue(valueByElementId.get(elementId)).trim();
     if (raw) return raw.slice(0, 120);
   }
   return rowId;
+}
+
+function elementIdFor(rowId: string, columnId: string, columnIndex: number, a1Layout: boolean): string {
+  return a1Layout ? `${columnLetters(columnIndex)}${rowId}` : `${rowId}__${columnId}`;
+}
+
+function isA1Layout(seed: SpreadsheetSeedCell[]): boolean {
+  return seed.length > 0 && seed.every((cell) => /^\$?[A-Z]{1,3}\$?[0-9]+$/i.test(cell.id));
 }
 
 function payloadRawValue(value: unknown): string {

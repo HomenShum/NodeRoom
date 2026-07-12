@@ -8,6 +8,18 @@ import { launchAuthRequired } from "../auth/launchAuth";
 
 const url = import.meta.env.VITE_CONVEX_URL as string | undefined;
 const client = url ? new ConvexReactClient(url) : null;
+const appCommit = (import.meta.env.VITE_APP_COMMIT as string | undefined)?.trim();
+const backendRevision = (import.meta.env.VITE_BACKEND_REVISION as string | undefined)?.trim();
+
+if (appCommit) document.documentElement.dataset.appCommit = appCommit;
+if (backendRevision) document.documentElement.dataset.backendRevision = backendRevision;
+if (url) {
+  try {
+    document.documentElement.dataset.convexDeployment = new URL(url).hostname.split(".")[0];
+  } catch {
+    // ConvexReactClient reports the invalid URL below; do not invent a deployment coordinate.
+  }
+}
 
 if (client && import.meta.env.DEV) {
   (window as unknown as { __convexClient?: unknown }).__convexClient = client;

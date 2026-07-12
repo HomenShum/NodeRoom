@@ -300,11 +300,14 @@ export interface QuickPrompt {
   kind: string;
 }
 
+export type JobStatus = "queued" | "running" | "paused" | "blocked" | "retrying" | "completed" | "failed" | "cancelled" | "unknown";
+
 export interface Job {
   id: string;
   title: string;
   sub: string;
   cost: string;
+  status: JobStatus;
   eta?: string;
   route?: AgentRoute;
   pct?: number;
@@ -316,6 +319,7 @@ export interface Job {
 export interface Jobs {
   running: Job[];
   queued: Job[];
+  attention: Job[];
   completed: Job[];
 }
 
@@ -1095,6 +1099,7 @@ export const JOBS: Jobs = {
   running: [
     {
       id: "j1",
+      status: "running",
       title: "CardioNova research",
       sub: "read-only · by Homen",
       cost: "$0.01",
@@ -1109,6 +1114,7 @@ export const JOBS: Jobs = {
   queued: [
     {
       id: "j2",
+      status: "queued",
       title: "Enrich 3 pipeline companies",
       sub: "waiting on approval",
       cost: "$0.04",
@@ -1116,9 +1122,11 @@ export const JOBS: Jobs = {
       route: "sonnet",
     },
   ],
+  attention: [],
   completed: [
     {
       id: "j3",
+      status: "completed",
       title: "NetSuite reconciliation",
       sub: "4 reads · 0 writes",
       cost: "$0.01",
@@ -1128,6 +1136,7 @@ export const JOBS: Jobs = {
     },
     {
       id: "j4",
+      status: "completed",
       title: "Q3 variance commit",
       sub: "v41 → v42 · 2 rows",
       cost: "$0.01",

@@ -22,7 +22,7 @@ export function Landing({
 }): React.ReactElement {
   const [code, setCode] = React.useState("");
   const features: Array<{ ic: IconName; h: string; p: string }> = [
-    { ic: "globe",  h: "Public by default",   p: "One room URL. Share a 6-char code and anyone can join — no account, just a display name." },
+    { ic: "globe",  h: "Code-access rooms",   p: "Share a six-character code. Protected rooms verify the member account before opening." },
     { ic: "layout", h: "Up to four panels",   p: "Files & people · public chat + room agent · a live artifact · your own private agent. Open only what you need." },
     { ic: "lock",   h: "Locks, not collisions", p: "When an agent works a range it locks it — read-only for others, still readable. Drafts smart-merge on unlock." },
   ];

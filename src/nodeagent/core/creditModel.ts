@@ -239,10 +239,10 @@ export const DEMO_CREDIT_CONFIG = {
 /** Pilot wallet rails. The credit hold is the UX layer; THESE are the safety floor.
  *  Reconcile the live defaults (usageLimits.ts vs agent.ts) against these. */
 export const DEFAULT_BUDGET_CAPS = {
-  globalMonthlyUsd: 150, // GLOBAL_MAX_USD_PER_MONTH ceiling for the whole pilot.
-  perRoomDailyUsd: 5,
+  globalMonthlyUsd: 75, // Leaves the rest of the $100 launch envelope for non-model infrastructure.
+  perRoomDailyUsd: 3,
   perRoomMonthlyUsd: 50,
-  perUserDailyUsd: 2, // reserved for when per-user attribution lands (v2).
+  perUserDailyUsd: 3, // Admits one conservative deep run; a second projected deep run is blocked.
   concurrentForegroundJobsGlobal: 10,
   concurrentForegroundJobsPerRoom: 2,
   concurrentDeepJobsPerRoom: 1,

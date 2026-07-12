@@ -9,6 +9,7 @@ import { hashToken } from "../convex/lib";
 import type { Id } from "../convex/_generated/dataModel";
 import workflowSchema from "../node_modules/@convex-dev/workflow/dist/component/schema.js";
 import workpoolSchema from "../node_modules/@convex-dev/workpool/dist/component/schema.js";
+import { CREDIT_MODE_SPECS, reserveCreditsFor } from "../src/nodeagent/core/creditModel";
 
 const modules = import.meta.glob("../convex/**/*.ts");
 const workflowModules = import.meta.glob("../node_modules/@convex-dev/workflow/dist/component/**/*.js");
@@ -156,6 +157,83 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.job.entrypoint).toBe("public_ask");
     expect(String(detail?.job.artifactId)).toBe(String(artifactId));
     expect(detail?.operations.map((event) => event.name)).toContain("agentJobs.start");
+  });
+
+  it("fails closed in public-launch posture until metering and room enrollment are active", async () => {
+    const previousMode = process.env.NODEAGENT_LAUNCH_MODE;
+    const previousCredits = process.env.CREDITS_ENFORCED;
+    process.env.NODEAGENT_LAUNCH_MODE = "public_launch";
+    delete process.env.CREDITS_ENFORCED;
+    try {
+      const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+      const blocked = await t.mutation(api.agentJobs.startPublicAsk, {
+        roomId,
+        requester: proof,
+        goal: "summarize the visible sheet",
+        contextArtifactId: String(artifactId),
+      });
+      expect(blocked.status).toBe("blocked");
+      const detail = await t.query(api.agentJobs.detail, { jobId: blocked.jobId, requester: proof });
+      expect(detail?.job.error).toBe("launch_admission:credits_enforcement_required");
+    } finally {
+      if (previousMode === undefined) delete process.env.NODEAGENT_LAUNCH_MODE;
+      else process.env.NODEAGENT_LAUNCH_MODE = previousMode;
+      if (previousCredits === undefined) delete process.env.CREDITS_ENFORCED;
+      else process.env.CREDITS_ENFORCED = previousCredits;
+    }
+  });
+
+  it("reserves a durable slice before scheduling an enrolled public-launch room", async () => {
+    const previousMode = process.env.NODEAGENT_LAUNCH_MODE;
+    const previousCredits = process.env.CREDITS_ENFORCED;
+    process.env.NODEAGENT_LAUNCH_MODE = "public_launch";
+    process.env.CREDITS_ENFORCED = "true";
+    try {
+      const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+      await t.mutation(internal.credits.grantCredits, { roomId, credits: 100, source: "pilot" });
+      const started = await t.mutation(api.agentJobs.startPublicAsk, {
+        roomId,
+        requester: proof,
+        goal: "summarize the visible sheet",
+        contextArtifactId: String(artifactId),
+        creditMode: "quick",
+      });
+      expect(started.status).toBe("queued");
+      const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+      expect(detail?.job.creditMode).toBe("quick");
+      expect(detail?.job.request).toMatchObject({ creditMode: "quick" });
+      const ledger = await t.run((ctx) => ctx.db.query("creditLedger")
+        .withIndex("by_room", (q) => q.eq("roomId", roomId))
+        .collect());
+      expect(ledger).toContainEqual(expect.objectContaining({
+        kind: "reserve",
+        jobId: started.jobId,
+        credits: -reserveCreditsFor(CREDIT_MODE_SPECS.quick.hardCapUsd),
+        reservationKey: `agent-job:${String(started.jobId)}:attempt:1`,
+      }));
+    } finally {
+      if (previousMode === undefined) delete process.env.NODEAGENT_LAUNCH_MODE;
+      else process.env.NODEAGENT_LAUNCH_MODE = previousMode;
+      if (previousCredits === undefined) delete process.env.CREDITS_ENFORCED;
+      else process.env.CREDITS_ENFORCED = previousCredits;
+    }
+  });
+
+  it("does not reuse an active job across different credit modes", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+    const base = {
+      roomId,
+      requester: proof,
+      goal: "summarize the visible sheet",
+      contextArtifactId: String(artifactId),
+    };
+    const quick = await t.mutation(api.agentJobs.startPublicAsk, { ...base, creditMode: "quick" as const });
+    const deep = await t.mutation(api.agentJobs.startPublicAsk, { ...base, creditMode: "deep" as const });
+    expect(String(quick.jobId)).not.toBe(String(deep.jobId));
+    const quickDetail = await t.query(api.agentJobs.detail, { jobId: quick.jobId, requester: proof });
+    const deepDetail = await t.query(api.agentJobs.detail, { jobId: deep.jobId, requester: proof });
+    expect(quickDetail?.job.creditMode).toBe("quick");
+    expect(deepDetail?.job.creditMode).toBe("deep");
   });
 
   it("lets long official BTB asks infer benchmark mode while normal long chat stays capped", async () => {

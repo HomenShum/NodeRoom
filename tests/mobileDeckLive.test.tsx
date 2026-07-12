@@ -118,6 +118,22 @@ function makeCtx(overrides: Partial<MobileCtx> = {}): MobileCtx {
     openSheet: vi.fn(),
     toast: vi.fn(),
     openSource: vi.fn(),
+    recordDeckExportReceipt: vi.fn(async () => ({ ok: true })),
+    credits: {
+      mode: "standard",
+      availableCredits: 20,
+      reservedCredits: 0,
+      lifetimeSpentCredits: 0,
+      availableUsd: 5,
+      reservedUsd: 0,
+      estimateUsdLow: 0.12,
+      estimateUsdHigh: 0.28,
+      hardCapUsd: 2,
+      requiredCredits: 8,
+      enforced: true,
+      enrolled: true,
+      paused: false,
+    },
     liveEvidence,
     ...overrides,
   } as unknown as MobileCtx;
@@ -176,6 +192,20 @@ describe("mobile live deck review", () => {
     expect(screen.getByText("verified")).toBeTruthy();
   });
 
+  it("routes live deck evidence follow-ups through the governed room agent", async () => {
+    const requestRoomAgent = vi.fn(async (_goal: string) => ({ ok: true }));
+    render(<ArtifactSheet ctx={makeCtx({ liveDeck: liveDeck(), requestRoomAgent })} />);
+
+    fireEvent.click(screen.getByText("Evidence"));
+    fireEvent.change(screen.getByPlaceholderText(/Ask a follow-up about this claim/i), { target: { value: "What remains unverified?" } });
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+
+    await waitFor(() => expect(requestRoomAgent).toHaveBeenCalledTimes(1));
+    expect(requestRoomAgent.mock.calls[0][0]).toMatch(/do not mutate the deck/i);
+    expect(await screen.findByText(/Read the answer in the Agent tab/i)).toBeTruthy();
+    expect(screen.queryByText(liveEvidence.fallback)).toBeNull();
+  });
+
   it("submits an element-scoped live request without claiming the patch was applied", async () => {
     let resolveRequest!: (result: { ok: boolean }) => void;
     const requestRoomAgent = vi.fn((_goal: string) => new Promise<{ ok: boolean }>((resolve) => { resolveRequest = resolve; }));
@@ -193,6 +223,46 @@ describe("mobile live deck review", () => {
     expect(screen.queryByText("patch applied")).toBeNull();
   });
 
+  it("shows the launch estimate and blocks provider work when the hard-cap hold does not fit", () => {
+    const requestRoomAgent = vi.fn(async () => ({ ok: true }));
+    render(<ArtifactSheet ctx={makeCtx({
+      liveDeck: liveDeck(),
+      requestRoomAgent,
+      credits: {
+        mode: "standard",
+        availableCredits: 1,
+        reservedCredits: 0,
+        lifetimeSpentCredits: 0,
+        availableUsd: 0.25,
+        reservedUsd: 0,
+        estimateUsdLow: 0.12,
+        estimateUsdHigh: 0.28,
+        hardCapUsd: 2,
+        requiredCredits: 8,
+        enforced: true,
+        enrolled: true,
+        paused: false,
+      },
+    })} />);
+
+    expect(screen.getByTestId("mobile-deck-cost-estimate").textContent).toContain("hold of up to 8.0 credits");
+    fireEvent.click(screen.getByRole("button", { name: "Scope revision request to the slide title" }));
+    fireEvent.change(screen.getByPlaceholderText(/Describe the change for this element/i), { target: { value: "Tighten this title" } });
+    expect(screen.getByRole("button", { name: "Send" }).hasAttribute("disabled")).toBe(true);
+    expect(requestRoomAgent).not.toHaveBeenCalled();
+  });
+
+  it("blocks a live deck request when the wallet is unavailable", () => {
+    const requestRoomAgent = vi.fn(async () => ({ ok: true }));
+    render(<ArtifactSheet ctx={makeCtx({ liveDeck: liveDeck(), requestRoomAgent, credits: undefined })} />);
+
+    expect(screen.getByTestId("mobile-deck-cost-estimate").textContent).toContain("Live wallet unavailable");
+    fireEvent.click(screen.getByRole("button", { name: "Scope revision request to the slide title" }));
+    fireEvent.change(screen.getByPlaceholderText(/Describe the change for this element/i), { target: { value: "Tighten this title" } });
+    expect(screen.getByRole("button", { name: "Send" }).hasAttribute("disabled")).toBe(true);
+    expect(requestRoomAgent).not.toHaveBeenCalled();
+  });
+
   it("downloads real live storyboard PPTX bytes and exposes a receipt", async () => {
     const ctx = makeCtx({ liveDeck: liveDeck() });
     Object.defineProperty(URL, "createObjectURL", { configurable: true, value: vi.fn(() => "blob:deck") });
@@ -205,8 +275,13 @@ describe("mobile live deck review", () => {
     expect(screen.queryByRole("button", { name: "Restore" })).toBeNull();
     fireEvent.click(screen.getByText("Download PPTX"));
 
-    await waitFor(() => expect(screen.getByTestId("mobile-deck-export-receipt").textContent).toMatch(/Downloaded .*\.pptx - 1 slides .* integrity/i));
-    expect(ctx.toast).toHaveBeenCalledWith(expect.stringMatching(/^Downloaded .*\.pptx - 1 slides - /i));
+    await waitFor(() => expect(screen.getByTestId("mobile-deck-export-receipt").textContent).toMatch(/Download started .*\.pptx - 1 slides .* SHA-256 [a-f0-9]{64} .* receipt synced/i));
+    expect(ctx.toast).toHaveBeenCalledWith(expect.stringMatching(/^Download started .*\.pptx - 1 slides/i));
+    expect(ctx.recordDeckExportReceipt).toHaveBeenCalledWith(expect.objectContaining({
+      deliveryStatus: "download_started",
+      integrityAlgorithm: "sha256",
+      integrityHash: expect.stringMatching(/^[a-f0-9]{64}$/),
+    }));
     expect(ctx.toast).not.toHaveBeenCalledWith(expect.stringContaining("CardioNova_update.pptx downloaded"));
   });
 });

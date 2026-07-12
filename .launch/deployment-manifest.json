@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "updatedAt": "2026-07-12T19:37:39.360Z",
+  "candidate": {
+    "repository": "HomenShum/NodeRoom",
+    "pullRequest": 190,
+    "baseBranch": "main",
+    "releaseBranch": "codex/mobile-terracotta-launch",
+    "releaseCommit": "77757c42a9783072efca1317ef85789557dfea3f",
+    "successorBranch": "codex/product-hunt-readiness",
+    "successorStatus": "local_changes_not_yet_deployed",
+    "successorCommit": null,
+    "observedHeadCommit": "77757c42a9783072efca1317ef85789557dfea3f",
+    "observedBackendRevision": "5dbdbb188aa8877a34d9ab032eaaca08fb95657a",
+    "observedWorkingTreeDirty": true
+  },
+  "previewUrl": "https://noderoom-k4fasy9ao-hshum2018-gmailcoms-projects.vercel.app",
+  "preview": {
+    "convexDeployment": "hushed-jellyfish-969",
+    "authRequired": true,
+    "authenticatedPhoneProof": "pass_for_77757c42_baseline_only",
+    "containsSuccessorSchema": false,
+    "protectionBypassActive": false
+  },
+  "productionUrl": "https://noderoom.live",
+  "production": {
+    "frontendConvexDeployment": "zealous-goshawk-766",
+    "targetConvexDeployment": "aromatic-bass-102",
+    "topologyMatchesRelease": false,
+    "strictIdentityEnabled": false,
+    "migrationCompleted": false,
+    "deploymentApproved": false
+  },
+  "baselineFunctionSpecHash": "d6890534fca6cd8a58abadf6a70f4e1e4a5a64fe1e5702a666aa92676bfa0e19",
+  "currentRevisionDeploymentProof": {
+    "status": "missing",
+    "requiredViewport": "390x844",
+    "requiredEnvironment": [
+      "PLAYWRIGHT_BASE_URL=https://<candidate-host>",
+      "PLAYWRIGHT_DEPLOYED_AUTH=1",
+      "LAUNCH_EXPECTED_APP_COMMIT=<exact-clean-HEAD>",
+      "LAUNCH_EXPECTED_BACKEND_REVISION=<exact-convex-tree-revision>",
+      "LAUNCH_EXPECTED_CONVEX_URL=https://<candidate-deployment>.convex.cloud",
+      "VITE_APP_COMMIT=<same-exact-clean-HEAD>",
+      "VITE_BACKEND_REVISION=<same-exact-convex-tree-revision>",
+      "VITE_CONVEX_URL=<same-LAUNCH_EXPECTED_CONVEX_URL>",
+      "VITE_NODEROOM_AUTH_REQUIRED=1",
+      "VITE_NODEROOM_AUTH_PROVIDER=github",
+      "NODEROOM_REQUIRE_CONVEX_IDENTITY=1",
+      "NODEAGENT_LAUNCH_MODE=private_pilot",
+      "CREDITS_ENFORCED=true",
+      "VITE_CREDITS_LIVE=true",
+      "NODEAGENT_NEW_ROOM_GRANT_CREDITS=<bounded-positive-integer>"
+    ],
+    "requiredDeploymentChecks": [
+      "deployed Convex function specification contains every local exported function",
+      "frontend reports the exact candidate app commit and Convex tree revision",
+      "frontend Convex deployment exactly matches LAUNCH_EXPECTED_CONVEX_URL",
+      "launchPosture:read proves strict identity, enforced credits, bounded grant, launch mode, and no active pause"
+    ],
+    "requiredJourney": [
+      "fresh authenticated account",
+      "create room",
+      "bounded initial credits",
+      "durable public NodeAgent job reaches terminal state",
+      "proposal and evidence review",
+      "accept and reject paths",
+      "SHA-256 export receipt",
+      "reload receipt hydration",
+      "invited second-user join and rejoin"
+    ],
+    "plannedSpec": "e2e/deployed-auth-first-user.spec.ts",
+    "evidence": []
+  },
+  "launchFeatureRestrictions": [
+    "unmetered voice",
+    "direct capture",
+    "external semantic embeddings",
+    "nested provider tools",
+    "inline public provider actions",
+    "model retries and fallbacks",
+    "deep work without approval"
+  ],
+  "sourceData": {
+    "rooms": 1998,
+    "legacyMemberRows": 2688,
+    "users": 0,
+    "authAccounts": 0,
+    "authSessions": 0,
+    "storedFiles": 13105
+  },
+  "migrationRehearsal": {
+    "deployment": "agreeable-civet-283",
+    "status": "pass",
+    "documents": 8312277,
+    "storedFiles": 13105,
+    "durationSeconds": 7185
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "noderoom-trace-evidence-v1",
+  "capturedAt": "2026-07-11T08:00:00.000Z",
+  "traceContract": "NodeTrace workpaper spine",
+  "governedFlow": ["plan", "slide-preview", "element-scoped-request", "sourced-proposal", "accept-reject", "evidence", "export-receipt"],
+  "privatePromptsIncluded": false,
+  "privateRoomIdsIncluded": false,
+  "signedUrlsIncluded": false,
+  "rawTraceIncluded": false,
+  "reason": "This sanitized metadata bundle records proof identity without committing private trace payloads."
+}

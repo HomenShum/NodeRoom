@@ -33,6 +33,14 @@ export class FormulaEvalError extends Error {
 
 /* A1 helpers */
 const A1_RE = /^\$?([A-Za-z]{1,3})\$?([1-9][0-9]*)$/;
+const EXCEL_MAX_COLUMN = 16_384; // XFD
+const EXCEL_MAX_ROW = 1_048_576;
+const MAX_RANGE_CELLS = 10_000;
+const MAX_FORMULA_REFERENCES = 20_000;
+
+type ParsedRef = { col: number; row: number };
+type RangeBounds = { c0: number; c1: number; r0: number; r1: number; cellCount: number };
+
 /** "A" -> 1, "Z" -> 26, "AA" -> 27. */
 export function colToIndex(letters: string): number {
   let n = 0;
@@ -53,20 +61,24 @@ export function indexToCol(index: number): string {
 function normalizeRef(ref: string): string {
   return ref.replace(/\$/g, "").toUpperCase();
 }
-function parseRef(ref: string): { col: number; row: number } | null {
+function parseRef(ref: string): ParsedRef | null {
   const m = normalizeRef(ref).match(A1_RE);
   if (!m) return null;
-  return { col: colToIndex(m[1]), row: Number(m[2]) };
+  const col = colToIndex(m[1]);
+  const row = Number(m[2]);
+  if (col > EXCEL_MAX_COLUMN || !Number.isSafeInteger(row) || row > EXCEL_MAX_ROW) return null;
+  return { col, row };
 }
-function expandRange(a: string, b: string): string[] {
+
+function rangeBounds(a: string, b: string): RangeBounds {
   const pa = parseRef(a);
   const pb = parseRef(b);
   if (!pa || !pb) throw new FormulaEvalError("#REF!");
   const c0 = Math.min(pa.col, pb.col), c1 = Math.max(pa.col, pb.col);
   const r0 = Math.min(pa.row, pb.row), r1 = Math.max(pa.row, pb.row);
-  const refs: string[] = [];
-  for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) refs.push(indexToCol(c) + r);
-  return refs;
+  const cellCount = (c1 - c0 + 1) * (r1 - r0 + 1);
+  if (!Number.isSafeInteger(cellCount) || cellCount > MAX_RANGE_CELLS) throw new FormulaEvalError("#REF!");
+  return { c0, c1, r0, r1, cellCount };
 }
 
 /* tokenizer */
@@ -194,10 +206,12 @@ class Parser {
       }
       // ref or range
       if (!A1_RE.test(normalizeRef(t.v))) throw new FormulaEvalError("#NAME?");
+      if (!parseRef(t.v)) throw new FormulaEvalError("#REF!");
       if (this.isOp(":")) {
         this.next();
         const t2 = this.next();
         if (t2.t !== "id" || !A1_RE.test(normalizeRef(t2.v))) throw new FormulaEvalError("#REF!");
+        if (!parseRef(t2.v)) throw new FormulaEvalError("#REF!");
         return { k: "range", a: t.v, b: t2.v };
       }
       return { k: "ref", v: t.v };
@@ -213,6 +227,27 @@ const SUPPORTED = new Set([
   "SUMIF", "COUNTIF", "AVERAGEIF", "VLOOKUP", "INDEX", "MATCH", "IFERROR",
   "MOD", "POWER", "LEN", "LEFT", "RIGHT", "MID", "TRIM", "UPPER", "LOWER",
 ]);
+
+type EvalContext = { resolver: CellResolver; referenceCount: number };
+
+function reserveReferences(R: EvalContext, count: number): void {
+  if (!Number.isSafeInteger(count) || count < 0 || count > MAX_FORMULA_REFERENCES - R.referenceCount) {
+    throw new FormulaEvalError("#REF!");
+  }
+  R.referenceCount += count;
+}
+
+function resolveCell(ref: string, R: EvalContext): CellValue {
+  if (!parseRef(ref)) throw new FormulaEvalError("#REF!");
+  reserveReferences(R, 1);
+  return R.resolver.getCell(normalizeRef(ref));
+}
+
+function reserveRange(a: string, b: string, R: EvalContext): RangeBounds {
+  const bounds = rangeBounds(a, b);
+  reserveReferences(R, bounds.cellCount);
+  return bounds;
+}
 
 /** Coerce a value to a number for ARITHMETIC (blank -> 0, numeric string -> number, else #VALUE!). */
 function toNumber(v: CellValue): number {
@@ -245,12 +280,12 @@ function aggNumber(v: CellValue): number | null {
   return null; // booleans & blanks ignored by SUM/AVERAGE/etc.
 }
 
-function evalScalar(n: Node, R: CellResolver): CellValue {
+function evalScalar(n: Node, R: EvalContext): CellValue {
   switch (n.k) {
     case "num": return n.v;
     case "str": return n.v;
     case "bool": return n.v;
-    case "ref": return R.getCell(normalizeRef(n.v));
+    case "ref": return resolveCell(n.v, R);
     case "range": throw new FormulaEvalError("#VALUE!"); // a bare range is not a scalar
     case "pct": return toNumber(evalScalar(n.e, R)) / 100;
     case "un": return n.op === "-" ? -toNumber(evalScalar(n.e, R)) : toNumber(evalScalar(n.e, R));
@@ -259,7 +294,7 @@ function evalScalar(n: Node, R: CellResolver): CellValue {
   }
 }
 
-function evalBin(n: { op: string; l: Node; r: Node }, R: CellResolver): CellValue {
+function evalBin(n: { op: string; l: Node; r: Node }, R: EvalContext): CellValue {
   const op = n.op;
   if (["=", "<>", "<", ">", "<=", ">="].includes(op)) {
     const a = evalScalar(n.l, R);
@@ -309,11 +344,20 @@ function truthy(v: CellValue): boolean {
 }
 
 /** Flatten a function arg into a list of values (a range expands; everything else is one value). */
-function argValues(n: Node, R: CellResolver): CellValue[] {
-  if (n.k === "range") return expandRange(n.a, n.b).map((ref) => R.getCell(ref));
+function argValues(n: Node, R: EvalContext): CellValue[] {
+  if (n.k === "range") {
+    const bounds = reserveRange(n.a, n.b, R);
+    const values: CellValue[] = [];
+    for (let row = bounds.r0; row <= bounds.r1; row++) {
+      for (let col = bounds.c0; col <= bounds.c1; col++) {
+        values.push(R.resolver.getCell(indexToCol(col) + row));
+      }
+    }
+    return values;
+  }
   return [evalScalar(n, R)];
 }
-function aggNumbers(args: Node[], R: CellResolver): number[] {
+function aggNumbers(args: Node[], R: EvalContext): number[] {
   const out: number[] = [];
   for (const a of args) for (const v of argValues(a, R)) { const num = aggNumber(v); if (num !== null) out.push(num); }
   return out;
@@ -330,15 +374,16 @@ function looseEqual(a: CellValue, b: CellValue): boolean {
   return String(a ?? "").toLowerCase() === String(b ?? "").toLowerCase();
 }
 /** Expand a range (or single ref) node into a 2D grid of values for INDEX/MATCH/VLOOKUP/*IF. */
-function rangeGrid(node: Node, R: CellResolver): CellValue[][] {
-  if (node.k === "ref") return [[R.getCell(normalizeRef(node.v))]];
+function rangeGrid(node: Node, R: EvalContext): CellValue[][] {
+  if (node.k === "ref") return [[resolveCell(node.v, R)]];
   if (node.k !== "range") throw new FormulaEvalError("#REF!");
-  const pa = parseRef(node.a), pb = parseRef(node.b);
-  if (!pa || !pb) throw new FormulaEvalError("#REF!");
-  const r0 = Math.min(pa.row, pb.row), r1 = Math.max(pa.row, pb.row);
-  const c0 = Math.min(pa.col, pb.col), c1 = Math.max(pa.col, pb.col);
+  const bounds = reserveRange(node.a, node.b, R);
   const grid: CellValue[][] = [];
-  for (let r = r0; r <= r1; r++) { const row: CellValue[] = []; for (let c = c0; c <= c1; c++) row.push(R.getCell(indexToCol(c) + r)); grid.push(row); }
+  for (let r = bounds.r0; r <= bounds.r1; r++) {
+    const row: CellValue[] = [];
+    for (let c = bounds.c0; c <= bounds.c1; c++) row.push(R.resolver.getCell(indexToCol(c) + r));
+    grid.push(row);
+  }
   return grid;
 }
 /** Match a value against a SUMIF/COUNTIF criteria (">10", "<>x", "abc", or a literal). */
@@ -359,7 +404,7 @@ function matchesCriteria(value: CellValue, criteria: CellValue): boolean {
   return looseEqual(value, criteria);
 }
 
-function evalCall(n: { name: string; args: Node[] }, R: CellResolver): CellValue {
+function evalCall(n: { name: string; args: Node[] }, R: EvalContext): CellValue {
   const fn = n.name;
   if (!SUPPORTED.has(fn)) throw new FormulaEvalError("#NAME?");
   switch (fn) {
@@ -472,7 +517,7 @@ export function evaluateFormula(formula: string, resolver: CellResolver): Formul
     const body = formula.trim().replace(/^=/, "").trim();
     if (body === "") return { value: "" };
     const ast = new Parser(tokenize(body)).parse();
-    const value = evalScalar(ast, resolver);
+    const value = evalScalar(ast, { resolver, referenceCount: 0 });
     if (typeof value === "number" && !Number.isFinite(value)) return { error: "#NUM!" };
     return { value };
   } catch (e) {

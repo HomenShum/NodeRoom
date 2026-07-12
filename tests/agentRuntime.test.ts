@@ -225,6 +225,91 @@ describe("agent runtime — collaboration under concurrency", () => {
     expect(r.trace.at(-1)?.tool).toBe("handoff");
   });
 
+  it("does not count workbook_session stage and preview as material-write completion", async () => {
+    const { rt } = setup();
+    const actions: string[] = [];
+    let turns = 0;
+    const workbookSessionTool: AgentTool = {
+      name: "workbook_session",
+      description: "Stage, preview, or publish a governed workbook patch.",
+      schema: z.object({ action: z.enum(["stage", "preview"]) }),
+      execute: async ({ action }: { action: "stage" | "preview" }) => {
+        actions.push(action);
+        return { ok: true, action, revision: 1 };
+      },
+    };
+    const stageThenClaimDone = scriptedModel(() => {
+      turns += 1;
+      if (turns === 1) {
+        return {
+          toolCalls: [
+            { tool: "workbook_session", args: { action: "stage" } },
+            { tool: "workbook_session", args: { action: "preview" } },
+          ],
+        };
+      }
+      return { say: "The workbook update is complete.", done: true };
+    });
+
+    const r = await runAgent({
+      rt,
+      goal: "update the workbook cells",
+      model: stageThenClaimDone,
+      tools: [workbookSessionTool],
+      maxSteps: 3,
+    });
+
+    expect(actions).toEqual(["stage", "preview"]);
+    expect(turns).toBe(3);
+    expect(r.steps).toBe(3);
+    expect(r.exhausted).toBe(true);
+    expect(r.stopReason).toBe("step_budget");
+    expect(r.messages.some((message) =>
+      message.role === "user" && message.content.includes("a text-only answer is not complete - no cells were written or proposed"),
+    )).toBe(true);
+    expect(r.trace.at(-1)?.tool).toBe("handoff");
+  });
+
+  it("counts a proposed workbook_session publish outcome as material-write completion", async () => {
+    const { rt } = setup();
+    let turns = 0;
+    const workbookSessionTool: AgentTool = {
+      name: "workbook_session",
+      description: "Publish a governed workbook patch.",
+      schema: z.object({ action: z.literal("publish") }),
+      execute: async () => ({
+        ok: true,
+        action: "publish",
+        revision: 2,
+        outcomes: [{ elementId: "A1", status: "proposed" }],
+      }),
+    };
+    const publishThenFinish = scriptedModel(() => {
+      turns += 1;
+      if (turns === 1) {
+        return { toolCalls: [{ tool: "workbook_session", args: { action: "publish" } }] };
+      }
+      return { say: "The workbook update is complete.", done: true };
+    });
+
+    const r = await runAgent({
+      rt,
+      goal: "update the workbook cells",
+      model: publishThenFinish,
+      tools: [workbookSessionTool],
+      maxSteps: 3,
+    });
+
+    expect(turns).toBe(2);
+    expect(r.steps).toBe(2);
+    expect(r.exhausted).toBe(false);
+    expect(r.stopReason).toBe("done");
+    expect(r.finalText).toBe("The workbook update is complete.");
+    expect(r.messages.some((message) =>
+      message.role === "user" && message.content.includes("a text-only answer is not complete - no cells were written or proposed"),
+    )).toBe(false);
+  });
+
   it("steers read-looping BTB runs toward the deliverable package tool", async () => {
     const { rt } = setup();
     let sawPackageNudge = false;

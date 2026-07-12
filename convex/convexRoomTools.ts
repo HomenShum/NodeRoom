@@ -13,11 +13,12 @@
 import { makeFunctionReference } from "convex/server";
 import type { ActionCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
-import type { RoomTools, RoomSnapshot, AwarenessView, CellView, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit, SetColumnsOutcome, ReadNotebookOutcome, ApplyNotebookOutlineOutcome, ApplyNotebookBlockEditOutcome, NotebookEnrichmentPlan, NotebookOutlineSection } from "../src/nodeagent/core/types";
+import type { RoomTools, RoomSnapshot, AwarenessView, CellView, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit, SetColumnsOutcome, ReadNotebookOutcome, ApplyNotebookOutlineOutcome, ApplyNotebookBlockEditOutcome, NotebookEnrichmentPlan, NotebookOutlineSection, WorkbookSessionPublishOutcome, WorkbookSessionRequest, WorkbookSessionResult, WorkbookSessionScalar } from "../src/nodeagent/core/types";
 import type { Actor } from "../src/engine/types";
 import type { ClaimSupportResult, EvidenceRef, LiteralSourceResult, OkfConceptFilter, OkfRetrievalPort, RetrievalHit } from "../src/nodeagent/retrieval/types";
 import type { OkfConcept } from "../src/nodeagent/okf/types";
 import { embedOkfText } from "./okfEmbeddingProvider";
+import { expandWorkbookRange, validateWorkbookSessionRequest, workbookCoordinateInAddressSpace, type WorkbookAddressSpace } from "../src/nodeagent/skills/spreadsheet/workbookSessionContract";
 
 const artifactsGetSheetRef = makeFunctionReference<"query">("artifacts:getSheet") as any;
 const collabAwarenessRef = makeFunctionReference<"query">("collab:awareness") as any;
@@ -57,10 +58,51 @@ const notebookPlanEnrichmentRef = makeFunctionReference<"query">("notebookAgent:
 const citePdfCiteRef = makeFunctionReference<"action">("citePdf:cite") as any;
 const evidenceRecordSourceCaptureRef = makeFunctionReference<"mutation">("evidence:recordSourceCapture") as any;
 const evidenceRecordEvidenceFactRef = makeFunctionReference<"mutation">("evidence:recordEvidenceFact") as any;
+const workbookSessionStateRef = makeFunctionReference<"query">("workbookSessions:state") as any;
+const workbookSessionStageRef = makeFunctionReference<"mutation">("workbookSessions:stage") as any;
+const workbookSessionDiscardRef = makeFunctionReference<"mutation">("workbookSessions:discard") as any;
+const workbookSessionBeginPublishRef = makeFunctionReference<"mutation">("workbookSessions:beginPublish") as any;
+const workbookSessionRecordProgressRef = makeFunctionReference<"mutation">("workbookSessions:recordPublishProgress") as any;
+const workbookSessionFinishPublishRef = makeFunctionReference<"mutation">("workbookSessions:finishPublish") as any;
+const workbookSessionAssertPublishFenceRef = makeFunctionReference<"query">("workbookSessions:assertPublishFence") as any;
 
 async function sha256hex(s: string): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function workbookPublishOutcome(elementId: string, edit: EditOutcome): WorkbookSessionPublishOutcome {
+  if (edit.ok) return { elementId, status: "applied", version: edit.version, mutationReceiptId: edit.mutationReceiptId };
+  if ("pendingApproval" in edit) return { elementId, status: "proposed", proposalId: edit.proposalId };
+  if ("conflict" in edit) return { elementId, status: "needs_rebase", expected: edit.expected, actual: edit.actual };
+  if ("locked" in edit) return { elementId, status: "locked", detail: edit.holder };
+  return { elementId, status: "error", detail: edit.error.slice(0, 240) };
+}
+
+function workbookCellWriteValue(staged: WorkbookSessionScalar, current: unknown): unknown {
+  const record = current && typeof current === "object" && !Array.isArray(current) ? current as Record<string, unknown> : null;
+  const currentFormula = typeof record?.formula === "string" ? record.formula : undefined;
+  const nextFormula = typeof staged === "string" && staged.trimStart().startsWith("=") ? staged.trim() : undefined;
+  if (nextFormula) {
+    return {
+      ...(record ?? {}),
+      value: null,
+      formula: nextFormula,
+      status: "needs_review",
+      confidence: 0,
+      reviewNote: "Formula changed in governed workbook session; recalculate before relying on the displayed value.",
+    };
+  }
+  if (currentFormula) throw new Error("workbook_formula_requires_formula_replacement");
+  if (!record || !("value" in record)) return staged;
+  return {
+    ...record,
+    value: staged,
+    normalizedValue: staged,
+    status: "needs_review",
+    confidence: 0,
+    reviewNote: "Value changed in governed workbook session; revalidate attached evidence.",
+  };
 }
 
 export class ConvexRoomTools implements RoomTools {
@@ -387,6 +429,244 @@ export class ConvexRoomTools implements RoomTools {
       ops: ops.map((o) => ({ opId: crypto.randomUUID(), artifactId: String(artifactId), elementId: o.elementId, kind: "set" as const, value: o.value, baseVersion: o.baseVersion })),
     });
     return { draftId: String(r.draftId) };
+  }
+
+  async workbookSession(rawRequest: WorkbookSessionRequest): Promise<WorkbookSessionResult> {
+    let request: WorkbookSessionRequest;
+    try {
+      request = validateWorkbookSessionRequest(rawRequest);
+    } catch (error) {
+      return {
+        ok: false,
+        action: rawRequest.action,
+        revision: rawRequest.expectedRevision ?? 0,
+        reason: error instanceof Error ? error.message : "invalid_workbook_session_request",
+      };
+    }
+    if (!this.jobId) {
+      return { ok: false, action: request.action, revision: request.expectedRevision ?? 0, reason: "workbook_session_requires_durable_job" };
+    }
+
+    const scope = {
+      jobId: this.jobId,
+      roomId: this.roomId,
+      artifactId: this.artifactId,
+      actor: this.actor,
+    };
+    try {
+      if (request.action === "read") {
+        const elementIds = expandWorkbookRange(request.range!.start, request.range!.end);
+        const state = await this.ctx.runQuery(workbookSessionStateRef, scope) as { revision: number; pendingCount: number; addressSpace: WorkbookAddressSpace };
+        const outside = elementIds.find((elementId) => !workbookCoordinateInAddressSpace(elementId, state.addressSpace));
+        if (outside) return { ok: false, action: "read", revision: state.revision, reason: `workbook_coordinate_outside_grid:${outside}` };
+        const cells = await this.readRange(elementIds, this.artifactId);
+        return {
+          ok: true,
+          action: "read",
+          revision: state.revision,
+          pendingCount: state.pendingCount,
+          cells: cells.map((cell) => ({ elementId: cell.id, value: cell.value, version: cell.version })),
+        };
+      }
+
+      if (request.action === "preview") {
+        const state = await this.ctx.runQuery(workbookSessionStateRef, scope) as {
+          revision: number;
+          pendingCount: number;
+          addressSpace: WorkbookAddressSpace;
+          operations: Array<{ elementId: string; value: string | number | boolean | null; baseVersion: number }>;
+        };
+        const current = state.operations.length
+          ? await this.readRange(Array.from(new Set(state.operations.map((operation) => operation.elementId))), this.artifactId)
+          : [];
+        const byId = new Map(current.map((cell) => [cell.id, cell]));
+        return {
+          ok: true,
+          action: "preview",
+          revision: state.revision,
+          pendingCount: state.pendingCount,
+          staged: state.operations.map((operation) => ({
+            elementId: operation.elementId,
+            value: byId.get(operation.elementId)?.value ?? null,
+            version: byId.get(operation.elementId)?.version ?? 0,
+            stagedValue: operation.value,
+            baseVersion: operation.baseVersion,
+          })),
+        };
+      }
+
+      if (request.action === "stage") {
+        const operations = request.operations!;
+        const current = await this.readRange(operations.map((operation) => operation.elementId), this.artifactId);
+        const byId = new Map(current.map((cell) => [cell.id, cell]));
+        return await this.ctx.runMutation(workbookSessionStageRef, {
+          ...scope,
+          commandId: request.commandId,
+          expectedRevision: request.expectedRevision,
+          reason: request.reason,
+          operations: operations.map((operation) => ({
+            ...operation,
+            baseVersion: byId.get(operation.elementId)?.version ?? 0,
+            beforeValue: byId.get(operation.elementId)?.value ?? null,
+          })),
+        });
+      }
+
+      if (request.action === "discard") {
+        return await this.ctx.runMutation(workbookSessionDiscardRef, {
+          ...scope,
+          commandId: request.commandId,
+          expectedRevision: request.expectedRevision,
+          reason: request.reason,
+        });
+      }
+
+      return await this.publishWorkbookSession(scope, request);
+    } catch (error) {
+      return {
+        ok: false,
+        action: request.action,
+        revision: request.expectedRevision ?? 0,
+        reason: error instanceof Error ? error.message.slice(0, 320) : "workbook_session_failed",
+      };
+    }
+  }
+
+  private async publishWorkbookSession(
+    scope: { jobId: Id<"agentJobs">; roomId: Id<"rooms">; artifactId: Id<"artifacts">; actor: Actor },
+    request: WorkbookSessionRequest,
+  ): Promise<WorkbookSessionResult> {
+    const executorToken = crypto.randomUUID();
+    const prepared = await this.ctx.runMutation(workbookSessionBeginPublishRef, {
+      ...scope,
+      commandId: request.commandId,
+      expectedRevision: request.expectedRevision,
+      executorToken,
+      reason: request.reason,
+    }) as {
+      ok: boolean;
+      action: "publish";
+      revision: number;
+      reason?: string;
+      phase?: "prepared";
+      pendingCount?: number;
+      publishOperationId?: string;
+      operations?: Array<{ elementId: string; value: string | number | boolean | null; baseVersion: number; stageOperationId: string }>;
+      outcomes?: WorkbookSessionPublishOutcome[];
+      idempotent?: boolean;
+    };
+    if (!prepared.ok || prepared.phase !== "prepared" || !prepared.publishOperationId || !prepared.operations?.length) {
+      return {
+        ok: prepared.ok,
+        action: "publish",
+        revision: prepared.revision,
+        reason: prepared.reason,
+        pendingCount: prepared.pendingCount,
+        outcomes: prepared.outcomes,
+        idempotent: prepared.idempotent,
+      };
+    }
+
+    const publishOperationId = prepared.publishOperationId as Id<"agentDraftOperations">;
+    const outcomes = [...(prepared.outcomes ?? [])];
+    const completedIds = new Set(outcomes.map((outcome) => outcome.elementId));
+    const remaining = prepared.operations.filter((operation) => !completedIds.has(operation.elementId));
+    let lockId: string | undefined;
+    let wroteAny = outcomes.some((outcome) => outcome.status === "applied" || outcome.status === "proposed");
+
+    const finish = (resolution: "completed" | "proposed" | "needs_rebase" | "retryable", reason?: string) => this.ctx.runMutation(workbookSessionFinishPublishRef, {
+      ...scope,
+      commandId: request.commandId,
+      publishOperationId,
+      executorToken,
+      resolution,
+      reason,
+      outcomes,
+    }) as Promise<WorkbookSessionResult>;
+
+    try {
+      const preflight = await this.readRange(remaining.map((operation) => operation.elementId), this.artifactId);
+      const preflightById = new Map(preflight.map((cell) => [cell.id, cell]));
+      const stale = remaining.filter((operation) => (preflightById.get(operation.elementId)?.version ?? 0) !== operation.baseVersion);
+      if (stale.length) {
+        const staleIds = new Set(stale.map((operation) => operation.elementId));
+        for (const operation of remaining) {
+          const currentVersion = preflightById.get(operation.elementId)?.version ?? 0;
+          outcomes.push({
+            elementId: operation.elementId,
+            status: "needs_rebase",
+            expected: operation.baseVersion,
+            actual: currentVersion,
+            detail: staleIds.has(operation.elementId) ? "cell_changed_since_stage" : "publish_aborted_before_partial_write",
+          });
+        }
+        return await finish("needs_rebase", "workbook_preflight_conflict");
+      }
+
+      const lock = await this.proposeLock(remaining.map((operation) => operation.elementId), request.reason ?? "publish governed workbook patch", this.artifactId);
+      if (!lock.ok) {
+        for (const operation of remaining) outcomes.push({ elementId: operation.elementId, status: "locked", detail: lock.reason });
+        return await finish("retryable", `workbook_lock_blocked${lock.lockId ? `:${lock.lockId}` : ""}`);
+      }
+      lockId = lock.lockId;
+
+      const underLock = await this.readRange(remaining.map((operation) => operation.elementId), this.artifactId);
+      const lockedById = new Map(underLock.map((cell) => [cell.id, cell]));
+      const changedUnderLock = remaining.filter((operation) => (lockedById.get(operation.elementId)?.version ?? 0) !== operation.baseVersion);
+      if (changedUnderLock.length) {
+        const changedIds = new Set(changedUnderLock.map((operation) => operation.elementId));
+        for (const operation of remaining) {
+          outcomes.push({
+            elementId: operation.elementId,
+            status: "needs_rebase",
+            expected: operation.baseVersion,
+            actual: lockedById.get(operation.elementId)?.version ?? 0,
+            detail: changedIds.has(operation.elementId) ? "cell_changed_before_lock" : "publish_aborted_before_partial_write",
+          });
+        }
+        return await finish("needs_rebase", "workbook_lock_recheck_conflict");
+      }
+
+      for (const operation of remaining) {
+        const fence = await this.ctx.runQuery(workbookSessionAssertPublishFenceRef, {
+          jobId: scope.jobId,
+          artifactId: scope.artifactId,
+          commandId: request.commandId,
+          publishOperationId,
+          executorToken,
+        }) as { ok: boolean; reason?: string };
+        if (!fence.ok) throw new Error(fence.reason ?? "workbook_publish_fenced");
+        const edit = await this.editCell(
+          operation.elementId,
+          workbookCellWriteValue(operation.value, lockedById.get(operation.elementId)?.value),
+          operation.baseVersion,
+          this.artifactId,
+          "set",
+        );
+        const outcome = workbookPublishOutcome(operation.elementId, edit);
+        outcomes.push(outcome);
+        wroteAny ||= outcome.status === "applied" || outcome.status === "proposed";
+        await this.ctx.runMutation(workbookSessionRecordProgressRef, {
+          jobId: scope.jobId,
+          artifactId: scope.artifactId,
+          commandId: request.commandId,
+          publishOperationId,
+          executorToken,
+          outcomes,
+        });
+      }
+      const complete = outcomes.every((outcome) => outcome.status === "applied" || outcome.status === "proposed");
+      const proposed = complete && outcomes.some((outcome) => outcome.status === "proposed");
+      return await finish(proposed ? "proposed" : complete ? "completed" : "needs_rebase", complete ? undefined : "workbook_partial_publish_requires_rebase");
+    } catch (error) {
+      const detail = error instanceof Error ? error.message.slice(0, 240) : "workbook_publish_failed";
+      return await finish(wroteAny ? "needs_rebase" : "retryable", detail);
+    } finally {
+      if (lockId) {
+        const released = await this.releaseLock(lockId);
+        if (released.ok === false && released.reason !== "not_active") throw new Error(`workbook_lock_release_failed:${released.reason ?? "unknown"}`);
+      }
+    }
   }
 
   async say(text: string): Promise<void> {

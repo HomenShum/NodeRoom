@@ -8,6 +8,8 @@ import type { Id } from "./_generated/dataModel";
 import { actorProofV, authTokenMatchesHash, getRequiredProductionIdentity, hashToken, requireActorProof, type ActorValue } from "./lib";
 import { syncSpreadsheetIndexFromSeed } from "./spreadsheetIndexLib";
 import { assertCreateArtifactLimits } from "./artifacts";
+import { grantRoomCredits } from "./credits";
+import { freshRoomLaunchCreditGrantFromEnv } from "./freshRoomLaunchCredits";
 
 const palette = ["#d97757", "#5b9bf5", "#7bd089", "#a78bfa", "#e4c567", "#e8845f"];
 
@@ -23,6 +25,12 @@ const MAX_TITLE_LEN = 80;
 const MAX_SEED_ARTIFACTS_PER_ROOM = 8; // bound the atomic create payload (per-artifact size is capped by assertCreateArtifactLimits)
 type Visibility = "private" | "room" | "public";
 type ArtifactAcl = { visibility?: Visibility; createdBy?: ActorValue };
+
+async function enrollFreshRoomLaunchCredits(ctx: MutationCtx, roomId: Id<"rooms">, now: number): Promise<void> {
+  const grant = freshRoomLaunchCreditGrantFromEnv(process.env);
+  if (!grant) return;
+  await grantRoomCredits(ctx, { roomId, ...grant, now });
+}
 
 function canReadArtifact(a: ArtifactAcl, actor: ActorValue): boolean {
   return (a.visibility ?? "room") !== "private" || (a.createdBy?.kind === actor.kind && a.createdBy.id === actor.id);
@@ -461,6 +469,7 @@ export const create = mutation({
     const existing = await ctx.db.query("rooms").withIndex("by_code", (q) => q.eq("code", code)).first();
     if (existing) throw new Error("room_code_taken");
     const roomId = await ctx.db.insert("rooms", { code, title: a.title, hostId: "", autoAllow: a.autoAllow ?? false, status: "live", createdAt: now, experience: "workspace", starterBackfill: "ready" });
+    await enrollFreshRoomLaunchCredits(ctx, roomId, now);
     const memberId = await ctx.db.insert("members", { roomId, name: a.hostName, role: "host", anon: false, color: palette[0], authTokenHash: await hashToken(a.authToken), authSubject: identity?.subject, lastSeenAt: now });
     await ctx.db.patch(roomId, { hostId: memberId });
     await ctx.db.insert("agentSessions", { roomId, agentId: "agent_room", agentName: "Room NodeAgent", scope: "public", status: "idle", lastAction: "started", updatedAt: now });
@@ -499,6 +508,7 @@ export const createStarterRoom = mutation({
       experience: "sample",
       starterBackfill: deferHeavySeed ? "pending" : "ready",
     });
+    await enrollFreshRoomLaunchCredits(ctx, roomId, now);
     const memberId = await ctx.db.insert("members", {
       roomId,
       name: a.hostName,

@@ -7,7 +7,7 @@ import { findReusableRun } from "../src/nodeagent/core/idempotency";
 /** Claim a run row up-front (idempotency layer 1): a concurrent duplicate sees this in-flight row
  *  (no stopReason yet) via byKey and bails before racing the same locks/CAS. Finished by `finish`. */
 export const claim = internalMutation({
-  args: { jobId: v.optional(v.id("agentJobs")), roomId: v.id("rooms"), agentId: v.string(), model: v.string(), goal: v.string(), idempotencyKey: v.optional(v.string()) },
+  args: { jobId: v.optional(v.id("agentJobs")), roomId: v.id("rooms"), requesterId: v.optional(v.string()), agentId: v.string(), model: v.string(), goal: v.string(), idempotencyKey: v.optional(v.string()) },
   handler: (ctx, a) => ctx.db.insert("agentRuns", {
     ...a, steps: 0, toolCalls: 0, conflictsSurvived: 0, inputTokens: 0, outputTokens: 0, costUsd: 0, ms: 0, exhausted: false, createdAt: Date.now(),
   } as any),
@@ -17,7 +17,7 @@ export const claim = internalMutation({
  *  run with this key, else insert a fresh claimed row. Closes the TOCTOU window a separate query+insert
  *  would have — two truly-simultaneous submits serialize, so the 2nd sees the 1st's row and reuses it. */
 export const claimOrReuse = internalMutation({
-  args: { jobId: v.optional(v.id("agentJobs")), roomId: v.id("rooms"), agentId: v.string(), model: v.string(), goal: v.string(), idempotencyKey: v.string() },
+  args: { jobId: v.optional(v.id("agentJobs")), roomId: v.id("rooms"), requesterId: v.optional(v.string()), agentId: v.string(), model: v.string(), goal: v.string(), idempotencyKey: v.string() },
   handler: async (ctx, a) => {
     const prior = await ctx.db.query("agentRuns").withIndex("by_idempotency", (q) => q.eq("idempotencyKey", a.idempotencyKey)).order("desc").take(5);
     const reuse = findReusableRun(prior.map((r) => ({ runId: String(r._id), idempotencyKey: r.idempotencyKey, stopReason: r.stopReason, finishedAt: r.createdAt })), a.idempotencyKey, { now: Date.now() });
@@ -26,7 +26,7 @@ export const claimOrReuse = internalMutation({
       return { runId: row._id, reused: true as const, row };
     }
     const runId = await ctx.db.insert("agentRuns", {
-      jobId: a.jobId, roomId: a.roomId, agentId: a.agentId, model: a.model, goal: a.goal, idempotencyKey: a.idempotencyKey,
+      jobId: a.jobId, roomId: a.roomId, requesterId: a.requesterId, agentId: a.agentId, model: a.model, goal: a.goal, idempotencyKey: a.idempotencyKey,
       steps: 0, toolCalls: 0, conflictsSurvived: 0, inputTokens: 0, outputTokens: 0, costUsd: 0, ms: 0, exhausted: false, createdAt: Date.now(),
     } as any);
     return { runId, reused: false as const, row: null };
@@ -58,7 +58,7 @@ export const byKey = internalQuery({
 export const record = internalMutation({
   args: {
     jobId: v.optional(v.id("agentJobs")),
-    roomId: v.id("rooms"), agentId: v.string(), model: v.string(), goal: v.string(),
+    roomId: v.id("rooms"), requesterId: v.optional(v.string()), agentId: v.string(), model: v.string(), goal: v.string(),
     steps: v.number(), toolCalls: v.number(), conflictsSurvived: v.number(),
     inputTokens: v.number(), outputTokens: v.number(), cachedInputTokens: v.optional(v.number()), costUsd: v.number(), ms: v.number(), exhausted: v.boolean(),
     stopReason: v.optional(v.string()), remainingMs: v.optional(v.number()), deadlineAt: v.optional(v.number()), handoff: v.optional(v.any()),

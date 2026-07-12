@@ -1,0 +1,10 @@
+{
+  "schema": "noderoom-visual-evidence-v1",
+  "capturedAt": "2026-07-11T08:00:00.000Z",
+  "mobileTerracotta": "reviewed-and-refreshed",
+  "linuxWindowsBaseline": "pass",
+  "designAudit": "pass-with-advisory-drift",
+  "independentTasteGate": "not-passed",
+  "productionVisualProof": "not-run",
+  "sourceReceipt": "docs/design/mobile/MOBILE_VISUAL_QA_REPORT.md"
+}

@@ -15,38 +15,52 @@ export interface OkfEmbeddingOptions {
   env?: Env;
 }
 
-export async function embedOkfText(text: string, taskType: "RETRIEVAL_DOCUMENT" | "RETRIEVAL_QUERY" = "RETRIEVAL_DOCUMENT", options: OkfEmbeddingOptions = {}): Promise<OkfEmbeddingResult> {
+export type OkfEmbeddingPlan = { provider: "openai" | "gemini" | "local"; model: string };
+
+export function okfEmbeddingPlan(options: OkfEmbeddingOptions = {}): OkfEmbeddingPlan {
   const env = options.env ?? process.env;
   const artifacts = options.artifacts ?? [];
   const preferred = (envValue(env, "OKF_EMBED_PROVIDER") ?? "").toLowerCase();
   const openaiKey = envValue(env, "OPENAI_API_KEY");
   if ((preferred === "openai" || preferred === "") && openaiKey) {
     const model = envValue(env, "OKF_OPENAI_EMBED_MODEL") ?? "text-embedding-3-small";
-    if (!canUseExternalEmbedding(model, artifacts, env)) return localEmbedding(text);
+    if (canUseExternalEmbedding(model, artifacts, env)) return { provider: "openai", model };
+  }
+  const geminiKey = envValue(env, "GOOGLE_GENERATIVE_AI_API_KEY") ?? envValue(env, "GEMINI_API_KEY");
+  if ((preferred === "gemini" || preferred === "") && geminiKey) {
+    const model = envValue(env, "OKF_GEMINI_EMBED_MODEL") ?? "gemini-embedding-2";
+    if (canUseExternalEmbedding(model, artifacts, env)) return { provider: "gemini", model };
+  }
+  return { provider: "local", model: "hashing-v1" };
+}
+
+export async function embedOkfText(text: string, taskType: "RETRIEVAL_DOCUMENT" | "RETRIEVAL_QUERY" = "RETRIEVAL_DOCUMENT", options: OkfEmbeddingOptions = {}): Promise<OkfEmbeddingResult> {
+  const env = options.env ?? process.env;
+  const plan = okfEmbeddingPlan(options);
+  if (plan.provider === "openai") {
+    const openaiKey = envValue(env, "OPENAI_API_KEY")!;
     const res = await fetch("https://api.openai.com/v1/embeddings", {
       method: "POST",
       headers: {
         authorization: `Bearer ${openaiKey}`,
         "content-type": "application/json",
       },
-      body: JSON.stringify({ model, input: text, dimensions: OKF_EMBEDDING_DIMENSION }),
+      body: JSON.stringify({ model: plan.model, input: text, dimensions: OKF_EMBEDDING_DIMENSION }),
     });
     if (!res.ok) throw new Error(`openai_embedding_${res.status}`);
     const json = await res.json() as { data?: Array<{ embedding?: number[] }> };
     const values = json.data?.[0]?.embedding;
     if (!values?.length) throw new Error("openai_embedding_empty");
-    return { provider: "openai", model, vector: normalizeDimension(values) };
+    return { provider: "openai", model: plan.model, vector: normalizeDimension(values) };
   }
 
-  const geminiKey = envValue(env, "GOOGLE_GENERATIVE_AI_API_KEY") ?? envValue(env, "GEMINI_API_KEY");
-  if ((preferred === "gemini" || preferred === "") && geminiKey) {
-    const model = envValue(env, "OKF_GEMINI_EMBED_MODEL") ?? "gemini-embedding-2";
-    if (!canUseExternalEmbedding(model, artifacts, env)) return localEmbedding(text);
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:embedContent?key=${encodeURIComponent(geminiKey)}`, {
+  if (plan.provider === "gemini") {
+    const geminiKey = envValue(env, "GOOGLE_GENERATIVE_AI_API_KEY") ?? envValue(env, "GEMINI_API_KEY")!;
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(plan.model)}:embedContent?key=${encodeURIComponent(geminiKey)}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        model: `models/${model}`,
+        model: `models/${plan.model}`,
         content: { parts: [{ text }] },
         taskType,
       }),
@@ -55,7 +69,7 @@ export async function embedOkfText(text: string, taskType: "RETRIEVAL_DOCUMENT" 
     const json = await res.json() as { embedding?: { values?: number[]; value?: number[] } };
     const values = json.embedding?.values ?? json.embedding?.value;
     if (!values?.length) throw new Error("gemini_embedding_empty");
-    return { provider: "gemini", model, vector: normalizeDimension(values) };
+    return { provider: "gemini", model: plan.model, vector: normalizeDimension(values) };
   }
 
   return localEmbedding(text);

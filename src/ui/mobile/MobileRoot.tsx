@@ -13,6 +13,7 @@ import { RoomJoinConsent, type ConsentChoice } from "./RoomJoinConsent";
 import { ErrorBoundary } from "../../app/ErrorBoundary";
 import { MobileApp } from "./MobileApp";
 import { MobileAppLive } from "./MobileAppLive";
+import { Ico } from "./MobileIcons";
 import { authIntentLabel, clearPersistedRoomSessions, launchAuthRequired } from "../../auth/launchAuth";
 import { AccountGate } from "../auth/AccountGate";
 import "./mobile.tokens.css";
@@ -48,8 +49,10 @@ interface PendingRequest {
 
 const liveKey = (code: string) => `noderoom:live:${code.toUpperCase()}`;
 const pendingKey = (code: string) => `noderoom:mobilePending:${code.toUpperCase()}`;
+const PUBLIC_SAMPLE_HREF = "/#mobile?mode=memory&sample=public";
 
 export function MobileRoot() {
+  if (wantsPublicSample()) return <PublicMemorySample />;
   if (!HAS_CONVEX || wantsMemory()) return <MobileApp />;
   if (launchAuthRequired()) return <AuthenticatedMobileLiveRoot />;
   return <MobileLiveRoot />;
@@ -57,6 +60,35 @@ export function MobileRoot() {
 
 function wantsMemory(): boolean {
   return mobileParams().get("mode") === "memory";
+}
+
+function wantsPublicSample(): boolean {
+  const params = mobileParams();
+  return params.get("sample") === "public" || params.get("intent") === "sample";
+}
+
+function PublicMemorySample(): React.ReactElement {
+  return (
+    <div
+      className="na-public-sample-shell"
+      data-testid="public-memory-sample"
+      data-sample-provenance="synthetic-memory"
+      data-read-only="false"
+    >
+      <aside className="na-public-sample-banner" data-testid="public-sample-provenance" role="status">
+        {Ico("shield", { width: 18, height: 18, "aria-hidden": true })}
+        <span>
+          <strong>Synthetic local sample</strong>
+          <small>Explore fixed example data locally. No account, live room, provider calls, or credits.</small>
+        </span>
+      </aside>
+      <MobileApp />
+    </div>
+  );
+}
+
+function openPublicSample(): void {
+  if (typeof window !== "undefined") window.location.assign(PUBLIC_SAMPLE_HREF);
 }
 
 type MobileAuthState = { isLoading: boolean; isAuthenticated: boolean };
@@ -230,7 +262,7 @@ function MobileLiveRoot({ auth = { isLoading: false, isAuthenticated: true }, si
         onName={setNameInput}
         onJoin={() => startJoin(codeInput, nameInput)}
         onCreate={() => stageHost("create", nameInput)}
-        onSample={() => stageHost("demo", nameInput)}
+        onSample={openPublicSample}
       />
     );
   }

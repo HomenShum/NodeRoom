@@ -150,6 +150,62 @@ describe("Convex semantic rebase write path", () => {
     expect(pending).toHaveLength(0);
   });
 
+  it("applies an approved job proposal through history, index, activity, trace, and mutation-receipt sidecars", async () => {
+    const t = convexTest(schema, modules);
+    const s = await seedRoom(t, { autoAllow: false });
+    const jobId = await t.run((ctx) => {
+      const now = Date.now();
+      return ctx.db.insert("agentJobs", {
+        roomId: s.roomId,
+        artifactId: s.artifactId,
+        requester: AGENT,
+        goal: "Propose a governed variance update",
+        status: "running",
+        modelPolicy: "deterministic-test",
+        attempts: 0,
+        maxAttempts: 3,
+        createdAt: now,
+        updatedAt: now,
+      });
+    });
+
+    const proposed = await t.mutation(internal.artifacts.applyAgentCellEdit, {
+      roomId: s.roomId,
+      artifactId: s.artifactId,
+      elementId: CELL,
+      value: "+22.4%",
+      baseVersion: 1,
+      actor: AGENT,
+      jobId,
+    });
+    expect(proposed).toMatchObject({ ok: false, reason: "pending_approval" });
+    if (proposed.ok || proposed.reason !== "pending_approval" || !proposed.proposalId) throw new Error("expected job proposal");
+
+    const approved = await t.mutation(api.artifacts.resolveProposal, {
+      proposalId: proposed.proposalId,
+      approve: true,
+      requester: s.hostProof,
+    });
+    expect(approved).toMatchObject({ ok: true, version: 2 });
+    if (!approved.ok || !("mutationReceiptId" in approved)) throw new Error("expected approved proposal to apply");
+    expect(approved.mutationReceiptId).toBeTruthy();
+
+    const sidecars = await t.run(async (ctx) => ({
+      versions: await ctx.db.query("elementVersions").withIndex("by_artifact_element", (q) => q.eq("artifactId", s.artifactId).eq("elementId", CELL)).collect(),
+      refreshes: await ctx.db.query("spreadsheetIndexRefreshes").withIndex("by_artifact_status", (q) => q.eq("artifactId", s.artifactId).eq("status", "queued")).collect(),
+      activity: await ctx.db.query("roomActivityOutbox").collect(),
+      receipts: await ctx.db.query("agentMutationReceipts").withIndex("by_job", (q) => q.eq("jobId", jobId)).collect(),
+      traces: await ctx.db.query("traces").withIndex("by_room", (q) => q.eq("roomId", s.roomId)).collect(),
+      job: await ctx.db.get(jobId),
+    }));
+    expect(sidecars.versions).toContainEqual(expect.objectContaining({ version: 1, value: "base", kind: "set" }));
+    expect(sidecars.refreshes).toHaveLength(1);
+    expect(sidecars.activity).toContainEqual(expect.objectContaining({ eventKind: "cell_committed", sourceId: `${String(s.artifactId)}:${CELL}` }));
+    expect(sidecars.receipts).toContainEqual(expect.objectContaining({ mutationName: "artifacts.applyAgentCellEdit" }));
+    expect(sidecars.traces).toContainEqual(expect.objectContaining({ type: "edit_applied" }));
+    expect(sidecars.job).toMatchObject({ mutationCount: 1, receiptCount: 1 });
+  });
+
   it("launches server-owned agent intent, then routes the stale final patch to review", async () => {
     const t = convexTest(schema, modules);
     const s = await seedRoom(t, { autoAllow: false });

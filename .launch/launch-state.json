@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "updatedAt": "2026-07-12T10:31:58.000Z",
+  "verdict": "BLOCKED_PENDING_TECHNICAL_PROOF_AND_APPROVAL",
+  "publicClaim": "finance-vc-research-workroom",
+  "branch": "codex/product-hunt-readiness",
+  "baseCommit": "77757c42a9783072efca1317ef85789557dfea3f",
+  "productionPromoted": false,
+  "publicActionsExecuted": false,
+  "lanes": [
+    { "id": "A", "name": "architecture-current-state", "status": "local_proof_passed_clean_commit_pending", "owner": "main-agent" },
+    { "id": "B", "name": "production-migration-auth-data", "status": "awaiting_approval", "owner": "release-owner" },
+    { "id": "C", "name": "product-first-user", "status": "local_proof_passed_deployment_pending", "owner": "main-agent" },
+    { "id": "D", "name": "ux-performance-accessibility-taste", "status": "local_matrix_passed_independent_review_pending", "owner": "main-agent" },
+    { "id": "E", "name": "agent-evidence-export-proof", "status": "local_proof_passed_deployment_pending", "owner": "main-agent" },
+    { "id": "F", "name": "security-privacy-credits-operations", "status": "local_proof_passed_deployment_pending", "owner": "main-agent" },
+    { "id": "G", "name": "product-hunt", "status": "blocked_on_production_and_approval", "owner": "release-owner" },
+    { "id": "H", "name": "proofloop-public-repo", "status": "researching", "owner": "main-agent" },
+    { "id": "I", "name": "nodereach-public-repo", "status": "researching", "owner": "main-agent" },
+    { "id": "J", "name": "distribution", "status": "preparing_distribution", "owner": "release-owner" },
+    { "id": "K", "name": "launch-operations", "status": "implementing", "owner": "main-agent" }
+  ]
+}

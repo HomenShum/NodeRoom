@@ -40,6 +40,8 @@ const PRODUCT_DATA_NOT_PRUNED = [
   "roomCredits",
   "creditLedger",
   "creditGrants",
+  "creditReservations",
+  "artifactExportReceipts",
 ] as const;
 
 export const telemetryRetentionPolicy = internalQuery({

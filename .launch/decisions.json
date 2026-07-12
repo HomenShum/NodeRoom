@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "updatedAt": "2026-07-12T10:15:00.000Z",
+  "decisions": [
+    {
+      "id": "first-release-positioning",
+      "status": "recommended",
+      "decision": "Position NodeRoom first as a finance and VC research workroom, not as a claim of full Excel parity or a general multi-agent operating system.",
+      "rationale": "This matches the strongest proven workflow while keeping spreadsheet execution as a governed artifact capability.",
+      "owner": "NodeRoom release owner"
+    },
+    {
+      "id": "pilot-before-production",
+      "status": "accepted-by-plan",
+      "decision": "Use an isolated authenticated pilot environment before the production data migration.",
+      "rationale": "The authenticated preview is proven and isolates pilot learning from legacy-room cutover risk.",
+      "owner": "NodeRoom engineering"
+    },
+    {
+      "id": "legacy-room-disposition",
+      "status": "unresolved",
+      "decision": null,
+      "options": ["account-claim", "temporary-compatibility", "archive-retire", "explicit-other"],
+      "owner": "NodeRoom release owner"
+    },
+    {
+      "id": "workbook-mutation-model",
+      "status": "accepted-by-plan",
+      "decision": "Parallelize research and QA, but serialize each workbook session through one stateful worker and publish only through patch, lease, CAS, proposal, and trace governance.",
+      "owner": "NodeRoom engineering"
+    },
+    {
+      "id": "finance-live-claim-scope",
+      "status": "accepted-by-plan",
+      "decision": "Preserve the June 2026 private finance-model provider batch as historical research, but remove autonomous three-statement full-solve promotion from launch-facing copy until a new private N=5 batch passes the freshness gate.",
+      "rationale": "The receipt exceeded its 30-day provider-proof window and the local machine lacks both the private gold path and provider key. Pulling the claim is the only honest green path that does not fabricate evidence or expand the Product Hunt promise beyond governed work artifacts.",
+      "owner": "NodeRoom engineering"
+    }
+  ]
+}

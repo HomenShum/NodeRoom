@@ -1,0 +1,14 @@
+{
+  "schema": "noderoom-launch-limitations-v1",
+  "capturedAt": "2026-07-11T08:00:00.000Z",
+  "productionPromoted": false,
+  "officialBenchmarkReadiness": false,
+  "fullExcelParity": false,
+  "legacyRoomPolicyResolved": false,
+  "strictProductionIdentity": false,
+  "independentTasteApproved": false,
+  "publicRepositoriesApproved": false,
+  "productHuntSubmissionApproved": false,
+  "publicDistributionApproved": false,
+  "emailSendApproved": false
+}

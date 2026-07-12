@@ -105,15 +105,19 @@ manual approval. That is exactly what the credit ledger enforces.
 **Recommended:** start at **$150/mo hard ceiling** → 1 UpscaleX team + ~5 solo friends, each
 with a 20-credit grant. Expand only when cost-per-useful-packet and first-attempt success hold.
 
+**Product Hunt launch override (2026-07-11):** the public candidate uses a $75 monthly model-spend
+ceiling inside the separately approved $100 total launch envelope. The older $150 pilot proposal
+above is historical and is not the active launch policy.
+
 ---
 
 ## 6. Recommended caps (encoded in `creditModel.DEFAULT_BUDGET_CAPS`)
 
 ```
-global monthly:        $150   (GLOBAL_MAX_USD_PER_MONTH)
-per-room daily:        $5
+global monthly:        $75
+per-room daily:        $3
 per-room monthly:      $50
-per-user daily:        $2     (activates when per-user attribution lands — v2)
+per-user daily:        $3
 concurrent foreground: 10 global · 2 per room
 concurrent deep:       1 per room
 passive jobs:          suggestions-only, 0 auto-research

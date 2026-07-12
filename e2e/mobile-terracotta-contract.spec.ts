@@ -215,7 +215,7 @@ test("review and secondary mobile surfaces keep tappable controls", async ({ pag
     { label: "Agent jobs", sheet: "Agent jobs" },
     { label: "People", sheet: "Manage people" },
     { label: "Room activity", sheet: "Agents" },
-    { label: "Usage", sheet: "Spend today" },
+    { label: "Usage", sheet: "Usage and limits" },
     { label: "Trace", sheet: "Room trace" },
     { label: "Share", sheet: "Share room" },
     { label: "Settings", sheet: "Settings" },

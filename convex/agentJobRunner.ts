@@ -15,7 +15,7 @@ import type { Id } from "./_generated/dataModel";
 import { ConvexRoomTools } from "./convexRoomTools";
 import { AgentRunError, TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER, runAgent } from "../src/nodeagent/core/runtime";
 import { runReasoningFrame, type ReasoningFrameRunReceipt } from "../src/nodeagent/core/frameRunner";
-import { SERVER_PRODUCTION_ROOM_TOOLS as PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/server/productionTools";
+import { serverProductionRoomToolsForEnv } from "../src/nodeagent/skills/server/productionTools";
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/systemPrompt";
 import { injectMemoryIntoSystemPrompt } from "../src/nodemem/memoryContextBuilder";
 import { nodeMemInjectionEnabled, nodeMemRecordingEnabled, nodeMemRoomConfigEnabled } from "./nodemem";
@@ -41,6 +41,15 @@ import {
   type ProviderEgressEntrypoint,
 } from "../src/nodeagent/guardrails/egressPolicy";
 import { makeConvexStepJournal } from "./agentStepJournalClient";
+import {
+  creditModeForJob,
+  creditsEnforcedFromEnv,
+  durableCreditReservationKey,
+  launchAdmissionModeFromEnv,
+  providerAttemptPolicyFromEnv,
+} from "../src/launch/budgetPolicy";
+import { CREDIT_MODE_SPECS } from "../src/nodeagent/core/creditModel";
+import { ModelSpendMeter } from "./modelSpendMeter";
 
 const CONVEX_ACTION_LIMIT_MS = 10 * 60_000;
 const DEFAULT_SLICE_BUDGET_MS = 7 * 60_000;
@@ -59,6 +68,7 @@ const agentJobsCompleteDeterministicBenchmarkSliceRef = makeFunctionReference<"m
 const agentJobsRecordLiveOperationRef = makeFunctionReference<"mutation">("agentJobs:recordLiveOperation") as any;
 const agentJobsRecordStreamEventRef = makeFunctionReference<"mutation">("agentJobs:recordStreamEvent") as any;
 const agentRunsRecordRef = makeFunctionReference<"mutation">("agentRuns:record") as any;
+const creditsSettleRef = makeFunctionReference<"mutation">("credits:settle") as any;
 const agentStepsRecordRef = makeFunctionReference<"mutation">("agentSteps:record") as any;
 const artifactsListForRoomRef = makeFunctionReference<"query">("artifacts:listForRoom") as any;
 const streamingEnsurePublicAgentJobStreamRef = makeFunctionReference<"mutation">("streaming:ensurePublicAgentJobStream") as any;
@@ -82,6 +92,7 @@ type ClaimedJob = {
   routePolicy?: "fast_default" | "free_auto" | "top_paid" | "explicit";
   runtimePolicy?: "workflow_sliced";
   runtimeProfile?: "benchmark_completion";
+  creditMode?: "quick" | "standard" | "deep";
   mode?: "variance" | "research";
   modelPolicy: string;
   createdAt: number;
@@ -119,6 +130,10 @@ type ClaimedReasoningFrame = {
 type RunTelemetry = {
   ms: number;
   costUsd: number;
+  inputTokens: number;
+  outputTokens: number;
+  cachedInputTokens: number;
+  handoff: unknown;
 };
 
 type RunRecord = {
@@ -146,29 +161,51 @@ function isBenchmarkCompletionProfile(profile: ClaimedJob["runtimeProfile"]): bo
   return profile === "benchmark_completion";
 }
 
-function maxStepsForJob(entrypoint: ProviderEgressEntrypoint, runtimeProfile: ClaimedJob["runtimeProfile"]): number {
+function maxStepsForJob(entrypoint: ProviderEgressEntrypoint, runtimeProfile: ClaimedJob["runtimeProfile"], creditMode?: ClaimedJob["creditMode"]): number {
   if (isBenchmarkCompletionProfile(runtimeProfile)) {
     return envNumber("BENCHMARK_AGENT_MAX_STEPS_PER_SLICE", 5_000, 1, 5_000);
   }
-  return envNumber("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE", defaultMaxStepsForEntrypoint(entrypoint), 1, 256);
+  const selectedCreditMode = creditModeForJob({ creditMode, runtimeProfile });
+  const defaultSteps = selectedCreditMode === "quick"
+    ? 16
+    : selectedCreditMode === "deep"
+      ? 256
+      : defaultMaxStepsForEntrypoint(entrypoint);
+  return envNumber("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE", defaultSteps, 1, 256);
 }
 
-function spendLimitsForJob(runtimeProfile: ClaimedJob["runtimeProfile"], mode?: "variance" | "research") {
+function spendLimitsForJob(runtimeProfile: ClaimedJob["runtimeProfile"], mode?: "variance" | "research", creditMode?: ClaimedJob["creditMode"]) {
   if (isBenchmarkCompletionProfile(runtimeProfile)) {
     return {
       maxTokens: envNumber("BENCHMARK_AGENT_MAX_TOKENS_PER_SLICE", 8_000_000, 1_000, 64_000_000),
       maxCostUsd: envNumber("BENCHMARK_AGENT_MAX_USD_PER_SLICE", 250, 0.01, 5_000),
     };
   }
-  if (mode === "research") {
+  const selectedCreditMode = creditModeForJob({ creditMode, runtimeProfile, mode });
+  if (selectedCreditMode === "deep") {
     return {
       maxTokens: envNumber("AGENT_RESEARCH_MAX_TOKENS_PER_SLICE", 500_000, 1_000, 4_000_000),
-      maxCostUsd: envNumber("AGENT_RESEARCH_MAX_USD_PER_SLICE", 5, 0.01, 100),
+      maxCostUsd: Math.min(
+        envNumber("AGENT_RESEARCH_MAX_USD_PER_SLICE", 5, 0.01, 100),
+        CREDIT_MODE_SPECS.deep.hardCapUsd,
+      ),
+    };
+  }
+  if (selectedCreditMode === "quick") {
+    return {
+      maxTokens: envNumber("AGENT_QUICK_MAX_TOKENS_PER_SLICE", 100_000, 1_000, 1_000_000),
+      maxCostUsd: Math.min(
+        envNumber("AGENT_QUICK_MAX_USD_PER_SLICE", 0.75, 0.01, 10),
+        CREDIT_MODE_SPECS.quick.hardCapUsd,
+      ),
     };
   }
   return {
     maxTokens: envNumber("AGENT_MAX_TOKENS_PER_SLICE", 250_000, 1_000, 4_000_000),
-    maxCostUsd: envNumber("AGENT_MAX_USD_PER_SLICE", 2, 0.01, 100),
+    maxCostUsd: Math.min(
+      envNumber("AGENT_MAX_USD_PER_SLICE", 2, 0.01, 100),
+      CREDIT_MODE_SPECS.standard.hardCapUsd,
+    ),
   };
 }
 
@@ -205,6 +242,10 @@ function toolResultFailed(result: unknown): boolean {
 
 function liveOperationKind(event: AgentTraceEvent): LiveOperationKind {
   if (event.tool === "handoff" || event.tool === "compaction") return "checkpoint";
+  if (event.tool === "workbook_session") {
+    const action = (event.args as { action?: unknown } | null)?.action;
+    return action === "read" || action === "preview" ? "query" : "mutation";
+  }
   if (QUERY_TOOLS.has(event.tool)) return "query";
   if (MUTATION_TOOLS.has(event.tool)) return "mutation";
   return "tool_call";
@@ -222,10 +263,13 @@ function liveOperationAffectedIds(event: AgentTraceEvent): string[] | undefined 
     if (typeof value === "string" && value.length <= 120) out.add(value);
     else if (Array.isArray(value)) for (const item of value) visit(item);
   };
-  const args = event.args as { elementId?: unknown; elementIds?: unknown; artifactId?: unknown } | null;
+  const args = event.args as { elementId?: unknown; elementIds?: unknown; artifactId?: unknown; operations?: unknown } | null;
   visit(args?.artifactId);
   visit(args?.elementId);
   visit(args?.elementIds);
+  if (event.tool === "workbook_session" && Array.isArray(args?.operations)) {
+    visit(args.operations.map((operation) => (operation as { elementId?: unknown } | null)?.elementId));
+  }
   if (event.tool === "append_notebook_outline") for (const id of notebookAffectedIds(event.args, event.result)) out.add(id);
   return out.size ? [...out].slice(0, 20) : undefined;
 }
@@ -255,7 +299,9 @@ function traceStep(e: AgentTraceEvent, i: number) {
     ? [elementId]
     : e.tool === "write_locked_cells" || e.tool === "write_locked_cell_results"
       ? batchElementIds(e.args)
-      : e.tool === "append_notebook_outline"
+      : e.tool === "workbook_session"
+        ? liveOperationAffectedIds(e)
+        : e.tool === "append_notebook_outline"
         ? notebookAffectedIds(e.args, e.result)
         : undefined;
   const mutationReceiptId = typeof (e.result as { mutationReceiptId?: unknown } | null)?.mutationReceiptId === "string"
@@ -264,6 +310,11 @@ function traceStep(e: AgentTraceEvent, i: number) {
   const batchMutationReceiptIds = Array.isArray((e.result as { results?: unknown[] } | null)?.results)
     ? ((e.result as { results: Array<{ mutationReceiptId?: unknown }> }).results)
       .map((result) => typeof result.mutationReceiptId === "string" ? result.mutationReceiptId as Id<"agentMutationReceipts"> : undefined)
+      .filter((id): id is Id<"agentMutationReceipts"> => Boolean(id))
+    : [];
+  const workbookMutationReceiptIds = Array.isArray((e.result as { outcomes?: unknown[] } | null)?.outcomes)
+    ? (e.result as { outcomes: Array<{ mutationReceiptId?: unknown }> }).outcomes
+      .map((outcome) => typeof outcome.mutationReceiptId === "string" ? outcome.mutationReceiptId as Id<"agentMutationReceipts"> : undefined)
       .filter((id): id is Id<"agentMutationReceipts"> => Boolean(id))
     : [];
   return {
@@ -275,7 +326,13 @@ function traceStep(e: AgentTraceEvent, i: number) {
     ms: e.ms,
     elementId,
     affectedObjectIds,
-    mutationReceiptIds: mutationReceiptId ? [mutationReceiptId] : batchMutationReceiptIds.length ? batchMutationReceiptIds : undefined,
+    mutationReceiptIds: mutationReceiptId
+      ? [mutationReceiptId]
+      : batchMutationReceiptIds.length
+        ? batchMutationReceiptIds
+        : workbookMutationReceiptIds.length
+          ? workbookMutationReceiptIds
+          : undefined,
   };
 }
 
@@ -446,7 +503,8 @@ export const runFreeAutoJobSlice = internalAction({
       });
     }
     const providerEgressBlock = !egressDecision.ok ? new Error(`provider_egress_blocked:${egressDecision.reason}`) : undefined;
-    const model = agentModel(resolvedModelPolicy, { entrypoint });
+    const modelSpendMeter = new ModelSpendMeter();
+    const model = modelSpendMeter.wrap(agentModel(resolvedModelPolicy, { entrypoint, ...providerAttemptPolicyFromEnv(process.env) }));
     const isDeepDiveChild = claimed.activeReasoningFrame?.facet === "deep_dive";
     const contextMaxChars = envNumber(
       "FREE_AUTO_JOB_CONTEXT_MAX_CHARS",
@@ -458,8 +516,8 @@ export const runFreeAutoJobSlice = internalAction({
       isDeepDiveChild ? 16 : DEFAULT_CONTEXT_KEEP_RECENT,
       2, 40,
     );
-    const maxSteps = maxStepsForJob(entrypoint, claimed.runtimeProfile);
-    const spendLimits = spendLimitsForJob(claimed.runtimeProfile, claimed.mode);
+    const maxSteps = maxStepsForJob(entrypoint, claimed.runtimeProfile, claimed.creditMode);
+    const spendLimits = spendLimitsForJob(claimed.runtimeProfile, claimed.mode, claimed.creditMode);
     const deadlineAt = t0 + sliceBudgetMs;
     const activeFrame = claimed.activeReasoningFrame
       ? normalizeClaimedFrame(claimed.activeReasoningFrame, String(claimed.jobId))
@@ -471,7 +529,7 @@ export const runFreeAutoJobSlice = internalAction({
       ? modelForFramePhase(activeFrame.phase, resolvedModelPolicy)
       : resolvedModelPolicy;
     const phaseAwareModel = phaseModel !== resolvedModelPolicy
-      ? agentModel(phaseModel, { entrypoint })
+      ? modelSpendMeter.wrap(agentModel(phaseModel, { entrypoint, ...providerAttemptPolicyFromEnv(process.env) }))
       : model;
     let liveSequence = 1_000 + Math.max(0, claimed.attempt - 1) * 10_000;
     let streamSequence = 1_000 + Math.max(0, claimed.attempt - 1) * 10_000;
@@ -589,29 +647,46 @@ export const runFreeAutoJobSlice = internalAction({
 
     const recordRun = async (result: AgentResult, extraStep?: { tool: string; result: string }): Promise<RunRecord> => {
       const ms = Date.now() - t0;
-      const costUsd = priceRun(model.name, result.usage.inputTokens, result.usage.outputTokens);
+      const measured = modelSpendMeter.snapshot();
+      const inputTokens = measured.modelCalls ? measured.inputTokens : result.usage.inputTokens;
+      const outputTokens = measured.modelCalls ? measured.outputTokens : result.usage.outputTokens;
+      const cachedInputTokens = measured.modelCalls ? measured.cachedInputTokens : result.usage.cachedInputTokens ?? 0;
+      const costUsd = measured.modelCalls ? measured.costUsd : priceRun(model.name, inputTokens, outputTokens);
+      const resolvedModel = measured.models.at(-1)?.model ?? model.name;
       const conflictsSurvived = result.trace.filter((t) => t.tool === "edit_cell" && (t.result as { conflict?: boolean })?.conflict).length;
       const telemetry = {
         jobId: claimed.jobId,
         roomId: claimed.roomId,
+        requesterId: claimed.requester.id,
         agentId: actor.id,
-        model: model.name,
+        model: resolvedModel,
         goal: claimed.goal,
         steps: result.steps,
         toolCalls: result.trace.length,
         conflictsSurvived,
-        inputTokens: result.usage.inputTokens,
-        outputTokens: result.usage.outputTokens,
-        cachedInputTokens: result.usage.cachedInputTokens ?? 0,
+        inputTokens,
+        outputTokens,
+        cachedInputTokens,
         costUsd,
         ms,
         exhausted: result.exhausted,
         stopReason: result.stopReason,
         remainingMs: result.budget.remainingMs,
         deadlineAt,
-        handoff: result.handoff,
+        handoff: { ...(result.handoff ?? {}), modelSpend: measured },
       };
       const runId = await ctx.runMutation(agentRunsRecordRef, telemetry);
+      const launchMode = launchAdmissionModeFromEnv(process.env);
+      const holdForUnpricedUsage = (launchMode === "private_pilot" || launchMode === "public_launch")
+        && measured.unpricedModelCalls > 0;
+      if (creditsEnforcedFromEnv(process.env) && !holdForUnpricedUsage) {
+        await ctx.runMutation(creditsSettleRef, {
+          roomId: claimed.roomId,
+          reservationKey: durableCreditReservationKey(claimed.jobId, claimed.attempt),
+          actualUsd: costUsd,
+          runId,
+        });
+      }
       const steps = result.trace.map(traceStep);
       if (extraStep) {
         steps.push({
@@ -729,7 +804,7 @@ export const runFreeAutoJobSlice = internalAction({
           rt,
           frame: activeFrame,
           model: phaseAwareModel,
-          tools: PRODUCTION_ROOM_TOOLS,
+          tools: serverProductionRoomToolsForEnv(process.env),
           systemPrompt: memorySystemPrompt,
           maxSteps,
           initialMessages,
@@ -760,7 +835,7 @@ export const runFreeAutoJobSlice = internalAction({
         rt,
         goal: claimed.goal,
         model,
-        tools: PRODUCTION_ROOM_TOOLS,
+        tools: serverProductionRoomToolsForEnv(process.env),
         systemPrompt: memorySystemPrompt,
         maxSteps,
         initialMessages,
@@ -876,7 +951,7 @@ export const runFreeAutoJobSlice = internalAction({
         kind: "model_call",
         name: model.name,
         status: "completed",
-        countDelta: result.usage.modelCalls,
+        countDelta: modelSpendMeter.snapshot().modelCalls || result.usage.modelCalls,
         completedAt: Date.now(),
       });
       await recordLiveOperation({
@@ -897,12 +972,12 @@ export const runFreeAutoJobSlice = internalAction({
         resolvedModel: model.name,
         stopReason: result.stopReason,
         ms: telemetry.ms,
-        inputTokens: result.usage.inputTokens,
-        outputTokens: result.usage.outputTokens,
-        cachedInputTokens: result.usage.cachedInputTokens ?? 0,
+        inputTokens: telemetry.inputTokens,
+        outputTokens: telemetry.outputTokens,
+        cachedInputTokens: telemetry.cachedInputTokens,
         costUsd: telemetry.costUsd,
         runId,
-        handoff: result.handoff,
+        handoff: telemetry.handoff,
         cursor,
         finalText: result.finalText,
         error: frameBlocked

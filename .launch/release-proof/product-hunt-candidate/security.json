@@ -1,0 +1,11 @@
+{
+  "schema": "noderoom-security-evidence-v1",
+  "capturedAt": "2026-07-11T08:00:00.000Z",
+  "securityGate": "pass",
+  "builtOutputScan": "pass",
+  "productionDependencyAudit": { "status": "pass", "vulnerabilities": 0 },
+  "gitGuardian": "pass",
+  "temporaryVercelBypassActive": false,
+  "secretValuesIncluded": false,
+  "productionAuthStrict": false
+}
