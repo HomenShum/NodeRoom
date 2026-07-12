@@ -289,7 +289,12 @@ export function buildLaunchDoctorReceipt(root: string, generatedAt = new Date().
   }
 
   const gitignore = readText(join(root, ".gitignore"));
-  for (const pattern of [".launch/approval.json", ".launch/chrome-profile/", ".launch/outbox/distribution.sqlite"]) {
+  for (const pattern of [
+    ".launch/approval.json",
+    ".launch/chrome-profile/",
+    ".launch/outbox/distribution.sqlite",
+    ".launch/receipts/ci/launch-proof-verification.json",
+  ]) {
     checks.push(check(gitignore.split(/\r?\n/).some((line) => line.trim() === pattern), `gitignore:${pattern}`, `${pattern} must be ignored.`, [".gitignore"]));
   }
 

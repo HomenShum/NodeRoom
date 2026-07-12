@@ -74,6 +74,12 @@ describe("launch control plane", () => {
     expect(receipt.status).toBe("passed");
     expect(receipt.blockers).toEqual([]);
 
+    write(root, ".gitignore", ".launch/approval.json\n.launch/chrome-profile/\n.launch/outbox/distribution.sqlite\n");
+    const dirtyVerifier = buildLaunchDoctorReceipt(root, "2026-07-11T08:00:00.000Z");
+    expect(dirtyVerifier.status).toBe("blocked");
+    expect(dirtyVerifier.blockers.join("\n")).toContain(".launch/receipts/ci/launch-proof-verification.json must be ignored");
+    write(root, ".gitignore", launchFixtureGitignore());
+
     write(root, ".launch/secret-inventory.json", JSON.stringify({
       schema: 1,
       secrets: [{ name: "TOKEN", present: true, scope: "local", usedBy: [], valueRecorded: false, value: "forbidden" }],
@@ -275,7 +281,7 @@ function fixtureRoot(evidence: LaunchEvidenceCheck[] = []): string {
     schema: 1,
     secrets: [{ name: "TOKEN", present: false, scope: "local", usedBy: ["test"], lastVerifiedAt: "2026-07-11T08:00:00.000Z", valueRecorded: false }],
   });
-  write(root, ".gitignore", ".launch/approval.json\n.launch/chrome-profile/\n.launch/outbox/distribution.sqlite\n");
+  write(root, ".gitignore", launchFixtureGitignore());
   writeJson(root, "package.json", {
     scripts: Object.fromEntries([
       "launch:doctor",
@@ -292,6 +298,16 @@ function fixtureRoot(evidence: LaunchEvidenceCheck[] = []): string {
     ].map((name) => [name, "fixture"])),
   });
   return root;
+}
+
+function launchFixtureGitignore(): string {
+  return [
+    ".launch/approval.json",
+    ".launch/chrome-profile/",
+    ".launch/outbox/distribution.sqlite",
+    ".launch/receipts/ci/launch-proof-verification.json",
+    "",
+  ].join("\n");
 }
 
 function passEvidence(id: string): LaunchEvidenceCheck {

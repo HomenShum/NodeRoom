@@ -123,3 +123,4 @@ docs/qa/prod-dogfood/
 .launch/cdp/har/
 .launch/cdp/videos/
 .launch/generated/
+.launch/receipts/ci/launch-proof-verification.json
