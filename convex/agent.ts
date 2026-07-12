@@ -212,16 +212,17 @@ export const runRoomAgent = action({
     const dailyCapUsd = envNumber("ROOM_MAX_USD_PER_DAY", 10, 0.1, 10_000);
     const spentToday: number = await ctx.runQuery(roomSpendSinceRef, { roomId: a.roomId, since: t0 - 24 * 60 * 60 * 1000 });
     if (spentToday >= dailyCapUsd) throw new Error("room_daily_spend_cap");
-    // Experiment gate — global monthly budget across ALL rooms. $150 is the pilot
-    // ceiling decided in docs/launch/PILOT_LAUNCH_REPORT.md (n=1639 real runs) and
-    // encoded in src/nodeagent/core/creditModel.ts globalMonthlyUsd; this default is
-    // kept in sync with it (direction audit 2026-07-12, C2 — was $75). The prod env
-    // var GLOBAL_MAX_USD_PER_MONTH overrides this and should be set to 150.
+    // Experiment gate — global monthly budget across ALL rooms. $100 is the
+    // owner-set monthly ceiling (2026-07-12), overriding the pilot report's $150;
+    // kept in sync with src/nodeagent/core/creditModel.ts globalMonthlyUsd. This is
+    // the hard LLM cap; with Convex on the free tier it is also the total monthly
+    // spend. The prod env var GLOBAL_MAX_USD_PER_MONTH overrides this default and
+    // should be set to 100.
     // The error carries distinct-room attribution so a breach is diagnosable at a glance:
     // many rooms = real-user growth (the signal we WANT — raise budget / start charging);
     // one room = runaway (the daily cap above should have contained it first — investigate).
     // truncated:true fails closed: an undercounted window must not wave runs through.
-    const monthlyCapUsd = envNumber("GLOBAL_MAX_USD_PER_MONTH", 150, 1, 1_000_000);
+    const monthlyCapUsd = envNumber("GLOBAL_MAX_USD_PER_MONTH", 100, 1, 1_000_000);
     const monthly = await ctx.runQuery(globalSpendSinceRef, { since: t0 - 30 * 24 * 60 * 60 * 1000 });
     if (monthly.truncated || monthly.totalUsd >= monthlyCapUsd) {
       throw new Error(`global_monthly_spend_cap:spentUsd=${monthly.totalUsd.toFixed(2)}:rooms=${monthly.distinctRooms}:runs=${monthly.runCount}`);

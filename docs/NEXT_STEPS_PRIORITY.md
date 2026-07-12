@@ -19,9 +19,10 @@ Evidence-ranked from the audit's open items. Items 1–2 are correctness/honesty
 debts; 3–5 are hygiene; 6 is the one genuine strategic fork that needs an owner
 decision.
 
-1. **Set the prod `GLOBAL_MAX_USD_PER_MONTH` env var to 150 and deploy.** Code
-   default is now 150 (audit C2) but takes effect only on `npm run convex:deploy`;
-   confirm the prod env var matches before relying on the $150 ceiling.
+1. **Set the prod `GLOBAL_MAX_USD_PER_MONTH` env var to 100 and deploy.** Code
+   default is now 100 (owner decision 2026-07-12, overrides the pilot report's $150)
+   but takes effect only on `npm run convex:deploy`; confirm the prod env var matches
+   before relying on the $100 ceiling.
 2. **Commit / decide the remaining uncommitted truth.** The July direction docs and
    the QA run-artifact retention policy (fixloop vs prod-dogfood) are still
    unresolved — see the audit's "required commit sequence".

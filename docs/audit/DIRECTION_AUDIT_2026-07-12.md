@@ -17,7 +17,7 @@ The repo's facts are mostly right; its **lifecycle hygiene is broken**. The domi
 | # | Contradiction | Verdict | Resolution |
 |---|---|---|---|
 | C1 | benchmark_completion approval: `src/nodeagent/core/budgetProfiles.ts` (explicit approval) vs `src/nodeagent/runtimeProfiles.ts` (`requiresExplicitApproval: false`); two docs each crown their own file "source of truth" | CONFIRMED high | **Strict side wins** (fail-closed on a spend lane). Consolidate the duplicate modules; fix `docs/NODEROOM_ACTION_MAP.md` cell. *Not yet applied — code change, see §7.* |
-| C2 | `GLOBAL_MAX_USD_PER_MONTH`: $75 (`docs/OPERATING_BUDGET.md` + `convex/agent.ts:220` default) vs $150 (`docs/launch/PILOT_LAUNCH_REPORT.md` + `src/nodeagent/core/creditModel.ts:242`) | CONFIRMED high | **$150 wins** (17 days newer, grounded in n=1639 runs). Mark OPERATING_BUDGET superseded; reconcile `convex/agent.ts`. *Not yet applied — code change, see §7.* |
+| C2 | `GLOBAL_MAX_USD_PER_MONTH`: $75 (`docs/OPERATING_BUDGET.md` + `convex/agent.ts` default) vs $150 (`docs/launch/PILOT_LAUNCH_REPORT.md` + `src/nodeagent/core/creditModel.ts`) | CONFIRMED high → **RESOLVED $100 (owner)** | The audit picked $150 (newer, n=1639). Owner overrode to **$100/month** (2026-07-12). $100 is now the default in both `convex/agent.ts` and `creditModel.ts`; OPERATING_BUDGET updated. Prod env var should be set to 100 (effective on `npm run convex:deploy`). |
 | C3 | "convex codegen deploys to prod" memory vs "codegen only regenerates types" (`CONVEX_AS_LEDGER.md:354`). CLI source shows codegen does a network `startPush` (bundle upload + schema-change start) but never `finishPush` — and the post-edit hook auto-ran it against a prod-pinned env | PARTIAL med, prod-touching | **Memory wins operationally.** ✅ FIXED this pass: `.claude/hooks/post-edit.mjs` now skips auto-codegen when `.env.local` pins zealous-goshawk-766; CLAUDE.md documents the gotcha. Amend the doc sentence when next touched. |
 | C4 | Deploy topology: `memory/convex-deploy-not-git-push.md` (`npx convex deploy` → aromatic-bass-102; `vercel deploy --prod`) vs `memory/noderoom-convex-env-keys.md` + `docs/SOURCE_OF_TRUTH.md:142` (zealous-goshawk-766 IS prod; `npm run convex:deploy`; Vercel auto-deploys from git). The old memory deploys to a read-only standby | PARTIAL high | **noderoom-convex-env-keys wins** (newer, live-verified, matches the deploy guard). ✅ FIXED this pass: stale memory updated; topology stated once in CLAUDE.md. |
 
@@ -102,7 +102,7 @@ Second ring (authoritative for their domains): docs/design/mobile/* + first-run/
 | Decision | Adopted | Basis |
 |---|---|---|
 | benchmark_completion approval | **Explicit approval required** (strict side) | Fail-closed on a spend lane; 2 docs + the executable helper agree behaviorally |
-| Global monthly cap | **$150** | 17 days newer, n=1639-grounded, encoded in creditModel with a "reconcile agent.ts" comment |
+| Global monthly cap | **$100** (owner decision 2026-07-12; audit had inferred $150 from the pilot report) | Owner-set hard ceiling; overrides both the $75 envelope figure and the pilot report's $150 |
 | Is CLAUDE.md a legal scaffold target? | **Yes** (doc updated, not the code) | `scaffold-check.ts` + `scaffoldProposal.ts` both allow it |
 | Status vocabulary | "proven" = official score imported, NEVER "passed" | BTB's proven score has pass-rate 0.0000; overclaiming is exactly what official-score-boundary.md forbids |
 

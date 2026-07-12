@@ -1,13 +1,14 @@
 # Operating budget — the $100/month experiment
 
-> **SUPERSEDED 2026-07-12 (direction audit, C2):** the LLM/global monthly cap was
-> raised from **$75 to $150** by the pilot decision in
-> `docs/launch/PILOT_LAUNCH_REPORT.md` (grounded in n=1639 real runs). The $150 value
-> is encoded in `src/nodeagent/core/creditModel.ts` (`globalMonthlyUsd`) and is now
-> the default in `convex/agent.ts` (`GLOBAL_MAX_USD_PER_MONTH`). The $75 figures below
-> are historical. The prod env var `GLOBAL_MAX_USD_PER_MONTH` overrides the code
-> default and should be set to 150. The rest of this doc (per-slice, per-day caps,
-> enforcement mechanics) remains accurate.
+> **UPDATED 2026-07-12 (owner decision):** the hard global monthly cap
+> (`GLOBAL_MAX_USD_PER_MONTH`) is **$100/month**. This overrides both the $75 LLM
+> figure below and the pilot report's $150 (`docs/launch/PILOT_LAUNCH_REPORT.md`).
+> $100 is encoded in `src/nodeagent/core/creditModel.ts` (`globalMonthlyUsd`) and is
+> the default in `convex/agent.ts`. It is the hard LLM cap; with Convex on the free
+> tier it is also the total monthly spend (if Convex Pro's ~$25 is later added,
+> revisit to keep the total at/under $100). The prod env var
+> `GLOBAL_MAX_USD_PER_MONTH` overrides the code default and should be set to 100. The
+> rest of this doc (per-slice, per-day caps, enforcement mechanics) remains accurate.
 
 **Decision (2026-06-10):** NodeRoom runs as a real-user experiment under a **$100/month hard
 envelope**. A breach is a *signal*, not a failure — but only when real users induce it. The caps
