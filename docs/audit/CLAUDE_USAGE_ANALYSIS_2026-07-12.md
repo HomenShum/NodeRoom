@@ -36,4 +36,20 @@ Known blind spot: claude-mem coverage of July is thin relative to git; July freq
 
 ## Deferred rebuild queue (in priority order)
 
-fleet-merge skill (#5) → proofloop:receipts:commit (#6, after the C15 board fix) → seed command (#7) → design-audit hook (#8) → media-skill consolidation (#9) → shared Gemini judge (#11) → /status-audit + STATE.md (#12) → ship-skill floor integration (#3).
+seed command (#7) → design-audit hook (#8) → shared Gemini judge (#11) → /status-audit + STATE.md (#12) → ship-skill floor integration (#3) → proofloop:receipts:commit (#6, now that the board bug is fixed).
+
+### Re-scoped after 2026-07-12 review (do NOT build as originally written)
+
+- **fleet-merge skill (#5) — DROP the "fleet" framing.** The merge/rebase workload
+  is real (30 merge commits in the week to 2026-07-12), but the concurrent-codex-fleet
+  model was explicitly abandoned ([[no-codex-fleet-do-it-myself]] supersedes
+  [[concurrent-codex-fleet]]). Any future helper here is a SOLO merge-reconciliation
+  aid, not a fleet coordinator — and only worth it if the manual merge loop becomes a
+  real bottleneck.
+- **media-skill consolidation (#9) is LOCAL-ONLY.** `.claude/skills/` is gitignored,
+  so consolidating readme-walkthroughs + produce-episode + walkthrough-review would
+  not persist to the repo or reach a fresh clone. It only de-confuses this machine's
+  local sessions, and the pipeline works today. Deferred as a low-priority local
+  nicety, not a repo deliverable. If the skill layer should be shareable, the
+  prerequisite is deciding which `.claude/` assets to track (audit gap #4) — that
+  decision comes first.
