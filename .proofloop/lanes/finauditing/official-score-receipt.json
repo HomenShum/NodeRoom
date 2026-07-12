@@ -2,19 +2,21 @@
   "schema": 1,
   "suite": "finauditing",
   "blockerId": "finauditing-official-score",
-  "generatedAt": "2026-07-09T06:33:22.268Z",
-  "status": "needs_scaffold_or_run",
+  "generatedAt": "2026-07-09T23:40:06.293Z",
+  "status": "blocked_external",
   "officialScoreClaimable": false,
   "officialSemanticScore": null,
   "acceptedProxyJudge": false,
   "blockers": [
     "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score.",
-    "finauditing: official task bundle lock docs/eval/proofloop-official-task-bundles/finauditing.json is staged and official-format FinSM/FinRE/FinMR prediction JSONL is complete in docs/eval/proofloop-official-outputs/finauditing.json; an accepted FinMR judge path and scorer import are still required before claiming an official score. OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream."
+    "finauditing: official task bundle lock docs/eval/proofloop-official-task-bundles/finauditing.json is staged and official-format FinSM/FinRE/FinMR prediction JSONL is complete in docs/eval/proofloop-official-outputs/finauditing.json; local FinSM/FinRE metrics and a 332/332 FinMR parser precheck passed, but an accepted FinMR judge path and scorer import are still required before claiming an official score.",
+    "finauditing: the zero-cost concrete free-provider smoke reached cohere/north-mini-code-20260617:free at $0 but returned no label within four completion tokens; it is transport evidence only and cannot promote an official score."
   ],
-  "remainingLocalClasses": [
+  "remainingLocalClasses": [],
+  "remainingExternalClasses": [
+    "missing_judge_credentials",
     "missing_official_scorer"
   ],
-  "remainingExternalClasses": [
-    "missing_judge_credentials"
-  ]
+  "localEvaluatorEvidence": "docs/eval/proofloop-finauditing-local-evaluator-smoke.json",
+  "nextCommand": "Run StartKit/evaluateFinMR.ipynb:evaluate_finmr_with_judge over .tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl with the accepted upstream OpenAI-compatible judge credential, then import the accepted receipt and rerun the official-score import in strict mode."
 }

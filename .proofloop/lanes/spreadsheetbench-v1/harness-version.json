@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "suite": "spreadsheetbench-v1",
-  "harnessVersion": "spreadsheetbench-v1-harness-6edde89b0bfd",
-  "generatedAt": "2026-07-09T06:33:22.241Z",
+  "harnessVersion": "spreadsheetbench-v1-harness-c035ba2bee62",
+  "generatedAt": "2026-07-10T03:04:04.062Z",
   "previousVersion": null,
   "changes": [
     "convert staged 912-task bundle into chunked model-run work queue",
@@ -10,20 +10,20 @@
     "write official score receipt only after scorer import"
   ],
   "modelsTested": [
-    "deepseek/deepseek-v4-pro",
-    "z-ai/glm-5.2",
-    "qwen/qwen3.6-flash",
-    "qwen/qwen3.6-35b-a3b",
-    "gpt-4.1-mini",
-    "ibm-granite/granite-4.1-8b"
+    "openrouter/free-auto",
+    "cohere/north-mini-code:free",
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "nvidia/nemotron-3-super-120b-a12b:free",
+    "qwen/qwen3-coder:free",
+    "google/gemma-4-26b-a4b-it:free"
   ],
-  "bestRoute": "deepseek/deepseek-v4-pro",
+  "bestRoute": "openrouter/free-auto",
   "reason": "Local model-run work remains: the 912-task bundle is staged, but full model outputs are not complete.",
   "files": [
     {
       "path": "scripts/proofloop-cli.ts",
       "exists": true,
-      "sha256": "2bf63ef5b2d7b1b636cd696510391cc6426905fdaec2f5a804c129f2c54a0833"
+      "sha256": "d9637190f845071e168b3907c5b7092149789b7cd49436c625ef83e49e844379"
     },
     {
       "path": "scripts/proofloop.mjs",
@@ -33,7 +33,7 @@
     {
       "path": "src/eval/proofloopGoalSupervisor.ts",
       "exists": true,
-      "sha256": "928a1ec86f5cee7ced97a5ec6eaddd1a07a3a3fa35436eefdfe902864cb6cd1a"
+      "sha256": "819b2030feafb4b196aaa08f7ec618ad8c16a2d1ba516dc1b32cb6eb2fdddaaf"
     },
     {
       "path": "src/eval/proofloopLoopArtifacts.ts",
@@ -48,21 +48,31 @@
     {
       "path": "src/eval/proofloopBlockerSolver.ts",
       "exists": true,
-      "sha256": "e840ede52b09036a5c28427238eef1457930133a6841cd8e12d3983e932c8538"
+      "sha256": "09ba6d342411ee4c768f2825e0526823d534487c0d3bdd07342507bda1b5d399"
     },
     {
       "path": "proofloop/benchmarks/spreadsheetbench-v1/adapter.json",
       "exists": false
     },
     {
-      "path": "docs/eval/openrouter-top-paid-tools-snapshot.json",
+      "path": "docs/eval/proofloop-official-score-preflight.json",
       "exists": true,
-      "sha256": "c0f63fb9f0289ec5f79b0c67092afe7ed10bbf502feb593122e0c639bec89e66"
+      "sha256": "d4b5103b0be936e35d13ffb91403aecf457e90486371da56d4d25bb8d61b1949"
+    },
+    {
+      "path": "docs/eval/proofloop-free-openrouter-nodeagent-gauge.json",
+      "exists": true,
+      "sha256": "7628ba0057e062fc9478b76a83da45d2630bb7708428df68f9c90b2a16ab4b34"
+    },
+    {
+      "path": "docs/eval/proofloop-harness-economics.json",
+      "exists": true,
+      "sha256": "c80f6ed8133656654248814b18b2e0595d002c8c450c99ccfe72b92a0d6875a6"
     },
     {
       "path": "docs/eval/official-benchmark-task-coverage.json",
       "exists": true,
-      "sha256": "bb96d083a6bb1ee733cfd9320b56706aac7ae337dd4ecd3aa03ced9e59c6769f"
+      "sha256": "d152dde4a80b0ee24e21a189f16ecbc61342c63b7c23f3cd17eefb9642896ed3"
     }
   ]
 }

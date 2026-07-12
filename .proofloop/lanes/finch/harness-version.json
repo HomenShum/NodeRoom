@@ -1,28 +1,28 @@
 {
   "schema": 1,
   "suite": "finch",
-  "harnessVersion": "finch-harness-f64316a04067",
-  "generatedAt": "2026-07-09T06:33:22.260Z",
+  "harnessVersion": "finch-harness-c620c75b5912",
+  "generatedAt": "2026-07-10T04:18:09.615Z",
   "previousVersion": null,
   "changes": [
     "retry upstream Finch content_parts rendering against the complete model-output manifest",
     "wire accepted Finch judge command adapter when credentials exist"
   ],
   "modelsTested": [
-    "deepseek/deepseek-v4-pro",
-    "z-ai/glm-5.2",
-    "qwen/qwen3.6-flash",
-    "qwen/qwen3.6-35b-a3b",
-    "gpt-4.1-mini",
-    "ibm-granite/granite-4.1-8b"
+    "openrouter/free-auto",
+    "cohere/north-mini-code:free",
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "nvidia/nemotron-3-super-120b-a12b:free",
+    "qwen/qwen3-coder:free",
+    "google/gemma-4-26b-a4b-it:free"
   ],
-  "bestRoute": "deepseek/deepseek-v4-pro",
+  "bestRoute": "openrouter/free-auto",
   "reason": "Official model-output artifacts are complete; upstream content_parts rendering and accepted judge import remain before official score promotion.",
   "files": [
     {
       "path": "scripts/proofloop-cli.ts",
       "exists": true,
-      "sha256": "2bf63ef5b2d7b1b636cd696510391cc6426905fdaec2f5a804c129f2c54a0833"
+      "sha256": "d9637190f845071e168b3907c5b7092149789b7cd49436c625ef83e49e844379"
     },
     {
       "path": "scripts/proofloop.mjs",
@@ -32,7 +32,7 @@
     {
       "path": "src/eval/proofloopGoalSupervisor.ts",
       "exists": true,
-      "sha256": "928a1ec86f5cee7ced97a5ec6eaddd1a07a3a3fa35436eefdfe902864cb6cd1a"
+      "sha256": "819b2030feafb4b196aaa08f7ec618ad8c16a2d1ba516dc1b32cb6eb2fdddaaf"
     },
     {
       "path": "src/eval/proofloopLoopArtifacts.ts",
@@ -47,7 +47,7 @@
     {
       "path": "src/eval/proofloopBlockerSolver.ts",
       "exists": true,
-      "sha256": "e840ede52b09036a5c28427238eef1457930133a6841cd8e12d3983e932c8538"
+      "sha256": "09ba6d342411ee4c768f2825e0526823d534487c0d3bdd07342507bda1b5d399"
     },
     {
       "path": "proofloop/benchmarks/finch/adapter.json",
@@ -55,14 +55,24 @@
       "sha256": "9cb926196b3ee226476bdf06297f6aa612476f392ea39894846fba1c4b0c0055"
     },
     {
-      "path": "docs/eval/openrouter-top-paid-tools-snapshot.json",
+      "path": "docs/eval/proofloop-official-score-preflight.json",
       "exists": true,
-      "sha256": "c0f63fb9f0289ec5f79b0c67092afe7ed10bbf502feb593122e0c639bec89e66"
+      "sha256": "f92a2090c97488ce377d62cf04767cc239d305f5de67534e488125a2e8aa9013"
+    },
+    {
+      "path": "docs/eval/proofloop-free-openrouter-nodeagent-gauge.json",
+      "exists": true,
+      "sha256": "7628ba0057e062fc9478b76a83da45d2630bb7708428df68f9c90b2a16ab4b34"
+    },
+    {
+      "path": "docs/eval/proofloop-harness-economics.json",
+      "exists": true,
+      "sha256": "c80f6ed8133656654248814b18b2e0595d002c8c450c99ccfe72b92a0d6875a6"
     },
     {
       "path": "docs/eval/official-benchmark-task-coverage.json",
       "exists": true,
-      "sha256": "bb96d083a6bb1ee733cfd9320b56706aac7ae337dd4ecd3aa03ced9e59c6769f"
+      "sha256": "c2f3c90dc1d97f74db5760921f0f8ec5c7bb0091cd7402ae7958427e1c7bba8b"
     }
   ]
 }

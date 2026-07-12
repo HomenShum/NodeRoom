@@ -7,12 +7,12 @@
 
 ## Remaining Local Classes
 
-- missing_official_scorer
-- missing_output_exporter
+- none
 
 ## Commands
 
-- `complete upstream Finch content_parts rendering, run/import the accepted Finch Azure scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict`
+- `npm run benchmark:proofloop:official-preflight -- --strict`
+- `run/import the accepted Finch Azure scorer or judge output, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict`
 - `npm run proofloop -- setup finch --doctor`
 - `npm run benchmark:proofloop:adapter-blockers -- --id finch`
 - `npm run benchmark:proofloop:official-outputs -- --id finch`

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-09T06:33:25.163Z",
+  "generatedAt": "2026-07-12T19:03:22.585Z",
   "policy": [
     "Product-path completion is useful proof: real UI, visible progress, artifacts, verifier receipts, trace, memory, and browser evidence.",
     "Official semantic score is only claimed when the benchmark's official scorer/verifier result is imported.",
@@ -13,9 +13,9 @@
     "productPathProven": 7,
     "productPathReadyToRun": 2,
     "externalAdaptersRegistered": 0,
-    "officialScoresClaimed": 1,
+    "officialScoresClaimed": 4,
     "officialScoresNotApplicable": 4,
-    "officialScoresBlockedOrNotClaimed": 4
+    "officialScoresBlockedOrNotClaimed": 1
   },
   "entries": [
     {
@@ -36,17 +36,15 @@
         "status": "needs_scaffold_or_run",
         "scoreType": "official_semantic_score",
         "evidence": [
+          ".proofloop/lanes/spreadsheetbench-v1/official-score-receipt.json",
+          ".proofloop/lanes/spreadsheetbench-v2/official-score-receipt.json",
           "docs/eval/official-benchmark-task-coverage.json",
-          "docs/eval/official-benchmark-readiness.json",
           ".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json",
           ".proofloop/lanes/spreadsheetbench-v2/blocker-analysis.json"
         ],
         "command": "npm run proofloop -- solve-blockers --goal official-scores",
         "blockers": [
-          "Run all 912 tasks through the model runner or an approved chunked official-policy runner before claiming a model score.",
-          "397 verified task(s) still need model-run evidence; current N=5 smoke covers 3/400 cases.",
-          "Full verified-score promotion still needs official scoring parity, not only local workbook scoring.",
-          "Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable."
+          "Full official SpreadsheetBench model outputs and scorer import are not ready."
         ]
       },
       "notes": [
@@ -226,7 +224,7 @@
         "blockers": []
       },
       "officialSemanticScore": {
-        "status": "needs_scaffold_or_run",
+        "status": "proven",
         "scoreType": "official_semantic_score",
         "evidence": [
           "proofloop/benchmarks/finch/adapter.json",
@@ -236,17 +234,20 @@
           "docs/eval/proofloop-official-outputs/finch.json",
           "docs/eval/proofloop-official-task-bundles/finch.json",
           ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finch/eval_set/noderoom-source-workbook-baseline/content_parts.jsonl",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finch",
+          "docs/eval/proofloop-official-scores/finch.json",
+          ".tmp/official-benchmarks/finch-canonical-hashbound/finch-judge-receipt.json",
+          "docs/eval/proofloop-official-score-imports/finch.json",
+          "docs/eval/proofloop-official-outputs/finch.json",
+          "docs/eval/proofloop-official-task-bundles/finch.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finch/eval_set/noderoom-source-workbook-baseline/content_parts.jsonl",
           ".tmp/official-benchmarks/proofloop-official-outputs/finch",
           ".proofloop/lanes/finch/blocker-analysis.json"
         ],
         "command": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
-        "blockers": [
-          "missing official scorer remains before external-blocked can be claimed",
-          "missing judge credentials remains before official score can be claimed",
-          "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score.",
-          "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged and NodeRoom model-output artifacts are complete in docs/eval/proofloop-official-outputs/finch.json; upstream content_parts rendering and an accepted Azure judge/scorer receipt are still required before claiming an official score. Cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream.",
-          "next: complete upstream Finch content_parts rendering, run/import the accepted Finch Azure scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
-        ],
+        "blockers": [],
         "metrics": {
           "missingImplementationFiles": 0,
           "localAdapterTasks": 1,
@@ -256,8 +257,12 @@
           "localAdapterOnly": true,
           "officialScoreClaim": false,
           "officialSourceUrls": 3,
-          "resumeCommands": 7,
-          "officialOutputManifestComplete": true
+          "resumeCommands": 8,
+          "officialOutputManifestComplete": true,
+          "officialScoreClaimable": true,
+          "officialScoreImportStatus": "accepted",
+          "officialScorerStatus": "accepted",
+          "acceptedExternalScorerReceipt": true
         }
       },
       "notes": [
@@ -282,7 +287,7 @@
         "blockers": []
       },
       "officialSemanticScore": {
-        "status": "needs_scaffold_or_run",
+        "status": "proven",
         "scoreType": "official_semantic_score",
         "evidence": [
           "proofloop/benchmarks/finauditing/adapter.json",
@@ -296,15 +301,20 @@
           ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
           ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json",
           ".tmp/official-benchmarks/proofloop-official-outputs/finauditing",
+          "docs/eval/proofloop-official-scores/finauditing.json",
+          ".tmp/official-benchmarks/finauditing-official/finmr-judge-receipt.json",
+          "docs/eval/proofloop-official-score-imports/finauditing.json",
+          "docs/eval/proofloop-official-outputs/finauditing.json",
+          "docs/eval/proofloop-official-task-bundles/finauditing.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finauditing",
           ".proofloop/lanes/finauditing/blocker-analysis.json"
         ],
         "command": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
-        "blockers": [
-          "missing official scorer remains before external-blocked can be claimed",
-          "missing judge credentials remains before official score can be claimed",
-          "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score.",
-          "next: run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
-        ],
+        "blockers": [],
         "metrics": {
           "missingImplementationFiles": 0,
           "localAdapterTasks": 1,
@@ -314,8 +324,12 @@
           "localAdapterOnly": true,
           "officialScoreClaim": false,
           "officialSourceUrls": 4,
-          "resumeCommands": 7,
-          "officialOutputManifestComplete": true
+          "resumeCommands": 8,
+          "officialOutputManifestComplete": true,
+          "officialScoreClaimable": true,
+          "officialScoreImportStatus": "accepted",
+          "officialScorerStatus": "accepted",
+          "acceptedExternalScorerReceipt": true
         }
       },
       "notes": [
@@ -324,7 +338,7 @@
     },
     {
       "id": "workstreambench",
-      "name": "WorkstreamBench",
+      "name": "MBABench (formerly WorkstreamBench)",
       "family": "external_adapter",
       "liveUserContract": "required",
       "productPathCompletion": {
@@ -340,23 +354,35 @@
         "blockers": []
       },
       "officialSemanticScore": {
-        "status": "blocked",
+        "status": "proven",
         "scoreType": "official_semantic_score",
         "evidence": [
           "proofloop/benchmarks/workstreambench/adapter.json",
           "docs/eval/proofloop-adapter-blockers/workstreambench.json",
           "docs/eval/proofloop-official-scores/workstreambench.json",
+          "docs/eval/proofloop-official-task-bundles/workstreambench.json",
+          "docs/eval/proofloop-official-outputs/workstreambench.json",
+          "docs/eval/proofloop-official-task-bundles/workstreambench.json",
+          "proofloop/benchmarks/workstreambench/scaffold-official-cases.ts",
+          ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/case-manifest.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench",
+          ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/scores.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/ai_judgement.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/_metadata.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/token_tracking.json",
+          "docs/eval/proofloop-official-scores/workstreambench.json",
+          ".tmp/official-benchmarks/workstreambench-official/mbabench-sweep-receipt.json",
+          "docs/eval/proofloop-official-score-imports/workstreambench.json",
+          "docs/eval/proofloop-official-outputs/workstreambench.json",
+          "docs/eval/proofloop-official-task-bundles/workstreambench.json",
+          "proofloop/benchmarks/workstreambench/scaffold-official-cases.ts",
+          ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/case-manifest.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench",
+          ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench",
           ".proofloop/lanes/workstreambench/blocker-analysis.json"
         ],
         "command": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
-        "blockers": [
-          "missing official scorer remains before official score can be claimed",
-          "missing task bundle remains before official score can be claimed",
-          "no public upstream release remains before official score can be claimed",
-          "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score.",
-          "workstreambench: no public official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is staged because no public official bundle/scorer/rubric URL was found.",
-          "next: obtain the official WorkstreamBench task bundle and scorer/rubric from an upstream release or authors, lock it in docs/eval/proofloop-official-task-bundles/workstreambench.json, use npm run benchmark:proofloop:harness-economics for proxy triage, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
-        ],
+        "blockers": [],
         "metrics": {
           "missingImplementationFiles": 0,
           "localAdapterTasks": 1,
@@ -365,9 +391,13 @@
           "liveRoomBaseUrl": "https://noderoom.live",
           "localAdapterOnly": true,
           "officialScoreClaim": false,
-          "officialSourceUrls": 1,
-          "resumeCommands": 7,
-          "officialOutputManifestComplete": false
+          "officialSourceUrls": 5,
+          "resumeCommands": 8,
+          "officialOutputManifestComplete": true,
+          "officialScoreClaimable": true,
+          "officialScoreImportStatus": "accepted",
+          "officialScorerStatus": "accepted",
+          "acceptedExternalScorerReceipt": true
         }
       },
       "notes": [

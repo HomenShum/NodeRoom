@@ -3,17 +3,16 @@
   "kind": "blocker_solver_memory",
   "suite": "workstreambench",
   "blockerId": "workstreambench-official-score",
-  "generatedAt": "2026-07-09T06:33:22.276Z",
+  "generatedAt": "2026-07-10T03:04:04.092Z",
   "classes": [
-    "missing_official_scorer",
-    "missing_task_bundle",
-    "no_public_upstream_release"
+    "missing_judge_credentials",
+    "missing_official_scorer"
   ],
   "nextCommands": [
-    "obtain the official WorkstreamBench task bundle and scorer/rubric from an upstream release or authors, lock it in docs/eval/proofloop-official-task-bundles/workstreambench.json, use npm run benchmark:proofloop:harness-economics for proxy triage, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
+    "npm run benchmark:proofloop:official-preflight -- --strict",
+    "run/import the accepted MBABench official judge output after provider spend approval, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
     "npm run proofloop -- setup workstreambench --doctor",
     "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench",
-    "npm run proofloop -- blocker research workstreambench-official-score",
     "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
   ],
   "lesson": "Do not declare external-blocked until setup, research, scaffold, doctor, model tracking, and resume evidence are written."

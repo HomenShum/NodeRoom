@@ -8,10 +8,11 @@
 
 ## Remaining Local Classes
 
-- missing_official_scorer
+- none
 
 ## Commands
 
+- `npm run benchmark:proofloop:official-preflight -- --strict`
 - `run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict`
 - `npm run proofloop -- setup finauditing --doctor`
 - `npm run benchmark:proofloop:adapter-blockers -- --id finauditing`

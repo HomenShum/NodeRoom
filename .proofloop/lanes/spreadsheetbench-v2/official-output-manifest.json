@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "suite": "spreadsheetbench-v2",
-  "generatedAt": "2026-07-09T06:33:22.252Z",
+  "generatedAt": "2026-07-10T03:04:04.073Z",
   "status": "needs_generation",
   "expectedOutputs": [
     "321 official V2 task manifests",
@@ -12,7 +12,17 @@
   "currentEvidence": [
     "docs/eval/official-benchmark-task-coverage.json",
     "docs/eval/spreadsheetbench-v2-full-ingest.json",
-    "docs/eval/spreadsheetbench-v2-full-stage.json"
+    "docs/eval/spreadsheetbench-v2-full-stage.json",
+    ".proofloop/lanes/spreadsheetbench-v2/blocker-analysis.json",
+    ".proofloop/lanes/spreadsheetbench-v2/upstream-research.md",
+    ".proofloop/lanes/spreadsheetbench-v2/scaffold-plan.md",
+    ".proofloop/lanes/spreadsheetbench-v2/harness-version.json",
+    ".proofloop/lanes/spreadsheetbench-v2/model-matrix.json",
+    ".proofloop/lanes/spreadsheetbench-v2/cost-ledger.json",
+    ".proofloop/lanes/spreadsheetbench-v2/official-output-manifest.json",
+    ".proofloop/lanes/spreadsheetbench-v2/official-score-receipt.json",
+    ".proofloop/lanes/spreadsheetbench-v2/proxy-score-receipt.json",
+    ".proofloop/lanes/spreadsheetbench-v2/memory-write.json"
   ],
   "missingClasses": [
     "missing_model_run",

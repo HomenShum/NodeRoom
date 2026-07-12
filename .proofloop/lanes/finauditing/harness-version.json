@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "suite": "finauditing",
-  "harnessVersion": "finauditing-harness-5916f9741a45",
-  "generatedAt": "2026-07-09T06:33:22.268Z",
+  "harnessVersion": "finauditing-harness-b312bb093af5",
+  "generatedAt": "2026-07-09T10:27:50.988Z",
   "previousVersion": null,
   "changes": [
     "keep official-format FinSM/FinRE/FinMR prediction exporters reproducible",
@@ -10,20 +10,20 @@
     "block only at judge credential layer after predictions exist"
   ],
   "modelsTested": [
-    "deepseek/deepseek-v4-pro",
-    "z-ai/glm-5.2",
-    "qwen/qwen3.6-flash",
-    "qwen/qwen3.6-35b-a3b",
-    "gpt-4.1-mini",
-    "ibm-granite/granite-4.1-8b"
+    "openrouter/free-auto",
+    "cohere/north-mini-code:free",
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "nvidia/nemotron-3-super-120b-a12b:free",
+    "qwen/qwen3-coder:free",
+    "google/gemma-4-26b-a4b-it:free"
   ],
-  "bestRoute": "deepseek/deepseek-v4-pro",
+  "bestRoute": "openrouter/free-auto",
   "reason": "Official-format predictions are complete; accepted FinMR judge/scorer import remains before official score promotion.",
   "files": [
     {
       "path": "scripts/proofloop-cli.ts",
       "exists": true,
-      "sha256": "2bf63ef5b2d7b1b636cd696510391cc6426905fdaec2f5a804c129f2c54a0833"
+      "sha256": "d9637190f845071e168b3907c5b7092149789b7cd49436c625ef83e49e844379"
     },
     {
       "path": "scripts/proofloop.mjs",
@@ -33,7 +33,7 @@
     {
       "path": "src/eval/proofloopGoalSupervisor.ts",
       "exists": true,
-      "sha256": "928a1ec86f5cee7ced97a5ec6eaddd1a07a3a3fa35436eefdfe902864cb6cd1a"
+      "sha256": "d3a6fd4d4d60a5a8f4fc26a027fa1eb32f36d88cb2bc4a92bed0321bab19f690"
     },
     {
       "path": "src/eval/proofloopLoopArtifacts.ts",
@@ -48,7 +48,7 @@
     {
       "path": "src/eval/proofloopBlockerSolver.ts",
       "exists": true,
-      "sha256": "e840ede52b09036a5c28427238eef1457930133a6841cd8e12d3983e932c8538"
+      "sha256": "09ba6d342411ee4c768f2825e0526823d534487c0d3bdd07342507bda1b5d399"
     },
     {
       "path": "proofloop/benchmarks/finauditing/adapter.json",
@@ -56,14 +56,24 @@
       "sha256": "1dcd4fbeb7a8186bf58c58c9fac976d73a406aa62087a6dda3502de978c6f7b4"
     },
     {
-      "path": "docs/eval/openrouter-top-paid-tools-snapshot.json",
+      "path": "docs/eval/proofloop-official-score-preflight.json",
       "exists": true,
-      "sha256": "c0f63fb9f0289ec5f79b0c67092afe7ed10bbf502feb593122e0c639bec89e66"
+      "sha256": "74a0c0dade30d91b935a65391dc5b64df370a6da77fc100ee004c198f39b253f"
+    },
+    {
+      "path": "docs/eval/proofloop-free-openrouter-nodeagent-gauge.json",
+      "exists": true,
+      "sha256": "4816499ec402731cec681948011d1d1f6f97997c4e0849cd7540e05d9aafe9e2"
+    },
+    {
+      "path": "docs/eval/proofloop-harness-economics.json",
+      "exists": true,
+      "sha256": "c80f6ed8133656654248814b18b2e0595d002c8c450c99ccfe72b92a0d6875a6"
     },
     {
       "path": "docs/eval/official-benchmark-task-coverage.json",
       "exists": true,
-      "sha256": "bb96d083a6bb1ee733cfd9320b56706aac7ae337dd4ecd3aa03ced9e59c6769f"
+      "sha256": "ab4aff21328682bf1f26596c5f754e075772350df564e3ab32c992515e8f70fa"
     }
   ]
 }

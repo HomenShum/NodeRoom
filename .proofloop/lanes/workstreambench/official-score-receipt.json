@@ -2,19 +2,18 @@
   "schema": 1,
   "suite": "workstreambench",
   "blockerId": "workstreambench-official-score",
-  "generatedAt": "2026-07-09T06:33:22.276Z",
+  "generatedAt": "2026-07-10T03:04:04.092Z",
   "status": "blocked_external",
   "officialScoreClaimable": false,
   "officialSemanticScore": null,
   "acceptedProxyJudge": false,
   "blockers": [
     "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score.",
-    "workstreambench: no public official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is staged because no public official bundle/scorer/rubric URL was found."
+    "workstreambench/MBABench: public ModelOff task bundle, repository, scorer, rubric revisions, and 38 local ai_attempt.xlsx case folders are complete; an accepted official judge/scorer receipt is still required before claiming score."
   ],
   "remainingLocalClasses": [],
   "remainingExternalClasses": [
-    "missing_official_scorer",
-    "missing_task_bundle",
-    "no_public_upstream_release"
+    "missing_judge_credentials",
+    "missing_official_scorer"
   ]
 }

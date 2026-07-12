@@ -3,15 +3,16 @@
   "kind": "blocker_solver_memory",
   "suite": "spreadsheetbench-v1",
   "blockerId": "spreadsheetbench-v1-full-official-score",
-  "generatedAt": "2026-07-09T06:33:22.241Z",
+  "generatedAt": "2026-07-10T03:04:04.062Z",
   "classes": [
     "missing_model_run",
     "missing_official_scorer"
   ],
   "nextCommands": [
+    "npm run benchmark:proofloop:official-preflight -- --strict",
     "run all 912 SpreadsheetBench V1 tasks through the model runner, use npm run benchmark:proofloop:harness-economics to select cheap proxy routes for product iteration, then npm run benchmark:official:task-coverage -- --strict",
     "npm run benchmark:proofloop:harness-economics",
-    "npm run benchmark:spreadsheetbench:run-chunked -- --stage-root .tmp/official-benchmarks/staged-v1-912 --output-root .tmp/official-benchmarks/run-v1-912-model --json-out docs/eval/spreadsheetbench-v1-912-model-run.json --mode model-edit-plan --model deepseek/deepseek-v4-pro --chunk-size 25",
+    "npm run benchmark:spreadsheetbench:run-chunked -- --stage-root .tmp/official-benchmarks/staged-v1-912 --output-root .tmp/official-benchmarks/run-v1-912-model --json-out docs/eval/spreadsheetbench-v1-912-model-run.json --mode model-edit-plan --model openrouter/free-auto --chunk-size 25",
     "npm run benchmark:official:task-coverage -- --strict"
   ],
   "lesson": "Do not declare external-blocked until setup, research, scaffold, doctor, model tracking, and resume evidence are written."

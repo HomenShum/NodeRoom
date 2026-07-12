@@ -1,17 +1,17 @@
 {
   "schema": 1,
   "suite": "finauditing",
-  "generatedAt": "2026-07-09T06:33:22.268Z",
+  "generatedAt": "2026-07-09T10:27:50.988Z",
   "status": "proxy_only",
-  "proxyOnly": true,
+  "proxyOnly": false,
   "officialScoreClaimable": false,
-  "recommendedProxyRoute": "deepseek/deepseek-v4-pro",
+  "recommendedProxyRoute": "openrouter/free-auto",
   "models": [
-    "deepseek/deepseek-v4-pro",
-    "z-ai/glm-5.2",
-    "qwen/qwen3.6-flash",
-    "qwen/qwen3.6-35b-a3b",
-    "gpt-4.1-mini",
-    "ibm-granite/granite-4.1-8b"
+    "openrouter/free-auto",
+    "cohere/north-mini-code:free",
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "nvidia/nemotron-3-super-120b-a12b:free",
+    "qwen/qwen3-coder:free",
+    "google/gemma-4-26b-a4b-it:free"
   ]
 }

@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "suite": "finauditing",
-  "generatedAt": "2026-07-09T06:33:22.268Z",
-  "status": "needs_generation",
+  "generatedAt": "2026-07-09T10:27:50.988Z",
+  "status": "blocked_external",
   "expectedOutputs": [
     "complete FinSM/FinRE/FinMR prediction JSONL manifest",
     "accepted FinMR judge receipt"
@@ -10,13 +10,22 @@
   "currentEvidence": [
     ".proofloop/setup/finauditing-local-setup.json",
     "proofloop/benchmarks/finauditing/adapter.json",
+    "docs/eval/proofloop-external-adapter-live-room-runs/finauditing.json",
     "docs/eval/proofloop-external-adapter-runs/finauditing.json",
     "docs/eval/proofloop-adapter-blockers/finauditing.json",
     "docs/eval/proofloop-official-task-bundles/finauditing.json",
     "docs/eval/proofloop-official-scores/finauditing.json",
-    "docs/eval/proofloop-official-outputs/finauditing.json"
+    "docs/eval/proofloop-official-outputs/finauditing.json",
+    ".proofloop/lanes/finauditing/blocker-analysis.json",
+    ".proofloop/lanes/finauditing/upstream-research.md",
+    ".proofloop/lanes/finauditing/scaffold-plan.md",
+    ".proofloop/lanes/finauditing/harness-version.json",
+    ".proofloop/lanes/finauditing/model-matrix.json",
+    ".proofloop/lanes/finauditing/cost-ledger.json",
+    ".proofloop/lanes/finauditing/official-output-manifest.json",
+    ".proofloop/lanes/finauditing/official-score-receipt.json",
+    ".proofloop/lanes/finauditing/proxy-score-receipt.json",
+    ".proofloop/lanes/finauditing/memory-write.json"
   ],
-  "missingClasses": [
-    "missing_official_scorer"
-  ]
+  "missingClasses": []
 }

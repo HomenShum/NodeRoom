@@ -3,7 +3,7 @@
   "blockerId": "spreadsheetbench-v2-full-official-score",
   "suite": "spreadsheetbench-v2",
   "title": "SpreadsheetBench V2 full 321-task official score",
-  "generatedAt": "2026-07-09T06:33:22.252Z",
+  "generatedAt": "2026-07-10T03:04:04.073Z",
   "phase": "solve",
   "classes": [
     "missing_model_run",
@@ -41,112 +41,113 @@
     "memory-write.json": ".proofloop/lanes/spreadsheetbench-v2/memory-write.json"
   },
   "nextCommands": [
+    "npm run benchmark:proofloop:official-preflight -- --strict",
     "run all 321 SpreadsheetBench V2 tasks and scorer/chart grader, use npm run benchmark:proofloop:harness-economics for proxy-model routing, then npm run benchmark:official:task-coverage -- --strict",
     "npm run benchmark:proofloop:harness-economics",
     "npm run benchmark:spreadsheetbench:stage -- --track spreadsheetbench-v2 --root .tmp/official-benchmarks/spreadsheetbench-v2-full/spreadsheetbench-v2 --output-root .tmp/official-benchmarks/staged-v2-full --json-out docs/eval/spreadsheetbench-v2-full-stage.json",
-    "npm run benchmark:spreadsheetbench:run-chunked -- --stage-root .tmp/official-benchmarks/staged-v2-full --output-root .tmp/official-benchmarks/run-v2-full-model --json-out docs/eval/spreadsheetbench-v2-full-model-run.json --mode model-edit-plan --model deepseek/deepseek-v4-pro --chunk-size 25"
+    "npm run benchmark:spreadsheetbench:run-chunked -- --stage-root .tmp/official-benchmarks/staged-v2-full --output-root .tmp/official-benchmarks/run-v2-full-model --json-out docs/eval/spreadsheetbench-v2-full-model-run.json --mode model-edit-plan --model openrouter/free-auto --chunk-size 25"
   ],
   "models": [
     {
       "provider": "openrouter",
-      "id": "deepseek/deepseek-v4-pro",
-      "routePolicy": "proxy",
+      "id": "openrouter/free-auto",
+      "routePolicy": "specific",
       "role": "planner",
-      "costUsd": null,
-      "tokensIn": null,
-      "tokensOut": null,
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
       "costAccounting": {
-        "status": "unknown",
-        "source": "unknown",
-        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+        "status": "free",
+        "source": "free_provider",
+        "note": "Zero cost is explicit because this route is local, no-provider, deterministic, or catalog-priced as free."
       },
       "latencyMs": 0,
-      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for spreadsheetbench-v2 proxy comparison.",
+      "selectionReason": "Governed free-first router for spreadsheetbench-v2; run npm run benchmark:proofloop:official-preflight -- --strict before any blocked-lane model sweep.",
       "source": "env"
     },
     {
       "provider": "openrouter",
-      "id": "z-ai/glm-5.2",
+      "id": "cohere/north-mini-code:free",
       "routePolicy": "specific",
       "role": "planner",
-      "costUsd": null,
-      "tokensIn": null,
-      "tokensOut": null,
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
       "costAccounting": {
-        "status": "unknown",
-        "source": "unknown",
-        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+        "status": "free",
+        "source": "free_provider",
+        "note": "Zero cost is explicit because this route is local, no-provider, deterministic, or catalog-priced as free."
       },
       "latencyMs": 0,
-      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for spreadsheetbench-v2 proxy comparison.",
+      "selectionReason": "Concrete zero-priced free-auto candidate for spreadsheetbench-v2 (Cohere: North Mini Code (free)).",
       "source": "env"
     },
     {
       "provider": "openrouter",
-      "id": "qwen/qwen3.6-flash",
+      "id": "nvidia/nemotron-3-ultra-550b-a55b:free",
       "routePolicy": "specific",
       "role": "planner",
-      "costUsd": null,
-      "tokensIn": null,
-      "tokensOut": null,
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
       "costAccounting": {
-        "status": "unknown",
-        "source": "unknown",
-        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+        "status": "free",
+        "source": "free_provider",
+        "note": "Zero cost is explicit because this route is local, no-provider, deterministic, or catalog-priced as free."
       },
       "latencyMs": 0,
-      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for spreadsheetbench-v2 proxy comparison.",
+      "selectionReason": "Concrete zero-priced free-auto candidate for spreadsheetbench-v2 (NVIDIA: Nemotron 3 Ultra (free)).",
       "source": "env"
     },
     {
       "provider": "openrouter",
-      "id": "qwen/qwen3.6-35b-a3b",
+      "id": "nvidia/nemotron-3-super-120b-a12b:free",
       "routePolicy": "specific",
       "role": "planner",
-      "costUsd": null,
-      "tokensIn": null,
-      "tokensOut": null,
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
       "costAccounting": {
-        "status": "unknown",
-        "source": "unknown",
-        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+        "status": "free",
+        "source": "free_provider",
+        "note": "Zero cost is explicit because this route is local, no-provider, deterministic, or catalog-priced as free."
       },
       "latencyMs": 0,
-      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for spreadsheetbench-v2 proxy comparison.",
+      "selectionReason": "Concrete zero-priced free-auto candidate for spreadsheetbench-v2 (NVIDIA: Nemotron 3 Super (free)).",
       "source": "env"
     },
     {
-      "provider": "openai",
-      "id": "gpt-4.1-mini",
+      "provider": "openrouter",
+      "id": "qwen/qwen3-coder:free",
       "routePolicy": "specific",
       "role": "planner",
-      "costUsd": null,
-      "tokensIn": null,
-      "tokensOut": null,
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
       "costAccounting": {
-        "status": "unknown",
-        "source": "unknown",
-        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+        "status": "free",
+        "source": "free_provider",
+        "note": "Zero cost is explicit because this route is local, no-provider, deterministic, or catalog-priced as free."
       },
       "latencyMs": 0,
-      "selectionReason": "Candidate selected from suite default matrix for spreadsheetbench-v2; live metadata was not present in the local snapshot.",
-      "source": "suite-default"
+      "selectionReason": "Concrete zero-priced free-auto candidate for spreadsheetbench-v2 (Qwen: Qwen3 Coder 480B A35B (free)).",
+      "source": "env"
     },
     {
       "provider": "openrouter",
-      "id": "ibm-granite/granite-4.1-8b",
+      "id": "google/gemma-4-26b-a4b-it:free",
       "routePolicy": "specific",
       "role": "planner",
-      "costUsd": null,
-      "tokensIn": null,
-      "tokensOut": null,
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
       "costAccounting": {
-        "status": "unknown",
-        "source": "unknown",
-        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+        "status": "free",
+        "source": "free_provider",
+        "note": "Zero cost is explicit because this route is local, no-provider, deterministic, or catalog-priced as free."
       },
       "latencyMs": 0,
-      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for spreadsheetbench-v2 proxy comparison.",
+      "selectionReason": "Concrete zero-priced free-auto candidate for spreadsheetbench-v2 (Google: Gemma 4 26B A4B  (free)).",
       "source": "env"
     }
   ]

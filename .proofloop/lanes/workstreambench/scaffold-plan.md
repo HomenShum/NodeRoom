@@ -2,9 +2,9 @@
 
 ## Required Changes
 
-- continue upstream research
-- create proxy suite receipt with proxy_only flag
-- refuse official claim until upstream bundle/scorer is released or supplied
+- convert the locked public ModelOff dataset into MBABench judge case folders
+- write ai_attempt.xlsx outputs from NodeRoom without opening solution workbooks to the agent
+- run/import the accepted MBABench judge output only after provider spend is explicitly approved
 
 ## Remaining Local Classes
 
@@ -12,12 +12,14 @@
 
 ## Commands
 
-- `obtain the official WorkstreamBench task bundle and scorer/rubric from an upstream release or authors, lock it in docs/eval/proofloop-official-task-bundles/workstreambench.json, use npm run benchmark:proofloop:harness-economics for proxy triage, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict`
+- `npm run benchmark:proofloop:official-preflight -- --strict`
+- `run/import the accepted MBABench official judge output after provider spend approval, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict`
 - `npm run proofloop -- setup workstreambench --doctor`
 - `npm run benchmark:proofloop:adapter-blockers -- --id workstreambench`
-- `npm run proofloop -- blocker research workstreambench-official-score`
 - `npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict`
 
 ## Stop Rule
 
 Do not promote this lane to official score until official-output-manifest.json and official-score-receipt.json are claimable.
+
+Judge credentials can block official promotion, but they must not block local exporter/output scaffolding.

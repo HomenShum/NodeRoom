@@ -3,31 +3,31 @@
   "blockerId": "finauditing-official-score",
   "suite": "finauditing",
   "title": "FinAuditing official score",
-  "generatedAt": "2026-07-09T06:33:22.268Z",
+  "generatedAt": "2026-07-09T23:40:06.293Z",
   "phase": "solve",
   "classes": [
     "missing_judge_credentials",
     "missing_official_scorer"
   ],
-  "status": "needs_scaffold_or_run",
-  "externalBlockClaimAllowed": false,
+  "status": "blocked_external",
+  "externalBlockClaimAllowed": true,
   "stopCondition": {
     "setupAttempted": true,
     "researchAttempted": true,
     "scaffoldAttempted": true,
     "doctorAttempted": true,
     "resumeCommandWritten": true,
-    "allNonExternalPartsCompleted": false
+    "allNonExternalPartsCompleted": true
   },
   "remainingExternalClasses": [
-    "missing_judge_credentials"
-  ],
-  "remainingLocalClasses": [
+    "missing_judge_credentials",
     "missing_official_scorer"
   ],
+  "remainingLocalClasses": [],
   "blockers": [
     "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score.",
-    "finauditing: official task bundle lock docs/eval/proofloop-official-task-bundles/finauditing.json is staged and official-format FinSM/FinRE/FinMR prediction JSONL is complete in docs/eval/proofloop-official-outputs/finauditing.json; an accepted FinMR judge path and scorer import are still required before claiming an official score. OpenAI credentials are one path, while cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream."
+    "finauditing: official task bundle lock docs/eval/proofloop-official-task-bundles/finauditing.json is staged and official-format FinSM/FinRE/FinMR prediction JSONL is complete in docs/eval/proofloop-official-outputs/finauditing.json; local FinSM/FinRE metrics and a 332/332 FinMR parser precheck passed, but an accepted FinMR judge path and scorer import are still required before claiming an official score.",
+    "finauditing: the zero-cost concrete free-provider smoke reached cohere/north-mini-code-20260617:free at $0 but returned no label within four completion tokens; it is transport evidence only and cannot promote an official score."
   ],
   "artifacts": {
     "blocker-analysis.json": ".proofloop/lanes/finauditing/blocker-analysis.json",
@@ -42,113 +42,115 @@
     "memory-write.json": ".proofloop/lanes/finauditing/memory-write.json"
   },
   "nextCommands": [
-    "run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
-    "npm run proofloop -- setup finauditing --doctor",
-    "npm run benchmark:proofloop:adapter-blockers -- --id finauditing",
     "npm run benchmark:proofloop:official-outputs -- --id finauditing",
+    "Run StartKit/evaluateFinMR.ipynb:evaluate_finmr_with_judge over .tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl with the accepted upstream OpenAI-compatible judge credential",
+    "npx tsx scripts/proofloop-official-score-import.ts --id finauditing --input docs/eval/proofloop-official-scores/finauditing.json --json-out docs/eval/proofloop-official-score-imports/finauditing.json --strict",
     "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
+  ],
+  "evidence": [
+    "docs/eval/proofloop-finauditing-local-evaluator-smoke.json"
   ],
   "models": [
     {
       "provider": "openrouter",
-      "id": "deepseek/deepseek-v4-pro",
-      "routePolicy": "proxy",
+      "id": "openrouter/free-auto",
+      "routePolicy": "specific",
       "role": "planner",
-      "costUsd": null,
-      "tokensIn": null,
-      "tokensOut": null,
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
       "costAccounting": {
-        "status": "unknown",
-        "source": "unknown",
-        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+        "status": "free",
+        "source": "free_provider",
+        "note": "Zero cost is explicit because this route is local, no-provider, deterministic, or catalog-priced as free."
       },
       "latencyMs": 0,
-      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finauditing proxy comparison.",
+      "selectionReason": "Governed free-first router for finauditing; run npm run benchmark:proofloop:official-preflight -- --strict before any blocked-lane model sweep.",
       "source": "env"
     },
     {
       "provider": "openrouter",
-      "id": "z-ai/glm-5.2",
+      "id": "cohere/north-mini-code:free",
       "routePolicy": "specific",
       "role": "planner",
-      "costUsd": null,
-      "tokensIn": null,
-      "tokensOut": null,
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
       "costAccounting": {
-        "status": "unknown",
-        "source": "unknown",
-        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+        "status": "free",
+        "source": "free_provider",
+        "note": "Zero cost is explicit because this route is local, no-provider, deterministic, or catalog-priced as free."
       },
       "latencyMs": 0,
-      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finauditing proxy comparison.",
+      "selectionReason": "Concrete zero-priced free-auto candidate for finauditing (Cohere: North Mini Code (free)).",
       "source": "env"
     },
     {
       "provider": "openrouter",
-      "id": "qwen/qwen3.6-flash",
+      "id": "nvidia/nemotron-3-ultra-550b-a55b:free",
       "routePolicy": "specific",
       "role": "planner",
-      "costUsd": null,
-      "tokensIn": null,
-      "tokensOut": null,
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
       "costAccounting": {
-        "status": "unknown",
-        "source": "unknown",
-        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+        "status": "free",
+        "source": "free_provider",
+        "note": "Zero cost is explicit because this route is local, no-provider, deterministic, or catalog-priced as free."
       },
       "latencyMs": 0,
-      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finauditing proxy comparison.",
+      "selectionReason": "Concrete zero-priced free-auto candidate for finauditing (NVIDIA: Nemotron 3 Ultra (free)).",
       "source": "env"
     },
     {
       "provider": "openrouter",
-      "id": "qwen/qwen3.6-35b-a3b",
+      "id": "nvidia/nemotron-3-super-120b-a12b:free",
       "routePolicy": "specific",
       "role": "planner",
-      "costUsd": null,
-      "tokensIn": null,
-      "tokensOut": null,
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
       "costAccounting": {
-        "status": "unknown",
-        "source": "unknown",
-        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+        "status": "free",
+        "source": "free_provider",
+        "note": "Zero cost is explicit because this route is local, no-provider, deterministic, or catalog-priced as free."
       },
       "latencyMs": 0,
-      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finauditing proxy comparison.",
+      "selectionReason": "Concrete zero-priced free-auto candidate for finauditing (NVIDIA: Nemotron 3 Super (free)).",
       "source": "env"
     },
     {
-      "provider": "openai",
-      "id": "gpt-4.1-mini",
+      "provider": "openrouter",
+      "id": "qwen/qwen3-coder:free",
       "routePolicy": "specific",
       "role": "planner",
-      "costUsd": null,
-      "tokensIn": null,
-      "tokensOut": null,
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
       "costAccounting": {
-        "status": "unknown",
-        "source": "unknown",
-        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+        "status": "free",
+        "source": "free_provider",
+        "note": "Zero cost is explicit because this route is local, no-provider, deterministic, or catalog-priced as free."
       },
       "latencyMs": 0,
-      "selectionReason": "Candidate selected from suite default matrix for finauditing; live metadata was not present in the local snapshot.",
-      "source": "suite-default"
+      "selectionReason": "Concrete zero-priced free-auto candidate for finauditing (Qwen: Qwen3 Coder 480B A35B (free)).",
+      "source": "env"
     },
     {
       "provider": "openrouter",
-      "id": "ibm-granite/granite-4.1-8b",
+      "id": "google/gemma-4-26b-a4b-it:free",
       "routePolicy": "specific",
       "role": "planner",
-      "costUsd": null,
-      "tokensIn": null,
-      "tokensOut": null,
+      "costUsd": 0,
+      "tokensIn": 0,
+      "tokensOut": 0,
       "costAccounting": {
-        "status": "unknown",
-        "source": "unknown",
-        "note": "Paid/provider route did not expose positive cost and token telemetry; the receipt must not serialize silent zero usage."
+        "status": "free",
+        "source": "free_provider",
+        "note": "Zero cost is explicit because this route is local, no-provider, deterministic, or catalog-priced as free."
       },
       "latencyMs": 0,
-      "selectionReason": "Candidate selected from OpenRouter tool-capable snapshot for finauditing proxy comparison.",
+      "selectionReason": "Concrete zero-priced free-auto candidate for finauditing (Google: Gemma 4 26B A4B  (free)).",
       "source": "env"
     }
   ]

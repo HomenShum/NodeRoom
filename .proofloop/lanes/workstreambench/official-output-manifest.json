@@ -1,19 +1,32 @@
 {
   "schema": 1,
   "suite": "workstreambench",
-  "generatedAt": "2026-07-09T06:33:22.276Z",
+  "generatedAt": "2026-07-10T03:04:04.092Z",
   "status": "blocked_external",
   "expectedOutputs": [
-    "upstream official task bundle lock",
-    "upstream rubric/scorer receipt",
-    "proxy suite receipt labeled proxy_only until upstream release exists"
+    "38 official-format MBABench judge case folders",
+    "NodeRoom ai_attempt.xlsx candidate workbook for each locked ModelOff task",
+    "accepted MBABench official judge/scorer receipt"
   ],
   "currentEvidence": [
     ".proofloop/setup/workstreambench-local-setup.json",
     "proofloop/benchmarks/workstreambench/adapter.json",
+    "docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json",
     "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
     "docs/eval/proofloop-adapter-blockers/workstreambench.json",
-    "docs/eval/proofloop-official-scores/workstreambench.json"
+    "docs/eval/proofloop-official-task-bundles/workstreambench.json",
+    "docs/eval/proofloop-official-outputs/workstreambench.json",
+    "docs/eval/proofloop-official-scores/workstreambench.json",
+    ".proofloop/lanes/workstreambench/blocker-analysis.json",
+    ".proofloop/lanes/workstreambench/upstream-research.md",
+    ".proofloop/lanes/workstreambench/scaffold-plan.md",
+    ".proofloop/lanes/workstreambench/harness-version.json",
+    ".proofloop/lanes/workstreambench/model-matrix.json",
+    ".proofloop/lanes/workstreambench/cost-ledger.json",
+    ".proofloop/lanes/workstreambench/official-output-manifest.json",
+    ".proofloop/lanes/workstreambench/official-score-receipt.json",
+    ".proofloop/lanes/workstreambench/proxy-score-receipt.json",
+    ".proofloop/lanes/workstreambench/memory-write.json"
   ],
   "missingClasses": []
 }

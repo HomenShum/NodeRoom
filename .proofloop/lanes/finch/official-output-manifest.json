@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "suite": "finch",
-  "generatedAt": "2026-07-09T06:33:22.260Z",
-  "status": "needs_generation",
+  "generatedAt": "2026-07-10T04:18:09.615Z",
+  "status": "blocked_external",
   "expectedOutputs": [
     "complete NodeRoom model-output artifact manifest for all 172 official Finch task ids",
     "content_parts.jsonl",
@@ -11,14 +11,22 @@
   "currentEvidence": [
     ".proofloop/setup/finch-local-setup.json",
     "proofloop/benchmarks/finch/adapter.json",
+    "docs/eval/proofloop-external-adapter-live-room-runs/finch.json",
     "docs/eval/proofloop-external-adapter-runs/finch.json",
     "docs/eval/proofloop-adapter-blockers/finch.json",
     "docs/eval/proofloop-official-task-bundles/finch.json",
     "docs/eval/proofloop-official-scores/finch.json",
-    "docs/eval/proofloop-official-outputs/finch.json"
+    "docs/eval/proofloop-official-outputs/finch.json",
+    ".proofloop/lanes/finch/blocker-analysis.json",
+    ".proofloop/lanes/finch/upstream-research.md",
+    ".proofloop/lanes/finch/scaffold-plan.md",
+    ".proofloop/lanes/finch/harness-version.json",
+    ".proofloop/lanes/finch/model-matrix.json",
+    ".proofloop/lanes/finch/cost-ledger.json",
+    ".proofloop/lanes/finch/official-output-manifest.json",
+    ".proofloop/lanes/finch/official-score-receipt.json",
+    ".proofloop/lanes/finch/proxy-score-receipt.json",
+    ".proofloop/lanes/finch/memory-write.json"
   ],
-  "missingClasses": [
-    "missing_official_scorer",
-    "missing_output_exporter"
-  ]
+  "missingClasses": []
 }

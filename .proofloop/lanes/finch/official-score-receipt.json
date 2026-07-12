@@ -2,20 +2,18 @@
   "schema": 1,
   "suite": "finch",
   "blockerId": "finch-official-score",
-  "generatedAt": "2026-07-09T06:33:22.260Z",
-  "status": "needs_scaffold_or_run",
+  "generatedAt": "2026-07-10T04:18:09.615Z",
+  "status": "blocked_external",
   "officialScoreClaimable": false,
   "officialSemanticScore": null,
   "acceptedProxyJudge": false,
   "blockers": [
     "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score.",
-    "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged and NodeRoom model-output artifacts are complete in docs/eval/proofloop-official-outputs/finch.json; upstream content_parts rendering and an accepted Azure judge/scorer receipt are still required before claiming an official score. Cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream."
+    "finch: official task bundle lock and NodeRoom model-output artifacts are complete, and upstream content_parts input is complete at 172/172; an accepted Azure judge/scorer receipt is still required before claiming an official score."
   ],
-  "remainingLocalClasses": [
-    "missing_official_scorer",
-    "missing_output_exporter"
-  ],
+  "remainingLocalClasses": [],
   "remainingExternalClasses": [
-    "missing_judge_credentials"
+    "missing_judge_credentials",
+    "missing_official_scorer"
   ]
 }

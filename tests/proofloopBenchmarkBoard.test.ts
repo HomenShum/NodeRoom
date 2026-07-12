@@ -27,34 +27,30 @@ describe("Proof Loop benchmark board", () => {
       },
     });
     expect(entries.spreadsheetbench.productPathCompletion.status).toBe("proven");
+    // C15 regression guard: SpreadsheetBench's official score must NOT be "proven"
+    // off task-coverage/staging readiness — only off an actually-claimable lane
+    // receipt (officialScoreClaimable). The lanes are needs_scaffold_or_run.
+    expect(entries.spreadsheetbench.officialSemanticScore.status).not.toBe("proven");
+    expect(entries.spreadsheetbench.officialSemanticScore.status).toBe("needs_scaffold_or_run");
     expect(entries["openrouter-convex"].productPathCompletion.status).toBe("proven");
     expect(entries["openrouter-convex"].officialSemanticScore.status).toBe("not_applicable");
   });
 
-  it("lists external finance adapters without upgrading partial product proof to live-proven", () => {
+  it("lists external finance adapters with separate proven product and official-score receipts", () => {
     const board = buildProofloopBenchmarkBoard({ generatedAt: "test" });
     const entries = Object.fromEntries(board.entries.map((entry) => [entry.id, entry]));
 
-    for (const id of ["finch", "workstreambench"]) {
+    for (const id of ["finch", "finauditing", "workstreambench"]) {
       expect(entries[id].productPathCompletion.status).toBe("proven");
       expect(entries[id].productPathCompletion.blockers).toEqual([]);
       expect(entries[id].officialSemanticScore.evidence).toContain(`docs/eval/proofloop-adapter-blockers/${id}.json`);
-      expect(entries[id].officialSemanticScore.blockers.join(" ")).toContain(`${id}: official scorer receipt`);
+      expect(entries[id].officialSemanticScore.status).toBe("proven");
+      expect(entries[id].officialSemanticScore.blockers).toEqual([]);
     }
-    expect(["partial", "proven"]).toContain(entries.finauditing.productPathCompletion.status);
-    if (entries.finauditing.productPathCompletion.status === "partial") {
-      expect(entries.finauditing.productPathCompletion.blockers).toContain("finauditing: live-room browser scenario failed");
-    } else {
-      expect(entries.finauditing.productPathCompletion.blockers).not.toContain("finauditing: live-room browser scenario failed");
-    }
-    expect(entries.finauditing.officialSemanticScore.evidence).toContain("docs/eval/proofloop-adapter-blockers/finauditing.json");
-    expect(entries.finauditing.officialSemanticScore.blockers.join(" ")).toContain("finauditing: official scorer receipt");
-    expect(entries.finch.officialSemanticScore.status).toBe("needs_scaffold_or_run");
-    expect(entries.finauditing.officialSemanticScore.status).toBe("needs_scaffold_or_run");
-    expect(entries.workstreambench.officialSemanticScore.status).toBe("blocked");
-    expect(entries.finch.officialSemanticScore.blockers.join(" ")).toContain("content_parts rendering");
-    expect(entries.finch.officialSemanticScore.blockers.join(" ")).toContain("missing official scorer");
-    expect(entries.workstreambench.officialSemanticScore.blockers.join(" ")).toContain("no public official bundle/scorer/rubric URL");
+    expect(entries.finch.officialSemanticScore.evidence).toContain("docs/eval/proofloop-official-score-imports/finch.json");
+    expect(entries.finauditing.officialSemanticScore.evidence).toContain("docs/eval/proofloop-official-score-imports/finauditing.json");
+    expect(entries.workstreambench.officialSemanticScore.evidence).toContain("docs/eval/proofloop-official-score-imports/workstreambench.json");
+    expect(entries.workstreambench.officialSemanticScore.evidence).toContain("docs/eval/proofloop-official-task-bundles/workstreambench.json");
   });
 
   it("renders a compact markdown status table for users", () => {
@@ -62,11 +58,12 @@ describe("Proof Loop benchmark board", () => {
 
     expect(markdown).toContain("# Proof Loop Benchmark Board");
     expect(markdown).toContain("| `bankertoolbench` | external_adapter | proven | proven |");
-    expect(markdown).toContain("| `finch` | external_adapter | proven | needs_scaffold_or_run |");
-    expect(markdown).toContain("| `finauditing` | external_adapter |");
-    expect(markdown).toContain("FinAuditing scorer output");
-    expect(markdown).toContain("content_parts rendering");
-    expect(markdown).toContain("NodeRoom model-output artifacts are complete");
+    expect(markdown).toContain("| `finch` | external_adapter | proven | proven |");
+    expect(markdown).toContain("| `finauditing` | external_adapter | proven | proven |");
+    expect(markdown).toContain("| `workstreambench` | external_adapter | proven | proven |");
+    expect(markdown).toContain("Official scores claimed: 4");
+    expect(markdown).toContain("Official scores blocked/not claimed: 1");
+    expect(markdown).toContain("| `spreadsheetbench` | official_style | proven | needs_scaffold_or_run |");
     expect(markdown).toContain("Product-path completion is useful proof");
   });
 
