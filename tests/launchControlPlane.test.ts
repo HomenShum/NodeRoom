@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -11,7 +12,7 @@ import {
   type LaunchApproval,
   type LaunchEvidenceCheck,
 } from "../src/launch/controlPlane";
-import { launchPolicy, launchPolicyDigest } from "../src/launch/policy";
+import { launchCommandInvocation, launchPolicy, launchPolicyDigest } from "../src/launch/policy";
 import { validateDeployedProofInput } from "../src/launch/deployedProof";
 
 const APPROVAL: LaunchApproval = {
@@ -169,6 +170,21 @@ describe("launch control plane", () => {
         args: ["run", "test:launch:surface"],
       }));
     }
+  });
+
+  it("resolves npm through the command shell on Windows", () => {
+    expect(launchCommandInvocation("npm", "win32")).toEqual({ executable: "npm.cmd", shell: true });
+    expect(launchCommandInvocation("npx", "linux")).toEqual({ executable: "npx", shell: false });
+
+    const invocation = launchCommandInvocation("npm");
+    const result = spawnSync(invocation.executable, ["--version"], {
+      encoding: "utf8",
+      shell: invocation.shell,
+      windowsHide: true,
+    });
+    expect(result.error).toBeUndefined();
+    expect(result.status).toBe(0);
+    expect(result.stdout.trim()).toMatch(/^\d+\.\d+\.\d+/);
   });
 });
 

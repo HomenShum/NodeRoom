@@ -1,7 +1,7 @@
 {
   "schema": "noderoom-launch-gate-v1",
   "gate": "pilot",
-  "generatedAt": "2026-07-12T19:53:21.185Z",
+  "generatedAt": "2026-07-12T19:57:59.793Z",
   "status": "blocked",
   "approvalSource": ".launch/approval.example.json",
   "checks": [
@@ -49,7 +49,7 @@
     {
       "id": "code.tests",
       "status": "fail",
-      "detail": "The current working tree passes 310/310 Vitest files and 2,117/2,117 tests. Product-memory browser proof passes 29/29, the launch-surface browser proof passes 19/19, the unchanged accounting certification suite passes 100/85, and Notion/GTM ProofLoop passes 100/80. Trusted clean-commit receipts are pending.",
+      "detail": "The current working tree passes 310/310 Vitest files and 2,118/2,118 tests. Product-memory browser proof passes 29/29, the launch-surface browser proof passes 19/19, the unchanged accounting certification suite passes 100/85, and Notion/GTM ProofLoop passes 100/80. Trusted clean-commit receipts are pending.",
       "evidence": [
         "tests/proofStaleness.test.ts",
         "tests/launchCopyContract.test.ts",
@@ -231,7 +231,7 @@
     "code.release-candidate: PR #190 at 77757c42 remains the prior green baseline. The successor branch contains the workbook, spend, export, and first-run changes and needs a clean current-revision proof bundle before it is a release candidate.",
     "code.typecheck: Application TypeScript passed on the current working tree; trusted clean-commit receipt is pending.",
     "code.convex-typecheck: Convex TypeScript passed on the current working tree; trusted clean-commit receipt is pending.",
-    "code.tests: The current working tree passes 310/310 Vitest files and 2,117/2,117 tests. Product-memory browser proof passes 29/29, the launch-surface browser proof passes 19/19, the unchanged accounting certification suite passes 100/85, and Notion/GTM ProofLoop passes 100/80. Trusted clean-commit receipts are pending.",
+    "code.tests: The current working tree passes 310/310 Vitest files and 2,118/2,118 tests. Product-memory browser proof passes 29/29, the launch-surface browser proof passes 19/19, the unchanged accounting certification suite passes 100/85, and Notion/GTM ProofLoop passes 100/80. Trusted clean-commit receipts are pending.",
     "code.production-build: The current working-tree production build passes with the existing large-chunk advisory; clean-commit immutable receipt is pending.",
     "pilot.authenticated-preview: The prior authenticated preview passed, but it does not contain the successor branch's current schema, spend admission, bounded grants, durable export receipts, launch posture query, or function-spec-bound verifier.",
     "pilot.first-user-journey: The no-account local sample passes locally. A fresh authenticated phone user must still prove create -> initial credits -> public durable job -> proposal/evidence -> accept/reject -> export receipt -> reload on the deployed current revision.",

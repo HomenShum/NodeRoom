@@ -2,7 +2,13 @@ import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
-import { launchPolicy, launchPolicyDigest, type LaunchArtifactKind, type LaunchGateProfile } from "../src/launch/policy";
+import {
+  launchCommandInvocation,
+  launchPolicy,
+  launchPolicyDigest,
+  type LaunchArtifactKind,
+  type LaunchGateProfile,
+} from "../src/launch/policy";
 
 type CommandReceipt = {
   schema: "noderoom-launch-command-receipt-v1";
@@ -48,12 +54,13 @@ let failed = false;
 
 for (const command of policy.commands) {
   const started = new Date();
-  const program = process.platform === "win32" ? `${command.program}.cmd` : command.program;
+  const invocation = launchCommandInvocation(command.program);
   console.log(`launch gate [${profile}] ${command.id}: ${command.program} ${command.args.join(" ")}`);
-  const result = spawnSync(program, command.args, {
+  const result = spawnSync(invocation.executable, command.args, {
     cwd: root,
     encoding: "utf8",
     windowsHide: true,
+    shell: invocation.shell,
     timeout: command.timeoutMs,
     env: process.env,
     maxBuffer: 16 * 1024 * 1024,

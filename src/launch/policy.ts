@@ -11,6 +11,11 @@ export type LaunchCommandPolicy = {
   timeoutMs: number;
 };
 
+export type LaunchCommandInvocation = {
+  executable: string;
+  shell: boolean;
+};
+
 export type LaunchPolicy = {
   schema: "noderoom-launch-policy-v1";
   profile: LaunchGateProfile;
@@ -62,6 +67,15 @@ export function launchPolicy(profile: LaunchGateProfile): LaunchPolicy {
     allowDirtyWorktree: false,
     allowSelfReportedEvidence: false,
   };
+}
+
+export function launchCommandInvocation(
+  program: LaunchCommandPolicy["program"],
+  platform = process.platform,
+): LaunchCommandInvocation {
+  return platform === "win32"
+    ? { executable: `${program}.cmd`, shell: true }
+    : { executable: program, shell: false };
 }
 
 export function launchPolicyDigest(policy: LaunchPolicy): string {
