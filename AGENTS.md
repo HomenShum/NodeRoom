@@ -1,5 +1,11 @@
 # Coding Agent Notes
 
+NodeRoom is the product (frozen scope: `docs/WEDGE.md`); ProofLoop is the
+certification harness that gates it. `CLAUDE.md` carries the operating
+instructions (gates, deploys, scaffold allowlist, design rules); this file is the
+NodeAgent code map plus the proof-loop doctrine. Fast per-change gate:
+`npm run floor`. Full pre-ship gate: `npm run prod:gate`.
+
 NodeAgent is the canonical agent harness in this repo. Before changing it, run:
 
 ```bash
@@ -45,8 +51,9 @@ new one) follows the same split, formalized in
   and held-out fixtures, produces a proof receipt. This is what `scaffold-check.ts
   --strict-immutability`, `fresh-room-proof-verify.ts`, and the `IMMUTABLE_FILES` list protect.
 - **Exploration Loop** (open-ended): proposes new scenarios, red-team cases, and scaffold deltas —
-  this is the `proofloop/scenarios/*.yaml` / `proofloop/rubrics/*.yaml` / `.proofloop/memory.jsonl`
-  surface `CLAUDE.md`'s "Self-Scaffolding Proof-Looping" section already scopes as editable.
+  the editable scaffold surface listed in `CLAUDE.md`'s "Self-Scaffolding Proof-Looping" section
+  (scenario/rubric YAML under `proofloop/accounting/` and `proofloop/notion/`,
+  `proofloop/rubrics/*.yaml`, `proofloop/adapters/*.mjs|*.ts`, `.proofloop/memory.jsonl`).
 
 The rule that makes the split real is already coded in `src/eval/scaffoldProposal.ts`'s
 `evaluateScaffoldAcceptance()`: a scaffold proposal cannot reach `"accepted"` unless
@@ -60,22 +67,12 @@ memory and run output under `.proofloop/` gitignored.
 
 ## Proximitty Underwriting Proof Loop
 
-The Proximitty demo suite is `proximitty-underwriting-pr0`. It is an
-evaluation-only underwriting workflow using synthetic data; do not use it to
-make real financial, legal, lending, or insurance decisions.
-
-Run:
-
-```bash
-npm run proofloop:proximitty
-```
-
-The command must create `.proofloop/runs/<run-id>/scorecard.md`,
-`live-user-contract.json`, `node-trace-v2.json`, `node-eval.json`,
-`model-comparison.json`, `cost-ledger.json`, `verifier-receipt.json`, clips,
-the legacy `.proofloop/memory.jsonl` receipt, and local-first recall memory in
-`.proofloop/memory/` with SQLite/FTS indexing. Do not weaken proof gates to make
-this suite pass, and do not commit generated local memory stores.
+The Proximitty demo suite is `proximitty-underwriting-pr0` — an evaluation-only
+underwriting workflow on synthetic data; never use it for real financial, legal,
+lending, or insurance decisions. Run it with `npm run proofloop:proximitty`; the run
+contract (required receipt files under `.proofloop/runs/<run-id>/`) and the
+no-weakening rule live in `CLAUDE.md`'s Proximitty section. Do not weaken proof gates
+to make the suite pass, and do not commit generated local memory stores.
 
 <!-- proofloop-agent-friendly:start -->
 ## ProofLoop Agent-Friendly CLI
