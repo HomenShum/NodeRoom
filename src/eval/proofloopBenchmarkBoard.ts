@@ -221,18 +221,19 @@ function spreadsheetBenchEntry(root: string): ProofloopBenchmarkBoardEntry {
   const v1Solver = readLaneAnalysis(root, "spreadsheetbench-v1");
   const v2Solver = readLaneAnalysis(root, "spreadsheetbench-v2");
   const livePassed = live?.passed === true;
-  // An official semantic score is "proven" ONLY when each lane's official-score
-  // receipt is actually claimable — NOT when the task bundle is merely staged.
-  // `strictFullCoverageReady` means all tracks are staged/coverage-complete (a
-  // prerequisite for, not evidence of, an imported score), and it aggregates ALL
-  // tracks, not just SpreadsheetBench. Using it here falsely flipped SpreadsheetBench
-  // to "proven" while its lane receipt said needs_scaffold_or_run / officialScore
-  // Claimable:false (direction audit 2026-07-12, C15). Gate on the same signal the
-  // external-adapter lanes use: officialScoreClaimable === true.
-  const v1Receipt = readLaneOfficialScoreReceipt(root, "spreadsheetbench-v1");
-  const v2Receipt = readLaneOfficialScoreReceipt(root, "spreadsheetbench-v2");
-  const officialScoreClaimable =
-    v1Receipt?.officialScoreClaimable === true && v2Receipt?.officialScoreClaimable === true;
+  // An official semantic score is "proven" when an ACCEPTED upstream official-scorer
+  // receipt exists — the same authoritative signal the certified Proof Release uses
+  // (RUCKBReasoning/SpreadsheetBench evaluation.py, `accepted: true`). This is NOT
+  // `strictFullCoverageReady` (which only means the bundle is staged, aggregates all
+  // tracks, and previously false-flipped this row), and it supersedes the lane
+  // blocker-analysis, which is a pre-scorer-run snapshot that stays
+  // needs_scaffold_or_run even after the scorer runs. A low pass rate (V1 70/912,
+  // V2 0/321) is still an imported official score — "proven" means imported, not
+  // passed. (direction audit 2026-07-12, C15 — corrected after finding the accepted
+  // receipts were untracked and the lane snapshot stale.)
+  const v1Official = readAcceptedOfficialScorerReceipt(root, "spreadsheetbench-v1");
+  const v2Official = readAcceptedOfficialScorerReceipt(root, "spreadsheetbench-v2");
+  const officialScoreClaimable = v1Official?.accepted === true && v2Official?.accepted === true;
   const solverStatus = solverAggregateStatus([v1Solver, v2Solver]);
 
   return {
@@ -250,13 +251,17 @@ function spreadsheetBenchEntry(root: string): ProofloopBenchmarkBoardEntry {
     officialSemanticScore: {
       status: officialScoreClaimable ? "proven" : solverStatus ?? "blocked",
       scoreType: "official_semantic_score",
-      evidence: [
-        ".proofloop/lanes/spreadsheetbench-v1/official-score-receipt.json",
-        ".proofloop/lanes/spreadsheetbench-v2/official-score-receipt.json",
-        "docs/eval/official-benchmark-task-coverage.json",
-        ...(v1Solver ? [".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json"] : []),
-        ...(v2Solver ? [".proofloop/lanes/spreadsheetbench-v2/blocker-analysis.json"] : []),
-      ],
+      evidence: officialScoreClaimable
+        ? [
+            "docs/eval/spreadsheetbench-v1-accepted-official-scorer-receipt.json",
+            "docs/eval/spreadsheetbench-v2-accepted-official-scorer-receipt.json",
+            "docs/eval/spreadsheetbench-v1-upstream-official-results.json",
+          ]
+        : [
+            "docs/eval/official-benchmark-task-coverage.json",
+            ...(v1Solver ? [".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json"] : []),
+            ...(v2Solver ? [".proofloop/lanes/spreadsheetbench-v2/blocker-analysis.json"] : []),
+          ],
       command: solverStatus ? "npm run proofloop -- solve-blockers --goal official-scores" : "npm run benchmark:official:task-coverage",
       blockers: officialScoreClaimable ? [] : spreadsheetBenchCoverageBlockers(taskCoverage, [v1Solver, v2Solver]),
     },
@@ -554,14 +559,21 @@ function readLaneAnalysis(root: string, suite: string): BlockerAnalysisReceipt |
   return readJson<BlockerAnalysisReceipt>(root, `.proofloop/lanes/${suite}/blocker-analysis.json`);
 }
 
-type LaneOfficialScoreReceipt = {
-  officialScoreClaimable?: boolean;
-  officialSemanticScore?: number | null;
-  status?: string;
+type AcceptedOfficialScorerReceipt = {
+  accepted?: boolean;
+  score?: {
+    averageOverall?: number;
+    passRate?: number;
+    passCount?: number;
+    scoredTaskCount?: number;
+  };
 };
 
-function readLaneOfficialScoreReceipt(root: string, suite: string): LaneOfficialScoreReceipt | undefined {
-  return readJson<LaneOfficialScoreReceipt>(root, `.proofloop/lanes/${suite}/official-score-receipt.json`);
+// The authoritative official-score signal, shared with the certified Proof Release:
+// an accepted upstream official-scorer receipt (docs/eval/<track>-accepted-official-
+// scorer-receipt.json, accepted:true). See src/eval/spreadsheetBenchOfficialScoreReadiness.ts.
+function readAcceptedOfficialScorerReceipt(root: string, track: string): AcceptedOfficialScorerReceipt | undefined {
+  return readJson<AcceptedOfficialScorerReceipt>(root, `docs/eval/${track}-accepted-official-scorer-receipt.json`);
 }
 
 function solverAggregateStatus(receipts: Array<BlockerAnalysisReceipt | undefined>): ProofloopBenchmarkBoardStatus | undefined {

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-12T19:03:22.585Z",
+  "generatedAt": "2026-07-12T19:14:02.152Z",
   "policy": [
     "Product-path completion is useful proof: real UI, visible progress, artifacts, verifier receipts, trace, memory, and browser evidence.",
     "Official semantic score is only claimed when the benchmark's official scorer/verifier result is imported.",
@@ -13,9 +13,9 @@
     "productPathProven": 7,
     "productPathReadyToRun": 2,
     "externalAdaptersRegistered": 0,
-    "officialScoresClaimed": 4,
+    "officialScoresClaimed": 5,
     "officialScoresNotApplicable": 4,
-    "officialScoresBlockedOrNotClaimed": 1
+    "officialScoresBlockedOrNotClaimed": 0
   },
   "entries": [
     {
@@ -33,19 +33,15 @@
         "blockers": []
       },
       "officialSemanticScore": {
-        "status": "needs_scaffold_or_run",
+        "status": "proven",
         "scoreType": "official_semantic_score",
         "evidence": [
-          ".proofloop/lanes/spreadsheetbench-v1/official-score-receipt.json",
-          ".proofloop/lanes/spreadsheetbench-v2/official-score-receipt.json",
-          "docs/eval/official-benchmark-task-coverage.json",
-          ".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json",
-          ".proofloop/lanes/spreadsheetbench-v2/blocker-analysis.json"
+          "docs/eval/spreadsheetbench-v1-accepted-official-scorer-receipt.json",
+          "docs/eval/spreadsheetbench-v2-accepted-official-scorer-receipt.json",
+          "docs/eval/spreadsheetbench-v1-upstream-official-results.json"
         ],
         "command": "npm run proofloop -- solve-blockers --goal official-scores",
-        "blockers": [
-          "Full official SpreadsheetBench model outputs and scorer import are not ready."
-        ]
+        "blockers": []
       },
       "notes": [
         "Workbook product proof is separate from full official task coverage."

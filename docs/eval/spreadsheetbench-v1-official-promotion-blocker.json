@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "track": "spreadsheetbench-v1",
+  "generatedAt": "2026-07-09T09:50:17.127Z",
+  "status": "needs_model_run_work",
+  "officialScoreClaimable": false,
+  "noSpendPolicy": "free_local_free_first_only",
+  "noSpendAttempt": {
+    "fullModelRunAttempted": false,
+    "reason": "OPENROUTER_API_KEY is not present, so the configured openrouter/free-auto model-run path cannot be started without a credentialed provider call.",
+    "paidProviderCallsMade": false
+  },
+  "currentCoverage": {
+    "stagedTaskCount": 912,
+    "localProxyOutputReceiptCount": 912,
+    "localProxyCandidateWorkbookCount": 2729,
+    "validOfficialScorerReceiptCount": 0
+  },
+  "missing": [
+    {
+      "id": "full_912_task_model_run",
+      "kind": "model_run",
+      "requiredFor": "official_score_promotion",
+      "detail": "docs/eval/spreadsheetbench-v1-912-model-run.json is absent; all 912 staged tasks still need model-generated candidate outputs before a true official promotion can be evaluated."
+    },
+    {
+      "id": "openrouter_free_route_credential",
+      "kind": "credential",
+      "requiredFor": "no_spend_model_run_attempt",
+      "detail": "OPENROUTER_API_KEY is missing; the recorded free-first resume route is openrouter/free-auto."
+    },
+    {
+      "id": "accepted_official_scorer_receipt",
+      "kind": "official_scorer_receipt",
+      "requiredFor": "official_score_claim",
+      "detail": "docs/eval/spreadsheetbench-v1-accepted-official-scorer-receipt.json is missing. Local/proxy workbook or output receipts remain non-official."
+    }
+  ],
+  "resumeCommands": [
+    "npm run benchmark:proofloop:official-preflight -- --strict",
+    "npm run benchmark:spreadsheetbench:run-chunked -- --stage-root .tmp/official-benchmarks/staged-v1-912 --output-root .tmp/official-benchmarks/run-v1-912-model --json-out docs/eval/spreadsheetbench-v1-912-model-run.json --mode model-edit-plan --model openrouter/free-auto --chunk-size 25",
+    "npx tsx scripts/spreadsheetbench-official-score-readiness.ts --track spreadsheetbench-v1 --run-report docs/eval/spreadsheetbench-v1-912-model-run.json --json-out docs/eval/spreadsheetbench-v1-official-score-readiness.json --strict"
+  ],
+  "evidence": [
+    "docs/eval/spreadsheetbench-v1-912-stage.json",
+    "docs/eval/spreadsheetbench-v1-912-local-proxy-output-receipts.json",
+    "docs/eval/spreadsheetbench-v1-official-score-readiness.json",
+    ".proofloop/lanes/spreadsheetbench-v1/blocker-analysis.json",
+    ".proofloop/lanes/spreadsheetbench-v1/official-score-preflight.json"
+  ],
+  "costEvidence": {
+    "modelCalls": 0,
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "providerCostUsd": 0,
+    "paidProviderCostUsd": 0,
+    "source": "no model run was started; refreshed V1 local/proxy output receipts and readiness gate report cost $0"
+  }
+}

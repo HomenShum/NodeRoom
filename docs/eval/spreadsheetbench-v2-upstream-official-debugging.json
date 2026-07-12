@@ -1,0 +1,814 @@
+{
+    "total_tests": 100,
+    "missing_outputs": 0,
+    "regression_accuracy": 0.998,
+    "modification_accuracy": 0.2681,
+    "accuracy": 0.0,
+    "interaction_turns_stats": {
+        "average": 0.0,
+        "maximum": 0,
+        "minimum": 0
+    },
+    "scores": [
+        {
+            "id": "01_01",
+            "error_message": "Modification error at Ex 1 - LBO!C11: answer=18.2034, output=14.20339495363908",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.8384,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "01_02",
+            "error_message": "Modification error at Ex 1 - LBO!Q41: answer==+I17, output=0.04",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "01_03",
+            "error_message": "Regression error at Ex 1 - LBO!Q59: answer=0, output=#REF!",
+            "regression_accuracy": 0.9474,
+            "modification_accuracy": 0.5002,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "01_04",
+            "error_message": "Modification error at Ex 1 - LBO!C11: answer=18.2034, output=14.20339495363908",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "01_05",
+            "error_message": "Modification error at Ex 1 - LBO!C11: answer=18.2034, output=14.20339495363908",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.8354,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "01_06",
+            "error_message": "Modification error at Ex 1 - LBO!C11: answer=18.2034, output=14.20339495363908",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.7458,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "01_07",
+            "error_message": "Modification error at Ex 1 - LBO!C11: answer=18.2034, output=14.606553825576976",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "01_08",
+            "error_message": "Modification error at Ex 1 - LBO!C11: answer=18.2034, output=2.7679389912583265",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.4223,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "01_09",
+            "error_message": "Modification error at Ex 1 - LBO!C11: answer=18.2034, output=14.20339495363908",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.834,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "01_10",
+            "error_message": "Modification error at Ex 1 - LBO!C11: answer=18.2034, output=14.20339495363908",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.6976,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "02_01",
+            "error_message": "Modification error at DCF!R32: answer=15122, output=16069",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.9609,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "02_02",
+            "error_message": "Modification error at DCF!G9: answer==INDEX('Exhibit 1'!B:B,MATCH(\"Total revenue, net\",'Exhibit 1'!A:A,0)), output==INDEX('Exhibit 1'!B:B,MATCH(\"Total revenue, net\",'Exhibit 1'!A:A,0))",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "02_03",
+            "error_message": "Modification error at DCF!B9: answer=WACC, output=Terminal Value Growth Rate",
+            "regression_accuracy": 0.9935,
+            "modification_accuracy": 0.7231,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "02_04",
+            "error_message": "Modification error at DCF!C8: answer=0.25, output=0.25",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.9741,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "02_05",
+            "error_message": "Modification error at DCF!V10: answer=54647.4402083381, output=#N/A",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.9888,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "02_06",
+            "error_message": "Modification error at DCF!C10: answer=0.018, output=0.0254",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "02_07",
+            "error_message": "Modification error at DCF!G9: answer=11908, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "02_08",
+            "error_message": "Modification error at DCF!C9: answer=0.0869691722391674, output=0.102627863082783",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.7665,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "02_09",
+            "error_message": "Modification error at DCF!H18: answer=-654.75, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.8866,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "02_10",
+            "error_message": "Modification error at DCF!I20: answer=4280.625, output=4504.125",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.7426,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "03_01",
+            "error_message": "Modification error at LBO!F14: answer=9.907, output=-100.093",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.9101,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "03_02",
+            "error_message": "Modification error at LBO!F12: answer==+C35, output=1575",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "03_03",
+            "error_message": "Regression error at LBO!C8: answer=None, output=276.775",
+            "regression_accuracy": 0.9662,
+            "modification_accuracy": 0.3836,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "03_04",
+            "error_message": "Modification error at LBO!F11: answer=100, output=100",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.9837,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "03_05",
+            "error_message": "Modification error at LBO!J13: answer=294.105117865, output=249.78389591999974",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "03_06",
+            "error_message": "Regression error at LBO!K44: answer=0, output=1585.57875511624",
+            "regression_accuracy": 0.9967,
+            "modification_accuracy": 0.7763,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "03_07",
+            "error_message": "Modification error at LBO!C10: answer=276.775, output=294.1051178650001",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "03_08",
+            "error_message": "Regression error at LBO!J48: answer=0, output=538.00383839875",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.8432,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "03_09",
+            "error_message": "Modification error at LBO!J32: answer=0.018, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.9656,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "03_10",
+            "error_message": "Regression error at LBO!K44: answer=0, output=2071.1111573978",
+            "regression_accuracy": 0.9967,
+            "modification_accuracy": 0.7714,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "04_01",
+            "error_message": "Modification error at Balance Sheet!J14: answer=962.719962510392, output=1018.2979661236402",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.9689,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "04_02",
+            "error_message": "Modification error at Income Statement!J20: answer==(-J52*J19), output==(-0.595*J19)",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "04_03",
+            "error_message": "Modification error at Control!B8: answer=None, output=x",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "04_04",
+            "error_message": "Modification error at Income Statement!B6: answer=Monro, Inc. (NASDAQ: MNRO), output=Monro, Inc. (NASDAQ: MNRO)",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.9946,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "04_05",
+            "error_message": "Modification error at Summary!H12: answer=57.968341030264, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.8517,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "04_06",
+            "error_message": "Modification error at Summary!H12: answer=57.968341030264, output=83.20623485777584",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.8424,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "04_07",
+            "error_message": "Modification error at Summary!H12: answer=57.968341030264, output=981.1794043006803",
+            "regression_accuracy": 0.9976,
+            "modification_accuracy": 0.7671,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "04_08",
+            "error_message": "Modification error at Summary!H12: answer=57.968341030264, output=70.27680851680194",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.7842,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "04_09",
+            "error_message": "Modification error at Summary!H12: answer=57.968341030264, output=62.832841300773275",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.927,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "04_10",
+            "error_message": "Modification error at Summary!H12: answer=57.968341030264, output=-203.31187811476642",
+            "regression_accuracy": 0.9962,
+            "modification_accuracy": 0.8253,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "05_01",
+            "error_message": "Regression error at Model!C22: answer=443.099, output=813.815",
+            "regression_accuracy": 0.9543,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "05_02",
+            "error_message": "Regression error at Model!I96: answer==E4, output==I95",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "05_03",
+            "error_message": "Modification error at Model!B91: answer=SOFR, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "05_04",
+            "error_message": "Modification error at Model!E4: answer=0, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "05_05",
+            "error_message": "Regression error at Model!I13: answer=300.943396226415, output=601.8867924528302",
+            "regression_accuracy": 0.9718,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "05_06",
+            "error_message": "Regression error at Model!E5: answer=424.6, output=380.80350000000004",
+            "regression_accuracy": 0.9888,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "05_07",
+            "error_message": "Regression error at Model!C29: answer=-64.485, output=422.922",
+            "regression_accuracy": 0.9967,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "05_08",
+            "error_message": "Regression error at Transaction Overview!L12: answer=0.04, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "05_09",
+            "error_message": "Regression error at Model!K40: answer=-2.316, output=-1.8527999999999998",
+            "regression_accuracy": 0.9976,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "05_10",
+            "error_message": "Regression error at Model!I63: answer=40.0798917434275, output=1219.0967071959194",
+            "regression_accuracy": 0.9954,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "06_01",
+            "error_message": "Modification error at Cover!G10: answer=1.63541592509081, output=20.81705948425892",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "06_02",
+            "error_message": "Regression error at Revenue Build!AC41: answer==rri(5,W41,AA41), output==_xludf.RRI(5,W41,AA41)",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "06_03",
+            "error_message": "Modification error at Revenue Build!B33: answer=Total Revenue, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "06_04",
+            "error_message": "Regression error at Revenue Build!AC41: answer=#NAME?, output=#NAME?",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "06_05",
+            "error_message": "Modification error at Cover!G10: answer=1.63541592509081, output=1.0413284012374098",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "06_06",
+            "error_message": "Regression error at Cover!G9: answer=Bear, output=base",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.6016,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "06_07",
+            "error_message": "Modification error at Cover!G10: answer=1.63541592509081, output=1.5752767485436039",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "06_08",
+            "error_message": "Modification error at Cover!G10: answer=1.63541592509081, output=15.604929057921433",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.9106,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "06_09",
+            "error_message": "Regression error at Revenue Build!AC41: answer=#NAME?, output=#NAME?",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.9501,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "06_10",
+            "error_message": "Modification error at Cover!G10: answer=1.63541592509081, output=14.515732771844096",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.8317,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "07_01",
+            "error_message": "Modification error at BS & CF!F30: answer=249, output=459",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "07_02",
+            "error_message": "Modification error at Football Field!H6: answer==INDEX('Trading & Comparable Txns'!$I$12:$I$13, MATCH(\"Median\", 'Trading & Comparable Txns'!$D$12:$D$13, 0)), output==INDEX('Trading & Comparable Txns'!$I$12:$I$13, MATCH(\"Median\", 'Trading & Comparable Txns'!$D$12:$D$13, 0))",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "07_03",
+            "error_message": "Modification error at BS & CF!B55: answer=None, output=x",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "07_04",
+            "error_message": "Modification error at Football Field!E5: answer=1351.83476611251, output=1351.834766112511",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "07_05",
+            "error_message": "Regression error at BS & CF!B2: answer=x, output=",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "07_06",
+            "error_message": "Regression error at BS & CF!B2: answer=x, output=",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "07_07",
+            "error_message": "Regression error at BS & CF!B2: answer=x, output=",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "07_08",
+            "error_message": "Regression error at BS & CF!B2: answer=x, output=",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "07_09",
+            "error_message": "Modification error at Football Field!E6: answer=1421.99690366983, output=1833.5557829872437",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "07_10",
+            "error_message": "Modification error at LBO & Lenders!R62: answer=3.8578654431893, output=0.463451517436255",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "08_01",
+            "error_message": "Modification error at Operating Model + DCF!C83: answer=-67.412, output=15.113",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "08_02",
+            "error_message": "Modification error at Operating Model + DCF!C92: answer==M36, output=33.2",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "08_03",
+            "error_message": "Modification error at Operating Model + DCF!B95: answer=Unlevered free cash flow, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "08_04",
+            "error_message": "Modification error at Operating Model + DCF!C4: answer=1210.127, output=1210.127",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "08_05",
+            "error_message": "Modification error at Operating Model + DCF!C102: answer=2725.72883376226, output=2769.863858623925",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "08_06",
+            "error_message": "Modification error at Operating Model + DCF!C7: answer=210.285, output=178.029",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "08_07",
+            "error_message": "Modification error at Operating Model + DCF!C102: answer=2725.72883376226, output=2693.4919278739844",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "08_08",
+            "error_message": "Modification error at Operating Model + DCF!C95: answer=-224.263600000001, output=-114.75559999999973",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "08_09",
+            "error_message": "Modification error at Operating Model + DCF!C102: answer=2725.72883376226, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "08_10",
+            "error_message": "Modification error at Operating Model + DCF!C102: answer=2725.72883376226, output=-134806.7521067704",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "09_01",
+            "error_message": "Modification error at LBO!D213: answer=7% / 1.4x, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "09_02",
+            "error_message": "Modification error at LBO!D136: answer==+D23, output=100",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "09_03",
+            "error_message": "Modification error at LBO!A187: answer=None, output=x",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "09_04",
+            "error_message": "Modification error at LBO!D9: answer=2022, output=2022",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "09_05",
+            "error_message": "Modification error at LBO!D213: answer=7% / 1.4x, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "09_06",
+            "error_message": "Modification error at LBO!D213: answer=7% / 1.4x, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "09_07",
+            "error_message": "Modification error at LBO!D213: answer=7% / 1.4x, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "09_08",
+            "error_message": "Modification error at LBO!D213: answer=7% / 1.4x, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "09_09",
+            "error_message": "Modification error at LBO!D213: answer=7% / 1.4x, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "09_10",
+            "error_message": "Modification error at LBO!D213: answer=7% / 1.4x, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "10_01",
+            "error_message": "Modification error at Model!D18: answer=-1.35655848912594, output=-4.475249628279569",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "10_02",
+            "error_message": "Modification error at Model!I53: answer==CHOOSE($C$2,Q53,Y53,AG53), output=0.415",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "10_03",
+            "error_message": "Modification error at Model!B48: answer=Total Sales, output=Growth %",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "10_04",
+            "error_message": "Modification error at Model!C52: answer=88.5299004, output=88.52990040000002",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "10_05",
+            "error_message": "Regression error at Model!I142: answer=1.50374362854403, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "10_06",
+            "error_message": "Modification error at Model!D50: answer=-120.57635766, output=-102.58210665999998",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "10_07",
+            "error_message": "Modification error at Model!C330: answer=1, output=#N/A",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "10_08",
+            "error_message": "Modification error at Model!D18: answer=-1.35655848912594, output=21.700236353075315",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "10_09",
+            "error_message": "Modification error at Model!D15: answer=186.05676735, output=#DIV/0!",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "10_10",
+            "error_message": "Modification error at Model!D16: answer=1.43529152999999, output=0.7176457649999969",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        }
+    ]
+}

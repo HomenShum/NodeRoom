@@ -1,6 +1,6 @@
 # Proof Loop Benchmark Board
 
-Generated: 2026-07-12T19:03:22.585Z
+Generated: 2026-07-12T19:14:02.152Z
 
 This board keeps fast product proof separate from official benchmark score claims.
 
@@ -18,15 +18,15 @@ This board keeps fast product proof separate from official benchmark score claim
 - Product-path proven: 7
 - Product-path ready to run: 2
 - External adapters registered: 0
-- Official scores claimed: 4
+- Official scores claimed: 5
 - Official scores not applicable: 4
-- Official scores blocked/not claimed: 1
+- Official scores blocked/not claimed: 0
 
 ## Benchmarks
 
 | Benchmark | Family | Product path | Official score | Evidence | Next blocker |
 |---|---|---|---|---|---|
-| `spreadsheetbench` | official_style | proven | needs_scaffold_or_run | `docs/eval/spreadsheetbench-live-room-proof.json`<br>`.proofloop/lanes/spreadsheetbench-v1/official-score-receipt.json`<br>`.proofloop/lanes/spreadsheetbench-v2/official-score-receipt.json`<br>`docs/eval/official-benchmark-task-coverage.json` | Full official SpreadsheetBench model outputs and scorer import are not ready. |
+| `spreadsheetbench` | official_style | proven | proven | `docs/eval/spreadsheetbench-live-room-proof.json`<br>`docs/eval/spreadsheetbench-v1-accepted-official-scorer-receipt.json`<br>`docs/eval/spreadsheetbench-v2-accepted-official-scorer-receipt.json`<br>`docs/eval/spreadsheetbench-v1-upstream-official-results.json` | none |
 | `openrouter-convex` | model_route_harness | proven | not_applicable | `docs/eval/openrouter-convex-benchmark.json` | Model-route harness; not a public official benchmark score lane. |
 | `proximitty-underwriting-pr0` | product_suite | proven | not_applicable | `.proofloop/runs/latest/run-result.json`<br>`.proofloop/runs/2026-07-02T20-31-20`<br>`proofloop/suites/proximitty-underwriting-pr0.json` | Synthetic underwriting suite; do not label as an official finance benchmark score. |
 | `accounting` | product_suite | ready_to_run | not_applicable | `proofloop/accounting/proofloop.accounting.config.json`<br>`proofloop/accounting/benchmarks/benchmark-registry.json` | Accounting suite pins external benchmark families, but local proof-loop runs are product-path evidence. |

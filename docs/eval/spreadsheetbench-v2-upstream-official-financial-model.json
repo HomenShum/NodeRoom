@@ -1,0 +1,814 @@
+{
+    "total_tests": 100,
+    "missing_outputs": 0,
+    "regression_accuracy": 0.9499,
+    "modification_accuracy": 0.1015,
+    "accuracy": 0.0,
+    "interaction_turns_stats": {
+        "average": 0.0,
+        "maximum": 0,
+        "minimum": 0
+    },
+    "scores": [
+        {
+            "id": "01_01",
+            "error_message": "Modification error at DCF Valuation!C22: answer=2425.91653544975, output=4440.18535205689",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "01_02",
+            "error_message": "Modification error at DCF Valuation!C22: answer=2425.91653544975, output=5658.705645102309",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "01_03",
+            "error_message": "Modification error at DCF Valuation!C22: answer=2425.91653544975, output=2668.919550476174",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "01_04",
+            "error_message": "Regression error at DCF Valuation!C32: answer=FY25, output={'formula':'IF(Forecast_Revenue_FY25<=0,\"NM\",EV/Revenue_FY25)'}",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0081,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "01_05",
+            "error_message": "Modification error at Consolidated BS!H6: answer=265.5248481375, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "02_01",
+            "error_message": "Modification error at IS,BS,CF!E102: answer=2077.64005275567, output=-16184.754636632797",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.7351,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "02_02",
+            "error_message": "Modification error at IS,BS,CF!C11: answer=69346.2, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.7655,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "02_03",
+            "error_message": "Modification error at IS,BS,CF!E102: answer=2077.64005275567, output=2947.9617362329373",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.7351,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "02_04",
+            "error_message": "Modification error at Ratios!F24: answer=5.72764474029077, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.9804,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "02_05",
+            "error_message": "Regression error at IS,BS,CF!E110: answer=0, output=-133.09000000000015",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.9413,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "03_01",
+            "error_message": "Modification error at Final Output!D67: answer=0.137769808027923, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "03_02",
+            "error_message": "Modification error at Final Output!E8: answer=19.1343311058242, output=-51.942308521430135",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "03_03",
+            "error_message": "Modification error at Final Output!E14: answer=57300, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "03_04",
+            "error_message": "Modification error at Final Output!E8: answer=19.1343311058242, output=3.428612066549528",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "03_05",
+            "error_message": "Modification error at Final Output!D68: answer=0.0759162303664921, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "04_01",
+            "error_message": "Modification error at Final Output!D9: answer=97.6827021092784, output=50.48599570424961",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "04_02",
+            "error_message": "Modification error at Final Output!D29: answer=12.8595407957427, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "04_03",
+            "error_message": "Modification error at Final Output!D8: answer=80.65, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "04_04",
+            "error_message": "Modification error at Final Output!D8: answer=80.65, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "04_05",
+            "error_message": "Modification error at Final Output!D25: answer=26.1116807574529, output=21.950087498632833",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "05_01",
+            "error_message": "Modification error at Dashboard!G43: answer=2, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "05_02",
+            "error_message": "Modification error at IRR Calculation!D15: answer=0.188902542779244, output=0.2023728787899017",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "05_03",
+            "error_message": "Modification error at Dashboard!D13: answer=0.0175, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "05_04",
+            "error_message": "Modification error at Dashboard!E57: answer=50, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "05_05",
+            "error_message": "Modification error at Dashboard!E8: answer=40, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "06_01",
+            "error_message": "Namespace prefix dc on creator is not defined, line 1, column 574 (<string>, line 1)",
+            "regression_accuracy": 0.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "06_02",
+            "error_message": "Namespace prefix dc on creator is not defined, line 1, column 574 (<string>, line 1)",
+            "regression_accuracy": 0.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "06_03",
+            "error_message": "Namespace prefix dc on creator is not defined, line 1, column 574 (<string>, line 1)",
+            "regression_accuracy": 0.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "06_04",
+            "error_message": "Namespace prefix dc on creator is not defined, line 1, column 574 (<string>, line 1)",
+            "regression_accuracy": 0.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "06_05",
+            "error_message": "Namespace prefix dc on creator is not defined, line 1, column 574 (<string>, line 1)",
+            "regression_accuracy": 0.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "07_01",
+            "error_message": "Regression error at Executive Summary!B18: answer=None, output=Financial Model: Cashflows (Quarterly)",
+            "regression_accuracy": 0.9973,
+            "modification_accuracy": 0.3105,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "07_02",
+            "error_message": "Regression error at Executive Summary!B22: answer=Approval Costs, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "07_03",
+            "error_message": "Modification error at Executive Summary!D24: answer=20.8798520190826, output=1.3877787807814457e-16",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "07_04",
+            "error_message": "Modification error at Executive Summary!D22: answer=6.07, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "07_05",
+            "error_message": "Modification error at Executive Summary!D11: answer=36, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "08_01",
+            "error_message": "Modification error at DCF Valuation!C23: answer=184768555.832126, output=-289201598.6342304",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "08_02",
+            "error_message": "Modification error at DCF Valuation!C23: answer=184768555.832126, output=2283470.3011619486",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "08_03",
+            "error_message": "Modification error at DCF Valuation!C23: answer=184768555.832126, output=28339377.374242242",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "08_04",
+            "error_message": "Modification error at DCF Valuation!C23: answer=184768555.832126, output=-21737500.00000001",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "08_05",
+            "error_message": "Modification error at DCF Valuation!C23: answer=184768555.832126, output=-1600993483.341673",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "09_01",
+            "error_message": "Modification error at Valuation!D90: answer=99.0365089055261, output=15.493263584481989",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "09_02",
+            "error_message": "Modification error at Valuation!D90: answer=99.0365089055261, output=73.06268711103552",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "09_03",
+            "error_message": "Modification error at Valuation!D90: answer=99.0365089055261, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "09_04",
+            "error_message": "Modification error at Valuation!D90: answer=99.0365089055261, output=-432.60102732933643",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "09_05",
+            "error_message": "Modification error at Valuation!G96: answer=0.0570133063635681, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "10_01",
+            "error_message": "Modification error at Valuation!D89: answer=179.967341596345, output=8.476372465496",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "10_02",
+            "error_message": "Modification error at Valuation!D89: answer=179.967341596345, output=-413.76013747990214",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "10_03",
+            "error_message": "Modification error at Valuation!D89: answer=179.967341596345, output=-11.719919777703412",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "10_04",
+            "error_message": "Modification error at Valuation!D89: answer=179.967341596345, output=31.70204958555439",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "10_05",
+            "error_message": "Modification error at Valuation!D89: answer=179.967341596345, output=881.8834429333402",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "11_01",
+            "error_message": "Modification error at Summary Valuation!C16: answer=2.80137580327888, output=0.652385496752638",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.956,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "11_02",
+            "error_message": "Modification error at Summary Valuation!C16: answer=2.80137580327888, output=3.039744271455018",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.9588,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "11_03",
+            "error_message": "Modification error at Summary Valuation!C16: answer=2.80137580327888, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.9601,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "11_04",
+            "error_message": "Modification error at Summary Valuation!C11: answer=20.7925, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.9902,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "11_05",
+            "error_message": "Modification error at Summary Valuation!C16: answer=2.80137580327888, output=NM",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.9341,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "12_01",
+            "error_message": "Modification error at Valuation!C5: answer=7.41408055511761, output=-3.1512804063749997",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "12_02",
+            "error_message": "Modification error at Valuation!C5: answer=7.41408055511761, output=8.926790376037538",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "12_03",
+            "error_message": "Modification error at Valuation!C5: answer=7.41408055511761, output=9.377755444992612",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "12_04",
+            "error_message": "Modification error at Valuation!C5: answer=7.41408055511761, output=7.206916614696187",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "12_05",
+            "error_message": "Modification error at Valuation!C18: answer=48.6440905753162, output=76.77484704506988",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "13_01",
+            "error_message": "Modification error at Summary Valuation!C16: answer=0.53432417947908, output=0.7875641553442075",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "13_02",
+            "error_message": "Modification error at Summary Valuation!C16: answer=0.53432417947908, output=7.3853320118167565",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "13_03",
+            "error_message": "Modification error at Summary Valuation!C16: answer=0.53432417947908, output=0.5440835613072373",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "13_04",
+            "error_message": "Modification error at Summary Valuation!C16: answer=0.53432417947908, output=9.324129886492234",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "13_05",
+            "error_message": "Modification error at Summary Valuation!C16: answer=0.53432417947908, output=0.5579083012857424",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "14_01",
+            "error_message": "Modification error at DCF_Income Approach!C21: answer=0.127476192037865, output=0.07787338009342934",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "14_02",
+            "error_message": "Modification error at DCF_Income Approach!C21: answer=0.127476192037865, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "14_03",
+            "error_message": "Modification error at DCF_Income Approach!C37: answer=14.8812802675842, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0173,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "14_04",
+            "error_message": "Modification error at DCF_Income Approach!C37: answer=14.8812802675842, output=5.894056033399284",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "14_05",
+            "error_message": "Modification error at DCF_Income Approach!C21: answer=0.127476192037865, output=0.08560000000000001",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "15_01",
+            "error_message": "Regression error at Work Sheet!X1: answer=2QFY24, output=4QFY24 onwards (computed)",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "15_02",
+            "error_message": "Regression error at Work Sheet!B24: answer=None, output=0.7539089055064582",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "15_03",
+            "error_message": "Modification error at Work Sheet!Z6: answer=16.78225, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "15_04",
+            "error_message": "Modification error at Consol_annual!N34: answer=276.68, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "15_05",
+            "error_message": "Modification error at Work Sheet!AB6: answer=20.3344221029979, output=2.25",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "16_01",
+            "error_message": "Modification error at Valuation Summary and Football!D11: answer=50155518.2082557, output=-37011339.0062892",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "16_02",
+            "error_message": "Modification error at Valuation Summary and Football!D11: answer=50155518.2082557, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "16_03",
+            "error_message": "Modification error at Valuation Summary and Football!D11: answer=50155518.2082557, output=79416723.97080639",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "16_04",
+            "error_message": "Modification error at Synergies and Intgn Exp!G13: answer=749858.320741918, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "16_05",
+            "error_message": "Regression error at Valuation Summary and Football!D9: answer=1.0768291, output=1925850.80870075",
+            "regression_accuracy": 0.9968,
+            "modification_accuracy": 0.8553,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "17_01",
+            "error_message": "Modification error at Financials!E10: answer=19181, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "17_02",
+            "error_message": "Modification error at Financials!E61: answer=1.78922266514806, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "17_03",
+            "error_message": "Modification error at Financials!K69: answer=15409.27518783, output=41353.41015934825",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "17_04",
+            "error_message": "Modification error at Valuation!D91: answer=66.9226574175157, output=-0.6733926128590971",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "17_05",
+            "error_message": "Modification error at Valuation!D91: answer=66.9226574175157, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "18_01",
+            "error_message": "Modification error at Milestones!D18: answer=251.750521875, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "18_02",
+            "error_message": "Modification error at COP!F10: answer=0.25, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "18_03",
+            "error_message": "Modification error at P&L!A13: answer=Esc. %, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "18_04",
+            "error_message": "Modification error at COP!C11: answer=604.2020875, output=None",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "18_05",
+            "error_message": "Modification error at Milestones!D18: answer=251.750521875, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "19_01",
+            "error_message": "Modification error at Summary Valuation!C15: answer=4.22626004054727, output=10.20538052375079",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "19_02",
+            "error_message": "Modification error at Summary Valuation!C15: answer=4.22626004054727, output=0.8761726228136997",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "19_03",
+            "error_message": "Modification error at Summary Valuation!C15: answer=4.22626004054727, output=6.246987789229023",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "19_04",
+            "error_message": "Modification error at Summary Valuation!C15: answer=4.22626004054727, output=4.111472557749126",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "19_05",
+            "error_message": "Modification error at Summary Valuation!C9: answer=94.0733, output=0.0721",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "20_01",
+            "error_message": "Modification error at Summary!C42: answer=-221630.198228524, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "20_02",
+            "error_message": "Modification error at Summary!C41: answer=-4896.98353102361, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "20_03",
+            "error_message": "Modification error at Summary!C38: answer=-216733.2146975, output=-214123.2146975",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "20_04",
+            "error_message": "Modification error at Summary!C9: answer=41029.7085, output=37816.70850000001",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        },
+        {
+            "id": "20_05",
+            "error_message": "Modification error at Summary!C17: answer=-12308.91255, output=0",
+            "regression_accuracy": 1.0,
+            "modification_accuracy": 0.0,
+            "accuracy": 0.0,
+            "interaction_turns": 0
+        }
+    ]
+}

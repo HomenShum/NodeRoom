@@ -1,0 +1,531 @@
+{
+  "meta": {
+    "generated_at": "2026-07-10T15:51:17.144382",
+    "eval_method": "vlm_checklist_only",
+    "model": "z-ai/glm-4.6v",
+    "base_url": "https://openrouter.ai/api/v1",
+    "note": "Missing outputs, skipped tasks, and unfinished tasks are counted as score=0 and acc=0 in summary metrics."
+  },
+  "summary": {
+    "total_tasks": 24,
+    "completed": 24,
+    "pending": 0,
+    "evaluated": 0,
+    "skipped": 0,
+    "errors": 24,
+    "tasks_with_checklist": 24,
+    "tasks_without_checklist": 0,
+    "success_only_avg_score": 0.0,
+    "all_task_avg_score": 0.0,
+    "acc": 0.0,
+    "acc_tasks": 0,
+    "acc_total": 24,
+    "acc_threshold": 0.7
+  },
+  "results": [
+    {
+      "task_id": "Task 96",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 29,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 96_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 95",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 28,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 95_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 1411527",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 28,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 1411527_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 1437004",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 54,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 1437004_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 1423401",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 91,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 1423401_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 1426290",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 37,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 1426290_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 1420776",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 22,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 1420776_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 1433875",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 32,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 1433875_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 1428419",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 36,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 1428419_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 1434951",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 25,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 1434951_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 1417365",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 23,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 1417365_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 90",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 28,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 90_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 1430721",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 23,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 1430721_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 127",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 33,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 127_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 133",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 9,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 133_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 1431124",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 35,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 1431124_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 1421372",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 32,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 1421372_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 1419935",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 26,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 1419935_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 1422635",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 39,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 1422635_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 131",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 24,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 131_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 134",
+      "category": "Chart Manipulation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 18,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 134_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 126",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 61,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 126_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 132",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 56,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 132_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    },
+    {
+      "task_id": "Task 129",
+      "category": "Chart Creation",
+      "status": "error",
+      "error": "XLSX has no chart objects to export",
+      "eval_method": "vlm_checklist",
+      "num_criteria": 24,
+      "score": 0.0,
+      "acc": 0,
+      "image_source": "",
+      "num_charts": 0,
+      "chart_titles": [],
+      "output_file": "Task 129_output.xlsx",
+      "checklist": {
+        "score": 0.0,
+        "pass": 0,
+        "fail": 0,
+        "total": 0,
+        "details": []
+      }
+    }
+  ]
+}

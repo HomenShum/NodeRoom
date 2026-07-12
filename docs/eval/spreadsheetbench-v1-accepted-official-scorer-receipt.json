@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "verifier": "spreadsheetbench_official_scorer",
+  "track": "spreadsheetbench-v1",
+  "accepted": true,
+  "generatedAt": "2026-07-10T22:08:43.278Z",
+  "score": {
+    "averageOverall": 0.09612573,
+    "passRate": 0.07675439,
+    "passCount": 70,
+    "scoredTaskCount": 912
+  },
+  "metric": {
+    "primary": "hard_restriction",
+    "hardRestrictionPassCount": 70,
+    "hardRestrictionPassRate": 0.07675439,
+    "meanSoftRestriction": 0.09612573,
+    "testCaseCount": 2736,
+    "publishedWorkbookPairCount": 2729,
+    "missingPublishedVariantSlotsScoredAsFailure": 7
+  },
+  "source": {
+    "kind": "upstream_official_evaluator",
+    "repository": "https://github.com/RUCKBReasoning/SpreadsheetBench",
+    "commit": "49b73a94775fb489063f60ca1865e3a650079a79",
+    "evaluator": ".tmp/official-benchmarks/spreadsheetbench-repo/evaluation/evaluation.py",
+    "evaluatorSha256": "ea1f5da8b663943efb949bb5ca006d4a6326b4e4b945dca22e279ff5a207f607",
+    "projectionReceipt": ".tmp/official-benchmarks/spreadsheetbench-v1-official-projection.json",
+    "projectionReceiptSha256": "5090589e0cf7dbfb3dc9981572ad322161d0c26d9f8d8e8964a9f81469cb0f91",
+    "caseManifestSha256": "206aff4028ddbbe83ae05e0001db4fec09d502f0160d8d13836d5d49d9c12cc6",
+    "result": "docs/eval/spreadsheetbench-v1-upstream-official-results.json",
+    "resultSha256": "6712e87fbbdc337b808d98214df52f9d54d2850adeec50fd89639dc4ef6790ef",
+    "runtime": "Python 3 with PYTHONUTF8=1; upstream evaluation.py unmodified",
+    "command": "python evaluation.py --setting single --model noderoom --dataset noderoom_v1_912"
+  },
+  "claimBoundary": "Canonical upstream V1 hard/soft workbook scorer over one model plan projected across all published workbook variants; no claim is made for SpreadsheetBench V2."
+}

@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-11T12:11:36.4107643Z",
+  "status": "passed",
+  "scope": {
+    "benchmark": "SpreadsheetBench V2",
+    "category": "Visualization",
+    "taskIds": [
+      "Task 90"
+    ],
+    "taskCount": 1,
+    "fullSuiteTaskCount": 321
+  },
+  "claimBoundary": {
+    "officialScopedResult": true,
+    "fullSuiteOfficialScoreClaim": false,
+    "statement": "This receipt proves one unchanged official Visualization task passed three independent judge runs. It does not replace or revise the accepted 321-task official baseline."
+  },
+  "implementation": {
+    "sourceRevision": "5f67d8e1f3fe57073a92f1ab51ea8a37a3e8b3a7",
+    "workingTreeHadPreExistingChanges": true,
+    "operation": "add_chart",
+    "chart": "Pareto column and cumulative-percent line on a secondary axis",
+    "workbookMutation": {
+      "cellMismatches": 0,
+      "realChartObjectAdded": true,
+      "engine": "Microsoft Excel COM"
+    }
+  },
+  "officialJudge": {
+    "model": "z-ai/glm-4.6v",
+    "baseUrl": "https://openrouter.ai/api/v1",
+    "temperature": 0.1,
+    "maxTokens": 4096,
+    "timeoutSeconds": 300,
+    "accThreshold": 0.7,
+    "evaluatorPath": ".tmp/official-benchmarks/spreadsheetbench-v2-repo/evaluation/run_visual_vlm_checklist_eval.py",
+    "evaluatorSha256": "e55dd242f73be87aab2cc79bc2d53ab8ac6164d86a1d8a8a201716ec9d6f3d18",
+    "datasetPath": ".tmp/official-benchmarks/spreadsheetbench-v2-repo/data/Visualization/dataset.json",
+    "datasetSha256": "bb4f0a29191d956d04c0b1994a5972f5fe47c2a219a4c3097c0017f423fdbb80"
+  },
+  "candidate": {
+    "path": ".tmp/official-benchmarks/run-v2-visual-chart-pareto/Visualization_Task_90/candidate-01-Task 90_input.xlsx",
+    "sha256": "db75ccc0d1c54e91f8cf8d3e34b56a059ff3288432323b63d9db5c94e0ab2462"
+  },
+  "stability": {
+    "independentRuns": 3,
+    "passedRuns": 3,
+    "scores": [
+      0.75,
+      0.75,
+      0.75
+    ],
+    "acc": [
+      1,
+      1,
+      1
+    ],
+    "checklistTotals": [
+      28,
+      28,
+      28
+    ],
+    "reports": [
+      {
+        "path": "docs/eval/spreadsheetbench-v2-task90-official-visual-v1.json",
+        "sha256": "8c9817431e736d3c204b3cc6e3cee027ca544e99cce6d596263a3198fb0b01c1"
+      },
+      {
+        "path": "docs/eval/spreadsheetbench-v2-task90-official-visual-v2.json",
+        "sha256": "68813f1344295fdf2db687c4d34e2202f06e2a8a551d9387608a583f2a3b91ca"
+      },
+      {
+        "path": "docs/eval/spreadsheetbench-v2-task90-official-visual-v3.json",
+        "sha256": "f71dd9724ac190b49bc0ad8ce38dcc8a642e96473ff2753813efa9cfacfe907a"
+      }
+    ]
+  },
+  "workbookQualityGate": {
+    "v1NoRegression": {
+      "status": "passed_by_immutable_accepted_artifacts",
+      "acceptedPassCount": 70,
+      "acceptedTaskCount": 912,
+      "acceptedAverageOverall": 0.09612573,
+      "receiptPath": "docs/eval/spreadsheetbench-v1-accepted-official-scorer-receipt.json",
+      "receiptSha256": "3fca10a35261e7737057815848ecd251dbf14e2b05628ab792562cef365e6c13",
+      "evaluatorSha256": "ea1f5da8b663943efb949bb5ca006d4a6326b4e4b945dca22e279ff5a207f607",
+      "resultSha256": "6712e87fbbdc337b808d98214df52f9d54d2850adeec50fd89639dc4ef6790ef",
+      "statement": "The previously accepted V1 outputs, upstream evaluator, projection receipt, and result remain byte-identical. This is an immutable regression guard, not a claim that a new 912-task model generation run was performed."
+    },
+    "v2ExactPass": {
+      "status": "passed",
+      "officialScopedPassCount": 1,
+      "officialScopedTaskCount": 1,
+      "taskId": "Visualization/Task 90"
+    },
+    "modificationScoreLift": {
+      "status": "passed",
+      "taskId": "Template/14_09",
+      "baselineOverall": 0.4,
+      "candidateOverall": 0.4041665,
+      "absoluteLift": 0.0041665,
+      "baselineMismatches": 141,
+      "candidateMismatches": 138,
+      "appliedOperations": 3,
+      "baselineReportPath": "docs/eval/spreadsheetbench-v2-321-model-run.json",
+      "baselineReportSha256": "b403ea7991dccc7df09f8727f85629220a722b7c60ebde2f9e3d3058c59759e4",
+      "candidateReportPath": "docs/eval/spreadsheetbench-v2-template-14-09-repair.json",
+      "candidateReportSha256": "0b122c4d1fb20b34911bd963b058e5152ae40b95a3c1ae962c576793a0ac8bfd"
+    }
+  },
+  "cost": {
+    "providerCostUsd": null,
+    "reason": "The unchanged upstream evaluator does not persist response usage or billing. Calls were limited to one task per run with a 4096-token completion ceiling."
+  }
+}

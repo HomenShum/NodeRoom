@@ -1,0 +1,217 @@
+{
+  "meta": {
+    "generated_at": "2026-07-11T05:10:42.055926",
+    "eval_method": "vlm_checklist_only",
+    "model": "z-ai/glm-4.6v",
+    "base_url": "https://openrouter.ai/api/v1",
+    "note": "Missing outputs, skipped tasks, and unfinished tasks are counted as score=0 and acc=0 in summary metrics."
+  },
+  "summary": {
+    "total_tasks": 1,
+    "completed": 1,
+    "pending": 0,
+    "evaluated": 1,
+    "skipped": 0,
+    "errors": 0,
+    "tasks_with_checklist": 1,
+    "tasks_without_checklist": 0,
+    "success_only_avg_score": 0.75,
+    "all_task_avg_score": 0.75,
+    "acc": 1.0,
+    "acc_tasks": 1,
+    "acc_total": 1,
+    "acc_threshold": 0.7
+  },
+  "results": [
+    {
+      "task_id": "Task 90",
+      "category": "Chart Creation",
+      "status": "success",
+      "error": null,
+      "eval_method": "vlm_checklist",
+      "num_criteria": 28,
+      "score": 0.75,
+      "acc": 1,
+      "image_source": "xlsx_export",
+      "num_charts": 1,
+      "chart_titles": [],
+      "output_file": "Task 90_output.xlsx",
+      "checklist": {
+        "score": 0.75,
+        "pass": 21,
+        "fail": 7,
+        "total": 28,
+        "details": [
+          {
+            "id": 1,
+            "assertion": "The chart is a Pareto chart (bars with a cumulative percentage line)",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 2,
+            "assertion": "The chart title reads 'Defect Analysis'",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 3,
+            "assertion": "The bars are arranged in descending order by count from left to right: F, A, D, E, C, B, G",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 4,
+            "assertion": "The defect counts are displayed as bars on the primary axis",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 5,
+            "assertion": "The cumulative percentage is displayed as a line on the secondary axis",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 6,
+            "assertion": "The legend contains an entry labeled 'Defect Counts'",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 7,
+            "assertion": "The legend contains an entry labeled 'Cumulative %'",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 8,
+            "assertion": "The F bar value is 60",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 9,
+            "assertion": "The data label on the F bar reads '60'",
+            "result": "FAIL",
+            "reason": "data label missing"
+          },
+          {
+            "id": 10,
+            "assertion": "The A bar value is 50",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 11,
+            "assertion": "The data label on the A bar reads '50'",
+            "result": "FAIL",
+            "reason": "data label missing"
+          },
+          {
+            "id": 12,
+            "assertion": "The D bar value is 45",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 13,
+            "assertion": "The data label on the D bar reads '45'",
+            "result": "FAIL",
+            "reason": "data label missing"
+          },
+          {
+            "id": 14,
+            "assertion": "The E bar value is 45",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 15,
+            "assertion": "The data label on the E bar reads '45'",
+            "result": "FAIL",
+            "reason": "data label missing"
+          },
+          {
+            "id": 16,
+            "assertion": "The C bar value is 40",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 17,
+            "assertion": "The data label on the C bar reads '40'",
+            "result": "FAIL",
+            "reason": "data label missing"
+          },
+          {
+            "id": 18,
+            "assertion": "The B bar value is 20",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 19,
+            "assertion": "The data label on the B bar reads '20'",
+            "result": "FAIL",
+            "reason": "data label missing"
+          },
+          {
+            "id": 20,
+            "assertion": "The G bar value is 15",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 21,
+            "assertion": "The data label on the G bar reads '15'",
+            "result": "FAIL",
+            "reason": "data label missing"
+          },
+          {
+            "id": 22,
+            "assertion": "The cumulative percentage at F is 22%",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 23,
+            "assertion": "The cumulative percentage at A is 40%",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 24,
+            "assertion": "The cumulative percentage at D is 56%",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 25,
+            "assertion": "The cumulative percentage at E is 73%",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 26,
+            "assertion": "The cumulative percentage at C is 87%",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 27,
+            "assertion": "The cumulative percentage at B is 95%",
+            "result": "PASS",
+            "reason": ""
+          },
+          {
+            "id": 28,
+            "assertion": "The cumulative percentage at G is 100%",
+            "result": "PASS",
+            "reason": ""
+          }
+        ]
+      }
+    }
+  ]
+}

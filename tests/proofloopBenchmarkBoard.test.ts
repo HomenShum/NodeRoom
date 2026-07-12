@@ -27,11 +27,18 @@ describe("Proof Loop benchmark board", () => {
       },
     });
     expect(entries.spreadsheetbench.productPathCompletion.status).toBe("proven");
-    // C15 regression guard: SpreadsheetBench's official score must NOT be "proven"
-    // off task-coverage/staging readiness — only off an actually-claimable lane
-    // receipt (officialScoreClaimable). The lanes are needs_scaffold_or_run.
-    expect(entries.spreadsheetbench.officialSemanticScore.status).not.toBe("proven");
-    expect(entries.spreadsheetbench.officialSemanticScore.status).toBe("needs_scaffold_or_run");
+    // C15 regression guard: SpreadsheetBench's official score is "proven" ONLY when
+    // an accepted upstream official-scorer receipt exists — NOT off task-coverage /
+    // staging readiness (which false-flipped it). It IS backed by the accepted V1/V2
+    // receipts, so it is proven, and the evidence must cite those receipts (not the
+    // coverage ledger). A low pass rate is still an imported official score.
+    expect(entries.spreadsheetbench.officialSemanticScore.status).toBe("proven");
+    expect(entries.spreadsheetbench.officialSemanticScore.evidence).toContain(
+      "docs/eval/spreadsheetbench-v1-accepted-official-scorer-receipt.json",
+    );
+    expect(entries.spreadsheetbench.officialSemanticScore.evidence).not.toContain(
+      "docs/eval/official-benchmark-task-coverage.json",
+    );
     expect(entries["openrouter-convex"].productPathCompletion.status).toBe("proven");
     expect(entries["openrouter-convex"].officialSemanticScore.status).toBe("not_applicable");
   });
@@ -61,9 +68,9 @@ describe("Proof Loop benchmark board", () => {
     expect(markdown).toContain("| `finch` | external_adapter | proven | proven |");
     expect(markdown).toContain("| `finauditing` | external_adapter | proven | proven |");
     expect(markdown).toContain("| `workstreambench` | external_adapter | proven | proven |");
-    expect(markdown).toContain("Official scores claimed: 4");
-    expect(markdown).toContain("Official scores blocked/not claimed: 1");
-    expect(markdown).toContain("| `spreadsheetbench` | official_style | proven | needs_scaffold_or_run |");
+    expect(markdown).toContain("Official scores claimed: 5");
+    expect(markdown).toContain("Official scores blocked/not claimed: 0");
+    expect(markdown).toContain("| `spreadsheetbench` | official_style | proven | proven |");
     expect(markdown).toContain("Product-path completion is useful proof");
   });
 

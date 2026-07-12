@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "verifier": "spreadsheetbench_official_scorer",
+  "track": "spreadsheetbench-v2",
+  "accepted": true,
+  "generatedAt": "2026-07-10T22:52:26.109Z",
+  "score": {
+    "averageOverall": 0,
+    "passRate": 0,
+    "passCount": 0,
+    "scoredTaskCount": 321
+  },
+  "metric": {
+    "primary": "official_task_accuracy",
+    "categoryMetrics": {
+      "Debugging": {
+        "taskCount": 100,
+        "passCount": 0,
+        "accuracy": 0,
+        "regressionAccuracy": 0.998,
+        "modificationAccuracy": 0.2681
+      },
+      "Financial_Model": {
+        "taskCount": 100,
+        "passCount": 0,
+        "accuracy": 0,
+        "regressionAccuracy": 0.9499,
+        "modificationAccuracy": 0.1015
+      },
+      "Template": {
+        "taskCount": 97,
+        "passCount": 0,
+        "accuracy": 0,
+        "regressionAccuracy": 0.9998,
+        "modificationAccuracy": 0.039
+      },
+      "Visualization": {
+        "taskCount": 24,
+        "passCount": 0,
+        "accuracy": 0,
+        "averageChecklistScore": 0,
+        "evaluatedByVlm": 0,
+        "errorsScoredAsZero": 24,
+        "judgeCalls": 0
+      }
+    },
+    "visualAccThreshold": 0.7,
+    "visualJudgeModel": "z-ai/glm-4.6v",
+    "visualJudgeCalls": 0,
+    "providerCostUsd": 0
+  },
+  "source": {
+    "kind": "upstream_official_evaluators",
+    "repository": "https://github.com/RUCKBReasoning/SpreadsheetBench-2",
+    "commit": "599b24aa479242d39e1e50eb5a85830a823ffdfc",
+    "deterministicEvaluator": ".tmp/official-benchmarks/spreadsheetbench-v2-repo/evaluation/evaluation.py",
+    "deterministicEvaluatorSha256": "64c34453ac92691e312492e7ee55dd8857ffe663fd4354acd8d722d82e014f04",
+    "visualEvaluator": ".tmp/official-benchmarks/spreadsheetbench-v2-repo/evaluation/run_visual_vlm_checklist_eval.py",
+    "visualEvaluatorSha256": "e55dd242f73be87aab2cc79bc2d53ab8ac6164d86a1d8a8a201716ec9d6f3d18",
+    "projectionReceipt": ".tmp/official-benchmarks/spreadsheetbench-v2-official-projection.json",
+    "projectionReceiptSha256": "a9cb90614e068c07c1ff29c9aa3aabd16b733626f259e706ff5cac0d9d9c3dd2",
+    "caseManifestSha256": "d227c3bfd0a931fa10d497b597f9c43e99b1ee7d0e57bf74bd4ed923624bac00",
+    "refreshReceipt": ".tmp/official-benchmarks/spreadsheetbench-v2-excel-refresh.json",
+    "refreshReceiptSha256": "93a7bdb6018c03de0e6ef1c39427455df75bf9fa1edf0bbed1b30446211141ae",
+    "refreshEngine": "Microsoft Excel COM with isolated LibreOffice conversion fallback",
+    "refreshEngineVersion": "16.0",
+    "results": [
+      {
+        "category": "Debugging",
+        "path": ".tmp/official-benchmarks/spreadsheetbench-v2-repo/results/Debugging/noderoom_Debugging__regression.json",
+        "sha256": "a6e79be62f3fd1b375b138f82cb681f9058b795b6160e22379f1de8f53ff37e1",
+        "copy": "docs/eval/spreadsheetbench-v2-upstream-official-debugging.json",
+        "copySha256": "a6e79be62f3fd1b375b138f82cb681f9058b795b6160e22379f1de8f53ff37e1"
+      },
+      {
+        "category": "Financial_Model",
+        "path": ".tmp/official-benchmarks/spreadsheetbench-v2-repo/results/Financial_Model/noderoom_Financial_Model__regression.json",
+        "sha256": "3d9c798126b369854c6ad3c45b4a90723bb1fd68157c415c851424243cadebfc",
+        "copy": "docs/eval/spreadsheetbench-v2-upstream-official-financial-model.json",
+        "copySha256": "3d9c798126b369854c6ad3c45b4a90723bb1fd68157c415c851424243cadebfc"
+      },
+      {
+        "category": "Template",
+        "path": ".tmp/official-benchmarks/spreadsheetbench-v2-repo/results/Template/noderoom_Template__regression.json",
+        "sha256": "f2aa39006e1087741f9f736dc533f6ce5bde38df063b10cd9583594de13fb14b",
+        "copy": "docs/eval/spreadsheetbench-v2-upstream-official-template.json",
+        "copySha256": "f2aa39006e1087741f9f736dc533f6ce5bde38df063b10cd9583594de13fb14b"
+      },
+      {
+        "category": "Visualization",
+        "path": ".tmp/official-benchmarks/spreadsheetbench-v2-repo/results/Visualization/noderoom_Visualization_official.json",
+        "sha256": "b002bd4df6b147a563056118425ae852d8cad2b6bf0d2de27eeb180a42dc1dfd",
+        "copy": "docs/eval/spreadsheetbench-v2-upstream-official-visualization.json",
+        "copySha256": "b002bd4df6b147a563056118425ae852d8cad2b6bf0d2de27eeb180a42dc1dfd"
+      }
+    ],
+    "runtime": "Python 3; upstream evaluation.py and run_visual_vlm_checklist_eval.py unmodified",
+    "commands": [
+      "python evaluation/evaluation.py --model noderoom --dataset <Debugging|Financial_Model|Template> --outputs-dir outputs/noderoom/<category> --workers 4",
+      "python evaluation/run_visual_vlm_checklist_eval.py --tasks-json data/Visualization/dataset.json --output-dir outputs/noderoom/Visualization --base-url https://openrouter.ai/api/v1 --model z-ai/glm-4.6v"
+    ]
+  },
+  "claimBoundary": "Canonical upstream SpreadsheetBench V2 evaluation over all 321 model outputs. Visualization tasks with no chart objects are scored zero before VLM inference, as required by the upstream evaluator."
+}
