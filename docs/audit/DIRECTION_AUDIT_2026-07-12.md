@@ -6,7 +6,7 @@
 
 The repo's facts are mostly right; its **lifecycle hygiene is broken**. The dominant defect is not "wrong direction" but *executed work still documented as pending* (or vice versa) with no supersession markers. Three structural failures generate almost every finding:
 
-1. **Uncommitted truth.** The newest certification state (54 receipt files, "Official scores claimed: 5"), the July product direction (`docs/synthesis/WORK_ARTIFACTS_*`), the certified release receipt, and the newest design authority docs exist only in the working tree. Git HEAD — what CI, fresh clones, and worktrees see — says the *opposite* on official scores (1 vs 5) and carries month-old priorities.
+1. **Uncommitted truth.** The newest certification state (54 receipt files, "Official scores claimed: 5"), the July product direction (`docs/synthesis/WORK_ARTIFACTS_*`), the certified release receipt, and the newest design authority docs exist only in the working tree. Git HEAD — what CI, fresh clones, and worktrees see — said the *opposite* on official scores (1 vs 5) and carried month-old priorities. (Resolved 2026-07-12: the honest number is **5**, all receipt-backed — see C15/C16 — now committed.)
 2. **Invisible harness.** `.claude/` is gitignored wholesale; the enforcement layer the docs assume (hooks, reviewer agents, most skills) does not exist on any fresh checkout, and `design-reference/` — the token bundle CLAUDE.md's hard rule depended on — is gitignored and absent even locally.
 3. **No supersession convention.** Docs, memories, and receipts are point-in-time snapshots written in present tense. Nearly every confirmed contradiction is a newer artifact winning over an unmarked stale one.
 
@@ -40,8 +40,8 @@ The repo's facts are mostly right; its **lifecycle hygiene is broken**. The domi
 
 | # | Contradiction | Verdict | Resolution |
 |---|---|---|---|
-| C15 | Board "Official scores claimed: 5 / blockers none" vs all six lane receipts `officialScoreClaimable: false`; **SpreadsheetBench's board flip has NO supporting receipt** (regeneration bug) | PARTIAL high | Board wins for finch/finauditing/workstreambench/BTB (accepted scorer receipts exist); lane receipts win for SpreadsheetBench — **fix the board row before committing**. |
-| C16 | Committed HEAD board ("claimed: 1 / blocked: 4") vs working tree ("claimed: 5 / blocked: 0") — 54 files uncommitted since 07-08 | PARTIAL high | Working tree wins — but **commit it** (after C15) or HEAD keeps lying to CI/clones. |
+| C15 | Board "Official scores claimed: 5" derived the SpreadsheetBench "proven" flag from `strictFullCoverageReady` (staging coverage), not from an actual score. | PARTIAL high → **FIXED + FINDING CORRECTED 2026-07-12** | The audit first concluded SSB had "no supporting receipt (regeneration bug)" — that was **wrong**: the real upstream scorer ran 2026-07-10T22:08 (`spreadsheetbench-v{1,2}-accepted-official-scorer-receipt.json`, `accepted:true`, V1 70/912, V2 0/321) but the receipts were **untracked**, so a git-based audit missed them, and the lane blocker-analysis is a pre-run snapshot. The generator was fixed to gate "proven" on the accepted receipt (not coverage), the untracked receipts were committed, and board=release now agree at **5 claimed** (SSB `proven`, low pass rate is still an imported score). Commits `a539c222` → corrected by the SSB evidence commit. |
+| C16 | Committed HEAD board ("claimed: 1") vs working tree ("claimed: 5") — receipts uncommitted since 07-08 | PARTIAL high → **FIXED** | Working tree wins: the 54-file lane receipt refresh + the SSB accepted-scorer evidence were committed, so HEAD now tells the honest story (5 official scores, all receipt-backed). |
 | C17 | Finch "GPT-5-mini scoring is the remaining gate" vs same-day receipt: scored/accepted via hash-bound transport equivalent | PARTIAL high | Receipt wins. Update + commit the (untracked) imports doc. |
 | C18 | `docs/audit/AUDIT_SUMMARY.md` headlines "zero browser E2E / no data-testid" — 5 playwright configs + 68 testid files exist | PARTIAL high | QA_FINDINGS wins. Add a supersession banner. |
 | C19 | Memory: concurrent-codex-fleet (commit on shared main, preserve foreign hunks) vs no-codex-fleet-do-it-myself (verbatim repudiation) — index still offered the repudiated advice | PARTIAL high | no-codex-fleet wins. ✅ FIXED this pass in the memory index/files. |
@@ -108,7 +108,7 @@ Second ring (authoritative for their domains): docs/design/mobile/* + first-run/
 
 ## 6. Required commit sequence (not done in this pass)
 
-1. Fix the SpreadsheetBench board row (C15 — the flip has no supporting receipt; regeneration bug), regenerate lane receipts, then **commit the 54-file receipt refresh atomically** with the board.
+1. ✅ DONE. Fixed the SpreadsheetBench board generator to gate "proven" on the accepted upstream official-scorer receipt (not staging coverage), committed the 54-file lane receipt refresh AND the previously-untracked SSB accepted-scorer evidence. Board=release agree at 5 official scores. (The audit's original "no supporting receipt" read was corrected — see C15.)
 2. **Commit the July direction:** synthesis plan + receipts, release docs, PROOFLOOP_OFFICIAL_SCORE_IMPORTS, DESIGN_PARITY_PLAN authority notice, docs/design/mobile/** + first-run/** + the three *_CONTRACT.md files.
 3. Decide the fixloop/QA run-artifact retention policy.
 
