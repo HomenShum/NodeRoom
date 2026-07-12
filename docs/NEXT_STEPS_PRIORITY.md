@@ -19,10 +19,13 @@ Evidence-ranked from the audit's open items. Items 1–2 are correctness/honesty
 debts; 3–5 are hygiene; 6 is the one genuine strategic fork that needs an owner
 decision.
 
-1. **Set the prod `GLOBAL_MAX_USD_PER_MONTH` env var to 100 and deploy.** Code
-   default is now 100 (owner decision 2026-07-12, overrides the pilot report's $150)
-   but takes effect only on `npm run convex:deploy`; confirm the prod env var matches
-   before relying on the $100 ceiling.
+1. ✅ **DONE — prod `GLOBAL_MAX_USD_PER_MONTH` = 100** (set 2026-07-12 on the real
+   prod deployment `zealous-goshawk-766`, was 75; live immediately since the deployed
+   function reads the env override). Code default is also 100 (owner decision, overrides
+   the pilot report's $150). NOTE: the code default will sync on the next intentional
+   `npm run convex:deploy` of a CLEAN convex tree — it was NOT deployed on 07-12 because
+   `convex/` had unrelated uncommitted changes (schema.ts + several functions +
+   notebookKernel.ts) that must not be pushed to prod unreviewed.
 2. **Commit / decide the remaining uncommitted truth.** The July direction docs and
    the QA run-artifact retention policy (fixloop vs prod-dogfood) are still
    unresolved — see the audit's "required commit sequence".
