@@ -10,9 +10,9 @@ NodeRoom should run safe work automatically and ask humans only when cost, priva
 | `standard` | yes | no | Default public `@nodeagent` lane. |
 | `background` | no | no | Safe resumable continuation while progress is clear. |
 | `deep_diligence` | no | yes | Host-approved long run with cost/time estimate. |
-| `benchmark_completion` | no | no | Eval lane that runs to completion with heavy receipts. |
+| `benchmark_completion` | no | yes | Opt-in, high-budget eval lane; requires explicit approval before it spends. |
 
-The executable policy lives in `src/nodeagent/runtimeProfiles.ts`. The default public lane must remain conservative; high-budget runs are opt-in through benchmark mode or approved deep diligence.
+The single source of truth is `src/nodeagent/core/budgetProfiles.ts`; the runtime policy view in `src/nodeagent/runtimeProfiles.ts` is derived from it. The default public lane must remain conservative; the two high-budget lanes (`deep_diligence`, `benchmark_completion`) are opt-in and require explicit approval before spending (direction audit 2026-07-12, C1).
 
 ## Low-Friction Policy
 

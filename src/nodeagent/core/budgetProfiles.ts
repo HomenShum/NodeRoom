@@ -1,3 +1,6 @@
+// SINGLE SOURCE OF TRUTH for NodeAgent budget-profile policy. The runtime policy
+// view in `../runtimeProfiles.ts` is DERIVED from the specs below — do not fork a
+// second policy table. (Direction audit 2026-07-12, C1.)
 export type NodeAgentBudgetProfile =
   | "instant"
   | "standard"

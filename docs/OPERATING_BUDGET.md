@@ -1,5 +1,14 @@
 # Operating budget — the $100/month experiment
 
+> **SUPERSEDED 2026-07-12 (direction audit, C2):** the LLM/global monthly cap was
+> raised from **$75 to $150** by the pilot decision in
+> `docs/launch/PILOT_LAUNCH_REPORT.md` (grounded in n=1639 real runs). The $150 value
+> is encoded in `src/nodeagent/core/creditModel.ts` (`globalMonthlyUsd`) and is now
+> the default in `convex/agent.ts` (`GLOBAL_MAX_USD_PER_MONTH`). The $75 figures below
+> are historical. The prod env var `GLOBAL_MAX_USD_PER_MONTH` overrides the code
+> default and should be set to 150. The rest of this doc (per-slice, per-day caps,
+> enforcement mechanics) remains accurate.
+
 **Decision (2026-06-10):** NodeRoom runs as a real-user experiment under a **$100/month hard
 envelope**. A breach is a *signal*, not a failure — but only when real users induce it. The caps
 are enforced in code (see below), so a breach surfaces as a diagnosable error, never a surprise bill.

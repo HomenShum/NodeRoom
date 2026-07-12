@@ -7,8 +7,8 @@ benchmark/completion lanes or approved deep diligence, not every user prompt.
 
 Source of truth:
 
-- Policy code: `src/nodeagent/core/budgetProfiles.ts`
-- Regression test: `tests/nodeAgentBudgetProfiles.test.ts`
+- Policy code: `src/nodeagent/core/budgetProfiles.ts` (the single source of truth; `src/nodeagent/runtimeProfiles.ts` is a derived policy view, kept in sync by a consistency test — direction audit 2026-07-12, C1)
+- Regression test: `tests/nodeAgentBudgetProfiles.test.ts`, `tests/nodeagentRuntimeProfiles.test.ts`
 - Workflow action map: `docs/nodeagent-action-map.json`
 - Fresh-room proof receipts: `docs/eval/fresh-room/<case-id>/latest.json`
 

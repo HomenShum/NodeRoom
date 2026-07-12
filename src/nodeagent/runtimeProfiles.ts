@@ -1,9 +1,21 @@
-export type NodeAgentBudgetProfile =
-  | "instant"
-  | "standard"
-  | "background"
-  | "deep_diligence"
-  | "benchmark_completion";
+// Runtime policy VIEW of the NodeAgent budget profiles.
+//
+// SINGLE SOURCE OF TRUTH is `./core/budgetProfiles.ts` (the richer spec with
+// userFriction, optInOnly, step class, etc.). The policy flags below are DERIVED
+// from that spec so the two can never drift again — the 2026-07-12 direction audit
+// found this file hardcoded `benchmark_completion.requiresExplicitApproval: false`
+// while budgetProfiles said `userFriction: "explicit_approval"`. Deriving fixes that
+// to the strict, fail-closed value (a receipt-heavy, high-budget spend lane requires
+// explicit approval) and reproduces every other original value exactly.
+//
+// Do not hardcode a policy table here; edit the spec in budgetProfiles.ts instead.
+import {
+  NODEAGENT_BUDGET_PROFILES,
+  type NodeAgentBudgetProfile,
+  type NodeAgentBudgetProfileSpec,
+} from "./core/budgetProfiles";
+
+export type { NodeAgentBudgetProfile } from "./core/budgetProfiles";
 
 export type NodeAgentBudgetProfilePolicy = {
   id: NodeAgentBudgetProfile;
@@ -16,58 +28,29 @@ export type NodeAgentBudgetProfilePolicy = {
   highBudget: boolean;
 };
 
-export const NODEAGENT_BUDGET_PROFILE_POLICIES: Record<NodeAgentBudgetProfile, NodeAgentBudgetProfilePolicy> = {
-  instant: {
-    id: "instant",
-    label: "Instant",
-    description: "Fast, cheap, safe auto-run for small read or draft work.",
-    defaultForPublicAsk: false,
-    requiresExplicitApproval: false,
-    resumable: false,
-    receiptHeavy: false,
-    highBudget: false,
-  },
-  standard: {
-    id: "standard",
-    label: "Standard",
-    description: "Default public @nodeagent lane: bounded tool use, low surprise, visible result.",
-    defaultForPublicAsk: true,
-    requiresExplicitApproval: false,
-    resumable: false,
-    receiptHeavy: false,
-    highBudget: false,
-  },
-  background: {
-    id: "background",
-    label: "Background",
-    description: "Checkpointed continuation for safe work that is clearly still making progress.",
-    defaultForPublicAsk: false,
-    requiresExplicitApproval: false,
-    resumable: true,
-    receiptHeavy: true,
-    highBudget: false,
-  },
-  deep_diligence: {
-    id: "deep_diligence",
-    label: "Deep diligence",
-    description: "Host-approved long run with a cost/time estimate, resumable checkpoints, and evidence receipts.",
-    defaultForPublicAsk: false,
-    requiresExplicitApproval: true,
-    resumable: true,
-    receiptHeavy: true,
-    highBudget: true,
-  },
-  benchmark_completion: {
-    id: "benchmark_completion",
-    label: "Benchmark completion",
-    description: "Opt-in eval lane that runs to completion to measure model capability, cost, and latency.",
-    defaultForPublicAsk: false,
-    requiresExplicitApproval: false,
-    resumable: true,
-    receiptHeavy: true,
-    highBudget: true,
-  },
-};
+function policyFromSpec(spec: NodeAgentBudgetProfileSpec): NodeAgentBudgetProfilePolicy {
+  return {
+    id: spec.id,
+    label: spec.label,
+    description: spec.description,
+    defaultForPublicAsk: spec.defaultForPublicAsk,
+    // Opt-in-only lanes (deep_diligence, benchmark_completion) are the spend-heavy
+    // lanes: they require explicit approval and count as high budget.
+    requiresExplicitApproval: spec.optInOnly,
+    highBudget: spec.optInOnly,
+    // Lanes that must plan before spend also checkpoint and keep receipts.
+    resumable: spec.requiresPlanBeforeSpend,
+    receiptHeavy: spec.requiresPlanBeforeSpend,
+  };
+}
+
+export const NODEAGENT_BUDGET_PROFILE_POLICIES: Record<NodeAgentBudgetProfile, NodeAgentBudgetProfilePolicy> =
+  Object.fromEntries(
+    (Object.keys(NODEAGENT_BUDGET_PROFILES) as NodeAgentBudgetProfile[]).map((id) => [
+      id,
+      policyFromSpec(NODEAGENT_BUDGET_PROFILES[id]),
+    ]),
+  ) as Record<NodeAgentBudgetProfile, NodeAgentBudgetProfilePolicy>;
 
 export type RuntimeProfileInferenceInput = {
   goal: string;
