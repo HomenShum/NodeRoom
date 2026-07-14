@@ -121,7 +121,7 @@ async function persistedRoomKeys(page: import("@playwright/test").Page): Promise
 }
 
 async function verifyAuthenticatedLandingCopy(page: Page): Promise<void> {
-  await expect(page.getByText("Sign in, then join with a six-character room code. Share it only with people you intend to invite.", { exact: true })).toBeAttached();
+  await expect(page.getByText(/Sign-in required/i).first()).toBeVisible();
   await expect(page.getByText(/public by default|no account/i)).toHaveCount(0);
 }
 

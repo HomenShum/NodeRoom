@@ -194,7 +194,7 @@ export function Landing({
                 </div>
                 {shownError && <div id="landing-join-error" className="r-join-error" role="alert">{shownError}</div>}
                 <LandingProofPill live={live} />
-                <div className="r-land2-trust"><Check size={14} /> Code-access rooms · Review-first agent edits</div>
+                <div className="r-land2-trust"><Check size={14} /> Sign-in required · Code-access rooms · Review-first agent edits</div>
               </div>
               <div><LandingDemoLoop /></div>
             </div>
@@ -321,7 +321,7 @@ export function Landing({
                 )}
                 <div className="r-first-run-notice" data-testid="create-access-notice">
                   <Lock size={15} />
-                  <div><strong>Code-access room</strong><span>The invite link does not expire and lets allowed visitors join as editors. Share it intentionally.</span></div>
+                  <div><strong>Code-access room</strong><span>Signed-in visitors with the link can join as editors. The link does not expire, so share it intentionally.</span></div>
                 </div>
                 <fieldset className="r-first-run-policy" data-testid="agent-policy-choice">
                   <legend>How should NodeAgent edits land?</legend>

@@ -319,7 +319,7 @@ function JoinForm({
           </label>
           <section className="na-join-section" aria-labelledby="mobile-join-heading">
             <h2 id="mobile-join-heading">Join an existing room</h2>
-            <p>Anyone allowed by the deployment who has the code can join and edit shared room content.</p>
+            <p>Sign in, then use the room code to join and edit shared content.</p>
             <input
               className="na-join-input mono"
               placeholder="Room code"
@@ -345,7 +345,7 @@ function JoinForm({
               <button className="na-btn full" disabled={busy} onClick={onSample} data-testid="mobile-sample-room">Try sample</button>
             </div>
           </section>
-          <p className="na-join-trust">Code-access room. Review-first agent edits. Room content remains after members leave.</p>
+          <p className="na-join-trust">Account + room code. Review-first agent edits. Room content remains after members leave.</p>
         </main>
       </div>
     </div>

@@ -31,20 +31,26 @@ describe("launch authentication contract", () => {
 
   it("keeps first-run and sample copy aligned with authenticated room access", () => {
     const launchSurfaces = [
+      "index.html",
       "src/ui/Landing.tsx",
       "src/landing/roomTour/RoomTourFlows.tsx",
       "src/landing/roomTour/roomTourData.ts",
+      "src/ui/mobile/MobileRoot.tsx",
+      "src/ui/mobile/RoomJoinConsent.tsx",
+      "src/ui/mobile/MobileGapSheets.tsx",
       "src/ui/mobile/mobileData.ts",
       "src/engine/demoRoom.ts",
       "src/app/roomStore.ts",
       "convex/seed.ts",
     ].map((path) => readFileSync(path, "utf8")).join("\n");
 
+    expect(launchSurfaces).toContain("Sign-in required");
     expect(launchSurfaces).toContain("Sign in, then join with a six-character room code");
     expect(launchSurfaces).toContain("membership is bound to the signed-in account");
     expect(launchSurfaces).not.toContain("Public by default");
     expect(launchSurfaces).not.toContain("No account needed");
     expect(launchSurfaces).not.toContain("no account · join as guest");
+    expect(launchSurfaces).not.toContain("Anyone allowed by this deployment");
     expect(launchSurfaces).not.toContain("anon · quokka");
   });
 
