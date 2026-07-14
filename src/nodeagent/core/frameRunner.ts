@@ -16,6 +16,7 @@ import type {
   ToolCall,
 } from "./types";
 import type { AgentStreamEventDraft } from "./stream";
+import type { NodeAgentHook } from "./hooks";
 import type { SpendLimits } from "../guardrails/gateway";
 import type { FrameDelta, ReasoningFrame } from "./reasoningFrames";
 
@@ -44,6 +45,7 @@ export interface RunReasoningFrameOptions {
   onTextDelta?: (text: string, step: number) => void | Promise<void>;
   onStreamEvent?: (event: AgentStreamEventDraft) => void | Promise<void>;
   onHandoff?: (handoff: AgentHandoff) => void;
+  hooks?: NodeAgentHook[];
   now?: () => number;
   goal?: string;
   includeRoomContext?: boolean;
@@ -189,6 +191,7 @@ export async function runReasoningFrame(opts: RunReasoningFrameOptions): Promise
       onTextDelta: opts.onTextDelta,
       onStreamEvent: opts.onStreamEvent,
       onHandoff: opts.onHandoff,
+      hooks: opts.hooks,
       now: opts.now,
     });
     const stateDelta = reduceFrameResult(opts.frame, agentResult);
