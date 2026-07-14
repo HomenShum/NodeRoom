@@ -193,6 +193,7 @@ export interface Coach {
 }
 
 export interface InboxProposalReview {
+  jobId?: string;
   target: string;
   before: string;
   after: string;

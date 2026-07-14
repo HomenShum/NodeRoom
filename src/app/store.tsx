@@ -1452,6 +1452,19 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const hasValidLiveSession = usableConvexString(roomId) && usableConvexString(me.id) && usableConvexString(proof.token);
   const rid = roomId as never;
   const roomQuery = hasValidLiveSession ? { roomId: rid, requester: proof } : "skip";
+  const selectedLongJobStorageKey = `noderoom:selected-agent-job:${roomId}:${me.id}`;
+  const [selectedLongJobId, setSelectedLongJobId] = useState<string | null>(null);
+  useEffect(() => {
+    try {
+      setSelectedLongJobId(window.sessionStorage.getItem(selectedLongJobStorageKey));
+    } catch {
+      setSelectedLongJobId(null);
+    }
+  }, [selectedLongJobStorageKey]);
+  const selectLongJob = useCallback((jobId: string) => {
+    setSelectedLongJobId(jobId);
+    try { window.sessionStorage.setItem(selectedLongJobStorageKey, jobId); } catch { /* storage can be disabled */ }
+  }, [selectedLongJobStorageKey]);
   const [traceActive, setTraceActive] = useState(false);
   // Gate trace-only queries (captures has per-step getUrl cost; OKF lens is heavy) on the Trace tab
   // actually being open — zero reactive cost when the user is on another surface.
@@ -1506,9 +1519,10 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const passiveActivity = useQuery(api.roomActivity.feed, roomQuery) ?? [];
   const costPreview = useQuery(api.roomActivity.researchCostPreview, hasValidLiveSession ? { roomId: rid } : "skip");
   const assistivePolicy = useQuery(api.roomActivity.roomAssistivePolicy, hasValidLiveSession ? { roomId: rid } : "skip");
-  const latestJobId = (jobs as Array<{ _id: string }>)[0]?._id;
-  const jobAttempts = useQuery(api.agentJobs.attempts, latestJobId ? { jobId: latestJobId as never, requester: proof } : "skip") ?? [];
-  const jobDetail = useQuery(api.agentJobs.detail, latestJobId ? { jobId: latestJobId as never, requester: proof } : "skip");
+  const selectedLongJobRow = (jobs as FreeJobRow[]).find((job) => String(job._id) === selectedLongJobId) ?? (jobs as FreeJobRow[])[0];
+  const selectedLongJobQueryId = selectedLongJobRow?._id;
+  const jobAttempts = useQuery(api.agentJobs.attempts, selectedLongJobQueryId ? { jobId: selectedLongJobQueryId as never, requester: proof } : "skip") ?? [];
+  const jobDetail = useQuery(api.agentJobs.detail, selectedLongJobQueryId ? { jobId: selectedLongJobQueryId as never, requester: proof } : "skip");
   const proposals = useQuery(api.artifacts.listProposals, roomQuery) ?? [];
   // Live credit wallet (Phase B). GATED on VITE_CREDITS_LIVE so the frontend never calls
   // api.credits.* until those functions are actually deployed to the Convex deployment (Convex
@@ -2092,7 +2106,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         const route = durableRouteForModelSelection(input.modelSelection);
         const runtimeProfile = input.runtimeProfile ?? browserNodeAgentRuntimeProfile();
         const maxAttempts = maxAttemptsForRuntimeProfile(runtimeProfile, input.maxAttempts);
-        await startPublicAskJob({
+        const started = await startPublicAskJob({
           roomId: rid,
           requester: proof,
           routePolicy: route.routePolicy,
@@ -2105,6 +2119,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           allowedElementIds: input.allowedElementIds,
           goal: withReferenceContext(input.goal, references),
         });
+        selectLongJob(String(started.jobId));
       },
       askPrivateAgent: async (input, opts) => {
         const references = canonicalRefs(artifacts, input.references);
@@ -2182,7 +2197,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         return r ? { model: r.model, steps: r.steps, toolCalls: r.toolCalls, inputTokens: r.inputTokens, outputTokens: r.outputTokens, costUsd: r.costUsd, ms: r.ms } : null;
       },
       lastLongFreeJob: () => {
-        const j = (jobs as FreeJobRow[])[0];
+        const j = selectedLongJobRow;
         return j ? mapConvexFreeJob(j) : null;
       },
       activeLongFreeJobs: () => (jobs as FreeJobRow[]).filter((j) => isActiveFreeJob(j.status)).map(mapConvexFreeJob),
@@ -2212,6 +2227,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       lastLongFreeJobDetail: () => {
         if (!jobDetail) return null;
         const d = jobDetail as {
+          job?: { status: string; finalText?: string; error?: string };
           operations?: Array<{ sequence: number; kind: string; name: string; status: string; countDelta?: number; targetKind?: string; targetId?: string; affectedIds?: string[] }>;
           streamEvents?: Array<{
             _id?: string;
@@ -2270,12 +2286,12 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           metadata: event.metadata,
           createdAt: event.createdAt,
         })) satisfies PersistedAgentStreamEvent[];
-        const detailJob = (jobs as Array<{ status: string; finalText?: string }>)[0];
+        const detailJob = d.job;
         const terminal = !!detailJob && ["completed", "failed", "blocked", "cancelled"].includes(detailJob.status);
         return {
           operations: (d.operations ?? []).map((o) => ({ sequence: o.sequence, kind: o.kind, name: o.name, status: o.status, countDelta: o.countDelta, targetKind: o.targetKind, targetId: o.targetId, affectedIds: o.affectedIds?.map(String) })),
           streamEvents,
-          streamParts: buildUnifiedAgentStreamParts(streamEvents, { finalText: detailJob?.finalText, terminal }),
+          streamParts: buildUnifiedAgentStreamParts(streamEvents, { finalText: detailJob?.finalText, terminal, terminalStatus: detailJob?.status }),
           reasoningFrames: (d.reasoningFrames ?? []).map((f) => ({
             frameId: String(f.frameId),
             parentFrameId: f.parentFrameId ? String(f.parentFrameId) : undefined,
@@ -2363,7 +2379,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         return result.rowId ? { artifactId: targetArt.id as string, rowId: result.rowId as string, created: result.created } : undefined;
       },
     };
-  }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, applyEditCore, offlineQueue, offlineSnap, scheduleOfflineReplay, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, runNotebookKernel, createPrivateReplyStream, startAgentJob, startPublicAskJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, creditMode, creditBalanceQ, creditUsageQ, rid, roomId, proof, me.id, me.name]);
+  }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, selectedLongJobRow, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, applyEditCore, offlineQueue, offlineSnap, scheduleOfflineReplay, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, runNotebookKernel, createPrivateReplyStream, startAgentJob, startPublicAskJob, selectLongJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, creditMode, creditBalanceQ, creditUsageQ, rid, roomId, proof, me.id, me.name]);
 
   // E2E test seam: expose runCollab/runSemanticConflictDrill via window so tests can trigger
   // collaboration and conflict drills without the removed CollabBar buttons.

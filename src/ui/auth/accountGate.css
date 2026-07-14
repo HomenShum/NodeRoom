@@ -74,6 +74,13 @@
 .nr-auth-segments button { min-height: 44px; border: 0; background: #fff; color: #625a54; font: inherit; font-weight: 650; cursor: pointer; }
 .nr-auth-segments button[data-active="true"] { background: #e9d5c8; color: #6f3119; }
 .nr-auth-provider-note, .nr-auth-trust { font-size: 12px; }
+.nr-auth-verification-destination { min-width: 0; display: flex; align-items: flex-start; gap: 9px; color: #504842; line-height: 1.45; }
+.nr-auth-verification-destination span { min-width: 0; overflow-wrap: anywhere; }
+.nr-auth-secondary-row { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.nr-auth-secondary-row button { min-height: 44px; padding: 0; border: 0; background: transparent; color: #7f3a1d; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.nr-auth-secondary-row button:disabled { cursor: wait; opacity: .6; }
+.nr-auth-secondary-row button:focus-visible { outline: 3px solid #d58a67; outline-offset: 2px; }
+.nr-auth-status { padding: 11px 12px; border-left: 3px solid #4e765f; background: #e9f2ec; color: #294b37; line-height: 1.4; }
 .nr-auth-error { padding: 11px 12px; border-left: 3px solid #a33232; background: #f9e9e7; color: #772424; line-height: 1.4; }
 
 @media (max-width: 520px) {

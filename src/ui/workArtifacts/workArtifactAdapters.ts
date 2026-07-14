@@ -177,8 +177,8 @@ export function mapProposalToWorkArtifact(proposal: Proposal, artifact?: Artifac
       unresolvedCount: status === "pending" ? 1 : 0,
     }),
     refs: [
-      { artifactId: proposal.artifactId, proposalId: proposal.id, label: proposal.op.elementId },
-      ...traceIds.map((traceId) => ({ artifactId: proposal.artifactId, proposalId: proposal.id, traceId })),
+      { artifactId: proposal.artifactId, proposalId: proposal.id, jobId: proposal.jobId, label: proposal.op.elementId },
+      ...traceIds.map((traceId) => ({ artifactId: proposal.artifactId, proposalId: proposal.id, jobId: proposal.jobId, traceId })),
     ],
     actions,
     meta: {
@@ -186,6 +186,7 @@ export function mapProposalToWorkArtifact(proposal: Proposal, artifact?: Artifac
       reviewKind: proposal.review?.kind,
       reviewStatus: proposal.review?.status,
       baseVersion: proposal.op.baseVersion,
+      jobId: proposal.jobId,
     },
   };
 }

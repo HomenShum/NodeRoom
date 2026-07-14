@@ -24,7 +24,7 @@ const MENTION_MAX_PER_MESSAGE = 20;
 /** BOUND: payload preview chars carried into the inbox row. */
 const MENTION_PREVIEW_CHARS = 140;
 import type { Id } from "./_generated/dataModel";
-import { actorProofV, actorV, requireActorCanUseChannel, requireActorInRoom, requireActorProof, type ActorValue } from "./lib";
+import { actorProofV, actorV, requireActiveAgentJobLease, requireActorCanUseChannel, requireActorInRoom, requireActorProof, type ActorValue } from "./lib";
 import { dedupeKeyFor } from "../src/notifications/tiers";
 
 /**
@@ -128,8 +128,11 @@ export const send = mutation({
 });
 
 export const sendAgent = internalMutation({
-  args: { roomId: v.id("rooms"), channel: v.string(), author: actorV, text: v.string(), clientMsgId: v.string(), kind: v.optional(v.union(v.literal("chat"), v.literal("agent"), v.literal("system"))) },
-  handler: sendCore,
+  args: { roomId: v.id("rooms"), channel: v.string(), author: actorV, text: v.string(), clientMsgId: v.string(), kind: v.optional(v.union(v.literal("chat"), v.literal("agent"), v.literal("system"))), jobId: v.optional(v.id("agentJobs")), leaseId: v.optional(v.string()) },
+  handler: async (ctx, a) => {
+    await requireActiveAgentJobLease(ctx, a);
+    return sendCore(ctx, a);
+  },
 });
 
 /** Trusted (server-only) post of a PRIVATE NodeAgent reply to a member's own private channel.

@@ -434,7 +434,7 @@ export const runFreeAutoJobSlice = internalAction({
     if (!claimed) return { ok: false as const, reason: "not_claimed" as const };
 
     const actor: Actor = { kind: "agent", id: claimed.agentId, name: claimed.agentName, scope: "public" };
-    const rt = new ConvexRoomTools(ctx, claimed.roomId, claimed.artifactId, actor, String(claimed.sessionId), claimed.jobId);
+    const rt = new ConvexRoomTools(ctx, claimed.roomId, claimed.artifactId, actor, String(claimed.sessionId), claimed.jobId, leaseId);
     const productionTools = productionToolsForJob(claimed);
     const roomArtifacts = await ctx.runQuery(artifactsListForRoomRef, { roomId: claimed.roomId }) as Array<{ title?: string; kind?: string; meta?: unknown; visibility?: string }>;
     const egressArtifacts = providerEgressArtifactsForClaimedJob(roomArtifacts, claimed);
@@ -504,6 +504,7 @@ export const runFreeAutoJobSlice = internalAction({
     }) => {
       const write = ctx.runMutation(agentJobsRecordLiveOperationRef, {
         jobId: claimed.jobId,
+        leaseId,
         sequence: liveSequence++,
         ...args,
       }).catch(() => null);
@@ -513,6 +514,7 @@ export const runFreeAutoJobSlice = internalAction({
     const recordStreamEvent = (event: AgentStreamEventDraft) => {
       const write = ctx.runMutation(agentJobsRecordStreamEventRef, {
         jobId: claimed.jobId,
+        leaseId,
         sequence: streamSequence++,
         ...event,
       }).catch(() => null);
@@ -555,6 +557,7 @@ export const runFreeAutoJobSlice = internalAction({
         .then(() => ctx.runMutation(streamingAppendPublicAgentJobStreamChunkRef, {
           roomId: claimed.roomId,
           jobId: claimed.jobId,
+          leaseId,
           streamId: stream.streamId,
           text,
         }));
@@ -598,6 +601,7 @@ export const runFreeAutoJobSlice = internalAction({
       await ctx.runMutation(streamingFinalizePublicAgentJobStreamRef, {
         roomId: claimed.roomId,
         jobId: claimed.jobId,
+        leaseId,
         streamId: publicStream.streamId,
         text,
       }).catch(() => undefined);
@@ -664,6 +668,7 @@ export const runFreeAutoJobSlice = internalAction({
         publicStream = await ctx.runMutation(streamingEnsurePublicAgentJobStreamRef, {
           roomId: claimed.roomId,
           jobId: claimed.jobId,
+          leaseId,
           author: actor,
           goal: claimed.goal,
           createdAt: claimed.createdAt,

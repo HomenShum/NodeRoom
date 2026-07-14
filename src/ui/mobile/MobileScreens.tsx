@@ -341,6 +341,13 @@ export function Inbox({ ctx }: { ctx: MobileCtx }): React.ReactElement {
         React.createElement("span", { className: "lbl" }, "Proposed"),
         React.createElement("p", null, item.review.after)),
       React.createElement("div", { className: "na-patch-ev", "aria-label": "Proposal source scope and storyboard traces" },
+        item.review.jobId
+          ? React.createElement("span", {
+              className: "na-cite job",
+              "data-testid": "mobile-proposal-job",
+              title: `Producing job ${item.review.jobId}`,
+            }, Ico("activity"), `Job ${item.review.jobId}`)
+          : React.createElement("span", { className: "na-cite gap" }, Ico("alert"), "No producing job linked"),
         item.review.sources.length
           ? item.review.sources.map((source) => React.createElement("span", { key: `source:${source}`, className: "na-cite" }, Ico("link"), source))
           : React.createElement("span", { className: "na-cite gap" }, Ico("alert"), "No source attached"),

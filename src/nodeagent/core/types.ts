@@ -68,7 +68,14 @@ export interface AgentTool {
   name: string;
   description: string;
   schema: ZodTypeAny;
-  execute(args: any, rt: RoomTools): Promise<unknown>;
+  execute(args: any, rt: RoomTools, context?: AgentToolExecutionContext): Promise<unknown>;
+}
+
+export interface AgentToolExecutionContext {
+  /** Cooperative cancellation for network/process work inside a tool. */
+  signal?: AbortSignal;
+  /** Absolute deadline after the runtime's persistence reserve. */
+  deadlineAt?: number;
 }
 
 export type ToolFailureKind =

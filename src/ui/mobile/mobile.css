@@ -478,6 +478,7 @@ button.na-row:hover .chevR { transform: translateX(3px); color: var(--na-accent)
 .na-cite svg { width: 14px; height: 14px; flex: none; }
 .na-cite sup { color: var(--na-accent); font-weight: 700; font-family: var(--font-mono); }
 .na-cite.gap { border-style: dashed; color: var(--text-muted); }
+.na-cite.job { max-width: 100%; font-family: var(--font-mono); overflow-wrap: anywhere; }
 .ri svg { width: 16px; height: 16px; flex: none; }
 
 /* coach answer field */

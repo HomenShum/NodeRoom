@@ -12,7 +12,7 @@ import { v } from "convex/values";
 import { internalMutation, mutation } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
-import { actorProofV, actorV, activeLockOn, getElement, LOCK_TTL_MS, requireActorInRoom, requireActorProof, requireArtifactInRoom, sameActor } from "./lib";
+import { actorProofV, actorV, activeLockOn, getElement, LOCK_TTL_MS, requireActiveAgentJobLease, requireActorInRoom, requireActorProof, requireArtifactInRoom, sameActor } from "./lib";
 
 const opV = v.object({
   opId: v.string(),
@@ -24,12 +24,13 @@ const opV = v.object({
 });
 
 export const createDraft = internalMutation({
-  args: { roomId: v.id("rooms"), artifactId: v.id("artifacts"), author: actorV, ops: v.array(opV), note: v.string(), blockedByLockId: v.optional(v.string()) },
+  args: { roomId: v.id("rooms"), artifactId: v.id("artifacts"), jobId: v.optional(v.id("agentJobs")), leaseId: v.optional(v.string()), author: actorV, ops: v.array(opV), note: v.string(), blockedByLockId: v.optional(v.string()) },
   handler: async (ctx, a) => {
     await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
     await requireActorInRoom(ctx, a.roomId, a.author);
+    await requireActiveAgentJobLease(ctx, a);
     const now = Date.now();
-    const draftId = await ctx.db.insert("drafts", { roomId: a.roomId, artifactId: a.artifactId, author: a.author, ops: a.ops, note: a.note, blockedByLockId: a.blockedByLockId, status: "pending", createdAt: now });
+    const draftId = await ctx.db.insert("drafts", { roomId: a.roomId, artifactId: a.artifactId, jobId: a.jobId, author: a.author, ops: a.ops, note: a.note, blockedByLockId: a.blockedByLockId, status: "pending", createdAt: now });
     const note = a.author.scope === "private" ? "[private draft]" : a.note;
     await ctx.db.insert("traces", { roomId: a.roomId, ts: now, actor: a.author, type: "draft_created", summary: `${a.author.name} drafted ${a.ops.length} change(s): ${note}`, detail: `create_draft · ${a.ops.length} ops · blockedBy ${a.blockedByLockId ?? "—"}` });
     return { draftId };
@@ -190,6 +191,7 @@ export async function mergeBlockedDrafts(ctx: MutationCtx, roomId: Id<"rooms">, 
         const proposalId = await ctx.db.insert("proposals", {
           roomId,
           artifactId: d.artifactId,
+          jobId: d.jobId,
           op: { ...op, artifactId: String(d.artifactId), baseVersion: current?.version ?? 0 },
           author: d.author,
           review: {

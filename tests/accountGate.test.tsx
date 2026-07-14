@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AccountGate } from "../src/ui/auth/AccountGate";
 
 const signIn = vi.fn(async (_provider: string, _params?: unknown) => ({ signingIn: true }));
@@ -10,8 +10,12 @@ vi.mock("@convex-dev/auth/react", () => ({
 }));
 
 describe("AccountGate", () => {
+  beforeEach(() => {
+    signIn.mockReset();
+    signIn.mockResolvedValue({ signingIn: true });
+  });
+
   afterEach(() => {
-    signIn.mockClear();
     vi.unstubAllEnvs();
   });
 
@@ -50,5 +54,48 @@ describe("AccountGate", () => {
     expect(screen.getByTestId("sign-in-github")).toBeTruthy();
     expect(screen.getByTestId("sign-in-password")).toBeTruthy();
     expect(screen.getByText("or use email")).toBeTruthy();
+  });
+
+  it("requires the emailed code before a new password account signs in", async () => {
+    vi.stubEnv("VITE_NODEROOM_AUTH_PROVIDER", "password");
+    signIn.mockResolvedValueOnce({ signingIn: false }).mockResolvedValueOnce({ signingIn: true });
+    render(<AccountGate action="create this workspace" onCancel={() => undefined} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Create account" }));
+    fireEvent.change(screen.getByLabelText("Email"), { target: { value: " New.User@Example.com " } });
+    fireEvent.change(screen.getByLabelText("Password"), { target: { value: "strong-password" } });
+    fireEvent.click(screen.getByTestId("sign-in-password"));
+
+    await screen.findByRole("heading", { name: "Verify your email" });
+    expect(screen.queryByLabelText("Password")).toBeNull();
+    expect(screen.getAllByText(/new.user@example.com/i)).toHaveLength(2);
+    fireEvent.change(screen.getByLabelText("Verification code"), { target: { value: "12345678" } });
+    fireEvent.click(screen.getByTestId("verify-email-code"));
+
+    await waitFor(() => expect(signIn).toHaveBeenCalledTimes(2));
+    expect(signIn.mock.calls[1]).toEqual(["password", {
+      flow: "email-verification",
+      email: "new.user@example.com",
+      code: "12345678",
+    }]);
+  });
+
+  it("resends a verification challenge without retaining the password", async () => {
+    vi.stubEnv("VITE_NODEROOM_AUTH_PROVIDER", "password");
+    signIn.mockResolvedValue({ signingIn: false });
+    render(<AccountGate action="join this room" onCancel={() => undefined} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Create account" }));
+    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "qa@noderoom.test" } });
+    fireEvent.change(screen.getByLabelText("Password"), { target: { value: "strong-password" } });
+    fireEvent.click(screen.getByTestId("sign-in-password"));
+    await screen.findByRole("heading", { name: "Verify your email" });
+    fireEvent.click(screen.getByRole("button", { name: "Send a new code" }));
+
+    await waitFor(() => expect(signIn).toHaveBeenLastCalledWith("password", {
+      flow: "email-verification",
+      email: "qa@noderoom.test",
+    }));
+    expect(screen.getByText(/new verification code was sent/i)).toBeTruthy();
   });
 });

@@ -530,6 +530,7 @@ describe("agentJobs runtime contract", () => {
       baseVersion: 1,
       actor: agent,
       jobId: started.jobId,
+      leaseId: "deck-scope",
     });
     expect(denied).toEqual({ ok: false, reason: "job_scope_violation" });
     const pending = await t.mutation(internal.artifacts.applyAgentCellEdit, {
@@ -540,8 +541,21 @@ describe("agentJobs runtime contract", () => {
       baseVersion: 1,
       actor: agent,
       jobId: started.jobId,
+      leaseId: "deck-scope",
     });
     expect(pending).toMatchObject({ ok: false, reason: "pending_approval" });
+    const [proposal] = await t.query(api.artifacts.listProposals, { roomId, requester: proof });
+    expect(proposal).toMatchObject({ jobId: String(started.jobId), artifactId: String(deckId) });
+    const approved = await t.mutation(api.artifacts.resolveProposal, {
+      proposalId: proposal.id as never,
+      approve: true,
+      requester: proof,
+    });
+    expect(approved).toMatchObject({ ok: true });
+    const approvedDetail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+    expect(approvedDetail?.receipts).toEqual(expect.arrayContaining([
+      expect.objectContaining({ mutationName: "artifacts.resolveProposal", jobId: started.jobId }),
+    ]));
   });
 
   it("fails closed when a required public-ask context artifact is not visible", async () => {
@@ -1097,12 +1111,34 @@ describe("agentJobs runtime contract", () => {
   });
 
   it("cancel finalizes the job, releases active leases, and records a checkpoint", async () => {
-    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { t, proof, actor, roomId, artifactId } = await setupRoom({ seedElement: true });
     const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-cancel-lease" }));
     const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-cancel", leaseMs: 60_000 });
     expect(claimed?.attempt).toBe(1);
 
+    const applied = await t.mutation(internal.artifacts.applyAgentCellEdit, {
+      roomId,
+      artifactId,
+      elementId: "row1__variance",
+      value: "8%",
+      baseVersion: 1,
+      actor,
+      jobId,
+      leaseId: "lease-cancel",
+    });
+    expect(applied).toMatchObject({ ok: true });
+
     const cancelled = await t.mutation(api.agentJobs.cancel, { jobId, requester: proof });
+    await expect(t.mutation(internal.artifacts.applyAgentCellEdit, {
+      roomId,
+      artifactId,
+      elementId: "row1__variance",
+      value: "9%",
+      baseVersion: 2,
+      actor,
+      jobId,
+      leaseId: "lease-cancel",
+    })).rejects.toThrow("job_lease_invalid");
     const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
 
     expect(cancelled).toEqual({ ok: true });
@@ -1112,6 +1148,9 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.leases.some((lease) => lease.status === "active")).toBe(false);
     expect(detail?.leases.map((lease) => lease.status)).toContain("released");
     expect(detail?.operations.map((event) => event.name)).toContain("agentJobs.cancel");
+    expect(detail?.streamEvents.at(-1)).toMatchObject({ kind: "message_done", status: "failed" });
+    expect(detail?.streamEvents.some((event) => event.kind === "error" && event.error === "cancelled_by_user")).toBe(true);
+    expect(detail?.receipts).toHaveLength(1);
   });
 
   it("retry requeues a cancelled job with a fresh workflow and fences the old lease", async () => {
@@ -1142,7 +1181,7 @@ describe("agentJobs runtime contract", () => {
   });
 
   it("sweeps expired running-job leases into a fenced failed state", async () => {
-    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { t, proof, actor, roomId, artifactId } = await setupRoom({ seedElement: true });
     const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-stale-lease" }));
 
     const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-stale", leaseMs: 1_000 });
@@ -1153,6 +1192,16 @@ describe("agentJobs runtime contract", () => {
 
     const staleFinish = await t.mutation(internal.agentJobs.finishSlice, finishSliceArgs({ jobId, leaseId: "lease-stale", attempt: 1 }));
     expect(staleFinish).toEqual({ ok: false, reason: "lease_mismatch" });
+    await expect(t.mutation(internal.artifacts.applyAgentCellEdit, {
+      roomId,
+      artifactId,
+      elementId: "row1__variance",
+      value: "late write",
+      baseVersion: 1,
+      actor,
+      jobId,
+      leaseId: "lease-stale",
+    })).rejects.toThrow("job_lease_invalid");
 
     const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
     expect(detail?.job.status).toBe("failed");
@@ -1161,6 +1210,29 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.leases.map((lease) => lease.status)).toContain("expired");
     expect(detail?.attempts[0]).toMatchObject({ attempt: 1, status: "failed", stopReason: "lease_expired" });
     expect(detail?.operations.map((event) => event.name)).toContain("agentJobs.sweepExpiredJobLeases");
+    expect(detail?.streamEvents.at(-1)).toMatchObject({ kind: "message_done", status: "failed" });
+    expect(detail?.receipts).toHaveLength(0);
+  });
+
+  it("expires each claimed slice through its exact lease watchdog", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-14T12:00:00Z"));
+    try {
+      const { t, proof, roomId, artifactId } = await setupRoom();
+      const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-lease-watchdog" }));
+      const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-watchdog", leaseMs: 1_000 });
+      expect(claimed).toMatchObject({ attempt: 1, leaseId: "lease-watchdog" });
+
+      await vi.advanceTimersByTimeAsync(31_500);
+      await t.finishAllScheduledFunctions(vi.runAllTimers);
+
+      const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+      expect(detail?.job).toMatchObject({ status: "failed", error: "job_lease_expired", leaseId: "" });
+      expect(detail?.operations.map((event) => event.name)).toContain("agentJobs.expireClaimedSlice");
+      expect(detail?.streamEvents.at(-1)).toMatchObject({ kind: "message_done", status: "failed" });
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("agent cell edits write mutation receipts and stale CAS conflicts do not", async () => {

@@ -11,6 +11,7 @@ export interface ProposalReviewItem {
   roomId: string;
   artifactId: string;
   artifactTitle: string;
+  jobId?: string;
   elementId: string;
   authorName: string;
   status: Proposal["status"];
@@ -59,6 +60,7 @@ export function buildProposalReviewItems(input: { proposals: Proposal[]; artifac
       roomId: proposal.roomId,
       artifactId: proposal.artifactId,
       artifactTitle: artifactTitle.get(proposal.artifactId) ?? proposal.artifactId,
+      jobId: proposal.jobId,
       elementId: proposal.op.elementId,
       authorName: proposal.author.name,
       status: proposal.status,
@@ -216,6 +218,7 @@ export function ProposalReviewCenter({
                   <div className="wa-review-meta">
                     <span>{item.artifactTitle}</span>
                     {item.baseVersion !== undefined && <span>base v{item.baseVersion}</span>}
+                    {item.jobId && <span data-testid="proposal-review-job" title={`Producing job ${item.jobId}`}>job {item.jobId}</span>}
                     {item.traceIds.length > 0 && <span>{item.traceIds.length} traces</span>}
                     {item.reason && <span>{item.reason}</span>}
                     {item.reviewerNote && <span>{item.reviewerNote}</span>}

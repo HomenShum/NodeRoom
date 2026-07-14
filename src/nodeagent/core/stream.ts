@@ -107,7 +107,7 @@ export type UnifiedAgentStreamPart =
 
 export function buildUnifiedAgentStreamParts(
   events: PersistedAgentStreamEvent[],
-  opts: { finalText?: string; terminal?: boolean } = {},
+  opts: { finalText?: string; terminal?: boolean; terminalStatus?: string } = {},
 ): UnifiedAgentStreamPart[] {
   const parts: UnifiedAgentStreamPart[] = [];
   const sorted = [...events].sort((a, b) => a.sequence - b.sequence || a.createdAt - b.createdAt);
@@ -267,6 +267,17 @@ export function buildUnifiedAgentStreamParts(
   if ((sawDone || opts.terminal) && textPart) textPart.state = "done";
   if ((sawDone || opts.terminal) && reasoningPart) reasoningPart.state = "completed";
   if ((sawDone || opts.terminal) && planPart) planPart.state = "completed";
+  if (sawDone || opts.terminal) {
+    for (const part of parts) {
+      if (!part.type.startsWith("tool-") || !("toolCallId" in part) || part.state !== "call") continue;
+      part.state = "output-denied";
+      part.status = "failed";
+      part.error = part.error ?? (opts.terminalStatus
+        ? `Tool result unavailable after job ended with status ${opts.terminalStatus}.`
+        : "Tool result unavailable after the job ended.");
+      part.metadata = { ...part.metadata, terminalReconciled: true, terminalStatus: opts.terminalStatus };
+    }
+  }
   return parts;
 }
 

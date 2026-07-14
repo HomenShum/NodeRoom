@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { internalMutation, query } from "./_generated/server";
-import { actorProofV, requireActorProof } from "./lib";
+import { actorProofV, requireActiveAgentJobLease, requireActorProof } from "./lib";
 
 const visibilityV = v.union(v.literal("private"), v.literal("room"), v.literal("public"));
 
@@ -25,10 +25,12 @@ export const recordSourceCapture = internalMutation({
     viewport: v.optional(v.any()),
     provider: v.optional(v.string()),
     capturedByJobId: v.optional(v.id("agentJobs")),
+    leaseId: v.optional(v.string()),
     visibility: v.optional(visibilityV),
     ownerId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireActiveAgentJobLease(ctx, { roomId: args.roomId, jobId: args.capturedByJobId, leaseId: args.leaseId });
     const now = Date.now();
     const existing = await ctx.db.query("sourceCaptures")
       .withIndex("by_room_hash", (q) => q.eq("roomId", args.roomId).eq("contentHash", args.contentHash))
@@ -69,8 +71,10 @@ export const recordEvidenceFact = internalMutation({
     checks: v.any(),
     usedBy: v.array(v.any()),
     createdByJobId: v.optional(v.id("agentJobs")),
+    leaseId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireActiveAgentJobLease(ctx, { roomId: args.roomId, jobId: args.createdByJobId, leaseId: args.leaseId });
     const now = Date.now();
     const existing = await ctx.db.query("evidenceFacts")
       .withIndex("by_room_fact", (q) => q.eq("roomId", args.roomId).eq("factId", args.factId))

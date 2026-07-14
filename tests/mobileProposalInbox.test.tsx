@@ -21,6 +21,7 @@ describe("mobile governed proposal inbox", () => {
       kind: "deck",
       preview: "deck",
       review: {
+        jobId: "job-deck-1",
         target: "Slide 1 - ARR bridge",
         before: "Title: ARR bridge",
         after: "Title: Evidence-backed ARR bridge",
@@ -49,6 +50,7 @@ describe("mobile governed proposal inbox", () => {
     expect(review.textContent).toContain("Title: Evidence-backed ARR bridge");
     expect(review.textContent).toContain("ARR worksheet");
     expect(review.textContent).toContain("Context trace trace-1");
+    expect(screen.getByTestId("mobile-proposal-job").textContent).toBe("Job job-deck-1");
     expect(review.textContent).toContain("+4 more context traces");
     expect(screen.getByRole("button", { name: "Reject" })).toBeTruthy();
 

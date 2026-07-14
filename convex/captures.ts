@@ -9,7 +9,7 @@
 import { v } from "convex/values";
 import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
-import { actorProofV, requireActorProof } from "./lib";
+import { actorProofV, requireActiveAgentJobLease, requireActorProof } from "./lib";
 
 const MAX_CAPTURE_RECORDS = 20;
 const MAX_CITATIONS_PER_ROOM = 100;
@@ -67,8 +67,14 @@ export const record = internalMutation({
     ts: v.number(),
     steps: v.array(captureStepV),
     data: v.optional(v.any()),
+    jobId: v.optional(v.id("agentJobs")),
+    leaseId: v.optional(v.string()),
   },
-  handler: async (ctx, a) => ctx.db.insert("captureRecords", a),
+  handler: async (ctx, a) => {
+    await requireActiveAgentJobLease(ctx, a);
+    const { jobId: _jobId, leaseId: _leaseId, ...record } = a;
+    return ctx.db.insert("captureRecords", record);
+  },
 });
 
 /** Shared TraceRecord builder — one shape for both byRoom (lightweight) and captureDetail (resolved).

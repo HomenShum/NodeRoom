@@ -273,4 +273,26 @@ describe("NodeAgent unified stream parts", () => {
 
     expect(parts).toEqual([{ type: "text", text: answer, state: "done" }]);
   });
+
+  it("closes orphaned tool calls when the durable job is terminal", () => {
+    const parts = buildUnifiedAgentStreamParts([{
+      sequence: 1,
+      kind: "tool_call_start",
+      step: 0,
+      toolCallId: "call-orphan",
+      toolName: "capture_source",
+      status: "started",
+      input: { url: "https://example.com" },
+      createdAt: 1,
+    }], { terminal: true, terminalStatus: "failed" });
+
+    expect(parts).toEqual([expect.objectContaining({
+      type: "tool-capture_source",
+      toolCallId: "call-orphan",
+      state: "output-denied",
+      status: "failed",
+      error: expect.stringContaining("status failed"),
+      metadata: expect.objectContaining({ terminalReconciled: true, terminalStatus: "failed" }),
+    })]);
+  });
 });

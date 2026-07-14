@@ -285,6 +285,7 @@ export default defineSchema({
   drafts: defineTable({
     roomId: v.id("rooms"),
     artifactId: v.id("artifacts"),
+    jobId: v.optional(v.id("agentJobs")),
     author: actor,
     ops: v.array(v.object({
       opId: v.string(),
@@ -304,6 +305,7 @@ export default defineSchema({
   proposals: defineTable({
     roomId: v.id("rooms"),
     artifactId: v.id("artifacts"),
+    jobId: v.optional(v.id("agentJobs")),
     op: v.any(),
     author: actor,
     review: v.optional(v.any()),
