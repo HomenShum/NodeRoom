@@ -64,6 +64,7 @@ describe("auth/session production policy", () => {
       code: "AUTH04",
       name: "Sam",
       authToken: MEMBER_TOKEN,
+      anon: true,
     });
     if (!first || "error" in first) throw new Error("first join failed");
     const second = await member.mutation(api.rooms.joinAnonymous, {
@@ -77,6 +78,7 @@ describe("auth/session production policy", () => {
     const hostProof = { actor: { kind: "user" as const, id: String(created.memberId), name: "Maya" }, token: HOST_TOKEN };
     const members = await host.query(api.rooms.members, { roomId: created.roomId, requester: hostProof });
     expect(members.map((entry) => entry.name)).toEqual(["Maya", "Sam"]);
+    expect(members.find((entry) => entry.name === "Sam")?.anon).toBe(false);
   });
 
   it("binds a legacy token-authenticated member to the first signed-in account that resumes it", async () => {

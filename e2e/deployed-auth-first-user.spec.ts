@@ -120,6 +120,11 @@ async function persistedRoomKeys(page: import("@playwright/test").Page): Promise
   return page.evaluate(() => Object.keys(localStorage).filter((key) => key.startsWith("noderoom:live:")));
 }
 
+async function verifyAuthenticatedLandingCopy(page: Page): Promise<void> {
+  await expect(page.getByText("Sign in, then join with a six-character room code. Share it only with people you intend to invite.", { exact: true })).toBeAttached();
+  await expect(page.getByText(/public by default|no account/i)).toHaveCount(0);
+}
+
 test.describe("deployed authenticated first-user journey", () => {
   test.skip(!deployedAuthEnabled, "Set PLAYWRIGHT_DEPLOYED_AUTH=1 against an authenticated deployment.");
 
@@ -133,6 +138,8 @@ test.describe("deployed authenticated first-user journey", () => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     expectDeployedHost(page);
     await expect(page.getByRole("heading", { name: /Work with AI/i })).toBeVisible({ timeout: 30_000 });
+    await verifyAuthenticatedLandingCopy(page);
+    await page.screenshot({ path: testInfo.outputPath("fresh-mobile-landing-390x844.png"), fullPage: false });
     await page.getByRole("link", { name: "Create a room", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Create this workspace?" })).toBeVisible();
     await expect(page.getByRole("radio", { name: /Review every edit/i })).toBeChecked();
@@ -180,6 +187,8 @@ test.describe("deployed authenticated first-user journey", () => {
     await page.goto("/?surface=desktop", { waitUntil: "domcontentloaded" });
     expectDeployedHost(page);
     await expect(page.getByRole("heading", { name: /Work with AI/i })).toBeVisible({ timeout: 30_000 });
+    await verifyAuthenticatedLandingCopy(page);
+    await page.screenshot({ path: testInfo.outputPath("fresh-desktop-landing-1440x900.png"), fullPage: false });
     await page.getByTestId("create-room").click();
     await expect(page.getByRole("heading", { name: "Start with an empty workspace" })).toBeVisible();
     await expect(page.getByRole("radio", { name: /Review every artifact edit/i })).toBeChecked();

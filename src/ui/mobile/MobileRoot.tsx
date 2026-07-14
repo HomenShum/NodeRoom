@@ -145,7 +145,7 @@ function MobileLiveRoot({ auth = { isLoading: false, isAuthenticated: true }, si
       let joined: { roomId: string; memberId: string; name?: string } | null = null;
       let experience: "workspace" | "sample" = req.kind === "demo" || mobileParams().get("sample") === "1" ? "sample" : "workspace";
       if (byCode) {
-        const result = await join({ code: reqCode, name, authToken: token, anon: req.kind === "join" });
+        const result = await join({ code: reqCode, name, authToken: token, anon: req.kind === "join" && !requiresAuth });
         if (result && typeof result === "object" && "error" in result) {
           throw new Error(result.error === "room_full"
             ? "That room is full. Try a different code."

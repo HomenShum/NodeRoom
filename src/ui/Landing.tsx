@@ -565,7 +565,7 @@ function LandingProofPill({ live }: { live: boolean }) {
 /* ── feature strip micro-shots ────────────────────────────────────────────── */
 
 const LANDING_FEATURES: Array<{ shot: "code" | "panels" | "lock"; h: string; p: string }> = [
-  { shot: "code", h: "Share a code, not a seat", p: "Public by default. Anyone joins the room with six characters — no account." },
+  { shot: "code", h: "Share a code, not a seat", p: "Sign in, then join with a six-character room code. Share it only with people you intend to invite." },
   { shot: "panels", h: "Open only what you need", p: "Files, chat, a live artifact, and your private agent — one to four panels." },
   { shot: "lock", h: "Locks, then smart-merge", p: "Agents lock the rows they touch and merge drafts on release. No collisions." },
 ];
@@ -575,7 +575,7 @@ function MicroShot({ kind }: { kind: "code" | "panels" | "lock" }) {
     return (
       <div className="r-land2-ms center">
         <div className="r-land2-shot-code" style={{ fontSize: 13, padding: "5px 11px" }}>Q3X<b>-7K</b></div>
-        <div className="r-land2-ms-row center">no account · join as guest</div>
+        <div className="r-land2-ms-row center">sign in · join with code</div>
       </div>
     );
   }

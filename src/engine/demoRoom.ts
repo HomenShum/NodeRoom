@@ -218,9 +218,9 @@ export function buildDemoRoom(engine: RoomEngine): DemoRoom {
   const { room, host } = engine.createRoom({ title: "Q3 diligence", hostName: "Homen", autoAllow: true });
   const me: Actor = { kind: "user", id: host.id, name: "Homen" };
   const priyaM = engine.joinRoom({ code: room.code, name: "Priya", anon: false })!.member;
-  const quokkaM = engine.joinRoom({ code: room.code, name: "anon · quokka" })!.member;
+  const quokkaM = engine.joinRoom({ code: room.code, name: "guest · quokka", anon: false })!.member;
   const priya: Actor = { kind: "user", id: priyaM.id, name: "Priya" };
-  const quokka: Actor = { kind: "user", id: quokkaM.id, name: "anon · quokka" };
+  const quokka: Actor = { kind: "user", id: quokkaM.id, name: "guest · quokka" };
 
   const seed: Array<{ id: string; value: unknown }> = [];
   for (const r of SHEET_ROWS) {

@@ -22,7 +22,7 @@ export function Landing({
 }): React.ReactElement {
   const [code, setCode] = React.useState("");
   const features: Array<{ ic: IconName; h: string; p: string }> = [
-    { ic: "globe",  h: "Public by default",   p: "One room URL. Share a 6-char code and anyone can join — no account, just a display name." },
+    { ic: "globe",  h: "Account + room code", p: "Sign in, then use the 6-character room code. Share it only with people you intend to invite." },
     { ic: "layout", h: "Up to four panels",   p: "Files & people · public chat + room agent · a live artifact · your own private agent. Open only what you need." },
     { ic: "lock",   h: "Locks, not collisions", p: "When an agent works a range it locks it — read-only for others, still readable. Drafts smart-merge on unlock." },
   ];
@@ -154,7 +154,7 @@ export function CreateModal({
   );
 }
 
-// ── Anonymous join modal ────────────────────────────────────────────────────
+// ── Authenticated room join modal ──────────────────────────────────────────
 export function JoinModal({
   code,
   onClose,
@@ -177,8 +177,8 @@ export function JoinModal({
             <span className="kicker">Join a room</span>
             <button className="rt-iconbtn" onClick={onClose}>{Ico("x", { size: 16 })}</button>
           </div>
-          <h2>Join anonymously</h2>
-          <p className="sub">No account needed. Pick a display name — you’ll get an ephemeral guest identity scoped to this room.</p>
+          <h2>Join with your account</h2>
+          <p className="sub">Sign in first. Your display name and membership stay scoped to this workspace.</p>
         </div>
         <div className="rt-modal-body">
           <div className="rt-field">
@@ -195,10 +195,10 @@ export function JoinModal({
               autoFocus
             />
           </div>
-          <CodePeek file="rooms · anonymous identity">
-            {sp("cm", "// guest gets an ephemeral, room-scoped identity\n")}
-            {sp("kw", "const")} me = {"{ "}{sp("pr", "id")}: {sp("str", "'anon_'")} + nanoid(),{"\n"}
-            {"            "}{sp("pr", "name")}: {sp("str", "\"anon · ")}{sp("str", display)}{sp("str", "\"")}, {sp("pr", "anon")}: {sp("kw", "true")} {"};"}{"\n"}
+          <CodePeek file="rooms · authenticated membership">
+            {sp("cm", "// membership is bound to the signed-in account\n")}
+            {sp("kw", "const")} me = {"{ "}{sp("pr", "authSubject")}: session.subject,{"\n"}
+            {"            "}{sp("pr", "name")}: display, {sp("pr", "role")}: {sp("str", "'member'")} {"};"}{"\n"}
             {sp("kw", "await")} {sp("fn", "joinRoom")}({"{ code: "}{sp("str", "\"")}{sp("str", code)}{sp("str", "\"")}{", identity: me });"}
           </CodePeek>
           <button
@@ -206,7 +206,7 @@ export function JoinModal({
             onClick={() => onEnter(display)}
             style={{ width: "100%", justifyContent: "center", marginTop: 16, padding: "11px" }}
           >
-            Join as guest {Ico("arrow", { size: 16 })}
+            Join room {Ico("arrow", { size: 16 })}
           </button>
         </div>
       </div>

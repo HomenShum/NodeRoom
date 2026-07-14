@@ -1,6 +1,6 @@
-/** Rooms + anonymous join. The short code is generated client-side and passed in
- * (mutations are deterministic — no Math.random/uuid inside). Anonymous join is a
- * stand-in for `@convex-dev/auth`'s Anonymous provider (see docs/STACK.md). */
+/** Rooms + code-based join. The short code is generated client-side and passed in
+ * (mutations are deterministic — no Math.random/uuid inside). Production can require
+ * a Convex Auth identity while local/demo deployments can retain token-only guests. */
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { internalMutation, mutation, query, type MutationCtx } from "./_generated/server";
@@ -689,7 +689,10 @@ export const joinAnonymous = mutation({
     if (!room) return null;
     const identity = await getRequiredProductionIdentity(ctx);
     const now = Date.now();
-    const anon = a.anon ?? true;
+    // Identity-backed members are never represented as anonymous, even when an older
+    // client sends the legacy anon flag. Keep anonymous guests only for deployments
+    // where production identity enforcement is disabled.
+    const anon = identity ? false : a.anon ?? true;
     if (a.name.length > MAX_NAME_LEN) throw new Error("field_too_long");
     const existing = await ctx.db.query("members").withIndex("by_room", (q) => q.eq("roomId", room._id)).collect();
     const activeMembers = existing.filter((m) => m.revokedAt == null);

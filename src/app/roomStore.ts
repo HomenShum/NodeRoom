@@ -81,7 +81,7 @@ export function enterScaleDemoRoomAsHost(_hostName?: string): { roomId: string; 
 
   for (let i = 0; i < SCALE_DEMO_MEMBERS - 1; i += 1) {
     const name = SCALE_MEMBER_NAMES[i] ?? `Analyst ${String(i + 1).padStart(2, "0")}`;
-    engine.joinRoom({ code: room.code, name, anon: name.startsWith("anon") });
+    engine.joinRoom({ code: room.code, name, anon: false });
   }
 
   const research = engine.createArtifact({
@@ -141,7 +141,7 @@ const SCALE_MEMBER_NAMES = [
   "Priya",
   "Maya",
   "Sam",
-  "anon · quokka",
+  "guest · quokka",
   "Jordan",
   "Rina",
   "Noah",

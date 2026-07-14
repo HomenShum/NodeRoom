@@ -127,7 +127,7 @@ export class RoomEngine {
     return { room, host };
   }
 
-  /** Anonymous join by code — no account required (point 3). */
+  /** Guest join by code for the in-memory harness; production can require account identity. */
   joinRoom(args: { code: string; name: string; anon?: boolean }): { room: Room; member: Member } | null {
     const room = [...this.rooms.values()].find((r) => r.code === args.code && r.status === "live");
     if (!room) return null;

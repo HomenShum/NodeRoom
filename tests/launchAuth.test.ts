@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   authIntentLabel,
@@ -26,6 +27,25 @@ describe("launch authentication contract", () => {
     expect(authIntentLabel("join")).toBe("join this room");
     expect(authIntentLabel("create")).toBe("create this workspace");
     expect(authIntentLabel("demo")).toBe("start a sample room");
+  });
+
+  it("keeps first-run and sample copy aligned with authenticated room access", () => {
+    const launchSurfaces = [
+      "src/ui/Landing.tsx",
+      "src/landing/roomTour/RoomTourFlows.tsx",
+      "src/landing/roomTour/roomTourData.ts",
+      "src/ui/mobile/mobileData.ts",
+      "src/engine/demoRoom.ts",
+      "src/app/roomStore.ts",
+      "convex/seed.ts",
+    ].map((path) => readFileSync(path, "utf8")).join("\n");
+
+    expect(launchSurfaces).toContain("Sign in, then join with a six-character room code");
+    expect(launchSurfaces).toContain("membership is bound to the signed-in account");
+    expect(launchSurfaces).not.toContain("Public by default");
+    expect(launchSurfaces).not.toContain("No account needed");
+    expect(launchSurfaces).not.toContain("no account · join as guest");
+    expect(launchSurfaces).not.toContain("anon · quokka");
   });
 
   it("clears active and pending room state while preserving unrelated preferences", () => {

@@ -714,7 +714,7 @@ export const TRACE_ROWS: TraceRow[] = [
 export const PEOPLE_GROUPS: ManageGroup[] = [
   { key: "host", label: "Host", rows: [{ id: "homen", name: "Homen", short: "HS", color: "#D97757", role: "host", location: "Company research · owner" }] },
   { key: "member", label: "Members", rows: [{ id: "priya", name: "Priya", short: "PR", color: "#5E6AD2", role: "member", location: "Q3 variance · editing" }] },
-  { key: "guest", label: "Guests", rows: [{ id: "quokka", name: "anon · quokka", short: "qk", color: "#5B8F71", role: "guest", location: "" }] },
+  { key: "guest", label: "Guests", rows: [{ id: "quokka", name: "guest · quokka", short: "qk", color: "#5B8F71", role: "guest", location: "" }] },
   { key: "agent", label: "Agents", rows: [{ id: "room_na", name: "Room NodeAgent", short: "NA", color: "#C08A5E", role: "agent", location: "enriching rows 81–120" }] },
 ];
 
@@ -1002,7 +1002,7 @@ export const PULSE: Pulse = {
   people: [
     { short: "HS", name: "Homen", role: "Host", color: "#D97757" },
     { short: "PR", name: "Priya", role: "Finance", color: "#5E6AD2" },
-    { short: "qk", name: "anon · quokka", role: "Guest", color: "#5B8F71" },
+    { short: "qk", name: "guest · quokka", role: "Guest", color: "#5B8F71" },
     { short: "AV", name: "Ava", role: "Partner", color: "#B0823B" },
   ],
 };
@@ -1853,7 +1853,7 @@ export function refLabel(id: string | null | undefined): string {
 // People directory (keyed by chat author id).
 export const PEOPLE: Record<string, Person> = {
   priya: { short: "PR", name: "Priya", color: "#5E6AD2" },
-  quokka: { short: "qk", name: "anon · quokka", color: "#5B8F71" },
+  quokka: { short: "qk", name: "guest · quokka", color: "#5B8F71" },
   homen: { short: "HS", name: "Homen", color: "#D97757" },
   room_na: { short: "NA", name: "Room NodeAgent", color: "#C08A5E", agent: true },
 };

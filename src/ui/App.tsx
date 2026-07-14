@@ -319,7 +319,7 @@ function ConvexRoomApp({ auth, signOut }: { auth: LaunchAuthState; signOut?: () 
       // artifacts in ONE atomic transaction, so an existing room is always complete. `anon: false` keeps
       // the re-entrant under the host name. (createStarterRoom = option 2; this fall-through = option 3.)
       if (byCode) {
-        const result = await join({ code: request.code, name, authToken: token, anon: request.kind === "join" });
+        const result = await join({ code: request.code, name, authToken: token, anon: request.kind === "join" && !requiresAuth });
         if (isJoinFailure(result)) throw new Error(joinFailureMessage(result.error));
         joined = result ? { roomId: String(result.roomId), memberId: String(result.memberId), name: result.name } : null;
         experience = byCode.experience ?? experience;
