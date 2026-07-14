@@ -866,6 +866,83 @@ describe("agentJobs runtime contract", () => {
     });
   });
 
+  it("keeps opening inspection and terminal verification visible across a bounded long-run stream", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({
+      roomId,
+      artifactId,
+      proof,
+      idempotencyKey: "job-runtime-stream-head-tail",
+    }));
+
+    await t.run(async (ctx) => {
+      const createdAt = Date.now();
+      await ctx.db.insert("agentStreamEvents", {
+        jobId,
+        roomId,
+        sequence: 1_000,
+        kind: "tool_call_result",
+        step: 0,
+        toolCallId: "inspect-early",
+        toolName: "inspect_workbook",
+        status: "completed",
+        output: { ok: true, artifactId },
+        createdAt,
+      });
+      for (let index = 0; index < 130; index += 1) {
+        await ctx.db.insert("agentStreamEvents", {
+          jobId,
+          roomId,
+          sequence: 1_001 + index,
+          kind: "step_start",
+          step: index + 1,
+          status: "completed",
+          title: `Model turn ${index + 2}`,
+          createdAt: createdAt + index + 1,
+        });
+      }
+      await ctx.db.insert("agentStreamEvents", {
+        jobId,
+        roomId,
+        sequence: 2_000,
+        kind: "tool_call_result",
+        step: 131,
+        toolCallId: "verify-terminal",
+        toolName: "verify_workbook",
+        status: "completed",
+        metadata: {
+          verificationReceipt: {
+            schema: "nodeagent-workbook-verification-receipt-v1",
+            afterWrite: true,
+            phase: "post_write",
+            status: "passed",
+            operationCount: 46,
+            checkedCount: 46,
+            ok: true,
+          },
+        },
+        createdAt: createdAt + 200,
+      });
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    const streamEvents = detail?.streamEvents ?? [];
+    expect(streamEvents).toHaveLength(120);
+    expect(streamEvents.some((event) => event.toolCallId === "inspect-early")).toBe(true);
+    expect(streamEvents.some((event) => event.sequence === 1_045)).toBe(false);
+    expect(streamEvents.map((event) => event.sequence)).toEqual(
+      [...streamEvents.map((event) => event.sequence)].sort((left, right) => left - right),
+    );
+    expect(streamEvents.find((event) => event.toolCallId === "verify-terminal")?.metadata).toMatchObject({
+      verificationReceipt: {
+        phase: "post_write",
+        status: "passed",
+        operationCount: 46,
+        checkedCount: 46,
+      },
+    });
+  });
+
   it("records durable model-step journal rows and replays without overwriting", async () => {
     const { t, proof, roomId, artifactId } = await setupRoom();
     const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-journal" }));

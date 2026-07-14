@@ -365,7 +365,7 @@ async function collectAgentEvidence(
   expect(verificationPayloads.some(hasPassedPostWriteVerificationReceipt), "a verify_workbook result must prove a passed post-write phase").toBe(true);
 
   expect(observed.routeText, "the requested and resolved model route must remain visible").toMatch(/openrouter|anthropic|google|openai|groq|mistral|cohere|nvidia|qwen/i);
-  expect(observed.detailText, "job detail must identify the direct-edit policy").toMatch(/Policy\s+(?:auto|auto_allow)/i);
+  expect(observed.detailText, "job detail must identify the conflict-safe direct-edit policy").toMatch(/Policy\s*auto_commit_safe/i);
   const mutationCount = telemetryCount(observed.detailText, "Mutations");
   const receiptCount = telemetryCount(observed.detailText, "Receipts");
   expect(mutationCount, "a completed workbook edit must record a durable mutation").toBeGreaterThan(0);
@@ -375,7 +375,7 @@ async function collectAgentEvidence(
 
   return {
     routeText: observed.routeText,
-    approvalPolicy: "auto",
+    approvalPolicy: "auto_commit_safe",
     mutationCount,
     receiptCount,
     receiptText,
