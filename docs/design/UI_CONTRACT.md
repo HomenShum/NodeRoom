@@ -2,10 +2,28 @@
 
 Captured: 2026-07-08
 
-This contract is the first migration artifact for a behavior-preserving visual
-refresh. Product behavior remains sourced from the current production/main app.
-The Cloud Design artifacts are visual references only: they define shell,
-surface, token, and component direction, not new product logic.
+This contract governs a behavior-preserving visual refresh. Product behavior
+remains sourced from the current production/main app. Cloud Design artifacts
+are design evidence only: they may inform shell, surface, token, and component
+decisions, but they neither define product logic nor become visual authority
+without an explicit taste review and approval in this contract.
+
+## Visual Authority Order
+
+1. Latest production/main is the behavioral source of truth.
+2. For mobile, `docs/design/mobile/MOBILE_TASTE_AUDIT.md` and
+   `docs/design/mobile/MOBILE_HEADER_CONTRACT.md` are the approved visual source
+   of truth.
+3. Standalone HTML, Cloud Design captures, screenshots, and legacy prototypes
+   are reference evidence. They may be kept, refined, or rejected on taste,
+   semantic, accessibility, and mobile-native grounds.
+4. CSS cascade accidents, stale snapshots, and prototype-only device chrome are
+   not design decisions.
+
+Desktop and mobile have separate canonical defaults over shared semantics:
+desktop keeps the restrained Cloud-dark workspace direction; `#mobile` is
+light terracotta by default with dark as an explicit opt-in. Both themes must
+override the same semantic token names. Import order may not select a theme.
 
 ## Source Artifacts
 
@@ -125,9 +143,10 @@ Direction:
   expansion, or when a receipt matters.
 - Fewer boxed containers. Use hairline dividers, quiet surfaces, and stable
   layout regions instead of stacked cards.
-- Less saturated page background. Prefer flat near-black/default app surfaces
-  over decorative glows. Subtle source-artifact gradients are references, not a
-  requirement for production default.
+- Less saturated page background. Desktop prefers flat near-black/default app
+  surfaces over decorative glows. Mobile uses a flat light terracotta app
+  surface by default. Subtle source-artifact gradients are references, not a
+  requirement for either production default.
 - Larger central work surface, with binder and Copilot behaving as supporting
   rails.
 - Clear focus and active states, especially for keyboard users.
@@ -140,7 +159,7 @@ Tokens extracted from the standalone artifact:
 | Accent | Terracotta selection/focus: `#D97757`; hover: `#C76648`; warm ink: `#E59579`/`#AD5F45`. |
 | Secondary signal | Indigo `#5E6AD2`/`#8C92E0` for non-primary status or agent metadata, not as a page-wide theme. |
 | Semantic colors | Success green only for completed/healthy states. Warning amber for held/review states. Danger red only for errors/failures. |
-| Backgrounds | Dark workspace base around `#101317`, app surface around `#09090b` to `#111418`, secondary surface around `#171b20`. Light theme remains white/gray tokenized. |
+| Backgrounds | Desktop: dark workspace base around `#101317`, app surface around `#09090b` to `#111418`. Mobile default: `#FBF4E7` app and `#F3E8D8` surface, with dark available only through an explicit theme selector. |
 | Typography scale | 11, 12, 13, 14, 15, 17, 20, 26, 31, 40 px. |
 | Radius scale | 4, 6, 8, 10, 12, 16, pill. Compact controls should stay near 8 px; large shell/panel frames may use 12-16 px when matching the source. |
 | Shadows | Default to flat or low elevation. Use strong shadows only for overlays, dialogs, popovers, or dragged/floating surfaces. |
@@ -217,9 +236,11 @@ Implemented in the 2026-07-08 visual slice:
   live-room frame from the reference, not the standalone gallery page wrapper:
   no page-level hero/context band, one maximized rounded room frame, flatter
   side/work/chat panes, quieter binder rows, and a darker app canvas.
-- Migrated the standalone mobile surface from the old warm paper palette to
-  Cloud dark tokens while preserving the mobile router, sheets, gestures,
-  composer, and join/consent flows.
+- The 2026-07-08 slice temporarily applied Cloud-dark tokens to the standalone
+  mobile surface. That historical direction is superseded by the approved
+  mobile contract above: light terracotta is canonical, and dark remains an
+  explicit opt-in while router, sheets, gestures, composer, and join/consent
+  behavior stay intact.
 - Preserved the honest absence of notifications on in-memory rooms:
   `NotificationsInbox` still renders only for Convex rooms with proof.
 
@@ -249,6 +270,82 @@ Proof screenshots written under
 - `after-composition-parity-home-1456x940.png`
 - `after-composition-parity-trace-1456x940.png`
 - `after-composition-parity-company-research-1456x940.png`
+
+## Work-Artifact Completion Addendum
+
+Implemented and live-verified on 2026-07-09:
+
+- Collaborative deck editing stays inside the maximized center work surface.
+  Slide order, selection, presence, save state, and export actions use compact
+  controls and do not introduce a second page shell or nested card canvas.
+- Notebook kernel output is a quiet receipt region below the notebook content.
+  Calculation, read-only SQL, and chart intent use the same typography and
+  divider hierarchy as trace receipts; arbitrary execution is never implied.
+- Graph cluster, hop-depth, and relevant-path focus controls form one compact
+  toolbar. The canvas remains full-bleed inside the work region and draggable
+  nodes retain stable dimensions while moving.
+- Chat context is selected from the pinned composer and appears as a compact,
+  openable reference on the sent message. It must not resize the right rail or
+  hide send, attachment, streaming, retry, or NodeAgent controls.
+
+Completion proof images:
+
+- `docs/synthesis/proof/m24-deck-collaboration-proof.png`
+- `docs/synthesis/proof/m25-notebook-kernel-proof.png`
+- `docs/synthesis/proof/m26-graph-cluster-drag-proof.png`
+- `docs/synthesis/proof/m27-chat-context-proof.png`
+
+## AI Elements Adoption
+
+NodeRoom adopts [Vercel AI Elements](https://elements.ai-sdk.dev) as the component
+vocabulary for agent chat, so we maintain less bespoke chat/markdown/reasoning code.
+The rule is **compose, don't surrender**: AI Elements render the generic surfaces
+(response markdown, reasoning, tool headers, citations); NodeRoom's proof/governance
+affordances — run receipts, `Patch Bundle CAS`, work-plan approval, lock/draft state,
+trace links — stay intact and sit alongside them. Each primitive is themed with the
+terracotta tokens (never AI Elements' default Tailwind palette) and must survive the
+production CSP (Streamdown is CSP-safe; verified with zero violations).
+
+Every primitive is rendered on-brand in the standalone render check
+(`ai-elements-check.html` → `src/ui/ai/AiElementsShowcase.tsx` +
+`AiElementsGallery.tsx`), captured under
+`docs/design/ui-contract/20260714-ai-elements/`:
+
+- Flagship conversation (Conversation · Message · Reasoning · Tool · MessageResponse ·
+  Checkpoint): `ui-contract/20260714-ai-elements/00-flagship-conversation.png`
+- Full gallery, dark + light: `_full-dark.png`, `_full-light.png`
+
+![AI Elements flagship conversation + gallery, terracotta-themed](ui-contract/20260714-ai-elements/00-flagship-conversation.png)
+
+**Adoption status** — `live` = wired into the real `Chat.tsx` and shipped to
+noderoom.live; `scaffolded` = themed and render-verified, not yet cut over.
+
+| Primitive | Status | KEEP / REFINE / REJECT | Screenshot |
+|---|---|---|---|
+| `MessageResponse` (Streamdown) | **live** | KEEP — replaces the bespoke `MarkdownBody` for agent text. REFINE: pinned to 13.5px / `--text-secondary` to match the chat (Streamdown defaults to 16px). | in flagship |
+| `Reasoning` | **live** | KEEP — replaced `AgentReasoningCard`; the "Thought for…" disclosure. | in flagship |
+| `Tool` | scaffolded | REFINE — use the header/collapsible visual, but NodeRoom's `AgentProgressCard` keeps the source-receipt chips; Tool wraps, receipts stay. | in flagship |
+| `Checkpoint` | scaffolded | KEEP — maps to restore-checkpoint / version-jump. | in flagship |
+| `Task` | scaffolded | REFINE — good for grouped sub-steps; must link to the trace, not replace it. | `task.png` |
+| `Sources` | scaffolded | KEEP — collapsible source list; map to NodeRoom evidence/`sourceCaptures`. | `sources.png` |
+| `Suggestions` | scaffolded | KEEP — prompt chips for the composer. | `suggestions.png` |
+| `Confirmation` | scaffolded | REFINE — must carry NodeRoom's approval + CAS semantics, not a bare yes/no. | `confirmation.png` |
+| `InlineCitation` | scaffolded | KEEP — inline evidence badge with hover card; map to cited cells. | `inline-citation.png` |
+| `Terminal` | scaffolded | KEEP — command/log output blocks. | `terminal.png` |
+| `Agent` | scaffolded | REFINE — lightweight agent header/instructions; NodeRoom's richer agent surfaces stay for the room. | `agent.png` |
+| `Artifact` | scaffolded | REFINE — header/description chrome only; the real artifact panel keeps its grid/columns/CAS. | `artifact.png` |
+| `ChainOfThought` | scaffolded | REFINE — alternative reasoning layout; do not duplicate `Reasoning` in the same turn. | `chain-of-thought.png` |
+| `Shimmer` | scaffolded | KEEP — streaming/loading text shimmer. | `shimmer.png` |
+
+Not galleried (available, larger compound trees to evaluate before adoption):
+`PromptInput`, `ModelSelector`, `CodeBlock` (Shiki — re-verify CSP before wiring),
+`Context`, `Artifact` actions.
+
+Contract for future cutovers: a primitive moves from `scaffolded` → `live` only when
+it is wired into the real component, preserves the surface's testids + proof
+affordances, passes the e2e content assertions, and is live-verified on noderoom.live
+(the reasoning + response-text cutovers set the precedent — see
+`feat(ai-elements)` commits `e5c594e2`, `0ebe0470`).
 
 ## Proof Requirements
 

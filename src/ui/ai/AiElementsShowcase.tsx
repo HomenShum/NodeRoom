@@ -7,6 +7,7 @@
 import { useState } from "react";
 import { Checkpoint, CheckpointTrigger } from "@/components/ai-elements/checkpoint";
 import { AgentConversation, type AgentConversationMessage } from "./AgentConversation";
+import { AiElementsGallery } from "./AiElementsGallery";
 
 const SAMPLE: AgentConversationMessage[] = [
   {
@@ -93,6 +94,13 @@ export function AiElementsShowcase() {
             </Checkpoint>
           </div>
         </div>
+
+        <div style={{ fontWeight: 700, fontSize: 15, marginTop: 8 }}>Primitive gallery</div>
+        <div style={{ color: "var(--text-muted)", fontSize: 12, marginTop: -8 }}>
+          Every adopted AI Elements primitive, terracotta-themed. Screenshotted into
+          docs/design/UI_CONTRACT.md.
+        </div>
+        <AiElementsGallery />
       </div>
     </div>
   );
