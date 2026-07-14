@@ -265,6 +265,8 @@
     "@ai-sdk/openai": "^3.0.71",
     "@assistant-ui/react": "^0.14.14",
     "@assistant-ui/react-o11y": "^0.0.25",
+    "@auth/core": "0.41.1",
+    "@convex-dev/auth": "0.0.94",
     "@convex-dev/persistent-text-streaming": "^0.3.2",
     "@convex-dev/prosemirror-sync": "^0.2.4",
     "@convex-dev/workflow": "^0.4.4",
@@ -346,6 +348,7 @@
     "exceljs": {
       "uuid": "11.1.1"
     },
+    "linkify-it": "5.0.2",
     "ws": "8.21.0"
   }
 }

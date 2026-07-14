@@ -129,7 +129,7 @@ describe("Chat reasoning-frame job detail", () => {
     expect(screen.queryByTestId("public-chat-empty")).toBeNull();
   });
 
-  it("renders the active public job as one unified text plus tool stream", () => {
+  it("renders the active public job as one unified text plus tool stream", async () => {
     const store = baseStore();
     store.lastLongFreeJob = () => ({
       id: "job1",
@@ -163,7 +163,7 @@ describe("Chat reasoning-frame job detail", () => {
       latestSteps: [],
       streamEvents: [],
       streamParts: [
-        { type: "text" as const, text: "Calculating now. | Row | Q2 | Q3 | Variance % | |---|---:|---:|---:| | Revenue | $10,000 | $12,400 | +24% |", state: "streaming" as const },
+        { type: "text" as const, text: "Calculating now.\n\n| Row | Q2 | Q3 | Variance % |\n|---|---:|---:|---:|\n| Revenue | $10,000 | $12,400 | +24% |", state: "streaming" as const },
         { type: "tool-write_locked_cells" as const, toolName: "write_locked_cells", toolCallId: "call-write", state: "call" as const, status: "started" as const, input: { ops: 10 } },
       ],
     });
@@ -172,9 +172,11 @@ describe("Chat reasoning-frame job detail", () => {
     render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
 
     expect(screen.getByTestId("agent-unified-stream")).toBeTruthy();
-    expect(screen.getByTestId("agent-progress-card")).toBeTruthy();
+    const progressCard = screen.getByTestId("agent-progress-card");
+    expect(progressCard.getAttribute("data-ai-element")).toBe("tool");
+    expect(progressCard.closest(".ai-scope")).toBeTruthy();
     expect(screen.getByText("Updated Sheet 1")).toBeTruthy();
-    expect(screen.getByRole("table")).toBeTruthy();
+    await waitFor(() => expect(screen.getByRole("table")).toBeTruthy());
     expect(screen.getByRole("columnheader", { name: "Variance %" })).toBeTruthy();
     expect(screen.queryByText("write_locked_cells")).toBeNull();
     fireEvent.click(screen.getByTestId("agent-progress-details-toggle"));

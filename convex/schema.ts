@@ -16,6 +16,7 @@
 
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { authTables } from "@convex-dev/auth/server";
 import { refutationVerdictV } from "./lib";
 import { notificationEventsTable, watchesTable } from "./watchesTables";
 
@@ -143,6 +144,7 @@ const agentArtifactStatusV = v.union(
 );
 
 export default defineSchema({
+  ...authTables,
   rooms: defineTable({
     code: v.string(),
     title: v.string(),

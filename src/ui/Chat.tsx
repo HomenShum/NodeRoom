@@ -5,6 +5,7 @@ import { useQuery } from "convex/react";
 import { Reasoning, ReasoningContent, ReasoningTrigger } from "@/components/ai-elements/reasoning";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { Suggestion } from "@/components/ai-elements/suggestion";
+import { Tool, ToolContent, ToolHeader, type ToolPart } from "@/components/ai-elements/tool";
 import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentModelSelection, type PrivateStreamAccess, type RoomStore } from "../app/store";
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
@@ -654,29 +655,31 @@ function AgentProgressCard({ parts, live, terminalSuccessful }: { parts: Exclude
   const hasRunning = live || parts.some((part) => part.type !== "step-start" && agentPartState(part) === "running");
   const toolCount = parts.filter(isToolStreamPart).length;
   const title = hasFailure ? "NodeAgent needs attention" : hasRunning ? "NodeAgent is working" : hasRecoveredFailure ? "NodeAgent completed with recovered steps" : "NodeAgent completed the run";
+  const toolState: ToolPart["state"] = hasFailure ? "output-error" : hasRunning ? "input-available" : "output-available";
   const metaBits = [
     stepCount ? `${stepCount} model turn${stepCount === 1 ? "" : "s"}` : undefined,
     toolCount ? `${toolCount} tool action${toolCount === 1 ? "" : "s"}` : undefined,
     hiddenCount ? `${hiddenCount} earlier` : undefined,
   ].filter(Boolean);
   return (
-    <section className="r-agent-workflow-progress sc-run" data-testid="agent-progress-card" data-status={hasFailure ? "failed" : hasRunning ? "running" : "done"}>
-      <div className="r-agent-workflow-progress-head">
-        <span className="r-agent-workflow-progress-icon" aria-hidden>{hasFailure ? <X size={13} /> : hasRunning ? <RefreshCw size={13} /> : <Check size={13} />}</span>
-        <div className="r-agent-workflow-progress-copy">
-          <strong>{title}</strong>
-          <span>{metaBits.join(" - ") || "Activity trace recorded"}</span>
-        </div>
-        <button
-          type="button"
-          className="r-agent-workflow-progress-toggle"
+    <div className="ai-scope">
+      <Tool
+        className="r-agent-workflow-progress sc-run"
+        data-ai-element="tool"
+        data-testid="agent-progress-card"
+        data-status={hasFailure ? "failed" : hasRunning ? "running" : "done"}
+        open={detailsOpen}
+        onOpenChange={setDetailsOpen}
+      >
+        <ToolHeader
+          className="r-agent-workflow-progress-head"
           data-testid="agent-progress-details-toggle"
-          aria-expanded={detailsOpen}
-          onClick={() => setDetailsOpen((open) => !open)}
-        >
-          Trace details {detailsOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-        </button>
-      </div>
+          title={title}
+          type="dynamic-tool"
+          toolName="NodeAgent workflow"
+          state={toolState}
+        />
+        <span className="r-agent-workflow-progress-meta">{metaBits.join(" - ") || "Activity trace recorded"}</span>
       {maxSteps ? (
         <div className="r-agent-progress-bar" data-testid="agent-progress-bar" role="progressbar" aria-valuenow={currentStep} aria-valuemin={0} aria-valuemax={maxSteps}>
           <div className="r-agent-progress-bar-fill" style={{ width: `${progressPct}%` }} />
@@ -696,12 +699,11 @@ function AgentProgressCard({ parts, live, terminalSuccessful }: { parts: Exclude
           })}
         </div>
       ) : null}
-      {detailsOpen ? (
-        <div className="r-agent-workflow-progress-details" data-testid="agent-progress-details">
+        <ToolContent className="r-agent-workflow-progress-details" data-testid="agent-progress-details">
           {parts.map(renderRawAgentPart)}
-        </div>
-      ) : null}
-    </section>
+        </ToolContent>
+      </Tool>
+    </div>
   );
 }
 

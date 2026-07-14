@@ -15,8 +15,10 @@ import type { StreamId } from "@convex-dev/persistent-text-streaming";
 import { streamingComponent } from "./streaming";
 import { streamPrivateReplyText } from "./streamingModel";
 import { privateAgentSystemPrompt } from "./agent";
+import { auth } from "./auth";
 
 const http = httpRouter();
+auth.addHttpRoutes(http);
 const assertVoiceRequesterRef = makeFunctionReference<"query">("voice:assertVoiceRequester");
 
 const CORS = { "Access-Control-Allow-Origin": "*", Vary: "Origin" } as const;

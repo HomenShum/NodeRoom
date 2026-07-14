@@ -1232,6 +1232,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                     >
                       {Ico("logout")}{live?.canApprove ? "Host owns this room" : "Leave " + room.name}
                     </button>
+                    {live?.onSignOut && <button className="na-btn" onClick={live.onSignOut}>{Ico("logout")}Sign out of NodeRoom</button>}
                   </div>
                 </div>
               </>

@@ -32,9 +32,11 @@ export const Tool = ({ className, ...props }: ToolProps) => (
 
 export type ToolPart = ToolUIPart | DynamicToolUIPart;
 
-export type ToolHeaderProps = {
-  title?: string;
-  className?: string;
+export type ToolHeaderProps = Omit<
+  ComponentProps<typeof CollapsibleTrigger>,
+  "children" | "title" | "type"
+> & {
+  title?: ReactNode;
 } & (
   | { type: ToolUIPart["type"]; state: ToolUIPart["state"]; toolName?: never }
   | {

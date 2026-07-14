@@ -112,7 +112,7 @@ export function inviteHrefForRoom(code: string, href = typeof window !== "undefi
   return url.toString();
 }
 
-export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: Actor; onLeave: () => void; proof?: ActorProof }) {
+export function RoomShell({ roomId, me, onLeave, onSignOut, proof }: { roomId: string; me: Actor; onLeave: () => void; onSignOut?: () => void; proof?: ActorProof }) {
   const store = useStore();
   const room = store.getRoom(roomId);
   // QA P0: below 981px the side panels render as fixed overlays over chat (styles.css), so they
@@ -660,6 +660,7 @@ export function RoomShell({ roomId, me, onLeave, proof }: { roomId: string; me: 
         onToggleFocus={toggleFocusMode}
         onStartTour={startTour}
         onLeaveRoom={onLeave}
+        onSignOut={onSignOut}
         canLeave={!isHost}
         onClose={() => setTweaksOpen(false)}
       />
@@ -828,6 +829,7 @@ function RoomTweaksPanel({
   onToggleFocus,
   onStartTour,
   onLeaveRoom,
+  onSignOut,
   canLeave,
   onClose,
 }: {
@@ -846,6 +848,7 @@ function RoomTweaksPanel({
   onToggleFocus: () => void;
   onStartTour: () => void;
   onLeaveRoom: () => void;
+  onSignOut?: () => void;
   canLeave: boolean;
   onClose: () => void;
 }) {
@@ -925,6 +928,7 @@ function RoomTweaksPanel({
         >
           <LogOut size={14} /> {canLeave ? "Leave room" : "Host owns this room"}
         </button>
+        {onSignOut && <button className="r-btn ghost r-tweak-action" type="button" onClick={onSignOut}><LogOut size={14} /> Sign out of NodeRoom</button>}
       </div>
     </div>
   );

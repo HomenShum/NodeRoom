@@ -394,12 +394,13 @@ function mobileDeckFromStoryboard(storyboard: DeckStoryboard): MobileDeckArtifac
   };
 }
 
-export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave }: {
+export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave, onSignOut }: {
   roomId: string;
   me: Actor;
   proof?: ActorProof;
   experienceHint?: "workspace" | "sample";
   onLeave?: () => void;
+  onSignOut?: () => void;
 }) {
   const store = useStore();
   const room = store.getRoom(roomId);
@@ -631,6 +632,7 @@ export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave }: {
       return r.ok ? { ok: true } : { ok: false, reason: r.reason };
     },
     onLeave,
+    onSignOut,
     loading,
 
     // ── gap pack ──

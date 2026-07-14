@@ -23,6 +23,7 @@ import type * as alwaysOnShape from "../alwaysOnShape.js";
 import type * as artifacts from "../artifacts.js";
 import type * as auditBundle from "../auditBundle.js";
 import type * as auditLog from "../auditLog.js";
+import type * as auth from "../auth.js";
 import type * as benchmarkGrade from "../benchmarkGrade.js";
 import type * as captures from "../captures.js";
 import type * as capturesNode from "../capturesNode.js";
@@ -103,6 +104,7 @@ declare const fullApi: ApiFromModules<{
   artifacts: typeof artifacts;
   auditBundle: typeof auditBundle;
   auditLog: typeof auditLog;
+  auth: typeof auth;
   benchmarkGrade: typeof benchmarkGrade;
   captures: typeof captures;
   capturesNode: typeof capturesNode;

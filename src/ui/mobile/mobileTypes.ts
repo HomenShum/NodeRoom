@@ -243,6 +243,7 @@ export interface MobileLive {
   resolveProposalById: (id: string, approve: boolean) => Promise<RowEditResult>;
   jobAct: (id: string, action: "cancel" | "retry") => Promise<RowEditResult>;
   onLeave?: () => void;
+  onSignOut?: () => void;
   /** True while the live room is still hydrating (drives loading skeletons). */
   loading: boolean;
 

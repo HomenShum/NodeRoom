@@ -846,8 +846,13 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-agent-unified-stream { max-width: 100%; display: grid; gap: 8px; margin-top: 6px; }
 .r-agent-unified-stream > .text { margin: 0; }
 .r-agent-unified-stream .r-md-table-wrap { margin-top: 4px; }
-.r-agent-workflow-progress { min-width: 0; display: grid; gap: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: color-mix(in srgb, var(--bg-secondary) 72%, transparent); }
-.r-agent-workflow-progress-head { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2) 8px; align-items: center; }
+.r-agent-workflow-progress { min-width: 0; display: grid; gap: 8px; margin: 0; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: color-mix(in srgb, var(--bg-secondary) 72%, transparent); }
+.r-agent-workflow-progress-head { min-width: 0; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 0; border: 0; background: transparent; color: var(--text-primary); text-align: left; cursor: pointer; }
+.r-agent-workflow-progress-head > div { min-width: 0; overflow: hidden; }
+.r-agent-workflow-progress-head > div > span:not([data-slot="badge"]) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; line-height: 1.25; }
+.r-agent-workflow-progress-head [data-slot="badge"] { min-height: 20px; padding: 2px 6px; border: 1px solid var(--line); background: var(--bg-primary); color: var(--text-muted); font-size: 10px; }
+.r-agent-workflow-progress-head > svg:last-child { color: var(--text-tertiary); }
+.r-agent-workflow-progress-meta { min-width: 0; color: var(--text-tertiary); font-size: 11px; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-agent-workflow-progress-icon { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center; border: 1px solid var(--line); background: var(--bg-primary); color: var(--accent-ink); }
 .r-agent-workflow-progress[data-status="running"] .r-agent-workflow-progress-icon svg, .r-agent-workflow-progress-row[data-status="running"] .r-agent-workflow-progress-dot svg { animation: r-spin .9s linear infinite; }
 .r-agent-workflow-progress[data-status="failed"] .r-agent-workflow-progress-icon, .r-agent-workflow-progress-row[data-status="failed"] .r-agent-workflow-progress-dot { color: var(--danger-ink); }

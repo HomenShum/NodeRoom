@@ -324,7 +324,7 @@ noderoom.live; `scaffolded` = themed and render-verified, not yet cut over.
 |---|---|---|---|
 | `MessageResponse` (Streamdown) | **live** | KEEP — replaces the bespoke `MarkdownBody` for agent text. REFINE: pinned to 13.5px / `--text-secondary` to match the chat (Streamdown defaults to 16px). | in flagship |
 | `Reasoning` | **live** | KEEP — replaced `AgentReasoningCard`; the "Thought for…" disclosure. | in flagship |
-| `Tool` | scaffolded | REFINE — use the header/collapsible visual, but NodeRoom's `AgentProgressCard` keeps the source-receipt chips; Tool wraps, receipts stay. | in flagship |
+| `Tool` | live | COMPOSED — `AgentProgressCard` uses the maintained header/collapsible shell while NodeRoom keeps progress, trace, source, version, and lock receipts. | flagship chat |
 | `Checkpoint` | scaffolded | KEEP — maps to restore-checkpoint / version-jump. | in flagship |
 | `Task` | scaffolded | REFINE — good for grouped sub-steps; must link to the trace, not replace it. | `task.png` |
 | `Sources` | scaffolded | KEEP — collapsible source list; map to NodeRoom evidence/`sourceCaptures`. | `sources.png` |

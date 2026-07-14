@@ -149,6 +149,11 @@ export async function requireActorProof(ctx: DbCtx, roomId: Id<"rooms">, proof: 
   }
   if (member.revokedAt != null) throw new Error("actor_revoked");
   const identity = await ctx.auth.getUserIdentity();
+  if (productionIdentityRequired()) {
+    if (!identity) throw new Error("production_identity_required");
+    if (!member.authSubject || member.authSubject !== identity.subject) throw new Error("identity_mismatch");
+    return { kind: "user" as const, id: String(member._id), name: member.name };
+  }
   if (identity && member.authSubject && member.authSubject === identity.subject) {
     return { kind: "user" as const, id: String(member._id), name: member.name };
   }
