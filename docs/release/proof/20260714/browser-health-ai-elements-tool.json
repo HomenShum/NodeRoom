@@ -1,0 +1,13 @@
+{
+  "title": "an authenticated desktop NodeAgent run renders the AI Elements Tool primitive",
+  "status": "passed",
+  "expectedStatus": "passed",
+  "health": {
+    "consoleErrors": [],
+    "cspViolations": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "failedResponses": []
+  },
+  "horizontalOverflowPx": 0
+}

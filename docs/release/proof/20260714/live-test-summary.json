@@ -1,0 +1,55 @@
+{
+  "verifiedAt": "2026-07-14T12:46:45Z",
+  "baseUrl": "https://noderoom.live",
+  "deploymentId": "dpl_2Aa8GWVSfdYM8syvZPBx2rNgHoYH",
+  "command": "npx playwright test e2e/deployed-auth-first-user.spec.ts --project=chromium",
+  "result": "passed",
+  "tests": 4,
+  "elapsedSeconds": 70,
+  "journeys": [
+    {
+      "name": "fresh authenticated phone",
+      "viewport": "390x844",
+      "result": "passed",
+      "seconds": 7.6
+    },
+    {
+      "name": "fresh authenticated desktop",
+      "viewport": "1440x900",
+      "result": "passed",
+      "seconds": 4.5
+    },
+    {
+      "name": "governed mobile deck",
+      "viewport": "390x844",
+      "result": "passed",
+      "seconds": 45.2
+    },
+    {
+      "name": "desktop NodeAgent AI Elements Tool",
+      "viewport": "1440x900",
+      "result": "passed",
+      "seconds": 9.4
+    }
+  ],
+  "browserHealth": {
+    "consoleErrors": 0,
+    "cspViolations": 0,
+    "pageErrors": 0,
+    "failedRequests": 0,
+    "failed5xxResponses": 0,
+    "maxHorizontalOverflowPx": 0
+  },
+  "artifactRedactionRerun": {
+    "verifiedAt": "2026-07-14T12:58:00Z",
+    "result": "passed",
+    "tests": 4,
+    "elapsedSeconds": 126.2,
+    "phoneSeconds": 9.3,
+    "desktopSeconds": 4.9,
+    "governedDeckReportedDuration": "1.6m",
+    "nodeAgentToolSeconds": 10.1,
+    "roomCodeMask": ".r-roomcode",
+    "browserHealthClean": true
+  }
+}

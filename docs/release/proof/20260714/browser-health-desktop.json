@@ -1,0 +1,13 @@
+{
+  "title": "a fresh desktop user creates an account, chats, reloads, and fails closed after sign-out",
+  "status": "passed",
+  "expectedStatus": "passed",
+  "health": {
+    "consoleErrors": [],
+    "cspViolations": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "failedResponses": []
+  },
+  "horizontalOverflowPx": 0
+}

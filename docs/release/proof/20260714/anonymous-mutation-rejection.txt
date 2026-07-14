@@ -1,0 +1,12 @@
+Verified: 2026-07-14T12:48:30Z
+Deployment: zealous-goshawk-766
+Function: rooms:create
+Identity supplied: no
+Expected result: server-side rejection before room insertion
+
+Server output:
+Uncaught Error: production_identity_required
+    at async handler (../convex/rooms.ts:499:40)
+
+Assertion:
+ANONYMOUS_MUTATION_REJECTED=1

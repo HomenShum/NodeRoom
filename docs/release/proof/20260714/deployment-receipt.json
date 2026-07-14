@@ -1,0 +1,18 @@
+{
+  "verifiedAt": "2026-07-14T12:46:00Z",
+  "gitCommit": "0c20d9bd6b145f56c0c79075f49ce1a9172c01f8",
+  "vercel": {
+    "deploymentId": "dpl_2Aa8GWVSfdYM8syvZPBx2rNgHoYH",
+    "deploymentUrl": "https://noderoom-it4a873in-hshum2018-gmailcoms-projects.vercel.app",
+    "productionAlias": "https://noderoom.live",
+    "readyState": "READY",
+    "target": "production"
+  },
+  "convex": {
+    "deployment": "zealous-goshawk-766",
+    "guardPassed": true,
+    "sourceExportsLive": 299,
+    "additionalFrameworkExports": 11,
+    "identityRequired": true
+  }
+}

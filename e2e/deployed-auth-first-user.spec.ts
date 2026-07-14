@@ -205,7 +205,12 @@ test.describe("deployed authenticated first-user journey", () => {
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("public-chat-panel").getByText(message, { exact: true })).toBeVisible({ timeout: 60_000 });
-    await page.screenshot({ path: testInfo.outputPath("authenticated-desktop-1440x900.png"), fullPage: false });
+    await page.screenshot({
+      path: testInfo.outputPath("authenticated-desktop-1440x900.png"),
+      fullPage: false,
+      mask: [page.locator(".r-roomcode")],
+      maskColor: "#111111",
+    });
     await page.getByTestId("room-settings-btn").click();
     await page.getByRole("button", { name: "Sign out of NodeRoom" }).click();
     await expect(page.getByRole("heading", { name: /Work with AI/i })).toBeVisible({ timeout: 30_000 });
@@ -313,7 +318,12 @@ test.describe("deployed authenticated first-user journey", () => {
     const toolProgress = chat.locator('[data-testid="agent-progress-card"][data-ai-element="tool"]').last();
     await expect(toolProgress).toBeVisible({ timeout: 120_000 });
     await expect(toolProgress.locator("xpath=ancestor::div[contains(concat(' ', normalize-space(@class), ' '), ' ai-scope ')]")).toHaveCount(1);
-    await page.screenshot({ path: testInfo.outputPath("authenticated-desktop-ai-elements-tool-1440x900.png"), fullPage: false });
+    await page.screenshot({
+      path: testInfo.outputPath("authenticated-desktop-ai-elements-tool-1440x900.png"),
+      fullPage: false,
+      mask: [page.locator(".r-roomcode")],
+      maskColor: "#111111",
+    });
     const jobStatus = chat.getByTestId("job-status");
     if (!/completed/i.test(await jobStatus.textContent() ?? "")) {
       await chat.getByTestId("job-cancel").click();

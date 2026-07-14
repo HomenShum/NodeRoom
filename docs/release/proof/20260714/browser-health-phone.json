@@ -1,0 +1,13 @@
+{
+  "title": "a fresh phone creates an account, creates a room, persists, and fails closed after sign-out",
+  "status": "passed",
+  "expectedStatus": "passed",
+  "health": {
+    "consoleErrors": [],
+    "cspViolations": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "failedResponses": []
+  },
+  "horizontalOverflowPx": 0
+}
