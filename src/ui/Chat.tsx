@@ -4,6 +4,7 @@ import { Lock, MessageCircle, Globe, Send, Square, Sparkles, Copy, Check, ArrowU
 import { useQuery } from "convex/react";
 import { Reasoning, ReasoningContent, ReasoningTrigger } from "@/components/ai-elements/reasoning";
 import { MessageResponse } from "@/components/ai-elements/message";
+import { Suggestion } from "@/components/ai-elements/suggestion";
 import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentModelSelection, type PrivateStreamAccess, type RoomStore } from "../app/store";
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
@@ -2431,7 +2432,13 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             {longJobTerminal && lastAgentInputRef.current && (
               <button className="r-chip r-chip-regen" data-testid="chat-regenerate" title="Run the last agent request again" onClick={() => send(lastAgentInputRef.current!)}><RefreshCw size={11} /> Regenerate</button>
             )}
-            {contextualPrompts.map((prompt) => <button key={prompt.insert} className="r-chip" onClick={() => applySlash(prompt.insert)}>{prompt.label}</button>)}
+            {contextualPrompts.length > 0 && (
+              <span className="ai-scope r-composer-suggestions">
+                {contextualPrompts.map((prompt) => (
+                  <Suggestion key={prompt.insert} suggestion={prompt.label} onClick={() => applySlash(prompt.insert)} />
+                ))}
+              </span>
+            )}
             <span className="r-composer-kbd" aria-hidden="true">Enter sends; Shift+Enter newline; @nodeagent acts</span>
           </div>
         )}

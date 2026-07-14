@@ -328,7 +328,7 @@ noderoom.live; `scaffolded` = themed and render-verified, not yet cut over.
 | `Checkpoint` | scaffolded | KEEP — maps to restore-checkpoint / version-jump. | in flagship |
 | `Task` | scaffolded | REFINE — good for grouped sub-steps; must link to the trace, not replace it. | `task.png` |
 | `Sources` | scaffolded | KEEP — collapsible source list; map to NodeRoom evidence/`sourceCaptures`. | `sources.png` |
-| `Suggestions` | scaffolded | KEEP — prompt chips for the composer. | `suggestions.png` |
+| `Suggestions` | **live** | KEEP — wired into the composer's contextual-prompt chips; `applySlash` + labels preserved (e2e clicks them by name), sized to the composer hint. | `suggestions-in-composer.png` |
 | `Confirmation` | scaffolded | REFINE — must carry NodeRoom's approval + CAS semantics, not a bare yes/no. | `confirmation.png` |
 | `InlineCitation` | scaffolded | KEEP — inline evidence badge with hover card; map to cited cells. | `inline-citation.png` |
 | `Terminal` | scaffolded | KEEP — command/log output blocks. | `terminal.png` |
@@ -336,6 +336,19 @@ noderoom.live; `scaffolded` = themed and render-verified, not yet cut over.
 | `Artifact` | scaffolded | REFINE — header/description chrome only; the real artifact panel keeps its grid/columns/CAS. | `artifact.png` |
 | `ChainOfThought` | scaffolded | REFINE — alternative reasoning layout; do not duplicate `Reasoning` in the same turn. | `chain-of-thought.png` |
 | `Shimmer` | scaffolded | KEEP — streaming/loading text shimmer. | `shimmer.png` |
+
+Why the rest stay `scaffolded` (not "unfinished" — a deliberate call): rendering in
+the gallery is not the same as having a safe home in the product.
+- **Proof-bearing — keep NodeRoom's version**: `Tool`/`Sources`/`Confirmation` map to
+  `AgentProgressCard`, the `agent-source-receipt`, and work-plan approval, which carry
+  run receipts, CAS, and lock state. Swapping them in wholesale would *drop* those
+  affordances — a downgrade. The path is to compose (AI Elements chrome + NodeRoom
+  receipts as children), not replace.
+- **No current surface**: `Terminal`, `Agent`, `Artifact`, `Task`, `ChainOfThought`,
+  `Checkpoint` have no live counterpart to swap; wiring them means inventing a surface,
+  which is scope, not cleanup.
+- **Already covered**: `Shimmer`'s "thinking" state lives inside the `Reasoning`
+  primitive, so there is nothing separate to wire.
 
 Not galleried (available, larger compound trees to evaluate before adoption):
 `PromptInput`, `ModelSelector`, `CodeBlock` (Shiki — re-verify CSP before wiring),

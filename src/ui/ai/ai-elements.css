@@ -81,3 +81,19 @@
   color: var(--text-secondary);
   overflow-wrap: anywhere;
 }
+
+/* Composer suggestion pills (Chat.tsx contextual prompts → AI Elements <Suggestion>):
+ * compact so they sit on the one-line composer hint next to the regen chip and the
+ * keyboard hint, at the same scale as the .r-chip they replaced. */
+.r-composer-suggestions {
+  display: inline-flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.r-composer-suggestions button {
+  height: auto;
+  min-height: 0;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
