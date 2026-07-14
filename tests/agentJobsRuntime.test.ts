@@ -823,16 +823,28 @@ describe("agentJobs runtime contract", () => {
       kind: "tool_call_result" as const,
       step: 0,
       toolCallId: "call-1",
-      toolName: "read_range",
+      toolName: "verify_workbook",
       status: "completed" as const,
-      output: { rows: 1 },
+      output: JSON.stringify({ candidate: { checks: "x".repeat(6_000) }, phase: "post_write", status: "passed" }),
+      metadata: {
+        ms: 12,
+        verificationReceipt: {
+          schema: "nodeagent-workbook-verification-receipt-v1",
+          afterWrite: true,
+          phase: "post_write",
+          status: "passed",
+          operationCount: 2,
+          checkedCount: 2,
+          ok: true,
+        },
+      },
     });
     const duplicate = await t.mutation(internal.agentJobs.recordStreamEvent, {
       jobId,
       sequence: 1_001,
       kind: "tool_call_result" as const,
       toolCallId: "call-1",
-      toolName: "read_range",
+      toolName: "verify_workbook",
       status: "completed" as const,
     });
 
@@ -842,7 +854,16 @@ describe("agentJobs runtime contract", () => {
     expect(tool).toMatchObject({ ok: true });
     expect(duplicate).toMatchObject({ ok: true, reused: true });
     expect(detail?.streamEvents.map((event) => event.kind)).toEqual(["message_start", "text_delta", "tool_call_result"]);
-    expect(detail?.streamEvents.find((event) => event.kind === "tool_call_result")?.output).toEqual({ rows: 1 });
+    const toolEvent = detail?.streamEvents.find((event) => event.kind === "tool_call_result");
+    expect(toolEvent?.output).toMatchObject({ truncated: true, kind: "string" });
+    expect(toolEvent?.metadata).toMatchObject({
+      verificationReceipt: {
+        phase: "post_write",
+        status: "passed",
+        operationCount: 2,
+        checkedCount: 2,
+      },
+    });
   });
 
   it("records durable model-step journal rows and replays without overwriting", async () => {

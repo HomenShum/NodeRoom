@@ -362,11 +362,7 @@ async function collectAgentEvidence(
   expect(await verifications.count(), "preflight and post-write verification must both be visible").toBeGreaterThanOrEqual(2);
 
   const verificationPayloads = await verifications.locator(".r-agent-part-payload").allTextContents();
-  expect(verificationPayloads.some((payload) =>
-    /"afterWrite"\s*:\s*true/.test(payload)
-    && /"phase"\s*:\s*"post_write"/.test(payload)
-    && /"status"\s*:\s*"passed"/.test(payload)
-  ), "a verify_workbook result must prove a passed post-write phase").toBe(true);
+  expect(verificationPayloads.some(hasPassedPostWriteVerificationReceipt), "a verify_workbook result must prove a passed post-write phase").toBe(true);
 
   expect(observed.routeText, "the requested and resolved model route must remain visible").toMatch(/openrouter|anthropic|google|openai|groq|mistral|cohere|nvidia|qwen/i);
   expect(observed.detailText, "job detail must identify the direct-edit policy").toMatch(/Policy\s+(?:auto|auto_allow)/i);
@@ -386,6 +382,35 @@ async function collectAgentEvidence(
     tools: ["inspect_workbook", "verify_workbook", "write_locked_cell(s)", "verify_workbook"],
     postWriteVerification: "passed",
   };
+}
+
+function hasPassedPostWriteVerificationReceipt(payload: string): boolean {
+  try {
+    const parsed = JSON.parse(payload) as {
+      metadata?: {
+        verificationReceipt?: {
+          schema?: string;
+          afterWrite?: boolean;
+          phase?: string;
+          status?: string;
+          ok?: boolean;
+          operationCount?: number;
+          checkedCount?: number;
+        };
+      };
+    };
+    const receipt = parsed.metadata?.verificationReceipt;
+    return receipt?.schema === "nodeagent-workbook-verification-receipt-v1"
+      && receipt.afterWrite === true
+      && receipt.phase === "post_write"
+      && receipt.status === "passed"
+      && receipt.ok === true
+      && typeof receipt.operationCount === "number"
+      && receipt.operationCount > 0
+      && receipt.checkedCount === receipt.operationCount;
+  } catch {
+    return false;
+  }
 }
 
 async function exportActiveWorkbook(page: Page, outPath: string): Promise<string> {
