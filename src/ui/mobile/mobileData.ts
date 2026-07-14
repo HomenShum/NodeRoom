@@ -192,6 +192,14 @@ export interface Coach {
   topics: CoachTopic[];
 }
 
+export interface InboxProposalReview {
+  target: string;
+  before: string;
+  after: string;
+  sources: string[];
+  traceIds: string[];
+}
+
 export interface InboxItem {
   id: string;
   icon: string;
@@ -203,6 +211,7 @@ export interface InboxItem {
   time: string;
   kind: ArtifactKind;
   preview: PreviewKind;
+  review?: InboxProposalReview;
 }
 
 export interface PulseAgentStatus {

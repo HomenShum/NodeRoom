@@ -1477,6 +1477,12 @@ button.na-row:hover .chevR { transform: translateX(3px); color: var(--na-accent)
 .na-diff.after .lbl { color: var(--na-ok); }
 .na-diff.after p { color: var(--text-primary); }
 .na-patch-ev { display: flex; flex-direction: column; gap: 7px; }
+.na-task-patch { display: grid; gap: 8px; padding: 0 14px 12px; }
+.na-task-patch .na-diff { border: 0; border-left: 2px solid var(--border-color); border-radius: 0; padding: 8px 10px; }
+.na-task-patch .na-diff.after { border-left-color: var(--na-ok); }
+.na-task-patch .na-diff p { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; }
+.na-task-patch .na-patch-ev { flex-direction: row; flex-wrap: wrap; }
+.na-task-patch .na-patch-k, .na-task-patch .na-diff .lbl { letter-spacing: 0; }
 
 /* comments list */
 .na-clist { display: flex; flex-direction: column; gap: 9px; }

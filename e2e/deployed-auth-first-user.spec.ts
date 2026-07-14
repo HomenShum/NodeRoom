@@ -1,6 +1,87 @@
+import { type Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
 
 const deployedAuthEnabled = process.env.PLAYWRIGHT_DEPLOYED_AUTH === "1";
+const deployedHost = process.env.PLAYWRIGHT_DEPLOYED_HOST ?? "noderoom.live";
+
+type BrowserHealth = {
+  consoleErrors: string[];
+  cspViolations: string[];
+  pageErrors: string[];
+  failedRequests: string[];
+  failedResponses: string[];
+};
+
+const browserHealthByPage = new WeakMap<Page, BrowserHealth>();
+
+function installBrowserHealth(page: Page): BrowserHealth {
+  const health: BrowserHealth = {
+    consoleErrors: [],
+    cspViolations: [],
+    pageErrors: [],
+    failedRequests: [],
+    failedResponses: [],
+  };
+  const isRelevantUrl = (rawUrl: string): boolean => {
+    try {
+      const hostname = new URL(rawUrl).hostname;
+      return hostname === deployedHost || hostname.endsWith(".convex.cloud") || hostname.endsWith(".convex.site");
+    } catch {
+      return false;
+    }
+  };
+  const ignoredAsset = (url: string): boolean => /\.(ico|map|png|jpg|jpeg|webp|svg)(\?|$)/i.test(url);
+
+  page.on("console", (message) => {
+    if (message.type() !== "error") return;
+    const value = message.text();
+    if (/Blocked script execution in 'about:srcdoc'.*allow-scripts/.test(value)) return;
+    health.consoleErrors.push(value);
+    if (/content security policy|refused to/i.test(value)) health.cspViolations.push(value);
+  });
+  page.on("pageerror", (error) => health.pageErrors.push(error.message));
+  page.on("requestfailed", (request) => {
+    const url = request.url();
+    if (isRelevantUrl(url) && !ignoredAsset(url)) {
+      health.failedRequests.push(`${request.method()} ${url} ${request.failure()?.errorText ?? "failed"}`);
+    }
+  });
+  page.on("response", (response) => {
+    const url = response.url();
+    if (isRelevantUrl(url) && response.status() >= 500 && !ignoredAsset(url)) {
+      health.failedResponses.push(`${response.status()} ${url}`);
+    }
+  });
+  return health;
+}
+
+test.beforeEach(async ({ page }) => {
+  browserHealthByPage.set(page, installBrowserHealth(page));
+});
+
+test.afterEach(async ({ page }, testInfo) => {
+  const health = browserHealthByPage.get(page);
+  if (!health) return;
+  const horizontalOverflowPx = page.isClosed()
+    ? null
+    : await page.evaluate(() => Math.max(document.documentElement.scrollWidth, document.body?.scrollWidth ?? 0) - document.documentElement.clientWidth);
+  await testInfo.attach("deployed-browser-health", {
+    body: JSON.stringify({ health, horizontalOverflowPx }, null, 2),
+    contentType: "application/json",
+  });
+  expect(health.consoleErrors, "browser console errors").toEqual([]);
+  expect(health.cspViolations, "browser CSP violations").toEqual([]);
+  expect(health.pageErrors, "uncaught page errors").toEqual([]);
+  expect(health.failedRequests, "relevant network request failures").toEqual([]);
+  expect(health.failedResponses, "relevant 5xx responses").toEqual([]);
+  if (horizontalOverflowPx !== null) {
+    expect(horizontalOverflowPx, "page-level horizontal overflow").toBeLessThanOrEqual(2);
+  }
+});
+
+function expectDeployedHost(page: import("@playwright/test").Page): void {
+  expect(new URL(page.url()).hostname).toBe(deployedHost);
+}
 
 async function configurePreviewProtection(page: import("@playwright/test").Page): Promise<void> {
   const protectionBypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
@@ -43,6 +124,7 @@ test.describe("deployed authenticated first-user journey", () => {
     const message = `Fresh phone proof ${nonce}`;
 
     await page.goto("/", { waitUntil: "domcontentloaded" });
+    expectDeployedHost(page);
     await expect(page.getByRole("heading", { name: /Work with AI/i })).toBeVisible({ timeout: 30_000 });
     await page.getByRole("link", { name: "Create a room", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Create this workspace?" })).toBeVisible();
@@ -89,6 +171,7 @@ test.describe("deployed authenticated first-user journey", () => {
     const message = `Fresh desktop proof ${nonce}`;
 
     await page.goto("/?surface=desktop", { waitUntil: "domcontentloaded" });
+    expectDeployedHost(page);
     await expect(page.getByRole("heading", { name: /Work with AI/i })).toBeVisible({ timeout: 30_000 });
     await page.getByTestId("create-room").click();
     await expect(page.getByRole("heading", { name: "Start with an empty workspace" })).toBeVisible();
@@ -120,12 +203,13 @@ test.describe("deployed authenticated first-user journey", () => {
   });
 
   test("an authenticated sample room routes a scoped deck request and exports a governed receipt", async ({ page }, testInfo) => {
-    test.setTimeout(180_000);
+    test.setTimeout(360_000);
     await page.setViewportSize({ width: 390, height: 844 });
     await configurePreviewProtection(page);
     const { email, password } = freshCredentials("mobile-deck-proof");
 
     await page.goto("/", { waitUntil: "domcontentloaded" });
+    expectDeployedHost(page);
     await page.getByRole("link", { name: "Try a sample room", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Create this sample room?" })).toBeVisible({ timeout: 30_000 });
     await page.getByTestId("mobile-sample-confirm").click();
@@ -146,10 +230,30 @@ test.describe("deployed authenticated first-user journey", () => {
     await page.getByRole("tab", { name: "Slides" }).click();
     await expect(sheet.locator("iframe.na-slide")).toBeVisible();
     await sheet.getByRole("button", { name: "Scope revision request to the slide title" }).click();
-    await sheet.getByPlaceholder(/Describe the change for this element/i).fill("Clarify this title using only attached room evidence.");
+    await sheet.getByPlaceholder(/Describe the change for this element/i).fill("Set only the title field to 'Evidence-backed ARR bridge'. Use only attached room evidence.");
     await sheet.getByRole("button", { name: "Send", exact: true }).click();
-    await expect(sheet.getByText(/Live request accepted/i)).toBeVisible({ timeout: 60_000 });
+    await expect(sheet.getByText(/Request submitted/i)).toBeVisible({ timeout: 60_000 });
     await expect(sheet.getByRole("button", { name: /Accept patch/i })).toHaveCount(0);
+    await sheet.getByRole("button", { name: "Close" }).click();
+    await page.getByTestId("mobile-nav-inbox").click();
+
+    const proposalCard = page.locator('.na-task[data-kind="deck"]').first();
+    await expect(proposalCard).toBeVisible({ timeout: 180_000 });
+    const proposalReview = proposalCard.getByTestId("mobile-proposal-review");
+    await expect(proposalReview).toContainText("Before");
+    await expect(proposalReview).toContainText("Proposed");
+    await expect(proposalReview).toContainText("Evidence-backed ARR bridge");
+    await expect(proposalReview.getByText("No source attached")).toHaveCount(0);
+    await expect(proposalCard.getByRole("button", { name: "Reject", exact: true })).toBeVisible();
+    await expect(proposalCard.getByRole("button", { name: "Approve", exact: true })).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath("authenticated-mobile-deck-proposal-390x844.png"), fullPage: false });
+
+    await proposalCard.getByRole("button", { name: "Approve", exact: true }).click();
+    await expect(proposalCard).toHaveCount(0, { timeout: 60_000 });
+
+    await page.getByTestId("mobile-nav-home").click();
+    await page.locator('.na-rcard[data-kind="deck"]').click();
+    await expect(sheet.getByText("Evidence-backed ARR bridge", { exact: true }).first()).toBeVisible({ timeout: 60_000 });
     await page.getByRole("tab", { name: "Evidence" }).click();
     await expect(sheet.locator(".na-answer")).toBeVisible();
     await expect(sheet.locator(".na-srcclaim")).toBeVisible();

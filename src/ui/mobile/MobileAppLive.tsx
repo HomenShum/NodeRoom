@@ -11,11 +11,22 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { FunctionReference } from "convex/server";
 import { useStore, type ActorProof } from "../../app/store";
-import type { Actor, Message, Member, CellStatus, Artifact, CellEvidence, CellPayload, TraceEvent } from "../../engine/types";
+import type { Actor, Message, Member, CellStatus, Artifact, CellEvidence, CellPayload, Proposal, TraceEvent } from "../../engine/types";
 import type { RoomMsg, Person, AgentMsg, Row, Tone, InboxItem, Job, RecentItem, RecentSig, Plan, Evidence, EvidenceSupport, Coach, PipelineStage, TraceRow, ManageGroup, ManagedPerson, OfflineHold, NotifRow, DeckStatus, SlideStatus } from "./mobileData";
 import { MOBILE_TRACE_MAX, slideDoc } from "./mobileData";
 import type { MobileDeckArtifact, MobileLive } from "./mobileTypes";
-import { buildDeckStoryboardFromRoom, deckArtifactInputFromStoryboard, type DeckStoryboard } from "../workArtifacts";
+import {
+  buildDeckObjectProposalGoal,
+  buildDeckStoryboardFromRoom,
+  collaborativeDeckArtifactInput,
+  deckArtifactInputFromStoryboard,
+  deckSlideElementId,
+  isCollaborativeDeckArtifact,
+  readCollaborativeDeckArtifact,
+  readCollaborativeDeckProposal,
+  type CollaborativeDeckSnapshot,
+  type DeckStoryboard,
+} from "../workArtifacts";
 import { groupPeople, liveLocationFor } from "../PeoplePanel";
 import { MobileApp } from "./MobileApp";
 
@@ -61,6 +72,47 @@ function relTime(ts: number): string {
   const h = Math.floor(m / 60);
   if (h < 24) return h + "h";
   return Math.floor(h / 24) + "d";
+}
+
+const DECK_PATCH_FIELDS = ["title", "purpose", "speakerNote", "status"] as const;
+type DeckPatchField = (typeof DECK_PATCH_FIELDS)[number];
+
+function deckPatchReview(
+  proposal: Proposal,
+  deck: CollaborativeDeckSnapshot | null,
+  artifacts: Artifact[],
+): InboxItem["review"] | undefined {
+  if (!deck) return undefined;
+  const candidate = readCollaborativeDeckProposal(proposal, deck.artifactId);
+  const raw = candidate?.objectPatch?.value;
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
+  const patch = raw as Record<string, unknown>;
+  if (patch.kind !== "slide_patch" || typeof patch.slideId !== "string" || !patch.changes || typeof patch.changes !== "object" || Array.isArray(patch.changes)) return undefined;
+  const slide = deck.storyboard.slides.find((item) => item.slideId === patch.slideId);
+  if (!slide) return undefined;
+  const changes = patch.changes as Record<string, unknown>;
+  const changed = DECK_PATCH_FIELDS.flatMap((field) => typeof changes[field] === "string" ? [[field, changes[field] as string] as const] : []);
+  if (changed.length === 0) return undefined;
+  const beforeValue = (field: DeckPatchField): string => {
+    if (field === "speakerNote") return slide.speakerNote ?? "(none)";
+    return String(slide[field]);
+  };
+  const label = (field: DeckPatchField): string => field === "speakerNote" ? "Speaker note" : field[0].toUpperCase() + field.slice(1);
+  const sourceLabels = Array.from(new Set(slide.sourceArtifactIds.flatMap((id) => {
+    const artifact = artifacts.find((candidate) => candidate.id === id);
+    return artifact ? [artifact.title] : [];
+  })));
+  const traceIds = Array.from(new Set([
+    ...deck.storyboard.traceIds,
+    ...slide.claims.map((claim) => claim.traceId),
+  ])).filter((id): id is string => typeof id === "string" && id.length > 0).slice(0, 6);
+  return {
+    target: `Slide ${deck.storyboard.slides.indexOf(slide) + 1} - ${slide.title}`,
+    before: changed.map(([field]) => `${label(field)}: ${beforeValue(field)}`).join("\n"),
+    after: changed.map(([field, value]) => `${label(field)}: ${value}`).join("\n"),
+    sources: sourceLabels,
+    traceIds,
+  };
 }
 
 function buildPeople(members: Member[]): Record<string, Person> {
@@ -330,8 +382,12 @@ function storyboardDeckStatus(storyboard: DeckStoryboard): DeckStatus {
   return storyboard.storyboardStatus === "needs_review" || storyboard.unresolvedGaps.length > 0 ? "proposed" : "approved";
 }
 
-function mobileDeckFromStoryboard(storyboard: DeckStoryboard): MobileDeckArtifact {
+function mobileDeckFromStoryboard(
+  storyboard: DeckStoryboard,
+  options: { artifactId?: string; proposalIds?: string[] } = {},
+): MobileDeckArtifact {
   const workArtifact = deckArtifactInputFromStoryboard(storyboard);
+  const proposalIds = Array.from(new Set([...storyboard.proposalIds, ...(options.proposalIds ?? [])]));
   const slides = storyboard.slides.map((slide, index) => {
     const verified = slide.claims.length > 0 && slide.claims.every((claim) => claim.status === "verified");
     const claims = slide.claims.slice(0, 4).map((claim) =>
@@ -357,10 +413,10 @@ function mobileDeckFromStoryboard(storyboard: DeckStoryboard): MobileDeckArtifac
     id: storyboard.deckId,
     storyboard,
     roomId: storyboard.roomId,
-    workArtifactId: workArtifact.id,
+    workArtifactId: options.artifactId ?? workArtifact.id,
     traceIds: storyboard.traceIds,
     sourceIds: storyboard.sourceArtifactIds,
-    proposalIds: storyboard.proposalIds,
+    proposalIds,
     readonly: true,
     fallbackReason: "Live mobile renders the governed storyboard; revision requests route through the room agent and proposals.",
     title: storyboard.title,
@@ -377,7 +433,7 @@ function mobileDeckFromStoryboard(storyboard: DeckStoryboard): MobileDeckArtifac
       todos: [
         { text: "Read live room artifacts", status: storyboard.sourceArtifactIds.length ? "done" : "todo" },
         { text: "Map claims to evidence", status: storyboard.requiredEvidence.length ? "running" : "done" },
-        { text: "Review pending proposals", status: storyboard.proposalIds.length ? "running" : "done" },
+        { text: "Review pending proposals", status: proposalIds.length ? "running" : "done" },
         { text: "Produce export receipt", status: storyboard.unresolvedGaps.length ? "todo" : "done" },
       ],
       ran: Math.max(1, storyboard.sourceArtifactIds.length + storyboard.traceIds.length),
@@ -388,12 +444,12 @@ function mobileDeckFromStoryboard(storyboard: DeckStoryboard): MobileDeckArtifac
       stats: [
         { v: String(storyboard.slides.length), l: "slides", mono: true },
         { v: String(storyboard.unresolvedGaps.length), l: "gaps", mono: true },
-        { v: String(storyboard.proposalIds.length), l: "proposals", mono: true },
+        { v: String(proposalIds.length), l: "proposals", mono: true },
       ],
     },
     slides,
     patchSample: {
-      target: storyboard.proposalIds[0] ? `Proposal ${storyboard.proposalIds[0]}` : "Storyboard claim",
+      target: proposalIds[0] ? `Proposal ${proposalIds[0]}` : "Storyboard claim",
       before: firstGap,
       after: "Keep the claim marked needs_review until a source-backed proposal is accepted.",
       evidence: storyboard.slides.flatMap((slide) => slide.claims).slice(0, 2).map((claim, index) => ({
@@ -441,10 +497,17 @@ export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave, onSi
   const privateMsgs = store.listMessages(roomId, { private: me.id });
 
   const artifacts = store.listArtifacts(roomId);
+  const collaborativeDeckArtifact = useMemo(() => artifacts.find(isCollaborativeDeckArtifact), [artifacts]);
+  const collaborativeDeck = useMemo(
+    () => collaborativeDeckArtifact ? readCollaborativeDeckArtifact(collaborativeDeckArtifact) : null,
+    [collaborativeDeckArtifact],
+  );
+  const sourceArtifacts = useMemo(() => artifacts.filter((artifact) => !isCollaborativeDeckArtifact(artifact)), [artifacts]);
+  const deckArtifactCreateRef = useRef<{ roomId: string; promise: Promise<string> } | null>(null);
   const sampleResearchSheet = room?.experience === "sample"
-    ? artifacts.find((a) => a.kind === "sheet" && a.title === "Company research")
+    ? sourceArtifacts.find((a) => a.kind === "sheet" && a.title === "Company research")
     : undefined;
-  const mobileSheet = sampleResearchSheet ?? artifacts.find((a) => a.kind === "sheet");
+  const mobileSheet = sampleResearchSheet ?? sourceArtifacts.find((a) => a.kind === "sheet");
   const mobileSheetArtifact = mobileSheet ? store.getArtifact(mobileSheet.id) : undefined;
   const liveRow: Row = useMemo(
     () => projectMobileSheetRow(mobileSheetArtifact, !!sampleResearchSheet),
@@ -458,18 +521,22 @@ export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave, onSi
   const proposals = store.listProposals(roomId);
   const job = store.lastLongFreeJob();
   const isHost = members.some((m) => m.id === me.id && m.role === "host");
-  const inboxItems: InboxItem[] = useMemo(() => proposals.map((p): InboxItem => ({
-    id: p.id,
-    icon: "sparkles",
-    tone: "accent",
-    title: "Agent edit proposed",
-    sub: "Cell " + p.op.elementId + " · approve before it lands",
-    status: "approve",
-    statusTone: "warn",
-    time: relTime(p.createdAt),
-    kind: "plan",
-    preview: "doc",
-  })), [proposals]);
+  const inboxItems: InboxItem[] = useMemo(() => proposals.map((p): InboxItem => {
+    const review = deckPatchReview(p, collaborativeDeck, sourceArtifacts);
+    return {
+      id: p.id,
+      icon: review ? "layers" : "sparkles",
+      tone: "accent",
+      title: review ? "Deck slide proposal" : "Agent edit proposed",
+      sub: review ? `${review.target} - review before it lands` : `Cell ${p.op.elementId} - approve before it lands`,
+      status: "approve",
+      statusTone: "warn",
+      time: relTime(p.createdAt),
+      kind: review ? "deck" : "plan",
+      preview: review ? "deck" : "doc",
+      review,
+    };
+  }), [collaborativeDeck, proposals, sourceArtifacts]);
   const jobs: { running: Job[]; queued: Job[]; completed: Job[] } = useMemo(() => {
     const oneJob: Job | null = job
       ? { id: job.id, title: job.entrypoint ?? "Agent job", sub: job.status + (job.error ? " · " + job.error : ""), cost: "", route: job.modelPolicy as Job["route"], trace: job.id }
@@ -482,9 +549,9 @@ export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave, onSi
     }
     return out;
   }, [job]);
-  const liveEvidence = useMemo(() => buildLiveEvidence(artifacts), [artifacts]);
-  const livePlan = useMemo(() => buildLivePlan(artifacts, inboxItems, job), [artifacts, inboxItems, job]);
-  const liveCoach = useMemo(() => buildLiveCoach(liveEvidence, artifacts, inboxItems), [liveEvidence, artifacts, inboxItems]);
+  const liveEvidence = useMemo(() => buildLiveEvidence(sourceArtifacts), [sourceArtifacts]);
+  const livePlan = useMemo(() => buildLivePlan(sourceArtifacts, inboxItems, job), [inboxItems, job, sourceArtifacts]);
+  const liveCoach = useMemo(() => buildLiveCoach(liveEvidence, sourceArtifacts, inboxItems), [liveEvidence, sourceArtifacts, inboxItems]);
 
   // ── gap pack: pipeline (same live data the desktop pipeline bar reads) ──
   // Intake = any artifact rows exist; Evidence = any source-backed cell; Draft =
@@ -526,17 +593,23 @@ export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave, onSi
   }, [traceEvents]);
 
   const liveDeck = useMemo(() => {
-    if (artifacts.length === 0 && proposals.length === 0) return undefined;
-    const storyboard = buildDeckStoryboardFromRoom({
+    if (!collaborativeDeck && sourceArtifacts.length === 0 && proposals.length === 0) return undefined;
+    const storyboard = collaborativeDeck?.storyboard ?? buildDeckStoryboardFromRoom({
       roomId,
       roomTitle: room?.title ?? "Room",
-      artifacts,
+      artifacts: sourceArtifacts,
       traces: traceEvents,
       proposals,
       maxSlides: 5,
     });
-    return mobileDeckFromStoryboard(storyboard);
-  }, [artifacts, proposals, room?.title, roomId, traceEvents]);
+    const deckProposalIds = collaborativeDeck
+      ? proposals.filter((proposal) => proposal.artifactId === collaborativeDeck.artifactId).map((proposal) => proposal.id)
+      : [];
+    return mobileDeckFromStoryboard(storyboard, {
+      artifactId: collaborativeDeck?.artifactId,
+      proposalIds: deckProposalIds,
+    });
+  }, [collaborativeDeck, proposals, room?.title, roomId, sourceArtifacts, traceEvents]);
 
   // ── gap pack: role-grouped people + live location (same as desktop PeoplePanel) ──
   const peopleGroups: ManageGroup[] = useMemo(() => {
@@ -634,6 +707,64 @@ export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave, onSi
         return { ok: true };
       } catch (e) {
         return { ok: false, reason: e instanceof Error ? e.message : "agent_failed" };
+      }
+    },
+    requestDeckPatch: async ({ reviewerRequest, slideId, targetField }, modelSelection) => {
+      const storyboard = collaborativeDeck?.storyboard ?? liveDeck?.storyboard;
+      const slide = storyboard?.slides.find((candidate) => candidate.slideId === slideId);
+      if (!storyboard || !slide) return { ok: false, reason: "deck_slide_not_found" };
+      const elementId = deckSlideElementId(slide.slideId);
+      try {
+        let artifactId = collaborativeDeck?.artifactId;
+        let baseVersion = collaborativeDeck?.objectVersions[elementId] ?? 0;
+        if (!artifactId) {
+          if (!deckArtifactCreateRef.current || deckArtifactCreateRef.current.roomId !== roomId) {
+            deckArtifactCreateRef.current = {
+              roomId,
+              promise: store.uploadArtifact({
+                roomId,
+                artifact: collaborativeDeckArtifactInput(storyboard),
+                actor: me,
+                visibility: "room",
+              }),
+            };
+          }
+          try {
+            artifactId = await deckArtifactCreateRef.current.promise;
+          } catch (error) {
+            deckArtifactCreateRef.current = null;
+            throw error;
+          }
+          baseVersion = 1;
+        }
+        const goal = buildDeckObjectProposalGoal({
+          artifactId,
+          storyboard,
+          slide,
+          baseVersion,
+          reviewerRequest,
+          targetField,
+        });
+        const posted = await store.postMessage({
+          roomId,
+          channel: "public",
+          author: me,
+          text: `Deck revision request for "${slide.title}": ${reviewerRequest}`,
+          clientMsgId: crypto.randomUUID(),
+          kind: "chat",
+        });
+        if (!posted.ok) return { ok: false, reason: posted.reason ?? "message_failed" };
+        await store.askAgent({
+          goal,
+          ...(modelSelection ? { modelSelection } : {}),
+          contextArtifactId: artifactId,
+          contextArtifactRequired: true,
+          allowedElementIds: [elementId],
+          maxAttempts: 1,
+        });
+        return { ok: true };
+      } catch (e) {
+        return { ok: false, reason: e instanceof Error ? e.message : "deck_patch_failed" };
       }
     },
     row: liveRow,

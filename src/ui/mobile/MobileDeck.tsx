@@ -82,13 +82,20 @@ export function ArtifactSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   const composerRef = useRef<HTMLInputElement>(null);
   const mid = useRef<number>(1);
   const slide = slides[active];
+  const deckId = DECK.id;
+  const deckSlides = DECK.slides;
+  const deckIdRef = useRef(deckId);
   React.useEffect(() => {
-    setSlides(DECK.slides);
+    setSlides(deckSlides);
+    setActive((index) => Math.min(index, Math.max(0, deckSlides.length - 1)));
+  }, [deckId, deckSlides]);
+  React.useEffect(() => {
+    deckIdRef.current = deckId;
     setActive(0);
     setTarget(null);
     setPending(null);
     setDeckChat([]);
-  }, [DECK]);
+  }, [deckId]);
 
   const buildPatch = (): DeckPatch => ({
     target: target ? target.label : ('Slide ' + slide.index + ' - ' + slide.title),
@@ -118,16 +125,29 @@ export function ArtifactSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
         `Relevant traces: ${liveDeck?.traceIds.join(', ') || 'none attached'}.`,
         'Return a sourced proposal for host review. Do not directly mutate the deck.',
       ].join('\n');
-      push({ role: 'agent', variant: 'status', text: 'Sending this scoped request through the live room agent...' });
+      const reviewerRequest = [
+        requestTarget ? `Element scope: ${requestTarget.label}. Current text: ${requestTarget.text || '(empty)'}.` : 'Scope: whole slide.',
+        `Requested change: ${text}`,
+      ].join('\n');
+      const targetField = requestTarget?.label.startsWith('h1')
+        ? 'title'
+        : requestTarget?.label.startsWith('p')
+          ? 'purpose'
+          : undefined;
+      push({ role: 'agent', variant: 'status', text: 'Submitting this exact slide to the governed room agent...' });
       setTarget(null);
-      const run = ctx.requestRoomAgent?.(request) ?? Promise.resolve({ ok: false, reason: 'room_agent_unavailable' });
+      const requestDeckId = deckId;
+      const run = ctx.requestDeckPatch
+        ? ctx.requestDeckPatch({ reviewerRequest, slideId: slide.id, targetField })
+        : ctx.requestRoomAgent?.(request) ?? Promise.resolve({ ok: false, reason: 'room_agent_unavailable' });
       void run.then((result) => {
+        if (deckIdRef.current !== requestDeckId) return;
         push({
           role: 'agent',
           chip: result.ok ? 'request' : 'bad',
           text: result.ok
-            ? 'Live request accepted. The sourced proposal and trace will appear in Inbox when the run finishes.'
-            : 'The live request was not accepted: ' + (result.reason ?? 'try again'),
+            ? 'Request submitted. Inbox will show a reviewable proposal only if the governed run creates one.'
+            : 'The live request was not submitted: ' + (result.reason ?? 'try again'),
         });
       });
       return;
@@ -378,7 +398,7 @@ function SlidesView({ slides, active, setActive, slide, deckChat, onSelectRegion
                 : React.createElement('p', { className: 'na-ztext' }, m.text),
               m.chip ? React.createElement('span', { className: 'na-zchip', 'data-tone': m.chip },
                 Ico(m.chip === 'bad' ? 'x' : 'check'),
-                m.chip === 'request' ? 'request accepted' : m.chip === 'ok' ? 'patch applied' : 'request rejected') : null))) : null);
+                m.chip === 'request' ? 'request submitted' : m.chip === 'ok' ? 'patch applied' : 'request rejected') : null))) : null);
 }
 
 // ── PATCH PROPOSAL ──

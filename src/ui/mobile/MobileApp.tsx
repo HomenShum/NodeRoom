@@ -964,6 +964,9 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     requestRoomAgent: live
       ? (goal: string) => live.askRoomAgent(goal, mobileAgentModelSelection(model))
       : async () => ({ ok: false, reason: "offline_sample" }),
+    requestDeckPatch: live
+      ? (request) => live.requestDeckPatch(request, mobileAgentModelSelection(model))
+      : async () => ({ ok: false, reason: "offline_sample" }),
     openRow,
     askAboutRow,
     row: live?.row ?? D.ROW,

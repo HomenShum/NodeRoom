@@ -856,6 +856,16 @@ describe("work artifact adapters", () => {
     expect(goal).toContain('"kind":"slide_patch"');
     expect(goal).toContain("Call write_locked_cell (never write_locked_cell_result or write_locked_cell_results)");
     expect(goal).toContain("do not create a separate *_patch_workpaper element");
+    const titleGoal = buildDeckObjectProposalGoal({
+      artifactId: "art-deck",
+      storyboard,
+      slide,
+      baseVersion: 4,
+      reviewerRequest: "Tighten the heading.",
+      targetField: "title",
+    });
+    expect(titleGoal).toContain("Requested field: title.");
+    expect(titleGoal).toContain('"changes":{"title":"REPLACE_WITH_REVIEWED_TITLE"}');
   });
 
   it("plans slide, claim, and structural changes as independent CAS objects", () => {

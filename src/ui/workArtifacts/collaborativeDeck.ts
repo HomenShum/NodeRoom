@@ -41,20 +41,23 @@ export function buildDeckObjectProposalGoal(input: {
   slide: DeckSlidePlan;
   baseVersion: number;
   reviewerRequest: string;
+  targetField?: "title" | "purpose" | "speakerNote";
 }): string {
   const elementId = deckSlideElementId(input.slide.slideId);
   const beforeValue = deckSlideObjectValue(input.slide);
+  const targetField = input.targetField ?? "purpose";
   const patchTemplate = {
     schema: 2,
     kind: "slide_patch",
     objectId: elementId,
     slideId: input.slide.slideId,
-    changes: { purpose: "REPLACE_WITH_REVIEWED_PURPOSE" },
+    changes: { [targetField]: `REPLACE_WITH_REVIEWED_${targetField.toUpperCase()}` },
   };
   return [
     "Collaborative deck object edit requested from the NodeRoom storyboard workbench.",
     `Deck: ${input.storyboard.title} (plan ${input.storyboard.planHash}, v${input.storyboard.version}).`,
     `Reviewer request: ${input.reviewerRequest}`,
+    `Requested field: ${targetField}.`,
     "Use room evidence and traces. Do not mark a claim verified without a source. Preserve every stable slide and claim id.",
     "Submit exactly one governed edit proposal. The proposal itself is the reviewable workpaper; do not create a separate *_patch_workpaper element or overwrite the full deck.",
     `Proposal artifactId: ${input.artifactId}`,

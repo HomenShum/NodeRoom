@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ArtifactSheet } from "../src/ui/mobile/MobileDeck";
 import { slideDoc, type Evidence } from "../src/ui/mobile/mobileData";
@@ -150,17 +150,79 @@ describe("mobile live deck review", () => {
   });
 
   it("submits an element-scoped live request without claiming the patch was applied", async () => {
-    const requestRoomAgent = vi.fn(async (_goal: string) => ({ ok: true }));
-    render(<ArtifactSheet ctx={makeCtx({ liveDeck: liveDeck(), requestRoomAgent })} />);
+    const requestDeckPatch = vi.fn(async () => ({ ok: true }));
+    const requestRoomAgent = vi.fn(async () => ({ ok: true }));
+    render(<ArtifactSheet ctx={makeCtx({ liveDeck: liveDeck(), requestDeckPatch, requestRoomAgent })} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Scope revision request to the slide title" }));
     fireEvent.change(screen.getByPlaceholderText(/Describe the change for this element/i), { target: { value: "Tighten this title" } });
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
 
-    await waitFor(() => expect(requestRoomAgent).toHaveBeenCalledTimes(1));
-    expect(requestRoomAgent.mock.calls[0][0]).toMatch(/Element scope: h1 - "Live ARR bridge"/);
-    expect(await screen.findByText("request accepted")).toBeTruthy();
+    await waitFor(() => expect(requestDeckPatch).toHaveBeenCalledTimes(1));
+    expect(requestDeckPatch).toHaveBeenCalledWith(expect.objectContaining({
+      slideId: "slide-1",
+      targetField: "title",
+      reviewerRequest: expect.stringMatching(/Element scope: h1 - "Live ARR bridge"/),
+    }));
+    expect(requestRoomAgent).not.toHaveBeenCalled();
+    expect(await screen.findByText("request submitted")).toBeTruthy();
     expect(screen.queryByText("patch applied")).toBeNull();
+  });
+
+  it("preserves the live request thread across same-deck trace refreshes", async () => {
+    let resolveRequest!: (result: { ok: boolean }) => void;
+    const requestDeckPatch = vi.fn(() => new Promise<{ ok: boolean }>((resolve) => {
+      resolveRequest = resolve;
+    }));
+    const { rerender } = render(<ArtifactSheet ctx={makeCtx({ liveDeck: liveDeck(), requestDeckPatch })} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Scope revision request to the slide title" }));
+    fireEvent.change(screen.getByPlaceholderText(/Describe the change for this element/i), { target: { value: "Tighten this title" } });
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+
+    await waitFor(() => expect(requestDeckPatch).toHaveBeenCalledTimes(1));
+    expect(screen.getByText("Tighten this title")).toBeTruthy();
+    expect(screen.getByText(/Submitting this exact slide/i)).toBeTruthy();
+
+    const refreshedDeck = liveDeck();
+    refreshedDeck.traceIds = [...refreshedDeck.traceIds, "trace-2"];
+    refreshedDeck.slides[0].title = "Updated live ARR bridge";
+    const refreshedStoryboard = refreshedDeck.storyboard;
+    if (!refreshedStoryboard) throw new Error("live deck fixture requires a storyboard");
+    refreshedStoryboard.traceIds = [...refreshedStoryboard.traceIds, "trace-2"];
+    rerender(<ArtifactSheet ctx={makeCtx({ liveDeck: refreshedDeck, requestDeckPatch })} />);
+
+    expect(screen.getByText("Tighten this title")).toBeTruthy();
+    expect(screen.getByText(/Submitting this exact slide/i)).toBeTruthy();
+    expect(screen.getByText("Updated live ARR bridge")).toBeTruthy();
+    await act(async () => resolveRequest({ ok: true }));
+
+    expect(await screen.findByText("request submitted")).toBeTruthy();
+    expect(screen.getByText(/Inbox will show a reviewable proposal only if/i)).toBeTruthy();
+    expect(screen.getByText("Tighten this title")).toBeTruthy();
+    expect(screen.queryByText("patch applied")).toBeNull();
+  });
+
+  it("does not append a late request result after switching decks", async () => {
+    let resolveRequest!: (result: { ok: boolean }) => void;
+    const requestDeckPatch = vi.fn(() => new Promise<{ ok: boolean }>((resolve) => {
+      resolveRequest = resolve;
+    }));
+    const { rerender } = render(<ArtifactSheet ctx={makeCtx({ liveDeck: liveDeck(), requestDeckPatch })} />);
+
+    fireEvent.change(screen.getByPlaceholderText(/Ask NodeAgent to revise a slide/i), { target: { value: "Review this slide" } });
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+    await waitFor(() => expect(requestDeckPatch).toHaveBeenCalledTimes(1));
+
+    const nextDeck = liveDeck();
+    nextDeck.id = "room-1:second-storyboard";
+    nextDeck.title = "Second live readout";
+    rerender(<ArtifactSheet ctx={makeCtx({ liveDeck: nextDeck, requestDeckPatch })} />);
+    await act(async () => resolveRequest({ ok: true }));
+
+    expect(screen.getByText("Second live readout")).toBeTruthy();
+    expect(screen.queryByText("Review this slide")).toBeNull();
+    expect(screen.queryByText("request submitted")).toBeNull();
   });
 
   it("downloads real live storyboard PPTX bytes and exposes a receipt", async () => {

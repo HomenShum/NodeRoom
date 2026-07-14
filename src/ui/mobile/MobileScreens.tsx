@@ -330,15 +330,34 @@ export function Inbox({ ctx }: { ctx: MobileCtx }): React.ReactElement {
         React.createElement("span", { className: "t" }, item.time),
       ),
     );
+    const proposalReview = item.review ? React.createElement(
+      "div",
+      { className: "na-patch-inline na-task-patch", "data-testid": "mobile-proposal-review", "data-proposal-id": item.id },
+      React.createElement("div", { className: "na-patch-k" }, Ico("target"), item.review.target),
+      React.createElement("div", { className: "na-diff before" },
+        React.createElement("span", { className: "lbl" }, "Before"),
+        React.createElement("p", null, item.review.before)),
+      React.createElement("div", { className: "na-diff after" },
+        React.createElement("span", { className: "lbl" }, "Proposed"),
+        React.createElement("p", null, item.review.after)),
+      React.createElement("div", { className: "na-patch-ev", "aria-label": "Proposal source scope and storyboard traces" },
+        item.review.sources.length
+          ? item.review.sources.map((source) => React.createElement("span", { key: `source:${source}`, className: "na-cite" }, Ico("link"), source))
+          : React.createElement("span", { className: "na-cite gap" }, Ico("alert"), "No source attached"),
+        item.review.traceIds.length
+          ? item.review.traceIds.map((traceId) => React.createElement("span", { key: `trace:${traceId}`, className: "na-cite" }, Ico("history"), `Context trace ${traceId}`))
+          : React.createElement("span", { className: "na-cite gap" }, Ico("alert"), "No trace linked yet")),
+    ) : null;
     // In a live room, items are real proposals — give them a true approve/reject
     // footer (host-gated) instead of routing to the desktop-only detail sheet.
     if (ctx.isLive) {
       return React.createElement(
         "div",
-        { key: item.id, className: "na-task", "data-tone": item.tone },
+        { key: item.id, className: "na-task", "data-tone": item.tone, "data-kind": item.kind, "data-proposal-id": item.id },
         preview(item.preview),
         React.createElement("span", { className: "na-task-rail" }),
         React.createElement("button", { className: "na-task-tap", onClick: () => ctx.openInbox(item) }, fg),
+        proposalReview,
         React.createElement(
           "div",
           { className: "na-task-foot" },
