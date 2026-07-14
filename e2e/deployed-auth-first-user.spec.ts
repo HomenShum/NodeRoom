@@ -1,4 +1,5 @@
 import { type Page } from "@playwright/test";
+import { writeFile } from "node:fs/promises";
 import { expect, test } from "./fixtures";
 
 const deployedAuthEnabled = process.env.PLAYWRIGHT_DEPLOYED_AUTH === "1";
@@ -65,10 +66,16 @@ test.afterEach(async ({ page }, testInfo) => {
   const horizontalOverflowPx = page.isClosed()
     ? null
     : await page.evaluate(() => Math.max(document.documentElement.scrollWidth, document.body?.scrollWidth ?? 0) - document.documentElement.clientWidth);
-  await testInfo.attach("deployed-browser-health", {
-    body: JSON.stringify({ health, horizontalOverflowPx }, null, 2),
-    contentType: "application/json",
-  });
+  const healthReceipt = JSON.stringify({
+    title: testInfo.title,
+    status: testInfo.status,
+    expectedStatus: testInfo.expectedStatus,
+    health,
+    horizontalOverflowPx,
+  }, null, 2);
+  const healthReceiptPath = testInfo.outputPath("deployed-browser-health.json");
+  await writeFile(healthReceiptPath, healthReceipt, "utf8");
+  await testInfo.attach("deployed-browser-health", { path: healthReceiptPath, contentType: "application/json" });
   expect(health.consoleErrors, "browser console errors").toEqual([]);
   expect(health.cspViolations, "browser CSP violations").toEqual([]);
   expect(health.pageErrors, "uncaught page errors").toEqual([]);
@@ -232,7 +239,7 @@ test.describe("deployed authenticated first-user journey", () => {
     await sheet.getByRole("button", { name: "Scope revision request to the slide title" }).click();
     await sheet.getByPlaceholder(/Describe the change for this element/i).fill("Set only the title field to 'Evidence-backed ARR bridge'. Use only attached room evidence.");
     await sheet.getByRole("button", { name: "Send", exact: true }).click();
-    await expect(sheet.getByText(/Request submitted/i)).toBeVisible({ timeout: 60_000 });
+    await expect(sheet.getByText("request submitted", { exact: true })).toBeVisible({ timeout: 60_000 });
     await expect(sheet.getByRole("button", { name: /Accept patch/i })).toHaveCount(0);
     await sheet.getByRole("button", { name: "Close" }).click();
     await page.getByTestId("mobile-nav-inbox").click();
@@ -244,8 +251,12 @@ test.describe("deployed authenticated first-user journey", () => {
     await expect(proposalReview).toContainText("Proposed");
     await expect(proposalReview).toContainText("Evidence-backed ARR bridge");
     await expect(proposalReview.getByText("No source attached")).toHaveCount(0);
-    await expect(proposalCard.getByRole("button", { name: "Reject", exact: true })).toBeVisible();
-    await expect(proposalCard.getByRole("button", { name: "Approve", exact: true })).toBeVisible();
+    const rejectProposal = proposalCard.getByRole("button", { name: "Reject", exact: true });
+    const approveProposal = proposalCard.getByRole("button", { name: "Approve", exact: true });
+    await expect(rejectProposal).toBeVisible();
+    await expect(approveProposal).toBeVisible();
+    await expect(rejectProposal).toBeInViewport();
+    await expect(approveProposal).toBeInViewport();
     await page.screenshot({ path: testInfo.outputPath("authenticated-mobile-deck-proposal-390x844.png"), fullPage: false });
 
     await proposalCard.getByRole("button", { name: "Approve", exact: true }).click();
@@ -256,7 +267,9 @@ test.describe("deployed authenticated first-user journey", () => {
     await expect(sheet.getByText("Evidence-backed ARR bridge", { exact: true }).first()).toBeVisible({ timeout: 60_000 });
     await page.getByRole("tab", { name: "Evidence" }).click();
     await expect(sheet.locator(".na-answer")).toBeVisible();
-    await expect(sheet.locator(".na-srcclaim")).toBeVisible();
+    await expect(sheet.getByRole("button", { name: /Used [1-9]\d* sources/ })).toBeVisible();
+    await expect(sheet.locator(".na-srcrow").filter({ hasText: "Diligence memo" })).toBeVisible();
+    await expect(sheet.getByText("No evidence yet")).toHaveCount(0);
     await page.screenshot({ path: testInfo.outputPath("authenticated-mobile-deck-390x844.png"), fullPage: false });
 
     await page.getByRole("tab", { name: "Export" }).click();
@@ -265,5 +278,37 @@ test.describe("deployed authenticated first-user journey", () => {
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toMatch(/\.pptx$/i);
     await expect(page.getByTestId("mobile-deck-export-receipt")).toContainText(/Downloaded .* integrity/i, { timeout: 30_000 });
+  });
+
+  test("an authenticated desktop NodeAgent run renders the AI Elements Tool primitive", async ({ page }, testInfo) => {
+    test.setTimeout(300_000);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await configurePreviewProtection(page);
+    const { email, password } = freshCredentials("desktop-tool-proof");
+    const prompt = "@nodeagent identify the remaining evidence gaps in the Company research sheet. Use room sources and do not apply unsupported edits.";
+
+    await page.goto("/?surface=desktop", { waitUntil: "domcontentloaded" });
+    expectDeployedHost(page);
+    await page.getByRole("button", { name: "Try sample", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Explore a synthetic workspace" })).toBeVisible();
+    await page.getByTestId("sample-room-submit").click();
+    await createPasswordAccount(page, email, password);
+
+    const chat = page.getByTestId("public-chat-panel");
+    await expect(chat.getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
+    await chat.getByTestId("chat-composer").fill(prompt);
+    await chat.getByTestId("chat-send").click();
+    await expect(chat.getByTestId("chat-message").filter({ hasText: prompt })).toBeVisible({ timeout: 30_000 });
+    await expect(chat.getByTestId("job-status")).toContainText(/queued|running|completed/i, { timeout: 30_000 });
+
+    const toolProgress = chat.locator('[data-testid="agent-progress-card"][data-ai-element="tool"]').last();
+    await expect(toolProgress).toBeVisible({ timeout: 120_000 });
+    await expect(toolProgress.locator("xpath=ancestor::div[contains(concat(' ', normalize-space(@class), ' '), ' ai-scope ')]")).toHaveCount(1);
+    await page.screenshot({ path: testInfo.outputPath("authenticated-desktop-ai-elements-tool-1440x900.png"), fullPage: false });
+    const jobStatus = chat.getByTestId("job-status");
+    if (!/completed/i.test(await jobStatus.textContent() ?? "")) {
+      await chat.getByTestId("job-cancel").click();
+      await expect(jobStatus).toContainText("cancelled", { timeout: 30_000 });
+    }
   });
 });

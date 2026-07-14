@@ -67,7 +67,7 @@ export function ArtifactSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   const liveDeck = ctx.isLive ? ctx.liveDeck ?? null : undefined;
   const emptyLiveDeck = ctx.isLive && !liveDeck;
   const DECK: Deck = liveDeck ?? D.DECK;
-  const EVIDENCE: Evidence = ctx.isLive && ctx.liveEvidence ? ctx.liveEvidence : D.EVIDENCE;
+  const EVIDENCE: Evidence = liveDeck?.evidence ?? (ctx.isLive && ctx.liveEvidence ? ctx.liveEvidence : D.EVIDENCE);
   const livePreview = !!liveDeck;
   const [tab, setTab] = useState<string>('slides');
   const [active, setActive] = useState<number>(0);

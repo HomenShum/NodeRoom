@@ -102,16 +102,17 @@ function deckPatchReview(
     const artifact = artifacts.find((candidate) => candidate.id === id);
     return artifact ? [artifact.title] : [];
   })));
-  const traceIds = Array.from(new Set([
+  const allTraceIds = Array.from(new Set([
     ...deck.storyboard.traceIds,
     ...slide.claims.map((claim) => claim.traceId),
-  ])).filter((id): id is string => typeof id === "string" && id.length > 0).slice(0, 6);
+  ])).filter((id): id is string => typeof id === "string" && id.length > 0);
   return {
     target: `Slide ${deck.storyboard.slides.indexOf(slide) + 1} - ${slide.title}`,
     before: changed.map(([field]) => `${label(field)}: ${beforeValue(field)}`).join("\n"),
     after: changed.map(([field, value]) => `${label(field)}: ${value}`).join("\n"),
     sources: sourceLabels,
-    traceIds,
+    traceIds: allTraceIds.slice(0, 2),
+    traceOverflow: Math.max(0, allTraceIds.length - 2),
   };
 }
 
@@ -382,9 +383,51 @@ function storyboardDeckStatus(storyboard: DeckStoryboard): DeckStatus {
   return storyboard.storyboardStatus === "needs_review" || storyboard.unresolvedGaps.length > 0 ? "proposed" : "approved";
 }
 
+function buildDeckEvidence(storyboard: DeckStoryboard, artifacts: Artifact[]): Evidence {
+  const artifactById = new Map(artifacts.map((artifact) => [artifact.id, artifact]));
+  const claims = storyboard.slides.flatMap((slide) => slide.claims);
+  const sources = storyboard.sourceArtifactIds.flatMap((id) => {
+    const artifact = artifactById.get(id);
+    return artifact ? [artifact] : [];
+  });
+  const support: EvidenceSupport[] = sources.slice(0, 6).map((artifact, index) => {
+    const linkedClaims = claims.filter((claim) => claim.sourceArtifactId === artifact.id);
+    const verified = linkedClaims.length > 0 && linkedClaims.every((claim) => claim.status === "verified");
+    return {
+      kind: "cite",
+      n: String(index + 1),
+      text: artifact.title,
+      host: `Room ${artifact.kind}`,
+      verified,
+      srcType: `room ${artifact.kind}`,
+      excerpt: linkedClaims.length
+        ? linkedClaims.map((claim) => claim.text).join(" ").slice(0, 320)
+        : artifact.meta?.summary ?? "Referenced by the persisted deck storyboard.",
+    };
+  });
+  const gaps: EvidenceSupport[] = storyboard.unresolvedGaps.slice(0, 4).map((gap) => ({ kind: "gap", text: gap }));
+  const linkedClaims = claims.filter((claim) => claim.sourceArtifactId && artifactById.has(claim.sourceArtifactId));
+  const verifiedClaims = linkedClaims.filter((claim) => claim.status === "verified").length;
+  const allLinkedClaimsVerified = linkedClaims.length > 0 && verifiedClaims === linkedClaims.length;
+  return {
+    claim: support.length ? "Deck storyboard source scope" : "No deck sources yet",
+    status: support.length ? (gaps.length || !allLinkedClaimsVerified ? "needs_review" : "source-backed") : "empty",
+    answer: support.length
+      ? `${support.length} room artifact source${support.length === 1 ? "" : "s"} scoped to ${linkedClaims.length} deck claim${linkedClaims.length === 1 ? "" : "s"}. ${verifiedClaims} claim${verifiedClaims === 1 ? " is" : "s are"} verified.`
+      : "This persisted storyboard does not reference a room artifact source yet.",
+    support: support.length ? [...support, ...gaps] : [{ kind: "gap", text: "Attach a room artifact source before calling this deck source-backed." }],
+    followups: [
+      { match: ["source", "cite", "citation"], text: support.length ? "Open a source row to inspect the room artifact and the claim excerpt carried into the storyboard." : "No room artifact source is attached to this storyboard yet." },
+      { match: ["gap", "missing", "review"], text: gaps.length ? gaps.map((gap) => gap.text).join(" ") : "No unresolved storyboard gaps are recorded." },
+      { match: ["verified", "status"], text: `${verifiedClaims} of ${linkedClaims.length} source-scoped deck claims are currently verified.` },
+    ],
+    fallback: "This evidence view is projected from the persisted deck storyboard and its existing room artifacts.",
+  };
+}
+
 function mobileDeckFromStoryboard(
   storyboard: DeckStoryboard,
-  options: { artifactId?: string; proposalIds?: string[] } = {},
+  options: { artifactId?: string; proposalIds?: string[]; sourceArtifacts?: Artifact[] } = {},
 ): MobileDeckArtifact {
   const workArtifact = deckArtifactInputFromStoryboard(storyboard);
   const proposalIds = Array.from(new Set([...storyboard.proposalIds, ...(options.proposalIds ?? [])]));
@@ -412,6 +455,7 @@ function mobileDeckFromStoryboard(
   return {
     id: storyboard.deckId,
     storyboard,
+    evidence: buildDeckEvidence(storyboard, options.sourceArtifacts ?? []),
     roomId: storyboard.roomId,
     workArtifactId: options.artifactId ?? workArtifact.id,
     traceIds: storyboard.traceIds,
@@ -608,6 +652,7 @@ export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave, onSi
     return mobileDeckFromStoryboard(storyboard, {
       artifactId: collaborativeDeck?.artifactId,
       proposalIds: deckProposalIds,
+      sourceArtifacts,
     });
   }, [collaborativeDeck, proposals, room?.title, roomId, sourceArtifacts, traceEvents]);
 

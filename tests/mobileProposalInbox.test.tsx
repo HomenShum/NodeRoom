@@ -26,6 +26,7 @@ describe("mobile governed proposal inbox", () => {
         after: "Title: Evidence-backed ARR bridge",
         sources: ["ARR worksheet"],
         traceIds: ["trace-1"],
+        traceOverflow: 4,
       },
     };
     const resolveProposalById = vi.fn(async () => ({ ok: true }));
@@ -48,6 +49,7 @@ describe("mobile governed proposal inbox", () => {
     expect(review.textContent).toContain("Title: Evidence-backed ARR bridge");
     expect(review.textContent).toContain("ARR worksheet");
     expect(review.textContent).toContain("Context trace trace-1");
+    expect(review.textContent).toContain("+4 more context traces");
     expect(screen.getByRole("button", { name: "Reject" })).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Approve" }));

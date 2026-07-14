@@ -345,8 +345,16 @@ export function Inbox({ ctx }: { ctx: MobileCtx }): React.ReactElement {
           ? item.review.sources.map((source) => React.createElement("span", { key: `source:${source}`, className: "na-cite" }, Ico("link"), source))
           : React.createElement("span", { className: "na-cite gap" }, Ico("alert"), "No source attached"),
         item.review.traceIds.length
-          ? item.review.traceIds.map((traceId) => React.createElement("span", { key: `trace:${traceId}`, className: "na-cite" }, Ico("history"), `Context trace ${traceId}`))
-          : React.createElement("span", { className: "na-cite gap" }, Ico("alert"), "No trace linked yet")),
+          ? item.review.traceIds.map((traceId) => React.createElement("span", {
+              key: `trace:${traceId}`,
+              className: "na-cite",
+              title: `Context trace ${traceId}`,
+              "aria-label": `Context trace ${traceId}`,
+            }, Ico("history"), `Context trace ${traceId.length > 12 ? `${traceId.slice(0, 10)}...` : traceId}`))
+          : React.createElement("span", { className: "na-cite gap" }, Ico("alert"), "No trace linked yet"),
+        item.review.traceOverflow
+          ? React.createElement("span", { className: "na-cite", title: "Open Run trace for the full context" }, Ico("history"), `+${item.review.traceOverflow} more context traces`)
+          : null),
     ) : null;
     // In a live room, items are real proposals — give them a true approve/reject
     // footer (host-gated) instead of routing to the desktop-only detail sheet.

@@ -275,6 +275,7 @@ export interface MobileLive {
 
 export interface MobileDeckArtifact extends Deck {
   storyboard?: DeckStoryboard;
+  evidence?: Evidence;
   roomId: string;
   workArtifactId: string;
   traceIds: string[];

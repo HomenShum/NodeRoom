@@ -198,6 +198,7 @@ export interface InboxProposalReview {
   after: string;
   sources: string[];
   traceIds: string[];
+  traceOverflow?: number;
 }
 
 export interface InboxItem {

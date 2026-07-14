@@ -171,6 +171,10 @@ describe("mobile agent model routing", () => {
     expect(captured.live!.deck!.proposalIds).toContain("proposal-1");
     expect(captured.live!.deck!.traceIds).toContain("trace-1");
     expect(captured.live!.deck!.slides[0].title).toBe("ARR bridge");
+    expect(captured.live!.deck!.evidence).toEqual(expect.objectContaining({
+      claim: "Deck storyboard source scope",
+      support: expect.arrayContaining([expect.objectContaining({ kind: "cite", text: "ARR bridge", host: "Room sheet" })]),
+    }));
     expect(captured.live!.deck!.exportSize).toBe("receipt pending");
   });
 
