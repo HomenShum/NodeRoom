@@ -1,114 +1,70 @@
 /*
- * Tailwind v4 + shadcn theme layer for AI Elements — scoped to the AI component set.
+ * Tailwind v4 + shadcn theme layer for AI Elements.
  *
- * DELIBERATELY OMITS Tailwind's preflight (global reset) so it cannot clobber the
- * bespoke .r-* / terracotta app. AI Elements subtrees get a small local reset via
- * the `.ai-scope` wrapper below instead. Tailwind utilities + the shadcn design
- * tokens are mapped onto NodeRoom's existing tokens (src/app/styles.css), which
- * already flip per [data-theme="dark"] — so AI Elements theme-switches for free.
+ * The shadcn design tokens are mapped DIRECTLY onto NodeRoom's terracotta tokens
+ * (src/app/styles.css) inside a single `@theme inline` block. `inline` emits the
+ * var() reference straight into each utility (e.g. `.bg-secondary{background-color:
+ * var(--bg-secondary)}`), so resolution is deferred to runtime and the components
+ * theme-switch for free under [data-theme="dark"]. Referencing the NodeRoom tokens
+ * directly (not through an intermediate --secondary layer) is what lets Tailwind
+ * register the colors and generate their utilities.
+ *
+ * Full `@import "tailwindcss"` is required for custom @theme colors to register.
+ * Preflight is included but harmless to the app: it lives in Tailwind's `base`
+ * layer, and NodeRoom's unlayered styles.css wins the cascade over any layered
+ * rule — plus NodeRoom already sets `* { box-sizing: border-box }`. Preflight
+ * therefore only governs otherwise-unstyled AI Elements markup inside `.ai-scope`.
  */
-@layer theme, base, components, utilities;
-@import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/utilities.css" layer(utilities);
+@import "tailwindcss";
 @import "tw-animate-css";
 
-/* Scan the AI component set (and their call sites) for utility classes. */
+/* Scan the AI component set for utility classes. */
 @source "../../components";
 @source "../ai";
 
-/* shadcn design tokens → NodeRoom terracotta system. Both light and dark resolve
- * automatically because the referenced --bg-*/--text-*/--accent-* tokens already
- * switch under [data-theme="dark"]. */
-:root {
-  --background: var(--bg-primary);
-  --foreground: var(--text-primary);
-  --card: var(--bg-primary);
-  --card-foreground: var(--text-primary);
-  --popover: var(--bg-primary);
-  --popover-foreground: var(--text-primary);
-  --primary: var(--accent-solid);
-  --primary-foreground: #ffffff;
-  --secondary: var(--bg-secondary);
-  --secondary-foreground: var(--text-primary);
-  --muted: var(--bg-secondary);
-  --muted-foreground: var(--text-muted);
-  --accent: var(--accent-tint);
-  --accent-foreground: var(--accent-ink);
-  --destructive: #dc2626;
-  --destructive-foreground: #ffffff;
-  --border: var(--line);
-  --input: var(--line);
-  --ring: var(--accent-primary);
-  --radius: 12px;
-  --sidebar: var(--bg-secondary);
-  --sidebar-foreground: var(--text-primary);
-  --sidebar-primary: var(--accent-solid);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: var(--accent-tint);
-  --sidebar-accent-foreground: var(--accent-ink);
-  --sidebar-border: var(--line);
-  --sidebar-ring: var(--accent-primary);
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+  --color-card: var(--bg-primary);
+  --color-card-foreground: var(--text-primary);
+  --color-popover: var(--bg-primary);
+  --color-popover-foreground: var(--text-primary);
+  --color-primary: var(--accent-solid);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--bg-secondary);
+  --color-secondary-foreground: var(--text-primary);
+  --color-muted: var(--bg-secondary);
+  --color-muted-foreground: var(--text-muted);
+  --color-accent: var(--accent-tint);
+  --color-accent-foreground: var(--accent-ink);
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #ffffff;
+  --color-border: var(--line);
+  --color-input: var(--line);
+  --color-ring: var(--accent-primary);
+  --color-sidebar: var(--bg-secondary);
+  --color-sidebar-foreground: var(--text-primary);
+  --color-sidebar-primary: var(--accent-solid);
+  --color-sidebar-primary-foreground: #ffffff;
+  --color-sidebar-accent: var(--accent-tint);
+  --color-sidebar-accent-foreground: var(--accent-ink);
+  --color-sidebar-border: var(--line);
+  --color-sidebar-ring: var(--accent-primary);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
   --font-sans: var(--font-ui);
   --font-mono: var(--font-mono);
 }
 
 /*
- * Local reset for AI Elements subtrees — the minimal parts of Tailwind's preflight
- * that shadcn/AI Elements markup assumes, scoped so it never leaks into the .r-* app.
- * Wrap any AI Elements surface in <div className="ai-scope">…</div>.
+ * Local base for AI Elements subtrees. Wrap any AI Elements surface in
+ * <div className="ai-scope">…</div>. Kept minimal since preflight already applies.
  */
-.ai-scope,
-.ai-scope *,
-.ai-scope *::before,
-.ai-scope *::after {
-  box-sizing: border-box;
-  border-width: 0;
-  border-style: solid;
-  border-color: var(--border);
-}
 .ai-scope {
   font-family: var(--font-ui);
-  color: var(--foreground);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
-}
-.ai-scope button {
-  background: none;
-  cursor: pointer;
-}
-.ai-scope :where(h1, h2, h3, h4, p, figure, blockquote, dl, dd) {
-  margin: 0;
 }

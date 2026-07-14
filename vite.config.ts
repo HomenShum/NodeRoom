@@ -80,6 +80,10 @@ export default defineConfig({
     sourcemap: process.env.VITE_BUILD_SOURCEMAP === "1",
     chunkSizeWarningLimit: 1100,
     rollupOptions: {
+      input: {
+        main: fileURLToPath(new URL("./index.html", import.meta.url)),
+        aiElementsCheck: fileURLToPath(new URL("./ai-elements-check.html", import.meta.url)),
+      },
       output: {
         manualChunks(id) {
           if (!id.includes("node_modules")) return undefined;
