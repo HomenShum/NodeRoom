@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEv
 import { Lock, MessageCircle, Globe, Send, Square, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, Link2, X, Timer, RefreshCw, ChevronDown, ChevronUp, ChevronRight, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2, Brain, Target, Mic, MicOff, Search, AlertTriangle } from "lucide-react";
 import { useQuery } from "convex/react";
 import { Reasoning, ReasoningContent, ReasoningTrigger } from "@/components/ai-elements/reasoning";
+import { MessageResponse } from "@/components/ai-elements/message";
 import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentModelSelection, type PrivateStreamAccess, type RoomStore } from "../app/store";
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
@@ -20,7 +21,7 @@ import {
   type ArtifactRef,
 } from "./artifactRefs";
 import { IntakePlanPreview } from "./IntakePlanPreview";
-import { MarkdownBody } from "./MarkdownBody";
+import { MarkdownBody, compactGeneratedFileLists } from "./MarkdownBody";
 import {
   classifyVoiceTranscript,
   confirmCommand,
@@ -755,14 +756,20 @@ function AgentUnifiedStream({ parts, live, fallbackText, terminalSuccessful }: {
       {reasoningParts.map((part, index) => <AgentReasoningCard key={`reasoning-${index}`} part={part} live={live} />)}
       {displayParts.map((part, index) => {
         if (part.type === "text") {
+          // Agent response text now renders through the maintained AI Elements
+          // <MessageResponse> (Streamdown) instead of the bespoke MarkdownBody, while
+          // preserving the agent-stream-text testid, the streaming cursor, and
+          // NodeRoom's generated-file-list compaction.
           return (
-            <MarkdownBody
+            <div
               key={`text-${index}`}
-              text={part.text}
+              className="ai-scope r-agent-response"
               data-testid="agent-stream-text"
               data-stream-state={part.state}
-              cursor={live && index === lastTextIndex ? <span className="r-stream-cursor" aria-hidden>|</span> : null}
-            />
+            >
+              <MessageResponse>{compactGeneratedFileLists(part.text)}</MessageResponse>
+              {live && index === lastTextIndex ? <span className="r-stream-cursor" aria-hidden>|</span> : null}
+            </div>
           );
         }
         return null;

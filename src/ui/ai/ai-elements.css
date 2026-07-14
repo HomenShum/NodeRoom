@@ -68,3 +68,16 @@
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
 }
+
+/* Agent chat response (Chat.tsx MessageResponse): match NodeRoom's compact chat
+ * text size (.r-msg .text = 13.5px) instead of Streamdown's 16px default, so the
+ * agent's answer sits at the same scale as the rest of the conversation. */
+.r-agent-response,
+.r-agent-response :where(p, li, td, th, blockquote) {
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.r-agent-response {
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
