@@ -1533,7 +1533,18 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const showLongJobResult = !!longJobResultText && !hasLongJobResultMessage;
   const longJobNeedsAttention = !!longJob && ["failed", "blocked", "cancelled"].includes(longJob.status);
   const longJobRecoveryGoal = longJob?.goal || lastAgentInputRef.current;
-  const showLongJobChrome = !!longJob && (!longJobTerminal || longJobNeedsAttention || jobDetailsOpen);
+  const longJobHasAuditTelemetry = !!longJob && [
+    longJob.modelCallCount,
+    longJob.toolCallCount,
+    longJob.mutationCount,
+    longJob.receiptCount,
+  ].some((count) => (count ?? 0) > 0);
+  const showLongJobChrome = !!longJob && (
+    !longJobTerminal
+    || longJobNeedsAttention
+    || jobDetailsOpen
+    || longJobHasAuditTelemetry
+  );
   const showAgentWorkingBubble = agentWorking && (!hasActiveJobStreamMessage || unifiedStreamParts.length === 0);
   const feedItems = useMemo(() => {
     const items: ChatFeedItem[] = messages.map((message) => ({

@@ -500,7 +500,7 @@ describe("Chat reasoning-frame job detail", () => {
     })));
   });
 
-  it("collapses open successful job details once the job completes", async () => {
+  it("collapses completed details but keeps finalized proof telemetry reachable", async () => {
     const store = baseStore();
     let status = "running";
     store.lastLongFreeJob = () => ({
@@ -514,6 +514,8 @@ describe("Chat reasoning-frame job detail", () => {
       approvalPolicy: "auto_commit_safe",
       evidencePolicy: "public_only",
       finalText: status === "completed" ? "Completed result" : undefined,
+      mutationCount: status === "completed" ? 48 : 0,
+      receiptCount: status === "completed" ? 46 : 0,
       updatedAt: status === "running" ? 1000 : 2000,
     });
     mockStore.current = store;
@@ -526,7 +528,10 @@ describe("Chat reasoning-frame job detail", () => {
     view.rerender(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
 
     await waitFor(() => expect(screen.queryByTestId("job-detail")).toBeNull());
-    expect(screen.queryByTestId("job-status")).toBeNull();
+    expect(screen.getByTestId("job-status")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("job-detail-toggle"));
+    expect(screen.getByTestId("job-detail").textContent).toMatch(/Mutations48/);
+    expect(screen.getByTestId("job-detail").textContent).toMatch(/Receipts46/);
     expect(screen.getByText("Completed result")).toBeTruthy();
   });
 });

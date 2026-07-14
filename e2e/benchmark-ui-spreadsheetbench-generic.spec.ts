@@ -365,12 +365,31 @@ async function collectAgentEvidence(
   expect(verificationPayloads.some(hasPassedPostWriteVerificationReceipt), "a verify_workbook result must prove a passed post-write phase").toBe(true);
 
   expect(observed.routeText, "the requested and resolved model route must remain visible").toMatch(/openrouter|anthropic|google|openai|groq|mistral|cohere|nvidia|qwen/i);
-  expect(observed.detailText, "job detail must identify the conflict-safe direct-edit policy").toMatch(/Policy\s*auto_commit_safe/i);
-  const mutationCount = telemetryCount(observed.detailText, "Mutations");
-  const receiptCount = telemetryCount(observed.detailText, "Receipts");
+  const detailToggle = page.getByTestId("job-detail-toggle").first();
+  const detail = page.getByTestId("job-detail").first();
+  await expect.poll(async () => {
+    if (!(await detailToggle.isVisible().catch(() => false))) return "";
+    if ((await detailToggle.getAttribute("aria-expanded")) !== "true") {
+      await detailToggle.click().catch(() => undefined);
+    }
+    const detailText = await quickText(detail, 1000);
+    const finalized = /Policy\s*auto_commit_safe/i.test(detailText)
+      && telemetryCount(detailText, "Mutations") > 0
+      && telemetryCount(detailText, "Receipts") > 0
+      && /receipt\s+[^\r\n]+/i.test(detailText);
+    return finalized ? detailText : "";
+  }, {
+    message: "the completed job must keep finalized mutation telemetry and a receipt reachable",
+    timeout: 60_000,
+    intervals: [500, 1000, 2000],
+  }).not.toBe("");
+  const detailText = await quickText(detail, 1000);
+  expect(detailText, "job detail must identify the conflict-safe direct-edit policy").toMatch(/Policy\s*auto_commit_safe/i);
+  const mutationCount = telemetryCount(detailText, "Mutations");
+  const receiptCount = telemetryCount(detailText, "Receipts");
   expect(mutationCount, "a completed workbook edit must record a durable mutation").toBeGreaterThan(0);
   expect(receiptCount, "a completed workbook edit must record a durable receipt").toBeGreaterThan(0);
-  const receiptText = observed.detailText.match(/receipt\s+[^\r\n]+/i)?.[0] ?? "";
+  const receiptText = detailText.match(/receipt\s+[^\r\n]+/i)?.[0] ?? "";
   expect(receiptText, "job detail must expose the mutation receipt and affected target").not.toBe("");
 
   return {
