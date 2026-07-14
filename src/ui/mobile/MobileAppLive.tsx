@@ -167,7 +167,7 @@ export function resolveMobileExperience(
 
 // Live room artifacts -> Home recents. Real titles/kinds/edit-times; the sheet
 // signature samples the first cells' tones (elements are already loaded).
-function buildRecents(artifacts: Artifact[]): RecentItem[] {
+function buildArtifactRecents(artifacts: Artifact[]): RecentItem[] {
   return artifacts.slice(0, 8).map((a): RecentItem => {
     const icon = a.kind === "sheet" ? "table" : a.kind === "wall" ? "layers" : "note";
     const count = a.order?.length ?? Object.keys(a.elements).length;
@@ -185,6 +185,28 @@ function buildRecents(artifacts: Artifact[]): RecentItem[] {
       sig,
     };
   });
+}
+
+export function buildMobileRecents(
+  artifacts: Artifact[],
+  deck?: Pick<MobileDeckArtifact, "id" | "title" | "slides" | "status" | "sourceGaps">,
+): RecentItem[] {
+  const artifactRecents = buildArtifactRecents(artifacts);
+  if (!deck) return artifactRecents;
+  const slideCount = deck.slides.length;
+  const reviewCount = deck.slides.filter((slide) => slide.status === "needs_review").length;
+  const deckRecent: RecentItem = {
+    id: `deck:${deck.id}`,
+    icon: "layers",
+    title: deck.title,
+    meta: `governed deck - ${slideCount} slide${slideCount === 1 ? "" : "s"} - ${deck.status}`,
+    kind: "deck",
+    peek: deck.sourceGaps
+      ? `${deck.sourceGaps} evidence gap${deck.sourceGaps === 1 ? "" : "s"} remain`
+      : "Source-backed storyboard ready for review",
+    sig: { type: "deck", count: slideCount, active: reviewCount, status: deck.status },
+  };
+  return [deckRecent, ...artifactRecents].slice(0, 8);
 }
 
 function sourceHost(e: CellEvidence): string | undefined {
@@ -570,7 +592,7 @@ export function MobileAppLive({ roomId, me, proof, experienceHint, onLeave, onSi
   // Results are byte-identical to the inline calls; deps are the exact inputs.
   const roomMsgs = useMemo(() => reshapeMessages(messages), [messages]);
   const people = useMemo(() => buildPeople(members), [members]);
-  const recents = useMemo(() => buildRecents(artifacts), [artifacts]);
+  const recents = useMemo(() => buildMobileRecents(artifacts, liveDeck), [artifacts, liveDeck]);
   const agentPrivate = useMemo(() => reshapeAgentMsgs(privateMsgs), [privateMsgs]);
   const agentRoom = useMemo(
     () => reshapeAgentMsgs(messages.filter((m) => m.author.kind === "agent" || m.author.id === me.id)),

@@ -114,7 +114,7 @@ test.describe("deployed authenticated first-user journey", () => {
 
     await page.goto(roomUrl, { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("heading", { name: "Join this room" })).toBeVisible({ timeout: 30_000 });
-    await page.getByRole("button", { name: "Join room", exact: true }).click();
+    await page.getByLabel("Join this room").getByRole("button", { name: "Join room", exact: true }).click();
     await expect(page.getByTestId("account-auth-gate")).toBeVisible();
     await expect(page.getByTestId("public-chat-panel")).toHaveCount(0);
   });
