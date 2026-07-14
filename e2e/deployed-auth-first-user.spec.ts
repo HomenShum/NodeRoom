@@ -418,6 +418,7 @@ test.describe("deployed authenticated first-user journey", () => {
       .first();
     await expect(namedToolResult).toBeVisible({ timeout: 240_000 });
     await expect(toolProgress).toHaveAttribute("data-status", "done", { timeout: 300_000 });
+    await expect(chat.locator(`[data-testid="job-status"][data-job-id="${jobId}"]`)).toContainText("completed");
 
     const exactJobMessage = chat.locator(`[data-testid="chat-message"][data-clientmsgid="pubstream-${jobId}"]`);
     await expect(exactJobMessage).toBeVisible({ timeout: 60_000 });
@@ -436,6 +437,7 @@ test.describe("deployed authenticated first-user journey", () => {
     const persistedTool = persistedJobMessage.getByTestId("agent-progress-card");
     await expect(persistedTool).toHaveAttribute("data-status", "done");
     await expect(persistedTool).not.toContainText("NodeAgent is working");
+    await expect(reloadedChat.locator(`[data-testid="job-status"][data-job-id="${jobId}"]`)).toContainText("completed");
     await persistedTool.getByTestId("agent-progress-details-toggle").click();
     await expect(persistedTool.locator('.r-agent-part[data-part^="tool-"][data-status="done"]')
       .filter({ hasText: /list_artifacts|read_range|inspect_workbook|search_sheet_context|fetch_source/i })
