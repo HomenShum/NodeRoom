@@ -5,7 +5,7 @@
  */
 
 import type { AgentModel, AgentTool, RoomTools, AgentResult, AgentMessage, AgentTraceEvent, AgentStopReason, AgentHandoff, ToolCall, AgentStep, ToolArgumentErrorResult } from "./types";
-import type { AgentStreamEventDraft } from "./stream";
+import { toolStreamEvidenceMetadata, type AgentStreamEventDraft } from "./stream";
 import type { StepJournal } from "./journal";
 import { checkSpendCeiling, type SpendLimits } from "../guardrails/gateway";
 import { SYSTEM_PROMPT } from "../models/prompts/systemPrompt";
@@ -607,7 +607,7 @@ export async function runAgent(opts: {
           input: activeCall.args,
           output: result,
           error: describeError(error),
-          metadata: { ms: ev.ms },
+          metadata: { ms: ev.ms, ...toolStreamEvidenceMetadata(activeCall.tool, activeCall.args, result) },
         });
         messages.push({ role: "tool", toolCallId: call.id, toolName: activeCall.tool, content: JSON.stringify(result) });
         await runPostToolHooks(hooks, hookCtx(step), activeCall, result);
@@ -627,7 +627,7 @@ export async function runAgent(opts: {
       status: toolResultFailed(result) ? "failed" : "completed",
       input: activeCall.args,
       output: result,
-      metadata: { ms: ev.ms },
+      metadata: { ms: ev.ms, ...toolStreamEvidenceMetadata(activeCall.tool, activeCall.args, result) },
     });
     messages.push({ role: "tool", toolCallId: call.id, toolName: activeCall.tool, content: JSON.stringify(result) });
     await runPostToolHooks(hooks, hookCtx(step), activeCall, result);

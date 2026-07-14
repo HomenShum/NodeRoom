@@ -62,6 +62,7 @@ export type AgentToolStreamPart = {
   status?: AgentStreamEventStatus;
   error?: string;
   ms?: number;
+  metadata?: Record<string, unknown>;
 };
 
 export type AgentArtifactStreamPart = {
@@ -197,6 +198,7 @@ export function buildUnifiedAgentStreamParts(
       status: event.status,
       error: event.error,
       ms: typeof event.metadata?.ms === "number" ? event.metadata.ms : undefined,
+      metadata: event.metadata,
     };
     if (existing) Object.assign(existing, next, { input: existing.input ?? next.input });
     else parts.push(next);
@@ -266,4 +268,62 @@ export function buildUnifiedAgentStreamParts(
   if ((sawDone || opts.terminal) && reasoningPart) reasoningPart.state = "completed";
   if ((sawDone || opts.terminal) && planPart) planPart.state = "completed";
   return parts;
+}
+
+function recordValue(value: unknown): Record<string, unknown> | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  return value as Record<string, unknown>;
+}
+
+function parsedRecordValue(value: unknown): Record<string, unknown> | undefined {
+  const direct = recordValue(value);
+  if (direct) return direct;
+  if (typeof value !== "string") return undefined;
+  try {
+    return recordValue(JSON.parse(value));
+  } catch {
+    return undefined;
+  }
+}
+
+/** Keep proof-critical tool facts outside bounded diagnostic previews. */
+export function toolStreamEvidenceMetadata(
+  toolName: string,
+  input: unknown,
+  output: unknown,
+): Record<string, unknown> | undefined {
+  if (toolName !== "verify_workbook") return undefined;
+  const args = parsedRecordValue(input);
+  const result = parsedRecordValue(output);
+  if (!result) return undefined;
+  const candidate = recordValue(result.candidate);
+  const plan = recordValue(result.plan);
+  const operations = Array.isArray(args?.operations) ? args.operations : undefined;
+  const issues = Array.isArray(plan?.issues) ? plan.issues : undefined;
+  const phase = typeof result.phase === "string"
+    ? result.phase
+    : args?.afterWrite === false
+      ? "preflight"
+      : "post_write";
+  const status = typeof result.status === "string" ? result.status : undefined;
+  if (!status) return undefined;
+  const receipt: Record<string, unknown> = {
+    schema: "nodeagent-workbook-verification-receipt-v1",
+    phase,
+    status,
+    afterWrite: args?.afterWrite !== false,
+    ok: result.ok === true,
+  };
+  const artifactId = typeof result.artifactId === "string"
+    ? result.artifactId
+    : typeof args?.artifactId === "string"
+      ? args.artifactId
+      : undefined;
+  if (artifactId !== undefined) receipt.artifactId = artifactId;
+  if (operations) receipt.operationCount = operations.length;
+  if (typeof candidate?.checkedCount === "number") receipt.checkedCount = candidate.checkedCount;
+  if (issues) receipt.issueCount = issues.length;
+  return {
+    verificationReceipt: receipt,
+  };
 }
