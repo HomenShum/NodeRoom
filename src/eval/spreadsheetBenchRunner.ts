@@ -12,6 +12,7 @@ import type { SpreadsheetBenchTrack } from "./spreadsheetBenchAdapter";
 import type { AgentModel, TokenUsage } from "../nodeagent/core/types";
 import { priceRun } from "../nodeagent/models/adapter";
 import { getModelPricing } from "../nodeagent/models/modelCatalog";
+import { runSpreadsheetBenchNodeAgentBridge } from "./spreadsheetBenchNodeAgentBridge";
 import {
   checksForWorkbookOperations,
   extractWorkbookTaskReferences,
@@ -29,7 +30,7 @@ import {
   type WorkbookValueCheck,
 } from "../nodeagent/skills/spreadsheet/workbookTaskIntelligence";
 
-export type SpreadsheetBenchRunnerMode = "copy-input-baseline" | "apply-agent-patch" | "model-edit-plan";
+export type SpreadsheetBenchRunnerMode = "copy-input-baseline" | "apply-agent-patch" | "model-edit-plan" | "nodeagent-workbook";
 
 const FORMULA_RESULT_POLICY = "deterministic_local_subset";
 const SUPPORTED_FORMULA_FUNCTIONS = [
@@ -144,6 +145,7 @@ export type SpreadsheetBenchRunnerTaskResult = {
       | "read_agent_edit_plan"
       | "snapshot_agent_workbook"
       | "call_model_for_edit_plan"
+      | "run_nodeagent_workbook"
       | "fallback_to_visible_formula_repairs"
       | "verify_edit_plan"
       | "repair_edit_plan"
@@ -170,6 +172,8 @@ export type SpreadsheetBenchSidecarEvidence = {
   rawModelOutput?: SpreadsheetBenchSidecarFileEvidence;
   workbookInspection?: SpreadsheetBenchSidecarFileEvidence;
   editVerification?: SpreadsheetBenchSidecarFileEvidence;
+  nodeAgentReceipt?: SpreadsheetBenchSidecarFileEvidence;
+  nodeAgentTrace?: SpreadsheetBenchSidecarFileEvidence;
   repairOutputs?: SpreadsheetBenchSidecarFileEvidence[];
   formulaResultPolicy?: string;
   supportedFormulaFunctions?: string[];
@@ -715,6 +719,8 @@ function collectSidecarEvidence(outputRoot: string, taskOutDir: string): Spreads
     rawModelOutput?: string;
     workbookInspection?: string;
     editVerification?: string;
+    nodeAgentReceipt?: string;
+    nodeAgentTrace?: string;
     repairOutputs?: string[];
     formulaResultPolicy?: string;
     supportedFormulaFunctions?: string[];
@@ -737,6 +743,8 @@ function collectSidecarEvidence(outputRoot: string, taskOutDir: string): Spreads
     ...(manifest.rawModelOutput ? { rawModelOutput: fileEvidence(outputRoot, resolveSidecarPath(taskOutDir, manifest.rawModelOutput)) } : {}),
     ...(manifest.workbookInspection ? { workbookInspection: fileEvidence(outputRoot, resolveSidecarPath(taskOutDir, manifest.workbookInspection)) } : {}),
     ...(manifest.editVerification ? { editVerification: fileEvidence(outputRoot, resolveSidecarPath(taskOutDir, manifest.editVerification)) } : {}),
+    ...(manifest.nodeAgentReceipt ? { nodeAgentReceipt: fileEvidence(outputRoot, resolveSidecarPath(taskOutDir, manifest.nodeAgentReceipt)) } : {}),
+    ...(manifest.nodeAgentTrace ? { nodeAgentTrace: fileEvidence(outputRoot, resolveSidecarPath(taskOutDir, manifest.nodeAgentTrace)) } : {}),
     ...(manifest.repairOutputs?.length
       ? { repairOutputs: manifest.repairOutputs.map((path) => fileEvidence(outputRoot, resolveSidecarPath(taskOutDir, path))) }
       : {}),
@@ -784,6 +792,7 @@ function emitCandidateWorkbook(args: {
   mkdirSync(args.taskOutDir, { recursive: true });
   const target = join(args.taskOutDir, `candidate-${safeFileName(basename(source))}`);
   if (args.mode === "model-edit-plan") return emitModelEditCandidateWorkbook({ ...args, source, target });
+  if (args.mode === "nodeagent-workbook") return emitNodeAgentWorkbookCandidate({ ...args, source, target });
   if (args.mode === "apply-agent-patch") return emitPatchedCandidateWorkbook({ ...args, source, target });
   if (args.mode !== "copy-input-baseline") throw new Error(`Unsupported SpreadsheetBench runner mode: ${args.mode}`);
   copyFileSync(source, target);
@@ -816,6 +825,85 @@ type ModelCandidateEmission = {
     };
   };
 };
+
+async function emitNodeAgentWorkbookCandidate(args: {
+  stageRoot: string;
+  taskDir: string;
+  taskOutDir: string;
+  agentWorkspace: AgentWorkspace;
+  agent: AgentManifest;
+  mode: SpreadsheetBenchRunnerMode;
+  trajectory: SpreadsheetBenchRunnerTaskResult["trajectory"];
+  source: string;
+  target: string;
+  model?: AgentModel;
+  modelName?: string;
+  modelTimeoutMs?: number;
+  modelSnapshotMaxCells?: number;
+  modelRepairAttempts?: number;
+}): Promise<ModelCandidateEmission> {
+  if (!args.model) throw new Error(`nodeagent-workbook requires options.model: ${args.agent.taskId}`);
+  const started = Date.now();
+  const maxSteps = Math.max(8, Math.min(24, 12 + Math.trunc(args.modelRepairAttempts ?? 0) * 6));
+  const runTimeoutMs = args.modelTimeoutMs === undefined
+    ? undefined
+    : Math.max(args.modelTimeoutMs, Math.min(30 * 60_000, args.modelTimeoutMs * 6));
+  const receipt = await runSpreadsheetBenchNodeAgentBridge({
+    agentManifestPath: join(args.agentWorkspace.agentDir, "task.json"),
+    candidateWorkbookPath: args.target,
+    model: args.model,
+    maxSteps,
+    modelTimeoutMs: runTimeoutMs,
+    snapshotMaxCells: args.modelSnapshotMaxCells,
+  });
+  const modelPlanningMs = Date.now() - started;
+  const receiptPath = join(args.taskOutDir, "nodeagent-workbook-receipt.json");
+  const tracePath = join(args.taskOutDir, "nodeagent-workbook-trace.json");
+  writeJson(receiptPath, receipt);
+  writeJson(tracePath, receipt.trace);
+  args.trajectory.push({
+    step: "run_nodeagent_workbook",
+    detail: `${receipt.outcome.status}; ${receipt.outcome.changedCellCount} changed cell(s); trace ${receipt.traceId}`,
+  });
+
+  const resolvedModelName = receipt.model.name || args.model.name || args.modelName || "unknown";
+  const costUsd = getModelPricing(resolvedModelName)
+    ? priceRun(resolvedModelName, receipt.model.usage.inputTokens, receipt.model.usage.outputTokens)
+    : 0;
+  const modelInfo: ModelCandidateEmission["model"] = {
+    name: resolvedModelName,
+    ...(args.modelName && args.modelName !== resolvedModelName ? { requestedName: args.modelName } : {}),
+    calls: receipt.model.calls,
+    usage: receipt.model.usage,
+    costUsd,
+  };
+  writeJson(join(args.taskOutDir, "candidate-manifest.json"), {
+    schema: 1,
+    taskId: args.agent.taskId,
+    mode: args.mode,
+    model: modelInfo.name,
+    ...(modelInfo.requestedName ? { requestedModel: modelInfo.requestedName } : {}),
+    sourceAgentManifest: rel(args.stageRoot, join(args.taskDir, "agent", "task.json")),
+    agentWorkspaceManifest: rel(args.taskOutDir, args.agentWorkspace.manifestPath),
+    candidateWorkbook: basename(args.target),
+    nodeAgentReceipt: basename(receiptPath),
+    nodeAgentTrace: basename(tracePath),
+    appliedOperationCount: receipt.outcome.changedCellCount,
+    repairAttemptCount: receipt.stages.repair.attempts,
+    verificationStatus: receipt.outcome.finalVerificationStatus === "passed" ? "passed" : "needs_repair",
+    modelContext: {
+      runtime: "frameRunner -> runAgent -> RoomTools",
+      maxSteps,
+      snapshotMaxCells: Math.max(1, Math.trunc(args.modelSnapshotMaxCells ?? 1_200)),
+      evaluatorMetadataAccess: receipt.isolation.evaluatorMetadataAccess,
+    },
+    modelUsage: modelInfo.usage,
+    modelCostUsd: modelInfo.costUsd,
+    traceId: receipt.traceId,
+    note: "nodeagent-workbook executes the staged task through the canonical NodeAgent frame/runtime and production managed workbook tools before evaluator metadata becomes available.",
+  });
+  return { path: args.target, modelPlanningMs, model: modelInfo };
+}
 
 type AgentWorkspace = {
   root: string;
@@ -2253,7 +2341,7 @@ function observedWorkbookCell(sheet: ExcelJS.Worksheet, cell: ExcelJS.Cell): Wor
     sheet: sheet.name,
     address: cell.address,
     value: cell.value,
-    ...(cellFormula(cell.value) ? { formula: cellFormula(cell.value) } : {}),
+    ...(cell.formula ? { formula: cell.formula } : {}),
     ...(cell.numFmt ? { numFmt: cell.numFmt } : {}),
   };
 }
@@ -2359,11 +2447,6 @@ function columnNameToNumber(column: string): number {
     .toUpperCase()
     .split("")
     .reduce((sum, char) => sum * 26 + char.charCodeAt(0) - 64, 0);
-}
-
-function cellFormula(value: ExcelJS.CellValue): string | undefined {
-  if (value && typeof value === "object" && "formula" in value && typeof value.formula === "string") return value.formula;
-  return undefined;
 }
 
 function cellValueForPrompt(value: ExcelJS.CellValue): string {

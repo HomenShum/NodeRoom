@@ -14,10 +14,6 @@ import time
 from pathlib import Path
 from typing import Any
 
-import pandas as pd
-from dotenv import load_dotenv
-from openai import OpenAI
-
 
 EXPECTED_TASKS = 172
 UPSTREAM_COMMIT = "95a8b8d135a528b325be003e54c55f886a22602d"
@@ -90,6 +86,9 @@ def main() -> int:
         raise ValueError("Provider and per-call cost caps must be positive.")
     if args.max_calls <= 0 or args.max_retries <= 0 or args.shadow_max_completion_tokens <= 0:
         raise ValueError("Call, retry, and shadow completion limits must be positive.")
+
+    require_results_workbook_dependencies()
+    from dotenv import load_dotenv
 
     load_dotenv(".env.local")
     judge_model = (
@@ -274,6 +273,8 @@ def load_upstream(path: Path) -> Any:
 
 
 def make_caller(upstream: Any, config: Any, provider: str, api_key: str) -> Any:
+    from openai import OpenAI
+
     if provider == "azure_openai":
         return upstream.GPTJudgeCaller(config)
 
@@ -476,6 +477,8 @@ def write_results_xlsx(
     records: dict[str, dict[str, Any]],
     items: list[dict[str, Any]],
 ) -> None:
+    pd = require_results_workbook_dependencies()
+
     rows: list[dict[str, Any]] = []
     for index, item in enumerate(items, 1):
         task_id = str(item.get("task_id") or f"task_{index}")
@@ -502,6 +505,17 @@ def write_results_xlsx(
     temp = path.with_name(f"{path.stem}.tmp{path.suffix}")
     pd.DataFrame(rows, columns=RESULT_COLUMNS).to_excel(temp, index=False, sheet_name="Results")
     os.replace(temp, path)
+
+
+def require_results_workbook_dependencies() -> Any:
+    try:
+        import openpyxl  # noqa: F401
+        import pandas as pd
+    except ModuleNotFoundError as error:
+        raise RuntimeError(
+            "Finch official judge requires pandas and openpyxl to write results.xlsx."
+        ) from error
+    return pd
 
 
 def write_receipt(

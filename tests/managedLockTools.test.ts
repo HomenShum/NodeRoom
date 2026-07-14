@@ -81,6 +81,7 @@ describe("managed lock production tools", () => {
     expect(names).toContain("write_locked_cells");
     expect(names).toContain("write_locked_cell_result");
     expect(names).toContain("write_locked_cell_results");
+    expect(names).not.toContain("execute_verified_workbook_plan");
     expect(names).not.toContain("propose_lock");
     expect(names).not.toContain("release_lock");
     expect(names).not.toContain("create_draft");
@@ -187,6 +188,57 @@ describe("managed lock production tools", () => {
     expect(result.results?.every((entry) => entry.ok)).toBe(true);
     expect(engine.getArtifact(d.sheetId)!.elements.r_rev__variance.value).toBe("+24%");
     expect(engine.getArtifact(d.sheetId)!.elements.r_cogs__variance.value).toBe("+27.5%");
+  });
+
+  it("fences every target version after locking before the first batch commit", async () => {
+    const { engine, d, rt } = setup();
+    const ids = Object.keys(TARGETS) as Array<keyof typeof TARGETS>;
+    const cells = await rt.readRange(ids);
+    const versions = Object.fromEntries(cells.map((cell) => [cell.id, cell.version]));
+    const originalPropose = rt.proposeLock.bind(rt);
+    rt.proposeLock = async (...args) => {
+      const staleTarget = engine.getArtifact(d.sheetId)!.elements.r_cogs__variance;
+      const raced = engine.applyEdit({
+        roomId: d.roomId,
+        op: {
+          opId: "human-before-batch-lock",
+          artifactId: d.sheetId,
+          elementId: "r_cogs__variance",
+          kind: "set",
+          value: "+19%",
+          baseVersion: staleTarget.version,
+        },
+        actor: d.members.priya,
+      });
+      expect(raced.ok).toBe(true);
+      return originalPropose(...args);
+    };
+    const writeLocked = PRODUCTION_ROOM_TOOLS.find((tool) => tool.name === "write_locked_cells")!;
+
+    const result = await writeLocked.execute({
+      reason: "all-target CAS fence",
+      ops: ids.map((id) => ({ elementId: id, value: TARGETS[id], baseVersion: versions[id] })),
+    }, rt) as {
+      ok?: boolean;
+      conflict?: boolean;
+      results?: Array<{ elementId?: string; conflict?: boolean }>;
+      coordination?: { committedCount?: number; fence?: string; released?: boolean };
+    };
+
+    expect(result).toMatchObject({
+      ok: false,
+      conflict: true,
+      coordination: {
+        committedCount: 0,
+        fence: "all_target_versions_before_first_write",
+        released: true,
+      },
+    });
+    expect(result.results).toEqual(expect.arrayContaining([
+      expect.objectContaining({ elementId: "r_cogs__variance", conflict: true }),
+    ]));
+    expect(engine.getArtifact(d.sheetId)!.elements.r_rev__variance.value).toBe("");
+    expect(engine.getArtifact(d.sheetId)!.elements.r_cogs__variance.value).toBe("+19%");
   });
 
   it("normalizes cheap-model parallel arrays for evidence-bearing batch ops", async () => {

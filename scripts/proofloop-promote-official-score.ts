@@ -4,6 +4,9 @@ import { dirname, resolve } from "node:path";
 
 type PromotionId = "finch" | "finauditing" | "workstreambench";
 
+const DEFAULT_FINCH_REPO_ROOT = ".tmp/official-benchmarks/finch-repo";
+const TEST_FIXTURE_ENV = "PROOFLOOP_PROMOTION_TEST_FIXTURES";
+
 const args = process.argv.slice(2);
 const id = optionValue("--id") as PromotionId | undefined;
 const judgeReceiptPath = optionValue("--judge-receipt");
@@ -12,8 +15,24 @@ if (!id || !["finch", "finauditing", "workstreambench"].includes(id) || !judgeRe
 }
 
 const outputPath = optionValue("--json-out") ?? `docs/eval/proofloop-official-scores/${id}.json`;
+const testOutputManifestPath = optionValue("--test-output-manifest");
+const testFinchRepoRoot = optionValue("--test-finch-repo-root");
+const testFixtureOverrideRequested = Boolean(testOutputManifestPath || testFinchRepoRoot);
+if (
+  testFixtureOverrideRequested
+  && (process.env.NODE_ENV !== "test" || process.env[TEST_FIXTURE_ENV] !== "1")
+) {
+  throw new Error(`Test fixture path overrides require NODE_ENV=test and ${TEST_FIXTURE_ENV}=1.`);
+}
+if (testFixtureOverrideRequested && id !== "finch") {
+  throw new Error("Test fixture path overrides are supported only for Finch promotion tests.");
+}
+if (testFixtureOverrideRequested && (!testOutputManifestPath || !testFinchRepoRoot)) {
+  throw new Error("Finch promotion tests must provide both --test-output-manifest and --test-finch-repo-root.");
+}
 const judge = readJson<Record<string, unknown>>(judgeReceiptPath);
-const outputManifestPath = `docs/eval/proofloop-official-outputs/${id}.json`;
+const outputManifestPath = testOutputManifestPath ?? outputManifestPathFor(id);
+const finchRepoRoot = testFinchRepoRoot ?? DEFAULT_FINCH_REPO_ROOT;
 const outputManifest = readJson<Record<string, unknown>>(outputManifestPath);
 const previous = existsSync(outputPath) ? readJson<Record<string, unknown>>(outputPath) : {};
 
@@ -36,10 +55,10 @@ const judgeEvidence = {
   sha256: sha256(judgeReceiptPath),
 };
 const receipt = id === "finch"
-  ? promoteFinch(previous, outputManifest, judge, judgeEvidence, generatedAt)
+  ? promoteFinch(previous, outputManifest, judge, judgeEvidence, generatedAt, outputManifestPath, finchRepoRoot)
   : id === "finauditing"
-    ? promoteFinAuditing(previous, outputManifest, judge, judgeEvidence, generatedAt)
-    : promoteWorkstreamBench(previous, outputManifest, judge, judgeEvidence, generatedAt);
+    ? promoteFinAuditing(previous, outputManifest, judge, judgeEvidence, generatedAt, outputManifestPath)
+    : promoteWorkstreamBench(previous, outputManifest, judge, judgeEvidence, generatedAt, outputManifestPath);
 
 mkdirSync(dirname(resolve(outputPath)), { recursive: true });
 writeFileSync(resolve(outputPath), `${JSON.stringify(receipt, null, 2)}\n`);
@@ -51,6 +70,8 @@ function promoteFinch(
   acceptedJudge: Record<string, unknown>,
   judgeEvidence: { path: string; sha256: string },
   generatedAt: string,
+  manifestPath: string,
+  finchRepoRoot: string,
 ) {
   const officialTaskCount = numberField(manifest, "officialTaskCount");
   const outputTaskCount = numberField(manifest, "outputTaskCount");
@@ -131,9 +152,9 @@ function promoteFinch(
       throw new Error(`Finch direct equivalent resolved unexpected judge model(s): ${resolvedModels.join(", ") || "missing"}.`);
     }
     const equivalence = recordField(acceptedJudge, "equivalenceContract");
-    const expectedPromptPath = ".tmp/official-benchmarks/finch-repo/src/build_prompt/content_builder/prompts.py";
+    const expectedPromptPath = resolve(finchRepoRoot, "src", "build_prompt", "content_builder", "prompts.py");
     if (!existsSync(resolve(expectedPromptPath))) {
-      throw new Error(`Missing pinned Finch prompt source: ${expectedPromptPath}`);
+      throw new Error(`Missing pinned Finch prompt source: ${normalizePath(expectedPromptPath)}`);
     }
     const expectedPromptSha256 = sha256(expectedPromptPath);
     const requestFields = arrayStrings(equivalence.requestFields);
@@ -211,7 +232,7 @@ function promoteFinch(
       usage,
     },
     officialOutputManifest: {
-      path: outputManifestPathFor("finch"),
+      path: normalizePath(manifestPath),
       status: manifest.status,
       officialTaskCount,
       outputTaskCount,
@@ -221,7 +242,7 @@ function promoteFinch(
     },
     evidence: unique([
       ...arrayStrings(previous.evidence),
-      outputManifestPathFor("finch"),
+      normalizePath(manifestPath),
       judgeEvidence.path,
     ]),
   };
@@ -306,6 +327,7 @@ function promoteFinAuditing(
   acceptedJudge: Record<string, unknown>,
   judgeEvidence: { path: string; sha256: string },
   generatedAt: string,
+  manifestPath: string,
 ) {
   const officialTaskCount = numberField(manifest, "officialTaskCount");
   const predictionRowCount = numberField(manifest, "predictionRowCount");
@@ -371,7 +393,7 @@ function promoteFinAuditing(
       },
     },
     officialOutputManifest: {
-      path: outputManifestPathFor("finauditing"),
+      path: normalizePath(manifestPath),
       status: manifest.status,
       officialTaskCount,
       outputTaskCount: null,
@@ -380,7 +402,7 @@ function promoteFinAuditing(
     },
     evidence: unique([
       ...arrayStrings(previous.evidence),
-      outputManifestPathFor("finauditing"),
+      normalizePath(manifestPath),
       localEvaluatorPath,
       judgeEvidence.path,
     ]),
@@ -393,6 +415,7 @@ function promoteWorkstreamBench(
   acceptedJudge: Record<string, unknown>,
   judgeEvidence: { path: string; sha256: string },
   generatedAt: string,
+  manifestPath: string,
 ) {
   const officialTaskCount = numberField(manifest, "officialTaskCount");
   const outputTaskCount = numberField(manifest, "outputTaskCount");
@@ -446,7 +469,7 @@ function promoteWorkstreamBench(
       totalTokens: acceptedJudge.totalTokens,
     },
     officialOutputManifest: {
-      path: outputManifestPathFor("workstreambench"),
+      path: normalizePath(manifestPath),
       status: manifest.status,
       officialTaskCount,
       outputTaskCount,
@@ -455,7 +478,7 @@ function promoteWorkstreamBench(
     },
     evidence: unique([
       ...arrayStrings(previous.evidence),
-      outputManifestPathFor("workstreambench"),
+      normalizePath(manifestPath),
       judgeEvidence.path,
     ]),
   };

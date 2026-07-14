@@ -122,6 +122,10 @@ describe("Functions and operators", () => {
   test("floating-point dust is cleaned", () => {
     expect(val(makeSheet({ X: "=0.1+0.2" }).compute("X"))).toBe(0.3);
   });
+
+  test("preserves Excel-scale forecast precision", () => {
+    expect(val(makeSheet({ X: "=5620-1251.44166666667" }).compute("X"))).toBe(4368.55833333333);
+  });
 });
 
 describe("Error handling never crashes, never silently lies", () => {

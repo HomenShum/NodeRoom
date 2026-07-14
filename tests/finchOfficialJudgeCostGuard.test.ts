@@ -19,12 +19,18 @@ describe("Finch official judge cost guard", () => {
 import argparse
 import importlib.util
 import json
+import sys
 from pathlib import Path
 
 path = Path("scripts/finch-official-judge.py").resolve()
 spec = importlib.util.spec_from_file_location("finch_official_judge", path)
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
+sys.argv = [str(path), "--max-provider-cost-usd", "1"]
+try:
+    module.main()
+except RuntimeError as error:
+    spend_guard = str(error)
 args = argparse.Namespace(
     max_call_reserve_usd=0.5,
     input_usd_per_1m=1.0,
@@ -49,6 +55,7 @@ priced_after_retry = {
 }
 failed_accounting = module.provider_accounting([failed], args)
 print(json.dumps({
+    "spendGuard": spend_guard,
     "failed": failed_accounting,
     "attemptBudget": module.available_attempt_budget(failed_accounting, args),
     "combined": module.provider_accounting([failed, priced_after_retry], args),
@@ -56,19 +63,21 @@ print(json.dumps({
     "legacyUnpriced": module.record_unpriced_call_attempts({"provider_call": True}),
 }))
 `;
-    const result = spawnSync("python", ["-c", source], {
+    const result = spawnSync("python", ["-S", "-c", source], {
       cwd: process.cwd(),
       encoding: "utf8",
     });
 
     expect(result.status, result.stderr).toBe(0);
     const output = JSON.parse(result.stdout) as {
+      spendGuard: string;
       failed: Record<string, number>;
       attemptBudget: number;
       combined: Record<string, number>;
       legacyAttempts: number;
       legacyUnpriced: number;
     };
+    expect(output.spendGuard).toBe("Refusing provider calls without --allow-provider-spend.");
     expect(output.failed).toMatchObject({
       provider_call_attempts: 3,
       unpriced_call_attempts: 3,
@@ -115,7 +124,7 @@ print(json.dumps({
     "stalePrompt": module.complete_record({**base, "resolved_judge_model": "gpt-5-mini"}, "openai", "gpt-5-mini", "prompt-b"),
 }))
 `;
-    const result = spawnSync("python", ["-c", source], {
+    const result = spawnSync("python", ["-S", "-c", source], {
       cwd: process.cwd(),
       encoding: "utf8",
     });

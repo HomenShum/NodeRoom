@@ -2456,25 +2456,49 @@ export function displayCellValue(value: unknown): string {
  * the underlying JS type so exceljs writes a number as a number (not a string), which is what the
  * downstream SpreadsheetBench scorer + reopen flow depend on.
  */
-function exportCellValue(value: unknown): string | number | boolean | null {
-  const payload = asCellPayload(value);
-  const raw = payload ? payload.value : value;
-  if (raw === null || raw === undefined) return null;
-  if (typeof raw === "number" && Number.isFinite(raw)) return raw;
-  if (typeof raw === "boolean") return raw;
-  if (typeof raw === "string") {
-    const trimmed = raw.trim();
+type ExportFormulaResult = number | string | boolean | Date | import("exceljs").CellErrorValue;
+
+function exportScalarCellValue(value: unknown): string | number | boolean | Date | null {
+  if (value instanceof Date && Number.isFinite(value.getTime())) return value;
+  if (value === null || value === undefined) return null;
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    const trimmed = value.trim();
     if (trimmed === "") return null;
-    // Numeric strings the cheap-route agent commonly writes ("25", "3.5", "44") — keep as number so
-    // the reopened workbook grades on numeric value, not text. Leave anything non-numeric (units,
-    // labels, citations) as the original string.
     if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
-      const n = Number(trimmed);
-      if (Number.isFinite(n)) return n;
+      const numeric = Number(trimmed);
+      if (Number.isFinite(numeric)) return numeric;
     }
-    return raw;
+    return value;
   }
-  return String(raw);
+  return String(value);
+}
+
+/** Preserve durable formulas rather than flattening them into their cached display values. */
+export function exportCellValue(value: unknown): import("exceljs").CellValue {
+  const payload = asCellPayload(value);
+  const scalar = exportScalarCellValue(payload ? payload.value : value);
+  const formula = payload?.formula?.trim().replace(/^=/, "").trim();
+  if (formula) {
+    return scalar === null
+      ? { formula }
+      : { formula, result: scalar as ExportFormulaResult };
+  }
+  return scalar;
+}
+
+/** Apply value and cell-level formatting together on every worksheet export path. */
+export function applyExportCell(cell: import("exceljs").Cell, value: unknown): void {
+  cell.value = exportCellValue(value);
+  const numFmt = asCellPayload(value)?.numFmt?.trim();
+  if (numFmt) cell.numFmt = numFmt;
+}
+
+function appendExportRow(worksheet: import("exceljs").Worksheet, values: unknown[]): import("exceljs").Row {
+  const row = worksheet.addRow(values.map(exportCellValue));
+  values.forEach((value, index) => applyExportCell(row.getCell(index + 1), value));
+  return row;
 }
 
 /** Filesystem-safe filename derived from an artifact title (used by the Export XLSX download). */
@@ -2513,21 +2537,22 @@ async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null, all
   const worksheet = workbook.addWorksheet(sheetName);
   const rows = rowIdsOf(art);
   const visibleCells = visibleRoot ? visibleGenericSheetCellValues(visibleRoot, art.id) : new Map<string, string>();
-  const cellForExport = (id: string) => {
+  const cellForExport = (id: string): unknown => {
+    const stored = art.elements[id]?.value;
     const visible = visibleCells.get(id);
-    return exportCellValue(visible !== undefined ? visible : art.elements[id]?.value);
+    return asCellPayload(stored)?.formula ? stored : visible !== undefined ? visible : stored;
   };
 
   if (art.title === "Q3 variance") {
     // Canonical variance sheet: stable headers matching the live Sheet renderer (Artifact.tsx Sheet).
-    worksheet.addRow(["Account", "Q2", "Q3", "Variance", "Note"]);
+    appendExportRow(worksheet, ["Account", "Q2", "Q3", "Variance", "Note"]);
     for (const rid of rows) {
-      worksheet.addRow([
-        exportCellValue(art.elements[`${rid}__account`]?.value),
-        exportCellValue(art.elements[`${rid}__q2`]?.value),
-        exportCellValue(art.elements[`${rid}__q3`]?.value),
-        exportCellValue(art.elements[`${rid}__variance`]?.value),
-        exportCellValue(art.elements[`${rid}__note`]?.value),
+      appendExportRow(worksheet, [
+        art.elements[`${rid}__account`]?.value,
+        art.elements[`${rid}__q2`]?.value,
+        art.elements[`${rid}__q3`]?.value,
+        art.elements[`${rid}__variance`]?.value,
+        art.elements[`${rid}__note`]?.value,
       ]);
     }
   } else {
@@ -2542,14 +2567,14 @@ async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null, all
         const rowNum = parseInt(rid.replace(/^r/, ""), 10);
         if (!Number.isFinite(rowNum) || rowNum <= 0) continue;
         for (const col of cols) {
-          const v = cellForExport(sheetElementId(art, rid, col));
-          if (v !== null) worksheet.getCell(`${col}${rowNum}`).value = v;
+          const value = cellForExport(sheetElementId(art, rid, col));
+          if (exportCellValue(value) !== null) applyExportCell(worksheet.getCell(`${col}${rowNum}`), value);
         }
       }
     } else {
-      worksheet.addRow(cols.map((c) => prettyCol(c)));
+      appendExportRow(worksheet, cols.map((c) => prettyCol(c)));
       for (const rid of rows) {
-        worksheet.addRow(cols.map((col) => cellForExport(sheetElementId(art, rid, col))));
+        appendExportRow(worksheet, cols.map((col) => cellForExport(sheetElementId(art, rid, col))));
       }
     }
   }
@@ -2628,14 +2653,14 @@ function appendSheetArtifactWorksheet(
   const rows = rowIdsOf(art);
 
   if (art.title === "Q3 variance") {
-    worksheet.addRow(["Account", "Q2", "Q3", "Variance", "Note"]);
+    appendExportRow(worksheet, ["Account", "Q2", "Q3", "Variance", "Note"]);
     for (const rid of rows) {
-      worksheet.addRow([
-        exportCellValue(art.elements[`${rid}__account`]?.value),
-        exportCellValue(art.elements[`${rid}__q2`]?.value),
-        exportCellValue(art.elements[`${rid}__q3`]?.value),
-        exportCellValue(art.elements[`${rid}__variance`]?.value),
-        exportCellValue(art.elements[`${rid}__note`]?.value),
+      appendExportRow(worksheet, [
+        art.elements[`${rid}__account`]?.value,
+        art.elements[`${rid}__q2`]?.value,
+        art.elements[`${rid}__q3`]?.value,
+        art.elements[`${rid}__variance`]?.value,
+        art.elements[`${rid}__note`]?.value,
       ]);
     }
     return;
@@ -2648,16 +2673,16 @@ function appendSheetArtifactWorksheet(
       const rowNum = parseInt(rid.replace(/^r/, ""), 10);
       if (!Number.isFinite(rowNum) || rowNum <= 0) continue;
       for (const col of cols) {
-        const value = exportCellValue(art.elements[sheetElementId(art, rid, col)]?.value);
-        if (value !== null) worksheet.getCell(`${col}${rowNum}`).value = value;
+        const value = art.elements[sheetElementId(art, rid, col)]?.value;
+        if (exportCellValue(value) !== null) applyExportCell(worksheet.getCell(`${col}${rowNum}`), value);
       }
     }
     return;
   }
 
-  worksheet.addRow(cols.map((c) => prettyCol(c)));
+  appendExportRow(worksheet, cols.map((c) => prettyCol(c)));
   for (const rid of rows) {
-    worksheet.addRow(cols.map((col) => exportCellValue(art.elements[sheetElementId(art, rid, col)]?.value)));
+    appendExportRow(worksheet, cols.map((col) => art.elements[sheetElementId(art, rid, col)]?.value));
   }
 }
 

@@ -12,6 +12,7 @@ import type {
 } from "../src/eval/spreadsheetBenchRunner";
 import type { SpreadsheetBenchTrack } from "../src/eval/spreadsheetBenchAdapter";
 import { getModelPricing } from "../src/nodeagent/models/modelCatalog";
+import type { OpenRouterFreeModelMode } from "../src/nodeagent/models/openRouterFreeModels";
 
 const args = process.argv.slice(2);
 const stageRoot = optionValue("--stage-root");
@@ -24,7 +25,9 @@ const repeats = numberOption("--repeats") ?? 1;
 const retryFailed = numberOption("--retry-failed") ?? 0;
 const maxMismatches = numberOption("--max-mismatches") ?? 5;
 const model = optionValue("--model");
-const freeAutoMode = optionValue("--free-auto-mode");
+const freeAutoMode = (optionValue("--free-auto-mode") ?? (mode === "nodeagent-workbook" ? "agent" : undefined)) as
+  | OpenRouterFreeModelMode
+  | undefined;
 const modelTimeoutMs = numberOption("--model-timeout-ms");
 const modelBatchSize = numberOption("--model-batch-size") ?? 1;
 const modelSnapshotMaxCells = numberOption("--model-snapshot-max-cells");
@@ -41,18 +44,31 @@ const repairMissingModelReceipts = args.includes("--repair-missing-model-receipt
 const allowProviderSpend = args.includes("--allow-provider-spend");
 const maxProviderCostUsd = decimalOption("--max-provider-cost-usd");
 const providerCallReserveUsd = decimalOption("--provider-call-reserve-usd") ?? 0.05;
+const allowedModes: SpreadsheetBenchRunnerMode[] = [
+  "copy-input-baseline",
+  "apply-agent-patch",
+  "model-edit-plan",
+  "nodeagent-workbook",
+];
+const allowedFreeAutoModes: OpenRouterFreeModelMode[] = ["chat", "agent", "structured", "vision", "coding"];
+const modeRequiresModel = mode === "model-edit-plan" || mode === "nodeagent-workbook";
 
-if (!stageRoot || !outputRoot || !jsonOut || chunkSize <= 0 || concurrency <= 0 || concurrency > 16) {
+if (!stageRoot || !outputRoot || !jsonOut || !allowedModes.includes(mode) || chunkSize <= 0 || concurrency <= 0 || concurrency > 16) {
   console.error([
     "Usage:",
-    "  npm run benchmark:spreadsheetbench:run-chunked -- --stage-root <staged-dir> --output-root <candidate-output-dir> --json-out <report.json> [--mode copy-input-baseline|apply-agent-patch|model-edit-plan] [--chunk-size 25] [--concurrency 1..16] [--resume] [--repair-missing-model-receipts] [--model <route>] [--free-auto-mode chat|agent|structured|vision|coding] [--model-batch-size 1] [--model-snapshot-max-cells 800] [--model-snapshot-max-cell-chars 256] [--model-repair-attempts 1] [--task-ids-file <ids.json>] [--allow-provider-spend --max-provider-cost-usd 1 --provider-call-reserve-usd 0.05] [--clean]",
+    "  npm run benchmark:spreadsheetbench:run-chunked -- --stage-root <staged-dir> --output-root <candidate-output-dir> --json-out <report.json> [--mode copy-input-baseline|apply-agent-patch|model-edit-plan|nodeagent-workbook] [--chunk-size 25] [--concurrency 1..16] [--resume] [--repair-missing-model-receipts] [--model <route>] [--free-auto-mode chat|agent|structured|vision|coding] [--model-batch-size 1] [--model-snapshot-max-cells 800] [--model-snapshot-max-cell-chars 256] [--model-repair-attempts 1] [--task-ids-file <ids.json>] [--allow-provider-spend --max-provider-cost-usd 1 --provider-call-reserve-usd 0.05] [--clean]",
     "",
     "Runs staged SpreadsheetBench tasks in fresh child processes and aggregates the reports.",
+    "nodeagent-workbook requires --model, defaults --free-auto-mode to agent, and requires --model-batch-size 1.",
   ].join("\n"));
   process.exit(2);
 }
-if (mode === "model-edit-plan" && !model) {
-  console.error("model-edit-plan requires --model <route>.");
+if (modeRequiresModel && !model) {
+  console.error(`${mode} requires --model <route>.`);
+  process.exit(2);
+}
+if (freeAutoMode && !allowedFreeAutoModes.includes(freeAutoMode)) {
+  console.error(`--free-auto-mode must be one of: ${allowedFreeAutoModes.join(", ")}`);
   process.exit(2);
 }
 if (resume && clean) {
@@ -64,6 +80,7 @@ if (repairMissingModelReceipts && (!resume || mode !== "model-edit-plan")) {
   process.exit(2);
 }
 if (modelBatchSize < 1 || modelBatchSize > 16) throw new Error("--model-batch-size must be between 1 and 16.");
+if (mode === "nodeagent-workbook" && modelBatchSize > 1) throw new Error("nodeagent-workbook requires --model-batch-size 1.");
 if (modelSnapshotMaxCells !== undefined && modelSnapshotMaxCells < 1) throw new Error("--model-snapshot-max-cells must be at least 1.");
 if (modelSnapshotMaxCellChars !== undefined && modelSnapshotMaxCellChars < 1) throw new Error("--model-snapshot-max-cell-chars must be at least 1.");
 if (modelRepairAttempts < 0 || modelRepairAttempts > 3) throw new Error("--model-repair-attempts must be between 0 and 3.");
@@ -230,7 +247,7 @@ function readReusableChunkReport(path: string, offset: number, limit: number): S
     let report = readJson<SpreadsheetBenchRunnerReport>(path);
     if (report.schema !== 1 || report.mode !== mode || report.taskOffset !== offset || (report.caseCount ?? report.taskCount) !== limit) return undefined;
     if (
-      mode === "model-edit-plan" &&
+      modeRequiresModel &&
       !repairMissingModelReceipts &&
       report.results.some((result) => result.model?.requestedName !== model && result.model?.name !== model)
     ) return undefined;

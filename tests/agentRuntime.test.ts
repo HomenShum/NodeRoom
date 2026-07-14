@@ -23,6 +23,45 @@ function setup() {
   return { engine, d, rt };
 }
 
+it("repairs a complete stringified tool argument object with provider spillover", async () => {
+  const { rt } = setup();
+  let observed: number | undefined;
+  const recordTool: AgentTool = {
+    name: "record_value",
+    description: "Record one numeric value.",
+    schema: z.object({ value: z.number() }),
+    execute: async ({ value }: { value: number }) => {
+      observed = value;
+      return { ok: true, value };
+    },
+  };
+  let turn = 0;
+  const model: AgentModel = {
+    name: "stringified-tool-args",
+    async next() {
+      turn += 1;
+      if (turn > 1) return { text: "Recorded.", toolCalls: [], done: true };
+      return {
+        toolCalls: [{
+          id: "record-1",
+          tool: "record_value",
+          args: '{"value":42}]\n' as unknown as Record<string, unknown>,
+        }],
+        done: false,
+      };
+    },
+  };
+
+  const result = await runAgent({ rt, goal: "record 42", model, tools: [recordTool], maxSteps: 2 });
+
+  expect(observed).toBe(42);
+  expect(result.trace[0]).toMatchObject({ tool: "record_value", args: { value: 42 }, result: { ok: true } });
+  const repairedCall = result.messages
+    .find((message) => message.role === "assistant" && message.toolCalls?.length)
+    ?.toolCalls?.[0];
+  expect(repairedCall?.providerMetadata).toMatchObject({ argumentRepair: "stringified_json_object" });
+});
+
 describe("agent runtime — collaboration under concurrency", () => {
   it("happy path: claim → read → CAS edit → release commits both cells with no conflicts", async () => {
     const { engine, d, rt } = setup();
@@ -223,6 +262,85 @@ describe("agent runtime — collaboration under concurrency", () => {
     expect(r.exhausted).toBe(true);
     expect(r.stopReason).toBe("step_budget");
     expect(r.trace.at(-1)?.tool).toBe("handoff");
+  });
+
+  it.each([
+    "audit and fix this workbook thoroughly",
+    "repair the broken formulas in the sheet",
+    "complete the financial model",
+    "calculate the forecast formulas in the workbook",
+    "Forecast Cash as prior period Cash plus Changes in Working Capital.",
+    "Forecasting cash for Years 2-4 in the workbook.",
+    "Use the average balance method for interest expense.",
+    "Please apply this formula to the forecast cells.",
+    "Could you use this calculation across the selected range?",
+  ])("requires tool use for workbook mutation phrasing: %s", async (goal) => {
+    const { rt } = setup();
+    const choices: Array<string | undefined> = [];
+    const model: AgentModel = {
+      name: "write-intent-probe",
+      async next({ toolChoice }) {
+        choices.push(toolChoice);
+        return { text: "No changes made.", toolCalls: [], done: true };
+      },
+    };
+
+    await runAgent({ rt, goal, model, tools: ROOM_TOOLS, maxSteps: 1 });
+
+    expect(choices).toEqual(["required"]);
+  });
+
+  it.each([
+    "Compare forecasting methods and report the best approach.",
+    "Explain how to apply the average balance method.",
+    "The candidate will apply for a forecasting role.",
+    "Forecasting is useful for planning.",
+    "Use this approach to explain the existing forecast.",
+  ])("does not overclassify read-only or non-spreadsheet phrasing as a write: %s", async (goal) => {
+    const { rt } = setup();
+    const choices: Array<string | undefined> = [];
+    const model: AgentModel = {
+      name: "read-intent-probe",
+      async next({ toolChoice }) {
+        choices.push(toolChoice);
+        return { text: "Read-only response.", toolCalls: [], done: true };
+      },
+    };
+
+    await runAgent({ rt, goal, model, tools: ROOM_TOOLS, maxSteps: 1 });
+
+    expect(choices).toEqual(["auto"]);
+  });
+
+  it.each([
+    "fix this workbook thoroughly",
+    "Forecast Cash as prior period Cash plus Changes in Working Capital.",
+    "Use the average balance method for interest expense.",
+  ])("does not count a rejected write tool call as completed workbook work: %s", async (goal) => {
+    const { rt } = setup();
+    let turn = 0;
+    const model: AgentModel = {
+      name: "rejected-write-probe",
+      async next() {
+        turn += 1;
+        if (turn === 1) {
+          return { toolCalls: [{ id: "bad-write", tool: "edit_cell", args: {} }], done: false };
+        }
+        return { text: "The workbook is fixed.", toolCalls: [], done: true };
+      },
+    };
+
+    const result = await runAgent({
+      rt,
+      goal,
+      model,
+      tools: ROOM_TOOLS,
+      maxSteps: 2,
+    });
+
+    expect(result.stopReason).toBe("step_budget");
+    expect(result.exhausted).toBe(true);
+    expect(result.trace.find((event) => event.tool === "edit_cell")?.result).toMatchObject({ ok: false });
   });
 
   it("steers read-looping BTB runs toward the deliverable package tool", async () => {

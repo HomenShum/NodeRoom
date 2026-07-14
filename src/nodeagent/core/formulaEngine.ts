@@ -457,10 +457,10 @@ function evalCall(n: { name: string; args: Node[] }, R: CellResolver): CellValue
   throw new FormulaEvalError("#NAME?");
 }
 
-/** Kill floating-point dust (0.1+0.2) without distorting real values. */
+/** Match Excel's 15-significant-digit numeric precision while removing JS dust. */
 function round12(x: number): number {
   if (!Number.isFinite(x)) return x;
-  return Math.round((x + Number.EPSILON) * 1e9) / 1e9;
+  return Number(x.toPrecision(15));
 }
 
 /**

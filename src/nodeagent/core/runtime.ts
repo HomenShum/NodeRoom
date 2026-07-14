@@ -126,6 +126,69 @@ function recoverableProviderArgumentException(toolName: string, error: unknown):
   };
 }
 
+function parseStringifiedToolArgs(value: string): Record<string, unknown> | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  try {
+    const parsed = JSON.parse(trimmed) as unknown;
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+    if (typeof parsed === "string" && parsed !== value) return parseStringifiedToolArgs(parsed);
+  } catch {
+    // Some providers append closing markup or brackets after an otherwise valid object.
+  }
+
+  const start = trimmed.indexOf("{");
+  if (start < 0) return null;
+  let depth = 0;
+  let quoted = false;
+  let escaped = false;
+  for (let index = start; index < trimmed.length; index += 1) {
+    const char = trimmed[index];
+    if (quoted) {
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === '"') quoted = false;
+      continue;
+    }
+    if (char === '"') {
+      quoted = true;
+      continue;
+    }
+    if (char === "{") depth += 1;
+    else if (char === "}") {
+      depth -= 1;
+      if (depth !== 0) continue;
+      try {
+        const parsed = JSON.parse(trimmed.slice(start, index + 1)) as unknown;
+        return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+          ? parsed as Record<string, unknown>
+          : null;
+      } catch {
+        return null;
+      }
+    }
+  }
+  return null;
+}
+
+function repairStringifiedToolCallArgs(call: ToolCall): ToolCall {
+  const rawArgs = (call as ToolCall & { args: unknown }).args;
+  if (typeof rawArgs !== "string") return call;
+  const args = parseStringifiedToolArgs(rawArgs);
+  if (!args) return call;
+  return {
+    ...call,
+    args,
+    providerMetadata: {
+      ...call.providerMetadata,
+      argumentRepair: "stringified_json_object",
+    },
+  };
+}
+
 function goalLooksLikeBtbPackageTask(goal: string, packageToolAvailable: boolean): boolean {
   return packageToolAvailable && /\b(bankertoolbench|btb-[a-z0-9]{6,}|btb\b|deliverable package)\b/i.test(goal);
 }
@@ -137,6 +200,30 @@ function goalAllowsReadOnlyCompletion(goal: string): boolean {
 function goalForbidsMaterialWrites(goal: string): boolean {
   return /\b(?:do not|don't|dont|never)\s+(?:create|edit|write|update|fill|set|delete|commit|apply)\b/i.test(goal)
     || /\b(?:read[- ]only|report\b.*\bonly|count\b.*\bonly|without\s+(?:creating|editing|writing)|no\s+\w*\s*(?:artifacts?|cells?)\s+(?:created|edited|written))\b/i.test(goal);
+}
+
+const SPREADSHEET_WRITE_VERB_RE = /\b(?:write|fill|edit|update|set|create|delete|recompute|commit|fix|repair|correct|complete|populate|replace)\b/i;
+const SPREADSHEET_CALCULATION_CONTEXT_RE = /\b(?:workbook|spreadsheet|sheet|cell|range|row|column|model|schedule|table|chart|formula)\b/i;
+const DIRECTIVE_PREFIX_RE = /^(?:(?:please|kindly|then)\s+|(?:can|could|would|will)\s+you\s+)+/i;
+const FORECAST_DIRECTIVE_RE = /^forecast(?:ing)?\s+(?!is\b|are\b|was\b|were\b|methods?\b|approaches?\b|techniques?\b)\S/i;
+const METHOD_DIRECTIVE_RE = /^(?:use|apply)\b[^.!?\r\n]{0,160}\b(?:method|formula|calculation|approach)\b/i;
+const READ_ONLY_METHOD_PURPOSE_RE = /\b(?:method|formula|calculation|approach)\b[^.!?\r\n]{0,80}\b(?:to|for)\s+(?:explain(?:ing)?|describ(?:e|ing)|summari[sz](?:e|ing)|compar(?:e|ing)|discuss(?:ing)?|teach(?:ing)?|show(?:ing)?|tell(?:ing)?|report(?:ing)?|list(?:ing)?|inspect(?:ing)?|review(?:ing)?|analy[sz](?:e|ing))\b/i;
+
+function hasImperativeSpreadsheetWriteDirective(goal: string): boolean {
+  return goal
+    .split(/[\r\n]+|[.!?]\s+/)
+    .map((clause) => clause.trim().replace(DIRECTIVE_PREFIX_RE, ""))
+    .some((directive) => (
+      FORECAST_DIRECTIVE_RE.test(directive)
+      || (METHOD_DIRECTIVE_RE.test(directive) && !READ_ONLY_METHOD_PURPOSE_RE.test(directive))
+    ));
+}
+
+function goalRequiresSuccessfulWrite(goal: string): boolean {
+  if (goalForbidsMaterialWrites(goal)) return false;
+  return SPREADSHEET_WRITE_VERB_RE.test(goal)
+    || (/\b(?:calculate|compute)\b/i.test(goal) && SPREADSHEET_CALCULATION_CONTEXT_RE.test(goal))
+    || hasImperativeSpreadsheetWriteDirective(goal);
 }
 
 function btbTaskIdFromGoal(goal: string): string | undefined {
@@ -463,7 +550,8 @@ export async function runAgent(opts: {
   const executeCall = async (call: ToolCall, step: number): Promise<unknown> => {
     const t0 = now();
     const prepared = await runPreToolHooks(hooks, hookCtx(step), call);
-    const activeCall = repairManagedScalarWriteCallFromGoal({ ...prepared.call, id: call.id }, goal);
+    const repairedCall = repairStringifiedToolCallArgs({ ...prepared.call, id: call.id });
+    const activeCall = repairManagedScalarWriteCallFromGoal(repairedCall, goal);
     replaceAssistantToolCall(call.id, activeCall);
     const tool = tools.find((x) => x.name === activeCall.tool);
     let result: unknown;
@@ -581,7 +669,7 @@ export async function runAgent(opts: {
 
   // Goal-progress accounting for the two harness guards (read-loop breaker + done-without-writes
   // bounce). Counts WRITE-intent tool calls across the whole run; each guard fires at most once.
-  const WRITE_TOOLS = new Set(["edit_cell", "create_draft", "update_wiki", "append_notebook_outline", "write_cell_result", "write_locked_cell", "write_locked_cell_result", "write_locked_cells", "write_locked_cell_results", "create_btb_deliverable_package"]);
+  const WRITE_TOOLS = new Set(["edit_cell", "create_draft", "update_wiki", "append_notebook_outline", "write_cell_result", "write_locked_cell", "write_locked_cell_result", "write_locked_cells", "write_locked_cell_results", "execute_verified_workbook_plan", "create_btb_deliverable_package"]);
   let writeCalls = 0;
   let lockCalls = 0;
   let readNudged = false;
@@ -596,7 +684,7 @@ export async function runAgent(opts: {
   const btbCoverageInstruction = btbRequiredCoverageTerms.length > 1
     ? ` Include explicit package rows/narrative for every requested ticker/entity: ${btbRequiredCoverageTerms.join(", ")}; a one-company package will be rejected.`
     : "";
-  const goalRequiresWrite = !goalForbidsMaterialWrites(goal) && /\b(write|fill|edit|update|set|create|delete|recompute|commit|apply)\b/i.test(goal);
+  const goalRequiresWrite = goalRequiresSuccessfulWrite(goal);
   const goalRequiresPackage = btbPackageTask;
   const readOnlyCompletionAllowed = !goalRequiresWrite && !goalRequiresPackage && goalAllowsReadOnlyCompletion(goal);
   const finishWriteInstruction = goalRequiresPackage
@@ -610,7 +698,7 @@ export async function runAgent(opts: {
     if (opts.initialMessages?.length) messages.push(...opts.initialMessages);
     else messages.push(...await (opts.contextBuilder ?? buildContext)(rt, goal));
     if (messages.length) {
-      writeCalls = countToolCalls(messages, WRITE_TOOLS);
+      writeCalls = countToolResults(messages, WRITE_TOOLS, "success");
       lockCalls = countToolCalls(messages, new Set(["propose_lock"]));
       readNudged = countUserNotes(messages, "HARNESS NOTE: every tool call so far has been a read.") > 0;
       requiredNoToolNudges = countUserNotesContaining(messages, TOOL_REQUIRED_NO_CALL_MARKER);
@@ -674,7 +762,7 @@ export async function runAgent(opts: {
       const offeredTools = packageOnlyTools.length ? packageOnlyTools : tools;
       const requiresToolThisTurn = offeredTools.length > 0 && (
         (goalRequiresPackage && btbPackageSuccesses === 0)
-        || (goalRequiresWrite && writeCalls === 0 && lockCalls === 0)
+        || (goalRequiresWrite && writeCalls === 0)
       );
       const cached = await opts.journal?.get(step);
       let out: AgentStep;
@@ -744,7 +832,7 @@ export async function runAgent(opts: {
 
       if (out.done || out.toolCalls.length === 0) {
         const hasFinalText = !!(out.text?.trim() || finalText.trim());
-        const stillNeedsWrite = (goalRequiresWrite && writeCalls === 0 && lockCalls === 0) || (goalRequiresPackage && btbPackageSuccesses === 0);
+        const stillNeedsWrite = (goalRequiresWrite && writeCalls === 0) || (goalRequiresPackage && btbPackageSuccesses === 0);
         const noRequiredToolCall = requiresToolThisTurn && out.toolCalls.length === 0;
         if (noRequiredToolCall && (doneNudged || packageOnlyMode)) {
           if (out.text) messages.push({ role: "assistant", content: out.text });
@@ -846,10 +934,7 @@ export async function runAgent(opts: {
 
       messages.push({ role: "assistant", content: out.text ?? "", toolCalls: toolCallsForTurn });
 
-      for (const c of toolCallsForTurn) {
-        if (WRITE_TOOLS.has(c.tool)) writeCalls++;
-        else if (c.tool === "propose_lock") lockCalls++;
-      }
+      for (const c of toolCallsForTurn) if (c.tool === "propose_lock") lockCalls++;
 
       for (const [callIndex, call] of toolCallsForTurn.entries()) {
         if (shouldHandoffForTime()) {
@@ -860,6 +945,7 @@ export async function runAgent(opts: {
         // the error handoff (the throwing call itself records a tool_result before re-throwing).
         pendingToolCalls = toolCallsForTurn.slice(callIndex + 1);
         const result = await executeCall(call, step);
+        if (WRITE_TOOLS.has(call.tool) && !toolResultFailed(result)) writeCalls++;
         if (btbPackageTools.has(call.tool)) {
           if (toolResultFailed(result)) {
             btbPackageFailures++;

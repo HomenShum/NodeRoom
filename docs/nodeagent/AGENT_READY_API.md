@@ -394,7 +394,7 @@ This file is the model-facing contract: every production tool must expose a non-
 - When to use: Use for production spreadsheet writes so lock, CAS, review mode, and receipts stay runtime-managed.
 - When not to use: Do not use when the target artifact, base version, permission, or evidence requirement is unknown; read or search first.
 - Mutability: write.
-- Canonical Zod properties: `artifactId`, `baseVersion`, `base_version`, `cell`, `cellId`, `cellKey`, `cell_id`, `content`, `currentVersion`, `current_version`, `elementId`, `element_id`, `expectedValue`, `expected_value`, `id`, `kind`, `newValue`, `new_value`, `reason`, `result`, `target`, `targetCell`, `targetId`, `text`, `value`, `version`.
+- Canonical Zod properties: `artifactId`, `baseVersion`, `base_version`, `cell`, `cellId`, `cellKey`, `cell_id`, `content`, `currentVersion`, `current_version`, `elementId`, `element_id`, `expectedValue`, `expected_value`, `formula`, `id`, `kind`, `newValue`, `new_value`, `numFmt`, `num_fmt`, `numberFormat`, `number_format`, `reason`, `result`, `target`, `targetCell`, `targetId`, `text`, `value`, `version`.
 - Canonical required fields: none.
 - Provider required fields: none.
 - Expected errors: missing_required_arg; invalid_arg_type; cas_conflict; lock_blocked; permission_denied.
@@ -414,11 +414,11 @@ This file is the model-facing contract: every production tool must expose a non-
 
 ### write_locked_cells
 
-- Purpose: Production batch write path for scalar cells.
+- Purpose: Production batch write path for scalar or formula cells.
 - When to use: Use for production spreadsheet writes so lock, CAS, review mode, and receipts stay runtime-managed.
 - When not to use: Do not use when the target artifact, base version, permission, or evidence requirement is unknown; read or search first.
 - Mutability: write.
-- Canonical Zod properties: `artifactId`, `baseVersions`, `base_version`, `base_versions`, `cell`, `cellIds`, `cells`, `content`, `currentVersion`, `currentVersions`, `elementIds`, `expectedValue`, `id`, `ids`, `kind`, `kinds`, `newValue`, `newValues`, `new_value`, `ops`, `reason`, `result`, `results`, `target`, `targetCell`, `targetCells`, `targets`, `text`, `values`, `versions`.
+- Canonical Zod properties: `artifactId`, `baseVersions`, `base_version`, `base_versions`, `cell`, `cellIds`, `cells`, `content`, `currentVersion`, `currentVersions`, `elementIds`, `expectedValue`, `formula`, `formulas`, `id`, `ids`, `kind`, `kinds`, `newValue`, `newValues`, `new_value`, `numFmt`, `numFmts`, `numberFormat`, `numberFormats`, `ops`, `reason`, `result`, `results`, `target`, `targetCell`, `targetCells`, `targets`, `text`, `values`, `versions`.
 - Canonical required fields: none.
 - Provider required fields: none.
 - Expected errors: missing_required_arg; invalid_arg_type; cas_conflict; lock_blocked; permission_denied.
@@ -446,7 +446,7 @@ This file is the model-facing contract: every production tool must expose a non-
 - When to use: Use for production spreadsheet writes so lock, CAS, review mode, and receipts stay runtime-managed.
 - When not to use: Do not use when the target artifact, base version, permission, or evidence requirement is unknown; read or search first.
 - Mutability: write.
-- Canonical Zod properties: `artifactId`, `baseVersion`, `base_version`, `cell`, `cellId`, `cellKey`, `cell_id`, `confidence`, `content`, `currentVersion`, `current_version`, `elementId`, `element_id`, `error`, `evidence`, `expectedValue`, `expected_value`, `formula`, `id`, `kind`, `newValue`, `new_value`, `normalizedValue`, `reason`, `result`, `status`, `target`, `targetCell`, `targetId`, `text`, `value`, `version`.
+- Canonical Zod properties: `artifactId`, `baseVersion`, `base_version`, `cell`, `cellId`, `cellKey`, `cell_id`, `confidence`, `content`, `currentVersion`, `current_version`, `elementId`, `element_id`, `error`, `evidence`, `expectedValue`, `expected_value`, `formula`, `id`, `kind`, `newValue`, `new_value`, `normalizedValue`, `numFmt`, `num_fmt`, `numberFormat`, `number_format`, `reason`, `result`, `status`, `target`, `targetCell`, `targetId`, `text`, `value`, `version`.
 - Canonical required fields: `evidence`.
 - Provider required fields: `evidence`.
 - Expected errors: missing_required_arg; invalid_arg_type; cas_conflict; lock_blocked; permission_denied; evidence_required.
