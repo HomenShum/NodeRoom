@@ -29,4 +29,7 @@ async function loadAppStyles(): Promise<void> {
   await import("../ui/tokens.css");
   await import("./styles.css");
   await import("../ui/primitives/primitives.css");
+  // AI Elements (Tailwind v4 + shadcn theme, preflight-free) — loaded last so the
+  // shadcn tokens resolve against the app tokens above.
+  await import("../ui/ai/ai-elements.css");
 }
