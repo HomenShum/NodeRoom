@@ -500,6 +500,7 @@ describe("Chat reasoning-frame job detail", () => {
 
   it("collapses completed details but keeps finalized proof telemetry reachable", async () => {
     const store = baseStore();
+    const defaultDetail = store.lastLongFreeJobDetail();
     let status = "running";
     store.lastLongFreeJob = () => ({
       id: "job1",
@@ -516,6 +517,15 @@ describe("Chat reasoning-frame job detail", () => {
       receiptCount: status === "completed" ? 46 : 0,
       updatedAt: status === "running" ? 1000 : 2000,
     });
+    store.lastLongFreeJobDetail = () => ({
+      ...defaultDetail,
+      receipts: [{
+        id: "receipt-1",
+        mutationName: "artifacts.applyAgentCellEdit",
+        affectedIds: ["artifact-1:Sheet1!A1"],
+        createdAt: 2000,
+      }],
+    });
     mockStore.current = store;
     const view = render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
 
@@ -528,8 +538,10 @@ describe("Chat reasoning-frame job detail", () => {
     await waitFor(() => expect(screen.queryByTestId("job-detail")).toBeNull());
     expect(screen.getByTestId("job-status")).toBeTruthy();
     fireEvent.click(screen.getByTestId("job-detail-toggle"));
-    expect(screen.getByTestId("job-detail").textContent).toMatch(/Mutations48/);
-    expect(screen.getByTestId("job-detail").textContent).toMatch(/Receipts46/);
+    expect(screen.getByTestId("job-approval-policy").textContent).toBe("auto_commit_safe");
+    expect(screen.getByTestId("job-mutation-count").textContent).toBe("48");
+    expect(screen.getByTestId("job-receipt-count").textContent).toBe("46");
+    expect(screen.getByTestId("job-mutation-receipt").textContent).toMatch(/artifacts\.applyAgentCellEdit.*Sheet1!A1/);
     expect(screen.getByText("Completed result")).toBeTruthy();
   });
 });
