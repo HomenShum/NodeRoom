@@ -48,7 +48,26 @@ const VARIANCE: Record<string, string> = { r_rev: "+24%", r_cogs: "+27.5%", r_gp
 
 export type EditFeedback = { ok: boolean; reason?: string; version?: number };
 type UndoEntry = { roomId: string; op: ChangeOp };
-export type AgentRunTelemetry = { model: string; steps: number; toolCalls: number; inputTokens: number; outputTokens: number; costUsd: number; ms: number };
+export type AgentCostKind = "exact" | "estimated";
+export type AgentRunTelemetry = { model: string; steps: number; toolCalls: number; inputTokens: number; outputTokens: number; costUsd: number; costKind: AgentCostKind; ms: number };
+type PersistedAgentRunTelemetry = Omit<AgentRunTelemetry, "costKind"> & { costKind?: AgentCostKind };
+
+function persistedCostKind(costKind: AgentCostKind | undefined): AgentCostKind {
+  return costKind ?? "estimated";
+}
+
+export function projectAgentRunTelemetry(run: PersistedAgentRunTelemetry): AgentRunTelemetry {
+  return {
+    model: run.model,
+    steps: run.steps,
+    toolCalls: run.toolCalls,
+    inputTokens: run.inputTokens,
+    outputTokens: run.outputTokens,
+    costUsd: run.costUsd,
+    costKind: persistedCostKind(run.costKind),
+    ms: run.ms,
+  };
+}
 export type AgentJobTelemetry = {
   id: string;
   goal?: string;
@@ -72,6 +91,8 @@ export type AgentJobTelemetry = {
   mutationCount?: number;
   modelCallCount?: number;
   toolCallCount?: number;
+  costUsd?: number;
+  costKind?: AgentCostKind;
   schedulerHandoffCount?: number;
   receiptCount?: number;
   createdAt?: number;
@@ -83,7 +104,7 @@ type FreeJobRow = {
   _id: string; goal?: string; status: string; entrypoint?: string; scope?: string; runtime?: string; attempts: number; maxAttempts: number;
   runtimeProfile?: AgentRuntimeProfile; modelPolicy: string; approvalPolicy?: string; evidencePolicy?: string; handoff?: { reason?: string }; nextRunAt?: number;
   finalText?: string; error?: string; latestRunId?: string; actionSliceCount?: number; queryCount?: number; mutationCount?: number;
-  modelCallCount?: number; toolCallCount?: number; schedulerHandoffCount?: number; receiptCount?: number; createdAt?: number; updatedAt: number;
+  modelCallCount?: number; toolCallCount?: number; costUsd?: number; costKind?: AgentCostKind; schedulerHandoffCount?: number; receiptCount?: number; createdAt?: number; updatedAt: number;
 };
 /** A job is an active "work lane" until it succeeds or is cancelled — failed/paused stay visible so the user can retry/dismiss. */
 function isActiveFreeJob(status: string): boolean {
@@ -113,6 +134,8 @@ function mapConvexFreeJob(j: FreeJobRow): AgentJobTelemetry {
     mutationCount: j.mutationCount,
     modelCallCount: j.modelCallCount,
     toolCallCount: j.toolCallCount,
+    costUsd: j.costUsd,
+    costKind: j.costUsd === undefined && j.costKind === undefined ? undefined : persistedCostKind(j.costKind),
     schedulerHandoffCount: j.schedulerHandoffCount,
     receiptCount: j.receiptCount,
     createdAt: j.createdAt,
@@ -128,9 +151,27 @@ export type AgentJobAttemptTelemetry = {
   inputTokens: number;
   outputTokens: number;
   costUsd: number;
+  costKind: AgentCostKind;
   error?: string;
   scheduledNextAt?: number;
 };
+type PersistedAgentJobAttemptTelemetry = Omit<AgentJobAttemptTelemetry, "costKind"> & { costKind?: AgentCostKind };
+
+export function projectAgentJobAttemptTelemetry(attempt: PersistedAgentJobAttemptTelemetry): AgentJobAttemptTelemetry {
+  return {
+    attempt: attempt.attempt,
+    status: attempt.status,
+    resolvedModel: attempt.resolvedModel,
+    stopReason: attempt.stopReason,
+    ms: attempt.ms,
+    inputTokens: attempt.inputTokens,
+    outputTokens: attempt.outputTokens,
+    costUsd: attempt.costUsd,
+    costKind: persistedCostKind(attempt.costKind),
+    error: attempt.error,
+    scheduledNextAt: attempt.scheduledNextAt,
+  };
+}
 export type AgentJobDetailTelemetry = {
   operations: Array<{ sequence: number; kind: string; name: string; status: string; countDelta?: number; targetKind?: string; targetId?: string; affectedIds?: string[] }>;
   streamEvents: PersistedAgentStreamEvent[];
@@ -168,6 +209,7 @@ export type AgentModelSelection =
   | { mode: "top_paid" }
   | { mode: "specific"; modelPolicy: string };
 export type AgentRuntimeProfile = "benchmark_completion";
+const PUBLIC_BENCHMARK_COMPLETION_MAX_ATTEMPTS = 12;
 export type AgentAskInput = {
   goal: string;
   references?: ArtifactRef[];
@@ -251,7 +293,9 @@ function browserNodeAgentRuntimeProfile(): AgentRuntimeProfile | undefined {
 }
 
 function maxAttemptsForRuntimeProfile(runtimeProfile: AgentRuntimeProfile | undefined, requested?: number): number | undefined {
-  if (runtimeProfile === "benchmark_completion") return Math.max(requested ?? 1000, 1000);
+  if (runtimeProfile === "benchmark_completion") {
+    return Math.max(1, Math.min(requested ?? PUBLIC_BENCHMARK_COMPLETION_MAX_ATTEMPTS, PUBLIC_BENCHMARK_COMPLETION_MAX_ATTEMPTS));
+  }
   return requested;
 }
 
@@ -684,7 +728,7 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     memLongJobCurrentRef.current = job;
     memLongJobTasksRef.current.set(id, { goal, references, cancelledAttempts: new Set() });
     setMemLongJob(job);
-    setMemLongJobAttempts([{ attempt: 1, status: "running", resolvedModel: "scripted/free-auto", stopReason: "in_progress", ms: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 }]);
+    setMemLongJobAttempts([{ attempt: 1, status: "running", resolvedModel: "scripted/free-auto", stopReason: "in_progress", ms: 0, inputTokens: 0, outputTokens: 0, costUsd: 0, costKind: "exact" }]);
     setMemLongJobDetail(memoryFreeJobDetail(goal, "running"));
     return id;
   }, []);
@@ -1169,7 +1213,7 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       setMemLongJob(retried);
       if (task) task.cancelledAttempts.delete(nextAttempt);
       void runMemoryFreeJob(jobId, nextAttempt);
-      setMemLongJobAttempts((cur) => [...cur, { attempt: nextAttempt, status: "running", resolvedModel: "scripted/free-auto", stopReason: "retrying", ms: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 }]);
+      setMemLongJobAttempts((cur) => [...cur, { attempt: nextAttempt, status: "running", resolvedModel: "scripted/free-auto", stopReason: "retrying", ms: 0, inputTokens: 0, outputTokens: 0, costUsd: 0, costKind: "exact" }]);
       setMemLongJobDetail((cur) => cur ? memoryFreeJobDetail(cur.reasoningFrames[0]?.goal ?? "Memory free-auto job", "running") : cur);
       return { ok: true };
     },
@@ -2178,37 +2222,15 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         });
       },
       lastRun: () => {
-        const r = (runs as unknown as AgentRunTelemetry[])[0];
-        return r ? { model: r.model, steps: r.steps, toolCalls: r.toolCalls, inputTokens: r.inputTokens, outputTokens: r.outputTokens, costUsd: r.costUsd, ms: r.ms } : null;
+        const r = (runs as unknown as PersistedAgentRunTelemetry[])[0];
+        return r ? projectAgentRunTelemetry(r) : null;
       },
       lastLongFreeJob: () => {
         const j = (jobs as FreeJobRow[])[0];
         return j ? mapConvexFreeJob(j) : null;
       },
       activeLongFreeJobs: () => (jobs as FreeJobRow[]).filter((j) => isActiveFreeJob(j.status)).map(mapConvexFreeJob),
-      lastLongFreeJobAttempts: () => (jobAttempts as Array<{
-        attempt: number;
-        status: string;
-        resolvedModel: string;
-        stopReason: string;
-        ms: number;
-        inputTokens: number;
-        outputTokens: number;
-        costUsd: number;
-        error?: string;
-        scheduledNextAt?: number;
-      }>).map((a) => ({
-        attempt: a.attempt,
-        status: a.status,
-        resolvedModel: a.resolvedModel,
-        stopReason: a.stopReason,
-        ms: a.ms,
-        inputTokens: a.inputTokens,
-        outputTokens: a.outputTokens,
-        costUsd: a.costUsd,
-        error: a.error,
-        scheduledNextAt: a.scheduledNextAt,
-      })),
+      lastLongFreeJobAttempts: () => (jobAttempts as PersistedAgentJobAttemptTelemetry[]).map(projectAgentJobAttemptTelemetry),
       lastLongFreeJobDetail: () => {
         if (!jobDetail) return null;
         const d = jobDetail as {

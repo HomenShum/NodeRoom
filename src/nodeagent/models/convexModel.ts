@@ -7,7 +7,7 @@
  * file implements the small AgentModel seam with direct provider HTTP calls.
  */
 
-import type { AgentMessage, AgentModel, AgentStep, AgentTool, AgentToolChoice, ToolCall } from "../core/types";
+import type { AgentMessage, AgentModel, AgentModelRouteState, AgentStep, AgentTool, AgentToolChoice, TokenUsage, ToolCall } from "../core/types";
 import { getModelPricing, getProviderForModel, resolveModelAlias } from "./modelCatalog";
 import {
   isOpenRouterFreeAutoModel,
@@ -55,6 +55,8 @@ type OpenAiChatResponse = {
     completion_tokens?: number;
     input_tokens?: number;
     output_tokens?: number;
+    prompt_tokens_details?: { cached_tokens?: number };
+    input_tokens_details?: { cached_tokens?: number };
   };
 };
 
@@ -80,7 +82,12 @@ type AnthropicResponse = {
     | { type: "text"; text?: string }
     | { type: "tool_use"; id?: string; name?: string; input?: JsonObject }
   >;
-  usage?: { input_tokens?: number; output_tokens?: number };
+  usage?: {
+    input_tokens?: number;
+    output_tokens?: number;
+    cache_read_input_tokens?: number;
+    cache_creation_input_tokens?: number;
+  };
 };
 
 type GeminiResponse = {
@@ -95,6 +102,7 @@ type GeminiResponse = {
   usageMetadata?: {
     promptTokenCount?: number;
     candidatesTokenCount?: number;
+    cachedContentTokenCount?: number;
     totalTokenCount?: number;
   };
 };
@@ -107,22 +115,78 @@ const TRANSIENT_RE = /(\b429\b|\b5\d\d\b|rate.?limit|overloaded|temporar|timed?.
 export type ConvexModelOptions = {
   entrypoint?: ProviderRouteEntrypoint;
   freeAutoMode?: OpenRouterFreeModelMode;
+  /** Ordered, already-authorized fallback routes. Pass [] to keep an explicit model exact. */
+  fallbackModelIds?: string[];
+  /** Checkpointed concrete-route preference/cooldowns from a prior durable slice. */
+  routeState?: AgentModelRouteState;
 };
+
+type ConcreteRouteState = {
+  preferredModelId: string;
+  cooldownUntil: Map<string, number>;
+};
+
+class ProviderStepError extends Error {
+  readonly cause: unknown;
+
+  constructor(cause: unknown, readonly usage?: TokenUsage) {
+    super(cause instanceof Error ? cause.message : String(cause));
+    this.name = "ProviderStepError";
+    this.cause = cause;
+  }
+}
+
+function openAiUsage(usage?: OpenAiChatResponse["usage"]): TokenUsage {
+  return {
+    inputTokens: usage?.prompt_tokens ?? usage?.input_tokens ?? 0,
+    outputTokens: usage?.completion_tokens ?? usage?.output_tokens ?? 0,
+    cachedInputTokens: usage?.prompt_tokens_details?.cached_tokens
+      ?? usage?.input_tokens_details?.cached_tokens
+      ?? 0,
+  };
+}
+
+function anthropicUsage(usage?: AnthropicResponse["usage"]): TokenUsage {
+  const uncached = usage?.input_tokens ?? 0;
+  const cached = usage?.cache_read_input_tokens ?? 0;
+  const cacheCreation = usage?.cache_creation_input_tokens ?? 0;
+  return {
+    inputTokens: uncached + cached + cacheCreation,
+    outputTokens: usage?.output_tokens ?? 0,
+    cachedInputTokens: cached,
+    cacheCreationInputTokens: cacheCreation,
+  };
+}
+
+function geminiUsage(usage?: GeminiResponse["usageMetadata"]): TokenUsage {
+  return {
+    inputTokens: usage?.promptTokenCount ?? 0,
+    outputTokens: usage?.candidatesTokenCount ?? 0,
+    cachedInputTokens: usage?.cachedContentTokenCount ?? 0,
+  };
+}
 
 export function convexModel(modelId: string, options: ConvexModelOptions = {}): AgentModel {
   const aliasModelId = resolveModelAlias(modelId);
   const entrypoint = options.entrypoint ?? "system";
   const freeAutoMode = options.freeAutoMode;
+  // Fallbacks must be authorized by the caller that owns artifact-aware egress context.
+  // Non-durable/direct call sites remain exact even when deployment fallback env vars exist.
+  const fallbackModelIds = normalizeFallbackModelIds(aliasModelId, options.fallbackModelIds ?? []);
+  const concreteRouteState = hydrateConcreteRouteState(aliasModelId, fallbackModelIds, options.routeState);
   let resolvedModelId = aliasModelId;
   return {
     get name() {
       return resolvedModelId;
     },
+    routeState() {
+      return snapshotConcreteRouteState(concreteRouteState);
+    },
     async next({ system, messages, tools, signal, onTextDelta, toolChoice }) {
       // Gateway PII firewall — redact PII/secrets from the system + user content before the prompt leaves.
       const safeSystem = redactPII(system).text;
       const safeMessages = messages.map((m) => (m.role === "user" && m.content ? { ...m, content: redactPII(m.content).text } : m));
-      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, signal, onTextDelta, toolChoice, freeAutoMode);
+      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, signal, onTextDelta, toolChoice, freeAutoMode, fallbackModelIds, concreteRouteState);
       resolvedModelId = resolvedModel;
       return step;
     },
@@ -132,6 +196,24 @@ export function convexModel(modelId: string, options: ConvexModelOptions = {}): 
 export function convexPriceRun(modelId: string, inTok: number, outTok: number): number {
   const pricing = getModelPricing(resolveModelAlias(modelId));
   return (inTok * (pricing?.inputPer1M ?? 1) + outTok * (pricing?.outputPer1M ?? 5)) / 1_000_000;
+}
+
+function exactConvexUsageCost(
+  modelId: string,
+  usage: Pick<TokenUsage, "inputTokens" | "outputTokens" | "cachedInputTokens" | "cacheCreationInputTokens">,
+): number | undefined {
+  const pricing = getModelPricing(resolveModelAlias(modelId));
+  if (!pricing) return undefined;
+  // The catalog does not yet carry provider cache-write rates. Never label a
+  // cache-creation turn exact by silently charging it at the read/input rate.
+  if ((usage.cacheCreationInputTokens ?? 0) > 0) return undefined;
+  const cachedInputTokens = Math.min(usage.inputTokens, Math.max(0, usage.cachedInputTokens ?? 0));
+  const uncachedInputTokens = Math.max(0, usage.inputTokens - cachedInputTokens);
+  return (
+    uncachedInputTokens * pricing.inputPer1M
+    + cachedInputTokens * (pricing.cachedInputPer1M ?? pricing.inputPer1M)
+    + usage.outputTokens * pricing.outputPer1M
+  ) / 1_000_000;
 }
 
 async function generateConvexAgentStep(
@@ -144,11 +226,23 @@ async function generateConvexAgentStep(
   onTextDelta?: (text: string) => void | Promise<void>,
   toolChoice?: AgentToolChoice,
   freeAutoMode?: OpenRouterFreeModelMode,
+  fallbackModelIds: string[] = [],
+  concreteRouteState?: ConcreteRouteState,
 ) {
   assertProviderRouteAllowed({ model: modelId, entrypoint, env: process.env });
+  let providerRequests = 0;
+  const onProviderRequest = () => {
+    providerRequests += 1;
+  };
   if (isOpenRouterFreeAutoModel(modelId)) {
     const requestStartedAt = Date.now();
     const requestSignal = openRouterFreeRequestSignal(signal);
+    const candidateText = acceptedCandidateTextBuffer(onTextDelta);
+    let aggregateInputTokens = 0;
+    let aggregateOutputTokens = 0;
+    let aggregateCachedInputTokens = 0;
+    let aggregateCacheCreationInputTokens = 0;
+    let aggregateCostKnown = true;
     const candidates = await selectOpenRouterFreeModels({
       mode: freeAutoMode ?? (tools.length ? "agent" : "chat"),
       limit: openRouterFreeAutoLimit(),
@@ -167,7 +261,10 @@ async function generateConvexAgentStep(
         const providerRoute = assertProviderRouteAllowed({ model: candidate.id, entrypoint, env: process.env });
         // The controller owns this deadline; do not wrap it with openRouterFreeCandidateSignal.
         const candidateSignal = context.signal;
-        return withProviderRoute(await withRetry(() => openAiCompatibleStep({
+        const requestsBefore = providerRequests;
+        let step: AgentStep;
+        try {
+          step = withProviderRoute(await withRetry(() => openAiCompatibleStep({
             endpoint: `${openRouterBaseUrl()}/chat/completions`,
             apiKey: envValue("OPENROUTER_API_KEY"),
             headers: openRouterHeaders(),
@@ -176,22 +273,36 @@ async function generateConvexAgentStep(
             messages,
             tools,
             signal: candidateSignal,
-            onTextDelta,
+            onTextDelta: candidateText.sink(candidate.id),
             toolChoice,
+            onProviderRequest,
           }), candidateSignal, 0), providerRoute);
+        } catch (error) {
+          const usage = errorTokenUsage(error);
+          accumulateTokenUsage(usage, {
+            input: (value) => { aggregateInputTokens += value; },
+            output: (value) => { aggregateOutputTokens += value; },
+            cached: (value) => { aggregateCachedInputTokens += value; },
+            cacheCreation: (value) => { aggregateCacheCreationInputTokens += value; },
+          });
+          if (providerRequests > requestsBefore && !usage) aggregateCostKnown = false;
+          throw error;
+        }
+        accumulateTokenUsage(step.usage, {
+          input: (value) => { aggregateInputTokens += value; },
+          output: (value) => { aggregateOutputTokens += value; },
+          cached: (value) => { aggregateCachedInputTokens += value; },
+          cacheCreation: (value) => { aggregateCacheCreationInputTokens += value; },
+        });
+        return step;
       },
-      assessResult: (step) => assessAgentToolTurnQuality({
-        text: step.text,
-        toolCalls: step.toolCalls,
-        tools,
-        messages,
-        requiredToolCall: toolChoice === "required",
-      }),
+      assessResult: (step) => assessConvexTurnQuality(step, tools, messages, toolChoice),
       classifyProviderFailure: (error) => {
         const failure = classifyQualityFailoverProviderError(error);
         return isProviderNonRetryableError(error) ? { ...failure, scope: "global" } : failure;
       },
-      onRouteAttempt: (attempt, candidate) => {
+      onRouteAttempt: async (attempt, candidate) => {
+        await candidateText.settle(candidate.id, attempt.outcome === "accepted");
         if (
           attempt.outcome !== "accepted"
           && attempt.outcome !== "provider_failure"
@@ -206,55 +317,176 @@ async function generateConvexAgentStep(
         });
       },
     });
+    if (providerRequests > 0 && failover.receipt.routeAttempts.some((attempt) => attempt.reason === "candidate_timeout")) {
+      aggregateCostKnown = false;
+    }
     if (failover.ok) {
       return {
         step: {
           ...failover.result,
+          usage: {
+            inputTokens: aggregateInputTokens,
+            outputTokens: aggregateOutputTokens,
+            cachedInputTokens: aggregateCachedInputTokens,
+            cacheCreationInputTokens: aggregateCacheCreationInputTokens,
+            modelCalls: providerRequests,
+            ...(aggregateCostKnown
+              ? { costUsd: failover.receipt.budget.spentCostUsd, costKind: "exact" as const }
+              : { costUsd: failover.receipt.budget.spentCostUsd, costKind: "estimated" as const }),
+          },
           providerRoute: {
-            ...failover.result.providerRoute,
+            ...(failover.result.providerRoute as ProviderRouteReceipt),
             qualityFailover: failover.receipt,
           },
         },
         resolvedModel: failover.candidate.id,
       };
     }
-    throw convexQualityFailoverError(failover.receipt, failover.lastError);
+    throw convexQualityFailoverError(failover.receipt, failover.lastError, "openrouter/free-auto", {
+      inputTokens: aggregateInputTokens,
+      outputTokens: aggregateOutputTokens,
+      cachedInputTokens: aggregateCachedInputTokens,
+      cacheCreationInputTokens: aggregateCacheCreationInputTokens,
+      modelCalls: providerRequests,
+      costUsd: failover.receipt.budget.spentCostUsd,
+      costKind: aggregateCostKnown ? "exact" as const : "estimated" as const,
+    });
   }
 
-  try {
-    const providerRoute = assertProviderRouteAllowed({ model: modelId, entrypoint, env: process.env });
-    return {
-      step: withProviderRoute(await withRetry(() => providerStep(modelId, system, messages, tools, signal, onTextDelta, toolChoice), signal), providerRoute),
-      resolvedModel: modelId,
-    };
-  } catch (error) {
-    const fb = fallbackModelFor(modelId);
-    if (!fb || signal?.aborted) throw error;
-    const providerRoute = assertProviderRouteAllowed({ model: fb, entrypoint, env: process.env });
-    return {
-      step: withProviderRoute(await withRetry(() => providerStep(fb, system, messages, tools, signal, onTextDelta, toolChoice), signal), providerRoute),
-      resolvedModel: fb,
-    };
+  const state = concreteRouteState ?? { preferredModelId: modelId, cooldownUntil: new Map<string, number>() };
+  const candidateIds = orderedConcreteCandidateIds(modelId, fallbackModelIds, state.preferredModelId);
+  const candidates = candidateIds.map((id) => ({
+    id,
+    provider: getProviderForModel(id) ?? undefined,
+    cooldownUntil: state.cooldownUntil.get(id),
+  }));
+  let aggregateInputTokens = 0;
+  let aggregateOutputTokens = 0;
+  let aggregateCachedInputTokens = 0;
+  let aggregateCacheCreationInputTokens = 0;
+  let aggregateCostKnown = true;
+  const candidateText = acceptedCandidateTextBuffer(onTextDelta);
+  const failover = await runQualityFailover({
+    candidates,
+    budget: { maxAttempts: candidateIds.length },
+    attemptTimeoutMs: concreteCandidateTimeoutMs(),
+    signal,
+    execute: async (candidate, context) => {
+      const providerRoute = assertProviderRouteAllowed({ model: candidate.id, entrypoint, env: process.env });
+      const requestsBefore = providerRequests;
+      let step: AgentStep;
+      try {
+        step = withProviderRoute(
+          await withRetry(
+            () => providerStep(candidate.id, system, messages, tools, context.signal, candidateText.sink(candidate.id), toolChoice, onProviderRequest),
+            context.signal,
+            0,
+          ),
+          providerRoute,
+        );
+      } catch (error) {
+        const usage = errorTokenUsage(error);
+        accumulateTokenUsage(usage, {
+          input: (value) => { aggregateInputTokens += value; },
+          output: (value) => { aggregateOutputTokens += value; },
+          cached: (value) => { aggregateCachedInputTokens += value; },
+          cacheCreation: (value) => { aggregateCacheCreationInputTokens += value; },
+        });
+        if (providerRequests > requestsBefore && !usage) aggregateCostKnown = false;
+        throw error;
+      }
+      accumulateTokenUsage(step.usage, {
+        input: (value) => { aggregateInputTokens += value; },
+        output: (value) => { aggregateOutputTokens += value; },
+        cached: (value) => { aggregateCachedInputTokens += value; },
+        cacheCreation: (value) => { aggregateCacheCreationInputTokens += value; },
+      });
+      return step;
+    },
+    assessResult: (step) => assessConvexTurnQuality(step, tools, messages, toolChoice),
+    classifyProviderFailure: (error, candidate) => {
+      const failure = classifyQualityFailoverProviderError(error);
+      // Auth/quota are provider-account local when an explicitly authorized cross-provider
+      // candidate exists. Policy/egress failures are global and must never be routed around.
+      const candidateIndex = candidateIds.indexOf(candidate.id);
+      const hasCrossProviderCandidate = candidateIndex >= 0 && candidateIds.slice(candidateIndex + 1).some((id) => {
+        const provider = getProviderForModel(id);
+        return !!provider && !!candidate.provider && provider !== candidate.provider;
+      });
+      return failure.scope === "global"
+        && (failure.category === "auth" || failure.category === "quota")
+        && hasCrossProviderCandidate
+        ? { ...failure, scope: "candidate" as const }
+        : failure;
+    },
+    onRouteAttempt: async (attempt, candidate) => {
+      await candidateText.settle(candidate.id, attempt.outcome === "accepted");
+      updateConcreteRouteState(state, candidate.id, attempt.outcome, attempt.providerFailureCategory);
+    },
+    measureCostUsd: ({ candidate, result, error }) => {
+      const usage = result?.usage ?? errorTokenUsage(error);
+      if (!usage) return 0;
+      const measured = exactConvexUsageCost(candidate.id, usage);
+      if (measured === undefined) aggregateCostKnown = false;
+      return measured ?? 0;
+    },
+  });
+  if (providerRequests > 0 && failover.receipt.routeAttempts.some((attempt) => attempt.reason === "candidate_timeout")) {
+    aggregateCostKnown = false;
   }
+  if (!failover.ok) {
+    throw convexQualityFailoverError(failover.receipt, failover.lastError ?? failover.lastResult, modelId, {
+      inputTokens: aggregateInputTokens,
+      outputTokens: aggregateOutputTokens,
+      cachedInputTokens: aggregateCachedInputTokens,
+      cacheCreationInputTokens: aggregateCacheCreationInputTokens,
+      modelCalls: providerRequests,
+      ...(aggregateCostKnown
+        ? { costUsd: failover.receipt.budget.spentCostUsd, costKind: "exact" as const }
+        : { costUsd: failover.receipt.budget.spentCostUsd, costKind: "estimated" as const }),
+    });
+  }
+  return {
+    step: {
+      ...failover.result,
+      usage: {
+        inputTokens: aggregateInputTokens,
+        outputTokens: aggregateOutputTokens,
+        cachedInputTokens: aggregateCachedInputTokens,
+        cacheCreationInputTokens: aggregateCacheCreationInputTokens,
+        modelCalls: providerRequests,
+        ...(aggregateCostKnown ? { costUsd: failover.receipt.budget.spentCostUsd, costKind: "exact" as const } : {}),
+      },
+      providerRoute: {
+        ...(failover.result.providerRoute as ProviderRouteReceipt),
+        qualityFailover: failover.receipt,
+      },
+    },
+    resolvedModel: failover.candidate.id,
+  };
 }
 
 function convexQualityFailoverError(
   receipt: QualityFailoverReceipt,
   cause?: unknown,
+  routeLabel = "openrouter/free-auto",
+  usage?: TokenUsage,
 ): QualityFailoverError {
   const attempted = receipt.routeAttempts.map((attempt) => attempt.routeId).join(", ") || "no route attempts";
   if (receipt.stopReason === "time_budget") {
     return new QualityFailoverError(
-      `openrouter/free-auto request deadline exceeded after ${attempted}`,
+      `${routeLabel} request deadline exceeded after ${attempted}`,
       receipt,
       cause,
+      usage,
     );
   }
   if (receipt.stopReason === "aborted") {
     return new QualityFailoverError(
-      `openrouter/free-auto request aborted after ${attempted}`,
+      `${routeLabel} request aborted after ${attempted}`,
       receipt,
       cause,
+      usage,
     );
   }
   const failure = cause
@@ -262,10 +494,121 @@ function convexQualityFailoverError(
     ?? receipt.terminalFailure?.reason
     ?? receipt.stopReason;
   return new QualityFailoverError(
-    `openrouter/free-auto failed for ${attempted}: ${shortProviderError(failure)}`,
+    `${routeLabel} failed for ${attempted}: ${shortProviderError(failure)}`,
     receipt,
     cause,
+    usage,
   );
+}
+
+function assessConvexTurnQuality(
+  step: AgentStep,
+  tools: AgentTool[],
+  messages: AgentMessage[],
+  toolChoice?: AgentToolChoice,
+) {
+  // Required-tool protocol recovery belongs to runAgent, which can add corrective context,
+  // validate schemas as ordinary tool results, and terminate with a typed protocol_stall receipt.
+  // Rejecting here would turn a recoverable four-turn protocol into a generic one-call route error.
+  if (toolChoice === "required") return { ok: true as const };
+  return assessAgentToolTurnQuality({
+    text: step.text,
+    toolCalls: step.toolCalls,
+    tools,
+    messages,
+    requiredToolCall: false,
+  });
+}
+
+function orderedConcreteCandidateIds(
+  primaryModelId: string,
+  fallbackModelIds: readonly string[],
+  preferredModelId: string,
+): string[] {
+  const authorized = [primaryModelId, ...normalizeFallbackModelIds(primaryModelId, fallbackModelIds)];
+  if (!authorized.includes(preferredModelId)) return authorized;
+  return [preferredModelId, ...authorized.filter((id) => id !== preferredModelId)];
+}
+
+function hydrateConcreteRouteState(
+  primaryModelId: string,
+  fallbackModelIds: readonly string[],
+  persisted?: AgentModelRouteState,
+): ConcreteRouteState {
+  const allowed = [primaryModelId, ...normalizeFallbackModelIds(primaryModelId, fallbackModelIds)];
+  const preferred = persisted?.preferredModelId
+    ? resolveModelAlias(persisted.preferredModelId)
+    : primaryModelId;
+  const now = Date.now();
+  const cooldownUntil = new Map<string, number>();
+  for (const [candidateId, until] of Object.entries(persisted?.cooldownUntil ?? {})) {
+    const normalized = resolveModelAlias(candidateId);
+    if (allowed.includes(normalized) && Number.isFinite(until) && until > now) {
+      cooldownUntil.set(normalized, until);
+    }
+  }
+  return {
+    preferredModelId: allowed.includes(preferred) ? preferred : primaryModelId,
+    cooldownUntil,
+  };
+}
+
+function snapshotConcreteRouteState(state: ConcreteRouteState): AgentModelRouteState {
+  const now = Date.now();
+  const cooldownUntil: Record<string, number> = {};
+  for (const [candidateId, until] of state.cooldownUntil) {
+    if (Number.isFinite(until) && until > now) cooldownUntil[candidateId] = until;
+  }
+  return {
+    preferredModelId: state.preferredModelId,
+    ...(Object.keys(cooldownUntil).length ? { cooldownUntil } : {}),
+  };
+}
+
+function errorTokenUsage(error: unknown): TokenUsage | undefined {
+  if (error instanceof ProviderStepError) return error.usage;
+  if (!error || typeof error !== "object") return undefined;
+  const usage = (error as { usage?: unknown }).usage;
+  if (!usage || typeof usage !== "object") return undefined;
+  const candidate = usage as Partial<TokenUsage>;
+  if (!Number.isFinite(candidate.inputTokens) || !Number.isFinite(candidate.outputTokens)) return undefined;
+  return candidate as TokenUsage;
+}
+
+function accumulateTokenUsage(
+  usage: TokenUsage | undefined,
+  sinks: {
+    input(value: number): void;
+    output(value: number): void;
+    cached(value: number): void;
+    cacheCreation(value: number): void;
+  },
+): void {
+  if (!usage) return;
+  sinks.input(usage.inputTokens ?? 0);
+  sinks.output(usage.outputTokens ?? 0);
+  sinks.cached(usage.cachedInputTokens ?? 0);
+  sinks.cacheCreation(usage.cacheCreationInputTokens ?? 0);
+}
+
+function updateConcreteRouteState(
+  state: ConcreteRouteState,
+  candidateId: string,
+  outcome: "accepted" | "provider_failure" | "quality_failure" | "control_failure" | "aborted",
+  providerFailureCategory?: string,
+): void {
+  if (outcome === "accepted") {
+    state.preferredModelId = candidateId;
+    state.cooldownUntil.delete(candidateId);
+    return;
+  }
+  if (outcome !== "provider_failure" && outcome !== "quality_failure") return;
+  const cooldownMs = providerFailureCategory === "auth" || providerFailureCategory === "quota"
+    ? 5 * 60_000
+    : outcome === "quality_failure"
+      ? 60_000
+      : 30_000;
+  state.cooldownUntil.set(candidateId, Date.now() + cooldownMs);
 }
 
 async function providerStep(
@@ -276,6 +619,7 @@ async function providerStep(
   signal?: AbortSignal,
   onTextDelta?: (text: string) => void | Promise<void>,
   toolChoice?: AgentToolChoice,
+  onProviderRequest?: () => void,
 ) {
   const provider = getProviderForModel(modelId);
   if (provider === "openai") {
@@ -290,6 +634,7 @@ async function providerStep(
       signal,
       onTextDelta,
       toolChoice,
+      onProviderRequest,
     });
   }
   if (provider === "openrouter") {
@@ -304,6 +649,7 @@ async function providerStep(
       signal,
       onTextDelta,
       toolChoice,
+      onProviderRequest,
     });
   }
   if (provider === "nebius") {
@@ -319,18 +665,20 @@ async function providerStep(
       signal,
       onTextDelta,
       toolChoice,
+      onProviderRequest,
     });
   }
-  if (provider === "anthropic") return anthropicStep(modelId, system, messages, tools, signal);
+  if (provider === "anthropic") return anthropicStep(modelId, system, messages, tools, signal, onProviderRequest);
   if (provider === "gemini") {
     if (onTextDelta) {
-      try {
-        return await geminiStreamStep(modelId, system, messages, tools, signal, onTextDelta);
-      } catch (error) {
-        if (signal?.aborted) throw error;
-      }
+      const deltas: string[] = [];
+      const step = await geminiStreamStep(modelId, system, messages, tools, signal, (text) => {
+        deltas.push(text);
+      }, onProviderRequest);
+      await emitBufferedText(deltas, onTextDelta);
+      return step;
     }
-    return geminiStep(modelId, system, messages, tools, signal);
+    return geminiStep(modelId, system, messages, tools, signal, onProviderRequest);
   }
   throw new Error(`convexModel(): no provider for "${modelId}"`);
 }
@@ -346,18 +694,50 @@ async function openAiCompatibleStep(args: {
   signal?: AbortSignal;
   onTextDelta?: (text: string) => void | Promise<void>;
   toolChoice?: AgentToolChoice;
+  onProviderRequest?: () => void;
 }) {
   if (args.onTextDelta) {
-    try {
-      return await openAiCompatibleStreamStep({ ...args, onTextDelta: args.onTextDelta });
-    } catch (error) {
-      if (args.signal?.aborted) throw error;
-      // Some OpenAI-compatible providers/models reject stream_options or tool streaming. Keep the
-      // durable job reliable by falling back to the established blocking request path.
-    }
+    const deltas: string[] = [];
+    const step = await openAiCompatibleStreamStep({ ...args, onTextDelta: (text) => {
+      deltas.push(text);
+    } });
+    await emitBufferedText(deltas, args.onTextDelta);
+    return step;
   }
 
   return openAiCompatibleBlockingStep(args);
+}
+
+function acceptedCandidateTextBuffer(onTextDelta?: (text: string) => void | Promise<void>) {
+  const chunks = new Map<string, string[]>();
+  return {
+    sink(candidateId: string): ((text: string) => void) | undefined {
+      if (!onTextDelta) return undefined;
+      const buffered: string[] = [];
+      chunks.set(candidateId, buffered);
+      return (text: string) => {
+        if (text) buffered.push(text);
+      };
+    },
+    async settle(candidateId: string, accepted: boolean): Promise<void> {
+      const buffered = chunks.get(candidateId) ?? [];
+      chunks.delete(candidateId);
+      if (accepted && onTextDelta) await emitBufferedText(buffered, onTextDelta);
+    },
+  };
+}
+
+async function emitBufferedText(
+  chunks: readonly string[],
+  onTextDelta: (text: string) => void | Promise<void>,
+): Promise<void> {
+  for (const chunk of chunks) {
+    try {
+      await onTextDelta(chunk);
+    } catch {
+      // Public stream telemetry must not change model routing or tool execution.
+    }
+  }
 }
 
 async function openAiCompatibleBlockingStep(args: {
@@ -370,6 +750,7 @@ async function openAiCompatibleBlockingStep(args: {
   tools: AgentTool[];
   signal?: AbortSignal;
   toolChoice?: AgentToolChoice;
+  onProviderRequest?: () => void;
 }) {
   const res = await postJson<OpenAiChatResponse>(args.endpoint, {
     model: args.modelId,
@@ -381,7 +762,7 @@ async function openAiCompatibleBlockingStep(args: {
   }, {
     ...args.headers,
     ...(args.apiKey ? { Authorization: `Bearer ${args.apiKey}` } : {}),
-  }, args.signal);
+  }, args.signal, args.onProviderRequest);
 
   const message = res.choices?.[0]?.message ?? {};
   const toolCalls = (message.tool_calls ?? []).map((tc): ToolCall => ({
@@ -396,6 +777,9 @@ async function openAiCompatibleBlockingStep(args: {
     usage: {
       inputTokens: res.usage?.prompt_tokens ?? res.usage?.input_tokens ?? 0,
       outputTokens: res.usage?.completion_tokens ?? res.usage?.output_tokens ?? 0,
+      cachedInputTokens: res.usage?.prompt_tokens_details?.cached_tokens
+        ?? res.usage?.input_tokens_details?.cached_tokens
+        ?? 0,
     },
   };
 }
@@ -411,7 +795,9 @@ async function openAiCompatibleStreamStep(args: {
   signal?: AbortSignal;
   onTextDelta: (text: string) => void | Promise<void>;
   toolChoice?: AgentToolChoice;
+  onProviderRequest?: () => void;
 }) {
+  args.onProviderRequest?.();
   const res = await fetch(args.endpoint, {
     method: "POST",
     headers: {
@@ -437,32 +823,36 @@ async function openAiCompatibleStreamStep(args: {
   let text = "";
   let usage: OpenAiChatResponse["usage"] | undefined;
 
-  await readSse(res, async (data) => {
-    let parsed: OpenAiChatStreamChunk;
-    try {
-      parsed = JSON.parse(data) as OpenAiChatStreamChunk;
-    } catch {
-      return;
-    }
-    if (parsed.usage) usage = parsed.usage;
-    for (const choice of parsed.choices ?? []) {
-      const delta = choice.delta;
-      const textDelta = delta?.content ?? "";
-      if (textDelta) {
-        text += textDelta;
-        await args.onTextDelta(textDelta);
+  try {
+    await readSse(res, async (data) => {
+      let parsed: OpenAiChatStreamChunk;
+      try {
+        parsed = JSON.parse(data) as OpenAiChatStreamChunk;
+      } catch {
+        return;
       }
-      for (const toolDelta of delta?.tool_calls ?? []) {
-        const index = inferOpenAiStreamToolIndex(toolDelta, toolCallParts, lastToolCallIndex);
-        lastToolCallIndex = index;
-        const current = toolCallParts.get(index) ?? { argsText: "" };
-        if (toolDelta.id) current.id = toolDelta.id;
-        if (toolDelta.function?.name) current.name = toolDelta.function.name;
-        if (toolDelta.function?.arguments) current.argsText += toolDelta.function.arguments;
-        toolCallParts.set(index, current);
+      if (parsed.usage) usage = parsed.usage;
+      for (const choice of parsed.choices ?? []) {
+        const delta = choice.delta;
+        const textDelta = delta?.content ?? "";
+        if (textDelta) {
+          text += textDelta;
+          await args.onTextDelta(textDelta);
+        }
+        for (const toolDelta of delta?.tool_calls ?? []) {
+          const index = inferOpenAiStreamToolIndex(toolDelta, toolCallParts, lastToolCallIndex);
+          lastToolCallIndex = index;
+          const current = toolCallParts.get(index) ?? { argsText: "" };
+          if (toolDelta.id) current.id = toolDelta.id;
+          if (toolDelta.function?.name) current.name = toolDelta.function.name;
+          if (toolDelta.function?.arguments) current.argsText += toolDelta.function.arguments;
+          toolCallParts.set(index, current);
+        }
       }
-    }
-  });
+    });
+  } catch (error) {
+    throw new ProviderStepError(error, usage ? openAiUsage(usage) : undefined);
+  }
 
   const toolCalls = [...toolCallParts.entries()]
     .sort(([a], [b]) => a - b)
@@ -476,10 +866,7 @@ async function openAiCompatibleStreamStep(args: {
     text: text || undefined,
     toolCalls,
     done: toolCalls.length === 0,
-    usage: {
-      inputTokens: usage?.prompt_tokens ?? usage?.input_tokens ?? 0,
-      outputTokens: usage?.completion_tokens ?? usage?.output_tokens ?? 0,
-    },
+    usage: openAiUsage(usage),
   };
 }
 
@@ -489,6 +876,7 @@ async function anthropicStep(
   messages: AgentMessage[],
   tools: AgentTool[],
   signal?: AbortSignal,
+  onProviderRequest?: () => void,
 ) {
   const res = await postJson<AnthropicResponse>("https://api.anthropic.com/v1/messages", {
     model: modelId,
@@ -499,7 +887,7 @@ async function anthropicStep(
   }, {
     "x-api-key": requireEnv("ANTHROPIC_API_KEY"),
     "anthropic-version": "2023-06-01",
-  }, signal);
+  }, signal, onProviderRequest);
 
   const parts = res.content ?? [];
   const text = parts
@@ -517,10 +905,7 @@ async function anthropicStep(
     text: text || undefined,
     toolCalls,
     done: toolCalls.length === 0,
-    usage: {
-      inputTokens: res.usage?.input_tokens ?? 0,
-      outputTokens: res.usage?.output_tokens ?? 0,
-    },
+    usage: anthropicUsage(res.usage),
   };
 }
 
@@ -530,6 +915,7 @@ async function geminiStep(
   messages: AgentMessage[],
   tools: AgentTool[],
   signal?: AbortSignal,
+  onProviderRequest?: () => void,
 ) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelId)}:generateContent?key=${encodeURIComponent(requireEnv("GOOGLE_GENERATIVE_AI_API_KEY"))}`;
   const res = await postJson<GeminiResponse>(url, {
@@ -537,7 +923,7 @@ async function geminiStep(
     contents: toGeminiContents(messages),
     tools: tools.length ? [{ functionDeclarations: tools.map(geminiTool) }] : undefined,
     generationConfig: { maxOutputTokens: modelMaxOutputTokens() },
-  }, {}, signal);
+  }, {}, signal, onProviderRequest);
 
   const parts = res.candidates?.[0]?.content?.parts ?? [];
   const text = parts
@@ -559,6 +945,7 @@ async function geminiStep(
     usage: {
       inputTokens: res.usageMetadata?.promptTokenCount ?? 0,
       outputTokens: res.usageMetadata?.candidatesTokenCount ?? 0,
+      cachedInputTokens: res.usageMetadata?.cachedContentTokenCount ?? 0,
     },
   };
 }
@@ -570,8 +957,10 @@ async function geminiStreamStep(
   tools: AgentTool[],
   signal: AbortSignal | undefined,
   onTextDelta: (text: string) => void | Promise<void>,
+  onProviderRequest?: () => void,
 ) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelId)}:streamGenerateContent?alt=sse&key=${encodeURIComponent(requireEnv("GOOGLE_GENERATIVE_AI_API_KEY"))}`;
+  onProviderRequest?.();
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -588,41 +977,42 @@ async function geminiStreamStep(
   const toolCalls: ToolCall[] = [];
   let usage: GeminiResponse["usageMetadata"] | undefined;
 
-  await readSse(res, async (data) => {
-    let parsed: GeminiResponse;
-    try {
-      parsed = JSON.parse(data) as GeminiResponse;
-    } catch {
-      return;
-    }
-    if (parsed.usageMetadata) usage = parsed.usageMetadata;
-    const parts = parsed.candidates?.[0]?.content?.parts ?? [];
-    for (const part of parts) {
-      if ("text" in part) {
-        const delta = part.text ?? "";
-        if (delta) {
-          text += delta;
-          await onTextDelta(delta);
-        }
-      } else if ("functionCall" in part) {
-        toolCalls.push({
-          id: crypto.randomUUID(),
-          tool: part.functionCall?.name ?? "unknown_tool",
-          args: part.functionCall?.args ?? {},
-          providerMetadata: part.thoughtSignature || part.thought_signature ? { geminiThoughtSignature: part.thoughtSignature ?? part.thought_signature } : undefined,
-        });
+  try {
+    await readSse(res, async (data) => {
+      let parsed: GeminiResponse;
+      try {
+        parsed = JSON.parse(data) as GeminiResponse;
+      } catch {
+        return;
       }
-    }
-  });
+      if (parsed.usageMetadata) usage = parsed.usageMetadata;
+      const parts = parsed.candidates?.[0]?.content?.parts ?? [];
+      for (const part of parts) {
+        if ("text" in part) {
+          const delta = part.text ?? "";
+          if (delta) {
+            text += delta;
+            await onTextDelta(delta);
+          }
+        } else if ("functionCall" in part) {
+          toolCalls.push({
+            id: crypto.randomUUID(),
+            tool: part.functionCall?.name ?? "unknown_tool",
+            args: part.functionCall?.args ?? {},
+            providerMetadata: part.thoughtSignature || part.thought_signature ? { geminiThoughtSignature: part.thoughtSignature ?? part.thought_signature } : undefined,
+          });
+        }
+      }
+    });
+  } catch (error) {
+    throw new ProviderStepError(error, usage ? geminiUsage(usage) : undefined);
+  }
 
   return {
     text: text || undefined,
     toolCalls,
     done: toolCalls.length === 0,
-    usage: {
-      inputTokens: usage?.promptTokenCount ?? 0,
-      outputTokens: usage?.candidatesTokenCount ?? 0,
-    },
+    usage: geminiUsage(usage),
   };
 }
 
@@ -922,7 +1312,7 @@ export function toolParameters(toolName: string): JsonObject {
   const stringOrStringArray = { anyOf: [stringArray, string] };
   const workbookOperation = {
     type: "object",
-    properties: { elementId: string, value: any, formula: string, result: any, numFmt: string },
+    properties: { elementId: string, baseVersion: integer, value: any, formula: string, result: any, numFmt: string },
     required: ["elementId"],
   };
   const schemas: Record<string, JsonObject> = {
@@ -1235,7 +1625,14 @@ async function readSse(res: Response, onData: (data: string) => Promise<void>): 
   if (buffer.trim()) await processLine(buffer);
 }
 
-async function postJson<T>(url: string, body: unknown, headers: Record<string, string>, signal?: AbortSignal): Promise<T> {
+async function postJson<T>(
+  url: string,
+  body: unknown,
+  headers: Record<string, string>,
+  signal?: AbortSignal,
+  onProviderRequest?: () => void,
+): Promise<T> {
+  onProviderRequest?.();
   const res = await fetch(url, {
     method: "POST",
     headers: {
@@ -1370,9 +1767,32 @@ function openRouterHeaders(): Record<string, string> {
   };
 }
 
-function fallbackModelFor(modelId: string): string | undefined {
-  const fb = process.env.AGENT_FALLBACK_MODEL?.trim();
-  return fb && resolveModelAlias(fb) !== modelId ? resolveModelAlias(fb) : undefined;
+export function configuredConvexModelFallbacks(
+  modelId: string,
+  env: NodeJS.ProcessEnv = process.env,
+): string[] {
+  const raw = env.AGENT_FALLBACK_MODELS?.trim() || env.AGENT_FALLBACK_MODEL?.trim() || "";
+  return normalizeFallbackModelIds(modelId, raw.split(/[\r\n,]+/));
+}
+
+function normalizeFallbackModelIds(modelId: string, values: readonly string[]): string[] {
+  const primary = resolveModelAlias(modelId);
+  const seen = new Set([primary]);
+  const result: string[] = [];
+  for (const value of values) {
+    if (typeof value !== "string" || !value.trim()) continue;
+    const resolved = resolveModelAlias(value.trim());
+    if (seen.has(resolved)) continue;
+    seen.add(resolved);
+    result.push(resolved);
+    if (result.length >= 3) break;
+  }
+  return result;
+}
+
+function concreteCandidateTimeoutMs(): number {
+  const raw = Number(envValue("AGENT_QUALITY_CANDIDATE_TIMEOUT_MS") ?? 120_000);
+  return Number.isFinite(raw) ? Math.max(10_000, Math.min(240_000, raw)) : 120_000;
 }
 
 function openRouterFreeAutoLimit(): number {

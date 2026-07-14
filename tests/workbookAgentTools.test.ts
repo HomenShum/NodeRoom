@@ -51,6 +51,32 @@ describe("NodeAgent workbook planning tools", () => {
     ]));
     expect(wrong.repairPrompt).toContain("formula_self_reference");
 
+    const preflight = await tool("verify_workbook").execute({
+      instruction,
+      artifactId: "attendance",
+      afterWrite: false,
+      operations: [{ elementId: "F3", formula: 'TEXT(F4,"ddd")', result: "Tue" }],
+    }, rt) as {
+      ok: boolean;
+      status: string;
+      approvedOperations?: Array<{ elementId: string; baseVersion: number }>;
+    };
+    expect(preflight).toMatchObject({
+      ok: true,
+      status: "passed",
+      approvedOperations: [{ elementId: "F3", baseVersion: 3 }],
+    });
+
+    const stale = await tool("verify_workbook").execute({
+      instruction,
+      artifactId: "attendance",
+      afterWrite: false,
+      operations: [{ elementId: "F3", baseVersion: 2, formula: 'TEXT(F4,"ddd")', result: "Tue" }],
+    }, rt) as { ok: boolean; status: string; approvedOperations?: unknown; repairPrompt?: string };
+    expect(stale).toMatchObject({ ok: false, status: "needs_repair" });
+    expect(stale).not.toHaveProperty("approvedOperations");
+    expect(stale.repairPrompt).toContain("stale_target_version");
+
     values.set("F3", { value: "Tue", formula: 'TEXT(F4,"ddd")' });
     const repaired = await tool("verify_workbook").execute({
       instruction,

@@ -16,6 +16,7 @@ const PRIMARY_ARTIFACT = "__primary_workbook__";
 type WorkbookOperation = {
   elementId: string;
   target: string;
+  baseVersion?: number;
   formula?: string;
   value?: unknown;
   result?: unknown;
@@ -148,7 +149,7 @@ class WorkbookWorkflowState {
         reason: "A passing workbook preflight has not been executed through its matching managed write.",
         prompt: workflowPrompt(
           "APPROVED_WRITE_REQUIRED",
-          `Execute the approved plan exactly with ${JSON.stringify(writeContract(approved))}, then call verify_workbook with afterWrite=true for the same operations.`,
+          `Call a managed write for ${displayArtifact(approved.artifactId)} with at least one unchanged operation, including its baseVersion when preflighted, from the approved ${approved.operations.length}-operation plan. The runtime will bind that explicit commit attempt to the complete preflight-approved plan; then call verify_workbook with afterWrite=true for the same operations.`,
         ),
       };
     }
@@ -202,6 +203,9 @@ class WorkbookWorkflowState {
       );
     }
     if (pending.signature !== plan.signature) {
+      if (operationsMatchApprovedPlan(plan.operations, pending.operations, true)) {
+        return bindPendingVerification(call, pending);
+      }
       return blocked(
         "post_write_plan_mismatch",
         "Post-write verification must cover exactly the operations from the most recent successful managed write.",
@@ -213,29 +217,54 @@ class WorkbookWorkflowState {
   }
 
   private guardWrite(call: ToolCall): ToolCall | BlockedTool {
-    const plan = this.planFromArgs(call.args, "write");
-    const approved = this.approved.get(plan.artifactKey);
-    if (!approved) {
+    const requestedPlan = this.planFromArgs(call.args, "write");
+    const approvedForArtifact = this.approved.get(requestedPlan.artifactKey);
+    const approvedPlans = [...this.approved.values()];
+    if (approvedForArtifact?.signature === requestedPlan.signature) return call;
+    if (approvedPlans.length === 0) {
       return blocked(
         "preflight_required",
         "A passing verify_workbook preflight is required before any managed write for this complex workbook task.",
         "Call inspect_workbook, then verify_workbook with afterWrite=false and the complete operation set before retrying the managed write.",
-        { artifactId: plan.artifactId },
+        { artifactId: requestedPlan.artifactId },
       );
     }
-    if (approved.signature !== plan.signature) {
-      return blocked(
-        "write_plan_mismatch",
-        "The managed write must match the most recent passing preflight plan exactly, including targets, formulas or values, cached results, and number formats.",
-        `Retry the approved write exactly as ${JSON.stringify(writeContract(approved))}, or submit a corrected replacement preflight first.`,
-        {
-          approvedWrite: writeContract(approved),
-          approvedTargets: approved.operations.map((operation) => operation.target),
-          requestedTargets: plan.operations.map((operation) => operation.target),
-        },
-      );
+
+    // The preflight result is the write authority. Providers still have to prove intent by
+    // repeating at least one unchanged approved operation, but they do not have to retranscribe a
+    // large operation bundle perfectly. Rebinding the explicit commit attempt here keeps the
+    // mutation inside the already verified target/content boundary.
+    const bindingMatches = call.tool === "write_locked_cells"
+      ? approvedPlans.filter((approved) =>
+        artifactAllowsApprovedBinding(call.args, approved.artifactId)
+        && rawBatchOperationsMatchApprovedSubset(call.args, approved))
+      : [];
+    if (bindingMatches.length === 1) {
+      return bindApprovedBatchWrite(call, bindingMatches[0]);
     }
-    return call;
+
+    const approved = approvedForArtifact ?? (approvedPlans.length === 1 ? approvedPlans[0] : undefined);
+    const approvedTargets = approved ? targetSummary(approved.operations) : undefined;
+    const requestedTargets = targetSummary(requestedPlan.operations);
+    return blocked(
+      "write_plan_mismatch",
+      "The managed write must match one passing preflight plan exactly, including artifact, targets, base versions, formulas or values, cached results, and number formats.",
+      approved
+        ? `Retry write_locked_cells with the approved artifact and at least one unchanged operation from its ${approved.operations.length}-operation plan, or submit a corrected replacement preflight first.`
+        : "Retry with the exact artifact and operation set from one passing preflight, or submit a corrected replacement preflight first.",
+      {
+        approvedPlanCount: approvedPlans.length,
+        bindingMatchCount: bindingMatches.length,
+        ...(approved ? {
+          approvedArtifactId: approved.artifactId,
+          approvedOperationCount: approved.operations.length,
+          approvedTargets: approvedTargets?.targets,
+          approvedTargetsOmitted: approvedTargets?.omitted,
+        } : {}),
+        requestedTargets: requestedTargets.targets,
+        requestedTargetsOmitted: requestedTargets.omitted,
+      },
+    );
   }
 
   private hydrate(messages: readonly AgentMessage[], strict: boolean): void {
@@ -272,22 +301,30 @@ class WorkbookWorkflowState {
     if (call.tool === VERIFY_TOOL) {
       const artifactId = artifactIdFrom(args, resultRecord, this.activeArtifactId);
       this.activeArtifactId = artifactId;
-      const plan = this.planFromArgs({ ...args, artifactId }, "verify");
+      const requestedPlan = this.planFromArgs({ ...args, artifactId }, "verify");
       const preflight = resultRecord?.phase === "preflight" || args.afterWrite === false;
       const passed = resultRecord?.status === "passed" && resultRecord.ok !== false;
       if (preflight) {
-        if (passed) this.approved.set(plan.artifactKey, plan);
-        else this.approved.delete(plan.artifactKey);
+        const approvedOperations = resultRecord?.approvedOperations;
+        const approvedPlan = Array.isArray(approvedOperations)
+          ? this.planFromArgs({ artifactId, operations: approvedOperations }, "verify")
+          : undefined;
+        const authoritative = approvedPlan
+          && approvedPlan.operations.length > 0
+          && approvedPlan.operations.every((operation) => operation.baseVersion !== undefined)
+          && operationsMatchApprovedPlan(requestedPlan.operations, approvedPlan.operations, true);
+        if (passed && authoritative) this.approved.set(approvedPlan.artifactKey, approvedPlan);
+        else this.approved.delete(requestedPlan.artifactKey);
         return;
       }
       if (!passed) return;
-      const pending = this.pending.get(plan.artifactKey);
-      if (pending?.signature === plan.signature) {
-        this.pending.delete(plan.artifactKey);
-        this.verified.set(plan.artifactKey, pending);
+      const pending = this.pending.get(requestedPlan.artifactKey);
+      if (pending?.signature === requestedPlan.signature) {
+        this.pending.delete(requestedPlan.artifactKey);
+        this.verified.set(requestedPlan.artifactKey, pending);
         this.verifiedWrites += 1;
-      } else if (this.verified.get(plan.artifactKey)?.signature === plan.signature) {
-        this.verified.set(plan.artifactKey, plan);
+      } else if (this.verified.get(requestedPlan.artifactKey)?.signature === requestedPlan.signature) {
+        this.verified.set(requestedPlan.artifactKey, requestedPlan);
       }
       return;
     }
@@ -320,14 +357,14 @@ class WorkbookWorkflowState {
       : Array.isArray(args.ops) ? args.ops
         : Array.isArray(args.cells) ? args.cells
           : [args];
-    const operations = rawOperations
-      .flatMap((operation) => normalizeOperation(operation, artifactId))
+    const operations = rawOperations.flatMap((operation) => normalizeOperation(operation, artifactId));
+    const canonicalOperations = [...operations]
       .sort((left, right) => left.target.localeCompare(right.target) || stableStringify(left).localeCompare(stableStringify(right)));
     return {
       artifactId,
       artifactKey: artifactKey(artifactId),
       operations,
-      signature: stableStringify(operations),
+      signature: stableStringify(canonicalOperations),
     };
   }
 
@@ -355,10 +392,12 @@ function normalizeOperation(value: unknown, artifactId: string): WorkbookOperati
       : nested && formula ? undefined : ownValue(operation, ["value", "newValue", "new_value", "text", "content"]);
   const numFmt = stringField(operation, ["numFmt", "num_fmt", "numberFormat", "number_format"])
     ?? (nested ? stringField(nested, ["numFmt", "num_fmt", "numberFormat", "number_format"]) : undefined);
+  const baseVersion = integerValue(ownValue(operation, ["baseVersion", "base_version", "currentVersion", "current_version", "version"]));
   const normalizedElementId = normalizeElementId(elementId);
   return [{
     elementId: normalizedElementId,
     target: targetFor(normalizedElementId, artifactId),
+    ...(baseVersion !== undefined ? { baseVersion } : {}),
     ...(formula ? { formula } : {}),
     ...(formula && result !== undefined ? { result: normalizeJson(result) } : {}),
     ...(!formula && scalarValue !== undefined ? { value: normalizeJson(scalarValue) } : {}),
@@ -393,11 +432,82 @@ function targetFor(elementId: string, artifactId: string): string {
   return elementId.includes("!") ? elementId : `${artifactKey(artifactId)}!${elementId}`;
 }
 
-function writeContract(plan: WorkbookPlan): Record<string, unknown> {
-  const ops = plan.operations.map(operationArgs);
-  return ops.length === 1
-    ? { tool: "write_locked_cell", args: { artifactId: plan.artifactId, ...ops[0] } }
-    : { tool: "write_locked_cells", args: { artifactId: plan.artifactId, ops } };
+function bindApprovedBatchWrite(call: ToolCall, plan: WorkbookPlan): ToolCall {
+  return {
+    ...call,
+    tool: "write_locked_cells",
+    args: { artifactId: plan.artifactId, ops: plan.operations.map(operationArgs) },
+  };
+}
+
+function bindPendingVerification(call: ToolCall, plan: WorkbookPlan): ToolCall {
+  const args = argsRecord(call.args) ?? {};
+  return {
+    ...call,
+    args: {
+      ...args,
+      artifactId: plan.artifactId,
+      operations: plan.operations.map(operationArgs),
+      afterWrite: true,
+    },
+  };
+}
+
+function artifactAllowsApprovedBinding(argsValue: unknown, approvedArtifactId: string): boolean {
+  const raw = argsRecord(argsValue)?.artifactId;
+  if (raw === undefined || raw === null || (typeof raw === "string" && !raw.trim())) return true;
+  if (typeof raw !== "string") return false;
+  if (raw.trim() === approvedArtifactId) return true;
+  if (!raw.startsWith(approvedArtifactId)) return false;
+  const suffix = raw.slice(approvedArtifactId.length);
+  return /^\s*(?:\r?\n|<(?:tool_call|arg_key|function|tool-use)\b)/i.test(suffix);
+}
+
+function rawBatchOperationsMatchApprovedSubset(argsValue: unknown, approved: WorkbookPlan): boolean {
+  const args = argsRecord(argsValue);
+  if (!args || !Array.isArray(args.ops) || args.ops.length === 0 || args.ops.length > approved.operations.length) return false;
+  const requested: WorkbookOperation[] = [];
+  for (const rawOperation of args.ops) {
+    const normalized = normalizeOperation(rawOperation, approved.artifactId);
+    if (normalized.length !== 1) return false;
+    requested.push(normalized[0]);
+  }
+
+  return operationsMatchApprovedPlan(requested, approved.operations, false);
+}
+
+function operationsMatchApprovedPlan(
+  requested: WorkbookOperation[],
+  approved: WorkbookOperation[],
+  requireComplete: boolean,
+): boolean {
+  if (requested.length === 0 || requested.length > approved.length) return false;
+  if (requireComplete && requested.length !== approved.length) return false;
+  const remaining = [...approved];
+  for (const operation of requested) {
+    const matchIndex = remaining.findIndex((candidate) => operationMatchesApproved(operation, candidate));
+    if (matchIndex === -1) return false;
+    remaining.splice(matchIndex, 1);
+  }
+  return !requireComplete || remaining.length === 0;
+}
+
+function operationMatchesApproved(requested: WorkbookOperation, approved: WorkbookOperation): boolean {
+  if (requested.baseVersion !== undefined && requested.baseVersion !== approved.baseVersion) return false;
+  return stableStringify(operationArgsWithoutVersion(requested)) === stableStringify(operationArgsWithoutVersion(approved));
+}
+
+function operationArgsWithoutVersion(operation: WorkbookOperation): Record<string, unknown> {
+  const args = operationArgs(operation);
+  delete args.baseVersion;
+  return args;
+}
+
+function targetSummary(operations: WorkbookOperation[], limit = 8): { targets: string[]; omitted: number } {
+  return {
+    targets: operations.slice(0, limit).map((operation) => operation.target),
+    omitted: Math.max(0, operations.length - limit),
+  };
 }
 
 function verificationArgs(plan: WorkbookPlan, instruction?: string): Record<string, unknown> {
@@ -412,6 +522,7 @@ function verificationArgs(plan: WorkbookPlan, instruction?: string): Record<stri
 function operationArgs(operation: WorkbookOperation): Record<string, unknown> {
   return {
     elementId: operation.elementId,
+    ...(operation.baseVersion !== undefined ? { baseVersion: operation.baseVersion } : {}),
     ...(operation.formula ? { formula: operation.formula } : {}),
     ...(Object.prototype.hasOwnProperty.call(operation, "value") ? { value: operation.value } : {}),
     ...(Object.prototype.hasOwnProperty.call(operation, "result") ? { result: operation.result } : {}),
@@ -519,6 +630,12 @@ function ownValue(record: Record<string, unknown>, keys: string[]): unknown {
     if (Object.prototype.hasOwnProperty.call(record, key)) return record[key];
   }
   return undefined;
+}
+
+function integerValue(value: unknown): number | undefined {
+  if (value === undefined || value === null || value === "") return undefined;
+  const parsed = Number(value);
+  return Number.isInteger(parsed) ? parsed : undefined;
 }
 
 function normalizeJson(value: unknown): unknown {

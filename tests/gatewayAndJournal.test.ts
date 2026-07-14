@@ -150,6 +150,62 @@ describe("exactly-once journal (no double-bill on slice retry)", () => {
     const second = await run(new RoomEngine());
     expect(second.r.stopReason).toBe("done");
     expect(modelCalls).toBe(0);                                                              // ← exactly-once: NO re-call, NO re-bill
+    expect(second.r.usage.modelCalls).toBe(first.r.usage.modelCalls);                        // original usage is rematerialized
     expect(String(second.eng.getArtifact(second.d.sheetId)!.elements[CELL]?.value)).toBe(VAL); // work still completed via replay
+  });
+
+  it("rematerializes journaled usage after a crash between journal commit and slice accounting", async () => {
+    const eng = new RoomEngine();
+    const d = buildDemoRoom(eng);
+    const rt = new InMemoryRoomTools(eng, d.roomId, d.sheetId, d.agents.room, d.sessions.room);
+    let stored: Awaited<ReturnType<AgentModel["next"]>> | undefined;
+    let crashAfterCommit = true;
+    let providerRequests = 0;
+    const journal = {
+      get: () => stored,
+      record: (_step: number, result: Awaited<ReturnType<AgentModel["next"]>>) => {
+        stored = result;
+        if (crashAfterCommit) throw new Error("simulated_crash_after_journal_commit");
+      },
+    };
+    const model: AgentModel = {
+      name: "journal-accounting-model",
+      async next() {
+        providerRequests += 1;
+        return {
+          text: "done",
+          toolCalls: [],
+          done: true,
+          usage: {
+            inputTokens: 17,
+            outputTokens: 5,
+            cachedInputTokens: 3,
+            cacheCreationInputTokens: 2,
+            modelCalls: 1,
+            costUsd: 0.004,
+            costKind: "exact",
+          },
+        };
+      },
+    };
+
+    await expect(runAgent({ rt, goal: "Summarize the workbook.", model, tools: [], maxSteps: 2, journal }))
+      .rejects.toThrow("simulated_crash_after_journal_commit");
+    expect(providerRequests).toBe(1);
+
+    crashAfterCommit = false;
+    providerRequests = 0;
+    const replay = await runAgent({ rt, goal: "Summarize the workbook.", model, tools: [], maxSteps: 2, journal });
+
+    expect(providerRequests).toBe(0);
+    expect(replay.usage).toMatchObject({
+      inputTokens: 17,
+      outputTokens: 5,
+      cachedInputTokens: 3,
+      cacheCreationInputTokens: 2,
+      modelCalls: 1,
+      costUsd: 0.004,
+      costKind: "exact",
+    });
   });
 });

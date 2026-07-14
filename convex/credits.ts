@@ -26,6 +26,7 @@ import {
 } from "../src/nodeagent/core/creditModel";
 
 const creditModeV = v.union(v.literal("quick"), v.literal("standard"), v.literal("deep"));
+const costKindV = v.union(v.literal("exact"), v.literal("estimated"));
 /** Reserve holds expire after this with no settle → swept + refunded (crashed-run holds). */
 const RESERVATION_TTL_MS = 60 * 60 * 1000; // 1 hour
 const MAX_SWEEP_ROWS = 2_000;
@@ -183,12 +184,15 @@ export const settle = internalMutation({
   args: {
     roomId: v.id("rooms"),
     reservationKey: v.string(),
+    /** Legacy parameter name; `costKind` records whether this amount was metered or estimated. */
     actualUsd: v.number(),
+    costKind: v.optional(costKindV),
     runId: v.optional(v.id("agentRuns")),
     now: v.optional(v.number()),
   },
-  handler: async (ctx, { roomId, reservationKey, actualUsd, runId, now }) => {
+  handler: async (ctx, { roomId, reservationKey, actualUsd, costKind, runId, now }) => {
     const ts = now ?? Date.now();
+    const settlementCostKind = costKind ?? "estimated";
     const rows = await ctx.db
       .query("creditLedger")
       .withIndex("by_reservation", (q) => q.eq("reservationKey", reservationKey))
@@ -246,6 +250,7 @@ export const settle = internalMutation({
       credits: -round2(usdToCredits(actualUsd)),
       usd: -round4(actualUsd),
       runId,
+      costKind: settlementCostKind,
       reason: overspentCredits > 0 ? "overspent" : undefined,
       createdAt: ts,
     });
@@ -267,6 +272,7 @@ export const settle = internalMutation({
       settledCredits: round2(settledCredits),
       refundedCredits: round2(refundedCredits),
       overspentCredits: round2(overspentCredits),
+      costKind: settlementCostKind,
       balance: balanceView(await getRoomCredits(ctx, roomId)),
     };
   },
@@ -339,8 +345,8 @@ export const sweepExpiredReservations = internalMutation({
       if (!rc) continue;
       const hold = -row.credits; // positive
       // COST-AWARE so a crashed run can't silently refund money the LLM already billed:
-      //  - finished run (agentRuns.costUsd > 0) → charge the ACTUAL cost, refund the remainder;
-      //  - claimed-but-unsettled run (row exists, cost 0) → CAPTURE the hold (assume it spent — never lose money);
+      //  - finished run (stopReason persisted by agentRuns.finish) → charge its recorded cost, including exact zero;
+      //  - claimed-but-unsettled run (row exists, no terminal marker) → CAPTURE the hold (assume it spent — never lose money);
       //  - no run row at all (never started) → refund the full hold.
       const run = await ctx.db
         .query("agentRuns")
@@ -348,15 +354,19 @@ export const sweepExpiredReservations = internalMutation({
         .order("desc")
         .first();
       let actualUsd: number;
+      let costKind: "exact" | "estimated";
       let resolution: "settled" | "captured" | "refunded";
-      if (run && run.costUsd > 0) {
+      if (run?.stopReason !== undefined) {
         actualUsd = run.costUsd;
+        costKind = run.costKind ?? "estimated";
         resolution = "settled";
       } else if (run) {
         actualUsd = creditsToUsd(hold);
+        costKind = "estimated";
         resolution = "captured";
       } else {
         actualUsd = 0;
+        costKind = "exact";
         resolution = "refunded";
       }
       const actualCredits = Math.max(0, Math.min(hold, usdToCredits(actualUsd))); // capped at the hold
@@ -367,7 +377,7 @@ export const sweepExpiredReservations = internalMutation({
         lifetimeSpentCredits: round2(rc.lifetimeSpentCredits + actualCredits),
         updatedAt: ts,
       });
-      await ctx.db.insert("creditLedger", { roomId: row.roomId, kind: "settle", mode: row.mode, reservationKey: row.reservationKey, credits: -round2(actualCredits), usd: -round4(actualUsd), runId: run?._id, reason: `swept_${resolution}`, createdAt: ts });
+      await ctx.db.insert("creditLedger", { roomId: row.roomId, kind: "settle", mode: row.mode, reservationKey: row.reservationKey, credits: -round2(actualCredits), usd: -round4(actualUsd), runId: run?._id, costKind, reason: `swept_${resolution}`, createdAt: ts });
       if (refund > 0) {
         await ctx.db.insert("creditLedger", { roomId: row.roomId, kind: "refund", mode: row.mode, reservationKey: row.reservationKey, credits: round2(refund), usd: round4(creditsToUsd(refund)), reason: "expired_reservation", createdAt: ts });
       }

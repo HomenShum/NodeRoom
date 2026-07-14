@@ -356,7 +356,7 @@ describe("quality-aware bounded failover", () => {
       now: () => 8_000,
     });
 
-    await vi.advanceTimersByTimeAsync(25);
+    await vi.advanceTimersByTimeAsync(300);
     const result = await pending;
 
     expect(result.ok).toBe(true);
@@ -376,6 +376,37 @@ describe("quality-aware bounded failover", () => {
       },
       { routeId: "fast", outcome: "accepted" },
     ]);
+  });
+
+  it("captures usage that an aborted provider attaches while settling the timeout", async () => {
+    vi.useFakeTimers();
+    const onRouteAttempt = vi.fn();
+    const pending = runQualityFailover({
+      candidates: [candidate("partial-timeout")],
+      budget: { maxAttempts: 1 },
+      attemptTimeoutMs: 25,
+      execute: async (_route, context) => new Promise<string>((_resolve, reject) => {
+        context.signal.addEventListener("abort", () => {
+          setTimeout(() => reject(Object.assign(new Error("aborted after partial usage"), {
+            usage: { inputTokens: 19, outputTokens: 4, modelCalls: 1, costUsd: 0.125, costKind: "exact" },
+          })), 5);
+        }, { once: true });
+      }),
+      measureCostUsd: ({ error }) => Number((error as { usage?: { costUsd?: number } } | undefined)?.usage?.costUsd ?? 0),
+      onRouteAttempt,
+      now: () => 9_000,
+    });
+
+    await vi.advanceTimersByTimeAsync(30);
+    const result = await pending;
+
+    expect(result.ok).toBe(false);
+    expect(result.receipt).toMatchObject({
+      stopReason: "candidates_exhausted",
+      budget: { spentCostUsd: 0.125 },
+      routeAttempts: [{ routeId: "partial-timeout", reason: "candidate_timeout", costUsd: 0.125 }],
+    });
+    expect(onRouteAttempt).toHaveBeenCalledTimes(1);
   });
 
   it("uses the default non-empty quality floor without a provider", () => {

@@ -626,7 +626,7 @@ describe("work artifact adapters", () => {
       roomId: "room-1",
       messages,
       traces: [trace],
-      run: { model: "openrouter/free", steps: 4, toolCalls: 3, inputTokens: 1200, outputTokens: 320, costUsd: 0.012, ms: 1800 },
+      run: { model: "openrouter/free", steps: 4, toolCalls: 3, inputTokens: 1200, outputTokens: 320, costUsd: 0.012, costKind: "estimated", ms: 1800 },
       job: {
         id: "job-1",
         status: "running",
@@ -639,7 +639,7 @@ describe("work artifact adapters", () => {
         modelCallCount: 1,
         receiptCount: 2,
       },
-      attempts: [{ attempt: 1, status: "running", resolvedModel: "openrouter/free", stopReason: "in_progress", ms: 900, inputTokens: 600, outputTokens: 120, costUsd: 0.004 }],
+      attempts: [{ attempt: 1, status: "running", resolvedModel: "openrouter/free", stopReason: "in_progress", ms: 900, inputTokens: 600, outputTokens: 120, costUsd: 0.004, costKind: "estimated" }],
       detail: {
         operations: [{ sequence: 1, kind: "mutation", name: "patch_bundle_cas", status: "completed" }],
         streamEvents: [{ sequence: 1, kind: "message_done", status: "completed", createdAt: 20, text: "done" }],

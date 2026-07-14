@@ -7,7 +7,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, ShieldCheck, X, HelpCircle, Copy, Check, MessageCircle, Sparkles, SlidersHorizontal, Palette, Gauge, Play, ChevronLeft, ChevronRight, Crosshair, WifiOff } from "lucide-react";
-import { useStore, type ActorProof } from "../app/store";
+import { useStore, type AgentCostKind, type ActorProof } from "../app/store";
 import { OFFLINE_QUEUE_MAX } from "../notifications/offlineQueue";
 import { Chat } from "./Chat";
 import { Artifact } from "./panels/Artifact";
@@ -41,6 +41,10 @@ export function roomIntroSafetyCopy(mode: "memory" | "convex"): string {
   return mode === "memory"
     ? "This memory demo is safe: nothing is sent anywhere."
     : "This live room uses the production backend: room state, edits, traces, and approvals persist for collaborators.";
+}
+
+export function formatAgentCost(costUsd: number, costKind?: AgentCostKind): string {
+  return `${costKind === "exact" ? "" : "≈"}$${costUsd.toFixed(3)}`;
 }
 
 export function preferredRoomArtifact<T extends { id: string; kind?: string; title?: string; order?: string[]; meta?: { dataframe?: { rowCount?: number }; excelGrid?: { rows?: number }; tags?: string[] } }>(arts: T[]): T | undefined {
@@ -1009,7 +1013,7 @@ function SignalStatusStrip({
       ? [
           { k: "Agents", v: `${sessions.length} active` },
           { k: "Eval", v: run ? `${run.model} | ${run.toolCalls} tools` : "running" },
-          { k: "Cost", v: run ? `$${run.costUsd.toFixed(3)}` : job ? job.modelPolicy : "-" },
+          { k: "Cost", v: run ? formatAgentCost(run.costUsd, run.costKind) : job ? job.modelPolicy : "-" },
         ]
       : []),
   ];

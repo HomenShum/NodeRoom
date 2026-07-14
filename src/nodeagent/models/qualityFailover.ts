@@ -1,5 +1,5 @@
 import { providerNonRetryableReason } from "../guardrails/egressPolicy";
-import type { AgentMessage, AgentTool, ToolCall } from "../core/types";
+import type { AgentMessage, AgentTool, TokenUsage, ToolCall } from "../core/types";
 
 export const QUALITY_FAILOVER_SCHEMA = "nodeagent-quality-failover-v1" as const;
 export const QUALITY_FAILOVER_POLICY = "bounded_quality_failover_v1" as const;
@@ -148,6 +148,8 @@ export class QualityFailoverError extends Error {
     message: string,
     readonly receipt: QualityFailoverReceipt,
     cause?: unknown,
+    /** Provider usage already incurred before routing stopped without an accepted result. */
+    readonly usage?: TokenUsage,
   ) {
     super(message, cause === undefined ? undefined : { cause });
     this.name = "QualityFailoverError";
@@ -220,6 +222,7 @@ type AttemptWork<TResult> =
   | { kind: "assessment_error"; result: TResult; error: unknown };
 
 type AttemptInterruptCause = "parent" | "time_budget" | "attempt_timeout";
+const INTERRUPTED_ATTEMPT_SETTLEMENT_GRACE_MS = 250;
 
 class AttemptInterruptedError extends Error {
   constructor(readonly cause: AttemptInterruptCause) {
@@ -569,11 +572,22 @@ export async function runQualityFailover<
       scope.dispose();
       if (!(error instanceof AttemptInterruptedError)) throw error;
 
+      // Aborting fetch/stream readers normally rejects the provider promise on
+      // the next turn. Give it a small bounded window so adapters can attach
+      // partial usage before we persist the timeout receipt. A provider that
+      // ignores AbortSignal still cannot hold the failover loop indefinitely.
+      const interruptedOutcome = await settleInterruptedAttempt(work);
+      const accountingError = interruptedOutcome?.kind === "provider_error"
+        ? interruptedOutcome.error
+        : interruptedOutcome?.kind === "assessment_error"
+          ? interruptedOutcome.error
+          : error;
+
       const costUsd = measureCost(options, {
         candidate,
         attempt,
         estimatedCostUsd,
-        error,
+        error: accountingError,
       });
       spentCostUsd = stableCost(spentCostUsd + costUsd);
       if (error.cause === "attempt_timeout") {
@@ -599,7 +613,7 @@ export async function runQualityFailover<
         });
         routeAttempts.push(attemptReceipt);
         await options.onRouteAttempt?.(attemptReceipt, candidate);
-        lastError = error;
+        lastError = accountingError;
         lastFailure = providerTerminalFailure(providerFailure);
         continue;
       }
@@ -620,7 +634,7 @@ export async function runQualityFailover<
       });
       routeAttempts.push(attemptReceipt);
       await options.onRouteAttempt?.(attemptReceipt, candidate);
-      lastError = error;
+      lastError = accountingError;
       return failed("blocked", stopReason, controlFailure(reason));
     }
     scope.dispose();
@@ -765,6 +779,22 @@ export async function runQualityFailover<
     );
   }
   return failed("exhausted", "candidates_exhausted", lastFailure ?? controlFailure("candidates_exhausted"));
+}
+
+async function settleInterruptedAttempt<TResult>(
+  work: Promise<AttemptWork<TResult>>,
+): Promise<AttemptWork<TResult> | undefined> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      work,
+      new Promise<undefined>((resolve) => {
+        timer = setTimeout(() => resolve(undefined), INTERRUPTED_ATTEMPT_SETTLEMENT_GRACE_MS);
+      }),
+    ]);
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
+  }
 }
 
 function validateOptions<TCandidate extends QualityFailoverCandidate, TResult>(

@@ -34,10 +34,32 @@ test("RUNTIME: concurrent double-submit dedupes to the in-flight run; exactly on
   expect(reuse?.stopReason).toBeUndefined();    // it is in flight
 
   // Run #1 finishes by PATCHING the claimed row (not a 2nd insert) → still exactly one run for this key.
-  await t.mutation(internal.agentRuns.finish, { runId: runId1, model: "gpt-5.4-mini", steps: 4, toolCalls: 6, conflictsSurvived: 1, inputTokens: 200, outputTokens: 80, costUsd: 0.0042, ms: 1800, exhausted: false, stopReason: "done" });
+  await t.mutation(internal.agentRuns.finish, {
+    runId: runId1,
+    model: "gpt-5.4-mini",
+    steps: 4,
+    modelCalls: 2,
+    toolCalls: 6,
+    conflictsSurvived: 1,
+    inputTokens: 200,
+    outputTokens: 80,
+    cachedInputTokens: 120,
+    cacheCreationInputTokens: 15,
+    costUsd: 0.0042,
+    costKind: "estimated",
+    ms: 1800,
+    exhausted: false,
+    stopReason: "done",
+  });
   const after = await t.query(internal.agentRuns.byKey, { idempotencyKey: key });
   expect(after).toHaveLength(1);                 // ONE row total — no concurrent duplicate ran
   expect(after[0].stopReason).toBe("done");
+  expect(after[0]).toMatchObject({
+    modelCalls: 2,
+    cachedInputTokens: 120,
+    cacheCreationInputTokens: 15,
+    costKind: "estimated",
+  });
 
   // A rapid re-click within the recency window still dedupes (no double-bill); a different goal does NOT.
   expect(findReusableRun(mapRows(after), key, { now: Date.now() })?.runId).toBe(String(runId1));
@@ -60,4 +82,39 @@ test("RUNTIME (atomic, race-safe): claimOrReuse — first inserts, second reuses
   expect(second.reused).toBe(true);                                   // second reuses — no 2nd run
   expect(String(second.runId)).toBe(String(first.runId));
   expect(await t.query(internal.agentRuns.byKey, { idempotencyKey: key })).toHaveLength(1); // exactly one row
+});
+
+test("RUNTIME: agentRuns.record preserves explicit zero calls and cache accounting", async () => {
+  const t = convexTest(schema, modules);
+  const roomId = await t.run((ctx) =>
+    ctx.db.insert("rooms", { code: "TEST03", title: "Accounting", hostId: "u1", autoAllow: true, status: "live" as const, createdAt: Date.now() }));
+
+  const runId = await t.mutation(internal.agentRuns.record, {
+    roomId,
+    agentId: "agent_pub",
+    model: "provider-unavailable",
+    goal: "Record a preflight failure",
+    steps: 0,
+    modelCalls: 0,
+    toolCalls: 0,
+    conflictsSurvived: 0,
+    inputTokens: 0,
+    outputTokens: 0,
+    cachedInputTokens: 0,
+    cacheCreationInputTokens: 0,
+    costUsd: 0,
+    costKind: "exact",
+    ms: 12,
+    exhausted: false,
+    stopReason: "provider_unavailable",
+  });
+  const row = await t.run((ctx) => ctx.db.get(runId));
+
+  expect(row).toMatchObject({
+    modelCalls: 0,
+    toolCalls: 0,
+    cachedInputTokens: 0,
+    cacheCreationInputTokens: 0,
+    costKind: "exact",
+  });
 });

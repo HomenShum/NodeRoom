@@ -4,6 +4,8 @@ import { internalMutation, internalQuery, query } from "./_generated/server";
 import { actorProofV, requireActorProof } from "./lib";
 import { findReusableRun } from "../src/nodeagent/core/idempotency";
 
+const costKindV = v.union(v.literal("exact"), v.literal("estimated"));
+
 /** Claim a run row up-front (idempotency layer 1): a concurrent duplicate sees this in-flight row
  *  (no stopReason yet) via byKey and bails before racing the same locks/CAS. Finished by `finish`. */
 export const claim = internalMutation({
@@ -36,13 +38,16 @@ export const claimOrReuse = internalMutation({
 /** Patch the claimed row with final telemetry (success or failure). */
 export const finish = internalMutation({
   args: {
-    runId: v.id("agentRuns"), model: v.string(), steps: v.number(), toolCalls: v.number(), conflictsSurvived: v.number(),
-    inputTokens: v.number(), outputTokens: v.number(), cachedInputTokens: v.optional(v.number()), costUsd: v.number(), ms: v.number(), exhausted: v.boolean(),
+    runId: v.id("agentRuns"), model: v.string(), steps: v.number(), modelCalls: v.optional(v.number()), toolCalls: v.number(), conflictsSurvived: v.number(),
+    inputTokens: v.number(), outputTokens: v.number(), cachedInputTokens: v.optional(v.number()), cacheCreationInputTokens: v.optional(v.number()),
+    costUsd: v.number(), costKind: v.optional(costKindV), ms: v.number(), exhausted: v.boolean(),
     stopReason: v.optional(v.string()), remainingMs: v.optional(v.number()), deadlineAt: v.optional(v.number()), handoff: v.optional(v.any()),
   },
   handler: async (ctx, { runId, ...patch }) => {
-    const doc: Record<string, unknown> = { ...patch };
-    for (const key of ["remainingMs", "deadlineAt", "handoff"]) if (doc[key] === undefined) delete doc[key];
+    const doc: Record<string, unknown> = { ...patch, costKind: patch.costKind ?? "estimated" };
+    for (const key of ["modelCalls", "cachedInputTokens", "cacheCreationInputTokens", "remainingMs", "deadlineAt", "handoff"]) {
+      if (doc[key] === undefined) delete doc[key];
+    }
     await ctx.db.patch(runId, doc as any);
     return runId;
   },
@@ -59,13 +64,14 @@ export const record = internalMutation({
   args: {
     jobId: v.optional(v.id("agentJobs")),
     roomId: v.id("rooms"), agentId: v.string(), model: v.string(), goal: v.string(),
-    steps: v.number(), toolCalls: v.number(), conflictsSurvived: v.number(),
-    inputTokens: v.number(), outputTokens: v.number(), cachedInputTokens: v.optional(v.number()), costUsd: v.number(), ms: v.number(), exhausted: v.boolean(),
+    steps: v.number(), modelCalls: v.optional(v.number()), toolCalls: v.number(), conflictsSurvived: v.number(),
+    inputTokens: v.number(), outputTokens: v.number(), cachedInputTokens: v.optional(v.number()), cacheCreationInputTokens: v.optional(v.number()),
+    costUsd: v.number(), costKind: v.optional(costKindV), ms: v.number(), exhausted: v.boolean(),
     stopReason: v.optional(v.string()), remainingMs: v.optional(v.number()), deadlineAt: v.optional(v.number()), handoff: v.optional(v.any()),
   },
   handler: (ctx, a) => {
-    const doc: Record<string, unknown> = { ...a, createdAt: Date.now() };
-    for (const key of ["stopReason", "remainingMs", "deadlineAt", "handoff"]) {
+    const doc: Record<string, unknown> = { ...a, costKind: a.costKind ?? "estimated", createdAt: Date.now() };
+    for (const key of ["modelCalls", "cachedInputTokens", "cacheCreationInputTokens", "stopReason", "remainingMs", "deadlineAt", "handoff"]) {
       if (doc[key] === undefined) delete doc[key];
     }
     return ctx.db.insert("agentRuns", doc as any);

@@ -108,8 +108,9 @@ describe("long-running agent job source invariants", () => {
     expect(jobs).toContain("function inferredRuntimeProfileForGoal");
     expect(jobs).toContain("runtimeProfile = a.runtimeProfile ?? inferredRuntimeProfileForGoal(a.goal)");
     expect(jobs).toContain("runtimeProfile: job.runtimeProfile");
-    expect(jobs).toContain('defaultMaxAttempts = runtimeProfile === "benchmark_completion" ? 1000');
+    expect(jobs).toContain("const PUBLIC_BENCHMARK_COMPLETION_MAX_ATTEMPTS = 12");
     expect(runner).toContain("function maxStepsForJob");
+    expect(runner).toContain('result.handoff?.terminalReason === "protocol_stall"');
     expect(runner).toContain("BENCHMARK_AGENT_MAX_STEPS_PER_SLICE");
     expect(runner).toContain("FREE_AUTO_JOB_MAX_STEPS_PER_SLICE");
     expect(runner).toContain("defaultMaxStepsForEntrypoint(entrypoint), 1, 256");
@@ -118,7 +119,23 @@ describe("long-running agent job source invariants", () => {
     expect(store).toContain("noderoom.nodeagentRuntimeProfile");
     expect(store).toContain('focusMode === "1" || focusMode === "true"');
     expect(store).toContain("maxAttemptsForRuntimeProfile");
+    expect(store).toContain("Math.min(requested ?? PUBLIC_BENCHMARK_COMPLETION_MAX_ATTEMPTS, PUBLIC_BENCHMARK_COMPLETION_MAX_ATTEMPTS)");
     expect(spec).toContain('window.localStorage.setItem("noderoom.nodeagentRuntimeProfile", "benchmark_completion")');
+  });
+
+  it("hard-caps public benchmark attempts at admission, claim, retry, and browser boundaries", () => {
+    const jobs = readFileSync("convex/agentJobs.ts", "utf8");
+    const store = readFileSync("src/app/store.tsx", "utf8");
+
+    expect(jobs).toContain('entrypoint === "public_ask" || entrypoint === "free" || entrypoint === "room_work"');
+    expect(jobs).toContain('inferredRuntimeProfileForGoal(goal) === "benchmark_completion"');
+    expect(jobs).toContain("const reusableIdentity = {");
+    expect(jobs).toContain("durableMaxAttemptsForJob(job, requestedMaxAttempts)");
+    expect(jobs).toContain("durableMaxAttemptsForJob(job, job.maxAttempts)");
+    expect(jobs).toContain('reason: "attempt_limit_reached"');
+    expect(jobs).toContain('error: "max_attempts_exhausted"');
+    expect(jobs).not.toContain('runtimeProfile === "benchmark_completion" ? 1000');
+    expect(store).not.toContain("Math.min(requested ?? 12, 50)");
   });
 
   it("keeps /ask model policy during workflow handoff while allowing /free overrides", () => {
@@ -128,7 +145,11 @@ describe("long-running agent job source invariants", () => {
 
     expect(runner).toContain('modelPolicy === "openrouter/free-auto"');
     expect(runner).toContain("process.env.FREE_AUTO_JOB_MODEL ?? modelPolicy");
-    expect(runner).toContain("const model = agentModel(resolvedModelPolicy, { entrypoint })");
+    expect(runner).toContain("const model = agentModel(resolvedModelPolicy, {");
+    expect(runner).toContain("fallbackModelIds: fallbackModelsForRoute(resolvedModelPolicy)");
+    expect(runner).toContain('claimed.routePolicy === "explicit"');
+    expect(runner).toContain("authorizedModelForFramePhase");
+    expect(runner).toContain("artifacts: egressArtifacts");
     expect(runner).toContain("function runnerEntrypoint");
     expect(runner).toContain("defaultMaxStepsForEntrypoint(entrypoint)");
     expect(jobs).toContain("artifactMeta: art.meta");
@@ -136,6 +157,22 @@ describe("long-running agent job source invariants", () => {
     expect(model).toContain("recordOpenRouterFreeRouteOutcome");
     expect(model).toContain("isProviderNonRetryableError(error)");
     expect(model).toContain("candidateSignal, 0");
+  });
+
+  it("checkpoints concrete route health and never reschedules a terminal protocol stall", () => {
+    const agent = readFileSync("convex/agent.ts", "utf8");
+    const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
+    const model = readFileSync("src/nodeagent/models/convexModel.ts", "utf8");
+
+    expect(model).toContain("routeState() {");
+    expect(model).toContain("hydrateConcreteRouteState");
+    expect(runner).toContain("routeState: routeStateFromCursor(claimed.cursor)");
+    expect(runner).toContain("modelRouteState: result.modelRouteState");
+    expect(runner).toContain("done || nonResumable ? undefined : await checkpoint");
+    expect(agent).toContain('const protocolStall = result.handoff?.terminalReason === "protocol_stall"');
+    expect(agent).toContain("const terminal = done || protocolStall");
+    expect(agent).toContain("scheduleWorkflow: !terminal");
+    expect(agent).toContain('status: done ? "completed" : protocolStall ? "failed" : "paused"');
   });
 
   it("enforces provider route receipts and private-stream egress gates", () => {

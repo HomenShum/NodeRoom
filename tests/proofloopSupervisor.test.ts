@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   PROOFLOOP_NO_PROGRESS_AFTER_REPAIR,
+  PROOFLOOP_REPEATED_WORKFLOW_BLOCK,
   PROOFLOOP_VERIFIER_REPAIR_PREFIX,
   appendProofloopRepairMessage,
   proofloopSupervisorDecision,
@@ -55,6 +56,74 @@ describe("ProofLoop benchmark supervisor", () => {
     });
 
     expect(decision.kind).toBe("none");
+  });
+
+  it("issues one bounded repair after repeated verified-workbook blocks", () => {
+    const decision = proofloopSupervisorDecision({
+      runtimeProfile: "benchmark_completion",
+      goal: WRITE_GOAL,
+      attempt: 1,
+      maxAttempts: 12,
+      result: result({
+        stopReason: "step_budget",
+        trace: Array.from({ length: 4 }, (_, step) => ({
+          step,
+          tool: "write_locked_cells",
+          args: {},
+          result: { ok: false, error: "tool_blocked", reason: "verified_workbook_workflow:write_plan_mismatch: blocked" },
+          ms: 1,
+        })),
+      }),
+    });
+
+    expect(decision).toMatchObject({ kind: "repair" });
+    if (decision.kind === "repair") {
+      expect(decision.prompt).toContain("one unchanged approved operation");
+      expect(decision.prompt).not.toContain("approvedWrite");
+    }
+  });
+
+  it("fails repeated workflow blocks after the bounded repair is exhausted", () => {
+    const decision = proofloopSupervisorDecision({
+      runtimeProfile: "benchmark_completion",
+      goal: WRITE_GOAL,
+      attempt: 2,
+      maxAttempts: 12,
+      result: result({
+        stopReason: "step_budget",
+        messages: [
+          { role: "user", content: `${PROOFLOOP_VERIFIER_REPAIR_PREFIX} bind the approved plan` },
+          ...Array.from({ length: 4 }, (_, index) => ({
+            role: "tool" as const,
+            toolCallId: `blocked-${index}`,
+            toolName: "write_locked_cells",
+            content: JSON.stringify({ ok: false, error: "tool_blocked", reason: "verified_workbook_workflow:write_plan_mismatch: blocked" }),
+          })),
+        ],
+      }),
+    });
+
+    expect(decision).toMatchObject({ kind: "terminal_failure", error: PROOFLOOP_NO_PROGRESS_AFTER_REPAIR });
+  });
+
+  it("does not treat blocked write calls as successful receipts", () => {
+    const decision = proofloopSupervisorDecision({
+      runtimeProfile: "benchmark_completion",
+      goal: WRITE_GOAL,
+      attempt: 2,
+      maxAttempts: 12,
+      result: result({
+        trace: Array.from({ length: 4 }, (_, step) => ({
+          step,
+          tool: "write_locked_cells",
+          args: {},
+          result: { ok: false, error: "tool_blocked", reason: "verified_workbook_workflow:preflight_required: blocked" },
+          ms: 1,
+        })),
+      }),
+    });
+
+    expect(decision).toMatchObject({ kind: "terminal_failure", error: PROOFLOOP_REPEATED_WORKFLOW_BLOCK });
   });
 
   it("ignores non-benchmark and read-only goals", () => {

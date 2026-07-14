@@ -115,7 +115,7 @@ describe("model adapter free-auto modes", () => {
 
     await vi.advanceTimersByTimeAsync(0);
     expect(generateTextMock).toHaveBeenCalledTimes(2);
-    await vi.advanceTimersByTimeAsync(5_000);
+    await vi.advanceTimersByTimeAsync(5_250);
     const result = await settled;
     if (!result.ok) throw result.error;
     const { step } = result;
@@ -161,7 +161,7 @@ describe("model adapter free-auto modes", () => {
 
     await vi.advanceTimersByTimeAsync(0);
     expect(generateTextMock).toHaveBeenCalledTimes(1);
-    await vi.advanceTimersByTimeAsync(5_000);
+    await vi.advanceTimersByTimeAsync(5_250);
     const error = await settled;
 
     expect(error).toBeInstanceOf(QualityFailoverError);

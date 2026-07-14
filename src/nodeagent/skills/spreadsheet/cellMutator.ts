@@ -866,6 +866,7 @@ const WRITE_LOCKED_CELL_RESULTS_TOOL: AgentTool = {
 
 const workbookOperationSchema = z.object({
   elementId: z.string().min(1).describe("target cell id or A1 address"),
+  baseVersion: z.coerce.number().int().optional(),
   value: z.any().optional(),
   formula: z.string().nullish(),
   result: z.any().optional(),
@@ -926,7 +927,7 @@ const VERIFY_WORKBOOK_TOOL: AgentTool = {
   execute: async (a: {
     instruction: string;
     artifactId?: string;
-    operations: Array<{ elementId: string; value?: unknown; formula?: string; result?: unknown; numFmt?: string }>;
+    operations: Array<{ elementId: string; baseVersion?: number; value?: unknown; formula?: string; result?: unknown; numFmt?: string }>;
     afterWrite?: boolean;
   }, rt) => {
     const snapshot = await rt.snapshot(a.artifactId);
@@ -936,6 +937,14 @@ const VERIFY_WORKBOOK_TOOL: AgentTool = {
     const contextIds = searchHits.flatMap((hit) => hit.kind === "cell" ? [hit.elementId] : hit.elementIds);
     const confirmedIds = [...new Set([...elementIds, ...contextIds])];
     const confirmed = await rt.readRange(confirmedIds, sheet);
+    const targetVersions = new Map(elementIds.map((elementId, index) => [elementId, confirmed[index]?.version]));
+    const targetsWithoutVersions = elementIds.filter((elementId) => !Number.isInteger(targetVersions.get(elementId)));
+    const targetsWithStaleVersions = a.operations.flatMap((operation) => {
+      const currentVersion = targetVersions.get(operation.elementId);
+      return operation.baseVersion !== undefined && currentVersion !== undefined && operation.baseVersion !== currentVersion
+        ? [{ elementId: operation.elementId, expected: operation.baseVersion, actual: currentVersion }]
+        : [];
+    });
     const cells = mergeWorkbookCells(
       observedCellsFromSnapshot(snapshot),
       confirmed.map((cell) => observedCell(sheet, cell.id, cell.value, cell.version)),
@@ -960,18 +969,33 @@ const VERIFY_WORKBOOK_TOOL: AgentTool = {
     const candidate = a.afterWrite === false
       ? undefined
       : verifyWorkbookValues({ cells, checks: checksForWorkbookOperations(operations) });
-    const status = plan.status === "passed" && (!candidate || candidate.status === "passed")
+    const versionCoveragePassed = a.afterWrite !== false
+      || (targetsWithoutVersions.length === 0 && targetsWithStaleVersions.length === 0);
+    const status = plan.status === "passed" && (!candidate || candidate.status === "passed") && versionCoveragePassed
       ? "passed" as const
       : "needs_repair" as const;
+    const approvedOperations = a.afterWrite === false && status === "passed"
+      ? a.operations.map((operation) => ({
+        ...operation,
+        baseVersion: targetVersions.get(operation.elementId)!,
+      }))
+      : undefined;
     return {
       ok: status === "passed",
       status,
       artifactId: sheet,
       phase: a.afterWrite === false ? "preflight" : "post_write",
       plan,
+      ...(approvedOperations ? { approvedOperations } : {}),
       ...(candidate ? { candidate } : {}),
       repairPrompt: [
         ...plan.issues.map((issue) => `${issue.kind}: ${issue.repair}`),
+        ...(targetsWithoutVersions.length > 0
+          ? [`target_version_unavailable: Re-read ${targetsWithoutVersions.join(", ")} before approving this write plan.`]
+          : []),
+        ...(targetsWithStaleVersions.length > 0
+          ? [`stale_target_version: Re-inspect ${targetsWithStaleVersions.map((target) => `${target.elementId} (expected ${target.expected}, actual ${target.actual})`).join(", ")} before approving this write plan.`]
+          : []),
         ...(candidate?.repairPrompt ? [candidate.repairPrompt] : []),
       ].join("\n") || undefined,
     };

@@ -25,6 +25,7 @@ function companyKeyOf(name: string): string {
 }
 
 const attemptStatusV = v.union(v.literal("completed"), v.literal("handoff"), v.literal("retrying"), v.literal("blocked"), v.literal("failed"));
+const costKindV = v.union(v.literal("exact"), v.literal("estimated"));
 const terminalStatuses = new Set(["completed", "failed", "blocked", "cancelled"]);
 const entrypointV = v.union(
   v.literal("public_ask"),
@@ -94,6 +95,7 @@ const deltaStatusV = v.union(v.literal("none"), v.literal("minor"), v.literal("m
 type EntityType = "company" | "person" | "product" | "source" | "metric" | "unknown";
 type CacheVisibility = "public" | "private" | "redacted";
 type RoomWorkMode = "manual_capture" | "agent_fill" | "bulk_diligence" | "banker_workflow" | "spreadsheet_fill";
+type CostKind = "exact" | "estimated";
 type NormalizedRoomWorkEntity = { entityType: EntityType; entityKey: string; displayName: string; website?: string };
 type EntityFacetCacheHit = {
   cacheId: Id<"entityResearchCache">;
@@ -135,6 +137,88 @@ type RoomWorkFacetPlan = {
   cachePolicy: "fresh_use_cache" | "stale_use_cache_and_refresh" | "missing_research_now" | "manual_only_do_not_research";
   status: "queued" | "cached" | "refreshing" | "completed";
 };
+
+function persistedCallCount(value: number | undefined, legacyFallback: number, label: string): number {
+  const count = value ?? legacyFallback;
+  if (!Number.isSafeInteger(count) || count < 0) throw new Error(`${label}_must_be_a_non_negative_integer`);
+  return count;
+}
+
+function aggregateCostKind(previous: unknown, current: CostKind): CostKind {
+  return previous === "estimated" || current === "estimated" ? "estimated" : "exact";
+}
+
+type JobAccountingAggregate = {
+  modelCallCount?: number;
+  toolCallCount?: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  cachedInputTokens?: number;
+  cacheCreationInputTokens?: number;
+  costUsd?: number;
+  costKind?: CostKind;
+};
+
+type JobAccountingBaseline = Required<JobAccountingAggregate>;
+const MAX_ACCOUNTING_MIGRATION_ATTEMPTS = 1_000;
+
+async function loadJobAccountingBaseline(
+  ctx: any,
+  jobId: Id<"agentJobs">,
+  job: JobAccountingAggregate,
+): Promise<JobAccountingBaseline> {
+  const aggregateInitialized = job.modelCallCount !== undefined
+    && job.toolCallCount !== undefined
+    && job.inputTokens !== undefined
+    && job.outputTokens !== undefined
+    && job.cachedInputTokens !== undefined
+    && job.cacheCreationInputTokens !== undefined
+    && job.costUsd !== undefined
+    && job.costKind !== undefined;
+  if (aggregateInitialized) return job as JobAccountingBaseline;
+
+  // Active jobs created before aggregate accounting can already have durable attempts.
+  // Rebuild only absent parent fields; a persisted zero is initialized and authoritative.
+  const attempts = await ctx.db
+    .query("agentJobAttempts")
+    .withIndex("by_job", (q: any) => q.eq("jobId", jobId))
+    .order("asc")
+    .take(MAX_ACCOUNTING_MIGRATION_ATTEMPTS + 1);
+  if (attempts.length > MAX_ACCOUNTING_MIGRATION_ATTEMPTS) {
+    throw new Error("job_accounting_migration_attempt_limit_exceeded");
+  }
+  const reconstructed = attempts.reduce((sum: JobAccountingBaseline, attempt: any) => {
+    sum.modelCallCount += persistedCallCount(attempt.modelCalls, 1, "attempt.modelCalls");
+    sum.toolCallCount += persistedCallCount(attempt.toolCalls, attempt.inputTokens || attempt.outputTokens ? 1 : 0, "attempt.toolCalls");
+    sum.inputTokens += attempt.inputTokens;
+    sum.outputTokens += attempt.outputTokens;
+    sum.cachedInputTokens += attempt.cachedInputTokens ?? 0;
+    sum.cacheCreationInputTokens += attempt.cacheCreationInputTokens ?? 0;
+    sum.costUsd += attempt.costUsd;
+    sum.costKind = aggregateCostKind(sum.costKind, attempt.costKind ?? "estimated");
+    return sum;
+  }, {
+    modelCallCount: 0,
+    toolCallCount: 0,
+    inputTokens: 0,
+    outputTokens: 0,
+    cachedInputTokens: 0,
+    cacheCreationInputTokens: 0,
+    costUsd: 0,
+    costKind: "exact",
+  });
+
+  return {
+    modelCallCount: job.modelCallCount ?? reconstructed.modelCallCount,
+    toolCallCount: job.toolCallCount ?? reconstructed.toolCallCount,
+    inputTokens: job.inputTokens ?? reconstructed.inputTokens,
+    outputTokens: job.outputTokens ?? reconstructed.outputTokens,
+    cachedInputTokens: job.cachedInputTokens ?? reconstructed.cachedInputTokens,
+    cacheCreationInputTokens: job.cacheCreationInputTokens ?? reconstructed.cacheCreationInputTokens,
+    costUsd: job.costUsd ?? reconstructed.costUsd,
+    costKind: job.costKind ?? reconstructed.costKind,
+  };
+}
 
 const MAX_ROOM_WORK_TEXT_CHARS = 20_000;
 const MAX_ROOM_WORK_ENTITIES = 50;
@@ -945,7 +1029,10 @@ export const finishInteractive = internalMutation({
     ms: v.number(),
     inputTokens: v.number(),
     outputTokens: v.number(),
+    cachedInputTokens: v.optional(v.number()),
+    cacheCreationInputTokens: v.optional(v.number()),
     costUsd: v.number(),
+    costKind: v.optional(costKindV),
     modelCalls: v.number(),
     toolCalls: v.number(),
     queryCount: v.optional(v.number()),
@@ -956,6 +1043,10 @@ export const finishInteractive = internalMutation({
     const job = await ctx.db.get(a.jobId);
     if (!job) return { ok: false as const, reason: "job_not_found" as const };
     if (terminalStatuses.has(job.status) && job.latestRunId) return { ok: true as const, terminal: true as const };
+    const modelCalls = persistedCallCount(a.modelCalls, 0, "modelCalls");
+    const toolCalls = persistedCallCount(a.toolCalls, 0, "toolCalls");
+    const costKind: CostKind = a.costKind ?? "estimated";
+    const accounting = await loadJobAccountingBaseline(ctx, a.jobId, job);
     const now = Date.now();
     const attempt = job.attempts + 1;
     await ctx.db.insert("agentJobAttempts", clean({
@@ -968,16 +1059,21 @@ export const finishInteractive = internalMutation({
       ms: a.ms,
       inputTokens: a.inputTokens,
       outputTokens: a.outputTokens,
+      cachedInputTokens: a.cachedInputTokens,
+      cacheCreationInputTokens: a.cacheCreationInputTokens,
       costUsd: a.costUsd,
+      costKind,
+      modelCalls,
+      toolCalls,
       error: a.error,
       startedAt: now - a.ms,
       endedAt: now,
     }));
-    const baseSequence = (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 2;
+    const baseSequence = (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + accounting.modelCallCount + accounting.toolCallCount + (job.schedulerHandoffCount ?? 0) + 2;
     const eventStatus = a.status === "failed" || a.status === "blocked" ? "failed" : "completed";
     await recordOperationEvent(ctx, { jobId: a.jobId, runId: a.runId, sequence: baseSequence, kind: "action", name: "agent.runRoomAgent", countDelta: 1, status: eventStatus, startedAt: now - a.ms, completedAt: now });
-    await recordOperationEvent(ctx, { jobId: a.jobId, runId: a.runId, sequence: baseSequence + 1, kind: "model_call", name: a.resolvedModel, countDelta: a.modelCalls, status: eventStatus, startedAt: now - a.ms, completedAt: now });
-    await recordOperationEvent(ctx, { jobId: a.jobId, runId: a.runId, sequence: baseSequence + 2, kind: "tool_call", name: "NodeAgent tools", countDelta: a.toolCalls, status: eventStatus, startedAt: now - a.ms, completedAt: now });
+    await recordOperationEvent(ctx, { jobId: a.jobId, runId: a.runId, sequence: baseSequence + 1, kind: "model_call", name: a.resolvedModel, countDelta: modelCalls, status: eventStatus, startedAt: now - a.ms, completedAt: now });
+    await recordOperationEvent(ctx, { jobId: a.jobId, runId: a.runId, sequence: baseSequence + 2, kind: "tool_call", name: "NodeAgent tools", countDelta: toolCalls, status: eventStatus, startedAt: now - a.ms, completedAt: now });
     await recordOperationEvent(ctx, { jobId: a.jobId, runId: a.runId, sequence: baseSequence + 3, kind: "checkpoint", name: "agentJobs.finishInteractive", countDelta: 1, status: "completed", startedAt: now, completedAt: now });
     await recordStreamEventRow(ctx, {
       jobId: a.jobId,
@@ -1006,21 +1102,27 @@ export const finishInteractive = internalMutation({
       finalText: a.finalText,
       error: a.error,
       handoff: a.handoff,
-      cursor: a.cursor,
-      nextRunAt: a.scheduledNextAt,
+      cursor: a.status === "paused" ? a.cursor : null,
+      nextRunAt: a.status === "paused" ? a.scheduledNextAt : 0,
       runtime: workflowId ? "workflow" : job.runtime,
       workflowId,
       actionSliceCount: (job.actionSliceCount ?? 0) + 1,
       queryCount: (job.queryCount ?? 0) + (a.queryCount ?? 1),
       mutationCount: (job.mutationCount ?? 0) + (a.mutationCount ?? 1),
-      modelCallCount: (job.modelCallCount ?? 0) + a.modelCalls,
-      toolCallCount: (job.toolCallCount ?? 0) + a.toolCalls,
+      modelCallCount: accounting.modelCallCount + modelCalls,
+      toolCallCount: accounting.toolCallCount + toolCalls,
+      inputTokens: accounting.inputTokens + a.inputTokens,
+      outputTokens: accounting.outputTokens + a.outputTokens,
+      cachedInputTokens: accounting.cachedInputTokens + (a.cachedInputTokens ?? 0),
+      cacheCreationInputTokens: accounting.cacheCreationInputTokens + (a.cacheCreationInputTokens ?? 0),
+      costUsd: accounting.costUsd + a.costUsd,
+      costKind: aggregateCostKind(accounting.costKind, costKind),
       receiptCount: (job.receiptCount ?? 0) + (a.receiptCount ?? 0),
       schedulerHandoffCount: (job.schedulerHandoffCount ?? 0) + (workflowId ? 1 : 0),
       leaseId: "",
       leaseUntil: 0,
       updatedAt: now,
-      completedAt: a.status === "completed" ? now : undefined,
+      completedAt: a.status === "paused" ? undefined : now,
     }) as any);
     return { ok: true as const };
   },
@@ -1539,6 +1641,7 @@ type DurableStartEntrypoint = "public_ask" | "private_agent" | "free" | "system"
 type RoutePolicy = "fast_default" | "free_auto" | "top_paid" | "explicit";
 type RuntimePolicy = "workflow_sliced";
 type AgentRuntimeProfile = "benchmark_completion";
+const PUBLIC_BENCHMARK_COMPLETION_MAX_ATTEMPTS = 12;
 
 function inferredRuntimeProfileForGoal(goal: string): AgentRuntimeProfile | undefined {
   return /\b(benchmark|eval|scorecard|held[- ]out|spreadsheetbench|bankertoolbench|btb|official\s+benchmark)\b/i.test(goal)
@@ -1546,12 +1649,59 @@ function inferredRuntimeProfileForGoal(goal: string): AgentRuntimeProfile | unde
     : undefined;
 }
 
-function maxAttemptsCeilingForRuntimeProfile(runtimeProfile?: AgentRuntimeProfile): number {
-  return runtimeProfile === "benchmark_completion" ? 1000 : 100;
+type DurableJobAttemptIdentity = {
+  scope?: string;
+  runtimeProfile?: string;
+  entrypoint?: string;
+  modelPolicy?: string;
+  runtime?: string;
+  goal?: string;
+  commandText?: string;
+  request?: unknown;
+};
+
+function isPublicBenchmarkCompletionJob(job: DurableJobAttemptIdentity): boolean {
+  const request = job.request && typeof job.request === "object" && !Array.isArray(job.request)
+    ? job.request as Record<string, unknown>
+    : {};
+  const scope = job.scope ?? (typeof request.scope === "string" ? request.scope : undefined);
+  const entrypoint = job.entrypoint ?? (typeof request.entrypoint === "string" ? request.entrypoint : undefined);
+  // The first public startFreeAuto rows predate scope/entrypoint/request metadata. Keep this
+  // migration fallback narrow so an unrelated untagged private/system job is never reclassified.
+  const isLegacyPublicFreeAuto = scope === undefined
+    && entrypoint === undefined
+    && job.modelPolicy === "openrouter/free-auto"
+    && job.runtime === "workflow";
+  const isPublic = scope !== undefined
+    ? scope === "public_room"
+    : entrypoint === "public_ask" || entrypoint === "free" || entrypoint === "room_work" || isLegacyPublicFreeAuto;
+  const requestRuntimeProfile = typeof request.runtimeProfile === "string" ? request.runtimeProfile : undefined;
+  const goal = job.goal
+    ?? job.commandText
+    ?? (typeof request.commandText === "string" ? request.commandText : "");
+  const isBenchmark = job.runtimeProfile === "benchmark_completion"
+    || requestRuntimeProfile === "benchmark_completion"
+    || inferredRuntimeProfileForGoal(goal) === "benchmark_completion";
+  return isPublic && isBenchmark;
 }
 
-function boundedMaxAttempts(requested: number | undefined, fallback: number, runtimeProfile?: AgentRuntimeProfile): number {
-  return Math.max(1, Math.min(requested ?? fallback, maxAttemptsCeilingForRuntimeProfile(runtimeProfile)));
+function maxAttemptsCeilingForJob(job: DurableJobAttemptIdentity & { execution: "inline" | "workflow" }): number {
+  if (isPublicBenchmarkCompletionJob(job)) return PUBLIC_BENCHMARK_COMPLETION_MAX_ATTEMPTS;
+  return job.execution === "inline" ? 20 : 100;
+}
+
+function boundedMaxAttempts(
+  requested: number | undefined,
+  fallback: number,
+  job: DurableJobAttemptIdentity & { execution: "inline" | "workflow" },
+): number {
+  return Math.max(1, Math.min(requested ?? fallback, maxAttemptsCeilingForJob(job)));
+}
+
+function durableMaxAttemptsForJob(job: DurableJobAttemptIdentity, requestedMaxAttempts: number): number {
+  return isPublicBenchmarkCompletionJob(job)
+    ? Math.min(requestedMaxAttempts, PUBLIC_BENCHMARK_COMPLETION_MAX_ATTEMPTS)
+    : requestedMaxAttempts;
 }
 
 const ELEMENT_SCOPED_FRAME_TOOL_ALLOWLIST = ["snapshot", "list_artifacts", "read_range", "search_sheet_context", "write_locked_cell"];
@@ -1873,8 +2023,12 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     routePolicy = "explicit";
     modelPolicy = configuredFileEgressModel();
   }
-  const defaultMaxAttempts = runtimeProfile === "benchmark_completion" ? 1000 : entrypoint === "free" ? 20 : 20;
-  const maxAttempts = boundedMaxAttempts(a.maxAttempts, defaultMaxAttempts, runtimeProfile);
+  const defaultMaxAttempts = execution === "inline"
+    ? 1
+    : runtimeProfile === "benchmark_completion"
+      ? PUBLIC_BENCHMARK_COMPLETION_MAX_ATTEMPTS
+      : 20;
+  const maxAttempts = boundedMaxAttempts(a.maxAttempts, defaultMaxAttempts, { execution, scope, runtimeProfile });
   const idempotencyKey = a.idempotencyKey ?? defaultJobIdempotencyKey({
     roomId: a.roomId,
     artifactId: a.artifactId,
@@ -1886,6 +2040,28 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
   const prior = await ctx.db.query("agentJobs").withIndex("by_idempotency", (q: any) => q.eq("idempotencyKey", idempotencyKey)).order("desc").take(5);
   const reusable = prior.find((job: any) => String(job.roomId) === String(a.roomId) && String(job.artifactId) === String(a.artifactId) && !terminalStatuses.has(job.status));
   if (reusable) {
+    const reusableIdentity = {
+      ...reusable,
+      scope: reusable.scope ?? scope,
+      runtimeProfile: reusable.runtimeProfile ?? runtimeProfile,
+      entrypoint: reusable.entrypoint ?? entrypoint,
+      goal: reusable.goal ?? a.goal,
+    };
+    const normalizedMaxAttempts = durableMaxAttemptsForJob(reusableIdentity, reusable.maxAttempts);
+    if (
+      reusable.maxAttempts !== normalizedMaxAttempts
+      || reusable.scope === undefined
+      || reusable.runtimeProfile === undefined
+      || reusable.entrypoint === undefined
+    ) {
+      await ctx.db.patch(reusable._id, clean({
+        maxAttempts: normalizedMaxAttempts,
+        scope: reusable.scope ?? scope,
+        runtimeProfile: reusable.runtimeProfile ?? runtimeProfile,
+        entrypoint: reusable.entrypoint ?? entrypoint,
+        updatedAt: now,
+      }));
+    }
     return { jobId: reusable._id as Id<"agentJobs">, reused: true as const, status: reusable.status as string, workflowId: reusable.workflowId as string | undefined, latestRunId: reusable.latestRunId as Id<"agentRuns"> | undefined, modelPolicy: reusable.modelPolicy as string, routePolicy, runtimePolicy };
   }
 
@@ -1969,7 +2145,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     modelPolicy,
     runtime,
     attempts: 0,
-    maxAttempts: execution === "inline" ? Math.max(1, Math.min(a.maxAttempts ?? 1, 20)) : maxAttempts,
+    maxAttempts,
     actionSliceCount: 0,
     queryCount: 0,
     mutationCount: 1,
@@ -2479,7 +2655,12 @@ export const retry = mutation({
     }
     const now = Date.now();
     const extra = Math.max(1, Math.min(additionalAttempts ?? 10, 50));
-    const maxAttempts = Math.max(job.maxAttempts, job.attempts + extra);
+    const requestedMaxAttempts = Math.max(job.maxAttempts, job.attempts + extra);
+    const maxAttempts = durableMaxAttemptsForJob(job, requestedMaxAttempts);
+    if (job.attempts >= maxAttempts) {
+      if (job.maxAttempts !== maxAttempts) await ctx.db.patch(jobId, { maxAttempts, updatedAt: now });
+      return { ok: false as const, reason: "attempt_limit_reached" as const, maxAttempts };
+    }
     const workflowId = await startWorkflow(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId }, {
       onComplete: internal.agentWorkflows.freeAutoWorkflowComplete,
       context: { jobId },
@@ -2728,6 +2909,19 @@ export const claimSlice = internalMutation({
     if (job.status === "completed" || job.status === "failed" || job.status === "blocked" || job.status === "cancelled") return null;
     const now = Date.now();
     if (job.status === "running" && job.leaseUntil && job.leaseUntil > now) return null;
+    const maxAttempts = durableMaxAttemptsForJob(job, job.maxAttempts);
+    if (isPublicBenchmarkCompletionJob(job) && job.attempts >= maxAttempts) {
+      await ctx.db.patch(jobId, {
+        status: "failed",
+        maxAttempts,
+        leaseId: "",
+        leaseUntil: 0,
+        error: "max_attempts_exhausted",
+        completedAt: now,
+        updatedAt: now,
+      });
+      return null;
+    }
 
     const art = await ctx.db.get(job.artifactId);
     if (!art || String(art.roomId) !== String(job.roomId)) {
@@ -2759,6 +2953,7 @@ export const claimSlice = internalMutation({
     await ctx.db.patch(jobId, {
       status: "running",
       attempts: attempt,
+      maxAttempts,
       leaseId,
       leaseUntil,
       activeFrameId: frameClaim.frame?.frameId ?? "",
@@ -2813,7 +3008,7 @@ export const claimSlice = internalMutation({
       cursor: job.cursor,
       handoff: job.handoff,
       attempt,
-      maxAttempts: job.maxAttempts,
+      maxAttempts,
       sessionId: session._id,
       agentId: session.agentId,
       agentName: session.agentName,
@@ -2975,7 +3170,11 @@ export const finishSlice = internalMutation({
     inputTokens: v.number(),
     outputTokens: v.number(),
     cachedInputTokens: v.optional(v.number()),
+    cacheCreationInputTokens: v.optional(v.number()),
     costUsd: v.number(),
+    costKind: v.optional(costKindV),
+    modelCalls: v.optional(v.number()),
+    toolCalls: v.optional(v.number()),
     runId: v.optional(v.id("agentRuns")),
     error: v.optional(v.string()),
     handoff: v.optional(v.any()),
@@ -2992,6 +3191,12 @@ export const finishSlice = internalMutation({
     const job = await ctx.db.get(a.jobId);
     if (!job) return { ok: false as const, reason: "job_not_found" as const };
     if (job.leaseId !== a.leaseId) return { ok: false as const, reason: "lease_mismatch" as const };
+    // Optional fallbacks preserve callers deployed before exact accounting. New callers pass
+    // explicit values, including zero, which are never replaced by the legacy estimates.
+    const modelCalls = persistedCallCount(a.modelCalls, 1, "modelCalls");
+    const toolCalls = persistedCallCount(a.toolCalls, a.inputTokens || a.outputTokens ? 1 : 0, "toolCalls");
+    const costKind: CostKind = a.costKind ?? "estimated";
+    const accounting = await loadJobAccountingBaseline(ctx, a.jobId, job);
     const now = Date.now();
     await ctx.db.insert("agentJobAttempts", clean({
       jobId: a.jobId,
@@ -3005,7 +3210,11 @@ export const finishSlice = internalMutation({
       inputTokens: a.inputTokens,
       outputTokens: a.outputTokens,
       cachedInputTokens: a.cachedInputTokens,
+      cacheCreationInputTokens: a.cacheCreationInputTokens,
       costUsd: a.costUsd,
+      costKind,
+      modelCalls,
+      toolCalls,
       error: a.error,
       scheduledNextAt: a.scheduledNextAt,
       startedAt: now - a.ms,
@@ -3023,8 +3232,14 @@ export const finishSlice = internalMutation({
       status: nextStatus,
       leaseId: "",
       leaseUntil: 0,
-      modelCallCount: (job.modelCallCount ?? 0) + 1,
-      toolCallCount: (job.toolCallCount ?? 0) + (a.inputTokens || a.outputTokens ? 1 : 0),
+      modelCallCount: accounting.modelCallCount + modelCalls,
+      toolCallCount: accounting.toolCallCount + toolCalls,
+      inputTokens: accounting.inputTokens + a.inputTokens,
+      outputTokens: accounting.outputTokens + a.outputTokens,
+      cachedInputTokens: accounting.cachedInputTokens + (a.cachedInputTokens ?? 0),
+      cacheCreationInputTokens: accounting.cacheCreationInputTokens + (a.cacheCreationInputTokens ?? 0),
+      costUsd: accounting.costUsd + a.costUsd,
+      costKind: aggregateCostKind(accounting.costKind, costKind),
       mutationCount: (job.mutationCount ?? 0) + 1,
       updatedAt: now,
     };
@@ -3078,7 +3293,7 @@ export const finishSlice = internalMutation({
     await recordOperationEvent(ctx, {
       jobId: a.jobId,
       runId: a.runId,
-      sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 3,
+      sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + accounting.modelCallCount + accounting.toolCallCount + (job.schedulerHandoffCount ?? 0) + 3,
       kind: "checkpoint",
       name: "agentJobs.finishSlice",
       targetKind: "artifact",
@@ -3096,7 +3311,7 @@ export const finishSlice = internalMutation({
         await recordOperationEvent(ctx, {
           jobId: a.jobId,
           runId: a.runId,
-          sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 4,
+          sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + accounting.modelCallCount + accounting.toolCallCount + (job.schedulerHandoffCount ?? 0) + 4,
           kind: "scheduler",
           name: "agentJobs.finishSlice.workflowSchedulerFallback",
           targetKind: "artifact",
@@ -3162,7 +3377,8 @@ export const completeDeterministicBenchmarkSlice = internalMutation({
       updatedAt: now,
       finalText: capStreamText(a.finalText, 60_000),
       error: "",
-      modelCallCount: (job.modelCallCount ?? 0) + 1,
+      // The deterministic HMDA executor never calls a model.
+      modelCallCount: job.modelCallCount ?? 0,
       mutationCount: (job.mutationCount ?? 0) + 1,
     });
     return { ok: true as const };

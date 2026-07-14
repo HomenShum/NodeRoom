@@ -36,7 +36,20 @@ export interface ToolCall {
   /** Provider-specific metadata to round-trip (e.g. Gemini 3.x thought_signature, required for multi-turn tools). */
   providerMetadata?: Record<string, unknown>;
 }
-export interface TokenUsage { inputTokens: number; outputTokens: number; /** Cached prefix-hit input tokens (provider-reported); #1 cache-health metric. */ cachedInputTokens?: number; }
+export interface TokenUsage {
+  inputTokens: number;
+  outputTokens: number;
+  /** Cached prefix-hit input tokens (provider-reported); #1 cache-health metric. */
+  cachedInputTokens?: number;
+  /** Provider-reported cache-write input tokens, included in inputTokens. */
+  cacheCreationInputTokens?: number;
+  /** Exact provider requests represented by this logical model turn (for failover routes). */
+  modelCalls?: number;
+  /** Aggregate provider cost represented by this logical model turn. */
+  costUsd?: number;
+  /** Whether costUsd came from route-owned pricing or a conservative fallback estimate. */
+  costKind?: "exact" | "estimated";
+}
 /** One turn of the model: optional prose + zero or more tool calls + token usage. */
 export interface AgentStep {
   text?: string;
@@ -50,8 +63,15 @@ export interface AgentStep {
 /* ── seam 1: the injectable model ── */
 export type AgentToolChoice = "auto" | "required";
 
+export interface AgentModelRouteState {
+  preferredModelId?: string;
+  cooldownUntil?: Record<string, number>;
+}
+
 export interface AgentModel {
   readonly name: string;
+  /** Durable routing state that callers can checkpoint between action slices. */
+  routeState?(): AgentModelRouteState;
   next(input: {
     system: string;
     messages: AgentMessage[];
@@ -112,6 +132,8 @@ export interface AgentBudgetSnapshot {
 }
 export interface AgentHandoff {
   reason: Exclude<AgentStopReason, "done">;
+  /** Structured terminal classification for a handoff that must not be resumed automatically. */
+  terminalReason?: "protocol_stall";
   summary: string;
   nextGoal: string;
   remainingToolCalls: ToolCall[];
@@ -129,6 +151,7 @@ export interface AgentResult {
   trace: AgentTraceEvent[];
   messages: AgentMessage[];
   usage: TokenUsage & { modelCalls: number };
+  modelRouteState?: AgentModelRouteState;
 }
 
 /* ── seam 2: the room-tools port (in-memory now, Convex later — SAME shape) ── */
