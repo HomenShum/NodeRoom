@@ -89,7 +89,7 @@ export function AiElementsShowcase() {
           <AgentConversation messages={SAMPLE} />
           <div className="ai-scope" style={{ marginTop: 12 }}>
             <Checkpoint>
-              <CheckpointTrigger label="Restore checkpoint" />
+              <CheckpointTrigger>Restore checkpoint</CheckpointTrigger>
             </Checkpoint>
           </div>
         </div>

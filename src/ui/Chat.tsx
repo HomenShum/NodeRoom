@@ -1,7 +1,8 @@
 /** Public/private Copilot chat surfaces. Reads via useStore(). */
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type ClipboardEvent, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
-import { Lock, MessageCircle, Globe, Send, Square, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, X, Timer, RefreshCw, ChevronDown, ChevronUp, ChevronRight, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2, Brain, Target, Mic, MicOff, Search, AlertTriangle } from "lucide-react";
+import { Lock, MessageCircle, Globe, Send, Square, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, Link2, X, Timer, RefreshCw, ChevronDown, ChevronUp, ChevronRight, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2, Brain, Target, Mic, MicOff, Search, AlertTriangle } from "lucide-react";
 import { useQuery } from "convex/react";
+import { Reasoning, ReasoningContent, ReasoningTrigger } from "@/components/ai-elements/reasoning";
 import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentModelSelection, type PrivateStreamAccess, type RoomStore } from "../app/store";
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
@@ -10,6 +11,8 @@ import type { Actor, Artifact, CellPayload, Channel, Message } from "../engine/t
 import { getProviderForModel, llmModelCatalog, modelPricing, resolveModelAlias, type LlmProvider } from "../nodeagent/models/modelCatalog";
 import {
   displayArtifactRefMessage,
+  artifactRefContextSuffix,
+  artifactRefKey,
   encodeArtifactRefLine,
   hasDraggedArtifactRef,
   parseArtifactRefMessage,
@@ -62,6 +65,7 @@ type AgentResearchReceipt = {
   artifactId: string;
   cellId: string;
   company: string;
+  rowCount: number;
   sourceCount: number;
   sourceLabel: string;
   sourceDetail: string;
@@ -102,11 +106,21 @@ function artifactCellEvidenceCount(artifact: Artifact, rowId: string, col: strin
   return artifactCellEvidence(artifact, rowId, col).length;
 }
 
-function buildAgentResearchReceipt(artifact: Artifact | undefined): AgentResearchReceipt | null {
+function buildAgentResearchReceipt(artifact: Artifact | undefined, rowCount = 1, preferredRowId?: string): AgentResearchReceipt | null {
   if (!artifact || artifact.kind !== "sheet" || !/company|research/i.test(artifact.title ?? "")) return null;
   const rows = artifactRowIds(artifact);
   const completedRows = rows.filter((id) => (artifactCellValue(artifact, id, "status") || "").toLowerCase() === "complete");
-  const rowId = completedRows[0];
+  const freshestRowId = completedRows.reduce<string | undefined>((freshest, candidate) => {
+    if (!freshest) return candidate;
+    const updatedAt = (id: string) => Math.max(
+      artifact.elements[`${id}__status`]?.updatedAt ?? 0,
+      artifact.elements[`${id}__summary`]?.updatedAt ?? 0,
+      artifact.elements[`${id}__source`]?.updatedAt ?? 0,
+      artifact.elements[`${id}__source2`]?.updatedAt ?? 0,
+    );
+    return updatedAt(candidate) > updatedAt(freshest) ? candidate : freshest;
+  }, undefined);
+  const rowId = preferredRowId && completedRows.includes(preferredRowId) ? preferredRowId : freshestRowId;
   if (!rowId) return null;
   const company = artifactCellValue(artifact, rowId, "company") || rowId;
   const evidenceCols = ["status", "summary", "funding", "headcount", "recent_signal", "source", "source2"];
@@ -131,6 +145,7 @@ function buildAgentResearchReceipt(artifact: Artifact | undefined): AgentResearc
     artifactId: artifact.id,
     cellId: `${rowId}__status`,
     company,
+    rowCount: Math.max(1, rowCount),
     sourceCount: uniqueEvidence.length,
     sourceLabel: first.label || "Source receipt",
     sourceDetail: first.snippet || first.url || first.source || "Evidence attached to the committed row.",
@@ -399,6 +414,13 @@ function humanAgentFailureText(text: string): string {
   if (/provider_egress_blocked:free_file_egress_requires_OPENROUTER_FREE_ALLOW_FILE_EGRESS/i.test(normalized)) {
     return "Provider blocked file egress for this free OpenRouter model. Use a route with file egress enabled or the local parser lane.";
   }
+  if (/provider_free_quota_exhausted|free-models-per-day|x-ratelimit-remaining.{0,24}["']?0\b/i.test(normalized)) {
+    return "OpenRouter's daily free-model quota is exhausted for this account. Switch to Adaptive or a funded route, or retry after the provider reset; NodeRoom will not spend the remaining attempts on the same exhausted quota.";
+  }
+  if (/openrouter\/free-auto candidates cooling down; retry in \d+s/i.test(normalized)) {
+    const retry = normalized.match(/retry in \d+s/i)?.[0] ?? "retry shortly";
+    return `All free routes are cooling down after recent failures. NodeRoom stopped rotating to avoid repeated requests; ${retry.toLowerCase()}, or switch to Adaptive.`;
+  }
   if (/(openrouter|provider).*(402|insufficient credit)|(?:402|insufficient credit).*(openrouter|provider)/i.test(normalized)) {
     return "Provider route blocked by insufficient credits. Add OpenRouter credits or switch NodeAgent to a funded model route before rerunning.";
   }
@@ -473,6 +495,8 @@ function titleCaseToolName(toolName: string): string {
 
 function agentActionLabel(toolName: string): string {
   switch (toolName) {
+    case "inspect_workbook": return "Inspected workbook";
+    case "verify_workbook": return "Verified workbook changes";
     case "list_artifacts": return "Gathered room files";
     case "read_range": return "Read source data";
     case "write_locked_cells": return "Updated Sheet 1";
@@ -693,15 +717,27 @@ function AgentPlanCard({ part }: { part: Extract<AgentStreamPart, { type: "plan"
 }
 
 function AgentReasoningCard({ part }: { part: Extract<AgentStreamPart, { type: "reasoning" }>; live?: boolean }) {
-  const stateLabel = part.state === "streaming" || part.state === "started" ? "thinking" : part.state === "failed" ? "failed" : "done";
+  const streaming = part.state === "streaming" || part.state === "started";
+  const stateLabel = streaming ? "thinking" : part.state === "failed" ? "failed" : "done";
+  // Reasoning disclosure now uses the maintained AI Elements <Reasoning> primitive
+  // (Vercel AI Elements), themed to NodeRoom terracotta via ai-elements.css. The
+  // `agent-reasoning-card` testid + `.r-agent-reasoning-card` container class are
+  // preserved so the test/style contract holds.
   return (
-    <details className="r-agent-reasoning-card" data-testid="agent-reasoning-card" data-state={stateLabel}>
-      <summary>
-        <Brain size={12} /> <span>Thoughts (step {part.step + 1})</span>
-        {stateLabel === "thinking" ? <RefreshCw size={10} className="r-spin" /> : <Check size={10} />}
-      </summary>
-      <div className="r-agent-reasoning-body">{part.text}</div>
-    </details>
+    <div className="ai-scope">
+      <Reasoning
+        className="r-agent-reasoning-card"
+        data-testid="agent-reasoning-card"
+        data-reasoning-state={stateLabel}
+        isStreaming={streaming}
+        defaultOpen={false}
+      >
+        <ReasoningTrigger>
+          <Brain size={12} /> <span>Thoughts (step {part.step + 1})</span>
+        </ReasoningTrigger>
+        <ReasoningContent>{part.text}</ReasoningContent>
+      </Reasoning>
+    </div>
   );
 }
 
@@ -789,7 +825,7 @@ type AgentFailureNotice = {
 
 const AGENT_MODEL_PRESETS: AgentModelPresetOption[] = [
   { value: "adaptive", label: "Adaptive", badge: "recommended", detail: "Server router chooses the best available NodeAgent route with fallbacks." },
-  { value: "free", label: "Free", badge: "$0", detail: "Uses the governed free-auto route and proposal-first writes." },
+  { value: "free", label: "Free", badge: "$0", detail: "Rotates across healthy $0 models; the final resolved model is shown and terminal failures stay actionable." },
   { value: "top_paid", label: "Top paid", badge: "best", detail: "Pins the strongest configured paid route for higher-recall work." },
   { value: "specific", label: "Specific model", badge: "pin", detail: "Pin one provider/model from the approved NodeAgent catalog." },
 ];
@@ -1279,6 +1315,8 @@ type ChatProps = {
   testId?: string;
 };
 
+type ContextPickerOption = { key: string; label: string; hint: string; ref: ArtifactRef };
+
 export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId, style, onOpenArtifact, coach, embedded = false, testId }: ChatProps) {
   const store = useStore();
   const [text, setText] = useState("");
@@ -1298,6 +1336,8 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const [jobErr, setJobErr] = useState<string | null>(null);
   const [agentErr, setAgentErr] = useState<AgentFailureNotice | null>(null); // C7/C2: honest surface for failed agent dispatches
   const [refOpenErr, setRefOpenErr] = useState<string | null>(null);
+  const [contextPickerOpen, setContextPickerOpen] = useState(false);
+  const [contextQuery, setContextQuery] = useState("");
   const [roomLane, setRoomLane] = useState(false); // private panel: false = whisper to me, true = act in the room
   const [modelSelectionMode, setModelSelectionMode] = useState<AgentModelSelection["mode"]>("adaptive");
   const [specificModelPolicy, setSpecificModelPolicy] = useState("");
@@ -1427,14 +1467,44 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     if (!isPrivate && mention.start === 0 && "nodeagent".includes(q)) {
       items.push({ kind: "agent", key: "__nodeagent__", label: "nodeagent", hint: "Ask the room agent" });
     }
-    const already = new Set(refs.map((r) => r.id));
+    const already = new Set(refs.map(artifactRefKey));
     for (const a of store.listArtifacts(roomId)) {
-      if (already.has(a.id) || (q !== "" && !a.title.toLowerCase().includes(q))) continue;
-      items.push({ kind: "artifact", key: a.id, label: a.title, hint: a.kind, ref: { id: a.id, title: a.title, kind: a.kind } });
+      const ref = { id: a.id, title: a.title, kind: a.kind, contextKind: "artifact" as const };
+      if (already.has(artifactRefKey(ref)) || (q !== "" && !a.title.toLowerCase().includes(q))) continue;
+      items.push({ kind: "artifact", key: a.id, label: a.title, hint: a.kind, ref });
       if (items.length >= 7) break;
     }
     return items;
   }, [mention, refs, roomId, store, isPrivate]);
+  const contextOptions = useMemo<ContextPickerOption[]>(() => {
+    const artifacts = store.listArtifacts(roomId);
+    const byId = new Map(artifacts.map((artifact) => [artifact.id, artifact]));
+    const options: ContextPickerOption[] = [];
+    const push = (ref: ArtifactRef, hint: string) => options.push({ key: artifactRefKey(ref), label: ref.title, hint, ref });
+    for (const artifact of artifacts) {
+      push({ id: artifact.id, title: artifact.title, kind: artifact.kind, contextKind: "artifact" }, artifact.kind);
+      const value = artifact.elements.deck_storyboard?.value as { slides?: Array<{ slideId?: string; title?: string }> } | undefined;
+      for (const [index, slide] of (value?.slides ?? []).slice(0, 24).entries()) {
+        if (!slide.slideId || !slide.title) continue;
+        push({ id: artifact.id, title: `Slide ${index + 1}: ${slide.title}`, kind: artifact.kind, contextKind: "deck_slide", contextId: slide.slideId, elementId: "deck_storyboard" }, "deck slide");
+      }
+    }
+    for (const proposal of store.listProposals(roomId).slice(0, 30)) {
+      const artifact = byId.get(proposal.artifactId);
+      if (!artifact) continue;
+      push({ id: artifact.id, title: `Proposal: ${proposal.op.elementId}`, kind: artifact.kind, contextKind: "proposal", contextId: proposal.id, elementId: proposal.op.elementId }, proposal.status);
+    }
+    const traces = typeof store.listTraces === "function" ? store.listTraces(roomId) : [];
+    for (const trace of traces.slice(-30).reverse()) {
+      const artifactId = trace.refs?.artifactId;
+      const artifact = artifactId ? byId.get(artifactId) : undefined;
+      if (!artifact) continue;
+      push({ id: artifact.id, title: `Trace: ${trace.summary}`, kind: artifact.kind, contextKind: "trace", contextId: trace.id, elementId: trace.refs?.elementId }, trace.type.replace(/_/g, " "));
+    }
+    const selected = new Set(refs.map(artifactRefKey));
+    const query = contextQuery.trim().toLowerCase();
+    return options.filter((option) => !selected.has(option.key) && (!query || `${option.label} ${option.hint}`.toLowerCase().includes(query))).slice(0, 60);
+  }, [contextQuery, refs, roomId, store]);
   const latestAttempt = longJobAttempts.at(-1);
   const canCancelLongJob = !!longJob && !["completed", "failed", "blocked", "cancelled"].includes(longJob.status);
   const canRetryLongJob = !!longJob && ["failed", "blocked", "cancelled", "paused"].includes(longJob.status);
@@ -1452,6 +1522,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const hasLongJobResultMessage = !!longJobResultText && messages.some((m) => m.author.kind === "agent" && (m.text.trim() === longJobResultText.trim() || m.clientMsgId === activeJobClientMsgId));
   const showLongJobResult = !!longJobResultText && !hasLongJobResultMessage;
   const longJobNeedsAttention = !!longJob && ["failed", "blocked", "cancelled"].includes(longJob.status);
+  const longJobRecoveryGoal = longJob?.goal || lastAgentInputRef.current;
   const showLongJobChrome = !!longJob && (!longJobTerminal || longJobNeedsAttention || jobDetailsOpen);
   const showAgentWorkingBubble = agentWorking && (!hasActiveJobStreamMessage || unifiedStreamParts.length === 0);
   const feedItems = useMemo(() => {
@@ -1728,7 +1799,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     const cid = crypto.randomUUID();
     void store.postMessage({ roomId, channel, author: me, text: messageText, clientMsgId: cid, kind: "chat" })
       .then((fb) => { if (fb && !fb.ok) setFailedSends((f) => { if (f.some((x) => x.cid === cid)) return f; const next = [...f, { cid, text: messageText }]; return next.length > MAX_FAILED_SENDS ? next.slice(-MAX_FAILED_SENDS) : next; }); });
-    setText(""); setRefs([]); setSlashOpen(false); setSlashIndex(0); setMention(null); setMentionIndex(0);
+    setText(""); setRefs([]); setSlashOpen(false); setSlashIndex(0); setMention(null); setMentionIndex(0); setContextPickerOpen(false); setContextQuery("");
     requestAnimationFrame(grow);
 
     const publicNodeAgentRequest = !isPrivate ? parsePublicNodeAgentRequest(t) : null;
@@ -1736,7 +1807,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       const modelSelection = composerModelSelection(publicNodeAgentRequest.forceFree, overrideModelSelection);
       beginThinking();
       lastAgentInputRef.current = t;
-      void store.askAgent({ goal: publicNodeAgentRequest.goal, references: messageRefs, modelSelection, contextArtifactId: activeArtifactId }).catch((e) => {
+      void store.askAgent({ goal: `${publicNodeAgentRequest.goal}${artifactRefContextSuffix(messageRefs)}`, references: messageRefs, modelSelection, contextArtifactId: activeArtifactId }).catch((e) => {
         if (aliveRef.current) {
           setAgentErr(buildAgentFailureNotice(e, { selection: modelSelection, requestText: t, source: "public", jobId: longJob?.id }));
           setThinking(false);
@@ -1770,7 +1841,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       // Live private NodeAgent. Private lane → replies only to you. Room lane → acts in the shared room
       // (edits the sheet + posts public chat) as your personal agent, attributed to you.
       beginThinking();
-      void store.askPrivateAgent({ goal: t, references: messageRefs }, { publish: roomLane }).catch((e) => {
+      void store.askPrivateAgent({ goal: `${t}${artifactRefContextSuffix(messageRefs)}`, references: messageRefs }, { publish: roomLane }).catch((e) => {
         if (aliveRef.current) setAgentErr(buildAgentFailureNotice(e, { selection: { mode: "adaptive" }, requestText: t, source: "private", jobId: longJob?.id }));
       }).finally(() => { if (aliveRef.current) setThinking(false); });
     }
@@ -1788,6 +1859,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     reason === "terminal" ? "Can't cancel — the job already finished."
       : reason === "not_retryable" ? "Can't retry — the job is completed or still running."
         : reason === "job_not_found" ? "That job no longer exists."
+          : reason ? `Action failed - ${humanAgentFailureText(reason)}`
           : "Action failed — try again.";
   const cancelJob = () => {
     if (!longJob || jobBusy) return;
@@ -1813,19 +1885,25 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const addRef = (ref: ArtifactRef) => {
     const art = store.listArtifacts(roomId).find((a) => a.id === ref.id);
     if (!art) return;
-    const canonical = { id: art.id, title: art.title, kind: art.kind };
-    setRefs((cur) => cur.some((r) => r.id === canonical.id) ? cur : [...cur, canonical]);
+    const canonical: ArtifactRef = {
+      ...ref,
+      id: art.id,
+      title: ref.contextKind && ref.contextKind !== "artifact" ? ref.title : art.title,
+      kind: art.kind,
+    };
+    const key = artifactRefKey(canonical);
+    setRefs((cur) => cur.some((r) => artifactRefKey(r) === key) ? cur : [...cur, canonical]);
   };
   const appendRefs = (nextRefs: ArtifactRef[]) => {
     setRefs((cur) => {
-      const seen = new Set(cur.map((r) => r.id));
-      const additions = nextRefs.filter((r) => !seen.has(r.id));
+      const seen = new Set(cur.map(artifactRefKey));
+      const additions = nextRefs.filter((r) => !seen.has(artifactRefKey(r)));
       return additions.length ? [...cur, ...additions] : cur;
     });
   };
-  const removeRef = (id: string) => setRefs((cur) => cur.filter((r) => r.id !== id));
+  const removeRef = (key: string) => setRefs((cur) => cur.filter((r) => artifactRefKey(r) !== key));
   const openComposerRef = (ref: ArtifactRef) => {
-    const opened = onOpenArtifact?.(ref.id, { split: true });
+    const opened = onOpenArtifact?.(ref.id, { split: true, elementId: ref.elementId });
     if (opened === false) setRefOpenErr(`Couldn't open ${ref.title}. The artifact or proposal no longer exists.`);
     else setRefOpenErr(null);
   };
@@ -1983,34 +2061,48 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     >
       <div className="r-panel-head">
         {isPrivate ? <Lock size={14} /> : <MessageCircle size={14} />}
-        <span className="h-title">{isPrivate ? "Your NodeAgent" : "Public chat"}</span>
+        <span className="h-title">{isPrivate ? "Your NodeAgent" : "Room chat"}</span>
         <span className={"r-tag " + (isPrivate ? "private" : "public")}>{isPrivate ? <><Lock size={10} /> Private</> : <><Globe size={10} /> Everyone</>}</span>
         {!isPrivate && messages.length > 0 && <span className="r-tag">{messages.length}</span>}
         <span className="grow" />
         {!isPrivate && <span className="r-tag agent" style={{ gap: 6 }}><span className="r-avatar agent sm" style={{ background: AGENT_AVATAR_COLOR, width: 18, height: 18, fontSize: 9 }}>N</span>Room NodeAgent</span>}
-        {showLongJobChrome && longJob && (() => { const bad = ["failed", "blocked"].includes(longJob.status); return (
-          <span className={"r-tag" + (bad ? " danger" : "")} role={bad ? "status" : undefined} data-testid="job-status" title="Latest long-running free-auto job"><Timer size={10} /> {longJob.status} {longJob.attempts}/{longJob.maxAttempts}</span>
-        ); })()}
-        {canCancelLongJob && (
-          <button className="r-iconbtn r-iconbtn-sm" title={jobBusy === "cancel" ? "Cancelling…" : "Cancel long-running job"} aria-label="Cancel long-running job" data-testid="job-cancel" disabled={jobBusy !== null} onClick={cancelJob}>
-            <X size={13} />
-          </button>
-        )}
-        {canRetryLongJob && (
-          <button className="r-iconbtn r-iconbtn-sm" title={jobBusy === "retry" ? "Retrying…" : "Retry long-running job"} aria-label="Retry long-running job" data-testid="job-retry" disabled={jobBusy !== null} onClick={retryJob}>
-            <RefreshCw size={13} />
-          </button>
-        )}
-        {jobErr && <span className="r-tag" role="alert" data-testid="job-error" style={{ color: "var(--danger-ink)" }}>{jobErr}</span>}
       </div>
-      {isPrivate && <div className="r-private-banner"><Sparkles size={12} /> Reads room context; output stays yours until you promote it</div>}
+      {isPrivate && <div className="r-private-banner"><Sparkles size={12} /> Only you can read this lane in NodeRoom; requests and room context are sent to the configured model provider</div>}
       {!isPrivate && showLongJobChrome && longJob && (
         <div className="r-job-strip">
           <Timer size={12} />
-          <span>{longJob.modelPolicy}</span>
-          {latestAttempt && <span>attempt {latestAttempt.attempt}: {latestAttempt.resolvedModel} · {latestAttempt.stopReason} · {shortMs(latestAttempt.ms)}</span>}
-          {longJob.nextRunAt && longJob.status !== "completed" && <span>next {clock(longJob.nextRunAt)}</span>}
-          {longJobVisibleError && <span>{humanAgentFailureText(longJobVisibleError)}</span>}
+          <span className="r-job-route" title={`${longJob.modelPolicy}${latestAttempt ? ` · attempt ${latestAttempt.attempt}: ${latestAttempt.resolvedModel} · ${latestAttempt.stopReason} · ${shortMs(latestAttempt.ms)}` : ""}`}>
+            {longJobVisibleError ? humanAgentFailureText(longJobVisibleError) : longJob.modelPolicy}
+            {!longJobVisibleError && latestAttempt ? ` · ${latestAttempt.resolvedModel} · ${shortMs(latestAttempt.ms)}` : ""}
+            {longJob.nextRunAt && longJob.status !== "completed" ? ` · next ${clock(longJob.nextRunAt)}` : ""}
+          </span>
+          {(() => { const bad = ["failed", "blocked"].includes(longJob.status); return (
+            <span className={"r-tag" + (bad ? " danger" : "")} role="status" data-testid="job-status" title="Latest long-running free-auto job">{longJob.status} {longJob.attempts}/{longJob.maxAttempts}</span>
+          ); })()}
+          {canCancelLongJob && (
+            <button className="r-iconbtn r-iconbtn-sm" title={jobBusy === "cancel" ? "Cancelling…" : "Cancel long-running job"} aria-label="Cancel long-running job" data-testid="job-cancel" disabled={jobBusy !== null} onClick={cancelJob}>
+              <X size={13} />
+            </button>
+          )}
+          {canRetryLongJob && (
+            <button className="r-iconbtn r-iconbtn-sm" title={jobBusy === "retry" ? "Retrying…" : "Retry long-running job"} aria-label="Retry long-running job" data-testid="job-retry" disabled={jobBusy !== null} onClick={retryJob}>
+              <RefreshCw size={13} />
+            </button>
+          )}
+          {longJobNeedsAttention && longJobRecoveryGoal && (
+            <button
+              className="r-mini-btn"
+              type="button"
+              data-testid="job-use-adaptive"
+              onClick={() => {
+                setModelSelectionMode("adaptive");
+                send(longJobRecoveryGoal, { mode: "adaptive" });
+              }}
+            >
+              Adaptive
+            </button>
+          )}
+          {jobErr && <span className="r-tag" role="alert" data-testid="job-error" style={{ color: "var(--danger-ink)" }}>{jobErr}</span>}
           <button className="r-job-detail-toggle" type="button" data-testid="job-detail-toggle" onClick={() => setJobDetailsOpen((open) => !open)} aria-expanded={jobDetailsOpen}>
             {jobDetailsOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />} Details
           </button>
@@ -2205,14 +2297,31 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             ))}
           </div>
         )}
+        {contextPickerOpen && (
+          <div className="r-context-picker" data-testid="chat-context-picker" role="dialog" aria-label="Attach work context">
+            <div className="r-context-picker-search">
+              <Search size={12} />
+              <input autoFocus value={contextQuery} onChange={(event) => setContextQuery(event.target.value)} placeholder="Find artifacts, slides, proposals, or traces" />
+              <button type="button" aria-label="Close context picker" onClick={() => { setContextPickerOpen(false); setContextQuery(""); }}><X size={12} /></button>
+            </div>
+            <div className="r-context-picker-list" role="listbox">
+              {contextOptions.map((option) => (
+                <button key={option.key} type="button" role="option" onClick={() => { addRef(option.ref); setContextPickerOpen(false); setContextQuery(""); requestAnimationFrame(() => taRef.current?.focus()); }}>
+                  <span>{option.label}</span><em>{option.hint}</em>
+                </button>
+              ))}
+              {contextOptions.length === 0 && <p>No matching room context.</p>}
+            </div>
+          </div>
+        )}
         {refs.length > 0 && (
           <div className="r-ref-composer" aria-label="Message references">
             {refs.map((ref) => (
-              <span key={ref.id} className="r-ref-chip">
+              <span key={artifactRefKey(ref)} className="r-ref-chip" data-context-kind={ref.contextKind ?? "artifact"}>
                 <button className="r-ref-open" type="button" onClick={() => openComposerRef(ref)}>
-                  <Paperclip size={12} /> <span className="r-ref-title">{ref.title}</span>
+                  {ref.contextKind && ref.contextKind !== "artifact" ? <Link2 size={12} /> : <Paperclip size={12} />} <span className="r-ref-title">{ref.title}</span>
                 </button>
-                <button className="r-ref-remove" type="button" aria-label={`Remove ${ref.title}`} onClick={() => removeRef(ref.id)}><X size={11} /></button>
+                <button className="r-ref-remove" type="button" aria-label={`Remove ${ref.title}`} onClick={() => removeRef(artifactRefKey(ref))}><X size={11} /></button>
               </span>
             ))}
           </div>
@@ -2274,6 +2383,18 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
               title={voiceListening ? "Stop voice input" : "Start voice input"}
             >
               {voiceListening ? <MicOff size={15} /> : <Mic size={15} />}
+            </button>
+            <button
+              className="r-attach r-context-btn"
+              type="button"
+              data-testid="chat-context"
+              data-active={String(contextPickerOpen)}
+              aria-expanded={contextPickerOpen}
+              aria-label="Attach work context"
+              title="Attach work context"
+              onClick={() => setContextPickerOpen((open) => !open)}
+            >
+              <Link2 size={15} />
             </button>
             {showModelSelection && (
               <AgentModelPicker
@@ -2451,7 +2572,7 @@ function AgentResearchReceiptStrip({
         onClick={() => onOpenArtifact?.(receipt.artifactId, { split: true, elementId: receipt.cellId })}
       >
         <ChevronRight size={12} />
-        <span>Reconciled 2 rows · <b data-testid="agent-source-receipt">{receipt.sourceCount} sources</b></span>
+        <span>Researched {receipt.rowCount} {receipt.rowCount === 1 ? "company" : "companies"} with structured fields · <b data-testid="agent-source-receipt">{receipt.sourceCount} sources</b></span>
       </button>
       <span className="r-agent-receipt-version" data-testid="agent-version-receipt">
         v{receipt.fromVersion} -&gt; v{receipt.toVersion}
@@ -2514,10 +2635,13 @@ function Bubble({
     return () => clearTimeout(timer);
   }, [pending]);
   const agentResearchReceipt = useMemo(() => {
-    if (!agent || !/Researched\s+\d+\s+compan/i.test(parsed.body)) return null;
+    const completion = parsed.body.match(/Researched\s+(\d+)\s+compan/i);
+    if (!agent || !completion) return null;
     const research = store.listArtifacts(roomId).find((a) => a.kind === "sheet" && /company|research/i.test(a.title ?? ""));
-    return buildAgentResearchReceipt(research);
-  }, [agent, parsed.body, roomId, store]);
+    const scope = m.toolParts?.find((part) => part.tool === "research_receipt")?.detail.match(/(?:^|;)rows=([^;]+)/)?.[1];
+    const preferredRowId = scope?.split(",").map((rowId) => rowId.trim()).find(Boolean);
+    return buildAgentResearchReceipt(research, Number(completion[1]), preferredRowId);
+  }, [agent, m.toolParts, parsed.body, roomId, store]);
   // QA P2 perf: the avatar style depends only on the author's color — don't rebuild per feed render.
   const avatarStyle = useMemo(() => ({ background: colorFor(store, roomId, m.author) }), [store, roomId, m.author]);
   useEffect(() => {
@@ -2533,7 +2657,7 @@ function Bubble({
     } else setEditing(false);
   };
   const openRef = (ref: ArtifactRef) => {
-    const opened = onOpenArtifact?.(ref.id, { split: true });
+    const opened = onOpenArtifact?.(ref.id, { split: true, elementId: ref.elementId });
     if (opened === false) setOpenErr(`Couldn't open ${ref.title}. The artifact or proposal no longer exists.`);
     else setOpenErr(null);
   };
@@ -2561,7 +2685,7 @@ function Bubble({
             {parsed.refs.length > 0 && (
               <div className="r-msg-refs">
                 {parsed.refs.map((ref) => (
-                  <ArtifactEmbed key={ref.id} roomId={roomId} ref={ref} store={store} onOpen={openRef} />
+                  <ArtifactEmbed key={artifactRefKey(ref)} roomId={roomId} ref={ref} store={store} onOpen={openRef} />
                 ))}
               </div>
             )}
