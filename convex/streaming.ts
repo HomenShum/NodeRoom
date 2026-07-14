@@ -16,19 +16,19 @@
  */
 import { v } from "convex/values";
 import { makeFunctionReference } from "convex/server";
-import { PersistentTextStreaming, StreamIdValidator, type StreamId } from "@convex-dev/persistent-text-streaming";
+import { StreamIdValidator, type StreamId } from "@convex-dev/persistent-text-streaming";
 import { components } from "./_generated/api";
 import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import type { MutationCtx } from "./_generated/server";
-import { actorProofV, actorV, requireActorCanUseChannel, requireActorProof } from "./lib";
+import { actorProofV, actorV, requireActiveAgentJobLease, requireActorCanUseChannel, requireActorProof } from "./lib";
 import { summarizeRoomForPrivate } from "./agent";
 import { assertProviderEgressAllowed } from "../src/nodeagent/guardrails/egressPolicy";
+import { streamingComponent } from "./streamingComponent";
+export { streamingComponent } from "./streamingComponent";
 
 const roomsFullRef = makeFunctionReference<"query">("rooms:full");
 const PUBLIC_STREAM_OWNER_ID = "public";
-
-export const streamingComponent = new PersistentTextStreaming(components.persistentTextStreaming);
 
 function publicAgentJobStreamClientMsgId(jobId: string): string {
   return `pubstream-${jobId}`;
@@ -107,8 +107,9 @@ export const createPrivateReplyStream = mutation({
 });
 
 export const ensurePublicAgentJobStream = internalMutation({
-  args: { roomId: v.id("rooms"), jobId: v.id("agentJobs"), author: actorV, goal: v.string(), createdAt: v.optional(v.number()) },
+  args: { roomId: v.id("rooms"), jobId: v.id("agentJobs"), leaseId: v.optional(v.string()), author: actorV, goal: v.string(), createdAt: v.optional(v.number()) },
   handler: async (ctx, a): Promise<{ streamId: string; clientMsgId: string }> => {
+    await requireActiveAgentJobLease(ctx, a);
     const clientMsgId = publicAgentJobStreamClientMsgId(String(a.jobId));
     const existingMessage = await ctx.db.query("messages").withIndex("by_clientMsgId", (q) => q.eq("roomId", a.roomId).eq("clientMsgId", clientMsgId)).unique();
     if (existingMessage?.streamId && !existingMessage.text) {
@@ -162,9 +163,10 @@ async function requirePublicAgentJobStream(ctx: MutationCtx, args: { roomId: Id<
 }
 
 export const appendPublicAgentJobStreamChunk = internalMutation({
-  args: { roomId: v.id("rooms"), jobId: v.id("agentJobs"), streamId: v.string(), text: v.string() },
+  args: { roomId: v.id("rooms"), jobId: v.id("agentJobs"), leaseId: v.optional(v.string()), streamId: v.string(), text: v.string() },
   handler: async (ctx, a) => {
     if (!a.text) return;
+    await requireActiveAgentJobLease(ctx, a);
     await requirePublicAgentJobStream(ctx, a);
     await ctx.runMutation(components.persistentTextStreaming.lib.addChunk, {
       streamId: a.streamId as StreamId,
@@ -175,8 +177,9 @@ export const appendPublicAgentJobStreamChunk = internalMutation({
 });
 
 export const finalizePublicAgentJobStream = internalMutation({
-  args: { roomId: v.id("rooms"), jobId: v.id("agentJobs"), streamId: v.string(), text: v.string() },
+  args: { roomId: v.id("rooms"), jobId: v.id("agentJobs"), leaseId: v.optional(v.string()), streamId: v.string(), text: v.string() },
   handler: async (ctx, a) => {
+    await requireActiveAgentJobLease(ctx, a);
     const row = await requirePublicAgentJobStream(ctx, a);
     try {
       await ctx.runMutation(components.persistentTextStreaming.lib.addChunk, {

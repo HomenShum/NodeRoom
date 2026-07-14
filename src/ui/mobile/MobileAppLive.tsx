@@ -107,6 +107,7 @@ function deckPatchReview(
     ...slide.claims.map((claim) => claim.traceId),
   ])).filter((id): id is string => typeof id === "string" && id.length > 0);
   return {
+    jobId: proposal.jobId,
     target: `Slide ${deck.storyboard.slides.indexOf(slide) + 1} - ${slide.title}`,
     before: changed.map(([field]) => `${label(field)}: ${beforeValue(field)}`).join("\n"),
     after: changed.map(([field, value]) => `${label(field)}: ${value}`).join("\n"),

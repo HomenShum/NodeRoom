@@ -2098,7 +2098,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             {longJob.nextRunAt && longJob.status !== "completed" ? ` · next ${clock(longJob.nextRunAt)}` : ""}
           </span>
           {(() => { const bad = ["failed", "blocked"].includes(longJob.status); return (
-            <span className={"r-tag" + (bad ? " danger" : "")} role="status" data-testid="job-status" title="Latest long-running free-auto job">{longJob.status} {longJob.attempts}/{longJob.maxAttempts}</span>
+            <span className={"r-tag" + (bad ? " danger" : "")} role="status" data-testid="job-status" data-job-id={longJob.id} title={`Agent job ${longJob.id}`}>{longJob.status} {longJob.attempts}/{longJob.maxAttempts}</span>
           ); })()}
           {canCancelLongJob && (
             <button className="r-iconbtn r-iconbtn-sm" title={jobBusy === "cancel" ? "Cancelling…" : "Cancel long-running job"} aria-label="Cancel long-running job" data-testid="job-cancel" disabled={jobBusy !== null} onClick={cancelJob}>
@@ -2132,6 +2132,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       {!isPrivate && showLongJobChrome && longJob && jobDetailsOpen && (
         <div className="r-job-detail" data-testid="job-detail" aria-label="Agent job details">
           <div className="r-job-grid">
+            <span>Job</span><b data-testid="job-id">{longJob.id}</b>
             <span>Runtime</span><b>{longJob.runtime ?? "inline"}</b>
             <span>Policy</span><b data-testid="job-approval-policy">{longJob.approvalPolicy ?? "n/a"}</b>
             <span>Slices</span><b>{longJob.actionSliceCount ?? 0}</b>

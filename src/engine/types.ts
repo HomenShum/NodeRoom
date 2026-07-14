@@ -422,6 +422,7 @@ export interface Proposal {
   id: string;
   roomId: string;
   artifactId: string;
+  jobId?: string;
   op: ChangeOp;
   author: Actor;
   status: ProposalStatus;

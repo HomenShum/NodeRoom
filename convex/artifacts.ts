@@ -15,7 +15,7 @@ import { internal } from "./_generated/api";
 import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
-import { actorProofV, actorV, getElement, activeLockOn, lockCoveringElement, LOCK_TTL_MS, requireActorInRoom, requireActorProof, requireArtifactInRoom, type ActorValue } from "./lib";
+import { actorProofV, actorV, getElement, activeLockOn, lockCoveringElement, LOCK_TTL_MS, requireActiveAgentJobLease, requireActorInRoom, requireActorProof, requireArtifactInRoom, type ActorValue } from "./lib";
 import { syncSpreadsheetIndexFromDb, syncSpreadsheetIndexFromSeed } from "./spreadsheetIndexLib";
 import { planAndRecordRebase } from "./semanticRebase";
 import { enqueueArtifactSnapshotForOkf } from "./okf";
@@ -615,6 +615,7 @@ type ApplyCellEditArgs = {
   baseVersion: number;
   actor: ActorValue;
   jobId?: Id<"agentJobs">;
+  leaseId?: string;
   runId?: Id<"agentRuns">;
   /** Internal: set when this apply IS a semantic-rebase auto-merge, so it does not re-trigger rebase. */
   _rebased?: boolean;
@@ -799,7 +800,14 @@ function versionLogSnapshot(value: unknown): { value: unknown; truncated: boolea
     : { value, truncated: false };
 }
 
-async function applyApprovedProposal(ctx: MutationCtx, roomId: Id<"rooms">, artifactId: Id<"artifacts">, op: ProposalOp, author: ActorValue) {
+async function applyApprovedProposal(
+  ctx: MutationCtx,
+  roomId: Id<"rooms">,
+  artifactId: Id<"artifacts">,
+  op: ProposalOp,
+  author: ActorValue,
+  lineage?: { proposalId: Id<"proposals">; jobId?: Id<"agentJobs"> },
+) {
   if (String(op.artifactId) !== String(artifactId)) throw new Error("proposal_artifact_mismatch");
   const art = await requireArtifactInRoom(ctx, roomId, artifactId);
   const el = await getElement(ctx, artifactId, op.elementId);
@@ -842,9 +850,38 @@ async function applyApprovedProposal(ctx: MutationCtx, roomId: Id<"rooms">, arti
     ts: now,
   });
   const summary = op.kind === "delete" ? `${author.name} deleted ${op.elementId}` : `${author.name} set ${op.elementId} = ${formatCellForTrace(approvedValue)}`;
-  await ctx.db.insert("traces", { roomId, ts: now, actor: author, type: "edit_applied", summary, detail: `edit_cell - ${op.elementId} = ${formatCellForTrace(approvedValue)} - v${actual} -> v${nextVersion}` });
-  await enqueueArtifactSnapshotForOkf(ctx, { roomId, artifactId });
-  return { ok: true as const, version: nextVersion };
+  await ctx.db.insert("traces", { roomId, ts: now, actor: author, type: "edit_applied", summary, detail: `edit_cell - ${op.elementId} = ${formatCellForTrace(approvedValue)} - v${actual} -> v${nextVersion}${lineage?.jobId ? ` - job ${String(lineage.jobId)}` : ""}` });
+  await enqueueArtifactSnapshotForOkf(ctx, { roomId, artifactId, createdByJobId: lineage?.jobId });
+  let mutationReceiptId: Id<"agentMutationReceipts"> | undefined;
+  if (lineage?.jobId) {
+    const job = await ctx.db.get(lineage.jobId);
+    if (job && String(job.roomId) === String(roomId)) {
+      mutationReceiptId = await ctx.db.insert("agentMutationReceipts", clean({
+        jobId: lineage.jobId,
+        runId: job.latestRunId,
+        mutationName: "artifacts.resolveProposal",
+        permission: "host_approval",
+        inputHash: await sha256hex(JSON.stringify(canonical({
+          proposalId: String(lineage.proposalId),
+          artifactId: String(artifactId),
+          elementId: op.elementId,
+          kind: op.kind,
+          baseVersion: op.baseVersion,
+        }))),
+        output: { ok: true, version: nextVersion, proposalId: String(lineage.proposalId) },
+        affectedIds: [String(lineage.proposalId), String(artifactId), `${String(artifactId)}:${op.elementId}`],
+        beforeVersions: { [op.elementId]: actual },
+        afterVersions: { [op.elementId]: op.kind === "delete" ? null : nextVersion },
+        createdAt: now,
+      }));
+      await ctx.db.patch(lineage.jobId, {
+        mutationCount: (job.mutationCount ?? 0) + 1,
+        receiptCount: (job.receiptCount ?? 0) + 1,
+        updatedAt: now,
+      });
+    }
+  }
+  return clean({ ok: true as const, version: nextVersion, mutationReceiptId });
 }
 
 // Exported for elementHistory.restoreElementVersion — restore IS this same CAS write
@@ -853,8 +890,7 @@ export async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) 
     const art = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
     await requireActorInRoom(ctx, a.roomId, a.actor);
     if (!canReadArtifact(art, a.actor)) throw new Error("artifact_not_visible");
-    const job = a.jobId ? await ctx.db.get(a.jobId) : null;
-    if (a.jobId && (!job || String(job.roomId) !== String(a.roomId))) throw new Error("job_room_mismatch");
+    const job = await requireActiveAgentJobLease(ctx, a);
     if (job?.request && typeof job.request === "object" && !Array.isArray(job.request)) {
       const allowed = (job.request as { allowedElementIds?: unknown }).allowedElementIds;
       if (Array.isArray(allowed) && allowed.some((value) => typeof value === "string" && value.length > 0)) {
@@ -897,6 +933,7 @@ export async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) 
           const rebase = await planAndRecordRebase(ctx, {
             roomId: a.roomId,
             artifactId: a.artifactId,
+            jobId: a.jobId,
             artifactKind: art.kind,
             elementId: a.elementId,
             kind,
@@ -938,6 +975,7 @@ export async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) 
       const proposalId = await ctx.db.insert("proposals", {
         roomId: a.roomId,
         artifactId: a.artifactId,
+        jobId: a.jobId,
         op: { opId: `proposal_${a.elementId}_${Date.now()}`, artifactId: String(a.artifactId), elementId: a.elementId, kind, value: a.value, baseVersion: a.baseVersion },
         author: a.actor,
         status: "pending",
@@ -1181,8 +1219,11 @@ export const setArtifactMetaByAgent = internalMutation({
     summary: v.optional(v.string()),
     tags: v.optional(v.array(v.string())),
     actor: actorV,
+    jobId: v.optional(v.id("agentJobs")),
+    leaseId: v.optional(v.string()),
   },
   handler: async (ctx, a) => {
+    await requireActiveAgentJobLease(ctx, a);
     await requireActorInRoom(ctx, a.roomId, a.actor);
     const art = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
     const patch: Record<string, unknown> = {};
@@ -1222,8 +1263,11 @@ export const setColumnsByAgent = internalMutation({
       agentWritable: v.optional(v.boolean()),
     })),
     actor: actorV,
+    jobId: v.optional(v.id("agentJobs")),
+    leaseId: v.optional(v.string()),
   },
   handler: async (ctx, a) => {
+    await requireActiveAgentJobLease(ctx, a);
     await requireActorInRoom(ctx, a.roomId, a.actor);
     const art = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
     if (art.kind !== "sheet") return { ok: false as const, reason: "not_a_sheet" as const };
@@ -1289,6 +1333,7 @@ export const listProposals = query({
       id: String(p._id),
       roomId: String(p.roomId),
       artifactId: String(p.artifactId),
+      jobId: p.jobId ? String(p.jobId) : undefined,
       op: p.op,
       author: p.author,
       review: p.review,
@@ -1375,7 +1420,7 @@ export const resolveProposal = mutation({
 
     const now = Date.now();
     if (approve) {
-      const result = await applyApprovedProposal(ctx, proposal.roomId, proposal.artifactId, parseProposalOp(proposal.op), proposal.author as ActorValue);
+      const result = await applyApprovedProposal(ctx, proposal.roomId, proposal.artifactId, parseProposalOp(proposal.op), proposal.author as ActorValue, { proposalId, jobId: proposal.jobId });
       if (!result.ok) {
         await ctx.db.insert("traces", {
           roomId: proposal.roomId,
@@ -1383,7 +1428,7 @@ export const resolveProposal = mutation({
           actor,
           type: "proposal_resolve_failed",
           summary: `${actor.name} tried to approve ${proposal.author.name}'s edit, but final validation rejected it`,
-          detail: `proposal ${String(proposalId)} - approval blocked - ${result.reason}`,
+          detail: `proposal ${String(proposalId)} - approval blocked - ${result.reason}${proposal.jobId ? ` - job ${String(proposal.jobId)}` : ""}`,
         });
         return result;
       }
@@ -1394,7 +1439,7 @@ export const resolveProposal = mutation({
         actor,
         type: "proposal_resolved",
         summary: `${actor.name} approved ${proposal.author.name}'s edit`,
-        detail: `proposal ${String(proposalId)} - approved`,
+        detail: `proposal ${String(proposalId)} - approved${proposal.jobId ? ` - job ${String(proposal.jobId)}` : ""}`,
       });
       return result;
     }
@@ -1405,7 +1450,7 @@ export const resolveProposal = mutation({
       actor,
       type: "proposal_resolved",
       summary: `${actor.name} rejected ${proposal.author.name}'s edit`,
-      detail: `proposal ${String(proposalId)} - rejected`,
+      detail: `proposal ${String(proposalId)} - rejected${proposal.jobId ? ` - job ${String(proposal.jobId)}` : ""}`,
     });
     return { ok: true as const, rejected: true as const };
   },
@@ -1606,6 +1651,7 @@ export const applyAgentCellEdit = internalMutation({
     baseVersion: v.number(),
     actor: actorV,
     jobId: v.optional(v.id("agentJobs")),
+    leaseId: v.optional(v.string()),
     runId: v.optional(v.id("agentRuns")),
   },
   handler: applyCellEditCore,
@@ -1797,8 +1843,11 @@ export const createAgentFileArtifact = internalMutation({
     summary: v.optional(v.string()),
     sourceArtifactIds: v.optional(v.array(v.string())),
     sourceUrls: v.optional(v.array(v.string())),
+    jobId: v.optional(v.id("agentJobs")),
+    leaseId: v.optional(v.string()),
   },
   handler: async (ctx, a) => {
+    await requireActiveAgentJobLease(ctx, a);
     if (!a.fileName || a.fileName.length > MAX_UPLOAD_FILE_NAME_CHARS) throw new Error("invalid_file_name");
     if (a.mimeType.length > MAX_UPLOAD_MIME_CHARS) throw new Error("invalid_mime_type");
     if (!Number.isFinite(a.size) || a.size <= 0 || a.size > MAX_RAW_UPLOAD_BYTES) throw new Error("file_size_not_allowed");

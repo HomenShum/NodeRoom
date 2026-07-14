@@ -194,6 +194,7 @@ const proposal: Proposal = {
   id: "proposal-1",
   roomId: "room-1",
   artifactId: "art-research",
+  jobId: "job-1",
   op: { opId: "op-1", artifactId: "art-research", elementId: "r1__risk", kind: "set", value: "HIPAA source added", baseVersion: 1 },
   author: agent,
   status: "pending",
@@ -384,6 +385,8 @@ describe("work artifact adapters", () => {
     expect(workpaper.status).toBe("pending");
     expect(workpaper.summary).toContain("Needs host approval");
     expect(workpaper.receipt.unresolvedCount).toBe(1);
+    expect(workpaper.refs[0]).toMatchObject({ proposalId: "proposal-1", jobId: "job-1" });
+    expect(workpaper.meta?.jobId).toBe("job-1");
     expect(workpaper.actions.map((action) => action.id)).toEqual(["open", "accept", "reject", "view_trace"]);
   });
 
@@ -404,6 +407,7 @@ describe("work artifact adapters", () => {
       artifactTitle: "Company research",
       reviewKind: "semantic_rebase",
       valuePreview: "Funding source needs rebase",
+      jobId: "job-1",
     });
     expect(counts).toMatchObject({ total: 2, pending: 2, agentEdit: 1, semanticRebase: 1 });
     expect(filterProposalReviewItems(items, "semantic_rebase")).toHaveLength(1);

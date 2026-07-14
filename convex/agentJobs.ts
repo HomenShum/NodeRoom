@@ -16,9 +16,11 @@ import {
   type ProviderEgressArtifact,
 } from "../src/nodeagent/guardrails/egressPolicy";
 import { parseBulkCompanyIngest } from "../src/nodeagent/skills/finance/bulkIngest";
+import { finalizePublicAgentJobStreamAfterTerminal } from "./agentStreamTerminal";
 
 // BOUND: cap a single bulk-diligence fan-out so one command can't enqueue unbounded jobs.
 const MAX_BULK_COMPANIES = 50;
+const LEASE_EXPIRY_GRACE_MS = 30_000;
 const DEFAULT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
 function companyKeyOf(name: string): string {
   return name.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
@@ -891,6 +893,7 @@ async function recordOperationEvent(ctx: any, args: {
 
 async function recordStreamEventRow(ctx: any, args: {
   jobId: string;
+  leaseId?: string;
   runId?: string;
   sequence: number;
   kind: "message_start" | "step_start" | "text_delta" | "tool_call_start" | "tool_call_result" | "artifact_update" | "warning" | "error" | "message_done" | "reasoning" | "plan";
@@ -908,6 +911,12 @@ async function recordStreamEventRow(ctx: any, args: {
 }) {
   const job = await ctx.db.get(args.jobId);
   if (!job) return { ok: false as const, reason: "job_not_found" as const };
+  if (args.leaseId && (
+    terminalStatuses.has(job.status) ||
+    job.leaseId !== args.leaseId ||
+    !job.leaseUntil ||
+    job.leaseUntil <= Date.now()
+  )) return { ok: false as const, reason: "job_lease_invalid" as const };
   const existing = await ctx.db.query("agentStreamEvents").withIndex("by_job_sequence", (q: any) => q.eq("jobId", args.jobId).eq("sequence", args.sequence)).take(1);
   if (existing.length) return { ok: true as const, reused: true as const };
   const now = Date.now();
@@ -940,9 +949,120 @@ async function nextStreamSequence(ctx: any, jobId: string, floor: number): Promi
   return Math.max(floor, (latest[0]?.sequence ?? 0) + 1);
 }
 
+type TerminalJobStatus = "completed" | "failed" | "blocked" | "cancelled";
+
+function terminalJobText(status: TerminalJobStatus, error?: string, finalText?: string): string {
+  if (finalText?.trim()) return finalText.trim();
+  if (status === "completed") return "Agent job completed.";
+  if (status === "cancelled") return "Agent job cancelled by the user.";
+  if (status === "blocked") return `Agent job blocked${error ? `: ${error}` : "."}`;
+  return `Agent job failed${error ? `: ${error}` : "."}`;
+}
+
+async function ensureTerminalJobReceipts(ctx: any, args: {
+  job: any;
+  status: TerminalJobStatus;
+  error?: string;
+  finalText?: string;
+  now: number;
+}) {
+  const text = terminalJobText(args.status, args.error, args.finalText ?? args.job.finalText);
+  const latest = await ctx.db.query("agentStreamEvents")
+    .withIndex("by_job_sequence", (q: any) => q.eq("jobId", args.job._id))
+    .order("desc")
+    .take(1);
+  if (latest[0]?.kind !== "message_done") {
+    if (args.status !== "completed" && latest[0]?.kind !== "error") {
+      await recordStreamEventRow(ctx, {
+        jobId: args.job._id,
+        sequence: await nextStreamSequence(ctx, args.job._id, 90_000),
+        kind: "error",
+        status: "failed",
+        title: args.status === "cancelled" ? "Agent job cancelled" : args.status === "blocked" ? "Agent job blocked" : "Agent job failed",
+        text,
+        error: args.error,
+        metadata: { terminalStatus: args.status },
+        createdAt: args.now,
+      });
+    }
+    await recordStreamEventRow(ctx, {
+      jobId: args.job._id,
+      sequence: await nextStreamSequence(ctx, args.job._id, 90_001),
+      kind: "message_done",
+      status: args.status === "completed" ? "completed" : "failed",
+      text,
+      error: args.error,
+      metadata: { terminalStatus: args.status },
+      createdAt: args.now,
+    });
+  }
+  await finalizePublicAgentJobStreamAfterTerminal(ctx, {
+    roomId: args.job.roomId,
+    jobId: args.job._id,
+    text,
+  });
+  return text;
+}
+
+async function terminalizeAgentJob(ctx: any, args: {
+  job: any;
+  status: Exclude<TerminalJobStatus, "completed">;
+  error: string;
+  operationName: string;
+  operationKind?: "lease" | "checkpoint";
+  leaseStatus?: "released" | "expired";
+  now?: number;
+}) {
+  const now = args.now ?? Date.now();
+  const terminalNotice = terminalJobText(args.status, args.error);
+  const text = args.job.finalText?.trim()
+    ? `${args.job.finalText.trim()}\n\n${terminalNotice}`
+    : terminalNotice;
+  const activeLeases = await ctx.db.query("agentLeases")
+    .withIndex("by_job_status", (q: any) => q.eq("jobId", args.job._id).eq("status", "active"))
+    .collect();
+  for (const lease of activeLeases) {
+    await ctx.db.patch(lease._id, { status: args.leaseStatus ?? "released", releasedAt: now });
+  }
+  const frameFinish = await setReasoningFramesForSliceFinish(ctx, {
+    jobId: args.job._id,
+    status: args.status,
+    now,
+    error: args.error,
+  });
+  await ctx.db.patch(args.job._id, {
+    status: args.status,
+    leaseId: "",
+    leaseUntil: 0,
+    activeFrameId: "",
+    nextRunAt: 0,
+    error: args.error,
+    finalText: text,
+    mutationCount: (args.job.mutationCount ?? 0) + 1,
+    updatedAt: now,
+    completedAt: now,
+  });
+  await recordOperationEvent(ctx, {
+    jobId: args.job._id,
+    sequence: (args.job.actionSliceCount ?? 0) + (args.job.queryCount ?? 0) + (args.job.mutationCount ?? 0) + (args.job.modelCallCount ?? 0) + (args.job.toolCallCount ?? 0) + (args.job.schedulerHandoffCount ?? 0) + 4,
+    kind: args.operationKind ?? "checkpoint",
+    name: args.operationName,
+    targetKind: "artifact",
+    targetId: String(args.job.artifactId),
+    status: "failed",
+    countDelta: 1,
+    affectedIds: [String(args.job._id), String(args.job.artifactId), ...activeLeases.map((lease: any) => String(lease._id)), ...frameFinish.affectedIds],
+    startedAt: now,
+    completedAt: now,
+  });
+  await ensureTerminalJobReceipts(ctx, { job: args.job, status: args.status, error: args.error, finalText: text, now });
+  return { ok: true as const };
+}
+
 export const recordStreamEvent = internalMutation({
   args: {
     jobId: v.id("agentJobs"),
+    leaseId: v.optional(v.string()),
     runId: v.optional(v.id("agentRuns")),
     sequence: v.number(),
     kind: agentStreamEventKindV,
@@ -1124,6 +1244,15 @@ export const finishInteractive = internalMutation({
       updatedAt: now,
       completedAt: a.status === "paused" ? undefined : now,
     }) as any);
+    if (a.status !== "paused") {
+      await ensureTerminalJobReceipts(ctx, {
+        job,
+        status: a.status,
+        error: a.error,
+        finalText: a.finalText,
+        now,
+      });
+    }
     return { ok: true as const };
   },
 });
@@ -1131,6 +1260,7 @@ export const finishInteractive = internalMutation({
 export const recordLiveOperation = internalMutation({
   args: {
     jobId: v.id("agentJobs"),
+    leaseId: v.optional(v.string()),
     runId: v.optional(v.id("agentRuns")),
     sequence: v.number(),
     kind: operationEventKindV,
@@ -1145,6 +1275,9 @@ export const recordLiveOperation = internalMutation({
     const job = await ctx.db.get(a.jobId);
     if (!job) return { ok: false as const, reason: "job_not_found" as const };
     if (terminalStatuses.has(job.status)) return { ok: false as const, reason: "job_terminal" as const };
+    if (a.leaseId && (job.leaseId !== a.leaseId || !job.leaseUntil || job.leaseUntil <= Date.now())) {
+      return { ok: false as const, reason: "job_lease_invalid" as const };
+    }
     await recordOperationEvent(ctx, {
       jobId: a.jobId,
       runId: a.runId,
@@ -2592,7 +2725,7 @@ export const cancel = mutation({
     if (!room || (actor.id !== job.requester.id && actor.id !== room.hostId)) {
       return { ok: false as const, reason: "forbidden" as const };
     }
-    if (job.status === "completed" || job.status === "failed" || job.status === "cancelled") {
+    if (terminalStatuses.has(job.status)) {
       return { ok: false as const, reason: "terminal" as const };
     }
     const now = Date.now();
@@ -2604,32 +2737,13 @@ export const cancel = mutation({
         // row and lease fence remain the cancellation authority.
       }
     }
-    const activeLeases = await ctx.db.query("agentLeases").withIndex("by_job_status", (q) => q.eq("jobId", jobId).eq("status", "active")).collect();
-    for (const lease of activeLeases) await ctx.db.patch(lease._id, { status: "released", releasedAt: now });
-    const frameFinish = await setReasoningFramesForSliceFinish(ctx, { jobId, status: "cancelled", now });
-    await recordOperationEvent(ctx, {
-      jobId,
-      sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 3,
-      kind: "checkpoint",
-      name: "agentJobs.cancel",
-      targetKind: "artifact",
-      targetId: String(job.artifactId),
-      status: "completed",
-      countDelta: 1,
-      affectedIds: [String(jobId), String(job.artifactId), ...frameFinish.affectedIds],
-      startedAt: now,
-      completedAt: now,
-    });
-    await ctx.db.patch(jobId, {
+    return terminalizeAgentJob(ctx, {
+      job,
       status: "cancelled",
-      leaseId: "",
-      leaseUntil: 0,
       error: "cancelled_by_user",
-      mutationCount: (job.mutationCount ?? 0) + 1,
-      updatedAt: now,
-      completedAt: now,
+      operationName: "agentJobs.cancel",
+      now,
     });
-    return { ok: true as const };
   },
 });
 
@@ -2718,18 +2832,15 @@ export const markWorkflowExceeded = internalMutation({
   args: { jobId: v.id("agentJobs") },
   handler: async (ctx, { jobId }) => {
     const job = await ctx.db.get(jobId);
-    if (!job || job.status === "completed" || job.status === "failed" || job.status === "blocked" || job.status === "cancelled") {
+    if (!job || terminalStatuses.has(job.status)) {
       return { ok: false as const, reason: "terminal_or_missing" as const };
     }
-    const now = Date.now();
-    await ctx.db.patch(jobId, {
+    return terminalizeAgentJob(ctx, {
+      job,
       status: "failed",
-      leaseId: "",
-      leaseUntil: 0,
       error: "workflow_slice_limit_exceeded",
-      updatedAt: now,
+      operationName: "agentJobs.markWorkflowExceeded",
     });
-    return { ok: true as const };
   },
 });
 
@@ -2750,14 +2861,6 @@ export const sweepExpiredJobLeases = internalMutation({
     for (const job of running) {
       if (!job.leaseUntil || job.leaseUntil > now) continue;
       expired += 1;
-      const activeLeases = await ctx.db
-        .query("agentLeases")
-        .withIndex("by_job_status", (q) => q.eq("jobId", job._id).eq("status", "active"))
-        .collect();
-      for (const lease of activeLeases) {
-        await ctx.db.patch(lease._id, { status: "expired", releasedAt: now });
-      }
-
       const attempt = Math.max(1, job.attempts);
       const priorAttempt = await ctx.db
         .query("agentJobAttempts")
@@ -2781,38 +2884,66 @@ export const sweepExpiredJobLeases = internalMutation({
         });
       }
 
-      const frameFinish = await setReasoningFramesForSliceFinish(ctx, {
-        jobId: job._id,
-        status: "lease_expired",
+      await terminalizeAgentJob(ctx, {
+        job,
+        status: "failed",
+        error: "job_lease_expired",
+        operationName: "agentJobs.sweepExpiredJobLeases",
+        operationKind: "lease",
+        leaseStatus: "expired",
         now,
-        error: "job_lease_expired",
-      });
-      await recordOperationEvent(ctx, {
-        jobId: job._id,
-        sequence: (job.actionSliceCount ?? 0) + (job.queryCount ?? 0) + (job.mutationCount ?? 0) + (job.modelCallCount ?? 0) + (job.toolCallCount ?? 0) + (job.schedulerHandoffCount ?? 0) + 4,
-        kind: "lease",
-        name: "agentJobs.sweepExpiredJobLeases",
-        targetKind: "artifact",
-        targetId: String(job.artifactId),
-        status: "failed",
-        countDelta: 1,
-        affectedIds: [String(job._id), String(job.artifactId), ...activeLeases.map((lease) => String(lease._id)), ...frameFinish.affectedIds],
-        startedAt: now,
-        completedAt: now,
-      });
-
-      await ctx.db.patch(job._id, {
-        status: "failed",
-        leaseId: "",
-        leaseUntil: 0,
-        error: "job_lease_expired",
-        mutationCount: (job.mutationCount ?? 0) + 1,
-        updatedAt: now,
-        completedAt: now,
       });
     }
 
     return { ok: true as const, scanned: running.length, expired };
+  },
+});
+
+/** Per-claim watchdog. The periodic sweeper remains a backup, but every slice
+ * now owns a deterministic lease-fenced expiry callback. A callback from an
+ * older attempt is harmless because both jobId and leaseId must still match. */
+export const expireClaimedSlice = internalMutation({
+  args: { jobId: v.id("agentJobs"), leaseId: v.string() },
+  handler: async (ctx, { jobId, leaseId }) => {
+    const job = await ctx.db.get(jobId);
+    if (!job || terminalStatuses.has(job.status)) return { ok: false as const, reason: "terminal_or_missing" as const };
+    if (job.status !== "running" || job.leaseId !== leaseId) return { ok: false as const, reason: "stale_lease" as const };
+    const now = Date.now();
+    if (job.leaseUntil && job.leaseUntil > now) {
+      await ctx.scheduler.runAfter(job.leaseUntil - now + LEASE_EXPIRY_GRACE_MS, internal.agentJobs.expireClaimedSlice, { jobId, leaseId });
+      return { ok: false as const, reason: "lease_still_active" as const };
+    }
+    const attempt = Math.max(1, job.attempts);
+    const priorAttempt = await ctx.db.query("agentJobAttempts")
+      .withIndex("by_job", (q) => q.eq("jobId", jobId).eq("attempt", attempt))
+      .first();
+    if (!priorAttempt) {
+      const startedAt = Math.min(job.updatedAt ?? now, now);
+      await ctx.db.insert("agentJobAttempts", {
+        jobId,
+        attempt,
+        status: "failed",
+        resolvedModel: job.modelPolicy,
+        stopReason: "lease_expired",
+        ms: Math.max(0, now - startedAt),
+        inputTokens: 0,
+        outputTokens: 0,
+        costUsd: 0,
+        error: "job_lease_expired",
+        startedAt,
+        endedAt: now,
+      });
+    }
+    await terminalizeAgentJob(ctx, {
+      job,
+      status: "failed",
+      error: "job_lease_expired",
+      operationName: "agentJobs.expireClaimedSlice",
+      operationKind: "lease",
+      leaseStatus: "expired",
+      now,
+    });
+    return { ok: true as const };
   },
 });
 
@@ -2827,7 +2958,7 @@ export const recordWorkflowComplete = internalMutation({
     const job = await ctx.db.get(jobId);
     if (!job) return { ok: false as const, reason: "missing" as const };
     if (job.workflowId && job.workflowId !== workflowId) return { ok: false as const, reason: "stale_workflow" as const };
-    if (job.status === "completed" || job.status === "failed" || job.status === "blocked" || job.status === "cancelled") {
+    if (terminalStatuses.has(job.status)) {
       return { ok: true as const, terminal: true as const };
     }
     if (resultKind !== "success" && job.status === "running" && job.attempts > 1) {
@@ -2843,14 +2974,11 @@ export const recordWorkflowComplete = internalMutation({
       error?.includes("quota")
     );
     if (isPassiveResearch && isBudgetOrRateFailure) {
-      const now = Date.now();
-      await ctx.db.patch(jobId, {
+      await terminalizeAgentJob(ctx, {
+        job,
         status: "failed",
-        leaseId: "",
-        leaseUntil: 0,
         error: `passive_job_budget_failure:${error ?? "unknown"}`,
-        updatedAt: now,
-        completedAt: now,
+        operationName: "agentJobs.recordWorkflowComplete.passiveFailure",
       });
       return { ok: true as const, terminal: true as const };
     }
@@ -2889,13 +3017,11 @@ export const recordWorkflowComplete = internalMutation({
     if (resultKind === "success") {
       return { ok: true as const, terminal: false as const };
     }
-    const now = Date.now();
-    await ctx.db.patch(jobId, {
+    await terminalizeAgentJob(ctx, {
+      job,
       status: resultKind === "canceled" ? "cancelled" : "failed",
-      leaseId: "",
-      leaseUntil: 0,
       error: resultKind === "canceled" ? "workflow_cancelled" : error ?? "workflow_failed",
-      updatedAt: now,
+      operationName: "agentJobs.recordWorkflowComplete",
     });
     return { ok: true as const, terminal: true as const };
   },
@@ -2906,26 +3032,33 @@ export const claimSlice = internalMutation({
   handler: async (ctx, { jobId, leaseId, leaseMs }) => {
     const job = await ctx.db.get(jobId);
     if (!job) return null;
-    if (job.status === "completed" || job.status === "failed" || job.status === "blocked" || job.status === "cancelled") return null;
+    if (terminalStatuses.has(job.status)) return null;
     const now = Date.now();
     if (job.status === "running" && job.leaseUntil && job.leaseUntil > now) return null;
     const maxAttempts = durableMaxAttemptsForJob(job, job.maxAttempts);
     if (isPublicBenchmarkCompletionJob(job) && job.attempts >= maxAttempts) {
-      await ctx.db.patch(jobId, {
+      if (job.maxAttempts !== maxAttempts) {
+        await ctx.db.patch(jobId, { maxAttempts, updatedAt: now });
+      }
+      await terminalizeAgentJob(ctx, {
+        job: { ...job, maxAttempts },
         status: "failed",
-        maxAttempts,
-        leaseId: "",
-        leaseUntil: 0,
         error: "max_attempts_exhausted",
-        completedAt: now,
-        updatedAt: now,
+        operationName: "agentJobs.claimSlice.maxAttemptsExhausted",
+        now,
       });
       return null;
     }
 
     const art = await ctx.db.get(job.artifactId);
     if (!art || String(art.roomId) !== String(job.roomId)) {
-      await ctx.db.patch(jobId, { status: "failed", error: "artifact_room_mismatch", updatedAt: now });
+      await terminalizeAgentJob(ctx, {
+        job,
+        status: "failed",
+        error: "artifact_room_mismatch",
+        operationName: "agentJobs.claimSlice.artifactMismatch",
+        now,
+      });
       return null;
     }
     let session = (await ctx.db.query("agentSessions").withIndex("by_room", (q) => q.eq("roomId", job.roomId)).collect())
@@ -2943,7 +3076,13 @@ export const claimSlice = internalMutation({
       session = await ctx.db.get(sessionId) ?? undefined;
     }
     if (!session) {
-      await ctx.db.patch(jobId, { status: "blocked", error: "agent_session_create_failed", updatedAt: now });
+      await terminalizeAgentJob(ctx, {
+        job,
+        status: "blocked",
+        error: "agent_session_create_failed",
+        operationName: "agentJobs.claimSlice.sessionFailure",
+        now,
+      });
       return null;
     }
 
@@ -2982,6 +3121,7 @@ export const claimSlice = internalMutation({
       startedAt: now,
       completedAt: now,
     });
+    await ctx.scheduler.runAfter(Math.max(1_000, leaseUntil - now + LEASE_EXPIRY_GRACE_MS), internal.agentJobs.expireClaimedSlice, { jobId, leaseId });
 
     return {
       jobId,
@@ -3008,6 +3148,8 @@ export const claimSlice = internalMutation({
       cursor: job.cursor,
       handoff: job.handoff,
       attempt,
+      leaseId,
+      leaseUntil,
       maxAttempts,
       sessionId: session._id,
       agentId: session.agentId,
@@ -3305,6 +3447,15 @@ export const finishSlice = internalMutation({
       completedAt: now,
     });
     await ctx.db.patch(a.jobId, patch as any);
+    if (terminalStatuses.has(effectiveNextStatus)) {
+      await ensureTerminalJobReceipts(ctx, {
+        job,
+        status: effectiveNextStatus as TerminalJobStatus,
+        error: a.error,
+        finalText: a.finalText,
+        now,
+      });
+    }
     if (patch.nextRunAt !== undefined && (effectiveNextStatus === "paused" || effectiveNextStatus === "retrying")) {
       const delayMs = Math.max(0, Number(patch.nextRunAt) - now);
       if (job.runtime === "workflow") {
@@ -3342,8 +3493,13 @@ export const completeDeterministicBenchmarkSlice = internalMutation({
   handler: async (ctx, a) => {
     const job = await ctx.db.get(a.jobId);
     if (!job) throw new Error("job_not_found");
-    if (job.leaseId && job.leaseId !== a.leaseId) throw new Error("lease_mismatch");
     const now = Date.now();
+    if (
+      terminalStatuses.has(job.status)
+      || job.leaseId !== a.leaseId
+      || !job.leaseUntil
+      || job.leaseUntil <= now
+    ) throw new Error("lease_mismatch");
     const activeLeases = await ctx.db.query("agentLeases").withIndex("by_job_status", (q) => q.eq("jobId", a.jobId).eq("status", "active")).collect();
     for (const lease of activeLeases) await ctx.db.patch(lease._id, { status: "released", releasedAt: now });
     const frames = await ctx.db.query("agentReasoningFrames").withIndex("by_job_sequence", (q) => q.eq("jobId", a.jobId)).collect();
@@ -3380,6 +3536,12 @@ export const completeDeterministicBenchmarkSlice = internalMutation({
       // The deterministic HMDA executor never calls a model.
       modelCallCount: job.modelCallCount ?? 0,
       mutationCount: (job.mutationCount ?? 0) + 1,
+    });
+    await ensureTerminalJobReceipts(ctx, {
+      job,
+      status: "completed",
+      finalText: a.finalText,
+      now,
     });
     return { ok: true as const };
   },

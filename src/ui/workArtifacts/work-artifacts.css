@@ -300,6 +300,7 @@
 
 .wa-review-meta span {
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .wa-live {

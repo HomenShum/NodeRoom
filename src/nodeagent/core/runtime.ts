@@ -53,7 +53,7 @@ function isAbortLike(error: unknown): boolean {
 }
 
 function abortError(): Error & { usage: TokenUsage } {
-  const error = new Error("model call aborted by the NodeAgent time budget");
+  const error = new Error("operation aborted by the NodeAgent time budget");
   error.name = "AbortError";
   return Object.assign(error, {
     // The provider adapter did not settle in the bounded grace period, so the
@@ -629,10 +629,11 @@ export async function runAgent(opts: {
     if (deadlineAt === undefined) return { signal: undefined, cancel: () => undefined };
     const controller = new AbortController();
     const timeoutMs = Math.max(0, deadlineAt - reserveMs - now());
-    const timer: ReturnType<typeof setTimeout> = setTimeout(() => controller.abort(), timeoutMs);
+    if (timeoutMs === 0) controller.abort();
+    const timer: ReturnType<typeof setTimeout> | undefined = timeoutMs > 0 ? setTimeout(() => controller.abort(), timeoutMs) : undefined;
     return {
       signal: controller.signal,
-      cancel: () => clearTimeout(timer),
+      cancel: () => { if (timer !== undefined) clearTimeout(timer); },
     };
   };
   const executeCall = async (call: ToolCall, step: number): Promise<unknown> => {
@@ -671,7 +672,20 @@ export async function runAgent(opts: {
       const parsed = tool.schema.safeParse(activeCall.args);
       try {
         if (parsed.success) {
-          result = btbPackageCoverageFailure(goal, activeCall.tool, parsed.data) ?? await tool.execute(parsed.data, rt);
+          const coverageFailure = btbPackageCoverageFailure(goal, activeCall.tool, parsed.data);
+          if (coverageFailure) {
+            result = coverageFailure;
+          } else {
+            const signal = modelSignal();
+            try {
+              result = await settleWithAbort(tool.execute(parsed.data, rt, {
+                signal: signal.signal,
+                deadlineAt: deadlineAt === undefined ? undefined : deadlineAt - reserveMs,
+              }), signal.signal);
+            } finally {
+              signal.cancel();
+            }
+          }
         } else {
           result = toolArgumentErrorResult(activeCall.tool, parsed.error.issues);
         }

@@ -37,7 +37,7 @@ import { components, internal } from "./_generated/api";
 import { internalMutation, internalQuery } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import type { Doc, Id } from "./_generated/dataModel";
-import { actorV, requireActorInRoom, requireArtifactInRoom, sha256Hex, type ActorValue } from "./lib";
+import { actorV, requireActiveAgentJobLease, requireActorInRoom, requireArtifactInRoom, sha256Hex, type ActorValue } from "./lib";
 import { prosemirrorSync, ensureNotebookDocCore } from "./prosemirror";
 import { NOTEBOOK_EXTENSIONS } from "../src/notebook/extensions";
 import {
@@ -178,8 +178,9 @@ export const readNotebookForAgent = internalQuery({
  *  present) with a server-trusted actor, so the agent lane works before any
  *  human has opened the synced editor. Idempotent. */
 export const ensureNotebookDocForAgent = internalMutation({
-  args: { roomId: v.id("rooms"), artifactId: v.id("artifacts"), actor: actorV },
+  args: { roomId: v.id("rooms"), artifactId: v.id("artifacts"), actor: actorV, jobId: v.optional(v.id("agentJobs")), leaseId: v.optional(v.string()) },
   handler: async (ctx, a) => {
+    await requireActiveAgentJobLease(ctx, a);
     await requireActorInRoom(ctx, a.roomId, a.actor);
     return await ensureNotebookDocCore(ctx, a.roomId, a.artifactId, a.actor);
   },
@@ -193,6 +194,7 @@ export const applyOutlineByAgent = internalMutation({
     artifactId: v.id("artifacts"),
     actor: actorV,
     jobId: v.optional(v.id("agentJobs")),
+    leaseId: v.optional(v.string()),
     runLabel: v.optional(v.string()),
     title: v.optional(v.string()),
     parentBlockId: v.optional(v.string()),
@@ -200,6 +202,7 @@ export const applyOutlineByAgent = internalMutation({
     sections: v.array(sectionV),
   },
   handler: async (ctx, a) => {
+    await requireActiveAgentJobLease(ctx, a);
     await requireActorInRoom(ctx, a.roomId, a.actor);
     const art = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
     if (art.kind !== "note") return { ok: false as const, reason: "not_a_note" as const };
@@ -232,6 +235,7 @@ export const applyOutlineByAgent = internalMutation({
         baseVersion: existing?.version ?? 0,
         actor: a.actor,
         jobId: a.jobId,
+        leaseId: a.leaseId,
       });
       if (result.ok) {
         // autoAllow flipped on between our read and the sub-mutation — the write
@@ -517,6 +521,7 @@ export const applyBlockEditByAgent = internalMutation({
     artifactId: v.id("artifacts"),
     actor: actorV,
     jobId: v.optional(v.id("agentJobs")),
+    leaseId: v.optional(v.string()),
     runLabel: v.optional(v.string()),
     blockId: v.string(),
     baseTextHash: v.optional(v.string()),
@@ -525,6 +530,7 @@ export const applyBlockEditByAgent = internalMutation({
     reason: v.optional(v.string()),
   },
   handler: async (ctx, a) => {
+    await requireActiveAgentJobLease(ctx, a);
     await requireActorInRoom(ctx, a.roomId, a.actor);
     const art = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
     if (art.kind !== "note") return { ok: false as const, reason: "not_a_note" as const };
@@ -556,6 +562,7 @@ export const applyBlockEditByAgent = internalMutation({
         baseVersion: existing?.version ?? 0,
         actor: a.actor,
         jobId: a.jobId,
+        leaseId: a.leaseId,
       });
       if (result.ok) return { ok: true as const, lane: "agent_notes_element" as const, action: a.action, blockIds: [] };
       if (result.reason === "pending_approval") {

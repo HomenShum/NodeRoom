@@ -29,6 +29,7 @@ export type CollaborativeDeckSnapshot = {
 
 export type CollaborativeDeckProposal = {
   proposalId: string;
+  jobId?: string;
   status: Proposal["status"];
   baseVersion: number;
   storyboard?: DeckStoryboard;
@@ -146,6 +147,7 @@ export function readCollaborativeDeckProposal(
     if (!isDeckObjectElementId(proposal.op.elementId) || !isDeckProposalObject(raw)) return null;
     return {
       proposalId: proposal.id,
+      jobId: proposal.jobId,
       status: proposal.status,
       baseVersion: proposal.op.baseVersion,
       objectPatch: { elementId: proposal.op.elementId, value: raw },
@@ -155,6 +157,7 @@ export function readCollaborativeDeckProposal(
   if (!isDeckStoryboard(value)) return null;
   return {
     proposalId: proposal.id,
+    jobId: proposal.jobId,
     status: proposal.status,
     baseVersion: proposal.op.baseVersion,
     storyboard: normalizeCollaborativeDeck(value, value.version),

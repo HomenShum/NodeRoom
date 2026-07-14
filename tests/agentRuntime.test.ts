@@ -1280,6 +1280,45 @@ describe("agent runtime — collaboration under concurrency", () => {
     });
   });
 
+  it("time budget settles and signals a tool that ignores cancellation", async () => {
+    const { rt } = setup();
+    let seenSignal: AbortSignal | undefined;
+    const hangingTool: AgentTool = {
+      name: "hang_tool",
+      description: "never settles",
+      schema: z.object({}),
+      execute: async (_args, _rt, context) => {
+        seenSignal = context?.signal;
+        return new Promise(() => undefined);
+      },
+    };
+    const model = scriptedModel(() => ({ toolCalls: [{ tool: "hang_tool", args: {} }] }), "hanging-tool-model");
+    const startedAt = Date.now();
+
+    let thrown: unknown;
+    try {
+      await runAgent({
+        rt,
+        goal: "bound a tool that never settles",
+        model,
+        tools: [hangingTool],
+        maxSteps: 1,
+        deadlineAt: Date.now() + 30,
+        reserveMs: 0,
+      });
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(Date.now() - startedAt).toBeLessThan(1_000);
+    expect(seenSignal?.aborted).toBe(true);
+    expect(thrown).toBeInstanceOf(AgentRunError);
+    expect((thrown as AgentRunError).partial.trace[0]).toMatchObject({
+      tool: "hang_tool",
+      result: { ok: false, error: expect.stringContaining("time budget") },
+    });
+  });
+
   it("resumes a long-running job across multiple step-budget slices", async () => {
     const { engine, d, rt } = setup();
     const cell = "r_ni__variance";

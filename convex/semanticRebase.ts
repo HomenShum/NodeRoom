@@ -61,6 +61,7 @@ export async function planAndRecordRebase(
   args: {
     roomId: Id<"rooms">;
     artifactId: Id<"artifacts">;
+    jobId?: Id<"agentJobs">;
     artifactKind: string; // sheet / note / wall / chart / ...
     elementId: string;
     kind: "set" | "create" | "delete";
@@ -150,6 +151,7 @@ export async function planAndRecordRebase(
     const proposalId = existing?._id ?? await ctx.db.insert("proposals", {
       roomId: args.roomId,
       artifactId: args.artifactId,
+      jobId: args.jobId,
       op: { opId: op.opId, artifactId: String(args.artifactId), elementId, kind: args.kind, value: args.proposedValue, baseVersion: args.currentVersion },
       author: args.actor,
       review: {

@@ -110,8 +110,10 @@ describe("Chat reasoning-frame job detail", () => {
   it("renders durable reasoning frames from the long-running job detail drawer", () => {
     render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
 
+    expect(screen.getByTestId("job-status").getAttribute("data-job-id")).toBe("job1");
     fireEvent.click(screen.getByRole("button", { name: /details/i }));
 
+    expect(screen.getByTestId("job-id").textContent).toBe("job1");
     expect(screen.getByTestId("reasoning-frame-tree")).toBeTruthy();
     expect(screen.getByText("Reasoning frames")).toBeTruthy();
     expect(screen.getByText("intake")).toBeTruthy();
