@@ -2134,12 +2134,12 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
           <div className="r-job-grid">
             <span>Job</span><b data-testid="job-id">{longJob.id}</b>
             <span>Runtime</span><b>{longJob.runtime ?? "inline"}</b>
-            <span>Policy</span><b>{longJob.approvalPolicy ?? "n/a"}</b>
+            <span>Policy</span><b data-testid="job-approval-policy">{longJob.approvalPolicy ?? "n/a"}</b>
             <span>Slices</span><b>{longJob.actionSliceCount ?? 0}</b>
             <span>Model calls</span><b>{longJob.modelCallCount ?? 0}</b>
             <span>Tool calls</span><b>{longJob.toolCallCount ?? 0}</b>
-            <span>Mutations</span><b>{longJob.mutationCount ?? 0}</b>
-            <span>Receipts</span><b>{longJob.receiptCount ?? 0}</b>
+            <span>Mutations</span><b data-testid="job-mutation-count">{longJob.mutationCount ?? 0}</b>
+            <span>Receipts</span><b data-testid="job-receipt-count">{longJob.receiptCount ?? 0}</b>
             <span>Scheduler</span><b>{longJob.schedulerHandoffCount ?? 0}</b>
           </div>
           {longJobAttempts.length > 0 && (
@@ -2180,7 +2180,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
                 <span key={`op-${op.sequence}`}>{op.sequence}. {op.kind}:{op.name} - {op.status}{op.countDelta ? ` x${op.countDelta}` : ""}</span>
               ))}
               {longJobDetail.receipts.slice(0, 3).map((receipt) => (
-                <span key={`receipt-${receipt.id}`}>receipt {receipt.mutationName} - {receipt.affectedIds.join(", ")}</span>
+                <span key={`receipt-${receipt.id}`} data-testid="job-mutation-receipt">receipt {receipt.mutationName} - {receipt.affectedIds.join(", ")}</span>
               ))}
               {longJobDetail.latestSteps.slice(-3).map((step) => (
                 <span key={`step-${step.idx}`}>step {step.idx}: {step.tool} - {step.status}{step.elementId ? ` (${step.elementId})` : ""}</span>
