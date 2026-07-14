@@ -2365,6 +2365,9 @@ function compactStreamEventForDetail<T extends Record<string, unknown>>(event: T
   } as T;
 }
 
+const DETAIL_STREAM_HEAD_LIMIT = 40;
+const DETAIL_STREAM_TAIL_LIMIT = 80;
+
 export const detail = query({
   args: { jobId: v.id("agentJobs"), requester: actorProofV },
   handler: async (ctx, { jobId, requester }) => {
@@ -2374,7 +2377,17 @@ export const detail = query({
     if (!canReadJob(job, actor)) return null;
     const attempts = (await ctx.db.query("agentJobAttempts").withIndex("by_job", (q) => q.eq("jobId", jobId)).order("desc").take(25)).reverse();
     const operations = (await ctx.db.query("agentOperationEvents").withIndex("by_job_sequence", (q) => q.eq("jobId", jobId)).order("desc").take(40)).reverse();
-    const streamEvents = (await ctx.db.query("agentStreamEvents").withIndex("by_job_sequence", (q) => q.eq("jobId", jobId)).order("desc").take(80)).reverse()
+    // Preserve how the run started as well as how it finished. A tail-only window hid early
+    // inspection and planning receipts after long free-route failover/recovery sequences.
+    const [streamHead, streamTail] = await Promise.all([
+      ctx.db.query("agentStreamEvents").withIndex("by_job_sequence", (q) => q.eq("jobId", jobId)).order("asc").take(DETAIL_STREAM_HEAD_LIMIT),
+      ctx.db.query("agentStreamEvents").withIndex("by_job_sequence", (q) => q.eq("jobId", jobId)).order("desc").take(DETAIL_STREAM_TAIL_LIMIT),
+    ]);
+    const streamEventsById = new Map(
+      [...streamHead, ...streamTail].map((event) => [String(event._id), event] as const),
+    );
+    const streamEvents = [...streamEventsById.values()]
+      .sort((left, right) => left.sequence - right.sequence)
       .map((event) => compactStreamEventForDetail(event));
     const reasoningFrames = (await ctx.db.query("agentReasoningFrames").withIndex("by_job_sequence", (q) => q.eq("jobId", jobId)).order("desc").take(60)).reverse();
     const receipts = await ctx.db.query("agentMutationReceipts").withIndex("by_job", (q) => q.eq("jobId", jobId)).order("desc").take(20);
