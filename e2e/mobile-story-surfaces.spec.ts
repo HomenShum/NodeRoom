@@ -101,17 +101,16 @@ test.describe("#room-tour — scripted desktop walkthrough (Room.html port)", ()
 });
 
 test.describe("#mobile — terra surface renders (memory mode)", () => {
-  test("cream surface, live room name, Home sections, FAB, no skeleton leak", async ({ page }) => {
+  test("light terracotta surface, live room name, Home sections, FAB, no skeleton leak", async ({ page }) => {
     await page.goto("/#mobile?mode=memory");
     const na = page.locator(".na-app");
     await expect(na).toBeVisible({ timeout: 30_000 });
-    // terra cream page surface (#FBF4E7).
     await expect(na).toHaveCSS("background-color", "rgb(251, 244, 231)");
-    await expect(page.locator(".na-roomsw .nm")).toHaveText("Q3 Diligence");
-    // The mobile app is capture-first — #mobile lands on the note capture screen,
-    // not the library Home. The "N" mark (aria-label="Home") opens the Home
-    // library; assert its Recents section there (the surface this test protects).
-    await page.locator('.na-mark[aria-label="Home"]').click();
+    await expect(page.getByTestId("mobile-room-title")).toHaveText("Q3 Diligence");
+    await expect(page.getByTestId("mobile-header")).toBeVisible();
+    await expect(page.locator(".na-preview-status, .na-preview-island, .na-preview-home-indicator")).toHaveCount(0);
+    // The terracotta source design is Home-first; assert the artifact-card library
+    // surface directly instead of entering through Capture.
     await expect(page.locator(".na-kicker").filter({ hasText: "Recents" })).toBeVisible();
     // FAB lives in the dock (may sit below the phone fold) — assert presence, not visibility.
     await expect(page.locator(".na-fab-btn")).toHaveCount(1);
@@ -121,23 +120,23 @@ test.describe("#mobile — terra surface renders (memory mode)", () => {
 });
 
 test.describe("mobile universal landing router", () => {
-  test("phone-sized public URLs land in the terracotta mobile shell", async ({ page }) => {
+  test("phone-sized public room URLs preserve their destination", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/?mode=memory#rooms/expositio-pulse", { waitUntil: "domcontentloaded" });
 
-    await expect.poll(() => page.url()).toContain("#mobile?mode=memory&from=rooms%2Fexpositio-pulse");
-    const app = page.locator(".na-app");
-    await expect(app).toBeVisible({ timeout: 30_000 });
-    await expect(app).toHaveCSS("background-color", "rgb(251, 244, 231)");
-    await expect(page.locator('[data-testid="ao-room"]')).toHaveCount(0);
+    await expect.poll(() => page.url()).toContain("#rooms/expositio-pulse");
+    await expect(page.locator('[data-testid="ao-room"]')).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator(".na-app")).toHaveCount(0);
   });
 
-  test("phone-sized standard live intents normalize before the mobile app boots", async ({ page }) => {
+  test("phone-sized Create intent reaches review-first mobile preflight", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/?mode=memory&create=NRMOB1&name=Codex&title=Mobile%20Room", { waitUntil: "domcontentloaded" });
+    await page.goto("/?intent=create", { waitUntil: "domcontentloaded" });
 
-    await expect.poll(() => page.url()).toContain("#mobile?mode=memory&create=NRMOB1&name=Codex&title=Mobile+Room");
-    await expect(page.locator(".na-app")).toBeVisible({ timeout: 30_000 });
+    await expect.poll(() => page.url()).toContain("#mobile?intent=create");
+    await expect(page.getByRole("heading", { name: "Create this workspace?" })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole("radio", { name: /Review every edit/i })).toBeChecked();
+    expect(page.url()).not.toContain("confirmed=1");
   });
 });
 
@@ -155,8 +154,8 @@ test.describe("#mobile - terra surface renders (live Convex room)", () => {
     await expect.poll(() => page.url(), { message: "standard live URL should normalize into #mobile on phone viewports" }).toContain("#mobile?demo=review&name=Codex");
 
     await expect(page.locator(".na-join")).toBeVisible({ timeout: 30_000 });
-    await expect(page.locator(".na-join")).toContainText(/Let agents commit edits/i);
-    await page.getByRole("button", { name: /Continue with review-every-edit/i }).click();
+    await expect(page.locator(".na-join")).toContainText(/Create this sample room/i);
+    await page.getByTestId("mobile-sample-confirm").click();
 
     const app = page.locator(".na-app");
     await expect(app).toBeVisible({ timeout: 45_000 });
@@ -164,9 +163,16 @@ test.describe("#mobile - terra surface renders (live Convex room)", () => {
     expect(page.url(), "live mobile proof must still avoid memory mode after room creation").not.toContain("mode=memory");
     await expect(app).toHaveCSS("background-color", "rgb(251, 244, 231)");
     await expect(app).toContainText(/Startup Banking Diligence War Room/i);
+    await expect(page.getByTestId("mobile-sample-banner")).toContainText(/Sample (workspace|still loading)/i);
     await expect(page.locator('[data-testid="ao-room"]')).toHaveCount(0);
-    await expect(app).toContainText(/1 person is & 1 agent here/i);
-    await page.getByRole("button", { name: /Got it/i }).click();
+    const firstJoin = page.getByTestId("gap-firstjoin");
+    await expect(firstJoin).toContainText(/1 person is & 1 agent here/i);
+    await expect(firstJoin).not.toHaveAttribute("aria-modal", "true");
+    const dockInput = page.locator(".na-dock-input");
+    await expect(dockInput).toBeVisible();
+    await dockInput.fill("mobile onboarding is non-blocking");
+    await expect(dockInput).toHaveValue("mobile onboarding is non-blocking");
+    await firstJoin.getByRole("button", { name: /Dismiss first-join welcome/i }).click();
     await expect(app).not.toContainText(/1 person is & 1 agent here/i);
 
     const metrics = await page.evaluate(() => {
@@ -183,8 +189,8 @@ test.describe("#mobile - terra surface renders (live Convex room)", () => {
     });
     expect(metrics).toMatchObject({
       hasNaApp: true,
-      bgApp: "#FBF4E7",
-      accentPrimary: "#C56A3C",
+      bgApp: "#fbf4e7",
+      accentPrimary: "#9f4f2a",
     });
     expect(metrics.overflowX, "mobile live room should not horizontally overflow").toBeLessThanOrEqual(1);
 

@@ -57,6 +57,7 @@ import type * as nodemem from "../nodemem.js";
 import type * as nodememCompile from "../nodememCompile.js";
 import type * as notebookAgent from "../notebookAgent.js";
 import type * as notebookGraph from "../notebookGraph.js";
+import type * as notebookKernel from "../notebookKernel.js";
 import type * as notebookProcessing from "../notebookProcessing.js";
 import type * as noteworthy from "../noteworthy.js";
 import type * as okf from "../okf.js";
@@ -136,6 +137,7 @@ declare const fullApi: ApiFromModules<{
   nodememCompile: typeof nodememCompile;
   notebookAgent: typeof notebookAgent;
   notebookGraph: typeof notebookGraph;
+  notebookKernel: typeof notebookKernel;
   notebookProcessing: typeof notebookProcessing;
   noteworthy: typeof noteworthy;
   okf: typeof okf;

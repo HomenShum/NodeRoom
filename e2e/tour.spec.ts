@@ -5,20 +5,26 @@ import { test, expect } from "./fixtures";
  * spotlight geometry is trustworthy here (unlike the headless preview, whose viewport can collapse).
  */
 test.describe("guided tour (memory mode)", () => {
-  test("auto-starts on first visit, spotlights real targets, skips + replays", async ({ page }) => {
+  test("first visit shows a non-blocking dock, then replays and spotlights real targets", async ({ page }) => {
     await page.goto("/?mode=memory");
     await page.evaluate(() => { try { localStorage.removeItem("noderoom:tour:v1"); } catch { /* ignore */ } });
     await page.getByTestId("start-demo-room").click();
 
-    // Auto-starts on the centered welcome step. Scope text queries to the tour
-    // card — the walkthrough dock (PR #52) also renders "01 - Welcome to
-    // NodeRoom", which made an unscoped getByText a strict-mode collision.
+    await expect(page.getByTestId("walkthrough-dock")).toBeVisible();
+    await expect(page.getByTestId("guided-tour")).toHaveCount(0);
+    await expect(page.getByTestId("public-chat-panel").getByTestId("chat-composer")).toBeVisible();
+    const seenAfterFirstRun = await page.evaluate(() => localStorage.getItem("noderoom:tour:v1"));
+    expect(seenAfterFirstRun).toBe("done");
+
+    // Replay opens on the centered welcome step. Scope text queries to the tour
+    // card because the walkthrough dock also renders "01 - Welcome to NodeRoom".
+    await page.getByTestId("walkthrough-dock").getByRole("button", { name: /Replay/i }).click();
     const tour = page.getByTestId("guided-tour");
     await expect(tour).toBeVisible();
     await expect(tour.getByText("Welcome to NodeRoom")).toBeVisible();
     await expect(tour.getByText("1 / 7")).toBeVisible();
 
-    // Step 2 spotlights the left rail — assert the spotlight box overlaps the rail.
+    // Step 2 spotlights the left rail; assert the spotlight box overlaps the rail.
     await page.getByTestId("tour-next").click();
     const spot = page.locator(".r-tour-spot");
     await expect(spot).toBeVisible();
@@ -33,14 +39,14 @@ test.describe("guided tour (memory mode)", () => {
     await page.getByTestId("tour-next").click();
     await expect(page.getByText("Ask Copilot")).toBeVisible();
 
-    // Skip closes the tour and persists the seen-flag (no nag).
+    // Skip closes the tour and keeps the seen flag.
     await page.getByTestId("tour-skip").click();
     await expect(tour).toHaveCount(0);
     const seen = await page.evaluate(() => localStorage.getItem("noderoom:tour:v1"));
     expect(seen).toBe("done");
 
-    // The "?" button replays it on demand.
-    await page.getByTestId("room-settings-btn").click(); // guided tour moved into the settings panel
+    // The settings button replays it on demand.
+    await page.getByTestId("room-settings-btn").click();
     await page.getByTestId("tour-button").click();
     await expect(page.getByTestId("guided-tour")).toBeVisible();
     await expect(page.getByTestId("guided-tour").getByText("1 / 7")).toBeVisible();
@@ -51,6 +57,7 @@ test.describe("guided tour (memory mode)", () => {
     await page.evaluate(() => { try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* ignore */ } });
     await page.getByTestId("start-demo-room").click();
     await expect(page.getByTestId("public-chat-panel").getByTestId("chat-composer")).toBeVisible();
+    await expect(page.getByTestId("walkthrough-dock")).toHaveCount(0);
     await expect(page.getByTestId("guided-tour")).toHaveCount(0);
   });
 });

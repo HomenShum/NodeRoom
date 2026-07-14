@@ -467,6 +467,35 @@ describe("Chat reasoning-frame job detail", () => {
     expect(screen.getByTestId("job-retry")).toBeTruthy();
   });
 
+  it("recovers a terminal free-route failure through Adaptive with the original goal", async () => {
+    const store = baseStore();
+    store.lastLongFreeJob = () => ({
+      id: "job1",
+      goal: "@nodeagent verify Q3 variance formulas",
+      status: "failed",
+      entrypoint: "public_ask",
+      runtime: "workflow",
+      attempts: 1,
+      maxAttempts: 20,
+      modelPolicy: "openrouter/free-auto",
+      approvalPolicy: "draft_first",
+      evidencePolicy: "public_only",
+      error: "provider_free_quota_exhausted",
+      updatedAt: 2000,
+    });
+    mockStore.current = store;
+
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+
+    expect(screen.getByText(/daily free-model quota is exhausted/i)).toBeTruthy();
+    fireEvent.click(screen.getByTestId("job-use-adaptive"));
+
+    await waitFor(() => expect(store.askAgent).toHaveBeenCalledWith(expect.objectContaining({
+      goal: "verify Q3 variance formulas",
+      modelSelection: { mode: "adaptive" },
+    })));
+  });
+
   it("collapses open successful job details once the job completes", async () => {
     const store = baseStore();
     let status = "running";

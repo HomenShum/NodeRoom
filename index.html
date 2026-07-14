@@ -54,10 +54,37 @@
       })();
     </script>
     <style>
-      html, body { margin: 0; min-height: 100%; background: #151413; color: #f4efe9; font-family: Inter, Manrope, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      #root { min-height: 100vh; }
+      html { color-scheme: dark; background: #09090b; }
+      html, body { margin: 0; min-height: 100%; background: #09090b; color: #f4efe9; font-family: Inter, Manrope, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      #root { min-height: 100vh; background: #09090b; }
       .nr-ssr-landing { min-height: 100vh; display: flex; flex-direction: column; background: #151413; }
       html[data-app-route="private"] .nr-ssr-landing { display: none; }
+      .nr-ssr-private { min-height: 100vh; display: none; background: #09090b; color: #f2f4f7; overflow: hidden; }
+      html[data-app-route="private"] .nr-ssr-private { display: flex; flex-direction: column; }
+      .nr-boot-top { height: 52px; flex: none; display: flex; align-items: center; gap: 12px; padding: 0 14px; border-bottom: 1px solid rgba(255,255,255,.10); }
+      .nr-boot-brand { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 800; }
+      .nr-boot-mark { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 7px; background: linear-gradient(180deg, #d97757, #c6684a); color: #fff; font-weight: 900; }
+      .nr-boot-chip { margin-left: auto; border: 1px solid rgba(255,255,255,.10); border-radius: 999px; padding: 5px 10px; color: #99a3ae; font: 800 11px JetBrains Mono, ui-monospace, monospace; }
+      .nr-boot-main { flex: 1; min-height: 0; display: grid; grid-template-columns: 220px minmax(0,1fr) 360px; }
+      .nr-boot-rail, .nr-boot-surface, .nr-boot-chat { min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 16px 14px; }
+      .nr-boot-rail { border-right: 1px solid rgba(255,255,255,.10); }
+      .nr-boot-chat { border-left: 1px solid rgba(255,255,255,.10); }
+      .nr-boot-surface { padding: 18px 22px; }
+      .nr-boot-line { display: block; height: 14px; border-radius: 6px; background: linear-gradient(90deg, #171b20 25%, #20262d 37%, #171b20 63%); background-size: 200% 100%; animation: nr-boot-shimmer 1.4s ease infinite; }
+      .nr-boot-panel { flex: 1; min-height: 180px; border: 1px solid rgba(255,255,255,.10); border-radius: 14px; background: #111418; box-shadow: 0 10px 30px -12px rgba(0,0,0,.7); padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+      .nr-boot-status { display: grid; gap: 4px; padding: 11px 12px; border: 1px solid rgba(217,119,87,.28); border-radius: 9px; background: rgba(217,119,87,.16); }
+      .nr-boot-status strong { color: #e59579; font-size: 13px; }
+      .nr-boot-status span { color: #c6ccd4; font-size: 12px; line-height: 1.45; }
+      .nr-boot-progress { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 6px; }
+      .nr-boot-step { min-width: 0; display: flex; align-items: center; gap: 6px; min-height: 28px; padding: 4px 7px; border: 1px solid rgba(255,255,255,.10); border-radius: 8px; color: #8a94a0; font-size: 10.5px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .nr-boot-step i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; opacity: .62; }
+      .nr-boot-step.now { color: #e59579; border-color: rgba(217,119,87,.28); background: rgba(217,119,87,.16); }
+      @keyframes nr-boot-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+      @media (prefers-reduced-motion: reduce) { .nr-boot-line { animation: none; } }
+      @media (max-width: 860px) {
+        .nr-boot-main { grid-template-columns: 1fr; }
+        .nr-boot-rail, .nr-boot-chat { display: none; }
+      }
       .nr-ssr-top { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; }
       .nr-ssr-brand { display: inline-flex; align-items: center; gap: 10px; color: #f4efe9; font-size: 14px; font-weight: 800; }
       .nr-ssr-nav { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
@@ -70,6 +97,7 @@
       .nr-ssr-copy { max-width: 620px; margin: 0 0 24px; color: #cfc5bb; font-size: 18px; line-height: 1.6; }
       .nr-ssr-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
       .nr-ssr-button { display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 8px; background: #d97757; color: #1b1512; font-weight: 850; font-size: 15px; text-decoration: none; box-shadow: 0 14px 36px rgba(217, 119, 87, .24); }
+      .nr-ssr-button.secondary { background: transparent; color: #e8ded5; border: 1px solid rgba(244, 239, 233, .18); box-shadow: none; }
       .nr-ssr-code { display: inline-flex; align-items: center; min-height: 42px; padding: 0 14px; border: 1px solid rgba(244, 239, 233, .18); border-radius: 8px; color: #d9cfc6; font-size: 13px; text-decoration: none; }
       .nr-ssr-proof { margin-top: 22px; display: inline-flex; flex-wrap: wrap; gap: 10px; color: #e8ded5; font-size: 13px; }
       .nr-ssr-proof span { border: 1px solid rgba(244, 239, 233, .14); border-radius: 999px; padding: 8px 11px; background: rgba(255, 255, 255, .05); }
@@ -102,18 +130,18 @@
         </header>
         <section class="nr-ssr-main">
           <div>
-            <span class="nr-ssr-kicker"><span class="nr-ssr-dot"></span>NodeAgents in live rooms</span>
-            <h1 class="nr-ssr-title">Diligence that <span>shows its work.</span></h1>
-            <p class="nr-ssr-copy">NodeRoom is a live collaborative AI room where humans and NodeAgents work across shared files, spreadsheets, notes, and traceable source-backed changes.</p>
+            <span class="nr-ssr-kicker"><span class="nr-ssr-dot"></span>Shared workrooms for people and NodeAgents</span>
+            <h1 class="nr-ssr-title">Work with AI. <span>Review every change.</span></h1>
+            <p class="nr-ssr-copy">NodeRoom is a shared workspace where people and NodeAgents work on the same files, spreadsheets, and notes. Every agent edit can stay reviewable and source-backed.</p>
             <div class="nr-ssr-actions">
-              <a class="nr-ssr-button" href="/?create=1&amp;surface=desktop&amp;name=Host&amp;title=Startup%20diligence">Create a room</a>
-              <a class="nr-ssr-code" href="/learn/">Learn the workflow</a>
-              <a class="nr-ssr-code" href="/solutions/collaborative-ai-workspace/">Collaborative AI workspace</a>
+              <a class="nr-ssr-button" href="/?intent=create">Create a room</a>
+              <a class="nr-ssr-button secondary" href="/?intent=join">Join with a code</a>
+              <a class="nr-ssr-code" href="/?intent=sample">Try a sample room</a>
             </div>
             <div class="nr-ssr-proof" aria-label="NodeRoom proof points">
               <span>Source-backed changes</span>
-              <span>Shared rooms</span>
-              <span>Private app routes stay noindex</span>
+              <span>Code-access rooms</span>
+              <span>Review-first agent edits</span>
             </div>
           </div>
           <aside class="nr-ssr-shot" aria-label="NodeRoom product preview">
@@ -127,6 +155,48 @@
               </tbody>
             </table>
             <div class="nr-ssr-agent">Room NodeAgent cited the source, committed the sheet cells, and left a visible trace for review.</div>
+          </aside>
+        </section>
+      </main>
+      <main class="nr-ssr-private" data-testid="ssr-private-boot-shell" aria-label="Loading NodeRoom workspace">
+        <header class="nr-boot-top">
+          <div class="nr-boot-brand"><span class="nr-boot-mark">N</span><span>NodeRoom</span></div>
+          <span class="nr-boot-chip">LIVE ROOM</span>
+        </header>
+        <section class="nr-boot-main">
+          <aside class="nr-boot-rail" aria-label="Loading room binder">
+            <span class="nr-boot-line" style="height:26px;width:72%"></span>
+            <span class="nr-boot-line" style="width:88%"></span>
+            <span class="nr-boot-line" style="width:74%"></span>
+            <span class="nr-boot-line" style="width:64%"></span>
+            <span class="nr-boot-line" style="width:82%"></span>
+            <span class="nr-boot-line" style="width:70%"></span>
+          </aside>
+          <section class="nr-boot-surface" aria-label="Loading work surface">
+            <span class="nr-boot-line" style="height:30px;width:42%"></span>
+            <div class="nr-boot-panel">
+              <div class="nr-boot-status">
+                <strong>Opening room</strong>
+                <span>Preparing the live workspace and member session.</span>
+              </div>
+              <div class="nr-boot-progress" aria-label="Room startup progress">
+                <span class="nr-boot-step now"><i></i>Opening room</span>
+                <span class="nr-boot-step"><i></i>Seeding artifacts</span>
+                <span class="nr-boot-step"><i></i>Syncing collaborators</span>
+              </div>
+              <span class="nr-boot-line" style="width:96%"></span>
+              <span class="nr-boot-line" style="width:91%"></span>
+              <span class="nr-boot-line" style="width:94%"></span>
+              <span class="nr-boot-line" style="width:87%"></span>
+              <span class="nr-boot-line" style="width:90%"></span>
+              <span class="nr-boot-line" style="width:83%"></span>
+            </div>
+          </section>
+          <aside class="nr-boot-chat" aria-label="Loading copilot">
+            <span class="nr-boot-line" style="width:62%"></span>
+            <span class="nr-boot-line" style="height:42px;width:86%"></span>
+            <span class="nr-boot-line" style="width:58%"></span>
+            <span class="nr-boot-line" style="height:42px;width:80%"></span>
           </aside>
         </section>
       </main>

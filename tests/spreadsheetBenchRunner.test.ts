@@ -1,4 +1,5 @@
 import ExcelJS from "exceljs";
+import JSZip from "jszip";
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -75,6 +76,7 @@ describe("SpreadsheetBench staged runner", () => {
       expect.objectContaining({ kind: "value", sheet: "Sheet1", cell: "B2", expected: "2", actual: "1" }),
     ]));
     expect(existsSync(join(out, result.candidateWorkbook!))).toBe(true);
+    expectSidecarFile(result.scorerReceipt, "13-1/score-receipt.json");
     expectSidecarFile(result.sidecarEvidence?.candidateManifest, "13-1/candidate-manifest.json");
     expectSidecarFile(result.sidecarEvidence?.agentWorkspaceManifest, "13-1/agent-workspace/agent-workspace-manifest.json");
     expect(result.sidecarEvidence?.editPlan).toBeUndefined();
@@ -191,6 +193,7 @@ describe("SpreadsheetBench staged runner", () => {
     ]);
     expect(result.score).toBeDefined();
     expect(result.score!.pass).toBe(true);
+    expectSidecarFile(result.scorerReceipt, "13-2/score-receipt.json");
     expectSidecarFile(result.sidecarEvidence?.candidateManifest, "13-2/candidate-manifest.json");
     expectSidecarFile(result.sidecarEvidence?.agentWorkspaceManifest, "13-2/agent-workspace/agent-workspace-manifest.json");
     expectSidecarFile(result.sidecarEvidence?.editPlan, "13-2/agent-workspace/agent/edit-plan.json");
@@ -253,6 +256,70 @@ describe("SpreadsheetBench staged runner", () => {
     expect(sheet.getCell("C2").value).toBe(7);
     expect(sheet.getCell("C2").numFmt).toBe("#,##0.00");
   });
+
+  it("creates a real XLSX chart object through a bounded add_chart operation", async () => {
+    const source = tempRoot("chart-source");
+    const stage = tempRoot("chart-stage");
+    const out = tempRoot("chart-out");
+    mkdirSync(join(source, "spreadsheet", "chart-1"), { recursive: true });
+    await writeChartDataWorkbook(join(source, "spreadsheet", "chart-1", "1_chart-1_init.xlsx"));
+    await writeChartDataWorkbook(join(source, "spreadsheet", "chart-1", "1_chart-1_golden.xlsx"));
+    writeJson(join(source, "dataset.json"), [{
+      id: "chart-1",
+      instruction: "Create a line chart titled 'Revenue Trend' from Month and Revenue on the Data sheet.",
+      spreadsheet_path: "spreadsheet/chart-1",
+      answer_position: "Data!A1:B4",
+      answer_sheet: "Data",
+    }]);
+    stageSpreadsheetBenchBundle(source, {
+      track: "spreadsheetbench-v1",
+      outputRoot: stage,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+    const planner: AgentModel = {
+      name: "chart-aware-planner",
+      async next() {
+        return {
+          text: JSON.stringify({
+            schema: 1,
+            operations: [{
+              op: "add_chart",
+              sheet: "Data",
+              chartType: "line",
+              title: "Revenue Trend",
+              categoryRange: "'Data'!A2:A4",
+              series: [{ name: "Revenue", valuesRange: "'Data'!B2:B4", color: "2563EB" }],
+              anchor: "D2",
+              legendPosition: "bottom",
+              dataLabels: true,
+            }],
+          }),
+          toolCalls: [],
+          done: true,
+          usage: { inputTokens: 80, outputTokens: 30 },
+        };
+      },
+    };
+
+    const report = await runStagedSpreadsheetBench({
+      stageRoot: stage,
+      outputRoot: out,
+      mode: "model-edit-plan",
+      model: planner,
+      compareCharts: true,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+
+    expect(report.results[0].error).toBeUndefined();
+    expect(report.results[0].sidecarEvidence?.appliedOperationCount).toBe(1);
+    expect(report.results[0].score?.chartPackage?.totals.candidateChartParts).toBeGreaterThan(0);
+    const candidate = readFileSync(join(out, report.results[0].candidateWorkbook!));
+    const zip = await JSZip.loadAsync(candidate);
+    expect(Object.keys(zip.files)).toEqual(expect.arrayContaining([expect.stringMatching(/^xl\/charts\/chart\d+\.xml$/)]));
+    expect(readFileSync(join(out, "chart-1", "chart-operations.json"), "utf8")).toContain("Revenue Trend");
+  }, 30_000);
 
   it("caches deterministic results for arithmetic and aggregate formulas before scoring", async () => {
     const source = tempRoot("source");
@@ -326,7 +393,7 @@ describe("SpreadsheetBench staged runner", () => {
         id: "13-13",
         instruction: "Write the business formulas for conditional rounding and multi-criteria region criteria.",
         spreadsheet_path: "spreadsheet/13-13",
-        answer_position: "Sheet1!E2:P2",
+        answer_position: "Sheet1!E2:S2",
         answer_sheet: "Sheet1",
       },
     ]);
@@ -351,6 +418,9 @@ describe("SpreadsheetBench staged runner", () => {
         { sheet: "Sheet1", cell: "N2", formula: "AVERAGEIF(C2:C4,\"North\",D2:D4)" },
         { sheet: "Sheet1", cell: "O2", formula: "AVERAGEIFS(D2:D4,C2:C4,\"North\",A2:A4,\">=60\")" },
         { sheet: "Sheet1", cell: "P2", formula: "SUMIFS(D2:D4,C2:C4,\"<>South\",A2:A4,\">50\")" },
+        { sheet: "Sheet1", cell: "Q2", formula: "IF(AND(A2>=100,D2=10),\"PASS\",\"FAIL\")" },
+        { sheet: "Sheet1", cell: "R2", formula: "OR(A2<100,C2=\"North\")" },
+        { sheet: "Sheet1", cell: "S2", formula: "NOT(C2=\"South\")" },
       ],
     });
 
@@ -364,10 +434,10 @@ describe("SpreadsheetBench staged runner", () => {
 
     expect(report.passCount).toBe(1);
     expect(report.results[0].score?.totals).toMatchObject({
-      comparedCells: 12,
-      valueMatches: 12,
-      formulaCells: 12,
-      formulaMatches: 12,
+      comparedCells: 15,
+      valueMatches: 15,
+      formulaCells: 15,
+      formulaMatches: 15,
       mismatches: 0,
     });
     const candidate = new ExcelJS.Workbook();
@@ -385,6 +455,9 @@ describe("SpreadsheetBench staged runner", () => {
     expect(sheet.getCell("N2").value).toMatchObject({ formula: "AVERAGEIF(C2:C4,\"North\",D2:D4)", result: 20 });
     expect(sheet.getCell("O2").value).toMatchObject({ formula: "AVERAGEIFS(D2:D4,C2:C4,\"North\",A2:A4,\">=60\")", result: 10 });
     expect(sheet.getCell("P2").value).toMatchObject({ formula: "SUMIFS(D2:D4,C2:C4,\"<>South\",A2:A4,\">50\")", result: 40 });
+    expect(sheet.getCell("Q2").value).toMatchObject({ formula: "IF(AND(A2>=100,D2=10),\"PASS\",\"FAIL\")", result: "PASS" });
+    expect(sheet.getCell("R2").value).toMatchObject({ formula: "OR(A2<100,C2=\"North\")", result: true });
+    expect(sheet.getCell("S2").value).toMatchObject({ formula: "NOT(C2=\"South\")", result: true });
     const candidateManifest = readFileSync(join(out, "13-13", "candidate-manifest.json"), "utf8");
     expect(candidateManifest).toContain("SUMIF");
     expect(candidateManifest).toContain("SUMIFS");
@@ -404,7 +477,7 @@ describe("SpreadsheetBench staged runner", () => {
         id: "13-14",
         instruction: "Write exact lookup formulas for product rows.",
         spreadsheet_path: "spreadsheet/13-14",
-        answer_position: "Sheet1!D2:H2",
+        answer_position: "Sheet1!D2:J2",
         answer_sheet: "Sheet1",
       },
     ]);
@@ -422,6 +495,8 @@ describe("SpreadsheetBench staged runner", () => {
         { sheet: "Sheet1", cell: "F2", formula: "VLOOKUP(\"SKU3\",A2:C4,3,FALSE)" },
         { sheet: "Sheet1", cell: "G2", formula: "XLOOKUP(\"SKU1\",A2:A4,C2:C4)" },
         { sheet: "Sheet1", cell: "H2", formula: "INDEX(C2:C4,MATCH(\"SKU3\",A2:A4,0),1)" },
+        { sheet: "Sheet1", cell: "I2", formula: "MEDIAN(15,VLOOKUP(\"K1\",A6:C8,{2,3},FALSE))" },
+        { sheet: "Sheet1", cell: "J2", formula: "IF(MEDIAN(15,VLOOKUP(\"K1\",A6:C8,{2,3},FALSE))=15,\"Pass\",\"Fail\")" },
       ],
     });
 
@@ -435,10 +510,10 @@ describe("SpreadsheetBench staged runner", () => {
 
     expect(report.passCount).toBe(1);
     expect(report.results[0].score?.totals).toMatchObject({
-      comparedCells: 5,
-      valueMatches: 5,
-      formulaCells: 5,
-      formulaMatches: 5,
+      comparedCells: 7,
+      valueMatches: 7,
+      formulaCells: 7,
+      formulaMatches: 7,
       mismatches: 0,
     });
     const candidate = new ExcelJS.Workbook();
@@ -449,6 +524,8 @@ describe("SpreadsheetBench staged runner", () => {
     expect(sheet.getCell("F2").value).toMatchObject({ formula: "VLOOKUP(\"SKU3\",A2:C4,3,FALSE)", result: 30 });
     expect(sheet.getCell("G2").value).toMatchObject({ formula: "XLOOKUP(\"SKU1\",A2:A4,C2:C4)", result: 10 });
     expect(sheet.getCell("H2").value).toMatchObject({ formula: "INDEX(C2:C4,MATCH(\"SKU3\",A2:A4,0),1)", result: 30 });
+    expect(sheet.getCell("I2").value).toMatchObject({ formula: "MEDIAN(15,VLOOKUP(\"K1\",A6:C8,{2,3},FALSE))", result: 15 });
+    expect(sheet.getCell("J2").value).toMatchObject({ formula: "IF(MEDIAN(15,VLOOKUP(\"K1\",A6:C8,{2,3},FALSE))=15,\"Pass\",\"Fail\")", result: "Pass" });
     const candidateManifest = readFileSync(join(out, "13-14", "candidate-manifest.json"), "utf8");
     expect(candidateManifest).toContain("VLOOKUP");
     expect(candidateManifest).toContain("XLOOKUP");
@@ -602,10 +679,13 @@ describe("SpreadsheetBench staged runner", () => {
       "prepare_agent_workspace",
       "snapshot_agent_workbook",
       "call_model_for_edit_plan",
+      "verify_edit_plan",
+      "verify_candidate_workbook",
       "emit_candidate_workbook",
       "read_evaluator_manifest",
       "score_candidate",
     ]);
+    expectSidecarFile(result.scorerReceipt, "13-3/score-receipt.json");
     expectSidecarFile(result.sidecarEvidence?.candidateManifest, "13-3/candidate-manifest.json");
     expectSidecarFile(result.sidecarEvidence?.agentWorkspaceManifest, "13-3/agent-workspace/agent-workspace-manifest.json");
     expectSidecarFile(result.sidecarEvidence?.editPlan, "13-3/model-edit-plan.json");
@@ -693,6 +773,103 @@ describe("SpreadsheetBench staged runner", () => {
     expect(report.results[0].score?.pass).toBe(true);
     expect(readFileSync(join(out, "13-9", "model-output.txt"), "utf8")).toContain("Here is the edit plan");
     expect(readFileSync(join(out, "13-9", "model-edit-plan.json"), "utf8")).toContain("\"sheet\": \"LISTS\"");
+  });
+
+  it("repairs a self-referential input-cell edit using the task-aware formula target", async () => {
+    const source = tempRoot("source");
+    const stage = tempRoot("stage");
+    const out = tempRoot("out");
+    mkdirSync(join(source, "spreadsheet", "11276"), { recursive: true });
+    await writeFormulaRepairWorkbook(join(source, "spreadsheet", "11276", "1_11276_init.xlsx"), false);
+    await writeFormulaRepairWorkbook(join(source, "spreadsheet", "11276", "1_11276_golden.xlsx"), true);
+    writeJson(join(source, "dataset.json"), [{
+      id: "11276",
+      instruction: 'The wrong formula is TEXT(F4,"DD"). Correct it so the weekday appears like the adjacent cells.',
+      spreadsheet_path: "spreadsheet/11276",
+      answer_position: "ATTENDENCE!F3:F3",
+      answer_sheet: "ATTENDENCE",
+    }]);
+    stageSpreadsheetBenchBundle(source, {
+      track: "spreadsheetbench-v1",
+      outputRoot: stage,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+
+    let callCount = 0;
+    const planner: AgentModel = {
+      name: "repairing-spreadsheetbench-planner",
+      async next({ messages }) {
+        callCount += 1;
+        const payload = JSON.parse(messages[0]?.content ?? "{}") as {
+          workbook?: { sheets?: Array<{ cells?: Array<{ address: string; formula?: string }> }> };
+          verification?: { issues?: Array<{ kind: string }> };
+        };
+        if (callCount === 1) {
+          const cells = payload.workbook?.sheets?.flatMap((sheet) => sheet.cells ?? []) ?? [];
+          expect(cells).toEqual(expect.arrayContaining([
+            expect.objectContaining({ address: "F3", formula: 'TEXT(F4,"DD")' }),
+            expect.objectContaining({ address: "F4" }),
+          ]));
+          return {
+            text: JSON.stringify({
+              schema: 1,
+              operations: [{ sheet: "ATTENDENCE", cell: "F4", formula: 'TEXT(F4,"ddd")', result: "Tue" }],
+            }),
+            toolCalls: [],
+            done: true,
+            usage: { inputTokens: 100, outputTokens: 25 },
+          };
+        }
+        expect(payload.verification?.issues?.map((issue) => issue.kind)).toEqual(expect.arrayContaining([
+          "formula_self_reference",
+          "missing_target_coverage",
+        ]));
+        return {
+          text: JSON.stringify({
+            schema: 1,
+            operations: [{ sheet: "ATTENDENCE", cell: "F3", formula: 'TEXT(F4,"ddd")', result: "Tue" }],
+          }),
+          toolCalls: [],
+          done: true,
+          usage: { inputTokens: 80, outputTokens: 20 },
+        };
+      },
+    };
+
+    const report = await runStagedSpreadsheetBench({
+      stageRoot: stage,
+      outputRoot: out,
+      mode: "model-edit-plan",
+      model: planner,
+      modelSnapshotMaxCells: 4,
+      modelRepairAttempts: 1,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+
+    expect(callCount).toBe(2);
+    expect(report.passCount).toBe(1);
+    expect(report.harness.budget).toMatchObject({ modelCalls: 2, inputTokens: 180, outputTokens: 45 });
+    expect(report.results[0]).toMatchObject({
+      score: { pass: true },
+      model: { calls: 2, usage: { inputTokens: 180, outputTokens: 45 } },
+      sidecarEvidence: { verificationStatus: "passed" },
+    });
+    expect(report.results[0].trajectory.map((step) => step.step)).toEqual(expect.arrayContaining([
+      "verify_edit_plan",
+      "repair_edit_plan",
+      "verify_candidate_workbook",
+    ]));
+    expectSidecarFile(report.results[0].sidecarEvidence?.repairOutputs?.[0], "11276/model-repair-output-01.txt");
+    const verification = JSON.parse(readFileSync(join(out, "11276", "model-edit-verification.json"), "utf8"));
+    expect(verification).toMatchObject({ status: "passed", repairAttemptCount: 1 });
+    const candidate = new ExcelJS.Workbook();
+    await candidate.xlsx.readFile(join(out, report.results[0].candidateWorkbook!));
+    expect(candidate.getWorksheet("ATTENDENCE")?.getCell("F3").value).toMatchObject({
+      formula: 'TEXT(F4,"ddd")',
+      result: "Tue",
+    });
   });
 
   it("infers and applies visible section aggregation without opening evaluator gold", async () => {
@@ -1111,8 +1288,131 @@ describe("SpreadsheetBench staged runner", () => {
       "prepare_agent_workspace",
       "snapshot_agent_workbook",
       "call_model_for_edit_plan",
+      "verify_edit_plan",
     ]);
     expect(readFileSync(join(out, "13-4", "model-edit-plan.json"), "utf8").toLowerCase()).not.toContain("gold");
+  });
+
+  it("preserves the attempted model route when a model edit call fails before usage is returned", async () => {
+    const source = tempRoot("source");
+    const stage = tempRoot("stage");
+    const out = tempRoot("out");
+    mkdirSync(join(source, "spreadsheet", "13-timeout"), { recursive: true });
+    writeJson(join(source, "dataset.json"), [
+      {
+        id: "13-timeout",
+        instruction: "Change Sheet1 B2 to 2.",
+        spreadsheet_path: "spreadsheet/13-timeout",
+        answer_position: "Sheet1!B2:B2",
+        answer_sheet: "Sheet1",
+      },
+    ]);
+    await writeWorkbook(join(source, "spreadsheet", "13-timeout", "1_13-timeout_init.xlsx"), 1);
+    await writeWorkbook(join(source, "spreadsheet", "13-timeout", "1_13-timeout_golden.xlsx"), 2);
+    stageSpreadsheetBenchBundle(source, {
+      track: "spreadsheetbench-v1",
+      outputRoot: stage,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+    const planner: AgentModel = {
+      name: "openrouter/free-auto",
+      async next() {
+        throw new Error("The operation was aborted due to timeout");
+      },
+    };
+
+    const report = await runStagedSpreadsheetBench({
+      stageRoot: stage,
+      outputRoot: out,
+      mode: "model-edit-plan",
+      model: planner,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+
+    expect(report.harness.budget).toMatchObject({
+      modelCalls: 1,
+      inputTokens: 0,
+      outputTokens: 0,
+      providerCostUsd: 0,
+    });
+    expect(report.results[0]).toMatchObject({
+      error: {
+        phase: "candidate_generation",
+        message: "The operation was aborted due to timeout",
+      },
+      model: {
+        name: "openrouter/free-auto",
+        calls: 1,
+        usage: { inputTokens: 0, outputTokens: 0 },
+        costUsd: 0,
+      },
+    });
+  });
+
+  it("records the resolved concrete model while preserving the requested free-auto alias", async () => {
+    const source = tempRoot("source");
+    const stage = tempRoot("stage");
+    const out = tempRoot("out");
+    mkdirSync(join(source, "spreadsheet", "13-resolved"), { recursive: true });
+    writeJson(join(source, "dataset.json"), [
+      {
+        id: "13-resolved",
+        instruction: "Change Sheet1 B2 to 2.",
+        spreadsheet_path: "spreadsheet/13-resolved",
+        answer_position: "Sheet1!B2:B2",
+        answer_sheet: "Sheet1",
+      },
+    ]);
+    await writeWorkbook(join(source, "spreadsheet", "13-resolved", "1_13-resolved_init.xlsx"), 1);
+    await writeWorkbook(join(source, "spreadsheet", "13-resolved", "1_13-resolved_golden.xlsx"), 2);
+    stageSpreadsheetBenchBundle(source, {
+      track: "spreadsheetbench-v1",
+      outputRoot: stage,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+    let resolvedName = "openrouter/free-auto";
+    const planner: AgentModel = {
+      get name() {
+        return resolvedName;
+      },
+      async next() {
+        resolvedName = "nvidia/nemotron-3-super-120b-a12b:free";
+        return {
+          text: JSON.stringify({ schema: 1, operations: [{ sheet: "Sheet1", cell: "B2", value: 2 }] }),
+          toolCalls: [],
+          done: true,
+          usage: { inputTokens: 30, outputTokens: 8 },
+        };
+      },
+    };
+
+    const report = await runStagedSpreadsheetBench({
+      stageRoot: stage,
+      outputRoot: out,
+      mode: "model-edit-plan",
+      model: planner,
+      modelName: "openrouter/free-auto",
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+
+    expect(report.passCount).toBe(1);
+    expect(report.results[0].model).toMatchObject({
+      name: "nvidia/nemotron-3-super-120b-a12b:free",
+      requestedName: "openrouter/free-auto",
+      calls: 1,
+      usage: { inputTokens: 30, outputTokens: 8 },
+      costUsd: 0,
+    });
+    const manifest = JSON.parse(readFileSync(join(out, "13-resolved", "candidate-manifest.json"), "utf8"));
+    expect(manifest).toMatchObject({
+      model: "nvidia/nemotron-3-super-120b-a12b:free",
+      requestedModel: "openrouter/free-auto",
+      modelCostUsd: 0,
+    });
   });
 
   it("repairs generic Sheet1 aliases when the workbook has exactly one sheet", async () => {
@@ -1217,6 +1517,156 @@ describe("SpreadsheetBench staged runner", () => {
     expect(normalizedPlan).toContain('"numFmt": "#,##0.00"');
   });
 
+  it("repairs duplicated escaped closing quotes in formula strings", async () => {
+    const source = tempRoot("source");
+    const stage = tempRoot("stage");
+    const out = tempRoot("out");
+    mkdirSync(join(source, "spreadsheet", "13-quote-drift"), { recursive: true });
+    writeJson(join(source, "dataset.json"), [
+      {
+        id: "13-quote-drift",
+        instruction: "Change the workbook value to 2.",
+        spreadsheet_path: "spreadsheet/13-quote-drift",
+        answer_position: "Actual!B2:B2",
+        answer_sheet: "Actual",
+      },
+    ]);
+    await writeWorkbookWithSheet(join(source, "spreadsheet", "13-quote-drift", "1_13-quote-drift_init.xlsx"), "Actual", 1);
+    await writeWorkbookWithSheet(join(source, "spreadsheet", "13-quote-drift", "1_13-quote-drift_golden.xlsx"), "Actual", 2);
+    stageSpreadsheetBenchBundle(source, {
+      track: "spreadsheetbench-v1",
+      outputRoot: stage,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+    const planner: AgentModel = {
+      name: "quote-drift-planner",
+      async next() {
+        return {
+          text: '{"schema":1,"operations":[{"sheet":"Actual","cell":"B2","value":2},{"sheet":"Actual","cell":"C2","value":{"formula":"=TEXT(A2,\\"#\\") & \\"P\\"\\"}}]}',
+          toolCalls: [],
+          done: true,
+          usage: { inputTokens: 24, outputTokens: 11 },
+        };
+      },
+    };
+
+    const report = await runStagedSpreadsheetBench({
+      stageRoot: stage,
+      outputRoot: out,
+      mode: "model-edit-plan",
+      model: planner,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+
+    expect(report.passCount).toBe(1);
+    const normalizedPlan = JSON.parse(readFileSync(join(out, "13-quote-drift", "model-edit-plan.json"), "utf8"));
+    expect(normalizedPlan.operations[1]).toMatchObject({
+      sheet: "Actual",
+      cell: "C2",
+      formula: '=TEXT(A2,"#") & "P"'.replace(/^=/, ""),
+    });
+  });
+
+  it("repairs unescaped nested quotes in formula strings", async () => {
+    const source = tempRoot("source");
+    const stage = tempRoot("stage");
+    const out = tempRoot("out");
+    mkdirSync(join(source, "spreadsheet", "13-unescaped-formula"), { recursive: true });
+    writeJson(join(source, "dataset.json"), [
+      {
+        id: "13-unescaped-formula",
+        instruction: "Leave the age blank when the birth date is blank.",
+        spreadsheet_path: "spreadsheet/13-unescaped-formula",
+        answer_position: "Actual!B2:B2",
+        answer_sheet: "Actual",
+      },
+    ]);
+    await writeWorkbookWithSheet(join(source, "spreadsheet", "13-unescaped-formula", "1_init.xlsx"), "Actual", 1);
+    await writeWorkbookWithSheet(join(source, "spreadsheet", "13-unescaped-formula", "1_golden.xlsx"), "Actual", 2);
+    stageSpreadsheetBenchBundle(source, {
+      track: "spreadsheetbench-v1",
+      outputRoot: stage,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+    const planner: AgentModel = {
+      name: "unescaped-formula-planner",
+      async next() {
+        return {
+          text: '{"schema":1,"operations":[{"sheet":"Actual","cell":"C2","formula":"=IF(C2="","",DATEDIF(C2,TODAY(),"y"))"},{"sheet":"Actual","cell":"B2","value":2}]}',
+          toolCalls: [],
+          done: true,
+          usage: { inputTokens: 28, outputTokens: 12 },
+        };
+      },
+    };
+
+    const report = await runStagedSpreadsheetBench({
+      stageRoot: stage,
+      outputRoot: out,
+      mode: "model-edit-plan",
+      model: planner,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+
+    expect(report.results[0].error).toBeUndefined();
+    const normalizedPlan = JSON.parse(readFileSync(join(out, "13-unescaped-formula", "model-edit-plan.json"), "utf8"));
+    expect(normalizedPlan.operations[0].formula).toBe('=IF(C2="","",DATEDIF(C2,TODAY(),"y"))');
+  });
+
+  it("wraps model edit-plan operations that omit the schema field", async () => {
+    const source = tempRoot("source");
+    const stage = tempRoot("stage");
+    const out = tempRoot("out");
+    mkdirSync(join(source, "spreadsheet", "13-no-schema"), { recursive: true });
+    writeJson(join(source, "dataset.json"), [
+      {
+        id: "13-no-schema",
+        instruction: "Change Sheet1 B2 to 2.",
+        spreadsheet_path: "spreadsheet/13-no-schema",
+        answer_position: "Sheet1!B2:B2",
+        answer_sheet: "Sheet1",
+      },
+    ]);
+    await writeWorkbook(join(source, "spreadsheet", "13-no-schema", "1_13-no-schema_init.xlsx"), 1);
+    await writeWorkbook(join(source, "spreadsheet", "13-no-schema", "1_13-no-schema_golden.xlsx"), 2);
+    stageSpreadsheetBenchBundle(source, {
+      track: "spreadsheetbench-v1",
+      outputRoot: stage,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+    const planner: AgentModel = {
+      name: "missing-schema-planner",
+      async next() {
+        return {
+          text: JSON.stringify({ operations: [{ sheet: "Sheet1", cell: "B2", value: 2 }] }),
+          toolCalls: [],
+          done: true,
+          usage: { inputTokens: 30, outputTokens: 8 },
+        };
+      },
+    };
+
+    const report = await runStagedSpreadsheetBench({
+      stageRoot: stage,
+      outputRoot: out,
+      mode: "model-edit-plan",
+      model: planner,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+
+    expect(report.passCount).toBe(1);
+    expect(JSON.parse(readFileSync(join(out, "13-no-schema", "model-edit-plan.json"), "utf8"))).toMatchObject({
+      schema: 1,
+      operations: [{ sheet: "Sheet1", cell: "B2", value: 2 }],
+    });
+  });
+
   it("retries retryable model edit failures and records case-level stop policy", async () => {
     const source = tempRoot("source");
     const stage = tempRoot("stage");
@@ -1310,6 +1760,58 @@ describe("SpreadsheetBench staged runner", () => {
     expect(existsSync(join(out, "13-5", "attempt-02", "candidate-01-1_13-5_init.xlsx"))).toBe(true);
   });
 
+  it("scores an explicit empty model plan as an unchanged candidate instead of a generation crash", async () => {
+    const source = tempRoot("source");
+    const stage = tempRoot("stage");
+    const out = tempRoot("out");
+    mkdirSync(join(source, "spreadsheet", "248-empty"), { recursive: true });
+    writeJson(join(source, "dataset.json"), [
+      {
+        id: "248-empty",
+        instruction: "Attempt an unsupported workbook edit and return an empty plan when no safe operation applies.",
+        spreadsheet_path: "spreadsheet/248-empty",
+        answer_position: "Sheet1!B2:B2",
+        answer_sheet: "Sheet1",
+      },
+    ]);
+    await writeWorkbook(join(source, "spreadsheet", "248-empty", "1_248-empty_init.xlsx"), 1);
+    await writeWorkbook(join(source, "spreadsheet", "248-empty", "1_248-empty_golden.xlsx"), 2);
+    stageSpreadsheetBenchBundle(source, {
+      track: "spreadsheetbench-v1",
+      outputRoot: stage,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+    const planner: AgentModel = {
+      name: "explicit-empty-plan-model",
+      async next() {
+        return {
+          text: JSON.stringify({ schema: 1, operations: [] }),
+          toolCalls: [],
+          done: true,
+          usage: { inputTokens: 20, outputTokens: 6 },
+        };
+      },
+    };
+
+    const report = await runStagedSpreadsheetBench({
+      stageRoot: stage,
+      outputRoot: out,
+      mode: "model-edit-plan",
+      model: planner,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+
+    expect(report).toMatchObject({ taskCount: 1, caseCount: 1, passCount: 0, attemptCount: 1 });
+    expect(report.results[0].error).toBeUndefined();
+    expect(report.results[0].candidateWorkbook).toBeTruthy();
+    expect(report.results[0].score?.pass).toBe(false);
+    expect(report.results[0].sidecarEvidence?.appliedOperationCount).toBe(0);
+    expect(report.results[0].sidecarEvidence?.editPlan?.kind).toBe("generated");
+    expect(report.caseRuns[0].stopReason).toBe("failed_score");
+  });
+
   it("accounts repeated model edit attempts with pass rate, p95, and failure counts", async () => {
     const source = tempRoot("source");
     const stage = tempRoot("stage");
@@ -1382,6 +1884,135 @@ describe("SpreadsheetBench staged runner", () => {
     expect(existsSync(join(out, "13-6", "attempt-01", "model-edit-plan.json"))).toBe(true);
     expect(readFileSync(join(out, "13-6", "attempt-01", "model-edit-plan.json"), "utf8").toLowerCase()).not.toContain("gold");
   });
+
+  it("batches an exact task-ID selection into one auditable model call with bounded snapshots", async () => {
+    const source = tempRoot("source");
+    const stage = tempRoot("stage");
+    const out = tempRoot("out");
+    const ids = ["batch-1", "batch-2", "batch-3", "batch-4", "batch-5"];
+    for (const [index, id] of ids.entries()) {
+      mkdirSync(join(source, "spreadsheet", id), { recursive: true });
+      await writeWorkbook(join(source, "spreadsheet", id, `1_${id}_init.xlsx`), index + 1);
+      await writeWorkbook(join(source, "spreadsheet", id, `1_${id}_golden.xlsx`), index + 1);
+    }
+    writeJson(join(source, "dataset.json"), ids.map((id) => ({
+      id,
+      instruction: `Keep ${id} unchanged when no edit is justified.`,
+      spreadsheet_path: `spreadsheet/${id}`,
+      answer_position: "Sheet1!B2:B2",
+      answer_sheet: "Sheet1",
+    })));
+    stageSpreadsheetBenchBundle(source, {
+      track: "spreadsheetbench-v1",
+      outputRoot: stage,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+    const selected = ["batch-1", "batch-2", "batch-4", "batch-5"];
+    let calls = 0;
+    const planner: AgentModel = {
+      name: "batched-spreadsheetbench-planner",
+      async next(input) {
+        calls += 1;
+        const payload = JSON.parse(input.messages[0].content) as {
+          tasks: Array<{ taskId: string; workbook: { cellCount: number } }>;
+        };
+        expect(payload.tasks.map((task) => task.taskId)).toEqual(selected);
+        expect(payload.tasks.every((task) => task.workbook.cellCount <= 4)).toBe(true);
+        return {
+          text: JSON.stringify({
+            schema: 1,
+            plans: payload.tasks.map((task) => ({ taskId: task.taskId, operations: [] })),
+          }),
+          toolCalls: [],
+          done: true,
+          usage: { inputTokens: 11, outputTokens: 7, cachedInputTokens: 3 },
+        };
+      },
+    };
+
+    const report = await runStagedSpreadsheetBench({
+      stageRoot: stage,
+      outputRoot: out,
+      mode: "model-edit-plan",
+      model: planner,
+      modelName: "batched-spreadsheetbench-planner",
+      modelBatchSize: 4,
+      modelSnapshotMaxCells: 4,
+      modelSnapshotMaxCellChars: 32,
+      taskIds: selected,
+      clean: true,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+
+    expect(calls).toBe(1);
+    expect(report.results.map((result) => result.taskId)).toEqual(selected);
+    expect(report).toMatchObject({
+      caseCount: 4,
+      passCount: 4,
+      harness: {
+        modelContextPolicy: {
+          batchSize: 4,
+          snapshotMaxCells: 4,
+          snapshotMaxCellChars: 32,
+          selectedTaskCount: 4,
+        },
+        budget: {
+          modelCalls: 1,
+          inputTokens: 11,
+          outputTokens: 7,
+          providerCostUsd: 0,
+        },
+      },
+    });
+    expect(report.results.every((result) => result.model?.calls === 0.25)).toBe(true);
+    expect(report.results.map((result) => result.model?.usage.inputTokens).reduce<number>((sum, value) => sum + (value ?? 0), 0)).toBe(11);
+    expect(report.results.map((result) => result.model?.usage.outputTokens).reduce<number>((sum, value) => sum + (value ?? 0), 0)).toBe(7);
+    for (const result of report.results) {
+      expect(result.model?.batch).toMatchObject({ taskCount: 4, callShare: 0.25 });
+      expectSidecarFile(result.sidecarEvidence?.candidateManifest, `${result.taskId}/candidate-manifest.json`);
+      expectSidecarFile(result.sidecarEvidence?.editPlan, `${result.taskId}/model-edit-plan.json`);
+      expectSidecarFile(result.sidecarEvidence?.rawModelOutput, `${result.taskId}/model-output.txt`);
+      const manifest = JSON.parse(readFileSync(join(out, result.taskId, "candidate-manifest.json"), "utf8"));
+      expect(manifest.modelBatch).toMatchObject({ taskCount: 4, callShare: 0.25 });
+      expect(manifest.modelContext).toMatchObject({ snapshotMaxCells: 4, snapshotMaxCellChars: 32 });
+    }
+    expect(existsSync(join(out, "batch-3"))).toBe(false);
+
+    const salvageOut = tempRoot("salvage-out");
+    const salvagePlanner: AgentModel = {
+      name: "truncated-batch-planner",
+      async next() {
+        return {
+          text: `{"schema":1,"plans":[${selected.slice(0, 3)
+            .map((taskId) => JSON.stringify({ taskId, operations: [] }))
+            .join(",")},{"taskId":"${selected[3]}","operations":[`,
+          toolCalls: [],
+          done: true,
+          usage: { inputTokens: 8, outputTokens: 4 },
+        };
+      },
+    };
+    const salvaged = await runStagedSpreadsheetBench({
+      stageRoot: stage,
+      outputRoot: salvageOut,
+      mode: "model-edit-plan",
+      model: salvagePlanner,
+      modelBatchSize: 4,
+      modelSnapshotMaxCells: 4,
+      taskIds: selected,
+      clean: true,
+    });
+    expect(salvaged.results.filter((result) => result.sidecarEvidence?.editPlan?.kind === "generated")).toHaveLength(3);
+    expect(salvaged.results.find((result) => result.taskId === selected[3])?.error?.message).toContain("batch omitted");
+
+    await expect(runStagedSpreadsheetBench({
+      stageRoot: stage,
+      outputRoot: out,
+      mode: "copy-input-baseline",
+      taskIds: ["unknown-task"],
+    })).rejects.toThrow("unknown task");
+  });
 });
 
 function tempRoot(prefix: string): string {
@@ -1420,6 +2051,16 @@ async function writeWorkbookWithTwoSheets(path: string, answerSheetName: string,
   await workbook.xlsx.writeFile(path);
 }
 
+async function writeChartDataWorkbook(path: string) {
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet("Data");
+  setRowValues(sheet, 1, ["Month", "Revenue"]);
+  setRowValues(sheet, 2, ["Jan", 10]);
+  setRowValues(sheet, 3, ["Feb", 14]);
+  setRowValues(sheet, 4, ["Mar", 18]);
+  await workbook.xlsx.writeFile(path);
+}
+
 async function writeTwoSheetStarvationWorkbook(path: string, targetValue: number) {
   const workbook = new ExcelJS.Workbook();
   const ranges = workbook.addWorksheet("RANGES");
@@ -1431,6 +2072,21 @@ async function writeTwoSheetStarvationWorkbook(path: string, targetValue: number
   const lists = workbook.addWorksheet("LISTS");
   lists.getCell("A1").value = "target";
   lists.getCell("B2").value = targetValue;
+  await workbook.xlsx.writeFile(path);
+}
+
+async function writeFormulaRepairWorkbook(path: string, completed: boolean) {
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet("ATTENDENCE");
+  for (let column = 1; column <= 12; column++) sheet.getCell(1, column).value = `period-${column}`;
+  sheet.getCell("E3").value = { formula: 'TEXT(E4,"ddd")', result: "Mon" };
+  sheet.getCell("E4").value = "2024-01-01";
+  sheet.getCell("F3").value = completed
+    ? { formula: 'TEXT(F4,"ddd")', result: "Tue" }
+    : { formula: 'TEXT(F4,"DD")', result: "01" };
+  sheet.getCell("F4").value = "2024-01-02";
+  sheet.getCell("G3").value = { formula: 'TEXT(G4,"ddd")', result: "Wed" };
+  sheet.getCell("G4").value = "2024-01-03";
   await workbook.xlsx.writeFile(path);
 }
 
@@ -1562,6 +2218,9 @@ async function writeBusinessFormulaWorkbook(path: string, completed: boolean) {
   sheet.getCell("N2").value = completed ? { formula: "AVERAGEIF(C2:C4,\"North\",D2:D4)", result: 20 } : "";
   sheet.getCell("O2").value = completed ? { formula: "AVERAGEIFS(D2:D4,C2:C4,\"North\",A2:A4,\">=60\")", result: 10 } : "";
   sheet.getCell("P2").value = completed ? { formula: "SUMIFS(D2:D4,C2:C4,\"<>South\",A2:A4,\">50\")", result: 40 } : "";
+  sheet.getCell("Q2").value = completed ? { formula: "IF(AND(A2>=100,D2=10),\"PASS\",\"FAIL\")", result: "PASS" } : "";
+  sheet.getCell("R2").value = completed ? { formula: "OR(A2<100,C2=\"North\")", result: true } : "";
+  sheet.getCell("S2").value = completed ? { formula: "NOT(C2=\"South\")", result: true } : "";
   await workbook.xlsx.writeFile(path);
 }
 
@@ -1585,6 +2244,11 @@ async function writeLookupFormulaWorkbook(path: string, completed: boolean) {
   sheet.getCell("F2").value = completed ? { formula: "VLOOKUP(\"SKU3\",A2:C4,3,FALSE)", result: 30 } : "";
   sheet.getCell("G2").value = completed ? { formula: "XLOOKUP(\"SKU1\",A2:A4,C2:C4)", result: 10 } : "";
   sheet.getCell("H2").value = completed ? { formula: "INDEX(C2:C4,MATCH(\"SKU3\",A2:A4,0),1)", result: 30 } : "";
+  setRowValues(sheet, 6, ["K1", 10, 20]);
+  setRowValues(sheet, 7, ["K2", 30, 40]);
+  setRowValues(sheet, 8, ["K3", 50, 60]);
+  sheet.getCell("I2").value = completed ? { formula: "MEDIAN(15,VLOOKUP(\"K1\",A6:C8,{2,3},FALSE))", result: 15 } : "";
+  sheet.getCell("J2").value = completed ? { formula: "IF(MEDIAN(15,VLOOKUP(\"K1\",A6:C8,{2,3},FALSE))=15,\"Pass\",\"Fail\")", result: "Pass" } : "";
   await workbook.xlsx.writeFile(path);
 }
 

@@ -259,6 +259,114 @@ export function notebookOutlinePlan(artifactId: string): Planner {
   };
 }
 
+export type WorkbookAuditOperation = {
+  elementId: string;
+  value?: unknown;
+  formula?: string;
+  result?: unknown;
+  numFmt?: string;
+};
+
+/** Deterministic workbook dogfood plan. It exercises the same read-only
+ * inspection and verification tools advertised to production models, while
+ * retaining the established lock + CAS write protocol for the actual edits. */
+export function workbookAuditPlan(args: {
+  artifactId: string;
+  instruction: string;
+  operations: WorkbookAuditOperation[];
+}): Planner {
+  const ids = args.operations.map((operation) => operation.elementId);
+  const toolResult = (messages: AgentMessage[], tool: string, predicate?: (callArgs: Record<string, unknown>) => boolean) => {
+    for (let index = messages.length - 1; index >= 0; index -= 1) {
+      const message = messages[index];
+      if (message.role !== "tool" || message.toolName !== tool) continue;
+      const call = callArgsFor(messages, message.toolCallId, tool) ?? {};
+      if (!predicate || predicate(call)) return parse(message.content);
+    }
+    return undefined;
+  };
+  const verifyArgs = (afterWrite: boolean) => ({
+    instruction: args.instruction,
+    artifactId: args.artifactId,
+    operations: args.operations,
+    afterWrite,
+  });
+  return ({ messages }) => {
+    const inspection = toolResult(messages, "inspect_workbook");
+    if (!inspection) {
+      return {
+        say: "Inspecting workbook targets, dependencies, and formula patterns before I edit.",
+        toolCalls: [{
+          tool: "inspect_workbook",
+          args: { instruction: args.instruction, artifactId: args.artifactId, maxCells: 120 },
+        }],
+      };
+    }
+    if (args.operations.length === 0) {
+      return { say: "Workbook inspection is complete. I found no deterministic repair to apply, so I left every cell unchanged.", done: true };
+    }
+
+    const preflight = toolResult(messages, "verify_workbook", (call) => call.afterWrite === false);
+    if (!preflight) {
+      return {
+        say: "Preflighting the smallest repair plan before any write.",
+        toolCalls: [{ tool: "verify_workbook", args: verifyArgs(false) }],
+      };
+    }
+    if (preflight.status !== "passed") {
+      return { say: "The workbook plan did not pass preflight, so I made no changes and left the repair guidance for review.", done: true };
+    }
+
+    if (isReleased(messages)) {
+      const receipt = toolResult(messages, "verify_workbook", (call) => call.afterWrite !== false);
+      if (!receipt) {
+        return {
+          say: "The lock is released. Re-reading every changed cell for the final verification receipt.",
+          toolCalls: [{ tool: "verify_workbook", args: verifyArgs(true) }],
+        };
+      }
+      return receipt.status === "passed"
+        ? { say: `Workbook audit complete: ${ids.length} changed cell${ids.length === 1 ? "" : "s"} passed post-write verification.`, done: true }
+        : { say: "Workbook writes completed, but post-write verification found a mismatch. I stopped and left the repair receipt for review.", done: true };
+    }
+
+    const lockId = lockIdFrom(messages);
+    if (!lockId) {
+      const last = lastTool(messages);
+      if (last?.name === "propose_lock" && last.result?.ok === false) {
+        return { say: "The exact repair range is currently locked. I made no blind edits and left the audit plan for review.", done: true };
+      }
+      return {
+        say: "Preflight passed. Claiming only the verified repair cells.",
+        toolCalls: [{ tool: "propose_lock", args: { artifactId: args.artifactId, elementIds: ids, reason: "verified workbook repair" } }],
+      };
+    }
+
+    const committed = committedCells(messages);
+    const next = args.operations.find((operation) => !committed.has(operation.elementId));
+    if (!next) {
+      return { toolCalls: [{ tool: "release_lock", args: { lockId } }] };
+    }
+    const versions = lastVersions(messages);
+    const last = lastTool(messages);
+    const conflicted = last?.name === "edit_cell"
+      && last.result?.conflict === true
+      && editTargetFor(messages, last.callId) === next.elementId;
+    if (conflicted || versions[next.elementId] === undefined) {
+      return { toolCalls: [{ tool: "read_range", args: { artifactId: args.artifactId, elementIds: ids } }] };
+    }
+    const value = next.formula
+      ? { value: next.result ?? next.value ?? "", formula: next.formula, ...(next.numFmt ? { numFmt: next.numFmt } : {}) }
+      : next.value;
+    return {
+      toolCalls: [{
+        tool: "edit_cell",
+        args: { artifactId: args.artifactId, elementId: next.elementId, value, baseVersion: versions[next.elementId] },
+      }],
+    };
+  };
+}
+
 export function recomputeVariancePlan(targets: Record<string, string>, opts: { reason?: string; lock?: boolean } = {}): Planner {
   const useLock = opts.lock !== false;
   const ids = Object.keys(targets);

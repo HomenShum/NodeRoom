@@ -9,7 +9,7 @@ import { describe, it, expect } from "vitest";
 import { z } from "zod";
 import { RoomEngine } from "../src/engine/roomEngine";
 import { buildDemoRoom } from "../src/engine/demoRoom";
-import { AgentRunError, InMemoryRoomTools, ROOM_TOOLS, lastVersions, runAgent, scriptedModel, type AgentMessage, type AgentTool, type ToolCall } from "../src/nodeagent/index";
+import { AgentRunError, InMemoryRoomTools, ROOM_TOOLS, lastVersions, runAgent, scriptedModel, type AgentMessage, type AgentModel, type AgentTool, type ToolCall } from "../src/nodeagent/index";
 import { recomputeVariancePlan } from "../src/nodeagent/core/plans";
 
 const TARGETS = { r_rev__variance: "+24%", r_cogs__variance: "+27.5%" };
@@ -888,6 +888,29 @@ describe("agent runtime — collaboration under concurrency", () => {
     expect(r.stopReason).toBe("time_budget");
     expect(r.handoff?.reason).toBe("time_budget");
     expect(r.trace.at(-1)?.tool).toBe("handoff");
+  });
+
+  it("time budget settles even when the model adapter ignores its abort signal", async () => {
+    const { rt } = setup();
+    const neverSettles: AgentModel = {
+      name: "ignores-abort",
+      next: async () => new Promise(() => undefined),
+    };
+    const startedAt = Date.now();
+
+    const r = await runAgent({
+      rt,
+      goal: "bound a provider that never settles",
+      model: neverSettles,
+      tools: ROOM_TOOLS,
+      maxSteps: 1,
+      deadlineAt: Date.now() + 30,
+      reserveMs: 0,
+    });
+
+    expect(Date.now() - startedAt).toBeLessThan(1_000);
+    expect(r.stopReason).toBe("time_budget");
+    expect(r.handoff?.reason).toBe("time_budget");
   });
 
   it("resumes a long-running job across multiple step-budget slices", async () => {

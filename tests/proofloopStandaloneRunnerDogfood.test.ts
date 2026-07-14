@@ -30,7 +30,7 @@ describe("ProofLoop standalone runner dogfood plan", () => {
     );
   });
 
-  it("summarizes current unfinished proxy and benchmark work without dropping the denominator", () => {
+  it("summarizes current proxy and benchmark work without dropping the denominator", () => {
     const plan = buildProofloopStandaloneRunnerPlan({
       generatedAt: "2026-07-05T00:00:00.000Z",
       planId: "test-standalone-runner",
@@ -46,12 +46,12 @@ describe("ProofLoop standalone runner dogfood plan", () => {
     expect(plan.summary.browserRequiredForAllCapabilityTasks).toBe(false);
     expect(plan.summary.adapterGapTasks).toBe(0);
     expect(plan.summary.guardedLiveRunBatchTasks).toBe(9);
-    expect(plan.summary.officialScoreGapTasks).toBe(3);
-    expect(plan.summary.tasks).toBe(19);
+    expect(plan.summary.officialScoreGapTasks).toBe(0);
+    expect(plan.summary.tasks).toBe(16);
     expect(plan.summary.currentAllTaskWinner).toBeNull();
   });
 
-  it("creates compact tasks for guarded live batches and official score blockers", () => {
+  it("creates compact guarded live batches and omits already-accepted official-score gaps", () => {
     const plan = buildProofloopStandaloneRunnerPlan({
       generatedAt: "2026-07-05T00:00:00.000Z",
       planId: "test-standalone-runner",
@@ -68,7 +68,9 @@ describe("ProofLoop standalone runner dogfood plan", () => {
     expect(ids).toContain("live-run.spreadsheetbench-v1-full-912");
     expect(ids).toContain("live-run.spreadsheetbench-v2-full-321");
     expect(ids).toContain("live-run.bankertoolbench-full-100");
-    expect(ids).toContain("official-score.finch");
+    expect(ids).not.toContain("official-score.finch");
+    expect(ids).not.toContain("official-score.finauditing");
+    expect(ids).not.toContain("official-score.workstreambench");
 
     const btb = plan.tasks.find((task) => task.id === "live-run.bankertoolbench-full-100");
     expect(btb?.layer).toBe("browser-certification");

@@ -8,12 +8,13 @@ function source(path: string): string {
 describe("design prototype parity", () => {
   // Landing framing moved from the room prototype to landing-v2
   // (design-reference/room/landing-v2.jsx, Prod Parity Handoff §1):
-  // "Diligence that shows its work." + looping demo + live-proof pill.
+  // Literal first-run value + looping demo + live-proof pill.
   test("desktop landing keeps the landing-v2 design framing", () => {
     const landing = source("src/ui/Landing.tsx");
 
-    expect(landing).toContain("Diligence that shows its work");
-    expect(landing).toContain("NodeRoom · live diligence rooms");
+    expect(landing).toContain("Work with AI.");
+    expect(landing).toContain("Review every change.");
+    expect(landing).toContain("Shared workrooms for people and NodeAgents");
     // The key visual is the scripted product-demo loop, every frame present.
     for (const frame of ["lock", "cite", "commit", "draft", "smart-merge", "v43"]) {
       expect(landing).toContain(`"${frame}"`);

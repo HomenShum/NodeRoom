@@ -25,6 +25,7 @@ describe("Proof Loop harness economics ledger", () => {
       "proofloop/cockpit/playwrightOverlay.ts",
       "src/eval/proofloopCompanyTaskCoverage.ts",
       "src/eval/proofloopHarnessEconomics.ts",
+      "src/eval/proofloopOfficialScorePreflight.ts",
     ]));
 
     expect(ledger.openRouterSnapshot.deepseekV4Pro?.id).toBe("deepseek/deepseek-v4-pro");
@@ -45,6 +46,7 @@ describe("Proof Loop harness economics ledger", () => {
     }
 
     expect(ledger.policy.join(" ")).toContain("Proxy judges can keep product Proof Loop moving");
+    expect(ledger.policy.join(" ")).toContain("free-first/economics preflight");
     expect(ledger.recommendations.join(" ")).toContain("Do not block product iteration on Azure/OpenAI judge credentials");
 
     const markdown = renderProofloopHarnessEconomicsMarkdown(ledger);

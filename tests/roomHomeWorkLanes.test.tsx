@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { Actor } from "../src/engine/types";
 import type { AgentJobTelemetry } from "../src/app/store";
@@ -62,5 +62,43 @@ describe("RoomHome work lanes", () => {
     render(<RoomHome roomId="r1" me={me} />);
 
     expect(screen.queryByTestId("room-work-lanes")).toBeNull();
+  });
+
+  it("submits a workbook audit directly to NodeAgent with active artifact context", async () => {
+    const postMessage = vi.fn(async () => ({ ok: true }));
+    const askAgent = vi.fn(async () => undefined);
+    const onOpenChat = vi.fn();
+    mockStore.current = { ...storeWith([]), postMessage, askAgent };
+    render(
+      <RoomHome
+        roomId="r1"
+        me={me}
+        onOpenChat={onOpenChat}
+        contextArtifactId="sheet-2"
+        artifacts={[
+          { id: "sheet-1", title: "Other sheet", kind: "sheet" },
+          { id: "sheet-2", title: "Active workbook", kind: "sheet" },
+          { id: "note-1", title: "Notes", kind: "note" },
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("room-audit-workbook"));
+    fireEvent.click(screen.getByTestId("room-command-send"));
+
+    await waitFor(() => expect(askAgent).toHaveBeenCalledTimes(1));
+    expect(postMessage).toHaveBeenCalledWith(expect.objectContaining({
+      roomId: "r1",
+      channel: "public",
+      author: me,
+      kind: "chat",
+    }));
+    expect(askAgent).toHaveBeenCalledWith(expect.objectContaining({
+      contextArtifactId: "sheet-2",
+      references: [{ id: "sheet-2", title: "Active workbook", kind: "sheet" }],
+      goal: expect.stringContaining("audit this workbook"),
+    }));
+    expect(onOpenChat).toHaveBeenCalled();
+    expect(screen.getByTestId("room-command-status").textContent).toContain("Sent to NodeAgent");
   });
 });

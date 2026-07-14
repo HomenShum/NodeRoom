@@ -7,6 +7,9 @@ import type {
 
 const KIND_ORDER: Record<string, number> = {
   artifact: 0,
+  deck: 0,
+  deck_slide: 1,
+  deck_claim: 1,
   spreadsheet_row: 1,
   notebook_block: 1,
   company: 2,
@@ -31,6 +34,13 @@ const stableHash = (value: string): number => {
   }
   return Math.abs(hash >>> 0);
 };
+
+export function semanticGraphNodeSize(label: string): { width: number; height: number } {
+  return {
+    width: Math.min(184, Math.max(92, Math.min(label.length, 42) * 7 + 36)),
+    height: 28,
+  };
+}
 
 const nodeDegree = (graph: SemanticGraphViewModel): Map<string, number> => {
   const degree = new Map<string, number>();
@@ -57,6 +67,58 @@ const sortNodes = (nodes: SemanticGraphNode[], degree: Map<string, number>): Sem
   (degree.get(b.id) ?? 0) - (degree.get(a.id) ?? 0) ||
   a.label.localeCompare(b.label)
 ));
+
+const separateOverlaps = (
+  graph: SemanticGraphViewModel,
+  positions: Map<string, SemanticGraphPosition>,
+  fixedId?: string,
+): Map<string, SemanticGraphPosition> => {
+  const degree = nodeDegree(graph);
+  const nodes = sortNodes(graph.nodes.filter((node) => positions.has(node.id)), degree);
+  const next = new Map([...positions].map(([id, position]) => [id, { ...position }]));
+  const gap = 24;
+
+  for (let iteration = 0; iteration < 32; iteration += 1) {
+    let moved = false;
+    for (let leftIndex = 0; leftIndex < nodes.length; leftIndex += 1) {
+      for (let rightIndex = leftIndex + 1; rightIndex < nodes.length; rightIndex += 1) {
+        const left = nodes[leftIndex];
+        const right = nodes[rightIndex];
+        const leftPosition = next.get(left.id);
+        const rightPosition = next.get(right.id);
+        if (!leftPosition || !rightPosition) continue;
+        const leftSize = semanticGraphNodeSize(left.label);
+        const rightSize = semanticGraphNodeSize(right.label);
+        const deltaX = rightPosition.x + rightSize.width / 2 - (leftPosition.x + leftSize.width / 2);
+        const deltaY = rightPosition.y + rightSize.height / 2 - (leftPosition.y + leftSize.height / 2);
+        const requiredX = (leftSize.width + rightSize.width) / 2 + gap;
+        const requiredY = (leftSize.height + rightSize.height) / 2 + gap;
+        const overlapX = requiredX - Math.abs(deltaX);
+        const overlapY = requiredY - Math.abs(deltaY);
+        if (overlapX <= 0 || overlapY <= 0) continue;
+
+        const useX = overlapX < overlapY;
+        const rawDelta = useX ? deltaX : deltaY;
+        const direction = rawDelta === 0 ? (stableHash(`${left.id}:${right.id}`) % 2 === 0 ? 1 : -1) : Math.sign(rawDelta);
+        const distance = (useX ? overlapX : overlapY) + 0.5;
+        const leftFixed = left.id === fixedId;
+        const rightFixed = right.id === fixedId;
+        const leftShift = rightFixed ? distance : leftFixed ? 0 : distance / 2;
+        const rightShift = leftFixed ? distance : rightFixed ? 0 : distance / 2;
+        if (useX) {
+          leftPosition.x -= direction * leftShift;
+          rightPosition.x += direction * rightShift;
+        } else {
+          leftPosition.y -= direction * leftShift;
+          rightPosition.y += direction * rightShift;
+        }
+        moved = true;
+      }
+    }
+    if (!moved) break;
+  }
+  return next;
+};
 
 const selectCenter = (graph: SemanticGraphViewModel, options: SemanticGraphLayoutOptions, degree: Map<string, number>): SemanticGraphNode | undefined => {
   if (options.selectedId) {
@@ -101,11 +163,11 @@ const constellation = (graph: SemanticGraphViewModel, options: SemanticGraphLayo
     rings.set(level, [...(rings.get(level) ?? []), node]);
   }
 
-  const radii = [0, 190, 335, 500, 660, 820];
+  const radii = [0, 170, 285, 400, 515, 620];
   for (const [level, nodes] of [...rings.entries()].sort((a, b) => a[0] - b[0])) {
     if (level === 0) continue;
     const sorted = sortNodes(nodes, degree);
-    const radius = radii[Math.min(level, radii.length - 1)] ?? 820;
+    const radius = radii[Math.min(level, radii.length - 1)] ?? 620;
     sorted.forEach((node, index) => {
       const count = Math.max(1, sorted.length);
       const angle = -Math.PI / 2 + (index / count) * Math.PI * 2 + ((stableHash(node.id) % 9) - 4) * 0.012;
@@ -116,7 +178,7 @@ const constellation = (graph: SemanticGraphViewModel, options: SemanticGraphLayo
       });
     });
   }
-  return positions;
+  return separateOverlaps(graph, positions, center.id);
 };
 
 const clusterLanes = (graph: SemanticGraphViewModel): Map<string, SemanticGraphPosition> => {

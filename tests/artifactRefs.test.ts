@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { displayArtifactRefMessage, encodeArtifactRefLine, parseArtifactRefMessage, type ArtifactRef } from "../src/ui/artifactRefs";
+import { artifactRefContextSuffix, artifactRefKey, displayArtifactRefMessage, encodeArtifactRefLine, parseArtifactRefMessage, type ArtifactRef } from "../src/ui/artifactRefs";
 
 describe("artifact refs", () => {
   it("round-trips id, title, and kind from persisted reference links", () => {
@@ -28,5 +28,18 @@ describe("artifact refs", () => {
 
     expect(displayArtifactRefMessage(`${encodeArtifactRefLine(refs)}\n\nPlease review this.`)).toBe("Please review this.");
     expect(displayArtifactRefMessage(encodeArtifactRefLine(refs))).toBe("Diligence memo");
+  });
+
+  it("round-trips scoped deck, proposal, and trace context on a real backing artifact", () => {
+    const refs: ArtifactRef[] = [
+      { id: "deck-note-1", title: "Slide 2: Market evidence", kind: "note", contextKind: "deck_slide", contextId: "slide-2", elementId: "deck_storyboard" },
+      { id: "deck-note-1", title: "Proposal: claim-3", kind: "note", contextKind: "proposal", contextId: "proposal-3", elementId: "claim-3" },
+    ];
+    const parsed = parseArtifactRefMessage(`${encodeArtifactRefLine(refs)}\n\n@nodeagent review these`);
+
+    expect(parsed.refs).toEqual(refs);
+    expect(new Set(parsed.refs.map(artifactRefKey)).size).toBe(2);
+    expect(artifactRefContextSuffix(parsed.refs)).toContain("deck slide: Slide 2: Market evidence");
+    expect(artifactRefContextSuffix(parsed.refs)).toContain("target proposal-3");
   });
 });

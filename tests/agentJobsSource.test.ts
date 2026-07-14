@@ -21,6 +21,7 @@ describe("long-running agent job source invariants", () => {
     expect(jobs).toContain("export const cancel");
     expect(jobs).toContain("export const retry");
     expect(jobs).toContain('status: "queued"');
+    expect(jobs).toMatch(/if \(job\.workflowId\) \{\s*try \{\s*await cancelWorkflow/);
   });
 
   it("starts free-auto through Convex Workflow while preserving scheduler fallback for old jobs", () => {
@@ -109,6 +110,7 @@ describe("long-running agent job source invariants", () => {
   it("keeps /ask model policy during workflow handoff while allowing /free overrides", () => {
     const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
     const jobs = readFileSync("convex/agentJobs.ts", "utf8");
+    const model = readFileSync("src/nodeagent/models/convexModel.ts", "utf8");
 
     expect(runner).toContain('modelPolicy === "openrouter/free-auto"');
     expect(runner).toContain("process.env.FREE_AUTO_JOB_MODEL ?? modelPolicy");
@@ -116,6 +118,10 @@ describe("long-running agent job source invariants", () => {
     expect(runner).toContain("function runnerEntrypoint");
     expect(runner).toContain("defaultMaxStepsForEntrypoint(entrypoint)");
     expect(jobs).toContain("artifactMeta: art.meta");
+    expect(model).toContain("openRouterFreeCandidateSignal");
+    expect(model).toContain("recordOpenRouterFreeRouteOutcome");
+    expect(model).toContain("isProviderNonRetryableError(error)");
+    expect(model).toContain("candidateSignal, 0");
   });
 
   it("enforces provider route receipts and private-stream egress gates", () => {
@@ -458,8 +464,13 @@ describe("long-running agent job source invariants", () => {
 
     expect(store).toContain("useMutation(api.agentJobs.startPublicAsk)");
     expect(store).toContain("contextArtifactId: input.contextArtifactId");
+    expect(store).toContain("contextArtifactRequired: input.contextArtifactRequired");
+    expect(store).toContain("allowedElementIds: input.allowedElementIds");
     expect(jobs).toContain("export const startPublicAsk = mutation");
     expect(jobs).toContain("resolvePublicAskArtifact");
+    expect(jobs).toContain("context_artifact_not_visible");
+    expect(jobs).toContain('mutationScope: allowedElementIds?.length ? "element_allowlist"');
+    expect(readFileSync("convex/agentJobRunner.ts", "utf8")).toContain("productionToolsForJob(claimed)");
     expect(jobs).toContain("createPublicAskScratchSheet");
     expect(jobs).toContain("blank_public_ask_fallback");
   });

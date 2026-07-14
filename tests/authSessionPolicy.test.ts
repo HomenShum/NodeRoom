@@ -32,7 +32,7 @@ describe("auth/session production policy", () => {
     })).rejects.toThrow(/production_identity_required/);
   });
 
-  it("revokes a member proof after leave and hides revoked members from active lists", async () => {
+  it("blocks host leave and revokes ordinary member proofs after leave", async () => {
     const t = convexTest(schema, modules);
     const created = await t.mutation(api.rooms.createStarterRoom, {
       code: "AUTH02",
@@ -50,10 +50,15 @@ describe("auth/session production policy", () => {
     const memberProof = { actor: { kind: "user" as const, id: String(joined.memberId), name: "Sam" }, token: MEMBER_TOKEN };
 
     await expect(t.query(api.rooms.get, { roomId: created.roomId, requester: hostProof })).resolves.toBeTruthy();
-    await t.mutation(api.rooms.leave, { roomId: created.roomId, requester: hostProof });
+    await expect(t.mutation(api.rooms.leave, { roomId: created.roomId, requester: hostProof })).resolves.toEqual({
+      ok: false,
+      reason: "host_transfer_required",
+    });
+    await expect(t.query(api.rooms.get, { roomId: created.roomId, requester: hostProof })).resolves.toBeTruthy();
 
-    await expect(t.query(api.rooms.get, { roomId: created.roomId, requester: hostProof })).rejects.toThrow(/actor_revoked/);
-    const activeMembers = await t.query(api.rooms.members, { roomId: created.roomId, requester: memberProof });
-    expect(activeMembers.map((m) => m.name)).toEqual(["Sam"]);
+    await expect(t.mutation(api.rooms.leave, { roomId: created.roomId, requester: memberProof })).resolves.toEqual({ ok: true });
+    await expect(t.query(api.rooms.get, { roomId: created.roomId, requester: memberProof })).rejects.toThrow(/actor_revoked/);
+    const activeMembers = await t.query(api.rooms.members, { roomId: created.roomId, requester: hostProof });
+    expect(activeMembers.map((m) => m.name)).toEqual(["Maya"]);
   });
 });

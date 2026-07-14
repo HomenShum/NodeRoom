@@ -16,8 +16,10 @@
    Mounted at the `#mobile` route — see src/ui/App.tsx.
    ============================================================================ */
 import * as React from "react";
+import "./mobile.tokens.css";
 import "./mobile.css";
 import "./mobileFrame.css";
+import "./mobile.shell.css";
 import { Ico } from "./MobileIcons";
 import type { IconName } from "./MobileIcons";
 import * as D from "./mobileData";
@@ -56,6 +58,7 @@ import { SettingsSheet } from "./MobileSettings";
 import { ReviewSheet, TraceSheet, ShareSheet, ManageSheet, FirstJoinOverlay, OfflineBanner } from "./MobileGapSheets";
 import { loadTweaks, saveTweaks } from "./mobileTweaks";
 import { IOSDevice, MobileStage } from "./MobileFrame";
+import { MobileHeader, type MobileHeaderAction } from "./shell/MobileHeader";
 import { haptic } from "./mobileUtil";
 import { MODEL_REGISTRY } from "../../landing/modelRegistry";
 import type { AgentModelSelection } from "../../app/store";
@@ -66,11 +69,11 @@ const TABS: Record<TabId, { icon: IconName; label: string }> = {
   capture: { icon: "pen", label: "Capture" },
   room: { icon: "room", label: "Room" },
   agent: { icon: "sparkles", label: "Agent" },
-  inbox: { icon: "inbox", label: "Inbox" },
-  files: { icon: "file", label: "Artifacts" },
+  inbox: { icon: "inbox", label: "Review" },
+  files: { icon: "file", label: "Files" },
 };
 const TAB_IDS: TabId[] = ["home", "capture", "room", "agent", "inbox", "files"];
-const SCOPES: ScopeName[] = ["Private", "Room", "Shared"];
+const SCOPES: ScopeName[] = ["Private", "Room"];
 
 interface RevActCtx {
   openInbox: (i: InboxItem) => void;
@@ -135,6 +138,18 @@ const MODELS: ModelOpt[] = [
 
 export function mobileAgentModelSelection(modelId: string): AgentModelSelection {
   return modelId === "auto" ? { mode: "adaptive" } : { mode: "specific", modelPolicy: modelId };
+}
+
+export function mobileDevicePreviewRequested(): boolean {
+  if (typeof window === "undefined") return false;
+  const hash = window.location.hash;
+  const queryIndex = hash.indexOf("?");
+  const params = new URLSearchParams(queryIndex >= 0 ? hash.slice(queryIndex + 1) : window.location.search);
+  return params.get("preview") === "device" || params.get("previewDeviceChrome") === "1";
+}
+
+export function mobileVisibilityRoute(scope: ScopeName): { composerMode: "agent"; agentLane: AgentLane } {
+  return { composerMode: "agent", agentLane: scope === "Room" ? "room" : "private" };
 }
 
 interface AttachOpt {
@@ -317,6 +332,7 @@ interface FabAction {
 
 export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElement {
   const [tweaks, setTweaks] = React.useState<TweaksConfig>(() => loadTweaks());
+  const previewDeviceChrome = React.useMemo(mobileDevicePreviewRequested, []);
   const t = tweaks;
   const setTweak = <K extends keyof TweaksConfig>(key: K, value: TweaksConfig[K]): void => {
     setTweaks((prev) => ({ ...prev, [key]: value }) as TweaksConfig);
@@ -324,13 +340,13 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
 
   const [tab, setTab] = React.useState<TabId>(t.navModel);
   const [fabOpen, setFabOpen] = React.useState(false);
-  const [fabMode, setFabMode] = React.useState<"act" | "nav">("act");
+  const [headerScrolled, setHeaderScrolled] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
-  const [note, setNote] = React.useState<string>(D.SEED_NOTE);
-  const [saveState, setSaveState] = React.useState<SaveState>("saved");
-  const [detected, setDetected] = React.useState(true);
-  const [noticed, setNoticed] = React.useState(true);
-  const [extract, setExtract] = React.useState<Extraction>(() => D.deriveExtraction(D.SEED_NOTE));
+  const [note, setNote] = React.useState<string>(() => live ? "" : D.SEED_NOTE);
+  const [saveState, setSaveState] = React.useState<SaveState>(live ? "idle" : "saved");
+  const [detected, setDetected] = React.useState(!live);
+  const [noticed, setNoticed] = React.useState(!live);
+  const [extract, setExtract] = React.useState<Extraction>(() => D.deriveExtraction(live ? "" : D.SEED_NOTE));
   const [flashKeys, setFlashKeys] = React.useState<string[]>([]);
   const extractRef = React.useRef<Extraction>(extract);
   const [sheet, setSheet] = React.useState<SheetId | null>(null);
@@ -340,7 +356,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
   const [toastMsg, setToastMsg] = React.useState<string | null>(null);
 
   // collaboration state
-  const [composerMode, setComposerMode] = React.useState<ComposerMode>("note");
+  const [composerMode, setComposerMode] = React.useState<ComposerMode>(live ? "agent" : "note");
   const [draft, setDraft] = React.useState<string>("");
   const [listening, setListening] = React.useState(false);
   const [agentLane, setAgentLane] = React.useState<AgentLane>("private");
@@ -363,6 +379,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
   const [flashSheet, setFlashSheet] = React.useState<SheetId | null>(null);
   const [pulseView, setPulseView] = React.useState<"people" | "agents" | "cost">("people");
   const [openRev, setOpenRev] = React.useState<string | null>(null);
+  const sheetReturnFocus = React.useRef<HTMLElement | null>(null);
 
   // ── gap pack: memory-mode-local state (live values override via `live`) ──
   // In a live room, auto-allow is the room's flag and toggling it hits the store;
@@ -418,7 +435,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
   const liveHumans = liveMembers.filter((p) => !p.agent);
   const liveAgents = liveMembers.filter((p) => p.agent);
   const room: RoomEntry = live
-    ? { id: "live", name: live.roomName, code: live.roomCode, role: "Member", people: live.liveCount, agents: liveAgents.length, live: true, pending: live.inboxItems.length }
+    ? { id: "live", name: live.roomName, code: live.roomCode, role: live.canApprove ? "Host" : "Member", people: live.liveCount, agents: liveAgents.length, live: true, pending: live.inboxItems.length }
     : sampleRoom;
   const rosterPeople: { short: string; name: string; role: string; color: string }[] = live
     ? liveHumans.map((p) => ({ short: p.short, name: p.name, role: "In the room", color: p.color }))
@@ -447,6 +464,62 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     });
   };
 
+  React.useEffect(() => {
+    if (!sheet) {
+      const target = sheetReturnFocus.current;
+      sheetReturnFocus.current = null;
+      requestAnimationFrame(() => target?.focus());
+      return;
+    }
+
+    if (!sheetReturnFocus.current && document.activeElement instanceof HTMLElement) {
+      sheetReturnFocus.current = document.activeElement;
+    }
+    const node = document.querySelector<HTMLElement>('.na-sheet[data-open="true"]');
+    if (!node) return;
+    node.setAttribute("role", "dialog");
+    node.setAttribute("aria-modal", "true");
+    node.setAttribute("aria-label", node.querySelector(".na-sheet-head strong")?.textContent?.trim() || "NodeRoom panel");
+    node.tabIndex = -1;
+
+    const focusable = (): HTMLElement[] => Array.from(node.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+    )).filter((element) => !element.hasAttribute("aria-hidden"));
+    if (!node.contains(document.activeElement)) requestAnimationFrame(() => (focusable()[0] ?? node).focus());
+
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeSheet();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const items = focusable();
+      if (items.length === 0) {
+        event.preventDefault();
+        node.focus();
+        return;
+      }
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    node.addEventListener("keydown", onKeyDown);
+    return () => {
+      node.removeEventListener("keydown", onKeyDown);
+      node.removeAttribute("role");
+      node.removeAttribute("aria-modal");
+      node.removeAttribute("aria-label");
+      node.removeAttribute("tabindex");
+    };
+  }, [closeSheet, sheet]);
+
   const openTrace = (id: string): void => setOverlay({ type: "trace", id });
   const openSource = (src: D.SourceRef): void => setOverlay({ type: "source", src });
   const closeOverlay = (): void => setOverlay(null);
@@ -463,12 +536,14 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     flashTimer.current = setTimeout(() => setFlashSheet(null), 1700);
   };
 
-  const cycleScope = (): void => setScope((s) => SCOPES[(SCOPES.indexOf(s) + 1) % SCOPES.length]);
-  const toggleScope = (): void => setScope((s) => {
-    const next = s === "Private" ? "Room" : "Private";
-    if (composerMode === "agent") setAgentLane(next === "Room" ? "room" : "private");
-    return next;
-  });
+  const applyVisibilityScope = (next: ScopeName): void => {
+    const route = mobileVisibilityRoute(next);
+    setScope(next);
+    setComposerMode(route.composerMode);
+    setAgentLane(route.agentLane);
+  };
+  const cycleScope = (): void => applyVisibilityScope(SCOPES[(SCOPES.indexOf(scope) + 1) % SCOPES.length]);
+  const toggleScope = (): void => applyVisibilityScope(scope === "Private" ? "Room" : "Private");
   const switchRoom = (id: string): void => {
     // Live mode is bound to exactly one room — tapping it just closes the sheet.
     if (live) {
@@ -480,6 +555,10 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     toast("Switched to " + ((D.ROOMS.find((r) => r.id === id) || { name: "room" }).name));
   };
   const joinRoom = (): void => {
+    if (live?.onLeave) {
+      live.onLeave();
+      return;
+    }
     closeSheet();
     toast("Enter a room code to join");
   };
@@ -529,14 +608,14 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
   React.useEffect(() => { setTab(t.navModel); }, [t.navModel]);
   // contextual FAB collapses whenever the screen changes underneath it
   React.useEffect(() => { setFabOpen(false); }, [tab]);
-  // a closed fan always reopens on the contextual-actions tier
-  React.useEffect(() => { if (!fabOpen) setFabMode("act"); }, [fabOpen]);
+  React.useEffect(() => { setHeaderScrolled(false); }, [tab]);
   // composer mode follows the chat tab
   React.useEffect(() => {
     if (tab === "room") setComposerMode("room");
     else if (tab === "agent") setComposerMode("agent");
-    else if (tab === "capture") setComposerMode("note");
-  }, [tab]);
+    else if (tab === "capture") setComposerMode(live ? "agent" : "note");
+    else if (tab === "home" && live) setComposerMode("agent");
+  }, [live, tab]);
 
   // re-run detection after the note settles (silent rescan → flash changed rows)
   React.useEffect(() => {
@@ -596,6 +675,11 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
 
   // ── attachments ──
   const addAttachment = (a: AttachOpt): void => {
+    if (live) {
+      setAttachMenu(false);
+      toast(`${a.label} was not attached. Mobile upload and context attachments are not wired yet.`);
+      return;
+    }
     setAttachments((xs) => (xs.find((x) => x.label === a.label) ? xs : [...xs, a]));
     setAttachMenu(false);
     toast(a.label + " added");
@@ -603,6 +687,10 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
   const removeAttachment = (label: string): void => setAttachments((xs) => xs.filter((x) => x.label !== label));
 
   const beginRun = (): void => {
+    if (live) {
+      toast("This local sample plan cannot run in a live room. Ask NodeAgent from the Agent tab instead.");
+      return;
+    }
     setRunState("running");
     timers.current.push(
       setTimeout(() => {
@@ -614,11 +702,19 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
   };
 
   const openInbox = (item: InboxItem): void => {
-    if (item.kind === "plan") openSheet("plan");
+    if (live && item.status === "approve") {
+      setTab("inbox");
+      closeSheet();
+      toast("Review this live proposal with Approve or Reject.");
+    }
+    else if (item.kind === "plan") openSheet("plan");
     else if (item.kind === "evidence") openSheet("evidence");
     else if (item.kind === "coach") openSheet("coach");
     else if (item.kind === "deck") openSheet("artifact");
-    else toast("Trace receipt · 4 reads · 0 writes");
+    else if (live) {
+      setTab("inbox");
+      toast("Open the live proposal or trace from Inbox.");
+    } else toast("Trace receipt · 4 reads · 0 writes");
   };
 
   // ── composer / chat (mock) ──────────────────────────────────────────────
@@ -655,6 +751,12 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     if (!text) return;
     haptic();
     if (composerMode === "note") {
+      if (live) {
+        sendAgent(text);
+        setTab("agent");
+        setDraft("");
+        return;
+      }
       setNote((n) => (n ? n + "\n" + text : text));
       setTab("capture");
       toast("Added to capture");
@@ -676,6 +778,10 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
       }
       setTab("room");
     } else if (composerMode === "source") {
+      if (live) {
+        toast("Source capture is not wired on mobile yet. Nothing was uploaded.");
+        return;
+      }
       toast("Source captured for evidence");
     } else {
       sendAgent(text);
@@ -701,6 +807,10 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
   };
 
   const startVoice = (): void => {
+    if (live) {
+      toast("Voice input is not connected on mobile yet. Nothing was recorded.");
+      return;
+    }
     setListening(true);
     clearTimeout(voiceTimer.current);
     voiceTimer.current = setTimeout(() => {
@@ -717,7 +827,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     setTab("agent");
     setComposerMode("agent");
     if (q.kind === "coach") {
-      sendAgent("Prep me to explain runway");
+      sendAgent(q.text);
       return;
     }
     sendAgent(q.text);
@@ -727,7 +837,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
   const askAboutRow = (): void => {
     setTab("agent");
     setComposerMode("agent");
-    sendAgent("What’s missing on the CardioNova row?", "room");
+    sendAgent(`What's missing on the ${live?.row.entity ?? D.ROW.entity} row?`, "room");
     setAgentLane("room");
     closeSheet();
   };
@@ -756,17 +866,13 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     setScope("Room");
     openAsk("agent");
   };
-  const reviewAct: FabAction | null = openCount
-    ? { icon: "inbox", label: "Review · " + openCount, tone: "warn", run: () => { if (firstPending) openInbox(firstPending); else setTab("inbox"); } }
-    : null;
-  const fab = ((): { hero: IconName; actions: FabAction[]; alert: boolean; badge: number } => {
+  const fab = ((): { hero: IconName; actions: FabAction[] } => {
     const a: FabAction[] = [];
     let hero: IconName = "plus";
     if (tab === "home") {
       hero = "sparkles";
       a.push({ icon: "pen", label: "New capture", run: () => setTab("capture") });
       a.push({ icon: "sparkles", label: "Ask NodeAgent", run: askAgent });
-      if (reviewAct) a.push(reviewAct);
       a.push({ icon: "building", label: "Switch room", run: () => openSheet("rooms") });
     } else if (tab === "capture") {
       hero = "sparkles";
@@ -777,14 +883,12 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
       hero = "pen";
       a.push({ icon: "pen", label: "Message room", run: () => { setComposerMode("room"); setAgentLane("room"); setScope("Room"); openAsk("room"); } });
       a.push({ icon: "history", label: "Agent jobs", run: () => openSheet("jobs") });
-      if (reviewAct) a.push(reviewAct);
       a.push({ icon: "building", label: "Switch room", run: () => openSheet("rooms") });
     } else if (tab === "agent") {
       hero = "sparkles";
       a.push({ icon: "sparkles", label: "Ask NodeAgent", run: askAgent });
       a.push({ icon: "search", label: "Search sources", run: () => startSearch(D.EVIDENCE) });
       a.push({ icon: "history", label: "Job history", run: () => openSheet("jobs") });
-      if (reviewAct) a.push(reviewAct);
     } else if (tab === "inbox") {
       hero = "checkCircle";
       if (firstPending) a.push({ icon: "check", label: "Review next", tone: "warn", run: () => openInbox(firstPending) });
@@ -793,13 +897,20 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     } else {
       hero = "sparkles";
       a.push({ icon: "sparkles", label: "Ask NodeAgent", run: askAgent });
-      if (reviewAct) a.push(reviewAct);
       a.push({ icon: "building", label: "Switch room", run: () => openSheet("rooms") });
     }
-    a.push({ icon: "menu", label: "Go to…", keepOpen: true, run: () => setFabMode("nav") });
-    const alert = !!reviewAct && tab !== "inbox";
-    return { hero, actions: a, alert, badge: alert ? openCount : 0 };
+    return { hero, actions: a };
   })();
+
+  const headerActions: MobileHeaderAction[] = [
+    { id: "jobs", icon: "history", label: "Agent jobs", meta: jobCount ? String(jobCount) : undefined, onSelect: () => openSheet("jobs") },
+    { id: "people", icon: "users", label: "People", meta: String(room.people), onSelect: () => openSheet("manage") },
+    { id: "activity", icon: "sparkles", label: "Room activity", meta: String(room.agents), onSelect: () => openPulse("agents") },
+    { id: "usage", icon: "signal", label: "Usage", onSelect: () => openPulse("cost") },
+    { id: "trace", icon: "history", label: "Trace", onSelect: () => openSheet("trace") },
+    { id: "share", icon: "link", label: "Share", onSelect: () => openSheet("share") },
+    { id: "settings", icon: "settings", label: "Settings", onSelect: () => openSheet("settings") },
+  ];
 
   // ── ctx prop bag (every screen / sheet receives this) ──
   const ctx: MobileCtx = {
@@ -850,6 +961,9 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     people: live?.people ?? D.PEOPLE,
     isLive: !!live,
     runQuick,
+    requestRoomAgent: live
+      ? (goal: string) => live.askRoomAgent(goal, mobileAgentModelSelection(model))
+      : async () => ({ ok: false, reason: "offline_sample" }),
     openRow,
     askAboutRow,
     row: live?.row ?? D.ROW,
@@ -881,6 +995,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     livePlan: live?.plan,
     liveEvidence: live?.evidence,
     liveCoach: live?.coach,
+    liveDeck: live?.deck,
 
     // ── gap pack: live projections override the memory-mode samples ──
     pipeline: live ? live.pipeline : D.PIPELINE,
@@ -925,22 +1040,11 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
   };
   const mentions = Array.from(new Set((draft.match(/@[\w·]+/g) || []).map((x) => x.replace(/[·]+$/, "")))).filter((x) => x.length > 1);
 
-  // nav-mode fan: back-to-actions, the six tabs, then Settings (variant matrix).
-  const navFan: FabAction[] = [
-    { icon: "chevL", label: "Actions", muted: true, keepOpen: true, run: () => setFabMode("act") },
-    ...TAB_IDS.map((id): FabAction => ({ icon: TABS[id].icon, label: TABS[id].label, active: tab === id, badge: id === "inbox" ? openCount : 0, run: () => setTab(id) })),
-    // gap pack entry points (design-reference/mobile-scale/gaps-app.jsx)
-    { icon: "shield", label: "Review", badge: openCount, run: () => openSheet("review") },
-    { icon: "history", label: "Trace", run: () => openSheet("trace") },
-    { icon: "users", label: "People", run: () => openSheet("manage") },
-    { icon: "link", label: "Share", run: () => openSheet("share") },
-    { icon: "settings", label: "Settings", run: () => openSheet("settings") },
-  ];
-  const fanActions: FabAction[] = fabMode === "nav" ? navFan : fab.actions;
+  const fanActions: FabAction[] = fab.actions;
 
   return (
-    <MobileStage dark={t.dark}>
-      <IOSDevice dark={t.dark} width={402} height={874}>
+    <MobileStage dark={t.dark} previewDeviceChrome={previewDeviceChrome}>
+      <IOSDevice dark={t.dark} width={402} height={874} previewDeviceChrome={previewDeviceChrome}>
         <div
           className="na-app"
           data-theme={t.dark ? "dark" : "light"}
@@ -949,59 +1053,47 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
           data-motion={t.motion}
           data-ask={askOpen ? "true" : undefined}
         >
-          {/* ── top chrome: room identity is the anchor ── */}
-          <div className="na-top">
-            <div className="na-topbar">
-              <button className="na-mark" title="Home" aria-label="Home" onClick={() => setTab("home")}>N</button>
-              <button className="na-roomsw" onClick={() => openSheet("rooms")} aria-label="Switch room" title="Switch room">
+          <MobileHeader
+            roomName={room.name}
+            roomLive={room.live}
+            reviewCount={openCount}
+            scrolled={headerScrolled}
+            onSwitchRoom={() => openSheet("rooms")}
+            onOpenReview={() => setTab("inbox")}
+            secondaryActions={headerActions}
+          />
 
-                {room.live && <i className="na-live-dot" />}
-                <span className="nm">{room.name}</span>
-                {Ico("chevD")}
-              </button>
-              <button
-                className="na-icon-btn"
-                aria-label="Agent jobs"
-                title={tab === "agent" || tab === "room" ? "Agent jobs" : openCount ? "Review inbox" : "Notifications"}
-                onClick={() => (tab === "agent" || tab === "room" ? openSheet("jobs") : openCount ? setTab("inbox") : toast("All caught up"))}
-              >
-                {Ico(tab === "agent" || tab === "room" ? "history" : "bell")}
-              </button>
+          {live?.experience === "sample" ? (
+            <div className="gp-sample-banner" data-testid="mobile-sample-banner" role="status">
+              {Ico("shield", { width: 13, height: 13 })}
+              <span>
+                <strong>{live.starterBackfill === "pending" ? "Sample still loading." : "Sample workspace."}</strong>{" "}
+                Companies, sources, messages, and traces are synthetic{live.starterBackfill === "pending" ? "; missing sample artifacts retry automatically" : ""}.
+              </span>
             </div>
-            {/* pulse only where presence matters (Home / Room) */}
-            {(tab === "home" || tab === "room") && (
-              <div className="na-pulse" role="status">
-                <span className="seg"><i className="na-live-dot" />Live</span>
-                <button className="seg btn" onClick={() => openSheet("manage")}><b>{room.people}</b>people</button>
-                <button className={"seg btn" + (openCount ? " has-warn" : "")} onClick={() => openPulse("agents")}>
-                  <b>{room.agents}</b>agents
-                  {openCount ? <span className="seg-warn">{openCount}</span> : null}
-                </button>
-                {live ? (
-                  <button className="seg btn mono" onClick={() => openSheet("jobs")}>{jobCount + (jobCount === 1 ? " job" : " jobs")}</button>
-                ) : (
-                  <button className="seg btn mono" onClick={() => openPulse("cost")}>{D.ROOM.costToday + " today"}</button>
-                )}
-              </div>
-            )}
-          </div>
+          ) : null}
 
           {/* ── offline hold banner: held edits are visible, never lost ── */}
           <OfflineBanner ctx={ctx} />
 
           {/* active screen */}
-          <div className="na-body" key={tab}>
+          <div
+            className="na-body"
+            key={tab}
+            onScroll={(event) => setHeaderScrolled(event.currentTarget.scrollTop > 0)}
+          >
             <Screen ctx={ctx} />
           </div>
 
           {/* ── first-join welcome (live rooms only; once per session) ── */}
           {live && !firstJoinSeen && !live.loading && (
-            <FirstJoinOverlay people={liveHumans.length} agents={liveAgents.length} onDismiss={dismissFirstJoin} />
+            <FirstJoinOverlay people={liveHumans.length} agents={liveAgents.length} sample={live.experience === "sample"} onDismiss={dismissFirstJoin} />
           )}
 
           {/* ── command dock: contextual expandable FAB + direct text bar ── */}
-          <div className="na-dock">
-            <div className="na-fab" data-open={fabOpen ? "true" : undefined} data-mode={fabMode}>
+          <div className="na-bottom-shell">
+            <div className="na-dock">
+            <div className="na-fab" data-open={fabOpen ? "true" : undefined} data-mode="actions">
               {fabOpen && (
                 <div className="na-fab-fan">
                   {fanActions.map((ac, idx) => (
@@ -1018,14 +1110,13 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                 </div>
               )}
               <button
-                className={"na-fab-btn" + (fab.alert ? " alert" : "")}
+                className="na-fab-btn"
                 aria-label={fabOpen ? "Close menu" : "Quick actions"}
                 aria-expanded={fabOpen ? "true" : "false"}
                 title={fabOpen ? "Close menu" : "Quick actions"}
                 onClick={() => { haptic(); setAddOpen(false); setFabOpen((v) => !v); }}
               >
                 <span className="fb-ic">{Ico(fabOpen ? "x" : fab.hero)}</span>
-                {!fabOpen && fab.badge ? <span className="na-fab-badge">{fab.badge}</span> : null}
               </button>
             </div>
             <div className="na-dock-bar">
@@ -1069,9 +1160,10 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                 <input
                   ref={dockInputRef}
                   className="na-dock-input"
+                  aria-label={tab === "room" ? "Message everyone in this room" : "Ask NodeAgent"}
                   value={draft}
                   type="text"
-                  placeholder={tab === "room" ? "Message the room…" : tab === "agent" ? "Ask NodeAgent…" : "Ask NodeAgent or capture…"}
+                  placeholder={tab === "room" ? "Message the room…" : live || tab === "agent" ? "Ask NodeAgent…" : "Ask NodeAgent or capture…"}
                   onChange={(e) => setDraft(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); sendComposer(); } }}
                 />
@@ -1080,6 +1172,24 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                 ) : null}
               </div>
             </div>
+          </div>
+            <nav className="na-nav" data-style={t.navStyle} data-testid="mobile-bottom-nav" aria-label="Primary mobile navigation">
+              {TAB_IDS.map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  className="na-nav-item"
+                  data-active={tab === id ? "true" : undefined}
+                  data-testid={`mobile-nav-${id}`}
+                  aria-current={tab === id ? "page" : undefined}
+                  aria-label={TABS[id].label}
+                  onClick={() => setTab(id)}
+                >
+                  {Ico(TABS[id].icon, { "aria-hidden": true })}
+                  <span>{TABS[id].label}</span>
+                </button>
+              ))}
+            </nav>
           </div>
 
           {/* scrims for the FAB fan + bottom sheets */}
@@ -1114,7 +1224,14 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                   </div>
                   <div className="na-room-actions">
                     <button className="na-btn primary" onClick={joinRoom}>{Ico("plus")}Join a room</button>
-                    <button className="na-btn danger" onClick={leaveRoom}>{Ico("logout")}{"Leave " + room.name}</button>
+                    <button
+                      className="na-btn danger"
+                      onClick={leaveRoom}
+                      disabled={Boolean(live?.canApprove)}
+                      title={live?.canApprove ? "Host transfer is required before leaving" : undefined}
+                    >
+                      {Ico("logout")}{live?.canApprove ? "Host owns this room" : "Leave " + room.name}
+                    </button>
                   </div>
                 </div>
               </>
@@ -1170,14 +1287,20 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                               const TM = REV_TYPE[i.kind] || REV_TYPE._default;
                               const menuOpen = openRev === i.id;
                               const actions: { label: string; icon: IconName; run: () => void }[] = [];
-                              if (TM.primary) {
+                              if (live) {
+                                actions.push({
+                                  label: "Review proposal",
+                                  icon: "chevR",
+                                  run: () => { setTab("inbox"); closeSheet(); },
+                                });
+                              } else if (TM.primary) {
                                 actions.push({
                                   label: TM.primary,
                                   icon: TM.primaryIcon || "chevR",
                                   run: () => { if (TM.primaryAct) TM.primaryAct({ openInbox, item: i, beginRun, setResolved, toast, openSheet, startSearch }); else openInbox(i); },
                                 });
                               }
-                              actions.push({ label: TM.open, icon: TM.openIcon, run: () => openInbox(i) });
+                              if (!live) actions.push({ label: TM.open, icon: TM.openIcon, run: () => openInbox(i) });
                               const lead = actions[0];
                               const single = actions.length === 1;
                               return (
@@ -1300,7 +1423,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                 <strong>NodeAgent</strong>
                 <button className="na-ask-scope" onClick={toggleScope} aria-label="Toggle visibility">
                   {Ico(scope === "Room" ? "users" : "lock")}
-                  <span>{scope === "Room" ? "Visible to room" : "Private to you"}</span>
+                  <span>{scope === "Room" ? "Everyone in this room" : "Private in NodeRoom"}</span>
                 </button>
               </div>
               <div className="na-ask-card">
@@ -1407,7 +1530,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
             {voiceLive && (
               <>
                 <div className="na-voice-top">
-                  <span className="na-voice-scope">{Ico(scope === "Room" ? "users" : "lock")}{scope === "Room" ? "Room can hear this" : "Private to you"}</span>
+                  <span className="na-voice-scope">{Ico(scope === "Room" ? "users" : "lock")}{scope === "Room" ? "Everyone in this room" : "Private in NodeRoom"}</span>
                   <span className="na-voice-model">{Ico(visibleModel.icon)}{visibleModel.name}</span>
                 </div>
                 <div className="na-voice-mid">

@@ -16,7 +16,7 @@
 import { convexTest } from "convex-test";
 import { describe, expect, it } from "vitest";
 import schema from "../convex/schema";
-import { api } from "../convex/_generated/api";
+import { api, internal } from "../convex/_generated/api";
 
 const modules = import.meta.glob("../convex/**/*.ts");
 // Node-only agent modules aren't needed for room/artifact mutations and don't import in edge-runtime.
@@ -41,6 +41,45 @@ const messagesIn = (t: T, roomId: unknown) =>
   t.run(async (ctx) => (await ctx.db.query("messages").collect()).filter((m) => String(m.roomId) === String(roomId)));
 const tracesIn = (t: T, roomId: unknown) =>
   t.run(async (ctx) => (await ctx.db.query("traces").collect()).filter((m) => String(m.roomId) === String(roomId)));
+
+describe("guided starter room", () => {
+  it("creates a concise sample without loading the scale fixture", async () => {
+    const t = convexTest(schema, modules);
+    const res = await t.mutation(api.rooms.createStarterRoom, {
+      code: "GUIDE1",
+      title: "Guided sample",
+      hostName: "Maya",
+      authToken: HOST_TOKEN,
+      seedProfile: "guided",
+      deferHeavySeed: true,
+    });
+
+    const arts = await artifactsIn(t, res.roomId);
+    const research = arts.find((artifact) => artifact.title === "Company research");
+    const dataframe = (research?.meta as { dataframe?: { rowCount?: number; semanticIndexDisabled?: boolean } } | undefined)?.dataframe;
+    expect(arts.map((artifact) => artifact.title).sort()).toEqual([...STARTER_TITLES].sort());
+    expect(dataframe?.rowCount).toBe(5);
+    expect(dataframe?.semanticIndexDisabled).toBe(false);
+    expect(research?.order).toHaveLength(70);
+    const memo = arts.find((artifact) => artifact.title === "Diligence memo");
+    const memoDoc = (await elementsOf(t, memo?._id)).find((element) => element.elementId === "doc");
+    expect(String(memoDoc?.value)).toContain("Q3 contribution check = (2400 - 1100) - 450");
+    expect(await messagesIn(t, res.roomId)).toHaveLength(4);
+    expect((await tracesIn(t, res.roomId)).length).toBeLessThan(20);
+    const room = (await allRooms(t)).find((candidate) => String(candidate._id) === String(res.roomId));
+    expect(room?.starterBackfill).toBe("ready");
+
+    await t.mutation(api.rooms.ensureStarterRoomState, {
+      roomId: res.roomId,
+      requester: { actor: { kind: "user" as const, id: String(res.memberId), name: "Maya" }, token: HOST_TOKEN },
+    });
+    const repairedResearch = (await artifactsIn(t, res.roomId)).find((artifact) => artifact.title === "Company research");
+    expect((repairedResearch?.meta as { dataframe?: { rowCount?: number } } | undefined)?.dataframe?.rowCount).toBe(5);
+    expect(repairedResearch?.order).toHaveLength(70);
+    expect(await messagesIn(t, res.roomId)).toHaveLength(4);
+    expect((await tracesIn(t, res.roomId)).length).toBeLessThan(20);
+  });
+});
 
 describe("atomic room create — no orphaned rooms", () => {
   it("createStarterRoom seeds a complete room (room + host + starter artifacts) in one transaction", async () => {
@@ -133,6 +172,45 @@ describe("atomic room create — no orphaned rooms", () => {
     // Still exactly one, still-complete room — the rejected attempt added nothing.
     expect(await allRooms(t)).toHaveLength(1);
     expect(await artifactsIn(t, first.roomId)).toHaveLength(STARTER_TITLES.length);
+  });
+
+  it("resumes the original host on a lost create response when the room token is retried", async () => {
+    const t = convexTest(schema, modules);
+    const created = await t.mutation(api.rooms.createStarterRoom, {
+      code: "RESUME1", title: "Recovery room", hostName: "Maya", authToken: HOST_TOKEN, deferHeavySeed: true,
+    });
+
+    const resumed = await t.mutation(api.rooms.joinAnonymous, {
+      code: "RESUME1", name: "Maya", authToken: HOST_TOKEN, anon: false,
+    });
+    if (!resumed || "error" in resumed) throw new Error("resume failed");
+
+    expect(String(resumed.memberId)).toBe(String(created.memberId));
+    expect(resumed.resumed).toBe(true);
+    expect(await membersIn(t, created.roomId)).toHaveLength(1);
+    expect((await tracesIn(t, created.roomId)).filter((trace) => trace.type === "member_joined")).toHaveLength(0);
+  });
+
+  it("fast live create returns the room shell before the scale fixture backfills", async () => {
+    const t = convexTest(schema, modules);
+    const created = await t.mutation(api.rooms.createStarterRoom, {
+      code: "FAST01", title: "Startup diligence", hostName: "Maya", authToken: HOST_TOKEN, autoAllow: true, deferHeavySeed: true,
+    });
+    const pending = await t.query(api.rooms.meta, {
+      roomId: created.roomId,
+      requester: { actor: { kind: "user", id: String(created.memberId), name: "Maya" }, token: HOST_TOKEN },
+    });
+    expect(pending?.room.starterBackfill).toBe("pending");
+    expect(pending?.artifacts.some((artifact) => artifact.title === "Q3 variance")).toBe(true);
+    expect(pending?.artifacts.some((artifact) => artifact.title === "Company research")).toBe(false);
+
+    await t.mutation(internal.rooms.finishStarterRoom, { roomId: created.roomId, memberId: created.memberId });
+    const ready = await t.query(api.rooms.meta, {
+      roomId: created.roomId,
+      requester: { actor: { kind: "user", id: String(created.memberId), name: "Maya" }, token: HOST_TOKEN },
+    });
+    expect(ready?.room.starterBackfill).toBe("ready");
+    expect(ready?.artifacts.some((artifact) => artifact.title === "Company research")).toBe(true);
   });
 
   it("create with seedArtifacts seeds a custom artifact (+ meta) atomically in one transaction", async () => {

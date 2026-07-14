@@ -26,8 +26,8 @@ export const DEFAULT_PROOF_MAX_AGE_DAYS = 30;
 
 export const MARKETED_PROOFS: ProofRegistryEntry[] = [
   {
-    path: "docs/eval/finance-model-live.json",
-    claim: "3-statement modeling full-solve champion (README scoreboard + AGENT_EVAL Mode 1)",
+    path: "docs/eval/noderoom-fresh-user-vertical-proof.json",
+    claim: "NodeRoom fresh-user product path, work-artifact workflows, and deterministic repository validation",
   },
 ];
 

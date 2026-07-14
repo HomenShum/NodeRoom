@@ -82,8 +82,8 @@ export async function scoreSpreadsheetBenchWorkbook(options: SpreadsheetBenchSco
   if (zipScore) return zipScore;
 
   const [candidate, gold] = await Promise.all([
-    readWorkbook(options.candidateWorkbookPath),
-    readWorkbook(options.goldWorkbookPath),
+    readSpreadsheetBenchWorkbookForCells(options.candidateWorkbookPath),
+    readSpreadsheetBenchWorkbookForCells(options.goldWorkbookPath),
   ]);
   const maxMismatches = options.maxMismatches ?? 50;
   const warnings: string[] = [];
@@ -488,7 +488,7 @@ export function parseAnswerPosition(answerPosition: string | undefined, defaultS
     const part = raw.trim();
     const bang = indexOfSheetBang(part);
     const sheetName = bang >= 0 ? unquoteSheet(part.slice(0, bang)) : defaultSheetName(defaultSheet);
-    const rangeText = bang >= 0 ? part.slice(bang + 1) : part;
+    const rangeText = normalizeRangeText(bang >= 0 ? part.slice(bang + 1) : part, sheetName);
     const [startText, endText = startText] = rangeText.split(":").map((item) => item.trim());
     const bounds = sheetUsedBounds(workbook, sheetName);
     const start = parseRangePoint(startText, { bounds, isEnd: false });
@@ -504,7 +504,7 @@ export function parseAnswerPosition(answerPosition: string | undefined, defaultS
   });
 }
 
-async function readWorkbook(path: string): Promise<ExcelJS.Workbook> {
+export async function readSpreadsheetBenchWorkbookForCells(path: string): Promise<ExcelJS.Workbook> {
   if (await workbookPackageNeedsCellReadSanitizer(path)) {
     return readSanitizedWorkbook(path);
   }
@@ -856,11 +856,42 @@ function splitOutsideQuotes(value: string): string[] {
 }
 
 function normalizeAnswerPosition(value: string): string {
+  return splitOutsideQuotes(normalizeRangePunctuation(value))
+    .map((part) => normalizeAnswerPositionPart(part))
+    .join(",");
+}
+
+function normalizeRangePunctuation(value: string): string {
   return value
-    .replace(/(^|,)\s*'([^'!,]+)!'(?=[A-Z$])/gi, (_match, prefix: string, sheet: string) => `${prefix}'${sheet}'!`)
-    .replace(/(^|,)\s*'([^'!,]+)!(?=[A-Z$])/gi, (_match, prefix: string, sheet: string) => `${prefix}'${sheet}'!`)
-    .replace(/(^|,)\s*([^,'!]+)'!(?=[A-Z$])/gi, (_match, prefix: string, sheet: string) => `${prefix}'${sheet.trim()}'!`)
-    .replace(/(\$?[A-Z]{1,3}\$?[1-9]\d*|\$?[A-Z]{1,3}|\$?[1-9]\d*)'(?=,|$)/gi, "$1");
+    .replace(/\uFF1A/g, ":")
+    .replace(/\uFF01/g, "!")
+    .replace(/\uFF0C/g, ",")
+    .replace(/ï¼š/g, ":")
+    .replace(/ï¼/g, "!")
+    .replace(/ï¼/g, ",");
+}
+
+function normalizeRangeText(value: string, sheetName?: string): string {
+  let normalized = normalizeRangePunctuation(value.trim());
+  if (normalized.startsWith("'") && normalized.endsWith("'")) {
+    normalized = normalized.slice(1, -1).replace(/''/g, "'");
+  }
+  const bang = indexOfSheetBang(normalized);
+  if (bang >= 0) {
+    const embeddedSheet = unquoteSheet(normalized.slice(0, bang));
+    if (!sheetName || embeddedSheet.toLowerCase() === sheetName.toLowerCase()) {
+      normalized = normalized.slice(bang + 1);
+    }
+  }
+  return normalized;
+}
+
+function normalizeAnswerPositionPart(value: string): string {
+  return value.trim()
+    .replace(/^'([^'!,]+)!'(?=[A-Z$])/i, (_match, sheet: string) => `'${sheet}'!`)
+    .replace(/^'([^'!,]+)!(?=[A-Z$])/i, (_match, sheet: string) => `'${sheet}'!`)
+    .replace(/^([^,'!]+)'!(?=[A-Z$])/i, (_match, sheet: string) => `'${sheet.trim()}'!`)
+    .replace(/(\$?[A-Z]{1,3}\$?[1-9]\d*|\$?[A-Z]{1,3}|\$?[1-9]\d*)'$/i, "$1");
 }
 
 function indexOfSheetBang(value: string): number {

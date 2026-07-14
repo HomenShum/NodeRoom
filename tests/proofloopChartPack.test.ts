@@ -63,7 +63,7 @@ describe("Proof Loop chart pack", () => {
     expect(bundle.data["model-performance"].map((point) => point.model)).toEqual(expect.arrayContaining([
       "strong-single-model",
       "cheap-or-fusion-policy",
-      "deepseek/deepseek-v4-pro",
+      "openrouter/free-auto",
     ]));
     expect(bundle.data["failure-categories"].map((point) => point.failureCategory)).toEqual(expect.arrayContaining([
       "context_pack",

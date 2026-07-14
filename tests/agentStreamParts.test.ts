@@ -170,4 +170,29 @@ describe("NodeAgent unified stream parts", () => {
 
     expect(parts).toEqual([{ type: "text", text: "Partial answer complete.", state: "done" }]);
   });
+
+  it("does not append a final answer that is already the streamed suffix", () => {
+    const parts = buildUnifiedAgentStreamParts([
+      { sequence: 1, kind: "text_delta", text: "I will inspect the provenance.\n\n", status: "streaming", createdAt: 1 },
+      { sequence: 2, kind: "text_delta", text: "Maya researched CardioNova.", status: "streaming", createdAt: 2 },
+      { sequence: 3, kind: "message_done", text: "Maya researched CardioNova.", status: "completed", createdAt: 3 },
+    ], { terminal: true });
+
+    expect(parts).toEqual([{
+      type: "text",
+      text: "I will inspect the provenance.\n\nMaya researched CardioNova.",
+      state: "done",
+    }]);
+  });
+
+  it("does not append a truncated materialized snapshot of the streamed answer", () => {
+    const answer = `Provenance answer\n\n${"Source-backed detail. ".repeat(120)}Final recommendation.`;
+    const materializedSnapshot = `${answer.slice(0, 1_900)}...`;
+    const parts = buildUnifiedAgentStreamParts([
+      { sequence: 1, kind: "text_delta", text: answer, status: "streaming", createdAt: 1 },
+      { sequence: 2, kind: "message_done", text: materializedSnapshot, status: "completed", createdAt: 2 },
+    ], { terminal: true });
+
+    expect(parts).toEqual([{ type: "text", text: answer, state: "done" }]);
+  });
 });

@@ -14,7 +14,7 @@ async function openRoomTrace(page: Parameters<typeof enterDemoRoom>[0]) {
 test("semantic rebase conflict drill is visible, reviewable, and applies only after host approval", async ({ page }) => {
   await enterDemoRoom(page);
 
-  await page.getByTestId("left-rail").getByRole("button", { name: /Q3 variance/ }).click();
+  await page.getByTestId("left-rail").getByTestId("binder-artifact").filter({ hasText: "Q3 variance" }).first().click();
   const panel = page.getByTestId("artifact-panel");
   await expect(panel.locator('[data-cell-key="r_rev__variance"]')).toBeVisible();
   await page.evaluate(() => (window as any).__runConflictDrill());

@@ -57,6 +57,7 @@ describe("Chat model picker polish", () => {
     fireEvent.click(screen.getByTestId("chat-model-trigger"));
     expect(screen.getByTestId("chat-model-popover")).toBeTruthy();
     expect(screen.getByTestId("chat-model-preset-free").textContent).toContain("$0");
+    expect(screen.getByTestId("chat-model-preset-free").textContent).toContain("resolved model");
 
     fireEvent.change(screen.getByTestId("chat-model-search"), { target: { value: "claude sonnet" } });
     fireEvent.click(await screen.findByTestId("chat-model-option-claude-sonnet-4-6"));

@@ -33,6 +33,17 @@ export type RankedOpenRouterModel = OpenRouterModelInfo & {
   reasons: string[];
 };
 
+export type OpenRouterFreeRouteHealth = {
+  modelId: string;
+  attempts: number;
+  successes: number;
+  consecutiveFailures: number;
+  lastLatencyMs: number;
+  lastAttemptAt: number;
+  cooldownUntil: number;
+  lastError?: string;
+};
+
 type ModelsResponse = { data?: OpenRouterModelInfo[] };
 
 /** A route DECLARES it trains on prompts. Conservative: only excludes on an explicit positive flag,
@@ -43,6 +54,21 @@ export function permitsTraining(model: OpenRouterModelInfo): boolean {
 }
 
 let cachedModels: { fetchedAt: number; models: OpenRouterModelInfo[] } | null = null;
+const routeHealth = new Map<string, OpenRouterFreeRouteHealth>();
+
+const DEFAULT_PREFERRED_FREE_MODELS = [
+  "cohere/north-mini-code:free",
+  "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "nvidia/nemotron-3-super-120b-a12b:free",
+  "tencent/hy3:free",
+  "qwen/qwen3-next-80b-a3b-instruct:free",
+  OPENROUTER_FREE_META_MODEL,
+];
+
+// Canary preference nudges known-good routes without pinning the router to a
+// stale list. A materially stronger newly discovered model can still lead, and
+// recent runtime success/failure remains the dominant signal.
+const FREE_ROUTE_PREFERENCE_BONUS = 1_200;
 
 const FALLBACK_FREE_MODELS: OpenRouterModelInfo[] = [
   {
@@ -123,6 +149,36 @@ export function isOpenRouterFreeAutoModel(modelId: string): boolean {
   return normalizeModelId(modelId) === OPENROUTER_FREE_AUTO_MODEL;
 }
 
+export function openRouterFreeCandidateTimeoutMs(
+  env: Record<string, string | undefined> = process.env,
+): number {
+  const raw = Number(env.OPENROUTER_FREE_CANDIDATE_TIMEOUT_MS ?? 45_000);
+  return Number.isFinite(raw) ? Math.max(5_000, Math.min(120_000, Math.trunc(raw))) : 45_000;
+}
+
+export function openRouterFreeRequestTimeoutMs(
+  env: Record<string, string | undefined> = process.env,
+): number {
+  const raw = Number(env.OPENROUTER_FREE_REQUEST_TIMEOUT_MS ?? 90_000);
+  return Number.isFinite(raw) ? Math.max(10_000, Math.min(300_000, Math.trunc(raw))) : 90_000;
+}
+
+export function openRouterFreeRequestSignal(
+  parent?: AbortSignal,
+  env: Record<string, string | undefined> = process.env,
+): AbortSignal {
+  const request = AbortSignal.timeout(openRouterFreeRequestTimeoutMs(env));
+  return parent ? AbortSignal.any([parent, request]) : request;
+}
+
+export function openRouterFreeCandidateSignal(
+  parent?: AbortSignal,
+  env: Record<string, string | undefined> = process.env,
+): AbortSignal {
+  const candidate = AbortSignal.timeout(openRouterFreeCandidateTimeoutMs(env));
+  return parent ? AbortSignal.any([parent, candidate]) : candidate;
+}
+
 export function freeOpenRouterPricing(contextWindow = 200_000): ModelPricing {
   return { inputPer1M: 0, outputPer1M: 0, contextWindow };
 }
@@ -170,6 +226,7 @@ export async function selectOpenRouterFreeModels(options: {
   forceRefresh?: boolean;
   signal?: AbortSignal;
   env?: Record<string, string | undefined>;
+  now?: number;
 } = {}): Promise<RankedOpenRouterModel[]> {
   const models = await discoverOpenRouterFreeModels({
     fetchImpl: options.fetchImpl,
@@ -192,7 +249,78 @@ export async function selectOpenRouterFreeModels(options: {
   if (ranked.length > 0 && allowed.length === 0) {
     throw new Error(`openrouter/free-auto candidates quarantined: ${skipped.join(", ")}`);
   }
-  return allowed.slice(0, options.limit ?? 8);
+  const now = options.now ?? Date.now();
+  const active = allowed.filter((model) => (routeHealth.get(model.id)?.cooldownUntil ?? 0) <= now);
+  if (allowed.length > 0 && active.length === 0) {
+    const retryAt = Math.min(...allowed.map((model) => routeHealth.get(model.id)?.cooldownUntil ?? now));
+    const retrySeconds = Math.max(1, Math.ceil((retryAt - now) / 1_000));
+    throw new Error(`openrouter/free-auto candidates cooling down; retry in ${retrySeconds}s`);
+  }
+  const preferred = preferredOpenRouterFreeModelIds(options.env);
+  return [...active]
+    .sort((a, b) => freeRoutePriority(b, preferred, now) - freeRoutePriority(a, preferred, now) || b.score - a.score || a.id.localeCompare(b.id))
+    .slice(0, options.limit ?? 8);
+}
+
+export function recordOpenRouterFreeRouteOutcome(args: {
+  modelId: string;
+  ok: boolean;
+  latencyMs: number;
+  error?: unknown;
+  now?: number;
+  env?: Record<string, string | undefined>;
+}): OpenRouterFreeRouteHealth {
+  const now = args.now ?? Date.now();
+  const previous = routeHealth.get(args.modelId);
+  const consecutiveFailures = args.ok ? 0 : (previous?.consecutiveFailures ?? 0) + 1;
+  const baseCooldownMs = freeRouteFailureCooldownMs(args.env);
+  const cooldownMs = args.ok ? 0 : Math.min(30 * 60_000, baseCooldownMs * Math.pow(2, Math.max(0, consecutiveFailures - 1)));
+  const next: OpenRouterFreeRouteHealth = {
+    modelId: args.modelId,
+    attempts: (previous?.attempts ?? 0) + 1,
+    successes: (previous?.successes ?? 0) + (args.ok ? 1 : 0),
+    consecutiveFailures,
+    lastLatencyMs: Math.max(0, Math.trunc(args.latencyMs)),
+    lastAttemptAt: now,
+    cooldownUntil: now + cooldownMs,
+    ...(args.ok ? {} : { lastError: shortRouteError(args.error) }),
+  };
+  routeHealth.set(args.modelId, next);
+  return { ...next };
+}
+
+export function openRouterFreeRouteHealthSnapshot(): OpenRouterFreeRouteHealth[] {
+  return [...routeHealth.values()].map((entry) => ({ ...entry })).sort((a, b) => a.modelId.localeCompare(b.modelId));
+}
+
+export function restoreOpenRouterFreeRouteHealth(
+  entries: OpenRouterFreeRouteHealth[],
+  now = Date.now(),
+): void {
+  for (const entry of entries) {
+    if (!entry || typeof entry.modelId !== "string" || !entry.modelId.trim()) continue;
+    if (![entry.attempts, entry.successes, entry.consecutiveFailures, entry.lastLatencyMs, entry.lastAttemptAt, entry.cooldownUntil]
+      .every((value) => typeof value === "number" && Number.isFinite(value) && value >= 0)) continue;
+    if (entry.lastAttemptAt < now - 24 * 60 * 60_000) continue;
+    const modelId = normalizeModelId(entry.modelId);
+    routeHealth.set(modelId, {
+      ...entry,
+      modelId,
+      ...(entry.lastError ? { lastError: entry.lastError.slice(0, 180) } : {}),
+    });
+  }
+}
+
+export function resetOpenRouterFreeRouteHealth(): void {
+  routeHealth.clear();
+}
+
+export function preferredOpenRouterFreeModelIds(
+  env: Record<string, string | undefined> = process.env,
+): string[] {
+  const raw = env.OPENROUTER_FREE_PREFERRED_MODELS;
+  const values = raw === undefined ? DEFAULT_PREFERRED_FREE_MODELS : raw.split(",");
+  return [...new Set(values.map((value) => normalizeModelId(value)).filter(Boolean))];
 }
 
 export function rankOpenRouterFreeModels(
@@ -251,7 +379,7 @@ export function scoreOpenRouterFreeModel(model: OpenRouterModelInfo, mode: OpenR
 
   if (/nano|mini|xs|9b|12b/.test(haystack)) score -= 140;
   if (/audio|music|lyria|clip|embed/.test(haystack)) score -= 1_000;
-  if (mode === "structured" && !(params.has("structured_outputs") || params.has("response_format"))) score -= 250;
+  if (mode === "structured" && !(params.has("structured_outputs") || params.has("response_format"))) score -= 800;
   if (mode === "vision" && !hasInputModality(model, "image")) score -= 500;
 
   return { score, reasons };
@@ -283,6 +411,28 @@ function hasInputModality(model: OpenRouterModelInfo, modality: string): boolean
 
 function normalizeModelId(modelId: string): string {
   return modelId.toLowerCase().trim();
+}
+
+function freeRoutePriority(model: RankedOpenRouterModel, preferred: string[], now: number): number {
+  let priority = model.score;
+  const preferredIndex = preferred.indexOf(normalizeModelId(model.id));
+  if (preferredIndex >= 0) priority += Math.max(300, FREE_ROUTE_PREFERENCE_BONUS - preferredIndex * 100);
+  const health = routeHealth.get(model.id);
+  if (health && health.successes > 0 && now - health.lastAttemptAt <= 30 * 60_000) {
+    priority += 10_000 + Math.min(2_000, health.successes * 250) - Math.min(2_000, health.lastLatencyMs / 10);
+  }
+  return priority;
+}
+
+function freeRouteFailureCooldownMs(env: Record<string, string | undefined> = process.env): number {
+  const value = Number(env.OPENROUTER_FREE_FAILURE_COOLDOWN_MS ?? 5 * 60_000);
+  return Number.isFinite(value) ? Math.max(5_000, Math.min(30 * 60_000, Math.trunc(value))) : 5 * 60_000;
+}
+
+function shortRouteError(error: unknown): string {
+  return (error instanceof Error ? error.message : String(error ?? "unknown"))
+    .replace(/\s+/g, " ")
+    .slice(0, 180);
 }
 
 function openRouterHeaders(): Record<string, string> {

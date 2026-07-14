@@ -6,6 +6,7 @@
    ============================================================================ */
 import type { Dispatch, SetStateAction } from "react";
 import type { AgentModelSelection } from "../../app/store";
+import type { DeckStoryboard } from "../workArtifacts/deckStoryboard";
 import type {
   TabId,
   SheetId,
@@ -27,6 +28,7 @@ import type {
   Plan,
   Evidence,
   Coach,
+  Deck,
   PipelineStage,
   TraceRow,
   ManageGroup,
@@ -109,6 +111,8 @@ export interface MobileCtx {
   /** True when bound to a live Convex room (vs sample data). */
   isLive: boolean;
   runQuick: (q: QuickPrompt) => void;
+  /** Send a governed request through the live room-agent path. */
+  requestRoomAgent?: (goal: string) => Promise<RowEditResult>;
   openRow: () => void;
   askAboutRow: () => void;
   /** CardioNova row — live cells when bound to a room, else the sample row. */
@@ -171,6 +175,9 @@ export interface MobileCtx {
   livePlan?: Plan;
   liveEvidence?: Evidence;
   liveCoach?: Coach;
+  /** Live-derived storyboard/deck review payload. Undefined in live rooms means
+   *  no deck exists yet; mobile must not fall back to sample deck data. */
+  liveDeck?: MobileDeckArtifact;
 
   // ── polish: live hydration + optimistic send ──
   /** True while a live room is still hydrating (skeletons render only when true). */
@@ -211,6 +218,9 @@ export interface MobileCtx {
 export interface MobileLive {
   roomName: string;
   roomCode: string;
+  experience: "workspace" | "sample";
+  starterBackfill?: "pending" | "ready";
+  starterProfile?: "guided" | "scale";
   liveCount: number;
   roomMsgs: RoomMsg[];
   people: Record<string, Person>;
@@ -219,6 +229,7 @@ export interface MobileLive {
   plan: Plan;
   evidence: Evidence;
   coach: Coach;
+  deck?: MobileDeckArtifact;
   postRoomMessage: (text: string) => Promise<RowEditResult>;
   agentPrivate: AgentMsg[];
   agentRoom: AgentMsg[];
@@ -250,4 +261,15 @@ export interface MobileLive {
   watchRow: (rowId: string, on: boolean) => Promise<RowEditResult>;
   isRowWatched: (rowId: string) => boolean;
   flagRowNeedsReview: (rowId: string) => Promise<RowEditResult>;
+}
+
+export interface MobileDeckArtifact extends Deck {
+  storyboard?: DeckStoryboard;
+  roomId: string;
+  workArtifactId: string;
+  traceIds: string[];
+  sourceIds: string[];
+  proposalIds: string[];
+  readonly?: boolean;
+  fallbackReason?: string;
 }

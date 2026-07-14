@@ -637,6 +637,96 @@ function parseProposalOp(op: unknown): ProposalOp {
   return { opId: o.opId, artifactId: o.artifactId, elementId: o.elementId, kind: o.kind as ProposalOp["kind"], value: o.value, baseVersion: o.baseVersion };
 }
 
+function decodeDeckValue(value: unknown): unknown {
+  let parsed = value;
+  for (let depth = 0; depth < 4; depth += 1) {
+    if (typeof parsed === "string") {
+      try {
+        parsed = JSON.parse(parsed);
+        continue;
+      } catch {
+        return null;
+      }
+    }
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      const record = parsed as Record<string, unknown>;
+      if (!("schema" in record) && "value" in record) {
+        parsed = record.value;
+        continue;
+      }
+      if (!("schema" in record) && "afterValue" in record) {
+        parsed = record.afterValue;
+        continue;
+      }
+    }
+    break;
+  }
+  return parsed;
+}
+
+function validDeckSlideRow(row: Record<string, unknown>, elementId: string): boolean {
+  const expectedSlideId = decodeURIComponent(elementId.slice("deck:slide:".length));
+  return row.schema === 2 && row.kind === "slide" && row.objectId === elementId && row.slideId === expectedSlideId &&
+    typeof row.title === "string" && typeof row.purpose === "string" &&
+    stringList(row.claimIds) && stringList(row.sourceArtifactIds) && stringList(row.evidenceIds) && stringList(row.unresolvedGaps) &&
+    ["draft", "approved", "needs_review"].includes(String(row.status)) &&
+    (row.speakerNote === undefined || typeof row.speakerNote === "string");
+}
+
+function normalizeApprovedDeckValue(elementId: string, value: unknown, currentValue?: unknown): { ok: true; value: unknown } | { ok: false; reason: "invalid_deck_object" } {
+  if (!elementId.startsWith("deck:")) return { ok: true, value };
+  const parsed = decodeDeckValue(value);
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return { ok: false, reason: "invalid_deck_object" };
+  const row = parsed as Record<string, unknown>;
+  if (String(row.schema) !== "2" || typeof row.kind !== "string") return { ok: false, reason: "invalid_deck_object" };
+  row.schema = 2;
+  if (elementId.startsWith("deck:slide:")) {
+    if (row.kind === "slide_patch") {
+      const expectedSlideId = decodeURIComponent(elementId.slice("deck:slide:".length));
+      const changes = row.changes && typeof row.changes === "object" && !Array.isArray(row.changes) ? row.changes as Record<string, unknown> : null;
+      const keys = changes ? Object.keys(changes) : [];
+      const current = decodeDeckValue(currentValue);
+      if (row.objectId !== elementId || row.slideId !== expectedSlideId || !changes || keys.length === 0 ||
+        keys.some((key) => !["title", "purpose", "speakerNote", "status"].includes(key)) ||
+        (changes.title !== undefined && typeof changes.title !== "string") ||
+        (changes.purpose !== undefined && typeof changes.purpose !== "string") ||
+        (changes.speakerNote !== undefined && typeof changes.speakerNote !== "string") ||
+        (changes.status !== undefined && !["draft", "approved", "needs_review"].includes(String(changes.status))) ||
+        !current || typeof current !== "object" || Array.isArray(current) || !validDeckSlideRow(current as Record<string, unknown>, elementId)) {
+        return { ok: false, reason: "invalid_deck_object" };
+      }
+      return { ok: true, value: { ...(current as Record<string, unknown>), ...changes } };
+    }
+    if (!validDeckSlideRow(row, elementId)) return { ok: false, reason: "invalid_deck_object" };
+  } else if (elementId.startsWith("deck:claim:")) {
+    const claim = row.claim && typeof row.claim === "object" && !Array.isArray(row.claim) ? row.claim as Record<string, unknown> : null;
+    if (row.kind !== "claim" || row.objectId !== elementId || typeof row.slideId !== "string" || !claim ||
+      typeof claim.claimId !== "string" || typeof claim.text !== "string" || !["verified", "manual", "needs_review"].includes(String(claim.status))) {
+      return { ok: false, reason: "invalid_deck_object" };
+    }
+  } else if (elementId === "deck:meta") {
+    if (row.kind !== "deck_meta" || typeof row.deckId !== "string" || typeof row.roomId !== "string" ||
+      typeof row.title !== "string" || typeof row.audience !== "string" || typeof row.objective !== "string" ||
+      !["room", "private", "public"].includes(String(row.privacy)) || !["draft", "approved", "needs_review"].includes(String(row.storyboardStatus))) {
+      return { ok: false, reason: "invalid_deck_object" };
+    }
+  } else if (elementId === "deck:order") {
+    if (row.kind !== "slide_order" || typeof row.deckId !== "string" || !stringList(row.slideIds)) return { ok: false, reason: "invalid_deck_object" };
+  } else if (elementId.startsWith("deck:comment:")) {
+    if (row.kind !== "comment" || typeof row.commentId !== "string" || typeof row.slideId !== "string" ||
+      typeof row.targetObjectId !== "string" || typeof row.body !== "string" || !["open", "resolved"].includes(String(row.status))) {
+      return { ok: false, reason: "invalid_deck_object" };
+    }
+  } else {
+    return { ok: false, reason: "invalid_deck_object" };
+  }
+  return { ok: true, value: parsed };
+}
+
+function stringList(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
 function clean<T extends Record<string, unknown>>(value: T): T {
   const out: Record<string, unknown> = {};
   for (const [key, val] of Object.entries(value)) if (val !== undefined) out[key] = val;
@@ -717,24 +807,42 @@ async function applyApprovedProposal(ctx: MutationCtx, roomId: Id<"rooms">, arti
   if (actual !== op.baseVersion) {
     return { ok: false as const, reason: "conflict" as const, expected: op.baseVersion, actual };
   }
-  if (blocksFormulaScalar(el?.value, op.value, author, op.kind)) {
+  const normalized = op.kind === "delete" ? { ok: true as const, value: op.value } : normalizeApprovedDeckValue(op.elementId, op.value, el?.value);
+  if (!normalized.ok) return normalized;
+  const approvedValue = normalized.value;
+  if (blocksFormulaScalar(el?.value, approvedValue, author, op.kind)) {
     return { ok: false as const, reason: "formula_protected" as const };
   }
-  const policyViolation = agentWritePolicyViolation(art, op.elementId, op.value, author, op.kind);
+  const policyViolation = agentWritePolicyViolation(art, op.elementId, approvedValue, author, op.kind);
   if (policyViolation) return { ok: false as const, reason: policyViolation };
   const now = Date.now();
   const nextOrder = op.kind === "create" && !el ? [...art.order, op.elementId] : op.kind === "delete" ? art.order.filter((id) => id !== op.elementId) : art.order;
   if (op.kind === "delete") {
     if (el) await ctx.db.delete(el._id);
   } else if (el) {
-    await ctx.db.patch(el._id, { value: op.value, version: actual + 1, updatedAt: now, updatedBy: author });
+    await ctx.db.patch(el._id, { value: approvedValue, version: actual + 1, updatedAt: now, updatedBy: author });
   } else {
-    await ctx.db.insert("elements", { artifactId, elementId: op.elementId, value: op.value, version: 1, updatedAt: now, updatedBy: author });
+    await ctx.db.insert("elements", { artifactId, elementId: op.elementId, value: approvedValue, version: 1, updatedAt: now, updatedBy: author });
   }
   await ctx.db.patch(artifactId, { version: art.version + 1, updatedAt: now, order: nextOrder });
   const nextVersion = op.kind === "delete" ? actual : actual + 1;
-  const summary = op.kind === "delete" ? `${author.name} deleted ${op.elementId}` : `${author.name} set ${op.elementId} = ${formatCellForTrace(op.value)}`;
-  await ctx.db.insert("traces", { roomId, ts: now, actor: author, type: "edit_applied", summary, detail: `edit_cell - ${op.elementId} = ${formatCellForTrace(op.value)} - v${actual} -> v${nextVersion}` });
+  // Approved proposals are applied writes and must obey the same recoverability
+  // contract as direct edits. Log the bounded before-image only after every
+  // approval/CAS/policy gate above has passed; rejected or conflicted proposals
+  // still append nothing.
+  const beforeImage = versionLogSnapshot(el?.value);
+  await ctx.db.insert("elementVersions", {
+    artifactId,
+    elementId: op.elementId,
+    version: actual,
+    value: beforeImage.value,
+    truncated: beforeImage.truncated,
+    updatedBy: author,
+    kind: op.kind,
+    ts: now,
+  });
+  const summary = op.kind === "delete" ? `${author.name} deleted ${op.elementId}` : `${author.name} set ${op.elementId} = ${formatCellForTrace(approvedValue)}`;
+  await ctx.db.insert("traces", { roomId, ts: now, actor: author, type: "edit_applied", summary, detail: `edit_cell - ${op.elementId} = ${formatCellForTrace(approvedValue)} - v${actual} -> v${nextVersion}` });
   await enqueueArtifactSnapshotForOkf(ctx, { roomId, artifactId });
   return { ok: true as const, version: nextVersion };
 }
@@ -747,6 +855,14 @@ export async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) 
     if (!canReadArtifact(art, a.actor)) throw new Error("artifact_not_visible");
     const job = a.jobId ? await ctx.db.get(a.jobId) : null;
     if (a.jobId && (!job || String(job.roomId) !== String(a.roomId))) throw new Error("job_room_mismatch");
+    if (job?.request && typeof job.request === "object" && !Array.isArray(job.request)) {
+      const allowed = (job.request as { allowedElementIds?: unknown }).allowedElementIds;
+      if (Array.isArray(allowed) && allowed.some((value) => typeof value === "string" && value.length > 0)) {
+        const inArtifactScope = String(job.artifactId) === String(a.artifactId);
+        const inElementScope = allowed.includes(a.elementId);
+        if (!inArtifactScope || !inElementScope) return { ok: false as const, reason: "job_scope_violation" as const };
+      }
+    }
     const kind = a.kind ?? "set";
     // 1. LOCK gate — a held range is read-only for non-holders; P0-5 lease fencing for the holder.
     //    Kleppmann's fencing-token failure mode: TTL (5min) < slice budget (9min) means a long job's

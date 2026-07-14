@@ -182,6 +182,16 @@
   box-shadow: none;
 }
 
+.nr-app-shell .r-input-wrap:focus-within {
+  border-color: var(--nr-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--nr-accent) 42%, transparent);
+}
+
+.nr-app-shell .r-file.r-file-static:hover {
+  background: transparent;
+  border-color: transparent;
+}
+
 .nr-app-shell .r-inventory-card:hover,
 .nr-app-shell .r-file:hover {
   background: var(--nr-surface-hover);
@@ -529,6 +539,17 @@
   color: var(--text-primary);
   outline: none;
   box-shadow: var(--focus-ring);
+}
+
+.nr-app-shell .rm-cellin.r-val-pos {
+  color: var(--success-ink);
+  font-weight: 800;
+}
+
+.nr-app-shell .rm-cellin.r-val-neg {
+  color: var(--danger-ink);
+  font-weight: 800;
+  background: color-mix(in srgb, var(--danger-tint) 32%, var(--nr-surface-panel));
 }
 
 .nr-app-shell .r-sheet-bar,
@@ -1271,6 +1292,12 @@
     border-color: transparent;
   }
 
+  .nr-app-shell .r-rail .r-file.r-file-static:hover {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+  }
+
   .nr-app-shell .r-rail .r-file[data-active="true"] {
     background: transparent;
     border-color: transparent;
@@ -1324,8 +1351,9 @@
   .nr-workspace .r-binder-search,
   .nr-workspace .r-rail-search {
     height: 32px;
-    background: color-mix(in srgb, var(--nr-surface-muted) 76%, transparent);
+    background: color-mix(in srgb, var(--nr-surface-muted) 76%, var(--nr-surface-panel));
     border-color: var(--nr-line-subtle);
+    box-shadow: 0 4px 10px color-mix(in srgb, var(--nr-surface-panel) 82%, transparent);
   }
 
   .nr-workspace .r-art-body,
@@ -1484,28 +1512,49 @@
     height: 29px;
   }
 
-  .nr-workspace .r-send:not(.r-send-stop),
-  .nr-workspace .r-send:disabled:not(.r-send-stop) {
+  .nr-workspace .r-send:not(:disabled):not(.r-send-stop) {
     background: linear-gradient(180deg, var(--nr-accent), var(--nr-accent-hover));
     color: #fff;
     opacity: 1;
   }
 
+  .nr-workspace .r-send:disabled:not(.r-send-stop) {
+    background: var(--nr-surface-hover);
+    border-color: var(--nr-line-subtle);
+    color: var(--text-muted);
+    opacity: .72;
+  }
+
+  .nr-app-shell .r-msg:hover .r-msg-act,
+  .nr-app-shell .r-msg:focus-within .r-msg-act {
+    background: var(--nr-surface-panel);
+    border-color: var(--nr-line-strong);
+    color: var(--text-secondary);
+    opacity: 1;
+  }
+
   .nr-workspace .r-composer-hint {
-    max-height: 0;
-    margin-top: 0;
-    opacity: 0;
-    overflow: hidden;
-    pointer-events: none;
-    transition: max-height var(--motion-fast), margin-top var(--motion-fast), opacity var(--motion-fast);
+    max-height: 30px;
+    margin-top: 6px;
+    opacity: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    pointer-events: auto;
+    scrollbar-width: none;
   }
 
   .nr-workspace .r-composer:hover .r-composer-hint,
   .nr-workspace .r-composer:focus-within .r-composer-hint {
-    max-height: 56px;
+    max-height: 30px;
     margin-top: 6px;
     opacity: 1;
     pointer-events: auto;
+  }
+
+  .nr-workspace .r-composer-hint::-webkit-scrollbar,
+  .nr-workspace .r-composer-kbd {
+    display: none;
   }
 
   .nr-app-shell .r-chat .r-msg.fx-msg:not(.agent),
@@ -1989,13 +2038,13 @@
   }
 
   .nr-app-shell [data-testid="artifact-split-toggle"] {
-    width: 0;
-    min-width: 0;
+    width: 28px;
+    min-width: 28px;
     padding: 0;
-    border: 0;
-    opacity: 0;
-    overflow: hidden;
-    pointer-events: none;
+    border: 1px solid var(--nr-line-subtle);
+    opacity: 1;
+    overflow: visible;
+    pointer-events: auto;
   }
 
   .nr-app-shell .r-panel-head:hover [data-testid="artifact-split-toggle"] {

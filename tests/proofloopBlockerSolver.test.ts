@@ -10,6 +10,7 @@ import {
   solveProofloopBlockers,
   type ProofloopBlockerTaskLike,
 } from "../src/eval/proofloopBlockerSolver";
+import { OFFICIAL_SCORE_PREFLIGHT_COMMAND } from "../src/eval/proofloopOfficialScorePreflight";
 
 const roots: string[] = [];
 
@@ -49,10 +50,22 @@ describe("Proof Loop blocker solver", () => {
     }
 
     const modelMatrix = JSON.parse(readFileSync(join(root, ".proofloop", "lanes", "spreadsheetbench-v1", "model-matrix.json"), "utf8"));
-    expect(modelMatrix.models.map((model: { id: string }) => model.id)).toContain("deepseek/deepseek-v4-pro");
+    expect(modelMatrix.models[0]).toMatchObject({
+      id: "openrouter/free-auto",
+      provider: "openrouter",
+      costUsd: 0,
+      costAccounting: { status: "free" },
+    });
+    expect(modelMatrix.models.map((model: { id: string }) => model.id)).not.toContain("deepseek/deepseek-v4-pro");
+    expect(receipt.nextCommands[0]).toBe(OFFICIAL_SCORE_PREFLIGHT_COMMAND);
+    expect(receipt.nextCommands.some((command) => command.includes("--model openrouter/free-auto"))).toBe(true);
+
+    const costLedger = JSON.parse(readFileSync(join(root, ".proofloop", "lanes", "spreadsheetbench-v1", "cost-ledger.json"), "utf8"));
+    expect(costLedger.policy).toBe("free_first_until_official_scorer_contract");
+    expect(costLedger.models.every((model: { costUsd: number }) => model.costUsd === 0)).toBe(true);
   });
 
-  it("marks WorkstreamBench as external only after proxy-only scaffold evidence exists", () => {
+  it("keeps WorkstreamBench local-scaffold blocked now that MBABench artifacts are locked", () => {
     const root = tempRoot();
     const receipt = solveProofloopBlocker({
       root,
@@ -61,19 +74,57 @@ describe("Proof Loop blocker solver", () => {
         id: "workstreambench-official-score",
         title: "WorkstreamBench official score",
         blockers: [
-          "workstreambench: no public official task bundle lock is staged because no public official bundle/scorer/rubric URL was found.",
+          "workstreambench/MBABench: public ModelOff task bundle and scorer are locked, but no NodeRoom official-format MBABench case folders or ai_attempt.xlsx files exist.",
         ],
         evidence: [".proofloop/setup/workstreambench-local-setup.json"],
-        resumeCommand: "obtain the official WorkstreamBench task bundle and scorer/rubric from upstream",
+        resumeCommand: "generate MBABench official-format case folders",
+      },
+    });
+
+    expect(receipt.status).toBe("needs_scaffold_or_run");
+    expect(receipt.externalBlockClaimAllowed).toBe(false);
+    expect(receipt.remainingLocalClasses).toEqual(expect.arrayContaining(["missing_output_exporter"]));
+    const proxy = JSON.parse(readFileSync(join(root, ".proofloop", "lanes", "workstreambench", "proxy-score-receipt.json"), "utf8"));
+    expect(proxy.proxyOnly).toBe(false);
+    expect(proxy.officialScoreClaimable).toBe(false);
+  });
+
+  it("moves WorkstreamBench to external-blocked after local MBABench outputs are complete", () => {
+    const root = tempRoot();
+    mkdirSync(join(root, "docs", "eval", "proofloop-official-outputs"), { recursive: true });
+    writeFileSync(
+      join(root, "docs", "eval", "proofloop-official-outputs", "workstreambench.json"),
+      `${JSON.stringify({
+        schema: "proofloop-official-output-manifest-v1",
+        adapterId: "workstreambench",
+        status: "complete",
+        officialTaskCount: 38,
+        outputTaskCount: 38,
+      })}\n`,
+    );
+
+    const receipt = solveProofloopBlocker({
+      root,
+      generatedAt: "2026-07-02T00:00:00.000Z",
+      task: {
+        id: "workstreambench-official-score",
+        title: "WorkstreamBench official score",
+        blockers: [
+          "workstreambench/MBABench: public ModelOff task bundle and scorer are locked, but no NodeRoom official-format MBABench case folders or ai_attempt.xlsx files exist.",
+          "MBABench official scorer receipt is missing.",
+          "Provider judge credentials are missing.",
+        ],
+        evidence: [".proofloop/setup/workstreambench-local-setup.json"],
       },
     });
 
     expect(receipt.status).toBe("blocked_external");
     expect(receipt.externalBlockClaimAllowed).toBe(true);
-    expect(receipt.remainingExternalClasses).toEqual(expect.arrayContaining(["no_public_upstream_release"]));
-    const proxy = JSON.parse(readFileSync(join(root, ".proofloop", "lanes", "workstreambench", "proxy-score-receipt.json"), "utf8"));
-    expect(proxy.proxyOnly).toBe(true);
-    expect(proxy.officialScoreClaimable).toBe(false);
+    expect(receipt.remainingLocalClasses).not.toContain("missing_output_exporter");
+    expect(receipt.remainingExternalClasses).toEqual(expect.arrayContaining([
+      "missing_judge_credentials",
+      "missing_official_scorer",
+    ]));
   });
 
   it("solves multiple blockers and exposes compare/promote helpers", () => {
@@ -113,12 +164,13 @@ function tempRoot(): string {
   const root = mkdtempSync(join(tmpdir(), "proofloop-solver-"));
   roots.push(root);
   mkdirSync(join(root, "docs", "eval"), { recursive: true });
+  mkdirSync(join(root, "docs", "eval", "dev-audience-ready"), { recursive: true });
   writeFileSync(
-    join(root, "docs", "eval", "openrouter-top-paid-tools-snapshot.json"),
+    join(root, "docs", "eval", "dev-audience-ready", "free-first-router-cost-receipt.json"),
     `${JSON.stringify({
-      models: [
-        { id: "deepseek/deepseek-v4-pro", supportsTools: true, supportsStructuredOutputs: true },
-        { id: "z-ai/glm-5.2", supportsTools: true, supportsStructuredOutputs: true },
+      selectedFreeAutoRoutes: [
+        { id: "cohere/north-mini-code:free", name: "Cohere North Mini Code (free)", promptPrice: "0", completionPrice: "0" },
+        { id: "nvidia/nemotron-3-ultra-550b-a55b:free", name: "NVIDIA Nemotron 3 Ultra (free)", promptPrice: "0", completionPrice: "0" },
       ],
     })}\n`,
   );

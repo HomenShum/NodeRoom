@@ -88,8 +88,8 @@ function laneCountLabel(lanes: RoomWorkLane[]): string {
 }
 
 export function RoomHome({
-  roomId: _roomId,
-  me: _me,
+  roomId,
+  me,
   style,
   onOpenChat,
   onAddSheet,
@@ -97,6 +97,7 @@ export function RoomHome({
   embedded,
   artifacts,
   onOpenArtifact,
+  contextArtifactId,
 }: {
   roomId: string;
   me: Actor;
@@ -109,11 +110,18 @@ export function RoomHome({
   /** The room's real artifacts. When present, the inventory lists them instead of onboarding CTAs. */
   artifacts?: RoomHomeArtifact[];
   onOpenArtifact?: (id: string) => void;
+  /** Active workbook context carried from the work surface into direct NodeAgent runs. */
+  contextArtifactId?: string;
 }) {
   const hasArtifacts = !!artifacts && artifacts.length > 0;
   const store = useStore();
   const [command, setCommand] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<"sent" | "error" | null>(null);
+  const [submitError, setSubmitError] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const workbook = artifacts?.find((artifact) => artifact.id === contextArtifactId && artifact.kind === "sheet")
+    ?? artifacts?.find((artifact) => artifact.kind === "sheet");
 
   const lanes = (store.activeLongFreeJobs?.() ?? [])
     .map(jobToLane)
@@ -129,25 +137,49 @@ export function RoomHome({
     });
   };
 
-  const submitCommand = () => {
-    if (!command.trim()) return;
+  const submitCommand = async () => {
+    if (!command.trim() || submitting) return;
     const text = command.trim();
-    focusChat();
-    requestAnimationFrame(() => {
-      const ta = document.querySelector<HTMLTextAreaElement>('textarea[data-testid="chat-composer"]');
-      if (ta) {
-        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value")?.set;
-        nativeInputValueSetter?.call(ta, text);
-        ta.dispatchEvent(new Event("input", { bubbles: true }));
-      }
-    });
+    const goal = text.replace(/^@nodeagent\b\s*/i, "").trim();
+    if (!goal) return;
     setCommand("");
+    setSubmitting(true);
+    setSubmitStatus(null);
+    setSubmitError("");
+    try {
+      const feedback = await store.postMessage({
+        roomId,
+        channel: "public",
+        author: me,
+        text,
+        clientMsgId: crypto.randomUUID(),
+        kind: "chat",
+      });
+      if (!feedback.ok) throw new Error("The room message could not be sent.");
+      const references = workbook ? [{ id: workbook.id, title: workbook.title, kind: workbook.kind }] : undefined;
+      void store.askAgent({
+        goal,
+        references,
+        contextArtifactId: workbook?.id,
+        mode: store.creditMode?.(),
+      }).catch((error) => {
+        setSubmitStatus("error");
+        setSubmitError(error instanceof Error ? error.message : "NodeAgent could not start.");
+      }).finally(() => setSubmitting(false));
+      setSubmitStatus("sent");
+      focusChat();
+    } catch (error) {
+      setCommand(text);
+      setSubmitting(false);
+      setSubmitStatus("error");
+      setSubmitError(error instanceof Error ? error.message : "NodeAgent could not start.");
+    }
   };
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      submitCommand();
+      void submitCommand();
     }
   };
 
@@ -176,18 +208,30 @@ export function RoomHome({
             value={command}
             onChange={(e) => setCommand(e.currentTarget.value)}
             onKeyDown={handleKey}
+            disabled={submitting}
             rows={1}
           />
           <button
             className="r-room-command-send"
             data-testid="room-command-send"
-            disabled={!command.trim()}
-            onClick={submitCommand}
+            disabled={!command.trim() || submitting}
+            onClick={() => { void submitCommand(); }}
             aria-label="Send to NodeAgent"
+            aria-busy={submitting}
           >
             <Send size={15} />
           </button>
         </div>
+        {(submitting || submitStatus) && (
+          <div
+            className="r-room-command-status"
+            data-state={submitStatus === "error" ? "error" : submitting ? "running" : "sent"}
+            data-testid="room-command-status"
+            role={submitStatus === "error" ? "alert" : "status"}
+          >
+            {submitStatus === "error" ? submitError : submitting ? "NodeAgent is working in the room." : "Sent to NodeAgent."}
+          </div>
+        )}
 
         {store.creditMode && (
           <div className="r-credit-modes" data-testid="credit-mode-selector" role="group" aria-label="Research depth">
@@ -222,6 +266,11 @@ export function RoomHome({
         )}
 
         <div className="r-room-chips">
+          {workbook && (
+            <button className="r-room-chip" data-testid="room-audit-workbook" onClick={() => { setCommand("@nodeagent audit this workbook, repair formula or calculation issues, and verify every changed cell"); inputRef.current?.focus(); }}>
+              Audit workbook
+            </button>
+          )}
           <button className="r-room-chip" onClick={() => { setCommand("@nodeagent research upscaleX Palo Alto"); inputRef.current?.focus(); }}>
             Research upscaleX
           </button>

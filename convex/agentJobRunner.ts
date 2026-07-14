@@ -79,6 +79,7 @@ type ClaimedJob = {
   approvalPolicy?: "read_only" | "draft_first" | "auto_commit_safe" | "host_review";
   evidencePolicy?: "public_only" | "private_allowed" | "mixed_requires_redaction";
   traceLevel?: "summary" | "standard" | "full_operation_ledger";
+  request?: unknown;
   routePolicy?: "fast_default" | "free_auto" | "top_paid" | "explicit";
   runtimePolicy?: "workflow_sliced";
   runtimeProfile?: "benchmark_completion";
@@ -133,8 +134,21 @@ type PublicAgentJobStream = {
 
 type LiveOperationKind = "action" | "query" | "mutation" | "model_call" | "tool_call" | "scheduler" | "lease" | "checkpoint";
 
-const QUERY_TOOLS = new Set(["snapshot", "list_artifacts", "awareness", "read_range", "search_sheet_context", "fetch_source", "read_notebook"]);
+const QUERY_TOOLS = new Set(["snapshot", "list_artifacts", "awareness", "read_range", "search_sheet_context", "inspect_workbook", "verify_workbook", "fetch_source", "read_notebook"]);
 const MUTATION_TOOLS = new Set(["propose_lock", "release_lock", "edit_cell", "create_draft", "say", "update_wiki", "append_notebook_outline", "write_cell_result", "write_locked_cell", "write_locked_cell_result", "write_locked_cells", "write_locked_cell_results"]);
+const ELEMENT_SCOPED_TOOL_NAMES = new Set([...QUERY_TOOLS, "write_locked_cell"]);
+
+function hasElementMutationScope(request: unknown): boolean {
+  if (!request || typeof request !== "object" || Array.isArray(request)) return false;
+  const allowed = (request as { allowedElementIds?: unknown }).allowedElementIds;
+  return Array.isArray(allowed) && allowed.some((value) => typeof value === "string" && value.length > 0);
+}
+
+function productionToolsForJob(job: ClaimedJob) {
+  return hasElementMutationScope(job.request)
+    ? PRODUCTION_ROOM_TOOLS.filter((tool) => ELEMENT_SCOPED_TOOL_NAMES.has(tool.name))
+    : PRODUCTION_ROOM_TOOLS;
+}
 
 function envNumber(name: string, fallback: number, min: number, max: number): number {
   const raw = Number(process.env[name] ?? fallback);
@@ -420,6 +434,7 @@ export const runFreeAutoJobSlice = internalAction({
 
     const actor: Actor = { kind: "agent", id: claimed.agentId, name: claimed.agentName, scope: "public" };
     const rt = new ConvexRoomTools(ctx, claimed.roomId, claimed.artifactId, actor, String(claimed.sessionId), claimed.jobId);
+    const productionTools = productionToolsForJob(claimed);
     const roomArtifacts = await ctx.runQuery(artifactsListForRoomRef, { roomId: claimed.roomId }) as Array<{ title?: string; kind?: string; meta?: unknown; visibility?: string }>;
     const egressArtifacts = providerEgressArtifactsForClaimedJob(roomArtifacts, claimed);
     let entrypoint = runnerEntrypoint(claimed);
@@ -729,7 +744,7 @@ export const runFreeAutoJobSlice = internalAction({
           rt,
           frame: activeFrame,
           model: phaseAwareModel,
-          tools: PRODUCTION_ROOM_TOOLS,
+          tools: productionTools,
           systemPrompt: memorySystemPrompt,
           maxSteps,
           initialMessages,
@@ -760,7 +775,7 @@ export const runFreeAutoJobSlice = internalAction({
         rt,
         goal: claimed.goal,
         model,
-        tools: PRODUCTION_ROOM_TOOLS,
+        tools: productionTools,
         systemPrompt: memorySystemPrompt,
         maxSteps,
         initialMessages,

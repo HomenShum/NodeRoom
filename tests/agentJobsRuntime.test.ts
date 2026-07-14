@@ -453,6 +453,110 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.job.mode).toBe("research");
   });
 
+  it("pins element-scoped workbench asks to the explicit artifact and rejects spillover writes", async () => {
+    const { t, proof, roomId, actor } = await setupRoom({ seedElement: true, autoAllow: false });
+    const now = Date.now();
+    const slideOneId = "deck:slide:slide-1";
+    const slideTwoId = "deck:slide:slide-2";
+    const deckId = await t.run((ctx) => ctx.db.insert("artifacts", {
+      roomId,
+      kind: "note" as const,
+      title: "Diligence storyboard",
+      version: 1,
+      order: [slideOneId, slideTwoId],
+      updatedAt: now,
+      createdBy: actor,
+      visibility: "room" as const,
+      meta: { tags: ["noderoom:deck"] },
+    }));
+    const slideValue = (elementId: string, slideId: string) => ({
+      schema: 2,
+      kind: "slide",
+      objectId: elementId,
+      slideId,
+      title: `Slide ${slideId}`,
+      purpose: "Draft purpose",
+      claimIds: [],
+      sourceArtifactIds: [],
+      evidenceIds: [],
+      unresolvedGaps: [],
+      status: "draft",
+    });
+    await t.run((ctx) => Promise.all([
+      ctx.db.insert("elements", { artifactId: deckId, elementId: slideOneId, value: slideValue(slideOneId, "slide-1"), version: 1, updatedAt: now, updatedBy: actor }),
+      ctx.db.insert("elements", { artifactId: deckId, elementId: slideTwoId, value: slideValue(slideTwoId, "slide-2"), version: 1, updatedAt: now, updatedBy: actor }),
+      ctx.db.insert("artifacts", {
+        roomId,
+        kind: "sheet" as const,
+        title: "Company research",
+        version: 1,
+        order: [],
+        updatedAt: now,
+        createdBy: actor,
+        visibility: "room" as const,
+      }),
+    ]));
+
+    const started = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: "Revise this diligence and company-research storyboard slide using the verified findings.",
+      contextArtifactId: String(deckId),
+      contextArtifactRequired: true,
+      allowedElementIds: [slideOneId],
+      maxAttempts: 1,
+      routePolicy: "fast_default" as const,
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+    expect(String(detail?.job.artifactId)).toBe(String(deckId));
+    expect(detail?.job.mode).toBeUndefined();
+    expect(detail?.job.maxAttempts).toBe(1);
+    expect(detail?.job.request).toMatchObject({
+      targetArtifactId: String(deckId),
+      contextArtifactRequired: true,
+      allowedElementIds: [slideOneId],
+      mutationScope: "element_allowlist",
+    });
+
+    const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId: started.jobId, leaseId: "deck-scope", leaseMs: 60_000 });
+    expect(claimed?.request).toMatchObject({ allowedElementIds: [slideOneId] });
+    const agent = { kind: "agent" as const, id: "agent_room", name: "Room NodeAgent", scope: "public" as const };
+    const denied = await t.mutation(internal.artifacts.applyAgentCellEdit, {
+      roomId,
+      artifactId: deckId,
+      elementId: slideTwoId,
+      value: { schema: 2, kind: "slide_patch", objectId: slideTwoId, slideId: "slide-2", changes: { purpose: "Out of scope" } },
+      baseVersion: 1,
+      actor: agent,
+      jobId: started.jobId,
+    });
+    expect(denied).toEqual({ ok: false, reason: "job_scope_violation" });
+    const pending = await t.mutation(internal.artifacts.applyAgentCellEdit, {
+      roomId,
+      artifactId: deckId,
+      elementId: slideOneId,
+      value: { schema: 2, kind: "slide_patch", objectId: slideOneId, slideId: "slide-1", changes: { purpose: "Verified findings first" } },
+      baseVersion: 1,
+      actor: agent,
+      jobId: started.jobId,
+    });
+    expect(pending).toMatchObject({ ok: false, reason: "pending_approval" });
+  });
+
+  it("fails closed when a required public-ask context artifact is not visible", async () => {
+    const { t, proof, roomId } = await setupRoom({ seedElement: true });
+    await expect(t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: "Patch the selected slide only.",
+      contextArtifactId: "missing-artifact",
+      contextArtifactRequired: true,
+      allowedElementIds: ["deck:slide:missing"],
+      routePolicy: "fast_default" as const,
+    })).rejects.toThrow(/context_artifact_not_visible/);
+  });
+
   it("routes explicit Diligence memo note drafting asks to the note before research heuristics", async () => {
     const { t, proof, roomId, actor } = await setupRoom({ seedElement: true });
     const now = Date.now();

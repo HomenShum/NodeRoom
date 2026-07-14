@@ -206,8 +206,8 @@ test.describe("full modern UX release bar", () => {
     });
 
     await page.goto("/?mode=memory", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("button", { name: "NodeAgent home" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Diligence that shows its work." })).toBeVisible();
+    await expect(page.getByRole("button", { name: "NodeRoom home" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Work with AI\. Review every change\./ })).toBeVisible();
     await expect(page.getByTestId("join-room-code")).toHaveAttribute("placeholder", "ENTER CODE");
     await page.getByTestId("start-demo-room").focus();
     await expect(page.getByTestId("start-demo-room")).toBeFocused();
@@ -238,6 +238,13 @@ test.describe("full modern UX release bar", () => {
 
     await openDesktopArtifact(page, "Company research");
     const panel = page.getByTestId("artifact-panel");
+    await panel.getByTestId("grid-column-count").click();
+    const columnMenu = panel.getByRole("menu");
+    for (const column of ["summary", "funding", "source", "source2", "last researched"]) {
+      const checkbox = columnMenu.getByRole("checkbox", { name: column, exact: true });
+      if (!(await checkbox.isChecked())) await checkbox.check();
+    }
+    await panel.getByTestId("grid-column-count").click();
     const cardioRow = panel.locator(".r-research-row", { hasText: "CardioNova" });
     const statusCell = panel.locator('[data-cell-key="rc_cardionova__status"]').or(cardioRow.locator("td").nth(1)).first();
     const summaryCell = panel.locator('[data-cell-key="rc_cardionova__summary"]').or(cardioRow.locator("td").nth(3)).first();
@@ -246,10 +253,10 @@ test.describe("full modern UX release bar", () => {
     const source2Cell = panel.locator('[data-cell-key="rc_cardionova__source2"]').or(cardioRow.locator(".r-research-src")).first();
     const freshCell = panel.locator('[data-cell-key="rc_cardionova__last_researched"]').or(cardioRow.locator("td").nth(6)).first();
     await expect(statusCell).toContainText(/complete/i);
-    await expect(summaryCell).toContainText(/AI triage workflow/i);
-    await expect(fundingCell).toContainText(/Series B profile/i);
-    await expect(sourceCell).toContainText(/cardionova\.example/);
-    await expect(source2Cell).toContainText(/cardionova\.example|wikipedia|fresh/i);
+    await expect(summaryCell).toContainText(/sourced account profile with GTM fit/i);
+    await expect(fundingCell).toContainText(/Funding signal captured from sourced research/i);
+    await expect(sourceCell).toContainText(/cardionova\.com/);
+    await expect(source2Cell).toContainText(/wikipedia\.org/);
     await expect(freshCell).not.toBeEmpty();
 
     await openDesktopArtifact(page, "Q3 variance");
@@ -271,7 +278,7 @@ test.describe("full modern UX release bar", () => {
     await attachAndAssertHealth(page, testInfo, "desktop-public-agent", health);
   });
 
-  test("mobile terracotta prototype cards are operable, traceable, and overflow-safe", async ({ page }, testInfo) => {
+  test("mobile terracotta cards are operable, traceable, and overflow-safe", async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 430, height: 932 });
     await page.emulateMedia({ reducedMotion: "reduce" });
     await installUxVitals(page);
@@ -281,10 +288,10 @@ test.describe("full modern UX release bar", () => {
     const app = page.locator(".na-app");
     await expect(app).toBeVisible({ timeout: 30_000 });
     await expect(app).toHaveCSS("background-color", "rgb(251, 244, 231)");
-    await expect(page.locator(".na-roomsw .nm")).toHaveText("Q3 Diligence");
-    await expect(page.locator('[aria-label="Capture note"]')).toBeVisible();
-    await expectNoHorizontalOverflow(page, "mobile capture");
-    await page.getByRole("button", { name: "Home" }).click();
+    await expect(page.getByTestId("mobile-header")).toBeVisible();
+    await expect(page.getByTestId("mobile-room-title")).toHaveText("Q3 Diligence");
+    await expect(page.getByTestId("mobile-review-badge")).toHaveText("4");
+    await expect(page.locator(".na-preview-status, .na-preview-island, .na-preview-home-indicator")).toHaveCount(0);
     await expect(page.locator(".na-kicker").filter({ hasText: "Recents" })).toBeVisible();
     await expect(page.locator(".na-skel")).toHaveCount(0);
     await expectNoHorizontalOverflow(page, "mobile home");

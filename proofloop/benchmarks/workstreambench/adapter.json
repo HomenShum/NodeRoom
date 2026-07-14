@@ -2,8 +2,12 @@
   "schema": 1,
   "id": "workstreambench",
   "source": {
-    "name": "WorkstreamBench",
-    "paper": "https://arxiv.org/html/2605.22664v1",
+    "name": "MBABench (formerly WorkstreamBench)",
+    "paper": "https://arxiv.org/abs/2605.22664",
+    "html": "https://arxiv.org/html/2605.22664v4",
+    "repository": "https://github.com/namkoong-lab/MBABench",
+    "dataset": "https://huggingface.co/datasets/namkoong-lab/mbabench-modeloff",
+    "project": "https://mbabench.org",
     "domain": "end-to-end finance spreadsheet workstreams"
   },
   "taskLoader": "proofloop/benchmarks/workstreambench/load-tasks.ts",

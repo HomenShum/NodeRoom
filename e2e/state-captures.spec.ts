@@ -67,7 +67,7 @@ test("capture — Landing states", async ({ page }) => {
   const card = page.locator(".r-landing");
   await expect(card).toBeVisible();
   await setTheme(page, "dark");
-  await shoot(card, "landing", "default", "dark", 1860, "Single filled primary CTA (Enter the room); Join is a bordered secondary, not a second filled button. Name field present.");
+  await shoot(card, "landing", "default", "dark", 1860, "Single filled primary CTA (Try sample room); Join is a bordered secondary, not a second filled button. Display name is requested in the confirmation dialog after either action.");
   await page.locator(".r-join-inline input").focus();
   await shoot(card, "landing", "join-focus", "dark", 1860, "The code input shows a visible focus ring; the Join button stays the quieter secondary.");
   await setTheme(page, "light");
@@ -99,7 +99,7 @@ test("capture — top bar (RoomShell) states", async ({ page }) => {
   await shoot(pill, "topbar", "autoallow-off", "dark", 1860, "Auto-allow OFF: neutral track, knob to the LEFT — clearly distinct from ON.");
   // Toggle theme via the REAL button — relocated into the settings panel (design-target parity).
   // Settings is still open from the auto-allow capture; flip theme there, then close and shoot.
-  await page.getByTestId("room-tweaks").getByRole("button", { name: /theme/i }).click();
+  await page.locator('[data-testid="room-tweaks"]:visible').getByRole("button", { name: /Switch to light theme/i }).click();
   await page.getByTestId("room-settings-btn").click(); // close settings, restore the resting bar
   await page.waitForTimeout(150);
   await shoot(top, "topbar", "default", "light", 1860, "Top bar holds contrast in light theme; the icons stay legible; no invisible icons.");
@@ -110,12 +110,12 @@ test("capture — LeftRail states", async ({ page }) => {
   await enterDemoRoom(page);
   await setTheme(page, "dark");
   const rail = page.getByTestId("left-rail");
-  await shoot(rail, "leftrail", "default", "dark", 1860, "File rows (the OPEN artifact carries a persistent selected background - selection, not hover); the upload button; the inert 'Data room exports' source row is muted and must NOT look like the clickable artifact rows.");
+  await shoot(rail, "leftrail", "default", "dark", 1860, "File rows use weight plus an accent icon for the open artifact, distinct from hover without adding a boxed selected row. Lower actions remain reachable by scrolling; inert rows must not look clickable.");
   // Hover a NON-selected row (nth 0 = Agent wiki; nth 1 = Q3 variance is the OPEN/selected one).
-  await page.locator(".r-file").nth(0).hover();
-  await shoot(rail, "leftrail", "file-hover", "dark", 1860, "A non-selected file row (Agent wiki) shows a hover-fill - distinct from both the default rows and the accent-tinted SELECTED row (Q3 variance).");
-  await page.locator(".r-file-static").filter({ hasText: /Data room exports/i }).hover();
-  await shoot(rail, "leftrail", "static-hover", "dark", 1860, "The inert data-room source row does NOT highlight on hover - it stays muted. (The 'Agent wiki' row carries a persistent SELECTED background because it is the open artifact - that is selection, not hover.)");
+  await rail.getByRole("button", { name: "Agent wiki", exact: true }).first().hover();
+  await shoot(rail, "leftrail", "file-hover", "dark", 1860, "A non-selected Agent wiki row shows a hover fill, distinct from both default rows and the weight-plus-accent-icon selected Q3 variance row.");
+  await page.locator(".r-file-static").filter({ hasText: /Permissions/i }).hover();
+  await shoot(rail, "leftrail", "static-hover", "dark", 1860, "The inert Permissions row does NOT highlight on hover - it stays muted. The selected artifact keeps its persistent background because that is selection, not hover.");
   flushManifest();
 });
 
@@ -124,18 +124,20 @@ test("capture — Chat states", async ({ page }) => {
   await setTheme(page, "dark");
   const chat = publicChat(page);
   const composer = chat.getByTestId("chat-composer");
-  await shoot(chat, "chat", "composer-empty", "dark", 1860, "Empty composer with placeholder + send affordance; the send control state reflects empty input.");
+  await shoot(chat, "chat", "composer-empty", "dark", 1860, "Empty composer has a muted disabled send control. Voice and detailed hints are intentionally hidden at rest and reveal on hover or keyboard focus to preserve workspace area.");
   await composer.fill("@nodeagent diligence CardioNova");
   await shoot(chat, "chat", "composer-typed", "dark", 1860, "A typed slash-command; the send button now looks actionable.");
   await composer.fill("");
   await composer.focus();
+  await expect(chat.getByTestId("chat-send")).toBeDisabled();
+  await expect.poll(() => composer.evaluate((element) => getComputedStyle(element.closest(".r-input-wrap") as Element).boxShadow)).not.toBe("none");
   await shoot(chat, "chat", "composer-focus", "dark", 1860, "Focused EMPTY composer shows a visible focus ring (distinct from the typed state) AND a muted/disabled send button reflecting the empty input.");
-  // Send a message so we can hover OUR OWN message (which has edit/promote rights), not an agent one.
+  // Send a message so we can hover our own public message, which has copy/edit rights.
   await composer.fill("Checking CardioNova product, funding, hiring, and HIPAA gaps now.");
   await composer.press("Enter");
   await page.waitForTimeout(300);
   const mine = chat.getByTestId("chat-message").last();
-  if (await mine.count()) { await mine.hover(); await shoot(chat, "chat", "message-hover", "dark", 1860, "Hovering YOUR OWN message reveals its action controls (copy/edit/promote) at a legible size."); }
+  if (await mine.count()) { await mine.hover(); await shoot(chat, "chat", "message-hover", "dark", 1860, "Hovering your own public message reveals its Copy and Edit controls at a legible size. Promote is reserved for private-agent output moving into public chat."); }
   flushManifest();
 });
 
@@ -150,7 +152,13 @@ test("capture — Sheet cell + proposal states (Artifact)", async ({ page }) => 
   if (await addCell.count()) {
     await addCell.click();
     const input = panel.locator("input.r-cell-input");
-    if (await input.count()) { await input.fill("-12.5%"); await shoot(panel, "sheet", "cell-editing", "dark", 1860, "An editing cell shows a clearly-bordered input; a negative value previews in the danger color (sign-aware)."); await input.press("Escape"); }
+    if (await input.count()) {
+      await input.fill("-12.5%");
+      await expect(input).toHaveClass(/r-val-neg/);
+      await expect.poll(() => input.evaluate((element) => getComputedStyle(element).color)).toBe("rgb(248, 113, 113)");
+      await shoot(panel, "sheet", "cell-editing", "dark", 1860, "An editing cell shows a clearly-bordered input; a negative value previews in the danger color (sign-aware).");
+      await input.press("Escape");
+    }
   }
 
   // review mode → proposals (locked + proposal-pending + the accept/reject controls)
@@ -178,10 +186,10 @@ test("capture — Research import states (Artifact)", async ({ page }) => {
   await panel.locator(".r-btn", { hasText: /Import accounts/i }).first().click();
   const importBtn = panel.locator(".r-btn.primary", { hasText: /Import \/ update rows/i });
   await expect(importBtn).toBeVisible();
-  await shoot(panel, "research", "import-open", "dark", 1860, "The import form: the 'Import / update rows' button sits bottom-right beside the textarea at NORMAL height — it does NOT stretch to a giant orange block matching the 3-row textarea.");
+  await shoot(panel, "research", "import-open", "dark", 1860, "The import form keeps an active normal-height submit at bottom-right. Empty submit is intentionally clickable so it can explain the required format inline instead of becoming a silent dead button.");
   await importBtn.click(); // empty paste → inline explanation, not a dead disabled button
   await expect(panel.getByTestId("research-add-error")).toBeVisible();
-  await shoot(panel, "research", "import-empty-error", "dark", 1860, "Submitting an empty paste shows an inline explanation full-width below the field (no silent dead button, no layout shift of the submit).");
+  await shoot(panel, "research", "import-empty-error", "dark", 1860, "Submitting an empty paste keeps the text and active retry path, then shows a full-width inline format explanation with no silent disabled button or submit layout shift.");
   flushManifest();
 });
 

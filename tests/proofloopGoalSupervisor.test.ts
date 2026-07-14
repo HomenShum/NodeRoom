@@ -3,13 +3,20 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  devAudienceReadyGoalTasks,
+  formatProofloopGoalStatus,
   gateProofloopGoal,
   initProofloopGoal,
   officialScoresGoalTasks,
+  proofloopGoalBlockerChecklist,
   runNextProofloopGoalTask,
   superviseProofloopGoal,
   type ProofloopGoalTask,
 } from "../src/eval/proofloopGoalSupervisor";
+import {
+  OFFICIAL_SCORE_PREFLIGHT_COMMAND,
+  OFFICIAL_SCORE_PREFLIGHT_JSON,
+} from "../src/eval/proofloopOfficialScorePreflight";
 
 const tempRoots: string[] = [];
 
@@ -47,7 +54,12 @@ describe("Proof Loop goal supervisor", () => {
     const goalDir = join(root, ".proofloop", "goals", "official-scores");
     expect(existsSync(join(goalDir, "state.json"))).toBe(true);
     expect(existsSync(join(goalDir, "queue.json"))).toBe(true);
+    expect(existsSync(join(goalDir, "blocker-checklist.json"))).toBe(true);
     expect(JSON.parse(readFileSync(join(goalDir, "blockers.json"), "utf8"))).toHaveLength(0);
+    expect(JSON.parse(readFileSync(join(goalDir, "blocker-checklist.json"), "utf8"))[0]).toMatchObject({
+      taskId: "spreadsheetbench-full",
+      nextCommand: OFFICIAL_SCORE_PREFLIGHT_COMMAND,
+    });
     expect(readFileSync(join(goalDir, "ledger.jsonl"), "utf8")).toContain("task_needs_scaffold_or_run");
     expect(existsSync(join(root, ".proofloop", "lanes", "spreadsheetbench-full", "blocker-analysis.json"))).toBe(true);
 
@@ -67,7 +79,8 @@ describe("Proof Loop goal supervisor", () => {
       taskId: "spreadsheetbench-full",
       status: "needs_scaffold_or_run",
       reason: "full official bundle is not staged",
-      resumeCommand: "npm run benchmark:official:task-coverage -- --strict",
+      resumeCommand: OFFICIAL_SCORE_PREFLIGHT_COMMAND,
+      nextCommand: OFFICIAL_SCORE_PREFLIGHT_COMMAND,
     });
     expect(receipt.goals[0].tasks.find((task: { id: string }) => task.id === "spreadsheetbench-full").evidence).toContain(
       "docs/eval/official-benchmark-task-coverage.json",
@@ -75,6 +88,8 @@ describe("Proof Loop goal supervisor", () => {
     const markdown = readFileSync(exportedMarkdownPath, "utf8");
     expect(markdown).toContain("Raw `.proofloop` stores stay gitignored");
     expect(markdown).toContain("full official bundle is not staged");
+    expect(markdown).toContain("Local blocker checklist");
+    expect(formatProofloopGoalStatus(gate)).toContain("Blocker checklist:");
   });
 
   it("supervises repeatedly without treating a transcript summary as completion", () => {
@@ -94,9 +109,17 @@ describe("Proof Loop goal supervisor", () => {
     expect(readFileSync(join(root, ".proofloop", "goals", "g", "ledger.jsonl"), "utf8")).toContain("task_passed");
   });
 
-  it("defines the official-score template with BTB command work and unresolved benchmark blockers", () => {
+  it("defines the official-score template with claimable external score commands", () => {
     const tasks = officialScoresGoalTasks();
 
+    const preflight = tasks[0];
+    expect(preflight.id).toBe("official-score-free-first-preflight");
+    expect(preflight.command).toContain("free-model-gauge -- --skip-live --strict");
+    expect(preflight.command).toContain("benchmark:proofloop:official-preflight -- --strict");
+    expect(preflight.evidence).toContain(OFFICIAL_SCORE_PREFLIGHT_JSON);
+    expect(tasks.findIndex((task) => task.id === "official-score-free-first-preflight")).toBeLessThan(
+      tasks.findIndex((task) => task.id === "btb-fullsuite-official-score"),
+    );
     expect(tasks.find((task) => task.id === "btb-fullsuite-official-score")?.command).toContain("bankertoolbench:fullsuite-gate");
     expect(tasks.find((task) => task.id === "benchmark-normalization-ledger")?.command).toBe("npm run benchmark:proofloop:normalized");
     expect(tasks.find((task) => task.id === "company-task-coverage-ledger")?.command).toBe("npm run benchmark:proofloop:company-tasks");
@@ -129,14 +152,19 @@ describe("Proof Loop goal supervisor", () => {
     expect(tasks.findIndex((task) => task.id === "external-adapter-setup-doctor")).toBeLessThan(
       tasks.findIndex((task) => task.id === "external-adapter-local-product-proofs"),
     );
+    expect(tasks.findIndex((task) => task.id === "official-score-free-first-preflight")).toBeLessThan(
+      tasks.findIndex((task) => task.id === "external-adapter-local-product-proofs"),
+    );
     const spreadsheetV1 = tasks.find((task) => task.id === "spreadsheetbench-v1-full-official-score");
-    expect(spreadsheetV1?.blockers.join(" ")).toContain("912/912 tasks");
-    expect(spreadsheetV1?.blockers.join(" ")).toContain("model-run evidence");
-    expect(spreadsheetV1?.blockers.join(" ")).toContain("OpenRouter proxy judges");
-    expect(spreadsheetV1?.blockers.join(" ")).not.toContain("not staged");
+    expect(spreadsheetV1?.kind).toBe("command");
+    expect(spreadsheetV1?.command).toContain("spreadsheetbench-official-score-readiness.ts --track spreadsheetbench-v1");
+    expect(spreadsheetV1?.blockers).toEqual([]);
+    expect(spreadsheetV1?.evidence).toContain("docs/eval/spreadsheetbench-v1-official-score-readiness.json");
     const spreadsheetV2 = tasks.find((task) => task.id === "spreadsheetbench-v2-full-official-score");
-    expect(spreadsheetV2?.blockers.join(" ")).toContain("321 V2 tasks");
-    expect(spreadsheetV2?.blockers.join(" ")).toContain("proxy judges");
+    expect(spreadsheetV2?.kind).toBe("command");
+    expect(spreadsheetV2?.command).toContain("spreadsheetbench-official-score-readiness.ts --track spreadsheetbench-v2");
+    expect(spreadsheetV2?.blockers).toEqual([]);
+    expect(spreadsheetV2?.evidence).toContain("docs/eval/spreadsheetbench-v2-official-score-readiness.json");
     expect(tasks.find((task) => task.id === "external-adapter-local-product-proofs")?.command).toContain("benchmark:proofloop:external-adapter-live-room");
     expect(tasks.find((task) => task.id === "external-adapter-local-product-proofs")?.evidence.join(" ")).toContain("docs/eval/proofloop-external-adapter-live-room-runs");
     expect(tasks.find((task) => task.id === "external-adapter-blocker-receipts")?.command).toBe("npm run benchmark:proofloop:adapter-blockers");
@@ -156,25 +184,94 @@ describe("Proof Loop goal supervisor", () => {
     expect(tasks.findIndex((task) => task.id === "proofloop-chart-pack")).toBeLessThan(
       tasks.findIndex((task) => task.id === "proofloop-benchmark-board"),
     );
-    for (const id of ["finch-official-score", "finauditing-official-score", "workstreambench-official-score"]) {
-      const task = tasks.find((candidate) => candidate.id === id);
-      expect(task?.kind).toBe("external_blocker");
-      expect(task?.resumeCommand).toContain("benchmark:proofloop:adapter-blockers");
-      expect(task?.blockers.join(" ")).toContain("official scorer receipt");
-      expect(task?.evidence.join(" ")).toContain("docs/eval/proofloop-adapter-blockers");
-      expect(task?.evidence.join(" ")).toContain("docs/eval/proofloop-external-adapter-runs");
-      expect(task?.evidence.join(" ")).toContain("docs/eval/proofloop-official-scores");
-      expect(task?.resumeCommand).toContain("benchmark:proofloop:harness-economics");
-      expect(task?.blockers.join(" ")).not.toContain(".tmp/official-benchmarks");
-    }
-    const finchBlockers = tasks.find((task) => task.id === "finch-official-score")?.blockers.join(" ") ?? "";
-    expect(finchBlockers).toContain("model-output artifacts are complete");
-    expect(finchBlockers).toContain("upstream content_parts rendering");
-    expect(finchBlockers).toContain("accepted Azure judge/scorer receipt");
-    expect(tasks.find((task) => task.id === "finauditing-official-score")?.blockers.join(" ")).toContain("accepted FinMR judge path");
-    expect(tasks.find((task) => task.id === "workstreambench-official-score")?.blockers.join(" ")).toContain("scorer/rubric");
+    const finchTask = tasks.find((task) => task.id === "finch-official-score");
+    expect(finchTask?.kind).toBe("command");
+    expect(finchTask?.command).toContain("benchmark:proofloop:adapter-blockers -- --id finch --strict");
+    expect(finchTask?.blockers).toEqual([]);
+    expect(finchTask?.evidence.join(" ")).toContain("docs/eval/proofloop-official-scores/finch.json");
+    expect(finchTask?.evidence.join(" ")).toContain("docs/eval/proofloop-official-score-imports/finch.json");
+    const finAuditingTask = tasks.find((task) => task.id === "finauditing-official-score");
+    expect(finAuditingTask?.kind).toBe("command");
+    expect(finAuditingTask?.command).toContain("benchmark:proofloop:adapter-blockers -- --id finauditing --strict");
+    expect(finAuditingTask?.blockers).toEqual([]);
+    expect(finAuditingTask?.evidence.join(" ")).toContain("docs/eval/proofloop-official-scores/finauditing.json");
+    const workstreamTask = tasks.find((task) => task.id === "workstreambench-official-score");
+    expect(workstreamTask?.kind).toBe("command");
+    expect(workstreamTask?.command).toContain("benchmark:proofloop:adapter-blockers -- --id workstreambench --strict");
+    expect(workstreamTask?.blockers).toEqual([]);
+    expect(workstreamTask?.evidence.join(" ")).toContain("docs/eval/proofloop-official-scores/workstreambench.json");
     expect(tasks.find((task) => task.id === "finch-official-score")?.evidence.join(" ")).toContain("docs/eval/proofloop-official-task-bundles/finch.json");
     expect(tasks.find((task) => task.id === "finauditing-official-score")?.evidence.join(" ")).toContain("docs/eval/proofloop-official-task-bundles/finauditing.json");
+  });
+
+  it("builds a clear official-score blocker checklist with safe next commands", () => {
+    const root = tempRoot();
+    const state = initProofloopGoal({
+      root,
+      goalId: "official-scores",
+      tasks: [
+        blockerTask("finch-official-score", "accepted Finch scorer receipt is missing"),
+      ],
+    });
+
+    const checklist = proofloopGoalBlockerChecklist(state);
+    expect(checklist).toHaveLength(1);
+    expect(checklist[0]).toMatchObject({
+      taskId: "finch-official-score",
+      nextCommand: `${OFFICIAL_SCORE_PREFLIGHT_COMMAND} && npm run benchmark:proofloop:adapter-blockers -- --id finch --strict`,
+    });
+    expect(formatProofloopGoalStatus(state)).toContain("next command: npm run benchmark:proofloop:official-preflight -- --strict");
+  });
+
+  it("migrates existing official-score ledgers to require preflight before known lane tasks", () => {
+    const root = tempRoot();
+    initProofloopGoal({
+      root,
+      goalId: "official-scores",
+      tasks: [
+        commandTask("btb-fullsuite-official-score", "node -e \"process.exit(0)\""),
+        blockerTask("workstreambench-official-score", "no public official task bundle lock is staged"),
+      ],
+    });
+
+    const state = gateProofloopGoal("official-scores", { root });
+    expect(state.tasks[0].id).toBe("official-score-free-first-preflight");
+    expect(state.tasks[0].status).toBe("pending");
+    expect(state.tasks[1].id).toBe("btb-fullsuite-official-score");
+    const workstream = state.tasks.find((task) => task.id === "workstreambench-official-score");
+    expect(workstream?.kind).toBe("command");
+    expect(workstream?.command).toContain("benchmark:proofloop:adapter-blockers -- --id workstreambench --strict");
+    expect(workstream?.blockers).toEqual([]);
+    expect(JSON.parse(readFileSync(join(root, ".proofloop", "goals", "official-scores", "queue.json"), "utf8"))[0].id).toBe(
+      "official-score-free-first-preflight",
+    );
+  });
+
+  it("defines the dev-audience-ready template as cheap setup/session/router proof", () => {
+    const tasks = devAudienceReadyGoalTasks();
+
+    expect(tasks.map((task) => task.id)).toEqual([
+      "dev-doctor",
+      "dev-agent-setup",
+      "dev-native-session-smokes",
+      "dev-free-first-router-cost-guard",
+      "dev-onboarding-docs",
+    ]);
+    expect(tasks.every((task) => task.kind === "command")).toBe(true);
+    expect(tasks.find((task) => task.id === "dev-native-session-smokes")?.command).toContain("native-smokes");
+    expect(tasks.find((task) => task.id === "dev-native-session-smokes")?.title).toContain("without paid model calls");
+    expect(tasks.find((task) => task.id === "dev-free-first-router-cost-guard")?.evidence.join(" ")).toContain("proofloop-free-openrouter-nodeagent-gauge");
+    expect(tasks.find((task) => task.id === "dev-onboarding-docs")?.evidence.join(" ")).toContain("DEV_AUDIENCE_READY.md");
+
+    const root = tempRoot();
+    const state = initProofloopGoal({
+      root,
+      goalId: "dev-audience-ready",
+      template: "dev-audience-ready",
+      now: () => new Date("2026-07-09T00:00:00.000Z"),
+    });
+    expect(state.objective).toContain("intended developers and customers");
+    expect(state.tasks).toHaveLength(5);
   });
 });
 

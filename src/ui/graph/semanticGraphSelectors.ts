@@ -5,6 +5,7 @@ import type {
   SemanticGraphSelectionSection,
   SemanticGraphViewModel,
 } from "./semanticGraphTypes";
+import { rankSemanticConnectionPaths } from "./semanticGraphPaths";
 
 const section = (
   id: string,
@@ -73,13 +74,14 @@ export function selectSemanticNeighborhood(
     section("researched-companies", "Researched Companies", directNodes.filter((node) => node.kind === "company"), directEdges.filter((edge) => edge.kind === "researched")),
     section("people-agents", "People And Agents", connectedNodes.filter((node) => node.kind === "person" || node.kind === "agent_job"), connectedEdges.filter((edge) => edge.kind === "authored" || edge.kind === "updated" || edge.kind === "triggered")),
     section("evidence-sources", "Evidence And Sources", connectedNodes.filter((node) => node.kind === "evidence_fact" || node.kind === "source"), connectedEdges.filter((edge) => edge.kind === "supported_by" || edge.kind === "cited")),
+    section("deck-storyboard", "Deck Storyboard", connectedNodes.filter((node) => node.kind === "deck" || node.kind === "deck_slide" || node.kind === "deck_claim"), connectedEdges.filter((edge) => edge.kind === "belongs_to" || edge.kind === "derived_from" || edge.kind === "supported_by" || edge.kind === "reviewed")),
     section("rows-blocks", "Rows And Blocks", connectedNodes.filter((node) => node.kind === "spreadsheet_row" || node.kind === "notebook_block"), connectedEdges.filter((edge) => edge.kind === "belongs_to" || edge.kind === "mentioned_in")),
     section("trace-proposal", "Traces And Proposals", connectedNodes.filter((node) => node.kind === "trace_step" || node.kind === "proposal"), connectedEdges.filter((edge) => edge.kind === "proposed" || edge.kind === "approved" || edge.kind === "rejected" || edge.kind === "triggered")),
     section("open-questions", "Open Questions", connectedNodes.filter((node) => node.kind === "open_question"), connectedEdges.filter((edge) => edge.kind === "reviewed" || edge.kind === "blocked")),
-    section("other-context", "Other Context", directNodes.filter((node) => !["company", "person", "agent_job", "evidence_fact", "source", "spreadsheet_row", "notebook_block", "trace_step", "proposal", "open_question"].includes(node.kind)), directEdges),
+    section("other-context", "Other Context", directNodes.filter((node) => !["company", "person", "agent_job", "evidence_fact", "source", "deck", "deck_slide", "deck_claim", "spreadsheet_row", "notebook_block", "trace_step", "proposal", "open_question"].includes(node.kind)), directEdges),
   ].filter((item) => item.nodes.length > 0);
 
-  return { selected, nodeIds, edgeIds, sections };
+  return { selected, nodeIds, edgeIds, sections, paths: rankSemanticConnectionPaths(graph, selectedId, { maxHops: Math.max(2, hops + 1), maxPaths: 8 }) };
 }
 
 export function selectSemanticEdge(graph: SemanticGraphViewModel, edgeIdValue: string | null | undefined): SemanticGraphSelection {

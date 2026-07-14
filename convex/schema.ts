@@ -150,6 +150,9 @@ export default defineSchema({
     autoAllow: v.boolean(),
     status: v.union(v.literal("live"), v.literal("ended")),
     createdAt: v.number(),
+    experience: v.optional(v.union(v.literal("workspace"), v.literal("sample"))),
+    starterBackfill: v.optional(v.union(v.literal("pending"), v.literal("ready"))),
+    starterProfile: v.optional(v.union(v.literal("guided"), v.literal("scale"))),
   }).index("by_code", ["code"]),
 
   members: defineTable({

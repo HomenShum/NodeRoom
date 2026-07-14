@@ -115,6 +115,12 @@ export function providerNonRetryableReason(error: unknown): string | undefined {
   const policyReason = providerPolicyBlockedReason(error);
   if (policyReason) return policyReason;
   const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+  if (/\bProvider (?:request|stream) failed 429\b/i.test(message) && (
+    /\bfree-models-per-day(?:-[a-z0-9-]+)?\b/i.test(message) ||
+    /\bx-ratelimit-remaining\b.{0,24}["']?0\b/i.test(message)
+  )) {
+    return "provider_free_quota_exhausted";
+  }
   if (/\bProvider (?:request|stream) failed 402\b/i.test(message) || /\binsufficient credits?\b/i.test(message)) {
     return "provider_insufficient_credits";
   }

@@ -15,9 +15,11 @@ export type BenchmarkTaskCoverageTrack = {
   deterministicRunTasks: number;
   modelRunCases: number;
   modelRunAttempts: number;
+  localProxyOutputReceipts: number;
   passRate: number | null;
   allOfficialTasksStaged: boolean;
   allOfficialTasksRunWithModel: boolean;
+  allOfficialTasksHaveLocalProxyOutputReceipts: boolean;
   status: BenchmarkTaskCoverageStatus;
   evidence: string[];
   blockers: string[];
@@ -36,6 +38,7 @@ export type OfficialBenchmarkTaskCoverageReport = {
     totalDeterministicRunTasks: number;
     totalModelRunCases: number;
     totalModelRunAttempts: number;
+    totalLocalProxyOutputReceipts: number;
     strictFullCoverageReady: boolean;
   };
   policy: string[];
@@ -49,11 +52,43 @@ type StageReport = {
 };
 
 type RunReport = {
+  mode?: string;
   taskCount?: number;
   caseCount?: number;
   repeatCount?: number;
   attemptCount?: number;
   passRate?: number;
+  results?: Array<{
+    taskId?: string;
+    mode?: string;
+    candidateWorkbook?: string;
+    score?: { schema?: number; taskId?: string };
+    scorerReceipt?: { path?: string; sha256?: string; bytes?: number };
+    sidecarEvidence?: {
+      candidateManifest?: { path?: string; sha256?: string; bytes?: number };
+      agentWorkspaceManifest?: { path?: string; sha256?: string; bytes?: number };
+      editPlan?: { path?: string; sha256?: string; bytes?: number; kind?: string };
+      rawModelOutput?: { path?: string; sha256?: string; bytes?: number };
+    };
+    model?: { calls?: number };
+    error?: {
+      phase?: "candidate_generation" | "scoring";
+      message?: string;
+    };
+  }>;
+};
+
+export type ModelRunReceiptStats = {
+  cases: number;
+  attempts: number;
+  taskIds: string[];
+};
+
+type OutputReceiptReport = {
+  taskCount?: number;
+  coverage?: {
+    outputReceiptCount?: number;
+  };
 };
 
 type FullSuiteGateReceipt = {
@@ -99,6 +134,7 @@ export function buildOfficialBenchmarkTaskCoverageReport(args: {
       totalDeterministicRunTasks: sum(tracks, "deterministicRunTasks"),
       totalModelRunCases: sum(tracks, "modelRunCases"),
       totalModelRunAttempts: sum(tracks, "modelRunAttempts"),
+      totalLocalProxyOutputReceipts: sum(tracks, "localProxyOutputReceipts"),
       strictFullCoverageReady: tracks.every((track) => track.status === "complete"),
     },
     policy: [
@@ -115,9 +151,13 @@ export function buildOfficialBenchmarkTaskCoverageReport(args: {
 function spreadsheetBenchV1Full(): BenchmarkTaskCoverageTrack {
   const stage = readJson<StageReport>("docs/eval/spreadsheetbench-v1-912-stage.json");
   const copyRun = readJson<RunReport>("docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json");
+  const modelRun = readJson<RunReport>("docs/eval/spreadsheetbench-v1-912-model-run.json");
+  const outputReceipts = readJson<OutputReceiptReport>("docs/eval/spreadsheetbench-v1-912-local-proxy-output-receipts.json");
   const stagedTasks = stage?.stagedTaskCount ?? 0;
   const deterministicRunTasks = copyRun?.caseCount ?? copyRun?.taskCount ?? 0;
-  const complete = stagedTasks >= 912 && deterministicRunTasks >= 912;
+  const modelReceipts = modelRunReceiptStats(modelRun);
+  const localProxyOutputReceipts = outputReceipts?.coverage?.outputReceiptCount ?? outputReceipts?.taskCount ?? 0;
+  const complete = stagedTasks >= 912 && deterministicRunTasks >= 912 && modelReceipts.cases >= 912;
 
   return {
     id: "spreadsheetbench-v1-full-912",
@@ -129,27 +169,31 @@ function spreadsheetBenchV1Full(): BenchmarkTaskCoverageTrack {
       "https://huggingface.co/datasets/KAKA22/SpreadsheetBench",
     ],
     localScope: complete
-      ? "full public 912-task bundle staged and scored with deterministic copy-input baseline"
+      ? "full public 912-task bundle staged and scored through the isolated model runner"
       : "full public 912-task bundle evidence is incomplete",
     scannedTasks: stage?.scannedTaskCount ?? 0,
     stagedTasks,
     skippedTasks: stage?.skippedTaskCount ?? 912,
     deterministicRunTasks,
-    modelRunCases: 0,
-    modelRunAttempts: 0,
-    passRate: copyRun?.passRate ?? null,
+    modelRunCases: modelReceipts.cases,
+    modelRunAttempts: modelReceipts.attempts,
+    localProxyOutputReceipts,
+    passRate: modelRun?.passRate ?? null,
     allOfficialTasksStaged: stagedTasks >= 912,
-    allOfficialTasksRunWithModel: false,
-    status: complete ? "partial" : stagedTasks > 0 ? "partial" : "missing",
+    allOfficialTasksRunWithModel: modelReceipts.cases >= 912,
+    allOfficialTasksHaveLocalProxyOutputReceipts: localProxyOutputReceipts >= 912,
+    status: complete ? "complete" : stagedTasks > 0 ? "partial" : "missing",
     evidence: [
       "docs/eval/spreadsheetbench-v1-912-stage.json",
       "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+      "docs/eval/spreadsheetbench-v1-912-model-run.json",
+      "docs/eval/spreadsheetbench-v1-912-local-proxy-output-receipts.json",
       "docs/eval/official-benchmark-readiness.json",
     ],
     blockers: [
       ...(stagedTasks >= 912 ? [] : ["Download/lock and stage the full 912-task SpreadsheetBench V1 bundle."]),
       ...(deterministicRunTasks >= 912 ? [] : ["Run all 912 staged V1 tasks through the deterministic scorer path."]),
-      "Run all 912 tasks through the model runner or an approved chunked official-policy runner before claiming a model score.",
+      ...(modelReceipts.cases >= 912 ? [] : [`Run ${Math.max(0, 912 - modelReceipts.cases)} remaining V1 task(s) through the model runner with generated plan, candidate, and scorer receipts.`]),
     ],
   };
 }
@@ -157,9 +201,13 @@ function spreadsheetBenchV1Full(): BenchmarkTaskCoverageTrack {
 function spreadsheetBenchV1Verified(): BenchmarkTaskCoverageTrack {
   const stage = readJson<StageReport>("docs/eval/spreadsheetbench-v1-full-stage-smoke.json");
   const copyRun = readJson<RunReport>("docs/eval/spreadsheetbench-v1-copy-input-full-smoke.json");
-  const n5Run = readJson<RunReport>("docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json");
+  const modelRunPath = existsSync("docs/eval/spreadsheetbench-v1-verified-400-model-run.json")
+    ? "docs/eval/spreadsheetbench-v1-verified-400-model-run.json"
+    : "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json";
+  const modelRun = readJson<RunReport>(modelRunPath);
   const stagedTasks = stage?.stagedTaskCount ?? 0;
-  const modelRunCases = n5Run?.caseCount ?? 0;
+  const modelReceipts = modelRunReceiptStats(modelRun);
+  const modelRunCases = modelReceipts.cases;
   const complete = stagedTasks >= 400 && modelRunCases >= 400;
 
   return {
@@ -177,18 +225,20 @@ function spreadsheetBenchV1Verified(): BenchmarkTaskCoverageTrack {
     skippedTasks: stage?.skippedTaskCount ?? 400,
     deterministicRunTasks: copyRun?.taskCount ?? 0,
     modelRunCases,
-    modelRunAttempts: n5Run?.attemptCount ?? 0,
-    passRate: n5Run?.passRate ?? null,
+    modelRunAttempts: modelReceipts.attempts,
+    localProxyOutputReceipts: 0,
+    passRate: modelRun?.passRate ?? null,
     allOfficialTasksStaged: stagedTasks >= 400,
     allOfficialTasksRunWithModel: modelRunCases >= 400,
+    allOfficialTasksHaveLocalProxyOutputReceipts: false,
     status: complete ? "complete" : stagedTasks >= 400 ? "partial" : "missing",
     evidence: [
       "docs/eval/spreadsheetbench-v1-full-stage-smoke.json",
       "docs/eval/spreadsheetbench-v1-copy-input-full-smoke.json",
-      "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json",
+      modelRunPath,
     ],
     blockers: complete ? [] : [
-      `${Math.max(0, 400 - modelRunCases)} verified task(s) still need model-run evidence; current N=5 smoke covers ${modelRunCases}/400 cases.`,
+      `${Math.max(0, 400 - modelRunCases)} verified task(s) still need generated plan, candidate, and scorer receipts; current evidence covers ${modelRunCases}/400 cases.`,
       "Full verified-score promotion still needs official scoring parity, not only local workbook scoring.",
     ],
   };
@@ -198,9 +248,17 @@ function spreadsheetBenchV2Full(): BenchmarkTaskCoverageTrack {
   const stage = readJson<StageReport>("docs/eval/spreadsheetbench-v2-full-stage.json")
     ?? readJson<StageReport>("docs/eval/spreadsheetbench-v2-stage-smoke.json");
   const fullStageExists = existsSync("docs/eval/spreadsheetbench-v2-full-stage.json");
-  const run = readJson<RunReport>("docs/eval/spreadsheetbench-v2-run-smoke.json");
+  const deterministicRun = readJson<RunReport>("docs/eval/spreadsheetbench-v2-full-copy-input-run.json")
+    ?? readJson<RunReport>("docs/eval/spreadsheetbench-v2-run-smoke.json");
+  const modelRunPath = existsSync("docs/eval/spreadsheetbench-v2-321-model-run.json")
+    ? "docs/eval/spreadsheetbench-v2-321-model-run.json"
+    : "docs/eval/spreadsheetbench-v2-run-smoke.json";
+  const modelRun = readJson<RunReport>(modelRunPath);
+  const outputReceipts = readJson<OutputReceiptReport>("docs/eval/spreadsheetbench-v2-321-local-proxy-output-receipts.json");
   const stagedTasks = stage?.stagedTaskCount ?? 0;
-  const modelRunCases = run?.caseCount ?? run?.taskCount ?? 0;
+  const modelReceipts = modelRunReceiptStats(modelRun);
+  const modelRunCases = modelReceipts.cases;
+  const localProxyOutputReceipts = outputReceipts?.coverage?.outputReceiptCount ?? outputReceipts?.taskCount ?? 0;
   const complete = stagedTasks >= 321 && modelRunCases >= 321;
   const fullBundleStaged = stagedTasks >= 321;
 
@@ -217,12 +275,14 @@ function spreadsheetBenchV2Full(): BenchmarkTaskCoverageTrack {
     scannedTasks: stage?.scannedTaskCount ?? 0,
     stagedTasks,
     skippedTasks: stage?.skippedTaskCount ?? 321,
-    deterministicRunTasks: run?.taskCount ?? 0,
+    deterministicRunTasks: deterministicRun?.taskCount ?? 0,
     modelRunCases,
-    modelRunAttempts: run?.attemptCount ?? 0,
-    passRate: run?.passRate ?? null,
+    modelRunAttempts: modelReceipts.attempts,
+    localProxyOutputReceipts,
+    passRate: modelRun?.passRate ?? null,
     allOfficialTasksStaged: stagedTasks >= 321,
     allOfficialTasksRunWithModel: modelRunCases >= 321,
+    allOfficialTasksHaveLocalProxyOutputReceipts: localProxyOutputReceipts >= 321,
     status: complete ? "complete" : stagedTasks > 0 ? "partial" : "missing",
     evidence: [
       ...(fullStageExists ? [
@@ -230,7 +290,8 @@ function spreadsheetBenchV2Full(): BenchmarkTaskCoverageTrack {
         "docs/eval/spreadsheetbench-v2-full-stage.json",
       ] : []),
       "docs/eval/spreadsheetbench-v2-stage-smoke.json",
-      "docs/eval/spreadsheetbench-v2-run-smoke.json",
+      modelRunPath,
+      "docs/eval/spreadsheetbench-v2-321-local-proxy-output-receipts.json",
       "docs/eval/spreadsheetbench-chart-visual-probe.json",
     ],
     blockers: complete ? [] : [
@@ -240,6 +301,34 @@ function spreadsheetBenchV2Full(): BenchmarkTaskCoverageTrack {
       "Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable.",
     ],
   };
+}
+
+export function modelRunReceiptStats(report: RunReport | undefined): ModelRunReceiptStats {
+  const taskIds = new Set<string>();
+  let attempts = 0;
+  for (const result of report?.results ?? []) {
+    const sidecar = result.sidecarEvidence;
+    const scorerAttempted = !result.error || result.error.phase === "scoring";
+    const valid = result.mode === "model-edit-plan" &&
+      scorerAttempted &&
+      (result.model?.calls ?? 0) > 0 &&
+      Boolean(result.taskId) &&
+      Boolean(result.candidateWorkbook) &&
+      validFileReceipt(sidecar?.candidateManifest) &&
+      validFileReceipt(sidecar?.agentWorkspaceManifest) &&
+      sidecar?.editPlan?.kind === "generated" &&
+      validFileReceipt(sidecar.editPlan) &&
+      validFileReceipt(sidecar.rawModelOutput) &&
+      (validFileReceipt(result.scorerReceipt) || Boolean(result.score) || result.error?.phase === "scoring");
+    if (!valid) continue;
+    attempts += 1;
+    taskIds.add(result.taskId!);
+  }
+  return { cases: taskIds.size, attempts, taskIds: [...taskIds].sort() };
+}
+
+function validFileReceipt(receipt: { path?: string; sha256?: string; bytes?: number } | undefined): boolean {
+  return Boolean(receipt?.path && receipt.sha256 && typeof receipt.bytes === "number" && receipt.bytes > 0);
 }
 
 function bankerToolBenchFull(): BenchmarkTaskCoverageTrack {
@@ -271,9 +360,11 @@ function bankerToolBenchFull(): BenchmarkTaskCoverageTrack {
     deterministicRunTasks: 0,
     modelRunCases,
     modelRunAttempts,
+    localProxyOutputReceipts: 0,
     passRate: fullSuiteComplete ? fullSuite?.passRate ?? null : run?.passRate ?? null,
     allOfficialTasksStaged: stagedTasks >= expectedTasks,
     allOfficialTasksRunWithModel: modelRunCases >= expectedTasks,
+    allOfficialTasksHaveLocalProxyOutputReceipts: false,
     status: complete ? "complete" : stagedTasks > 0 ? "partial" : "missing",
     evidence: [
       "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
@@ -308,9 +399,11 @@ function nodeRoomMultiUserConflict(): BenchmarkTaskCoverageTrack {
     deterministicRunTasks: scenarios,
     modelRunCases: 0,
     modelRunAttempts: 0,
+    localProxyOutputReceipts: 0,
     passRate: scenarios > 0 ? passed / scenarios : null,
     allOfficialTasksStaged: complete,
     allOfficialTasksRunWithModel: complete,
+    allOfficialTasksHaveLocalProxyOutputReceipts: false,
     status: complete ? "complete" : scenarios > 0 ? "partial" : "missing",
     evidence: ["docs/eval/multi-user-coordination-proof.json", "evals/multiUserCoordinationProof.ts"],
     blockers: complete ? [] : ["Run npm run eval:multiuser-coordination -- --strict and clear every conflict scenario."],

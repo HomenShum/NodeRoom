@@ -1554,6 +1554,23 @@ function boundedMaxAttempts(requested: number | undefined, fallback: number, run
   return Math.max(1, Math.min(requested ?? fallback, maxAttemptsCeilingForRuntimeProfile(runtimeProfile)));
 }
 
+const ELEMENT_SCOPED_FRAME_TOOL_ALLOWLIST = ["snapshot", "list_artifacts", "read_range", "search_sheet_context", "write_locked_cell"];
+
+function requestAllowedElementIds(request: unknown): string[] {
+  if (!request || typeof request !== "object" || Array.isArray(request)) return [];
+  const raw = (request as { allowedElementIds?: unknown }).allowedElementIds;
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((value): value is string => typeof value === "string" && value.length > 0);
+}
+
+function normalizePublicAskAllowedElementIds(values?: string[]): string[] | undefined {
+  if (!values?.length) return undefined;
+  if (values.length > 20) throw new Error("too_many_allowed_elements");
+  const normalized = [...new Set(values.map((value) => value.trim()))];
+  if (normalized.some((value) => !value || value.length > 200)) throw new Error("invalid_allowed_element");
+  return normalized;
+}
+
 type DurableStartAgentJobArgs = {
   roomId: Id<"rooms">;
   artifactId: Id<"artifacts">;
@@ -1754,20 +1771,28 @@ async function resolvePublicAskArtifact(ctx: any, args: {
   goal: string;
   references?: Array<{ id: string; title?: string; kind?: string }>;
   contextArtifactId?: string;
+  contextArtifactRequired?: boolean;
 }) {
   const actor = await requireActorProof(ctx, args.roomId, args.requester as any);
   const rows = await ctx.db.query("artifacts").withIndex("by_room", (q: any) => q.eq("roomId", args.roomId)).collect();
   const visible = rows.filter((artifact: ArtifactAccess) => canUsePublicJobArtifact(artifact, actor));
-  if (!visible.length) return createPublicAskScratchSheet(ctx, { roomId: args.roomId, actor });
+  if (!visible.length) {
+    if (args.contextArtifactRequired) throw new Error("context_artifact_not_visible");
+    return createPublicAskScratchSheet(ctx, { roomId: args.roomId, actor });
+  }
 
   const byId = (id?: string) => visible.find((artifact: { _id: unknown }) => String(artifact._id) === String(id));
+  const active = byId(args.contextArtifactId);
+  if (args.contextArtifactRequired) {
+    if (!args.contextArtifactId || !active) throw new Error("context_artifact_not_visible");
+    return active;
+  }
   for (const ref of args.references ?? []) {
     const referenced = byId(ref.id);
     if (referenced) return referenced;
   }
 
   const title = (name: string) => visible.find((artifact: { title?: string }) => artifact.title === name);
-  const active = byId(args.contextArtifactId);
   if (goalPrefersDiligenceMemoNote(args.goal)) {
     const memo = title("Diligence memo");
     if (memo) return memo;
@@ -1871,7 +1896,10 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     // Central admission gate: every workflow-backed durable route gets the same intent classification,
     // affected-set check, blocked-job trace, and no-provider-spend fail-closed behavior.
     const intake = classifyIntakeMessage(a.goal);
-    const elementIds = (await ctx.db.query("elements").withIndex("by_artifact", (q: any) => q.eq("artifactId", a.artifactId)).collect()).map((e: any) => e.elementId);
+    const scopedElementIds = requestAllowedElementIds(a.request);
+    const elementIds = scopedElementIds.length
+      ? scopedElementIds
+      : (await ctx.db.query("elements").withIndex("by_artifact", (q: any) => q.eq("artifactId", a.artifactId)).collect()).map((e: any) => e.elementId);
     const pendingProposalRefs = (await ctx.db.query("proposals").withIndex("by_room_status", (q: any) => q.eq("roomId", a.roomId).eq("status", "pending")).collect())
       .filter((p: any) => String(p.artifactId) === String(a.artifactId))
       .map((p: any) => (p.op as { elementId?: string } | null)?.elementId)
@@ -2027,7 +2055,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
           "Mark unsupported claims as needs_review instead of guessing.",
         ],
       },
-      toolAllowlist: FRAME_TOOL_ALLOWLIST.execute,
+      toolAllowlist: requestAllowedElementIds(a.request).length ? ELEMENT_SCOPED_FRAME_TOOL_ALLOWLIST : FRAME_TOOL_ALLOWLIST.execute,
       createdAt: now,
       updatedAt: now,
     }));
@@ -2115,6 +2143,8 @@ export const startPublicAsk = mutation({
     goal: v.string(),
     references: v.optional(v.array(publicAskReferenceV)),
     contextArtifactId: v.optional(v.string()),
+    contextArtifactRequired: v.optional(v.boolean()),
+    allowedElementIds: v.optional(v.array(v.string())),
     routePolicy: v.optional(routePolicyV),
     modelPolicy: v.optional(v.string()),
     runtimeProfile: v.optional(runtimeProfileV),
@@ -2122,6 +2152,12 @@ export const startPublicAsk = mutation({
   },
   handler: async (ctx, a): Promise<DurableStartAgentJobResult> => {
     const artifact = await resolvePublicAskArtifact(ctx, a);
+    const allowedElementIds = normalizePublicAskAllowedElementIds(a.allowedElementIds);
+    if (allowedElementIds?.length) {
+      const rows = await ctx.db.query("elements").withIndex("by_artifact", (q: any) => q.eq("artifactId", artifact._id)).collect();
+      const existing = new Set(rows.map((row: { elementId: string }) => row.elementId));
+      if (allowedElementIds.some((elementId) => !existing.has(elementId))) throw new Error("target_element_not_found");
+    }
     const policy = await derivePublicStartPolicy(ctx, {
       roomId: a.roomId,
       artifactId: artifact._id as Id<"artifacts">,
@@ -2141,6 +2177,9 @@ export const startPublicAsk = mutation({
         commandText: a.goal,
         references: a.references,
         contextArtifactId: a.contextArtifactId,
+        contextArtifactRequired: a.contextArtifactRequired,
+        allowedElementIds,
+        mutationScope: allowedElementIds?.length ? "element_allowlist" : undefined,
         source: "public_chat",
         runtimeProfile: a.runtimeProfile,
       },
@@ -2368,7 +2407,14 @@ export const cancel = mutation({
       return { ok: false as const, reason: "terminal" as const };
     }
     const now = Date.now();
-    if (job.workflowId) await cancelWorkflow(ctx, components.workflow, job.workflowId as never);
+    if (job.workflowId) {
+      try {
+        await cancelWorkflow(ctx, components.workflow, job.workflowId as never);
+      } catch {
+        // The workflow may settle between the click and this mutation. The job
+        // row and lease fence remain the cancellation authority.
+      }
+    }
     const activeLeases = await ctx.db.query("agentLeases").withIndex("by_job_status", (q) => q.eq("jobId", jobId).eq("status", "active")).collect();
     for (const lease of activeLeases) await ctx.db.patch(lease._id, { status: "released", releasedAt: now });
     const frameFinish = await setReasoningFramesForSliceFinish(ctx, { jobId, status: "cancelled", now });
@@ -2744,6 +2790,7 @@ export const claimSlice = internalMutation({
       approvalPolicy: job.approvalPolicy,
       evidencePolicy: job.evidencePolicy,
       traceLevel: job.traceLevel,
+      request: job.request,
       routePolicy: job.routePolicy,
       runtimePolicy: job.runtimePolicy,
       runtimeProfile: job.runtimeProfile,

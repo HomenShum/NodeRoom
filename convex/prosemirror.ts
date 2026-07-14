@@ -30,13 +30,23 @@ import { mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import type { DataModel, Id } from "./_generated/dataModel";
 import { ProsemirrorSync } from "@convex-dev/prosemirror-sync";
+import { getSchema } from "@tiptap/core";
+import type { Node as PmNode, Schema } from "@tiptap/pm/model";
+import { Transform } from "@tiptap/pm/transform";
 import { actorProofV, productionIdentityRequired, requireActorProof, requireArtifactInRoom, sha256Hex, type ActorValue } from "./lib";
 import { emptyNotebookDoc, legacyDocValueToPmJson } from "../src/notebook/seed";
+import { NOTEBOOK_EXTENSIONS } from "../src/notebook/extensions";
 
 const NOTEBOOK_ELEMENT_ID = "doc";
 type DbCtx = QueryCtx | MutationCtx;
 
 export const prosemirrorSync = new ProsemirrorSync<string>(components.prosemirrorSync);
+let cachedNotebookSchema: Schema | null = null;
+
+function notebookSchema(): Schema {
+  if (!cachedNotebookSchema) cachedNotebookSchema = getSchema(NOTEBOOK_EXTENSIONS);
+  return cachedNotebookSchema;
+}
 
 function actorOwnsArtifact(a: { createdBy?: ActorValue }, actor: ActorValue): boolean {
   if (!a.createdBy) return false;
@@ -186,7 +196,39 @@ export async function ensureNotebookDocCore(
     .withIndex("by_room_artifact_element", (q) =>
       q.eq("roomId", roomId).eq("artifactId", artifactId).eq("elementId", NOTEBOOK_ELEMENT_ID))
     .unique();
-  if (existing) return { prosemirrorDocId: existing.prosemirrorDocId, created: false };
+  if (existing) {
+    const legacyValue = (await ctx.db
+      .query("elements")
+      .withIndex("by_artifact", (q) => q.eq("artifactId", artifactId).eq("elementId", NOTEBOOK_ELEMENT_ID))
+      .unique())?.value;
+    const seeded = legacyDocValueToPmJson(legacyValue);
+    if (seeded) {
+      const schema = notebookSchema();
+      const seededDoc = schema.nodeFromJSON(seeded);
+      let repaired = false;
+      await prosemirrorSync.transform(ctx, existing.prosemirrorDocId, schema, (doc: PmNode) => {
+        const isEmptyBaseline = doc.childCount === 1
+          && doc.firstChild?.type.name === "paragraph"
+          && doc.textContent.trim().length === 0;
+        if (!isEmptyBaseline || seededDoc.textContent.trim().length === 0) return null;
+        const tr = new Transform(doc);
+        tr.replaceWith(0, doc.content.size, seededDoc.content);
+        repaired = tr.steps.length > 0;
+        return repaired ? tr : null;
+      });
+      if (repaired) {
+        await ctx.db.insert("traces", {
+          roomId,
+          ts: Date.now(),
+          actor,
+          type: "notebook_seeded_from_legacy",
+          summary: "Notebook empty baseline repaired from existing note content",
+          detail: `artifact=${String(artifactId)} - legacy elements[\"doc\"] restored before agent read`,
+        });
+      }
+    }
+    return { prosemirrorDocId: existing.prosemirrorDocId, created: false };
+  }
   const docId = newNotebookDocId();
   const visibility = (art.visibility ?? "room") as "private" | "room" | "public";
   const ownerId = art.createdBy && art.createdBy.kind === "user" ? art.createdBy.id : undefined;

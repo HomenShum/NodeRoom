@@ -9,8 +9,8 @@ test("SSR fallback Create a room CTA routes to live create, not memory demo", as
     const create = page.locator(".nr-ssr-button", { hasText: "Create a room" });
     await expect(create).toBeVisible();
     const href = await create.getAttribute("href");
-    expect(href).toContain("create=1");
-    expect(href).toContain("surface=desktop");
+    expect(href).toContain("intent=create");
+    expect(href).not.toContain("surface=desktop");
     expect(href).not.toContain("mode=memory");
   } finally {
     await context.close();
@@ -28,6 +28,8 @@ test("artifact Export XLSX produces a real workbook download", async ({ page }, 
   });
   const roomCode = `NRQA${Date.now().toString(36).toUpperCase().slice(-8)}`.slice(0, 12);
   await page.goto(`/?demo=${roomCode}&surface=desktop&name=QA`, { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("sample-room-submit")).toBeVisible({ timeout: 30_000 });
+  await page.getByTestId("sample-room-submit").click();
   await expect(page.getByTestId("artifact-panel")).toBeVisible({ timeout: 45_000 });
   const q3 = page.getByTestId("left-rail").getByRole("button", { name: /Q3 variance/i }).first();
   if (await q3.isVisible().catch(() => false)) {
@@ -47,4 +49,5 @@ test("artifact Export XLSX produces a real workbook download", async ({ page }, 
   expect(bytes.length).toBeGreaterThan(0);
   expect(bytes[0]).toBe(0x50);
   expect(bytes[1]).toBe(0x4b);
+  await expect(page.getByTestId("artifact-export-xlsx-status")).toContainText(/Downloaded .*\.xlsx .* rows .* bytes/i);
 });

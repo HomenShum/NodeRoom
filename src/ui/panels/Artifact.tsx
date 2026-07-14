@@ -4,9 +4,9 @@
  * component renders the in-memory engine OR live Convex (optimistic edits).
  */
 
-import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { useEditor, EditorContent, EditorProvider } from "@tiptap/react";
-import { Extension } from "@tiptap/core";
+import { Fragment, Suspense, lazy, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEditor, useCurrentEditor, EditorContent, EditorProvider } from "@tiptap/react";
+import { Extension, type Editor } from "@tiptap/core";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
 import type { Node as PmDocNode } from "@tiptap/pm/model";
@@ -25,8 +25,6 @@ import {
 import { useStore, type ActorProof, type RoomStore, type EditFeedback, type PresenceClaim } from "../../app/store";
 import { columnLetters } from "../../app/spreadsheetIndex";
 import { onStageFocus, focusStage, type StageFocusTarget } from "../stageFocus";
-import { TraceSurface } from "./TraceSurface";
-import { KnowledgeGraph } from "./KnowledgeGraph";
 import { TodaysBrief } from "./TodaysBrief";
 import { classifyEvidence } from "../traceLens/evidence";
 import type { Actor, Artifact as Art, CellEvidence, CellPayload, DataframeColumn, DocumentParseMeta, Proposal, TraceEvent, ResearchRowInput } from "../../engine/types";
@@ -39,6 +37,11 @@ import { prepareDownstreamDrafts, type PreparedDownstreamDraft } from "../../nod
 import { isWorkbookPreviewDoc, workbookPreviewArtifactFromDataUrl } from "./workbookFilePreview";
 import { isOfficePreviewDoc, officePreviewFromDataUrl, type OfficePreview } from "./officeFilePreview";
 import { RoomHome } from "../room/RoomHome";
+import { buildNotebookPatchDiff, notebookPatchValueText, type NotebookPatchDiff } from "../workArtifacts/notebookPatchDiff";
+
+const TraceSurface = lazy(() => import("./TraceSurface").then((m) => ({ default: m.TraceSurface })));
+const KnowledgeGraph = lazy(() => import("./KnowledgeGraph").then((m) => ({ default: m.KnowledgeGraph })));
+const WorkArtifactsPanel = lazy(() => import("../workArtifacts/WorkArtifactsPanel").then((m) => ({ default: m.WorkArtifactsPanel })));
 
 /** Downstream handoff destinations → compact icon + short label (replaces 5 wide ghost buttons). */
 const HANDOFF_ICONS: Record<string, LucideIcon> = { gmail: Mail, notion: FileText, slack: Hash, linear: Layers, linkedin: Linkedin };
@@ -48,7 +51,7 @@ const WIKI_TITLE = "Agent wiki";
 const RESEARCH_TITLE = "Company research";
 const BRIEF_TITLE = "Today's Brief";
 const MAX_OPEN_TABS = 12; // BOUND: cap open work-surface tabs (agent loops can churn artifacts); evict oldest.
-const MAX_VISIBLE_FILE_TABS = 4;
+const MAX_VISIBLE_FILE_TABS = 2;
 const GENERIC_SHEET_CELL_WINDOW = 5_000;
 const SCALE_SHEET_RENDER_WINDOW = 23;
 /** Fixed row height (px) the generic/scale sheet renders at default density — the single
@@ -157,18 +160,33 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   const [tab, setTab] = useState<TabId>(() => tabForArt(artId));
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const tabMenuRef = useRef<HTMLDetailsElement>(null);
+  const tabStripRef = useRef<HTMLDivElement>(null);
   const [traceOpen, setTraceOpen] = useState(false);
   // Home is a persistent pinned pseudo-tab (primary surface only) — like Trace, it overlays the
   // work surface with the Room Home command center (inventory + work lanes) without disturbing openIds.
   const [homeOpen, setHomeOpen] = useState(false);
+  // Read-only proof bundle: a unified view over room artifacts, proposals, traces, graph, decks,
+  // and exports. It adapts existing state; it does not own mutations.
+  const [workArtifactsOpen, setWorkArtifactsOpen] = useState(false);
   // Knowledge graph: a derived node-link view of how this room's artifacts reference each other.
   const [graphOpen, setGraphOpen] = useState(false);
   const [editErr, setEditErr] = useState<string | null>(null);
   const [exportBusy, setExportBusy] = useState(false);
   const [exportErr, setExportErr] = useState<string | null>(null);
+  const [exportOk, setExportOk] = useState<string | null>(null);
   useEffect(() => { if (!editErr) return; const t = setTimeout(() => setEditErr(null), 4000); return () => clearTimeout(t); }, [editErr]);
   useEffect(() => { if (!exportErr) return; const t = setTimeout(() => setExportErr(null), 6000); return () => clearTimeout(t); }, [exportErr]);
+  useEffect(() => { if (!exportOk) return; const t = setTimeout(() => setExportOk(null), 6000); return () => clearTimeout(t); }, [exportOk]);
   useEffect(() => { setTab(tabForArt(artId)); }, [artId, wiki?.id, sheet?.id, research?.id, note?.id, wall?.id, arts.length]);
+  useEffect(() => {
+    const strip = tabStripRef.current;
+    const active = strip?.querySelector<HTMLElement>('.r-tab[data-active="true"]');
+    if (!strip || !active) return;
+    const start = active.offsetLeft;
+    const end = start + active.offsetWidth;
+    if (start < strip.scrollLeft) strip.scrollLeft = start;
+    else if (end > strip.scrollLeft + strip.clientWidth) strip.scrollLeft = end - strip.clientWidth;
+  }, [artId, traceOpen, homeOpen, workArtifactsOpen, graphOpen]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.key.toLowerCase() !== "z") return;
@@ -236,7 +254,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
     const visibleIds = new Set(visibleOpenTabArts.map((a) => a.id));
     overflowTabArts = openTabArts.filter((a) => !visibleIds.has(a.id));
   }
-  const overflowActive = !traceOpen && !homeOpen && !graphOpen && overflowTabArts.some((a) => a.id === artId);
+  const overflowActive = !traceOpen && !homeOpen && !workArtifactsOpen && !graphOpen && overflowTabArts.some((a) => a.id === artId);
   // Inline rename (double-click / F2) — replaces the window.prompt modal, honoring the same
   // inline-not-modal standard we hold cells to. Enter commits, Esc cancels; auto-saves via setArtifactMeta.
   const renameArtifact = (a: Art) => setRenamingId(a.id);
@@ -263,8 +281,10 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
     if (!sheet || exportBusy) return;
     setExportBusy(true);
     setExportErr(null);
+    setExportOk(null);
     try {
-      await exportSheetAsXlsx(sheet, surfaceRef.current, arts);
+      const receipt = await exportSheetAsXlsx(sheet, surfaceRef.current, arts);
+      setExportOk(`Downloaded ${receipt.fileName} · ${receipt.rowCount.toLocaleString()} rows · ${receipt.sheetCount} sheet${receipt.sheetCount === 1 ? "" : "s"} · ${receipt.byteCount.toLocaleString()} bytes · ${receipt.at}`);
     } catch (error) {
       console.error("XLSX export failed", error);
       setExportErr("XLSX export failed");
@@ -276,16 +296,16 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   return (
     <div className="r-panel artifact nr-panel nr-panel--artifact nr-panel--work" ref={surfaceRef} style={style} data-testid={surfaceKey === "secondary" ? "artifact-panel-secondary" : "artifact-panel"}>
       <div className="r-panel-head">
-        <div className="r-tabs fx-tabs" data-testid={surfaceKey === "secondary" ? "artifact-tabs-secondary" : "artifact-tabs"}>
+        <div ref={tabStripRef} className="r-tabs fx-tabs" data-testid={surfaceKey === "secondary" ? "artifact-tabs-secondary" : "artifact-tabs"}>
           {/* Home is a pinned, non-closeable pseudo-tab: the room command center is always one click away. */}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab fx-tab r-hometab" data-active={String(homeOpen)} data-testid="home-tab" title="Room Home — command center, inventory, and work lanes" onClick={() => { setHomeOpen(true); setTraceOpen(false); setGraphOpen(false); }}>
+            <button type="button" className="r-tab fx-tab r-hometab" data-active={String(homeOpen)} data-testid="home-tab" title="Room Home — command center, inventory, and work lanes" onClick={() => { setHomeOpen(true); setWorkArtifactsOpen(false); setTraceOpen(false); setGraphOpen(false); }}>
               <Home size={13} /> Home
             </button>
           )}
           {openIds
             ? visibleOpenTabArts.map((a) => (
-                <button key={a.id} className="r-tab fx-tab r-filetab" data-active={String(!traceOpen && !homeOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setGraphOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
+                <button key={a.id} className="r-tab fx-tab r-filetab" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(false); setGraphOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
                   {tabIcon(a)}
                   {renamingId === a.id ? (
                     <input className="r-filetab-rename" defaultValue={a.title} autoFocus aria-label="Rename file"
@@ -302,7 +322,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
                 </button>
               ))
             : TABS.filter((t) => artFor(t.id)).map((t) => (
-                <button key={t.id} className="r-tab fx-tab" data-active={String(!traceOpen && !homeOpen && !graphOpen && activeTab === t.id)} onClick={() => { pick(t.id); setTraceOpen(false); setHomeOpen(false); setGraphOpen(false); }}>
+                <button key={t.id} className="r-tab fx-tab" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !graphOpen && activeTab === t.id)} onClick={() => { pick(t.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(false); setGraphOpen(false); }}>
                   <t.Icon size={13} /> {t.label}
                 </button>
               ))}
@@ -313,24 +333,28 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
               </summary>
               <div className="r-tab-overflow-menu" role="menu">
                 {openTabArts.map((a) => (
-                  <button key={a.id} type="button" role="menuitem" className="r-tab-overflow-item" data-active={String(!traceOpen && !homeOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setGraphOpen(false); tabMenuRef.current?.removeAttribute("open"); }}>{tabIcon(a)} <span>{a.title}</span></button>
+                  <button key={a.id} type="button" role="menuitem" className="r-tab-overflow-item" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(false); setGraphOpen(false); tabMenuRef.current?.removeAttribute("open"); }}>{tabIcon(a)} <span>{a.title}</span></button>
                 ))}
               </div>
             </details>
           )}
+          {surfaceKey !== "secondary" && (
+            <button type="button" className="r-tab fx-tab r-artifact-bundletab" data-active={String(workArtifactsOpen)} data-testid="work-artifacts-tab" title="Room proof bundle — artifacts, proposals, traces, graph, and exports" onClick={() => { setWorkArtifactsOpen(true); setHomeOpen(false); setTraceOpen(false); setGraphOpen(false); }}>
+              <Package size={13} /> Artifacts
+            </button>
+          )}
           {/* Trace is a pinned work-surface tab alongside the artifacts (agent + QA provenance). */}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab fx-tab r-tracetab" data-active={String(traceOpen)} data-testid="trace-tab" title="Agent + QA trace records" onClick={() => { setTraceOpen(true); setHomeOpen(false); setGraphOpen(false); }}>
+            <button type="button" className="r-tab fx-tab r-tracetab" data-active={String(traceOpen)} data-testid="trace-tab" title="Agent + QA trace records" onClick={() => { setTraceOpen(true); setHomeOpen(false); setWorkArtifactsOpen(false); setGraphOpen(false); }}>
               <Activity size={13} /> Run trace
             </button>
           )}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab fx-tab r-graphtab" data-active={String(graphOpen)} data-testid="graph-tab" title="Knowledge graph — how this room's artifacts reference each other" onClick={() => { setGraphOpen(true); setHomeOpen(false); setTraceOpen(false); }}>
+            <button type="button" className="r-tab fx-tab r-graphtab" data-active={String(graphOpen)} data-testid="graph-tab" title="Knowledge graph — how this room's artifacts reference each other" onClick={() => { setGraphOpen(true); setHomeOpen(false); setWorkArtifactsOpen(false); setTraceOpen(false); }}>
               <Share2 size={13} /> Entity graph
             </button>
           )}
         </div>
-        <span className="grow" />
         {headerExtra}
         {activeTab === "sheet" && sheet && (
           <button
@@ -347,9 +371,9 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
             {exportBusy ? "Preparing..." : "Export XLSX"}
           </button>
         )}
-        {activeTab === "sheet" && sheet && (exportBusy || exportErr) && (
+        {activeTab === "sheet" && sheet && (exportBusy || exportErr || exportOk) && (
           <span className="r-export-status" role={exportErr ? "alert" : "status"} data-testid="artifact-export-xlsx-status">
-            {exportBusy ? "Building workbook" : exportErr}
+            {exportBusy ? "Building workbook" : exportErr ?? exportOk}
           </span>
         )}
         {canToggleVis ? (
@@ -378,12 +402,21 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
           embedded
           onOpenChat={onOpenChat}
           artifacts={arts.map((a) => ({ id: a.id, title: a.title, kind: a.kind, updatedAt: a.updatedAt, owner: a.createdBy?.name, visibility: a.visibility }))}
+          contextArtifactId={selected?.kind === "sheet" ? selected.id : sheet?.id}
           onOpenArtifact={(id) => { onArt(id); setHomeOpen(false); }}
         />
       ) : traceOpen ? (
-        <TraceSurface roomId={roomId} onOpenSource={openTraceSource} />
+        <Suspense fallback={<ArtifactAuxSurfaceFallback />}>
+          <TraceSurface roomId={roomId} onOpenSource={openTraceSource} />
+        </Suspense>
+      ) : workArtifactsOpen ? (
+        <Suspense fallback={<ArtifactAuxSurfaceFallback />}>
+          <WorkArtifactsPanel roomId={roomId} me={me} onOpenArtifact={(id) => { onArt(id); setWorkArtifactsOpen(false); }} />
+        </Suspense>
       ) : graphOpen ? (
-        <KnowledgeGraph roomId={roomId} onOpenArtifact={(id) => { onArt(id); setGraphOpen(false); }} />
+        <Suspense fallback={<ArtifactAuxSurfaceFallback />}>
+          <KnowledgeGraph roomId={roomId} onOpenArtifact={(id) => { onArt(id); setGraphOpen(false); }} />
+        </Suspense>
       ) : (
         <>
           {editErr && <div className="r-art-error" role="alert"><AlertTriangle size={13} /> {editErr}</div>}
@@ -400,7 +433,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
         </>
       )}
 
-      {!traceOpen && !graphOpen && activeTab !== "note" && (
+      {!traceOpen && !workArtifactsOpen && !graphOpen && activeTab !== "note" && (
         <TraceStrip
           roomId={roomId}
           me={me}
@@ -409,6 +442,10 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
       )}
     </div>
   );
+}
+
+function ArtifactAuxSurfaceFallback() {
+  return <div className="r-empty" role="status">Loading...</div>;
 }
 
 /**
@@ -429,7 +466,7 @@ function makeBlankRoomCode(): string {
  * Serves two roles: the blank-room landing (0 artifacts) AND the pinned Home tab in a
  * populated room (embedded, with the real artifact inventory). Replaces the old BlankRoomState.
  */
-function RoomHomeSurface({ roomId, me, style, onOpenChat, embedded, artifacts, onOpenArtifact }: { roomId: string; me: Actor; style?: CSSProperties; onOpenChat?: () => void; embedded?: boolean; artifacts?: { id: string; title: string; kind: string }[]; onOpenArtifact?: (id: string) => void }) {
+function RoomHomeSurface({ roomId, me, style, onOpenChat, embedded, artifacts, onOpenArtifact, contextArtifactId }: { roomId: string; me: Actor; style?: CSSProperties; onOpenChat?: () => void; embedded?: boolean; artifacts?: { id: string; title: string; kind: string }[]; onOpenArtifact?: (id: string) => void; contextArtifactId?: string }) {
   const store = useStore();
   const [busy, setBusy] = useState(false);
   const addSheet = async () => {
@@ -460,6 +497,7 @@ function RoomHomeSurface({ roomId, me, style, onOpenChat, embedded, artifacts, o
       embedded={embedded}
       artifacts={artifacts}
       onOpenArtifact={onOpenArtifact}
+      contextArtifactId={contextArtifactId}
     />
   );
 }
@@ -742,6 +780,14 @@ function coColor(name: string): string {
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
   return CO_COLORS[h % CO_COLORS.length];
 }
+function coAvatarStyle(name: string): { background: string; color: string } {
+  const background = coColor(name);
+  const channels = background.slice(1).match(/.{2}/g)?.map((hex) => Number.parseInt(hex, 16) / 255) ?? [0, 0, 0];
+  const luminance = channels
+    .map((channel) => channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4)
+    .reduce((sum, channel, index) => sum + channel * [0.2126, 0.7152, 0.0722][index], 0);
+  return { background, color: luminance > 0.179 ? "#101317" : "#fff" };
+}
 function coInitials(name: string): string {
   const parts = name.replace(/[^A-Za-z0-9 ]/g, "").split(/\s+/).filter(Boolean);
   if (!parts.length) return "?";
@@ -905,7 +951,7 @@ export function Research({ roomId, me, art }: { roomId: string; me: Actor; art: 
                     onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setExpanded(open ? null : rid); } }}>
                     <td className="r-research-co frozen" title={cell(rid, "company")}>
                       <span className="r-co">
-                        <span className="r-co-av" aria-hidden="true" style={{ background: coColor(cell(rid, "company") || rid) }}>{coInitials(cell(rid, "company") || rid)}</span>
+                        <span className="r-co-av" aria-hidden="true" style={coAvatarStyle(cell(rid, "company") || rid)}>{coInitials(cell(rid, "company") || rid)}</span>
                         <span className="r-co-name">{cell(rid, "company") || rid}</span>
                       </span>
                     </td>
@@ -1135,7 +1181,7 @@ function EditableCell({ value, disabled, align, onCommit, addLabel, onEditStart,
   if (disabled) return value ? <span className={valueClass(value)}>{value}</span> : <span className="nullcell">—</span>;
   if (editing) {
     return (
-      <input className="r-cell-input rm-cellin" autoFocus value={draft} style={align === "right" ? { textAlign: "right" } : undefined}
+      <input className={`r-cell-input rm-cellin ${valueClass(draft)}`} autoFocus value={draft} style={align === "right" ? { textAlign: "right" } : undefined}
         onChange={(e) => setDraft(e.target.value)}
         onBlur={() => { setEditing(false); onEditEnd?.(); if (draft.trim() !== value) onCommit(draft.trim()); }}
         onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); if (e.key === "Escape") { setDraft(value); setEditing(false); onEditEnd?.(); } }} />
@@ -1768,7 +1814,7 @@ function renderGenericCellContent(col: string, value: string): ReactNode {
   if (isGenericOwnerColumn(col)) {
     return (
       <span className="r-owner-chip fx-owner" data-testid="grid-owner-chip" title={trimmed}>
-        <span className="r-owner-avatar" aria-hidden="true" style={{ background: coColor(trimmed) }}>{coInitials(trimmed)}</span>
+        <span className="r-owner-avatar" aria-hidden="true" style={coAvatarStyle(trimmed)}>{coInitials(trimmed)}</span>
         <span className="r-owner-name">{trimmed}</span>
       </span>
     );
@@ -1793,6 +1839,131 @@ function renderGenericCellContent(col: string, value: string): ReactNode {
   return <span className={"r-cell-value" + (urlLike ? " r-cell-url" : "")} title={trimmed}>{trimmed}</span>;
 }
 
+function GenericResearchWorkflow({ roomId, me, art, rows, activeRowId }: {
+  roomId: string;
+  me: Actor;
+  art: Art;
+  rows: string[];
+  activeRowId?: string;
+}) {
+  const store = useStore();
+  const [running, setRunning] = useState(false);
+  const [pasteOpen, setPasteOpen] = useState(false);
+  const [pasteText, setPasteText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [pasteError, setPasteError] = useState<string | null>(null);
+  const [requeueError, setRequeueError] = useState<string | null>(null);
+  const [handoffStatus, setHandoffStatus] = useState<string | null>(null);
+  const cell = (rowId: string, columnId: string) => displayCellValue(art.elements[sheetElementId(art, rowId, columnId)]?.value);
+  const pending = rows.filter((rowId) => (cell(rowId, "status") || "pending") === "pending").length;
+  const complete = rows.filter((rowId) => cell(rowId, "status") === "complete").length;
+  const draftRowId = activeRowId && rows.includes(activeRowId)
+    ? activeRowId
+    : rows.find((rowId) => cell(rowId, "status") === "complete");
+  const draftCompany = draftRowId ? cell(draftRowId, "company") || draftRowId : null;
+  const downstreamDrafts = draftRowId
+    ? prepareDownstreamDrafts({
+      title: `${draftCompany || draftRowId} diligence`,
+      summary: cell(draftRowId, "summary") || `${draftCompany || draftRowId} is ready for downstream follow-up.`,
+      bullets: [cell(draftRowId, "funding"), cell(draftRowId, "headcount"), cell(draftRowId, "recent_signal")].filter(Boolean),
+      artifactUrl: typeof window !== "undefined" ? `${window.location.href.split("#")[0]}#artifact=${art.id}&row=${draftRowId}` : undefined,
+    })
+    : [];
+
+  const run = async () => {
+    setRunning(true);
+    try { await store.askResearch(); } finally { setRunning(false); }
+  };
+  const addRows = async () => {
+    const parsed = parseResearchRows(pasteText);
+    if (!parsed.length) {
+      setPasteError("Nothing to import yet - paste one account per line: Company, website, tier, intent, owner, CRM status.");
+      return;
+    }
+    setBusy(true);
+    setPasteError(null);
+    try {
+      const added = await store.addResearchRows({ roomId, artifactId: art.id, rows: parsed, actor: me });
+      if (added) {
+        setPasteText("");
+        setPasteOpen(false);
+      }
+    } catch (error) {
+      setPasteError(`Couldn't add rows - ${error instanceof Error ? error.message : "try again"}. Your text is preserved.`);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const refreshComplete = async () => {
+    setBusy(true);
+    setRequeueError(null);
+    let failed = 0;
+    let lastReason: string | undefined;
+    try {
+      for (const rowId of rows.filter((candidate) => cell(candidate, "status") === "complete")) {
+        const feedback = await commit(store, roomId, me, art.id, sheetElementId(art, rowId, "status"), "pending");
+        if (feedback && !feedback.ok) {
+          failed += 1;
+          lastReason = feedback.reason;
+        }
+      }
+    } finally {
+      if (failed) setRequeueError(`${failed} row(s) couldn't be requeued - ${editErrorMsg({ ok: false, reason: lastReason })}`);
+      setBusy(false);
+    }
+  };
+  const saveDownstreamDraft = (draft: PreparedDownstreamDraft) => {
+    const blob = new Blob([`# ${draft.title}\n\n${draft.body}\n`], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `${draft.target}-${draft.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "draft"}.md`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    setHandoffStatus(`${HANDOFF_SHORT[draft.target] ?? draft.target} draft prepared for review`);
+  };
+
+  return (
+    <div className="r-research-workflow" data-testid="research-workflow-actions">
+      <div className="r-research-bar">
+        <span className="tiny faint">{rows.length} accounts · {pending} pending · {complete} complete</span>
+        <span className="grow" />
+        <button className="r-btn ghost" disabled={busy} onClick={() => { setPasteOpen((open) => !open); setMoreOpen(false); }}><Plus size={13} /> Import accounts</button>
+        <button className="r-btn ghost" aria-label="More research actions" aria-expanded={moreOpen} title="Requeue complete, export CRM CSV" onClick={() => setMoreOpen((open) => !open)}><MoreHorizontal size={14} /></button>
+        {moreOpen && (
+          <>
+            <button className="r-btn ghost" disabled={busy || complete === 0} onClick={() => void refreshComplete()}><RotateCcw size={13} /> Requeue complete</button>
+            <button className="r-btn ghost" onClick={() => downloadResearchCsv(art, rows, cell)}><Download size={13} /> CRM CSV</button>
+          </>
+        )}
+        <button className="r-btn" data-testid="research-enrich" disabled={running || pending === 0} onClick={() => void run()}>{running ? "Researching..." : pending ? `Enrich ${pending} pending` : "All complete"}</button>
+        {requeueError && <span className="r-wall-error" role="alert" data-testid="research-requeue-error">{requeueError}</span>}
+      </div>
+      {pasteOpen && (
+        <div className="r-research-import">
+          <textarea value={pasteText} onChange={(event) => setPasteText(event.target.value)} rows={3} placeholder="Company, website, tier, intent, owner, CRM status" />
+          <button className="r-btn primary" disabled={busy} onClick={() => void addRows()}>{busy ? "Importing..." : "Import / update rows"}</button>
+          {pasteError && <span className="r-wall-error" role="alert" data-testid="research-add-error">{pasteError}</span>}
+        </div>
+      )}
+      {downstreamDrafts.length > 0 && (
+        <div className="r-handoff-bar" data-testid="research-handoff">
+          <span className="r-handoff-label">Export <b>{draftCompany}</b> draft</span>
+          <span className="grow" />
+          <div className="r-handoff-targets">
+            {downstreamDrafts.map((draft) => {
+              const Icon = HANDOFF_ICONS[draft.target] ?? Download;
+              return <button key={draft.target} className="r-handoff-chip" data-testid={`downstream-${draft.target}`} onClick={() => saveDownstreamDraft(draft)} title={draft.ctaLabel}><Icon size={13} /> <span>{HANDOFF_SHORT[draft.target] ?? draft.target}</span></button>;
+            })}
+          </div>
+          {handoffStatus && <span className="r-handoff-status" data-testid="downstream-status">{handoffStatus}</span>}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: string; me: Actor; art: Art; proof?: ActorProof; onError?: (f: EditFeedback) => void }) {
   const store = useStore();
   // Per-cell version history is LIVE-mode-only: the in-memory engine keeps no
@@ -1809,8 +1980,9 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
     const i = setInterval(() => setPresenceTick((t) => (t + 1) % 1_000_000), 6_000);
     return () => clearInterval(i);
   }, []);
-  // QA P2 perf: derive rows/columns/pageSize once per artifact snapshot, not on every render
-  // (paging state changes alone shouldn't re-walk the full element order).
+  // Memory mode mutates the artifact object in place, so identity alone is not a
+  // snapshot boundary. The coarse version clock invalidates structural imports
+  // and cell edits without making paging state re-walk the full element order.
   const { rows, columns, pageSize, totalRows, isScaleSheet } = useMemo(() => {
     const rows = rowIdsOf(art);
     const columns = columnsOf(art);
@@ -1818,7 +1990,7 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
     const isScaleSheet = totalRows >= 1_000 || rows.length >= 1_000;
     const pageSize = isScaleSheet ? SCALE_SHEET_RENDER_WINDOW : Math.max(25, Math.min(250, Math.floor(GENERIC_SHEET_CELL_WINDOW / Math.max(columns.length, 1))));
     return { rows, columns, pageSize, totalRows, isScaleSheet };
-  }, [art]);
+  }, [art, art.version]);
   const [gridQuery, setGridQuery] = useState("");
   const [columnMenuOpen, setColumnMenuOpen] = useState(false);
   const [hiddenColIds, setHiddenColIds] = useState<string[]>(() => {
@@ -2083,6 +2255,15 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
   return (
     <>
       <div className="r-art-body">
+        {art.title === "Company research" && (
+          <GenericResearchWorkflow
+            roomId={roomId}
+            me={me}
+            art={art}
+            rows={rows}
+            activeRowId={selectedRowId}
+          />
+        )}
         {/* Name-box + value bar: the A1 address + FULL value of the selected cell (recovery path for any
             clipped cell) + a row-density switcher (Excel/Sheets convention). */}
         <div className="r-sheet-bar fx-shtool">
@@ -2099,9 +2280,20 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
               </button>
             ))}
           </div>
-          <div className="r-sheet-colmenu">
-            <button type="button" className="r-sheet-colmenu-btn" aria-expanded={columnMenuOpen} onClick={() => setColumnMenuOpen((open: boolean) => !open)}>
-              <Columns2 size={12} /> {cols.length}/{columns.length}
+          <span className="grow" />
+          <div className="r-sheet-colmenu-count">
+            <button
+              type="button"
+              className="r-cols-pill r-sheet-colmenu-btn"
+              data-testid="grid-column-count"
+              title={columnCountTitle}
+              aria-label={`Choose visible columns, ${columnCountLabel}`}
+              aria-expanded={columnMenuOpen}
+              onClick={() => setColumnMenuOpen((open: boolean) => !open)}
+            >
+              <Columns2 size={12} aria-hidden="true" />
+              {columnCountLabel}
+              {cols.length < columns.length && <ChevronDown size={10} aria-hidden="true" />}
             </button>
             {columnMenuOpen && (
               <div className="r-sheet-colmenu-pop" role="menu">
@@ -2114,11 +2306,6 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
               </div>
             )}
           </div>
-          <span className="grow" />
-          <span className="r-cols-pill" data-testid="grid-column-count" title={columnCountTitle}>
-            {columnCountLabel}
-            {cols.length < columns.length && <ChevronDown size={10} aria-hidden="true" />}
-          </span>
           <div className="r-sheet-density" role="group" aria-label="Row density">
             {([["compact", "S"], ["default", "M"], ["comfortable", "L"]] as const).map(([d, label]) => (
               <button key={d} type="button" className="r-sheet-density-btn" data-on={String(density === d)} data-testid={`grid-density-${d}`} aria-label={`${d} row density`} title={`${d} rows`} onClick={() => setDensity(d)}>{label}</button>
@@ -2305,11 +2492,18 @@ function sanitizeFilename(name: string): string {
  * by the toolbar button (data-testid="artifact-export-xlsx") that is gated to the live sheet
  * surfaces, including uploaded workbooks now rendered through the shared Sheet 1 grid.
  *
- * TODO(mobile-export): the mobile #mobile route currently has a Download XLSX button that emits a
- * fake toast (flagged by R31). Wire it to this same path (extract into a shared helper) in a
- * follow-up PR; out of scope here.
+ * Mobile live sheets deliberately keep XLSX disabled until they can identify the selected artifact
+ * and return this same byte-backed receipt; no success toast substitutes for a download.
  */
-async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null, allArts: Art[] = [art]): Promise<void> {
+interface XlsxDownloadReceipt {
+  fileName: string;
+  rowCount: number;
+  sheetCount: number;
+  byteCount: number;
+  at: string;
+}
+
+async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null, allArts: Art[] = [art]): Promise<XlsxDownloadReceipt> {
   const ExcelJSModule = await import("exceljs");
   const ExcelJS = (ExcelJSModule as { default?: typeof import("exceljs") }).default ?? (ExcelJSModule as unknown as typeof import("exceljs"));
   const workbook = new ExcelJS.Workbook();
@@ -2381,6 +2575,13 @@ async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null, all
   document.body.removeChild(anchor);
   // Keep the object URL alive long enough for Chromium/WebKit to finish download negotiation.
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  return {
+    fileName: anchor.download,
+    rowCount: rows.length,
+    sheetCount: workbook.worksheets.length,
+    byteCount: buffer.byteLength,
+    at: new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
+  };
 }
 
 function workbookExportSheets(active: Art, allArts: Art[]): Art[] {
@@ -3053,9 +3254,46 @@ function SyncedEditorInner({
         }}
         onBlur={() => { onDirty("doc:blur"); setNoteErr(null); }}
       >
+        <NotebookEditorControlsFromContext />
         <EditorContent editor={null} />
       </EditorProvider>
       <NotebookPresenceLayer roomId={roomId} artifactId={art.id} containerRef={containerRef} />
+      <NotebookInlinePatchLayer roomId={roomId} artifactId={art.id} containerRef={containerRef} />
+    </div>
+  );
+}
+
+/** A deterministic insertion path for executable cells. Empty trailing
+ * ProseMirror paragraphs are difficult to target once the paper viewport is
+ * scrolled, so the command appends at the document end and returns focus to
+ * the new cell. */
+function NotebookEditorControlsFromContext() {
+  const { editor } = useCurrentEditor();
+  return <NotebookEditorControls editor={editor} />;
+}
+
+function NotebookEditorControls({ editor }: { editor: Editor | null }) {
+  const canEdit = !!editor?.isEditable;
+  return (
+    <div className="nbk-editor-tools">
+      <button
+        type="button"
+        aria-label="Add Python cell"
+        title="Add Python cell"
+        data-testid="notebook-add-python-cell"
+        disabled={!canEdit}
+        onMouseDown={(event) => event.preventDefault()}
+        onClick={() => {
+          if (!editor?.isEditable) return;
+          editor
+            .chain()
+            .focus("end")
+            .insertContent({ type: "paragraph", content: [{ type: "text", text: "Python: " }] })
+            .run();
+        }}
+      >
+        <Plus size={14} aria-hidden />
+      </button>
     </div>
   );
 }
@@ -3104,6 +3342,99 @@ function NotebookPresenceLayer({ roomId, artifactId, containerRef }: {
           <span className="presencebadge">{b.label}</span>
         </div>
       ))}
+    </div>
+  );
+}
+
+type NotebookInlinePatchMark = {
+  proposalId: string;
+  blockId: string;
+  top: number;
+  right: number;
+  popupTop: number;
+  popupLeft: number;
+  popupWidth: number;
+  diff: NotebookPatchDiff;
+};
+
+function NotebookInlinePatchLayer({ roomId, artifactId, containerRef }: {
+  roomId: string;
+  artifactId: string;
+  containerRef: { current: HTMLDivElement | null };
+}) {
+  const store = useStore();
+  const proposals = store.listProposals(roomId).filter((proposal) =>
+    proposal.status === "pending" && proposal.artifactId === artifactId && proposal.op.elementId !== "doc");
+  const signature = proposals.map((proposal) => `${proposal.id}:${proposal.op.elementId}:${JSON.stringify(proposal.op.value)}`).join("|");
+  const [marks, setMarks] = useState<NotebookInlinePatchMark[]>([]);
+  const [openId, setOpenId] = useState<string | null>(null);
+  useEffect(() => {
+    const root = containerRef.current;
+    if (!root || proposals.length === 0) {
+      setMarks([]);
+      setOpenId(null);
+      return;
+    }
+    const measure = () => {
+      const parent = root.getBoundingClientRect();
+      const next = proposals.flatMap((proposal): NotebookInlinePatchMark[] => {
+        const target = Array.from(root.querySelectorAll<HTMLElement>("[data-blockid]"))
+          .find((element) => element.dataset.blockid === proposal.op.elementId);
+        if (!target) return [];
+        const rect = target.getBoundingClientRect();
+        const before = target.textContent?.replace(/\s+/g, " ").trim() ?? "";
+        const after = notebookPatchValueText(proposal.op.value).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        const popupWidth = Math.max(220, Math.min(360, parent.width - 24));
+        return [{
+          proposalId: proposal.id,
+          blockId: proposal.op.elementId,
+          top: Math.max(0, rect.top - parent.top),
+          right: Math.max(6, parent.right - rect.right + 4),
+          popupTop: Math.max(28, rect.bottom - parent.top + 5),
+          popupLeft: Math.max(12, Math.min(rect.left - parent.left, parent.width - popupWidth - 12)),
+          popupWidth,
+          diff: buildNotebookPatchDiff(before, after),
+        }];
+      });
+      setMarks(next);
+      setOpenId((current) => current && next.some((mark) => mark.proposalId === current) ? current : null);
+    };
+    const frame = window.requestAnimationFrame(measure);
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    observer?.observe(root);
+    window.addEventListener("resize", measure);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer?.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  // proposal signature intentionally captures value changes without depending on array identity.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [artifactId, containerRef, signature]);
+  if (!marks.length) return null;
+  const opened = marks.find((mark) => mark.proposalId === openId);
+  return (
+    <div className="r-nb-patch-layer" data-testid="notebook-inline-patch-layer">
+      {marks.map((mark) => (
+        <button
+          key={mark.proposalId}
+          type="button"
+          className="r-nb-patch-marker"
+          style={{ top: mark.top, right: mark.right }}
+          aria-expanded={openId === mark.proposalId}
+          aria-label={`Review patch for notebook block ${mark.blockId}`}
+          onClick={() => setOpenId((current) => current === mark.proposalId ? null : mark.proposalId)}
+        >
+          Patch
+        </button>
+      ))}
+      {opened && (
+        <section className="r-nb-patch-popover" style={{ top: opened.popupTop, left: opened.popupLeft, width: opened.popupWidth }} data-testid="notebook-inline-patch-diff" aria-label={`Proposed change for ${opened.blockId}`}>
+          <header><span>Proposed block change</span><button type="button" aria-label="Close patch diff" onClick={() => setOpenId(null)}><X size={12} /></button></header>
+          <div><span>Before</span><p>{opened.diff.parts.filter((part) => part.kind !== "added").map((part, index) => part.kind === "removed" ? <del key={index}>{part.text} </del> : <Fragment key={index}>{part.text} </Fragment>)}</p></div>
+          <div><span>After</span><p>{opened.diff.parts.filter((part) => part.kind !== "removed").map((part, index) => part.kind === "added" ? <ins key={index}>{part.text} </ins> : <Fragment key={index}>{part.text} </Fragment>)}</p></div>
+        </section>
+      )}
     </div>
   );
 }
@@ -3348,8 +3679,10 @@ export function Note({ roomId, me, proof, art }: { roomId: string; me: Actor; pr
       {noteErr && <div className="r-wall-error" role="alert" data-testid="note-error">{noteErr}</div>}
       <NotebookPaperFrame title={art.title} meta={paperMeta}>
         <div className="r-note" data-testid="note-editor" data-noderoom-surface="workSurface.notebook" data-artifact-id={art.id} ref={containerRef}>
+          <NotebookEditorControls editor={editor} />
           <EditorContent editor={editor} />
           <NotebookPresenceLayer roomId={roomId} artifactId={art.id} containerRef={containerRef} />
+          <NotebookInlinePatchLayer roomId={roomId} artifactId={art.id} containerRef={containerRef} />
         </div>
         <AgentNotesBlock art={art} citationOffset={docCitations.length} />
         <NotebookFootnotes notes={footnotes} />

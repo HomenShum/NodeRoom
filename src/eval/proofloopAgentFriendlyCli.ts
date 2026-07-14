@@ -508,6 +508,7 @@ export function proofloopDocsTopic(topicArg = "getting-started"): ProofloopDocsT
           ],
           commands: [
             "npm run proofloop -- goal init <goal-id> --template official-scores",
+            "npm run proofloop:official-preflight",
             "npm run proofloop -- supervise --goal <goal-id>",
           ],
         },
@@ -560,6 +561,7 @@ export function proofloopDocsTopic(topicArg = "getting-started"): ProofloopDocsT
         body: ["Start with a measurable goal and let the gate decide completion."],
         commands: [
           "npm run proofloop -- this-repo --live",
+          "npm run proofloop:official-preflight",
           "npm run proofloop -- resume --goal official-scores --dense",
           "npm run proofloop -- gate --goal official-scores",
         ],

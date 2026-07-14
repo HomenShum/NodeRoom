@@ -220,6 +220,8 @@ describe("provider artifact egress policy", () => {
     expect(providerNonRetryableReason(new Error('Provider request failed 402: {"error":{"message":"Insufficient credits"}}'))).toBe("provider_insufficient_credits");
     expect(isProviderNonRetryableError(new Error("Provider request failed 401: Unauthorized"))).toBe(true);
     expect(isProviderNonRetryableError(new Error("Provider request failed 429: rate limited"))).toBe(false);
+    expect(providerNonRetryableReason(new Error('Provider request failed 429: {"error":{"message":"Rate limit exceeded: free-models-per-day-high-balance","metadata":{"headers":{"X-RateLimit-Remaining":"0"}}}}'))).toBe("provider_free_quota_exhausted");
+    expect(isProviderNonRetryableError(new Error('Provider stream failed 429: X-RateLimit-Remaining: "0"'))).toBe(true);
     expect(freeFileEgressPromotionAllowed({ FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION: "0" })).toBe(false);
     expect(freeFileEgressPromotionAllowed({ FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION: "1" })).toBe(true);
   });

@@ -50,6 +50,34 @@ function isAbortLike(error: unknown): boolean {
   return error instanceof Error && (error.name === "AbortError" || /aborted|abort/i.test(error.message));
 }
 
+function abortError(): Error {
+  const error = new Error("model call aborted by the NodeAgent time budget");
+  error.name = "AbortError";
+  return error;
+}
+
+async function settleWithAbort<T>(promise: Promise<T>, signal?: AbortSignal): Promise<T> {
+  if (!signal) return promise;
+  if (signal.aborted) throw abortError();
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => {
+      signal.removeEventListener("abort", onAbort);
+      reject(abortError());
+    };
+    signal.addEventListener("abort", onAbort, { once: true });
+    promise.then(
+      (value) => {
+        signal.removeEventListener("abort", onAbort);
+        resolve(value);
+      },
+      (error) => {
+        signal.removeEventListener("abort", onAbort);
+        reject(error);
+      },
+    );
+  });
+}
+
 function toolResultFailed(result: unknown): boolean {
   if (!result || typeof result !== "object") return false;
   const object = result as Record<string, unknown>;
@@ -673,14 +701,14 @@ export async function runAgent(opts: {
             title: `Model turn ${step + 1}`,
             metadata: { model: model.name, maxSteps, step: step + 1 },
           });
-          fresh = await model.next({
+          fresh = await settleWithAbort(model.next({
             system: goalRequiresPackage ? btbSystemPrompt(opts.systemPrompt ?? SYSTEM_PROMPT, btbTaskId, btbRequiredCoverageTerms) : opts.systemPrompt ?? SYSTEM_PROMPT,
             messages: modelInput,
             tools: offeredTools,
             signal: signal.signal,
             onTextDelta: opts.onTextDelta ? (text) => opts.onTextDelta?.(text, step) : undefined,
             toolChoice: requiresToolThisTurn ? "required" : "auto",
-          });
+          }), signal.signal);
         } catch (error) {
           if (signal.signal?.aborted || (shouldHandoffForTime() && isAbortLike(error))) {
             const handoff = emitHandoff(step, "time_budget", attemptedSteps);

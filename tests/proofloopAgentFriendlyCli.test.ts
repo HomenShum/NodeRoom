@@ -178,6 +178,8 @@ describe("ProofLoop project manifest, package scripts, templates, and UI contrac
     expect(scripts["proofloop:gate"]).toBe("npm run proofloop -- gate --goal official-scores");
     expect(scripts["proofloop:resume"]).toBe("npm run proofloop -- resume --goal official-scores --dense");
     expect(scripts["proofloop:doctor"]).toBe("npm run proofloop -- doctor --json");
+    expect(scripts["proofloop:dev-audience-ready"]).toContain("--template dev-audience-ready");
+    expect(scripts["proofloop:official-preflight"]).toBe("npm run benchmark:proofloop:official-preflight -- --strict");
   });
 
   it("migrates old generated aliases but leaves custom aliases alone", () => {

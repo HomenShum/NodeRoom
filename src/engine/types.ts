@@ -36,6 +36,12 @@ export interface Room {
   hostId: string;
   /** When true, agent edits auto-apply; when false they land as proposals. */
   autoAllow: boolean;
+  /** Distinguishes an empty user workspace from a seeded synthetic sample. */
+  experience?: "workspace" | "sample";
+  /** Deferred sample fixture state; workspace rooms are immediately ready. */
+  starterBackfill?: "pending" | "ready";
+  /** Guided first-run sample or explicit large-scale stress fixture. */
+  starterProfile?: "guided" | "scale";
   status: RoomStatus;
   createdAt: number;
 }

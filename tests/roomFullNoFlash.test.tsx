@@ -39,9 +39,12 @@ import { App } from "../src/ui/App";
 describe("room_full no-flash (App.tsx join-effect latch)", () => {
   beforeEach(() => {
     joinMock.mockClear();
-    // Scenario: a teammate opens a shared deep-link to a room that is now at capacity.
-    window.history.replaceState({}, "", "/?room=TEAMQ3&name=Guest");
     window.localStorage.clear();
+    window.sessionStorage.clear();
+    // Scenario: a teammate confirms the explicit join preflight for a room that
+    // reaches capacity before the mutation lands. Identity stays out of the URL.
+    window.sessionStorage.setItem("noderoom:livePending:TEAMQ3", JSON.stringify({ name: "Guest" }));
+    window.history.replaceState({}, "", "/?room=TEAMQ3&confirmed=1");
   });
 
   it("calls joinAnonymous exactly once and settles on the honest error (no re-fire loop)", async () => {

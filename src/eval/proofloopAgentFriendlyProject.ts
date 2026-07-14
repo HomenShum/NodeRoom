@@ -66,6 +66,8 @@ const PACKAGE_SCRIPT_DEFAULTS: Record<string, string> = {
   "proofloop:gate": "npm run proofloop -- gate --goal official-scores",
   "proofloop:resume": "npm run proofloop -- resume --goal official-scores --dense",
   "proofloop:doctor": "npm run proofloop -- doctor --json",
+  "proofloop:dev-audience-ready": "npm run proofloop -- goal init dev-audience-ready --template dev-audience-ready --force && npm run proofloop -- supervise --goal dev-audience-ready && npm run proofloop -- gate --goal dev-audience-ready",
+  "proofloop:official-preflight": "npm run benchmark:proofloop:official-preflight -- --strict",
   "proofloop:report": "npm run proofloop -- report latest",
   "proofloop:charts": "npm run proofloop -- charts latest",
 };

@@ -93,7 +93,7 @@
 @media (prefers-reduced-motion: no-preference) { .r-land2-vpill.next { animation: rland2vpop .5s var(--ease-out-expo); } }
 @keyframes rland2vpop { 0% { transform: scale(1); } 32% { transform: scale(1.14); } 100% { transform: scale(1); } }
 .r-land2-sheet-foot .grow { flex: 1; }
-.r-land2-sheet-foot .src { font-family: var(--font-mono); font-size: 9.5px; color: var(--text-tertiary); }
+.r-land2-sheet-foot .src { font-family: var(--font-mono); font-size: 9.5px; color: var(--text-muted); }
 .r-land2-scrub { margin-top: 4px; height: 3px; border-radius: 999px; background: var(--line); overflow: hidden; }
 .r-land2-scrub-fill { display: block; height: 100%; border-radius: 999px; transform: scaleX(0); transform-origin: left;
   background: linear-gradient(90deg, var(--accent-primary), #C6684A); animation-name: rland2scrub; animation-timing-function: linear; animation-iteration-count: infinite; }
@@ -110,7 +110,7 @@
 .r-land2-ms { position: absolute; inset: 0; padding: 10px 11px; display: flex; flex-direction: column; gap: 5px; justify-content: center; }
 .r-land2-ms.center { align-items: center; }
 .r-land2-ms.panels { flex-direction: row; gap: 5px; padding: 12px; }
-.r-land2-ms-row { display: flex; align-items: center; gap: 6px; font-size: 9px; font-family: var(--font-mono); color: var(--text-tertiary); }
+.r-land2-ms-row { display: flex; align-items: center; gap: 6px; font-size: 9px; font-family: var(--font-mono); color: var(--text-muted); }
 .r-land2-ms-row.center { justify-content: center; }
 .r-land2-ms-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 5px; font-size: 8.5px; font-weight: 700; }
 .r-land2-ms-pill.lock { background: rgba(217,119,87,.2); color: var(--accent-ink); }

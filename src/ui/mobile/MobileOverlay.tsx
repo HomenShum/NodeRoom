@@ -9,15 +9,72 @@ import { Ico } from "./MobileIcons";
 import * as D from "./mobileData";
 import type { MobileCtx } from "./mobileTypes";
 
+async function copyReceiptId(value: string, ctx: MobileCtx): Promise<void> {
+  try {
+    if (!navigator.clipboard?.writeText) throw new Error("clipboard unavailable");
+    await navigator.clipboard.writeText(value);
+    ctx.toast(`Trace ${value} copied`);
+  } catch {
+    ctx.toast(`Trace ${value} was not copied. Select the id and copy it manually.`);
+  }
+}
+
+function safeOriginalUrl(value: string | undefined): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value, window.location.href);
+    return url.protocol === "http:" || url.protocol === "https:" ? url.href : null;
+  } catch {
+    return null;
+  }
+}
+
+function LiveTraceFallback({ id, ctx }: { id: string; ctx: MobileCtx }): React.ReactElement {
+  const trace = ctx.traceRows.find((row) => row.id === id);
+  return (
+    <>
+      <div className="na-trace-bar">
+        <button className="na-cc-back" onClick={ctx.closeOverlay} aria-label="Back">{Ico("chevL")}</button>
+        <span className="na-trace-bar-label">{Ico("history")}Trace receipt</span>
+        <button className="na-close" onClick={ctx.closeOverlay} aria-label="Close">{Ico("x")}</button>
+      </div>
+      <div className="na-sheet-body" data-testid="mobile-live-trace-fallback">
+        <div className="na-trace-hero">
+          <div className="na-trace-hero-top">
+            <span className="na-trace-scope" data-run="done">{Ico("checkCircle")}recorded</span>
+            <span className="na-trace-id mono">{id}</span>
+          </div>
+          <h2 className="na-trace-title">{trace?.text ?? "Room trace receipt"}</h2>
+          <div className="na-trace-by"><span className="av agent">{Ico("sparkles")}</span>NodeRoom trace</div>
+          <div className="na-trace-stats">
+            <span className="na-tstat"><b>{trace?.kind ?? "trace"}</b>type</span>
+            <span className="na-tstat"><b className="mono">{trace?.time ?? "current"}</b>recorded</span>
+          </div>
+          <div className="na-trace-scope-row">{Ico("shield")}Detailed spans are not projected to mobile for this live receipt yet.</div>
+        </div>
+        <p className="na-ask-note" style={{ textAlign: "left", padding: "12px 2px 0" }}>
+          This summary comes from the live room trace index. No sample steps, costs, or writes are substituted.
+        </p>
+      </div>
+      <div className="na-sheet-foot">
+        <div className="na-quickchips">
+          <button className="na-quickchip" onClick={() => { void copyReceiptId(id, ctx); }}>{Ico("link")}Copy trace id</button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ── TRACE RECEIPT — scrollable, expandable step timeline ──────────────────
 export function TraceOverlay({ id, ctx }: { id: string; ctx: MobileCtx }): React.ReactElement | null {
+  if (ctx.isLive) return <LiveTraceFallback id={id} ctx={ctx} />;
   const T = (D.TRACES || {})[id];
   const [openSteps, setOpenSteps] = React.useState<Record<number, boolean>>(() => {
     const o: Record<number, boolean> = {};
     if (T) T.steps.forEach((s, i) => { o[i] = s.status === "running"; });
     return o;
   });
-  if (!T) return null;
+  if (!T) return <LiveTraceFallback id={id} ctx={ctx} />;
   const toggle = (i: number) => setOpenSteps((o) => Object.assign({}, o, { [i]: !o[i] }));
   const doneN = T.steps.filter((s) => s.status === "done").length;
 
@@ -64,7 +121,7 @@ export function TraceOverlay({ id, ctx }: { id: string; ctx: MobileCtx }): React
       React.createElement("div", { className: "na-quickchips" },
         React.createElement("button", { className: "na-quickchip primary", onClick: () => ctx.openFromTrace({ artifact: T.artifact, artifactName: T.artifactName, trace: id }) },
           Ico(T.artifact === "evidence" ? "file" : "table"), "Open " + (T.artifactName || "artifact")),
-        React.createElement("button", { className: "na-quickchip", onClick: () => ctx.toast("Trace " + id + " copied") }, Ico("link"), "Copy trace id"))));
+        React.createElement("button", { className: "na-quickchip", onClick: () => { void copyReceiptId(id, ctx); } }, Ico("link"), "Copy trace id"))));
 }
 
 // inline row-diff table — what a step actually changed in the sheet
@@ -86,6 +143,7 @@ export function rowDiff(diff: D.TraceDiff): React.ReactElement {
 export function SourceOverlay({ src, ctx }: { src: D.SourceRef | null | undefined; ctx: MobileCtx }): React.ReactElement | null {
   if (!src) return null;
   const verified = !!src.verified;
+  const originalUrl = safeOriginalUrl(src.url);
   return React.createElement(React.Fragment, null,
     React.createElement("div", { className: "na-sheet-head" },
       React.createElement("button", { className: "na-cc-back", onClick: ctx.closeOverlay, "aria-label": "Back" }, Ico("chevL")),
@@ -106,6 +164,10 @@ export function SourceOverlay({ src, ctx }: { src: D.SourceRef | null | undefine
         src.date ? React.createElement("div", { className: "na-srcmeta-row" }, Ico("clock"), React.createElement("span", null, "Captured"), React.createElement("b", null, src.date)) : null)),
     React.createElement("div", { className: "na-sheet-foot" },
       React.createElement("div", { className: "na-quickchips" },
-        React.createElement("button", { className: "na-quickchip primary", onClick: () => ctx.toast("Opening " + (src.url || src.host) + " ↗") }, Ico("extlink"), "View original"),
-        React.createElement("button", { className: "na-quickchip", onClick: () => ctx.toast("Source attached to evidence") }, Ico("plus"), "Attach to claim"))));
+        originalUrl
+          ? React.createElement("a", { className: "na-quickchip primary", href: originalUrl, target: "_blank", rel: "noreferrer" }, Ico("extlink"), "View original")
+          : React.createElement("button", { className: "na-quickchip primary", disabled: true, "aria-disabled": true, title: "No original URL is available for this source" }, Ico("extlink"), "Original unavailable"),
+        ctx.isLive
+          ? React.createElement("button", { className: "na-quickchip", disabled: true, "aria-disabled": true, title: "Live evidence attachment is available on desktop" }, Ico("plus"), "Attach on desktop")
+          : React.createElement("button", { className: "na-quickchip", onClick: () => ctx.toast("Source attached to sample evidence") }, Ico("plus"), "Attach to sample"))));
 }

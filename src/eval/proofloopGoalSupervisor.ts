@@ -12,6 +12,12 @@ import {
   solveProofloopBlocker,
   type ProofloopBlockerSolveReceipt,
 } from "./proofloopBlockerSolver";
+import {
+  OFFICIAL_SCORE_PREFLIGHT_JSON,
+  OFFICIAL_SCORE_PREFLIGHT_MARKDOWN,
+  OFFICIAL_SCORE_PREFLIGHT_REFRESH_COMMAND,
+  officialScoreSafeNextCommand,
+} from "./proofloopOfficialScorePreflight";
 
 export type ProofloopGoalTerminalStatus =
   | "passed"
@@ -96,9 +102,11 @@ export type ProofloopGoalOptions = {
   now?: () => Date;
 };
 
+export type ProofloopGoalTemplate = "official-scores" | "dev-audience-ready";
+
 export type ProofloopGoalInitOptions = ProofloopGoalOptions & {
   goalId: string;
-  template?: "official-scores";
+  template?: ProofloopGoalTemplate;
   objective?: string;
   tasks?: ProofloopGoalTask[];
   overwrite?: boolean;
@@ -120,6 +128,7 @@ export type ProofloopGoalLedgerTaskExport = {
   evidence: string[];
   blockers: string[];
   resumeCommand?: string;
+  nextCommand?: string;
   attempts: number;
   startedAt?: string;
   finishedAt?: string;
@@ -134,6 +143,18 @@ export type ProofloopGoalBlockedReasonExport = {
   reason: string;
   evidence: string[];
   resumeCommand?: string;
+  nextCommand?: string;
+};
+
+export type ProofloopGoalBlockerChecklistItem = {
+  taskId: string;
+  title: string;
+  kind: ProofloopGoalTaskKind;
+  status: ProofloopGoalTaskStatus;
+  blockers: string[];
+  evidence: string[];
+  resumeCommand?: string;
+  nextCommand: string;
 };
 
 export type ProofloopGoalLedgerGoalExport = {
@@ -146,6 +167,7 @@ export type ProofloopGoalLedgerGoalExport = {
   localStatePath: string;
   localQueuePath: string;
   localBlockersPath: string;
+  localBlockerChecklistPath: string;
   localLedgerPath: string;
   ledgerEvents: {
     count: number;
@@ -204,9 +226,20 @@ const TASK_STATUSES: ProofloopGoalTaskStatus[] = [
   "needs_human_approval",
   "failed",
 ];
+const OFFICIAL_SCORE_PREFLIGHT_TASK_ID = "official-score-free-first-preflight";
+const OFFICIAL_SCORE_PREFLIGHT_MIGRATION_TASK_IDS = new Set([
+  "btb-fullsuite-official-score",
+  "external-adapter-local-product-proofs",
+  "spreadsheetbench-v1-full-official-score",
+  "spreadsheetbench-v2-full-official-score",
+  "finch-official-score",
+  "finauditing-official-score",
+  "workstreambench-official-score",
+]);
 
 export function officialScoresGoalTasks(): ProofloopGoalTask[] {
   return [
+    officialScorePreflightTask(),
     commandTask({
       id: "btb-fullsuite-official-score",
       title: "BankerToolBench official full-suite score receipt",
@@ -366,7 +399,8 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
         "docs/eval/PROOFLOOP_BENCHMARK_BOARD.md",
       ],
     }),
-    externalBlockerTask({
+    officialCoverageTask({
+      track: "spreadsheetbench-v1",
       id: "spreadsheetbench-v1-full-official-score",
       title: "SpreadsheetBench V1 full 912-task official score",
       blockers: [
@@ -377,11 +411,15 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
         "docs/eval/official-benchmark-task-coverage.json",
         "docs/eval/spreadsheetbench-v1-912-stage.json",
         "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+        "docs/eval/spreadsheetbench-v1-912-model-run.json",
+        "docs/eval/spreadsheetbench-v1-official-score-readiness.json",
+        "docs/eval/spreadsheetbench-v1-accepted-official-scorer-receipt.json",
       ],
       resumeCommand:
         "run all 912 SpreadsheetBench V1 tasks through the model runner, use npm run benchmark:proofloop:harness-economics to select cheap proxy routes for product iteration, then npm run benchmark:official:task-coverage -- --strict",
     }),
-    externalBlockerTask({
+    officialCoverageTask({
+      track: "spreadsheetbench-v2",
       id: "spreadsheetbench-v2-full-official-score",
       title: "SpreadsheetBench V2 full 321-task official score",
       blockers: [
@@ -392,16 +430,20 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
         "docs/eval/official-benchmark-task-coverage.json",
         "docs/eval/spreadsheetbench-v2-full-ingest.json",
         "docs/eval/spreadsheetbench-v2-full-stage.json",
+        "docs/eval/spreadsheetbench-v2-321-model-run.json",
+        "docs/eval/spreadsheetbench-v2-official-score-readiness.json",
+        "docs/eval/spreadsheetbench-v2-accepted-official-scorer-receipt.json",
       ],
       resumeCommand:
         "run all 321 SpreadsheetBench V2 tasks and scorer/chart grader, use npm run benchmark:proofloop:harness-economics for proxy-model routing, then npm run benchmark:official:task-coverage -- --strict",
     }),
-    externalBlockerTask({
+    officialAdapterScoreTask({
+      adapterId: "finch",
       id: "finch-official-score",
       title: "Finch / FinWorkBench official score",
       blockers: [
         "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score.",
-        "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged and NodeRoom model-output artifacts are complete in docs/eval/proofloop-official-outputs/finch.json; upstream content_parts rendering and an accepted Azure judge/scorer receipt are still required before claiming an official score. Cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream.",
+        "finch: official task bundle lock and NodeRoom model-output artifacts are complete, and upstream content_parts input is complete at 172/172; an accepted canonical GPT-5-mini judge/scorer receipt is still required before claiming an official score.",
       ],
       evidence: [
         ".proofloop/setup/finch-local-setup.json",
@@ -411,11 +453,13 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
         "docs/eval/proofloop-adapter-blockers/finch.json",
         "docs/eval/proofloop-official-task-bundles/finch.json",
         "docs/eval/proofloop-official-scores/finch.json",
+        "docs/eval/proofloop-official-score-imports/finch.json",
         "docs/eval/proofloop-official-outputs/finch.json",
       ],
-      resumeCommand: "complete upstream Finch content_parts rendering, run/import the accepted Finch Azure scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
+      resumeCommand: "run/import an accepted canonical Finch GPT-5-mini receipt through direct OpenAI transport equivalence or the released Azure transport, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
     }),
-    externalBlockerTask({
+    officialAdapterScoreTask({
+      adapterId: "finauditing",
       id: "finauditing-official-score",
       title: "FinAuditing official score",
       blockers: [
@@ -430,16 +474,18 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
         "docs/eval/proofloop-adapter-blockers/finauditing.json",
         "docs/eval/proofloop-official-task-bundles/finauditing.json",
         "docs/eval/proofloop-official-scores/finauditing.json",
+        "docs/eval/proofloop-official-score-imports/finauditing.json",
         "docs/eval/proofloop-official-outputs/finauditing.json",
       ],
       resumeCommand: "run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
     }),
-    externalBlockerTask({
+    officialAdapterScoreTask({
+      adapterId: "workstreambench",
       id: "workstreambench-official-score",
       title: "WorkstreamBench official score",
       blockers: [
         "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score.",
-        "workstreambench: no public official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is staged because no public official bundle/scorer/rubric URL was found.",
+        "workstreambench/MBABench: public ModelOff task bundle, repository, scorer, rubric revisions, and 38 local ai_attempt.xlsx case folders are complete; an accepted official judge/scorer receipt is still required before claiming score.",
       ],
       evidence: [
         ".proofloop/setup/workstreambench-local-setup.json",
@@ -447,9 +493,76 @@ export function officialScoresGoalTasks(): ProofloopGoalTask[] {
         "docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json",
         "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
         "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+        "docs/eval/proofloop-official-task-bundles/workstreambench.json",
+        "docs/eval/proofloop-official-outputs/workstreambench.json",
         "docs/eval/proofloop-official-scores/workstreambench.json",
+        "docs/eval/proofloop-official-score-imports/workstreambench.json",
       ],
-      resumeCommand: "obtain the official WorkstreamBench task bundle and scorer/rubric from an upstream release or authors, lock it in docs/eval/proofloop-official-task-bundles/workstreambench.json, use npm run benchmark:proofloop:harness-economics for proxy triage, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
+      resumeCommand: "run/import the accepted MBABench official judge output after provider spend approval, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
+    }),
+  ];
+}
+
+export function devAudienceReadyGoalTasks(): ProofloopGoalTask[] {
+  return [
+    commandTask({
+      id: "dev-doctor",
+      title: "Read-only local setup doctor receipt",
+      command: "npx tsx scripts/proofloop-dev-audience-ready.ts doctor",
+      evidence: [
+        "docs/eval/dev-audience-ready/doctor.json",
+        "docs/eval/dev-audience-ready/doctor-receipt.json",
+      ],
+    }),
+    commandTask({
+      id: "dev-agent-setup",
+      title: "Codex, Claude Code, Cursor, Windsurf, Devin, and generic CLI setup receipts",
+      command: "npx tsx scripts/proofloop-dev-audience-ready.ts agents",
+      evidence: [
+        "docs/eval/dev-audience-ready/agents-setup-receipt.json",
+        ".proofloop/setup/agents/codex.json",
+        ".proofloop/setup/agents/claude-code.json",
+        ".proofloop/setup/agents/cursor.json",
+        ".proofloop/setup/agents/windsurf.json",
+        ".proofloop/setup/agents/devin.json",
+        ".proofloop/setup/agents/generic-cli.json",
+      ],
+    }),
+    commandTask({
+      id: "dev-native-session-smokes",
+      title: "Native launch/session-export smoke receipts without paid model calls",
+      command: "npx tsx scripts/proofloop-dev-audience-ready.ts native-smokes",
+      evidence: [
+        "docs/eval/dev-audience-ready/native-smokes-receipt.json",
+        ".proofloop/agents/native/dev-audience-ready-cursor/cursor-native-launch.json",
+        ".proofloop/agents/native/dev-audience-ready-cursor/cursor-native-session-export.json",
+        ".proofloop/agents/native/dev-audience-ready-windsurf/windsurf-native-launch.json",
+        ".proofloop/agents/native/dev-audience-ready-windsurf/windsurf-native-session-export.json",
+        ".proofloop/agents/native/dev-audience-ready-devin-api/devin-api-native-launch.json",
+        ".proofloop/agents/native/dev-audience-ready-devin-api/devin-api-native-session-export.json",
+        ".proofloop/agents/native/dev-audience-ready-generic-cli/generic-cli-native-launch.json",
+        ".proofloop/agents/native/dev-audience-ready-generic-cli/generic-cli-native-session-export.json",
+      ],
+    }),
+    commandTask({
+      id: "dev-free-first-router-cost-guard",
+      title: "Free-first router and no-surprise-spend guard",
+      command: "npx tsx scripts/proofloop-dev-audience-ready.ts router-cost",
+      evidence: [
+        "docs/eval/dev-audience-ready/free-first-router-cost-receipt.json",
+        "docs/eval/proofloop-free-openrouter-nodeagent-gauge.json",
+        "docs/eval/openrouter-free-model-discovery.json",
+        "docs/eval/proofloop-harness-economics.json",
+      ],
+    }),
+    commandTask({
+      id: "dev-onboarding-docs",
+      title: "Customer and developer onboarding proof checklist",
+      command: "npx tsx scripts/proofloop-dev-audience-ready.ts docs",
+      evidence: [
+        "docs/eval/DEV_AUDIENCE_READY.md",
+        "docs/eval/dev-audience-ready/README.md",
+      ],
     }),
   ];
 }
@@ -461,13 +574,13 @@ export function initProofloopGoal(options: ProofloopGoalInitOptions): ProofloopG
   if (existsSync(paths.statePath) && !options.overwrite) {
     throw new Error(`Goal already exists: ${options.goalId}`);
   }
-  const tasks = cloneTasks(options.tasks ?? (options.template === "official-scores" ? officialScoresGoalTasks() : []));
-  if (!tasks.length) throw new Error("Goal init requires tasks or --template official-scores.");
+  const tasks = cloneTasks(options.tasks ?? goalTemplateTasks(options.template));
+  if (!tasks.length) throw new Error("Goal init requires tasks or --template official-scores/dev-audience-ready.");
 
   const state = finalizeState({
     schema: "proofloop-goal-supervisor-v1",
     goalId: options.goalId,
-    objective: options.objective ?? "Make official benchmark scores real, tested, shipped, and externally blocked only with proof.",
+    objective: options.objective ?? goalTemplateObjective(options.template),
     status: "initialized",
     createdAt: now,
     updatedAt: now,
@@ -490,11 +603,24 @@ export function initProofloopGoal(options: ProofloopGoalInitOptions): ProofloopG
   return state;
 }
 
+function goalTemplateTasks(template: ProofloopGoalTemplate | undefined): ProofloopGoalTask[] {
+  if (template === "official-scores") return officialScoresGoalTasks();
+  if (template === "dev-audience-ready") return devAudienceReadyGoalTasks();
+  return [];
+}
+
+function goalTemplateObjective(template: ProofloopGoalTemplate | undefined): string {
+  if (template === "dev-audience-ready") {
+    return "Prove intended developers and customers can install, configure, launch, export sessions, and stay on free-first routes without surprise spend.";
+  }
+  return "Make official benchmark scores real, tested, shipped, and externally blocked only with proof.";
+}
+
 export function loadProofloopGoal(goalId: string, options: ProofloopGoalOptions = {}): ProofloopGoalState {
   const root = resolveRoot(options.root);
   const path = goalPaths(root, goalId).statePath;
   if (!existsSync(path)) throw new Error(`Goal does not exist: ${goalId}`);
-  return JSON.parse(readFileSync(path, "utf8")) as ProofloopGoalState;
+  return ensureOfficialScoreGoalTemplate(JSON.parse(readFileSync(path, "utf8")) as ProofloopGoalState);
 }
 
 export function proofloopGoalLedgerReceiptPaths(root?: string): { jsonPath: string; markdownPath: string; jsonRelative: string; markdownRelative: string } {
@@ -563,6 +689,7 @@ export function renderProofloopGoalLedgerMarkdown(receipt: ProofloopGoalLedgerRe
       `- Objective: ${goal.objective}`,
       `- Updated: ${goal.updatedAt}`,
       `- Local ledger: \`${goal.localLedgerPath}\` (${goal.ledgerEvents.count} event(s))`,
+      `- Local blocker checklist: \`${goal.localBlockerChecklistPath}\``,
       `- Required tasks: ${goal.requiredTaskCount}`,
       `- Unblocked tasks remaining: ${goal.unblockedTasksRemaining}`,
       `- Blocked tasks remaining: ${goal.blockedTasksRemaining}`,
@@ -572,10 +699,10 @@ export function renderProofloopGoalLedgerMarkdown(receipt: ProofloopGoalLedgerRe
     if (goal.blockedReasons.length === 0) {
       lines.push("No blocker reasons recorded.", "");
     } else {
-      lines.push("| Task | Status | Reason | Evidence | Resume |", "| --- | --- | --- | --- | --- |");
+      lines.push("| Task | Status | Reason | Evidence | Next Command | Resume |", "| --- | --- | --- | --- | --- | --- |");
       for (const blocker of goal.blockedReasons) {
         lines.push(
-          `| ${md(blocker.taskId)} | ${md(blocker.status)} | ${md(blocker.reason)} | ${md(blocker.evidence.join("<br>"))} | ${md(blocker.resumeCommand ?? "")} |`,
+          `| ${md(blocker.taskId)} | ${md(blocker.status)} | ${md(blocker.reason)} | ${md(blocker.evidence.join("<br>"))} | ${md(blocker.nextCommand ?? "")} | ${md(blocker.resumeCommand ?? "")} |`,
         );
       }
       lines.push("");
@@ -715,6 +842,31 @@ export function blockProofloopGoal(goalId: string, args: {
   return updated;
 }
 
+export function applyProofloopBlockerReceiptsToGoal(
+  goalId: string,
+  receipts: Array<{
+    blockerId: string;
+    status: "blocked_external" | "needs_scaffold_or_run" | "proxy_only" | "ready";
+    externalBlockClaimAllowed: boolean;
+    artifacts: Record<string, string>;
+    nextCommands: string[];
+  }>,
+  options: ProofloopGoalOptions = {},
+): ProofloopGoalState {
+  const root = resolveRoot(options.root);
+  const now = isoNow(options);
+  const state = loadProofloopGoal(goalId, { root });
+  for (const receipt of receipts) {
+    const task = state.tasks.find((candidate) => candidate.id === receipt.blockerId);
+    if (!task) continue;
+    task.status = receipt.externalBlockClaimAllowed ? "blocked_external" : "needs_scaffold_or_run";
+    task.finishedAt = now;
+    task.evidence = [...new Set([...task.evidence, ...Object.values(receipt.artifacts)])];
+    task.resumeCommand = receipt.nextCommands[0] ?? task.resumeCommand;
+  }
+  return writeState(root, finalizeState(state, now));
+}
+
 export function gateProofloopGoal(goalId: string, options: ProofloopGoalOptions = {}): ProofloopGoalState {
   const root = resolveRoot(options.root);
   const state = writeState(root, finalizeState(loadProofloopGoal(goalId, { root }), isoNow(options)));
@@ -732,7 +884,26 @@ export function gateProofloopGoal(goalId: string, options: ProofloopGoalOptions 
   return state;
 }
 
+export function proofloopGoalBlockerChecklist(state: ProofloopGoalState): ProofloopGoalBlockerChecklistItem[] {
+  return state.tasks
+    .filter((task) =>
+      task.blockers.length > 0 &&
+      (task.kind !== "command" || task.status === "blocked_external" || task.status === "needs_scaffold_or_run" || task.status === "failed")
+    )
+    .map((task) => ({
+      taskId: task.id,
+      title: task.title,
+      kind: task.kind,
+      status: task.status,
+      blockers: [...task.blockers],
+      evidence: [...task.evidence],
+      resumeCommand: task.resumeCommand,
+      nextCommand: nextCommandForTask(state, task),
+    }));
+}
+
 export function formatProofloopGoalStatus(state: ProofloopGoalState): string {
+  const checklist = proofloopGoalBlockerChecklist(state);
   const lines = [
     `Proof Loop goal: ${state.goalId}`,
     `Status: ${state.status}`,
@@ -748,14 +919,22 @@ export function formatProofloopGoalStatus(state: ProofloopGoalState): string {
     if (task.blockers.length) lines.push(`    blocker: ${task.blockers.join("; ")}`);
     if (task.resumeCommand) lines.push(`    resume: ${task.resumeCommand}`);
   }
+  if (checklist.length) {
+    lines.push("", "Blocker checklist:");
+    for (const item of checklist) {
+      lines.push(`  - ${item.taskId}: ${item.status}`);
+      for (const blocker of item.blockers) lines.push(`    blocker: ${blocker}`);
+      lines.push(`    next command: ${item.nextCommand}`);
+      if (item.resumeCommand) lines.push(`    resume note: ${item.resumeCommand}`);
+    }
+  }
   if (state.terminalReason) lines.push("", `Terminal reason: ${state.terminalReason}`);
   return `${lines.join("\n")}\n`;
 }
 
 export function formatProofloopGoalResume(state: ProofloopGoalState): string {
   const pending = state.tasks.find((task) => task.status === "pending");
-  const blocked = state.tasks.filter((task) => task.status === "blocked_external");
-  const scaffold = state.tasks.filter((task) => task.status === "needs_scaffold_or_run");
+  const checklist = proofloopGoalBlockerChecklist(state);
   const lines = [
     `Proof Loop resume: ${state.goalId}`,
     `Current status: ${state.status}`,
@@ -769,18 +948,13 @@ export function formatProofloopGoalResume(state: ProofloopGoalState): string {
   } else {
     lines.push("No unblocked pending task remains.");
   }
-  if (blocked.length) {
-    lines.push("", "External blockers:");
-    for (const task of blocked) {
-      lines.push(`  - ${task.id}: ${task.blockers.join("; ")}`);
-      if (task.resumeCommand) lines.push(`    resume: ${task.resumeCommand}`);
-    }
-  }
-  if (scaffold.length) {
-    lines.push("", "Scaffold/model-run work:");
-    for (const task of scaffold) {
-      lines.push(`  - ${task.id}: ${task.blockers.join("; ")}`);
-      if (task.resumeCommand) lines.push(`    next: ${task.resumeCommand}`);
+  if (checklist.length) {
+    lines.push("", "Blocker checklist:");
+    for (const item of checklist) {
+      lines.push(`  - ${item.taskId}: ${item.status}`);
+      for (const blocker of item.blockers) lines.push(`    blocker: ${blocker}`);
+      lines.push(`    next command: ${item.nextCommand}`);
+      if (item.resumeCommand) lines.push(`    resume note: ${item.resumeCommand}`);
     }
   }
   return `${lines.join("\n")}\n`;
@@ -791,7 +965,7 @@ function loadAllProofloopGoalStates(root: string): ProofloopGoalState[] {
   if (!existsSync(goalsDir)) return [];
   return readdirSync(goalsDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
-    .map((entry) => JSON.parse(readFileSync(join(goalsDir, entry.name, "state.json"), "utf8")) as ProofloopGoalState)
+    .map((entry) => ensureOfficialScoreGoalTemplate(JSON.parse(readFileSync(join(goalsDir, entry.name, "state.json"), "utf8")) as ProofloopGoalState))
     .sort((a, b) => a.goalId.localeCompare(b.goalId));
 }
 
@@ -807,6 +981,7 @@ function exportGoalState(root: string, state: ProofloopGoalState): ProofloopGoal
     evidence: [...task.evidence],
     blockers: [...task.blockers],
     resumeCommand: task.resumeCommand,
+    nextCommand: nextCommandForTask(state, task),
     attempts: task.attempts,
     startedAt: task.startedAt,
     finishedAt: task.finishedAt,
@@ -821,6 +996,7 @@ function exportGoalState(root: string, state: ProofloopGoalState): ProofloopGoal
       reason,
       evidence: [...task.evidence],
       resumeCommand: task.resumeCommand,
+      nextCommand: nextCommandForTask(state, task),
     })),
   );
   return {
@@ -833,6 +1009,7 @@ function exportGoalState(root: string, state: ProofloopGoalState): ProofloopGoal
     localStatePath: relativePath(root, paths.statePath),
     localQueuePath: relativePath(root, paths.queuePath),
     localBlockersPath: relativePath(root, paths.blockersPath),
+    localBlockerChecklistPath: relativePath(root, paths.blockerChecklistPath),
     localLedgerPath: relativePath(root, paths.ledgerPath),
     ledgerEvents: ledgerEventStats(paths.ledgerPath),
     requiredTaskCount: state.tasks.filter((task) => task.required !== false).length,
@@ -866,6 +1043,63 @@ function md(value: string): string {
   return value.replace(/\r?\n/g, "<br>").replace(/\|/g, "\\|");
 }
 
+function nextCommandForTask(state: ProofloopGoalState, task: ProofloopGoalTask): string {
+  if (state.goalId === "official-scores" && task.id !== OFFICIAL_SCORE_PREFLIGHT_TASK_ID) {
+    return officialScoreSafeNextCommand(task.id);
+  }
+  return task.command ?? task.resumeCommand ?? `npm run proofloop -- resume --goal ${state.goalId} --dense`;
+}
+
+function officialScorePreflightTask(): ProofloopGoalTask {
+  return commandTask({
+    id: OFFICIAL_SCORE_PREFLIGHT_TASK_ID,
+    title: "Official-score free-first/economics preflight receipt",
+    command: OFFICIAL_SCORE_PREFLIGHT_REFRESH_COMMAND,
+    evidence: [
+      OFFICIAL_SCORE_PREFLIGHT_JSON,
+      OFFICIAL_SCORE_PREFLIGHT_MARKDOWN,
+      "docs/eval/openrouter-free-model-discovery.json",
+      "docs/eval/proofloop-free-openrouter-nodeagent-gauge.json",
+      "docs/eval/PROOFLOOP_FREE_OPENROUTER_NODEAGENT_GAUGE.md",
+      "docs/eval/proofloop-harness-economics.json",
+      "docs/eval/PROOFLOOP_HARNESS_ECONOMICS.md",
+    ],
+  });
+}
+
+function ensureOfficialScoreGoalTemplate(state: ProofloopGoalState): ProofloopGoalState {
+  if (state.goalId !== "official-scores") return state;
+  refreshOfficialScoreTemplateTaskFields(state);
+  if (state.tasks.some((task) => task.id === OFFICIAL_SCORE_PREFLIGHT_TASK_ID)) return finalizeState(state, state.updatedAt);
+  const firstOfficialLaneIndex = state.tasks.findIndex((task) => OFFICIAL_SCORE_PREFLIGHT_MIGRATION_TASK_IDS.has(task.id));
+  if (firstOfficialLaneIndex < 0) return state;
+  state.tasks.splice(firstOfficialLaneIndex, 0, officialScorePreflightTask());
+  return finalizeState(state, state.updatedAt);
+}
+
+function refreshOfficialScoreTemplateTaskFields(state: ProofloopGoalState): void {
+  const currentById = new Map(officialScoresGoalTasks().map((task) => [task.id, task]));
+  for (const task of state.tasks) {
+    const current = currentById.get(task.id);
+    if (!current) continue;
+    const kindChanged = task.kind !== current.kind;
+    task.title = current.title;
+    task.kind = current.kind;
+    task.required = current.required;
+    task.command = current.command;
+    task.blockers = [...current.blockers];
+    task.evidence = [...new Set([...current.evidence, ...task.evidence])];
+    task.resumeCommand = current.resumeCommand;
+    if (kindChanged && task.status !== "running") {
+      task.status = "pending";
+      task.lastExitCode = undefined;
+      task.finishedAt = undefined;
+      task.stdoutTail = undefined;
+      task.stderrTail = undefined;
+    }
+  }
+}
+
 function commandTask(args: { id: string; title: string; command: string; evidence: string[] }): ProofloopGoalTask {
   return {
     id: args.id,
@@ -880,6 +1114,60 @@ function commandTask(args: { id: string; title: string; command: string; evidenc
   };
 }
 
+function officialCoverageTask(args: {
+  track: "spreadsheetbench-v1" | "spreadsheetbench-v2";
+  id: string;
+  title: string;
+  blockers: string[];
+  evidence: string[];
+  resumeCommand?: string;
+}): ProofloopGoalTask {
+  const readinessPath = `docs/eval/${args.track}-official-score-readiness.json`;
+  const report = readJsonIfPresent<{
+    status?: string;
+    officialScoreClaim?: { allowed?: boolean; blocker?: string };
+    officialModelRunClaim?: { allowed?: boolean; blocker?: string };
+    blockers?: string[];
+  }>(resolve(readinessPath));
+  const ready = report?.status === "official_score_ready" && report.officialScoreClaim?.allowed === true;
+  const blockers = [...new Set([
+    ...args.blockers,
+    ...(report?.officialModelRunClaim?.blocker ? [report.officialModelRunClaim.blocker] : []),
+    ...(report?.officialScoreClaim?.blocker ? [report.officialScoreClaim.blocker] : []),
+    ...(report?.blockers ?? []),
+  ])];
+  return ready
+    ? commandTask({
+        id: args.id,
+        title: args.title,
+        command: `npx tsx scripts/spreadsheetbench-official-score-readiness.ts --track ${args.track} --json-out ${readinessPath} --strict`,
+        evidence: args.evidence,
+      })
+    : externalBlockerTask({ ...args, blockers });
+}
+
+function officialAdapterScoreTask(args: {
+  adapterId: "finch" | "finauditing" | "workstreambench";
+  id: string;
+  title: string;
+  blockers: string[];
+  evidence: string[];
+  resumeCommand?: string;
+}): ProofloopGoalTask {
+  const receipt = readJsonIfPresent<{ status?: string; scoreClaim?: boolean }>(
+    resolve(`docs/eval/proofloop-official-scores/${args.adapterId}.json`),
+  );
+  const scored = receipt?.status === "scored" && (args.adapterId === "workstreambench" || receipt.scoreClaim === true);
+  return scored
+    ? commandTask({
+        id: args.id,
+        title: args.title,
+        command: `npm run benchmark:proofloop:adapter-blockers -- --id ${args.adapterId} --strict`,
+        evidence: args.evidence,
+      })
+    : externalBlockerTask(args);
+}
+
 function externalBlockerTask(args: { id: string; title: string; blockers: string[]; evidence: string[]; resumeCommand?: string }): ProofloopGoalTask {
   return {
     id: args.id,
@@ -892,6 +1180,15 @@ function externalBlockerTask(args: { id: string; title: string; blockers: string
     resumeCommand: args.resumeCommand,
     attempts: 0,
   };
+}
+
+function readJsonIfPresent<T>(path: string): T | undefined {
+  if (!existsSync(path)) return undefined;
+  try {
+    return JSON.parse(readFileSync(path, "utf8")) as T;
+  } catch {
+    return undefined;
+  }
 }
 
 function finalizeState(state: ProofloopGoalState, now: string): ProofloopGoalState {
@@ -955,6 +1252,7 @@ function writeState(root: string, state: ProofloopGoalState): ProofloopGoalState
   writeJson(paths.statePath, state);
   writeJson(paths.queuePath, state.tasks);
   writeJson(paths.blockersPath, state.tasks.filter((task) => task.status === "blocked_external"));
+  writeJson(paths.blockerChecklistPath, proofloopGoalBlockerChecklist(state));
   appendFileSync(paths.heartbeatsPath, `${JSON.stringify({ ts: state.updatedAt, status: state.status })}\n`, "utf8");
   writeProofloopGoalLedgerReceipt({ root });
   return state;
@@ -976,6 +1274,7 @@ function goalPaths(root: string, goalId: string) {
     statePath: join(dir, "state.json"),
     queuePath: join(dir, "queue.json"),
     blockersPath: join(dir, "blockers.json"),
+    blockerChecklistPath: join(dir, "blocker-checklist.json"),
     ledgerPath: join(dir, "ledger.jsonl"),
     heartbeatsPath: join(dir, "heartbeats.jsonl"),
   };

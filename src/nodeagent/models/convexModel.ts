@@ -9,10 +9,17 @@
 
 import type { AgentMessage, AgentModel, AgentStep, AgentTool, AgentToolChoice, ToolCall } from "../core/types";
 import { getModelPricing, getProviderForModel, resolveModelAlias } from "./modelCatalog";
-import { isOpenRouterFreeAutoModel, selectOpenRouterFreeModels } from "./openRouterFreeModels";
+import {
+  isOpenRouterFreeAutoModel,
+  openRouterFreeCandidateSignal,
+  openRouterFreeRequestSignal,
+  recordOpenRouterFreeRouteOutcome,
+  selectOpenRouterFreeModels,
+  type OpenRouterFreeModelMode,
+} from "./openRouterFreeModels";
 import { openAiCompatibleTokenLimitParam } from "./openAiTokenLimit";
 import { redactPII } from "../guardrails/gateway";
-import { assertProviderRouteAllowed, type ProviderRouteEntrypoint, type ProviderRouteReceipt } from "../guardrails/egressPolicy";
+import { assertProviderRouteAllowed, isProviderNonRetryableError, type ProviderRouteEntrypoint, type ProviderRouteReceipt } from "../guardrails/egressPolicy";
 
 type JsonObject = Record<string, unknown>;
 
@@ -94,9 +101,15 @@ const OPENROUTER_TITLE = "NodeRoom benchmark";
 const DEFAULT_MAX_OUTPUT_TOKENS = 8_192;
 const TRANSIENT_RE = /(\b429\b|\b5\d\d\b|rate.?limit|overloaded|temporar|timed?.?out|ECONNRESET|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|fetch failed|socket hang up|service unavailable)/i;
 
-export function convexModel(modelId: string, options: { entrypoint?: ProviderRouteEntrypoint } = {}): AgentModel {
+export type ConvexModelOptions = {
+  entrypoint?: ProviderRouteEntrypoint;
+  freeAutoMode?: OpenRouterFreeModelMode;
+};
+
+export function convexModel(modelId: string, options: ConvexModelOptions = {}): AgentModel {
   const aliasModelId = resolveModelAlias(modelId);
   const entrypoint = options.entrypoint ?? "system";
+  const freeAutoMode = options.freeAutoMode;
   let resolvedModelId = aliasModelId;
   return {
     get name() {
@@ -106,7 +119,7 @@ export function convexModel(modelId: string, options: { entrypoint?: ProviderRou
       // Gateway PII firewall — redact PII/secrets from the system + user content before the prompt leaves.
       const safeSystem = redactPII(system).text;
       const safeMessages = messages.map((m) => (m.role === "user" && m.content ? { ...m, content: redactPII(m.content).text } : m));
-      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, signal, onTextDelta, toolChoice);
+      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, signal, onTextDelta, toolChoice, freeAutoMode);
       resolvedModelId = resolvedModel;
       return step;
     },
@@ -127,22 +140,25 @@ async function generateConvexAgentStep(
   signal?: AbortSignal,
   onTextDelta?: (text: string) => void | Promise<void>,
   toolChoice?: AgentToolChoice,
+  freeAutoMode?: OpenRouterFreeModelMode,
 ) {
   assertProviderRouteAllowed({ model: modelId, entrypoint, env: process.env });
   if (isOpenRouterFreeAutoModel(modelId)) {
+    const requestSignal = openRouterFreeRequestSignal(signal);
     const candidates = await selectOpenRouterFreeModels({
-      mode: tools.length ? "agent" : "chat",
+      mode: freeAutoMode ?? (tools.length ? "agent" : "chat"),
       limit: openRouterFreeAutoLimit(),
-      signal,
+      signal: requestSignal,
     });
     let lastError: unknown;
     const attempted: string[] = [];
     for (const candidate of candidates) {
       attempted.push(candidate.id);
+      const startedAt = Date.now();
+      const candidateSignal = openRouterFreeCandidateSignal(requestSignal);
       try {
         const providerRoute = assertProviderRouteAllowed({ model: candidate.id, entrypoint, env: process.env });
-        return {
-          step: withProviderRoute(await withRetry(() => openAiCompatibleStep({
+        const step = withProviderRoute(await withRetry(() => openAiCompatibleStep({
             endpoint: `${openRouterBaseUrl()}/chat/completions`,
             apiKey: envValue("OPENROUTER_API_KEY"),
             headers: openRouterHeaders(),
@@ -150,14 +166,22 @@ async function generateConvexAgentStep(
             system,
             messages,
             tools,
-            signal,
+            signal: candidateSignal,
             onTextDelta,
             toolChoice,
-          }), signal), providerRoute),
+          }), candidateSignal, 0), providerRoute);
+        recordOpenRouterFreeRouteOutcome({ modelId: candidate.id, ok: true, latencyMs: Date.now() - startedAt });
+        return {
+          step,
           resolvedModel: candidate.id,
         };
       } catch (error) {
+        recordOpenRouterFreeRouteOutcome({ modelId: candidate.id, ok: false, latencyMs: Date.now() - startedAt, error });
         if (signal?.aborted) throw error;
+        if (requestSignal.aborted) {
+          throw new Error(`openrouter/free-auto request deadline exceeded after ${attempted.join(", ")}`);
+        }
+        if (isProviderNonRetryableError(error)) throw error;
         lastError = error;
       }
     }
@@ -822,7 +846,27 @@ export function toolParameters(toolName: string): JsonObject {
     required: ["id", "label", "sourceRef", "quote", "kind", "confidence", "status"],
   };
   const stringOrStringArray = { anyOf: [stringArray, string] };
+  const workbookOperation = {
+    type: "object",
+    properties: { elementId: string, value: any, formula: string, result: any, numFmt: string },
+    required: ["elementId"],
+  };
   const schemas: Record<string, JsonObject> = {
+    inspect_workbook: {
+      type: "object",
+      properties: { instruction: string, artifactId: string, query: string, maxCells: integer },
+      required: ["instruction"],
+    },
+    verify_workbook: {
+      type: "object",
+      properties: {
+        instruction: string,
+        artifactId: string,
+        operations: { type: "array", items: workbookOperation },
+        afterWrite: boolean,
+      },
+      required: ["instruction", "operations"],
+    },
     read_range: { type: "object", properties: { elementIds: stringOrStringArray, artifactId: string }, required: [] },
     search_sheet_context: { type: "object", properties: { query: string, artifactId: string, limit: integer }, required: ["query"] },
     list_artifacts: { type: "object", properties: {}, required: [] },

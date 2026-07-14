@@ -19,7 +19,7 @@ import { engine, demo, useEngineRev, runDemo } from "./roomStore";
 import { runAgent as runHarness } from "../nodeagent/core/runtime";
 import type { AgentModel } from "../nodeagent/core/types";
 import { buildUnifiedAgentStreamParts, type PersistedAgentStreamEvent, type UnifiedAgentStreamPart } from "../nodeagent/core/stream";
-import { recomputeVariancePlan, companyResearchPlan, notebookOutlinePlan } from "../nodeagent/core/plans";
+import { recomputeVariancePlan, companyResearchPlan, notebookOutlinePlan, workbookAuditPlan } from "../nodeagent/core/plans";
 import { buildResearchContext, buildNoteContext } from "../nodeagent/core/worldModel";
 import { scriptedModel } from "../nodeagent/models/scripted";
 import { InMemoryRoomTools } from "../nodeagent/skills/integration/noderoomAdapter";
@@ -39,6 +39,7 @@ import type { Actor, Artifact, ArtifactMeta, ArtifactVisibility, Channel, Lock, 
 import type { UploadedArtifactInput, UploadedSourceFile } from "./uploadedArtifact";
 import type { ArtifactRef } from "../ui/artifactRefs";
 import { OfflineEditQueue, isNetworkError, type OfflineQueueSnapshot } from "../notifications/offlineQueue";
+import { executeNotebookKernel, type NotebookKernelRequest, type NotebookKernelResult } from "../notebook/notebookKernel";
 
 export type { OfflineQueueSnapshot } from "../notifications/offlineQueue";
 
@@ -50,6 +51,7 @@ type UndoEntry = { roomId: string; op: ChangeOp };
 export type AgentRunTelemetry = { model: string; steps: number; toolCalls: number; inputTokens: number; outputTokens: number; costUsd: number; ms: number };
 export type AgentJobTelemetry = {
   id: string;
+  goal?: string;
   status: string;
   entrypoint?: string;
   scope?: string;
@@ -78,7 +80,7 @@ export type AgentJobTelemetry = {
 
 /** Shape of a free-auto agent job row from the convex jobs subscription (used by lastLongFreeJob + activeLongFreeJobs). */
 type FreeJobRow = {
-  _id: string; status: string; entrypoint?: string; scope?: string; runtime?: string; attempts: number; maxAttempts: number;
+  _id: string; goal?: string; status: string; entrypoint?: string; scope?: string; runtime?: string; attempts: number; maxAttempts: number;
   runtimeProfile?: AgentRuntimeProfile; modelPolicy: string; approvalPolicy?: string; evidencePolicy?: string; handoff?: { reason?: string }; nextRunAt?: number;
   finalText?: string; error?: string; latestRunId?: string; actionSliceCount?: number; queryCount?: number; mutationCount?: number;
   modelCallCount?: number; toolCallCount?: number; schedulerHandoffCount?: number; receiptCount?: number; createdAt?: number; updatedAt: number;
@@ -90,6 +92,7 @@ function isActiveFreeJob(status: string): boolean {
 function mapConvexFreeJob(j: FreeJobRow): AgentJobTelemetry {
   return {
     id: String(j._id),
+    goal: j.goal,
     status: j.status,
     entrypoint: j.entrypoint,
     scope: j.scope,
@@ -170,6 +173,10 @@ export type AgentAskInput = {
   references?: ArtifactRef[];
   modelSelection?: AgentModelSelection;
   contextArtifactId?: string;
+  /** Require the server to use contextArtifactId instead of intent-routing to another surface. */
+  contextArtifactRequired?: boolean;
+  /** Optional mutation boundary for workflows that target exact artifact elements. */
+  allowedElementIds?: string[];
   runtimeProfile?: AgentRuntimeProfile;
   maxAttempts?: number;
   /** Credit/depth mode for the run (Quick/Standard/Deep). Defaults to the store's selected mode. */
@@ -286,6 +293,8 @@ export interface RoomStore {
   awareness(roomId: string, agentId?: string): { activeLocks: Lock[] };
   /** Apply a hand edit (CAS). Returns feedback so the UI can surface a conflict honestly. */
   applyEdit(args: { roomId: string; op: ChangeOp; actor: Actor }): Promise<EditFeedback>;
+  /** Execute a bounded read-only notebook kernel. Persistence remains an ordinary artifact CAS write. */
+  executeNotebookKernel(args: { roomId: string; request: NotebookKernelRequest }): Promise<NotebookKernelResult>;
   /** Offline edit-hold: live-mode CAS edits that failed on a TRANSPORT error (not a server answer)
    *  are held (bounded, oldest-dropped-with-count) and replayed on reconnect through the same
    *  applyEdit path. Optional — memory mode has no transport to lose, so it omits it. */
@@ -426,9 +435,14 @@ function targetArtifact(artifacts: Artifact[], refs?: ArtifactRef[]): Artifact |
 
 function canonicalRefs(artifacts: Artifact[], refs?: ArtifactRef[]): ArtifactRef[] | undefined {
   const canonical = refs
-    ?.map((ref) => artifacts.find((a) => a.id === ref.id))
-    .filter((art): art is Artifact => !!art)
-    .map((art) => ({ id: art.id, title: art.title, kind: art.kind }));
+    ?.map((ref) => ({ ref, art: artifacts.find((a) => a.id === ref.id) }))
+    .filter((entry): entry is { ref: ArtifactRef; art: Artifact } => !!entry.art)
+    .map(({ ref, art }) => ({
+      ...ref,
+      id: art.id,
+      title: ref.contextKind && ref.contextKind !== "artifact" ? ref.title : art.title,
+      kind: art.kind,
+    }));
   return canonical?.length ? canonical : undefined;
 }
 
@@ -443,9 +457,10 @@ function isVarianceSheet(art: Artifact): boolean {
  * the "ENRICH/CLASSIFY staged next" message. Order matters: runway is checked before research
  * because the runway prompt also mentions the company watchlist.
  */
-function classifyDemoIntent(goal: string): "research" | "runway" | "variance" | "notes" | null {
+function classifyDemoIntent(goal: string): "research" | "runway" | "variance" | "notes" | "workbook" | null {
   const g = goal.toLowerCase();
   if (/\b(runway|milestone|milestones|burn)\b/.test(g)) return "runway";
+  if (/(?:\b(?:audit|repair|verify)\b[^.]{0,100}\b(?:workbook|spreadsheet|formula|calculation|cells?)\b)|(?:\b(?:workbook|spreadsheet|formula)\b[^.]{0,100}\b(?:audit|repair|verify)\b)/.test(g)) return "workbook";
   // Notebook parse/summarize requests route to the governed outline lane —
   // checked before research so "summarize my meeting notes" never falls into
   // the sheet-research plan.
@@ -548,7 +563,7 @@ const DEMO_PASSIVE_SEED: PassiveActivityItem[] = [
   },
 ];
 
-const MEMORY_FREE_JOB_DELAY_MS = 2_000;
+const MEMORY_FREE_JOB_DELAY_MS = 5_000;
 type MemoryFreeJobTask = { goal: string; references?: ArtifactRef[]; cancelledAttempts: Set<number> };
 type MemoryFreeJobDetailOptions = { affectedIds?: string[]; appliedIds?: string[] };
 
@@ -646,6 +661,7 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
     const id = `memory-free-auto-${++memLongJobRunRef.current}`;
     const job: AgentJobTelemetry = {
       id,
+      goal,
       status: "running",
       entrypoint: "free",
       scope: "public_room",
@@ -876,6 +892,7 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       if (r.ok) pushUndo(undoStack.current, withAppliedVersion(undo, r.toVersion));
       return r.ok ? { ok: true, version: r.toVersion } : { ok: false, reason: r.reason };
     },
+    executeNotebookKernel: async ({ request }) => executeNotebookKernel(request, { backend: "memory", now: Date.now() }),
     canUndo: (id) => (undoStack.current.get(id)?.length ?? 0) > 0,
     undoLastEdit: async (id, actor) => {
       const stack = undoStack.current.get(id) ?? [];
@@ -925,17 +942,65 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       // goals fall through to the existing behavior below, so the wedge demo is untouched.
       const demoIntent = classifyDemoIntent(input.goal);
       const pub = engine.listSessions(roomId).find((s) => s.scope === "public");
+      if (pub && demoIntent === "workbook") {
+        const referencedWorkbook = input.contextArtifactId
+          ? artifacts.find((artifact) => artifact.id === input.contextArtifactId && artifact.kind === "sheet")
+          : references?.map((reference) => artifacts.find((artifact) => artifact.id === reference.id && artifact.kind === "sheet")).find(Boolean);
+        const workbook = referencedWorkbook ?? targetSheet(artifacts, references);
+        const actor: Actor = { kind: "agent", id: pub.agentId, name: pub.agentName, scope: "public" };
+        if (!workbook) {
+          engine.postMessage({ roomId, channel: "public", author: actor, text: "I could not find a workbook in this room to inspect.", clientMsgId: crypto.randomUUID(), kind: "agent" });
+          return;
+        }
+        const operations = isVarianceSheet(workbook)
+          ? Object.entries(VARIANCE)
+            .map(([rowId, value]) => ({ elementId: `${rowId}__variance`, value }))
+            .filter((operation) => !workbook.elements[operation.elementId]?.value)
+          : [];
+        const instruction = operations.length
+          ? `${input.goal} Repair these verified missing calculation targets only: ${operations.map((operation) => operation.elementId).join(", ")}.`
+          : input.goal;
+        const rt = new InMemoryRoomTools(engine, roomId, workbook.id, actor, pub.id);
+        const result = await runHarness({
+          rt,
+          goal: withReferenceContext(instruction, references),
+          model: paced(scriptedModel(workbookAuditPlan({ artifactId: workbook.id, instruction, operations })), 120),
+          tools: ROOM_TOOLS,
+          maxSteps: Math.max(12, operations.length * 3 + 8),
+        });
+        const toolParts = result.trace.slice(-10).map((event) => {
+          const output = event.result && typeof event.result === "object" ? event.result as Record<string, unknown> : {};
+          const status = output.status === "needs_repair" || output.ok === false ? "error" as const : "done" as const;
+          const detail = event.tool === "inspect_workbook"
+            ? "Targets, dependencies, and formula patterns inspected"
+            : event.tool === "verify_workbook"
+              ? `${String(output.phase ?? "workbook")} verification ${String(output.status ?? "complete")}`
+              : `${event.tool} completed in ${event.ms}ms`;
+          return { tool: event.tool, status, detail };
+        });
+        engine.postMessage({
+          roomId,
+          channel: "public",
+          author: actor,
+          text: result.finalText || "Workbook audit finished.",
+          clientMsgId: crypto.randomUUID(),
+          kind: "agent",
+          toolParts,
+        });
+        return;
+      }
       if (pub && demoIntent === "research") {
         const research = artifacts.find((a) => a.kind === "sheet" && a.title === "Company research");
         if (research) {
           const actor: Actor = { kind: "agent", id: pub.agentId, name: pub.agentName, scope: "public" };
-          const pendingRows = researchRowIds(research)
+          const allRows = researchRowIds(research);
+          const pendingRows = allRows
             .filter((rowId) => String(research.elements[`${rowId}__status`]?.value ?? "pending") === "pending");
           // Scope to the company named in the goal (e.g. "diligence CardioNova") so the run finishes
           // fast and live; only fan out to the whole watchlist when the goal explicitly asks for it.
           const g = input.goal.toLowerCase();
           const wantsAll = /\b(all|every|batch|watchlist|bulk|each|companies)\b/.test(g);
-          const named = wantsAll ? [] : pendingRows.filter((rowId) => {
+          const named = wantsAll ? [] : allRows.filter((rowId) => {
             const name = String(research.elements[`${rowId}__company`]?.value ?? "").toLowerCase();
             return name.length > 1 && g.includes(name);
           });
@@ -947,7 +1012,15 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
           }
           const rt = new InMemoryRoomTools(engine, roomId, research.id, actor, pub.id);
           const result = await runHarness({ rt, goal, model: paced(scriptedModel(companyResearchPlan(pending)), 140), tools: ROOM_TOOLS, contextBuilder: buildResearchContext, maxSteps: 14 * pending.length + 4 });
-          if (result.finalText) engine.postMessage({ roomId, channel: "public", author: actor, text: result.finalText, clientMsgId: crypto.randomUUID(), kind: "agent" });
+          if (result.finalText) engine.postMessage({
+            roomId,
+            channel: "public",
+            author: actor,
+            text: result.finalText,
+            clientMsgId: crypto.randomUUID(),
+            kind: "agent",
+            toolParts: [{ tool: "research_receipt", status: "done", detail: `rows=${pending.map((target) => target.rowId).join(",")}` }],
+          });
           return;
         }
       }
@@ -1542,9 +1615,30 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const starterBackfillAttemptedRef = useRef<string | null>(null);
   useEffect(() => {
     if (!hasValidLiveSession || data === undefined || data === null) return;
-    const room = data.room as { title?: string } | undefined;
+    const room = data.room as { title?: string; experience?: "workspace" | "sample"; starterBackfill?: "pending" | "ready"; starterProfile?: "guided" | "scale"; createdAt?: number } | undefined;
     const members = (data.members ?? []) as Array<{ id: string; role: string }>;
     const isHost = members.some((member) => String(member.id) === String(me.id) && member.role === "host");
+    // Fast live creates schedule the scale fixture after the small room shell commits. Do not race
+    // that server-owned backfill. If it remains pending for 30s, the host starts a bounded repair
+    // watchdog through the same idempotent seed path.
+    if (room?.starterBackfill === "pending") {
+      if (!isHost) return;
+      let cancelled = false;
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      let attempts = 0;
+      const repair = () => {
+        if (cancelled || attempts >= 3) return;
+        attempts += 1;
+        void ensureStarterRoomStateMutation({ roomId: rid, requester: proof }).catch(() => {
+          if (!cancelled && attempts < 3) timer = setTimeout(repair, 15_000);
+        });
+      };
+      const age = Date.now() - (room.createdAt ?? Date.now());
+      timer = setTimeout(repair, Math.max(0, 30_000 - age));
+      return () => { cancelled = true; if (timer) clearTimeout(timer); };
+    }
+    if (room?.experience === "workspace") return;
+    if (room?.starterProfile === "guided") return;
     if (!isHost) return;
     const research = metaArtifacts.find((artifact) => artifact.kind === "sheet" && artifact.title === "Company research");
     const rowCount = (research?.meta?.dataframe as { rowCount?: number } | undefined)?.rowCount ?? 0;
@@ -1707,6 +1801,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
   const runPrivateAgent = useAction(api.agent.runPrivateAgent);
   const runCaptureAction = useAction(api.capturesNode.capture);
   const runSecFacts = useAction(api.sec.facts);
+  const runNotebookKernel = useAction((api as any).notebookKernel.execute) as (args: { roomId: string; requester: ActorProof; kind: NotebookKernelRequest["kind"]; input: string; tables?: NotebookKernelRequest["tables"] }) => Promise<NotebookKernelResult>;
   const recordCitationMut = useMutation(api.captures.recordCitation);
   const createPrivateReplyStream = useMutation(api.streaming.createPrivateReplyStream);
   const startAgentJob = useMutation(api.agentJobs.start);
@@ -1884,6 +1979,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           return { ok: false, reason: e instanceof Error ? e.message : "edit_failed" };
         }
       },
+      executeNotebookKernel: async ({ request }) => runNotebookKernel({ roomId: rid, requester: proof, kind: request.kind, input: request.input, tables: request.tables }),
       offlineEditQueue: () => offlineSnap,
       acknowledgeOfflineConflicts: () => {
         offlineQueue.resetConflicts();
@@ -2005,6 +2101,8 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           ...(maxAttempts !== undefined ? { maxAttempts } : {}),
           references,
           contextArtifactId: input.contextArtifactId,
+          contextArtifactRequired: input.contextArtifactRequired,
+          allowedElementIds: input.allowedElementIds,
           goal: withReferenceContext(input.goal, references),
         });
       },
@@ -2265,7 +2363,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         return result.rowId ? { artifactId: targetArt.id as string, rowId: result.rowId as string, created: result.created } : undefined;
       },
     };
-  }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, applyEditCore, offlineQueue, offlineSnap, scheduleOfflineReplay, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, createPrivateReplyStream, startAgentJob, startPublicAskJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, creditMode, creditBalanceQ, creditUsageQ, rid, roomId, proof, me.id, me.name]);
+  }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, applyEditCore, offlineQueue, offlineSnap, scheduleOfflineReplay, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, runNotebookKernel, createPrivateReplyStream, startAgentJob, startPublicAskJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, creditMode, creditBalanceQ, creditUsageQ, rid, roomId, proof, me.id, me.name]);
 
   // E2E test seam: expose runCollab/runSemanticConflictDrill via window so tests can trigger
   // collaboration and conflict drills without the removed CollabBar buttons.

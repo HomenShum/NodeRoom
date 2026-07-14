@@ -13,6 +13,12 @@ import {
   officialOutputManifestEvidence,
   readOfficialOutputManifest,
 } from "./proofloopOfficialOutputManifests";
+import {
+  buildOfficialScoreImportReadiness,
+  isOfficialScoreImportAdapterId,
+  officialScoreReceiptPath,
+  type OfficialScoreImportReadiness,
+} from "./proofloopOfficialScoreReceipts";
 
 export type ExternalAdapterBlockerStatus = "ready" | "blocked_external";
 
@@ -34,10 +40,16 @@ export type ExternalAdapterBlockerReceipt = {
   officialCommandPlan: string[];
   resumeCommands: string[];
   evidence: string[];
+  officialScoreReadiness?: OfficialScoreImportReadiness;
 };
 
 type OfficialScoreReceipt = {
   status?: "scored" | "blocked_external";
+  blockers?: unknown;
+};
+
+type OfficialTaskBundleLock = {
+  status?: "locked" | "partial" | "blocked";
   blockers?: unknown;
 };
 
@@ -56,14 +68,17 @@ export function buildExternalAdapterBlockerReceipt(args: {
     .filter((file) => !existsSync(join(root, file)));
   const officialSourceUrls = adapterSourceUrls(adapter);
   const officialCommandPlan = officialCommandsFor(adapter);
-  const officialScoreReceiptPath = `docs/eval/proofloop-official-scores/${adapter.id}.json`;
+  const officialScoreReceiptPath = officialScoreReceiptPathFor(adapter.id);
   const officialTaskBundleManifestPath = `docs/eval/proofloop-official-task-bundles/${adapter.id}.json`;
   const outputManifest = readOfficialOutputManifest(root, adapter.id);
   const outputComplete = officialOutputManifestComplete(outputManifest);
+  const officialScoreReadiness = isOfficialScoreImportAdapterId(adapter.id)
+    ? buildOfficialScoreImportReadiness({ root, adapterId: adapter.id })
+    : undefined;
   const officialScoreBlockers = officialScoreBlockersFor(adapter, root, {
     officialScoreReceiptPath,
     officialTaskBundleManifestPath,
-  }).filter((blocker) => !outputComplete || !isOfficialOutputExporterBlocker(adapter.id, blocker));
+  }, officialScoreReadiness).filter((blocker) => !outputComplete || !isOfficialOutputExporterBlocker(adapter.id, blocker));
   const blockers = [
     ...validationErrors,
     ...missingImplementationFiles.map((file) => `${adapter.id}: missing implementation file ${file}`),
@@ -77,7 +92,9 @@ export function buildExternalAdapterBlockerReceipt(args: {
     name: String(adapter.source.name ?? adapter.id),
     status: blockers.length ? "blocked_external" : "ready",
     localImplementationStatus: validationErrors.length === 0 && missingImplementationFiles.length === 0 ? "ready" : "missing",
-    officialScoreStatus: officialScoreBlockers.length === 0 ? "imported" : "blocked_external",
+    officialScoreStatus: officialScoreReadiness
+      ? officialScoreReadiness.officialScoreClaimable ? "imported" : "blocked_external"
+      : officialScoreBlockers.length === 0 ? "imported" : "blocked_external",
     officialSourceUrls,
     verifierCommand: adapter.verifierCommand,
     liveUserCommand: adapter.liveUserCommand,
@@ -88,11 +105,13 @@ export function buildExternalAdapterBlockerReceipt(args: {
     blockers,
     officialCommandPlan,
     resumeCommands: resumeCommandsFor(adapter),
-    evidence: [
+    evidence: [...new Set([
       `proofloop/benchmarks/${adapter.id}/adapter.json`,
       ...officialSourceUrls,
       ...officialOutputManifestEvidence(adapter.id, outputManifest),
-    ],
+      ...(officialScoreReadiness?.evidence ?? []),
+    ])],
+    ...(officialScoreReadiness ? { officialScoreReadiness } : {}),
   };
 }
 
@@ -122,19 +141,19 @@ function officialCommandsFor(adapter: ProofloopBenchmarkAdapter): string[] {
         "Clone/lock https://github.com/FinWorkBench/Finch and https://huggingface.co/datasets/FinWorkBench/Finch.",
         "Run the upstream Finch prompt_build_pipeline against the locked official task split.",
         "Run the upstream Finch call_gpt_judge scorer on NodeRoom output artifacts.",
-        "Import the official judge JSON into docs/eval/proofloop-adapter-blockers/finch.json before claiming score.",
+        "Import the accepted official judge JSON into docs/eval/proofloop-official-scores/finch.json, then refresh the adapter-blocker receipt before claiming score.",
       ];
     case "finauditing":
       return [
         "Lock the official FinAuditing task source for FinSM, FinRE, and FinMR.",
         "Run NodeRoom generated answers through the upstream FinAuditing metric/scorer for every official split.",
-        "Import the official scorer output into docs/eval/proofloop-adapter-blockers/finauditing.json before claiming score.",
+        "Import the accepted official scorer output into docs/eval/proofloop-official-scores/finauditing.json, including the FinMR judge receipt, then refresh the adapter-blocker receipt before claiming score.",
       ];
     case "workstreambench":
       return [
-        "Lock the official WorkstreamBench task bundle and scorer from the paper/supplementary source.",
-        "Run every official workstream through NodeRoom live-user seeding and artifact export.",
-        "Run the official WorkstreamBench scorer and import the result into docs/eval/proofloop-adapter-blockers/workstreambench.json before claiming score.",
+        "Use the locked MBABench public ModelOff task bundle and upstream judge/rubric from namkoong-lab/MBABench.",
+        "Run every locked public ModelOff workstream through NodeRoom live-user seeding and export MBABench judge case folders.",
+        "Run the official MBABench judge only after provider credentials/spend are approved, then import the accepted scorer receipt into docs/eval/proofloop-official-scores/workstreambench.json before claiming score.",
       ];
     default:
       return [];
@@ -145,24 +164,40 @@ function officialScoreBlockersFor(
   adapter: ProofloopBenchmarkAdapter,
   root: string,
   paths: { officialScoreReceiptPath: string; officialTaskBundleManifestPath: string },
+  readiness?: OfficialScoreImportReadiness,
 ): string[] {
-  const blockers: string[] = [];
-  const scoreReceipt = readJson<OfficialScoreReceipt>(join(root, paths.officialScoreReceiptPath));
-  if (!scoreReceipt) {
-    blockers.push(`${adapter.id}: official scorer receipt ${paths.officialScoreReceiptPath} is not imported yet.`);
-  } else if (scoreReceipt.status !== "scored") {
-    const detail = Array.isArray(scoreReceipt.blockers) && scoreReceipt.blockers.length
-      ? ` ${scoreReceipt.blockers.map(String).join(" ")}`
-      : "";
-    blockers.push(`${adapter.id}: official scorer receipt ${paths.officialScoreReceiptPath} is ${scoreReceipt.status ?? "invalid"}; scored receipt is still required before claiming score.${detail}`);
-  }
+  const blockers: string[] = readiness
+    ? [...readiness.blockers]
+    : officialScoreReceiptBlockers(adapter, root, paths.officialScoreReceiptPath);
   if (!existsSync(join(root, paths.officialTaskBundleManifestPath))) {
     const reason = adapter.id === "workstreambench"
-      ? "no public official bundle/scorer/rubric URL was found; obtain the upstream release or author-provided bundle before claiming an official score"
+      ? "lock the public MBABench repository/dataset/rubric revisions before claiming an official score"
       : "the locked official task bundle must be imported before claiming an official score";
     blockers.push(`${adapter.id}: official task bundle lock ${paths.officialTaskBundleManifestPath} is missing: ${reason}.`);
+  } else {
+    const taskBundle = readJson<OfficialTaskBundleLock>(join(root, paths.officialTaskBundleManifestPath));
+    if (taskBundle?.status !== "locked") {
+      const detail = Array.isArray(taskBundle?.blockers) && taskBundle.blockers.length
+        ? ` ${taskBundle.blockers.map(String).join(" ")}`
+        : "";
+      blockers.push(`${adapter.id}: official task bundle lock ${paths.officialTaskBundleManifestPath} is ${taskBundle?.status ?? "invalid"}; locked source revisions are required before claiming an official score.${detail}`);
+    }
   }
   return blockers;
+}
+
+function officialScoreReceiptBlockers(
+  adapter: ProofloopBenchmarkAdapter,
+  root: string,
+  path: string,
+): string[] {
+  const scoreReceipt = readJson<OfficialScoreReceipt>(join(root, path));
+  if (!scoreReceipt) return [`${adapter.id}: official scorer receipt ${path} is not imported yet.`];
+  if (scoreReceipt.status === "scored") return [];
+  const detail = Array.isArray(scoreReceipt.blockers) && scoreReceipt.blockers.length
+    ? ` ${scoreReceipt.blockers.map(String).join(" ")}`
+    : "";
+  return [`${adapter.id}: official scorer receipt ${path} is ${scoreReceipt.status ?? "invalid"}; scored receipt is still required before claiming score.${detail}`];
 }
 
 function resumeCommandsFor(adapter: ProofloopBenchmarkAdapter): string[] {
@@ -171,11 +206,18 @@ function resumeCommandsFor(adapter: ProofloopBenchmarkAdapter): string[] {
     `npm run benchmark:proofloop:external-adapter-live-room -- --id ${adapter.id} --prod --user-emulation strict`,
     `npm run benchmark:proofloop:external-adapter -- --id ${adapter.id} --prod --user-emulation strict`,
     refreshReceipt,
+    ...(isOfficialScoreImportAdapterId(adapter.id)
+      ? [`npx tsx scripts/proofloop-official-score-import.ts --id ${adapter.id} --input docs/eval/proofloop-official-scores/${adapter.id}.json --json-out docs/eval/proofloop-official-score-imports/${adapter.id}.json`]
+      : []),
     `import docs/eval/proofloop-official-scores/${adapter.id}.json from the upstream official scorer`,
     `stage docs/eval/proofloop-official-task-bundles/${adapter.id}.json from the locked official task bundle`,
     adapter.liveUserCommand,
     adapter.verifierCommand,
   ];
+}
+
+function officialScoreReceiptPathFor(adapterId: BenchmarkAdapterId): string {
+  return officialScoreReceiptPath(adapterId);
 }
 
 function readJson<T>(path: string): T | undefined {

@@ -1,12 +1,7 @@
 /* ============================================================================
-   NodeAgent Mobile — route root (session bootstrap + store providers).
-   Live (Convex): the phone joins a room by code (?room=CODE in the hash, or the
-   join form) or starts a populated demo room (?demo), then mounts MobileApp under
-   ConvexStoreProvider so it subscribes to the SAME live room as the desktop.
-   Offline (no Convex / ?mode=memory): renders MobileApp with its sample data.
-
-   Mirrors the verified ConvexApp flow in src/ui/App.tsx (attemptedRef failure
-   latch, randomToken, localStorage session persistence, join-failure shapes).
+   NodeRoom mobile route root: explicit first-run intent, session bootstrap,
+   and live store providers. A fresh visitor never joins or creates a room from
+   a URL alone; each mutation follows an on-screen confirmation.
    ============================================================================ */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
@@ -17,51 +12,54 @@ import { RoomJoinConsent, type ConsentChoice } from "./RoomJoinConsent";
 import { ErrorBoundary } from "../../app/ErrorBoundary";
 import { MobileApp } from "./MobileApp";
 import { MobileAppLive } from "./MobileAppLive";
+import "./mobile.tokens.css";
 import "./mobile.css";
 import "./mobileFrame.css";
+import "./mobile.shell.css";
 
-type Req = { kind: "idle" } | { kind: "join" | "create" | "demo"; code: string; name: string; title?: string; autoAllow?: boolean };
+type HostKind = "create" | "demo";
+type Req =
+  | { kind: "idle" }
+  | { kind: "join" | HostKind; code: string; name: string; title?: string; autoAllow?: boolean };
+
+interface HostDraft {
+  kind: HostKind;
+  code: string;
+  name: string;
+  title?: string;
+}
+
 interface LiveSession {
   roomId: string;
   memberId: string;
   name: string;
   token: string;
+  experience?: "workspace" | "sample";
+}
+
+interface PendingRequest {
+  name?: string;
+  title?: string;
+  token?: string;
 }
 
 const liveKey = (code: string) => `noderoom:live:${code.toUpperCase()}`;
+const pendingKey = (code: string) => `noderoom:mobilePending:${code.toUpperCase()}`;
 
 export function MobileRoot() {
-  // Offline / memory mode: no live backend, or explicitly forced via
-  // `#mobile?mode=memory` (mirrors the desktop) — render the sample-data surface
-  // so the terra design can be previewed without joining a live room.
   if (!HAS_CONVEX || wantsMemory()) return <MobileApp />;
   return <MobileLiveRoot />;
 }
 
-/** `#mobile?mode=memory` → force the offline sample surface. */
 function wantsMemory(): boolean {
-  if (typeof window === "undefined") return false;
-  const hash = window.location.hash;
-  const qi = hash.indexOf("?");
-  const params = new URLSearchParams(qi >= 0 ? hash.slice(qi + 1) : window.location.search);
-  return params.get("mode") === "memory";
+  return mobileParams().get("mode") === "memory";
 }
 
 function MobileLiveRoot() {
-  const [req, setReq] = useState<Req>(() => initialReq());
-  // Consent is a per-session, explicit permission moment for HOST flows (create
-  // demo). Joiners (?room=) skip it — autoAllow lives on the room, not the
-  // joiner. Memory mode never reaches MobileLiveRoot at all (the parent gates
-  // on HAS_CONVEX + ?mode=memory). pendingDemo stores the staged Req while the
-  // consent modal is up; the join effect won't fire until setReq is called.
-  const [pendingDemo, setPendingDemo] = useState<{ code: string; name: string } | null>(() => initialPendingDemo());
-  const consentInitial: ConsentChoice = useMemo(() => {
-    if (typeof window === "undefined") return "auto";
-    const hash = window.location.hash;
-    const qIndex = hash.indexOf("?");
-    const params = new URLSearchParams(qIndex >= 0 ? hash.slice(qIndex + 1) : window.location.search);
-    return params.get("demo") === "review" ? "review" : "auto";
-  }, []);
+  const initialRoute = useMemo(() => initialReq(), []);
+  const [req, setReq] = useState<Req>(initialRoute);
+  const [pendingHost, setPendingHost] = useState<HostDraft | null>(() => initialHostDraft());
+  const consentInitial: ConsentChoice = mobileParams().get("policy") === "auto" ? "auto" : "review";
   const code = req.kind === "idle" ? "" : req.code;
   const byCode = useQuery(api.rooms.byCode, code ? { code } : "skip");
   const join = useMutation(api.rooms.joinAnonymous);
@@ -70,97 +68,115 @@ function MobileLiveRoot() {
   const leaveRoom = useMutation(api.rooms.leave);
 
   const [session, setSession] = useState<LiveSession | null>(() => {
-    const r = initialReq();
-    return r.kind === "join" ? loadSession(liveKey(r.code)) : null;
+    if (initialRoute.kind !== "idle") return loadSession(liveKey(initialRoute.code));
+    const inviteCode = initialJoinCode();
+    return inviteCode ? loadSession(liveKey(inviteCode)) : null;
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const attempted = useRef<Req | null>(null);
+  const [codeInput, setCodeInput] = useState(() => initialJoinCode());
+  const [nameInput, setNameInput] = useState(() => mobileParams().get("name")?.trim().slice(0, 40) ?? "");
 
-  const [codeInput, setCodeInput] = useState(code);
-  const [nameInput, setNameInput] = useState("");
-
-  const start = (kind: "join" | "demo", rawCode: string, rawName: string) => {
-    const c = normalizeCode(rawCode);
-    if (kind === "join" && c.length < 6) {
-      setError("Enter a 6–12 character room code.");
+  const startJoin = (rawCode: string, rawName: string): void => {
+    const nextCode = normalizeCode(rawCode);
+    if (nextCode.length < 6) {
+      setError("Enter a 6-12 character room code.");
       return;
     }
-    const name = cleanName(rawName, kind === "demo" ? "Host" : "Guest");
-    const finalCode = c || makeCode();
+    const name = cleanName(rawName, "Guest");
+    const next: Exclude<Req, { kind: "idle" }> = { kind: "join", code: nextCode, name };
     setError(null);
-    // Host flow (create a fresh demo room): show consent modal first. The user
-    // explicitly picks autoAllow before the room is minted. The join effect
-    // stays gated on `req` being non-idle, so it won't fire until accept.
-    if (kind === "demo") {
-      setPendingDemo({ code: finalCode, name });
-      return;
-    }
-    setSession(loadSession(liveKey(finalCode)));
-    setReq({ kind: "join", code: finalCode, name });
+    savePendingRequest(nextCode, { name });
+    writeMobileUrl(next, { confirmed: true });
+    setSession(loadSession(liveKey(nextCode)));
+    setReq(next);
   };
 
-  // Consent accept: stage the real Req with the user's autoAllow pick. Cancel:
-  // drop pendingDemo so the JoinForm comes back; no mutation has fired yet.
+  const stageHost = (kind: HostKind, rawName: string): void => {
+    setError(null);
+    setPendingHost({
+      kind,
+      code: makeCode(),
+      name: cleanName(rawName, "Host"),
+      title: kind === "create" ? "My workspace" : undefined,
+    });
+  };
+
   const onConsentAccept = (autoAllow: boolean): void => {
-    if (!pendingDemo) return;
-    const { code, name } = pendingDemo;
+    if (!pendingHost) return;
+    const next: Exclude<Req, { kind: "idle" }> = { ...pendingHost, autoAllow };
+    savePendingRequest(next.code, { name: next.name, title: next.title });
+    writeMobileUrl(next, { confirmed: true, autoAllow });
     setSession(null);
-    setReq({ kind: "demo", code, name, autoAllow });
-    setPendingDemo(null);
+    setReq(next);
+    setPendingHost(null);
   };
-  const onConsentCancel = (): void => { setPendingDemo(null); };
 
-  // Failure-latched join/create effect (copied from ConvexApp): joinAnonymous returns
-  // failures as DATA, so without keying on the exact request object a rejection busy-loops.
+  const onConsentCancel = (): void => {
+    setPendingHost(null);
+    writeMobileLandingUrl();
+  };
+
   useEffect(() => {
     if (req.kind === "idle" || session || busy || byCode === undefined) return;
     if (attempted.current === req) return;
     attempted.current = req;
     setBusy(true);
-    const token = randomToken();
-    const name = req.name;
-    const reqCode = req.code;
+    const { code: reqCode, name } = req;
+    const pending = readPendingRequest(reqCode);
+    const token = pending?.token ?? randomToken();
+    savePendingRequest(reqCode, { name, title: req.title, token });
     void (async () => {
       let joined: { roomId: string; memberId: string } | null = null;
+      let experience: "workspace" | "sample" = req.kind === "demo" || mobileParams().get("sample") === "1" ? "sample" : "workspace";
       if (byCode) {
-        const res = await join({ code: reqCode, name, authToken: token, anon: true });
-        if (res && typeof res === "object" && "error" in res) {
-          throw new Error(res.error === "room_full" ? "That room is full. Try a different code." : "Too many people joined just now — try again shortly.");
+        const result = await join({ code: reqCode, name, authToken: token, anon: req.kind === "join" });
+        if (result && typeof result === "object" && "error" in result) {
+          throw new Error(result.error === "room_full"
+            ? "That room is full. Try a different code."
+            : "Too many people joined just now. Try again shortly.");
         }
-        joined = res ? { roomId: String(res.roomId), memberId: String(res.memberId) } : null;
+        joined = result ? { roomId: String(result.roomId), memberId: String(result.memberId) } : null;
+        experience = byCode.experience ?? experience;
       } else if (req.kind === "demo") {
-        const res = await createStarterRoom({ code: reqCode, title: "Startup Banking Diligence War Room", hostName: name, authToken: token, autoAllow: req.autoAllow ?? true });
-        joined = { roomId: String(res.roomId), memberId: String(res.memberId) };
+        const result = await createStarterRoom({
+          code: reqCode,
+          title: "Startup Banking Diligence War Room",
+          hostName: name,
+          authToken: token,
+          autoAllow: req.autoAllow ?? false,
+          deferHeavySeed: true,
+          seedProfile: "guided",
+        });
+        joined = { roomId: String(result.roomId), memberId: String(result.memberId) };
       } else if (req.kind === "create") {
-        const res = await createRoom({ code: reqCode, title: req.title ?? "Blank NodeRoom", hostName: name, authToken: token, autoAllow: req.autoAllow ?? false });
-        joined = { roomId: String(res.roomId), memberId: String(res.memberId) };
+        const result = await createRoom({
+          code: reqCode,
+          title: req.title ?? "My workspace",
+          hostName: name,
+          authToken: token,
+          autoAllow: req.autoAllow ?? false,
+        });
+        joined = { roomId: String(result.roomId), memberId: String(result.memberId) };
       }
-      if (!joined) throw new Error(`Room ${reqCode} was not found. Check the code or start a demo room.`);
-      const next: LiveSession = { roomId: joined.roomId, memberId: joined.memberId, name, token };
-      try {
-        localStorage.setItem(liveKey(reqCode), JSON.stringify(next));
-      } catch {
-        /* ignore */
-      }
-      try {
-        history.replaceState(null, "", `#mobile?room=${reqCode}` + (name ? `&name=${encodeURIComponent(name)}` : ""));
-      } catch {
-        /* ignore */
-      }
+      if (!joined) throw new Error(`Room ${reqCode} was not found. Check the code or create a workspace.`);
+
+      const next: LiveSession = { ...joined, name, token, experience };
+      try { localStorage.setItem(liveKey(reqCode), JSON.stringify(next)); } catch { /* ignore */ }
+      clearPendingRequest(reqCode);
+      writeMobileUrl({ kind: "join", code: reqCode, name }, { sample: experience === "sample" });
       setSession(next);
     })()
-      .catch((e) => setError(e instanceof Error ? e.message : String(e)))
+      .catch((reason) => setError(reason instanceof Error ? reason.message : String(reason)))
       .finally(() => setBusy(false));
-  }, [byCode, busy, join, createRoom, createStarterRoom, req, session]);
+  }, [byCode, busy, createRoom, createStarterRoom, join, req, session]);
 
-  // Consent modal sits above the JoinForm — the user explicitly grants the
-  // autoAllow choice before the room mints. Tab refresh re-prompts (no
-  // localStorage by design).
-  // Vercel deploy-bust: 779bcde0-force-rebuild
-  if (pendingDemo) {
+  if (pendingHost) {
     return (
       <RoomJoinConsent
+        experience={pendingHost.kind === "demo" ? "sample" : "workspace"}
+        roomCode={pendingHost.code}
         initialChoice={consentInitial}
         onAccept={onConsentAccept}
         onCancel={onConsentCancel}
@@ -177,32 +193,39 @@ function MobileLiveRoot() {
         error={error}
         onCode={setCodeInput}
         onName={setNameInput}
-        onJoin={() => start("join", codeInput, nameInput)}
-        onDemo={() => start("demo", "", nameInput)}
+        onJoin={() => startJoin(codeInput, nameInput)}
+        onCreate={() => stageHost("create", nameInput)}
+        onSample={() => stageHost("demo", nameInput)}
       />
     );
   }
 
   const me: Actor = { kind: "user", id: session.memberId, name: session.name };
   const proof = { actor: me, token: session.token };
-  const leave = () => {
-    void leaveRoom({ roomId: session.roomId as never, requester: proof }).catch(() => undefined);
-    try {
-      localStorage.removeItem(liveKey(code));
-    } catch {
-      /* ignore */
-    }
+  const dropLocalSession = (): void => {
+    const activeCode = code || initialJoinCode();
+    try { if (activeCode) localStorage.removeItem(liveKey(activeCode)); } catch { /* ignore */ }
     setSession(null);
     setReq({ kind: "idle" });
     setError(null);
+    writeMobileLandingUrl();
+  };
+  const leave = (): void => {
+    void leaveRoom({ roomId: session.roomId as never, requester: proof })
+      .then((result) => {
+        if (!result.ok) {
+          window.alert("The room host cannot leave until ownership transfer is available. Your session remains active.");
+          return;
+        }
+        dropLocalSession();
+      })
+      .catch(() => window.alert("Could not leave the room. Your session remains active; try again."));
   };
 
-  // Live subtree: a thrown useQuery (revoked/rotated proof on rooms.meta) would otherwise blank the
-  // phone with no recovery. On catch, drop the stale session and fall back to the join form.
   return (
-    <ErrorBoundary onError={() => leave()} fallback={() => null}>
+    <ErrorBoundary onError={dropLocalSession} fallback={() => null}>
       <ConvexStoreProvider roomId={session.roomId} me={me} proof={proof}>
-        <MobileAppLive roomId={session.roomId} me={me} proof={proof} onLeave={leave} />
+        <MobileAppLive roomId={session.roomId} me={me} proof={proof} experienceHint={session.experience} onLeave={leave} />
       </ConvexStoreProvider>
     </ErrorBoundary>
   );
@@ -216,95 +239,177 @@ function JoinForm({
   onCode,
   onName,
   onJoin,
-  onDemo,
+  onCreate,
+  onSample,
 }: {
   code: string;
   name: string;
   busy: boolean;
   error: string | null;
-  onCode: (v: string) => void;
-  onName: (v: string) => void;
+  onCode: (value: string) => void;
+  onName: (value: string) => void;
   onJoin: () => void;
-  onDemo: () => void;
+  onCreate: () => void;
+  onSample: () => void;
 }) {
   return (
     <div className="na-frame-root" data-theme="light">
       <div className="na-frame">
-        <div className="na-join" data-accent="terracotta">
-          <div className="na-mark na-join-mark">N</div>
-          <h1 className="na-join-title">NodeAgent Mobile</h1>
-          <p className="na-join-sub">Join a live room from your phone, or start a demo.</p>
-          {error && <div className="na-join-error">{error}</div>}
-          <input
-            className="na-join-input mono"
-            placeholder="Room code"
-            value={code}
-            autoCapitalize="characters"
-            autoCorrect="off"
-            spellCheck={false}
-            onChange={(e) => onCode(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") onJoin(); }}
-            aria-label="Room code"
-          />
-          <input
-            className="na-join-input"
-            placeholder="Your name"
-            value={name}
-            onChange={(e) => onName(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") onJoin(); }}
-            aria-label="Your name"
-          />
-          <button className="na-btn primary full" disabled={busy} onClick={onJoin}>
-            {busy ? "Joining…" : "Join room"}
-          </button>
-          <button className="na-btn full" disabled={busy} onClick={onDemo}>
-            Start a demo room
-          </button>
-        </div>
+        <main className="na-join" data-accent="terracotta">
+          <div className="na-mark na-join-mark" aria-hidden="true">N</div>
+          <h1 className="na-join-title">NodeRoom</h1>
+          <p className="na-join-sub">Work with AI in a shared room, review changes, and keep the evidence attached.</p>
+          {error && <div id="mobile-join-error" className="na-join-error" role="alert">{error}</div>}
+          <label className="na-join-field">
+            <span>Your name</span>
+            <input
+              className="na-join-input"
+              placeholder="How teammates will see you"
+              value={name}
+              autoComplete="name"
+              onChange={(event) => onName(event.target.value)}
+            />
+          </label>
+          <section className="na-join-section" aria-labelledby="mobile-join-heading">
+            <h2 id="mobile-join-heading">Join an existing room</h2>
+            <p>Anyone allowed by the deployment who has the code can join and edit shared room content.</p>
+            <input
+              className="na-join-input mono"
+              placeholder="Room code"
+              value={code}
+              autoCapitalize="characters"
+              autoCorrect="off"
+              spellCheck={false}
+              onChange={(event) => onCode(event.target.value)}
+              onKeyDown={(event) => { if (event.key === "Enter") onJoin(); }}
+              aria-label="Room code"
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? "mobile-join-error" : undefined}
+            />
+            <button className="na-btn primary full" disabled={busy} onClick={onJoin} data-testid="mobile-join-submit">
+              {busy ? "Joining..." : "Join room"}
+            </button>
+          </section>
+          <section className="na-join-section" aria-labelledby="mobile-create-heading">
+            <h2 id="mobile-create-heading">Start a new room</h2>
+            <p>Create an empty workspace, or inspect a clearly labeled synthetic sample.</p>
+            <div className="na-join-actions">
+              <button className="na-btn full" disabled={busy} onClick={onCreate} data-testid="mobile-create-room">Create workspace</button>
+              <button className="na-btn full" disabled={busy} onClick={onSample} data-testid="mobile-sample-room">Try sample</button>
+            </div>
+          </section>
+          <p className="na-join-trust">Code-access room. Review-first agent edits. Room content remains after members leave.</p>
+        </main>
       </div>
     </div>
   );
 }
 
-// ── url + session helpers (local copies of ConvexApp's, mobile-scoped) ──────
 function initialReq(): Req {
   if (typeof window === "undefined") return { kind: "idle" };
-  const hash = window.location.hash; // e.g. "#mobile?room=NR7K9"
-  const qIndex = hash.indexOf("?");
-  const params = new URLSearchParams(qIndex >= 0 ? hash.slice(qIndex + 1) : window.location.search);
-  const rawName = params.get("name") ?? "";
-  const room = params.get("room");
+  const params = mobileParams();
+  const confirmed = params.get("confirmed") === "1";
+  const autoAllow = params.get("policy") === "auto";
+  const room = normalizeCode(params.get("room") ?? "");
   if (room) {
-    const c = normalizeCode(room);
-    const name = cleanName(rawName, "Guest");
-    return c ? { kind: "join", code: c, name } : { kind: "idle" };
+    const saved = loadSession(liveKey(room));
+    if (!confirmed && !saved) return { kind: "idle" };
+    const pending = readPendingRequest(room);
+    return { kind: "join", code: room, name: cleanName(pending?.name ?? params.get("name") ?? "", saved?.name ?? "Guest") };
   }
+
+  const demo = params.get("demo");
+  if (demo !== null && confirmed) {
+    const code = normalizeCode(demo && demo !== "1" && demo !== "review" ? demo : makeCode());
+    const pending = readPendingRequest(code);
+    return code ? { kind: "demo", code, name: cleanName(pending?.name ?? params.get("name") ?? "", "Host"), autoAllow } : { kind: "idle" };
+  }
+
   const create = params.get("create");
-  if (create !== null) {
-    const c = normalizeCode(create && create !== "1" ? create : makeCode());
-    const name = cleanName(rawName, "Host");
-    const title = cleanTitle(params.get("title") ?? "", "Blank NodeRoom");
-    return c ? { kind: "create", code: c, name, title } : { kind: "idle" };
+  if (create !== null && confirmed) {
+    const code = normalizeCode(create && create !== "1" ? create : makeCode());
+    const pending = readPendingRequest(code);
+    return code ? {
+      kind: "create",
+      code,
+      name: cleanName(pending?.name ?? params.get("name") ?? "", "Host"),
+      title: cleanTitle(pending?.title ?? params.get("title") ?? "", "My workspace"),
+      autoAllow,
+    } : { kind: "idle" };
   }
-  // URL-driven demo: do NOT auto-fire the mutation. Return idle so the parent
-  // can read initialPendingDemo() and route through the consent modal first.
-  // The user's autoAllow pick lands via onConsentAccept → setReq.
   return { kind: "idle" };
 }
 
-/** Parses ?demo=… into a pending demo descriptor (code + name) WITHOUT setting
- *  req. The consent modal then mints the room with the user's explicit pick. */
-function initialPendingDemo(): { code: string; name: string } | null {
+function initialHostDraft(): HostDraft | null {
   if (typeof window === "undefined") return null;
-  const hash = window.location.hash;
-  const qIndex = hash.indexOf("?");
-  const params = new URLSearchParams(qIndex >= 0 ? hash.slice(qIndex + 1) : window.location.search);
-  if (params.get("room")) return null; // joiners skip — autoAllow lives on the room
+  const params = mobileParams();
+  if (params.get("confirmed") === "1" || params.get("room")) return null;
+  const intent = params.get("intent");
   const demo = params.get("demo");
-  if (demo === null) return null;
-  const name = cleanName(params.get("name") ?? "", "Host");
-  const code = normalizeCode(demo && demo !== "1" && demo !== "review" ? demo : makeCode());
-  return code ? { code, name } : null;
+  const create = params.get("create");
+  const kind: HostKind | null = intent === "sample" || demo !== null
+    ? "demo"
+    : intent === "create" || create !== null
+      ? "create"
+      : null;
+  if (!kind) return null;
+  const rawCode = kind === "demo" ? demo : create;
+  const code = normalizeCode(rawCode && rawCode !== "1" && rawCode !== "review" ? rawCode : makeCode());
+  return {
+    kind,
+    code,
+    name: cleanName(params.get("name") ?? "", "Host"),
+    title: kind === "create" ? cleanTitle(params.get("title") ?? "", "My workspace") : undefined,
+  };
+}
+
+function initialJoinCode(): string {
+  return normalizeCode(mobileParams().get("room") ?? "");
+}
+
+function mobileParams(): URLSearchParams {
+  if (typeof window === "undefined") return new URLSearchParams();
+  const hash = window.location.hash;
+  const queryIndex = hash.indexOf("?");
+  return new URLSearchParams(queryIndex >= 0 ? hash.slice(queryIndex + 1) : window.location.search);
+}
+
+function writeMobileUrl(
+  request: Exclude<Req, { kind: "idle" }>,
+  options: { confirmed?: boolean; autoAllow?: boolean; sample?: boolean } = {},
+): void {
+  if (typeof window === "undefined") return;
+  const params = new URLSearchParams();
+  params.set(request.kind === "join" ? "room" : request.kind, request.code);
+  if (request.kind === "create" && request.title) params.set("title", request.title);
+  if (options.confirmed) params.set("confirmed", "1");
+  if (options.autoAllow) params.set("policy", "auto");
+  if (options.sample) params.set("sample", "1");
+  history.replaceState(null, "", `#mobile?${params.toString()}`);
+}
+
+function writeMobileLandingUrl(): void {
+  if (typeof window !== "undefined") history.replaceState(null, "", "#mobile");
+}
+
+function savePendingRequest(code: string, value: PendingRequest): void {
+  try {
+    const current = readPendingRequest(code) ?? {};
+    sessionStorage.setItem(pendingKey(code), JSON.stringify({ ...current, ...value }));
+  } catch { /* ignore */ }
+}
+
+function readPendingRequest(code: string): PendingRequest | null {
+  try {
+    const raw = sessionStorage.getItem(pendingKey(code));
+    return raw ? JSON.parse(raw) as PendingRequest : null;
+  } catch {
+    return null;
+  }
+}
+
+function clearPendingRequest(code: string): void {
+  try { sessionStorage.removeItem(pendingKey(code)); } catch { /* ignore */ }
 }
 
 function normalizeCode(raw: string): string {
@@ -320,31 +425,37 @@ function cleanTitle(raw: string, fallback: string): string {
 }
 
 function makeCode(): string {
-  const b = new Uint8Array(6);
-  crypto.getRandomValues(b);
-  const suffix = Array.from(b, (x) => (x % 36).toString(36)).join("").toUpperCase();
-  return ("NR" + suffix).slice(0, 12);
+  const bytes = new Uint8Array(6);
+  crypto.getRandomValues(bytes);
+  const suffix = Array.from(bytes, (value) => (value % 36).toString(36)).join("").toUpperCase();
+  return (`NR${suffix}`).slice(0, 12);
 }
 
 function randomToken(): string {
-  const b = new Uint8Array(32);
-  crypto.getRandomValues(b);
-  return Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("");
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (value) => value.toString(16).padStart(2, "0")).join("");
 }
 
 function loadSession(key: string): LiveSession | null {
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return null;
-    const p = JSON.parse(raw) as Partial<LiveSession>;
+    const parsed = JSON.parse(raw) as Partial<LiveSession>;
     if (
-      typeof p.roomId === "string" &&
-      typeof p.memberId === "string" &&
-      typeof p.name === "string" &&
-      typeof p.token === "string" &&
-      /^[a-f0-9]{32,}$/i.test(p.token)
+      typeof parsed.roomId === "string" &&
+      typeof parsed.memberId === "string" &&
+      typeof parsed.name === "string" &&
+      typeof parsed.token === "string" &&
+      /^[a-f0-9]{32,}$/i.test(parsed.token)
     ) {
-      return { roomId: p.roomId, memberId: p.memberId, name: p.name, token: p.token };
+      return {
+        roomId: parsed.roomId,
+        memberId: parsed.memberId,
+        name: parsed.name,
+        token: parsed.token,
+        experience: parsed.experience,
+      };
     }
     return null;
   } catch {

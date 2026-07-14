@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test.describe("semantic entity graph", () => {
   test.use({ viewport: { width: 1456, height: 940 } });
 
-  test("opens the semantic graph, filters, selects, closes detail, and drags a node", async ({ page }) => {
+  test("opens the semantic graph, filters, selects, persists a dragged node, and exports the canonical contract", async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem("noderoom:tour:v1", "done");
       localStorage.setItem("noderoom:focusMode:v1", JSON.stringify({ enabled: true, paused: false }));
@@ -14,6 +14,14 @@ test.describe("semantic entity graph", () => {
 
     const graph = page.getByTestId("knowledge-graph");
     await expect(graph).toBeVisible({ timeout: 15_000 });
+    await expect.poll(() => graph.locator(".react-flow__node").count()).toBeGreaterThanOrEqual(8);
+    expect(await graph.locator(".react-flow__node").count()).toBeLessThanOrEqual(16);
+    await expect(graph.getByTestId("entity-graph-semantic-controls")).toHaveCount(0);
+    await expect(graph.getByTestId("graph-nodeagent-panel")).toHaveCount(0);
+    await graph.getByRole("button", { name: "Open graph NodeAgent" }).click();
+    await expect(graph.getByTestId("graph-nodeagent-panel")).toBeVisible();
+    await graph.getByRole("button", { name: "Close graph NodeAgent" }).click();
+    await graph.getByRole("button", { name: "Show advanced graph controls" }).click();
     await expect(graph.getByTestId("entity-graph-semantic-controls")).toBeVisible();
     await expect(graph.locator(".react-flow__minimap")).toBeVisible();
 
@@ -50,5 +58,31 @@ test.describe("semantic entity graph", () => {
     const after = await priyaNode.boundingBox();
     expect(after).toBeTruthy();
     expect(Math.abs(after!.x - before!.x) + Math.abs(after!.y - before!.y)).toBeGreaterThan(10);
+    await expect(graph.getByText("1 pinned", { exact: true })).toBeVisible();
+
+    const storedLayout = await page.evaluate(() => {
+      const key = Object.keys(localStorage).find((candidate) => candidate.startsWith("noderoom:nodegraph:1:"));
+      return key ? JSON.parse(localStorage.getItem(key) ?? "null") : null;
+    });
+    expect(storedLayout?.pinnedNodeIds).toHaveLength(1);
+    expect(Object.keys(storedLayout?.positions ?? {})).toHaveLength(1);
+
+    const [jsonDownload] = await Promise.all([
+      page.waitForEvent("download"),
+      graph.getByRole("button", { name: "JSON", exact: true }).click(),
+    ]);
+    expect(jsonDownload.suggestedFilename()).toMatch(/-nodegraph\.json$/);
+    const [neo4jDownload] = await Promise.all([
+      page.waitForEvent("download"),
+      graph.getByRole("button", { name: "Neo4j", exact: true }).click(),
+    ]);
+    expect(neo4jDownload.suggestedFilename()).toMatch(/-neo4j-sync\.json$/);
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("artifact-panel")).toBeVisible({ timeout: 20_000 });
+    await page.getByTestId("graph-tab").dispatchEvent("click");
+    const restoredGraph = page.getByTestId("knowledge-graph");
+    await restoredGraph.getByRole("button", { name: "Show advanced graph controls" }).click();
+    await expect(restoredGraph.getByText("1 pinned", { exact: true })).toBeVisible({ timeout: 15_000 });
   });
 });

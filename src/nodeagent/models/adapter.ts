@@ -14,14 +14,25 @@
  */
 
 import { generateText, tool, type ModelMessage, type LanguageModel } from "ai";
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { anthropic } from "@ai-sdk/anthropic";
 import { google } from "@ai-sdk/google";
 import { openai, createOpenAI } from "@ai-sdk/openai";
 import type { AgentModel, AgentMessage, AgentToolChoice, ToolCall } from "../core/types";
 import { getProviderForModel, getModelPricing, resolveModelAlias } from "./modelCatalog";
-import { isOpenRouterFreeAutoModel, selectOpenRouterFreeModels } from "./openRouterFreeModels";
+import {
+  isOpenRouterFreeAutoModel,
+  openRouterFreeCandidateSignal,
+  openRouterFreeRequestSignal,
+  openRouterFreeRouteHealthSnapshot,
+  recordOpenRouterFreeRouteOutcome,
+  restoreOpenRouterFreeRouteHealth,
+  selectOpenRouterFreeModels,
+  type OpenRouterFreeModelMode,
+} from "./openRouterFreeModels";
 import { redactPII } from "../guardrails/gateway";
-import { assertProviderEgressAllowed, assertProviderRouteAllowed, type ProviderEgressArtifact, type ProviderRouteEntrypoint } from "../guardrails/egressPolicy";
+import { assertProviderEgressAllowed, assertProviderRouteAllowed, isProviderNonRetryableError, type ProviderEgressArtifact, type ProviderRouteEntrypoint } from "../guardrails/egressPolicy";
 
 // OpenRouter = OpenAI-compatible endpoint; this is how the cheap/free models are reached.
 // Built lazily (per call) so process.env.OPENROUTER_API_KEY is read AFTER .env.local loads —
@@ -49,11 +60,18 @@ function providerFor(modelId: string): LanguageModel {
   }
 }
 
+export type ModelAdapterOptions = {
+  entrypoint?: ProviderRouteEntrypoint;
+  artifacts?: ProviderEgressArtifact[];
+  freeAutoMode?: OpenRouterFreeModelMode;
+};
+
 /** Any catalog model behind the SAME seam — swap freely in the benchmark + the action. */
-export function model(modelId: string, options: { entrypoint?: ProviderRouteEntrypoint; artifacts?: ProviderEgressArtifact[] } = {}): AgentModel {
+export function model(modelId: string, options: ModelAdapterOptions = {}): AgentModel {
   const aliasModelId = resolveModelAlias(modelId);
   const entrypoint = options.entrypoint ?? "system";
   const artifacts = options.artifacts ?? [];
+  const freeAutoMode = options.freeAutoMode;
   // free-auto resolves a concrete free model per call; record the actual one used so the
   // agentRuns audit captures which model produced the cells, not just the "openrouter/free-auto" alias.
   let resolvedModelId = aliasModelId;
@@ -64,7 +82,7 @@ export function model(modelId: string, options: { entrypoint?: ProviderRouteEntr
       const safeSystem = redactPII(system).text;
       const safeMessages = messages.map((m) => (m.role === "user" && m.content ? { ...m, content: redactPII(m.content).text } : m));
       const sdkTools = Object.fromEntries(tools.map((t) => [t.name, tool({ description: t.description, inputSchema: t.schema })]));
-      const { res, resolvedModel } = await generateAgentText(aliasModelId, safeSystem, toSdkMessages(safeMessages), sdkTools, signal, entrypoint, artifacts, toolChoice);
+      const { res, resolvedModel } = await generateAgentText(aliasModelId, safeSystem, toSdkMessages(safeMessages), sdkTools, signal, entrypoint, artifacts, toolChoice, freeAutoMode);
       resolvedModelId = resolvedModel;
       const toolCalls: ToolCall[] = (res.toolCalls ?? []).map((tc: { toolCallId: string; toolName: string; input?: Record<string, unknown>; providerMetadata?: Record<string, unknown> }) => ({ id: tc.toolCallId, tool: tc.toolName, args: tc.input ?? {}, providerMetadata: tc.providerMetadata }));
       return {
@@ -144,6 +162,7 @@ async function generateAgentText(
   entrypoint: ProviderRouteEntrypoint = "system",
   artifacts: ProviderEgressArtifact[] = [],
   toolChoice?: AgentToolChoice,
+  freeAutoMode?: OpenRouterFreeModelMode,
 ): Promise<{ res: GenerateTextResultAny; resolvedModel: string }> {
   if (!isOpenRouterFreeAutoModel(modelId)) {
     const call = (id: string) => {
@@ -166,28 +185,39 @@ async function generateAgentText(
       return { res: await call(fb), resolvedModel: fb }; // primary exhausted retries → cross-model safety net
     }
   }
+  hydrateOpenRouterFreeRouteHealth();
+  const requestSignal = openRouterFreeRequestSignal(signal);
   const candidates = await selectOpenRouterFreeModels({
-    mode: Object.keys(sdkTools).length ? "agent" : "chat",
+    mode: freeAutoMode ?? (Object.keys(sdkTools).length ? "agent" : "chat"),
     limit: openRouterFreeAutoLimit(),
-    signal,
+    signal: requestSignal,
   });
   let lastError: unknown;
   const attempted: string[] = [];
   for (const candidate of candidates) {
     attempted.push(candidate.id);
+    const candidateSignal = openRouterFreeCandidateSignal(requestSignal);
+    const candidateStarted = Date.now();
     try {
       assertProviderRouteAllowed({ model: candidate.id, entrypoint, env: process.env });
       assertProviderEgressAllowed({ model: candidate.id, entrypoint, artifacts, env: process.env });
-      return { res: await withRetry(() => generateText({
+      const res = await withRetry(() => generateText({
         model: openrouter().chat(candidate.id),
         system,
         messages,
         tools: sdkTools,
         toolChoice: Object.keys(sdkTools).length ? sdkToolChoiceForModel(candidate.id, toolChoice) : undefined,
-        abortSignal: signal,
-      }), signal), resolvedModel: candidate.id };
+        abortSignal: candidateSignal,
+      }), candidateSignal, openRouterFreeCandidateRetries());
+      recordAndPersistOpenRouterFreeRouteOutcome({ modelId: candidate.id, ok: true, latencyMs: Date.now() - candidateStarted });
+      return { res, resolvedModel: candidate.id };
     } catch (error) {
       if (signal?.aborted) throw error;
+      recordAndPersistOpenRouterFreeRouteOutcome({ modelId: candidate.id, ok: false, latencyMs: Date.now() - candidateStarted, error });
+      if (requestSignal.aborted) {
+        throw new Error(`openrouter/free-auto request deadline exceeded after ${attempted.join(", ")}`);
+      }
+      if (isProviderNonRetryableError(error)) throw error;
       lastError = error;
     }
   }
@@ -199,15 +229,30 @@ async function generatePromptText(modelId: string, prompt: string): Promise<Gene
     assertProviderRouteAllowed({ model: modelId, entrypoint: "system", env: process.env });
     return generateText({ model: providerFor(modelId), prompt });
   }
-  const candidates = await selectOpenRouterFreeModels({ mode: "chat", limit: openRouterFreeAutoLimit() });
+  hydrateOpenRouterFreeRouteHealth();
+  const requestSignal = openRouterFreeRequestSignal();
+  const candidates = await selectOpenRouterFreeModels({ mode: "chat", limit: openRouterFreeAutoLimit(), signal: requestSignal });
   let lastError: unknown;
   const attempted: string[] = [];
   for (const candidate of candidates) {
     attempted.push(candidate.id);
+    const candidateSignal = openRouterFreeCandidateSignal(requestSignal);
+    const candidateStarted = Date.now();
     try {
       assertProviderRouteAllowed({ model: candidate.id, entrypoint: "system", env: process.env });
-      return await generateText({ model: openrouter().chat(candidate.id), prompt });
+      const res = await withRetry(
+        () => generateText({ model: openrouter().chat(candidate.id), prompt, abortSignal: candidateSignal }),
+        candidateSignal,
+        openRouterFreeCandidateRetries(),
+      );
+      recordAndPersistOpenRouterFreeRouteOutcome({ modelId: candidate.id, ok: true, latencyMs: Date.now() - candidateStarted });
+      return res;
     } catch (error) {
+      recordAndPersistOpenRouterFreeRouteOutcome({ modelId: candidate.id, ok: false, latencyMs: Date.now() - candidateStarted, error });
+      if (requestSignal.aborted) {
+        throw new Error(`openrouter/free-auto prompt deadline exceeded after ${attempted.join(", ")}`);
+      }
+      if (isProviderNonRetryableError(error)) throw error;
       lastError = error;
     }
   }
@@ -217,6 +262,47 @@ async function generatePromptText(modelId: string, prompt: string): Promise<Gene
 function openRouterFreeAutoLimit(): number {
   const raw = Number(envValue("OPENROUTER_FREE_AUTO_LIMIT") ?? 8);
   return Number.isFinite(raw) ? Math.max(1, Math.min(20, raw)) : 8;
+}
+
+function openRouterFreeCandidateRetries(): number {
+  const raw = Number(envValue("OPENROUTER_FREE_CANDIDATE_RETRIES") ?? 0);
+  return Number.isFinite(raw) ? Math.max(0, Math.min(2, Math.trunc(raw))) : 0;
+}
+
+let openRouterFreeHealthHydrated = false;
+
+function openRouterFreeHealthPersistenceEnabled(): boolean {
+  return process.env.NODE_ENV !== "test" && process.env.OPENROUTER_FREE_HEALTH_PERSIST !== "0";
+}
+
+function openRouterFreeHealthPath(): string {
+  return resolve(process.env.OPENROUTER_FREE_HEALTH_PATH?.trim() || ".proofloop/openrouter-free-route-health.json");
+}
+
+function hydrateOpenRouterFreeRouteHealth(): void {
+  if (openRouterFreeHealthHydrated) return;
+  openRouterFreeHealthHydrated = true;
+  if (!openRouterFreeHealthPersistenceEnabled()) return;
+  const path = openRouterFreeHealthPath();
+  if (!existsSync(path)) return;
+  try {
+    const value = JSON.parse(readFileSync(path, "utf8")) as { routes?: ReturnType<typeof openRouterFreeRouteHealthSnapshot> };
+    restoreOpenRouterFreeRouteHealth(value.routes ?? []);
+  } catch {
+    // Ignore a corrupt local cache; the next route outcome replaces it atomically.
+  }
+}
+
+function recordAndPersistOpenRouterFreeRouteOutcome(args: Parameters<typeof recordOpenRouterFreeRouteOutcome>[0]): void {
+  hydrateOpenRouterFreeRouteHealth();
+  recordOpenRouterFreeRouteOutcome(args);
+  if (!openRouterFreeHealthPersistenceEnabled()) return;
+  const path = openRouterFreeHealthPath();
+  const temporary = `${path}.${process.pid}.tmp`;
+  mkdirSync(dirname(path), { recursive: true });
+  const routes = openRouterFreeRouteHealthSnapshot().map(({ lastError: _lastError, ...route }) => route);
+  writeFileSync(temporary, `${JSON.stringify({ schema: 1, generatedAt: new Date().toISOString(), routes }, null, 2)}\n`, "utf8");
+  renameSync(temporary, path);
 }
 
 function shortProviderError(error: unknown): string {

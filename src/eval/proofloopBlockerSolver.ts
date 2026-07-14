@@ -5,6 +5,11 @@ import {
   proofloopModelRouteForRun,
   type ProofloopModelRoute,
 } from "./proofloopModelTracking";
+import { OFFICIAL_SCORE_PREFLIGHT_COMMAND } from "./proofloopOfficialScorePreflight";
+import {
+  officialOutputManifestComplete,
+  readOfficialOutputManifest,
+} from "./proofloopOfficialOutputManifests";
 
 export type BlockerClass =
   | "local_missing_code"
@@ -67,20 +72,47 @@ type LaneSpec = {
   reason: string;
 };
 
-type OpenRouterSnapshot = {
-  models?: Array<{
-    id: string;
-    name?: string;
-    contextLength?: number;
-    pricing?: { prompt?: string; completion?: string };
-    inputPerMillionUsd?: number;
-    outputPerMillionUsd?: number;
-    supportsTools?: boolean;
-    supportsToolChoice?: boolean;
-    supportsStructuredOutputs?: boolean;
+type FreeFirstRouterReceipt = {
+  selectedFreeAutoRoutes?: Array<{
+    id?: unknown;
+    name?: unknown;
+    contextLength?: unknown;
+    promptPrice?: unknown;
+    completionPrice?: unknown;
+  }>;
+  rankedLiveFreeRoutes?: Array<{
+    id?: unknown;
+    name?: unknown;
+    contextLength?: unknown;
+    promptPrice?: unknown;
+    completionPrice?: unknown;
   }>;
 };
-type OpenRouterSnapshotModel = NonNullable<OpenRouterSnapshot["models"]>[number];
+
+type FreeModelDiscoveryReceipt = {
+  models?: Array<{
+    id?: unknown;
+    name?: unknown;
+    contextLength?: unknown;
+    supportsTools?: unknown;
+  }>;
+};
+
+type FreeFirstRouteCandidate = {
+  id: string;
+  name?: string;
+  contextLength?: number;
+};
+
+const COST_SAFE_PREFLIGHT_COMMAND = OFFICIAL_SCORE_PREFLIGHT_COMMAND;
+const FREE_AUTO_ROUTE = "openrouter/free-auto";
+const FALLBACK_FREE_FIRST_ROUTES: FreeFirstRouteCandidate[] = [
+  { id: "cohere/north-mini-code:free", name: "Cohere North Mini Code (free)", contextLength: 256_000 },
+  { id: "nvidia/nemotron-3-ultra-550b-a55b:free", name: "NVIDIA Nemotron 3 Ultra (free)", contextLength: 1_000_000 },
+  { id: "nvidia/nemotron-3-super-120b-a12b:free", name: "NVIDIA Nemotron 3 Super (free)", contextLength: 1_000_000 },
+  { id: "qwen/qwen3-coder:free", name: "Qwen3 Coder (free)", contextLength: 1_048_576 },
+  { id: "openai/gpt-oss-120b:free", name: "GPT OSS 120B (free)", contextLength: 131_072 },
+];
 
 const ARTIFACT_NAMES = [
   "blocker-analysis.json",
@@ -119,15 +151,22 @@ export function solveProofloopBlocker(args: {
 }): ProofloopBlockerSolveReceipt {
   const generatedAt = args.generatedAt ?? new Date().toISOString();
   const spec = laneSpecForTask(args.task);
-  const classes = normalizeClasses([...classifyBlockers(args.task), ...spec.externalClasses]);
-  const remainingLocalClasses = classes.filter((item) => !spec.externalClasses.includes(item));
-  const remainingExternalClasses = classes.filter((item) => spec.externalClasses.includes(item));
+  const completedLocalClasses = completedLocalClassesForSpec(args.root, spec);
+  const effectiveExternalClasses = externalClassesForSpec(args.root, spec);
+  const classes = normalizeClasses(
+    [...classifyBlockers(args.task), ...effectiveExternalClasses]
+      .filter((item) => !completedLocalClasses.includes(item)),
+  );
+  const remainingLocalClasses = classes.filter((item) => !effectiveExternalClasses.includes(item));
+  const remainingExternalClasses = classes.filter((item) => effectiveExternalClasses.includes(item));
   const laneDir = join(args.root, ".proofloop", "lanes", spec.suite);
   mkdirSync(laneDir, { recursive: true });
 
   const models = modelRoutesForLane(args.root, spec);
   const harnessVersion = proofloopHarnessVersionForSuite(args.root, spec.suite, [
-    "docs/eval/openrouter-top-paid-tools-snapshot.json",
+    "docs/eval/proofloop-official-score-preflight.json",
+    "docs/eval/proofloop-free-openrouter-nodeagent-gauge.json",
+    "docs/eval/proofloop-harness-economics.json",
     "docs/eval/official-benchmark-task-coverage.json",
   ]);
 
@@ -137,7 +176,7 @@ export function solveProofloopBlocker(args: {
     scaffoldAttempted: true,
     doctorAttempted: spec.doctorCommands.length > 0,
     resumeCommandWritten: Boolean(args.task.resumeCommand || spec.runCommands.length),
-    allNonExternalPartsCompleted: spec.nonExternalPartsComplete,
+    allNonExternalPartsCompleted: spec.nonExternalPartsComplete || remainingLocalClasses.length === 0,
   };
   const externalBlockClaimAllowed =
     Object.values(stopCondition).every(Boolean) &&
@@ -193,6 +232,7 @@ export function solveProofloopBlocker(args: {
     suite: spec.suite,
     generatedAt,
     currency: "USD",
+    policy: "free_first_until_official_scorer_contract",
     models: models.map((model) => ({
       id: model.id,
       provider: model.provider,
@@ -202,10 +242,11 @@ export function solveProofloopBlocker(args: {
       tokensOut: model.tokensOut,
       latencyMs: model.latencyMs,
       routePolicy: model.routePolicy,
+      costAccounting: model.costAccounting,
       source: model.source,
       selectionReason: model.selectionReason,
     })),
-    note: "Costs are zero until a model route actually runs and records token usage.",
+    note: "Blocked-lane exploration starts with free/local routes. Paid/provider routes require an explicit official scorer contract and positive cost/token receipt before promotion.",
   });
   writeJson(join(laneDir, "official-output-manifest.json"), {
     schema: 1,
@@ -234,7 +275,7 @@ export function solveProofloopBlocker(args: {
     suite: spec.suite,
     generatedAt,
     status: "proxy_only",
-    proxyOnly: true,
+    proxyOnly: spec.proxyOnly,
     officialScoreClaimable: false,
     recommendedProxyRoute: models[0]?.id ?? null,
     models: models.map((model) => model.id),
@@ -362,7 +403,7 @@ function laneSpecForSuite(suite: string): LaneSpec {
         "write official score receipt only after scorer import",
       ],
       runCommands: [
-        "npm run benchmark:spreadsheetbench:run-chunked -- --stage-root .tmp/official-benchmarks/staged-v1-912 --output-root .tmp/official-benchmarks/run-v1-912-model --json-out docs/eval/spreadsheetbench-v1-912-model-run.json --mode model-edit-plan --model deepseek/deepseek-v4-pro --chunk-size 25",
+        `npm run benchmark:spreadsheetbench:run-chunked -- --stage-root .tmp/official-benchmarks/staged-v1-912 --output-root .tmp/official-benchmarks/run-v1-912-model --json-out docs/eval/spreadsheetbench-v1-912-model-run.json --mode model-edit-plan --model ${FREE_AUTO_ROUTE} --chunk-size 25`,
         "npm run benchmark:official:task-coverage -- --strict",
       ],
       doctorCommands: commonDoctor,
@@ -393,7 +434,7 @@ function laneSpecForSuite(suite: string): LaneSpec {
       ],
       runCommands: [
         "npm run benchmark:spreadsheetbench:stage -- --track spreadsheetbench-v2 --root .tmp/official-benchmarks/spreadsheetbench-v2-full/spreadsheetbench-v2 --output-root .tmp/official-benchmarks/staged-v2-full --json-out docs/eval/spreadsheetbench-v2-full-stage.json",
-        "npm run benchmark:spreadsheetbench:run-chunked -- --stage-root .tmp/official-benchmarks/staged-v2-full --output-root .tmp/official-benchmarks/run-v2-full-model --json-out docs/eval/spreadsheetbench-v2-full-model-run.json --mode model-edit-plan --model deepseek/deepseek-v4-pro --chunk-size 25",
+        `npm run benchmark:spreadsheetbench:run-chunked -- --stage-root .tmp/official-benchmarks/staged-v2-full --output-root .tmp/official-benchmarks/run-v2-full-model --json-out docs/eval/spreadsheetbench-v2-full-model-run.json --mode model-edit-plan --model ${FREE_AUTO_ROUTE} --chunk-size 25`,
       ],
       doctorCommands: commonDoctor,
       proxyOnly: false,
@@ -464,30 +505,32 @@ function laneSpecForSuite(suite: string): LaneSpec {
       title: "WorkstreamBench official score",
       officialSources: [
         "proofloop/benchmarks/workstreambench/adapter.json",
+        "docs/eval/proofloop-official-task-bundles/workstreambench.json",
+        "docs/eval/proofloop-official-outputs/workstreambench.json",
         "docs/eval/proofloop-official-scores/workstreambench.json",
       ],
       expectedOfficialOutputs: [
-        "upstream official task bundle lock",
-        "upstream rubric/scorer receipt",
-        "proxy suite receipt labeled proxy_only until upstream release exists",
+        "38 official-format MBABench judge case folders",
+        "NodeRoom ai_attempt.xlsx candidate workbook for each locked ModelOff task",
+        "accepted MBABench official judge/scorer receipt",
       ],
       scaffoldChanges: [
-        "continue upstream research",
-        "create proxy suite receipt with proxy_only flag",
-        "refuse official claim until upstream bundle/scorer is released or supplied",
+        "convert the locked public ModelOff dataset into MBABench judge case folders",
+        "write ai_attempt.xlsx outputs from NodeRoom without opening solution workbooks to the agent",
+        "run/import the accepted MBABench judge output only after provider spend is explicitly approved",
       ],
       runCommands: [
-        "npm run proofloop -- blocker research workstreambench-official-score",
+        "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench",
         "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
       ],
       doctorCommands: [
         "npm run proofloop -- setup workstreambench --doctor",
         "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench",
       ],
-      proxyOnly: true,
-      nonExternalPartsComplete: true,
-      externalClasses: ["no_public_upstream_release", "missing_official_scorer", "missing_task_bundle"],
-      reason: "No public upstream release/bundle/scorer is available; only proxy-only product proof can advance locally.",
+      proxyOnly: false,
+      nonExternalPartsComplete: false,
+      externalClasses: ["missing_judge_credentials"],
+      reason: "The public MBABench repository, ModelOff task bundle, scorer, and rubric are locked; local MBABench case-folder export and accepted judge import remain before official score promotion.",
     },
     bankertoolbench: {
       suite: "bankertoolbench",
@@ -535,6 +578,24 @@ function laneSpecForSuite(suite: string): LaneSpec {
   };
 }
 
+function completedLocalClassesForSpec(root: string, spec: LaneSpec): BlockerClass[] {
+  const completed = new Set<BlockerClass>();
+  if (["finch", "finauditing", "workstreambench"].includes(spec.suite)) {
+    const manifest = readOfficialOutputManifest(root, spec.suite as "finch" | "finauditing" | "workstreambench");
+    if (officialOutputManifestComplete(manifest)) completed.add("missing_output_exporter");
+  }
+  return [...completed];
+}
+
+function externalClassesForSpec(root: string, spec: LaneSpec): BlockerClass[] {
+  const external = new Set<BlockerClass>(spec.externalClasses);
+  if (["finch", "finauditing", "workstreambench"].includes(spec.suite)) {
+    const manifest = readOfficialOutputManifest(root, spec.suite as "finch" | "finauditing" | "workstreambench");
+    if (officialOutputManifestComplete(manifest)) external.add("missing_official_scorer");
+  }
+  return [...external];
+}
+
 function canonicalTaskForSpec(spec: LaneSpec, resumeCommand?: string): ProofloopBlockerTaskLike {
   return {
     id: canonicalBlockerId(spec.suite),
@@ -575,7 +636,7 @@ function canonicalBlockerId(suite: string): string {
 }
 
 function externalBlockerText(blockerClass: BlockerClass): string {
-  if (blockerClass === "missing_judge_credentials") return "External judge credential is missing: Azure/OpenAI API key or accepted judge deployment is required for official promotion.";
+  if (blockerClass === "missing_judge_credentials") return "External judge credential is missing: a direct provider API key, or optional upstream-compatible Azure deployment credentials, is required for official promotion.";
   if (blockerClass === "no_public_upstream_release") return "No public upstream official release was found.";
   if (blockerClass === "missing_official_scorer") return "No public official scorer or rubric command is available locally.";
   if (blockerClass === "missing_task_bundle") return "No public official task bundle is available locally.";
@@ -583,27 +644,22 @@ function externalBlockerText(blockerClass: BlockerClass): string {
 }
 
 function modelRoutesForLane(root: string, spec: LaneSpec): ProofloopModelRoute[] {
-  const snapshot = readJson<OpenRouterSnapshot>(join(root, "docs/eval/openrouter-top-paid-tools-snapshot.json"));
-  const byId = new Map<string, OpenRouterSnapshotModel>();
-  for (const model of snapshot?.models ?? []) byId.set(model.id, model);
-  const ids = [
-    "deepseek/deepseek-v4-pro",
-    "z-ai/glm-5.2",
-    "qwen/qwen3.6-flash",
-    "qwen/qwen3.6-35b-a3b",
-    "gpt-4.1-mini",
-    "ibm-granite/granite-4.1-8b",
-  ];
-  return ids.map((id) => {
-    const model = byId.get(id);
+  return freeFirstRouteCandidates(root).map((candidate, index) => {
+    const selectionReason = index === 0
+      ? `Governed free-first router for ${spec.suite}; run ${COST_SAFE_PREFLIGHT_COMMAND} before any blocked-lane model sweep.`
+      : `Concrete zero-priced free-auto candidate for ${spec.suite}${candidate.name ? ` (${candidate.name})` : ""}.`;
     return {
-      ...proofloopModelRouteForRun({ suite: spec.suite, cmd: `model-matrix ${spec.suite}`, env: { PROOFLOOP_MODEL_ID: id } }),
-      provider: id === "gpt-4.1-mini" ? "openai" : "openrouter",
-      routePolicy: id === "deepseek/deepseek-v4-pro" ? "proxy" : "specific",
-      selectionReason: model
-        ? `Candidate selected from OpenRouter tool-capable snapshot for ${spec.suite} proxy comparison.`
-        : `Candidate selected from suite default matrix for ${spec.suite}; live metadata was not present in the local snapshot.`,
-      source: model ? "env" : "suite-default",
+      ...proofloopModelRouteForRun({
+        suite: spec.suite,
+        cmd: `model-matrix ${spec.suite}`,
+        env: {
+          PROOFLOOP_MODEL_ID: candidate.id,
+          PROOFLOOP_MODEL_SELECTION_REASON: selectionReason,
+        },
+      }),
+      provider: "openrouter",
+      selectionReason,
+      source: "env",
     };
   });
 }
@@ -673,7 +729,55 @@ function renderScaffoldPlan(
 }
 
 function nextCommandsForSpec(spec: LaneSpec, task: ProofloopBlockerTaskLike): string[] {
-  return [...new Set([...(task.resumeCommand ? [task.resumeCommand] : []), ...spec.doctorCommands, ...spec.runCommands])];
+  return [...new Set([
+    COST_SAFE_PREFLIGHT_COMMAND,
+    ...(task.resumeCommand ? [task.resumeCommand] : []),
+    ...spec.doctorCommands,
+    ...spec.runCommands,
+  ])];
+}
+
+function freeFirstRouteCandidates(root: string): FreeFirstRouteCandidate[] {
+  const discovery = readJson<FreeModelDiscoveryReceipt>(join(root, "docs/eval/openrouter-free-model-discovery.json"));
+  const receipt = readJson<FreeFirstRouterReceipt>(join(root, "docs/eval/dev-audience-ready/free-first-router-cost-receipt.json"));
+  const fromDiscovery = (discovery?.models ?? [])
+    .map((route): FreeFirstRouteCandidate | null => {
+      if (typeof route.id !== "string" || !route.id.trim() || route.supportsTools !== true) return null;
+      return {
+        id: route.id.trim(),
+        name: typeof route.name === "string" ? route.name : undefined,
+        contextLength: typeof route.contextLength === "number" ? route.contextLength : undefined,
+      };
+    })
+    .filter((route): route is FreeFirstRouteCandidate => route !== null);
+  const fromReceipt = [
+    ...(receipt?.selectedFreeAutoRoutes ?? []),
+    ...(receipt?.rankedLiveFreeRoutes ?? []),
+  ]
+    .map((route): FreeFirstRouteCandidate | null => {
+      if (typeof route.id !== "string" || !route.id.trim()) return null;
+      if (String(route.promptPrice ?? "0") !== "0" || String(route.completionPrice ?? "0") !== "0") return null;
+      return {
+        id: route.id.trim(),
+        name: typeof route.name === "string" ? route.name : undefined,
+        contextLength: typeof route.contextLength === "number" ? route.contextLength : undefined,
+      };
+    })
+    .filter((route): route is FreeFirstRouteCandidate => route !== null);
+  const uniqueFreeRoutes = uniqueRouteCandidates(fromDiscovery.length ? fromDiscovery : fromReceipt.length ? fromReceipt : FALLBACK_FREE_FIRST_ROUTES);
+  return [{ id: FREE_AUTO_ROUTE, name: "OpenRouter free-auto governed router" }, ...uniqueFreeRoutes].slice(0, 6);
+}
+
+function uniqueRouteCandidates(routes: FreeFirstRouteCandidate[]): FreeFirstRouteCandidate[] {
+  const seen = new Set<string>();
+  const result: FreeFirstRouteCandidate[] = [];
+  for (const route of routes) {
+    const id = route.id.trim();
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    result.push({ ...route, id });
+  }
+  return result;
 }
 
 function setupAttempted(task: ProofloopBlockerTaskLike, spec: LaneSpec): boolean {

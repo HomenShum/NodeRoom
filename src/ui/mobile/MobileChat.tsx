@@ -25,7 +25,7 @@ function withMentions(text: string): React.ReactNode[] {
 
 // ── ROOM CHAT ─────────────────────────────────────────────────────────────
 export function RoomChat({ ctx }: { ctx: MobileCtx }): React.ReactElement {
-  const P = D.PEOPLE as Record<string, Person | undefined>;
+  const P = ctx.people as Record<string, Person | undefined>;
   const msgs = ctx.roomMsgs;
 
   const avatar = (who: string) => {
@@ -45,9 +45,9 @@ export function RoomChat({ ctx }: { ctx: MobileCtx }): React.ReactElement {
 
   // live first-load hydration only — ctx.loading is false offline, so the
   // sample demo never shows a skeleton (renders byte-identical to before).
-  if (ctx.loading && ctx.isLive && msgs.length === 0) return React.createElement("div", { className: "na-feed" }, SkeletonChat());
+  if (ctx.loading && ctx.isLive && msgs.length === 0) return React.createElement("div", { className: "na-feed", role: "log", "aria-live": "polite", "aria-label": "Room messages" }, SkeletonChat());
 
-  return React.createElement("div", { className: "na-feed" },
+  return React.createElement("div", { className: "na-feed", role: "log", "aria-live": "polite", "aria-label": "Room messages" },
     msgs.map((m) => {
       if (m.kind === "msg") return React.createElement("div", { key: m.id, className: "na-rmsg" + (m.pending ? " pending" : "") + (m.failed ? " failed" : "") },
         avatar(m.who),
@@ -89,9 +89,10 @@ const RUN_VERBS = ["Researching", "Cross-referencing", "Reconciling", "Corrobora
 function RunningInline({ ctx, job }: { ctx: MobileCtx; job: Job }): React.ReactElement {
   const [vi, setVi] = React.useState(0);
   React.useEffect(() => {
+    if (ctx.t.motion === "reduced") return;
     const id = setInterval(() => setVi((v) => (v + 1) % RUN_VERBS.length), 1500);
     return () => clearInterval(id);
-  }, []);
+  }, [ctx.t.motion]);
   return React.createElement("button", { className: "na-running", onClick: () => ctx.openSheet("jobs"), title: job.title },
     React.createElement("span", { className: "spin" }),
     React.createElement("span", { className: "verb" }, RUN_VERBS[vi], "…"),
@@ -103,25 +104,25 @@ function RunningInline({ ctx, job }: { ctx: MobileCtx; job: Job }): React.ReactE
 export function AgentChat({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   const lane = ctx.agentLane;
   const msgs = ctx.agentMsgs[lane];
-  const J = D.JOBS;
+  const J = ctx.jobs;
   const running = J.running[0];
 
   return React.createElement(React.Fragment, null,
-    React.createElement("div", { className: "na-lanes" },
-      React.createElement("button", { className: "na-lane priv", "data-active": lane === "private", onClick: () => ctx.setAgentLane("private") },
+    React.createElement("div", { className: "na-lanes", role: "tablist", "aria-label": "Agent lane" },
+      React.createElement("button", { className: "na-lane priv", role: "tab", "aria-selected": lane === "private", "data-active": lane === "private", onClick: () => ctx.setAgentLane("private") },
         Ico("lock"), "Your agent"),
-      React.createElement("button", { className: "na-lane room", "data-active": lane === "room", onClick: () => ctx.setAgentLane("room") },
+      React.createElement("button", { className: "na-lane room", role: "tab", "aria-selected": lane === "room", "data-active": lane === "room", onClick: () => ctx.setAgentLane("room") },
         Ico("users"), "Room agent")),
 
     React.createElement("p", { className: "na-prose", style: { fontSize: 11.5, color: "var(--text-tertiary)", margin: "2px 2px 0" } },
       lane === "private"
-        ? "Private to you. Can read your notes if allowed; output stays yours until you promote it."
-        : "Shared. Uses room-visible context only and proposes every change before it lands."),
+        ? "Only you can read this lane in NodeRoom. Requests and allowed room context go to the configured model provider."
+        : "Everyone in this room can read this lane. The request and room-visible context go to the configured model provider; artifact edits follow room policy."),
 
     (ctx.loading && ctx.isLive && msgs.length === 0)
       // live first-load hydration only — ctx.loading is false offline.
-      ? React.createElement("div", { className: "na-conv" }, SkeletonChat())
-      : React.createElement("div", { className: "na-conv" },
+      ? React.createElement("div", { className: "na-conv", role: "log", "aria-live": "polite", "aria-label": "Agent messages" }, SkeletonChat())
+      : React.createElement("div", { className: "na-conv", role: "log", "aria-live": "polite", "aria-label": "Agent messages" },
       msgs.map((m) => {
         if (m.role === "user") return React.createElement("div", { key: m.id, className: "na-bubble me" }, m.text);
         if (m.variant === "status") return React.createElement("div", { key: m.id, className: "na-agent-status" },
@@ -161,10 +162,16 @@ export function Composer({ ctx }: { ctx: MobileCtx }): React.ReactElement {
     source: { icon: "link", label: "Source", ph: "Paste a URL or describe a source…" },
   };
   const MODES: ComposerMode[] = ["note", "room", "agent"];
+  const quickPrompts = ctx.isLive ? [
+    { icon: "search" as IconName, text: "Plan a source-backed first artifact", kind: "plan" as const },
+    { icon: "pen" as IconName, text: "Draft a follow-up from current room evidence", kind: "draft" as const },
+    { icon: "coach" as IconName, text: "Help me explain the largest evidence gap", kind: "coach" as const },
+    { icon: "note" as IconName, text: "Summarize this room's sourced findings", kind: "summary" as const },
+  ] : D.QUICK_PROMPTS;
 
   return React.createElement("div", { className: "na-composer" },
     showQuick && React.createElement("div", { className: "na-quick" },
-      D.QUICK_PROMPTS.map((q, i) => React.createElement("button", { key: i, onClick: () => ctx.runQuick(q) },
+      quickPrompts.map((q, i) => React.createElement("button", { key: i, onClick: () => ctx.runQuick(q) },
         Ico(q.icon), q.text))),
 
     React.createElement("div", { className: "na-modes" },
@@ -197,25 +204,31 @@ export function Composer({ ctx }: { ctx: MobileCtx }): React.ReactElement {
 // cards or action buttons; the running job carries a thin progress underline
 // and a single quiet stop affordance.
 export function JobsSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
-  const J = D.JOBS;
-  const row = (j: Job, kind: "running" | "queued" | "completed") => React.createElement("div", { key: j.id, className: "na-jrow", "data-kind": kind, "data-nav": !!j.trace && /^r_/.test(j.trace), onClick: (j.trace && /^r_/.test(j.trace)) ? () => ctx.openTrace(j.trace as string) : undefined },
+  const J = ctx.jobs;
+  const runAction = async (j: Job, action: "cancel" | "retry"): Promise<void> => {
+    const result = await ctx.jobAct(j.id, action);
+    ctx.toast(result.ok ? (action === "cancel" ? "Job cancelled" : "Job retry requested") : `Job action failed - ${result.reason ?? "try again"}`);
+  };
+  const row = (j: Job, kind: "running" | "queued" | "completed") => React.createElement("div", { key: j.id, className: "na-jrow", "data-kind": kind, "data-nav": !!j.trace, onClick: j.trace ? () => ctx.openTrace(j.trace as string) : undefined },
     React.createElement("span", { className: "na-jdot", "data-kind": kind },
       kind === "running" ? React.createElement("i", { className: "spin" }) : null),
     React.createElement("div", { className: "na-jmain" },
       React.createElement("div", { className: "na-jtop" },
         React.createElement("strong", null, j.title),
-        React.createElement("span", { className: "na-jtrace", "data-nav": !!j.trace && /^r_/.test(j.trace) }, j.trace ? D.refLabel(j.trace) : (j.route || kind))),
+        React.createElement("span", { className: "na-jtrace", "data-nav": !!j.trace }, j.trace ? D.refLabel(j.trace) : (j.route || kind))),
       React.createElement("div", { className: "na-jsub" }, j.sub,
         j.cost ? React.createElement("span", { className: "sep" }, j.cost) : null,
         j.eta && kind !== "completed" ? React.createElement("span", { className: "sep" }, j.eta) : null,
-        (j.trace && /^r_/.test(j.trace)) ? React.createElement("span", { className: "sep go" }, "View steps") : null),
+        j.trace ? React.createElement("span", { className: "sep go" }, "View steps") : null),
       kind === "running" ? React.createElement("div", { className: "na-jprog" },
         React.createElement("i", { style: { width: (j.pct || 50) + "%" } })) : null),
     kind === "running"
-      ? React.createElement(Tooltip, { label: "Stop job", side: "left", children: React.createElement("button", { className: "na-jstop", onClick: (e: React.MouseEvent) => { e.stopPropagation(); ctx.toast("Job stopped"); }, "aria-label": "Stop job", title: "Stop job" }, Ico("x")) })
-      : (j.trace && /^r_/.test(j.trace))
-        ? React.createElement("span", { className: "na-jstop ghost", "aria-hidden": true }, Ico("chevR"))
-        : React.createElement("span", { className: "na-jwait" }, Ico("clock")));
+      ? React.createElement(Tooltip, { label: "Stop job", side: "left", children: React.createElement("button", { className: "na-jstop", onClick: (e: React.MouseEvent) => { e.stopPropagation(); void runAction(j, "cancel"); }, "aria-label": "Stop job", title: "Stop job" }, Ico("x")) })
+      : kind === "completed"
+        ? React.createElement(Tooltip, { label: "Retry job", side: "left", children: React.createElement("button", { className: "na-jstop", onClick: (e: React.MouseEvent) => { e.stopPropagation(); void runAction(j, "retry"); }, "aria-label": "Retry job", title: "Retry job" }, Ico("history")) })
+        : j.trace
+          ? React.createElement("span", { className: "na-jstop ghost", "aria-hidden": true }, Ico("chevR"))
+          : React.createElement("span", { className: "na-jwait" }, Ico("clock")));
 
   const group = (label: string, list: Job[], kind: "running" | "queued" | "completed") => list.length
     ? React.createElement("div", { className: "na-jgroup", key: kind },

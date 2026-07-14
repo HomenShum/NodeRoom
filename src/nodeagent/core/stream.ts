@@ -150,6 +150,36 @@ export function buildUnifiedAgentStreamParts(
     parts.push(textPart);
   };
 
+  const reconcileDoneText = (current: string, completed: string): string => {
+    if (!completed || current === completed || current.includes(completed)) return current;
+    if (completed.startsWith(current)) return completed;
+    const anchorLength = Math.min(160, completed.length);
+    if (anchorLength >= 32) {
+      const anchor = completed.slice(0, anchorLength);
+      const existingStart = current.lastIndexOf(anchor);
+      if (existingStart >= 0) {
+        const existingTail = current.slice(existingStart);
+        const comparableLength = Math.min(existingTail.length, completed.length);
+        let commonPrefixLength = 0;
+        while (commonPrefixLength < comparableLength && existingTail[commonPrefixLength] === completed[commonPrefixLength]) {
+          commonPrefixLength += 1;
+        }
+        if (commonPrefixLength >= 160 && commonPrefixLength / comparableLength >= 0.8) {
+          return existingTail.length >= completed.length
+            ? current
+            : current.slice(0, existingStart) + completed;
+        }
+      }
+    }
+    const maxOverlap = Math.min(current.length, completed.length);
+    for (let length = maxOverlap; length > 0; length--) {
+      if (current.slice(-length) === completed.slice(0, length)) {
+        return current + completed.slice(length);
+      }
+    }
+    return `${current}\n\n${completed}`;
+  };
+
   const upsertTool = (event: PersistedAgentStreamEvent, state: AgentToolStreamPart["state"]) => {
     const toolName = event.toolName ?? "tool";
     const toolCallId = event.toolCallId ?? `${toolName}-${event.sequence}`;
@@ -176,11 +206,7 @@ export function buildUnifiedAgentStreamParts(
     if (event.kind === "message_done") {
       sawDone = true;
       if (!textPart && event.text) appendText(event.text, "done");
-      else if (textPart && event.text && event.text !== textPart.text) {
-        textPart.text = event.text.startsWith(textPart.text)
-          ? event.text
-          : `${textPart.text}\n\n${event.text}`;
-      }
+      else if (textPart && event.text) textPart.text = reconcileDoneText(textPart.text, event.text);
       if (textPart) textPart.state = "done";
       continue;
     }

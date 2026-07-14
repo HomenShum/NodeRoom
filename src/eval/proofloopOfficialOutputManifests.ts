@@ -10,6 +10,7 @@ export type ProofloopOfficialOutputManifest = {
   outputTaskCount?: number;
   predictionRowCount?: number;
   contentPartsCount?: number;
+  contentPartsSha256?: string;
   outputRoot?: string;
   evidence?: string[];
   blockers?: string[];
@@ -73,6 +74,15 @@ export function isOfficialOutputExporterBlocker(adapterId: BenchmarkAdapterId, b
       text.includes("prediction jsonl") ||
       text.includes("finsm/finre/finmr") ||
       text.includes("official-format finsm")
+    );
+  }
+  if (adapterId === "workstreambench") {
+    return (
+      text.includes("missing output exporter") ||
+      text.includes("official-format mbabench judge case folders") ||
+      text.includes("mbabench case folders") ||
+      text.includes("ai_attempt.xlsx") ||
+      text.includes("candidate workbook")
     );
   }
   return false;

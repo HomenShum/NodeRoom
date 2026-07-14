@@ -5,7 +5,7 @@
  * Style: quiet competence — dark, calm, one accent; narration text doubles as the caption.
  */
 import React from "react";
-import { AbsoluteFill, Audio, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Audio, Img, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame } from "remotion";
 
 export const EP_FPS = 30;
 const W = 1080, H = 1920;
@@ -13,9 +13,47 @@ const ACCENT = "#D97757";
 const FONT = '"Inter", "Segoe UI", system-ui, -apple-system, sans-serif';
 
 type EpScene = {
-  id: string; kind: "video" | "card" | "code" | "diagram"; video: string | null; audio: string | null;
+  id: string; kind: "video" | "image" | "card" | "code" | "diagram"; video: string | null; images?: string[]; audio: string | null;
   code?: { title: string; lines: string[] } | null;
   durationInFrames: number; narration: string; card: { title: string; bullets: string[] };
+};
+
+const PRODUCT_PROOF_FOCUS = [
+  { scale: 2.25, position: "54% 62%" },
+  { scale: 2.3, position: "67% 56%" },
+  { scale: 2.05, position: "54% 51%" },
+  { scale: 2.35, position: "76% 54%" },
+];
+const PRODUCT_PROOF_LABELS = ["Founder deck export", "Isolated notebook kernel", "Draggable graph paths", "Analyst live receipts"];
+
+const ImageSequence: React.FC<{ scene: EpScene; frame: number }> = ({ scene, frame }) => {
+  const images = scene.images ?? [];
+  const segment = Math.max(1, scene.durationInFrames / Math.max(1, images.length));
+  const activeIndex = Math.min(images.length - 1, Math.max(0, Math.floor(frame / segment)));
+  return (
+    <div style={{ position: "relative", width: VIDEO_W, height: VIDEO_H, borderRadius: 22, overflow: "hidden", background: "#07090d", boxShadow: "0 40px 90px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.08)" }}>
+      {images.map((src, index) => {
+        const center = index * segment + segment / 2;
+        const localFrame = Math.max(0, Math.min(segment, frame - index * segment));
+        const focus = scene.id === "product-proof"
+          ? PRODUCT_PROOF_FOCUS[index] ?? PRODUCT_PROOF_FOCUS[0]
+          : { scale: 1, position: "50% 50%" };
+        const scale = focus.scale + interpolate(localFrame, [0, segment], [0, 0.05], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        });
+        const opacity = images.length === 1
+          ? 1
+          : interpolate(Math.abs(frame - center), [segment * 0.38, segment * 0.58], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+        return <Img key={src} src={staticFile(src)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: focus.position, transform: `scale(${scale})`, opacity }} />;
+      })}
+      {scene.id === "product-proof" && (
+        <div style={{ position: "absolute", top: 22, left: 22, padding: "12px 18px", borderRadius: 10, background: "rgba(8,11,16,.9)", border: "1px solid rgba(255,255,255,.18)", color: "#f2f4f7", fontFamily: FONT, fontSize: 28, fontWeight: 750 }}>
+          {PRODUCT_PROOF_LABELS[activeIndex]}
+        </div>
+      )}
+    </div>
+  );
 };
 export type EpisodeData = { episodeId: string; fps: number; title: string; scenes: EpScene[]; totalFrames: number; music?: string | null };
 
@@ -55,8 +93,8 @@ const CodePanel: React.FC<{ scene: EpScene; f: number }> = ({ scene, f }) => {
   const shown = Math.min(lines.length, Math.floor(f / 2) + 1); // ~15 lines/sec reveal
   return (
     <div style={{ width: VIDEO_W, borderRadius: 22, background: "#0d1117", border: "1px solid rgba(255,255,255,.09)", boxShadow: "0 40px 90px rgba(0,0,0,.6)", overflow: "hidden" }}>
-      <div style={{ padding: "18px 28px", borderBottom: "1px solid rgba(255,255,255,.08)", fontFamily: FONT, fontSize: 24, fontWeight: 700, color: ACCENT }}>{scene.code?.title}</div>
-      <div style={{ padding: "22px 28px", fontFamily: '"JetBrains Mono", Consolas, monospace', fontSize: 19.5, lineHeight: 1.5 }}>
+      <div style={{ padding: "18px 28px", borderBottom: "1px solid rgba(255,255,255,.08)", fontFamily: FONT, fontSize: 30, fontWeight: 700, color: ACCENT }}>{scene.code?.title}</div>
+      <div style={{ padding: "22px 28px", fontFamily: '"JetBrains Mono", Consolas, monospace', fontSize: 36, lineHeight: 1.42 }}>
         {lines.slice(0, shown).map((l, i) => {
           const hot = /LOCK|conflict|pending_approval|version|CAS|lease/i.test(l);
           return <div key={i} style={{ color: hot ? "#f2c197" : l.trim().startsWith("//") ? "#5b6775" : "#aeb8c4", whiteSpace: "pre", overflow: "hidden", textOverflow: "ellipsis" }}>{l || " "}</div>;
@@ -64,7 +102,7 @@ const CodePanel: React.FC<{ scene: EpScene; f: number }> = ({ scene, f }) => {
       </div>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", padding: "0 28px 22px" }}>
         {scene.card.bullets.map((b, i) => (
-          <span key={b} style={{ fontFamily: FONT, fontSize: 20, fontWeight: 650, color: "#eef2f7", background: "rgba(217,119,87,.16)", border: `1px solid ${ACCENT}55`, borderRadius: 10, padding: "8px 14px", opacity: interpolate(f - 20 - i * 8, [0, 8], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}>{b}</span>
+          <span key={b} style={{ fontFamily: FONT, fontSize: 27, fontWeight: 650, color: "#eef2f7", background: "rgba(217,119,87,.16)", border: `1px solid ${ACCENT}55`, borderRadius: 10, padding: "8px 14px", opacity: interpolate(f - 20 - i * 8, [0, 8], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}>{b}</span>
         ))}
       </div>
     </div>
@@ -142,6 +180,8 @@ export const Episode: React.FC<{ data: EpisodeData }> = ({ data }) => {
                   <div style={{ width: VIDEO_W, height: VIDEO_H, borderRadius: 22, overflow: "hidden", boxShadow: "0 40px 90px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.08)" }}>
                     <OffthreadVideo src={staticFile(s.video)} muted style={{ width: VIDEO_W, height: VIDEO_H, transform: `scale(${videoScale(s.id)})`, transformOrigin: "50% 48%" }} />
                   </div>
+                ) : s.kind === "image" && s.images?.length ? (
+                  <ImageSequence scene={s} frame={Math.max(0, local)} />
                 ) : s.kind === "code" && s.code?.lines?.length ? (
                   <CodePanel scene={s} f={Math.max(0, local)} />
                 ) : s.kind === "diagram" ? (

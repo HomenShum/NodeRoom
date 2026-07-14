@@ -121,6 +121,7 @@ const HARNESS_VERSION_FILES = [
   "proofloop/benchmarks/workstreambench/adapter.json",
   "scripts/proofloop-company-task-coverage.ts",
   "scripts/proofloop-harness-economics.ts",
+  "scripts/proofloop-official-score-preflight.ts",
   "src/eval/proofloopGoalSupervisor.ts",
   "src/eval/proofloopBlockerSolver.ts",
   "src/eval/proofloopModelTracking.ts",
@@ -128,6 +129,7 @@ const HARNESS_VERSION_FILES = [
   "src/eval/proofloopBenchmarkBoard.ts",
   "src/eval/proofloopCompanyTaskCoverage.ts",
   "src/eval/proofloopHarnessEconomics.ts",
+  "src/eval/proofloopOfficialScorePreflight.ts",
   "src/eval/proofloopLiveBrowserPrompt.ts",
 ];
 
@@ -157,6 +159,7 @@ export function buildProofloopHarnessEconomicsLedger(args: {
       "Proxy judges can keep product Proof Loop moving when official scorer credentials or hosted judges are missing.",
       "Proxy judges must not be promoted as official leaderboard scores unless the benchmark accepts that judge/scorer path.",
       "Official score receipts and product proof receipts remain separate artifacts.",
+      "Official-score lane runs should pass the free-first/economics preflight before spending model or judge budget.",
       "Judge credentials are not intrinsically required when an accepted official scorer or accepted proxy-judge path exists.",
     ],
     harnessFiles: HARNESS_VERSION_FILES.map((path) => hashFile(root, path)),
@@ -196,7 +199,7 @@ export function buildProofloopHarnessEconomicsLedger(args: {
       },
       {
         lane: "finch",
-        officialRequirement: "Upstream Finch scorer imports Azure OpenAI judge output for official claim.",
+        officialRequirement: "Finch official claim requires the canonical GPT-5-mini judge via the recorded direct-OpenAI transport equivalent or the released Azure path.",
         proxyJudgeAllowedForProofLoop: true,
         proxyJudgeCannotClaimOfficialScore: true,
         recommendedProxyRoute,

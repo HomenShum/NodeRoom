@@ -13,9 +13,10 @@ afterEach(() => {
 
 describe("SpreadsheetBench workbook scorer", () => {
   it("parses quoted multi-sheet answer ranges", () => {
-    expect(parseAnswerPosition("'Valuation'!C3:D4,'Ratio Analysis'!B2:B3")).toEqual([
+    expect(parseAnswerPosition("'Valuation'!C3:D4,'Ratio Analysis'!B2:B3,'PP&E, Debt, NWC'!B2:L91")).toEqual([
       { sheetName: "Valuation", startRow: 3, endRow: 4, startCol: 3, endCol: 4, label: "'Valuation'!C3:D4" },
       { sheetName: "Ratio Analysis", startRow: 2, endRow: 3, startCol: 2, endCol: 2, label: "'Ratio Analysis'!B2:B3" },
+      { sheetName: "PP&E, Debt, NWC", startRow: 2, endRow: 91, startCol: 2, endCol: 12, label: "'PP&E, Debt, NWC'!B2:L91" },
     ]);
   });
 
@@ -40,6 +41,12 @@ describe("SpreadsheetBench workbook scorer", () => {
     ]);
     expect(parseAnswerPosition("OUT CAS'!BD2:308", undefined, workbook)).toEqual([
       { sheetName: "OUT CAS", startRow: 2, endRow: 308, startCol: 56, endCol: 56, label: "'OUT CAS'!BD2:308" },
+    ]);
+    expect(parseAnswerPosition("G12：J15")).toEqual([
+      { sheetName: undefined, startRow: 12, endRow: 15, startCol: 7, endCol: 10, label: "G12:J15" },
+    ]);
+    expect(parseAnswerPosition("'Received'!'Received!A1:G16'", "Received")).toEqual([
+      { sheetName: "Received", startRow: 1, endRow: 16, startCol: 1, endCol: 7, label: "'Received'!A1:G16" },
     ]);
   });
 

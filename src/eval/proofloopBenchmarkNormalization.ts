@@ -16,6 +16,10 @@ import {
   officialOutputManifestEvidence,
   readOfficialOutputManifest,
 } from "./proofloopOfficialOutputManifests";
+import {
+  buildOfficialScoreImportReadiness,
+  isOfficialScoreImportAdapterId,
+} from "./proofloopOfficialScoreReceipts";
 
 export type BenchmarkNormalizationStageStatus =
   | "proven"
@@ -97,7 +101,7 @@ export function buildProofloopBenchmarkNormalizationReport(args: {
   const coverageTracks = new Map(coverage.tracks.map((track) => [track.id, track]));
 
   const entries = [
-    spreadsheetBenchNormalization(boardEntries.get("spreadsheetbench"), coverageTracks),
+    spreadsheetBenchNormalization(root, boardEntries.get("spreadsheetbench"), coverageTracks),
     bankerToolBenchNormalization(boardEntries.get("bankertoolbench"), coverageTracks.get("bankertoolbench-full-100")),
     productSuiteNormalization(boardEntries.get("openrouter-convex"), {
       sourceBenchmark: "NodeRoom model-route harness",
@@ -213,6 +217,7 @@ export function renderProofloopBenchmarkNormalizationMarkdown(report: ProofloopB
 }
 
 function spreadsheetBenchNormalization(
+  root: string,
   boardEntry: ProofloopBenchmarkBoardEntry | undefined,
   coverageTracks: Map<string, BenchmarkTaskCoverageTrack>,
 ): BenchmarkNormalizationEntry {
@@ -225,7 +230,18 @@ function spreadsheetBenchNormalization(
   const productManifestBlockers = [v1, verified, v2].flatMap((track) =>
     track && track.allOfficialTasksStaged ? [] : [`${track?.id ?? "spreadsheetbench"} is not fully staged.`],
   );
-  const officialBlockers = [v1, verified, v2].flatMap((track) => track?.blockers ?? []);
+  const coverageBlockers = [v1, verified, v2].flatMap((track) => track?.blockers ?? []);
+  const acceptedScorerPaths = [
+    "docs/eval/spreadsheetbench-v1-accepted-official-scorer-receipt.json",
+    "docs/eval/spreadsheetbench-v2-accepted-official-scorer-receipt.json",
+  ];
+  const missingAcceptedScorers = acceptedScorerPaths.filter((path) => !acceptedSpreadsheetBenchScorerReceipt(root, path));
+  const fullModelCoverage = modelCases >= expectedTargets;
+  const officialClaimed = fullModelCoverage && coverageBlockers.length === 0 && missingAcceptedScorers.length === 0;
+  const officialScorerBlockers = [
+    ...coverageBlockers,
+    ...missingAcceptedScorers.map((path) => `Accepted upstream SpreadsheetBench scorer receipt is missing or invalid: ${path}.`),
+  ];
   const productProof = boardEntry?.productPathCompletion;
 
   return entry({
@@ -235,7 +251,7 @@ function spreadsheetBenchNormalization(
     sourceBenchmark: "SpreadsheetBench V1, SpreadsheetBench Verified, and SpreadsheetBench V2",
     taskShape: "official spreadsheet task -> agent/evaluator-isolated workbook manifest -> NodeRoom workbook run -> candidate workbook export -> official scorer",
     productFit: productManifestBlockers.length === 0 && modelCases >= expectedTargets ? "proven" : "partial",
-    officialFit: "blocked",
+    officialFit: officialClaimed ? "claimed" : "blocked",
     stages: {
       officialTaskBundle: stage({
         status: productManifestBlockers.length === 0 ? "proven" : v1?.stagedTasks === 912 ? "partial" : "blocked",
@@ -277,19 +293,39 @@ function spreadsheetBenchNormalization(
         command: productProof?.command,
       }),
       officialSubmission: stage({
-        status: "blocked",
-        contract: "Official submission requires full model-generated candidate workbook outputs for the published task set.",
-        evidence: ["docs/eval/official-benchmark-task-coverage.json"],
-        blockers: officialBlockers,
+        status: officialClaimed ? "proven" : fullModelCoverage ? "ready" : "blocked",
+        contract: "Full model-generated candidate workbook outputs are ready for the published scorer; submission alone does not promote a score.",
+        evidence: [
+          "docs/eval/official-benchmark-task-coverage.json",
+          "docs/eval/spreadsheetbench-v1-912-model-run.json",
+          "docs/eval/spreadsheetbench-v1-verified-400-model-run.json",
+          "docs/eval/spreadsheetbench-v2-321-model-run.json",
+        ],
+        blockers: fullModelCoverage ? [] : coverageBlockers,
       }),
       officialScorer: stage({
-        status: "partial",
-        contract: "Workbook scorer path exists, but official score is not claimable until full model outputs are scored.",
-        evidence: ["docs/eval/official-benchmark-readiness.json"],
-        blockers: officialBlockers,
+        status: officialClaimed ? "proven" : "blocked",
+        contract: "Local workbook scores remain proxy evidence until accepted upstream V1 and V2 scorer receipts are imported.",
+        evidence: [
+          "docs/eval/official-benchmark-readiness.json",
+          ...acceptedScorerPaths.filter((path) => existsSync(join(root, path))),
+        ],
+        blockers: officialClaimed ? [] : officialScorerBlockers,
       }),
     },
   });
+}
+
+function acceptedSpreadsheetBenchScorerReceipt(root: string, path: string): boolean {
+  const receipt = readJson<Record<string, unknown>>(root, path);
+  if (!receipt || receipt.schema !== 1 || receipt.verifier !== "spreadsheetbench_official_scorer" || receipt.accepted !== true) {
+    return false;
+  }
+  const score = receipt.score;
+  if (!score || typeof score !== "object" || Array.isArray(score)) return false;
+  return ["averageOverall", "passRate", "passCount", "scoredTaskCount"].every((key) =>
+    typeof (score as Record<string, unknown>)[key] === "number" && Number.isFinite((score as Record<string, number>)[key]),
+  );
 }
 
 function bankerToolBenchNormalization(
@@ -425,13 +461,16 @@ function externalAdapterNormalization(
   const scoreReceipt = readJson<OfficialScoreReceipt>(root, scoreReceiptPath);
   const taskBundle = readJson<OfficialTaskBundleLock>(root, taskBundlePath);
   const outputManifest = readOfficialOutputManifest(root, adapterId);
+  const scoreReadiness = isOfficialScoreImportAdapterId(adapterId)
+    ? buildOfficialScoreImportReadiness({ root, adapterId })
+    : undefined;
   const outputComplete = officialOutputManifestComplete(outputManifest);
   const taskBundleLocked = taskBundle?.status === "locked";
   const productProofPassed = product?.status === "proven";
-  const officialScored = scoreReceipt?.status === "scored" && scoreReceipt.scoreClaim === true;
+  const officialScored = scoreReadiness?.officialScoreClaimable ?? (scoreReceipt?.status === "scored" && scoreReceipt.scoreClaim === true);
   const officialBlockers = official?.blockers?.length
     ? official.blockers
-    : scoreReceipt?.blockers ?? [`${adapterId}: official scorer receipt is not scored.`];
+    : scoreReadiness?.blockers ?? scoreReceipt?.blockers ?? [`${adapterId}: official scorer receipt is not scored.`];
   const filteredOfficialBlockers = outputComplete
     ? officialBlockers.filter((blocker) => !isOfficialOutputExporterBlocker(adapterId, blocker))
     : officialBlockers;
@@ -481,7 +520,10 @@ function externalAdapterNormalization(
       officialSubmission: stage({
         status: officialScored ? "proven" : "blocked",
         contract: externalOfficialSubmissionContract(adapterId),
-        evidence: [scoreReceiptPath].filter((path) => existsSync(join(root, path))),
+        evidence: [
+          scoreReceiptPath,
+          ...(scoreReadiness?.evidence ?? []),
+        ].filter((path) => existsSync(join(root, path)) || path.startsWith("docs/eval/proofloop-official-score-imports/")),
         blockers: officialScored ? [] : filteredOfficialBlockers,
       }),
       officialScorer: stage({
@@ -490,7 +532,8 @@ function externalAdapterNormalization(
         evidence: [
           ...(official?.evidence ?? []),
           scoreReceiptPath,
-        ].filter((path) => existsSync(join(root, path))),
+          ...(scoreReadiness?.evidence ?? []),
+        ].filter((path) => existsSync(join(root, path)) || path.startsWith("docs/eval/proofloop-official-score-imports/")),
         blockers: officialScored ? [] : filteredOfficialBlockers,
         command: official?.command,
       }),
@@ -553,41 +596,41 @@ function productFitFromBoard(status: ProofloopBenchmarkBoardStatus | undefined):
 function externalSourceName(adapterId: Exclude<BenchmarkAdapterId, "bankertoolbench">): string {
   if (adapterId === "finch") return "Finch / FinWorkBench";
   if (adapterId === "finauditing") return "FinAuditing";
-  return "WorkstreamBench";
+  return "MBABench / WorkstreamBench";
 }
 
 function externalTaskShape(adapterId: Exclude<BenchmarkAdapterId, "bankertoolbench">): string {
   if (adapterId === "finch") {
-    return "official Finch workflow task -> ProductTaskManifest -> NodeRoom run -> content_parts.jsonl submission -> Azure OpenAI judge";
+    return "official Finch workflow task -> ProductTaskManifest -> NodeRoom run -> content_parts.jsonl submission -> canonical GPT-5-mini judge";
   }
   if (adapterId === "finauditing") {
     return "official FinSM/FinRE/FinMR row -> ProductTaskManifest -> NodeRoom run -> prediction JSONL -> official evaluator notebook";
   }
-  return "official spreadsheet workstream -> ProductTaskManifest -> NodeRoom run -> structured representation -> official LLM judge";
+  return "official MBABench spreadsheet workstream -> ProductTaskManifest -> NodeRoom run -> judge case folder -> official LLM judge";
 }
 
 function officialTaskExpansionBlockerFor(adapterId: Exclude<BenchmarkAdapterId, "bankertoolbench">): string {
   if (adapterId === "finch") return "Expand all 172 official Finch task ids into ProductTaskManifest rows.";
   if (adapterId === "finauditing") return "Expand FinSM, FinRE, and FinMR test rows into ProductTaskManifest rows.";
-  return "Obtain the public official WorkstreamBench task bundle before expanding ProductTaskManifest rows.";
+  return "Expand the 38 locked public MBABench ModelOff task ids into ProductTaskManifest rows before claiming an official score.";
 }
 
 function externalArtifactExportContract(adapterId: Exclude<BenchmarkAdapterId, "bankertoolbench">): string {
   if (adapterId === "finch") return "Export one NodeRoom model-output artifact per official Finch task id.";
   if (adapterId === "finauditing") return "Export official-format prediction JSONL for FinSM, FinRE, and FinMR.";
-  return "Export the official structured workstream representation expected by WorkstreamBench.";
+  return "Export MBABench judge case folders with NodeRoom ai_attempt.xlsx files and locked solution workbooks.";
 }
 
 function externalArtifactExportBlocker(adapterId: Exclude<BenchmarkAdapterId, "bankertoolbench">): string {
   if (adapterId === "finch") return "No NodeRoom model-output directory exists with one output artifact per official Finch task id.";
   if (adapterId === "finauditing") return "No NodeRoom prediction JSONL exists for FinSM, FinRE, or FinMR in the official evaluator format.";
-  return "No official WorkstreamBench output schema is available to export against.";
+  return "No official-format MBABench judge case folders or NodeRoom ai_attempt.xlsx files exist for the locked public ModelOff tasks.";
 }
 
 function externalOfficialSubmissionContract(adapterId: Exclude<BenchmarkAdapterId, "bankertoolbench">): string {
   if (adapterId === "finch") return "Submit content_parts.jsonl built by upstream prompt_build_pipeline.py to call_gpt_judge.py.";
   if (adapterId === "finauditing") return "Submit official prediction JSONL rows with prediction and ground_truth fields to the evaluator notebooks.";
-  return "Submit official structured representations to the released WorkstreamBench scorer/rubric.";
+  return "Submit MBABench judge case folders to the released official LLM judge/rubric.";
 }
 
 function readJson<T>(root: string, relativePath: string): T | undefined {

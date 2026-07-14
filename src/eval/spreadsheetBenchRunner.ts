@@ -1,11 +1,33 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
 import ExcelJS from "exceljs";
-import { scoreSpreadsheetBenchWorkbook, type SpreadsheetBenchWorkbookScore } from "./spreadsheetBenchScorer";
+import {
+  readSpreadsheetBenchWorkbookForCells,
+  scoreSpreadsheetBenchWorkbook,
+  type SpreadsheetBenchWorkbookScore,
+} from "./spreadsheetBenchScorer";
 import type { SpreadsheetBenchTrack } from "./spreadsheetBenchAdapter";
 import type { AgentModel, TokenUsage } from "../nodeagent/core/types";
 import { priceRun } from "../nodeagent/models/adapter";
+import { getModelPricing } from "../nodeagent/models/modelCatalog";
+import {
+  checksForWorkbookOperations,
+  extractWorkbookTaskReferences,
+  inspectWorkbookTask,
+  normalizeFormula,
+  selectWorkbookTaskCells,
+  verifyWorkbookPlan,
+  verifyWorkbookValues,
+  workbookCellKey,
+  type WorkbookObservedCell,
+  type WorkbookPlanOperation,
+  type WorkbookPlanIssue,
+  type WorkbookPlanVerification,
+  type WorkbookTaskInspection,
+  type WorkbookValueCheck,
+} from "../nodeagent/skills/spreadsheet/workbookTaskIntelligence";
 
 export type SpreadsheetBenchRunnerMode = "copy-input-baseline" | "apply-agent-patch" | "model-edit-plan";
 
@@ -15,12 +37,16 @@ const SUPPORTED_FORMULA_FUNCTIONS = [
   "AVERAGE",
   "MIN",
   "MAX",
+  "MEDIAN",
   "COUNT",
   "COUNTA",
   "ABS",
   "ROUND",
   "ROUNDUP",
   "ROUNDDOWN",
+  "AND",
+  "OR",
+  "NOT",
   "IF",
   "IFERROR",
   "SUMIF",
@@ -55,6 +81,11 @@ export type SpreadsheetBenchRunnerOptions = {
   model?: AgentModel;
   modelName?: string;
   modelTimeoutMs?: number;
+  modelBatchSize?: number;
+  modelSnapshotMaxCells?: number;
+  modelSnapshotMaxCellChars?: number;
+  modelRepairAttempts?: number;
+  taskIds?: string[];
   repeats?: number;
   retryFailed?: number;
   retryScoreFailures?: boolean;
@@ -81,6 +112,7 @@ export type SpreadsheetBenchRunnerTaskResult = {
   evaluatorManifest: string;
   candidateWorkbook?: string;
   sidecarEvidence?: SpreadsheetBenchSidecarEvidence;
+  scorerReceipt?: SpreadsheetBenchSidecarFileEvidence;
   score?: SpreadsheetBenchWorkbookScore;
   error?: {
     phase: "candidate_generation" | "scoring";
@@ -88,9 +120,16 @@ export type SpreadsheetBenchRunnerTaskResult = {
   };
   model?: {
     name: string;
+    requestedName?: string;
     calls: number;
     usage: TokenUsage;
     costUsd: number;
+    batch?: {
+      id: string;
+      taskCount: number;
+      taskIndex: number;
+      callShare: number;
+    };
   };
   timingsMs: {
     modelPlanning?: number;
@@ -105,6 +144,10 @@ export type SpreadsheetBenchRunnerTaskResult = {
       | "read_agent_edit_plan"
       | "snapshot_agent_workbook"
       | "call_model_for_edit_plan"
+      | "fallback_to_visible_formula_repairs"
+      | "verify_edit_plan"
+      | "repair_edit_plan"
+      | "verify_candidate_workbook"
       | "emit_candidate_workbook"
       | "read_evaluator_manifest"
       | "score_candidate";
@@ -125,9 +168,14 @@ export type SpreadsheetBenchSidecarEvidence = {
     kind: "source" | "generated";
   };
   rawModelOutput?: SpreadsheetBenchSidecarFileEvidence;
+  workbookInspection?: SpreadsheetBenchSidecarFileEvidence;
+  editVerification?: SpreadsheetBenchSidecarFileEvidence;
+  repairOutputs?: SpreadsheetBenchSidecarFileEvidence[];
   formulaResultPolicy?: string;
   supportedFormulaFunctions?: string[];
   appliedOperationCount?: number;
+  repairAttemptCount?: number;
+  verificationStatus?: "passed" | "needs_repair";
 };
 
 export type SpreadsheetBenchRunnerReport = {
@@ -169,6 +217,14 @@ export type SpreadsheetBenchRunnerReport = {
   harness: {
     toolPolicy: "agent_dir_only_until_candidate";
     evaluatorAccess: "after_candidate_emit_only";
+    modelContextPolicy?: {
+      batchSize: number;
+      snapshotMaxCells: number;
+      snapshotMaxCellChars: number | null;
+      instructionMaxChars: number | null;
+      repairAttempts: number;
+      selectedTaskCount: number;
+    };
     budget: {
       modelCalls: number;
       inputTokens: number;
@@ -220,10 +276,21 @@ type StagedTaskPaths = {
 };
 
 const DEFAULT_WORKBOOK_SNAPSHOT_MAX_CELLS = 800;
+const BATCH_INSTRUCTION_MAX_CHARS = 4_000;
 
-type AgentEditPlan = {
+export type AgentEditPlan = {
   schema: 1;
   operations: AgentEditOperation[];
+};
+
+type BatchedModelPlan = {
+  snapshot: WorkbookSnapshot;
+  rawModelOutput: string;
+  modelPlanningMs: number;
+  model: ModelCandidateEmission["model"];
+  plan?: AgentEditPlan;
+  droppedOperationCount?: number;
+  error?: string;
 };
 
 type AgentCellEditOperation = {
@@ -270,11 +337,35 @@ type AgentSortUniqueRowsOperation = {
   includeIndex?: boolean;
 };
 
-type AgentEditOperation =
+export type AgentChartOperation = {
+  op: "add_chart";
+  sheet: string;
+  chartType: "line" | "bar" | "column" | "pie" | "doughnut" | "scatter" | "area" | "bubble";
+  title?: string;
+  categoryRange: string;
+  series: Array<{
+    name: string;
+    valuesRange: string;
+    chartType?: "line" | "bar" | "column" | "area";
+    xValuesRange?: string;
+    sizeRange?: string;
+    color?: string;
+    secondaryAxis?: boolean;
+  }>;
+  anchor?: string;
+  width?: number;
+  height?: number;
+  legendPosition?: "top" | "bottom" | "left" | "right" | "none";
+  grouping?: "clustered" | "stacked" | "percentStacked";
+  dataLabels?: boolean;
+};
+
+export type AgentEditOperation =
   | AgentCellEditOperation
   | AgentAggregateSectionOperation
   | AgentFilterRowsOperation
-  | AgentSortUniqueRowsOperation;
+  | AgentSortUniqueRowsOperation
+  | AgentChartOperation;
 
 type FormulaResult = string | number | boolean;
 type FormulaCellValue = FormulaResult | null;
@@ -287,7 +378,20 @@ export async function runStagedSpreadsheetBench(options: SpreadsheetBenchRunnerO
   mkdirSync(outputRoot, { recursive: true });
 
   const offset = Math.max(0, Math.trunc(options.offset ?? 0));
-  const tasks = findStagedTasks(stageRoot).slice(offset, options.limit === undefined ? undefined : offset + options.limit);
+  const requestedTaskIds = options.taskIds?.length ? new Set(options.taskIds) : undefined;
+  const allTasks = findStagedTasks(stageRoot);
+  const selectedTasks = requestedTaskIds
+    ? allTasks.filter((task) => requestedTaskIds.has(readJson<AgentManifest>(task.agentManifestPath).taskId))
+    : allTasks;
+  if (requestedTaskIds && selectedTasks.length !== requestedTaskIds.size) {
+    const selectedIds = new Set(selectedTasks.map((task) => readJson<AgentManifest>(task.agentManifestPath).taskId));
+    const missing = [...requestedTaskIds].filter((taskId) => !selectedIds.has(taskId));
+    throw new Error(`SpreadsheetBench task ID selection contains ${missing.length} unknown task(s): ${missing.slice(0, 10).join(", ")}`);
+  }
+  const tasks = selectedTasks.slice(offset, options.limit === undefined ? undefined : offset + options.limit);
+  const batchedModelPlans = options.mode === "model-edit-plan" && (options.modelBatchSize ?? 1) > 1
+    ? await prepareBatchedModelPlans(tasks, options)
+    : undefined;
   const repeatCount = Math.max(1, Math.trunc(options.repeats ?? 1));
   const retryPolicy = buildRetryPolicy(options);
   const warnings: string[] = [];
@@ -307,7 +411,7 @@ export async function runStagedSpreadsheetBench(options: SpreadsheetBenchRunnerO
             retryOfAttemptIndex: tryIndex > 1 ? attemptIndex - 1 : undefined,
             repeatCount,
             maxAttemptsPerRepeat: retryPolicy.maxRetries + 1,
-          });
+          }, batchedModelPlans?.get(task.taskDir));
           if (result.error) warnings.push(`${result.taskDir}#${repeat}.${tryIndex}: ${result.error.message}`);
           results.push(result);
           caseAttempts.push(result);
@@ -351,6 +455,16 @@ export async function runStagedSpreadsheetBench(options: SpreadsheetBenchRunnerO
     harness: {
       toolPolicy: "agent_dir_only_until_candidate",
       evaluatorAccess: "after_candidate_emit_only",
+      modelContextPolicy: {
+        batchSize: Math.max(1, Math.trunc(options.modelBatchSize ?? 1)),
+        snapshotMaxCells: Math.max(1, Math.trunc(options.modelSnapshotMaxCells ?? DEFAULT_WORKBOOK_SNAPSHOT_MAX_CELLS)),
+        snapshotMaxCellChars: options.modelSnapshotMaxCellChars === undefined
+          ? null
+          : Math.max(1, Math.trunc(options.modelSnapshotMaxCellChars)),
+        instructionMaxChars: (options.modelBatchSize ?? 1) > 1 ? BATCH_INSTRUCTION_MAX_CHARS : null,
+        repairAttempts: Math.max(0, Math.min(3, Math.trunc(options.modelRepairAttempts ?? 0))),
+        selectedTaskCount: selectedTasks.length,
+      },
       budget: {
         modelCalls: usage.calls,
         inputTokens: usage.inputTokens,
@@ -390,6 +504,7 @@ async function runTask(
     repeatCount: number;
     maxAttemptsPerRepeat: number;
   },
+  batchedModelPlan?: BatchedModelPlan,
 ): Promise<SpreadsheetBenchRunnerTaskResult> {
   const started = Date.now();
   const trajectory: SpreadsheetBenchRunnerTaskResult["trajectory"] = [];
@@ -414,6 +529,10 @@ async function runTask(
     model: options.model,
     modelName: options.modelName,
     modelTimeoutMs: options.modelTimeoutMs,
+    modelSnapshotMaxCells: options.modelSnapshotMaxCells,
+    modelSnapshotMaxCellChars: options.modelSnapshotMaxCellChars,
+    modelRepairAttempts: options.modelRepairAttempts,
+    batchedModelPlan,
   });
   let emitted: string | ModelCandidateEmission;
   try {
@@ -492,6 +611,23 @@ async function runTask(
       ? `${score.totals.mismatches} cell mismatch(es), ${chartMismatches} chart-package mismatch(es)`
       : `${score.totals.mismatches} cell mismatch(es)`,
   });
+  const candidateWorkbookRel = rel(outputRoot, resolvedCandidateWorkbook);
+  const scorerReceiptPath = join(taskOutDir, "score-receipt.json");
+  writeJson(scorerReceiptPath, {
+    schema: 1,
+    verifier: "spreadsheetbench_workbook_scorer",
+    generatedAt: options.generatedAt,
+    taskId: agent.taskId,
+    track: agent.track,
+    mode: options.mode,
+    attemptIndex: attempt.attemptIndex,
+    repeatIndex: attempt.repeatIndex,
+    tryIndex: attempt.tryIndex,
+    candidateWorkbook: candidateWorkbookRel,
+    agentManifest: rel(stageRoot, task.agentManifestPath),
+    evaluatorManifest: rel(stageRoot, task.evaluatorManifestPath),
+    score,
+  });
 
   return {
     taskId: agent.taskId,
@@ -505,8 +641,9 @@ async function runTask(
     taskDir: rel(stageRoot, task.taskDir),
     agentManifest: rel(stageRoot, task.agentManifestPath),
     evaluatorManifest: rel(stageRoot, task.evaluatorManifestPath),
-    candidateWorkbook: rel(outputRoot, resolvedCandidateWorkbook),
+    candidateWorkbook: candidateWorkbookRel,
     sidecarEvidence,
+    scorerReceipt: fileEvidence(outputRoot, scorerReceiptPath),
     score,
     model: typeof emitted === "string" ? undefined : emitted.model,
     timingsMs: {
@@ -576,9 +713,14 @@ function collectSidecarEvidence(outputRoot: string, taskOutDir: string): Spreads
     generatedEditPlan?: string;
     sourceEditPlan?: string;
     rawModelOutput?: string;
+    workbookInspection?: string;
+    editVerification?: string;
+    repairOutputs?: string[];
     formulaResultPolicy?: string;
     supportedFormulaFunctions?: string[];
     appliedOperationCount?: number;
+    repairAttemptCount?: number;
+    verificationStatus?: "passed" | "needs_repair";
   }>(candidateManifestPath);
   const editPlanPath = manifest.generatedEditPlan ?? manifest.sourceEditPlan;
   return {
@@ -593,9 +735,16 @@ function collectSidecarEvidence(outputRoot: string, taskOutDir: string): Spreads
         }
       : {}),
     ...(manifest.rawModelOutput ? { rawModelOutput: fileEvidence(outputRoot, resolveSidecarPath(taskOutDir, manifest.rawModelOutput)) } : {}),
+    ...(manifest.workbookInspection ? { workbookInspection: fileEvidence(outputRoot, resolveSidecarPath(taskOutDir, manifest.workbookInspection)) } : {}),
+    ...(manifest.editVerification ? { editVerification: fileEvidence(outputRoot, resolveSidecarPath(taskOutDir, manifest.editVerification)) } : {}),
+    ...(manifest.repairOutputs?.length
+      ? { repairOutputs: manifest.repairOutputs.map((path) => fileEvidence(outputRoot, resolveSidecarPath(taskOutDir, path))) }
+      : {}),
     ...(manifest.formulaResultPolicy ? { formulaResultPolicy: manifest.formulaResultPolicy } : {}),
     ...(Array.isArray(manifest.supportedFormulaFunctions) ? { supportedFormulaFunctions: manifest.supportedFormulaFunctions } : {}),
     ...(typeof manifest.appliedOperationCount === "number" ? { appliedOperationCount: manifest.appliedOperationCount } : {}),
+    ...(typeof manifest.repairAttemptCount === "number" ? { repairAttemptCount: manifest.repairAttemptCount } : {}),
+    ...(manifest.verificationStatus ? { verificationStatus: manifest.verificationStatus } : {}),
   };
 }
 
@@ -623,6 +772,10 @@ function emitCandidateWorkbook(args: {
   model?: AgentModel;
   modelName?: string;
   modelTimeoutMs?: number;
+  modelSnapshotMaxCells?: number;
+  modelSnapshotMaxCellChars?: number;
+  modelRepairAttempts?: number;
+  batchedModelPlan?: BatchedModelPlan;
 }): Promise<string | ModelCandidateEmission> | string {
   const firstInput = args.agent.inputFiles[0];
   if (!firstInput) throw new Error(`agent manifest has no input workbook: ${args.agent.taskId}`);
@@ -651,9 +804,16 @@ type ModelCandidateEmission = {
   modelPlanningMs: number;
   model: {
     name: string;
+    requestedName?: string;
     calls: number;
     usage: TokenUsage;
     costUsd: number;
+    batch?: {
+      id: string;
+      taskCount: number;
+      taskIndex: number;
+      callShare: number;
+    };
   };
 };
 
@@ -678,6 +838,168 @@ function modelEditFailure(error: unknown): Pick<ModelCandidateEmission, "model" 
   return error instanceof ModelEditCandidateError
     ? { model: error.model, modelPlanningMs: error.modelPlanningMs }
     : undefined;
+}
+
+async function prepareBatchedModelPlans(
+  tasks: StagedTaskPaths[],
+  options: SpreadsheetBenchRunnerOptions,
+): Promise<Map<string, BatchedModelPlan>> {
+  if (!options.model) throw new Error("model-edit-plan batching requires options.model");
+  const batchSize = Math.max(2, Math.min(16, Math.trunc(options.modelBatchSize ?? 2)));
+  const plans = new Map<string, BatchedModelPlan>();
+
+  for (let start = 0; start < tasks.length; start += batchSize) {
+    const batchTasks = tasks.slice(start, start + batchSize);
+    const prepared = await Promise.all(batchTasks.map(async (task) => {
+      const agent = readJson<AgentManifest>(task.agentManifestPath);
+      const agentDir = join(task.taskDir, "agent");
+      const firstInput = agent.inputFiles[0];
+      if (!firstInput) throw new Error(`agent manifest has no input workbook: ${agent.taskId}`);
+      const source = resolveManifestPath(agentDir, firstInput);
+      if (!existsSync(source)) throw new Error(`agent input workbook does not exist: ${source}`);
+      const snapshot = await snapshotWorkbook(
+        source,
+        options.modelSnapshotMaxCells,
+        options.modelSnapshotMaxCellChars,
+        agent,
+      );
+      return {
+        task,
+        agent,
+        snapshot,
+        promptFiles: readPromptFiles(agentDir, agent.promptFiles),
+      };
+    }));
+    const batchPrepared = prepared.filter(({ agent, snapshot }) => isBatchSafeWorkbookTask(agent, snapshot));
+    if (batchPrepared.length < 2) continue;
+    const planningStarted = Date.now();
+    const requestedModelName = options.modelName;
+    const attemptedModelName = options.model.name || requestedModelName || "unknown";
+    let rawModelOutput = "";
+    let modelPlanningMs = 0;
+    let modelName = attemptedModelName;
+    let usage: TokenUsage = { inputTokens: 0, outputTokens: 0 };
+    let parseError: string | undefined;
+    let parsedPlans = new Map<string, AgentEditPlan>();
+
+    try {
+      const step = await options.model.next({
+        system: spreadsheetBenchBatchPlannerSystem(),
+        messages: [{
+          role: "user",
+          content: spreadsheetBenchBatchPlannerPrompt(batchPrepared.map(({ agent, snapshot, promptFiles }) => ({ agent, snapshot, promptFiles }))),
+        }],
+        tools: [],
+        signal: options.modelTimeoutMs ? AbortSignal.timeout(options.modelTimeoutMs) : undefined,
+      });
+      modelPlanningMs = Date.now() - planningStarted;
+      modelName = options.model.name || attemptedModelName;
+      usage = step.usage ?? usage;
+      rawModelOutput = step.text ?? "";
+      if (step.toolCalls.length) throw new Error(`model-edit-plan batch expected JSON text, got ${step.toolCalls.length} tool call(s)`);
+      parsedPlans = parseBatchedEditPlanText(rawModelOutput);
+    } catch (error) {
+      modelPlanningMs = Date.now() - planningStarted;
+      parseError = error instanceof Error ? error.message : String(error);
+    }
+
+    const batchId = createHash("sha256")
+      .update(JSON.stringify(batchPrepared.map(({ agent }) => agent.taskId)))
+      .update("\0")
+      .update(rawModelOutput)
+      .digest("hex")
+      .slice(0, 16);
+    const totalCostUsd = getModelPricing(modelName)
+      ? priceRun(modelName, usage.inputTokens, usage.outputTokens)
+      : 0;
+
+    for (const [taskIndex, item] of batchPrepared.entries()) {
+      const model = batchedModelInfo({
+        modelName,
+        requestedModelName,
+        usage,
+        totalCostUsd,
+        batchId,
+        taskIndex,
+        taskCount: batchPrepared.length,
+      });
+      let plan = parsedPlans.get(item.agent.taskId);
+      let error = parseError;
+      let droppedOperationCount = 0;
+      if (!error && !plan) error = `model-edit-plan batch omitted ${item.agent.taskId}`;
+      if (!error && plan) {
+        try {
+          const originalOperationCount = plan.operations.length;
+          plan = {
+            ...plan,
+            operations: plan.operations.filter((operation) => batchOperationReferencesSnapshot(operation, item.snapshot)),
+          };
+          plan = normalizeEditPlan(plan, item.snapshot, item.agent);
+          plan = {
+            ...plan,
+            operations: plan.operations.filter((operation) => {
+              try {
+                validateEditPlan({ schema: 1, operations: [operation] }, item.agent.taskId, { allowEmptyOperations: true });
+                return true;
+              } catch {
+                return false;
+              }
+            }),
+          };
+          droppedOperationCount = originalOperationCount - plan.operations.length;
+          validateEditPlan(plan, item.agent.taskId, { allowEmptyOperations: true });
+        } catch (cause) {
+          error = cause instanceof Error ? cause.message : String(cause);
+          plan = undefined;
+        }
+      }
+      plans.set(item.task.taskDir, {
+        snapshot: item.snapshot,
+        rawModelOutput,
+        modelPlanningMs,
+        model,
+        ...(plan ? { plan } : {}),
+        ...(droppedOperationCount > 0 ? { droppedOperationCount } : {}),
+        ...(error ? { error } : {}),
+      });
+    }
+  }
+
+  return plans;
+}
+
+function batchedModelInfo(args: {
+  modelName: string;
+  requestedModelName?: string;
+  usage: TokenUsage;
+  totalCostUsd: number;
+  batchId: string;
+  taskIndex: number;
+  taskCount: number;
+}): ModelCandidateEmission["model"] {
+  const share = (value: number | undefined) => {
+    const total = Math.max(0, Math.trunc(value ?? 0));
+    return Math.floor(total / args.taskCount) + (args.taskIndex < total % args.taskCount ? 1 : 0);
+  };
+  return {
+    name: args.modelName,
+    ...(args.requestedModelName && args.requestedModelName !== args.modelName
+      ? { requestedName: args.requestedModelName }
+      : {}),
+    calls: 1 / args.taskCount,
+    usage: {
+      inputTokens: share(args.usage.inputTokens),
+      outputTokens: share(args.usage.outputTokens),
+      ...(args.usage.cachedInputTokens === undefined ? {} : { cachedInputTokens: share(args.usage.cachedInputTokens) }),
+    },
+    costUsd: Number((args.totalCostUsd / args.taskCount).toFixed(10)),
+    batch: {
+      id: args.batchId,
+      taskCount: args.taskCount,
+      taskIndex: args.taskIndex,
+      callShare: 1 / args.taskCount,
+    },
+  };
 }
 
 function prepareAgentWorkspace(
@@ -746,10 +1068,10 @@ async function emitPatchedCandidateWorkbook(args: {
   validateEditPlan(plan, args.agent.taskId);
   args.trajectory.push({ step: "read_agent_edit_plan", detail: rel(args.taskOutDir, editPlanPath) });
 
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.readFile(args.source);
-  for (const operation of plan.operations) applyOperation(workbook, operation);
+  const workbook = await readSpreadsheetBenchWorkbookForCells(args.source);
+  for (const operation of plan.operations) applySpreadsheetBenchOperation(workbook, operation);
   await workbook.xlsx.writeFile(args.target);
+  applySpreadsheetBenchChartOperations(args.target, plan.operations, args.taskOutDir);
   writeJson(join(args.taskOutDir, "candidate-manifest.json"), {
     schema: 1,
     taskId: args.agent.taskId,
@@ -779,59 +1101,261 @@ async function emitModelEditCandidateWorkbook(args: {
   model?: AgentModel;
   modelName?: string;
   modelTimeoutMs?: number;
+  modelSnapshotMaxCells?: number;
+  modelSnapshotMaxCellChars?: number;
+  modelRepairAttempts?: number;
+  batchedModelPlan?: BatchedModelPlan;
 }): Promise<ModelCandidateEmission> {
   if (!args.model) throw new Error(`model-edit-plan requires options.model: ${args.agent.taskId}`);
-  const snapshot = await snapshotWorkbook(args.source);
+  const snapshot = args.batchedModelPlan?.snapshot ?? await snapshotWorkbook(
+    args.source,
+    args.modelSnapshotMaxCells,
+    args.modelSnapshotMaxCellChars,
+    args.agent,
+  );
   args.trajectory.push({ step: "snapshot_agent_workbook", detail: `${snapshot.sheets.length} sheet(s), ${snapshot.cellCount} cell(s)` });
-  const promptFiles = readPromptFiles(args.agentWorkspace.agentDir, args.agent.promptFiles);
-  const planningStarted = Date.now();
-  const step = await args.model.next({
-    system: spreadsheetBenchPlannerSystem(),
-    messages: [{ role: "user", content: spreadsheetBenchPlannerPrompt(args.agent, snapshot, promptFiles) }],
-    tools: [],
-    signal: args.modelTimeoutMs ? AbortSignal.timeout(args.modelTimeoutMs) : undefined,
-  });
-  const modelPlanningMs = Date.now() - planningStarted;
-  args.trajectory.push({ step: "call_model_for_edit_plan", detail: args.model.name });
-  const usage = step.usage ?? { inputTokens: 0, outputTokens: 0 };
-  const modelName = args.modelName ?? args.model.name;
-  const costUsd = step.usage && args.modelName ? priceRun(args.modelName, usage.inputTokens, usage.outputTokens) : 0;
-  const modelInfo = {
-    name: modelName,
-    calls: 1,
-    usage,
-    costUsd,
-  };
+  const requestedModelName = args.modelName;
+  const attemptedModelName = args.model.name || requestedModelName || "unknown";
   const rawModelOutputPath = join(args.taskOutDir, "model-output.txt");
-  writeFileSync(rawModelOutputPath, step.text ?? "");
+  const inspectionPath = join(args.taskOutDir, "workbook-inspection.json");
+  writeJson(inspectionPath, snapshot.inspection);
+  let rawModelOutput = "";
+  let plan: AgentEditPlan | undefined;
+  let planError: string | undefined;
+  let modelPlanningMs = 0;
+  let modelInfo: ModelCandidateEmission["model"] = {
+    name: attemptedModelName,
+    ...(requestedModelName && requestedModelName !== attemptedModelName ? { requestedName: requestedModelName } : {}),
+    calls: 0,
+    usage: { inputTokens: 0, outputTokens: 0 },
+    costUsd: 0,
+  };
+  const repairOutputPaths: string[] = [];
+  let repairAttemptCount = 0;
+
+  if (args.batchedModelPlan) {
+    rawModelOutput = args.batchedModelPlan.rawModelOutput;
+    modelPlanningMs = args.batchedModelPlan.modelPlanningMs;
+    modelInfo = args.batchedModelPlan.model;
+    args.trajectory.push({
+      step: "call_model_for_edit_plan",
+      detail: `${modelInfo.name} batch ${modelInfo.batch?.id ?? "unknown"} (${modelInfo.batch?.taskCount ?? 1} tasks)`,
+    });
+    planError = args.batchedModelPlan.error;
+    plan = args.batchedModelPlan.plan;
+  } else {
+    const promptFiles = readPromptFiles(args.agentWorkspace.agentDir, args.agent.promptFiles);
+    const planningStarted = Date.now();
+    let step: Awaited<ReturnType<AgentModel["next"]>> | undefined;
+    try {
+      step = await args.model.next({
+        system: spreadsheetBenchPlannerSystem(),
+        messages: [{ role: "user", content: spreadsheetBenchPlannerPrompt(args.agent, snapshot, promptFiles) }],
+        tools: [],
+        signal: args.modelTimeoutMs ? AbortSignal.timeout(args.modelTimeoutMs) : undefined,
+      });
+    } catch (error) {
+      const usage = { inputTokens: 0, outputTokens: 0 };
+      const fallback = normalizeEditPlan({ schema: 1, operations: [] }, snapshot, args.agent);
+      const failureModel = {
+        name: attemptedModelName,
+        ...(requestedModelName && requestedModelName !== attemptedModelName ? { requestedName: requestedModelName } : {}),
+        calls: 1,
+        usage,
+        costUsd: 0,
+      };
+      if (!fallback.operations.length) {
+        throw new ModelEditCandidateError(error instanceof Error ? error.message : String(error), failureModel, Date.now() - planningStarted);
+      }
+      modelPlanningMs = Date.now() - planningStarted;
+      modelInfo = failureModel;
+      plan = fallback;
+      planError = undefined;
+      args.trajectory.push({
+        step: "fallback_to_visible_formula_repairs",
+        detail: `${fallback.operations.length} high-confidence operation(s) after provider failure`,
+      });
+    }
+    if (step) {
+      modelPlanningMs = Date.now() - planningStarted;
+      args.trajectory.push({ step: "call_model_for_edit_plan", detail: args.model.name });
+      const usage = step.usage ?? { inputTokens: 0, outputTokens: 0 };
+      const modelName = args.model.name || attemptedModelName;
+      const costUsd = step.usage && getModelPricing(modelName) ? priceRun(modelName, usage.inputTokens, usage.outputTokens) : 0;
+      modelInfo = {
+        name: modelName,
+        ...(requestedModelName && requestedModelName !== modelName ? { requestedName: requestedModelName } : {}),
+        calls: 1,
+        usage,
+        costUsd,
+      };
+      rawModelOutput = step.text ?? "";
+      if (step.toolCalls.length) {
+        planError = `model-edit-plan expected JSON text, got ${step.toolCalls.length} tool call(s)`;
+      } else {
+        try {
+          plan = normalizeEditPlan(parseEditPlanText(rawModelOutput, args.agent.taskId), snapshot, args.agent);
+        } catch (error) {
+          planError = error instanceof Error ? error.message : String(error);
+        }
+      }
+    }
+  }
+  if (!plan) {
+    const fallback = normalizeEditPlan({ schema: 1, operations: [] }, snapshot, args.agent);
+    if (fallback.operations.length) {
+      plan = fallback;
+      planError = undefined;
+      args.trajectory.push({
+        step: "fallback_to_visible_formula_repairs",
+        detail: `${fallback.operations.length} high-confidence operation(s) after unusable planner output`,
+      });
+    }
+  }
+  writeFileSync(rawModelOutputPath, rawModelOutput);
+
+  const sourceWorkbook = await readSpreadsheetBenchWorkbookForCells(args.source);
+  const verificationCells = observedCellsForOperations(sourceWorkbook, snapshot, plan?.operations ?? []);
+  let planVerification = workbookPlanVerification({
+    agent: args.agent,
+    snapshot,
+    cells: verificationCells,
+    plan,
+    planError,
+  });
+  args.trajectory.push({
+    step: "verify_edit_plan",
+    detail: `${planVerification.status}: ${planVerification.issueCount} issue(s)`,
+  });
+
+  const maxRepairAttempts = Math.max(0, Math.min(3, Math.trunc(args.modelRepairAttempts ?? 0)));
+  while (planVerification.status === "needs_repair" && repairAttemptCount < maxRepairAttempts) {
+    repairAttemptCount += 1;
+    const repairStarted = Date.now();
+    let repairStep: Awaited<ReturnType<AgentModel["next"]>>;
+    try {
+      repairStep = await args.model.next({
+        system: spreadsheetBenchRepairSystem(),
+        messages: [{
+          role: "user",
+          content: spreadsheetBenchRepairPrompt({
+            agent: args.agent,
+            snapshot,
+            priorPlan: plan,
+            priorError: planError,
+            verification: planVerification,
+          }),
+        }],
+        tools: [],
+        signal: args.modelTimeoutMs ? AbortSignal.timeout(args.modelTimeoutMs) : undefined,
+      });
+    } catch (error) {
+      planError = error instanceof Error ? error.message : String(error);
+      args.trajectory.push({ step: "repair_edit_plan", detail: `attempt ${repairAttemptCount} failed: ${planError}` });
+      break;
+    }
+    const repairMs = Date.now() - repairStarted;
+    modelPlanningMs += repairMs;
+    modelInfo = aggregateModelPlanningStep(modelInfo, repairStep, args.model.name || attemptedModelName, requestedModelName);
+    const repairOutput = repairStep.text ?? "";
+    const repairOutputPath = join(args.taskOutDir, `model-repair-output-${String(repairAttemptCount).padStart(2, "0")}.txt`);
+    writeFileSync(repairOutputPath, repairOutput);
+    repairOutputPaths.push(repairOutputPath);
+    planError = repairStep.toolCalls.length
+      ? `model-edit-plan repair expected JSON text, got ${repairStep.toolCalls.length} tool call(s)`
+      : undefined;
+    if (!planError) {
+      try {
+        plan = normalizeEditPlan(parseEditPlanText(repairOutput, args.agent.taskId), snapshot, args.agent);
+      } catch (error) {
+        planError = error instanceof Error ? error.message : String(error);
+        plan = undefined;
+      }
+    }
+    const repairedCells = observedCellsForOperations(sourceWorkbook, snapshot, plan?.operations ?? []);
+    planVerification = workbookPlanVerification({
+      agent: args.agent,
+      snapshot,
+      cells: repairedCells,
+      plan,
+      planError,
+    });
+    args.trajectory.push({
+      step: "repair_edit_plan",
+      detail: `attempt ${repairAttemptCount}: ${planVerification.status}, ${planVerification.issueCount} issue(s)`,
+    });
+  }
+
   try {
-    if (step.toolCalls.length) throw new Error(`model-edit-plan expected JSON text, got ${step.toolCalls.length} tool call(s)`);
-    const plan = normalizeEditPlan(parseEditPlanText(step.text ?? "", args.agent.taskId), snapshot, args.agent);
-    validateEditPlan(plan, args.agent.taskId);
+    if (!plan) throw new Error(planError ?? `model-edit-plan returned no usable plan for ${args.agent.taskId}`);
+    if (maxRepairAttempts > 0 && planVerification.status === "needs_repair") {
+      throw new Error(`edit-plan verification failed after ${repairAttemptCount} repair attempt(s): ${planVerification.issues.map((issue) => issue.detail).join("; ")}`);
+    }
+    validateEditPlan(plan, args.agent.taskId, { allowEmptyOperations: true });
     const editPlanPath = join(args.taskOutDir, "model-edit-plan.json");
     writeJson(editPlanPath, plan);
 
-    const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.readFile(args.source);
-    for (const operation of plan.operations) applyOperation(workbook, operation);
+    const workbook = sourceWorkbook;
+    for (const operation of plan.operations) applySpreadsheetBenchOperation(workbook, operation);
+    const writeChecks = checksForWorkbookOperations(plan.operations);
+    const candidateCells = observedCellsForChecks(workbook, writeChecks);
+    const writeVerification = verifyWorkbookValues({ cells: candidateCells, checks: writeChecks });
+    const verificationStatus = planVerification.status === "passed" && writeVerification.status === "passed"
+      ? "passed" as const
+      : "needs_repair" as const;
+    args.trajectory.push({
+      step: "verify_candidate_workbook",
+      detail: `${verificationStatus}: ${writeVerification.passedCount}/${writeVerification.checkedCount} changed cell(s) verified`,
+    });
     await workbook.xlsx.writeFile(args.target);
+    applySpreadsheetBenchChartOperations(args.target, plan.operations, args.taskOutDir);
+    const editVerificationPath = join(args.taskOutDir, "model-edit-verification.json");
+    writeJson(editVerificationPath, {
+      schema: 1,
+      taskId: args.agent.taskId,
+      inspection: snapshot.inspection,
+      plan: planVerification,
+      candidate: writeVerification,
+      repairAttemptCount,
+      status: verificationStatus,
+      policy: "agent-visible preflight plus candidate re-read; evaluator metadata is unavailable until after candidate emission",
+    });
 
     writeJson(join(args.taskOutDir, "candidate-manifest.json"), {
       schema: 1,
       taskId: args.agent.taskId,
       mode: args.mode,
-      model: modelName,
+      model: modelInfo.name,
+      ...(modelInfo.requestedName ? { requestedModel: modelInfo.requestedName } : {}),
+      ...(modelInfo.batch ? { modelBatch: modelInfo.batch } : {}),
+      ...(args.batchedModelPlan?.droppedOperationCount
+        ? { modelBatchNormalization: { droppedOperationCount: args.batchedModelPlan.droppedOperationCount } }
+        : {}),
       sourceAgentManifest: rel(args.stageRoot, join(args.taskDir, "agent", "task.json")),
       agentWorkspaceManifest: rel(args.taskOutDir, args.agentWorkspace.manifestPath),
       generatedEditPlan: basename(editPlanPath),
       rawModelOutput: basename(rawModelOutputPath),
+      workbookInspection: basename(inspectionPath),
+      editVerification: basename(editVerificationPath),
+      repairOutputs: repairOutputPaths.map((path) => basename(path)),
       candidateWorkbook: basename(args.target),
       appliedOperationCount: plan.operations.length,
+      repairAttemptCount,
+      verificationStatus,
+      modelContext: {
+        snapshotCellCount: snapshot.cellCount,
+        snapshotTruncated: snapshot.truncated,
+        snapshotMaxCells: Math.max(1, Math.trunc(args.modelSnapshotMaxCells ?? DEFAULT_WORKBOOK_SNAPSHOT_MAX_CELLS)),
+        snapshotMaxCellChars: args.modelSnapshotMaxCellChars === undefined
+          ? null
+          : Math.max(1, Math.trunc(args.modelSnapshotMaxCellChars)),
+        repairAttempts: maxRepairAttempts,
+      },
       formulaResultPolicy: FORMULA_RESULT_POLICY,
       supportedFormulaFunctions: SUPPORTED_FORMULA_FUNCTIONS,
-      modelUsage: usage,
-      modelCostUsd: costUsd,
-      note: "model-edit-plan asks a model to produce an agent-side edit plan before scoring; this is a benchmark runner path, not an official score unless run on official tasks with the recorded model/tool policy.",
+      modelUsage: modelInfo.usage,
+      modelCostUsd: modelInfo.costUsd,
+      note: "model-edit-plan inspects agent-visible workbook cells, preflights and optionally repairs the model plan, applies it, and re-reads changed targets before hidden scoring metadata becomes available.",
     });
   } catch (error) {
     throw new ModelEditCandidateError(error instanceof Error ? error.message : String(error), modelInfo, modelPlanningMs);
@@ -843,24 +1367,187 @@ async function emitModelEditCandidateWorkbook(args: {
   };
 }
 
-function validateEditPlan(plan: AgentEditPlan, taskId: string) {
+function workbookPlanVerification(args: {
+  agent: AgentManifest;
+  snapshot: WorkbookSnapshot;
+  cells: WorkbookObservedCell[];
+  plan?: AgentEditPlan;
+  planError?: string;
+}): WorkbookPlanVerification {
+  const verification = verifyWorkbookPlan({
+    instruction: args.agent.instruction,
+    inspection: args.snapshot.inspection,
+    cells: args.cells,
+    sheetNames: args.snapshot.sheets.map((sheet) => sheet.name),
+    operations: (args.plan?.operations ?? []) as WorkbookPlanOperation[],
+  });
+  if (!args.planError) return verification;
+  const issue: WorkbookPlanIssue = {
+    kind: "planner_output_error",
+    severity: "error",
+    detail: args.planError,
+    repair: "Return one complete strict-JSON replacement plan using only the visible workbook context.",
+  };
+  return {
+    ...verification,
+    status: "needs_repair",
+    issueCount: verification.issueCount + 1,
+    issues: [issue, ...verification.issues],
+  };
+}
+
+function observedCellsForOperations(
+  workbook: ExcelJS.Workbook,
+  snapshot: WorkbookSnapshot,
+  operations: AgentEditOperation[],
+): WorkbookObservedCell[] {
+  const cells = new Map<string, WorkbookObservedCell>();
+  for (const sheet of snapshot.sheets) {
+    for (const cell of sheet.cells) {
+      cells.set(workbookCellKey(sheet.name, cell.address), {
+        sheet: sheet.name,
+        address: cell.address,
+        value: cell.value,
+        ...(cell.formula ? { formula: cell.formula } : {}),
+        ...(cell.numFmt ? { numFmt: cell.numFmt } : {}),
+      });
+    }
+  }
+  const targets = [
+    ...snapshot.inspection.targetCandidates.map((target) => ({ sheet: target.sheet, address: target.address })),
+    ...snapshot.inspection.findings.map((finding) => ({ sheet: finding.sheet, address: finding.address })),
+    ...operations.flatMap((operation) => isCellEditOperation(operation) && operation.cell
+      ? [{ sheet: operation.sheet, address: operation.cell }]
+      : []),
+  ];
+  for (const target of targets) {
+    const sheet = worksheetByName(workbook, target.sheet);
+    if (!sheet || !isCellRef(target.address)) continue;
+    const observed = observedWorkbookCell(sheet, sheet.getCell(target.address));
+    cells.set(workbookCellKey(observed.sheet, observed.address), observed);
+  }
+  return [...cells.values()];
+}
+
+function observedCellsForChecks(workbook: ExcelJS.Workbook, checks: WorkbookValueCheck[]): WorkbookObservedCell[] {
+  const cells: WorkbookObservedCell[] = [];
+  for (const check of checks) {
+    if (!check.sheet || !isCellRef(check.elementId)) continue;
+    const sheet = worksheetByName(workbook, check.sheet);
+    if (!sheet) continue;
+    cells.push(observedWorkbookCell(sheet, sheet.getCell(check.elementId)));
+  }
+  return cells;
+}
+
+function worksheetByName(workbook: ExcelJS.Workbook, name: string): ExcelJS.Worksheet | undefined {
+  return workbook.getWorksheet(name) ?? workbook.worksheets.find((sheet) => sheet.name.toLowerCase() === name.toLowerCase());
+}
+
+function aggregateModelPlanningStep(
+  current: ModelCandidateEmission["model"],
+  step: Awaited<ReturnType<AgentModel["next"]>>,
+  resolvedName: string,
+  requestedName?: string,
+): ModelCandidateEmission["model"] {
+  const usage = step.usage ?? { inputTokens: 0, outputTokens: 0 };
+  const resolved = resolvedName || current.name;
+  const stepCost = step.usage && getModelPricing(resolved)
+    ? priceRun(resolved, usage.inputTokens, usage.outputTokens)
+    : 0;
+  return {
+    ...current,
+    name: resolved,
+    ...(requestedName && requestedName !== resolved ? { requestedName } : {}),
+    calls: current.calls + 1,
+    usage: {
+      inputTokens: current.usage.inputTokens + usage.inputTokens,
+      outputTokens: current.usage.outputTokens + usage.outputTokens,
+      ...((current.usage.cachedInputTokens ?? usage.cachedInputTokens) === undefined
+        ? {}
+        : { cachedInputTokens: (current.usage.cachedInputTokens ?? 0) + (usage.cachedInputTokens ?? 0) }),
+    },
+    costUsd: Number((current.costUsd + stepCost).toFixed(10)),
+  };
+}
+
+function spreadsheetBenchRepairSystem(): string {
+  return [
+    spreadsheetBenchPlannerSystem(),
+    "This is a bounded repair pass over a prior plan that failed agent-visible verification.",
+    "Return one complete replacement plan, not a patch to the prior JSON.",
+    "Address every verification error. Do not repeat an unchanged failing plan.",
+    "You still cannot see evaluator metadata or a gold workbook; use only the task, inspection, workbook cells, prior plan, and verification findings.",
+  ].join("\n");
+}
+
+function spreadsheetBenchRepairPrompt(args: {
+  agent: AgentManifest;
+  snapshot: WorkbookSnapshot;
+  priorPlan?: AgentEditPlan;
+  priorError?: string;
+  verification: WorkbookPlanVerification;
+}): string {
+  return JSON.stringify({
+    taskId: args.agent.taskId,
+    instruction: args.agent.instruction,
+    instructionType: args.agent.instructionType,
+    workbook: args.snapshot,
+    priorPlan: args.priorPlan ?? null,
+    priorError: args.priorError ?? null,
+    verification: args.verification,
+    requiredResponse: { schema: 1, operations: "complete replacement operation array" },
+  });
+}
+
+function validateEditPlan(
+  plan: AgentEditPlan,
+  taskId: string,
+  options: { allowEmptyOperations?: boolean } = {},
+) {
   if (!plan || plan.schema !== 1) throw new Error(`invalid edit-plan schema for ${taskId}`);
-  if (!Array.isArray(plan.operations) || plan.operations.length === 0) {
+  if (!Array.isArray(plan.operations)) {
+    throw new Error(`edit-plan operations must be an array for ${taskId}`);
+  }
+  if (plan.operations.length === 0 && !options.allowEmptyOperations) {
     throw new Error(`edit-plan has no operations for ${taskId}`);
   }
   for (const [index, operation] of plan.operations.entries()) {
+    if (isChartOperation(operation)) {
+      if (typeof operation.sheet !== "string" || !operation.sheet.trim()) throw new Error(`edit-plan chart operation ${index + 1} is missing sheet`);
+      if (!SUPPORTED_CHART_TYPES.has(operation.chartType)) throw new Error(`edit-plan chart operation ${index + 1} has unsupported chartType`);
+      if (!isRangeRef(operation.categoryRange)) throw new Error(`edit-plan chart operation ${index + 1} has invalid categoryRange`);
+      if (!Array.isArray(operation.series) || operation.series.length === 0 || operation.series.length > 12) {
+        throw new Error(`edit-plan chart operation ${index + 1} must contain 1-12 series`);
+      }
+      for (const series of operation.series) {
+        if (typeof series.name !== "string" || !series.name.trim() || !isRangeRef(series.valuesRange)) {
+          throw new Error(`edit-plan chart operation ${index + 1} has invalid series metadata`);
+        }
+        if (series.xValuesRange && !isRangeRef(series.xValuesRange)) throw new Error(`edit-plan chart operation ${index + 1} has invalid xValuesRange`);
+        if (series.sizeRange && !isRangeRef(series.sizeRange)) throw new Error(`edit-plan chart operation ${index + 1} has invalid sizeRange`);
+        if (series.chartType && !["line", "bar", "column", "area"].includes(series.chartType)) {
+          throw new Error(`edit-plan chart operation ${index + 1} has invalid series chartType`);
+        }
+      }
+      if (operation.anchor && !isCellRef(operation.anchor)) throw new Error(`edit-plan chart operation ${index + 1} has invalid anchor`);
+      continue;
+    }
     if (isAggregateSectionOperation(operation)) {
-      if (!operation.sourceSheet.trim() || !operation.sourceSection.trim() || !operation.targetSheet.trim() || !operation.targetSection.trim()) {
+      if (![operation.sourceSheet, operation.sourceSection, operation.targetSheet, operation.targetSection]
+        .every((value) => typeof value === "string" && value.trim())) {
         throw new Error(`edit-plan aggregate operation ${index + 1} is missing source/target section metadata`);
       }
-      if (!Array.isArray(operation.groupBy) || operation.groupBy.length === 0 || operation.groupBy.some((header) => !header.trim())) {
+      if (!Array.isArray(operation.groupBy) || operation.groupBy.length === 0 || operation.groupBy.some((header) => typeof header !== "string" || !header.trim())) {
         throw new Error(`edit-plan aggregate operation ${index + 1} is missing groupBy headers`);
       }
-      if (!operation.valueColumn.trim()) throw new Error(`edit-plan aggregate operation ${index + 1} is missing valueColumn`);
+      if (typeof operation.valueColumn !== "string" || !operation.valueColumn.trim()) {
+        throw new Error(`edit-plan aggregate operation ${index + 1} is missing valueColumn`);
+      }
       continue;
     }
     if (isFilterRowsOperation(operation)) {
-      if (!operation.sheet.trim()) throw new Error(`edit-plan filter operation ${index + 1} is missing sheet`);
+      if (typeof operation.sheet !== "string" || !operation.sheet.trim()) throw new Error(`edit-plan filter operation ${index + 1} is missing sheet`);
       if (!parseRangeRef(operation.sourceRange)) throw new Error(`edit-plan filter operation ${index + 1} has invalid sourceRange`);
       if (!isCellRef(operation.targetCell)) throw new Error(`edit-plan filter operation ${index + 1} has invalid targetCell`);
       if (!isCellRef(operation.startCell) || !isCellRef(operation.endCell)) {
@@ -869,10 +1556,12 @@ function validateEditPlan(plan: AgentEditPlan, taskId: string) {
       continue;
     }
     if (isSortUniqueRowsOperation(operation)) {
-      if (!operation.sheet.trim()) throw new Error(`edit-plan sort operation ${index + 1} is missing sheet`);
+      if (typeof operation.sheet !== "string" || !operation.sheet.trim()) throw new Error(`edit-plan sort operation ${index + 1} is missing sheet`);
       if (!parseRangeRef(operation.sourceRange)) throw new Error(`edit-plan sort operation ${index + 1} has invalid sourceRange`);
       if (!isCellRef(operation.targetCell)) throw new Error(`edit-plan sort operation ${index + 1} has invalid targetCell`);
-      if (!operation.keyColumns.length || !operation.outputColumns.length || !operation.sortBy.trim()) {
+      if (!Array.isArray(operation.keyColumns) || !operation.keyColumns.length ||
+        !Array.isArray(operation.outputColumns) || !operation.outputColumns.length ||
+        typeof operation.sortBy !== "string" || !operation.sortBy.trim()) {
         throw new Error(`edit-plan sort operation ${index + 1} is missing sort metadata`);
       }
       continue;
@@ -901,10 +1590,30 @@ function isSortUniqueRowsOperation(operation: unknown): operation is AgentSortUn
   return Boolean(operation && typeof operation === "object" && (operation as { op?: unknown }).op === "sort_unique_rows");
 }
 
+const SUPPORTED_CHART_TYPES = new Set<AgentChartOperation["chartType"]>(["line", "bar", "column", "pie", "doughnut", "scatter", "area", "bubble"]);
+
+function isChartOperation(operation: unknown): operation is AgentChartOperation {
+  return Boolean(operation && typeof operation === "object" && (operation as { op?: unknown }).op === "add_chart");
+}
+
 function isStructuralOperation(
   operation: AgentEditOperation,
-): operation is AgentAggregateSectionOperation | AgentFilterRowsOperation | AgentSortUniqueRowsOperation {
-  return isAggregateSectionOperation(operation) || isFilterRowsOperation(operation) || isSortUniqueRowsOperation(operation);
+): operation is AgentAggregateSectionOperation | AgentFilterRowsOperation | AgentSortUniqueRowsOperation | AgentChartOperation {
+  return isAggregateSectionOperation(operation) || isFilterRowsOperation(operation) || isSortUniqueRowsOperation(operation) || isChartOperation(operation);
+}
+
+function batchOperationReferencesSnapshot(operation: AgentEditOperation, snapshot: WorkbookSnapshot): boolean {
+  const sheet = (name: string | undefined) => snapshot.sheets.find((item) =>
+    item.name.toLowerCase() === String(name ?? "").trim().toLowerCase());
+  if (isAggregateSectionOperation(operation)) {
+    const source = sheet(operation.sourceSheet);
+    const target = sheet(operation.targetSheet);
+    const hasSection = (item: WorkbookSnapshot["sheets"][number] | undefined, section: string) =>
+      Boolean(item?.blocks.some((block) => block.title && normalizeHeader(block.title) === normalizeHeader(section)));
+    return hasSection(source, operation.sourceSection) && hasSection(target, operation.targetSection);
+  }
+  if (isChartOperation(operation)) return Boolean(sheet(operation.sheet));
+  return Boolean(sheet(operation.sheet));
 }
 
 function isCellEditOperation(operation: AgentEditOperation): operation is AgentCellEditOperation {
@@ -914,22 +1623,32 @@ function isCellEditOperation(operation: AgentEditOperation): operation is AgentC
 function hasUnsupportedOperationKind(operation: unknown): boolean {
   if (!operation || typeof operation !== "object") return false;
   const op = (operation as { op?: unknown }).op;
-  return typeof op === "string" && !["set_cell", "aggregate_section", "filter_rows", "sort_unique_rows"].includes(op);
+  return typeof op === "string" && !["set_cell", "aggregate_section", "filter_rows", "sort_unique_rows", "add_chart"].includes(op);
 }
 
-function isCellRef(value: string): boolean {
-  return /^[A-Z]{1,3}[1-9][0-9]*$/i.test(value);
+function isRangeRef(value: unknown): value is string {
+  if (typeof value !== "string" || !value.trim()) return false;
+  const local = value.trim().replace(/^=/, "").split("!").at(-1)?.replace(/\$/g, "") ?? "";
+  return Boolean(parseRangeRef(local));
+}
+
+function isCellRef(value: unknown): value is string {
+  return typeof value === "string" && /^[A-Z]{1,3}[1-9][0-9]*$/i.test(value);
 }
 
 function normalizeEditPlan(plan: AgentEditPlan, snapshot: WorkbookSnapshot, agent?: AgentManifest): AgentEditPlan {
+  const sourcePlan = plan && typeof plan === "object"
+    ? plan
+    : ({ schema: 1, operations: [] } as AgentEditPlan);
   const sheetNames = new Set(snapshot.sheets.map((sheet) => sheet.name));
   const sheetNamesByLower = new Map(snapshot.sheets.map((sheet) => [sheet.name.toLowerCase(), sheet.name]));
   const onlySheetName = snapshot.sheets.length === 1 ? snapshot.sheets[0]?.name : undefined;
   const candidateFilterKeys = agent ? new Set(inferVisibleFilterRowsOperations(agent, snapshot, []).map(filterRowsOperationKey)) : undefined;
   const candidateSortKeys = agent ? new Set(inferVisibleSortUniqueRowsOperations(agent, snapshot, []).map(sortUniqueRowsOperationKey)) : undefined;
   let lastKnownSheet: string | undefined;
-  const operations: AgentEditOperation[] = Array.isArray(plan.operations)
-    ? plan.operations.flatMap((operation): AgentEditOperation[] => {
+  const operations: AgentEditOperation[] = Array.isArray(sourcePlan.operations)
+    ? sourcePlan.operations.flatMap((operation): AgentEditOperation[] => {
+        if (isChartOperation(operation)) return [normalizeChartOperation(operation, sheetNamesByLower)];
         if (isAggregateSectionOperation(operation)) return [normalizeAggregateSectionOperation(operation, sheetNamesByLower)];
         if (isFilterRowsOperation(operation)) {
           const normalized = normalizeFilterRowsOperation(operation, sheetNamesByLower);
@@ -963,23 +1682,177 @@ function normalizeEditPlan(plan: AgentEditPlan, snapshot: WorkbookSnapshot, agen
         }
         return [normalizedOperation];
       })
-    : plan.operations;
+    : [];
   const inferredOperations = agent
     ? [
         ...inferVisibleAggregateSectionOperations(agent, snapshot, operations),
         ...inferVisibleFilterRowsOperations(agent, snapshot, operations),
         ...inferVisibleSortUniqueRowsOperations(agent, snapshot, operations),
+        ...inferVisibleChartOperations(agent, snapshot, operations),
       ]
+    : [];
+  const visibleFormulaRepairs = agent && operations.length === 0 && snapshot.inspection.mutatingTask && !snapshot.inspection.allowEmptyPlan
+    && visibleFormulaRepairFallbackAllowed(agent, snapshot)
+    ? inferVisibleFormulaRepairOperations(snapshot)
     : [];
   const orderedOperations = [
     ...operations.filter((operation) => !isStructuralOperation(operation)),
     ...operations.filter(isStructuralOperation),
     ...inferredOperations,
+    ...visibleFormulaRepairs,
   ];
   return {
-    ...plan,
+    ...sourcePlan,
     operations: orderedOperations,
   };
+}
+
+function normalizeChartOperation(
+  operation: AgentChartOperation,
+  sheetNamesByLower: Map<string, string>,
+): AgentChartOperation {
+  const sheetName = operation.sheet.trim().replace(/^'|'$/g, "");
+  return {
+    ...operation,
+    sheet: sheetNamesByLower.get(sheetName.toLowerCase()) ?? sheetName,
+    title: operation.title?.trim().slice(0, 160),
+    series: operation.series.slice(0, 12).map((series) => ({
+      ...series,
+      name: series.name.trim().slice(0, 80),
+      color: series.color?.replace(/^#/, "").toUpperCase().slice(0, 6),
+    })),
+    anchor: operation.anchor && isCellRef(operation.anchor) ? operation.anchor.toUpperCase() : "H2",
+    width: boundedChartDimension(operation.width, 18, 6, 36),
+    height: boundedChartDimension(operation.height, 10, 4, 24),
+  };
+}
+
+function boundedChartDimension(value: number | undefined, fallback: number, min: number, max: number): number {
+  return typeof value === "number" && Number.isFinite(value) ? Math.max(min, Math.min(max, value)) : fallback;
+}
+
+function isBatchSafeWorkbookTask(agent: AgentManifest, snapshot: WorkbookSnapshot): boolean {
+  if (agent.instruction.length > BATCH_INSTRUCTION_MAX_CHARS) return false;
+  if (/\b(?:audit\s+and\s+fix|complete\s+the\s+(?:financial\s+)?model|fill\s+in\s+all\s+empty|all\s+formulas|create\s+(?:an?\s+)?(?:chart|dashboard)|visuali[sz]ation)\b/i.test(agent.instruction)) return false;
+  if (snapshot.inspection.referencedSheets.length > 2) return false;
+  if (snapshot.inspection.allowEmptyPlan) return true;
+  const explicitTargets = snapshot.inspection.targetCandidates.length;
+  const derivedTargets = snapshot.inspection.formulaFillSuggestions.reduce((sum, suggestion) => sum + suggestion.operations.length, 0)
+    + snapshot.inspection.formulaRepairSuggestions.length
+    + snapshot.inspection.valueSuggestions.length;
+  return explicitTargets > 0 && explicitTargets + derivedTargets <= 8;
+}
+
+function inferVisibleFormulaRepairOperations(snapshot: WorkbookSnapshot): AgentCellEditOperation[] {
+  const operations: AgentCellEditOperation[] = [
+    ...snapshot.inspection.formulaFillSuggestions.flatMap((suggestion) => suggestion.operations),
+    ...snapshot.inspection.formulaRepairSuggestions.map((suggestion) => ({
+      sheet: suggestion.sheet,
+      cell: suggestion.cell,
+      formula: suggestion.formula,
+    })),
+    ...snapshot.inspection.valueSuggestions.map((suggestion) => ({
+      sheet: suggestion.sheet,
+      cell: suggestion.cell,
+      value: suggestion.value,
+      ...(suggestion.numFmt ? { numFmt: suggestion.numFmt } : {}),
+    })),
+  ];
+  const unique = new Map<string, AgentCellEditOperation>();
+  for (const operation of operations) {
+    const key = workbookCellKey(operation.sheet, operation.cell);
+    const current = unique.get(key);
+    if (!current || normalizeFormula(current.formula) === normalizeFormula(operation.formula)) unique.set(key, operation);
+    else unique.delete(key);
+  }
+  return unique.size > 16 ? [] : [...unique.values()];
+}
+
+function inferVisibleChartOperations(
+  agent: AgentManifest,
+  snapshot: WorkbookSnapshot,
+  existing: AgentEditOperation[],
+): AgentChartOperation[] {
+  if (existing.some(isChartOperation) || !/\b(?:chart|graph|dashboard|visuali[sz]ation)\b/i.test(agent.instruction)) return [];
+  const usable = snapshot.sheets.flatMap((sheet) => sheet.blocks.flatMap((block) => {
+    const range = parseRangeRef(block.range);
+    const nonEmptyHeaders = block.headers
+      .map((header, index) => ({ header: header.trim(), column: (range?.startCol ?? 1) + index }))
+      .filter((item) => item.header);
+    return range && block.dataRowCount >= 2 && nonEmptyHeaders.length >= 2
+      ? [{ sheet, block, range, headers: nonEmptyHeaders }]
+      : [];
+  }));
+  if (!usable.length) return [];
+  const instruction = agent.instruction.toLowerCase();
+  const source = [...usable].sort((left, right) => {
+    const sourceScore = (entry: typeof left) =>
+      (instruction.includes(`from the ${entry.sheet.name.toLowerCase()} sheet`) ? 10_000 : 0)
+      + (instruction.includes(entry.sheet.name.toLowerCase()) ? 1_000 : 0)
+      + Math.min(500, entry.block.dataRowCount)
+      + entry.headers.length;
+    return sourceScore(right) - sourceScore(left);
+  })[0];
+  const namedTarget = snapshot.sheets.find((sheet) =>
+    instruction.includes(`in the ${sheet.name.toLowerCase()} sheet`)
+    || instruction.includes(`on the ${sheet.name.toLowerCase()} sheet`));
+  const targetSheet = namedTarget ?? source.sheet;
+  const category = source.headers[0];
+  const values = source.headers.slice(1, 5);
+  if (!category || !values.length) return [];
+  const firstDataRow = source.block.headerRow + 1;
+  const lastDataRow = source.range.endRow;
+  const rangeFor = (column: number) => `${quotedSheetName(source.sheet.name)}!${columnNumberToName(column)}${firstDataRow}:${columnNumberToName(column)}${lastDataRow}`;
+  const chartType = chartTypeFromInstruction(agent.instruction);
+  const isPareto = /\bpareto\s+chart\b/i.test(agent.instruction);
+  const series: AgentChartOperation["series"] = values.map((header, index) => ({
+    name: header.header,
+    valuesRange: rangeFor(header.column),
+    ...(chartType === "scatter" || chartType === "bubble" ? { xValuesRange: rangeFor(category.column) } : {}),
+    ...(isPareto && index === 0 ? { chartType: "column" as const, color: "4472C4" } : {}),
+    ...(isPareto && index === 1 ? { chartType: "line" as const, color: "ED7D31", secondaryAxis: true } : {}),
+  }));
+  if (chartType === "bubble" && values.length >= 2) series[0].sizeRange = rangeFor(values.at(-1)!.column);
+  const anchorColumn = Math.min(40, Math.max(8, source.range.endCol + 2));
+  return [{
+    op: "add_chart",
+    sheet: targetSheet.name,
+    chartType,
+    title: chartTitleFromInstruction(agent.instruction) ?? `${agent.taskId} chart`,
+    categoryRange: rangeFor(category.column),
+    series: chartType === "pie" || chartType === "doughnut" ? series.slice(0, 1) : series,
+    anchor: `${columnNumberToName(anchorColumn)}2`,
+    width: 18,
+    height: 10,
+    legendPosition: /\bno\s+legend\b/i.test(agent.instruction) ? "none" : /\blegend\s+at\s+the\s+bottom\b/i.test(agent.instruction) || isPareto ? "bottom" : "right",
+    grouping: /100%\s*stacked/i.test(agent.instruction) ? "percentStacked" : /\bstacked\b/i.test(agent.instruction) ? "stacked" : "clustered",
+    dataLabels: /\bdata\s+labels?\b/i.test(agent.instruction),
+  }];
+}
+
+function chartTypeFromInstruction(instruction: string): AgentChartOperation["chartType"] {
+  if (/\bbubble\s+chart\b/i.test(instruction)) return "bubble";
+  if (/\bscatter\s+(?:chart|graph)\b/i.test(instruction)) return "scatter";
+  if (/\b(?:pie|sunburst)\s+chart\b/i.test(instruction)) return "pie";
+  if (/\b(?:doughnut|donut|gauge|speedometer)\b/i.test(instruction)) return "doughnut";
+  if (/\barea\s+chart\b/i.test(instruction)) return "area";
+  if (/\b(?:bar|football\s+field)\s+chart\b/i.test(instruction)) return "bar";
+  if (/\b(?:column|waterfall|pareto)\s+chart\b/i.test(instruction)) return "column";
+  return "line";
+}
+
+function chartTitleFromInstruction(instruction: string): string | undefined {
+  const match = instruction.match(/(?:titled|title(?:d)?\s+(?:the\s+chart\s+)?)\s*["']([^"']{2,160})["']/i);
+  return match?.[1]?.trim();
+}
+
+function quotedSheetName(sheet: string): string {
+  return `'${sheet.replace(/'/g, "''")}'`;
+}
+
+function visibleFormulaRepairFallbackAllowed(agent: AgentManifest, snapshot: WorkbookSnapshot): boolean {
+  if (snapshot.inspection.formulaFillSuggestions.length > 0 || snapshot.inspection.valueSuggestions.length > 0) return true;
+  return /\b(?:audit\s+and\s+fix|audit\s+this\s+(?:file|workbook)|fix\s+(?:all\s+)?formula\s+(?:errors|inconsistencies)|repair\s+(?:all\s+)?broken\s+(?:formulas|references))\b/i.test(agent.instruction);
 }
 
 function normalizeAggregateSectionOperation(
@@ -988,14 +1861,14 @@ function normalizeAggregateSectionOperation(
 ): AgentAggregateSectionOperation {
   return {
     ...operation,
-    sourceSheet: sheetNamesByLower.get(operation.sourceSheet.trim().toLowerCase()) ?? operation.sourceSheet.trim(),
-    targetSheet: sheetNamesByLower.get(operation.targetSheet.trim().toLowerCase()) ?? operation.targetSheet.trim(),
-    sourceSection: operation.sourceSection.trim(),
-    targetSection: operation.targetSection.trim(),
-    groupBy: operation.groupBy.map((header) => header.trim()).filter(Boolean),
-    valueColumn: operation.valueColumn.trim(),
-    sortBy: operation.sortBy?.map((header) => header.trim()).filter(Boolean),
-    totalLabel: operation.totalLabel?.trim() || undefined,
+    sourceSheet: canonicalSheetName(operation.sourceSheet, sheetNamesByLower),
+    targetSheet: canonicalSheetName(operation.targetSheet, sheetNamesByLower),
+    sourceSection: stringValue(operation.sourceSection),
+    targetSection: stringValue(operation.targetSection),
+    groupBy: stringArray(operation.groupBy),
+    valueColumn: stringValue(operation.valueColumn),
+    sortBy: optionalStringArray(operation.sortBy),
+    totalLabel: optionalString(operation.totalLabel),
   };
 }
 
@@ -1005,12 +1878,12 @@ function normalizeFilterRowsOperation(
 ): AgentFilterRowsOperation {
   return {
     ...operation,
-    sheet: sheetNamesByLower.get(operation.sheet.trim().toLowerCase()) ?? operation.sheet.trim(),
-    sourceRange: operation.sourceRange.trim().toUpperCase(),
-    targetCell: operation.targetCell.trim().toUpperCase(),
-    dateColumn: operation.dateColumn?.trim().toUpperCase() || undefined,
-    startCell: operation.startCell.trim().toUpperCase(),
-    endCell: operation.endCell.trim().toUpperCase(),
+    sheet: canonicalSheetName(operation.sheet, sheetNamesByLower),
+    sourceRange: stringValue(operation.sourceRange).toUpperCase(),
+    targetCell: stringValue(operation.targetCell).toUpperCase(),
+    dateColumn: optionalString(operation.dateColumn)?.toUpperCase(),
+    startCell: stringValue(operation.startCell).toUpperCase(),
+    endCell: stringValue(operation.endCell).toUpperCase(),
   };
 }
 
@@ -1020,15 +1893,39 @@ function normalizeSortUniqueRowsOperation(
 ): AgentSortUniqueRowsOperation {
   return {
     ...operation,
-    sheet: sheetNamesByLower.get(operation.sheet.trim().toLowerCase()) ?? operation.sheet.trim(),
-    sourceRange: operation.sourceRange.trim().toUpperCase(),
-    targetCell: operation.targetCell.trim().toUpperCase(),
-    keyColumns: operation.keyColumns.map((column) => column.trim().toUpperCase()).filter(Boolean),
-    outputColumns: operation.outputColumns.map((column) => column.trim().toUpperCase()).filter(Boolean),
-    sortBy: operation.sortBy.trim().toUpperCase(),
+    sheet: canonicalSheetName(operation.sheet, sheetNamesByLower),
+    sourceRange: stringValue(operation.sourceRange).toUpperCase(),
+    targetCell: stringValue(operation.targetCell).toUpperCase(),
+    keyColumns: stringArray(operation.keyColumns).map((column) => column.toUpperCase()),
+    outputColumns: stringArray(operation.outputColumns).map((column) => column.toUpperCase()),
+    sortBy: stringValue(operation.sortBy).toUpperCase(),
     sortDirection: operation.sortDirection === "desc" ? "desc" : "asc",
     includeIndex: operation.includeIndex ?? true,
   };
+}
+
+function canonicalSheetName(value: unknown, sheetNamesByLower: Map<string, string>): string {
+  const sheet = stringValue(value);
+  return sheetNamesByLower.get(sheet.toLowerCase()) ?? sheet;
+}
+
+function stringValue(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function optionalString(value: unknown): string | undefined {
+  return stringValue(value) || undefined;
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.map(stringValue).filter(Boolean)
+    : [];
+}
+
+function optionalStringArray(value: unknown): string[] | undefined {
+  const values = stringArray(value);
+  return values.length ? values : undefined;
 }
 
 function filterRowsOperationIsSelfConsistent(operation: AgentFilterRowsOperation): boolean {
@@ -1219,10 +2116,35 @@ function isGenericSheetAlias(value: string): boolean {
 }
 
 function normalizeEditOperationShape(operation: AgentCellEditOperation): AgentCellEditOperation {
-  const normalized = { ...operation } as AgentEditOperation & { formula?: unknown; numFmt?: unknown };
+  const normalized = { ...operation } as AgentEditOperation & { formula?: unknown; numFmt?: unknown; result?: unknown; value?: unknown };
+  const encodedValue = normalized.value;
+  const nestedValue = parseEncodedCellValue(encodedValue);
+  if (nestedValue) {
+    if (typeof nestedValue.formula === "string") normalized.formula = nestedValue.formula.trim().replace(/^=/, "");
+    if ("result" in nestedValue && normalized.result === undefined) normalized.result = nestedValue.result;
+    if (typeof nestedValue.numFmt === "string" && normalized.numFmt === undefined) normalized.numFmt = nestedValue.numFmt;
+    if ("value" in nestedValue) normalized.value = nestedValue.value;
+    else delete normalized.value;
+  }
   if (normalized.formula === null) delete normalized.formula;
   if (normalized.numFmt === null) delete normalized.numFmt;
   return normalized as AgentCellEditOperation;
+}
+
+function parseEncodedCellValue(value: unknown): { formula?: unknown; value?: unknown; result?: unknown; numFmt?: unknown } | undefined {
+  const candidate = typeof value === "string" && value.trim().startsWith("{")
+    ? (() => {
+        try {
+          return JSON.parse(value) as unknown;
+        } catch {
+          return undefined;
+        }
+      })()
+    : value;
+  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) return undefined;
+  const record = candidate as Record<string, unknown>;
+  if (!("formula" in record || "value" in record || "result" in record || "numFmt" in record)) return undefined;
+  return record;
 }
 
 type WorkbookSnapshot = {
@@ -1244,54 +2166,145 @@ type WorkbookSnapshot = {
   }>;
   cellCount: number;
   truncated: boolean;
+  inspection: WorkbookTaskInspection;
 };
 
-async function snapshotWorkbook(path: string, maxCells = DEFAULT_WORKBOOK_SNAPSHOT_MAX_CELLS): Promise<WorkbookSnapshot> {
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.readFile(path);
-  const sheets: WorkbookSnapshot["sheets"] = [];
-  let cellCount = 0;
-  let truncated = false;
-  const perSheetLimit = workbook.worksheets.length > 0 ? Math.max(24, Math.floor(maxCells / workbook.worksheets.length)) : maxCells;
-  for (const sheet of workbook.worksheets) {
-    const cells: WorkbookSnapshot["sheets"][number]["cells"] = [];
-    let sheetCellCount = 0;
-    let sheetTruncated = false;
+async function snapshotWorkbook(
+  path: string,
+  maxCells = DEFAULT_WORKBOOK_SNAPSHOT_MAX_CELLS,
+  maxCellChars?: number,
+  agent?: AgentManifest,
+): Promise<WorkbookSnapshot> {
+  const workbook = await readSpreadsheetBenchWorkbookForCells(path);
+  const boundedMaxCells = Math.max(1, Math.trunc(maxCells));
+  const boundedMaxCellChars = maxCellChars === undefined ? undefined : Math.max(1, Math.trunc(maxCellChars));
+  const compactMetadata = boundedMaxCells < DEFAULT_WORKBOOK_SNAPSHOT_MAX_CELLS || boundedMaxCellChars !== undefined;
+  const worksheets = compactMetadata ? workbook.worksheets.slice(0, 32) : workbook.worksheets;
+  const observations = new Map<string, WorkbookObservedCell>();
+  for (const sheet of worksheets) {
     sheet.eachRow({ includeEmpty: false }, (row) => {
       row.eachCell({ includeEmpty: false }, (cell) => {
-        if (sheetCellCount >= perSheetLimit) {
-          sheetTruncated = true;
-          truncated = true;
-          return;
-        }
-        cells.push({
-          address: cell.address,
-          value: cellValueForPrompt(cell.value),
-          ...(cellFormula(cell.value) ? { formula: cellFormula(cell.value) } : {}),
-          ...(cell.numFmt ? { numFmt: cell.numFmt } : {}),
-        });
-        sheetCellCount += 1;
-        cellCount += 1;
+        const observed = observedWorkbookCell(sheet, cell);
+        observations.set(workbookCellKey(observed.sheet, observed.address), observed);
       });
     });
-    sheets.push({
+  }
+  if (agent) addExplicitReferenceCells(agent, worksheets, observations);
+  const allCells = [...observations.values()];
+  const inspection = inspectWorkbookTask({
+    instruction: agent?.instruction ?? "Inspect the workbook before editing.",
+    sheetNames: worksheets.map((sheet) => sheet.name),
+    cells: allCells,
+  });
+  const perSheetLimit = worksheets.length > 0
+    ? Math.max(24, Math.floor(boundedMaxCells / worksheets.length))
+    : boundedMaxCells;
+  const selectedCells = selectWorkbookTaskCells({
+    inspection,
+    cells: allCells,
+    maxCells: boundedMaxCells,
+    maxCellsPerSheet: perSheetLimit,
+  });
+  const selectedBySheet = new Map<string, WorkbookObservedCell[]>();
+  for (const cell of selectedCells) {
+    const cells = selectedBySheet.get(cell.sheet) ?? [];
+    cells.push(cell);
+    selectedBySheet.set(cell.sheet, cells);
+  }
+  const sheets: WorkbookSnapshot["sheets"] = worksheets.map((sheet) => {
+    const cells = selectedBySheet.get(sheet.name) ?? [];
+    const observedCount = allCells.filter((cell) => cell.sheet === sheet.name).length;
+    return {
       name: sheet.name,
       rowCount: sheet.rowCount,
       columnCount: sheet.columnCount,
       actualRowCount: sheet.actualRowCount,
       actualColumnCount: sheet.actualColumnCount,
-      truncated: sheetTruncated,
-      blocks: detectSheetBlocks(sheet),
-      cells,
-    });
-  }
-  return { sheets, cellCount, truncated };
+      truncated: cells.length < observedCount,
+      blocks: detectSheetBlocks(sheet, compactMetadata
+        ? {
+            maxRows: 256,
+            maxColumns: 24,
+            maxBlocks: 6,
+            maxHeaderChars: boundedMaxCellChars ?? 128,
+          }
+        : undefined),
+      cells: cells.map((cell) => {
+        const value = cellValueForPrompt(cell.value as ExcelJS.CellValue);
+        return {
+          address: cell.address,
+          value: boundedMaxCellChars === undefined ? value : value.slice(0, boundedMaxCellChars),
+          ...(cell.formula ? { formula: boundedMaxCellChars === undefined ? cell.formula : cell.formula.slice(0, boundedMaxCellChars) } : {}),
+          ...(cell.numFmt ? { numFmt: cell.numFmt } : {}),
+        };
+      }),
+    };
+  });
+  return {
+    sheets,
+    cellCount: selectedCells.length,
+    truncated: worksheets.length < workbook.worksheets.length || selectedCells.length < allCells.length,
+    inspection,
+  };
 }
 
-function detectSheetBlocks(sheet: ExcelJS.Worksheet) {
+function observedWorkbookCell(sheet: ExcelJS.Worksheet, cell: ExcelJS.Cell): WorkbookObservedCell {
+  return {
+    sheet: sheet.name,
+    address: cell.address,
+    value: cell.value,
+    ...(cellFormula(cell.value) ? { formula: cellFormula(cell.value) } : {}),
+    ...(cell.numFmt ? { numFmt: cell.numFmt } : {}),
+  };
+}
+
+function addExplicitReferenceCells(
+  agent: AgentManifest,
+  worksheets: ExcelJS.Worksheet[],
+  observations: Map<string, WorkbookObservedCell>,
+) {
+  const references = extractWorkbookTaskReferences(agent.instruction, worksheets.map((sheet) => sheet.name));
+  const mentionedSheets = worksheets.filter((sheet) => agent.instruction.toLowerCase().includes(sheet.name.toLowerCase()));
+  for (const reference of references) {
+    const candidateSheets = reference.sheet
+      ? worksheets.filter((sheet) => sheet.name.toLowerCase() === reference.sheet!.toLowerCase())
+      : mentionedSheets.length === 1 ? mentionedSheets : worksheets;
+    const range = parseRangeRef(`${reference.start}:${reference.end}`);
+    if (!range) continue;
+    const area = (range.endRow - range.startRow + 1) * (range.endCol - range.startCol + 1);
+    const positions: Array<{ row: number; col: number }> = [];
+    if (area <= 128) {
+      for (let row = range.startRow; row <= range.endRow; row += 1) {
+        for (let col = range.startCol; col <= range.endCol; col += 1) positions.push({ row, col });
+      }
+    } else {
+      positions.push(
+        { row: range.startRow, col: range.startCol },
+        { row: range.startRow, col: range.endCol },
+        { row: range.endRow, col: range.startCol },
+        { row: range.endRow, col: range.endCol },
+      );
+    }
+    for (const sheet of candidateSheets) {
+      for (const position of positions) {
+        const cell = sheet.getCell(position.row, position.col);
+        const observed = observedWorkbookCell(sheet, cell);
+        observations.set(workbookCellKey(observed.sheet, observed.address), observed);
+      }
+    }
+  }
+}
+
+function detectSheetBlocks(sheet: ExcelJS.Worksheet, limits?: {
+  maxRows: number;
+  maxColumns: number;
+  maxBlocks: number;
+  maxHeaderChars: number;
+}) {
   const blocks: WorkbookSnapshot["sheets"][number]["blocks"] = [];
-  const maxRow = sheet.rowCount;
-  const maxCol = Math.max(1, sheet.actualColumnCount || sheet.columnCount);
+  const maxRow = limits ? Math.min(sheet.rowCount, limits.maxRows) : sheet.rowCount;
+  const fullColumnCount = Math.max(1, sheet.actualColumnCount || sheet.columnCount);
+  const maxCol = limits ? Math.min(fullColumnCount, limits.maxColumns) : fullColumnCount;
   let startRow: number | undefined;
   for (let rowNumber = 1; rowNumber <= maxRow + 1; rowNumber++) {
     const rowHasValues = rowNumber <= maxRow && rowHasVisibleValues(sheet.getRow(rowNumber), maxCol);
@@ -1302,7 +2315,8 @@ function detectSheetBlocks(sheet: ExcelJS.Worksheet) {
       const firstNonEmpty = firstValues.filter(Boolean);
       const firstLooksLikeTitle = firstNonEmpty.length === 1 && endRow > startRow;
       const headerRow = firstLooksLikeTitle ? startRow + 1 : startRow;
-      const headers = visibleRowValues(sheet.getRow(headerRow), maxCol);
+      const headers = visibleRowValues(sheet.getRow(headerRow), maxCol)
+        .map((header) => limits ? header.slice(0, limits.maxHeaderChars) : header);
       blocks.push({
         range: `${columnNumberToName(1)}${startRow}:${columnNumberToName(maxCol)}${endRow}`,
         ...(firstLooksLikeTitle ? { title: firstNonEmpty[0] } : {}),
@@ -1310,6 +2324,7 @@ function detectSheetBlocks(sheet: ExcelJS.Worksheet) {
         headers,
         dataRowCount: Math.max(0, endRow - headerRow),
       });
+      if (limits && blocks.length >= limits.maxBlocks) break;
       startRow = undefined;
     }
   }
@@ -1386,9 +2401,18 @@ function spreadsheetBenchPlannerSystem(): string {
     "For visible dedupe/sort table outputs, prefer sort_unique_rows over writing a short prefix:",
     "{\"op\":\"sort_unique_rows\",\"sheet\":\"sheet1\",\"sourceRange\":\"A1:C195\",\"targetCell\":\"F2\",\"keyColumns\":[\"B\",\"C\"],\"outputColumns\":[\"B\",\"C\"],\"sortBy\":\"C\",\"sortDirection\":\"asc\",\"includeIndex\":true}",
     "sort_unique_rows skips blank/header rows, removes duplicate key rows, sorts by sortBy, and writes an optional index plus outputColumns.",
+    "For chart work, use add_chart so the candidate contains a real XLSX chart object:",
+    "{\"op\":\"add_chart\",\"sheet\":\"Data\",\"chartType\":\"line\",\"title\":\"Monthly Trend\",\"categoryRange\":\"'Data'!A2:A13\",\"series\":[{\"name\":\"Revenue\",\"valuesRange\":\"'Data'!B2:B13\"}],\"anchor\":\"H2\",\"legendPosition\":\"bottom\"}",
+    "Supported chartType values are line, bar, column, pie, doughnut, scatter, area, and bubble. Use xValuesRange for scatter/bubble and sizeRange for bubble series; a series may set chartType plus secondaryAxis for combo charts.",
     "Use exactly one of the sheet names shown in workbook.sheets[].name; do not invent Sheet1 unless Sheet1 exists.",
+    "Use workbook.inspection as the task plan: quoted formula matches are higher-confidence targets than cells referenced inside those formulas; ranked cells are selected for relevance, not workbook order.",
+    "Use inputFiles only as agent-visible issue-type context (for example, Incorrect Average or Embedded Hardcode); never treat a filename as a hidden answer or invent a target from it.",
+    "Before editing, distinguish output targets from source/dependency cells. Never put a formula into an input cell merely because the task mentions that input address.",
+    "Preserve existing formulas unless the task explicitly asks for hardcoded values. Do not emit #REF! formulas or formulas that reference their own target cell.",
     "If the task requires many cells, emit every required cell operation explicitly. Do not use placeholders, spill ranges, or one-cell dynamic-array shortcuts.",
     "When a visible example/reference table shows the desired output shape, infer the repeated operation from that reference and write the concrete target cells.",
+    "For each requested metric, use the matching label and its calculation_row_context cells to inspect the full year band, nearby headers, and adjacent source rows before choosing formulas.",
+    "Extend established formulas across a requested year band with correct relative and absolute references; do not invent a formula from the row label alone.",
     "The JSON must be valid strict JSON: double-quoted keys/strings, no comments, no trailing commas.",
     "Do not include markdown, prose, comments, evaluator metadata, or hidden answers.",
   ].join("\n");
@@ -1399,32 +2423,147 @@ function spreadsheetBenchPlannerPrompt(agent: AgentManifest, snapshot: WorkbookS
     ...inferVisibleAggregateSectionOperations(agent, snapshot, []),
     ...inferVisibleFilterRowsOperations(agent, snapshot, []),
     ...inferVisibleSortUniqueRowsOperations(agent, snapshot, []),
+    ...inferVisibleChartOperations(agent, snapshot, []),
   ];
   return JSON.stringify({
     taskId: agent.taskId,
     instruction: agent.instruction,
     instructionType: agent.instructionType,
+    inputFiles: agent.inputFiles,
     prompts: promptFiles,
     workbook: snapshot,
     visibleDerivedOperationCandidates,
   }, null, 2);
 }
 
+function spreadsheetBenchBatchPlannerSystem(): string {
+  const boundedGuidance = spreadsheetBenchPlannerSystem()
+    .split("\n")
+    .slice(3)
+    .filter((line) => !line.startsWith("If the task requires many cells"));
+  return [
+    "You are a spreadsheet editing worker planning several independent tasks.",
+    "Return only strict JSON matching this batch schema:",
+    "{\"schema\":1,\"plans\":[{\"taskId\":\"task-a\",\"operations\":[{\"sheet\":\"Sheet1\",\"cell\":\"B2\",\"value\":2}]},{\"taskId\":\"task-b\",\"operations\":[]}]}",
+    "Return exactly one plan for every taskId. If the bounded context does not justify an edit, return an empty operations array for that task instead of inventing cells.",
+    "Return at most eight operations per task. If the task would require more, return an empty operations array so the response remains complete JSON.",
+    ...boundedGuidance,
+  ].join("\n");
+}
+
+function spreadsheetBenchBatchPlannerPrompt(tasks: Array<{
+  agent: AgentManifest;
+  snapshot: WorkbookSnapshot;
+  promptFiles: Array<{ path: string; text: string }>;
+}>): string {
+  return JSON.stringify({
+    tasks: tasks.map(({ agent, snapshot, promptFiles }) => ({
+      taskId: agent.taskId,
+      instruction: agent.instruction.slice(0, BATCH_INSTRUCTION_MAX_CHARS),
+      instructionType: agent.instructionType,
+      inputFiles: agent.inputFiles,
+      prompts: promptFiles,
+      workbook: snapshot,
+      visibleDerivedOperationCandidates: [
+        ...inferVisibleAggregateSectionOperations(agent, snapshot, []),
+        ...inferVisibleFilterRowsOperations(agent, snapshot, []),
+        ...inferVisibleSortUniqueRowsOperations(agent, snapshot, []),
+        ...inferVisibleChartOperations(agent, snapshot, []),
+      ],
+    })),
+  });
+}
+
+function parseBatchedEditPlanText(text: string): Map<string, AgentEditPlan> {
+  const cleaned = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+  const repaired = repairCommonModelJsonDrift(cleaned);
+  let parsed: unknown;
+  try {
+    const jsonText = extractFirstJsonObject(repaired, "batch");
+    parsed = JSON.parse(jsonText) as unknown;
+  } catch (error) {
+    const salvaged = extractCompleteBatchPlanObjects(repaired);
+    if (salvaged.length === 0) throw error;
+    parsed = { plans: salvaged };
+  }
+  if (!parsed || typeof parsed !== "object") throw new Error("model-edit-plan batch returned a non-object JSON value");
+  const record = parsed as Record<string, unknown>;
+  const rawPlans = record.plans;
+  const entries: Array<[string, unknown]> = Array.isArray(rawPlans)
+    ? rawPlans.flatMap((value): Array<[string, unknown]> => {
+        if (!value || typeof value !== "object") return [];
+        const item = value as Record<string, unknown>;
+        const taskId = typeof item.taskId === "string" ? item.taskId.trim() : "";
+        return taskId ? [[taskId, item.plan ?? item]] : [];
+      })
+    : rawPlans && typeof rawPlans === "object"
+      ? Object.entries(rawPlans as Record<string, unknown>)
+      : [];
+  if (entries.length === 0) throw new Error("model-edit-plan batch returned no task plans");
+  const plans = new Map<string, AgentEditPlan>();
+  for (const [taskId, value] of entries) {
+    if (plans.has(taskId)) throw new Error(`model-edit-plan batch returned duplicate taskId ${taskId}`);
+    plans.set(taskId, normalizeParsedEditPlanShape(value));
+  }
+  return plans;
+}
+
+function extractCompleteBatchPlanObjects(text: string): unknown[] {
+  const plansKey = text.search(/["']plans["']\s*:/i);
+  const arrayStart = plansKey >= 0 ? text.indexOf("[", plansKey) : -1;
+  if (arrayStart < 0) return [];
+  const objects: unknown[] = [];
+  let objectStart = -1;
+  let depth = 0;
+  let inString = false;
+  let quote = "";
+  let escaped = false;
+  for (let index = arrayStart + 1; index < text.length; index += 1) {
+    const char = text[index];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === quote) inString = false;
+      continue;
+    }
+    if (char === "\"" || char === "'") {
+      inString = true;
+      quote = char;
+      continue;
+    }
+    if (char === "{") {
+      if (depth === 0) objectStart = index;
+      depth += 1;
+      continue;
+    }
+    if (char !== "}" || depth === 0) continue;
+    depth -= 1;
+    if (depth !== 0 || objectStart < 0) continue;
+    try {
+      objects.push(JSON.parse(repairCommonModelJsonDrift(text.slice(objectStart, index + 1))));
+    } catch {
+      // A malformed task object is omitted; complete neighboring objects remain usable.
+    }
+    objectStart = -1;
+  }
+  return objects;
+}
+
 function parseEditPlanText(text: string, taskId: string): AgentEditPlan {
   const cleaned = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
-  const jsonText = extractFirstJsonObject(cleaned, taskId);
+  const jsonText = extractFirstJsonObject(repairCommonModelJsonDrift(cleaned), taskId);
   if (!jsonText.startsWith("{")) throw new Error(`model-edit-plan returned no JSON for ${taskId}`);
   return parseEditPlanJson(jsonText);
 }
 
 function parseEditPlanJson(jsonText: string): AgentEditPlan {
   try {
-    return JSON.parse(jsonText) as AgentEditPlan;
+    return normalizeParsedEditPlanShape(JSON.parse(jsonText));
   } catch (error) {
     const repaired = repairCommonModelJsonDrift(jsonText);
     if (repaired !== jsonText) {
       try {
-        return JSON.parse(repaired) as AgentEditPlan;
+        return normalizeParsedEditPlanShape(JSON.parse(repaired));
       } catch {
         // Preserve the original parser error so failure taxonomy stays tied to the model output.
       }
@@ -1433,15 +2572,74 @@ function parseEditPlanJson(jsonText: string): AgentEditPlan {
   }
 }
 
-function repairCommonModelJsonDrift(jsonText: string): string {
-  const withoutInvalidCommaEscapes = jsonText.replace(/\\,/g, ",");
+function normalizeParsedEditPlanShape(value: unknown): AgentEditPlan {
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    if (Array.isArray(record.operations) && (record.schema === undefined || record.schema === "1")) {
+      return { ...record, schema: 1 } as AgentEditPlan;
+    }
+  }
+  return value as AgentEditPlan;
+}
+
+export function repairCommonModelJsonDrift(jsonText: string): string {
+  const withoutUnescapedFormulaQuotes = repairUnescapedFormulaQuotes(jsonText);
+  const withoutInvalidCommaEscapes = withoutUnescapedFormulaQuotes.replace(/\\,/g, ",");
   const withoutTrailingCommas = withoutInvalidCommaEscapes.replace(/,\s*([}\]])/g, "$1");
   const withoutUncertainNumberSuffixes = withoutTrailingCommas.replace(/("(?:value|result)"\s*:\s*-?\d+(?:\.\d+)?)\?(?=\s*[,}])/g, "$1");
-  return withoutUncertainNumberSuffixes.replace(/("value"\s*:\s*)([A-Za-z_][A-Za-z0-9_ -]*)(?=\s*[,}])/g, (_match, prefix: string, raw: string) => {
+  const withoutDuplicatedEscapedQuotes = withoutUncertainNumberSuffixes.replace(
+    /(?<!\\)"formula"\s*:\s*"((?:\\.|[^"\\])*)\\"\\"(?=\s*(?:[}\]]|,\s*"[^"\\]+"\s*:))/g,
+    (match: string) => match.replace(/\\"\\"$/, () => String.raw`\""`),
+  );
+  return withoutDuplicatedEscapedQuotes.replace(/("value"\s*:\s*)([A-Za-z_][A-Za-z0-9_ -]*)(?=\s*[,}])/g, (_match, prefix: string, raw: string) => {
     const value = raw.trim();
     if (/^(?:true|false|null)$/i.test(value)) return `${prefix}${value.toLowerCase()}`;
     return `${prefix}${JSON.stringify(value)}`;
   });
+}
+
+function repairUnescapedFormulaQuotes(jsonText: string): string {
+  const formulaStart = /"formula"\s*:\s*"/g;
+  let cursor = 0;
+  let repaired = "";
+  while (true) {
+    formulaStart.lastIndex = cursor;
+    const match = formulaStart.exec(jsonText);
+    if (!match) return `${repaired}${jsonText.slice(cursor)}`;
+    const contentStart = match.index + match[0].length;
+    repaired += jsonText.slice(cursor, contentStart);
+    let index = contentStart;
+    let closed = false;
+    while (index < jsonText.length) {
+      const char = jsonText[index];
+      if (char === "\\") {
+        repaired += jsonText.slice(index, Math.min(index + 2, jsonText.length));
+        index += 2;
+        continue;
+      }
+      if (char !== "\"") {
+        repaired += char;
+        index += 1;
+        continue;
+      }
+      if (isFormulaJsonClosingQuote(jsonText, index)) {
+        repaired += char;
+        cursor = index + 1;
+        closed = true;
+        break;
+      }
+      repaired += "\\\"";
+      index += 1;
+    }
+    if (!closed) return repaired;
+  }
+}
+
+function isFormulaJsonClosingQuote(jsonText: string, quoteIndex: number): boolean {
+  const tail = jsonText.slice(quoteIndex + 1);
+  return /^\s*(?:}|$)/.test(tail) ||
+    /^\s*,\s*}/.test(tail) ||
+    /^\s*,\s*"(?:[^"\\]|\\.)+"\s*:/.test(tail);
 }
 
 function extractFirstJsonObject(text: string, taskId: string): string {
@@ -1474,7 +2672,8 @@ function extractFirstJsonObject(text: string, taskId: string): string {
   throw new Error(`model-edit-plan returned unterminated JSON for ${taskId}`);
 }
 
-function applyOperation(workbook: ExcelJS.Workbook, operation: AgentEditOperation) {
+export function applySpreadsheetBenchOperation(workbook: ExcelJS.Workbook, operation: AgentEditOperation) {
+  if (isChartOperation(operation)) return;
   if (isAggregateSectionOperation(operation)) {
     applyAggregateSectionOperation(workbook, operation);
     return;
@@ -1505,6 +2704,30 @@ function applyOperation(workbook: ExcelJS.Workbook, operation: AgentEditOperatio
   }
   else if ("value" in operation) cell.value = operation.value ?? null;
   if (operation.numFmt) cell.numFmt = operation.numFmt;
+}
+
+export function applySpreadsheetBenchChartOperations(
+  workbookPath: string,
+  operations: AgentEditOperation[],
+  receiptDir = dirname(workbookPath),
+): void {
+  const charts = operations.filter(isChartOperation);
+  if (!charts.length) return;
+  const receiptPath = join(receiptDir, "chart-operations.json");
+  writeJson(receiptPath, { schema: 1, workbook: basename(workbookPath), operations: charts });
+  const python = process.env.SPREADSHEETBENCH_PYTHON?.trim() || process.env.PYTHON?.trim() || "python";
+  const script = resolve("scripts/spreadsheetbench-apply-charts.py");
+  const result = spawnSync(python, [script, "--workbook", resolve(workbookPath), "--operations", resolve(receiptPath)], {
+    cwd: process.cwd(),
+    encoding: "utf8",
+    timeout: 120_000,
+    windowsHide: true,
+  });
+  if (result.error) throw new Error(`chart operation bridge failed: ${result.error.message}`);
+  if (result.status !== 0) {
+    const detail = (result.stderr || result.stdout || `exit ${result.status}`).trim().slice(0, 1_000);
+    throw new Error(`chart operation bridge failed: ${detail}`);
+  }
 }
 
 function applyAggregateSectionOperation(workbook: ExcelJS.Workbook, operation: AgentAggregateSectionOperation) {
@@ -1806,6 +3029,10 @@ function evaluateFormulaExpression(
   if (/^FALSE$/i.test(trimmed)) return false;
   const stringLiteral = parseFormulaStringLiteral(trimmed);
   if (stringLiteral !== undefined) return stringLiteral;
+  if (formulaArgLooksLikeRange(trimmed)) {
+    const cells = cellsForFormulaRef(workbook, currentSheet, trimmed);
+    if (cells?.length === 1 && cells[0].value !== null) return cells[0].value;
+  }
   const functionResult = evaluateFormulaFunction(workbook, currentSheet, trimmed);
   if (functionResult !== undefined) return functionResult;
   return evaluateArithmeticFormula(workbook, currentSheet, trimmed);
@@ -1821,6 +3048,18 @@ function evaluateFormulaFunction(
   const fn = call.name.toUpperCase();
   if (!SUPPORTED_FORMULA_FUNCTIONS.includes(fn as (typeof SUPPORTED_FORMULA_FUNCTIONS)[number])) return undefined;
   const args = splitFormulaArgs(call.args);
+  if (fn === "AND" || fn === "OR") {
+    if (args.length === 0) return undefined;
+    const conditions = args.map((arg) => evaluateFormulaCondition(workbook, currentSheet, arg));
+    if (conditions.some((condition) => condition === undefined)) return undefined;
+    return fn === "AND" ? conditions.every(Boolean) : conditions.some(Boolean);
+  }
+  if (fn === "NOT") {
+    if (args.length !== 1) return undefined;
+    const condition = evaluateFormulaCondition(workbook, currentSheet, args[0]);
+    return condition === undefined ? undefined : !condition;
+  }
+  if (fn === "MEDIAN") return evaluateMedianFunction(workbook, currentSheet, args);
   if (fn === "IF") return evaluateIfFunction(workbook, currentSheet, args);
   if (fn === "IFERROR") return evaluateIfErrorFunction(workbook, currentSheet, args);
   if (fn === "SUMIF") return evaluateSumIfFunction(workbook, currentSheet, args);
@@ -2101,6 +3340,58 @@ function evaluateVLookupFunction(
   return undefined;
 }
 
+function evaluateMedianFunction(
+  workbook: ExcelJS.Workbook,
+  currentSheet: ExcelJS.Worksheet,
+  args: string[],
+): number | undefined {
+  if (args.length === 0) return undefined;
+  const values: number[] = [];
+  for (const arg of args) {
+    const call = parseSingleFormulaFunction(arg);
+    const rawValues = call?.name.toUpperCase() === "VLOOKUP"
+      ? evaluateVLookupArrayFunction(workbook, currentSheet, splitFormulaArgs(call.args))
+      : undefined;
+    const numericValues = rawValues
+      ? rawValues.map(numericComparableValue)
+      : valuesForFormulaArg(workbook, currentSheet, arg);
+    if (numericValues.length === 0 || numericValues.some((value) => value === undefined)) return undefined;
+    values.push(...numericValues as number[]);
+  }
+  values.sort((left, right) => left - right);
+  const middle = Math.floor(values.length / 2);
+  return values.length % 2 === 1
+    ? values[middle]
+    : roundFormulaNumber((values[middle - 1] + values[middle]) / 2);
+}
+
+function evaluateVLookupArrayFunction(
+  workbook: ExcelJS.Workbook,
+  currentSheet: ExcelJS.Worksheet,
+  args: string[],
+): FormulaResult[] | undefined {
+  if (args.length !== 4 || !formulaArgRequestsExactLookup(workbook, currentSheet, args[3])) return undefined;
+  const indexes = parseFormulaArrayIndexes(args[2]);
+  if (!indexes?.length) return undefined;
+  const lookupValue = lookupFormulaArg(workbook, currentSheet, args[0]);
+  const tableCells = cellsForFormulaRef(workbook, currentSheet, args[1]);
+  if (lookupValue === undefined || !tableCells) return undefined;
+  const shape = formulaRangeShape(tableCells);
+  if (indexes.some((index) => index < 1 || index > shape.colCount)) return undefined;
+  for (let rowOffset = 0; rowOffset < shape.rowCount; rowOffset += 1) {
+    const firstColumn = cellAtFormulaRangeOffset(tableCells, rowOffset, 0);
+    if (!firstColumn || !compareFormulaValues(firstColumn.value, lookupValue, "=")) continue;
+    const values = indexes.map((index) => cellAtFormulaRangeOffset(tableCells, rowOffset, index - 1)?.value);
+    return values.every((value): value is FormulaResult => value !== undefined && value !== null) ? values : undefined;
+  }
+  return undefined;
+}
+
+function parseFormulaArrayIndexes(arg: string): number[] | undefined {
+  const match = arg.trim().match(/^\{\s*([1-9][0-9]*(?:\s*,\s*[1-9][0-9]*)*)\s*\}$/);
+  return match ? match[1].split(",").map((value) => Number(value.trim())) : undefined;
+}
+
 function evaluateXLookupFunction(
   workbook: ExcelJS.Workbook,
   currentSheet: ExcelJS.Worksheet,
@@ -2352,6 +3643,7 @@ function formulaArgLooksLikeRange(arg: string): boolean {
 function splitFormulaArgs(raw: string): string[] {
   const args: string[] = [];
   let depth = 0;
+  let braceDepth = 0;
   let inSheetQuote = false;
   let inString = false;
   let start = 0;
@@ -2373,7 +3665,9 @@ function splitFormulaArgs(raw: string): string[] {
     if (inSheetQuote) continue;
     if (char === "(") depth += 1;
     else if (char === ")") depth -= 1;
-    else if (char === "," && depth === 0) {
+    else if (char === "{") braceDepth += 1;
+    else if (char === "}") braceDepth -= 1;
+    else if (char === "," && depth === 0 && braceDepth === 0) {
       args.push(raw.slice(start, index));
       start = index + 1;
     }
@@ -2407,7 +3701,7 @@ function replaceFormulaFunctionCalls(
   let current = expression;
   for (let pass = 0; pass < 20; pass += 1) {
     let changed = false;
-    current = current.replace(/\b(SUM|AVERAGE|MIN|MAX|COUNT|COUNTA|ABS|ROUND|ROUNDUP|ROUNDDOWN|IF|IFERROR|SUMIF|COUNTIF|AVERAGEIF|SUMIFS|COUNTIFS|AVERAGEIFS|MATCH|INDEX|VLOOKUP|XLOOKUP|SUMPRODUCT|LEN|FIND|SEARCH|DATE|VALUE)\(([^()]+)\)/gi, (match) => {
+    current = current.replace(/\b(SUM|AVERAGE|MIN|MAX|MEDIAN|COUNT|COUNTA|ABS|ROUND|ROUNDUP|ROUNDDOWN|IF|IFERROR|SUMIF|COUNTIF|AVERAGEIF|SUMIFS|COUNTIFS|AVERAGEIFS|MATCH|INDEX|VLOOKUP|XLOOKUP|SUMPRODUCT|LEN|FIND|SEARCH|DATE|VALUE)\(([^()]+)\)/gi, (match) => {
       const result = evaluateFormulaFunction(workbook, currentSheet, match);
       if (typeof result !== "number") {
         failed = true;

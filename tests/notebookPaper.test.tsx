@@ -70,6 +70,7 @@ function makeStore() {
   return {
     lockFor: () => null,
     listPresence: () => [],
+    listProposals: () => [],
     getArtifact: () => undefined,
     applyEdit: vi.fn(async () => ({ ok: true })),
   };

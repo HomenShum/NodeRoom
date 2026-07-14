@@ -1,9 +1,13 @@
 import type { Actor, AgentSession, Artifact, CellStatus, Member, Proposal, TraceEvent } from "../../engine/types";
+import type { DeckStoryboard } from "../workArtifacts/deckStoryboard";
 
 export type SemanticGraphNodeKind =
   | "person"
   | "company"
   | "artifact"
+  | "deck"
+  | "deck_slide"
+  | "deck_claim"
   | "spreadsheet_row"
   | "notebook_block"
   | "source"
@@ -52,6 +56,9 @@ export interface SemanticGraphRef {
   columnId?: string;
   traceId?: string;
   proposalId?: string;
+  deckId?: string;
+  slideId?: string;
+  claimId?: string;
   sourceUrl?: string;
   evidenceId?: string;
   actorId?: string;
@@ -126,6 +133,7 @@ export interface SemanticGraphInput {
   members?: Member[];
   traces?: TraceEvent[];
   proposals?: Proposal[];
+  decks?: DeckStoryboard[];
   sessions?: AgentSession[];
   fallbackDemo?: boolean;
   maxRowsPerSheet?: number;
@@ -150,12 +158,23 @@ export interface SemanticGraphSelectionSection {
   edges: SemanticGraphEdge[];
 }
 
+export interface SemanticGraphConnectionPath {
+  id: string;
+  label: string;
+  nodeIds: string[];
+  edgeIds: string[];
+  score: number;
+  status: SemanticGraphStatus;
+  refs: SemanticGraphRef[];
+}
+
 export interface SemanticGraphSelection {
   selected?: SemanticGraphNode;
   selectedEdge?: SemanticGraphEdge;
   nodeIds: Set<string>;
   edgeIds: Set<string>;
   sections: SemanticGraphSelectionSection[];
+  paths?: SemanticGraphConnectionPath[];
 }
 
 export interface SemanticGraphPosition {

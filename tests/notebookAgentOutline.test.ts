@@ -45,6 +45,7 @@ type EnrichmentPlanResult =
 const notebookAgentInternal = (internal as unknown as {
   notebookAgent: {
     applyOutlineByAgent: import("convex/server").FunctionReference<"mutation", "internal", Record<string, unknown>, ApplyOutlineResult>;
+    ensureNotebookDocForAgent: import("convex/server").FunctionReference<"mutation", "internal", Record<string, unknown>, { prosemirrorDocId: string; created: boolean }>;
     readNotebookForAgent: import("convex/server").FunctionReference<"query", "internal", Record<string, unknown>, ReadNotebookResult>;
     applyBlockEditByAgent: import("convex/server").FunctionReference<"mutation", "internal", Record<string, unknown>, BlockEditResult>;
     planNotebookEnrichmentForAgent: import("convex/server").FunctionReference<"query", "internal", Record<string, unknown>, EnrichmentPlanResult>;
@@ -275,6 +276,45 @@ describe("notebookAgent.applyOutlineByAgent — synced lane", () => {
     if (!anchored.ok) throw new Error("anchored append failed");
     expect(anchored.blockIds.length).toBeGreaterThan(0);
     await t.finishInProgressScheduledFunctions();
+  });
+
+  it("reads legacy starter HTML before any human opens the notebook editor", async () => {
+    const { t, roomId, artifactId, actor } = await seedRoom({
+      legacyHtml: "<h1>CardioNova brief</h1><ul><li>Verify hospital buyer</li><li>Confirm runway source</li></ul>",
+    });
+    await t.mutation(notebookAgentInternal.ensureNotebookDocForAgent, {
+      roomId,
+      artifactId: artifactId as never,
+      actor,
+    });
+    const row = await t.run(async (ctx) => await ctx.db
+      .query("notebookDocuments")
+      .withIndex("by_room_artifact_element", (q) => q.eq("roomId", roomId).eq("artifactId", artifactId as never).eq("elementId", "doc"))
+      .unique());
+    if (!row) throw new Error("notebook registry row missing");
+    await t.mutation(api.prosemirror.submitSnapshot, {
+      id: row.prosemirrorDocId,
+      version: 2,
+      content: JSON.stringify({ type: "doc", content: [{ type: "paragraph" }] }),
+    });
+    await t.mutation(notebookAgentInternal.ensureNotebookDocForAgent, {
+      roomId,
+      artifactId: artifactId as never,
+      actor,
+    });
+
+    const read = await t.query(notebookAgentInternal.readNotebookForAgent, {
+      roomId,
+      artifactId: artifactId as never,
+      actor,
+    });
+    expect(read.ok).toBe(true);
+    if (!read.ok) throw new Error("read failed");
+    expect(read.blocks.map((block) => block.text)).toEqual(expect.arrayContaining([
+      "CardioNova brief",
+      "Verify hospital buyer",
+      "Confirm runway source",
+    ]));
   });
 
   it("private notes reject public personal agents but process for the owner's private agent", async () => {

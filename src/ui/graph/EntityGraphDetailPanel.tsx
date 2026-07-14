@@ -53,6 +53,26 @@ export function EntityGraphDetailPanel({ selection, onClose, onOpenArtifact }: E
       )}
 
       <div className="r-entity-detail-sections">
+        {!!selection.paths?.length && (
+          <section className="r-entity-detail-section" data-testid="entity-graph-paths">
+            <h3>Relevant Paths</h3>
+            {selection.paths.map((path) => {
+              const artifactRef = path.refs.find((ref) => ref.artifactId);
+              return (
+                <button
+                  key={path.id}
+                  type="button"
+                  className="r-entity-detail-row r-entity-detail-path"
+                  onClick={() => { if (artifactRef?.artifactId) onOpenArtifact(artifactRef.artifactId, artifactRef.elementId); }}
+                  disabled={!artifactRef?.artifactId}
+                >
+                  <span className="r-entity-detail-row-main">{path.label}</span>
+                  <span className="r-entity-detail-row-sub">{path.edgeIds.length} hop{path.edgeIds.length === 1 ? "" : "s"} - {path.status}</span>
+                </button>
+              );
+            })}
+          </section>
+        )}
         {selection.sections.map((item) => (
           <section key={item.id} className="r-entity-detail-section">
             <h3>{item.label}</h3>

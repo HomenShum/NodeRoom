@@ -1,0 +1,392 @@
+/* Production mobile shell. Device simulation belongs to explicit preview mode. */
+.na-ios-bleed {
+  position: fixed;
+  inset: 0;
+  min-width: 0;
+  background: var(--mobile-bg-app, #fbf4e7);
+  overflow: hidden;
+}
+
+.na-top {
+  flex: none;
+  position: relative;
+  z-index: 25;
+  padding: var(--mobile-safe-top) 15px 0;
+  background: var(--mobile-bg-app);
+  border-bottom: 1px solid transparent;
+  box-shadow: none;
+}
+
+.na-top[data-scrolled="true"] {
+  border-bottom-color: var(--mobile-border);
+}
+
+.mobile-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  height: 52px;
+  min-width: 0;
+}
+
+.mobile-room-context {
+  display: grid;
+  grid-template-columns: 29px minmax(0, 1fr) 14px;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 4px 0 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--mobile-text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mobile-room-context:hover {
+  background: color-mix(in srgb, var(--mobile-bg-hover) 55%, transparent);
+}
+
+.mobile-room-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  border-radius: 8px;
+  background: var(--mobile-accent);
+  color: #fff;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.mobile-room-live {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 7px;
+  height: 7px;
+  border: 2px solid var(--mobile-bg-app);
+  border-radius: 50%;
+  background: var(--mobile-success);
+}
+
+.mobile-room-title {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--mobile-text-primary);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-room-context > svg {
+  width: 14px;
+  height: 14px;
+  color: var(--mobile-text-muted);
+}
+
+.mobile-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.mobile-header-action {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--mobile-text-secondary);
+  cursor: pointer;
+}
+
+.mobile-header-action:hover,
+.mobile-header-action[aria-expanded="true"] {
+  background: var(--mobile-bg-surface);
+  color: var(--mobile-text-primary);
+}
+
+.mobile-header-action > svg {
+  width: 19px;
+  height: 19px;
+}
+
+.mobile-header-action:focus-visible,
+.mobile-room-context:focus-visible,
+.mobile-overflow-item:focus-visible {
+  outline: 2px solid var(--mobile-accent);
+  outline-offset: 1px;
+}
+
+.mobile-review-badge {
+  position: absolute;
+  top: 3px;
+  right: 2px;
+  display: grid;
+  place-items: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border: 2px solid var(--mobile-bg-app);
+  border-radius: 999px;
+  background: var(--mobile-attention);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.mobile-overflow-wrap {
+  position: relative;
+}
+
+.mobile-overflow-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 80;
+  display: grid;
+  width: min(244px, calc(100vw - 30px));
+  padding: 5px;
+  border: 1px solid var(--mobile-border);
+  border-radius: 8px;
+  background: var(--mobile-bg-elevated);
+  box-shadow: var(--shadow-lg);
+}
+
+.mobile-overflow-item {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--mobile-text-primary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mobile-overflow-item:hover {
+  background: var(--mobile-bg-surface);
+}
+
+.mobile-overflow-item svg {
+  width: 18px;
+  height: 18px;
+  color: var(--mobile-text-muted);
+}
+
+.mobile-overflow-meta {
+  color: var(--mobile-text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* Major shell controls expose true 44px targets. */
+.na-close,
+.na-headback,
+.na-cc-back,
+.na-ask-grab,
+.na-dock-add,
+.na-mic,
+.na-send,
+.na-jstop,
+.na-tool,
+.na-compose-send,
+.na-revact-btn,
+.sc-trrow,
+.gp-code,
+.ms-actions button,
+button.fx-toggle {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.na-viewtoggle button,
+.na-art-tab,
+.na-compose-quick button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Primary navigation and the composer occupy layout space instead of covering work. */
+.na-app > .na-body {
+  padding-bottom: 18px;
+}
+
+.na-bottom-shell {
+  position: relative;
+  z-index: 34;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 7px 12px calc(5px + var(--mobile-safe-bottom));
+  border-top: 1px solid var(--mobile-border);
+  background: var(--mobile-bg-app);
+}
+
+.na-bottom-shell .na-dock {
+  position: relative;
+  inset: auto;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.na-bottom-shell .na-dock-bar {
+  min-width: 0;
+  min-height: 44px;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.na-bottom-shell .na-fab-btn,
+.na-bottom-shell .na-dock-add {
+  border: 1px solid var(--mobile-border-strong);
+  background: var(--mobile-bg-elevated);
+  color: var(--mobile-text-secondary);
+  box-shadow: none;
+}
+
+.na-bottom-shell .na-dock-add,
+.na-bottom-shell .na-dock-send,
+.na-bottom-shell .na-dock-x {
+  width: 44px;
+  height: 44px;
+}
+
+.na-bottom-shell .na-dock-input {
+  min-height: 44px;
+  font-size: 16px;
+}
+
+.na-bottom-shell .na-fab,
+.na-bottom-shell .na-fab-btn {
+  width: 44px;
+  height: 44px;
+}
+
+.na-bottom-shell .na-fab-btn:hover,
+.na-bottom-shell .na-dock-add:hover,
+.na-bottom-shell .na-fab[data-open="true"] .na-fab-btn,
+.na-bottom-shell .na-dock-add[data-on="true"] {
+  border-color: color-mix(in srgb, var(--mobile-accent) 42%, var(--mobile-border));
+  background: var(--mobile-accent-soft);
+  color: var(--mobile-accent-hover);
+}
+
+.na-bottom-shell .na-nav,
+.na-bottom-shell .na-nav[data-style="dock"] {
+  position: static;
+  inset: auto;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-auto-flow: row;
+  gap: 0;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+  backdrop-filter: none;
+}
+
+.na-bottom-shell .na-nav-item,
+.na-bottom-shell .na-nav[data-style="dock"] .na-nav-item {
+  position: relative;
+  width: auto;
+  min-width: 44px;
+  min-height: 44px;
+  gap: 1px;
+  padding: 3px 0 1px;
+  border-radius: 6px;
+}
+
+.na-bottom-shell .na-nav-item:hover {
+  background: var(--mobile-bg-surface);
+}
+
+.na-bottom-shell .na-nav-item svg {
+  width: 19px;
+  height: 19px;
+}
+
+.na-bottom-shell .na-nav-item span {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 9px;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.na-app[data-ask="true"] .na-bottom-shell {
+  visibility: hidden;
+}
+
+.na-app .gp-onb-wrap {
+  bottom: calc(118px + var(--mobile-safe-bottom));
+}
+
+@media (max-width: 340px) {
+  .na-top {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .mobile-header {
+    gap: 2px;
+  }
+
+  .mobile-room-context {
+    gap: 7px;
+  }
+
+  .na-bottom-shell {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .na-recents {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .na-rcard {
+    min-height: 155px;
+    gap: 6px;
+    padding: 10px 11px;
+  }
+
+  .na-rcard .rc-ico {
+    width: 28px;
+    height: 28px;
+  }
+
+  .na-rcard .sig-sheet {
+    height: 40px;
+  }
+}

@@ -163,12 +163,128 @@
 
 /* the sheet itself is the paper — no panel background, ink from re-pinned tokens */
 .nbk-frame .r-note {
+  position: relative;
   width: min(100%, 760px);
   max-width: 760px;
   margin: 0 auto;
   padding: 32px 48px 56px;
   background: transparent;
 }
+
+.nbk-frame .nbk-editor-tools {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  z-index: 4;
+}
+
+.nbk-frame .nbk-editor-tools button {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, .08);
+  cursor: pointer;
+}
+
+.nbk-frame .nbk-editor-tools button:hover:not(:disabled) {
+  border-color: var(--accent-border);
+  color: var(--accent-ink);
+}
+
+.nbk-frame .nbk-editor-tools button:focus-visible {
+  outline: 2px solid var(--accent-border);
+  outline-offset: 2px;
+}
+
+.nbk-frame .nbk-editor-tools button:disabled {
+  opacity: .45;
+  cursor: default;
+}
+
+.r-nb-patch-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.r-nb-patch-marker {
+  position: absolute;
+  min-height: 20px;
+  padding: 0 6px;
+  border: 1px solid rgba(217, 119, 87, .35);
+  border-radius: 5px;
+  background: #fff7f2;
+  color: #9a4d34;
+  font: 700 9px/18px var(--font-mono);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.r-nb-patch-marker[aria-expanded="true"] {
+  border-color: #d97757;
+  background: #fee8dc;
+}
+
+.r-nb-patch-popover {
+  position: absolute;
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid rgba(217, 119, 87, .32);
+  border-radius: 7px;
+  background: #fff;
+  color: #172033;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, .18);
+  pointer-events: auto;
+}
+
+.r-nb-patch-popover header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.r-nb-patch-popover header button {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #64748b;
+}
+
+.r-nb-patch-popover > div {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 7px;
+}
+
+.r-nb-patch-popover > div > span {
+  color: #64748b;
+  font: 700 9px/1.45 var(--font-mono);
+  text-transform: uppercase;
+}
+
+.r-nb-patch-popover p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.r-nb-patch-popover del { color: #a13f3f; background: #fff0f0; }
+.r-nb-patch-popover ins { color: #176c4a; background: #e9f8f1; text-decoration: none; }
 
 .nbk-frame .r-note .ProseMirror {
   max-width: 68ch;
@@ -285,8 +401,8 @@
 
 .nbk-frame .r-note .ProseMirror h2 + p[data-status="needs_review"] + ul {
   list-style: none;
-  margin: 0 0 26px;
-  padding: 0 18px 16px;
+  margin: 0 0 16px;
+  padding: 0 18px 10px;
   border: 1px solid rgba(217,119,87,.26);
   border-top: 0;
   border-bottom-left-radius: 10px;
@@ -298,10 +414,19 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 5px 0;
-  padding: 5px 10px;
+  margin: 3px 0;
+  padding: 4px 8px;
   border-radius: 7px;
   background: transparent;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.nbk-frame .r-note .ProseMirror h2 + p[data-status="needs_review"] + ul li > p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
   font-size: 13px;
   line-height: 1.35;
 }
@@ -353,6 +478,8 @@
   padding: 0 0 0 28px;
   border-left: 0;
   color: #1f2937;
+  font-family: var(--font-ui);
+  font-style: italic;
   font-size: 18px;
   line-height: 1.5;
 }

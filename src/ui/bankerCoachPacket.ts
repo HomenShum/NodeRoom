@@ -129,6 +129,8 @@ export function buildBankerCoachPacket(input: {
 function buildCoachEvidenceCards(artifacts: Artifact[]): EvidenceCardArtifact[] {
   const inputs: EvidenceCardInput[] = [];
   const targets: Array<Pick<EvidenceCardArtifact, "targetArtifactId" | "targetElementId" | "sourceUrl" | "sourceArtifactId" | "sourceLocator">> = [];
+  const roomContext = artifacts.find((artifact) => artifact.title === "Agent wiki" && artifact.order.length > 0);
+  const sourcedCardLimit = roomContext ? 9 : 10;
 
   for (const artifact of artifacts) {
     for (const elementId of artifact.order) {
@@ -146,11 +148,21 @@ function buildCoachEvidenceCards(artifacts: Artifact[]): EvidenceCardArtifact[] 
             ? { sheetName: evidence.sheetName, page: evidence.page, row: evidence.row, column: evidence.column }
             : undefined,
         });
-        if (inputs.length >= 10) break;
+        if (inputs.length >= sourcedCardLimit) break;
       }
-      if (inputs.length >= 10) break;
+      if (inputs.length >= sourcedCardLimit) break;
     }
-    if (inputs.length >= 10) break;
+    if (inputs.length >= sourcedCardLimit) break;
+  }
+
+  // Keep one room-native source in an otherwise URL-only evidence carousel so
+  // reviewers can inspect working context beside the primary artifact.
+  if (inputs.length > 0 && roomContext && !targets.some((target) => target.sourceArtifactId === roomContext.id)) {
+    const fallback = fallbackEvidenceForArtifact(roomContext);
+    if (fallback) {
+      inputs.push(fallback.input);
+      targets.push({ targetArtifactId: roomContext.id });
+    }
   }
 
   if (!inputs.length) {

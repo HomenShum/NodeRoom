@@ -18,6 +18,16 @@ import { BANKER_COACH_TOOLS } from "../bankerCoach/tools";
 import { OKF_RETRIEVAL_TOOLS } from "../../retrieval/tools";
 import { retrieveUntilSufficient } from "../../retrieval/retrievalLoop";
 import { NOTEBOOK_TOOLS } from "../notebook/notebookTools";
+import {
+  checksForWorkbookOperations,
+  inspectWorkbookTask,
+  selectWorkbookTaskCells,
+  verifyWorkbookPlan,
+  verifyWorkbookValues,
+  workbookCellKey,
+  type WorkbookObservedCell,
+  type WorkbookPlanOperation,
+} from "./workbookTaskIntelligence";
 
 /**
  * Tolerant array for cheap/quantized models that emit a single object instead of a one-element
@@ -741,8 +751,155 @@ const WRITE_LOCKED_CELL_RESULTS_TOOL: AgentTool = {
   },
 };
 
+const workbookOperationSchema = z.object({
+  elementId: z.string().min(1).describe("target cell id or A1 address"),
+  value: z.any().optional(),
+  formula: z.string().optional(),
+  result: z.any().optional(),
+  numFmt: z.string().optional(),
+});
+
+const INSPECT_WORKBOOK_TOOL: AgentTool = {
+  name: "inspect_workbook",
+  description: "Inspect a workbook before planning edits. Combines the current artifact snapshot, semantic workbook search, and confirmed cell reads to distinguish edit targets from dependencies, detect formula errors/gaps/outliers, and recommend the smallest relevant reads. Use this before formula repair, workbook audit, or multi-cell calculation work. It never writes.",
+  schema: z.object({
+    instruction: z.string().min(1).describe("the complete workbook task to plan"),
+    artifactId: z.string().optional().describe("the workbook id from list_artifacts; omit for the primary workbook"),
+    query: z.string().optional().describe("optional focused semantic search query; defaults to instruction"),
+    maxCells: z.coerce.number().int().min(12).max(200).optional().default(80),
+  }),
+  execute: async (a: { instruction: string; artifactId?: string; query?: string; maxCells?: number }, rt) => {
+    const snapshot = await rt.snapshot(a.artifactId);
+    const sheet = snapshot.artifactId;
+    const snapshotCells = observedCellsFromSnapshot(snapshot);
+    const searchHits = await rt.searchSheetContext(a.query?.trim() || a.instruction, a.artifactId, 20);
+    const searchIds = searchHits.flatMap((hit) => hit.kind === "cell" ? [hit.elementId] : hit.elementIds);
+    const readIds = [...new Set(searchIds)].slice(0, Math.max(12, Math.min(200, a.maxCells ?? 80)));
+    const confirmed = readIds.length ? await rt.readRange(readIds, a.artifactId) : [];
+    const cells = mergeWorkbookCells(snapshotCells, confirmed.map((cell) => observedCell(sheet, cell.id, cell.value, cell.version)));
+    const inspection = inspectWorkbookTask({ instruction: a.instruction, sheetNames: [sheet], cells });
+    const selected = selectWorkbookTaskCells({
+      inspection,
+      cells,
+      maxCells: Math.max(12, Math.min(200, a.maxCells ?? 80)),
+    });
+    return {
+      ok: true,
+      artifactId: sheet,
+      artifactVersion: snapshot.version,
+      inspectedCellCount: cells.length,
+      confirmedSearchCellCount: confirmed.length,
+      cells: selected.map((cell) => ({
+        elementId: cell.address,
+        value: cell.value,
+        version: cell.version,
+        ...(cell.formula ? { formula: cell.formula } : {}),
+        ...(cell.numFmt ? { numFmt: cell.numFmt } : {}),
+      })),
+      inspection,
+    };
+  },
+};
+
+const VERIFY_WORKBOOK_TOOL: AgentTool = {
+  name: "verify_workbook",
+  description: "Preflight a workbook edit plan or verify completed writes by re-reading every target. Set afterWrite=false before writing to reject wrong targets, formula-to-scalar loss, broken references, self-reference, and duplicate writes. After managed writes, call again with afterWrite=true (default) to confirm values, formulas, formats, and versions. A needs_repair result includes concrete repair guidance.",
+  schema: z.object({
+    instruction: z.string().min(1).describe("the complete workbook task being verified"),
+    artifactId: z.string().optional().describe("the workbook id from list_artifacts; omit for the primary workbook"),
+    operations: tolerantArray(workbookOperationSchema, { min: 1 }),
+    afterWrite: z.coerce.boolean().optional().default(true),
+  }),
+  execute: async (a: {
+    instruction: string;
+    artifactId?: string;
+    operations: Array<{ elementId: string; value?: unknown; formula?: string; result?: unknown; numFmt?: string }>;
+    afterWrite?: boolean;
+  }, rt) => {
+    const snapshot = await rt.snapshot(a.artifactId);
+    const sheet = snapshot.artifactId;
+    const elementIds = [...new Set(a.operations.map((operation) => operation.elementId))];
+    const confirmed = await rt.readRange(elementIds, a.artifactId);
+    const cells = mergeWorkbookCells(
+      observedCellsFromSnapshot(snapshot),
+      confirmed.map((cell) => observedCell(sheet, cell.id, cell.value, cell.version)),
+    );
+    const inspection = inspectWorkbookTask({ instruction: a.instruction, sheetNames: [sheet], cells });
+    const operations: WorkbookPlanOperation[] = a.operations.map((operation) => ({
+      op: "set_cell",
+      sheet,
+      cell: operation.elementId,
+      ...(Object.prototype.hasOwnProperty.call(operation, "value") ? { value: operation.value } : {}),
+      ...(operation.formula ? { formula: operation.formula } : {}),
+      ...(Object.prototype.hasOwnProperty.call(operation, "result") ? { result: operation.result } : {}),
+      ...(operation.numFmt ? { numFmt: operation.numFmt } : {}),
+    }));
+    const plan = verifyWorkbookPlan({
+      instruction: a.instruction,
+      inspection,
+      cells,
+      sheetNames: [sheet],
+      operations,
+    });
+    const candidate = a.afterWrite === false
+      ? undefined
+      : verifyWorkbookValues({ cells, checks: checksForWorkbookOperations(operations) });
+    const status = plan.status === "passed" && (!candidate || candidate.status === "passed")
+      ? "passed" as const
+      : "needs_repair" as const;
+    return {
+      ok: status === "passed",
+      status,
+      artifactId: sheet,
+      phase: a.afterWrite === false ? "preflight" : "post_write",
+      plan,
+      ...(candidate ? { candidate } : {}),
+      repairPrompt: [
+        ...plan.issues.map((issue) => `${issue.kind}: ${issue.repair}`),
+        ...(candidate?.repairPrompt ? [candidate.repairPrompt] : []),
+      ].join("\n") || undefined,
+    };
+  },
+};
+
+function observedCellsFromSnapshot(snapshot: Awaited<ReturnType<RoomTools["snapshot"]>>): WorkbookObservedCell[] {
+  const sheet = snapshot.artifactId;
+  if (snapshot.elements?.length) {
+    return snapshot.elements.map((element) => observedCell(sheet, element.id, element.value, element.version));
+  }
+  return snapshot.rows.flatMap((row) => Object.entries(row.cells).map(([columnId, cell]) =>
+    observedCell(sheet, `${row.rowId}__${columnId}`, cell.value, cell.version)));
+}
+
+function observedCell(sheet: string, address: string, rawValue: unknown, version?: number): WorkbookObservedCell {
+  const record = rawValue && typeof rawValue === "object" && !Array.isArray(rawValue)
+    ? rawValue as Record<string, unknown>
+    : undefined;
+  const payload = record && "value" in record ? record : undefined;
+  const formula = typeof record?.formula === "string" ? record.formula : undefined;
+  const numFmt = typeof record?.numFmt === "string" ? record.numFmt : undefined;
+  return {
+    sheet,
+    address,
+    value: payload ? payload.value : rawValue,
+    ...(formula ? { formula } : {}),
+    ...(numFmt ? { numFmt } : {}),
+    ...(version === undefined ? {} : { version }),
+  };
+}
+
+function mergeWorkbookCells(...groups: WorkbookObservedCell[][]): WorkbookObservedCell[] {
+  const cells = new Map<string, WorkbookObservedCell>();
+  for (const group of groups) {
+    for (const cell of group) cells.set(workbookCellKey(cell.sheet, cell.address), cell);
+  }
+  return [...cells.values()];
+}
+
 
 export const ROOM_TOOLS: AgentTool[] = [
+  INSPECT_WORKBOOK_TOOL,
+  VERIFY_WORKBOOK_TOOL,
   {
     name: "read_range",
     description: "Read the current value + version of specific cells. Works even on LOCKED cells (locked = read-only, not invisible). Call this before editing, and again after any conflict. Defaults to the primary file ONLY. For uploaded source workbooks or any non-primary file, you MUST pass artifactId from list_artifacts; A1-style ids like A1/B2 without artifactId usually read the blank Sheet 1 and are wrong. If you omit elementIds, the tool returns a bounded artifact sample and instructions instead of dumping the file.",

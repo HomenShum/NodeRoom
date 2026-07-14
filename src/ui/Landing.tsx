@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "convex/react";
 import type { FunctionReference } from "convex/server";
-import { ArrowLeft, ArrowRight, Check, Code2, Lock, Moon, Plus, Users, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Lock, Moon, Plus, Sparkles, Users, X } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import { createFreshRoom, enterDemoRoomAsHost, joinRoomByCode } from "../app/roomStore";
 import { NodeReveal } from "./motion/NodeReveal";
@@ -19,9 +19,10 @@ type LandingProps = {
   defaultCode?: string;
   busy?: boolean;
   joinError?: string | null;
-  onLiveDemo?: (name: string) => void;
+  initialIntent?: "create" | "join" | "sample" | null;
+  onLiveDemo?: (name: string, autoAllow: boolean) => void;
   onLiveJoin?: (code: string, name: string) => void;
-  onLiveCreate?: (name: string, title?: string, code?: string) => void;
+  onLiveCreate?: (name: string, title: string, code: string, autoAllow: boolean) => void;
 };
 
 /** Minimal focus-trap + focus-restore for the room dialogs (Tab cycles within; focus returns to the
@@ -52,6 +53,7 @@ export function Landing({
   defaultCode,
   busy = false,
   joinError,
+  initialIntent = null,
   onLiveDemo,
   onLiveJoin,
   onLiveCreate,
@@ -60,13 +62,31 @@ export function Landing({
   const [name, setName] = useState("");
   const [joinErr, setJoinErr] = useState<string | null>(null);
   const [joinDialogCode, setJoinDialogCode] = useState<string | null>(null);
-  const [createDialogCode, setCreateDialogCode] = useState<string | null>(null);
-  const [createTitle, setCreateTitle] = useState("Startup diligence");
+  const initialHostKind = initialIntent === "create" ? "workspace" : initialIntent === "sample" ? "sample" : null;
+  const [hostKind, setHostKind] = useState<"workspace" | "sample" | null>(initialHostKind);
+  const [createDialogCode, setCreateDialogCode] = useState<string | null>(() => initialHostKind ? makeLandingRoomCode() : null);
+  const [createTitle, setCreateTitle] = useState(initialHostKind === "sample" ? "Startup Banking Diligence War Room" : "My workspace");
+  const [autoAllow, setAutoAllow] = useState(false);
+  const joinInputRef = useRef<HTMLInputElement>(null);
   const live = mode === "live";
   const joinTrapRef = useFocusTrap(live && !!joinDialogCode);
   const createTrapRef = useFocusTrap(live && !!createDialogCode);
   const shownError = joinError ?? joinErr;
   const displayName = (fallback = "Guest") => name.trim() || fallback;
+  useEffect(() => {
+    if (!live || !initialIntent) return;
+    if (initialIntent === "join") {
+      if (defaultCode) setJoinDialogCode(defaultCode);
+      else requestAnimationFrame(() => joinInputRef.current?.focus());
+    }
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("intent");
+      window.history.replaceState(null, "", url);
+    } catch {
+      /* ignore */
+    }
+  }, [defaultCode, initialIntent, live]);
   const toggleTheme = () => {
     if (typeof document === "undefined") return;
     const root = document.documentElement;
@@ -81,6 +101,10 @@ export function Landing({
         setJoinErr("Enter a 6-12 character room code.");
         return;
       }
+      if (useMobileProductSurface()) {
+        enterMobileProduct({ room: roomCode });
+        return;
+      }
       setJoinDialogCode(roomCode);
       return;
     }
@@ -88,25 +112,29 @@ export function Landing({
     if (s) onEnter?.(s);
     else setJoinErr(`No room found for "${join.toUpperCase()}".`);
   };
-  const enterDemo = () => {
-    if (live) onLiveDemo?.(displayName("Host"));
-    else onEnter?.(enterDemoRoomAsHost(name));
+  const openHostDialog = (kind: "workspace" | "sample") => {
+    if (live && useMobileProductSurface()) {
+      enterMobileProduct({ intent: kind === "sample" ? "sample" : "create" });
+      return;
+    }
+    setHostKind(kind);
+    setCreateTitle(kind === "sample" ? "Startup Banking Diligence War Room" : "My workspace");
+    setAutoAllow(false);
+    setCreateDialogCode(makeLandingRoomCode());
   };
-  const createRoom = () => {
-    if (live) {
-      setCreateTitle("Startup diligence");
-      setCreateDialogCode(makeLandingRoomCode());
-    } else onEnter?.(createFreshRoom("My room", name || "Host"));
-  };
+  const enterDemo = () => { if (live) openHostDialog("sample"); else onEnter?.(enterDemoRoomAsHost(name)); };
+  const createRoom = () => { if (live) openHostDialog("workspace"); else onEnter?.(createFreshRoom("My room", name || "Host")); };
   const confirmLiveJoin = () => {
     if (!joinDialogCode) return;
     onLiveJoin?.(joinDialogCode, displayName());
     setJoinDialogCode(null);
   };
   const confirmLiveCreate = () => {
-    if (!createDialogCode) return;
-    onLiveCreate?.(displayName("Host"), createTitle.trim() || "Startup diligence", createDialogCode);
+    if (!createDialogCode || !hostKind) return;
+    if (hostKind === "sample") onLiveDemo?.(displayName("Host"), autoAllow);
+    else onLiveCreate?.(displayName("Host"), createTitle.trim() || "My workspace", createDialogCode, autoAllow);
     setCreateDialogCode(null);
+    setHostKind(null);
   };
 
   return (
@@ -126,22 +154,23 @@ export function Landing({
           <main className="r-landing">
             <div className="r-land2-grid">
               <div>
-                <span className="r-eyebrow"><span className="r-dot-live" /> NodeRoom · live diligence rooms</span>
+                <span className="r-eyebrow"><span className="r-dot-live" /> Shared workrooms for people and NodeAgents</span>
                 <h1 className="r-h1">
-                  Diligence that <span className="accent">shows its work.</span>
+                  Work with AI. <span className="accent">Review every change.</span>
                 </h1>
                 <NodeReveal delay={140} distance={8}>
                   <p className="r-lede">
-                    Paste your pipeline into a live room. NodeAgents enrich every company, reconcile the
-                    numbers, and cite a source for every cell — while your team watches. One code to join, no accounts.
+                    NodeRoom is a shared workspace where people and NodeAgents work on the same files,
+                    spreadsheets, and notes. Every agent edit can stay reviewable and source-backed.
                   </p>
                 </NodeReveal>
                 <div className="r-cta-row" data-live={String(live)}>
                   <button data-testid={live ? "create-room" : "start-demo-room"} className="r-btn primary" disabled={busy} onClick={live ? createRoom : enterDemo}>
-                    <Plus size={17} /> Create a room
+                    {live ? <Plus size={17} /> : <Sparkles size={17} />} {live ? "Create a room" : "Try sample room"}
                   </button>
                   <div className="r-join-inline">
                     <input
+                      ref={joinInputRef}
                       placeholder="ENTER CODE"
                       value={join}
                       disabled={busy}
@@ -149,16 +178,23 @@ export function Landing({
                       onChange={(e) => { setJoin(live ? e.target.value.toUpperCase() : e.target.value); setJoinErr(null); }}
                       onKeyDown={(e) => { if (e.key === "Enter") tryJoin(); }}
                       aria-label="Room code"
+                      aria-invalid={Boolean(shownError)}
+                      aria-describedby={shownError ? "landing-join-error" : undefined}
                       data-testid="join-room-code"
                     />
                     <button data-testid="join-room" className="r-btn" disabled={busy} onClick={tryJoin}>
-                      Join <ArrowRight size={15} />
+                      Join room <ArrowRight size={15} />
                     </button>
                   </div>
+                  {live && (
+                    <button data-testid="try-sample-room" className="r-btn ghost" disabled={busy} onClick={enterDemo}>
+                      <Sparkles size={16} /> Try sample
+                    </button>
+                  )}
                 </div>
-                {shownError && <div className="r-join-error" role="alert">{shownError}</div>}
+                {shownError && <div id="landing-join-error" className="r-join-error" role="alert">{shownError}</div>}
                 <LandingProofPill live={live} />
-                <div className="r-land2-trust"><Check size={14} /> Every number traced to its source</div>
+                <div className="r-land2-trust"><Check size={14} /> Code-access rooms · Review-first agent edits</div>
               </div>
               <div><LandingDemoLoop /></div>
             </div>
@@ -206,8 +242,8 @@ export function Landing({
                     <X size={16} />
                   </button>
                 </div>
-                <h2 id="join-room-title">Join anonymously</h2>
-                <p className="sub">No account needed. Pick a display name - you will get an ephemeral guest identity scoped to this room.</p>
+                <h2 id="join-room-title">Join this room</h2>
+                <p className="sub">Pick a display name. This browser stores a room-scoped session so reload can restore your place.</p>
               </div>
               <div className="r-room-modal-body">
                 <label className="r-room-field">
@@ -226,17 +262,12 @@ export function Landing({
                     autoFocus
                   />
                 </label>
-                <div className="r-room-codepeek">
-                  <div className="cp-head"><Code2 size={12} /> rooms - anonymous identity</div>
-                  <pre>
-                    <span className="cm">// guest gets an ephemeral, room-scoped identity{"\n"}</span>
-                    <span className="kw">const</span> me = {"{ "}<span className="pr">id</span>: <span className="str">'anon_'</span> + nanoid(),{"\n"}
-                    {"            "}<span className="pr">name</span>: <span className="str">"anon - {displayName()}"</span>, <span className="pr">anon</span>: <span className="kw">true</span> {"};\n"}
-                    <span className="kw">await</span> <span className="fn">joinRoom</span>({"{ code: "}<span className="str">"{joinDialogCode}"</span>{", identity: me });"}
-                  </pre>
+                <div className="r-first-run-notice" data-testid="join-access-notice">
+                  <Lock size={15} />
+                  <div><strong>Invite holders join as editors.</strong><span>They can edit shared content, upload files, use room chat, and run NodeAgent. Treat the link like an access code.</span></div>
                 </div>
                 <button className="r-btn primary r-room-modal-submit" disabled={busy} onClick={confirmLiveJoin}>
-                  Join as guest <ArrowRight size={16} />
+                  Join room <ArrowRight size={16} />
                 </button>
               </div>
             </div>
@@ -245,30 +276,30 @@ export function Landing({
         {live && createDialogCode && (
           <div
             className="r-room-modal-scrim"
-            onMouseDown={(e) => { if (e.target === e.currentTarget) setCreateDialogCode(null); }}
-            onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); setCreateDialogCode(null); } }}
+            onMouseDown={(e) => { if (e.target === e.currentTarget) { setCreateDialogCode(null); setHostKind(null); } }}
+            onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); setCreateDialogCode(null); setHostKind(null); } }}
           >
             <div className="r-room-modal" role="dialog" aria-modal="true" aria-labelledby="create-room-title" ref={createTrapRef}>
               <div className="r-room-modal-head">
                 <div className="row between">
-                  <span className="kicker">Create a room</span>
-                  <button className="r-iconbtn" type="button" aria-label="Close" onClick={() => setCreateDialogCode(null)}>
+                  <span className="kicker">{hostKind === "sample" ? "Try a sample" : "Create a room"}</span>
+                  <button className="r-iconbtn" type="button" aria-label="Close" onClick={() => { setCreateDialogCode(null); setHostKind(null); }}>
                     <X size={16} />
                   </button>
                 </div>
-                <h2 id="create-room-title">Host a live room</h2>
-                <p className="sub">Start with a named room and a shareable code. Guests can join anonymously after the room opens.</p>
+                <h2 id="create-room-title">{hostKind === "sample" ? "Explore a synthetic workspace" : "Start with an empty workspace"}</h2>
+                <p className="sub">A room is unlisted, but invite holders can join as editors. Review is the default for artifact changes.</p>
               </div>
               <div className="r-room-modal-body">
                 <label className="r-room-field">
                   <span>Room title</span>
                   <input
                     className="r-text-input"
-                    placeholder="Startup diligence room"
+                    placeholder={hostKind === "sample" ? "Startup Banking Diligence War Room" : "My workspace"}
                     value={createTitle}
                     maxLength={80}
+                    readOnly={hostKind === "sample"}
                     onChange={(e) => setCreateTitle(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") confirmLiveCreate(); }}
                     autoFocus
                   />
                 </label>
@@ -280,19 +311,31 @@ export function Landing({
                     placeholder="Priya"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") confirmLiveCreate(); }}
                   />
                 </label>
-                <div className="r-room-codepeek">
-                  <div className="cp-head"><Code2 size={12} /> rooms - host identity</div>
-                  <pre>
-                    <span className="cm">// host creates the room, then shares this code{"\n"}</span>
-                    <span className="kw">const</span> room = <span className="kw">await</span> <span className="fn">createRoom</span>({"{"}<span className="pr">code</span>: <span className="str">"{createDialogCode}"</span>,{"\n"}
-                    {"       "}<span className="pr">title</span>: <span className="str">"{createTitle.trim() || "Blank NodeRoom"}"</span>, <span className="pr">host</span>: <span className="str">"{displayName("Host")}"</span>{"});"}
-                  </pre>
+                {hostKind === "sample" && (
+                  <div className="r-first-run-notice sample" data-testid="sample-data-notice">
+                    <Sparkles size={15} />
+                    <div><strong>Synthetic sample data</strong><span>This room demonstrates NodeRoom. Do not treat its companies, sources, or conclusions as live research.</span></div>
+                  </div>
+                )}
+                <div className="r-first-run-notice" data-testid="create-access-notice">
+                  <Lock size={15} />
+                  <div><strong>Code-access room</strong><span>The invite link does not expire and lets allowed visitors join as editors. Share it intentionally.</span></div>
                 </div>
-                <button className="r-btn primary r-room-modal-submit" data-testid="create-room-submit" aria-label="Create room" disabled={busy} onClick={confirmLiveCreate}>
-                  Create room <ArrowRight size={16} />
+                <fieldset className="r-first-run-policy" data-testid="agent-policy-choice">
+                  <legend>How should NodeAgent edits land?</legend>
+                  <label data-selected={String(!autoAllow)}>
+                    <input type="radio" name="agent-policy" value="review" checked={!autoAllow} onChange={() => setAutoAllow(false)} />
+                    <span><strong>Review every artifact edit</strong><small>Recommended · changes wait for host approval; runs can still create provider, job, trace, and chat records.</small></span>
+                  </label>
+                  <label data-selected={String(autoAllow)}>
+                    <input type="radio" name="agent-policy" value="auto" checked={autoAllow} onChange={() => setAutoAllow(true)} />
+                    <span><strong>Auto-approve conflict-free edits</strong><small>NodeAgent may commit directly; every write remains traced.</small></span>
+                  </label>
+                </fieldset>
+                <button className="r-btn primary r-room-modal-submit" data-testid={hostKind === "sample" ? "sample-room-submit" : "create-room-submit"} aria-label={hostKind === "sample" ? "Start sample room" : "Create empty room"} disabled={busy} onClick={confirmLiveCreate}>
+                  {hostKind === "sample" ? "Start sample room" : "Create empty room"} <ArrowRight size={16} />
                 </button>
               </div>
             </div>
@@ -301,6 +344,21 @@ export function Landing({
       </div>
     </div>
   );
+}
+
+function useMobileProductSurface(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia?.("(max-width: 760px)")?.matches ?? window.innerWidth <= 760;
+}
+
+function enterMobileProduct(params: { intent?: "create" | "sample"; room?: string }): void {
+  if (typeof window === "undefined") return;
+  const url = new URL(window.location.href);
+  url.hash = "";
+  url.search = "";
+  if (params.intent) url.searchParams.set("intent", params.intent);
+  if (params.room) url.searchParams.set("room", params.room);
+  window.location.assign(url);
 }
 
 function makeLandingRoomCode(): string {
