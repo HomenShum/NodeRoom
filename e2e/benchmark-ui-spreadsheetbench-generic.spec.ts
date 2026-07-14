@@ -367,30 +367,38 @@ async function collectAgentEvidence(
   expect(observed.routeText, "the requested and resolved model route must remain visible").toMatch(/openrouter|anthropic|google|openai|groq|mistral|cohere|nvidia|qwen/i);
   const detailToggle = page.getByTestId("job-detail-toggle").first();
   const detail = page.getByTestId("job-detail").first();
+  const approvalPolicy = detail.getByTestId("job-approval-policy");
+  const mutationTelemetry = detail.getByTestId("job-mutation-count");
+  const receiptTelemetry = detail.getByTestId("job-receipt-count");
+  const receipts = detail.getByTestId("job-mutation-receipt");
   await expect.poll(async () => {
-    if (!(await detailToggle.isVisible().catch(() => false))) return "";
+    if (!(await detailToggle.isVisible().catch(() => false))) return false;
     if ((await detailToggle.getAttribute("aria-expanded")) !== "true") {
       await detailToggle.click().catch(() => undefined);
     }
-    const detailText = await quickText(detail, 1000);
-    const finalized = /Policy\s*auto_commit_safe/i.test(detailText)
-      && telemetryCount(detailText, "Mutations") > 0
-      && telemetryCount(detailText, "Receipts") > 0
-      && /receipt\s+[^\r\n]+/i.test(detailText);
-    return finalized ? detailText : "";
+    return detail.isVisible().catch(() => false);
   }, {
-    message: "the completed job must keep finalized mutation telemetry and a receipt reachable",
+    message: "the completed job must keep its proof detail reachable",
     timeout: 60_000,
     intervals: [500, 1000, 2000],
-  }).not.toBe("");
-  const detailText = await quickText(detail, 1000);
-  expect(detailText, "job detail must identify the conflict-safe direct-edit policy").toMatch(/Policy\s*auto_commit_safe/i);
-  const mutationCount = telemetryCount(detailText, "Mutations");
-  const receiptCount = telemetryCount(detailText, "Receipts");
-  expect(mutationCount, "a completed workbook edit must record a durable mutation").toBeGreaterThan(0);
-  expect(receiptCount, "a completed workbook edit must record a durable receipt").toBeGreaterThan(0);
-  const receiptText = detailText.match(/receipt\s+[^\r\n]+/i)?.[0] ?? "";
-  expect(receiptText, "job detail must expose the mutation receipt and affected target").not.toBe("");
+  }).toBe(true);
+  await expect(approvalPolicy, "job detail must identify the conflict-safe direct-edit policy")
+    .toHaveText("auto_commit_safe", { timeout: 60_000 });
+  await expect.poll(() => telemetryValue(mutationTelemetry), {
+    message: "a completed workbook edit must record a durable mutation",
+    timeout: 60_000,
+    intervals: [500, 1000, 2000],
+  }).toBeGreaterThan(0);
+  await expect.poll(() => telemetryValue(receiptTelemetry), {
+    message: "a completed workbook edit must record a durable receipt",
+    timeout: 60_000,
+    intervals: [500, 1000, 2000],
+  }).toBeGreaterThan(0);
+  await expect(receipts.first(), "job detail must expose the mutation receipt and affected target")
+    .toBeVisible({ timeout: 60_000 });
+  const mutationCount = await telemetryValue(mutationTelemetry);
+  const receiptCount = await telemetryValue(receiptTelemetry);
+  const receiptText = (await quickText(receipts.first(), 1000)).trim();
 
   return {
     routeText: observed.routeText,
@@ -531,13 +539,13 @@ function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function telemetryCount(text: string, label: string): number {
-  const match = text.match(new RegExp(`${escapeRegex(label)}\\s+(\\d+)`, "i"));
-  return match ? Number(match[1]) : 0;
-}
-
 async function quickText(locator: ReturnType<Page["locator"]>, timeout = 250): Promise<string> {
   return ((await locator.textContent({ timeout }).catch(() => "")) ?? "");
+}
+
+async function telemetryValue(locator: ReturnType<Page["locator"]>): Promise<number> {
+  const value = Number.parseInt((await quickText(locator, 1000)).trim(), 10);
+  return Number.isFinite(value) ? value : 0;
 }
 
 function isIgnoredConsoleProblem(text: string | undefined): boolean {
