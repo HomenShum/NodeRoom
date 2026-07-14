@@ -15,7 +15,8 @@ const modelTimeoutMs = numberOption("--model-timeout-ms") ?? 120_000;
 const modelBatchSize = numberOption("--model-batch-size") ?? 1;
 const modelSnapshotMaxCells = numberOption("--model-snapshot-max-cells");
 const modelSnapshotMaxCellChars = numberOption("--model-snapshot-max-cell-chars");
-const modelRepairAttempts = numberOption("--model-repair-attempts") ?? (mode === "model-edit-plan" ? 1 : 0);
+const modelRepairAttempts = numberOption("--model-repair-attempts")
+  ?? (mode === "model-edit-plan" || mode === "nodeagent-workbook" ? 1 : 0);
 const taskIdsFile = optionValue("--task-ids-file");
 const taskIds = taskIdsFile ? readTaskIds(taskIdsFile) : undefined;
 const limit = numberOption("--limit");
@@ -28,24 +29,31 @@ const compareStyles = args.includes("--compare-styles");
 const compareCharts = args.includes("--compare-charts");
 const retryScoreFailures = args.includes("--retry-score-failures");
 
-const allowedModes: SpreadsheetBenchRunnerMode[] = ["copy-input-baseline", "apply-agent-patch", "model-edit-plan"];
+const allowedModes: SpreadsheetBenchRunnerMode[] = [
+  "copy-input-baseline",
+  "apply-agent-patch",
+  "model-edit-plan",
+  "nodeagent-workbook",
+];
 const allowedFreeAutoModes: OpenRouterFreeModelMode[] = ["chat", "agent", "structured", "vision", "coding"];
+const modeRequiresModel = mode === "model-edit-plan" || mode === "nodeagent-workbook";
 
 if (!stageRoot || !outputRoot || !allowedModes.includes(mode)) {
   console.error([
     "Usage:",
-    "  npm run benchmark:spreadsheetbench:run -- --stage-root <staged-dir> --output-root <candidate-output-dir> [--mode copy-input-baseline|apply-agent-patch|model-edit-plan] [--model <route>] [--free-auto-mode chat|agent|structured|vision|coding] [--model-batch-size 1] [--model-snapshot-max-cells 800] [--model-snapshot-max-cell-chars 256] [--model-repair-attempts 1] [--task-ids-file <ids.json>] [--offset 0] [--limit 3] [--repeats 5] [--retry-failed 2] [--retry-score-failures] [--compare-charts] [--clean] [--json-out <path>]",
+    "  npm run benchmark:spreadsheetbench:run -- --stage-root <staged-dir> --output-root <candidate-output-dir> [--mode copy-input-baseline|apply-agent-patch|model-edit-plan|nodeagent-workbook] [--model <route>] [--free-auto-mode chat|agent|structured|vision|coding] [--model-batch-size 1] [--model-snapshot-max-cells 800] [--model-snapshot-max-cell-chars 256] [--model-repair-attempts 1] [--task-ids-file <ids.json>] [--offset 0] [--limit 3] [--repeats 5] [--retry-failed 2] [--retry-score-failures] [--compare-charts] [--clean] [--json-out <path>]",
     "",
     "copy-input-baseline proves runner/export/scoring plumbing.",
     "apply-agent-patch reads agent/edit-plan.json, edits the workbook, emits a candidate, then opens evaluator metadata.",
     "model-edit-plan asks the configured model to emit that edit plan from the staged agent bundle.",
-    "Neither mode is an official model score unless the edit plan was produced by a benchmark runner under the recorded model/tool policy.",
+    "nodeagent-workbook requires --model, defaults OpenRouter free-auto routing to agent, and runs the NodeAgent workbook tool loop (batch size must be 1).",
+    "Model-backed runs are not official model scores unless produced by a benchmark runner under the recorded model/tool policy.",
   ].join("\n"));
   process.exit(2);
 }
 
-if (mode === "model-edit-plan" && !modelId) {
-  console.error("model-edit-plan requires --model <route>.");
+if (modeRequiresModel && !modelId) {
+  console.error(`${mode} requires --model <route>.`);
   process.exit(2);
 }
 
@@ -55,6 +63,9 @@ if (freeAutoMode && !allowedFreeAutoModes.includes(freeAutoMode)) {
 }
 if (modelBatchSize < 1 || modelBatchSize > 16) {
   throw new Error("--model-batch-size must be between 1 and 16.");
+}
+if (mode === "nodeagent-workbook" && modelBatchSize > 1) {
+  throw new Error("nodeagent-workbook requires --model-batch-size 1.");
 }
 if (modelSnapshotMaxCells !== undefined && modelSnapshotMaxCells < 1) {
   throw new Error("--model-snapshot-max-cells must be at least 1.");
@@ -68,7 +79,7 @@ if (modelRepairAttempts < 0 || modelRepairAttempts > 3) {
 
 const agentModel = modelId
   ? (await import("../src/nodeagent/models/adapter")).model(modelId, {
-      freeAutoMode: freeAutoMode ?? (mode === "model-edit-plan" ? "structured" : undefined),
+      freeAutoMode: freeAutoMode ?? (mode === "nodeagent-workbook" ? "agent" : mode === "model-edit-plan" ? "structured" : undefined),
     })
   : undefined;
 

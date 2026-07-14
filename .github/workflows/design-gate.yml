@@ -54,3 +54,4 @@ jobs:
         with:
           name: design-qa-reports
           path: .tmp-qa/**
+          include-hidden-files: true

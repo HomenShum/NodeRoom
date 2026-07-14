@@ -163,6 +163,16 @@ export function openRouterFreeRequestTimeoutMs(
   return Number.isFinite(raw) ? Math.max(10_000, Math.min(300_000, Math.trunc(raw))) : 90_000;
 }
 
+export function openRouterFreeRequestReserveMs(
+  env: Record<string, string | undefined> = process.env,
+): number {
+  const requestTimeoutMs = openRouterFreeRequestTimeoutMs(env);
+  const maxReserveMs = Math.max(0, Math.min(30_000, requestTimeoutMs - 1_000));
+  const raw = Number(env.OPENROUTER_FREE_REQUEST_RESERVE_MS ?? 5_000);
+  const reserveMs = Number.isFinite(raw) ? Math.trunc(raw) : 5_000;
+  return Math.max(0, Math.min(maxReserveMs, reserveMs));
+}
+
 export function openRouterFreeRequestSignal(
   parent?: AbortSignal,
   env: Record<string, string | undefined> = process.env,

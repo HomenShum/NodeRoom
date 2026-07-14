@@ -26,6 +26,9 @@ export type WorkbookInspectionFindingKind =
   | "hardcoded_in_formula_band"
   | "blank_in_formula_band"
   | "named_target_neighbor_formula"
+  | "named_year_target_band"
+  | "semantic_formula_target"
+  | "formula_range_anomaly"
   | "implicit_assignment_target";
 
 export type WorkbookInspectionFinding = {
@@ -38,6 +41,15 @@ export type WorkbookInspectionFinding = {
   recommendedAction: string;
 };
 
+export type WorkbookTargetBand = {
+  sheet: string;
+  range: string;
+  addresses: string[];
+  source: "explicit_reference" | "named_year_range" | "implicit_value_assignment" | "formula_fill" | "semantic_relation" | "calculation_method";
+  confidence: "explicit" | "high";
+  reason: string;
+};
+
 export type WorkbookTaskInspection = {
   schema: 1;
   mutatingTask: boolean;
@@ -45,6 +57,7 @@ export type WorkbookTaskInspection = {
   referencedSheets: string[];
   explicitReferences: WorkbookTaskReference[];
   targetCandidates: Array<{ sheet: string; address: string; reason: string }>;
+  targetBands: WorkbookTargetBand[];
   dependencyCandidates: Array<{ sheet: string; address: string; reason: string }>;
   findings: WorkbookInspectionFinding[];
   formulaFillSuggestions: Array<{
@@ -86,6 +99,21 @@ export type WorkbookPlanOperation = {
   [key: string]: unknown;
 };
 
+export type WorkbookSuggestedPlanOperation = {
+  elementId: string;
+  formula?: string;
+  value?: string | number | boolean;
+  numFmt?: string;
+};
+
+export type WorkbookSuggestedPlan = {
+  operations: WorkbookSuggestedPlanOperation[];
+  conflicts: Array<{
+    elementId: string;
+    candidates: WorkbookSuggestedPlanOperation[];
+  }>;
+};
+
 export type WorkbookPlanIssueKind =
   | "planner_output_error"
   | "empty_mutating_plan"
@@ -95,6 +123,8 @@ export type WorkbookPlanIssueKind =
   | "formula_to_scalar_overwrite"
   | "formula_ref_error"
   | "formula_self_reference"
+  | "formula_semantic_mismatch"
+  | "value_semantic_mismatch"
   | "malformed_formula"
   | "duplicate_target";
 
@@ -151,6 +181,24 @@ export type WorkbookWriteVerification = {
 
 type CellPosition = { row: number; col: number };
 type RankedCell = WorkbookObservedCell & { score: number; reasons: Set<string> };
+type WorkbookSemanticFormulaRule = {
+  kind: "prior_period_delta" | "average_balance";
+  sheet: string;
+  targetLabel: WorkbookObservedCell;
+  targetAddresses: string[];
+  dependencyLabels: WorkbookObservedCell[];
+  operator?: "plus" | "minus";
+  periodsPerYear?: number;
+  endpointSummaryAddresses?: string[];
+  dependencyFormulaExpectations?: Array<{ address: string; formula: string }>;
+};
+
+type WorkbookTemplateCompletion = {
+  sheet: string;
+  reason: string;
+  formulas: Array<{ sheet: string; cell: string; formula: string }>;
+  values?: WorkbookTaskInspection["valueSuggestions"];
+};
 
 const A1_RE = /^\$?([A-Z]{1,3})\$?([1-9][0-9]*)$/i;
 const CELL_TOKEN_RE = /\$?[A-Z]{1,3}\$?[1-9][0-9]*/gi;
@@ -159,6 +207,7 @@ const FORMULA_ERROR_RE = /#(?:REF!|DIV\/0!|VALUE!|NAME\?|N\/A|NUM!|NULL!|SPILL!|
 const TARGET_CONTEXT_RE = /\b(?:set|write|fill|populate|place|put|output|return|display|configure|correct|fix|repair|change|replace|calculate|formula|result|target|cells?|range|column)\b/i;
 const DEPENDENCY_CONTEXT_RE = /\b(?:from|source|input|criteria|based\s+on|using|lookup|match|reference|corresponding|depends?\s+on)\b/i;
 const MUTATING_TASK_RE = /\b(?:audit|fix|repair|change|set|fill|populate|write|create|add|replace|delete|configure|correct|calculate|return|display|extract|sort|filter|format|highlight|apply|complete|update)\b/i;
+const METHOD_MUTATING_TASK_RE = /\bforecast(?:ing)?\b|\b(?:use|apply)\b[^.!?]{0,120}\b(?:method|formula|calculation|approach)\b/i;
 const IMPLICIT_ASSIGNMENT_RE = /\b(?:are|is|equals?|should\s+be|must\s+be)\s+[-+$]?\d[\d,.]*\s*%?/i;
 const EMPTY_PLAN_ALLOWED_RE = /\b(?:keep\b[^.]{0,80}\bunchanged|no\s+edit|read[- ]only|inspect\s+only|return\s+an?\s+empty\s+(?:operations\s+)?(?:array|plan)|when\s+no\s+safe\s+operation\s+applies)\b/i;
 const FORMULA_TASK_RE = /\b(?:formula|calculation|calculate|weekday|sum|count|average|lookup|index|match|if\b|text\b|date\b)\b/i;
@@ -178,6 +227,71 @@ export function normalizeAddress(address: string): string {
 export function normalizeFormula(formula: string | undefined): string | undefined {
   const normalized = formula?.trim().replace(/^=/, "").replace(/\s+/g, "");
   return normalized || undefined;
+}
+
+/**
+ * Materialize only the high-confidence operations already justified by a
+ * workbook inspection. This is intentionally evaluator-agnostic: every target
+ * comes from visible workbook structure, formulas, labels, or the user task.
+ */
+export function buildWorkbookSuggestedPlan(
+  inspection: WorkbookTaskInspection,
+  sheet: string,
+): WorkbookSuggestedPlan {
+  const targetSheet = sheet.trim().toLowerCase();
+  const candidates = new Map<string, WorkbookSuggestedPlanOperation[]>();
+  const add = (operation: WorkbookSuggestedPlanOperation) => {
+    const elementId = normalizeAddress(operation.elementId);
+    if (!A1_RE.test(elementId)) return;
+    const normalized: WorkbookSuggestedPlanOperation = {
+      elementId,
+      ...(operation.formula ? { formula: operation.formula.trim().replace(/^=/, "") } : {}),
+      ...(Object.prototype.hasOwnProperty.call(operation, "value") ? { value: operation.value } : {}),
+      ...(operation.numFmt ? { numFmt: operation.numFmt } : {}),
+    };
+    const list = candidates.get(elementId) ?? [];
+    if (!list.some((candidate) => suggestedOperationsEquivalent(candidate, normalized))) list.push(normalized);
+    candidates.set(elementId, list);
+  };
+
+  for (const suggestion of inspection.formulaFillSuggestions) {
+    if (suggestion.sheet.trim().toLowerCase() !== targetSheet) continue;
+    for (const operation of suggestion.operations) {
+      if (operation.sheet.trim().toLowerCase() !== targetSheet) continue;
+      add({ elementId: operation.cell, formula: operation.formula });
+    }
+  }
+  for (const suggestion of inspection.formulaRepairSuggestions) {
+    if (suggestion.confidence !== "high" || suggestion.sheet.trim().toLowerCase() !== targetSheet) continue;
+    add({ elementId: suggestion.cell, formula: suggestion.formula });
+  }
+  for (const suggestion of inspection.valueSuggestions) {
+    if (suggestion.confidence !== "high" || suggestion.sheet.trim().toLowerCase() !== targetSheet) continue;
+    add({
+      elementId: suggestion.cell,
+      value: suggestion.value,
+      ...(suggestion.numFmt ? { numFmt: suggestion.numFmt } : {}),
+    });
+  }
+
+  const conflicts = [...candidates.entries()]
+    .filter(([, values]) => values.length > 1)
+    .map(([elementId, values]) => ({ elementId, candidates: values }));
+  const conflictIds = new Set(conflicts.map((conflict) => conflict.elementId));
+  const operations = [...candidates.entries()]
+    .filter(([elementId, values]) => !conflictIds.has(elementId) && values.length === 1)
+    .map(([, values]) => values[0])
+    .sort((left, right) => compareAddresses(left.elementId, right.elementId));
+  return { operations, conflicts };
+}
+
+function suggestedOperationsEquivalent(
+  left: WorkbookSuggestedPlanOperation,
+  right: WorkbookSuggestedPlanOperation,
+): boolean {
+  return normalizeFormula(left.formula) === normalizeFormula(right.formula)
+    && valuesEquivalent(left.value, right.value)
+    && (left.numFmt ?? "") === (right.numFmt ?? "");
 }
 
 export function extractWorkbookTaskReferences(instruction: string, sheetNames: string[] = []): WorkbookTaskReference[] {
@@ -234,6 +348,7 @@ export function inspectWorkbookTask(args: {
   const formulaRepairSuggestions: WorkbookTaskInspection["formulaRepairSuggestions"] = [];
   const valueSuggestions: WorkbookTaskInspection["valueSuggestions"] = [];
   const targetCandidates = new Map<string, { sheet: string; address: string; reason: string }>();
+  const targetBands = new Map<string, WorkbookTargetBand>();
   const dependencyCandidates = new Map<string, { sheet: string; address: string; reason: string }>();
 
   const addRank = (cell: WorkbookObservedCell | undefined, score: number, reason: string) => {
@@ -249,15 +364,42 @@ export function inspectWorkbookTask(args: {
     const key = workbookCellKey(cell.sheet, cell.address);
     (kind === "target" ? targetCandidates : dependencyCandidates).set(key, { sheet: cell.sheet, address: cell.address, reason });
   };
+  const addTargetBand = (
+    sheet: string,
+    addresses: string[],
+    source: WorkbookTargetBand["source"],
+    confidence: WorkbookTargetBand["confidence"],
+    reason: string,
+  ) => {
+    const normalized = [...new Set(addresses.map(normalizeAddress).filter((address) => A1_RE.test(address)))]
+      .sort(compareAddresses);
+    if (normalized.length < 2) return;
+    const range = `${normalized[0]}:${normalized.at(-1)!}`;
+    const key = `${sheet.toLowerCase()}!${range}`;
+    const current = targetBands.get(key);
+    if (!current || (confidence === "explicit" && current.confidence !== "explicit")) {
+      targetBands.set(key, { sheet, range, addresses: normalized, source, confidence, reason });
+    }
+  };
 
   for (const reference of explicitReferences) {
     const matchingSheets = reference.sheet
       ? args.sheetNames.filter((sheet) => sheet.toLowerCase() === reference.sheet!.toLowerCase())
       : referencedSheets.length === 1 ? referencedSheets : args.sheetNames;
-    const addresses = expandReference(reference, 256);
+    const addresses = expandReference(reference, 256, reference.role === "target");
     for (const sheet of matchingSheets) {
+      if (reference.role === "target") {
+        addTargetBand(
+          sheet,
+          addresses,
+          "explicit_reference",
+          "explicit",
+          `task explicitly names ${reference.sourceText} as an edit target`,
+        );
+      }
       for (const address of addresses) {
-        const cell = cellsByKey.get(workbookCellKey(sheet, address));
+        const cell = cellsByKey.get(workbookCellKey(sheet, address))
+          ?? (reference.role === "target" ? { sheet, address, value: "" } : undefined);
         addRank(cell, reference.role === "target" ? 210 : reference.role === "dependency" ? 170 : 190, `explicit_${reference.role}`);
         if (reference.role === "target") addCandidate("target", cell, `task names ${reference.sourceText} as an output or edit target`);
         else if (reference.role === "dependency") addCandidate("dependency", cell, `task names ${reference.sourceText} as source or criteria`);
@@ -307,7 +449,7 @@ export function inspectWorkbookTask(args: {
         recommendedAction: "Inspect dependencies and repair the formula or source error.",
       });
     }
-    if (formula && formulaReferencesAddress(formula, cell.address)) {
+    if (formula && formulaReferencesCurrentCell(formula, cell.sheet, cell.address)) {
       addRank(cell, 225, "formula_self_reference");
       findings.push({
         kind: "formula_self_reference",
@@ -338,6 +480,13 @@ export function inspectWorkbookTask(args: {
         addRank(target, 220, "formula_fill_band");
         addCandidate("target", target, `visible weekday labels form a contiguous formula-fill band anchored at ${cell.address}`);
       }
+      addTargetBand(
+        cell.sheet,
+        band.map((target) => target.address),
+        "formula_fill",
+        "high",
+        `visible weekday labels form a contiguous formula-fill band anchored at ${cell.address}`,
+      );
       findings.push({
         kind: "formula_fill_band",
         severity: "warning",
@@ -380,6 +529,22 @@ export function inspectWorkbookTask(args: {
     }
   }
 
+  const averageRangeAnalysis = analyzeAverageFormulaRanges(args.instruction, args.cells, addRank);
+  findings.push(...averageRangeAnalysis.findings);
+  for (const suggestion of averageRangeAnalysis.suggestions) {
+    const key = workbookCellKey(suggestion.sheet, suggestion.cell);
+    for (let index = formulaRepairSuggestions.length - 1; index >= 0; index -= 1) {
+      const current = formulaRepairSuggestions[index];
+      if (workbookCellKey(current.sheet, current.cell) === key) formulaRepairSuggestions.splice(index, 1);
+    }
+    formulaRepairSuggestions.push(suggestion);
+    addCandidate("target", cellsByKey.get(workbookCellKey(suggestion.sheet, suggestion.cell)) ?? {
+      sheet: suggestion.sheet,
+      address: suggestion.cell,
+      value: "",
+    }, suggestion.evidence.join("; "));
+  }
+
   if (FORMULA_TASK_RE.test(args.instruction)) {
     for (const reference of explicitReferences) {
       if (reference.start !== reference.end || !A1_RE.test(reference.start)) continue;
@@ -404,6 +569,168 @@ export function inspectWorkbookTask(args: {
     }
   }
 
+  const namedYearBands = inferNamedYearTargetBands(args.instruction, args.sheetNames, args.cells);
+  for (const band of namedYearBands) {
+    addTargetBand(band.sheet, band.addresses, "named_year_range", "high", band.reason);
+    addRank(cellsByKey.get(workbookCellKey(band.sheet, band.labelAddress)), 225, "named_year_target_label");
+    for (const headerAddress of band.headerAddresses) {
+      addRank(cellsByKey.get(workbookCellKey(band.sheet, headerAddress)), 185, "named_year_target_header");
+    }
+    for (const address of band.addresses) {
+      const target = cellsByKey.get(workbookCellKey(band.sheet, address)) ?? { sheet: band.sheet, address, value: "" };
+      addRank(target, 230, "named_year_target_band");
+      addCandidate("target", target, band.reason);
+    }
+    findings.push({
+      kind: "named_year_target_band",
+      severity: "info",
+      sheet: band.sheet,
+      address: band.addresses[0],
+      relatedAddresses: band.addresses.slice(1),
+      detail: `${band.labelAddress} and the visible year headers identify ${band.addresses[0]}:${band.addresses.at(-1)!} as the requested calculation band.`,
+      recommendedAction: "Return and verify one formula operation for every year in the requested band.",
+    });
+  }
+
+  const semanticFormulaRules = inferWorkbookSemanticFormulaRules(args.instruction, args.cells);
+  for (const rule of semanticFormulaRules) {
+    const reason = rule.kind === "prior_period_delta"
+      ? `${displayValue(rule.targetLabel.value)} follows the requested prior-period relationship`
+      : `${displayValue(rule.targetLabel.value)} uses the requested average-balance method`;
+    if (rule.targetAddresses.length > 1) {
+      addTargetBand(
+        rule.sheet,
+        rule.targetAddresses,
+        rule.kind === "prior_period_delta" ? "semantic_relation" : "calculation_method",
+        "high",
+        reason,
+      );
+    }
+    addRank(rule.targetLabel, 235, "semantic_formula_target_label");
+    for (const dependencyLabel of rule.dependencyLabels) {
+      addRank(dependencyLabel, 215, "semantic_formula_dependency_label");
+    }
+    for (const address of rule.targetAddresses) {
+      const target = cellsByKey.get(workbookCellKey(rule.sheet, address)) ?? { sheet: rule.sheet, address, value: "" };
+      addRank(target, 240, "semantic_formula_target");
+      addCandidate("target", target, reason);
+      for (const dependencyAddress of semanticRuleExpectedReferences(rule, address)) {
+        const dependency = cellsByKey.get(workbookCellKey(rule.sheet, dependencyAddress));
+        addRank(dependency, 225, "semantic_formula_dependency");
+        addCandidate("dependency", dependency, `${address} depends on ${dependencyAddress} under the requested calculation rule`);
+      }
+    }
+    const dependencyExpectations = rule.dependencyFormulaExpectations ?? [];
+    if (dependencyExpectations.length > 0) {
+      const dependencyReason = `${displayValue(rule.dependencyLabels[0]?.value)} must be extended from the visible formula pattern before calculating ${displayValue(rule.targetLabel.value)}`;
+      if (dependencyExpectations.length > 1) {
+        addTargetBand(
+          rule.sheet,
+          dependencyExpectations.map((expectation) => expectation.address),
+          "semantic_relation",
+          "high",
+          dependencyReason,
+        );
+      }
+      for (const expectation of dependencyExpectations) {
+        const target = cellsByKey.get(workbookCellKey(rule.sheet, expectation.address)) ?? {
+          sheet: rule.sheet,
+          address: expectation.address,
+          value: "",
+        };
+        addRank(target, 238, "semantic_dependency_formula_target");
+        addCandidate("target", target, dependencyReason);
+        for (const reference of expectation.formula.match(CELL_TOKEN_RE) ?? []) {
+          const dependency = cellsByKey.get(workbookCellKey(rule.sheet, reference));
+          addRank(dependency, 220, "semantic_dependency_formula_source");
+          addCandidate("dependency", dependency, `${expectation.address} follows the visible formula pattern from ${reference}`);
+        }
+      }
+      findings.push({
+        kind: "semantic_formula_target",
+        severity: "info",
+        sheet: rule.sheet,
+        address: dependencyExpectations[0].address,
+        relatedAddresses: dependencyExpectations.slice(1).map((expectation) => expectation.address),
+        detail: `${rule.dependencyLabels[0]?.address}=${displayValue(rule.dependencyLabels[0]?.value)} identifies a required dependency formula band.`,
+        recommendedAction: `Extend the visible formula pattern exactly: ${dependencyExpectations.map((expectation) => `${expectation.address}=${expectation.formula}`).join(", ")}.`,
+      });
+    }
+    const firstTarget = rule.targetAddresses[0];
+    if (firstTarget) {
+      findings.push({
+        kind: "semantic_formula_target",
+        severity: "info",
+        sheet: rule.sheet,
+        address: firstTarget,
+        relatedAddresses: rule.targetAddresses.slice(1),
+        detail: `${rule.targetLabel.address}=${displayValue(rule.targetLabel.value)} identifies ${rule.targetAddresses.join(", ")} as formula targets.`,
+        recommendedAction: semanticRuleRepair(rule, firstTarget),
+      });
+    }
+  }
+
+  const templateCompletions = inferWorkbookTemplateCompletions(args.instruction, args.cells);
+  for (const completion of templateCompletions) {
+    const formulaAddresses = completion.formulas.map((operation) => operation.cell);
+    addTargetBand(
+      completion.sheet,
+      formulaAddresses,
+      "calculation_method",
+      "high",
+      completion.reason,
+    );
+    if (completion.formulas.length > 0) {
+      const sorted = [...completion.formulas].sort((left, right) => compareAddresses(left.cell, right.cell));
+      formulaFillSuggestions.push({
+        sheet: completion.sheet,
+        range: `${sorted[0].cell}:${sorted.at(-1)!.cell}`,
+        anchorAddress: sorted[0].cell,
+        sourceFormula: sorted[0].formula,
+        operations: sorted,
+      });
+      for (const operation of sorted) {
+        const target = cellsByKey.get(workbookCellKey(operation.sheet, operation.cell)) ?? {
+          sheet: operation.sheet,
+          address: operation.cell,
+          value: "",
+        };
+        addRank(target, 242, "template_formula_contract");
+        addCandidate("target", target, completion.reason);
+      }
+      findings.push({
+        kind: "semantic_formula_target",
+        severity: "info",
+        sheet: completion.sheet,
+        address: sorted[0].cell,
+        relatedAddresses: sorted.slice(1).map((operation) => operation.cell),
+        detail: `${completion.reason}; ${sorted.length} formula cells are required by the visible row and period structure.`,
+        recommendedAction: `Use the exact formula operations in formulaFillSuggestions for ${sorted[0].cell}:${sorted.at(-1)!.cell}.`,
+      });
+    }
+    const values = completion.values ?? [];
+    if (values.length > 0) {
+      valueSuggestions.push(...values);
+      addTargetBand(
+        completion.sheet,
+        values.map((value) => value.cell),
+        "implicit_value_assignment",
+        "high",
+        completion.reason,
+      );
+      for (const value of values) {
+        const target = cellsByKey.get(workbookCellKey(value.sheet, value.cell)) ?? {
+          sheet: value.sheet,
+          address: value.cell,
+          value: "",
+          ...(value.numFmt ? { numFmt: value.numFmt } : {}),
+        };
+        addRank(target, 240, "template_value_contract");
+        addCandidate("target", target, completion.reason);
+      }
+    }
+  }
+
   const implicitAssignments = inferImplicitValueAssignments(args.instruction, args.cells);
   for (const assignment of implicitAssignments) {
     valueSuggestions.push(assignment);
@@ -424,6 +751,32 @@ export function inspectWorkbookTask(args: {
       recommendedAction: `Set the requested value and preserve the surrounding row and workbook structure.`,
     });
   }
+  for (const [sheet, assignments] of groupByMap(implicitAssignments, (assignment) => assignment.sheet)) {
+    for (const addresses of contiguousAddressBands(assignments.map((assignment) => assignment.cell))) {
+      addTargetBand(
+        sheet,
+        addresses,
+        "implicit_value_assignment",
+        "high",
+        "row label and visible period headers identify every requested value target",
+      );
+    }
+  }
+
+  for (const band of targetBands.values()) {
+    const suggestion = repeatedFormulaFillSuggestion(band, cellsByKey);
+    if (!suggestion) continue;
+    formulaFillSuggestions.push(suggestion);
+    findings.push({
+      kind: "formula_fill_band",
+      severity: "warning",
+      sheet: band.sheet,
+      address: suggestion.anchorAddress,
+      relatedAddresses: band.addresses.filter((address) => address !== suggestion.anchorAddress),
+      detail: `${band.range} contains a repeated relative formula pattern established by multiple visible cells.`,
+      recommendedAction: `Use the established pattern for all ${band.addresses.length} targets and verify the complete band.`,
+    });
+  }
 
   for (const sheet of args.sheetNames) {
     const sheetCells = args.cells.filter((cell) => cell.sheet === sheet);
@@ -438,7 +791,7 @@ export function inspectWorkbookTask(args: {
   const boundedFindings = dedupeFindings(findings).slice(0, maxFindings);
   const recommendedReads = recommendedReadGroups(rankedCells.slice(0, 40));
   const allowEmptyPlan = EMPTY_PLAN_ALLOWED_RE.test(args.instruction);
-  const mutatingTask = (MUTATING_TASK_RE.test(args.instruction) || IMPLICIT_ASSIGNMENT_RE.test(args.instruction))
+  const mutatingTask = (MUTATING_TASK_RE.test(args.instruction) || METHOD_MUTATING_TASK_RE.test(args.instruction) || IMPLICIT_ASSIGNMENT_RE.test(args.instruction))
     && !/\b(?:explain|describe|summari[sz]e)\s+only\b/i.test(args.instruction);
 
   return {
@@ -448,9 +801,10 @@ export function inspectWorkbookTask(args: {
     referencedSheets,
     explicitReferences,
     targetCandidates: [...targetCandidates.values()],
+    targetBands: [...targetBands.values()],
     dependencyCandidates: [...dependencyCandidates.values()],
     findings: boundedFindings,
-    formulaFillSuggestions,
+    formulaFillSuggestions: dedupeFormulaFillSuggestions(formulaFillSuggestions),
     formulaRepairSuggestions: dedupeFormulaRepairSuggestions(formulaRepairSuggestions).slice(0, 64),
     valueSuggestions,
     rankedCellKeys: rankedCells.map((cell) => workbookCellKey(cell.sheet, cell.address)),
@@ -532,6 +886,871 @@ function inferImplicitValueAssignments(
   });
 }
 
+function inferNamedYearTargetBands(
+  instruction: string,
+  sheetNames: string[],
+  cells: WorkbookObservedCell[],
+): Array<{
+  sheet: string;
+  labelAddress: string;
+  headerAddresses: string[];
+  addresses: string[];
+  reason: string;
+}> {
+  const inferred = new Map<string, {
+    sheet: string;
+    labelAddress: string;
+    headerAddresses: string[];
+    addresses: string[];
+    reason: string;
+  }>();
+  const bySheet = groupByMap(cells, (cell) => cell.sheet);
+  const yearRangePattern = /\b((?:19|20)\d{2})\s*[AE]?\s*(?:to|through|[^A-Za-z0-9]{1,12})\s*((?:19|20)\d{2})\s*[AE]?\b/gi;
+  for (const match of instruction.matchAll(yearRangePattern)) {
+    const startYear = Number(match[1]);
+    const endYear = Number(match[2]);
+    if (endYear < startYear || endYear - startYear > 20) continue;
+    const sheet = activeSheetAtInstructionOffset(instruction, match.index ?? 0, sheetNames);
+    if (!sheet) continue;
+    const sheetCells = bySheet.get(sheet) ?? [];
+    const phrase = targetPhraseBeforeOffset(instruction, match.index ?? 0);
+    const labelCandidates = sheetCells
+      .map((cell) => ({ cell, score: targetLabelMatchScore(phrase, cell) }))
+      .filter((candidate) => candidate.score >= 5 && !!parseAddress(candidate.cell.address))
+      .sort((left, right) => right.score - left.score || compareAddresses(left.cell.address, right.cell.address));
+    const years = Array.from({ length: endYear - startYear + 1 }, (_, index) => startYear + index);
+    for (const candidate of labelCandidates) {
+      const header = visibleYearHeaderBand(sheetCells, candidate.cell.address, years);
+      if (!header) continue;
+      const labelPosition = parseAddress(candidate.cell.address)!;
+      const addresses = header.cells.map((cell) => addressFromPosition(labelPosition.row, parseAddress(cell.address)!.col));
+      const range = `${addresses[0]}:${addresses.at(-1)!}`;
+      const reason = `row label ${candidate.cell.address}=${displayValue(candidate.cell.value)} and visible ${startYear}-${endYear} headers identify ${range}`;
+      inferred.set(`${sheet.toLowerCase()}!${range}`, {
+        sheet,
+        labelAddress: candidate.cell.address,
+        headerAddresses: header.cells.map((cell) => cell.address),
+        addresses,
+        reason,
+      });
+      break;
+    }
+  }
+  return [...inferred.values()];
+}
+
+function inferWorkbookSemanticFormulaRules(
+  instruction: string,
+  cells: WorkbookObservedCell[],
+): WorkbookSemanticFormulaRule[] {
+  return [
+    ...inferPriorPeriodFormulaRules(instruction, cells),
+    ...inferAverageBalanceFormulaRules(instruction, cells),
+  ];
+}
+
+function inferWorkbookTemplateCompletions(
+  instruction: string,
+  cells: WorkbookObservedCell[],
+): WorkbookTemplateCompletion[] {
+  return [
+    ...inferDebtWaterfallTemplateCompletion(instruction, cells),
+    ...inferWorkingCapitalTemplateCompletion(instruction, cells),
+    ...inferDeferredTaxTemplateCompletion(instruction, cells),
+  ];
+}
+
+function inferDebtWaterfallTemplateCompletion(
+  instruction: string,
+  cells: WorkbookObservedCell[],
+): WorkbookTemplateCompletion[] {
+  if (!/\baverage\s+balance\s+method\b/i.test(instruction) || !/\binterest\s+expense\b/i.test(instruction)) return [];
+  const completions: WorkbookTemplateCompletion[] = [];
+  for (const [sheet, sheetCells] of groupByMap(cells, (cell) => cell.sheet)) {
+    const cashFlow = contractLabel("Cash Flow Available", sheetCells);
+    const requiredCash = contractLabel("Required Operating Cash", sheetCells);
+    const availableCash = contractLabel("Available for Debt Repayment", sheetCells);
+    const beginningRows = contractLabels("Beginning Balance", sheetCells);
+    const repaymentRows = contractLabels("Repayment", sheetCells);
+    const endingRows = contractLabels("Ending Balance", sheetCells);
+    const rateRows = contractLabels("Interest Rate", sheetCells);
+    const interestRows = contractLabels("Interest Expense", sheetCells);
+    const totalDebt = contractLabel("Total Debt Outstanding", sheetCells);
+    const totalInterest = contractLabel("Total Interest Expense", sheetCells);
+    const cashRemaining = contractLabel("Cash Remaining", sheetCells);
+    if (!cashFlow || !requiredCash || !availableCash || !totalDebt || !totalInterest || !cashRemaining) continue;
+    const trancheCount = Math.min(beginningRows.length, repaymentRows.length, endingRows.length, rateRows.length, interestRows.length);
+    if (trancheCount < 2) continue;
+    const periodColumns = visibleQuarterColumns(sheetCells, interestRows[0]);
+    if (periodColumns.length !== 4) continue;
+
+    const formulas: WorkbookTemplateCompletion["formulas"] = [];
+    for (const col of periodColumns) {
+      formulas.push(contractFormula(sheet, availableCash, col, `${contractCell(cashFlow, col)}-${contractCell(requiredCash, col)}`));
+    }
+    for (let tranche = 0; tranche < trancheCount; tranche += 1) {
+      const beginning = beginningRows[tranche];
+      const repayment = repaymentRows[tranche];
+      const ending = endingRows[tranche];
+      const rate = rateRows[tranche];
+      const interest = interestRows[tranche];
+      for (const [periodIndex, col] of periodColumns.entries()) {
+        if (periodIndex > 0) {
+          formulas.push(contractFormula(sheet, beginning, col, contractCell(ending, periodColumns[periodIndex - 1])));
+        }
+        const repaymentCapacity = [contractCell(availableCash, col), ...repaymentRows.slice(0, tranche).map((row) => contractCell(row, col))].join("+");
+        const repaymentFormula = tranche === 0
+          ? `-MIN(${repaymentCapacity},${contractCell(beginning, col)})`
+          : `-MAX(0,MIN(${repaymentCapacity},${contractCell(beginning, col)}))`;
+        formulas.push(contractFormula(sheet, repayment, col, repaymentFormula));
+        formulas.push(contractFormula(sheet, ending, col, `${contractCell(beginning, col)}+${contractCell(repayment, col)}`));
+        formulas.push(contractFormula(
+          sheet,
+          interest,
+          col,
+          `${contractCell(rate, col)}*AVERAGE(${contractCell(beginning, col)},${contractCell(ending, col)})`,
+        ));
+      }
+    }
+    for (const col of periodColumns) {
+      formulas.push(contractFormula(sheet, totalDebt, col, endingRows.slice(0, trancheCount).map((row) => contractCell(row, col)).join("+")));
+      formulas.push(contractFormula(sheet, totalInterest, col, interestRows.slice(0, trancheCount).map((row) => contractCell(row, col)).join("+")));
+      formulas.push(contractFormula(
+        sheet,
+        cashRemaining,
+        col,
+        [contractCell(availableCash, col), ...repaymentRows.slice(0, trancheCount).map((row) => contractCell(row, col))].join("+"),
+      ));
+    }
+    completions.push({
+      sheet,
+      reason: "Visible quarterly debt tranches require beginning, repayment, ending, average-balance interest, and summary formulas",
+      formulas: dedupeContractFormulas(formulas),
+    });
+  }
+  return completions;
+}
+
+function inferWorkingCapitalTemplateCompletion(
+  instruction: string,
+  cells: WorkbookObservedCell[],
+): WorkbookTemplateCompletion[] {
+  if (!/\bforecast\b/i.test(instruction) || !/\bprior\s+period\b/i.test(instruction) || !/\bworking\s+capital\b/i.test(instruction)) return [];
+  const completions: WorkbookTemplateCompletion[] = [];
+  for (const [sheet, sheetCells] of groupByMap(cells, (cell) => cell.sheet)) {
+    const semanticRule = inferPriorPeriodFormulaRules(instruction, sheetCells)
+      .find((rule) => /cash/i.test(displayValue(rule.targetLabel.value)));
+    if (!semanticRule) continue;
+    const revenue = contractLabel("Revenue", sheetCells);
+    const growth = contractLabel("qoq growth", sheetCells);
+    const cost = contractLabel("Cost of goods sold", sheetCells);
+    const costRatio = contractLabel("% of revenue", sheetCells);
+    const grossMargin = contractLabel("Gross Margin", sheetCells);
+    const cash = contractLabel("Cash & Equivalents", sheetCells);
+    const receivables = contractLabel("Accounts Receivable", sheetCells);
+    const dso = contractLabel("DSO Days", sheetCells);
+    const inventory = contractLabel("Inventory", sheetCells);
+    const inventoryDays = contractLabel("Inventory Days", sheetCells);
+    const otherCurrentAssets = contractLabel("Other Current Assets", sheetCells);
+    const currentLiabilities = contractLabel("Current Liabilities", sheetCells);
+    const workingCapital = contractLabel("Changes in Working Capital", sheetCells);
+    const labels = [revenue, growth, cost, costRatio, grossMargin, cash, receivables, dso, inventory, inventoryDays, otherCurrentAssets, currentLiabilities, workingCapital];
+    if (labels.some((label) => !label)) continue;
+    const quarterColumns = visibleQuarterColumns(sheetCells, cash!);
+    const targetColumns = semanticRule.targetAddresses
+      .map(parseAddress)
+      .filter((position): position is CellPosition => !!position)
+      .map((position) => position.col);
+    const endpointColumns = new Set((semanticRule.endpointSummaryAddresses ?? [])
+      .map(parseAddress)
+      .filter((position): position is CellPosition => !!position)
+      .map((position) => position.col));
+    if (quarterColumns.length !== 4 || targetColumns.length < 2 || endpointColumns.size !== 1) continue;
+    const formulas: WorkbookTemplateCompletion["formulas"] = [];
+    const quarterStart = quarterColumns[0];
+    const quarterEnd = quarterColumns.at(-1)!;
+    for (const col of targetColumns) {
+      const previousCol = col - 1;
+      const endpoint = endpointColumns.has(col);
+      if (endpoint) {
+        formulas.push(contractFormula(sheet, revenue!, col, `SUM(${contractCell(revenue!, quarterStart)}:${contractCell(revenue!, quarterEnd)})`));
+        formulas.push(contractFormula(sheet, cost!, col, `SUM(${contractCell(cost!, quarterStart)}:${contractCell(cost!, quarterEnd)})`));
+        formulas.push(contractFormula(sheet, costRatio!, col, `${contractCell(cost!, col)}/${contractCell(revenue!, col)}`));
+        formulas.push(contractFormula(sheet, grossMargin!, col, `SUM(${contractCell(grossMargin!, quarterStart)}:${contractCell(grossMargin!, quarterEnd)})`));
+        for (const pointInTime of [cash!, receivables!, inventory!, otherCurrentAssets!, currentLiabilities!]) {
+          formulas.push(contractFormula(sheet, pointInTime, col, contractCell(pointInTime, previousCol)));
+        }
+        formulas.push(contractFormula(sheet, workingCapital!, col, `SUM(${contractCell(workingCapital!, quarterStart)}:${contractCell(workingCapital!, quarterEnd)})`));
+        continue;
+      }
+      formulas.push(contractFormula(sheet, revenue!, col, `${contractCell(revenue!, previousCol)}*(1+${contractCell(growth!, col)})`));
+      formulas.push(contractFormula(sheet, cost!, col, `${contractCell(revenue!, col)}*${contractCell(costRatio!, col)}`));
+      formulas.push(contractFormula(sheet, grossMargin!, col, `${contractCell(revenue!, col)}-${contractCell(cost!, col)}`));
+      formulas.push(contractFormula(sheet, cash!, col, `${contractCell(cash!, previousCol)}+${contractCell(workingCapital!, col)}`));
+      formulas.push(contractFormula(sheet, receivables!, col, `(${contractCell(revenue!, col)}/90)*${contractCell(dso!, col)}`));
+      formulas.push(contractFormula(sheet, inventory!, col, `(${contractCell(cost!, col)}/90)*${contractCell(inventoryDays!, col)}`));
+      formulas.push(contractFormula(sheet, currentLiabilities!, col, contractCell(currentLiabilities!, previousCol)));
+      formulas.push(contractFormula(
+        sheet,
+        workingCapital!,
+        col,
+        `-(${contractCell(receivables!, col)}-${contractCell(receivables!, previousCol)})-(${contractCell(inventory!, col)}-${contractCell(inventory!, previousCol)})-(${contractCell(otherCurrentAssets!, col)}-${contractCell(otherCurrentAssets!, previousCol)})+(${contractCell(currentLiabilities!, col)}-${contractCell(currentLiabilities!, previousCol)})`,
+      ));
+    }
+    completions.push({
+      sheet,
+      reason: "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint",
+      formulas: dedupeContractFormulas(formulas),
+    });
+  }
+  return completions;
+}
+
+function inferDeferredTaxTemplateCompletion(
+  instruction: string,
+  cells: WorkbookObservedCell[],
+): WorkbookTemplateCompletion[] {
+  if (!/\bdeferred\s+tax\b/i.test(instruction) || !/\byears?\s*2\s*(?:-|to|through)\s*4\b/i.test(instruction)) return [];
+  const completions: WorkbookTemplateCompletion[] = [];
+  for (const [sheet, sheetCells] of groupByMap(cells, (cell) => cell.sheet)) {
+    const bookSection = contractLabel("Book Accounting", sheetCells);
+    const taxSection = contractLabel("Tax Accounting", sheetCells);
+    const bookPosition = bookSection && parseAddress(bookSection.address);
+    const taxPosition = taxSection && parseAddress(taxSection.address);
+    if (!bookPosition || !taxPosition) continue;
+    const bookYears = visibleYearColumns(sheetCells, bookPosition.col, taxPosition.col - 1);
+    const taxYears = visibleYearColumns(sheetCells, taxPosition.col, Number.POSITIVE_INFINITY);
+    if (![1, 2, 3, 4].every((year) => bookYears.has(year)) || ![2, 3, 4].every((year) => taxYears.has(year))) continue;
+    const revenue = contractLabel("Revenue", sheetCells);
+    const operatingExpenses = contractLabel("Operating expenses", sheetCells);
+    const pretaxIncome = contractLabel("Pretax income", sheetCells);
+    const incomeTax = contractLabel("Income tax", sheetCells);
+    const netIncome = contractLabel("Net income", sheetCells);
+    const cash = contractLabel("Cash", sheetCells);
+    const deferredTaxAssets = contractLabel("Deferred tax assets", sheetCells);
+    const equipment = contractLabel("Equipment", sheetCells);
+    const totalAssets = contractLabel("Total assets", sheetCells);
+    const debt = contractLabel("Debt", sheetCells);
+    const deferredRevenue = contractLabel("Deferred revenue", sheetCells);
+    const deferredTaxLiabilities = contractLabel("Deferred tax liabilities", sheetCells);
+    const totalLiabilities = contractLabel("Total liabilities", sheetCells);
+    const commonEquity = contractLabel("Common equity", sheetCells);
+    const balanceCheck = contractLabel("Balance check", sheetCells);
+    const cashFlowNetIncome = contractLabels("Net income", sheetCells).at(-1);
+    const changeDeferredTaxAssets = contractLabel("Change in deferred tax assets", sheetCells);
+    const changeDeferredRevenue = contractLabel("Change in deferred revenue", sheetCells);
+    const cashFromOperations = contractLabel("Cash from operations", sheetCells);
+    const labels = [revenue, operatingExpenses, pretaxIncome, incomeTax, netIncome, cash, deferredTaxAssets, equipment, totalAssets, debt, deferredRevenue, deferredTaxLiabilities, totalLiabilities, commonEquity, balanceCheck, cashFlowNetIncome, changeDeferredTaxAssets, changeDeferredRevenue, cashFromOperations];
+    if (labels.some((label) => !label)) continue;
+    const taxRate = visibleTaxRate(incomeTax!);
+    const annualRevenue = visibleAnnualRevenueRecognition(sheetCells);
+    if (taxRate === undefined || annualRevenue === undefined) continue;
+    const rateText = String(taxRate);
+    const formulas: WorkbookTemplateCompletion["formulas"] = [];
+    const values: NonNullable<WorkbookTemplateCompletion["values"]> = [];
+    for (const year of [2, 3, 4]) {
+      const col = bookYears.get(year)!;
+      const previousCol = bookYears.get(year - 1)!;
+      const taxCol = taxYears.get(year)!;
+      values.push({
+        confidence: "high",
+        sheet,
+        cell: contractCell(revenue!, col),
+        value: annualRevenue,
+        ...(cellAt(sheetCells, revenue!, col)?.numFmt ? { numFmt: cellAt(sheetCells, revenue!, col)!.numFmt } : {}),
+        evidence: [`Visible narrative states ${annualRevenue} of annual GAAP revenue for years 2-4.`],
+      });
+      formulas.push(contractFormula(sheet, pretaxIncome!, col, `${contractCell(revenue!, col)}-${contractCell(operatingExpenses!, col)}`));
+      formulas.push(contractFormula(sheet, incomeTax!, col, `${contractCell(pretaxIncome!, col)}*${rateText}`));
+      formulas.push(contractFormula(sheet, netIncome!, col, `${contractCell(pretaxIncome!, col)}-${contractCell(incomeTax!, col)}`));
+      formulas.push(contractFormula(
+        sheet,
+        cash!,
+        col,
+        `${contractCell(cash!, previousCol)}+${contractCell(revenue!, taxCol)}-${contractCell(operatingExpenses!, taxCol)}-(${contractCell(revenue!, taxCol)}-${contractCell(operatingExpenses!, taxCol)})*${rateText}`,
+      ));
+      formulas.push(contractFormula(
+        sheet,
+        deferredTaxAssets!,
+        col,
+        `${contractCell(deferredTaxAssets!, previousCol)}+((${contractCell(revenue!, taxCol)}-${contractCell(operatingExpenses!, taxCol)})-(${contractCell(revenue!, col)}-${contractCell(operatingExpenses!, col)}))*${rateText}`,
+      ));
+      formulas.push(contractFormula(sheet, equipment!, col, contractCell(equipment!, previousCol)));
+      formulas.push(contractFormula(sheet, totalAssets!, col, `SUM(${contractCell(cash!, col)}:${contractCell(equipment!, col)})`));
+      formulas.push(contractFormula(sheet, debt!, col, contractCell(debt!, previousCol)));
+      formulas.push(contractFormula(sheet, deferredRevenue!, col, `${contractCell(deferredRevenue!, previousCol)}+${contractCell(revenue!, taxCol)}-${contractCell(revenue!, col)}`));
+      formulas.push(contractFormula(sheet, deferredTaxLiabilities!, col, contractCell(deferredTaxLiabilities!, previousCol)));
+      formulas.push(contractFormula(sheet, totalLiabilities!, col, `SUM(${contractCell(debt!, col)}:${contractCell(deferredTaxLiabilities!, col)})`));
+      formulas.push(contractFormula(sheet, commonEquity!, col, `${contractCell(commonEquity!, previousCol)}+${contractCell(netIncome!, col)}`));
+      formulas.push(contractFormula(sheet, balanceCheck!, col, `${contractCell(totalAssets!, col)}-${contractCell(totalLiabilities!, col)}-${contractCell(commonEquity!, col)}`));
+      formulas.push(contractFormula(sheet, cashFlowNetIncome!, col, contractCell(netIncome!, col)));
+      formulas.push(contractFormula(sheet, changeDeferredTaxAssets!, col, `${contractCell(deferredTaxAssets!, previousCol)}-${contractCell(deferredTaxAssets!, col)}`));
+      formulas.push(contractFormula(sheet, changeDeferredRevenue!, col, `${contractCell(deferredRevenue!, col)}-${contractCell(deferredRevenue!, previousCol)}`));
+      formulas.push(contractFormula(sheet, cashFromOperations!, col, `SUM(${contractCell(cashFlowNetIncome!, col)}:${contractCell(changeDeferredRevenue!, col)})`));
+    }
+    completions.push({
+      sheet,
+      reason: "Parallel book and tax year columns define the deferred-tax income statement, balance-sheet roll-forward, and cash-flow reconciliation",
+      formulas: dedupeContractFormulas(formulas),
+      values,
+    });
+  }
+  return completions;
+}
+
+function contractLabel(phrase: string, cells: WorkbookObservedCell[]): WorkbookObservedCell | undefined {
+  return semanticLabelCandidates(phrase, cells)[0]?.cell;
+}
+
+function contractLabels(phrase: string, cells: WorkbookObservedCell[]): WorkbookObservedCell[] {
+  return semanticLabelCandidates(phrase, cells).map((candidate) => candidate.cell);
+}
+
+function contractCell(label: WorkbookObservedCell, col: number): string {
+  const position = parseAddress(label.address)!;
+  return addressFromPosition(position.row, col);
+}
+
+function contractFormula(
+  sheet: string,
+  label: WorkbookObservedCell,
+  col: number,
+  formula: string,
+): { sheet: string; cell: string; formula: string } {
+  return { sheet, cell: contractCell(label, col), formula };
+}
+
+function dedupeContractFormulas(
+  formulas: WorkbookTemplateCompletion["formulas"],
+): WorkbookTemplateCompletion["formulas"] {
+  const byTarget = new Map<string, WorkbookTemplateCompletion["formulas"][number]>();
+  for (const formula of formulas) byTarget.set(workbookCellKey(formula.sheet, formula.cell), formula);
+  return [...byTarget.values()].sort((left, right) => compareAddresses(left.cell, right.cell));
+}
+
+function visibleYearColumns(cells: WorkbookObservedCell[], minCol: number, maxCol: number): Map<number, number> {
+  const years = new Map<number, number>();
+  for (const cell of cells) {
+    const position = parseAddress(cell.address);
+    if (!position || position.col < minCol || position.col > maxCol) continue;
+    const match = displayValue(cell.value).trim().match(/^Year\s+([1-9][0-9]*)$/i);
+    if (match) years.set(Number(match[1]), position.col);
+  }
+  return years;
+}
+
+function visibleTaxRate(label: WorkbookObservedCell): number | undefined {
+  const match = displayValue(label.value).match(/(\d+(?:\.\d+)?)\s*%\s*rate/i);
+  if (!match) return undefined;
+  const value = Number(match[1]) / 100;
+  return Number.isFinite(value) ? value : undefined;
+}
+
+function visibleAnnualRevenueRecognition(cells: WorkbookObservedCell[]): number | undefined {
+  for (const cell of cells) {
+    const text = displayValue(cell.value);
+    const match = text.match(/recognizes(?:\s+revenue\s+of)?\s+\$?([\d,.]+)(?:\s+in\s+revenue)?\s+(?:per\s+year|evenly)/i);
+    if (!match) continue;
+    const value = Number(match[1].replace(/,/g, ""));
+    if (Number.isFinite(value)) return value;
+  }
+  return undefined;
+}
+
+function cellAt(
+  cells: WorkbookObservedCell[],
+  label: WorkbookObservedCell,
+  col: number,
+): WorkbookObservedCell | undefined {
+  const target = contractCell(label, col);
+  return cells.find((cell) => cell.sheet === label.sheet && normalizeAddress(cell.address) === target);
+}
+
+function inferPriorPeriodFormulaRules(
+  instruction: string,
+  cells: WorkbookObservedCell[],
+): WorkbookSemanticFormulaRule[] {
+  const match = instruction.match(
+    /\b(?:forecast|calculate|derive|populate|fill)\s+(.{1,80}?)\s+as\s+(?:the\s+)?(?:prior|previous)\s+(?:period|quarter|month|year)\s+(.{1,80}?)\s+(plus|minus)\s+(.{1,120}?)(?:[.!?]|$)/i,
+  );
+  if (!match) return [];
+  const targetPhrase = match[1].trim();
+  const priorPhrase = match[2].trim();
+  const operator = match[3].toLowerCase() as "plus" | "minus";
+  const dependencyPhrase = match[4].trim();
+  const rules: WorkbookSemanticFormulaRule[] = [];
+  for (const [sheet, sheetCells] of groupByMap(cells, (cell) => cell.sheet)) {
+    const dependency = semanticLabelCandidates(dependencyPhrase, sheetCells)[0]?.cell;
+    if (!dependency) continue;
+    const target = semanticLabelCandidates(targetPhrase, sheetCells)
+      .filter((candidate) => semanticLabelScore(priorPhrase, candidate.cell) >= 80)
+      .map((candidate) => ({
+        ...candidate,
+        blankTargets: semanticCalculationTargets(sheetCells, candidate.cell, [dependency]),
+      }))
+      .filter((candidate) => candidate.blankTargets.length > 0)
+      .sort((left, right) => right.score - left.score || right.blankTargets.length - left.blankTargets.length)[0];
+    if (!target) continue;
+    const endpointSummaryAddresses = inferEndpointSummaryAddresses(sheetCells, target.cell, target.blankTargets);
+    rules.push({
+      kind: "prior_period_delta",
+      sheet,
+      targetLabel: target.cell,
+      targetAddresses: target.blankTargets,
+      dependencyLabels: [dependency],
+      operator,
+      endpointSummaryAddresses,
+      dependencyFormulaExpectations: inferDependencyFormulaExpectations(
+        sheetCells,
+        dependency,
+        target.blankTargets,
+        endpointSummaryAddresses,
+      ),
+    });
+  }
+  return rules;
+}
+
+function inferAverageBalanceFormulaRules(
+  instruction: string,
+  cells: WorkbookObservedCell[],
+): WorkbookSemanticFormulaRule[] {
+  const match = instruction.match(/\b(?:use|apply)\s+(?:the\s+)?average\s+balance\s+method\s+for\s+(.{1,100}?)(?:[.!?]|$)/i);
+  if (!match) return [];
+  const targetPhrase = match[1].trim();
+  const rules: WorkbookSemanticFormulaRule[] = [];
+  for (const [sheet, sheetCells] of groupByMap(cells, (cell) => cell.sheet)) {
+    const normalizedTargetPhrase = normalizeSemanticLabel(targetPhrase);
+    for (const target of semanticLabelCandidates(targetPhrase, sheetCells)
+      .filter((candidate) => normalizeSemanticLabel(displayValue(candidate.cell.value)) === normalizedTargetPhrase)) {
+      const targetPosition = parseAddress(target.cell.address);
+      if (!targetPosition) continue;
+      const beginning = closestPriorSemanticLabel("Beginning Balance", target.cell, sheetCells, 8);
+      const ending = closestPriorSemanticLabel("Ending Balance", target.cell, sheetCells, 8);
+      const rate = closestPriorSemanticLabel("Interest Rate", target.cell, sheetCells, 8);
+      if (!beginning || !ending || !rate) continue;
+      const targetAddresses = semanticCalculationTargets(sheetCells, target.cell, [beginning, ending, rate]);
+      if (targetAddresses.length === 0) continue;
+      rules.push({
+        kind: "average_balance",
+        sheet,
+        targetLabel: target.cell,
+        targetAddresses,
+        dependencyLabels: [beginning, ending, rate],
+        periodsPerYear: /\b(?:annual|annualized|per\s+annum)\b/i.test(instruction)
+          ? inferPeriodsPerYear(sheetCells, target.cell)
+          : undefined,
+      });
+    }
+  }
+  return rules;
+}
+
+function semanticLabelCandidates(
+  phrase: string,
+  cells: WorkbookObservedCell[],
+): Array<{ cell: WorkbookObservedCell; score: number }> {
+  return cells
+    .map((cell) => ({ cell, score: semanticLabelScore(phrase, cell) }))
+    .filter((candidate) => candidate.score >= 80 && !!parseAddress(candidate.cell.address))
+    .sort((left, right) => right.score - left.score || compareAddresses(left.cell.address, right.cell.address));
+}
+
+function semanticLabelScore(phrase: string, cell: WorkbookObservedCell): number {
+  if (cell.formula || typeof unwrapCellValue(cell.value) !== "string") return 0;
+  const label = displayValue(cell.value).trim();
+  const normalizedPhrase = normalizeSemanticLabel(phrase);
+  const normalizedLabel = normalizeSemanticLabel(label);
+  if (!normalizedPhrase || !normalizedLabel) return 0;
+  if (normalizedPhrase === normalizedLabel) return 1_000;
+  const phraseTokens = new Set(normalizedPhrase.split(" ").filter((token) => !TASK_TERM_STOPWORDS.has(token)));
+  const labelTokens = new Set(normalizedLabel.split(" ").filter((token) => !TASK_TERM_STOPWORDS.has(token)));
+  if (phraseTokens.size === 0 || labelTokens.size === 0) return 0;
+  const matched = [...phraseTokens].filter((token) => labelTokens.has(token));
+  if (matched.length !== phraseTokens.size) return 0;
+  return 200 + matched.reduce((score, token) => score + Math.min(20, token.length), 0)
+    + (normalizedLabel.startsWith(normalizedPhrase) ? 80 : 0);
+}
+
+function normalizeSemanticLabel(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function closestPriorSemanticLabel(
+  phrase: string,
+  target: WorkbookObservedCell,
+  cells: WorkbookObservedCell[],
+  maxRows: number,
+): WorkbookObservedCell | undefined {
+  const targetPosition = parseAddress(target.address);
+  if (!targetPosition) return undefined;
+  return semanticLabelCandidates(phrase, cells)
+    .filter(({ cell }) => {
+      const position = parseAddress(cell.address)!;
+      return position.row < targetPosition.row
+        && targetPosition.row - position.row <= maxRows
+        && position.col === targetPosition.col;
+    })
+    .sort((left, right) => {
+      const leftPosition = parseAddress(left.cell.address)!;
+      const rightPosition = parseAddress(right.cell.address)!;
+      return rightPosition.row - leftPosition.row || right.score - left.score;
+    })[0]?.cell;
+}
+
+function semanticCalculationTargets(
+  cells: WorkbookObservedCell[],
+  targetLabel: WorkbookObservedCell,
+  dependencyLabels: WorkbookObservedCell[],
+): string[] {
+  const targetPosition = parseAddress(targetLabel.address);
+  if (!targetPosition) return [];
+  const dependencyRows = new Set(dependencyLabels.map((cell) => parseAddress(cell.address)?.row).filter((row): row is number => !!row));
+  const dependencyColumns = new Set(cells
+    .filter((cell) => dependencyRows.has(parseAddress(cell.address)?.row ?? -1))
+    .map((cell) => parseAddress(cell.address)?.col)
+    .filter((col): col is number => !!col));
+  return cells
+    .filter((cell) => {
+      const position = parseAddress(cell.address);
+      return !!position
+        && position.row === targetPosition.row
+        && position.col > targetPosition.col
+        && dependencyColumns.has(position.col)
+        && (!!normalizeFormula(cell.formula) || isBlank(unwrapCellValue(cell.value)));
+    })
+    .map((cell) => normalizeAddress(cell.address))
+    .sort(compareAddresses)
+    .slice(0, 64);
+}
+
+function inferPeriodsPerYear(cells: WorkbookObservedCell[], targetLabel: WorkbookObservedCell): number | undefined {
+  const targetPosition = parseAddress(targetLabel.address);
+  if (!targetPosition) return undefined;
+  const quarterRows = new Map<number, Set<number>>();
+  for (const cell of cells) {
+    const position = parseAddress(cell.address);
+    if (!position || position.row >= targetPosition.row) continue;
+    const quarter = displayValue(cell.value).match(/\bQ([1-4])\b/i);
+    if (!quarter) continue;
+    const seen = quarterRows.get(position.row) ?? new Set<number>();
+    seen.add(Number(quarter[1]));
+    quarterRows.set(position.row, seen);
+  }
+  return [...quarterRows.values()].some((quarters) => quarters.size === 4) ? 4 : undefined;
+}
+
+function inferEndpointSummaryAddresses(
+  cells: WorkbookObservedCell[],
+  targetLabel: WorkbookObservedCell,
+  targetAddresses: string[],
+): string[] {
+  const targetPosition = parseAddress(targetLabel.address);
+  if (!targetPosition) return [];
+  const targetColumns = new Set(targetAddresses.map((address) => parseAddress(address)?.col).filter((col): col is number => !!col));
+  const byRow = groupByMap(cells.filter((cell) => {
+    const position = parseAddress(cell.address);
+    return !!position && position.row < targetPosition.row && targetColumns.has(position.col);
+  }), (cell) => parseAddress(cell.address)!.row);
+  const candidates: Array<{ row: number; endpointCols: number[]; quarterCount: number }> = [];
+  for (const [row, rowCells] of byRow) {
+    const labels = new Map(rowCells.map((cell) => [parseAddress(cell.address)!.col, displayValue(cell.value).trim()]));
+    const quarterCount = [...labels.values()].filter((label) => /\bQ[1-4]\b/i.test(label)).length;
+    if (quarterCount < 2) continue;
+    const endpointCols = [...labels.entries()]
+      .filter(([col, label]) => /\b(?:FY|LTM|TTM|ANNUAL)\b/i.test(label) && /\bQ4\b/i.test(labels.get(col - 1) ?? ""))
+      .map(([col]) => col);
+    if (endpointCols.length > 0) candidates.push({ row, endpointCols, quarterCount });
+  }
+  const selected = candidates.sort((left, right) => right.quarterCount - left.quarterCount || right.row - left.row)[0];
+  return selected
+    ? selected.endpointCols.map((col) => addressFromPosition(targetPosition.row, col)).filter((address) => targetAddresses.includes(address))
+    : [];
+}
+
+function inferDependencyFormulaExpectations(
+  cells: WorkbookObservedCell[],
+  dependencyLabel: WorkbookObservedCell,
+  targetAddresses: string[],
+  endpointSummaryAddresses: string[],
+): Array<{ address: string; formula: string }> {
+  const dependencyPosition = parseAddress(dependencyLabel.address);
+  const targetPositions = targetAddresses.map(parseAddress).filter((position): position is CellPosition => !!position);
+  if (!dependencyPosition || targetPositions.length === 0) return [];
+  const firstTargetCol = Math.min(...targetPositions.map((position) => position.col));
+  const formulaCells = cells
+    .filter((cell) => {
+      const position = parseAddress(cell.address);
+      return !!position
+        && position.row === dependencyPosition.row
+        && position.col < firstTargetCol
+        && !!normalizeFormula(cell.formula);
+    })
+    .sort((left, right) => compareAddresses(left.address, right.address));
+  let anchor: WorkbookObservedCell | undefined;
+  for (let index = 1; index < formulaCells.length; index += 1) {
+    const previous = formulaCells[index - 1];
+    const current = formulaCells[index];
+    const previousPosition = parseAddress(previous.address)!;
+    const currentPosition = parseAddress(current.address)!;
+    if (currentPosition.col !== previousPosition.col + 1) continue;
+    if (formulaPattern(previous.formula!, previous.address) !== formulaPattern(current.formula!, current.address)) continue;
+    anchor = current;
+  }
+  if (!anchor) return [];
+  const quarterColumns = visibleQuarterColumns(cells, dependencyLabel);
+  const endpointSet = new Set(endpointSummaryAddresses.map(normalizeAddress));
+  const expectations: Array<{ address: string; formula: string }> = [];
+  for (const targetAddress of targetAddresses) {
+    const target = parseAddress(targetAddress)!;
+    const dependencyAddress = addressFromPosition(dependencyPosition.row, target.col);
+    if (endpointSet.has(normalizeAddress(targetAddress)) && quarterColumns.length === 4) {
+      const start = addressFromPosition(dependencyPosition.row, quarterColumns[0]);
+      const end = addressFromPosition(dependencyPosition.row, quarterColumns.at(-1)!);
+      expectations.push({ address: dependencyAddress, formula: `SUM(${start}:${end})` });
+      continue;
+    }
+    expectations.push({
+      address: dependencyAddress,
+      formula: translateFormulaBetweenCells(anchor.formula!, anchor.address, dependencyAddress),
+    });
+  }
+  return expectations;
+}
+
+function visibleQuarterColumns(cells: WorkbookObservedCell[], anchor: WorkbookObservedCell): number[] {
+  const anchorPosition = parseAddress(anchor.address);
+  if (!anchorPosition) return [];
+  const byRow = groupByMap(cells.filter((cell) => {
+    const position = parseAddress(cell.address);
+    return !!position && position.row < anchorPosition.row && /\bQ[1-4]\b/i.test(displayValue(cell.value));
+  }), (cell) => parseAddress(cell.address)!.row);
+  const candidates = [...byRow.entries()].flatMap(([row, rowCells]) => {
+    const byQuarter = new Map<number, number>();
+    for (const cell of rowCells) {
+      const match = displayValue(cell.value).match(/\bQ([1-4])\b/i);
+      const position = parseAddress(cell.address);
+      if (match && position) byQuarter.set(Number(match[1]), position.col);
+    }
+    return byQuarter.size === 4
+      ? [{ row, columns: [1, 2, 3, 4].map((quarter) => byQuarter.get(quarter)!) }]
+      : [];
+  });
+  return candidates.sort((left, right) => right.row - left.row)[0]?.columns ?? [];
+}
+
+function semanticRuleExpectedReferences(rule: WorkbookSemanticFormulaRule, targetAddress: string): string[] {
+  const target = parseAddress(targetAddress);
+  if (!target) return [];
+  if (rule.kind === "prior_period_delta") {
+    const dependency = parseAddress(rule.dependencyLabels[0]?.address ?? "");
+    if (rule.endpointSummaryAddresses?.includes(normalizeAddress(targetAddress))) {
+      return [addressFromPosition(target.row, target.col - 1)];
+    }
+    return dependency
+      ? [addressFromPosition(target.row, target.col - 1), addressFromPosition(dependency.row, target.col)]
+      : [];
+  }
+  return rule.dependencyLabels
+    .map((label) => parseAddress(label.address))
+    .filter((position): position is CellPosition => !!position)
+    .map((position) => addressFromPosition(position.row, target.col));
+}
+
+function semanticFormulaMismatch(
+  rule: WorkbookSemanticFormulaRule,
+  targetAddress: string,
+  formula: string | undefined,
+): string | undefined {
+  if (!formula) return `${rule.sheet}!${targetAddress} must remain a formula under the requested calculation rule, not a hardcoded value.`;
+  const expectedReferences = semanticRuleExpectedReferences(rule, targetAddress);
+  const missingReferences = expectedReferences.filter((address) => !formulaReferencesAddress(formula, address));
+  if (missingReferences.length > 0) {
+    return `${rule.sheet}!${targetAddress} omits required visible dependencies ${missingReferences.join(", ")}.`;
+  }
+  const compact = normalizeFormula(formula) ?? "";
+  if (rule.kind === "prior_period_delta") {
+    if (rule.endpointSummaryAddresses?.includes(normalizeAddress(targetAddress))) {
+      const samePeriodDependency = parseAddress(rule.dependencyLabels[0]?.address ?? "");
+      if (samePeriodDependency && formulaReferencesAddress(formula, addressFromPosition(samePeriodDependency.row, parseAddress(targetAddress)!.col))) {
+        return `${rule.sheet}!${targetAddress} is an annual endpoint after Q4 and must not add the full-year flow again.`;
+      }
+      return undefined;
+    }
+    if (rule.operator === "plus" && !compact.includes("+") && !/^SUM\(/i.test(compact)) {
+      return `${rule.sheet}!${targetAddress} must add the prior-period value and the same-period dependency.`;
+    }
+    if (rule.operator === "minus" && !compact.includes("-")) {
+      return `${rule.sheet}!${targetAddress} must subtract the same-period dependency from the prior-period value.`;
+    }
+    return undefined;
+  }
+  const averagesBalances = /\bAVERAGE\(/i.test(compact) || /\/2(?:\D|$)/.test(compact) || /\*0?\.5(?:\D|$)/.test(compact);
+  if (!averagesBalances) return `${rule.sheet}!${targetAddress} does not average beginning and ending balances.`;
+  if (rule.periodsPerYear && rule.periodsPerYear > 1) {
+    const periodFactor = new RegExp(`/${rule.periodsPerYear}(?:\\D|$)`).test(compact)
+      || (rule.periodsPerYear === 4 && /\*0?\.25(?:\D|$)/.test(compact));
+    if (!periodFactor) return `${rule.sheet}!${targetAddress} does not convert the annual rate to the visible quarterly period.`;
+  }
+  return undefined;
+}
+
+function semanticRuleRepair(rule: WorkbookSemanticFormulaRule, targetAddress: string): string {
+  const references = semanticRuleExpectedReferences(rule, targetAddress);
+  if (rule.kind === "prior_period_delta") {
+    if (rule.endpointSummaryAddresses?.includes(normalizeAddress(targetAddress))) {
+      return `${targetAddress} is an annual endpoint immediately after Q4; carry forward the Q4 ${displayValue(rule.targetLabel.value)} balance with =${references[0]}.`;
+    }
+    const operator = rule.operator === "minus" ? "-" : "+";
+    return `Use prior-period ${displayValue(rule.targetLabel.value)} at ${references[0]} and same-period ${displayValue(rule.dependencyLabels[0]?.value)} at ${references[1]}; for example =${references[0]}${operator}${references[1]}.`;
+  }
+  const periodDivisor = rule.periodsPerYear && rule.periodsPerYear > 1 ? `/${rule.periodsPerYear}` : "";
+  return `Use a formula such as =AVERAGE(${references[0]},${references[1]})*${references[2]}${periodDivisor}; preserve the visible period format and verify the result.`;
+}
+
+function activeSheetAtInstructionOffset(instruction: string, offset: number, sheetNames: string[]): string | undefined {
+  const prefix = instruction.slice(0, offset);
+  let selected: { sheet: string; index: number; length: number } | undefined;
+  for (const sheet of sheetNames) {
+    const pattern = new RegExp(`(^|[^a-z0-9])(${escapeRegExp(sheet)})(?=$|[^a-z0-9])`, "ig");
+    for (const match of prefix.matchAll(pattern)) {
+      const index = (match.index ?? 0) + match[1].length;
+      if (!selected || index > selected.index || (index === selected.index && sheet.length > selected.length)) {
+        selected = { sheet, index, length: sheet.length };
+      }
+    }
+  }
+  return selected?.sheet ?? (sheetNames.length === 1 ? sheetNames[0] : undefined);
+}
+
+function targetPhraseBeforeOffset(instruction: string, offset: number): string {
+  const start = Math.max(0, offset - 240);
+  const window = instruction.slice(start, offset);
+  const commands = [...window.matchAll(/\b(?:calculate|fill|populate|complete|set|write|derive)\b/gi)];
+  const command = commands.at(-1);
+  return command ? window.slice(command.index ?? 0) : window;
+}
+
+function targetLabelMatchScore(phrase: string, cell: WorkbookObservedCell): number {
+  const label = displayValue(cell.value).trim();
+  if (!label || visibleCalendarYear(cell.value) !== undefined) return 0;
+  const labelTokens = (label.toLowerCase().match(/[a-z][a-z0-9_-]{2,}/g) ?? [])
+    .filter((token) => !TASK_TERM_STOPWORDS.has(token));
+  if (labelTokens.length === 0) return 0;
+  const phraseTokens = new Set(phrase.toLowerCase().match(/[a-z][a-z0-9_-]{2,}/g) ?? []);
+  const matched = [...new Set(labelTokens)].filter((token) => phraseTokens.has(token));
+  if (matched.length === 0) return 0;
+  const normalizedLabel = label.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const normalizedPhrase = phrase.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const exactLabel = normalizedLabel.length >= 3 && (` ${normalizedPhrase} `).includes(` ${normalizedLabel} `);
+  return matched.reduce((score, token) => score + Math.min(12, token.length), 0)
+    + (matched.length === new Set(labelTokens).size ? 40 : 0)
+    + (exactLabel ? 200 : 0);
+}
+
+function visibleYearHeaderBand(
+  cells: WorkbookObservedCell[],
+  labelAddress: string,
+  years: number[],
+): { cells: WorkbookObservedCell[] } | undefined {
+  const label = parseAddress(labelAddress);
+  if (!label) return undefined;
+  const candidates: Array<{ cells: WorkbookObservedCell[]; contiguous: boolean; row: number }> = [];
+  for (const [row, rowCells] of groupByMap(
+    cells.filter((cell) => {
+      const position = parseAddress(cell.address);
+      return !!position && position.row < label.row;
+    }),
+    (cell) => parseAddress(cell.address)!.row,
+  )) {
+    const byYear = new Map<number, WorkbookObservedCell>();
+    for (const cell of rowCells) {
+      const year = visibleCalendarYear(cell.value);
+      if (year !== undefined && !byYear.has(year)) byYear.set(year, cell);
+    }
+    if (!years.every((year) => byYear.has(year))) continue;
+    const headerCells = years.map((year) => byYear.get(year)!);
+    const columns = headerCells.map((cell) => parseAddress(cell.address)!.col);
+    if (new Set(columns).size !== columns.length || columns.some((column) => column <= label.col)) continue;
+    const increasing = columns.every((column, index) => index === 0 || column > columns[index - 1]);
+    if (!increasing) continue;
+    candidates.push({
+      cells: headerCells,
+      contiguous: columns.every((column, index) => index === 0 || column === columns[index - 1] + 1),
+      row,
+    });
+  }
+  return candidates
+    .sort((left, right) => Number(right.contiguous) - Number(left.contiguous) || right.row - left.row)[0];
+}
+
+function visibleCalendarYear(value: unknown): number | undefined {
+  const raw = unwrapCellValue(value);
+  if (raw instanceof Date && Number.isFinite(raw.getTime())) return raw.getFullYear();
+  if (typeof raw === "number" && Number.isInteger(raw) && raw >= 1900 && raw <= 2200) return raw;
+  const match = displayValue(raw).trim().match(/^(?:FY\s*)?'?((?:19|20)\d{2})\s*[AE]?$/i);
+  return match ? Number(match[1]) : undefined;
+}
+
+function contiguousAddressBands(addresses: string[]): string[][] {
+  const remaining = [...new Set(addresses.map(normalizeAddress).filter((address) => !!parseAddress(address)))]
+    .sort(compareAddresses);
+  const bands: string[][] = [];
+  while (remaining.length > 0) {
+    const first = remaining.shift()!;
+    const firstPosition = parseAddress(first)!;
+    const horizontal = [first];
+    while (remaining.length > 0) {
+      const next = parseAddress(remaining[0])!;
+      const previous = parseAddress(horizontal.at(-1)!)!;
+      if (next.row !== firstPosition.row || next.col !== previous.col + 1) break;
+      horizontal.push(remaining.shift()!);
+    }
+    bands.push(horizontal);
+  }
+  return bands;
+}
+
+function repeatedFormulaFillSuggestion(
+  band: WorkbookTargetBand,
+  cellsByKey: Map<string, WorkbookObservedCell>,
+): WorkbookTaskInspection["formulaFillSuggestions"][number] | undefined {
+  const positions = band.addresses.map(parseAddress);
+  if (positions.some((position) => !position)) return undefined;
+  const horizontal = positions.every((position) => position!.row === positions[0]!.row);
+  const vertical = positions.every((position) => position!.col === positions[0]!.col);
+  if (!horizontal && !vertical) return undefined;
+  const formulaCells = band.addresses
+    .map((address) => cellsByKey.get(workbookCellKey(band.sheet, address)))
+    .filter((cell): cell is WorkbookObservedCell => !!normalizeFormula(cell?.formula));
+  if (formulaCells.length < 2) return undefined;
+  const patterns = new Set(formulaCells.map((cell) => formulaPattern(cell.formula!, cell.address)));
+  if (patterns.size !== 1) return undefined;
+  const anchor = formulaCells[0];
+  const sourceFormula = normalizeFormula(anchor.formula)!;
+  const operations = band.addresses.map((address) => ({
+    sheet: band.sheet,
+    cell: address,
+    formula: translateFormulaBetweenCells(sourceFormula, anchor.address, address),
+  }));
+  if (operations.some((operation) => FORMULA_ERROR_RE.test(operation.formula) || formulaReferencesCurrentCell(operation.formula, operation.sheet, operation.cell))) {
+    return undefined;
+  }
+  if (formulaCells.some((cell) => {
+    const expected = operations.find((operation) => operation.cell === normalizeAddress(cell.address));
+    return !expected || normalizeFormula(expected.formula) !== normalizeFormula(cell.formula);
+  })) {
+    return undefined;
+  }
+  return {
+    sheet: band.sheet,
+    range: band.range,
+    anchorAddress: normalizeAddress(anchor.address),
+    sourceFormula,
+    operations,
+  };
+}
+
 function weekdayTextFormula(formula: string): string {
   const normalized = normalizeFormula(formula) ?? formula.trim().replace(/^=/, "");
   return normalized.replace(/(TEXT\([^,]+,")D{1,2}("\))$/i, "$1DDD$2");
@@ -594,6 +1813,10 @@ export function selectWorkbookTaskCells(args: {
       byKey.set(key, { sheet: finding.sheet, address: finding.address, value: "" });
     }
   }
+  for (const target of args.inspection.targetCandidates) {
+    const key = workbookCellKey(target.sheet, target.address);
+    if (!byKey.has(key)) byKey.set(key, { sheet: target.sheet, address: target.address, value: "" });
+  }
 
   for (const key of args.inspection.rankedCellKeys) add(byKey.get(key));
   if (selected.length < limit) {
@@ -618,20 +1841,69 @@ export function verifyWorkbookPlan(args: {
   const quotedFormulaTargets = new Set(args.inspection.findings
     .filter((finding) => finding.kind === "formula_text_match")
     .map((finding) => workbookCellKey(finding.sheet, finding.address)));
-  const formulaBandTargets = new Set(args.inspection.findings
-    .filter((finding) => finding.kind === "formula_fill_band")
-    .flatMap((finding) => [finding.address, ...(finding.relatedAddresses ?? [])]
-      .map((address) => workbookCellKey(finding.sheet, address))));
+  const targetBandTargets = new Set((args.inspection.targetBands ?? [])
+    .flatMap((band) => band.addresses.map((address) => workbookCellKey(band.sheet, address))));
+  const formulaBandTargets = new Set([
+    ...args.inspection.findings
+      .filter((finding) => finding.kind === "formula_fill_band")
+      .flatMap((finding) => [finding.address, ...(finding.relatedAddresses ?? [])]
+        .map((address) => workbookCellKey(finding.sheet, address))),
+    ...args.inspection.formulaFillSuggestions
+      .flatMap((suggestion) => suggestion.operations.map((operation) => workbookCellKey(operation.sheet, operation.cell))),
+  ]);
   const neighborFormulaTargets = new Set(args.inspection.findings
     .filter((finding) => finding.kind === "named_target_neighbor_formula")
     .map((finding) => workbookCellKey(finding.sheet, finding.address)));
-  const requiredTargetKeys = formulaBandTargets.size > 0
-    ? formulaBandTargets
-    : quotedFormulaTargets.size > 0
-      ? quotedFormulaTargets
-      : neighborFormulaTargets.size > 0 ? neighborFormulaTargets : targetKeys;
+  const formulaRangeTargets = new Set(args.inspection.findings
+    .filter((finding) => finding.kind === "formula_range_anomaly")
+    .map((finding) => workbookCellKey(finding.sheet, finding.address)));
+  const strongTargetKeys = new Set([
+    ...targetBandTargets,
+    ...formulaBandTargets,
+    ...quotedFormulaTargets,
+    ...neighborFormulaTargets,
+    ...formulaRangeTargets,
+  ]);
+  const requiredTargetKeys = strongTargetKeys.size > 0 ? strongTargetKeys : targetKeys;
+  const semanticRuleByTarget = new Map<string, WorkbookSemanticFormulaRule>();
+  const semanticDependencyFormulaByTarget = new Map<string, { rule: WorkbookSemanticFormulaRule; formula: string }>();
+  const formulaRangeRepairByTarget = new Map<string, string>();
+  const formulaFillByTarget = new Map<string, string>();
+  const conflictingFormulaFillTargets = new Set<string>();
+  const valueSuggestionByTarget = new Map<string, WorkbookTaskInspection["valueSuggestions"][number]>();
+  const formulaRangeTargetKeys = new Set(args.inspection.findings
+    .filter((finding) => finding.kind === "formula_range_anomaly")
+    .map((finding) => workbookCellKey(finding.sheet, finding.address)));
+  for (const suggestion of args.inspection.formulaRepairSuggestions) {
+    const key = workbookCellKey(suggestion.sheet, suggestion.cell);
+    if (formulaRangeTargetKeys.has(key)) formulaRangeRepairByTarget.set(key, suggestion.formula);
+  }
+  for (const suggestion of args.inspection.formulaFillSuggestions) {
+    for (const operation of suggestion.operations) {
+      const key = workbookCellKey(operation.sheet, operation.cell);
+      const current = formulaFillByTarget.get(key);
+      if (current !== undefined && normalizeFormula(current) !== normalizeFormula(operation.formula)) {
+        formulaFillByTarget.delete(key);
+        conflictingFormulaFillTargets.add(key);
+      } else if (!conflictingFormulaFillTargets.has(key)) {
+        formulaFillByTarget.set(key, operation.formula);
+      }
+    }
+  }
+  for (const suggestion of args.inspection.valueSuggestions) {
+    valueSuggestionByTarget.set(workbookCellKey(suggestion.sheet, suggestion.cell), suggestion);
+  }
+  for (const rule of inferWorkbookSemanticFormulaRules(args.instruction, args.cells)) {
+    for (const address of rule.targetAddresses) semanticRuleByTarget.set(workbookCellKey(rule.sheet, address), rule);
+    for (const expectation of rule.dependencyFormulaExpectations ?? []) {
+      semanticDependencyFormulaByTarget.set(workbookCellKey(rule.sheet, expectation.address), {
+        rule,
+        formula: expectation.formula,
+      });
+    }
+  }
 
-  if (args.operations.length === 0 && args.inspection.mutatingTask && !args.inspection.allowEmptyPlan && (targetKeys.size > 0 || args.inspection.findings.length > 0)) {
+  if (args.operations.length === 0 && args.inspection.mutatingTask && !args.inspection.allowEmptyPlan) {
     issues.push({
       kind: "empty_mutating_plan",
       severity: "error",
@@ -711,7 +1983,7 @@ export function verifyWorkbookPlan(args: {
           repair: "Replace the broken reference with a visible dependency or range.",
         });
       }
-      if (formulaReferencesAddress(proposedFormula, address)) {
+      if (formulaReferencesCurrentCell(proposedFormula, sheet, address)) {
         issues.push({
           kind: "formula_self_reference",
           severity: "error",
@@ -734,19 +2006,82 @@ export function verifyWorkbookPlan(args: {
         });
       }
     }
+    const semanticRule = semanticRuleByTarget.get(key);
+    if (semanticRule) {
+      const semanticMismatch = semanticFormulaMismatch(semanticRule, address, proposedFormula);
+      if (semanticMismatch) {
+        issues.push({
+          kind: "formula_semantic_mismatch",
+          severity: "error",
+          operationIndex,
+          sheet,
+          address,
+          detail: semanticMismatch,
+          repair: semanticRuleRepair(semanticRule, address),
+        });
+      }
+    }
+    const dependencyExpectation = semanticDependencyFormulaByTarget.get(key);
+    if (dependencyExpectation && normalizeFormula(proposedFormula) !== normalizeFormula(dependencyExpectation.formula)) {
+      issues.push({
+        kind: "formula_semantic_mismatch",
+        severity: "error",
+        operationIndex,
+        sheet,
+        address,
+        detail: `${sheet}!${address} must extend the visible ${displayValue(dependencyExpectation.rule.dependencyLabels[0]?.value)} formula pattern rather than hardcode a result.`,
+        repair: `Use the translated visible formula =${dependencyExpectation.formula} in ${address}.`,
+      });
+    }
+    const formulaFillExpectation = formulaFillByTarget.get(key);
+    if (formulaFillExpectation && normalizeFormula(proposedFormula) !== normalizeFormula(formulaFillExpectation)) {
+      issues.push({
+        kind: "formula_semantic_mismatch",
+        severity: "error",
+        operationIndex,
+        sheet,
+        address,
+        detail: `${sheet}!${address} does not match the formula established by the visible row, header, and neighboring dependency contract.`,
+        repair: `Use =${formulaFillExpectation} in ${address}.`,
+      });
+    }
+    const valueSuggestion = valueSuggestionByTarget.get(key);
+    if (valueSuggestion) {
+      const proposedValue = Object.prototype.hasOwnProperty.call(operation, "value") ? operation.value : operation.result;
+      if (proposedFormula || !valuesEquivalent(proposedValue, valueSuggestion.value)) {
+        issues.push({
+          kind: "value_semantic_mismatch",
+          severity: "error",
+          operationIndex,
+          sheet,
+          address,
+          detail: `${sheet}!${address} does not match the explicit value implied by visible workbook evidence.`,
+          repair: `Set ${address} to ${JSON.stringify(valueSuggestion.value)} and preserve its existing number format.`,
+        });
+      }
+    }
+    const rangeRepair = formulaRangeRepairByTarget.get(key);
+    if (rangeRepair && normalizeFormula(proposedFormula) !== normalizeFormula(rangeRepair)) {
+      issues.push({
+        kind: "formula_semantic_mismatch",
+        severity: "error",
+        operationIndex,
+        sheet,
+        address,
+        detail: `${sheet}!${address} still uses an average range that crosses visible non-data cells or includes the subject company in a Comparables calculation.`,
+        repair: `Preserve the formula and use the visible contiguous range: =${rangeRepair}.`,
+      });
+    }
   }
 
   const missingTargets = [...requiredTargetKeys].filter((key) => !coveredTargets.has(key));
-  if (missingTargets.length > 0 && args.operations.some((operation) => !operation.op || operation.op === "set_cell")) {
+  if (missingTargets.length > 0) {
+    const missingTargetRanges = formatWorkbookTargetRanges(missingTargets, args.sheetNames);
     issues.push({
       kind: "missing_target_coverage",
       severity: "error",
       detail: `The plan covers ${coveredTargets.size}/${requiredTargetKeys.size} required task targets and omits ${missingTargets.length}.`,
-      repair: formulaBandTargets.size > 0
-        ? `Return a complete replacement plan for the visible formula-fill band: ${missingTargets.slice(0, 16).join(", ")}${missingTargets.length > 16 ? ` and ${missingTargets.length - 16} more` : ""}.`
-        : quotedFormulaTargets.size > 0
-        ? `The task quotes the formula currently stored at ${args.inspection.findings.filter((finding) => finding.kind === "formula_text_match").map((finding) => `${finding.sheet}!${finding.address}`).join(", ")}; repair that formula cell rather than its input.`
-        : `Inspect these target candidates before retrying: ${args.inspection.targetCandidates.slice(0, 8).map((target) => `${target.sheet}!${target.address}`).join(", ")}.`,
+      repair: `Return one set_cell operation for every omitted required target: ${missingTargetRanges}.`,
     });
   }
 
@@ -883,7 +2218,7 @@ function rolePriority(role: WorkbookReferenceRole): number {
   return role === "target" ? 3 : role === "dependency" ? 2 : 1;
 }
 
-function expandReference(reference: WorkbookTaskReference, limit: number): string[] {
+function expandReference(reference: WorkbookTaskReference, limit: number, preserveLinearBand = false): string[] {
   const start = parseAddress(reference.start);
   const end = parseAddress(reference.end);
   if (!start || !end) return [reference.start];
@@ -892,7 +2227,7 @@ function expandReference(reference: WorkbookTaskReference, limit: number): strin
   const minCol = Math.min(start.col, end.col);
   const maxCol = Math.max(start.col, end.col);
   const count = (maxRow - minRow + 1) * (maxCol - minCol + 1);
-  if (count > limit) {
+  if (count > limit && !(preserveLinearBand && (minRow === maxRow || minCol === maxCol))) {
     return [...new Set([
       addressFromPosition(minRow, minCol),
       addressFromPosition(minRow, maxCol),
@@ -969,7 +2304,7 @@ function analyzeFormulaBands(
             recommendedAction: "Inspect the neighboring formula pattern and fill the gap only when the row or column logic is consistent.",
           });
         }
-        if (agreedFormula && !FORMULA_ERROR_RE.test(agreedFormula) && !formulaReferencesAddress(agreedFormula, middleAddress)) {
+        if (agreedFormula && !FORMULA_ERROR_RE.test(agreedFormula) && !formulaReferencesCurrentCell(agreedFormula, sheet, middleAddress)) {
           suggestions.push({
             kind: "fill_gap",
             confidence: "high",
@@ -1005,7 +2340,7 @@ function analyzeFormulaBands(
         consensus
         && normalizeFormula(consensus.formula) !== normalizeFormula(cell.formula)
         && !FORMULA_ERROR_RE.test(consensus.formula)
-        && !formulaReferencesAddress(consensus.formula, cell.address)
+        && !formulaReferencesCurrentCell(consensus.formula, sheet, cell.address)
       ) {
         suggestions.push({
           kind: "replace_outlier",
@@ -1019,6 +2354,189 @@ function analyzeFormulaBands(
     }
   }
   return { findings, suggestions };
+}
+
+type ParsedAverageRange = {
+  match: string;
+  sourceSheet: string;
+  sheetToken: string;
+  startToken: string;
+  endToken: string;
+  rangeSuffix: string;
+  start: string;
+  end: string;
+};
+
+function analyzeAverageFormulaRanges(
+  instruction: string,
+  cells: WorkbookObservedCell[],
+  addRank: (cell: WorkbookObservedCell | undefined, score: number, reason: string) => void,
+): {
+  findings: WorkbookInspectionFinding[];
+  suggestions: WorkbookTaskInspection["formulaRepairSuggestions"];
+} {
+  if (!genericFormulaAuditTask(instruction) || !/\baverage(?:[^a-z0-9]|$)/i.test(instruction)) {
+    return { findings: [], suggestions: [] };
+  }
+
+  const findings: WorkbookInspectionFinding[] = [];
+  const suggestions: WorkbookTaskInspection["formulaRepairSuggestions"] = [];
+  const cellsByKey = new Map(cells.map((cell) => [workbookCellKey(cell.sheet, cell.address), cell]));
+  for (const target of cells.filter((cell) => !!cell.formula && /\bAVERAGE\s*\(/i.test(cell.formula!))) {
+    const parsed = parseAverageRange(target.formula!, target.sheet);
+    if (!parsed) continue;
+    const sourceAddresses = expandReference({
+      sheet: parsed.sourceSheet,
+      start: parsed.start,
+      end: parsed.end,
+      sourceText: parsed.match,
+      role: "dependency",
+    }, 512, true);
+    if (sourceAddresses.length < 2 || sourceAddresses.length > 512) continue;
+
+    let selectedAddresses = longestAggregateRun(
+      sourceAddresses,
+      parsed.sourceSheet,
+      cellsByKey,
+    );
+    const evidence: string[] = [];
+    if (selectedAddresses.length >= 2 && selectedAddresses.length < sourceAddresses.length) {
+      const excluded = sourceAddresses.filter((address) => !selectedAddresses.includes(address));
+      evidence.push(
+        `${parsed.sourceSheet}!${parsed.start}:${parsed.end} crosses blank or nonnumeric cells; the longest contiguous visible aggregate block is ${selectedAddresses[0]}:${selectedAddresses.at(-1)!}`,
+        `excluded cells: ${excluded.join(", ")}`,
+      );
+    } else {
+      selectedAddresses = sourceAddresses;
+    }
+
+    const comparableStart = comparableAverageStart({ target, parsed, cells, cellsByKey });
+    if (comparableStart && selectedAddresses[0] === parsed.start) {
+      selectedAddresses = selectedAddresses.slice(1);
+      evidence.push(
+        `${target.sheet}!${target.address} is labeled Comparables and ${parsed.sourceSheet}!${parsed.start} visibly names the subject company; the peer average starts at ${comparableStart}`,
+      );
+    }
+    if (selectedAddresses.length < 2) continue;
+
+    const repairedStart = selectedAddresses[0];
+    const repairedEnd = selectedAddresses.at(-1)!;
+    if (repairedStart === parsed.start && repairedEnd === parsed.end) continue;
+    const repairedFormula = target.formula!.replace(
+      parsed.match,
+      `AVERAGE(${parsed.sheetToken}${anchoredAddress(parsed.startToken, repairedStart)}:${anchoredAddress(parsed.endToken, repairedEnd)}${parsed.rangeSuffix})`,
+    );
+    addRank(target, 242, "formula_range_anomaly");
+    for (const address of selectedAddresses) {
+      addRank(cellsByKey.get(workbookCellKey(parsed.sourceSheet, address)), 222, "formula_range_dependency");
+    }
+    findings.push({
+      kind: "formula_range_anomaly",
+      severity: "error",
+      sheet: target.sheet,
+      address: target.address,
+      relatedAddresses: selectedAddresses,
+      detail: `${target.address} averages ${parsed.sourceSheet}!${parsed.start}:${parsed.end}, but visible workbook structure supports ${repairedStart}:${repairedEnd}.`,
+      recommendedAction: `Replace only the range endpoints with ${repairedStart}:${repairedEnd} and preserve the rest of the formula.`,
+    });
+    suggestions.push({
+      kind: "replace_outlier",
+      confidence: "high",
+      sheet: target.sheet,
+      cell: target.address,
+      formula: repairedFormula,
+      evidence: [target.formula!, ...evidence],
+    });
+  }
+  return { findings, suggestions };
+}
+
+function parseAverageRange(formula: string, fallbackSheet: string): ParsedAverageRange | undefined {
+  const match = formula.match(
+    /\bAVERAGE\s*\(\s*((?:'(?:[^']|'')+'|[A-Za-z_][A-Za-z0-9_.]*)!\s*)?(\$?[A-Z]{1,3}\$?[1-9][0-9]*)\s*:\s*(\$?[A-Z]{1,3}\$?[1-9][0-9]*)(\s*(?:[/*+-]\s*\d+(?:\.\d+)?)*)\s*\)/i,
+  );
+  if (!match) return undefined;
+  const sheetToken = match[1] ?? "";
+  const rawSheet = sheetToken.trim().replace(/!$/, "");
+  const sourceSheet = rawSheet
+    ? rawSheet.replace(/^'|'$/g, "").replace(/''/g, "'")
+    : fallbackSheet;
+  return {
+    match: match[0],
+    sourceSheet,
+    sheetToken,
+    startToken: match[2],
+    endToken: match[3],
+    rangeSuffix: match[4] ?? "",
+    start: normalizeAddress(match[2]),
+    end: normalizeAddress(match[3]),
+  };
+}
+
+function longestAggregateRun(
+  addresses: string[],
+  sheet: string,
+  cellsByKey: Map<string, WorkbookObservedCell>,
+): string[] {
+  const runs: string[][] = [];
+  let current: string[] = [];
+  for (const address of addresses) {
+    const cell = cellsByKey.get(workbookCellKey(sheet, address));
+    const value = unwrapCellValue(cell?.value);
+    const usable = !!cell && (
+      (!!cell.formula && !FORMULA_ERROR_RE.test(cell.formula))
+      || typeof value === "number"
+    );
+    if (usable) current.push(address);
+    else if (current.length > 0) {
+      runs.push(current);
+      current = [];
+    }
+  }
+  if (current.length > 0) runs.push(current);
+  return runs.sort((left, right) => right.length - left.length)[0] ?? [];
+}
+
+function comparableAverageStart(args: {
+  target: WorkbookObservedCell;
+  parsed: ParsedAverageRange;
+  cells: WorkbookObservedCell[];
+  cellsByKey: Map<string, WorkbookObservedCell>;
+}): string | undefined {
+  const targetPosition = parseAddress(args.target.address);
+  const sourceStart = parseAddress(args.parsed.start);
+  const sourceEnd = parseAddress(args.parsed.end);
+  if (!targetPosition || !sourceStart || !sourceEnd || sourceStart.row !== sourceEnd.row) return undefined;
+  const targetHeader = [1, 2, 3, 4]
+    .map((offset) => args.cellsByKey.get(workbookCellKey(args.target.sheet, addressFromPosition(targetPosition.row - offset, targetPosition.col))))
+    .find((cell) => /\bcomparables?\b/i.test(displayValue(cell?.value)));
+  if (!targetHeader) return undefined;
+  const headerPosition = parseAddress(targetHeader.address)!;
+  const subject = args.cellsByKey.get(workbookCellKey(
+    args.target.sheet,
+    addressFromPosition(headerPosition.row, headerPosition.col - 1),
+  ));
+  const subjectName = normalizeSemanticLabel(displayValue(subject?.value));
+  if (!subjectName) return undefined;
+  const sourceHeader = args.cells
+    .filter((cell) => {
+      if (cell.sheet.toLowerCase() !== args.parsed.sourceSheet.toLowerCase()) return false;
+      const position = parseAddress(cell.address);
+      return !!position
+        && position.col === sourceStart.col
+        && position.row < sourceStart.row
+        && normalizeSemanticLabel(displayValue(cell.value)) === subjectName;
+    })
+    .sort((left, right) => parseAddress(right.address)!.row - parseAddress(left.address)!.row)[0];
+  if (!sourceHeader || sourceStart.col >= sourceEnd.col) return undefined;
+  return addressFromPosition(sourceStart.row, sourceStart.col + 1);
+}
+
+function anchoredAddress(template: string, address: string): string {
+  const match = template.match(/^(\$?)[A-Z]{1,3}(\$?)[1-9][0-9]*$/i);
+  const position = parseAddress(address);
+  if (!match || !position) return address;
+  return `${match[1]}${columnNumberToName(position.col)}${match[2]}${position.row}`;
 }
 
 function formulaConsensusAtTarget(
@@ -1061,6 +2579,18 @@ function translateFormulaBetweenCells(formula: string, fromAddress: string, toAd
   const to = parseAddress(toAddress);
   if (!from || !to) return formula;
   return translateRelativeFormula(formula, to.row - from.row, to.col - from.col);
+}
+
+function dedupeFormulaFillSuggestions(
+  suggestions: WorkbookTaskInspection["formulaFillSuggestions"],
+): WorkbookTaskInspection["formulaFillSuggestions"] {
+  const unique = new Map<string, WorkbookTaskInspection["formulaFillSuggestions"][number]>();
+  for (const suggestion of suggestions) {
+    const key = `${suggestion.sheet.toLowerCase()}!${suggestion.range.toUpperCase()}`;
+    if (!unique.has(key)) unique.set(key, suggestion);
+  }
+  return [...unique.values()].sort((left, right) =>
+    left.sheet.localeCompare(right.sheet) || compareAddresses(left.anchorAddress, right.anchorAddress));
 }
 
 function dedupeFormulaRepairSuggestions(
@@ -1135,7 +2665,7 @@ function dedupeFindings(findings: WorkbookInspectionFinding[]): WorkbookInspecti
 }
 
 function findingPriority(kind: WorkbookInspectionFindingKind): number {
-  if (["formula_error", "formula_self_reference", "formula_text_match", "formula_fill_band", "implicit_assignment_target"].includes(kind)) return 5;
+  if (["formula_error", "formula_self_reference", "formula_text_match", "formula_fill_band", "named_year_target_band", "implicit_assignment_target"].includes(kind)) return 5;
   if (kind === "formula_pattern_outlier" || kind === "named_target_neighbor_formula") return 4;
   if (kind === "hardcoded_in_formula_band") return 2;
   return 1;
@@ -1203,6 +2733,28 @@ function formulaReferencesAddress(formula: string, address: string): boolean {
   return [...formula.matchAll(CELL_TOKEN_RE)].some((match) => normalizeAddress(match[0]) === normalized);
 }
 
+function formulaReferencesCurrentCell(formula: string, sheet: string, address: string): boolean {
+  const normalizedAddress = normalizeAddress(address);
+  const normalizedSheet = sheet.trim().toLowerCase();
+  for (const match of formula.matchAll(CELL_TOKEN_RE)) {
+    if (normalizeAddress(match[0]) !== normalizedAddress) continue;
+    const prefix = formula.slice(0, match.index ?? 0);
+    if (/\[[^\]]+\][^!]*!$/.test(prefix)) continue;
+    const quotedSheet = prefix.match(/'((?:[^']|'')+)'!$/);
+    if (quotedSheet) {
+      if (quotedSheet[1].replace(/''/g, "'").trim().toLowerCase() === normalizedSheet) return true;
+      continue;
+    }
+    const plainSheet = prefix.match(/(?:^|[^A-Za-z0-9_.])([A-Za-z_][A-Za-z0-9_.]*)!$/);
+    if (plainSheet) {
+      if (plainSheet[1].trim().toLowerCase() === normalizedSheet) return true;
+      continue;
+    }
+    return true;
+  }
+  return false;
+}
+
 function parseAddress(address: string): CellPosition | undefined {
   const match = normalizeAddress(address).match(A1_RE);
   if (!match) return undefined;
@@ -1234,6 +2786,72 @@ function compareAddresses(left: string, right: string): number {
   const b = parseAddress(right);
   if (!a || !b) return left.localeCompare(right);
   return a.row - b.row || a.col - b.col;
+}
+
+function formatWorkbookTargetRanges(keys: string[], sheetNames: string[]): string {
+  const canonicalSheets = new Map(sheetNames.map((sheet) => [sheet.toLowerCase(), sheet]));
+  const bySheet = new Map<string, string[]>();
+  for (const key of new Set(keys)) {
+    const separator = key.lastIndexOf("!");
+    if (separator < 1) continue;
+    const rawSheet = key.slice(0, separator);
+    const address = normalizeAddress(key.slice(separator + 1));
+    if (!parseAddress(address)) continue;
+    const sheet = canonicalSheets.get(rawSheet.toLowerCase()) ?? rawSheet;
+    const addresses = bySheet.get(sheet) ?? [];
+    addresses.push(address);
+    bySheet.set(sheet, addresses);
+  }
+
+  const formatted: string[] = [];
+  for (const [sheet, rawAddresses] of bySheet) {
+    const addresses = [...new Set(rawAddresses)].sort(compareAddresses);
+    const used = new Set<string>();
+    for (const rowAddresses of groupByMap(addresses, (address) => parseAddress(address)!.row).values()) {
+      const sorted = [...rowAddresses].sort(compareAddresses);
+      for (let index = 0; index < sorted.length;) {
+        const run = [sorted[index]];
+        let cursor = index + 1;
+        while (cursor < sorted.length) {
+          const previous = parseAddress(run.at(-1)!)!;
+          const next = parseAddress(sorted[cursor])!;
+          if (next.col !== previous.col + 1) break;
+          run.push(sorted[cursor]);
+          cursor += 1;
+        }
+        if (run.length > 1) {
+          run.forEach((address) => used.add(address));
+          formatted.push(formatSheetRange(sheet, run[0], run.at(-1)!));
+        }
+        index = cursor;
+      }
+    }
+
+    const remaining = addresses.filter((address) => !used.has(address));
+    for (const columnAddresses of groupByMap(remaining, (address) => parseAddress(address)!.col).values()) {
+      const sorted = [...columnAddresses].sort(compareAddresses);
+      for (let index = 0; index < sorted.length;) {
+        const run = [sorted[index]];
+        let cursor = index + 1;
+        while (cursor < sorted.length) {
+          const previous = parseAddress(run.at(-1)!)!;
+          const next = parseAddress(sorted[cursor])!;
+          if (next.row !== previous.row + 1) break;
+          run.push(sorted[cursor]);
+          cursor += 1;
+        }
+        run.forEach((address) => used.add(address));
+        formatted.push(formatSheetRange(sheet, run[0], run.at(-1)!));
+        index = cursor;
+      }
+    }
+  }
+  return formatted.join(", ");
+}
+
+function formatSheetRange(sheet: string, start: string, end: string): string {
+  const sheetToken = /^[A-Za-z0-9_]+$/.test(sheet) ? sheet : `'${sheet.replace(/'/g, "''")}'`;
+  return `${sheetToken}!${start}${start === end ? "" : `:${end}`}`;
 }
 
 function compactFormulaText(value: string): string {

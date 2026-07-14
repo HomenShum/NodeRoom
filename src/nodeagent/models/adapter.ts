@@ -19,20 +19,24 @@ import { dirname, resolve } from "node:path";
 import { anthropic } from "@ai-sdk/anthropic";
 import { google } from "@ai-sdk/google";
 import { openai, createOpenAI } from "@ai-sdk/openai";
-import type { AgentModel, AgentMessage, AgentToolChoice, ToolCall } from "../core/types";
+import type { AgentModel, AgentMessage, AgentTool, AgentToolChoice, ToolCall } from "../core/types";
 import { getProviderForModel, getModelPricing, resolveModelAlias } from "./modelCatalog";
 import {
   isOpenRouterFreeAutoModel,
   openRouterFreeCandidateSignal,
+  openRouterFreeCandidateTimeoutMs,
+  openRouterFreeRequestReserveMs,
   openRouterFreeRequestSignal,
+  openRouterFreeRequestTimeoutMs,
   openRouterFreeRouteHealthSnapshot,
   recordOpenRouterFreeRouteOutcome,
   restoreOpenRouterFreeRouteHealth,
   selectOpenRouterFreeModels,
   type OpenRouterFreeModelMode,
 } from "./openRouterFreeModels";
+import { QualityFailoverError, assessAgentToolTurnQuality, runQualityFailover, type QualityFailoverReceipt } from "./qualityFailover";
 import { redactPII } from "../guardrails/gateway";
-import { assertProviderEgressAllowed, assertProviderRouteAllowed, isProviderNonRetryableError, type ProviderEgressArtifact, type ProviderRouteEntrypoint } from "../guardrails/egressPolicy";
+import { assertProviderEgressAllowed, assertProviderRouteAllowed, isProviderNonRetryableError, type ProviderEgressArtifact, type ProviderRouteEntrypoint, type ProviderRouteReceipt } from "../guardrails/egressPolicy";
 
 // OpenRouter = OpenAI-compatible endpoint; this is how the cheap/free models are reached.
 // Built lazily (per call) so process.env.OPENROUTER_API_KEY is read AFTER .env.local loads —
@@ -82,7 +86,18 @@ export function model(modelId: string, options: ModelAdapterOptions = {}): Agent
       const safeSystem = redactPII(system).text;
       const safeMessages = messages.map((m) => (m.role === "user" && m.content ? { ...m, content: redactPII(m.content).text } : m));
       const sdkTools = Object.fromEntries(tools.map((t) => [t.name, tool({ description: t.description, inputSchema: t.schema })]));
-      const { res, resolvedModel } = await generateAgentText(aliasModelId, safeSystem, toSdkMessages(safeMessages), sdkTools, signal, entrypoint, artifacts, toolChoice, freeAutoMode);
+      const { res, resolvedModel, providerRoute, qualityFailover } = await generateAgentText(
+        aliasModelId,
+        safeSystem,
+        toSdkMessages(safeMessages),
+        sdkTools,
+        signal,
+        entrypoint,
+        artifacts,
+        toolChoice,
+        freeAutoMode,
+        { messages: safeMessages, tools },
+      );
       resolvedModelId = resolvedModel;
       const toolCalls: ToolCall[] = (res.toolCalls ?? []).map((tc: { toolCallId: string; toolName: string; input?: Record<string, unknown>; providerMetadata?: Record<string, unknown> }) => ({ id: tc.toolCallId, tool: tc.toolName, args: tc.input ?? {}, providerMetadata: tc.providerMetadata }));
       return {
@@ -90,6 +105,9 @@ export function model(modelId: string, options: ModelAdapterOptions = {}): Agent
         toolCalls,
         done: toolCalls.length === 0,
         usage: { inputTokens: res.usage?.inputTokens ?? 0, outputTokens: res.usage?.outputTokens ?? 0, cachedInputTokens: (res.usage as { cachedInputTokens?: number } | undefined)?.cachedInputTokens ?? 0 },
+        ...(providerRoute
+          ? { providerRoute: qualityFailover ? { ...providerRoute, qualityFailover } : providerRoute }
+          : {}),
       };
     },
   };
@@ -163,12 +181,18 @@ async function generateAgentText(
   artifacts: ProviderEgressArtifact[] = [],
   toolChoice?: AgentToolChoice,
   freeAutoMode?: OpenRouterFreeModelMode,
-): Promise<{ res: GenerateTextResultAny; resolvedModel: string }> {
+  qualityContext?: { messages: AgentMessage[]; tools: AgentTool[] },
+): Promise<{
+  res: GenerateTextResultAny;
+  resolvedModel: string;
+  providerRoute?: ProviderRouteReceipt;
+  qualityFailover?: QualityFailoverReceipt;
+}> {
   if (!isOpenRouterFreeAutoModel(modelId)) {
-    const call = (id: string) => {
-      assertProviderRouteAllowed({ model: id, entrypoint, env: process.env });
+    const call = async (id: string) => {
+      const providerRoute = assertProviderRouteAllowed({ model: id, entrypoint, env: process.env });
       assertProviderEgressAllowed({ model: id, entrypoint, artifacts, env: process.env });
-      return withRetry(() => generateText({
+      const res = await withRetry(() => generateText({
         model: providerFor(id),
         system,
         messages,
@@ -176,30 +200,35 @@ async function generateAgentText(
         toolChoice: Object.keys(sdkTools).length ? sdkToolChoiceForModel(id, toolChoice) : undefined,
         abortSignal: signal,
       }), signal);
+      return { res, providerRoute };
     };
     try {
-      return { res: await call(modelId), resolvedModel: modelId };
+      return { ...await call(modelId), resolvedModel: modelId };
     } catch (error) {
       const fb = fallbackModelFor(modelId);
       if (!fb || signal?.aborted) throw error;
-      return { res: await call(fb), resolvedModel: fb }; // primary exhausted retries → cross-model safety net
+      return { ...await call(fb), resolvedModel: fb }; // primary exhausted retries → cross-model safety net
     }
   }
   hydrateOpenRouterFreeRouteHealth();
+  const requestStartedAt = Date.now();
   const requestSignal = openRouterFreeRequestSignal(signal);
   const candidates = await selectOpenRouterFreeModels({
     mode: freeAutoMode ?? (Object.keys(sdkTools).length ? "agent" : "chat"),
     limit: openRouterFreeAutoLimit(),
     signal: requestSignal,
   });
-  let lastError: unknown;
-  const attempted: string[] = [];
-  for (const candidate of candidates) {
-    attempted.push(candidate.id);
-    const candidateSignal = openRouterFreeCandidateSignal(requestSignal);
-    const candidateStarted = Date.now();
-    try {
-      assertProviderRouteAllowed({ model: candidate.id, entrypoint, env: process.env });
+  const routed = await runQualityFailover({
+    candidates: candidates.map((candidate) => ({ ...candidate, provider: "openrouter" })),
+    budget: {
+      maxAttempts: candidates.length,
+      deadlineAt: requestStartedAt + openRouterFreeRequestTimeoutMs(),
+      reserveMs: openRouterFreeRequestReserveMs(),
+    },
+    attemptTimeoutMs: openRouterFreeCandidateTimeoutMs(),
+    signal,
+    execute: async (candidate, context) => {
+      const providerRoute = assertProviderRouteAllowed({ model: candidate.id, entrypoint, env: process.env });
       assertProviderEgressAllowed({ model: candidate.id, entrypoint, artifacts, env: process.env });
       const res = await withRetry(() => generateText({
         model: openrouter().chat(candidate.id),
@@ -207,21 +236,80 @@ async function generateAgentText(
         messages,
         tools: sdkTools,
         toolChoice: Object.keys(sdkTools).length ? sdkToolChoiceForModel(candidate.id, toolChoice) : undefined,
-        abortSignal: candidateSignal,
-      }), candidateSignal, openRouterFreeCandidateRetries());
-      recordAndPersistOpenRouterFreeRouteOutcome({ modelId: candidate.id, ok: true, latencyMs: Date.now() - candidateStarted });
-      return { res, resolvedModel: candidate.id };
-    } catch (error) {
-      if (signal?.aborted) throw error;
-      recordAndPersistOpenRouterFreeRouteOutcome({ modelId: candidate.id, ok: false, latencyMs: Date.now() - candidateStarted, error });
-      if (requestSignal.aborted) {
-        throw new Error(`openrouter/free-auto request deadline exceeded after ${attempted.join(", ")}`);
+        abortSignal: context.signal,
+      }), context.signal, openRouterFreeCandidateRetries());
+      return { res, providerRoute };
+    },
+    assessResult: ({ res }) => assessAgentToolTurnQuality({
+      text: res?.text,
+      toolCalls: ((res?.toolCalls ?? []) as Array<{ toolName: string; input?: unknown }>).map((call) => ({
+        tool: call.toolName,
+        args: (call.input ?? {}) as Record<string, unknown>,
+      })),
+      tools: qualityContext?.tools ?? [],
+      messages: qualityContext?.messages,
+      requiredToolCall: Object.keys(sdkTools).length > 0 && toolChoice === "required",
+    }),
+    onRouteAttempt: (attempt, candidate) => {
+      if (attempt.outcome === "accepted") {
+        recordAndPersistOpenRouterFreeRouteOutcome({ modelId: candidate.id, ok: true, latencyMs: attempt.durationMs });
+      } else if (
+        attempt.outcome === "provider_failure"
+        || attempt.outcome === "quality_failure"
+        || (attempt.outcome === "aborted" && attempt.reason === "time_budget_exhausted")
+      ) {
+        recordAndPersistOpenRouterFreeRouteOutcome({
+          modelId: candidate.id,
+          ok: false,
+          latencyMs: attempt.durationMs,
+          error: new Error(attempt.detail ?? attempt.reason),
+        });
       }
-      if (isProviderNonRetryableError(error)) throw error;
-      lastError = error;
-    }
+    },
+  });
+  if (routed.ok) {
+    return {
+      res: routed.result.res,
+      resolvedModel: routed.candidate.id,
+      providerRoute: routed.result.providerRoute,
+      qualityFailover: routed.receipt,
+    };
   }
-  throw new Error(`openrouter/free-auto failed for ${attempted.join(", ")}: ${shortProviderError(lastError)}`);
+  throw adapterQualityFailoverError(routed.receipt, routed.lastError);
+}
+
+function qualityAttemptedRoutes(receipt: QualityFailoverReceipt): string[] {
+  return receipt.routeAttempts.map((attempt) => attempt.routeId);
+}
+
+function adapterQualityFailoverError(
+  receipt: QualityFailoverReceipt,
+  cause?: unknown,
+): QualityFailoverError {
+  const attempted = qualityAttemptedRoutes(receipt).join(", ") || "no route attempts";
+  if (receipt.stopReason === "time_budget") {
+    return new QualityFailoverError(
+      `openrouter/free-auto request deadline exceeded after ${attempted}`,
+      receipt,
+      cause,
+    );
+  }
+  if (receipt.stopReason === "aborted") {
+    return new QualityFailoverError(
+      `openrouter/free-auto request aborted after ${attempted}`,
+      receipt,
+      cause,
+    );
+  }
+  const failure = cause
+    ?? receipt.terminalFailure?.detail
+    ?? receipt.terminalFailure?.reason
+    ?? receipt.stopReason;
+  return new QualityFailoverError(
+    `openrouter/free-auto failed for ${attempted}: ${shortProviderError(failure)}`,
+    receipt,
+    cause,
+  );
 }
 
 async function generatePromptText(modelId: string, prompt: string): Promise<GenerateTextResultAny> {

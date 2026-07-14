@@ -88,6 +88,7 @@ export interface CellPayload {
   evidence?: CellEvidence[];
   confidence?: number;
   formula?: string;
+  numFmt?: string;
   error?: string;
   normalizedValue?: unknown;
   attempts?: number;

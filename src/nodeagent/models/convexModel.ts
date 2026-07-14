@@ -11,13 +11,16 @@ import type { AgentMessage, AgentModel, AgentStep, AgentTool, AgentToolChoice, T
 import { getModelPricing, getProviderForModel, resolveModelAlias } from "./modelCatalog";
 import {
   isOpenRouterFreeAutoModel,
-  openRouterFreeCandidateSignal,
+  openRouterFreeCandidateTimeoutMs,
+  openRouterFreeRequestReserveMs,
   openRouterFreeRequestSignal,
+  openRouterFreeRequestTimeoutMs,
   recordOpenRouterFreeRouteOutcome,
   selectOpenRouterFreeModels,
   type OpenRouterFreeModelMode,
 } from "./openRouterFreeModels";
 import { openAiCompatibleTokenLimitParam } from "./openAiTokenLimit";
+import { QualityFailoverError, assessAgentToolTurnQuality, classifyQualityFailoverProviderError, runQualityFailover, type QualityFailoverReceipt } from "./qualityFailover";
 import { redactPII } from "../guardrails/gateway";
 import { assertProviderRouteAllowed, isProviderNonRetryableError, type ProviderRouteEntrypoint, type ProviderRouteReceipt } from "../guardrails/egressPolicy";
 
@@ -144,21 +147,27 @@ async function generateConvexAgentStep(
 ) {
   assertProviderRouteAllowed({ model: modelId, entrypoint, env: process.env });
   if (isOpenRouterFreeAutoModel(modelId)) {
+    const requestStartedAt = Date.now();
     const requestSignal = openRouterFreeRequestSignal(signal);
     const candidates = await selectOpenRouterFreeModels({
       mode: freeAutoMode ?? (tools.length ? "agent" : "chat"),
       limit: openRouterFreeAutoLimit(),
       signal: requestSignal,
     });
-    let lastError: unknown;
-    const attempted: string[] = [];
-    for (const candidate of candidates) {
-      attempted.push(candidate.id);
-      const startedAt = Date.now();
-      const candidateSignal = openRouterFreeCandidateSignal(requestSignal);
-      try {
+    const failover = await runQualityFailover({
+      candidates,
+      budget: {
+        maxAttempts: Math.min(candidates.length, openRouterFreeAutoLimit()),
+        deadlineAt: requestStartedAt + openRouterFreeRequestTimeoutMs(),
+        reserveMs: openRouterFreeRequestReserveMs(),
+      },
+      attemptTimeoutMs: openRouterFreeCandidateTimeoutMs(),
+      signal,
+      execute: async (candidate, context) => {
         const providerRoute = assertProviderRouteAllowed({ model: candidate.id, entrypoint, env: process.env });
-        const step = withProviderRoute(await withRetry(() => openAiCompatibleStep({
+        // The controller owns this deadline; do not wrap it with openRouterFreeCandidateSignal.
+        const candidateSignal = context.signal;
+        return withProviderRoute(await withRetry(() => openAiCompatibleStep({
             endpoint: `${openRouterBaseUrl()}/chat/completions`,
             apiKey: envValue("OPENROUTER_API_KEY"),
             headers: openRouterHeaders(),
@@ -170,22 +179,46 @@ async function generateConvexAgentStep(
             onTextDelta,
             toolChoice,
           }), candidateSignal, 0), providerRoute);
-        recordOpenRouterFreeRouteOutcome({ modelId: candidate.id, ok: true, latencyMs: Date.now() - startedAt });
-        return {
-          step,
-          resolvedModel: candidate.id,
-        };
-      } catch (error) {
-        recordOpenRouterFreeRouteOutcome({ modelId: candidate.id, ok: false, latencyMs: Date.now() - startedAt, error });
-        if (signal?.aborted) throw error;
-        if (requestSignal.aborted) {
-          throw new Error(`openrouter/free-auto request deadline exceeded after ${attempted.join(", ")}`);
-        }
-        if (isProviderNonRetryableError(error)) throw error;
-        lastError = error;
-      }
+      },
+      assessResult: (step) => assessAgentToolTurnQuality({
+        text: step.text,
+        toolCalls: step.toolCalls,
+        tools,
+        messages,
+        requiredToolCall: toolChoice === "required",
+      }),
+      classifyProviderFailure: (error) => {
+        const failure = classifyQualityFailoverProviderError(error);
+        return isProviderNonRetryableError(error) ? { ...failure, scope: "global" } : failure;
+      },
+      onRouteAttempt: (attempt, candidate) => {
+        if (
+          attempt.outcome !== "accepted"
+          && attempt.outcome !== "provider_failure"
+          && attempt.outcome !== "quality_failure"
+          && !(attempt.outcome === "aborted" && attempt.reason === "time_budget_exhausted")
+        ) return;
+        recordOpenRouterFreeRouteOutcome({
+          modelId: candidate.id,
+          ok: attempt.outcome === "accepted",
+          latencyMs: attempt.durationMs,
+          ...(attempt.outcome === "accepted" ? {} : { error: attempt.detail ?? attempt.reason }),
+        });
+      },
+    });
+    if (failover.ok) {
+      return {
+        step: {
+          ...failover.result,
+          providerRoute: {
+            ...failover.result.providerRoute,
+            qualityFailover: failover.receipt,
+          },
+        },
+        resolvedModel: failover.candidate.id,
+      };
     }
-    throw new Error(`openrouter/free-auto failed for ${attempted.join(", ")}: ${shortProviderError(lastError)}`);
+    throw convexQualityFailoverError(failover.receipt, failover.lastError);
   }
 
   try {
@@ -203,6 +236,36 @@ async function generateConvexAgentStep(
       resolvedModel: fb,
     };
   }
+}
+
+function convexQualityFailoverError(
+  receipt: QualityFailoverReceipt,
+  cause?: unknown,
+): QualityFailoverError {
+  const attempted = receipt.routeAttempts.map((attempt) => attempt.routeId).join(", ") || "no route attempts";
+  if (receipt.stopReason === "time_budget") {
+    return new QualityFailoverError(
+      `openrouter/free-auto request deadline exceeded after ${attempted}`,
+      receipt,
+      cause,
+    );
+  }
+  if (receipt.stopReason === "aborted") {
+    return new QualityFailoverError(
+      `openrouter/free-auto request aborted after ${attempted}`,
+      receipt,
+      cause,
+    );
+  }
+  const failure = cause
+    ?? receipt.terminalFailure?.detail
+    ?? receipt.terminalFailure?.reason
+    ?? receipt.stopReason;
+  return new QualityFailoverError(
+    `openrouter/free-auto failed for ${attempted}: ${shortProviderError(failure)}`,
+    receipt,
+    cause,
+  );
 }
 
 async function providerStep(
@@ -733,6 +796,11 @@ export function toolParameters(toolName: string): JsonObject {
     newValue: any,
     new_value: any,
     result: any,
+    formula: string,
+    numFmt: string,
+    num_fmt: string,
+    numberFormat: string,
+    number_format: string,
     text: any,
     content: any,
     expectedValue: any,
@@ -782,6 +850,12 @@ export function toolParameters(toolName: string): JsonObject {
     new_value: any,
     results: any,
     result: any,
+    formulas: any,
+    formula: any,
+    numFmts: any,
+    numFmt: any,
+    numberFormats: any,
+    numberFormat: any,
     text: any,
     content: any,
     expectedValue: any,
@@ -855,6 +929,17 @@ export function toolParameters(toolName: string): JsonObject {
     inspect_workbook: {
       type: "object",
       properties: { instruction: string, artifactId: string, query: string, maxCells: integer },
+      required: ["instruction"],
+    },
+    execute_verified_workbook_plan: {
+      type: "object",
+      properties: {
+        instruction: string,
+        artifactId: string,
+        query: string,
+        maxCells: integer,
+        reason: string,
+      },
       required: ["instruction"],
     },
     verify_workbook: {

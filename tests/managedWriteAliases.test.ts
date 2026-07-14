@@ -60,6 +60,75 @@ describe("managed write argument aliases", () => {
     expect(writes).toEqual([{ elementId: "r_cogs__note", value: "public-room proof", baseVersion: 7 }]);
   });
 
+  it("preserves formulas, cached results, and number formats through managed writes", async () => {
+    const tool = PRODUCTION_ROOM_TOOLS.find((candidate) => candidate.name === "write_locked_cells");
+    expect(tool).toBeTruthy();
+    const parsed = tool!.schema.safeParse({
+      artifactId: "sheet",
+      ops: [{
+        elementId: "C7",
+        formula: "=A7+B7",
+        result: 42,
+        numFmt: "$#,##0",
+        baseVersion: 7,
+      }],
+    });
+    expect(parsed.success).toBe(true);
+
+    const { rt, writes } = fakeRoomTools();
+    const result = await tool!.execute(parsed.success ? parsed.data : {}, rt);
+
+    expect(result).toMatchObject({ ok: true });
+    expect(writes).toEqual([{
+      elementId: "C7",
+      value: { value: 42, formula: "=A7+B7", numFmt: "$#,##0" },
+      baseVersion: 7,
+    }]);
+  });
+
+  it("unwraps or drops provider metadata objects used as formula results", async () => {
+    const tool = PRODUCTION_ROOM_TOOLS.find((candidate) => candidate.name === "write_locked_cells");
+    expect(tool).toBeTruthy();
+    const parsed = tool!.schema.safeParse({
+      artifactId: "sheet",
+      ops: [
+        { elementId: "C7", formula: "=A7+B7", result: { formula: "=A7+B7", result: 42 }, baseVersion: 7 },
+        { elementId: "D7", formula: "=B7+C7", result: { formula: "=B7+C7" }, baseVersion: 7 },
+      ],
+    });
+    expect(parsed.success).toBe(true);
+
+    const { rt, writes } = fakeRoomTools();
+    const result = await tool!.execute(parsed.success ? parsed.data : {}, rt);
+
+    expect(result).toMatchObject({ ok: true });
+    expect(writes.map((write) => write.value)).toEqual([
+      { value: 42, formula: "=A7+B7" },
+      { value: "", formula: "=B7+C7" },
+    ]);
+  });
+
+  it("normalizes parallel formula arrays emitted by low-cost tool callers", async () => {
+    const tool = PRODUCTION_ROOM_TOOLS.find((candidate) => candidate.name === "write_locked_cells");
+    expect(tool).toBeTruthy();
+    const parsed = tool!.schema.safeParse({
+      elementIds: ["C7", "D7"],
+      results: [42, 55],
+      formulas: ["=A7+B7", "=B7+C7"],
+      numFmts: ["$#,##0", "$#,##0"],
+      baseVersions: [7, 7],
+    });
+    expect(parsed.success).toBe(true);
+
+    const { rt, writes } = fakeRoomTools();
+    await tool!.execute(parsed.success ? parsed.data : {}, rt);
+
+    expect(writes.map((write) => write.value)).toEqual([
+      { value: 42, formula: "=A7+B7", numFmt: "$#,##0" },
+      { value: 55, formula: "=B7+C7", numFmt: "$#,##0" },
+    ]);
+  });
+
   it("repairs missing managed-write arguments from a single exact user request", async () => {
     const { rt, writes } = fakeRoomTools();
     const model: AgentModel = {
