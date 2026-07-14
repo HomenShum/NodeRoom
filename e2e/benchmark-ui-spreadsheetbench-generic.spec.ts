@@ -230,7 +230,9 @@ async function runWorkbookCase(
 }
 
 async function createFreshRoom(page: Page): Promise<void> {
-  await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  const desktopUrl = new URL(BASE);
+  desktopUrl.searchParams.set("surface", "desktop");
+  await page.goto(desktopUrl.toString(), { waitUntil: "domcontentloaded", timeout: 60_000 });
   expect(page.url(), "SpreadsheetBench prod adapter must not use memory mode").not.toContain("mode=memory");
   await page.getByTestId("create-room").click({ timeout: 60_000 });
   const displayName = page.getByTestId("create-display-name");
@@ -323,7 +325,8 @@ async function invokeNodeAgent(page: Page, prompt: string, expectedPhrase: strin
     const detailText = await quickText(page.getByTestId("job-detail").first(), 500);
     if (detailText) lastDetailText = detailText;
     const route = page.locator(".r-job-route").first();
-    const visibleRoute = `${await quickText(route, 500)} ${await route.getAttribute("title").catch(() => "") ?? ""}`.trim();
+    const routeTitle = await route.getAttribute("title", { timeout: 500 }).catch(() => "");
+    const visibleRoute = `${await quickText(route, 500)} ${routeTitle ?? ""}`.trim();
     if (visibleRoute) routeText = visibleRoute;
     if (sawFreshAgentOutput && /\b(failed|blocked|cancelled)\b/i.test(status)) throw new Error(`NodeAgent failed: ${lastText}`);
     if (new RegExp(escapeRegex(expectedPhrase), "i").test(`${latestAgentMessage}\n${latestStream}`) || (sawFreshAgentOutput && /\b(completed|done)\b/i.test(status))) {

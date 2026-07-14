@@ -2,6 +2,20 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 describe("long-running agent job source invariants", () => {
+  it("installs the verified workbook workflow hook in both production NodeAgent paths", () => {
+    const agent = readFileSync("convex/agent.ts", "utf8");
+    const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
+    const frameRunner = readFileSync("src/nodeagent/core/frameRunner.ts", "utf8");
+
+    for (const source of [agent, runner]) {
+      expect(source).toContain("createVerifiedWorkbookWorkflowHook");
+      expect(source).toContain("hooks: workbookWorkflowHooks");
+    }
+    expect(runner.match(/hooks: workbookWorkflowHooks/g)).toHaveLength(2);
+    expect(frameRunner).toContain("hooks?: NodeAgentHook[]");
+    expect(frameRunner).toContain("hooks: opts.hooks");
+  });
+
   it("schedules continuation inside finishSlice, not after the action checkpoint returns", () => {
     const jobs = readFileSync("convex/agentJobs.ts", "utf8");
     const runner = readFileSync("convex/agentJobRunner.ts", "utf8");

@@ -52,6 +52,7 @@ import {
 } from "../src/nodeagent/guardrails/egressPolicy";
 import { buildPlanPreview, classifyIntakeMessage } from "../src/nodeagent/core/intakePreflight";
 import { makeConvexStepJournal } from "./agentStepJournalClient";
+import { createVerifiedWorkbookWorkflowHook } from "../src/nodeagent/guardrails/workbookWorkflow";
 
 const CONVEX_ACTION_LIMIT_MS = 10 * 60_000;
 const DEFAULT_ACTION_RESERVE_MS = 30_000;
@@ -596,6 +597,7 @@ export const runRoomAgent = action({
           // Memory injection must never block the agent run — fail silently to the base prompt.
         }
       }
+      const workbookWorkflowHooks = [createVerifiedWorkbookWorkflowHook()];
       result = await runAgent({
         rt,
         goal: a.goal,
@@ -603,6 +605,7 @@ export const runRoomAgent = action({
         tools: PRODUCTION_ROOM_TOOLS,
         systemPrompt,
         maxSteps,
+        hooks: workbookWorkflowHooks,
         // Route the JIT context by artifact kind so the agent can edit ANY artifact, not just the
         // variance sheet: research sheet → research builder; note → note builder; wall → wall builder;
         // any other sheet → the default variance/sheet builder (runtime falls back when undefined).

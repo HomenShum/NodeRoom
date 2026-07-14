@@ -41,6 +41,7 @@ import {
   type ProviderEgressEntrypoint,
 } from "../src/nodeagent/guardrails/egressPolicy";
 import { makeConvexStepJournal } from "./agentStepJournalClient";
+import { createVerifiedWorkbookWorkflowHook } from "../src/nodeagent/guardrails/workbookWorkflow";
 
 const CONVEX_ACTION_LIMIT_MS = 10 * 60_000;
 const DEFAULT_SLICE_BUDGET_MS = 7 * 60_000;
@@ -675,6 +676,7 @@ export const runFreeAutoJobSlice = internalAction({
       const activeFrameId = activeFrame?.frameId;
       const initialMessages = messagesFromCursor(claimed.cursor, activeFrameId);
       const resumeToolCalls = remainingToolCallsFromCursor(claimed.cursor, activeFrameId);
+      const workbookWorkflowHooks = [createVerifiedWorkbookWorkflowHook()];
       let frameReceipt: ReasoningFrameRunReceipt | undefined;
       let result: AgentResult | null = await tryRunHmdaUnderwritingBenchmark({
         rt,
@@ -770,6 +772,7 @@ export const runFreeAutoJobSlice = internalAction({
               completedAt: Date.now(),
             });
           },
+          hooks: workbookWorkflowHooks,
         })).agentResult
         : await runAgent({
         rt,
@@ -802,6 +805,7 @@ export const runFreeAutoJobSlice = internalAction({
             completedAt: Date.now(),
           });
         },
+        hooks: workbookWorkflowHooks,
       });
       }
       const { runId, telemetry } = await recordRun(result);
