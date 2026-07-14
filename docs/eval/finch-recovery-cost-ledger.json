@@ -1,0 +1,69 @@
+{
+  "schema": "finch-recovery-cost-ledger-v1",
+  "generatedAt": "2026-07-10T14:10:48.907Z",
+  "canonicalInputSha256": "3ec34639c8223c4ceb8f13307725539a9a04317fed00805f302dc86cfd7de2e2",
+  "acceptedRunId": "canonical-hashbound",
+  "directOpenAiProviderCostUsd": 3.842859,
+  "acceptedRunProviderCostUsd": 1.368019,
+  "azureProviderCalls": 0,
+  "runs": [
+    {
+      "id": "canonical-original",
+      "provider": "openai",
+      "tasks": 172,
+      "providerCalls": 172,
+      "providerCostUsd": 1.113033,
+      "inputSha256": "f3740120bddfeb654c0b4c8839e797c287502b4da8cdc3ed79e30750bad9dee7",
+      "judgeOutputSha256": "dc977cd68149c72b8d1171e79896c6ce4f9c96d0e9b06f82be4122893575dd4e",
+      "decision": "invalidated",
+      "reason": "Routine regeneration exposed that the rendered scorer input had been deleted and rebuilt to a different hash. The old receipt was not reused."
+    },
+    {
+      "id": "canonical-regenerated-unbound",
+      "provider": "openai",
+      "tasks": 172,
+      "providerCalls": 172,
+      "providerCostUsd": 1.361807,
+      "inputSha256": "3ec34639c8223c4ceb8f13307725539a9a04317fed00805f302dc86cfd7de2e2",
+      "judgeOutputSha256": "041e9b6ee43dc3e8a13e8a9df90c1065f4d017eb9870ec660f02eed8186a7554",
+      "decision": "rejected",
+      "reason": "The run completed after a cancellation attempt, but its result rows predated task-level input hashes. The strengthened promoter rejected task 0 and wrote no score file."
+    },
+    {
+      "id": "canonical-hashbound",
+      "provider": "openai",
+      "tasks": 172,
+      "providerCalls": 172,
+      "providerCostUsd": 1.368019,
+      "inputSha256": "3ec34639c8223c4ceb8f13307725539a9a04317fed00805f302dc86cfd7de2e2",
+      "judgeOutputSha256": "4687f3165f869dce84bc709861c6501d1614d914158cf8ed43ec4a6ea11416b4",
+      "taskBindingCount": 172,
+      "taskBindingAggregateSha256": "01dda0b94a6ac7d24b989e00287514a727eabaf30cb2503da6791a412de0a94c",
+      "meanScore": 0.0872093,
+      "passCount": 15,
+      "parseErrors": 0,
+      "decision": "accepted"
+    },
+    {
+      "id": "free-router-shadow-hashbound",
+      "provider": "openrouter",
+      "model": "openrouter/free",
+      "attemptedTaskRows": 7,
+      "providerCalls": 20,
+      "completedTasks": 0,
+      "estimatedProviderCostUsd": 0,
+      "failureReserveUsd": 2,
+      "official": false,
+      "promotionAllowed": false,
+      "decision": "availability_evidence_only"
+    }
+  ],
+  "controls": {
+    "globalInputHashRequired": true,
+    "taskInputHashRequired": true,
+    "judgeOutputHashRequired": true,
+    "canonicalProvider": "openai",
+    "azureConfigured": false,
+    "freeRouterCanPromote": false
+  }
+}

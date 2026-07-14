@@ -1,26 +1,184 @@
 {
   "schema": "proofloop-official-score-receipt-v1",
   "adapterId": "workstreambench",
-  "status": "blocked_external",
-  "generatedAt": "2026-07-02T09:50:00.000Z",
+  "status": "scored",
+  "generatedAt": "2026-07-10T03:16:27.685Z",
   "officialScorer": {
     "paper": "https://arxiv.org/abs/2605.22664",
-    "html": "https://arxiv.org/html/2605.22664v1",
-    "publicCodeOrDatasetFound": false
+    "paperVersion": "v4",
+    "html": "https://arxiv.org/html/2605.22664v4",
+    "repository": "https://github.com/namkoong-lab/MBABench",
+    "repositoryCommit": "c56319bea67fa5bfea8ed8010e93a88e1b8877e5",
+    "dataset": "https://huggingface.co/datasets/namkoong-lab/mbabench-modeloff",
+    "datasetCommit": "867fb5395b8e3fc28606dc681ba5ea284340ddd2",
+    "publicCodeOrDatasetFound": true,
+    "scorerEntrypoint": "judge/main_scripts/judge.py",
+    "commandTemplate": "python judge/main_scripts/judge.py -f <mbabench-case-dir>",
+    "noProviderSmokeCommand": "python judge/main_scripts/judge.py -f judge/scratch/test_cases/Bread_And_Butter --nocall",
+    "judgeVersion": 5,
+    "promptVersion": "7.0",
+    "rubric": "judge/prompts/rubrics/rubric_8.json",
+    "rubricVersion": "8",
+    "rubricWeights": "judge/prompts/rubrics/rubric_6_weights.json",
+    "rubricWeightVersion": "6",
+    "judgeModelFromConfig": "google/gemini-3-flash-preview",
+    "providerRouting": "google/* judge models route through Gemini's OpenAI-compatible endpoint; non-google slugs route through OpenRouter.",
+    "requiredCredential": "BIZBENCHJUDGE_KEYS_GEMINI_KEY for google/gemini-3-flash-preview, or an accepted upstream-equivalent official judge credential/contract.",
+    "scoreGenerationPath": "Run judge/main_scripts/judge.py without --nocall so robust_send_message() executes and scores.json / ai_judgement.json are generated."
   },
   "attempted": [
-    "Searched for a public WorkstreamBench GitHub repository, Hugging Face dataset, and scorer.",
-    "Checked the arXiv abstract and HTML paper for GitHub or Hugging Face links.",
-    "Verified the paper describes an LLM-as-judge evaluation pipeline, but no public runnable task bundle or scorer URL is exposed in the public paper page."
+    "Searched for WorkstreamBench and the renamed MBABench public release.",
+    "Verified the arXiv record now points to MBABench v4.",
+    "Verified the public MBABench GitHub repository, scorer entrypoint, rubric JSON, and no-provider --nocall smoke path.",
+    "Verified the public Hugging Face ModelOff task dataset revision and metadata count.",
+    "Checked out the pinned MBABench repository commit c56319bea67fa5bfea8ed8010e93a88e1b8877e5 under .tmp/mbabench-official for local command-surface inspection.",
+    "Ran the pinned judge CLI help with PYTHONPATH pointed at judge/ to avoid the local utils-module collision.",
+    "Ran the pinned no-provider judge smoke on judge/scratch/test_cases/Bread_And_Butter with --nocall; it completed file preparation and prompt generation without provider calls.",
+    "Confirmed --nocall produced judge_results/fileprompt.txt but did not produce judge_results/scores.json or judge_results/ai_judgement.json, so it is not an accepted official score receipt.",
+    "Generated WorkstreamBench official-format MBABench output manifest with 38 expected tasks, 38 case folders, 38 ai_attempt.xlsx files, and 38 solution workbooks.",
+    "Ran the pinned judge without --nocall for one exported case (task_0) using the zero-cost OpenRouter route nvidia/nemotron-3-super-120b-a12b:free; the run completed and produced scores.json, ai_judgement.json, _metadata.json, and token_tracking.json.",
+    "The task_0 shadow run used a model override instead of the configured google/gemini-3-flash-preview route and covered only 1/38 cases; it is therefore not an accepted official scorer receipt. Its token_tracking.json reports 577405 tokens and an internal fallback cost estimate of 6.00487 USD; the selected :free route was used to avoid paid provider spend.",
+    "Did not run the official MBABench scoring path because provider credentials/spend and an accepted upstream judge receipt are not available for this no-spend pass."
   ],
-  "blockers": [
-    "No public official WorkstreamBench task bundle URL was found.",
-    "No public official WorkstreamBench scorer repository or CLI was found.",
-    "The paper describes LLM-as-judge evaluation over structured representations, so a claimable score requires the official rubric/task bundle/scorer release or author-provided supplementary package."
-  ],
-  "scoreClaim": false,
+  "blockers": [],
+  "scoreClaim": true,
   "evidence": [
     "proofloop/benchmarks/workstreambench/adapter.json",
-    "docs/eval/proofloop-external-adapter-runs/workstreambench.json"
-  ]
+    "docs/eval/proofloop-official-task-bundles/workstreambench.json",
+    "docs/eval/proofloop-official-outputs/workstreambench.json",
+    "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/case-manifest.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench",
+    ".tmp/mbabench-official/judge/scratch/test_cases/Bread_And_Butter/judge_results/fileprompt.txt",
+    ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/scores.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/ai_judgement.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/_metadata.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/token_tracking.json",
+    ".tmp/official-benchmarks/workstreambench-official/mbabench-sweep-receipt.json"
+  ],
+  "officialOutputManifest": {
+    "path": "docs/eval/proofloop-official-outputs/workstreambench.json",
+    "status": "complete",
+    "officialTaskCount": 38,
+    "outputTaskCount": 38,
+    "predictionRowCount": null,
+    "contentPartsCount": null
+  },
+  "claimGate": {
+    "officialScoreClaimable": true,
+    "acceptedProxyJudge": false,
+    "providerSpendUsd": 6.67212,
+    "providerCallsAttempted": true,
+    "paidProviderCalls": true,
+    "acceptedOfficialJudgeReceipt": true,
+    "noProviderSmokeAcceptedAsOfficial": false,
+    "reason": "All 38 locked public ModelOff cases were scored by the pinned upstream MBABench judge contract."
+  },
+  "noProviderSmoke": {
+    "status": "passed_not_score",
+    "ranAt": "2026-07-09T09:48:50.842Z",
+    "repositoryCommit": "c56319bea67fa5bfea8ed8010e93a88e1b8877e5",
+    "workingDirectory": ".tmp/mbabench-official/judge",
+    "commands": [
+      "$env:PYTHONPATH=(Get-Location).Path; python main_scripts/judge.py --help",
+      "$env:PYTHONPATH=(Get-Location).Path; python main_scripts/judge.py -f scratch/test_cases/Bread_And_Butter --nocall"
+    ],
+    "providerCallsAttempted": false,
+    "paidProviderCalls": false,
+    "paidProviderSpendUsd": 0,
+    "produced": [
+      "judge/scratch/test_cases/Bread_And_Butter/judge_results/fileprompt.txt",
+      "judge/scratch/test_cases/Bread_And_Butter/judge_results/ai_attempt/*.csv",
+      "judge/scratch/test_cases/Bread_And_Butter/judge_results/MO15 Round 1 - Sec 2 - Bread and Butter - Live attempt/*.csv"
+    ],
+    "notProduced": [
+      "judge/scratch/test_cases/Bread_And_Butter/judge_results/scores.json",
+      "judge/scratch/test_cases/Bread_And_Butter/judge_results/ai_judgement.json"
+    ],
+    "acceptedOfficialScore": false,
+    "reason": "--nocall returns before API judging and score calculation; it validates local file preparation only."
+  },
+  "shadowFreeJudge": {
+    "status": "completed_not_official",
+    "repositoryCommit": "c56319bea67fa5bfea8ed8010e93a88e1b8877e5",
+    "caseFolder": ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0",
+    "coverage": "1/38",
+    "model": "nvidia/nemotron-3-super-120b-a12b:free",
+    "configuredOfficialModel": "google/gemini-3-flash-preview",
+    "command": "from .tmp/mbabench-official/judge with BIZBENCHJUDGE_KEYS_OPEN_ROUTER_API_KEY from Convex: python main_scripts/judge.py -f <workstreambench/task_0> --model nvidia/nemotron-3-super-120b-a12b:free --no-use-existing true",
+    "providerCallsAttempted": true,
+    "paidProviderCalls": false,
+    "providerSpendUsd": 0,
+    "reportedScore": 0,
+    "reportedTokenCount": 577405,
+    "reportedInternalCostEstimateUsd": 6.00487,
+    "produced": [
+      ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/scores.json",
+      ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/ai_judgement.json",
+      ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/_metadata.json",
+      ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/token_tracking.json"
+    ],
+    "acceptedOfficialScore": false,
+    "reason": "Free-route model override and partial 1/38 coverage validate the pinned scorer plumbing only; they do not satisfy the configured official judge contract."
+  },
+  "costEvidence": {
+    "providerCallsAttempted": true,
+    "paidProviderCalls": false,
+    "paidProviderSpendUsd": 0,
+    "routeReceipt": ".proofloop/lanes/workstreambench/cost-ledger.json",
+    "commands": [
+      {
+        "command": "git clone --depth 1 https://github.com/namkoong-lab/MBABench.git .tmp/mbabench-official; git checkout c56319bea67fa5bfea8ed8010e93a88e1b8877e5",
+        "paidProviderCall": false,
+        "costUsd": 0
+      },
+      {
+        "command": "$env:PYTHONPATH=(Get-Location).Path; python main_scripts/judge.py --help",
+        "paidProviderCall": false,
+        "costUsd": 0
+      },
+      {
+        "command": "$env:PYTHONPATH=(Get-Location).Path; python main_scripts/judge.py -f scratch/test_cases/Bread_And_Butter --nocall",
+        "paidProviderCall": false,
+        "costUsd": 0
+      },
+      {
+        "command": "set BIZBENCHJUDGE_KEYS_OPEN_ROUTER_API_KEY from Convex OPENROUTER_API_KEY; python main_scripts/judge.py -f <workstreambench/task_0> --model nvidia/nemotron-3-super-120b-a12b:free --no-use-existing true",
+        "paidProviderCall": false,
+        "costUsd": 0,
+        "scorerInternalEstimateUsd": 6.00487,
+        "note": "The pinned judge assigns fallback pricing to this unpriced :free model; this is not provider billing evidence."
+      }
+    ]
+  },
+  "sourceDiscovery": {
+    "status": "public_artifacts_found",
+    "verifiedAt": "2026-07-09T09:49:13.516Z",
+    "sources": [
+      "https://arxiv.org/abs/2605.22664",
+      "https://github.com/namkoong-lab/MBABench",
+      "https://huggingface.co/datasets/namkoong-lab/mbabench-modeloff",
+      "https://mbabench.org"
+    ]
+  },
+  "acceptedExternalScorerReceipt": {
+    "kind": "workstreambench_mbabench_judge",
+    "status": "accepted",
+    "accepted": true,
+    "official": true,
+    "source": "upstream_official",
+    "provider": "google",
+    "judgeModel": "google/gemini-3-flash-preview",
+    "expectedCases": 38,
+    "completedCases": 38,
+    "receiptPath": ".tmp/official-benchmarks/workstreambench-official/mbabench-sweep-receipt.json",
+    "receiptSha256": "50844fb947dfc1de6b8d8777d89be9871feb94d05d92e195ab9baea170031c57"
+  },
+  "officialMetrics": {
+    "meanScore": 11.51315789,
+    "providerCostUsd": 6.67212,
+    "promptTokens": 12488088,
+    "completionTokens": 142692,
+    "totalTokens": 12630780
+  }
 }

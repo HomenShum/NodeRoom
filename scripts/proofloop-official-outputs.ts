@@ -1,5 +1,6 @@
-import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { createHash } from "node:crypto";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, extname, join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import ExcelJS from "exceljs";
 import type { BenchmarkAdapterId } from "../src/eval/proofloopBenchmarkAdapters";
@@ -7,12 +8,19 @@ import {
   officialOutputManifestPath,
   type ProofloopOfficialOutputManifest,
 } from "../src/eval/proofloopOfficialOutputManifests";
+import {
+  resetFinchModelOutputBaseline,
+  shouldPreserveOfficialScoreClaim,
+} from "../src/eval/finchOfficialOutputSafety";
 
 type OutputAdapterId = Extract<BenchmarkAdapterId, "finch" | "finauditing">;
 
 type FinchTask = {
   id: string;
   source_files?: string[];
+  reference_outputs?: {
+    files?: string[];
+  };
 };
 
 const args = process.argv.slice(2);
@@ -22,8 +30,13 @@ const root = process.cwd();
 const generatedAt = new Date().toISOString();
 const python = optionValue("--python") ?? "python";
 const runFinchPipeline = args.includes("--run-finch-pipeline") && !args.includes("--skip-finch-pipeline");
+const refreshExistingFinch = args.includes("--refresh-existing-finch");
 const localRoot = optionValue("--output-root") ?? ".tmp/official-benchmarks/proofloop-official-outputs";
 const manifests: ProofloopOfficialOutputManifest[] = [];
+
+if (refreshExistingFinch && runFinchPipeline) {
+  throw new Error("--refresh-existing-finch cannot be combined with --run-finch-pipeline.");
+}
 
 const FIN_AUDITING_EXPORTER_PY = String.raw`
 import json
@@ -138,51 +151,92 @@ async function exportFinch(): Promise<ProofloopOfficialOutputManifest> {
   const outputRoot = resolve(root, localRoot, adapterId);
   const modelName = "noderoom-source-workbook-baseline";
   const modelOutputDir = join(outputRoot, "model-output", modelName);
+  const modelOutputManifestPath = join(outputRoot, "model-output-manifest.json");
   const evalSetRoot = join(outputRoot, "eval_set");
   const blockers: string[] = [];
   const evidence: string[] = [];
-
-  rmSync(outputRoot, { recursive: true, force: true });
-  mkdirSync(modelOutputDir, { recursive: true });
 
   const tasks = existsSync(jsonlPath) ? readJsonl<FinchTask>(jsonlPath) : [];
   if (tasks.length === 0) blockers.push(`Finch official task JSONL is missing or empty: ${jsonlPath}`);
 
   let outputTaskCount = 0;
   let generatedBlankWorkbookCount = 0;
-  for (const task of tasks) {
-    const taskId = String(task.id);
-    const sources = task.source_files ?? [];
-    if (sources.length === 0) {
-      await writeBlankFinchWorkbook(join(modelOutputDir, `${taskId}.xlsx`), task);
-      generatedBlankWorkbookCount++;
+  if (refreshExistingFinch) {
+    const existingManifest = readJson<{
+      generatedBlankWorkbookCount?: number;
+      modelName?: string;
+      outputTaskCount?: number;
+      taskCount?: number;
+    }>(modelOutputManifestPath);
+    const outputIds = existsSync(modelOutputDir)
+      ? new Set(readdirSync(modelOutputDir, { withFileTypes: true })
+          .filter((entry) => entry.isFile())
+          .map((entry) => {
+            const extension = extname(entry.name);
+            return extension ? entry.name.slice(0, -extension.length) : entry.name;
+          }))
+      : new Set<string>();
+    outputTaskCount = tasks.filter((task) => outputIds.has(String(task.id))).length;
+    generatedBlankWorkbookCount = existingManifest?.generatedBlankWorkbookCount ?? 0;
+    if (!existingManifest) {
+      blockers.push(`Finch model-output manifest is missing or invalid: ${modelOutputManifestPath}`);
+    } else {
+      evidence.push(normalizeEvidence(modelOutputManifestPath));
+      if (existingManifest.modelName !== modelName) {
+        blockers.push(`Finch model-output manifest names ${existingManifest.modelName ?? "no model"}; expected ${modelName}.`);
+      }
+      if (existingManifest.taskCount !== tasks.length || existingManifest.outputTaskCount !== outputTaskCount) {
+        blockers.push(`Finch model-output manifest coverage disagrees with disk: manifest=${existingManifest.outputTaskCount ?? 0}/${existingManifest.taskCount ?? 0}, disk=${outputTaskCount}/${tasks.length}.`);
+      }
+    }
+    if (outputTaskCount < tasks.length) {
+      blockers.push(`Finch existing model-output coverage is ${outputTaskCount}/${tasks.length}.`);
+    }
+  } else {
+    // Upstream Finch rendering is expensive. Regenerate only the baseline outputs;
+    // keep eval_set/content_parts so routine manifest refreshes are non-destructive.
+    resetFinchModelOutputBaseline({ outputRoot, modelOutputDir, modelOutputManifestPath });
+    mkdirSync(modelOutputDir, { recursive: true });
+    for (const task of tasks) {
+      const taskId = String(task.id);
+      const sources = task.source_files ?? [];
+      if (sources.length === 0) {
+        await writeBlankFinchWorkbook(join(modelOutputDir, `${taskId}.xlsx`), task);
+        generatedBlankWorkbookCount++;
+        outputTaskCount++;
+        continue;
+      }
+      const sourcePath = join(datasetRoot, "files", taskId, sources[0]);
+      if (!existsSync(sourcePath)) {
+        blockers.push(`Finch source workbook missing for task ${taskId}: ${sourcePath}`);
+        continue;
+      }
+      const sourceSuffix = extname(sourcePath).toLowerCase() || ".bin";
+      const expectedSuffix = extname(task.reference_outputs?.files?.[0] ?? "").toLowerCase();
+      if (isExcelSuffix(expectedSuffix) && !isExcelSuffix(sourceSuffix)) {
+        await writeBlankFinchWorkbook(join(modelOutputDir, `${taskId}.xlsx`), task);
+        generatedBlankWorkbookCount++;
+      } else {
+        copyFileSync(sourcePath, join(modelOutputDir, `${taskId}${sourceSuffix}`));
+      }
       outputTaskCount++;
-      continue;
     }
-    const sourcePath = join(datasetRoot, "files", taskId, sources[0]);
-    if (!existsSync(sourcePath)) {
-      blockers.push(`Finch source workbook missing for task ${taskId}: ${sourcePath}`);
-      continue;
-    }
-    const suffix = sourcePath.toLowerCase().endsWith(".xlsm") ? ".xlsm" : ".xlsx";
-    copyFileSync(sourcePath, join(modelOutputDir, `${taskId}${suffix}`));
-    outputTaskCount++;
+
+    writeJson(modelOutputManifestPath, {
+      schema: "proofloop-finch-model-output-manifest-v1",
+      generatedAt,
+      modelName,
+      generationPolicy: "No-op baseline: preserve each source artifact format, or emit a blank workbook when a non-Excel source requires an Excel output. This is scorer-ingestable artifact coverage, not an official score claim.",
+      taskCount: tasks.length,
+      outputTaskCount,
+      generatedBlankWorkbookCount,
+      modelOutputDir,
+    });
+    evidence.push(normalizeEvidence(modelOutputManifestPath));
   }
 
-  const modelOutputManifestPath = join(outputRoot, "model-output-manifest.json");
-  writeJson(modelOutputManifestPath, {
-    schema: "proofloop-finch-model-output-manifest-v1",
-    generatedAt,
-    modelName,
-    generationPolicy: "No-op baseline: copy each official source workbook as the model output. This is scorer-ingestable artifact coverage, not an official score claim.",
-    taskCount: tasks.length,
-    outputTaskCount,
-    generatedBlankWorkbookCount,
-    modelOutputDir,
-  });
-  evidence.push(normalizeEvidence(modelOutputManifestPath));
-
   let contentPartsCount = 0;
+  let contentPartsSha256: string | undefined;
   let pipelineExitCode: number | null = null;
   if (runFinchPipeline && tasks.length > 0 && outputTaskCount === tasks.length) {
     const pipeline = spawnSync(
@@ -214,11 +268,12 @@ async function exportFinch(): Promise<ProofloopOfficialOutputManifest> {
   const contentPartsPath = join(evalSetRoot, modelName, "content_parts.jsonl");
   if (existsSync(contentPartsPath)) {
     contentPartsCount = countNonEmptyLines(contentPartsPath);
+    contentPartsSha256 = sha256File(contentPartsPath);
     evidence.push(normalizeEvidence(contentPartsPath));
-  } else if (runFinchPipeline) {
+  } else if (runFinchPipeline || refreshExistingFinch) {
     blockers.push(`Finch content_parts.jsonl was not produced: ${contentPartsPath}`);
   }
-  if (runFinchPipeline && tasks.length > 0 && contentPartsCount < tasks.length) {
+  if ((runFinchPipeline || refreshExistingFinch) && tasks.length > 0 && contentPartsCount < tasks.length) {
     blockers.push(`Finch content_parts coverage is ${contentPartsCount}/${tasks.length}.`);
   }
 
@@ -231,19 +286,26 @@ async function exportFinch(): Promise<ProofloopOfficialOutputManifest> {
     officialTaskCount: tasks.length,
     outputTaskCount,
     contentPartsCount,
+    contentPartsSha256,
     outputRoot: normalizeEvidence(outputRoot),
     officialFormat: "Finch eval_set/<model>/content_parts.jsonl produced by upstream src/prompt_build_pipeline.py from official task JSONL plus model workbook outputs.",
-    generationPolicy: "No-op source-workbook baseline; sufficient to prove exporter/scorer-ingestion shape, not sufficient to claim a good model score.",
+    generationPolicy: refreshExistingFinch
+      ? "Non-destructive refresh of the existing no-op source-workbook baseline and recovered upstream content parts; no output artifacts were regenerated."
+      : contentPartsCount > 0
+        ? "No-op source-workbook baseline regenerated non-destructively; existing upstream content parts were preserved."
+        : "No-op source-workbook baseline; sufficient to prove exporter/scorer-ingestion shape, not sufficient to claim a good model score.",
     upstreamPipeline: {
       ran: runFinchPipeline,
       exitCode: pipelineExitCode,
       contentPartsPath: normalizeEvidence(contentPartsPath),
-      status: runFinchPipeline
-        ? contentPartsCount === tasks.length ? "complete" : "partial"
-        : "skipped",
-      blocker: runFinchPipeline && contentPartsCount < tasks.length
+      status: contentPartsCount === tasks.length
+        ? "complete"
+        : runFinchPipeline || refreshExistingFinch
+          ? "partial"
+          : "skipped",
+      blocker: (runFinchPipeline || refreshExistingFinch) && contentPartsCount < tasks.length
         ? `Upstream Finch content_parts rendering is ${contentPartsCount}/${tasks.length}; official judge input remains partial.`
-        : !runFinchPipeline
+        : !runFinchPipeline && !refreshExistingFinch
           ? "Upstream Finch content_parts rendering skipped by default because it is slow and not required to prove model-output artifact coverage."
           : undefined,
     },
@@ -338,20 +400,66 @@ async function writeBlankFinchWorkbook(path: string, task: FinchTask): Promise<v
   await workbook.xlsx.writeFile(path);
 }
 
+function isExcelSuffix(value: string): boolean {
+  return value === ".xlsx" || value === ".xlsm" || value === ".xls";
+}
+
 function updateOfficialScoreReceipt(adapterId: OutputAdapterId, manifest: ProofloopOfficialOutputManifest): void {
   const receiptPath = `docs/eval/proofloop-official-scores/${adapterId}.json`;
   const receipt = readJson<Record<string, unknown>>(receiptPath) ?? {};
   const blockers = Array.isArray(receipt.blockers) ? receipt.blockers.map(String) : [];
   const removeOutputBlocker = manifest.status === "complete";
-  const filteredBlockers = removeOutputBlocker
+  const outputFilteredBlockers = removeOutputBlocker
     ? blockers.filter((blocker) => !isOutputBlocker(adapterId, blocker))
     : blockers;
+  const filteredBlockers = adapterId === "finch"
+    ? outputFilteredBlockers.filter((blocker) =>
+        !isGeneratedFinchContentPartsBlocker(blocker) && !isStaleFinchJudgeInputBlocker(blocker))
+    : outputFilteredBlockers;
   const contentPartsBlocker = adapterId === "finch" && (manifest.contentPartsCount ?? 0) < (manifest.officialTaskCount ?? 0)
-    ? `Upstream Finch content_parts rendering is ${manifest.contentPartsCount ?? 0}/${manifest.officialTaskCount ?? 0}; official Azure judge input remains incomplete even though model-output artifacts are complete.`
+    ? `Upstream Finch content_parts rendering is ${manifest.contentPartsCount ?? 0}/${manifest.officialTaskCount ?? 0}; canonical GPT-5-mini judge input remains incomplete even though model-output artifacts are complete.`
     : undefined;
   const attempted = Array.isArray(receipt.attempted) ? receipt.attempted.map(String) : [];
   const preservedAttempted = attempted.filter((item) => !item.startsWith(`Generated ${adapterId} official-format output manifest`));
   const evidence = Array.isArray(receipt.evidence) ? receipt.evidence.map(String) : [];
+  const pendingExternalScorerReceipt = receipt.pendingExternalScorerReceipt && typeof receipt.pendingExternalScorerReceipt === "object"
+    ? receipt.pendingExternalScorerReceipt as Record<string, unknown>
+    : undefined;
+  const localProductOutputReceipt = receipt.localProductOutputReceipt && typeof receipt.localProductOutputReceipt === "object"
+    ? receipt.localProductOutputReceipt as Record<string, unknown>
+    : undefined;
+  const localMetrics = localProductOutputReceipt?.metrics && typeof localProductOutputReceipt.metrics === "object"
+    ? localProductOutputReceipt.metrics as Record<string, unknown>
+    : undefined;
+  const acceptedExternalScorerReceipt = receipt.acceptedExternalScorerReceipt && typeof receipt.acceptedExternalScorerReceipt === "object"
+    ? receipt.acceptedExternalScorerReceipt as Record<string, unknown>
+    : undefined;
+  const acceptedJudgeReceipt = typeof acceptedExternalScorerReceipt?.receiptPath === "string"
+    ? readJson<Record<string, unknown>>(acceptedExternalScorerReceipt.receiptPath)
+    : undefined;
+  const acceptedJudgeContentParts = acceptedJudgeReceipt?.contentParts && typeof acceptedJudgeReceipt.contentParts === "object"
+    ? acceptedJudgeReceipt.contentParts as Record<string, unknown>
+    : undefined;
+  const acceptedContentPartsSha256 = typeof acceptedJudgeContentParts?.sha256 === "string"
+    ? acceptedJudgeContentParts.sha256
+    : undefined;
+  const finchCredentialBlocker = adapterId === "finch" &&
+    (manifest.contentPartsCount ?? 0) === (manifest.officialTaskCount ?? -1) &&
+    acceptedExternalScorerReceipt?.accepted !== true
+    ? "Finch official content_parts input is complete at full task coverage; an accepted canonical GPT-5-mini receipt is still required through the recorded direct-OpenAI transport equivalent or the released Azure path."
+    : undefined;
+  const preserveOfficialScoreClaim = shouldPreserveOfficialScoreClaim({
+    adapterId,
+    receipt: receipt as Parameters<typeof shouldPreserveOfficialScoreClaim>[0]["receipt"],
+    manifest,
+    acceptedContentPartsSha256,
+  });
+  const contentPartsHashBlocker = adapterId === "finch" &&
+    acceptedExternalScorerReceipt?.accepted === true &&
+    (manifest.contentPartsCount ?? 0) === (manifest.officialTaskCount ?? -1) &&
+    !preserveOfficialScoreClaim
+    ? "Current Finch content_parts SHA-256 does not match the accepted judge receipt input; rerun the canonical judge before restoring the score claim."
+    : undefined;
 
   writeJson(receiptPath, {
     ...receipt,
@@ -366,8 +474,28 @@ function updateOfficialScoreReceipt(adapterId: OutputAdapterId, manifest: Proofl
     blockers: [...new Set([
       ...filteredBlockers,
       ...(contentPartsBlocker ? [contentPartsBlocker] : []),
+      ...(contentPartsHashBlocker ? [contentPartsHashBlocker] : []),
+      ...(finchCredentialBlocker ? [finchCredentialBlocker] : []),
     ])],
-    scoreClaim: false,
+    ...(adapterId === "finch" && pendingExternalScorerReceipt
+      ? {
+          pendingExternalScorerReceipt: {
+            ...pendingExternalScorerReceipt,
+            contentPartsCoverage: `${manifest.contentPartsCount ?? 0}/${manifest.officialTaskCount ?? 0}`,
+          },
+        }
+      : {}),
+    ...(adapterId === "finch" && localProductOutputReceipt
+      ? {
+          localProductOutputReceipt: {
+            ...localProductOutputReceipt,
+            ...(localMetrics
+              ? { metrics: { ...localMetrics, contentPartsCount: manifest.contentPartsCount ?? 0 } }
+              : {}),
+          },
+        }
+      : {}),
+    scoreClaim: preserveOfficialScoreClaim,
     officialOutputManifest: {
       path: officialOutputManifestPath(adapterId),
       status: manifest.status,
@@ -375,6 +503,7 @@ function updateOfficialScoreReceipt(adapterId: OutputAdapterId, manifest: Proofl
       outputTaskCount: manifest.outputTaskCount ?? null,
       predictionRowCount: manifest.predictionRowCount ?? null,
       contentPartsCount: manifest.contentPartsCount ?? null,
+      contentPartsSha256: manifest.contentPartsSha256 ?? null,
     },
     evidence: [
       ...new Set([
@@ -392,6 +521,20 @@ function isOutputBlocker(adapterId: OutputAdapterId, blocker: string): boolean {
     return text.includes("model-output directory") || text.includes("one output artifact per official finch task id");
   }
   return text.includes("prediction jsonl") || text.includes("finsm, finre, or finmr");
+}
+
+function isGeneratedFinchContentPartsBlocker(blocker: string): boolean {
+  const text = blocker.toLowerCase();
+  return text.includes("content_parts coverage is") ||
+    text.includes("content_parts rendering is") ||
+    text.includes("content_parts rendering remains incomplete") ||
+    text.includes("content_parts sha-256 does not match") ||
+    text.includes("content_parts.jsonl was not produced");
+}
+
+function isStaleFinchJudgeInputBlocker(blocker: string): boolean {
+  const text = blocker.toLowerCase();
+  return text.includes("finch azure openai judge/scorer was not run because required official scorer inputs and credentials are unavailable");
 }
 
 function producedSummary(manifest: ProofloopOfficialOutputManifest): string {
@@ -422,6 +565,10 @@ function readJson<T>(path: string): T | undefined {
   } catch {
     return undefined;
   }
+}
+
+function sha256File(path: string): string {
+  return createHash("sha256").update(readFileSync(path)).digest("hex");
 }
 
 function writeJson(path: string, value: unknown): void {

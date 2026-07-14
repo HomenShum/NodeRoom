@@ -40,6 +40,7 @@ function renderMarkdown(report: OfficialBenchmarkTaskCoverageReport): string {
   lines.push(`- Deterministic runner tasks: ${report.summary.totalDeterministicRunTasks}`);
   lines.push(`- Model-run cases: ${report.summary.totalModelRunCases}`);
   lines.push(`- Model-run attempts: ${report.summary.totalModelRunAttempts}`);
+  lines.push(`- Local/proxy output receipts: ${report.summary.totalLocalProxyOutputReceipts}`);
   lines.push(`- Strict full coverage ready: ${report.summary.strictFullCoverageReady ? "yes" : "no"}`);
   lines.push("");
   lines.push("## Policy");
@@ -48,12 +49,13 @@ function renderMarkdown(report: OfficialBenchmarkTaskCoverageReport): string {
   lines.push("");
   lines.push("## Coverage Tracks");
   lines.push("");
-  lines.push("| Track | Status | Task Targets | Staged | Deterministic Run | Model Cases / Attempts | Pass Rate | Blockers |");
-  lines.push("|---|---:|---:|---:|---:|---:|---:|---|");
+  lines.push("| Track | Status | Task Targets | Staged | Deterministic Run | Model Cases / Attempts | Proxy Output Receipts | Pass Rate | Blockers |");
+  lines.push("|---|---:|---:|---:|---:|---:|---:|---:|---|");
   for (const track of report.tracks) {
     lines.push(
       `| \`${track.id}\` | ${track.status} | ${track.officialExpectedTasks} | ${track.stagedTasks} | ` +
       `${track.deterministicRunTasks} | ${track.modelRunCases} / ${track.modelRunAttempts} | ` +
+      `${track.localProxyOutputReceipts} | ` +
       `${track.passRate == null ? "n/a" : track.passRate.toFixed(3)} | ${track.blockers.join("; ") || "none"} |`,
     );
   }

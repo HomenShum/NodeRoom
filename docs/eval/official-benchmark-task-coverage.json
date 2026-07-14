@@ -1,17 +1,18 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-09T06:32:48.962Z",
+  "generatedAt": "2026-07-10T14:12:02.270Z",
   "summary": {
     "tracks": 5,
-    "completeTracks": 2,
-    "partialTracks": 3,
+    "completeTracks": 5,
+    "partialTracks": 0,
     "missingTracks": 0,
     "totalOfficialExpectedTasks": 1739,
     "totalStagedTasks": 1739,
-    "totalDeterministicRunTasks": 1321,
-    "totalModelRunCases": 106,
-    "totalModelRunAttempts": 118,
-    "strictFullCoverageReady": false
+    "totalDeterministicRunTasks": 1639,
+    "totalModelRunCases": 1733,
+    "totalModelRunAttempts": 1733,
+    "totalLocalProxyOutputReceipts": 1233,
+    "strictFullCoverageReady": true
   },
   "policy": [
     "Do not collapse sampled N=5 evidence into a full official benchmark claim.",
@@ -30,25 +31,27 @@
         "https://github.com/RUCKBReasoning/SpreadsheetBench",
         "https://huggingface.co/datasets/KAKA22/SpreadsheetBench"
       ],
-      "localScope": "full public 912-task bundle staged and scored with deterministic copy-input baseline",
+      "localScope": "full public 912-task bundle staged and scored through the isolated model runner",
       "scannedTasks": 912,
       "stagedTasks": 912,
       "skippedTasks": 0,
       "deterministicRunTasks": 912,
-      "modelRunCases": 0,
-      "modelRunAttempts": 0,
-      "passRate": 0.104167,
+      "modelRunCases": 912,
+      "modelRunAttempts": 912,
+      "localProxyOutputReceipts": 912,
+      "passRate": 0.097588,
       "allOfficialTasksStaged": true,
-      "allOfficialTasksRunWithModel": false,
-      "status": "partial",
+      "allOfficialTasksRunWithModel": true,
+      "allOfficialTasksHaveLocalProxyOutputReceipts": true,
+      "status": "complete",
       "evidence": [
         "docs/eval/spreadsheetbench-v1-912-stage.json",
         "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+        "docs/eval/spreadsheetbench-v1-912-model-run.json",
+        "docs/eval/spreadsheetbench-v1-912-local-proxy-output-receipts.json",
         "docs/eval/official-benchmark-readiness.json"
       ],
-      "blockers": [
-        "Run all 912 tasks through the model runner or an approved chunked official-policy runner before claiming a model score."
-      ]
+      "blockers": []
     },
     {
       "id": "spreadsheetbench-v1-verified-400",
@@ -64,21 +67,20 @@
       "stagedTasks": 400,
       "skippedTasks": 0,
       "deterministicRunTasks": 400,
-      "modelRunCases": 3,
-      "modelRunAttempts": 15,
-      "passRate": 1,
+      "modelRunCases": 400,
+      "modelRunAttempts": 400,
+      "localProxyOutputReceipts": 0,
+      "passRate": 0.035,
       "allOfficialTasksStaged": true,
-      "allOfficialTasksRunWithModel": false,
-      "status": "partial",
+      "allOfficialTasksRunWithModel": true,
+      "allOfficialTasksHaveLocalProxyOutputReceipts": false,
+      "status": "complete",
       "evidence": [
         "docs/eval/spreadsheetbench-v1-full-stage-smoke.json",
         "docs/eval/spreadsheetbench-v1-copy-input-full-smoke.json",
-        "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json"
+        "docs/eval/spreadsheetbench-v1-verified-400-model-run.json"
       ],
-      "blockers": [
-        "397 verified task(s) still need model-run evidence; current N=5 smoke covers 3/400 cases.",
-        "Full verified-score promotion still needs official scoring parity, not only local workbook scoring."
-      ]
+      "blockers": []
     },
     {
       "id": "spreadsheetbench-v2-full-321",
@@ -93,23 +95,24 @@
       "scannedTasks": 321,
       "stagedTasks": 321,
       "skippedTasks": 0,
-      "deterministicRunTasks": 3,
-      "modelRunCases": 3,
-      "modelRunAttempts": 3,
+      "deterministicRunTasks": 321,
+      "modelRunCases": 321,
+      "modelRunAttempts": 321,
+      "localProxyOutputReceipts": 321,
       "passRate": 0,
       "allOfficialTasksStaged": true,
-      "allOfficialTasksRunWithModel": false,
-      "status": "partial",
+      "allOfficialTasksRunWithModel": true,
+      "allOfficialTasksHaveLocalProxyOutputReceipts": true,
+      "status": "complete",
       "evidence": [
         "docs/eval/spreadsheetbench-v2-full-ingest.json",
         "docs/eval/spreadsheetbench-v2-full-stage.json",
         "docs/eval/spreadsheetbench-v2-stage-smoke.json",
-        "docs/eval/spreadsheetbench-v2-run-smoke.json",
+        "docs/eval/spreadsheetbench-v2-321-model-run.json",
+        "docs/eval/spreadsheetbench-v2-321-local-proxy-output-receipts.json",
         "docs/eval/spreadsheetbench-chart-visual-probe.json"
       ],
-      "blockers": [
-        "Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable."
-      ]
+      "blockers": []
     },
     {
       "id": "bankertoolbench-full-100",
@@ -127,9 +130,11 @@
       "deterministicRunTasks": 0,
       "modelRunCases": 100,
       "modelRunAttempts": 100,
+      "localProxyOutputReceipts": 0,
       "passRate": 0,
       "allOfficialTasksStaged": true,
       "allOfficialTasksRunWithModel": true,
+      "allOfficialTasksHaveLocalProxyOutputReceipts": false,
       "status": "complete",
       "evidence": [
         "docs/eval/fresh-room/FR-020/fullsuite-gate-receipt.json",
@@ -155,9 +160,11 @@
       "deterministicRunTasks": 6,
       "modelRunCases": 0,
       "modelRunAttempts": 0,
+      "localProxyOutputReceipts": 0,
       "passRate": 1,
       "allOfficialTasksStaged": true,
       "allOfficialTasksRunWithModel": true,
+      "allOfficialTasksHaveLocalProxyOutputReceipts": false,
       "status": "complete",
       "evidence": [
         "docs/eval/multi-user-coordination-proof.json",

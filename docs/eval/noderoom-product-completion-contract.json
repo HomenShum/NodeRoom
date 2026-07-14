@@ -1,0 +1,131 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-12T19:16:28.0254492Z",
+  "status": "passed",
+  "objective": "Resolve every known NodeRoom product and proof limitation without weakening behavior or certification gates.",
+  "completionRule": "Every required gate must be passed and every remaining gap must be classified as an intentional boundary.",
+  "gates": [
+    {
+      "id": "baseline",
+      "required": true,
+      "status": "passed",
+      "evidence": [
+        "docs/eval/noderoom-fresh-user-vertical-proof.json",
+        "docs/eval/spreadsheetbench-v1-accepted-official-scorer-receipt.json",
+        "docs/eval/spreadsheetbench-v2-accepted-official-scorer-receipt.json"
+      ]
+    },
+    {
+      "id": "workbook-quality",
+      "required": true,
+      "status": "passed_scoped",
+      "evidence": [
+        "docs/eval/spreadsheetbench-v2-task90-official-visual-receipt.json"
+      ],
+      "claimBoundary": "One stable official V2 exact pass and one local modification-score lift; no full-suite rerun claim."
+    },
+    {
+      "id": "free-routing",
+      "required": true,
+      "status": "passed",
+      "evidence": [
+        "docs/eval/openrouter-free-routing-resilience-receipt.json",
+        "docs/eval/openrouter-free-model-discovery-routing-proof.json"
+      ],
+      "claimBoundary": "Free-provider uptime is external; bounded failover, cooldown, transparent resolution, and live recovery are proven."
+    },
+    {
+      "id": "notebook-execution",
+      "required": true,
+      "status": "passed",
+      "evidence": [
+        "docs/eval/notebook-kernel-production-receipt.json",
+        "docs/eval/notebook-kernel-success-proof.png",
+        "docs/eval/notebook-kernel-live-proof.png"
+      ],
+      "claimBoundary": "Safe and isolated Pyodide lanes are live-proven; optional Jupyter/container gateways are contract-tested and require separately configured approved infrastructure."
+    },
+    {
+      "id": "deck-collaboration",
+      "required": true,
+      "status": "passed",
+      "evidence": [
+        "docs/synthesis/WORK_ARTIFACTS_PROGRESS_RECEIPT.md",
+        "tests/deckObjectCas.test.ts",
+        "tests/deckCollaborationUi.test.tsx",
+        "docs/release/media/persona-founder.png"
+      ]
+    },
+    {
+      "id": "nodegraph",
+      "required": true,
+      "status": "passed",
+      "evidence": [
+        "tests/nodeGraphPackageIntegration.test.ts",
+        "tests/semanticGraph.test.ts",
+        "docs/synthesis/proof/m26-graph-cluster-drag-proof.png"
+      ],
+      "claimBoundary": "External Neo4j synchronization requires an explicitly configured service; the shared graph contract, adapters, clustering, path ranking, pinning, filtering, dragging, and large-graph behavior are proven locally."
+    },
+    {
+      "id": "visual-parity",
+      "required": true,
+      "status": "passed",
+      "evidence": [
+        "e2e/product-completion-visual-matrix.spec.ts",
+        "docs/design/ui-contract/20260708-migration-proof/PROOF.md",
+        "docs/design/ui-contract/20260708-migration-proof/gemini-parity-final-review.json"
+      ],
+      "metrics": {
+        "viewports": 4,
+        "surfacesPerViewport": 9,
+        "statesPassed": 36,
+        "consoleErrors": 0
+      }
+    },
+    {
+      "id": "vertical-dogfood",
+      "required": true,
+      "status": "passed",
+      "evidence": [
+        "docs/eval/noderoom-persona-dogfood-receipt.json"
+      ],
+      "metrics": {
+        "personasPassed": 6,
+        "visibleSteps": 79,
+        "consoleErrors": 0
+      }
+    },
+    {
+      "id": "certification-publication",
+      "required": true,
+      "status": "passed",
+      "evidence": [
+        "docs/eval/proof-release-validation.json",
+        "docs/eval/proofloop-goal-ledger.json",
+        "docs/eval/proofloop-official-score-preflight.json",
+        "episodes/noderoom-proof-release-v1/media-manifest.json",
+        "docs/release/noderoom-proof-release.json"
+      ],
+      "metrics": {
+        "testFilesPassed": 318,
+        "testsPassed": 2128,
+        "productMemoryBrowserPassed": 51,
+        "productMemoryIntentionalSkips": 1,
+        "officialGoalTasksPassed": 17,
+        "officialGoalBlocked": 0,
+        "mediaJudgeScore": "16/16",
+        "mediaJudgeVerdict": "publish"
+      }
+    }
+  ],
+  "intentionalBoundaries": [
+    "Free-provider uptime is external; bounded attempts, transparent recovery, and permitted deterministic fallbacks are product obligations.",
+    "Arbitrary notebook code never runs in the application process; network is denied by default and external kernels require isolation and approval.",
+    "External Neo4j, Jupyter, and container services require explicit configuration and credentials.",
+    "Official fixtures, checklists, and scorers are immutable and cannot be self-promoted by the exploration loop.",
+    "Scoped official results remain scoped until a full-suite official rerun is accepted.",
+    "The accepted SpreadsheetBench V2 full-suite result remains 0/321 exact passes; the separate Task 90 receipt is a scoped 3/3 visual-judge stability proof.",
+    "Guest-observer memory-mode dogfood proves the observer workflow perspective; live guest-role enforcement is certified separately."
+  ]
+}

@@ -1,38 +1,124 @@
 {
   "schema": "proofloop-official-score-receipt-v1",
   "adapterId": "finch",
-  "status": "blocked_external",
-  "generatedAt": "2026-07-04T14:38:21.457Z",
+  "status": "scored",
+  "generatedAt": "2026-07-10T14:09:49.137Z",
   "officialScorer": {
     "repository": "https://github.com/FinWorkBench/Finch",
     "commit": "95a8b8d135a528b325be003e54c55f886a22602d",
-    "commandTemplate": "python src/call_gpt_judge.py eval_set -o results.xlsx --api-key <AZURE_KEY> --azure-endpoint <AZURE_ENDPOINT> --api-version <API_VERSION> --model <DEPLOYMENT_NAME>",
+    "canonicalJudgeModel": "gpt-5-mini",
+    "paper": "https://aclanthology.org/2026.findings-acl.523/",
+    "releasedCommandTemplate": "python src/call_gpt_judge.py eval_set -o results.xlsx --api-key <AZURE_KEY> --azure-endpoint <AZURE_ENDPOINT> --api-version <API_VERSION> --model <DEPLOYMENT_NAME>",
+    "equivalentCommandTemplate": "python scripts/finch-official-judge.py --provider openai --judge-model gpt-5-mini --allow-provider-spend --max-provider-cost-usd <CAP>",
     "inputPrerequisite": "eval_set/<model>/content_parts.jsonl produced by src/prompt_build_pipeline.py from the official 172-task Finch dataset and model output files"
   },
   "attempted": [
-    "Cloned the official Finch GitHub repository.",
-    "Cloned the official Finch Hugging Face task dataset.",
-    "Verified the official scorer entrypoint and official task JSONL count.",
+    "Locked the official Finch task-bundle receipt and local adapter metadata.",
+    "Verified NodeRoom local product output artifacts against the official Finch task count.",
+    "Scaffolded a blocked official-score receipt with 172/172 model-output artifacts and no canonical GPT-5-mini judge score claim.",
     "Generated finch official-format output manifest with 172 expected task rows and 172 exported rows."
   ],
-  "blockers": [
-    "No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py.",
-    "Upstream Finch content_parts rendering is 0/172; official Azure judge input remains incomplete even though model-output artifacts are complete."
-  ],
-  "scoreClaim": false,
-  "evidence": [
-    "docs/eval/proofloop-official-task-bundles/finch.json",
-    "proofloop/benchmarks/finch/adapter.json",
-    "docs/eval/proofloop-external-adapter-runs/finch.json",
-    "docs/eval/proofloop-official-outputs/finch.json",
-    ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json"
-  ],
+  "blockers": [],
+  "scoreClaim": true,
+  "claimBoundary": {
+    "productPathStatus": "complete_model_outputs",
+    "proxyStatus": "proxy_only_not_official",
+    "officialScorerStatus": "accepted",
+    "officialJudgeReceiptStatus": "accepted",
+    "officialScoreClaimable": true,
+    "requiredAcceptedReceipt": "accepted canonical Finch GPT-5-mini judge receipt over full content_parts.jsonl coverage"
+  },
+  "acceptedExternalScorerReceipt": {
+    "kind": "finch_canonical_judge",
+    "status": "accepted",
+    "accepted": true,
+    "official": true,
+    "source": "upstream_equivalent",
+    "provider": "openai",
+    "judgeModel": "gpt-5-mini",
+    "taskCount": 172,
+    "contentPartsCount": 172,
+    "contentPartsSha256": "3ec34639c8223c4ceb8f13307725539a9a04317fed00805f302dc86cfd7de2e2",
+    "taskInputBinding": {
+      "schema": "finch-task-input-binding-v1",
+      "algorithm": "sha256-canonical-json-v1",
+      "boundTasks": 172,
+      "aggregateSha256": "01dda0b94a6ac7d24b989e00287514a727eabaf30cb2503da6791a412de0a94c",
+      "judgeOutputPath": ".tmp/official-benchmarks/finch-canonical-hashbound/finch-judge-results.jsonl",
+      "judgeOutputSha256": "4687f3165f869dce84bc709861c6501d1614d914158cf8ed43ec4a6ea11416b4"
+    },
+    "receiptPath": ".tmp/official-benchmarks/finch-canonical-hashbound/finch-judge-receipt.json",
+    "receiptSha256": "0284b1b02e8fbdae0934af808633c61dcda163a320db0ee23e2d8c237ae8640b",
+    "equivalenceContract": {
+      "schema": "finch-judge-transport-equivalence-v1",
+      "status": "accepted",
+      "accepted": true,
+      "contractId": "finch-gpt5mini-canonical-v1",
+      "canonicalModel": "gpt-5-mini",
+      "canonicalModelVersion": "2025-08-07",
+      "transportOnly": true,
+      "promptSourceSha256": "c1e95905c49ced4e9df46a0b727f6a284340fdcf4af529874970bc53c8882a7d",
+      "resolvedModels": [
+        "gpt-5-mini-2025-08-07"
+      ]
+    }
+  },
+  "pendingExternalScorerReceipt": null,
+  "localProductOutputReceipt": {
+    "status": "complete",
+    "officialScoreClaim": false,
+    "reason": "NodeRoom model-output artifacts cover the official Finch task set; this is product/export evidence, not an official score.",
+    "metrics": {
+      "officialTaskCount": 172,
+      "outputTaskCount": 172,
+      "predictionRowCount": null,
+      "contentPartsCount": 172
+    },
+    "evidence": [
+      "docs/eval/proofloop-official-outputs/finch.json",
+      "docs/eval/proofloop-official-task-bundles/finch.json",
+      ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
+      ".tmp/official-benchmarks/proofloop-official-outputs/finch/eval_set/noderoom-source-workbook-baseline/content_parts.jsonl",
+      ".tmp/official-benchmarks/proofloop-official-outputs/finch"
+    ]
+  },
   "officialOutputManifest": {
     "path": "docs/eval/proofloop-official-outputs/finch.json",
     "status": "complete",
     "officialTaskCount": 172,
     "outputTaskCount": 172,
     "predictionRowCount": null,
-    "contentPartsCount": 0
+    "contentPartsCount": 172,
+    "contentPartsSha256": "3ec34639c8223c4ceb8f13307725539a9a04317fed00805f302dc86cfd7de2e2"
+  },
+  "evidence": [
+    "docs/eval/proofloop-official-task-bundles/finch.json",
+    "proofloop/benchmarks/finch/adapter.json",
+    "docs/eval/proofloop-external-adapter-runs/finch.json",
+    "docs/eval/proofloop-official-outputs/finch.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finch/eval_set/noderoom-source-workbook-baseline/content_parts.jsonl",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finch",
+    ".tmp/official-benchmarks/finch-canonical/finch-judge-receipt.json",
+    ".tmp/official-benchmarks/finch-canonical-hashbound/finch-judge-receipt.json"
+  ],
+  "scores": {
+    "expectedTasks": 172,
+    "completedTasks": 172,
+    "meanScore": 0.0872093,
+    "parseErrorCount": 0,
+    "providerCostUsd": 1.368019,
+    "usage": {
+      "inputTokens": 4437340,
+      "outputTokens": 129342,
+      "estimatedProviderCostUsd": 1.368019,
+      "unpricedCallAttempts": 0,
+      "reservedUnpricedCostUsd": 0,
+      "accountedProviderCostUsd": 1.368019,
+      "maxProviderCostUsd": 2,
+      "maxCallReserveUsd": 0.1,
+      "inputUsdPer1M": 0.25,
+      "outputUsdPer1M": 2
+    }
   }
 }

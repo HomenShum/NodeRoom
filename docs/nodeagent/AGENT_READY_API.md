@@ -8,6 +8,8 @@ This file is the model-facing contract: every production tool must expose a non-
 
 | Tool | Mutates | Canonical Required | Provider Required |
 |---|---:|---|---|
+| `inspect_workbook` | mixed | `instruction` | `instruction` |
+| `verify_workbook` | mixed | `instruction`, `operations` | `instruction`, `operations` |
 | `read_range` | read | none | none |
 | `search_sheet_context` | read | `query` | `query` |
 | `list_artifacts` | read | none | none |
@@ -61,6 +63,51 @@ This file is the model-facing contract: every production tool must expose a non-
 | `plan_and_dispatch` | mixed | `waves` | `waves` |
 
 ## Tool Contracts
+
+### inspect_workbook
+
+- Purpose: Inspect a workbook before planning edits.
+- When to use: Inspect a workbook before planning edits.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: mixed.
+- Canonical Zod properties: `artifactId`, `instruction`, `maxCells`, `query`.
+- Canonical required fields: `instruction`.
+- Provider required fields: `instruction`.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "inspect_workbook",
+  "args": {
+    "instruction": "example"
+  }
+}
+```
+
+### verify_workbook
+
+- Purpose: Preflight a workbook edit plan or verify completed writes by re-reading every target.
+- When to use: Preflight a workbook edit plan or verify completed writes by re-reading every target.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: mixed.
+- Canonical Zod properties: `afterWrite`, `artifactId`, `instruction`, `operations`.
+- Canonical required fields: `instruction`, `operations`.
+- Provider required fields: `instruction`, `operations`.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "verify_workbook",
+  "args": {
+    "instruction": "example",
+    "operations": "example"
+  }
+}
+```
 
 ### read_range
 

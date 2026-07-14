@@ -1,0 +1,85 @@
+{
+  "schema": "noderoom-proof-release-validation-v1",
+  "generatedAt": "2026-07-12T19:16:28.0254492Z",
+  "status": "passed",
+  "typecheck": "passed",
+  "tests": {
+    "status": "passed",
+    "files": 318,
+    "cases": 2128
+  },
+  "featureInteriorTests": {
+    "status": "passed",
+    "productMemoryPassed": 51,
+    "intentionalSkips": 1,
+    "visualMatrixPassed": 36,
+    "personaWorkflowsPassed": 6
+  },
+  "build": {
+    "status": "passed",
+    "warning": null,
+    "mainChunkKb": 840.22,
+    "chunkSizeWarningLimitKb": 1100
+  },
+  "productionGate": {
+    "status": "passed",
+    "durationSeconds": 339.4,
+    "auditVulnerabilities": 0,
+    "sourceSecurity": "passed",
+    "distributionSecurity": "passed",
+    "sloRuns": 8,
+    "sloCompletionRate": 1,
+    "sloP95Ms": 26
+  },
+  "accessibility": {
+    "status": "passed",
+    "deterministicViolations": 0,
+    "keyboard": "passed",
+    "reducedMotion": "passed"
+  },
+  "performance": {
+    "status": "passed",
+    "cls": 0,
+    "longTasks": 0,
+    "maxInteractionMs": 49
+  },
+  "pythonJudgeCompile": "passed",
+  "nodeAgentFrameSmoke": "passed",
+  "omnigentAdapterSmoke": "passed; outer Omnigent CLI is not installed locally",
+  "proofloopDoctor": {
+    "status": "passed",
+    "checks": 11,
+    "warnings": 0,
+    "failures": 0
+  },
+  "proofloopOfficialScores": {
+    "status": "passed",
+    "requiredTasksPassed": 17,
+    "blockedTasks": 0,
+    "resumeNext": "none",
+    "strictPreflightChecks": "7/7",
+    "strictPreflightLanes": 6
+  },
+  "personaDogfood": {
+    "status": "passed",
+    "personas": 6,
+    "visibleSteps": 79,
+    "consoleErrors": 0,
+    "receipt": "docs/eval/noderoom-persona-dogfood-receipt.json"
+  },
+  "storyboardVideoJudge": {
+    "status": "publish",
+    "score": "16/16",
+    "defects": 0,
+    "remainingGap": "none"
+  },
+  "lint": "unavailable",
+  "evidence": [
+    "docs/synthesis/WORK_ARTIFACTS_PROGRESS_RECEIPT.md",
+    "docs/eval/official-benchmark-task-coverage.json",
+    "docs/eval/FINCH_RECOVERY_COST_LEDGER.md",
+    "docs/eval/noderoom-persona-dogfood-receipt.json",
+    "episodes/noderoom-proof-release-v1/judge.md",
+    "episodes/noderoom-proof-release-v1/media-manifest.json"
+  ]
+}

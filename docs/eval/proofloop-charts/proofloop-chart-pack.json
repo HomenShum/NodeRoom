@@ -2,7 +2,7 @@
   "schema": "proofloop-chart-pack-v1",
   "runId": "2026-07-02T20-31-20",
   "suite": "proximitty-underwriting-pr0",
-  "generatedAt": "2026-07-09T06:34:32.362Z",
+  "generatedAt": "2026-07-12T19:24:46.847Z",
   "sourceRefs": {
     "nodeTraceV2": ".proofloop/runs/latest/node-trace-v2.json",
     "nodeEval": ".proofloop/runs/latest/node-eval.json",
@@ -48,7 +48,7 @@
     "lanes": 6,
     "runs": 1,
     "models": 38,
-    "blockerCategories": 8,
+    "blockerCategories": 5,
     "workflowItems": 7,
     "chartCount": 8,
     "unavailableCharts": 1

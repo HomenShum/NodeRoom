@@ -1,6 +1,6 @@
 {
   "schema": "proofloop-benchmark-normalization-v1",
-  "generatedAt": "2026-07-09T06:32:50.097Z",
+  "generatedAt": "2026-07-11T01:31:19.154Z",
   "policy": [
     "Normalize benchmark tasks into NodeRoom product-facing manifests and run specs before routing work through the current codebase.",
     "Do not normalize away official scorer semantics: official rubrics, judges, output schemas, and credentials stay benchmark-specific.",
@@ -9,12 +9,12 @@
   ],
   "summary": {
     "entries": 9,
-    "productFitProven": 3,
+    "productFitProven": 4,
     "productFitReady": 2,
-    "productFitPartial": 4,
+    "productFitPartial": 3,
     "productFitBlocked": 0,
-    "officialScoresClaimed": 1,
-    "officialScoresBlocked": 4,
+    "officialScoresClaimed": 5,
+    "officialScoresBlocked": 0,
     "officialScoresNotApplicable": 4,
     "everyBenchmarkHasNodeRoomShape": true
   },
@@ -26,8 +26,8 @@
       "sourceBenchmark": "SpreadsheetBench V1, SpreadsheetBench Verified, and SpreadsheetBench V2",
       "productSurface": "NodeRoom",
       "taskShape": "official spreadsheet task -> agent/evaluator-isolated workbook manifest -> NodeRoom workbook run -> candidate workbook export -> official scorer",
-      "productFit": "partial",
-      "officialFit": "blocked",
+      "productFit": "proven",
+      "officialFit": "claimed",
       "officialScorerSemantics": "preserved",
       "stages": {
         "officialTaskBundle": {
@@ -36,14 +36,17 @@
           "evidence": [
             "docs/eval/spreadsheetbench-v1-912-stage.json",
             "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+            "docs/eval/spreadsheetbench-v1-912-model-run.json",
+            "docs/eval/spreadsheetbench-v1-912-local-proxy-output-receipts.json",
             "docs/eval/official-benchmark-readiness.json",
             "docs/eval/spreadsheetbench-v1-full-stage-smoke.json",
             "docs/eval/spreadsheetbench-v1-copy-input-full-smoke.json",
-            "docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json",
+            "docs/eval/spreadsheetbench-v1-verified-400-model-run.json",
             "docs/eval/spreadsheetbench-v2-full-ingest.json",
             "docs/eval/spreadsheetbench-v2-full-stage.json",
             "docs/eval/spreadsheetbench-v2-stage-smoke.json",
-            "docs/eval/spreadsheetbench-v2-run-smoke.json",
+            "docs/eval/spreadsheetbench-v2-321-model-run.json",
+            "docs/eval/spreadsheetbench-v2-321-local-proxy-output-receipts.json",
             "docs/eval/spreadsheetbench-chart-visual-probe.json"
           ],
           "blockers": []
@@ -60,7 +63,7 @@
           "blockers": []
         },
         "nodeRoomRunSpec": {
-          "status": "partial",
+          "status": "proven",
           "contract": "NodeRoom runner must execute every staged task before official score promotion.",
           "evidence": [
             "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
@@ -68,9 +71,7 @@
             "docs/eval/spreadsheetbench-v2-run-smoke.json"
           ],
           "command": "npm run benchmark:spreadsheetbench:run-chunked",
-          "blockers": [
-            "Only 6/1633 task targets have model-run cases."
-          ]
+          "blockers": []
         },
         "artifactExport": {
           "status": "proven",
@@ -82,39 +83,28 @@
           "blockers": []
         },
         "officialSubmission": {
-          "status": "blocked",
-          "contract": "Official submission requires full model-generated candidate workbook outputs for the published task set.",
+          "status": "proven",
+          "contract": "Full model-generated candidate workbook outputs are ready for the published scorer; submission alone does not promote a score.",
           "evidence": [
-            "docs/eval/official-benchmark-task-coverage.json"
+            "docs/eval/official-benchmark-task-coverage.json",
+            "docs/eval/spreadsheetbench-v1-912-model-run.json",
+            "docs/eval/spreadsheetbench-v1-verified-400-model-run.json",
+            "docs/eval/spreadsheetbench-v2-321-model-run.json"
           ],
-          "blockers": [
-            "Run all 912 tasks through the model runner or an approved chunked official-policy runner before claiming a model score.",
-            "397 verified task(s) still need model-run evidence; current N=5 smoke covers 3/400 cases.",
-            "Full verified-score promotion still needs official scoring parity, not only local workbook scoring.",
-            "Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable."
-          ]
+          "blockers": []
         },
         "officialScorer": {
-          "status": "partial",
-          "contract": "Workbook scorer path exists, but official score is not claimable until full model outputs are scored.",
+          "status": "proven",
+          "contract": "Local workbook scores remain proxy evidence until accepted upstream V1 and V2 scorer receipts are imported.",
           "evidence": [
-            "docs/eval/official-benchmark-readiness.json"
+            "docs/eval/official-benchmark-readiness.json",
+            "docs/eval/spreadsheetbench-v1-accepted-official-scorer-receipt.json",
+            "docs/eval/spreadsheetbench-v2-accepted-official-scorer-receipt.json"
           ],
-          "blockers": [
-            "Run all 912 tasks through the model runner or an approved chunked official-policy runner before claiming a model score.",
-            "397 verified task(s) still need model-run evidence; current N=5 smoke covers 3/400 cases.",
-            "Full verified-score promotion still needs official scoring parity, not only local workbook scoring.",
-            "Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable."
-          ]
+          "blockers": []
         }
       },
-      "nextBlockers": [
-        "Only 6/1633 task targets have model-run cases.",
-        "Run all 912 tasks through the model runner or an approved chunked official-policy runner before claiming a model score.",
-        "397 verified task(s) still need model-run evidence; current N=5 smoke covers 3/400 cases.",
-        "Full verified-score promotion still needs official scoring parity, not only local workbook scoring.",
-        "Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable."
-      ]
+      "nextBlockers": []
     },
     {
       "id": "bankertoolbench",
@@ -483,9 +473,9 @@
       "family": "external_adapter",
       "sourceBenchmark": "Finch / FinWorkBench",
       "productSurface": "NodeRoom",
-      "taskShape": "official Finch workflow task -> ProductTaskManifest -> NodeRoom run -> content_parts.jsonl submission -> Azure OpenAI judge",
+      "taskShape": "official Finch workflow task -> ProductTaskManifest -> NodeRoom run -> content_parts.jsonl submission -> canonical GPT-5-mini judge",
       "productFit": "partial",
-      "officialFit": "blocked",
+      "officialFit": "claimed",
       "officialScorerSemantics": "preserved",
       "stages": {
         "officialTaskBundle": {
@@ -533,26 +523,28 @@
             "docs/eval/proofloop-official-outputs/finch.json",
             "docs/eval/proofloop-official-task-bundles/finch.json",
             ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
+            ".tmp/official-benchmarks/proofloop-official-outputs/finch/eval_set/noderoom-source-workbook-baseline/content_parts.jsonl",
             ".tmp/official-benchmarks/proofloop-official-outputs/finch"
           ],
           "blockers": []
         },
         "officialSubmission": {
-          "status": "blocked",
+          "status": "proven",
           "contract": "Submit content_parts.jsonl built by upstream prompt_build_pipeline.py to call_gpt_judge.py.",
           "evidence": [
-            "docs/eval/proofloop-official-scores/finch.json"
+            "docs/eval/proofloop-official-scores/finch.json",
+            "docs/eval/proofloop-official-outputs/finch.json",
+            "docs/eval/proofloop-official-task-bundles/finch.json",
+            ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
+            ".tmp/official-benchmarks/proofloop-official-outputs/finch/eval_set/noderoom-source-workbook-baseline/content_parts.jsonl",
+            ".tmp/official-benchmarks/proofloop-official-outputs/finch",
+            ".tmp/official-benchmarks/finch-canonical-hashbound/finch-judge-receipt.json",
+            "docs/eval/proofloop-official-score-imports/finch.json"
           ],
-          "blockers": [
-            "missing official scorer remains before external-blocked can be claimed",
-            "missing judge credentials remains before official score can be claimed",
-            "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score.",
-            "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged and NodeRoom model-output artifacts are complete in docs/eval/proofloop-official-outputs/finch.json; upstream content_parts rendering and an accepted Azure judge/scorer receipt are still required before claiming an official score. Cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream.",
-            "next: complete upstream Finch content_parts rendering, run/import the accepted Finch Azure scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
-          ]
+          "blockers": []
         },
         "officialScorer": {
-          "status": "blocked",
+          "status": "proven",
           "contract": "Upstream official scorer or judge output must be imported without changing the rubric.",
           "evidence": [
             "proofloop/benchmarks/finch/adapter.json",
@@ -561,26 +553,18 @@
             "docs/eval/proofloop-official-task-bundles/finch.json",
             "docs/eval/proofloop-official-outputs/finch.json",
             ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
+            ".tmp/official-benchmarks/proofloop-official-outputs/finch/eval_set/noderoom-source-workbook-baseline/content_parts.jsonl",
             ".tmp/official-benchmarks/proofloop-official-outputs/finch",
+            ".tmp/official-benchmarks/finch-canonical-hashbound/finch-judge-receipt.json",
+            "docs/eval/proofloop-official-score-imports/finch.json",
             ".proofloop/lanes/finch/blocker-analysis.json"
           ],
           "command": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
-          "blockers": [
-            "missing official scorer remains before external-blocked can be claimed",
-            "missing judge credentials remains before official score can be claimed",
-            "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score.",
-            "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged and NodeRoom model-output artifacts are complete in docs/eval/proofloop-official-outputs/finch.json; upstream content_parts rendering and an accepted Azure judge/scorer receipt are still required before claiming an official score. Cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream.",
-            "next: complete upstream Finch content_parts rendering, run/import the accepted Finch Azure scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
-          ]
+          "blockers": []
         }
       },
       "nextBlockers": [
-        "Expand all 172 official Finch task ids into ProductTaskManifest rows.",
-        "missing official scorer remains before external-blocked can be claimed",
-        "missing judge credentials remains before official score can be claimed",
-        "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score.",
-        "finch: official task bundle lock docs/eval/proofloop-official-task-bundles/finch.json is staged and NodeRoom model-output artifacts are complete in docs/eval/proofloop-official-outputs/finch.json; upstream content_parts rendering and an accepted Azure judge/scorer receipt are still required before claiming an official score. Cheaper OpenRouter proxy judges are product-gate evidence only unless accepted upstream.",
-        "next: complete upstream Finch content_parts rendering, run/import the accepted Finch Azure scorer or judge output, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
+        "Expand all 172 official Finch task ids into ProductTaskManifest rows."
       ]
     },
     {
@@ -591,7 +575,7 @@
       "productSurface": "NodeRoom",
       "taskShape": "official FinSM/FinRE/FinMR row -> ProductTaskManifest -> NodeRoom run -> prediction JSONL -> official evaluator notebook",
       "productFit": "partial",
-      "officialFit": "blocked",
+      "officialFit": "claimed",
       "officialScorerSemantics": "preserved",
       "stages": {
         "officialTaskBundle": {
@@ -647,20 +631,24 @@
           "blockers": []
         },
         "officialSubmission": {
-          "status": "blocked",
+          "status": "proven",
           "contract": "Submit official prediction JSONL rows with prediction and ground_truth fields to the evaluator notebooks.",
           "evidence": [
-            "docs/eval/proofloop-official-scores/finauditing.json"
+            "docs/eval/proofloop-official-scores/finauditing.json",
+            "docs/eval/proofloop-official-outputs/finauditing.json",
+            "docs/eval/proofloop-official-task-bundles/finauditing.json",
+            ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl",
+            ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl",
+            ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
+            ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json",
+            ".tmp/official-benchmarks/proofloop-official-outputs/finauditing",
+            ".tmp/official-benchmarks/finauditing-official/finmr-judge-receipt.json",
+            "docs/eval/proofloop-official-score-imports/finauditing.json"
           ],
-          "blockers": [
-            "missing official scorer remains before external-blocked can be claimed",
-            "missing judge credentials remains before official score can be claimed",
-            "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score.",
-            "next: run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
-          ]
+          "blockers": []
         },
         "officialScorer": {
-          "status": "blocked",
+          "status": "proven",
           "contract": "Upstream official scorer or judge output must be imported without changing the rubric.",
           "evidence": [
             "proofloop/benchmarks/finauditing/adapter.json",
@@ -673,43 +661,36 @@
             ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
             ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json",
             ".tmp/official-benchmarks/proofloop-official-outputs/finauditing",
+            ".tmp/official-benchmarks/finauditing-official/finmr-judge-receipt.json",
+            "docs/eval/proofloop-official-score-imports/finauditing.json",
             ".proofloop/lanes/finauditing/blocker-analysis.json"
           ],
           "command": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
-          "blockers": [
-            "missing official scorer remains before external-blocked can be claimed",
-            "missing judge credentials remains before official score can be claimed",
-            "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score.",
-            "next: run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
-          ]
+          "blockers": []
         }
       },
       "nextBlockers": [
-        "Expand FinSM, FinRE, and FinMR test rows into ProductTaskManifest rows.",
-        "missing official scorer remains before external-blocked can be claimed",
-        "missing judge credentials remains before official score can be claimed",
-        "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score.",
-        "next: run/import FinAuditing scorer output with an accepted FinMR judge path, use npm run benchmark:proofloop:harness-economics for proxy triage, then npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
+        "Expand FinSM, FinRE, and FinMR test rows into ProductTaskManifest rows."
       ]
     },
     {
       "id": "workstreambench",
-      "name": "WorkstreamBench",
+      "name": "MBABench (formerly WorkstreamBench)",
       "family": "external_adapter",
-      "sourceBenchmark": "WorkstreamBench",
+      "sourceBenchmark": "MBABench / WorkstreamBench",
       "productSurface": "NodeRoom",
-      "taskShape": "official spreadsheet workstream -> ProductTaskManifest -> NodeRoom run -> structured representation -> official LLM judge",
+      "taskShape": "official MBABench spreadsheet workstream -> ProductTaskManifest -> NodeRoom run -> judge case folder -> official LLM judge",
       "productFit": "partial",
-      "officialFit": "blocked",
+      "officialFit": "claimed",
       "officialScorerSemantics": "preserved",
       "stages": {
         "officialTaskBundle": {
-          "status": "blocked",
+          "status": "ready",
           "contract": "Official task bundle must be locked by repository/dataset revision before product expansion.",
-          "evidence": [],
-          "blockers": [
-            "workstreambench: official task bundle lock is missing."
-          ]
+          "evidence": [
+            "docs/eval/proofloop-official-task-bundles/workstreambench.json"
+          ],
+          "blockers": []
         },
         "productTaskManifest": {
           "status": "partial",
@@ -722,7 +703,7 @@
           ],
           "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict --cockpit",
           "blockers": [
-            "Obtain the public official WorkstreamBench task bundle before expanding ProductTaskManifest rows."
+            "Expand the 38 locked public MBABench ModelOff task ids into ProductTaskManifest rows before claiming an official score."
           ]
         },
         "nodeRoomRunSpec": {
@@ -738,63 +719,66 @@
           "blockers": []
         },
         "artifactExport": {
-          "status": "blocked",
-          "contract": "Export the official structured workstream representation expected by WorkstreamBench.",
+          "status": "proven",
+          "contract": "Export MBABench judge case folders with NodeRoom ai_attempt.xlsx files and locked solution workbooks.",
           "evidence": [
             "proofloop/benchmarks/workstreambench/adapter.json",
             "docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json",
             "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
-            "docs/eval/proofloop-adapter-blockers/workstreambench.json"
+            "docs/eval/proofloop-adapter-blockers/workstreambench.json",
+            "docs/eval/proofloop-official-outputs/workstreambench.json",
+            "docs/eval/proofloop-official-task-bundles/workstreambench.json",
+            "proofloop/benchmarks/workstreambench/scaffold-official-cases.ts",
+            ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/case-manifest.json",
+            ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench"
           ],
-          "blockers": [
-            "No official WorkstreamBench output schema is available to export against."
-          ]
+          "blockers": []
         },
         "officialSubmission": {
-          "status": "blocked",
-          "contract": "Submit official structured representations to the released WorkstreamBench scorer/rubric.",
+          "status": "proven",
+          "contract": "Submit MBABench judge case folders to the released official LLM judge/rubric.",
           "evidence": [
-            "docs/eval/proofloop-official-scores/workstreambench.json"
+            "docs/eval/proofloop-official-scores/workstreambench.json",
+            "docs/eval/proofloop-official-outputs/workstreambench.json",
+            "docs/eval/proofloop-official-task-bundles/workstreambench.json",
+            "proofloop/benchmarks/workstreambench/scaffold-official-cases.ts",
+            ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/case-manifest.json",
+            ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench",
+            ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/scores.json",
+            ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/ai_judgement.json",
+            ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/_metadata.json",
+            ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/token_tracking.json",
+            ".tmp/official-benchmarks/workstreambench-official/mbabench-sweep-receipt.json",
+            "docs/eval/proofloop-official-score-imports/workstreambench.json"
           ],
-          "blockers": [
-            "missing official scorer remains before official score can be claimed",
-            "missing task bundle remains before official score can be claimed",
-            "no public upstream release remains before official score can be claimed",
-            "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score.",
-            "workstreambench: no public official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is staged because no public official bundle/scorer/rubric URL was found.",
-            "next: obtain the official WorkstreamBench task bundle and scorer/rubric from an upstream release or authors, lock it in docs/eval/proofloop-official-task-bundles/workstreambench.json, use npm run benchmark:proofloop:harness-economics for proxy triage, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
-          ]
+          "blockers": []
         },
         "officialScorer": {
-          "status": "blocked",
+          "status": "proven",
           "contract": "Upstream official scorer or judge output must be imported without changing the rubric.",
           "evidence": [
             "proofloop/benchmarks/workstreambench/adapter.json",
             "docs/eval/proofloop-adapter-blockers/workstreambench.json",
             "docs/eval/proofloop-official-scores/workstreambench.json",
+            "docs/eval/proofloop-official-task-bundles/workstreambench.json",
+            "docs/eval/proofloop-official-outputs/workstreambench.json",
+            "proofloop/benchmarks/workstreambench/scaffold-official-cases.ts",
+            ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/case-manifest.json",
+            ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench",
+            ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/scores.json",
+            ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/ai_judgement.json",
+            ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/_metadata.json",
+            ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/token_tracking.json",
+            ".tmp/official-benchmarks/workstreambench-official/mbabench-sweep-receipt.json",
+            "docs/eval/proofloop-official-score-imports/workstreambench.json",
             ".proofloop/lanes/workstreambench/blocker-analysis.json"
           ],
           "command": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
-          "blockers": [
-            "missing official scorer remains before official score can be claimed",
-            "missing task bundle remains before official score can be claimed",
-            "no public upstream release remains before official score can be claimed",
-            "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score.",
-            "workstreambench: no public official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is staged because no public official bundle/scorer/rubric URL was found.",
-            "next: obtain the official WorkstreamBench task bundle and scorer/rubric from an upstream release or authors, lock it in docs/eval/proofloop-official-task-bundles/workstreambench.json, use npm run benchmark:proofloop:harness-economics for proxy triage, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
-          ]
+          "blockers": []
         }
       },
       "nextBlockers": [
-        "workstreambench: official task bundle lock is missing.",
-        "Obtain the public official WorkstreamBench task bundle before expanding ProductTaskManifest rows.",
-        "No official WorkstreamBench output schema is available to export against.",
-        "missing official scorer remains before official score can be claimed",
-        "missing task bundle remains before official score can be claimed",
-        "no public upstream release remains before official score can be claimed",
-        "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score.",
-        "workstreambench: no public official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is staged because no public official bundle/scorer/rubric URL was found.",
-        "next: obtain the official WorkstreamBench task bundle and scorer/rubric from an upstream release or authors, lock it in docs/eval/proofloop-official-task-bundles/workstreambench.json, use npm run benchmark:proofloop:harness-economics for proxy triage, import a scored receipt, then npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
+        "Expand the 38 locked public MBABench ModelOff task ids into ProductTaskManifest rows before claiming an official score."
       ]
     }
   ]

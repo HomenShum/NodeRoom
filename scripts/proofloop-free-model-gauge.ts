@@ -6,6 +6,7 @@ import { model, priceRun } from "../src/nodeagent/models/adapter";
 import { selectOpenRouterFreeModels } from "../src/nodeagent/models/openRouterFreeModels";
 
 type GaugeRow = {
+  catalogRank: number;
   modelId: string;
   name?: string;
   status: "passed" | "failed" | "skipped";
@@ -16,6 +17,8 @@ type GaugeRow = {
   outputTokens: number;
   estimatedCostUsd: number;
   durationMs: number;
+  attemptedRequests: number;
+  completedRequests: number;
   error?: string;
 };
 
@@ -25,36 +28,57 @@ type GaugeReceipt = {
   source: string;
   harnessVersion: "nodeagent-tool-loop-free-model-gauge-v1";
   officialBenchmarkScoreClaim: false;
+  selection: {
+    offset: number;
+    limit: number;
+    explicitModels: string[];
+  };
   summary: {
     total: number;
     passed: number;
     failed: number;
     skipped: number;
     estimatedCostUsd: number;
+    attemptedRequests: number;
+    completedRequests: number;
   };
   rows: GaugeRow[];
 };
 
 const args = process.argv.slice(2);
 const limit = numberOption("--limit", 4);
+const offset = numberOption("--offset", 0);
+const explicitModels = listOption("--models");
 const timeoutMs = numberOption("--timeout-ms", 90_000);
 const jsonOut = optionValue("--json-out") ?? "docs/eval/proofloop-free-openrouter-nodeagent-gauge.json";
 const mdOut = optionValue("--md-out") ?? "docs/eval/PROOFLOOP_FREE_OPENROUTER_NODEAGENT_GAUGE.md";
 const skipLive = args.includes("--skip-live");
 const generatedAt = new Date().toISOString();
 
-const candidates = await selectOpenRouterFreeModels({
+const rankedCandidates = await selectOpenRouterFreeModels({
   mode: "agent",
-  limit,
+  limit: 50,
   forceRefresh: true,
 });
+const selectedIds = new Set(explicitModels);
+const candidates = (selectedIds.size
+  ? rankedCandidates.filter((candidate) => selectedIds.has(candidate.id))
+  : rankedCandidates.slice(offset, offset + limit));
+
+if (selectedIds.size) {
+  const discoveredIds = new Set(candidates.map((candidate) => candidate.id));
+  const missing = explicitModels.filter((modelId) => !discoveredIds.has(modelId));
+  if (missing.length) throw new Error(`Requested free model(s) are unavailable or not tool-capable: ${missing.join(", ")}`);
+}
 
 const rows: GaugeRow[] = [];
 for (const candidate of candidates) {
   const started = Date.now();
+  const catalogRank = rankedCandidates.findIndex((model) => model.id === candidate.id) + 1;
   const contextLength = candidate.context_length ?? candidate.top_provider?.context_length ?? 0;
   if (skipLive || !process.env.OPENROUTER_API_KEY) {
     rows.push({
+      catalogRank,
       modelId: candidate.id,
       name: candidate.name,
       status: "skipped",
@@ -64,6 +88,8 @@ for (const candidate of candidates) {
       outputTokens: 0,
       estimatedCostUsd: 0,
       durationMs: Date.now() - started,
+      attemptedRequests: 0,
+      completedRequests: 0,
       error: skipLive ? "skip-live flag set" : "missing OPENROUTER_API_KEY",
     });
     continue;
@@ -97,6 +123,7 @@ for (const candidate of candidates) {
       String(first.args.family) === "spreadsheetbench-v1" &&
       String(first.args.answer) === "nodeagent-tool-loop-ok";
     rows.push({
+      catalogRank,
       modelId: candidate.id,
       name: candidate.name,
       status: passed ? "passed" : "failed",
@@ -107,10 +134,13 @@ for (const candidate of candidates) {
       outputTokens: response.usage?.outputTokens ?? 0,
       estimatedCostUsd: Number(priceRun(candidate.id, response.usage?.inputTokens ?? 0, response.usage?.outputTokens ?? 0).toFixed(8)),
       durationMs: Date.now() - started,
+      attemptedRequests: 1,
+      completedRequests: 1,
       ...(passed ? {} : { error: `unexpected tool call ${first?.tool ?? "none"} ${JSON.stringify(first?.args ?? {})}` }),
     });
   } catch (error) {
     rows.push({
+      catalogRank,
       modelId: candidate.id,
       name: candidate.name,
       status: "failed",
@@ -120,6 +150,8 @@ for (const candidate of candidates) {
       outputTokens: 0,
       estimatedCostUsd: 0,
       durationMs: Date.now() - started,
+      attemptedRequests: 1,
+      completedRequests: 0,
       error: redact(String(error instanceof Error ? error.message : error)),
     });
   }
@@ -131,12 +163,15 @@ const receipt: GaugeReceipt = {
   source: `${process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1"}/models?output_modalities=text`,
   harnessVersion: "nodeagent-tool-loop-free-model-gauge-v1",
   officialBenchmarkScoreClaim: false,
+  selection: { offset, limit, explicitModels },
   summary: {
     total: rows.length,
     passed: rows.filter((row) => row.status === "passed").length,
     failed: rows.filter((row) => row.status === "failed").length,
     skipped: rows.filter((row) => row.status === "skipped").length,
     estimatedCostUsd: Number(rows.reduce((sum, row) => sum + row.estimatedCostUsd, 0).toFixed(8)),
+    attemptedRequests: rows.reduce((sum, row) => sum + row.attemptedRequests, 0),
+    completedRequests: rows.reduce((sum, row) => sum + row.completedRequests, 0),
   },
   rows,
 };
@@ -167,13 +202,15 @@ function renderMarkdown(receipt: GaugeReceipt): string {
     `- Failed: ${receipt.summary.failed}`,
     `- Skipped: ${receipt.summary.skipped}`,
     `- Estimated cost: $${receipt.summary.estimatedCostUsd.toFixed(6)}`,
+    `- Attempted requests: ${receipt.summary.attemptedRequests}`,
+    `- Completed requests: ${receipt.summary.completedRequests}`,
     "",
     "## Rows",
     "",
-    "| Model | Status | Resolved | Context | In | Out | Cost | Duration | Error |",
-    "|---|---:|---|---:|---:|---:|---:|---:|---|",
+    "| Rank | Model | Status | Resolved | Context | In | Out | Cost | Duration | Requests | Error |",
+    "|---:|---|---:|---|---:|---:|---:|---:|---:|---:|---|",
     ...receipt.rows.map((row) =>
-      `| \`${row.modelId}\` | ${row.status} | \`${row.resolvedModel ?? ""}\` | ${row.contextLength} | ${row.inputTokens} | ${row.outputTokens} | $${row.estimatedCostUsd.toFixed(6)} | ${Math.round(row.durationMs / 1000)}s | ${escapePipes(row.error ?? "")} |`,
+      `| ${row.catalogRank} | \`${row.modelId}\` | ${row.status} | \`${row.resolvedModel ?? ""}\` | ${row.contextLength} | ${row.inputTokens} | ${row.outputTokens} | $${row.estimatedCostUsd.toFixed(6)} | ${Math.round(row.durationMs / 1000)}s | ${row.completedRequests}/${row.attemptedRequests} | ${escapePipes(row.error ?? "")} |`,
     ),
     "",
   ].join("\n")}\n`;
@@ -201,6 +238,12 @@ function optionValue(name: string): string | undefined {
 function numberOption(name: string, fallback: number): number {
   const value = Number(optionValue(name) ?? fallback);
   return Number.isFinite(value) ? value : fallback;
+}
+
+function listOption(name: string): string[] {
+  const raw = optionValue(name);
+  if (!raw) return [];
+  return [...new Set(raw.split(",").map((value) => value.trim()).filter(Boolean))];
 }
 
 function redact(value: string): string {

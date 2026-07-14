@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="980" height="384" viewBox="0 0 980 384" role="img" aria-label="Failure Categories">
-<rect width="980" height="384" fill="#F8FAFC"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="282" viewBox="0 0 980 282" role="img" aria-label="Failure Categories">
+<rect width="980" height="282" fill="#F8FAFC"/>
 <text x="28" y="34" fill="#0F172A" font-size="22" font-family="Arial, sans-serif" font-weight="700">Failure Categories</text>
 <text x="28" y="56" fill="#475569" font-size="13" font-family="Arial, sans-serif">Backed by Proof Loop chart data rows</text>
 <text x="28" y="98" fill="#334155" font-size="12" font-family="Arial, sans-serif">missing_official_scorer</text>
@@ -9,21 +9,12 @@
 <rect x="300" y="117" width="354.0" height="18" rx="3" fill="#2563EB"/>
 <text x="662" y="131" fill="#334155" font-size="12" font-family="Arial, sans-serif">3</text>
 <text x="28" y="166" fill="#334155" font-size="12" font-family="Arial, sans-serif">missing_judge_credentials</text>
-<rect x="300" y="151" width="236.0" height="18" rx="3" fill="#2563EB"/>
-<text x="544" y="165" fill="#334155" font-size="12" font-family="Arial, sans-serif">2</text>
+<rect x="300" y="151" width="354.0" height="18" rx="3" fill="#2563EB"/>
+<text x="662" y="165" fill="#334155" font-size="12" font-family="Arial, sans-serif">3</text>
 <text x="28" y="200" fill="#334155" font-size="12" font-family="Arial, sans-serif">missing_model_run</text>
 <rect x="300" y="185" width="236.0" height="18" rx="3" fill="#2563EB"/>
 <text x="544" y="199" fill="#334155" font-size="12" font-family="Arial, sans-serif">2</text>
 <text x="28" y="234" fill="#334155" font-size="12" font-family="Arial, sans-serif">harness_quality_failure</text>
 <rect x="300" y="219" width="118.0" height="18" rx="3" fill="#2563EB"/>
 <text x="426" y="233" fill="#334155" font-size="12" font-family="Arial, sans-serif">1</text>
-<text x="28" y="268" fill="#334155" font-size="12" font-family="Arial, sans-serif">missing_output_exporter</text>
-<rect x="300" y="253" width="118.0" height="18" rx="3" fill="#2563EB"/>
-<text x="426" y="267" fill="#334155" font-size="12" font-family="Arial, sans-serif">1</text>
-<text x="28" y="302" fill="#334155" font-size="12" font-family="Arial, sans-serif">missing_task_bundle</text>
-<rect x="300" y="287" width="118.0" height="18" rx="3" fill="#2563EB"/>
-<text x="426" y="301" fill="#334155" font-size="12" font-family="Arial, sans-serif">1</text>
-<text x="28" y="336" fill="#334155" font-size="12" font-family="Arial, sans-serif">no_public_upstream_release</text>
-<rect x="300" y="321" width="118.0" height="18" rx="3" fill="#2563EB"/>
-<text x="426" y="335" fill="#334155" font-size="12" font-family="Arial, sans-serif">1</text>
 </svg>

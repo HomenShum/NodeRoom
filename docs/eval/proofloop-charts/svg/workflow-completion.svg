@@ -5,10 +5,10 @@
 <text x="28" y="98" fill="#334155" font-size="12" font-family="Arial, sans-serif">needs_scaffold_or_run</text>
 <rect x="300" y="83" width="2.0" height="18" rx="3" fill="#64748B"/>
 <text x="310" y="97" fill="#334155" font-size="12" font-family="Arial, sans-serif">0</text>
-<text x="28" y="132" fill="#334155" font-size="12" font-family="Arial, sans-serif">needs_scaffold_or_run</text>
+<text x="28" y="132" fill="#334155" font-size="12" font-family="Arial, sans-serif">blocked_external</text>
 <rect x="300" y="117" width="2.0" height="18" rx="3" fill="#64748B"/>
 <text x="310" y="131" fill="#334155" font-size="12" font-family="Arial, sans-serif">0</text>
-<text x="28" y="166" fill="#334155" font-size="12" font-family="Arial, sans-serif">needs_scaffold_or_run</text>
+<text x="28" y="166" fill="#334155" font-size="12" font-family="Arial, sans-serif">blocked_external</text>
 <rect x="300" y="151" width="2.0" height="18" rx="3" fill="#64748B"/>
 <text x="310" y="165" fill="#334155" font-size="12" font-family="Arial, sans-serif">0</text>
 <text x="28" y="200" fill="#334155" font-size="12" font-family="Arial, sans-serif">needs_scaffold_or_run</text>

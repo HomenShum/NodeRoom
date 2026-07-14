@@ -95,7 +95,7 @@ isn't on this list, we don't claim coverage of it.
 - [live] Professional workflow runtime smoke - 21/21 cases in `evals/professionalWorkflows.ts` pass deterministic catalog proof, 21/21 pass the live-provider catalog planner, and 21/21 now execute through the live room runtime with `deepseek/deepseek-v4-flash`, `PRODUCTION_ROOM_TOOLS`, evidence payload writes, and runtime-managed locks. IBM Granite remains a catalog cross-check at 19/21; GLM Flash and Nex free remain narrow catalog smokes.
 - [live] Chat-first GTM intake - **live provider runtime** - "just spoke with X / company Y raised $Z" graded through the real room runtime (`evals/chatIntakeRuntime.ts`, `npm run eval:chat-intake:live -- --managed-locks`): production-managed `write_locked_cell_results` / `write_locked_cells`, runtime coordination evidence (`lockHeldDuringWrite`, `releaseOrTtlFallback`, `noSilentClobber`), capture-first before the single clarifying question, chat claims stay manual evidence, CAS duplicate prevention, ambiguous "Caldera" held at needs_review without guessing, private channel only, and no model-visible lock/unlock calls. The deterministic rung still runs with a naive-saboteur negative control (`tests/chatIntakeRuntime.test.ts`). The pasted-content and background-job cases now have the generic live-runtime smoke; richer domain-specific runners remain separate.
 - ✅ Credit analysis — MM-banking ratio cascade + **cell-mapping rejection** (misbound inputs must be refused, `evals/creditEval.ts`)
-- ✅ **3-statement modeling test · Solve mode** — private workbook full solve **measured, not single-pass**: `deepseek/deepseek-v4-flash` 5/5 model-owned runs across base/distractor/concurrent-edit room variants (16/16 linked cells each, no answer-key leakage, median 105.0s, p95 $0.1068/run); free `nex-agi/nex-n2-pro:free` is promoted only through the income rung (`docs/eval/FINANCE_MODEL_EVAL.md`)
+- ⚠️ **3-statement modeling test · Solve mode** — the deterministic harness remains green, but the June private-workbook 5/5 batch is historical after its 30-day gate fired. A 2026-07-12 bounded revalidation stopped before workbook writes (0/1, $0, no leakage or clobber), so no full-solve route is currently promoted; see `docs/eval/finance-model-live-revalidation-2026-07-12.json`.
 - 🔜 **SEC model build flagship** — tiered: XBRL fact tie-out → derived ratios with formulas → statement linkage + cited assumptions page
 - 🔜 Benchmark v4 — N-document targeted research with the comprehensive company-profile field set (business model, moat, SWOT, funding)
 - 🔜 File-drop ingestion — 10-K PDF / XLSX dropped in the room → extracted to the sheet with per-cell citations; receipts → formatted expense report
@@ -255,10 +255,12 @@ artifact and trace. Its default committed trace uses an owned synthetic gold
 pack for README media; passing `--gold` runs the same workflow against a private
 local workbook. Live private runs write full traces under gitignored
 `docs/eval/finance-model-runs/` and commit only the redacted
-`docs/eval/finance-model-live.json` summary. The current full Solve promotion is
-`deepseek/deepseek-v4-flash`: 5/5 model-owned full solves, 16/16 linked forecast
-cells each run, no answer-key leakage, median 105.0s, p95 $0.1068/run, and zero
-provider-owned failures. That aggregate was recorded with `--runs=5 --record`.
+`docs/eval/finance-model-live.json` summary. That file now represents the
+historical June batch only. The 2026-07-12 freshness revalidation is recorded in
+`docs/eval/finance-model-live-revalidation-2026-07-12.json`: the route reached
+the 50-second model budget before any workbook write, retained the leakage and
+no-clobber invariants, and failed 0/1. No full Solve route is currently promoted;
+promotion again requires a fresh 5-run batch meeting the unchanged gate.
 
 ---
 
