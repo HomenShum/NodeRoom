@@ -26,6 +26,21 @@ describe("workbook task intelligence", () => {
     expect(references.find((reference) => reference.start === "J15")?.role).toBe("target");
   });
 
+  it("classifies user inputs and lookup bounds as dependencies while keeping the requested output range as the target", () => {
+    const instruction = "I want to configure column 'J' under 'Densities' in my Excel sheet to return 'PASS' or 'FAIL' similar to what I have set up for column 'I'. For column 'I', I've used the formula =IF(AND(G15<1.05,G15>0.95),'PASS','FAIL'). In the 'Densities' table, the user provides two inputs: they select a variable from 'A-G' in cells B15:B17, and they enter a reading in cells H15:H17. I need column J (cells J15:J17) to check the corresponding cell in column B (B15:B17), and then verify if the moisture range entered by the user falls within a specific range defined in cells 'I3' and 'J3'. In cell I15, I have a pass/fail condition. Adjust the calculation based on the user's choice from a dropdown that populates B3:B9.";
+    const references = extractWorkbookTaskReferences(instruction, ["Sheet1"]);
+    const roles = new Map(references.map((reference) => [`${reference.start}:${reference.end}`, reference.role]));
+
+    expect(roles.get("G15:G15")).toBe("dependency");
+    expect(roles.get("B15:B17")).toBe("dependency");
+    expect(roles.get("H15:H17")).toBe("dependency");
+    expect(roles.get("J15:J17")).toBe("target");
+    expect(roles.get("I3:I3")).toBe("dependency");
+    expect(roles.get("J3:J3")).toBe("dependency");
+    expect(roles.get("I15:I15")).toBe("dependency");
+    expect(roles.get("B3:B9")).toBe("dependency");
+  });
+
   it("selects the quoted formula cell and its input even under a starved snapshot cap", () => {
     const cells: WorkbookObservedCell[] = [
       ...Array.from({ length: 20 }, (_, index) => ({ sheet: "ATTENDENCE", address: `${String.fromCharCode(65 + index)}2`, value: "period" })),
@@ -284,7 +299,7 @@ describe("workbook task intelligence", () => {
     ]));
   });
 
-  it("requires complete coverage of a visible weekday formula-fill band", () => {
+  it("uses populated weekday labels as evidence and repairs only the formula anchor", () => {
     const cells: WorkbookObservedCell[] = [
       { sheet: "ATTENDENCE", address: "F3", value: "21", formula: 'TEXT(F4,"DD")' },
       { sheet: "ATTENDENCE", address: "F4", value: "2015-10-21" },
@@ -295,21 +310,113 @@ describe("workbook task intelligence", () => {
       { sheet: "ATTENDENCE", address: "I3", value: "S" },
       { sheet: "ATTENDENCE", address: "I4", value: "2015-10-24" },
     ];
-    const instruction = 'Correct the weekday formula TEXT(F4,"DD") so the weekday names display like Mon and Wed.';
+    const instruction = 'Correct only the wrong weekday formula TEXT(F4,"DD") and preserve the other existing weekday labels.';
     const inspection = inspectWorkbookTask({ instruction, sheetNames: ["ATTENDENCE"], cells });
 
     expect(inspection.findings).toEqual(expect.arrayContaining([
-      expect.objectContaining({ kind: "formula_fill_band", address: "F3", relatedAddresses: ["G3", "H3", "I3"] }),
+      expect.objectContaining({ kind: "formula_fill_band", address: "F3", relatedAddresses: [] }),
     ]));
     expect(inspection.formulaFillSuggestions).toEqual([expect.objectContaining({
-      range: "F3:I3",
+      range: "F3:F3",
       sourceFormula: 'TEXT(F4,"DDD")',
       operations: [
         { sheet: "ATTENDENCE", cell: "F3", formula: 'TEXT(F4,"DDD")' },
-        { sheet: "ATTENDENCE", cell: "G3", formula: 'TEXT(G4,"DDD")' },
-        { sheet: "ATTENDENCE", cell: "H3", formula: 'TEXT(H4,"DDD")' },
-        { sheet: "ATTENDENCE", cell: "I3", formula: 'TEXT(I4,"DDD")' },
       ],
+    })]);
+    const repaired = verifyWorkbookPlan({
+      instruction,
+      inspection,
+      cells,
+      sheetNames: ["ATTENDENCE"],
+      operations: [{ sheet: "ATTENDENCE", cell: "F3", formula: 'TEXT(F4,"DDD")' }],
+    });
+    expect(repaired.status).toBe("passed");
+    expect(repaired.checks).toMatchObject({ targetCandidateCount: 1, coveredTargetCount: 1 });
+  });
+
+  it("preserves correct peer weekday formulas and repairs only the quoted anchor", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "ATTENDENCE", address: "F3", value: "21", formula: 'TEXT(F4,"DD")' },
+      { sheet: "ATTENDENCE", address: "F4", value: "2015-10-21" },
+      { sheet: "ATTENDENCE", address: "G3", value: "Thursday", formula: 'TEXT(G4,"DDDD")' },
+      { sheet: "ATTENDENCE", address: "G4", value: "2015-10-22" },
+      { sheet: "ATTENDENCE", address: "H3", value: "Friday", formula: 'TEXT(H4,"DDDD")' },
+      { sheet: "ATTENDENCE", address: "H4", value: "2015-10-23" },
+    ];
+    const instruction = 'Correct only the wrong weekday formula TEXT(F4,"DD") and preserve the other existing weekday formulas.';
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["ATTENDENCE"], cells });
+    const plan = buildWorkbookSuggestedPlan(inspection, "ATTENDENCE");
+
+    expect(plan).toEqual({
+      conflicts: [],
+      operations: [{ elementId: "F3", formula: 'TEXT(F4,"DDDD")' }],
+    });
+    expect(inspection.formulaRepairSuggestions).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ cell: "F3" }),
+      expect.objectContaining({ cell: "G3" }),
+      expect.objectContaining({ cell: "H3" }),
+    ]));
+    expect(verifyWorkbookPlan({
+      instruction,
+      inspection,
+      cells,
+      sheetNames: ["ATTENDENCE"],
+      operations: [{ sheet: "ATTENDENCE", cell: "F3", formula: 'TEXT(F4,"DDDD")' }],
+    }).status).toBe("passed");
+  });
+
+  it("normalizes the full visible weekday row when canonical three-letter examples are requested", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "ATTENDENCE", address: "F3", value: "21", formula: 'TEXT(F4,"DD")' },
+      { sheet: "ATTENDENCE", address: "F4", value: "2015-10-21" },
+      { sheet: "ATTENDENCE", address: "G3", value: "TH" },
+      { sheet: "ATTENDENCE", address: "G4", value: "2015-10-22" },
+      { sheet: "ATTENDENCE", address: "H3", value: "F" },
+      { sheet: "ATTENDENCE", address: "H4", value: "2015-10-23" },
+      { sheet: "ATTENDENCE", address: "I3", value: "S" },
+      { sheet: "ATTENDENCE", address: "I4", value: "2015-10-24" },
+    ];
+    const instruction = 'Correct the weekday formula TEXT(F4,"DD") so weekday names display like Mon and Wed.';
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["ATTENDENCE"], cells });
+
+    expect(inspection.formulaFillSuggestions).toEqual([expect.objectContaining({
+      range: "F3:I3",
+      operations: ["F", "G", "H", "I"].map((column) => ({
+        sheet: "ATTENDENCE",
+        cell: `${column}3`,
+        formula: `TEXT(${column}4,"DDD")`,
+      })),
+    })]);
+    expect(verifyWorkbookPlan({
+      instruction,
+      inspection,
+      cells,
+      sheetNames: ["ATTENDENCE"],
+      operations: [{ sheet: "ATTENDENCE", cell: "F3", formula: 'TEXT(F4,"DDD")' }],
+    }).status).toBe("needs_repair");
+  });
+
+  it("fills blank weekday peers but still requires complete coverage of those blank targets", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "ATTENDENCE", address: "F3", value: "21", formula: 'TEXT(F4,"DD")' },
+      { sheet: "ATTENDENCE", address: "F4", value: "2015-10-21" },
+      { sheet: "ATTENDENCE", address: "G3", value: "" },
+      { sheet: "ATTENDENCE", address: "G4", value: "2015-10-22" },
+      { sheet: "ATTENDENCE", address: "H3", value: "" },
+      { sheet: "ATTENDENCE", address: "H4", value: "2015-10-23" },
+      { sheet: "ATTENDENCE", address: "I3", value: "" },
+      { sheet: "ATTENDENCE", address: "I4", value: "2015-10-24" },
+    ];
+    const instruction = 'Correct and fill the weekday formula TEXT(F4,"DD") so weekday names display like Mon and Wed.';
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["ATTENDENCE"], cells });
+
+    expect(inspection.formulaFillSuggestions).toEqual([expect.objectContaining({
+      range: "F3:I3",
+      operations: ["F", "G", "H", "I"].map((column) => ({
+        sheet: "ATTENDENCE",
+        cell: `${column}3`,
+        formula: `TEXT(${column}4,"DDD")`,
+      })),
     })]);
     const partial = verifyWorkbookPlan({
       instruction,
@@ -333,6 +440,133 @@ describe("workbook task intelligence", () => {
       })),
     });
     expect(complete.status).toBe("passed");
+  });
+
+  it("derives a visible lookup-range pass/fail contract without treating source inputs as write targets", () => {
+    const instruction = "In the Densities table, users select a variable from A-G in cells B15:B17 and enter a reading in cells H15:H17. I need column J (cells J15:J17) to check the corresponding cell in column B (B15:B17) and verify whether the moisture falls within the range defined in cells I3 and J3. Display Pass when it is in range and Fail otherwise. The dropdown populates B3:B9.";
+    const cells: WorkbookObservedCell[] = [
+      ...["A", "B", "C", "D", "E", "F", "G"].map((value, index) => ({ sheet: "Sheet1", address: `A${index + 3}`, value })),
+      ...Array.from({ length: 7 }, (_, index) => [
+        { sheet: "Sheet1", address: `I${index + 3}`, value: 0.2 + index / 100 },
+        { sheet: "Sheet1", address: `J${index + 3}`, value: 0.5 + index / 100 },
+      ]).flat(),
+      { sheet: "Sheet1", address: "B15", value: "a" },
+      { sheet: "Sheet1", address: "B16", value: "B" },
+      { sheet: "Sheet1", address: "B17", value: "a" },
+      { sheet: "Sheet1", address: "H15", value: 0.44 },
+      { sheet: "Sheet1", address: "H16", value: 0.3 },
+      { sheet: "Sheet1", address: "H17", value: 0.18 },
+      { sheet: "Sheet1", address: "J15", value: "" },
+      { sheet: "Sheet1", address: "J16", value: "" },
+      { sheet: "Sheet1", address: "J17", value: "" },
+    ];
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["Sheet1"], cells });
+    const plan = buildWorkbookSuggestedPlan(inspection, "Sheet1");
+
+    expect(inspection.targetCandidates.map((target) => target.address)).toEqual(["J15", "J16", "J17"]);
+    expect(inspection.dependencyCandidates.map((dependency) => dependency.address)).toEqual(expect.arrayContaining([
+      "B15", "B16", "B17", "H15", "H16", "H17", "I3", "J3",
+    ]));
+    expect(plan).toEqual({
+      conflicts: [],
+      operations: [
+        { elementId: "J15", formula: 'IF(MEDIAN(H15,VLOOKUP(B15,$A$3:$J$9,{9,10},0))=H15,"Pass","Fail")' },
+        { elementId: "J16", formula: 'IF(MEDIAN(H16,VLOOKUP(B16,$A$3:$J$9,{9,10},0))=H16,"Pass","Fail")' },
+        { elementId: "J17", formula: 'IF(MEDIAN(H17,VLOOKUP(B17,$A$3:$J$9,{9,10},0))=H17,"Pass","Fail")' },
+      ],
+    });
+  });
+
+  it("does not infer pass/fail formulas when any selected lookup key has missing bounds", () => {
+    const instruction = "Users select A-B in B15:B16 and enter readings in H15:H16. Fill J15:J16 with Pass or Fail using the corresponding lookup range defined by I3 and J3. The dropdown populates B3:B4.";
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Sheet1", address: "A3", value: "A" },
+      { sheet: "Sheet1", address: "A4", value: "B" },
+      { sheet: "Sheet1", address: "I3", value: 0.2 },
+      { sheet: "Sheet1", address: "J3", value: 0.5 },
+      { sheet: "Sheet1", address: "I4", value: "" },
+      { sheet: "Sheet1", address: "J4", value: "" },
+      { sheet: "Sheet1", address: "B15", value: "A" },
+      { sheet: "Sheet1", address: "B16", value: "B" },
+      { sheet: "Sheet1", address: "H15", value: 999 },
+      { sheet: "Sheet1", address: "H16", value: 0.3 },
+      { sheet: "Sheet1", address: "J15", value: "" },
+      { sheet: "Sheet1", address: "J16", value: "" },
+    ];
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["Sheet1"], cells });
+
+    expect(buildWorkbookSuggestedPlan(inspection, "Sheet1").operations).toEqual([]);
+    expect(inspection.blockedTargets).toEqual([
+      expect.objectContaining({
+        sheet: "Sheet1",
+        address: "J16",
+        missingDependencies: ["I4", "J4"],
+      }),
+    ]);
+    const modelSuppliedPlan = verifyWorkbookPlan({
+      instruction,
+      inspection,
+      cells,
+      sheetNames: ["Sheet1"],
+      operations: [
+        { sheet: "Sheet1", cell: "J15", formula: 'IF(MEDIAN(H15,VLOOKUP(B15,$A$3:$J$4,{9,10},0))=H15,"Pass","Fail")' },
+        { sheet: "Sheet1", cell: "J16", formula: 'IF(MEDIAN(H16,VLOOKUP(B16,$A$3:$J$4,{9,10},0))=H16,"Pass","Fail")' },
+      ],
+    });
+    expect(modelSuppliedPlan.status).toBe("needs_repair");
+    expect(modelSuppliedPlan.issues).toContainEqual(expect.objectContaining({
+      kind: "unsafe_lookup_bounds",
+      sheet: "Sheet1",
+      address: "J16",
+    }));
+  });
+
+  it("does not project sheet-qualified lookup bounds onto the target sheet", () => {
+    const instruction = "Users select A-G in 'Input'!B15:B17 and enter readings in 'Input'!H15:H17. Fill 'Input'!J15:J17 with Pass or Fail using the corresponding range defined in 'Rules'!I3 and 'Rules'!J3. The dropdown populates 'Input'!B3:B9.";
+    const cells: WorkbookObservedCell[] = [
+      ...["A", "B", "C", "D", "E", "F", "G"].map((value, index) => ({ sheet: "Input", address: `A${index + 3}`, value })),
+      ...Array.from({ length: 7 }, (_, index) => [
+        { sheet: "Rules", address: `I${index + 3}`, value: 0.2 + index / 100 },
+        { sheet: "Rules", address: `J${index + 3}`, value: 0.5 + index / 100 },
+      ]).flat(),
+      { sheet: "Input", address: "B15", value: "A" },
+      { sheet: "Input", address: "B16", value: "B" },
+      { sheet: "Input", address: "B17", value: "C" },
+      { sheet: "Input", address: "H15", value: 0.3 },
+      { sheet: "Input", address: "H16", value: 0.4 },
+      { sheet: "Input", address: "H17", value: 0.5 },
+      { sheet: "Input", address: "J15", value: "" },
+      { sheet: "Input", address: "J16", value: "" },
+      { sheet: "Input", address: "J17", value: "" },
+    ];
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["Input", "Rules"], cells });
+
+    expect(buildWorkbookSuggestedPlan(inspection, "Input").operations).toEqual([]);
+  });
+
+  it("does not materialize unrelated formula-band repairs for a scoped task", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "ATTENDENCE", address: "F3", value: "21", formula: 'TEXT(F4,"DD")' },
+      { sheet: "ATTENDENCE", address: "F4", value: "2015-10-21" },
+      { sheet: "ATTENDENCE", address: "G3", value: "TH" },
+      { sheet: "ATTENDENCE", address: "G4", value: "2015-10-22" },
+      { sheet: "ATTENDENCE", address: "H3", value: "F" },
+      { sheet: "ATTENDENCE", address: "H4", value: "2015-10-23" },
+      { sheet: "ATTENDENCE", address: "B10", value: 2, formula: "A10*2" },
+      { sheet: "ATTENDENCE", address: "C10", value: "" },
+      { sheet: "ATTENDENCE", address: "D10", value: 8, formula: "C10*2" },
+      { sheet: "ATTENDENCE", address: "E10", value: 16, formula: "D10*2" },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: 'Correct only the wrong weekday formula TEXT(F4,"DD") and preserve the other adjacent labels.',
+      sheetNames: ["ATTENDENCE"],
+      cells,
+    });
+
+    expect(inspection.formulaRepairSuggestions).toContainEqual(expect.objectContaining({ cell: "C10" }));
+    expect(buildWorkbookSuggestedPlan(inspection, "ATTENDENCE").operations).toEqual([
+      { elementId: "F3", formula: 'TEXT(F4,"DDD")' },
+    ]);
   });
 
   it("rejects shifted prior-period forecast formulas and provides the visible repair references", () => {

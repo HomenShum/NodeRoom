@@ -780,11 +780,16 @@ export async function runAgent(opts: {
   // Goal-progress accounting for the two harness guards (read-loop breaker + done-without-writes
   // bounce). Counts WRITE-intent tool calls across the whole run; each guard fires at most once.
   const WRITE_TOOLS = new Set(["edit_cell", "create_draft", "update_wiki", "append_notebook_outline", "write_cell_result", "write_locked_cell", "write_locked_cell_result", "write_locked_cells", "write_locked_cell_results", "execute_verified_workbook_plan", "create_btb_deliverable_package"]);
+  const READ_TOOLS = new Set(["list_artifacts", "read_range", "search_sheet_context", "inspect_workbook", "fetch_source", "source_open", "source_open_literal"]);
+  const REQUIRED_GATE_READ_TOOLS = new Set(["inspect_workbook"]);
   let writeCalls = 0;
   let lockCalls = 0;
   let readNudged = false;
   let doneNudged = false;
   let requiredNoToolNudges = 0;
+  let preWriteSayCalls = 0;
+  let preWriteReadCalls = 0;
+  let readToolsWithheldNoted = false;
   let deterministicFailureKey: string | undefined;
   let deterministicFailureCount = 0;
   const managedWriteToolsAvailable = tools.some((tool) => tool.name.startsWith("write_locked_cell"));
@@ -812,7 +817,10 @@ export async function runAgent(opts: {
     if (messages.length) {
       writeCalls = countToolResults(messages, WRITE_TOOLS, "success");
       lockCalls = countToolCalls(messages, new Set(["propose_lock"]));
+      preWriteSayCalls = writeCalls === 0 ? countToolResults(messages, new Set(["say"]), "success") : 0;
+      preWriteReadCalls = writeCalls === 0 ? countToolResults(messages, READ_TOOLS, "success") : 0;
       readNudged = countUserNotes(messages, "HARNESS NOTE: every tool call so far has been a read.") > 0;
+      readToolsWithheldNoted = countUserNotes(messages, "HARNESS NOTE: the pre-write read budget is exhausted.") > 0;
       requiredNoToolNudges = requiredNoToolMissCount(messages);
       doneNudged = countUserNotes(messages, "HARNESS NOTE: the user asked for a write/fill/update") > 0
         || countUserNotes(messages, "HARNESS NOTE: the user asked for a BTB deliverable package") > 0
@@ -870,8 +878,14 @@ export async function runAgent(opts: {
       const packageOnlyTools = goalRequiresPackage && btbPackageSuccesses === 0 && btbPackageNudges >= BTB_PACKAGE_ONLY_AFTER_NUDGES
         ? tools.filter((tool) => btbPackageTools.has(tool.name))
         : tools;
-      const packageOnlyMode = packageOnlyTools.length > 0 && packageOnlyTools.every((tool) => btbPackageTools.has(tool.name));
-      const offeredTools = packageOnlyTools.length ? packageOnlyTools : tools;
+      const withholdReads = goalRequiresWrite && writeCalls === 0 && readNudged && preWriteReadCalls >= 5;
+      const writeProgressTools = goalRequiresWrite && writeCalls === 0
+        ? packageOnlyTools.filter((tool) =>
+            !(preWriteSayCalls > 0 && tool.name === "say")
+            && !(withholdReads && ((READ_TOOLS.has(tool.name) && !REQUIRED_GATE_READ_TOOLS.has(tool.name)) || tool.name === "say")))
+        : packageOnlyTools;
+      const packageOnlyMode = writeProgressTools.length > 0 && writeProgressTools.every((tool) => btbPackageTools.has(tool.name));
+      const offeredTools = writeProgressTools.length ? writeProgressTools : tools;
       const requiresToolThisTurn = offeredTools.length > 0 && (
         (goalRequiresPackage && btbPackageSuccesses === 0)
         || (goalRequiresWrite && writeCalls === 0)
@@ -1043,6 +1057,7 @@ export async function runAgent(opts: {
       let toolCallsForTurn = out.toolCalls;
       let truncatedBtbToolCalls = 0;
       let failedBtbPackageThisTurn = false;
+      let preWriteSayThisTurn = false;
       if (goalRequiresPackage && btbPackageSuccesses === 0) {
         const packageCalls = out.toolCalls.filter((call) => btbPackageTools.has(call.tool));
         if (packageCalls.length > 0 && packageCalls.length < out.toolCalls.length) {
@@ -1078,6 +1093,7 @@ export async function runAgent(opts: {
         pendingToolCalls = toolCallsForTurn.slice(callIndex + 1);
         const result = await executeCall(call, step);
         if (WRITE_TOOLS.has(call.tool) && !toolResultFailed(result)) writeCalls++;
+        if (READ_TOOLS.has(call.tool) && !toolResultFailed(result) && writeCalls === 0) preWriteReadCalls += 1;
         if (btbPackageTools.has(call.tool)) {
           if (toolResultFailed(result)) {
             btbPackageFailures++;
@@ -1120,6 +1136,10 @@ export async function runAgent(opts: {
         }
         if (call.tool === "say" && !toolResultFailed(result)) {
           finalText = sayTextFromArgs(call.args) ?? finalText;
+          if (goalRequiresWrite && writeCalls === 0) {
+            preWriteSayCalls += 1;
+            preWriteSayThisTurn = true;
+          }
           if (pendingToolCalls.length === 0 && !goalRequiresWrite && !goalRequiresPackage) {
             const doneResult = await finishDoneOrContinue(step, step + 1, {
               proposedStopReason: "done",
@@ -1132,6 +1152,19 @@ export async function runAgent(opts: {
         }
       }
       pendingToolCalls = [];
+      if (preWriteSayThisTurn && writeCalls === 0) {
+        messages.push({
+          role: "user",
+          content: `HARNESS NOTE: status/chat output does not satisfy this write-required task. The say tool is now withheld until artifact progress is made. ${finishWriteInstruction}`,
+        });
+      }
+      if (goalRequiresWrite && writeCalls === 0 && readNudged && preWriteReadCalls >= 5 && !readToolsWithheldNoted) {
+        readToolsWithheldNoted = true;
+        messages.push({
+          role: "user",
+          content: `HARNESS NOTE: the pre-write read budget is exhausted. Broad read/search tools are withheld for the next turn; use the workbook evidence already in context to preflight and perform the required write. ${finishWriteInstruction}`,
+        });
+      }
 
       // Read-loop breaker: 3+ full turns of pure reads with no lock/write yet → ONE steering note,
       // appended AFTER this turn's tool results so the tool_use/tool_result pairing stays intact.

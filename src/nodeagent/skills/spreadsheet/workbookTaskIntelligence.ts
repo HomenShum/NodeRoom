@@ -29,6 +29,7 @@ export type WorkbookInspectionFindingKind =
   | "named_year_target_band"
   | "semantic_formula_target"
   | "formula_range_anomaly"
+  | "lookup_bounds_missing"
   | "implicit_assignment_target";
 
 export type WorkbookInspectionFinding = {
@@ -50,6 +51,13 @@ export type WorkbookTargetBand = {
   reason: string;
 };
 
+export type WorkbookBlockedTarget = {
+  sheet: string;
+  address: string;
+  reason: string;
+  missingDependencies: string[];
+};
+
 export type WorkbookTaskInspection = {
   schema: 1;
   mutatingTask: boolean;
@@ -57,6 +65,7 @@ export type WorkbookTaskInspection = {
   referencedSheets: string[];
   explicitReferences: WorkbookTaskReference[];
   targetCandidates: Array<{ sheet: string; address: string; reason: string }>;
+  blockedTargets: WorkbookBlockedTarget[];
   targetBands: WorkbookTargetBand[];
   dependencyCandidates: Array<{ sheet: string; address: string; reason: string }>;
   findings: WorkbookInspectionFinding[];
@@ -125,6 +134,7 @@ export type WorkbookPlanIssueKind =
   | "formula_self_reference"
   | "formula_semantic_mismatch"
   | "value_semantic_mismatch"
+  | "unsafe_lookup_bounds"
   | "malformed_formula"
   | "duplicate_target";
 
@@ -200,6 +210,11 @@ type WorkbookTemplateCompletion = {
   values?: WorkbookTaskInspection["valueSuggestions"];
 };
 
+type WorkbookLookupPassFailContract = {
+  completions: WorkbookTemplateCompletion[];
+  blockedTargets: WorkbookBlockedTarget[];
+};
+
 const A1_RE = /^\$?([A-Z]{1,3})\$?([1-9][0-9]*)$/i;
 const CELL_TOKEN_RE = /\$?[A-Z]{1,3}\$?[1-9][0-9]*/gi;
 const GENERIC_ELEMENT_RE = /\b[a-z][a-z0-9_]*__[a-z][a-z0-9_]*\b/gi;
@@ -239,6 +254,7 @@ export function buildWorkbookSuggestedPlan(
   sheet: string,
 ): WorkbookSuggestedPlan {
   const targetSheet = sheet.trim().toLowerCase();
+  const targetKeys = new Set(inspection.targetCandidates.map((target) => workbookCellKey(target.sheet, target.address)));
   const candidates = new Map<string, WorkbookSuggestedPlanOperation[]>();
   const add = (operation: WorkbookSuggestedPlanOperation) => {
     const elementId = normalizeAddress(operation.elementId);
@@ -263,6 +279,7 @@ export function buildWorkbookSuggestedPlan(
   }
   for (const suggestion of inspection.formulaRepairSuggestions) {
     if (suggestion.confidence !== "high" || suggestion.sheet.trim().toLowerCase() !== targetSheet) continue;
+    if (!targetKeys.has(workbookCellKey(suggestion.sheet, suggestion.cell))) continue;
     add({ elementId: suggestion.cell, formula: suggestion.formula });
   }
   for (const suggestion of inspection.valueSuggestions) {
@@ -347,6 +364,7 @@ export function inspectWorkbookTask(args: {
   const formulaFillSuggestions: WorkbookTaskInspection["formulaFillSuggestions"] = [];
   const formulaRepairSuggestions: WorkbookTaskInspection["formulaRepairSuggestions"] = [];
   const valueSuggestions: WorkbookTaskInspection["valueSuggestions"] = [];
+  const blockedTargets: WorkbookBlockedTarget[] = [];
   const targetCandidates = new Map<string, { sheet: string; address: string; reason: string }>();
   const targetBands = new Map<string, WorkbookTargetBand>();
   const dependencyCandidates = new Map<string, { sheet: string; address: string; reason: string }>();
@@ -472,53 +490,73 @@ export function inspectWorkbookTask(args: {
     }
   }
 
+  const weekdayTargetKeys = new Set<string>();
   if (/\b(?:weekday|day\s+name|mon\b|wed\b)\b/i.test(args.instruction)) {
+    const preserveWeekdayPeers = /\b(?:only\s+(?:the\s+)?(?:anchor|named|specified|incorrect|wrong)|preserve|leave)\b[^.!?]{0,80}\b(?:other|adjacent|peer|existing)\b/i.test(args.instruction);
+    const normalizeWeekdayBand = !preserveWeekdayPeers
+      && /\b(?:mon|tue|wed|thu|fri|sat|sun)(?:day)?\b/i.test(args.instruction);
+    const quotedWeekdayTargets = new Set(findings
+      .filter((finding) => finding.kind === "formula_text_match")
+      .map((finding) => workbookCellKey(finding.sheet, finding.address)));
     for (const cell of args.cells) {
       const band = weekdayFormulaFillBand(cell, cellsByKey);
       if (band.length < 3) continue;
-      for (const target of band) {
+      const cellKey = workbookCellKey(cell.sheet, cell.address);
+      if (preserveWeekdayPeers && quotedWeekdayTargets.size > 0 && !quotedWeekdayTargets.has(cellKey)) continue;
+      const sourceFormula = weekdayTextFormula(cell.formula!, requestedWeekdayTextToken(args.instruction, band));
+      const anchorPosition = parseAddress(cell.address)!;
+      const operationBand = preserveWeekdayPeers ? [cell] : band;
+      const operations = operationBand.flatMap((target) => {
+        const targetPosition = parseAddress(target.address)!;
+        const formula = translateRelativeFormula(sourceFormula, targetPosition.row - anchorPosition.row, targetPosition.col - anchorPosition.col);
+        const shouldRepair = preserveWeekdayPeers || normalizeFormula(target.formula) !== undefined
+          ? !weekdayFormulasEquivalent(target.formula!, formula)
+          : isBlank(unwrapCellValue(target.value)) || normalizeWeekdayBand;
+        return shouldRepair ? [{ sheet: target.sheet, cell: target.address, formula }] : [];
+      });
+      if (operations.length === 0) continue;
+      for (const operation of operations) weekdayTargetKeys.add(workbookCellKey(operation.sheet, operation.cell));
+      const operationKeys = new Set(operations.map((operation) => workbookCellKey(operation.sheet, operation.cell)));
+      const operationCells = band.filter((target) => operationKeys.has(workbookCellKey(target.sheet, target.address)));
+      const preservedPeers = band.length - operationCells.length;
+      for (const target of operationCells) {
         addRank(target, 220, "formula_fill_band");
-        addCandidate("target", target, `visible weekday labels form a contiguous formula-fill band anchored at ${cell.address}`);
+        addCandidate("target", target, `visible weekday examples justify a bounded formula repair anchored at ${cell.address}`);
       }
       addTargetBand(
         cell.sheet,
-        band.map((target) => target.address),
+        operationCells.map((target) => target.address),
         "formula_fill",
         "high",
-        `visible weekday labels form a contiguous formula-fill band anchored at ${cell.address}`,
+        `visible weekday examples justify a bounded formula repair anchored at ${cell.address}`,
       );
       findings.push({
         kind: "formula_fill_band",
         severity: "warning",
         sheet: cell.sheet,
         address: cell.address,
-        relatedAddresses: band.filter((target) => target.address !== cell.address).map((target) => target.address),
-        detail: `${cell.address} and ${band.length - 1} adjacent weekday-label cells sit directly above date inputs.`,
-        recommendedAction: `Repair the anchor formula and fill the same relative TEXT formula across ${band[0].address}:${band.at(-1)!.address}; verify every target.`,
+        relatedAddresses: operationCells.filter((target) => target.address !== cell.address).map((target) => target.address),
+        detail: `${cell.address} sits in a ${band.length}-cell weekday row above date inputs; ${preservedPeers} populated label example(s) remain unchanged.`,
+        recommendedAction: normalizeWeekdayBand
+          ? `Normalize ${operations.map((operation) => operation.cell).join(", ")} with relative three-letter TEXT formulas and verify the full visible weekday row.`
+          : `Repair only ${operations.map((operation) => operation.cell).join(", ")} with the relative TEXT formula and preserve populated scalar labels.`,
       });
-      const sourceFormula = weekdayTextFormula(cell.formula!);
-      const anchorPosition = parseAddress(cell.address)!;
       formulaFillSuggestions.push({
         sheet: cell.sheet,
-        range: `${band[0].address}:${band.at(-1)!.address}`,
+        range: `${operationCells[0].address}:${operationCells.at(-1)!.address}`,
         anchorAddress: cell.address,
         sourceFormula,
-        operations: band.map((target) => {
-          const targetPosition = parseAddress(target.address)!;
-          return {
-            sheet: target.sheet,
-            cell: target.address,
-            formula: translateRelativeFormula(sourceFormula, targetPosition.row - anchorPosition.row, targetPosition.col - anchorPosition.col),
-          };
-        }),
+        operations,
       });
     }
   }
 
   const formulaBandAnalysis = analyzeFormulaBands(args.cells, addRank);
-  findings.push(...formulaBandAnalysis.findings);
+  findings.push(...formulaBandAnalysis.findings.filter((finding) =>
+    !weekdayTargetKeys.has(workbookCellKey(finding.sheet, finding.address))));
   const requireFormulaAnomalyRepairs = genericFormulaAuditTask(args.instruction);
   for (const suggestion of formulaBandAnalysis.suggestions) {
+    if (weekdayTargetKeys.has(workbookCellKey(suggestion.sheet, suggestion.cell))) continue;
     formulaRepairSuggestions.push(suggestion);
     if (requireFormulaAnomalyRepairs) {
       addCandidate("target", cellsByKey.get(workbookCellKey(suggestion.sheet, suggestion.cell)) ?? {
@@ -670,7 +708,30 @@ export function inspectWorkbookTask(args: {
     }
   }
 
-  const templateCompletions = inferWorkbookTemplateCompletions(args.instruction, args.cells);
+  const lookupPassFailContract = inferLookupRangePassFailContract(args.instruction, args.cells);
+  for (const blocked of lookupPassFailContract.blockedTargets) {
+    blockedTargets.push(blocked);
+    const target = cellsByKey.get(workbookCellKey(blocked.sheet, blocked.address)) ?? {
+      sheet: blocked.sheet,
+      address: blocked.address,
+      value: "",
+    };
+    addRank(target, 245, "lookup_bounds_missing");
+    addCandidate("target", target, blocked.reason);
+    findings.push({
+      kind: "lookup_bounds_missing",
+      severity: "error",
+      sheet: blocked.sheet,
+      address: blocked.address,
+      relatedAddresses: blocked.missingDependencies,
+      detail: blocked.reason,
+      recommendedAction: "Do not write a Pass/Fail result until every selected key has visible numeric lower and upper bounds.",
+    });
+  }
+  const templateCompletions = [
+    ...lookupPassFailContract.completions,
+    ...inferWorkbookTemplateCompletions(args.instruction, args.cells),
+  ];
   for (const completion of templateCompletions) {
     const formulaAddresses = completion.formulas.map((operation) => operation.cell);
     addTargetBand(
@@ -801,6 +862,7 @@ export function inspectWorkbookTask(args: {
     referencedSheets,
     explicitReferences,
     targetCandidates: [...targetCandidates.values()],
+    blockedTargets,
     targetBands: [...targetBands.values()],
     dependencyCandidates: [...dependencyCandidates.values()],
     findings: boundedFindings,
@@ -958,6 +1020,140 @@ function inferWorkbookTemplateCompletions(
     ...inferWorkingCapitalTemplateCompletion(instruction, cells),
     ...inferDeferredTaxTemplateCompletion(instruction, cells),
   ];
+}
+
+function inferLookupRangePassFailContract(
+  instruction: string,
+  cells: WorkbookObservedCell[],
+): WorkbookLookupPassFailContract {
+  const empty = (): WorkbookLookupPassFailContract => ({ completions: [], blockedTargets: [] });
+  if (!/\bpass\b[^.!?]{0,80}\bfail\b|\bfail\b[^.!?]{0,80}\bpass\b/i.test(instruction)) return empty();
+  if (!/\b(?:corresponding|lookup|dropdown|range\s+defined|minimum\s+and\s+maximum)\b/i.test(instruction)) return empty();
+  const sheetNames = [...new Set(cells.map((cell) => cell.sheet))];
+  const references = extractWorkbookTaskReferences(instruction, sheetNames);
+  const completions: WorkbookTemplateCompletion[] = [];
+  const blockedTargets: WorkbookBlockedTarget[] = [];
+
+  for (const sheet of sheetNames) {
+    const sheetCells = cells.filter((cell) => cell.sheet === sheet);
+    const byAddress = new Map(sheetCells.map((cell) => [normalizeAddress(cell.address), cell]));
+    const targetReference = references
+      .filter((reference) => reference.role === "target" && (!reference.sheet || reference.sheet.toLowerCase() === sheet.toLowerCase()))
+      .map((reference) => ({ reference, start: parseAddress(reference.start), end: parseAddress(reference.end) }))
+      .find(({ start, end }) => {
+        if (!start || !end || start.col !== end.col || end.row - start.row < 1 || end.row - start.row > 100) return false;
+        return Array.from({ length: end.row - start.row + 1 }, (_, index) => start.row + index).every((row) => {
+          const cell = byAddress.get(addressFromPosition(row, start.col));
+          return !!cell && (isBlank(unwrapCellValue(cell.value)) || !!cell.formula);
+        });
+      });
+    if (!targetReference?.start || !targetReference.end) continue;
+    const targetRows = Array.from(
+      { length: targetReference.end.row - targetReference.start.row + 1 },
+      (_, index) => targetReference.start!.row + index,
+    );
+    const dependencyBands = references
+      .filter((reference) => reference !== targetReference.reference
+        && (!reference.sheet || reference.sheet.toLowerCase() === sheet.toLowerCase()))
+      .map((reference) => ({ reference, start: parseAddress(reference.start), end: parseAddress(reference.end) }))
+      .filter(({ start, end }) => start && end && start.col === end.col && start.row === targetReference.start!.row && end.row === targetReference.end!.row);
+    const keyBand = dependencyBands.find(({ start }) => targetRows.every((row) => {
+      const value = unwrapCellValue(byAddress.get(addressFromPosition(row, start!.col))?.value);
+      return typeof value === "string" && value.trim().length > 0;
+    }));
+    const measureBand = dependencyBands.find(({ start }) => targetRows.every((row) => {
+      const value = unwrapCellValue(byAddress.get(addressFromPosition(row, start!.col))?.value);
+      return typeof value === "number" && Number.isFinite(value);
+    }));
+    if (!keyBand?.start || !measureBand?.start) continue;
+    const selectedKeys = new Set(targetRows.map((row) => String(unwrapCellValue(byAddress.get(addressFromPosition(row, keyBand.start!.col))?.value)).trim().toLowerCase()));
+
+    const keyColumns = groupByMap(sheetCells.filter((cell) => {
+      const value = unwrapCellValue(cell.value);
+      return typeof value === "string" && /^[A-Z]$/i.test(value.trim()) && !!parseAddress(cell.address);
+    }), (cell) => parseAddress(cell.address)!.col);
+    const lookupBand = [...keyColumns.values()]
+      .map((columnCells) => [...columnCells].sort((left, right) => parseAddress(left.address)!.row - parseAddress(right.address)!.row))
+      .map((columnCells) => longestContiguousKeyRun(columnCells))
+      .filter((columnCells) => columnCells.length >= 2 && [...selectedKeys].every((key) => columnCells.some((cell) => displayValue(cell.value).trim().toLowerCase() === key)))
+      .sort((left, right) => right.length - left.length)[0];
+    if (!lookupBand) continue;
+    const lookupStart = parseAddress(lookupBand[0].address)!;
+    const lookupEnd = parseAddress(lookupBand.at(-1)!.address)!;
+
+    const boundReferences = references
+      .filter((reference) => reference !== targetReference.reference
+        && reference.start === reference.end
+        && (!reference.sheet || reference.sheet.toLowerCase() === sheet.toLowerCase()))
+      .map((reference) => parseAddress(reference.start))
+      .filter((position): position is CellPosition => !!position && position.row === lookupStart.row && position.col > lookupStart.col)
+      .sort((left, right) => left.col - right.col);
+    const adjacentBounds = boundReferences.find((position, index) =>
+      boundReferences[index + 1]?.col === position.col + 1);
+    if (!adjacentBounds) continue;
+    const upperBoundCol = adjacentBounds.col + 1;
+    const missingBounds = targetRows.flatMap((targetRow) => {
+      const targetAddress = addressFromPosition(targetRow, targetReference.start!.col);
+      const selectedKey = displayValue(byAddress.get(addressFromPosition(targetRow, keyBand.start!.col))?.value).trim();
+      const lookupKey = lookupBand.find((cell) => displayValue(cell.value).trim().toLowerCase() === selectedKey.toLowerCase());
+      if (!lookupKey) {
+        return [{
+          sheet,
+          address: targetAddress,
+          reason: `${sheet}!${targetAddress} cannot be safely classified because selected key ${JSON.stringify(selectedKey)} has no visible lookup row.`,
+          missingDependencies: [addressFromPosition(lookupStart.row, lookupStart.col)],
+        } satisfies WorkbookBlockedTarget];
+      }
+      const lookupRow = parseAddress(lookupKey.address)!.row;
+      const lowerAddress = addressFromPosition(lookupRow, adjacentBounds.col);
+      const upperAddress = addressFromPosition(lookupRow, upperBoundCol);
+      const lower = unwrapCellValue(byAddress.get(lowerAddress)?.value);
+      const upper = unwrapCellValue(byAddress.get(upperAddress)?.value);
+      const lowerValid = typeof lower === "number" && Number.isFinite(lower);
+      const upperValid = typeof upper === "number" && Number.isFinite(upper);
+      if (lowerValid && upperValid && lower <= upper) return [];
+      const missingDependencies = [
+        ...(!lowerValid ? [lowerAddress] : []),
+        ...(!upperValid ? [upperAddress] : []),
+        ...(lowerValid && upperValid && lower > upper ? [lowerAddress, upperAddress] : []),
+      ];
+      return [{
+        sheet,
+        address: targetAddress,
+        reason: `${sheet}!${targetAddress} cannot be safely classified because selected key ${JSON.stringify(selectedKey)} has missing, non-numeric, or reversed bounds at ${lowerAddress}:${upperAddress}.`,
+        missingDependencies,
+      } satisfies WorkbookBlockedTarget];
+    });
+    if (missingBounds.length > 0) {
+      blockedTargets.push(...missingBounds);
+      continue;
+    }
+    const tableRange = `$${columnNumberToName(lookupStart.col)}$${lookupStart.row}:$${columnNumberToName(upperBoundCol)}$${lookupEnd.row}`;
+    const lookupIndices = `{${adjacentBounds.col - lookupStart.col + 1},${upperBoundCol - lookupStart.col + 1}}`;
+    const formulas = targetRows.map((row) => ({
+      sheet,
+      cell: addressFromPosition(row, targetReference.start!.col),
+      formula: `IF(MEDIAN(${addressFromPosition(row, measureBand.start!.col)},VLOOKUP(${addressFromPosition(row, keyBand.start!.col)},${tableRange},${lookupIndices},0))=${addressFromPosition(row, measureBand.start!.col)},"Pass","Fail")`,
+    }));
+    completions.push({
+      sheet,
+      reason: "Visible selector, measurement, lookup keys, and adjacent lower/upper bound columns define a bounded pass/fail lookup contract",
+      formulas,
+    });
+  }
+  return { completions, blockedTargets };
+}
+
+function longestContiguousKeyRun(cells: WorkbookObservedCell[]): WorkbookObservedCell[] {
+  let best: WorkbookObservedCell[] = [];
+  let current: WorkbookObservedCell[] = [];
+  for (const cell of cells) {
+    const row = parseAddress(cell.address)!.row;
+    const previousRow = current.length > 0 ? parseAddress(current.at(-1)!.address)!.row : undefined;
+    current = previousRow !== undefined && row === previousRow + 1 ? [...current, cell] : [cell];
+    if (current.length > best.length) best = current;
+  }
+  return best;
 }
 
 function inferDebtWaterfallTemplateCompletion(
@@ -1751,9 +1947,19 @@ function repeatedFormulaFillSuggestion(
   };
 }
 
-function weekdayTextFormula(formula: string): string {
+function requestedWeekdayTextToken(instruction: string, band: WorkbookObservedCell[]): "DDD" | "DDDD" {
+  if (/\b(?:full|long)\s+(?:weekday|day)\s+names?\b|\b(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.test(instruction)) {
+    return "DDDD";
+  }
+  if (/\b(?:abbreviat(?:e|ed|ion)|short)\b|\b(?:mon|tue|wed|thu|fri|sat|sun)\b/i.test(instruction)) return "DDD";
+  const visibleTokens = band.flatMap((cell) => normalizeFormula(cell.formula)?.match(/TEXT\([^,]+,"(D{3,4})"\)$/i)?.[1].toUpperCase() ?? []);
+  return visibleTokens.includes("DDDD") ? "DDDD" : "DDD";
+}
+
+function weekdayTextFormula(formula: string, token: "DDD" | "DDDD"): string {
   const normalized = normalizeFormula(formula) ?? formula.trim().replace(/^=/, "");
-  return normalized.replace(/(TEXT\([^,]+,")D{1,2}("\))$/i, "$1DDD$2");
+  return normalized.replace(/(TEXT\([^,]+,")(D{1,4})("\))$/i, (match, prefix: string, currentToken: string, suffix: string) =>
+    currentToken.length === token.length ? match : `${prefix}${token}${suffix}`);
 }
 
 function translateRelativeFormula(formula: string, rowDelta: number, colDelta: number): string {
@@ -1838,16 +2044,14 @@ export function verifyWorkbookPlan(args: {
   const coveredTargets = new Set<string>();
   const seenTargets = new Map<string, number>();
   const targetKeys = new Set(args.inspection.targetCandidates.map((target) => workbookCellKey(target.sheet, target.address)));
+  const blockedTargetByKey = new Map((args.inspection.blockedTargets ?? [])
+    .map((target) => [workbookCellKey(target.sheet, target.address), target] as const));
   const quotedFormulaTargets = new Set(args.inspection.findings
     .filter((finding) => finding.kind === "formula_text_match")
     .map((finding) => workbookCellKey(finding.sheet, finding.address)));
   const targetBandTargets = new Set((args.inspection.targetBands ?? [])
     .flatMap((band) => band.addresses.map((address) => workbookCellKey(band.sheet, address))));
   const formulaBandTargets = new Set([
-    ...args.inspection.findings
-      .filter((finding) => finding.kind === "formula_fill_band")
-      .flatMap((finding) => [finding.address, ...(finding.relatedAddresses ?? [])]
-        .map((address) => workbookCellKey(finding.sheet, address))),
     ...args.inspection.formulaFillSuggestions
       .flatMap((suggestion) => suggestion.operations.map((operation) => workbookCellKey(operation.sheet, operation.cell))),
   ]);
@@ -1943,6 +2147,18 @@ export function verifyWorkbookPlan(args: {
     }
     const key = workbookCellKey(sheet, address);
     if (requiredTargetKeys.has(key)) coveredTargets.add(key);
+    const blockedTarget = blockedTargetByKey.get(key);
+    if (blockedTarget) {
+      issues.push({
+        kind: "unsafe_lookup_bounds",
+        severity: "error",
+        operationIndex,
+        sheet,
+        address,
+        detail: blockedTarget.reason,
+        repair: `Populate and verify the visible bound dependencies first: ${blockedTarget.missingDependencies.join(", ")}.`,
+      });
+    }
     const priorIndex = seenTargets.get(key);
     if (priorIndex !== undefined) {
       issues.push({
@@ -2115,7 +2331,7 @@ function weekdayFormulaFillBand(
     const source = cellsByKey.get(workbookCellKey(anchor.sheet, addressFromPosition(dependency.row, col)));
     if (!target || !source || !dateLikeWorkbookValue(source.value)) return undefined;
     const label = displayValue(target.value).trim();
-    if (!target.formula && !/^(?:M|MO|MON|MONDAY|TU|TUE|TUESDAY|W|WED|WEDNESDAY|TH|THU|THURSDAY|F|FRI|FRIDAY|S|SA|SAT|SATURDAY|SU|SUN|SUNDAY)$/i.test(label)) return undefined;
+    if (!target.formula && label && !/^(?:M|MO|MON|MONDAY|TU|TUE|TUESDAY|W|WED|WEDNESDAY|TH|THU|THURSDAY|F|FRI|FRIDAY|S|SA|SAT|SATURDAY|SU|SUN|SUNDAY)$/i.test(label)) return undefined;
     return target;
   };
   let start = position.col;
@@ -2127,8 +2343,12 @@ function weekdayFormulaFillBand(
     const cell = qualifies(col);
     if (cell) band.push(cell);
   }
-  if (band.filter((cell) => cell.address !== anchor.address && !cell.formula).length < 2) return [];
+  if (band.length < 3) return [];
   return band;
+}
+
+function weekdayFormulasEquivalent(left: string, right: string): boolean {
+  return normalizeFormula(left)?.toUpperCase() === normalizeFormula(right)?.toUpperCase();
 }
 
 function dateLikeWorkbookValue(value: unknown): boolean {
@@ -2200,8 +2420,20 @@ export function checksForWorkbookOperations(operations: WorkbookPlanOperation[])
 }
 
 function referenceRole(instruction: string, index: number, length: number): WorkbookReferenceRole {
-  const before = instruction.slice(Math.max(0, index - 90), index);
-  const after = instruction.slice(index + length, Math.min(instruction.length, index + length + 90));
+  const before = instruction.slice(Math.max(0, index - 180), index);
+  const after = instruction.slice(index + length, Math.min(instruction.length, index + length + 180));
+  const clauseBefore = before.slice(Math.max(before.lastIndexOf("."), before.lastIndexOf(";"), before.lastIndexOf("\n")) + 1);
+  const clauseAfter = after.split(/[.;\n]/, 1)[0] ?? after;
+  if (/=[A-Z][A-Z0-9_.]*\([^;!?\n]{0,180}$/i.test(before)) return "dependency";
+  if (/\b[A-Z][A-Z0-9_.]*\([^()]{0,180}$/i.test(before)) return "dependency";
+  if (/=[^=.!?;\n]{0,180}$/i.test(clauseBefore)) return "dependency";
+  if (/\b(?:users?|they)\s+(?:input|enter|select|provide)\b[^.!?;\n]{0,120}\b(?:in|into)\s+(?:cells?|range|columns?)\s*['"]?$/i.test(clauseBefore)) return "dependency";
+  if (/\b(?:range|limits?|bounds?)\s+(?:is|are\s+)?defined\s+in\s+(?:cells?|range|columns?)\b[^.!?;\n]{0,60}$/i.test(clauseBefore)) return "dependency";
+  if (/\b(?:dropdown|selector)\b[^.!?;\n]{0,80}\b(?:populates?|fills?)\s*$/i.test(clauseBefore)) return "dependency";
+  if (/\bcorresponding\s+(?:cell|value)\b[^.!?;\n]{0,80}$/i.test(clauseBefore)) return "dependency";
+  if (/^\s*[,)]?\s*(?:i|we|it|which)\s+(?:have|has|uses?|contains?)\b/i.test(clauseAfter)) return "dependency";
+  if (/\bi\s+(?:need|want)\b[^.!?;\n]{0,100}\b(?:cells?|range|column)\b[^.!?;\n]{0,30}$/i.test(clauseBefore)
+    && /^\s*\)?\s*to\s+(?:check|show|display|return|calculate|verify|populate|contain)/i.test(clauseAfter)) return "target";
   if (/\b(?:set|write|fill|populate|place|put|output|configure|correct|fix|repair|change|replace|calculate)(?:\s+(?:cells?|range|column))?\s*$/i.test(before)) return "target";
   if (/\b(?:from|using|based\s+on|criteria\s+in|source|input)(?:\s+(?:cells?|range|column))?\s*$/i.test(before)) return "dependency";
   const immediate = `${before.slice(-55)} ${after.slice(0, 55)}`;

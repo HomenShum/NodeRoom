@@ -261,6 +261,7 @@ export async function runSpreadsheetBenchNodeAgentBridge(
     room.changedCellCount(),
     bridgeWorkbookRepairContract(room).requiredRepairs.length,
     workflowController.pendingVerificationCount(),
+    recalculation.unresolvedFormulaCount,
   );
   const trace = buildBridgeTrace({
     traceId,
@@ -866,7 +867,10 @@ class BridgeWorkbookWorkflowController {
       return this.withExecution(tool, async (args, rt) => {
         const requested = asRecord(args) ?? {};
         const repairContract = bridgeWorkbookRepairContract(rt);
-        const artifactId = bridgePreferredRepairArtifact(repairContract, requested.artifactId);
+        const preferredArtifactId = bridgePreferredRepairArtifact(repairContract, requested.artifactId);
+        const artifactId = preferredArtifactId
+          ? await bridgeResolvedArtifactId(rt, preferredArtifactId, this.activeArtifactId)
+          : undefined;
         const result = await tool.execute({
           ...requested,
           instruction: this.taskInstruction,
@@ -1551,15 +1555,20 @@ function bridgeOutcome(
   changedCellCount: number,
   remainingHighConfidenceRepairs: number,
   pendingVerificationCount: number,
+  unresolvedFormulaCount: number,
 ): SpreadsheetBenchNodeAgentBridgeReceipt["outcome"] {
-  const finalVerificationStatus = pendingVerificationCount > 0
+  const finalVerificationStatus = unresolvedFormulaCount > 0
+    ? "needs_repair" as const
+    : pendingVerificationCount > 0
     ? "missing" as const
     : stages.verify.status === "completed"
     ? "passed" as const
     : stages.verify.status === "needs_repair" ? "needs_repair" as const : "missing" as const;
   let status: SpreadsheetBenchNodeAgentBridgeReceipt["outcome"]["status"];
-  const deterministicProofComplete = stages.inspect.status === "completed"
-    && (!mutatingTask || (
+  const observedMutation = mutatingTask || changedCellCount > 0;
+  const deterministicProofComplete = unresolvedFormulaCount === 0
+    && stages.inspect.status === "completed"
+    && (!observedMutation || (
       changedCellCount > 0
       && stages.plan.status === "completed"
       && stages.preflight.status === "completed"
@@ -1570,15 +1579,21 @@ function bridgeOutcome(
     ));
   if (deterministicProofComplete) status = "completed";
   else if (frameReceipt.runtimeError || frameReceipt.agentResult.stopReason === "error") status = "failed";
+  else if (unresolvedFormulaCount > 0) status = "needs_repair";
+  else if (stages.preflight.status === "needs_repair"
+    || stages.verify.status === "needs_repair"
+    || remainingHighConfidenceRepairs > 0
+    || pendingVerificationCount > 0) status = "needs_repair";
   else if (frameReceipt.status === "blocked" || frameReceipt.agentResult.stopReason !== "done") status = "blocked";
   else if (stages.inspect.status !== "completed") status = "needs_repair";
-  else if (mutatingTask && (
+  else if (observedMutation && (
     stages.plan.status !== "completed"
     || stages.preflight.status !== "completed"
     || stages.write.status !== "completed"
     || stages.verify.status !== "completed"
     || remainingHighConfidenceRepairs > 0
     || pendingVerificationCount > 0
+    || unresolvedFormulaCount > 0
   )) status = "needs_repair";
   else status = "completed";
   return { status, mutatingTask, changedCellCount, finalVerificationStatus };
@@ -1646,7 +1661,7 @@ function buildBridgeTrace(args: {
     artifactRefs: [candidateRef],
     fact: args.recalculation,
     verifier: args.recalculation.engine,
-    status: "verified",
+    status: args.recalculation.unresolvedFormulaCount === 0 ? "verified" : "needs_review",
   }));
   trace.mutations = args.frameReceipt.agentResult.trace.flatMap((event): MutationReceipt[] => {
     if (!MUTATION_TOOL_NAMES.has(event.tool)) return [];

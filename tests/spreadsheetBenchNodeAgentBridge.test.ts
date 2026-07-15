@@ -108,6 +108,138 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
     ].includes(name)))).toBe(true);
   });
 
+  it("adapts an invalid model-supplied inspection artifact to a visible worksheet", async () => {
+    const root = tempRoot();
+    const instruction = "Inspect the workbook and report what remains.";
+    const task = await stagedTask(root, instruction);
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: join(root, "output", "adapted-artifact.xlsx"),
+      model: invalidArtifactInspectionModel(),
+      traceId: "trace_sbench_adapted_artifact",
+      maxSteps: 4,
+      now: () => 1_200,
+    });
+
+    expect(receipt.frame.runtimeError).toBeUndefined();
+    expect(receipt.stages.inspect.status).toBe("completed");
+    expect(receipt.frame.agentResult.trace[0]).toMatchObject({
+      tool: "inspect_workbook",
+      args: { artifactId: "Financial_Model/01_02" },
+      result: { ok: true, artifactId: "Model" },
+    });
+  });
+
+  it("keeps a syntactically verified write open when deterministic recalculation is unsupported", async () => {
+    const root = tempRoot();
+    const instruction = 'Replace Model!B1 with formula TEXT(A1,"0.00"), then verify the changed cell.';
+    const task = await stagedTask(root, instruction);
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: join(root, "output", "unresolved.xlsx"),
+      model: unresolvedRecalculationModel(instruction),
+      traceId: "trace_sbench_unresolved_recalculation",
+      maxSteps: 8,
+      now: () => 1_250,
+    });
+
+    expect(receipt.stages.verify.status).toBe("completed");
+    expect(receipt.recalculation).toMatchObject({
+      attemptedFormulaCount: 1,
+      refreshedFormulaCount: 0,
+      unresolvedFormulaCount: 1,
+      unresolved: [expect.objectContaining({ sheet: "Model", address: "B1", error: "#UNSUPPORTED!" })],
+    });
+    expect(receipt.outcome).toMatchObject({
+      status: "needs_repair",
+      changedCellCount: 1,
+      finalVerificationStatus: "needs_repair",
+    });
+    expect(receipt.trace.final.status).toBe("needs_review");
+    expect(receipt.trace.evidence.find((evidence) => evidence.label === "SpreadsheetBench formula recalculation")?.status).toBe("needs_review");
+  });
+
+  it("never completes an unresolved formula write even when task wording is classified as nonmutating", async () => {
+    const root = tempRoot();
+    const instruction = 'Model!B1 should contain formula TEXT(A1,"0.00").';
+    const task = await stagedTask(root, instruction);
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: join(root, "output", "unresolved-nonmutating.xlsx"),
+      model: unresolvedRecalculationModel(instruction),
+      traceId: "trace_sbench_unresolved_nonmutating",
+      maxSteps: 8,
+      now: () => 1_275,
+    });
+
+    expect(receipt.outcome).toMatchObject({
+      status: "needs_repair",
+      mutatingTask: false,
+      changedCellCount: 1,
+      finalVerificationStatus: "needs_repair",
+    });
+    expect(receipt.recalculation.unresolvedFormulaCount).toBe(1);
+  });
+
+  it("requires post-write verification after an observed write even when task wording is classified as nonmutating", async () => {
+    const root = tempRoot();
+    const instruction = "Model!B1 should contain formula A1*2.";
+    const task = await stagedTask(root, instruction);
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: join(root, "output", "missing-post-write-verification.xlsx"),
+      model: noPostWriteVerificationModel(instruction),
+      traceId: "trace_sbench_missing_post_write_verification",
+      maxSteps: 6,
+      now: () => 1_300,
+    });
+
+    expect(receipt.outcome).toMatchObject({
+      status: "needs_repair",
+      mutatingTask: false,
+      changedCellCount: 1,
+      finalVerificationStatus: "missing",
+    });
+    expect(receipt.stages.write.status).toBe("completed");
+    expect(receipt.stages.verify.status).toBe("skipped");
+    expect(receipt.trace.final.status).toBe("needs_review");
+  });
+
+  it("blocks model-supplied pass/fail writes when a selected lookup key has missing bounds", async () => {
+    const root = tempRoot();
+    const task = await stagedMissingLookupBoundsTask(root);
+    const candidate = join(root, "output", "missing-lookup-bounds.xlsx");
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: candidate,
+      model: missingLookupBoundsModel(task.instruction),
+      traceId: "trace_sbench_missing_lookup_bounds",
+      maxSteps: 6,
+      now: () => 1_350,
+    });
+
+    expect(receipt.outcome).toMatchObject({
+      status: "needs_repair",
+      changedCellCount: 0,
+      finalVerificationStatus: "missing",
+    });
+    expect(receipt.stages.preflight.status).toBe("needs_repair");
+    const preflight = receipt.frame.agentResult.trace.find((event) =>
+      event.tool === "verify_workbook" && (event.args as Record<string, unknown>).afterWrite === false);
+    expect(preflight?.result).toMatchObject({
+      status: "needs_repair",
+      plan: {
+        issues: expect.arrayContaining([expect.objectContaining({ kind: "unsafe_lookup_bounds", address: "J16" })]),
+      },
+    });
+    const write = receipt.frame.agentResult.trace.find((event) => event.tool === "write_locked_cells");
+    expect(write?.result).toMatchObject({ ok: false, error: "workbook_stage_guard" });
+
+    const emitted = new ExcelJS.Workbook();
+    await emitted.xlsx.readFile(candidate);
+    expect(emitted.getWorksheet("Sheet1")?.getCell("J16").value).toBeNull();
+  });
+
   it("executes a large inferred plan through one compact managed action while preserving phase receipts", async () => {
     const root = tempRoot();
     const task = await stagedDebtWaterfallTask(root);
@@ -248,7 +380,8 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
       now: () => 4_000,
     });
 
-    expect(receipt.outcome).toMatchObject({ status: "completed", changedCellCount: 3, finalVerificationStatus: "passed" });
+    expect(receipt.outcome).toMatchObject({ status: "needs_repair", changedCellCount: 3, finalVerificationStatus: "needs_repair" });
+    expect(receipt.recalculation.unresolvedFormulaCount).toBeGreaterThan(0);
     expect(receipt.frame.agentResult.stopReason).toBe("step_budget");
     const inspection = receipt.frame.agentResult.trace.find((event) => event.tool === "inspect_workbook")?.result as Record<string, unknown>;
     expect(inspection).toMatchObject({
@@ -296,7 +429,8 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
       now: () => 4_250,
     });
 
-    expect(receipt.outcome).toMatchObject({ status: "completed", changedCellCount: 3, finalVerificationStatus: "passed" });
+    expect(receipt.outcome).toMatchObject({ status: "needs_repair", changedCellCount: 3, finalVerificationStatus: "needs_repair" });
+    expect(receipt.recalculation.unresolvedFormulaCount).toBeGreaterThan(0);
     const postWrites = receipt.frame.agentResult.trace.filter((event) =>
       event.tool === "verify_workbook" && (event.args as Record<string, unknown>).afterWrite === true);
     expect(postWrites).toHaveLength(2);
@@ -310,7 +444,7 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
     expect(postWrites[1].result).toMatchObject({ status: "passed", workflowComplete: true });
   });
 
-  it("preserves a completed deterministic proof when the provider fails after verification", async () => {
+  it("does not preserve completion when the provider fails and recalculation remains unresolved", async () => {
     const root = tempRoot();
     const task = await stagedWorkbookWideAverageTask(root);
     const receipt = await runSpreadsheetBenchNodeAgentBridge({
@@ -324,7 +458,8 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
 
     expect(receipt.frame.runtimeError).toContain("provider failed after deterministic proof");
     expect(receipt.frame.agentResult.stopReason).toBe("error");
-    expect(receipt.outcome).toMatchObject({ status: "completed", changedCellCount: 3, finalVerificationStatus: "passed" });
+    expect(receipt.outcome).toMatchObject({ status: "failed", changedCellCount: 3, finalVerificationStatus: "needs_repair" });
+    expect(receipt.recalculation.unresolvedFormulaCount).toBeGreaterThan(0);
   });
 
   it("rejects an input path that escapes the staged agent directory before invoking the model", async () => {
@@ -459,6 +594,70 @@ function repairingWorkbookModel(capture: {
         done: true,
         usage: { inputTokens: 5, outputTokens: 3 },
       };
+    },
+  };
+}
+
+function unresolvedRecalculationModel(instruction: string): AgentModel {
+  let callIndex = 0;
+  const operation = { elementId: "B1", formula: 'TEXT(A1,"0.00")' };
+  return {
+    name: "scripted-unresolved-recalculation",
+    async next(): Promise<AgentStep> {
+      const id = `unresolved-recalculation-${++callIndex}`;
+      if (callIndex === 1) return step(id, "inspect_workbook", { instruction, artifactId: "Model", maxCells: 40 });
+      if (callIndex === 2) return step(id, "verify_workbook", { instruction, artifactId: "Model", afterWrite: false, operations: [operation] });
+      if (callIndex === 3) return step(id, "write_locked_cells", { artifactId: "Model", reason: "apply verified formula", ops: [operation] });
+      if (callIndex === 4) return step(id, "verify_workbook", { instruction, artifactId: "Model", afterWrite: true, operations: [operation] });
+      return { text: "The formula write passed structural verification.", toolCalls: [], done: true };
+    },
+  };
+}
+
+function noPostWriteVerificationModel(instruction: string): AgentModel {
+  let callIndex = 0;
+  const operation = { elementId: "B1", formula: "A1*2" };
+  return {
+    name: "scripted-no-post-write-verification",
+    async next(): Promise<AgentStep> {
+      const id = `no-post-write-verification-${++callIndex}`;
+      if (callIndex === 1) return step(id, "inspect_workbook", { instruction, artifactId: "Model", maxCells: 40 });
+      if (callIndex === 2) return step(id, "verify_workbook", { instruction, artifactId: "Model", afterWrite: false, operations: [operation] });
+      if (callIndex === 3) return step(id, "write_locked_cells", { artifactId: "Model", reason: "apply verified formula", ops: [operation] });
+      return { text: "The requested formula was written.", toolCalls: [], done: true };
+    },
+  };
+}
+
+function missingLookupBoundsModel(instruction: string): AgentModel {
+  let callIndex = 0;
+  const operations = [
+    { elementId: "J15", formula: 'IF(MEDIAN(H15,VLOOKUP(B15,$A$3:$J$4,{9,10},0))=H15,"Pass","Fail")' },
+    { elementId: "J16", formula: 'IF(MEDIAN(H16,VLOOKUP(B16,$A$3:$J$4,{9,10},0))=H16,"Pass","Fail")' },
+  ];
+  return {
+    name: "scripted-missing-lookup-bounds",
+    async next(): Promise<AgentStep> {
+      const id = `missing-lookup-bounds-${++callIndex}`;
+      if (callIndex === 1) return step(id, "inspect_workbook", { instruction, artifactId: "Sheet1", maxCells: 80 });
+      if (callIndex === 2) return step(id, "verify_workbook", { instruction, artifactId: "Sheet1", afterWrite: false, operations });
+      if (callIndex === 3) return step(id, "write_locked_cells", { artifactId: "Sheet1", reason: "attempt pass/fail formulas", ops: operations });
+      return { text: "The unsafe plan was not applied.", toolCalls: [], done: true };
+    },
+  };
+}
+
+function invalidArtifactInspectionModel(): AgentModel {
+  let callIndex = 0;
+  return {
+    name: "scripted-invalid-artifact-inspection",
+    async next(): Promise<AgentStep> {
+      callIndex += 1;
+      if (callIndex === 1) return step("invalid-artifact-inspection-1", "inspect_workbook", {
+        instruction: "Inspect the workbook and report what remains.",
+        artifactId: "Financial_Model/01_02",
+      });
+      return { text: "Inspection complete.", toolCalls: [], done: true };
     },
   };
 }
@@ -658,6 +857,37 @@ async function stagedTask(
   writeFileSync(join(evaluatorDir, "evaluator.json"), "EVALUATOR_TRIPWIRE_SECRET: invalid-json-on-purpose");
   writeFileSync(join(evaluatorDir, "gold", "gold.xlsx"), "EVALUATOR_TRIPWIRE_SECRET");
   return { agentManifest: join(agentDir, "task.json") };
+}
+
+async function stagedMissingLookupBoundsTask(
+  root: string,
+): Promise<{ agentManifest: string; instruction: string }> {
+  const instruction = "Users select A-B in B15:B16 and enter readings in H15:H16. Fill J15:J16 with Pass or Fail using the corresponding lookup range defined by I3 and J3. The dropdown populates B3:B4.";
+  const taskDir = join(root, "tasks", "lookup-bounds");
+  const agentDir = join(taskDir, "agent");
+  mkdirSync(join(agentDir, "inputs"), { recursive: true });
+
+  const input = new ExcelJS.Workbook();
+  const sheet = input.addWorksheet("Sheet1");
+  sheet.getCell("A3").value = "A";
+  sheet.getCell("A4").value = "B";
+  sheet.getCell("I3").value = 0.2;
+  sheet.getCell("J3").value = 0.5;
+  sheet.getCell("B15").value = "A";
+  sheet.getCell("B16").value = "B";
+  sheet.getCell("H15").value = 0.3;
+  sheet.getCell("H16").value = 999;
+  await input.xlsx.writeFile(join(agentDir, "inputs", "input.xlsx"));
+  writeJson(join(agentDir, "task.json"), {
+    schema: 1,
+    taskId: "Template/lookup-bounds",
+    track: "spreadsheetbench-v2",
+    category: "Template",
+    instruction,
+    inputFiles: ["inputs/input.xlsx"],
+    promptFiles: [],
+  });
+  return { agentManifest: join(agentDir, "task.json"), instruction };
 }
 
 async function stagedDebtWaterfallTask(root: string): Promise<{ agentManifest: string }> {

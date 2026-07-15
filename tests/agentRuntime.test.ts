@@ -203,6 +203,32 @@ describe("agent runtime — collaboration under concurrency", () => {
     expect(r.trace.filter((t) => t.tool === "say")).toHaveLength(1);
   });
 
+  it("withholds repeated say calls until a write-required goal makes artifact progress", async () => {
+    const { rt } = setup();
+    const offeredToolNames: string[][] = [];
+    let turn = 0;
+    const model: AgentModel = {
+      name: "pre-write-say-loop",
+      async next({ tools }) {
+        offeredToolNames.push(tools.map((tool) => tool.name));
+        turn += 1;
+        if (turn === 1) return {
+          toolCalls: [{ id: "say-before-write", tool: "say", args: { text: "I am still working." } }],
+          done: false,
+        };
+        return { text: "No write performed.", toolCalls: [], done: true };
+      },
+    };
+
+    const result = await runAgent({ rt, goal: "fill the sheet cells", model, tools: ROOM_TOOLS, maxSteps: 2 });
+
+    expect(offeredToolNames[0]).toContain("say");
+    expect(offeredToolNames[1]).not.toContain("say");
+    expect(result.trace.filter((event) => event.tool === "say")).toHaveLength(1);
+    expect(result.messages.some((message) => message.content?.includes("say tool is now withheld"))).toBe(true);
+    expect(result.stopReason).toBe("step_budget");
+  });
+
   it("does not steer read-only report answers into the BTB package tool", async () => {
     const { rt } = setup();
     let packageCalls = 0;
@@ -341,6 +367,72 @@ describe("agent runtime — collaboration under concurrency", () => {
     expect(result.stopReason).toBe("step_budget");
     expect(result.exhausted).toBe(true);
     expect(result.trace.find((event) => event.tool === "edit_cell")?.result).toMatchObject({ ok: false });
+  });
+
+  it("withholds broad reads after the bounded pre-write evidence budget is exhausted", async () => {
+    const { rt } = setup();
+    const offeredToolNames: string[][] = [];
+    const model: AgentModel = {
+      name: "bounded-read-loop",
+      async next({ tools }) {
+        const names = tools.map((tool) => tool.name);
+        offeredToolNames.push(names);
+        if (names.includes("read_range")) {
+          return { toolCalls: [{ id: `read-${offeredToolNames.length}`, tool: "read_range", args: { elementIds: ["r_rev__variance"] } }], done: false };
+        }
+        return { text: "No write performed.", toolCalls: [], done: true };
+      },
+    };
+
+    const result = await runAgent({ rt, goal: "complete the financial model", model, tools: ROOM_TOOLS, maxSteps: 6 });
+
+    expect(offeredToolNames).toHaveLength(6);
+    expect(offeredToolNames[4]).toContain("read_range");
+    expect(offeredToolNames[5]).not.toContain("read_range");
+    expect(offeredToolNames[5]).not.toContain("say");
+    expect(result.trace.filter((event) => event.tool === "read_range")).toHaveLength(5);
+    expect(result.messages.some((message) => message.content?.includes("pre-write read budget is exhausted"))).toBe(true);
+    expect(result.stopReason).toBe("step_budget");
+  });
+
+  it("keeps mandatory workbook inspection available after exploratory reads are withheld", async () => {
+    const { rt } = setup();
+    const offeredToolNames: string[][] = [];
+    const inspectTool: AgentTool = {
+      name: "inspect_workbook",
+      description: "Required workbook workflow inspection gate.",
+      schema: z.object({}),
+      execute: async () => ({ ok: true, inspection: { schema: 1 } }),
+    };
+    const model: AgentModel = {
+      name: "bounded-read-inspection-gate",
+      async next({ tools }) {
+        const names = tools.map((tool) => tool.name);
+        offeredToolNames.push(names);
+        if (offeredToolNames.length <= 5) {
+          return { toolCalls: [{ id: `read-${offeredToolNames.length}`, tool: "read_range", args: { elementIds: ["r_rev__variance"] } }], done: false };
+        }
+        return { toolCalls: [{ id: "inspect-required", tool: "inspect_workbook", args: {} }], done: false };
+      },
+    };
+
+    const result = await runAgent({
+      rt,
+      goal: "complete the financial model",
+      model,
+      tools: [
+        ...ROOM_TOOLS.filter((tool) => tool.name !== "inspect_workbook"),
+        inspectTool,
+      ],
+      maxSteps: 6,
+    });
+
+    expect(offeredToolNames[5]).not.toContain("read_range");
+    expect(offeredToolNames[5]).toContain("inspect_workbook");
+    expect(result.trace.find((event) => event.tool === "inspect_workbook")).toMatchObject({
+      tool: "inspect_workbook",
+      result: { ok: true },
+    });
   });
 
   it("steers read-looping BTB runs toward the deliverable package tool", async () => {
