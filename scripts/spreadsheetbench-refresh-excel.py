@@ -611,18 +611,36 @@ def create_excel_application():
         raise
 
 
+def select_workbooks(directory: str | None, file: str | None) -> tuple[Path, list[Path]]:
+    if bool(directory) == bool(file):
+        raise ValueError("exactly one of --dir or --file is required")
+    if file:
+        workbook = Path(file).resolve()
+        if not workbook.is_file() or workbook.suffix.lower() != ".xlsx":
+            raise ValueError(f"--file must name an existing .xlsx workbook: {workbook}")
+        return workbook.parent, [workbook]
+    root = Path(str(directory)).resolve()
+    if not root.is_dir():
+        raise ValueError(f"--dir must name an existing directory: {root}")
+    return root, sorted(root.rglob("*_output.xlsx"))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dir", required=True, help="Root containing *_output.xlsx files")
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--dir", help="Root containing *_output.xlsx files")
+    source.add_argument("--file", help="One candidate .xlsx workbook to refresh before evidence sealing")
     parser.add_argument("--receipt", required=True, help="JSON receipt path")
     parser.add_argument("--retry-receipt", help="Retry only failed records from this receipt and merge the results")
     args = parser.parse_args()
 
-    root = Path(args.dir).resolve()
+    try:
+        root, files = select_workbooks(args.dir, args.file)
+    except ValueError as exc:
+        parser.error(str(exc))
     receipt_path = Path(args.receipt).resolve()
     previous_receipt: dict[str, object] | None = None
     previous_records: dict[str, dict[str, object]] = {}
-    files = sorted(root.rglob("*_output.xlsx"))
     if args.retry_receipt:
         previous_receipt = json.loads(Path(args.retry_receipt).resolve().read_text(encoding="utf-8"))
         previous_records = {str(record["path"]): record for record in previous_receipt.get("records", [])}

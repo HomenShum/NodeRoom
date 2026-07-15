@@ -38,6 +38,7 @@ const taskIds = taskIdsFile ? readTaskIds(taskIdsFile) : undefined;
 const compareStyles = args.includes("--compare-styles");
 const compareCharts = args.includes("--compare-charts");
 const retryScoreFailures = args.includes("--retry-score-failures");
+const refreshExcelCaches = args.includes("--refresh-excel-caches");
 const clean = args.includes("--clean");
 const resume = args.includes("--resume");
 const repairMissingModelReceipts = args.includes("--repair-missing-model-receipts");
@@ -56,7 +57,7 @@ const modeRequiresModel = mode === "model-edit-plan" || mode === "nodeagent-work
 if (!stageRoot || !outputRoot || !jsonOut || !allowedModes.includes(mode) || chunkSize <= 0 || concurrency <= 0 || concurrency > 16) {
   console.error([
     "Usage:",
-    "  npm run benchmark:spreadsheetbench:run-chunked -- --stage-root <staged-dir> --output-root <candidate-output-dir> --json-out <report.json> [--mode copy-input-baseline|apply-agent-patch|model-edit-plan|nodeagent-workbook] [--chunk-size 25] [--concurrency 1..16] [--resume] [--repair-missing-model-receipts] [--model <route>] [--free-auto-mode chat|agent|structured|vision|coding] [--model-batch-size 1] [--model-snapshot-max-cells 800] [--model-snapshot-max-cell-chars 256] [--model-repair-attempts 1] [--task-ids-file <ids.json>] [--allow-provider-spend --max-provider-cost-usd 1 --provider-call-reserve-usd 0.05] [--clean]",
+    "  npm run benchmark:spreadsheetbench:run-chunked -- --stage-root <staged-dir> --output-root <candidate-output-dir> --json-out <report.json> [--mode copy-input-baseline|apply-agent-patch|model-edit-plan|nodeagent-workbook] [--chunk-size 25] [--concurrency 1..16] [--resume] [--repair-missing-model-receipts] [--model <route>] [--free-auto-mode chat|agent|structured|vision|coding] [--model-batch-size 1] [--model-snapshot-max-cells 800] [--model-snapshot-max-cell-chars 256] [--model-repair-attempts 1] [--refresh-excel-caches] [--task-ids-file <ids.json>] [--allow-provider-spend --max-provider-cost-usd 1 --provider-call-reserve-usd 0.05] [--clean]",
     "",
     "Runs staged SpreadsheetBench tasks in fresh child processes and aggregates the reports.",
     "nodeagent-workbook requires --model, defaults --free-auto-mode to agent, and requires --model-batch-size 1.",
@@ -84,6 +85,9 @@ if (mode === "nodeagent-workbook" && modelBatchSize > 1) throw new Error("nodeag
 if (modelSnapshotMaxCells !== undefined && modelSnapshotMaxCells < 1) throw new Error("--model-snapshot-max-cells must be at least 1.");
 if (modelSnapshotMaxCellChars !== undefined && modelSnapshotMaxCellChars < 1) throw new Error("--model-snapshot-max-cell-chars must be at least 1.");
 if (modelRepairAttempts < 0 || modelRepairAttempts > 3) throw new Error("--model-repair-attempts must be between 0 and 3.");
+if (refreshExcelCaches && mode !== "nodeagent-workbook") {
+  throw new Error("--refresh-excel-caches requires --mode nodeagent-workbook.");
+}
 if (providerCallReserveUsd <= 0) throw new Error("--provider-call-reserve-usd must be positive.");
 if (maxProviderCostUsd !== undefined && maxProviderCostUsd <= 0) throw new Error("--max-provider-cost-usd must be positive.");
 if (allowProviderSpend && maxProviderCostUsd === undefined) throw new Error("--allow-provider-spend requires --max-provider-cost-usd.");
@@ -181,6 +185,7 @@ async function runChunk(index: number, offset: number, limit: number): Promise<S
     ...(modelSnapshotMaxCellChars !== undefined ? ["--model-snapshot-max-cell-chars", String(modelSnapshotMaxCellChars)] : []),
     "--model-repair-attempts",
     String(modelRepairAttempts),
+    ...(refreshExcelCaches ? ["--refresh-excel-caches"] : []),
     ...(taskIdsFile ? ["--task-ids-file", resolve(taskIdsFile)] : []),
     ...(retryScoreFailures ? ["--retry-score-failures"] : []),
     ...(compareStyles ? ["--compare-styles"] : []),

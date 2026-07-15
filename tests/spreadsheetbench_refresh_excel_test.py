@@ -288,5 +288,39 @@ class WorkbookPackagePatchingTests(unittest.TestCase):
             self.assertEqual([path.name for path in Path(temp_dir).iterdir()], ["book.xlsx"])
 
 
+class WorkbookSelectionTests(unittest.TestCase):
+    def test_selects_one_explicit_candidate_without_output_suffix(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            candidate = root / "candidate-input.xlsx"
+            candidate.write_bytes(b"xlsx")
+
+            selected_root, files = refresh_excel.select_workbooks(None, str(candidate))
+
+        self.assertEqual(selected_root, candidate.parent.resolve())
+        self.assertEqual(files, [candidate.resolve()])
+
+    def test_directory_mode_keeps_the_official_output_filename_contract(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            expected = root / "nested" / "01_output.xlsx"
+            expected.parent.mkdir()
+            expected.write_bytes(b"xlsx")
+            (root / "candidate.xlsx").write_bytes(b"xlsx")
+
+            selected_root, files = refresh_excel.select_workbooks(str(root), None)
+
+        self.assertEqual(selected_root, root.resolve())
+        self.assertEqual(files, [expected.resolve()])
+
+    def test_rejects_ambiguous_or_invalid_sources(self) -> None:
+        with self.assertRaisesRegex(ValueError, "exactly one"):
+            refresh_excel.select_workbooks(None, None)
+        with self.assertRaisesRegex(ValueError, "exactly one"):
+            refresh_excel.select_workbooks(".", "candidate.xlsx")
+        with self.assertRaisesRegex(ValueError, "existing .xlsx"):
+            refresh_excel.select_workbooks(None, "missing.xlsx")
+
+
 if __name__ == "__main__":
     unittest.main()

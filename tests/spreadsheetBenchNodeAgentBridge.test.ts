@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -10,6 +11,10 @@ import {
 import type { AgentMessage, AgentModel, AgentStep } from "../src/nodeagent/core/types";
 
 const roots: string[] = [];
+
+function sha256(value: Buffer): string {
+  return createHash("sha256").update(value).digest("hex");
+}
 
 afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
@@ -195,6 +200,63 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
     expect(await candidateZip.file("[Content_Types].xml")?.async("string")).toContain(
       'PartName="/xl/drawings/drawing1.xml"',
     );
+  });
+
+  it("finalizes the emitted workbook before sealing candidate and trace hashes", async () => {
+    const root = tempRoot();
+    const task = await stagedTask(root);
+    const candidate = join(root, "output", "finalized.xlsx");
+    const finalizationPath = join(root, "output", "candidate-finalization.json");
+    const capture = { systems: [] as string[], messages: [] as string[], toolNames: [] as string[][] };
+
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: candidate,
+      model: repairingWorkbookModel(capture),
+      traceId: "trace_sbench_candidate_finalization",
+      maxSteps: 10,
+      now: () => 1_125,
+      finalizeCandidate: async ({ candidateWorkbookPath, beforeSha256 }) => {
+        const before = readFileSync(candidateWorkbookPath);
+        expect(sha256(before)).toBe(beforeSha256);
+        const zip = await JSZip.loadAsync(before);
+        expect(await zip.file("xl/worksheets/sheet1.xml")?.async("string")).toContain("<f>A1*2</f>");
+        zip.file("customXml/finalized.txt", "cache refresh complete");
+        const finalized = await zip.generateAsync({ type: "nodebuffer" });
+        writeFileSync(candidateWorkbookPath, finalized);
+        writeFileSync(finalizationPath, '{"schema":1,"status":"refreshed"}\n');
+        const finalization = readFileSync(finalizationPath);
+        return {
+          engine: "test-cache-refresh",
+          beforeSha256,
+          afterSha256: sha256(finalized),
+          changed: true,
+          formulaCellCount: 1,
+          cacheWriteMode: "test",
+          receipt: {
+            path: finalizationPath,
+            sha256: sha256(finalization),
+            bytes: finalization.byteLength,
+          },
+        };
+      },
+    });
+
+    expect(receipt.candidateWorkbookSha256).toBe(sha256(readFileSync(candidate)));
+    expect(receipt.candidateFinalization).toMatchObject({
+      engine: "test-cache-refresh",
+      changed: true,
+      beforeSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+      afterSha256: receipt.candidateWorkbookSha256,
+      receipt: { path: finalizationPath },
+    });
+    expect(receipt.trace.evidence).toContainEqual(expect.objectContaining({
+      label: "SpreadsheetBench candidate finalization",
+      status: "verified",
+    }));
+    expect(JSON.stringify(receipt.trace.eval.proofArtifacts)).toContain(receipt.candidateWorkbookSha256);
+    const finalizedZip = await JSZip.loadAsync(readFileSync(candidate));
+    expect(await finalizedZip.file("customXml/finalized.txt")?.async("string")).toBe("cache refresh complete");
   });
 
   it("treats invalid Excel dates as inspectable values instead of aborting the trace", async () => {

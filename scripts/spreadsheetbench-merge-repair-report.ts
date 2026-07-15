@@ -168,6 +168,7 @@ function resultEvidence(result: SpreadsheetBenchRunnerTaskResult): SpreadsheetBe
     "rawModelOutput",
     "workbookInspection",
     "editVerification",
+    "candidateFinalization",
   ] as const;
   for (const key of optionalFileKeys) {
     const value = sidecars[key];

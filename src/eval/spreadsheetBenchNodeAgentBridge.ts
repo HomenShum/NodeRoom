@@ -140,6 +140,20 @@ export type SpreadsheetBenchNodeAgentRecalculationReceipt = {
   }>;
 };
 
+export type SpreadsheetBenchCandidateFinalizationReceipt = {
+  engine: string;
+  beforeSha256: string;
+  afterSha256: string;
+  changed: boolean;
+  formulaCellCount?: number;
+  cacheWriteMode?: string;
+  receipt: {
+    path: string;
+    sha256: string;
+    bytes: number;
+  };
+};
+
 export type SpreadsheetBenchNodeAgentBridgeReceipt = {
   schema: typeof SPREADSHEETBENCH_NODEAGENT_BRIDGE_SCHEMA;
   traceId: string;
@@ -169,6 +183,7 @@ export type SpreadsheetBenchNodeAgentBridgeReceipt = {
     usage: TokenUsage;
   };
   recalculation: SpreadsheetBenchNodeAgentRecalculationReceipt;
+  candidateFinalization?: SpreadsheetBenchCandidateFinalizationReceipt;
   frame: ReasoningFrameRunReceipt;
   trace: NodeAgentTrace;
 };
@@ -185,6 +200,14 @@ export type RunSpreadsheetBenchNodeAgentBridgeOptions = {
   snapshotMaxCells?: number;
   scanMaxCells?: number;
   now?: () => number;
+  finalizeCandidate?: (args: {
+    taskId: string;
+    track: SpreadsheetBenchTrack;
+    category?: string;
+    sourceWorkbookPath: string;
+    candidateWorkbookPath: string;
+    beforeSha256: string;
+  }) => SpreadsheetBenchCandidateFinalizationReceipt | Promise<SpreadsheetBenchCandidateFinalizationReceipt>;
 };
 
 type OpenedAgentTask = {
@@ -263,7 +286,29 @@ export async function runSpreadsheetBenchNodeAgentBridge(
     candidateWorkbookPath,
     patches: room.packageMutations(),
   });
+  const emittedCandidateSha256 = sha256File(candidateWorkbookPath);
+  const candidateFinalization = options.finalizeCandidate
+    ? await options.finalizeCandidate({
+        taskId: task.manifest.taskId,
+        track: task.manifest.track,
+        ...(task.manifest.category ? { category: task.manifest.category } : {}),
+        sourceWorkbookPath: task.sourceWorkbookPath,
+        candidateWorkbookPath,
+        beforeSha256: emittedCandidateSha256,
+      })
+    : undefined;
   const candidateWorkbookSha256 = sha256File(candidateWorkbookPath);
+  if (candidateFinalization) {
+    if (candidateFinalization.beforeSha256 !== emittedCandidateSha256) {
+      throw new Error("SpreadsheetBench candidate finalizer beforeSha256 does not match the emitted workbook");
+    }
+    if (candidateFinalization.afterSha256 !== candidateWorkbookSha256) {
+      throw new Error("SpreadsheetBench candidate finalizer afterSha256 does not match the finalized workbook");
+    }
+    if (candidateFinalization.changed !== (emittedCandidateSha256 !== candidateWorkbookSha256)) {
+      throw new Error("SpreadsheetBench candidate finalizer changed flag does not match the workbook hashes");
+    }
+  }
   const stages = buildStageReceipts(traceId, frameReceipt);
   const mutatingTask = room.taskInspection().mutatingTask;
   const outcome = bridgeOutcome(
@@ -287,6 +332,7 @@ export async function runSpreadsheetBenchNodeAgentBridge(
     artifactIds: room.artifactIds(),
     outcomeStatus: outcome.status,
     recalculation,
+    candidateFinalization,
   });
 
   return {
@@ -319,6 +365,7 @@ export async function runSpreadsheetBenchNodeAgentBridge(
       },
     },
     recalculation,
+    ...(candidateFinalization ? { candidateFinalization } : {}),
     frame: frameReceipt,
     trace,
   };
@@ -1707,6 +1754,7 @@ function buildBridgeTrace(args: {
   artifactIds: string[];
   outcomeStatus: SpreadsheetBenchNodeAgentBridgeReceipt["outcome"]["status"];
   recalculation: SpreadsheetBenchNodeAgentRecalculationReceipt;
+  candidateFinalization?: SpreadsheetBenchCandidateFinalizationReceipt;
 }): NodeAgentTrace {
   const candidateRef = traceRef("artifact", args.candidateWorkbookPath, {
     label: `SpreadsheetBench candidate ${basename(args.candidateWorkbookPath)}`,
@@ -1759,6 +1807,20 @@ function buildBridgeTrace(args: {
     verifier: args.recalculation.engine,
     status: args.recalculation.unresolvedFormulaCount === 0 ? "verified" : "needs_review",
   }));
+  if (args.candidateFinalization) {
+    trace.evidence.push(makeEvidenceReceipt({
+      traceId: args.traceId,
+      label: "SpreadsheetBench candidate finalization",
+      sourceRefs: [traceRef("tool_result", `${args.traceId}:candidate-finalization`, {
+        label: args.candidateFinalization.engine,
+        hash: stableTraceHash(args.candidateFinalization),
+      })],
+      artifactRefs: [candidateRef],
+      fact: args.candidateFinalization,
+      verifier: args.candidateFinalization.engine,
+      status: "verified",
+    }));
+  }
   trace.mutations = args.frameReceipt.agentResult.trace.flatMap((event): MutationReceipt[] => {
     if (!MUTATION_TOOL_NAMES.has(event.tool)) return [];
     const targets = writeTargets(event.args, event.result).map((target) => traceRef("cell", target, { label: "SpreadsheetBench workbook target" }));

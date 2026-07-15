@@ -12,7 +12,10 @@ import type { SpreadsheetBenchTrack } from "./spreadsheetBenchAdapter";
 import type { AgentModel, TokenUsage } from "../nodeagent/core/types";
 import { priceRun } from "../nodeagent/models/adapter";
 import { getModelPricing } from "../nodeagent/models/modelCatalog";
-import { runSpreadsheetBenchNodeAgentBridge } from "./spreadsheetBenchNodeAgentBridge";
+import {
+  runSpreadsheetBenchNodeAgentBridge,
+  type SpreadsheetBenchCandidateFinalizationReceipt,
+} from "./spreadsheetBenchNodeAgentBridge";
 import {
   checksForWorkbookOperations,
   extractWorkbookTaskReferences,
@@ -86,6 +89,7 @@ export type SpreadsheetBenchRunnerOptions = {
   modelSnapshotMaxCells?: number;
   modelSnapshotMaxCellChars?: number;
   modelRepairAttempts?: number;
+  refreshExcelCaches?: boolean;
   taskIds?: string[];
   repeats?: number;
   retryFailed?: number;
@@ -174,6 +178,7 @@ export type SpreadsheetBenchSidecarEvidence = {
   editVerification?: SpreadsheetBenchSidecarFileEvidence;
   nodeAgentReceipt?: SpreadsheetBenchSidecarFileEvidence;
   nodeAgentTrace?: SpreadsheetBenchSidecarFileEvidence;
+  candidateFinalization?: SpreadsheetBenchSidecarFileEvidence;
   repairOutputs?: SpreadsheetBenchSidecarFileEvidence[];
   formulaResultPolicy?: string;
   supportedFormulaFunctions?: string[];
@@ -227,6 +232,7 @@ export type SpreadsheetBenchRunnerReport = {
       snapshotMaxCellChars: number | null;
       instructionMaxChars: number | null;
       repairAttempts: number;
+      refreshExcelCaches?: boolean;
       selectedTaskCount: number;
     };
     budget: {
@@ -467,6 +473,7 @@ export async function runStagedSpreadsheetBench(options: SpreadsheetBenchRunnerO
           : Math.max(1, Math.trunc(options.modelSnapshotMaxCellChars)),
         instructionMaxChars: (options.modelBatchSize ?? 1) > 1 ? BATCH_INSTRUCTION_MAX_CHARS : null,
         repairAttempts: Math.max(0, Math.min(3, Math.trunc(options.modelRepairAttempts ?? 0))),
+        refreshExcelCaches: options.refreshExcelCaches === true,
         selectedTaskCount: selectedTasks.length,
       },
       budget: {
@@ -536,6 +543,7 @@ async function runTask(
     modelSnapshotMaxCells: options.modelSnapshotMaxCells,
     modelSnapshotMaxCellChars: options.modelSnapshotMaxCellChars,
     modelRepairAttempts: options.modelRepairAttempts,
+    refreshExcelCaches: options.refreshExcelCaches,
     batchedModelPlan,
   });
   let emitted: string | ModelCandidateEmission;
@@ -721,6 +729,7 @@ function collectSidecarEvidence(outputRoot: string, taskOutDir: string): Spreads
     editVerification?: string;
     nodeAgentReceipt?: string;
     nodeAgentTrace?: string;
+    candidateFinalization?: string;
     repairOutputs?: string[];
     formulaResultPolicy?: string;
     supportedFormulaFunctions?: string[];
@@ -745,6 +754,9 @@ function collectSidecarEvidence(outputRoot: string, taskOutDir: string): Spreads
     ...(manifest.editVerification ? { editVerification: fileEvidence(outputRoot, resolveSidecarPath(taskOutDir, manifest.editVerification)) } : {}),
     ...(manifest.nodeAgentReceipt ? { nodeAgentReceipt: fileEvidence(outputRoot, resolveSidecarPath(taskOutDir, manifest.nodeAgentReceipt)) } : {}),
     ...(manifest.nodeAgentTrace ? { nodeAgentTrace: fileEvidence(outputRoot, resolveSidecarPath(taskOutDir, manifest.nodeAgentTrace)) } : {}),
+    ...(manifest.candidateFinalization
+      ? { candidateFinalization: fileEvidence(outputRoot, resolveSidecarPath(taskOutDir, manifest.candidateFinalization)) }
+      : {}),
     ...(manifest.repairOutputs?.length
       ? { repairOutputs: manifest.repairOutputs.map((path) => fileEvidence(outputRoot, resolveSidecarPath(taskOutDir, path))) }
       : {}),
@@ -783,6 +795,7 @@ function emitCandidateWorkbook(args: {
   modelSnapshotMaxCells?: number;
   modelSnapshotMaxCellChars?: number;
   modelRepairAttempts?: number;
+  refreshExcelCaches?: boolean;
   batchedModelPlan?: BatchedModelPlan;
 }): Promise<string | ModelCandidateEmission> | string {
   const firstInput = args.agent.inputFiles[0];
@@ -841,6 +854,7 @@ async function emitNodeAgentWorkbookCandidate(args: {
   modelTimeoutMs?: number;
   modelSnapshotMaxCells?: number;
   modelRepairAttempts?: number;
+  refreshExcelCaches?: boolean;
 }): Promise<ModelCandidateEmission> {
   if (!args.model) throw new Error(`nodeagent-workbook requires options.model: ${args.agent.taskId}`);
   const started = Date.now();
@@ -855,6 +869,18 @@ async function emitNodeAgentWorkbookCandidate(args: {
     maxSteps,
     modelTimeoutMs: runTimeoutMs,
     snapshotMaxCells: args.modelSnapshotMaxCells,
+    ...(args.refreshExcelCaches
+      ? {
+          finalizeCandidate: ({ candidateWorkbookPath, beforeSha256 }: {
+            candidateWorkbookPath: string;
+            beforeSha256: string;
+          }) => refreshCandidateExcelCaches({
+            candidateWorkbookPath,
+            beforeSha256,
+            receiptPath: join(args.taskOutDir, "candidate-finalization.json"),
+          }),
+        }
+      : {}),
   });
   const modelPlanningMs = Date.now() - started;
   const receiptPath = join(args.taskOutDir, "nodeagent-workbook-receipt.json");
@@ -888,6 +914,9 @@ async function emitNodeAgentWorkbookCandidate(args: {
     candidateWorkbook: basename(args.target),
     nodeAgentReceipt: basename(receiptPath),
     nodeAgentTrace: basename(tracePath),
+    ...(receipt.candidateFinalization
+      ? { candidateFinalization: basename(receipt.candidateFinalization.receipt.path) }
+      : {}),
     appliedOperationCount: receipt.outcome.changedCellCount,
     repairAttemptCount: receipt.stages.repair.attempts,
     verificationStatus: receipt.outcome.finalVerificationStatus === "passed" ? "passed" : "needs_repair",
@@ -903,6 +932,63 @@ async function emitNodeAgentWorkbookCandidate(args: {
     note: "nodeagent-workbook executes the staged task through the canonical NodeAgent frame/runtime and production managed workbook tools before evaluator metadata becomes available.",
   });
   return { path: args.target, modelPlanningMs, model: modelInfo };
+}
+
+function refreshCandidateExcelCaches(args: {
+  candidateWorkbookPath: string;
+  beforeSha256: string;
+  receiptPath: string;
+}): SpreadsheetBenchCandidateFinalizationReceipt {
+  const script = resolve("scripts", "spreadsheetbench-refresh-excel.py");
+  const result = spawnSync(
+    process.env.PYTHON?.trim() || "python",
+    [script, "--file", args.candidateWorkbookPath, "--receipt", args.receiptPath],
+    {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      windowsHide: true,
+      timeout: 10 * 60_000,
+      maxBuffer: 4 * 1024 * 1024,
+    },
+  );
+  if (result.error) {
+    throw new Error(`SpreadsheetBench Excel cache refresh failed to start: ${result.error.message}`);
+  }
+  if (result.status !== 0) {
+    const detail = [result.stderr, result.stdout].filter(Boolean).join(" ").replace(/\s+/g, " ").trim().slice(0, 1_000);
+    throw new Error(`SpreadsheetBench Excel cache refresh failed (${String(result.status)}): ${detail}`);
+  }
+  const refresh = readJson<{
+    engine?: string;
+    records?: Array<{
+      status?: string;
+      beforeSha256?: string;
+      afterSha256?: string;
+      formulaCellCount?: number;
+      cacheWriteMode?: string;
+    }>;
+  }>(args.receiptPath);
+  const record = refresh.records?.[0];
+  if (!record || record.status !== "refreshed") {
+    throw new Error("SpreadsheetBench Excel cache refresh receipt is missing a refreshed record");
+  }
+  if (record.beforeSha256 !== args.beforeSha256 || !record.afterSha256) {
+    throw new Error("SpreadsheetBench Excel cache refresh receipt hash boundary is invalid");
+  }
+  const receiptContent = readFileSync(args.receiptPath);
+  return {
+    engine: refresh.engine?.trim() || "spreadsheetbench-excel-cache-refresh",
+    beforeSha256: record.beforeSha256,
+    afterSha256: record.afterSha256,
+    changed: record.beforeSha256 !== record.afterSha256,
+    ...(typeof record.formulaCellCount === "number" ? { formulaCellCount: record.formulaCellCount } : {}),
+    ...(record.cacheWriteMode ? { cacheWriteMode: record.cacheWriteMode } : {}),
+    receipt: {
+      path: resolve(args.receiptPath),
+      sha256: createHash("sha256").update(receiptContent).digest("hex"),
+      bytes: receiptContent.byteLength,
+    },
+  };
 }
 
 type AgentWorkspace = {
