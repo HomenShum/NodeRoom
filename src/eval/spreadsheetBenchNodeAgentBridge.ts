@@ -5,6 +5,10 @@ import ExcelJS from "exceljs";
 import type { SpreadsheetBenchTrack } from "./spreadsheetBenchAdapter";
 import { readSpreadsheetBenchWorkbookForMutation } from "./spreadsheetBenchScorer";
 import {
+  emitSpreadsheetBenchWorkbookCandidate,
+  type SpreadsheetBenchWorkbookCellPatch,
+} from "./spreadsheetBenchWorkbookEmitter";
+import {
   evaluateFormula,
   FormulaEvalError,
   type CellValue as FormulaEngineCellValue,
@@ -254,7 +258,11 @@ export async function runSpreadsheetBenchNodeAgentBridge(
 
   const recalculation = room.recalculateChangedFormulas();
   mkdirSync(dirname(candidateWorkbookPath), { recursive: true });
-  await workbook.xlsx.writeFile(candidateWorkbookPath);
+  await emitSpreadsheetBenchWorkbookCandidate({
+    sourceWorkbookPath: task.sourceWorkbookPath,
+    candidateWorkbookPath,
+    patches: room.packageMutations(),
+  });
   const candidateWorkbookSha256 = sha256File(candidateWorkbookPath);
   const stages = buildStageReceipts(traceId, frameReceipt);
   const mutatingTask = room.taskInspection().mutatingTask;
@@ -324,7 +332,12 @@ class SpreadsheetBenchWorkbookRoomTools implements RoomTools {
   private readonly scanMaxCells: number;
   private readonly versions = new Map<string, number>();
   private readonly locks = new Map<string, ActiveLock>();
-  private readonly changedTargets = new Map<string, { sheet: string; address: string }>();
+  private readonly changedTargets = new Map<string, {
+    sheet: string;
+    address: string;
+    numFmtTouched: boolean;
+    originalState: WorkbookCellSemanticState;
+  }>();
   private readonly chat: string[] = [];
   private lockCounter = 0;
   private draftCounter = 0;
@@ -351,6 +364,20 @@ class SpreadsheetBenchWorkbookRoomTools implements RoomTools {
 
   changedCellCount(): number {
     return this.mutations;
+  }
+
+  packageMutations(): SpreadsheetBenchWorkbookCellPatch[] {
+    return [...this.changedTargets.values()]
+      .sort((left, right) => left.sheet.localeCompare(right.sheet) || left.address.localeCompare(right.address))
+      .flatMap((target) => {
+        const cell = this.sheet(target.sheet).getCell(target.address);
+        if (sameWorkbookCellSemanticState(
+          target.originalState,
+          workbookCellSemanticState(cell),
+          target.numFmtTouched,
+        )) return [];
+        return [workbookCellPatch(target.sheet, target.address, cell, target.numFmtTouched)];
+      });
   }
 
   taskInspection() {
@@ -524,6 +551,7 @@ class SpreadsheetBenchWorkbookRoomTools implements RoomTools {
   ): Promise<EditOutcome> {
     const target = this.target(elementId, this.sheet(artifactId).name);
     const cell = target.sheet.getCell(target.address);
+    const originalState = workbookCellSemanticState(cell);
     const currentVersion = this.version(target.sheet.name, target.address, cell);
     if (kind === "create" && currentVersion !== 0) {
       return { ok: false, conflict: true, expected: baseVersion, actual: currentVersion };
@@ -539,9 +567,13 @@ class SpreadsheetBenchWorkbookRoomTools implements RoomTools {
     }
     const nextVersion = currentVersion + 1;
     this.versions.set(cellKey(target.sheet.name, target.address), nextVersion);
-    this.changedTargets.set(cellKey(target.sheet.name, target.address), {
+    const targetKey = cellKey(target.sheet.name, target.address);
+    const priorTarget = this.changedTargets.get(targetKey);
+    this.changedTargets.set(targetKey, {
       sheet: target.sheet.name,
       address: target.address,
+      numFmtTouched: priorTarget?.numFmtTouched === true || typeof asRecord(value)?.numFmt === "string",
+      originalState: priorTarget?.originalState ?? originalState,
     });
     this.workbookVersion += 1;
     this.mutations += 1;
@@ -1860,6 +1892,83 @@ function roomCellScalar(cell: ExcelJS.Cell): unknown {
   return value;
 }
 
+type WorkbookCellSemanticState = {
+  kind: "clear" | "formula" | "value";
+  formula?: string;
+  valueKey?: string;
+  numFmt: string;
+};
+
+function workbookCellSemanticState(cell: ExcelJS.Cell): WorkbookCellSemanticState {
+  const formula = cellFormula(cell);
+  if (formula) return { kind: "formula", formula, numFmt: cell.numFmt };
+  if (cell.value === null || cell.value === undefined) return { kind: "clear", numFmt: cell.numFmt };
+  return { kind: "value", valueKey: stableWorkbookValue(cell.value), numFmt: cell.numFmt };
+}
+
+function sameWorkbookCellSemanticState(
+  left: WorkbookCellSemanticState,
+  right: WorkbookCellSemanticState,
+  compareNumberFormat: boolean,
+): boolean {
+  return left.kind === right.kind
+    && left.formula === right.formula
+    && left.valueKey === right.valueKey
+    && (!compareNumberFormat || left.numFmt === right.numFmt);
+}
+
+function stableWorkbookValue(value: unknown): string {
+  if (value === undefined) return "undefined";
+  if (value === null) return "null";
+  if (value instanceof Date) return `date:${Number.isFinite(value.getTime()) ? value.getTime() : "invalid"}`;
+  if (Array.isArray(value)) return `[${value.map(stableWorkbookValue).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, nested]) => `${JSON.stringify(key)}:${stableWorkbookValue(nested)}`)
+      .join(",")}}`;
+  }
+  return `${typeof value}:${String(value)}`;
+}
+
+function workbookCellPatch(
+  sheet: string,
+  address: string,
+  cell: ExcelJS.Cell,
+  numFmtTouched: boolean,
+): SpreadsheetBenchWorkbookCellPatch {
+  const formula = cellFormula(cell);
+  const valueRecord = asRecord(cell.value);
+  const numFmt = numFmtTouched ? cell.numFmt : undefined;
+  if (formula) {
+    const hasCachedResult = Boolean(valueRecord && Object.prototype.hasOwnProperty.call(valueRecord, "result"));
+    return {
+      sheet,
+      address,
+      kind: "formula",
+      formula,
+      hasCachedResult,
+      ...(hasCachedResult ? { cachedResult: valueRecord?.result } : {}),
+      ...(numFmt === undefined ? {} : { numFmt }),
+    };
+  }
+  if (cell.value === null || cell.value === undefined) {
+    return {
+      sheet,
+      address,
+      kind: "clear",
+      ...(numFmt === undefined ? {} : { numFmt }),
+    };
+  }
+  return {
+    sheet,
+    address,
+    kind: "value",
+    value: cell.value,
+    ...(numFmt === undefined ? {} : { numFmt }),
+  };
+}
+
 function formulaCachedScalar(cell: ExcelJS.Cell): FormulaEngineCellValue | undefined {
   const value = cell.value;
   if (!value || typeof value !== "object" || !("result" in value)) return undefined;
@@ -1874,7 +1983,10 @@ function formulaEnginePrimitive(value: unknown): FormulaEngineCellValue | undefi
   if (value === null || value === undefined) return null;
   if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
   if (typeof value === "string" || typeof value === "boolean") return value;
-  if (value instanceof Date) return (value.getTime() - Date.UTC(1899, 11, 30)) / 86_400_000;
+  if (value instanceof Date) {
+    const time = value.getTime();
+    return Number.isFinite(time) ? (time - Date.UTC(1899, 11, 30)) / 86_400_000 : undefined;
+  }
   return undefined;
 }
 
@@ -2009,7 +2121,7 @@ function cellKey(sheet: string, address: string): string {
 
 function displayValue(value: unknown): string {
   if (value === null || value === undefined) return "";
-  if (value instanceof Date) return value.toISOString();
+  if (value instanceof Date) return Number.isFinite(value.getTime()) ? value.toISOString() : "";
   if (typeof value === "object") return JSON.stringify(value);
   return String(value);
 }

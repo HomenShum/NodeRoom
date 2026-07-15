@@ -329,7 +329,7 @@ function normalizeWorkbookRelationshipTarget(target: string): string {
 
 function parseZipWorksheetCells(xml: string, sharedStrings: string[]): Map<string, { value: unknown; formula?: string }> {
   const cells = new Map<string, { value: unknown; formula?: string }>();
-  for (const match of xml.matchAll(/<c\b([^>]*)(?:\/>|>([\s\S]*?)<\/c>)/gi)) {
+  for (const match of xml.matchAll(/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/gi)) {
     const attrs = xmlAttrs(match[1]);
     const address = attrs.r?.replace(/\$/g, "").toUpperCase();
     if (!address) continue;
@@ -475,6 +475,12 @@ function xmlAttrs(value: string): Record<string, string> {
 
 function decodeXml(value: string): string {
   return value
+    .replace(/&#(?:x([0-9a-f]+)|([0-9]+));/gi, (entity, hex: string | undefined, decimal: string | undefined) => {
+      const codePoint = Number.parseInt(hex ?? decimal ?? "", hex ? 16 : 10);
+      return Number.isInteger(codePoint) && codePoint >= 0 && codePoint <= 0x10ffff
+        ? String.fromCodePoint(codePoint)
+        : entity;
+    })
     .replace(/&quot;/g, "\"")
     .replace(/&apos;/g, "'")
     .replace(/&lt;/g, "<")

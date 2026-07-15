@@ -131,7 +131,7 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
     });
   });
 
-  it("falls back to a sanitized workbook only when an unsupported WPS drawing blocks mutation", async () => {
+  it("emits the source workbook byte-for-byte when inspection makes no changes", async () => {
     const root = tempRoot();
     const instruction = "Inspect the workbook and report what remains.";
     const task = await stagedTask(root, instruction);
@@ -154,9 +154,73 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
     expect(receipt.stages.inspect.status).toBe("completed");
     expect(receipt.frame.agentResult.stopReason).toBe("done");
     expect(existsSync(candidate)).toBe(true);
-    const emitted = new ExcelJS.Workbook();
-    await emitted.xlsx.readFile(candidate);
-    expect(emitted.getWorksheet("Model")?.getCell("A1").value).toBe(2);
+    expect(readFileSync(candidate)).toEqual(readFileSync(input));
+  });
+
+  it("preserves unsupported workbook package parts while emitting changed cells", async () => {
+    const root = tempRoot();
+    const task = await stagedTask(root);
+    const input = join(root, "tasks", "bridge-01", "agent", "inputs", "input.xlsx");
+    await addUnsupportedWpsDrawing(input);
+    const candidate = join(root, "output", "wps-drawing-repaired.xlsx");
+    const capture = { systems: [] as string[], messages: [] as string[], toolNames: [] as string[][] };
+
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: candidate,
+      model: repairingWorkbookModel(capture),
+      traceId: "trace_sbench_wps_drawing_repaired",
+      maxSteps: 10,
+      now: () => 1_100,
+    });
+
+    expect(receipt.outcome).toMatchObject({ status: "completed", changedCellCount: 1 });
+    const [sourceZip, candidateZip] = await Promise.all([
+      JSZip.loadAsync(readFileSync(input)),
+      JSZip.loadAsync(readFileSync(candidate)),
+    ]);
+    for (const path of [
+      "xl/drawings/drawing1.xml",
+      "xl/drawings/_rels/drawing1.xml.rels",
+      "xl/media/image1.png",
+      "xl/worksheets/_rels/sheet1.xml.rels",
+    ]) {
+      expect(await candidateZip.file(path)?.async("nodebuffer")).toEqual(
+        await sourceZip.file(path)?.async("nodebuffer"),
+      );
+    }
+    const worksheetXml = await candidateZip.file("xl/worksheets/sheet1.xml")?.async("string");
+    expect(worksheetXml).toContain('<drawing r:id="rId1"/>');
+    expect(worksheetXml).toMatch(/<c\b[^>]*r="B1"[^>]*>[\s\S]*?<f>A1\*2<\/f>[\s\S]*?<v>4<\/v>[\s\S]*?<\/c>/);
+    expect(await candidateZip.file("[Content_Types].xml")?.async("string")).toContain(
+      'PartName="/xl/drawings/drawing1.xml"',
+    );
+  });
+
+  it("treats invalid Excel dates as inspectable values instead of aborting the trace", async () => {
+    const root = tempRoot();
+    const task = await stagedTask(root, "Inspect the workbook and report what remains.");
+    const inputPath = join(root, "tasks", "bridge-01", "agent", "inputs", "input.xlsx");
+    const input = new ExcelJS.Workbook();
+    await input.xlsx.readFile(inputPath);
+    input.getWorksheet("Model")!.getCell("A1").value = 1e100;
+    input.getWorksheet("Model")!.getCell("A1").numFmt = "yyyy-mm-dd";
+    await input.xlsx.writeFile(inputPath);
+    const candidate = join(root, "output", "invalid-date.xlsx");
+
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: candidate,
+      model: invalidArtifactInspectionModel(),
+      traceId: "trace_sbench_invalid_date",
+      maxSteps: 4,
+      now: () => 1_150,
+    });
+
+    expect(receipt.frame.runtimeError).toBeUndefined();
+    expect(receipt.stages.inspect.status).toBe("completed");
+    expect(receipt.outcome.changedCellCount).toBe(0);
+    expect(readFileSync(candidate)).toEqual(readFileSync(inputPath));
   });
 
   it("keeps a syntactically verified write open when deterministic recalculation is unsupported", async () => {

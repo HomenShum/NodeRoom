@@ -1,4 +1,5 @@
 import ExcelJS from "exceljs";
+import JSZip from "jszip";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -130,6 +131,34 @@ describe("SpreadsheetBench workbook scorer", () => {
     expect(score.scores).toMatchObject({ value: 1, formula: null, overall: 1 });
   });
 
+  it("parses self-closing and explicitly closed blank cells without consuming the following cell", async () => {
+    const root = tempRoot();
+    const candidate = join(root, "candidate.xlsx");
+    const gold = join(root, "gold.xlsx");
+    await writeBlankThenFormulaWorkbook(candidate);
+    await writeBlankThenFormulaWorkbook(gold);
+    await expandSelfClosingCell(candidate, "A1");
+    await encodeSharedStringWithNumericReferences(candidate, "Line one\nLine two ©");
+
+    const score = await scoreSpreadsheetBenchWorkbook({
+      taskId: "fixture/self-closing-cell",
+      candidateWorkbookPath: candidate,
+      goldWorkbookPath: gold,
+      answerPosition: "'Model'!A1:D1",
+      maxMismatches: 10,
+      generatedAt: "2026-06-13T00:00:00.000Z",
+    });
+
+    expect(score.pass).toBe(true);
+    expect(score.totals).toMatchObject({
+      comparedCells: 4,
+      valueMatches: 4,
+      formulaCells: 1,
+      formulaMatches: 1,
+      mismatches: 0,
+    });
+  });
+
   it("scores row, column, and merge layout drift when style comparison is enabled", async () => {
     const root = tempRoot();
     const candidate = join(root, "candidate.xlsx");
@@ -249,6 +278,40 @@ async function writeFormulaVsScalarWorkbook(path: string, mode: "formula" | "sca
   sheet.getCell("B2").value = 12;
   sheet.getCell("C2").value = mode === "formula" ? { formula: "B2*2", result: 24 } : 24;
   await workbook.xlsx.writeFile(path);
+}
+
+async function writeBlankThenFormulaWorkbook(path: string) {
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet("Model");
+  sheet.getCell("A1").numFmt = "0";
+  sheet.getCell("B1").value = 2;
+  sheet.getCell("C1").value = { formula: "B1*2", result: 4 };
+  sheet.getCell("D1").value = "Line one\nLine two ©";
+  await workbook.xlsx.writeFile(path);
+}
+
+async function expandSelfClosingCell(path: string, address: string) {
+  const zip = await JSZip.loadAsync(readFileSync(path));
+  const worksheet = zip.file("xl/worksheets/sheet1.xml");
+  if (!worksheet) throw new Error("fixture worksheet is missing");
+  const xml = await worksheet.async("string");
+  const expression = new RegExp(`<c\\b([^>]*\\br=["']${address}["'][^>]*)\\/>`, "i");
+  const expanded = xml.replace(expression, (_match, attrs: string) => `<c${attrs}></c>`);
+  if (expanded === xml) throw new Error(`fixture cell ${address} was not self-closing`);
+  zip.file("xl/worksheets/sheet1.xml", expanded);
+  writeFileSync(path, await zip.generateAsync({ type: "nodebuffer" }));
+}
+
+async function encodeSharedStringWithNumericReferences(path: string, value: string) {
+  const zip = await JSZip.loadAsync(readFileSync(path));
+  const sharedStrings = zip.file("xl/sharedStrings.xml");
+  if (!sharedStrings) throw new Error("fixture shared strings are missing");
+  const xml = await sharedStrings.async("string");
+  const encoded = value.replace("\n", "&#10;").replace("©", "&#169;");
+  const patched = xml.replace(value, encoded);
+  if (patched === xml) throw new Error("fixture shared string was not found");
+  zip.file("xl/sharedStrings.xml", patched);
+  writeFileSync(path, await zip.generateAsync({ type: "nodebuffer" }));
 }
 
 async function writeLayoutWorkbook(path: string, args: { formatted: boolean }) {
