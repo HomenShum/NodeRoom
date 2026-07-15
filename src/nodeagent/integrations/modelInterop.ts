@@ -1,4 +1,4 @@
-import { resolveModelAlias } from "../models/modelCatalog";
+import { isNodeAgentFreeAutoModel, resolveModelAlias } from "../models/modelCatalog";
 
 export type InteropRouteRuntime = "native" | "langchain" | "litellm" | "openrouter";
 
@@ -33,6 +33,18 @@ export function normalizeInteropModelRoute(route: string): InteropModelRoute {
       runtime: "native",
       routePolicy: "deterministic",
       basis: ["local_route"],
+    };
+  }
+
+  const resolvedNativeRoute = resolveModelAlias(requested);
+  if (isNodeAgentFreeAutoModel(resolvedNativeRoute)) {
+    return {
+      requested,
+      modelId: resolvedNativeRoute,
+      provider: "nodeagent",
+      runtime: "native",
+      routePolicy: "proxy",
+      basis: ["runtime:native", "provider:nodeagent", "policy:provider_neutral_free_first", `model:${resolvedNativeRoute}`],
     };
   }
 
@@ -77,7 +89,7 @@ export function normalizeInteropModelRoute(route: string): InteropModelRoute {
     };
   }
 
-  const modelId = resolveModelAlias(requested);
+  const modelId = resolvedNativeRoute;
   return {
     requested,
     modelId,

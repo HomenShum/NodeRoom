@@ -35,6 +35,13 @@
 
 import { OPENROUTER_FREE_AUTO_MODEL, OPENROUTER_FREE_META_MODEL, freeOpenRouterPricing } from "./openRouterFreeModels";
 
+/** Provider-neutral, free-first NodeAgent route. Concrete providers are resolved by the adapter. */
+export const NODEAGENT_FREE_AUTO_MODEL = "nodeagent/free-auto";
+
+export function isNodeAgentFreeAutoModel(modelId: string): boolean {
+  return modelId.trim().toLowerCase() === NODEAGENT_FREE_AUTO_MODEL;
+}
+
 export type LlmProvider = "openai" | "anthropic" | "gemini" | "openrouter" | "xai" | "nebius";
 
 export type LlmTask =
@@ -426,6 +433,9 @@ export function getModelPricing(modelName: string): ModelPricing | null {
  */
 export function getProviderForModel(modelName: string): LlmProvider | null {
   const resolved = modelAliases[modelName.toLowerCase().trim()] ?? modelName;
+  if (isNodeAgentFreeAutoModel(resolved)) {
+    return null;
+  }
   if (resolved.startsWith("nebius/")) {
     return "nebius";
   }
@@ -632,6 +642,9 @@ export const modelAliases: Record<string, string> = {
   "openrouter-free-auto": OPENROUTER_FREE_AUTO_MODEL,
   "openrouter/free-auto": OPENROUTER_FREE_AUTO_MODEL,
   "openrouter/free": OPENROUTER_FREE_META_MODEL,
+  "nodeagent-auto": NODEAGENT_FREE_AUTO_MODEL,
+  "nodeagent-free-auto": NODEAGENT_FREE_AUTO_MODEL,
+  "nodeagent/free-auto": NODEAGENT_FREE_AUTO_MODEL,
   "kimi": "moonshotai/kimi-k2.7-code",
   "kimi-k2": "moonshotai/kimi-k2.7-code",
   "kimi-k2.6": "moonshotai/kimi-k2.6",
