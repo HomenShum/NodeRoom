@@ -1002,6 +1002,7 @@ describe("work artifact adapters", () => {
     expect(pptx.exportVersion).toBe(1);
     expect(pptx.integrityHash).toBe(second.integrityHash);
     expect(Buffer.from(pptx.bytes).equals(Buffer.from(second.bytes))).toBe(true);
+    expect(Object.values(zip.files).every((entry) => !entry.dir)).toBe(true);
     expect([...pptx.bytes.slice(0, 2)].map((value) => String.fromCharCode(value)).join("")).toBe("PK");
     expect(pptx.slideCount).toBe(2);
     expect(pptx.needsReviewCount).toBeGreaterThan(0);
