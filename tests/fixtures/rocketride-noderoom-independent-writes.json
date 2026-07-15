@@ -1,0 +1,84 @@
+{
+  "fixtureId": "noderoom-independent-writes-v1",
+  "app": "noderoom",
+  "workflow": "independent-cell-enrichment",
+  "appCommit": "ca25e347dc467bc37f06918e1a18656f7336ee28",
+  "concurrency": 4,
+  "deadlineMs": 10000,
+  "delayMs": 20,
+  "units": [
+    { "id": "cell-r_rev__q2", "scope": "room-1" },
+    { "id": "cell-r_rev__q3", "scope": "room-1" },
+    { "id": "cell-r_rev__variance", "scope": "room-1" },
+    { "id": "notebook-summary", "scope": "room-1" }
+  ],
+  "candidate": {
+    "kind": "algorithm_patch_bundle",
+    "bundle": {
+      "schema": 1,
+      "algorithmId": "revenue_variance_pct_v1",
+      "artifactHash": "fnv1a32:7bcf2e10",
+      "status": "passed",
+      "commitPolicy": "patch_bundle_only_runtime_must_cas",
+      "patches": [
+        {
+          "elementId": "r_rev__variance",
+          "baseVersion": 3,
+          "kind": "set",
+          "value": {
+            "value": "+24.0%",
+            "status": "complete",
+            "confidence": 1,
+            "normalizedValue": 0.24,
+            "formula": "(q3 - q2) / q2",
+            "evidence": []
+          }
+        }
+      ],
+      "writeLockedCellResultsArgs": {
+        "reason": "Apply the validated revenue variance candidate.",
+        "ops": [
+          {
+            "elementId": "r_rev__variance",
+            "baseVersion": 3,
+            "value": "+24.0%",
+            "status": "complete",
+            "confidence": 1,
+            "normalizedValue": 0.24,
+            "formula": "(q3 - q2) / q2",
+            "evidence": [],
+            "kind": "set"
+          }
+        ]
+      },
+      "proof": {
+        "runnerVersion": "algorithm-artifact-runner:v1",
+        "deterministic": true,
+        "testsPassed": 1,
+        "inputRefs": [
+          {
+            "id": "q2",
+            "elementId": "r_rev__q2",
+            "version": 1,
+            "valueHash": "fixture:q2"
+          },
+          {
+            "id": "q3",
+            "elementId": "r_rev__q3",
+            "version": 1,
+            "valueHash": "fixture:q3"
+          }
+        ],
+        "outputRefs": [
+          {
+            "id": "variancePct",
+            "elementId": "r_rev__variance",
+            "baseVersion": 3,
+            "expression": "(q3 - q2) / q2",
+            "normalizedValue": 0.24
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "fixtureId": "noderoom-conflict-proposal-v1",
+  "app": "noderoom",
+  "workflow": "compare-reason-swap-conflict",
+  "appCommit": "ca25e347dc467bc37f06918e1a18656f7336ee28",
+  "concurrency": 4,
+  "deadlineMs": 10000,
+  "delayMs": 20,
+  "baseVersion": 3,
+  "units": [
+    { "id": "compare-base-current", "scope": "room-1" },
+    { "id": "reason-business-impact", "scope": "room-1" },
+    { "id": "classify-review-tier", "scope": "room-1" },
+    { "id": "build-review-proposal", "scope": "room-1" }
+  ],
+  "candidate": {
+    "kind": "semantic_conflict_resolution",
+    "packet": {
+      "conflictId": "conflict-1",
+      "roomId": "room-1",
+      "artifactId": "sheet-1",
+      "artifactKind": "spreadsheet",
+      "draftId": "draft-1",
+      "trigger": "draft_conflict",
+      "conflictKind": "cell_value",
+      "overlap": "same_element",
+      "actor": {
+        "kind": "agent",
+        "id": "room-agent",
+        "name": "Room Agent",
+        "scope": "public"
+      },
+      "targetRefs": [{ "kind": "cell", "ref": "r_rev__variance" }],
+      "base": {
+        "values": { "r_rev__variance": "+24.0%" },
+        "versions": { "r_rev__variance": 3 }
+      },
+      "current": {
+        "values": { "r_rev__variance": "+25.0%" },
+        "versions": { "r_rev__variance": 4 },
+        "changedBy": {
+          "r_rev__variance": { "kind": "user", "id": "host-1", "name": "Host" }
+        }
+      },
+      "proposed": {
+        "values": { "r_rev__variance": "+30.0%" },
+        "ops": [
+          {
+            "opId": "op-variance-agent",
+            "artifactId": "sheet-1",
+            "elementId": "r_rev__variance",
+            "kind": "set",
+            "value": "+30.0%",
+            "baseVersion": 3
+          }
+        ]
+      },
+      "context": {
+        "userIntent": "Update the forecast variance.",
+        "mergeNote": "Host edited the same forecast cell.",
+        "deterministicConflicts": [
+          {
+            "opId": "op-variance-agent",
+            "elementId": "r_rev__variance",
+            "reason": "base_version_changed",
+            "current": "+25.0%"
+          }
+        ],
+        "openQuestions": []
+      },
+      "policy": {
+        "humanWinsByDefault": true,
+        "formulaOverwriteAllowed": false,
+        "publicPrivateBoundary": "public_only",
+        "autoCommitAllowed": false
+      },
+      "businessImpact": "forecast",
+      "status": "needs_review",
+      "createdAt": 1
+    },
+    "resolution": {
+      "decision": "needs_human_review",
+      "reason": "business assumption impact requires human approval: forecast",
+      "resolvedOps": [
+        {
+          "targetRef": "r_rev__variance",
+          "kind": "create_proposal",
+          "value": "+30.0%",
+          "baseVersion": 4,
+          "comment": "Business-value conflict requires human review before changing the current value.",
+          "status": "needs_review"
+        }
+      ],
+      "reviewerNote": "CRS compared base/current/proposed state. It did not bypass managed writes; every accepted op still needs final CAS.",
+      "openQuestions": [],
+      "confidence": 0.62,
+      "classification": {
+        "tier": "human_review_required",
+        "action": "create_review_proposal",
+        "canAutoCommit": false,
+        "reasons": [
+          "business assumption impact requires human approval: forecast"
+        ],
+        "requiredValidators": [
+          "fresh_final_cas",
+          "policy_check",
+          "evidence_check",
+          "review_tier"
+        ]
+      }
+    }
+  }
+}
