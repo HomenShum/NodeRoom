@@ -5,7 +5,10 @@ import {
   NODEAGENT_FREE_AUTO_MODEL,
   resolveModelAlias,
 } from "../src/nodeagent/models/modelCatalog";
-import { resetOpenRouterFreeRouteHealth } from "../src/nodeagent/models/openRouterFreeModels";
+import {
+  recordOpenRouterFreeRouteOutcome,
+  resetOpenRouterFreeRouteHealth,
+} from "../src/nodeagent/models/openRouterFreeModels";
 import { QualityFailoverError } from "../src/nodeagent/models/qualityFailover";
 
 const generateTextMock = vi.hoisted(() => vi.fn());
@@ -166,6 +169,40 @@ describe("provider-neutral NodeAgent free-first routing", () => {
       },
     });
     expect(step.providerRoute?.basis).toContain("billing:account_free_tier:not_asserted");
+  });
+
+  it("falls back to direct Gemini when every governed free route is cooling", async () => {
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY = "test-google-key";
+    recordOpenRouterFreeRouteOutcome({
+      modelId: OPENROUTER_MODEL,
+      ok: false,
+      latencyMs: 1_000,
+      error: new Error("provider route unavailable"),
+    });
+
+    const { route, step } = await runNeutralRoute();
+
+    expect(generateTextMock.mock.calls.map((call) => call[0].model)).toEqual([
+      { provider: "google", id: GOOGLE_MODEL },
+    ]);
+    expect(route.name).toBe(GOOGLE_MODEL);
+    expect(step.providerRoute).toMatchObject({
+      requestedModel: NODEAGENT_FREE_AUTO_MODEL,
+      resolvedModel: GOOGLE_MODEL,
+      provider: "gemini",
+      providerNeutral: {
+        primary: {
+          route: "openrouter/free-auto",
+          outcome: "free_routes_cooling",
+          reason: "provider_free_routes_cooling",
+        },
+        selected: {
+          route: "google_direct",
+          model: GOOGLE_MODEL,
+          billing: { free: false, classification: "catalog_priced" },
+        },
+      },
+    });
   });
 
   it("does not cross providers for an ordinary candidate-scoped OpenRouter failure", async () => {

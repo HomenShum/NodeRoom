@@ -166,7 +166,7 @@ type ProviderNeutralRouteReceipt = ProviderRouteReceipt & {
     requestedModel: typeof NODEAGENT_FREE_AUTO_MODEL;
     primary: {
       route: typeof OPENROUTER_FREE_AUTO_MODEL;
-      outcome: "accepted" | "provider_wide_exhausted";
+      outcome: "accepted" | "provider_wide_exhausted" | "free_routes_cooling";
       reason?: string;
       qualityFailover?: QualityFailoverReceipt;
     };
@@ -378,14 +378,14 @@ async function generateProviderNeutralAgentText(args: {
       }),
     };
   } catch (primaryError) {
-    const exhaustion = openRouterProviderWideExhaustion(primaryError);
-    if (!exhaustion || args.signal?.aborted) throw primaryError;
+    const unavailable = openRouterPrimaryUnavailable(primaryError);
+    if (!unavailable || args.signal?.aborted) throw primaryError;
 
     const configuredKey = envValue("GOOGLE_GENERATIVE_AI_API_KEY");
     if (!configuredKey) {
       throw providerNeutralRecoveryError(
         primaryError,
-        `${exhaustion.reason}; direct Google fallback is unavailable because GOOGLE_GENERATIVE_AI_API_KEY is not configured`,
+        `${unavailable.reason}; direct Google fallback is unavailable because GOOGLE_GENERATIVE_AI_API_KEY is not configured`,
       );
     }
 
@@ -395,7 +395,7 @@ async function generateProviderNeutralAgentText(args: {
     if (getProviderForModel(fallbackModel) !== "gemini") {
       throw providerNeutralRecoveryError(
         primaryError,
-        `${exhaustion.reason}; NODEAGENT_FREE_AUTO_GOOGLE_MODEL must resolve to a direct Gemini model`,
+        `${unavailable.reason}; NODEAGENT_FREE_AUTO_GOOGLE_MODEL must resolve to a direct Gemini model`,
       );
     }
 
@@ -406,7 +406,7 @@ async function generateProviderNeutralAgentText(args: {
     } catch (policyError) {
       throw providerNeutralRecoveryError(
         primaryError,
-        `${exhaustion.reason}; direct Google fallback blocked before provider call: ${shortProviderError(policyError)}`,
+        `${unavailable.reason}; direct Google fallback blocked before provider call: ${shortProviderError(policyError)}`,
         policyError,
       );
     }
@@ -426,22 +426,23 @@ async function generateProviderNeutralAgentText(args: {
         providerRoute: providerNeutralRouteReceipt({
           selectedReceipt: providerRoute,
           resolvedModel: fallbackModel,
-          primaryOutcome: "provider_wide_exhausted",
-          primaryReason: exhaustion.reason,
-          primaryQualityFailover: exhaustion.receipt,
+          primaryOutcome: unavailable.outcome,
+          primaryReason: unavailable.reason,
+          primaryQualityFailover: unavailable.receipt,
         }),
       };
     } catch (fallbackError) {
       throw providerNeutralRecoveryError(
         primaryError,
-        `${exhaustion.reason}; direct Google fallback failed: ${shortProviderError(fallbackError)}`,
+        `${unavailable.reason}; direct Google fallback failed: ${shortProviderError(fallbackError)}`,
         fallbackError,
       );
     }
   }
 }
 
-function openRouterProviderWideExhaustion(error: unknown): {
+function openRouterPrimaryUnavailable(error: unknown): {
+  outcome: "provider_wide_exhausted" | "free_routes_cooling";
   reason: string;
   receipt?: QualityFailoverReceipt;
 } | undefined {
@@ -450,12 +451,17 @@ function openRouterProviderWideExhaustion(error: unknown): {
     if (terminal?.failureClass === "provider"
       && terminal.providerFailureScope === "global"
       && terminal.providerFailureCategory === "quota") {
-      return { reason: terminal.reason, receipt: error.receipt };
+      return { outcome: "provider_wide_exhausted", reason: terminal.reason, receipt: error.receipt };
     }
     return undefined;
   }
+  if (/openrouter\/free-auto candidates cooling down/i.test(shortProviderError(error))) {
+    return { outcome: "free_routes_cooling", reason: "provider_free_routes_cooling" };
+  }
   const reason = providerNonRetryableReason(error);
-  return reason && /quota|credit/i.test(reason) ? { reason } : undefined;
+  return reason && /quota|credit/i.test(reason)
+    ? { outcome: "provider_wide_exhausted", reason }
+    : undefined;
 }
 
 function providerNeutralRecoveryError(
@@ -463,7 +469,7 @@ function providerNeutralRecoveryError(
   detail: string,
   cause: unknown = primaryError,
 ): Error {
-  const message = `${NODEAGENT_FREE_AUTO_MODEL} could not recover after OpenRouter provider-wide exhaustion: ${detail}`;
+  const message = `${NODEAGENT_FREE_AUTO_MODEL} could not recover after OpenRouter free-route unavailability: ${detail}`;
   if (primaryError instanceof QualityFailoverError) {
     return new QualityFailoverError(message, primaryError.receipt, cause, primaryError.usage);
   }
@@ -473,7 +479,7 @@ function providerNeutralRecoveryError(
 function providerNeutralRouteReceipt(args: {
   selectedReceipt: ProviderRouteReceipt;
   resolvedModel: string;
-  primaryOutcome: "accepted" | "provider_wide_exhausted";
+  primaryOutcome: "accepted" | "provider_wide_exhausted" | "free_routes_cooling";
   primaryReason?: string;
   primaryQualityFailover?: QualityFailoverReceipt;
 }): ProviderNeutralRouteReceipt {
