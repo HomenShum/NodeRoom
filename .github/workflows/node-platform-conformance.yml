@@ -1,0 +1,13 @@
+name: Node Platform conformance
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  node-platform:
+    uses: HomenShum/node-platform/.github/workflows/repo-conformance.yml@ef4ac8a011b230efa3324892a193abe02ff2d673
