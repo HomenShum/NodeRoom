@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, realpathSync } from "node:fs";
 import { basename, dirname, isAbsolute, relative, resolve } from "node:path";
 import ExcelJS from "exceljs";
 import type { SpreadsheetBenchTrack } from "./spreadsheetBenchAdapter";
+import { readSpreadsheetBenchWorkbookForMutation } from "./spreadsheetBenchScorer";
 import {
   evaluateFormula,
   FormulaEvalError,
@@ -207,8 +208,7 @@ export async function runSpreadsheetBenchNodeAgentBridge(
   const candidateWorkbookPath = resolve(options.candidateWorkbookPath);
   assertCandidateDoesNotOverwriteAgentInput(candidateWorkbookPath, task);
 
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.readFile(task.sourceWorkbookPath);
+  const workbook = await readSpreadsheetBenchWorkbookForMutation(task.sourceWorkbookPath);
   if (!workbook.worksheets.length) throw new Error(`SpreadsheetBench input workbook has no worksheets: ${task.sourceWorkbookPath}`);
   const intelligenceInstruction = [
     task.manifest.instruction,

@@ -1,7 +1,8 @@
-import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import ExcelJS from "exceljs";
+import JSZip from "jszip";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   runSpreadsheetBenchNodeAgentBridge,
@@ -128,6 +129,34 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
       args: { artifactId: "Financial_Model/01_02" },
       result: { ok: true, artifactId: "Model" },
     });
+  });
+
+  it("falls back to a sanitized workbook only when an unsupported WPS drawing blocks mutation", async () => {
+    const root = tempRoot();
+    const instruction = "Inspect the workbook and report what remains.";
+    const task = await stagedTask(root, instruction);
+    const input = join(root, "tasks", "bridge-01", "agent", "inputs", "input.xlsx");
+    await addUnsupportedWpsDrawing(input);
+
+    const directRead = new ExcelJS.Workbook();
+    await expect(directRead.xlsx.readFile(input)).rejects.toThrow(/reading 'anchors'/);
+
+    const candidate = join(root, "output", "wps-drawing.xlsx");
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: candidate,
+      model: invalidArtifactInspectionModel(),
+      traceId: "trace_sbench_wps_drawing_fallback",
+      maxSteps: 4,
+      now: () => 1_000,
+    });
+
+    expect(receipt.stages.inspect.status).toBe("completed");
+    expect(receipt.frame.agentResult.stopReason).toBe("done");
+    expect(existsSync(candidate)).toBe(true);
+    const emitted = new ExcelJS.Workbook();
+    await emitted.xlsx.readFile(candidate);
+    expect(emitted.getWorksheet("Model")?.getCell("A1").value).toBe(2);
   });
 
   it("keeps a syntactically verified write open when deterministic recalculation is unsupported", async () => {
@@ -993,6 +1022,42 @@ async function stagedWorkbookWideAverageTask(root: string): Promise<{ agentManif
     promptFiles: [],
   });
   return { agentManifest: join(agentDir, "task.json") };
+}
+
+async function addUnsupportedWpsDrawing(path: string): Promise<void> {
+  const zip = await JSZip.loadAsync(readFileSync(path));
+  const worksheet = zip.file("xl/worksheets/sheet1.xml");
+  const contentTypes = zip.file("[Content_Types].xml");
+  if (!worksheet || !contentTypes) throw new Error("fixture workbook package is incomplete");
+
+  zip.file(
+    "xl/worksheets/sheet1.xml",
+    (await worksheet.async("string")).replace("</worksheet>", '<drawing r:id="rId1"/></worksheet>'),
+  );
+  zip.file(
+    "xl/worksheets/_rels/sheet1.xml.rels",
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="/xl/drawings/drawing1.xml" Id="rId1"/></Relationships>',
+  );
+  zip.file(
+    "xl/drawings/drawing1.xml",
+    '<wsDr xmlns="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"><twoCellAnchor editAs="oneCell"><from><col>1</col><colOff>0</colOff><row>1</row><rowOff>0</rowOff></from><to><col>3</col><colOff>0</colOff><row>4</row><rowOff>0</rowOff></to><pic><nvPicPr><cNvPr id="2" name="Picture 1"/><cNvPicPr/></nvPicPr><blipFill><a:blip xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="rId1"/><a:stretch xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:fillRect/></a:stretch></blipFill><spPr><a:prstGeom xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" prst="rect"><avLst/></a:prstGeom></spPr></pic><clientData/></twoCellAnchor></wsDr>',
+  );
+  zip.file(
+    "xl/drawings/_rels/drawing1.xml.rels",
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="/xl/media/image1.png" Id="rId1"/></Relationships>',
+  );
+  zip.file(
+    "xl/media/image1.png",
+    Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "base64"),
+  );
+  zip.file(
+    "[Content_Types].xml",
+    (await contentTypes.async("string")).replace(
+      "</Types>",
+      '<Default Extension="png" ContentType="image/png"/><Override PartName="/xl/drawings/drawing1.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/></Types>',
+    ),
+  );
+  writeFileSync(path, await zip.generateAsync({ type: "nodebuffer" }));
 }
 
 function tempRoot(): string {

@@ -518,6 +518,21 @@ export async function readSpreadsheetBenchWorkbookForCells(path: string): Promis
   }
 }
 
+/**
+ * Preserve package parts that ExcelJS can read, but keep benchmark execution
+ * moving when a workbook contains an unsupported WPS/Office drawing package.
+ */
+export async function readSpreadsheetBenchWorkbookForMutation(path: string): Promise<ExcelJS.Workbook> {
+  const workbook = new ExcelJS.Workbook();
+  try {
+    await workbook.xlsx.readFile(path);
+    return workbook;
+  } catch (error) {
+    if (!isExcelJsUnsupportedPackagePartError(error)) throw error;
+    return readSanitizedWorkbook(path);
+  }
+}
+
 async function readSanitizedWorkbook(path: string): Promise<ExcelJS.Workbook> {
   const sanitized = await sanitizeWorkbookPackageForCellRead(path);
   try {
