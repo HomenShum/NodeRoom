@@ -70,9 +70,13 @@ const BRIDGE_TOOL_NAMES = [
 const EXECUTE_VERIFIED_WORKBOOK_PLAN_TOOL_NAME = "execute_verified_workbook_plan";
 const WRITE_TOOL_NAMES = new Set<string>(["write_locked_cell", "write_locked_cells"]);
 const MUTATION_TOOL_NAMES = new Set<string>([...WRITE_TOOL_NAMES, EXECUTE_VERIFIED_WORKBOOK_PLAN_TOOL_NAME]);
-const A1_RE = /^\$?[A-Z]{1,3}\$?[1-9][0-9]*$/i;
+const READ_REFERENCE_RE = /^(?:(?:'((?:[^']|'')+)'|([^!]+))!\s*)?(\$?[A-Z]{1,3}\$?[1-9][0-9]*)(?:\s*:\s*(\$?[A-Z]{1,3}\$?[1-9][0-9]*))?$/i;
+const EXCEL_MAX_ROW = 1_048_576;
+const EXCEL_MAX_COLUMN = 16_384;
 const DEFAULT_SNAPSHOT_MAX_CELLS = 1_200;
 const DEFAULT_SCAN_MAX_CELLS = 50_000;
+
+class SpreadsheetBenchReadReferenceError extends Error {}
 
 type StagedAgentManifest = {
   schema: 1;
@@ -408,18 +412,53 @@ class SpreadsheetBenchWorkbookRoomTools implements RoomTools {
       id: sheet.name,
       title: sheet.name,
       kind: "sheet",
-      readHint: `Use artifactId ${JSON.stringify(sheet.name)} with A1 addresses.`,
+      readHint: `Use artifactId ${JSON.stringify(sheet.name)} with A1 cells or bounded ranges such as B2:F20.`,
     }));
   }
 
   async readRange(elementIds: string[], artifactId?: string): Promise<CellView[]> {
     this.recalculateChangedFormulas();
     const fallbackSheet = this.sheet(artifactId);
-    const addresses = elementIds.length
+    const requested = elementIds.length
       ? elementIds
       : this.observedCells().filter((cell) => cell.sheet === fallbackSheet.name).slice(0, 40).map((cell) => cell.address);
-    return addresses.map((elementId) => {
-      const target = this.target(elementId, fallbackSheet.name);
+    const targets: Array<{ sheet: ExcelJS.Worksheet; address: string; hint?: string }> = [];
+    const seen = new Set<string>();
+    for (let requestedIndex = 0; requestedIndex < requested.length; requestedIndex += 1) {
+      if (targets.length >= this.snapshotMaxCells) {
+        if (targets[0]) targets[0].hint = appendReadHint(targets[0].hint, "Additional requested ranges were omitted at the bounded read limit; request smaller subranges.");
+        break;
+      }
+      const elementId = requested[requestedIndex];
+      const reference = parseReadReference(elementId);
+      if (!reference) throw new SpreadsheetBenchReadReferenceError(`Invalid SpreadsheetBench cell address or range: ${elementId}`);
+      let sheet: ExcelJS.Worksheet;
+      try {
+        sheet = this.sheet(reference.sheetName ?? fallbackSheet.name);
+      } catch (error) {
+        throw new SpreadsheetBenchReadReferenceError(error instanceof Error ? error.message : String(error));
+      }
+      const remaining = this.snapshotMaxCells - targets.length;
+      const expansion = expandReadRange(reference.start, reference.end, remaining);
+      const firstTargetIndex = targets.length;
+      for (const address of expansion.addresses) {
+        const key = cellKey(sheet.name, address);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        targets.push({ sheet, address });
+        if (targets.length >= this.snapshotMaxCells) break;
+      }
+      if (expansion.truncated && targets[firstTargetIndex]) {
+        targets[firstTargetIndex].hint = `Requested ${sheet.name}!${reference.start}:${reference.end} contains ${expansion.totalCells} cells; read_range returned the first ${expansion.addresses.length} in row-major order. Request smaller subranges for the remainder.`;
+      }
+      if (targets.length >= this.snapshotMaxCells) {
+        if (requestedIndex < requested.length - 1 && targets[0]) {
+          targets[0].hint = appendReadHint(targets[0].hint, "Additional requested ranges were omitted at the bounded read limit; request smaller subranges.");
+        }
+        break;
+      }
+    }
+    return targets.map((target) => {
       const cell = target.sheet.getCell(target.address);
       return {
         id: target.address,
@@ -428,6 +467,7 @@ class SpreadsheetBenchWorkbookRoomTools implements RoomTools {
         locked: this.isLocked(target.sheet.name, target.address)
           ? { by: "spreadsheetbench-nodeagent", reason: "managed workbook write" }
           : null,
+        ...(target.hint ? { hint: target.hint } : {}),
       };
     });
   }
@@ -670,7 +710,7 @@ class SpreadsheetBenchWorkbookRoomTools implements RoomTools {
     const qualified = elementId.match(/^(?:'([^']+)'|([^!]+))!\s*(\$?[A-Z]{1,3}\$?[1-9][0-9]*)$/i);
     const sheet = qualified ? this.sheet((qualified[1] ?? qualified[2]).trim()) : this.sheet(fallbackSheet);
     const address = normalizeAddress(qualified ? qualified[3] : elementId);
-    if (!A1_RE.test(address)) throw new Error(`Invalid SpreadsheetBench cell address: ${elementId}`);
+    if (!parseAddress(address)) throw new Error(`Invalid SpreadsheetBench cell address: ${elementId}`);
     return { sheet, address };
   }
 
@@ -1056,7 +1096,31 @@ class BridgeWorkbookWorkflowController {
         return result;
       });
     }
-    if (tool.name === "read_range" || tool.name === "search_sheet_context") {
+    if (tool.name === "read_range") {
+      const adapted = this.withExecution(tool, async (args, rt) => {
+        const record = asRecord(args) ?? {};
+        const artifactId = await bridgeResolvedArtifactId(rt, record.artifactId, this.activeArtifactId);
+        try {
+          return await tool.execute({ ...record, artifactId }, rt);
+        } catch (error) {
+          if (!(error instanceof SpreadsheetBenchReadReferenceError)) throw error;
+          return {
+            ok: false,
+            error: "invalid_read_reference",
+            detail: error.message,
+            recovery: {
+              action: "retry_tool_call",
+              instruction: "Use a visible worksheet and Excel A1 cells within A1:XFD1048576; split large reads into smaller ranges.",
+            },
+          };
+        }
+      });
+      return {
+        ...adapted,
+        description: `${adapted.description} In this workbook bridge, elementIds also accepts bounded A1 ranges such as B2:F20 and quoted sheet-qualified ranges such as 'Financial Overview'!B2:F20.`,
+      };
+    }
+    if (tool.name === "search_sheet_context") {
       return this.withExecution(tool, async (args, rt) => {
         const record = asRecord(args) ?? {};
         const artifactId = await bridgeResolvedArtifactId(rt, record.artifactId, this.activeArtifactId);
@@ -1849,10 +1913,57 @@ function applyRoomValue(cell: ExcelJS.Cell, value: unknown): void {
   if (typeof record?.numFmt === "string") cell.numFmt = record.numFmt;
 }
 
+function parseReadReference(value: string): {
+  sheetName?: string;
+  start: string;
+  end: string;
+} | undefined {
+  const cleaned = value.trim().replace(/[,;]+$/, "").trim();
+  const match = cleaned.match(READ_REFERENCE_RE);
+  if (!match) return undefined;
+  const quotedSheet = match[1]?.replace(/''/g, "'");
+  const unquotedSheet = match[2]?.trim();
+  const start = normalizeAddress(match[3]);
+  const end = normalizeAddress(match[4] ?? match[3]);
+  if (!parseAddress(start) || !parseAddress(end)) return undefined;
+  return {
+    ...(quotedSheet || unquotedSheet ? { sheetName: quotedSheet ?? unquotedSheet } : {}),
+    start,
+    end,
+  };
+}
+
+function expandReadRange(startText: string, endText: string, limit: number): {
+  addresses: string[];
+  totalCells: number;
+  truncated: boolean;
+} {
+  const start = parseAddress(startText);
+  const end = parseAddress(endText);
+  if (!start || !end) return { addresses: [], totalCells: 0, truncated: false };
+  const minRow = Math.min(start.row, end.row);
+  const maxRow = Math.max(start.row, end.row);
+  const minCol = Math.min(start.col, end.col);
+  const maxCol = Math.max(start.col, end.col);
+  const totalCells = (maxRow - minRow + 1) * (maxCol - minCol + 1);
+  const boundedLimit = Math.max(0, Math.trunc(limit));
+  const addresses: string[] = [];
+  for (let row = minRow; row <= maxRow && addresses.length < boundedLimit; row += 1) {
+    for (let col = minCol; col <= maxCol && addresses.length < boundedLimit; col += 1) {
+      addresses.push(addressFromPosition(row, col));
+    }
+  }
+  return { addresses, totalCells, truncated: addresses.length < totalCells };
+}
+
+function appendReadHint(existing: string | undefined, addition: string): string {
+  return existing ? `${existing} ${addition}` : addition;
+}
+
 function expandRange(startText: string, endText: string, limit: number): string[] {
   const start = parseAddress(startText);
   const end = parseAddress(endText);
-  if (!start || !end) return A1_RE.test(startText) ? [normalizeAddress(startText)] : [];
+  if (!start || !end) return [];
   const minRow = Math.min(start.row, end.row);
   const maxRow = Math.max(start.row, end.row);
   const minCol = Math.min(start.col, end.col);
@@ -1875,10 +1986,10 @@ function expandRange(startText: string, endText: string, limit: number): string[
 function parseAddress(value: string): { row: number; col: number } | undefined {
   const match = normalizeAddress(value).match(/^([A-Z]{1,3})([1-9][0-9]*)$/);
   if (!match) return undefined;
-  return {
-    row: Number(match[2]),
-    col: match[1].split("").reduce((sum, char) => sum * 26 + char.charCodeAt(0) - 64, 0),
-  };
+  const row = Number(match[2]);
+  const col = match[1].split("").reduce((sum, char) => sum * 26 + char.charCodeAt(0) - 64, 0);
+  if (row > EXCEL_MAX_ROW || col > EXCEL_MAX_COLUMN) return undefined;
+  return { row, col };
 }
 
 function addressFromPosition(row: number, col: number): string {

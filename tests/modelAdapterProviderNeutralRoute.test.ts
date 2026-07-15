@@ -128,7 +128,7 @@ describe("provider-neutral NodeAgent free-first routing", () => {
   it("falls back to direct Gemini only after provider-wide OpenRouter quota exhaustion", async () => {
     process.env.GOOGLE_GENERATIVE_AI_API_KEY = "test-google-key";
     generateTextMock
-      .mockRejectedValueOnce(new Error("Provider request failed 429: free-models-per-day-high-balance rate limit exceeded"))
+      .mockRejectedValueOnce(new Error("AI_RetryError: Failed after 3 attempts. Last error: Rate limit exceeded: free-models-per-day-high-balance."))
       .mockImplementationOnce(async (options: { model: { id: string } }) => successfulTurn(options.model.id));
 
     const { route, step } = await runNeutralRoute();
@@ -146,7 +146,7 @@ describe("provider-neutral NodeAgent free-first routing", () => {
         primary: {
           route: "openrouter/free-auto",
           outcome: "provider_wide_exhausted",
-          reason: "provider_free_quota_exhausted",
+          reason: "provider_quota_exhausted",
           qualityFailover: {
             stopReason: "global_provider_failure",
             terminalFailure: { providerFailureScope: "global", providerFailureCategory: "quota" },

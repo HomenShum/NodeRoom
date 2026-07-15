@@ -58,6 +58,7 @@
     "benchmark:spreadsheetbench:stage": "tsx scripts/spreadsheetbench-stage.ts",
     "benchmark:spreadsheetbench:run": "tsx scripts/spreadsheetbench-run.ts",
     "benchmark:spreadsheetbench:run-chunked": "tsx scripts/spreadsheetbench-run-chunked.ts",
+    "benchmark:spreadsheetbench:merge-repair": "tsx scripts/spreadsheetbench-merge-repair-report.ts",
     "benchmark:spreadsheetbench:rescore-existing": "tsx scripts/spreadsheetbench-rescore-existing.ts",
     "benchmark:spreadsheetbench:official-v1-project": "tsx scripts/spreadsheetbench-official-v1-project.ts",
     "benchmark:spreadsheetbench:official-v1-project-chunked": "tsx scripts/spreadsheetbench-official-v1-project-chunked.ts",

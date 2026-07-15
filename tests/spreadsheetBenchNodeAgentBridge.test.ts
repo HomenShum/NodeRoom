@@ -395,6 +395,59 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
     expect(emitted.getWorksheet("Cover")?.getCell("A1").value).toBe("Cover sheet");
   });
 
+  it("expands bounded quoted sheet ranges without aborting the NodeAgent frame", async () => {
+    const root = tempRoot();
+    const task = await stagedMultiSheetTask(root);
+    const candidate = join(root, "output", "range-read.xlsx");
+
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: candidate,
+      model: boundedRangeReadModel(),
+      traceId: "trace_sbench_bounded_range_read",
+      maxSteps: 8,
+      snapshotMaxCells: 20,
+      now: () => 3_250,
+    });
+
+    expect(receipt.frame.runtimeError).toBeUndefined();
+    expect(receipt.outcome).toMatchObject({ status: "completed", changedCellCount: 1, finalVerificationStatus: "passed" });
+    expect(receipt.frame.agentResult.trace.find((event) => event.tool === "read_range")?.result).toEqual([
+      expect.objectContaining({ id: "B1" }),
+      expect.objectContaining({ id: "C1" }),
+      expect.objectContaining({ id: "D1" }),
+      expect.objectContaining({ id: "A1" }),
+    ]);
+  });
+
+  it("returns recoverable feedback for invalid Excel bounds and discloses truncated range reads", async () => {
+    const root = tempRoot();
+    const task = await stagedMultiSheetTask(root);
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: join(root, "output", "range-recovery.xlsx"),
+      model: recoveringBoundedRangeModel(),
+      traceId: "trace_sbench_range_recovery",
+      maxSteps: 8,
+      snapshotMaxCells: 3,
+      now: () => 3_500,
+    });
+
+    const reads = receipt.frame.agentResult.trace.filter((event) => event.tool === "read_range");
+    expect(receipt.frame.runtimeError).toBeUndefined();
+    expect(reads[0]?.result).toMatchObject({
+      ok: false,
+      error: "invalid_read_reference",
+      recovery: { action: "retry_tool_call" },
+    });
+    expect(reads[1]?.result).toEqual([
+      expect.objectContaining({ id: "A1", hint: expect.stringContaining("contains 4 cells") }),
+      expect.objectContaining({ id: "B1" }),
+      expect.objectContaining({ id: "C1" }),
+    ]);
+    expect(receipt.outcome).toMatchObject({ status: "completed", changedCellCount: 1, finalVerificationStatus: "passed" });
+  });
+
   it("keeps workbook-wide average repairs open until every worksheet passes post-write verification", async () => {
     const root = tempRoot();
     const task = await stagedWorkbookWideAverageTask(root);
@@ -777,6 +830,46 @@ function preferredSheetModel(): AgentModel {
       if (callIndex === 4) return step(id, "write_locked_cells", { reason: "repair incorrect average", ops: [operation] });
       if (callIndex === 5) return step(id, "verify_workbook", { instruction: "Audit the workbook.", operations: [operation], afterWrite: true });
       return { text: "Average formula repaired and verified.", toolCalls: [], done: true };
+    },
+  };
+}
+
+function boundedRangeReadModel(): AgentModel {
+  let callIndex = 0;
+  const operation = { elementId: "B1", formula: "AVERAGE(C1:D1)", result: 15 };
+  return {
+    name: "scripted-bounded-range-read",
+    async next(): Promise<AgentStep> {
+      const id = `bounded-range-${++callIndex}`;
+      if (callIndex === 1) return step(id, "inspect_workbook", { instruction: "Audit the workbook.", maxCells: 40 });
+      if (callIndex === 2) {
+        return step(id, "read_range", {
+          artifactId: "Metrics",
+          elementIds: ["'Metrics'!$B$1:$D$1", "Metrics!A1,"],
+        });
+      }
+      if (callIndex === 3) return step(id, "verify_workbook", { instruction: "Audit the workbook.", operations: [operation], afterWrite: false });
+      if (callIndex === 4) return step(id, "write_locked_cells", { reason: "repair incorrect average", ops: [operation] });
+      if (callIndex === 5) return step(id, "verify_workbook", { instruction: "Audit the workbook.", operations: [operation], afterWrite: true });
+      return { text: "Average formula repaired and verified after a bounded range read.", toolCalls: [], done: true };
+    },
+  };
+}
+
+function recoveringBoundedRangeModel(): AgentModel {
+  let callIndex = 0;
+  const operation = { elementId: "B1", formula: "AVERAGE(C1:D1)", result: 15 };
+  return {
+    name: "scripted-recovering-bounded-range",
+    async next(): Promise<AgentStep> {
+      const id = `recovering-range-${++callIndex}`;
+      if (callIndex === 1) return step(id, "inspect_workbook", { instruction: "Audit the workbook.", maxCells: 40 });
+      if (callIndex === 2) return step(id, "read_range", { artifactId: "Metrics", elementIds: ["XFE1"] });
+      if (callIndex === 3) return step(id, "read_range", { artifactId: "Metrics", elementIds: ["'Metrics'!A1:D1"] });
+      if (callIndex === 4) return step(id, "verify_workbook", { instruction: "Audit the workbook.", operations: [operation], afterWrite: false });
+      if (callIndex === 5) return step(id, "write_locked_cells", { reason: "repair incorrect average", ops: [operation] });
+      if (callIndex === 6) return step(id, "verify_workbook", { instruction: "Audit the workbook.", operations: [operation], afterWrite: true });
+      return { text: "Recovered from an invalid range and completed the verified repair.", toolCalls: [], done: true };
     },
   };
 }

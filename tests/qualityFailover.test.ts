@@ -175,6 +175,12 @@ describe("quality-aware bounded failover", () => {
       category: "quota",
     },
     {
+      label: "wrapped quota",
+      error: new Error("AI_RetryError: Failed after 3 attempts. Last error: Rate limit exceeded: free-models-per-day-high-balance."),
+      reason: "provider_quota_exhausted",
+      category: "quota",
+    },
+    {
       label: "policy",
       error: new Error("provider_route_blocked:provider_not_allowed"),
       reason: "provider_not_allowed",

@@ -374,7 +374,7 @@ export function classifyQualityFailoverProviderError(error: unknown): ProviderFa
   if (/\b(?:401|unauthori[sz]ed|invalid api key|authentication required)\b/i.test(detail)) {
     return globalProviderFailure("auth", "provider_auth_required", detail);
   }
-  if (/\b(?:402|insufficient credits?|(?:daily|monthly|global)?\s*quota (?:exhausted|exceeded))\b/i.test(detail)) {
+  if (/\b(?:402|insufficient credits?|(?:daily|monthly|global)?\s*quota (?:exhausted|exceeded)|free-models-per-day(?:-high-balance)?)\b/i.test(detail)) {
     return globalProviderFailure("quota", "provider_quota_exhausted", detail);
   }
   if (/\b(?:403|forbidden|content policy|policy violation|provider_(?:egress|route)_blocked)\b/i.test(detail)) {
