@@ -1,0 +1,63 @@
+schemaVersion: nodekit.repo/v1
+repository: HomenShum/NodeRoom
+lifecycle: production
+support: active
+role: domain-application
+commandProfile: application
+
+canonicalFor:
+  - noderoom.collaboration
+
+consumes:
+  - nodeplatform.repo-contract
+  - nodeplatform.environment
+  - nodeagent.agent-run
+  - nodeagent.policy-context
+  - nodeagent.proposal-review
+  - nodeagent.trace-workpaper
+  - nodetrace.trace-ui-store
+  - nodemem.memory
+  - proofloop.certification
+  - agentic-ui-qa.flight-recorder
+
+commands:
+  dev: { script: dev, mode: service }
+  demo: { script: demo, mode: finite }
+  doctor: { script: doctor, mode: finite }
+  check: { script: check, mode: finite }
+  proof: { script: proof, mode: finite }
+
+noKey:
+  status: certified
+  command: npm run demo
+  externalAccountsRequired: 0
+  disclosure: The default room demo is deterministic; live model, Convex, and benchmark lanes remain explicit opt-ins.
+
+environment:
+  contractVersion: nodeplatform.env/v1
+  status: migration-planned
+
+proof:
+  command: npm run proof
+  receiptSchema: null
+
+contractDeclarations:
+  - concept: nodeagent.agent-run
+    signature: agent-run-result
+    path: src/eval/proofloopAgentAdapters.ts
+    mode: adapter
+    origin: nodeagent.agent-run
+  - concept: nodeagent.trace-workpaper
+    signature: trace-schema
+    path: src/nodeagent/traces/traceTypes.ts
+    mode: migration-source
+    origin: nodeagent.trace-workpaper
+    reason: Current source pending extraction into the NodeAgent-owned trace protocol.
+  - concept: nodeagent.trace-workpaper
+    signature: trace-tool-receipt
+    path: src/nodeagent/traces/traceTypes.ts
+    mode: migration-source
+    origin: nodeagent.trace-workpaper
+    reason: Current source pending extraction into the NodeAgent-owned trace protocol.
+
+architectureExceptions: []
