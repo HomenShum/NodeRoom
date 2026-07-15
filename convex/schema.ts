@@ -852,6 +852,7 @@ export default defineSchema({
     model: v.string(),
     goal: v.string(),
     steps: v.number(),
+    traceRecordCount: v.optional(v.number()),
     modelCalls: v.optional(v.number()),
     toolCalls: v.number(),
     conflictsSurvived: v.number(),
@@ -869,7 +870,10 @@ export default defineSchema({
     handoff: v.optional(v.any()),
     idempotencyKey: v.optional(v.string()),
     createdAt: v.number(),
-  }).index("by_room", ["roomId", "createdAt"]).index("by_idempotency", ["idempotencyKey", "createdAt"]),
+  })
+    .index("by_room", ["roomId", "createdAt"])
+    .index("by_job", ["jobId", "createdAt"])
+    .index("by_idempotency", ["idempotencyKey", "createdAt"]),
 
   // ── Credit ledger (pilot wallet). The credit math + caps live in
   // src/nodeagent/core/creditModel.ts (the single source of truth, imported here).
@@ -1009,6 +1013,9 @@ export default defineSchema({
 
   agentModelStepJournal: defineTable({
     jobId: v.id("agentJobs"),
+    leaseId: v.optional(v.string()),
+    accountedRunId: v.optional(v.id("agentRuns")),
+    accountingClaimedAt: v.optional(v.number()),
     sliceKey: v.string(),
     step: v.number(),
     model: v.string(),

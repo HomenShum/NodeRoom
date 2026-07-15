@@ -84,6 +84,14 @@ function providerFailureUsage(error: unknown): TokenUsage | undefined {
   };
 }
 
+function providerSpendBudgetBlocked(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const receipt = (error as { receipt?: unknown }).receipt;
+  return !!receipt
+    && typeof receipt === "object"
+    && (receipt as { stopReason?: unknown }).stopReason === "spend_budget";
+}
+
 function requiredNoToolMissCount(messages: AgentMessage[]): number {
   let max = 0;
   const pattern = new RegExp(`${TOOL_REQUIRED_NO_CALL_MARKER}\\s+(\\d+)\\/${TOOL_REQUIRED_NO_CALL_TERMINAL_AFTER}`, "i");
@@ -905,10 +913,17 @@ export async function runAgent(opts: {
             signal: signal.signal,
             onTextDelta: opts.onTextDelta ? (text) => opts.onTextDelta?.(text, step) : undefined,
             toolChoice: requiresToolThisTurn ? "required" : "auto",
+            maxCostUsd: opts.spendLimits?.maxCostUsd === undefined
+              ? undefined
+              : Math.max(0, opts.spendLimits.maxCostUsd - costUsd),
           }), signal.signal);
         } catch (error) {
           const failedUsage = providerFailureUsage(error);
           if (failedUsage) recordModelUsage(failedUsage);
+          if (providerSpendBudgetBlocked(error)) {
+            const handoff = emitHandoff(step, "spend_budget", attemptedSteps);
+            return finish("spend_budget", attemptedSteps, true, handoff);
+          }
           if (signal.signal?.aborted || (shouldHandoffForTime() && isAbortLike(error))) {
             const handoff = emitHandoff(step, "time_budget", attemptedSteps);
             return finish("time_budget", attemptedSteps, true, handoff);
@@ -917,10 +932,11 @@ export async function runAgent(opts: {
         } finally {
           signal.cancel();
         }
-        await opts.journal?.record(step, fresh);
-        // Count/bill only real provider calls. A failover adapter can represent several provider
-        // requests in one logical model.next; replayed journal steps remain excluded.
+        // Capture provider usage before the durable journal write. A lease can expire after the
+        // response arrives but before persistence; that call still happened and must survive in
+        // the partial receipt even when the fenced journal rejects the write.
         recordModelUsage(fresh.usage);
+        await opts.journal?.record(step, fresh);
         out = fresh;
       }
       if (out.text) finalText = out.text;

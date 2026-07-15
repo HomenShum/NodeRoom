@@ -4,7 +4,7 @@
 import { describe, it, expect } from "vitest";
 import { checkSpendCeiling, redactPII } from "../src/nodeagent/guardrails/gateway";
 import { journalSliceKey, MapStepJournal } from "../src/nodeagent/core/journal";
-import { runAgent } from "../src/nodeagent/core/runtime";
+import { AgentRunError, runAgent } from "../src/nodeagent/core/runtime";
 import { scriptedModel } from "../src/nodeagent/models/scripted";
 import { recomputeVariancePlan } from "../src/nodeagent/core/plans";
 import { RoomEngine } from "../src/engine/roomEngine";
@@ -12,6 +12,7 @@ import { buildDemoRoom } from "../src/engine/demoRoom";
 import { InMemoryRoomTools } from "../src/nodeagent/skills/integration/noderoomAdapter";
 import { ROOM_TOOLS } from "../src/nodeagent/skills/spreadsheet/cellMutator";
 import type { AgentHandoff, AgentModel } from "../src/nodeagent/core/types";
+import { makeConvexStepJournal } from "../convex/agentStepJournalClient";
 
 const CELL = "r_ni__variance";
 const VAL = "+22.4%";
@@ -117,6 +118,71 @@ describe("P1-3: error-path handoff preserves unexecuted tool calls (resume-curso
 });
 
 describe("exactly-once journal (no double-bill on slice retry)", () => {
+  it("derives the same per-step accounting claim for a committed step and its crash replay", async () => {
+    const stored = new Map<number, Awaited<ReturnType<AgentModel["next"]>>>();
+    const calls: Array<Record<string, unknown>> = [];
+    const ctx = {
+      runMutation: async (_ref: unknown, args: Record<string, unknown>) => {
+        if (!("result" in args)) return stored.get(Number(args.step));
+        calls.push(args);
+        stored.set(Number(args.step), args.result as Awaited<ReturnType<AgentModel["next"]>>);
+      },
+    };
+    const result = {
+      text: "done",
+      toolCalls: [],
+      done: true,
+      usage: { inputTokens: 10, outputTokens: 4, modelCalls: 2, costUsd: 0.01, costKind: "exact" as const },
+    };
+    const fresh = makeConvexStepJournal({
+      ctx,
+      jobId: "job1" as never,
+      leaseId: "lease-1",
+      sliceKey: "slice-1",
+      modelName: () => "provider/model",
+    });
+    await fresh.record(0, result);
+    const freshClaims = fresh.accountingClaims();
+
+    const replay = makeConvexStepJournal({
+      ctx,
+      jobId: "job1" as never,
+      leaseId: "lease-2",
+      sliceKey: "slice-1",
+      modelName: () => "provider/model",
+    });
+    expect(await replay.get(0)).toEqual(result);
+
+    expect(replay.accountingClaims()).toEqual(freshClaims);
+    expect(freshClaims).toEqual([{ step: 0, outputHash: expect.any(String), state: "confirmed" }]);
+    expect(calls[0]).toMatchObject({ leaseId: "lease-1", outputHash: expect.any(String) });
+  });
+
+  it("retains a pending claim when a journal mutation may have committed before throwing", async () => {
+    const result = {
+      text: "done",
+      toolCalls: [],
+      done: true,
+      usage: { inputTokens: 10, outputTokens: 4, modelCalls: 1, costUsd: 0.01, costKind: "exact" as const },
+    };
+    const journal = makeConvexStepJournal({
+      ctx: {
+        runMutation: async () => { throw new Error("response_lost_after_commit"); },
+      },
+      jobId: "job1" as never,
+      leaseId: "lease-1",
+      sliceKey: "slice-1",
+      modelName: () => "provider/model",
+    });
+
+    await expect(journal.record(0, result)).rejects.toThrow("response_lost_after_commit");
+    expect(journal.accountingClaims()).toEqual([{
+      step: 0,
+      outputHash: expect.any(String),
+      state: "pending",
+    }]);
+  });
+
   it("derives stable slice keys from semantic input, not object insertion order", () => {
     const a = journalSliceKey({ jobId: "job1", cursor: { b: 2, a: 1 }, stepBudget: 3 });
     const b = journalSliceKey({ stepBudget: 3, cursor: { a: 1, b: 2 }, jobId: "job1" });
@@ -189,8 +255,17 @@ describe("exactly-once journal (no double-bill on slice retry)", () => {
       },
     };
 
-    await expect(runAgent({ rt, goal: "Summarize the workbook.", model, tools: [], maxSteps: 2, journal }))
-      .rejects.toThrow("simulated_crash_after_journal_commit");
+    const failed = await runAgent({ rt, goal: "Summarize the workbook.", model, tools: [], maxSteps: 2, journal })
+      .then(() => undefined, (error: unknown) => error);
+    expect(failed).toBeInstanceOf(AgentRunError);
+    expect((failed as AgentRunError).message).toContain("simulated_crash_after_journal_commit");
+    expect((failed as AgentRunError).partial.usage).toMatchObject({
+      inputTokens: 17,
+      outputTokens: 5,
+      modelCalls: 1,
+      costUsd: 0.004,
+      costKind: "exact",
+    });
     expect(providerRequests).toBe(1);
 
     crashAfterCommit = false;

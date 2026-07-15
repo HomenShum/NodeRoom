@@ -202,9 +202,10 @@ export interface QualityFailoverOptions<
     candidate: TCandidate,
   ) => ProviderFailureClassification;
   estimateCostUsd?: (candidate: TCandidate) => number;
+  /** Return undefined when provider usage is unavailable so the pre-call reservation remains charged. */
   measureCostUsd?: (
     context: QualityFailoverCostContext<TCandidate, TResult>,
-  ) => number;
+  ) => number | undefined;
   /** Receives provider and task-quality outcomes separately; use it to update existing health ledgers. */
   onRouteAttempt?: (
     attempt: Readonly<QualityFailoverRouteAttemptReceipt>,
@@ -864,9 +865,10 @@ function measureCost<TCandidate extends QualityFailoverCandidate, TResult>(
   options: QualityFailoverOptions<TCandidate, TResult>,
   context: QualityFailoverCostContext<TCandidate, TResult>,
 ): number {
-  const measured = options.measureCostUsd?.(context) ?? context.estimatedCostUsd;
-  assertNonNegativeFinite(measured, `measured cost for ${context.candidate.id}`);
-  return measured;
+  const measured = options.measureCostUsd?.(context);
+  const settled = measured === undefined ? context.estimatedCostUsd : measured;
+  assertNonNegativeFinite(settled, `measured cost for ${context.candidate.id}`);
+  return settled;
 }
 
 function classifyProviderFailure<TCandidate extends QualityFailoverCandidate, TResult>(

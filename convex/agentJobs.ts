@@ -28,6 +28,16 @@ function companyKeyOf(name: string): string {
 
 const attemptStatusV = v.union(v.literal("completed"), v.literal("handoff"), v.literal("retrying"), v.literal("blocked"), v.literal("failed"));
 const costKindV = v.union(v.literal("exact"), v.literal("estimated"));
+const jobAccountingTotalsV = v.object({
+  modelCalls: v.number(),
+  toolCalls: v.number(),
+  inputTokens: v.number(),
+  outputTokens: v.number(),
+  cachedInputTokens: v.number(),
+  cacheCreationInputTokens: v.number(),
+  costUsd: v.number(),
+  costKind: costKindV,
+});
 const terminalStatuses = new Set(["completed", "failed", "blocked", "cancelled"]);
 const entrypointV = v.union(
   v.literal("public_ask"),
@@ -1162,7 +1172,7 @@ export const finishInteractive = internalMutation({
   handler: async (ctx, a) => {
     const job = await ctx.db.get(a.jobId);
     if (!job) return { ok: false as const, reason: "job_not_found" as const };
-    if (terminalStatuses.has(job.status) && job.latestRunId) return { ok: true as const, terminal: true as const };
+    if (terminalStatuses.has(job.status)) return { ok: true as const, terminal: true as const };
     const modelCalls = persistedCallCount(a.modelCalls, 0, "modelCalls");
     const toolCalls = persistedCallCount(a.toolCalls, 0, "toolCalls");
     const costKind: CostKind = a.costKind ?? "estimated";
@@ -2961,7 +2971,12 @@ export const recordWorkflowComplete = internalMutation({
     if (terminalStatuses.has(job.status)) {
       return { ok: true as const, terminal: true as const };
     }
-    if (resultKind !== "success" && job.status === "running" && job.attempts > 1) {
+    const concurrentSliceOwnsLease = resultKind === "failed"
+      && error?.includes("agent_slice_failed:not_claimed")
+      && job.status === "running"
+      && Boolean(job.leaseId)
+      && Boolean(job.leaseUntil && job.leaseUntil > Date.now());
+    if (concurrentSliceOwnsLease) {
       return { ok: true as const, terminal: false as const, superseded: true as const };
     }
     // P0: Passive research jobs must not requeue on spend_budget/rate_limit failures.
@@ -3317,6 +3332,7 @@ export const finishSlice = internalMutation({
     costKind: v.optional(costKindV),
     modelCalls: v.optional(v.number()),
     toolCalls: v.optional(v.number()),
+    accountingTotals: v.optional(jobAccountingTotalsV),
     runId: v.optional(v.id("agentRuns")),
     error: v.optional(v.string()),
     handoff: v.optional(v.any()),
@@ -3332,14 +3348,36 @@ export const finishSlice = internalMutation({
   handler: async (ctx, a) => {
     const job = await ctx.db.get(a.jobId);
     if (!job) return { ok: false as const, reason: "job_not_found" as const };
-    if (job.leaseId !== a.leaseId) return { ok: false as const, reason: "lease_mismatch" as const };
     // Optional fallbacks preserve callers deployed before exact accounting. New callers pass
     // explicit values, including zero, which are never replaced by the legacy estimates.
     const modelCalls = persistedCallCount(a.modelCalls, 1, "modelCalls");
     const toolCalls = persistedCallCount(a.toolCalls, a.inputTokens || a.outputTokens ? 1 : 0, "toolCalls");
     const costKind: CostKind = a.costKind ?? "estimated";
-    const accounting = await loadJobAccountingBaseline(ctx, a.jobId, job);
+    if (a.runId) {
+      const priorAttempt = await ctx.db.query("agentJobAttempts")
+        .withIndex("by_job", (query) => query.eq("jobId", a.jobId).eq("attempt", a.attempt))
+        .order("desc")
+        .first();
+      const exactReplay = priorAttempt
+        && String(priorAttempt.runId ?? "") === String(a.runId)
+        && priorAttempt.status === a.status
+        && priorAttempt.resolvedModel === a.resolvedModel
+        && priorAttempt.stopReason === a.stopReason
+        && priorAttempt.inputTokens === a.inputTokens
+        && priorAttempt.outputTokens === a.outputTokens
+        && (priorAttempt.cachedInputTokens ?? 0) === (a.cachedInputTokens ?? 0)
+        && (priorAttempt.cacheCreationInputTokens ?? 0) === (a.cacheCreationInputTokens ?? 0)
+        && priorAttempt.costUsd === a.costUsd
+        && (priorAttempt.costKind ?? "estimated") === costKind
+        && (priorAttempt.modelCalls ?? 1) === modelCalls
+        && (priorAttempt.toolCalls ?? 0) === toolCalls;
+      if (exactReplay) return { ok: true as const, reused: true as const };
+    }
     const now = Date.now();
+    if (job.leaseId !== a.leaseId) return { ok: false as const, reason: "lease_mismatch" as const };
+    if (terminalStatuses.has(job.status)) return { ok: false as const, reason: "job_terminal" as const };
+    if (!job.leaseUntil || job.leaseUntil <= now) return { ok: false as const, reason: "lease_expired" as const };
+    const accounting = await loadJobAccountingBaseline(ctx, a.jobId, job);
     await ctx.db.insert("agentJobAttempts", clean({
       jobId: a.jobId,
       runId: a.runId,
@@ -3370,10 +3408,7 @@ export const finishSlice = internalMutation({
       a.status === "retrying" ? "retrying" :
       "paused";
 
-    const patch: Record<string, unknown> = {
-      status: nextStatus,
-      leaseId: "",
-      leaseUntil: 0,
+    const incremental = {
       modelCallCount: accounting.modelCallCount + modelCalls,
       toolCallCount: accounting.toolCallCount + toolCalls,
       inputTokens: accounting.inputTokens + a.inputTokens,
@@ -3381,7 +3416,20 @@ export const finishSlice = internalMutation({
       cachedInputTokens: accounting.cachedInputTokens + (a.cachedInputTokens ?? 0),
       cacheCreationInputTokens: accounting.cacheCreationInputTokens + (a.cacheCreationInputTokens ?? 0),
       costUsd: accounting.costUsd + a.costUsd,
-      costKind: aggregateCostKind(accounting.costKind, costKind),
+    };
+    const totals = a.accountingTotals;
+    const patch: Record<string, unknown> = {
+      status: nextStatus,
+      leaseId: "",
+      leaseUntil: 0,
+      modelCallCount: totals ? Math.max(accounting.modelCallCount, totals.modelCalls) : incremental.modelCallCount,
+      toolCallCount: totals ? Math.max(accounting.toolCallCount, totals.toolCalls) : incremental.toolCallCount,
+      inputTokens: totals ? Math.max(accounting.inputTokens, totals.inputTokens) : incremental.inputTokens,
+      outputTokens: totals ? Math.max(accounting.outputTokens, totals.outputTokens) : incremental.outputTokens,
+      cachedInputTokens: totals ? Math.max(accounting.cachedInputTokens, totals.cachedInputTokens) : incremental.cachedInputTokens,
+      cacheCreationInputTokens: totals ? Math.max(accounting.cacheCreationInputTokens, totals.cacheCreationInputTokens) : incremental.cacheCreationInputTokens,
+      costUsd: totals ? Math.max(accounting.costUsd, totals.costUsd) : incremental.costUsd,
+      costKind: aggregateCostKind(aggregateCostKind(accounting.costKind, costKind), totals?.costKind ?? "exact"),
       mutationCount: (job.mutationCount ?? 0) + 1,
       updatedAt: now,
     };

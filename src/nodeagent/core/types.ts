@@ -80,6 +80,8 @@ export interface AgentModel {
     onTextDelta?: (text: string) => void | Promise<void>;
     /** Hint for providers that support OpenAI-style tool_choice. Runtime still validates writes. */
     toolChoice?: AgentToolChoice;
+    /** Remaining USD available to this logical turn, including provider failover attempts. */
+    maxCostUsd?: number;
   }): Promise<AgentStep>;
 }
 

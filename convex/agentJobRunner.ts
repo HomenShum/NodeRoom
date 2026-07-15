@@ -29,7 +29,7 @@ import type { AgentMessage, AgentModelRouteState, AgentResult, AgentTraceEvent, 
 import type { AgentStreamEventDraft } from "../src/nodeagent/core/stream";
 import type { EvidenceState, FrameDelta, ReasoningFrame, ReasoningFrameStatus } from "../src/nodeagent/core/reasoningFrames";
 import type { Actor } from "../src/engine/types";
-import { journalSliceKey } from "../src/nodeagent/core/journal";
+import { journalSliceKey, stableJournalHash } from "../src/nodeagent/core/journal";
 import {
   FREE_FILE_EGRESS_BLOCK_REASON,
   freeFileEgressPromotionAllowed,
@@ -59,8 +59,7 @@ const agentJobsFinishSliceRef = makeFunctionReference<"mutation">("agentJobs:fin
 const agentJobsCompleteDeterministicBenchmarkSliceRef = makeFunctionReference<"mutation">("agentJobs:completeDeterministicBenchmarkSlice") as any;
 const agentJobsRecordLiveOperationRef = makeFunctionReference<"mutation">("agentJobs:recordLiveOperation") as any;
 const agentJobsRecordStreamEventRef = makeFunctionReference<"mutation">("agentJobs:recordStreamEvent") as any;
-const agentRunsRecordRef = makeFunctionReference<"mutation">("agentRuns:record") as any;
-const agentStepsRecordRef = makeFunctionReference<"mutation">("agentSteps:record") as any;
+const agentRunsRecordJournaledRef = makeFunctionReference<"mutation">("agentRuns:recordJournaled") as any;
 const artifactsListForRoomRef = makeFunctionReference<"query">("artifacts:listForRoom") as any;
 const streamingEnsurePublicAgentJobStreamRef = makeFunctionReference<"mutation">("streaming:ensurePublicAgentJobStream") as any;
 const streamingAppendPublicAgentJobStreamChunkRef = makeFunctionReference<"mutation">("streaming:appendPublicAgentJobStreamChunk") as any;
@@ -120,6 +119,12 @@ type ClaimedReasoningFrame = {
 
 type RunTelemetry = {
   ms: number;
+  modelCalls: number;
+  toolCalls: number;
+  inputTokens: number;
+  outputTokens: number;
+  cachedInputTokens: number;
+  cacheCreationInputTokens: number;
   costUsd: number;
   costKind: "exact" | "estimated";
 };
@@ -127,7 +132,15 @@ type RunTelemetry = {
 type RunRecord = {
   runId: Id<"agentRuns">;
   telemetry: RunTelemetry;
+  jobAccounting: Omit<RunTelemetry, "ms">;
 };
+
+class RunPersistenceError extends Error {
+  constructor(readonly cause: unknown) {
+    super(`run_persistence_failed: ${errorText(cause)}`);
+    this.name = "RunPersistenceError";
+  }
+}
 
 type PublicAgentJobStream = {
   streamId: string;
@@ -599,22 +612,24 @@ export const runFreeAutoJobSlice = internalAction({
     const settleStreamEventWrites = async () => {
       await Promise.allSettled(streamEventWrites);
     };
+    const modelJournalSliceKey = journalSliceKey({
+      entrypoint,
+      jobId: String(claimed.jobId),
+      artifactId: String(claimed.artifactId),
+      frameId: activeFrame?.frameId,
+      goal: claimed.goal,
+      mode: claimed.mode ?? "variance",
+      modelPolicy: resolvedModelPolicy,
+      runtimeProfile: claimed.runtimeProfile,
+      cursor: claimed.cursor ?? null,
+      handoff: claimed.handoff ?? null,
+      maxSteps,
+    });
     const modelJournal = makeConvexStepJournal({
       ctx,
       jobId: claimed.jobId,
-      sliceKey: journalSliceKey({
-        entrypoint,
-        jobId: String(claimed.jobId),
-        artifactId: String(claimed.artifactId),
-        frameId: activeFrame?.frameId,
-        goal: claimed.goal,
-        mode: claimed.mode ?? "variance",
-        modelPolicy: resolvedModelPolicy,
-        runtimeProfile: claimed.runtimeProfile,
-        cursor: claimed.cursor ?? null,
-        handoff: claimed.handoff ?? null,
-        maxSteps,
-      }),
+      leaseId,
+      sliceKey: modelJournalSliceKey,
       modelName: () => phaseAwareModel.name,
     });
     let publicStream: PublicAgentJobStream | undefined;
@@ -710,11 +725,30 @@ export const runFreeAutoJobSlice = internalAction({
         deadlineAt,
         handoff: result.handoff,
       };
-      const runId = await ctx.runMutation(agentRunsRecordRef, telemetry);
-      const steps = result.trace.map(traceStep);
+      const journalClaims = modelJournal.accountingClaims();
+      const traceSteps = result.trace.map(traceStep);
+      if (traceSteps.length === 0 && !extraStep) {
+        const syntheticResult = result.finalText?.trim()
+          || (result.handoff ? JSON.stringify(result.handoff) : result.stopReason);
+        traceSteps.push({
+          idx: 0,
+          tool: "model_result",
+          args: cap(JSON.stringify({
+            stopReason: result.stopReason,
+            steps: result.steps,
+            modelCalls: result.usage.modelCalls ?? 0,
+          })),
+          result: cap(syntheticResult),
+          status: result.stopReason === "error" ? "error" as const : "ok" as const,
+          ms,
+          elementId: undefined,
+          affectedObjectIds: undefined,
+          mutationReceiptIds: undefined,
+        });
+      }
       if (extraStep) {
-        steps.push({
-          idx: steps.length,
+        traceSteps.push({
+          idx: traceSteps.length,
           tool: extraStep.tool,
           args: cap(JSON.stringify({ jobId: String(claimed.jobId), attempt: claimed.attempt })),
           result: cap(extraStep.result),
@@ -725,14 +759,58 @@ export const runFreeAutoJobSlice = internalAction({
           mutationReceiptIds: undefined,
         });
       }
-      await ctx.runMutation(agentStepsRecordRef, {
-        jobId: claimed.jobId,
+      const recordKey = `durable-run:${stableJournalHash({
+        jobId: String(claimed.jobId),
+        leaseId,
+        attempt: claimed.attempt,
+        kind: extraStep ? "error" : "result",
+        telemetry,
+        journalClaims,
+        traceSteps,
+      })}`;
+      const payload = {
+        ...telemetry,
+        leaseId,
+        attempt: claimed.attempt,
+        recordKey,
+        journalSliceKey: modelJournalSliceKey,
+        journalClaims,
+        traceSteps,
+      };
+      let recorded: {
+        runId: Id<"agentRuns">;
+        accounting: Omit<RunTelemetry, "ms">;
+        jobAccounting: Omit<RunTelemetry, "ms">;
+      };
+      try {
+        recorded = await ctx.runMutation(agentRunsRecordJournaledRef, payload) as typeof recorded;
+      } catch {
+        // A mutation can commit before its response is lost. One exact, idempotent replay recovers
+        // that result; a second failure is an integrity blocker and must not fall through to a
+        // different zero-usage run.
+        try {
+          recorded = await ctx.runMutation(agentRunsRecordJournaledRef, payload) as typeof recorded;
+        } catch (retryError) {
+          throw new RunPersistenceError(retryError);
+        }
+      }
+      const runId = recorded.runId;
+      return {
         runId,
-        roomId: claimed.roomId,
-        agentId: actor.id,
-        steps,
-      });
-      return { runId, telemetry: { ...telemetry, costKind } };
+        telemetry: { ms, ...recorded.accounting },
+        jobAccounting: recorded.jobAccounting,
+      };
+    };
+
+    let persistedRun: RunRecord | undefined;
+    const finishSlice = async (payload: Record<string, unknown>) => {
+      try {
+        return await ctx.runMutation(agentJobsFinishSliceRef, payload) as { ok: boolean; reason?: string; reused?: boolean };
+      } catch {
+        // Recover a committed mutation whose response was lost. finishSlice recognizes the exact
+        // persisted attempt and returns reused without applying accounting twice.
+        return await ctx.runMutation(agentJobsFinishSliceRef, payload) as { ok: boolean; reason?: string; reused?: boolean };
+      }
     };
 
     try {
@@ -895,7 +973,8 @@ export const runFreeAutoJobSlice = internalAction({
         hooks: workbookWorkflowHooks,
       });
       }
-      const { runId, telemetry } = await recordRun(result);
+      persistedRun = await recordRun(result);
+      const { runId, telemetry, jobAccounting } = persistedRun;
       const done = result.stopReason === "done" && !result.exhausted;
       if (handledByHmdaBenchmark && done) {
         const terminalText = result.finalText || publicStreamText || "";
@@ -982,7 +1061,7 @@ export const runFreeAutoJobSlice = internalAction({
         kind: "model_call",
         name: phaseAwareModel.name,
         status: "completed",
-        countDelta: result.usage.modelCalls,
+        countDelta: telemetry.modelCalls,
         completedAt: Date.now(),
       });
       await recordLiveOperation({
@@ -995,7 +1074,7 @@ export const runFreeAutoJobSlice = internalAction({
       await Promise.allSettled(liveWrites);
       await settleStreamEventWrites();
 
-      await ctx.runMutation(agentJobsFinishSliceRef, clean({
+      const finishResult = await finishSlice(clean({
         jobId: claimed.jobId,
         leaseId,
         attempt: claimed.attempt,
@@ -1003,14 +1082,15 @@ export const runFreeAutoJobSlice = internalAction({
         resolvedModel: phaseAwareModel.name,
         stopReason: result.stopReason,
         ms: telemetry.ms,
-        inputTokens: result.usage.inputTokens,
-        outputTokens: result.usage.outputTokens,
-        cachedInputTokens: result.usage.cachedInputTokens ?? 0,
-        cacheCreationInputTokens: result.usage.cacheCreationInputTokens ?? 0,
+        inputTokens: telemetry.inputTokens,
+        outputTokens: telemetry.outputTokens,
+        cachedInputTokens: telemetry.cachedInputTokens,
+        cacheCreationInputTokens: telemetry.cacheCreationInputTokens,
         costUsd: telemetry.costUsd,
         costKind: telemetry.costKind,
-        modelCalls: result.usage.modelCalls,
-        toolCalls: modelToolCallCount(result.trace),
+        modelCalls: telemetry.modelCalls,
+        toolCalls: telemetry.toolCalls,
+        accountingTotals: jobAccounting,
         runId,
         handoff: result.handoff,
         cursor,
@@ -1034,6 +1114,14 @@ export const runFreeAutoJobSlice = internalAction({
           runtimeError: frameReceipt.runtimeError,
         } : undefined,
       }));
+      if (!finishResult.ok) {
+        return {
+          ok: false as const,
+          retrying: true,
+          error: `agent_job_finish_rejected:${finishResult.reason ?? "unknown"}`,
+          runId,
+        };
+      }
 
       return { ok: true as const, done, stopReason: result.stopReason, runId };
     } catch (error) {
@@ -1059,10 +1147,26 @@ export const runFreeAutoJobSlice = internalAction({
         messages: [],
         usage: { inputTokens: 0, outputTokens: 0, modelCalls: 0 },
       };
-      const { runId, telemetry } = await recordRun(fallback, { tool: "job_error", result: errorText(rootError) });
+      if (rootError instanceof RunPersistenceError) {
+        await settlePublicStreamWrites();
+        void recordStreamEvent({
+          kind: "error",
+          status: "failed",
+          title: "Agent run persistence failed",
+          error: errorText(rootError),
+          metadata: { attempt: claimed.attempt, integrityBlocked: true },
+          createdAt: Date.now(),
+        });
+        await settleStreamEventWrites();
+        return { ok: false as const, retrying: true, error: errorText(rootError) };
+      }
+      const runAlreadyPersisted = persistedRun !== undefined;
+      const recordedFailure = persistedRun ?? await recordRun(fallback, { tool: "job_error", result: errorText(rootError) });
+      persistedRun = recordedFailure;
+      const { runId, telemetry, jobAccounting } = recordedFailure;
       const nonRetryableReason = providerNonRetryableReason(rootError);
       const retryable = !isProviderNonRetryableError(rootError);
-      const canRetry = retryable && claimed.attempt < claimed.maxAttempts;
+      const canRetry = !runAlreadyPersisted && retryable && claimed.attempt < claimed.maxAttempts;
       const delayMs = canRetry ? backoffMs(claimed.attempt) : undefined;
       const scheduledNextAt = delayMs ? Date.now() + delayMs : undefined;
       const activeFrameId = claimed.activeReasoningFrame?.frameId;
@@ -1097,7 +1201,7 @@ export const runFreeAutoJobSlice = internalAction({
         kind: "model_call",
         name: phaseAwareModel.name,
         status: "failed",
-        countDelta: fallback.usage.modelCalls,
+        countDelta: runAlreadyPersisted ? 0 : telemetry.modelCalls,
         completedAt: Date.now(),
       });
       await recordLiveOperation({
@@ -1110,7 +1214,7 @@ export const runFreeAutoJobSlice = internalAction({
       await Promise.allSettled(liveWrites);
       await settleStreamEventWrites();
 
-      await ctx.runMutation(agentJobsFinishSliceRef, clean({
+      const finishResult = await finishSlice(clean({
         jobId: claimed.jobId,
         leaseId,
         attempt: claimed.attempt,
@@ -1118,14 +1222,15 @@ export const runFreeAutoJobSlice = internalAction({
         resolvedModel: phaseAwareModel.name,
         stopReason: fallback.stopReason,
         ms: telemetry.ms,
-        inputTokens: fallback.usage.inputTokens,
-        outputTokens: fallback.usage.outputTokens,
-        cachedInputTokens: fallback.usage.cachedInputTokens ?? 0,
-        cacheCreationInputTokens: fallback.usage.cacheCreationInputTokens ?? 0,
+        inputTokens: telemetry.inputTokens,
+        outputTokens: telemetry.outputTokens,
+        cachedInputTokens: telemetry.cachedInputTokens,
+        cacheCreationInputTokens: telemetry.cacheCreationInputTokens,
         costUsd: telemetry.costUsd,
         costKind: telemetry.costKind,
-        modelCalls: fallback.usage.modelCalls,
-        toolCalls: modelToolCallCount(fallback.trace),
+        modelCalls: telemetry.modelCalls,
+        toolCalls: telemetry.toolCalls,
+        accountingTotals: jobAccounting,
         runId,
         error: errorText(rootError),
         handoff: fallback.handoff,
@@ -1134,6 +1239,14 @@ export const runFreeAutoJobSlice = internalAction({
         frameId: activeFrameId,
         frameStatus: canRetry ? "pending" : "failed",
       }));
+      if (!finishResult.ok) {
+        return {
+          ok: false as const,
+          retrying: true,
+          error: `${errorText(rootError)}; agent_job_finish_rejected:${finishResult.reason ?? "unknown"}`,
+          runId,
+        };
+      }
 
       return { ok: false as const, retrying: canRetry, error: errorText(rootError), runId };
     }

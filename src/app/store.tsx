@@ -50,7 +50,12 @@ export type EditFeedback = { ok: boolean; reason?: string; version?: number };
 type UndoEntry = { roomId: string; op: ChangeOp };
 export type AgentCostKind = "exact" | "estimated";
 export type AgentRunTelemetry = { model: string; steps: number; toolCalls: number; inputTokens: number; outputTokens: number; costUsd: number; costKind: AgentCostKind; ms: number };
-type PersistedAgentRunTelemetry = Omit<AgentRunTelemetry, "costKind"> & { costKind?: AgentCostKind };
+type PersistedAgentRunTelemetry = Omit<AgentRunTelemetry, "costKind"> & {
+  _id?: unknown;
+  id?: unknown;
+  jobId?: unknown;
+  costKind?: AgentCostKind;
+};
 
 function persistedCostKind(costKind: AgentCostKind | undefined): AgentCostKind {
   return costKind ?? "estimated";
@@ -98,6 +103,55 @@ export type AgentJobTelemetry = {
   createdAt?: number;
   updatedAt: number;
 };
+
+type AgentJobRunDetailCorrelation = {
+  job?: { _id?: unknown; id?: unknown; latestRunId?: unknown };
+  latestRun?: PersistedAgentRunTelemetry | null;
+};
+
+function correlationId(value: unknown): string | undefined {
+  if (value === undefined || value === null) return undefined;
+  const id = String(value).trim();
+  return id || undefined;
+}
+
+function persistedRunId(run: PersistedAgentRunTelemetry): string | undefined {
+  return correlationId(run._id) ?? correlationId(run.id);
+}
+
+/** Resolve only telemetry proven to belong to the selected durable job. Room run lists are
+ * newest-first but room-wide, while detail.latestRun is selected-job-specific and can recover a
+ * run that fell outside the bounded room list. */
+export function selectAgentRunTelemetryForJob(
+  runs: readonly PersistedAgentRunTelemetry[],
+  job: Pick<AgentJobTelemetry, "id" | "latestRunId">,
+  detail?: AgentJobRunDetailCorrelation | null,
+): AgentRunTelemetry | null {
+  const jobId = correlationId(job.id);
+  if (!jobId) return null;
+
+  const detailJobId = correlationId(detail?.job?._id) ?? correlationId(detail?.job?.id);
+  const detailMatchesJob = detailJobId === jobId;
+  const latestRunId = correlationId(job.latestRunId)
+    ?? (detailMatchesJob ? correlationId(detail?.job?.latestRunId) : undefined);
+  const detailRun = detail?.latestRun ?? undefined;
+
+  if (latestRunId) {
+    const exactCandidates = detailRun ? [detailRun, ...runs] : runs;
+    const exactRun = exactCandidates.find((run) => {
+      if (persistedRunId(run) !== latestRunId) return false;
+      const runJobId = correlationId(run.jobId);
+      return runJobId === undefined || runJobId === jobId;
+    });
+    return exactRun ? projectAgentRunTelemetry(exactRun) : null;
+  }
+
+  if (detailMatchesJob && detailRun && correlationId(detailRun.jobId) === jobId) {
+    return projectAgentRunTelemetry(detailRun);
+  }
+  const newestJobRun = runs.find((run) => correlationId(run.jobId) === jobId);
+  return newestJobRun ? projectAgentRunTelemetry(newestJobRun) : null;
+}
 
 /** Shape of a free-auto agent job row from the convex jobs subscription (used by lastLongFreeJob + activeLongFreeJobs). */
 type FreeJobRow = {
@@ -373,7 +427,7 @@ export interface RoomStore {
   startLongFreeAgent(input: AgentAskInput): Promise<void>;
   /** Enrich every PENDING company on the research sheet (ParselyFi loop) — status-gated, sourced. */
   askResearch(): Promise<void>;
-  /** The most recent agent run's telemetry (model · tokens · cost · latency), or null. */
+  /** The selected durable job's correlated run telemetry, or the room's latest run when no durable job exists. */
   lastRun(): AgentRunTelemetry | null;
   lastLongFreeJob(): AgentJobTelemetry | null;
   lastLongFreeJobAttempts(): AgentJobAttemptTelemetry[];
@@ -2237,8 +2291,16 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         });
       },
       lastRun: () => {
-        const r = (runs as unknown as PersistedAgentRunTelemetry[])[0];
-        return r ? projectAgentRunTelemetry(r) : null;
+        const roomRuns = runs as unknown as PersistedAgentRunTelemetry[];
+        if (!selectedLongJobRow) {
+          const roomRun = roomRuns[0];
+          return roomRun ? projectAgentRunTelemetry(roomRun) : null;
+        }
+        return selectAgentRunTelemetryForJob(
+          roomRuns,
+          { id: String(selectedLongJobRow._id), latestRunId: selectedLongJobRow.latestRunId ? String(selectedLongJobRow.latestRunId) : undefined },
+          jobDetail as unknown as AgentJobRunDetailCorrelation | null | undefined,
+        );
       },
       lastLongFreeJob: () => {
         const j = selectedLongJobRow;

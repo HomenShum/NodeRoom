@@ -285,6 +285,27 @@ describe("quality-aware bounded failover", () => {
     });
   });
 
+  it("retains the pre-call reservation when measured provider cost is unavailable", async () => {
+    const result = await runQualityFailover({
+      candidates: [candidate("usage-missing", "accepted", { estimatedCostUsd: 0.25 })],
+      budget: { maxAttempts: 1, maxCostUsd: 0.5 },
+      execute: async (route) => route.response,
+      measureCostUsd: () => undefined,
+      now: () => 4_500,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.receipt).toMatchObject({
+      routeAttempts: [{
+        routeId: "usage-missing",
+        estimatedCostUsd: 0.25,
+        costUsd: 0.25,
+        outcome: "accepted",
+      }],
+      budget: { spentCostUsd: 0.25, remainingCostUsd: 0.25 },
+    });
+  });
+
   it("enforces the attempt ceiling before calling another candidate", async () => {
     const execute = vi.fn(async (route: Candidate) => route.response);
     const result = await runQualityFailover({

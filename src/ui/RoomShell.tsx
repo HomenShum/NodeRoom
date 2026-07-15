@@ -7,7 +7,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, ShieldCheck, X, HelpCircle, Copy, Check, MessageCircle, Sparkles, SlidersHorizontal, Palette, Gauge, Play, ChevronLeft, ChevronRight, Crosshair, WifiOff } from "lucide-react";
-import { useStore, type AgentCostKind, type ActorProof } from "../app/store";
+import { useStore, type AgentCostKind, type AgentJobTelemetry, type AgentRunTelemetry, type ActorProof } from "../app/store";
 import { OFFLINE_QUEUE_MAX } from "../notifications/offlineQueue";
 import { Chat } from "./Chat";
 import { Artifact } from "./panels/Artifact";
@@ -45,6 +45,20 @@ export function roomIntroSafetyCopy(mode: "memory" | "convex"): string {
 
 export function formatAgentCost(costUsd: number, costKind?: AgentCostKind): string {
   return `${costKind === "exact" ? "" : "≈"}$${costUsd.toFixed(3)}`;
+}
+
+export function selectedJobSignalTelemetry(job: AgentJobTelemetry, run: AgentRunTelemetry | null): { evalValue: string; costValue: string } {
+  if (run) {
+    return {
+      evalValue: `${run.model} | ${run.toolCalls} tools`,
+      costValue: formatAgentCost(run.costUsd, run.costKind),
+    };
+  }
+  const toolTotal = job.toolCallCount === undefined ? "" : ` | ${job.toolCallCount} tools total`;
+  return {
+    evalValue: `route ${job.modelPolicy || "not reported"}${toolTotal}`,
+    costValue: job.costUsd === undefined ? "not reported" : `${formatAgentCost(job.costUsd, job.costKind)} job total`,
+  };
 }
 
 export function preferredRoomArtifact<T extends { id: string; kind?: string; title?: string; order?: string[]; meta?: { dataframe?: { rowCount?: number }; excelGrid?: { rows?: number }; tags?: string[] } }>(arts: T[]): T | undefined {
@@ -993,6 +1007,7 @@ function SignalStatusStrip({
   const jobStatus = job?.status ?? "";
   const jobRisk = ["failed", "blocked", "cancelled", "paused"].includes(jobStatus);
   const jobLive = !!job && !["completed", "failed", "cancelled", "blocked", "paused"].includes(jobStatus);
+  const jobTelemetry = job ? selectedJobSignalTelemetry(job, run) : null;
   const credit = store.creditBalance?.();
   const demoCreditValue = q3MemoryDemo && credit?.demo ? 18 : credit?.availableCredits;
   const reconciledStatusPrefix = "Room NodeAgent · ";
@@ -1009,11 +1024,11 @@ function SignalStatusStrip({
       : []),
     ...(proposals.length ? [{ k: "Review", v: `${proposals.length} pending` }] : []),
     ...(jobRisk ? [{ k: "Run", v: jobStatus }] : []),
-    ...(jobLive
+    ...(jobLive && jobTelemetry
       ? [
           { k: "Agents", v: `${sessions.length} active` },
-          { k: "Eval", v: run ? `${run.model} | ${run.toolCalls} tools` : "running" },
-          { k: "Cost", v: run ? formatAgentCost(run.costUsd, run.costKind) : job ? job.modelPolicy : "-" },
+          { k: "Eval", v: jobTelemetry.evalValue },
+          { k: "Cost", v: jobTelemetry.costValue },
         ]
       : []),
   ];

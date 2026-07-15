@@ -8,7 +8,7 @@
  */
 
 import type { AgentMessage, AgentModel, AgentModelRouteState, AgentStep, AgentTool, AgentToolChoice, TokenUsage, ToolCall } from "../core/types";
-import { getModelPricing, getProviderForModel, resolveModelAlias } from "./modelCatalog";
+import { getModelPricing, getProviderForModel, modelPricing, resolveModelAlias } from "./modelCatalog";
 import {
   isOpenRouterFreeAutoModel,
   openRouterFreeCandidateTimeoutMs,
@@ -110,6 +110,10 @@ type GeminiResponse = {
 const OPENROUTER_REFERER = "https://noderoom.local";
 const OPENROUTER_TITLE = "NodeRoom benchmark";
 const DEFAULT_MAX_OUTPUT_TOKENS = 8_192;
+const UNKNOWN_MODEL_RESERVE_INPUT_PER_1M = Object.values(modelPricing)
+  .reduce((highest, pricing) => Math.max(highest, pricing.inputPer1M), 1);
+const UNKNOWN_MODEL_RESERVE_OUTPUT_PER_1M = Object.values(modelPricing)
+  .reduce((highest, pricing) => Math.max(highest, pricing.outputPer1M), 5);
 const TRANSIENT_RE = /(\b429\b|\b5\d\d\b|rate.?limit|overloaded|temporar|timed?.?out|ECONNRESET|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|fetch failed|socket hang up|service unavailable)/i;
 
 export type ConvexModelOptions = {
@@ -136,33 +140,50 @@ class ProviderStepError extends Error {
   }
 }
 
-function openAiUsage(usage?: OpenAiChatResponse["usage"]): TokenUsage {
+function providerTokenCount(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : undefined;
+}
+
+function openAiUsage(usage?: OpenAiChatResponse["usage"]): TokenUsage | undefined {
+  if (!usage) return undefined;
+  const inputTokens = providerTokenCount(usage.prompt_tokens ?? usage.input_tokens);
+  const outputTokens = providerTokenCount(usage.completion_tokens ?? usage.output_tokens);
+  const rawCachedInputTokens = usage.prompt_tokens_details?.cached_tokens
+    ?? usage.input_tokens_details?.cached_tokens;
+  const cachedInputTokens = rawCachedInputTokens === undefined ? 0 : providerTokenCount(rawCachedInputTokens);
+  if (inputTokens === undefined || outputTokens === undefined || cachedInputTokens === undefined) return undefined;
   return {
-    inputTokens: usage?.prompt_tokens ?? usage?.input_tokens ?? 0,
-    outputTokens: usage?.completion_tokens ?? usage?.output_tokens ?? 0,
-    cachedInputTokens: usage?.prompt_tokens_details?.cached_tokens
-      ?? usage?.input_tokens_details?.cached_tokens
-      ?? 0,
+    inputTokens,
+    outputTokens,
+    cachedInputTokens,
   };
 }
 
-function anthropicUsage(usage?: AnthropicResponse["usage"]): TokenUsage {
-  const uncached = usage?.input_tokens ?? 0;
-  const cached = usage?.cache_read_input_tokens ?? 0;
-  const cacheCreation = usage?.cache_creation_input_tokens ?? 0;
+function anthropicUsage(usage?: AnthropicResponse["usage"]): TokenUsage | undefined {
+  if (!usage) return undefined;
+  const uncached = providerTokenCount(usage.input_tokens);
+  const outputTokens = providerTokenCount(usage.output_tokens);
+  const cached = usage.cache_read_input_tokens === undefined ? 0 : providerTokenCount(usage.cache_read_input_tokens);
+  const cacheCreation = usage.cache_creation_input_tokens === undefined ? 0 : providerTokenCount(usage.cache_creation_input_tokens);
+  if (uncached === undefined || outputTokens === undefined || cached === undefined || cacheCreation === undefined) return undefined;
   return {
     inputTokens: uncached + cached + cacheCreation,
-    outputTokens: usage?.output_tokens ?? 0,
+    outputTokens,
     cachedInputTokens: cached,
     cacheCreationInputTokens: cacheCreation,
   };
 }
 
-function geminiUsage(usage?: GeminiResponse["usageMetadata"]): TokenUsage {
+function geminiUsage(usage?: GeminiResponse["usageMetadata"]): TokenUsage | undefined {
+  if (!usage) return undefined;
+  const inputTokens = providerTokenCount(usage.promptTokenCount);
+  const outputTokens = providerTokenCount(usage.candidatesTokenCount);
+  const cachedInputTokens = usage.cachedContentTokenCount === undefined ? 0 : providerTokenCount(usage.cachedContentTokenCount);
+  if (inputTokens === undefined || outputTokens === undefined || cachedInputTokens === undefined) return undefined;
   return {
-    inputTokens: usage?.promptTokenCount ?? 0,
-    outputTokens: usage?.candidatesTokenCount ?? 0,
-    cachedInputTokens: usage?.cachedContentTokenCount ?? 0,
+    inputTokens,
+    outputTokens,
+    cachedInputTokens,
   };
 }
 
@@ -182,11 +203,11 @@ export function convexModel(modelId: string, options: ConvexModelOptions = {}): 
     routeState() {
       return snapshotConcreteRouteState(concreteRouteState);
     },
-    async next({ system, messages, tools, signal, onTextDelta, toolChoice }) {
+    async next({ system, messages, tools, signal, onTextDelta, toolChoice, maxCostUsd }) {
       // Gateway PII firewall — redact PII/secrets from the system + user content before the prompt leaves.
       const safeSystem = redactPII(system).text;
       const safeMessages = messages.map((m) => (m.role === "user" && m.content ? { ...m, content: redactPII(m.content).text } : m));
-      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, signal, onTextDelta, toolChoice, freeAutoMode, fallbackModelIds, concreteRouteState);
+      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, signal, onTextDelta, toolChoice, freeAutoMode, fallbackModelIds, concreteRouteState, maxCostUsd);
       resolvedModelId = resolvedModel;
       return step;
     },
@@ -216,6 +237,44 @@ function exactConvexUsageCost(
   ) / 1_000_000;
 }
 
+function conservativeRequestInputTokenUpperBound(
+  system: string,
+  messages: AgentMessage[],
+  tools: AgentTool[],
+): number {
+  const serialized = JSON.stringify({
+    system,
+    messages,
+    tools: tools.map((tool) => ({
+      name: tool.name,
+      description: tool.description,
+      parameters: toolParameters(tool.name),
+    })),
+  });
+  const utf8Bytes = new TextEncoder().encode(serialized).byteLength;
+  const providerFramingAllowance = 64 * (messages.length + tools.length + 2);
+  return utf8Bytes + providerFramingAllowance;
+}
+
+function convexAttemptCostReservationUsd(
+  modelId: string,
+  inputTokenUpperBound: number,
+  maxCostUsd?: number,
+): number {
+  const pricing = getModelPricing(resolveModelAlias(modelId));
+  if (!pricing && Number.isFinite(maxCostUsd)) {
+    const budget = Math.max(0, maxCostUsd ?? 0);
+    return budget + Math.max(1e-9, Math.max(1, budget) * 1e-9);
+  }
+  const inputPer1M = pricing?.inputPer1M ?? UNKNOWN_MODEL_RESERVE_INPUT_PER_1M;
+  const outputPer1M = pricing?.outputPer1M ?? UNKNOWN_MODEL_RESERVE_OUTPUT_PER_1M;
+  if (inputPer1M === 0 && outputPer1M === 0) return 0;
+  return (
+    inputTokenUpperBound * inputPer1M
+    + modelMaxOutputTokens() * outputPer1M
+  ) / 1_000_000;
+}
+
 async function generateConvexAgentStep(
   modelId: string,
   system: string,
@@ -228,6 +287,7 @@ async function generateConvexAgentStep(
   freeAutoMode?: OpenRouterFreeModelMode,
   fallbackModelIds: string[] = [],
   concreteRouteState?: ConcreteRouteState,
+  maxCostUsd?: number,
 ) {
   assertProviderRouteAllowed({ model: modelId, entrypoint, env: process.env });
   let providerRequests = 0;
@@ -254,6 +314,7 @@ async function generateConvexAgentStep(
         maxAttempts: Math.min(candidates.length, openRouterFreeAutoLimit()),
         deadlineAt: requestStartedAt + openRouterFreeRequestTimeoutMs(),
         reserveMs: openRouterFreeRequestReserveMs(),
+        maxCostUsd,
       },
       attemptTimeoutMs: openRouterFreeCandidateTimeoutMs(),
       signal,
@@ -355,30 +416,38 @@ async function generateConvexAgentStep(
 
   const state = concreteRouteState ?? { preferredModelId: modelId, cooldownUntil: new Map<string, number>() };
   const candidateIds = orderedConcreteCandidateIds(modelId, fallbackModelIds, state.preferredModelId);
+  const inputTokenUpperBound = conservativeRequestInputTokenUpperBound(system, messages, tools);
   const candidates = candidateIds.map((id) => ({
     id,
     provider: getProviderForModel(id) ?? undefined,
     cooldownUntil: state.cooldownUntil.get(id),
+    estimatedCostUsd: convexAttemptCostReservationUsd(id, inputTokenUpperBound, maxCostUsd),
   }));
+  const concreteProviderRequestAttempts = new Set<number>();
   let aggregateInputTokens = 0;
   let aggregateOutputTokens = 0;
   let aggregateCachedInputTokens = 0;
   let aggregateCacheCreationInputTokens = 0;
   let aggregateCostKnown = true;
+  let aggregateUsedCostReservation = false;
   const candidateText = acceptedCandidateTextBuffer(onTextDelta);
   const failover = await runQualityFailover({
     candidates,
-    budget: { maxAttempts: candidateIds.length },
+    budget: { maxAttempts: candidateIds.length, maxCostUsd },
     attemptTimeoutMs: concreteCandidateTimeoutMs(),
     signal,
     execute: async (candidate, context) => {
       const providerRoute = assertProviderRouteAllowed({ model: candidate.id, entrypoint, env: process.env });
       const requestsBefore = providerRequests;
+      const onCandidateProviderRequest = () => {
+        concreteProviderRequestAttempts.add(context.attempt);
+        onProviderRequest();
+      };
       let step: AgentStep;
       try {
         step = withProviderRoute(
           await withRetry(
-            () => providerStep(candidate.id, system, messages, tools, context.signal, candidateText.sink(candidate.id), toolChoice, onProviderRequest),
+            () => providerStep(candidate.id, system, messages, tools, context.signal, candidateText.sink(candidate.id), toolChoice, onCandidateProviderRequest),
             context.signal,
             0,
           ),
@@ -423,12 +492,21 @@ async function generateConvexAgentStep(
       await candidateText.settle(candidate.id, attempt.outcome === "accepted");
       updateConcreteRouteState(state, candidate.id, attempt.outcome, attempt.providerFailureCategory);
     },
-    measureCostUsd: ({ candidate, result, error }) => {
+    measureCostUsd: ({ candidate, attempt, result, error }) => {
+      if (!concreteProviderRequestAttempts.has(attempt)) return 0;
       const usage = result?.usage ?? errorTokenUsage(error);
-      if (!usage) return 0;
+      if (!usage) {
+        aggregateCostKnown = false;
+        aggregateUsedCostReservation = true;
+        return undefined;
+      }
       const measured = exactConvexUsageCost(candidate.id, usage);
-      if (measured === undefined) aggregateCostKnown = false;
-      return measured ?? 0;
+      if (measured === undefined) {
+        aggregateCostKnown = false;
+        aggregateUsedCostReservation = true;
+        return undefined;
+      }
+      return measured;
     },
   });
   if (providerRequests > 0 && failover.receipt.routeAttempts.some((attempt) => attempt.reason === "candidate_timeout")) {
@@ -455,7 +533,11 @@ async function generateConvexAgentStep(
         cachedInputTokens: aggregateCachedInputTokens,
         cacheCreationInputTokens: aggregateCacheCreationInputTokens,
         modelCalls: providerRequests,
-        ...(aggregateCostKnown ? { costUsd: failover.receipt.budget.spentCostUsd, costKind: "exact" as const } : {}),
+        ...(aggregateCostKnown
+          ? { costUsd: failover.receipt.budget.spentCostUsd, costKind: "exact" as const }
+          : aggregateUsedCostReservation
+            ? { costUsd: failover.receipt.budget.spentCostUsd, costKind: "estimated" as const }
+            : {}),
       },
       providerRoute: {
         ...(failover.result.providerRoute as ProviderRouteReceipt),
@@ -770,17 +852,12 @@ async function openAiCompatibleBlockingStep(args: {
     tool: tc.function?.name ?? "unknown_tool",
     args: parseJsonObject(tc.function?.arguments ?? "{}"),
   }));
+  const usage = openAiUsage(res.usage);
   return {
     text: message.content || undefined,
     toolCalls,
     done: toolCalls.length === 0,
-    usage: {
-      inputTokens: res.usage?.prompt_tokens ?? res.usage?.input_tokens ?? 0,
-      outputTokens: res.usage?.completion_tokens ?? res.usage?.output_tokens ?? 0,
-      cachedInputTokens: res.usage?.prompt_tokens_details?.cached_tokens
-        ?? res.usage?.input_tokens_details?.cached_tokens
-        ?? 0,
-    },
+    ...(usage ? { usage } : {}),
   };
 }
 
@@ -862,11 +939,12 @@ async function openAiCompatibleStreamStep(args: {
       tool: tc.name ?? "unknown_tool",
       args: parseOpenAiStreamToolArgs(tc.name, tc.argsText),
     }));
+  const tokenUsage = openAiUsage(usage);
   return {
     text: text || undefined,
     toolCalls,
     done: toolCalls.length === 0,
-    usage: openAiUsage(usage),
+    ...(tokenUsage ? { usage: tokenUsage } : {}),
   };
 }
 
@@ -901,11 +979,12 @@ async function anthropicStep(
       tool: p.name ?? "unknown_tool",
       args: p.input ?? {},
     }));
+  const usage = anthropicUsage(res.usage);
   return {
     text: text || undefined,
     toolCalls,
     done: toolCalls.length === 0,
-    usage: anthropicUsage(res.usage),
+    ...(usage ? { usage } : {}),
   };
 }
 
@@ -938,15 +1017,12 @@ async function geminiStep(
       args: p.functionCall.args ?? {},
       providerMetadata: p.thoughtSignature || p.thought_signature ? { geminiThoughtSignature: p.thoughtSignature ?? p.thought_signature } : undefined,
     }));
+  const usage = geminiUsage(res.usageMetadata);
   return {
     text: text || undefined,
     toolCalls,
     done: toolCalls.length === 0,
-    usage: {
-      inputTokens: res.usageMetadata?.promptTokenCount ?? 0,
-      outputTokens: res.usageMetadata?.candidatesTokenCount ?? 0,
-      cachedInputTokens: res.usageMetadata?.cachedContentTokenCount ?? 0,
-    },
+    ...(usage ? { usage } : {}),
   };
 }
 
@@ -1008,11 +1084,12 @@ async function geminiStreamStep(
     throw new ProviderStepError(error, usage ? geminiUsage(usage) : undefined);
   }
 
+  const tokenUsage = geminiUsage(usage);
   return {
     text: text || undefined,
     toolCalls,
     done: toolCalls.length === 0,
-    usage: geminiUsage(usage),
+    ...(tokenUsage ? { usage: tokenUsage } : {}),
   };
 }
 

@@ -178,7 +178,6 @@ describe("Convex free-auto model routing", () => {
       attempted.push(String(body.model));
       return new Response(JSON.stringify({
         choices: [{ message: { content: "I will make that change." } }],
-        usage: { prompt_tokens: 10, completion_tokens: 5 },
       }), { status: 200, headers: { "Content-Type": "application/json" } });
     }));
 
@@ -200,6 +199,13 @@ describe("Convex free-auto model routing", () => {
     expect(route.name).toBe("nvidia/nemotron-3-super-120b-a12b:free");
     expect(step.text).toBe("I will make that change.");
     expect(step.toolCalls).toEqual([]);
+    expect(step.usage).toMatchObject({
+      inputTokens: 0,
+      outputTokens: 0,
+      modelCalls: 1,
+      costUsd: 0,
+      costKind: "exact",
+    });
     expect(step.providerRoute).toMatchObject({
       requestedModel: "nvidia/nemotron-3-super-120b-a12b:free",
       resolvedModel: "nvidia/nemotron-3-super-120b-a12b:free",
@@ -457,7 +463,7 @@ describe("Convex free-auto model routing", () => {
     expect(result.text).toBe("fallback answer");
   });
 
-  it("does not label unknown catalog pricing as exact cost", async () => {
+  it("retains a conservative reservation when catalog pricing cannot be measured exactly", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({
       choices: [{ message: { content: "answer" } }],
       usage: { prompt_tokens: 5, completion_tokens: 2 },
@@ -467,8 +473,8 @@ describe("Convex free-auto model routing", () => {
       messages: [{ role: "user", content: "hello" }],
       tools: [],
     });
-    expect(step.usage).toMatchObject({ inputTokens: 5, outputTokens: 2, modelCalls: 1 });
-    expect(step.usage).not.toHaveProperty("costUsd");
+    expect(step.usage).toMatchObject({ inputTokens: 5, outputTokens: 2, modelCalls: 1, costKind: "estimated" });
+    expect(step.usage?.costUsd).toBeGreaterThan(0);
 
     const result = await runAgent({
       rt: runtimeTools(),
@@ -480,6 +486,82 @@ describe("Convex free-auto model routing", () => {
     });
     expect(result.usage).toMatchObject({ modelCalls: 1, costKind: "estimated" });
     expect(result.usage.costUsd).toBeGreaterThan(0);
+  });
+
+  it("blocks an unknown paid route before the provider call when a hard turn budget is present", async () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const error = await convexModel("vendor/unknown-paid-model", { entrypoint: "public_ask" }).next({
+      system: "Answer.",
+      messages: [{ role: "user", content: "hello" }],
+      tools: [],
+      maxCostUsd: 0.01,
+    }).then(() => undefined, (failure: unknown) => failure);
+
+    expect(error).toBeInstanceOf(QualityFailoverError);
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect((error as QualityFailoverError).receipt).toMatchObject({
+      stopReason: "spend_budget",
+      routeAttempts: [],
+      skippedRoutes: [{ routeId: "vendor/unknown-paid-model", reason: "spend_budget" }],
+    });
+  });
+
+  it("keeps cumulative paid failover reservations inside the remaining turn budget", async () => {
+    process.env.NEBIUS_API_KEY = "test-nebius-key";
+    const attempted: string[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (_input: string | URL | Request, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body ?? "{}")) as { model?: string };
+      attempted.push(String(body.model));
+      return new Response("primary temporarily unavailable", { status: 503 });
+    }));
+
+    const error = await convexModel("nebius/zai-org/GLM-5.2", {
+      entrypoint: "public_ask",
+      fallbackModelIds: ["z-ai/glm-5.2"],
+    }).next({
+      system: "Answer.",
+      messages: [{ role: "user", content: "hello" }],
+      tools: [],
+      maxCostUsd: 0.03,
+    }).then(() => undefined, (failure: unknown) => failure);
+
+    expect(error).toBeInstanceOf(QualityFailoverError);
+    expect(attempted).toEqual(["zai-org/GLM-5.2"]);
+    expect((error as QualityFailoverError).receipt).toMatchObject({
+      stopReason: "spend_budget",
+      routeAttempts: [{ routeId: "nebius/zai-org/GLM-5.2", outcome: "provider_failure" }],
+      skippedRoutes: [{ routeId: "z-ai/glm-5.2", reason: "spend_budget" }],
+    });
+    expect((error as QualityFailoverError).usage).toMatchObject({ modelCalls: 1, costKind: "estimated" });
+  });
+
+  it("blocks a paid route before calling it when its reservation exceeds the remaining run budget", async () => {
+    process.env.NEBIUS_API_KEY = "test-nebius-key";
+    const fetchSpy = vi.fn(async () => new Response(JSON.stringify({
+      choices: [{ message: { content: "I will update it." } }],
+    }), { status: 200, headers: { "Content-Type": "application/json" } }));
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const result = await runAgent({
+      rt: runtimeTools(),
+      goal: "write 42 into the workbook cells",
+      model: convexModel("nebius/zai-org/GLM-5.2", { entrypoint: "public_ask" }),
+      tools: ROOM_TOOLS,
+      maxSteps: 8,
+      spendLimits: { maxCostUsd: 0.001 },
+    });
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(result.stopReason).toBe("spend_budget");
+    expect(result.usage).toMatchObject({
+      inputTokens: 0,
+      outputTokens: 0,
+      modelCalls: 0,
+      costKind: "exact",
+    });
+    expect(result.usage.costUsd).toBe(0);
   });
 
   it("counts no provider call when a direct provider key is missing", async () => {
@@ -524,13 +606,17 @@ describe("Convex free-auto model routing", () => {
     const error = await pending;
 
     expect(error).toBeInstanceOf(QualityFailoverError);
-    expect((error as QualityFailoverError).usage).toMatchObject({
+    const timeoutUsage = (error as QualityFailoverError).usage;
+    expect(timeoutUsage).toMatchObject({
       inputTokens: 0,
       outputTokens: 0,
       modelCalls: 1,
-      costUsd: 0,
       costKind: "estimated",
     });
+    expect(timeoutUsage?.costUsd).toBeGreaterThan(0);
+    const timeoutAttempt = (error as QualityFailoverError).receipt.routeAttempts[0];
+    expect(timeoutAttempt?.estimatedCostUsd).toBeGreaterThan(0);
+    expect(timeoutAttempt?.costUsd).toBe(timeoutUsage?.costUsd);
     expect(route.routeState?.()).toMatchObject({
       cooldownUntil: { "nebius/zai-org/GLM-5.2": expect.any(Number) },
     });

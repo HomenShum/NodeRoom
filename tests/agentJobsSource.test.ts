@@ -52,11 +52,16 @@ describe("long-running agent job source invariants", () => {
     expect(workflows).toContain("new WorkflowManager(components.workflow");
     expect(workflows).toContain("MAX_WORKFLOW_SLICES");
     expect(workflows).toContain("One workflow invocation owns one long-running slice");
+    expect(workflows.match(/requireSuccessfulSliceResult\(await step\.runAction/g)).toHaveLength(2);
+    expect(workflows).toContain("agent_slice_failed:");
     expect(jobs).toContain("agentWorkflows.freeAutoWorkflow.continue");
     expect(jobs).toContain('job.status === "paused" || job.status === "retrying"');
     expect(jobs).toContain('resultKind === "success" && job.status === "queued"');
     expect(jobs).toContain("agentJobs.finishSlice.workflowSchedulerFallback");
-    expect(jobs).toContain('job.status === "running" && job.attempts > 1');
+    expect(jobs).toContain('error?.includes("agent_slice_failed:not_claimed")');
+    expect(jobs).toContain('job.status === "running"');
+    expect(jobs).toContain('job.leaseUntil > Date.now()');
+    expect(jobs).not.toContain('job.status === "running" && job.attempts > 1');
   });
 
   it("expands spreadsheet locks through formula dependency records", () => {
@@ -329,16 +334,37 @@ describe("long-running agent job source invariants", () => {
     const journalClient = readFileSync("convex/agentStepJournalClient.ts", "utf8");
     const agent = readFileSync("convex/agent.ts", "utf8");
     const runner = readFileSync("convex/agentJobRunner.ts", "utf8");
+    const runs = readFileSync("convex/agentRuns.ts", "utf8");
+    const stepChain = readFileSync("convex/agentStepChain.ts", "utf8");
     const journal = readFileSync("src/nodeagent/core/journal.ts", "utf8");
 
     expect(schema).toContain("agentModelStepJournal");
     expect(schema).toContain('index("by_job_slice_step", ["jobId", "sliceKey", "step"])');
-    expect(journalFns).toContain("export const get = internalQuery");
+    expect(journalFns).toContain("export const get = internalMutation");
     expect(journalFns).toContain("export const record = internalMutation");
+    expect(journalFns).toContain("requireJournalLease");
+    expect(journalFns).toContain("job_lease_invalid");
+    expect(journalFns).toContain("journal_replay_mismatch");
     expect(journalClient).toContain("makeConvexStepJournal");
+    expect(journalClient).toContain('makeFunctionReference<"mutation">("agentStepJournal:get")');
+    expect(journalClient).toContain("leaseId?: string");
     expect(journal).toContain("journalSliceKey");
     expect(agent).toContain("journal: modelJournal");
     expect(runner).toContain("journal: modelJournal");
+    expect(runner).toMatch(/makeConvexStepJournal\(\{[\s\S]*?jobId: claimed\.jobId,[\s\S]*?leaseId,/);
+    expect(journalClient).toContain("accountingClaims()");
+    expect(runner).toContain("agentRuns:recordJournaled");
+    expect(runner).toContain("journalClaims = modelJournal.accountingClaims()");
+    expect(journalClient).toContain('state: "confirmed" | "pending"');
+    expect(runner).toContain("traceSteps,");
+    expect(runner).toContain("const canRetry = !runAlreadyPersisted");
+    expect(runs).toContain('leaseId: v.string()');
+    expect(runs).toContain('if (a.traceSteps.length === 0) throw new Error("agent_run_trace_empty")');
+    expect(runs).toContain("recordAgentStepChain(ctx");
+    expect(stepChain).toContain("trace_count_unavailable");
+    expect(runner).toContain("accountingTotals: jobAccounting");
+    expect(schema).toContain("accountedRunId: v.optional(v.id(\"agentRuns\"))");
+    expect(schema).toContain("traceRecordCount: v.optional(v.number())");
   });
 
   it("defines the operation ledger, receipts, draft operations, and first-class leases", () => {
@@ -347,6 +373,7 @@ describe("long-running agent job source invariants", () => {
     const artifacts = readFileSync("convex/artifacts.ts", "utf8");
     const roomTools = readFileSync("convex/convexRoomTools.ts", "utf8");
     const steps = readFileSync("convex/agentSteps.ts", "utf8");
+    const stepChain = readFileSync("convex/agentStepChain.ts", "utf8");
 
     expect(schema).toContain("agentOperationEvents");
     expect(schema).toContain("agentStreamEvents");
@@ -362,7 +389,7 @@ describe("long-running agent job source invariants", () => {
     expect(artifacts).toContain('jobId: v.optional(v.id("agentJobs"))');
     expect(roomTools).toContain("private jobId?: Id<\"agentJobs\">");
     expect(roomTools).toContain("jobId: this.jobId");
-    expect(steps).toContain("mutationReceiptIds");
+    expect(stepChain).toContain("mutationReceiptIds");
     expect(steps).toContain('jobId: v.optional(v.id("agentJobs"))');
   });
 
