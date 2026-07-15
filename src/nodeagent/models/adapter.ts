@@ -166,7 +166,7 @@ type ProviderNeutralRouteReceipt = ProviderRouteReceipt & {
     requestedModel: typeof NODEAGENT_FREE_AUTO_MODEL;
     primary: {
       route: typeof OPENROUTER_FREE_AUTO_MODEL;
-      outcome: "accepted" | "provider_wide_exhausted" | "free_routes_cooling";
+      outcome: "accepted" | "provider_wide_exhausted" | "free_routes_cooling" | "free_routes_exhausted";
       reason?: string;
       qualityFailover?: QualityFailoverReceipt;
     };
@@ -442,7 +442,7 @@ async function generateProviderNeutralAgentText(args: {
 }
 
 function openRouterPrimaryUnavailable(error: unknown): {
-  outcome: "provider_wide_exhausted" | "free_routes_cooling";
+  outcome: "provider_wide_exhausted" | "free_routes_cooling" | "free_routes_exhausted";
   reason: string;
   receipt?: QualityFailoverReceipt;
 } | undefined {
@@ -452,6 +452,15 @@ function openRouterPrimaryUnavailable(error: unknown): {
       && terminal.providerFailureScope === "global"
       && terminal.providerFailureCategory === "quota") {
       return { outcome: "provider_wide_exhausted", reason: terminal.reason, receipt: error.receipt };
+    }
+    if (terminal?.providerFailureScope === "global") return undefined;
+    if (["no_candidates", "candidates_exhausted", "attempt_budget", "time_budget", "cooldown"]
+      .includes(error.receipt.stopReason)) {
+      return {
+        outcome: "free_routes_exhausted",
+        reason: `provider_free_routes_${error.receipt.stopReason}`,
+        receipt: error.receipt,
+      };
     }
     return undefined;
   }
@@ -479,7 +488,7 @@ function providerNeutralRecoveryError(
 function providerNeutralRouteReceipt(args: {
   selectedReceipt: ProviderRouteReceipt;
   resolvedModel: string;
-  primaryOutcome: "accepted" | "provider_wide_exhausted" | "free_routes_cooling";
+  primaryOutcome: "accepted" | "provider_wide_exhausted" | "free_routes_cooling" | "free_routes_exhausted";
   primaryReason?: string;
   primaryQualityFailover?: QualityFailoverReceipt;
 }): ProviderNeutralRouteReceipt {

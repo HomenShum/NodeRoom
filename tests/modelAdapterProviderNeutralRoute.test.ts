@@ -205,9 +205,34 @@ describe("provider-neutral NodeAgent free-first routing", () => {
     });
   });
 
-  it("does not cross providers for an ordinary candidate-scoped OpenRouter failure", async () => {
+  it("falls back after the governed free ladder exhausts candidate-scoped failures", async () => {
     process.env.GOOGLE_GENERATIVE_AI_API_KEY = "test-google-key";
-    generateTextMock.mockRejectedValueOnce(new Error("Provider request failed 503: route unavailable"));
+    generateTextMock
+      .mockRejectedValueOnce(new Error("Provider request failed 503: route unavailable"))
+      .mockImplementationOnce(async (options: { model: { id: string } }) => successfulTurn(options.model.id));
+
+    const { route, step } = await runNeutralRoute();
+
+    expect(generateTextMock.mock.calls.map((call) => call[0].model)).toEqual([
+      { provider: "openrouter", id: OPENROUTER_MODEL },
+      { provider: "google", id: GOOGLE_MODEL },
+    ]);
+    expect(route.name).toBe(GOOGLE_MODEL);
+    expect(step.providerRoute).toMatchObject({
+      providerNeutral: {
+        primary: {
+          outcome: "free_routes_exhausted",
+          reason: "provider_free_routes_candidates_exhausted",
+          qualityFailover: { stopReason: "candidates_exhausted" },
+        },
+        selected: { route: "google_direct", model: GOOGLE_MODEL },
+      },
+    });
+  });
+
+  it("does not cross providers for a global authentication boundary", async () => {
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY = "test-google-key";
+    generateTextMock.mockRejectedValueOnce(new Error("Provider request failed 401: Unauthorized"));
 
     const error = await runNeutralRoute().then(() => undefined, (failure: unknown) => failure);
 
