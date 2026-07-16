@@ -2,6 +2,12 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, realpathSync } from "node:fs";
 import { basename, dirname, isAbsolute, relative, resolve } from "node:path";
 import ExcelJS from "exceljs";
+import {
+  normalizeSpreadsheetFontColor,
+  resolveSpreadsheetFontColor,
+  spreadsheetThemeIndexForColor,
+  type SpreadsheetFontColorSource,
+} from "../shared/spreadsheetFontColor";
 import type { SpreadsheetBenchTrack } from "./spreadsheetBenchAdapter";
 import { readSpreadsheetBenchWorkbookForMutation } from "./spreadsheetBenchScorer";
 import {
@@ -32,14 +38,23 @@ import type {
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../nodeagent/models/prompts/systemPrompt";
 import {
   EXECUTE_VERIFIED_WORKBOOK_PLAN_TOOL,
+  EXECUTE_WORKBOOK_STRUCTURE_REPAIR_TOOL_NAME,
   PRODUCTION_ROOM_TOOLS,
 } from "../nodeagent/skills/spreadsheet/cellMutator";
 import {
+  applySpreadsheetBenchStructuralRepairs,
+  detectSpreadsheetBenchStructuralRepair,
+  type SpreadsheetBenchStructuralRepairPlan,
+  type SpreadsheetBenchStructuralRepairReceipt,
+} from "./spreadsheetBenchStructuralRepair";
+import {
+  buildWorkbookSuggestedPlan,
   extractWorkbookTaskReferences,
   inspectWorkbookTask,
   normalizeAddress,
   normalizeFormula,
   selectWorkbookTaskCells,
+  workbookCellKey,
   type WorkbookObservedCell,
   type WorkbookTaskInspection,
 } from "../nodeagent/skills/spreadsheet/workbookTaskIntelligence";
@@ -61,6 +76,7 @@ export const SPREADSHEETBENCH_NODEAGENT_BRIDGE_SCHEMA = "noderoom.spreadsheetben
 
 const BRIDGE_TOOL_NAMES = [
   "inspect_workbook",
+  "execute_workbook_structure_repair",
   "execute_verified_workbook_plan",
   "verify_workbook",
   "list_artifacts",
@@ -73,7 +89,11 @@ const BRIDGE_TOOL_NAMES = [
 
 const EXECUTE_VERIFIED_WORKBOOK_PLAN_TOOL_NAME = "execute_verified_workbook_plan";
 const WRITE_TOOL_NAMES = new Set<string>(["write_locked_cell", "write_locked_cells"]);
-const MUTATION_TOOL_NAMES = new Set<string>([...WRITE_TOOL_NAMES, EXECUTE_VERIFIED_WORKBOOK_PLAN_TOOL_NAME]);
+const COMPOSITE_WORKBOOK_TOOL_NAMES = new Set<string>([
+  EXECUTE_VERIFIED_WORKBOOK_PLAN_TOOL_NAME,
+  EXECUTE_WORKBOOK_STRUCTURE_REPAIR_TOOL_NAME,
+]);
+const MUTATION_TOOL_NAMES = new Set<string>([...WRITE_TOOL_NAMES, ...COMPOSITE_WORKBOOK_TOOL_NAMES]);
 const READ_REFERENCE_RE = /^(?:(?:'((?:[^']|'')+)'|([^!]+))!\s*)?(\$?[A-Z]{1,3}\$?[1-9][0-9]*)(?:\s*:\s*(\$?[A-Z]{1,3}\$?[1-9][0-9]*))?$/i;
 const EXCEL_MAX_ROW = 1_048_576;
 const EXCEL_MAX_COLUMN = 16_384;
@@ -183,6 +203,7 @@ export type SpreadsheetBenchNodeAgentBridgeReceipt = {
     usage: TokenUsage;
   };
   recalculation: SpreadsheetBenchNodeAgentRecalculationReceipt;
+  structuralRepair?: SpreadsheetBenchStructuralRepairReceipt;
   candidateFinalization?: SpreadsheetBenchCandidateFinalizationReceipt;
   frame: ReasoningFrameRunReceipt;
   trace: NodeAgentTrace;
@@ -199,7 +220,16 @@ export type RunSpreadsheetBenchNodeAgentBridgeOptions = {
   modelTimeoutMs?: number;
   snapshotMaxCells?: number;
   scanMaxCells?: number;
+  /**
+   * Keep ambiguous audit tasks evidence-bounded: inspect once, then stop without
+   * provider spend when the visible workbook exposes no safe write contract.
+   */
+  boundedAuditPlanning?: boolean;
   now?: () => number;
+  applyStructuralRepairs?: (args: {
+    workbookPath: string;
+    repairs: SpreadsheetBenchStructuralRepairPlan[];
+  }) => SpreadsheetBenchStructuralRepairReceipt | undefined | Promise<SpreadsheetBenchStructuralRepairReceipt | undefined>;
   finalizeCandidate?: (args: {
     taskId: string;
     track: SpreadsheetBenchTrack;
@@ -259,8 +289,25 @@ export async function runSpreadsheetBenchNodeAgentBridge(
     sourceHash,
     startedAt,
   });
-  const frame = buildBridgeFrame(task.manifest, room.artifactIds(), traceId);
+  const boundedAuditPlanning = options.boundedAuditPlanning !== false;
+  const initialInspection = room.taskInspection();
+  const boundedNoEvidenceAudit = boundedAuditPlanning
+    && bridgeInspectionNeedsBoundedNoEvidenceCompletion(initialInspection);
+  const frame = buildBridgeFrame(
+    task.manifest,
+    room.artifactIds(),
+    traceId,
+    boundedNoEvidenceAudit
+      ? "Inspect visible workbook evidence and report only whether a safe mutation contract is available; do not create, edit, write, update, fill, set, delete, commit, or apply cells when none is present."
+      : undefined,
+  );
   const workflowController = new BridgeWorkbookWorkflowController(intelligenceInstruction, room.artifactIds()[0]);
+  const effectiveModel = contractFirstBridgeModel(
+    options.model,
+    room,
+    intelligenceInstruction,
+    boundedAuditPlanning,
+  );
   const tools = selectBridgeTools(
     [...PRODUCTION_ROOM_TOOLS, EXECUTE_VERIFIED_WORKBOOK_PLAN_TOOL],
     workflowController,
@@ -268,11 +315,16 @@ export async function runSpreadsheetBenchNodeAgentBridge(
   const frameReceipt = await runReasoningFrame({
     rt: room,
     frame,
-    model: options.model,
+    model: effectiveModel,
     tools,
     maxSteps: Math.max(1, Math.trunc(options.maxSteps ?? 18)),
     deadlineAt: options.modelTimeoutMs === undefined ? undefined : startedAt + Math.max(1, options.modelTimeoutMs),
     reserveMs: 0,
+    compaction: {
+      maxChars: 60_000,
+      keepRecent: 8,
+      staleTools: ["read_range", "inspect_workbook"],
+    },
     includeRoomContext: false,
     systemPrompt: MANAGED_LOCK_SYSTEM_PROMPT,
     additionalInstructions: bridgeInstructions(task, room.artifactIds()),
@@ -286,6 +338,13 @@ export async function runSpreadsheetBenchNodeAgentBridge(
     candidateWorkbookPath,
     patches: room.packageMutations(),
   });
+  const structuralPlans = room.packageStructuralRepairs();
+  const structuralRepair = structuralPlans.length > 0
+    ? await (options.applyStructuralRepairs ?? applySpreadsheetBenchStructuralRepairs)({
+        workbookPath: candidateWorkbookPath,
+        repairs: structuralPlans,
+      })
+    : undefined;
   const emittedCandidateSha256 = sha256File(candidateWorkbookPath);
   const candidateFinalization = options.finalizeCandidate
     ? await options.finalizeCandidate({
@@ -332,6 +391,7 @@ export async function runSpreadsheetBenchNodeAgentBridge(
     artifactIds: room.artifactIds(),
     outcomeStatus: outcome.status,
     recalculation,
+    structuralRepair,
     candidateFinalization,
   });
 
@@ -354,7 +414,7 @@ export async function runSpreadsheetBenchNodeAgentBridge(
       candidateEmittedBeforeEvaluatorAccess: true,
     },
     model: {
-      name: options.model.name,
+      name: effectiveModel.name,
       calls: frameReceipt.agentResult.usage.modelCalls,
       usage: {
         inputTokens: frameReceipt.agentResult.usage.inputTokens,
@@ -365,10 +425,325 @@ export async function runSpreadsheetBenchNodeAgentBridge(
       },
     },
     recalculation,
+    ...(structuralRepair ? { structuralRepair } : {}),
     ...(candidateFinalization ? { candidateFinalization } : {}),
     frame: frameReceipt,
     trace,
   };
+}
+
+type BridgeDeterministicContract = {
+  complete: boolean;
+  plans: Array<{
+    sheet: string;
+    operations: ReturnType<typeof buildWorkbookSuggestedPlan>["operations"];
+    planHash: string;
+  }>;
+};
+
+/**
+ * A complete workbook-invariant contract should not spend hundreds of
+ * thousands of provider tokens asking an LLM to copy an already proven plan.
+ * This policy still runs through frameRunner and the production tools. It only
+ * handles explicitly complete contracts; all ambiguous work delegates to the
+ * configured model with the same message/tool history.
+ */
+function contractFirstBridgeModel(
+  delegate: AgentModel,
+  room: SpreadsheetBenchWorkbookRoomTools,
+  instruction: string,
+  boundedAuditPlanning: boolean,
+): AgentModel {
+  let delegated = false;
+  let deterministicStarted = false;
+  let phase: "idle"
+    | "inspect_requested"
+    | "evidence_inspect_requested"
+    | "unresolved_inspect_requested"
+    | "execute_requested"
+    | "structure_execute_requested" = "idle";
+  let activePlan: BridgeDeterministicContract["plans"][number] | undefined;
+  let activeStructuralPlan: SpreadsheetBenchStructuralRepairPlan | undefined;
+  let callCounter = 0;
+  const completedPlanHashes = new Set<string>();
+  const completedStructuralRepairIds = new Set<string>();
+
+  return {
+    get name() {
+      return delegated ? delegate.name : "nodeagent/workbook-contract";
+    },
+    ...(delegate.routeState ? { routeState: () => delegate.routeState!() } : {}),
+    async next(input) {
+      if (delegated) return boundedBridgeDelegateNext(delegate, input);
+
+      const latest = latestBridgeToolResult(input.messages);
+      if (phase === "unresolved_inspect_requested") {
+        return {
+          text: latest?.tool === "inspect_workbook" && asRecord(latest.result)?.ok === true
+            ? "The visible workbook inspection found no high-confidence write contract. The audit remains unresolved without mutation."
+            : "The bounded workbook inspection did not produce executable evidence. The audit remains unresolved without mutation.",
+          toolCalls: [],
+          done: true,
+          usage: { inputTokens: 0, outputTokens: 0 },
+        };
+      }
+      if (phase === "evidence_inspect_requested") {
+        if (latest?.tool !== "inspect_workbook" || asRecord(latest.result)?.ok !== true) {
+          return {
+            text: "The bounded workbook inspection failed, so no provider-authored mutation was attempted.",
+            toolCalls: [],
+            done: true,
+            usage: { inputTokens: 0, outputTokens: 0 },
+          };
+        }
+        delegated = true;
+        return boundedBridgeDelegateNext(delegate, input);
+      }
+      if (phase === "inspect_requested") {
+        if (latest?.tool !== "inspect_workbook" || asRecord(latest.result)?.ok !== true || (!activePlan && !activeStructuralPlan)) {
+          delegated = true;
+          return boundedBridgeDelegateNext(delegate, input);
+        }
+        if (activeStructuralPlan) {
+          phase = "structure_execute_requested";
+          return {
+            text: `Executing the complete visible structural workbook contract for ${activeStructuralPlan.sheet}.`,
+            toolCalls: [{
+              id: `workbook-contract-${++callCounter}`,
+              tool: EXECUTE_WORKBOOK_STRUCTURE_REPAIR_TOOL_NAME,
+              args: {
+                instruction,
+                artifactId: activeStructuralPlan.sheet,
+                repairId: activeStructuralPlan.repairId,
+              },
+            }],
+            done: false,
+            usage: { inputTokens: 0, outputTokens: 0 },
+          };
+        }
+        const plan = activePlan;
+        if (!plan) {
+          delegated = true;
+          return boundedBridgeDelegateNext(delegate, input);
+        }
+        phase = "execute_requested";
+        return {
+          text: `Executing the complete visible workbook contract for ${plan.sheet}.`,
+          toolCalls: [{
+            id: `workbook-contract-${++callCounter}`,
+            tool: EXECUTE_VERIFIED_WORKBOOK_PLAN_TOOL_NAME,
+            args: {
+              instruction,
+              artifactId: plan.sheet,
+              maxCells: 200,
+              reason: "complete visible workbook invariant contract",
+            },
+          }],
+          done: false,
+          usage: { inputTokens: 0, outputTokens: 0 },
+        };
+      }
+
+      if (phase === "structure_execute_requested") {
+        const result = asRecord(latest?.result);
+        if (latest?.tool !== EXECUTE_WORKBOOK_STRUCTURE_REPAIR_TOOL_NAME
+          || result?.status !== "completed"
+          || !activeStructuralPlan) {
+          delegated = true;
+          return boundedBridgeDelegateNext(delegate, input);
+        }
+        completedStructuralRepairIds.add(activeStructuralPlan.repairId);
+        activeStructuralPlan = undefined;
+        phase = "idle";
+      }
+
+      if (phase === "execute_requested") {
+        const result = asRecord(latest?.result);
+        if (latest?.tool !== EXECUTE_VERIFIED_WORKBOOK_PLAN_TOOL_NAME || result?.status !== "completed" || !activePlan) {
+          delegated = true;
+          return boundedBridgeDelegateNext(delegate, input);
+        }
+        completedPlanHashes.add(activePlan.planHash);
+        activePlan = undefined;
+        phase = "idle";
+      }
+
+      const structuralContract = room.workbookStructureRepairContract({ instruction });
+      if (structuralContract && !completedStructuralRepairIds.has(structuralContract.repairId)) {
+        deterministicStarted = true;
+        activeStructuralPlan = structuralContract;
+        phase = "inspect_requested";
+        return {
+          text: `Inspecting ${structuralContract.sheet} before a governed structural workbook repair.`,
+          toolCalls: [{
+            id: `workbook-contract-${++callCounter}`,
+            tool: "inspect_workbook",
+            args: { instruction, artifactId: structuralContract.sheet, maxCells: 200 },
+          }],
+          done: false,
+          usage: { inputTokens: 0, outputTokens: 0 },
+        };
+      }
+
+      const contract = bridgeDeterministicContract(room);
+      if (!deterministicStarted) {
+        if (!contract.complete || contract.plans.length === 0) {
+          const inspection = room.taskInspection();
+          if (boundedAuditPlanning && inspection.mutatingTask && inspection.auditFocus) {
+            const evidenceArtifact = bridgeInspectionEvidenceArtifact(inspection) ?? room.artifactIds()[0];
+            phase = bridgeInspectionHasWriteEvidence(inspection)
+              ? "evidence_inspect_requested"
+              : "unresolved_inspect_requested";
+            deterministicStarted = true;
+            return {
+              text: bridgeInspectionHasWriteEvidence(inspection)
+                ? "Inspecting the highest-confidence visible audit evidence before bounded model planning."
+                : "Inspecting the workbook once before recording an evidence-bounded unresolved audit.",
+              toolCalls: [{
+                id: `workbook-contract-${++callCounter}`,
+                tool: "inspect_workbook",
+                args: {
+                  instruction,
+                  ...(evidenceArtifact ? { artifactId: evidenceArtifact } : {}),
+                  maxCells: 200,
+                },
+              }],
+              done: false,
+              usage: { inputTokens: 0, outputTokens: 0 },
+            };
+          }
+          delegated = true;
+          return boundedBridgeDelegateNext(delegate, input);
+        }
+        deterministicStarted = true;
+      }
+
+      const nextPlan = contract.plans.find((plan) => !completedPlanHashes.has(plan.planHash));
+      if (nextPlan) {
+        activePlan = nextPlan;
+        phase = "inspect_requested";
+        return {
+          text: `Inspecting ${nextPlan.sheet} before a bounded deterministic workbook repair.`,
+          toolCalls: [{
+            id: `workbook-contract-${++callCounter}`,
+            tool: "inspect_workbook",
+            args: { instruction, artifactId: nextPlan.sheet, maxCells: 200 },
+          }],
+          done: false,
+          usage: { inputTokens: 0, outputTokens: 0 },
+        };
+      }
+
+      if (contract.plans.length > 0 || room.changedCellCount() === 0) {
+        delegated = true;
+        return boundedBridgeDelegateNext(delegate, input);
+      }
+      return {
+        text: "The complete visible workbook contract passed bounded preflight, managed writes, and post-write verification.",
+        toolCalls: [],
+        done: true,
+        usage: { inputTokens: 0, outputTokens: 0 },
+      };
+    },
+  };
+}
+
+const MAX_CONSECUTIVE_FAILED_PREFLIGHTS = 3;
+
+async function boundedBridgeDelegateNext(
+  delegate: AgentModel,
+  input: Parameters<AgentModel["next"]>[0],
+): ReturnType<AgentModel["next"]> {
+  const failedPreflights = consecutiveFailedBridgePreflights(input.messages);
+  if (failedPreflights >= MAX_CONSECUTIVE_FAILED_PREFLIGHTS) {
+    return {
+      text: `The bounded workbook repair budget ended after ${failedPreflights} consecutive failed preflights. No unverified mutation was applied.`,
+      toolCalls: [],
+      done: true,
+      usage: { inputTokens: 0, outputTokens: 0 },
+    };
+  }
+  return delegate.next(input);
+}
+
+function consecutiveFailedBridgePreflights(
+  messages: Parameters<AgentModel["next"]>[0]["messages"],
+): number {
+  let failures = 0;
+  for (const message of messages) {
+    if (message.role !== "tool" || message.toolName !== "verify_workbook") continue;
+    const result = parseBridgeToolResult(message.content);
+    if (result?.phase !== "preflight") continue;
+    failures = result.status === "passed" && result.ok !== false ? 0 : failures + 1;
+  }
+  return failures;
+}
+
+function bridgeInspectionHasWriteEvidence(inspection: WorkbookTaskInspection): boolean {
+  return inspection.formulaRepairSuggestions.length > 0
+    || inspection.valueSuggestions.length > 0
+    || inspection.styleSuggestions.length > 0
+    || inspection.formulaFillSuggestions.some((suggestion) => suggestion.operations.length > 0);
+}
+
+function bridgeInspectionNeedsBoundedNoEvidenceCompletion(inspection: WorkbookTaskInspection): boolean {
+  return inspection.mutatingTask
+    && !!inspection.auditFocus
+    && inspection.deterministicPlan?.status !== "complete"
+    && !bridgeInspectionHasWriteEvidence(inspection);
+}
+
+function bridgeInspectionEvidenceArtifact(inspection: WorkbookTaskInspection): string | undefined {
+  return inspection.formulaRepairSuggestions[0]?.sheet
+    ?? inspection.valueSuggestions[0]?.sheet
+    ?? inspection.styleSuggestions[0]?.sheet
+    ?? inspection.formulaFillSuggestions[0]?.sheet
+    ?? inspection.recommendedReads[0]?.sheet
+    ?? inspection.referencedSheets[0];
+}
+
+function parseBridgeToolResult(content: string): Record<string, unknown> | undefined {
+  try {
+    return asRecord(JSON.parse(content));
+  } catch {
+    return undefined;
+  }
+}
+
+function bridgeDeterministicContract(room: SpreadsheetBenchWorkbookRoomTools): BridgeDeterministicContract {
+  const inspection = room.taskInspection();
+  if (inspection.deterministicPlan?.status !== "complete") return { complete: false, plans: [] };
+  const plans = inspection.deterministicPlan.sheets.map((sheet) => {
+    const suggested = buildWorkbookSuggestedPlan(inspection, sheet);
+    return {
+      sheet,
+      operations: suggested.operations,
+      conflicts: suggested.conflicts,
+      planHash: stableTraceHash({ sheet, operations: suggested.operations }),
+    };
+  });
+  const operationCount = plans.reduce((total, plan) => total + plan.operations.length, 0);
+  const complete = plans.every((plan) => plan.conflicts.length === 0 && plan.operations.length > 0)
+    && operationCount === inspection.deterministicPlan.operationCount;
+  return {
+    complete,
+    plans: complete
+      ? plans.map(({ sheet, operations, planHash }) => ({ sheet, operations, planHash }))
+      : [],
+  };
+}
+
+function latestBridgeToolResult(messages: Parameters<AgentModel["next"]>[0]["messages"]): {
+  tool: string;
+  result: unknown;
+} | undefined {
+  const message = [...messages].reverse().find((candidate) => candidate.role === "tool" && candidate.toolName);
+  if (!message?.toolName) return undefined;
+  try {
+    return { tool: message.toolName, result: JSON.parse(message.content) as unknown };
+  } catch {
+    return { tool: message.toolName, result: message.content };
+  }
 }
 
 class SpreadsheetBenchWorkbookRoomTools implements RoomTools {
@@ -383,13 +758,17 @@ class SpreadsheetBenchWorkbookRoomTools implements RoomTools {
     sheet: string;
     address: string;
     numFmtTouched: boolean;
+    fontColorTouched: boolean;
     originalState: WorkbookCellSemanticState;
   }>();
+  private readonly structuralRepairs: SpreadsheetBenchStructuralRepairPlan[] = [];
   private readonly chat: string[] = [];
   private lockCounter = 0;
   private draftCounter = 0;
   private workbookVersion = 1;
   private mutations = 0;
+  private initialDeterministicInspection?: WorkbookTaskInspection;
+  private inspectionCache?: { workbookVersion: number; inspection: WorkbookTaskInspection };
 
   constructor(args: {
     workbook: ExcelJS.Workbook;
@@ -418,32 +797,176 @@ class SpreadsheetBenchWorkbookRoomTools implements RoomTools {
       .sort((left, right) => left.sheet.localeCompare(right.sheet) || left.address.localeCompare(right.address))
       .flatMap((target) => {
         const cell = this.sheet(target.sheet).getCell(target.address);
+        const currentState = workbookCellSemanticState(cell);
         if (sameWorkbookCellSemanticState(
           target.originalState,
-          workbookCellSemanticState(cell),
+          currentState,
           target.numFmtTouched,
+          target.fontColorTouched,
         )) return [];
-        return [workbookCellPatch(target.sheet, target.address, cell, target.numFmtTouched)];
+        return [workbookCellPatch(
+          target.sheet,
+          target.address,
+          cell,
+          target.originalState,
+          target.numFmtTouched,
+          target.fontColorTouched,
+        )];
       });
   }
 
-  taskInspection() {
-    this.recalculateChangedFormulas();
-    return inspectWorkbookTask({
+  packageStructuralRepairs(): SpreadsheetBenchStructuralRepairPlan[] {
+    return this.structuralRepairs.map((repair) => ({
+      ...repair,
+      formulaRepairs: repair.formulaRepairs.map((formula) => ({ ...formula })),
+      evidence: [...repair.evidence],
+    }));
+  }
+
+  workbookStructureRepairContract(args: {
+    instruction: string;
+    artifactId?: string;
+  }): SpreadsheetBenchStructuralRepairPlan | undefined {
+    if (args.instruction.trim() !== this.instruction.trim()) return undefined;
+    const plan = detectSpreadsheetBenchStructuralRepair({
       instruction: this.instruction,
       sheetNames: this.artifactIds(),
       cells: this.observedCells(),
     });
+    if (args.artifactId && plan?.sheet.toLowerCase() !== args.artifactId.toLowerCase()) return undefined;
+    return plan;
+  }
+
+  executeWorkbookStructureRepair(args: {
+    instruction: string;
+    artifactId?: string;
+    repairId: string;
+  }): Record<string, unknown> {
+    const plan = this.workbookStructureRepairContract(args);
+    if (!plan || plan.repairId !== args.repairId) {
+      return {
+        ok: false,
+        status: "needs_repair",
+        operationCount: 0,
+        phases: {
+          preflight: { status: "needs_repair", issues: ["stale_or_missing_structural_contract"] },
+          write: { status: "skipped" },
+          verify: { status: "skipped" },
+        },
+      };
+    }
+
+    const worksheet = this.sheet(plan.sheet);
+    worksheet.spliceRows(plan.insertRow, 0, []);
+    worksheet.getCell(plan.labelCell).value = plan.label;
+    worksheet.getCell(plan.selectorCell).value = plan.selectorValue;
+    let formulaReplacementCount = 0;
+    const formulaReplacementTargets: string[] = [];
+    worksheet.eachRow({ includeEmpty: false }, (row) => {
+      row.eachCell({ includeEmpty: false }, (cell) => {
+        const formula = cellFormula(cell);
+        if (!formula || !formula.includes(plan.formulaSearch)) return;
+        cell.value = {
+          formula: formula.replaceAll(plan.formulaSearch, plan.formulaReplace),
+          result: 0,
+        } as ExcelJS.CellValue;
+        formulaReplacementCount += 1;
+        formulaReplacementTargets.push(`${worksheet.name}!${cell.address}`);
+      });
+    });
+    if (formulaReplacementCount !== plan.expectedFormulaReplacementCount) {
+      throw new Error(
+        `Structural repair ${plan.repairId} expected ${plan.expectedFormulaReplacementCount} formula replacements but applied ${formulaReplacementCount}`,
+      );
+    }
+    for (const formulaRepair of plan.formulaRepairs) {
+      this.sheet(formulaRepair.sheet).getCell(formulaRepair.cell).value = {
+        formula: formulaRepair.formula.replace(/^=/, ""),
+        result: 0,
+      } as ExcelJS.CellValue;
+    }
+    this.structuralRepairs.push(plan);
+    this.workbookVersion += 1;
+    this.mutations += plan.operationCount;
+    const targets = [
+      `${worksheet.name}!${plan.insertRow}:${plan.insertRow}`,
+      `${worksheet.name}!${plan.labelCell}`,
+      `${worksheet.name}!${plan.selectorCell}`,
+      ...formulaReplacementTargets,
+      ...plan.formulaRepairs.map((repair) => `${repair.sheet}!${repair.cell}`),
+    ];
+    if (targets.length !== plan.operationCount) {
+      throw new Error(
+        `Structural repair ${plan.repairId} expected ${plan.operationCount} mutation targets but recorded ${targets.length}`,
+      );
+    }
+
+    const remaining = detectSpreadsheetBenchStructuralRepair({
+      instruction: this.instruction,
+      sheetNames: this.artifactIds(),
+      cells: this.observedCells(),
+    });
+    const verified = !remaining;
+    return {
+      ok: verified,
+      status: verified ? "completed" : "needs_repair",
+      repairId: plan.repairId,
+      operationCount: plan.operationCount,
+      targets,
+      formulaReplacementCount,
+      explicitFormulaRepairCount: plan.formulaRepairs.length,
+      phases: {
+        preflight: {
+          status: "passed",
+          basis: plan.basis,
+          evidence: plan.evidence,
+        },
+        write: {
+          status: "completed",
+          insertedRowCount: 1,
+          formulaReplacementCount,
+          explicitFormulaRepairCount: plan.formulaRepairs.length,
+        },
+        verify: {
+          status: verified ? "passed" : "needs_repair",
+          remainingRepairId: remaining?.repairId,
+        },
+      },
+    };
+  }
+
+  taskInspection() {
+    this.recalculateChangedFormulas();
+    if (this.inspectionCache?.workbookVersion === this.workbookVersion) {
+      return this.inspectionCache.inspection;
+    }
+    const cells = this.observedCells();
+    const current = inspectWorkbookTask({
+      instruction: this.instruction,
+      sheetNames: this.artifactIds(),
+      cells,
+    });
+    if (!this.initialDeterministicInspection && current.deterministicPlan?.status === "complete") {
+      this.initialDeterministicInspection = current;
+    }
+    const inspection = this.initialDeterministicInspection
+      ? remainingDeterministicInspection(this.initialDeterministicInspection, current, cells)
+      : current;
+    this.inspectionCache = { workbookVersion: this.workbookVersion, inspection };
+    return inspection;
+  }
+
+  verifiedWorkbookInspection(args: { instruction: string; artifactId: string }): WorkbookTaskInspection | undefined {
+    if (args.instruction.trim() !== this.instruction.trim()) return undefined;
+    const inspection = this.taskInspection();
+    if (inspection.deterministicPlan?.status !== "complete") return undefined;
+    return focusDeterministicInspection(inspection, args.artifactId);
   }
 
   async snapshot(artifactId?: string): Promise<RoomSnapshot> {
     this.recalculateChangedFormulas();
     const allCells = this.observedCells();
-    const inspection = inspectWorkbookTask({
-      instruction: this.instruction,
-      sheetNames: this.artifactIds(),
-      cells: allCells,
-    });
+    const inspection = this.taskInspection();
     const sheet = artifactId ? this.sheet(artifactId) : this.preferredInspectionSheet(allCells, inspection);
     const selected = selectWorkbookTaskCells({
       inspection,
@@ -620,6 +1143,7 @@ class SpreadsheetBenchWorkbookRoomTools implements RoomTools {
       sheet: target.sheet.name,
       address: target.address,
       numFmtTouched: priorTarget?.numFmtTouched === true || typeof asRecord(value)?.numFmt === "string",
+      fontColorTouched: priorTarget?.fontColorTouched === true || normalizeSpreadsheetFontColor(asRecord(value)?.fontColor) !== undefined,
       originalState: priorTarget?.originalState ?? originalState,
     });
     this.workbookVersion += 1;
@@ -672,6 +1196,11 @@ class SpreadsheetBenchWorkbookRoomTools implements RoomTools {
       left.sheet.localeCompare(right.sheet) || left.address.localeCompare(right.address))) {
       const sheet = this.sheet(target.sheet);
       const cell = sheet.getCell(target.address);
+      const currentState = workbookCellSemanticState(cell);
+      const contentUnchanged = target.originalState.kind === currentState.kind
+        && target.originalState.formula === currentState.formula
+        && target.originalState.valueKey === currentState.valueKey;
+      if (contentUnchanged) continue;
       const formula = cellFormula(cell);
       if (!formula) continue;
       attemptedFormulaCount += 1;
@@ -779,6 +1308,9 @@ class SpreadsheetBenchWorkbookRoomTools implements RoomTools {
     }
     for (const suggestion of inspection.formulaRepairSuggestions) {
       scores.set(suggestion.sheet, (scores.get(suggestion.sheet) ?? 0) + (suggestion.confidence === "high" ? 24 : 8));
+    }
+    for (const suggestion of inspection.styleSuggestions) {
+      scores.set(suggestion.sheet, (scores.get(suggestion.sheet) ?? 0) + 24);
     }
     const selected = [...scores.entries()]
       .sort((left, right) => right[1] - left[1] || this.artifactIds().indexOf(left[0]) - this.artifactIds().indexOf(right[0]))[0];
@@ -907,10 +1439,15 @@ function assertCandidateDoesNotOverwriteAgentInput(candidatePath: string, task: 
   }
 }
 
-function buildBridgeFrame(manifest: StagedAgentManifest, artifactIds: string[], traceId: string): ReasoningFrame {
+function buildBridgeFrame(
+  manifest: StagedAgentManifest,
+  artifactIds: string[],
+  traceId: string,
+  goalOverride?: string,
+): ReasoningFrame {
   return {
     frameId: `rf_${traceId.replace(/[^a-z0-9_-]/gi, "_").slice(0, 100)}`,
-    goal: manifest.instruction,
+    goal: goalOverride ?? manifest.instruction,
     phase: "execute",
     status: "pending",
     contextPack: {
@@ -944,10 +1481,11 @@ function bridgeInstructions(task: OpenedAgentTask, artifactIds: string[]): strin
     `Agent-visible input workbook name: ${basename(task.sourceWorkbookPath)}. Use descriptive filename terms as audit clues, then confirm them against workbook evidence.`,
     `Visible worksheet artifact IDs: ${artifactIds.map((id) => JSON.stringify(id)).join(", ")}.`,
     `Complete task instruction: ${task.manifest.instruction}`,
-    "Treat high-confidence target bands and value/formula suggestions from inspect_workbook as the target-selection contract. Do not replace them with unlabeled blank cells, and preflight every high-confidence target before writing.",
+    "Treat the agent-visible filename only as an audit-class hypothesis. Confirm every edit against local workbook evidence, make the smallest verified change, and do not treat unrelated blanks or inferred anomalies as mandatory targets.",
+    "Treat explicit target bands and locally confirmed value/formula/style suggestions from inspect_workbook as the target-selection contract. Preserve content during style-only writes, and preflight every proposed target before writing.",
     "The first verify_workbook call for a proposed operation set is the durable plan/preflight boundary. Do not write a plan that returns needs_repair; submit a corrected replacement plan first.",
     "When inspect_workbook returns a complete high-confidence formula/value contract, prefer execute_verified_workbook_plan with the same task instruction and artifactId. It performs deterministic plan materialization, preflight, managed-lock writes, and post-write verification without requiring a large echoed operation array.",
-    "For formula writes, pass write_locked_cell(s) direct formula, result, and optional numFmt fields; pass the same formula/result/numFmt operations to verify_workbook.",
+    "For writes, pass write_locked_cell(s) direct formula/result, value, numFmt, and/or fontColor fields; pass the same touched fields to verify_workbook. A fontColor-only operation must preserve the existing value or formula.",
     "When inspect_workbook returns workbookWideRepairContract, complete every listed repair one worksheet at a time: inspect that artifact, preflight its complete repair set, write it, and post-verify it before moving to the next artifact.",
     "After every managed write, call verify_workbook with afterWrite=true for all changed targets. Use repairPrompt for at most one focused repair before reporting unresolved work.",
     "No evaluator manifest, gold workbook, answer position, or scorer metadata exists in this frame or in any available tool.",
@@ -1224,6 +1762,112 @@ type BridgeWorkbookRepair = {
   evidence: string[];
 };
 
+function remainingDeterministicInspection(
+  initial: WorkbookTaskInspection,
+  current: WorkbookTaskInspection,
+  cells: WorkbookObservedCell[],
+): WorkbookTaskInspection {
+  const initialContract = initial.deterministicPlan;
+  if (!initialContract) return current;
+  const cellsByKey = new Map(cells.map((cell) => [workbookCellKey(cell.sheet, cell.address), cell]));
+  const remainingPlans = initialContract.sheets.flatMap((sheet) => {
+    const suggested = buildWorkbookSuggestedPlan(initial, sheet);
+    if (suggested.conflicts.length > 0) return [];
+    const operations = suggested.operations.filter((operation) => !bridgeSuggestedOperationSatisfied(
+      operation,
+      cellsByKey.get(workbookCellKey(sheet, operation.elementId)),
+    ));
+    return operations.length > 0 ? [{ sheet, operations }] : [];
+  });
+  const remainingKeys = new Set(remainingPlans.flatMap((plan) =>
+    plan.operations.map((operation) => workbookCellKey(plan.sheet, operation.elementId))));
+  const { deterministicPlan: _currentPlan, ...currentWithoutDeterministicPlan } = current;
+  if (remainingKeys.size === 0) {
+    return {
+      ...currentWithoutDeterministicPlan,
+      formulaFillSuggestions: [],
+      formulaRepairSuggestions: [],
+      valueSuggestions: [],
+      styleSuggestions: [],
+    };
+  }
+  const keep = (sheet: string, cell: string) => remainingKeys.has(workbookCellKey(sheet, cell));
+  return {
+    ...currentWithoutDeterministicPlan,
+    ...(initial.auditFocus ? { auditFocus: initial.auditFocus } : {}),
+    deterministicPlan: {
+      ...initialContract,
+      operationCount: remainingKeys.size,
+      sheets: remainingPlans.map((plan) => plan.sheet),
+    },
+    targetCandidates: initial.targetCandidates.filter((target) => keep(target.sheet, target.address)),
+    blockedTargets: [],
+    findings: initial.findings.filter((finding) => keep(finding.sheet, finding.address)),
+    formulaFillSuggestions: initial.formulaFillSuggestions.flatMap((suggestion) => {
+      const operations = suggestion.operations.filter((operation) => keep(operation.sheet, operation.cell));
+      return operations.length > 0 ? [{ ...suggestion, operations }] : [];
+    }),
+    formulaRepairSuggestions: initial.formulaRepairSuggestions.filter((suggestion) => keep(suggestion.sheet, suggestion.cell)),
+    valueSuggestions: initial.valueSuggestions.filter((suggestion) => keep(suggestion.sheet, suggestion.cell)),
+    styleSuggestions: initial.styleSuggestions.filter((suggestion) => keep(suggestion.sheet, suggestion.cell)),
+    rankedCellKeys: initial.rankedCellKeys.filter((key) => remainingKeys.has(key)),
+    recommendedReads: remainingPlans.map((plan) => ({
+      sheet: plan.sheet,
+      addresses: plan.operations.map((operation) => operation.elementId),
+      reason: "durable complete visible-workbook contract",
+    })),
+  };
+}
+
+function focusDeterministicInspection(
+  inspection: WorkbookTaskInspection,
+  artifactId: string,
+): WorkbookTaskInspection | undefined {
+  const sheet = inspection.deterministicPlan?.sheets.find((candidate) => candidate.toLowerCase() === artifactId.toLowerCase());
+  if (!sheet || !inspection.deterministicPlan) return undefined;
+  const keepSheet = (candidate: string) => candidate.toLowerCase() === sheet.toLowerCase();
+  const suggested = buildWorkbookSuggestedPlan(inspection, sheet);
+  if (suggested.operations.length === 0 || suggested.conflicts.length > 0) return undefined;
+  return {
+    ...inspection,
+    deterministicPlan: {
+      ...inspection.deterministicPlan,
+      operationCount: suggested.operations.length,
+      sheets: [sheet],
+    },
+    referencedSheets: [sheet],
+    targetCandidates: inspection.targetCandidates.filter((target) => keepSheet(target.sheet)),
+    blockedTargets: inspection.blockedTargets.filter((target) => keepSheet(target.sheet)),
+    targetBands: inspection.targetBands.filter((band) => keepSheet(band.sheet)),
+    dependencyCandidates: inspection.dependencyCandidates.filter((target) => keepSheet(target.sheet)),
+    findings: inspection.findings.filter((finding) => keepSheet(finding.sheet)),
+    formulaFillSuggestions: inspection.formulaFillSuggestions.flatMap((suggestion) => {
+      if (!keepSheet(suggestion.sheet)) return [];
+      const operations = suggestion.operations.filter((operation) => keepSheet(operation.sheet));
+      return operations.length > 0 ? [{ ...suggestion, operations }] : [];
+    }),
+    formulaRepairSuggestions: inspection.formulaRepairSuggestions.filter((suggestion) => keepSheet(suggestion.sheet)),
+    valueSuggestions: inspection.valueSuggestions.filter((suggestion) => keepSheet(suggestion.sheet)),
+    styleSuggestions: inspection.styleSuggestions.filter((suggestion) => keepSheet(suggestion.sheet)),
+    rankedCellKeys: inspection.rankedCellKeys.filter((key) => key.startsWith(`${sheet.toLowerCase()}!`)),
+    recommendedReads: inspection.recommendedReads.filter((read) => keepSheet(read.sheet)),
+  };
+}
+
+function bridgeSuggestedOperationSatisfied(
+  operation: ReturnType<typeof buildWorkbookSuggestedPlan>["operations"][number],
+  cell: WorkbookObservedCell | undefined,
+): boolean {
+  if (!cell) return false;
+  if (operation.formula && normalizeFormula(cell.formula) !== normalizeFormula(operation.formula)) return false;
+  if (Object.prototype.hasOwnProperty.call(operation, "value")
+    && stableTraceHash(cell.value) !== stableTraceHash(operation.value)) return false;
+  if (operation.numFmt && cell.numFmt !== operation.numFmt) return false;
+  if (operation.fontColor
+    && normalizeSpreadsheetFontColor(cell.fontColor) !== normalizeSpreadsheetFontColor(operation.fontColor)) return false;
+  return true;
+}
+
 function bridgeWorkbookInspection(rt: RoomTools): WorkbookTaskInspection | undefined {
   const provider = rt as RoomTools & { taskInspection?: () => WorkbookTaskInspection };
   return typeof provider.taskInspection === "function" ? provider.taskInspection() : undefined;
@@ -1232,6 +1876,7 @@ function bridgeWorkbookInspection(rt: RoomTools): WorkbookTaskInspection | undef
 function bridgeWorkbookRepairContract(rt: RoomTools): { schema: 1; requiredRepairs: BridgeWorkbookRepair[] } {
   const inspection = bridgeWorkbookInspection(rt);
   if (!inspection) return { schema: 1, requiredRepairs: [] };
+  if (inspection.auditFocus) return { schema: 1, requiredRepairs: [] };
   const rangeTargets = new Set(inspection.findings
     .filter((finding) => finding.kind === "formula_range_anomaly")
     .map((finding) => `${finding.sheet.toLowerCase()}!${normalizeAddress(finding.address)}`));
@@ -1386,6 +2031,7 @@ type NormalizedBridgeOperation = {
   formula?: string;
   value?: unknown;
   numFmt?: string;
+  fontColor?: string;
 };
 
 function normalizedBridgeOperations(args: unknown, source: "verify" | "write", defaultArtifactId = ""): NormalizedBridgeOperation[] {
@@ -1418,6 +2064,7 @@ function normalizedBridgeOperations(args: unknown, source: "verify" | "write", d
     const numFmtValue = typeof operation.numFmt === "string"
       ? operation.numFmt
       : typeof nested?.numFmt === "string" ? nested.numFmt : undefined;
+    const fontColor = normalizeSpreadsheetFontColor(operation.fontColor ?? nested?.fontColor);
     const parsedTarget = bridgeElementTarget(operation.elementId, artifactId);
     const target = `${parsedTarget.sheet.toLowerCase()}!${parsedTarget.address}`;
     return [{
@@ -1425,6 +2072,7 @@ function normalizedBridgeOperations(args: unknown, source: "verify" | "write", d
       ...(formula ? { formula } : {}),
       ...(!formula && (hasResult || hasValue) ? { value } : {}),
       ...(numFmtValue?.trim() ? { numFmt: numFmtValue.trim() } : {}),
+      ...(fontColor ? { fontColor } : {}),
     }];
   }).sort((left, right) => left.target.localeCompare(right.target));
 }
@@ -1445,8 +2093,11 @@ function bridgePlanState(
 function bridgeOperationArgs(operation: NormalizedBridgeOperation): Record<string, unknown> {
   return {
     elementId: operation.target.slice(operation.target.lastIndexOf("!") + 1),
-    ...(operation.formula ? { formula: operation.formula } : { value: operation.value }),
+    ...(operation.formula
+      ? { formula: operation.formula }
+      : Object.prototype.hasOwnProperty.call(operation, "value") ? { value: operation.value } : {}),
     ...(operation.numFmt ? { numFmt: operation.numFmt } : {}),
+    ...(operation.fontColor ? { fontColor: operation.fontColor } : {}),
   };
 }
 
@@ -1550,6 +2201,7 @@ function focusBridgeInspectionResult(
       evidence: repair.evidence,
     })),
     valueSuggestions: [],
+    styleSuggestions: [],
     rankedCellKeys: repairs.map((repair) => `${repair.sheet.toLowerCase()}!${normalizeAddress(repair.cell)}`),
     recommendedReads: [{
       sheet: artifactId,
@@ -1581,7 +2233,7 @@ function buildStageReceipts(
 ): Record<SpreadsheetBenchNodeAgentBridgeStage, SpreadsheetBenchNodeAgentBridgeStageReceipt> {
   const indexed = frameReceipt.agentResult.trace.map((event, eventIndex) => ({ event, eventIndex }));
   const inspect = indexed.filter(({ event }) => event.tool === "inspect_workbook");
-  const composite = indexed.filter(({ event }) => event.tool === EXECUTE_VERIFIED_WORKBOOK_PLAN_TOOL_NAME);
+  const composite = indexed.filter(({ event }) => COMPOSITE_WORKBOOK_TOOL_NAMES.has(event.tool));
   const verifications = indexed.filter(({ event }) => event.tool === "verify_workbook");
   const explicitPreflights = verifications.filter(({ event }) => verificationPhase(event.args, event.result) === "preflight");
   const explicitPostWrites = verifications.filter(({ event }) => verificationPhase(event.args, event.result) === "post_write");
@@ -1754,6 +2406,7 @@ function buildBridgeTrace(args: {
   artifactIds: string[];
   outcomeStatus: SpreadsheetBenchNodeAgentBridgeReceipt["outcome"]["status"];
   recalculation: SpreadsheetBenchNodeAgentRecalculationReceipt;
+  structuralRepair?: SpreadsheetBenchStructuralRepairReceipt;
   candidateFinalization?: SpreadsheetBenchCandidateFinalizationReceipt;
 }): NodeAgentTrace {
   const candidateRef = traceRef("artifact", args.candidateWorkbookPath, {
@@ -1807,6 +2460,20 @@ function buildBridgeTrace(args: {
     verifier: args.recalculation.engine,
     status: args.recalculation.unresolvedFormulaCount === 0 ? "verified" : "needs_review",
   }));
+  if (args.structuralRepair) {
+    trace.evidence.push(makeEvidenceReceipt({
+      traceId: args.traceId,
+      label: "SpreadsheetBench structural workbook repair",
+      sourceRefs: [traceRef("tool_result", `${args.traceId}:structural-repair`, {
+        label: args.structuralRepair.backend,
+        hash: stableTraceHash(args.structuralRepair),
+      })],
+      artifactRefs: [candidateRef],
+      fact: args.structuralRepair,
+      verifier: args.structuralRepair.backend,
+      status: "verified",
+    }));
+  }
   if (args.candidateFinalization) {
     trace.evidence.push(makeEvidenceReceipt({
       traceId: args.traceId,
@@ -1844,8 +2511,17 @@ function eventTraceRef(event: SpreadsheetBenchNodeAgentBridgeEventRef): TraceRef
 function mutationStatus(result: unknown): MutationReceipt["status"] {
   const record = asRecord(result);
   if (record?.pendingApproval === true) return "pending_approval";
+  const resultItems = Array.isArray(record?.results)
+    ? record.results.map(asRecord).filter((item): item is Record<string, unknown> => Boolean(item))
+    : [];
+  const hasCommittedResult = resultItems.some((item) => item.ok === true && item.skipped !== true);
+  if (hasCommittedResult || (typeof record?.changedTargetCount === "number" && record.changedTargetCount > 0)) {
+    return "committed";
+  }
+  if (record?.alreadySatisfied === true) return "skipped";
   if (record?.conflict === true) return "conflict";
   if (record?.skipped === true) return "skipped";
+  if (resultItems.length > 0 && resultItems.every((item) => item.skipped === true)) return "skipped";
   if (record?.ok === true) return "committed";
   return "conflict";
 }
@@ -1861,11 +2537,17 @@ function writeTargets(args: unknown, result?: unknown): string[] {
   });
   if (typeof record.elementId === "string") targets.push(record.elementId);
   const resultRecord = asRecord(result);
+  if (Array.isArray(resultRecord?.targets)) {
+    for (const target of resultRecord.targets) {
+      if (typeof target === "string") targets.push(target);
+    }
+  }
   const plan = asRecord(asRecord(resultRecord?.phases)?.plan);
   if (Array.isArray(plan?.targets)) {
     for (const target of plan.targets) if (typeof target === "string") targets.push(target);
   }
-  return [...new Set(targets.map((target) => artifactId ? `${artifactId}!${target}` : target))];
+  return [...new Set(targets.map((target) =>
+    artifactId && !target.includes("!") ? `${artifactId}!${target}` : target))];
 }
 
 function verificationPhase(args: unknown, result: unknown): "preflight" | "post_write" {
@@ -1897,7 +2579,7 @@ function bridgeEventVerificationStatus(
   phase: "preflight" | "verify",
 ): "passed" | "needs_repair" | "missing" {
   if (!event) return "missing";
-  return event.tool === EXECUTE_VERIFIED_WORKBOOK_PLAN_TOOL_NAME
+  return COMPOSITE_WORKBOOK_TOOL_NAMES.has(event.tool)
     ? compositePhaseStatus(event.result, phase)
     : verificationStatus(event.result);
 }
@@ -1924,12 +2606,14 @@ function operationCount(args: unknown): number {
 }
 
 function observedCell(sheet: ExcelJS.Worksheet, cell: ExcelJS.Cell, version: number): WorkbookObservedCell {
+  const fontColor = cellFontColor(cell);
   return {
     sheet: sheet.name,
     address: normalizeAddress(cell.address),
     value: roomCellScalar(cell),
     ...(cellFormula(cell) ? { formula: cellFormula(cell) } : {}),
     ...(cell.numFmt ? { numFmt: cell.numFmt } : {}),
+    ...(fontColor ? { fontColor } : {}),
     version,
   };
 }
@@ -1937,11 +2621,13 @@ function observedCell(sheet: ExcelJS.Worksheet, cell: ExcelJS.Cell, version: num
 function roomCellValue(cell: ExcelJS.Cell): unknown {
   const formula = cellFormula(cell);
   const numFmt = cell.numFmt && cell.numFmt !== "General" ? cell.numFmt : undefined;
-  if (formula || numFmt) {
+  const fontColor = cellFontColor(cell);
+  if (formula || numFmt || fontColor) {
     return {
       value: roomCellScalar(cell),
       ...(formula ? { formula } : {}),
       ...(numFmt ? { numFmt } : {}),
+      ...(fontColor ? { fontColor } : {}),
     };
   }
   return cell.value;
@@ -1959,24 +2645,28 @@ type WorkbookCellSemanticState = {
   formula?: string;
   valueKey?: string;
   numFmt: string;
+  fontColor?: string;
 };
 
 function workbookCellSemanticState(cell: ExcelJS.Cell): WorkbookCellSemanticState {
   const formula = cellFormula(cell);
-  if (formula) return { kind: "formula", formula, numFmt: cell.numFmt };
-  if (cell.value === null || cell.value === undefined) return { kind: "clear", numFmt: cell.numFmt };
-  return { kind: "value", valueKey: stableWorkbookValue(cell.value), numFmt: cell.numFmt };
+  const fontColor = cellFontColor(cell);
+  if (formula) return { kind: "formula", formula, numFmt: cell.numFmt, ...(fontColor ? { fontColor } : {}) };
+  if (cell.value === null || cell.value === undefined) return { kind: "clear", numFmt: cell.numFmt, ...(fontColor ? { fontColor } : {}) };
+  return { kind: "value", valueKey: stableWorkbookValue(cell.value), numFmt: cell.numFmt, ...(fontColor ? { fontColor } : {}) };
 }
 
 function sameWorkbookCellSemanticState(
   left: WorkbookCellSemanticState,
   right: WorkbookCellSemanticState,
   compareNumberFormat: boolean,
+  compareFontColor: boolean,
 ): boolean {
   return left.kind === right.kind
     && left.formula === right.formula
     && left.valueKey === right.valueKey
-    && (!compareNumberFormat || left.numFmt === right.numFmt);
+    && (!compareNumberFormat || left.numFmt === right.numFmt)
+    && (!compareFontColor || left.fontColor === right.fontColor);
 }
 
 function stableWorkbookValue(value: unknown): string {
@@ -1997,11 +2687,27 @@ function workbookCellPatch(
   sheet: string,
   address: string,
   cell: ExcelJS.Cell,
+  originalState: WorkbookCellSemanticState,
   numFmtTouched: boolean,
+  fontColorTouched: boolean,
 ): SpreadsheetBenchWorkbookCellPatch {
   const formula = cellFormula(cell);
   const valueRecord = asRecord(cell.value);
   const numFmt = numFmtTouched ? cell.numFmt : undefined;
+  const fontColorStyle = fontColorTouched ? cellFontColorStyle(cell) : {};
+  const currentState = workbookCellSemanticState(cell);
+  const contentUnchanged = originalState.kind === currentState.kind
+    && originalState.formula === currentState.formula
+    && originalState.valueKey === currentState.valueKey;
+  if (contentUnchanged && (numFmtTouched || fontColorTouched)) {
+    return {
+      sheet,
+      address,
+      kind: "style",
+      ...(numFmt === undefined ? {} : { numFmt }),
+      ...fontColorStyle,
+    };
+  }
   if (formula) {
     const hasCachedResult = Boolean(valueRecord && Object.prototype.hasOwnProperty.call(valueRecord, "result"));
     return {
@@ -2012,6 +2718,7 @@ function workbookCellPatch(
       hasCachedResult,
       ...(hasCachedResult ? { cachedResult: valueRecord?.result } : {}),
       ...(numFmt === undefined ? {} : { numFmt }),
+      ...fontColorStyle,
     };
   }
   if (cell.value === null || cell.value === undefined) {
@@ -2020,6 +2727,7 @@ function workbookCellPatch(
       address,
       kind: "clear",
       ...(numFmt === undefined ? {} : { numFmt }),
+      ...fontColorStyle,
     };
   }
   return {
@@ -2028,6 +2736,7 @@ function workbookCellPatch(
     kind: "value",
     value: cell.value,
     ...(numFmt === undefined ? {} : { numFmt }),
+    ...fontColorStyle,
   };
 }
 
@@ -2074,6 +2783,10 @@ function applyRoomValue(cell: ExcelJS.Cell, value: unknown): void {
     : typeof value === "string" && value.trim().startsWith("=")
       ? value.trim().slice(1)
       : undefined;
+  const styleOnly = !!record
+    && !formula
+    && !Object.prototype.hasOwnProperty.call(record, "value")
+    && (typeof record.numFmt === "string" || normalizeSpreadsheetFontColor(record.fontColor) !== undefined);
   if (formula) {
     const result = record && Object.prototype.hasOwnProperty.call(record, "result")
       ? record.result
@@ -2081,10 +2794,68 @@ function applyRoomValue(cell: ExcelJS.Cell, value: unknown): void {
     cell.value = { formula, ...(result === undefined ? {} : { result }) } as ExcelJS.CellValue;
   } else if (record && Object.prototype.hasOwnProperty.call(record, "value")) {
     cell.value = (record.value ?? null) as ExcelJS.CellValue;
-  } else {
+  } else if (!styleOnly) {
     cell.value = (value ?? null) as ExcelJS.CellValue;
   }
+  if (typeof record?.numFmt === "string" || normalizeSpreadsheetFontColor(record?.fontColor)) {
+    // ExcelJS reuses style objects across cells loaded from the same xf. Its
+    // font/numFmt setters mutate that object in place, which can silently alter
+    // untouched peers. Detach the complete style before changing one cell.
+    cell.style = cloneWorkbookCellStyle(cell.style);
+  }
   if (typeof record?.numFmt === "string") cell.numFmt = record.numFmt;
+  const fontColor = normalizeSpreadsheetFontColor(record?.fontColor);
+  if (fontColor) {
+    const workbook = cell.worksheet.workbook as ExcelJS.Workbook & { _themes?: Record<string, string> };
+    const theme = spreadsheetThemeIndexForColor(fontColor, workbook._themes?.theme1);
+    cell.font = {
+      ...cell.font,
+      color: theme === undefined ? { argb: fontColor } : { theme },
+    };
+  }
+}
+
+function cloneWorkbookCellStyle(style: Partial<ExcelJS.Style>): Partial<ExcelJS.Style> {
+  return {
+    ...style,
+    ...(style.font ? { font: cloneWorkbookStyleValue(style.font) } : {}),
+    ...(style.alignment ? { alignment: cloneWorkbookStyleValue(style.alignment) } : {}),
+    ...(style.border ? { border: cloneWorkbookStyleValue(style.border) } : {}),
+    ...(style.fill ? { fill: cloneWorkbookStyleValue(style.fill) } : {}),
+    ...(style.protection ? { protection: cloneWorkbookStyleValue(style.protection) } : {}),
+  };
+}
+
+function cloneWorkbookStyleValue<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
+function cellFontColor(cell: ExcelJS.Cell): string | undefined {
+  const workbook = cell.worksheet.workbook as ExcelJS.Workbook & {
+    _themes?: Record<string, string>;
+  };
+  return resolveSpreadsheetFontColor(
+    cell.font?.color as SpreadsheetFontColorSource | undefined,
+    workbook._themes?.theme1,
+  );
+}
+
+function cellFontColorStyle(cell: ExcelJS.Cell): Pick<
+  SpreadsheetBenchWorkbookCellPatch,
+  "fontColor" | "fontColorTheme" | "fontColorTint"
+> {
+  const fontColor = cellFontColor(cell);
+  if (!fontColor) return {};
+  const source = cell.font?.color as SpreadsheetFontColorSource | undefined;
+  const theme = typeof source?.theme === "number" && Number.isInteger(source.theme) && source.theme >= 0
+    ? source.theme
+    : undefined;
+  const tint = typeof source?.tint === "number" && Number.isFinite(source.tint) ? source.tint : undefined;
+  return {
+    fontColor,
+    ...(theme === undefined ? {} : { fontColorTheme: theme }),
+    ...(theme === undefined || tint === undefined ? {} : { fontColorTint: tint }),
+  };
 }
 
 function parseReadReference(value: string): {

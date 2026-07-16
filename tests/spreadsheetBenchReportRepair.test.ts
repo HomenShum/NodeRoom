@@ -14,9 +14,16 @@ describe("SpreadsheetBench NodeAgent repair report merge", () => {
     const baseOne = taskResult("Debugging/01_01", "openrouter/free-auto", 0, 0.1);
     const baseTwo = taskResult("Debugging/01_02", "cohere/north-mini-code:free", 2, 0.2);
     const repaired = taskResult("Debugging/01_01", "gemini-3-flash-preview", 3, 0.8);
+    const baseReport = report([baseOne, baseTwo], "base-run");
+    baseReport.warnings = [
+      "tasks/Debugging_01_01#1.1: repaired warning",
+      "tasks/Debugging_01_02#1.1: retained warning",
+    ];
+    const repairReport = report([repaired], "repair-run");
+    repairReport.warnings = ["repair route was zero cost"];
     const merged = mergeSpreadsheetBenchRepairReport({
-      base: report([baseOne, baseTwo], "base-run"),
-      repair: report([repaired], "repair-run"),
+      base: baseReport,
+      repair: repairReport,
       replacementTaskIds: ["Debugging/01_01"],
       generatedAt: "2026-07-14T00:00:00.000Z",
       outputRoot: "merged-run",
@@ -38,6 +45,10 @@ describe("SpreadsheetBench NodeAgent repair report merge", () => {
       providerCostUsd: 0.05,
     });
     expect(merged.repairMerge.replacementTaskIds).toEqual(["Debugging/01_01"]);
+    expect(merged.warnings).toEqual([
+      "tasks/Debugging_01_02#1.1: retained warning",
+      "repair route was zero cost",
+    ]);
   });
 
   it("rejects a repair report that does not exactly match the replacement allowlist", () => {

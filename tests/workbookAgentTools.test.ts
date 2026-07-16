@@ -77,11 +77,11 @@ describe("NodeAgent workbook planning tools", () => {
     expect(stale).not.toHaveProperty("approvedOperations");
     expect(stale.repairPrompt).toContain("stale_target_version");
 
-    values.set("F3", { value: "Tue", formula: 'TEXT(F4,"ddd")' });
+    values.set("F3", { value: "Tue", formula: 'TEXT(F4,"ddd")', fontColor: "FFAA0000" });
     const repaired = await tool("verify_workbook").execute({
       instruction,
       artifactId: "attendance",
-      operations: [{ elementId: "F3", formula: 'TEXT(F4,"ddd")', result: "Tue" }],
+      operations: [{ elementId: "F3", formula: 'TEXT(F4,"ddd")', result: "Tue", fontColor: "#AA0000" }],
     }, rt) as {
       ok: boolean;
       status: string;
@@ -95,6 +95,19 @@ describe("NodeAgent workbook planning tools", () => {
       phase: "post_write",
       candidate: { checkedCount: 1, passedCount: 1, status: "passed" },
     });
+
+    const colorMismatch = await tool("verify_workbook").execute({
+      instruction,
+      artifactId: "attendance",
+      operations: [{ elementId: "F3", formula: 'TEXT(F4,"ddd")', result: "Tue", fontColor: "00AA00" }],
+    }, rt) as {
+      status: string;
+      candidate: { checks: Array<{ issues: string[] }> };
+      repairPrompt?: string;
+    };
+    expect(colorMismatch.status).toBe("needs_repair");
+    expect(colorMismatch.candidate.checks[0].issues).toContain("font_color_mismatch");
+    expect(colorMismatch.repairPrompt).toContain("font_color_mismatch");
   });
 });
 

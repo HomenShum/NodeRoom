@@ -75,6 +75,7 @@ function workbookTools(
           value: z.unknown().optional(),
           result: z.unknown().optional(),
           numFmt: z.string().optional(),
+          fontColor: z.string().optional(),
         })),
         afterWrite: z.boolean().optional(),
       }),
@@ -103,6 +104,7 @@ function workbookTools(
           value: z.unknown().optional(),
           result: z.unknown().optional(),
           numFmt: z.string().optional(),
+          fontColor: z.string().optional(),
         })),
       }),
       execute: async (args: unknown) => {
@@ -184,6 +186,69 @@ describe("verified workbook workflow hook", () => {
     expect(mismatch).toBeDefined();
     expect(result.stopReason).toBe("done");
     expect(result.finalText).toBe("Correct plan verified.");
+  });
+
+  it("preserves semantic element ids while canonicalizing only genuine A1 references", async () => {
+    const operations = [
+      { elementId: "r_rev__variance", value: 1_300 },
+      { elementId: "$b$2", value: 20 },
+      { elementId: "'Q3 Variance'!$j$15:$j$17", value: "ready" },
+    ];
+    const writes: unknown[] = [];
+    let turn = 0;
+    const model = scriptedModel(() => {
+      turn += 1;
+      if (turn === 1) return { toolCalls: [{ tool: "inspect_workbook", args: { instruction: "repair workbook", artifactId: "sheet-1" } }] };
+      if (turn === 2) return { toolCalls: [{ tool: "verify_workbook", args: { instruction: "repair workbook", artifactId: "sheet-1", operations, afterWrite: false } }] };
+      if (turn === 3) return { toolCalls: [{ tool: "write_locked_cells", args: { artifactId: "sheet-1", ops: operations } }] };
+      if (turn === 4) return { toolCalls: [{ tool: "verify_workbook", args: { instruction: "repair workbook", artifactId: "sheet-1", operations, afterWrite: true } }] };
+      return { say: "Identifiers verified.", done: true };
+    });
+
+    const result = await runWorkbookAgent({
+      model,
+      tools: workbookTools({ ok: true }, (args) => writes.push(args)),
+    });
+
+    expect(writes).toEqual([{
+      artifactId: "sheet-1",
+      ops: [
+        { elementId: "r_rev__variance", baseVersion: 0, value: 1_300 },
+        { elementId: "B2", baseVersion: 0, value: 20 },
+        { elementId: "Q3 Variance!J15:J17", baseVersion: 0, value: "ready" },
+      ],
+    }]);
+    expect(result.stopReason).toBe("done");
+  });
+
+  it("includes canonical font color in the approved workflow signature", async () => {
+    const approved = { ...OPERATION, fontColor: "#aa00cc" };
+    const writes: unknown[] = [];
+    let turn = 0;
+    const model = scriptedModel(() => {
+      turn += 1;
+      if (turn === 1) return { toolCalls: [{ tool: "inspect_workbook", args: { instruction: "style formula", artifactId: "sheet-1" } }] };
+      if (turn === 2) return { toolCalls: [{ tool: "verify_workbook", args: { instruction: "style formula", artifactId: "sheet-1", operations: [approved], afterWrite: false } }] };
+      if (turn === 3) return { toolCalls: [{ tool: "write_locked_cells", args: { artifactId: "sheet-1", ops: [{ ...approved, fontColor: "#00aacc" }] } }] };
+      if (turn === 4) return { toolCalls: [{ tool: "write_locked_cells", args: { artifactId: "sheet-1", ops: [{ ...approved, fontColor: "AA00CC" }] } }] };
+      if (turn === 5) return { toolCalls: [{ tool: "verify_workbook", args: { instruction: "style formula", artifactId: "sheet-1", operations: [approved], afterWrite: true } }] };
+      return { say: "Color plan verified.", done: true };
+    });
+
+    const result = await runWorkbookAgent({
+      model,
+      tools: workbookTools({ ok: true }, (args) => writes.push(args)),
+    });
+    const mismatch = result.trace.find((event) =>
+      event.tool === "write_locked_cells"
+      && (event.result as { reason?: string }).reason?.includes("write_plan_mismatch"));
+
+    expect(mismatch).toBeDefined();
+    expect(writes).toEqual([{
+      artifactId: "sheet-1",
+      ops: [{ ...boundOperations([approved])[0], fontColor: "FFAA00CC" }],
+    }]);
+    expect(result.stopReason).toBe("done");
   });
 
   it("binds a truncated large write to the complete preflight-approved plan", async () => {

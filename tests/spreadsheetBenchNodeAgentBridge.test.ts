@@ -40,7 +40,7 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
       now: () => 1_000,
     });
 
-    expect(receipt.outcome).toMatchObject({
+    expect(receipt.outcome, JSON.stringify(receipt.frame.agentResult.trace, null, 2)).toMatchObject({
       status: "completed",
       mutatingTask: true,
       changedCellCount: 1,
@@ -103,6 +103,7 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
     expect(JSON.stringify(receipt)).not.toContain("EVALUATOR_TRIPWIRE_SECRET");
     expect(capture.toolNames.every((names) => names.every((name) => [
       "inspect_workbook",
+      "execute_workbook_structure_repair",
       "execute_verified_workbook_plan",
       "verify_workbook",
       "list_artifacts",
@@ -112,6 +113,168 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
       "write_locked_cells",
       "say",
     ].includes(name)))).toBe(true);
+  });
+
+  it("applies and verifies a style-only audit repair without changing formula content", async () => {
+    const root = tempRoot();
+    const task = await stagedFontColorTask(root);
+    const candidate = join(root, "output", "font-color-candidate.xlsx");
+
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: candidate,
+      model: fontColorRepairModel(),
+      traceId: "trace_sbench_font_color",
+      maxSteps: 7,
+      now: () => 1_500,
+    });
+
+    expect(receipt.outcome, JSON.stringify(receipt.frame.agentResult.trace, null, 2)).toMatchObject({
+      status: "completed",
+      changedCellCount: 1,
+      finalVerificationStatus: "passed",
+    });
+    const inspection = receipt.frame.agentResult.trace.find((event) => event.tool === "inspect_workbook")?.result as Record<string, unknown>;
+    expect(inspection).toMatchObject({
+      inspection: {
+        auditFocus: { kind: "color_coding", source: "agent_visible_filename" },
+        styleSuggestions: [expect.objectContaining({ sheet: "Income Statement", cell: "B6", fontColor: "FF008000" })],
+      },
+    });
+
+    const emitted = new ExcelJS.Workbook();
+    await emitted.xlsx.readFile(candidate);
+    const cell = emitted.getWorksheet("Income Statement")!.getCell("B6");
+    expect(cell.value).toEqual({ formula: "Summary!G10", result: "Monro" });
+    expect(cell.font).toMatchObject({ bold: true, color: { argb: "FF008000" } });
+  });
+
+  it("executes a complete multi-batch audit contract without calling the provider model", async () => {
+    const root = tempRoot();
+    const task = await stagedLargeFontColorTask(root);
+    const candidate = join(root, "output", "large-font-color-candidate.xlsx");
+    let delegatedCalls = 0;
+    const delegate: AgentModel = {
+      name: "provider-that-must-not-run",
+      async next(): Promise<AgentStep> {
+        delegatedCalls += 1;
+        throw new Error("complete workbook contracts must not call the provider model");
+      },
+    };
+
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: candidate,
+      model: delegate,
+      traceId: "trace_sbench_large_font_color",
+      maxSteps: 8,
+      now: () => 1_750,
+    });
+
+    expect(delegatedCalls).toBe(0);
+    expect(receipt.model.name).toBe("nodeagent/workbook-contract");
+    expect(receipt.outcome, JSON.stringify(receipt.frame.agentResult.trace, null, 2)).toMatchObject({
+      status: "completed",
+      changedCellCount: 12,
+      finalVerificationStatus: "passed",
+    });
+    expect(receipt.frame.agentResult.trace.map((event) => event.tool)).toEqual([
+      "inspect_workbook",
+      "execute_verified_workbook_plan",
+    ]);
+    expect(receipt.frame.agentResult.trace[1]?.result).toMatchObject({
+      status: "completed",
+      operationCount: 12,
+      changedTargetCount: 12,
+      phases: {
+        preflight: { status: "passed", batchCount: 2, expectedBatchCount: 2 },
+        write: { status: "completed", batchCount: 2, committedCount: 12 },
+        verify: { status: "passed", batchCount: 2, expectedBatchCount: 2 },
+      },
+    });
+
+    const emitted = new ExcelJS.Workbook();
+    await emitted.xlsx.readFile(candidate);
+    for (let matrix = 0; matrix < 12; matrix += 1) {
+      const row = 7 + matrix * 4;
+      expect(emitted.getWorksheet("Income Statement")!.getCell(`C${row}`).font.color).toEqual({ theme: 10 });
+    }
+  });
+
+  it("records an audit as unresolved without provider calls when inspection exposes no write evidence", async () => {
+    const root = tempRoot();
+    const instruction = "Please audit and fix this file thoroughly.";
+    const task = await stagedTask(root, instruction, "01-Incorrect Sign Conventions_input.xlsx");
+    let delegatedCalls = 0;
+    const delegate: AgentModel = {
+      name: "provider-that-must-not-run-without-evidence",
+      async next(): Promise<AgentStep> {
+        delegatedCalls += 1;
+        throw new Error("an audit without visible write evidence must not call a provider");
+      },
+    };
+
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: join(root, "output", "unresolved-audit.xlsx"),
+      model: delegate,
+      maxSteps: 4,
+    });
+
+    expect(delegatedCalls).toBe(0);
+    expect(receipt.model.name).toBe("nodeagent/workbook-contract");
+    expect(receipt.model.usage).toMatchObject({ inputTokens: 0, outputTokens: 0 });
+    expect(receipt.frame.agentResult.trace.map((event) => event.tool)).toEqual(["inspect_workbook"]);
+    expect(receipt.frame.agentResult.stopReason).toBe("done");
+    expect(receipt.outcome).toMatchObject({ status: "needs_repair", changedCellCount: 0 });
+  });
+
+  it("stops provider planning after three consecutive failed workbook preflights", async () => {
+    const root = tempRoot();
+    const task = await stagedTask(root);
+    let delegatedCalls = 0;
+    const delegate: AgentModel = {
+      name: "scripted-repeated-bad-preflight",
+      async next(): Promise<AgentStep> {
+        delegatedCalls += 1;
+        const id = `bad-preflight-${delegatedCalls}`;
+        if (delegatedCalls === 1) {
+          return step(id, "inspect_workbook", {
+            instruction: "Update Model!B1 using Model!A1 so B1 contains formula A1*2, then verify the changed cell.",
+            artifactId: "Model",
+            maxCells: 40,
+          });
+        }
+        if (delegatedCalls <= 4) {
+          return step(id, "verify_workbook", {
+            instruction: "Update Model!B1 using Model!A1 so B1 contains formula A1*2, then verify the changed cell.",
+            artifactId: "Model",
+            afterWrite: false,
+            operations: [{ elementId: "B1", formula: "B1*2", result: 4 }],
+          });
+        }
+        throw new Error("provider repair budget was not enforced");
+      },
+    };
+
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: join(root, "output", "bounded-bad-preflight.xlsx"),
+      model: delegate,
+      maxSteps: 10,
+    });
+
+    expect(delegatedCalls).toBe(4);
+    expect(receipt.frame.agentResult.trace.map((event) => event.tool)).toEqual([
+      "inspect_workbook",
+      "verify_workbook",
+      "verify_workbook",
+      "verify_workbook",
+      "handoff",
+    ]);
+    expect(receipt.frame.agentResult.stopReason).toBe("step_budget");
+    expect(receipt.frame.agentResult.finalText).toContain("bounded workbook repair budget ended");
+    expect(receipt.outcome).toMatchObject({ status: "needs_repair", changedCellCount: 0 });
   });
 
   it("adapts an invalid model-supplied inspection artifact to a visible worksheet", async () => {
@@ -457,6 +620,60 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
     ]);
   });
 
+  it("binds every structural repair operation to a mutation target", async () => {
+    const root = tempRoot();
+    const task = await stagedStructuralRepairTask(root);
+    const candidate = join(root, "output", "candidate.xlsx");
+    let delegatedCalls = 0;
+    const delegate: AgentModel = {
+      name: "provider-that-must-not-run",
+      async next(): Promise<AgentStep> {
+        delegatedCalls += 1;
+        throw new Error("complete structural contracts must not call the provider model");
+      },
+    };
+
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: candidate,
+      model: delegate,
+      traceId: "trace_sbench_structural_targets",
+      maxSteps: 4,
+      now: () => 1_600,
+    });
+
+    expect(delegatedCalls).toBe(0);
+    expect(receipt.frame.agentResult.trace.map((event) => event.tool)).toEqual([
+      "inspect_workbook",
+      "execute_workbook_structure_repair",
+    ]);
+    expect(receipt.outcome).toMatchObject({
+      status: "completed",
+      changedCellCount: 13,
+      finalVerificationStatus: "passed",
+    });
+    const result = receipt.frame.agentResult.trace[1].result as Record<string, unknown>;
+    expect(result).toMatchObject({ ok: true, status: "completed", operationCount: 13 });
+    expect(result.targets).toHaveLength(13);
+    expect(receipt.trace.mutations).toEqual([
+      expect.objectContaining({
+        status: "committed",
+        targetRefs: expect.arrayContaining([
+          expect.objectContaining({ refId: "Ex 5 - M&A!4:4" }),
+          expect.objectContaining({ refId: "Ex 5 - M&A!B4" }),
+          expect.objectContaining({ refId: "Ex 5 - M&A!C13" }),
+        ]),
+      }),
+    ]);
+    expect(receipt.trace.mutations[0].targetRefs).toHaveLength(13);
+
+    const emitted = new ExcelJS.Workbook();
+    await emitted.xlsx.readFile(candidate);
+    expect(emitted.getWorksheet("Ex 5 - M&A")?.getCell("B4").value).toBe("Case");
+    expect(emitted.getWorksheet("Ex 5 - M&A")?.getCell("C4").value).toBe(3);
+    expect(emitted.getWorksheet("Ex 5 - M&A")?.getCell("C13").formula).toContain("CHOOSE($C$4,");
+  }, 30_000);
+
   it("blocks a premature write, then preserves scalar number formatting through verified recovery", async () => {
     const root = tempRoot();
     const task = await stagedTask(root, "Set Model!C1 to 0% and preserve every other cell.");
@@ -494,6 +711,33 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
     expect(cell.numFmt).toBe("0.0%");
   });
 
+  it("replays the live placeholder trace and fails closed without mutating the workbook", async () => {
+    const root = tempRoot();
+    const inputName = "01-Double Counting_input.xlsx";
+    const task = await stagedTask(root, "Please audit and fix this file thoroughly.", inputName);
+    const input = join(root, "tasks", "bridge-01", "agent", "inputs", inputName);
+    const candidate = join(root, "output", "placeholder-rejected.xlsx");
+
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: candidate,
+      model: placeholderAuditModel(),
+      boundedAuditPlanning: false,
+      traceId: "trace_sbench_placeholder_rejected",
+      maxSteps: 5,
+      now: () => 2_500,
+    });
+
+    const preflight = receipt.frame.agentResult.trace.find((event) => event.tool === "verify_workbook");
+    expect(preflight?.result).toMatchObject({
+      status: "needs_repair",
+      plan: { issues: [expect.objectContaining({ kind: "unsubstantiated_audit_target", address: "A1000" })] },
+    });
+    expect(receipt.frame.agentResult.trace.some((event) => event.tool === "write_locked_cell" || event.tool === "write_locked_cells")).toBe(false);
+    expect(receipt.outcome).toMatchObject({ status: "needs_repair", changedCellCount: 0 });
+    expect(sha256(readFileSync(candidate))).toBe(sha256(readFileSync(input)));
+  });
+
   it("uses the visible filename to select an audit sheet and carries that artifact through omitted write ids", async () => {
     const root = tempRoot();
     const task = await stagedMultiSheetTask(root);
@@ -503,12 +747,13 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
       agentManifestPath: task.agentManifest,
       candidateWorkbookPath: candidate,
       model: preferredSheetModel(),
+      boundedAuditPlanning: false,
       traceId: "trace_sbench_preferred_sheet",
       maxSteps: 8,
       now: () => 3_000,
     });
 
-    expect(receipt.outcome).toMatchObject({ status: "completed", changedCellCount: 1, finalVerificationStatus: "passed" });
+    expect(receipt.outcome, JSON.stringify(receipt.frame.agentResult.trace, null, 2)).toMatchObject({ status: "completed", changedCellCount: 1, finalVerificationStatus: "passed" });
     expect(receipt.frame.agentResult.trace.find((event) => event.tool === "inspect_workbook")?.result).toMatchObject({
       artifactId: "Metrics",
     });
@@ -530,6 +775,7 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
       agentManifestPath: task.agentManifest,
       candidateWorkbookPath: candidate,
       model: boundedRangeReadModel(),
+      boundedAuditPlanning: false,
       traceId: "trace_sbench_bounded_range_read",
       maxSteps: 8,
       snapshotMaxCells: 20,
@@ -553,6 +799,7 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
       agentManifestPath: task.agentManifest,
       candidateWorkbookPath: join(root, "output", "range-recovery.xlsx"),
       model: recoveringBoundedRangeModel(),
+      boundedAuditPlanning: false,
       traceId: "trace_sbench_range_recovery",
       maxSteps: 8,
       snapshotMaxCells: 3,
@@ -943,6 +1190,37 @@ function stageGuardRecoveryModel(): AgentModel {
   };
 }
 
+function placeholderAuditModel(): AgentModel {
+  let callIndex = 0;
+  const operation = { elementId: "A1000", value: 1 };
+  return {
+    name: "scripted-spreadsheetbench-placeholder-audit",
+    async next(): Promise<AgentStep> {
+      const id = `placeholder-audit-${++callIndex}`;
+      if (callIndex === 1) return step(id, "inspect_workbook", { instruction: "Audit the workbook.", artifactId: "Model", maxCells: 40 });
+      if (callIndex === 2) return step(id, "verify_workbook", { instruction: "Audit the workbook.", artifactId: "Model", operations: [operation], afterWrite: false });
+      return { text: "No locally supported repair was found; no workbook cells were changed.", toolCalls: [], done: true };
+    },
+  };
+}
+
+function fontColorRepairModel(): AgentModel {
+  let callIndex = 0;
+  const instruction = "Audit and fix this file.";
+  const operation = { elementId: "B6", fontColor: "FF008000" };
+  return {
+    name: "scripted-spreadsheetbench-font-color",
+    async next(): Promise<AgentStep> {
+      const id = `font-color-${++callIndex}`;
+      if (callIndex === 1) return step(id, "inspect_workbook", { instruction, artifactId: "Income Statement", maxCells: 40 });
+      if (callIndex === 2) return step(id, "verify_workbook", { instruction, artifactId: "Income Statement", operations: [operation], afterWrite: false });
+      if (callIndex === 3) return step(id, "write_locked_cell", { artifactId: "Income Statement", ...operation, reason: "locally verified font color" });
+      if (callIndex === 4) return step(id, "verify_workbook", { instruction, artifactId: "Income Statement", operations: [operation], afterWrite: true });
+      return { text: "Font color repaired and verified without changing content.", toolCalls: [], done: true };
+    },
+  };
+}
+
 function preferredSheetModel(): AgentModel {
   let callIndex = 0;
   const operation = { elementId: "B1", formula: "AVERAGE(C1:D1)", result: 15 };
@@ -1076,6 +1354,7 @@ function toolResults(messages: AgentMessage[]): Array<{ name: string; phase?: st
 async function stagedTask(
   root: string,
   instruction = "Update Model!B1 using Model!A1 so B1 contains formula A1*2, then verify the changed cell.",
+  inputName = "input.xlsx",
 ): Promise<{ agentManifest: string }> {
   const taskDir = join(root, "tasks", "bridge-01");
   const agentDir = join(taskDir, "agent");
@@ -1091,7 +1370,7 @@ async function stagedTask(
   sheet.getCell("A2").value = 3;
   sheet.getCell("B2").value = { formula: "A2*2", result: 6, ref: "B2:C2", shareType: "shared" } as ExcelJS.CellValue;
   sheet.getCell("C2").value = { sharedFormula: "B2", result: 12 } as ExcelJS.CellValue;
-  await input.xlsx.writeFile(join(agentDir, "inputs", "input.xlsx"));
+  await input.xlsx.writeFile(join(agentDir, "inputs", inputName));
   writeFileSync(join(agentDir, "prompts", "task.txt"), "Preserve workbook structure and use a managed write.");
   writeJson(join(agentDir, "task.json"), {
     schema: 1,
@@ -1099,11 +1378,78 @@ async function stagedTask(
     track: "spreadsheetbench-v2",
     category: "Template",
     instruction,
-    inputFiles: ["inputs/input.xlsx"],
+    inputFiles: [`inputs/${inputName}`],
     promptFiles: ["prompts/task.txt"],
   });
   writeFileSync(join(evaluatorDir, "evaluator.json"), "EVALUATOR_TRIPWIRE_SECRET: invalid-json-on-purpose");
   writeFileSync(join(evaluatorDir, "gold", "gold.xlsx"), "EVALUATOR_TRIPWIRE_SECRET");
+  return { agentManifest: join(agentDir, "task.json") };
+}
+
+async function stagedFontColorTask(root: string): Promise<{ agentManifest: string }> {
+  const taskDir = join(root, "tasks", "font-color");
+  const agentDir = join(taskDir, "agent");
+  mkdirSync(join(agentDir, "inputs"), { recursive: true });
+  const input = new ExcelJS.Workbook();
+  const summary = input.addWorksheet("Summary");
+  summary.getCell("G10").value = "Monro";
+  summary.getCell("G11").value = 10;
+  summary.getCell("G12").value = 12;
+  const statement = input.addWorksheet("Income Statement");
+  for (const [address, source, result, fontColor] of [
+    ["B6", "Summary!G10", "Monro", "FF000000"],
+    ["B7", "Summary!G11", 10, "FF008000"],
+    ["B8", "Summary!G12", 12, "FF008000"],
+  ] as const) {
+    const cell = statement.getCell(address);
+    cell.value = { formula: source, result } as ExcelJS.CellValue;
+    cell.font = { bold: true, color: { argb: fontColor } };
+  }
+  const inputPath = join(agentDir, "inputs", "01-Inconsistent Color Coding_input.xlsx");
+  await input.xlsx.writeFile(inputPath);
+  writeJson(join(agentDir, "task.json"), {
+    schema: 1,
+    taskId: "Debugging/font-color",
+    track: "spreadsheetbench-v2",
+    category: "Debugging",
+    instruction: "Audit and fix this file.",
+    inputFiles: ["inputs/01-Inconsistent Color Coding_input.xlsx"],
+    promptFiles: [],
+  });
+  return { agentManifest: join(agentDir, "task.json") };
+}
+
+async function stagedLargeFontColorTask(root: string): Promise<{ agentManifest: string }> {
+  const taskDir = join(root, "tasks", "large-font-color");
+  const agentDir = join(taskDir, "agent");
+  mkdirSync(join(agentDir, "inputs"), { recursive: true });
+  const input = new ExcelJS.Workbook();
+  const statement = input.addWorksheet("Income Statement");
+  for (let matrix = 0; matrix < 12; matrix += 1) {
+    const startRow = 6 + matrix * 4;
+    for (let rowOffset = 0; rowOffset < 3; rowOffset += 1) {
+      for (let column = 2; column <= 4; column += 1) {
+        const cell = statement.getCell(startRow + rowOffset, column);
+        cell.value = (matrix + 1) * 100 + rowOffset * 10 + column;
+        cell.numFmt = "0.0x";
+        cell.font = {
+          bold: true,
+          color: { argb: rowOffset === 1 && column === 3 ? "FF000000" : "FF0000FF" },
+        };
+      }
+    }
+  }
+  const inputPath = join(agentDir, "inputs", "01-Inconsistent Color Coding_input.xlsx");
+  await input.xlsx.writeFile(inputPath);
+  writeJson(join(agentDir, "task.json"), {
+    schema: 1,
+    taskId: "Debugging/large-font-color",
+    track: "spreadsheetbench-v2",
+    category: "Debugging",
+    instruction: "Audit and fix this file.",
+    inputFiles: ["inputs/01-Inconsistent Color Coding_input.xlsx"],
+    promptFiles: [],
+  });
   return { agentManifest: join(agentDir, "task.json") };
 }
 
@@ -1182,6 +1528,35 @@ async function stagedDebtWaterfallTask(root: string): Promise<{ agentManifest: s
   return { agentManifest: join(agentDir, "task.json") };
 }
 
+async function stagedStructuralRepairTask(root: string): Promise<{ agentManifest: string }> {
+  const taskDir = join(root, "tasks", "structural-repair");
+  const agentDir = join(taskDir, "agent");
+  mkdirSync(join(agentDir, "inputs"), { recursive: true });
+  const input = new ExcelJS.Workbook();
+  const acquisition = input.addWorksheet("Ex 5 - M&A");
+  acquisition.getCell("B5").value = "Acme - M&A Add-On Acquisitions Target #1";
+  for (let index = 0; index < 10; index += 1) {
+    const row = 12 + Math.floor(index / 5) * 3;
+    const column = 3 + (index % 5);
+    acquisition.getCell(row, column).value = {
+      formula: `+CHOOSE(#REF!,J${row},Q${row},X${row})`,
+      result: "#REF!",
+    } as ExcelJS.CellValue;
+  }
+  const inputName = "01-Errors_input.xlsx";
+  await input.xlsx.writeFile(join(agentDir, "inputs", inputName));
+  writeJson(join(agentDir, "task.json"), {
+    schema: 1,
+    taskId: "Debugging/structural-repair",
+    track: "spreadsheetbench-v2",
+    category: "Debugging",
+    instruction: "Please audit and fix deleted rows and broken references. The active scenario case selector value is 3.",
+    inputFiles: [`inputs/${inputName}`],
+    promptFiles: [],
+  });
+  return { agentManifest: join(agentDir, "task.json") };
+}
+
 async function stagedMultiSheetTask(root: string): Promise<{ agentManifest: string }> {
   const taskDir = join(root, "tasks", "preferred-sheet");
   const agentDir = join(taskDir, "agent");
@@ -1230,14 +1605,14 @@ async function stagedWorkbookWideAverageTask(root: string): Promise<{ agentManif
   for (let row = 8; row <= 22; row += 1) exhibit9.getCell(`M${row}`).value = 7 + (row - 8) / 10;
   exhibit9.getCell("M25").value = 7.3;
   exhibit9.getCell("M26").value = 8.7;
-  await input.xlsx.writeFile(join(agentDir, "inputs", "01-Incorrect Average_input.xlsx"));
+  await input.xlsx.writeFile(join(agentDir, "inputs", "01-Average Audit_input.xlsx"));
   writeJson(join(agentDir, "task.json"), {
     schema: 1,
     taskId: "Debugging/workbook-wide-average",
     track: "spreadsheetbench-v2",
     category: "Debugging",
     instruction: "Please audit and fix this file thoroughly.",
-    inputFiles: ["inputs/01-Incorrect Average_input.xlsx"],
+    inputFiles: ["inputs/01-Average Audit_input.xlsx"],
     promptFiles: [],
   });
   return { agentManifest: join(agentDir, "task.json") };

@@ -21,7 +21,7 @@
  * mocked; the sync lane mocks useTiptapSync; real Tiptap editors mount in
  * jsdom so the sanitizer pipeline and PM decorations are the real thing.
  */
-import { render, screen, cleanup, waitFor, within } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -152,7 +152,7 @@ describe("paper frame — Maya opens the diligence note on the dark shell (legac
     expect(review.textContent).toContain("1 needs_review");
   });
 
-  it("re-pins neutral Cloud paper tokens inside .nbk-frame on the dark shell", () => {
+  it("finishes on shared dark Cloud tokens without paper gutters or oversized type", () => {
     // jsdom does not cascade external stylesheets, so the token contract is
     // asserted against the shipped CSS itself: the re-pin block must scope the
     // light values under .nbk-frame (class presence is asserted in the DOM test
@@ -162,14 +162,13 @@ describe("paper frame — Maya opens the diligence note on the dark shell (legac
     // "--text-*/" glob) closes it early and silently swallows the next rule —
     // this exact bug ate the whole token re-pin block in a real Chromium once.
     expect(css.match(/\*\//g)?.length).toBe(css.match(/\/\*/g)?.length);
-    const framePin = css.slice(css.indexOf(".nbk-frame {"), css.indexOf("}", css.indexOf(".nbk-frame {")));
-    expect(framePin).toContain("--bg-notebook: #F7F8FA");
-    expect(framePin).toContain("--text-primary: #111827");
-    expect(framePin).toContain("--text-secondary: #374151");
-    expect(framePin).toContain("--accent: #D97757");
-    // The frame paints itself with the neutral paper token and the wet-ink pass
-    // respects prefers-reduced-motion (the CSS handles it).
-    expect(css).toContain("background: var(--bg-notebook)");
+    const cloudCorrection = css.slice(css.indexOf("/* Cloud notebook correction:"));
+    expect(cloudCorrection).toContain("--bg-notebook: var(--nr-surface-panel, #101317)");
+    expect(cloudCorrection).toContain("--text-primary: var(--nr-text-primary, #f3f6fb)");
+    expect(cloudCorrection).toContain("max-width: 92ch");
+    expect(cloudCorrection).toContain("font-size: 24px");
+    expect(cloudCorrection).toMatch(/\.nbk-body::before,[\s\S]*\.nbk-body::after[\s\S]*content: none/);
+    // The wet-ink pass still respects reduced motion.
     expect(css).toMatch(/@media \(prefers-reduced-motion: no-preference\)[\s\S]*nbk-wet/);
   });
 
@@ -301,6 +300,9 @@ describe("paper frame — the synced (live Convex) lane gets the same paper, no 
     expect(foot).toBeTruthy();
     const readModel = within(foot as HTMLElement).getByTestId("notebook-read-model");
     expect(readModel.querySelector(".r-tag.nbk-chip")).toBeTruthy();
+    expect((readModel as HTMLDetailsElement).open).toBe(false);
+    fireEvent.click(within(readModel).getByText("Notebook intelligence"));
+    expect((readModel as HTMLDetailsElement).open).toBe(true);
     expect(within(foot as HTMLElement).getByTestId("agent-work-plan-card")).toBeTruthy();
 
     // The synced doc's agent ink + review chip come from the SAME decorations.

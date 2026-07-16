@@ -1070,8 +1070,8 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
             <div className="gp-sample-banner" data-testid="mobile-sample-banner" role="status">
               {Ico("shield", { width: 13, height: 13 })}
               <span>
-                <strong>{live.starterBackfill === "pending" ? "Sample still loading." : "Sample workspace."}</strong>{" "}
-                Companies, sources, messages, and traces are synthetic{live.starterBackfill === "pending" ? "; missing sample artifacts retry automatically" : ""}.
+                <strong>{live.starterBackfill === "pending" ? "Live runtime · sample data loading." : "Live runtime · sample data."}</strong>{" "}
+                Convex, collaboration, and NodeAgent are live; seeded companies, sources, messages, and traces are synthetic{live.starterBackfill === "pending" ? "; missing sample artifacts retry automatically" : ""}.
               </span>
             </div>
           ) : null}

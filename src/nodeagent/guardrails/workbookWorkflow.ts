@@ -1,5 +1,6 @@
 import type { AgentMessage, ToolCall } from "../core/types";
 import type { BlockedTool, HookCtx, NodeAgentHook, StopDecision } from "../core/hooks";
+import { normalizeSpreadsheetFontColor } from "../../shared/spreadsheetFontColor";
 
 const INSPECT_TOOL = "inspect_workbook";
 const VERIFY_TOOL = "verify_workbook";
@@ -21,6 +22,7 @@ type WorkbookOperation = {
   value?: unknown;
   result?: unknown;
   numFmt?: string;
+  fontColor?: string;
 };
 
 type WorkbookPlan = {
@@ -248,7 +250,7 @@ class WorkbookWorkflowState {
     const requestedTargets = targetSummary(requestedPlan.operations);
     return blocked(
       "write_plan_mismatch",
-      "The managed write must match one passing preflight plan exactly, including artifact, targets, base versions, formulas or values, cached results, and number formats.",
+      "The managed write must match one passing preflight plan exactly, including artifact, targets, base versions, formulas or values, cached results, number formats, and font colors.",
       approved
         ? `Retry write_locked_cells with the approved artifact and at least one unchanged operation from its ${approved.operations.length}-operation plan, or submit a corrected replacement preflight first.`
         : "Retry with the exact artifact and operation set from one passing preflight, or submit a corrected replacement preflight first.",
@@ -392,6 +394,9 @@ function normalizeOperation(value: unknown, artifactId: string): WorkbookOperati
       : nested && formula ? undefined : ownValue(operation, ["value", "newValue", "new_value", "text", "content"]);
   const numFmt = stringField(operation, ["numFmt", "num_fmt", "numberFormat", "number_format"])
     ?? (nested ? stringField(nested, ["numFmt", "num_fmt", "numberFormat", "number_format"]) : undefined);
+  const rawFontColor = ownValue(operation, ["fontColor", "font_color"])
+    ?? (nested ? ownValue(nested, ["fontColor", "font_color"]) : undefined);
+  const fontColor = normalizeSpreadsheetFontColor(rawFontColor);
   const baseVersion = integerValue(ownValue(operation, ["baseVersion", "base_version", "currentVersion", "current_version", "version"]));
   const normalizedElementId = normalizeElementId(elementId);
   return [{
@@ -402,6 +407,7 @@ function normalizeOperation(value: unknown, artifactId: string): WorkbookOperati
     ...(formula && result !== undefined ? { result: normalizeJson(result) } : {}),
     ...(!formula && scalarValue !== undefined ? { value: normalizeJson(scalarValue) } : {}),
     ...(numFmt?.trim() ? { numFmt: numFmt.trim() } : {}),
+    ...(fontColor ? { fontColor } : {}),
   }];
 }
 
@@ -425,7 +431,16 @@ function displayArtifact(value: string): string {
 }
 
 function normalizeElementId(value: string): string {
-  return value.trim().replace(/\$/g, "").replace(/^'([^']+)'!/, "$1!").replace(/\s*!\s*/g, "!").toUpperCase();
+  const trimmed = value.trim();
+  const reference = trimmed.match(
+    /^(?:(?:'((?:[^']|'')+)'|([^!]+?))\s*!\s*)?(\$?[A-Z]{1,3}\$?[1-9][0-9]*)(?:\s*:\s*(\$?[A-Z]{1,3}\$?[1-9][0-9]*))?$/i,
+  );
+  if (!reference) return trimmed;
+
+  const sheet = reference[1]?.replace(/''/g, "'") ?? reference[2]?.trim();
+  const start = reference[3].replace(/\$/g, "").toUpperCase();
+  const end = reference[4]?.replace(/\$/g, "").toUpperCase();
+  return `${sheet ? `${sheet}!` : ""}${start}${end ? `:${end}` : ""}`;
 }
 
 function targetFor(elementId: string, artifactId: string): string {
@@ -527,6 +542,7 @@ function operationArgs(operation: WorkbookOperation): Record<string, unknown> {
     ...(Object.prototype.hasOwnProperty.call(operation, "value") ? { value: operation.value } : {}),
     ...(Object.prototype.hasOwnProperty.call(operation, "result") ? { result: operation.result } : {}),
     ...(operation.numFmt ? { numFmt: operation.numFmt } : {}),
+    ...(operation.fontColor ? { fontColor: operation.fontColor } : {}),
   };
 }
 

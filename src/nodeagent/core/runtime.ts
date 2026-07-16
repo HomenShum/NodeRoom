@@ -150,6 +150,51 @@ function deterministicToolFailureKey(toolName: string, result: unknown): string 
   return JSON.stringify([toolName, error, failureKind, reasonKey]);
 }
 
+const SCHEMA_PLACEHOLDER_STRINGS = new Set(["string", "<string>"]);
+
+function schemaPlaceholderArgumentPaths(value: unknown): string[] | null {
+  const stringLeaves: Array<{ path: string; value: string }> = [];
+
+  const visit = (current: unknown, path: string): void => {
+    if (typeof current === "string") {
+      if (current.trim().length > 0) stringLeaves.push({ path: path || "$", value: current });
+      return;
+    }
+    if (Array.isArray(current)) {
+      current.forEach((item, index) => visit(item, `${path}[${index}]`));
+      return;
+    }
+    if (!current || typeof current !== "object") return;
+    for (const [key, item] of Object.entries(current)) {
+      visit(item, path ? `${path}.${key}` : key);
+    }
+  };
+
+  visit(value, "");
+  if (stringLeaves.length === 0 || stringLeaves.some((leaf) => !SCHEMA_PLACEHOLDER_STRINGS.has(leaf.value))) {
+    return null;
+  }
+  return stringLeaves.map((leaf) => leaf.path);
+}
+
+function schemaPlaceholderArgumentResult(toolName: string, paths: string[]) {
+  return {
+    ok: false,
+    error: "tool_argument_error",
+    failureKind: "schema_placeholder_arguments",
+    missingRequiredArgs: [],
+    issues: paths.map((path) => ({
+      path,
+      code: "schema_placeholder_arguments",
+      message: "Replace the schema placeholder with a real task-specific value.",
+    })),
+    recovery: {
+      action: "retry_tool_call",
+      instruction: `Retry ${toolName} with real task-specific argument values instead of schema placeholders such as \"string\" or \"<string>\".`,
+    },
+  };
+}
+
 function toolArgumentErrorResult(toolName: string, issues: Array<{ path: PropertyKey[]; code: string; message: string }>): ToolArgumentErrorResult {
   const normalized = issues.map((issue) => ({
     path: issue.path.map(String).join("."),
@@ -680,18 +725,23 @@ export async function runAgent(opts: {
       const parsed = tool.schema.safeParse(activeCall.args);
       try {
         if (parsed.success) {
-          const coverageFailure = btbPackageCoverageFailure(goal, activeCall.tool, parsed.data);
-          if (coverageFailure) {
-            result = coverageFailure;
+          const placeholderPaths = schemaPlaceholderArgumentPaths(parsed.data);
+          if (placeholderPaths) {
+            result = schemaPlaceholderArgumentResult(activeCall.tool, placeholderPaths);
           } else {
-            const signal = modelSignal();
-            try {
-              result = await settleWithAbort(tool.execute(parsed.data, rt, {
-                signal: signal.signal,
-                deadlineAt: deadlineAt === undefined ? undefined : deadlineAt - reserveMs,
-              }), signal.signal);
-            } finally {
-              signal.cancel();
+            const coverageFailure = btbPackageCoverageFailure(goal, activeCall.tool, parsed.data);
+            if (coverageFailure) {
+              result = coverageFailure;
+            } else {
+              const signal = modelSignal();
+              try {
+                result = await settleWithAbort(tool.execute(parsed.data, rt, {
+                  signal: signal.signal,
+                  deadlineAt: deadlineAt === undefined ? undefined : deadlineAt - reserveMs,
+                }), signal.signal);
+              } finally {
+                signal.cancel();
+              }
             }
           }
         } else {

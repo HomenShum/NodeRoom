@@ -15,13 +15,16 @@
  */
 import { describe, it, expect, vi } from "vitest";
 import {
+  agentJobScopeSummary,
   agentRunIdFor,
   chatDayLabel,
+  compactElapsed,
   groupAgentRuns,
   groupMessagesByDay,
   runCollapsedByDefault,
   shouldShowJumpToLatest,
 } from "../src/ui/Chat";
+import type { AgentJobTelemetry } from "../src/app/store";
 
 type Row = { key: string; createdAt: number };
 const at = (y: number, mo: number, d: number, h = 12, mi = 0, s = 0, ms = 0) =>
@@ -43,6 +46,36 @@ const dividers = (rows: Array<{ kind: string; label?: string }>): string[] =>
 
 // The fixed "reading moment": Priya opens the room Sat Jul 4 2026, 14:00 local.
 const NOW = at(2026, 6, 4, 14, 0);
+
+describe("durable run chrome", () => {
+  it("derives authoritative read, write, and review scope from the projected job request", () => {
+    const job = {
+      artifactId: "sheet-1",
+      approvalPolicy: "propose_only",
+      request: {
+        targetArtifactId: "sheet-1",
+        allowedElementIds: ["A1", "B1"],
+        references: [{ id: "memo-1", title: "Diligence memo" }],
+      },
+    } as AgentJobTelemetry;
+
+    expect(agentJobScopeSummary(job, [
+      { id: "sheet-1", title: "Q3 variance" },
+      { id: "memo-1", title: "Diligence memo" },
+    ])).toEqual({
+      reads: "Diligence memo",
+      writes: "Q3 variance · 2 targets",
+      review: "Changes require review",
+    });
+  });
+
+  it("formats elapsed time without wall-clock ambiguity", () => {
+    expect(compactElapsed(1_000, 1_000)).toBe("0s");
+    expect(compactElapsed(1_000, 60_000)).toBe("59s");
+    expect(compactElapsed(1_000, 126_000)).toBe("2m 5s");
+    expect(compactElapsed(1_000, 3_662_000)).toBe("1h 1m");
+  });
+});
 
 describe("day dividers — Priya reads a week of scale-room chat", () => {
   it("labels Today / Yesterday / same-year dates / prior-year dates", () => {
@@ -97,6 +130,7 @@ describe("day dividers — Priya reads a week of scale-room chat", () => {
 
 describe("agent-run collapse — Homen's @nodeagent jobs fold to one line", () => {
   it("extracts the run id from the runner's clientMsgId lanes and from nowhere else", () => {
+    expect(agentRunIdFor({ author: { kind: "agent" }, jobId: "typed-job", clientMsgId: "final-legacy-run" })).toBe("typed-job");
     expect(agentRunIdFor({ author: { kind: "agent" }, clientMsgId: "pubstream-job42" })).toBe("job42");
     expect(agentRunIdFor({ author: { kind: "agent" }, clientMsgId: "final-run9" })).toBe("run9");
     expect(agentRunIdFor({ author: { kind: "agent" }, clientMsgId: "plan-blocked-job42" })).toBe("job42");

@@ -325,7 +325,7 @@ test.describe("deployed authenticated first-user journey", () => {
     await expect(page.getByTestId("mobile-header")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("gap-firstjoin")).toBeVisible();
     await page.getByRole("button", { name: "Dismiss first-join welcome" }).click();
-    await expect(page.getByTestId("mobile-sample-banner")).toContainText("Sample workspace.", { timeout: 90_000 });
+    await expect(page.getByTestId("mobile-sample-banner")).toContainText("Live runtime · sample data.", { timeout: 90_000 });
 
     const deckCard = page.locator('.na-rcard[data-kind="deck"]');
     await expect(deckCard).toHaveCount(1, { timeout: 60_000 });

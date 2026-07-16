@@ -71,6 +71,13 @@ export function mergeSpreadsheetBenchRepairReport(args: {
   const passCount = results.filter((result) => result.score?.pass).length;
   const casePassCount = caseRuns.filter((caseRun) => caseRun.pass).length;
   const usage = aggregateUsage(results);
+  const replacedWarningMarkers = replacementTaskIds.flatMap((taskId) => {
+    const result = baseResults.get(taskId);
+    return [taskId, result?.taskDir].filter((value): value is string => Boolean(value));
+  });
+  const baseWarnings = args.base.warnings.filter(
+    (warning) => !replacedWarningMarkers.some((marker) => warning.includes(marker)),
+  );
   const { chunked: _chunked, chunkSize: _chunkSize, chunks: _chunks, ...base } = args.base as SpreadsheetBenchRunnerReport & {
     chunked?: boolean;
     chunkSize?: number;
@@ -113,7 +120,7 @@ export function mergeSpreadsheetBenchRepairReport(args: {
         providerCostUsd: usage.costUsd,
       },
     },
-    warnings: [...new Set([...args.base.warnings, ...args.repair.warnings])],
+    warnings: [...new Set([...baseWarnings, ...args.repair.warnings])],
     caseRuns,
     results,
     repairMerge: {

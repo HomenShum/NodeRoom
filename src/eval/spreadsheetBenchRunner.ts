@@ -35,7 +35,56 @@ import {
 
 export type SpreadsheetBenchRunnerMode = "copy-input-baseline" | "apply-agent-patch" | "model-edit-plan" | "nodeagent-workbook";
 
+export type SpreadsheetBenchExcelFinalizationStatus =
+  | "completed"
+  | "completed_stable_pending"
+  | "not_required"
+  | "preserved_pending"
+  | "preserved_unsupported"
+  | "preserved_error";
+
+export type SpreadsheetBenchExcelFormulaTopology = {
+  safe: boolean;
+  supportedTypes?: string[];
+  counts?: Record<string, number>;
+  cacheTargetCellCount?: number;
+  unsupported?: Array<Record<string, unknown>>;
+};
+
+export type SpreadsheetBenchExcelFinalizationReceipt = SpreadsheetBenchCandidateFinalizationReceipt & {
+  status: SpreadsheetBenchExcelFinalizationStatus;
+  reason: string;
+  calculationStates?: {
+    beforeCacheRead: number;
+    afterCacheRead: number;
+  };
+  formulaTopology?: SpreadsheetBenchExcelFormulaTopology;
+  calculationStability?: {
+    mode: "stable_pending_opt_in";
+    passed: true;
+    requiredIdenticalReads: number;
+    observedIdenticalReads: number;
+    observedReads: number;
+    sampleIntervalMs: number;
+    timeoutMs: number;
+  };
+  formulaTopologyPreservation?: {
+    matched: true;
+    beforeSha256: string;
+    afterSha256: string;
+    formulaElementCount: number;
+  };
+};
+
 const FORMULA_RESULT_POLICY = "deterministic_local_subset";
+const EXCEL_FINALIZATION_STATUSES = new Set<SpreadsheetBenchExcelFinalizationStatus>([
+  "completed",
+  "completed_stable_pending",
+  "not_required",
+  "preserved_pending",
+  "preserved_unsupported",
+  "preserved_error",
+]);
 const SUPPORTED_FORMULA_FUNCTIONS = [
   "SUM",
   "AVERAGE",
@@ -90,6 +139,7 @@ export type SpreadsheetBenchRunnerOptions = {
   modelSnapshotMaxCellChars?: number;
   modelRepairAttempts?: number;
   refreshExcelCaches?: boolean;
+  allowStablePendingCaches?: boolean;
   taskIds?: string[];
   repeats?: number;
   retryFailed?: number;
@@ -233,6 +283,7 @@ export type SpreadsheetBenchRunnerReport = {
       instructionMaxChars: number | null;
       repairAttempts: number;
       refreshExcelCaches?: boolean;
+      allowStablePendingCaches?: boolean;
       selectedTaskCount: number;
     };
     budget: {
@@ -474,6 +525,7 @@ export async function runStagedSpreadsheetBench(options: SpreadsheetBenchRunnerO
         instructionMaxChars: (options.modelBatchSize ?? 1) > 1 ? BATCH_INSTRUCTION_MAX_CHARS : null,
         repairAttempts: Math.max(0, Math.min(3, Math.trunc(options.modelRepairAttempts ?? 0))),
         refreshExcelCaches: options.refreshExcelCaches === true,
+        allowStablePendingCaches: options.allowStablePendingCaches === true,
         selectedTaskCount: selectedTasks.length,
       },
       budget: {
@@ -544,6 +596,7 @@ async function runTask(
     modelSnapshotMaxCellChars: options.modelSnapshotMaxCellChars,
     modelRepairAttempts: options.modelRepairAttempts,
     refreshExcelCaches: options.refreshExcelCaches,
+    allowStablePendingCaches: options.allowStablePendingCaches,
     batchedModelPlan,
   });
   let emitted: string | ModelCandidateEmission;
@@ -796,6 +849,7 @@ function emitCandidateWorkbook(args: {
   modelSnapshotMaxCellChars?: number;
   modelRepairAttempts?: number;
   refreshExcelCaches?: boolean;
+  allowStablePendingCaches?: boolean;
   batchedModelPlan?: BatchedModelPlan;
 }): Promise<string | ModelCandidateEmission> | string {
   const firstInput = args.agent.inputFiles[0];
@@ -855,6 +909,7 @@ async function emitNodeAgentWorkbookCandidate(args: {
   modelSnapshotMaxCells?: number;
   modelRepairAttempts?: number;
   refreshExcelCaches?: boolean;
+  allowStablePendingCaches?: boolean;
 }): Promise<ModelCandidateEmission> {
   if (!args.model) throw new Error(`nodeagent-workbook requires options.model: ${args.agent.taskId}`);
   const started = Date.now();
@@ -874,10 +929,11 @@ async function emitNodeAgentWorkbookCandidate(args: {
           finalizeCandidate: ({ candidateWorkbookPath, beforeSha256 }: {
             candidateWorkbookPath: string;
             beforeSha256: string;
-          }) => refreshCandidateExcelCaches({
+          }) => finalizeCandidateExcelCaches({
             candidateWorkbookPath,
             beforeSha256,
             receiptPath: join(args.taskOutDir, "candidate-finalization.json"),
+            allowStablePendingCaches: args.allowStablePendingCaches === true,
           }),
         }
       : {}),
@@ -934,15 +990,23 @@ async function emitNodeAgentWorkbookCandidate(args: {
   return { path: args.target, modelPlanningMs, model: modelInfo };
 }
 
-function refreshCandidateExcelCaches(args: {
+function finalizeCandidateExcelCaches(args: {
   candidateWorkbookPath: string;
   beforeSha256: string;
   receiptPath: string;
-}): SpreadsheetBenchCandidateFinalizationReceipt {
+  allowStablePendingCaches: boolean;
+}): SpreadsheetBenchExcelFinalizationReceipt {
   const script = resolve("scripts", "spreadsheetbench-refresh-excel.py");
   const result = spawnSync(
     process.env.PYTHON?.trim() || "python",
-    [script, "--file", args.candidateWorkbookPath, "--receipt", args.receiptPath],
+    [
+      script,
+      "--file",
+      args.candidateWorkbookPath,
+      "--receipt",
+      args.receiptPath,
+      ...(args.allowStablePendingCaches ? ["--allow-stable-pending"] : []),
+    ],
     {
       cwd: process.cwd(),
       encoding: "utf8",
@@ -952,43 +1016,339 @@ function refreshCandidateExcelCaches(args: {
     },
   );
   if (result.error) {
-    throw new Error(`SpreadsheetBench Excel cache refresh failed to start: ${result.error.message}`);
+    throw new Error(`SpreadsheetBench Excel finalization failed to start: ${result.error.message}`);
   }
   if (result.status !== 0) {
     const detail = [result.stderr, result.stdout].filter(Boolean).join(" ").replace(/\s+/g, " ").trim().slice(0, 1_000);
-    throw new Error(`SpreadsheetBench Excel cache refresh failed (${String(result.status)}): ${detail}`);
+    throw new Error(`SpreadsheetBench Excel finalization failed (${String(result.status)}): ${detail}`);
   }
-  const refresh = readJson<{
+  return readCandidateExcelFinalizationReceipt(args);
+}
+
+export function readCandidateExcelFinalizationReceipt(args: {
+  candidateWorkbookPath: string;
+  beforeSha256: string;
+  receiptPath: string;
+}): SpreadsheetBenchExcelFinalizationReceipt {
+  const receiptContent = readFileSync(args.receiptPath);
+  const refresh = JSON.parse(receiptContent.toString("utf8")) as {
+    schema?: number;
     engine?: string;
+    policy?: { fallback?: string };
+    workbookCount?: number;
     records?: Array<{
       status?: string;
+      reason?: string;
       beforeSha256?: string;
       afterSha256?: string;
+      changed?: boolean;
       formulaCellCount?: number;
       cacheWriteMode?: string;
+      calculationStates?: {
+        beforeCacheRead?: number;
+        afterCacheRead?: number;
+      };
+      calculationStability?: {
+        mode?: unknown;
+        passed?: unknown;
+        requiredIdenticalReads?: unknown;
+        observedIdenticalReads?: unknown;
+        observedReads?: unknown;
+        sampleIntervalMs?: unknown;
+        timeoutMs?: unknown;
+      };
+      formulaTopology?: {
+        safe?: boolean;
+        supportedTypes?: unknown;
+        counts?: unknown;
+        cacheTargetCellCount?: unknown;
+        unsupported?: unknown;
+      };
+      formulaTopologyPreservation?: {
+        matched?: unknown;
+        beforeSha256?: unknown;
+        afterSha256?: unknown;
+        formulaElementCount?: unknown;
+      };
     }>;
-  }>(args.receiptPath);
+  };
+  const engine = refresh.engine?.trim() || "";
+  if (refresh.schema !== 1 || refresh.workbookCount !== 1) {
+    throw new Error("SpreadsheetBench Excel finalization receipt has an invalid single-workbook schema");
+  }
+  if (!engine || /libre\s*office|soffice/i.test(engine) || refresh.policy?.fallback !== "none") {
+    throw new Error("SpreadsheetBench Excel finalization receipt does not prove the no-fallback Excel policy");
+  }
+  if (refresh.records?.length !== 1) {
+    throw new Error("SpreadsheetBench Excel finalization receipt must contain exactly one record");
+  }
   const record = refresh.records?.[0];
-  if (!record || record.status !== "refreshed") {
-    throw new Error("SpreadsheetBench Excel cache refresh receipt is missing a refreshed record");
+  if (!record || !EXCEL_FINALIZATION_STATUSES.has(record.status as SpreadsheetBenchExcelFinalizationStatus)) {
+    throw new Error("SpreadsheetBench Excel finalization receipt has a non-canonical terminal status");
   }
-  if (record.beforeSha256 !== args.beforeSha256 || !record.afterSha256) {
-    throw new Error("SpreadsheetBench Excel cache refresh receipt hash boundary is invalid");
+  const status = record.status as SpreadsheetBenchExcelFinalizationStatus;
+  const reason = record.reason?.trim() || "";
+  if (!reason) {
+    throw new Error("SpreadsheetBench Excel finalization receipt is missing its terminal reason");
   }
-  const receiptContent = readFileSync(args.receiptPath);
+  if (
+    !isSha256(record.beforeSha256)
+    || record.beforeSha256 !== args.beforeSha256
+    || !isSha256(record.afterSha256)
+    || typeof record.changed !== "boolean"
+    || record.changed !== (record.beforeSha256 !== record.afterSha256)
+  ) {
+    throw new Error("SpreadsheetBench Excel finalization receipt hash boundary is invalid");
+  }
+  const candidateSha256 = createHash("sha256").update(readFileSync(args.candidateWorkbookPath)).digest("hex");
+  if (candidateSha256 !== record.afterSha256) {
+    throw new Error("SpreadsheetBench Excel finalization receipt does not match the candidate workbook");
+  }
+  if (
+    (status === "not_required" || status.startsWith("preserved_"))
+    && (record.changed || record.beforeSha256 !== record.afterSha256)
+  ) {
+    throw new Error("SpreadsheetBench non-mutating finalization evidence must report unchanged identical hashes");
+  }
+
+  const calculationStates = parseCalculationStates(record.calculationStates);
+  const formulaTopology = parseFormulaTopology(record.formulaTopology);
+  const calculationStability = status === "completed_stable_pending"
+    ? parseCalculationStability(record.calculationStability)
+    : undefined;
+  const formulaTopologyPreservation = parseFormulaTopologyPreservation(record.formulaTopologyPreservation);
+  if (status === "completed") {
+    if (!Number.isInteger(record.formulaCellCount) || Number(record.formulaCellCount) <= 0) {
+      throw new Error("SpreadsheetBench completed finalization requires a positive formula cell count");
+    }
+    if (!calculationStates || calculationStates.beforeCacheRead !== 0 || calculationStates.afterCacheRead !== 0) {
+      throw new Error("SpreadsheetBench completed finalization requires Excel calculation state 0 before and after the cache read");
+    }
+    if (!formulaTopology?.safe) {
+      throw new Error("SpreadsheetBench completed finalization requires supported formula topology evidence");
+    }
+    if (!formulaTopologyPreservation || formulaTopologyPreservation.formulaElementCount !== record.formulaCellCount) {
+      throw new Error("SpreadsheetBench completed finalization requires byte-identical formula-topology preservation evidence");
+    }
+  }
+  if (status === "completed_stable_pending") {
+    if (!Number.isInteger(record.formulaCellCount) || Number(record.formulaCellCount) <= 0) {
+      throw new Error("SpreadsheetBench stable-pending finalization requires a positive formula cell count");
+    }
+    if (!calculationStates || (calculationStates.beforeCacheRead === 0 && calculationStates.afterCacheRead === 0)) {
+      throw new Error("SpreadsheetBench stable-pending finalization requires a nonzero Excel calculation state");
+    }
+    if (!formulaTopology?.safe || !calculationStability) {
+      throw new Error("SpreadsheetBench stable-pending finalization requires safe topology and stability evidence");
+    }
+    if (!formulaTopologyPreservation || formulaTopologyPreservation.formulaElementCount !== record.formulaCellCount) {
+      throw new Error("SpreadsheetBench stable-pending finalization requires byte-identical formula-topology preservation evidence");
+    }
+  }
+  if (status === "not_required" && (record.formulaCellCount !== 0 || formulaTopology?.safe !== true)) {
+    throw new Error("SpreadsheetBench not_required finalization requires safe zero-formula topology evidence");
+  }
+  if (status === "preserved_pending") {
+    if (!Number.isInteger(record.formulaCellCount) || Number(record.formulaCellCount) <= 0) {
+      throw new Error("SpreadsheetBench preserved_pending finalization requires a positive formula cell count");
+    }
+    if (!calculationStates || (calculationStates.beforeCacheRead === 0 && calculationStates.afterCacheRead === 0)) {
+      throw new Error("SpreadsheetBench preserved_pending finalization requires a nonzero Excel calculation state");
+    }
+    if (formulaTopology?.safe !== true) {
+      throw new Error("SpreadsheetBench preserved_pending finalization requires supported formula topology evidence");
+    }
+    validateRejectedCalculationStability(record.calculationStability);
+  }
+  if (status === "preserved_unsupported") {
+    if (!Number.isInteger(record.formulaCellCount) || Number(record.formulaCellCount) <= 0) {
+      throw new Error("SpreadsheetBench preserved_unsupported finalization requires a positive formula cell count");
+    }
+    if (formulaTopology?.safe !== false || !formulaTopology.unsupported?.length) {
+      throw new Error("SpreadsheetBench preserved_unsupported finalization requires unsafe topology evidence");
+    }
+  }
   return {
-    engine: refresh.engine?.trim() || "spreadsheetbench-excel-cache-refresh",
+    engine,
+    status,
+    reason,
     beforeSha256: record.beforeSha256,
     afterSha256: record.afterSha256,
-    changed: record.beforeSha256 !== record.afterSha256,
+    changed: record.changed,
     ...(typeof record.formulaCellCount === "number" ? { formulaCellCount: record.formulaCellCount } : {}),
     ...(record.cacheWriteMode ? { cacheWriteMode: record.cacheWriteMode } : {}),
+    ...(calculationStates ? { calculationStates } : {}),
+    ...(formulaTopology ? { formulaTopology } : {}),
+    ...(calculationStability ? { calculationStability } : {}),
+    ...(formulaTopologyPreservation ? { formulaTopologyPreservation } : {}),
     receipt: {
       path: resolve(args.receiptPath),
       sha256: createHash("sha256").update(receiptContent).digest("hex"),
       bytes: receiptContent.byteLength,
     },
   };
+}
+
+function parseCalculationStability(value: {
+  mode?: unknown;
+  passed?: unknown;
+  requiredIdenticalReads?: unknown;
+  observedIdenticalReads?: unknown;
+  observedReads?: unknown;
+  sampleIntervalMs?: unknown;
+  timeoutMs?: unknown;
+} | undefined): SpreadsheetBenchExcelFinalizationReceipt["calculationStability"] | undefined {
+  if (value === undefined) return undefined;
+  if (
+    value.mode !== "stable_pending_opt_in"
+    || value.passed !== true
+    || !Number.isInteger(value.requiredIdenticalReads)
+    || Number(value.requiredIdenticalReads) < 3
+    || !Number.isInteger(value.observedIdenticalReads)
+    || Number(value.observedIdenticalReads) < Number(value.requiredIdenticalReads)
+    || !Number.isInteger(value.observedReads)
+    || Number(value.observedReads) < Number(value.observedIdenticalReads)
+    || !Number.isInteger(value.sampleIntervalMs)
+    || Number(value.sampleIntervalMs) < 1
+    || !Number.isInteger(value.timeoutMs)
+    || Number(value.timeoutMs) < Number(value.sampleIntervalMs)
+  ) {
+    throw new Error("SpreadsheetBench Excel finalization receipt has invalid stable-pending evidence");
+  }
+  return {
+    mode: "stable_pending_opt_in",
+    passed: true,
+    requiredIdenticalReads: Number(value.requiredIdenticalReads),
+    observedIdenticalReads: Number(value.observedIdenticalReads),
+    observedReads: Number(value.observedReads),
+    sampleIntervalMs: Number(value.sampleIntervalMs),
+    timeoutMs: Number(value.timeoutMs),
+  };
+}
+
+function validateRejectedCalculationStability(value: {
+  mode?: unknown;
+  passed?: unknown;
+  requiredIdenticalReads?: unknown;
+  observedIdenticalReads?: unknown;
+  observedReads?: unknown;
+  sampleIntervalMs?: unknown;
+  timeoutMs?: unknown;
+} | undefined): void {
+  if (value === undefined) return;
+  if (
+    value.mode !== "stable_pending_opt_in"
+    || value.passed !== false
+    || !Number.isInteger(value.requiredIdenticalReads)
+    || Number(value.requiredIdenticalReads) < 3
+    || !Number.isInteger(value.observedIdenticalReads)
+    || Number(value.observedIdenticalReads) < 0
+    || Number(value.observedIdenticalReads) >= Number(value.requiredIdenticalReads)
+    || !Number.isInteger(value.observedReads)
+    || Number(value.observedReads) < Number(value.observedIdenticalReads)
+    || !Number.isInteger(value.sampleIntervalMs)
+    || Number(value.sampleIntervalMs) < 1
+    || !Number.isInteger(value.timeoutMs)
+    || Number(value.timeoutMs) < Number(value.sampleIntervalMs)
+  ) {
+    throw new Error("SpreadsheetBench preserved_pending finalization has invalid rejected stability evidence");
+  }
+}
+
+function parseFormulaTopologyPreservation(value: {
+  matched?: unknown;
+  beforeSha256?: unknown;
+  afterSha256?: unknown;
+  formulaElementCount?: unknown;
+} | undefined): SpreadsheetBenchExcelFinalizationReceipt["formulaTopologyPreservation"] | undefined {
+  if (value === undefined) return undefined;
+  if (
+    value.matched !== true
+    || !isSha256(value.beforeSha256)
+    || value.beforeSha256 !== value.afterSha256
+    || !Number.isInteger(value.formulaElementCount)
+    || Number(value.formulaElementCount) <= 0
+  ) {
+    throw new Error("SpreadsheetBench Excel finalization receipt has invalid formula-topology preservation evidence");
+  }
+  return {
+    matched: true,
+    beforeSha256: value.beforeSha256,
+    afterSha256: value.afterSha256 as string,
+    formulaElementCount: Number(value.formulaElementCount),
+  };
+}
+
+function parseCalculationStates(value: {
+  beforeCacheRead?: number;
+  afterCacheRead?: number;
+} | undefined): SpreadsheetBenchExcelFinalizationReceipt["calculationStates"] | undefined {
+  if (value === undefined) return undefined;
+  if (!Number.isInteger(value.beforeCacheRead) || !Number.isInteger(value.afterCacheRead)) {
+    throw new Error("SpreadsheetBench Excel finalization receipt has invalid calculation-state evidence");
+  }
+  return {
+    beforeCacheRead: value.beforeCacheRead as number,
+    afterCacheRead: value.afterCacheRead as number,
+  };
+}
+
+function parseFormulaTopology(value: {
+  safe?: boolean;
+  supportedTypes?: unknown;
+  counts?: unknown;
+  cacheTargetCellCount?: unknown;
+  unsupported?: unknown;
+} | undefined): SpreadsheetBenchExcelFormulaTopology | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value.safe !== "boolean") {
+    throw new Error("SpreadsheetBench Excel finalization receipt has invalid formula-topology evidence");
+  }
+  const supportedTypes = Array.isArray(value.supportedTypes)
+    && value.supportedTypes.every((item) => typeof item === "string")
+    ? value.supportedTypes as string[]
+    : undefined;
+  const counts = isNumericRecord(value.counts) ? value.counts : undefined;
+  const cacheTargetCellCount = Number.isInteger(value.cacheTargetCellCount)
+    && Number(value.cacheTargetCellCount) >= 0
+    ? Number(value.cacheTargetCellCount)
+    : undefined;
+  const unsupported = Array.isArray(value.unsupported)
+    && value.unsupported.every((item) => isRecord(item))
+    ? value.unsupported as Array<Record<string, unknown>>
+    : undefined;
+  if (value.supportedTypes !== undefined && !supportedTypes) {
+    throw new Error("SpreadsheetBench Excel finalization receipt has invalid supported topology types");
+  }
+  if (value.counts !== undefined && !counts) {
+    throw new Error("SpreadsheetBench Excel finalization receipt has invalid topology counts");
+  }
+  if (value.cacheTargetCellCount !== undefined && cacheTargetCellCount === undefined) {
+    throw new Error("SpreadsheetBench Excel finalization receipt has invalid cache-target count");
+  }
+  if (value.unsupported !== undefined && !unsupported) {
+    throw new Error("SpreadsheetBench Excel finalization receipt has invalid unsupported topology detail");
+  }
+  return {
+    safe: value.safe,
+    ...(supportedTypes ? { supportedTypes } : {}),
+    ...(counts ? { counts } : {}),
+    ...(cacheTargetCellCount !== undefined ? { cacheTargetCellCount } : {}),
+    ...(unsupported ? { unsupported } : {}),
+  };
+}
+
+function isSha256(value: unknown): value is string {
+  return typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
+}
+
+function isNumericRecord(value: unknown): value is Record<string, number> {
+  return isRecord(value)
+    && Object.values(value).every((item) => typeof item === "number" && Number.isInteger(item) && item >= 0);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 type AgentWorkspace = {

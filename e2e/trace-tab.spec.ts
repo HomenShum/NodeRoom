@@ -1,5 +1,11 @@
 import { test, expect, enterDemoRoom } from "./fixtures";
 
+async function openTraceRecords(page: Parameters<typeof enterDemoRoom>[0]) {
+  await page.getByTestId("trace-tab").click();
+  await expect(page.getByTestId("trace-view-runs")).toHaveAttribute("aria-selected", "true");
+  await page.getByTestId("trace-view-records").click();
+}
+
 /**
  * Trace work-surface tab — a banker audits provenance after agent work + a QA run.
  * The tab sits alongside the artifacts; it lists the live agent's source-backed claims and a real
@@ -10,7 +16,7 @@ test.describe("trace work-surface tab", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await enterDemoRoom(page);
 
-    await page.getByTestId("trace-tab").click();
+    await openTraceRecords(page);
     await expect(page.getByTestId("trace-surface")).toBeVisible();
     expect(await page.getByTestId("trace-record").count()).toBeGreaterThanOrEqual(2);
 
@@ -30,7 +36,7 @@ test.describe("trace work-surface tab", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await enterDemoRoom(page);
 
-    await page.getByTestId("trace-tab").click();
+    await openTraceRecords(page);
     await page.getByTestId("trace-record").first().click(); // the live agent record
     await page.getByTestId("trace-tab-steps").click();
 
@@ -46,7 +52,7 @@ test.describe("trace work-surface tab", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await enterDemoRoom(page);
 
-    await page.getByTestId("trace-tab").click();
+    await openTraceRecords(page);
     await page.getByTestId("trace-record").filter({ hasText: "walkthrough" }).first().click();
     await page.getByTestId("trace-tab-steps").click();
     // Steps are grouped (collapsible) and carry a frame-Δ flicker signal — the QA-automation pipeline.
@@ -61,7 +67,7 @@ test.describe("trace work-surface tab", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await enterDemoRoom(page);
 
-    await page.getByTestId("trace-tab").click();
+    await openTraceRecords(page);
     expect(await page.getByTestId("trace-record").count()).toBeGreaterThanOrEqual(5);
 
     // (a) web-source retrieval: the live page is screenshotted with a highlight box on the retrieved value.
@@ -79,7 +85,7 @@ test.describe("trace work-surface tab", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await enterDemoRoom(page);
 
-    await page.getByTestId("trace-tab").click();
+    await openTraceRecords(page);
     await page.getByTestId("trace-record").filter({ hasText: "ledger consolidation" }).first().click();
     await expect(page.getByText("Shippable without review? NO", { exact: false }).first()).toBeVisible();
 
@@ -92,7 +98,7 @@ test.describe("trace work-surface tab", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await enterDemoRoom(page);
 
-    await page.getByTestId("trace-tab").click();
+    await openTraceRecords(page);
     await page.getByTestId("trace-record").filter({ hasText: "ledger consolidation" }).first().click();
     await page.getByTestId("trace-tab-flow").click();
 
@@ -117,7 +123,7 @@ test.describe("trace work-surface tab", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await enterDemoRoom(page);
 
-    await page.getByTestId("trace-tab").click();
+    await openTraceRecords(page);
     await page.getByTestId("trace-record").filter({ hasText: "QA" }).first().click();
     await page.getByTestId("trace-tab-observability").click();
 

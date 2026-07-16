@@ -33,9 +33,18 @@ if (smoke) {
     liveProbes.push({ kind: "text", status: "skipped", reason: "missing OPENROUTER_API_KEY" });
   } else {
     const startedAt = Date.now();
-    const text = await judge("openrouter/free-auto", "Reply with exactly: OK");
-    console.log(`SMOKE openrouter/free-auto -> ${JSON.stringify(text.slice(0, 80))}`);
-    liveProbes.push({ kind: "text", status: /^\s*OK\s*$/i.test(text) ? "passed" : "failed", requestedModel: "openrouter/free-auto", durationMs: Date.now() - startedAt, preview: text.slice(0, 80) });
+    try {
+      const text = await judge("openrouter/free-auto", "Reply with exactly: OK");
+      const passed = /^\s*OK\s*$/i.test(text);
+      console.log(`SMOKE openrouter/free-auto -> ${JSON.stringify(text.slice(0, 80))}`);
+      liveProbes.push({ kind: "text", status: passed ? "passed" : "failed", requestedModel: "openrouter/free-auto", durationMs: Date.now() - startedAt, preview: text.slice(0, 80) });
+      if (!passed) process.exitCode = 1;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.log(`SMOKE openrouter/free-auto -> failed: ${message}`);
+      liveProbes.push({ kind: "text", status: "failed", requestedModel: "openrouter/free-auto", durationMs: Date.now() - startedAt, error: message });
+      process.exitCode = 1;
+    }
   }
 }
 
@@ -46,33 +55,48 @@ if (agentSmoke) {
   } else {
     const startedAt = Date.now();
     const route = model("openrouter/free-auto");
-    const res = await route.next({
-      system: "You are a tool-using smoke test. When asked, call the report_answer tool exactly once.",
-      messages: [{ role: "user", content: "Call report_answer with value OK." }],
-      tools: [{
-        name: "report_answer",
-        description: "Report a short answer.",
-        schema: z.object({ value: z.string() }),
-        execute: async () => ({ ok: true }),
-      }],
-    });
-    const first = res.toolCalls[0];
-    const passed = first?.tool === "report_answer" && String(first.args.value) === "OK";
-    console.log(`AGENT_SMOKE ${route.name} -> ${first?.tool ?? "no_tool"} ${JSON.stringify(first?.args ?? {})}`);
-    liveProbes.push({
-      kind: "agent_tool",
-      status: passed ? "passed" : "failed",
-      requestedModel: "openrouter/free-auto",
-      resolvedModel: route.name,
-      durationMs: Date.now() - startedAt,
-      inputTokens: res.usage?.inputTokens ?? 0,
-      outputTokens: res.usage?.outputTokens ?? 0,
-      providerCostUsd: 0,
-      expectedTool: "report_answer",
-      actualTool: first?.tool ?? null,
-      actualArgs: first?.args ?? {},
-    });
-    if (!passed) process.exitCode = 1;
+    try {
+      const res = await route.next({
+        system: "You are a tool-using smoke test. When asked, call the report_answer tool exactly once.",
+        messages: [{ role: "user", content: "Call report_answer with value OK." }],
+        tools: [{
+          name: "report_answer",
+          description: "Report a short answer.",
+          schema: z.object({ value: z.string() }),
+          execute: async () => ({ ok: true }),
+        }],
+      });
+      const first = res.toolCalls[0];
+      const passed = first?.tool === "report_answer" && String(first.args.value) === "OK";
+      console.log(`AGENT_SMOKE ${route.name} -> ${first?.tool ?? "no_tool"} ${JSON.stringify(first?.args ?? {})}`);
+      liveProbes.push({
+        kind: "agent_tool",
+        status: passed ? "passed" : "failed",
+        requestedModel: "openrouter/free-auto",
+        resolvedModel: route.name,
+        durationMs: Date.now() - startedAt,
+        inputTokens: res.usage?.inputTokens ?? 0,
+        outputTokens: res.usage?.outputTokens ?? 0,
+        providerCostUsd: 0,
+        expectedTool: "report_answer",
+        actualTool: first?.tool ?? null,
+        actualArgs: first?.args ?? {},
+      });
+      if (!passed) process.exitCode = 1;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.log(`AGENT_SMOKE ${route.name} -> failed: ${message}`);
+      liveProbes.push({
+        kind: "agent_tool",
+        status: "failed",
+        requestedModel: "openrouter/free-auto",
+        resolvedModel: route.name,
+        durationMs: Date.now() - startedAt,
+        providerCostUsd: 0,
+        error: message,
+      });
+      process.exitCode = 1;
+    }
   }
 }
 

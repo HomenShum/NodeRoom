@@ -357,6 +357,8 @@ export default defineSchema({
     text: v.string(),
     clientMsgId: v.string(),
     kind: v.union(v.literal("chat"), v.literal("agent"), v.literal("system")),
+    /** Durable correlation for agent-authored messages. Legacy rows remain valid. */
+    jobId: v.optional(v.id("agentJobs")),
     createdAt: v.number(),
     /** persistent-text-streaming stream id: while set and text is empty, the body lives in the
      *  streaming component (token-level for the driving tab, sentence-flushed for viewers); on
@@ -955,6 +957,7 @@ export default defineSchema({
     modelPolicy: v.string(),
     runtime: v.optional(v.union(v.literal("inline"), v.literal("scheduler"), v.literal("workflow"))),
     workflowId: v.optional(v.string()),
+    waitingForJobId: v.optional(v.id("agentJobs")),
     workId: v.optional(v.string()),
     activeFrameId: v.optional(v.string()),
     cursor: v.optional(v.any()),
@@ -985,6 +988,7 @@ export default defineSchema({
     completedAt: v.optional(v.number()),
   })
     .index("by_room", ["roomId", "updatedAt"])
+    .index("by_waiting_for", ["waitingForJobId", "createdAt"])
     .index("by_status_nextRunAt", ["status", "nextRunAt"])
     .index("by_idempotency", ["idempotencyKey", "createdAt"]),
 

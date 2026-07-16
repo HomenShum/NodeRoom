@@ -115,6 +115,11 @@ const NODEAGENT_MUTATION_TOOLS = new Set([
   "write_locked_cell",
   "write_locked_cells",
   "execute_verified_workbook_plan",
+  "execute_workbook_structure_repair",
+]);
+const NODEAGENT_COMPOSITE_MUTATION_TOOLS = new Set([
+  "execute_verified_workbook_plan",
+  "execute_workbook_structure_repair",
 ]);
 
 const args = process.argv.slice(2);
@@ -800,10 +805,23 @@ function validateNodeAgentExecutionConsistency(
       committedMutationCount += 1;
       committedTargetOccurrences += targets.length;
     }
+    const targetIds: string[] = [];
     for (const value of targets) {
       const target = asObject(value);
       if (!target || !nonemptyString(target.refId) || !nonemptyString(target.kind)) {
         return "NodeAgent mutation target is invalid";
+      }
+      targetIds.push(target.refId as string);
+    }
+    if (event.tool === "execute_workbook_structure_repair") {
+      const structuralTargets = asObject(event.result)?.targets;
+      if (
+        !Array.isArray(structuralTargets) ||
+        structuralTargets.length === 0 ||
+        structuralTargets.some((target) => !nonemptyString(target)) ||
+        !isDeepStrictEqual(targetIds, structuralTargets)
+      ) {
+        return "NodeAgent structural mutation targets do not bind its repair result";
       }
     }
   }
@@ -970,8 +988,24 @@ function traceMutationStatus(
 ): "proposed" | "committed" | "skipped" | "conflict" | "pending_approval" {
   const record = asObject(result);
   if (record?.pendingApproval === true) return "pending_approval";
+  const resultItems = Array.isArray(record?.results)
+    ? record.results.map(asObject).filter((item): item is JsonObject => Boolean(item))
+    : [];
+  const hasCommittedResult = resultItems.some(
+    (item) => item.ok === true && item.skipped !== true,
+  );
+  if (
+    hasCommittedResult ||
+    (typeof record?.changedTargetCount === "number" && record.changedTargetCount > 0)
+  ) {
+    return "committed";
+  }
+  if (record?.alreadySatisfied === true) return "skipped";
   if (record?.conflict === true) return "conflict";
   if (record?.skipped === true) return "skipped";
+  if (resultItems.length > 0 && resultItems.every((item) => item.skipped === true)) {
+    return "skipped";
+  }
   if (record?.ok === true) return "committed";
   return "conflict";
 }
@@ -988,7 +1022,7 @@ function deriveNodeAgentStages(
   const indexed = frameEvents.map((event, eventIndex) => ({ event, eventIndex }));
   const inspect = indexed.filter(({ event }) => event.tool === "inspect_workbook");
   const composite = indexed.filter(
-    ({ event }) => event.tool === "execute_verified_workbook_plan",
+    ({ event }) => NODEAGENT_COMPOSITE_MUTATION_TOOLS.has(String(event.tool)),
   );
   const verifications = indexed.filter(
     ({ event }) => event.tool === "verify_workbook",
@@ -1151,7 +1185,7 @@ function nodeAgentEventVerificationStatus(
   phase: "preflight" | "verify",
 ): "passed" | "needs_repair" | "missing" {
   if (!event) return "missing";
-  return event.tool === "execute_verified_workbook_plan"
+  return NODEAGENT_COMPOSITE_MUTATION_TOOLS.has(String(event.tool))
     ? nodeAgentCompositePhaseStatus(event.result, phase)
     : nodeAgentVerificationStatus(event.result);
 }

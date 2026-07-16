@@ -1011,6 +1011,7 @@ async function ensureTerminalJobReceipts(ctx: any, args: {
     jobId: args.job._id,
     text,
   });
+  await activateNextQueuedJob(ctx, args.job._id, args.now);
   return text;
 }
 
@@ -1067,6 +1068,63 @@ async function terminalizeAgentJob(ctx: any, args: {
   });
   await ensureTerminalJobReceipts(ctx, { job: args.job, status: args.status, error: args.error, finalText: text, now });
   return { ok: true as const };
+}
+
+async function activateNextQueuedJob(ctx: any, predecessorJobId: Id<"agentJobs">, now: number): Promise<void> {
+  const predecessor = await ctx.db.get(predecessorJobId);
+  if (!predecessor || !terminalStatuses.has(predecessor.status)) return;
+  const successors = await ctx.db.query("agentJobs")
+    .withIndex("by_waiting_for", (q: any) => q.eq("waitingForJobId", predecessorJobId))
+    .order("asc")
+    .take(5);
+  const next = successors.find((job: any) => job.status === "queued" && !job.workflowId);
+  if (!next) return;
+
+  if (predecessor.waitingForJobId) {
+    const earlier = await ctx.db.get(predecessor.waitingForJobId);
+    if (earlier && !terminalStatuses.has(earlier.status)) {
+      await ctx.db.patch(next._id, { waitingForJobId: earlier._id, updatedAt: now });
+      return;
+    }
+  }
+
+  try {
+    const workflowId = String(await startWorkflow(ctx, internal.agentWorkflows.freeAutoWorkflow, { jobId: next._id }, {
+      onComplete: internal.agentWorkflows.freeAutoWorkflowComplete,
+      context: { jobId: next._id },
+    }));
+    await ctx.db.patch(next._id, {
+      workflowId,
+      waitingForJobId: undefined,
+      nextRunAt: now,
+      schedulerHandoffCount: (next.schedulerHandoffCount ?? 0) + 1,
+      updatedAt: now,
+    });
+    await recordOperationEvent(ctx, {
+      jobId: next._id,
+      sequence: 2,
+      kind: "scheduler",
+      name: "agentJobs.activateQueuedSuccessor",
+      targetKind: "artifact",
+      targetId: String(next.artifactId),
+      status: "completed",
+      countDelta: 1,
+      affectedIds: [String(predecessorJobId), String(next._id)],
+      startedAt: now,
+      completedAt: now,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const safeMessage = `queued_workflow_start_failed: ${message || "unknown"}`.slice(0, 1_000);
+    await ctx.db.patch(next._id, {
+      status: "failed",
+      waitingForJobId: undefined,
+      error: safeMessage,
+      completedAt: now,
+      updatedAt: now,
+    });
+    await ensureTerminalJobReceipts(ctx, { job: next, status: "failed", error: safeMessage, now });
+  }
 }
 
 export const recordStreamEvent = internalMutation({
@@ -1888,6 +1946,7 @@ type DurableStartAgentJobArgs = {
   planPreview?: unknown;
   error?: string;
   operationName?: string;
+  deferUntilJobId?: Id<"agentJobs">;
 };
 type DurableStartAgentJobResult = {
   jobId: Id<"agentJobs">;
@@ -2272,6 +2331,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     scope,
     commandText: a.goal,
     request,
+    waitingForJobId: a.deferUntilJobId,
     priority: 0,
     approvalPolicy,
     evidencePolicy,
@@ -2294,9 +2354,9 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     mutationCount: 1,
     modelCallCount: 0,
     toolCallCount: 0,
-    schedulerHandoffCount: execution === "workflow" && !planBlocked ? 1 : 0,
+    schedulerHandoffCount: execution === "workflow" && !planBlocked && !a.deferUntilJobId ? 1 : 0,
     receiptCount: 0,
-    nextRunAt: now,
+    nextRunAt: a.deferUntilJobId ? 0 : now,
     createdAt: now,
     updatedAt: now,
     completedAt: status === "blocked" ? now : undefined,
@@ -2320,7 +2380,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     status: "started",
     title: "Room NodeAgent",
     text: a.goal,
-    metadata: { entrypoint, scope, routePolicy, runtimePolicy, runtimeProfile, modelPolicy, fileEgressPromoted: promotedForFileEgress || undefined, freeFileEgressPromotionBlocked: freeFileEgressBlocked && !promotedForFileEgress || undefined },
+    metadata: { entrypoint, scope, routePolicy, runtimePolicy, runtimeProfile, modelPolicy, waitingForJobId: a.deferUntilJobId ? String(a.deferUntilJobId) : undefined, fileEgressPromoted: promotedForFileEgress || undefined, freeFileEgressPromotionBlocked: freeFileEgressBlocked && !promotedForFileEgress || undefined },
     createdAt: now,
   });
   if (status === "blocked") {
@@ -2378,6 +2438,9 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
       createdAt: now,
       updatedAt: now,
     }));
+  }
+  if (a.deferUntilJobId) {
+    return { jobId, reused: false as const, status: "queued" as const, modelPolicy, routePolicy, runtimePolicy };
   }
   await recordOperationEvent(ctx, {
     jobId,
@@ -2468,8 +2531,37 @@ export const startPublicAsk = mutation({
     modelPolicy: v.optional(v.string()),
     runtimeProfile: v.optional(runtimeProfileV),
     maxAttempts: v.optional(v.number()),
+    disposition: v.optional(v.union(v.literal("start"), v.literal("queue"), v.literal("redirect"))),
   },
   handler: async (ctx, a): Promise<DurableStartAgentJobResult> => {
+    const requester = await requireActorProof(ctx, a.roomId, a.requester);
+    const recentJobs = await ctx.db.query("agentJobs")
+      .withIndex("by_room", (q: any) => q.eq("roomId", a.roomId))
+      .order("desc")
+      .take(50);
+    const activeJobs = recentJobs.filter((job: any) => (
+      job.requester?.id === requester.id
+      && (job.scope ?? "public_room") === "public_room"
+      && !terminalStatuses.has(job.status)
+    ));
+    const disposition = a.disposition ?? "start";
+    if (disposition === "redirect") {
+      for (const job of activeJobs) {
+        if (job.workflowId) {
+          try {
+            await cancelWorkflow(ctx, components.workflow, job.workflowId as never);
+          } catch {
+            // The job row and lease fence remain authoritative if the workflow settled first.
+          }
+        }
+        await terminalizeAgentJob(ctx, {
+          job,
+          status: "cancelled",
+          error: "redirected_by_followup",
+          operationName: "agentJobs.redirect",
+        });
+      }
+    }
     const artifact = await resolvePublicAskArtifact(ctx, a);
     const allowedElementIds = normalizePublicAskAllowedElementIds(a.allowedElementIds);
     if (allowedElementIds?.length) {
@@ -2486,6 +2578,12 @@ export const startPublicAsk = mutation({
       modelPolicy: a.modelPolicy,
       runtimeProfile: a.runtimeProfile,
       maxAttempts: a.maxAttempts,
+      ...(disposition === "queue" && activeJobs[0] ? {
+        deferUntilJobId: activeJobs[0]._id as Id<"agentJobs">,
+        idempotencyKey: `public-ask-queue:${String(a.roomId)}:${requester.id}:${String(activeJobs[0]._id)}:${Date.now()}`,
+      } : disposition === "redirect" ? {
+        idempotencyKey: `public-ask-redirect:${String(a.roomId)}:${requester.id}:${Date.now()}`,
+      } : {}),
       mode: modeForArtifact(artifact) ?? (artifact.kind === "note" ? undefined : goalPrefersPersonResearch(a.goal) || goalPrefersCompanyResearch(a.goal) ? "research" : undefined),
     });
     return startDurableAgentJob(ctx, {
@@ -2500,6 +2598,8 @@ export const startPublicAsk = mutation({
         allowedElementIds,
         mutationScope: allowedElementIds?.length ? "element_allowlist" : undefined,
         source: "public_chat",
+        disposition,
+        waitingForJobId: disposition === "queue" && activeJobs[0] ? String(activeJobs[0]._id) : undefined,
         runtimeProfile: a.runtimeProfile,
       },
     });

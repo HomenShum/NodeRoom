@@ -41,7 +41,13 @@ describe("NodeAgent provider tool schemas", () => {
     });
     expect(toolParameters("write_locked_cell_results")).toMatchObject({
       required: [],
-      properties: { ops: { type: "array" }, cells: { type: "array" }, targetCells: {}, newValues: {}, currentVersion: {} },
+      properties: { ops: { type: "array" }, cells: { type: "array" }, targetCells: {}, newValues: {}, currentVersion: {}, fontColors: {}, fontColor: {} },
+    });
+    expect(toolParameters("write_locked_cell")).toMatchObject({
+      properties: { fontColor: { type: "string" }, font_color: { type: "string" } },
+    });
+    expect(toolParameters("verify_workbook")).toMatchObject({
+      properties: { operations: { items: { properties: { fontColor: { type: "string" } } } } },
     });
     expect(toolParameters("create_btb_deliverable_package")).toMatchObject({
       required: ["title", "narrative"],

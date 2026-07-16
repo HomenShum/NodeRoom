@@ -1248,6 +1248,7 @@ export function toolParameters(toolName: string): JsonObject {
   };
   const scalarWriteKind = { type: "string", enum: ["set", "create", "delete"] };
   const resultWriteKind = { type: "string", enum: ["set", "create"] };
+  const fontColor = { type: "string", pattern: "^#?(?:[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$" };
   const managedScalarWriteProperties = {
     elementId: string,
     cellId: string,
@@ -1268,6 +1269,8 @@ export function toolParameters(toolName: string): JsonObject {
     num_fmt: string,
     numberFormat: string,
     number_format: string,
+    fontColor,
+    font_color: fontColor,
     text: any,
     content: any,
     expectedValue: any,
@@ -1323,6 +1326,8 @@ export function toolParameters(toolName: string): JsonObject {
     numFmt: any,
     numberFormats: any,
     numberFormat: any,
+    fontColors: any,
+    fontColor: any,
     text: any,
     content: any,
     expectedValue: any,
@@ -1389,7 +1394,7 @@ export function toolParameters(toolName: string): JsonObject {
   const stringOrStringArray = { anyOf: [stringArray, string] };
   const workbookOperation = {
     type: "object",
-    properties: { elementId: string, baseVersion: integer, value: any, formula: string, result: any, numFmt: string },
+    properties: { elementId: string, baseVersion: integer, value: any, formula: string, result: any, numFmt: string, fontColor },
     required: ["elementId"],
   };
   const schemas: Record<string, JsonObject> = {
@@ -1397,6 +1402,11 @@ export function toolParameters(toolName: string): JsonObject {
       type: "object",
       properties: { instruction: string, artifactId: string, query: string, maxCells: integer },
       required: ["instruction"],
+    },
+    execute_workbook_structure_repair: {
+      type: "object",
+      properties: { instruction: string, artifactId: string, repairId: string },
+      required: ["instruction", "repairId"],
     },
     execute_verified_workbook_plan: {
       type: "object",

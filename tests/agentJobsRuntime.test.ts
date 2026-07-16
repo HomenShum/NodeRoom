@@ -158,6 +158,63 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.operations.map((event) => event.name)).toContain("agentJobs.start");
   });
 
+  it("durably queues a follow-up and activates it only after its predecessor is terminal", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+    const first = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: "compute the current variance and write the visible cell",
+      contextArtifactId: String(artifactId),
+      routePolicy: "fast_default" as const,
+    });
+    const queued = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: "summarize the completed variance work with evidence",
+      contextArtifactId: String(artifactId),
+      routePolicy: "fast_default" as const,
+      disposition: "queue" as const,
+    });
+
+    let queuedDetail = await t.query(api.agentJobs.detail, { jobId: queued.jobId, requester: proof });
+    expect(queuedDetail?.job).toMatchObject({ status: "queued", waitingForJobId: first.jobId });
+    expect(queuedDetail?.job.workflowId).toBeUndefined();
+    expect(queuedDetail?.job.schedulerHandoffCount).toBe(0);
+
+    await t.mutation(api.agentJobs.cancel, { jobId: first.jobId, requester: proof });
+
+    queuedDetail = await t.query(api.agentJobs.detail, { jobId: queued.jobId, requester: proof });
+    expect(queuedDetail?.job.workflowId).toEqual(expect.any(String));
+    expect(queuedDetail?.job.waitingForJobId).toBeUndefined();
+    expect(queuedDetail?.job.schedulerHandoffCount).toBe(1);
+    expect(queuedDetail?.operations.map((event) => event.name)).toContain("agentJobs.activateQueuedSuccessor");
+  });
+
+  it("redirects by cancelling the active requester chain before starting the new run", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+    const first = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: "compute the first variance pass",
+      contextArtifactId: String(artifactId),
+      routePolicy: "fast_default" as const,
+    });
+    const redirected = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: "instead inspect only the current evidence and report gaps",
+      contextArtifactId: String(artifactId),
+      routePolicy: "fast_default" as const,
+      disposition: "redirect" as const,
+    });
+
+    const firstDetail = await t.query(api.agentJobs.detail, { jobId: first.jobId, requester: proof });
+    const redirectedDetail = await t.query(api.agentJobs.detail, { jobId: redirected.jobId, requester: proof });
+    expect(firstDetail?.job).toMatchObject({ status: "cancelled", error: "redirected_by_followup" });
+    expect(redirectedDetail?.job.waitingForJobId).toBeUndefined();
+    expect(redirectedDetail?.job.workflowId).toEqual(expect.any(String));
+  });
+
   it("lets long official BTB asks infer benchmark mode while normal long chat stays capped", async () => {
     const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
     const longGoal = `Run the uploaded official BankerToolBench task.\n${"Build the full DCF package from the room source files. ".repeat(80)}`;

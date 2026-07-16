@@ -6,7 +6,7 @@ import { Reasoning, ReasoningContent, ReasoningTrigger } from "@/components/ai-e
 import { MessageResponse } from "@/components/ai-elements/message";
 import { Suggestion } from "@/components/ai-elements/suggestion";
 import { Tool, ToolContent, ToolHeader, type ToolPart } from "@/components/ai-elements/tool";
-import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentModelSelection, type PrivateStreamAccess, type RoomStore } from "../app/store";
+import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentJobTelemetry, type AgentModelSelection, type PrivateStreamAccess, type RoomStore } from "../app/store";
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
 import { api } from "../../convex/_generated/api";
@@ -35,6 +35,7 @@ import {
   type VoiceRoomStore,
 } from "../voice";
 import "./chat-scale.css";
+import { openWorkArtifactsReview } from "./workArtifacts/workArtifactsNavigation";
 
 const AGENT_AVATAR_COLOR = "#8F3F27";
 const COLORS = ["#8F3F27", "#315DA8", "#2F6B44", "#6D3FB2", "#80631F", "#A34B2E"];
@@ -1210,8 +1211,9 @@ export function groupMessagesByDay<T extends { createdAt: number; key: string }>
  *  match, and a spoofed prefix on a non-agent author is ignored. */
 const AGENT_RUN_CLIENT_MSG_ID_RE = /^(?:pubstream|privstream|final|plan-blocked)-(.+)$/;
 
-export function agentRunIdFor(message: { author: { kind: string }; clientMsgId?: string }): string | null {
+export function agentRunIdFor(message: { author: { kind: string }; jobId?: string; clientMsgId?: string }): string | null {
   if (message.author.kind !== "agent") return null;
+  if (message.jobId?.trim()) return message.jobId.trim();
   const match = AGENT_RUN_CLIENT_MSG_ID_RE.exec(message.clientMsgId ?? "");
   return match ? match[1] : null;
 }
@@ -1270,6 +1272,36 @@ export function runCollapsedByDefault(messageCount: number, finished: boolean): 
 /** Jump-to-latest shows only when the reader is ≥2 viewports above the newest message. */
 export function shouldShowJumpToLatest(distanceFromBottom: number, viewportHeight: number): boolean {
   return viewportHeight > 0 && distanceFromBottom >= viewportHeight * 2;
+}
+
+export type AgentJobScopeSummary = { reads: string; writes: string; review: string };
+
+export function agentJobScopeSummary(job: AgentJobTelemetry, artifacts: Pick<Artifact, "id" | "title">[]): AgentJobScopeSummary {
+  const titleById = new Map(artifacts.map((artifact) => [artifact.id, artifact.title]));
+  const targetId = job.request?.targetArtifactId ?? job.artifactId;
+  const target = (targetId && titleById.get(targetId)) || "Room artifact";
+  const referenced = (job.request?.references ?? [])
+    .map((reference) => reference.title || (reference.id ? titleById.get(reference.id) : undefined))
+    .filter((title): title is string => !!title);
+  const reads = [...new Set(referenced.length ? referenced : [target])].slice(0, 3).join(" + ");
+  const targetCount = job.request?.allowedElementIds?.length ?? 0;
+  const writes = job.approvalPolicy === "read_only"
+    ? "None"
+    : `${target}${targetCount ? ` · ${targetCount} target${targetCount === 1 ? "" : "s"}` : ""}`;
+  const review = job.approvalPolicy === "auto_commit_safe"
+    ? "Safe writes auto-commit"
+    : job.approvalPolicy === "read_only"
+      ? "Read only"
+      : "Changes require review";
+  return { reads: reads || target, writes, review };
+}
+
+export function compactElapsed(startedAt: number | undefined, now = Date.now()): string {
+  if (!startedAt || now <= startedAt) return "0s";
+  const seconds = Math.floor((now - startedAt) / 1_000);
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  return minutes < 60 ? `${minutes}m ${seconds % 60}s` : `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
 }
 
 /** One agent run in the feed. Collapsed = one quiet line ("Run · N steps · view"); expanding
@@ -1389,10 +1421,11 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const longJob = isPrivate ? null : store.lastLongFreeJob();
   const longJobAttempts = isPrivate ? [] : store.lastLongFreeJobAttempts();
   const longJobDetail = isPrivate ? null : store.lastLongFreeJobDetail();
+  const roomArtifacts = store.listArtifacts(roomId);
   const activeArtifact = useMemo(() => {
     if (!activeArtifactId || isPrivate) return undefined;
-    return store.listArtifacts(roomId).find((a) => a.id === activeArtifactId);
-  }, [activeArtifactId, isPrivate, roomId, store]);
+    return roomArtifacts.find((a) => a.id === activeArtifactId);
+  }, [activeArtifactId, isPrivate, roomArtifacts]);
   const decisionState = isPrivate ? null : buildResearchDecisionState(activeArtifact);
   // The decision card summarises a completed research run — it must stay visible once research lands
   // (i.e. after the @nodeagent request is sent, when messages exist). A prior `&& messages.length === 0`
@@ -1520,6 +1553,18 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const canRetryLongJob = !!longJob && ["failed", "blocked", "cancelled", "paused"].includes(longJob.status);
   const longJobTerminal = !!longJob && ["completed", "failed", "blocked", "cancelled"].includes(longJob.status);
   const longJobActive = !!longJob && !longJobTerminal;
+  const [jobNow, setJobNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!longJobActive) return;
+    setJobNow(Date.now());
+    const timer = window.setInterval(() => setJobNow(Date.now()), 1_000);
+    return () => window.clearInterval(timer);
+  }, [longJob?.id, longJobActive]);
+  const longJobScope = useMemo(() => longJob ? agentJobScopeSummary(longJob, roomArtifacts) : null, [longJob, roomArtifacts]);
+  const longJobProposalCount = longJob ? store.listProposals(roomId).filter((proposal) => proposal.jobId === longJob.id).length : 0;
+  const activeReasoningFrame = longJobDetail?.reasoningFrames.find((frame) => frame.status === "running")
+    ?? longJobDetail?.reasoningFrames.find((frame) => frame.status === "pending");
+  const longJobPhase = activeReasoningFrame?.displayName || activeReasoningFrame?.phase || longJob?.status || "idle";
   const agentWorking = thinking || (!isPrivate && longJobActive);
   const unifiedStreamParts = (!isPrivate ? longJobDetail?.streamParts ?? [] : []) as AgentStreamPart[];
   const activeJobClientMsgId = !isPrivate && longJob ? `pubstream-${longJob.id}` : "";
@@ -1812,7 +1857,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       });
   };
 
-  const send = (raw?: string, overrideModelSelection?: AgentModelSelection) => {
+  const send = (raw?: string, overrideModelSelection?: AgentModelSelection, disposition?: "start" | "queue" | "redirect") => {
     const t = (raw ?? text).trim();
     if (!t && refs.length === 0) return;
     const messageRefs = refs;
@@ -1828,7 +1873,13 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       const modelSelection = composerModelSelection(publicNodeAgentRequest.forceFree, overrideModelSelection);
       beginThinking();
       lastAgentInputRef.current = t;
-      void store.askAgent({ goal: `${publicNodeAgentRequest.goal}${artifactRefContextSuffix(messageRefs)}`, references: messageRefs, modelSelection, contextArtifactId: activeArtifactId }).catch((e) => {
+      void store.askAgent({
+        goal: `${publicNodeAgentRequest.goal}${artifactRefContextSuffix(messageRefs)}`,
+        references: messageRefs,
+        modelSelection,
+        contextArtifactId: activeArtifactId,
+        disposition: disposition ?? (longJobActive ? "queue" : "start"),
+      }).catch((e) => {
         if (aliveRef.current) {
           setAgentErr(buildAgentFailureNotice(e, { selection: modelSelection, requestText: t, source: "public", jobId: longJob?.id }));
           setThinking(false);
@@ -2090,11 +2141,18 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       </div>
       {isPrivate && <div className="r-private-banner"><Sparkles size={12} /> Only you can read this lane in NodeRoom; requests and room context are sent to the configured model provider</div>}
       {!isPrivate && showLongJobChrome && longJob && (
-        <div className="r-job-strip">
+        <div className="r-job-strip" data-state={longJob.status}>
+          <div className="r-job-strip-main">
           <Timer size={12} />
+          <strong className="r-job-phase" title={longJobPhase}>
+            {longJobVisibleError
+              ? humanAgentFailureText(longJobVisibleError)
+              : longJobPhase.replace(/_/g, " ").replace(/^./, (value) => value.toUpperCase())}
+          </strong>
+          <span className="r-job-elapsed">{compactElapsed(longJob.createdAt, jobNow)}</span>
           <span className="r-job-route" title={`${longJob.modelPolicy}${latestAttempt ? ` · attempt ${latestAttempt.attempt}: ${latestAttempt.resolvedModel} · ${latestAttempt.stopReason} · ${shortMs(latestAttempt.ms)}` : ""}`}>
-            {longJobVisibleError ? humanAgentFailureText(longJobVisibleError) : longJob.modelPolicy}
-            {!longJobVisibleError && latestAttempt ? ` · ${latestAttempt.resolvedModel} · ${shortMs(latestAttempt.ms)}` : ""}
+            {longJob.modelPolicy}
+            {latestAttempt ? ` · ${latestAttempt.resolvedModel} · ${shortMs(latestAttempt.ms)}` : ""}
             {longJob.nextRunAt && longJob.status !== "completed" ? ` · next ${clock(longJob.nextRunAt)}` : ""}
           </span>
           {(() => { const bad = ["failed", "blocked"].includes(longJob.status); return (
@@ -2127,6 +2185,17 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
           <button className="r-job-detail-toggle" type="button" data-testid="job-detail-toggle" onClick={() => setJobDetailsOpen((open) => !open)} aria-expanded={jobDetailsOpen}>
             {jobDetailsOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />} Details
           </button>
+          </div>
+          {longJobScope && (
+            <div className="r-job-scope" data-testid="job-scope">
+              <span title={longJobScope.reads}><b>Reads</b>{longJobScope.reads}</span>
+              <span title={longJobScope.writes}><b>Writes</b>{longJobScope.writes}</span>
+              <span title={longJobScope.review}><b>Review</b>{longJobScope.review}</span>
+              <button type="button" data-testid="job-review-open" onClick={() => openWorkArtifactsReview({ jobId: longJob.id })}>
+                {longJobProposalCount} {longJobProposalCount === 1 ? "change" : "changes"}<ArrowUpRight size={11} />
+              </button>
+            </div>
+          )}
         </div>
       )}
       {!isPrivate && showLongJobChrome && longJob && jobDetailsOpen && (
@@ -2434,11 +2503,13 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             <span className="r-composer-spacer" aria-hidden="true" />
             {/* The send button reflects the composer state — muted + disabled on empty input,
                 not a live accent button that does nothing (state-honesty). */}
-            {longJobActive ? (
-              <button className="r-send send r-send-stop" onClick={cancelJob} disabled={jobBusy !== null} data-testid="chat-stop" title="Stop generating" aria-label="Stop generating"><Square size={13} /></button>
-            ) : (
-              <button className="r-send send" onClick={() => send()} disabled={!canSend} data-testid="chat-send" aria-label="Send message"><Send size={15} /></button>
+            {longJobActive && (
+              <button className="r-send send r-send-stop" onClick={cancelJob} disabled={jobBusy !== null} data-testid="chat-stop" title="Stop current run" aria-label="Stop current run"><Square size={13} /></button>
             )}
+            {longJobActive && parsePublicNodeAgentRequest(text.trim()) && (
+              <button className="r-mini-btn r-composer-redirect" onClick={() => send(undefined, undefined, "redirect")} disabled={!canSend} data-testid="chat-redirect" title="Stop the current run and redirect NodeAgent">Redirect</button>
+            )}
+            <button className="r-send send" onClick={() => send()} disabled={!canSend} data-testid="chat-send" aria-label={longJobActive && parsePublicNodeAgentRequest(text.trim()) ? "Queue next agent request" : "Send message"} title={longJobActive && parsePublicNodeAgentRequest(text.trim()) ? "Queue next agent request" : "Send message"}><Send size={15} /></button>
           </div>
         </div>
         {!isPrivate && !slashOpen && (

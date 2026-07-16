@@ -56,9 +56,10 @@ describe("granular deck collaboration UI", () => {
   it("edits a slide, exposes object presence, saves, and comments on the stable object id", async () => {
     const onSaveStoryboard = vi.fn().mockResolvedValue({ ok: true });
     const onAddComment = vi.fn().mockResolvedValue({ ok: true });
-    render(
+    const base = storyboard();
+    const view = render(
       <DeckStoryboardWorkbench
-        storyboard={storyboard()}
+        storyboard={base}
         artifactId="artifact-deck"
         collaboratorCount={2}
         presences={[presence()]}
@@ -71,9 +72,25 @@ describe("granular deck collaboration UI", () => {
 
     expect(screen.getByTestId("deck-active-editors").textContent).toContain("Maya");
     fireEvent.change(screen.getByLabelText("Title"), { target: { value: "Investment decision" } });
+    const remote = storyboard();
+    remote.version = 2;
+    remote.slides[0].purpose = "Remote purpose received while the local title is dirty.";
+    view.rerender(
+      <DeckStoryboardWorkbench
+        storyboard={remote}
+        artifactId="artifact-deck"
+        collaboratorCount={2}
+        presences={[presence()]}
+        onClose={() => undefined}
+        onOpenArtifact={() => undefined}
+        onSaveStoryboard={onSaveStoryboard}
+        onAddComment={onAddComment}
+      />,
+    );
     fireEvent.click(screen.getByTestId("deck-collaborative-save"));
     await waitFor(() => expect(onSaveStoryboard).toHaveBeenCalledTimes(1));
     expect(onSaveStoryboard.mock.calls[0][0].slides[0].title).toBe("Investment decision");
+    expect(onSaveStoryboard.mock.calls[0][1].slides[0].purpose).toBe("State the recommendation.");
 
     fireEvent.change(screen.getByPlaceholderText("Comment on this slide..."), { target: { value: "Verify the bridge source." } });
     fireEvent.click(screen.getByRole("button", { name: "Add comment" }));
@@ -83,7 +100,7 @@ describe("granular deck collaboration UI", () => {
   it("resolves comments and surfaces partial object conflicts honestly", async () => {
     const comment = createDeckComment({ commentId: "comment-1", slideId: "slide-1", body: "Check this.", author: host, createdAt: 10 });
     const onResolveComment = vi.fn().mockResolvedValue({ ok: true });
-    const onSaveStoryboard = vi.fn().mockResolvedValue({ ok: false, reason: "conflict_after_1_objects" });
+    const onSaveStoryboard = vi.fn().mockResolvedValue({ ok: false, reason: "conflict:deck:slide:slide-1" });
     render(
       <DeckStoryboardWorkbench
         storyboard={storyboard()}
@@ -101,6 +118,8 @@ describe("granular deck collaboration UI", () => {
     fireEvent.change(screen.getByLabelText("Purpose"), { target: { value: "Updated purpose" } });
     fireEvent.click(screen.getByTestId("deck-collaborative-save"));
     expect((await screen.findByTestId("deck-collaboration-status")).textContent).toContain("collaborator changed one of these deck objects");
+    expect(screen.getByTestId("deck-collaboration-status").textContent).toContain("conflict:deck:slide:slide-1");
+    expect(screen.getByTestId("deck-collaboration-status").textContent).toContain("No deck objects were applied");
     expect(screen.getByRole("button", { name: "Reload latest" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Reload latest" }));
     expect((screen.getByLabelText("Purpose") as HTMLTextAreaElement).value).toBe("State the recommendation.");

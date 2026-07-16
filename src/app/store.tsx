@@ -47,6 +47,9 @@ export type { OfflineQueueSnapshot } from "../notifications/offlineQueue";
 const VARIANCE: Record<string, string> = { r_rev: "+24%", r_cogs: "+27.5%", r_gp: "+21.7%", r_ni: "+22.4%" };
 
 export type EditFeedback = { ok: boolean; reason?: string; version?: number };
+export type ArtifactEditBundleFeedback =
+  | { ok: true; artifactVersion: number; results: Array<{ opId: string; elementId: string; version: number }> }
+  | { ok: false; reason: string; opId?: string; elementId?: string; expected?: number; actual?: number };
 type UndoEntry = { roomId: string; op: ChangeOp };
 export type AgentCostKind = "exact" | "estimated";
 export type AgentRunTelemetry = { model: string; steps: number; toolCalls: number; inputTokens: number; outputTokens: number; costUsd: number; costKind: AgentCostKind; ms: number };
@@ -75,6 +78,13 @@ export function projectAgentRunTelemetry(run: PersistedAgentRunTelemetry): Agent
 }
 export type AgentJobTelemetry = {
   id: string;
+  artifactId?: string;
+  request?: {
+    references?: Array<{ id?: string; title?: string; kind?: string }>;
+    allowedElementIds?: string[];
+    mutationScope?: string;
+    targetArtifactId?: string;
+  };
   goal?: string;
   status: string;
   entrypoint?: string;
@@ -155,7 +165,7 @@ export function selectAgentRunTelemetryForJob(
 
 /** Shape of a free-auto agent job row from the convex jobs subscription (used by lastLongFreeJob + activeLongFreeJobs). */
 type FreeJobRow = {
-  _id: string; goal?: string; status: string; entrypoint?: string; scope?: string; runtime?: string; attempts: number; maxAttempts: number;
+  _id: string; artifactId?: string; request?: AgentJobTelemetry["request"]; goal?: string; status: string; entrypoint?: string; scope?: string; runtime?: string; attempts: number; maxAttempts: number;
   runtimeProfile?: AgentRuntimeProfile; modelPolicy: string; approvalPolicy?: string; evidencePolicy?: string; handoff?: { reason?: string }; nextRunAt?: number;
   finalText?: string; error?: string; latestRunId?: string; actionSliceCount?: number; queryCount?: number; mutationCount?: number;
   modelCallCount?: number; toolCallCount?: number; costUsd?: number; costKind?: AgentCostKind; schedulerHandoffCount?: number; receiptCount?: number; createdAt?: number; updatedAt: number;
@@ -167,6 +177,8 @@ function isActiveFreeJob(status: string): boolean {
 function mapConvexFreeJob(j: FreeJobRow): AgentJobTelemetry {
   return {
     id: String(j._id),
+    artifactId: j.artifactId ? String(j.artifactId) : undefined,
+    request: j.request,
     goal: j.goal,
     status: j.status,
     entrypoint: j.entrypoint,
@@ -277,6 +289,8 @@ export type AgentAskInput = {
   maxAttempts?: number;
   /** Credit/depth mode for the run (Quick/Standard/Deep). Defaults to the store's selected mode. */
   mode?: AgentCreditMode;
+  /** Follow-up handling when this requester already has a public run in flight. */
+  disposition?: "start" | "queue" | "redirect";
 };
 export type ActorProof = { actor: Actor; token: string };
 export type PrivateStreamAccess = { requester: ActorProof; driven: boolean };
@@ -391,6 +405,8 @@ export interface RoomStore {
   awareness(roomId: string, agentId?: string): { activeLocks: Lock[] };
   /** Apply a hand edit (CAS). Returns feedback so the UI can surface a conflict honestly. */
   applyEdit(args: { roomId: string; op: ChangeOp; actor: Actor }): Promise<EditFeedback>;
+  /** Apply a bounded same-artifact edit bundle atomically. A rejected bundle applies no elements. */
+  applyArtifactEdits(args: { roomId: string; artifactId: string; ops: ChangeOp[]; actor: Actor }): Promise<ArtifactEditBundleFeedback>;
   /** Execute a bounded read-only notebook kernel. Persistence remains an ordinary artifact CAS write. */
   executeNotebookKernel(args: { roomId: string; request: NotebookKernelRequest }): Promise<NotebookKernelResult>;
   /** Offline edit-hold: live-mode CAS edits that failed on a TRANSPORT error (not a server answer)
@@ -989,6 +1005,16 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       const r = engine.applyEdit(args);
       if (r.ok) pushUndo(undoStack.current, withAppliedVersion(undo, r.toVersion));
       return r.ok ? { ok: true, version: r.toVersion } : { ok: false, reason: r.reason };
+    },
+    applyArtifactEdits: async (args) => {
+      const artifact = engine.getArtifact(args.artifactId);
+      const undos = args.ops.map((op) => makeUndoEntry(args.roomId, artifact, op));
+      const result = engine.applyArtifactEdits(args);
+      if (!result.ok) return result;
+      result.results.forEach((entry, index) => {
+        pushUndo(undoStack.current, withAppliedVersion(undos[index], entry.version));
+      });
+      return result;
     },
     executeNotebookKernel: async ({ request }) => executeNotebookKernel(request, { backend: "memory", now: Date.now() }),
     canUndo: (id) => (undoStack.current.get(id)?.length ?? 0) > 0,
@@ -1656,6 +1682,27 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
       local.setQuery(api.artifacts.versions, versionsQ, curVersions.map((a) => String(a.id) === String(args.artifactId) ? { ...a, order, version: a.version + 1, updatedAt: Date.now() } : a) as typeof curVersions);
     }
   });
+  const applyArtifactEditsMutation = useMutation(api.artifacts.applyArtifactEdits).withOptimisticUpdate((local, args) => {
+    const elementsQ = { roomId: args.roomId, artifactId: args.artifactId, requester: args.requester };
+    const curEls = local.getQuery(api.artifacts.elements, elementsQ);
+    if (curEls === undefined) return;
+    const versionsQ = { roomId: args.roomId, requester: args.requester };
+    const curVersions = local.getQuery(api.artifacts.versions, versionsQ);
+    const rowVer = curVersions?.find((artifact) => String(artifact.id) === String(args.artifactId));
+    let elements = elementsPayloadToMap(curEls);
+    let order = (rowVer?.order ?? Object.keys(elements)) as string[];
+    for (const edit of args.edits) {
+      ({ elements, order } = applyCellToElements(elements, order, edit.elementId, edit.kind, edit.value, args.requester.actor));
+    }
+    local.setQuery(api.artifacts.elements, elementsQ, elementsMapToPayload(elements, curEls) as typeof curEls);
+    if (curVersions && rowVer) {
+      local.setQuery(api.artifacts.versions, versionsQ, curVersions.map((artifact) => (
+        String(artifact.id) === String(args.artifactId)
+          ? { ...artifact, order, version: artifact.version + args.edits.length, updatedAt: Date.now() }
+          : artifact
+      )) as typeof curVersions);
+    }
+  });
   // ── Offline edit-hold (Latency: "offline edits held, visible, never lost") ──
   // TRANSPORT failures (fetch/WebSocket down) hold the CAS op in a bounded in-memory +
   // localStorage queue and replay it on reconnect through the SAME applyEdit path, so a
@@ -1994,7 +2041,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
     const sessions = (data?.sessions ?? []) as unknown as AgentSession[];
     const drafts = (data?.drafts ?? []) as unknown as Draft[];
     const isHost = members.some((m) => m.id === me.id && m.role === "host");
-    const reshapeMsgs = (rows: typeof pub): Message[] => rows.map((m: { _id: string; roomId: string; channel: string; author: Actor; text: string; clientMsgId: string; kind: Message["kind"]; createdAt: number; streamId?: string }) => ({ id: m._id as string, roomId: m.roomId as string, channel: m.channel === "public" ? "public" : { private: m.channel }, author: m.author as Actor, text: m.text, clientMsgId: m.clientMsgId, kind: m.kind, createdAt: m.createdAt, streamId: m.streamId }));
+    const reshapeMsgs = (rows: typeof pub): Message[] => rows.map((m: { _id: string; roomId: string; channel: string; author: Actor; text: string; clientMsgId: string; kind: Message["kind"]; jobId?: string; createdAt: number; streamId?: string }) => ({ id: m._id as string, roomId: m.roomId as string, channel: m.channel === "public" ? "public" : { private: m.channel }, author: m.author as Actor, text: m.text, clientMsgId: m.clientMsgId, kind: m.kind, jobId: m.jobId ? String(m.jobId) : undefined, createdAt: m.createdAt, streamId: m.streamId }));
     const allTraces = (traces as { _id: string; roomId: string; ts: number; actor: Actor; type: string; summary: string; detail?: string }[]).map((t) => ({ id: t._id, roomId: t.roomId, ts: t.ts, actor: t.actor, type: t.type as TraceEvent["type"], summary: t.summary, detail: t.detail }));
     // Hoisted sheet resolution — shared by addActivityToSheet (researchActivity resolves server-side).
     const researchSheet = metaArtifacts.find((a) => (a as { kind?: string }).kind === "sheet" && (a as { title?: string }).title === "Company research");
@@ -2089,6 +2136,44 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
             return { ok: false, reason: "offline_held" };
           }
           return { ok: false, reason: e instanceof Error ? e.message : "edit_failed" };
+        }
+      },
+      applyArtifactEdits: async ({ artifactId, ops }) => {
+        const artifact = artifacts.find((candidate) => candidate.id === artifactId);
+        const undos = ops.map((op) => makeUndoEntry(roomId, artifact, op));
+        try {
+          const result = await applyArtifactEditsMutation({
+            roomId: rid,
+            artifactId: artifactId as never,
+            edits: ops.map((op) => ({
+              opId: op.opId,
+              elementId: op.elementId,
+              kind: op.kind,
+              value: op.kind === "delete" ? null : op.value,
+              baseVersion: op.baseVersion,
+            })),
+            requester: proof,
+          });
+          result.results.forEach((entry, index) => {
+            pushUndo(undoStack.current, withAppliedVersion(undos[index], entry.version));
+          });
+          return result;
+        } catch (error) {
+          const data = (error as { data?: unknown }).data;
+          if (data && typeof data === "object") {
+            const failure = data as { reason?: unknown; opId?: unknown; elementId?: unknown; expected?: unknown; actual?: unknown };
+            if (typeof failure.reason === "string") {
+              return {
+                ok: false,
+                reason: failure.reason,
+                ...(typeof failure.opId === "string" ? { opId: failure.opId } : {}),
+                ...(typeof failure.elementId === "string" ? { elementId: failure.elementId } : {}),
+                ...(typeof failure.expected === "number" ? { expected: failure.expected } : {}),
+                ...(typeof failure.actual === "number" ? { actual: failure.actual } : {}),
+              };
+            }
+          }
+          return { ok: false, reason: isNetworkError(error) ? "offline_bundle_not_applied" : error instanceof Error ? error.message : "artifact_edit_bundle_failed" };
         }
       },
       executeNotebookKernel: async ({ request }) => runNotebookKernel({ roomId: rid, requester: proof, kind: request.kind, input: request.input, tables: request.tables }),
@@ -2215,6 +2300,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           contextArtifactId: input.contextArtifactId,
           contextArtifactRequired: input.contextArtifactRequired,
           allowedElementIds: input.allowedElementIds,
+          disposition: input.disposition,
           goal: withReferenceContext(input.goal, references),
         });
         selectLongJob(String(started.jobId));
@@ -2463,7 +2549,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         return result.rowId ? { artifactId: targetArt.id as string, rowId: result.rowId as string, created: result.created } : undefined;
       },
     };
-  }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, selectedLongJobRow, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, applyEditCore, offlineQueue, offlineSnap, scheduleOfflineReplay, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, runNotebookKernel, createPrivateReplyStream, startAgentJob, startPublicAskJob, selectLongJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, creditMode, creditBalanceQ, creditUsageQ, rid, roomId, proof, me.id, me.name]);
+  }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, selectedLongJobRow, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, applyArtifactEditsMutation, applyEditCore, offlineQueue, offlineSnap, scheduleOfflineReplay, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, runNotebookKernel, createPrivateReplyStream, startAgentJob, startPublicAskJob, selectLongJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, creditMode, creditBalanceQ, creditUsageQ, rid, roomId, proof, me.id, me.name]);
 
   // E2E test seam: expose runCollab/runSemanticConflictDrill via window so tests can trigger
   // collaboration and conflict drills without the removed CollabBar buttons.

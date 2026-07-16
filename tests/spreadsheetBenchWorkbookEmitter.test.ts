@@ -87,6 +87,7 @@ describe("SpreadsheetBench workbook emitter", () => {
           hasCachedResult: true,
           cachedResult: 30,
           numFmt: "0.000%",
+          fontColor: "FF008000",
         },
         { sheet: "Model", address: "C3", kind: "value", value: " updated " },
       ],
@@ -100,7 +101,7 @@ describe("SpreadsheetBench workbook emitter", () => {
     const formulaCell = sheet!.getCell("B2");
     expect(formulaCell.value).toEqual({ formula: "A1*3", result: 30 });
     expect(formulaCell.numFmt).toBe("0.000%");
-    expect(formulaCell.font).toMatchObject({ bold: true, color: { argb: "FF123456" } });
+    expect(formulaCell.font).toMatchObject({ bold: true, color: { argb: "FF008000" } });
     expect(formulaCell.fill).toMatchObject({
       type: "pattern",
       pattern: "solid",
@@ -118,6 +119,114 @@ describe("SpreadsheetBench workbook emitter", () => {
     expect(untouchedCell.value).toEqual({ formula: "A1+5", result: 15 });
     expect(untouchedCell.numFmt).toBe("0.00");
     expect(untouchedCell.font).toMatchObject({ underline: true });
+  });
+
+  it("changes only the style index for a font-color-only shared-formula patch", async () => {
+    const root = tempRoot();
+    const source = join(root, "shared-style-source.xlsx");
+    const candidate = join(root, "shared-style-candidate.xlsx");
+    await writeOoxmlFixture(source, {
+      formulaXml: '<f t="shared" ref="B2:B3" si="0">A1*2</f>',
+      extraRowsXml: '<row r="3"><c r="B3"><f t="shared" si="0"/><v>4</v></c></row>',
+    });
+
+    await emitSpreadsheetBenchWorkbookCandidate({
+      sourceWorkbookPath: source,
+      candidateWorkbookPath: candidate,
+      patches: [{ sheet: "Model", address: "B2", kind: "style", fontColor: "FF008000" }],
+    });
+
+    const [sourceZip, candidateZip] = await Promise.all([
+      JSZip.loadAsync(readFileSync(source)),
+      JSZip.loadAsync(readFileSync(candidate)),
+    ]);
+    const sourceXml = await requiredZipText(sourceZip, WORKSHEET_PATH);
+    const candidateXml = await requiredZipText(candidateZip, WORKSHEET_PATH);
+    const cellBody = (xml: string) => xml.match(/<c\b[^>]*\br="B2"[^>]*>([\s\S]*?)<\/c>/)?.[1];
+    expect(cellBody(candidateXml)).toBe(cellBody(sourceXml));
+    expect(candidateXml.match(/<c\b[^>]*\br="B2"[^>]*>/)?.[0]).toContain('s="1"');
+    expect(candidateXml).toContain('<c r="B3"><f t="shared" si="0"/><v>4</v></c>');
+
+    const stylesXml = await requiredZipText(candidateZip, "xl/styles.xml");
+    expect(stylesXml).toContain('<font><sz val="11"/><name val="Calibri"/><color rgb="FF008000"/></font>');
+    expect(stylesXml).toContain('fontId="1"');
+    expect(stylesXml).toContain('applyFont="1"');
+  });
+
+  it("materializes an empty workbook cell for a style-only patch", async () => {
+    const root = tempRoot();
+    const source = join(root, "blank-style-source.xlsx");
+    const candidate = join(root, "blank-style-candidate.xlsx");
+    await writeStyledWorkbook(source);
+
+    await emitSpreadsheetBenchWorkbookCandidate({
+      sourceWorkbookPath: source,
+      candidateWorkbookPath: candidate,
+      patches: [{
+        sheet: "Model",
+        address: "B10",
+        kind: "style",
+        numFmt: "0.0%",
+        fontColor: "FF008000",
+      }],
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(candidate);
+    const cell = workbook.getWorksheet("Model")!.getCell("B10");
+    expect(cell.value).toBeNull();
+    expect(cell.numFmt).toBe("0.0%");
+    expect(cell.font.color).toEqual({ argb: "FF008000" });
+  });
+
+  it("serializes an otherwise structured model value as bounded canonical JSON text", async () => {
+    const root = tempRoot();
+    const source = join(root, "structured-source.xlsx");
+    const candidate = join(root, "structured-candidate.xlsx");
+    await writeStyledWorkbook(source);
+
+    await emitSpreadsheetBenchWorkbookCandidate({
+      sourceWorkbookPath: source,
+      candidateWorkbookPath: candidate,
+      patches: [{
+        sheet: "Model",
+        address: "B10",
+        kind: "value",
+        value: { series: [{ values: [1, 2] }], chartType: "bar" },
+      }],
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(candidate);
+    expect(workbook.getWorksheet("Model")!.getCell("B10").value)
+      .toBe('{"chartType":"bar","series":[{"values":[1,2]}]}');
+  });
+
+  it("serializes a themed font-color patch without flattening it to RGB", async () => {
+    const root = tempRoot();
+    const source = join(root, "theme-style-source.xlsx");
+    const candidate = join(root, "theme-style-candidate.xlsx");
+    await writeOoxmlFixture(source);
+
+    await emitSpreadsheetBenchWorkbookCandidate({
+      sourceWorkbookPath: source,
+      candidateWorkbookPath: candidate,
+      patches: [{
+        sheet: "Model",
+        address: "B2",
+        kind: "style",
+        fontColor: "FF4EA72E",
+        fontColorTheme: 9,
+      }],
+    });
+
+    const zip = await JSZip.loadAsync(readFileSync(candidate));
+    const stylesXml = await requiredZipText(zip, "xl/styles.xml");
+    expect(stylesXml).toContain('<color theme="9"/>');
+    expect(stylesXml).not.toContain('rgb="FF4EA72E"');
+
+    expect(stylesXml).toContain('fontId="1"');
+    expect(stylesXml).toContain('applyFont="1"');
   });
 
   it("materializes untouched shared-formula members before rewriting one member", async () => {

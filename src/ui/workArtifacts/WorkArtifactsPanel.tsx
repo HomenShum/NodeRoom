@@ -1,10 +1,12 @@
-import { useCallback, useMemo, useRef, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
+import { useQuery } from "convex/react";
 import { Archive, Bot, CheckCircle2, Clock3, Download, FileDown, GitPullRequest, Network, Search, ShieldAlert, Sparkles } from "lucide-react";
+import { api } from "../../../convex/_generated/api";
 import { useStore } from "../../app/store";
 import type { Actor, Artifact, Proposal, TraceEvent } from "../../engine/types";
 import { buildSemanticGraph } from "../graph/semanticGraph";
 import { getBrowserNotebookKernelBroker } from "../../notebook/browserKernelBroker";
-import { buildDeckObjectProposalGoal, buildDeckStoryboardFromRoom, buildLivePerformanceSummary, buildNotebookArtifactStructure, buildNotebookKernelTables, buildProofBundleExportManifest, buildProofBundleReceipt, buildTraceReplaySummary, buildWorkArtifacts, collaborativeDeckArtifactInput, createDeckComment, deckArtifactInputFromStoryboard, deckCommentElementId, deckSlideElementId, isCollaborativeDeckArtifact, notebookKernelOutputElementId, planDeckObjectMutations, proofBundleManifestFileName, proofBundleManifestJson, readCollaborativeDeckArtifact, readCollaborativeDeckProposal, readNotebookKernelOutputs, resolveDeckComment, type DeckComment, type DeckStoryboard, type WorkArtifactKind, type WorkArtifactStatus, type WorkArtifactViewModel } from ".";
+import { buildDeckObjectProposalGoal, buildDeckStoryboardFromRoom, buildLivePerformanceSummary, buildNotebookArtifactStructure, buildNotebookArtifactStructureFromReadModel, buildNotebookKernelTables, buildProofBundleExportManifest, buildProofBundleReceipt, buildTraceReplaySummary, buildWorkArtifacts, changedDeckObjectIds, collaborativeDeckArtifactInput, createDeckComment, deckArtifactInputFromStoryboard, deckCommentElementId, deckSlideElementId, findDeckObjectConflicts, isCollaborativeDeckArtifact, mergeCollaborativeDeckObjectChanges, notebookKernelOutputElementId, planDeckObjectMutations, proofBundleManifestFileName, proofBundleManifestJson, readCollaborativeDeckArtifact, readCollaborativeDeckProposal, readNotebookKernelOutputs, resolveDeckComment, type DeckComment, type DeckStoryboard, type WorkArtifactKind, type WorkArtifactStatus, type WorkArtifactViewModel } from ".";
 import { DeckStoryboardWorkbench } from "./DeckStoryboardWorkbench";
 import { GraphRelationshipReviewWorkbench } from "./GraphRelationshipReviewWorkbench";
 import { LivePerformanceCenter } from "./LivePerformanceCenter";
@@ -68,7 +70,7 @@ function scoreArtifacts(artifact: WorkArtifactViewModel): number {
   return statusScore * 10 + kindScore;
 }
 
-export function WorkArtifactsPanel({ roomId, me, onOpenArtifact }: { roomId: string; me: Actor; onOpenArtifact: (id: string) => void }): ReactElement {
+export function WorkArtifactsPanel({ roomId, me, onOpenArtifact, initialArtifactId, reviewJobId }: { roomId: string; me: Actor; onOpenArtifact: (id: string) => void; initialArtifactId?: string; reviewJobId?: string }): ReactElement {
   const store = useStore();
   const storeRef = useRef(store);
   const actorRef = useRef(me);
@@ -84,29 +86,62 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact }: { roomId: str
   const longJobAttempts = store.lastLongFreeJobAttempts();
   const longJobDetail = store.lastLongFreeJobDetail();
   const canResolve = store.listMembers(roomId).some((member) => member.id === me.id && member.role === "host");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [exportMessage, setExportMessage] = useState<string | null>(null);
-  const collaborativeDeckArtifact = useMemo(() => artifacts.find(isCollaborativeDeckArtifact), [artifacts]);
-  const collaborativeDeck = useMemo(() => collaborativeDeckArtifact ? readCollaborativeDeckArtifact(collaborativeDeckArtifact) : null, [collaborativeDeckArtifact]);
+  const collaborativeDeckEntries = useMemo(() => artifacts.flatMap((artifact) => {
+    const snapshot = readCollaborativeDeckArtifact(artifact);
+    return snapshot ? [{ artifact, snapshot }] : [];
+  }), [artifacts]);
+  const directDeckEntry = useMemo(() => (
+    initialArtifactId
+      ? collaborativeDeckEntries.find((entry) => entry.artifact.id === initialArtifactId)
+      : undefined
+  ), [collaborativeDeckEntries, initialArtifactId]);
+  const directDeckId = directDeckEntry ? `deck:${directDeckEntry.artifact.id}` : null;
+  const [selectedId, setSelectedId] = useState<string | null>(directDeckId);
+  useEffect(() => {
+    if (directDeckId) setSelectedId(directDeckId);
+  }, [directDeckId]);
+  const selectedDeckEntry = useMemo(() => (
+    selectedId?.startsWith("deck:")
+      ? collaborativeDeckEntries.find((entry) => `deck:${entry.artifact.id}` === selectedId)
+      : undefined
+  ), [collaborativeDeckEntries, selectedId]);
+  const activeDeckEntry = selectedDeckEntry ?? directDeckEntry ?? collaborativeDeckEntries[0];
+  const collaborativeDeck = activeDeckEntry?.snapshot ?? null;
   const sourceArtifacts = useMemo(() => artifacts.filter((artifact) => !isCollaborativeDeckArtifact(artifact)), [artifacts]);
-  const storyboard = useMemo(() => (
-    collaborativeDeck?.storyboard ?? (sourceArtifacts.length > 0
+  const generatedStoryboard = useMemo(() => (
+    collaborativeDeckEntries.length === 0 && sourceArtifacts.length > 0
       ? buildDeckStoryboardFromRoom({ roomId, roomTitle: room?.title, artifacts: sourceArtifacts, proposals, traces })
-      : null)
-  ), [collaborativeDeck?.storyboard, proposals, room?.title, roomId, sourceArtifacts, traces]);
+      : null
+  ), [collaborativeDeckEntries.length, proposals, room?.title, roomId, sourceArtifacts, traces]);
+  const storyboard = collaborativeDeck?.storyboard ?? generatedStoryboard;
+  const deckStoryboards = useMemo(() => (
+    collaborativeDeckEntries.length > 0
+      ? collaborativeDeckEntries.map((entry) => entry.snapshot.storyboard)
+      : generatedStoryboard ? [generatedStoryboard] : []
+  ), [collaborativeDeckEntries, generatedStoryboard]);
+  const deckArtifactInputs = useMemo(() => (
+    collaborativeDeckEntries.length > 0
+      ? collaborativeDeckEntries.map((entry) => ({
+          ...deckArtifactInputFromStoryboard(entry.snapshot.storyboard),
+          id: entry.artifact.id,
+          updatedAt: entry.artifact.updatedAt,
+        }))
+      : generatedStoryboard ? [deckArtifactInputFromStoryboard(generatedStoryboard)] : []
+  ), [collaborativeDeckEntries, generatedStoryboard]);
   const graph = useMemo(() => (
-    buildSemanticGraph({ roomId, artifacts, proposals, traces, decks: storyboard ? [storyboard] : [] })
-  ), [artifacts, proposals, roomId, storyboard, traces]);
+    buildSemanticGraph({ roomId, artifacts, proposals, traces, decks: deckStoryboards })
+  ), [artifacts, deckStoryboards, proposals, roomId, traces]);
   const bundle = useMemo(() => {
     return buildWorkArtifacts({
       artifacts: sourceArtifacts,
       proposals,
       traces: traces.slice(-12),
       graph,
-      decks: storyboard ? [deckArtifactInputFromStoryboard(storyboard)] : [],
+      decks: deckArtifactInputs,
       exports: inferExports(roomId, artifacts, traces, proposals),
     }).sort((a, b) => scoreArtifacts(a) - scoreArtifacts(b) || (b.updatedAt ?? b.createdAt ?? 0) - (a.updatedAt ?? a.createdAt ?? 0));
-  }, [graph, proposals, roomId, sourceArtifacts, storyboard, traces]);
+  }, [deckArtifactInputs, graph, proposals, roomId, sourceArtifacts, traces]);
 
   const totals = useMemo(() => ({
     evidence: bundle.reduce((sum, item) => sum + item.receipt.evidenceCount, 0),
@@ -134,13 +169,33 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact }: { roomId: str
     const ref = item.refs.find((candidate) => candidate.artifactId && artifacts.some((artifact) => artifact.id === candidate.artifactId));
     if (ref?.artifactId) onOpenArtifact(ref.artifactId);
   };
-  const selectedDeck = storyboard && selectedId === `deck:${storyboard.deckId}` ? storyboard : null;
-  const selectedNotebook = useMemo(() => {
+  const selectedDeck = selectedDeckEntry?.snapshot.storyboard ?? (
+    generatedStoryboard && selectedId === `deck:${generatedStoryboard.deckId}` ? generatedStoryboard : null
+  );
+  const selectedNotebookArtifact = useMemo(() => {
     if (!selectedId?.startsWith("artifact:")) return null;
     const artifactId = selectedId.slice("artifact:".length);
-    const artifact = artifacts.find((candidate) => candidate.id === artifactId && candidate.kind === "note" && !isCollaborativeDeckArtifact(candidate));
-    return artifact ? { artifact, structure: buildNotebookArtifactStructure(artifact, { traces, proposals }) } : null;
-  }, [artifacts, proposals, selectedId, traces]);
+    return artifacts.find((candidate) => candidate.id === artifactId && candidate.kind === "note" && !isCollaborativeDeckArtifact(candidate)) ?? null;
+  }, [artifacts, selectedId]);
+  const notebookRequester = store.actorProof?.() ?? null;
+  const liveNotebookRows = useQuery(
+    api.notebookProcessing.listNotebookBlocks,
+    selectedNotebookArtifact && notebookRequester
+      ? {
+          roomId: roomId as never,
+          artifactId: selectedNotebookArtifact.id as never,
+          requester: notebookRequester,
+          limit: 240,
+        }
+      : "skip",
+  );
+  const selectedNotebook = useMemo(() => {
+    if (!selectedNotebookArtifact) return null;
+    const structure = liveNotebookRows && liveNotebookRows.length > 0
+      ? buildNotebookArtifactStructureFromReadModel(selectedNotebookArtifact, liveNotebookRows, { traces, proposals })
+      : buildNotebookArtifactStructure(selectedNotebookArtifact, { traces, proposals });
+    return { artifact: selectedNotebookArtifact, structure };
+  }, [liveNotebookRows, proposals, selectedNotebookArtifact, traces]);
   const notebookKernelTables = useMemo(() => buildNotebookKernelTables(sourceArtifacts), [sourceArtifacts]);
   const selectedGraph = selectedId === `graph:${roomId}` ? graph : null;
   const selectedTraceId = selectedId?.startsWith("trace:") ? selectedId.slice("trace:".length) : undefined;
@@ -169,7 +224,7 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact }: { roomId: str
       storeRef.current.clearPresence({ roomId, artifactId: collaborativeDeckArtifactId, targetKind: "deck_component", actor: actorRef.current });
     }
   }, [collaborativeDeckArtifactId, me.id, roomId]);
-  const saveStoryboard = async (next: DeckStoryboard): Promise<{ ok: boolean; reason?: string }> => {
+  const saveStoryboard = async (next: DeckStoryboard, base: DeckStoryboard): Promise<{ ok: boolean; reason?: string }> => {
     if (!collaborativeDeck) {
       try {
         await store.uploadArtifact({ roomId, artifact: collaborativeDeckArtifactInput(next), actor: me, visibility: "room" });
@@ -181,30 +236,40 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact }: { roomId: str
     const latestArtifact = store.getArtifact(collaborativeDeck.artifactId);
     const latest = latestArtifact ? readCollaborativeDeckArtifact(latestArtifact) : null;
     if (!latest) return { ok: false, reason: "deck_not_found" };
+    const remoteObjectIds = changedDeckObjectIds(base, latest.storyboard);
+    const conflicts = findDeckObjectConflicts({ base, current: latest.storyboard, next });
+    if (conflicts.length > 0) return { ok: false, reason: `conflict:${conflicts.join(",")}` };
+    // Legacy decks do not have per-object versions yet. Refuse any concurrent
+    // migration rather than flattening a disjoint remote edit into stale JSON.
+    if (latest.storageMode === "legacy-v1" && remoteObjectIds.length > 0) {
+      return { ok: false, reason: `conflict:${remoteObjectIds.join(",")}` };
+    }
+    const mergedNext = latest.storageMode === "object-v2"
+      ? mergeCollaborativeDeckObjectChanges({ base, current: latest.storyboard, next })
+      : next;
+    const changedObjectIds = new Set(changedDeckObjectIds(latest.storyboard, mergedNext));
     const mutations = planDeckObjectMutations({
       storageMode: latest.storageMode,
       current: latest.storyboard,
       objectVersions: latest.objectVersions,
-      next,
+      next: mergedNext,
+      ...(latest.storageMode === "object-v2" ? { changedObjectIds } : {}),
     });
-    let applied = 0;
-    for (const mutation of mutations) {
-      const feedback = await store.applyEdit({
-        roomId,
-        actor: me,
-        op: {
-          opId: crypto.randomUUID(),
-          artifactId: latest.artifactId,
-          elementId: mutation.elementId,
-          kind: mutation.kind,
-          value: mutation.value,
-          baseVersion: mutation.baseVersion,
-        },
-      });
-      if (!feedback.ok) return { ok: false, reason: `${feedback.reason}${applied ? `_after_${applied}_objects` : ""}` };
-      applied += 1;
-    }
-    return { ok: true };
+    if (mutations.length === 0) return { ok: true };
+    const feedback = await store.applyArtifactEdits({
+      roomId,
+      artifactId: latest.artifactId,
+      actor: me,
+      ops: mutations.map((mutation) => ({
+        opId: crypto.randomUUID(),
+        artifactId: latest.artifactId,
+        elementId: mutation.elementId,
+        kind: mutation.kind,
+        value: mutation.kind === "delete" ? null : mutation.value,
+        baseVersion: mutation.baseVersion,
+      })),
+    });
+    return feedback.ok ? { ok: true } : { ok: false, reason: `${feedback.reason}${feedback.elementId ? `:${feedback.elementId}` : ""}` };
   };
   const addDeckComment = async (slideId: string, body: string, targetObjectId?: string): Promise<{ ok: boolean; reason?: string }> => {
     if (!collaborativeDeck) return { ok: false, reason: "deck_not_live" };
@@ -291,7 +356,12 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact }: { roomId: str
   };
 
   return (
-    <div className="r-art-body wa-panel" data-testid="work-artifacts-panel" data-noderoom-surface="workSurface.artifacts">
+    <div
+      className="r-art-body wa-panel"
+      data-testid="work-artifacts-panel"
+      data-noderoom-surface="workSurface.artifacts"
+      data-detail={selectedNotebook ? "notebook" : undefined}
+    >
       <header className="wa-header">
         <div>
           <p className="wa-eyebrow">Work artifacts</p>
@@ -322,6 +392,7 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact }: { roomId: str
 
       <ProposalReviewCenter
         proposals={proposals}
+        jobId={reviewJobId}
         artifacts={artifacts}
         traces={traces}
         me={me}
@@ -346,6 +417,7 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact }: { roomId: str
       )}
       {selectedDeck && (
         <DeckStoryboardWorkbench
+          key={collaborativeDeck?.artifactId ?? selectedDeck.deckId}
           storyboard={selectedDeck}
           artifactId={collaborativeDeck?.artifactId}
           collaboratorCount={deckCollaboratorCount}

@@ -3,6 +3,9 @@ import type { Artifact, Proposal, TraceEvent } from "../../engine/types";
 import { buildDeckStoryboardFromRoom, type DeckSlidePlan, type DeckStoryboard } from "./deckStoryboard";
 import {
   DECK_META_ELEMENT_ID,
+  DECK_ORDER_ELEMENT_ID,
+  changedDeckObjectIds,
+  deckClaimElementId,
   deckObjectSeed,
   deckSlideElementId,
   deckSlideObjectValue,
@@ -214,6 +217,55 @@ export function normalizeCollaborativeDeck(storyboard: DeckStoryboard, version =
     ...draft,
     planHash: stableHash({ deckId: storyboard.deckId, ...draft }),
   };
+}
+
+/**
+ * Applies only locally changed stable objects to the latest storyboard, then
+ * recomputes derived deck metadata. Call this only after conflict detection.
+ */
+export function mergeCollaborativeDeckObjectChanges(input: {
+  base: DeckStoryboard;
+  current: DeckStoryboard;
+  next: DeckStoryboard;
+}): DeckStoryboard {
+  const localChanges = new Set(changedDeckObjectIds(input.base, input.next));
+  const currentSlides = new Map(input.current.slides.map((slide) => [slide.slideId, slide]));
+  const nextSlides = new Map(input.next.slides.map((slide) => [slide.slideId, slide]));
+  const currentClaims = new Map(input.current.slides.flatMap((slide) => slide.claims).map((claim) => [claim.claimId, claim]));
+  const nextClaims = new Map(input.next.slides.flatMap((slide) => slide.claims).map((claim) => [claim.claimId, claim]));
+  const orderSource = localChanges.has(DECK_ORDER_ELEMENT_ID) ? input.next.slides : input.current.slides;
+  const slides = orderSource.flatMap((orderedSlide): DeckSlidePlan[] => {
+    const slide = localChanges.has(deckSlideElementId(orderedSlide.slideId))
+      ? nextSlides.get(orderedSlide.slideId)
+      : currentSlides.get(orderedSlide.slideId);
+    if (!slide) return [];
+    const claims = slide.claims.flatMap((orderedClaim): DeckStoryboard["slides"][number]["claims"] => {
+      const claim = localChanges.has(deckClaimElementId(orderedClaim.claimId))
+        ? nextClaims.get(orderedClaim.claimId)
+        : currentClaims.get(orderedClaim.claimId) ?? nextClaims.get(orderedClaim.claimId);
+      return claim ? [{ ...claim }] : [];
+    });
+    return [{
+      ...slide,
+      claims,
+      sourceArtifactIds: [...slide.sourceArtifactIds],
+      evidenceIds: [...slide.evidenceIds],
+      unresolvedGaps: [...slide.unresolvedGaps],
+    }];
+  });
+  const chooseAuthored = <K extends "title" | "audience" | "objective" | "privacy">(key: K): DeckStoryboard[K] => (
+    input.base[key] !== input.next[key] ? input.next[key] : input.current[key]
+  );
+  return normalizeCollaborativeDeck({
+    ...input.current,
+    title: chooseAuthored("title"),
+    audience: chooseAuthored("audience"),
+    objective: chooseAuthored("objective"),
+    privacy: chooseAuthored("privacy"),
+    slides,
+    traceIds: unique([...input.current.traceIds, ...input.next.traceIds]),
+    proposalIds: unique([...input.current.proposalIds, ...input.next.proposalIds]),
+  }, Math.max(input.current.version, input.next.version));
 }
 
 export function addCollaborativeDeckSlide(storyboard: DeckStoryboard, afterSlideId?: string): DeckStoryboard {

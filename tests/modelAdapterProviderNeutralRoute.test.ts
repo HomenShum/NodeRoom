@@ -34,7 +34,7 @@ vi.mock("@ai-sdk/google", () => ({
 }));
 
 const OPENROUTER_MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
-const GOOGLE_MODEL = "gemini-3-flash-preview";
+const GOOGLE_MODEL = "gemini-3.5-flash";
 const ROUTING_ENV = [
   "OPENROUTER_API_KEY",
   "OPENROUTER_FREE_MODEL_CACHE_MS",
@@ -162,8 +162,8 @@ describe("provider-neutral NodeAgent free-first routing", () => {
           billing: {
             free: false,
             classification: "catalog_priced",
-            inputPer1M: 0.5,
-            outputPer1M: 3,
+            inputPer1M: 1.5,
+            outputPer1M: 9,
           },
         },
       },

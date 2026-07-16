@@ -149,7 +149,7 @@ type SdkToolSet = Record<string, any>;
 type GenerateTextResultAny = any;
 
 const NODEAGENT_PROVIDER_NEUTRAL_POLICY = "nodeagent_provider_neutral_free_first_v1" as const;
-const DEFAULT_NODEAGENT_GOOGLE_FALLBACK_MODEL = "gemini-3-flash-preview";
+const DEFAULT_NODEAGENT_GOOGLE_FALLBACK_MODEL = "gemini-3.5-flash";
 
 type ProviderNeutralBilling = {
   /** This describes route pricing, not the account's eventual invoice or free-tier entitlement. */

@@ -3,16 +3,20 @@ import { copyFileSync, readFileSync, renameSync, unlinkSync, writeFileSync } fro
 import { basename, dirname, join, posix, resolve } from "node:path";
 import JSZip from "jszip";
 import { SaxesParser, type SaxesTagNS } from "saxes";
+import { normalizeSpreadsheetFontColor } from "../shared/spreadsheetFontColor";
 
 export type SpreadsheetBenchWorkbookCellPatch = {
   sheet: string;
   address: string;
-  kind: "clear" | "formula" | "value";
+  kind: "clear" | "formula" | "style" | "value";
   formula?: string;
   hasCachedResult?: boolean;
   cachedResult?: unknown;
   value?: unknown;
   numFmt?: string;
+  fontColor?: string;
+  fontColorTheme?: number;
+  fontColorTint?: number;
 };
 
 type WorkbookSheetPart = {
@@ -141,11 +145,14 @@ export async function emitSpreadsheetBenchWorkbookCandidate(args: {
 class WorkbookStylesEditor {
   private readonly sourceXml: string;
   private readonly sourceXfs: string[];
+  private readonly sourceFonts: string[];
   private readonly formatCodeById = new Map<number, string>(BUILTIN_NUMBER_FORMATS);
   private readonly formatIdByCode = new Map<string, number>();
   private readonly pendingNumberFormats: Array<{ id: number; code: string }> = [];
+  private readonly pendingFonts: string[] = [];
   private readonly pendingXfs: string[] = [];
   private readonly styleCache = new Map<string, number>();
+  private readonly fontCache = new Map<string, number>();
   private nextNumberFormatId: number;
 
   constructor(xml: string) {
@@ -153,6 +160,12 @@ class WorkbookStylesEditor {
     const nodes = indexXmlSpans(xml);
     const cellXfs = nodes.find((node) => node.local === "cellXfs");
     if (!cellXfs) throw new Error("Workbook styles XML is missing cellXfs");
+    const fonts = nodes.find((node) => node.local === "fonts");
+    if (!fonts) throw new Error("Workbook styles XML is missing fonts");
+    this.sourceFonts = nodes
+      .filter((node) => node.local === "font" && node.parent === fonts)
+      .map((node) => xml.slice(node.start, node.end));
+    if (this.sourceFonts.length === 0) throw new Error("Workbook styles XML has no font entries");
     this.sourceXfs = nodes
       .filter((node) => node.local === "xf" && node.parent === cellXfs)
       .map((node) => xml.slice(node.start, node.end));
@@ -169,20 +182,37 @@ class WorkbookStylesEditor {
     this.nextNumberFormatId = Math.max(164, ...this.formatCodeById.keys()) + 1;
   }
 
-  ensureNumberFormatStyle(sourceStyleIndex: number, formatCode: string): number {
+  ensureCellStyle(sourceStyleIndex: number, changes: {
+    numFmt?: string;
+    fontColor?: string;
+    fontColorTheme?: number;
+    fontColorTint?: number;
+  }): number {
     const sourceXf = this.sourceXfs[sourceStyleIndex];
     if (!sourceXf) throw new Error(`Workbook cell references missing style index ${sourceStyleIndex}`);
     const sourceXfNode = indexXmlSpans(sourceXf).find((node) => node.local === "xf");
     if (!sourceXfNode) throw new Error(`Workbook style ${sourceStyleIndex} is malformed`);
     const sourceFormatId = Number(sourceXfNode.attrs.numFmtId ?? 0);
-    if (this.formatCodeById.get(sourceFormatId) === formatCode) return sourceStyleIndex;
+    const sourceFontId = Number(sourceXfNode.attrs.fontId ?? 0);
+    const normalizedFontColor = changes.fontColor === undefined ? undefined : normalizeSpreadsheetFontColor(changes.fontColor);
+    if (changes.fontColor !== undefined && !normalizedFontColor) throw new Error(`Invalid workbook font color ${JSON.stringify(changes.fontColor)}`);
+    const formatId = changes.numFmt === undefined ? sourceFormatId : this.ensureNumberFormat(changes.numFmt);
+    const fontId = normalizedFontColor === undefined && changes.fontColorTheme === undefined
+      ? sourceFontId
+      : this.ensureFontColor(sourceFontId, {
+          rgb: normalizedFontColor,
+          theme: changes.fontColorTheme,
+          tint: changes.fontColorTint,
+        });
+    if (formatId === sourceFormatId && fontId === sourceFontId) return sourceStyleIndex;
 
-    const cacheKey = `${sourceStyleIndex}\u0000${formatCode}`;
+    const cacheKey = `${sourceStyleIndex}\u0000${formatId}\u0000${fontId}`;
     const cached = this.styleCache.get(cacheKey);
     if (cached !== undefined) return cached;
-    const formatId = this.ensureNumberFormat(formatCode);
     let nextXf = setElementAttribute(sourceXf, "numFmtId", String(formatId));
     nextXf = setElementAttribute(nextXf, "applyNumberFormat", formatId === 0 ? "0" : "1");
+    nextXf = setElementAttribute(nextXf, "fontId", String(fontId));
+    if (fontId !== sourceFontId) nextXf = setElementAttribute(nextXf, "applyFont", "1");
     const styleIndex = this.sourceXfs.length + this.pendingXfs.length;
     this.pendingXfs.push(nextXf);
     this.styleCache.set(cacheKey, styleIndex);
@@ -222,6 +252,18 @@ class WorkbookStylesEditor {
       }
     }
 
+    if (this.pendingFonts.length > 0) {
+      const nodes = indexXmlSpans(xml);
+      const fonts = nodes.find((node) => node.local === "fonts");
+      if (!fonts || fonts.selfClosing) throw new Error("Workbook styles XML has no writable fonts collection");
+      const count = nodes.filter((node) => node.local === "font" && node.parent === fonts).length;
+      const opening = setXmlAttribute(xml.slice(fonts.start, fonts.openEnd), "count", String(count + this.pendingFonts.length));
+      xml = applyXmlSplices(xml, [
+        { start: fonts.start, end: fonts.openEnd, text: opening },
+        { start: fonts.closeStart, end: fonts.closeStart, text: this.pendingFonts.join("") },
+      ]);
+    }
+
     if (this.pendingXfs.length > 0) {
       const nodes = indexXmlSpans(xml);
       const cellXfs = nodes.find((node) => node.local === "cellXfs");
@@ -244,6 +286,28 @@ class WorkbookStylesEditor {
     this.formatIdByCode.set(formatCode, id);
     this.formatCodeById.set(id, formatCode);
     return id;
+  }
+
+  private ensureFontColor(
+    sourceFontId: number,
+    color: { rgb?: string; theme?: number; tint?: number },
+  ): number {
+    const sourceFont = this.sourceFonts[sourceFontId];
+    if (!sourceFont) throw new Error(`Workbook style references missing font index ${sourceFontId}`);
+    if (color.theme !== undefined && (!Number.isInteger(color.theme) || color.theme < 0)) {
+      throw new Error(`Invalid workbook font theme ${JSON.stringify(color.theme)}`);
+    }
+    const token = color.theme === undefined
+      ? { rgb: color.rgb }
+      : { theme: color.theme, ...(color.tint === undefined ? {} : { tint: color.tint }) };
+    if (fontColorTokenMatches(sourceFont, token)) return sourceFontId;
+    const cacheKey = `${sourceFontId}\u0000${JSON.stringify(token)}`;
+    const cached = this.fontCache.get(cacheKey);
+    if (cached !== undefined) return cached;
+    const fontId = this.sourceFonts.length + this.pendingFonts.length;
+    this.pendingFonts.push(setFontColorToken(sourceFont, token));
+    this.fontCache.set(cacheKey, fontId);
+    return fontId;
   }
 }
 
@@ -383,7 +447,7 @@ function prepareFormulaGroupSplices(
   nodes: XmlNodeSpan[],
   patches: SpreadsheetBenchWorkbookCellPatch[],
 ): XmlSplice[] {
-  const patchAddresses = new Set(patches.map((patch) => patch.address));
+  const patchAddresses = new Set(patches.filter((patch) => patch.kind !== "style").map((patch) => patch.address));
   const formulaNodes = nodes.filter((node) => node.local === "f" && node.parent?.local === "c");
 
   for (const formula of formulaNodes.filter((node) => node.attrs.t === "array" || node.attrs.t === "dataTable")) {
@@ -511,19 +575,30 @@ function serializeCellPatch(
   sourceStyleIndex: number,
   styles: WorkbookStylesEditor,
 ): string {
+  const styleIndex = patch.numFmt === undefined && patch.fontColor === undefined && patch.fontColorTheme === undefined
+    ? sourceStyleIndex
+    : styles.ensureCellStyle(sourceStyleIndex, {
+        numFmt: patch.numFmt,
+        fontColor: patch.fontColor,
+        fontColorTheme: patch.fontColorTheme,
+        fontColorTint: patch.fontColorTint,
+      });
+  if (patch.kind === "style") {
+    if (!sourceCell) return `<c r="${patch.address}" s="${styleIndex}"/>`;
+    let opening = xml.slice(sourceCell.start, sourceCell.openEnd);
+    opening = setXmlAttribute(opening, "s", String(styleIndex));
+    return `${opening}${xml.slice(sourceCell.openEnd, sourceCell.end)}`;
+  }
   const formulaElement = patch.kind === "formula"
     ? sourceFormulaElement(xml, sourceCell, patch)
     : { opening: "<f>", closing: "</f>" };
 
-  const styleIndex = patch.numFmt === undefined
-    ? sourceStyleIndex
-    : styles.ensureNumberFormatStyle(sourceStyleIndex, patch.numFmt);
   const tagName = sourceCell?.name ?? "c";
   let opening = sourceCell ? xml.slice(sourceCell.start, sourceCell.openEnd) : `<${tagName} r="${patch.address}">`;
   opening = opening.replace(/\s*\/>$/, ">");
   opening = setXmlAttribute(opening, "r", patch.address);
   opening = removeXmlAttribute(opening, "t");
-  if (patch.numFmt !== undefined) {
+  if (patch.numFmt !== undefined || patch.fontColor !== undefined || patch.fontColorTheme !== undefined) {
     opening = setXmlAttribute(opening, "s", String(styleIndex));
   }
 
@@ -601,13 +676,36 @@ function serializedScalar(value: unknown, formulaResult: boolean): {
     ? value
     : typeof record?.text === "string"
       ? record.text
-      : richText;
+      : richText ?? structuredCellText(value);
   if (text === undefined) {
     throw new Error(`Workbook patch cannot serialize ${Array.isArray(value) ? "an array" : typeof value} as a cell scalar`);
   }
   return formulaResult
     ? { type: "str", valueXml: escapeXmlText(text), textValue: text }
     : { type: "inlineStr", valueXml: escapeXmlText(text), inlineString: true, textValue: text };
+}
+
+function structuredCellText(value: unknown): string | undefined {
+  if ((!value || typeof value !== "object") && !Array.isArray(value)) return undefined;
+  const canonical = canonicalJsonValue(value, new Set<object>());
+  const text = JSON.stringify(canonical);
+  if (text.length > 32_767) throw new Error(`Workbook patch structured cell text exceeds Excel's 32767 character limit`);
+  return text;
+}
+
+function canonicalJsonValue(value: unknown, ancestors: Set<object>): unknown {
+  if (value === null || typeof value !== "object") return value;
+  if (value instanceof Date) return value.toISOString();
+  if (ancestors.has(value)) throw new Error("Workbook patch structured cell value contains a cycle");
+  ancestors.add(value);
+  try {
+    if (Array.isArray(value)) return value.map((item) => canonicalJsonValue(item, ancestors));
+    return Object.fromEntries(Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, nested]) => [key, canonicalJsonValue(nested, ancestors)]));
+  } finally {
+    ancestors.delete(value);
+  }
 }
 
 function updateWorksheetDimension(xml: string): string {
@@ -718,6 +816,41 @@ function assertWellFormedXml(xml: string, label: string): void {
   } catch (error) {
     throw new Error(`${label} is not well-formed after workbook patching: ${error instanceof Error ? error.message : String(error)}`);
   }
+}
+
+function fontColorTokenMatches(
+  fontXml: string,
+  token: { rgb?: string; theme?: number; tint?: number },
+): boolean {
+  const nodes = indexXmlSpans(fontXml);
+  const font = nodes.find((node) => node.local === "font");
+  const color = nodes.find((node) => node.local === "color" && node.parent === font);
+  if (!color) return false;
+  if (token.theme !== undefined) {
+    return Number(color.attrs.theme) === token.theme
+      && (token.tint === undefined ? color.attrs.tint === undefined : Number(color.attrs.tint) === token.tint);
+  }
+  return normalizeSpreadsheetFontColor(color.attrs.rgb) === token.rgb;
+}
+
+function setFontColorToken(
+  fontXml: string,
+  token: { rgb?: string; theme?: number; tint?: number },
+): string {
+  const nodes = indexXmlSpans(fontXml);
+  const font = nodes.find((node) => node.local === "font");
+  if (!font) throw new Error("Workbook font XML is malformed");
+  const color = nodes.find((node) => node.local === "color" && node.parent === font);
+  if (token.theme === undefined && !token.rgb) throw new Error("Workbook font color token is empty");
+  const fragment = token.theme === undefined
+    ? `<color rgb="${token.rgb}"/>`
+    : `<color theme="${token.theme}"${token.tint === undefined ? "" : ` tint="${token.tint}"`}/>`;
+  if (color) return applyXmlSplices(fontXml, [{ start: color.start, end: color.end, text: fragment }]);
+  if (font.selfClosing) {
+    const opening = fontXml.slice(font.start, font.openEnd).replace(/\s*\/>$/, ">");
+    return `${opening}${fragment}</${font.name}>`;
+  }
+  return applyXmlSplices(fontXml, [{ start: font.closeStart, end: font.closeStart, text: fragment }]);
 }
 
 function setElementAttribute(elementXml: string, name: string, value: string): string {

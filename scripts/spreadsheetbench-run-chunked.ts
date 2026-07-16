@@ -13,6 +13,7 @@ import type {
 import type { SpreadsheetBenchTrack } from "../src/eval/spreadsheetBenchAdapter";
 import { getModelPricing } from "../src/nodeagent/models/modelCatalog";
 import type { OpenRouterFreeModelMode } from "../src/nodeagent/models/openRouterFreeModels";
+import { fingerprintSpreadsheetBenchRunSource } from "../src/eval/spreadsheetBenchRunSourceFingerprint";
 
 const args = process.argv.slice(2);
 const stageRoot = optionValue("--stage-root");
@@ -39,6 +40,7 @@ const compareStyles = args.includes("--compare-styles");
 const compareCharts = args.includes("--compare-charts");
 const retryScoreFailures = args.includes("--retry-score-failures");
 const refreshExcelCaches = args.includes("--refresh-excel-caches");
+const allowStablePendingCaches = args.includes("--allow-stable-pending-caches");
 const clean = args.includes("--clean");
 const resume = args.includes("--resume");
 const repairMissingModelReceipts = args.includes("--repair-missing-model-receipts");
@@ -57,7 +59,7 @@ const modeRequiresModel = mode === "model-edit-plan" || mode === "nodeagent-work
 if (!stageRoot || !outputRoot || !jsonOut || !allowedModes.includes(mode) || chunkSize <= 0 || concurrency <= 0 || concurrency > 16) {
   console.error([
     "Usage:",
-    "  npm run benchmark:spreadsheetbench:run-chunked -- --stage-root <staged-dir> --output-root <candidate-output-dir> --json-out <report.json> [--mode copy-input-baseline|apply-agent-patch|model-edit-plan|nodeagent-workbook] [--chunk-size 25] [--concurrency 1..16] [--resume] [--repair-missing-model-receipts] [--model <route>] [--free-auto-mode chat|agent|structured|vision|coding] [--model-batch-size 1] [--model-snapshot-max-cells 800] [--model-snapshot-max-cell-chars 256] [--model-repair-attempts 1] [--refresh-excel-caches] [--task-ids-file <ids.json>] [--allow-provider-spend --max-provider-cost-usd 1 --provider-call-reserve-usd 0.05] [--clean]",
+    "  npm run benchmark:spreadsheetbench:run-chunked -- --stage-root <staged-dir> --output-root <candidate-output-dir> --json-out <report.json> [--mode copy-input-baseline|apply-agent-patch|model-edit-plan|nodeagent-workbook] [--chunk-size 25] [--concurrency 1..16] [--resume] [--repair-missing-model-receipts] [--model <route>] [--free-auto-mode chat|agent|structured|vision|coding] [--model-batch-size 1] [--model-snapshot-max-cells 800] [--model-snapshot-max-cell-chars 256] [--model-repair-attempts 1] [--refresh-excel-caches] [--allow-stable-pending-caches] [--task-ids-file <ids.json>] [--allow-provider-spend --max-provider-cost-usd 1 --provider-call-reserve-usd 0.05] [--clean]",
     "",
     "Runs staged SpreadsheetBench tasks in fresh child processes and aggregates the reports.",
     "nodeagent-workbook requires --model, defaults --free-auto-mode to agent, and requires --model-batch-size 1.",
@@ -88,6 +90,9 @@ if (modelRepairAttempts < 0 || modelRepairAttempts > 3) throw new Error("--model
 if (refreshExcelCaches && mode !== "nodeagent-workbook") {
   throw new Error("--refresh-excel-caches requires --mode nodeagent-workbook.");
 }
+if (allowStablePendingCaches && !refreshExcelCaches) {
+  throw new Error("--allow-stable-pending-caches requires --refresh-excel-caches.");
+}
 if (providerCallReserveUsd <= 0) throw new Error("--provider-call-reserve-usd must be positive.");
 if (maxProviderCostUsd !== undefined && maxProviderCostUsd <= 0) throw new Error("--max-provider-cost-usd must be positive.");
 if (allowProviderSpend && maxProviderCostUsd === undefined) throw new Error("--allow-provider-spend requires --max-provider-cost-usd.");
@@ -102,6 +107,9 @@ mkdirSync(dirname(outPath), { recursive: true });
 const chunkRoot = resolve(output, ".chunks");
 if (!resume) rmSync(chunkRoot, { recursive: true, force: true });
 mkdirSync(chunkRoot, { recursive: true });
+const sourceFingerprintPath = resolve(chunkRoot, "source-fingerprint.json");
+const sourceFingerprint = fingerprintSpreadsheetBenchRunSource();
+pinSourceFingerprint();
 const stagedTasks = listStagedTasks();
 const taskCount = stagedTasks.length;
 const repairArchive = repairMissingModelReceipts ? collectRepairArchive() : undefined;
@@ -154,6 +162,7 @@ async function runChunk(index: number, offset: number, limit: number): Promise<S
     console.log(`chunk ${index}: offset=${offset} limit=${limit} resumed pass=${resumed.passCount}/${resumed.taskCount}`);
     return [resumed];
   }
+  assertSourceFingerprint();
   if (repairMissingModelReceipts && existsSync(reportPath)) archiveChunkReport(reportPath);
   const childArgs = [
     resolve("node_modules", "tsx", "dist", "cli.mjs"),
@@ -186,6 +195,7 @@ async function runChunk(index: number, offset: number, limit: number): Promise<S
     "--model-repair-attempts",
     String(modelRepairAttempts),
     ...(refreshExcelCaches ? ["--refresh-excel-caches"] : []),
+    ...(allowStablePendingCaches ? ["--allow-stable-pending-caches"] : []),
     ...(taskIdsFile ? ["--task-ids-file", resolve(taskIdsFile)] : []),
     ...(retryScoreFailures ? ["--retry-score-failures"] : []),
     ...(compareStyles ? ["--compare-styles"] : []),
@@ -198,6 +208,7 @@ async function runChunk(index: number, offset: number, limit: number): Promise<S
   } finally {
     providerCostReservedUsd -= costReservation;
   }
+  assertSourceFingerprint();
   if (child.status !== 0) {
     process.stderr.write(child.stdout);
     process.stderr.write(child.stderr);
@@ -244,6 +255,51 @@ async function runChunk(index: number, offset: number, limit: number): Promise<S
   });
   console.log(`chunk ${index}: offset=${offset} limit=${limit} pass=${report.passCount}/${report.taskCount}`);
   return [report];
+}
+
+function pinSourceFingerprint(): void {
+  if (existsSync(sourceFingerprintPath)) {
+    const pinned = readJson<{ schema?: number; kind?: string; sha256?: string; fileCount?: number }>(sourceFingerprintPath);
+    if (
+      pinned.schema !== 1
+      || pinned.kind !== "spreadsheetbench-run-source-fingerprint"
+      || pinned.sha256 !== sourceFingerprint.sha256
+      || pinned.fileCount !== sourceFingerprint.fileCount
+    ) {
+      throw new Error(
+        `SpreadsheetBench source fingerprint changed since this chunk run began (${String(pinned.sha256)} != ${sourceFingerprint.sha256}). Start a clean run instead of mixing source revisions.`,
+      );
+    }
+    return;
+  }
+  if (resume && hasPriorChunkEvidence()) {
+    throw new Error(
+      "SpreadsheetBench resume data has no source fingerprint. Start a clean run instead of adopting unbound chunk evidence.",
+    );
+  }
+  writeFileSync(sourceFingerprintPath, `${JSON.stringify({
+    schema: 1,
+    kind: "spreadsheetbench-run-source-fingerprint",
+    generatedAt: new Date().toISOString(),
+    sha256: sourceFingerprint.sha256,
+    fileCount: sourceFingerprint.fileCount,
+  }, null, 2)}\n`);
+}
+
+function assertSourceFingerprint(): void {
+  const current = fingerprintSpreadsheetBenchRunSource();
+  if (current.sha256 !== sourceFingerprint.sha256 || current.fileCount !== sourceFingerprint.fileCount) {
+    throw new Error(
+      `SpreadsheetBench source changed during the chunk run (${sourceFingerprint.sha256} != ${current.sha256}). The current chunk is not certifying evidence; restore the source or start a clean run.`,
+    );
+  }
+}
+
+function hasPriorChunkEvidence(): boolean {
+  return readdirSync(chunkRoot, { withFileTypes: true }).some((entry) =>
+    (entry.isFile() && /^chunk-.*\.json$/.test(entry.name))
+    || (entry.isDirectory() && entry.name === "history"),
+  );
 }
 
 function readReusableChunkReport(path: string, offset: number, limit: number): SpreadsheetBenchRunnerReport | undefined {

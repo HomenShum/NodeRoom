@@ -198,6 +198,30 @@ describe("SpreadsheetBench V2 official projection", () => {
       receipt.frame.status = "blocked";
       receipt.frame.agentResult.stopReason = "step_budget";
     });
+    const structuralRepair = fixture.report.results.find(
+      (result) => result.taskId === "Debugging/003",
+    )!;
+    rewriteSidecars(fixture, structuralRepair, (receipt, trace) => {
+      const frameTrace = structuralFrameTrace();
+      const nextTrace = minimalTrace({
+        taskId: receipt.taskId,
+        traceId: receipt.traceId,
+        candidatePath: receipt.candidateWorkbookPath,
+        candidateSha256: receipt.candidateWorkbookSha256,
+        frameTrace,
+      });
+      const nextReceipt = minimalReceipt({
+        taskId: receipt.taskId,
+        category: receipt.category,
+        traceId: receipt.traceId,
+        candidatePath: receipt.candidateWorkbookPath,
+        candidateSha256: receipt.candidateWorkbookSha256,
+        frameTrace,
+        trace: nextTrace,
+      });
+      Object.assign(trace, nextTrace);
+      Object.assign(receipt, nextReceipt);
+    });
     writeJson(fixture.reportPath, fixture.report);
     const evaluatorBefore = readFileSync(
       join(fixture.upstream, "evaluation", "evaluation.py"),
@@ -255,6 +279,63 @@ describe("SpreadsheetBench V2 official projection", () => {
         "utf8",
       ),
     ).toBe(visualEvaluatorBefore);
+  }, 20_000);
+
+  it("accepts a batch write that partially commits before reporting a conflict", () => {
+    const fixture = createFixture();
+    const result = fixture.report.results[0];
+    rewriteSidecars(fixture, result, (receipt, trace) => {
+      receipt.frame.agentResult.trace[1].result = {
+        ok: false,
+        results: [
+          { ok: true, elementId: "A1", mutationReceiptId: "mutation-1" },
+          { ok: false, conflict: true, elementId: "A2" },
+        ],
+        operationCount: 1,
+        changedTargetCount: 1,
+        phases: {
+          plan: { status: "completed", targets: ["A1"] },
+          preflight: { status: "passed" },
+          write: { status: "completed" },
+          verify: { status: "passed" },
+        },
+      };
+      rebindFrameEvent(receipt, trace, 1);
+    });
+    writeJson(fixture.reportPath, fixture.report);
+
+    const projected = runProjection(fixture);
+
+    expect(projected.status, projected.stderr).toBe(0);
+  }, 20_000);
+
+  it("accepts an already-satisfied mutation call as skipped when another call commits", () => {
+    const fixture = createFixture();
+    const result = fixture.report.results[0];
+    rewriteSidecars(fixture, result, (receipt, trace) => {
+      receipt.frame.agentResult.trace[1].result = {
+        ok: true,
+        status: "completed",
+        operationCount: 1,
+        changedTargetCount: 0,
+        alreadySatisfied: true,
+        phases: {
+          plan: { status: "completed", targets: ["A1"] },
+          preflight: { status: "passed" },
+          write: { status: "completed" },
+          verify: { status: "passed" },
+        },
+      };
+      receipt.outcome.changedCellCount = 1;
+      receipt.trace.mutations[0].status = "skipped";
+      trace.mutations[0].status = "skipped";
+      rebindFrameEvent(receipt, trace, 1);
+    });
+    writeJson(fixture.reportPath, fixture.report);
+
+    const projected = runProjection(fixture);
+
+    expect(projected.status, projected.stderr).toBe(0);
   }, 20_000);
 
   it("rejects semantically forged sidecars even when their declared hashes are recomputed", () => {
@@ -697,6 +778,35 @@ function minimalFrameTrace(): FrameTraceEvent[] {
   ];
 }
 
+function structuralFrameTrace(): FrameTraceEvent[] {
+  return [
+    {
+      step: 0,
+      tool: "inspect_workbook",
+      args: { artifactId: "Sheet1", instruction: "Restore the deleted selector row." },
+      result: { ok: true, artifactId: "Sheet1", inspectedCellCount: 12 },
+      ms: 4,
+    },
+    {
+      step: 1,
+      tool: "execute_workbook_structure_repair",
+      args: { artifactId: "Sheet1", instruction: "Restore the deleted selector row.", repairId: "selector-row" },
+      result: {
+        ok: true,
+        status: "completed",
+        operationCount: 4,
+        targets: ["Sheet1!4:4", "Sheet1!B4", "Sheet1!C4", "Sheet1!D8"],
+        phases: {
+          preflight: { status: "passed" },
+          write: { status: "completed" },
+          verify: { status: "passed" },
+        },
+      },
+      ms: 6,
+    },
+  ];
+}
+
 function minimalTrace(args: {
   taskId: string;
   traceId: string;
@@ -810,19 +920,25 @@ function minimalTrace(args: {
         status: "verified",
       },
     ],
-    mutations: args.frameTrace.slice(1).map((event) => ({
-      receiptId: `${args.traceId}:mutation:${stableTraceHash(event.args).slice(-8)}`,
-      traceId: args.traceId,
-      targetRefs: [
-        {
-          kind: "cell",
-          refId: "Sheet1!A1",
-          label: "SpreadsheetBench workbook target",
-        },
-      ],
-      payloadHash: stableTraceHash(event.args),
-      status: "committed",
-    })),
+    mutations: args.frameTrace.slice(1).map((event) => {
+      const resultTargets = Array.isArray(event.result.targets)
+        ? event.result.targets.filter((target): target is string => typeof target === "string")
+        : [];
+      return {
+        receiptId: `${args.traceId}:mutation:${stableTraceHash(event.args).slice(-8)}`,
+        traceId: args.traceId,
+        targetRefs: Array.from(
+          { length: Number(event.result.operationCount ?? 1) },
+          (_value, index) => ({
+            kind: "cell",
+            refId: resultTargets[index] ?? `Sheet1!A${index + 1}`,
+            label: "SpreadsheetBench workbook target",
+          }),
+        ),
+        payloadHash: stableTraceHash(event.args),
+        status: "committed",
+      };
+    }),
     approvals: [],
     eval: {
       benchmarkCaseId: args.taskId,
@@ -871,10 +987,26 @@ function minimalReceipt(args: {
   });
   const stages: Record<string, StageReceipt> = {
     inspect: stageReceipt("inspect", [0]),
-    plan: stageReceipt("plan", [1, 2], 1),
-    preflight: stageReceipt("preflight", [1, 2], 1),
-    write: stageReceipt("write", [1, 2], 2),
-    verify: stageReceipt("verify", [1, 2], 1),
+    plan: stageReceipt(
+      "plan",
+      args.frameTrace.slice(1).map((_event, index) => index + 1),
+      Number(args.frameTrace.at(-1)?.result.operationCount ?? 0),
+    ),
+    preflight: stageReceipt(
+      "preflight",
+      args.frameTrace.slice(1).map((_event, index) => index + 1),
+      Number(args.frameTrace.at(-1)?.result.operationCount ?? 0),
+    ),
+    write: stageReceipt(
+      "write",
+      args.frameTrace.slice(1).map((_event, index) => index + 1),
+      args.frameTrace.slice(1).reduce((sum, event) => sum + Number(event.result.operationCount ?? 0), 0),
+    ),
+    verify: stageReceipt(
+      "verify",
+      args.frameTrace.slice(1).map((_event, index) => index + 1),
+      Number(args.frameTrace.at(-1)?.result.operationCount ?? 0),
+    ),
     repair: stageReceipt("repair"),
   };
   return {
@@ -888,7 +1020,10 @@ function minimalReceipt(args: {
     outcome: {
       status: "completed",
       mutatingTask: true,
-      changedCellCount: 2,
+      changedCellCount: args.frameTrace.slice(1).reduce(
+        (sum, event) => sum + Number(event.result.operationCount ?? 0),
+        0,
+      ),
       finalVerificationStatus: "passed",
     },
     stages,

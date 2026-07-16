@@ -302,6 +302,7 @@ export const runRoomAgent = action({
         text: finalText.slice(0, 4_000),
         clientMsgId: `plan-blocked-${String(jobClaim.jobId)}`,
         kind: "agent",
+        jobId: jobClaim.jobId,
       });
       // Release the credit hold immediately — this run was blocked before any spend (no run yet).
       // (Other early exits before the run, e.g. egress-blocked, are reclaimed by the sweep cron.)
@@ -733,6 +734,7 @@ export const runRoomAgent = action({
         text: visibleFallback.slice(0, 4_000),
         clientMsgId: `final-${String(runId)}`,
         kind: "agent",
+        jobId,
       });
     }
     return {

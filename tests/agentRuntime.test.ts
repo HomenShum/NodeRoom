@@ -62,6 +62,99 @@ it("repairs a complete stringified tool argument object with provider spillover"
   expect(repairedCall?.providerMetadata).toMatchObject({ argumentRepair: "stringified_json_object" });
 });
 
+it("rejects recursively schema-placeholder-only tool arguments while allowing mixed real strings", async () => {
+  const { rt } = setup();
+  let executeCalls = 0;
+  const recordTool: AgentTool = {
+    name: "record_payload",
+    description: "Record a structured payload.",
+    schema: z.object({
+      title: z.string(),
+      details: z.object({ label: z.string(), note: z.string() }),
+      count: z.number(),
+    }),
+    execute: async (args: { title: string; details: { label: string; note: string }; count: number }) => {
+      executeCalls += 1;
+      return { ok: true, args };
+    },
+  };
+  let turn = 0;
+  const model: AgentModel = {
+    name: "schema-placeholder-retry",
+    async next() {
+      turn += 1;
+      if (turn === 1) {
+        return {
+          toolCalls: [{
+            id: "placeholder-only",
+            tool: "record_payload",
+            args: { title: "string", details: { label: "<string>", note: "" }, count: 1 },
+          }],
+          done: false,
+        };
+      }
+      if (turn === 2) {
+        return {
+          toolCalls: [{
+            id: "mixed-real-value",
+            tool: "record_payload",
+            args: { title: "Q3 variance", details: { label: "string", note: "" }, count: 1 },
+          }],
+          done: false,
+        };
+      }
+      return { text: "Recorded.", toolCalls: [], done: true };
+    },
+  };
+
+  const result = await runAgent({ rt, goal: "record the Q3 variance payload", model, tools: [recordTool], maxSteps: 3 });
+
+  expect(executeCalls).toBe(1);
+  expect(result.trace[0]).toMatchObject({
+    tool: "record_payload",
+    result: {
+      ok: false,
+      error: "tool_argument_error",
+      failureKind: "schema_placeholder_arguments",
+      recovery: { action: "retry_tool_call" },
+    },
+  });
+  expect(result.trace[1]).toMatchObject({ tool: "record_payload", result: { ok: true } });
+});
+
+it("does not execute or persist chat for say with a schema-placeholder argument", async () => {
+  const { engine, d, rt } = setup();
+  const beforeMessages = engine.listMessages(d.roomId, "public").map((message) => message.id);
+  let executeCalls = 0;
+  const sayTool: AgentTool = {
+    name: "say",
+    description: "Post one line to room chat.",
+    schema: z.object({ text: z.string() }),
+    execute: async ({ text }: { text: string }, roomTools) => {
+      executeCalls += 1;
+      await roomTools.say(text);
+      return { ok: true };
+    },
+  };
+  const model = scriptedModel(() => ({
+    toolCalls: [{ tool: "say", args: { text: "string" } }],
+  }));
+
+  const result = await runAgent({ rt, goal: "report the room status", model, tools: [sayTool], maxSteps: 1 });
+
+  expect(executeCalls).toBe(0);
+  expect(engine.listMessages(d.roomId, "public").map((message) => message.id)).toEqual(beforeMessages);
+  expect(result.trace[0]).toMatchObject({
+    tool: "say",
+    result: {
+      ok: false,
+      error: "tool_argument_error",
+      failureKind: "schema_placeholder_arguments",
+      recovery: { action: "retry_tool_call" },
+    },
+  });
+});
+
 describe("agent runtime — collaboration under concurrency", () => {
   it("happy path: claim → read → CAS edit → release commits both cells with no conflicts", async () => {
     const { engine, d, rt } = setup();
