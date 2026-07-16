@@ -320,6 +320,10 @@ async function createFreshLiveRoom(page: Page): Promise<void> {
   await expect(displayName).toBeVisible({ timeout: 60_000 });
   await displayName.fill("Proof Loop");
   await page.getByTestId("create-room-submit").click({ timeout: 30_000 });
+  const accountRequired = page.getByRole("heading", { name: "Sign in to create this workspace" });
+  if (await accountRequired.waitFor({ state: "visible", timeout: 5_000 }).then(() => true, () => false)) {
+    throw new Error("authenticated_browser_state_required: production room creation requires an approved PROOFLOOP_AUTH_STORAGE_STATE");
+  }
   const blankSheet = page.getByTestId("blank-cta-sheet");
   const addBlankSheet = page.getByRole("button", { name: /Add a blank sheet/i });
   const clicked = await clickWhenVisible(blankSheet, 60_000) || await clickWhenVisible(addBlankSheet, 60_000);
