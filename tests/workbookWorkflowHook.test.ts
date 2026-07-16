@@ -287,6 +287,32 @@ describe("verified workbook workflow hook", () => {
     expect(result.trace.find((event) => event.tool === "write_locked_cells")?.args).toEqual(writes[0]);
   });
 
+  it("binds an artifact-only commit intent to one matching preflight-approved plan", async () => {
+    const operations = [
+      OPERATION,
+      { elementId: "C2", formula: "=B2+1", result: 21, numFmt: "0.00" },
+    ];
+    const writes: unknown[] = [];
+    let turn = 0;
+    const model = scriptedModel(() => {
+      turn += 1;
+      if (turn === 1) return { toolCalls: [{ tool: "inspect_workbook", args: { instruction: "repair formulas", artifactId: "sheet-1" } }] };
+      if (turn === 2) return { toolCalls: [{ tool: "verify_workbook", args: { instruction: "repair formulas", artifactId: "sheet-1", operations, afterWrite: false } }] };
+      if (turn === 3) return { toolCalls: [{ tool: "write_locked_cells", args: { artifactId: "sheet-1" } }] };
+      if (turn === 4) return { toolCalls: [{ tool: "verify_workbook", args: { instruction: "repair formulas", artifactId: "sheet-1", operations, afterWrite: true } }] };
+      return { say: "Approved plan committed and verified.", done: true };
+    });
+
+    const result = await runWorkbookAgent({
+      model,
+      tools: workbookTools({ ok: true }, (args) => writes.push(args)),
+    });
+
+    expect(writes).toEqual([{ artifactId: "sheet-1", ops: boundOperations(operations) }]);
+    expect(result.trace.find((event) => event.tool === "write_locked_cells")?.args).toEqual(writes[0]);
+    expect(result.stopReason).toBe("done");
+  });
+
   it("requires the preflight-approved baseVersion instead of accepting a silent rebase", async () => {
     const approvedOperations = [
       { ...OPERATION, baseVersion: 7 },

@@ -156,6 +156,20 @@ export class QualityFailoverError extends Error {
   }
 }
 
+export function qualityFailoverRetryAt(error: unknown): number | undefined {
+  let current = error;
+  const seen = new Set<unknown>();
+  for (let depth = 0; depth < 6 && current && !seen.has(current); depth += 1) {
+    seen.add(current);
+    if (current instanceof QualityFailoverError) {
+      const retryAt = current.receipt.retryAt;
+      if (typeof retryAt === "number" && Number.isFinite(retryAt) && retryAt >= 0) return retryAt;
+    }
+    current = typeof current === "object" ? (current as { cause?: unknown }).cause : undefined;
+  }
+  return undefined;
+}
+
 export type QualityFailoverResult<TResult, TCandidate extends QualityFailoverCandidate> =
   | {
       ok: true;

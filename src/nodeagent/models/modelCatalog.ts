@@ -823,6 +823,7 @@ export const modelFallbackChains: Record<string, string[]> = {
   "deep-research-pro-preview-12-2025": ["deep-research-preview-04-2026", "deep-research-max-preview-04-2026", "gemini-3.1-pro-preview"],
   "glm-5.2": ["moonshotai/kimi-k2.7-code", "qwen/qwen3.7-plus", "gemini-3.1-pro-preview", "gpt-5.4", "minimax/minimax-m3"],
   "z-ai/glm-5.2": ["moonshotai/kimi-k2.7-code", "qwen/qwen3.7-plus", "gemini-3.1-pro-preview", "gpt-5.4", "minimax/minimax-m3"],
+  "nebius/zai-org/GLM-5.2": ["qwen/qwen3.7-plus", "nebius/MiniMaxAI/MiniMax-M2.5", "cohere/north-mini-code:free"],
   "kimi-k2.7-code": ["z-ai/glm-5.2", "qwen/qwen3.7-plus", "gemini-3.1-pro-preview", "gpt-5.4", "minimax/minimax-m3"],
   "moonshotai/kimi-k2.7-code": ["z-ai/glm-5.2", "qwen/qwen3.7-plus", "gemini-3.1-pro-preview", "gpt-5.4", "minimax/minimax-m3"],
   "qwen/qwen3.7-plus": ["minimax/minimax-m3", "z-ai/glm-5.2", "gemini-3.1-flash-lite-preview", "stepfun/step-3.7-flash"],

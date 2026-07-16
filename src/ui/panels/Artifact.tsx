@@ -1220,14 +1220,32 @@ function EditableCell({ value, disabled, align, onCommit, addLabel, onEditStart,
   );
 }
 
+function isBlankSpreadsheet(art: Art): boolean {
+  const sourceFile = art.meta?.dataframe?.sourceFile;
+  return sourceFile === "blank-room" || sourceFile === "blank-room-agent";
+}
+
+function dataframeRowCount(art: Art): number {
+  const count = Number(art.meta?.dataframe?.rowCount);
+  return Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
+}
+
 function rowIdsOf(art: Art): string[] {
   if (art.meta?.excelGrid) {
     const rowCount = Math.max(1, Number(art.meta.excelGrid.rows) || 1);
     return Array.from({ length: rowCount }, (_, i) => String(i + 1));
   }
+  // Fresh-room sheets can briefly receive their element map before the small
+  // version/order companion query. They also become mixed-address artifacts
+  // when NodeAgent writes canonical A1 cells beside the legacy rN__column
+  // seed. The declared blank-sheet extent is authoritative in both cases.
+  const blankRows = isBlankSpreadsheet(art) ? dataframeRowCount(art) : 0;
+  if (blankRows) return Array.from({ length: blankRows }, (_, i) => String(i + 1));
   const ids: string[] = [];
-  for (const eid of art.order ?? []) {
-    const r = eid.split("__")[0];
+  const elementIds = (art.order?.length ? art.order : Object.keys(art.elements ?? {}));
+  for (const eid of elementIds) {
+    const a1 = eid.match(/^[A-Z]+(\d+)$/);
+    const r = a1?.[1] ?? eid.split("__")[0];
     if (r && !ids.includes(r)) ids.push(r);
   }
   return ids;
@@ -1244,14 +1262,29 @@ function colsOf(art: Art): string[] {
 }
 
 function sheetElementId(art: Art, rowId: string, colId: string): string {
-  return art.meta?.excelGrid ? `${colId}${rowId}` : `${rowId}__${colId}`;
+  const numericRow = rowId.match(/^r?(\d+)$/)?.[1] ?? rowId;
+  const a1 = `${colId}${numericRow}`;
+  if (art.meta?.excelGrid) return a1;
+  if (isBlankSpreadsheet(art)) {
+    // Prefer a canonical NodeAgent write when it exists, then preserve edits
+    // to an existing legacy seed cell. New cells use A1 so the UI and agent
+    // converge without rewriting old room data.
+    if (art.elements[a1]) return a1;
+    const legacy = `r${numericRow}__${colId}`;
+    if (art.elements[legacy]) return legacy;
+    return a1;
+  }
+  return `${rowId}__${colId}`;
 }
 
 function parseSheetElementId(art: Art, elementId: string | null): { rowId: string; colId: string } {
   if (!elementId) return { rowId: "", colId: "" };
-  if (art.meta?.excelGrid) {
+  if (art.meta?.excelGrid || isBlankSpreadsheet(art)) {
     const match = elementId.match(/^([A-Z]+)(\d+)$/);
-    return match ? { colId: match[1], rowId: match[2] } : { rowId: "", colId: "" };
+    if (match) return { colId: match[1], rowId: match[2] };
+    const legacy = elementId.match(/^r?(\d+)__(.+)$/);
+    if (legacy) return { rowId: legacy[1], colId: legacy[2] };
+    return { rowId: "", colId: "" };
   }
   const sep = elementId.indexOf("__");
   return sep >= 0 ? { rowId: elementId.slice(0, sep), colId: elementId.slice(sep + 2) } : { rowId: "", colId: "" };
@@ -1292,7 +1325,7 @@ function sheetColumnWidth(art: Art, col: DataframeColumn, index: number): number
 
 function dataframeCellAddress(art: Art, cols: string[], rows: string[], key: string | null): string {
   if (!key) return "";
-  if (art.meta?.excelGrid) return key;
+  if (art.meta?.excelGrid || (isBlankSpreadsheet(art) && /^[A-Z]+\d+$/.test(key))) return key;
   const sep = key.indexOf("__");
   if (sep < 0) return "";
   const rowId = key.slice(0, sep);

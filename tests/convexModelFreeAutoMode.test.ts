@@ -4,7 +4,7 @@ import { RoomEngine } from "../src/engine/roomEngine";
 import { buildDemoRoom } from "../src/engine/demoRoom";
 import { AgentRunError, InMemoryRoomTools, ROOM_TOOLS, runAgent } from "../src/nodeagent";
 import type { AgentTool } from "../src/nodeagent/core/types";
-import { convexModel } from "../src/nodeagent/models/convexModel";
+import { configuredConvexModelFallbacks, convexModel } from "../src/nodeagent/models/convexModel";
 import { openRouterFreeRouteHealthSnapshot, resetOpenRouterFreeRouteHealth } from "../src/nodeagent/models/openRouterFreeModels";
 import { QualityFailoverError } from "../src/nodeagent/models/qualityFailover";
 
@@ -167,7 +167,7 @@ describe("Convex free-auto model routing", () => {
     ]));
   });
 
-  it("returns a required-tool miss to the runtime instead of preempting protocol recovery", async () => {
+  it("rotates a free required-tool miss to a tool-compliant model", async () => {
     const attempted: string[] = [];
     vi.stubGlobal("fetch", vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
       const url = String(input);
@@ -176,6 +176,14 @@ describe("Convex free-auto model routing", () => {
       }
       const body = JSON.parse(String(init?.body ?? "{}")) as { model?: string };
       attempted.push(String(body.model));
+      if (attempted.length > 1) {
+        return new Response(JSON.stringify({
+          choices: [{ message: {
+            content: "",
+            tool_calls: [{ id: "call-say", type: "function", function: { name: "say", arguments: JSON.stringify({ text: "done" }) } }],
+          } }],
+        }), { status: 200, headers: { "Content-Type": "application/json" } });
+      }
       return new Response(JSON.stringify({
         choices: [{ message: { content: "I will make that change." } }],
       }), { status: 200, headers: { "Content-Type": "application/json" } });
@@ -195,25 +203,35 @@ describe("Convex free-auto model routing", () => {
       toolChoice: "required",
     });
 
-    expect(attempted).toEqual(["nvidia/nemotron-3-super-120b-a12b:free"]);
-    expect(route.name).toBe("nvidia/nemotron-3-super-120b-a12b:free");
-    expect(step.text).toBe("I will make that change.");
-    expect(step.toolCalls).toEqual([]);
+    expect(attempted).toEqual(["nvidia/nemotron-3-super-120b-a12b:free", "qwen/qwen3-next-80b-a3b-instruct:free"]);
+    expect(route.name).toBe("qwen/qwen3-next-80b-a3b-instruct:free");
+    expect(step.toolCalls).toEqual([{ id: "call-say", tool: "say", args: { text: "done" } }]);
     expect(step.usage).toMatchObject({
       inputTokens: 0,
       outputTokens: 0,
-      modelCalls: 1,
+      modelCalls: 2,
       costUsd: 0,
       costKind: "exact",
     });
     expect(step.providerRoute).toMatchObject({
-      requestedModel: "nvidia/nemotron-3-super-120b-a12b:free",
-      resolvedModel: "nvidia/nemotron-3-super-120b-a12b:free",
+      requestedModel: "qwen/qwen3-next-80b-a3b-instruct:free",
+      resolvedModel: "qwen/qwen3-next-80b-a3b-instruct:free",
       provider: "openrouter",
       entrypoint: "free",
+      qualityFailover: {
+        selectedRouteId: "qwen/qwen3-next-80b-a3b-instruct:free",
+        routeAttempts: [
+          { routeId: "nvidia/nemotron-3-super-120b-a12b:free", outcome: "quality_failure", reason: "incomplete_result" },
+          { routeId: "qwen/qwen3-next-80b-a3b-instruct:free", outcome: "accepted" },
+        ],
+      },
     });
     const health = openRouterFreeRouteHealthSnapshot();
     expect(health.find((entry) => entry.modelId === "nvidia/nemotron-3-super-120b-a12b:free")).toMatchObject({
+      successes: 0,
+      consecutiveFailures: 1,
+    });
+    expect(health.find((entry) => entry.modelId === "qwen/qwen3-next-80b-a3b-instruct:free")).toMatchObject({
       successes: 1,
       consecutiveFailures: 0,
     });
@@ -272,6 +290,70 @@ describe("Convex free-auto model routing", () => {
         { routeId: "z-ai/glm-5.2", outcome: "accepted" },
       ],
     });
+  });
+
+  it("rotates a required-tool miss to an authorized concrete fallback in the same turn", async () => {
+    process.env.NEBIUS_API_KEY = "test-nebius-key";
+    const attempted: string[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (_input: string | URL | Request, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body ?? "{}")) as { model?: string };
+      attempted.push(String(body.model));
+      if (attempted.length === 1) {
+        return new Response(JSON.stringify({
+          choices: [{ message: { content: "I will update the workbook." } }],
+          usage: { prompt_tokens: 10, completion_tokens: 5 },
+        }), { status: 200, headers: { "Content-Type": "application/json" } });
+      }
+      return new Response(JSON.stringify({
+        choices: [{ message: {
+          content: "",
+          tool_calls: [{ id: "call-say", type: "function", function: { name: "say", arguments: JSON.stringify({ text: "done" }) } }],
+        } }],
+        usage: { prompt_tokens: 12, completion_tokens: 4 },
+      }), { status: 200, headers: { "Content-Type": "application/json" } });
+    }));
+    const sayTool: AgentTool = {
+      name: "say",
+      description: "Return a message.",
+      schema: z.object({ text: z.string() }),
+      execute: async () => ({ ok: true }),
+    };
+    const route = convexModel("nebius/zai-org/GLM-5.2", {
+      entrypoint: "public_ask",
+      fallbackModelIds: ["z-ai/glm-5.2"],
+    });
+
+    const step = await route.next({
+      system: "Call the tool.",
+      messages: [{ role: "user", content: "Update the workbook." }],
+      tools: [sayTool],
+      toolChoice: "required",
+    });
+
+    expect(attempted).toEqual(["zai-org/GLM-5.2", "z-ai/glm-5.2"]);
+    expect(step.toolCalls).toEqual([{ id: "call-say", tool: "say", args: { text: "done" } }]);
+    expect(step.providerRoute).toMatchObject({
+      qualityFailover: {
+        selectedRouteId: "z-ai/glm-5.2",
+        routeAttempts: [
+          { routeId: "nebius/zai-org/GLM-5.2", outcome: "quality_failure", reason: "incomplete_result" },
+          { routeId: "z-ai/glm-5.2", outcome: "accepted" },
+        ],
+      },
+    });
+  });
+
+  it("uses approved catalog fallbacks when deployment overrides are absent", () => {
+    expect(configuredConvexModelFallbacks("z-ai/glm-5.2", {} as NodeJS.ProcessEnv)).toEqual([
+      "moonshotai/kimi-k2.7-code",
+      "qwen/qwen3.7-plus",
+      "gemini-3.1-pro-preview",
+    ]);
+    expect(configuredConvexModelFallbacks("nebius/zai-org/GLM-5.2", {} as NodeJS.ProcessEnv)).toEqual([
+      "qwen/qwen3.7-plus",
+      "nebius/MiniMaxAI/MiniMax-M2.5",
+      "cohere/north-mini-code:free",
+    ]);
   });
 
   it("stops concrete failover on provider policy rejection", async () => {
