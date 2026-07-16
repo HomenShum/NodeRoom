@@ -2,11 +2,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import {
   QualityFailoverController,
+  QualityFailoverError,
   assessAgentToolTurnQuality,
   assessNonEmptyResult,
   classifyQualityFailoverProviderError,
   rejectTaskQuality,
   runQualityFailover,
+  qualityFailoverRetryAt,
   type KnownTaskQualityFailureReason,
   type QualityFailoverCandidate,
 } from "../src/nodeagent/models/qualityFailover";
@@ -348,6 +350,9 @@ describe("quality-aware bounded failover", () => {
       retryAt: 7_000,
       budget: { attemptsUsed: 0 },
     });
+    const wrapped = new Error("agent run failed", { cause: new QualityFailoverError("routes cooling", result.receipt) });
+    expect(qualityFailoverRetryAt(wrapped)).toBe(7_000);
+    expect(qualityFailoverRetryAt(new Error("unrelated"))).toBeUndefined();
   });
 
   it("honors caller cancellation before any route call", async () => {

@@ -20,6 +20,7 @@ import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/syst
 import { injectMemoryIntoSystemPrompt } from "../src/nodemem/memoryContextBuilder";
 import { nodeMemInjectionEnabled, nodeMemRecordingEnabled, nodeMemRoomConfigEnabled } from "./nodemem";
 import { configuredConvexModelFallbacks, convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
+import { qualityFailoverRetryAt } from "../src/nodeagent/models/qualityFailover";
 import { authorizedModelForFramePhase } from "../src/nodeagent/models/phaseModel";
 import { buildResearchContext, buildCompanyDeepDiveContext } from "../src/nodeagent/core/worldModel";
 import { compactMessages } from "../src/nodeagent/core/contextCompactor";
@@ -1167,8 +1168,12 @@ export const runFreeAutoJobSlice = internalAction({
       const nonRetryableReason = providerNonRetryableReason(rootError);
       const retryable = !isProviderNonRetryableError(rootError);
       const canRetry = !runAlreadyPersisted && retryable && claimed.attempt < claimed.maxAttempts;
-      const delayMs = canRetry ? backoffMs(claimed.attempt) : undefined;
-      const scheduledNextAt = delayMs ? Date.now() + delayMs : undefined;
+      const retryClock = Date.now();
+      const providerRetryAt = qualityFailoverRetryAt(rootError);
+      const delayMs = canRetry
+        ? Math.max(backoffMs(claimed.attempt), Math.max(0, (providerRetryAt ?? retryClock) - retryClock))
+        : undefined;
+      const scheduledNextAt = delayMs ? retryClock + delayMs : undefined;
       const activeFrameId = claimed.activeReasoningFrame?.frameId;
       const cursor = fallback.messages.length ? await checkpoint(fallback, contextMaxChars, contextKeepRecent, activeFrameId) : undefined;
       if (canRetry) {
@@ -1185,7 +1190,7 @@ export const runFreeAutoJobSlice = internalAction({
         title: canRetry ? "Agent slice failed; retry scheduled" : retryable ? "Agent job failed" : "Agent route blocked",
         text: fallback.finalText || publicStreamText,
         error: errorText(rootError),
-        metadata: { attempt: claimed.attempt, canRetry, retryable, nonRetryableReason },
+        metadata: { attempt: claimed.attempt, canRetry, retryable, nonRetryableReason, providerRetryAt },
         createdAt: Date.now(),
       });
       if (!canRetry) {

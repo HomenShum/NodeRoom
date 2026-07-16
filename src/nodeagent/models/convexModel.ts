@@ -8,7 +8,7 @@
  */
 
 import type { AgentMessage, AgentModel, AgentModelRouteState, AgentStep, AgentTool, AgentToolChoice, TokenUsage, ToolCall } from "../core/types";
-import { getModelPricing, getProviderForModel, modelPricing, resolveModelAlias } from "./modelCatalog";
+import { getModelPricing, getProviderForModel, modelFallbackChains, modelPricing, resolveModelAlias } from "./modelCatalog";
 import {
   isOpenRouterFreeAutoModel,
   openRouterFreeCandidateTimeoutMs,
@@ -357,7 +357,7 @@ async function generateConvexAgentStep(
         });
         return step;
       },
-      assessResult: (step) => assessConvexTurnQuality(step, tools, messages, toolChoice),
+      assessResult: (step) => assessConvexTurnQuality(step, tools, messages, toolChoice, true),
       classifyProviderFailure: (error) => {
         const failure = classifyQualityFailoverProviderError(error);
         return isProviderNonRetryableError(error) ? { ...failure, scope: "global" } : failure;
@@ -472,7 +472,7 @@ async function generateConvexAgentStep(
       });
       return step;
     },
-    assessResult: (step) => assessConvexTurnQuality(step, tools, messages, toolChoice),
+    assessResult: (step) => assessConvexTurnQuality(step, tools, messages, toolChoice, candidateIds.length > 1),
     classifyProviderFailure: (error, candidate) => {
       const failure = classifyQualityFailoverProviderError(error);
       // Auth/quota are provider-account local when an explicitly authorized cross-provider
@@ -588,17 +588,18 @@ function assessConvexTurnQuality(
   tools: AgentTool[],
   messages: AgentMessage[],
   toolChoice?: AgentToolChoice,
+  requiredToolFailover = false,
 ) {
-  // Required-tool protocol recovery belongs to runAgent, which can add corrective context,
-  // validate schemas as ordinary tool results, and terminate with a typed protocol_stall receipt.
-  // Rejecting here would turn a recoverable four-turn protocol into a generic one-call route error.
-  if (toolChoice === "required") return { ok: true as const };
+  // A lone route keeps runAgent's four-turn typed protocol_stall recovery. When alternates are
+  // authorized, a no-tool response is a route-quality failure so the same turn can try another
+  // model instead of spending the entire job on a provider that ignores required tool_choice.
+  if (toolChoice === "required" && !requiredToolFailover) return { ok: true as const };
   return assessAgentToolTurnQuality({
     text: step.text,
     toolCalls: step.toolCalls,
     tools,
     messages,
-    requiredToolCall: false,
+    requiredToolCall: toolChoice === "required",
   });
 }
 
@@ -1859,7 +1860,9 @@ export function configuredConvexModelFallbacks(
   env: NodeJS.ProcessEnv = process.env,
 ): string[] {
   const raw = env.AGENT_FALLBACK_MODELS?.trim() || env.AGENT_FALLBACK_MODEL?.trim() || "";
-  return normalizeFallbackModelIds(modelId, raw.split(/[\r\n,]+/));
+  const primary = resolveModelAlias(modelId);
+  const approvedDefaults = modelFallbackChains[primary] ?? modelFallbackChains[modelId] ?? [];
+  return normalizeFallbackModelIds(modelId, raw ? raw.split(/[\r\n,]+/) : approvedDefaults);
 }
 
 function normalizeFallbackModelIds(modelId: string, values: readonly string[]): string[] {
@@ -1878,8 +1881,8 @@ function normalizeFallbackModelIds(modelId: string, values: readonly string[]): 
 }
 
 function concreteCandidateTimeoutMs(): number {
-  const raw = Number(envValue("AGENT_QUALITY_CANDIDATE_TIMEOUT_MS") ?? 120_000);
-  return Number.isFinite(raw) ? Math.max(10_000, Math.min(240_000, raw)) : 120_000;
+  const raw = Number(envValue("AGENT_QUALITY_CANDIDATE_TIMEOUT_MS") ?? 45_000);
+  return Number.isFinite(raw) ? Math.max(10_000, Math.min(240_000, raw)) : 45_000;
 }
 
 function openRouterFreeAutoLimit(): number {

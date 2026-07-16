@@ -151,7 +151,7 @@ class WorkbookWorkflowState {
         reason: "A passing workbook preflight has not been executed through its matching managed write.",
         prompt: workflowPrompt(
           "APPROVED_WRITE_REQUIRED",
-          `Call a managed write for ${displayArtifact(approved.artifactId)} with at least one unchanged operation, including its baseVersion when preflighted, from the approved ${approved.operations.length}-operation plan. The runtime will bind that explicit commit attempt to the complete preflight-approved plan; then call verify_workbook with afterWrite=true for the same operations.`,
+          `Call write_locked_cells for ${displayArtifact(approved.artifactId)}. You may provide only the artifactId to commit the complete ${approved.operations.length}-operation preflight-approved plan, or include at least one unchanged approved operation. Then call verify_workbook with afterWrite=true for the same operations.`,
         ),
       };
     }
@@ -232,14 +232,13 @@ class WorkbookWorkflowState {
       );
     }
 
-    // The preflight result is the write authority. Providers still have to prove intent by
-    // repeating at least one unchanged approved operation, but they do not have to retranscribe a
-    // large operation bundle perfectly. Rebinding the explicit commit attempt here keeps the
-    // mutation inside the already verified target/content boundary.
+    // The preflight result is the write authority. The managed tool call proves commit intent; it
+    // may either name the unambiguous approved artifact or repeat an unchanged approved subset.
+    // Rebinding here keeps the mutation inside the already verified target/content boundary.
     const bindingMatches = call.tool === "write_locked_cells"
       ? approvedPlans.filter((approved) =>
         artifactAllowsApprovedBinding(call.args, approved.artifactId)
-        && rawBatchOperationsMatchApprovedSubset(call.args, approved))
+        && (artifactOnlyCommitIntent(call.args) || rawBatchOperationsMatchApprovedSubset(call.args, approved)))
       : [];
     if (bindingMatches.length === 1) {
       return bindApprovedBatchWrite(call, bindingMatches[0]);
@@ -252,7 +251,7 @@ class WorkbookWorkflowState {
       "write_plan_mismatch",
       "The managed write must match one passing preflight plan exactly, including artifact, targets, base versions, formulas or values, cached results, number formats, and font colors.",
       approved
-        ? `Retry write_locked_cells with the approved artifact and at least one unchanged operation from its ${approved.operations.length}-operation plan, or submit a corrected replacement preflight first.`
+        ? `Retry write_locked_cells with only the approved artifactId, or with at least one unchanged operation from its ${approved.operations.length}-operation plan. Otherwise submit a corrected replacement preflight first.`
         : "Retry with the exact artifact and operation set from one passing preflight, or submit a corrected replacement preflight first.",
       {
         approvedPlanCount: approvedPlans.length,
@@ -489,6 +488,12 @@ function rawBatchOperationsMatchApprovedSubset(argsValue: unknown, approved: Wor
   }
 
   return operationsMatchApprovedPlan(requested, approved.operations, false);
+}
+
+function artifactOnlyCommitIntent(argsValue: unknown): boolean {
+  const args = argsRecord(argsValue);
+  if (!args || Object.prototype.hasOwnProperty.call(args, "ops") || Object.prototype.hasOwnProperty.call(args, "cells")) return false;
+  return Object.keys(args).every((key) => key === "artifactId");
 }
 
 function operationsMatchApprovedPlan(

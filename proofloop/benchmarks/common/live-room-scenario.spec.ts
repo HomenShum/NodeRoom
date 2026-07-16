@@ -294,11 +294,14 @@ test.describe(`${adapterId} Proof Loop live-room adapter`, () => {
 async function createFreshLiveRoom(page: Page): Promise<void> {
   await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded", timeout: 45_000 });
   expect(page.url(), "external adapter live proof must not use memory mode").not.toContain("mode=memory");
-  await page.getByTestId("create-room").click({ timeout: 60_000 });
+  const appCreateRoom = page.getByTestId("create-room");
+  const publicCreateRoom = page.getByRole("link", { name: "Create a room" });
+  const enteredCreateFlow = await clickWhenVisible(appCreateRoom, 15_000)
+    || await clickWhenVisible(publicCreateRoom, 45_000);
+  expect(enteredCreateFlow, "production landing must expose a create-room entry action").toBe(true);
   const displayName = page.getByTestId("create-display-name");
-  if (await displayName.isVisible().catch(() => false)) {
-    await displayName.fill("Proof Loop");
-  }
+  await expect(displayName).toBeVisible({ timeout: 60_000 });
+  await displayName.fill("Proof Loop");
   await page.getByTestId("create-room-submit").click({ timeout: 30_000 });
   const blankSheet = page.getByTestId("blank-cta-sheet");
   const addBlankSheet = page.getByRole("button", { name: /Add a blank sheet/i });

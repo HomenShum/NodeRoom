@@ -172,6 +172,8 @@ describe("long-running agent job source invariants", () => {
     expect(model).toContain("routeState() {");
     expect(model).toContain("hydrateConcreteRouteState");
     expect(runner).toContain("routeState: routeStateFromCursor(claimed.cursor)");
+    expect(runner).toContain("qualityFailoverRetryAt(rootError)");
+    expect(runner).toContain("Math.max(backoffMs(claimed.attempt)");
     expect(runner).toContain("modelRouteState: result.modelRouteState");
     expect(runner).toContain("done || nonResumable ? undefined : await checkpoint");
     expect(agent).toContain('const protocolStall = result.handoff?.terminalReason === "protocol_stall"');

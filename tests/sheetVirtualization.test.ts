@@ -189,6 +189,59 @@ function renderScaleSheet(art: Art) {
   return render(createElement(GenericSheet, { roomId: "r1", me: PRIYA, art }));
 }
 
+function makeMixedAddressBlankSheet(order: string[] = []): Art {
+  const columns: DataframeColumn[] = ["A", "B", "C", "D"].map((id, index) => ({
+    id,
+    label: id,
+    order: index,
+    mode: "manual",
+    type: "text",
+    agentWritable: true,
+  }));
+  return {
+    id: "art_blank",
+    roomId: "r1",
+    kind: "sheet",
+    title: "Sheet 1",
+    version: 23,
+    order,
+    elements: {
+      r2__B: { value: 10_000, version: 1, updatedAt: 1_000, updatedBy: PRIYA },
+      r3__B: { value: 4_000, version: 1, updatedAt: 1_000, updatedBy: PRIYA },
+      B4: { value: "=B2-B3", version: 1, updatedAt: 2_000, updatedBy: { kind: "agent", id: "room", name: "Room NodeAgent" } },
+      D4: { value: "=C4-B4", version: 1, updatedAt: 2_000, updatedBy: { kind: "agent", id: "room", name: "Room NodeAgent" } },
+    },
+    updatedAt: 2_000,
+    meta: {
+      dataframe: {
+        columns,
+        rowCount: 12,
+        sourceFile: "blank-room-agent",
+        parser: "agent_blank_seed",
+        truncated: false,
+        warnings: [],
+      },
+    },
+  } as unknown as Art;
+}
+
+describe("GenericSheet blank-room A1 compatibility", () => {
+  it("renders declared rows while the version/order companion query is empty", () => {
+    const { container } = renderScaleSheet(makeMixedAddressBlankSheet());
+    const dataRows = container.querySelectorAll("tbody tr:not(.r-row-add)");
+    expect(dataRows).toHaveLength(12);
+    expect(container.querySelector('[data-element-id="B4"]')?.textContent).toContain("=B2-B3");
+    expect(container.querySelector('[data-element-id="D4"]')?.textContent).toContain("=C4-B4");
+  });
+
+  it("prefers a canonical NodeAgent A1 write while preserving legacy seed values", () => {
+    const legacyOrder = ["r2__B", "r3__B", "r4__B", "r4__D"];
+    const { container } = renderScaleSheet(makeMixedAddressBlankSheet(legacyOrder));
+    expect(container.querySelector('[data-element-id="r2__B"]')?.textContent).toContain("10000");
+    expect(container.querySelector('[data-element-id="B4"]')?.textContent).toContain("=B2-B3");
+  });
+});
+
 describe("GenericSheet virtualization — Priya opens the 1,000-row scale sheet", () => {
   it("mounts only the top window (not all 1,000 rows), with a zero top spacer and a bottom spacer sized to the remainder", () => {
     const { container } = renderScaleSheet(makeScaleArt(1_000));
