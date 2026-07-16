@@ -66,6 +66,7 @@ const jsonOutDir = optionValue("--json-out-dir") ?? "docs/eval/proofloop-externa
 const modelMode = optionValue("--model-mode") ?? process.env.BENCH_AGENT_MODEL_MODE ?? "specific";
 const modelPolicy = optionValue("--model") ?? optionValue("--model-policy") ?? process.env.BENCH_AGENT_MODEL_POLICY ?? "deepseek/deepseek-v4-pro";
 const requireFinalPhrase = realUserMode || args.includes("--allow-terminal-without-phrase") ? "0" : process.env.PROOFLOOP_EXTERNAL_REQUIRE_FINAL_PHRASE ?? "1";
+const bootstrapRoomUrls = parseBootstrapRoomUrls(process.env.PROOFLOOP_EXISTING_ROOM_URLS);
 let exitCode = 0;
 
 for (const id of ids) {
@@ -103,6 +104,7 @@ function runAdapter(id: BenchmarkAdapterId): number {
     PROOFLOOP_REAL_USER_MODE: realUserMode ? "1" : process.env.PROOFLOOP_REAL_USER_MODE ?? "",
     PROOFLOOP_NODEAGENT_RUNTIME_PROFILE: realUserMode ? "" : process.env.PROOFLOOP_NODEAGENT_RUNTIME_PROFILE ?? "benchmark_completion",
     PROOFLOOP_FOCUS_MODE: realUserMode ? "0" : process.env.PROOFLOOP_FOCUS_MODE ?? "",
+    PROOFLOOP_EXISTING_ROOM_URL: bootstrapRoomUrls[id] ?? "",
     BENCH_AGENT_MODEL_MODE: modelMode,
     BENCH_AGENT_MODEL_POLICY: modelPolicy,
   };
@@ -203,6 +205,29 @@ function runAdapter(id: BenchmarkAdapterId): number {
   writeJson(outPath, receipt);
   console.log(`${id}: live-room product proof ${receipt.status} (${tasks.length} task(s)) -> ${outPath}`);
   return runStatus;
+}
+
+function parseBootstrapRoomUrls(raw: string | undefined): Partial<Record<BenchmarkAdapterId, string>> {
+  if (!raw?.trim()) return {};
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error("PROOFLOOP_EXISTING_ROOM_URLS must be a JSON object keyed by adapter id");
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("PROOFLOOP_EXISTING_ROOM_URLS must be a JSON object keyed by adapter id");
+  }
+  const urls: Partial<Record<BenchmarkAdapterId, string>> = {};
+  for (const id of externalBenchmarkLocalTaskIds()) {
+    const value = (parsed as Record<string, unknown>)[id];
+    if (value === undefined) continue;
+    if (typeof value !== "string" || !/^https?:\/\//i.test(value)) {
+      throw new Error(`PROOFLOOP_EXISTING_ROOM_URLS.${id} must be an HTTP(S) room URL`);
+    }
+    urls[id] = value;
+  }
+  return urls;
 }
 
 function optionValue(name: string): string | undefined {
