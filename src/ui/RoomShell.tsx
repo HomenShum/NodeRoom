@@ -7,7 +7,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { PanelLeft, Table2, PanelRight, Moon, Sun, LogOut, ShieldCheck, X, HelpCircle, Copy, Check, MessageCircle, Sparkles, SlidersHorizontal, Palette, Gauge, Play, ChevronLeft, ChevronRight, Crosshair, WifiOff } from "lucide-react";
-import { useStore, type ActorProof } from "../app/store";
+import { useStore, type AgentCostKind, type AgentJobTelemetry, type AgentRunTelemetry, type ActorProof } from "../app/store";
 import { OFFLINE_QUEUE_MAX } from "../notifications/offlineQueue";
 import { Chat } from "./Chat";
 import { Artifact } from "./panels/Artifact";
@@ -29,8 +29,18 @@ import type { Actor, Channel } from "../engine/types";
 
 const AUTO_ACCEPT_PREF_KEY = "noderoom:autoAcceptConsent:v1";
 const ACTIVE_ARTIFACT_PREF_PREFIX = "noderoom:activeArtifact:v1:";
+export const PANEL_LAYOUT_PREF_KEY = "noderoom:desktopPanelWidths:v1";
 const TOUR_KEY = "noderoom:tour:v1";
 const NOTE_PRIORITY = ["Capture Notebook", "Note", "Diligence memo", "Open questions / workplan", "Agent wiki"];
+const PANEL_WIDTHS = {
+  left: { min: 176, max: 380, default: 232 },
+  right: { min: 280, max: 560, default: 340 },
+} as const;
+const PANEL_RESIZE_STEP = 16;
+const STAGE_WIDTH_FLOOR = 760;
+const WORKSPACE_EDGE_ALLOWANCE = 30;
+export type PanelLayout = { left: number; stage: number; right: number };
+export type PanelResizeTarget = "left" | "right";
 type AccentKey = "terra";
 type ReplayPace = "brisk" | "standard" | "cinematic";
 const ACCENTS: Record<AccentKey, { label: string; primary: string; hover: string; ink: string; tint: string; border: string }> = {
@@ -41,6 +51,24 @@ export function roomIntroSafetyCopy(mode: "memory" | "convex"): string {
   return mode === "memory"
     ? "This memory demo is safe: nothing is sent anywhere."
     : "This live room uses the production backend: room state, edits, traces, and approvals persist for collaborators.";
+}
+
+export function formatAgentCost(costUsd: number, costKind?: AgentCostKind): string {
+  return `${costKind === "exact" ? "" : "≈"}$${costUsd.toFixed(3)}`;
+}
+
+export function selectedJobSignalTelemetry(job: AgentJobTelemetry, run: AgentRunTelemetry | null): { evalValue: string; costValue: string } {
+  if (run) {
+    return {
+      evalValue: `${run.model} | ${run.toolCalls} tools`,
+      costValue: formatAgentCost(run.costUsd, run.costKind),
+    };
+  }
+  const toolTotal = job.toolCallCount === undefined ? "" : ` | ${job.toolCallCount} tools total`;
+  return {
+    evalValue: `route ${job.modelPolicy || "not reported"}${toolTotal}`,
+    costValue: job.costUsd === undefined ? "not reported" : `${formatAgentCost(job.costUsd, job.costKind)} job total`,
+  };
 }
 
 export function preferredRoomArtifact<T extends { id: string; kind?: string; title?: string; order?: string[]; meta?: { dataframe?: { rowCount?: number }; excelGrid?: { rows?: number }; tags?: string[] } }>(arts: T[]): T | undefined {
@@ -100,6 +128,62 @@ function persistRoomArtifact(roomId: string, artifact: { id: string; kind?: stri
   }
 }
 
+export function readPersistedPanelLayout(storage?: Pick<Storage, "getItem">): PanelLayout {
+  const fallback = { left: PANEL_WIDTHS.left.default, stage: 1, right: PANEL_WIDTHS.right.default };
+  try {
+    const target = storage ?? (typeof window !== "undefined" ? window.localStorage : undefined);
+    if (!target) return fallback;
+    const raw = target.getItem(PANEL_LAYOUT_PREF_KEY);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw) as { left?: unknown; right?: unknown };
+    return {
+      left: clampFinite(parsed.left, PANEL_WIDTHS.left.min, PANEL_WIDTHS.left.max, fallback.left),
+      stage: 1,
+      right: clampFinite(parsed.right, PANEL_WIDTHS.right.min, PANEL_WIDTHS.right.max, fallback.right),
+    };
+  } catch {
+    return fallback;
+  }
+}
+
+export function persistPanelLayout(layout: PanelLayout, storage?: Pick<Storage, "setItem">): void {
+  try {
+    const target = storage ?? (typeof window !== "undefined" ? window.localStorage : undefined);
+    if (!target) return;
+    target.setItem(PANEL_LAYOUT_PREF_KEY, JSON.stringify({ left: layout.left, right: layout.right }));
+  } catch {
+    /* localStorage can be unavailable in privacy-restricted contexts. */
+  }
+}
+
+export function panelWidthBounds(
+  target: PanelResizeTarget,
+  layout: PanelLayout,
+  viewportWidth: number,
+  isCompact: boolean,
+  isMid: boolean,
+): { min: number; max: number } {
+  if (target === "left") {
+    const floorCap = viewportWidth - layout.right - STAGE_WIDTH_FLOOR - WORKSPACE_EDGE_ALLOWANCE;
+    const computedMax = floorCap >= PANEL_WIDTHS.left.min ? Math.min(PANEL_WIDTHS.left.max, floorCap) : PANEL_WIDTHS.left.max;
+    return {
+      min: PANEL_WIDTHS.left.min,
+      max: Math.max(layout.left, computedMax),
+    };
+  }
+  const leftInFlow = isCompact || isMid ? 0 : layout.left;
+  const floorCap = viewportWidth - leftInFlow - STAGE_WIDTH_FLOOR - WORKSPACE_EDGE_ALLOWANCE;
+  const computedMax = floorCap >= PANEL_WIDTHS.right.min ? Math.min(PANEL_WIDTHS.right.max, floorCap) : PANEL_WIDTHS.right.max;
+  return {
+    min: PANEL_WIDTHS.right.min,
+    max: Math.max(layout.right, computedMax),
+  };
+}
+
+export function setPanelWidth(layout: PanelLayout, target: PanelResizeTarget, width: number, bounds: { min: number; max: number }): PanelLayout {
+  return { ...layout, [target]: clamp(width, bounds.min, bounds.max) };
+}
+
 function initials(name: string): string {
   return name.replace(/[^A-Za-z· ]/g, "").split(/[ ·]/).filter(Boolean).map((s) => s[0]).slice(0, 2).join("").toUpperCase() || "?";
 }
@@ -134,7 +218,8 @@ export function RoomShell({ roomId, me, onLeave, onSignOut, proof }: { roomId: s
   // Default the side panels lean (binder + Copilot) so the work surface gets the width budget --
   // the contract makes it the focus, and an idle Copilot does not need 380px. Both stay inside the
   // resize clamps (left 176-380, right 280-560), so the user can widen either by dragging.
-  const [layout, setLayout] = useState({ left: 232, stage: 1, right: 340 });
+  const [layout, setLayout] = useState<PanelLayout>(() => readPersistedPanelLayout());
+  const layoutRef = useRef(layout);
   const [copilotTab, setCopilotTab] = useState<"public" | "private">("public");
   const arts = store.listArtifacts(roomId);
   // Notebook-first: every room lands on the note surface — bankers start by jotting.
@@ -497,35 +582,40 @@ export function RoomShell({ roomId, me, onLeave, onSignOut, proof }: { roomId: s
       : []),
   ];
   const startResize = (target: "left" | "right", startX: number) => {
-    const start = layout;
+    const start = layoutRef.current;
     // Stage floor: cap panel drag so the center Work Surface can't be squeezed below ~760px on desktop.
     // When the floor is unachievable at the current width (narrow desktops), fall back to the normal
     // max instead of forcing horizontal overflow. The binder counts as 0 when it floats (<=1199px).
-    const STAGE_FLOOR = 760, EDGES = 30;
     const move = (ev: PointerEvent) => {
       const dx = ev.clientX - startX;
-      setLayout((cur) => {
-        const vw = typeof window !== "undefined" ? window.innerWidth : 1440;
-        if (target === "left") {
-          const floorCap = vw - cur.right - STAGE_FLOOR - EDGES;
-          const cap = floorCap >= 176 ? Math.min(380, floorCap) : 380;
-          return { ...cur, left: clamp(start.left + dx, 176, cap) };
-        }
-        const leftInFlow = isCompact || isMid ? 0 : cur.left;
-        const floorCap = vw - leftInFlow - STAGE_FLOOR - EDGES;
-        const cap = floorCap >= 280 ? Math.min(560, floorCap) : 560;
-        return { ...cur, right: clamp(start.right - dx, 280, cap) };
-      });
+      const current = layoutRef.current;
+      const vw = typeof window !== "undefined" ? window.innerWidth : 1440;
+      const desiredWidth = target === "left" ? start.left + dx : start.right - dx;
+      const next = setPanelWidth(current, target, desiredWidth, panelWidthBounds(target, current, vw, isCompact, isMid));
+      layoutRef.current = next;
+      setLayout(next);
     };
     const up = () => {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
       document.body.classList.remove("r-resizing");
+      persistPanelLayout(layoutRef.current);
     };
     document.body.classList.add("r-resizing");
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", up);
   };
+  const resizePanelTo = (target: PanelResizeTarget, width: number) => {
+    const current = layoutRef.current;
+    const viewportWidth = typeof window !== "undefined" ? window.innerWidth : 1440;
+    const next = setPanelWidth(current, target, width, panelWidthBounds(target, current, viewportWidth, isCompact, isMid));
+    layoutRef.current = next;
+    setLayout(next);
+    persistPanelLayout(next);
+  };
+  const viewportWidth = typeof window !== "undefined" ? window.innerWidth : 1440;
+  const leftPanelBounds = panelWidthBounds("left", layout, viewportWidth, isCompact, isMid);
+  const rightPanelBounds = panelWidthBounds("right", layout, viewportWidth, isCompact, isMid);
 
   // One definition of the panel toggles, placed either in the top bar (compact/mid) or the
   // settings panel (wide) — never both at once, so it never renders twice.
@@ -618,17 +708,17 @@ export function RoomShell({ roomId, me, onLeave, onSignOut, proof }: { roomId: s
         <div className="r-sample-banner" data-testid="desktop-sample-banner" role="status">
           <ShieldCheck size={13} />
           <span>
-            <b>{room.starterBackfill === "pending" ? "Sample still loading." : "Sample workspace."}</b>{" "}
-            Companies, sources, messages, and traces are synthetic{room.starterBackfill === "pending" ? "; missing sample artifacts retry automatically" : ""}.
+            <b>{room.starterBackfill === "pending" ? "Live runtime · sample data loading." : "Live runtime · sample data."}</b>{" "}
+            Convex, collaboration, and NodeAgent are live; seeded companies, sources, messages, and traces are synthetic{room.starterBackfill === "pending" ? "; missing sample artifacts retry automatically" : ""}.
           </span>
         </div>
       ) : null}
 
       <div className="r-workspace nr-workspace" data-shell="june-2026">
         {show.left && <LeftRail roomId={roomId} me={me} artId={curArt?.id ?? artId} style={{ width: layout.left }} onPick={openArtifact} />}
-        {show.left && <ResizeHandle label="Resize files panel" onPointerDown={(x) => startResize("left", x)} />}
+        {show.left && <ResizeHandle label="Resize files panel" value={layout.left} min={leftPanelBounds.min} max={leftPanelBounds.max} onResize={(width) => resizePanelTo("left", width)} onPointerDown={(x) => startResize("left", x)} />}
         {(!isCompact || show.stage) && <Artifact roomId={roomId} me={me} proof={proof} artId={curArt?.id ?? artId} onArt={selectArtifact} sideArtId={sideArtId} onSideArtChange={setSideArtId} onOpenChat={openSidebarChat} style={{ flex: layout.stage }} />}
-        {show.copilot && <ResizeHandle label="Resize Copilot panel" onPointerDown={(x) => startResize("right", x)} />}
+        {show.copilot && <ResizeHandle label="Resize Copilot panel" value={layout.right} min={rightPanelBounds.min} max={rightPanelBounds.max} onResize={(width) => resizePanelTo("right", width)} onPointerDown={(x) => startResize("right", x)} />}
         {show.copilot && (
           <CopilotPanel
             roomId={roomId}
@@ -989,6 +1079,7 @@ function SignalStatusStrip({
   const jobStatus = job?.status ?? "";
   const jobRisk = ["failed", "blocked", "cancelled", "paused"].includes(jobStatus);
   const jobLive = !!job && !["completed", "failed", "cancelled", "blocked", "paused"].includes(jobStatus);
+  const jobTelemetry = job ? selectedJobSignalTelemetry(job, run) : null;
   const credit = store.creditBalance?.();
   const demoCreditValue = q3MemoryDemo && credit?.demo ? 18 : credit?.availableCredits;
   const reconciledStatusPrefix = "Room NodeAgent · ";
@@ -1005,11 +1096,11 @@ function SignalStatusStrip({
       : []),
     ...(proposals.length ? [{ k: "Review", v: `${proposals.length} pending` }] : []),
     ...(jobRisk ? [{ k: "Run", v: jobStatus }] : []),
-    ...(jobLive
+    ...(jobLive && jobTelemetry
       ? [
           { k: "Agents", v: `${sessions.length} active` },
-          { k: "Eval", v: run ? `${run.model} | ${run.toolCalls} tools` : "running" },
-          { k: "Cost", v: run ? `$${run.costUsd.toFixed(3)}` : job ? job.modelPolicy : "-" },
+          { k: "Eval", v: jobTelemetry.evalValue },
+          { k: "Cost", v: jobTelemetry.costValue },
         ]
       : []),
   ];
@@ -1101,19 +1192,54 @@ function SignalStatusStrip({
   );
 }
 
-function ResizeHandle({ label, onPointerDown }: { label: string; onPointerDown: (clientX: number) => void }) {
+export function ResizeHandle({
+  label,
+  value,
+  min,
+  max,
+  onResize,
+  onPointerDown,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  onResize: (width: number) => void;
+  onPointerDown: (clientX: number) => void;
+}) {
   return (
     <button
+      type="button"
+      role="separator"
       className="r-resize"
       aria-label={label}
+      aria-orientation="vertical"
+      aria-valuemin={Math.round(min)}
+      aria-valuemax={Math.round(max)}
+      aria-valuenow={Math.round(value)}
+      aria-valuetext={`${Math.round(value)} pixels`}
       title={label}
       onPointerDown={(e) => { e.preventDefault(); onPointerDown(e.clientX); }}
+      onKeyDown={(e) => {
+        let next: number | undefined;
+        if (e.key === "ArrowLeft") next = value - PANEL_RESIZE_STEP;
+        else if (e.key === "ArrowRight") next = value + PANEL_RESIZE_STEP;
+        else if (e.key === "Home") next = min;
+        else if (e.key === "End") next = max;
+        if (next === undefined) return;
+        e.preventDefault();
+        onResize(clamp(next, min, max));
+      }}
     />
   );
 }
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
+}
+
+function clampFinite(value: unknown, min: number, max: number, fallback: number): number {
+  return typeof value === "number" && Number.isFinite(value) ? clamp(value, min, max) : fallback;
 }
 
 function ThemeToggle() {

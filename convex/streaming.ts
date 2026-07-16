@@ -127,7 +127,7 @@ export const ensurePublicAgentJobStream = internalMutation({
 
     const streamId = String(await streamingComponent.createStream(ctx));
     if (existingMessage) {
-      await ctx.db.patch(existingMessage._id, { streamId, text: "" });
+      await ctx.db.patch(existingMessage._id, { streamId, text: "", jobId: a.jobId });
     } else {
       await ctx.db.insert("messages", {
         roomId: a.roomId,
@@ -136,6 +136,7 @@ export const ensurePublicAgentJobStream = internalMutation({
         text: "",
         clientMsgId,
         kind: "agent",
+        jobId: a.jobId,
         createdAt: a.createdAt ?? Date.now(),
         streamId,
       });

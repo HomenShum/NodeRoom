@@ -175,6 +175,12 @@ describe("quality-aware bounded failover", () => {
       category: "quota",
     },
     {
+      label: "wrapped quota",
+      error: new Error("AI_RetryError: Failed after 3 attempts. Last error: Rate limit exceeded: free-models-per-day-high-balance."),
+      reason: "provider_quota_exhausted",
+      category: "quota",
+    },
+    {
       label: "policy",
       error: new Error("provider_route_blocked:provider_not_allowed"),
       reason: "provider_not_allowed",
@@ -285,6 +291,27 @@ describe("quality-aware bounded failover", () => {
     });
   });
 
+  it("retains the pre-call reservation when measured provider cost is unavailable", async () => {
+    const result = await runQualityFailover({
+      candidates: [candidate("usage-missing", "accepted", { estimatedCostUsd: 0.25 })],
+      budget: { maxAttempts: 1, maxCostUsd: 0.5 },
+      execute: async (route) => route.response,
+      measureCostUsd: () => undefined,
+      now: () => 4_500,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.receipt).toMatchObject({
+      routeAttempts: [{
+        routeId: "usage-missing",
+        estimatedCostUsd: 0.25,
+        costUsd: 0.25,
+        outcome: "accepted",
+      }],
+      budget: { spentCostUsd: 0.25, remainingCostUsd: 0.25 },
+    });
+  });
+
   it("enforces the attempt ceiling before calling another candidate", async () => {
     const execute = vi.fn(async (route: Candidate) => route.response);
     const result = await runQualityFailover({
@@ -356,7 +383,7 @@ describe("quality-aware bounded failover", () => {
       now: () => 8_000,
     });
 
-    await vi.advanceTimersByTimeAsync(25);
+    await vi.advanceTimersByTimeAsync(300);
     const result = await pending;
 
     expect(result.ok).toBe(true);
@@ -376,6 +403,37 @@ describe("quality-aware bounded failover", () => {
       },
       { routeId: "fast", outcome: "accepted" },
     ]);
+  });
+
+  it("captures usage that an aborted provider attaches while settling the timeout", async () => {
+    vi.useFakeTimers();
+    const onRouteAttempt = vi.fn();
+    const pending = runQualityFailover({
+      candidates: [candidate("partial-timeout")],
+      budget: { maxAttempts: 1 },
+      attemptTimeoutMs: 25,
+      execute: async (_route, context) => new Promise<string>((_resolve, reject) => {
+        context.signal.addEventListener("abort", () => {
+          setTimeout(() => reject(Object.assign(new Error("aborted after partial usage"), {
+            usage: { inputTokens: 19, outputTokens: 4, modelCalls: 1, costUsd: 0.125, costKind: "exact" },
+          })), 5);
+        }, { once: true });
+      }),
+      measureCostUsd: ({ error }) => Number((error as { usage?: { costUsd?: number } } | undefined)?.usage?.costUsd ?? 0),
+      onRouteAttempt,
+      now: () => 9_000,
+    });
+
+    await vi.advanceTimersByTimeAsync(30);
+    const result = await pending;
+
+    expect(result.ok).toBe(false);
+    expect(result.receipt).toMatchObject({
+      stopReason: "candidates_exhausted",
+      budget: { spentCostUsd: 0.125 },
+      routeAttempts: [{ routeId: "partial-timeout", reason: "candidate_timeout", costUsd: 0.125 }],
+    });
+    expect(onRouteAttempt).toHaveBeenCalledTimes(1);
   });
 
   it("uses the default non-empty quality floor without a provider", () => {

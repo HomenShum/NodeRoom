@@ -20,8 +20,15 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { google } from "@ai-sdk/google";
 import { openai, createOpenAI } from "@ai-sdk/openai";
 import type { AgentModel, AgentMessage, AgentTool, AgentToolChoice, ToolCall } from "../core/types";
-import { getProviderForModel, getModelPricing, resolveModelAlias } from "./modelCatalog";
 import {
+  getProviderForModel,
+  getModelPricing,
+  isNodeAgentFreeAutoModel,
+  NODEAGENT_FREE_AUTO_MODEL,
+  resolveModelAlias,
+} from "./modelCatalog";
+import {
+  OPENROUTER_FREE_AUTO_MODEL,
   isOpenRouterFreeAutoModel,
   openRouterFreeCandidateSignal,
   openRouterFreeCandidateTimeoutMs,
@@ -36,7 +43,15 @@ import {
 } from "./openRouterFreeModels";
 import { QualityFailoverError, assessAgentToolTurnQuality, runQualityFailover, type QualityFailoverReceipt } from "./qualityFailover";
 import { redactPII } from "../guardrails/gateway";
-import { assertProviderEgressAllowed, assertProviderRouteAllowed, isProviderNonRetryableError, type ProviderEgressArtifact, type ProviderRouteEntrypoint, type ProviderRouteReceipt } from "../guardrails/egressPolicy";
+import {
+  assertProviderEgressAllowed,
+  assertProviderRouteAllowed,
+  isProviderNonRetryableError,
+  providerNonRetryableReason,
+  type ProviderEgressArtifact,
+  type ProviderRouteEntrypoint,
+  type ProviderRouteReceipt,
+} from "../guardrails/egressPolicy";
 
 // OpenRouter = OpenAI-compatible endpoint; this is how the cheap/free models are reached.
 // Built lazily (per call) so process.env.OPENROUTER_API_KEY is read AFTER .env.local loads —
@@ -133,6 +148,37 @@ export const priceRun = (modelId: string, inTok: number, outTok: number): number
 type SdkToolSet = Record<string, any>;
 type GenerateTextResultAny = any;
 
+const NODEAGENT_PROVIDER_NEUTRAL_POLICY = "nodeagent_provider_neutral_free_first_v1" as const;
+const DEFAULT_NODEAGENT_GOOGLE_FALLBACK_MODEL = "gemini-3.5-flash";
+
+type ProviderNeutralBilling = {
+  /** This describes route pricing, not the account's eventual invoice or free-tier entitlement. */
+  free: boolean;
+  classification: "openrouter_zero_price_route" | "catalog_priced" | "pricing_unverified";
+  inputPer1M?: number;
+  outputPer1M?: number;
+  basis: string[];
+};
+
+type ProviderNeutralRouteReceipt = ProviderRouteReceipt & {
+  providerNeutral: {
+    policy: typeof NODEAGENT_PROVIDER_NEUTRAL_POLICY;
+    requestedModel: typeof NODEAGENT_FREE_AUTO_MODEL;
+    primary: {
+      route: typeof OPENROUTER_FREE_AUTO_MODEL;
+      outcome: "accepted" | "provider_wide_exhausted" | "free_routes_cooling" | "free_routes_exhausted";
+      reason?: string;
+      qualityFailover?: QualityFailoverReceipt;
+    };
+    selected: {
+      route: "openrouter_free" | "google_direct";
+      model: string;
+      provider: "openrouter" | "gemini";
+      billing: ProviderNeutralBilling;
+    };
+  };
+};
+
 // ── Production reliability: retry transient failures (429/5xx/network) with exp backoff + jitter,
 // honoring the deadline AbortSignal, plus an optional cross-model fallback. (async_reliability layer 2)
 const TRANSIENT_RE = /(\b429\b|\b5\d\d\b|rate.?limit|overloaded|temporar|timed?.?out|ECONNRESET|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|fetch failed|socket hang up|service unavailable)/i;
@@ -188,6 +234,19 @@ async function generateAgentText(
   providerRoute?: ProviderRouteReceipt;
   qualityFailover?: QualityFailoverReceipt;
 }> {
+  if (isNodeAgentFreeAutoModel(modelId)) {
+    return generateProviderNeutralAgentText({
+      system,
+      messages,
+      sdkTools,
+      signal,
+      entrypoint,
+      artifacts,
+      toolChoice,
+      freeAutoMode,
+      qualityContext,
+    });
+  }
   if (!isOpenRouterFreeAutoModel(modelId)) {
     const call = async (id: string) => {
       const providerRoute = assertProviderRouteAllowed({ model: id, entrypoint, env: process.env });
@@ -276,6 +335,238 @@ async function generateAgentText(
     };
   }
   throw adapterQualityFailoverError(routed.receipt, routed.lastError);
+}
+
+async function generateProviderNeutralAgentText(args: {
+  system: string;
+  messages: ModelMessage[];
+  sdkTools: SdkToolSet;
+  signal?: AbortSignal;
+  entrypoint: ProviderRouteEntrypoint;
+  artifacts: ProviderEgressArtifact[];
+  toolChoice?: AgentToolChoice;
+  freeAutoMode?: OpenRouterFreeModelMode;
+  qualityContext?: { messages: AgentMessage[]; tools: AgentTool[] };
+}): Promise<{
+  res: GenerateTextResultAny;
+  resolvedModel: string;
+  providerRoute: ProviderRouteReceipt;
+  qualityFailover?: QualityFailoverReceipt;
+}> {
+  try {
+    const primary = await generateAgentText(
+      OPENROUTER_FREE_AUTO_MODEL,
+      args.system,
+      args.messages,
+      args.sdkTools,
+      args.signal,
+      args.entrypoint,
+      args.artifacts,
+      args.toolChoice,
+      args.freeAutoMode,
+      args.qualityContext,
+    );
+    if (!primary.providerRoute) {
+      throw new Error(`${NODEAGENT_FREE_AUTO_MODEL} primary route returned no provider receipt`);
+    }
+    return {
+      ...primary,
+      providerRoute: providerNeutralRouteReceipt({
+        selectedReceipt: primary.providerRoute,
+        resolvedModel: primary.resolvedModel,
+        primaryOutcome: "accepted",
+      }),
+    };
+  } catch (primaryError) {
+    const unavailable = openRouterPrimaryUnavailable(primaryError);
+    if (!unavailable || args.signal?.aborted) throw primaryError;
+
+    const configuredKey = envValue("GOOGLE_GENERATIVE_AI_API_KEY");
+    if (!configuredKey) {
+      throw providerNeutralRecoveryError(
+        primaryError,
+        `${unavailable.reason}; direct Google fallback is unavailable because GOOGLE_GENERATIVE_AI_API_KEY is not configured`,
+      );
+    }
+
+    const fallbackModel = resolveModelAlias(
+      envValue("NODEAGENT_FREE_AUTO_GOOGLE_MODEL") ?? DEFAULT_NODEAGENT_GOOGLE_FALLBACK_MODEL,
+    );
+    if (getProviderForModel(fallbackModel) !== "gemini") {
+      throw providerNeutralRecoveryError(
+        primaryError,
+        `${unavailable.reason}; NODEAGENT_FREE_AUTO_GOOGLE_MODEL must resolve to a direct Gemini model`,
+      );
+    }
+
+    let providerRoute: ProviderRouteReceipt;
+    try {
+      providerRoute = assertProviderRouteAllowed({ model: fallbackModel, entrypoint: args.entrypoint, env: process.env });
+      assertProviderEgressAllowed({ model: fallbackModel, entrypoint: args.entrypoint, artifacts: args.artifacts, env: process.env });
+    } catch (policyError) {
+      throw providerNeutralRecoveryError(
+        primaryError,
+        `${unavailable.reason}; direct Google fallback blocked before provider call: ${shortProviderError(policyError)}`,
+        policyError,
+      );
+    }
+
+    try {
+      const res = await withRetry(() => generateText({
+        model: google(fallbackModel),
+        system: args.system,
+        messages: args.messages,
+        tools: args.sdkTools,
+        toolChoice: Object.keys(args.sdkTools).length ? sdkToolChoiceForModel(fallbackModel, args.toolChoice) : undefined,
+        abortSignal: args.signal,
+      }), args.signal);
+      return {
+        res,
+        resolvedModel: fallbackModel,
+        providerRoute: providerNeutralRouteReceipt({
+          selectedReceipt: providerRoute,
+          resolvedModel: fallbackModel,
+          primaryOutcome: unavailable.outcome,
+          primaryReason: unavailable.reason,
+          primaryQualityFailover: unavailable.receipt,
+        }),
+      };
+    } catch (fallbackError) {
+      throw providerNeutralRecoveryError(
+        primaryError,
+        `${unavailable.reason}; direct Google fallback failed: ${shortProviderError(fallbackError)}`,
+        fallbackError,
+      );
+    }
+  }
+}
+
+function openRouterPrimaryUnavailable(error: unknown): {
+  outcome: "provider_wide_exhausted" | "free_routes_cooling" | "free_routes_exhausted";
+  reason: string;
+  receipt?: QualityFailoverReceipt;
+} | undefined {
+  if (error instanceof QualityFailoverError) {
+    const terminal = error.receipt.terminalFailure;
+    if (terminal?.failureClass === "provider"
+      && terminal.providerFailureScope === "global"
+      && terminal.providerFailureCategory === "quota") {
+      return { outcome: "provider_wide_exhausted", reason: terminal.reason, receipt: error.receipt };
+    }
+    if (terminal?.providerFailureScope === "global") return undefined;
+    if (["no_candidates", "candidates_exhausted", "attempt_budget", "time_budget", "cooldown"]
+      .includes(error.receipt.stopReason)) {
+      return {
+        outcome: "free_routes_exhausted",
+        reason: `provider_free_routes_${error.receipt.stopReason}`,
+        receipt: error.receipt,
+      };
+    }
+    return undefined;
+  }
+  if (/openrouter\/free-auto candidates cooling down/i.test(shortProviderError(error))) {
+    return { outcome: "free_routes_cooling", reason: "provider_free_routes_cooling" };
+  }
+  const reason = providerNonRetryableReason(error);
+  return reason && /quota|credit/i.test(reason)
+    ? { outcome: "provider_wide_exhausted", reason }
+    : undefined;
+}
+
+function providerNeutralRecoveryError(
+  primaryError: unknown,
+  detail: string,
+  cause: unknown = primaryError,
+): Error {
+  const message = `${NODEAGENT_FREE_AUTO_MODEL} could not recover after OpenRouter free-route unavailability: ${detail}`;
+  if (primaryError instanceof QualityFailoverError) {
+    return new QualityFailoverError(message, primaryError.receipt, cause, primaryError.usage);
+  }
+  return new Error(message, { cause });
+}
+
+function providerNeutralRouteReceipt(args: {
+  selectedReceipt: ProviderRouteReceipt;
+  resolvedModel: string;
+  primaryOutcome: "accepted" | "provider_wide_exhausted" | "free_routes_cooling" | "free_routes_exhausted";
+  primaryReason?: string;
+  primaryQualityFailover?: QualityFailoverReceipt;
+}): ProviderNeutralRouteReceipt {
+  const provider = args.selectedReceipt.provider;
+  if (provider !== "openrouter" && provider !== "gemini") {
+    throw new Error(`${NODEAGENT_FREE_AUTO_MODEL} selected unsupported provider ${provider}`);
+  }
+  const selectedRoute = provider === "openrouter" ? "openrouter_free" : "google_direct";
+  const billing = providerNeutralBilling(args.resolvedModel, provider);
+  return {
+    ...args.selectedReceipt,
+    requestedModel: NODEAGENT_FREE_AUTO_MODEL,
+    resolvedModel: args.resolvedModel,
+    basis: [
+      `requested:${NODEAGENT_FREE_AUTO_MODEL}`,
+      `resolved:${args.resolvedModel}`,
+      `provider_neutral_policy:${NODEAGENT_PROVIDER_NEUTRAL_POLICY}`,
+      `primary_route:${OPENROUTER_FREE_AUTO_MODEL}`,
+      `primary_outcome:${args.primaryOutcome}`,
+      ...(args.primaryReason ? [`primary_reason:${args.primaryReason}`] : []),
+      ...args.selectedReceipt.basis.map((basis) => `selected_route:${basis}`),
+      ...billing.basis.map((basis) => `billing:${basis}`),
+    ],
+    providerNeutral: {
+      policy: NODEAGENT_PROVIDER_NEUTRAL_POLICY,
+      requestedModel: NODEAGENT_FREE_AUTO_MODEL,
+      primary: {
+        route: OPENROUTER_FREE_AUTO_MODEL,
+        outcome: args.primaryOutcome,
+        ...(args.primaryReason ? { reason: args.primaryReason } : {}),
+        ...(args.primaryQualityFailover ? { qualityFailover: args.primaryQualityFailover } : {}),
+      },
+      selected: {
+        route: selectedRoute,
+        model: args.resolvedModel,
+        provider,
+        billing,
+      },
+    },
+  };
+}
+
+function providerNeutralBilling(
+  resolvedModel: string,
+  provider: "openrouter" | "gemini",
+): ProviderNeutralBilling {
+  const pricing = getModelPricing(resolvedModel);
+  if (provider === "openrouter"
+    && resolvedModel.toLowerCase().endsWith(":free")
+    && pricing?.inputPer1M === 0
+    && pricing.outputPer1M === 0) {
+    return {
+      free: true,
+      classification: "openrouter_zero_price_route",
+      inputPer1M: 0,
+      outputPer1M: 0,
+      basis: ["provider:openrouter", "model_suffix::free", "catalog_input_per_1m:0", "catalog_output_per_1m:0"],
+    };
+  }
+  if (pricing) {
+    return {
+      free: false,
+      classification: "catalog_priced",
+      inputPer1M: pricing.inputPer1M,
+      outputPer1M: pricing.outputPer1M,
+      basis: [
+        `provider:${provider}`,
+        `catalog_input_per_1m:${pricing.inputPer1M}`,
+        `catalog_output_per_1m:${pricing.outputPer1M}`,
+        "account_free_tier:not_asserted",
+      ],
+    };
+  }
+  return {
+    free: false,
+    classification: "pricing_unverified",
+    basis: [`provider:${provider}`, "account_free_tier:not_asserted", "catalog_pricing:missing"],
+  };
 }
 
 function qualityAttemptedRoutes(receipt: QualityFailoverReceipt): string[] {

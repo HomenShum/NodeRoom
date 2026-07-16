@@ -124,6 +124,7 @@ function statusLabel(item: ProposalReviewItem): string {
 
 export function ProposalReviewCenter({
   proposals,
+  jobId,
   artifacts,
   traces,
   me,
@@ -132,6 +133,7 @@ export function ProposalReviewCenter({
   onResolveProposal,
 }: {
   proposals: Proposal[];
+  jobId?: string;
   artifacts: Artifact[];
   traces: TraceEvent[];
   me: Actor;
@@ -142,7 +144,8 @@ export function ProposalReviewCenter({
   const [filter, setFilter] = useState<ProposalReviewFilter>("pending");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const items = useMemo(() => buildProposalReviewItems({ proposals, artifacts, traces }), [artifacts, proposals, traces]);
+  const items = useMemo(() => buildProposalReviewItems({ proposals, artifacts, traces })
+    .filter((item) => !jobId || item.jobId === jobId), [artifacts, jobId, proposals, traces]);
   const counts = useMemo(() => countProposalReviewItems(items), [items]);
   const shown = useMemo(() => filterProposalReviewItems(items, filter), [filter, items]);
   const filters: ProposalReviewFilter[] = ["pending", "agent_edit", "semantic_rebase", "all"];
@@ -161,7 +164,7 @@ export function ProposalReviewCenter({
     <section className="wa-review" data-testid="proposal-review-center" aria-label="Proposal review center">
       <header className="wa-review-head">
         <div>
-          <p className="wa-eyebrow">Review center</p>
+          <p className="wa-eyebrow">{jobId ? "Run review" : "Review center"}</p>
           <h3>Agent workpapers</h3>
         </div>
         <div className="wa-review-counts" aria-label="Proposal counts">

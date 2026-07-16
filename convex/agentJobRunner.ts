@@ -19,17 +19,17 @@ import { SERVER_PRODUCTION_ROOM_TOOLS as PRODUCTION_ROOM_TOOLS } from "../src/no
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/systemPrompt";
 import { injectMemoryIntoSystemPrompt } from "../src/nodemem/memoryContextBuilder";
 import { nodeMemInjectionEnabled, nodeMemRecordingEnabled, nodeMemRoomConfigEnabled } from "./nodemem";
-import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
-import { modelForFramePhase } from "../src/nodeagent/models/phaseModel";
+import { configuredConvexModelFallbacks, convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
+import { authorizedModelForFramePhase } from "../src/nodeagent/models/phaseModel";
 import { buildResearchContext, buildCompanyDeepDiveContext } from "../src/nodeagent/core/worldModel";
 import { compactMessages } from "../src/nodeagent/core/contextCompactor";
 import { appendProofloopRepairMessage, proofloopSupervisorDecision } from "../src/nodeagent/core/proofloopSupervisor";
 import { tryRunHmdaUnderwritingBenchmark } from "../src/nodeagent/core/hmdaUnderwritingExecutor";
-import type { AgentMessage, AgentResult, AgentTraceEvent, ToolCall, RoomTools } from "../src/nodeagent/core/types";
+import type { AgentMessage, AgentModelRouteState, AgentResult, AgentTraceEvent, ToolCall, RoomTools } from "../src/nodeagent/core/types";
 import type { AgentStreamEventDraft } from "../src/nodeagent/core/stream";
 import type { EvidenceState, FrameDelta, ReasoningFrame, ReasoningFrameStatus } from "../src/nodeagent/core/reasoningFrames";
 import type { Actor } from "../src/engine/types";
-import { journalSliceKey } from "../src/nodeagent/core/journal";
+import { journalSliceKey, stableJournalHash } from "../src/nodeagent/core/journal";
 import {
   FREE_FILE_EGRESS_BLOCK_REASON,
   freeFileEgressPromotionAllowed,
@@ -59,8 +59,7 @@ const agentJobsFinishSliceRef = makeFunctionReference<"mutation">("agentJobs:fin
 const agentJobsCompleteDeterministicBenchmarkSliceRef = makeFunctionReference<"mutation">("agentJobs:completeDeterministicBenchmarkSlice") as any;
 const agentJobsRecordLiveOperationRef = makeFunctionReference<"mutation">("agentJobs:recordLiveOperation") as any;
 const agentJobsRecordStreamEventRef = makeFunctionReference<"mutation">("agentJobs:recordStreamEvent") as any;
-const agentRunsRecordRef = makeFunctionReference<"mutation">("agentRuns:record") as any;
-const agentStepsRecordRef = makeFunctionReference<"mutation">("agentSteps:record") as any;
+const agentRunsRecordJournaledRef = makeFunctionReference<"mutation">("agentRuns:recordJournaled") as any;
 const artifactsListForRoomRef = makeFunctionReference<"query">("artifacts:listForRoom") as any;
 const streamingEnsurePublicAgentJobStreamRef = makeFunctionReference<"mutation">("streaming:ensurePublicAgentJobStream") as any;
 const streamingAppendPublicAgentJobStreamChunkRef = makeFunctionReference<"mutation">("streaming:appendPublicAgentJobStreamChunk") as any;
@@ -120,13 +119,28 @@ type ClaimedReasoningFrame = {
 
 type RunTelemetry = {
   ms: number;
+  modelCalls: number;
+  toolCalls: number;
+  inputTokens: number;
+  outputTokens: number;
+  cachedInputTokens: number;
+  cacheCreationInputTokens: number;
   costUsd: number;
+  costKind: "exact" | "estimated";
 };
 
 type RunRecord = {
   runId: Id<"agentRuns">;
   telemetry: RunTelemetry;
+  jobAccounting: Omit<RunTelemetry, "ms">;
 };
+
+class RunPersistenceError extends Error {
+  constructor(readonly cause: unknown) {
+    super(`run_persistence_failed: ${errorText(cause)}`);
+    this.name = "RunPersistenceError";
+  }
+}
 
 type PublicAgentJobStream = {
   streamId: string;
@@ -225,6 +239,10 @@ function liveOperationKind(event: AgentTraceEvent): LiveOperationKind {
   return "tool_call";
 }
 
+function modelToolCallCount(trace: AgentTraceEvent[]): number {
+  return trace.filter((event) => event.tool !== "handoff" && event.tool !== "compaction").length;
+}
+
 function liveOperationName(event: AgentTraceEvent): string {
   const result = event.result as { error?: unknown; conflict?: unknown; locked?: unknown; pendingApproval?: unknown } | null;
   const suffix = toolResultFailed(result) ? " failed" : result?.conflict ? " conflict" : result?.locked ? " blocked" : result?.pendingApproval ? " needs review" : "";
@@ -299,14 +317,21 @@ function cursorFrameId(cursor: unknown): string | undefined {
   return typeof value?.frameId === "string" ? value.frameId : undefined;
 }
 
+function hasProtocolStallMarker(value: unknown): boolean {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  return (value as { terminalReason?: unknown }).terminalReason === "protocol_stall";
+}
+
 function messagesFromCursor(cursor: unknown, frameId?: string): AgentMessage[] | undefined {
   const value = cursor as { messages?: unknown } | undefined;
+  if (hasProtocolStallMarker(cursor)) return undefined;
   if (frameId && cursorFrameId(cursor) && cursorFrameId(cursor) !== frameId) return undefined;
   return Array.isArray(value?.messages) ? value.messages as AgentMessage[] : undefined;
 }
 
 function remainingToolCallsFromCursor(cursor: unknown, frameId?: string): ToolCall[] | undefined {
   const value = cursor as { remainingToolCalls?: unknown } | undefined;
+  if (hasProtocolStallMarker(cursor)) return undefined;
   if (frameId && cursorFrameId(cursor) && cursorFrameId(cursor) !== frameId) return undefined;
   return Array.isArray(value?.remainingToolCalls) ? value.remainingToolCalls as ToolCall[] : undefined;
 }
@@ -353,12 +378,50 @@ function clean<T extends Record<string, unknown>>(value: T): T {
   return out as T;
 }
 
+function routeStateFromCursor(cursor: unknown): AgentModelRouteState | undefined {
+  if (!cursor || typeof cursor !== "object" || Array.isArray(cursor)) return undefined;
+  const value = (cursor as { modelRouteState?: unknown }).modelRouteState;
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const raw = value as { preferredModelId?: unknown; cooldownUntil?: unknown };
+  const preferredModelId = typeof raw.preferredModelId === "string" ? raw.preferredModelId : undefined;
+  const cooldownUntil: Record<string, number> = {};
+  if (raw.cooldownUntil && typeof raw.cooldownUntil === "object" && !Array.isArray(raw.cooldownUntil)) {
+    for (const [candidateId, until] of Object.entries(raw.cooldownUntil as Record<string, unknown>)) {
+      if (candidateId && typeof until === "number" && Number.isFinite(until)) cooldownUntil[candidateId] = until;
+    }
+  }
+  if (!preferredModelId && Object.keys(cooldownUntil).length === 0) return undefined;
+  return { preferredModelId, ...(Object.keys(cooldownUntil).length ? { cooldownUntil } : {}) };
+}
+
+function discardUnpairedToolCalls(messages: AgentMessage[]): AgentMessage[] {
+  const completedCallIds = new Set(messages
+    .filter((message) => message.role === "tool" && message.toolCallId)
+    .map((message) => message.toolCallId as string));
+  const sanitized: AgentMessage[] = [];
+  for (const message of messages) {
+    if (message.role !== "assistant" || !message.toolCalls?.length) {
+      sanitized.push(message);
+      continue;
+    }
+    const retainedCalls = message.toolCalls.filter((call) => completedCallIds.has(call.id));
+    if (retainedCalls.length === 0 && !message.content.trim()) continue;
+    sanitized.push({
+      ...message,
+      toolCalls: retainedCalls.length > 0 ? retainedCalls : undefined,
+    });
+  }
+  return sanitized;
+}
+
 async function checkpoint(result: AgentResult, maxChars: number, keepRecent: number, frameId?: string) {
+  const nonResumable = isNonResumableAgentResult(result);
   const compacted = await compactMessages(result.messages, { maxChars, keepRecent });
-  const remainingToolCalls = result.handoff?.remainingToolCalls ?? [];
-  let messages = compacted.messages.filter((message) =>
+  const remainingToolCalls = nonResumable ? [] : result.handoff?.remainingToolCalls ?? [];
+  const checkpointMessages = nonResumable ? discardUnpairedToolCalls(compacted.messages) : compacted.messages;
+  let messages = checkpointMessages.filter((message) =>
     !(message.role === "user" && message.content?.startsWith(RESUME_CHECKPOINT_PREFIX)));
-  if (result.handoff && remainingToolCalls.length === 0) {
+  if (result.handoff && remainingToolCalls.length === 0 && !nonResumable) {
     const latestProgress = (result.handoff.latestAssistantText || result.finalText || result.handoff.summary || "")
       .replace(/\s+/g, " ")
       .trim()
@@ -376,6 +439,8 @@ async function checkpoint(result: AgentResult, maxChars: number, keepRecent: num
     compacted: compacted.compacted,
     elided: compacted.elided,
     updatedAt: Date.now(),
+    ...(result.modelRouteState ? { modelRouteState: result.modelRouteState } : {}),
+    ...(nonResumable ? { terminalReason: result.handoff?.terminalReason ?? "protocol_stall" } : {}),
   };
 }
 
@@ -412,7 +477,8 @@ function frameStatusForFinish(receipt: ReasoningFrameRunReceipt | undefined, res
 
 function isNonResumableAgentResult(result: AgentResult): boolean {
   const summary = result.handoff?.summary ?? result.finalText ?? "";
-  return result.stopReason === "step_budget" && summary.includes(TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER);
+  return result.handoff?.terminalReason === "protocol_stall"
+    || (result.stopReason === "step_budget" && summary.includes(TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER));
 }
 
 export const runFreeAutoJobSlice = internalAction({
@@ -462,7 +528,20 @@ export const runFreeAutoJobSlice = internalAction({
       });
     }
     const providerEgressBlock = !egressDecision.ok ? new Error(`provider_egress_blocked:${egressDecision.reason}`) : undefined;
-    const model = agentModel(resolvedModelPolicy, { entrypoint });
+    const fallbackModelsForRoute = (primaryModel: string): string[] => {
+      if (claimed.routePolicy === "explicit" || primaryModel === "openrouter/free-auto") return [];
+      return configuredConvexModelFallbacks(primaryModel).filter((candidate) => providerEgressDecision({
+        model: candidate,
+        entrypoint,
+        artifacts: egressArtifacts,
+        env: process.env,
+      }).ok);
+    };
+    const model = agentModel(resolvedModelPolicy, {
+      entrypoint,
+      fallbackModelIds: fallbackModelsForRoute(resolvedModelPolicy),
+      routeState: routeStateFromCursor(claimed.cursor),
+    });
     const isDeepDiveChild = claimed.activeReasoningFrame?.facet === "deep_dive";
     const contextMaxChars = envNumber(
       "FREE_AUTO_JOB_CONTEXT_MAX_CHARS",
@@ -484,10 +563,19 @@ export const runFreeAutoJobSlice = internalAction({
     // AGENT_ORCHESTRATOR_MODEL; worker phases (execute) use AGENT_WORKER_MODEL.
     // Falls back to resolvedModelPolicy if env vars not set.
     const phaseModel = activeFrame
-      ? modelForFramePhase(activeFrame.phase, resolvedModelPolicy)
+      ? authorizedModelForFramePhase(activeFrame.phase, resolvedModelPolicy, (candidate) => providerEgressDecision({
+        model: candidate,
+        entrypoint,
+        artifacts: egressArtifacts,
+        env: process.env,
+      }).ok)
       : resolvedModelPolicy;
     const phaseAwareModel = phaseModel !== resolvedModelPolicy
-      ? agentModel(phaseModel, { entrypoint })
+      ? agentModel(phaseModel, {
+        entrypoint,
+        fallbackModelIds: fallbackModelsForRoute(phaseModel),
+        routeState: routeStateFromCursor(claimed.cursor),
+      })
       : model;
     let liveSequence = 1_000 + Math.max(0, claimed.attempt - 1) * 10_000;
     let streamSequence = 1_000 + Math.max(0, claimed.attempt - 1) * 10_000;
@@ -524,23 +612,25 @@ export const runFreeAutoJobSlice = internalAction({
     const settleStreamEventWrites = async () => {
       await Promise.allSettled(streamEventWrites);
     };
+    const modelJournalSliceKey = journalSliceKey({
+      entrypoint,
+      jobId: String(claimed.jobId),
+      artifactId: String(claimed.artifactId),
+      frameId: activeFrame?.frameId,
+      goal: claimed.goal,
+      mode: claimed.mode ?? "variance",
+      modelPolicy: resolvedModelPolicy,
+      runtimeProfile: claimed.runtimeProfile,
+      cursor: claimed.cursor ?? null,
+      handoff: claimed.handoff ?? null,
+      maxSteps,
+    });
     const modelJournal = makeConvexStepJournal({
       ctx,
       jobId: claimed.jobId,
-      sliceKey: journalSliceKey({
-        entrypoint,
-        jobId: String(claimed.jobId),
-        artifactId: String(claimed.artifactId),
-        frameId: activeFrame?.frameId,
-        goal: claimed.goal,
-        mode: claimed.mode ?? "variance",
-        modelPolicy: resolvedModelPolicy,
-        runtimeProfile: claimed.runtimeProfile,
-        cursor: claimed.cursor ?? null,
-        handoff: claimed.handoff ?? null,
-        maxSteps,
-      }),
-      modelName: () => model.name,
+      leaseId,
+      sliceKey: modelJournalSliceKey,
+      modelName: () => phaseAwareModel.name,
     });
     let publicStream: PublicAgentJobStream | undefined;
     let publicStreamText = "";
@@ -609,21 +699,25 @@ export const runFreeAutoJobSlice = internalAction({
 
     const recordRun = async (result: AgentResult, extraStep?: { tool: string; result: string }): Promise<RunRecord> => {
       const ms = Date.now() - t0;
-      const costUsd = priceRun(model.name, result.usage.inputTokens, result.usage.outputTokens);
+      const costUsd = result.usage.costUsd ?? priceRun(phaseAwareModel.name, result.usage.inputTokens, result.usage.outputTokens);
+      const costKind = result.usage.costKind ?? "estimated";
       const conflictsSurvived = result.trace.filter((t) => t.tool === "edit_cell" && (t.result as { conflict?: boolean })?.conflict).length;
       const telemetry = {
         jobId: claimed.jobId,
         roomId: claimed.roomId,
         agentId: actor.id,
-        model: model.name,
+        model: phaseAwareModel.name,
         goal: claimed.goal,
         steps: result.steps,
-        toolCalls: result.trace.length,
+        modelCalls: result.usage.modelCalls,
+        toolCalls: modelToolCallCount(result.trace),
         conflictsSurvived,
         inputTokens: result.usage.inputTokens,
         outputTokens: result.usage.outputTokens,
         cachedInputTokens: result.usage.cachedInputTokens ?? 0,
+        cacheCreationInputTokens: result.usage.cacheCreationInputTokens ?? 0,
         costUsd,
+        costKind,
         ms,
         exhausted: result.exhausted,
         stopReason: result.stopReason,
@@ -631,11 +725,30 @@ export const runFreeAutoJobSlice = internalAction({
         deadlineAt,
         handoff: result.handoff,
       };
-      const runId = await ctx.runMutation(agentRunsRecordRef, telemetry);
-      const steps = result.trace.map(traceStep);
+      const journalClaims = modelJournal.accountingClaims();
+      const traceSteps = result.trace.map(traceStep);
+      if (traceSteps.length === 0 && !extraStep) {
+        const syntheticResult = result.finalText?.trim()
+          || (result.handoff ? JSON.stringify(result.handoff) : result.stopReason);
+        traceSteps.push({
+          idx: 0,
+          tool: "model_result",
+          args: cap(JSON.stringify({
+            stopReason: result.stopReason,
+            steps: result.steps,
+            modelCalls: result.usage.modelCalls ?? 0,
+          })),
+          result: cap(syntheticResult),
+          status: result.stopReason === "error" ? "error" as const : "ok" as const,
+          ms,
+          elementId: undefined,
+          affectedObjectIds: undefined,
+          mutationReceiptIds: undefined,
+        });
+      }
       if (extraStep) {
-        steps.push({
-          idx: steps.length,
+        traceSteps.push({
+          idx: traceSteps.length,
           tool: extraStep.tool,
           args: cap(JSON.stringify({ jobId: String(claimed.jobId), attempt: claimed.attempt })),
           result: cap(extraStep.result),
@@ -646,14 +759,58 @@ export const runFreeAutoJobSlice = internalAction({
           mutationReceiptIds: undefined,
         });
       }
-      await ctx.runMutation(agentStepsRecordRef, {
-        jobId: claimed.jobId,
+      const recordKey = `durable-run:${stableJournalHash({
+        jobId: String(claimed.jobId),
+        leaseId,
+        attempt: claimed.attempt,
+        kind: extraStep ? "error" : "result",
+        telemetry,
+        journalClaims,
+        traceSteps,
+      })}`;
+      const payload = {
+        ...telemetry,
+        leaseId,
+        attempt: claimed.attempt,
+        recordKey,
+        journalSliceKey: modelJournalSliceKey,
+        journalClaims,
+        traceSteps,
+      };
+      let recorded: {
+        runId: Id<"agentRuns">;
+        accounting: Omit<RunTelemetry, "ms">;
+        jobAccounting: Omit<RunTelemetry, "ms">;
+      };
+      try {
+        recorded = await ctx.runMutation(agentRunsRecordJournaledRef, payload) as typeof recorded;
+      } catch {
+        // A mutation can commit before its response is lost. One exact, idempotent replay recovers
+        // that result; a second failure is an integrity blocker and must not fall through to a
+        // different zero-usage run.
+        try {
+          recorded = await ctx.runMutation(agentRunsRecordJournaledRef, payload) as typeof recorded;
+        } catch (retryError) {
+          throw new RunPersistenceError(retryError);
+        }
+      }
+      const runId = recorded.runId;
+      return {
         runId,
-        roomId: claimed.roomId,
-        agentId: actor.id,
-        steps,
-      });
-      return { runId, telemetry };
+        telemetry: { ms, ...recorded.accounting },
+        jobAccounting: recorded.jobAccounting,
+      };
+    };
+
+    let persistedRun: RunRecord | undefined;
+    const finishSlice = async (payload: Record<string, unknown>) => {
+      try {
+        return await ctx.runMutation(agentJobsFinishSliceRef, payload) as { ok: boolean; reason?: string; reused?: boolean };
+      } catch {
+        // Recover a committed mutation whose response was lost. finishSlice recognizes the exact
+        // persisted attempt and returns reused without applying accounting twice.
+        return await ctx.runMutation(agentJobsFinishSliceRef, payload) as { ok: boolean; reason?: string; reused?: boolean };
+      }
     };
 
     try {
@@ -679,8 +836,9 @@ export const runFreeAutoJobSlice = internalAction({
       }
       if (providerEgressBlock) throw providerEgressBlock;
       const activeFrameId = activeFrame?.frameId;
-      const initialMessages = messagesFromCursor(claimed.cursor, activeFrameId);
-      const resumeToolCalls = remainingToolCallsFromCursor(claimed.cursor, activeFrameId);
+      const manualRetryAfterProtocolStall = hasProtocolStallMarker(claimed.handoff) || hasProtocolStallMarker(claimed.cursor);
+      const initialMessages = manualRetryAfterProtocolStall ? undefined : messagesFromCursor(claimed.cursor, activeFrameId);
+      const resumeToolCalls = manualRetryAfterProtocolStall ? undefined : remainingToolCallsFromCursor(claimed.cursor, activeFrameId);
       const workbookWorkflowHooks = [createVerifiedWorkbookWorkflowHook()];
       let frameReceipt: ReasoningFrameRunReceipt | undefined;
       let result: AgentResult | null = await tryRunHmdaUnderwritingBenchmark({
@@ -708,9 +866,11 @@ export const runFreeAutoJobSlice = internalAction({
       if (!result) {
         await recordLiveOperation({
           kind: "model_call",
-          name: model.name,
+          name: phaseAwareModel.name,
           status: "started",
-          countDelta: 1,
+          // A start marker is lifecycle telemetry, not a provider request. The
+          // completed/failed marker below carries the authoritative request count.
+          countDelta: 0,
           startedAt: Date.now(),
         });
         if (!egressDecision.ok) throw new Error(`provider_egress_blocked:${egressDecision.reason}`);
@@ -813,7 +973,8 @@ export const runFreeAutoJobSlice = internalAction({
         hooks: workbookWorkflowHooks,
       });
       }
-      const { runId, telemetry } = await recordRun(result);
+      persistedRun = await recordRun(result);
+      const { runId, telemetry, jobAccounting } = persistedRun;
       const done = result.stopReason === "done" && !result.exhausted;
       if (handledByHmdaBenchmark && done) {
         const terminalText = result.finalText || publicStreamText || "";
@@ -840,7 +1001,7 @@ export const runFreeAutoJobSlice = internalAction({
           leaseId,
           runId,
           finalText: terminalText,
-          resolvedModel: model.name,
+          resolvedModel: phaseAwareModel.name,
         });
         return { ok: true as const, done: true, stopReason: result.stopReason, runId };
       }
@@ -857,7 +1018,7 @@ export const runFreeAutoJobSlice = internalAction({
       const frameStatus = handledByHmdaBenchmark ? undefined : frameStatusForFinish(frameReceipt, result, canContinue);
       const frameBlocked = frameStatus === "blocked";
       const scheduledNextAt = handledByHmdaBenchmark ? undefined : canContinue || (frameReceipt && done && !frameBlocked) ? Date.now() + DEFAULT_RESUME_DELAY_MS : undefined;
-      let cursor = done ? undefined : await checkpoint(result, contextMaxChars, contextKeepRecent, activeFrameId);
+      let cursor = done || nonResumable ? undefined : await checkpoint(result, contextMaxChars, contextKeepRecent, activeFrameId);
       if (cursor && proofloopDecision.kind === "repair") {
         cursor = {
           ...cursor,
@@ -898,9 +1059,9 @@ export const runFreeAutoJobSlice = internalAction({
       });
       await recordLiveOperation({
         kind: "model_call",
-        name: model.name,
+        name: phaseAwareModel.name,
         status: "completed",
-        countDelta: result.usage.modelCalls,
+        countDelta: telemetry.modelCalls,
         completedAt: Date.now(),
       });
       await recordLiveOperation({
@@ -913,18 +1074,23 @@ export const runFreeAutoJobSlice = internalAction({
       await Promise.allSettled(liveWrites);
       await settleStreamEventWrites();
 
-      await ctx.runMutation(agentJobsFinishSliceRef, clean({
+      const finishResult = await finishSlice(clean({
         jobId: claimed.jobId,
         leaseId,
         attempt: claimed.attempt,
         status: frameBlocked ? "blocked" : done ? "completed" : canContinue ? "handoff" : "failed",
-        resolvedModel: model.name,
+        resolvedModel: phaseAwareModel.name,
         stopReason: result.stopReason,
         ms: telemetry.ms,
-        inputTokens: result.usage.inputTokens,
-        outputTokens: result.usage.outputTokens,
-        cachedInputTokens: result.usage.cachedInputTokens ?? 0,
+        inputTokens: telemetry.inputTokens,
+        outputTokens: telemetry.outputTokens,
+        cachedInputTokens: telemetry.cachedInputTokens,
+        cacheCreationInputTokens: telemetry.cacheCreationInputTokens,
         costUsd: telemetry.costUsd,
+        costKind: telemetry.costKind,
+        modelCalls: telemetry.modelCalls,
+        toolCalls: telemetry.toolCalls,
+        accountingTotals: jobAccounting,
         runId,
         handoff: result.handoff,
         cursor,
@@ -932,7 +1098,7 @@ export const runFreeAutoJobSlice = internalAction({
         error: frameBlocked
           ? frameReceipt?.verification.blockedReason ?? frameReceipt?.verification.reason
           : nonResumable
-            ? result.handoff?.summary ?? TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER
+            ? result.handoff?.terminalReason ?? result.handoff?.summary ?? TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER
             : proofloopTerminalFailure
               ? proofloopDecision.error
               : done || canContinue ? undefined : "max_attempts_exceeded",
@@ -948,6 +1114,14 @@ export const runFreeAutoJobSlice = internalAction({
           runtimeError: frameReceipt.runtimeError,
         } : undefined,
       }));
+      if (!finishResult.ok) {
+        return {
+          ok: false as const,
+          retrying: true,
+          error: `agent_job_finish_rejected:${finishResult.reason ?? "unknown"}`,
+          runId,
+        };
+      }
 
       return { ok: true as const, done, stopReason: result.stopReason, runId };
     } catch (error) {
@@ -973,10 +1147,26 @@ export const runFreeAutoJobSlice = internalAction({
         messages: [],
         usage: { inputTokens: 0, outputTokens: 0, modelCalls: 0 },
       };
-      const { runId, telemetry } = await recordRun(fallback, { tool: "job_error", result: errorText(rootError) });
+      if (rootError instanceof RunPersistenceError) {
+        await settlePublicStreamWrites();
+        void recordStreamEvent({
+          kind: "error",
+          status: "failed",
+          title: "Agent run persistence failed",
+          error: errorText(rootError),
+          metadata: { attempt: claimed.attempt, integrityBlocked: true },
+          createdAt: Date.now(),
+        });
+        await settleStreamEventWrites();
+        return { ok: false as const, retrying: true, error: errorText(rootError) };
+      }
+      const runAlreadyPersisted = persistedRun !== undefined;
+      const recordedFailure = persistedRun ?? await recordRun(fallback, { tool: "job_error", result: errorText(rootError) });
+      persistedRun = recordedFailure;
+      const { runId, telemetry, jobAccounting } = recordedFailure;
       const nonRetryableReason = providerNonRetryableReason(rootError);
       const retryable = !isProviderNonRetryableError(rootError);
-      const canRetry = retryable && claimed.attempt < claimed.maxAttempts;
+      const canRetry = !runAlreadyPersisted && retryable && claimed.attempt < claimed.maxAttempts;
       const delayMs = canRetry ? backoffMs(claimed.attempt) : undefined;
       const scheduledNextAt = delayMs ? Date.now() + delayMs : undefined;
       const activeFrameId = claimed.activeReasoningFrame?.frameId;
@@ -1008,24 +1198,39 @@ export const runFreeAutoJobSlice = internalAction({
         });
       }
       await recordLiveOperation({
+        kind: "model_call",
+        name: phaseAwareModel.name,
+        status: "failed",
+        countDelta: runAlreadyPersisted ? 0 : telemetry.modelCalls,
+        completedAt: Date.now(),
+      });
+      await recordLiveOperation({
         kind: "checkpoint",
         name: "agentJobRunner.runFreeAutoJobSlice failed",
         status: "failed",
         countDelta: 1,
         completedAt: Date.now(),
       });
+      await Promise.allSettled(liveWrites);
+      await settleStreamEventWrites();
 
-      await ctx.runMutation(agentJobsFinishSliceRef, clean({
+      const finishResult = await finishSlice(clean({
         jobId: claimed.jobId,
         leaseId,
         attempt: claimed.attempt,
         status: canRetry ? "retrying" : "failed",
-        resolvedModel: model.name,
+        resolvedModel: phaseAwareModel.name,
         stopReason: fallback.stopReason,
         ms: telemetry.ms,
-        inputTokens: fallback.usage.inputTokens,
-        outputTokens: fallback.usage.outputTokens,
+        inputTokens: telemetry.inputTokens,
+        outputTokens: telemetry.outputTokens,
+        cachedInputTokens: telemetry.cachedInputTokens,
+        cacheCreationInputTokens: telemetry.cacheCreationInputTokens,
         costUsd: telemetry.costUsd,
+        costKind: telemetry.costKind,
+        modelCalls: telemetry.modelCalls,
+        toolCalls: telemetry.toolCalls,
+        accountingTotals: jobAccounting,
         runId,
         error: errorText(rootError),
         handoff: fallback.handoff,
@@ -1034,8 +1239,14 @@ export const runFreeAutoJobSlice = internalAction({
         frameId: activeFrameId,
         frameStatus: canRetry ? "pending" : "failed",
       }));
-      await Promise.allSettled(liveWrites);
-      await settleStreamEventWrites();
+      if (!finishResult.ok) {
+        return {
+          ok: false as const,
+          retrying: true,
+          error: `${errorText(rootError)}; agent_job_finish_rejected:${finishResult.reason ?? "unknown"}`,
+          runId,
+        };
+      }
 
       return { ok: false as const, retrying: canRetry, error: errorText(rootError), runId };
     }

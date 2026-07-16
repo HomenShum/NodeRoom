@@ -71,7 +71,7 @@ export function DeckStoryboardWorkbench({
   collaboratorCount?: number;
   onClose: () => void;
   onOpenArtifact: (artifactId: string) => void;
-  onSaveStoryboard?: (storyboard: DeckStoryboard) => Promise<{ ok: boolean; reason?: string }>;
+  onSaveStoryboard?: (storyboard: DeckStoryboard, base: DeckStoryboard) => Promise<{ ok: boolean; reason?: string }>;
   onRequestPatch?: (prompt: string, slideId?: string) => Promise<{ ok: boolean; reason?: string }>;
   reviewableProposalIds?: string[];
   canResolvePatch?: boolean;
@@ -86,6 +86,7 @@ export function DeckStoryboardWorkbench({
   onResolveComment?: (comment: DeckComment) => Promise<{ ok: boolean; reason?: string }>;
 }): ReactElement {
   const [draft, setDraft] = useState(() => cloneStoryboard(storyboard));
+  const [baseSnapshot, setBaseSnapshot] = useState(() => cloneStoryboard(storyboard));
   const [selectedSlideId, setSelectedSlideId] = useState(storyboard.slides[0]?.slideId ?? "");
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -99,6 +100,7 @@ export function DeckStoryboardWorkbench({
   useEffect(() => {
     if (dirty) return;
     setDraft(cloneStoryboard(storyboard));
+    setBaseSnapshot(cloneStoryboard(storyboard));
     setSelectedSlideId((current) => storyboard.slides.some((slide) => slide.slideId === current) ? current : storyboard.slides[0]?.slideId ?? "");
   }, [dirty, storyboard]);
   useEffect(() => {
@@ -137,15 +139,16 @@ export function DeckStoryboardWorkbench({
     setCollabMessage(null);
     try {
       const normalized = normalizeCollaborativeDeck(draft, Math.max(storyboard.version + 1, draft.version));
-      const result = await onSaveStoryboard(normalized);
+      const result = await onSaveStoryboard(normalized, baseSnapshot);
       if (result.ok) {
         setDraft(normalized);
+        setBaseSnapshot(cloneStoryboard(normalized));
         setDirty(false);
         setSaveConflict(false);
         setCollabMessage(artifactId ? `Saved collaborative deck v${normalized.version}.` : "Collaborative deck created.");
       } else {
         setSaveConflict(result.reason?.startsWith("conflict") === true);
-        setCollabMessage(result.reason?.startsWith("conflict") ? "A collaborator changed one of these deck objects. Applied objects remain versioned; review the refreshed object before retrying the conflicted edit." : result.reason ?? "Deck save failed.");
+        setCollabMessage(result.reason?.startsWith("conflict") ? `A collaborator changed one of these deck objects (${result.reason}). No deck objects were applied; reload the latest objects before retrying.` : result.reason ?? "Deck save failed.");
       }
     } finally {
       setSaving(false);
@@ -330,6 +333,7 @@ export function DeckStoryboardWorkbench({
           {saveConflict && (
             <button type="button" onClick={() => {
               setDraft(cloneStoryboard(storyboard));
+              setBaseSnapshot(cloneStoryboard(storyboard));
               setSelectedSlideId((current) => storyboard.slides.some((slide) => slide.slideId === current) ? current : storyboard.slides[0]?.slideId ?? "");
               setDirty(false);
               setSaveConflict(false);

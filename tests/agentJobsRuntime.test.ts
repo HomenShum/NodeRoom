@@ -18,7 +18,7 @@ delete (modules as Record<string, unknown>)["../convex/agent.ts"];
 // Stub their scheduled entrypoints so scheduler.runAfter(internal.<runner>.*, ...) resolves to a
 // no-op instead of throwing "Could not find module" as an unhandled rejection after assertions pass.
 (modules as Record<string, unknown>)["../convex/agentJobRunner.ts"] = async () => ({
-  runFreeAutoJobSlice: internalAction({ args: { jobId: v.id("agentJobs") }, handler: async () => null }),
+  runFreeAutoJobSlice: internalAction({ args: { jobId: v.id("agentJobs") }, handler: async () => ({ ok: true as const }) }),
 });
 (modules as Record<string, unknown>)["../convex/embeddingRunner.ts"] = async () => ({
   runOne: internalAction({ args: {}, handler: async () => null }),
@@ -156,6 +156,63 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.job.entrypoint).toBe("public_ask");
     expect(String(detail?.job.artifactId)).toBe(String(artifactId));
     expect(detail?.operations.map((event) => event.name)).toContain("agentJobs.start");
+  });
+
+  it("durably queues a follow-up and activates it only after its predecessor is terminal", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+    const first = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: "compute the current variance and write the visible cell",
+      contextArtifactId: String(artifactId),
+      routePolicy: "fast_default" as const,
+    });
+    const queued = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: "summarize the completed variance work with evidence",
+      contextArtifactId: String(artifactId),
+      routePolicy: "fast_default" as const,
+      disposition: "queue" as const,
+    });
+
+    let queuedDetail = await t.query(api.agentJobs.detail, { jobId: queued.jobId, requester: proof });
+    expect(queuedDetail?.job).toMatchObject({ status: "queued", waitingForJobId: first.jobId });
+    expect(queuedDetail?.job.workflowId).toBeUndefined();
+    expect(queuedDetail?.job.schedulerHandoffCount).toBe(0);
+
+    await t.mutation(api.agentJobs.cancel, { jobId: first.jobId, requester: proof });
+
+    queuedDetail = await t.query(api.agentJobs.detail, { jobId: queued.jobId, requester: proof });
+    expect(queuedDetail?.job.workflowId).toEqual(expect.any(String));
+    expect(queuedDetail?.job.waitingForJobId).toBeUndefined();
+    expect(queuedDetail?.job.schedulerHandoffCount).toBe(1);
+    expect(queuedDetail?.operations.map((event) => event.name)).toContain("agentJobs.activateQueuedSuccessor");
+  });
+
+  it("redirects by cancelling the active requester chain before starting the new run", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+    const first = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: "compute the first variance pass",
+      contextArtifactId: String(artifactId),
+      routePolicy: "fast_default" as const,
+    });
+    const redirected = await t.mutation(api.agentJobs.startPublicAsk, {
+      roomId,
+      requester: proof,
+      goal: "instead inspect only the current evidence and report gaps",
+      contextArtifactId: String(artifactId),
+      routePolicy: "fast_default" as const,
+      disposition: "redirect" as const,
+    });
+
+    const firstDetail = await t.query(api.agentJobs.detail, { jobId: first.jobId, requester: proof });
+    const redirectedDetail = await t.query(api.agentJobs.detail, { jobId: redirected.jobId, requester: proof });
+    expect(firstDetail?.job).toMatchObject({ status: "cancelled", error: "redirected_by_followup" });
+    expect(redirectedDetail?.job.waitingForJobId).toBeUndefined();
+    expect(redirectedDetail?.job.workflowId).toEqual(expect.any(String));
   });
 
   it("lets long official BTB asks infer benchmark mode while normal long chat stays capped", async () => {
@@ -321,7 +378,7 @@ describe("agentJobs runtime contract", () => {
     const detail = await t.query(api.agentJobs.detail, { jobId: benchmark.jobId, requester: proof });
     expect(detail?.job).toMatchObject({
       runtimeProfile: "benchmark_completion",
-      maxAttempts: 100,
+      maxAttempts: 12,
     });
     expect(detail?.job.request).toMatchObject({
       runtimeProfile: "benchmark_completion",
@@ -330,7 +387,240 @@ describe("agentJobs runtime contract", () => {
     const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId: benchmark.jobId, leaseId: "lease-benchmark-profile", leaseMs: 60_000 });
     expect(claimed).toMatchObject({
       runtimeProfile: "benchmark_completion",
-      maxAttempts: 100,
+      maxAttempts: 12,
+    });
+  });
+
+  it("keeps public benchmark claims and cumulative retries within 12 attempts", async () => {
+    vi.useFakeTimers();
+    try {
+      const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+      const started = await t.mutation(api.agentJobs.startPublicAsk, {
+        roomId,
+        requester: proof,
+        goal: "Run the official benchmark and complete the visible workbook",
+        contextArtifactId: String(artifactId),
+        routePolicy: "fast_default" as const,
+        runtimeProfile: "benchmark_completion" as const,
+        maxAttempts: 1_000,
+      });
+
+      // Emulate a queued row written before the production ceiling was lowered.
+      await t.run((ctx) => ctx.db.patch(started.jobId, { status: "queued", attempts: 10, maxAttempts: 1_000 }));
+      const claimed = await t.mutation(internal.agentJobs.claimSlice, {
+        jobId: started.jobId,
+        leaseId: "lease-benchmark-durable-cap",
+        leaseMs: 60_000,
+      });
+      expect(claimed).toMatchObject({ attempt: 11, maxAttempts: 12 });
+
+      await t.run((ctx) => ctx.db.patch(started.jobId, {
+        status: "failed",
+        attempts: 11,
+        leaseId: "",
+        leaseUntil: 0,
+      }));
+      const finalRetry = await t.mutation(api.agentJobs.retry, {
+        jobId: started.jobId,
+        requester: proof,
+        additionalAttempts: 50,
+      });
+      expect(finalRetry).toMatchObject({ ok: true, maxAttempts: 12 });
+
+      await t.run((ctx) => ctx.db.patch(started.jobId, { status: "failed", attempts: 12 }));
+      const exhaustedRetry = await t.mutation(api.agentJobs.retry, {
+        jobId: started.jobId,
+        requester: proof,
+        additionalAttempts: 50,
+      });
+      expect(exhaustedRetry).toEqual({ ok: false, reason: "attempt_limit_reached", maxAttempts: 12 });
+
+      await t.run((ctx) => ctx.db.patch(started.jobId, { status: "queued", maxAttempts: 1_000 }));
+      const overCeilingClaim = await t.mutation(internal.agentJobs.claimSlice, {
+        jobId: started.jobId,
+        leaseId: "lease-benchmark-over-ceiling",
+        leaseMs: 60_000,
+      });
+      expect(overCeilingClaim).toBeNull();
+
+      const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+      expect(detail?.job).toMatchObject({
+        status: "failed",
+        attempts: 12,
+        maxAttempts: 12,
+        error: "max_attempts_exhausted",
+      });
+      expect(detail?.operations.map((event) => event.name)).toContain("agentJobs.claimSlice.maxAttemptsExhausted");
+      expect(detail?.streamEvents.some((event) => event.kind === "error" && event.error === "max_attempts_exhausted")).toBe(true);
+      expect(detail?.streamEvents.at(-1)).toMatchObject({ kind: "message_done", status: "failed" });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("caps legacy public benchmark rows using entrypoint and goal fallbacks", async () => {
+    vi.useFakeTimers();
+    try {
+      const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+      const goal = "Run the official SpreadsheetBench workbook benchmark";
+      const started = await t.mutation(api.agentJobs.startPublicAsk, {
+        roomId,
+        requester: proof,
+        goal,
+        contextArtifactId: String(artifactId),
+        routePolicy: "fast_default" as const,
+        runtimeProfile: "benchmark_completion" as const,
+        maxAttempts: 1_000,
+      });
+
+      await t.run((ctx) => ctx.db.patch(started.jobId, {
+        status: "failed",
+        attempts: 12,
+        maxAttempts: 1_000,
+        scope: undefined,
+        runtimeProfile: undefined,
+        request: { commandText: goal, entrypoint: "public_ask" },
+      }));
+      const retry = await t.mutation(api.agentJobs.retry, {
+        jobId: started.jobId,
+        requester: proof,
+        additionalAttempts: 50,
+      });
+      expect(retry).toEqual({ ok: false, reason: "attempt_limit_reached", maxAttempts: 12 });
+
+      await t.run((ctx) => ctx.db.patch(started.jobId, { status: "queued", maxAttempts: 1_000 }));
+      const claim = await t.mutation(internal.agentJobs.claimSlice, {
+        jobId: started.jobId,
+        leaseId: "lease-legacy-benchmark-over-ceiling",
+        leaseMs: 60_000,
+      });
+      expect(claim).toBeNull();
+      const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+      expect(detail?.job).toMatchObject({ status: "failed", attempts: 12, maxAttempts: 12, error: "max_attempts_exhausted" });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("normalizes a reusable untagged public benchmark row at admission", async () => {
+    vi.useFakeTimers();
+    try {
+      const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+      const args = {
+        roomId,
+        requester: proof,
+        goal: "Complete the held-out SpreadsheetBench workbook",
+        contextArtifactId: String(artifactId),
+        routePolicy: "fast_default" as const,
+        runtimeProfile: "benchmark_completion" as const,
+        maxAttempts: 1_000,
+      };
+      const started = await t.mutation(api.agentJobs.startPublicAsk, args);
+      await t.run((ctx) => ctx.db.patch(started.jobId, {
+        status: "queued",
+        attempts: 5,
+        maxAttempts: 1_000,
+        scope: undefined,
+        runtimeProfile: undefined,
+        entrypoint: undefined,
+        request: undefined,
+      }));
+
+      const reused = await t.mutation(api.agentJobs.startPublicAsk, args);
+      expect(reused).toMatchObject({ jobId: started.jobId, reused: true });
+      const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+      expect(detail?.job).toMatchObject({
+        scope: "public_room",
+        runtimeProfile: "benchmark_completion",
+        entrypoint: "public_ask",
+        attempts: 5,
+        maxAttempts: 12,
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("caps the oldest fully untagged free-auto benchmark rows during retry and claim", async () => {
+    vi.useFakeTimers();
+    try {
+      const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+      const started = await t.mutation(api.agentJobs.startPublicAsk, {
+        roomId,
+        requester: proof,
+        goal: "Complete the official SpreadsheetBench workbook",
+        contextArtifactId: String(artifactId),
+        routePolicy: "fast_default" as const,
+        runtimeProfile: "benchmark_completion" as const,
+        maxAttempts: 1_000,
+      });
+
+      // Reproduce the original startFreeAuto row shape before scope, entrypoint, request, and
+      // runtimeProfile were persisted. This path intentionally does not pass through re-admission.
+      await t.run((ctx) => ctx.db.patch(started.jobId, {
+        status: "failed",
+        attempts: 12,
+        maxAttempts: 1_000,
+        scope: undefined,
+        runtimeProfile: undefined,
+        entrypoint: undefined,
+        request: undefined,
+        modelPolicy: "openrouter/free-auto",
+        runtime: "workflow",
+      }));
+      const retry = await t.mutation(api.agentJobs.retry, {
+        jobId: started.jobId,
+        requester: proof,
+        additionalAttempts: 50,
+      });
+      expect(retry).toEqual({ ok: false, reason: "attempt_limit_reached", maxAttempts: 12 });
+
+      await t.run((ctx) => ctx.db.patch(started.jobId, { status: "queued", maxAttempts: 1_000 }));
+      const claimed = await t.mutation(internal.agentJobs.claimSlice, {
+        jobId: started.jobId,
+        leaseId: "lease-oldest-legacy-benchmark-over-ceiling",
+        leaseMs: 60_000,
+      });
+      expect(claimed).toBeNull();
+      const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+      expect(detail?.job).toMatchObject({
+        status: "failed",
+        attempts: 12,
+        maxAttempts: 12,
+        error: "max_attempts_exhausted",
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("caps public inline benchmark jobs while preserving the existing non-public inline bound", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const publicJob = await t.mutation(api.agentJobs.createOrReuse, {
+      ...jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-public-benchmark-inline" }),
+      runtimeProfile: "benchmark_completion" as const,
+      maxAttempts: 20,
+    });
+    const nonPublicJob = await t.mutation(api.agentJobs.createOrReuse, {
+      ...jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-private-benchmark-inline" }),
+      scope: "private_user" as const,
+      runtimeProfile: "benchmark_completion" as const,
+      maxAttempts: 20,
+    });
+
+    const publicDetail = await t.query(api.agentJobs.detail, { jobId: publicJob.jobId, requester: proof });
+    const nonPublicDetail = await t.query(api.agentJobs.detail, { jobId: nonPublicJob.jobId, requester: proof });
+    expect(publicDetail?.job).toMatchObject({
+      scope: "public_room",
+      runtime: "inline",
+      runtimeProfile: "benchmark_completion",
+      maxAttempts: 12,
+    });
+    expect(nonPublicDetail?.job).toMatchObject({
+      scope: "private_user",
+      runtime: "inline",
+      runtimeProfile: "benchmark_completion",
+      maxAttempts: 20,
     });
   });
 
@@ -348,7 +638,7 @@ describe("agentJobs runtime contract", () => {
     const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
     expect(detail?.job).toMatchObject({
       runtimeProfile: "benchmark_completion",
-      maxAttempts: 1000,
+      maxAttempts: 12,
     });
     expect(detail?.job.request).toMatchObject({
       runtimeProfile: "benchmark_completion",
@@ -357,7 +647,7 @@ describe("agentJobs runtime contract", () => {
     const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId: started.jobId, leaseId: "lease-benchmark-inferred", leaseMs: 60_000 });
     expect(claimed).toMatchObject({
       runtimeProfile: "benchmark_completion",
-      maxAttempts: 1000,
+      maxAttempts: 12,
     });
   });
 
@@ -753,6 +1043,14 @@ describe("agentJobs runtime contract", () => {
   it("finishInteractive writes attempts, operation events, and materialized counters", async () => {
     const { t, proof, roomId, artifactId } = await setupRoom();
     const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-finish" }));
+    await t.mutation(internal.agentJobs.recordLiveOperation, {
+      jobId,
+      sequence: 1_000,
+      kind: "model_call",
+      name: "test-model",
+      status: "started",
+      countDelta: 0,
+    });
 
     await t.mutation(internal.agentJobs.finishInteractive, {
       jobId,
@@ -763,8 +1061,11 @@ describe("agentJobs runtime contract", () => {
       ms: 1200,
       inputTokens: 100,
       outputTokens: 25,
+      cachedInputTokens: 40,
+      cacheCreationInputTokens: 10,
       costUsd: 0.001,
-      modelCalls: 1,
+      costKind: "exact" as const,
+      modelCalls: 2,
       toolCalls: 2,
       queryCount: 3,
       mutationCount: 4,
@@ -779,6 +1080,132 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.job.queryCount).toBe(3);
     expect(detail?.job.mutationCount).toBe(5);
     expect(detail?.job.receiptCount).toBe(1);
+    expect(detail?.job).toMatchObject({
+      modelCallCount: 2,
+      toolCallCount: 2,
+      inputTokens: 100,
+      outputTokens: 25,
+      cachedInputTokens: 40,
+      cacheCreationInputTokens: 10,
+      costUsd: 0.001,
+      costKind: "exact",
+    });
+    expect(detail?.attempts[0]).toMatchObject({
+      modelCalls: 2,
+      toolCalls: 2,
+      cachedInputTokens: 40,
+      cacheCreationInputTokens: 10,
+      costKind: "exact",
+    });
+    expect(detail?.operations
+      .filter((event) => event.kind === "model_call")
+      .reduce((sum, event) => sum + (event.countDelta ?? 1), 0)).toBe(2);
+  });
+
+  it("finishInteractive reconstructs missing aggregate fields from prior attempts", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-interactive-aggregate-migration" }));
+    const now = Date.now();
+    await t.run(async (ctx) => {
+      await ctx.db.insert("agentJobAttempts", {
+        jobId,
+        attempt: 1,
+        status: "handoff",
+        resolvedModel: "legacy-model",
+        stopReason: "time_budget",
+        ms: 500,
+        inputTokens: 80,
+        outputTokens: 20,
+        cachedInputTokens: 30,
+        cacheCreationInputTokens: 5,
+        costUsd: 0.002,
+        modelCalls: 3,
+        toolCalls: 4,
+        startedAt: now - 500,
+        endedAt: now,
+      });
+      await ctx.db.patch(jobId, {
+        attempts: 1,
+        modelCallCount: undefined,
+        toolCallCount: undefined,
+        inputTokens: undefined,
+        outputTokens: undefined,
+        cachedInputTokens: undefined,
+        cacheCreationInputTokens: undefined,
+        costUsd: undefined,
+        costKind: undefined,
+      });
+    });
+
+    await t.mutation(internal.agentJobs.finishInteractive, {
+      jobId,
+      status: "completed",
+      finalText: "done after deploy",
+      resolvedModel: "current-model",
+      stopReason: "done",
+      ms: 100,
+      inputTokens: 20,
+      outputTokens: 5,
+      cachedInputTokens: 10,
+      cacheCreationInputTokens: 2,
+      costUsd: 0.001,
+      costKind: "exact" as const,
+      modelCalls: 2,
+      toolCalls: 1,
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(detail?.attempts).toHaveLength(2);
+    expect(detail?.job).toMatchObject({
+      modelCallCount: 5,
+      toolCallCount: 5,
+      inputTokens: 100,
+      outputTokens: 25,
+      cachedInputTokens: 40,
+      cacheCreationInputTokens: 7,
+      costKind: "estimated",
+    });
+    expect(detail?.job.costUsd).toBeCloseTo(0.003);
+  });
+
+  it("does not start a continuation workflow for a terminal interactive protocol stall", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({
+      roomId,
+      artifactId,
+      proof,
+      idempotencyKey: "job-runtime-protocol-stall-terminal",
+    }));
+
+    await t.mutation(internal.agentJobs.finishInteractive, {
+      jobId,
+      status: "failed",
+      finalText: "Required tool call missing after four turns.",
+      error: "protocol_stall",
+      handoff: { terminalReason: "protocol_stall" },
+      scheduleWorkflow: true,
+      resolvedModel: "test-model",
+      stopReason: "step_budget",
+      ms: 100,
+      inputTokens: 40,
+      outputTokens: 20,
+      cachedInputTokens: 0,
+      cacheCreationInputTokens: 0,
+      costUsd: 0.001,
+      costKind: "exact" as const,
+      modelCalls: 4,
+      toolCalls: 0,
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(detail?.job).toMatchObject({
+      status: "failed",
+      error: "protocol_stall",
+      modelCallCount: 4,
+    });
+    expect(detail?.job.workflowId).toBeUndefined();
+    expect(detail?.job.nextRunAt).toBe(0);
+    expect(detail?.operations.map((event) => event.kind)).not.toContain("scheduler");
   });
 
   it("records live operation events before an interactive run reaches a terminal state", async () => {
@@ -799,7 +1226,7 @@ describe("agentJobs runtime contract", () => {
       kind: "model_call",
       name: "deepseek/deepseek-v4-flash",
       status: "started",
-      countDelta: 1,
+      countDelta: 0,
     });
     const read = await t.mutation(internal.agentJobs.recordLiveOperation, {
       jobId,
@@ -817,6 +1244,7 @@ describe("agentJobs runtime contract", () => {
     expect(read).toEqual({ ok: true });
     expect(detail?.job.status).toBe("running");
     expect(detail?.operations.map((event) => event.name)).toEqual(expect.arrayContaining(["deepseek/deepseek-v4-flash", "read_range"]));
+    expect(detail?.operations.find((event) => event.name === "deepseek/deepseek-v4-flash")?.countDelta).toBe(0);
     expect(detail?.operations.find((event) => event.name === "read_range")?.affectedIds).toEqual(["row1__variance"]);
   });
 
@@ -976,8 +1404,8 @@ describe("agentJobs runtime contract", () => {
       outputHash: "out-a",
       result,
     });
-    const replay = await t.query(internal.agentStepJournal.get, { jobId, sliceKey: "slice-a", step: 0 });
-    const second = await t.mutation(internal.agentStepJournal.record, {
+    const replay = await t.mutation(internal.agentStepJournal.get, { jobId, sliceKey: "slice-a", step: 0 });
+    await expect(t.mutation(internal.agentStepJournal.record, {
       jobId,
       sliceKey: "slice-a",
       step: 0,
@@ -985,16 +1413,89 @@ describe("agentJobs runtime contract", () => {
       inputHash: "slice-a",
       outputHash: "out-b",
       result: { text: "overwritten", toolCalls: [], done: true },
-    });
-    const replayAfterDuplicate = await t.query(internal.agentStepJournal.get, { jobId, sliceKey: "slice-a", step: 0 });
+    })).rejects.toThrow("journal_replay_mismatch");
+    const replayAfterDuplicate = await t.mutation(internal.agentStepJournal.get, { jobId, sliceKey: "slice-a", step: 0 });
     const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
 
     expect(first.reused).toBe(false);
-    expect(second.reused).toBe(true);
     expect(replay).toEqual(result);
     expect(replayAfterDuplicate).toEqual(result);
     expect(detail?.modelJournal).toHaveLength(1);
     expect(detail?.modelJournal[0].outputHash).toBe("out-a");
+  });
+
+  it("fences model-step journal access by the current live lease while allowing safe replay after reclaim", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({
+      roomId,
+      artifactId,
+      proof,
+      idempotencyKey: "job-runtime-journal-lease",
+    }));
+    await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-journal-1", leaseMs: 60_000 });
+    const result = {
+      text: "inspected",
+      toolCalls: [],
+      done: false,
+      usage: { inputTokens: 12, outputTokens: 3, modelCalls: 1 },
+    };
+
+    await expect(t.mutation(internal.agentStepJournal.record, {
+      jobId,
+      sliceKey: "slice-leased",
+      step: 0,
+      model: "gemini-3.5-flash",
+      inputHash: "slice-leased",
+      outputHash: "out-leased",
+      result,
+    })).rejects.toThrow("job_lease_invalid");
+    const first = await t.mutation(internal.agentStepJournal.record, {
+      jobId,
+      leaseId: "lease-journal-1",
+      sliceKey: "slice-leased",
+      step: 0,
+      model: "gemini-3.5-flash",
+      inputHash: "slice-leased",
+      outputHash: "out-leased",
+      result,
+    });
+    await t.run((ctx) => ctx.db.patch(jobId, { leaseUntil: Date.now() - 1 }));
+    await expect(t.mutation(internal.agentStepJournal.get, {
+      jobId,
+      leaseId: "lease-journal-1",
+      sliceKey: "slice-leased",
+      step: 0,
+    })).rejects.toThrow("job_lease_invalid");
+    await expect(t.mutation(internal.agentStepJournal.record, {
+      jobId,
+      leaseId: "lease-journal-1",
+      sliceKey: "slice-leased",
+      step: 1,
+      model: "gemini-3.5-flash",
+      inputHash: "slice-leased",
+      outputHash: "late-output",
+      result,
+    })).rejects.toThrow("job_lease_invalid");
+
+    const reclaimed = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-journal-2", leaseMs: 60_000 });
+    const replay = await t.mutation(internal.agentStepJournal.get, {
+      jobId,
+      leaseId: "lease-journal-2",
+      sliceKey: "slice-leased",
+      step: 0,
+    });
+    await expect(t.mutation(internal.agentStepJournal.get, {
+      jobId,
+      leaseId: "lease-journal-1",
+      sliceKey: "slice-leased",
+      step: 0,
+    })).rejects.toThrow("job_lease_invalid");
+
+    expect(first.reused).toBe(false);
+    expect(reclaimed?.attempt).toBe(2);
+    expect(replay).toEqual(result);
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(detail?.modelJournal[0]).toMatchObject({ leaseId: "lease-journal-1", outputHash: "out-leased" });
   });
 
   it("claimSlice creates an active lease and finishSlice releases it only for the matching lease", async () => {
@@ -1043,6 +1544,393 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.job.nextRunAt ?? 0).toBe(0);
     expect(detail?.attempts.map((attempt) => attempt.frameId)).toEqual(["rf_child", "rf_execute"]);
     expect(detail?.reasoningFrames.map((frame) => frame.status)).toEqual(["completed", "completed", "completed"]);
+  });
+
+  it("rejects finishSlice after the exact lease deadline even before the watchdog runs", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({
+      roomId,
+      artifactId,
+      proof,
+      idempotencyKey: "job-runtime-expired-finish-fence",
+    }));
+    await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-expired-finish", leaseMs: 60_000 });
+    await t.run((ctx) => ctx.db.patch(jobId, { leaseUntil: Date.now() - 1 }));
+
+    const finished = await t.mutation(internal.agentJobs.finishSlice, finishSliceArgs({
+      jobId,
+      leaseId: "lease-expired-finish",
+      attempt: 1,
+    }));
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+
+    expect(finished).toEqual({ ok: false, reason: "lease_expired" });
+    expect(detail?.job.status).toBe("running");
+    expect(detail?.attempts).toHaveLength(0);
+  });
+
+  it("terminalizes a current workflow failure instead of swallowing it after multiple attempts", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const failed = await t.mutation(api.agentJobs.createOrReuse, jobArgs({
+      roomId,
+      artifactId,
+      proof,
+      idempotencyKey: "job-runtime-workflow-result-failure",
+    }));
+    await t.run((ctx) => ctx.db.patch(failed.jobId, {
+      status: "running" as const,
+      attempts: 2,
+      workflowId: "workflow-current",
+      leaseId: "lease-current",
+      leaseUntil: Date.now() + 60_000,
+    }));
+
+    const completed = await t.mutation(internal.agentJobs.recordWorkflowComplete, {
+      jobId: failed.jobId,
+      workflowId: "workflow-current",
+      resultKind: "failed" as const,
+      error: "agent_slice_failed:agent_job_finish_rejected:lease_mismatch",
+    });
+    const failedDetail = await t.query(api.agentJobs.detail, { jobId: failed.jobId, requester: proof });
+
+    expect(completed).toEqual({ ok: true, terminal: true });
+    expect(failedDetail?.job).toMatchObject({
+      status: "failed",
+      error: "agent_slice_failed:agent_job_finish_rejected:lease_mismatch",
+      leaseId: "",
+      leaseUntil: 0,
+    });
+
+    const concurrent = await t.mutation(api.agentJobs.createOrReuse, jobArgs({
+      roomId,
+      artifactId,
+      proof,
+      idempotencyKey: "job-runtime-workflow-concurrent-not-claimed",
+    }));
+    await t.run((ctx) => ctx.db.patch(concurrent.jobId, {
+      status: "running" as const,
+      attempts: 2,
+      workflowId: "workflow-concurrent",
+      leaseId: "lease-concurrent",
+      leaseUntil: Date.now() + 60_000,
+    }));
+
+    expect(await t.mutation(internal.agentJobs.recordWorkflowComplete, {
+      jobId: concurrent.jobId,
+      workflowId: "workflow-concurrent",
+      resultKind: "failed" as const,
+      error: "agent_slice_failed:not_claimed",
+    })).toEqual({ ok: true, terminal: false, superseded: true });
+    const concurrentDetail = await t.query(api.agentJobs.detail, { jobId: concurrent.jobId, requester: proof });
+    expect(concurrentDetail?.job).toMatchObject({ status: "running", leaseId: "lease-concurrent" });
+  });
+
+  it("replays an exact committed finishSlice response without duplicating the attempt or accounting", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({
+      roomId,
+      artifactId,
+      proof,
+      idempotencyKey: "job-runtime-finish-response-replay",
+    }));
+    await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-finish-replay", leaseMs: 60_000 });
+    const runId = await t.mutation(internal.agentRuns.record, {
+      jobId,
+      roomId,
+      agentId: "agent_pub",
+      model: "test-model",
+      goal: "finish exactly once",
+      steps: 1,
+      modelCalls: 1,
+      toolCalls: 1,
+      conflictsSurvived: 0,
+      inputTokens: 10,
+      outputTokens: 5,
+      costUsd: 0.0001,
+      costKind: "exact" as const,
+      ms: 100,
+      exhausted: false,
+      stopReason: "done",
+    });
+    const args = { ...finishSliceArgs({ jobId, leaseId: "lease-finish-replay", attempt: 1 }), runId };
+
+    expect(await t.mutation(internal.agentJobs.finishSlice, args)).toEqual({ ok: true });
+    expect(await t.mutation(internal.agentJobs.finishSlice, args)).toEqual({ ok: true, reused: true });
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(detail?.attempts).toHaveLength(1);
+    expect(detail?.job).toMatchObject({ modelCallCount: 1, toolCallCount: 1, inputTokens: 10, outputTokens: 5 });
+    expect(detail?.job.costUsd).toBeCloseTo(0.0001);
+  });
+
+  it("finishSlice preserves failover call counts and cache cost provenance", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-exact-accounting" }));
+    await seedRuntimeReasoningFrames(t, { roomId, artifactId, jobId });
+    await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-accounting", leaseMs: 60_000 });
+
+    const finished = await t.mutation(internal.agentJobs.finishSlice, {
+      ...finishSliceArgs({ jobId, leaseId: "lease-accounting", attempt: 1 }),
+      modelCalls: 2,
+      toolCalls: 3,
+      inputTokens: 120,
+      outputTokens: 30,
+      cachedInputTokens: 70,
+      cacheCreationInputTokens: 11,
+      costUsd: 0.004,
+      costKind: "estimated" as const,
+    });
+
+    expect(finished).toEqual({ ok: true });
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(detail?.job).toMatchObject({
+      modelCallCount: 2,
+      toolCallCount: 3,
+      inputTokens: 120,
+      outputTokens: 30,
+      cachedInputTokens: 70,
+      cacheCreationInputTokens: 11,
+      costUsd: 0.004,
+      costKind: "estimated",
+    });
+    expect(detail?.attempts[0]).toMatchObject({
+      modelCalls: 2,
+      toolCalls: 3,
+      cachedInputTokens: 70,
+      cacheCreationInputTokens: 11,
+      costKind: "estimated",
+    });
+
+    const secondClaim = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-accounting-2", leaseMs: 60_000 });
+    expect(secondClaim?.attempt).toBe(2);
+    await t.mutation(internal.agentJobs.finishSlice, {
+      ...finishSliceArgs({ jobId, leaseId: "lease-accounting-2", attempt: 2 }),
+      modelCalls: 1,
+      toolCalls: 2,
+      inputTokens: 20,
+      outputTokens: 5,
+      cachedInputTokens: 3,
+      cacheCreationInputTokens: 2,
+      costUsd: 0.001,
+      costKind: "exact" as const,
+    });
+
+    const completed = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(completed?.job).toMatchObject({
+      modelCallCount: 3,
+      toolCallCount: 5,
+      inputTokens: 140,
+      outputTokens: 35,
+      cachedInputTokens: 73,
+      cacheCreationInputTokens: 13,
+      costKind: "estimated",
+    });
+    expect(completed?.job.costUsd).toBeCloseTo(0.005);
+  });
+
+  it("finishSlice carries forward cumulative run accounting from a pre-checkpoint crash", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({
+      roomId,
+      artifactId,
+      proof,
+      idempotencyKey: "job-runtime-orphan-run-accounting",
+    }));
+    await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-orphan-accounting", leaseMs: 60_000 });
+    await t.run((ctx) => ctx.db.patch(jobId, {
+      modelCallCount: 3,
+      toolCallCount: 5,
+      inputTokens: 130,
+      outputTokens: 50,
+      cachedInputTokens: 25,
+      cacheCreationInputTokens: 4,
+      costUsd: 0.012,
+      costKind: "estimated" as const,
+    }));
+
+    await t.mutation(internal.agentJobs.finishSlice, {
+      ...finishSliceArgs({ jobId, leaseId: "lease-orphan-accounting", attempt: 1 }),
+      modelCalls: 1,
+      toolCalls: 2,
+      inputTokens: 30,
+      outputTokens: 10,
+      cachedInputTokens: 5,
+      cacheCreationInputTokens: 0,
+      costUsd: 0.002,
+      costKind: "exact" as const,
+      accountingTotals: {
+        modelCalls: 3,
+        toolCalls: 5,
+        inputTokens: 130,
+        outputTokens: 50,
+        cachedInputTokens: 25,
+        cacheCreationInputTokens: 4,
+        costUsd: 0.012,
+        costKind: "estimated" as const,
+      },
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(detail?.job).toMatchObject({
+      modelCallCount: 3,
+      toolCallCount: 5,
+      inputTokens: 130,
+      outputTokens: 50,
+      cachedInputTokens: 25,
+      cacheCreationInputTokens: 4,
+      costKind: "estimated",
+    });
+    expect(detail?.job.costUsd).toBeCloseTo(0.012);
+    expect(detail?.attempts[0]).toMatchObject({ modelCalls: 1, toolCalls: 2, inputTokens: 30, costUsd: 0.002 });
+  });
+
+  it("finishSlice reconstructs a legacy attempt baseline before adding the current slice", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-slice-aggregate-migration" }));
+    await seedRuntimeReasoningFrames(t, { roomId, artifactId, jobId });
+    const now = Date.now();
+    await t.run(async (ctx) => {
+      await ctx.db.insert("agentJobAttempts", {
+        jobId,
+        attempt: 1,
+        status: "handoff",
+        resolvedModel: "legacy-model",
+        stopReason: "time_budget",
+        ms: 400,
+        inputTokens: 50,
+        outputTokens: 10,
+        costUsd: 0.002,
+        startedAt: now - 400,
+        endedAt: now,
+      });
+      await ctx.db.patch(jobId, {
+        attempts: 1,
+        modelCallCount: undefined,
+        toolCallCount: undefined,
+        inputTokens: undefined,
+        outputTokens: undefined,
+        cachedInputTokens: undefined,
+        cacheCreationInputTokens: undefined,
+        costUsd: undefined,
+        costKind: undefined,
+      });
+    });
+    const claimed = await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-legacy-accounting", leaseMs: 60_000 });
+    expect(claimed?.attempt).toBe(2);
+
+    await t.mutation(internal.agentJobs.finishSlice, {
+      ...finishSliceArgs({ jobId, leaseId: "lease-legacy-accounting", attempt: 2 }),
+      modelCalls: 2,
+      toolCalls: 3,
+      inputTokens: 25,
+      outputTokens: 5,
+      cachedInputTokens: 10,
+      cacheCreationInputTokens: 4,
+      costUsd: 0.001,
+      costKind: "exact" as const,
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(detail?.attempts).toHaveLength(2);
+    expect(detail?.job).toMatchObject({
+      modelCallCount: 3,
+      toolCallCount: 4,
+      inputTokens: 75,
+      outputTokens: 15,
+      cachedInputTokens: 10,
+      cacheCreationInputTokens: 4,
+      costKind: "estimated",
+    });
+    expect(detail?.job.costUsd).toBeCloseTo(0.003);
+  });
+
+  it("finishSlice keeps an explicit zero-provider-call slice at zero", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-runtime-zero-model-calls" }));
+    await seedRuntimeReasoningFrames(t, { roomId, artifactId, jobId });
+    await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-zero-calls", leaseMs: 60_000 });
+
+    await t.mutation(internal.agentJobs.finishSlice, {
+      ...finishSliceArgs({ jobId, leaseId: "lease-zero-calls", attempt: 1 }),
+      modelCalls: 0,
+      toolCalls: 0,
+      inputTokens: 0,
+      outputTokens: 0,
+      cachedInputTokens: 0,
+      cacheCreationInputTokens: 0,
+      costUsd: 0,
+      costKind: "exact" as const,
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(detail?.job.modelCallCount).toBe(0);
+    expect(detail?.job.toolCallCount).toBe(0);
+    expect(detail?.attempts[0]).toMatchObject({ modelCalls: 0, toolCalls: 0, costKind: "exact" });
+  });
+
+  it("keeps the deterministic benchmark executor at zero provider calls", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({
+      roomId,
+      artifactId,
+      proof,
+      idempotencyKey: "job-runtime-deterministic-zero-model-calls",
+    }));
+    await seedRuntimeReasoningFrames(t, { roomId, artifactId, jobId });
+    await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-deterministic", leaseMs: 60_000 });
+    const runId = await t.mutation(internal.agentRuns.claim, {
+      jobId,
+      roomId,
+      agentId: "agent_room",
+      model: "deterministic/hmda-underwriting",
+      goal: "Complete the deterministic HMDA benchmark.",
+    });
+
+    await t.mutation(internal.agentJobs.completeDeterministicBenchmarkSlice, {
+      jobId,
+      leaseId: "lease-deterministic",
+      runId,
+      finalText: "done",
+      resolvedModel: "deterministic/hmda-underwriting",
+    });
+
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(detail?.job.status).toBe("completed");
+    expect(detail?.job.modelCallCount).toBe(0);
+    expect(detail?.operations
+      .filter((event) => event.kind === "model_call")
+      .reduce((sum, event) => sum + (event.countDelta ?? 1), 0)).toBe(0);
+  });
+
+  it("fences deterministic benchmark completion after cancellation", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({
+      roomId,
+      artifactId,
+      proof,
+      idempotencyKey: "job-runtime-deterministic-cancel-fence",
+    }));
+    await seedRuntimeReasoningFrames(t, { roomId, artifactId, jobId });
+    await t.mutation(internal.agentJobs.claimSlice, { jobId, leaseId: "lease-deterministic-cancelled", leaseMs: 60_000 });
+    const runId = await t.mutation(internal.agentRuns.claim, {
+      jobId,
+      roomId,
+      agentId: "agent_room",
+      model: "deterministic/hmda-underwriting",
+      goal: "Complete the deterministic HMDA benchmark.",
+    });
+
+    await t.mutation(api.agentJobs.cancel, { jobId, requester: proof });
+    await expect(t.mutation(internal.agentJobs.completeDeterministicBenchmarkSlice, {
+      jobId,
+      leaseId: "lease-deterministic-cancelled",
+      runId,
+      finalText: "stale completion",
+      resolvedModel: "deterministic/hmda-underwriting",
+    })).rejects.toThrow("lease_mismatch");
+
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+    expect(detail?.job).toMatchObject({ status: "cancelled", error: "cancelled_by_user" });
+    expect(detail?.job.finalText).not.toContain("stale completion");
   });
 
   it("finishSlice compacts oversized handoff and cursor payloads before patching the job row", async () => {
@@ -1151,6 +2039,38 @@ describe("agentJobs runtime contract", () => {
     expect(detail?.streamEvents.at(-1)).toMatchObject({ kind: "message_done", status: "failed" });
     expect(detail?.streamEvents.some((event) => event.kind === "error" && event.error === "cancelled_by_user")).toBe(true);
     expect(detail?.receipts).toHaveLength(1);
+  });
+
+  it("does not let an interactive finisher overwrite a cancelled job", async () => {
+    const { t, proof, roomId, artifactId } = await setupRoom();
+    const { jobId } = await t.mutation(api.agentJobs.createOrReuse, jobArgs({
+      roomId,
+      artifactId,
+      proof,
+      idempotencyKey: "job-runtime-interactive-cancel-fence",
+    }));
+    await t.mutation(api.agentJobs.cancel, { jobId, requester: proof });
+
+    const finish = await t.mutation(internal.agentJobs.finishInteractive, {
+      jobId,
+      status: "completed",
+      finalText: "stale interactive completion",
+      resolvedModel: "test-model",
+      stopReason: "done",
+      ms: 100,
+      inputTokens: 10,
+      outputTokens: 5,
+      costUsd: 0.0001,
+      costKind: "exact" as const,
+      modelCalls: 1,
+      toolCalls: 0,
+    });
+    const detail = await t.query(api.agentJobs.detail, { jobId, requester: proof });
+
+    expect(finish).toEqual({ ok: true, terminal: true });
+    expect(detail?.job).toMatchObject({ status: "cancelled", error: "cancelled_by_user" });
+    expect(detail?.job.finalText).not.toContain("stale interactive completion");
+    expect(detail?.attempts).toHaveLength(0);
   });
 
   it("retry requeues a cancelled job with a fresh workflow and fences the old lease", async () => {
@@ -1603,5 +2523,8 @@ function finishSliceArgs(args: { jobId: Id<"agentJobs">; leaseId: string; attemp
     inputTokens: 10,
     outputTokens: 5,
     costUsd: 0.0001,
+    costKind: "exact" as const,
+    modelCalls: 1,
+    toolCalls: 1,
   };
 }

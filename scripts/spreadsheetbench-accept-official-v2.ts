@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
+import { isSpreadsheetBenchOfficialV2AcceptedRefreshStatus } from "../src/eval/spreadsheetBenchOfficialV2Acceptance";
 
 type ProjectionReceipt = {
   schema?: number;
@@ -89,7 +90,7 @@ const projectedOutputs = new Set((projection.cases ?? []).map((item) => item.out
 const refreshRecords = refresh.records ?? [];
 if (projectedOutputs.size !== 321 || refreshRecords.length !== 321) throw new Error("projection/refresh output sets must each contain 321 files");
 for (const record of refreshRecords) {
-  if (!record.path || record.status !== "refreshed" || !/^[a-f0-9]{64}$/i.test(record.afterSha256 ?? "")) {
+  if (!record.path || !isSpreadsheetBenchOfficialV2AcceptedRefreshStatus(record.status) || !/^[a-f0-9]{64}$/i.test(record.afterSha256 ?? "")) {
     throw new Error(`invalid refresh record: ${String(record.path)}`);
   }
   const absolute = resolve(record.path);

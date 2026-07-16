@@ -35,6 +35,17 @@ export const passiveWorkflow = new WorkflowManager(components.passiveWorkflow, {
 
 const MAX_WORKFLOW_SLICES = 200;
 
+function requireSuccessfulSliceResult(result: unknown): void {
+  if (result && typeof result === "object" && (result as { ok?: unknown }).ok === true) return;
+  const candidate = result && typeof result === "object" ? result as { reason?: unknown; error?: unknown } : undefined;
+  const detail = typeof candidate?.reason === "string"
+    ? candidate.reason
+    : typeof candidate?.error === "string"
+      ? candidate.error
+      : "invalid_result";
+  throw new Error(`agent_slice_failed:${detail.slice(0, 1_000)}`);
+}
+
 export const freeAutoWorkflow = workflow.define({
   args: { jobId: v.id("agentJobs") },
   returns: v.null(),
@@ -47,7 +58,7 @@ export const freeAutoWorkflow = workflow.define({
   if (before.terminal) return null;
   const delayMs = Math.max(0, (before.nextRunAt ?? before.now) - before.now);
   if (delayMs > 0) await step.sleep(delayMs, { name: `free-auto-delay-${slice}` });
-  await step.runAction(internal.agentJobRunner.runFreeAutoJobSlice, { jobId }, { name: `free-auto-slice-${slice + 1}`, retry: false });
+  requireSuccessfulSliceResult(await step.runAction(internal.agentJobRunner.runFreeAutoJobSlice, { jobId }, { name: `free-auto-slice-${slice + 1}`, retry: false }));
   return null;
 });
 
@@ -61,7 +72,7 @@ export const passiveRoomWorkWorkflow = passiveWorkflow.define({
   if (before.terminal) return null;
   const delayMs = Math.max(0, (before.nextRunAt ?? before.now) - before.now);
   if (delayMs > 0) await step.sleep(delayMs, { name: `passive-delay-${slice}` });
-  await step.runAction(internal.agentJobRunner.runFreeAutoJobSlice, { jobId }, { name: `passive-slice-${slice + 1}`, retry: false });
+  requireSuccessfulSliceResult(await step.runAction(internal.agentJobRunner.runFreeAutoJobSlice, { jobId }, { name: `passive-slice-${slice + 1}`, retry: false }));
   return null;
 });
 

@@ -1,5 +1,5 @@
 import { providerNonRetryableReason } from "../guardrails/egressPolicy";
-import type { AgentMessage, AgentTool, ToolCall } from "../core/types";
+import type { AgentMessage, AgentTool, TokenUsage, ToolCall } from "../core/types";
 
 export const QUALITY_FAILOVER_SCHEMA = "nodeagent-quality-failover-v1" as const;
 export const QUALITY_FAILOVER_POLICY = "bounded_quality_failover_v1" as const;
@@ -148,6 +148,8 @@ export class QualityFailoverError extends Error {
     message: string,
     readonly receipt: QualityFailoverReceipt,
     cause?: unknown,
+    /** Provider usage already incurred before routing stopped without an accepted result. */
+    readonly usage?: TokenUsage,
   ) {
     super(message, cause === undefined ? undefined : { cause });
     this.name = "QualityFailoverError";
@@ -200,9 +202,10 @@ export interface QualityFailoverOptions<
     candidate: TCandidate,
   ) => ProviderFailureClassification;
   estimateCostUsd?: (candidate: TCandidate) => number;
+  /** Return undefined when provider usage is unavailable so the pre-call reservation remains charged. */
   measureCostUsd?: (
     context: QualityFailoverCostContext<TCandidate, TResult>,
-  ) => number;
+  ) => number | undefined;
   /** Receives provider and task-quality outcomes separately; use it to update existing health ledgers. */
   onRouteAttempt?: (
     attempt: Readonly<QualityFailoverRouteAttemptReceipt>,
@@ -220,6 +223,7 @@ type AttemptWork<TResult> =
   | { kind: "assessment_error"; result: TResult; error: unknown };
 
 type AttemptInterruptCause = "parent" | "time_budget" | "attempt_timeout";
+const INTERRUPTED_ATTEMPT_SETTLEMENT_GRACE_MS = 250;
 
 class AttemptInterruptedError extends Error {
   constructor(readonly cause: AttemptInterruptCause) {
@@ -370,7 +374,7 @@ export function classifyQualityFailoverProviderError(error: unknown): ProviderFa
   if (/\b(?:401|unauthori[sz]ed|invalid api key|authentication required)\b/i.test(detail)) {
     return globalProviderFailure("auth", "provider_auth_required", detail);
   }
-  if (/\b(?:402|insufficient credits?|(?:daily|monthly|global)?\s*quota (?:exhausted|exceeded))\b/i.test(detail)) {
+  if (/\b(?:402|insufficient credits?|(?:daily|monthly|global)?\s*quota (?:exhausted|exceeded)|free-models-per-day(?:-high-balance)?)\b/i.test(detail)) {
     return globalProviderFailure("quota", "provider_quota_exhausted", detail);
   }
   if (/\b(?:403|forbidden|content policy|policy violation|provider_(?:egress|route)_blocked)\b/i.test(detail)) {
@@ -569,11 +573,22 @@ export async function runQualityFailover<
       scope.dispose();
       if (!(error instanceof AttemptInterruptedError)) throw error;
 
+      // Aborting fetch/stream readers normally rejects the provider promise on
+      // the next turn. Give it a small bounded window so adapters can attach
+      // partial usage before we persist the timeout receipt. A provider that
+      // ignores AbortSignal still cannot hold the failover loop indefinitely.
+      const interruptedOutcome = await settleInterruptedAttempt(work);
+      const accountingError = interruptedOutcome?.kind === "provider_error"
+        ? interruptedOutcome.error
+        : interruptedOutcome?.kind === "assessment_error"
+          ? interruptedOutcome.error
+          : error;
+
       const costUsd = measureCost(options, {
         candidate,
         attempt,
         estimatedCostUsd,
-        error,
+        error: accountingError,
       });
       spentCostUsd = stableCost(spentCostUsd + costUsd);
       if (error.cause === "attempt_timeout") {
@@ -599,7 +614,7 @@ export async function runQualityFailover<
         });
         routeAttempts.push(attemptReceipt);
         await options.onRouteAttempt?.(attemptReceipt, candidate);
-        lastError = error;
+        lastError = accountingError;
         lastFailure = providerTerminalFailure(providerFailure);
         continue;
       }
@@ -620,7 +635,7 @@ export async function runQualityFailover<
       });
       routeAttempts.push(attemptReceipt);
       await options.onRouteAttempt?.(attemptReceipt, candidate);
-      lastError = error;
+      lastError = accountingError;
       return failed("blocked", stopReason, controlFailure(reason));
     }
     scope.dispose();
@@ -767,6 +782,22 @@ export async function runQualityFailover<
   return failed("exhausted", "candidates_exhausted", lastFailure ?? controlFailure("candidates_exhausted"));
 }
 
+async function settleInterruptedAttempt<TResult>(
+  work: Promise<AttemptWork<TResult>>,
+): Promise<AttemptWork<TResult> | undefined> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      work,
+      new Promise<undefined>((resolve) => {
+        timer = setTimeout(() => resolve(undefined), INTERRUPTED_ATTEMPT_SETTLEMENT_GRACE_MS);
+      }),
+    ]);
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
+  }
+}
+
 function validateOptions<TCandidate extends QualityFailoverCandidate, TResult>(
   options: QualityFailoverOptions<TCandidate, TResult>,
 ): {
@@ -834,9 +865,10 @@ function measureCost<TCandidate extends QualityFailoverCandidate, TResult>(
   options: QualityFailoverOptions<TCandidate, TResult>,
   context: QualityFailoverCostContext<TCandidate, TResult>,
 ): number {
-  const measured = options.measureCostUsd?.(context) ?? context.estimatedCostUsd;
-  assertNonNegativeFinite(measured, `measured cost for ${context.candidate.id}`);
-  return measured;
+  const measured = options.measureCostUsd?.(context);
+  const settled = measured === undefined ? context.estimatedCostUsd : measured;
+  assertNonNegativeFinite(settled, `measured cost for ${context.candidate.id}`);
+  return settled;
 }
 
 function classifyProviderFailure<TCandidate extends QualityFailoverCandidate, TResult>(

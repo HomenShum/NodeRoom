@@ -10,7 +10,7 @@
  * re-reads and retries. Same function backs hand-edits from the UI.
  */
 
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { internal } from "./_generated/api";
 import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
@@ -32,6 +32,7 @@ const MAX_ARTIFACT_TITLE_CHARS = 180;
 const MAX_ARTIFACT_SEED_ELEMENTS = 8_192;
 const MAX_ARTIFACT_SEED_BYTES = 5_000_000;
 const MAX_ELEMENT_ID_CHARS = 160;
+const MAX_ARTIFACT_EDIT_BUNDLE_EDITS = 64;
 const MAX_RAW_UPLOAD_BYTES = 25_000_000;
 const MAX_UPLOAD_FILE_NAME_CHARS = 240;
 const MAX_UPLOAD_MIME_CHARS = 200;
@@ -1086,6 +1087,78 @@ export const applyCellEdit = mutation({
     proof: actorProofV,
   },
   handler: async (ctx, a) => applyCellEditCore(ctx, { ...a, actor: await requireActorProof(ctx, a.roomId, a.proof) }),
+});
+
+/** Atomic UI edit bundle: every element CAS succeeds, or the transaction writes nothing. */
+export const applyArtifactEdits = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    edits: v.array(v.object({
+      opId: v.string(),
+      elementId: v.string(),
+      kind: v.union(v.literal("set"), v.literal("create"), v.literal("delete")),
+      value: v.any(),
+      baseVersion: v.number(),
+    })),
+    requester: actorProofV,
+  },
+  handler: async (ctx, a) => {
+    const actor = await requireActorProof(ctx, a.roomId, a.requester);
+    if (a.edits.length === 0 || a.edits.length > MAX_ARTIFACT_EDIT_BUNDLE_EDITS) {
+      throw new ConvexError({
+        code: "invalid_artifact_edit_bundle",
+        reason: "edit_count_out_of_bounds",
+        minimum: 1,
+        maximum: MAX_ARTIFACT_EDIT_BUNDLE_EDITS,
+        actual: a.edits.length,
+      });
+    }
+
+    const opIds = new Set<string>();
+    const elementIds = new Set<string>();
+    for (const edit of a.edits) {
+      if (opIds.has(edit.opId)) {
+        throw new ConvexError({ code: "invalid_artifact_edit_bundle", reason: "duplicate_op_id", opId: edit.opId });
+      }
+      if (elementIds.has(edit.elementId)) {
+        throw new ConvexError({ code: "invalid_artifact_edit_bundle", reason: "duplicate_element_id", elementId: edit.elementId });
+      }
+      opIds.add(edit.opId);
+      elementIds.add(edit.elementId);
+    }
+
+    const results: Array<{ opId: string; elementId: string; version: number }> = [];
+    for (const edit of a.edits) {
+      const result = await applyCellEditCore(ctx, {
+        roomId: a.roomId,
+        artifactId: a.artifactId,
+        elementId: edit.elementId,
+        kind: edit.kind,
+        value: edit.value,
+        baseVersion: edit.baseVersion,
+        actor,
+      });
+      if (!result.ok) {
+        throw new ConvexError({
+          code: "artifact_edit_bundle_rejected",
+          reason: result.reason,
+          opId: edit.opId,
+          elementId: edit.elementId,
+          ...result.reason === "conflict" ? { expected: result.expected, actual: result.actual } : {},
+          ...result.reason === "locked" ? { by: result.by } : {},
+          ...result.reason === "lease_expired" ? { lockId: result.lockId } : {},
+        });
+      }
+      results.push({ opId: edit.opId, elementId: edit.elementId, version: result.version });
+    }
+
+    const artifact = await ctx.db.get(a.artifactId);
+    if (!artifact || String(artifact.roomId) !== String(a.roomId)) {
+      throw new ConvexError({ code: "artifact_edit_bundle_rejected", reason: "artifact_missing_after_apply" });
+    }
+    return { ok: true as const, artifactVersion: artifact.version, results };
+  },
 });
 
 export const startAgentIntentConflictProof = mutation({

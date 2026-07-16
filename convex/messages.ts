@@ -69,13 +69,14 @@ type SendArgs = {
   text: string;
   clientMsgId: string;
   kind?: "chat" | "agent" | "system";
+  jobId?: Id<"agentJobs">;
 };
 
 async function sendCore(ctx: MutationCtx, a: SendArgs) {
     await requireActorCanUseChannel(ctx, a.roomId, a.author, a.channel);
     const existing = await ctx.db.query("messages").withIndex("by_clientMsgId", (q) => q.eq("roomId", a.roomId).eq("clientMsgId", a.clientMsgId)).unique();
     if (existing) return existing._id; // idempotent send
-    const messageId = await ctx.db.insert("messages", { roomId: a.roomId, channel: a.channel, author: a.author, text: a.text, clientMsgId: a.clientMsgId, kind: a.kind ?? "chat", createdAt: Date.now() });
+    const messageId = await ctx.db.insert("messages", { roomId: a.roomId, channel: a.channel, author: a.author, text: a.text, clientMsgId: a.clientMsgId, kind: a.kind ?? "chat", jobId: a.jobId, createdAt: Date.now() });
     // NodeMem recording (production wiring): a ROOM-VISIBLE chat message (channel "public") is recorded
     // as an episode so it stays recallable after it scrolls past the awareness window. PRIVATE messages
     // (channel = a member's ownerId) and system messages are excluded. Gated → a strict no-op unless

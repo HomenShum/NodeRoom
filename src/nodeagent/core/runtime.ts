@@ -4,7 +4,7 @@
  * becomes a re-read-and-retry instead of a silent overwrite.
  */
 
-import type { AgentModel, AgentTool, RoomTools, AgentResult, AgentMessage, AgentTraceEvent, AgentStopReason, AgentHandoff, ToolCall, AgentStep, ToolArgumentErrorResult } from "./types";
+import type { AgentModel, AgentTool, RoomTools, AgentResult, AgentMessage, AgentTraceEvent, AgentStopReason, AgentHandoff, ToolCall, AgentStep, ToolArgumentErrorResult, TokenUsage } from "./types";
 import { toolStreamEvidenceMetadata, type AgentStreamEventDraft } from "./stream";
 import type { StepJournal } from "./journal";
 import { checkSpendCeiling, type SpendLimits } from "../guardrails/gateway";
@@ -39,41 +39,94 @@ export class AgentRunError extends Error {
 }
 
 const DEFAULT_RESERVE_MS = 15_000;
+const ABORT_SETTLEMENT_GRACE_MS = 250;
 const BTB_PACKAGE_NUDGE = "BTB PACKAGE CONTRACT:";
 const BTB_PACKAGE_ONLY_AFTER_NUDGES = 1;
 const BTB_READ_TOOL_TURN_LIMIT = 24;
 export const TOOL_REQUIRED_NO_CALL_MARKER = "tool_required_no_call";
 export const TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER = "tool_required_no_call_terminal";
 const TOOL_REQUIRED_NO_CALL_TERMINAL_AFTER = 4;
+const DETERMINISTIC_TOOL_FAILURE_TERMINAL_AFTER = 4;
 
 function isAbortLike(error: unknown): boolean {
   return error instanceof Error && (error.name === "AbortError" || /aborted|abort/i.test(error.message));
 }
 
-function abortError(): Error {
+function abortError(): Error & { usage: TokenUsage } {
   const error = new Error("operation aborted by the NodeAgent time budget");
   error.name = "AbortError";
-  return error;
+  return Object.assign(error, {
+    // The provider adapter did not settle in the bounded grace period, so the
+    // only honest accounting is unknown/estimated. Do not emit an exact zero.
+    usage: {
+      inputTokens: 0,
+      outputTokens: 0,
+      modelCalls: 0,
+      costKind: "estimated" as const,
+    },
+  });
+}
+
+function providerFailureUsage(error: unknown): TokenUsage | undefined {
+  if (!error || typeof error !== "object") return undefined;
+  const usage = (error as { usage?: unknown }).usage;
+  if (!usage || typeof usage !== "object") return undefined;
+  const value = usage as Partial<TokenUsage>;
+  if (!Number.isFinite(value.inputTokens) || !Number.isFinite(value.outputTokens)) return undefined;
+  return {
+    inputTokens: Math.max(0, value.inputTokens ?? 0),
+    outputTokens: Math.max(0, value.outputTokens ?? 0),
+    cachedInputTokens: Math.max(0, value.cachedInputTokens ?? 0),
+    cacheCreationInputTokens: Math.max(0, value.cacheCreationInputTokens ?? 0),
+    modelCalls: Math.max(0, value.modelCalls ?? 0),
+    ...(Number.isFinite(value.costUsd) ? { costUsd: Math.max(0, value.costUsd ?? 0) } : {}),
+    ...(value.costKind === "exact" || value.costKind === "estimated" ? { costKind: value.costKind } : {}),
+  };
+}
+
+function providerSpendBudgetBlocked(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const receipt = (error as { receipt?: unknown }).receipt;
+  return !!receipt
+    && typeof receipt === "object"
+    && (receipt as { stopReason?: unknown }).stopReason === "spend_budget";
+}
+
+function requiredNoToolMissCount(messages: AgentMessage[]): number {
+  let max = 0;
+  const pattern = new RegExp(`${TOOL_REQUIRED_NO_CALL_MARKER}\\s+(\\d+)\\/${TOOL_REQUIRED_NO_CALL_TERMINAL_AFTER}`, "i");
+  for (const message of messages) {
+    if (message.role !== "user") continue;
+    const count = Number(message.content.match(pattern)?.[1] ?? 0);
+    if (Number.isFinite(count)) max = Math.max(max, count);
+  }
+  return max;
 }
 
 async function settleWithAbort<T>(promise: Promise<T>, signal?: AbortSignal): Promise<T> {
   if (!signal) return promise;
-  if (signal.aborted) throw abortError();
   return new Promise<T>((resolve, reject) => {
+    let graceTimer: ReturnType<typeof setTimeout> | undefined;
+    let settled = false;
+    const finish = (complete: () => void) => {
+      if (settled) return;
+      settled = true;
+      signal.removeEventListener("abort", onAbort);
+      if (graceTimer !== undefined) clearTimeout(graceTimer);
+      complete();
+    };
     const onAbort = () => {
       signal.removeEventListener("abort", onAbort);
-      reject(abortError());
+      // Fetch/stream adapters attach partial usage while unwinding an abort.
+      // Wait briefly for that richer failure before falling back to an honest
+      // estimated interruption; the grace remains inside the persistence reserve.
+      graceTimer = setTimeout(() => finish(() => reject(abortError())), ABORT_SETTLEMENT_GRACE_MS);
     };
-    signal.addEventListener("abort", onAbort, { once: true });
+    if (signal.aborted) onAbort();
+    else signal.addEventListener("abort", onAbort, { once: true });
     promise.then(
-      (value) => {
-        signal.removeEventListener("abort", onAbort);
-        resolve(value);
-      },
-      (error) => {
-        signal.removeEventListener("abort", onAbort);
-        reject(error);
-      },
+      (value) => finish(() => resolve(value)),
+      (error) => finish(() => reject(error)),
     );
   });
 }
@@ -83,6 +136,63 @@ function toolResultFailed(result: unknown): boolean {
   const object = result as Record<string, unknown>;
   if (object.pendingApproval === true) return false;
   return object.ok === false || typeof object.error === "string";
+}
+
+function deterministicToolFailureKey(toolName: string, result: unknown): string | undefined {
+  if (!result || typeof result !== "object" || Array.isArray(result)) return undefined;
+  const value = result as Record<string, unknown>;
+  const error = typeof value.error === "string" ? value.error : undefined;
+  if (error !== "tool_blocked" && error !== "tool_argument_error") return undefined;
+  const failureKind = typeof value.failureKind === "string" ? value.failureKind : "unknown";
+  const reason = typeof value.reason === "string" ? value.reason : "";
+  const workflowStage = reason.match(/verified_workbook_workflow:([^:]+):/i)?.[1];
+  const reasonKey = workflowStage ? `verified_workbook_workflow:${workflowStage}` : reason.slice(0, 300);
+  return JSON.stringify([toolName, error, failureKind, reasonKey]);
+}
+
+const SCHEMA_PLACEHOLDER_STRINGS = new Set(["string", "<string>"]);
+
+function schemaPlaceholderArgumentPaths(value: unknown): string[] | null {
+  const stringLeaves: Array<{ path: string; value: string }> = [];
+
+  const visit = (current: unknown, path: string): void => {
+    if (typeof current === "string") {
+      if (current.trim().length > 0) stringLeaves.push({ path: path || "$", value: current });
+      return;
+    }
+    if (Array.isArray(current)) {
+      current.forEach((item, index) => visit(item, `${path}[${index}]`));
+      return;
+    }
+    if (!current || typeof current !== "object") return;
+    for (const [key, item] of Object.entries(current)) {
+      visit(item, path ? `${path}.${key}` : key);
+    }
+  };
+
+  visit(value, "");
+  if (stringLeaves.length === 0 || stringLeaves.some((leaf) => !SCHEMA_PLACEHOLDER_STRINGS.has(leaf.value))) {
+    return null;
+  }
+  return stringLeaves.map((leaf) => leaf.path);
+}
+
+function schemaPlaceholderArgumentResult(toolName: string, paths: string[]) {
+  return {
+    ok: false,
+    error: "tool_argument_error",
+    failureKind: "schema_placeholder_arguments",
+    missingRequiredArgs: [],
+    issues: paths.map((path) => ({
+      path,
+      code: "schema_placeholder_arguments",
+      message: "Replace the schema placeholder with a real task-specific value.",
+    })),
+    recovery: {
+      action: "retry_tool_call",
+      instruction: `Retry ${toolName} with real task-specific argument values instead of schema placeholders such as \"string\" or \"<string>\".`,
+    },
+  };
 }
 
 function toolArgumentErrorResult(toolName: string, issues: Array<{ path: PropertyKey[]; code: string; message: string }>): ToolArgumentErrorResult {
@@ -311,10 +421,6 @@ function countUserNotes(messages: AgentMessage[], prefix: string): number {
   return messages.filter((message) => message.role === "user" && message.content?.startsWith(prefix)).length;
 }
 
-function countUserNotesContaining(messages: AgentMessage[], text: string): number {
-  return messages.filter((message) => message.role === "user" && message.content?.includes(text)).length;
-}
-
 function countToolResults(messages: AgentMessage[], toolNames: Set<string>, outcome: "success" | "failure"): number {
   let count = 0;
   for (const message of messages) {
@@ -431,7 +537,8 @@ export async function runAgent(opts: {
   const messages: AgentMessage[] = [];
   const trace: AgentTraceEvent[] = [];
   let finalText = "";
-  let inputTokens = 0, outputTokens = 0, modelCalls = 0, costUsd = 0, cachedInputTokens = 0;
+  let inputTokens = 0, outputTokens = 0, modelCalls = 0, costUsd = 0, cachedInputTokens = 0, cacheCreationInputTokens = 0;
+  let costKind: "exact" | "estimated" = "exact";
   let attemptedSteps = 0;
   // P1-3: tool calls not yet executed in the current turn — preserved on an error handoff so the
   // resume cursor never carries unpaired assistant tool_use blocks.
@@ -464,6 +571,24 @@ export async function runAgent(opts: {
     now,
   });
   const shouldHandoffForTime = () => deadlineAt !== undefined && now() + reserveMs >= deadlineAt;
+  const recordModelUsage = (usage: TokenUsage | undefined) => {
+    modelCalls += usage?.modelCalls === undefined ? 1 : Math.max(0, usage.modelCalls);
+    if (!usage) {
+      costKind = "estimated";
+      return;
+    }
+    inputTokens += usage.inputTokens;
+    outputTokens += usage.outputTokens;
+    cachedInputTokens += usage.cachedInputTokens ?? 0;
+    cacheCreationInputTokens += usage.cacheCreationInputTokens ?? 0;
+    if (usage.costUsd !== undefined) {
+      costUsd += usage.costUsd;
+      if (usage.costKind === "estimated") costKind = "estimated";
+      return;
+    }
+    costUsd += opts.priceStep?.(model.name, usage.inputTokens, usage.outputTokens) ?? 0;
+    costKind = "estimated";
+  };
   const emitStreamEvent = (event: AgentStreamEventDraft) => {
     try {
       const result = opts.onStreamEvent?.({ createdAt: now(), ...event });
@@ -512,17 +637,33 @@ export async function runAgent(opts: {
     budget: budget(attempted),
     trace,
     messages,
-    usage: { inputTokens, outputTokens, modelCalls, cachedInputTokens },
+    usage: { inputTokens, outputTokens, modelCalls, cachedInputTokens, cacheCreationInputTokens, costUsd, costKind },
+    modelRouteState: model.routeState?.(),
   });
+  const discardPendingAssistantToolCalls = (calls: ToolCall[]) => {
+    if (calls.length === 0) return;
+    const pendingIds = new Set(calls.map((call) => call.id));
+    for (let index = messages.length - 1; index >= 0; index -= 1) {
+      const message = messages[index];
+      if (message.role !== "assistant" || !message.toolCalls?.some((call) => pendingIds.has(call.id))) continue;
+      const retainedCalls = message.toolCalls.filter((call) => !pendingIds.has(call.id));
+      if (retainedCalls.length === 0 && !message.content.trim()) messages.splice(index, 1);
+      else message.toolCalls = retainedCalls.length > 0 ? retainedCalls : undefined;
+      return;
+    }
+  };
   const emitHandoff = (
     step: number,
     reason: Exclude<AgentStopReason, "done">,
     attempted: number,
     remainingToolCalls: ToolCall[] = [],
     customSummary?: string,
+    terminalReason?: AgentHandoff["terminalReason"],
   ) => {
-    const handoff = makeHandoff(reason, attempted, remainingToolCalls);
+    if (terminalReason) discardPendingAssistantToolCalls(remainingToolCalls);
+    const handoff = makeHandoff(reason, attempted, terminalReason ? [] : remainingToolCalls);
     if (customSummary) handoff.summary = customSummary;
+    if (terminalReason) handoff.terminalReason = terminalReason;
     const ev: AgentTraceEvent = { step, tool: "handoff", args: { reason, deadlineAt, reserveMs }, result: handoff, ms: 0 };
     trace.push(ev);
     opts.onTrace?.(ev);
@@ -532,7 +673,7 @@ export async function runAgent(opts: {
       status: "skipped",
       title: "Agent paused",
       text: handoff.summary,
-      metadata: { reason, remainingToolCalls: remainingToolCalls.length },
+      metadata: { reason, remainingToolCalls: handoff.remainingToolCalls.length, terminalReason },
     });
     opts.onHandoff?.(handoff);
     return handoff;
@@ -584,18 +725,23 @@ export async function runAgent(opts: {
       const parsed = tool.schema.safeParse(activeCall.args);
       try {
         if (parsed.success) {
-          const coverageFailure = btbPackageCoverageFailure(goal, activeCall.tool, parsed.data);
-          if (coverageFailure) {
-            result = coverageFailure;
+          const placeholderPaths = schemaPlaceholderArgumentPaths(parsed.data);
+          if (placeholderPaths) {
+            result = schemaPlaceholderArgumentResult(activeCall.tool, placeholderPaths);
           } else {
-            const signal = modelSignal();
-            try {
-              result = await settleWithAbort(tool.execute(parsed.data, rt, {
-                signal: signal.signal,
-                deadlineAt: deadlineAt === undefined ? undefined : deadlineAt - reserveMs,
-              }), signal.signal);
-            } finally {
-              signal.cancel();
+            const coverageFailure = btbPackageCoverageFailure(goal, activeCall.tool, parsed.data);
+            if (coverageFailure) {
+              result = coverageFailure;
+            } else {
+              const signal = modelSignal();
+              try {
+                result = await settleWithAbort(tool.execute(parsed.data, rt, {
+                  signal: signal.signal,
+                  deadlineAt: deadlineAt === undefined ? undefined : deadlineAt - reserveMs,
+                }), signal.signal);
+              } finally {
+                signal.cancel();
+              }
             }
           }
         } else {
@@ -684,11 +830,18 @@ export async function runAgent(opts: {
   // Goal-progress accounting for the two harness guards (read-loop breaker + done-without-writes
   // bounce). Counts WRITE-intent tool calls across the whole run; each guard fires at most once.
   const WRITE_TOOLS = new Set(["edit_cell", "create_draft", "update_wiki", "append_notebook_outline", "write_cell_result", "write_locked_cell", "write_locked_cell_result", "write_locked_cells", "write_locked_cell_results", "execute_verified_workbook_plan", "create_btb_deliverable_package"]);
+  const READ_TOOLS = new Set(["list_artifacts", "read_range", "search_sheet_context", "inspect_workbook", "fetch_source", "source_open", "source_open_literal"]);
+  const REQUIRED_GATE_READ_TOOLS = new Set(["inspect_workbook"]);
   let writeCalls = 0;
   let lockCalls = 0;
   let readNudged = false;
   let doneNudged = false;
   let requiredNoToolNudges = 0;
+  let preWriteSayCalls = 0;
+  let preWriteReadCalls = 0;
+  let readToolsWithheldNoted = false;
+  let deterministicFailureKey: string | undefined;
+  let deterministicFailureCount = 0;
   const managedWriteToolsAvailable = tools.some((tool) => tool.name.startsWith("write_locked_cell"));
   const btbPackageToolAvailable = tools.some((tool) => tool.name === "create_btb_deliverable_package");
   const btbPackageTools = new Set(["create_btb_deliverable_package"]);
@@ -714,8 +867,11 @@ export async function runAgent(opts: {
     if (messages.length) {
       writeCalls = countToolResults(messages, WRITE_TOOLS, "success");
       lockCalls = countToolCalls(messages, new Set(["propose_lock"]));
+      preWriteSayCalls = writeCalls === 0 ? countToolResults(messages, new Set(["say"]), "success") : 0;
+      preWriteReadCalls = writeCalls === 0 ? countToolResults(messages, READ_TOOLS, "success") : 0;
       readNudged = countUserNotes(messages, "HARNESS NOTE: every tool call so far has been a read.") > 0;
-      requiredNoToolNudges = countUserNotesContaining(messages, TOOL_REQUIRED_NO_CALL_MARKER);
+      readToolsWithheldNoted = countUserNotes(messages, "HARNESS NOTE: the pre-write read budget is exhausted.") > 0;
+      requiredNoToolNudges = requiredNoToolMissCount(messages);
       doneNudged = countUserNotes(messages, "HARNESS NOTE: the user asked for a write/fill/update") > 0
         || countUserNotes(messages, "HARNESS NOTE: the user asked for a BTB deliverable package") > 0
         || countUserNotes(messages, "HARNESS NOTE: this run cannot be complete") > 0
@@ -772,8 +928,14 @@ export async function runAgent(opts: {
       const packageOnlyTools = goalRequiresPackage && btbPackageSuccesses === 0 && btbPackageNudges >= BTB_PACKAGE_ONLY_AFTER_NUDGES
         ? tools.filter((tool) => btbPackageTools.has(tool.name))
         : tools;
-      const packageOnlyMode = packageOnlyTools.length > 0 && packageOnlyTools.every((tool) => btbPackageTools.has(tool.name));
-      const offeredTools = packageOnlyTools.length ? packageOnlyTools : tools;
+      const withholdReads = goalRequiresWrite && writeCalls === 0 && readNudged && preWriteReadCalls >= 5;
+      const writeProgressTools = goalRequiresWrite && writeCalls === 0
+        ? packageOnlyTools.filter((tool) =>
+            !(preWriteSayCalls > 0 && tool.name === "say")
+            && !(withholdReads && ((READ_TOOLS.has(tool.name) && !REQUIRED_GATE_READ_TOOLS.has(tool.name)) || tool.name === "say")))
+        : packageOnlyTools;
+      const packageOnlyMode = writeProgressTools.length > 0 && writeProgressTools.every((tool) => btbPackageTools.has(tool.name));
+      const offeredTools = writeProgressTools.length ? writeProgressTools : tools;
       const requiresToolThisTurn = offeredTools.length > 0 && (
         (goalRequiresPackage && btbPackageSuccesses === 0)
         || (goalRequiresWrite && writeCalls === 0)
@@ -782,6 +944,11 @@ export async function runAgent(opts: {
       let out: AgentStep;
       if (cached) {
         out = cached;
+        // A replay makes no new provider request, but it must rematerialize the
+        // original request's usage in the slice result. Otherwise a crash after
+        // the journal commit but before the final checkpoint permanently loses
+        // calls, tokens, and cost from the durable run/job accounting.
+        recordModelUsage(cached.usage);
       } else {
         // Gateway spend ceiling — stop before a billable call once the per-run token OR dollar cap
         // is hit (resumable). costUsd accumulates via opts.priceStep (P0-4: previously hardcoded 0,
@@ -810,8 +977,17 @@ export async function runAgent(opts: {
             signal: signal.signal,
             onTextDelta: opts.onTextDelta ? (text) => opts.onTextDelta?.(text, step) : undefined,
             toolChoice: requiresToolThisTurn ? "required" : "auto",
+            maxCostUsd: opts.spendLimits?.maxCostUsd === undefined
+              ? undefined
+              : Math.max(0, opts.spendLimits.maxCostUsd - costUsd),
           }), signal.signal);
         } catch (error) {
+          const failedUsage = providerFailureUsage(error);
+          if (failedUsage) recordModelUsage(failedUsage);
+          if (providerSpendBudgetBlocked(error)) {
+            const handoff = emitHandoff(step, "spend_budget", attemptedSteps);
+            return finish("spend_budget", attemptedSteps, true, handoff);
+          }
           if (signal.signal?.aborted || (shouldHandoffForTime() && isAbortLike(error))) {
             const handoff = emitHandoff(step, "time_budget", attemptedSteps);
             return finish("time_budget", attemptedSteps, true, handoff);
@@ -820,14 +996,11 @@ export async function runAgent(opts: {
         } finally {
           signal.cancel();
         }
+        // Capture provider usage before the durable journal write. A lease can expire after the
+        // response arrives but before persistence; that call still happened and must survive in
+        // the partial receipt even when the fenced journal rejects the write.
+        recordModelUsage(fresh.usage);
         await opts.journal?.record(step, fresh);
-        modelCalls++; // count + bill ONLY a real model call (a replayed step was already billed)
-        if (fresh.usage) {
-          inputTokens += fresh.usage.inputTokens;
-          outputTokens += fresh.usage.outputTokens;
-          cachedInputTokens += fresh.usage.cachedInputTokens ?? 0;
-          costUsd += opts.priceStep?.(model.name, fresh.usage.inputTokens, fresh.usage.outputTokens) ?? 0;
-        }
         out = fresh;
       }
       if (out.text) finalText = out.text;
@@ -848,7 +1021,7 @@ export async function runAgent(opts: {
         const hasFinalText = !!(out.text?.trim() || finalText.trim());
         const stillNeedsWrite = (goalRequiresWrite && writeCalls === 0) || (goalRequiresPackage && btbPackageSuccesses === 0);
         const noRequiredToolCall = requiresToolThisTurn && out.toolCalls.length === 0;
-        if (noRequiredToolCall && (doneNudged || packageOnlyMode)) {
+        if (noRequiredToolCall) {
           if (out.text) messages.push({ role: "assistant", content: out.text });
           requiredNoToolNudges += 1;
           messages.push({
@@ -863,15 +1036,24 @@ export async function runAgent(opts: {
             text: "Provider returned no tool call during a required-write turn; NodeAgent refreshed the instruction and preserved the trace for the next slice.",
             metadata: { requiredNoToolNudges, requiredAfter: TOOL_REQUIRED_NO_CALL_TERMINAL_AFTER, goalRequiresPackage, goalRequiresWrite },
           });
-          if (requiredNoToolNudges < TOOL_REQUIRED_NO_CALL_TERMINAL_AFTER && step < maxSteps - 1) {
-            continue;
+          if (requiredNoToolNudges < TOOL_REQUIRED_NO_CALL_TERMINAL_AFTER) {
+            if (step < maxSteps - 1) continue;
+            const handoff = emitHandoff(
+              step + 1,
+              "step_budget",
+              step + 1,
+              [],
+              `NodeAgent checkpointed after ${requiredNoToolNudges}/${TOOL_REQUIRED_NO_CALL_TERMINAL_AFTER} required-tool misses; the next slice must continue from this protocol state.`,
+            );
+            return finish("step_budget", step + 1, true, handoff);
           }
           const handoff = emitHandoff(
             step + 1,
             "step_budget",
             step + 1,
             [],
-            `required tool call missing after ${requiredNoToolNudges} required tool-use turn${requiredNoToolNudges === 1 ? "" : "s"}; checkpointed with a narrowed instruction so the next slice can force the required ${goalRequiresPackage ? "deliverable package tool" : "write tool"}.`,
+            `NodeAgent stopped: required tool call missing after ${requiredNoToolNudges} required tool-use turn${requiredNoToolNudges === 1 ? "" : "s"}. Retry with a different model route or corrected provider configuration.`,
+            "protocol_stall",
           );
           return finish("step_budget", step + 1, true, handoff);
         }
@@ -925,6 +1107,7 @@ export async function runAgent(opts: {
       let toolCallsForTurn = out.toolCalls;
       let truncatedBtbToolCalls = 0;
       let failedBtbPackageThisTurn = false;
+      let preWriteSayThisTurn = false;
       if (goalRequiresPackage && btbPackageSuccesses === 0) {
         const packageCalls = out.toolCalls.filter((call) => btbPackageTools.has(call.tool));
         if (packageCalls.length > 0 && packageCalls.length < out.toolCalls.length) {
@@ -960,6 +1143,7 @@ export async function runAgent(opts: {
         pendingToolCalls = toolCallsForTurn.slice(callIndex + 1);
         const result = await executeCall(call, step);
         if (WRITE_TOOLS.has(call.tool) && !toolResultFailed(result)) writeCalls++;
+        if (READ_TOOLS.has(call.tool) && !toolResultFailed(result) && writeCalls === 0) preWriteReadCalls += 1;
         if (btbPackageTools.has(call.tool)) {
           if (toolResultFailed(result)) {
             btbPackageFailures++;
@@ -970,8 +1154,42 @@ export async function runAgent(opts: {
             finalText = btbPackageCompletionText(goal, call.args, result) ?? finalText;
           }
         }
+        const failureKey = deterministicToolFailureKey(call.tool, result);
+        if (failureKey) {
+          if (failureKey === deterministicFailureKey) deterministicFailureCount += 1;
+          else {
+            deterministicFailureKey = failureKey;
+            deterministicFailureCount = 1;
+          }
+        } else {
+          deterministicFailureKey = undefined;
+          deterministicFailureCount = 0;
+        }
+        if (deterministicFailureCount >= DETERMINISTIC_TOOL_FAILURE_TERMINAL_AFTER) {
+          emitStreamEvent({
+            kind: "warning",
+            step,
+            status: "failed",
+            title: "Repeated tool failure",
+            text: `NodeAgent stopped after ${deterministicFailureCount} identical deterministic tool failures.`,
+            metadata: { tool: call.tool, deterministicFailureCount },
+          });
+          const handoff = emitHandoff(
+            step + 1,
+            "step_budget",
+            step + 1,
+            pendingToolCalls,
+            `NodeAgent stopped after ${deterministicFailureCount} identical deterministic failures from ${call.tool}. Retry with corrected arguments, a corrected approved plan, or a different model route.`,
+            "protocol_stall",
+          );
+          return finish("step_budget", step + 1, true, handoff);
+        }
         if (call.tool === "say" && !toolResultFailed(result)) {
           finalText = sayTextFromArgs(call.args) ?? finalText;
+          if (goalRequiresWrite && writeCalls === 0) {
+            preWriteSayCalls += 1;
+            preWriteSayThisTurn = true;
+          }
           if (pendingToolCalls.length === 0 && !goalRequiresWrite && !goalRequiresPackage) {
             const doneResult = await finishDoneOrContinue(step, step + 1, {
               proposedStopReason: "done",
@@ -984,6 +1202,19 @@ export async function runAgent(opts: {
         }
       }
       pendingToolCalls = [];
+      if (preWriteSayThisTurn && writeCalls === 0) {
+        messages.push({
+          role: "user",
+          content: `HARNESS NOTE: status/chat output does not satisfy this write-required task. The say tool is now withheld until artifact progress is made. ${finishWriteInstruction}`,
+        });
+      }
+      if (goalRequiresWrite && writeCalls === 0 && readNudged && preWriteReadCalls >= 5 && !readToolsWithheldNoted) {
+        readToolsWithheldNoted = true;
+        messages.push({
+          role: "user",
+          content: `HARNESS NOTE: the pre-write read budget is exhausted. Broad read/search tools are withheld for the next turn; use the workbook evidence already in context to preflight and perform the required write. ${finishWriteInstruction}`,
+        });
+      }
 
       // Read-loop breaker: 3+ full turns of pure reads with no lock/write yet → ONE steering note,
       // appended AFTER this turn's tool results so the tool_use/tool_result pairing stays intact.

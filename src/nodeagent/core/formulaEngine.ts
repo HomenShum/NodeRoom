@@ -8,8 +8,8 @@
  *
  * Supports: numbers, "strings", TRUE/FALSE, trailing %, ( ); operators + - * / ^, unary +/-,
  * comparisons = <> < > <= >=; A1 refs (A1, $A$1) and ranges (A1:B3); and the finance-core
- * functions SUM AVERAGE MIN MAX COUNT COUNTA IF AND OR NOT ROUND ROUNDUP ROUNDDOWN ABS SQRT
- * CONCAT CONCATENATE. (Reuses the look-and-feel of the bench evaluator in spreadsheetBenchRunner.ts
+ * functions SUM AVERAGE MEDIAN MIN MAX COUNT COUNTA IF AND OR NOT ROUND ROUNDUP ROUNDDOWN ABS SQRT
+ * CONCAT CONCATENATE TEXT. (Reuses the look-and-feel of the bench evaluator in spreadsheetBenchRunner.ts
  * but is independently implemented for the browser; extend the function set as needed.)
  */
 
@@ -110,7 +110,7 @@ function tokenize(src: string): Tok[] {
     }
     const two = src.slice(i, i + 2);
     if (TWO_CHAR_OPS.has(two)) { toks.push({ t: "op", v: two }); i += 2; continue; }
-    if ("+-*/^(),:%<>=".includes(ch)) { toks.push({ t: "op", v: ch }); i++; continue; }
+    if ("+-*/^(),:%<>={}".includes(ch)) { toks.push({ t: "op", v: ch }); i++; continue; }
     throw new FormulaEvalError("#ERROR!"); // unrecognized character
   }
   return toks;
@@ -121,6 +121,7 @@ type Node =
   | { k: "num"; v: number }
   | { k: "str"; v: string }
   | { k: "bool"; v: boolean }
+  | { k: "array"; values: Node[] }
   | { k: "ref"; v: string }
   | { k: "range"; a: string; b: string }
   | { k: "bin"; op: string; l: Node; r: Node }
@@ -177,6 +178,12 @@ class Parser {
     const t = this.next();
     if (t.t === "num") { const v = Number(t.v); if (!Number.isFinite(v)) throw new FormulaEvalError("#ERROR!"); return { k: "num", v }; }
     if (t.t === "str") return { k: "str", v: t.v };
+    if (t.t === "op" && t.v === "{") {
+      const values: Node[] = [this.compare()];
+      while (this.isOp(",")) { this.next(); values.push(this.compare()); }
+      this.eat("}");
+      return { k: "array", values };
+    }
     if (t.t === "op" && t.v === "(") { const e = this.compare(); this.eat(")"); return e; }
     if (t.t === "id") {
       const up = t.v.toUpperCase();
@@ -208,10 +215,10 @@ class Parser {
 
 /* evaluator */
 const SUPPORTED = new Set([
-  "SUM", "AVERAGE", "MIN", "MAX", "COUNT", "COUNTA", "IF", "AND", "OR", "NOT",
+  "SUM", "AVERAGE", "MEDIAN", "MIN", "MAX", "COUNT", "COUNTA", "IF", "AND", "OR", "NOT",
   "ROUND", "ROUNDUP", "ROUNDDOWN", "ABS", "SQRT", "CONCAT", "CONCATENATE",
   "SUMIF", "COUNTIF", "AVERAGEIF", "VLOOKUP", "INDEX", "MATCH", "IFERROR",
-  "MOD", "POWER", "LEN", "LEFT", "RIGHT", "MID", "TRIM", "UPPER", "LOWER",
+  "MOD", "POWER", "LEN", "LEFT", "RIGHT", "MID", "TRIM", "UPPER", "LOWER", "TEXT",
 ]);
 
 /** Coerce a value to a number for ARITHMETIC (blank -> 0, numeric string -> number, else #VALUE!). */
@@ -245,11 +252,14 @@ function aggNumber(v: CellValue): number | null {
   return null; // booleans & blanks ignored by SUM/AVERAGE/etc.
 }
 
-function evalScalar(n: Node, R: CellResolver): CellValue {
+type EvalValue = CellValue | CellValue[];
+
+function evalValue(n: Node, R: CellResolver): EvalValue {
   switch (n.k) {
     case "num": return n.v;
     case "str": return n.v;
     case "bool": return n.v;
+    case "array": return n.values.map((value) => evalScalar(value, R));
     case "ref": return R.getCell(normalizeRef(n.v));
     case "range": throw new FormulaEvalError("#VALUE!"); // a bare range is not a scalar
     case "pct": return toNumber(evalScalar(n.e, R)) / 100;
@@ -257,6 +267,12 @@ function evalScalar(n: Node, R: CellResolver): CellValue {
     case "bin": return evalBin(n, R);
     case "call": return evalCall(n, R);
   }
+}
+
+function evalScalar(n: Node, R: CellResolver): CellValue {
+  const value = evalValue(n, R);
+  if (Array.isArray(value)) throw new FormulaEvalError("#VALUE!");
+  return value;
 }
 
 function evalBin(n: { op: string; l: Node; r: Node }, R: CellResolver): CellValue {
@@ -311,7 +327,8 @@ function truthy(v: CellValue): boolean {
 /** Flatten a function arg into a list of values (a range expands; everything else is one value). */
 function argValues(n: Node, R: CellResolver): CellValue[] {
   if (n.k === "range") return expandRange(n.a, n.b).map((ref) => R.getCell(ref));
-  return [evalScalar(n, R)];
+  const value = evalValue(n, R);
+  return Array.isArray(value) ? value : [value];
 }
 function aggNumbers(args: Node[], R: CellResolver): number[] {
   const out: number[] = [];
@@ -359,12 +376,63 @@ function matchesCriteria(value: CellValue, criteria: CellValue): boolean {
   return looseEqual(value, criteria);
 }
 
-function evalCall(n: { name: string; args: Node[] }, R: CellResolver): CellValue {
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+function excelDateParts(serial: number): { day: number; month: number; year: number; weekday: string } {
+  const wholeDays = Math.trunc(serial);
+  if (!Number.isFinite(serial) || wholeDays < 0) throw new FormulaEvalError("#VALUE!");
+  const weekdayIndex = ((wholeDays - 1) % 7 + 7) % 7;
+  const weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][weekdayIndex];
+  if (wholeDays === 60) return { day: 29, month: 2, year: 1900, weekday };
+  const epoch = wholeDays < 60 ? Date.UTC(1899, 11, 31) : Date.UTC(1899, 11, 30);
+  const date = new Date(epoch + wholeDays * MS_PER_DAY);
+  if (Number.isNaN(date.getTime())) throw new FormulaEvalError("#VALUE!");
+  return {
+    day: date.getUTCDate(),
+    month: date.getUTCMonth() + 1,
+    year: date.getUTCFullYear(),
+    weekday,
+  };
+}
+
+function formatExcelDateSerial(serial: number, format: string): string {
+  const parts = excelDateParts(serial);
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const replacements: Record<string, string> = {
+    dddd: parts.weekday,
+    ddd: parts.weekday.slice(0, 3),
+    dd: String(parts.day).padStart(2, "0"),
+    d: String(parts.day),
+    mmmm: monthNames[parts.month - 1],
+    mmm: monthNames[parts.month - 1].slice(0, 3),
+    mm: String(parts.month).padStart(2, "0"),
+    m: String(parts.month),
+    yyyy: String(parts.year).padStart(4, "0"),
+    yy: String(parts.year % 100).padStart(2, "0"),
+  };
+  const unsupported = format.replace(/dddd|ddd|dd|d|mmmm|mmm|mm|m|yyyy|yy/gi, "");
+  if (/[a-z]/i.test(unsupported)) throw new FormulaEvalError("#UNSUPPORTED!");
+  let matched = false;
+  const rendered = format.replace(/dddd|ddd|dd|d|mmmm|mmm|mm|m|yyyy|yy/gi, (token) => {
+    matched = true;
+    return replacements[token.toLowerCase()];
+  });
+  if (!matched) throw new FormulaEvalError("#UNSUPPORTED!");
+  return rendered;
+}
+
+function evalCall(n: { name: string; args: Node[] }, R: CellResolver): EvalValue {
   const fn = n.name;
   if (!SUPPORTED.has(fn)) throw new FormulaEvalError("#NAME?");
   switch (fn) {
     case "SUM": return round12(aggNumbers(n.args, R).reduce((s, x) => s + x, 0));
     case "AVERAGE": { const xs = aggNumbers(n.args, R); if (xs.length === 0) throw new FormulaEvalError("#DIV/0!"); return round12(xs.reduce((s, x) => s + x, 0) / xs.length); }
+    case "MEDIAN": {
+      const xs = aggNumbers(n.args, R).sort((a, b) => a - b);
+      if (xs.length === 0) throw new FormulaEvalError("#NUM!");
+      const middle = Math.floor(xs.length / 2);
+      return xs.length % 2 === 1 ? xs[middle] : round12((xs[middle - 1] + xs[middle]) / 2);
+    }
     case "MIN": { const xs = aggNumbers(n.args, R); return xs.length ? Math.min(...xs) : 0; }
     case "MAX": { const xs = aggNumbers(n.args, R); return xs.length ? Math.max(...xs) : 0; }
     case "COUNT": return aggNumbers(n.args, R).length;
@@ -408,15 +476,18 @@ function evalCall(n: { name: string; args: Node[] }, R: CellResolver): CellValue
     case "VLOOKUP": {
       const lookup = evalScalar(n.args[0], R);
       const table = rangeGrid(n.args[1], R);
-      const colIdx = Math.trunc(toNumber(evalScalar(n.args[2], R)));
+      const colArg = evalValue(n.args[2], R);
+      const returnsArray = Array.isArray(colArg);
+      const colIndices = (returnsArray ? colArg : [colArg]).map((value) => Math.trunc(toNumber(value)));
       const approx = n.args[3] ? truthy(evalScalar(n.args[3], R)) : true;
-      if (table.length === 0 || colIdx < 1 || colIdx > table[0].length) throw new FormulaEvalError("#REF!");
-      if (!approx) { for (const row of table) if (looseEqual(row[0], lookup)) return row[colIdx - 1]; throw new FormulaEvalError("#N/A"); }
+      if (table.length === 0 || colIndices.some((colIdx) => colIdx < 1 || colIdx > table[0].length)) throw new FormulaEvalError("#REF!");
+      const project = (row: CellValue[]): EvalValue => returnsArray ? colIndices.map((colIdx) => row[colIdx - 1]) : row[colIndices[0] - 1];
+      if (!approx) { for (const row of table) if (looseEqual(row[0], lookup)) return project(row); throw new FormulaEvalError("#N/A"); }
       const ln = toNum(lookup);
       let best = -1;
       for (let i = 0; i < table.length; i++) { const cn = toNum(table[i][0]); if (cn !== null && ln !== null) { if (cn <= ln) best = i; else break; } }
       if (best < 0) throw new FormulaEvalError("#N/A");
-      return table[best][colIdx - 1];
+      return project(table[best]);
     }
     case "INDEX": {
       const grid = rangeGrid(n.args[0], R);
@@ -453,6 +524,10 @@ function evalCall(n: { name: string; args: Node[] }, R: CellResolver): CellValue
     case "TRIM": return String(evalScalar(n.args[0], R) ?? "").trim().replace(/\s+/g, " ");
     case "UPPER": return String(evalScalar(n.args[0], R) ?? "").toUpperCase();
     case "LOWER": return String(evalScalar(n.args[0], R) ?? "").toLowerCase();
+    case "TEXT": {
+      if (n.args.length !== 2) throw new FormulaEvalError("#ERROR!");
+      return formatExcelDateSerial(toNumber(evalScalar(n.args[0], R)), String(evalScalar(n.args[1], R) ?? ""));
+    }
   }
   throw new FormulaEvalError("#NAME?");
 }

@@ -26,6 +26,49 @@ describe("workbook task intelligence", () => {
     expect(references.find((reference) => reference.start === "J15")?.role).toBe("target");
   });
 
+  it("ignores quarter labels and A1-shaped fragments of opaque artifact ids", () => {
+    const references = extractWorkbookTaskReferences(
+      "Inspect Q1, Q2, Q3, and Q4 performance for artifact j578abc and artifact abc123-def456 in room NRAMJ5F6WHN.",
+      ["Q3 variance"],
+    );
+
+    expect(references).toEqual([]);
+  });
+
+  it("does not promote Q2 or Q3 quarter labels when a later phrase mentions cells", () => {
+    const references = extractWorkbookTaskReferences(
+      "Inspect Q3 variance, calculate and verify every missing Variance cell, and propose only minimal changes. Each variance equals Q3 minus Q2.",
+      ["Q3 variance"],
+    );
+
+    expect(references.filter((reference) => reference.start === "Q2" || reference.start === "Q3")).toEqual([]);
+  });
+
+  it("retains contextual cells, ranges, formulas, and an explicitly named quarter cell", () => {
+    const references = extractWorkbookTaskReferences(
+      "Write cell B2 using formula =A1*2, fill range J15:J17, and set cell Q3. Q4 performance remains unchanged.",
+    );
+    const addresses = references.map((reference) => `${reference.start}:${reference.end}`);
+
+    expect(addresses).toEqual(expect.arrayContaining(["B2:B2", "A1:A1", "J15:J17", "Q3:Q3"]));
+    expect(addresses).not.toContain("Q4:Q4");
+  });
+
+  it("classifies user inputs and lookup bounds as dependencies while keeping the requested output range as the target", () => {
+    const instruction = "I want to configure column 'J' under 'Densities' in my Excel sheet to return 'PASS' or 'FAIL' similar to what I have set up for column 'I'. For column 'I', I've used the formula =IF(AND(G15<1.05,G15>0.95),'PASS','FAIL'). In the 'Densities' table, the user provides two inputs: they select a variable from 'A-G' in cells B15:B17, and they enter a reading in cells H15:H17. I need column J (cells J15:J17) to check the corresponding cell in column B (B15:B17), and then verify if the moisture range entered by the user falls within a specific range defined in cells 'I3' and 'J3'. In cell I15, I have a pass/fail condition. Adjust the calculation based on the user's choice from a dropdown that populates B3:B9.";
+    const references = extractWorkbookTaskReferences(instruction, ["Sheet1"]);
+    const roles = new Map(references.map((reference) => [`${reference.start}:${reference.end}`, reference.role]));
+
+    expect(roles.get("G15:G15")).toBe("dependency");
+    expect(roles.get("B15:B17")).toBe("dependency");
+    expect(roles.get("H15:H17")).toBe("dependency");
+    expect(roles.get("J15:J17")).toBe("target");
+    expect(roles.get("I3:I3")).toBe("dependency");
+    expect(roles.get("J3:J3")).toBe("dependency");
+    expect(roles.get("I15:I15")).toBe("dependency");
+    expect(roles.get("B3:B9")).toBe("dependency");
+  });
+
   it("selects the quoted formula cell and its input even under a starved snapshot cap", () => {
     const cells: WorkbookObservedCell[] = [
       ...Array.from({ length: 20 }, (_, index) => ({ sheet: "ATTENDENCE", address: `${String.fromCharCode(65 + index)}2`, value: "period" })),
@@ -284,7 +327,7 @@ describe("workbook task intelligence", () => {
     ]));
   });
 
-  it("requires complete coverage of a visible weekday formula-fill band", () => {
+  it("uses populated weekday labels as evidence and repairs only the formula anchor", () => {
     const cells: WorkbookObservedCell[] = [
       { sheet: "ATTENDENCE", address: "F3", value: "21", formula: 'TEXT(F4,"DD")' },
       { sheet: "ATTENDENCE", address: "F4", value: "2015-10-21" },
@@ -295,21 +338,113 @@ describe("workbook task intelligence", () => {
       { sheet: "ATTENDENCE", address: "I3", value: "S" },
       { sheet: "ATTENDENCE", address: "I4", value: "2015-10-24" },
     ];
-    const instruction = 'Correct the weekday formula TEXT(F4,"DD") so the weekday names display like Mon and Wed.';
+    const instruction = 'Correct only the wrong weekday formula TEXT(F4,"DD") and preserve the other existing weekday labels.';
     const inspection = inspectWorkbookTask({ instruction, sheetNames: ["ATTENDENCE"], cells });
 
     expect(inspection.findings).toEqual(expect.arrayContaining([
-      expect.objectContaining({ kind: "formula_fill_band", address: "F3", relatedAddresses: ["G3", "H3", "I3"] }),
+      expect.objectContaining({ kind: "formula_fill_band", address: "F3", relatedAddresses: [] }),
     ]));
     expect(inspection.formulaFillSuggestions).toEqual([expect.objectContaining({
-      range: "F3:I3",
+      range: "F3:F3",
       sourceFormula: 'TEXT(F4,"DDD")',
       operations: [
         { sheet: "ATTENDENCE", cell: "F3", formula: 'TEXT(F4,"DDD")' },
-        { sheet: "ATTENDENCE", cell: "G3", formula: 'TEXT(G4,"DDD")' },
-        { sheet: "ATTENDENCE", cell: "H3", formula: 'TEXT(H4,"DDD")' },
-        { sheet: "ATTENDENCE", cell: "I3", formula: 'TEXT(I4,"DDD")' },
       ],
+    })]);
+    const repaired = verifyWorkbookPlan({
+      instruction,
+      inspection,
+      cells,
+      sheetNames: ["ATTENDENCE"],
+      operations: [{ sheet: "ATTENDENCE", cell: "F3", formula: 'TEXT(F4,"DDD")' }],
+    });
+    expect(repaired.status).toBe("passed");
+    expect(repaired.checks).toMatchObject({ targetCandidateCount: 1, coveredTargetCount: 1 });
+  });
+
+  it("preserves correct peer weekday formulas and repairs only the quoted anchor", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "ATTENDENCE", address: "F3", value: "21", formula: 'TEXT(F4,"DD")' },
+      { sheet: "ATTENDENCE", address: "F4", value: "2015-10-21" },
+      { sheet: "ATTENDENCE", address: "G3", value: "Thursday", formula: 'TEXT(G4,"DDDD")' },
+      { sheet: "ATTENDENCE", address: "G4", value: "2015-10-22" },
+      { sheet: "ATTENDENCE", address: "H3", value: "Friday", formula: 'TEXT(H4,"DDDD")' },
+      { sheet: "ATTENDENCE", address: "H4", value: "2015-10-23" },
+    ];
+    const instruction = 'Correct only the wrong weekday formula TEXT(F4,"DD") and preserve the other existing weekday formulas.';
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["ATTENDENCE"], cells });
+    const plan = buildWorkbookSuggestedPlan(inspection, "ATTENDENCE");
+
+    expect(plan).toEqual({
+      conflicts: [],
+      operations: [{ elementId: "F3", formula: 'TEXT(F4,"DDDD")' }],
+    });
+    expect(inspection.formulaRepairSuggestions).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ cell: "F3" }),
+      expect.objectContaining({ cell: "G3" }),
+      expect.objectContaining({ cell: "H3" }),
+    ]));
+    expect(verifyWorkbookPlan({
+      instruction,
+      inspection,
+      cells,
+      sheetNames: ["ATTENDENCE"],
+      operations: [{ sheet: "ATTENDENCE", cell: "F3", formula: 'TEXT(F4,"DDDD")' }],
+    }).status).toBe("passed");
+  });
+
+  it("normalizes the full visible weekday row when canonical three-letter examples are requested", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "ATTENDENCE", address: "F3", value: "21", formula: 'TEXT(F4,"DD")' },
+      { sheet: "ATTENDENCE", address: "F4", value: "2015-10-21" },
+      { sheet: "ATTENDENCE", address: "G3", value: "TH" },
+      { sheet: "ATTENDENCE", address: "G4", value: "2015-10-22" },
+      { sheet: "ATTENDENCE", address: "H3", value: "F" },
+      { sheet: "ATTENDENCE", address: "H4", value: "2015-10-23" },
+      { sheet: "ATTENDENCE", address: "I3", value: "S" },
+      { sheet: "ATTENDENCE", address: "I4", value: "2015-10-24" },
+    ];
+    const instruction = 'Correct the weekday formula TEXT(F4,"DD") so weekday names display like Mon and Wed.';
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["ATTENDENCE"], cells });
+
+    expect(inspection.formulaFillSuggestions).toEqual([expect.objectContaining({
+      range: "F3:I3",
+      operations: ["F", "G", "H", "I"].map((column) => ({
+        sheet: "ATTENDENCE",
+        cell: `${column}3`,
+        formula: `TEXT(${column}4,"DDD")`,
+      })),
+    })]);
+    expect(verifyWorkbookPlan({
+      instruction,
+      inspection,
+      cells,
+      sheetNames: ["ATTENDENCE"],
+      operations: [{ sheet: "ATTENDENCE", cell: "F3", formula: 'TEXT(F4,"DDD")' }],
+    }).status).toBe("needs_repair");
+  });
+
+  it("fills blank weekday peers but still requires complete coverage of those blank targets", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "ATTENDENCE", address: "F3", value: "21", formula: 'TEXT(F4,"DD")' },
+      { sheet: "ATTENDENCE", address: "F4", value: "2015-10-21" },
+      { sheet: "ATTENDENCE", address: "G3", value: "" },
+      { sheet: "ATTENDENCE", address: "G4", value: "2015-10-22" },
+      { sheet: "ATTENDENCE", address: "H3", value: "" },
+      { sheet: "ATTENDENCE", address: "H4", value: "2015-10-23" },
+      { sheet: "ATTENDENCE", address: "I3", value: "" },
+      { sheet: "ATTENDENCE", address: "I4", value: "2015-10-24" },
+    ];
+    const instruction = 'Correct and fill the weekday formula TEXT(F4,"DD") so weekday names display like Mon and Wed.';
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["ATTENDENCE"], cells });
+
+    expect(inspection.formulaFillSuggestions).toEqual([expect.objectContaining({
+      range: "F3:I3",
+      operations: ["F", "G", "H", "I"].map((column) => ({
+        sheet: "ATTENDENCE",
+        cell: `${column}3`,
+        formula: `TEXT(${column}4,"DDD")`,
+      })),
     })]);
     const partial = verifyWorkbookPlan({
       instruction,
@@ -333,6 +468,786 @@ describe("workbook task intelligence", () => {
       })),
     });
     expect(complete.status).toBe("passed");
+  });
+
+  it("derives a visible lookup-range pass/fail contract without treating source inputs as write targets", () => {
+    const instruction = "In the Densities table, users select a variable from A-G in cells B15:B17 and enter a reading in cells H15:H17. I need column J (cells J15:J17) to check the corresponding cell in column B (B15:B17) and verify whether the moisture falls within the range defined in cells I3 and J3. Display Pass when it is in range and Fail otherwise. The dropdown populates B3:B9.";
+    const cells: WorkbookObservedCell[] = [
+      ...["A", "B", "C", "D", "E", "F", "G"].map((value, index) => ({ sheet: "Sheet1", address: `A${index + 3}`, value })),
+      ...Array.from({ length: 7 }, (_, index) => [
+        { sheet: "Sheet1", address: `I${index + 3}`, value: 0.2 + index / 100 },
+        { sheet: "Sheet1", address: `J${index + 3}`, value: 0.5 + index / 100 },
+      ]).flat(),
+      { sheet: "Sheet1", address: "B15", value: "a" },
+      { sheet: "Sheet1", address: "B16", value: "B" },
+      { sheet: "Sheet1", address: "B17", value: "a" },
+      { sheet: "Sheet1", address: "H15", value: 0.44 },
+      { sheet: "Sheet1", address: "H16", value: 0.3 },
+      { sheet: "Sheet1", address: "H17", value: 0.18 },
+      { sheet: "Sheet1", address: "J15", value: "" },
+      { sheet: "Sheet1", address: "J16", value: "" },
+      { sheet: "Sheet1", address: "J17", value: "" },
+    ];
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["Sheet1"], cells });
+    const plan = buildWorkbookSuggestedPlan(inspection, "Sheet1");
+
+    expect(inspection.targetCandidates.map((target) => target.address)).toEqual(["J15", "J16", "J17"]);
+    expect(inspection.dependencyCandidates.map((dependency) => dependency.address)).toEqual(expect.arrayContaining([
+      "B15", "B16", "B17", "H15", "H16", "H17", "I3", "J3",
+    ]));
+    expect(plan).toEqual({
+      conflicts: [],
+      operations: [
+        { elementId: "J15", formula: 'IF(MEDIAN(H15,VLOOKUP(B15,$A$3:$J$9,{9,10},0))=H15,"Pass","Fail")' },
+        { elementId: "J16", formula: 'IF(MEDIAN(H16,VLOOKUP(B16,$A$3:$J$9,{9,10},0))=H16,"Pass","Fail")' },
+        { elementId: "J17", formula: 'IF(MEDIAN(H17,VLOOKUP(B17,$A$3:$J$9,{9,10},0))=H17,"Pass","Fail")' },
+      ],
+    });
+  });
+
+  it("does not infer pass/fail formulas when any selected lookup key has missing bounds", () => {
+    const instruction = "Users select A-B in B15:B16 and enter readings in H15:H16. Fill J15:J16 with Pass or Fail using the corresponding lookup range defined by I3 and J3. The dropdown populates B3:B4.";
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Sheet1", address: "A3", value: "A" },
+      { sheet: "Sheet1", address: "A4", value: "B" },
+      { sheet: "Sheet1", address: "I3", value: 0.2 },
+      { sheet: "Sheet1", address: "J3", value: 0.5 },
+      { sheet: "Sheet1", address: "I4", value: "" },
+      { sheet: "Sheet1", address: "J4", value: "" },
+      { sheet: "Sheet1", address: "B15", value: "A" },
+      { sheet: "Sheet1", address: "B16", value: "B" },
+      { sheet: "Sheet1", address: "H15", value: 999 },
+      { sheet: "Sheet1", address: "H16", value: 0.3 },
+      { sheet: "Sheet1", address: "J15", value: "" },
+      { sheet: "Sheet1", address: "J16", value: "" },
+    ];
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["Sheet1"], cells });
+
+    expect(buildWorkbookSuggestedPlan(inspection, "Sheet1").operations).toEqual([]);
+    expect(inspection.blockedTargets).toEqual([
+      expect.objectContaining({
+        sheet: "Sheet1",
+        address: "J16",
+        missingDependencies: ["I4", "J4"],
+      }),
+    ]);
+    const modelSuppliedPlan = verifyWorkbookPlan({
+      instruction,
+      inspection,
+      cells,
+      sheetNames: ["Sheet1"],
+      operations: [
+        { sheet: "Sheet1", cell: "J15", formula: 'IF(MEDIAN(H15,VLOOKUP(B15,$A$3:$J$4,{9,10},0))=H15,"Pass","Fail")' },
+        { sheet: "Sheet1", cell: "J16", formula: 'IF(MEDIAN(H16,VLOOKUP(B16,$A$3:$J$4,{9,10},0))=H16,"Pass","Fail")' },
+      ],
+    });
+    expect(modelSuppliedPlan.status).toBe("needs_repair");
+    expect(modelSuppliedPlan.issues).toContainEqual(expect.objectContaining({
+      kind: "unsafe_lookup_bounds",
+      sheet: "Sheet1",
+      address: "J16",
+    }));
+  });
+
+  it("does not project sheet-qualified lookup bounds onto the target sheet", () => {
+    const instruction = "Users select A-G in 'Input'!B15:B17 and enter readings in 'Input'!H15:H17. Fill 'Input'!J15:J17 with Pass or Fail using the corresponding range defined in 'Rules'!I3 and 'Rules'!J3. The dropdown populates 'Input'!B3:B9.";
+    const cells: WorkbookObservedCell[] = [
+      ...["A", "B", "C", "D", "E", "F", "G"].map((value, index) => ({ sheet: "Input", address: `A${index + 3}`, value })),
+      ...Array.from({ length: 7 }, (_, index) => [
+        { sheet: "Rules", address: `I${index + 3}`, value: 0.2 + index / 100 },
+        { sheet: "Rules", address: `J${index + 3}`, value: 0.5 + index / 100 },
+      ]).flat(),
+      { sheet: "Input", address: "B15", value: "A" },
+      { sheet: "Input", address: "B16", value: "B" },
+      { sheet: "Input", address: "B17", value: "C" },
+      { sheet: "Input", address: "H15", value: 0.3 },
+      { sheet: "Input", address: "H16", value: 0.4 },
+      { sheet: "Input", address: "H17", value: 0.5 },
+      { sheet: "Input", address: "J15", value: "" },
+      { sheet: "Input", address: "J16", value: "" },
+      { sheet: "Input", address: "J17", value: "" },
+    ];
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["Input", "Rules"], cells });
+
+    expect(buildWorkbookSuggestedPlan(inspection, "Input").operations).toEqual([]);
+  });
+
+  it("does not materialize unrelated formula-band repairs for a scoped task", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "ATTENDENCE", address: "F3", value: "21", formula: 'TEXT(F4,"DD")' },
+      { sheet: "ATTENDENCE", address: "F4", value: "2015-10-21" },
+      { sheet: "ATTENDENCE", address: "G3", value: "TH" },
+      { sheet: "ATTENDENCE", address: "G4", value: "2015-10-22" },
+      { sheet: "ATTENDENCE", address: "H3", value: "F" },
+      { sheet: "ATTENDENCE", address: "H4", value: "2015-10-23" },
+      { sheet: "ATTENDENCE", address: "B10", value: 2, formula: "A10*2" },
+      { sheet: "ATTENDENCE", address: "C10", value: "" },
+      { sheet: "ATTENDENCE", address: "D10", value: 8, formula: "C10*2" },
+      { sheet: "ATTENDENCE", address: "E10", value: 16, formula: "D10*2" },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: 'Correct only the wrong weekday formula TEXT(F4,"DD") and preserve the other adjacent labels.',
+      sheetNames: ["ATTENDENCE"],
+      cells,
+    });
+
+    expect(inspection.formulaRepairSuggestions).toContainEqual(expect.objectContaining({ cell: "C10" }));
+    expect(buildWorkbookSuggestedPlan(inspection, "ATTENDENCE").operations).toEqual([
+      { elementId: "F3", formula: 'TEXT(F4,"DDD")' },
+    ]);
+  });
+
+  it("uses only the agent-visible filename to focus an embedded-hardcode audit", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Model", address: "B2", value: 2, formula: "A2*2" },
+      { sheet: "Model", address: "C2", value: 4 },
+      { sheet: "Model", address: "D2", value: 8, formula: "C2*2" },
+      { sheet: "Model", address: "F3", value: 2, formula: "E3+1" },
+      { sheet: "Model", address: "G3", value: "" },
+      { sheet: "Model", address: "H3", value: 4, formula: "G3+1" },
+    ];
+    const instruction = [
+      "Audit and fix this file. Errors may include blanks, colors, averages, signs, or references.",
+      "Agent-visible input workbook name: 01-Embedded Hardcodes_input.xlsx",
+    ].join("\n");
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["Model"], cells });
+
+    expect(inspection.auditFocus).toMatchObject({ kind: "embedded_hardcode", source: "agent_visible_filename" });
+    expect(inspection.formulaRepairSuggestions).toEqual([
+      expect.objectContaining({ kind: "fill_gap", cell: "C2", formula: "B2*2" }),
+    ]);
+    expect(inspection.findings).not.toContainEqual(expect.objectContaining({ kind: "blank_in_formula_band" }));
+    expect(buildWorkbookSuggestedPlan(inspection, "Model").operations).toEqual([
+      { elementId: "C2", formula: "B2*2" },
+    ]);
+  });
+
+  it("keeps generic audits unchanged when no known agent-visible filename is present", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Model", address: "B2", value: 2, formula: "A2*2" },
+      { sheet: "Model", address: "C2", value: "" },
+      { sheet: "Model", address: "D2", value: 8, formula: "C2*2" },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit and fix this workbook. Errors may include formula gaps.",
+      sheetNames: ["Model"],
+      cells,
+    });
+
+    expect(inspection.auditFocus).toBeUndefined();
+    expect(inspection.formulaRepairSuggestions).toContainEqual(expect.objectContaining({ cell: "C2" }));
+  });
+
+  it("selects only a locally confirmed relative-versus-absolute formula outlier", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Model", address: "B2", value: 2, formula: "$A2*B$1" },
+      { sheet: "Model", address: "C2", value: 3, formula: "A2*C1" },
+      { sheet: "Model", address: "D2", value: 4, formula: "$A2*D$1" },
+    ];
+    const instruction = "Audit and fix this file.\nAgent-visible input workbook name: 01-Relative vs Absolute DIfference_input.xlsx";
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["Model"], cells });
+
+    expect(inspection.auditFocus?.kind).toBe("relative_absolute_reference");
+    expect(inspection.formulaRepairSuggestions).toEqual([
+      expect.objectContaining({ kind: "replace_outlier", cell: "C2", formula: "$A2*C$1" }),
+    ]);
+    expect(inspection.targetBands).toEqual([]);
+  });
+
+  it("repairs cumulative double counting after the valid first period without touching ordinary translated totals", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Forecast", address: "A14", value: "Cumulative total" },
+      { sheet: "Forecast", address: "B14", value: 30, formula: "SUM(B10:B12)" },
+      { sheet: "Forecast", address: "C14", value: 66, formula: "B14+SUM(C10:C12)" },
+      { sheet: "Forecast", address: "D14", value: 108, formula: "C14+SUM(D10:D12)" },
+      { sheet: "Forecast", address: "E14", value: 156, formula: "D14+SUM(E10:E12)" },
+      { sheet: "Forecast", address: "A18", value: "Ordinary period total" },
+      { sheet: "Forecast", address: "B18", value: 10, formula: "SUM(B15:B17)" },
+      { sheet: "Forecast", address: "C18", value: 12, formula: "SUM(C15:C17)" },
+      { sheet: "Forecast", address: "D18", value: 14, formula: "SUM(D15:D17)" },
+      { sheet: "Forecast", address: "E18", value: 16, formula: "SUM(E15:E17)" },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit this workbook.\nAgent-visible input workbook name: Double Counting_input.xlsx",
+      sheetNames: ["Forecast"],
+      cells,
+    });
+
+    expect(inspection.auditFocus?.kind).toBe("double_counting");
+    expect(inspection.formulaRepairSuggestions.map(({ cell, formula }) => ({ cell, formula }))).toEqual([
+      { cell: "C14", formula: "SUM(C10:C12)" },
+      { cell: "D14", formula: "SUM(D10:D12)" },
+      { cell: "E14", formula: "SUM(E10:E12)" },
+    ]);
+    expect(inspection.formulaRepairSuggestions).not.toContainEqual(expect.objectContaining({ cell: "B14" }));
+    expect(inspection.formulaRepairSuggestions).not.toContainEqual(expect.objectContaining({ cell: "B18" }));
+    expect(inspection.formulaRepairSuggestions).not.toContainEqual(expect.objectContaining({ cell: "C18" }));
+    expect(inspection.formulaRepairSuggestions).not.toContainEqual(expect.objectContaining({ cell: "D18" }));
+    expect(inspection.formulaRepairSuggestions).not.toContainEqual(expect.objectContaining({ cell: "E18" }));
+  });
+
+  it("replaces embedded hardcodes from a uniquely equivalent formula-backed metric band", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Model", address: "A4", value: "Adjusted free cash flow" },
+      { sheet: "Model", address: "B4", value: 10, formula: "B2-B3" },
+      { sheet: "Model", address: "C4", value: 12, formula: "C2-C3" },
+      { sheet: "Model", address: "D4", value: 14, formula: "D2-D3" },
+      { sheet: "Model", address: "E4", value: 16, formula: "E2-E3" },
+      { sheet: "Model", address: "A8", value: "Adjusted free cash flow" },
+      { sheet: "Model", address: "B8", value: 10 },
+      { sheet: "Model", address: "C8", value: 12 },
+      { sheet: "Model", address: "D8", value: 14 },
+      { sheet: "Model", address: "E8", value: 16 },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit this workbook.\nAgent-visible input workbook name: Embedded Hardcodes_input.xlsx",
+      sheetNames: ["Model"],
+      cells,
+    });
+
+    expect(inspection.auditFocus?.kind).toBe("embedded_hardcode");
+    expect(inspection.formulaRepairSuggestions.map(({ kind, cell, formula }) => ({ kind, cell, formula }))).toEqual([
+      { kind: "fill_gap", cell: "B8", formula: "+B4" },
+      { kind: "fill_gap", cell: "C8", formula: "+C4" },
+      { kind: "fill_gap", cell: "D8", formula: "+D4" },
+      { kind: "fill_gap", cell: "E8", formula: "+E4" },
+    ]);
+  });
+
+  it("rejects downstream hardcode mirrors and selects the independent assumption band", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Model", address: "A2", value: "Revenue Growth" },
+      { sheet: "Model", address: "B2", value: "", formula: "CHOOSE($A$1,B3,B4)", numFmt: "0.0%" },
+      { sheet: "Model", address: "C2", value: "", formula: "CHOOSE($A$1,C3,C4)", numFmt: "0.0%" },
+      { sheet: "Model", address: "D2", value: "", formula: "CHOOSE($A$1,D3,D4)", numFmt: "0.0%" },
+      { sheet: "Model", address: "A6", value: "% YoY Growth" },
+      { sheet: "Model", address: "B6", value: "", formula: "B7/B5-1" },
+      { sheet: "Model", address: "C6", value: "", formula: "C7/C5-1" },
+      { sheet: "Model", address: "D6", value: "", formula: "D7/D5-1" },
+      { sheet: "Model", address: "B7", value: "", formula: "B5*(1+B10)" },
+      { sheet: "Model", address: "C7", value: "", formula: "C5*(1+C10)" },
+      { sheet: "Model", address: "D7", value: "", formula: "D5*(1+D10)" },
+      { sheet: "Model", address: "A10", value: "Revenue % YoY Growth" },
+      { sheet: "Model", address: "B10", value: 0.04, fontColor: "FF7030A0", numFmt: "0.0%" },
+      { sheet: "Model", address: "C10", value: 0.05, fontColor: "FF7030A0", numFmt: "0.0%" },
+      { sheet: "Model", address: "D10", value: 0.06, fontColor: "FF7030A0", numFmt: "0.0%" },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit this workbook.\nAgent-visible input workbook name: Embedded Hardcodes_input.xlsx",
+      sheetNames: ["Model"],
+      cells,
+    });
+
+    expect(inspection.formulaRepairSuggestions.map(({ cell, formula }) => ({ cell, formula }))).toEqual([
+      { cell: "B10", formula: "+B2" },
+      { cell: "C10", formula: "+C2" },
+      { cell: "D10", formula: "+D2" },
+    ]);
+  });
+
+  it("links actual and projected exit multiples to their labeled controls", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Model", address: "A1", value: "Entry EBITDA Multiple" },
+      { sheet: "Model", address: "B1", value: "", formula: "B9" },
+      { sheet: "Model", address: "A2", value: "Exit EBITDA Multiple" },
+      { sheet: "Model", address: "B2", value: "", formula: "B9" },
+      { sheet: "Model", address: "E4", value: "", formula: "TEXT(E$1,\"#\")&\"A\"" },
+      { sheet: "Model", address: "F4", value: "", formula: "TEXT(F$1,\"#\")&\"P\"" },
+      { sheet: "Model", address: "G4", value: "", formula: "TEXT(G$1,\"#\")&\"P\"" },
+      { sheet: "Model", address: "D6", value: "(x) Exit Multiple" },
+      { sheet: "Model", address: "E6", value: 14.2, fontColor: "FF7030A0" },
+      { sheet: "Model", address: "F6", value: 14.2, fontColor: "FF7030A0" },
+      { sheet: "Model", address: "G6", value: 14.2, fontColor: "FF7030A0" },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit this workbook.\nAgent-visible input workbook name: Embedded Hardcodes_input.xlsx",
+      sheetNames: ["Model"],
+      cells,
+    });
+
+    expect(inspection.formulaRepairSuggestions.map(({ cell, formula }) => ({ cell, formula }))).toEqual([
+      { cell: "E6", formula: "+B1" },
+      { cell: "F6", formula: "$B$2" },
+      { cell: "G6", formula: "$B$2" },
+    ]);
+  });
+
+  it("replaces a repeated interest-rate literal with the uniquely related local control", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Debt", address: "A1", value: "Revolver Rate" },
+      { sheet: "Debt", address: "B1", value: 0.04 },
+      { sheet: "Debt", address: "A2", value: "Senior Debt Rate" },
+      { sheet: "Debt", address: "B2", value: 0.04 },
+      { sheet: "Debt", address: "A8", value: "Senior Secured TLB Interest Expense" },
+      { sheet: "Debt", address: "B8", value: "", formula: "B6*(0.04+B7)" },
+      { sheet: "Debt", address: "C8", value: "", formula: "C6*(0.04+C7)" },
+      { sheet: "Debt", address: "D8", value: "", formula: "D6*(0.04+D7)" },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit this workbook.\nAgent-visible input workbook name: Embedded Hardcodes_input.xlsx",
+      sheetNames: ["Debt"],
+      cells,
+    });
+
+    expect(inspection.formulaRepairSuggestions.map(({ cell, formula }) => ({ cell, formula }))).toEqual([
+      { cell: "B8", formula: "B6*($B$2+B7)" },
+      { cell: "C8", formula: "C6*($B$2+C7)" },
+      { cell: "D8", formula: "D6*($B$2+D7)" },
+    ]);
+  });
+
+  it("combines INDEX MATCH width repair with the uniquely matching semantic source row", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Summary", address: "A5", value: "Adjusted EBITDA margin" },
+      {
+        sheet: "Summary",
+        address: "B5",
+        value: 0.24,
+        formula: "INDEX(Drivers!$D$20:$H$20,MATCH(B$2,Drivers!$C$2:$H$2,0))",
+      },
+      { sheet: "Drivers", address: "A15", value: "Adjusted EBITDA margin" },
+      { sheet: "Drivers", address: "A20", value: "Revenue growth rate" },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit this workbook.\nAgent-visible input workbook name: Incorrect Index Match_input.xlsx",
+      sheetNames: ["Summary", "Drivers"],
+      cells,
+    });
+
+    expect(inspection.auditFocus?.kind).toBe("index_match");
+    expect(inspection.formulaRepairSuggestions.map(({ cell, formula }) => ({ cell, formula }))).toEqual([
+      {
+        cell: "B5",
+        formula: "INDEX(Drivers!$C$15:$H$15,MATCH(B$2,Drivers!$C$2:$H$2,0))",
+      },
+    ]);
+  });
+
+  it("anchors a single populated control and fixed interpolation endpoints across translated bands", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Projection", address: "B6", value: 100 },
+      { sheet: "Projection", address: "C6", value: 110 },
+      { sheet: "Projection", address: "D6", value: 120 },
+      { sheet: "Projection", address: "F2", value: 0.1 },
+      { sheet: "Projection", address: "G2", value: "" },
+      { sheet: "Projection", address: "H2", value: "" },
+      { sheet: "Projection", address: "B10", value: 10, formula: "B6*F2" },
+      { sheet: "Projection", address: "C10", value: 11, formula: "C6*G2" },
+      { sheet: "Projection", address: "D10", value: 12, formula: "D6*H2" },
+      { sheet: "Projection", address: "B20", value: 20, formula: "A20+(K4-G4)/3" },
+      { sheet: "Projection", address: "C20", value: 30, formula: "B20+(L4-H4)/3" },
+      { sheet: "Projection", address: "D20", value: 40, formula: "C20+(M4-I4)/3" },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit this workbook.\nAgent-visible input workbook name: Relative vs Absolute Difference_input.xlsx",
+      sheetNames: ["Projection"],
+      cells,
+    });
+
+    expect(inspection.auditFocus?.kind).toBe("relative_absolute_reference");
+    expect(inspection.formulaRepairSuggestions.map(({ cell, formula }) => ({ cell, formula }))).toEqual([
+      { cell: "B10", formula: "B6*$F$2" },
+      { cell: "C10", formula: "C6*$F$2" },
+      { cell: "D10", formula: "D6*$F$2" },
+      { cell: "B20", formula: "A20+($K$4-$G$4)/3" },
+      { cell: "C20", formula: "B20+($K$4-$G$4)/3" },
+      { cell: "D20", formula: "C20+($K$4-$G$4)/3" },
+    ]);
+  });
+
+  it("derives additive signs only from explicit source-row sign labels", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Bridge", address: "A4", value: "(+) Revenue" },
+      { sheet: "Bridge", address: "B4", value: 100 },
+      { sheet: "Bridge", address: "A5", value: "(-) Cost of sales" },
+      { sheet: "Bridge", address: "B5", value: 40 },
+      { sheet: "Bridge", address: "A6", value: "(+) Other income" },
+      { sheet: "Bridge", address: "B6", value: 5 },
+      { sheet: "Bridge", address: "A8", value: "Net result" },
+      { sheet: "Bridge", address: "B8", value: 55, formula: "B4+B5-B6" },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit this workbook.\nAgent-visible input workbook name: Incorrect Sign Conventions_input.xlsx",
+      sheetNames: ["Bridge"],
+      cells,
+    });
+
+    expect(inspection.auditFocus?.kind).toBe("sign_convention");
+    expect(inspection.formulaRepairSuggestions.map(({ cell, formula }) => ({ cell, formula }))).toEqual([
+      { cell: "B8", formula: "+B4-B5+B6" },
+    ]);
+  });
+
+  it("keeps sign-convention inspection bounded when a referenced source is absent", () => {
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit this workbook.\nAgent-visible input workbook name: Incorrect Sign Conventions_input.xlsx",
+      sheetNames: ["Bridge"],
+      cells: [
+        { sheet: "Bridge", address: "A8", value: "Net result" },
+        { sheet: "Bridge", address: "B8", value: 55, formula: "B4+B5" },
+      ],
+    });
+
+    expect(inspection.auditFocus?.kind).toBe("sign_convention");
+    expect(inspection.formulaRepairSuggestions).toEqual([]);
+  });
+
+  it("normalizes a percentage-formatted hardcode while preserving its number format", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Assumptions", address: "A4", value: "Tax rate (%)" },
+      { sheet: "Assumptions", address: "B4", value: 25, numFmt: "0.0%" },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit this workbook.\nAgent-visible input workbook name: Unit Mismatch_input.xlsx",
+      sheetNames: ["Assumptions"],
+      cells,
+    });
+
+    expect(inspection.auditFocus?.kind).toBe("unit_mismatch");
+    expect(inspection.valueSuggestions.map(({ cell, value, numFmt }) => ({ cell, value, numFmt }))).toEqual([
+      { cell: "B4", value: 0.25, numFmt: "0.0%" },
+    ]);
+    expect(inspection.formulaRepairSuggestions).toEqual([]);
+  });
+
+  it("realigns a cross-sheet period band from visible year headers", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Summary", address: "B1", value: 2026 },
+      { sheet: "Summary", address: "C1", value: "", formula: "+B1+1" },
+      { sheet: "Summary", address: "D1", value: "", formula: "+C1+1" },
+      { sheet: "Summary", address: "A5", value: "Revenue" },
+      { sheet: "Summary", address: "B5", value: "", formula: "+'Source Model'!F10" },
+      { sheet: "Summary", address: "C5", value: "", formula: "+'Source Model'!G10" },
+      { sheet: "Summary", address: "D5", value: "", formula: "+'Source Model'!H10" },
+      { sheet: "Source Model", address: "C1", value: 2022 },
+      { sheet: "Source Model", address: "D1", value: "", formula: "+C1+1" },
+      { sheet: "Source Model", address: "E1", value: "", formula: "+D1+1" },
+      { sheet: "Source Model", address: "F1", value: "", formula: "+E1+1" },
+      { sheet: "Source Model", address: "G1", value: "", formula: "+F1+1" },
+      { sheet: "Source Model", address: "H1", value: "", formula: "+G1+1" },
+      { sheet: "Source Model", address: "I1", value: "", formula: "+H1+1" },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit this workbook.\nAgent-visible input workbook name: Incorrect Cross Sheet References_input.xlsx",
+      sheetNames: ["Summary", "Source Model"],
+      cells,
+    });
+
+    expect(inspection.formulaRepairSuggestions.map(({ cell, formula }) => ({ cell, formula }))).toEqual([
+      { cell: "B5", formula: "+'Source Model'!G10" },
+      { cell: "C5", formula: "+'Source Model'!H10" },
+      { cell: "D5", formula: "+'Source Model'!I10" },
+    ]);
+  });
+
+  it("moves a unit-mismatched cross-sheet band to the uniquely matching semantic row", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Summary", address: "A4", value: "Revenue" },
+      { sheet: "Summary", address: "A5", value: "Company" },
+      { sheet: "Summary", address: "B5", value: "", formula: "+'Source Model'!G17" },
+      { sheet: "Summary", address: "C5", value: "", formula: "+'Source Model'!H17" },
+      { sheet: "Summary", address: "D5", value: "", formula: "+'Source Model'!I17" },
+      { sheet: "Source Model", address: "A16", value: "Recurring Software" },
+      { sheet: "Source Model", address: "A17", value: "Services" },
+      { sheet: "Source Model", address: "A18", value: "Total Revenue" },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit this workbook.\nAgent-visible input workbook name: Unit Mismatch_input.xlsx",
+      sheetNames: ["Summary", "Source Model"],
+      cells,
+    });
+
+    expect(inspection.formulaRepairSuggestions.map(({ cell, formula }) => ({ cell, formula }))).toEqual([
+      { cell: "B5", formula: "+'Source Model'!G18" },
+      { cell: "C5", formula: "+'Source Model'!H18" },
+      { cell: "D5", formula: "+'Source Model'!I18" },
+    ]);
+  });
+
+  it("infers a subtractive component from a visible recomposition total", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Model", address: "A4", value: "Total Revenue" },
+      { sheet: "Model", address: "B4", value: "" },
+      { sheet: "Model", address: "A6", value: "Recurring Software" },
+      { sheet: "Model", address: "B6", value: "" },
+      { sheet: "Model", address: "A7", value: "Services" },
+      { sheet: "Model", address: "B7", value: "", formula: "+B4+B6" },
+      { sheet: "Model", address: "A8", value: "Total Revenue" },
+      { sheet: "Model", address: "B8", value: "", formula: "+SUM(B6:B7)" },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit this workbook.\nAgent-visible input workbook name: Incorrect Sign Conventions_input.xlsx",
+      sheetNames: ["Model"],
+      cells,
+    });
+
+    expect(inspection.formulaRepairSuggestions.map(({ cell, formula }) => ({ cell, formula }))).toEqual([
+      { cell: "B7", formula: "+B4-B6" },
+    ]);
+  });
+
+  it("completes regular aggregate periods that each omit their populated terminal row", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Model", address: "B5", value: "", formula: "AVERAGE('Rates Data'!C8:C18)" },
+      { sheet: "Model", address: "C5", value: "", formula: "AVERAGE('Rates Data'!C20:C30)" },
+      { sheet: "Model", address: "D5", value: "", formula: "AVERAGE('Rates Data'!C32:C42)" },
+      ...Array.from({ length: 36 }, (_, index): WorkbookObservedCell => ({
+        sheet: "Rates Data",
+        address: `C${8 + index}`,
+        value: 0.01 + index / 10_000,
+      })),
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit this workbook.\nAgent-visible input workbook name: Incorrect Average_input.xlsx",
+      sheetNames: ["Model", "Rates Data"],
+      cells,
+    });
+
+    expect(inspection.formulaRepairSuggestions.map(({ cell, formula }) => ({ cell, formula }))).toEqual([
+      { cell: "B5", formula: "AVERAGE('Rates Data'!C8:C19)" },
+      { cell: "C5", formula: "AVERAGE('Rates Data'!C20:C31)" },
+      { cell: "D5", formula: "AVERAGE('Rates Data'!C32:C43)" },
+    ]);
+  });
+
+  it("uses repeated scenario panels to remove a transitive aggregate cycle", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Model", address: "C9", value: 10 },
+      { sheet: "Model", address: "D9", value: 11 },
+      { sheet: "Model", address: "E9", value: 12 },
+      { sheet: "Model", address: "F9", value: 13 },
+      { sheet: "Model", address: "G9", value: "", formula: "CHOOSE($C$4,N9,U9,AB9)" },
+      { sheet: "Model", address: "N9", value: "", formula: "+AVERAGE($C$9:$F$9)" },
+      { sheet: "Model", address: "U9", value: "", formula: "+AVERAGE($C$9:$G$9)" },
+      { sheet: "Model", address: "AB9", value: "", formula: "+AVERAGE($C$9:$F$9)" },
+      { sheet: "Comps", address: "C15", value: "", formula: "AVERAGE(C7:C14)" },
+      { sheet: "Comps", address: "D15", value: "", formula: "AVERAGE(D7:D14)" },
+      { sheet: "Comps", address: "E15", value: "", formula: "AVERAGE(E7:E14)" },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit this workbook.\nAgent-visible input workbook name: Incorrect Average_input.xlsx",
+      sheetNames: ["Model", "Comps"],
+      cells,
+    });
+
+    expect(inspection.formulaRepairSuggestions.map(({ sheet, cell, formula }) => ({ sheet, cell, formula }))).toEqual([
+      { sheet: "Model", cell: "U9", formula: "+AVERAGE($C$9:$F$9)" },
+    ]);
+  });
+
+  it.each([
+    {
+      filename: "Double Counting",
+      kind: "double_counting",
+      left: "SUM(A3:B3)",
+      actual: "SUM(B3:D3)",
+      right: "SUM(C3:D3)",
+      expected: "SUM(B3:C3)",
+    },
+    {
+      filename: "Incorrect Index Match",
+      kind: "index_match",
+      left: "INDEX($A$10:$A$20,MATCH(B1,$B$10:$B$20,0))",
+      actual: "INDEX($A$10:$A$20,MATCH(C1,$C$10:$C$20,0))",
+      right: "INDEX($A$10:$A$20,MATCH(D1,$B$10:$B$20,0))",
+      expected: "INDEX($A$10:$A$20,MATCH(C1,$B$10:$B$20,0))",
+    },
+    {
+      filename: "Incorrect Cross Sheet References",
+      kind: "cross_sheet_reference",
+      left: "Source!A2",
+      actual: "Wrong!B2",
+      right: "Source!C2",
+      expected: "Source!B2",
+    },
+    {
+      filename: "Unit Mismatch",
+      kind: "unit_mismatch",
+      left: "A2/1000",
+      actual: "B2",
+      right: "C2/1000",
+      expected: "B2/1000",
+    },
+    {
+      filename: "Incorrect Sign Conventions",
+      kind: "sign_convention",
+      left: "-A2",
+      actual: "B2",
+      right: "-C2",
+      expected: "-B2",
+    },
+    {
+      filename: "Errors",
+      kind: "formula_errors",
+      left: "A2*2",
+      actual: "#REF!*2",
+      right: "C2*2",
+      expected: "B2*2",
+    },
+    {
+      filename: "Incorrect Average",
+      kind: "incorrect_average",
+      left: "AVERAGE(A3:A4)",
+      actual: "AVERAGE(B3:B5)",
+      right: "AVERAGE(C3:C4)",
+      expected: "AVERAGE(B3:B4)",
+    },
+  ])("filters $filename audits to the compatible local formula class", ({ filename, kind, left, actual, right, expected }) => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Model", address: "B2", value: 1, formula: left },
+      { sheet: "Model", address: "C2", value: 2, formula: actual },
+      { sheet: "Model", address: "D2", value: 3, formula: right },
+      { sheet: "Model", address: "B8", value: 1, formula: "A8*2" },
+      { sheet: "Model", address: "C8", value: 9, formula: "Z8*9" },
+      { sheet: "Model", address: "D8", value: 3, formula: "C8*2" },
+    ];
+    const instruction = `Audit and fix this file.\nAgent-visible input workbook name: 01-${filename}_input.xlsx`;
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["Model"], cells });
+
+    expect(inspection.auditFocus?.kind).toBe(kind);
+    expect(inspection.formulaRepairSuggestions).toEqual([
+      expect.objectContaining({ kind: "replace_outlier", cell: "C2", formula: expected }),
+    ]);
+  });
+
+  it("does not authorize replacing a clean formula from a cascading cached error", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Model", address: "B2", value: { error: "#REF!" }, formula: "B1*2" },
+      { sheet: "Model", address: "C2", value: { error: "#REF!" }, formula: "SUM(A2:B2)" },
+      { sheet: "Model", address: "D2", value: { error: "#REF!" }, formula: "D1*2" },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit and fix this file.\nAgent-visible input workbook name: 01-Errors_input.xlsx",
+      sheetNames: ["Model"],
+      cells,
+    });
+
+    expect(inspection.findings).toContainEqual(expect.objectContaining({
+      kind: "formula_error",
+      address: "C2",
+    }));
+    expect(inspection.formulaRepairSuggestions).not.toContainEqual(expect.objectContaining({ cell: "C2" }));
+  });
+
+  it("does not translate formulas across half-year and annual semantic columns", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Model", address: "G1", value: "2H26E" },
+      { sheet: "Model", address: "H1", value: "FY26E" },
+      { sheet: "Model", address: "I1", value: "FY27E" },
+      { sheet: "Model", address: "G2", value: 0.2, formula: "CHOOSE($C$1,O2,W2,AE2)", numFmt: "0.0%" },
+      { sheet: "Model", address: "H2", value: { error: "#REF!" }, formula: "H3/#REF!", numFmt: "0.0%" },
+      { sheet: "Model", address: "I2", value: 0.3, formula: "CHOOSE($C$1,Q2,Y2,AG2)", numFmt: "0.0%" },
+    ];
+    const inspection = inspectWorkbookTask({
+      instruction: "Audit and fix this file.\nAgent-visible input workbook name: 01-Errors_input.xlsx",
+      sheetNames: ["Model"],
+      cells,
+    });
+
+    expect(inspection.findings).toContainEqual(expect.objectContaining({ kind: "formula_error", address: "H2" }));
+    expect(inspection.formulaRepairSuggestions).not.toContainEqual(expect.objectContaining({ cell: "H2" }));
+  });
+
+  it("rejects overbroad filename-focused audit plans without making inferred targets mandatory", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Model", address: "B2", value: 2, formula: "A2*2" },
+      { sheet: "Model", address: "C2", value: 3 },
+      { sheet: "Model", address: "D2", value: 8, formula: "C2*2" },
+    ];
+    const instruction = "Audit and fix this file.\nAgent-visible input workbook name: 01-Embedded Hardcode_input.xlsx";
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["Model"], cells });
+    const minimal = verifyWorkbookPlan({
+      instruction,
+      inspection,
+      cells,
+      sheetNames: ["Model"],
+      operations: [{ sheet: "Model", cell: "C2", formula: "B2*2" }],
+    });
+    const broad = verifyWorkbookPlan({
+      instruction,
+      inspection,
+      cells,
+      sheetNames: ["Model"],
+      operations: Array.from({ length: 9 }, (_, index) => ({ sheet: "Model", cell: `A${index + 1}`, value: index })),
+    });
+
+    expect(minimal.status).toBe("passed");
+    expect(broad.issues).toContainEqual(expect.objectContaining({ kind: "overbroad_audit_plan" }));
+  });
+
+  it("rejects placeholder and wrong-formula writes outside locally confirmed audit evidence", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Model", address: "B2", value: 2, formula: "A2*2" },
+      { sheet: "Model", address: "C2", value: 4 },
+      { sheet: "Model", address: "D2", value: 8, formula: "C2*2" },
+    ];
+    const instruction = "Audit and fix this file.\nAgent-visible input workbook name: 01-Embedded Hardcode_input.xlsx";
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["Model"], cells });
+
+    const placeholder = verifyWorkbookPlan({
+      instruction,
+      inspection,
+      cells,
+      sheetNames: ["Model"],
+      operations: [{ sheet: "Model", cell: "A1000", value: 1 }],
+    });
+    const wrongFormula = verifyWorkbookPlan({
+      instruction,
+      inspection,
+      cells,
+      sheetNames: ["Model"],
+      operations: [{ sheet: "Model", cell: "C2", formula: "Z99*9" }],
+    });
+
+    expect(placeholder.status).toBe("needs_repair");
+    expect(placeholder.issues).toContainEqual(expect.objectContaining({ kind: "unsubstantiated_audit_target", address: "A1000" }));
+    expect(wrongFormula.status).toBe("needs_repair");
+    expect(wrongFormula.issues).toContainEqual(expect.objectContaining({
+      kind: "formula_semantic_mismatch",
+      address: "C2",
+      repair: expect.stringContaining("=B2*2"),
+    }));
+  });
+
+  it("builds and verifies a style-only font-color repair from local workbook evidence", () => {
+    const cells: WorkbookObservedCell[] = [
+      { sheet: "Income Statement", address: "B6", value: "Monro", formula: "Summary!G10", fontColor: "FF000000" },
+      { sheet: "Income Statement", address: "B7", value: 10, formula: "Summary!G11", fontColor: "FF008000" },
+      { sheet: "Income Statement", address: "B8", value: 12, formula: "Summary!G12", fontColor: "FF008000" },
+    ];
+    const instruction = "Audit and fix this file.\nAgent-visible input workbook name: 01-Inconsistent Color Coding_input.xlsx";
+    const inspection = inspectWorkbookTask({ instruction, sheetNames: ["Income Statement"], cells });
+    const plan = buildWorkbookSuggestedPlan(inspection, "Income Statement");
+
+    expect(inspection.auditFocus?.kind).toBe("color_coding");
+    expect(inspection.deterministicPlan).toEqual({
+      status: "complete",
+      basis: "visible_workbook_invariants",
+      auditFocus: "color_coding",
+      operationCount: 1,
+      sheets: ["Income Statement"],
+    });
+    expect(inspection.styleSuggestions).toEqual([
+      expect.objectContaining({ cell: "B6", fontColor: "FF008000" }),
+    ]);
+    expect(plan.operations).toEqual([{ elementId: "B6", fontColor: "FF008000" }]);
+    expect(verifyWorkbookValues({
+      cells: [{ ...cells[0], fontColor: "FF008000" }],
+      checks: checksForWorkbookOperations([{ sheet: "Income Statement", cell: "B6", fontColor: "FF008000" }]),
+    })).toMatchObject({ status: "passed", issueCount: 0 });
+    expect(verifyWorkbookValues({
+      cells: [cells[0]],
+      checks: checksForWorkbookOperations([{ sheet: "Income Statement", cell: "B6", fontColor: "FF008000" }]),
+    }).checks[0].issues).toContain("font_color_mismatch");
+
+    const contentOverwrite = verifyWorkbookPlan({
+      instruction,
+      inspection,
+      cells,
+      sheetNames: ["Income Statement"],
+      operations: [{ sheet: "Income Statement", cell: "B6", value: "placeholder", fontColor: "FF008000" }],
+    });
+    expect(contentOverwrite.issues).toContainEqual(expect.objectContaining({ kind: "audit_style_content_overwrite" }));
   });
 
   it("rejects shifted prior-period forecast formulas and provides the visible repair references", () => {

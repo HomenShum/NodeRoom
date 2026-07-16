@@ -29,7 +29,8 @@ import type { Actor } from "../src/engine/types";
 type RunResult = {
   finalText: string; jobId: Id<"agentJobs">; roomId: Id<"rooms">; agentId: string; model: string; goal: string;
   steps: number; toolCalls: number; conflictsSurvived: number; inputTokens: number; outputTokens: number;
-  costUsd: number; ms: number; exhausted: boolean; stopReason: string; remainingMs: number | null; deadlineAt: number;
+  cachedInputTokens: number; cacheCreationInputTokens: number; costUsd: number; costKind: "exact" | "estimated";
+  ms: number; exhausted: boolean; stopReason: string; remainingMs: number | null; deadlineAt: number;
   modelCalls: number; runId: Id<"agentRuns"> | null; handoff: unknown | null;
 };
 import { AgentRunError, runAgent } from "../src/nodeagent/core/runtime";
@@ -131,6 +132,10 @@ function liveOperationKind(event: AgentTraceEvent): LiveOperationKind {
   if (QUERY_TOOLS.has(event.tool)) return "query";
   if (MUTATION_TOOLS.has(event.tool)) return "mutation";
   return "tool_call";
+}
+
+function modelToolCallCount(trace: AgentTraceEvent[]): number {
+  return trace.filter((event) => event.tool !== "handoff" && event.tool !== "compaction").length;
 }
 
 function liveOperationName(event: AgentTraceEvent): string {
@@ -297,10 +302,11 @@ export const runRoomAgent = action({
         text: finalText.slice(0, 4_000),
         clientMsgId: `plan-blocked-${String(jobClaim.jobId)}`,
         kind: "agent",
+        jobId: jobClaim.jobId,
       });
       // Release the credit hold immediately — this run was blocked before any spend (no run yet).
       // (Other early exits before the run, e.g. egress-blocked, are reclaimed by the sweep cron.)
-      if (creditsEnforced()) await ctx.runMutation(creditsSettleRef, { roomId: a.roomId, reservationKey: creditReservationKey, actualUsd: 0 });
+      if (creditsEnforced()) await ctx.runMutation(creditsSettleRef, { roomId: a.roomId, reservationKey: creditReservationKey, actualUsd: 0, costKind: "exact" });
       return {
         finalText,
         jobId: jobClaim.jobId,
@@ -313,7 +319,10 @@ export const runRoomAgent = action({
         conflictsSurvived: 0,
         inputTokens: 0,
         outputTokens: 0,
+        cachedInputTokens: 0,
+        cacheCreationInputTokens: 0,
         costUsd: 0,
+        costKind: "exact",
         ms,
         exhausted: false,
         stopReason: "plan_blocked",
@@ -402,14 +411,17 @@ export const runRoomAgent = action({
     };
     const checkpointCursor = async (r: {
       messages: unknown[];
-      handoff?: { remainingToolCalls?: unknown[] };
+      handoff?: { remainingToolCalls?: unknown[]; terminalReason?: string };
       stopReason: string;
+      modelRouteState?: unknown;
     }) => {
       const compacted = await compactMessages(r.messages as any, compaction);
       return {
         messages: compacted.messages,
         remainingToolCalls: r.handoff?.remainingToolCalls ?? [],
         stopReason: r.stopReason,
+        ...(r.handoff?.terminalReason ? { terminalReason: r.handoff.terminalReason } : {}),
+        ...(r.modelRouteState ? { modelRouteState: r.modelRouteState } : {}),
         compacted: compacted.compacted,
         elided: compacted.elided,
         updatedAt: Date.now(),
@@ -468,7 +480,8 @@ export const runRoomAgent = action({
       reused: boolean;
       row: null | {
         _id: Id<"agentRuns">; model: string; steps: number; toolCalls: number; conflictsSurvived: number;
-        inputTokens: number; outputTokens: number; costUsd: number; ms: number; exhausted: boolean;
+        inputTokens: number; outputTokens: number; cachedInputTokens?: number; cacheCreationInputTokens?: number;
+        costUsd: number; costKind?: "exact" | "estimated"; ms: number; exhausted: boolean;
         stopReason?: string; remainingMs?: number; deadlineAt?: number; handoff?: unknown;
       };
     };
@@ -478,7 +491,10 @@ export const runRoomAgent = action({
         finalText: row.stopReason ? "Deduplicated: an identical run just completed." : "Deduplicated: an identical run is already in progress.",
         jobId, roomId: a.roomId, agentId: actor.id, model: row.model, goal: a.goal,
         steps: row.steps, toolCalls: row.toolCalls, conflictsSurvived: row.conflictsSurvived,
-        inputTokens: row.inputTokens, outputTokens: row.outputTokens, costUsd: row.costUsd, ms: row.ms, exhausted: row.exhausted,
+        inputTokens: row.inputTokens, outputTokens: row.outputTokens,
+        cachedInputTokens: row.cachedInputTokens ?? 0,
+        cacheCreationInputTokens: row.cacheCreationInputTokens ?? 0,
+        costUsd: row.costUsd, costKind: row.costKind ?? "estimated", ms: row.ms, exhausted: row.exhausted,
         stopReason: row.stopReason ?? "in_flight", remainingMs: row.remainingMs ?? null, deadlineAt: row.deadlineAt ?? deadlineAt,
         modelCalls: 0, runId: row._id, handoff: row.handoff ?? null,
       };
@@ -515,6 +531,7 @@ export const runRoomAgent = action({
       kind: "model_call",
       name: model.name,
       status: "started",
+      countDelta: 0,
       startedAt: Date.now(),
     });
 
@@ -524,20 +541,23 @@ export const runRoomAgent = action({
       const ms = Date.now() - t0;
       const inputTokens = partial?.usage.inputTokens ?? 0;
       const outputTokens = partial?.usage.outputTokens ?? 0;
-      const costUsd = priceRun(model.name, inputTokens, outputTokens);
+      const cachedInputTokens = partial?.usage.cachedInputTokens ?? 0;
+      const cacheCreationInputTokens = partial?.usage.cacheCreationInputTokens ?? 0;
+      const costUsd = partial?.usage.costUsd ?? priceRun(model.name, inputTokens, outputTokens);
+      const costKind = partial?.usage.costKind ?? "estimated";
       const conflictsSurvived = partial?.trace.filter((t) => t.tool === "edit_cell" && (t.result as { conflict?: boolean })?.conflict).length ?? 0;
       const telemetry = {
         roomId: a.roomId, agentId: actor.id, model: model.name, goal: a.goal,
-        steps: partial?.steps ?? 0, toolCalls: partial?.trace.length ?? 0, conflictsSurvived,
-        inputTokens, outputTokens, costUsd, ms, exhausted: partial?.exhausted ?? false,
+        steps: partial?.steps ?? 0, modelCalls: partial?.usage.modelCalls ?? 0,
+        toolCalls: partial ? modelToolCallCount(partial.trace) : 0, conflictsSurvived,
+        inputTokens, outputTokens, cachedInputTokens, cacheCreationInputTokens, costUsd, costKind, ms, exhausted: partial?.exhausted ?? false,
         stopReason: partial?.stopReason ?? "error",
         remainingMs: partial?.budget.remainingMs,
         deadlineAt,
         handoff: partial?.handoff,
       };
-      await ctx.runMutation(agentRunsFinishRef, { runId, model: model.name, steps: telemetry.steps, toolCalls: telemetry.toolCalls, conflictsSurvived, inputTokens, outputTokens, costUsd, ms, exhausted: telemetry.exhausted, stopReason: telemetry.stopReason, remainingMs: telemetry.remainingMs, deadlineAt, handoff: telemetry.handoff });
-      // Settle the credit hold with the ACTUAL (failure-path) cost. No-op unless enforced + enrolled.
-      if (creditsEnforced()) await ctx.runMutation(creditsSettleRef, { roomId: a.roomId, reservationKey: creditReservationKey, actualUsd: costUsd, runId });
+      await ctx.runMutation(agentRunsFinishRef, { runId, model: model.name, steps: telemetry.steps, modelCalls: telemetry.modelCalls, toolCalls: telemetry.toolCalls, conflictsSurvived, inputTokens, outputTokens, cachedInputTokens, cacheCreationInputTokens, costUsd, costKind, ms, exhausted: telemetry.exhausted, stopReason: telemetry.stopReason, remainingMs: telemetry.remainingMs, deadlineAt, handoff: telemetry.handoff });
+      if (creditsEnforced()) await ctx.runMutation(creditsSettleRef, { roomId: a.roomId, reservationKey: creditReservationKey, actualUsd: costUsd, costKind, runId });
       await recordLiveOperation({
         kind: "checkpoint",
         name: "agent.runRoomAgent failed",
@@ -557,8 +577,11 @@ export const runRoomAgent = action({
         ms,
         inputTokens,
         outputTokens,
+        cachedInputTokens,
+        cacheCreationInputTokens,
         costUsd,
-        modelCalls: partial?.usage.modelCalls ?? 0,
+        costKind,
+        modelCalls: telemetry.modelCalls,
         toolCalls: telemetry.toolCalls,
       });
       const priorSteps = partial?.trace.map(traceStep) ?? [];
@@ -637,35 +660,35 @@ export const runRoomAgent = action({
     }
     const ms = Date.now() - t0;
 
-    const costUsd = priceRun(model.name, result.usage.inputTokens, result.usage.outputTokens);
+    const costUsd = result.usage.costUsd ?? priceRun(model.name, result.usage.inputTokens, result.usage.outputTokens);
+    const costKind = result.usage.costKind ?? "estimated";
     const conflictsSurvived = result.trace.filter((t) => t.tool === "edit_cell" && (t.result as { conflict?: boolean })?.conflict).length;
     const telemetry = {
       roomId: a.roomId, agentId: actor.id, model: model.name, goal: a.goal,
-      steps: result.steps, toolCalls: result.trace.length, conflictsSurvived,
-      inputTokens: result.usage.inputTokens, outputTokens: result.usage.outputTokens, cachedInputTokens: result.usage.cachedInputTokens ?? 0, costUsd, ms, exhausted: result.exhausted,
+      steps: result.steps, modelCalls: result.usage.modelCalls, toolCalls: modelToolCallCount(result.trace), conflictsSurvived,
+      inputTokens: result.usage.inputTokens, outputTokens: result.usage.outputTokens,
+      cachedInputTokens: result.usage.cachedInputTokens ?? 0,
+      cacheCreationInputTokens: result.usage.cacheCreationInputTokens ?? 0,
+      costUsd, costKind, ms, exhausted: result.exhausted,
       stopReason: result.stopReason,
       remainingMs: result.budget.remainingMs,
       deadlineAt,
       handoff: result.handoff,
     };
     // Patch the claimed run row with final telemetry + the APPEND-ONLY step-level trace (audit + trajectory eval).
-    await ctx.runMutation(agentRunsFinishRef, { runId, model: model.name, steps: telemetry.steps, toolCalls: telemetry.toolCalls, conflictsSurvived, inputTokens: telemetry.inputTokens, outputTokens: telemetry.outputTokens, costUsd, ms, exhausted: telemetry.exhausted, stopReason: telemetry.stopReason, remainingMs: telemetry.remainingMs, deadlineAt, handoff: telemetry.handoff });
-    // Settle the credit hold with the ACTUAL cost. No-op unless enforced + enrolled.
-    if (creditsEnforced()) await ctx.runMutation(creditsSettleRef, { roomId: a.roomId, reservationKey: creditReservationKey, actualUsd: costUsd, runId });
+    await ctx.runMutation(agentRunsFinishRef, { runId, model: model.name, steps: telemetry.steps, modelCalls: telemetry.modelCalls, toolCalls: telemetry.toolCalls, conflictsSurvived, inputTokens: telemetry.inputTokens, outputTokens: telemetry.outputTokens, cachedInputTokens: telemetry.cachedInputTokens, cacheCreationInputTokens: telemetry.cacheCreationInputTokens, costUsd, costKind, ms, exhausted: telemetry.exhausted, stopReason: telemetry.stopReason, remainingMs: telemetry.remainingMs, deadlineAt, handoff: telemetry.handoff });
+    if (creditsEnforced()) await ctx.runMutation(creditsSettleRef, { roomId: a.roomId, reservationKey: creditReservationKey, actualUsd: costUsd, costKind, runId });
     const done = result.stopReason === "done" && !result.exhausted;
-    const scheduledNextAt = done ? undefined : Date.now() + 5_000;
-    const cursor = done ? undefined : await checkpointCursor(result);
-    await recordLiveOperation({
-      kind: "model_call",
-      name: model.name,
-      status: "completed",
-      countDelta: result.usage.modelCalls,
-      completedAt: Date.now(),
-    });
+    const protocolStall = result.handoff?.terminalReason === "protocol_stall";
+    const terminal = done || protocolStall;
+    const scheduledNextAt = terminal ? undefined : Date.now() + 5_000;
+    const cursor = terminal ? undefined : await checkpointCursor(result);
+    // finishInteractive writes the authoritative aggregate model_call event.
+    // Keeping a second nonzero completion event here would double-count provider requests.
     await recordLiveOperation({
       kind: "checkpoint",
-      name: done ? "agent.runRoomAgent completed" : "agent.runRoomAgent paused",
-      status: done ? "completed" : "skipped",
+      name: done ? "agent.runRoomAgent completed" : protocolStall ? "agent.runRoomAgent failed" : "agent.runRoomAgent paused",
+      status: done ? "completed" : protocolStall ? "failed" : "skipped",
       countDelta: 1,
       completedAt: Date.now(),
     });
@@ -673,19 +696,23 @@ export const runRoomAgent = action({
     await ctx.runMutation(agentJobsFinishInteractiveRef, {
       jobId,
       runId,
-      status: done ? "completed" : "paused",
+      status: done ? "completed" : protocolStall ? "failed" : "paused",
       finalText: result.finalText,
+      ...(protocolStall ? { error: "protocol_stall" } : {}),
       handoff: result.handoff,
       cursor,
       scheduledNextAt,
-      scheduleWorkflow: !done,
+      scheduleWorkflow: !terminal,
       resolvedModel: model.name,
       stopReason: telemetry.stopReason,
       ms,
       inputTokens: telemetry.inputTokens,
       outputTokens: telemetry.outputTokens,
+      cachedInputTokens: telemetry.cachedInputTokens,
+      cacheCreationInputTokens: telemetry.cacheCreationInputTokens,
       costUsd,
-      modelCalls: result.usage.modelCalls,
+      costKind,
+      modelCalls: telemetry.modelCalls,
       toolCalls: telemetry.toolCalls,
     });
     await ctx.runMutation(agentStepsRecordRef, {
@@ -707,6 +734,7 @@ export const runRoomAgent = action({
         text: visibleFallback.slice(0, 4_000),
         clientMsgId: `final-${String(runId)}`,
         kind: "agent",
+        jobId,
       });
     }
     return {

@@ -48,6 +48,13 @@ export interface NotebookArtifactStructure {
   sections: NotebookSectionDigest[];
 }
 
+export interface NotebookReadModelBlockRow {
+  blockId: string;
+  blockIndex: number;
+  blockType: string;
+  text: string;
+}
+
 type PmNodeJson = {
   type?: string;
   text?: string;
@@ -194,7 +201,7 @@ function relatedProposalIds(proposals: Proposal[], artifactId: string, elementId
 
 function makeBlock(args: {
   artifact: Artifact;
-  element: Element;
+  element: Pick<Element, "id">;
   index: number;
   kind: NotebookBlockKind;
   text: string;
@@ -389,23 +396,13 @@ function buildSections(blocks: NotebookBlockDigest[]): NotebookSectionDigest[] {
   });
 }
 
-export function buildNotebookArtifactStructure(
-  artifact: Artifact,
-  related: { traces?: TraceEvent[]; proposals?: Proposal[] } = {},
-): NotebookArtifactStructure {
-  const traces = related.traces ?? [];
-  const proposals = related.proposals ?? [];
-  const blocks: NotebookBlockDigest[] = [];
-  for (const element of orderedElements(artifact)) {
-    if (blocks.length >= MAX_NOTEBOOK_BLOCKS) break;
-    blocks.push(...blocksFromElement({
-      artifact,
-      element,
-      startIndex: blocks.length,
-      traces,
-      proposals,
-    }).slice(0, MAX_NOTEBOOK_BLOCKS - blocks.length));
-  }
+function finalizeNotebookArtifactStructure(args: {
+  artifact: Artifact;
+  blocks: NotebookBlockDigest[];
+  traces: TraceEvent[];
+  proposals: Proposal[];
+}): NotebookArtifactStructure {
+  const { artifact, blocks, traces, proposals } = args;
   const sections = buildSections(blocks);
   const needsReviewCount = blocks.filter((block) => block.status === "needs_review" || /\b(needs[_\s-]?review|todo|tbd|unknown|gap|missing source|unsupported)\b/i.test(block.text)).length;
   const agentBlockCount = blocks.filter((block) => block.role === "agent").length;
@@ -446,4 +443,55 @@ export function buildNotebookArtifactStructure(
     blocks,
     sections,
   };
+}
+
+export function buildNotebookArtifactStructure(
+  artifact: Artifact,
+  related: { traces?: TraceEvent[]; proposals?: Proposal[] } = {},
+): NotebookArtifactStructure {
+  const traces = related.traces ?? [];
+  const proposals = related.proposals ?? [];
+  const blocks: NotebookBlockDigest[] = [];
+  for (const element of orderedElements(artifact)) {
+    if (blocks.length >= MAX_NOTEBOOK_BLOCKS) break;
+    blocks.push(...blocksFromElement({
+      artifact,
+      element,
+      startIndex: blocks.length,
+      traces,
+      proposals,
+    }).slice(0, MAX_NOTEBOOK_BLOCKS - blocks.length));
+  }
+  return finalizeNotebookArtifactStructure({ artifact, blocks, traces, proposals });
+}
+
+export function buildNotebookArtifactStructureFromReadModel(
+  artifact: Artifact,
+  rows: readonly NotebookReadModelBlockRow[],
+  related: { traces?: TraceEvent[]; proposals?: Proposal[] } = {},
+): NotebookArtifactStructure {
+  const traces = related.traces ?? [];
+  const proposals = related.proposals ?? [];
+  const element = artifact.elements.doc ?? orderedElements(artifact)[0] ?? { id: "doc" };
+  const sortedRows = [...rows]
+    .sort((left, right) => left.blockIndex - right.blockIndex || left.blockId.localeCompare(right.blockId))
+    .slice(0, MAX_NOTEBOOK_BLOCKS);
+  const blocks = sortedRows.flatMap((row, index) => {
+    const blockId = row.blockId.trim() || `read-model:${stableHash(`${row.blockIndex}:${row.blockType}:${row.text}`)}`;
+    const kind = kindFromPmType(row.blockType);
+    const block = makeBlock({
+      artifact,
+      element,
+      index,
+      kind: kind === "unknown" ? "paragraph" : kind,
+      text: row.text,
+      blockId,
+      sourceIds: sourceIdsFromText(row.text),
+      traces,
+      proposals,
+    });
+    return block ? [block] : [];
+  });
+
+  return finalizeNotebookArtifactStructure({ artifact, blocks, traces, proposals });
 }

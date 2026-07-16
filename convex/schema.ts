@@ -357,6 +357,8 @@ export default defineSchema({
     text: v.string(),
     clientMsgId: v.string(),
     kind: v.union(v.literal("chat"), v.literal("agent"), v.literal("system")),
+    /** Durable correlation for agent-authored messages. Legacy rows remain valid. */
+    jobId: v.optional(v.id("agentJobs")),
     createdAt: v.number(),
     /** persistent-text-streaming stream id: while set and text is empty, the body lives in the
      *  streaming component (token-level for the driving tab, sentence-flushed for viewers); on
@@ -852,12 +854,16 @@ export default defineSchema({
     model: v.string(),
     goal: v.string(),
     steps: v.number(),
+    traceRecordCount: v.optional(v.number()),
+    modelCalls: v.optional(v.number()),
     toolCalls: v.number(),
     conflictsSurvived: v.number(),
     inputTokens: v.number(),
     outputTokens: v.number(),
     cachedInputTokens: v.optional(v.number()),
+    cacheCreationInputTokens: v.optional(v.number()),
     costUsd: v.number(),
+    costKind: v.optional(v.union(v.literal("exact"), v.literal("estimated"))),
     ms: v.number(),
     exhausted: v.boolean(),
     stopReason: v.optional(v.string()),
@@ -866,7 +872,10 @@ export default defineSchema({
     handoff: v.optional(v.any()),
     idempotencyKey: v.optional(v.string()),
     createdAt: v.number(),
-  }).index("by_room", ["roomId", "createdAt"]).index("by_idempotency", ["idempotencyKey", "createdAt"]),
+  })
+    .index("by_room", ["roomId", "createdAt"])
+    .index("by_job", ["jobId", "createdAt"])
+    .index("by_idempotency", ["idempotencyKey", "createdAt"]),
 
   // ── Credit ledger (pilot wallet). The credit math + caps live in
   // src/nodeagent/core/creditModel.ts (the single source of truth, imported here).
@@ -903,6 +912,7 @@ export default defineSchema({
     usd: v.number(),
     jobId: v.optional(v.id("agentJobs")),
     runId: v.optional(v.id("agentRuns")),
+    costKind: v.optional(v.union(v.literal("exact"), v.literal("estimated"))),
     reason: v.optional(v.string()),
     note: v.optional(v.string()),
     createdAt: v.number(),
@@ -947,6 +957,7 @@ export default defineSchema({
     modelPolicy: v.string(),
     runtime: v.optional(v.union(v.literal("inline"), v.literal("scheduler"), v.literal("workflow"))),
     workflowId: v.optional(v.string()),
+    waitingForJobId: v.optional(v.id("agentJobs")),
     workId: v.optional(v.string()),
     activeFrameId: v.optional(v.string()),
     cursor: v.optional(v.any()),
@@ -958,6 +969,12 @@ export default defineSchema({
     mutationCount: v.optional(v.number()),
     modelCallCount: v.optional(v.number()),
     toolCallCount: v.optional(v.number()),
+    inputTokens: v.optional(v.number()),
+    outputTokens: v.optional(v.number()),
+    cachedInputTokens: v.optional(v.number()),
+    cacheCreationInputTokens: v.optional(v.number()),
+    costUsd: v.optional(v.number()),
+    costKind: v.optional(v.union(v.literal("exact"), v.literal("estimated"))),
     schedulerHandoffCount: v.optional(v.number()),
     receiptCount: v.optional(v.number()),
     latestRunId: v.optional(v.id("agentRuns")),
@@ -971,6 +988,7 @@ export default defineSchema({
     completedAt: v.optional(v.number()),
   })
     .index("by_room", ["roomId", "updatedAt"])
+    .index("by_waiting_for", ["waitingForJobId", "createdAt"])
     .index("by_status_nextRunAt", ["status", "nextRunAt"])
     .index("by_idempotency", ["idempotencyKey", "createdAt"]),
 
@@ -986,7 +1004,11 @@ export default defineSchema({
     inputTokens: v.number(),
     outputTokens: v.number(),
     cachedInputTokens: v.optional(v.number()),
+    cacheCreationInputTokens: v.optional(v.number()),
     costUsd: v.number(),
+    costKind: v.optional(v.union(v.literal("exact"), v.literal("estimated"))),
+    modelCalls: v.optional(v.number()),
+    toolCalls: v.optional(v.number()),
     error: v.optional(v.string()),
     scheduledNextAt: v.optional(v.number()),
     startedAt: v.number(),
@@ -995,6 +1017,9 @@ export default defineSchema({
 
   agentModelStepJournal: defineTable({
     jobId: v.id("agentJobs"),
+    leaseId: v.optional(v.string()),
+    accountedRunId: v.optional(v.id("agentRuns")),
+    accountingClaimedAt: v.optional(v.number()),
     sliceKey: v.string(),
     step: v.number(),
     model: v.string(),

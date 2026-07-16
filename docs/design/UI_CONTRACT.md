@@ -155,7 +155,7 @@ Tokens extracted from the standalone artifact:
 
 | Token area | Contract |
 |---|---|
-| Fonts | UI/display: Inter/system stack. Mono: JetBrains Mono. Notebook paper may use Lora/serif. |
+| Fonts | UI/display and notebook: Inter/system stack. Mono: JetBrains Mono. The desktop notebook must not introduce a serif paper theme inside the Cloud shell. |
 | Accent | Terracotta selection/focus: `#D97757`; hover: `#C76648`; warm ink: `#E59579`/`#AD5F45`. |
 | Secondary signal | Indigo `#5E6AD2`/`#8C92E0` for non-primary status or agent metadata, not as a page-wide theme. |
 | Semantic colors | Success green only for completed/healthy states. Warning amber for held/review states. Danger red only for errors/failures. |
@@ -175,6 +175,38 @@ Layout rules:
 - Work surfaces should preserve stable dimensions for grids, tab strips,
   status rails, icon buttons, counters, and cells so state changes do not
   resize the layout.
+
+### Desktop notebook interior correction (2026-07-15)
+
+The dense Cloud shell geometry is authoritative for the notebook. The older
+cream paper exception is retired on desktop: the notebook is a dark, edge-to-edge
+work surface using the same panel, hairline, type, and status tokens as sheets,
+chat, and trace. This correction changes presentation and progressive disclosure,
+not notebook data, editing, execution, approval, or provenance behavior.
+
+- Utility bar: 36px dark row; artifact title left, block/review/save state right.
+- Editor: full-height independent scroll region, left aligned, `max-width: 92ch`,
+  `22px 28px 48px` padding; H1 24px, H2 16px, body 13.5px.
+- Intelligence: 34px collapsed-by-default disclosure below the editor; expanded
+  content is internally scrollable and capped at `min(32vh, 320px)`.
+- Intelligence rows: flat hairline-separated rows rather than cards on a gray band.
+- Kernel, patch, approval, source, hash, citation, review, and error states remain
+  visible and keyboard reachable when their disclosure is opened.
+- Notebook detail mode owns the center work surface; list-level bundle summaries
+  do not consume vertical space above an open notebook.
+- Desktop notebook backgrounds must not use `#fbf8f1`, `#f7f4ed`, or a white page
+  canvas. The mobile light-terracotta contract remains unchanged.
+
+Notebook declutter capability ledger:
+
+| id | selector/component | user promise | guard | backing behavior | disposition | preserve/reverify assertion |
+|---|---|---|---|---|---|---|
+| N1 | `.nbk-frame`, `.nbk-paper` | Edit and read the notebook | `PRESERVE_CAPABILITY` | ProseMirror/legacy editor state and blur commits | COMPACT | Editor remains editable, scrollable, and reload-persistent. |
+| N2 | `notebook-read-model` | Inspect live typed blocks | `PRESERVE_CAPABILITY` | Convex notebook block read model | DEFER | Collapsed trigger is reachable; opening reveals the same typed blocks. |
+| N3 | `notebook-kernel-*` | Choose, run, cancel, and inspect kernels | `PRESERVE_CAPABILITY` | Kernel broker and persisted execution receipts | PRESERVE | Safe/Pyodide controls, output, timeout, cancellation, and persistence remain reachable. |
+| N4 | notebook patch/approval controls | Review agent changes before mutation | `PRESERVE_CAPABILITY` | Proposal and approval handlers | PRESERVE | Diff, source requirements, approve/reject, and failure states retain test IDs and behavior. |
+| N5 | notebook provenance/citation/hash rows | Audit sources and receipts | `PRESERVE_CAPABILITY` | Trace/source/read-model metadata | PRESERVE | Provenance, hashes, citations, and honest uncertainty remain visible on reveal. |
+| N6 | cream paper, hero typography, expanded intelligence band | Notebook-specific visual identity | `ORDINARY_CAPABILITY` | Presentation CSS only | REMOVE/DEFER | Dark Cloud tokens, 24px maximum H1, 34px collapsed tray, no lost capability. |
 - Mobile routes translate rails into sheets/tabs and keep desktop hover details
   available through explicit controls.
 

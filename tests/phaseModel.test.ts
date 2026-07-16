@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { modelForFramePhase, ORCHESTRATOR_PHASES } from "../src/nodeagent/models/phaseModel";
+import { authorizedModelForFramePhase, modelForFramePhase, ORCHESTRATOR_PHASES } from "../src/nodeagent/models/phaseModel";
 
 describe("modelForFramePhase", () => {
   const originalEnv = { ...process.env };
@@ -66,6 +66,14 @@ describe("modelForFramePhase", () => {
 
     expect(modelForFramePhase("plan", "fallback")).toBe("nebius/zai-org/GLM-5");
     expect(modelForFramePhase("execute", "fallback")).toBe("nebius/MiniMaxAI/MiniMax-M2.5");
+  });
+
+  it("falls back when an artifact-aware egress gate rejects the phase override", () => {
+    const env = { AGENT_ORCHESTRATOR_MODEL: "openrouter/free-auto" };
+    expect(authorizedModelForFramePhase("plan", "anthropic/claude-sonnet-4", () => false, env))
+      .toBe("anthropic/claude-sonnet-4");
+    expect(authorizedModelForFramePhase("plan", "anthropic/claude-sonnet-4", () => true, env))
+      .toBe("openrouter/free-auto");
   });
 
   it("ORCHESTRATOR_PHASES contains the expected set", () => {

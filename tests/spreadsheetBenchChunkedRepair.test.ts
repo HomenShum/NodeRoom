@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { afterEach, describe, expect, it } from "vitest";
+import { fingerprintSpreadsheetBenchRunSource } from "../src/eval/spreadsheetBenchRunSourceFingerprint";
 
 const tempRoots: string[] = [];
 
@@ -95,6 +96,13 @@ describe("SpreadsheetBench chunked receipt repair", () => {
       caseRuns: [caseRun],
       results: [result],
     });
+    const sourceFingerprint = fingerprintSpreadsheetBenchRunSource(resolve("."));
+    writeJson(join(output, ".chunks", "source-fingerprint.json"), {
+      schema: 1,
+      kind: "spreadsheetbench-run-source-fingerprint",
+      generatedAt: "2026-07-15T00:00:00.000Z",
+      ...sourceFingerprint,
+    });
 
     const run = spawnSync(process.execPath, [
       resolve("node_modules", "tsx", "dist", "cli.mjs"),
@@ -145,6 +153,32 @@ describe("SpreadsheetBench chunked receipt repair", () => {
 
     expect(run.status).not.toBe(0);
     expect(`${run.stdout}\n${run.stderr}`).toContain("Refusing paid model route gpt-5.4-nano");
+  });
+
+  it("refuses to resume legacy chunk evidence without a bound source fingerprint", () => {
+    const root = mkdtempSync(join(tmpdir(), "spreadsheetbench-source-seal-"));
+    tempRoots.push(root);
+    const stage = join(root, "stage");
+    const output = join(root, "output");
+    const taskDir = join(stage, "tasks", "task-a");
+    writeJson(join(taskDir, "agent", "task.json"), { taskId: "Task/A", track: "spreadsheetbench-v2" });
+    writeJson(join(taskDir, "evaluator", "evaluator.json"), { taskId: "Task/A", track: "spreadsheetbench-v2" });
+    writeJson(join(output, ".chunks", "chunk-001-0-1.json"), { schema: 1 });
+
+    const run = spawnSync(process.execPath, [
+      resolve("node_modules", "tsx", "dist", "cli.mjs"),
+      resolve("scripts", "spreadsheetbench-run-chunked.ts"),
+      "--stage-root", stage,
+      "--output-root", output,
+      "--json-out", join(root, "aggregate.json"),
+      "--mode", "copy-input-baseline",
+      "--chunk-size", "1",
+      "--concurrency", "1",
+      "--resume",
+    ], { cwd: resolve("."), encoding: "utf8" });
+
+    expect(run.status).not.toBe(0);
+    expect(`${run.stdout}\n${run.stderr}`).toContain("resume data has no source fingerprint");
   });
 });
 

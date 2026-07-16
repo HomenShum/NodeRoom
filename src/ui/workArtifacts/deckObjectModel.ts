@@ -209,15 +209,18 @@ export function planDeckObjectMutations(input: {
   current: DeckStoryboard;
   objectVersions: Record<string, number>;
   next: DeckStoryboard;
+  changedObjectIds?: ReadonlySet<string>;
 }): DeckObjectMutation[] {
   const currentValues = input.storageMode === "object-v2" ? deckObjectValues(input.current) : new Map<string, unknown>();
   const nextValues = deckObjectValues(input.next);
+  const includesObject = (elementId: string) => !input.changedObjectIds || input.changedObjectIds.has(elementId);
   const creates: DeckObjectMutation[] = [];
   const updates: DeckObjectMutation[] = [];
   const orderUpdates: DeckObjectMutation[] = [];
   const deletes: DeckObjectMutation[] = [];
 
   for (const [elementId, value] of nextValues) {
+    if (!includesObject(elementId)) continue;
     const existingVersion = input.objectVersions[elementId];
     if (existingVersion === undefined) {
       creates.push({ objectId: objectIdFor(elementId), elementId, kind: "create", value, baseVersion: 0 });
@@ -230,6 +233,7 @@ export function planDeckObjectMutations(input: {
   }
 
   for (const elementId of currentValues.keys()) {
+    if (!includesObject(elementId)) continue;
     if (nextValues.has(elementId)) continue;
     const baseVersion = input.objectVersions[elementId];
     if (baseVersion === undefined) continue;
@@ -242,6 +246,37 @@ export function planDeckObjectMutations(input: {
   creates.sort((a, b) => storagePhase(a.elementId) - storagePhase(b.elementId));
   updates.sort((a, b) => storagePhase(a.elementId) - storagePhase(b.elementId));
   return [...creates, ...updates, ...orderUpdates, ...deletes];
+}
+
+/** Object ids changed between two storyboard snapshots, independent of deck version metadata. */
+export function changedDeckObjectIds(base: DeckStoryboard, next: DeckStoryboard): string[] {
+  const baseValues = deckObjectValues(base);
+  const nextValues = deckObjectValues(next);
+  const elementIds = new Set([...baseValues.keys(), ...nextValues.keys()]);
+  return [...elementIds]
+    .filter((elementId) => !sameValue(baseValues.get(elementId), nextValues.get(elementId)))
+    .sort((left, right) => storagePhase(left) - storagePhase(right) || left.localeCompare(right));
+}
+
+/**
+ * Detects only true three-way conflicts: an object changed locally and remotely
+ * from the same editor base. Disjoint object edits can therefore be committed
+ * against the latest object versions without replacing a collaborator's work.
+ */
+export function findDeckObjectConflicts(input: {
+  base: DeckStoryboard;
+  current: DeckStoryboard;
+  next: DeckStoryboard;
+}): string[] {
+  const remoteChanges = new Set(changedDeckObjectIds(input.base, input.current));
+  return changedDeckObjectIds(input.base, input.next).filter((elementId) => {
+    if (!remoteChanges.has(elementId)) return false;
+    if (elementId !== DECK_META_ELEMENT_ID) return true;
+    // Most meta fields are derived aggregates of slide/claim objects. They are
+    // recomputed after a disjoint merge and must not manufacture a conflict.
+    // Authored deck-level fields still use ordinary three-way conflict rules.
+    return deckAuthoredMetaChanged(input.base, input.next) && deckAuthoredMetaChanged(input.base, input.current);
+  });
 }
 
 export function createDeckComment(input: {
@@ -367,6 +402,13 @@ function storagePhase(elementId: string): number {
 
 function sameValue(left: unknown, right: unknown): boolean {
   return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function deckAuthoredMetaChanged(base: DeckStoryboard, next: DeckStoryboard): boolean {
+  return !sameValue(
+    { title: base.title, audience: base.audience, objective: base.objective, privacy: base.privacy },
+    { title: next.title, audience: next.audience, objective: next.objective, privacy: next.privacy },
+  );
 }
 
 function stringArray(value: unknown): value is string[] {

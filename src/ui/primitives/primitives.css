@@ -505,7 +505,7 @@
 
 .nr-app-shell .r-sheet td.label,
 .nr-app-shell .r-sheet td.r-cell .r-cell-value {
-  color: var(--text-primary);
+  color: var(--r-cell-font-color, var(--text-primary));
 }
 
 .nr-app-shell .r-sheet tbody tr:hover td {
@@ -606,17 +606,17 @@
 
 .nr-app-shell .nbk-frame {
   border-color: var(--nr-line-subtle);
-  background: #f7f4ed;
+  background: var(--nr-surface-panel);
   box-shadow: none;
 }
 
 .nr-app-shell .nbk-body {
-  background: #fbf8f1;
+  background: var(--nr-surface-panel);
 }
 
 .nr-app-shell .nbk-bar,
 .nr-app-shell .nbk-foot {
-  border-color: rgba(15, 23, 42, .08);
+  border-color: var(--nr-line-subtle);
 }
 
 .nr-app-shell .nbk-mark,
@@ -625,30 +625,31 @@
 }
 
 .nr-app-shell .nbk-frame .r-note {
-  width: min(100%, 760px);
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 36px 48px 64px;
+  width: 100%;
+  max-width: 92ch;
+  margin: 0;
+  padding: 22px 28px 48px;
 }
 
 .nr-app-shell .nbk-frame .ProseMirror {
-  color: #1F2937;
+  color: var(--text-primary);
 }
 
 .nr-app-shell .nbk-frame .ProseMirror p,
 .nr-app-shell .nbk-frame .ProseMirror li {
-  line-height: 1.72;
+  font-size: 13.5px;
+  line-height: 1.55;
 }
 
 .nr-app-shell .nbk-frame .ProseMirror h1 {
-  font-size: clamp(28px, 4.2vw, 38px);
-  line-height: 1.04;
+  font-size: 24px;
+  line-height: 1.2;
   letter-spacing: 0;
 }
 
 .nr-app-shell .nbk-frame .ProseMirror h2 {
-  margin-top: 30px;
-  font-size: 21px;
+  margin-top: 20px;
+  font-size: 16px;
   letter-spacing: 0;
 }
 
@@ -1587,7 +1588,7 @@
 
   .nr-app-shell .r-sheet .r-cell-value.r-cell-url,
   .nr-app-shell .r-sheet[data-sheet-kind="generic"] td.r-cell .r-cell-value.r-cell-url {
-    color: var(--text-secondary) !important;
+    color: var(--r-cell-font-color, var(--text-secondary)) !important;
     font-family: var(--font-mono);
     font-size: 12px;
     font-weight: 400 !important;
@@ -1981,7 +1982,7 @@
 
   .r-shell-bottom {
     margin: 0;
-    min-height: 42px;
+    min-height: 30px;
     border-width: 1px 0 0;
     border-radius: 0;
     border-color: var(--nr-line-subtle);

@@ -2006,6 +2006,81 @@
   background: rgba(85,212,154,.1);
 }
 
+/* Notebook detail owns the work surface. Keep bundle-level controls mounted so
+   state is preserved, but remove them from layout while the detail is open. */
+.wa-panel[data-detail="notebook"] {
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.wa-panel[data-detail="notebook"] > :not(.wa-notebook) {
+  display: none;
+}
+
+.wa-panel[data-detail="notebook"] > .wa-notebook {
+  height: 100%;
+  padding: 0;
+  border-top: 0;
+  overflow: auto;
+}
+
+.wa-panel[data-detail="notebook"] .wa-notebook-head {
+  min-height: 40px;
+  align-items: center;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--border, rgba(255,255,255,.08));
+}
+
+.wa-panel[data-detail="notebook"] .wa-notebook-head .wa-eyebrow,
+.wa-panel[data-detail="notebook"] .wa-notebook-head p:not(.wa-eyebrow) {
+  display: none;
+}
+
+.wa-panel[data-detail="notebook"] .wa-notebook-head h3 {
+  font-size: 13px;
+}
+
+.wa-panel[data-detail="notebook"] .wa-notebook-meta {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border, rgba(255,255,255,.08));
+}
+
+.wa-panel[data-detail="notebook"] .wa-notebook-meta span,
+.wa-panel[data-detail="notebook"] .wa-notebook-block-receipts span,
+.wa-panel[data-detail="notebook"] .wa-notebook-source-list span,
+.wa-panel[data-detail="notebook"] .wa-notebook-type-list span,
+.wa-panel[data-detail="notebook"] .wa-notebook-exec-metrics span {
+  border-radius: 5px;
+  background: transparent;
+}
+
+.wa-panel[data-detail="notebook"] .wa-notebook-grid {
+  gap: 0;
+  min-height: calc(100% - 78px);
+}
+
+.wa-panel[data-detail="notebook"] .wa-notebook-blocks {
+  gap: 0;
+  padding: 8px 16px 24px;
+}
+
+.wa-panel[data-detail="notebook"] .wa-notebook-block,
+.wa-panel[data-detail="notebook"] .wa-notebook-side-card,
+.wa-panel[data-detail="notebook"] .wa-notebook-section,
+.wa-panel[data-detail="notebook"] .wa-notebook-exec-item,
+.wa-panel[data-detail="notebook"] .wa-notebook-patch {
+  border-width: 0 0 1px;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.wa-panel[data-detail="notebook"] .wa-notebook-side {
+  gap: 0;
+  border-left: 1px solid var(--border, rgba(255,255,255,.08));
+}
+
 .wa-traceplay {
   display: grid;
   flex: 0 0 auto;

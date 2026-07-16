@@ -29,6 +29,7 @@ import {
   buildLivePerformanceSummary,
   buildNotebookExecutionPreview,
   buildNotebookArtifactStructure,
+  buildNotebookArtifactStructureFromReadModel,
   buildNotebookPatchPreviewItems,
   buildNotebookPatchDiff,
   notebookPatchValueText,
@@ -323,6 +324,37 @@ describe("work artifact adapters", () => {
     expect(byKind.get("sql")?.result).toBe("Parsed 2 columns from diligence.");
     expect(byKind.get("chart")?.result).toContain("line chart intent");
     expect(executionNotebook.elements.doc.value).toContain("Calculation: runway score");
+  });
+
+  it("bridges sorted live notebook rows into a stable Pyodide-ready Python block", () => {
+    const rows = [
+      { blockId: "live-python", blockIndex: 2, blockType: "paragraph", text: "Python: print((2400 - 1100) - 450)" },
+      { blockId: "live-body", blockIndex: 1, blockType: "paragraph", text: "Current variance analysis" },
+      { blockId: "live-title", blockIndex: 0, blockType: "heading", text: "Q3 variance" },
+    ];
+
+    const structure = buildNotebookArtifactStructureFromReadModel(structuredNotebook, rows);
+    const typed = classifyNotebookTypedBlocks(structure);
+    const preview = buildNotebookExecutionPreview(structure);
+    const python = preview.items.find((item) => item.kind === "python");
+
+    expect(structure.blocks.map((block) => block.blockId)).toEqual(["live-title", "live-body", "live-python"]);
+    expect(structure.blocks.map((block) => block.id)).toEqual(["live-title", "live-body", "live-python"]);
+    expect(typed.find((block) => block.blockId === "live-python")?.type).toBe("python");
+    expect(python).toMatchObject({
+      blockId: "live-python",
+      status: "ready",
+      input: "print((2400 - 1100) - 450)",
+      reason: "pyodide_worker_required",
+    });
+
+    const afterTextEdit = buildNotebookArtifactStructureFromReadModel(structuredNotebook, [
+      { ...rows[0], text: "Python: print((2400 - 1100) - 400)" },
+      rows[2],
+      rows[1],
+    ]);
+    expect(afterTextEdit.blocks.map((block) => block.id)).toEqual(["live-title", "live-body", "live-python"]);
+    expect(structuredNotebook.elements.doc.value).toContain("CardioNova diligence");
   });
 
   it("derives notebook structure from ProseMirror JSON blocks", () => {
@@ -630,7 +662,7 @@ describe("work artifact adapters", () => {
       roomId: "room-1",
       messages,
       traces: [trace],
-      run: { model: "openrouter/free", steps: 4, toolCalls: 3, inputTokens: 1200, outputTokens: 320, costUsd: 0.012, ms: 1800 },
+      run: { model: "openrouter/free", steps: 4, toolCalls: 3, inputTokens: 1200, outputTokens: 320, costUsd: 0.012, costKind: "estimated", ms: 1800 },
       job: {
         id: "job-1",
         status: "running",
@@ -643,7 +675,7 @@ describe("work artifact adapters", () => {
         modelCallCount: 1,
         receiptCount: 2,
       },
-      attempts: [{ attempt: 1, status: "running", resolvedModel: "openrouter/free", stopReason: "in_progress", ms: 900, inputTokens: 600, outputTokens: 120, costUsd: 0.004 }],
+      attempts: [{ attempt: 1, status: "running", resolvedModel: "openrouter/free", stopReason: "in_progress", ms: 900, inputTokens: 600, outputTokens: 120, costUsd: 0.004, costKind: "estimated" }],
       detail: {
         operations: [{ sequence: 1, kind: "mutation", name: "patch_bundle_cas", status: "completed" }],
         streamEvents: [{ sequence: 1, kind: "message_done", status: "completed", createdAt: 20, text: "done" }],
@@ -1002,7 +1034,8 @@ describe("work artifact adapters", () => {
     expect(pptx.exportVersion).toBe(1);
     expect(pptx.integrityHash).toBe(second.integrityHash);
     expect(Buffer.from(pptx.bytes).equals(Buffer.from(second.bytes))).toBe(true);
-    expect(Object.values(zip.files).every((entry) => !entry.dir)).toBe(true);
+    expect(Object.values(zip.files).some((entry) => entry.dir)).toBe(false);
+    expect(new Set(Object.values(zip.files).map((entry) => entry.date.getTime())).size).toBe(1);
     expect([...pptx.bytes.slice(0, 2)].map((value) => String.fromCharCode(value)).join("")).toBe("PK");
     expect(pptx.slideCount).toBe(2);
     expect(pptx.needsReviewCount).toBeGreaterThan(0);

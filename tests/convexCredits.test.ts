@@ -38,7 +38,7 @@ async function readRoomCredits(t: ReturnType<typeof convexTest>, roomId: any) {
 }
 
 describe("convex credits — grant + reserve + settle", () => {
-  it("grant seeds the balance; reserve holds; settle debits actual + refunds the rest", async () => {
+  it("grant seeds the balance; reserve holds; settle labels estimated spend and refunds the rest", async () => {
     const t = convexTest(schema, modules);
     const roomId = await seedRoom(t);
     await t.mutation(internal.credits.grantCredits, { roomId, credits: 20, source: "pilot" });
@@ -54,9 +54,12 @@ describe("convex credits — grant + reserve + settle", () => {
 
     // Settle cheaper than the hold → unused refunded, reserved released.
     const cheapUsd = estimateCostFor("standard").estimateUsd / 2;
-    const s = await t.mutation(internal.credits.settle, { roomId, reservationKey: "job_1", actualUsd: cheapUsd });
+    const s = await t.mutation(internal.credits.settle, { roomId, reservationKey: "job_1", actualUsd: cheapUsd, costKind: "estimated" });
     expect(s.ok).toBe(true);
+    expect((s as any).costKind).toBe("estimated");
     expect((s as any).refundedCredits).toBeGreaterThan(0);
+    const ledger = await t.run(async (ctx) => ctx.db.query("creditLedger").withIndex("by_reservation", (q) => q.eq("reservationKey", "job_1")).collect());
+    expect(ledger.find((row) => row.kind === "settle")?.costKind).toBe("estimated");
     rc = await readRoomCredits(t, roomId);
     expect(rc?.reservedCredits).toBe(0);
     expect((rc?.availableCredits ?? 0) + (rc?.lifetimeSpentCredits ?? 0)).toBeCloseTo(20, 1);
@@ -136,6 +139,8 @@ describe("convex credits — idempotency", () => {
     expect((b as any).idempotent).toBe(true);
     const rc = await readRoomCredits(t, roomId);
     expect(rc?.lifetimeSpentCredits).toBeLessThanOrEqual(QUICK_HOLD + 0.5); // not double-charged
+    const ledger = await t.run(async (ctx) => ctx.db.query("creditLedger").withIndex("by_reservation", (q) => q.eq("reservationKey", "once")).collect());
+    expect(ledger.find((row) => row.kind === "settle")?.costKind).toBe("estimated");
   });
 
   it("settle for an unknown reservation is rejected honestly", async () => {
@@ -191,7 +196,7 @@ describe("convex credits — overspend, pause, sweep", () => {
     expect(rc?.availableCredits).toBe(20); // fully refunded
   });
 
-  it("COST-AWARE sweep: a finished-but-unsettled run is charged its ACTUAL cost, not fully refunded", async () => {
+  it("COST-AWARE sweep: a finished-but-unsettled run is charged its recorded cost, not fully refunded", async () => {
     const t = convexTest(schema, modules);
     const roomId = await seedRoom(t);
     const t0 = 2_000_000;
@@ -201,7 +206,7 @@ describe("convex credits — overspend, pause, sweep", () => {
     await t.run(async (ctx: any) => {
       await ctx.db.insert("agentRuns", {
         roomId, agentId: "a", model: "z-ai/glm-5.2", goal: "g", steps: 5, toolCalls: 1, conflictsSurvived: 0,
-        inputTokens: 1000, outputTokens: 100, costUsd: 0.5, ms: 100, exhausted: false, idempotencyKey: "finished-key", createdAt: t0 + 1000,
+        inputTokens: 1000, outputTokens: 100, costUsd: 0.5, costKind: "exact", ms: 100, exhausted: false, stopReason: "done", idempotencyKey: "finished-key", createdAt: t0 + 1000,
       });
     });
     const swept = await t.mutation(internal.credits.sweepExpiredReservations, { now: t0 + 2 * 60 * 60 * 1000 });
@@ -211,15 +216,41 @@ describe("convex credits — overspend, pause, sweep", () => {
     expect(rc?.lifetimeSpentCredits).toBe(2);
     expect(rc?.reservedCredits).toBe(0);
     expect(rc?.availableCredits).toBe(18);
+    const ledger = await t.run(async (ctx) => ctx.db.query("creditLedger").withIndex("by_reservation", (q) => q.eq("reservationKey", "finished-key")).collect());
+    expect(ledger.find((row) => row.kind === "settle")?.costKind).toBe("exact");
   });
 
-  it("COST-AWARE sweep: a crashed run with no recorded cost CAPTURES the hold (never refunds spent money)", async () => {
+  it("COST-AWARE sweep: an exact-zero finished run refunds the hold instead of capturing it", async () => {
+    const t = convexTest(schema, modules);
+    const roomId = await seedRoom(t);
+    const t0 = 2_500_000;
+    await t.mutation(internal.credits.grantCredits, { roomId, credits: 20, source: "pilot", now: t0 });
+    await t.mutation(internal.credits.reserve, { roomId, mode: "deep", reservationKey: "finished-free-key", now: t0 });
+    await t.run(async (ctx: any) => {
+      await ctx.db.insert("agentRuns", {
+        roomId, agentId: "a", model: "openrouter/free", goal: "g", steps: 2, toolCalls: 0, conflictsSurvived: 0,
+        inputTokens: 500, outputTokens: 50, costUsd: 0, costKind: "exact", ms: 80, exhausted: false, stopReason: "done", idempotencyKey: "finished-free-key", createdAt: t0 + 1000,
+      });
+    });
+
+    const swept = await t.mutation(internal.credits.sweepExpiredReservations, { now: t0 + 2 * 60 * 60 * 1000 });
+    expect(swept).toMatchObject({ swept: 1, captured: 0 });
+    const rc = await readRoomCredits(t, roomId);
+    expect(rc).toMatchObject({ availableCredits: 20, reservedCredits: 0, lifetimeSpentCredits: 0 });
+    const ledger = await t.run(async (ctx) => ctx.db.query("creditLedger").withIndex("by_reservation", (q) => q.eq("reservationKey", "finished-free-key")).collect());
+    const settlement = ledger.find((row) => row.kind === "settle");
+    expect(settlement).toMatchObject({ costKind: "exact", reason: "swept_settled" });
+    expect(Math.abs(settlement?.usd ?? NaN)).toBe(0);
+    expect(Math.abs(settlement?.credits ?? NaN)).toBe(0);
+  });
+
+  it("COST-AWARE sweep: a truly abandoned run with no terminal marker CAPTURES the hold", async () => {
     const t = convexTest(schema, modules);
     const roomId = await seedRoom(t);
     const t0 = 3_000_000;
     await t.mutation(internal.credits.grantCredits, { roomId, credits: 20, source: "pilot", now: t0 });
     await t.mutation(internal.credits.reserve, { roomId, mode: "deep", reservationKey: "crashed-key", now: t0 });
-    // A run was claimed (row exists) but crashed mid-LLM: costUsd never recorded (still 0).
+    // A run was claimed (row exists) but crashed mid-LLM: no stopReason was persisted by finish.
     await t.run(async (ctx: any) => {
       await ctx.db.insert("agentRuns", {
         roomId, agentId: "a", model: "z-ai/glm-5.2", goal: "g", steps: 0, toolCalls: 0, conflictsSurvived: 0,
@@ -233,6 +264,8 @@ describe("convex credits — overspend, pause, sweep", () => {
     expect(rc?.lifetimeSpentCredits).toBe(DEEP_HOLD);
     expect(rc?.reservedCredits).toBe(0);
     expect(rc?.availableCredits).toBe(20 - DEEP_HOLD);
+    const ledger = await t.run(async (ctx) => ctx.db.query("creditLedger").withIndex("by_reservation", (q) => q.eq("reservationKey", "crashed-key")).collect());
+    expect(ledger.find((row) => row.kind === "settle")).toMatchObject({ costKind: "estimated", reason: "swept_captured" });
   });
 
   it("admin snapshot rolls up enrolled rooms and spend", async () => {

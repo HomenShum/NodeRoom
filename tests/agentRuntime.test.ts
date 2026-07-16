@@ -62,6 +62,99 @@ it("repairs a complete stringified tool argument object with provider spillover"
   expect(repairedCall?.providerMetadata).toMatchObject({ argumentRepair: "stringified_json_object" });
 });
 
+it("rejects recursively schema-placeholder-only tool arguments while allowing mixed real strings", async () => {
+  const { rt } = setup();
+  let executeCalls = 0;
+  const recordTool: AgentTool = {
+    name: "record_payload",
+    description: "Record a structured payload.",
+    schema: z.object({
+      title: z.string(),
+      details: z.object({ label: z.string(), note: z.string() }),
+      count: z.number(),
+    }),
+    execute: async (args: { title: string; details: { label: string; note: string }; count: number }) => {
+      executeCalls += 1;
+      return { ok: true, args };
+    },
+  };
+  let turn = 0;
+  const model: AgentModel = {
+    name: "schema-placeholder-retry",
+    async next() {
+      turn += 1;
+      if (turn === 1) {
+        return {
+          toolCalls: [{
+            id: "placeholder-only",
+            tool: "record_payload",
+            args: { title: "string", details: { label: "<string>", note: "" }, count: 1 },
+          }],
+          done: false,
+        };
+      }
+      if (turn === 2) {
+        return {
+          toolCalls: [{
+            id: "mixed-real-value",
+            tool: "record_payload",
+            args: { title: "Q3 variance", details: { label: "string", note: "" }, count: 1 },
+          }],
+          done: false,
+        };
+      }
+      return { text: "Recorded.", toolCalls: [], done: true };
+    },
+  };
+
+  const result = await runAgent({ rt, goal: "record the Q3 variance payload", model, tools: [recordTool], maxSteps: 3 });
+
+  expect(executeCalls).toBe(1);
+  expect(result.trace[0]).toMatchObject({
+    tool: "record_payload",
+    result: {
+      ok: false,
+      error: "tool_argument_error",
+      failureKind: "schema_placeholder_arguments",
+      recovery: { action: "retry_tool_call" },
+    },
+  });
+  expect(result.trace[1]).toMatchObject({ tool: "record_payload", result: { ok: true } });
+});
+
+it("does not execute or persist chat for say with a schema-placeholder argument", async () => {
+  const { engine, d, rt } = setup();
+  const beforeMessages = engine.listMessages(d.roomId, "public").map((message) => message.id);
+  let executeCalls = 0;
+  const sayTool: AgentTool = {
+    name: "say",
+    description: "Post one line to room chat.",
+    schema: z.object({ text: z.string() }),
+    execute: async ({ text }: { text: string }, roomTools) => {
+      executeCalls += 1;
+      await roomTools.say(text);
+      return { ok: true };
+    },
+  };
+  const model = scriptedModel(() => ({
+    toolCalls: [{ tool: "say", args: { text: "string" } }],
+  }));
+
+  const result = await runAgent({ rt, goal: "report the room status", model, tools: [sayTool], maxSteps: 1 });
+
+  expect(executeCalls).toBe(0);
+  expect(engine.listMessages(d.roomId, "public").map((message) => message.id)).toEqual(beforeMessages);
+  expect(result.trace[0]).toMatchObject({
+    tool: "say",
+    result: {
+      ok: false,
+      error: "tool_argument_error",
+      failureKind: "schema_placeholder_arguments",
+      recovery: { action: "retry_tool_call" },
+    },
+  });
+});
+
 describe("agent runtime — collaboration under concurrency", () => {
   it("happy path: claim → read → CAS edit → release commits both cells with no conflicts", async () => {
     const { engine, d, rt } = setup();
@@ -203,6 +296,32 @@ describe("agent runtime — collaboration under concurrency", () => {
     expect(r.trace.filter((t) => t.tool === "say")).toHaveLength(1);
   });
 
+  it("withholds repeated say calls until a write-required goal makes artifact progress", async () => {
+    const { rt } = setup();
+    const offeredToolNames: string[][] = [];
+    let turn = 0;
+    const model: AgentModel = {
+      name: "pre-write-say-loop",
+      async next({ tools }) {
+        offeredToolNames.push(tools.map((tool) => tool.name));
+        turn += 1;
+        if (turn === 1) return {
+          toolCalls: [{ id: "say-before-write", tool: "say", args: { text: "I am still working." } }],
+          done: false,
+        };
+        return { text: "No write performed.", toolCalls: [], done: true };
+      },
+    };
+
+    const result = await runAgent({ rt, goal: "fill the sheet cells", model, tools: ROOM_TOOLS, maxSteps: 2 });
+
+    expect(offeredToolNames[0]).toContain("say");
+    expect(offeredToolNames[1]).not.toContain("say");
+    expect(result.trace.filter((event) => event.tool === "say")).toHaveLength(1);
+    expect(result.messages.some((message) => message.content?.includes("say tool is now withheld"))).toBe(true);
+    expect(result.stopReason).toBe("step_budget");
+  });
+
   it("does not steer read-only report answers into the BTB package tool", async () => {
     const { rt } = setup();
     let packageCalls = 0;
@@ -250,7 +369,7 @@ describe("agent runtime — collaboration under concurrency", () => {
 
     expect(r.exhausted).toBe(true);
     expect(r.stopReason).toBe("step_budget");
-    expect(r.handoff?.summary).toContain("required tool call missing");
+    expect(r.handoff?.summary).toContain("2/4 required-tool misses");
     expect(r.trace.at(-1)?.tool).toBe("handoff");
   });
 
@@ -341,6 +460,72 @@ describe("agent runtime — collaboration under concurrency", () => {
     expect(result.stopReason).toBe("step_budget");
     expect(result.exhausted).toBe(true);
     expect(result.trace.find((event) => event.tool === "edit_cell")?.result).toMatchObject({ ok: false });
+  });
+
+  it("withholds broad reads after the bounded pre-write evidence budget is exhausted", async () => {
+    const { rt } = setup();
+    const offeredToolNames: string[][] = [];
+    const model: AgentModel = {
+      name: "bounded-read-loop",
+      async next({ tools }) {
+        const names = tools.map((tool) => tool.name);
+        offeredToolNames.push(names);
+        if (names.includes("read_range")) {
+          return { toolCalls: [{ id: `read-${offeredToolNames.length}`, tool: "read_range", args: { elementIds: ["r_rev__variance"] } }], done: false };
+        }
+        return { text: "No write performed.", toolCalls: [], done: true };
+      },
+    };
+
+    const result = await runAgent({ rt, goal: "complete the financial model", model, tools: ROOM_TOOLS, maxSteps: 6 });
+
+    expect(offeredToolNames).toHaveLength(6);
+    expect(offeredToolNames[4]).toContain("read_range");
+    expect(offeredToolNames[5]).not.toContain("read_range");
+    expect(offeredToolNames[5]).not.toContain("say");
+    expect(result.trace.filter((event) => event.tool === "read_range")).toHaveLength(5);
+    expect(result.messages.some((message) => message.content?.includes("pre-write read budget is exhausted"))).toBe(true);
+    expect(result.stopReason).toBe("step_budget");
+  });
+
+  it("keeps mandatory workbook inspection available after exploratory reads are withheld", async () => {
+    const { rt } = setup();
+    const offeredToolNames: string[][] = [];
+    const inspectTool: AgentTool = {
+      name: "inspect_workbook",
+      description: "Required workbook workflow inspection gate.",
+      schema: z.object({}),
+      execute: async () => ({ ok: true, inspection: { schema: 1 } }),
+    };
+    const model: AgentModel = {
+      name: "bounded-read-inspection-gate",
+      async next({ tools }) {
+        const names = tools.map((tool) => tool.name);
+        offeredToolNames.push(names);
+        if (offeredToolNames.length <= 5) {
+          return { toolCalls: [{ id: `read-${offeredToolNames.length}`, tool: "read_range", args: { elementIds: ["r_rev__variance"] } }], done: false };
+        }
+        return { toolCalls: [{ id: "inspect-required", tool: "inspect_workbook", args: {} }], done: false };
+      },
+    };
+
+    const result = await runAgent({
+      rt,
+      goal: "complete the financial model",
+      model,
+      tools: [
+        ...ROOM_TOOLS.filter((tool) => tool.name !== "inspect_workbook"),
+        inspectTool,
+      ],
+      maxSteps: 6,
+    });
+
+    expect(offeredToolNames[5]).not.toContain("read_range");
+    expect(offeredToolNames[5]).toContain("inspect_workbook");
+    expect(result.trace.find((event) => event.tool === "inspect_workbook")).toMatchObject({
+      tool: "inspect_workbook",
+      result: { ok: true },
+    });
   });
 
   it("steers read-looping BTB runs toward the deliverable package tool", async () => {
@@ -506,8 +691,10 @@ describe("agent runtime — collaboration under concurrency", () => {
     expect(r.exhausted).toBe(true);
     expect(r.stopReason).toBe("step_budget");
     expect(r.messages.some((message) =>
-      message.role === "user" && !!message.content?.includes("BTB deliverable package"),
+      message.role === "user" && !!message.content?.includes("tool_required_no_call"),
     )).toBe(true);
+    expect(r.handoff?.terminalReason).toBeUndefined();
+    expect(r.handoff?.summary).toContain("2/4 required-tool misses");
   });
 
   it("requires provider tool calls while a BTB package is still missing", async () => {
@@ -584,7 +771,7 @@ describe("agent runtime — collaboration under concurrency", () => {
     expect(r.trace.some((event) => event.tool === "create_btb_deliverable_package")).toBe(true);
   });
 
-  it("checkpoints repeated no-tool BTB provider output without exposing a raw terminal marker", async () => {
+  it("terminates repeated no-tool BTB provider output without exposing a raw terminal marker", async () => {
     const { rt } = setup();
     const choices: Array<string | undefined> = [];
     const packageTool: AgentTool = {
@@ -620,9 +807,156 @@ describe("agent runtime — collaboration under concurrency", () => {
     expect(choices.length).toBe(4);
     expect(r.exhausted).toBe(true);
     expect(r.stopReason).toBe("step_budget");
-    expect(r.handoff?.summary).toContain("required tool call missing");
-    expect(r.handoff?.summary).toContain("checkpointed");
+    expect(r.handoff?.terminalReason).toBe("protocol_stall");
+    expect(r.handoff?.summary).toContain("stopped");
+    expect(r.handoff?.summary).not.toContain("checkpointed");
     expect(r.handoff?.summary).not.toContain("tool_required_no_call_terminal");
+    expect(r.trace.at(-1)?.result).toMatchObject({
+      terminalReason: "protocol_stall",
+      remainingToolCalls: [],
+    });
+  });
+
+  it("carries required-tool misses across one-step slices and terminates exactly on the fourth provider call", async () => {
+    const { rt } = setup();
+    const packageTool: AgentTool = {
+      name: "create_btb_deliverable_package",
+      description: "Create the final BTB package.",
+      schema: z.object({}),
+      execute: async () => ({ ok: true }),
+    };
+    let providerCalls = 0;
+    const model: AgentModel = {
+      name: "durable-no-tool-provider",
+      async next() {
+        providerCalls += 1;
+        return {
+          text: "I will call the package tool next.",
+          toolCalls: [],
+          done: true,
+          usage: { inputTokens: 3, outputTokens: 2, modelCalls: 1 },
+        };
+      },
+    };
+    let initialMessages: AgentMessage[] | undefined;
+    let result: Awaited<ReturnType<typeof runAgent>> | undefined;
+    let persistedModelCalls = 0;
+    for (let slice = 1; slice <= 4; slice += 1) {
+      result = await runAgent({
+        rt,
+        goal: "Run official BankerToolBench task btb-test and create deliverable package",
+        model,
+        tools: [...ROOM_TOOLS, packageTool],
+        maxSteps: 1,
+        initialMessages,
+      });
+      persistedModelCalls += result.usage.modelCalls;
+      initialMessages = result.messages;
+      if (slice < 4) {
+        expect(result.handoff?.terminalReason).toBeUndefined();
+        expect(result.handoff?.summary).toContain(`${slice}/4 required-tool misses`);
+      }
+    }
+
+    expect(providerCalls).toBe(4);
+    expect(persistedModelCalls).toBe(4);
+    expect(result?.handoff?.terminalReason).toBe("protocol_stall");
+    expect(result?.handoff?.summary).toContain("after 4 required tool-use turns");
+  });
+
+  it("terminates four identical blocked tool calls without checkpointing a queued call", async () => {
+    const { rt } = setup();
+    let turns = 0;
+    let executions = 0;
+    const writeTool: AgentTool = {
+      name: "write_locked_cells",
+      description: "Write cells.",
+      schema: z.object({ ops: z.array(z.object({ elementId: z.string(), value: z.unknown() })) }),
+      execute: async () => {
+        executions += 1;
+        return { ok: true };
+      },
+    };
+    const result = await runAgent({
+      rt,
+      goal: "Fill the spreadsheet cells with the requested values.",
+      model: {
+        name: "blocked-tool-provider",
+        async next() {
+          turns += 1;
+          return {
+            toolCalls: [
+              { id: `blocked-${turns}`, tool: "write_locked_cells", args: { ops: [{ elementId: "B2", value: 10 }] } },
+              ...(turns === 4
+                ? [{ id: "poisoned-blocked-call", tool: "write_locked_cells", args: { ops: [{ elementId: "B3", value: 20 }] } }]
+                : []),
+            ],
+            done: false,
+          };
+        },
+      },
+      tools: [writeTool],
+      hooks: [{
+        preTool: () => ({
+          blocked: true as const,
+          reason: "verified_workbook_workflow:write_plan_mismatch: blocked",
+          failureKind: "evidence_required" as const,
+        }),
+      }],
+      maxSteps: 10,
+    });
+
+    expect(turns).toBe(4);
+    expect(executions).toBe(0);
+    expect(result.handoff?.terminalReason).toBe("protocol_stall");
+    expect(result.handoff?.remainingToolCalls).toEqual([]);
+    expect(result.messages.flatMap((message) => message.toolCalls ?? []).map((call) => call.id))
+      .not.toContain("poisoned-blocked-call");
+    expect(result.trace.filter((event) => event.tool === "write_locked_cells")).toHaveLength(4);
+  });
+
+  it("terminates four identical tool argument errors without checkpointing a queued call", async () => {
+    const { rt } = setup();
+    let turns = 0;
+    let executions = 0;
+    const strictTool: AgentTool = {
+      name: "strict_tool",
+      description: "Requires an id.",
+      schema: z.object({ id: z.string() }),
+      execute: async () => {
+        executions += 1;
+        return { ok: true };
+      },
+    };
+    const result = await runAgent({
+      rt,
+      goal: "Process the record with strict_tool.",
+      model: {
+        name: "invalid-argument-provider",
+        async next() {
+          turns += 1;
+          return {
+            toolCalls: [
+              { id: `invalid-${turns}`, tool: "strict_tool", args: {} },
+              ...(turns === 4
+                ? [{ id: "poisoned-argument-call", tool: "strict_tool", args: { id: "must-not-replay" } }]
+                : []),
+            ],
+            done: false,
+          };
+        },
+      },
+      tools: [strictTool],
+      maxSteps: 10,
+    });
+
+    expect(turns).toBe(4);
+    expect(executions).toBe(0);
+    expect(result.handoff?.terminalReason).toBe("protocol_stall");
+    expect(result.handoff?.remainingToolCalls).toEqual([]);
+    expect(result.messages.flatMap((message) => message.toolCalls ?? []).map((call) => call.id))
+      .not.toContain("poisoned-argument-call");
+    expect(result.trace.filter((event) => event.tool === "strict_tool")).toHaveLength(4);
   });
 
   it("does not count failed BTB package attempts as a completed package", async () => {
@@ -982,6 +1316,52 @@ describe("agent runtime — collaboration under concurrency", () => {
     expect(sawResumeContract).toBe(true);
   });
 
+  it("accounts for two provider failover calls and exact cost from one logical model turn", async () => {
+    const { rt } = setup();
+    let logicalModelCalls = 0;
+    let fallbackPriceCalls = 0;
+    const model: AgentModel = {
+      name: "mixed-route-failover",
+      async next() {
+        logicalModelCalls += 1;
+        return {
+          text: "Summary complete.",
+          toolCalls: [],
+          done: true,
+          usage: {
+            inputTokens: 22,
+            outputTokens: 14,
+            cachedInputTokens: 3,
+            modelCalls: 2,
+            costUsd: 0.125,
+          },
+        };
+      },
+    };
+
+    const result = await runAgent({
+      rt,
+      goal: "summarize the current room",
+      model,
+      tools: [],
+      maxSteps: 1,
+      priceStep: () => {
+        fallbackPriceCalls += 1;
+        return 999;
+      },
+    });
+
+    expect(logicalModelCalls).toBe(1);
+    expect(fallbackPriceCalls).toBe(0);
+    expect(result.usage).toMatchObject({
+      inputTokens: 22,
+      outputTokens: 14,
+      cachedInputTokens: 3,
+      modelCalls: 2,
+      costUsd: 0.125,
+    });
+  });
+
   it("time budget: stops with a resumable handoff before another model turn", async () => {
     const { rt } = setup();
     let modelCalls = 0;
@@ -1029,6 +1409,60 @@ describe("agent runtime — collaboration under concurrency", () => {
     expect(Date.now() - startedAt).toBeLessThan(1_000);
     expect(r.stopReason).toBe("time_budget");
     expect(r.handoff?.reason).toBe("time_budget");
+    expect(r.usage).toMatchObject({ modelCalls: 0, costKind: "estimated" });
+  });
+
+  it("time budget waits briefly for provider usage and route cooldowns to settle", async () => {
+    const { rt } = setup();
+    const cooldownUntil = Date.now() + 60_000;
+    const routeState = { preferredModelId: "fallback", cooldownUntil: {} as Record<string, number> };
+    const model: AgentModel = {
+      name: "abort-aware-provider",
+      routeState: () => routeState,
+      next: async ({ signal }) => new Promise((_resolve, reject) => {
+        signal?.addEventListener("abort", () => {
+          setTimeout(() => {
+            routeState.cooldownUntil.primary = cooldownUntil;
+            reject(Object.assign(new Error("provider aborted after reporting usage"), {
+              usage: {
+                inputTokens: 23,
+                outputTokens: 7,
+                cachedInputTokens: 5,
+                cacheCreationInputTokens: 2,
+                modelCalls: 1,
+                costUsd: 0.015,
+                costKind: "exact",
+              },
+            }));
+          }, 5);
+        }, { once: true });
+      }),
+    };
+
+    const result = await runAgent({
+      rt,
+      goal: "capture partial provider usage before handoff",
+      model,
+      tools: ROOM_TOOLS,
+      maxSteps: 1,
+      deadlineAt: Date.now() + 30,
+      reserveMs: 0,
+    });
+
+    expect(result.stopReason).toBe("time_budget");
+    expect(result.usage).toMatchObject({
+      inputTokens: 23,
+      outputTokens: 7,
+      cachedInputTokens: 5,
+      cacheCreationInputTokens: 2,
+      modelCalls: 1,
+      costUsd: 0.015,
+      costKind: "exact",
+    });
+    expect(result.modelRouteState).toMatchObject({
+      preferredModelId: "fallback",
+      cooldownUntil: { primary: cooldownUntil },
+    });
   });
 
   it("time budget settles and signals a tool that ignores cancellation", async () => {
@@ -1142,6 +1576,7 @@ describe("agent runtime — collaboration under concurrency", () => {
 
     expect(first.stopReason).toBe("time_budget");
     expect(executed).toBe(1);
+    expect(first.handoff?.terminalReason).toBeUndefined();
     expect(first.handoff?.remainingToolCalls.map((c) => c.args.id)).toEqual(["second"]);
 
     const resumed = await runAgent({

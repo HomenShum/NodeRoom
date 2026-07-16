@@ -28,6 +28,8 @@ const clean = args.includes("--clean");
 const compareStyles = args.includes("--compare-styles");
 const compareCharts = args.includes("--compare-charts");
 const retryScoreFailures = args.includes("--retry-score-failures");
+const refreshExcelCaches = args.includes("--refresh-excel-caches");
+const allowStablePendingCaches = args.includes("--allow-stable-pending-caches");
 
 const allowedModes: SpreadsheetBenchRunnerMode[] = [
   "copy-input-baseline",
@@ -41,7 +43,7 @@ const modeRequiresModel = mode === "model-edit-plan" || mode === "nodeagent-work
 if (!stageRoot || !outputRoot || !allowedModes.includes(mode)) {
   console.error([
     "Usage:",
-    "  npm run benchmark:spreadsheetbench:run -- --stage-root <staged-dir> --output-root <candidate-output-dir> [--mode copy-input-baseline|apply-agent-patch|model-edit-plan|nodeagent-workbook] [--model <route>] [--free-auto-mode chat|agent|structured|vision|coding] [--model-batch-size 1] [--model-snapshot-max-cells 800] [--model-snapshot-max-cell-chars 256] [--model-repair-attempts 1] [--task-ids-file <ids.json>] [--offset 0] [--limit 3] [--repeats 5] [--retry-failed 2] [--retry-score-failures] [--compare-charts] [--clean] [--json-out <path>]",
+    "  npm run benchmark:spreadsheetbench:run -- --stage-root <staged-dir> --output-root <candidate-output-dir> [--mode copy-input-baseline|apply-agent-patch|model-edit-plan|nodeagent-workbook] [--model <route>] [--free-auto-mode chat|agent|structured|vision|coding] [--model-batch-size 1] [--model-snapshot-max-cells 800] [--model-snapshot-max-cell-chars 256] [--model-repair-attempts 1] [--refresh-excel-caches] [--allow-stable-pending-caches] [--task-ids-file <ids.json>] [--offset 0] [--limit 3] [--repeats 5] [--retry-failed 2] [--retry-score-failures] [--compare-charts] [--clean] [--json-out <path>]",
     "",
     "copy-input-baseline proves runner/export/scoring plumbing.",
     "apply-agent-patch reads agent/edit-plan.json, edits the workbook, emits a candidate, then opens evaluator metadata.",
@@ -66,6 +68,12 @@ if (modelBatchSize < 1 || modelBatchSize > 16) {
 }
 if (mode === "nodeagent-workbook" && modelBatchSize > 1) {
   throw new Error("nodeagent-workbook requires --model-batch-size 1.");
+}
+if (refreshExcelCaches && mode !== "nodeagent-workbook") {
+  throw new Error("--refresh-excel-caches requires --mode nodeagent-workbook.");
+}
+if (allowStablePendingCaches && !refreshExcelCaches) {
+  throw new Error("--allow-stable-pending-caches requires --refresh-excel-caches.");
 }
 if (modelSnapshotMaxCells !== undefined && modelSnapshotMaxCells < 1) {
   throw new Error("--model-snapshot-max-cells must be at least 1.");
@@ -94,6 +102,8 @@ const report = await runStagedSpreadsheetBench({
   modelSnapshotMaxCells,
   modelSnapshotMaxCellChars,
   modelRepairAttempts,
+  refreshExcelCaches,
+  allowStablePendingCaches,
   taskIds,
   limit,
   offset,
