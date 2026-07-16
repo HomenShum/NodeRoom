@@ -640,6 +640,25 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
       traceId: "trace_sbench_structural_targets",
       maxSteps: 4,
       now: () => 1_600,
+      ...(process.platform === "win32" ? {} : {
+        applyStructuralRepairs: async ({ workbookPath, repairs }) => ({
+          schema: 1 as const,
+          backend: "excel_com" as const,
+          status: "completed" as const,
+          workbookPath,
+          repairIds: repairs.map((repair) => repair.repairId),
+          insertedRowCount: repairs.length,
+          formulaReplacementCount: repairs.reduce(
+            (count, repair) => count + repair.expectedFormulaReplacementCount,
+            0,
+          ),
+          explicitFormulaRepairCount: repairs.reduce(
+            (count, repair) => count + repair.formulaRepairs.length,
+            0,
+          ),
+          calculationPasses: 6,
+        }),
+      }),
     });
 
     expect(delegatedCalls).toBe(0);
@@ -667,11 +686,13 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
     ]);
     expect(receipt.trace.mutations[0].targetRefs).toHaveLength(13);
 
-    const emitted = new ExcelJS.Workbook();
-    await emitted.xlsx.readFile(candidate);
-    expect(emitted.getWorksheet("Ex 5 - M&A")?.getCell("B4").value).toBe("Case");
-    expect(emitted.getWorksheet("Ex 5 - M&A")?.getCell("C4").value).toBe(3);
-    expect(emitted.getWorksheet("Ex 5 - M&A")?.getCell("C13").formula).toContain("CHOOSE($C$4,");
+    if (process.platform === "win32") {
+      const emitted = new ExcelJS.Workbook();
+      await emitted.xlsx.readFile(candidate);
+      expect(emitted.getWorksheet("Ex 5 - M&A")?.getCell("B4").value).toBe("Case");
+      expect(emitted.getWorksheet("Ex 5 - M&A")?.getCell("C4").value).toBe(3);
+      expect(emitted.getWorksheet("Ex 5 - M&A")?.getCell("C13").formula).toContain("CHOOSE($C$4,");
+    }
   }, 30_000);
 
   it("blocks a premature write, then preserves scalar number formatting through verified recovery", async () => {
