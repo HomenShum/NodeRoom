@@ -158,6 +158,24 @@ describe("Proof Loop blocker solver", () => {
     });
     expect(classes).toEqual(expect.arrayContaining(["missing_output_exporter", "missing_judge_credentials"]));
   });
+
+  it("does not mistake product-quality text for a production UI failure", () => {
+    const productQuality = classifyBlockers({
+      id: "spreadsheetbench-v1-full-official-score",
+      title: "SpreadsheetBench V1 full official score",
+      blockers: ["Proxy judges can triage product quality, but 912 model outputs are missing."],
+      evidence: [],
+    });
+    expect(productQuality).not.toContain("prod_ui_failure");
+
+    const productionFailure = classifyBlockers({
+      id: "live-room-product-proof",
+      title: "Production browser proof",
+      blockers: ["Production browser flow failed before the room loaded."],
+      evidence: [],
+    });
+    expect(productionFailure).toContain("prod_ui_failure");
+  });
 });
 
 function tempRoot(): string {
