@@ -1263,7 +1263,7 @@ function colsOf(art: Art): string[] {
 
 function sheetElementId(art: Art, rowId: string, colId: string): string {
   const numericRow = rowId.match(/^r?(\d+)$/)?.[1] ?? rowId;
-  const a1 = `${colId}${numericRow}`;
+  const a1 = `${/^[A-Za-z]+$/.test(colId) ? colId.toUpperCase() : colId}${numericRow}`;
   if (art.meta?.excelGrid) return a1;
   if (isBlankSpreadsheet(art)) {
     // Prefer a canonical NodeAgent write when it exists, then preserve edits
@@ -1280,8 +1280,11 @@ function sheetElementId(art: Art, rowId: string, colId: string): string {
 function parseSheetElementId(art: Art, elementId: string | null): { rowId: string; colId: string } {
   if (!elementId) return { rowId: "", colId: "" };
   if (art.meta?.excelGrid || isBlankSpreadsheet(art)) {
-    const match = elementId.match(/^([A-Z]+)(\d+)$/);
-    if (match) return { colId: match[1], rowId: match[2] };
+    const match = elementId.match(/^([A-Za-z]+)(\d+)$/);
+    if (match) {
+      const metaCol = art.meta?.dataframe?.columns?.find((col) => col.id.toUpperCase() === match[1].toUpperCase())?.id;
+      return { colId: metaCol ?? match[1], rowId: match[2] };
+    }
     const legacy = elementId.match(/^r?(\d+)__(.+)$/);
     if (legacy) return { rowId: legacy[1], colId: legacy[2] };
     return { rowId: "", colId: "" };
@@ -1325,7 +1328,7 @@ function sheetColumnWidth(art: Art, col: DataframeColumn, index: number): number
 
 function dataframeCellAddress(art: Art, cols: string[], rows: string[], key: string | null): string {
   if (!key) return "";
-  if (art.meta?.excelGrid || (isBlankSpreadsheet(art) && /^[A-Z]+\d+$/.test(key))) return key;
+  if (art.meta?.excelGrid || (isBlankSpreadsheet(art) && /^[A-Za-z]+\d+$/.test(key))) return key.toUpperCase();
   const sep = key.indexOf("__");
   if (sep < 0) return "";
   const rowId = key.slice(0, sep);
