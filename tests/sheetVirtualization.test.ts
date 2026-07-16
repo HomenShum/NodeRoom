@@ -190,7 +190,7 @@ function renderScaleSheet(art: Art) {
 }
 
 function makeMixedAddressBlankSheet(order: string[] = []): Art {
-  const columns: DataframeColumn[] = ["A", "B", "C", "D"].map((id, index) => ({
+  const columns: DataframeColumn[] = ["a", "b", "c", "d"].map((id, index) => ({
     id,
     label: id,
     order: index,
@@ -206,8 +206,8 @@ function makeMixedAddressBlankSheet(order: string[] = []): Art {
     version: 23,
     order,
     elements: {
-      r2__B: { value: 10_000, version: 1, updatedAt: 1_000, updatedBy: PRIYA },
-      r3__B: { value: 4_000, version: 1, updatedAt: 1_000, updatedBy: PRIYA },
+      r2__b: { value: 10_000, version: 1, updatedAt: 1_000, updatedBy: PRIYA },
+      r3__b: { value: 4_000, version: 1, updatedAt: 1_000, updatedBy: PRIYA },
       B4: { value: "=B2-B3", version: 1, updatedAt: 2_000, updatedBy: { kind: "agent", id: "room", name: "Room NodeAgent" } },
       D4: { value: "=C4-B4", version: 1, updatedAt: 2_000, updatedBy: { kind: "agent", id: "room", name: "Room NodeAgent" } },
     },
@@ -235,9 +235,9 @@ describe("GenericSheet blank-room A1 compatibility", () => {
   });
 
   it("prefers a canonical NodeAgent A1 write while preserving legacy seed values", () => {
-    const legacyOrder = ["r2__B", "r3__B", "r4__B", "r4__D"];
+    const legacyOrder = ["r2__b", "r3__b", "r4__b", "r4__d"];
     const { container } = renderScaleSheet(makeMixedAddressBlankSheet(legacyOrder));
-    expect(container.querySelector('[data-element-id="r2__B"]')?.textContent).toContain("10000");
+    expect(container.querySelector('[data-element-id="r2__b"]')?.textContent).toContain("10000");
     expect(container.querySelector('[data-element-id="B4"]')?.textContent).toContain("=B2-B3");
   });
 });
