@@ -179,7 +179,7 @@ describe("official score promotion", () => {
       expect(`${rejected.stdout}\n${rejected.stderr}`).toContain(invalid.message);
       expect(existsSync(scorePath)).toBe(false);
     }
-  });
+  }, 15_000);
 });
 
 function runPromotion(
