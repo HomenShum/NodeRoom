@@ -162,6 +162,13 @@ export type SpreadsheetBenchNodeAgentRecalculationReceipt = {
 
 export type SpreadsheetBenchCandidateFinalizationReceipt = {
   engine: string;
+  status?:
+    | "completed"
+    | "completed_stable_pending"
+    | "not_required"
+    | "preserved_pending"
+    | "preserved_unsupported"
+    | "preserved_error";
   beforeSha256: string;
   afterSha256: string;
   changed: boolean;
@@ -377,7 +384,7 @@ export async function runSpreadsheetBenchNodeAgentBridge(
     room.changedCellCount(),
     bridgeWorkbookRepairContract(room).requiredRepairs.length,
     workflowController.pendingVerificationCount(),
-    recalculation.unresolvedFormulaCount,
+    candidateFinalization?.status === "completed" ? 0 : recalculation.unresolvedFormulaCount,
   );
   const trace = buildBridgeTrace({
     traceId,
@@ -500,7 +507,9 @@ function contractFirstBridgeModel(
         return boundedBridgeDelegateNext(delegate, input);
       }
       if (phase === "inspect_requested") {
-        if (latest?.tool !== "inspect_workbook" || asRecord(latest.result)?.ok !== true || (!activePlan && !activeStructuralPlan)) {
+        const inspectionSucceeded = asRecord(latest?.result)?.ok === true
+          || isCompactedBridgeToolResult(latest?.result);
+        if (latest?.tool !== "inspect_workbook" || !inspectionSucceeded || (!activePlan && !activeStructuralPlan)) {
           delegated = true;
           return boundedBridgeDelegateNext(delegate, input);
         }
@@ -559,7 +568,19 @@ function contractFirstBridgeModel(
 
       if (phase === "execute_requested") {
         const result = asRecord(latest?.result);
-        if (latest?.tool !== EXECUTE_VERIFIED_WORKBOOK_PLAN_TOOL_NAME || result?.status !== "completed" || !activePlan) {
+        if (latest?.tool !== EXECUTE_VERIFIED_WORKBOOK_PLAN_TOOL_NAME || !activePlan) {
+          delegated = true;
+          return boundedBridgeDelegateNext(delegate, input);
+        }
+        if (result?.status !== "completed") {
+          if (completedPlanHashes.size > 0) {
+            return {
+              text: "The verified deterministic workbook repairs are complete; a stale follow-on contract did not pass current preflight and was not applied.",
+              toolCalls: [],
+              done: true,
+              usage: { inputTokens: 0, outputTokens: 0 },
+            };
+          }
           delegated = true;
           return boundedBridgeDelegateNext(delegate, input);
         }
@@ -634,7 +655,7 @@ function contractFirstBridgeModel(
         };
       }
 
-      if (contract.plans.length > 0 || room.changedCellCount() === 0) {
+      if (completedPlanHashes.size === 0 && completedStructuralRepairIds.size === 0) {
         delegated = true;
         return boundedBridgeDelegateNext(delegate, input);
       }
@@ -710,6 +731,12 @@ function parseBridgeToolResult(content: string): Record<string, unknown> | undef
   }
 }
 
+function isCompactedBridgeToolResult(result: unknown): boolean {
+  return typeof result === "string"
+    && result.startsWith("[")
+    && result.includes("payload compacted to save context");
+}
+
 function bridgeDeterministicContract(room: SpreadsheetBenchWorkbookRoomTools): BridgeDeterministicContract {
   const inspection = room.taskInspection();
   if (inspection.deterministicPlan?.status !== "complete") return { complete: false, plans: [] };
@@ -737,7 +764,10 @@ function latestBridgeToolResult(messages: Parameters<AgentModel["next"]>[0]["mes
   tool: string;
   result: unknown;
 } | undefined {
-  const message = [...messages].reverse().find((candidate) => candidate.role === "tool" && candidate.toolName);
+  const message = [...messages].reverse().find((candidate) =>
+    candidate.role === "tool"
+    && candidate.toolName
+    && candidate.toolName !== "compaction");
   if (!message?.toolName) return undefined;
   try {
     return { tool: message.toolName, result: JSON.parse(message.content) as unknown };
@@ -1783,6 +1813,7 @@ function remainingDeterministicInspection(
     plan.operations.map((operation) => workbookCellKey(plan.sheet, operation.elementId))));
   const { deterministicPlan: _currentPlan, ...currentWithoutDeterministicPlan } = current;
   if (remainingKeys.size === 0) {
+    if (current.deterministicPlan?.status === "complete") return current;
     return {
       ...currentWithoutDeterministicPlan,
       formulaFillSuggestions: [],
@@ -2458,7 +2489,9 @@ function buildBridgeTrace(args: {
     artifactRefs: [candidateRef],
     fact: args.recalculation,
     verifier: args.recalculation.engine,
-    status: args.recalculation.unresolvedFormulaCount === 0 ? "verified" : "needs_review",
+    status: args.recalculation.unresolvedFormulaCount === 0 || args.candidateFinalization?.status === "completed"
+      ? "verified"
+      : "needs_review",
   }));
   if (args.structuralRepair) {
     trace.evidence.push(makeEvidenceReceipt({

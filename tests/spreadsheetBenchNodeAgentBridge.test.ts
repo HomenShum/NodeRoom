@@ -201,6 +201,33 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
     }
   });
 
+  it("terminates after a complete multi-sheet deterministic contract without delegating", async () => {
+    const root = tempRoot();
+    const task = await stagedLargeFontColorTask(root, 2);
+    let delegatedCalls = 0;
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: join(root, "output", "multi-sheet-font-color.xlsx"),
+      model: {
+        name: "provider-that-must-not-run-after-contract",
+        async next(): Promise<AgentStep> {
+          delegatedCalls += 1;
+          throw new Error("a complete deterministic contract must terminate without delegation");
+        },
+      },
+      maxSteps: 8,
+    });
+
+    expect(delegatedCalls).toBe(0);
+    expect(receipt.outcome).toMatchObject({ status: "completed", changedCellCount: 24 });
+    expect(receipt.frame.agentResult.trace.map((event) => event.tool)).toEqual([
+      "inspect_workbook",
+      "execute_verified_workbook_plan",
+      "inspect_workbook",
+      "execute_verified_workbook_plan",
+    ]);
+  });
+
   it("records an audit as unresolved without provider calls when inspection exposes no write evidence", async () => {
     const root = tempRoot();
     const instruction = "Please audit and fix this file thoroughly.";
@@ -475,6 +502,47 @@ describe("SpreadsheetBench canonical NodeAgent bridge", () => {
     });
     expect(receipt.trace.final.status).toBe("needs_review");
     expect(receipt.trace.evidence.find((evidence) => evidence.label === "SpreadsheetBench formula recalculation")?.status).toBe("needs_review");
+  });
+
+  it("accepts a validated Excel cache refresh when the local formula subset is unsupported", async () => {
+    const root = tempRoot();
+    const instruction = 'Replace Model!B1 with formula TEXT(A1,"0.00"), then verify the changed cell.';
+    const task = await stagedTask(root, instruction);
+    const finalizationPath = join(root, "output", "candidate-finalization.json");
+    const receipt = await runSpreadsheetBenchNodeAgentBridge({
+      agentManifestPath: task.agentManifest,
+      candidateWorkbookPath: join(root, "output", "externally-recalculated.xlsx"),
+      model: unresolvedRecalculationModel(instruction),
+      traceId: "trace_sbench_external_recalculation",
+      maxSteps: 8,
+      now: () => 1_260,
+      finalizeCandidate: async ({ candidateWorkbookPath, beforeSha256 }) => {
+        writeFileSync(finalizationPath, '{"schema":1,"status":"completed"}\n');
+        const receiptBytes = readFileSync(finalizationPath);
+        return {
+          engine: "validated-excel-cache-refresh",
+          status: "completed",
+          beforeSha256,
+          afterSha256: sha256(readFileSync(candidateWorkbookPath)),
+          changed: false,
+          formulaCellCount: 1,
+          receipt: {
+            path: finalizationPath,
+            sha256: sha256(receiptBytes),
+            bytes: receiptBytes.byteLength,
+          },
+        };
+      },
+    });
+
+    expect(receipt.recalculation.unresolvedFormulaCount).toBe(1);
+    expect(receipt.candidateFinalization?.status).toBe("completed");
+    expect(receipt.outcome).toMatchObject({
+      status: "completed",
+      changedCellCount: 1,
+      finalVerificationStatus: "passed",
+    });
+    expect(receipt.trace.evidence.find((evidence) => evidence.label === "SpreadsheetBench formula recalculation")?.status).toBe("verified");
   });
 
   it("never completes an unresolved formula write even when task wording is classified as nonmutating", async () => {
@@ -1440,23 +1508,25 @@ async function stagedFontColorTask(root: string): Promise<{ agentManifest: strin
   return { agentManifest: join(agentDir, "task.json") };
 }
 
-async function stagedLargeFontColorTask(root: string): Promise<{ agentManifest: string }> {
+async function stagedLargeFontColorTask(root: string, sheetCount = 1): Promise<{ agentManifest: string }> {
   const taskDir = join(root, "tasks", "large-font-color");
   const agentDir = join(taskDir, "agent");
   mkdirSync(join(agentDir, "inputs"), { recursive: true });
   const input = new ExcelJS.Workbook();
-  const statement = input.addWorksheet("Income Statement");
-  for (let matrix = 0; matrix < 12; matrix += 1) {
-    const startRow = 6 + matrix * 4;
-    for (let rowOffset = 0; rowOffset < 3; rowOffset += 1) {
-      for (let column = 2; column <= 4; column += 1) {
-        const cell = statement.getCell(startRow + rowOffset, column);
-        cell.value = (matrix + 1) * 100 + rowOffset * 10 + column;
-        cell.numFmt = "0.0x";
-        cell.font = {
-          bold: true,
-          color: { argb: rowOffset === 1 && column === 3 ? "FF000000" : "FF0000FF" },
-        };
+  for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex += 1) {
+    const statement = input.addWorksheet(sheetIndex === 0 ? "Income Statement" : `Income Statement ${sheetIndex + 1}`);
+    for (let matrix = 0; matrix < 12; matrix += 1) {
+      const startRow = 6 + matrix * 4;
+      for (let rowOffset = 0; rowOffset < 3; rowOffset += 1) {
+        for (let column = 2; column <= 4; column += 1) {
+          const cell = statement.getCell(startRow + rowOffset, column);
+          cell.value = (sheetIndex + 1) * 1_000 + (matrix + 1) * 100 + rowOffset * 10 + column;
+          cell.numFmt = "0.0x";
+          cell.font = {
+            bold: true,
+            color: { argb: rowOffset === 1 && column === 3 ? "FF000000" : "FF0000FF" },
+          };
+        }
       }
     }
   }
