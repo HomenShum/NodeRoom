@@ -155,9 +155,7 @@
 }
 
 .mobile-overflow-menu {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
+  position: static;
   z-index: 80;
   display: grid;
   width: min(244px, calc(100vw - 30px));

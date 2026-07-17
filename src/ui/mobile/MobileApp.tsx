@@ -16,6 +16,8 @@
    Mounted at the `#mobile` route — see src/ui/App.tsx.
    ============================================================================ */
 import * as React from "react";
+import { Dialog, DialogContent, DialogTitle } from "../../components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import "./mobile.tokens.css";
 import "./mobile.css";
 import "./mobileFrame.css";
@@ -74,6 +76,73 @@ const TABS: Record<TabId, { icon: IconName; label: string }> = {
 };
 const TAB_IDS: TabId[] = ["home", "capture", "room", "agent", "inbox", "files"];
 const SCOPES: ScopeName[] = ["Private", "Room"];
+
+const MOBILE_SHEET_TITLE: Record<SheetId, string> = {
+  rooms: "Rooms",
+  pulse: "Room activity",
+  plan: "Work plan",
+  evidence: "Evidence",
+  coach: "Coach",
+  row: "Row details",
+  jobs: "Agent jobs",
+  artifact: "Artifact",
+  sheetart: "Spreadsheet",
+  settings: "Settings",
+  review: "Review",
+  trace: "Trace",
+  share: "Share",
+  manage: "Manage room",
+};
+
+function MobileSheetSurface({
+  open,
+  title,
+  onClose,
+  container,
+  tall = false,
+  overlay = false,
+  flash = false,
+  children,
+}: {
+  open: boolean;
+  title: string;
+  onClose: () => void;
+  container: HTMLElement | null;
+  tall?: boolean;
+  overlay?: boolean;
+  flash?: boolean;
+  children: React.ReactNode;
+}): React.ReactElement {
+  const returnFocus = React.useRef<HTMLElement | null>(null);
+  return (
+    <Dialog open={open} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
+      <DialogContent
+        portalContainer={container}
+        className={`na-sheet${tall ? " tall" : ""}${overlay ? " na-overlay-sheet" : ""}`}
+        overlayClassName={`na-scrim${overlay ? " na-scrim-top" : ""}`}
+        unstyled
+        unstyledOverlay
+        showCloseButton={false}
+        data-open="true"
+        data-flash={flash ? "true" : undefined}
+        onOpenAutoFocus={() => {
+          returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        }}
+        onCloseAutoFocus={(event) => {
+          const target = returnFocus.current;
+          returnFocus.current = null;
+          if (!target?.isConnected) return;
+          event.preventDefault();
+          target.focus();
+        }}
+      >
+        <DialogTitle className="sr-only">{title}</DialogTitle>
+        <div className="na-handle" aria-hidden="true" />
+        {children}
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 interface RevActCtx {
   openInbox: (i: InboxItem) => void;
@@ -379,7 +448,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
   const [flashSheet, setFlashSheet] = React.useState<SheetId | null>(null);
   const [pulseView, setPulseView] = React.useState<"people" | "agents" | "cost">("people");
   const [openRev, setOpenRev] = React.useState<string | null>(null);
-  const sheetReturnFocus = React.useRef<HTMLElement | null>(null);
+  const [dialogContainer, setDialogContainer] = React.useState<HTMLDivElement | null>(null);
 
   // ── gap pack: memory-mode-local state (live values override via `live`) ──
   // In a live room, auto-allow is the room's flag and toggling it hits the store;
@@ -464,62 +533,6 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     });
   };
 
-  React.useEffect(() => {
-    if (!sheet) {
-      const target = sheetReturnFocus.current;
-      sheetReturnFocus.current = null;
-      requestAnimationFrame(() => target?.focus());
-      return;
-    }
-
-    if (!sheetReturnFocus.current && document.activeElement instanceof HTMLElement) {
-      sheetReturnFocus.current = document.activeElement;
-    }
-    const node = document.querySelector<HTMLElement>('.na-sheet[data-open="true"]');
-    if (!node) return;
-    node.setAttribute("role", "dialog");
-    node.setAttribute("aria-modal", "true");
-    node.setAttribute("aria-label", node.querySelector(".na-sheet-head strong")?.textContent?.trim() || "NodeRoom panel");
-    node.tabIndex = -1;
-
-    const focusable = (): HTMLElement[] => Array.from(node.querySelectorAll<HTMLElement>(
-      'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
-    )).filter((element) => !element.hasAttribute("aria-hidden"));
-    if (!node.contains(document.activeElement)) requestAnimationFrame(() => (focusable()[0] ?? node).focus());
-
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        closeSheet();
-        return;
-      }
-      if (event.key !== "Tab") return;
-      const items = focusable();
-      if (items.length === 0) {
-        event.preventDefault();
-        node.focus();
-        return;
-      }
-      const first = items[0];
-      const last = items[items.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-    node.addEventListener("keydown", onKeyDown);
-    return () => {
-      node.removeEventListener("keydown", onKeyDown);
-      node.removeAttribute("role");
-      node.removeAttribute("aria-modal");
-      node.removeAttribute("aria-label");
-      node.removeAttribute("tabindex");
-    };
-  }, [closeSheet, sheet]);
-
   const openTrace = (id: string): void => setOverlay({ type: "trace", id });
   const openSource = (src: D.SourceRef): void => setOverlay({ type: "source", src });
   const closeOverlay = (): void => setOverlay(null);
@@ -602,7 +615,6 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     setPulseView(v);
     setSheet("pulse");
   };
-  const toggleRev = (id: string): void => setOpenRev((v) => (v === id ? null : id));
 
   // ── effects ──────────────────────────────────────────────────────────────
   React.useEffect(() => { setTab(t.navModel); }, [t.navModel]);
@@ -1049,6 +1061,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     <MobileStage dark={t.dark} previewDeviceChrome={previewDeviceChrome}>
       <IOSDevice dark={t.dark} width={402} height={874} previewDeviceChrome={previewDeviceChrome}>
         <div
+          ref={setDialogContainer}
           className="na-app"
           data-theme={t.dark ? "dark" : "light"}
           data-density={t.density}
@@ -1096,32 +1109,33 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
           {/* ── command dock: contextual expandable FAB + direct text bar ── */}
           <div className="na-bottom-shell">
             <div className="na-dock">
+            <DropdownMenu open={fabOpen} onOpenChange={(nextOpen) => { setFabOpen(nextOpen); if (nextOpen) setAddOpen(false); }}>
             <div className="na-fab" data-open={fabOpen ? "true" : undefined} data-mode="actions">
-              {fabOpen && (
-                <div className="na-fab-fan">
+                <DropdownMenuContent className="na-fab-fan" side="top" align="start" sideOffset={12} collisionPadding={12}>
                   {fanActions.map((ac, idx) => (
-                    <button
+                    <DropdownMenuItem
                       key={ac.label}
                       className={"na-fab-act" + (ac.tone ? " " + ac.tone : "") + (ac.muted ? " muted" : "") + (ac.active ? " active" : "")}
                       style={{ "--d": idx * 30 + "ms" } as React.CSSProperties}
-                      onClick={() => { haptic(); if (!ac.keepOpen) setFabOpen(false); ac.run(); }}
+                      onSelect={(event) => { haptic(); if (ac.keepOpen) event.preventDefault(); ac.run(); }}
                     >
                       <span className="fa-ic">{Ico(ac.icon)}{ac.badge ? <span className="fa-badge">{ac.badge}</span> : null}</span>
                       <span className="fa-lbl">{ac.label}{ac.active ? <span className="fa-dot" /> : null}</span>
-                    </button>
+                    </DropdownMenuItem>
                   ))}
-                </div>
-              )}
+                </DropdownMenuContent>
+              <DropdownMenuTrigger asChild>
               <button
                 className="na-fab-btn"
                 aria-label={fabOpen ? "Close menu" : "Quick actions"}
-                aria-expanded={fabOpen ? "true" : "false"}
                 title={fabOpen ? "Close menu" : "Quick actions"}
-                onClick={() => { haptic(); setAddOpen(false); setFabOpen((v) => !v); }}
+                onClick={() => haptic()}
               >
                 <span className="fb-ic">{Ico(fabOpen ? "x" : fab.hero)}</span>
               </button>
+              </DropdownMenuTrigger>
             </div>
+            </DropdownMenu>
             <div className="na-dock-bar">
               {attachments.length > 0 && (
                 <div className="na-dock-chips">
@@ -1134,32 +1148,33 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                 </div>
               )}
               <div className="na-dock-row">
+                <DropdownMenu open={addOpen} onOpenChange={(nextOpen) => { setAddOpen(nextOpen); if (nextOpen) setFabOpen(false); }}>
                 <div className="na-add" data-open={addOpen ? "true" : undefined}>
-                  {addOpen && (
-                    <div className="na-add-fan">
+                    <DropdownMenuContent className="na-add-fan" side="top" align="start" sideOffset={14} collisionPadding={12}>
                       <div className="na-add-cap">Add to message</div>
                       {ATTACH.map((a, idx) => (
-                        <button
+                        <DropdownMenuItem
                           key={a.id}
                           className="na-add-act"
                           style={{ "--d": (ATTACH.length - 1 - idx) * 26 + "ms" } as React.CSSProperties}
-                          onClick={() => { setAddOpen(false); addAttachment(a); }}
+                          onSelect={() => addAttachment(a)}
                         >
                           <span className="fa-ic" data-kind={a.kind}>{Ico(a.icon)}</span>
                           <span className="fa-lbl"><strong>{a.label}</strong><span className="sub">{a.sub}</span></span>
-                        </button>
+                        </DropdownMenuItem>
                       ))}
-                    </div>
-                  )}
+                    </DropdownMenuContent>
+                  <DropdownMenuTrigger asChild>
                   <button
                     className="na-dock-add"
                     data-on={addOpen ? "true" : undefined}
                     aria-label={addOpen ? "Close add menu" : "Add to message"}
-                    onClick={() => { setFabOpen(false); setAddOpen((v) => !v); }}
                   >
                     {Ico(addOpen ? "x" : "plus")}
                   </button>
+                  </DropdownMenuTrigger>
                 </div>
+                </DropdownMenu>
                 <input
                   ref={dockInputRef}
                   className="na-dock-input"
@@ -1195,13 +1210,9 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
             </nav>
           </div>
 
-          {/* scrims for the FAB fan + bottom sheets */}
-          <div className="na-fab-scrim" data-open={fabOpen || addOpen ? "true" : undefined} onClick={() => { setFabOpen(false); setAddOpen(false); }} />
-          <div className="na-scrim" data-open={!!sheet} onClick={closeSheet} />
-
+          {/* bottom-sheet scrim */}
           {/* ── rooms switcher ── */}
-          <div className="na-sheet" data-open={sheet === "rooms"}>
-            <div className="na-handle" />
+          <MobileSheetSurface open={sheet === "rooms"} title={MOBILE_SHEET_TITLE.rooms} onClose={closeSheet} container={dialogContainer}>
             {sheet === "rooms" && (
               <>
                 <div className="na-sheet-head">
@@ -1240,11 +1251,10 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                 </div>
               </>
             )}
-          </div>
+          </MobileSheetSurface>
 
           {/* ── pulse roster (people / agents / cost) ── */}
-          <div className="na-sheet" data-open={sheet === "pulse"}>
-            <div className="na-handle" />
+          <MobileSheetSurface open={sheet === "pulse"} title={MOBILE_SHEET_TITLE.pulse} onClose={closeSheet} container={dialogContainer}>
             {sheet === "pulse" && (() => {
               const heads: Record<string, [string, string]> = {
                 people: ["People", room.people + " in " + room.name],
@@ -1314,23 +1324,26 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                                     <span className="rv-main"><strong>{i.title}</strong><span className="rv-sub">{i.sub}</span></span>
                                   </button>
                                   <div className="na-revact">
-                                    <button
-                                      className="na-revact-btn"
-                                      data-type={TM.type}
-                                      data-on={menuOpen}
-                                      onClick={(e) => { e.stopPropagation(); if (single) lead.run(); else toggleRev(i.id); }}
-                                    >
-                                      {Ico(lead.icon)}<span>{lead.label}</span>
-                                      {!single && <span className="cv" data-open={menuOpen}>{Ico("chevD")}</span>}
-                                    </button>
-                                    {menuOpen && !single && (
-                                      <div className="na-revmenu" role="menu">
+                                    {single ? (
+                                      <button className="na-revact-btn" data-type={TM.type} onClick={(event) => { event.stopPropagation(); lead.run(); }}>
+                                        {Ico(lead.icon)}<span>{lead.label}</span>
+                                      </button>
+                                    ) : (
+                                      <DropdownMenu open={menuOpen} onOpenChange={(nextOpen) => setOpenRev(nextOpen ? i.id : null)}>
+                                      <DropdownMenuTrigger asChild>
+                                      <button className="na-revact-btn" data-type={TM.type} data-on={menuOpen} onClick={(event) => event.stopPropagation()}>
+                                        {Ico(lead.icon)}<span>{lead.label}</span>
+                                        <span className="cv" data-open={menuOpen}>{Ico("chevD")}</span>
+                                      </button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent className="na-revmenu" side="bottom" align="end" sideOffset={5} collisionPadding={12}>
                                         {actions.map((a, ai) => (
-                                          <button key={ai} className="na-revmenu-row" data-primary={ai === 0} onClick={(e) => { e.stopPropagation(); setOpenRev(null); a.run(); }}>
+                                          <DropdownMenuItem key={ai} className="na-revmenu-row" data-primary={ai === 0} onSelect={a.run}>
                                             {Ico(a.icon)}{a.label}
-                                          </button>
+                                          </DropdownMenuItem>
                                         ))}
-                                      </div>
+                                      </DropdownMenuContent>
+                                      </DropdownMenu>
                                     )}
                                   </div>
                                 </div>
@@ -1392,31 +1405,29 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                 </>
               );
             })()}
-          </div>
+          </MobileSheetSurface>
 
           {/* ── leaf sheets ── */}
-          <div className="na-sheet" data-open={sheet === "plan"}><div className="na-handle" />{sheet === "plan" && <PlanSheet ctx={ctx} />}</div>
-          <div className="na-sheet" data-open={sheet === "evidence"} data-flash={flashSheet === "evidence"}><div className="na-handle" />{sheet === "evidence" && <EvidenceSheet ctx={ctx} />}</div>
-          <div className="na-sheet" data-open={sheet === "coach"}><div className="na-handle" />{sheet === "coach" && <CoachSheet ctx={ctx} />}</div>
-          <div className="na-sheet" data-open={sheet === "row"} data-flash={flashSheet === "row"}><div className="na-handle" />{sheet === "row" && <RowSheet ctx={ctx} />}</div>
-          <div className="na-sheet" data-open={sheet === "jobs"}><div className="na-handle" />{sheet === "jobs" && <JobsSheet ctx={ctx} />}</div>
-          <div className="na-sheet tall" data-open={sheet === "artifact"}><div className="na-handle" />{sheet === "artifact" && <ArtifactSheet ctx={ctx} />}</div>
-          <div className="na-sheet tall" data-open={sheet === "sheetart"} data-flash={flashSheet === "sheetart"}><div className="na-handle" />{sheet === "sheetart" && <SheetArtifact ctx={ctx} />}</div>
-          <div className="na-sheet" data-open={sheet === "settings"}><div className="na-handle" />{sheet === "settings" && <SettingsSheet ctx={ctx} />}</div>
+          <MobileSheetSurface open={sheet === "plan"} title={MOBILE_SHEET_TITLE.plan} onClose={closeSheet} container={dialogContainer}>{sheet === "plan" && <PlanSheet ctx={ctx} />}</MobileSheetSurface>
+          <MobileSheetSurface open={sheet === "evidence"} title={MOBILE_SHEET_TITLE.evidence} onClose={closeSheet} container={dialogContainer} flash={flashSheet === "evidence"}>{sheet === "evidence" && <EvidenceSheet ctx={ctx} />}</MobileSheetSurface>
+          <MobileSheetSurface open={sheet === "coach"} title={MOBILE_SHEET_TITLE.coach} onClose={closeSheet} container={dialogContainer}>{sheet === "coach" && <CoachSheet ctx={ctx} />}</MobileSheetSurface>
+          <MobileSheetSurface open={sheet === "row"} title={MOBILE_SHEET_TITLE.row} onClose={closeSheet} container={dialogContainer} flash={flashSheet === "row"}>{sheet === "row" && <RowSheet ctx={ctx} />}</MobileSheetSurface>
+          <MobileSheetSurface open={sheet === "jobs"} title={MOBILE_SHEET_TITLE.jobs} onClose={closeSheet} container={dialogContainer}>{sheet === "jobs" && <JobsSheet ctx={ctx} />}</MobileSheetSurface>
+          <MobileSheetSurface open={sheet === "artifact"} title={MOBILE_SHEET_TITLE.artifact} onClose={closeSheet} container={dialogContainer} tall>{sheet === "artifact" && <ArtifactSheet ctx={ctx} />}</MobileSheetSurface>
+          <MobileSheetSurface open={sheet === "sheetart"} title={MOBILE_SHEET_TITLE.sheetart} onClose={closeSheet} container={dialogContainer} tall flash={flashSheet === "sheetart"}>{sheet === "sheetart" && <SheetArtifact ctx={ctx} />}</MobileSheetSurface>
+          <MobileSheetSurface open={sheet === "settings"} title={MOBILE_SHEET_TITLE.settings} onClose={closeSheet} container={dialogContainer}>{sheet === "settings" && <SettingsSheet ctx={ctx} />}</MobileSheetSurface>
 
           {/* ── gap pack sheets (design-reference/mobile-scale/gaps-app.jsx) ── */}
-          <div className="na-sheet tall" data-open={sheet === "review"}><div className="na-handle" />{sheet === "review" && <ReviewSheet ctx={ctx} />}</div>
-          <div className="na-sheet tall" data-open={sheet === "trace"}><div className="na-handle" />{sheet === "trace" && <TraceSheet ctx={ctx} />}</div>
-          <div className="na-sheet tall" data-open={sheet === "share"}><div className="na-handle" />{sheet === "share" && <ShareSheet ctx={ctx} />}</div>
-          <div className="na-sheet tall" data-open={sheet === "manage"}><div className="na-handle" />{sheet === "manage" && <ManageSheet ctx={ctx} />}</div>
+          <MobileSheetSurface open={sheet === "review"} title={MOBILE_SHEET_TITLE.review} onClose={closeSheet} container={dialogContainer} tall>{sheet === "review" && <ReviewSheet ctx={ctx} />}</MobileSheetSurface>
+          <MobileSheetSurface open={sheet === "trace"} title={MOBILE_SHEET_TITLE.trace} onClose={closeSheet} container={dialogContainer} tall>{sheet === "trace" && <TraceSheet ctx={ctx} />}</MobileSheetSurface>
+          <MobileSheetSurface open={sheet === "share"} title={MOBILE_SHEET_TITLE.share} onClose={closeSheet} container={dialogContainer} tall>{sheet === "share" && <ShareSheet ctx={ctx} />}</MobileSheetSurface>
+          <MobileSheetSurface open={sheet === "manage"} title={MOBILE_SHEET_TITLE.manage} onClose={closeSheet} container={dialogContainer} tall>{sheet === "manage" && <ManageSheet ctx={ctx} />}</MobileSheetSurface>
 
           {/* ── stacking overlay (trace receipt / source reader) — above any sheet ── */}
-          <div className="na-scrim na-scrim-top" data-open={!!overlay} onClick={closeOverlay} />
-          <div className="na-sheet tall na-overlay-sheet" data-open={!!overlay}>
-            <div className="na-handle" />
+          <MobileSheetSurface open={!!overlay} title={overlay?.type === "trace" ? "Trace receipt" : "Source"} onClose={closeOverlay} container={dialogContainer} tall overlay>
             {overlay && overlay.type === "trace" && <TraceOverlay id={overlay.id} ctx={ctx} />}
             {overlay && overlay.type === "source" && <SourceOverlay src={overlay.src} ctx={ctx} />}
-          </div>
+          </MobileSheetSurface>
 
           {/* ── expanded Ask NodeAgent composer ── */}
           <div className="na-ask-wrap" data-open={askOpen} onClick={(e) => { if (e.target === e.currentTarget) closeAsk(); }}>
@@ -1457,42 +1468,47 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                   />
                 )}
                 <div className="na-ask-foot">
+                  <DropdownMenu open={attachMenu} onOpenChange={(nextOpen) => { setAttachMenu(nextOpen); if (nextOpen) setModelMenu(false); }}>
                   <div className="na-ask-pop">
-                    <button className="na-ask-ic" data-on={attachMenu ? "true" : undefined} onClick={() => { setAttachMenu((v) => !v); setModelMenu(false); }} aria-label="Add">{Ico("plus")}</button>
-                    {attachMenu && (
-                      <div className="na-menu" role="menu">
+                    <DropdownMenuTrigger asChild>
+                    <button className="na-ask-ic" data-on={attachMenu ? "true" : undefined} aria-label="Add">{Ico("plus")}</button>
+                    </DropdownMenuTrigger>
+                      <DropdownMenuContent className="na-menu" side="top" align="start" sideOffset={8} collisionPadding={12}>
                         {ATTACH.map((a) => (
-                          <button key={a.id} className="na-menu-row" onClick={() => addAttachment(a)}>
+                          <DropdownMenuItem key={a.id} className="na-menu-row" onSelect={() => addAttachment(a)}>
                             <span className="mi">{Ico(a.icon)}</span>
                             <span className="mt"><strong>{a.label}</strong><span>{a.sub}</span></span>
-                          </button>
+                          </DropdownMenuItem>
                         ))}
-                      </div>
-                    )}
+                      </DropdownMenuContent>
                   </div>
+                  </DropdownMenu>
+                  <DropdownMenu open={modelMenu && modelRoutingAvailable} onOpenChange={(nextOpen) => { setModelMenu(nextOpen); if (nextOpen) setAttachMenu(false); }}>
                   <div className="na-ask-pop">
+                    <DropdownMenuTrigger asChild>
                     <button
                       className="na-model-chip"
                       data-on={modelMenu && modelRoutingAvailable ? "true" : undefined}
                       disabled={!modelRoutingAvailable}
-                      onClick={() => { setModelMenu((v) => !v); setAttachMenu(false); }}
                       aria-label={modelRoutingAvailable ? "Model route" : "Model route unavailable"}
                       title={modelRoutingAvailable ? "Model route for room agent asks" : "Model routing applies to room-agent asks"}
                     >
                       {Ico(visibleModel.icon)}<span>{visibleModel.name}</span>{modelRoutingAvailable && Ico("chevD")}
                     </button>
-                    {modelMenu && modelRoutingAvailable && (
-                      <div className="na-menu" role="menu">
+                    </DropdownMenuTrigger>
+                    {modelRoutingAvailable && (
+                      <DropdownMenuContent className="na-menu" side="top" align="start" sideOffset={8} collisionPadding={12}>
                         {MODELS.map((m) => (
-                          <button key={m.id} className="na-menu-row" data-active={model === m.id} onClick={() => { setModel(m.id); setModelMenu(false); toast(m.name + " selected"); }}>
+                          <DropdownMenuItem key={m.id} className="na-menu-row" data-active={model === m.id} onSelect={() => { setModel(m.id); toast(m.name + " selected"); }}>
                             <span className="mi">{Ico(m.icon)}</span>
                             <span className="mt"><strong>{m.name}</strong><span>{m.desc}</span></span>
                             {model === m.id && <span className="mc">{Ico("check")}</span>}
-                          </button>
+                          </DropdownMenuItem>
                         ))}
-                      </div>
+                      </DropdownMenuContent>
                     )}
                   </div>
+                  </DropdownMenu>
                   <span className="sp" />
                   <button className="na-ask-mic" onClick={listening ? stopVoice : startVoice} data-listening={listening ? "true" : undefined} aria-label="Dictate">{Ico("mic")}</button>
                   {draft.trim() ? (

@@ -39,6 +39,9 @@ import { isWorkbookPreviewDoc, workbookPreviewArtifactFromDataUrl } from "./work
 import { isOfficePreviewDoc, officePreviewFromDataUrl, type OfficePreview } from "./officeFilePreview";
 import { RoomHome } from "../room/RoomHome";
 import { buildNotebookPatchDiff, notebookPatchValueText, type NotebookPatchDiff } from "../workArtifacts/notebookPatchDiff";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "../../components/ui/hover-card";
+import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
+import { ScrollArea } from "../../components/ui/scroll-area";
 import { isCollaborativeDeckArtifact } from "../workArtifacts/collaborativeDeck";
 import { onOpenWorkArtifactsReview } from "../workArtifacts/workArtifactsNavigation";
 
@@ -1545,22 +1548,17 @@ export function evidencePopoverPlacement(
 }
 
 export function EvidenceReceipt({ payload, compact = false, checkedAt }: { payload: CellPayload | null; compact?: boolean; checkedAt?: number }) {
-  const wrapRef = useRef<HTMLSpanElement>(null);
-  const [placement, setPlacement] = useState<{ flip: "down" | "up"; align: "right" | "left" }>({ flip: "down", align: "right" });
   const model = evidencePopoverModel(payload);
   if (!model.count) return null;
-  const reposition = () => {
-    const el = wrapRef.current;
-    if (!el || typeof window === "undefined") return;
-    const next = evidencePopoverPlacement(el.getBoundingClientRect(), { width: window.innerWidth, height: window.innerHeight });
-    setPlacement((prev) => (prev.flip === next.flip && prev.align === next.align ? prev : next));
-  };
   const checked = evidenceCheckedLabel(checkedAt);
   return (
-    <span ref={wrapRef} className="r-cite-wrap" data-compact={compact ? "true" : undefined} onMouseEnter={reposition} onFocus={reposition}>
+    <span className="r-cite-wrap" data-compact={compact ? "true" : undefined}>
+      <HoverCard openDelay={120} closeDelay={100}>
+      <HoverCardTrigger asChild>
       {/* stopPropagation: clicking the chip pins the popover via focus; letting the click reach the cell would steal focus back to the grid and close it. */}
       <span className="r-cite-chip" data-testid="grid-cite-chip" tabIndex={0} title={evidenceTitle(payload)} onClick={(e) => e.stopPropagation()}>{model.count} src</span>
-      <span className="r-cite-popover r-evidence-popover" data-testid="evidence-popover" role="note" data-flip={placement.flip} data-align={placement.align}>
+      </HoverCardTrigger>
+      <HoverCardContent forceMount className="r-cite-popover r-evidence-popover" data-testid="evidence-popover" role="note" side="bottom" align="end" sideOffset={5} collisionPadding={8}>
         <span className="r-evidence-items" data-testid="grid-cite-popover">
           {model.items.map((item) => (
             <span key={item.id} className="r-evidence-item">
@@ -1577,7 +1575,8 @@ export function EvidenceReceipt({ payload, compact = false, checkedAt }: { paylo
         </span>
         {model.moreCount > 0 && <span className="r-evidence-more" data-testid="evidence-popover-more">+{model.moreCount} more</span>}
         <em className="r-evidence-checked">{checked ?? "source checked"} · {typeof model.confidencePct === "number" ? `${model.confidencePct}% confidence` : "visible receipt"}</em>
-      </span>
+      </HoverCardContent>
+      </HoverCard>
     </span>
   );
 }
@@ -1709,10 +1708,11 @@ export function CellHistory({ roomId, artifactId, elementId, requester, currentV
   // one useState + a button; the Convex hooks live in CellHistoryPopover and
   // mount only while a popover is open.
   const [open, setOpen] = useState(false);
-  const wrapRef = useRef<HTMLSpanElement>(null);
   return (
-    <span ref={wrapRef} className={"r-hist-wrap" + (shifted ? " with-cite" : "")} data-open={String(open)}>
+    <Popover open={open} onOpenChange={setOpen}>
+    <span className={"r-hist-wrap" + (shifted ? " with-cite" : "")} data-open={String(open)}>
       {/* stopPropagation: the glyph must not select/edit the cell underneath. */}
+      <PopoverTrigger asChild>
       <button
         type="button"
         className="r-hist-btn"
@@ -1720,11 +1720,12 @@ export function CellHistory({ roomId, artifactId, elementId, requester, currentV
         aria-label="Cell version history"
         aria-expanded={open}
         title="Version history — every applied write is logged; restore re-applies as a new version"
-        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
+        onClick={(e) => e.stopPropagation()}
         onDoubleClick={(e) => e.stopPropagation()}
       >
         <Clock3 size={10} />
       </button>
+      </PopoverTrigger>
       {open && (
         <CellHistoryPopover
           roomId={roomId}
@@ -1732,22 +1733,21 @@ export function CellHistory({ roomId, artifactId, elementId, requester, currentV
           elementId={elementId}
           requester={requester}
           currentValue={currentValue}
-          wrapRef={wrapRef}
           onClose={() => setOpen(false)}
           onFeedback={onFeedback}
         />
       )}
     </span>
+    </Popover>
   );
 }
 
-function CellHistoryPopover({ roomId, artifactId, elementId, requester, currentValue, wrapRef, onClose, onFeedback }: {
+function CellHistoryPopover({ roomId, artifactId, elementId, requester, currentValue, onClose, onFeedback }: {
   roomId: string;
   artifactId: string;
   elementId: string;
   requester: ActorProof;
   currentValue: string;
-  wrapRef: React.RefObject<HTMLSpanElement | null>;
   onClose: () => void;
   onFeedback?: (f: EditFeedback) => void;
 }) {
@@ -1755,15 +1755,6 @@ function CellHistoryPopover({ roomId, artifactId, elementId, requester, currentV
   const [busyVersion, setBusyVersion] = useState<number | null>(null);
   const rows = useQuery(elementHistoryApi.listElementVersions, { roomId, artifactId, elementId, requester, limit: CELL_HISTORY_LIMIT });
   const restore = useMutation(elementHistoryApi.restoreElementVersion);
-  useEffect(() => {
-    const onDown = (e: MouseEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) onClose();
-    };
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => { document.removeEventListener("mousedown", onDown); document.removeEventListener("keydown", onKey); };
-  }, [wrapRef, onClose]);
   const doRestore = async (version: number) => {
     setBusyVersion(version);
     try {
@@ -1777,8 +1768,9 @@ function CellHistoryPopover({ roomId, artifactId, elementId, requester, currentV
     }
   };
   return (
-    <span className="r-hist-popover" data-testid="cell-history-popover" role="dialog" aria-label={`Version history for ${elementId}`} onClick={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()}>
+    <PopoverContent className="r-hist-popover" data-testid="cell-history-popover" aria-label={`Version history for ${elementId}`} side="bottom" align="end" sideOffset={4} collisionPadding={8} onClick={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()}>
       <span className="r-hist-head"><History size={11} /> Cell history<span className="r-hist-count">{rows ? `${rows.length} version${rows.length === 1 ? "" : "s"}` : ""}</span></span>
+      <ScrollArea className="r-hist-scroll">
       {rows === undefined && <span className="r-hist-loading">Loading history…</span>}
       {rows && rows.length === 0 && <span className="r-hist-empty" data-testid="cell-history-empty">No prior versions — this cell hasn't been overwritten yet.</span>}
       {rows?.map((row) => (
@@ -1815,7 +1807,8 @@ function CellHistoryPopover({ roomId, artifactId, elementId, requester, currentV
           {diffFor === row.version && <CellDiff version={row.version} oldValue={displayCellValue(row.value)} currentValue={currentValue} />}
         </span>
       ))}
-    </span>
+      </ScrollArea>
+    </PopoverContent>
   );
 }
 
@@ -3491,8 +3484,6 @@ type NotebookInlinePatchMark = {
   blockId: string;
   top: number;
   right: number;
-  popupTop: number;
-  popupLeft: number;
   popupWidth: number;
   diff: NotebookPatchDiff;
 };
@@ -3530,8 +3521,6 @@ function NotebookInlinePatchLayer({ roomId, artifactId, containerRef }: {
           blockId: proposal.op.elementId,
           top: Math.max(0, rect.top - parent.top),
           right: Math.max(6, parent.right - rect.right + 4),
-          popupTop: Math.max(28, rect.bottom - parent.top + 5),
-          popupLeft: Math.max(12, Math.min(rect.left - parent.left, parent.width - popupWidth - 12)),
           popupWidth,
           diff: buildNotebookPatchDiff(before, after),
         }];
@@ -3552,29 +3541,28 @@ function NotebookInlinePatchLayer({ roomId, artifactId, containerRef }: {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [artifactId, containerRef, signature]);
   if (!marks.length) return null;
-  const opened = marks.find((mark) => mark.proposalId === openId);
   return (
     <div className="r-nb-patch-layer" data-testid="notebook-inline-patch-layer">
       {marks.map((mark) => (
+        <Popover key={mark.proposalId} open={openId === mark.proposalId} onOpenChange={(nextOpen) => setOpenId(nextOpen ? mark.proposalId : null)}>
+        <PopoverTrigger asChild>
         <button
-          key={mark.proposalId}
           type="button"
           className="r-nb-patch-marker"
           style={{ top: mark.top, right: mark.right }}
           aria-expanded={openId === mark.proposalId}
           aria-label={`Review patch for notebook block ${mark.blockId}`}
-          onClick={() => setOpenId((current) => current === mark.proposalId ? null : mark.proposalId)}
         >
           Patch
         </button>
-      ))}
-      {opened && (
-        <section className="r-nb-patch-popover" style={{ top: opened.popupTop, left: opened.popupLeft, width: opened.popupWidth }} data-testid="notebook-inline-patch-diff" aria-label={`Proposed change for ${opened.blockId}`}>
+        </PopoverTrigger>
+        <PopoverContent className="r-nb-patch-popover" style={{ width: mark.popupWidth }} data-testid="notebook-inline-patch-diff" aria-label={`Proposed change for ${mark.blockId}`} side="bottom" align="end" sideOffset={5} collisionPadding={12}>
           <header><span>Proposed block change</span><button type="button" aria-label="Close patch diff" onClick={() => setOpenId(null)}><X size={12} /></button></header>
-          <div><span>Before</span><p>{opened.diff.parts.filter((part) => part.kind !== "added").map((part, index) => part.kind === "removed" ? <del key={index}>{part.text} </del> : <Fragment key={index}>{part.text} </Fragment>)}</p></div>
-          <div><span>After</span><p>{opened.diff.parts.filter((part) => part.kind !== "removed").map((part, index) => part.kind === "added" ? <ins key={index}>{part.text} </ins> : <Fragment key={index}>{part.text} </Fragment>)}</p></div>
-        </section>
-      )}
+          <div><span>Before</span><p>{mark.diff.parts.filter((part) => part.kind !== "added").map((part, index) => part.kind === "removed" ? <del key={index}>{part.text} </del> : <Fragment key={index}>{part.text} </Fragment>)}</p></div>
+          <div><span>After</span><p>{mark.diff.parts.filter((part) => part.kind !== "removed").map((part, index) => part.kind === "added" ? <ins key={index}>{part.text} </ins> : <Fragment key={index}>{part.text} </Fragment>)}</p></div>
+        </PopoverContent>
+        </Popover>
+      ))}
     </div>
   );
 }

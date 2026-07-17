@@ -10,6 +10,7 @@ import { ArrowLeft, ArrowRight, Check, Lock, Moon, Plus, Sparkles, Users, X } fr
 import { api } from "../../convex/_generated/api";
 import { createFreshRoom, enterDemoRoomAsHost, joinRoomByCode } from "../app/roomStore";
 import { NodeReveal } from "./motion/NodeReveal";
+import { FocusTrapDialog } from "./primitives/FocusTrapDialog";
 import type { Session } from "./App";
 import "./landing.css";
 
@@ -24,28 +25,6 @@ type LandingProps = {
   onLiveJoin?: (code: string, name: string) => void;
   onLiveCreate?: (name: string, title: string, code: string, autoAllow: boolean) => void;
 };
-
-/** Minimal focus-trap + focus-restore for the room dialogs (Tab cycles within; focus returns to the
- *  trigger on close). Escape-to-close + autofocus are wired on the modal itself. */
-function useFocusTrap(active: boolean) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!active) return;
-    const node = ref.current;
-    const prev = document.activeElement as HTMLElement | null;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Tab" || !node) return;
-      const f = Array.from(node.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),input:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')).filter((el) => el.offsetParent !== null);
-      if (!f.length) return;
-      const first = f[0], last = f[f.length - 1];
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    };
-    node?.addEventListener("keydown", onKey);
-    return () => { node?.removeEventListener("keydown", onKey); prev?.focus?.(); };
-  }, [active]);
-  return ref;
-}
 
 export function Landing({
   onEnter,
@@ -69,8 +48,6 @@ export function Landing({
   const [autoAllow, setAutoAllow] = useState(false);
   const joinInputRef = useRef<HTMLInputElement>(null);
   const live = mode === "live";
-  const joinTrapRef = useFocusTrap(live && !!joinDialogCode);
-  const createTrapRef = useFocusTrap(live && !!createDialogCode);
   const shownError = joinError ?? joinErr;
   const displayName = (fallback = "Guest") => name.trim() || fallback;
   useEffect(() => {
@@ -229,12 +206,12 @@ export function Landing({
           </div>
         </div>
         {live && joinDialogCode && (
-          <div
+          <FocusTrapDialog
             className="r-room-modal-scrim"
-            onMouseDown={(e) => { if (e.target === e.currentTarget) setJoinDialogCode(null); }}
-            onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); setJoinDialogCode(null); } }}
+            panelClassName="r-room-modal"
+            ariaLabelledby="join-room-title"
+            onClose={() => setJoinDialogCode(null)}
           >
-            <div className="r-room-modal" role="dialog" aria-modal="true" aria-labelledby="join-room-title" ref={joinTrapRef}>
               <div className="r-room-modal-head">
                 <div className="row between">
                   <span className="kicker">Join a room</span>
@@ -270,16 +247,15 @@ export function Landing({
                   Join room <ArrowRight size={16} />
                 </button>
               </div>
-            </div>
-          </div>
+          </FocusTrapDialog>
         )}
         {live && createDialogCode && (
-          <div
+          <FocusTrapDialog
             className="r-room-modal-scrim"
-            onMouseDown={(e) => { if (e.target === e.currentTarget) { setCreateDialogCode(null); setHostKind(null); } }}
-            onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); setCreateDialogCode(null); setHostKind(null); } }}
+            panelClassName="r-room-modal"
+            ariaLabelledby="create-room-title"
+            onClose={() => { setCreateDialogCode(null); setHostKind(null); }}
           >
-            <div className="r-room-modal" role="dialog" aria-modal="true" aria-labelledby="create-room-title" ref={createTrapRef}>
               <div className="r-room-modal-head">
                 <div className="row between">
                   <span className="kicker">{hostKind === "sample" ? "Try a sample" : "Create a room"}</span>
@@ -338,8 +314,7 @@ export function Landing({
                   {hostKind === "sample" ? "Start sample room" : "Create empty room"} <ArrowRight size={16} />
                 </button>
               </div>
-            </div>
-          </div>
+          </FocusTrapDialog>
         )}
       </div>
     </div>

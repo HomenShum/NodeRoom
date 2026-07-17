@@ -339,7 +339,8 @@ test.describe("full modern UX release bar", () => {
 
     await page.getByRole("button", { name: "Quick actions" }).click();
     await expect(page.locator(".na-fab-fan")).toBeVisible();
-    await page.getByRole("button", { name: "Ask NodeAgent" }).click();
+    // Fan actions are Radix DropdownMenuItems (role=menuitem), not buttons.
+    await page.getByRole("menuitem", { name: "Ask NodeAgent" }).click();
     await expect(page.locator(".na-ask-wrap")).toHaveAttribute("data-open", "true");
 
     await attachAndAssertHealth(page, testInfo, "mobile-terracotta", health, { assertPerf: false });
