@@ -1737,7 +1737,7 @@ export const RECENTS: RecentItem[] = [
     id: "r_deck",
     icon: "layers",
     title: "CardioNova investor update",
-    meta: "deck · 6 slides · review",
+    meta: "6 slides · review",
     kind: "deck",
     peek: "AI triage that gives EDs back their first golden hour.",
     sig: { type: "deck", count: 6, active: 2, status: "review" },

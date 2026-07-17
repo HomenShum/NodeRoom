@@ -1242,8 +1242,7 @@ button.na-row:hover .chevR { transform: translateX(3px); color: var(--na-accent)
 .na-rcard:active .na-openbtn, .na-favrow:active .na-openbtn { transform: scale(0.97); }
 
 /* recents footer — meta + open affordance share the bottom row */
-.na-rcard .rc-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; }
-.na-rcard .rc-foot .rc-meta { margin-top: 0; flex: 1 1 auto; }
+.na-rcard .rc-foot { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
 .na-rcard .rc-foot .na-openbtn { padding: 5px 9px 5px 8px; font-size: 11px; gap: 5px; }
 
 /* go-to nav — compact floating icon buttons */

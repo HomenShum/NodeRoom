@@ -115,6 +115,13 @@
         .nr-ssr-title { font-size: clamp(38px, 13vw, 58px); }
         .nr-ssr-copy { font-size: 16px; }
       }
+      /* Phones: the nav can no longer share a row with the brand without ragged
+         wrapping — restructure to brand row + one clean nav row at pill scale. */
+      @media (max-width: 560px) {
+        .nr-ssr-top { flex-direction: column; align-items: flex-start; gap: 12px; }
+        .nr-ssr-nav { width: 100%; flex-wrap: nowrap; gap: 8px; }
+        .nr-ssr-nav .nr-ssr-code { min-height: 36px; padding: 0 10px; font-size: 12px; white-space: nowrap; }
+      }
     </style>
   </head>
   <body>
