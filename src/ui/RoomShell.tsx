@@ -25,6 +25,7 @@ import { PassiveAgentChip } from "./insights/PassiveAgentChip";
 import { OPT_ARTIFACT_PREFIX, optimisticArtifactIdentity, resolveRoomOpenTarget } from "./openRoomReference";
 import { readFocusModeClientState, persistFocusModeClientState, textEntryIsActive, type FocusModeClientState } from "./focusMode";
 import { Badge, Button, IconButton, Modal, Panel, Switch, Tabs } from "./primitives/designSystem";
+import { LiveRegion } from "../accessibility/liveRegion";
 import type { Actor, Channel } from "../engine/types";
 
 const AUTO_ACCEPT_PREF_KEY = "noderoom:autoAcceptConsent:v1";
@@ -634,10 +635,15 @@ export function RoomShell({ roomId, me, onLeave, onSignOut, proof }: { roomId: s
         <div className="r-brand">NodeRoom <span>· {room.title}</span></div>
         {/* The code chip LOOKS like a button, so it must be one — sharing the code is the core
             multiplayer flow (Meet/Figma mental model: click the code -> copy invite). */}
-        <button className="r-roomcode fx-invite" type="button" title="Copy invite link" aria-label={codeCopied ? "Invite link copied" : `Copy invite link for room ${room.code}`} aria-live="polite"
+        <button className="r-roomcode fx-invite" type="button" title="Copy invite link" aria-label={codeCopied ? "Invite link copied" : `Copy invite link for room ${room.code}`}
           onClick={copyInvite}>
           <b>{inviteBadgeText}</b> {codeCopied ? <Check size={11} /> : <Copy size={11} />}
         </button>
+        {/* aria-live must not sit on the button itself: the aria-hidden package exempts
+            [aria-live] elements from modal hiding, which kept this control (and its whole
+            ancestor chain) reachable to screen readers behind open dialogs. A hidden leaf
+            region announces the copy without pinning an interactive element open. */}
+        <LiveRegion message={codeCopied ? "Invite link copied" : undefined} />
         {store.mode === "convex" && <Badge>● live convex</Badge>}
         {/* Offline edit-hold pill — quiet amber (needs review) next to the sync tag. Held state
             shows the bound honestly (dropped count included); after replay, conflicts that lost
@@ -647,7 +653,6 @@ export function RoomShell({ roomId, me, onLeave, onSignOut, proof }: { roomId: s
             className="r-offline-pill"
             data-testid="offline-pill"
             role="status"
-            aria-live="polite"
             title={`${offlineHeld} edit${offlineHeld === 1 ? "" : "s"} held locally while the connection is down; they replay automatically on reconnect through the same conflict-safe path.${offline.dropped > 0 ? ` ${offline.dropped} oldest edit${offline.dropped === 1 ? "" : "s"} dropped at the ${OFFLINE_QUEUE_MAX}-op bound.` : ""}`}
           >
             <WifiOff size={11} />
@@ -1140,7 +1145,9 @@ function SignalStatusStrip({
       >
         <Crosshair size={11} />
       </div>
-      <div className="r-status-strip" data-testid="status-strip" role="status" aria-live="polite">
+      {/* role="status" is implicitly polite-live; the explicit [aria-live] attribute would
+          exempt this strip from modal aria-hiding (see r-roomcode note in the topbar). */}
+      <div className="r-status-strip" data-testid="status-strip" role="status">
         {cloudReconciledStatusText ? (
           <>
             <span className="r-status-prefix">{reconciledStatusPrefix.trim()}</span>
