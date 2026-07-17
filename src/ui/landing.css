@@ -11,7 +11,9 @@
 /* ── hero grid ────────────────────────────────────────────────────────────── */
 .r-land2-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr); gap: 40px; align-items: center; }
 @media (max-width: 900px) { .r-land2-grid { grid-template-columns: 1fr; gap: 28px; } }
-.r-land2-grid .r-h1 { margin-top: 16px; font-size: clamp(30px, 4vw, 44px); max-width: 20ch; }
+/* Hero scale continuity: the SSR shell paints the title at up to 76px; hydrating down
+   to 44px read as the page visibly shrinking. Meet it near SSR scale. */
+.r-land2-grid .r-h1 { margin-top: 16px; font-size: clamp(36px, 4.8vw, 60px); line-height: 0.95; letter-spacing: -0.01em; max-width: 16ch; }
 .r-land2-grid .r-lede { margin-bottom: 24px; }
 /* Informational trust chips — mirrors the SSR shell's proof points so the prerendered
    hero and the hydrated app share one vocabulary. Not a success state: neutral ink only
@@ -68,7 +70,15 @@
 .r-land2-cite .q { font-size: 11px; font-style: italic; color: var(--text-secondary); }
 .r-land2-cite .st { margin-left: auto; flex: none; display: inline-flex; align-items: center; gap: 4px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--success-ink); }
 .r-land2-cite .st i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-@media (prefers-reduced-motion: no-preference) { .r-land2-cite { animation: rland2reveal .42s var(--ease-out-expo); } }
+@media (prefers-reduced-motion: no-preference) {
+  .r-land2-cite { animation: rland2reveal .42s var(--ease-out-expo) .1s backwards; }
+  /* The quote rules itself into the ledger: its underline draws left to right. */
+  .r-land2-cite .q { background-image: linear-gradient(rgba(217,119,87,.55), rgba(217,119,87,.55)); background-repeat: no-repeat; background-position: 0 100%; background-size: 0% 1px; animation: rland2rule .5s var(--ease-out-expo) .3s forwards; }
+  /* The agent avatar carries a soft working ring until the loop settles on v43. */
+  .r-land2-shot:not([data-frame="v43"]) .r-land2-agentline .av { animation: rland2working 1.6s ease-in-out infinite; }
+}
+@keyframes rland2rule { to { background-size: 100% 1px; } }
+@keyframes rland2working { 0%, 100% { box-shadow: 0 0 0 0 rgba(217,119,87,.35); } 50% { box-shadow: 0 0 0 5px rgba(217,119,87,.08); } }
 @keyframes rland2reveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
 
 .r-land2-sheet { border: 1px solid var(--line); border-radius: 11px; overflow: hidden; background: var(--bg-primary); }
@@ -84,17 +94,31 @@
 .r-land2-sheet td.var.empty { color: var(--text-tertiary); }
 .r-land2-sheet tr.locked td { background: rgba(217,119,87,.08); }
 .r-land2-sheet tr.drafting td { background: rgba(31,138,91,.08); }
+/* Signature motion: when the agent acts on a row, the product's Trace Lens focus
+   treatment draws itself across the row — attention is SHOWN, not implied. First and
+   last cells carry the ring's caps so the whole row reads as one focus box. */
+@media (prefers-reduced-motion: no-preference) {
+  .r-land2-sheet tr.locked td, .r-land2-sheet tr.drafting td { animation: rland2rowsweep .38s var(--ease-out-expo); }
+  .r-land2-sheet tr.locked td:first-child, .r-land2-sheet tr.drafting td:first-child { animation: rland2rowsweep .38s var(--ease-out-expo), rland2rowring .9s var(--ease-out-expo); }
+}
+@keyframes rland2rowsweep { from { background-position: -160px 0; background-image: linear-gradient(90deg, rgba(217,119,87,.22), transparent 70%); background-repeat: no-repeat; } to { background-position: 480px 0; background-image: linear-gradient(90deg, rgba(217,119,87,.22), transparent 70%); background-repeat: no-repeat; } }
+@keyframes rland2rowring { 0% { box-shadow: inset 2px 0 0 rgba(217,119,87,.9); } 100% { box-shadow: inset 2px 0 0 rgba(217,119,87,.35); } }
 .r-land2-lockbadge { display: inline-flex; align-items: center; gap: 3px; margin-left: 7px; font-size: 8.5px; font-weight: 800; padding: 1px 5px; border-radius: 5px;
   background: rgba(217,119,87,.2); color: var(--accent-ink); vertical-align: 1px; }
 .r-land2-lockbadge.draft { background: rgba(31,138,91,.2); color: var(--success-ink); }
+/* Lock badges clamp on with a small overshoot — a physical "claim" gesture. */
+@media (prefers-reduced-motion: no-preference) { .r-land2-lockbadge { animation: rland2clamp .26s var(--ease-out-expo) backwards; } }
+@keyframes rland2clamp { 0% { transform: scale(.8); opacity: 0; } 65% { transform: scale(1.06); opacity: 1; } 100% { transform: scale(1); } }
 .r-land2-ink { display: inline-block; border-radius: 4px; padding: 0 4px; margin: 0 -4px; }
-@media (prefers-reduced-motion: no-preference) { .r-land2-ink { animation: rland2ink 1.4s var(--ease-out-expo); } }
-@keyframes rland2ink { 0% { background: rgba(217,119,87,.5); } 100% { background: transparent; } }
+/* Ledger rhythm: values land AFTER the agent line settles (ink dries second). */
+@media (prefers-reduced-motion: no-preference) { .r-land2-ink { animation: rland2ink 1.4s var(--ease-out-expo) .16s backwards; } }
+@keyframes rland2ink { 0% { background: rgba(217,119,87,.5); transform: translateY(3px); opacity: 0; } 18% { transform: none; opacity: 1; } 100% { background: transparent; transform: none; opacity: 1; } }
 .r-land2-sheet-foot { display: flex; align-items: center; gap: 9px; padding: 8px 11px; border-top: 1px solid var(--line); }
 .r-land2-vpill { font-family: var(--font-mono); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px;
   background: var(--bg-secondary); border: 1px solid var(--line); color: var(--text-muted); }
 .r-land2-vpill.next { background: var(--accent-tint); border-color: var(--accent-border); color: var(--accent-ink); }
-@media (prefers-reduced-motion: no-preference) { .r-land2-vpill.next { animation: rland2vpop .5s var(--ease-out-expo); } }
+/* Version ticks LAST — commit first, then the ledger acknowledges it. */
+@media (prefers-reduced-motion: no-preference) { .r-land2-vpill.next { animation: rland2vpop .5s var(--ease-out-expo) .34s backwards; } }
 @keyframes rland2vpop { 0% { transform: scale(1); } 32% { transform: scale(1.14); } 100% { transform: scale(1); } }
 .r-land2-sheet-foot .grow { flex: 1; }
 .r-land2-sheet-foot .src { font-family: var(--font-mono); font-size: 9.5px; color: var(--text-muted); }
