@@ -69,6 +69,7 @@
     "benchmark:spreadsheetbench:official-v2-project": "tsx scripts/spreadsheetbench-official-v2-project.ts",
     "benchmark:spreadsheetbench:refresh-excel": "python scripts/spreadsheetbench-refresh-excel.py",
     "benchmark:spreadsheetbench:accept-official-v2": "tsx scripts/spreadsheetbench-accept-official-v2.ts",
+    "benchmark:spreadsheetbench:v2-quality-gate": "tsx scripts/spreadsheetbench-v2-quality-gate.ts",
     "benchmark:spreadsheetbench:visible-repair-replay": "tsx scripts/spreadsheetbench-visible-repair-replay.ts",
     "benchmark:spreadsheetbench:project-model-report": "tsx scripts/spreadsheetbench-project-model-report.ts",
     "benchmark:spreadsheetbench:score": "tsx scripts/spreadsheetbench-score.ts",
