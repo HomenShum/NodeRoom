@@ -1,6 +1,6 @@
-/** Rooms + anonymous join. The short code is generated client-side and passed in
- * (mutations are deterministic — no Math.random/uuid inside). Anonymous join is a
- * stand-in for `@convex-dev/auth`'s Anonymous provider (see docs/STACK.md). */
+/** Rooms + code-based join. The short code is generated client-side and passed in
+ * (mutations are deterministic — no Math.random/uuid inside). Production can require
+ * a Convex Auth identity while local/demo deployments can retain token-only guests. */
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { internalMutation, mutation, query, type MutationCtx } from "./_generated/server";
@@ -689,17 +689,30 @@ export const joinAnonymous = mutation({
     if (!room) return null;
     const identity = await getRequiredProductionIdentity(ctx);
     const now = Date.now();
-    const anon = a.anon ?? true;
+    // Identity-backed members are never represented as anonymous, even when an older
+    // client sends the legacy anon flag. Keep anonymous guests only for deployments
+    // where production identity enforcement is disabled.
+    const anon = identity ? false : a.anon ?? true;
     if (a.name.length > MAX_NAME_LEN) throw new Error("field_too_long");
     const existing = await ctx.db.query("members").withIndex("by_room", (q) => q.eq("roomId", room._id)).collect();
     const activeMembers = existing.filter((m) => m.revokedAt == null);
+    const identityMatch = identity ? activeMembers.find((member) => member.authSubject === identity.subject) : undefined;
     // Lost-response recovery: retrying with the same room-scoped token resumes the
     // original member (including the host) instead of consuming another seat.
-    const tokenMatches = await Promise.all(activeMembers.map((member) => authTokenMatchesHash(a.authToken, member.authTokenHash)));
-    const resumed = activeMembers[tokenMatches.findIndex(Boolean)];
+    // Authenticated users also resume across browsers without consuming another
+    // room seat or relying on the first browser's room token.
+    const tokenMatches = identityMatch ? [] : await Promise.all(activeMembers.map((member) => authTokenMatchesHash(a.authToken, member.authTokenHash)));
+    const tokenMatch = activeMembers[tokenMatches.findIndex(Boolean)];
+    if (identity && tokenMatch?.authSubject && tokenMatch.authSubject !== identity.subject) {
+      throw new Error("identity_mismatch");
+    }
+    const resumed = identityMatch ?? tokenMatch;
     if (resumed) {
-      await ctx.db.patch(resumed._id, { lastSeenAt: now });
-      return { roomId: room._id, memberId: resumed._id, resumed: true as const };
+      await ctx.db.patch(resumed._id, {
+        lastSeenAt: now,
+        ...(identity && !resumed.authSubject ? { authSubject: identity.subject } : {}),
+      });
+      return { roomId: room._id, memberId: resumed._id, name: resumed.name, resumed: true as const };
     }
     // Abuse gates: room capacity + join-rate window (joins are members created in the last 60s).
     if (activeMembers.length >= MAX_MEMBERS_PER_ROOM) return { error: "room_full" as const };
@@ -709,7 +722,7 @@ export const joinAnonymous = mutation({
     const authTokenHash = await hashToken(a.authToken);
     const memberId = await ctx.db.insert("members", { roomId: room._id, name: a.name, role: "member", anon, color: palette[count % palette.length], authTokenHash, authSubject: identity?.subject, lastSeenAt: now });
     await ctx.db.insert("traces", { roomId: room._id, ts: now, actor: { kind: "user", id: memberId, name: a.name }, type: "member_joined", summary: `${a.name} joined${anon ? " (anon)" : ""}` });
-    return { roomId: room._id, memberId };
+    return { roomId: room._id, memberId, name: a.name };
   },
 });
 

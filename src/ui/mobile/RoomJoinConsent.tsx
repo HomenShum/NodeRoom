@@ -34,7 +34,7 @@ export function RoomJoinConsent({
 
           <div className="na-consent-access" role="note">
             <strong>Code-access room · {roomCode}</strong>
-            <span>Anyone allowed by this deployment who has the code can join as an editor. The invite link does not expire.</span>
+            <span>Signed-in members with the code can join as editors. The invite link does not expire.</span>
           </div>
 
           <fieldset className="na-consent-options">

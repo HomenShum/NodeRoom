@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-13T21:11:45.237Z",
-  "stageRoot": "staged-v2",
-  "taskCount": 3,
+  "generatedAt": "2026-07-09T09:48:30.544Z",
+  "stageRoot": "staged-v2-full",
+  "taskCount": 321,
   "routeCounts": {
-    "deterministic_table_transform": 0,
-    "model_formula_edit": 2,
-    "model_format_edit": 0,
-    "model_general_edit": 1,
+    "deterministic_table_transform": 2,
+    "model_formula_edit": 98,
+    "model_format_edit": 84,
+    "model_general_edit": 137,
     "blocked_chart_visual": 0
   },
   "selections": [
@@ -25,6 +25,122 @@
       "agentManifest": "tasks/Debugging_01_01/agent/task.json"
     },
     {
+      "taskId": "Debugging/01_02",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_01_02/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/01_03",
+      "category": "Debugging",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_01_03/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/01_04",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_01_04/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/01_05",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_01_05/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/01_06",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_01_06/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/01_07",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_01_07/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/01_08",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_01_08/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/01_09",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_01_09/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/01_10",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_01_10/agent/task.json"
+    },
+    {
       "taskId": "Debugging/02_01",
       "category": "Debugging",
       "route": "model_formula_edit",
@@ -38,7 +154,150 @@
       "agentManifest": "tasks/Debugging_02_01/agent/task.json"
     },
     {
+      "taskId": "Debugging/02_02",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_02_02/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/02_03",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_02_03/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/02_04",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_02_04/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/02_05",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_02_05/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/02_06",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_02_06/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/02_07",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_02_07/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/02_08",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_02_08/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/02_09",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_02_09/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/02_10",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_02_10/agent/task.json"
+    },
+    {
       "taskId": "Debugging/03_01",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_03_01/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/03_02",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_03_02/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/03_03",
       "category": "Debugging",
       "route": "model_general_edit",
       "rationale": [
@@ -47,7 +306,3784 @@
       "requiredCapabilities": [
         "model_edit_plan"
       ],
-      "agentManifest": "tasks/Debugging_03_01/agent/task.json"
+      "agentManifest": "tasks/Debugging_03_03/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/03_04",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_03_04/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/03_05",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_03_05/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/03_06",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_03_06/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/03_07",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_03_07/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/03_08",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_03_08/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/03_09",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_03_09/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/03_10",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_03_10/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/04_01",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_04_01/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/04_02",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_04_02/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/04_03",
+      "category": "Debugging",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_04_03/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/04_04",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_04_04/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/04_05",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_04_05/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/04_06",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_04_06/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/04_07",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_04_07/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/04_08",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_04_08/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/04_09",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_04_09/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/04_10",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_04_10/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/05_01",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_05_01/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/05_02",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_05_02/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/05_03",
+      "category": "Debugging",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_05_03/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/05_04",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_05_04/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/05_05",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_05_05/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/05_06",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_05_06/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/05_07",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_05_07/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/05_08",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_05_08/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/05_09",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_05_09/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/05_10",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_05_10/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/06_01",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_06_01/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/06_02",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_06_02/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/06_03",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_06_03/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/06_04",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_06_04/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/06_05",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_06_05/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/06_06",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_06_06/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/06_07",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_06_07/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/06_08",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_06_08/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/06_09",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_06_09/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/06_10",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_06_10/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/07_01",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_07_01/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/07_02",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_07_02/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/07_03",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_07_03/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/07_04",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_07_04/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/07_05",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_07_05/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/07_06",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_07_06/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/07_07",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_07_07/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/07_08",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_07_08/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/07_09",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_07_09/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/07_10",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_07_10/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/08_01",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_08_01/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/08_02",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_08_02/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/08_03",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_08_03/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/08_04",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_08_04/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/08_05",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_08_05/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/08_06",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_08_06/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/08_07",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_08_07/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/08_08",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_08_08/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/08_09",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_08_09/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/08_10",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_08_10/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/09_01",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_09_01/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/09_02",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_09_02/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/09_03",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_09_03/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/09_04",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_09_04/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/09_05",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_09_05/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/09_06",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_09_06/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/09_07",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_09_07/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/09_08",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_09_08/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/09_09",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_09_09/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/09_10",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_09_10/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/10_01",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_10_01/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/10_02",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_10_02/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/10_03",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_10_03/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/10_04",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_10_04/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/10_05",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_10_05/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/10_06",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_10_06/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/10_07",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_10_07/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/10_08",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_10_08/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/10_09",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_10_09/agent/task.json"
+    },
+    {
+      "taskId": "Debugging/10_10",
+      "category": "Debugging",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Debugging_10_10/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/01_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_01_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/01_02",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_01_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/01_03",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_01_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/01_04",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_01_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/01_05",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_01_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/02_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_02_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/02_02",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_02_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/02_03",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_02_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/02_04",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_02_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/02_05",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_02_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/03_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_03_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/03_02",
+      "category": "Financial_Model",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_03_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/03_03",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_03_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/03_04",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_03_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/03_05",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_03_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/04_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_04_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/04_02",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_04_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/04_03",
+      "category": "Financial_Model",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_04_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/04_04",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_04_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/04_05",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_04_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/05_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_05_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/05_02",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_05_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/05_03",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_05_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/05_04",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_05_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/05_05",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_05_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/06_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_06_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/06_02",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_06_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/06_03",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_06_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/06_04",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_06_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/06_05",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_06_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/07_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_07_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/07_02",
+      "category": "Financial_Model",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_07_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/07_03",
+      "category": "Financial_Model",
+      "route": "deterministic_table_transform",
+      "rationale": [
+        "table-shape operation matches deterministic structural operators"
+      ],
+      "requiredCapabilities": [
+        "aggregate_section",
+        "filter_rows",
+        "sort_unique_rows"
+      ],
+      "agentManifest": "tasks/Financial_Model_07_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/07_04",
+      "category": "Financial_Model",
+      "route": "deterministic_table_transform",
+      "rationale": [
+        "table-shape operation matches deterministic structural operators"
+      ],
+      "requiredCapabilities": [
+        "aggregate_section",
+        "filter_rows",
+        "sort_unique_rows"
+      ],
+      "agentManifest": "tasks/Financial_Model_07_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/07_05",
+      "category": "Financial_Model",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_07_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/08_01",
+      "category": "Financial_Model",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_08_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/08_02",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_08_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/08_03",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_08_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/08_04",
+      "category": "Financial_Model",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_08_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/08_05",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_08_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/09_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_09_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/09_02",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_09_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/09_03",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_09_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/09_04",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_09_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/09_05",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_09_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/10_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_10_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/10_02",
+      "category": "Financial_Model",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_10_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/10_03",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_10_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/10_04",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_10_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/10_05",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_10_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/11_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_11_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/11_02",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_11_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/11_03",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_11_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/11_04",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_11_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/11_05",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_11_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/12_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_12_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/12_02",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_12_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/12_03",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_12_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/12_04",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_12_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/12_05",
+      "category": "Financial_Model",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_12_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/13_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_13_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/13_02",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_13_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/13_03",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_13_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/13_04",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_13_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/13_05",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_13_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/14_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_14_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/14_02",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_14_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/14_03",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_14_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/14_04",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_14_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/14_05",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_14_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/15_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_15_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/15_02",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_15_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/15_03",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_15_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/15_04",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_15_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/15_05",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_15_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/16_01",
+      "category": "Financial_Model",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_16_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/16_02",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_16_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/16_03",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_16_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/16_04",
+      "category": "Financial_Model",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_16_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/16_05",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_16_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/17_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_17_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/17_02",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_17_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/17_03",
+      "category": "Financial_Model",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_17_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/17_04",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_17_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/17_05",
+      "category": "Financial_Model",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_17_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/18_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_18_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/18_02",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_18_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/18_03",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_18_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/18_04",
+      "category": "Financial_Model",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_18_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/18_05",
+      "category": "Financial_Model",
+      "route": "model_formula_edit",
+      "rationale": [
+        "formula or lookup wording requires model edit planning plus deterministic formula-result caching"
+      ],
+      "requiredCapabilities": [
+        "formula_recompute_subset",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_18_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/19_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_19_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/19_02",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_19_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/19_03",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_19_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/19_04",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_19_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/19_05",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_19_05/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/20_01",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_20_01/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/20_02",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_20_02/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/20_03",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_20_03/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/20_04",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_20_04/agent/task.json"
+    },
+    {
+      "taskId": "Financial_Model/20_05",
+      "category": "Financial_Model",
+      "route": "model_format_edit",
+      "rationale": [
+        "format/layout wording requires workbook style diff evidence"
+      ],
+      "requiredCapabilities": [
+        "format_diff",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Financial_Model_20_05/agent/task.json"
+    },
+    {
+      "taskId": "Template/01_01",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_01_01/agent/task.json"
+    },
+    {
+      "taskId": "Template/01_02",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_01_02/agent/task.json"
+    },
+    {
+      "taskId": "Template/01_03",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_01_03/agent/task.json"
+    },
+    {
+      "taskId": "Template/01_04",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_01_04/agent/task.json"
+    },
+    {
+      "taskId": "Template/01_05",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_01_05/agent/task.json"
+    },
+    {
+      "taskId": "Template/01_06",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_01_06/agent/task.json"
+    },
+    {
+      "taskId": "Template/01_07",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_01_07/agent/task.json"
+    },
+    {
+      "taskId": "Template/01_08",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_01_08/agent/task.json"
+    },
+    {
+      "taskId": "Template/01_09",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_01_09/agent/task.json"
+    },
+    {
+      "taskId": "Template/02_01",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_02_01/agent/task.json"
+    },
+    {
+      "taskId": "Template/02_02",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_02_02/agent/task.json"
+    },
+    {
+      "taskId": "Template/02_03",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_02_03/agent/task.json"
+    },
+    {
+      "taskId": "Template/02_04",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_02_04/agent/task.json"
+    },
+    {
+      "taskId": "Template/02_05",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_02_05/agent/task.json"
+    },
+    {
+      "taskId": "Template/02_06",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_02_06/agent/task.json"
+    },
+    {
+      "taskId": "Template/03_01",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_03_01/agent/task.json"
+    },
+    {
+      "taskId": "Template/03_02",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_03_02/agent/task.json"
+    },
+    {
+      "taskId": "Template/03_03",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_03_03/agent/task.json"
+    },
+    {
+      "taskId": "Template/03_04",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_03_04/agent/task.json"
+    },
+    {
+      "taskId": "Template/04_03",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_04_03/agent/task.json"
+    },
+    {
+      "taskId": "Template/04_04",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_04_04/agent/task.json"
+    },
+    {
+      "taskId": "Template/05_01",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_05_01/agent/task.json"
+    },
+    {
+      "taskId": "Template/05_02",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_05_02/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_01",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_01/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_02",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_02/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_03",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_03/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_04",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_04/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_05",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_05/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_06",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_06/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_07",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_07/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_08",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_08/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_09",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_09/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_11",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_11/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_12",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_12/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_13",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_13/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_14",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_14/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_15",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_15/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_16",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_16/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_17",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_17/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_18",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_18/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_19",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_19/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_20",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_20/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_21",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_21/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_22",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_22/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_23",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_23/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_24",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_24/agent/task.json"
+    },
+    {
+      "taskId": "Template/06_25",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_06_25/agent/task.json"
+    },
+    {
+      "taskId": "Template/07_01",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_07_01/agent/task.json"
+    },
+    {
+      "taskId": "Template/07_02",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_07_02/agent/task.json"
+    },
+    {
+      "taskId": "Template/07_03",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_07_03/agent/task.json"
+    },
+    {
+      "taskId": "Template/08_01",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_08_01/agent/task.json"
+    },
+    {
+      "taskId": "Template/08_02",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_08_02/agent/task.json"
+    },
+    {
+      "taskId": "Template/08_03",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_08_03/agent/task.json"
+    },
+    {
+      "taskId": "Template/09_01",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_09_01/agent/task.json"
+    },
+    {
+      "taskId": "Template/09_02",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_09_02/agent/task.json"
+    },
+    {
+      "taskId": "Template/09_03",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_09_03/agent/task.json"
+    },
+    {
+      "taskId": "Template/09_04",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_09_04/agent/task.json"
+    },
+    {
+      "taskId": "Template/10_01",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_10_01/agent/task.json"
+    },
+    {
+      "taskId": "Template/10_02",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_10_02/agent/task.json"
+    },
+    {
+      "taskId": "Template/11_01",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_11_01/agent/task.json"
+    },
+    {
+      "taskId": "Template/11_02",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_11_02/agent/task.json"
+    },
+    {
+      "taskId": "Template/11_03",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_11_03/agent/task.json"
+    },
+    {
+      "taskId": "Template/11_04",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_11_04/agent/task.json"
+    },
+    {
+      "taskId": "Template/12_01",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_12_01/agent/task.json"
+    },
+    {
+      "taskId": "Template/13_01",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_13_01/agent/task.json"
+    },
+    {
+      "taskId": "Template/13_02",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_13_02/agent/task.json"
+    },
+    {
+      "taskId": "Template/13_03",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_13_03/agent/task.json"
+    },
+    {
+      "taskId": "Template/13_04",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_13_04/agent/task.json"
+    },
+    {
+      "taskId": "Template/13_05",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_13_05/agent/task.json"
+    },
+    {
+      "taskId": "Template/13_06",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_13_06/agent/task.json"
+    },
+    {
+      "taskId": "Template/13_07",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_13_07/agent/task.json"
+    },
+    {
+      "taskId": "Template/13_08",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_13_08/agent/task.json"
+    },
+    {
+      "taskId": "Template/14_01",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_14_01/agent/task.json"
+    },
+    {
+      "taskId": "Template/14_02",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_14_02/agent/task.json"
+    },
+    {
+      "taskId": "Template/14_03",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_14_03/agent/task.json"
+    },
+    {
+      "taskId": "Template/14_04",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_14_04/agent/task.json"
+    },
+    {
+      "taskId": "Template/14_05",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_14_05/agent/task.json"
+    },
+    {
+      "taskId": "Template/14_06",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_14_06/agent/task.json"
+    },
+    {
+      "taskId": "Template/14_07",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_14_07/agent/task.json"
+    },
+    {
+      "taskId": "Template/14_08",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_14_08/agent/task.json"
+    },
+    {
+      "taskId": "Template/14_09",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_14_09/agent/task.json"
+    },
+    {
+      "taskId": "Template/15_01",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_15_01/agent/task.json"
+    },
+    {
+      "taskId": "Template/15_02",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_15_02/agent/task.json"
+    },
+    {
+      "taskId": "Template/15_03",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_15_03/agent/task.json"
+    },
+    {
+      "taskId": "Template/15_04",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_15_04/agent/task.json"
+    },
+    {
+      "taskId": "Template/16_01",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_16_01/agent/task.json"
+    },
+    {
+      "taskId": "Template/16_02",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_16_02/agent/task.json"
+    },
+    {
+      "taskId": "Template/16_03",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_16_03/agent/task.json"
+    },
+    {
+      "taskId": "Template/16_04",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_16_04/agent/task.json"
+    },
+    {
+      "taskId": "Template/16_05",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_16_05/agent/task.json"
+    },
+    {
+      "taskId": "Template/16_06",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_16_06/agent/task.json"
+    },
+    {
+      "taskId": "Template/16_07",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_16_07/agent/task.json"
+    },
+    {
+      "taskId": "Template/16_08",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_16_08/agent/task.json"
+    },
+    {
+      "taskId": "Template/16_09",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_16_09/agent/task.json"
+    },
+    {
+      "taskId": "Template/16_10",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_16_10/agent/task.json"
+    },
+    {
+      "taskId": "Template/16_11",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_16_11/agent/task.json"
+    },
+    {
+      "taskId": "Template/16_12",
+      "category": "Template",
+      "route": "model_general_edit",
+      "rationale": [
+        "no deterministic structural pattern matched; use bounded model edit planning"
+      ],
+      "requiredCapabilities": [
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Template_16_12/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 126",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_126/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 127",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_127/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 129",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_129/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 131",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_131/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 132",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_132/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 133",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_133/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 134",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_134/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 1411527",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_1411527/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 1417365",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_1417365/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 1419935",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_1419935/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 1420776",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_1420776/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 1421372",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_1421372/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 1422635",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_1422635/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 1423401",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_1423401/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 1426290",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_1426290/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 1428419",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_1428419/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 1430721",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_1430721/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 1431124",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_1431124/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 1433875",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_1433875/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 1434951",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_1434951/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 1437004",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_1437004/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 90",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_90/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 95",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_95/agent/task.json"
+    },
+    {
+      "taskId": "Visualization/Task 96",
+      "category": "Visualization",
+      "route": "model_general_edit",
+      "rationale": [
+        "chart or visual wording routes through bounded model edit planning plus rendered/VLM chart grading"
+      ],
+      "requiredCapabilities": [
+        "chart_visual_grade",
+        "model_edit_plan"
+      ],
+      "agentManifest": "tasks/Visualization_Task_96/agent/task.json"
     }
   ]
 }

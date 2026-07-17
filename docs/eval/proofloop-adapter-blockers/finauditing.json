@@ -2,9 +2,9 @@
   "schema": "proofloop-external-adapter-blocker-v1",
   "adapterId": "finauditing",
   "name": "FinAuditing",
-  "status": "blocked_external",
+  "status": "ready",
   "localImplementationStatus": "ready",
-  "officialScoreStatus": "blocked_external",
+  "officialScoreStatus": "imported",
   "officialSourceUrls": [
     "https://arxiv.org/abs/2510.08886",
     "https://github.com/The-FinAI/FinAuditing",
@@ -17,18 +17,17 @@
   "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/finauditing.json",
   "officialTaskBundleManifestPath": "docs/eval/proofloop-official-task-bundles/finauditing.json",
   "validationErrors": [],
-  "blockers": [
-    "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score. FinMR evaluation uses an OpenAI LLM judge and this shell has no OPENAI_API_KEY. The full benchmark path also points to the separate FinBen framework, which is not yet wired to NodeRoom output artifacts."
-  ],
+  "blockers": [],
   "officialCommandPlan": [
     "Lock the official FinAuditing task source for FinSM, FinRE, and FinMR.",
     "Run NodeRoom generated answers through the upstream FinAuditing metric/scorer for every official split.",
-    "Import the official scorer output into docs/eval/proofloop-adapter-blockers/finauditing.json before claiming score."
+    "Import the accepted official scorer output into docs/eval/proofloop-official-scores/finauditing.json, including the FinMR judge receipt, then refresh the adapter-blocker receipt before claiming score."
   ],
   "resumeCommands": [
     "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict",
     "npm run benchmark:proofloop:external-adapter -- --id finauditing --prod --user-emulation strict",
     "npm run benchmark:proofloop:adapter-blockers -- --id finauditing",
+    "npx tsx scripts/proofloop-official-score-import.ts --id finauditing --input docs/eval/proofloop-official-scores/finauditing.json --json-out docs/eval/proofloop-official-score-imports/finauditing.json",
     "import docs/eval/proofloop-official-scores/finauditing.json from the upstream official scorer",
     "stage docs/eval/proofloop-official-task-bundles/finauditing.json from the locked official task bundle",
     "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict --cockpit",
@@ -46,6 +45,75 @@
     ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl",
     ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
     ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json",
-    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing"
-  ]
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing",
+    "docs/eval/proofloop-official-scores/finauditing.json",
+    ".tmp/official-benchmarks/finauditing-official/finmr-judge-receipt.json",
+    "docs/eval/proofloop-official-score-imports/finauditing.json"
+  ],
+  "officialScoreReadiness": {
+    "schema": "proofloop-official-score-import-readiness-v1",
+    "adapterId": "finauditing",
+    "receiptPath": "docs/eval/proofloop-official-scores/finauditing.json",
+    "status": "accepted",
+    "scoreClaim": true,
+    "officialScoreClaimable": true,
+    "acceptedExternalScorerReceipt": true,
+    "acceptedExternalScorerKind": "finauditing_finmr_judge",
+    "pendingExternalScorerReceipt": false,
+    "pendingExternalScorerKind": null,
+    "requiredAcceptedReceipt": "accepted FinAuditing scorer receipt with an accepted FinMR judge result",
+    "metrics": {
+      "officialTaskCount": 1102,
+      "outputTaskCount": null,
+      "predictionRowCount": 1102,
+      "contentPartsCount": null
+    },
+    "boundary": {
+      "productPath": {
+        "status": "complete",
+        "officialScoreClaim": false,
+        "reason": "NodeRoom official-format prediction JSONL covers FinSM, FinRE, and FinMR; this is product/export evidence, not an official score.",
+        "evidence": [
+          "docs/eval/proofloop-official-outputs/finauditing.json",
+          "docs/eval/proofloop-official-task-bundles/finauditing.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finauditing"
+        ]
+      },
+      "proxy": {
+        "status": "proxy_only",
+        "officialScoreClaim": false,
+        "reason": "Proxy/product-path receipts can triage quality and prove local workflow shape, but they are not accepted upstream official scorer receipts.",
+        "evidence": [
+          "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+          "docs/eval/proofloop-external-adapter-live-room-runs/finauditing.json"
+        ]
+      },
+      "officialScorer": {
+        "status": "accepted",
+        "officialScoreClaim": true,
+        "requiredAcceptedReceipt": "accepted FinAuditing scorer receipt with an accepted FinMR judge result",
+        "evidence": [
+          "docs/eval/proofloop-official-scores/finauditing.json",
+          ".tmp/official-benchmarks/finauditing-official/finmr-judge-receipt.json"
+        ]
+      }
+    },
+    "blockers": [],
+    "evidence": [
+      "docs/eval/proofloop-official-outputs/finauditing.json",
+      "docs/eval/proofloop-official-task-bundles/finauditing.json",
+      ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl",
+      ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl",
+      ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
+      ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json",
+      ".tmp/official-benchmarks/proofloop-official-outputs/finauditing",
+      "docs/eval/proofloop-official-scores/finauditing.json",
+      ".tmp/official-benchmarks/finauditing-official/finmr-judge-receipt.json",
+      "docs/eval/proofloop-official-score-imports/finauditing.json"
+    ]
+  }
 }

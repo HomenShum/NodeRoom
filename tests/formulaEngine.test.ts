@@ -122,6 +122,37 @@ describe("Functions and operators", () => {
   test("floating-point dust is cleaned", () => {
     expect(val(makeSheet({ X: "=0.1+0.2" }).compute("X"))).toBe(0.3);
   });
+
+  test("preserves Excel-scale forecast precision", () => {
+    expect(val(makeSheet({ X: "=5620-1251.44166666667" }).compute("X"))).toBe(4368.55833333333);
+  });
+  test("TEXT formats Excel date serials with day and weekday tokens", () => {
+    const s = makeSheet({
+      A1: 45292,
+      X1: '=TEXT(A1,"DDD")',
+      X2: '=TEXT(A1,"dddd")',
+      X3: '=TEXT(A1,"DD")',
+      X4: '=TEXT(A1,"mmmm d, yyyy")',
+      X5: '=TEXT(1,"ddd")',
+      X6: '=TEXT(60,"dddd")',
+      X7: '=TEXT(0,"ddd")',
+    });
+    expect(val(s.compute("X1"))).toBe("Mon");
+    expect(val(s.compute("X2"))).toBe("Monday");
+    expect(val(s.compute("X3"))).toBe("01");
+    expect(val(s.compute("X4"))).toBe("January 1, 2024");
+    expect(val(s.compute("X5"))).toBe("Sun");
+    expect(val(s.compute("X6"))).toBe("Wednesday");
+    expect(val(s.compute("X7"))).toBe("Sat");
+  });
+  test("TEXT distinguishes valid but unsupported number formats from invalid formulas", () => {
+    expect(val(makeSheet({ X: '=TEXT(2,"0.00")' }).compute("X"))).toBe("ERR:#UNSUPPORTED!");
+  });
+  test("MEDIAN handles ranges and one-dimensional array constants", () => {
+    const s = makeSheet({ A1: 10, A2: 2, A3: 8, A4: "n/a", X1: "=MEDIAN(A1:A4)", X2: "=MEDIAN({9,10})" });
+    expect(val(s.compute("X1"))).toBe(8);
+    expect(val(s.compute("X2"))).toBe(9.5);
+  });
 });
 
 describe("Error handling never crashes, never silently lies", () => {
@@ -161,6 +192,16 @@ describe("Lookup + criteria functions (the finance power tools)", () => {
   test("AVERAGEIF — avg ARR for tier A", () => expect(val(makeSheet({ ...book, X: '=AVERAGEIF(B1:B4,"A",C1:C4)' }).compute("X"))).toBe(150));
   test("VLOOKUP exact — ARR for Cive", () => expect(val(makeSheet({ ...book, X: '=VLOOKUP("Cive",A1:C4,3,FALSE)' }).compute("X"))).toBe(200));
   test("VLOOKUP miss -> #N/A", () => expect(val(makeSheet({ ...book, X: '=VLOOKUP("Zzz",A1:C4,3,FALSE)' }).compute("X"))).toBe("ERR:#N/A"));
+  test("MEDIAN consumes VLOOKUP results for an array of column indices", () => {
+    const s = makeSheet({
+      A3: "K1", I3: 10, J3: 20,
+      B15: "K1", H15: 15,
+      X1: '=MEDIAN(H15,VLOOKUP(B15,$A$3:$J$9,{9,10},FALSE))',
+      X2: '=IF(MEDIAN(H15,VLOOKUP(B15,$A$3:$J$9,{9,10},0))=H15,"Pass","Fail")',
+    });
+    expect(val(s.compute("X1"))).toBe(15);
+    expect(val(s.compute("X2"))).toBe("Pass");
+  });
   test("INDEX/MATCH — ARR where name=Bolt", () => expect(val(makeSheet({ ...book, X: '=INDEX(C1:C4,MATCH("Bolt",A1:A4,0))' }).compute("X"))).toBe(50));
   test("IFERROR wraps #DIV/0! with a fallback", () => expect(val(makeSheet({ X: '=IFERROR(1/0,"n/a")' }).compute("X"))).toBe("n/a"));
   test("IFERROR passes a good value through", () => expect(val(makeSheet({ X: "=IFERROR(2+2,0)" }).compute("X"))).toBe(4));
@@ -183,6 +224,6 @@ describe("Lookup + criteria functions (the finance power tools)", () => {
   });
   test("unknown function still -> #NAME?", () => expect(val(makeSheet({ X: "=FOO(1)" }).compute("X"))).toBe("ERR:#NAME?"));
   test("SUPPORTED set exposes the new functions", () => {
-    for (const fn of ["SUMIF", "COUNTIF", "AVERAGEIF", "VLOOKUP", "INDEX", "MATCH", "IFERROR", "MOD", "POWER", "LEN"]) expect(SUPPORTED_FORMULA_FUNCTIONS).toContain(fn);
+    for (const fn of ["SUMIF", "COUNTIF", "AVERAGEIF", "VLOOKUP", "INDEX", "MATCH", "IFERROR", "MOD", "POWER", "LEN", "MEDIAN", "TEXT"]) expect(SUPPORTED_FORMULA_FUNCTIONS).toContain(fn);
   });
 });

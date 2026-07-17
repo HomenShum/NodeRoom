@@ -29,7 +29,7 @@ const SURFACES: Surface[] = [
       await p.goto(`${BASE}/?mode=memory&surface=desktop&demo=BASEDESK&name=Founder`, { waitUntil: "domcontentloaded" });
       await startMemoryDemoIfNeeded(p);
     } },
-  { name: "demo-room-mobile", w: 375, h: 812, ready: "[data-testid='shell-bottom']",
+  { name: "demo-room-mobile", w: 375, h: 812, ready: "[data-testid='work-surface']",
     maxDiffPixelRatio: 0.12,
     open: async (p) => {
       await p.goto(`${BASE}/?mode=memory&surface=desktop&demo=BASEMOB&name=Founder`, { waitUntil: "domcontentloaded" });

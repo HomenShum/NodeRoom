@@ -37,6 +37,10 @@ if (privateRoute || appSearch || appHash) {
   start();
 } else {
   for (const eventName of ["pointerdown", "keydown", "touchstart", "wheel", "scroll"]) {
-    window.addEventListener(eventName, start, { once: true, passive: true });
+    window.addEventListener(eventName, (event) => {
+      const target = event.target;
+      if (target instanceof Element && target.closest("a[href]")) return;
+      start();
+    }, { once: true, passive: true });
   }
 }

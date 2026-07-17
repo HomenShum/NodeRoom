@@ -804,12 +804,24 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
   .r-agent-stream { min-height: auto; }
 }
 .r-private-banner { padding: 8px 12px; background: var(--accent-tint); border-bottom: 1px solid var(--accent-border); display: flex; align-items: center; gap: var(--space-2); font-size: 11px; color: var(--accent-ink); font-weight: 600; }
-.r-job-strip { padding: var(--space-2) 12px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 8px; min-height: 30px; font-size: 11px; color: var(--text-muted); background: rgba(124,135,148,.08); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.r-job-strip > svg, .r-job-strip > button, .r-job-strip > .r-tag { flex: none; }
-.r-job-route { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-job-strip { padding: 6px 12px; border-bottom: 1px solid var(--line); display: grid; gap: 4px; min-height: 30px; font-size: 11px; color: var(--text-muted); background: rgba(124,135,148,.08); overflow: hidden; }
+.r-job-strip-main { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.r-job-strip-main > svg, .r-job-strip-main > button, .r-job-strip-main > .r-tag { flex: none; }
+.r-job-route { display: none; }
+.r-job-phase { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-secondary); font-weight: 650; text-transform: capitalize; }
+.r-job-elapsed { flex: none; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+.r-job-scope { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto; align-items: center; gap: 6px 12px; min-width: 0; color: var(--text-tertiary); }
+.r-job-scope span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-job-scope b { margin-right: 4px; color: var(--text-muted); font-weight: 650; }
+.r-job-scope button { display: inline-flex; align-items: center; gap: 3px; border: 0; background: transparent; color: var(--accent-ink); padding: 1px 0; font: inherit; font-weight: 650; cursor: pointer; }
+.r-job-scope button:hover { color: var(--text-primary); }
 .r-job-detail-toggle { margin-left: auto; display: inline-flex; align-items: center; gap: 3px; border: 1px solid var(--line); background: var(--bg-secondary); color: var(--text-muted); border-radius: 6px; padding: 2px 6px; font-size: 10.5px; font-weight: 600; cursor: pointer; }
 .r-job-detail-toggle:hover { color: var(--text-primary); border-color: var(--line-strong); }
 .r-job-detail { border-bottom: 1px solid var(--line); background: rgba(124,135,148,.06); padding: 8px 12px; display: grid; gap: 8px; font-size: 11px; color: var(--text-muted); }
+@media (max-width: 760px) {
+  .r-job-scope { grid-template-columns: minmax(0, 1fr) auto; }
+  .r-job-scope span:nth-child(2), .r-job-scope span:nth-child(3) { display: none; }
+}
 .r-job-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 5px 12px; }
 .r-job-grid span { color: var(--text-tertiary); }
 .r-job-grid b { color: var(--text-secondary); font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
@@ -846,8 +858,13 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-agent-unified-stream { max-width: 100%; display: grid; gap: 8px; margin-top: 6px; }
 .r-agent-unified-stream > .text { margin: 0; }
 .r-agent-unified-stream .r-md-table-wrap { margin-top: 4px; }
-.r-agent-workflow-progress { min-width: 0; display: grid; gap: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: color-mix(in srgb, var(--bg-secondary) 72%, transparent); }
-.r-agent-workflow-progress-head { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2) 8px; align-items: center; }
+.r-agent-workflow-progress { min-width: 0; display: grid; gap: 8px; margin: 0; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: color-mix(in srgb, var(--bg-secondary) 72%, transparent); }
+.r-agent-workflow-progress-head { min-width: 0; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 0; border: 0; background: transparent; color: var(--text-primary); text-align: left; cursor: pointer; }
+.r-agent-workflow-progress-head > div { min-width: 0; overflow: hidden; }
+.r-agent-workflow-progress-head > div > span:not([data-slot="badge"]) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; line-height: 1.25; }
+.r-agent-workflow-progress-head [data-slot="badge"] { min-height: 20px; padding: 2px 6px; border: 1px solid var(--line); background: var(--bg-primary); color: var(--text-muted); font-size: 10px; }
+.r-agent-workflow-progress-head > svg:last-child { color: var(--text-tertiary); }
+.r-agent-workflow-progress-meta { min-width: 0; color: var(--text-tertiary); font-size: 11px; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-agent-workflow-progress-icon { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center; border: 1px solid var(--line); background: var(--bg-primary); color: var(--accent-ink); }
 .r-agent-workflow-progress[data-status="running"] .r-agent-workflow-progress-icon svg, .r-agent-workflow-progress-row[data-status="running"] .r-agent-workflow-progress-dot svg { animation: r-spin .9s linear infinite; }
 .r-agent-workflow-progress[data-status="failed"] .r-agent-workflow-progress-icon, .r-agent-workflow-progress-row[data-status="failed"] .r-agent-workflow-progress-dot { color: var(--danger-ink); }

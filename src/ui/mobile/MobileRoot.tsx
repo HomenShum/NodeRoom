@@ -4,7 +4,8 @@
    a URL alone; each mutation follows an on-screen confirmation.
    ============================================================================ */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "../../../convex/_generated/api";
 import type { Actor } from "../../engine/types";
 import { ConvexStoreProvider, HAS_CONVEX } from "../../app/store";
@@ -12,6 +13,8 @@ import { RoomJoinConsent, type ConsentChoice } from "./RoomJoinConsent";
 import { ErrorBoundary } from "../../app/ErrorBoundary";
 import { MobileApp } from "./MobileApp";
 import { MobileAppLive } from "./MobileAppLive";
+import { authIntentLabel, clearPersistedRoomSessions, launchAuthRequired } from "../../auth/launchAuth";
+import { AccountGate } from "../auth/AccountGate";
 import "./mobile.tokens.css";
 import "./mobile.css";
 import "./mobileFrame.css";
@@ -48,6 +51,7 @@ const pendingKey = (code: string) => `noderoom:mobilePending:${code.toUpperCase(
 
 export function MobileRoot() {
   if (!HAS_CONVEX || wantsMemory()) return <MobileApp />;
+  if (launchAuthRequired()) return <AuthenticatedMobileLiveRoot />;
   return <MobileLiveRoot />;
 }
 
@@ -55,7 +59,17 @@ function wantsMemory(): boolean {
   return mobileParams().get("mode") === "memory";
 }
 
-function MobileLiveRoot() {
+type MobileAuthState = { isLoading: boolean; isAuthenticated: boolean };
+
+function AuthenticatedMobileLiveRoot() {
+  const auth = useConvexAuth();
+  const { signOut } = useAuthActions();
+  return <MobileLiveRoot auth={auth} signOut={signOut} />;
+}
+
+function MobileLiveRoot({ auth = { isLoading: false, isAuthenticated: true }, signOut }: { auth?: MobileAuthState; signOut?: () => Promise<void> } = {}) {
+  const requiresAuth = launchAuthRequired();
+  const authReady = !requiresAuth || auth.isAuthenticated;
   const initialRoute = useMemo(() => initialReq(), []);
   const [req, setReq] = useState<Req>(initialRoute);
   const [pendingHost, setPendingHost] = useState<HostDraft | null>(() => initialHostDraft());
@@ -119,7 +133,7 @@ function MobileLiveRoot() {
   };
 
   useEffect(() => {
-    if (req.kind === "idle" || session || busy || byCode === undefined) return;
+    if (!authReady || req.kind === "idle" || session || busy || byCode === undefined) return;
     if (attempted.current === req) return;
     attempted.current = req;
     setBusy(true);
@@ -128,16 +142,16 @@ function MobileLiveRoot() {
     const token = pending?.token ?? randomToken();
     savePendingRequest(reqCode, { name, title: req.title, token });
     void (async () => {
-      let joined: { roomId: string; memberId: string } | null = null;
+      let joined: { roomId: string; memberId: string; name?: string } | null = null;
       let experience: "workspace" | "sample" = req.kind === "demo" || mobileParams().get("sample") === "1" ? "sample" : "workspace";
       if (byCode) {
-        const result = await join({ code: reqCode, name, authToken: token, anon: req.kind === "join" });
+        const result = await join({ code: reqCode, name, authToken: token, anon: req.kind === "join" && !requiresAuth });
         if (result && typeof result === "object" && "error" in result) {
           throw new Error(result.error === "room_full"
             ? "That room is full. Try a different code."
             : "Too many people joined just now. Try again shortly.");
         }
-        joined = result ? { roomId: String(result.roomId), memberId: String(result.memberId) } : null;
+        joined = result ? { roomId: String(result.roomId), memberId: String(result.memberId), name: result.name } : null;
         experience = byCode.experience ?? experience;
       } else if (req.kind === "demo") {
         const result = await createStarterRoom({
@@ -162,15 +176,15 @@ function MobileLiveRoot() {
       }
       if (!joined) throw new Error(`Room ${reqCode} was not found. Check the code or create a workspace.`);
 
-      const next: LiveSession = { ...joined, name, token, experience };
+      const next: LiveSession = { ...joined, name: joined.name ?? name, token, experience };
       try { localStorage.setItem(liveKey(reqCode), JSON.stringify(next)); } catch { /* ignore */ }
       clearPendingRequest(reqCode);
-      writeMobileUrl({ kind: "join", code: reqCode, name }, { sample: experience === "sample" });
+      writeMobileUrl({ kind: "join", code: reqCode, name: next.name }, { sample: experience === "sample" });
       setSession(next);
     })()
       .catch((reason) => setError(reason instanceof Error ? reason.message : String(reason)))
       .finally(() => setBusy(false));
-  }, [byCode, busy, createRoom, createStarterRoom, join, req, session]);
+  }, [authReady, byCode, busy, createRoom, createStarterRoom, join, req, session]);
 
   if (pendingHost) {
     return (
@@ -180,6 +194,28 @@ function MobileLiveRoot() {
         initialChoice={consentInitial}
         onAccept={onConsentAccept}
         onCancel={onConsentCancel}
+      />
+    );
+  }
+
+  if (requiresAuth && (req.kind !== "idle" || session) && !auth.isAuthenticated) {
+    const actionKind = req.kind === "idle" ? "join" : req.kind;
+    return (
+      <AccountGate
+        action={authIntentLabel(actionKind)}
+        loading={auth.isLoading}
+        mobile
+        onCancel={() => {
+          const activeCode = code || initialJoinCode();
+          if (activeCode) {
+            clearPendingRequest(activeCode);
+            try { localStorage.removeItem(liveKey(activeCode)); } catch { /* ignore */ }
+          }
+          setSession(null);
+          setReq({ kind: "idle" });
+          setError(null);
+          writeMobileLandingUrl();
+        }}
       />
     );
   }
@@ -221,11 +257,22 @@ function MobileLiveRoot() {
       })
       .catch(() => window.alert("Could not leave the room. Your session remains active; try again."));
   };
+  const signOutAccount = signOut ? (): void => {
+    void signOut()
+      .then(() => {
+        try { clearPersistedRoomSessions(localStorage); } catch { /* ignore */ }
+        setSession(null);
+        setReq({ kind: "idle" });
+        setError(null);
+        writeMobileLandingUrl();
+      })
+      .catch(() => setError("Could not sign out. Your room session remains active; try again."));
+  } : undefined;
 
   return (
     <ErrorBoundary onError={dropLocalSession} fallback={() => null}>
       <ConvexStoreProvider roomId={session.roomId} me={me} proof={proof}>
-        <MobileAppLive roomId={session.roomId} me={me} proof={proof} experienceHint={session.experience} onLeave={leave} />
+        <MobileAppLive roomId={session.roomId} me={me} proof={proof} experienceHint={session.experience} onLeave={leave} onSignOut={signOutAccount} />
       </ConvexStoreProvider>
     </ErrorBoundary>
   );
@@ -272,7 +319,7 @@ function JoinForm({
           </label>
           <section className="na-join-section" aria-labelledby="mobile-join-heading">
             <h2 id="mobile-join-heading">Join an existing room</h2>
-            <p>Anyone allowed by the deployment who has the code can join and edit shared room content.</p>
+            <p>Sign in, then use the room code to join and edit shared content.</p>
             <input
               className="na-join-input mono"
               placeholder="Room code"
@@ -298,7 +345,7 @@ function JoinForm({
               <button className="na-btn full" disabled={busy} onClick={onSample} data-testid="mobile-sample-room">Try sample</button>
             </div>
           </section>
-          <p className="na-join-trust">Code-access room. Review-first agent edits. Room content remains after members leave.</p>
+          <p className="na-join-trust">Account + room code. Review-first agent edits. Room content remains after members leave.</p>
         </main>
       </div>
     </div>

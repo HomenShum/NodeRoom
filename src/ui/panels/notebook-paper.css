@@ -592,3 +592,193 @@
   color: var(--text-muted); background: var(--bg-muted); border: 1px solid var(--border-subtle); }
 .nbk-frame .r-notebook-block { background: var(--bg-surface); border: 1px solid var(--border-subtle); }
 .nbk-frame .r-agent-plan-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); }
+
+/* Cloud notebook correction: the notebook is a first-class work surface, not a
+   paper preview embedded in the dark application shell. */
+.nr-app-shell .nbk-frame {
+  --bg-surface: var(--nr-surface-panel, #101317);
+  --bg-muted: var(--nr-surface-muted, #171b20);
+  --bg-notebook: var(--nr-surface-panel, #101317);
+  --bg-inspector: var(--nr-surface-panel, #101317);
+  --text-primary: var(--nr-text-primary, #f3f6fb);
+  --text-secondary: var(--nr-text-secondary, #c7cdd6);
+  --text-muted: var(--nr-text-muted, #9aa3af);
+  --text-tertiary: var(--nr-text-tertiary, #727b88);
+  --border-subtle: var(--nr-line-subtle, rgba(255,255,255,.075));
+  --border-default: var(--nr-line-default, rgba(255,255,255,.11));
+  margin: 0;
+  border-width: 0;
+  border-radius: 0;
+  background: var(--bg-notebook);
+  color: var(--text-primary);
+}
+
+.nr-app-shell .nbk-body {
+  background: var(--bg-notebook);
+}
+
+.nr-app-shell .nbk-body::before,
+.nr-app-shell .nbk-body::after {
+  content: none;
+}
+
+.nr-app-shell .nbk-bar {
+  min-height: 36px;
+  padding: 0 12px;
+  background: var(--bg-surface);
+  border-color: var(--border-subtle);
+}
+
+.nr-app-shell .nbk-mark {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  font-size: 10px;
+}
+
+.nr-app-shell .nbk-frame .r-note {
+  width: 100%;
+  max-width: 92ch;
+  margin: 0;
+  padding: 22px 28px 48px;
+}
+
+.nr-app-shell .nbk-frame .r-note .ProseMirror {
+  max-width: none;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.nr-app-shell .nbk-frame .r-note .ProseMirror h1 {
+  margin: 4px 0 12px;
+  color: var(--text-primary);
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.nr-app-shell .nbk-frame .r-note .ProseMirror h1::before {
+  content: none;
+}
+
+.nr-app-shell .nbk-frame .r-note .ProseMirror h2 {
+  margin: 20px 0 8px;
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.nr-app-shell .nbk-frame .r-note .ProseMirror p,
+.nr-app-shell .nbk-frame .r-note .ProseMirror li,
+.nr-app-shell .nbk-frame .ProseMirror blockquote {
+  color: var(--text-secondary);
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.nr-app-shell .nbk-frame .r-note .ProseMirror table,
+.nr-app-shell .nbk-frame .r-note .ProseMirror pre,
+.nr-app-shell .nbk-frame .r-agent-notes,
+.nr-app-shell .nbk-frame .r-notebook-block,
+.nr-app-shell .nbk-frame .r-agent-plan-card {
+  border-color: var(--border-subtle);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--bg-muted) 72%, transparent);
+  color: var(--text-secondary);
+  box-shadow: none;
+}
+
+.nr-app-shell .nbk-frame .r-note .ProseMirror p[data-status="synced"] {
+  border-color: var(--border-subtle);
+  border-radius: 6px 6px 0 0;
+  background: color-mix(in srgb, var(--bg-muted) 72%, transparent);
+  color: var(--text-muted);
+}
+
+.nr-app-shell .nbk-frame .r-note .ProseMirror p[data-status="synced"] strong {
+  color: var(--text-secondary);
+}
+
+.nr-app-shell .nbk-frame .r-note .ProseMirror pre code {
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.nr-app-shell .nbk-foot {
+  min-height: 34px;
+  background: var(--bg-inspector);
+  border-color: var(--border-subtle);
+}
+
+.nr-app-shell .r-notebook-proof {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.nr-app-shell .r-notebook-proof-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.nr-app-shell .r-notebook-proof-head::-webkit-details-marker {
+  display: none;
+}
+
+.nr-app-shell .r-notebook-proof-head > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.nr-app-shell .r-notebook-proof-head::after {
+  content: ">";
+  margin-left: 2px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  transform: rotate(0deg);
+  transition: transform 120ms ease;
+}
+
+.nr-app-shell .r-notebook-proof[open] .r-notebook-proof-head::after {
+  transform: rotate(90deg);
+}
+
+.nr-app-shell .r-notebook-proof-head .r-tag {
+  margin-left: auto;
+}
+
+.nr-app-shell .r-notebook-proof-body {
+  max-height: min(32vh, 320px);
+  overflow: auto;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.nr-app-shell .r-notebook-blocks,
+.nr-app-shell .r-agent-plan-card {
+  gap: 0;
+}
+
+.nr-app-shell .r-notebook-block {
+  padding: 8px 0;
+  border-width: 0 0 1px;
+  border-radius: 0;
+  background: transparent;
+}

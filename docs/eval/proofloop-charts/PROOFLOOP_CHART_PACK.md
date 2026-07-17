@@ -1,6 +1,6 @@
 # Proof Loop Chart Pack
 
-Generated: 2026-07-09T06:34:32.362Z
+Generated: 2026-07-12T19:24:46.847Z
 Run: `2026-07-02T20-31-20`
 Suite: `proximitty-underwriting-pr0`
 
@@ -9,7 +9,7 @@ Suite: `proximitty-underwriting-pr0`
 - Lanes: 6
 - Runs: 1
 - Model rows: 38
-- Failure categories: 8
+- Failure categories: 5
 - Workflow items: 7
 - Charts: 8
 - Unavailable charts: 1

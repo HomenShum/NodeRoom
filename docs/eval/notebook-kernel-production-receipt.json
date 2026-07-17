@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "gate": "notebook-execution",
+  "status": "passed",
+  "generatedAt": "2026-07-11T13:11:05.4567318Z",
+  "runtime": {
+    "pyodideVersion": "314.0.2",
+    "defaultBackend": "safe",
+    "isolatedBrowserBackend": "pyodide",
+    "optionalRemoteBackends": [
+      "jupyter",
+      "container"
+    ],
+    "networkDefault": "deny",
+    "defaultTimeoutMs": 30000,
+    "maxConcurrentExecutions": 2,
+    "workerLifecycle": "disposable-per-execution"
+  },
+  "automatedProof": {
+    "command": "npm test -- --run tests/notebookKernelBroker.test.ts tests/notebookKernel.test.ts tests/workArtifacts.test.ts tests/notebookPaper.test.tsx",
+    "filesPassed": 4,
+    "testsPassed": 61,
+    "testsFailed": 0,
+    "scenarios": [
+      "safe calculation, dataframe, and chart output",
+      "Python rejected by the in-process safe backend",
+      "streamed output and execution failure",
+      "timeout and cancellation",
+      "four runs bounded to two concurrent slots",
+      "artifact/input/output caps",
+      "Jupyter/container approval and deny-network attestation",
+      "disposable worker termination"
+    ],
+    "typecheck": "passed",
+    "productionBuild": "passed",
+    "workerBundleBytes": 4810,
+    "pyodideRuntime": "same-origin lazy assets; no Node compatibility shims"
+  },
+  "liveBrowserProof": {
+    "url": "http://127.0.0.1:5261/?room=NRBT6B3VCBM&sample=1",
+    "fixture": "synthetic sample workspace",
+    "artifact": "Open questions / workplan",
+    "freshUserPath": [
+      "open notebook editor",
+      "add Python cell with the notebook control",
+      "open Work artifacts",
+      "select Pyodide",
+      "run and inspect persisted receipts"
+    ],
+    "outcomes": [
+      {
+        "scenario": "calculation-dataframe-chart",
+        "status": "completed",
+        "receiptShortId": "9dcdae59",
+        "outputText": "Runway bridge 850",
+        "row": {
+          "Metric": "Runway bridge",
+          "Value": 850
+        },
+        "chart": "bar - Value by Metric - 1 points"
+      },
+      {
+        "scenario": "network-import-policy",
+        "status": "blocked",
+        "receiptShortId": "e45dd9c6",
+        "message": "Import is blocked by the notebook network/isolation policy."
+      },
+      {
+        "scenario": "user-cancellation",
+        "status": "cancelled",
+        "receiptShortId": "519e93a2",
+        "message": "Kernel execution was cancelled."
+      },
+      {
+        "scenario": "bounded-timeout",
+        "status": "timed_out",
+        "receiptShortId": "112abdc4",
+        "message": "Kernel execution exceeded its time limit."
+      }
+    ],
+    "consoleErrors": 0,
+    "consoleWarnings": 0,
+    "screenshots": [
+      "docs/eval/notebook-kernel-success-proof.png",
+      "docs/eval/notebook-kernel-live-proof.png"
+    ]
+  },
+  "sourceHashes": {
+    "src/notebook/notebookKernel.ts": "db0a1c023e4634a50c28f5ff1712776c3b9759db180519a544b279d11207df1b",
+    "src/notebook/kernelBroker.ts": "cce7a8efcae91918cf613ed2936da355ab4da011cf6395251151eb2cd899a4cb",
+    "src/notebook/pyodideKernelAdapter.ts": "944f032db11948c6c637dbfe4939c9f2b016f1a191d0e00286da59a3a01fbdc7",
+    "src/notebook/pyodideKernel.worker.ts": "52cf9c08c62aa513cfeaa427520171841918600ac679f0560bd736e380a7baa5",
+    "src/notebook/remoteKernelAdapter.ts": "1b629f68bdfb051865f1e5c58b8d2c4c45358559d077249f4f619b1d72c45948",
+    "src/notebook/browserKernelBroker.ts": "43a56a82dd030f55c3564d1926768f319025a852c80fa7a833a8467490731329",
+    "src/ui/workArtifacts/NotebookDigestWorkbench.tsx": "a3055679e8aeab135036be6c88ab3a0ad6a0d4a219230be43ea27577a127d265",
+    "src/ui/panels/Artifact.tsx": "ebd69f317599d0e6f2119717c7e9659c34f035ee6f4aa78dbb2e11d988f42761",
+    "vite.config.ts": "ad11d1fc2ea8a8bb1846a523853ed82f4c93a8f66e9b9fd8df907255950ece66"
+  },
+  "proofHashes": {
+    "docs/eval/notebook-kernel-success-proof.png": "375131fd7d34d769457e9fd0fe76885817c382d60487e211b5bc70ee99fc6439",
+    "docs/eval/notebook-kernel-live-proof.png": "591a974fd2a4c2e2dff5c6569fd7ea50cdde3baf48de791de49ae684df44e1d6"
+  },
+  "intentionalBoundaries": [
+    "Arbitrary Python never executes in the NodeRoom application process.",
+    "Pyodide network access is denied and package auto-loading is disabled.",
+    "Container and Jupyter execution require an explicitly approved, separately operated gateway that attests deny-network enforcement.",
+    "Browser-worker memory is bounded by input/output caps and worker termination; strict resident-memory enforcement belongs to an isolated container runtime."
+  ]
+}

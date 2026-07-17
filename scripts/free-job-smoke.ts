@@ -108,7 +108,7 @@ async function main() {
   }
   if (attempts.length === 0) throw new Error(`job finished or stalled without attempt telemetry${latest.error ? `: ${latest.error}` : ""}`);
   if (!terminal.has(latest.status)) throw new Error(`job did not reach a terminal state within ${timeoutMs}ms`);
-  if (latest.status === "failed" || latest.status === "blocked") throw new Error(`job ended ${latest.status}: ${latest.error ?? "unknown"}`);
+  if (latest.status !== "completed") throw new Error(`job ended ${latest.status}: ${latest.error ?? "unknown"}`);
 }
 
 async function resolveSmokeTarget(client: ConvexHttpClient): Promise<{

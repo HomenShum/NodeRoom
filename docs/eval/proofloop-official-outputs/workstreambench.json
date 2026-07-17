@@ -1,0 +1,41 @@
+{
+  "schema": "proofloop-official-output-manifest-v1",
+  "adapterId": "workstreambench",
+  "status": "complete",
+  "generatedAt": "2026-07-09T08:51:52.761Z",
+  "officialTaskCount": 38,
+  "outputTaskCount": 38,
+  "caseFolderCount": 38,
+  "aiAttemptWorkbookCount": 38,
+  "sourceWorkbookBaselineCount": 35,
+  "generatedBlankWorkbookCount": 3,
+  "solutionWorkbookCount": 38,
+  "outputRoot": ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench",
+  "officialFormat": "MBABench judge case folder with ai_attempt.xlsx and solution/<solution>.xlsx, scored by judge/main_scripts/judge.py.",
+  "generationPolicy": "No-provider local scaffold: deterministic source-workbook baseline where available, blank workbook fallback otherwise. This proves case-folder/export coverage only and is not an official model score claim.",
+  "upstreamPipeline": {
+    "ran": false,
+    "exitCode": null,
+    "status": "skipped_official_score",
+    "noProviderSmokeCommand": "python judge/main_scripts/judge.py -f judge/scratch/test_cases/Bread_And_Butter --nocall",
+    "noProviderSmoke": {
+      "ran": true,
+      "status": "passed_not_score",
+      "repositoryCommit": "c56319bea67fa5bfea8ed8010e93a88e1b8877e5",
+      "workingDirectory": ".tmp/mbabench-official/judge",
+      "command": "$env:PYTHONPATH=(Get-Location).Path; python main_scripts/judge.py -f scratch/test_cases/Bread_And_Butter --nocall",
+      "providerCallsAttempted": false,
+      "paidProviderSpendUsd": 0,
+      "producedScoresJson": false,
+      "producedAiJudgementJson": false
+    },
+    "blocker": "Upstream MBABench official scoring was not run because a claimable run requires executing judge/main_scripts/judge.py without --nocall using approved official judge credentials/spend; the local --nocall smoke validates file preparation only."
+  },
+  "blockers": [],
+  "evidence": [
+    "docs/eval/proofloop-official-task-bundles/workstreambench.json",
+    "proofloop/benchmarks/workstreambench/scaffold-official-cases.ts",
+    ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/case-manifest.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench"
+  ]
+}

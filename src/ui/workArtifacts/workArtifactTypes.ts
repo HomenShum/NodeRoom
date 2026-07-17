@@ -44,6 +44,7 @@ export interface WorkArtifactRef {
   elementId?: string;
   traceId?: string;
   proposalId?: string;
+  jobId?: string;
   sourceId?: string;
   exportId?: string;
   label?: string;
@@ -126,4 +127,3 @@ export function workArtifactStatusFromProposal(status: ProposalStatus): WorkArti
   if (status === "rejected") return "rejected";
   return "pending";
 }
-

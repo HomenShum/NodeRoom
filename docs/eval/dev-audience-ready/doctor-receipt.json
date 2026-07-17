@@ -1,0 +1,12 @@
+{
+  "schema": "proofloop-dev-audience-doctor-receipt-v1",
+  "generatedAt": "2026-07-09T07:36:40.777Z",
+  "status": "pass",
+  "command": "node scripts/proofloop.mjs doctor --json",
+  "exitCode": 0,
+  "doctorStatus": "pass",
+  "evidence": [
+    "docs/eval/dev-audience-ready/doctor.json"
+  ],
+  "stderrTail": ""
+}

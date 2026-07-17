@@ -45,6 +45,7 @@ jobs:
 
       - name: Post scaffold report as PR comment
         if: always() && steps.handoff.outputs.exists == 'true'
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           script: |

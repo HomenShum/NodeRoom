@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-10T20:47:55.999Z",
+  "objective": "Improve NodeAgent workbook planning, inspection, formula generation, verification, repair, and the fresh-user NodeRoom workflow.",
+  "status": "passed",
+  "officialScoreClaim": false,
+  "behavior": {
+    "protocol": [
+      "inspect",
+      "preflight",
+      "managed_write",
+      "post_write_verify",
+      "repair"
+    ],
+    "newTools": [
+      "inspect_workbook",
+      "verify_workbook"
+    ],
+    "formulaFunctionsAdded": [
+      "AND",
+      "OR",
+      "NOT",
+      "MEDIAN"
+    ],
+    "additionalFormulaBehavior": [
+      "direct scalar cell comparisons",
+      "multi-column exact VLOOKUP inside MEDIAN",
+      "weekday formula-fill band generation",
+      "complete explicit-range and inferred-band coverage checks"
+    ]
+  },
+  "heldOutEvidence": {
+    "freeRouterProbe": {
+      "taskIds": [
+        "10281",
+        "11276"
+      ],
+      "status": "provider_aborted_before_model_call",
+      "modelCalls": 0,
+      "tokens": 0,
+      "providerCostUsd": 0,
+      "path": ".tmp/official-benchmarks/run-workbook-repair-heldout.json",
+      "sha256": "49fdd6e79e0c3dc20c9dc9f267e618c0f23ff656b01e47240eb23733c19c7c4f"
+    },
+    "noProviderRepairReplay": {
+      "taskId": "11276",
+      "official": false,
+      "status": "passed",
+      "scriptedCalls": 3,
+      "repairAttempts": 2,
+      "changedCellsVerified": 31,
+      "changedCellsPassed": 31,
+      "scorerMismatches": 0,
+      "overall": 1,
+      "path": ".tmp/official-benchmarks/run-11276-repair-replay.json",
+      "sha256": "b9619948df32ec142a23c10ab90aa130d2251c3e7f67e758647488b6dae5a8df"
+    }
+  },
+  "validation": {
+    "focusedTests": "99/99 passed",
+    "fullVitest": "2085/2085 passed across 312 files",
+    "typecheck": "passed",
+    "convexTypecheck": "passed",
+    "build": "passed",
+    "browser": "8/8 Chromium first-run and workbook workflow tests passed",
+    "nodeagentFrameSmoke": "passed",
+    "omnigentNodeagentSmoke": "passed; external Omnigent CLI not installed",
+    "proofloopDoctor": "11/11 passed",
+    "proofloopOfficialScoresGate": "passed; blocked=none",
+    "npmProductionAudit": "0 vulnerabilities"
+  },
+  "knownLimits": [
+    "The free-router probe produced no model calls, so it is availability evidence rather than a model-quality result.",
+    "The replay receipt proves harness repair behavior and staged scoring, not an official model score uplift.",
+    "Task 10281 now has deterministic receipt support for its logical and lookup formula shape, but needs a successful model route before any model-score claim."
+  ]
+}

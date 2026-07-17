@@ -33,6 +33,9 @@
     "prod:gate:live:agent": "npm run prod:gate && npm run test:product:live:agent",
     "typecheck": "tsc --noEmit",
     "floor": "npm run typecheck -- --pretty false && npx tsc --noEmit --project convex/tsconfig.json --pretty false && npm test -- --run",
+    "doctor": "npm run proofloop:doctor",
+    "check": "npm run floor",
+    "proof": "npm run fresh-room:proofs",
     "ship:prod": "npm run convex:deploy:guard && npm run convex:deploy && node scripts/ship-prod-verify.mjs",
     "convex:dev": "convex dev",
     "convex:deploy": "convex dev --once --env-file .env.local && tsx scripts/convex-deploy-verify.ts",
@@ -58,6 +61,7 @@
     "benchmark:spreadsheetbench:stage": "tsx scripts/spreadsheetbench-stage.ts",
     "benchmark:spreadsheetbench:run": "tsx scripts/spreadsheetbench-run.ts",
     "benchmark:spreadsheetbench:run-chunked": "tsx scripts/spreadsheetbench-run-chunked.ts",
+    "benchmark:spreadsheetbench:merge-repair": "tsx scripts/spreadsheetbench-merge-repair-report.ts",
     "benchmark:spreadsheetbench:rescore-existing": "tsx scripts/spreadsheetbench-rescore-existing.ts",
     "benchmark:spreadsheetbench:official-v1-project": "tsx scripts/spreadsheetbench-official-v1-project.ts",
     "benchmark:spreadsheetbench:official-v1-project-chunked": "tsx scripts/spreadsheetbench-official-v1-project-chunked.ts",
@@ -268,6 +272,8 @@
     "@ai-sdk/openai": "^3.0.71",
     "@assistant-ui/react": "^0.14.14",
     "@assistant-ui/react-o11y": "^0.0.25",
+    "@auth/core": "0.41.1",
+    "@convex-dev/auth": "0.0.94",
     "@convex-dev/persistent-text-streaming": "^0.3.2",
     "@convex-dev/prosemirror-sync": "^0.2.4",
     "@convex-dev/workflow": "^0.4.4",
@@ -308,6 +314,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-pdf": "^10.4.1",
+    "saxes": "5.0.1",
     "streamdown": "^2.5.0",
     "tailwind-merge": "^3.6.0",
     "tokenlens": "^1.3.1",
@@ -339,7 +346,7 @@
     "tw-animate-css": "^1.4.0",
     "typescript": "^5.7.2",
     "vite": "^6.0.7",
-    "vitest": "^2.1.8",
+    "vitest": "^4.1.10",
     "ws": "8.21.0"
   },
   "overrides": {
@@ -349,6 +356,7 @@
     "exceljs": {
       "uuid": "11.1.1"
     },
+    "linkify-it": "5.0.2",
     "ws": "8.21.0"
   }
 }

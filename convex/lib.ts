@@ -51,6 +51,36 @@ export async function getElement(ctx: QueryCtx, artifactId: Id<"artifacts">, ele
 }
 
 type DbCtx = QueryCtx | MutationCtx;
+
+/**
+ * Fence durable NodeAgent writes against the exact claimed slice. Reading the
+ * job row in the same mutation as the write makes cancellation/expiry an OCC
+ * boundary: either the write commits first, or it retries and observes the
+ * terminal job. Inline jobs predate slice leases and remain supported.
+ */
+export async function requireActiveAgentJobLease(
+  ctx: DbCtx,
+  args: { roomId: Id<"rooms">; jobId?: Id<"agentJobs">; leaseId?: string },
+) {
+  if (!args.jobId) {
+    if (args.leaseId) throw new Error("job_lease_without_job");
+    return null;
+  }
+  const job = await ctx.db.get(args.jobId);
+  if (!job || String(job.roomId) !== String(args.roomId)) throw new Error("job_room_mismatch");
+  const leaseRequired = job.runtime === "workflow" || args.leaseId !== undefined;
+  if (!leaseRequired) return job;
+  if (
+    !args.leaseId ||
+    job.status !== "running" ||
+    job.leaseId !== args.leaseId ||
+    !job.leaseUntil ||
+    job.leaseUntil <= Date.now()
+  ) {
+    throw new Error("job_lease_invalid");
+  }
+  return job;
+}
 export type ActorValue = {
   kind: "user" | "agent";
   id: string;
@@ -149,6 +179,11 @@ export async function requireActorProof(ctx: DbCtx, roomId: Id<"rooms">, proof: 
   }
   if (member.revokedAt != null) throw new Error("actor_revoked");
   const identity = await ctx.auth.getUserIdentity();
+  if (productionIdentityRequired()) {
+    if (!identity) throw new Error("production_identity_required");
+    if (!member.authSubject || member.authSubject !== identity.subject) throw new Error("identity_mismatch");
+    return { kind: "user" as const, id: String(member._id), name: member.name };
+  }
   if (identity && member.authSubject && member.authSubject === identity.subject) {
     return { kind: "user" as const, id: String(member._id), name: member.name };
   }

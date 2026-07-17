@@ -42,11 +42,11 @@ Two honesty rules attached to the proof:
 - **Proofs decay.** A committed champion summary older than 30 days (or
   surviving a model-catalog change) is stale until re-verified; stale proofs
   are labeled, not silently trusted.
-- **Single passes are labeled as such.** Until a lane has the N-run
-  aggregate, its docs must say "single live pass, reliability rate not yet
-  measured". The finance full-solve lane is no longer the example: its current
-  committed proof is a 5/5 model-owned DeepSeek v4 Flash batch in
-  `docs/eval/finance-model-live.json`.
+- **Single passes are labeled as such.** Until a lane has the N-run aggregate,
+  its docs must say "single live pass, reliability rate not yet measured". The
+  finance full-solve lane's June 5/5 batch is retained as historical evidence;
+  its 2026-07-12 freshness revalidation failed 0/1 before workbook writes, so
+  no current champion is marketed.
 
 Enforcement is planned as code, not prose: a `docs/eval/features.json`
 manifest (featureId → gold source hash, contract case ids, reliability proof

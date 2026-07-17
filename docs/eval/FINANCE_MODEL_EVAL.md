@@ -87,15 +87,22 @@ Rerun:
   under the gitignored private run directory.
 - Live income rung: `nex-agi/nex-n2-pro:free` passed 6/6 targets in 74.1s at
   $0.0000. It is promoted for income-statement smoke/income demos only.
-- Live full rung — **measured promotion batch (2026-06-11)**:
+- Historical live full rung — **measured batch (2026-06-11; promotion retired 2026-07-12)**:
   `deepseek/deepseek-v4-flash` passed **5/5 model-owned runs** with room
   variants rotating (base x2, distractors x2, concurrent_edit x1 — every
   variant cleared), 16/16 linked targets each run, zero provider-owned
   failures, median 105.0s, p95 $0.1068/run, $0.4424 total. Verdict `passed`,
   promotion bar (>= 4/5) exceeded. Redacted aggregate with the per-attempt
   ledger: `docs/eval/finance-model-live.json`; recorded to the eval store for
-  `eval:diff` champion-regression tracking. The earlier single-pass result
-  (174.8s, $0.0792) is superseded by this batch.
+  `eval:diff` regression tracking. Its 30-day freshness gate fired on
+  2026-07-12, so this batch is historical evidence rather than a current
+  champion claim.
+- Current full-rung revalidation (2026-07-12): the same route and private gold
+  stopped at the bounded 50-second model budget before workbook writes. The
+  attempt was 0/1 at $0, with no answer-key leakage, no clobber, and no partial
+  target writes. Receipt:
+  `docs/eval/finance-model-live-revalidation-2026-07-12.json`. No full-solve
+  route is currently promoted.
 - Live full route boundary: `nex-agi/nex-n2-pro:free` is not promoted for full
   solve yet; one run wrote all 16 linked formulas but failed a then-overstrict
   value gate, and the corrected rerun hit an OpenRouter invalid-JSON provider
@@ -139,9 +146,9 @@ coverage: `tests/financeModelReliability.test.ts` and
 - Guide mode: coach a user through the model with zero writes to answer cells.
 - Collaborate mode: split income statement, cash flow statement, and balance
   sheet sections across teammates with draft-on-lock behavior.
-- Route matrix: keep `deepseek/deepseek-v4-flash` as the full-solve champion
-  until another cheap/free route clears the same full rung. Free routes can be
-  used for smoke/income previews, not the full feature promise.
+- Route matrix: re-promote a full-solve route only after a fresh five-run batch
+  clears the same base/distractor/concurrent-edit gate. Free routes can be used
+  for smoke/income previews, not the full private-workbook feature promise.
 - ~~Reliability proof: add `--runs N` aggregation~~ **Landed 2026-06-11**:
   model-owned pass rate, provider-share inconclusive verdict, budget gates,
   per-attempt failureOwner ledger, `--record` into the eval store for

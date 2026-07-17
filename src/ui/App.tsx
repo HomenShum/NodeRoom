@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "../../convex/_generated/api";
 import { Landing } from "./Landing";
 import { RoomShell } from "./RoomShell";
@@ -18,6 +19,8 @@ const PublicRoomPage = lazy(() => import("../alwayson/PublicRoomPage").then((m) 
 import { EngineStoreProvider, ConvexStoreProvider, HAS_CONVEX } from "../app/store";
 import { createFreshRoom, enterBankerToolBenchRoomAsHost, enterDemoRoomAsHost, enterHackwithBayRoomAsHost, enterScaleDemoRoomAsHost, enterUpScaleXRoomAsHost } from "../app/roomStore";
 import type { Actor } from "../engine/types";
+import { authIntentLabel, clearPersistedRoomSessions, launchAuthRequired } from "../auth/launchAuth";
+import { AccountGate } from "./auth/AccountGate";
 
 const liveSessionKey = (code: string) => `noderoom:live:${code.toUpperCase()}`;
 const livePendingKey = (code: string) => `noderoom:livePending:${code.toUpperCase()}`;
@@ -245,7 +248,23 @@ function MemoryApp({ session, onSession }: { session: Session | null; onSession:
   );
 }
 
+type LaunchAuthState = { isLoading: boolean; isAuthenticated: boolean };
+
 function ConvexApp() {
+  return launchAuthRequired()
+    ? <AuthenticatedConvexApp />
+    : <ConvexRoomApp auth={{ isLoading: false, isAuthenticated: true }} />;
+}
+
+function AuthenticatedConvexApp() {
+  const auth = useConvexAuth();
+  const { signOut } = useAuthActions();
+  return <ConvexRoomApp auth={auth} signOut={signOut} />;
+}
+
+function ConvexRoomApp({ auth, signOut }: { auth: LaunchAuthState; signOut?: () => Promise<void> }) {
+  const requiresAuth = launchAuthRequired();
+  const authReady = !requiresAuth || auth.isAuthenticated;
   const [request, setRequest] = useState<LiveRequest>(() => initialLiveRequest());
   const code = request.kind === "idle" ? "" : request.code;
   const byCode = useQuery(api.rooms.byCode, code ? { code } : "skip");
@@ -283,7 +302,7 @@ function ConvexApp() {
   };
 
   useEffect(() => {
-    if (request.kind === "idle" || session || busy || byCode === undefined) return;
+    if (!authReady || request.kind === "idle" || session || busy || byCode === undefined) return;
     if (attemptedRef.current === request) return; // already tried this exact request — don't retry on failure
     attemptedRef.current = request;
     setBusy(true);
@@ -292,7 +311,7 @@ function ConvexApp() {
     saveLivePending(request.code, { name: request.name, title: request.title, token });
     const name = request.name;
     void (async () => {
-      let joined: { roomId: string; memberId: string } | null = null;
+      let joined: { roomId: string; memberId: string; name?: string } | null = null;
       let experience: "workspace" | "sample" = request.kind === "demo" ? "sample" : "workspace";
       // Idempotent create: if the room already exists — a create whose success response was lost, or a
       // reload of a `?create=` URL — don't dead-end with "already exists". Adopt it by joining. There is
@@ -300,9 +319,9 @@ function ConvexApp() {
       // artifacts in ONE atomic transaction, so an existing room is always complete. `anon: false` keeps
       // the re-entrant under the host name. (createStarterRoom = option 2; this fall-through = option 3.)
       if (byCode) {
-        const result = await join({ code: request.code, name, authToken: token, anon: request.kind === "join" });
+        const result = await join({ code: request.code, name, authToken: token, anon: request.kind === "join" && !requiresAuth });
         if (isJoinFailure(result)) throw new Error(joinFailureMessage(result.error));
-        joined = result ? { roomId: String(result.roomId), memberId: String(result.memberId) } : null;
+        joined = result ? { roomId: String(result.roomId), memberId: String(result.memberId), name: result.name } : null;
         experience = byCode.experience ?? experience;
       } else if (request.kind === "demo") {
         // ONE mutation = ONE Convex transaction: room + host member + all four starter artifacts commit
@@ -330,15 +349,35 @@ function ConvexApp() {
         joined = { roomId: String(result.roomId), memberId: String(result.memberId) };
       }
       if (!joined) throw new Error(`Room ${request.code} was not found. Create it or check the code.`);
-      const next: LiveSession = { roomId: joined.roomId, memberId: joined.memberId, name, token, experience };
+      const next: LiveSession = { roomId: joined.roomId, memberId: joined.memberId, name: joined.name ?? name, token, experience };
       try { localStorage.setItem(liveSessionKey(request.code), JSON.stringify(next)); } catch { /* ignore */ }
       clearLivePending(request.code);
-      writeLiveUrl("join", request.code, name, undefined, { sample: experience === "sample" });
+      writeLiveUrl("join", request.code, next.name, undefined, { sample: experience === "sample" });
       setSession(next);
     })()
       .catch((e) => { setError(friendlyLiveError(e)); })
       .finally(() => { setBusy(false); });
-  }, [byCode, busy, createRoom, createStarterRoom, join, request, session]);
+  }, [authReady, byCode, busy, createRoom, createStarterRoom, join, request, session]);
+
+  if (requiresAuth && (request.kind !== "idle" || session) && !auth.isAuthenticated) {
+    const actionKind = request.kind === "idle" ? "join" : request.kind;
+    return (
+      <AccountGate
+        action={authIntentLabel(actionKind)}
+        loading={auth.isLoading}
+        onCancel={() => {
+          if (code) {
+            clearLivePending(code);
+            try { localStorage.removeItem(liveSessionKey(code)); } catch { /* ignore */ }
+          }
+          setSession(null);
+          setRequest({ kind: "idle" });
+          setError(null);
+          clearLiveUrl();
+        }}
+      />
+    );
+  }
 
   if (!session) {
     if (request.kind !== "idle" && !error) {
@@ -375,10 +414,21 @@ function ConvexApp() {
       })
       .catch(() => setError("Could not leave the room. Your session remains active; try again."));
   };
+  const signOutAccount = signOut ? () => {
+    void signOut()
+      .then(() => {
+        try { clearPersistedRoomSessions(localStorage); } catch { /* ignore */ }
+        setSession(null);
+        setRequest({ kind: "idle" });
+        setError(null);
+        clearLiveUrl();
+      })
+      .catch(() => setError("Could not sign out. Your room session remains active; try again."));
+  } : undefined;
 
   return (
     <ConvexStoreProvider roomId={session.roomId} me={me} proof={proof}>
-      <RoomShell roomId={session.roomId} me={me} onLeave={leave} proof={proof} />
+      <RoomShell roomId={session.roomId} me={me} onLeave={leave} onSignOut={signOutAccount} proof={proof} />
     </ConvexStoreProvider>
   );
 }

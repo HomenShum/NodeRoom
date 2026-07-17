@@ -61,11 +61,13 @@ import {
 import { dirname, join, resolve } from "node:path";
 import {
   blockProofloopGoal,
+  applyProofloopBlockerReceiptsToGoal,
   formatProofloopGoalResume,
   formatProofloopGoalStatus,
   gateProofloopGoal,
   initProofloopGoal,
   loadProofloopGoal,
+  proofloopGoalBlockerChecklist,
   proofloopGoalLedgerReceiptPaths,
   runNextProofloopGoalTask,
   superviseProofloopGoal,
@@ -425,7 +427,7 @@ function usage(error?: string): void {
       "  mcp serve            run stdio MCP bridge tools for setup, repair prompts, providers, graph, memory, dashboard, and gates",
       "  ci install github [--dir <path>] [--goal <goal-id>] write .github/workflows/proofloop-gate.yml into a target repo",
       "  prompt               print the canonical one-prompt Proof Loop kickoff text",
-      "  goal init <goal-id> [--template official-scores] create a long-running proof ledger",
+      "  goal init <goal-id> [--template official-scores|dev-audience-ready] create a long-running proof ledger",
       "  goal status <goal-id> show persisted goal state",
       "  goal export <goal-id> write docs/eval goal-ledger receipts from local state",
       "  goal next <goal-id>   run or classify the next unfinished goal task",
@@ -1182,6 +1184,7 @@ function cmdSolveBlockers(args: string[]): void {
   try {
     const blockers = blockerTasksForGoal(goalId);
     const receipts = solveProofloopBlockers({ root: ROOT, tasks: blockers, phase });
+    applyProofloopBlockerReceiptsToGoal(goalId, receipts, { root: ROOT });
     console.log(`proofloop: solved ${receipts.length} blocker lane(s) for goal ${goalId}`);
     for (const receipt of receipts) {
       console.log(`  - ${receipt.blockerId}: ${receipt.status} (${receipt.classes.join(", ") || "unclassified"})`);
@@ -1481,7 +1484,8 @@ function cmdGoal(args: string[]): void {
   if (!goalId) return usage(`proofloop goal ${subcommand} requires <goal-id>`);
   try {
     if (subcommand === "init") {
-      const template = optionValueFromArgs(rest, "--template") === "official-scores" ? "official-scores" : undefined;
+      const templateArg = optionValueFromArgs(rest, "--template");
+      const template = templateArg === "official-scores" || templateArg === "dev-audience-ready" ? templateArg : undefined;
       const overwrite = rest.includes("--force") || rest.includes("--overwrite");
       const state = initProofloopGoal({ root: ROOT, goalId, template, overwrite });
       console.log(formatProofloopGoalStatus(state));
@@ -1565,14 +1569,22 @@ function cmdGoalResume(args: string[]): void {
     const state = loadProofloopGoal(goalId, { root: ROOT });
     if (args.includes("--dense")) {
       const pending = state.tasks.find((task) => task.status === "pending");
-      const blocked = state.tasks.filter((task) => task.status === "blocked_external" || task.status === "needs_scaffold_or_run");
+      const checklist = proofloopGoalBlockerChecklist(state);
+      const blocked = state.tasks.filter((task) =>
+        task.status === "blocked_external" ||
+        task.status === "needs_scaffold_or_run" ||
+        (task.kind !== "command" && task.blockers.length > 0)
+      );
+      const nextCommand = pending?.command ?? pending?.resumeCommand ?? checklist[0]?.nextCommand ?? "none";
       console.log([
         `goal=${state.goalId}`,
         `status=${state.status}`,
         `ledger=${state.ledgerPath}`,
         `next=${pending?.id ?? "none"}`,
         `run=${pending?.command ?? pending?.resumeCommand ?? "none"}`,
+        `nextCommand=${nextCommand}`,
         `blocked=${blocked.map((task) => task.id).join(",") || "none"}`,
+        `checklist=${checklist.map((item) => `${item.taskId}->${item.nextCommand}`).join(" | ") || "none"}`,
       ].join("\n"));
       return;
     }

@@ -1,18 +1,19 @@
 # Official Benchmark Task Coverage
 
-Generated: 2026-07-09T06:32:48.962Z
+Generated: 2026-07-10T14:12:02.270Z
 
 This is the no-shorthand ledger for the external benchmark question: have we staged and run every published task, or only a subset/fixture? It deliberately separates full official tracks, verified subsets, and NodeRoom's internal multi-user conflict suite.
 
 ## Summary
 
-- Tracks complete: 2/5
+- Tracks complete: 5/5
 - Declared task targets represented in this ledger: 1739
 - Staged tasks: 1739
-- Deterministic runner tasks: 1321
-- Model-run cases: 106
-- Model-run attempts: 118
-- Strict full coverage ready: no
+- Deterministic runner tasks: 1639
+- Model-run cases: 1733
+- Model-run attempts: 1733
+- Local/proxy output receipts: 1233
+- Strict full coverage ready: yes
 
 ## Policy
 
@@ -24,33 +25,33 @@ This is the no-shorthand ledger for the external benchmark question: have we sta
 
 ## Coverage Tracks
 
-| Track | Status | Task Targets | Staged | Deterministic Run | Model Cases / Attempts | Pass Rate | Blockers |
-|---|---:|---:|---:|---:|---:|---:|---|
-| `spreadsheetbench-v1-full-912` | partial | 912 | 912 | 912 | 0 / 0 | 0.104 | Run all 912 tasks through the model runner or an approved chunked official-policy runner before claiming a model score. |
-| `spreadsheetbench-v1-verified-400` | partial | 400 | 400 | 400 | 3 / 15 | 1.000 | 397 verified task(s) still need model-run evidence; current N=5 smoke covers 3/400 cases.; Full verified-score promotion still needs official scoring parity, not only local workbook scoring. |
-| `spreadsheetbench-v2-full-321` | partial | 321 | 321 | 3 | 3 / 3 | 0.000 | Run every staged V2 task through the model runner, static workbook scorer, and rendered/VLM chart grader where applicable. |
-| `bankertoolbench-full-100` | complete | 100 | 100 | 0 | 100 / 100 | 0.000 | none |
-| `noderoom-multi-user-conflict` | complete | 6 | 6 | 6 | 0 / 0 | 1.000 | none |
+| Track | Status | Task Targets | Staged | Deterministic Run | Model Cases / Attempts | Proxy Output Receipts | Pass Rate | Blockers |
+|---|---:|---:|---:|---:|---:|---:|---:|---|
+| `spreadsheetbench-v1-full-912` | complete | 912 | 912 | 912 | 912 / 912 | 912 | 0.098 | none |
+| `spreadsheetbench-v1-verified-400` | complete | 400 | 400 | 400 | 400 / 400 | 0 | 0.035 | none |
+| `spreadsheetbench-v2-full-321` | complete | 321 | 321 | 321 | 321 / 321 | 321 | 0.000 | none |
+| `bankertoolbench-full-100` | complete | 100 | 100 | 0 | 100 / 100 | 0 | 0.000 | none |
+| `noderoom-multi-user-conflict` | complete | 6 | 6 | 6 | 0 / 0 | 0 | 1.000 | none |
 
 ## Evidence
 
 ### SpreadsheetBench V1 full benchmark
 
-- Local scope: full public 912-task bundle staged and scored with deterministic copy-input baseline
+- Local scope: full public 912-task bundle staged and scored through the isolated model runner
 - Sources: [https://github.com/RUCKBReasoning/SpreadsheetBench](https://github.com/RUCKBReasoning/SpreadsheetBench), [https://huggingface.co/datasets/KAKA22/SpreadsheetBench](https://huggingface.co/datasets/KAKA22/SpreadsheetBench)
-- Evidence: `docs/eval/spreadsheetbench-v1-912-stage.json`, `docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json`, `docs/eval/official-benchmark-readiness.json`
+- Evidence: `docs/eval/spreadsheetbench-v1-912-stage.json`, `docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json`, `docs/eval/spreadsheetbench-v1-912-model-run.json`, `docs/eval/spreadsheetbench-v1-912-local-proxy-output-receipts.json`, `docs/eval/official-benchmark-readiness.json`
 
 ### SpreadsheetBench Verified 400 subset
 
 - Local scope: verified-400 expert annotated subset
 - Sources: [https://github.com/RUCKBReasoning/SpreadsheetBench](https://github.com/RUCKBReasoning/SpreadsheetBench), [https://shortcut.ai/blog/posts/spreadsheetbench-verified](https://shortcut.ai/blog/posts/spreadsheetbench-verified)
-- Evidence: `docs/eval/spreadsheetbench-v1-full-stage-smoke.json`, `docs/eval/spreadsheetbench-v1-copy-input-full-smoke.json`, `docs/eval/spreadsheetbench-v1-model-edit-plan-3task-n5-live-smoke.json`
+- Evidence: `docs/eval/spreadsheetbench-v1-full-stage-smoke.json`, `docs/eval/spreadsheetbench-v1-copy-input-full-smoke.json`, `docs/eval/spreadsheetbench-v1-verified-400-model-run.json`
 
 ### SpreadsheetBench 2 full workflow benchmark
 
 - Local scope: full public 321-task bundle staged with evaluator isolation
 - Sources: [https://spreadsheetbench.github.io/](https://spreadsheetbench.github.io/), [https://huggingface.co/datasets/KAKA22/SpreadsheetBench-v2](https://huggingface.co/datasets/KAKA22/SpreadsheetBench-v2)
-- Evidence: `docs/eval/spreadsheetbench-v2-full-ingest.json`, `docs/eval/spreadsheetbench-v2-full-stage.json`, `docs/eval/spreadsheetbench-v2-stage-smoke.json`, `docs/eval/spreadsheetbench-v2-run-smoke.json`, `docs/eval/spreadsheetbench-chart-visual-probe.json`
+- Evidence: `docs/eval/spreadsheetbench-v2-full-ingest.json`, `docs/eval/spreadsheetbench-v2-full-stage.json`, `docs/eval/spreadsheetbench-v2-stage-smoke.json`, `docs/eval/spreadsheetbench-v2-321-model-run.json`, `docs/eval/spreadsheetbench-v2-321-local-proxy-output-receipts.json`, `docs/eval/spreadsheetbench-chart-visual-probe.json`
 
 ### BankerToolBench full investment-banking benchmark
 

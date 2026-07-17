@@ -160,8 +160,8 @@ export function ShareSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
         </button>
 
         <div className="gp-cap" data-testid="gap-share-access-copy">
-          Anyone allowed by this deployment who has the link can join as a member, edit shared content,
-          upload files, use room chat, and run NodeAgent. This link does not currently expire.
+          Signed-in members with the link can join, edit shared content, upload files, use room chat,
+          and run NodeAgent. This link does not currently expire.
         </div>
 
         <div className="ms-actions">

@@ -1,0 +1,70 @@
+{
+  "schema": "proofloop-official-score-import-readiness-v1",
+  "adapterId": "workstreambench",
+  "receiptPath": "docs/eval/proofloop-official-scores/workstreambench.json",
+  "status": "accepted",
+  "scoreClaim": true,
+  "officialScoreClaimable": true,
+  "acceptedExternalScorerReceipt": true,
+  "acceptedExternalScorerKind": "workstreambench_mbabench_judge",
+  "pendingExternalScorerReceipt": false,
+  "pendingExternalScorerKind": null,
+  "requiredAcceptedReceipt": "accepted MBABench judge receipt over all 38 locked WorkstreamBench cases",
+  "metrics": {
+    "officialTaskCount": 38,
+    "outputTaskCount": 38,
+    "predictionRowCount": null,
+    "contentPartsCount": null
+  },
+  "boundary": {
+    "productPath": {
+      "status": "complete",
+      "officialScoreClaim": false,
+      "reason": "NodeRoom exports every locked WorkstreamBench task as an MBABench judge case folder; this is product/export evidence, not an official score.",
+      "evidence": [
+        "docs/eval/proofloop-official-outputs/workstreambench.json",
+        "docs/eval/proofloop-official-task-bundles/workstreambench.json",
+        "proofloop/benchmarks/workstreambench/scaffold-official-cases.ts",
+        ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/case-manifest.json",
+        ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench",
+        ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/scores.json",
+        ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/ai_judgement.json",
+        ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/_metadata.json",
+        ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/token_tracking.json"
+      ]
+    },
+    "proxy": {
+      "status": "proxy_only",
+      "officialScoreClaim": false,
+      "reason": "Proxy/product-path receipts can triage quality and prove local workflow shape, but they are not accepted upstream official scorer receipts.",
+      "evidence": [
+        "docs/eval/proofloop-external-adapter-runs/workstreambench.json",
+        "docs/eval/proofloop-external-adapter-live-room-runs/workstreambench.json"
+      ]
+    },
+    "officialScorer": {
+      "status": "accepted",
+      "officialScoreClaim": true,
+      "requiredAcceptedReceipt": "accepted MBABench judge receipt over all 38 locked WorkstreamBench cases",
+      "evidence": [
+        "docs/eval/proofloop-official-scores/workstreambench.json",
+        ".tmp/official-benchmarks/workstreambench-official/mbabench-sweep-receipt.json"
+      ]
+    }
+  },
+  "blockers": [],
+  "evidence": [
+    "docs/eval/proofloop-official-outputs/workstreambench.json",
+    "docs/eval/proofloop-official-task-bundles/workstreambench.json",
+    "proofloop/benchmarks/workstreambench/scaffold-official-cases.ts",
+    ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/case-manifest.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench",
+    ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/scores.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/ai_judgement.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/_metadata.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench/task_0/judge_results/token_tracking.json",
+    "docs/eval/proofloop-official-scores/workstreambench.json",
+    ".tmp/official-benchmarks/workstreambench-official/mbabench-sweep-receipt.json",
+    "docs/eval/proofloop-official-score-imports/workstreambench.json"
+  ]
+}

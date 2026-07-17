@@ -88,6 +88,9 @@ export interface CellPayload {
   evidence?: CellEvidence[];
   confidence?: number;
   formula?: string;
+  numFmt?: string;
+  /** Canonical uppercase AARRGGBB. Omission preserves the current font color. */
+  fontColor?: string;
   error?: string;
   normalizedValue?: unknown;
   attempts?: number;
@@ -406,6 +409,8 @@ export interface Message {
   text: string;
   clientMsgId: string; // idempotency + optimistic-reconcile key
   kind: "chat" | "agent" | "system";
+  /** Durable public-agent run correlation. Legacy/local messages may omit it. */
+  jobId?: string;
   toolParts?: ToolPart[];
   createdAt: number;
   /** persistent-text-streaming id (live mode): body streams from the component while text is
@@ -421,6 +426,7 @@ export interface Proposal {
   id: string;
   roomId: string;
   artifactId: string;
+  jobId?: string;
   op: ChangeOp;
   author: Actor;
   status: ProposalStatus;

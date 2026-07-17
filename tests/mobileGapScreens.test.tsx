@@ -171,7 +171,7 @@ describe("ShareSheet", () => {
 
   it("states the enforced editor access and non-expiring link contract", () => {
     render(<ShareSheet ctx={makeCtx()} />);
-    expect(screen.getByTestId("gap-share-access-copy").textContent).toMatch(/join as a member, edit shared content/i);
+    expect(screen.getByTestId("gap-share-access-copy").textContent).toMatch(/signed-in members with the link can join, edit shared content/i);
     expect(screen.getByTestId("gap-share-access-copy").textContent).toMatch(/does not currently expire/i);
   });
 

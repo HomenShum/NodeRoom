@@ -9,13 +9,14 @@
 
 import { v } from "convex/values";
 import { internalMutation, mutation, query } from "./_generated/server";
-import { actorProofV, actorV, activeLockOn, LOCK_TTL_MS, requireActorInRoom, requireActorProof, requireAgentSession, requireArtifactInRoom, sameActor } from "./lib";
+import { actorProofV, actorV, activeLockOn, LOCK_TTL_MS, requireActiveAgentJobLease, requireActorInRoom, requireActorProof, requireAgentSession, requireArtifactInRoom, sameActor } from "./lib";
 import { mergeBlockedDrafts } from "./drafts";
 import { expandElementIdsWithSpreadsheetDependencies } from "./spreadsheetIndexLib";
 
 export const proposeLock = internalMutation({
-  args: { roomId: v.id("rooms"), artifactId: v.id("artifacts"), elementIds: v.array(v.string()), holder: actorV, sessionId: v.string(), reason: v.string() },
+  args: { roomId: v.id("rooms"), artifactId: v.id("artifacts"), elementIds: v.array(v.string()), holder: actorV, sessionId: v.string(), reason: v.string(), jobId: v.optional(v.id("agentJobs")), leaseId: v.optional(v.string()) },
   handler: async (ctx, a) => {
+    await requireActiveAgentJobLease(ctx, a);
     await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
     await requireActorInRoom(ctx, a.roomId, a.holder);
     await requireAgentSession(ctx, a.roomId, a.sessionId, a.holder);

@@ -23,10 +23,11 @@
   },
   {
     "failureCategory": "missing_judge_credentials",
-    "count": 2,
+    "count": 3,
     "suites": [
       "finauditing",
-      "finch"
+      "finch",
+      "workstreambench"
     ],
     "sourceFile": ".proofloop/lanes/finauditing/blocker-analysis.json",
     "sourceField": "classes[0]"
@@ -49,32 +50,5 @@
     ],
     "sourceFile": ".proofloop/lanes/bankertoolbench/blocker-analysis.json",
     "sourceField": "classes[0]"
-  },
-  {
-    "failureCategory": "missing_output_exporter",
-    "count": 1,
-    "suites": [
-      "finch"
-    ],
-    "sourceFile": ".proofloop/lanes/finch/blocker-analysis.json",
-    "sourceField": "classes[2]"
-  },
-  {
-    "failureCategory": "missing_task_bundle",
-    "count": 1,
-    "suites": [
-      "workstreambench"
-    ],
-    "sourceFile": ".proofloop/lanes/workstreambench/blocker-analysis.json",
-    "sourceField": "classes[1]"
-  },
-  {
-    "failureCategory": "no_public_upstream_release",
-    "count": 1,
-    "suites": [
-      "workstreambench"
-    ],
-    "sourceFile": ".proofloop/lanes/workstreambench/blocker-analysis.json",
-    "sourceField": "classes[2]"
   }
 ]

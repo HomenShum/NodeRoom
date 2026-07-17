@@ -1,0 +1,48 @@
+{
+  "schema": "finch-judge-disagreement-v1",
+  "generatedAt": "2026-07-10T14:10:24.277Z",
+  "officialScoreClaim": false,
+  "canonicalContract": {
+    "model": "gpt-5-mini",
+    "version": "2025-08-07",
+    "contractId": "finch-gpt5mini-canonical-v1",
+    "role": "published Finch automated judge"
+  },
+  "shadowContract": {
+    "router": "openrouter/free",
+    "role": "zero-cost disagreement audit",
+    "promotionAllowed": false,
+    "limitation": "The router may select a different compatible free model for each request."
+  },
+  "coverage": {
+    "canonicalRecords": 172,
+    "shadowRecords": 7,
+    "comparedRecords": 0,
+    "canonicalErrors": 0,
+    "shadowErrors": 7,
+    "canonicalOnlyRecords": 165,
+    "shadowOnlyRecords": 0
+  },
+  "scores": {
+    "canonicalPasses": 0,
+    "canonicalPassRate": null,
+    "shadowPasses": 0,
+    "shadowPassRate": null,
+    "agreementCount": 0,
+    "agreementRate": null,
+    "disagreementCount": 0
+  },
+  "confusion": {
+    "bothPass": 0,
+    "bothFail": 0,
+    "shadowOnlyPass": 0,
+    "canonicalOnlyPass": 0
+  },
+  "shadowErrorCategories": {
+    "rate_limit_or_daily_quota": 2,
+    "context_limit": 3,
+    "no_image_capable_endpoint": 2
+  },
+  "byResolvedShadowModel": [],
+  "disagreements": []
+}

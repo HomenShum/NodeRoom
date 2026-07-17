@@ -24,4 +24,14 @@ export function modelForFramePhase(
   return fallback;
 }
 
+export function authorizedModelForFramePhase(
+  phase: string,
+  fallback: string,
+  isAllowed: (model: string) => boolean,
+  env: Record<string, string | undefined> = typeof process !== "undefined" ? process.env : {},
+): string {
+  const candidate = modelForFramePhase(phase, fallback, env);
+  return candidate === fallback || isAllowed(candidate) ? candidate : fallback;
+}
+
 export { ORCHESTRATOR_PHASES };

@@ -55,12 +55,12 @@ rest is the frame around it.
 - **Say:** "Room is the unit of everything — members, artifacts, locks, drafts, traces all
   key off `roomId`."
 
-### 3. Host create + anonymous join
+### 3. Host create + authenticated room join
 - **Entry:** [`RoomEngine.joinRoom`](../src/engine/roomEngine.ts) ← `joinRoomByCode` in `roomStore.ts`
-- `joinRoom({ code, name })` looks up the live room by `code` and adds a `member` with
-  `role: "member", anon: true` — no account. The host is `role: "host"`.
-- **Say:** "Anonymous join is just a code lookup + a member row; in production this is a
-  Convex mutation, and the member's `sessionId` is the anonymous identity."
+- `joinRoom({ code, name })` looks up the live room by `code`. Production first requires
+  Convex Auth, then binds the member row to that account and the room-scoped token.
+- **Say:** "The room code identifies the workspace; authentication identifies the person.
+  Production requires both, while the in-memory harness can still model token-only guests."
 
 ### 4. Public chat + room NodeAgent (center)
 - **Entry:** [`src/ui/Chat.tsx`](../src/ui/Chat.tsx) with `channel="public"`; messages via [`RoomEngine.postMessage`](../src/engine/roomEngine.ts)

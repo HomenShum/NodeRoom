@@ -51,6 +51,12 @@ export type MotionName = "expressive" | "minimal" | "reduced";
 export type NavStyle = "tabs" | "dock";
 export type ScopeName = "Private" | "Room" | "Shared";
 
+export type MobileDeckPatchRequest = {
+  reviewerRequest: string;
+  slideId: string;
+  targetField?: "title" | "purpose" | "speakerNote";
+};
+
 /** Stacking overlay shown above any bottom sheet (trace receipt | source reader). */
 export type OverlayState =
   | { type: "trace"; id: string }
@@ -113,6 +119,8 @@ export interface MobileCtx {
   runQuick: (q: QuickPrompt) => void;
   /** Send a governed request through the live room-agent path. */
   requestRoomAgent?: (goal: string) => Promise<RowEditResult>;
+  /** Persist and target the exact collaborative deck slide before starting a governed run. */
+  requestDeckPatch?: (request: MobileDeckPatchRequest) => Promise<RowEditResult>;
   openRow: () => void;
   askAboutRow: () => void;
   /** CardioNova row — live cells when bound to a room, else the sample row. */
@@ -235,6 +243,7 @@ export interface MobileLive {
   agentRoom: AgentMsg[];
   askPrivateAgent: (goal: string) => Promise<RowEditResult>;
   askRoomAgent: (goal: string, modelSelection?: AgentModelSelection) => Promise<RowEditResult>;
+  requestDeckPatch: (request: MobileDeckPatchRequest, modelSelection?: AgentModelSelection) => Promise<RowEditResult>;
   row: Row;
   editRowField: (elementId: string, value: string, baseVersion: number) => Promise<RowEditResult>;
   inboxItems: InboxItem[];
@@ -243,6 +252,7 @@ export interface MobileLive {
   resolveProposalById: (id: string, approve: boolean) => Promise<RowEditResult>;
   jobAct: (id: string, action: "cancel" | "retry") => Promise<RowEditResult>;
   onLeave?: () => void;
+  onSignOut?: () => void;
   /** True while the live room is still hydrating (drives loading skeletons). */
   loading: boolean;
 
@@ -265,6 +275,7 @@ export interface MobileLive {
 
 export interface MobileDeckArtifact extends Deck {
   storyboard?: DeckStoryboard;
+  evidence?: Evidence;
   roomId: string;
   workArtifactId: string;
   traceIds: string[];

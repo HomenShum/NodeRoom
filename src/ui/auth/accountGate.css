@@ -1,0 +1,94 @@
+.nr-auth-root {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #f7f4ef;
+  color: #26211d;
+}
+
+.nr-auth-panel {
+  width: min(100%, 430px);
+  display: grid;
+  gap: 20px;
+}
+
+.nr-auth-back {
+  width: max-content;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  color: #625a54;
+  font: inherit;
+  cursor: pointer;
+}
+
+.nr-auth-mark {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #9f4f2a;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 750;
+}
+
+.nr-auth-heading { display: grid; gap: 10px; }
+.nr-auth-heading h1 { margin: 0; font-size: 28px; line-height: 1.12; letter-spacing: 0; }
+.nr-auth-heading p, .nr-auth-trust, .nr-auth-provider-note { margin: 0; color: #625a54; line-height: 1.5; }
+.nr-auth-kicker { display: inline-flex; align-items: center; gap: 7px; color: #8b3f20; font-size: 13px; font-weight: 700; text-transform: uppercase; }
+
+.nr-auth-primary {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid #7f3a1d;
+  border-radius: 6px;
+  background: #9f4f2a;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.nr-auth-primary:disabled, .nr-auth-back:disabled { cursor: wait; opacity: .65; }
+.nr-auth-loading { min-height: 48px; display: flex; align-items: center; gap: 10px; color: #625a54; }
+.nr-auth-spin { animation: nr-auth-spin 900ms linear infinite; }
+@keyframes nr-auth-spin { to { transform: rotate(360deg); } }
+
+.nr-auth-methods { display: grid; gap: 16px; }
+.nr-auth-divider { display: flex; align-items: center; gap: 12px; color: #766d66; font-size: 12px; }
+.nr-auth-divider::before, .nr-auth-divider::after { content: ""; height: 1px; flex: 1; background: #d8cec6; }
+.nr-auth-form { display: grid; gap: 14px; }
+.nr-auth-form label { display: grid; gap: 6px; color: #504842; font-size: 13px; font-weight: 650; }
+.nr-auth-form input { min-height: 46px; width: 100%; padding: 0 12px; border: 1px solid #c8bdb4; border-radius: 5px; background: #fff; color: #26211d; font: inherit; }
+.nr-auth-form input:focus-visible, .nr-auth-primary:focus-visible, .nr-auth-back:focus-visible, .nr-auth-segments button:focus-visible { outline: 3px solid #d58a67; outline-offset: 2px; }
+.nr-auth-segments { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #c8bdb4; border-radius: 6px; overflow: hidden; }
+.nr-auth-segments button { min-height: 44px; border: 0; background: #fff; color: #625a54; font: inherit; font-weight: 650; cursor: pointer; }
+.nr-auth-segments button[data-active="true"] { background: #e9d5c8; color: #6f3119; }
+.nr-auth-provider-note, .nr-auth-trust { font-size: 12px; }
+.nr-auth-verification-destination { min-width: 0; display: flex; align-items: flex-start; gap: 9px; color: #504842; line-height: 1.45; }
+.nr-auth-verification-destination span { min-width: 0; overflow-wrap: anywhere; }
+.nr-auth-secondary-row { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.nr-auth-secondary-row button { min-height: 44px; padding: 0; border: 0; background: transparent; color: #7f3a1d; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.nr-auth-secondary-row button:disabled { cursor: wait; opacity: .6; }
+.nr-auth-secondary-row button:focus-visible { outline: 3px solid #d58a67; outline-offset: 2px; }
+.nr-auth-status { padding: 11px 12px; border-left: 3px solid #4e765f; background: #e9f2ec; color: #294b37; line-height: 1.4; }
+.nr-auth-error { padding: 11px 12px; border-left: 3px solid #a33232; background: #f9e9e7; color: #772424; line-height: 1.4; }
+
+@media (max-width: 520px) {
+  .nr-auth-root { place-items: start stretch; padding: max(20px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom)); }
+  .nr-auth-panel { width: 100%; }
+  .nr-auth-heading h1 { font-size: 25px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nr-auth-spin { animation: none; }
+}

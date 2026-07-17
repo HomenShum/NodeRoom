@@ -29,6 +29,7 @@ import {
   buildLivePerformanceSummary,
   buildNotebookExecutionPreview,
   buildNotebookArtifactStructure,
+  buildNotebookArtifactStructureFromReadModel,
   buildNotebookPatchPreviewItems,
   buildNotebookPatchDiff,
   notebookPatchValueText,
@@ -194,6 +195,7 @@ const proposal: Proposal = {
   id: "proposal-1",
   roomId: "room-1",
   artifactId: "art-research",
+  jobId: "job-1",
   op: { opId: "op-1", artifactId: "art-research", elementId: "r1__risk", kind: "set", value: "HIPAA source added", baseVersion: 1 },
   author: agent,
   status: "pending",
@@ -324,6 +326,37 @@ describe("work artifact adapters", () => {
     expect(executionNotebook.elements.doc.value).toContain("Calculation: runway score");
   });
 
+  it("bridges sorted live notebook rows into a stable Pyodide-ready Python block", () => {
+    const rows = [
+      { blockId: "live-python", blockIndex: 2, blockType: "paragraph", text: "Python: print((2400 - 1100) - 450)" },
+      { blockId: "live-body", blockIndex: 1, blockType: "paragraph", text: "Current variance analysis" },
+      { blockId: "live-title", blockIndex: 0, blockType: "heading", text: "Q3 variance" },
+    ];
+
+    const structure = buildNotebookArtifactStructureFromReadModel(structuredNotebook, rows);
+    const typed = classifyNotebookTypedBlocks(structure);
+    const preview = buildNotebookExecutionPreview(structure);
+    const python = preview.items.find((item) => item.kind === "python");
+
+    expect(structure.blocks.map((block) => block.blockId)).toEqual(["live-title", "live-body", "live-python"]);
+    expect(structure.blocks.map((block) => block.id)).toEqual(["live-title", "live-body", "live-python"]);
+    expect(typed.find((block) => block.blockId === "live-python")?.type).toBe("python");
+    expect(python).toMatchObject({
+      blockId: "live-python",
+      status: "ready",
+      input: "print((2400 - 1100) - 450)",
+      reason: "pyodide_worker_required",
+    });
+
+    const afterTextEdit = buildNotebookArtifactStructureFromReadModel(structuredNotebook, [
+      { ...rows[0], text: "Python: print((2400 - 1100) - 400)" },
+      rows[2],
+      rows[1],
+    ]);
+    expect(afterTextEdit.blocks.map((block) => block.id)).toEqual(["live-title", "live-body", "live-python"]);
+    expect(structuredNotebook.elements.doc.value).toContain("CardioNova diligence");
+  });
+
   it("derives notebook structure from ProseMirror JSON blocks", () => {
     const structure = buildNotebookArtifactStructure(pmNotebook);
 
@@ -384,6 +417,8 @@ describe("work artifact adapters", () => {
     expect(workpaper.status).toBe("pending");
     expect(workpaper.summary).toContain("Needs host approval");
     expect(workpaper.receipt.unresolvedCount).toBe(1);
+    expect(workpaper.refs[0]).toMatchObject({ proposalId: "proposal-1", jobId: "job-1" });
+    expect(workpaper.meta?.jobId).toBe("job-1");
     expect(workpaper.actions.map((action) => action.id)).toEqual(["open", "accept", "reject", "view_trace"]);
   });
 
@@ -404,6 +439,7 @@ describe("work artifact adapters", () => {
       artifactTitle: "Company research",
       reviewKind: "semantic_rebase",
       valuePreview: "Funding source needs rebase",
+      jobId: "job-1",
     });
     expect(counts).toMatchObject({ total: 2, pending: 2, agentEdit: 1, semanticRebase: 1 });
     expect(filterProposalReviewItems(items, "semantic_rebase")).toHaveLength(1);
@@ -626,7 +662,7 @@ describe("work artifact adapters", () => {
       roomId: "room-1",
       messages,
       traces: [trace],
-      run: { model: "openrouter/free", steps: 4, toolCalls: 3, inputTokens: 1200, outputTokens: 320, costUsd: 0.012, ms: 1800 },
+      run: { model: "openrouter/free", steps: 4, toolCalls: 3, inputTokens: 1200, outputTokens: 320, costUsd: 0.012, costKind: "estimated", ms: 1800 },
       job: {
         id: "job-1",
         status: "running",
@@ -639,7 +675,7 @@ describe("work artifact adapters", () => {
         modelCallCount: 1,
         receiptCount: 2,
       },
-      attempts: [{ attempt: 1, status: "running", resolvedModel: "openrouter/free", stopReason: "in_progress", ms: 900, inputTokens: 600, outputTokens: 120, costUsd: 0.004 }],
+      attempts: [{ attempt: 1, status: "running", resolvedModel: "openrouter/free", stopReason: "in_progress", ms: 900, inputTokens: 600, outputTokens: 120, costUsd: 0.004, costKind: "estimated" }],
       detail: {
         operations: [{ sequence: 1, kind: "mutation", name: "patch_bundle_cas", status: "completed" }],
         streamEvents: [{ sequence: 1, kind: "message_done", status: "completed", createdAt: 20, text: "done" }],
@@ -856,6 +892,16 @@ describe("work artifact adapters", () => {
     expect(goal).toContain('"kind":"slide_patch"');
     expect(goal).toContain("Call write_locked_cell (never write_locked_cell_result or write_locked_cell_results)");
     expect(goal).toContain("do not create a separate *_patch_workpaper element");
+    const titleGoal = buildDeckObjectProposalGoal({
+      artifactId: "art-deck",
+      storyboard,
+      slide,
+      baseVersion: 4,
+      reviewerRequest: "Tighten the heading.",
+      targetField: "title",
+    });
+    expect(titleGoal).toContain("Requested field: title.");
+    expect(titleGoal).toContain('"changes":{"title":"REPLACE_WITH_REVIEWED_TITLE"}');
   });
 
   it("plans slide, claim, and structural changes as independent CAS objects", () => {
@@ -988,6 +1034,8 @@ describe("work artifact adapters", () => {
     expect(pptx.exportVersion).toBe(1);
     expect(pptx.integrityHash).toBe(second.integrityHash);
     expect(Buffer.from(pptx.bytes).equals(Buffer.from(second.bytes))).toBe(true);
+    expect(Object.values(zip.files).some((entry) => entry.dir)).toBe(false);
+    expect(new Set(Object.values(zip.files).map((entry) => entry.date.getTime())).size).toBe(1);
     expect([...pptx.bytes.slice(0, 2)].map((value) => String.fromCharCode(value)).join("")).toBe("PK");
     expect(pptx.slideCount).toBe(2);
     expect(pptx.needsReviewCount).toBeGreaterThan(0);

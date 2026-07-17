@@ -94,7 +94,9 @@ export default defineConfig({
           if (id.includes("react-pdf") || id.includes("pdfjs-dist")) return "pdf-vendor";
           if (id.includes("convex") || id.includes("@convex-dev")) return "convex-vendor";
           if (id.includes("lucide-react")) return "icons-vendor";
-          return "vendor";
+          // Let Rollup preserve dynamic-import boundaries for expensive optional
+          // renderers (Shiki, Mermaid, KaTeX) instead of pulling them into first paint.
+          return undefined;
         },
       },
     },

@@ -8,6 +8,9 @@ This file is the model-facing contract: every production tool must expose a non-
 
 | Tool | Mutates | Canonical Required | Provider Required |
 |---|---:|---|---|
+| `inspect_workbook` | mixed | `instruction` | `instruction` |
+| `verify_workbook` | mixed | `instruction`, `operations` | `instruction`, `operations` |
+| `execute_workbook_structure_repair` | mixed | `instruction`, `repairId` | `instruction`, `repairId` |
 | `read_range` | read | none | none |
 | `search_sheet_context` | read | `query` | `query` |
 | `list_artifacts` | read | none | none |
@@ -61,6 +64,76 @@ This file is the model-facing contract: every production tool must expose a non-
 | `plan_and_dispatch` | mixed | `waves` | `waves` |
 
 ## Tool Contracts
+
+### inspect_workbook
+
+- Purpose: Inspect a workbook before planning edits.
+- When to use: Inspect a workbook before planning edits.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: mixed.
+- Canonical Zod properties: `artifactId`, `instruction`, `maxCells`, `query`.
+- Canonical required fields: `instruction`.
+- Provider required fields: `instruction`.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "inspect_workbook",
+  "args": {
+    "instruction": "example"
+  }
+}
+```
+
+### verify_workbook
+
+- Purpose: Preflight a workbook edit plan or verify completed writes by re-reading every target.
+- When to use: Preflight a workbook edit plan or verify completed writes by re-reading every target.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: mixed.
+- Canonical Zod properties: `afterWrite`, `artifactId`, `instruction`, `operations`.
+- Canonical required fields: `instruction`, `operations`.
+- Provider required fields: `instruction`, `operations`.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "verify_workbook",
+  "args": {
+    "instruction": "example",
+    "operations": "example"
+  }
+}
+```
+
+### execute_workbook_structure_repair
+
+- Purpose: Execute a complete, agent-visible structural workbook repair contract after inspection.
+- When to use: Execute a complete, agent-visible structural workbook repair contract after inspection.
+- When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
+- Mutability: mixed.
+- Canonical Zod properties: `artifactId`, `instruction`, `repairId`.
+- Canonical required fields: `instruction`, `repairId`.
+- Provider required fields: `instruction`, `repairId`.
+- Expected errors: missing_required_arg; invalid_arg_type.
+- Recovery path: Treat tool failures as inputs: inspect `failureKind` or result reason, add the missing argument or re-read state, and stop rather than inventing data.
+- Example call:
+
+```json
+{
+  "tool": "execute_workbook_structure_repair",
+  "args": {
+    "instruction": "example",
+    "repairId": [
+      "example"
+    ]
+  }
+}
+```
 
 ### read_range
 
@@ -343,11 +416,11 @@ This file is the model-facing contract: every production tool must expose a non-
 
 ### write_locked_cell
 
-- Purpose: Production write path for a simple scalar cell.
+- Purpose: Production write path for a scalar, formula, or style-only cell.
 - When to use: Use for production spreadsheet writes so lock, CAS, review mode, and receipts stay runtime-managed.
 - When not to use: Do not use when the target artifact, base version, permission, or evidence requirement is unknown; read or search first.
 - Mutability: write.
-- Canonical Zod properties: `artifactId`, `baseVersion`, `base_version`, `cell`, `cellId`, `cellKey`, `cell_id`, `content`, `currentVersion`, `current_version`, `elementId`, `element_id`, `expectedValue`, `expected_value`, `id`, `kind`, `newValue`, `new_value`, `reason`, `result`, `target`, `targetCell`, `targetId`, `text`, `value`, `version`.
+- Canonical Zod properties: `artifactId`, `baseVersion`, `base_version`, `cell`, `cellId`, `cellKey`, `cell_id`, `content`, `currentVersion`, `current_version`, `elementId`, `element_id`, `expectedValue`, `expected_value`, `fontColor`, `font_color`, `formula`, `id`, `kind`, `newValue`, `new_value`, `numFmt`, `num_fmt`, `numberFormat`, `number_format`, `reason`, `result`, `target`, `targetCell`, `targetId`, `text`, `value`, `version`.
 - Canonical required fields: none.
 - Provider required fields: none.
 - Expected errors: missing_required_arg; invalid_arg_type; cas_conflict; lock_blocked; permission_denied.
@@ -367,11 +440,11 @@ This file is the model-facing contract: every production tool must expose a non-
 
 ### write_locked_cells
 
-- Purpose: Production batch write path for scalar cells.
+- Purpose: Production batch write path for scalar, formula, or style-only cells.
 - When to use: Use for production spreadsheet writes so lock, CAS, review mode, and receipts stay runtime-managed.
 - When not to use: Do not use when the target artifact, base version, permission, or evidence requirement is unknown; read or search first.
 - Mutability: write.
-- Canonical Zod properties: `artifactId`, `baseVersions`, `base_version`, `base_versions`, `cell`, `cellIds`, `cells`, `content`, `currentVersion`, `currentVersions`, `elementIds`, `expectedValue`, `id`, `ids`, `kind`, `kinds`, `newValue`, `newValues`, `new_value`, `ops`, `reason`, `result`, `results`, `target`, `targetCell`, `targetCells`, `targets`, `text`, `values`, `versions`.
+- Canonical Zod properties: `artifactId`, `baseVersions`, `base_version`, `base_versions`, `cell`, `cellIds`, `cells`, `content`, `currentVersion`, `currentVersions`, `elementIds`, `expectedValue`, `fontColor`, `fontColors`, `formula`, `formulas`, `id`, `ids`, `kind`, `kinds`, `newValue`, `newValues`, `new_value`, `numFmt`, `numFmts`, `numberFormat`, `numberFormats`, `ops`, `reason`, `result`, `results`, `target`, `targetCell`, `targetCells`, `targets`, `text`, `values`, `versions`.
 - Canonical required fields: none.
 - Provider required fields: none.
 - Expected errors: missing_required_arg; invalid_arg_type; cas_conflict; lock_blocked; permission_denied.
@@ -399,7 +472,7 @@ This file is the model-facing contract: every production tool must expose a non-
 - When to use: Use for production spreadsheet writes so lock, CAS, review mode, and receipts stay runtime-managed.
 - When not to use: Do not use when the target artifact, base version, permission, or evidence requirement is unknown; read or search first.
 - Mutability: write.
-- Canonical Zod properties: `artifactId`, `baseVersion`, `base_version`, `cell`, `cellId`, `cellKey`, `cell_id`, `confidence`, `content`, `currentVersion`, `current_version`, `elementId`, `element_id`, `error`, `evidence`, `expectedValue`, `expected_value`, `formula`, `id`, `kind`, `newValue`, `new_value`, `normalizedValue`, `reason`, `result`, `status`, `target`, `targetCell`, `targetId`, `text`, `value`, `version`.
+- Canonical Zod properties: `artifactId`, `baseVersion`, `base_version`, `cell`, `cellId`, `cellKey`, `cell_id`, `confidence`, `content`, `currentVersion`, `current_version`, `elementId`, `element_id`, `error`, `evidence`, `expectedValue`, `expected_value`, `fontColor`, `font_color`, `formula`, `id`, `kind`, `newValue`, `new_value`, `normalizedValue`, `numFmt`, `num_fmt`, `numberFormat`, `number_format`, `reason`, `result`, `status`, `target`, `targetCell`, `targetId`, `text`, `value`, `version`.
 - Canonical required fields: `evidence`.
 - Provider required fields: `evidence`.
 - Expected errors: missing_required_arg; invalid_arg_type; cas_conflict; lock_blocked; permission_denied; evidence_required.
@@ -429,7 +502,7 @@ This file is the model-facing contract: every production tool must expose a non-
 - When to use: Use for production spreadsheet writes so lock, CAS, review mode, and receipts stay runtime-managed.
 - When not to use: Do not use when the target artifact, base version, permission, or evidence requirement is unknown; read or search first.
 - Mutability: write.
-- Canonical Zod properties: `artifactId`, `baseVersions`, `base_version`, `base_versions`, `cell`, `cellIds`, `cells`, `confidence`, `confidences`, `content`, `currentVersion`, `currentVersions`, `elementIds`, `error`, `errors`, `evidence`, `evidences`, `expectedValue`, `formula`, `formulas`, `id`, `ids`, `kind`, `kinds`, `newValue`, `newValues`, `new_value`, `normalizedValue`, `normalizedValues`, `ops`, `reason`, `result`, `results`, `status`, `statuses`, `target`, `targetCell`, `targetCells`, `targets`, `text`, `values`, `versions`.
+- Canonical Zod properties: `artifactId`, `baseVersions`, `base_version`, `base_versions`, `cell`, `cellIds`, `cells`, `confidence`, `confidences`, `content`, `currentVersion`, `currentVersions`, `elementIds`, `error`, `errors`, `evidence`, `evidences`, `expectedValue`, `fontColor`, `fontColors`, `formula`, `formulas`, `id`, `ids`, `kind`, `kinds`, `newValue`, `newValues`, `new_value`, `normalizedValue`, `normalizedValues`, `ops`, `reason`, `result`, `results`, `status`, `statuses`, `target`, `targetCell`, `targetCells`, `targets`, `text`, `values`, `versions`.
 - Canonical required fields: none.
 - Provider required fields: none.
 - Expected errors: missing_required_arg; invalid_arg_type; cas_conflict; lock_blocked; permission_denied; evidence_required.

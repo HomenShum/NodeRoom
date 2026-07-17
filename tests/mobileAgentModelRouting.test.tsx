@@ -3,6 +3,7 @@ import { render, cleanup } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Actor, Artifact, Proposal, TraceEvent } from "../src/engine/types";
 import type { MobileLive } from "../src/ui/mobile/mobileTypes";
+import { buildDeckStoryboardFromRoom, collaborativeDeckArtifactInput, deckSlideElementId } from "../src/ui/workArtifacts";
 
 const captured = vi.hoisted(() => ({ live: null as MobileLive | null }));
 const storeRef = vi.hoisted(() => ({ current: null as any }));
@@ -92,6 +93,7 @@ function baseStore(): any {
     listSessions: () => [],
     listTraces: () => [],
     postMessage: vi.fn(async () => ({ ok: true })),
+    uploadArtifact: vi.fn(async () => "deck-artifact-1"),
     askAgent: vi.fn(async () => undefined),
     askPrivateAgent: vi.fn(async () => undefined),
     applyEdit: vi.fn(async () => ({ ok: true })),
@@ -169,6 +171,124 @@ describe("mobile agent model routing", () => {
     expect(captured.live!.deck!.proposalIds).toContain("proposal-1");
     expect(captured.live!.deck!.traceIds).toContain("trace-1");
     expect(captured.live!.deck!.slides[0].title).toBe("ARR bridge");
+    expect(captured.live!.deck!.evidence).toEqual(expect.objectContaining({
+      claim: "Deck storyboard source scope",
+      support: expect.arrayContaining([expect.objectContaining({ kind: "cite", text: "ARR bridge", host: "Room sheet" })]),
+    }));
     expect(captured.live!.deck!.exportSize).toBe("receipt pending");
+  });
+
+  it("persists the live storyboard and scopes a mobile patch request to the exact deck slide", async () => {
+    storeRef.current = {
+      ...baseStore(),
+      listArtifacts: () => [liveArtifact],
+      getArtifact: () => liveArtifact,
+      listTraces: () => [liveTrace],
+    };
+    render(<MobileAppLive roomId="r1" me={me} />);
+    const storyboard = captured.live?.deck?.storyboard;
+    if (!storyboard) throw new Error("expected a live storyboard");
+    const slideId = storyboard.slides[0].slideId;
+    const modelSelection = { mode: "specific" as const, modelPolicy: "z-ai/glm-5.2" };
+
+    const result = await captured.live!.requestDeckPatch({
+      reviewerRequest: "Element scope: h1. Requested change: tighten the title.",
+      slideId,
+      targetField: "title",
+    }, modelSelection);
+
+    expect(result).toEqual({ ok: true });
+    expect(storeRef.current.uploadArtifact).toHaveBeenCalledWith(expect.objectContaining({
+      roomId: "r1",
+      actor: me,
+      visibility: "room",
+      artifact: expect.objectContaining({
+        kind: "note",
+        meta: expect.objectContaining({ tags: expect.arrayContaining(["noderoom:deck", "work-artifact"]) }),
+      }),
+    }));
+    expect(storeRef.current.postMessage).toHaveBeenCalledWith(expect.objectContaining({
+      roomId: "r1",
+      channel: "public",
+      text: expect.stringMatching(/Deck revision request/),
+    }));
+    expect(storeRef.current.askAgent).toHaveBeenCalledWith(expect.objectContaining({
+      contextArtifactId: "deck-artifact-1",
+      contextArtifactRequired: true,
+      allowedElementIds: [deckSlideElementId(slideId)],
+      maxAttempts: 1,
+      modelSelection,
+      goal: expect.stringMatching(/Submit exactly one governed edit proposal/),
+    }));
+    expect(storeRef.current.askAgent.mock.calls[0][0].goal).toContain('"changes":{"title":"REPLACE_WITH_REVIEWED_TITLE"}');
+  });
+
+  it("projects a real deck proposal into a reviewable mobile before-and-after receipt", () => {
+    const storyboard = buildDeckStoryboardFromRoom({
+      roomId: "r1",
+      roomTitle: "Live Room",
+      artifacts: [liveArtifact],
+      traces: [liveTrace],
+    });
+    const input = collaborativeDeckArtifactInput(storyboard);
+    const deckArtifact: Artifact = {
+      id: "deck-artifact-1",
+      roomId: "r1",
+      kind: "note",
+      title: input.title,
+      version: 1,
+      order: input.seed.map((element) => element.id),
+      elements: Object.fromEntries(input.seed.map((element) => [element.id, {
+        id: element.id,
+        version: 1,
+        value: element.value,
+        updatedAt: 5,
+        updatedBy: me,
+      }])),
+      updatedAt: 5,
+      createdBy: me,
+      visibility: "room",
+      meta: input.meta,
+    };
+    const slide = storyboard.slides[0];
+    const elementId = deckSlideElementId(slide.slideId);
+    const deckProposal: Proposal = {
+      id: "deck-proposal-1",
+      roomId: "r1",
+      artifactId: deckArtifact.id,
+      op: {
+        opId: "deck-op-1",
+        artifactId: deckArtifact.id,
+        elementId,
+        kind: "set",
+        value: { schema: 2, kind: "slide_patch", objectId: elementId, slideId: slide.slideId, changes: { title: "Evidence-backed ARR bridge" } },
+        baseVersion: 1,
+      },
+      author: { kind: "agent", id: "agent-1", name: "Room NodeAgent" },
+      status: "pending",
+      createdAt: 6,
+    };
+    storeRef.current = {
+      ...baseStore(),
+      listArtifacts: () => [liveArtifact, deckArtifact],
+      getArtifact: (id: string) => id === deckArtifact.id ? deckArtifact : liveArtifact,
+      listProposals: () => [deckProposal],
+      listTraces: () => [liveTrace],
+    };
+
+    render(<MobileAppLive roomId="r1" me={me} />);
+
+    expect(captured.live?.inboxItems).toEqual([expect.objectContaining({
+      id: "deck-proposal-1",
+      kind: "deck",
+      title: "Deck slide proposal",
+      review: expect.objectContaining({
+        target: expect.stringMatching(/Slide 1/),
+        before: expect.stringMatching(/Title: ARR bridge/),
+        after: "Title: Evidence-backed ARR bridge",
+        sources: ["ARR bridge"],
+        traceIds: expect.arrayContaining(["trace-1"]),
+      }),
+    })]);
   });
 });

@@ -1,0 +1,446 @@
+import { createHash } from "node:crypto";
+import { writeFile } from "node:fs/promises";
+import { type Page, type TestInfo } from "@playwright/test";
+import { expect, test } from "./fixtures";
+
+const deployedAuthEnabled = process.env.PLAYWRIGHT_DEPLOYED_AUTH === "1";
+const deployedHost = process.env.PLAYWRIGHT_DEPLOYED_HOST ?? "noderoom.live";
+
+type BrowserHealth = {
+  consoleErrors: string[];
+  cspViolations: string[];
+  pageErrors: string[];
+  failedRequests: string[];
+  failedResponses: string[];
+};
+
+const browserHealthByPage = new WeakMap<Page, BrowserHealth>();
+
+function installBrowserHealth(page: Page): BrowserHealth {
+  const health: BrowserHealth = {
+    consoleErrors: [],
+    cspViolations: [],
+    pageErrors: [],
+    failedRequests: [],
+    failedResponses: [],
+  };
+  const isRelevantUrl = (rawUrl: string): boolean => {
+    try {
+      const hostname = new URL(rawUrl).hostname;
+      return hostname === deployedHost || hostname.endsWith(".convex.cloud") || hostname.endsWith(".convex.site");
+    } catch {
+      return false;
+    }
+  };
+  const ignoredAsset = (url: string): boolean => /\.(ico|map|png|jpg|jpeg|webp|svg)(\?|$)/i.test(url);
+
+  page.on("console", (message) => {
+    if (message.type() !== "error") return;
+    const value = message.text();
+    if (/Blocked script execution in 'about:srcdoc'.*allow-scripts/.test(value)) return;
+    health.consoleErrors.push(value);
+    if (/content security policy|refused to/i.test(value)) health.cspViolations.push(value);
+  });
+  page.on("pageerror", (error) => health.pageErrors.push(error.message));
+  page.on("requestfailed", (request) => {
+    const url = request.url();
+    if (isRelevantUrl(url) && !ignoredAsset(url)) {
+      health.failedRequests.push(`${request.method()} ${url} ${request.failure()?.errorText ?? "failed"}`);
+    }
+  });
+  page.on("response", (response) => {
+    const url = response.url();
+    if (isRelevantUrl(url) && response.status() >= 500 && !ignoredAsset(url)) {
+      health.failedResponses.push(`${response.status()} ${url}`);
+    }
+  });
+  return health;
+}
+
+test.beforeEach(async ({ page }) => {
+  browserHealthByPage.set(page, installBrowserHealth(page));
+});
+
+test.afterEach(async ({ page }, testInfo) => {
+  const health = browserHealthByPage.get(page);
+  if (!health) return;
+  const horizontalOverflowPx = page.isClosed()
+    ? null
+    : await page.evaluate(() => Math.max(document.documentElement.scrollWidth, document.body?.scrollWidth ?? 0) - document.documentElement.clientWidth);
+  const healthReceipt = JSON.stringify({
+    title: testInfo.title,
+    status: testInfo.status,
+    expectedStatus: testInfo.expectedStatus,
+    health,
+    horizontalOverflowPx,
+  }, null, 2);
+  const healthReceiptPath = testInfo.outputPath("deployed-browser-health.json");
+  await writeFile(healthReceiptPath, healthReceipt, "utf8");
+  await testInfo.attach("deployed-browser-health", { path: healthReceiptPath, contentType: "application/json" });
+  expect(health.consoleErrors, "browser console errors").toEqual([]);
+  expect(health.cspViolations, "browser CSP violations").toEqual([]);
+  expect(health.pageErrors, "uncaught page errors").toEqual([]);
+  expect(health.failedRequests, "relevant network request failures").toEqual([]);
+  expect(health.failedResponses, "relevant 5xx responses").toEqual([]);
+  if (horizontalOverflowPx !== null) {
+    expect(horizontalOverflowPx, "page-level horizontal overflow").toBeLessThanOrEqual(2);
+  }
+});
+
+function expectDeployedHost(page: import("@playwright/test").Page): void {
+  expect(new URL(page.url()).hostname).toBe(deployedHost);
+}
+
+async function configurePreviewProtection(page: import("@playwright/test").Page): Promise<void> {
+  const protectionBypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+  if (!protectionBypass) return;
+  await page.setExtraHTTPHeaders({
+    "x-vercel-protection-bypass": protectionBypass,
+    "x-vercel-set-bypass-cookie": "true",
+  });
+}
+
+function freshCredentials(prefix: string): { email: string; password: string; nonce: string } {
+  const nonce = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const tag = `${prefix}-${nonce}`.toLowerCase().replace(/[^a-z0-9-]/g, "-");
+  const configuredEmail = (process.env.PLAYWRIGHT_AUTH_EMAIL_TEMPLATE ?? process.env.PLAYWRIGHT_AUTH_EMAIL ?? "").trim();
+  if (!configuredEmail) {
+    throw new Error("Set PLAYWRIGHT_AUTH_EMAIL_TEMPLATE (for example, qa+{tag}@your-domain.test) for deployed authentication proof.");
+  }
+  const at = configuredEmail.lastIndexOf("@");
+  if (at <= 0 || at === configuredEmail.length - 1) throw new Error("PLAYWRIGHT_AUTH_EMAIL_TEMPLATE must be a valid email address.");
+  const email = configuredEmail.includes("{tag}")
+    ? configuredEmail.replaceAll("{tag}", tag)
+    : `${configuredEmail.slice(0, at)}+${tag}@${configuredEmail.slice(at + 1)}`;
+  return {
+    email: email.toLowerCase(),
+    password: "NodeRoom-Launch-190!",
+    nonce,
+  };
+}
+
+function emailRecipients(value: unknown): string[] {
+  if (typeof value === "string") return [value.toLowerCase()];
+  if (Array.isArray(value)) return value.filter((entry): entry is string => typeof entry === "string").map((entry) => entry.toLowerCase());
+  return [];
+}
+
+async function waitForDeliveredVerificationEmail(email: string, requestedAt: number, testInfo: TestInfo): Promise<string> {
+  const apiKey = (process.env.PLAYWRIGHT_RESEND_API_KEY ?? process.env.AUTH_RESEND_KEY ?? "").trim();
+  if (!apiKey) throw new Error("Set PLAYWRIGHT_RESEND_API_KEY so deployed auth proof can verify delivery and retrieve the one-time code.");
+
+  const deadline = Date.now() + 90_000;
+  let lastObservation = "verification email was not listed";
+  while (Date.now() < deadline) {
+    const listResponse = await fetch("https://api.resend.com/emails", {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    if (listResponse.status === 401 || listResponse.status === 403) {
+      throw new Error(`Resend proof credentials were rejected (${listResponse.status}).`);
+    }
+    if (listResponse.ok) {
+      const payload = await listResponse.json() as { data?: unknown };
+      const rows = Array.isArray(payload.data) ? payload.data : [];
+      const match = rows
+        .filter((row): row is Record<string, unknown> => !!row && typeof row === "object")
+        .filter((row) => emailRecipients(row.to).includes(email.toLowerCase()))
+        .filter((row) => row.subject === "Your NodeRoom verification code")
+        .filter((row) => typeof row.created_at === "string" && Date.parse(row.created_at) >= requestedAt - 10_000)
+        .sort((a, b) => Date.parse(String(b.created_at)) - Date.parse(String(a.created_at)))[0];
+
+      if (match && typeof match.id === "string") {
+        const detailResponse = await fetch(`https://api.resend.com/emails/${encodeURIComponent(match.id)}`, {
+          headers: { Authorization: `Bearer ${apiKey}` },
+        });
+        if (detailResponse.ok) {
+          const detail = await detailResponse.json() as Record<string, unknown>;
+          const event = String(detail.last_event ?? match.last_event ?? "unknown").toLowerCase();
+          lastObservation = `email ${match.id} last event ${event}`;
+          if (["bounced", "complained", "failed", "canceled", "cancelled"].includes(event)) {
+            throw new Error(`Verification email did not deliver: ${lastObservation}.`);
+          }
+          if (["delivered", "opened", "clicked"].includes(event)) {
+            const content = [detail.text, detail.html].filter((value): value is string => typeof value === "string").join("\n");
+            const code = content.match(/\b\d{8}\b/)?.[0];
+            if (!code) throw new Error(`Delivered verification email ${match.id} did not contain an eight-digit code.`);
+            const receipt = {
+              emailHash: createHash("sha256").update(email).digest("hex").slice(0, 16),
+              emailDomain: email.slice(email.lastIndexOf("@") + 1),
+              emailId: match.id,
+              lastEvent: event,
+              createdAt: detail.created_at ?? match.created_at,
+            };
+            await testInfo.attach("verification-email-delivery", {
+              body: Buffer.from(JSON.stringify(receipt, null, 2)),
+              contentType: "application/json",
+            });
+            return code;
+          }
+        } else {
+          lastObservation = `email ${match.id} could not be retrieved (${detailResponse.status})`;
+        }
+      }
+    } else {
+      lastObservation = `Resend list returned ${listResponse.status}`;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2_000));
+  }
+  throw new Error(`Verification email was not proven delivered within 90 seconds: ${lastObservation}.`);
+}
+
+async function createPasswordAccount(page: Page, email: string, password: string, testInfo: TestInfo): Promise<void> {
+  await expect(page.getByTestId("account-auth-gate")).toBeVisible({ timeout: 30_000 });
+  await page.getByRole("button", { name: "Create account", exact: true }).click();
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill(password);
+  const requestedAt = Date.now();
+  await page.getByTestId("sign-in-password").click();
+  await expect(page.getByTestId("email-verification-form")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: "Verify your email" })).toBeVisible();
+  const code = await waitForDeliveredVerificationEmail(email, requestedAt, testInfo);
+  await page.getByLabel("Verification code").fill(code);
+  await page.getByTestId("verify-email-code").click();
+}
+
+async function persistedRoomKeys(page: import("@playwright/test").Page): Promise<string[]> {
+  return page.evaluate(() => Object.keys(localStorage).filter((key) => key.startsWith("noderoom:live:")));
+}
+
+async function verifyAuthenticatedLandingCopy(page: Page): Promise<void> {
+  await expect(page.getByText(/Sign-in required/i).first()).toBeVisible();
+  await expect(page.getByText(/public by default|no account/i)).toHaveCount(0);
+}
+
+test.describe("deployed authenticated first-user journey", () => {
+  test.skip(!deployedAuthEnabled, "Set PLAYWRIGHT_DEPLOYED_AUTH=1 against an authenticated deployment.");
+
+  test("a fresh phone creates an account, creates a room, persists, and fails closed after sign-out", async ({ page }, testInfo) => {
+    test.setTimeout(240_000);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await configurePreviewProtection(page);
+    const { email, password, nonce } = freshCredentials("mobile-proof");
+    const message = `Fresh phone proof ${nonce}`;
+
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    expectDeployedHost(page);
+    await expect(page.getByRole("heading", { name: /Work with AI/i })).toBeVisible({ timeout: 30_000 });
+    await verifyAuthenticatedLandingCopy(page);
+    await page.screenshot({ path: testInfo.outputPath("fresh-mobile-landing-390x844.png"), fullPage: false });
+    await page.getByRole("link", { name: "Create a room", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Create this workspace?" })).toBeVisible();
+    await expect(page.getByRole("radio", { name: /Review every edit/i })).toBeChecked();
+    await page.getByTestId("mobile-create-confirm").click();
+    await createPasswordAccount(page, email, password, testInfo);
+
+    await expect(page.getByTestId("mobile-header")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("mobile-room-title")).toHaveText("My workspace");
+    await expect(page.getByTestId("gap-firstjoin")).toBeVisible();
+    await page.getByRole("button", { name: "Dismiss first-join welcome" }).click();
+    const roomUrl = page.url();
+    expect(await persistedRoomKeys(page)).toHaveLength(1);
+
+    await page.getByTestId("mobile-nav-room").click();
+    await page.getByLabel("Message everyone in this room").fill(message);
+    await page.getByRole("button", { name: "Send" }).click();
+    await expect(page.getByLabel("Room messages").getByText(message, { exact: true })).toBeVisible({ timeout: 30_000 });
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("mobile-header")).toBeVisible({ timeout: 60_000 });
+    await page.getByTestId("mobile-nav-room").click();
+    await expect(page.getByLabel("Room messages").getByText(message, { exact: true })).toBeVisible({ timeout: 30_000 });
+
+    await page.screenshot({ path: testInfo.outputPath("authenticated-mobile-390x844.png"), fullPage: false });
+    await page.getByTestId("mobile-room-context").click();
+    const signOut = page.getByRole("button", { name: "Sign out of NodeRoom" });
+    await signOut.scrollIntoViewIfNeeded();
+    await signOut.click();
+    await expect(page.getByRole("heading", { name: "NodeRoom" })).toBeVisible({ timeout: 30_000 });
+    expect(await persistedRoomKeys(page)).toEqual([]);
+
+    await page.goto(roomUrl, { waitUntil: "domcontentloaded" });
+    await expect(page.getByLabel("Room code")).not.toHaveValue("");
+    await page.getByTestId("mobile-join-submit").click();
+    await expect(page.getByTestId("account-auth-gate")).toBeVisible();
+    await expect(page.getByTestId("mobile-header")).toHaveCount(0);
+  });
+
+  test("a fresh desktop user creates an account, chats, reloads, and fails closed after sign-out", async ({ page }, testInfo) => {
+    test.setTimeout(240_000);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await configurePreviewProtection(page);
+    const { email, password, nonce } = freshCredentials("desktop-proof");
+    const message = `Fresh desktop proof ${nonce}`;
+
+    await page.goto("/?surface=desktop", { waitUntil: "domcontentloaded" });
+    expectDeployedHost(page);
+    await expect(page.getByRole("heading", { name: /Work with AI/i })).toBeVisible({ timeout: 30_000 });
+    await verifyAuthenticatedLandingCopy(page);
+    await page.screenshot({ path: testInfo.outputPath("fresh-desktop-landing-1440x900.png"), fullPage: false });
+    await page.getByTestId("create-room").click();
+    await expect(page.getByRole("heading", { name: "Start with an empty workspace" })).toBeVisible();
+    await expect(page.getByRole("radio", { name: /Review every artifact edit/i })).toBeChecked();
+    await page.getByTestId("create-room-submit").click();
+    await createPasswordAccount(page, email, password, testInfo);
+
+    const chat = page.getByTestId("public-chat-panel");
+    await expect(chat.getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
+    const roomUrl = page.url();
+    expect(await persistedRoomKeys(page)).toHaveLength(1);
+    await chat.getByTestId("chat-composer").fill(message);
+    await chat.getByTestId("chat-send").click();
+    await expect(chat.getByText(message, { exact: true })).toBeVisible({ timeout: 30_000 });
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("public-chat-panel").getByText(message, { exact: true })).toBeVisible({ timeout: 60_000 });
+    await page.screenshot({
+      path: testInfo.outputPath("authenticated-desktop-1440x900.png"),
+      fullPage: false,
+      mask: [page.locator(".r-roomcode")],
+      maskColor: "#111111",
+    });
+    await page.getByTestId("room-settings-btn").click();
+    await page.getByRole("button", { name: "Sign out of NodeRoom" }).click();
+    await expect(page.getByRole("heading", { name: /Work with AI/i })).toBeVisible({ timeout: 30_000 });
+    expect(await persistedRoomKeys(page)).toEqual([]);
+
+    await page.goto(roomUrl, { waitUntil: "domcontentloaded" });
+    await expect(page.getByRole("heading", { name: "Join this room" })).toBeVisible({ timeout: 30_000 });
+    await page.getByLabel("Join this room").getByRole("button", { name: "Join room", exact: true }).click();
+    await expect(page.getByTestId("account-auth-gate")).toBeVisible();
+    await expect(page.getByTestId("public-chat-panel")).toHaveCount(0);
+  });
+
+  test("an authenticated sample room routes a scoped deck request and exports a governed receipt", async ({ page }, testInfo) => {
+    test.setTimeout(480_000);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await configurePreviewProtection(page);
+    const { email, password } = freshCredentials("mobile-deck-proof");
+
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    expectDeployedHost(page);
+    await page.getByRole("link", { name: "Try a sample room", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Create this sample room?" })).toBeVisible({ timeout: 30_000 });
+    await page.getByTestId("mobile-sample-confirm").click();
+    await createPasswordAccount(page, email, password, testInfo);
+
+    await expect(page.getByTestId("mobile-header")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("gap-firstjoin")).toBeVisible();
+    await page.getByRole("button", { name: "Dismiss first-join welcome" }).click();
+    await expect(page.getByTestId("mobile-sample-banner")).toContainText("Live runtime · sample data.", { timeout: 90_000 });
+
+    const deckCard = page.locator('.na-rcard[data-kind="deck"]');
+    await expect(deckCard).toHaveCount(1, { timeout: 60_000 });
+    await deckCard.click();
+    const sheet = page.locator('.na-sheet[data-open="true"]');
+    await expect(sheet).toBeVisible();
+    await page.getByRole("tab", { name: "Plan" }).click();
+    await expect(sheet.locator(".na-todos")).toBeVisible();
+    await page.getByRole("tab", { name: "Slides" }).click();
+    await expect(sheet.locator("iframe.na-slide")).toBeVisible();
+    await sheet.getByRole("button", { name: "Scope revision request to the slide title" }).click();
+    await sheet.getByPlaceholder(/Describe the change for this element/i).fill("Set only the title field to 'Evidence-backed ARR bridge'. Use only attached room evidence.");
+    await sheet.getByRole("button", { name: "Send", exact: true }).click();
+    await expect(sheet.getByText("request submitted", { exact: true })).toBeVisible({ timeout: 60_000 });
+    await expect(sheet.getByRole("button", { name: /Accept patch/i })).toHaveCount(0);
+    await sheet.getByRole("button", { name: "Close" }).click();
+    await page.getByTestId("mobile-nav-inbox").click();
+
+    const proposalCard = page.locator('.na-task[data-kind="deck"]').first();
+    await expect(proposalCard).toBeVisible({ timeout: 180_000 });
+    await expect(proposalCard.getByTestId("mobile-proposal-job")).toContainText(/^Job [a-z0-9_-]+$/i);
+    const proposalReview = proposalCard.getByTestId("mobile-proposal-review");
+    await expect(proposalReview).toContainText("Before");
+    await expect(proposalReview).toContainText("Proposed");
+    await expect(proposalReview).toContainText("Evidence-backed ARR bridge");
+    await expect(proposalReview.getByText("No source attached")).toHaveCount(0);
+    const rejectProposal = proposalCard.getByRole("button", { name: "Reject", exact: true });
+    const approveProposal = proposalCard.getByRole("button", { name: "Approve", exact: true });
+    await expect(rejectProposal).toBeVisible();
+    await expect(approveProposal).toBeVisible();
+    await expect(rejectProposal).toBeInViewport();
+    await expect(approveProposal).toBeInViewport();
+    await page.screenshot({ path: testInfo.outputPath("authenticated-mobile-deck-proposal-390x844.png"), fullPage: false });
+
+    await proposalCard.getByRole("button", { name: "Approve", exact: true }).click();
+    await expect(proposalCard).toHaveCount(0, { timeout: 60_000 });
+
+    await page.getByTestId("mobile-nav-home").click();
+    await page.locator('.na-rcard[data-kind="deck"]').click();
+    await expect(sheet.getByText("Evidence-backed ARR bridge", { exact: true }).first()).toBeVisible({ timeout: 60_000 });
+    await page.getByRole("tab", { name: "Evidence" }).click();
+    await expect(sheet.locator(".na-answer")).toBeVisible();
+    await expect(sheet.getByRole("button", { name: /Used [1-9]\d* sources/ })).toBeVisible();
+    await expect(sheet.locator(".na-srcrow").filter({ hasText: "Diligence memo" })).toBeVisible();
+    await expect(sheet.getByText("No evidence yet")).toHaveCount(0);
+    await page.screenshot({ path: testInfo.outputPath("authenticated-mobile-deck-390x844.png"), fullPage: false });
+
+    await page.getByRole("tab", { name: "Export" }).click();
+    const downloadPromise = page.waitForEvent("download");
+    await sheet.getByRole("button", { name: "Download PPTX" }).click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(/\.pptx$/i);
+    await expect(page.getByTestId("mobile-deck-export-receipt")).toContainText(/Downloaded .* integrity/i, { timeout: 30_000 });
+  });
+
+  test("an authenticated desktop NodeAgent run completes with named tool proof and survives reload", async ({ page }, testInfo) => {
+    test.setTimeout(480_000);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await configurePreviewProtection(page);
+    const { email, password } = freshCredentials("desktop-tool-proof");
+    const prompt = "@nodeagent identify the remaining evidence gaps in the Company research sheet. Use room sources and do not apply unsupported edits.";
+
+    await page.goto("/?surface=desktop", { waitUntil: "domcontentloaded" });
+    expectDeployedHost(page);
+    await page.getByRole("button", { name: "Try sample", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Explore a synthetic workspace" })).toBeVisible();
+    await page.getByTestId("sample-room-submit").click();
+    await createPasswordAccount(page, email, password, testInfo);
+
+    const chat = page.getByTestId("public-chat-panel");
+    await expect(chat.getByTestId("chat-composer")).toBeVisible({ timeout: 60_000 });
+    await chat.getByTestId("chat-composer").fill(prompt);
+    await chat.getByTestId("chat-send").click();
+    await expect(chat.getByTestId("chat-message").filter({ hasText: prompt })).toBeVisible({ timeout: 30_000 });
+    const jobStatus = chat.getByTestId("job-status");
+    await expect(jobStatus).toContainText(/queued|running|completed/i, { timeout: 30_000 });
+    const jobId = await jobStatus.getAttribute("data-job-id");
+    expect(jobId, "the submitted request must expose its exact durable job id").toMatch(/^[a-z0-9_-]+$/i);
+    if (!jobId) throw new Error("NodeAgent status did not expose a job id.");
+    expect(await page.evaluate(() => Object.entries(sessionStorage)
+      .filter(([key]) => key.startsWith("noderoom:selected-agent-job:"))
+      .map(([, value]) => value))).toContain(jobId);
+
+    const toolProgress = chat.locator('[data-testid="agent-progress-card"][data-ai-element="tool"]').last();
+    await expect(toolProgress).toBeVisible({ timeout: 120_000 });
+    await expect(toolProgress.locator("xpath=ancestor::div[contains(concat(' ', normalize-space(@class), ' '), ' ai-scope ')]")).toHaveCount(1);
+    await toolProgress.getByTestId("agent-progress-details-toggle").click();
+    const namedToolResult = toolProgress.locator('.r-agent-part[data-part^="tool-"][data-status="done"]')
+      .filter({ hasText: /list_artifacts|read_range|inspect_workbook|search_sheet_context|fetch_source/i })
+      .first();
+    await expect(namedToolResult).toBeVisible({ timeout: 240_000 });
+    await expect(toolProgress).toHaveAttribute("data-status", "done", { timeout: 300_000 });
+    await expect(chat.locator(`[data-testid="job-status"][data-job-id="${jobId}"]`)).toContainText("completed");
+
+    const exactJobMessage = chat.locator(`[data-testid="chat-message"][data-clientmsgid="pubstream-${jobId}"]`);
+    await expect(exactJobMessage).toBeVisible({ timeout: 60_000 });
+    await expect(exactJobMessage.getByTestId("agent-progress-card")).toHaveAttribute("data-status", "done");
+    await page.screenshot({
+      path: testInfo.outputPath("authenticated-desktop-ai-elements-tool-1440x900.png"),
+      fullPage: false,
+      mask: [page.locator(".r-roomcode")],
+      maskColor: "#111111",
+    });
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    const reloadedChat = page.getByTestId("public-chat-panel");
+    const persistedJobMessage = reloadedChat.locator(`[data-testid="chat-message"][data-clientmsgid="pubstream-${jobId}"]`);
+    await expect(persistedJobMessage).toBeVisible({ timeout: 90_000 });
+    const persistedTool = persistedJobMessage.getByTestId("agent-progress-card");
+    await expect(persistedTool).toHaveAttribute("data-status", "done");
+    await expect(persistedTool).not.toContainText("NodeAgent is working");
+    await expect(reloadedChat.locator(`[data-testid="job-status"][data-job-id="${jobId}"]`)).toContainText("completed");
+    await persistedTool.getByTestId("agent-progress-details-toggle").click();
+    await expect(persistedTool.locator('.r-agent-part[data-part^="tool-"][data-status="done"]')
+      .filter({ hasText: /list_artifacts|read_range|inspect_workbook|search_sheet_context|fetch_source/i })
+      .first()).toBeVisible();
+  });
+});

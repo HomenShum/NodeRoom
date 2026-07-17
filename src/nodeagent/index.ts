@@ -75,3 +75,4 @@ export * from "./guardrails/evaluator";
 export * from "./guardrails/providerEgress";
 export * from "./guardrails/egressPolicy";
 export * from "./guardrails/gateway";
+export * from "./guardrails/workbookWorkflow";

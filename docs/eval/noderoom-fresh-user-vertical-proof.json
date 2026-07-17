@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-12T19:16:28.0254492Z",
+  "environment": {
+    "kind": "local-dev",
+    "roomId": "NR1LI7BASBB",
+    "roomData": "synthetic-guided-sample"
+  },
+  "freshUserRun": {
+    "routeMode": "free",
+    "resolvedModel": "tencent/hy3:free",
+    "modelTurns": 3,
+    "toolCalls": 3,
+    "latencyMs": 22861,
+    "modelCostUsd": 0,
+    "tools": ["list_artifacts", "read_notebook", "say"],
+    "readOnly": true,
+    "returnedBlockIds": [
+      "legacy-dac84c29-1",
+      "legacy-dac84c29-2",
+      "legacy-dac84c29-3",
+      "legacy-dac84c29-4",
+      "legacy-dac84c29-5"
+    ]
+  },
+  "featureProof": {
+    "collaborativeDeck": {
+      "persistedVersion": 3,
+      "storyboardSections": 6,
+      "interactions": ["rename", "duplicate", "reorder", "save"]
+    },
+    "notebookKernel": {
+      "mode": "bounded-calculation",
+      "expression": "(2400 - 1100) - 450",
+      "result": 850,
+      "receiptHash": "e0c5f851"
+    },
+    "entityGraph": {
+      "persistedRoomNodes": 88,
+      "cardioNovaDepth0": {"nodes": 8, "links": 14},
+      "cardioNovaDepth1": {"nodes": 53, "links": 117},
+      "drag": {
+        "from": "translate(570px,0px)",
+        "to": "translate(865px,150px)"
+      }
+    },
+    "governedProposal": {
+      "pendingBefore": 1,
+      "pendingAfter": 0,
+      "approved": true,
+      "resultingNotebookBlocks": 18,
+      "resultingNotebookSections": 5
+    }
+  },
+  "personaDogfood": {
+    "status": "passed",
+    "personas": [
+      "analyst",
+      "researcher",
+      "finance-operator",
+      "founder",
+      "reviewer",
+      "guest-observer"
+    ],
+    "freshLanding": true,
+    "nodeAgent": true,
+    "mutation": true,
+    "conflictOrErrorHandling": true,
+    "evidenceReview": true,
+    "export": true,
+    "visibleSteps": 79,
+    "consoleErrors": 0,
+    "receipt": "docs/eval/noderoom-persona-dogfood-receipt.json"
+  },
+  "validation": {
+    "testFilesPassed": 318,
+    "testsPassed": 2128,
+    "testsFailed": 0,
+    "typecheck": "passed",
+    "convexTypecheck": "passed",
+    "build": "passed",
+    "initialChunkKb": 840.22,
+    "chunkSizeWarning": false,
+    "productionMemoryBrowser": {
+      "passed": 51,
+      "intentionalSkips": 1
+    },
+    "visualParityStatesPassed": 36,
+    "accessibilityViolations": 0,
+    "performance": {
+      "cls": 0,
+      "longTasks": 0,
+      "maxInteractionMs": 49
+    },
+    "nodeagentFrameSmoke": "passed",
+    "omnigentCompatibilitySmoke": "passed",
+    "proofloopOfficialScoresGate": "passed",
+    "proofloopOfficialGoalTasksPassed": 17,
+    "proofloopBlockedTasks": 0,
+    "storyboardMediaJudge": {
+      "verdict": "publish",
+      "score": "16/16",
+      "defects": 0
+    },
+    "lint": "unavailable-no-script"
+  },
+  "limits": [
+    "OpenRouter free endpoint capacity is not guaranteed.",
+    "Notebook execution excludes arbitrary Python, shell, package, network, and unrestricted SQL access.",
+    "Neo4j/Cognee persistence and external graph synchronization were not configured or live-tested.",
+    "SpreadsheetBench V2 accepted full-suite score remains 0/321 exact task passes; the separate Task 90 receipt is a scoped 3/3 visual-judge proof.",
+    "External Neo4j, Jupyter, and container deployments require explicit configuration, credentials, and isolation."
+  ]
+}

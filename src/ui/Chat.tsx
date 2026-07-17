@@ -8,7 +8,8 @@ import { Suggestion } from "@/components/ai-elements/suggestion";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentModelSelection, type PrivateStreamAccess, type RoomStore } from "../app/store";
+import { Tool, ToolContent, ToolHeader, type ToolPart } from "@/components/ai-elements/tool";
+import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentJobTelemetry, type AgentModelSelection, type PrivateStreamAccess, type RoomStore } from "../app/store";
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
 import { api } from "../../convex/_generated/api";
@@ -37,6 +38,7 @@ import {
   type VoiceRoomStore,
 } from "../voice";
 import "./chat-scale.css";
+import { openWorkArtifactsReview } from "./workArtifacts/workArtifactsNavigation";
 
 const AGENT_AVATAR_COLOR = "#8F3F27";
 const COLORS = ["#8F3F27", "#315DA8", "#2F6B44", "#6D3FB2", "#80631F", "#A34B2E"];
@@ -657,29 +659,31 @@ function AgentProgressCard({ parts, live, terminalSuccessful }: { parts: Exclude
   const hasRunning = live || parts.some((part) => part.type !== "step-start" && agentPartState(part) === "running");
   const toolCount = parts.filter(isToolStreamPart).length;
   const title = hasFailure ? "NodeAgent needs attention" : hasRunning ? "NodeAgent is working" : hasRecoveredFailure ? "NodeAgent completed with recovered steps" : "NodeAgent completed the run";
+  const toolState: ToolPart["state"] = hasFailure ? "output-error" : hasRunning ? "input-available" : "output-available";
   const metaBits = [
     stepCount ? `${stepCount} model turn${stepCount === 1 ? "" : "s"}` : undefined,
     toolCount ? `${toolCount} tool action${toolCount === 1 ? "" : "s"}` : undefined,
     hiddenCount ? `${hiddenCount} earlier` : undefined,
   ].filter(Boolean);
   return (
-    <section className="r-agent-workflow-progress sc-run" data-testid="agent-progress-card" data-status={hasFailure ? "failed" : hasRunning ? "running" : "done"}>
-      <div className="r-agent-workflow-progress-head">
-        <span className="r-agent-workflow-progress-icon" aria-hidden>{hasFailure ? <X size={13} /> : hasRunning ? <RefreshCw size={13} /> : <Check size={13} />}</span>
-        <div className="r-agent-workflow-progress-copy">
-          <strong>{title}</strong>
-          <span>{metaBits.join(" - ") || "Activity trace recorded"}</span>
-        </div>
-        <button
-          type="button"
-          className="r-agent-workflow-progress-toggle"
+    <div className="ai-scope">
+      <Tool
+        className="r-agent-workflow-progress sc-run"
+        data-ai-element="tool"
+        data-testid="agent-progress-card"
+        data-status={hasFailure ? "failed" : hasRunning ? "running" : "done"}
+        open={detailsOpen}
+        onOpenChange={setDetailsOpen}
+      >
+        <ToolHeader
+          className="r-agent-workflow-progress-head"
           data-testid="agent-progress-details-toggle"
-          aria-expanded={detailsOpen}
-          onClick={() => setDetailsOpen((open) => !open)}
-        >
-          Trace details {detailsOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-        </button>
-      </div>
+          title={title}
+          type="dynamic-tool"
+          toolName="NodeAgent workflow"
+          state={toolState}
+        />
+        <span className="r-agent-workflow-progress-meta">{metaBits.join(" - ") || "Activity trace recorded"}</span>
       {maxSteps ? (
         <div className="r-agent-progress-bar" data-testid="agent-progress-bar" role="progressbar" aria-valuenow={currentStep} aria-valuemin={0} aria-valuemax={maxSteps}>
           <div className="r-agent-progress-bar-fill" style={{ width: `${progressPct}%` }} />
@@ -699,12 +703,11 @@ function AgentProgressCard({ parts, live, terminalSuccessful }: { parts: Exclude
           })}
         </div>
       ) : null}
-      {detailsOpen ? (
-        <div className="r-agent-workflow-progress-details" data-testid="agent-progress-details">
+        <ToolContent className="r-agent-workflow-progress-details" data-testid="agent-progress-details">
           {parts.map(renderRawAgentPart)}
-        </div>
-      ) : null}
-    </section>
+        </ToolContent>
+      </Tool>
+    </div>
   );
 }
 
@@ -1202,8 +1205,9 @@ export function groupMessagesByDay<T extends { createdAt: number; key: string }>
  *  match, and a spoofed prefix on a non-agent author is ignored. */
 const AGENT_RUN_CLIENT_MSG_ID_RE = /^(?:pubstream|privstream|final|plan-blocked)-(.+)$/;
 
-export function agentRunIdFor(message: { author: { kind: string }; clientMsgId?: string }): string | null {
+export function agentRunIdFor(message: { author: { kind: string }; jobId?: string; clientMsgId?: string }): string | null {
   if (message.author.kind !== "agent") return null;
+  if (message.jobId?.trim()) return message.jobId.trim();
   const match = AGENT_RUN_CLIENT_MSG_ID_RE.exec(message.clientMsgId ?? "");
   return match ? match[1] : null;
 }
@@ -1262,6 +1266,36 @@ export function runCollapsedByDefault(messageCount: number, finished: boolean): 
 /** Jump-to-latest shows only when the reader is ≥2 viewports above the newest message. */
 export function shouldShowJumpToLatest(distanceFromBottom: number, viewportHeight: number): boolean {
   return viewportHeight > 0 && distanceFromBottom >= viewportHeight * 2;
+}
+
+export type AgentJobScopeSummary = { reads: string; writes: string; review: string };
+
+export function agentJobScopeSummary(job: AgentJobTelemetry, artifacts: Pick<Artifact, "id" | "title">[]): AgentJobScopeSummary {
+  const titleById = new Map(artifacts.map((artifact) => [artifact.id, artifact.title]));
+  const targetId = job.request?.targetArtifactId ?? job.artifactId;
+  const target = (targetId && titleById.get(targetId)) || "Room artifact";
+  const referenced = (job.request?.references ?? [])
+    .map((reference) => reference.title || (reference.id ? titleById.get(reference.id) : undefined))
+    .filter((title): title is string => !!title);
+  const reads = [...new Set(referenced.length ? referenced : [target])].slice(0, 3).join(" + ");
+  const targetCount = job.request?.allowedElementIds?.length ?? 0;
+  const writes = job.approvalPolicy === "read_only"
+    ? "None"
+    : `${target}${targetCount ? ` · ${targetCount} target${targetCount === 1 ? "" : "s"}` : ""}`;
+  const review = job.approvalPolicy === "auto_commit_safe"
+    ? "Safe writes auto-commit"
+    : job.approvalPolicy === "read_only"
+      ? "Read only"
+      : "Changes require review";
+  return { reads: reads || target, writes, review };
+}
+
+export function compactElapsed(startedAt: number | undefined, now = Date.now()): string {
+  if (!startedAt || now <= startedAt) return "0s";
+  const seconds = Math.floor((now - startedAt) / 1_000);
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  return minutes < 60 ? `${minutes}m ${seconds % 60}s` : `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
 }
 
 /** One agent run in the feed. Collapsed = one quiet line ("Run · N steps · view"); expanding
@@ -1379,10 +1413,11 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const longJob = isPrivate ? null : store.lastLongFreeJob();
   const longJobAttempts = isPrivate ? [] : store.lastLongFreeJobAttempts();
   const longJobDetail = isPrivate ? null : store.lastLongFreeJobDetail();
+  const roomArtifacts = store.listArtifacts(roomId);
   const activeArtifact = useMemo(() => {
     if (!activeArtifactId || isPrivate) return undefined;
-    return store.listArtifacts(roomId).find((a) => a.id === activeArtifactId);
-  }, [activeArtifactId, isPrivate, roomId, store]);
+    return roomArtifacts.find((a) => a.id === activeArtifactId);
+  }, [activeArtifactId, isPrivate, roomArtifacts]);
   const decisionState = isPrivate ? null : buildResearchDecisionState(activeArtifact);
   // The decision card summarises a completed research run — it must stay visible once research lands
   // (i.e. after the @nodeagent request is sent, when messages exist). A prior `&& messages.length === 0`
@@ -1509,6 +1544,18 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const canRetryLongJob = !!longJob && ["failed", "blocked", "cancelled", "paused"].includes(longJob.status);
   const longJobTerminal = !!longJob && ["completed", "failed", "blocked", "cancelled"].includes(longJob.status);
   const longJobActive = !!longJob && !longJobTerminal;
+  const [jobNow, setJobNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!longJobActive) return;
+    setJobNow(Date.now());
+    const timer = window.setInterval(() => setJobNow(Date.now()), 1_000);
+    return () => window.clearInterval(timer);
+  }, [longJob?.id, longJobActive]);
+  const longJobScope = useMemo(() => longJob ? agentJobScopeSummary(longJob, roomArtifacts) : null, [longJob, roomArtifacts]);
+  const longJobProposalCount = longJob ? store.listProposals(roomId).filter((proposal) => proposal.jobId === longJob.id).length : 0;
+  const activeReasoningFrame = longJobDetail?.reasoningFrames.find((frame) => frame.status === "running")
+    ?? longJobDetail?.reasoningFrames.find((frame) => frame.status === "pending");
+  const longJobPhase = activeReasoningFrame?.displayName || activeReasoningFrame?.phase || longJob?.status || "idle";
   const agentWorking = thinking || (!isPrivate && longJobActive);
   const unifiedStreamParts = (!isPrivate ? longJobDetail?.streamParts ?? [] : []) as AgentStreamPart[];
   const activeJobClientMsgId = !isPrivate && longJob ? `pubstream-${longJob.id}` : "";
@@ -1522,7 +1569,18 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const showLongJobResult = !!longJobResultText && !hasLongJobResultMessage;
   const longJobNeedsAttention = !!longJob && ["failed", "blocked", "cancelled"].includes(longJob.status);
   const longJobRecoveryGoal = longJob?.goal || lastAgentInputRef.current;
-  const showLongJobChrome = !!longJob && (!longJobTerminal || longJobNeedsAttention || jobDetailsOpen);
+  const longJobHasAuditTelemetry = !!longJob && [
+    longJob.modelCallCount,
+    longJob.toolCallCount,
+    longJob.mutationCount,
+    longJob.receiptCount,
+  ].some((count) => (count ?? 0) > 0);
+  const showLongJobChrome = !!longJob && (
+    !longJobTerminal
+    || longJobNeedsAttention
+    || jobDetailsOpen
+    || longJobHasAuditTelemetry
+  );
   const showAgentWorkingBubble = agentWorking && (!hasActiveJobStreamMessage || unifiedStreamParts.length === 0);
   const feedItems = useMemo(() => {
     const items: ChatFeedItem[] = messages.map((message) => ({
@@ -1790,7 +1848,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       });
   };
 
-  const send = (raw?: string, overrideModelSelection?: AgentModelSelection) => {
+  const send = (raw?: string, overrideModelSelection?: AgentModelSelection, disposition?: "start" | "queue" | "redirect") => {
     const t = (raw ?? text).trim();
     if (!t && refs.length === 0) return;
     const messageRefs = refs;
@@ -1806,7 +1864,13 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       const modelSelection = composerModelSelection(publicNodeAgentRequest.forceFree, overrideModelSelection);
       beginThinking();
       lastAgentInputRef.current = t;
-      void store.askAgent({ goal: `${publicNodeAgentRequest.goal}${artifactRefContextSuffix(messageRefs)}`, references: messageRefs, modelSelection, contextArtifactId: activeArtifactId }).catch((e) => {
+      void store.askAgent({
+        goal: `${publicNodeAgentRequest.goal}${artifactRefContextSuffix(messageRefs)}`,
+        references: messageRefs,
+        modelSelection,
+        contextArtifactId: activeArtifactId,
+        disposition: disposition ?? (longJobActive ? "queue" : "start"),
+      }).catch((e) => {
         if (aliveRef.current) {
           setAgentErr(buildAgentFailureNotice(e, { selection: modelSelection, requestText: t, source: "public", jobId: longJob?.id }));
           setThinking(false);
@@ -2053,15 +2117,22 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       </div>
       {isPrivate && <div className="r-private-banner"><Sparkles size={12} /> Only you can read this lane in NodeRoom; requests and room context are sent to the configured model provider</div>}
       {!isPrivate && showLongJobChrome && longJob && (
-        <div className="r-job-strip">
+        <div className="r-job-strip" data-state={longJob.status}>
+          <div className="r-job-strip-main">
           <Timer size={12} />
+          <strong className="r-job-phase" title={longJobPhase}>
+            {longJobVisibleError
+              ? humanAgentFailureText(longJobVisibleError)
+              : longJobPhase.replace(/_/g, " ").replace(/^./, (value) => value.toUpperCase())}
+          </strong>
+          <span className="r-job-elapsed">{compactElapsed(longJob.createdAt, jobNow)}</span>
           <span className="r-job-route" title={`${longJob.modelPolicy}${latestAttempt ? ` · attempt ${latestAttempt.attempt}: ${latestAttempt.resolvedModel} · ${latestAttempt.stopReason} · ${shortMs(latestAttempt.ms)}` : ""}`}>
-            {longJobVisibleError ? humanAgentFailureText(longJobVisibleError) : longJob.modelPolicy}
-            {!longJobVisibleError && latestAttempt ? ` · ${latestAttempt.resolvedModel} · ${shortMs(latestAttempt.ms)}` : ""}
+            {longJob.modelPolicy}
+            {latestAttempt ? ` · ${latestAttempt.resolvedModel} · ${shortMs(latestAttempt.ms)}` : ""}
             {longJob.nextRunAt && longJob.status !== "completed" ? ` · next ${clock(longJob.nextRunAt)}` : ""}
           </span>
           {(() => { const bad = ["failed", "blocked"].includes(longJob.status); return (
-            <span className={"r-tag" + (bad ? " danger" : "")} role="status" data-testid="job-status" title="Latest long-running free-auto job">{longJob.status} {longJob.attempts}/{longJob.maxAttempts}</span>
+            <span className={"r-tag" + (bad ? " danger" : "")} role="status" data-testid="job-status" data-job-id={longJob.id} title={`Agent job ${longJob.id}`}>{longJob.status} {longJob.attempts}/{longJob.maxAttempts}</span>
           ); })()}
           {canCancelLongJob && (
             <button className="r-iconbtn r-iconbtn-sm" title={jobBusy === "cancel" ? "Cancelling…" : "Cancel long-running job"} aria-label="Cancel long-running job" data-testid="job-cancel" disabled={jobBusy !== null} onClick={cancelJob}>
@@ -2090,18 +2161,30 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
           <button className="r-job-detail-toggle" type="button" data-testid="job-detail-toggle" onClick={() => setJobDetailsOpen((open) => !open)} aria-expanded={jobDetailsOpen}>
             {jobDetailsOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />} Details
           </button>
+          </div>
+          {longJobScope && (
+            <div className="r-job-scope" data-testid="job-scope">
+              <span title={longJobScope.reads}><b>Reads</b>{longJobScope.reads}</span>
+              <span title={longJobScope.writes}><b>Writes</b>{longJobScope.writes}</span>
+              <span title={longJobScope.review}><b>Review</b>{longJobScope.review}</span>
+              <button type="button" data-testid="job-review-open" onClick={() => openWorkArtifactsReview({ jobId: longJob.id })}>
+                {longJobProposalCount} {longJobProposalCount === 1 ? "change" : "changes"}<ArrowUpRight size={11} />
+              </button>
+            </div>
+          )}
         </div>
       )}
       {!isPrivate && showLongJobChrome && longJob && jobDetailsOpen && (
         <div className="r-job-detail" data-testid="job-detail" aria-label="Agent job details">
           <div className="r-job-grid">
+            <span>Job</span><b data-testid="job-id">{longJob.id}</b>
             <span>Runtime</span><b>{longJob.runtime ?? "inline"}</b>
-            <span>Policy</span><b>{longJob.approvalPolicy ?? "n/a"}</b>
+            <span>Policy</span><b data-testid="job-approval-policy">{longJob.approvalPolicy ?? "n/a"}</b>
             <span>Slices</span><b>{longJob.actionSliceCount ?? 0}</b>
             <span>Model calls</span><b>{longJob.modelCallCount ?? 0}</b>
             <span>Tool calls</span><b>{longJob.toolCallCount ?? 0}</b>
-            <span>Mutations</span><b>{longJob.mutationCount ?? 0}</b>
-            <span>Receipts</span><b>{longJob.receiptCount ?? 0}</b>
+            <span>Mutations</span><b data-testid="job-mutation-count">{longJob.mutationCount ?? 0}</b>
+            <span>Receipts</span><b data-testid="job-receipt-count">{longJob.receiptCount ?? 0}</b>
             <span>Scheduler</span><b>{longJob.schedulerHandoffCount ?? 0}</b>
           </div>
           {longJobAttempts.length > 0 && (
@@ -2142,7 +2225,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
                 <span key={`op-${op.sequence}`}>{op.sequence}. {op.kind}:{op.name} - {op.status}{op.countDelta ? ` x${op.countDelta}` : ""}</span>
               ))}
               {longJobDetail.receipts.slice(0, 3).map((receipt) => (
-                <span key={`receipt-${receipt.id}`}>receipt {receipt.mutationName} - {receipt.affectedIds.join(", ")}</span>
+                <span key={`receipt-${receipt.id}`} data-testid="job-mutation-receipt">receipt {receipt.mutationName} - {receipt.affectedIds.join(", ")}</span>
               ))}
               {longJobDetail.latestSteps.slice(-3).map((step) => (
                 <span key={`step-${step.idx}`}>step {step.idx}: {step.tool} - {step.status}{step.elementId ? ` (${step.elementId})` : ""}</span>
@@ -2463,11 +2546,13 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             <span className="r-composer-spacer" aria-hidden="true" />
             {/* The send button reflects the composer state — muted + disabled on empty input,
                 not a live accent button that does nothing (state-honesty). */}
-            {longJobActive ? (
-              <button className="r-send send r-send-stop" onClick={cancelJob} disabled={jobBusy !== null} data-testid="chat-stop" title="Stop generating" aria-label="Stop generating"><Square size={13} /></button>
-            ) : (
-              <button className="r-send send" onClick={() => send()} disabled={!canSend} data-testid="chat-send" aria-label="Send message"><Send size={15} /></button>
+            {longJobActive && (
+              <button className="r-send send r-send-stop" onClick={cancelJob} disabled={jobBusy !== null} data-testid="chat-stop" title="Stop current run" aria-label="Stop current run"><Square size={13} /></button>
             )}
+            {longJobActive && parsePublicNodeAgentRequest(text.trim()) && (
+              <button className="r-mini-btn r-composer-redirect" onClick={() => send(undefined, undefined, "redirect")} disabled={!canSend} data-testid="chat-redirect" title="Stop the current run and redirect NodeAgent">Redirect</button>
+            )}
+            <button className="r-send send" onClick={() => send()} disabled={!canSend} data-testid="chat-send" aria-label={longJobActive && parsePublicNodeAgentRequest(text.trim()) ? "Queue next agent request" : "Send message"} title={longJobActive && parsePublicNodeAgentRequest(text.trim()) ? "Queue next agent request" : "Send message"}><Send size={15} /></button>
           </div>
         </div>
         {!isPrivate && (

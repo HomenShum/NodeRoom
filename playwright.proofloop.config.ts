@@ -3,6 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 const playwrightPort = process.env.PLAYWRIGHT_PORT ?? "5173";
 const playwrightBaseUrl = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${playwrightPort}`;
 const reuseExistingServer = process.env.PLAYWRIGHT_REUSE_SERVER === "1";
+const authStorageState = process.env.PROOFLOOP_AUTH_STORAGE_STATE?.trim();
 
 /**
  * Playwright config for proof-loop specs.
@@ -20,6 +21,7 @@ export default defineConfig({
   reporter: process.env.CI ? "line" : "list",
   use: {
     baseURL: playwrightBaseUrl,
+    storageState: authStorageState || undefined,
     trace: "on-first-retry",
     video: process.env.PLAYWRIGHT_RECORD_VIDEO === "1" ? "on" : "off",
   },

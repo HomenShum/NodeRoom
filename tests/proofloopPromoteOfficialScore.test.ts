@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -10,6 +10,14 @@ const root = resolve(".");
 const tsx = resolve("node_modules", "tsx", "dist", "cli.mjs");
 const promotionScript = resolve("scripts", "proofloop-promote-official-score.ts");
 
+type FinchFixture = {
+  contentRecordSha256: string[];
+  contentPartsPath: string;
+  outputManifestPath: string;
+  promptSourcePath: string;
+  repoRoot: string;
+};
+
 afterEach(() => {
   for (const path of tempRoots.splice(0)) rmSync(path, { recursive: true, force: true });
 });
@@ -18,11 +26,21 @@ describe("official score promotion", () => {
   it("promotes only exact full-coverage Finch canonical judge receipts", () => {
     const temp = mkdtempSync(join(tmpdir(), "finch-promotion-"));
     tempRoots.push(temp);
+    const fixture = writeFinchFixture(temp);
+    const writeReceipt = (path: string, completedTasks: number, overrides: Record<string, unknown> = {}) =>
+      writeJudgeReceipt(path, completedTasks, fixture, overrides);
+    const promote = (receipt: string, output: string, enableFixtureOverrides = true) =>
+      runPromotion(receipt, output, fixture, enableFixtureOverrides);
     const acceptedPath = join(temp, "accepted.json");
     const acceptedOut = join(temp, "score.json");
-    writeJudgeReceipt(acceptedPath, 172);
+    writeReceipt(acceptedPath, 172);
 
-    const accepted = runPromotion(acceptedPath, acceptedOut);
+    const unguarded = promote(acceptedPath, acceptedOut, false);
+    expect(unguarded.status).not.toBe(0);
+    expect(`${unguarded.stdout}\n${unguarded.stderr}`).toContain("Test fixture path overrides require");
+    expect(existsSync(acceptedOut)).toBe(false);
+
+    const accepted = promote(acceptedPath, acceptedOut);
     expect(accepted.status).toBe(0);
     expect(accepted.stderr).toBe("");
     expect(existsSync(acceptedOut)).toBe(true);
@@ -40,8 +58,8 @@ describe("official score promotion", () => {
 
     const equivalentPath = join(temp, "direct-equivalent.json");
     const equivalentOut = join(temp, "direct-equivalent-score.json");
-    writeJudgeReceipt(equivalentPath, 172, directEquivalentOverrides());
-    const equivalent = runPromotion(equivalentPath, equivalentOut);
+    writeReceipt(equivalentPath, 172, directEquivalentOverrides(fixture.promptSourcePath));
+    const equivalent = promote(equivalentPath, equivalentOut);
     expect(equivalent.status, `${equivalent.stdout}\n${equivalent.stderr}`).toBe(0);
     expect(JSON.parse(readFileSync(equivalentOut, "utf8"))).toMatchObject({
       adapterId: "finch",
@@ -63,18 +81,18 @@ describe("official score promotion", () => {
 
     const missingContractPath = join(temp, "direct-missing-contract.json");
     const missingContractOut = join(temp, "direct-missing-contract-score.json");
-    writeJudgeReceipt(missingContractPath, 172, {
-      ...directEquivalentOverrides(),
+    writeReceipt(missingContractPath, 172, {
+      ...directEquivalentOverrides(fixture.promptSourcePath),
       equivalenceContract: undefined,
     });
-    const missingContract = runPromotion(missingContractPath, missingContractOut);
+    const missingContract = promote(missingContractPath, missingContractOut);
     expect(missingContract.status).not.toBe(0);
     expect(`${missingContract.stdout}\n${missingContract.stderr}`).toContain("missing the accepted canonical transport-equivalence contract");
     expect(existsSync(missingContractOut)).toBe(false);
 
     const shadowPath = join(temp, "free-router-shadow.json");
     const shadowOut = join(temp, "free-router-shadow-score.json");
-    writeJudgeReceipt(shadowPath, 172, {
+    writeReceipt(shadowPath, 172, {
       schema: "finch-shadow-judge-receipt-v1",
       status: "complete",
       official: false,
@@ -83,30 +101,30 @@ describe("official score promotion", () => {
       provider: "openrouter",
       judgeModel: "openrouter/free",
     });
-    const shadow = runPromotion(shadowPath, shadowOut);
+    const shadow = promote(shadowPath, shadowOut);
     expect(shadow.status).not.toBe(0);
     expect(`${shadow.stdout}\n${shadow.stderr}`).toContain("not an accepted upstream official receipt");
     expect(existsSync(shadowOut)).toBe(false);
 
     const partialPath = join(temp, "partial.json");
     const partialOut = join(temp, "partial-score.json");
-    writeJudgeReceipt(partialPath, 171);
-    const partial = runPromotion(partialPath, partialOut);
+    writeReceipt(partialPath, 171);
+    const partial = promote(partialPath, partialOut);
     expect(partial.status).not.toBe(0);
     expect(`${partial.stdout}\n${partial.stderr}`).toContain("must cover 172/172 tasks");
     expect(existsSync(partialOut)).toBe(false);
 
     const unacceptedPath = join(temp, "unaccepted.json");
     const unacceptedOut = join(temp, "unaccepted-score.json");
-    writeJudgeReceipt(unacceptedPath, 172, { status: "partial", accepted: false });
-    const unaccepted = runPromotion(unacceptedPath, unacceptedOut);
+    writeReceipt(unacceptedPath, 172, { status: "partial", accepted: false });
+    const unaccepted = promote(unacceptedPath, unacceptedOut);
     expect(unaccepted.status).not.toBe(0);
     expect(`${unaccepted.stdout}\n${unaccepted.stderr}`).toContain("not an accepted upstream official receipt");
     expect(existsSync(unacceptedOut)).toBe(false);
 
     const overCapPath = join(temp, "over-cap.json");
     const overCapOut = join(temp, "over-cap-score.json");
-    writeJudgeReceipt(overCapPath, 172, {
+    writeReceipt(overCapPath, 172, {
       usage: {
         inputTokens: 10,
         outputTokens: 2,
@@ -114,36 +132,36 @@ describe("official score promotion", () => {
         maxProviderCostUsd: 1,
       },
     });
-    const overCap = runPromotion(overCapPath, overCapOut);
+    const overCap = promote(overCapPath, overCapOut);
     expect(overCap.status).not.toBe(0);
     expect(`${overCap.stdout}\n${overCap.stderr}`).toContain("exceeds cap");
     expect(existsSync(overCapOut)).toBe(false);
 
     const mismatchedContentPath = join(temp, "mismatched-content.json");
     const mismatchedContentOut = join(temp, "mismatched-content-score.json");
-    writeJudgeReceipt(mismatchedContentPath, 172, {
+    writeReceipt(mismatchedContentPath, 172, {
       contentParts: {
-        path: canonicalContentPartsPath(),
+        path: fixture.contentPartsPath,
         sha256: "0".repeat(64),
       },
     });
-    const mismatchedContent = runPromotion(mismatchedContentPath, mismatchedContentOut);
+    const mismatchedContent = promote(mismatchedContentPath, mismatchedContentOut);
     expect(mismatchedContent.status).not.toBe(0);
     expect(`${mismatchedContent.stdout}\n${mismatchedContent.stderr}`).toContain("content_parts SHA-256 mismatch");
     expect(existsSync(mismatchedContentOut)).toBe(false);
 
     const unboundOutputPath = join(temp, "unbound-judge-output.jsonl");
-    writeJudgeOutput(unboundOutputPath, "openai", "gpt-5-mini", 0);
+    writeJudgeOutput(unboundOutputPath, "openai", "gpt-5-mini", fixture.contentRecordSha256, 0);
     const unboundReceiptPath = join(temp, "unbound-result.json");
     const unboundScorePath = join(temp, "unbound-result-score.json");
-    writeJudgeReceipt(unboundReceiptPath, 172, {
-      ...directEquivalentOverrides(),
+    writeReceipt(unboundReceiptPath, 172, {
+      ...directEquivalentOverrides(fixture.promptSourcePath),
       judgeOutput: {
         path: unboundOutputPath,
         sha256: createHash("sha256").update(readFileSync(unboundOutputPath)).digest("hex"),
       },
     });
-    const unbound = runPromotion(unboundReceiptPath, unboundScorePath);
+    const unbound = promote(unboundReceiptPath, unboundScorePath);
     expect(unbound.status).not.toBe(0);
     expect(`${unbound.stdout}\n${unbound.stderr}`).toContain("missing its canonical content-record SHA-256");
     expect(existsSync(unboundScorePath)).toBe(false);
@@ -155,16 +173,28 @@ describe("official score promotion", () => {
     ]) {
       const receiptPath = join(temp, `${invalid.name}.json`);
       const scorePath = join(temp, `${invalid.name}-score.json`);
-      writeJudgeReceipt(receiptPath, 172, invalid.overrides);
-      const rejected = runPromotion(receiptPath, scorePath);
+      writeReceipt(receiptPath, 172, invalid.overrides);
+      const rejected = promote(receiptPath, scorePath);
       expect(rejected.status).not.toBe(0);
       expect(`${rejected.stdout}\n${rejected.stderr}`).toContain(invalid.message);
       expect(existsSync(scorePath)).toBe(false);
     }
-  });
+  }, 15_000);
 });
 
-function runPromotion(receipt: string, output: string) {
+function runPromotion(
+  receipt: string,
+  output: string,
+  fixture: FinchFixture,
+  enableFixtureOverrides: boolean,
+) {
+  const env = { ...process.env };
+  if (enableFixtureOverrides) {
+    env.NODE_ENV = "test";
+    env.PROOFLOOP_PROMOTION_TEST_FIXTURES = "1";
+  } else {
+    delete env.PROOFLOOP_PROMOTION_TEST_FIXTURES;
+  }
   return spawnSync(process.execPath, [
     tsx,
     promotionScript,
@@ -174,10 +204,14 @@ function runPromotion(receipt: string, output: string) {
     receipt,
     "--json-out",
     output,
-  ], { cwd: root, encoding: "utf8" });
+    "--test-output-manifest",
+    fixture.outputManifestPath,
+    "--test-finch-repo-root",
+    fixture.repoRoot,
+  ], { cwd: root, encoding: "utf8", env });
 }
 
-function directEquivalentOverrides(): Record<string, unknown> {
+function directEquivalentOverrides(promptSourcePath: string): Record<string, unknown> {
   return {
     schema: "finch-canonical-judge-receipt-v1",
     source: "upstream_equivalent",
@@ -201,15 +235,19 @@ function directEquivalentOverrides(): Record<string, unknown> {
       parserMethod: "GPTJudgeCaller._parse_response",
       requestedModel: "gpt-5-mini",
       promptSourceSha256: createHash("sha256")
-        .update(readFileSync(resolve(".tmp/official-benchmarks/finch-repo/src/build_prompt/content_builder/prompts.py")))
+        .update(readFileSync(promptSourcePath))
         .digest("hex"),
     },
   };
 }
 
-function writeJudgeReceipt(path: string, completedTasks: number, overrides: Record<string, unknown> = {}): void {
-  const contentPartsPath = canonicalContentPartsPath();
-  const contentPartsSha256 = createHash("sha256").update(readFileSync(contentPartsPath)).digest("hex");
+function writeJudgeReceipt(
+  path: string,
+  completedTasks: number,
+  fixture: FinchFixture,
+  overrides: Record<string, unknown> = {},
+): void {
+  const contentPartsSha256 = createHash("sha256").update(readFileSync(fixture.contentPartsPath)).digest("hex");
   const base = {
     schema: "finch-official-judge-receipt-v1",
     status: "accepted",
@@ -224,7 +262,7 @@ function writeJudgeReceipt(path: string, completedTasks: number, overrides: Reco
     completedTasks,
     contentPartsCount: 172,
     contentParts: {
-      path: contentPartsPath,
+      path: fixture.contentPartsPath,
       sha256: contentPartsSha256,
     },
     providerCalls: 172,
@@ -246,7 +284,12 @@ function writeJudgeReceipt(path: string, completedTasks: number, overrides: Reco
   const receipt = { ...base, ...overrides } as Record<string, unknown>;
   if (!receipt.judgeOutput) {
     const judgeOutputPath = `${path}.judge-output.jsonl`;
-    writeJudgeOutput(judgeOutputPath, String(receipt.provider), String(receipt.judgeModel));
+    writeJudgeOutput(
+      judgeOutputPath,
+      String(receipt.provider),
+      String(receipt.judgeModel),
+      fixture.contentRecordSha256,
+    );
     receipt.judgeOutput = {
       path: judgeOutputPath,
       sha256: createHash("sha256").update(readFileSync(judgeOutputPath)).digest("hex"),
@@ -255,7 +298,13 @@ function writeJudgeReceipt(path: string, completedTasks: number, overrides: Reco
   writeFileSync(path, `${JSON.stringify(receipt, null, 2)}\n`, "utf8");
 }
 
-function writeJudgeOutput(path: string, provider: string, judgeModel: string, unboundIndex = -1): void {
+function writeJudgeOutput(
+  path: string,
+  provider: string,
+  judgeModel: string,
+  contentRecordSha256: string[],
+  unboundIndex = -1,
+): void {
   const rows = Array.from({ length: 172 }, (_, index) => ({
     task_id: String(index),
     score: 0,
@@ -266,13 +315,45 @@ function writeJudgeOutput(path: string, provider: string, judgeModel: string, un
     judge_contract: "finch-gpt5mini-canonical-v1",
     content_record_sha256: index === unboundIndex
       ? undefined
-      : createHash("sha256").update(`task-${index}`).digest("hex"),
+      : contentRecordSha256[index],
     provider_call: true,
     error: null,
   }));
   writeFileSync(path, `${rows.map((row) => JSON.stringify(row)).join("\n")}\n`, "utf8");
 }
 
-function canonicalContentPartsPath(): string {
-  return resolve(".tmp/official-benchmarks/proofloop-official-outputs/finch/eval_set/noderoom-source-workbook-baseline/content_parts.jsonl");
+function writeFinchFixture(temp: string): FinchFixture {
+  const contentPartsPath = join(temp, "content_parts.jsonl");
+  const contentRows = Array.from({ length: 172 }, (_, index) => ({
+    content_parts: [{ text: `fixture task ${index}`, type: "text" }],
+    task_id: String(index),
+  }));
+  const contentText = `${contentRows.map((row) => JSON.stringify(row)).join("\n")}\n`;
+  writeFileSync(contentPartsPath, contentText, "utf8");
+
+  const repoRoot = join(temp, "finch-repo");
+  const promptDir = join(repoRoot, "src", "build_prompt", "content_builder");
+  mkdirSync(promptDir, { recursive: true });
+  const promptSourcePath = join(promptDir, "prompts.py");
+  writeFileSync(promptSourcePath, "SYSTEM_PROMPT = 'hermetic Finch fixture'\n", "utf8");
+
+  const outputManifestPath = join(temp, "finch-output-manifest.json");
+  const contentPartsSha256 = createHash("sha256").update(contentText).digest("hex");
+  writeFileSync(outputManifestPath, `${JSON.stringify({
+    schema: "proofloop-official-output-manifest-v1",
+    adapterId: "finch",
+    status: "complete",
+    officialTaskCount: 172,
+    outputTaskCount: 172,
+    contentPartsCount: 172,
+    contentPartsSha256,
+  }, null, 2)}\n`, "utf8");
+
+  return {
+    contentRecordSha256: contentRows.map((row) => createHash("sha256").update(JSON.stringify(row)).digest("hex")),
+    contentPartsPath,
+    outputManifestPath,
+    promptSourcePath,
+    repoRoot,
+  };
 }

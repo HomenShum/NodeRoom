@@ -101,6 +101,84 @@ describe("NodeAgent unified stream parts", () => {
     });
   });
 
+  it("retains a compact workbook verification receipt when the diagnostic output is oversized", async () => {
+    const events: AgentStreamEventDraft[] = [];
+    const operations = Array.from({ length: 46 }, (_, index) => ({ elementId: `A${index + 1}`, formula: `=${index + 1}` }));
+    const model: AgentModel = {
+      name: "scripted-verification-receipt-test",
+      async next() {
+        return {
+          text: "Verifying workbook.",
+          toolCalls: [{
+            id: "call-verify",
+            tool: "verify_workbook",
+            args: { artifactId: "sheet-1", instruction: "verify formulas", operations, afterWrite: true },
+          }],
+          done: false,
+          usage: { inputTokens: 1, outputTokens: 1 },
+        };
+      },
+    };
+    const tools: AgentTool[] = [{
+      name: "verify_workbook",
+      description: "Verify workbook",
+      schema: z.object({
+        artifactId: z.string(),
+        instruction: z.string(),
+        operations: z.array(z.object({ elementId: z.string(), formula: z.string() })),
+        afterWrite: z.boolean(),
+      }),
+      execute: async () => JSON.stringify({
+        artifactId: "sheet-1",
+        candidate: {
+          checkedCount: operations.length,
+          checks: operations.map((operation) => ({ ...operation, issues: [], detail: "x".repeat(200) })),
+        },
+        ok: true,
+        phase: "post_write",
+        plan: { issues: [] },
+        status: "passed",
+      }),
+    }];
+
+    await runAgent({
+      rt: {} as never,
+      goal: "verify workbook",
+      model,
+      tools,
+      maxSteps: 1,
+      initialMessages: [{ role: "user", content: "verify workbook" }],
+      onStreamEvent: (event) => { events.push(event); },
+    });
+
+    const resultEvent = events.find((event) => event.kind === "tool_call_result");
+    expect(resultEvent?.metadata).toMatchObject({
+      verificationReceipt: {
+        schema: "nodeagent-workbook-verification-receipt-v1",
+        artifactId: "sheet-1",
+        phase: "post_write",
+        status: "passed",
+        afterWrite: true,
+        operationCount: 46,
+        checkedCount: 46,
+        issueCount: 0,
+        ok: true,
+      },
+    });
+
+    const persisted = events.map((event, index) => ({
+      ...event,
+      sequence: index + 1,
+      createdAt: event.createdAt ?? index + 1,
+    }));
+    const verifyPart = buildUnifiedAgentStreamParts(persisted).find((part) => part.type === "tool-verify_workbook");
+    expect(verifyPart).toMatchObject({
+      type: "tool-verify_workbook",
+      metadata: { verificationReceipt: { phase: "post_write", status: "passed", checkedCount: 46 } },
+    });
+    expect(Object.values(resultEvent?.metadata?.verificationReceipt as Record<string, unknown>)).not.toContain(undefined);
+  });
+
   it("feeds invalid tool arguments back as recoverable structured errors", async () => {
     const events: AgentStreamEventDraft[] = [];
     let turn = 0;
@@ -194,5 +272,27 @@ describe("NodeAgent unified stream parts", () => {
     ], { terminal: true });
 
     expect(parts).toEqual([{ type: "text", text: answer, state: "done" }]);
+  });
+
+  it("closes orphaned tool calls when the durable job is terminal", () => {
+    const parts = buildUnifiedAgentStreamParts([{
+      sequence: 1,
+      kind: "tool_call_start",
+      step: 0,
+      toolCallId: "call-orphan",
+      toolName: "capture_source",
+      status: "started",
+      input: { url: "https://example.com" },
+      createdAt: 1,
+    }], { terminal: true, terminalStatus: "failed" });
+
+    expect(parts).toEqual([expect.objectContaining({
+      type: "tool-capture_source",
+      toolCallId: "call-orphan",
+      state: "output-denied",
+      status: "failed",
+      error: expect.stringContaining("status failed"),
+      metadata: expect.objectContaining({ terminalReconciled: true, terminalStatus: "failed" }),
+    })]);
   });
 });

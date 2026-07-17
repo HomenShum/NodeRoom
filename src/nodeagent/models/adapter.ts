@@ -19,20 +19,39 @@ import { dirname, resolve } from "node:path";
 import { anthropic } from "@ai-sdk/anthropic";
 import { google } from "@ai-sdk/google";
 import { openai, createOpenAI } from "@ai-sdk/openai";
-import type { AgentModel, AgentMessage, AgentToolChoice, ToolCall } from "../core/types";
-import { getProviderForModel, getModelPricing, resolveModelAlias } from "./modelCatalog";
+import type { AgentModel, AgentMessage, AgentTool, AgentToolChoice, ToolCall } from "../core/types";
 import {
+  getProviderForModel,
+  getModelPricing,
+  isNodeAgentFreeAutoModel,
+  NODEAGENT_FREE_AUTO_MODEL,
+  resolveModelAlias,
+} from "./modelCatalog";
+import {
+  OPENROUTER_FREE_AUTO_MODEL,
   isOpenRouterFreeAutoModel,
   openRouterFreeCandidateSignal,
+  openRouterFreeCandidateTimeoutMs,
+  openRouterFreeRequestReserveMs,
   openRouterFreeRequestSignal,
+  openRouterFreeRequestTimeoutMs,
   openRouterFreeRouteHealthSnapshot,
   recordOpenRouterFreeRouteOutcome,
   restoreOpenRouterFreeRouteHealth,
   selectOpenRouterFreeModels,
   type OpenRouterFreeModelMode,
 } from "./openRouterFreeModels";
+import { QualityFailoverError, assessAgentToolTurnQuality, runQualityFailover, type QualityFailoverReceipt } from "./qualityFailover";
 import { redactPII } from "../guardrails/gateway";
-import { assertProviderEgressAllowed, assertProviderRouteAllowed, isProviderNonRetryableError, type ProviderEgressArtifact, type ProviderRouteEntrypoint } from "../guardrails/egressPolicy";
+import {
+  assertProviderEgressAllowed,
+  assertProviderRouteAllowed,
+  isProviderNonRetryableError,
+  providerNonRetryableReason,
+  type ProviderEgressArtifact,
+  type ProviderRouteEntrypoint,
+  type ProviderRouteReceipt,
+} from "../guardrails/egressPolicy";
 
 // OpenRouter = OpenAI-compatible endpoint; this is how the cheap/free models are reached.
 // Built lazily (per call) so process.env.OPENROUTER_API_KEY is read AFTER .env.local loads —
@@ -82,7 +101,18 @@ export function model(modelId: string, options: ModelAdapterOptions = {}): Agent
       const safeSystem = redactPII(system).text;
       const safeMessages = messages.map((m) => (m.role === "user" && m.content ? { ...m, content: redactPII(m.content).text } : m));
       const sdkTools = Object.fromEntries(tools.map((t) => [t.name, tool({ description: t.description, inputSchema: t.schema })]));
-      const { res, resolvedModel } = await generateAgentText(aliasModelId, safeSystem, toSdkMessages(safeMessages), sdkTools, signal, entrypoint, artifacts, toolChoice, freeAutoMode);
+      const { res, resolvedModel, providerRoute, qualityFailover } = await generateAgentText(
+        aliasModelId,
+        safeSystem,
+        toSdkMessages(safeMessages),
+        sdkTools,
+        signal,
+        entrypoint,
+        artifacts,
+        toolChoice,
+        freeAutoMode,
+        { messages: safeMessages, tools },
+      );
       resolvedModelId = resolvedModel;
       const toolCalls: ToolCall[] = (res.toolCalls ?? []).map((tc: { toolCallId: string; toolName: string; input?: Record<string, unknown>; providerMetadata?: Record<string, unknown> }) => ({ id: tc.toolCallId, tool: tc.toolName, args: tc.input ?? {}, providerMetadata: tc.providerMetadata }));
       return {
@@ -90,6 +120,9 @@ export function model(modelId: string, options: ModelAdapterOptions = {}): Agent
         toolCalls,
         done: toolCalls.length === 0,
         usage: { inputTokens: res.usage?.inputTokens ?? 0, outputTokens: res.usage?.outputTokens ?? 0, cachedInputTokens: (res.usage as { cachedInputTokens?: number } | undefined)?.cachedInputTokens ?? 0 },
+        ...(providerRoute
+          ? { providerRoute: qualityFailover ? { ...providerRoute, qualityFailover } : providerRoute }
+          : {}),
       };
     },
   };
@@ -114,6 +147,37 @@ export const priceRun = (modelId: string, inTok: number, outTok: number): number
 // Our AgentMessage[] → the AI SDK's message shape (kept loose; SDK part types are version-specific).
 type SdkToolSet = Record<string, any>;
 type GenerateTextResultAny = any;
+
+const NODEAGENT_PROVIDER_NEUTRAL_POLICY = "nodeagent_provider_neutral_free_first_v1" as const;
+const DEFAULT_NODEAGENT_GOOGLE_FALLBACK_MODEL = "gemini-3.5-flash";
+
+type ProviderNeutralBilling = {
+  /** This describes route pricing, not the account's eventual invoice or free-tier entitlement. */
+  free: boolean;
+  classification: "openrouter_zero_price_route" | "catalog_priced" | "pricing_unverified";
+  inputPer1M?: number;
+  outputPer1M?: number;
+  basis: string[];
+};
+
+type ProviderNeutralRouteReceipt = ProviderRouteReceipt & {
+  providerNeutral: {
+    policy: typeof NODEAGENT_PROVIDER_NEUTRAL_POLICY;
+    requestedModel: typeof NODEAGENT_FREE_AUTO_MODEL;
+    primary: {
+      route: typeof OPENROUTER_FREE_AUTO_MODEL;
+      outcome: "accepted" | "provider_wide_exhausted" | "free_routes_cooling" | "free_routes_exhausted";
+      reason?: string;
+      qualityFailover?: QualityFailoverReceipt;
+    };
+    selected: {
+      route: "openrouter_free" | "google_direct";
+      model: string;
+      provider: "openrouter" | "gemini";
+      billing: ProviderNeutralBilling;
+    };
+  };
+};
 
 // ── Production reliability: retry transient failures (429/5xx/network) with exp backoff + jitter,
 // honoring the deadline AbortSignal, plus an optional cross-model fallback. (async_reliability layer 2)
@@ -163,12 +227,31 @@ async function generateAgentText(
   artifacts: ProviderEgressArtifact[] = [],
   toolChoice?: AgentToolChoice,
   freeAutoMode?: OpenRouterFreeModelMode,
-): Promise<{ res: GenerateTextResultAny; resolvedModel: string }> {
+  qualityContext?: { messages: AgentMessage[]; tools: AgentTool[] },
+): Promise<{
+  res: GenerateTextResultAny;
+  resolvedModel: string;
+  providerRoute?: ProviderRouteReceipt;
+  qualityFailover?: QualityFailoverReceipt;
+}> {
+  if (isNodeAgentFreeAutoModel(modelId)) {
+    return generateProviderNeutralAgentText({
+      system,
+      messages,
+      sdkTools,
+      signal,
+      entrypoint,
+      artifacts,
+      toolChoice,
+      freeAutoMode,
+      qualityContext,
+    });
+  }
   if (!isOpenRouterFreeAutoModel(modelId)) {
-    const call = (id: string) => {
-      assertProviderRouteAllowed({ model: id, entrypoint, env: process.env });
+    const call = async (id: string) => {
+      const providerRoute = assertProviderRouteAllowed({ model: id, entrypoint, env: process.env });
       assertProviderEgressAllowed({ model: id, entrypoint, artifacts, env: process.env });
-      return withRetry(() => generateText({
+      const res = await withRetry(() => generateText({
         model: providerFor(id),
         system,
         messages,
@@ -176,30 +259,35 @@ async function generateAgentText(
         toolChoice: Object.keys(sdkTools).length ? sdkToolChoiceForModel(id, toolChoice) : undefined,
         abortSignal: signal,
       }), signal);
+      return { res, providerRoute };
     };
     try {
-      return { res: await call(modelId), resolvedModel: modelId };
+      return { ...await call(modelId), resolvedModel: modelId };
     } catch (error) {
       const fb = fallbackModelFor(modelId);
       if (!fb || signal?.aborted) throw error;
-      return { res: await call(fb), resolvedModel: fb }; // primary exhausted retries → cross-model safety net
+      return { ...await call(fb), resolvedModel: fb }; // primary exhausted retries → cross-model safety net
     }
   }
   hydrateOpenRouterFreeRouteHealth();
+  const requestStartedAt = Date.now();
   const requestSignal = openRouterFreeRequestSignal(signal);
   const candidates = await selectOpenRouterFreeModels({
     mode: freeAutoMode ?? (Object.keys(sdkTools).length ? "agent" : "chat"),
     limit: openRouterFreeAutoLimit(),
     signal: requestSignal,
   });
-  let lastError: unknown;
-  const attempted: string[] = [];
-  for (const candidate of candidates) {
-    attempted.push(candidate.id);
-    const candidateSignal = openRouterFreeCandidateSignal(requestSignal);
-    const candidateStarted = Date.now();
-    try {
-      assertProviderRouteAllowed({ model: candidate.id, entrypoint, env: process.env });
+  const routed = await runQualityFailover({
+    candidates: candidates.map((candidate) => ({ ...candidate, provider: "openrouter" })),
+    budget: {
+      maxAttempts: candidates.length,
+      deadlineAt: requestStartedAt + openRouterFreeRequestTimeoutMs(),
+      reserveMs: openRouterFreeRequestReserveMs(),
+    },
+    attemptTimeoutMs: openRouterFreeCandidateTimeoutMs(),
+    signal,
+    execute: async (candidate, context) => {
+      const providerRoute = assertProviderRouteAllowed({ model: candidate.id, entrypoint, env: process.env });
       assertProviderEgressAllowed({ model: candidate.id, entrypoint, artifacts, env: process.env });
       const res = await withRetry(() => generateText({
         model: openrouter().chat(candidate.id),
@@ -207,21 +295,312 @@ async function generateAgentText(
         messages,
         tools: sdkTools,
         toolChoice: Object.keys(sdkTools).length ? sdkToolChoiceForModel(candidate.id, toolChoice) : undefined,
-        abortSignal: candidateSignal,
-      }), candidateSignal, openRouterFreeCandidateRetries());
-      recordAndPersistOpenRouterFreeRouteOutcome({ modelId: candidate.id, ok: true, latencyMs: Date.now() - candidateStarted });
-      return { res, resolvedModel: candidate.id };
-    } catch (error) {
-      if (signal?.aborted) throw error;
-      recordAndPersistOpenRouterFreeRouteOutcome({ modelId: candidate.id, ok: false, latencyMs: Date.now() - candidateStarted, error });
-      if (requestSignal.aborted) {
-        throw new Error(`openrouter/free-auto request deadline exceeded after ${attempted.join(", ")}`);
+        abortSignal: context.signal,
+      }), context.signal, openRouterFreeCandidateRetries());
+      return { res, providerRoute };
+    },
+    assessResult: ({ res }) => assessAgentToolTurnQuality({
+      text: res?.text,
+      toolCalls: ((res?.toolCalls ?? []) as Array<{ toolName: string; input?: unknown }>).map((call) => ({
+        tool: call.toolName,
+        args: (call.input ?? {}) as Record<string, unknown>,
+      })),
+      tools: qualityContext?.tools ?? [],
+      messages: qualityContext?.messages,
+      requiredToolCall: Object.keys(sdkTools).length > 0 && toolChoice === "required",
+    }),
+    onRouteAttempt: (attempt, candidate) => {
+      if (attempt.outcome === "accepted") {
+        recordAndPersistOpenRouterFreeRouteOutcome({ modelId: candidate.id, ok: true, latencyMs: attempt.durationMs });
+      } else if (
+        attempt.outcome === "provider_failure"
+        || attempt.outcome === "quality_failure"
+        || (attempt.outcome === "aborted" && attempt.reason === "time_budget_exhausted")
+      ) {
+        recordAndPersistOpenRouterFreeRouteOutcome({
+          modelId: candidate.id,
+          ok: false,
+          latencyMs: attempt.durationMs,
+          error: new Error(attempt.detail ?? attempt.reason),
+        });
       }
-      if (isProviderNonRetryableError(error)) throw error;
-      lastError = error;
+    },
+  });
+  if (routed.ok) {
+    return {
+      res: routed.result.res,
+      resolvedModel: routed.candidate.id,
+      providerRoute: routed.result.providerRoute,
+      qualityFailover: routed.receipt,
+    };
+  }
+  throw adapterQualityFailoverError(routed.receipt, routed.lastError);
+}
+
+async function generateProviderNeutralAgentText(args: {
+  system: string;
+  messages: ModelMessage[];
+  sdkTools: SdkToolSet;
+  signal?: AbortSignal;
+  entrypoint: ProviderRouteEntrypoint;
+  artifacts: ProviderEgressArtifact[];
+  toolChoice?: AgentToolChoice;
+  freeAutoMode?: OpenRouterFreeModelMode;
+  qualityContext?: { messages: AgentMessage[]; tools: AgentTool[] };
+}): Promise<{
+  res: GenerateTextResultAny;
+  resolvedModel: string;
+  providerRoute: ProviderRouteReceipt;
+  qualityFailover?: QualityFailoverReceipt;
+}> {
+  try {
+    const primary = await generateAgentText(
+      OPENROUTER_FREE_AUTO_MODEL,
+      args.system,
+      args.messages,
+      args.sdkTools,
+      args.signal,
+      args.entrypoint,
+      args.artifacts,
+      args.toolChoice,
+      args.freeAutoMode,
+      args.qualityContext,
+    );
+    if (!primary.providerRoute) {
+      throw new Error(`${NODEAGENT_FREE_AUTO_MODEL} primary route returned no provider receipt`);
+    }
+    return {
+      ...primary,
+      providerRoute: providerNeutralRouteReceipt({
+        selectedReceipt: primary.providerRoute,
+        resolvedModel: primary.resolvedModel,
+        primaryOutcome: "accepted",
+      }),
+    };
+  } catch (primaryError) {
+    const unavailable = openRouterPrimaryUnavailable(primaryError);
+    if (!unavailable || args.signal?.aborted) throw primaryError;
+
+    const configuredKey = envValue("GOOGLE_GENERATIVE_AI_API_KEY");
+    if (!configuredKey) {
+      throw providerNeutralRecoveryError(
+        primaryError,
+        `${unavailable.reason}; direct Google fallback is unavailable because GOOGLE_GENERATIVE_AI_API_KEY is not configured`,
+      );
+    }
+
+    const fallbackModel = resolveModelAlias(
+      envValue("NODEAGENT_FREE_AUTO_GOOGLE_MODEL") ?? DEFAULT_NODEAGENT_GOOGLE_FALLBACK_MODEL,
+    );
+    if (getProviderForModel(fallbackModel) !== "gemini") {
+      throw providerNeutralRecoveryError(
+        primaryError,
+        `${unavailable.reason}; NODEAGENT_FREE_AUTO_GOOGLE_MODEL must resolve to a direct Gemini model`,
+      );
+    }
+
+    let providerRoute: ProviderRouteReceipt;
+    try {
+      providerRoute = assertProviderRouteAllowed({ model: fallbackModel, entrypoint: args.entrypoint, env: process.env });
+      assertProviderEgressAllowed({ model: fallbackModel, entrypoint: args.entrypoint, artifacts: args.artifacts, env: process.env });
+    } catch (policyError) {
+      throw providerNeutralRecoveryError(
+        primaryError,
+        `${unavailable.reason}; direct Google fallback blocked before provider call: ${shortProviderError(policyError)}`,
+        policyError,
+      );
+    }
+
+    try {
+      const res = await withRetry(() => generateText({
+        model: google(fallbackModel),
+        system: args.system,
+        messages: args.messages,
+        tools: args.sdkTools,
+        toolChoice: Object.keys(args.sdkTools).length ? sdkToolChoiceForModel(fallbackModel, args.toolChoice) : undefined,
+        abortSignal: args.signal,
+      }), args.signal);
+      return {
+        res,
+        resolvedModel: fallbackModel,
+        providerRoute: providerNeutralRouteReceipt({
+          selectedReceipt: providerRoute,
+          resolvedModel: fallbackModel,
+          primaryOutcome: unavailable.outcome,
+          primaryReason: unavailable.reason,
+          primaryQualityFailover: unavailable.receipt,
+        }),
+      };
+    } catch (fallbackError) {
+      throw providerNeutralRecoveryError(
+        primaryError,
+        `${unavailable.reason}; direct Google fallback failed: ${shortProviderError(fallbackError)}`,
+        fallbackError,
+      );
     }
   }
-  throw new Error(`openrouter/free-auto failed for ${attempted.join(", ")}: ${shortProviderError(lastError)}`);
+}
+
+function openRouterPrimaryUnavailable(error: unknown): {
+  outcome: "provider_wide_exhausted" | "free_routes_cooling" | "free_routes_exhausted";
+  reason: string;
+  receipt?: QualityFailoverReceipt;
+} | undefined {
+  if (error instanceof QualityFailoverError) {
+    const terminal = error.receipt.terminalFailure;
+    if (terminal?.failureClass === "provider"
+      && terminal.providerFailureScope === "global"
+      && terminal.providerFailureCategory === "quota") {
+      return { outcome: "provider_wide_exhausted", reason: terminal.reason, receipt: error.receipt };
+    }
+    if (terminal?.providerFailureScope === "global") return undefined;
+    if (["no_candidates", "candidates_exhausted", "attempt_budget", "time_budget", "cooldown"]
+      .includes(error.receipt.stopReason)) {
+      return {
+        outcome: "free_routes_exhausted",
+        reason: `provider_free_routes_${error.receipt.stopReason}`,
+        receipt: error.receipt,
+      };
+    }
+    return undefined;
+  }
+  if (/openrouter\/free-auto candidates cooling down/i.test(shortProviderError(error))) {
+    return { outcome: "free_routes_cooling", reason: "provider_free_routes_cooling" };
+  }
+  const reason = providerNonRetryableReason(error);
+  return reason && /quota|credit/i.test(reason)
+    ? { outcome: "provider_wide_exhausted", reason }
+    : undefined;
+}
+
+function providerNeutralRecoveryError(
+  primaryError: unknown,
+  detail: string,
+  cause: unknown = primaryError,
+): Error {
+  const message = `${NODEAGENT_FREE_AUTO_MODEL} could not recover after OpenRouter free-route unavailability: ${detail}`;
+  if (primaryError instanceof QualityFailoverError) {
+    return new QualityFailoverError(message, primaryError.receipt, cause, primaryError.usage);
+  }
+  return new Error(message, { cause });
+}
+
+function providerNeutralRouteReceipt(args: {
+  selectedReceipt: ProviderRouteReceipt;
+  resolvedModel: string;
+  primaryOutcome: "accepted" | "provider_wide_exhausted" | "free_routes_cooling" | "free_routes_exhausted";
+  primaryReason?: string;
+  primaryQualityFailover?: QualityFailoverReceipt;
+}): ProviderNeutralRouteReceipt {
+  const provider = args.selectedReceipt.provider;
+  if (provider !== "openrouter" && provider !== "gemini") {
+    throw new Error(`${NODEAGENT_FREE_AUTO_MODEL} selected unsupported provider ${provider}`);
+  }
+  const selectedRoute = provider === "openrouter" ? "openrouter_free" : "google_direct";
+  const billing = providerNeutralBilling(args.resolvedModel, provider);
+  return {
+    ...args.selectedReceipt,
+    requestedModel: NODEAGENT_FREE_AUTO_MODEL,
+    resolvedModel: args.resolvedModel,
+    basis: [
+      `requested:${NODEAGENT_FREE_AUTO_MODEL}`,
+      `resolved:${args.resolvedModel}`,
+      `provider_neutral_policy:${NODEAGENT_PROVIDER_NEUTRAL_POLICY}`,
+      `primary_route:${OPENROUTER_FREE_AUTO_MODEL}`,
+      `primary_outcome:${args.primaryOutcome}`,
+      ...(args.primaryReason ? [`primary_reason:${args.primaryReason}`] : []),
+      ...args.selectedReceipt.basis.map((basis) => `selected_route:${basis}`),
+      ...billing.basis.map((basis) => `billing:${basis}`),
+    ],
+    providerNeutral: {
+      policy: NODEAGENT_PROVIDER_NEUTRAL_POLICY,
+      requestedModel: NODEAGENT_FREE_AUTO_MODEL,
+      primary: {
+        route: OPENROUTER_FREE_AUTO_MODEL,
+        outcome: args.primaryOutcome,
+        ...(args.primaryReason ? { reason: args.primaryReason } : {}),
+        ...(args.primaryQualityFailover ? { qualityFailover: args.primaryQualityFailover } : {}),
+      },
+      selected: {
+        route: selectedRoute,
+        model: args.resolvedModel,
+        provider,
+        billing,
+      },
+    },
+  };
+}
+
+function providerNeutralBilling(
+  resolvedModel: string,
+  provider: "openrouter" | "gemini",
+): ProviderNeutralBilling {
+  const pricing = getModelPricing(resolvedModel);
+  if (provider === "openrouter"
+    && resolvedModel.toLowerCase().endsWith(":free")
+    && pricing?.inputPer1M === 0
+    && pricing.outputPer1M === 0) {
+    return {
+      free: true,
+      classification: "openrouter_zero_price_route",
+      inputPer1M: 0,
+      outputPer1M: 0,
+      basis: ["provider:openrouter", "model_suffix::free", "catalog_input_per_1m:0", "catalog_output_per_1m:0"],
+    };
+  }
+  if (pricing) {
+    return {
+      free: false,
+      classification: "catalog_priced",
+      inputPer1M: pricing.inputPer1M,
+      outputPer1M: pricing.outputPer1M,
+      basis: [
+        `provider:${provider}`,
+        `catalog_input_per_1m:${pricing.inputPer1M}`,
+        `catalog_output_per_1m:${pricing.outputPer1M}`,
+        "account_free_tier:not_asserted",
+      ],
+    };
+  }
+  return {
+    free: false,
+    classification: "pricing_unverified",
+    basis: [`provider:${provider}`, "account_free_tier:not_asserted", "catalog_pricing:missing"],
+  };
+}
+
+function qualityAttemptedRoutes(receipt: QualityFailoverReceipt): string[] {
+  return receipt.routeAttempts.map((attempt) => attempt.routeId);
+}
+
+function adapterQualityFailoverError(
+  receipt: QualityFailoverReceipt,
+  cause?: unknown,
+): QualityFailoverError {
+  const attempted = qualityAttemptedRoutes(receipt).join(", ") || "no route attempts";
+  if (receipt.stopReason === "time_budget") {
+    return new QualityFailoverError(
+      `openrouter/free-auto request deadline exceeded after ${attempted}`,
+      receipt,
+      cause,
+    );
+  }
+  if (receipt.stopReason === "aborted") {
+    return new QualityFailoverError(
+      `openrouter/free-auto request aborted after ${attempted}`,
+      receipt,
+      cause,
+    );
+  }
+  const failure = cause
+    ?? receipt.terminalFailure?.detail
+    ?? receipt.terminalFailure?.reason
+    ?? receipt.stopReason;
+  return new QualityFailoverError(
+    `openrouter/free-auto failed for ${attempted}: ${shortProviderError(failure)}`,
+    receipt,
+    cause,
+  );
 }
 
 async function generatePromptText(modelId: string, prompt: string): Promise<GenerateTextResultAny> {

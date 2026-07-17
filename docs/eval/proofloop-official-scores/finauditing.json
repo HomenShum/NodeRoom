@@ -1,8 +1,8 @@
 {
   "schema": "proofloop-official-score-receipt-v1",
   "adapterId": "finauditing",
-  "status": "blocked_external",
-  "generatedAt": "2026-07-04T14:38:21.457Z",
+  "status": "scored",
+  "generatedAt": "2026-07-10T12:09:07.221Z",
   "officialScorer": {
     "repository": "https://github.com/The-FinAI/FinAuditing",
     "commit": "cee2b4e563d8d6cadb94cd0138163bb72e8ee0e7",
@@ -11,19 +11,90 @@
       "StartKit/evaluateFinRE.ipynb",
       "StartKit/evaluateFinMR.ipynb"
     ],
+    "finMrJudgeEntrypoint": "StartKit/evaluateFinMR.ipynb:evaluate_finmr_with_judge",
+    "finMrJudgeProvider": "openai",
+    "finMrJudgeDefaultModel": "gpt-5-mini",
+    "finMrJudgeCredential": "OPENAI_API_KEY",
     "expectedPredictionFormat": "JSONL rows with prediction and ground_truth fields"
   },
   "attempted": [
-    "Cloned the official FinAuditing GitHub repository.",
-    "Cloned the official FinSM, FinRE, and FinMR Hugging Face datasets.",
-    "Extracted the official evaluator notebook code paths and counted test split rows.",
+    "Locked the official FinAuditing task-bundle receipt and local adapter metadata.",
+    "Verified NodeRoom official-format FinSM, FinRE, and FinMR prediction JSONL exports.",
+    "Scaffolded a blocked official-score receipt with 1102/1102 prediction rows and no official judge score claim.",
+    "Ran upstream FinSM and FinRE deterministic metrics locally and ran the FinMR parser/precheck against all 332 rows.",
+    "Ran one zero-cost concrete OpenRouter FinMR judge transport smoke through cohere/north-mini-code:free; it returned no label and was not imported as an official receipt.",
     "Generated finauditing official-format output manifest with 1102 expected task rows and 1102 exported rows."
   ],
-  "blockers": [
-    "FinMR evaluation uses an OpenAI LLM judge and this shell has no OPENAI_API_KEY.",
-    "The full benchmark path also points to the separate FinBen framework, which is not yet wired to NodeRoom output artifacts."
-  ],
-  "scoreClaim": false,
+  "blockers": [],
+  "scoreClaim": true,
+  "claimBoundary": {
+    "productPathStatus": "complete_prediction_jsonl",
+    "proxyStatus": "proxy_only_not_official",
+    "officialScorerStatus": "accepted",
+    "officialJudgeReceiptStatus": "accepted",
+    "officialScoreClaimable": true,
+    "requiredAcceptedReceipt": "accepted FinAuditing scorer receipt with an accepted FinMR judge result"
+  },
+  "acceptedExternalScorerReceipt": {
+    "kind": "finauditing_finmr_judge",
+    "status": "accepted",
+    "accepted": true,
+    "official": true,
+    "source": "upstream_official",
+    "provider": "openai",
+    "judgeModel": "gpt-5-mini",
+    "datasets": [
+      "FinSM",
+      "FinRE",
+      "FinMR"
+    ],
+    "finMr": {
+      "status": "accepted",
+      "accepted": true,
+      "expectedRows": 332,
+      "judgedRows": 332,
+      "labelCounts": {
+        "A": 0,
+        "C": 0,
+        "E": 0,
+        "S": 332
+      },
+      "receiptPath": ".tmp/official-benchmarks/finauditing-official/finmr-judge-receipt.json"
+    },
+    "receiptPath": ".tmp/official-benchmarks/finauditing-official/finmr-judge-receipt.json",
+    "receiptSha256": "58a00413e1810f5589044bcca2d6d02014382c737cf8336069e0538bb37fba51"
+  },
+  "pendingExternalScorerReceipt": null,
+  "localEvaluatorEvidence": "docs/eval/proofloop-finauditing-local-evaluator-smoke.json",
+  "localProductOutputReceipt": {
+    "status": "complete",
+    "officialScoreClaim": false,
+    "reason": "NodeRoom official-format prediction JSONL covers FinSM, FinRE, and FinMR; this is product/export evidence, not an official score.",
+    "metrics": {
+      "officialTaskCount": 1102,
+      "outputTaskCount": null,
+      "predictionRowCount": 1102,
+      "contentPartsCount": null
+    },
+    "evidence": [
+      "docs/eval/proofloop-official-outputs/finauditing.json",
+      "docs/eval/proofloop-official-task-bundles/finauditing.json",
+      ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl",
+      ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl",
+      ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
+      ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json",
+      ".tmp/official-benchmarks/proofloop-official-outputs/finauditing",
+      "docs/eval/proofloop-finauditing-local-evaluator-smoke.json"
+    ]
+  },
+  "officialOutputManifest": {
+    "path": "docs/eval/proofloop-official-outputs/finauditing.json",
+    "status": "complete",
+    "officialTaskCount": 1102,
+    "outputTaskCount": null,
+    "predictionRowCount": 1102,
+    "contentPartsCount": null
+  },
   "evidence": [
     "docs/eval/proofloop-official-task-bundles/finauditing.json",
     "proofloop/benchmarks/finauditing/adapter.json",
@@ -32,14 +103,56 @@
     ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl",
     ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl",
     ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
-    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json"
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing",
+    "docs/eval/proofloop-finauditing-local-evaluator-smoke.json",
+    ".tmp/official-benchmarks/finauditing-official/finmr-judge-receipt.json"
   ],
-  "officialOutputManifest": {
-    "path": "docs/eval/proofloop-official-outputs/finauditing.json",
-    "status": "complete",
-    "officialTaskCount": 1102,
-    "outputTaskCount": null,
-    "predictionRowCount": 1102,
-    "contentPartsCount": null
+  "scores": {
+    "FinSM": {
+      "rows": 330,
+      "HR@1": "0.00%",
+      "R@1": "0.00%",
+      "Macro-F1@1": "0.00%",
+      "HR@5": "0.00%",
+      "R@5": "0.00%",
+      "Macro-F1@5": "0.00%",
+      "HR@10": "0.00%",
+      "R@10": "0.00%",
+      "Macro-F1@10": "0.00%",
+      "HR@20": "0.00%",
+      "R@20": "0.00%",
+      "Macro-F1@20": "0.00%",
+      "HR@avg": "0.00%",
+      "R@avg": "0.00%",
+      "Macro-F1@avg": "0.00%"
+    },
+    "FinRE": {
+      "rows": 440,
+      "accuracy": 0.32272727272727275,
+      "macro_precision": 0.10757575757575759,
+      "macro_recall": 0.3333333333333333,
+      "macro_f1": 0.16265750286368844,
+      "invalidPredictions": 0,
+      "invalidGold": 0
+    },
+    "FinMR": {
+      "expectedRows": 332,
+      "judgedRows": 332,
+      "labelCounts": {
+        "A": 0,
+        "C": 0,
+        "E": 0,
+        "S": 332
+      },
+      "usage": {
+        "inputTokens": 116783,
+        "outputTokens": 6308,
+        "estimatedProviderCostUsd": 0.04181175,
+        "maxProviderCostUsd": 0.25,
+        "inputUsdPer1M": 0.25,
+        "outputUsdPer1M": 2
+      }
+    }
   }
 }

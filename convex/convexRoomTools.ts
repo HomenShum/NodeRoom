@@ -73,6 +73,7 @@ export class ConvexRoomTools implements RoomTools {
     private actor: Actor,
     private sessionId: string,
     private jobId?: Id<"agentJobs">,
+    private leaseId?: string,
   ) {
     this.okf = new ConvexOkfRetrievalPort(ctx, roomId, actor, jobId);
   }
@@ -94,7 +95,7 @@ export class ConvexRoomTools implements RoomTools {
 
   async setArtifactMeta(args: { artifactId: string; title?: string; summary?: string; tags?: string[] }): Promise<{ ok: boolean; error?: string }> {
     try {
-      await this.ctx.runMutation(artifactsSetArtifactMetaByAgentRef, { roomId: this.roomId, artifactId: args.artifactId, title: args.title, summary: args.summary, tags: args.tags, actor: this.actor });
+      await this.ctx.runMutation(artifactsSetArtifactMetaByAgentRef, { roomId: this.roomId, artifactId: args.artifactId, title: args.title, summary: args.summary, tags: args.tags, actor: this.actor, jobId: this.jobId, leaseId: this.leaseId });
       return { ok: true };
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : "failed" };
@@ -121,6 +122,8 @@ export class ConvexRoomTools implements RoomTools {
           summary: args.summary,
           sourceArtifactIds: args.sourceArtifactIds,
           sourceUrls: args.sourceUrls,
+          jobId: this.jobId,
+          leaseId: this.leaseId,
         });
         artifacts.push({ id: String(result.artifactId), title: file.fileName, kind: "note" });
       }
@@ -141,6 +144,8 @@ export class ConvexRoomTools implements RoomTools {
       mode: args.mode,
       columns: args.columns,
       actor: this.actor,
+      jobId: this.jobId,
+      leaseId: this.leaseId,
     });
     if (r.ok) return { ok: true, version: r.version, columns: r.columns };
     if (r.reason === "conflict") return { ok: false, conflict: true, expected: r.expected, actual: r.actual };
@@ -153,7 +158,7 @@ export class ConvexRoomTools implements RoomTools {
   async readNotebook(args: { artifactId?: string }): Promise<ReadNotebookOutcome> {
     const artifactId = (args.artifactId ?? this.artifactId) as Id<"artifacts">;
     try {
-      await this.ctx.runMutation(notebookEnsureForAgentRef, { roomId: this.roomId, artifactId, actor: this.actor });
+      await this.ctx.runMutation(notebookEnsureForAgentRef, { roomId: this.roomId, artifactId, actor: this.actor, jobId: this.jobId, leaseId: this.leaseId });
       return await this.ctx.runQuery(notebookReadForAgentRef, { roomId: this.roomId, artifactId, actor: this.actor });
     } catch (e) {
       return { ok: false, reason: e instanceof Error ? e.message : "read_notebook_failed" };
@@ -189,6 +194,7 @@ export class ConvexRoomTools implements RoomTools {
         artifactId,
         actor: this.actor,
         jobId: this.jobId,
+        leaseId: this.leaseId,
         runLabel: this.sessionId,
         title: args.title,
         parentBlockId: args.parentBlockId,
@@ -254,6 +260,7 @@ export class ConvexRoomTools implements RoomTools {
         artifactId,
         actor: this.actor,
         jobId: this.jobId,
+        leaseId: this.leaseId,
         runLabel: this.sessionId,
         blockId: args.blockId,
         baseTextHash: args.baseTextHash,
@@ -287,7 +294,7 @@ export class ConvexRoomTools implements RoomTools {
   async planNotebookEnrichment(args: { artifactId?: string; maxTargets?: number }): Promise<NotebookEnrichmentPlan> {
     const artifactId = (args.artifactId ?? this.artifactId) as Id<"artifacts">;
     try {
-      await this.ctx.runMutation(notebookEnsureForAgentRef, { roomId: this.roomId, artifactId, actor: this.actor });
+      await this.ctx.runMutation(notebookEnsureForAgentRef, { roomId: this.roomId, artifactId, actor: this.actor, jobId: this.jobId, leaseId: this.leaseId });
       return await this.ctx.runQuery(notebookPlanEnrichmentRef, { roomId: this.roomId, artifactId, actor: this.actor, maxTargets: args.maxTargets });
     } catch (e) {
       return { ok: false, reason: e instanceof Error ? e.message : "plan_notebook_enrichment_failed" };
@@ -321,7 +328,7 @@ export class ConvexRoomTools implements RoomTools {
   }
 
   async proposeLock(elementIds: string[], reason: string, artifactId: string = this.artifactId) {
-    const r = await this.ctx.runMutation(locksProposeLockRef, { roomId: this.roomId, artifactId, elementIds, holder: this.actor, sessionId: this.sessionId, reason });
+    const r = await this.ctx.runMutation(locksProposeLockRef, { roomId: this.roomId, artifactId, elementIds, holder: this.actor, sessionId: this.sessionId, reason, jobId: this.jobId, leaseId: this.leaseId });
     return r.ok ? { ok: true as const, lockId: String(r.lockId) } : { ok: false as const, reason: r.reason, lockId: r.lockId ? String(r.lockId) : undefined };
   }
 
@@ -356,7 +363,7 @@ export class ConvexRoomTools implements RoomTools {
       });
     }
     try {
-      const r = await this.ctx.runMutation(artifactsApplyAgentCellEditRef, { roomId: this.roomId, artifactId, elementId, value, baseVersion, kind, actor: this.actor, jobId: this.jobId });
+      const r = await this.ctx.runMutation(artifactsApplyAgentCellEditRef, { roomId: this.roomId, artifactId, elementId, value, baseVersion, kind, actor: this.actor, jobId: this.jobId, leaseId: this.leaseId });
       if (r.ok) return { ok: true, version: r.version, mutationReceiptId: r.mutationReceiptId ? String(r.mutationReceiptId) : undefined };
       if (r.reason === "conflict") return { ok: false, conflict: true, expected: r.expected, actual: r.actual };
       if (r.reason === "locked") return { ok: false, locked: true, holder: r.by };
@@ -383,7 +390,7 @@ export class ConvexRoomTools implements RoomTools {
 
   async createDraft(ops: { elementId: string; value: unknown; baseVersion: number }[], blockedByLockId: string, note: string, artifactId: string = this.artifactId) {
     const r = await this.ctx.runMutation(draftsCreateDraftRef, {
-      roomId: this.roomId, artifactId, author: this.actor, note, blockedByLockId,
+      roomId: this.roomId, artifactId, jobId: this.jobId, leaseId: this.leaseId, author: this.actor, note, blockedByLockId,
       ops: ops.map((o) => ({ opId: crypto.randomUUID(), artifactId: String(artifactId), elementId: o.elementId, kind: "set" as const, value: o.value, baseVersion: o.baseVersion })),
     });
     return { draftId: String(r.draftId) };
@@ -391,7 +398,7 @@ export class ConvexRoomTools implements RoomTools {
 
   async say(text: string): Promise<void> {
     const channel = this.actor.scope === "private" && this.actor.ownerId ? this.actor.ownerId : "public";
-    await this.ctx.runMutation(messagesSendAgentRef, { roomId: this.roomId, channel, author: this.actor, text, clientMsgId: crypto.randomUUID(), kind: "agent" });
+    await this.ctx.runMutation(messagesSendAgentRef, { roomId: this.roomId, channel, author: this.actor, text, clientMsgId: crypto.randomUUID(), kind: "agent", jobId: this.jobId, leaseId: this.leaseId });
   }
 
   /** Convex-standard-runtime source fetch: HTTPS-only, target-guarded, timeout-bound, and size-capped. */
@@ -429,6 +436,7 @@ export class ConvexRoomTools implements RoomTools {
     await this.ctx.runMutation(capturesRecordRef, {
       roomId: this.roomId, url: input.url, goal: input.goal, title: input.title,
       ok: input.ok, error: input.error, ts: Date.now(), steps, data: input.data,
+      jobId: this.jobId, leaseId: this.leaseId,
     });
     try {
       const contentHash = await sha256hex(JSON.stringify({ url: input.url, title: input.title, data: input.data, steps }));
@@ -443,6 +451,7 @@ export class ConvexRoomTools implements RoomTools {
         screenshotStorageId: firstScreenshotId,
         provider: "firecrawl",
         capturedByJobId: this.jobId,
+        leaseId: this.leaseId,
         visibility,
         ownerId: visibility === "private" ? this.actor.ownerId : undefined,
       });
@@ -457,6 +466,7 @@ export class ConvexRoomTools implements RoomTools {
           checks: { captureOk: input.ok, sourceUrl: input.url },
           usedBy: this.jobId ? [{ kind: "agentJob", id: String(this.jobId) }] : [],
           createdByJobId: this.jobId,
+          leaseId: this.leaseId,
         });
       }
     } catch {

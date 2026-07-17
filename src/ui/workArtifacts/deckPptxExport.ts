@@ -203,7 +203,10 @@ const THEME = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 </a:theme>`;
 
 function addFile(zip: JSZip, path: string, body: string): void {
-  zip.file(path, body, { date: ZIP_DATE });
+  zip.file(path, body, {
+    date: new Date(ZIP_DATE.getTime()),
+    createFolders: false,
+  });
 }
 
 export async function buildDeckPptxExport(storyboard: DeckStoryboard, generatedAt = 0): Promise<DeckPptxExport> {

@@ -32,6 +32,99 @@ describe("auth/session production policy", () => {
     })).rejects.toThrow(/production_identity_required/);
   });
 
+  it("does not fall back to a room token after production identity enforcement is enabled", async () => {
+    process.env.NODEROOM_REQUIRE_CONVEX_IDENTITY = "1";
+    const t = convexTest(schema, modules);
+    const host = t.withIdentity({ subject: "account-host" });
+    const created = await host.mutation(api.rooms.create, {
+      code: "AUTH03",
+      title: "Identity-bound room",
+      hostName: "Maya",
+      authToken: HOST_TOKEN,
+    });
+    const proof = { actor: { kind: "user" as const, id: String(created.memberId), name: "Maya" }, token: HOST_TOKEN };
+
+    await expect(t.query(api.rooms.get, { roomId: created.roomId, requester: proof })).rejects.toThrow(/production_identity_required/);
+    await expect(t.withIdentity({ subject: "different-account" }).query(api.rooms.get, { roomId: created.roomId, requester: proof })).rejects.toThrow(/identity_mismatch/);
+    await expect(host.query(api.rooms.get, { roomId: created.roomId, requester: proof })).resolves.toBeTruthy();
+  });
+
+  it("resumes the same authenticated member across browsers without consuming another seat", async () => {
+    process.env.NODEROOM_REQUIRE_CONVEX_IDENTITY = "1";
+    const t = convexTest(schema, modules);
+    const host = t.withIdentity({ subject: "account-host" });
+    const member = t.withIdentity({ subject: "account-member" });
+    const created = await host.mutation(api.rooms.create, {
+      code: "AUTH04",
+      title: "Cross-browser room",
+      hostName: "Maya",
+      authToken: HOST_TOKEN,
+    });
+    const first = await member.mutation(api.rooms.joinAnonymous, {
+      code: "AUTH04",
+      name: "Sam",
+      authToken: MEMBER_TOKEN,
+      anon: true,
+    });
+    if (!first || "error" in first) throw new Error("first join failed");
+    const second = await member.mutation(api.rooms.joinAnonymous, {
+      code: "AUTH04",
+      name: "Different browser name",
+      authToken: "second-browser-session-token-0123456789",
+    });
+    if (!second || "error" in second) throw new Error("second join failed");
+
+    expect(second).toMatchObject({ memberId: first.memberId, name: "Sam", resumed: true });
+    const hostProof = { actor: { kind: "user" as const, id: String(created.memberId), name: "Maya" }, token: HOST_TOKEN };
+    const members = await host.query(api.rooms.members, { roomId: created.roomId, requester: hostProof });
+    expect(members.map((entry) => entry.name)).toEqual(["Maya", "Sam"]);
+    expect(members.find((entry) => entry.name === "Sam")?.anon).toBe(false);
+  });
+
+  it("binds a legacy token-authenticated member to the first signed-in account that resumes it", async () => {
+    const t = convexTest(schema, modules);
+    const created = await t.mutation(api.rooms.create, {
+      code: "AUTH05",
+      title: "Legacy migration room",
+      hostName: "Maya",
+      authToken: HOST_TOKEN,
+    });
+
+    process.env.NODEROOM_REQUIRE_CONVEX_IDENTITY = "1";
+    const account = t.withIdentity({ subject: "account-migrated-host" });
+    const resumed = await account.mutation(api.rooms.joinAnonymous, {
+      code: "AUTH05",
+      name: "Different browser name",
+      authToken: HOST_TOKEN,
+      anon: false,
+    });
+    if (!resumed || "error" in resumed) throw new Error("legacy resume failed");
+
+    expect(resumed).toMatchObject({ memberId: created.memberId, name: "Maya", resumed: true });
+    const proof = { actor: { kind: "user" as const, id: String(created.memberId), name: "Maya" }, token: HOST_TOKEN };
+    await expect(account.query(api.rooms.get, { roomId: created.roomId, requester: proof })).resolves.toBeTruthy();
+    await expect(t.query(api.rooms.get, { roomId: created.roomId, requester: proof })).rejects.toThrow(/production_identity_required/);
+  });
+
+  it("refuses to resume an identity-bound member with the same room token from another account", async () => {
+    process.env.NODEROOM_REQUIRE_CONVEX_IDENTITY = "1";
+    const t = convexTest(schema, modules);
+    const owner = t.withIdentity({ subject: "account-owner" });
+    await owner.mutation(api.rooms.create, {
+      code: "AUTH06",
+      title: "Identity ownership room",
+      hostName: "Maya",
+      authToken: HOST_TOKEN,
+    });
+
+    await expect(t.withIdentity({ subject: "account-attacker" }).mutation(api.rooms.joinAnonymous, {
+      code: "AUTH06",
+      name: "Maya",
+      authToken: HOST_TOKEN,
+      anon: false,
+    })).rejects.toThrow(/identity_mismatch/);
+  });
+
   it("blocks host leave and revokes ordinary member proofs after leave", async () => {
     const t = convexTest(schema, modules);
     const created = await t.mutation(api.rooms.createStarterRoom, {

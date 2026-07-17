@@ -9,20 +9,38 @@ export function redactTraceText(value: string, replacement = "[redacted]"): stri
 }
 
 export function stableTraceJson(value: unknown): string {
-  const seen = new WeakSet<object>();
-  const normalize = (input: unknown): unknown => {
+  const ancestors = new WeakSet<object>();
+  const normalize = (input: unknown, key: string): unknown => {
     if (typeof input === "string") return redactTraceText(input);
     if (input === null || typeof input !== "object") return input;
-    if (seen.has(input)) return "[circular]";
-    seen.add(input);
-    if (Array.isArray(input)) return input.map((item) => normalize(item));
-    return Object.fromEntries(
-      Object.entries(input as Record<string, unknown>)
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([key, entry]) => [key, normalize(entry)]),
-    );
+
+    if (ancestors.has(input)) return "[circular]";
+    const toJSON = (input as { toJSON?: unknown }).toJSON;
+    if (typeof toJSON === "function") {
+      ancestors.add(input);
+      try {
+        const serialized = toJSON.call(input, key);
+        if (serialized !== input) return normalize(serialized, key);
+      } catch {
+        // Keep trace hashing total for objects whose custom serializer fails.
+      } finally {
+        ancestors.delete(input);
+      }
+    }
+
+    ancestors.add(input);
+    try {
+      if (Array.isArray(input)) return input.map((item, index) => normalize(item, String(index)));
+      return Object.fromEntries(
+        Object.entries(input as Record<string, unknown>)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([entryKey, entry]) => [entryKey, normalize(entry, entryKey)]),
+      );
+    } finally {
+      ancestors.delete(input);
+    }
   };
-  return JSON.stringify(normalize(value));
+  return JSON.stringify(normalize(value, ""));
 }
 
 export function stableTraceHash(value: unknown): string {

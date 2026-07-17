@@ -163,7 +163,7 @@ test.describe("#mobile - terra surface renders (live Convex room)", () => {
     expect(page.url(), "live mobile proof must still avoid memory mode after room creation").not.toContain("mode=memory");
     await expect(app).toHaveCSS("background-color", "rgb(251, 244, 231)");
     await expect(app).toContainText(/Startup Banking Diligence War Room/i);
-    await expect(page.getByTestId("mobile-sample-banner")).toContainText(/Sample (workspace|still loading)/i);
+    await expect(page.getByTestId("mobile-sample-banner")).toContainText(/Live runtime · sample data/i);
     await expect(page.locator('[data-testid="ao-room"]')).toHaveCount(0);
     const firstJoin = page.getByTestId("gap-firstjoin");
     await expect(firstJoin).toContainText(/1 person is & 1 agent here/i);

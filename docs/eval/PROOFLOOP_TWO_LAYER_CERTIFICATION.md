@@ -1,7 +1,7 @@
 # ProofLoop Standalone Runner Dogfood
 
-Generated: 2026-07-05T19:48:29.628Z
-Plan ID: `proofloop-standalone-runner-dogfood-2026-07-05T19-48-29-628Z`
+Generated: 2026-07-10T14:21:58.232Z
+Plan ID: `proofloop-standalone-runner-dogfood-2026-07-10T14-21-58-232Z`
 Schema: `proofloop-runner-plan-v1`
 Mode: `two-layer-certification-v1`
 
@@ -28,12 +28,12 @@ Registry note: until the package release with the two-layer `this-repo --write-r
 
 ## Summary
 
-- Runner tasks: 19
+- Runner tasks: 16
 - Capability/headless tasks: 7
 - Browser-certification tasks: 9
 - Adapter-gap tasks: 0
 - Guarded live-run batch tasks: 9
-- Official-score gap tasks: 3
+- Official-score gap tasks: 0
 - Unique task targets: 1354
 - Model-task attempts: 5416
 - Queued runnable attempts: 3516
@@ -63,9 +63,6 @@ Registry note: until the package release with the two-layer `this-repo --write-r
 | `live-run.spreadsheetbench-v1-full-912` | browser-certification | guarded-live-run-batch | guarded-spend | spreadsheetbench-v1-full-912 | 2518 | $77.143732 |
 | `live-run.spreadsheetbench-v2-full-321` | browser-certification | guarded-live-run-batch | guarded-spend | spreadsheetbench-v2-full-321 | 642 | $10.914 |
 | `live-run.workstreambench-prod-proxy-task` | browser-certification | guarded-live-run-batch | guarded-spend | workstreambench-prod-proxy-task | 1 | $0.023 |
-| `official-score.finauditing` | official-scoring | official-score-gap | blocked-external | finauditing | 0 | $0.00 |
-| `official-score.finch` | official-scoring | official-score-gap | blocked-external | finch | 0 | $0.00 |
-| `official-score.workstreambench` | official-scoring | official-score-gap | blocked-external | workstreambench | 0 | $0.00 |
 
 ## Guardrails
 

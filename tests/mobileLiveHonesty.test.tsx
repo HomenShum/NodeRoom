@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SourceOverlay, TraceOverlay } from "../src/ui/mobile/MobileOverlay";
 import { Composer, RoomChat } from "../src/ui/mobile/MobileChat";
-import { projectMobileSheetRow, resolveMobileExperience } from "../src/ui/mobile/MobileAppLive";
+import { buildMobileRecents, projectMobileSheetRow, resolveMobileExperience } from "../src/ui/mobile/MobileAppLive";
 import { Home } from "../src/ui/mobile/MobileScreens";
 import { EvidenceSheet, PlanSheet } from "../src/ui/mobile/MobileSheets";
 import * as D from "../src/ui/mobile/mobileData";
@@ -162,5 +162,26 @@ describe("mobile live-room honesty", () => {
     expect(resolveMobileExperience(undefined, "sample")).toBe("sample");
     expect(resolveMobileExperience("workspace", "sample")).toBe("workspace");
     expect(resolveMobileExperience(undefined, undefined)).toBe("workspace");
+  });
+
+  it("places the live governed storyboard on the artifact-card home without sample fallback", () => {
+    const recents = buildMobileRecents([], {
+      id: "room-live:storyboard",
+      title: "Live diligence readout",
+      status: "proposed",
+      sourceGaps: 2,
+      slides: [
+        { id: "slide-1", index: 1, title: "Summary", status: "needs_review", html: "<h1>Summary</h1>" },
+      ],
+    });
+
+    expect(recents).toEqual([expect.objectContaining({
+      id: "deck:room-live:storyboard",
+      kind: "deck",
+      title: "Live diligence readout",
+      meta: "governed deck - 1 slide - proposed",
+      peek: "2 evidence gaps remain",
+    })]);
+    expect(JSON.stringify(recents)).not.toContain("CardioNova");
   });
 });

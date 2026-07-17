@@ -27,7 +27,8 @@ import { columnLetters } from "../../app/spreadsheetIndex";
 import { onStageFocus, focusStage, type StageFocusTarget } from "../stageFocus";
 import { TodaysBrief } from "./TodaysBrief";
 import { classifyEvidence } from "../traceLens/evidence";
-import type { Actor, Artifact as Art, CellEvidence, CellPayload, DataframeColumn, DocumentParseMeta, Proposal, TraceEvent, ResearchRowInput } from "../../engine/types";
+import type { Actor, Artifact as Art, CellEvidence, CellPayload, DataframeColumn, DocumentParseMeta, ExcelCellStyle, Proposal, TraceEvent, ResearchRowInput } from "../../engine/types";
+import { normalizeSpreadsheetFontColor, spreadsheetFontColorToCss } from "../../shared/spreadsheetFontColor";
 import { AttentionOverlay } from "../overlay/AttentionOverlay";
 import { createSpreadsheetResolver } from "../overlay/spreadsheetResolver";
 import { focusBoxesForSheet, type SheetCellState } from "../overlay/focusBoxesForSheet";
@@ -41,6 +42,8 @@ import { buildNotebookPatchDiff, notebookPatchValueText, type NotebookPatchDiff 
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "../../components/ui/hover-card";
 import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
 import { ScrollArea } from "../../components/ui/scroll-area";
+import { isCollaborativeDeckArtifact } from "../workArtifacts/collaborativeDeck";
+import { onOpenWorkArtifactsReview } from "../workArtifacts/workArtifactsNavigation";
 
 const TraceSurface = lazy(() => import("./TraceSurface").then((m) => ({ default: m.TraceSurface })));
 const KnowledgeGraph = lazy(() => import("./KnowledgeGraph").then((m) => ({ default: m.KnowledgeGraph })));
@@ -145,8 +148,10 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   const research = selected?.title === RESEARCH_TITLE ? selected : arts.find((a) => a.title === RESEARCH_TITLE);
   const varianceSheet = arts.find((a) => a.kind === "sheet" && a.title === "Q3 variance") ?? arts.find((a) => a.kind === "sheet" && a.title !== RESEARCH_TITLE);
   const sheet = selected?.kind === "sheet" && selected.title !== RESEARCH_TITLE ? selected : varianceSheet;
-  // A "plain" note is any note that is NOT the agent wiki or the brief (both render as their own doc tabs).
-  const isPlainNote = (a: Art) => a.kind === "note" && a.title !== WIKI_TITLE && a.title !== BRIEF_TITLE;
+  const selectedCollaborativeDeck = !!selected && isCollaborativeDeckArtifact(selected);
+  // Collaborative decks are note-backed for persistence, but their canonical
+  // editor is the storyboard work-artifacts surface, never the notebook path.
+  const isPlainNote = (a: Art) => a.kind === "note" && a.title !== WIKI_TITLE && a.title !== BRIEF_TITLE && !isCollaborativeDeckArtifact(a);
   const note = selected && isPlainNote(selected) ? selected : arts.find(isPlainNote);
   const wall = selected?.kind === "wall" ? selected : arts.find((a) => a.kind === "wall");
   const artFor = (t: TabId) => (t === "wiki" ? wiki : t === "brief" ? brief : t === "sheet" ? sheet : t === "research" ? research : t === "note" ? note : wall);
@@ -170,7 +175,9 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   const [homeOpen, setHomeOpen] = useState(false);
   // Read-only proof bundle: a unified view over room artifacts, proposals, traces, graph, decks,
   // and exports. It adapts existing state; it does not own mutations.
-  const [workArtifactsOpen, setWorkArtifactsOpen] = useState(false);
+  const [workArtifactsOpen, setWorkArtifactsOpen] = useState(selectedCollaborativeDeck);
+  const [reviewJobId, setReviewJobId] = useState<string | undefined>();
+  const wasCollaborativeDeck = useRef(selectedCollaborativeDeck);
   // Knowledge graph: a derived node-link view of how this room's artifacts reference each other.
   const [graphOpen, setGraphOpen] = useState(false);
   const [editErr, setEditErr] = useState<string | null>(null);
@@ -181,6 +188,25 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   useEffect(() => { if (!exportErr) return; const t = setTimeout(() => setExportErr(null), 6000); return () => clearTimeout(t); }, [exportErr]);
   useEffect(() => { if (!exportOk) return; const t = setTimeout(() => setExportOk(null), 6000); return () => clearTimeout(t); }, [exportOk]);
   useEffect(() => { setTab(tabForArt(artId)); }, [artId, wiki?.id, sheet?.id, research?.id, note?.id, wall?.id, arts.length]);
+  useEffect(() => {
+    const leavingCollaborativeDeck = wasCollaborativeDeck.current && !selectedCollaborativeDeck;
+    wasCollaborativeDeck.current = selectedCollaborativeDeck;
+    if (selectedCollaborativeDeck) {
+      setWorkArtifactsOpen(true);
+      setHomeOpen(false);
+      setTraceOpen(false);
+      setGraphOpen(false);
+    } else if (leavingCollaborativeDeck) {
+      setWorkArtifactsOpen(false);
+    }
+  }, [selectedCollaborativeDeck]);
+  useEffect(() => onOpenWorkArtifactsReview((target) => {
+    setReviewJobId(target.jobId);
+    setWorkArtifactsOpen(true);
+    setHomeOpen(false);
+    setTraceOpen(false);
+    setGraphOpen(false);
+  }), []);
   useEffect(() => {
     const strip = tabStripRef.current;
     const active = strip?.querySelector<HTMLElement>('.r-tab[data-active="true"]');
@@ -308,7 +334,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
           )}
           {openIds
             ? visibleOpenTabArts.map((a) => (
-                <button key={a.id} className="r-tab fx-tab r-filetab" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(false); setGraphOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
+                <button key={a.id} className="r-tab fx-tab r-filetab" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(isCollaborativeDeckArtifact(a)); setGraphOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
                   {tabIcon(a)}
                   {renamingId === a.id ? (
                     <input className="r-filetab-rename" defaultValue={a.title} autoFocus aria-label="Rename file"
@@ -336,13 +362,13 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
               </summary>
               <div className="r-tab-overflow-menu" role="menu">
                 {openTabArts.map((a) => (
-                  <button key={a.id} type="button" role="menuitem" className="r-tab-overflow-item" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(false); setGraphOpen(false); tabMenuRef.current?.removeAttribute("open"); }}>{tabIcon(a)} <span>{a.title}</span></button>
+                  <button key={a.id} type="button" role="menuitem" className="r-tab-overflow-item" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(isCollaborativeDeckArtifact(a)); setGraphOpen(false); tabMenuRef.current?.removeAttribute("open"); }}>{tabIcon(a)} <span>{a.title}</span></button>
                 ))}
               </div>
             </details>
           )}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab fx-tab r-artifact-bundletab" data-active={String(workArtifactsOpen)} data-testid="work-artifacts-tab" title="Room proof bundle — artifacts, proposals, traces, graph, and exports" onClick={() => { setWorkArtifactsOpen(true); setHomeOpen(false); setTraceOpen(false); setGraphOpen(false); }}>
+            <button type="button" className="r-tab fx-tab r-artifact-bundletab" data-active={String(workArtifactsOpen)} data-testid="work-artifacts-tab" title="Room proof bundle — artifacts, proposals, traces, graph, and exports" onClick={() => { setReviewJobId(undefined); setWorkArtifactsOpen(true); setHomeOpen(false); setTraceOpen(false); setGraphOpen(false); }}>
               <Package size={13} /> Artifacts
             </button>
           )}
@@ -414,7 +440,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
         </Suspense>
       ) : workArtifactsOpen ? (
         <Suspense fallback={<ArtifactAuxSurfaceFallback />}>
-          <WorkArtifactsPanel roomId={roomId} me={me} onOpenArtifact={(id) => { onArt(id); setWorkArtifactsOpen(false); }} />
+          <WorkArtifactsPanel roomId={roomId} me={me} initialArtifactId={selectedCollaborativeDeck ? artId : undefined} reviewJobId={reviewJobId} onOpenArtifact={(id) => { onArt(id); setWorkArtifactsOpen(false); }} />
         </Suspense>
       ) : graphOpen ? (
         <Suspense fallback={<ArtifactAuxSurfaceFallback />}>
@@ -1197,14 +1223,32 @@ function EditableCell({ value, disabled, align, onCommit, addLabel, onEditStart,
   );
 }
 
+function isBlankSpreadsheet(art: Art): boolean {
+  const sourceFile = art.meta?.dataframe?.sourceFile;
+  return sourceFile === "blank-room" || sourceFile === "blank-room-agent";
+}
+
+function dataframeRowCount(art: Art): number {
+  const count = Number(art.meta?.dataframe?.rowCount);
+  return Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
+}
+
 function rowIdsOf(art: Art): string[] {
   if (art.meta?.excelGrid) {
     const rowCount = Math.max(1, Number(art.meta.excelGrid.rows) || 1);
     return Array.from({ length: rowCount }, (_, i) => String(i + 1));
   }
+  // Fresh-room sheets can briefly receive their element map before the small
+  // version/order companion query. They also become mixed-address artifacts
+  // when NodeAgent writes canonical A1 cells beside the legacy rN__column
+  // seed. The declared blank-sheet extent is authoritative in both cases.
+  const blankRows = isBlankSpreadsheet(art) ? dataframeRowCount(art) : 0;
+  if (blankRows) return Array.from({ length: blankRows }, (_, i) => String(i + 1));
   const ids: string[] = [];
-  for (const eid of art.order ?? []) {
-    const r = eid.split("__")[0];
+  const elementIds = (art.order?.length ? art.order : Object.keys(art.elements ?? {}));
+  for (const eid of elementIds) {
+    const a1 = eid.match(/^[A-Z]+(\d+)$/);
+    const r = a1?.[1] ?? eid.split("__")[0];
     if (r && !ids.includes(r)) ids.push(r);
   }
   return ids;
@@ -1221,14 +1265,32 @@ function colsOf(art: Art): string[] {
 }
 
 function sheetElementId(art: Art, rowId: string, colId: string): string {
-  return art.meta?.excelGrid ? `${colId}${rowId}` : `${rowId}__${colId}`;
+  const numericRow = rowId.match(/^r?(\d+)$/)?.[1] ?? rowId;
+  const a1 = `${/^[A-Za-z]+$/.test(colId) ? colId.toUpperCase() : colId}${numericRow}`;
+  if (art.meta?.excelGrid) return a1;
+  if (isBlankSpreadsheet(art)) {
+    // Prefer a canonical NodeAgent write when it exists, then preserve edits
+    // to an existing legacy seed cell. New cells use A1 so the UI and agent
+    // converge without rewriting old room data.
+    if (art.elements[a1]) return a1;
+    const legacy = `r${numericRow}__${colId}`;
+    if (art.elements[legacy]) return legacy;
+    return a1;
+  }
+  return `${rowId}__${colId}`;
 }
 
 function parseSheetElementId(art: Art, elementId: string | null): { rowId: string; colId: string } {
   if (!elementId) return { rowId: "", colId: "" };
-  if (art.meta?.excelGrid) {
-    const match = elementId.match(/^([A-Z]+)(\d+)$/);
-    return match ? { colId: match[1], rowId: match[2] } : { rowId: "", colId: "" };
+  if (art.meta?.excelGrid || isBlankSpreadsheet(art)) {
+    const match = elementId.match(/^([A-Za-z]+)(\d+)$/);
+    if (match) {
+      const metaCol = art.meta?.dataframe?.columns?.find((col) => col.id.toUpperCase() === match[1].toUpperCase())?.id;
+      return { colId: metaCol ?? match[1], rowId: match[2] };
+    }
+    const legacy = elementId.match(/^r?(\d+)__(.+)$/);
+    if (legacy) return { rowId: legacy[1], colId: legacy[2] };
+    return { rowId: "", colId: "" };
   }
   const sep = elementId.indexOf("__");
   return sep >= 0 ? { rowId: elementId.slice(0, sep), colId: elementId.slice(sep + 2) } : { rowId: "", colId: "" };
@@ -1269,7 +1331,7 @@ function sheetColumnWidth(art: Art, col: DataframeColumn, index: number): number
 
 function dataframeCellAddress(art: Art, cols: string[], rows: string[], key: string | null): string {
   if (!key) return "";
-  if (art.meta?.excelGrid) return key;
+  if (art.meta?.excelGrid || (isBlankSpreadsheet(art) && /^[A-Za-z]+\d+$/.test(key))) return key.toUpperCase();
   const sep = key.indexOf("__");
   if (sep < 0) return "";
   const rowId = key.slice(0, sep);
@@ -2185,6 +2247,7 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
         const span = mergeAnchor.get(id);
         const raw = art.elements[id]?.value;
         const payload = asCellPayload(raw);
+        const fontColorCss = spreadsheetCellFontColorCss(art, id);
         const value = displayCellValue(raw);
         const locked = !!lockedByOther(store, art.id, id, me);
         const proposed = !!proposalFor(proposals, art.id, id) || draftedFor(store, roomId, art.id, id);
@@ -2197,7 +2260,7 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
         const metaTitle = evidenceTitle(payload);
         const cls = "r-cell" + (isNumberLikeCell(raw) ? " num" : "") + (locked ? " locked" : "") + (proposed ? " proposed" : "") + (committed ? " committed rm-wet" : "") + (hasVisibleEvidence ? " evidence" : "") + (showFormulaMarker ? " formula" : "") + (sel === id ? " sel fx-sel" : "");
         return (
-          <td key={col} className={cls} title={[value || undefined, dataframeCellAddress(art, cols, filteredRows, id), metaTitle || undefined].filter(Boolean).join(" | ")} data-evidence-class={classifyEvidence(payload)} data-cell-key={id} data-element-id={id} data-testid="sheet-cell" data-has-evidence={hasVisibleEvidence ? "true" : undefined} data-has-formula={payload?.formula ? "true" : undefined} colSpan={span?.colSpan} rowSpan={span?.rowSpan} aria-selected={sel === id || undefined} onClick={(e) => { setSel(id); (e.currentTarget.closest("table") as HTMLElement | null)?.focus(); }} onDoubleClick={() => { setEditingId(id); setEditDraft(value); }}>
+          <td key={col} className={cls} style={fontColorCss ? ({ "--r-cell-font-color": fontColorCss } as CSSProperties) : undefined} title={[value || undefined, dataframeCellAddress(art, cols, filteredRows, id), metaTitle || undefined].filter(Boolean).join(" | ")} data-evidence-class={classifyEvidence(payload)} data-cell-key={id} data-element-id={id} data-testid="sheet-cell" data-has-evidence={hasVisibleEvidence ? "true" : undefined} data-has-formula={payload?.formula ? "true" : undefined} data-font-color={fontColorCss} colSpan={span?.colSpan} rowSpan={span?.rowSpan} aria-selected={sel === id || undefined} onClick={(e) => { setSel(id); (e.currentTarget.closest("table") as HTMLElement | null)?.focus(); }} onDoubleClick={() => { setEditingId(id); setEditDraft(value); }}>
             {editingId === id ? (
               <textarea className="r-cell-editor rm-cellin" autoFocus value={editDraft} data-testid="cell-editor"
                 style={{ width: "100%", minHeight: "28px", resize: "none", overflow: "hidden" }}
@@ -2424,6 +2487,12 @@ function asCellPayload(value: unknown): CellPayload | null {
   return value as CellPayload;
 }
 
+export function spreadsheetCellFontColorCss(art: Art, elementId: string): string | undefined {
+  const payload = asCellPayload(art.elements[elementId]?.value);
+  return spreadsheetFontColorToCss(payload?.fontColor)
+    ?? spreadsheetFontColorToCss(art.meta?.excelGrid?.styles?.[elementId]?.fc);
+}
+
 function unwrapDisplayCellValue(value: unknown, depth = 0): unknown {
   if (!value || typeof value !== "object" || depth > 4) return value;
   const record = value as Record<string, unknown>;
@@ -2482,9 +2551,43 @@ export function exportCellValue(value: unknown): import("exceljs").CellValue {
 }
 
 /** Apply value and cell-level formatting together on every worksheet export path. */
-export function applyExportCell(cell: import("exceljs").Cell, value: unknown): void {
+export function applyExportCell(
+  cell: import("exceljs").Cell,
+  value: unknown,
+  importedStyle?: ExcelCellStyle,
+  numFmts: string[] = [],
+): void {
   cell.value = exportCellValue(value);
-  const numFmt = asCellPayload(value)?.numFmt?.trim();
+  const payload = asCellPayload(value);
+  const importedFontColor = normalizeSpreadsheetFontColor(importedStyle?.fc);
+  const fontColor = normalizeSpreadsheetFontColor(payload?.fontColor) ?? importedFontColor;
+  if (importedStyle?.b || importedStyle?.i || importedStyle?.u || fontColor) {
+    cell.font = {
+      ...cell.font,
+      ...(importedStyle?.b ? { bold: true } : {}),
+      ...(importedStyle?.i ? { italic: true } : {}),
+      ...(importedStyle?.u ? { underline: true } : {}),
+      ...(fontColor ? { color: { argb: fontColor } } : {}),
+    };
+  }
+  const fillColor = normalizeSpreadsheetFontColor(importedStyle?.bg);
+  if (fillColor) cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: fillColor } };
+  if (importedStyle?.a || importedStyle?.ind !== undefined) {
+    cell.alignment = {
+      ...cell.alignment,
+      ...(importedStyle.a ? { horizontal: importedStyle.a === "r" ? "right" : "center" } : {}),
+      ...(importedStyle.ind !== undefined ? { indent: importedStyle.ind } : {}),
+    };
+  }
+  if (importedStyle?.bt || importedStyle?.bb) {
+    cell.border = {
+      ...cell.border,
+      ...(importedStyle.bt ? { top: { ...cell.border?.top, style: "thin" } } : {}),
+      ...(importedStyle.bb ? { bottom: { ...cell.border?.bottom, style: "thin" } } : {}),
+    };
+  }
+  const importedNumFmt = importedStyle?.f === undefined ? undefined : numFmts[importedStyle.f]?.trim();
+  const numFmt = payload?.numFmt?.trim() || importedNumFmt;
   if (numFmt) cell.numFmt = numFmt;
 }
 
@@ -2533,7 +2636,7 @@ async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null, all
   const cellForExport = (id: string): unknown => {
     const stored = art.elements[id]?.value;
     const visible = visibleCells.get(id);
-    return asCellPayload(stored)?.formula ? stored : visible !== undefined ? visible : stored;
+    return asCellPayload(stored) ? stored : visible !== undefined ? visible : stored;
   };
 
   if (art.title === "Q3 variance") {
@@ -2560,8 +2663,13 @@ async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null, all
         const rowNum = parseInt(rid.replace(/^r/, ""), 10);
         if (!Number.isFinite(rowNum) || rowNum <= 0) continue;
         for (const col of cols) {
-          const value = cellForExport(sheetElementId(art, rid, col));
-          if (exportCellValue(value) !== null) applyExportCell(worksheet.getCell(`${col}${rowNum}`), value);
+          const elementId = sheetElementId(art, rid, col);
+          const value = cellForExport(elementId);
+          const importedStyle = art.meta?.excelGrid?.styles?.[elementId];
+          const payload = asCellPayload(value);
+          if (exportCellValue(value) !== null || importedStyle || payload?.numFmt || payload?.fontColor) {
+            applyExportCell(worksheet.getCell(`${col}${rowNum}`), value, importedStyle, art.meta?.excelGrid?.numFmts);
+          }
         }
       }
     } else {
@@ -2666,8 +2774,13 @@ function appendSheetArtifactWorksheet(
       const rowNum = parseInt(rid.replace(/^r/, ""), 10);
       if (!Number.isFinite(rowNum) || rowNum <= 0) continue;
       for (const col of cols) {
-        const value = art.elements[sheetElementId(art, rid, col)]?.value;
-        if (exportCellValue(value) !== null) applyExportCell(worksheet.getCell(`${col}${rowNum}`), value);
+        const elementId = sheetElementId(art, rid, col);
+        const value = art.elements[elementId]?.value;
+        const importedStyle = art.meta?.excelGrid?.styles?.[elementId];
+        const payload = asCellPayload(value);
+        if (exportCellValue(value) !== null || importedStyle || payload?.numFmt || payload?.fontColor) {
+          applyExportCell(worksheet.getCell(`${col}${rowNum}`), value, importedStyle, art.meta?.excelGrid?.numFmts);
+        }
       }
     }
     return;
@@ -3057,6 +3170,8 @@ const NOTEBOOK_PAPER_INK = createNotebookPaperInk();
 /** The paper frame: neutral paper sheet + .nbk-bar top chrome (room mark, artifact
  *  title, block/needs-review meta chips) with an optional quiet paper footer.
  *  Both notebook editors (synced and legacy) render inside it — no flag. */
+/** Shared Cloud notebook frame. Synced and legacy editors use the same dense
+ * dark work surface; the footer keeps intelligence available on demand. */
 export function NotebookPaperFrame({ title, meta, children, footer }: {
   title: string;
   meta: { blocks: number; needsReview: number };
@@ -3510,11 +3625,12 @@ function NotebookReadModelPanel({
   const evidenceRequirements = textList(latestPlan?.payload, "evidenceRequirements");
   const createDisabled = blocks.length === 0 || busy !== null;
   return (
-    <div className="r-notebook-proof" data-testid="notebook-read-model" data-status={dirtyStatus}>
-      <div className="r-notebook-proof-head">
+    <details className="r-notebook-proof" data-testid="notebook-read-model" data-status={dirtyStatus}>
+      <summary className="r-notebook-proof-head">
         <span><Sparkles size={13} /> Notebook intelligence</span>
         <span className="r-tag nbk-chip">{dirtyStatus === "processed" ? "read model ready" : dirtyStatus === "queued" ? "indexing" : "listening"}</span>
-      </div>
+      </summary>
+      <div className="r-notebook-proof-body">
       {blocks.length === 0 ? (
         <p className="tiny faint">Typed notebook text stays in ProseMirror. The read model appears here after idle processing.</p>
       ) : (
@@ -3584,7 +3700,8 @@ function NotebookReadModelPanel({
           )}
         </div>
       )}
-    </div>
+      </div>
+    </details>
   );
 }
 

@@ -20,6 +20,11 @@ type ExternalAdapterLiveRoomProofReceipt = {
   exitCode: number;
   evidence: string[];
   failedGates: string[];
+  securityBoundary?: {
+    kind: "authenticated_browser_state_required";
+    environmentVariable: "PROOFLOOP_AUTH_STORAGE_STATE";
+    reason: string;
+  };
   browserProof?: {
     roomUrl?: string;
     roomId?: string;
@@ -66,6 +71,7 @@ const jsonOutDir = optionValue("--json-out-dir") ?? "docs/eval/proofloop-externa
 const modelMode = optionValue("--model-mode") ?? process.env.BENCH_AGENT_MODEL_MODE ?? "specific";
 const modelPolicy = optionValue("--model") ?? optionValue("--model-policy") ?? process.env.BENCH_AGENT_MODEL_POLICY ?? "deepseek/deepseek-v4-pro";
 const requireFinalPhrase = realUserMode || args.includes("--allow-terminal-without-phrase") ? "0" : process.env.PROOFLOOP_EXTERNAL_REQUIRE_FINAL_PHRASE ?? "1";
+const bootstrapRoomUrls = parseBootstrapRoomUrls(process.env.PROOFLOOP_EXISTING_ROOM_URLS);
 let exitCode = 0;
 
 for (const id of ids) {
@@ -89,6 +95,44 @@ function runAdapter(id: BenchmarkAdapterId): number {
   const baseUrl = prod
     ? process.env.PROOFLOOP_PROD_URL ?? process.env.PLAYWRIGHT_BASE_URL ?? "https://noderoom.live"
     : process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:5173";
+  const scenario = "proofloop/benchmarks/common/live-room-scenario.spec.ts";
+  const blockerReceipt = buildExternalAdapterBlockerReceipt({ id });
+  const authStorageState = process.env.PROOFLOOP_AUTH_STORAGE_STATE?.trim();
+  if (prod && (!authStorageState || !existsSync(resolve(authStorageState)))) {
+    const reason = authStorageState
+      ? `PROOFLOOP_AUTH_STORAGE_STATE does not exist: ${authStorageState}`
+      : "Production room creation requires PROOFLOOP_AUTH_STORAGE_STATE from an explicitly approved Playwright login. Interactive browser credentials are intentionally not exported.";
+    const receipt: ExternalAdapterLiveRoomProofReceipt = {
+      schema: "proofloop-external-adapter-live-room-proof-v1",
+      adapterId: id,
+      status: "failed",
+      runId,
+      generatedAt: new Date().toISOString(),
+      localAdapterOnly: true,
+      officialScoreClaim: false,
+      taskCount: tasks.length,
+      baseUrl,
+      scenario,
+      outputDir: rel(outputDir),
+      exitCode: 1,
+      evidence: [adapter.taskLoader, scenario],
+      failedGates: ["authenticated_browser_state_required", reason],
+      securityBoundary: {
+        kind: "authenticated_browser_state_required",
+        environmentVariable: "PROOFLOOP_AUTH_STORAGE_STATE",
+        reason,
+      },
+      officialSemanticScore: {
+        status: "blocked_external",
+        blockers: [reason, ...blockerReceipt.blockers],
+        verifierCommand: adapter.verifierCommand,
+      },
+    };
+    const outPath = join(jsonOutDir, `${id}.json`);
+    writeJson(outPath, receipt);
+    console.error(`${id}: ${reason} -> ${outPath}`);
+    return 1;
+  }
   const env = {
     ...process.env,
     BENCH_BASE_URL: baseUrl,
@@ -103,10 +147,10 @@ function runAdapter(id: BenchmarkAdapterId): number {
     PROOFLOOP_REAL_USER_MODE: realUserMode ? "1" : process.env.PROOFLOOP_REAL_USER_MODE ?? "",
     PROOFLOOP_NODEAGENT_RUNTIME_PROFILE: realUserMode ? "" : process.env.PROOFLOOP_NODEAGENT_RUNTIME_PROFILE ?? "benchmark_completion",
     PROOFLOOP_FOCUS_MODE: realUserMode ? "0" : process.env.PROOFLOOP_FOCUS_MODE ?? "",
+    PROOFLOOP_EXISTING_ROOM_URL: bootstrapRoomUrls[id] ?? "",
     BENCH_AGENT_MODEL_MODE: modelMode,
     BENCH_AGENT_MODEL_POLICY: modelPolicy,
   };
-  const scenario = "proofloop/benchmarks/common/live-room-scenario.spec.ts";
   const result = spawnSync(
     "npx",
     [
@@ -126,7 +170,6 @@ function runAdapter(id: BenchmarkAdapterId): number {
   );
 
   const runStatus = result.status ?? 1;
-  const blockerReceipt = buildExternalAdapterBlockerReceipt({ id });
   const browserProofPath = join(outputDir, "browser-proof.json");
   const browserProof = readJsonIfExists<{
     roomUrl?: string;
@@ -203,6 +246,29 @@ function runAdapter(id: BenchmarkAdapterId): number {
   writeJson(outPath, receipt);
   console.log(`${id}: live-room product proof ${receipt.status} (${tasks.length} task(s)) -> ${outPath}`);
   return runStatus;
+}
+
+function parseBootstrapRoomUrls(raw: string | undefined): Partial<Record<BenchmarkAdapterId, string>> {
+  if (!raw?.trim()) return {};
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error("PROOFLOOP_EXISTING_ROOM_URLS must be a JSON object keyed by adapter id");
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("PROOFLOOP_EXISTING_ROOM_URLS must be a JSON object keyed by adapter id");
+  }
+  const urls: Partial<Record<BenchmarkAdapterId, string>> = {};
+  for (const id of externalBenchmarkLocalTaskIds()) {
+    const value = (parsed as Record<string, unknown>)[id];
+    if (value === undefined) continue;
+    if (typeof value !== "string" || !/^https?:\/\//i.test(value)) {
+      throw new Error(`PROOFLOOP_EXISTING_ROOM_URLS.${id} must be an HTTP(S) room URL`);
+    }
+    urls[id] = value;
+  }
+  return urls;
 }
 
 function optionValue(name: string): string | undefined {

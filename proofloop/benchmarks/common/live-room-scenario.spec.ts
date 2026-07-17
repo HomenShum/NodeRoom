@@ -64,6 +64,7 @@ const REAL_USER_MODE = process.env.PROOFLOOP_REAL_USER_MODE === "1" || process.e
 const NODEAGENT_RUNTIME_PROFILE = process.env.PROOFLOOP_NODEAGENT_RUNTIME_PROFILE ?? (REAL_USER_MODE ? "" : "benchmark_completion");
 const REQUIRE_FINAL_PHRASE = REAL_USER_MODE ? false : process.env.PROOFLOOP_EXTERNAL_REQUIRE_FINAL_PHRASE !== "0";
 const FOCUS_MODE_ENABLED = !REAL_USER_MODE && process.env.PROOFLOOP_FOCUS_MODE !== "0";
+const EXISTING_ROOM_URL = process.env.PROOFLOOP_EXISTING_ROOM_URL?.trim() ?? "";
 
 test.describe(`${adapterId} Proof Loop live-room adapter`, () => {
   test("runs a fresh live room proxy task through public @nodeagent without claiming official score", async ({ page }, testInfo) => {
@@ -292,14 +293,37 @@ test.describe(`${adapterId} Proof Loop live-room adapter`, () => {
 });
 
 async function createFreshLiveRoom(page: Page): Promise<void> {
+  if (EXISTING_ROOM_URL) {
+    const bootstrapUrl = new URL(EXISTING_ROOM_URL);
+    bootstrapUrl.searchParams.set("name", "Proof Loop");
+    await page.goto(bootstrapUrl.toString(), { waitUntil: "domcontentloaded", timeout: 45_000 });
+    expect(page.url(), "authenticated bootstrap room must not use memory mode").not.toContain("mode=memory");
+    const displayName = page.getByTestId("display-name");
+    await expect(displayName).toBeVisible({ timeout: 30_000 });
+    await displayName.fill("Proof Loop");
+    await page.getByRole("dialog", { name: "Join this room" }).getByRole("button", { name: /^Join room/i }).click({ timeout: 30_000 });
+    await expect(page.getByText(/live convex/i)).toBeVisible({ timeout: 45_000 });
+    const blankSheet = page.getByTestId("blank-cta-sheet");
+    const addBlankSheet = page.getByRole("button", { name: /Add a blank sheet/i });
+    const clicked = await clickWhenVisible(blankSheet, 15_000) || await clickWhenVisible(addBlankSheet, 15_000);
+    expect(clicked, "fresh authenticated bootstrap room must expose a blank sheet CTA").toBe(true);
+    return;
+  }
   await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded", timeout: 45_000 });
   expect(page.url(), "external adapter live proof must not use memory mode").not.toContain("mode=memory");
-  await page.getByTestId("create-room").click({ timeout: 60_000 });
+  const appCreateRoom = page.getByTestId("create-room");
+  const publicCreateRoom = page.getByRole("link", { name: "Create a room" });
+  const enteredCreateFlow = await clickWhenVisible(appCreateRoom, 15_000)
+    || await clickWhenVisible(publicCreateRoom, 45_000);
+  expect(enteredCreateFlow, "production landing must expose a create-room entry action").toBe(true);
   const displayName = page.getByTestId("create-display-name");
-  if (await displayName.isVisible().catch(() => false)) {
-    await displayName.fill("Proof Loop");
-  }
+  await expect(displayName).toBeVisible({ timeout: 60_000 });
+  await displayName.fill("Proof Loop");
   await page.getByTestId("create-room-submit").click({ timeout: 30_000 });
+  const accountRequired = page.getByRole("heading", { name: "Sign in to create this workspace" });
+  if (await accountRequired.waitFor({ state: "visible", timeout: 5_000 }).then(() => true, () => false)) {
+    throw new Error("authenticated_browser_state_required: production room creation requires an approved PROOFLOOP_AUTH_STORAGE_STATE");
+  }
   const blankSheet = page.getByTestId("blank-cta-sheet");
   const addBlankSheet = page.getByRole("button", { name: /Add a blank sheet/i });
   const clicked = await clickWhenVisible(blankSheet, 60_000) || await clickWhenVisible(addBlankSheet, 60_000);

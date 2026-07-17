@@ -28,7 +28,7 @@ const COLS: [string, (r: { label: string; q2: string; q3: string }) => string][]
 const DEMO_MEMBERS = [
   { name: "Homen", role: "host", anon: false, color: "#d97757" },
   { name: "Priya", role: "member", anon: false, color: "#5b9bf5" },
-  { name: "anon · quokka", role: "member", anon: true, color: "#7bd089" },
+  { name: "guest · quokka", role: "member", anon: false, color: "#7bd089" },
 ] as const;
 
 async function requireSeedAdmin(adminToken: string) {

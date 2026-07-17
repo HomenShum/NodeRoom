@@ -1,0 +1,13 @@
+{
+  "title": "an authenticated sample room routes a scoped deck request and exports a governed receipt",
+  "status": "passed",
+  "expectedStatus": "passed",
+  "health": {
+    "consoleErrors": [],
+    "cspViolations": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "failedResponses": []
+  },
+  "horizontalOverflowPx": 0
+}

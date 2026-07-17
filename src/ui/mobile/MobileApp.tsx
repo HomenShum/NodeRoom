@@ -976,6 +976,9 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
     requestRoomAgent: live
       ? (goal: string) => live.askRoomAgent(goal, mobileAgentModelSelection(model))
       : async () => ({ ok: false, reason: "offline_sample" }),
+    requestDeckPatch: live
+      ? (request) => live.requestDeckPatch(request, mobileAgentModelSelection(model))
+      : async () => ({ ok: false, reason: "offline_sample" }),
     openRow,
     askAboutRow,
     row: live?.row ?? D.ROW,
@@ -1080,8 +1083,8 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
             <div className="gp-sample-banner" data-testid="mobile-sample-banner" role="status">
               {Ico("shield", { width: 13, height: 13 })}
               <span>
-                <strong>{live.starterBackfill === "pending" ? "Sample still loading." : "Sample workspace."}</strong>{" "}
-                Companies, sources, messages, and traces are synthetic{live.starterBackfill === "pending" ? "; missing sample artifacts retry automatically" : ""}.
+                <strong>{live.starterBackfill === "pending" ? "Live runtime · sample data loading." : "Live runtime · sample data."}</strong>{" "}
+                Convex, collaboration, and NodeAgent are live; seeded companies, sources, messages, and traces are synthetic{live.starterBackfill === "pending" ? "; missing sample artifacts retry automatically" : ""}.
               </span>
             </div>
           ) : null}
@@ -1243,6 +1246,7 @@ export function MobileApp({ live }: { live?: MobileLive } = {}): React.ReactElem
                     >
                       {Ico("logout")}{live?.canApprove ? "Host owns this room" : "Leave " + room.name}
                     </button>
+                    {live?.onSignOut && <button className="na-btn" onClick={live.onSignOut}>{Ico("logout")}Sign out of NodeRoom</button>}
                   </div>
                 </div>
               </>

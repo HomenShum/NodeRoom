@@ -52,6 +52,27 @@ export interface MergeOutcome {
   semantic?: { conflictId: string; resolution: SemanticResolution; proposalIds: string[] };
 }
 
+export type ArtifactEditBundleResult =
+  | {
+      ok: true;
+      artifactVersion: number;
+      results: Array<{
+        opId: string;
+        elementId: string;
+        version: number;
+      }>;
+    }
+  | {
+      ok: false;
+      reason: string;
+      opId?: string;
+      elementId?: string;
+      expected?: number;
+      actual?: number;
+      by?: Actor;
+      lockId?: string;
+    };
+
 function stableValueKey(value: unknown): string {
   try { return JSON.stringify(value); }
   catch { return String(value); }
@@ -127,7 +148,7 @@ export class RoomEngine {
     return { room, host };
   }
 
-  /** Anonymous join by code — no account required (point 3). */
+  /** Guest join by code for the in-memory harness; production can require account identity. */
   joinRoom(args: { code: string; name: string; anon?: boolean }): { room: Room; member: Member } | null {
     const room = [...this.rooms.values()].find((r) => r.code === args.code && r.status === "live");
     if (!room) return null;
@@ -409,6 +430,168 @@ export class RoomEngine {
   }
 
   /** Raw CAS apply — used by applyEdit, proposal approval, and merge. */
+  /** Apply a bounded set of edits as one in-memory transaction. */
+  applyArtifactEdits(args: {
+    roomId: string;
+    artifactId: string;
+    ops: ChangeOp[];
+    actor: Actor;
+  }): ArtifactEditBundleResult {
+    const { roomId, artifactId, ops, actor } = args;
+    if (!Array.isArray(ops) || ops.length === 0 || ops.length > 64) {
+      return { ok: false, reason: "invalid" };
+    }
+    if (
+      typeof roomId !== "string"
+      || !roomId.trim()
+      || typeof artifactId !== "string"
+      || !artifactId.trim()
+      || !actor
+      || (actor.kind !== "user" && actor.kind !== "agent")
+      || typeof actor.id !== "string"
+      || !actor.id.trim()
+      || typeof actor.name !== "string"
+      || !actor.name.trim()
+    ) {
+      return { ok: false, reason: "invalid" };
+    }
+
+    const room = this.rooms.get(roomId);
+    const artifact = this.artifacts.get(artifactId);
+    if (!room || !artifact || artifact.roomId !== roomId) {
+      return { ok: false, reason: "not_found" };
+    }
+    if (actor.kind === "agent" && !room.autoAllow) {
+      return { ok: false, reason: "pending_approval" };
+    }
+
+    const opIds = new Set<string>();
+    const elementIds = new Set<string>();
+    const lockCheckAt = this.now();
+    for (const op of ops) {
+      if (
+        !op
+        || typeof op.opId !== "string"
+        || !op.opId.trim()
+        || typeof op.artifactId !== "string"
+        || op.artifactId !== artifactId
+        || typeof op.elementId !== "string"
+        || !op.elementId.trim()
+        || !(["set", "create", "delete"] as const).includes(op.kind)
+        || !Number.isSafeInteger(op.baseVersion)
+        || op.baseVersion < 0
+        || ((op.kind === "set" || op.kind === "create") && op.value === undefined)
+      ) {
+        return { ok: false, reason: "invalid", opId: op?.opId, elementId: op?.elementId };
+      }
+      if (opIds.has(op.opId) || this.appliedOps.has(op.opId)) {
+        return { ok: false, reason: "duplicate", opId: op.opId, elementId: op.elementId };
+      }
+      if (elementIds.has(op.elementId)) {
+        return { ok: false, reason: "duplicate_element", opId: op.opId, elementId: op.elementId };
+      }
+      opIds.add(op.opId);
+      elementIds.add(op.elementId);
+
+      const lock = [...this.locks.values()].find(
+        (candidate) => candidate.status === "active"
+          && (candidate.expiresAt === undefined || candidate.expiresAt > lockCheckAt)
+          && candidate.artifactId === artifactId
+          && candidate.elementIds.includes(op.elementId),
+      );
+      if (lock && !sameActor(lock.holder, actor)) {
+        return {
+          ok: false,
+          reason: "locked",
+          opId: op.opId,
+          elementId: op.elementId,
+          by: lock.holder,
+          lockId: lock.id,
+        };
+      }
+
+      if (actor.kind === "agent" && (op.kind === "set" || op.kind === "create")) {
+        const declared = artifact.meta?.dataframe?.columns;
+        const column = declared && declared.length ? columnIdOfElement(op.elementId) : null;
+        if (column && !declared!.some((candidate) => candidate.id === column)) {
+          return { ok: false, reason: "no_such_column", opId: op.opId, elementId: op.elementId };
+        }
+      }
+
+      const element = artifact.elements[op.elementId];
+      if (op.kind === "create") {
+        if (element) return { ok: false, reason: "duplicate", opId: op.opId, elementId: op.elementId };
+        continue;
+      }
+      if (!element) return { ok: false, reason: "not_found", opId: op.opId, elementId: op.elementId };
+      if (element.version !== op.baseVersion) {
+        return {
+          ok: false,
+          reason: "conflict",
+          opId: op.opId,
+          elementId: op.elementId,
+          expected: op.baseVersion,
+          actual: element.version,
+        };
+      }
+      if (op.kind === "set" && actor.kind === "agent" && formulaOf(element.value) && !formulaOf(op.value)) {
+        return { ok: false, reason: "formula_protected", opId: op.opId, elementId: op.elementId };
+      }
+    }
+
+    const artifactSnapshot: Artifact = {
+      ...artifact,
+      elements: Object.fromEntries(
+        Object.entries(artifact.elements).map(([id, element]) => [id, { ...element }]),
+      ),
+      order: [...artifact.order],
+    };
+    const tracesSnapshot = [...this.traces];
+    const appliedOpsSnapshot = new Set(this.appliedOps);
+    const idCounterSnapshot = this.idc;
+    const restore = () => {
+      this.artifacts.set(artifactId, artifactSnapshot);
+      this.traces = tracesSnapshot;
+      this.appliedOps = appliedOpsSnapshot;
+      this.idc = idCounterSnapshot;
+    };
+
+    const results: Array<{
+      opId: string;
+      elementId: string;
+      version: number;
+    }> = [];
+    try {
+      for (const op of ops) {
+        const result = this.applyOpInternal(op, actor);
+        if (!result.ok) {
+          restore();
+          return {
+            ok: false,
+            reason: result.reason,
+            opId: op.opId,
+            elementId: op.elementId,
+            ...(result.reason === "conflict"
+              ? { expected: result.expected, actual: result.actual }
+              : {}),
+            ...(result.reason === "locked" ? { by: result.by, lockId: result.lockId } : {}),
+          };
+        }
+        results.push({
+          opId: op.opId,
+          elementId: op.elementId,
+          version: result.toVersion,
+        });
+      }
+    } catch {
+      restore();
+      return { ok: false, reason: "internal_error" };
+    }
+
+    this.emit();
+    return { ok: true, artifactVersion: artifact.version, results };
+  }
+
   private applyOpInternal(op: ChangeOp, actor: Actor): EditResult {
     const art = this.artifacts.get(op.artifactId);
     if (!art) return { ok: false, reason: "not_found" };

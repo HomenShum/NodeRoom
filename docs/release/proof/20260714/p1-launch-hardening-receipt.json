@@ -1,0 +1,42 @@
+{
+  "capturedAt": "2026-07-14T13:36:03.0968677-07:00",
+  "gitHead": "35973a464b55b0e0c144f134835a782976c2f25d",
+  "frontend": {
+    "url": "https://noderoom.live",
+    "deploymentId": "dpl_2tEdpQC2ZaGA8pfe3ckoy3iQ6BoQ",
+    "readyState": "READY",
+    "rawHtmlCheck": "HTTP 200; Sign-in required present"
+  },
+  "convex": {
+    "deployment": "zealous-goshawk-766",
+    "deploy": "PASS; 300 source exports verified",
+    "githubOAuthRedirect": "PASS; exact client ID with no encoded control characters; callback targets zealous-goshawk-766.convex.site",
+    "environmentControlCharacterAudit": "PASS; zero warnings after normalizing seven affected provider values",
+    "emailDeliveryConfigured": false
+  },
+  "p1Contracts": {
+    "nodeAgentTerminalRecovery": "IMPLEMENTED; lease-fenced watchdog, deterministic terminalization, cancellation receipt, reload persistence assertion",
+    "proposalJobLineage": "IMPLEMENTED; producing jobId persists through proposal, workpaper, trace, desktop review, and mobile review",
+    "passwordAccountAssurance": "IMPLEMENTED FAIL-CLOSED; password signup requires an emailed 8-digit challenge and session creation requires emailVerificationTime; production UI is GitHub-only until mail delivery is provisioned"
+  },
+  "gates": [
+    "npm run floor PASS; app and Convex typechecks; 2234 tests",
+    "npm run prod:gate PASS; 461.9s",
+    "npm run typecheck -- --pretty false PASS on generated Convex API",
+    "nodeagent:frame:smoke PASS",
+    "omnigent:nodeagent:smoke PASS",
+    "ProofLoop doctor PASS 11/11",
+    "mobile story surfaces PASS 11; one expected live-Convex case skipped",
+    "full-modern-ux-bar PASS 2/2",
+    "ship-prod-verify PASS against https://noderoom.live"
+  ],
+  "freshUserProof": {
+    "mobileUnauthenticated": "PASS at 390x844 on Fast 4G; create consequence, review-first governance, account boundary, GitHub provider, touch targets, and zero overflow verified",
+    "desktopUnauthenticated": "PASS at 1440x900; create/join/sample choices, privacy consequence, account boundary, GitHub provider, and zero overflow verified",
+    "authenticatedProduction": "BLOCKED at the external GitHub login screen; no signed-in browser session was available and no credential or session bypass was used"
+  },
+  "externalBlockers": [
+    "A real GitHub user must complete OAuth once in the QA browser to finish the authenticated phone and desktop journey.",
+    "Password/OTP production proof requires provisioning AUTH_RESEND_KEY and AUTH_EMAIL_FROM; the Vercel Resend marketplace install is waiting on account-owner legal terms acceptance."
+  ]
+}

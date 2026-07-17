@@ -1,0 +1,87 @@
+{
+  "schema": "proofloop-finauditing-local-evaluator-smoke-v1",
+  "adapterId": "finauditing",
+  "generatedAt": "2026-07-09T23:40:06.293Z",
+  "status": "blocked_external",
+  "officialScoreClaim": false,
+  "officialTaskCount": 1102,
+  "predictionRowCount": 1102,
+  "source": {
+    "repository": "https://github.com/The-FinAI/FinAuditing",
+    "commit": "cee2b4e563d8d6cadb94cd0138163bb72e8ee0e7",
+    "evaluatorEntrypoints": [
+      "StartKit/evaluateFinSM.ipynb",
+      "StartKit/evaluateFinRE.ipynb",
+      "StartKit/evaluateFinMR.ipynb"
+    ]
+  },
+  "commandsRun": [
+    "npm run benchmark:proofloop:official-outputs -- --id finauditing",
+    "python -X utf8 - (execute the upstream FinSM and FinRE notebook functions against the exported JSONL; run the FinMR parser without a judge)",
+    "npx tsx scripts/proofloop-official-score-import.ts --id finauditing --input docs/eval/proofloop-official-scores/finauditing.json --json-out docs/eval/proofloop-official-score-imports/finauditing.json",
+    "POST one FinMR judge sample to the concrete free OpenRouter route cohere/north-mini-code:free using the Convex OPENROUTER_API_KEY"
+  ],
+  "localDeterministicEvaluation": {
+    "status": "complete",
+    "paidProviderCalls": false,
+    "FinSM": {
+      "rows": 330,
+      "HR@1": "0.00%",
+      "R@1": "0.00%",
+      "Macro-F1@1": "0.00%",
+      "HR@5": "0.00%",
+      "R@5": "0.00%",
+      "Macro-F1@5": "0.00%",
+      "HR@10": "0.00%",
+      "R@10": "0.00%",
+      "Macro-F1@10": "0.00%",
+      "HR@20": "0.00%",
+      "R@20": "0.00%",
+      "Macro-F1@20": "0.00%",
+      "HR@avg": "0.00%",
+      "R@avg": "0.00%",
+      "Macro-F1@avg": "0.00%"
+    },
+    "FinRE": {
+      "rows": 440,
+      "accuracy": 0.32272727272727275,
+      "macro_precision": 0.10757575757575759,
+      "macro_recall": 0.3333333333333333,
+      "macro_f1": 0.16265750286368844,
+      "invalidPredictions": 0,
+      "invalidGold": 0
+    },
+    "FinMR": {
+      "rows": 332,
+      "validGoldTwoKeyObjects": 332,
+      "validPredictionTwoKeyObjects": 332,
+      "judgeCalls": 0,
+      "judgeRequired": true
+    }
+  },
+  "freeJudgeTransportSmoke": {
+    "status": "transport_succeeded_no_label",
+    "requestedModel": "openrouter/free-auto",
+    "resolvedModel": "cohere/north-mini-code-20260617:free",
+    "httpStatus": 200,
+    "promptTokens": 132,
+    "completionTokens": 4,
+    "totalTokens": 136,
+    "costUsd": 0,
+    "paidProviderCalls": false,
+    "judgeLabel": null,
+    "acceptedOfficialReceipt": false,
+    "reason": "The concrete free provider returned no message content within the four-token cap. This proves free transport only; it is not a FinAuditing accepted judge receipt. The direct HTTP alias openrouter/free-auto was rejected with HTTP 400 because OpenRouter requires a concrete model ID."
+  },
+  "evidence": [
+    "docs/eval/proofloop-official-outputs/finauditing.json",
+    "docs/eval/proofloop-official-task-bundles/finauditing.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
+    ".tmp/official-benchmarks/finauditing-repo/StartKit/evaluateFinSM.ipynb",
+    ".tmp/official-benchmarks/finauditing-repo/StartKit/evaluateFinRE.ipynb",
+    ".tmp/official-benchmarks/finauditing-repo/StartKit/evaluateFinMR.ipynb"
+  ],
+  "nextCommand": "Run StartKit/evaluateFinMR.ipynb:evaluate_finmr_with_judge over .tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl with the accepted upstream OpenAI-compatible judge credential, import its accepted receipt into docs/eval/proofloop-official-scores/finauditing.json, then run npx tsx scripts/proofloop-official-score-import.ts --id finauditing --input docs/eval/proofloop-official-scores/finauditing.json --json-out docs/eval/proofloop-official-score-imports/finauditing.json --strict"
+}

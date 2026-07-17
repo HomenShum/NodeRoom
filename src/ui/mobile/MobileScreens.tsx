@@ -330,15 +330,49 @@ export function Inbox({ ctx }: { ctx: MobileCtx }): React.ReactElement {
         React.createElement("span", { className: "t" }, item.time),
       ),
     );
+    const proposalReview = item.review ? React.createElement(
+      "div",
+      { className: "na-patch-inline na-task-patch", "data-testid": "mobile-proposal-review", "data-proposal-id": item.id },
+      React.createElement("div", { className: "na-patch-k" }, Ico("target"), item.review.target),
+      React.createElement("div", { className: "na-diff before" },
+        React.createElement("span", { className: "lbl" }, "Before"),
+        React.createElement("p", null, item.review.before)),
+      React.createElement("div", { className: "na-diff after" },
+        React.createElement("span", { className: "lbl" }, "Proposed"),
+        React.createElement("p", null, item.review.after)),
+      React.createElement("div", { className: "na-patch-ev", "aria-label": "Proposal source scope and storyboard traces" },
+        item.review.jobId
+          ? React.createElement("span", {
+              className: "na-cite job",
+              "data-testid": "mobile-proposal-job",
+              title: `Producing job ${item.review.jobId}`,
+            }, Ico("activity"), `Job ${item.review.jobId}`)
+          : React.createElement("span", { className: "na-cite gap" }, Ico("alert"), "No producing job linked"),
+        item.review.sources.length
+          ? item.review.sources.map((source) => React.createElement("span", { key: `source:${source}`, className: "na-cite" }, Ico("link"), source))
+          : React.createElement("span", { className: "na-cite gap" }, Ico("alert"), "No source attached"),
+        item.review.traceIds.length
+          ? item.review.traceIds.map((traceId) => React.createElement("span", {
+              key: `trace:${traceId}`,
+              className: "na-cite",
+              title: `Context trace ${traceId}`,
+              "aria-label": `Context trace ${traceId}`,
+            }, Ico("history"), `Context trace ${traceId.length > 12 ? `${traceId.slice(0, 10)}...` : traceId}`))
+          : React.createElement("span", { className: "na-cite gap" }, Ico("alert"), "No trace linked yet"),
+        item.review.traceOverflow
+          ? React.createElement("span", { className: "na-cite", title: "Open Run trace for the full context" }, Ico("history"), `+${item.review.traceOverflow} more context traces`)
+          : null),
+    ) : null;
     // In a live room, items are real proposals — give them a true approve/reject
     // footer (host-gated) instead of routing to the desktop-only detail sheet.
     if (ctx.isLive) {
       return React.createElement(
         "div",
-        { key: item.id, className: "na-task", "data-tone": item.tone },
+        { key: item.id, className: "na-task", "data-tone": item.tone, "data-kind": item.kind, "data-proposal-id": item.id },
         preview(item.preview),
         React.createElement("span", { className: "na-task-rail" }),
         React.createElement("button", { className: "na-task-tap", onClick: () => ctx.openInbox(item) }, fg),
+        proposalReview,
         React.createElement(
           "div",
           { className: "na-task-foot" },

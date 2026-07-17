@@ -1,0 +1,123 @@
+{
+  "schema": "proofloop-official-task-bundle-lock-v1",
+  "adapterId": "workstreambench",
+  "status": "locked",
+  "generatedAt": "2026-07-09T08:51:52.761Z",
+  "benchmark": {
+    "name": "MBABench",
+    "legacyName": "WorkstreamBench",
+    "arxiv": "https://arxiv.org/abs/2605.22664",
+    "arxivVersion": "v4",
+    "project": "https://mbabench.org"
+  },
+  "officialSources": {
+    "repository": {
+      "url": "https://github.com/namkoong-lab/MBABench",
+      "commit": "c56319bea67fa5bfea8ed8010e93a88e1b8877e5",
+      "license": "MIT",
+      "scorerEntrypoint": "judge/main_scripts/judge.py",
+      "noProviderSmokeEntrypoint": "judge/main_scripts/judge.py --nocall",
+      "judgeConfig": "judge/project_configs.yaml",
+      "rubric": "judge/prompts/rubrics/rubric_8.json",
+      "rubricCommit": "f7c072bffc55c255b7f21377ee617bbe736e3ddc",
+      "rubricWeights": "judge/prompts/rubrics/rubric_6_weights.json",
+      "rubricWeightsCommit": "5bb16547a0e6ca4391f75edc9e280c8d969cad4a",
+      "sampleFixture": "judge/scratch/test_cases/Bread_And_Butter"
+    },
+    "dataset": {
+      "url": "https://huggingface.co/datasets/namkoong-lab/mbabench-modeloff",
+      "commit": "867fb5395b8e3fc28606dc681ba5ea284340ddd2",
+      "lastModified": "2026-06-22T17:42:37.000Z",
+      "private": false,
+      "gated": false,
+      "metadata": "metadata.json",
+      "taskCount": 38,
+      "fileCount": 113,
+      "startingFileCount": 73,
+      "solutionFileCount": 38
+    },
+    "referencedExternalSources": [
+      {
+        "name": "Financial Modeling World Cup",
+        "url": "https://fmworldcup.com/",
+        "localMirrorStatus": "not_locked_in_repo"
+      },
+      {
+        "name": "Wall Street Prep",
+        "url": "https://www.wallstreetprep.com/",
+        "localMirrorStatus": "not_locked_in_repo"
+      }
+    ]
+  },
+  "artifactStatus": {
+    "publicRepository": "found",
+    "publicModelOffDataset": "locked",
+    "officialScorer": "found",
+    "officialRubric": "found",
+    "noProviderSmoke": "available",
+    "officialScore": "blocked_external"
+  },
+  "localVerification": {
+    "commands": [
+      "git ls-remote https://github.com/namkoong-lab/MBABench.git HEAD refs/heads/main",
+      "git ls-remote https://huggingface.co/datasets/namkoong-lab/mbabench-modeloff HEAD refs/heads/main",
+      "Invoke-RestMethod https://api.github.com/repos/namkoong-lab/MBABench/git/trees/main?recursive=1",
+      "Invoke-RestMethod https://huggingface.co/api/datasets/namkoong-lab/mbabench-modeloff"
+    ],
+    "noProviderScorerSmokeCommand": "python judge/main_scripts/judge.py -f judge/scratch/test_cases/Bread_And_Butter --nocall"
+  },
+  "claimGate": {
+    "scoreClaim": false,
+    "reason": "This lock plus localCaseScaffold proves public artifact discovery and no-provider MBABench case-folder export coverage. It does not prove model quality or an official LLM judge score."
+  },
+  "officialTaskIds": [
+    "task_0",
+    "task_1",
+    "task_2",
+    "task_3",
+    "task_4",
+    "task_5",
+    "task_6",
+    "task_7",
+    "task_8",
+    "task_9",
+    "task_10",
+    "task_11",
+    "task_12",
+    "task_13",
+    "task_14",
+    "task_15",
+    "task_16",
+    "task_17",
+    "task_18",
+    "task_19",
+    "task_20",
+    "task_21",
+    "task_22",
+    "task_23",
+    "task_24",
+    "task_25",
+    "task_26",
+    "task_27",
+    "task_28",
+    "task_29",
+    "task_30",
+    "task_31",
+    "task_32",
+    "task_33",
+    "task_34",
+    "task_35",
+    "task_36",
+    "task_37"
+  ],
+  "localCaseScaffold": {
+    "status": "complete",
+    "generatedAt": "2026-07-09T08:51:52.761Z",
+    "outputManifestPath": "docs/eval/proofloop-official-outputs/workstreambench.json",
+    "outputRoot": ".tmp/official-benchmarks/proofloop-official-outputs/workstreambench",
+    "caseFolderCount": 38,
+    "aiAttemptWorkbookCount": 38,
+    "solutionWorkbookCount": 38,
+    "generationPolicy": "No-provider source-workbook/blank baseline. Official scorer remains unclaimed until accepted MBABench judge receipt is imported."
+  }
+}

@@ -362,7 +362,7 @@ export function classifyBlockers(task: ProofloopBlockerTaskLike): BlockerClass[]
   if (/model-run|model run|run all|full 912|all 321|model matrix|outputs for every/.test(text)) classes.add("missing_model_run");
   if (/credential|api key|azure|openai/.test(text)) classes.add("missing_judge_credentials");
   if (/no public|not found|author-provided|upstream release/.test(text)) classes.add("no_public_upstream_release");
-  if (/prod|browser|ui failure|live/.test(text) && /fail|missing/.test(text)) classes.add("prod_ui_failure");
+  if (/\bprod(?:uction)?\b|\bbrowser\b|\bui failure\b|\blive\b/.test(text) && /fail|missing/.test(text)) classes.add("prod_ui_failure");
   if (/quality weak|mean reward|pass-rate|unmet criteria|reward/.test(text)) classes.add("harness_quality_failure");
   return [...classes];
 }
