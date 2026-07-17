@@ -13,7 +13,9 @@
 @media (max-width: 900px) { .r-land2-grid { grid-template-columns: 1fr; gap: 28px; } }
 .r-land2-grid .r-h1 { margin-top: 16px; font-size: clamp(30px, 4vw, 44px); max-width: 20ch; }
 .r-land2-grid .r-lede { margin-bottom: 24px; }
-.r-land2-trust { display: inline-flex; align-items: center; gap: 7px; margin-top: 22px; font-size: 12.5px; font-weight: 600; color: var(--success-ink); }
+/* Informational trust line — NOT a success state, so no success ink (green is reserved
+   for success semantics). Secondary ink keeps it quiet; sizes snap to the type/space scale. */
+.r-land2-trust { display: inline-flex; align-items: center; gap: 8px; margin-top: 22px; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
 
 /* ── live-proof pill ──────────────────────────────────────────────────────── */
 .r-land2-proof { display: inline-flex; align-items: center; margin-top: 20px; border: 1px solid var(--line);
