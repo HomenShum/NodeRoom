@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "runId": "20260712T133749Z",
+  "commitSha": "5f67d8e1+dirty",
+  "sourceTreeHash": "07724d971f5f94c665f2499fc508454101326b3decd0d4be41810130af7e2db1",
+  "generatedAt": "2026-07-12T13:38:35.250Z",
+  "appUrl": "http://127.0.0.1:5317",
+  "serverMode": "preview",
+  "capture": {
+    "status": "passed",
+    "screenshots": [
+      "docs/eval/design-quality/browser/20260712T133749Z/desktop-1440.png",
+      "docs/eval/design-quality/browser/20260712T133749Z/mobile-375.png"
+    ],
+    "domSnapshots": [
+      "docs/eval/design-quality/browser/20260712T133749Z/desktop-1440.dom.json",
+      "docs/eval/design-quality/browser/20260712T133749Z/mobile-375.dom.json"
+    ],
+    "viewports": [
+      {
+        "name": "desktop-1440",
+        "width": 1440,
+        "height": 900,
+        "screenshot": "docs/eval/design-quality/browser/20260712T133749Z/desktop-1440.png",
+        "domSnapshot": "docs/eval/design-quality/browser/20260712T133749Z/desktop-1440.dom.json",
+        "textLength": 3446,
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "cls": 0,
+        "longTasks": 0
+      },
+      {
+        "name": "mobile-375",
+        "width": 375,
+        "height": 812,
+        "screenshot": "docs/eval/design-quality/browser/20260712T133749Z/mobile-375.png",
+        "domSnapshot": "docs/eval/design-quality/browser/20260712T133749Z/mobile-375.dom.json",
+        "textLength": 1842,
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "cls": 0,
+        "longTasks": 0
+      }
+    ],
+    "findings": [
+      {
+        "surface": "desktop-1440",
+        "severity": "P2",
+        "check": "contrast",
+        "detail": "span.r-owner-avatar 3.91:1 at 9px"
+      },
+      {
+        "surface": "desktop-1440",
+        "severity": "P2",
+        "check": "contrast",
+        "detail": "span.r-owner-avatar 3.52:1 at 9px"
+      },
+      {
+        "surface": "desktop-1440",
+        "severity": "P2",
+        "check": "contrast",
+        "detail": "span.r-owner-avatar 4.17:1 at 9px"
+      },
+      {
+        "surface": "desktop-1440",
+        "severity": "P1",
+        "check": "contrast",
+        "detail": "span.r-owner-avatar 2.87:1 at 9px"
+      },
+      {
+        "surface": "desktop-1440",
+        "severity": "P2",
+        "check": "contrast",
+        "detail": "span.r-owner-avatar 3.91:1 at 9px"
+      },
+      {
+        "surface": "desktop-1440",
+        "severity": "P2",
+        "check": "contrast",
+        "detail": "span.r-owner-avatar 3.52:1 at 9px"
+      },
+      {
+        "surface": "desktop-1440",
+        "severity": "P2",
+        "check": "contrast",
+        "detail": "span.r-owner-avatar 4.17:1 at 9px"
+      },
+      {
+        "surface": "desktop-1440",
+        "severity": "P1",
+        "check": "contrast",
+        "detail": "span.r-owner-avatar 2.87:1 at 9px"
+      }
+    ]
+  },
+  "performance": {
+    "status": "passed",
+    "evidencePath": "docs/eval/design-quality/browser/20260712T133749Z/browser.json",
+    "cls": 0,
+    "longTasks": 0,
+    "maxInteractionLatencyMs": 62,
+    "timeToOptimisticBubbleMs": 33,
+    "timeToEvidencePreviewMs": 62
+  },
+  "accessibility": {
+    "status": "failed",
+    "evidencePath": "docs/eval/design-quality/browser/20260712T133749Z/browser.json",
+    "deterministicViolations": 2,
+    "keyboardPathPassed": true,
+    "reducedMotionPassed": true,
+    "screenReaderNotes": []
+  }
+}

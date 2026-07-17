@@ -1,23 +1,23 @@
 {
   "surface": "sheet",
   "judgeModel": "gemini-3.5-flash",
-  "judgedAt": "2026-06-11T21:16:41.420Z",
+  "judgedAt": "2026-07-12T11:10:55.111Z",
   "stateCount": 5,
   "scores": {
-    "state_legibility": 5,
-    "affordance_honesty": 4,
-    "consistency": 6,
+    "state_legibility": 7,
+    "affordance_honesty": 8,
+    "consistency": 7,
     "contrast": 7,
-    "polish": 6
+    "polish": 8
   },
-  "average": 5.6,
-  "pass": false,
+  "average": 7.4,
+  "pass": true,
   "topIssues": [
-    "image 5 (proposal-reject-hover): Fails to demonstrate the requested state; it shows green draft cells instead of a hovered reject button with a soft-red tint.",
-    "image 2 (cell-editing): The negative value preview uses the terracotta brand accent border rather than a distinct semantic danger color."
+    "image 3 (proposal-pending): Mixed presentation styles for pending changes (rows 1-2 use interactive pills, while rows 3 and 5 use static green text with red dots) create visual inconsistency.",
+    "image 2 (cell-editing): The strong terracotta border on the active input cell slightly competes with the red semantic color of the negative value."
   ],
   "fixSuggestions": [
-    "Replace image 5 with the correct state showing the soft-red hover effect on the 'X' glyph.",
-    "Introduce a dedicated semantic red for negative values in the input preview to separate danger states from the brand accent."
+    "Unify the visual treatment of all agent proposals to use the same interactive pill container and action controls.",
+    "Slightly reduce the opacity or thickness of the active input border to prioritize the readability of the inner value."
   ]
 }

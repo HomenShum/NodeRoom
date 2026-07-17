@@ -9,9 +9,10 @@
  * Voice: ELEVENLABS_VOICE_ID (default George) / OPENAI_TTS_VOICE (default onyx) — calm narrator.
  * Outputs: episodes/<id>/voiceover/<scene>.mp3 + timings.json (real durations via ffprobe).
  */
-import { execSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { execFileSync, execSync, spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { tmpdir } from "node:os";
 
 const ROOT = process.cwd();
 const episodeId = process.argv[2];
@@ -29,9 +30,13 @@ function fromEnv(name: string): string | undefined {
   return undefined;
 }
 
-type Tts = { provider: "elevenlabs" | "openai"; key: string };
+type Tts = { provider: "elevenlabs" | "openai"; key: string } | { provider: "windows_sapi" };
 /** ElevenLabs preferred; fall back to OpenAI TTS when only OPENAI_API_KEY is available. */
 function resolveTts(): Tts {
+  if (process.argv.includes("--local") || process.env.LOCAL_TTS === "1") {
+    if (process.platform !== "win32") throw new Error("--local voiceover currently requires Windows SAPI");
+    return { provider: "windows_sapi" };
+  }
   const el = fromEnv("ELEVENLABS_API_KEY");
   if (el) return { provider: "elevenlabs", key: el };
   const oa = fromEnv("OPENAI_API_KEY");
@@ -41,6 +46,7 @@ function resolveTts(): Tts {
 
 /** One narration → mp3 bytes, via whichever provider resolved. Calm narrator voice both ways. */
 async function synth(tts: Tts, text: string): Promise<Buffer> {
+  if (tts.provider === "windows_sapi") return synthWindowsSapi(text);
   if (tts.provider === "elevenlabs") {
     const voiceId = process.env.ELEVENLABS_VOICE_ID ?? "JBFqnCBsd6RMkjVDRZzb"; // George — calm narrator
     const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`, {
@@ -64,6 +70,40 @@ async function synth(tts: Tts, text: string): Promise<Buffer> {
   });
   if (!res.ok) throw new Error(`OpenAI TTS ${res.status} ${(await res.text()).slice(0, 160)}`);
   return Buffer.from(await res.arrayBuffer());
+}
+
+function synthWindowsSapi(text: string): Buffer {
+  const temp = mkdtempSync(join(tmpdir(), "noderoom-voiceover-"));
+  const wav = join(temp, "voice.wav");
+  const mp3 = join(temp, "voice.mp3");
+  const script = [
+    "Add-Type -AssemblyName System.Speech",
+    "$speaker = New-Object System.Speech.Synthesis.SpeechSynthesizer",
+    "$speaker.SelectVoice($env:NODEROOM_TTS_VOICE)",
+    "$speaker.Rate = [int]$env:NODEROOM_TTS_RATE",
+    "$speaker.Volume = 100",
+    "$speaker.SetOutputToWaveFile($env:NODEROOM_TTS_WAV)",
+    "$text = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($env:NODEROOM_TTS_TEXT_B64))",
+    "$speaker.Speak($text)",
+    "$speaker.Dispose()",
+  ].join("; ");
+  try {
+    const result = spawnSync("powershell.exe", ["-NoProfile", "-Command", script], {
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        NODEROOM_TTS_VOICE: process.env.WINDOWS_TTS_VOICE ?? "Microsoft David Desktop",
+        NODEROOM_TTS_RATE: process.env.WINDOWS_TTS_RATE ?? "-1",
+        NODEROOM_TTS_WAV: wav,
+        NODEROOM_TTS_TEXT_B64: Buffer.from(text, "utf8").toString("base64"),
+      },
+    });
+    if ((result.status ?? 1) !== 0) throw new Error(`Windows SAPI failed: ${result.stderr.trim()}`);
+    execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-i", wav, "-codec:a", "libmp3lame", "-q:a", "3", mp3]);
+    return readFileSync(mp3);
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
 }
 
 /** Minimal parser for OUR storyboard.yaml shape — scene id + narration + status lines. */

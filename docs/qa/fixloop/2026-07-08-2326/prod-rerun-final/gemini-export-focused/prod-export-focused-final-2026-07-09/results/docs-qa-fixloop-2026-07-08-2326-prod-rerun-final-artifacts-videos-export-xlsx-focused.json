@@ -1,0 +1,64 @@
+{
+  "asset": {
+    "id": "docs-qa-fixloop-2026-07-08-2326-prod-rerun-final-artifacts-videos-export-xlsx-focused",
+    "class": "live_browser_proof",
+    "title": "Export Xlsx Focused",
+    "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\qa\\fixloop\\2026-07-08-2326\\prod-rerun-final\\artifacts\\videos\\export-xlsx-focused.webm",
+    "relPath": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-final/artifacts/videos/export-xlsx-focused.webm",
+    "purpose": "Live Playwright browser benchmark proof clip. Judge only visible product behavior: fresh-room flow, uploads, public NodeAgent invocation, streaming/tool traces, focus/attention UI, artifact creation/download, and production honesty. Clip duration, silence, or README pacing is not a product defect."
+  },
+  "model": "gemini-3.5-flash",
+  "status": "judged",
+  "mediaPath": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-final/artifacts/videos/export-xlsx-focused.webm",
+  "mediaType": "video/webm",
+  "bytes": 2111027,
+  "judge": {
+    "verdict": "publish",
+    "summary": "The video successfully demonstrates the 'Export XLSX' feature within the NodeRoom environment, starting from the landing page, transitioning into the room, and executing the export workflow to a completed download state.",
+    "scores": {
+      "featureClarity": {
+        "score": 1,
+        "evidence": "The 'Export XLSX' button is clearly visible and its state changes from idle to exporting and then downloaded."
+      },
+      "workflowCompleteness": {
+        "score": 1,
+        "evidence": "The clip shows the initial landing page, the transition into the workspace, and the execution of the export action."
+      },
+      "visualDesign": {
+        "score": 1,
+        "evidence": "The interface maintains a dark, high-density layout with clear visual hierarchy and minimal decorative noise."
+      },
+      "consistency": {
+        "score": 1,
+        "evidence": "The workspace elements, including the spreadsheet, chat, and room trace, align with the NodeRoom product suite."
+      },
+      "evidenceQuality": {
+        "score": 1,
+        "evidence": "The video captures a live browser interaction with real-time UI state updates and no artificial overlays."
+      },
+      "legibility": {
+        "score": 1,
+        "evidence": "The text labels, spreadsheet cells, and button states are legible at standard viewing sizes."
+      },
+      "professionalRelevance": {
+        "score": 1,
+        "evidence": "Demonstrates a critical financial workflow (exporting data to Excel) relevant to analysts and bankers."
+      },
+      "productionHonesty": {
+        "score": 1,
+        "evidence": "The export process shows realistic latency and state transitions without deceptive cuts."
+      }
+    },
+    "observedEvidence": [
+      "Landing page with live demo cards",
+      "Transition to Startup Diligence room",
+      "Spreadsheet view with Export XLSX button",
+      "Exporting and Downloaded button states"
+    ],
+    "missingEvidence": [],
+    "defects": [],
+    "suggestedReadmeCaption": "Exporting structured diligence data directly to XLSX format from the NodeRoom workspace."
+  },
+  "score": 8,
+  "maxScore": 16
+}

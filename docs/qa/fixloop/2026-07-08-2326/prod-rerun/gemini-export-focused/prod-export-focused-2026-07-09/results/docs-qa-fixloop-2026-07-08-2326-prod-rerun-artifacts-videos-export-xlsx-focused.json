@@ -1,0 +1,72 @@
+{
+  "asset": {
+    "id": "docs-qa-fixloop-2026-07-08-2326-prod-rerun-artifacts-videos-export-xlsx-focused",
+    "class": "live_browser_proof",
+    "title": "Export Xlsx Focused",
+    "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\qa\\fixloop\\2026-07-08-2326\\prod-rerun\\artifacts\\videos\\export-xlsx-focused.webm",
+    "relPath": "docs/qa/fixloop/2026-07-08-2326/prod-rerun/artifacts/videos/export-xlsx-focused.webm",
+    "purpose": "Live Playwright browser benchmark proof clip. Judge only visible product behavior: fresh-room flow, uploads, public NodeAgent invocation, streaming/tool traces, focus/attention UI, artifact creation/download, and production honesty. Clip duration, silence, or README pacing is not a product defect."
+  },
+  "model": "gemini-3.5-flash",
+  "status": "judged",
+  "mediaPath": "docs/qa/fixloop/2026-07-08-2326/prod-rerun/artifacts/videos/export-xlsx-focused.webm",
+  "mediaType": "video/webm",
+  "bytes": 2430730,
+  "judge": {
+    "verdict": "fix-then-publish",
+    "summary": "The video demonstrates the 'Export XLSX' feature in the NodeRoom workspace, but ends abruptly after the click without showing a clear download confirmation or success state.",
+    "scores": {
+      "featureClarity": {
+        "score": 1.1,
+        "evidence": "The 'Export XLSX' button is clearly visible and clicked, but the final exported artifact or download state is not shown."
+      },
+      "workflowCompleteness": {
+        "score": 1,
+        "evidence": "Shows the pre-click state and the action, but lacks the final confirmation of a successful file download."
+      },
+      "visualDesign": {
+        "score": 1.4,
+        "evidence": "Polished dark-mode interface with a clean, high-density layout matching professional tools."
+      },
+      "consistency": {
+        "score": 1.3,
+        "evidence": "Maintains the established NodeRoom aesthetic of spreadsheets, sidebars, and chat panels."
+      },
+      "evidenceQuality": {
+        "score": 1.2,
+        "evidence": "Real browser capture, but the proof is incomplete without showing the resulting file or download event."
+      },
+      "legibility": {
+        "score": 1.3,
+        "evidence": "Spreadsheet cells, buttons, and sidebar text are highly legible."
+      },
+      "professionalRelevance": {
+        "score": 1.3,
+        "evidence": "Directly relevant to financial and diligence workflows requiring Excel exports."
+      },
+      "productionHonesty": {
+        "score": 1.2,
+        "evidence": "Shows authentic UI interaction without simulated success overlays."
+      }
+    },
+    "observedEvidence": [
+      "NodeAgent landing page with live demo widget",
+      "NodeRoom workspace with spreadsheet and 'Export XLSX' button",
+      "Click action on the 'Export XLSX' button"
+    ],
+    "missingEvidence": [
+      "Browser download dialog or file export success notification"
+    ],
+    "defects": [
+      {
+        "ts": "00:20",
+        "severity": "P1",
+        "observed": "After clicking 'Export XLSX', there is no visible browser download indicator or success toast before the clip ends.",
+        "fix": "Extend the recording to capture the browser download confirmation or the resulting XLSX file."
+      }
+    ],
+    "suggestedReadmeCaption": "Export your reconciled financial sheets directly to XLSX with a single click."
+  },
+  "score": 9.8,
+  "maxScore": 16
+}

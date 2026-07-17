@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "workbook": "candidate-01-Task 90_input.xlsx",
+  "operations": [
+    {
+      "op": "add_chart",
+      "sheet": "Data",
+      "chartType": "column",
+      "title": "Defect Analysis",
+      "categoryRange": "'Data'!A2:A8",
+      "series": [
+        {
+          "name": "Defect Counts",
+          "valuesRange": "'Data'!B2:B8",
+          "chartType": "column",
+          "color": "4472C4"
+        },
+        {
+          "name": "Cumulative %",
+          "valuesRange": "'Data'!C2:C8",
+          "chartType": "line",
+          "color": "ED7D31",
+          "secondaryAxis": true
+        }
+      ],
+      "anchor": "H2",
+      "width": 18,
+      "height": 10,
+      "legendPosition": "bottom",
+      "grouping": "clustered",
+      "dataLabels": false
+    }
+  ]
+}

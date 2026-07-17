@@ -1,0 +1,314 @@
+{
+  "capturedAt": "2026-07-09T23:42:49.635Z",
+  "route": "#mobile?mode=memory",
+  "receipts": [
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "screenshot": "mobile-before-320x568.png",
+      "consoleErrors": [],
+      "innerWidth": 320,
+      "innerHeight": 568,
+      "url": "http://127.0.0.1:5173/#mobile?mode=memory",
+      "overflowX": 0,
+      "bodyOverflowX": 0,
+      "syntheticStatus": true,
+      "theme": "light",
+      "tokens": {
+        "bg": "#FBF4E7",
+        "accent": "#C56A3C"
+      },
+      "top": {
+        "x": 0,
+        "y": 0,
+        "width": 320,
+        "height": 134,
+        "padding": "56px 20px 12px",
+        "border": "",
+        "boxShadow": "rgba(43, 29, 20, 0.18) 0px 6px 16px -10px",
+        "background": "rgb(251, 244, 231)"
+      },
+      "topbar": {
+        "x": 20,
+        "y": 56,
+        "width": 280,
+        "height": 38,
+        "padding": "0px",
+        "border": "0px none rgb(43, 29, 20)",
+        "boxShadow": "none",
+        "background": "rgba(0, 0, 0, 0)"
+      },
+      "mark": {
+        "x": 20,
+        "y": 58,
+        "width": 34,
+        "height": 34,
+        "padding": "1px 6px",
+        "border": "0px none rgb(255, 255, 255)",
+        "boxShadow": "rgba(43, 29, 20, 0.05) 0px 1px 2px 0px, rgba(255, 244, 231, 0.55) 0px 6px 0px -5px inset, rgba(43, 29, 20, 0.18) 0px 4px 10px -5px",
+        "background": "rgba(0, 0, 0, 0)"
+      },
+      "room": {
+        "x": 86.453125,
+        "y": 58,
+        "width": 143.078125,
+        "height": 34,
+        "padding": "7px 12px 7px 13px",
+        "border": "1px solid rgb(226, 217, 200)",
+        "boxShadow": "rgba(43, 29, 20, 0.05) 0px 1px 2px 0px",
+        "background": "rgb(243, 232, 216)"
+      },
+      "action": {
+        "x": 262,
+        "y": 56,
+        "width": 38,
+        "height": 38,
+        "padding": "1px 6px",
+        "border": "1px solid rgb(226, 217, 200)",
+        "boxShadow": "rgba(43, 29, 20, 0.05) 0px 1px 2px 0px",
+        "background": "rgb(243, 232, 216)"
+      },
+      "headerLabels": [
+        "Home",
+        "Switch room",
+        "Agent jobs",
+        "4people",
+        "2agents4",
+        "$0.03 today"
+      ]
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "screenshot": "mobile-before-375x812.png",
+      "consoleErrors": [],
+      "innerWidth": 375,
+      "innerHeight": 812,
+      "url": "http://127.0.0.1:5173/#mobile?mode=memory",
+      "overflowX": 0,
+      "bodyOverflowX": 0,
+      "syntheticStatus": true,
+      "theme": "light",
+      "tokens": {
+        "bg": "#FBF4E7",
+        "accent": "#C56A3C"
+      },
+      "top": {
+        "x": 0,
+        "y": 0,
+        "width": 375,
+        "height": 134,
+        "padding": "56px 20px 12px",
+        "border": "",
+        "boxShadow": "rgba(43, 29, 20, 0.18) 0px 6px 16px -10px",
+        "background": "rgb(251, 244, 231)"
+      },
+      "topbar": {
+        "x": 20,
+        "y": 56,
+        "width": 335,
+        "height": 38,
+        "padding": "0px",
+        "border": "0px none rgb(43, 29, 20)",
+        "boxShadow": "none",
+        "background": "rgba(0, 0, 0, 0)"
+      },
+      "mark": {
+        "x": 20,
+        "y": 58,
+        "width": 34,
+        "height": 34,
+        "padding": "1px 6px",
+        "border": "0px none rgb(255, 255, 255)",
+        "boxShadow": "rgba(43, 29, 20, 0.05) 0px 1px 2px 0px, rgba(255, 244, 231, 0.55) 0px 6px 0px -5px inset, rgba(43, 29, 20, 0.18) 0px 4px 10px -5px",
+        "background": "rgba(0, 0, 0, 0)"
+      },
+      "room": {
+        "x": 113.953125,
+        "y": 58,
+        "width": 143.078125,
+        "height": 34,
+        "padding": "7px 12px 7px 13px",
+        "border": "1px solid rgb(226, 217, 200)",
+        "boxShadow": "rgba(43, 29, 20, 0.05) 0px 1px 2px 0px",
+        "background": "rgb(243, 232, 216)"
+      },
+      "action": {
+        "x": 317,
+        "y": 56,
+        "width": 38,
+        "height": 38,
+        "padding": "1px 6px",
+        "border": "1px solid rgb(226, 217, 200)",
+        "boxShadow": "rgba(43, 29, 20, 0.05) 0px 1px 2px 0px",
+        "background": "rgb(243, 232, 216)"
+      },
+      "headerLabels": [
+        "Home",
+        "Switch room",
+        "Agent jobs",
+        "4people",
+        "2agents4",
+        "$0.03 today"
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshot": "mobile-before-390x844.png",
+      "consoleErrors": [],
+      "innerWidth": 390,
+      "innerHeight": 844,
+      "url": "http://127.0.0.1:5173/#mobile?mode=memory",
+      "overflowX": 0,
+      "bodyOverflowX": 0,
+      "syntheticStatus": true,
+      "theme": "light",
+      "tokens": {
+        "bg": "#FBF4E7",
+        "accent": "#C56A3C"
+      },
+      "top": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 134,
+        "padding": "56px 20px 12px",
+        "border": "",
+        "boxShadow": "rgba(43, 29, 20, 0.18) 0px 6px 16px -10px",
+        "background": "rgb(251, 244, 231)"
+      },
+      "topbar": {
+        "x": 20,
+        "y": 56,
+        "width": 350,
+        "height": 38,
+        "padding": "0px",
+        "border": "0px none rgb(43, 29, 20)",
+        "boxShadow": "none",
+        "background": "rgba(0, 0, 0, 0)"
+      },
+      "mark": {
+        "x": 20,
+        "y": 58,
+        "width": 34,
+        "height": 34,
+        "padding": "1px 6px",
+        "border": "0px none rgb(255, 255, 255)",
+        "boxShadow": "rgba(43, 29, 20, 0.05) 0px 1px 2px 0px, rgba(255, 244, 231, 0.55) 0px 6px 0px -5px inset, rgba(43, 29, 20, 0.18) 0px 4px 10px -5px",
+        "background": "rgba(0, 0, 0, 0)"
+      },
+      "room": {
+        "x": 121.453125,
+        "y": 58,
+        "width": 143.078125,
+        "height": 34,
+        "padding": "7px 12px 7px 13px",
+        "border": "1px solid rgb(226, 217, 200)",
+        "boxShadow": "rgba(43, 29, 20, 0.05) 0px 1px 2px 0px",
+        "background": "rgb(243, 232, 216)"
+      },
+      "action": {
+        "x": 332,
+        "y": 56,
+        "width": 38,
+        "height": 38,
+        "padding": "1px 6px",
+        "border": "1px solid rgb(226, 217, 200)",
+        "boxShadow": "rgba(43, 29, 20, 0.05) 0px 1px 2px 0px",
+        "background": "rgb(243, 232, 216)"
+      },
+      "headerLabels": [
+        "Home",
+        "Switch room",
+        "Agent jobs",
+        "4people",
+        "2agents4",
+        "$0.03 today"
+      ]
+    },
+    {
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "screenshot": "mobile-before-430x932.png",
+      "consoleErrors": [],
+      "innerWidth": 430,
+      "innerHeight": 932,
+      "url": "http://127.0.0.1:5173/#mobile?mode=memory",
+      "overflowX": 0,
+      "bodyOverflowX": 0,
+      "syntheticStatus": true,
+      "theme": "light",
+      "tokens": {
+        "bg": "#FBF4E7",
+        "accent": "#C56A3C"
+      },
+      "top": {
+        "x": 0,
+        "y": 0,
+        "width": 430,
+        "height": 134,
+        "padding": "56px 20px 12px",
+        "border": "",
+        "boxShadow": "rgba(43, 29, 20, 0.18) 0px 6px 16px -10px",
+        "background": "rgb(251, 244, 231)"
+      },
+      "topbar": {
+        "x": 20,
+        "y": 56,
+        "width": 390,
+        "height": 38,
+        "padding": "0px",
+        "border": "0px none rgb(43, 29, 20)",
+        "boxShadow": "none",
+        "background": "rgba(0, 0, 0, 0)"
+      },
+      "mark": {
+        "x": 20,
+        "y": 58,
+        "width": 34,
+        "height": 34,
+        "padding": "1px 6px",
+        "border": "0px none rgb(255, 255, 255)",
+        "boxShadow": "rgba(43, 29, 20, 0.05) 0px 1px 2px 0px, rgba(255, 244, 231, 0.55) 0px 6px 0px -5px inset, rgba(43, 29, 20, 0.18) 0px 4px 10px -5px",
+        "background": "rgba(0, 0, 0, 0)"
+      },
+      "room": {
+        "x": 141.453125,
+        "y": 58,
+        "width": 143.078125,
+        "height": 34,
+        "padding": "7px 12px 7px 13px",
+        "border": "1px solid rgb(226, 217, 200)",
+        "boxShadow": "rgba(43, 29, 20, 0.05) 0px 1px 2px 0px",
+        "background": "rgb(243, 232, 216)"
+      },
+      "action": {
+        "x": 372,
+        "y": 56,
+        "width": 38,
+        "height": 38,
+        "padding": "1px 6px",
+        "border": "1px solid rgb(226, 217, 200)",
+        "boxShadow": "rgba(43, 29, 20, 0.05) 0px 1px 2px 0px",
+        "background": "rgb(243, 232, 216)"
+      },
+      "headerLabels": [
+        "Home",
+        "Switch room",
+        "Agent jobs",
+        "4people",
+        "2agents4",
+        "$0.03 today"
+      ]
+    }
+  ]
+}

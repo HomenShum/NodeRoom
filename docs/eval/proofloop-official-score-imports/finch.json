@@ -1,0 +1,62 @@
+{
+  "schema": "proofloop-official-score-import-readiness-v1",
+  "adapterId": "finch",
+  "receiptPath": "docs/eval/proofloop-official-scores/finch.json",
+  "status": "accepted",
+  "scoreClaim": true,
+  "officialScoreClaimable": true,
+  "acceptedExternalScorerReceipt": true,
+  "acceptedExternalScorerKind": "finch_canonical_judge",
+  "pendingExternalScorerReceipt": false,
+  "pendingExternalScorerKind": null,
+  "requiredAcceptedReceipt": "accepted canonical Finch GPT-5-mini judge receipt over full content_parts.jsonl coverage",
+  "metrics": {
+    "officialTaskCount": 172,
+    "outputTaskCount": 172,
+    "predictionRowCount": null,
+    "contentPartsCount": 172
+  },
+  "boundary": {
+    "productPath": {
+      "status": "complete",
+      "officialScoreClaim": false,
+      "reason": "NodeRoom model-output artifacts cover the official Finch task set; this is product/export evidence, not an official score.",
+      "evidence": [
+        "docs/eval/proofloop-official-outputs/finch.json",
+        "docs/eval/proofloop-official-task-bundles/finch.json",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finch/eval_set/noderoom-source-workbook-baseline/content_parts.jsonl",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finch"
+      ]
+    },
+    "proxy": {
+      "status": "proxy_only",
+      "officialScoreClaim": false,
+      "reason": "Proxy/product-path receipts can triage quality and prove local workflow shape, but they are not accepted upstream official scorer receipts.",
+      "evidence": [
+        "docs/eval/proofloop-external-adapter-runs/finch.json",
+        "docs/eval/proofloop-external-adapter-live-room-runs/finch.json"
+      ]
+    },
+    "officialScorer": {
+      "status": "accepted",
+      "officialScoreClaim": true,
+      "requiredAcceptedReceipt": "accepted canonical Finch GPT-5-mini judge receipt over full content_parts.jsonl coverage",
+      "evidence": [
+        "docs/eval/proofloop-official-scores/finch.json",
+        ".tmp/official-benchmarks/finch-canonical-hashbound/finch-judge-receipt.json"
+      ]
+    }
+  },
+  "blockers": [],
+  "evidence": [
+    "docs/eval/proofloop-official-outputs/finch.json",
+    "docs/eval/proofloop-official-task-bundles/finch.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finch/eval_set/noderoom-source-workbook-baseline/content_parts.jsonl",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finch",
+    "docs/eval/proofloop-official-scores/finch.json",
+    ".tmp/official-benchmarks/finch-canonical-hashbound/finch-judge-receipt.json",
+    "docs/eval/proofloop-official-score-imports/finch.json"
+  ]
+}

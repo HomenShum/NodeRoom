@@ -1,0 +1,18 @@
+{
+  "runId": "prod-all-remaining-desktop-2026-07-09",
+  "generatedAt": "2026-07-09T08:30:14.489Z",
+  "model": "gemini-3.5-flash",
+  "primaryOnly": true,
+  "all": false,
+  "includeIgnored": false,
+  "assets": [
+    {
+      "id": "docs-qa-fixloop-2026-07-08-2326-prod-rerun-all-remaining-artifacts-videos-live-create-export-reload",
+      "class": "live_browser_proof",
+      "title": "Live Create Export Reload",
+      "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\qa\\fixloop\\2026-07-08-2326\\prod-rerun-all-remaining\\artifacts\\videos\\live-create-export-reload.webm",
+      "relPath": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-all-remaining/artifacts/videos/live-create-export-reload.webm",
+      "purpose": "Live Playwright browser benchmark proof clip. Judge only visible product behavior: fresh-room flow, uploads, public NodeAgent invocation, streaming/tool traces, focus/attention UI, artifact creation/download, and production honesty. Clip duration, silence, or README pacing is not a product defect."
+    }
+  ]
+}

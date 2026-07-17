@@ -8,7 +8,7 @@
  * Then: npx remotion render remotion/index.ts episode-short episodes/<id>/renders/short.mp4 --codec=h264
  */
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { extname, join } from "node:path";
 
 const ROOT = process.cwd();
 const FPS = 30;
@@ -17,18 +17,27 @@ const epDir = join(ROOT, "episodes", episodeId);
 
 type SceneIn = {
   id: string; type: string; status: string; narration: string; source?: string;
-  render?: string; codeFile?: string; codeStart?: string; codeEnd?: string; codeTitle?: string; callouts: string[];
+  sources: string[]; question?: string; render?: string; codeFile?: string; codeStart?: string; codeEnd?: string; codeTitle?: string; callouts: string[];
 };
 function parseScenes(yaml: string): SceneIn[] {
   const out: SceneIn[] = [];
   let cur: SceneIn | null = null;
+  let collecting: "sources" | "callouts" | null = null;
   for (const line of yaml.split(/\r?\n/)) {
     const id = line.match(/^\s+-\s+id:\s*(\S+)/);
-    if (id) { cur = { id: id[1], type: "", status: "ready", narration: "", callouts: [] }; out.push(cur); continue; }
+    if (id) { cur = { id: id[1], type: "", status: "ready", narration: "", sources: [], callouts: [] }; out.push(cur); collecting = null; continue; }
     if (!cur) continue;
+    if (/^\s+sources:\s*$/.test(line)) { collecting = "sources"; continue; }
+    if (/^\s+callouts:\s*$/.test(line)) { collecting = "callouts"; continue; }
+    const sourceItem = collecting === "sources" ? line.match(/^\s+-\s+(.+\.(?:png|jpe?g|webp|mp4))\s*$/i) : null;
+    if (sourceItem) { cur.sources.push(sourceItem[1]); continue; }
+    const calloutItem = collecting === "callouts" ? line.match(/^\s+-\s+"?(.+?)"?\s*$/) : null;
+    if (calloutItem) { cur.callouts.push(calloutItem[1]); continue; }
+    if (/^\s+\w[\w-]*:\s*/.test(line)) collecting = null;
     const t = line.match(/^\s+type:\s*(\S+)/); if (t) cur.type = t[1];
     const st = line.match(/^\s+status:\s*(\w+)/); if (st) cur.status = st[1];
     const n = line.match(/^\s+narration:\s*"(.+)"\s*$/); if (n) cur.narration = n[1];
+    const q = line.match(/^\s+viewerQuestion:\s*"(.+)"\s*$/); if (q) cur.question = q[1];
     const s = line.match(/^\s+source:\s*(\S+)/); if (s) cur.source = s[1];
     const r = line.match(/^\s+render:\s*(\S+)/); if (r) cur.render = r[1];
     const cf = line.match(/^\s+codeFile:\s*(\S+)/); if (cf) cur.codeFile = cf[1];
@@ -64,6 +73,7 @@ const run = () => {
   const timings = JSON.parse(readFileSync(join(epDir, "voiceover", "timings.json"), "utf8")) as Record<string, { narrationSec: number }>;
   mkdirSync(join(ROOT, "remotion", "public", "audio"), { recursive: true });
   mkdirSync(join(ROOT, "remotion", "public", "video"), { recursive: true });
+  mkdirSync(join(ROOT, "remotion", "public", "image"), { recursive: true });
 
   const out = [];
   for (const s of scenes) {
@@ -75,22 +85,35 @@ const run = () => {
     let audio: string | null = null;
     if (existsSync(mp3)) { copyFileSync(mp3, join(ROOT, "remotion", "public", "audio", `${s.id}.mp3`)); audio = `audio/${s.id}.mp3`; }
     let video: string | null = null;
-    if (s.source && s.status === "ready") {
-      const src = join(ROOT, s.source);
-      if (existsSync(src)) { copyFileSync(src, join(ROOT, "remotion", "public", "video", `${s.id}.mp4`)); video = `video/${s.id}.mp4`; }
-      else console.warn(`[episode] MISSING source for ready scene ${s.id}: ${s.source}`);
+    const images: string[] = [];
+    const sources = [...s.sources, ...(s.source ? [s.source] : [])];
+    for (const [index, source] of sources.entries()) {
+      if (s.status !== "ready") continue;
+      const src = join(ROOT, source);
+      if (!existsSync(src)) { console.warn(`[episode] MISSING source for ready scene ${s.id}: ${source}`); continue; }
+      const extension = extname(source).toLowerCase();
+      if ([".png", ".jpg", ".jpeg", ".webp"].includes(extension)) {
+        const name = `${s.id}-${index}${extension}`;
+        copyFileSync(src, join(ROOT, "remotion", "public", "image", name));
+        images.push(`image/${name}`);
+      } else if (!video) {
+        copyFileSync(src, join(ROOT, "remotion", "public", "video", `${s.id}.mp4`));
+        video = `video/${s.id}.mp4`;
+      }
     }
     // Scene kind: live video when footage exists; otherwise a real-code panel, an animated
     // diagram, or a claim card — whichever the storyboard asks for.
-    const kind = video ? "video" : s.render === "code" ? "code" : s.render === "diagram" ? "diagram" : "card";
+    const kind = video ? "video" : images.length ? "image" : s.render === "code" ? "code" : s.render === "diagram" ? "diagram" : "card";
     const code = kind === "code" && s.codeFile && s.codeStart && s.codeEnd
       ? { title: s.codeTitle ?? s.codeFile, lines: extractCode(s.codeFile, s.codeStart, s.codeEnd) }
       : null;
     out.push({
-      id: s.id, kind, video, audio, code,
+      id: s.id, kind, video, images, audio, code,
       durationInFrames: Math.round(durSec * FPS),
       narration: s.narration,
-      card: s.callouts.length ? { title: s.codeTitle ?? CARDS[s.id]?.title ?? s.id, bullets: s.callouts } : (CARDS[s.id] ?? { title: s.id, bullets: [] }),
+      card: s.callouts.length
+        ? { title: s.codeTitle ?? s.question ?? CARDS[s.id]?.title ?? s.id, bullets: s.callouts }
+        : (CARDS[s.id] ?? { title: s.question ?? s.id, bullets: [] }),
     });
   }
   // Background music bed: per-episode override (episodes/<id>/music.mp3) wins, else the shared ambient

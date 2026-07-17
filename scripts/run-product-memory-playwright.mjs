@@ -11,6 +11,8 @@ const specs = [
   "e2e/work-surface-split.spec.ts",
   "e2e/responsive-qa.spec.ts",
   "e2e/full-modern-ux-bar.spec.ts",
+  "e2e/mobile-story-surfaces.spec.ts",
+  "e2e/mobile-terracotta-contract.spec.ts",
 ];
 
 const explicitPort = process.env.PLAYWRIGHT_PORT;

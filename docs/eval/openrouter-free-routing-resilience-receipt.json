@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-11T12:21:42.454Z",
+  "status": "passed",
+  "scope": "NodeRoom and local NodeAgent OpenRouter free-auto routing",
+  "behavior": {
+    "continuousDiscovery": true,
+    "capabilityRanking": [
+      "tool support",
+      "tool-choice support",
+      "structured-output support",
+      "context length",
+      "model recency",
+      "recent route success",
+      "recent latency",
+      "cooldown state"
+    ],
+    "candidateTimeoutMs": 15000,
+    "requestTimeoutMs": 90000,
+    "candidateRetries": 0,
+    "requestLevelFailover": true,
+    "exponentialFailureCooldown": true,
+    "allCoolingRoutesAreNotRetried": true,
+    "globalQuotaAuthAndPolicyFailuresStopRotation": true,
+    "uiDisclosure": "The Free route states that it rotates healthy zero-cost models, shows the final resolved model, and keeps terminal failures actionable. Per-route failed rotations remain health telemetry rather than separate UI trace rows."
+  },
+  "forcedFailureGate": {
+    "status": "passed",
+    "failedRoutesBeforeSuccess": 2,
+    "successfulRouteOrdinal": 3,
+    "sameProviderRetries": 0,
+    "transports": [
+      "Vercel AI SDK local/eval adapter",
+      "Convex direct HTTP production adapter"
+    ],
+    "tests": [
+      "tests/modelAdapterFreeAutoMode.test.ts",
+      "tests/convexModelFreeAutoMode.test.ts",
+      "tests/openRouterFreeModels.test.ts"
+    ]
+  },
+  "liveProbe": {
+    "status": "passed",
+    "requestedModel": "openrouter/free-auto",
+    "resolvedModel": "cohere/north-mini-code:free",
+    "discoveredToolCapableCandidates": 8,
+    "durationMs": 1773,
+    "inputTokens": 70,
+    "outputTokens": 129,
+    "providerCostUsd": 0,
+    "expectedTool": "report_answer",
+    "actualTool": "report_answer",
+    "receiptPath": "docs/eval/openrouter-free-model-discovery-routing-proof.json",
+    "receiptSha256": "f3121c60dccbb3191c151880e0442b4f46157612ca9250b0be16ea1a76c89d96"
+  },
+  "validation": {
+    "focusedTests": "33/33 passed, followed by 19/19 adapter tests passed",
+    "typecheck": "passed",
+    "nodeagentFrameSmoke": "passed",
+    "omnigentNodeagentSmoke": "passed; external Omnigent CLI not installed"
+  },
+  "intentionalBoundary": "OpenRouter and individual free-model uptime remain external. NodeRoom guarantees bounded attempts, cooldown, transparent resolution, and recovery; it does not claim guaranteed free-provider capacity."
+}

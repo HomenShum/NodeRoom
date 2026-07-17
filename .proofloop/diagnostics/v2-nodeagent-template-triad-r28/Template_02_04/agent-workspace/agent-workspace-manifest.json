@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "taskId": "Template/02_04",
+  "boundary": "agent_visible_files_only",
+  "sourceAgentManifest": "tasks/Template_02_04/agent/task.json",
+  "workspaceAgentManifest": "agent/task.json",
+  "copiedFiles": [
+    {
+      "role": "manifest",
+      "path": "agent/task.json"
+    },
+    {
+      "role": "input",
+      "path": "agent/inputs/01-02_04_input.xlsx"
+    }
+  ],
+  "policy": "candidate generation reads only this workspace; private scoring metadata is opened after candidate emission."
+}

@@ -1,18 +1,18 @@
 # Design Quality Scorecard
 
-Generated: 2026-06-21T11:39:39.109Z
-Run: `20260621T113838Z`
-Commit: `0fc34a70`
+Generated: 2026-07-12T13:40:48.385Z
+Run: `20260712T134005Z`
+Commit: `5f67d8e1+dirty`
 Scenario: `live_room_collab`
 
 > Product correctness remains pass/fail. This scorecard does not turn functional gates, media review, accessibility, responsiveness, references, and virality into one hidden claim.
 
 ## Verdict
 
-- Verdict: `ship_but_media_needs_polish`
-- UI/UX product quality: **77.8/100**
-- Media proof score: **11.4/16**
-- Functional gates: `passed`
+- Verdict: `needs_functional_gate`
+- UI/UX product quality: **71.2/100**
+- Media proof score: **11.1/16**
+- Functional gates: `not_run`
 - Performance layer: `passed`
 - Accessibility layer: `passed`
 
@@ -22,18 +22,18 @@ Scenario: `live_room_collab`
 |---|---:|
 | workflowClarity | 8.7 |
 | firstThirtySecondMagic | 7.5 |
-| visualHierarchyDensity | 7 |
-| professionalRelevance | 7.2 |
+| visualHierarchyDensity | 6.8 |
+| professionalRelevance | 6.9 |
 | responsivenessInteraction | 12 |
-| artifactLegibility | 6 |
-| evidenceTraceClarity | 9 |
+| artifactLegibility | 6.5 |
+| evidenceTraceClarity | 8.4 |
 | accessibility | 8 |
-| agentCollaborationState | 6 |
+| agentCollaborationState | 0 |
 | shareabilityViralityLoop | 6.4 |
 
 ## Blockers
 
-(none)
+- functional gate not run in this design-quality pass
 
 ## References
 

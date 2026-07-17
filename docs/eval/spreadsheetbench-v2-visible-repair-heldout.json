@@ -1,0 +1,1781 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-10T23:02:09.616Z",
+  "track": "spreadsheetbench-v2",
+  "category": "Debugging",
+  "selection": {
+    "policy": "sha256_task_id_modulo_selected_before_workbook_inspection",
+    "modulus": 10,
+    "residue": 0,
+    "limit": 10,
+    "selectedTaskIds": [
+      "Debugging/02_04",
+      "Debugging/03_02",
+      "Debugging/04_02",
+      "Debugging/04_08",
+      "Debugging/05_05",
+      "Debugging/05_09",
+      "Debugging/06_03",
+      "Debugging/06_06",
+      "Debugging/06_07",
+      "Debugging/06_09"
+    ],
+    "selectedTaskIdsSha256": "35d17f559f57842f78ad9ae2a055137dd76d3855de894ef746651c4eb1f4eca3"
+  },
+  "boundary": {
+    "candidateGeneration": "agent_visible_manifest_and_input_workbook_only",
+    "evaluatorMetadataRead": false,
+    "goldenWorkbookRead": false,
+    "modelCalls": 0,
+    "note": "This is an exploration replay of the same high-confidence visible formula repair fallback used by the product runner; scoring happens only after candidate emission."
+  },
+  "taskCount": 10,
+  "taskWithRepairCount": 9,
+  "operationCount": 313,
+  "results": [
+    {
+      "taskId": "Debugging/02_04",
+      "selectionBucket": 0,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_02_04/agent/task.json",
+      "agentManifestSha256": "894b42fdd3dcbdb3c2a06e0ef1866889b7319db881ee39f7d9f340172be03840",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_02_04/agent/inputs/01-Inconsistent Color Coding_input.xlsx",
+      "inputSha256": "9301e4caf7d8f0edd5d77a1f5690cec68d7137a7937c81cc813cf2a60d523904",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 2158,
+      "findingCount": 97,
+      "formulaRepairSuggestionCount": 0,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 0,
+      "operations": [],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-heldout/Debugging/02_04_output.xlsx",
+      "outputSha256": "1607a30d49553421d0b53eca880d0a2b936b77358da99e90c17f30ca1a2dec03"
+    },
+    {
+      "taskId": "Debugging/03_02",
+      "selectionBucket": 0,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_03_02/agent/task.json",
+      "agentManifestSha256": "9ff4f9f27a47a4632dd58d139684f7d39f77828732d63776063aa070c1171534",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_03_02/agent/inputs/01-Embedded Hardcodes_input.xlsx",
+      "inputSha256": "0066cc801408f306e3585ed735aed5f9e56b214d8b92db1e86d93bae1dee8747",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 1875,
+      "findingCount": 77,
+      "formulaRepairSuggestionCount": 38,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 38,
+      "operations": [
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "D13",
+          "formula": "D12/C12-1"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "E13",
+          "formula": "E12/D12-1"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "F13",
+          "formula": "F12/E12-1"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "G13",
+          "formula": "G12/F12-1"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "H13",
+          "formula": "H12/G12-1"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "D15",
+          "formula": "D14/C14-1"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "E15",
+          "formula": "E14/D14-1"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "F15",
+          "formula": "F14/E14-1"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "G15",
+          "formula": "G14/F14-1"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "H15",
+          "formula": "H14/G14-1"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "C20",
+          "formula": "C19/C$11"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "D20",
+          "formula": "D19/D$11"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "E20",
+          "formula": "E19/E$11"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "F20",
+          "formula": "F19/F$11"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "G20",
+          "formula": "G19/G$11"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "H20",
+          "formula": "H19/H$11"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "C22",
+          "formula": "C21/C$11"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "D22",
+          "formula": "D21/D$11"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "E22",
+          "formula": "E21/E$11"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "F22",
+          "formula": "F21/F$11"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "G22",
+          "formula": "G21/G$11"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "H22",
+          "formula": "H21/H$11"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "C24",
+          "formula": "C23/C$11"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "D24",
+          "formula": "D23/D$11"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "E24",
+          "formula": "E23/E$11"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "F24",
+          "formula": "F23/F$11"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "G24",
+          "formula": "G23/G$11"
+        },
+        {
+          "sheet": "Ex 2 - Income Statement",
+          "cell": "H24",
+          "formula": "H23/H$11"
+        },
+        {
+          "sheet": "Ex 9 - Perf Metrics",
+          "cell": "D24",
+          "formula": "D23/C23-1"
+        },
+        {
+          "sheet": "Ex 9 - Perf Metrics",
+          "cell": "E24",
+          "formula": "E23/D23-1"
+        },
+        {
+          "sheet": "Ex 9 - Perf Metrics",
+          "cell": "F24",
+          "formula": "F23/E23-1"
+        },
+        {
+          "sheet": "Ex 9 - Perf Metrics",
+          "cell": "G24",
+          "formula": "G23/F23-1"
+        },
+        {
+          "sheet": "Ex 9 - Perf Metrics",
+          "cell": "H24",
+          "formula": "H23/G23-1"
+        },
+        {
+          "sheet": "Ex 9 - Perf Metrics",
+          "cell": "D26",
+          "formula": "D25/C25-1"
+        },
+        {
+          "sheet": "Ex 9 - Perf Metrics",
+          "cell": "E26",
+          "formula": "E25/D25-1"
+        },
+        {
+          "sheet": "Ex 9 - Perf Metrics",
+          "cell": "F26",
+          "formula": "F25/E25-1"
+        },
+        {
+          "sheet": "Ex 9 - Perf Metrics",
+          "cell": "G26",
+          "formula": "G25/F25-1"
+        },
+        {
+          "sheet": "Ex 9 - Perf Metrics",
+          "cell": "H26",
+          "formula": "H25/G25-1"
+        }
+      ],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-heldout/Debugging/03_02_output.xlsx",
+      "outputSha256": "44df62dd093b03194fbf20fed00765afab3dce0a76b4376397a64e97809e4140"
+    },
+    {
+      "taskId": "Debugging/04_02",
+      "selectionBucket": 0,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_04_02/agent/task.json",
+      "agentManifestSha256": "91fbf53c3ddd419d8a2c283b9b6fdd2e266e3b6da7417f5ae92d18e89095f162",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_04_02/agent/inputs/01-Embedded Hardcodes_input.xlsx",
+      "inputSha256": "adc0dea74f4c581a9cac383561611b572859e6fad35b929e24f16b7b906a9916",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 3483,
+      "findingCount": 100,
+      "formulaRepairSuggestionCount": 64,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 64,
+      "operations": [
+        {
+          "sheet": "Balance Sheet",
+          "cell": "J17",
+          "formula": "I17"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "K17",
+          "formula": "J17"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "L17",
+          "formula": "K17"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "M17",
+          "formula": "L17"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "N17",
+          "formula": "M17"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "J53",
+          "formula": "I53"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "K53",
+          "formula": "J53"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "L53",
+          "formula": "K53"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "M53",
+          "formula": "L53"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "N53",
+          "formula": "M53"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "J68",
+          "formula": "I68"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "K68",
+          "formula": "J68"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "L68",
+          "formula": "K68"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "M68",
+          "formula": "L68"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "N68",
+          "formula": "M68"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "J71",
+          "formula": "AVERAGE($D71:$I71)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "K71",
+          "formula": "AVERAGE($D71:$H71)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "L71",
+          "formula": "AVERAGE($D71:$H71)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "M71",
+          "formula": "AVERAGE($D71:$H71)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "N71",
+          "formula": "AVERAGE($D71:$H71)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "J73",
+          "formula": "AVERAGE($D73:$I73)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "K73",
+          "formula": "AVERAGE($D73:$H73)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "L73",
+          "formula": "AVERAGE($D73:$H73)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "M73",
+          "formula": "AVERAGE($D73:$H73)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "N73",
+          "formula": "AVERAGE($D73:$H73)"
+        },
+        {
+          "sheet": "DCF",
+          "cell": "C26",
+          "formula": "SUM(C24:C25)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "D22",
+          "formula": "SUM(D20:D21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "E22",
+          "formula": "SUM(E20:E21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "F22",
+          "formula": "SUM(F20:F21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "G22",
+          "formula": "SUM(G20:G21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "H22",
+          "formula": "SUM(H20:H21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "I22",
+          "formula": "SUM(I20:I21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "J22",
+          "formula": "SUM(J20:J21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "K22",
+          "formula": "SUM(K20:K21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "L22",
+          "formula": "SUM(L20:L21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "M22",
+          "formula": "SUM(M20:M21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "N22",
+          "formula": "SUM(N20:N21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "D24",
+          "formula": "SUM(D22:D23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "E24",
+          "formula": "SUM(E22:E23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "F24",
+          "formula": "SUM(F22:F23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "G24",
+          "formula": "SUM(G22:G23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "H24",
+          "formula": "SUM(H22:H23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "I24",
+          "formula": "SUM(I22:I23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "J24",
+          "formula": "SUM(J22:J23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "K24",
+          "formula": "SUM(K22:K23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "L24",
+          "formula": "SUM(L22:L23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "M24",
+          "formula": "SUM(M22:M23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "N24",
+          "formula": "SUM(N22:N23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "J32",
+          "formula": "$H32"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "K32",
+          "formula": "$H32"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "L32",
+          "formula": "$H32"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "M32",
+          "formula": "$H32"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "N32",
+          "formula": "$H32"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "D38",
+          "formula": "SUM(D36:D37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "E38",
+          "formula": "SUM(E36:E37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "F38",
+          "formula": "SUM(F36:F37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "G38",
+          "formula": "SUM(G36:G37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "H38",
+          "formula": "SUM(H36:H37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "I38",
+          "formula": "SUM(I36:I37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "J38",
+          "formula": "SUM(J36:J37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "K38",
+          "formula": "SUM(K36:K37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "L38",
+          "formula": "SUM(L36:L37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "M38",
+          "formula": "SUM(M36:M37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "N38",
+          "formula": "SUM(N36:N37)"
+        }
+      ],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-heldout/Debugging/04_02_output.xlsx",
+      "outputSha256": "3a26c0bc5f7fc48930b5a88edb0d0d20999f11c4014020f3628ace22f8f39edc"
+    },
+    {
+      "taskId": "Debugging/04_08",
+      "selectionBucket": 0,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_04_08/agent/task.json",
+      "agentManifestSha256": "9624001f8cb41a3a127f43537088b6a6004e829606d77909985ed433e55139fb",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_04_08/agent/inputs/01-Index Match_input.xlsx",
+      "inputSha256": "81282125223aef806f56403642e28a4b537e9ed25fc7e6a12c22e779b5575600",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 3483,
+      "findingCount": 100,
+      "formulaRepairSuggestionCount": 64,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 64,
+      "operations": [
+        {
+          "sheet": "Balance Sheet",
+          "cell": "J17",
+          "formula": "I17"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "K17",
+          "formula": "J17"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "L17",
+          "formula": "K17"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "M17",
+          "formula": "L17"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "N17",
+          "formula": "M17"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "J53",
+          "formula": "I53"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "K53",
+          "formula": "J53"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "L53",
+          "formula": "K53"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "M53",
+          "formula": "L53"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "N53",
+          "formula": "M53"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "J68",
+          "formula": "I68"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "K68",
+          "formula": "J68"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "L68",
+          "formula": "K68"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "M68",
+          "formula": "L68"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "N68",
+          "formula": "M68"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "J71",
+          "formula": "AVERAGE($D71:$I71)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "K71",
+          "formula": "AVERAGE($D71:$H71)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "L71",
+          "formula": "AVERAGE($D71:$H71)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "M71",
+          "formula": "AVERAGE($D71:$H71)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "N71",
+          "formula": "AVERAGE($D71:$H71)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "J73",
+          "formula": "AVERAGE($D73:$I73)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "K73",
+          "formula": "AVERAGE($D73:$H73)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "L73",
+          "formula": "AVERAGE($D73:$H73)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "M73",
+          "formula": "AVERAGE($D73:$H73)"
+        },
+        {
+          "sheet": "Balance Sheet",
+          "cell": "N73",
+          "formula": "AVERAGE($D73:$H73)"
+        },
+        {
+          "sheet": "DCF",
+          "cell": "C26",
+          "formula": "SUM(C24:C25)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "D22",
+          "formula": "SUM(D20:D21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "E22",
+          "formula": "SUM(E20:E21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "F22",
+          "formula": "SUM(F20:F21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "G22",
+          "formula": "SUM(G20:G21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "H22",
+          "formula": "SUM(H20:H21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "I22",
+          "formula": "SUM(I20:I21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "J22",
+          "formula": "SUM(J20:J21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "K22",
+          "formula": "SUM(K20:K21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "L22",
+          "formula": "SUM(L20:L21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "M22",
+          "formula": "SUM(M20:M21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "N22",
+          "formula": "SUM(N20:N21)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "D24",
+          "formula": "SUM(D22:D23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "E24",
+          "formula": "SUM(E22:E23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "F24",
+          "formula": "SUM(F22:F23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "G24",
+          "formula": "SUM(G22:G23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "H24",
+          "formula": "SUM(H22:H23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "I24",
+          "formula": "SUM(I22:I23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "J24",
+          "formula": "SUM(J22:J23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "K24",
+          "formula": "SUM(K22:K23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "L24",
+          "formula": "SUM(L22:L23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "M24",
+          "formula": "SUM(M22:M23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "N24",
+          "formula": "SUM(N22:N23)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "J32",
+          "formula": "$H32"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "K32",
+          "formula": "$H32"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "L32",
+          "formula": "$H32"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "M32",
+          "formula": "$H32"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "N32",
+          "formula": "$H32"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "D38",
+          "formula": "SUM(D36:D37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "E38",
+          "formula": "SUM(E36:E37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "F38",
+          "formula": "SUM(F36:F37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "G38",
+          "formula": "SUM(G36:G37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "H38",
+          "formula": "SUM(H36:H37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "I38",
+          "formula": "SUM(I36:I37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "J38",
+          "formula": "SUM(J36:J37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "K38",
+          "formula": "SUM(K36:K37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "L38",
+          "formula": "SUM(L36:L37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "M38",
+          "formula": "SUM(M36:M37)"
+        },
+        {
+          "sheet": "Income Statement",
+          "cell": "N38",
+          "formula": "SUM(N36:N37)"
+        }
+      ],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-heldout/Debugging/04_08_output.xlsx",
+      "outputSha256": "6e0cfe1caf120be4cdaba8f2a0caef52d83a276778f080f20f5a2ff5a09f6184"
+    },
+    {
+      "taskId": "Debugging/05_05",
+      "selectionBucket": 0,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_05_05/agent/task.json",
+      "agentManifestSha256": "5fc06e151a0a2bbe5faf17aa488120b70ffb91a4537d0dca6bb28b897c16f707",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_05_05/agent/inputs/01-Incorrect Average_input.xlsx",
+      "inputSha256": "781a9610b0fd86d70dffa8cf6165d527ace3559e5f02527f9992f7462b7e55cf",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 2661,
+      "findingCount": 100,
+      "formulaRepairSuggestionCount": 64,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 64,
+      "operations": [
+        {
+          "sheet": "Financial Overview",
+          "cell": "K5",
+          "formula": "(I5/D5)^(1/5)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "D6",
+          "formula": "(D5/C5)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "E6",
+          "formula": "(E5/D5)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "F6",
+          "formula": "(F5/E5)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "G6",
+          "formula": "(G5/F5)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "H6",
+          "formula": "(H5/G5)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "I6",
+          "formula": "(I5/H5)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "K7",
+          "formula": "(I7/D7)^(1/5)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "D8",
+          "formula": "(D7/C7)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "E8",
+          "formula": "(E7/D7)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "F8",
+          "formula": "(F7/E7)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "G8",
+          "formula": "(G7/F7)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "H8",
+          "formula": "(H7/G7)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "I8",
+          "formula": "(I7/H7)-1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "B6",
+          "formula": "B5+1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "B8",
+          "formula": "B7+1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "B10",
+          "formula": "B9+1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "B14",
+          "formula": "B13+1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "B18",
+          "formula": "B17+1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "G21",
+          "formula": "(G20/G8)^(1/3)-1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "I21",
+          "formula": "(I20/I8)^(1/3)-1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "J21",
+          "formula": "J20-J8"
+        },
+        {
+          "sheet": "Model",
+          "cell": "M8",
+          "formula": "SUM(M4:M7)"
+        },
+        {
+          "sheet": "Model",
+          "cell": "P23",
+          "formula": "(H23/C23)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "Q23",
+          "formula": "(N23/I23)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "P25",
+          "formula": "(H25/C25)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "Q25",
+          "formula": "(N25/I25)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "I26",
+          "formula": "I22+I24"
+        },
+        {
+          "sheet": "Model",
+          "cell": "P30",
+          "formula": "(H30/C30)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "Q30",
+          "formula": "(N30/I30)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "P32",
+          "formula": "(H32/C32)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "Q32",
+          "formula": "(N32/I32)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "P34",
+          "formula": "(H34/C34)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "Q34",
+          "formula": "(N34/I34)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "I52",
+          "formula": "(I53/365)*I$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "J52",
+          "formula": "(J53/365)*J$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "K52",
+          "formula": "(K53/365)*K$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "L52",
+          "formula": "(L53/365)*L$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "M52",
+          "formula": "(M53/365)*M$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "N52",
+          "formula": "(N53/365)*N$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "E53",
+          "formula": "(E52/E$26)*365"
+        },
+        {
+          "sheet": "Model",
+          "cell": "F53",
+          "formula": "(F52/F$26)*365"
+        },
+        {
+          "sheet": "Model",
+          "cell": "G53",
+          "formula": "(G52/G$26)*365"
+        },
+        {
+          "sheet": "Model",
+          "cell": "H53",
+          "formula": "(H52/H$26)*365"
+        },
+        {
+          "sheet": "Model",
+          "cell": "I53",
+          "formula": "H53"
+        },
+        {
+          "sheet": "Model",
+          "cell": "J53",
+          "formula": "I53"
+        },
+        {
+          "sheet": "Model",
+          "cell": "K53",
+          "formula": "J53"
+        },
+        {
+          "sheet": "Model",
+          "cell": "L53",
+          "formula": "K53"
+        },
+        {
+          "sheet": "Model",
+          "cell": "M53",
+          "formula": "L53"
+        },
+        {
+          "sheet": "Model",
+          "cell": "N53",
+          "formula": "M53"
+        },
+        {
+          "sheet": "Model",
+          "cell": "I56",
+          "formula": "I57*I$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "J56",
+          "formula": "J57*J$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "K56",
+          "formula": "K57*K$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "L56",
+          "formula": "L57*L$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "M56",
+          "formula": "M57*M$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "N56",
+          "formula": "N57*N$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "E57",
+          "formula": "E56/E$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "F57",
+          "formula": "F56/F$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "G57",
+          "formula": "G56/G$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "H57",
+          "formula": "H56/H$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "I63",
+          "formula": "H63"
+        },
+        {
+          "sheet": "Model",
+          "cell": "J63",
+          "formula": "I63"
+        },
+        {
+          "sheet": "Model",
+          "cell": "K63",
+          "formula": "J63"
+        },
+        {
+          "sheet": "Model",
+          "cell": "L63",
+          "formula": "K63"
+        }
+      ],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-heldout/Debugging/05_05_output.xlsx",
+      "outputSha256": "8e20b7fedc9a97bdf55dc76112c0fe086080a5e510eb32691efbc5d948ddb5f6"
+    },
+    {
+      "taskId": "Debugging/05_09",
+      "selectionBucket": 0,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_05_09/agent/task.json",
+      "agentManifestSha256": "2ee6516d268bd203ec8c9d9f75b52f7c8fb7bd5205891273b0c50b31eeaffbf5",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_05_09/agent/inputs/01-Relative vs Absolute References_input.xlsx",
+      "inputSha256": "ddee256c22f26e63ed1f5ee480f643c07c0293275509abaa23e9ae2671a2bdff",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 2661,
+      "findingCount": 100,
+      "formulaRepairSuggestionCount": 64,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 64,
+      "operations": [
+        {
+          "sheet": "Financial Overview",
+          "cell": "K5",
+          "formula": "(I5/D5)^(1/5)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "D6",
+          "formula": "(D5/C5)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "E6",
+          "formula": "(E5/D5)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "F6",
+          "formula": "(F5/E5)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "G6",
+          "formula": "(G5/F5)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "H6",
+          "formula": "(H5/G5)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "I6",
+          "formula": "(I5/H5)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "K7",
+          "formula": "(I7/D7)^(1/5)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "D8",
+          "formula": "(D7/C7)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "E8",
+          "formula": "(E7/D7)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "F8",
+          "formula": "(F7/E7)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "G8",
+          "formula": "(G7/F7)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "H8",
+          "formula": "(H7/G7)-1"
+        },
+        {
+          "sheet": "Financial Overview",
+          "cell": "I8",
+          "formula": "(I7/H7)-1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "B6",
+          "formula": "B5+1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "B8",
+          "formula": "B7+1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "B10",
+          "formula": "B9+1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "B14",
+          "formula": "B13+1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "B18",
+          "formula": "B17+1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "G21",
+          "formula": "(G20/G8)^(1/3)-1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "I21",
+          "formula": "(I20/I8)^(1/3)-1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "J21",
+          "formula": "J20-J8"
+        },
+        {
+          "sheet": "Model",
+          "cell": "M8",
+          "formula": "SUM(M4:M7)"
+        },
+        {
+          "sheet": "Model",
+          "cell": "P23",
+          "formula": "(H23/C23)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "Q23",
+          "formula": "(N23/I23)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "P25",
+          "formula": "(H25/C25)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "Q25",
+          "formula": "(N25/I25)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "I26",
+          "formula": "I22+I24"
+        },
+        {
+          "sheet": "Model",
+          "cell": "P30",
+          "formula": "(H30/C30)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "Q30",
+          "formula": "(N30/I30)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "P32",
+          "formula": "(H32/C32)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "Q32",
+          "formula": "(N32/I32)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "P34",
+          "formula": "(H34/C34)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "Q34",
+          "formula": "(N34/I34)^(1/5)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "I52",
+          "formula": "(I53/365)*I$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "J52",
+          "formula": "(J53/365)*J$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "K52",
+          "formula": "(K53/365)*K$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "L52",
+          "formula": "(L53/365)*L$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "M52",
+          "formula": "(M53/365)*M$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "N52",
+          "formula": "(N53/365)*N$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "E53",
+          "formula": "(E52/E$26)*365"
+        },
+        {
+          "sheet": "Model",
+          "cell": "F53",
+          "formula": "(F52/F$26)*365"
+        },
+        {
+          "sheet": "Model",
+          "cell": "G53",
+          "formula": "(G52/G$26)*365"
+        },
+        {
+          "sheet": "Model",
+          "cell": "H53",
+          "formula": "(H52/H$26)*365"
+        },
+        {
+          "sheet": "Model",
+          "cell": "I53",
+          "formula": "H53"
+        },
+        {
+          "sheet": "Model",
+          "cell": "J53",
+          "formula": "I53"
+        },
+        {
+          "sheet": "Model",
+          "cell": "K53",
+          "formula": "J53"
+        },
+        {
+          "sheet": "Model",
+          "cell": "L53",
+          "formula": "K53"
+        },
+        {
+          "sheet": "Model",
+          "cell": "M53",
+          "formula": "L53"
+        },
+        {
+          "sheet": "Model",
+          "cell": "N53",
+          "formula": "M53"
+        },
+        {
+          "sheet": "Model",
+          "cell": "I56",
+          "formula": "I57*I$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "J56",
+          "formula": "J57*J$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "K56",
+          "formula": "K57*K$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "L56",
+          "formula": "L57*L$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "M56",
+          "formula": "M57*M$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "N56",
+          "formula": "N57*N$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "E57",
+          "formula": "E56/E$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "F57",
+          "formula": "F56/F$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "G57",
+          "formula": "G56/G$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "H57",
+          "formula": "H56/H$26"
+        },
+        {
+          "sheet": "Model",
+          "cell": "I63",
+          "formula": "H63"
+        },
+        {
+          "sheet": "Model",
+          "cell": "J63",
+          "formula": "I63"
+        },
+        {
+          "sheet": "Model",
+          "cell": "K63",
+          "formula": "J63"
+        },
+        {
+          "sheet": "Model",
+          "cell": "L63",
+          "formula": "K63"
+        }
+      ],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-heldout/Debugging/05_09_output.xlsx",
+      "outputSha256": "f881c0775c0895d2f5e46bc16778faa6ed14eed5b0c9c3ba7d50f2e6b9fbc926"
+    },
+    {
+      "taskId": "Debugging/06_03",
+      "selectionBucket": 0,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_06_03/agent/task.json",
+      "agentManifestSha256": "85db7cb3a5e4a0666c76697945fcb978d867105b5ec10980ec3b8a09f6b6788f",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_06_03/agent/inputs/01-Errors_input.xlsx",
+      "inputSha256": "82ce8834d05954d28be7e028f9d16f51f13653d06bf80645a68dccd50177474b",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 5846,
+      "findingCount": 100,
+      "formulaRepairSuggestionCount": 2,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 2,
+      "operations": [
+        {
+          "sheet": "Supporting Schedules",
+          "cell": "O113",
+          "formula": "N113"
+        },
+        {
+          "sheet": "Supporting Schedules",
+          "cell": "Q113",
+          "formula": "P113"
+        }
+      ],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-heldout/Debugging/06_03_output.xlsx",
+      "outputSha256": "f0da2e7618fbdf9d8f631d4adfad840d3546524922a2bd9028fdf25561376c8e"
+    },
+    {
+      "taskId": "Debugging/06_06",
+      "selectionBucket": 0,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_06_06/agent/task.json",
+      "agentManifestSha256": "5864f7d07b90cb5da4c57c681b579858b3b38477c81737d7a343711f634a2f50",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_06_06/agent/inputs/01-Incorrect Cross Sheet References_input.xlsx",
+      "inputSha256": "1e56aaeab4158bfed82d367e7fef8fb20f90dba3cabd78d155455f162f5876fb",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 5894,
+      "findingCount": 100,
+      "formulaRepairSuggestionCount": 8,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 8,
+      "operations": [
+        {
+          "sheet": "Comps + Beta",
+          "cell": "I13",
+          "formula": "MIN(I5:I10)"
+        },
+        {
+          "sheet": "Comps + Beta",
+          "cell": "I14",
+          "formula": "PERCENTILE(I5:I10,0.25)"
+        },
+        {
+          "sheet": "Comps + Beta",
+          "cell": "I16",
+          "formula": "AVERAGE(I5:I10)"
+        },
+        {
+          "sheet": "Comps + Beta",
+          "cell": "I17",
+          "formula": "PERCENTILE(I5:I10,0.75)"
+        },
+        {
+          "sheet": "Comps + Beta",
+          "cell": "I18",
+          "formula": "MAX(I5:I10)"
+        },
+        {
+          "sheet": "Operating Model",
+          "cell": "G7",
+          "formula": "-('IS Ann'!D22-'CFS Ann'!C21)"
+        },
+        {
+          "sheet": "Supporting Schedules",
+          "cell": "O114",
+          "formula": "N114"
+        },
+        {
+          "sheet": "Supporting Schedules",
+          "cell": "Q114",
+          "formula": "P114"
+        }
+      ],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-heldout/Debugging/06_06_output.xlsx",
+      "outputSha256": "0312bf8b02dd038e6d2234fc748dd41ad361c38d12ff7e2a9b723c5043cbb100"
+    },
+    {
+      "taskId": "Debugging/06_07",
+      "selectionBucket": 0,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_06_07/agent/task.json",
+      "agentManifestSha256": "8d9bc59654bcdfb0178ad64a4a143d4b0a88e9e2654238c6102f305663bca164",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_06_07/agent/inputs/01-Incorrect Index Match_input.xlsx",
+      "inputSha256": "12be93ac09199f8885c252a1c3df24101d6d4e4fffcbc46de6ad9a9dc089461a",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 5894,
+      "findingCount": 32,
+      "formulaRepairSuggestionCount": 2,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 2,
+      "operations": [
+        {
+          "sheet": "Supporting Schedules",
+          "cell": "O114",
+          "formula": "N114"
+        },
+        {
+          "sheet": "Supporting Schedules",
+          "cell": "Q114",
+          "formula": "P114"
+        }
+      ],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-heldout/Debugging/06_07_output.xlsx",
+      "outputSha256": "700259335e05fba367d4d8d81eed8f56253987aba5d8a10cb907d1c47a085330"
+    },
+    {
+      "taskId": "Debugging/06_09",
+      "selectionBucket": 0,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_06_09/agent/task.json",
+      "agentManifestSha256": "d538c687020e1b4b59c463a089dabcb468821acc8981c81f9f646d16e2de983c",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_06_09/agent/inputs/01-Relative vs Absolute References_input.xlsx",
+      "inputSha256": "f85e9144271f1f20da5baa06ead43a49db01778b07c0115220bae451d171431a",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 5894,
+      "findingCount": 100,
+      "formulaRepairSuggestionCount": 7,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 7,
+      "operations": [
+        {
+          "sheet": "Comps + Beta",
+          "cell": "I13",
+          "formula": "MIN(I5:I10)"
+        },
+        {
+          "sheet": "Comps + Beta",
+          "cell": "I14",
+          "formula": "PERCENTILE(I5:I10,0.25)"
+        },
+        {
+          "sheet": "Comps + Beta",
+          "cell": "I16",
+          "formula": "AVERAGE(I5:I10)"
+        },
+        {
+          "sheet": "Comps + Beta",
+          "cell": "I17",
+          "formula": "PERCENTILE(I5:I10,0.75)"
+        },
+        {
+          "sheet": "Comps + Beta",
+          "cell": "I18",
+          "formula": "MAX(I5:I10)"
+        },
+        {
+          "sheet": "Supporting Schedules",
+          "cell": "O114",
+          "formula": "N114"
+        },
+        {
+          "sheet": "Supporting Schedules",
+          "cell": "Q114",
+          "formula": "P114"
+        }
+      ],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-heldout/Debugging/06_09_output.xlsx",
+      "outputSha256": "05b216daa211af6047dea20b40f7377cbd36d70ddbab104a621a29ed50bbe8ac"
+    }
+  ]
+}

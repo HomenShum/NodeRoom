@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-12T13:33:56.606Z",
+  "viewport": {
+    "id": "desktop-1456x940",
+    "width": 1456,
+    "height": 940
+  },
+  "screenshots": [
+    ".proofloop/proofs/visual-parity/desktop-1456x940/spreadsheet.png",
+    ".proofloop/proofs/visual-parity/desktop-1456x940/notebook-editor.png",
+    ".proofloop/proofs/visual-parity/desktop-1456x940/notebook-kernel.png",
+    ".proofloop/proofs/visual-parity/desktop-1456x940/deck.png",
+    ".proofloop/proofs/visual-parity/desktop-1456x940/graph.png",
+    ".proofloop/proofs/visual-parity/desktop-1456x940/graph-controls.png",
+    ".proofloop/proofs/visual-parity/desktop-1456x940/graph-agent.png",
+    ".proofloop/proofs/visual-parity/desktop-1456x940/trace.png",
+    ".proofloop/proofs/visual-parity/desktop-1456x940/chat.png"
+  ],
+  "surfaces": [
+    "spreadsheet",
+    "notebook-editor",
+    "notebook-kernel",
+    "deck",
+    "graph",
+    "graph-controls",
+    "graph-agent",
+    "trace",
+    "chat"
+  ],
+  "rootOverflow": "passed",
+  "consoleErrors": []
+}

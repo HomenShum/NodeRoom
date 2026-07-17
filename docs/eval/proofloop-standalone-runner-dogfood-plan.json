@@ -1,16 +1,16 @@
 {
   "schema": "proofloop-runner-plan-v1",
   "mode": "two-layer-certification-v1",
-  "generatedAt": "2026-07-05T19:49:21.424Z",
-  "planId": "proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z",
+  "generatedAt": "2026-07-10T14:21:56.272Z",
+  "planId": "proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z",
   "title": "NodeRoom standalone ProofLoop runner dogfood plan",
   "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom",
   "source": {
     "sourcePlanSchema": "proofloop-prod-proxy-longrun-v1",
-    "sourceRunId": "proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z",
-    "sourceMatrixDigest": "074bd75e8ce9e120ad12b8ab9ee6dfb117de74e061ddc141fe70618c32e0e878",
-    "longRunStatePath": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/state.json",
-    "longRunQueuePath": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/queue.jsonl",
+    "sourceRunId": "proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z",
+    "sourceMatrixDigest": "d90c7b353a5179acdadc14f52d57c1556a1ade8dbf6df3069365549a0b1d6973",
+    "longRunStatePath": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/state.json",
+    "longRunQueuePath": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/queue.jsonl",
     "liveModelSweepsExecuted": false,
     "localProofloopVendored": false
   },
@@ -30,12 +30,12 @@
     "generationCostUsd": 0
   },
   "summary": {
-    "tasks": 19,
+    "tasks": 16,
     "capabilityHeadlessTasks": 7,
     "browserCertificationTasks": 9,
     "adapterGapTasks": 0,
     "guardedLiveRunBatchTasks": 9,
-    "officialScoreGapTasks": 3,
+    "officialScoreGapTasks": 0,
     "browserRequiredForAllCapabilityTasks": false,
     "uniqueTaskTargets": 1354,
     "modelTaskAttempts": 5416,
@@ -103,8 +103,8 @@
       "status": "ready",
       "title": "Refresh full prod proxy task denominator",
       "priority": 11,
-      "objective": "Regenerate the full proxy benchmark matrix so 1354 task targets and all model-task attempts stay in the denominator.",
-      "prompt": "Regenerate the full proxy benchmark matrix so 1354 task targets and all model-task attempts stay in the denominator.\nRun this as a headless capability check; do not substitute a screenshot or transcript for the command receipt.\nIf it fails, use ProofLoop repair/resume outputs to narrow the fix before spending browser/model budget.",
+      "objective": "Regenerate the full proxy benchmark matrix so current task targets and all model-task attempts stay in the denominator.",
+      "prompt": "Regenerate the full proxy benchmark matrix so current task targets and all model-task attempts stay in the denominator.\nRun this as a headless capability check; do not substitute a screenshot or transcript for the command receipt.\nIf it fails, use ProofLoop repair/resume outputs to narrow the fix before spending browser/model budget.",
       "estimatedProductSpendUsd": 0,
       "paidModelRequired": false,
       "counts": {},
@@ -336,9 +336,9 @@
           "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
           "requiresSpend": true,
           "writes": [
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/state.json",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/events.jsonl",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/"
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/"
           ]
         }
       ],
@@ -353,7 +353,10 @@
         "scripts/proofloop-live-playwright.ts"
       ],
       "blockers": [
-        "Accounting live proof-loop has no passing prod live-browser receipt for this task/model yet."
+        "Accounting live proof-loop has no passing prod live-browser receipt for this task/model yet.",
+        "Committed receipt docs/eval/proofloop-live-accounting-free-smoke.json did not pass overall.",
+        "Committed receipt docs/eval/proofloop-live-accounting-free-smoke.json did not pass task variance-calc.",
+        "Committed receipt docs/eval/proofloop-live-accounting-free-smoke.json must set officialScoreClaim:false before it can count as proxy proof."
       ],
       "metadata": {
         "modelIds": [
@@ -369,20 +372,20 @@
           "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
           "PLAYWRIGHT_REUSE_SERVER": "1",
           "PLAYWRIGHT_RETRIES": "0",
-          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/playwright/accounting-live-proofloop--memo-draft--poolside_laguna-xs-2.1--ad6734b421",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/playwright/accounting-live-proofloop--memo-draft--poolside_laguna-xs-2.1--ad6734b421",
           "BENCH_AGENT_MODEL_MODE": "specific",
           "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
           "PROOFLOOP_REAL_USER_MODE": "1",
           "PROOFLOOP_FOCUS_MODE": "0",
           "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z-accounting-live-proofloop--memo-draft--poolside_laguna-xs-2.1--ad6734b421",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z-accounting-live-proofloop--memo-draft--poolside_laguna-xs-2.1--ad6734b421",
           "PROOFLOOP_CASE_ID": "accounting-live-proofloop--memo-draft--poolside_laguna-xs-2.1--ad6734b421",
-          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/fresh-room",
-          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/accounting-live-proofloop--memo-draft--poolside_laguna-xs-2.1--ad6734b421.json",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/accounting-live-proofloop--memo-draft--poolside_laguna-xs-2.1--ad6734b421.json",
           "PROOFLOOP_TASKS_JSON": "proofloop/accounting/live.accounting.config.json",
           "PROOFLOOP_TASK_IDS": "memo-draft"
         },
-        "sourceMatrixDigest": "074bd75e8ce9e120ad12b8ab9ee6dfb117de74e061ddc141fe70618c32e0e878"
+        "sourceMatrixDigest": "d90c7b353a5179acdadc14f52d57c1556a1ade8dbf6df3069365549a0b1d6973"
       }
     },
     {
@@ -416,9 +419,9 @@
           "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
           "requiresSpend": true,
           "writes": [
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/state.json",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/events.jsonl",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/"
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/"
           ]
         }
       ],
@@ -455,23 +458,23 @@
           "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
           "PLAYWRIGHT_REUSE_SERVER": "1",
           "PLAYWRIGHT_RETRIES": "0",
-          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/playwright/bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/playwright/bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492",
           "BENCH_AGENT_MODEL_MODE": "specific",
           "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
           "PROOFLOOP_REAL_USER_MODE": "1",
           "PROOFLOOP_FOCUS_MODE": "0",
           "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z-bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z-bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492",
           "PROOFLOOP_CASE_ID": "bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492",
-          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/fresh-room",
-          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492.json",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492.json",
           "BTB_LIVE_ROOM_E2E": "1",
           "BTB_UI_BUNDLE_ROOT": ".tmp/official-benchmarks/bankertoolbench-repo/btb-data",
           "BTB_UI_TASK_ID": "067cb834-ad43-448b-a523-d0c9898656e0",
           "BTB_UI_VERIFIER_COMMAND": "npm run benchmark:bankertoolbench:proof",
-          "BTB_LIVE_ROOM_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492.json"
+          "BTB_LIVE_ROOM_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/bankertoolbench-full-100--067cb834-ad43-448b-a523-d0c9898656e0--poolside_laguna-xs-2.1--85d7d2a492.json"
         },
-        "sourceMatrixDigest": "074bd75e8ce9e120ad12b8ab9ee6dfb117de74e061ddc141fe70618c32e0e878"
+        "sourceMatrixDigest": "d90c7b353a5179acdadc14f52d57c1556a1ade8dbf6df3069365549a0b1d6973"
       }
     },
     {
@@ -505,9 +508,9 @@
           "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
           "requiresSpend": true,
           "writes": [
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/state.json",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/events.jsonl",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/"
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/"
           ]
         }
       ],
@@ -528,24 +531,24 @@
         ],
         "sampleAttemptId": "finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31",
         "sampleTaskId": "finch-local-financial-evidence-qa",
-        "sampleCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --prod --id finch --real-user --model deepseek/deepseek-v4-flash --model-mode specific --json-out-dir .proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts",
+        "sampleCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --prod --id finch --real-user --model deepseek/deepseek-v4-flash --model-mode specific --json-out-dir .proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts",
         "sampleEnv": {
           "BENCH_BASE_URL": "https://noderoom.live",
           "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
           "PLAYWRIGHT_REUSE_SERVER": "1",
           "PLAYWRIGHT_RETRIES": "0",
-          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/playwright/finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/playwright/finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31",
           "BENCH_AGENT_MODEL_MODE": "specific",
           "BENCH_AGENT_MODEL_POLICY": "deepseek/deepseek-v4-flash",
           "PROOFLOOP_REAL_USER_MODE": "1",
           "PROOFLOOP_FOCUS_MODE": "0",
           "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z-finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z-finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31",
           "PROOFLOOP_CASE_ID": "finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31",
-          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/fresh-room",
-          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31.json"
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/finch-prod-proxy-task--finch-local-financial-evidence-qa--deepseek_deepseek-v4-flash--a8de090c31.json"
         },
-        "sourceMatrixDigest": "074bd75e8ce9e120ad12b8ab9ee6dfb117de74e061ddc141fe70618c32e0e878"
+        "sourceMatrixDigest": "d90c7b353a5179acdadc14f52d57c1556a1ade8dbf6df3069365549a0b1d6973"
       }
     },
     {
@@ -579,9 +582,9 @@
           "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
           "requiresSpend": true,
           "writes": [
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/state.json",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/events.jsonl",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/"
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/"
           ]
         }
       ],
@@ -591,9 +594,16 @@
         "The all-task winner remains null until every tracked task target has prod browser proof."
       ],
       "evidence": [
+        "actual_model=cohere/north-mini-code:free",
         "docs/eval/official-benchmark-task-coverage.json",
+        "docs/eval/proofloop-live-multi-user-free-smoke.json",
         "evals/multiUserCoordinationProof.ts",
+        "https://noderoom.live/?room=PLMUMR7J1J4G&name=Host",
+        "measured_cost_usd=0",
         "proofloop/benchmarks/noderoom-multi-user/live-room-scenario.spec.ts",
+        "receipt_family=noderoom-multi-user-conflict",
+        "receipt_task=multi-user-conflict-1",
+        "requested_model=cohere/north-mini-code:free",
         "scripts/proofloop-live-playwright.ts"
       ],
       "blockers": [
@@ -613,19 +623,19 @@
           "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
           "PLAYWRIGHT_REUSE_SERVER": "1",
           "PLAYWRIGHT_RETRIES": "0",
-          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/playwright/noderoom-multi-user-conflict--multi-user-conflict-1--poolside_laguna-xs-2.1--2742b0e3fd",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/playwright/noderoom-multi-user-conflict--multi-user-conflict-1--poolside_laguna-xs-2.1--2742b0e3fd",
           "BENCH_AGENT_MODEL_MODE": "specific",
           "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
           "PROOFLOOP_REAL_USER_MODE": "1",
           "PROOFLOOP_FOCUS_MODE": "0",
           "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z-noderoom-multi-user-conflict--multi-user-conflict-1--poolside_laguna-xs-2.1--2742b0e3fd",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z-noderoom-multi-user-conflict--multi-user-conflict-1--poolside_laguna-xs-2.1--2742b0e3fd",
           "PROOFLOOP_CASE_ID": "noderoom-multi-user-conflict--multi-user-conflict-1--poolside_laguna-xs-2.1--2742b0e3fd",
-          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/fresh-room",
-          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/noderoom-multi-user-conflict--multi-user-conflict-1--poolside_laguna-xs-2.1--2742b0e3fd.json",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/noderoom-multi-user-conflict--multi-user-conflict-1--poolside_laguna-xs-2.1--2742b0e3fd.json",
           "PROOFLOOP_TASK_IDS": "multi-user-conflict-1"
         },
-        "sourceMatrixDigest": "074bd75e8ce9e120ad12b8ab9ee6dfb117de74e061ddc141fe70618c32e0e878"
+        "sourceMatrixDigest": "d90c7b353a5179acdadc14f52d57c1556a1ade8dbf6df3069365549a0b1d6973"
       }
     },
     {
@@ -659,9 +669,9 @@
           "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
           "requiresSpend": true,
           "writes": [
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/state.json",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/events.jsonl",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/"
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/"
           ]
         }
       ],
@@ -692,20 +702,20 @@
           "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
           "PLAYWRIGHT_REUSE_SERVER": "1",
           "PLAYWRIGHT_RETRIES": "0",
-          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/playwright/notion-live-proofloop--company-research--poolside_laguna-xs-2.1--5336dfb719",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/playwright/notion-live-proofloop--company-research--poolside_laguna-xs-2.1--5336dfb719",
           "BENCH_AGENT_MODEL_MODE": "specific",
           "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
           "PROOFLOOP_REAL_USER_MODE": "1",
           "PROOFLOOP_FOCUS_MODE": "0",
           "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z-notion-live-proofloop--company-research--poolside_laguna-xs-2.1--5336dfb719",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z-notion-live-proofloop--company-research--poolside_laguna-xs-2.1--5336dfb719",
           "PROOFLOOP_CASE_ID": "notion-live-proofloop--company-research--poolside_laguna-xs-2.1--5336dfb719",
-          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/fresh-room",
-          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/notion-live-proofloop--company-research--poolside_laguna-xs-2.1--5336dfb719.json",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/notion-live-proofloop--company-research--poolside_laguna-xs-2.1--5336dfb719.json",
           "PROOFLOOP_TASKS_JSON": "proofloop/notion/live.notion.config.json",
           "PROOFLOOP_TASK_IDS": "company-research"
         },
-        "sourceMatrixDigest": "074bd75e8ce9e120ad12b8ab9ee6dfb117de74e061ddc141fe70618c32e0e878"
+        "sourceMatrixDigest": "d90c7b353a5179acdadc14f52d57c1556a1ade8dbf6df3069365549a0b1d6973"
       }
     },
     {
@@ -739,9 +749,9 @@
           "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
           "requiresSpend": true,
           "writes": [
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/state.json",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/events.jsonl",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/"
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/"
           ]
         }
       ],
@@ -751,15 +761,21 @@
         "The all-task winner remains null until every tracked task target has prod browser proof."
       ],
       "evidence": [
+        "actual_model=z-ai/glm-4.7-flash",
+        "docs/eval/proofloop-live-proximitty-free-smoke.json",
+        "https://noderoom.live/?room=NRLQ2M1OG0P&name=Proof+Loop",
+        "measured_cost_usd=0.012",
         "proofloop/benchmarks/proximitty/live-room-scenario.spec.ts",
         "proofloop/scenarios/proximitty-intake.spec.ts",
         "proofloop/scenarios/proximitty-model-comparison.spec.ts",
-        "proofloop/scenarios/proximitty-risk-research.spec.ts",
-        "proofloop/scenarios/proximitty-underwriting-packet.spec.ts",
+        "receipt_family=proximitty-underwriting-pr0",
+        "receipt_task=proximitty-intake",
+        "requested_model=qwen/qwen3-coder:free",
         "scripts/proofloop-live-playwright.ts"
       ],
       "blockers": [
-        "Proximitty has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet."
+        "Proximitty has a prod browser adapter, but no passing prod live-browser receipt is recorded for this task/model yet.",
+        "model_route_mismatch: route_integrity=model_route_mismatch; requested=qwen/qwen3-coder:free; actual=z-ai/glm-4.7-flash; cost=$0.0120; failures=model_route_mismatch,free_route_used_paid_model,free_route_billed_nonzero_cost."
       ],
       "metadata": {
         "modelIds": [
@@ -775,19 +791,19 @@
           "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
           "PLAYWRIGHT_REUSE_SERVER": "1",
           "PLAYWRIGHT_RETRIES": "0",
-          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/playwright/proximitty-underwriting-pr0--proximitty-intake--poolside_laguna-xs-2.1--21cdc751a8",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/playwright/proximitty-underwriting-pr0--proximitty-intake--poolside_laguna-xs-2.1--21cdc751a8",
           "BENCH_AGENT_MODEL_MODE": "specific",
           "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
           "PROOFLOOP_REAL_USER_MODE": "1",
           "PROOFLOOP_FOCUS_MODE": "0",
           "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z-proximitty-underwriting-pr0--proximitty-intake--poolside_laguna-xs-2.1--21cdc751a8",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z-proximitty-underwriting-pr0--proximitty-intake--poolside_laguna-xs-2.1--21cdc751a8",
           "PROOFLOOP_CASE_ID": "proximitty-underwriting-pr0--proximitty-intake--poolside_laguna-xs-2.1--21cdc751a8",
-          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/fresh-room",
-          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/proximitty-underwriting-pr0--proximitty-intake--poolside_laguna-xs-2.1--21cdc751a8.json",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/proximitty-underwriting-pr0--proximitty-intake--poolside_laguna-xs-2.1--21cdc751a8.json",
           "PROOFLOOP_TASK_IDS": "proximitty-intake"
         },
-        "sourceMatrixDigest": "074bd75e8ce9e120ad12b8ab9ee6dfb117de74e061ddc141fe70618c32e0e878"
+        "sourceMatrixDigest": "d90c7b353a5179acdadc14f52d57c1556a1ade8dbf6df3069365549a0b1d6973"
       }
     },
     {
@@ -821,9 +837,9 @@
           "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
           "requiresSpend": true,
           "writes": [
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/state.json",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/events.jsonl",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/"
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/"
           ]
         }
       ],
@@ -835,11 +851,12 @@
       "evidence": [
         ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/agent/task.json",
         ".tmp/official-benchmarks/staged-v1-912/tasks/102-20/evaluator/evaluator.json",
-        ".tmp/official-benchmarks/staged-v1-912/tasks/10281/agent/task.json",
         "docs/eval/official-benchmark-readiness.json",
         "docs/eval/official-benchmark-task-coverage.json",
         "docs/eval/spreadsheetbench-live-room-proof.json",
         "docs/eval/spreadsheetbench-v1-912-copy-input-baseline.json",
+        "docs/eval/spreadsheetbench-v1-912-local-proxy-output-receipts.json",
+        "docs/eval/spreadsheetbench-v1-912-model-run.json",
         "docs/eval/spreadsheetbench-v1-912-stage.json"
       ],
       "blockers": [
@@ -860,22 +877,22 @@
           "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
           "PLAYWRIGHT_REUSE_SERVER": "1",
           "PLAYWRIGHT_RETRIES": "0",
-          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/playwright/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/playwright/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
           "BENCH_AGENT_MODEL_MODE": "specific",
           "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
           "PROOFLOOP_REAL_USER_MODE": "1",
           "PROOFLOOP_FOCUS_MODE": "0",
           "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z-spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z-spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
           "PROOFLOOP_CASE_ID": "spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844",
-          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/fresh-room",
-          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844.json",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844.json",
           "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v1",
           "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v1-912",
           "SPREADSHEETBENCH_TASK_ID": "102-20",
-          "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844.json"
+          "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/spreadsheetbench-v1-full-912--102-20--poolside_laguna-xs-2.1--33b65c6844.json"
         },
-        "sourceMatrixDigest": "074bd75e8ce9e120ad12b8ab9ee6dfb117de74e061ddc141fe70618c32e0e878"
+        "sourceMatrixDigest": "d90c7b353a5179acdadc14f52d57c1556a1ade8dbf6df3069365549a0b1d6973"
       }
     },
     {
@@ -909,9 +926,9 @@
           "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
           "requiresSpend": true,
           "writes": [
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/state.json",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/events.jsonl",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/"
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/"
           ]
         }
       ],
@@ -925,9 +942,10 @@
         ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_01_01/evaluator/evaluator.json",
         "docs/eval/official-benchmark-task-coverage.json",
         "docs/eval/spreadsheetbench-chart-visual-probe.json",
+        "docs/eval/spreadsheetbench-v2-321-local-proxy-output-receipts.json",
+        "docs/eval/spreadsheetbench-v2-321-model-run.json",
         "docs/eval/spreadsheetbench-v2-full-ingest.json",
         "docs/eval/spreadsheetbench-v2-full-stage.json",
-        "docs/eval/spreadsheetbench-v2-run-smoke.json",
         "docs/eval/spreadsheetbench-v2-stage-smoke.json"
       ],
       "blockers": [
@@ -946,22 +964,22 @@
           "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
           "PLAYWRIGHT_REUSE_SERVER": "1",
           "PLAYWRIGHT_RETRIES": "0",
-          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/playwright/spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/playwright/spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608",
           "BENCH_AGENT_MODEL_MODE": "specific",
           "BENCH_AGENT_MODEL_POLICY": "poolside/laguna-xs-2.1",
           "PROOFLOOP_REAL_USER_MODE": "1",
           "PROOFLOOP_FOCUS_MODE": "0",
           "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z-spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z-spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608",
           "PROOFLOOP_CASE_ID": "spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608",
-          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/fresh-room",
-          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608.json",
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608.json",
           "SPREADSHEETBENCH_TRACK": "spreadsheetbench-v2",
           "SPREADSHEETBENCH_STAGE_ROOT": ".tmp/official-benchmarks/staged-v2-full",
           "SPREADSHEETBENCH_TASK_ID": "Debugging/01_01",
-          "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608.json"
+          "SPREADSHEETBENCH_LIVE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/spreadsheetbench-v2-full-321--Debugging_01_01--poolside_laguna-xs-2.1--1581c4f608.json"
         },
-        "sourceMatrixDigest": "074bd75e8ce9e120ad12b8ab9ee6dfb117de74e061ddc141fe70618c32e0e878"
+        "sourceMatrixDigest": "d90c7b353a5179acdadc14f52d57c1556a1ade8dbf6df3069365549a0b1d6973"
       }
     },
     {
@@ -995,9 +1013,9 @@
           "command": "npm run benchmark:proofloop:prod-proxy-longrun -- run --execute --allow-spend --budget-usd 100 --max-attempts 1",
           "requiresSpend": true,
           "writes": [
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/state.json",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/events.jsonl",
-            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/"
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/state.json",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/events.jsonl",
+            ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/"
           ]
         }
       ],
@@ -1018,273 +1036,24 @@
         ],
         "sampleAttemptId": "workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005",
         "sampleTaskId": "workstreambench-local-spreadsheet-workstream",
-        "sampleCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --prod --id workstreambench --real-user --model deepseek/deepseek-v4-flash --model-mode specific --json-out-dir .proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts",
+        "sampleCommand": "npm run benchmark:proofloop:external-adapter-live-room -- --prod --id workstreambench --real-user --model deepseek/deepseek-v4-flash --model-mode specific --json-out-dir .proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts",
         "sampleEnv": {
           "BENCH_BASE_URL": "https://noderoom.live",
           "PLAYWRIGHT_BASE_URL": "https://noderoom.live",
           "PLAYWRIGHT_REUSE_SERVER": "1",
           "PLAYWRIGHT_RETRIES": "0",
-          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/playwright/workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005",
+          "PLAYWRIGHT_OUTPUT_DIR": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/playwright/workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005",
           "BENCH_AGENT_MODEL_MODE": "specific",
           "BENCH_AGENT_MODEL_POLICY": "deepseek/deepseek-v4-flash",
           "PROOFLOOP_REAL_USER_MODE": "1",
           "PROOFLOOP_FOCUS_MODE": "0",
           "PROOFLOOP_NODEAGENT_RUNTIME_PROFILE": "",
-          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z-workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005",
+          "PROOFLOOP_RUN_ID": "proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z-workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005",
           "PROOFLOOP_CASE_ID": "workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005",
-          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/fresh-room",
-          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-05T19-49-21-424Z/receipts/workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005.json"
+          "PROOFLOOP_FRESH_ROOM_ROOT": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/fresh-room",
+          "PROOFLOOP_SUITE_PROOF_PATH": ".proofloop/prod-proxy-longrun/proofloop-standalone-runner-dogfood-2026-07-10T14-21-56-272Z/receipts/workstreambench-prod-proxy-task--workstreambench-local-spreadsheet-workstream--deepseek_deepseek-v4-flash--17f44bb005.json"
         },
-        "sourceMatrixDigest": "074bd75e8ce9e120ad12b8ab9ee6dfb117de74e061ddc141fe70618c32e0e878"
-      }
-    },
-    {
-      "id": "official-score.finauditing",
-      "command": "npm run benchmark:proofloop:adapter-blockers",
-      "estimatedCostUsd": 0,
-      "timeoutMs": 120000,
-      "kind": "official-score-gap",
-      "layer": "official-scoring",
-      "status": "blocked-external",
-      "title": "Import official score receipt for finauditing",
-      "adapterId": "finauditing",
-      "priority": 500,
-      "objective": "Resolve the external official-score blocker for FinAuditing without relabeling proxy proof as an official score.",
-      "prompt": "Resolve the official scorer blocker for finauditing.\nUse the upstream scorer or judge contract named in the adapter receipt.\nIf credentials or upstream bundles are unavailable, keep the blocker explicit and refresh the receipt; do not self-grade or accept a proxy score as official.",
-      "estimatedProductSpendUsd": 0,
-      "paidModelRequired": false,
-      "counts": {},
-      "commands": [
-        {
-          "name": "resume-1",
-          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict",
-          "requiresSpend": true
-        },
-        {
-          "name": "resume-2",
-          "command": "npm run benchmark:proofloop:external-adapter -- --id finauditing --prod --user-emulation strict",
-          "requiresSpend": false
-        },
-        {
-          "name": "resume-3",
-          "command": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing",
-          "requiresSpend": false
-        },
-        {
-          "name": "resume-4",
-          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict --cockpit",
-          "requiresSpend": true
-        },
-        {
-          "name": "resume-5",
-          "command": "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
-          "requiresSpend": false
-        }
-      ],
-      "acceptance": [
-        "docs/eval/proofloop-official-scores/finauditing.json has a scored receipt from the upstream official scorer, or the blocker remains explicitly external.",
-        "docs/eval/proofloop-official-task-bundles/finauditing.json records the locked official task bundle when available.",
-        "The adapter blocker receipt is refreshed after any import or blocker change."
-      ],
-      "evidence": [
-        "proofloop/benchmarks/finauditing/adapter.json",
-        "https://arxiv.org/abs/2510.08886",
-        "https://github.com/The-FinAI/FinAuditing",
-        "https://huggingface.co/collections/TheFinAI/finauditing",
-        "https://open-finance-lab.github.io/SecureFinAI_Contest_2026/",
-        "docs/eval/proofloop-official-outputs/finauditing.json",
-        "docs/eval/proofloop-official-task-bundles/finauditing.json",
-        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl",
-        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl",
-        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
-        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json",
-        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing"
-      ],
-      "blockers": [
-        "finauditing: official scorer receipt docs/eval/proofloop-official-scores/finauditing.json is blocked_external; scored receipt is still required before claiming score. FinMR evaluation uses an OpenAI LLM judge and this shell has no OPENAI_API_KEY. The full benchmark path also points to the separate FinBen framework, which is not yet wired to NodeRoom output artifacts."
-      ],
-      "metadata": {
-        "name": "FinAuditing",
-        "officialScoreStatus": "blocked_external",
-        "localImplementationStatus": "ready",
-        "officialCommandPlan": [
-          "Lock the official FinAuditing task source for FinSM, FinRE, and FinMR.",
-          "Run NodeRoom generated answers through the upstream FinAuditing metric/scorer for every official split.",
-          "Import the official scorer output into docs/eval/proofloop-adapter-blockers/finauditing.json before claiming score."
-        ],
-        "resumeSteps": [
-          "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict",
-          "npm run benchmark:proofloop:external-adapter -- --id finauditing --prod --user-emulation strict",
-          "npm run benchmark:proofloop:adapter-blockers -- --id finauditing",
-          "import docs/eval/proofloop-official-scores/finauditing.json from the upstream official scorer",
-          "stage docs/eval/proofloop-official-task-bundles/finauditing.json from the locked official task bundle",
-          "npm run benchmark:proofloop:external-adapter-live-room -- --id finauditing --prod --user-emulation strict --cockpit",
-          "npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict"
-        ],
-        "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/finauditing.json",
-        "officialTaskBundleManifestPath": "docs/eval/proofloop-official-task-bundles/finauditing.json"
-      }
-    },
-    {
-      "id": "official-score.finch",
-      "command": "npm run benchmark:proofloop:adapter-blockers",
-      "estimatedCostUsd": 0,
-      "timeoutMs": 120000,
-      "kind": "official-score-gap",
-      "layer": "official-scoring",
-      "status": "blocked-external",
-      "title": "Import official score receipt for finch",
-      "adapterId": "finch",
-      "priority": 501,
-      "objective": "Resolve the external official-score blocker for Finch / FinWorkBench without relabeling proxy proof as an official score.",
-      "prompt": "Resolve the official scorer blocker for finch.\nUse the upstream scorer or judge contract named in the adapter receipt.\nIf credentials or upstream bundles are unavailable, keep the blocker explicit and refresh the receipt; do not self-grade or accept a proxy score as official.",
-      "estimatedProductSpendUsd": 0,
-      "paidModelRequired": false,
-      "counts": {},
-      "commands": [
-        {
-          "name": "resume-1",
-          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict",
-          "requiresSpend": true
-        },
-        {
-          "name": "resume-2",
-          "command": "npm run benchmark:proofloop:external-adapter -- --id finch --prod --user-emulation strict",
-          "requiresSpend": false
-        },
-        {
-          "name": "resume-3",
-          "command": "npm run benchmark:proofloop:adapter-blockers -- --id finch",
-          "requiresSpend": false
-        },
-        {
-          "name": "resume-4",
-          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict --cockpit",
-          "requiresSpend": true
-        },
-        {
-          "name": "resume-5",
-          "command": "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
-          "requiresSpend": false
-        }
-      ],
-      "acceptance": [
-        "docs/eval/proofloop-official-scores/finch.json has a scored receipt from the upstream official scorer, or the blocker remains explicitly external.",
-        "docs/eval/proofloop-official-task-bundles/finch.json records the locked official task bundle when available.",
-        "The adapter blocker receipt is refreshed after any import or blocker change."
-      ],
-      "evidence": [
-        "proofloop/benchmarks/finch/adapter.json",
-        "https://arxiv.org/abs/2512.13168",
-        "https://github.com/FinWorkBench/Finch",
-        "https://huggingface.co/datasets/FinWorkBench/Finch",
-        "docs/eval/proofloop-official-outputs/finch.json",
-        "docs/eval/proofloop-official-task-bundles/finch.json",
-        ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
-        ".tmp/official-benchmarks/proofloop-official-outputs/finch"
-      ],
-      "blockers": [
-        "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. Upstream Finch content_parts rendering is 0/172; official Azure judge input remains incomplete even though model-output artifacts are complete."
-      ],
-      "metadata": {
-        "name": "Finch / FinWorkBench",
-        "officialScoreStatus": "blocked_external",
-        "localImplementationStatus": "ready",
-        "officialCommandPlan": [
-          "Clone/lock https://github.com/FinWorkBench/Finch and https://huggingface.co/datasets/FinWorkBench/Finch.",
-          "Run the upstream Finch prompt_build_pipeline against the locked official task split.",
-          "Run the upstream Finch call_gpt_judge scorer on NodeRoom output artifacts.",
-          "Import the official judge JSON into docs/eval/proofloop-adapter-blockers/finch.json before claiming score."
-        ],
-        "resumeSteps": [
-          "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict",
-          "npm run benchmark:proofloop:external-adapter -- --id finch --prod --user-emulation strict",
-          "npm run benchmark:proofloop:adapter-blockers -- --id finch",
-          "import docs/eval/proofloop-official-scores/finch.json from the upstream official scorer",
-          "stage docs/eval/proofloop-official-task-bundles/finch.json from the locked official task bundle",
-          "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict --cockpit",
-          "npm run benchmark:proofloop:adapter-blockers -- --id finch --strict"
-        ],
-        "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/finch.json",
-        "officialTaskBundleManifestPath": "docs/eval/proofloop-official-task-bundles/finch.json"
-      }
-    },
-    {
-      "id": "official-score.workstreambench",
-      "command": "npm run benchmark:proofloop:adapter-blockers",
-      "estimatedCostUsd": 0,
-      "timeoutMs": 120000,
-      "kind": "official-score-gap",
-      "layer": "official-scoring",
-      "status": "blocked-external",
-      "title": "Import official score receipt for workstreambench",
-      "adapterId": "workstreambench",
-      "priority": 502,
-      "objective": "Resolve the external official-score blocker for WorkstreamBench without relabeling proxy proof as an official score.",
-      "prompt": "Resolve the official scorer blocker for workstreambench.\nUse the upstream scorer or judge contract named in the adapter receipt.\nIf credentials or upstream bundles are unavailable, keep the blocker explicit and refresh the receipt; do not self-grade or accept a proxy score as official.",
-      "estimatedProductSpendUsd": 0,
-      "paidModelRequired": false,
-      "counts": {},
-      "commands": [
-        {
-          "name": "resume-1",
-          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict",
-          "requiresSpend": true
-        },
-        {
-          "name": "resume-2",
-          "command": "npm run benchmark:proofloop:external-adapter -- --id workstreambench --prod --user-emulation strict",
-          "requiresSpend": false
-        },
-        {
-          "name": "resume-3",
-          "command": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench",
-          "requiresSpend": false
-        },
-        {
-          "name": "resume-4",
-          "command": "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict --cockpit",
-          "requiresSpend": true
-        },
-        {
-          "name": "resume-5",
-          "command": "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
-          "requiresSpend": false
-        }
-      ],
-      "acceptance": [
-        "docs/eval/proofloop-official-scores/workstreambench.json has a scored receipt from the upstream official scorer, or the blocker remains explicitly external.",
-        "docs/eval/proofloop-official-task-bundles/workstreambench.json records the locked official task bundle when available.",
-        "The adapter blocker receipt is refreshed after any import or blocker change."
-      ],
-      "evidence": [
-        "proofloop/benchmarks/workstreambench/adapter.json",
-        "https://arxiv.org/html/2605.22664v1"
-      ],
-      "blockers": [
-        "workstreambench: official scorer receipt docs/eval/proofloop-official-scores/workstreambench.json is blocked_external; scored receipt is still required before claiming score. No public official WorkstreamBench task bundle URL was found. No public official WorkstreamBench scorer repository or CLI was found. The paper describes LLM-as-judge evaluation over structured representations, so a claimable score requires the official rubric/task bundle/scorer release or author-provided supplementary package.",
-        "workstreambench: official task bundle lock docs/eval/proofloop-official-task-bundles/workstreambench.json is missing: no public official bundle/scorer/rubric URL was found; obtain the upstream release or author-provided bundle before claiming an official score."
-      ],
-      "metadata": {
-        "name": "WorkstreamBench",
-        "officialScoreStatus": "blocked_external",
-        "localImplementationStatus": "ready",
-        "officialCommandPlan": [
-          "Lock the official WorkstreamBench task bundle and scorer from the paper/supplementary source.",
-          "Run every official workstream through NodeRoom live-user seeding and artifact export.",
-          "Run the official WorkstreamBench scorer and import the result into docs/eval/proofloop-adapter-blockers/workstreambench.json before claiming score."
-        ],
-        "resumeSteps": [
-          "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict",
-          "npm run benchmark:proofloop:external-adapter -- --id workstreambench --prod --user-emulation strict",
-          "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench",
-          "import docs/eval/proofloop-official-scores/workstreambench.json from the upstream official scorer",
-          "stage docs/eval/proofloop-official-task-bundles/workstreambench.json from the locked official task bundle",
-          "npm run benchmark:proofloop:external-adapter-live-room -- --id workstreambench --prod --user-emulation strict --cockpit",
-          "npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict"
-        ],
-        "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/workstreambench.json",
-        "officialTaskBundleManifestPath": "docs/eval/proofloop-official-task-bundles/workstreambench.json"
+        "sourceMatrixDigest": "d90c7b353a5179acdadc14f52d57c1556a1ade8dbf6df3069365549a0b1d6973"
       }
     }
   ]

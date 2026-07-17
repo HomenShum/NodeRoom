@@ -1,0 +1,1502 @@
+{
+  "schema": 1,
+  "verifier": "spreadsheetbench_workbook_scorer",
+  "generatedAt": "2026-07-14T09:21:52.006Z",
+  "taskId": "Debugging/04_04",
+  "track": "spreadsheetbench-v2",
+  "mode": "model-edit-plan",
+  "attemptIndex": 4,
+  "repeatIndex": 1,
+  "tryIndex": 1,
+  "candidateWorkbook": "Debugging_04_04/candidate-01-Inconsistent Color Coding_input.xlsx",
+  "agentManifest": "tasks/Debugging_04_04/agent/task.json",
+  "evaluatorManifest": "tasks/Debugging_04_04/evaluator/evaluator.json",
+  "score": {
+    "schema": 1,
+    "generatedAt": "2026-07-14T09:21:52.006Z",
+    "taskId": "Debugging/04_04",
+    "candidateWorkbook": "candidate-01-Inconsistent Color Coding_input.xlsx",
+    "goldWorkbook": "01-04_golden.xlsx",
+    "answerPosition": "'Control'!B2:G9,'Summary'!D2:H17,'Assumptions'!B2:L36,'Income Statement'!B2:J57,'Balance Sheet'!B2:J74,'Cash Flow Statement'!B2:H43,'PP&E, Debt, NWC'!B2:L91,'Line Item Metrics'!A2:I35,'WACC'!B2:N65,'DCF'!B2:P34,'Sources & Uses'!B3:M32,'LBO Analysis'!B2:J51,'Returns'!B2:J13",
+    "ranges": [
+      "'Control'!B2:G9",
+      "'Summary'!D2:H17",
+      "'Assumptions'!B2:L36",
+      "'Income Statement'!B2:J57",
+      "'Balance Sheet'!B2:J74",
+      "'Cash Flow Statement'!B2:H43",
+      "'PP&E, Debt, NWC'!B2:L91",
+      "'Line Item Metrics'!A2:I35",
+      "'WACC'!B2:N65",
+      "'DCF'!B2:P34",
+      "'Sources & Uses'!B3:M32",
+      "'LBO Analysis'!B2:J51",
+      "'Returns'!B2:J13"
+    ],
+    "totals": {
+      "comparedCells": 5509,
+      "valueMatches": 4203,
+      "formulaCells": 1466,
+      "formulaMatches": 1466,
+      "styleCells": 0,
+      "styleMatches": 0,
+      "styleLayoutItems": 0,
+      "styleLayoutMatches": 0,
+      "mismatches": 1306,
+      "missingSheets": 0
+    },
+    "scores": {
+      "value": 0.762933,
+      "formula": 1,
+      "style": null,
+      "chartPackage": 0,
+      "overall": 0.5876443333333333
+    },
+    "pass": false,
+    "warnings": [
+      "mismatch list capped at 200/1306",
+      "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+    ],
+    "mismatches": [
+      {
+        "kind": "value",
+        "sheet": "Summary",
+        "cell": "H12",
+        "expected": "57.968341030264",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Summary",
+        "cell": "H13",
+        "expected": "0.239964514016342",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "D2",
+        "expected": "2021",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "E2",
+        "expected": "2022",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "F2",
+        "expected": "2023",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "G2",
+        "expected": "2024",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "H2",
+        "expected": "2025",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "D3",
+        "expected": "0.045",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "E3",
+        "expected": "0.05",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "F3",
+        "expected": "0.055",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "G3",
+        "expected": "0.06",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "H3",
+        "expected": "0.065",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "D6",
+        "expected": "0.0445828449286071",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "E6",
+        "expected": "0.0445828449286071",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "F6",
+        "expected": "0.0445828449286071",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "G6",
+        "expected": "0.0445828449286071",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "H6",
+        "expected": "0.0445828449286071",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "D7",
+        "expected": "0.000596399480496177",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "E7",
+        "expected": "0.000596399480496177",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "F7",
+        "expected": "0.000596399480496177",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "G7",
+        "expected": "0.000596399480496177",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "H7",
+        "expected": "0.000596399480496177",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "D8",
+        "expected": "0.21",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "E8",
+        "expected": "0.21",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "F8",
+        "expected": "0.21",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "G8",
+        "expected": "0.21",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "H8",
+        "expected": "0.21",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "D21",
+        "expected": "0.015",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "E21",
+        "expected": "0.02",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "F21",
+        "expected": "0.025",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "G21",
+        "expected": "0.03",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "H21",
+        "expected": "0.035",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "D24",
+        "expected": "0.0445828449286071",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "E24",
+        "expected": "0.0445828449286071",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "F24",
+        "expected": "0.0445828449286071",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "G24",
+        "expected": "0.0445828449286071",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "H24",
+        "expected": "0.0445828449286071",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "D25",
+        "expected": "0.000596399480496177",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "E25",
+        "expected": "0.000596399480496177",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "F25",
+        "expected": "0.000596399480496177",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "G25",
+        "expected": "0.000596399480496177",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "H25",
+        "expected": "0.000596399480496177",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "D26",
+        "expected": "0.21",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "E26",
+        "expected": "0.21",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "F26",
+        "expected": "0.21",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "G26",
+        "expected": "0.21",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Assumptions",
+        "cell": "H26",
+        "expected": "0.21",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "B6",
+        "expected": "Monro, Inc. (NASDAQ: MNRO)",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "B7",
+        "expected": "H: (2014-2020)  E: (2021-2025)",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E7",
+        "expected": "Bull Case",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "B8",
+        "expected": "In $MM",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E11",
+        "expected": "Historical",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F11",
+        "expected": "Historical",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G11",
+        "expected": "Historical",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H11",
+        "expected": "Historical",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I11",
+        "expected": "Historical",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "C12",
+        "expected": "2014",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E12",
+        "expected": "2016",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F12",
+        "expected": "2017",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G12",
+        "expected": "2018",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H12",
+        "expected": "2019",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I12",
+        "expected": "2020",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J12",
+        "expected": "2021",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J14",
+        "expected": "182.649419333333",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J15",
+        "expected": "30.6256199333333",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J16",
+        "expected": "115.9367935",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J17",
+        "expected": "631.361154233333",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J18",
+        "expected": "352.494593",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "C19",
+        "expected": "831.432",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D19",
+        "expected": "894.492",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E19",
+        "expected": "943.651",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F19",
+        "expected": "1021.511",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G19",
+        "expected": "1127.815",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H19",
+        "expected": "1200.23",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I19",
+        "expected": "1256.524",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J19",
+        "expected": "1313.06758",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J20",
+        "expected": "-781.2752101",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D21",
+        "expected": "353.35",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E21",
+        "expected": "385.703",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F21",
+        "expected": "396.889",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G21",
+        "expected": "435.574",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H21",
+        "expected": "465.228",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I21",
+        "expected": "476.658",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J21",
+        "expected": "531.7923699",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J22",
+        "expected": "-295.4402055",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D23",
+        "expected": "145.51",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E23",
+        "expected": "160.358",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F23",
+        "expected": "161.013",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G23",
+        "expected": "176.631",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H23",
+        "expected": "182.274",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I23",
+        "expected": "166.688",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J23",
+        "expected": "236.3521644",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J24",
+        "expected": "-58.5402882999214",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D25",
+        "expected": "109.789",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E25",
+        "expected": "120.589",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F25",
+        "expected": "116.384",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G25",
+        "expected": "127.296",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H25",
+        "expected": "126.743",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I25",
+        "expected": "101.702",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J25",
+        "expected": "177.811876100079",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J26",
+        "expected": "-108.243085614738",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J27",
+        "expected": "0.783112822568373",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D28",
+        "expected": "99.3549999999999",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E28",
+        "expected": "105.421",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F28",
+        "expected": "97.244",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G28",
+        "expected": "103.454",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H28",
+        "expected": "100.36",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I28",
+        "expected": "74.2740000000001",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J28",
+        "expected": "70.3519033079091",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D35",
+        "expected": "99.3549999999999",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E35",
+        "expected": "105.421",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F35",
+        "expected": "97.244",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G35",
+        "expected": "101.504",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H35",
+        "expected": "99.7600000000001",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I35",
+        "expected": "64.9340000000001",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J35",
+        "expected": "70.3519033079091",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J36",
+        "expected": "-14.7738996946609",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D37",
+        "expected": "61.7989999999999",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E37",
+        "expected": "66.805",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F37",
+        "expected": "61.526",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G37",
+        "expected": "61.9850000000001",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H37",
+        "expected": "79.152",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I37",
+        "expected": "48.6840000000001",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J37",
+        "expected": "55.5780036132482",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J38",
+        "expected": "-0.449",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D39",
+        "expected": "61.4039999999999",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E39",
+        "expected": "66.349",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F39",
+        "expected": "61.079",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G39",
+        "expected": "61.6170000000001",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H39",
+        "expected": "78.744",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I39",
+        "expected": "48.2350000000001",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J39",
+        "expected": "55.1290036132482",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D43",
+        "expected": "2015",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E43",
+        "expected": "2016",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F43",
+        "expected": "2017",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G43",
+        "expected": "2018",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H43",
+        "expected": "2019",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I43",
+        "expected": "2020",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J43",
+        "expected": "2021",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D45",
+        "expected": "0.15",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E45",
+        "expected": "0.15",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F45",
+        "expected": "0.13",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G45",
+        "expected": "0.13",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H45",
+        "expected": "0.14",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I45",
+        "expected": "0.134607854684829",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J45",
+        "expected": "0.139101309114138",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D46",
+        "expected": "0.03",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E46",
+        "expected": "0.03",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F46",
+        "expected": "0.02",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G46",
+        "expected": "0.02",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H46",
+        "expected": "0.02",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I46",
+        "expected": "0.0199423170588067",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J46",
+        "expected": "0.0233237195098011",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D47",
+        "expected": "0.1",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E47",
+        "expected": "0.1",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F47",
+        "expected": "0.09",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G47",
+        "expected": "0.08",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H47",
+        "expected": "0.08",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I47",
+        "expected": "0.0797676765425889",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J47",
+        "expected": "0.0882946127570982",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D48",
+        "expected": "0.44",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E48",
+        "expected": "0.45",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F48",
+        "expected": "0.49",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G48",
+        "expected": "0.5",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H48",
+        "expected": "0.5",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I48",
+        "expected": "0.504974835339397",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J48",
+        "expected": "0.480829139223233",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D49",
+        "expected": "0.28",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E49",
+        "expected": "0.27",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F49",
+        "expected": "0.27",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G49",
+        "expected": "0.27",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H49",
+        "expected": "0.26",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I49",
+        "expected": "0.260707316374379",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J49",
+        "expected": "0.26845121939573",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D50",
+        "expected": "0.0758450480616575",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E50",
+        "expected": "0.054957450709453",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F50",
+        "expected": "0.0825093175337068",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G50",
+        "expected": "0.104065448144954",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H50",
+        "expected": "0.0642082256398433",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I50",
+        "expected": "0.046902676986911",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J50",
+        "expected": "0.045",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D52",
+        "expected": "0.604971313326447",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E52",
+        "expected": "0.5912652029193",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F52",
+        "expected": "0.611468696861806",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G52",
+        "expected": "0.613789495617632",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H52",
+        "expected": "0.612384293010506",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I52",
+        "expected": "0.620653485329369",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J52",
+        "expected": "0.595",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D53",
+        "expected": "0.232355348063482",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E53",
+        "expected": "0.238801209345404",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F53",
+        "expected": "0.230908918259324",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G53",
+        "expected": "0.229597052708113",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H53",
+        "expected": "0.235749814618865",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "I53",
+        "expected": "0.246688483467089",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "J53",
+        "expected": "0.225",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "D54",
+        "expected": "0.0399343985189359",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "E54",
+        "expected": "0.0421437586565372",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "F54",
+        "expected": "0.0436892015847113",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "G54",
+        "expected": "0.043743876433635",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "Income Statement",
+        "cell": "H54",
+        "expected": "0.0462669654982795",
+        "actual": ""
+      }
+    ],
+    "chartPackage": {
+      "schema": 1,
+      "generatedAt": "2026-07-14T09:21:52.006Z",
+      "taskId": "Debugging/04_04",
+      "candidateWorkbook": "candidate-01-Inconsistent Color Coding_input.xlsx",
+      "goldWorkbook": "01-04_golden.xlsx",
+      "verifier": "xlsx_chart_package_static",
+      "totals": {
+        "goldChartParts": 1,
+        "candidateChartParts": 0,
+        "matchedChartParts": 0,
+        "missingChartParts": 1,
+        "extraChartParts": 0,
+        "mismatchedChartParts": 0
+      },
+      "scores": {
+        "package": 0
+      },
+      "pass": false,
+      "candidateParts": [],
+      "goldParts": [
+        {
+          "path": "xl/drawings/drawing1.xml",
+          "kind": "drawing",
+          "sha256": "0a4b2ad422f188df123e8cca2be6a2a96d25daa841800b61071c0e946518e0f2",
+          "bytes": 997
+        }
+      ],
+      "mismatches": [
+        {
+          "kind": "missing_chart_part",
+          "path": "xl/drawings/drawing1.xml",
+          "expected": "0a4b2ad422f188df123e8cca2be6a2a96d25daa841800b61071c0e946518e0f2"
+        }
+      ],
+      "warnings": [
+        "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+      ]
+    }
+  }
+}

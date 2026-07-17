@@ -1,0 +1,64 @@
+{
+  "navigation": {
+    "name": "https://noderoom.live/?room=NRFXMRD8X7DD&name=QA-FIXLOOP",
+    "entryType": "navigation",
+    "startTime": 0,
+    "duration": 151.79999999701977,
+    "initiatorType": "navigation",
+    "deliveryType": "",
+    "nextHopProtocol": "h2",
+    "renderBlockingStatus": "non-blocking",
+    "contentType": "text/html",
+    "contentEncoding": "br",
+    "workerStart": 0,
+    "workerRouterEvaluationStart": 0,
+    "workerCacheLookupStart": 0,
+    "workerMatchedSourceType": "",
+    "workerFinalSourceType": "",
+    "redirectStart": 0,
+    "redirectEnd": 0,
+    "fetchStart": 0.5,
+    "domainLookupStart": 0.5,
+    "domainLookupEnd": 0.5,
+    "connectStart": 0.5,
+    "secureConnectionStart": 0.5,
+    "connectEnd": 0.5,
+    "requestStart": 2.5,
+    "responseStart": 28.299999997019768,
+    "firstInterimResponseStart": 28.299999997019768,
+    "finalResponseHeadersStart": 58.099999994039536,
+    "responseEnd": 59.099999994039536,
+    "transferSize": 3289,
+    "encodedBodySize": 2989,
+    "decodedBodySize": 9073,
+    "responseStatus": 200,
+    "serverTiming": [],
+    "unloadEventStart": 61.599999994039536,
+    "unloadEventEnd": 61.599999994039536,
+    "domInteractive": 76.5,
+    "domContentLoadedEventStart": 106.79999999701977,
+    "domContentLoadedEventEnd": 107,
+    "domComplete": 151.79999999701977,
+    "loadEventStart": 151.79999999701977,
+    "loadEventEnd": 151.79999999701977,
+    "type": "reload",
+    "redirectCount": 0,
+    "activationStart": 0,
+    "criticalCHRestart": 0,
+    "notRestoredReasons": null,
+    "confidence": {
+      "randomizedTriggerRate": 0.4994798,
+      "value": "high"
+    }
+  },
+  "paints": [
+    {
+      "name": "first-paint",
+      "startTime": 128
+    },
+    {
+      "name": "first-contentful-paint",
+      "startTime": 128
+    }
+  ]
+}

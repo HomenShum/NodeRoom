@@ -1,0 +1,313 @@
+{
+  "schema": 2,
+  "generatedAt": "2026-07-11T12:21:42.456Z",
+  "source": "https://openrouter.ai/api/v1/models?output_modalities=text",
+  "selection": {
+    "pricing": "free",
+    "mode": "agent",
+    "supportedParameters": [
+      "tools"
+    ],
+    "limit": 8
+  },
+  "modelCount": 8,
+  "models": [
+    {
+      "rank": 1,
+      "id": "cohere/north-mini-code:free",
+      "name": "Cohere: North Mini Code (free)",
+      "created": 1781723748,
+      "createdAt": "2026-06-17T19:15:48.000Z",
+      "contextLength": 256000,
+      "score": 2688,
+      "reasons": [
+        "large context",
+        "newly listed on OpenRouter",
+        "tools",
+        "tool choice",
+        "reasoning controls",
+        "latest coding/agent specialist"
+      ],
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": false,
+      "supportedParameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "seed",
+        "stop",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ]
+    },
+    {
+      "rank": 2,
+      "id": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "name": "NVIDIA: Nemotron 3 Ultra (free)",
+      "created": 1780551208,
+      "createdAt": "2026-06-04T05:33:28.000Z",
+      "contextLength": 1000000,
+      "score": 2460,
+      "reasons": [
+        "1M context",
+        "recent OpenRouter listing",
+        "tools",
+        "tool choice",
+        "reasoning controls",
+        "large reasoning model"
+      ],
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": false,
+      "supportedParameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "seed",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ]
+    },
+    {
+      "rank": 3,
+      "id": "nvidia/nemotron-3-super-120b-a12b:free",
+      "name": "NVIDIA: Nemotron 3 Super (free)",
+      "created": 1773245239,
+      "createdAt": "2026-03-11T16:07:19.000Z",
+      "contextLength": 1000000,
+      "score": 2410,
+      "reasons": [
+        "1M context",
+        "tools",
+        "tool choice",
+        "structured outputs",
+        "json response format",
+        "reasoning controls",
+        "large reasoning model"
+      ],
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": true,
+      "supportedParameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ]
+    },
+    {
+      "rank": 4,
+      "id": "qwen/qwen3-next-80b-a3b-instruct:free",
+      "name": "Qwen: Qwen3 Next 80B A3B Instruct (free)",
+      "created": 1757612213,
+      "createdAt": "2025-09-11T17:36:53.000Z",
+      "contextLength": 262144,
+      "score": 1951.0720000000001,
+      "reasons": [
+        "large context",
+        "tools",
+        "tool choice",
+        "structured outputs",
+        "json response format",
+        "strong instruct model"
+      ],
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": true,
+      "supportedParameters": [
+        "frequency_penalty",
+        "max_tokens",
+        "presence_penalty",
+        "response_format",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ]
+    },
+    {
+      "rank": 5,
+      "id": "qwen/qwen3-coder:free",
+      "name": "Qwen: Qwen3 Coder 480B A35B (free)",
+      "created": 1753230546,
+      "createdAt": "2025-07-23T00:29:06.000Z",
+      "contextLength": 1048576,
+      "score": 2270,
+      "reasons": [
+        "1M context",
+        "tools",
+        "tool choice",
+        "coding/agent specialist"
+      ],
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": false,
+      "supportedParameters": [
+        "frequency_penalty",
+        "max_tokens",
+        "presence_penalty",
+        "stop",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ]
+    },
+    {
+      "rank": 6,
+      "id": "tencent/hy3:free",
+      "name": "Tencent: Hy3 (free)",
+      "created": 1783344048,
+      "createdAt": "2026-07-06T13:20:48.000Z",
+      "contextLength": 262144,
+      "score": 1271.0720000000001,
+      "reasons": [
+        "large context",
+        "newly listed on OpenRouter",
+        "tools",
+        "tool choice",
+        "structured outputs",
+        "reasoning controls"
+      ],
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": true,
+      "supportedParameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_p"
+      ]
+    },
+    {
+      "rank": 7,
+      "id": "openrouter/free",
+      "name": "Free Models Router",
+      "created": 1769917427,
+      "createdAt": "2026-02-01T03:43:47.000Z",
+      "contextLength": 200000,
+      "score": 1280,
+      "reasons": [
+        "tools",
+        "tool choice",
+        "structured outputs",
+        "json response format",
+        "reasoning controls",
+        "free meta-router fallback"
+      ],
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": true,
+      "supportedParameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logprobs",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "reasoning_effort",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_a",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ]
+    },
+    {
+      "rank": 8,
+      "id": "google/gemma-4-26b-a4b-it:free",
+      "name": "Google: Gemma 4 26B A4B  (free)",
+      "created": 1775227989,
+      "createdAt": "2026-04-03T14:53:09.000Z",
+      "contextLength": 262144,
+      "score": 1961.0720000000001,
+      "reasons": [
+        "large context",
+        "tools",
+        "tool choice",
+        "structured outputs",
+        "json response format",
+        "reasoning controls",
+        "strong Google open model"
+      ],
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": true,
+      "supportedParameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logprobs",
+        "max_tokens",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ]
+    }
+  ],
+  "liveProbes": [
+    {
+      "kind": "agent_tool",
+      "status": "passed",
+      "requestedModel": "openrouter/free-auto",
+      "resolvedModel": "cohere/north-mini-code:free",
+      "durationMs": 1773,
+      "inputTokens": 70,
+      "outputTokens": 129,
+      "providerCostUsd": 0,
+      "expectedTool": "report_answer",
+      "actualTool": "report_answer",
+      "actualArgs": {
+        "value": "OK"
+      }
+    }
+  ]
+}

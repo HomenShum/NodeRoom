@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "taskId": "Visualization/Task 90",
+  "track": "spreadsheetbench-v2",
+  "category": "Visualization",
+  "instruction": "Create a Pareto chart titled 'Defect Analysis'. Use the defect categories and counts from the 'Data' sheet. Show counts as descending bars on the primary axis and cumulative percentage as a line on the secondary axis.",
+  "inputFiles": [
+    "inputs/01-Task 90_input.xlsx"
+  ],
+  "promptFiles": []
+}

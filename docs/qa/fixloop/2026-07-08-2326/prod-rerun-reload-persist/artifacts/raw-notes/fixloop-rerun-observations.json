@@ -1,0 +1,73 @@
+{
+  "schema": "noderoom-fixloop-rerun-v1",
+  "runId": "prod-rerun-reload-persist-2026-07-09",
+  "generatedAt": "2026-07-09T09:00:39.027Z",
+  "baseUrl": "https://noderoom.live",
+  "targetScope": "production deployment at https://noderoom.live",
+  "roomCode": "NRFXMRDA0GT6",
+  "status": "pass",
+  "observations": [
+    {
+      "label": "ssr-create-cta",
+      "status": "pass",
+      "startedAt": "2026-07-09T09:00:10.226Z",
+      "finishedAt": "2026-07-09T09:00:11.349Z",
+      "result": {
+        "href": "/?create=1&surface=desktop&name=Host&title=Startup%20diligence",
+        "landedUrl": "https://noderoom.live/?create=1&surface=desktop&name=Host&title=Startup%20diligence"
+      },
+      "artifacts": {
+        "screenshot": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-reload-persist/artifacts/screenshots/ssr-create-cta.png",
+        "trace": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-reload-persist/artifacts/traces/ssr-create-cta.zip",
+        "video": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-reload-persist/artifacts/videos/ssr-create-cta.webm",
+        "consoleLog": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-reload-persist/artifacts/console-logs/ssr-create-cta.json",
+        "networkLog": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-reload-persist/artifacts/network-logs/ssr-create-cta.json"
+      }
+    },
+    {
+      "label": "live-create-export-reload",
+      "status": "pass",
+      "startedAt": "2026-07-09T09:00:11.417Z",
+      "finishedAt": "2026-07-09T09:00:33.794Z",
+      "result": {
+        "roomCode": "NRFXMRDA0GT6",
+        "finalUrl": "https://noderoom.live/?room=NRFXMRDA0GT6&name=QA-FIXLOOP",
+        "export": {
+          "path": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-reload-persist/artifacts/downloads/live-create-q3-variance.xlsx",
+          "suggestedFilename": "Q3_variance.xlsx",
+          "bytes": 6559,
+          "magic": "PK"
+        },
+        "chat": {
+          "status": "pass",
+          "message": "Fix-loop smoke ping 1783587628787"
+        }
+      },
+      "artifacts": {
+        "screenshot": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-reload-persist/artifacts/screenshots/live-create-export-reload.png",
+        "trace": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-reload-persist/artifacts/traces/live-create-export-reload.zip",
+        "video": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-reload-persist/artifacts/videos/live-create-export-reload.webm",
+        "consoleLog": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-reload-persist/artifacts/console-logs/live-create-export-reload.json",
+        "networkLog": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-reload-persist/artifacts/network-logs/live-create-export-reload.json"
+      }
+    },
+    {
+      "label": "mobile-join-snapshot",
+      "status": "pass",
+      "startedAt": "2026-07-09T09:00:33.911Z",
+      "finishedAt": "2026-07-09T09:00:38.471Z",
+      "result": {
+        "roomCode": "NRFXMRDA0GT6",
+        "bodyPreview": "9:41\nN\nStartup Diligence\nStartup Diligence\nRoom\nStartup Diligence\nLIVE\nMode\nSuggest only\nNote\nNote\nDetected\n8\nDetected\nVoice note\nPaste source\nPhoto\nSaved · scanning after pause\n22 words · private\n\nRaw notes stay private. NodeRoom only surfaces structured signals — it never edits your note or researches without approval.\n\n2 people are & 1 agent here\n\nYou joined this room — watch every artifact live, chat, and follow anyone. Locks and receipts apply to every edit, yours and the agent’s.\n\nGot it"
+      },
+      "artifacts": {
+        "screenshot": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-reload-persist/artifacts/screenshots/mobile-join-snapshot.png",
+        "trace": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-reload-persist/artifacts/traces/mobile-join-snapshot.zip",
+        "video": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-reload-persist/artifacts/videos/mobile-join-snapshot.webm",
+        "consoleLog": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-reload-persist/artifacts/console-logs/mobile-join-snapshot.json",
+        "networkLog": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-reload-persist/artifacts/network-logs/mobile-join-snapshot.json"
+      }
+    }
+  ],
+  "issues": []
+}

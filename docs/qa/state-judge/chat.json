@@ -1,23 +1,25 @@
 {
   "surface": "chat",
   "judgeModel": "gemini-3.5-flash",
-  "judgedAt": "2026-06-11T21:16:31.850Z",
+  "judgedAt": "2026-07-12T11:10:36.650Z",
   "stateCount": 4,
   "scores": {
-    "state_legibility": 6,
-    "affordance_honesty": 5,
-    "consistency": 7,
-    "contrast": 6,
+    "state_legibility": 7,
+    "affordance_honesty": 7,
+    "consistency": 5,
+    "contrast": 5,
     "polish": 6
   },
   "average": 6,
   "pass": false,
   "topIssues": [
-    "image 4 (message-hover): Missing the required 'promote' action control; only 'Copy' and 'Edit' are displayed.",
-    "image 3 (composer-focus): The focus ring color is identical to the typed state in image 2, reducing visual distinction between empty-focused and active-typing states."
+    "image 1 (composer-empty): The microphone icon is missing from the toolbar, appearing only in subsequent states (images 2, 3, 4).",
+    "image 4 (message-hover): Copy and Edit buttons have extremely low contrast against the dark background, making them hard to read.",
+    "image 3 (composer-focus): Suggestion chips below the composer use dark blue text on a dark gray background, violating contrast standards."
   ],
   "fixSuggestions": [
-    "Add a 'Promote' button alongside 'Copy' and 'Edit' in the message hover action bar.",
-    "Use a slightly desaturated or lower-opacity terracotta border for the empty focus state to differentiate it from the active typing state."
+    "Ensure the microphone icon is consistently present or hidden across all composer states.",
+    "Increase the contrast of the Copy/Edit hover buttons and the autocomplete suggestion chips.",
+    "Reposition the hover actions to a floating top-right overlay on the message container to prevent layout shifting."
   ]
 }

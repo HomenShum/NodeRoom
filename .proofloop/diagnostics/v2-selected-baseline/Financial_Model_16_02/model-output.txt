@@ -1,0 +1,140 @@
+Looking at this complex financial model, I need to complete several calculations. Let me analyze the structure and determine what needs to be calculated.
+
+Based on the workbook structure, I can see:
+
+1. **Valuation Summary sheet** - Needs Terminal Value (Gordon Growth), PV of FCFF, Implied IRR, and EV (EBITDA method)
+2. **Synergies and Intgn Exp sheet** - Needs Total Europe New Headcount calculation
+3. **Income Statement sheet** - Needs EBITDA and Retained Earnings calculations
+
+Let me examine the existing data and formulas to understand the calculation requirements:
+
+**For Valuation Summary:**
+- FCFF data exists in rows G7-K7 (Net Income) and G13:K13 (Total FCF)
+- Terminal Value needs to be calculated using Gordon Growth Model
+- Present Value of FCFF needs to sum discounted cash flows
+
+**For Synergies:**
+- Europe Sales Lead costs are in G20:K20 (2023-2027)
+
+**For Income Statement:**
+- Revenue and costs are in the model
+- EBITDA and Retained Earnings need to be calculated
+
+Let me create the operations to complete these calculations:<tool_call>operations
+{"schema":1,"operations":[
+{"sheet":"Valuation Summary","cell":"M24","formula":"=K13*(1+'Valuation Summary and Football'!$S$36)/('Valuation Summary and Football'!$R$36-'Valuation Summary and Football'!$S$36)"},
+{"sheet":"Valuation Summary","cell":"N24","formula":"=L13*(1+'Valuation Summary and Football'!$S$36)/('Valuation Summary and Football'!$R$36-'Valuation Summary and Football'!$S$36)"},
+{"sheet":"Valuation Summary","cell":"O24","formula":"=M13*(1+'Valuation Summary and Football'!$S$36)/('Valuation Summary and Football'!$R$36-'Valuation Summary and Football'!$S$36)"},
+{"sheet":"Valuation Summary","cell":"P24","formula":"=N13*(1+'Valuation Summary and Football'!$S$36)/('Valuation Summary and Football'!$R$36-'Valuation Summary and Football'!$S$36)"},
+{"sheet":"Valuation Summary","cell":"Q24","formula":"=O13*(1+'Valuation Summary and Football'!$S$36)/('Valuation Summary and Football'!$R$36-'Valuation Summary and Football'!$S$36)"},
+{"sheet":"Valuation Summary","cell":"R24","formula":"=P13*(1+'Valuation Summary and Football'!$S$36)/('Valuation Summary and Football'!$R$36-'Valuation Summary and Football'!$S$36)"},
+{"sheet":"Valuation Summary","cell":"S24","formula":"=Q13*(1+'Valuation Summary and Football'!$S$36)/('Valuation Summary and Football'!$R$36-'Valuation Summary and Football'!$S$36)"},
+{"sheet":"Valuation Summary","cell":"L24","formula":"=G13*(1+'Valuation Summary and Football'!$S$36)/('Valuation Summary and Football'!$R$36-'Valuation Summary and Football'!$S$36)"},
+{"sheet":"Valuation Summary","cell":"L20","formula":"=SUM(M24:S24,G24:G24,H24:H24,I24:I24,J24:J24,K24:K24,L24:L24,M24:M24,N24:N24,O24:O24,P24:P24,Q24:Q24,R24:R24,S24:S24)"},
+{"sheet":"Valuation Summary","cell":"F20","formula":"=L20"},
+{"sheet":"Synergies and Intgn Exp","cell":"L19","formula":"=SUM(G20:K20)"},
+{"sheet":"Synergies and Intgn Exp","cell":"M19","formula":"=SUM(G23:K23)"},
+{"sheet":"Synergies and Intgn Exp","cell":"N19","formula":"=SUM(G26:K26)"},
+{"sheet":"Synergies and Intgn Exp","cell":"O19","formula":"=SUM(G27:K27)"},
+{"sheet":"Synergies and Intgn Exp","cell":"P19","formula":"=SUM(G28:K28)"},
+{"sheet":"Synergies and Intgn Exp","cell":"Q19","formula":"=SUM(G29:K29)"},
+{"sheet":"Synergies and Intgn Exp","cell":"R19","formula":"=L19+M19+N19+O19+P19+Q19"},
+{"sheet":"Income Statement","cell":"C34","formula":"=C30+C31+C32+C33"},
+{"sheet":"Income Statement","cell":"D34","formula":"=D30+D31+D32+D33"},
+{"sheet":"Income Statement","cell":"E34","formula":"=E30+E31+E32+E33"},
+{"sheet":"Income Statement","cell":"F34","formula":"=F30+F31+F32+F33"},
+{"sheet":"Income Statement","cell":"G34","formula":"=G30+G31+G32+G33"},
+{"sheet":"Income Statement","cell":"H34","formula":"=H30+H31+H32+H33"},
+{"sheet":"Income Statement","cell":"I34","formula":"=I30+I31+I32+I33"},
+{"sheet":"Income Statement","cell":"J34","formula":"=J30+J31+J32+J33"},
+{"sheet":"Income Statement","cell":"K34","formula":"=K30+K31+K32+K33"},
+{"sheet":"Income Statement","cell":"C35","formula":"=C34/C$4"},
+{"sheet":"Income Statement","cell":"D35","formula":"=D34/D$4"},
+{"sheet":"Income Statement","cell":"E35","formula":"=E34/E$4"},
+{"sheet":"Income Statement","cell":"F35","formula":"=F34/F$4"},
+{"sheet":"Income Statement","cell":"G35","formula":"=G34/G$4"},
+{"sheet":"Income Statement","cell":"H35","formula":"=H34/H$4"},
+{"sheet":"Income Statement","cell":"I35","formula":"=I34/I$4"},
+{"sheet":"Income Statement","cell":"J35","formula":"=J34/J$4"},
+{"sheet":"Income Statement","cell":"K35","formula":"=K34/K$4"},
+{"sheet":"Income Statement","cell":"C47","formula":"=C34-C37"},
+{"sheet":"Income Statement","cell":"D47","formula":"=D34-D37"},
+{"sheet":"Income Statement","cell":"E47","formula":"=E34-E37"},
+{"sheet":"Income Statement","cell":"F47","formula":"=F34-F37"},
+{"sheet":"Income Statement","cell":"G47","formula":"=G34-G37"},
+{"sheet":"Income Statement","cell":"H47","formula":"=H34-H37"},
+{"sheet":"Income Statement","cell":"I47","formula":"=I34-I37"},
+{"sheet":"Income Statement","cell":"J47","formula":"=J34-J37"},
+{"sheet":"Income Statement","cell":"K47","formula":"=K34-K37"},
+{"sheet":"Income Statement","cell":"C48","formula":"=C34-C37-C38"},
+{"sheet":"Income Statement","cell":"D48","formula":"=D34-D37-D38"},
+{"sheet":"Income Statement","cell":"E48","formula":"=E34-E37-E38"},
+{"sheet":"Income Statement","cell":"F48","formula":"=F34-F37-F38"},
+{"sheet":"Income Statement","cell":"G48","formula":"=G34-G37-G38"},
+{"sheet":"Income Statement","cell":"H48","formula":"=H34-H37-H38"},
+{"sheet":"Income Statement","cell":"I48","formula":"=I34-I37-I38"},
+{"sheet":"Income Statement","cell":"J48","formula":"=J34-J37-J38"},
+{"sheet":"Income Statement","cell":"K48","formula":"=K34-K37-K38"},
+{"sheet":"Income Statement","cell":"C50","formula":"=C48-C49"},
+{"sheet":"Income Statement","cell":"D50","formula":"=D48-D49"},
+{"sheet":"Income Statement","cell":"E50","formula":"=E48-E49"},
+{"sheet":"Income Statement","cell":"F50","formula":"=F48-F49"},
+{"sheet":"Income Statement","cell":"G50","formula":"=G48-G49"},
+{"sheet":"Income Statement","cell":"H50","formula":"=H48-H49"},
+{"sheet":"Income Statement","cell":"I50","formula":"=I48-I49"},
+{"sheet":"Income Statement","cell":"J50","formula":"=J48-J49"},
+{"sheet":"Income Statement","cell":"K50","formula":"=K48-K49"},
+{"sheet":"Income Statement","cell":"C51","formula":"=C50-C52-C53"},
+{"sheet":"Income Statement","cell":"D51","formula":"=D50-D52-D53"},
+{"sheet":"Income Statement","cell":"E51","formula":"=E50-E52-E53"},
+{"sheet":"Income Statement","cell":"F51","formula":"=F50-F52-F53"},
+{"sheet":"Income Statement","cell":"G51","formula":"=G50-G52-G53"},
+{"sheet":"Income Statement","cell":"H51","formula":"=H50-H52-H53"},
+{"sheet":"Income Statement","cell":"I51","formula":"=I50-I52-I53"},
+{"sheet":"Income Statement","cell":"J51","formula":"=J50-J52-J53"},
+{"sheet":"Income Statement","cell":"K51","formula":"=K50-K52-K53"},
+{"sheet":"Income Statement","cell":"C30","formula":"=C29+C51"},
+{"sheet":"Income Statement","cell":"D30","formula":"=D29+D51"},
+{"sheet":"Income Statement","cell":"E30","formula":"=E29+E51"},
+{"sheet":"Income Statement","cell":"F30","formula":"=F29+F51"},
+{"sheet":"Income Statement","cell":"G30","formula":"=G29+G51"},
+{"sheet":"Income Statement","cell":"H30","formula":"=H29+H51"},
+{"sheet":"Income Statement","cell":"I30","formula":"=I29+I51"},
+{"sheet":"Income Statement","cell":"J30","formula":"=J29+J51"},
+{"sheet":"Income Statement","cell":"K30","formula":"=K29+K51"}
+]}</operations></tool_call>I need to reconsider my approach. Looking at the actual sheet structure more carefully:
+
+1. The Income Statement sheet has a specific structure with Revenue in C4-K4, Direct Labour in C9-K9, Gross Profit in C16-K16, etc.
+
+2. For EBITDA, I need to look at what's already there - there's an EBITDA section starting at row 34.
+
+3. For Retained Earnings, I need to look at the structure more carefully.
+
+Let me re-examine the actual cell structure to provide correct formulas.
+
+Looking at the cells:
+- C4-K4: Revenue
+- C9-K9: Direct Labour (negative values)
+- C16-K16: Gross Profit
+- C19-K19: Other Income (Expenses)
+- C34-K34: EBITDA (need to calculate)
+- C37-K37: D&A
+- C41+: Other items
+
+For EBITDA calculation, it should be Gross Profit - Cost of Sales (Direct Labour) + Other Income (Expenses).
+
+Actually, looking more carefully at the structure, I see that:
+- Row 34 has EBITDA
+- Row 37 has D&A
+- Row 41+ has other items
+
+Let me reconsider the structure based on what I can see in the actual cells.</think>Let me re-examine the actual structure more carefully based on the visible cells and their formulas:<tool_call>operations
+{"schema":1,"operations":[
+{"sheet":"Synergies and Intgn Exp","cell":"L20","formula":"=SUM(G20:K20)"},
+{"sheet":"Synergies and Intgn Exp","cell":"M20","formula":"=SUM(G23:K23)"},
+{"sheet":"Synergies and Intgn Exp","cell":"N20","formula":"=SUM(G26:K26)"},
+{"sheet":"Synergies and Intgn Exp","cell":"O20","formula":"=SUM(G27:K27)"},
+{"sheet":"Synergies and Intgn Exp","cell":"P20","formula":"=SUM(G28:K28)"},
+{"sheet":"Synergies and Intgn Exp","cell":"Q20","formula":"=SUM(G29:K29)"},
+{"sheet":"Synergies and Intgn Exp","cell":"R20","formula":"=L20+M20+N20+O20+P20+Q20"}
+]}</operations>

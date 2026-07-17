@@ -1,0 +1,131 @@
+{
+  "patchVersion": 1,
+  "deckId": "room_52:storyboard",
+  "planHash": "c2b0008d",
+  "title": "HackwithBay 3.0 - BTB Graph Agent readout patch plan",
+  "patchCount": 7,
+  "needsSourceCount": 7,
+  "readyForReviewCount": 0,
+  "sourceArtifactIds": [
+    "art_55",
+    "art_56",
+    "art_57"
+  ],
+  "proposalIds": [],
+  "traceIds": [],
+  "integrityHash": "6097d2b7",
+  "items": [
+    {
+      "patchId": "patch-1-1-claim-art-55-0",
+      "slideId": "slide-1-hackwithbay-demo-brief",
+      "slideTitle": "HackwithBay Demo Brief",
+      "kind": "claim_evidence",
+      "status": "needs_source",
+      "title": "Back HackwithBay Demo Brief claim with evidence",
+      "reason": "This deck claim is not verified by evidence yet.",
+      "beforeText": "HackwithBay 3.0 demo map Demo claim: NodeRoom can turn a BankerToolBench task into a graph-aware agent workflow: upload the task bundle, ing",
+      "afterText": "HackwithBay 3.0 demo map Demo claim: NodeRoom can turn a BankerToolBench task into a graph-aware agent workflow: upload the task bundle, ing (add cited evidence or remove before export)",
+      "sourceArtifactIds": [
+        "art_55"
+      ],
+      "evidenceIds": [],
+      "claimId": "claim-art-55-0"
+    },
+    {
+      "patchId": "patch-2-1-claim-art-56-0",
+      "slideId": "slide-2-hackwithbay-integration-map",
+      "slideTitle": "HackwithBay Integration Map",
+      "kind": "claim_evidence",
+      "status": "needs_source",
+      "title": "Back HackwithBay Integration Map claim with evidence",
+      "reason": "This deck claim is not verified by evidence yet.",
+      "beforeText": "NodeRoom BTB graph agent",
+      "afterText": "NodeRoom BTB graph agent (add cited evidence or remove before export)",
+      "sourceArtifactIds": [
+        "art_56"
+      ],
+      "evidenceIds": [],
+      "claimId": "claim-art-56-0"
+    },
+    {
+      "patchId": "patch-2-2-claim-art-56-1",
+      "slideId": "slide-2-hackwithbay-integration-map",
+      "slideTitle": "HackwithBay Integration Map",
+      "kind": "claim_evidence",
+      "status": "needs_source",
+      "title": "Back HackwithBay Integration Map claim with evidence",
+      "reason": "This deck claim is not verified by evidence yet.",
+      "beforeText": "Project",
+      "afterText": "Project (add cited evidence or remove before export)",
+      "sourceArtifactIds": [
+        "art_56"
+      ],
+      "evidenceIds": [],
+      "claimId": "claim-art-56-1"
+    },
+    {
+      "patchId": "patch-2-3-claim-art-56-2",
+      "slideId": "slide-2-hackwithbay-integration-map",
+      "slideTitle": "HackwithBay Integration Map",
+      "kind": "claim_evidence",
+      "status": "needs_source",
+      "title": "Back HackwithBay Integration Map claim with evidence",
+      "reason": "This deck claim is not verified by evidence yet.",
+      "beforeText": "Room UI for upload, chat, artifacts, trace, and graph presentation",
+      "afterText": "Room UI for upload, chat, artifacts, trace, and graph presentation (add cited evidence or remove before export)",
+      "sourceArtifactIds": [
+        "art_56"
+      ],
+      "evidenceIds": [],
+      "claimId": "claim-art-56-2"
+    },
+    {
+      "patchId": "patch-3-1-claim-art-57-0",
+      "slideId": "slide-3-provider-setup-checklist",
+      "slideTitle": "Provider Setup Checklist",
+      "kind": "claim_evidence",
+      "status": "needs_source",
+      "title": "Back Provider Setup Checklist claim with evidence",
+      "reason": "This deck claim is not verified by evidence yet.",
+      "beforeText": "Butterbase",
+      "afterText": "Butterbase (add cited evidence or remove before export)",
+      "sourceArtifactIds": [
+        "art_57"
+      ],
+      "evidenceIds": [],
+      "claimId": "claim-art-57-0"
+    },
+    {
+      "patchId": "patch-3-2-claim-art-57-1",
+      "slideId": "slide-3-provider-setup-checklist",
+      "slideTitle": "Provider Setup Checklist",
+      "kind": "claim_evidence",
+      "status": "needs_source",
+      "title": "Back Provider Setup Checklist claim with evidence",
+      "reason": "This deck claim is not verified by evidence yet.",
+      "beforeText": "Tool",
+      "afterText": "Tool (add cited evidence or remove before export)",
+      "sourceArtifactIds": [
+        "art_57"
+      ],
+      "evidenceIds": [],
+      "claimId": "claim-art-57-1"
+    },
+    {
+      "patchId": "patch-3-3-claim-art-57-2",
+      "slideId": "slide-3-provider-setup-checklist",
+      "slideTitle": "Provider Setup Checklist",
+      "kind": "claim_evidence",
+      "status": "needs_source",
+      "title": "Back Provider Setup Checklist claim with evidence",
+      "reason": "This deck claim is not verified by evidence yet.",
+      "beforeText": "Create project, redeem ENJOY0707 in billing, enable auth/database/storage/payment",
+      "afterText": "Create project, redeem ENJOY0707 in billing, enable auth/database/storage/payment (add cited evidence or remove before export)",
+      "sourceArtifactIds": [
+        "art_57"
+      ],
+      "evidenceIds": [],
+      "claimId": "claim-art-57-2"
+    }
+  ]
+}

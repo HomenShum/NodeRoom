@@ -1,0 +1,100 @@
+%PDF-1.4
+%âãÏÓ
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 3 /Kids [4 0 R 6 0 R 8 0 R] >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 540] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 896 >>
+stream
+0.031 0.035 0.043 rg 0 0 960 540 re f
+0.063 0.075 0.090 rg 28 28 904 484 re f
+0.149 0.165 0.196 RG 28 28 904 484 re S
+BT 0.898 0.584 0.475 rg /F1 13 Tf 2 Tr 44 480 Td (01) Tj 0 Tr ET
+BT 0.333 0.831 0.604 rg /F1 10 Tf 2 Tr 86 480 Td (DRAFT) Tj 0 Tr ET
+BT 0.953 0.965 0.984 rg /F1 26 Tf 2 Tr 44 438 Td (HackwithBay Demo Brief) Tj 0 Tr ET
+BT 0.667 0.706 0.769 rg /F1 12 Tf 44 408 Td (Convert written analysis into presentation narrative.) Tj ET
+BT 0.898 0.584 0.475 rg /F1 12 Tf 2 Tr 44 350 Td (Claims) Tj 0 Tr ET
+BT 0.843 0.871 0.914 rg /F1 9 Tf 2 Tr 58 325 Td (manual) Tj 0 Tr ET
+BT 0.843 0.871 0.914 rg /F1 10 Tf 150 325 Td (HackwithBay 3.0 demo map Demo claim: NodeRoom can turn a BankerToolBench task into a graph-aware agent...) Tj ET
+BT 0.898 0.584 0.475 rg /F1 12 Tf 2 Tr 44 118 Td (Review gaps) Tj 0 Tr ET
+BT 0.557 0.596 0.655 rg /F1 10 Tf 58 94 Td (No unresolved gaps on this slide.) Tj ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 540] /Resources << /Font << /F1 3 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 1135 >>
+stream
+0.031 0.035 0.043 rg 0 0 960 540 re f
+0.063 0.075 0.090 rg 28 28 904 484 re f
+0.149 0.165 0.196 RG 28 28 904 484 re S
+BT 0.898 0.584 0.475 rg /F1 13 Tf 2 Tr 44 480 Td (02) Tj 0 Tr ET
+BT 0.333 0.831 0.604 rg /F1 10 Tf 2 Tr 86 480 Td (DRAFT) Tj 0 Tr ET
+BT 0.953 0.965 0.984 rg /F1 26 Tf 2 Tr 44 438 Td (HackwithBay Integration Map) Tj 0 Tr ET
+BT 0.667 0.706 0.769 rg /F1 12 Tf 44 408 Td (Summarize structured findings and unresolved cells.) Tj ET
+BT 0.898 0.584 0.475 rg /F1 12 Tf 2 Tr 44 350 Td (Claims) Tj 0 Tr ET
+BT 0.843 0.871 0.914 rg /F1 9 Tf 2 Tr 58 325 Td (manual) Tj 0 Tr ET
+BT 0.843 0.871 0.914 rg /F1 10 Tf 150 325 Td (NodeRoom BTB graph agent) Tj ET
+BT 0.843 0.871 0.914 rg /F1 9 Tf 2 Tr 58 288 Td (manual) Tj 0 Tr ET
+BT 0.843 0.871 0.914 rg /F1 10 Tf 150 288 Td (Project) Tj ET
+BT 0.843 0.871 0.914 rg /F1 9 Tf 2 Tr 58 251 Td (manual) Tj 0 Tr ET
+BT 0.843 0.871 0.914 rg /F1 10 Tf 150 251 Td (Room UI for upload, chat, artifacts, trace, and graph presentation) Tj ET
+BT 0.898 0.584 0.475 rg /F1 12 Tf 2 Tr 44 118 Td (Review gaps) Tj 0 Tr ET
+BT 0.557 0.596 0.655 rg /F1 10 Tf 58 94 Td (No unresolved gaps on this slide.) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 540] /Resources << /Font << /F1 3 0 R >> >> /Contents 9 0 R >>
+endobj
+9 0 obj
+<< /Length 1130 >>
+stream
+0.031 0.035 0.043 rg 0 0 960 540 re f
+0.063 0.075 0.090 rg 28 28 904 484 re f
+0.149 0.165 0.196 RG 28 28 904 484 re S
+BT 0.898 0.584 0.475 rg /F1 13 Tf 2 Tr 44 480 Td (03) Tj 0 Tr ET
+BT 0.333 0.831 0.604 rg /F1 10 Tf 2 Tr 86 480 Td (DRAFT) Tj 0 Tr ET
+BT 0.953 0.965 0.984 rg /F1 26 Tf 2 Tr 44 438 Td (Provider Setup Checklist) Tj 0 Tr ET
+BT 0.667 0.706 0.769 rg /F1 12 Tf 44 408 Td (Summarize structured findings and unresolved cells.) Tj ET
+BT 0.898 0.584 0.475 rg /F1 12 Tf 2 Tr 44 350 Td (Claims) Tj 0 Tr ET
+BT 0.843 0.871 0.914 rg /F1 9 Tf 2 Tr 58 325 Td (manual) Tj 0 Tr ET
+BT 0.843 0.871 0.914 rg /F1 10 Tf 150 325 Td (Butterbase) Tj ET
+BT 0.843 0.871 0.914 rg /F1 9 Tf 2 Tr 58 288 Td (manual) Tj 0 Tr ET
+BT 0.843 0.871 0.914 rg /F1 10 Tf 150 288 Td (Tool) Tj ET
+BT 0.843 0.871 0.914 rg /F1 9 Tf 2 Tr 58 251 Td (manual) Tj 0 Tr ET
+BT 0.843 0.871 0.914 rg /F1 10 Tf 150 251 Td (Create project, redeem ENJOY0707 in billing, enable auth/database/storage/payment) Tj ET
+BT 0.898 0.584 0.475 rg /F1 12 Tf 2 Tr 44 118 Td (Review gaps) Tj 0 Tr ET
+BT 0.557 0.596 0.655 rg /F1 10 Tf 58 94 Td (No unresolved gaps on this slide.) Tj ET
+endstream
+endobj
+10 0 obj
+<< /Title (HackwithBay 3.0 - BTB Graph Agent readout) /Creator (NodeRoom) /Producer (NodeRoom) /CreationDate (D:19700101000000Z) /ModDate (D:19700101000000Z) >>
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000133 00000 n 
+0000000203 00000 n 
+0000000329 00000 n 
+0000001276 00000 n 
+0000001402 00000 n 
+0000002589 00000 n 
+0000002715 00000 n 
+0000003897 00000 n 
+trailer
+<< /Size 11 /Root 1 0 R /Info 10 0 R >>
+startxref
+4074
+%%EOF

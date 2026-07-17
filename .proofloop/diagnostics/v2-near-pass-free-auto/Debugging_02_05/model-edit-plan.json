@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "operations": [
+    {
+      "sheet": "Exhibit 9",
+      "cell": "N23",
+      "formula": "(N20-N18)/(N21+N20-N18)"
+    },
+    {
+      "sheet": "Exhibit 9",
+      "cell": "O23",
+      "formula": "(O20-O18)/(O21+O20-O18)"
+    },
+    {
+      "sheet": "Exhibit 9",
+      "cell": "P23",
+      "formula": "(P20-P18)/(P21+P20-P18)"
+    }
+  ]
+}

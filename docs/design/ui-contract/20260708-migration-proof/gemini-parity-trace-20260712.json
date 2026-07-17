@@ -1,0 +1,145 @@
+{
+  "generatedAt": "2026-07-12T12:03:41.058Z",
+  "model": "gemini-3.5-flash",
+  "media": ".proofloop/proofs/visual-parity/desktop-1456x940/trace.png",
+  "reference": "docs/design/ui-contract/20260708-migration-proof/standalone-interior-trace.png",
+  "rubricMean": 3.8,
+  "lowestDim": {
+    "dim": "product.whatIsHappening",
+    "score": 3
+  },
+  "betterThanReference": [
+    "product:worse",
+    "hierarchy-typography:worse",
+    "layout-spacing:worse",
+    "color-state:worse"
+  ],
+  "counts": {
+    "P0": 0,
+    "P1": 4,
+    "P2": 7
+  },
+  "passBar": false,
+  "lensScores": [
+    {
+      "lens": "product",
+      "scores": {
+        "whatIsHappening": 3,
+        "whyTrust": 3,
+        "whatNext": 4
+      }
+    },
+    {
+      "lens": "hierarchy-typography",
+      "scores": {
+        "hierarchy": 4,
+        "typography": 4
+      }
+    },
+    {
+      "lens": "layout-spacing",
+      "scores": {
+        "spacingRhythm": 4,
+        "alignment": 4,
+        "density": 5
+      }
+    },
+    {
+      "lens": "color-state",
+      "scores": {
+        "colorDiscipline": 3,
+        "stateSignal": 4
+      }
+    }
+  ],
+  "findings": [
+    {
+      "lens": "product",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Top navigation tabs",
+      "issue": "The active 'Run trace' tab is missing from the top navigation bar, and no active tab indicator is present, making the current context illegible.",
+      "fix": "Add the 'Run trace' tab to the top navigation bar and style it as the active tab with an orange underline to match the Reference."
+    },
+    {
+      "lens": "product",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Room NodeAgent chat messages",
+      "issue": "The version badges in the agent's chat messages show 'v1 -> v1' instead of the correct 'v41 -> v42' and 'v42 -> v43' transitions, which contradicts the room's current state (v42).",
+      "fix": "Update the version badges in the chat messages to show 'v41 -> v42' and 'v42 -> v43' respectively."
+    },
+    {
+      "lens": "product",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "synthesis.answer row",
+      "issue": "The cost badge '$8.14' is missing next to the synthesis.answer label, reducing the visibility of cost provenance.",
+      "fix": "Add the '$8.14' badge next to the synthesis.answer label."
+    },
+    {
+      "lens": "product",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Confidence row",
+      "issue": "The confidence row displays verbose and incorrect state text ('0.82 - draft - Revenue + COGS variance -> committed') instead of the clean '0.82 -> draft' transition.",
+      "fix": "Change the confidence text to '0.82 -> draft' to match the Reference."
+    },
+    {
+      "lens": "product",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Trace spans summary text",
+      "issue": "The summary text at the bottom of the trace list displays '11 spans wall-clock 11.4s' instead of '17 spans wall-clock 12.4s'.",
+      "fix": "Update the summary text to '17 spans wall-clock 12.4s'."
+    },
+    {
+      "lens": "hierarchy-typography",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Left sidebar navigation links",
+      "issue": "The navigation items (e.g., 'Capture Notebook', 'Agent wiki') are styled with an excessively heavy font weight, preventing the sidebar chrome from receding.",
+      "fix": "Reduce the font weight of the sidebar list items to regular/medium (e.g., font-weight: 400 or 500) to match the sober hierarchy of the reference."
+    },
+    {
+      "lens": "hierarchy-typography",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Trace tree node labels",
+      "issue": "Technical labels in the trace span tree (e.g., 'context.gather', 'retrieval.search') are rendered in a heavy bold weight, making the dense log view feel cluttered.",
+      "fix": "Apply a lighter, regular weight to the monospaced/sans-serif labels in the trace tree to improve readability and match the reference."
+    },
+    {
+      "lens": "layout-spacing",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Left sidebar SHEETS list",
+      "issue": "Nested items under 'Room sheets' lack hierarchical indentation, breaking the vertical alignment rhythm.",
+      "fix": "Indent nested items ('Company research', 'Q3 variance', 'Runway / milestones') by 12px to establish a clear visual hierarchy."
+    },
+    {
+      "lens": "layout-spacing",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Top navigation tab bar",
+      "issue": "The active 'Run trace' view lacks a corresponding active tab indicator in the top bar, disrupting the layout's state rhythm.",
+      "fix": "Ensure the active tab ('Run trace') is present in the top bar with its orange bottom-border indicator active."
+    },
+    {
+      "lens": "color-state",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Left sidebar icons",
+      "issue": "Icons are colored terracotta/orange, violating the neutral-at-rest discipline and diluting the single terracotta accent reserved for agent focus.",
+      "fix": "Change all sidebar icons to neutral gray/white, matching the reference design."
+    },
+    {
+      "lens": "color-state",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "notebook.write span bar",
+      "issue": "The span bar uses an unauthorized green color instead of the muted olive/brown state color.",
+      "fix": "Recolor the notebook.write span bar to match the muted olive/brown tone in the reference."
+    }
+  ]
+}

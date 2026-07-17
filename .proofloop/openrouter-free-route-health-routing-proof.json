@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-11T12:20:15.049Z",
+  "routes": [
+    {
+      "modelId": "cohere/north-mini-code:free",
+      "attempts": 1,
+      "successes": 1,
+      "consecutiveFailures": 0,
+      "lastLatencyMs": 888,
+      "lastAttemptAt": 1783772415049,
+      "cooldownUntil": 1783772415049
+    }
+  ]
+}

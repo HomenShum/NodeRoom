@@ -1,0 +1,66 @@
+{
+  "schema": "proofloop-official-score-import-readiness-v1",
+  "adapterId": "finauditing",
+  "receiptPath": "docs/eval/proofloop-official-scores/finauditing.json",
+  "status": "accepted",
+  "scoreClaim": true,
+  "officialScoreClaimable": true,
+  "acceptedExternalScorerReceipt": true,
+  "acceptedExternalScorerKind": "finauditing_finmr_judge",
+  "pendingExternalScorerReceipt": false,
+  "pendingExternalScorerKind": null,
+  "requiredAcceptedReceipt": "accepted FinAuditing scorer receipt with an accepted FinMR judge result",
+  "metrics": {
+    "officialTaskCount": 1102,
+    "outputTaskCount": null,
+    "predictionRowCount": 1102,
+    "contentPartsCount": null
+  },
+  "boundary": {
+    "productPath": {
+      "status": "complete",
+      "officialScoreClaim": false,
+      "reason": "NodeRoom official-format prediction JSONL covers FinSM, FinRE, and FinMR; this is product/export evidence, not an official score.",
+      "evidence": [
+        "docs/eval/proofloop-official-outputs/finauditing.json",
+        "docs/eval/proofloop-official-task-bundles/finauditing.json",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json",
+        ".tmp/official-benchmarks/proofloop-official-outputs/finauditing"
+      ]
+    },
+    "proxy": {
+      "status": "proxy_only",
+      "officialScoreClaim": false,
+      "reason": "Proxy/product-path receipts can triage quality and prove local workflow shape, but they are not accepted upstream official scorer receipts.",
+      "evidence": [
+        "docs/eval/proofloop-external-adapter-runs/finauditing.json",
+        "docs/eval/proofloop-external-adapter-live-room-runs/finauditing.json"
+      ]
+    },
+    "officialScorer": {
+      "status": "accepted",
+      "officialScoreClaim": true,
+      "requiredAcceptedReceipt": "accepted FinAuditing scorer receipt with an accepted FinMR judge result",
+      "evidence": [
+        "docs/eval/proofloop-official-scores/finauditing.json",
+        ".tmp/official-benchmarks/finauditing-official/finmr-judge-receipt.json"
+      ]
+    }
+  },
+  "blockers": [],
+  "evidence": [
+    "docs/eval/proofloop-official-outputs/finauditing.json",
+    "docs/eval/proofloop-official-task-bundles/finauditing.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinSM.predictions.jsonl",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinRE.predictions.jsonl",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/FinMR.predictions.jsonl",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing/manifest.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finauditing",
+    "docs/eval/proofloop-official-scores/finauditing.json",
+    ".tmp/official-benchmarks/finauditing-official/finmr-judge-receipt.json",
+    "docs/eval/proofloop-official-score-imports/finauditing.json"
+  ]
+}

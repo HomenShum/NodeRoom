@@ -1,0 +1,736 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-09T09:49:59.235Z",
+  "mode": "input-vs-gold-baseline",
+  "track": "spreadsheetbench-v2",
+  "sourceRoot": "spreadsheetbench-v2",
+  "taskCount": 321,
+  "scoredTaskCount": 3,
+  "passCount": 0,
+  "averageOverall": 0.535657,
+  "warningCount": 6,
+  "warnings": [
+    "Debugging/01_01: mismatch list capped at 20/1924",
+    "Debugging/01_01: chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+    "Debugging/01_02: mismatch list capped at 20/1867",
+    "Debugging/01_02: chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+    "Debugging/01_03: mismatch list capped at 20/2966",
+    "Debugging/01_03: chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+  ],
+  "results": [
+    {
+      "schema": 1,
+      "generatedAt": "2026-07-09T09:49:59.235Z",
+      "taskId": "Debugging/01_01",
+      "candidateWorkbook": "Double Counting_input.xlsx",
+      "goldWorkbook": "01_golden.xlsx",
+      "answerPosition": "'Ex 1 - LBO'!B1:AK95,'Ex 2 - Valuation Bridge'!B2:C36,'Ex 3 - PF P&L'!B1:I30,'Ex 4 - Organic Operating Model'!B1:AF41,'Ex 5 - M&A'!B1:AB81,'Ex 6 - Amdocs Historical M&A'!B2:J19,'Ex 7 - SOFR'!B2:E79,'Ex 8 - Public Comps'!B2:F37,'Ex 9 - Transaction Comps'!B2:G24,'Ex 10 - Balance Sheet'!B2:F33,'Ex 11 - Income Statement'!B2:K28,'Ex 12 - Cash Flow Statement'!B2:G44",
+      "ranges": [
+        "'Ex 1 - LBO'!B1:AK95",
+        "'Ex 2 - Valuation Bridge'!B2:C36",
+        "'Ex 3 - PF P&L'!B1:I30",
+        "'Ex 4 - Organic Operating Model'!B1:AF41",
+        "'Ex 5 - M&A'!B1:AB81",
+        "'Ex 6 - Amdocs Historical M&A'!B2:J19",
+        "'Ex 7 - SOFR'!B2:E79",
+        "'Ex 8 - Public Comps'!B2:F37",
+        "'Ex 9 - Transaction Comps'!B2:G24",
+        "'Ex 10 - Balance Sheet'!B2:F33",
+        "'Ex 11 - Income Statement'!B2:K28",
+        "'Ex 12 - Cash Flow Statement'!B2:G44"
+      ],
+      "totals": {
+        "comparedCells": 8668,
+        "valueMatches": 6866,
+        "formulaCells": 1933,
+        "formulaMatches": 1811,
+        "styleCells": 0,
+        "styleMatches": 0,
+        "styleLayoutItems": 0,
+        "styleLayoutMatches": 0,
+        "mismatches": 1924,
+        "missingSheets": 0
+      },
+      "scores": {
+        "value": 0.792109,
+        "formula": 0.936886,
+        "style": null,
+        "chartPackage": 0,
+        "overall": 0.5763316666666666
+      },
+      "pass": false,
+      "warnings": [
+        "mismatch list capped at 20/1924",
+        "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+      ],
+      "mismatches": [
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "Q1",
+          "expected": "2026",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "R1",
+          "expected": "2027",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "S1",
+          "expected": "2028",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "T1",
+          "expected": "2029",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "U1",
+          "expected": "2030",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "C11",
+          "expected": "18.2034",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "B13",
+          "expected": "Amdocs - Control",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "H13",
+          "expected": "Amdocs - Forecast Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "O13",
+          "expected": "Amdocs - Forecast",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "W13",
+          "expected": "Amdocs - Returns Analysis",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "AE13",
+          "expected": "Amdocs - Sensitivities",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "I15",
+          "expected": "PF P&L Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "J15",
+          "expected": "PF P&L Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "K15",
+          "expected": "PF P&L Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "L15",
+          "expected": "PF P&L Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "M15",
+          "expected": "PF P&L Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "P15",
+          "expected": "Unlevered Free Cash Flow",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "Q15",
+          "expected": "Unlevered Free Cash Flow",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "R15",
+          "expected": "Unlevered Free Cash Flow",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "S15",
+          "expected": "Unlevered Free Cash Flow",
+          "actual": ""
+        }
+      ],
+      "chartPackage": {
+        "schema": 1,
+        "generatedAt": "2026-07-09T09:49:59.235Z",
+        "taskId": "Debugging/01_01",
+        "candidateWorkbook": "Double Counting_input.xlsx",
+        "goldWorkbook": "01_golden.xlsx",
+        "verifier": "xlsx_chart_package_static",
+        "totals": {
+          "goldChartParts": 2,
+          "candidateChartParts": 0,
+          "matchedChartParts": 0,
+          "missingChartParts": 2,
+          "extraChartParts": 0,
+          "mismatchedChartParts": 0
+        },
+        "scores": {
+          "package": 0
+        },
+        "pass": false,
+        "candidateParts": [],
+        "goldParts": [
+          {
+            "path": "xl/drawings/drawing1.xml",
+            "kind": "drawing",
+            "sha256": "4b01a176a0c08fc7fde00a5a1ff39b194d2a7ffbb2796af63c5fa11a643e6326",
+            "bytes": 2542
+          },
+          {
+            "path": "xl/drawings/drawing2.xml",
+            "kind": "drawing",
+            "sha256": "17edc7d920ca01dad843d6c5e00e0df06ae356fbb9366eb17ad3f57d44c03ec9",
+            "bytes": 2382
+          }
+        ],
+        "mismatches": [
+          {
+            "kind": "missing_chart_part",
+            "path": "xl/drawings/drawing1.xml",
+            "expected": "4b01a176a0c08fc7fde00a5a1ff39b194d2a7ffbb2796af63c5fa11a643e6326"
+          },
+          {
+            "kind": "missing_chart_part",
+            "path": "xl/drawings/drawing2.xml",
+            "expected": "17edc7d920ca01dad843d6c5e00e0df06ae356fbb9366eb17ad3f57d44c03ec9"
+          }
+        ],
+        "warnings": [
+          "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+        ]
+      }
+    },
+    {
+      "schema": 1,
+      "generatedAt": "2026-07-09T09:49:59.235Z",
+      "taskId": "Debugging/01_02",
+      "candidateWorkbook": "Embedded Hardcode_input.xlsx",
+      "goldWorkbook": "01_golden.xlsx",
+      "answerPosition": "'Ex 1 - LBO'!B1:AK95,'Ex 2 - Valuation Bridge'!B2:C36,'Ex 3 - PF P&L'!B1:I30,'Ex 4 - Organic Operating Model'!B1:AF41,'Ex 5 - M&A'!B1:AB81,'Ex 6 - Amdocs Historical M&A'!B2:J19,'Ex 7 - SOFR'!B2:E79,'Ex 8 - Public Comps'!B2:F37,'Ex 9 - Transaction Comps'!B2:G24,'Ex 10 - Balance Sheet'!B2:F33,'Ex 11 - Income Statement'!B2:K28,'Ex 12 - Cash Flow Statement'!B2:G44",
+      "ranges": [
+        "'Ex 1 - LBO'!B1:AK95",
+        "'Ex 2 - Valuation Bridge'!B2:C36",
+        "'Ex 3 - PF P&L'!B1:I30",
+        "'Ex 4 - Organic Operating Model'!B1:AF41",
+        "'Ex 5 - M&A'!B1:AB81",
+        "'Ex 6 - Amdocs Historical M&A'!B2:J19",
+        "'Ex 7 - SOFR'!B2:E79",
+        "'Ex 8 - Public Comps'!B2:F37",
+        "'Ex 9 - Transaction Comps'!B2:G24",
+        "'Ex 10 - Balance Sheet'!B2:F33",
+        "'Ex 11 - Income Statement'!B2:K28",
+        "'Ex 12 - Cash Flow Statement'!B2:G44"
+      ],
+      "totals": {
+        "comparedCells": 8668,
+        "valueMatches": 6918,
+        "formulaCells": 1933,
+        "formulaMatches": 1816,
+        "styleCells": 0,
+        "styleMatches": 0,
+        "styleLayoutItems": 0,
+        "styleLayoutMatches": 0,
+        "mismatches": 1867,
+        "missingSheets": 0
+      },
+      "scores": {
+        "value": 0.798108,
+        "formula": 0.939472,
+        "style": null,
+        "chartPackage": 0,
+        "overall": 0.5791933333333333
+      },
+      "pass": false,
+      "warnings": [
+        "mismatch list capped at 20/1867",
+        "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+      ],
+      "mismatches": [
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "Q1",
+          "expected": "2026",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "R1",
+          "expected": "2027",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "S1",
+          "expected": "2028",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "T1",
+          "expected": "2029",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "U1",
+          "expected": "2030",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "C11",
+          "expected": "18.2034",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "B13",
+          "expected": "Amdocs - Control",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "H13",
+          "expected": "Amdocs - Forecast Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "O13",
+          "expected": "Amdocs - Forecast",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "W13",
+          "expected": "Amdocs - Returns Analysis",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "AE13",
+          "expected": "Amdocs - Sensitivities",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "I15",
+          "expected": "PF P&L Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "J15",
+          "expected": "PF P&L Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "K15",
+          "expected": "PF P&L Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "L15",
+          "expected": "PF P&L Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "M15",
+          "expected": "PF P&L Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "P15",
+          "expected": "Unlevered Free Cash Flow",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "Q15",
+          "expected": "Unlevered Free Cash Flow",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "R15",
+          "expected": "Unlevered Free Cash Flow",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "S15",
+          "expected": "Unlevered Free Cash Flow",
+          "actual": ""
+        }
+      ],
+      "chartPackage": {
+        "schema": 1,
+        "generatedAt": "2026-07-09T09:49:59.235Z",
+        "taskId": "Debugging/01_02",
+        "candidateWorkbook": "Embedded Hardcode_input.xlsx",
+        "goldWorkbook": "01_golden.xlsx",
+        "verifier": "xlsx_chart_package_static",
+        "totals": {
+          "goldChartParts": 2,
+          "candidateChartParts": 0,
+          "matchedChartParts": 0,
+          "missingChartParts": 2,
+          "extraChartParts": 0,
+          "mismatchedChartParts": 0
+        },
+        "scores": {
+          "package": 0
+        },
+        "pass": false,
+        "candidateParts": [],
+        "goldParts": [
+          {
+            "path": "xl/drawings/drawing1.xml",
+            "kind": "drawing",
+            "sha256": "4b01a176a0c08fc7fde00a5a1ff39b194d2a7ffbb2796af63c5fa11a643e6326",
+            "bytes": 2542
+          },
+          {
+            "path": "xl/drawings/drawing2.xml",
+            "kind": "drawing",
+            "sha256": "17edc7d920ca01dad843d6c5e00e0df06ae356fbb9366eb17ad3f57d44c03ec9",
+            "bytes": 2382
+          }
+        ],
+        "mismatches": [
+          {
+            "kind": "missing_chart_part",
+            "path": "xl/drawings/drawing1.xml",
+            "expected": "4b01a176a0c08fc7fde00a5a1ff39b194d2a7ffbb2796af63c5fa11a643e6326"
+          },
+          {
+            "kind": "missing_chart_part",
+            "path": "xl/drawings/drawing2.xml",
+            "expected": "17edc7d920ca01dad843d6c5e00e0df06ae356fbb9366eb17ad3f57d44c03ec9"
+          }
+        ],
+        "warnings": [
+          "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+        ]
+      }
+    },
+    {
+      "schema": 1,
+      "generatedAt": "2026-07-09T09:49:59.235Z",
+      "taskId": "Debugging/01_03",
+      "candidateWorkbook": "Errors_input.xlsx",
+      "goldWorkbook": "01_golden.xlsx",
+      "answerPosition": "'Ex 1 - LBO'!B1:AK95,'Ex 2 - Valuation Bridge'!B2:C36,'Ex 3 - PF P&L'!B1:I30,'Ex 4 - Organic Operating Model'!B1:AF41,'Ex 5 - M&A'!B1:AB81,'Ex 6 - Amdocs Historical M&A'!B2:J19,'Ex 7 - SOFR'!B2:E79,'Ex 8 - Public Comps'!B2:F37,'Ex 9 - Transaction Comps'!B2:G24,'Ex 10 - Balance Sheet'!B2:F33,'Ex 11 - Income Statement'!B2:K28,'Ex 12 - Cash Flow Statement'!B2:G44",
+      "ranges": [
+        "'Ex 1 - LBO'!B1:AK95",
+        "'Ex 2 - Valuation Bridge'!B2:C36",
+        "'Ex 3 - PF P&L'!B1:I30",
+        "'Ex 4 - Organic Operating Model'!B1:AF41",
+        "'Ex 5 - M&A'!B1:AB81",
+        "'Ex 6 - Amdocs Historical M&A'!B2:J19",
+        "'Ex 7 - SOFR'!B2:E79",
+        "'Ex 8 - Public Comps'!B2:F37",
+        "'Ex 9 - Transaction Comps'!B2:G24",
+        "'Ex 10 - Balance Sheet'!B2:F33",
+        "'Ex 11 - Income Statement'!B2:K28",
+        "'Ex 12 - Cash Flow Statement'!B2:G44"
+      ],
+      "totals": {
+        "comparedCells": 8668,
+        "valueMatches": 6457,
+        "formulaCells": 1933,
+        "formulaMatches": 1178,
+        "styleCells": 0,
+        "styleMatches": 0,
+        "styleLayoutItems": 0,
+        "styleLayoutMatches": 0,
+        "mismatches": 2966,
+        "missingSheets": 0
+      },
+      "scores": {
+        "value": 0.744924,
+        "formula": 0.609415,
+        "style": null,
+        "chartPackage": 0,
+        "overall": 0.45144633333333334
+      },
+      "pass": false,
+      "warnings": [
+        "mismatch list capped at 20/2966",
+        "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+      ],
+      "mismatches": [
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "Q1",
+          "expected": "2026",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "R1",
+          "expected": "2027",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "S1",
+          "expected": "2028",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "T1",
+          "expected": "2029",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "U1",
+          "expected": "2030",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "C11",
+          "expected": "18.2034",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "B13",
+          "expected": "Amdocs - Control",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "H13",
+          "expected": "Amdocs - Forecast Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "O13",
+          "expected": "Amdocs - Forecast",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "W13",
+          "expected": "Amdocs - Returns Analysis",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "AE13",
+          "expected": "Amdocs - Sensitivities",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "I15",
+          "expected": "PF P&L Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "J15",
+          "expected": "PF P&L Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "K15",
+          "expected": "PF P&L Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "L15",
+          "expected": "PF P&L Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "M15",
+          "expected": "PF P&L Drivers",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "P15",
+          "expected": "Unlevered Free Cash Flow",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "Q15",
+          "expected": "Unlevered Free Cash Flow",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "R15",
+          "expected": "Unlevered Free Cash Flow",
+          "actual": ""
+        },
+        {
+          "kind": "value",
+          "sheet": "Ex 1 - LBO",
+          "cell": "S15",
+          "expected": "Unlevered Free Cash Flow",
+          "actual": ""
+        }
+      ],
+      "chartPackage": {
+        "schema": 1,
+        "generatedAt": "2026-07-09T09:49:59.235Z",
+        "taskId": "Debugging/01_03",
+        "candidateWorkbook": "Errors_input.xlsx",
+        "goldWorkbook": "01_golden.xlsx",
+        "verifier": "xlsx_chart_package_static",
+        "totals": {
+          "goldChartParts": 2,
+          "candidateChartParts": 0,
+          "matchedChartParts": 0,
+          "missingChartParts": 2,
+          "extraChartParts": 0,
+          "mismatchedChartParts": 0
+        },
+        "scores": {
+          "package": 0
+        },
+        "pass": false,
+        "candidateParts": [],
+        "goldParts": [
+          {
+            "path": "xl/drawings/drawing1.xml",
+            "kind": "drawing",
+            "sha256": "4b01a176a0c08fc7fde00a5a1ff39b194d2a7ffbb2796af63c5fa11a643e6326",
+            "bytes": 2542
+          },
+          {
+            "path": "xl/drawings/drawing2.xml",
+            "kind": "drawing",
+            "sha256": "17edc7d920ca01dad843d6c5e00e0df06ae356fbb9366eb17ad3f57d44c03ec9",
+            "bytes": 2382
+          }
+        ],
+        "mismatches": [
+          {
+            "kind": "missing_chart_part",
+            "path": "xl/drawings/drawing1.xml",
+            "expected": "4b01a176a0c08fc7fde00a5a1ff39b194d2a7ffbb2796af63c5fa11a643e6326"
+          },
+          {
+            "kind": "missing_chart_part",
+            "path": "xl/drawings/drawing2.xml",
+            "expected": "17edc7d920ca01dad843d6c5e00e0df06ae356fbb9366eb17ad3f57d44c03ec9"
+          }
+        ],
+        "warnings": [
+          "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+        ]
+      }
+    }
+  ]
+}

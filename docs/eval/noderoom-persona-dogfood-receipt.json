@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-12T13:43:28.108Z",
+  "environment": "deterministic memory-mode product path",
+  "liveCoverageReference": "docs/eval/noderoom-fresh-user-vertical-proof.json",
+  "personas": [
+    {
+      "persona": "analyst",
+      "label": "Analyst",
+      "environment": "memory-product-path",
+      "freshLanding": true,
+      "prompt": "@nodeagent audit this workbook, repair only verified missing variance cells, and verify every changed cell",
+      "route": "scripted/memory-workbook",
+      "tools": [
+        "inspect_workbook",
+        "verify_workbook",
+        "propose_lock",
+        "edit_cell",
+        "release_lock"
+      ],
+      "agentLatencyMs": 2229,
+      "creditsBefore": 20,
+      "creditsAfter": 18.74,
+      "creditsSpent": 1.26,
+      "mutation": {
+        "before": "add",
+        "after": "+21.7%"
+      },
+      "conflict": "rejected-with-host-value-preserved",
+      "evidence": {
+        "traceRecords": 3,
+        "traceSteps": 11
+      },
+      "export": {
+        "kind": "xlsx",
+        "fileName": "Q3_variance.xlsx",
+        "bytes": 6601
+      },
+      "proofBundle": {
+        "fileName": "q3-diligence-proof-bundle-9c534fba.json",
+        "bytes": 56184,
+        "integrityHash": "8be5496a"
+      },
+      "userVisibleSteps": 12,
+      "screenshot": "docs/release/media/persona-analyst.png",
+      "consoleErrors": []
+    },
+    {
+      "persona": "researcher",
+      "label": "Researcher",
+      "environment": "memory-product-path",
+      "freshLanding": true,
+      "prompt": "@nodeagent diligence ProofNova with source-backed product, buyer, funding, hiring, and security gaps",
+      "route": "scripted/memory-research",
+      "tools": [
+        "propose_lock",
+        "fetch_source",
+        "write_cell_result",
+        "release_lock"
+      ],
+      "agentLatencyMs": 1185,
+      "creditsBefore": 20,
+      "creditsAfter": 18.74,
+      "creditsSpent": 1.26,
+      "mutation": {
+        "before": "pending",
+        "after": "complete2 srcproofnova.exampleproofnova.example · 92%en.wikipedia.orgen.wikipedia.org · 86%checked 06:43 · 88% confidenceNA"
+      },
+      "conflict": "rejected-with-host-value-preserved",
+      "evidence": {
+        "traceRecords": 3,
+        "traceSteps": 11
+      },
+      "export": {
+        "kind": "nodegraph-json",
+        "fileName": "room_1-nodegraph.json",
+        "bytes": 435594
+      },
+      "proofBundle": {
+        "fileName": "q3-diligence-proof-bundle-39a4a17f.json",
+        "bytes": 59297,
+        "integrityHash": "eff083e3"
+      },
+      "userVisibleSteps": 17,
+      "screenshot": "docs/release/media/persona-researcher.png",
+      "consoleErrors": []
+    },
+    {
+      "persona": "finance-operator",
+      "label": "Finance operator",
+      "environment": "memory-product-path",
+      "freshLanding": true,
+      "prompt": "@nodeagent source cash and burn, calculate runway, and preserve milestone gaps for review",
+      "route": "scripted/memory-runway",
+      "tools": [
+        "propose_lock",
+        "read_range",
+        "edit_cell",
+        "release_lock"
+      ],
+      "agentLatencyMs": 4305,
+      "creditsBefore": 20,
+      "creditsAfter": 18.74,
+      "creditsSpent": 1.26,
+      "mutation": {
+        "before": "Unknown",
+        "after": "$2.1M (Q2'26 board pack)"
+      },
+      "conflict": "rejected-with-host-value-preserved",
+      "evidence": {
+        "traceRecords": 3,
+        "traceSteps": 11
+      },
+      "export": {
+        "kind": "xlsx",
+        "fileName": "Runway_milestones.xlsx",
+        "bytes": 6748
+      },
+      "proofBundle": {
+        "fileName": "q3-diligence-proof-bundle-c14d3ca6.json",
+        "bytes": 57441,
+        "integrityHash": "a0a58c21"
+      },
+      "userVisibleSteps": 13,
+      "screenshot": "docs/release/media/persona-finance-operator.png",
+      "consoleErrors": []
+    },
+    {
+      "persona": "founder",
+      "label": "Founder",
+      "environment": "memory-product-path",
+      "freshLanding": true,
+      "prompt": "@nodeagent summarize the Capture Notebook into decisions, risks, and follow-ups with evidence status",
+      "route": "scripted/memory-notebook",
+      "tools": [
+        "read_notebook",
+        "append_notebook_outline"
+      ],
+      "agentLatencyMs": 1180,
+      "creditsBefore": 20,
+      "creditsAfter": 18.74,
+      "creditsSpent": 1.26,
+      "mutation": {
+        "before": "report-absent",
+        "after": "report-present"
+      },
+      "conflict": "rejected-with-host-value-preserved",
+      "evidence": {
+        "traceRecords": 3,
+        "traceSteps": 11
+      },
+      "export": {
+        "kind": "pptx",
+        "fileName": "q3-diligence-readout-deck-ab631e8b.pptx",
+        "bytes": 12616
+      },
+      "proofBundle": {
+        "fileName": "q3-diligence-proof-bundle-b515d124.json",
+        "bytes": 54820,
+        "integrityHash": "a1f6a5e2"
+      },
+      "userVisibleSteps": 15,
+      "screenshot": "docs/release/media/persona-founder.png",
+      "consoleErrors": []
+    },
+    {
+      "persona": "reviewer",
+      "label": "Reviewer",
+      "environment": "memory-product-path",
+      "freshLanding": true,
+      "prompt": "@nodeagent audit and verify this workbook before review; apply only the smallest deterministic repair",
+      "route": "scripted/memory-workbook",
+      "tools": [
+        "inspect_workbook",
+        "verify_workbook",
+        "propose_lock",
+        "edit_cell",
+        "release_lock"
+      ],
+      "agentLatencyMs": 2206,
+      "creditsBefore": 20,
+      "creditsAfter": 18.74,
+      "creditsSpent": 1.26,
+      "mutation": {
+        "before": "add",
+        "after": "+21.7%"
+      },
+      "conflict": "approved-through-inline-review",
+      "evidence": {
+        "traceRecords": 3,
+        "traceSteps": 11
+      },
+      "export": {
+        "kind": "proof-bundle-json",
+        "fileName": "q3-diligence-proof-bundle-cb989d67.json",
+        "bytes": 56388
+      },
+      "proofBundle": {
+        "fileName": "q3-diligence-proof-bundle-cb989d67.json",
+        "bytes": 56388,
+        "integrityHash": "d5e90b10"
+      },
+      "userVisibleSteps": 10,
+      "screenshot": "docs/release/media/persona-reviewer.png",
+      "consoleErrors": []
+    },
+    {
+      "persona": "guest-observer",
+      "label": "Guest observer",
+      "environment": "memory-product-path",
+      "freshLanding": true,
+      "prompt": "/free fill the remaining Q3 variance cells through the recoverable job path",
+      "route": "scripted/free-auto",
+      "tools": [
+        "derive_affected_set",
+        "patch_bundle_cas"
+      ],
+      "agentLatencyMs": 5507,
+      "creditsBefore": 20,
+      "creditsAfter": 18.74,
+      "creditsSpent": 1.26,
+      "mutation": {
+        "before": "add",
+        "after": "+21.7%"
+      },
+      "conflict": "rejected-with-host-value-preserved",
+      "evidence": {
+        "traceRecords": 3,
+        "traceSteps": 11
+      },
+      "export": {
+        "kind": "proof-bundle-json",
+        "fileName": "q3-diligence-proof-bundle-efeea2a6.json",
+        "bytes": 55044
+      },
+      "proofBundle": {
+        "fileName": "q3-diligence-proof-bundle-efeea2a6.json",
+        "bytes": 55044,
+        "integrityHash": "933ec27d"
+      },
+      "userVisibleSteps": 12,
+      "screenshot": "docs/release/media/persona-guest-observer.png",
+      "consoleErrors": [],
+      "boundary": "Observer perspective uses the deterministic sample host. Guest role enforcement requires the live multi-user backend and is certified separately."
+    }
+  ],
+  "gates": {
+    "freshLanding": "passed",
+    "nodeAgent": "passed",
+    "mutation": "passed",
+    "conflictHandling": "passed",
+    "evidenceReview": "passed",
+    "export": "passed",
+    "consoleErrors": 0
+  }
+}

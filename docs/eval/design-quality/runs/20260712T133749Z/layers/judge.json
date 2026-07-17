@@ -1,0 +1,31 @@
+{
+  "runId": "20260712T133749Z",
+  "commitSha": "5f67d8e1+dirty",
+  "generatedAt": "2026-07-12T13:38:35.253Z",
+  "command": "a11y",
+  "sourceTreeHash": "07724d971f5f94c665f2499fc508454101326b3decd0d4be41810130af7e2db1",
+  "status": "loaded",
+  "note": "Gemini/VLM judge output is media/evidence quality, not product correctness.",
+  "mediaJudge": {
+    "model": "gemini-3.5-flash",
+    "total": 11.1,
+    "max": 16,
+    "dimensions": {
+      "featureClarity": 1.4,
+      "workflowCompleteness": 1.5,
+      "visualDesign": 1.3,
+      "consistency": 1.4,
+      "evidenceQuality": 1.4,
+      "legibility": 1.3,
+      "professionalRelevance": 1.4,
+      "productionHonesty": 1.4
+    },
+    "defects": [
+      {
+        "severity": "P2",
+        "title": "The contrast of the placeholder text in the chat input box is slightly low against the dark background. -> Increase the contrast of the input placeholder text for better accessibility.",
+        "evidenceFrame": "00:05"
+      }
+    ]
+  }
+}

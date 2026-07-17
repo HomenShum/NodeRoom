@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "taskId": "Debugging/02_05",
+  "mode": "copy-input-baseline",
+  "sourceAgentManifest": "tasks/Debugging_02_05/agent/task.json",
+  "agentWorkspaceManifest": "agent-workspace/agent-workspace-manifest.json",
+  "candidateWorkbook": "candidate-01-Incorrect Average_input.xlsx",
+  "note": "copy-input-baseline proves runner/export/scoring plumbing only; it is not a model score."
+}

@@ -1,0 +1,1501 @@
+{
+  "schema": 1,
+  "verifier": "spreadsheetbench_workbook_scorer",
+  "generatedAt": "2026-07-14T09:21:52.006Z",
+  "taskId": "Debugging/03_04",
+  "track": "spreadsheetbench-v2",
+  "mode": "model-edit-plan",
+  "attemptIndex": 3,
+  "repeatIndex": 1,
+  "tryIndex": 1,
+  "candidateWorkbook": "Debugging_03_04/candidate-01-Inconsistent Color Coding_input.xlsx",
+  "agentManifest": "tasks/Debugging_03_04/agent/task.json",
+  "evaluatorManifest": "tasks/Debugging_03_04/evaluator/evaluator.json",
+  "score": {
+    "schema": 1,
+    "generatedAt": "2026-07-14T09:21:52.006Z",
+    "taskId": "Debugging/03_04",
+    "candidateWorkbook": "candidate-01-Inconsistent Color Coding_input.xlsx",
+    "goldWorkbook": "01-03_golden.xlsx",
+    "answerPosition": "'Cover'!B2:E9,'LBO'!B1:V70,'Valuation Bridge'!B2:C8,'Ex 2 - Income Statement'!B2:H38,'Ex 3 - Balance Sheet'!B2:E45,'Ex 8 - Stock Performance'!B2:F40,'Ex 9 - Perf Metrics'!B2:J117,'Ex 10 - Forecast Assumptions '!B2:H50,'Ex 10 - Proj. Income Statement'!B2:H36,'Ex 11 - Multiples'!B2:J40,'Ex 12 - Debt Schedule'!B2:H23,'Ex 13 - Transaction Comps'!B2:G30",
+    "ranges": [
+      "'Cover'!B2:E9",
+      "'LBO'!B1:V70",
+      "'Valuation Bridge'!B2:C8",
+      "'Ex 2 - Income Statement'!B2:H38",
+      "'Ex 3 - Balance Sheet'!B2:E45",
+      "'Ex 8 - Stock Performance'!B2:F40",
+      "'Ex 9 - Perf Metrics'!B2:J117",
+      "'Ex 10 - Forecast Assumptions '!B2:H50",
+      "'Ex 10 - Proj. Income Statement'!B2:H36",
+      "'Ex 11 - Multiples'!B2:J40",
+      "'Ex 12 - Debt Schedule'!B2:H23",
+      "'Ex 13 - Transaction Comps'!B2:G30"
+    ],
+    "totals": {
+      "comparedCells": 4457,
+      "valueMatches": 3910,
+      "formulaCells": 554,
+      "formulaMatches": 554,
+      "styleCells": 0,
+      "styleMatches": 0,
+      "styleLayoutItems": 0,
+      "styleLayoutMatches": 0,
+      "mismatches": 547,
+      "missingSheets": 0
+    },
+    "scores": {
+      "value": 0.877272,
+      "formula": 1,
+      "style": null,
+      "chartPackage": 0,
+      "overall": 0.6257573333333334
+    },
+    "pass": false,
+    "warnings": [
+      "mismatch list capped at 200/547",
+      "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+    ],
+    "mismatches": [
+      {
+        "kind": "value",
+        "sheet": "Cover",
+        "cell": "E4",
+        "expected": "LBO of BWW",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J1",
+        "expected": "2018",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K1",
+        "expected": "2019",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L1",
+        "expected": "2020",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M1",
+        "expected": "2021",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N1",
+        "expected": "2022",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "R1",
+        "expected": "2018",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "S1",
+        "expected": "2019",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "T1",
+        "expected": "2020",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "U1",
+        "expected": "2021",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "V1",
+        "expected": "2022",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "C4",
+        "expected": "Master Control",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "C9",
+        "expected": "Acquisition Assumptions",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "F9",
+        "expected": "Sources & Uses",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "I9",
+        "expected": "Unlevered Free Cash Flow",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J9",
+        "expected": "Unlevered Free Cash Flow",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K9",
+        "expected": "Unlevered Free Cash Flow",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L9",
+        "expected": "Unlevered Free Cash Flow",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M9",
+        "expected": "Unlevered Free Cash Flow",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N9",
+        "expected": "Unlevered Free Cash Flow",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "Q9",
+        "expected": "Returns Summary",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "R9",
+        "expected": "Returns Summary",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "S9",
+        "expected": "Returns Summary",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "T9",
+        "expected": "Returns Summary",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "U9",
+        "expected": "Returns Summary",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "V9",
+        "expected": "Returns Summary",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "C10",
+        "expected": "276.775",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "I10",
+        "expected": "2017E",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J10",
+        "expected": "2018P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K10",
+        "expected": "2019P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L10",
+        "expected": "2020P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M10",
+        "expected": "2021P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N10",
+        "expected": "2022P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "Q10",
+        "expected": "2017E",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "R10",
+        "expected": "2018P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "S10",
+        "expected": "2019P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "T10",
+        "expected": "2020P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "U10",
+        "expected": "2021P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "V10",
+        "expected": "2022P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "F11",
+        "expected": "100",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "I11",
+        "expected": "2077.8",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J11",
+        "expected": "2068.6923686",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K11",
+        "expected": "1991.750501403",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L11",
+        "expected": "1904.68637940854",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M11",
+        "expected": "1813.71091283724",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N11",
+        "expected": "1759.2923877341",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "Q11",
+        "expected": "276.775",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "R11",
+        "expected": "294.105117865",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "S11",
+        "expected": "305.696078757888",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "T11",
+        "expected": "324.65344907765",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "U11",
+        "expected": "339.164553089301",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "V11",
+        "expected": "352.79733461982",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "C12",
+        "expected": "10.3102520097552",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "F12",
+        "expected": "1575",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "Q12",
+        "expected": "10.3102520097552",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "R12",
+        "expected": "10.3102520097552",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "S12",
+        "expected": "10.3102520097552",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "T12",
+        "expected": "10.3102520097552",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "U12",
+        "expected": "10.3102520097552",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "V12",
+        "expected": "10.3102520097552",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "F13",
+        "expected": "485",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "I13",
+        "expected": "276.775",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J13",
+        "expected": "294.105117865",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K13",
+        "expected": "305.696078757888",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L13",
+        "expected": "324.65344907765",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M13",
+        "expected": "339.164553089301",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N13",
+        "expected": "352.79733461982",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "Q13",
+        "expected": "2853.62",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "R13",
+        "expected": "3032.29788254691",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "S13",
+        "expected": "3151.80361038781",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "T13",
+        "expected": "3347.25887582681",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "U13",
+        "expected": "3496.8720151267",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "V13",
+        "expected": "3637.42942830029",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "F14",
+        "expected": "9.907",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "I14",
+        "expected": "0.133205794590432",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J14",
+        "expected": "0.142169576457633",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K14",
+        "expected": "0.153481110481737",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L14",
+        "expected": "0.170449819239252",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M14",
+        "expected": "0.187000337644071",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N14",
+        "expected": "0.20053365607647",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "Q14",
+        "expected": "-2160",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "R14",
+        "expected": "-2085.38616160125",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "S14",
+        "expected": "-1979.94320245648",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "T14",
+        "expected": "-1848.89085794589",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "U14",
+        "expected": "-1694.54585473226",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "V14",
+        "expected": "-1554.44105149301",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "C15",
+        "expected": "20.778",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "F15",
+        "expected": "803.62",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "F16",
+        "expected": "2973.527",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J16",
+        "expected": "149.64",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K16",
+        "expected": "140.88",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L16",
+        "expected": "131.28",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M16",
+        "expected": "121.68",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N16",
+        "expected": "114.48",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "Q16",
+        "expected": "693.62",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "R16",
+        "expected": "946.911720945661",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "S16",
+        "expected": "1171.86040793132",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "T16",
+        "expected": "1498.36801788092",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "U16",
+        "expected": "1802.32616039443",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "V16",
+        "expected": "2082.98837680728",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "I17",
+        "expected": "125.397",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J17",
+        "expected": "144.465117865",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K17",
+        "expected": "164.816078757888",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L17",
+        "expected": "193.37344907765",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M17",
+        "expected": "217.484553089301",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N17",
+        "expected": "238.31733461982",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "Q17",
+        "expected": "803.62",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "R17",
+        "expected": "803.62",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "S17",
+        "expected": "803.62",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "T17",
+        "expected": "803.62",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "U17",
+        "expected": "803.62",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "V17",
+        "expected": "803.62",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "C18",
+        "expected": "Purchase Price Consideration",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "I18",
+        "expected": "0.0603508518625469",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J18",
+        "expected": "0.0698340265850004",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K18",
+        "expected": "0.0827493597424932",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L18",
+        "expected": "0.101525086317727",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M18",
+        "expected": "0.119911366001037",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N18",
+        "expected": "0.135462039329781",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "F19",
+        "expected": "2438.524",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "R19",
+        "expected": "1.1783078083493",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "S19",
+        "expected": "1.45822703259167",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "T19",
+        "expected": "1.8645230555249",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "U19",
+        "expected": "2.24275921504496",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "V19",
+        "expected": "2.59200664095876",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "F20",
+        "expected": "110",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J20",
+        "expected": "0.25",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K20",
+        "expected": "0.25",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L20",
+        "expected": "0.25",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M20",
+        "expected": "0.25",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N20",
+        "expected": "0.25",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "R20",
+        "expected": "0.178307808349296",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "S20",
+        "expected": "0.207570715358598",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "T20",
+        "expected": "0.230805002264421",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "U20",
+        "expected": "0.22375833401477",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "V20",
+        "expected": "0.209838002140421",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "C21",
+        "expected": "2438.524",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "F21",
+        "expected": "425.003",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "C22",
+        "expected": "425.003",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "F22",
+        "expected": "2973.527",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "C23",
+        "expected": "9.907",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J23",
+        "expected": "108.34883839875",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K23",
+        "expected": "123.612059068416",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L23",
+        "expected": "145.030086808238",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M23",
+        "expected": "163.113414816976",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N23",
+        "expected": "178.738000964865",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "C24",
+        "expected": "2853.62",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J24",
+        "expected": "59.4",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K24",
+        "expected": "72",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L24",
+        "expected": "72",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M24",
+        "expected": "72",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N24",
+        "expected": "36",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "C25",
+        "expected": "10.3102520097552",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "F25",
+        "expected": "2963.62",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J25",
+        "expected": "149.64",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K25",
+        "expected": "140.88",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L25",
+        "expected": "131.28",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M25",
+        "expected": "121.68",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N25",
+        "expected": "114.48",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "F26",
+        "expected": "2963.62",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J26",
+        "expected": "-149.64",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K26",
+        "expected": "-140.88",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L26",
+        "expected": "-131.28",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M26",
+        "expected": "-121.68",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N26",
+        "expected": "-114.48",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "C27",
+        "expected": "Leverage Assumptions ($ in millions)",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "C28",
+        "expected": "0.018",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J28",
+        "expected": "167.74883839875",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K28",
+        "expected": "195.612059068416",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L28",
+        "expected": "217.030086808238",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M28",
+        "expected": "235.113414816976",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N28",
+        "expected": "214.738000964865",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "C29",
+        "expected": "0.035",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "I30",
+        "expected": "Debt Schedule",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J30",
+        "expected": "Debt Schedule",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K30",
+        "expected": "Debt Schedule",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L30",
+        "expected": "Debt Schedule",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M30",
+        "expected": "Debt Schedule",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N30",
+        "expected": "Debt Schedule",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "I31",
+        "expected": "2017E",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J31",
+        "expected": "2018E",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K31",
+        "expected": "2019E",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L31",
+        "expected": "2020E",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M31",
+        "expected": "2021E",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N31",
+        "expected": "2022E",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "C32",
+        "expected": "100",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "I32",
+        "expected": "0.018",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J32",
+        "expected": "0.018",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K32",
+        "expected": "0.018",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L32",
+        "expected": "0.018",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M32",
+        "expected": "0.018",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N32",
+        "expected": "0.018",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "I33",
+        "expected": "0.035",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J33",
+        "expected": "0.035",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "K33",
+        "expected": "0.035",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "L33",
+        "expected": "0.035",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "M33",
+        "expected": "0.035",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "N33",
+        "expected": "0.035",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "C35",
+        "expected": "1575",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "LBO",
+        "cell": "J35",
+        "expected": "167.74883839875",
+        "actual": ""
+      }
+    ],
+    "chartPackage": {
+      "schema": 1,
+      "generatedAt": "2026-07-14T09:21:52.006Z",
+      "taskId": "Debugging/03_04",
+      "candidateWorkbook": "candidate-01-Inconsistent Color Coding_input.xlsx",
+      "goldWorkbook": "01-03_golden.xlsx",
+      "verifier": "xlsx_chart_package_static",
+      "totals": {
+        "goldChartParts": 1,
+        "candidateChartParts": 0,
+        "matchedChartParts": 0,
+        "missingChartParts": 1,
+        "extraChartParts": 0,
+        "mismatchedChartParts": 0
+      },
+      "scores": {
+        "package": 0
+      },
+      "pass": false,
+      "candidateParts": [],
+      "goldParts": [
+        {
+          "path": "xl/drawings/drawing1.xml",
+          "kind": "drawing",
+          "sha256": "79685d9523b35d6f3a54c6112873f8d85f1a34fafc6e9c92402bcf8b411261dd",
+          "bytes": 983
+        }
+      ],
+      "mismatches": [
+        {
+          "kind": "missing_chart_part",
+          "path": "xl/drawings/drawing1.xml",
+          "expected": "79685d9523b35d6f3a54c6112873f8d85f1a34fafc6e9c92402bcf8b411261dd"
+        }
+      ],
+      "warnings": [
+        "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+      ]
+    }
+  }
+}

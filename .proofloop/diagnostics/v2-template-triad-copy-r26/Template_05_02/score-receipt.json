@@ -1,0 +1,1525 @@
+{
+  "schema": 1,
+  "verifier": "spreadsheetbench_workbook_scorer",
+  "generatedAt": "2026-07-14T13:03:48.767Z",
+  "taskId": "Template/05_02",
+  "track": "spreadsheetbench-v2",
+  "mode": "copy-input-baseline",
+  "attemptIndex": 2,
+  "repeatIndex": 1,
+  "tryIndex": 1,
+  "candidateWorkbook": "Template_05_02/candidate-01-05_02_input.xlsx",
+  "agentManifest": "tasks/Template_05_02/agent/task.json",
+  "evaluatorManifest": "tasks/Template_05_02/evaluator/evaluator.json",
+  "score": {
+    "schema": 1,
+    "generatedAt": "2026-07-14T13:03:48.767Z",
+    "taskId": "Template/05_02",
+    "candidateWorkbook": "candidate-01-05_02_input.xlsx",
+    "goldWorkbook": "01-05_02_golden.xlsx",
+    "answerPosition": "'DeferredTax'!A2:J34",
+    "ranges": [
+      "'DeferredTax'!A2:J34"
+    ],
+    "totals": {
+      "comparedCells": 330,
+      "valueMatches": 286,
+      "formulaCells": 51,
+      "formulaMatches": 0,
+      "styleCells": 330,
+      "styleMatches": 215,
+      "styleLayoutItems": 44,
+      "styleLayoutMatches": 40,
+      "mismatches": 214,
+      "missingSheets": 0
+    },
+    "scores": {
+      "value": 0.866667,
+      "formula": 0,
+      "style": 0.681818,
+      "chartPackage": null,
+      "overall": 0.5161616666666666
+    },
+    "pass": false,
+    "warnings": [
+      "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+      "chart_package: gold workbook has no chart or drawing XML parts"
+    ],
+    "mismatches": [
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Etica\",\"size\":13},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":13}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B4",
+        "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"},\"left\":{\"style\":\"medium\"},\"right\":{\"style\":\"medium\"},\"top\":{\"style\":\"medium\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFFFFFCC\"},\"fgColor\":{\"argb\":\"FFDEF7C3\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFDEF7C3\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "C6",
+        "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D6",
+        "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E6",
+        "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F6",
+        "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "G6",
+        "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "H6",
+        "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B7",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "C7",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"},\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D7",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"},\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E7",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"},\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F7",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"},\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "H7",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"},\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "I7",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"},\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "J7",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"},\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B8",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "D8",
+        "expected": "120",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D8",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"},\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "E8",
+        "expected": "120",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E8",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"},\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "F8",
+        "expected": "120",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F8",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"},\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "H8",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"},\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "I8",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"},\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "J8",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"},\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "H9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "I9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "J9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B10",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "D10",
+        "expected": "70",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "D10",
+        "expected": "=D8-D9"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D10",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "E10",
+        "expected": "70",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "E10",
+        "expected": "=E8-E9"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E10",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "F10",
+        "expected": "70",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "F10",
+        "expected": "=F8-F9"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F10",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B11",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "D11",
+        "expected": "24.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "D11",
+        "expected": "=D10*0.35"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D11",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "E11",
+        "expected": "24.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "E11",
+        "expected": "=E10*0.35"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E11",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "F11",
+        "expected": "24.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "F11",
+        "expected": "=F10*0.35"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F11",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B12",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "D12",
+        "expected": "45.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "D12",
+        "expected": "=D10-D11"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D12",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "E12",
+        "expected": "45.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "E12",
+        "expected": "=E10-E11"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E12",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "F12",
+        "expected": "45.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "F12",
+        "expected": "=F10-F11"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F12",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B14",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "C14",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D14",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E14",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F14",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B15",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "C15",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "D15",
+        "expected": "84.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "D15",
+        "expected": "=C15+H8-H9-(H8-H9)*0.35"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D15",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "E15",
+        "expected": "130",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "E15",
+        "expected": "=D15+I8-I9-(I8-I9)*0.35"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E15",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "F15",
+        "expected": "136.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "F15",
+        "expected": "=E15+J8-J9-(J8-J9)*0.35"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F15",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B16",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "C16",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "D16",
+        "expected": "21",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "D16",
+        "expected": "=C16+((H8-H9)-(D8-D9))*0.35"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D16",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "E16",
+        "expected": "21",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "E16",
+        "expected": "=D16+((I8-I9)-(E8-E9))*0.35"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E16",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "F16",
+        "expected": "=E16+((J8-J9)-(F8-F9))*0.35"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F16",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B17",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "C17",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "D17",
+        "expected": "75",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "D17",
+        "expected": "=C17"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D17",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "E17",
+        "expected": "75",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "E17",
+        "expected": "=D17"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E17",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "F17",
+        "expected": "75",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "F17",
+        "expected": "=E17"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F17",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B18",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "D18",
+        "expected": "180.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "D18",
+        "expected": "=SUM(D15:D17)"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D18",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "E18",
+        "expected": "226",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "E18",
+        "expected": "=SUM(E15:E17)"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E18",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "F18",
+        "expected": "211.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "F18",
+        "expected": "=SUM(F15:F17)"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F18",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B20",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "C20",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "D20",
+        "expected": "30",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "D20",
+        "expected": "=C20"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D20",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "E20",
+        "expected": "30",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "E20",
+        "expected": "=D20"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E20",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "F20",
+        "expected": "30",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "F20",
+        "expected": "=E20"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F20",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B21",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "C21",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "D21",
+        "expected": "60",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "D21",
+        "expected": "=C21+H8-D8"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D21",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "E21",
+        "expected": "60",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "E21",
+        "expected": "=D21+I8-E8"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E21",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "F21",
+        "expected": "=E21+J8-F8"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F21",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B22",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "C22",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "D22",
+        "expected": "=C22"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D22",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "E22",
+        "expected": "=D22"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E22",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "F22",
+        "expected": "=E22"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F22",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B23",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "D23",
+        "expected": "90",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "D23",
+        "expected": "=SUM(D20:D22)"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D23",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "E23",
+        "expected": "90",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "E23",
+        "expected": "=SUM(E20:E22)"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E23",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "F23",
+        "expected": "30",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "F23",
+        "expected": "=SUM(F20:F22)"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F23",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B25",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "C25",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"italic\":true,\"name\":\"Etica\",\"size\":11},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "D25",
+        "expected": "90.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "D25",
+        "expected": "=C25+D12"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D25",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "E25",
+        "expected": "136",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "E25",
+        "expected": "=D25+E12"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E25",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "F25",
+        "expected": "181.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "F25",
+        "expected": "=E25+F12"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F25",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B26",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "D26",
+        "expected": "=D18-D23-D25"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D26",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "E26",
+        "expected": "=E18-E23-E25"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E26",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "F26",
+        "expected": "=F18-F23-F25"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F26",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B30",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "C30",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D30",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E30",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F30",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B31",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "D31",
+        "expected": "45.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "D31",
+        "expected": "=D12"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D31",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "E31",
+        "expected": "45.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "E31",
+        "expected": "=E12"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E31",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "F31",
+        "expected": "45.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "F31",
+        "expected": "=F12"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F31",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B32",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "D32",
+        "expected": "-21",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "D32",
+        "expected": "=C16-D16"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D32",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "E32",
+        "expected": "=D16-E16"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E32",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "F32",
+        "expected": "21",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "F32",
+        "expected": "=E16-F16"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F32",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B33",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "D33",
+        "expected": "60",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "D33",
+        "expected": "=D21-C21"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D33",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "E33",
+        "expected": "=E21-D21"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E33",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "F33",
+        "expected": "-60",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "F33",
+        "expected": "=F21-E21"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F33",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "B34",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Etica\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Etica\",\"size\":11}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "D34",
+        "expected": "84.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "D34",
+        "expected": "=SUM(D31:D33)"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "D34",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "E34",
+        "expected": "45.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "E34",
+        "expected": "=SUM(E31:E33)"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "E34",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DeferredTax",
+        "cell": "F34",
+        "expected": "6.5",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DeferredTax",
+        "cell": "F34",
+        "expected": "=SUM(F31:F33)"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "F34",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "column:B",
+        "expected": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":28.58}",
+        "actual": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":28.57421875}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "column:C",
+        "expected": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":11.58}",
+        "actual": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":11.421875}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "column:G",
+        "expected": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":2.86}",
+        "actual": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":2.8515625}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DeferredTax",
+        "cell": "column:H",
+        "expected": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":11.58}",
+        "actual": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":11.421875}"
+      }
+    ],
+    "chartPackage": {
+      "schema": 1,
+      "generatedAt": "2026-07-14T13:03:48.767Z",
+      "taskId": "Template/05_02",
+      "candidateWorkbook": "candidate-01-05_02_input.xlsx",
+      "goldWorkbook": "01-05_02_golden.xlsx",
+      "verifier": "xlsx_chart_package_static",
+      "totals": {
+        "goldChartParts": 0,
+        "candidateChartParts": 0,
+        "matchedChartParts": 0,
+        "missingChartParts": 0,
+        "extraChartParts": 0,
+        "mismatchedChartParts": 0
+      },
+      "scores": {
+        "package": 0
+      },
+      "pass": false,
+      "candidateParts": [],
+      "goldParts": [],
+      "mismatches": [],
+      "warnings": [
+        "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+        "gold workbook has no chart or drawing XML parts"
+      ]
+    }
+  }
+}

@@ -1,0 +1,85 @@
+﻿{
+  "id": "dpl_AWywAp1UDEJSDD5JZMDE4q1AeshC",
+  "name": "noderoom",
+  "url": "noderoom-nog5ogpwl-hshum2018-gmailcoms-projects.vercel.app",
+  "target": "production",
+  "readyState": "READY",
+  "createdAt": 1783582124122,
+  "aliases": [
+    "noderoom.live",
+    "nodeagent.live",
+    "www.noderoom.live",
+    "www.nodeagent.live",
+    "noderoom.vercel.app",
+    "noderoom-hshum2018-gmailcoms-projects.vercel.app",
+    "noderoom-hshum2018-5891-hshum2018-gmailcoms-projects.vercel.app"
+  ],
+  "builds": [
+    {
+      "id": "bld_i0vm3u0vh",
+      "deploymentId": "dpl_AWywAp1UDEJSDD5JZMDE4q1AeshC",
+      "entrypoint": ".",
+      "readyState": "READY",
+      "readyStateAt": 1783582123794,
+      "createdAt": 1783582123794,
+      "createdIn": "sfo1",
+      "use": "@vercel/vc-build",
+      "config": {
+        "framework": "vite",
+        "nodeVersion": "24.x",
+        "projectCreatedAt": 1780953204253,
+        "vercelConfig": {
+          "headers": [
+            {
+              "source": "/(.*)",
+              "headers": [
+                {
+                  "key": "Content-Security-Policy",
+                  "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'sha256-hb0zYZIC9IrKZAQ+4xS6BSIeMLZF86SWtZjZF/orFFc=' 'sha256-bWx4uSGZFuCium2h6YadKNuYaGAVSDZVKAE/1dLG4zw=' 'sha256-WsfxFQzld9Jgu6icfWIN+5zfYXBUczxI1DDAiPrLAFA='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.convex.cloud https://*.convex.site wss://*.convex.cloud wss://*.convex.site https://openrouter.ai; media-src 'self' blob: data:; worker-src 'self' blob:; manifest-src 'self'; upgrade-insecure-requests"
+                },
+                {
+                  "key": "Strict-Transport-Security",
+                  "value": "max-age=63072000; includeSubDomains; preload"
+                },
+                {
+                  "key": "X-Content-Type-Options",
+                  "value": "nosniff"
+                },
+                {
+                  "key": "X-Frame-Options",
+                  "value": "DENY"
+                },
+                {
+                  "key": "Referrer-Policy",
+                  "value": "strict-origin-when-cross-origin"
+                },
+                {
+                  "key": "Permissions-Policy",
+                  "value": "camera=(), microphone=(self), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), interest-cohort=()"
+                },
+                {
+                  "key": "Cross-Origin-Opener-Policy",
+                  "value": "same-origin"
+                },
+                {
+                  "key": "X-Permitted-Cross-Domain-Policies",
+                  "value": "none"
+                },
+                {
+                  "key": "X-DNS-Prefetch-Control",
+                  "value": "off"
+                }
+              ]
+            }
+          ],
+          "name": "noderoom",
+          "version": 2
+        }
+      },
+      "middleware": [],
+      "output": [],
+      "fingerprint": null
+    }
+  ],
+  "contextName": "hshum2018-gmailcoms-projects"
+}

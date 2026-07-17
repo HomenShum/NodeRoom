@@ -1,0 +1,374 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-09T10:38:26.791Z",
+  "track": "spreadsheetbench-v2",
+  "expectedTaskCount": 321,
+  "status": "proxy_receipts_complete",
+  "officialScoreClaim": {
+    "allowed": false,
+    "policy": "accepted_official_scorer_receipt_required",
+    "blocker": "accepted official scorer receipt is missing: docs/eval/spreadsheetbench-v2-accepted-official-scorer-receipt.json"
+  },
+  "officialModelRunClaim": {
+    "allowed": false,
+    "policy": "full_model_generated_run_required_for_official_promotion",
+    "requiredTaskCount": 321,
+    "validTaskCount": 0,
+    "missingTaskCount": 321,
+    "nextMissingOffset": 0,
+    "nextMissingTaskIds": [
+      "Debugging/01_01",
+      "Debugging/01_02",
+      "Debugging/01_03",
+      "Debugging/01_04",
+      "Debugging/01_05",
+      "Debugging/01_06",
+      "Debugging/01_07",
+      "Debugging/01_08",
+      "Debugging/01_09",
+      "Debugging/01_10"
+    ],
+    "resumeHint": "npm run benchmark:spreadsheetbench:run-chunked -- --stage-root .tmp/official-benchmarks/staged-v2-full --output-root .tmp/official-benchmarks/run-v2-full-model --json-out docs/eval/spreadsheetbench-v2-full-model-run.json --mode model-edit-plan --model openrouter/free-auto --chunk-size 25 --offset 0",
+    "blocker": "full model-generated run receipt coverage is incomplete: 0/321 model-edit-plan task(s) validate"
+  },
+  "localProxyReceiptClaim": {
+    "allowed": true,
+    "policy": "local_workbook_scorer_receipts_are_proxy_not_official",
+    "score": {
+      "averageOverall": 0.523397,
+      "passRate": 0,
+      "passCount": 0,
+      "scoredTaskCount": 321,
+      "source": "validated_scorer_receipts"
+    }
+  },
+  "localProxyOutputClaim": {
+    "allowed": true,
+    "policy": "candidate_output_receipts_are_proxy_not_official_scores",
+    "receiptCount": 321
+  },
+  "artifacts": {
+    "stageReport": {
+      "path": "docs/eval/spreadsheetbench-v2-full-stage.json",
+      "status": "present",
+      "bytes": 174227,
+      "sha256": "95b6bd36c7882011ae10ff6d00502e80f848683f3c49533cecc21a93aafc60c0"
+    },
+    "runReports": [
+      {
+        "path": "docs/eval/spreadsheetbench-v2-free-route-model-run-probe.json",
+        "status": "present",
+        "bytes": 2802,
+        "sha256": "d5192f74a17b38c09bc9d172684b777c83a27149f40727a9754f9e65867950de"
+      },
+      {
+        "path": "docs/eval/spreadsheetbench-v2-cohere-free-model-run-probe.json",
+        "status": "present",
+        "bytes": 3121,
+        "sha256": "2b01601f3c652e5913dc764f50bc907d837a65983a8b0739ea73ba00bd04bee4"
+      },
+      {
+        "path": "docs/eval/spreadsheetbench-v2-full-copy-input-run.json",
+        "status": "present",
+        "bytes": 3331670,
+        "sha256": "93f9fe2e838af58e8bc7624f4402800a3bbe8b6db0e4f78bad320b1f8c6bf08f"
+      },
+      {
+        "path": "docs/eval/spreadsheetbench-v2-copy-input-retry-debugging04.json",
+        "status": "present",
+        "bytes": 95551,
+        "sha256": "68760a42186877927eeecec3b6402eba2214940c1eb20bdce39c00640607f0de"
+      },
+      {
+        "path": "docs/eval/spreadsheetbench-v2-copy-input-retry-financial02.json",
+        "status": "present",
+        "bytes": 44186,
+        "sha256": "09217c6922a3cb45264c5e175fd9b36260a5a8e7f6654482fb3032cb056c3992"
+      },
+      {
+        "path": "docs/eval/spreadsheetbench-v2-copy-input-retry-financial14.json",
+        "status": "present",
+        "bytes": 62850,
+        "sha256": "63bc345869b55ba0394582c1e46920937caa004c5840903f44bcfa218a01e070"
+      }
+    ],
+    "routeSelection": {
+      "path": "docs/eval/spreadsheetbench-v2-route-selection.json",
+      "status": "present",
+      "bytes": 126776,
+      "sha256": "5964bae54c160902994f55cd1fce1aedd56fac5a6427cf23f6a60827c35cc55e"
+    },
+    "outputReceiptReport": {
+      "path": "docs/eval/spreadsheetbench-v2-321-local-proxy-output-receipts.json",
+      "status": "present",
+      "bytes": 203081,
+      "sha256": "8a2c897ad5d8f0e3af74496d9838fc1675a1fdfa56bb6615c1582f8abe331176"
+    },
+    "officialScorerReceipt": {
+      "path": "docs/eval/spreadsheetbench-v2-accepted-official-scorer-receipt.json",
+      "status": "missing"
+    }
+  },
+  "coverage": {
+    "stagedTaskCount": 321,
+    "runTaskCount": 343,
+    "uniqueRunTaskCount": 321,
+    "requiredScorerReceiptCount": 321,
+    "validScorerReceiptCount": 321,
+    "missingScorerReceiptCount": 0,
+    "invalidScorerReceiptCount": 0,
+    "validOutputReceiptCount": 321,
+    "missingOutputReceiptCount": 0,
+    "invalidOutputReceiptCount": 0
+  },
+  "checkpoint": {
+    "status": "complete",
+    "nextMissingTaskIds": [],
+    "remainingTaskCount": 0
+  },
+  "shards": [
+    {
+      "id": "run-1",
+      "path": "docs/eval/spreadsheetbench-v2-free-route-model-run-probe.json",
+      "status": "partial",
+      "taskCount": 1,
+      "scoredTaskCount": 0,
+      "validScorerReceiptCount": 0,
+      "providerCostUsd": 0
+    },
+    {
+      "id": "run-2",
+      "path": "docs/eval/spreadsheetbench-v2-cohere-free-model-run-probe.json",
+      "status": "partial",
+      "taskCount": 1,
+      "scoredTaskCount": 0,
+      "validScorerReceiptCount": 0,
+      "providerCostUsd": 0
+    },
+    {
+      "id": "run-3",
+      "path": "docs/eval/spreadsheetbench-v2-full-copy-input-run.json",
+      "status": "partial",
+      "taskCount": 321,
+      "scoredTaskCount": 301,
+      "validScorerReceiptCount": 301,
+      "providerCostUsd": 0
+    },
+    {
+      "id": "run-3-chunk-1",
+      "path": ".tmp/official-benchmarks/run-v2-full-copy-input/.chunks/chunk-001-0-25.json",
+      "status": "complete",
+      "offset": 0,
+      "limit": 25,
+      "taskCount": 25,
+      "scoredTaskCount": 25,
+      "validScorerReceiptCount": 0,
+      "providerCostUsd": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "run-3-chunk-2",
+      "path": ".tmp/official-benchmarks/run-v2-full-copy-input/.chunks/chunk-002-25-25.json",
+      "status": "complete",
+      "offset": 25,
+      "limit": 25,
+      "taskCount": 25,
+      "scoredTaskCount": 25,
+      "validScorerReceiptCount": 0,
+      "providerCostUsd": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "run-3-chunk-3",
+      "path": ".tmp/official-benchmarks/run-v2-full-copy-input/.chunks/chunk-003-50-25.json",
+      "status": "complete",
+      "offset": 50,
+      "limit": 25,
+      "taskCount": 25,
+      "scoredTaskCount": 25,
+      "validScorerReceiptCount": 0,
+      "providerCostUsd": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "run-3-chunk-4",
+      "path": ".tmp/official-benchmarks/run-v2-full-copy-input/.chunks/chunk-004-75-25.json",
+      "status": "complete",
+      "offset": 75,
+      "limit": 25,
+      "taskCount": 25,
+      "scoredTaskCount": 25,
+      "validScorerReceiptCount": 0,
+      "providerCostUsd": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "run-3-chunk-5",
+      "path": ".tmp/official-benchmarks/run-v2-full-copy-input/.chunks/chunk-005-100-25.json",
+      "status": "complete",
+      "offset": 100,
+      "limit": 25,
+      "taskCount": 25,
+      "scoredTaskCount": 25,
+      "validScorerReceiptCount": 0,
+      "providerCostUsd": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "run-3-chunk-6",
+      "path": ".tmp/official-benchmarks/run-v2-full-copy-input/.chunks/chunk-006-125-25.json",
+      "status": "complete",
+      "offset": 125,
+      "limit": 25,
+      "taskCount": 25,
+      "scoredTaskCount": 25,
+      "validScorerReceiptCount": 0,
+      "providerCostUsd": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "run-3-chunk-7",
+      "path": ".tmp/official-benchmarks/run-v2-full-copy-input/.chunks/chunk-007-150-25.json",
+      "status": "complete",
+      "offset": 150,
+      "limit": 25,
+      "taskCount": 25,
+      "scoredTaskCount": 25,
+      "validScorerReceiptCount": 0,
+      "providerCostUsd": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "run-3-chunk-8",
+      "path": ".tmp/official-benchmarks/run-v2-full-copy-input/.chunks/chunk-008-175-25.json",
+      "status": "complete",
+      "offset": 175,
+      "limit": 25,
+      "taskCount": 25,
+      "scoredTaskCount": 25,
+      "validScorerReceiptCount": 0,
+      "providerCostUsd": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "run-3-chunk-9",
+      "path": ".tmp/official-benchmarks/run-v2-full-copy-input/.chunks/chunk-009-200-25.json",
+      "status": "complete",
+      "offset": 200,
+      "limit": 25,
+      "taskCount": 25,
+      "scoredTaskCount": 25,
+      "validScorerReceiptCount": 0,
+      "providerCostUsd": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "run-3-chunk-10",
+      "path": ".tmp/official-benchmarks/run-v2-full-copy-input/.chunks/chunk-010-225-25.json",
+      "status": "complete",
+      "offset": 225,
+      "limit": 25,
+      "taskCount": 25,
+      "scoredTaskCount": 25,
+      "validScorerReceiptCount": 0,
+      "providerCostUsd": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "run-3-chunk-11",
+      "path": ".tmp/official-benchmarks/run-v2-full-copy-input/.chunks/chunk-011-250-25.json",
+      "status": "complete",
+      "offset": 250,
+      "limit": 25,
+      "taskCount": 25,
+      "scoredTaskCount": 25,
+      "validScorerReceiptCount": 0,
+      "providerCostUsd": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "run-3-chunk-12",
+      "path": ".tmp/official-benchmarks/run-v2-full-copy-input/.chunks/chunk-012-275-25.json",
+      "status": "complete",
+      "offset": 275,
+      "limit": 25,
+      "taskCount": 25,
+      "scoredTaskCount": 25,
+      "validScorerReceiptCount": 0,
+      "providerCostUsd": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "run-3-chunk-13",
+      "path": ".tmp/official-benchmarks/run-v2-full-copy-input/.chunks/chunk-013-300-21.json",
+      "status": "complete",
+      "offset": 300,
+      "limit": 21,
+      "taskCount": 21,
+      "scoredTaskCount": 21,
+      "validScorerReceiptCount": 0,
+      "providerCostUsd": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "run-4",
+      "path": "docs/eval/spreadsheetbench-v2-copy-input-retry-debugging04.json",
+      "status": "complete",
+      "taskCount": 10,
+      "scoredTaskCount": 10,
+      "validScorerReceiptCount": 10,
+      "providerCostUsd": 0
+    },
+    {
+      "id": "run-5",
+      "path": "docs/eval/spreadsheetbench-v2-copy-input-retry-financial02.json",
+      "status": "complete",
+      "taskCount": 5,
+      "scoredTaskCount": 5,
+      "validScorerReceiptCount": 5,
+      "providerCostUsd": 0
+    },
+    {
+      "id": "run-6",
+      "path": "docs/eval/spreadsheetbench-v2-copy-input-retry-financial14.json",
+      "status": "complete",
+      "taskCount": 5,
+      "scoredTaskCount": 5,
+      "validScorerReceiptCount": 5,
+      "providerCostUsd": 0
+    }
+  ],
+  "routeCostLedger": {
+    "policy": "free_local_proxy_only",
+    "modelCalls": 1,
+    "inputTokens": 33409,
+    "outputTokens": 21645,
+    "providerCostUsd": 0,
+    "paidProviderCostUsd": 0,
+    "routes": [
+      {
+        "route": "cohere/north-mini-code:free",
+        "taskCount": 1,
+        "modelCalls": 1,
+        "providerCostUsd": 0
+      },
+      {
+        "route": "local/copy-input-baseline",
+        "taskCount": 341,
+        "modelCalls": 0,
+        "providerCostUsd": 0
+      },
+      {
+        "route": "openrouter/free-auto",
+        "taskCount": 1,
+        "modelCalls": 0,
+        "providerCostUsd": 0
+      }
+    ]
+  },
+  "blockers": [
+    "full model-generated run receipt coverage is incomplete: 0/321 model-edit-plan task(s) validate",
+    "accepted official scorer receipt is missing: docs/eval/spreadsheetbench-v2-accepted-official-scorer-receipt.json"
+  ],
+  "warnings": []
+}

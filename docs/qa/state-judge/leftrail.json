@@ -1,23 +1,23 @@
 {
   "surface": "leftrail",
   "judgeModel": "gemini-3.5-flash",
-  "judgedAt": "2026-06-11T21:16:23.531Z",
+  "judgedAt": "2026-07-12T11:10:27.531Z",
   "stateCount": 3,
   "scores": {
     "state_legibility": 6,
-    "affordance_honesty": 5,
+    "affordance_honesty": 4,
     "consistency": 6,
-    "contrast": 7,
+    "contrast": 5,
     "polish": 6
   },
-  "average": 6,
+  "average": 5.4,
   "pass": false,
   "topIssues": [
-    "image 3 (static-hover): 'Agent wiki' is stated to be the selected open artifact, yet 'Q3 variance' retains the terracotta selection styling, creating a dual-selection conflict.",
-    "image 3 (static-hover): No visual distinction exists between image 2 and image 3 to demonstrate that the NetSuite row is being hovered inertly."
+    "image 3 (static-hover): The inert Permissions row displays a prominent background container, violating the requirement to remain muted and not highlight.",
+    "image 3 (static-hover): The status text at the very bottom under Room NodeAgent is clipped and has extremely low contrast against the dark background."
   ],
   "fixSuggestions": [
-    "Ensure the terracotta selection accent strictly follows the active open artifact ('Agent wiki' in image 3) and clears from previous selections.",
-    "Introduce a subtle cursor state or tooltip in mockups to clearly differentiate inert hover states from default static states."
+    "Remove the background container from the inert Permissions row in image 3 to ensure it remains visually muted.",
+    "Increase contrast and prevent clipping for the bottom status text under Room NodeAgent."
   ]
 }

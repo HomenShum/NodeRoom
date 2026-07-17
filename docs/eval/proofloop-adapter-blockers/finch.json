@@ -2,9 +2,9 @@
   "schema": "proofloop-external-adapter-blocker-v1",
   "adapterId": "finch",
   "name": "Finch / FinWorkBench",
-  "status": "blocked_external",
+  "status": "ready",
   "localImplementationStatus": "ready",
-  "officialScoreStatus": "blocked_external",
+  "officialScoreStatus": "imported",
   "officialSourceUrls": [
     "https://arxiv.org/abs/2512.13168",
     "https://github.com/FinWorkBench/Finch",
@@ -16,19 +16,18 @@
   "officialScoreReceiptPath": "docs/eval/proofloop-official-scores/finch.json",
   "officialTaskBundleManifestPath": "docs/eval/proofloop-official-task-bundles/finch.json",
   "validationErrors": [],
-  "blockers": [
-    "finch: official scorer receipt docs/eval/proofloop-official-scores/finch.json is blocked_external; scored receipt is still required before claiming score. No Azure OpenAI judge credentials are present in this shell: AZURE endpoint, API key, API version, and deployment name are all required by src/call_gpt_judge.py. Upstream Finch content_parts rendering is 0/172; official Azure judge input remains incomplete even though model-output artifacts are complete."
-  ],
+  "blockers": [],
   "officialCommandPlan": [
     "Clone/lock https://github.com/FinWorkBench/Finch and https://huggingface.co/datasets/FinWorkBench/Finch.",
     "Run the upstream Finch prompt_build_pipeline against the locked official task split.",
     "Run the upstream Finch call_gpt_judge scorer on NodeRoom output artifacts.",
-    "Import the official judge JSON into docs/eval/proofloop-adapter-blockers/finch.json before claiming score."
+    "Import the accepted official judge JSON into docs/eval/proofloop-official-scores/finch.json, then refresh the adapter-blocker receipt before claiming score."
   ],
   "resumeCommands": [
     "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict",
     "npm run benchmark:proofloop:external-adapter -- --id finch --prod --user-emulation strict",
     "npm run benchmark:proofloop:adapter-blockers -- --id finch",
+    "npx tsx scripts/proofloop-official-score-import.ts --id finch --input docs/eval/proofloop-official-scores/finch.json --json-out docs/eval/proofloop-official-score-imports/finch.json",
     "import docs/eval/proofloop-official-scores/finch.json from the upstream official scorer",
     "stage docs/eval/proofloop-official-task-bundles/finch.json from the locked official task bundle",
     "npm run benchmark:proofloop:external-adapter-live-room -- --id finch --prod --user-emulation strict --cockpit",
@@ -42,6 +41,72 @@
     "docs/eval/proofloop-official-outputs/finch.json",
     "docs/eval/proofloop-official-task-bundles/finch.json",
     ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
-    ".tmp/official-benchmarks/proofloop-official-outputs/finch"
-  ]
+    ".tmp/official-benchmarks/proofloop-official-outputs/finch/eval_set/noderoom-source-workbook-baseline/content_parts.jsonl",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finch",
+    "docs/eval/proofloop-official-scores/finch.json",
+    ".tmp/official-benchmarks/finch-canonical-hashbound/finch-judge-receipt.json",
+    "docs/eval/proofloop-official-score-imports/finch.json"
+  ],
+  "officialScoreReadiness": {
+    "schema": "proofloop-official-score-import-readiness-v1",
+    "adapterId": "finch",
+    "receiptPath": "docs/eval/proofloop-official-scores/finch.json",
+    "status": "accepted",
+    "scoreClaim": true,
+    "officialScoreClaimable": true,
+    "acceptedExternalScorerReceipt": true,
+    "acceptedExternalScorerKind": "finch_canonical_judge",
+    "pendingExternalScorerReceipt": false,
+    "pendingExternalScorerKind": null,
+    "requiredAcceptedReceipt": "accepted canonical Finch GPT-5-mini judge receipt over full content_parts.jsonl coverage",
+    "metrics": {
+      "officialTaskCount": 172,
+      "outputTaskCount": 172,
+      "predictionRowCount": null,
+      "contentPartsCount": 172
+    },
+    "boundary": {
+      "productPath": {
+        "status": "complete",
+        "officialScoreClaim": false,
+        "reason": "NodeRoom model-output artifacts cover the official Finch task set; this is product/export evidence, not an official score.",
+        "evidence": [
+          "docs/eval/proofloop-official-outputs/finch.json",
+          "docs/eval/proofloop-official-task-bundles/finch.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finch/eval_set/noderoom-source-workbook-baseline/content_parts.jsonl",
+          ".tmp/official-benchmarks/proofloop-official-outputs/finch"
+        ]
+      },
+      "proxy": {
+        "status": "proxy_only",
+        "officialScoreClaim": false,
+        "reason": "Proxy/product-path receipts can triage quality and prove local workflow shape, but they are not accepted upstream official scorer receipts.",
+        "evidence": [
+          "docs/eval/proofloop-external-adapter-runs/finch.json",
+          "docs/eval/proofloop-external-adapter-live-room-runs/finch.json"
+        ]
+      },
+      "officialScorer": {
+        "status": "accepted",
+        "officialScoreClaim": true,
+        "requiredAcceptedReceipt": "accepted canonical Finch GPT-5-mini judge receipt over full content_parts.jsonl coverage",
+        "evidence": [
+          "docs/eval/proofloop-official-scores/finch.json",
+          ".tmp/official-benchmarks/finch-canonical-hashbound/finch-judge-receipt.json"
+        ]
+      }
+    },
+    "blockers": [],
+    "evidence": [
+      "docs/eval/proofloop-official-outputs/finch.json",
+      "docs/eval/proofloop-official-task-bundles/finch.json",
+      ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
+      ".tmp/official-benchmarks/proofloop-official-outputs/finch/eval_set/noderoom-source-workbook-baseline/content_parts.jsonl",
+      ".tmp/official-benchmarks/proofloop-official-outputs/finch",
+      "docs/eval/proofloop-official-scores/finch.json",
+      ".tmp/official-benchmarks/finch-canonical-hashbound/finch-judge-receipt.json",
+      "docs/eval/proofloop-official-score-imports/finch.json"
+    ]
+  }
 }

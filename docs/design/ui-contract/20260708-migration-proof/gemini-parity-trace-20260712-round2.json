@@ -1,0 +1,137 @@
+{
+  "generatedAt": "2026-07-12T12:13:36.685Z",
+  "model": "gemini-3.5-flash",
+  "media": ".proofloop/proofs/visual-parity/desktop-1456x940/trace.png",
+  "reference": "docs/design/ui-contract/20260708-migration-proof/standalone-interior-trace.png",
+  "rubricMean": 3.7,
+  "lowestDim": {
+    "dim": "product.whyTrust",
+    "score": 3
+  },
+  "betterThanReference": [
+    "product:worse",
+    "hierarchy-typography:worse",
+    "layout-spacing:worse",
+    "color-state:worse"
+  ],
+  "counts": {
+    "P0": 0,
+    "P1": 4,
+    "P2": 6
+  },
+  "passBar": false,
+  "lensScores": [
+    {
+      "lens": "product",
+      "scores": {
+        "whatIsHappening": 4,
+        "whyTrust": 3,
+        "whatNext": 5
+      }
+    },
+    {
+      "lens": "hierarchy-typography",
+      "scores": {
+        "hierarchy": 3,
+        "typography": 3
+      }
+    },
+    {
+      "lens": "layout-spacing",
+      "scores": {
+        "spacingRhythm": 4,
+        "alignment": 4,
+        "density": 4
+      }
+    },
+    {
+      "lens": "color-state",
+      "scores": {
+        "colorDiscipline": 3,
+        "stateSignal": 4
+      }
+    }
+  ],
+  "findings": [
+    {
+      "lens": "product",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Chat message version badges",
+      "issue": "The NodeAgent reconciliation messages display static 'v1 -> v1' badges instead of the progressive state transitions ('v41 -> v42' and 'v42 -> v43'), breaking the provenance chain.",
+      "fix": "Update the version badges in the chat messages to display the correct progressive state transitions."
+    },
+    {
+      "lens": "product",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "synthesis.answer row header",
+      "issue": "Missing the inline cost warning badge ('$0.14 ▲') next to the row title, which hides the cost spike from the high-level trace view.",
+      "fix": "Add the '$0.14 ▲' warning badge next to the 'synthesis.answer' label in the trace tree."
+    },
+    {
+      "lens": "product",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Confidence metadata row",
+      "issue": "The confidence transition text is overly verbose ('0.82 - draft - Revenue + COGS variance -> committed') and conflicts with the global 'Draft' status bar state.",
+      "fix": "Simplify the confidence metadata text to '0.82 -> draft' to align with the reference."
+    },
+    {
+      "lens": "hierarchy-typography",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Left sidebar navigation items",
+      "issue": "Excessively heavy font weight (bold) on sidebar items makes the navigation chrome too prominent, failing to let it recede.",
+      "fix": "Reduce the font weight of sidebar items to regular/medium to match the Reference."
+    },
+    {
+      "lens": "hierarchy-typography",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Trace tree node labels",
+      "issue": "Node labels (e.g., 'context.gather', 'fetch.cardionova.com') are rendered in a heavy bold font, disrupting the sober hierarchy of the trace view.",
+      "fix": "Change the font weight of trace node labels to regular/medium as seen in the Reference."
+    },
+    {
+      "lens": "hierarchy-typography",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Room chat message body text",
+      "issue": "Chat message text is too bold, which reduces the hierarchical distinction between sender names and message content.",
+      "fix": "Set the chat message body text to a lighter, regular weight to match the Reference."
+    },
+    {
+      "lens": "layout-spacing",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "synthesis.answer metadata rows",
+      "issue": "Excessive vertical padding on the nested detail rows (tokens.in, tokens.out, cost, confidence) breaks the visual grouping with their parent node, making the trace list feel loose.",
+      "fix": "Reduce vertical padding of the metadata rows to 6px to restore the compact, cohesive grouping seen in the reference."
+    },
+    {
+      "lens": "layout-spacing",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Run trace active tab indicator",
+      "issue": "The orange active indicator line under the 'Run trace' tab is stretched wider than the text label, creating uneven horizontal spacing in the top navigation bar.",
+      "fix": "Align the active indicator line's width precisely to the 'Run trace' text label and maintain a consistent 16px gap between tabs."
+    },
+    {
+      "lens": "layout-spacing",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Chat input container",
+      "issue": "Inconsistent inner padding around the action buttons (attachment, link, and send icons) inside the message input box, pushing the send button too close to the right edge.",
+      "fix": "Apply a uniform 12px inset padding to the input container to align all control icons cleanly with the text placeholder."
+    },
+    {
+      "lens": "color-state",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Left sidebar icons",
+      "issue": "Icons in the Room Binder sidebar are colored in terracotta/orange, violating the 'neutral at rest' rule and diluting the singular agent focus accent.",
+      "fix": "Render all sidebar icons in neutral gray/white outlines to match the reference design."
+    }
+  ]
+}

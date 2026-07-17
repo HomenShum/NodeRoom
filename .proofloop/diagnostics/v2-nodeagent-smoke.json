@@ -1,0 +1,1598 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-14T10:06:07.025Z",
+  "stageRoot": "staged-v2-full",
+  "outputRoot": "v2-nodeagent-smoke",
+  "mode": "nodeagent-workbook",
+  "taskOffset": 0,
+  "taskCount": 1,
+  "passCount": 0,
+  "averageOverall": 0.42967,
+  "caseCount": 1,
+  "caseRunCount": 1,
+  "casePassCount": 0,
+  "casePassRate": 0,
+  "repeatCount": 1,
+  "attemptCount": 1,
+  "passRate": 0,
+  "retryPolicy": {
+    "maxRetries": 0,
+    "retryOn": [
+      "candidate_generation",
+      "scoring"
+    ],
+    "stopOnPass": true
+  },
+  "retryStats": {
+    "retriedCaseRunCount": 0,
+    "retryAttemptCount": 0,
+    "passedAfterRetryCount": 0,
+    "exhaustedCaseRunCount": 0
+  },
+  "stats": {
+    "latencyMs": {
+      "p50": 41888,
+      "p95": 41888,
+      "max": 41888
+    },
+    "failureCounts": {}
+  },
+  "harness": {
+    "toolPolicy": "agent_dir_only_until_candidate",
+    "evaluatorAccess": "after_candidate_emit_only",
+    "modelContextPolicy": {
+      "batchSize": 1,
+      "snapshotMaxCells": 1200,
+      "snapshotMaxCellChars": 256,
+      "instructionMaxChars": null,
+      "repairAttempts": 1,
+      "selectedTaskCount": 1
+    },
+    "budget": {
+      "modelCalls": 15,
+      "inputTokens": 97470,
+      "outputTokens": 3203,
+      "providerCostUsd": 0
+    }
+  },
+  "warnings": [],
+  "caseRuns": [
+    {
+      "taskId": "Template/14_09",
+      "taskDir": "tasks/Template_14_09",
+      "repeatIndex": 1,
+      "attempts": [
+        1
+      ],
+      "finalAttemptIndex": 1,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.42967
+    }
+  ],
+  "results": [
+    {
+      "taskId": "Template/14_09",
+      "track": "spreadsheetbench-v2",
+      "category": "Template",
+      "mode": "nodeagent-workbook",
+      "attemptIndex": 1,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Template_14_09",
+      "agentManifest": "tasks/Template_14_09/agent/task.json",
+      "evaluatorManifest": "tasks/Template_14_09/evaluator/evaluator.json",
+      "candidateWorkbook": "Template_14_09/candidate-01-14_09_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Template_14_09/candidate-manifest.json",
+          "sha256": "38cd11aa93fc95c33f883331c07161f5c54bbbe61858700ca719e557987904a2",
+          "bytes": 1101
+        },
+        "agentWorkspaceManifest": {
+          "path": "Template_14_09/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "87f769ae59ec2f58931a4efaba2e5d8ef08866e83cfc16965aa801b2099f6dec",
+          "bytes": 505
+        },
+        "nodeAgentReceipt": {
+          "path": "Template_14_09/nodeagent-workbook-receipt.json",
+          "sha256": "358a34175401af146fd2f71da361f4a187ae615f430465089c7d3163eabd3435",
+          "bytes": 106519
+        },
+        "nodeAgentTrace": {
+          "path": "Template_14_09/nodeagent-workbook-trace.json",
+          "sha256": "88d42254ed95efbe84ded5af7e3cdca6454d7dd0fc6d6cb2857c7c439de00c54",
+          "bytes": 26233
+        },
+        "appliedOperationCount": 10,
+        "repairAttemptCount": 2,
+        "verificationStatus": "needs_repair"
+      },
+      "scorerReceipt": {
+        "path": "Template_14_09/score-receipt.json",
+        "sha256": "fc37926f7e2763dd995994f2fd9941673c58adc9ae0a52e559b3ee64b86cede3",
+        "bytes": 124644
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-14T10:06:07.025Z",
+        "taskId": "Template/14_09",
+        "candidateWorkbook": "candidate-01-14_09_input.xlsx",
+        "goldWorkbook": "01-14_09_golden.xlsx",
+        "answerPosition": "'Revenue_Projection'!B2:I46",
+        "ranges": [
+          "'Revenue_Projection'!B2:I46"
+        ],
+        "totals": {
+          "comparedCells": 360,
+          "valueMatches": 291,
+          "formulaCells": 69,
+          "formulaMatches": 0,
+          "styleCells": 360,
+          "styleMatches": 156,
+          "styleLayoutItems": 54,
+          "styleLayoutMatches": 43,
+          "mismatches": 353,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.808333,
+          "formula": 0,
+          "style": 0.480676,
+          "chartPackage": null,
+          "overall": 0.42966966666666667
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 200/353",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+          "chart_package: gold workbook has no chart or drawing XML parts"
+        ],
+        "mismatches": [
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B2",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":12},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":12}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C2",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":12},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":12}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "D2",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":12},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":12}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "E2",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":12},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":12}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "F2",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":12},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":12}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "G2",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":12},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":12}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "H2",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":12},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":12}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "I2",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":12},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":12}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B4",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"@\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"@\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C4",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "E4",
+            "expected": "{\"font\":{}}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "F4",
+            "expected": "{\"font\":{}}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "G4",
+            "expected": "{\"font\":{}}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "H4",
+            "expected": "{\"font\":{}}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "I4",
+            "expected": "{\"font\":{}}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B5",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C5",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FFD9E1F2\"},\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"#,##0\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"#,##0\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "E5",
+            "expected": "{\"font\":{}}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "F5",
+            "expected": "{\"font\":{}}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "G5",
+            "expected": "{\"font\":{}}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "H5",
+            "expected": "{\"font\":{}}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "I5",
+            "expected": "{\"font\":{}}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B6",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C6",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FFD9E1F2\"},\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"#,##0\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"#,##0\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B7",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C7",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FFD9E1F2\"},\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* \\\"-\\\"??_);_(@_)\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B8",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C8",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FFD9E1F2\"},\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* \\\"-\\\"??_);_(@_)\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B10",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"@\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"@\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C10",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B11",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C11",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FFD9E1F2\"},\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B12",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C12",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FFD9E1F2\"},\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B13",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C13",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FFD9E1F2\"},\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B14",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C14",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FFD9E1F2\"},\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B16",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"@\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"@\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C16",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B17",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C17",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FFD9E1F2\"},\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* \\\"-\\\"??_);_(@_)\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B18",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C18",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FFD9E1F2\"},\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B19",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C19",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FFD9E1F2\"},\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* \\\"-\\\"??_);_(@_)\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B20",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C20",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FFD9E1F2\"},\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B21",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C21",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FFD9E1F2\"},\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* \\\"-\\\"??_);_(@_)\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B22",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C22",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FFD9E1F2\"},\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B23",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C23",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FFD9E1F2\"},\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* \\\"-\\\"??_);_(@_)\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B24",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C24",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FFD9E1F2\"},\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B26",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"@\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"@\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C26",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B27",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C27",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FFD9E1F2\"},\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"fgColor\":{\"argb\":\"FFDEEAF6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.00%\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B29",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"@\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"@\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C29",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "D29",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "E29",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "F29",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "G29",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "H29",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "I29",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"top\":{\"style\":\"medium\"}},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B30",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"},\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C30",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"},\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "D30",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"},\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "E30",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"},\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "F30",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"},\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "G30",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"},\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "H30",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"},\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "I30",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"},\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"},\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B31",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFE7E6E6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFE7E6E6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C31",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "D31",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "E31",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "F31",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "G31",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "H31",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "I31",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B32",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C32",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "D32",
+            "expected": "6750000",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "D32",
+            "expected": "=C7"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "D32",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "E32",
+            "expected": "6969375",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "E32",
+            "expected": "=D32*(1+$C$11)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "E32",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "F32",
+            "expected": "7195879.6875",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "F32",
+            "expected": "=E32*(1+$C$11)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "F32",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "G32",
+            "expected": "7429745.77734375",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "G32",
+            "expected": "=F32*(1+$C$11)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "G32",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "H32",
+            "expected": "7671212.51510742",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "H32",
+            "expected": "=G32*(1+$C$11)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "H32",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "I32",
+            "expected": "36016212.9799512",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "I32",
+            "expected": "=SUM(D32:H32)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "I32",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFE7E6E6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFE7E6E6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* \\\"-\\\"??_);_(@_)\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B33",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C33",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "D33",
+            "expected": "-101250",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "D33",
+            "expected": "=-D32*$C$12"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "D33",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "E33",
+            "expected": "-104540.625",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "E33",
+            "expected": "=-E32*$C$12"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "E33",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "F33",
+            "expected": "-107938.1953125",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "F33",
+            "expected": "=-F32*$C$12"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "F33",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "G33",
+            "expected": "-111446.186660156",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "G33",
+            "expected": "=-G32*$C$12"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "G33",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "H33",
+            "expected": "-115068.187726611",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "H33",
+            "expected": "=-H32*$C$12"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "H33",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "I33",
+            "expected": "-540243.194699268",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "I33",
+            "expected": "=SUM(D33:H33)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "I33",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFE7E6E6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFE7E6E6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* \\\"-\\\"??_);_(@_)\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B34",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C34",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "D34",
+            "expected": "-202500",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "D34",
+            "expected": "=-D32*$C$13"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "D34",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "E34",
+            "expected": "-104540.625",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "E34",
+            "expected": "=-E32*$C$14"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "E34",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "F34",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "G34",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "H34",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "I34",
+            "expected": "-307040.625",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "I34",
+            "expected": "=SUM(D34:H34)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "I34",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFE7E6E6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFE7E6E6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* \\\"-\\\"??_);_(@_)\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B35",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFE7E6E6\"},\"fgColor\":{\"argb\":\"FFF2F2F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFF2F2F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C35",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "D35",
+            "expected": "6446250",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "D35",
+            "expected": "=SUM(D32:D34)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "D35",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFE7E6E6\"},\"fgColor\":{\"argb\":\"FFF2F2F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFF2F2F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* \\\"-\\\"??_);_(@_)\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "E35",
+            "expected": "6760293.75",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "E35",
+            "expected": "=SUM(E32:E34)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "E35",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFE7E6E6\"},\"fgColor\":{\"argb\":\"FFF2F2F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFF2F2F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* \\\"-\\\"??_);_(@_)\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "F35",
+            "expected": "7087941.4921875",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "F35",
+            "expected": "=SUM(F32:F34)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "F35",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFE7E6E6\"},\"fgColor\":{\"argb\":\"FFF2F2F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFF2F2F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* \\\"-\\\"??_);_(@_)\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "G35",
+            "expected": "7318299.59068359",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "G35",
+            "expected": "=SUM(G32:G34)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "G35",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFE7E6E6\"},\"fgColor\":{\"argb\":\"FFF2F2F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFF2F2F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* \\\"-\\\"??_);_(@_)\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "H35",
+            "expected": "7556144.32738081",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "H35",
+            "expected": "=SUM(H32:H34)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "H35",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFE7E6E6\"},\"fgColor\":{\"argb\":\"FFF2F2F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFF2F2F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* \\\"-\\\"??_);_(@_)\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "I35",
+            "expected": "35168929.1602519",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "I35",
+            "expected": "=SUM(D35:H35)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "I35",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFE7E6E6\"},\"fgColor\":{\"argb\":\"FFF2F2F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"top\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFF2F2F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* \\\"-\\\"??_);_(@_)\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B36",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C36",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "D36",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "E36",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "F36",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "G36",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "H36",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "I36",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B37",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFE7E6E6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFE7E6E6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C37",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "D37",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "E37",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "F37",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "G37",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "H37",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "I37",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B38",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C38",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "D38",
+            "expected": "185000",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "D38",
+            "expected": "=C17"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "D38",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "E38",
+            "expected": "190087.5",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "E38",
+            "expected": "=D38*(1+$C$18)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "E38",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "F38",
+            "expected": "195314.90625",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "F38",
+            "expected": "=E38*(1+$C$18)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "F38",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "G38",
+            "expected": "200686.066171875",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "G38",
+            "expected": "=F38*(1+$C$18)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "G38",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "H38",
+            "expected": "206204.932991602",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "H38",
+            "expected": "=G38*(1+$C$18)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "H38",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "I38",
+            "expected": "977293.405413477",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "I38",
+            "expected": "=SUM(D38:H38)"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "I38",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFDEEAF6\"},\"fgColor\":{\"argb\":\"FFE7E6E6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFE7E6E6\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* \\\"-\\\"??_);_(@_)\"}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "B39",
+            "expected": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"left\",\"indent\":1,\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10}}"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "C39",
+            "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9},\"numFmt\":\"General\"}",
+            "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF7F7F7F\"},\"italic\":true,\"name\":\"Calibri\",\"size\":9}}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "D39",
+            "expected": "78000",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "D39",
+            "expected": "=C19"
+          },
+          {
+            "kind": "style",
+            "sheet": "Revenue_Projection",
+            "cell": "D39",
+            "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF000000\"},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"_([$$-409]* #,##0.00_);_([$$-409]* (#,##0.00);_([$$-409]* -??_);_(@_)\"}",
+            "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"left\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"},\"right\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"0.0%\"}"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "E39",
+            "expected": "80730",
+            "actual": ""
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-14T10:06:07.025Z",
+          "taskId": "Template/14_09",
+          "candidateWorkbook": "candidate-01-14_09_input.xlsx",
+          "goldWorkbook": "01-14_09_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 0,
+            "candidateChartParts": 0,
+            "matchedChartParts": 0,
+            "missingChartParts": 0,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 0
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [],
+          "goldParts": [],
+          "mismatches": [],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+            "gold workbook has no chart or drawing XML parts"
+          ]
+        }
+      },
+      "model": {
+        "name": "cohere/north-mini-code:free",
+        "requestedName": "openrouter/free-auto",
+        "calls": 15,
+        "usage": {
+          "inputTokens": 97470,
+          "outputTokens": 3203,
+          "cachedInputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 41770,
+        "candidateGeneration": 41782,
+        "scoring": 83,
+        "total": 41888
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Template_14_09/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Template_14_09/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "run_nodeagent_workbook",
+          "detail": "needs_repair; 10 changed cell(s); trace spreadsheetbench-nodeagent-09cfe46f"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Template_14_09/candidate-01-14_09_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Template_14_09/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "353 cell mismatch(es)"
+        }
+      ]
+    }
+  ]
+}

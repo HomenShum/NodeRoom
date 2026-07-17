@@ -18,7 +18,9 @@ import { BANKER_COACH_TOOLS } from "../bankerCoach/tools";
 import { OKF_RETRIEVAL_TOOLS } from "../../retrieval/tools";
 import { retrieveUntilSufficient } from "../../retrieval/retrievalLoop";
 import { NOTEBOOK_TOOLS } from "../notebook/notebookTools";
+import { stableTraceHash } from "../../traces";
 import {
+  buildWorkbookSuggestedPlan,
   checksForWorkbookOperations,
   inspectWorkbookTask,
   selectWorkbookTaskCells,
@@ -27,6 +29,8 @@ import {
   workbookCellKey,
   type WorkbookObservedCell,
   type WorkbookPlanOperation,
+  type WorkbookSuggestedPlanOperation,
+  type WorkbookTaskInspection,
 } from "./workbookTaskIntelligence";
 
 /**
@@ -139,20 +143,66 @@ function normalizeRawOp(value: unknown): RawManagedOp {
   return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? { ...(parsed as RawManagedOp) } : {};
 }
 
-function normalizeScalarOp(value: unknown): ScalarManagedOp {
+function normalizeScalarOp(value: unknown, wrapWorkbookPayload = true): ScalarManagedOp {
   const op = normalizeRawOp(value);
   const elementId = firstString(op, ["elementId", "cellId", "id", "cell", "cellKey", "targetCell", "target", "targetId", "element_id", "cell_id"]);
   const nextValue = firstDefined(op, ["value", "newValue", "new_value", "result", "text", "content", "expectedValue", "expected_value"]);
+  const formula = firstString(op, ["formula"]);
+  const numFmt = firstString(op, ["numFmt", "num_fmt", "numberFormat", "number_format"]);
   if (typeof elementId !== "string" || !elementId.trim()) throw new Error("managed_write_missing_elementId");
   const kind = op.kind === "create" || op.kind === "delete" || op.kind === "set" ? op.kind : undefined;
-  if (nextValue === undefined && kind !== "delete") throw new Error("managed_write_missing_value");
+  if (nextValue === undefined && formula === undefined && numFmt === undefined && kind !== "delete") throw new Error("managed_write_missing_value");
+  const workbookValue = wrapWorkbookPayload && (formula !== undefined || numFmt !== undefined)
+    ? workbookCellPayload(op, nextValue, formula, numFmt)
+    : nextValue;
   return {
     ...op,
     elementId,
-    value: nextValue,
+    value: workbookValue,
     baseVersion: numericVersion(firstDefined(op, ["baseVersion", "base_version", "currentVersion", "current_version", "version"])),
     kind,
   } as ScalarManagedOp;
+}
+
+function workbookCellPayload(
+  op: RawManagedOp,
+  nextValue: unknown,
+  formula: string | undefined,
+  numFmt: string | undefined,
+): CellPayload {
+  const nested = nextValue && typeof nextValue === "object" && !Array.isArray(nextValue) && "value" in nextValue
+    ? nextValue as Record<string, unknown>
+    : undefined;
+  const nestedPayload = nested ? { ...nested } : {};
+  delete nestedPayload.result;
+  const rawCachedValue = op.result !== undefined
+    ? op.result
+    : nested?.result ?? nested?.value ?? nextValue ?? "";
+  const cachedValue = formula === undefined
+    ? rawCachedValue
+    : normalizeFormulaCachedValue(rawCachedValue);
+  return {
+    ...nestedPayload,
+    value: cachedValue,
+    ...(formula === undefined ? {} : { formula }),
+    ...(numFmt === undefined ? {} : { numFmt }),
+  };
+}
+
+function normalizeFormulaCachedValue(value: unknown, depth = 0): unknown {
+  if (value === null || value === undefined) return "";
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean" || value instanceof Date) {
+    return value;
+  }
+  if (depth >= 3 || typeof value !== "object" || Array.isArray(value)) return "";
+  const record = value as Record<string, unknown>;
+  for (const key of ["result", "value", "cachedValue", "cached_value"]) {
+    if (Object.prototype.hasOwnProperty.call(record, key)) {
+      return normalizeFormulaCachedValue(record[key], depth + 1);
+    }
+  }
+  if (typeof record.error === "string" && record.error.startsWith("#")) return { error: record.error };
+  return "";
 }
 
 function addScalarOpIssues(value: unknown, ctx: z.RefinementCtx) {
@@ -168,7 +218,7 @@ function addScalarOpIssues(value: unknown, ctx: z.RefinementCtx) {
   }
 }
 
-function normalizeBatchArgs(value: unknown, fields: ParallelField[] = []) {
+function normalizeBatchArgs(value: unknown, fields: ParallelField[] = [], wrapWorkbookPayload = true) {
   const parallel = normalizeParallelBatchCall(value, fields);
   const record = parallel && typeof parallel === "object" && !Array.isArray(parallel)
     ? parallel as Record<string, unknown>
@@ -177,7 +227,7 @@ function normalizeBatchArgs(value: unknown, fields: ParallelField[] = []) {
   return {
     reason: typeof record.reason === "string" ? record.reason : undefined,
     artifactId: typeof record.artifactId === "string" ? record.artifactId : undefined,
-    ops: arrayish(rawOps).map(normalizeScalarOp),
+    ops: arrayish(rawOps).map((op) => normalizeScalarOp(op, wrapWorkbookPayload)),
   };
 }
 
@@ -515,18 +565,65 @@ async function writeBatchWithManagedLock(args: {
 
   const results: Array<(EditOutcome | SkippedEditOutcome) & { elementId: string }> = [...preflight.skipped];
   let release: Awaited<ReturnType<RoomTools["releaseLock"]>> | undefined;
+  let fencedConflicts = false;
   try {
-    for (const op of preflight.activeOps) {
-      const edit = await rt.editCell(op.elementId, op.value, op.baseVersion, args.artifactId, op.kind);
-      results.push({ ...edit, elementId: op.elementId });
-      if (!edit.ok && !("pendingApproval" in edit && edit.pendingApproval)) break;
+    const lockedCells = await rt.readRange(elementIds, args.artifactId);
+    const lockedById = new Map(lockedCells.map((cell) => [cell.id, cell]));
+    const stale = preflight.activeOps.flatMap((op) => {
+      const current = lockedById.get(op.elementId);
+      const actual = current?.version ?? 0;
+      return actual === op.baseVersion
+        ? []
+        : [{
+            ok: false as const,
+            conflict: true as const,
+            expected: op.baseVersion,
+            actual,
+            elementId: op.elementId,
+          }];
+    });
+    if (stale.length > 0) {
+      fencedConflicts = true;
+      results.push(...stale);
+    } else {
+      for (const op of preflight.activeOps) {
+        const edit = await rt.editCell(op.elementId, op.value, op.baseVersion, args.artifactId, op.kind);
+        results.push({ ...edit, elementId: op.elementId });
+        if (!edit.ok && !("pendingApproval" in edit && edit.pendingApproval)) break;
+      }
     }
   } finally {
     release = await rt.releaseLock(lock.lockId);
   }
+  if (fencedConflicts) {
+    return {
+      ok: false,
+      conflict: true,
+      results,
+      coordination: {
+        mode: "managed_lock_batch",
+        targetIds: args.ops.map((op) => op.elementId),
+        acquired: true,
+        lockId: lock.lockId,
+        released: release?.ok !== false,
+        mergedDrafts: release?.merged?.length ?? 0,
+        releaseReason: release?.reason,
+        skippedCount: preflight.skipped.length,
+        committedCount: 0,
+        fence: "all_target_versions_before_first_write",
+      },
+    };
+  }
   const accepted = results.length === args.ops.length && results.every((result) => result.ok || ("pendingApproval" in result && result.pendingApproval));
+  const pendingApprovals = results.flatMap((result) =>
+    "pendingApproval" in result && result.pendingApproval
+      ? ["proposalId" in result ? result.proposalId : undefined]
+      : []);
   return {
     ok: accepted,
+    ...(pendingApprovals.length > 0
+      ? { pendingApproval: true, proposalIds: pendingApprovals.filter((id): id is string => typeof id === "string") }
+      : {}),
     results,
     coordination: {
       mode: "managed_lock_batch",
@@ -556,6 +653,11 @@ const scalarOpInputObject = z.object({
   newValue: z.any().optional(),
   new_value: z.any().optional(),
   result: z.any().optional(),
+  formula: z.string().nullish(),
+  numFmt: z.string().nullish(),
+  num_fmt: z.string().nullish(),
+  numberFormat: z.string().nullish(),
+  number_format: z.string().nullish(),
   text: z.any().optional(),
   content: z.any().optional(),
   expectedValue: z.any().optional(),
@@ -603,6 +705,12 @@ const scalarBatchSchema = z.object({
   new_value: z.any().optional(),
   results: z.any().optional(),
   result: z.any().optional(),
+  formulas: z.any().optional(),
+  formula: z.any().optional(),
+  numFmts: z.any().optional(),
+  numFmt: z.any().optional(),
+  numberFormats: z.any().optional(),
+  numberFormat: z.any().optional(),
   text: z.any().optional(),
   content: z.any().optional(),
   expectedValue: z.any().optional(),
@@ -615,14 +723,19 @@ const scalarBatchSchema = z.object({
   kinds: z.any().optional(),
   kind: z.any().optional(),
 }).superRefine((value, ctx) => {
-  if (!hasNormalizableBatchOps(value)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["ops"], message: "ops required" });
+  if (!hasNormalizableBatchOps(value, scalarParallelFields)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["ops"], message: "ops required" });
 });
+
+const scalarParallelFields: ParallelField[] = [
+  { opKey: "formula", inputKeys: ["formulas", "formula"] },
+  { opKey: "numFmt", inputKeys: ["numFmts", "numFmt", "numberFormats", "numberFormat"] },
+];
 
 const WRITE_LOCKED_CELLS_TOOL: AgentTool = {
   name: "write_locked_cells",
-  description: "Production batch write path for scalar cells. The runtime acquires one exact-range lock, writes every op with CAS, releases in finally, and returns per-cell results plus coordination evidence. Prefer this over separate lock/edit/release calls for multi-cell work.",
+  description: "Production batch write path for scalar or formula cells. Each op accepts value or formula plus an optional cached result and numFmt. The runtime preserves formula payloads, acquires one exact-range lock, writes every op with CAS, releases in finally, and returns per-cell results plus coordination evidence. Prefer this over separate lock/edit/release calls for multi-cell work.",
   schema: scalarBatchSchema,
-  execute: (a: unknown, rt) => writeBatchWithManagedLock(normalizeBatchArgs(a), rt),
+  execute: (a: unknown, rt) => writeBatchWithManagedLock(normalizeBatchArgs(a, scalarParallelFields), rt),
 };
 
 const WRITE_LOCKED_CELL_RESULT_TOOL: AgentTool = {
@@ -655,7 +768,7 @@ const WRITE_LOCKED_CELL_RESULT_TOOL: AgentTool = {
     kind?: "set" | "create";
     artifactId?: string;
   }, rt) => {
-    const op = normalizeScalarOp(a);
+    const op = normalizeScalarOp(a, false);
     const normalized = { ...a, ...op, kind: a.kind };
     return reviewedCellPayload(normalized as ResultManagedOp, rt).then((value) => writeWithManagedLock({ ...normalized, value }, rt));
   },
@@ -732,7 +845,7 @@ const WRITE_LOCKED_CELL_RESULTS_TOOL: AgentTool = {
   description: "Production batch write path for ENRICH, CLASSIFY, RESOLVE, CAPTURE, and COMPUTE cells. The runtime acquires one exact-range lock around evidence-bearing CellPayload writes, so the model spends one tool call for the range instead of separate lock/write/release calls.",
   schema: resultBatchSchema,
   execute: async (a: unknown, rt) => {
-    const normalized = normalizeBatchArgs(a, resultParallelFields);
+    const normalized = normalizeBatchArgs(a, resultParallelFields, false);
     const ops = await Promise.all(normalized.ops.map(async (op) => {
       const raw = normalizeRawOp(op);
       const resultOp = {
@@ -754,9 +867,9 @@ const WRITE_LOCKED_CELL_RESULTS_TOOL: AgentTool = {
 const workbookOperationSchema = z.object({
   elementId: z.string().min(1).describe("target cell id or A1 address"),
   value: z.any().optional(),
-  formula: z.string().optional(),
+  formula: z.string().nullish(),
   result: z.any().optional(),
-  numFmt: z.string().optional(),
+  numFmt: z.string().nullish(),
 });
 
 const INSPECT_WORKBOOK_TOOL: AgentTool = {
@@ -772,10 +885,10 @@ const INSPECT_WORKBOOK_TOOL: AgentTool = {
     const snapshot = await rt.snapshot(a.artifactId);
     const sheet = snapshot.artifactId;
     const snapshotCells = observedCellsFromSnapshot(snapshot);
-    const searchHits = await rt.searchSheetContext(a.query?.trim() || a.instruction, a.artifactId, 20);
+    const searchHits = await rt.searchSheetContext(a.query?.trim() || a.instruction, sheet, 20);
     const searchIds = searchHits.flatMap((hit) => hit.kind === "cell" ? [hit.elementId] : hit.elementIds);
     const readIds = [...new Set(searchIds)].slice(0, Math.max(12, Math.min(200, a.maxCells ?? 80)));
-    const confirmed = readIds.length ? await rt.readRange(readIds, a.artifactId) : [];
+    const confirmed = readIds.length ? await rt.readRange(readIds, sheet) : [];
     const cells = mergeWorkbookCells(snapshotCells, confirmed.map((cell) => observedCell(sheet, cell.id, cell.value, cell.version)));
     const inspection = inspectWorkbookTask({ instruction: a.instruction, sheetNames: [sheet], cells });
     const selected = selectWorkbookTaskCells({
@@ -819,7 +932,10 @@ const VERIFY_WORKBOOK_TOOL: AgentTool = {
     const snapshot = await rt.snapshot(a.artifactId);
     const sheet = snapshot.artifactId;
     const elementIds = [...new Set(a.operations.map((operation) => operation.elementId))];
-    const confirmed = await rt.readRange(elementIds, a.artifactId);
+    const searchHits = await rt.searchSheetContext(a.instruction, sheet, 20);
+    const contextIds = searchHits.flatMap((hit) => hit.kind === "cell" ? [hit.elementId] : hit.elementIds);
+    const confirmedIds = [...new Set([...elementIds, ...contextIds])];
+    const confirmed = await rt.readRange(confirmedIds, sheet);
     const cells = mergeWorkbookCells(
       observedCellsFromSnapshot(snapshot),
       confirmed.map((cell) => observedCell(sheet, cell.id, cell.value, cell.version)),
@@ -861,6 +977,302 @@ const VERIFY_WORKBOOK_TOOL: AgentTool = {
     };
   },
 };
+
+export const EXECUTE_VERIFIED_WORKBOOK_PLAN_TOOL: AgentTool = {
+  name: "execute_verified_workbook_plan",
+  description: "Execute the complete high-confidence plan already identified by inspect_workbook without echoing every formula through the model. This tool re-inspects visible workbook evidence, refuses ambiguous or incomplete plans, preflights the exact operations, writes through managed locks and CAS, and post-verifies every target. Use it after inspect_workbook when that inspection returns exact formulaFillSuggestions, formulaRepairSuggestions, or valueSuggestions for a multi-cell task.",
+  schema: z.object({
+    instruction: z.string().min(1).describe("the complete workbook task; this remains the scope boundary"),
+    artifactId: z.string().optional().describe("the inspected workbook artifact id"),
+    query: z.string().optional().describe("optional focused inspection query"),
+    maxCells: z.coerce.number().int().min(12).max(200).optional().default(200),
+    reason: z.string().optional().describe("one short phrase shown in the room trace"),
+  }),
+  execute: async (a: {
+    instruction: string;
+    artifactId?: string;
+    query?: string;
+    maxCells?: number;
+    reason?: string;
+  }, rt) => {
+    const inspectResult = await INSPECT_WORKBOOK_TOOL.execute({
+      instruction: a.instruction,
+      ...(a.artifactId ? { artifactId: a.artifactId } : {}),
+      ...(a.query ? { query: a.query } : {}),
+      maxCells: a.maxCells ?? 200,
+    }, rt);
+    const inspected = workbookRecord(inspectResult);
+    const artifactId = typeof inspected?.artifactId === "string" ? inspected.artifactId : a.artifactId;
+    const inspection = workbookRecord(inspected?.inspection) as WorkbookTaskInspection | undefined;
+    if (!inspected || inspected.ok !== true || !artifactId || !inspection) {
+      return {
+        ok: false,
+        status: "blocked",
+        error: "workbook_inspection_unavailable",
+        repairPrompt: "Run inspect_workbook on the target artifact and confirm that it returns a structured inspection.",
+        phases: {
+          inspect: { status: "failed", receiptHash: stableTraceHash(inspectResult) },
+          plan: { status: "skipped", operationCount: 0 },
+          preflight: { status: "skipped" },
+          write: { status: "skipped" },
+          verify: { status: "skipped" },
+        },
+      };
+    }
+
+    const suggested = buildWorkbookSuggestedPlan(inspection, artifactId);
+    if (suggested.conflicts.length > 0) {
+      return {
+        ok: false,
+        status: "needs_repair",
+        artifactId,
+        error: "ambiguous_workbook_plan",
+        conflicts: suggested.conflicts,
+        repairPrompt: `Resolve conflicting high-confidence suggestions for ${suggested.conflicts.map((conflict) => conflict.elementId).join(", ")} before writing.`,
+        phases: {
+          inspect: workbookInspectSummary(inspectResult),
+          plan: { status: "needs_repair", operationCount: suggested.operations.length, conflictCount: suggested.conflicts.length },
+          preflight: { status: "skipped" },
+          write: { status: "skipped" },
+          verify: { status: "skipped" },
+        },
+      };
+    }
+    if (suggested.operations.length === 0) {
+      const alreadySatisfied = inspection.allowEmptyPlan || inspection.mutatingTask === false;
+      return {
+        ok: alreadySatisfied,
+        status: alreadySatisfied ? "completed" : "needs_repair",
+        artifactId,
+        operationCount: 0,
+        changedTargetCount: 0,
+        alreadySatisfied,
+        ...(alreadySatisfied ? { workflowComplete: true } : {
+          error: "no_high_confidence_workbook_plan",
+          repairPrompt: "The visible workbook evidence does not support a complete high-confidence edit plan. Inspect narrower target/dependency ranges before writing.",
+        }),
+        phases: {
+          inspect: workbookInspectSummary(inspectResult),
+          plan: { status: alreadySatisfied ? "completed" : "needs_repair", operationCount: 0, conflictCount: 0 },
+          preflight: { status: "skipped" },
+          write: { status: "skipped" },
+          verify: { status: "skipped" },
+        },
+      };
+    }
+
+    const current = await rt.readRange(suggested.operations.map((operation) => operation.elementId), artifactId);
+    const currentById = new Map(current.map((cell) => [cell.id, cell]));
+    const fullOperations = suggested.operations.map((operation) => ({
+      ...operation,
+      ...(currentById.get(operation.elementId)?.version === undefined
+        ? {}
+        : { baseVersion: currentById.get(operation.elementId)!.version }),
+    }));
+    const operations = fullOperations
+      .filter((operation) => !workbookOperationAlreadySatisfied(operation, currentById.get(operation.elementId)?.value))
+      .map((operation) => ({ ...operation }));
+    if (operations.length === 0) {
+      const verificationResult = await VERIFY_WORKBOOK_TOOL.execute({
+        instruction: a.instruction,
+        artifactId,
+        operations: fullOperations,
+        afterWrite: true,
+      }, rt);
+      const verify = workbookVerificationSummary(verificationResult);
+      const verified = verify.status === "passed";
+      return {
+        ok: verified,
+        status: verified ? "completed" : "needs_repair",
+        artifactId,
+        operationCount: fullOperations.length,
+        changedTargetCount: 0,
+        alreadySatisfied: true,
+        workflowComplete: verified,
+        ...(verified ? {} : {
+          error: "workbook_noop_verification_failed",
+          repairPrompt: workbookRecord(verificationResult)?.repairPrompt,
+        }),
+        phases: {
+          inspect: workbookInspectSummary(inspectResult),
+          plan: workbookPlanSummary(fullOperations),
+          preflight: { status: "skipped", reason: "already_satisfied" },
+          write: { status: "skipped", reason: "already_satisfied" },
+          verify: { ...verify, reason: "already_satisfied" },
+        },
+      };
+    }
+
+    const preflightResult = await VERIFY_WORKBOOK_TOOL.execute({
+      instruction: a.instruction,
+      artifactId,
+      operations: fullOperations,
+      afterWrite: false,
+    }, rt);
+    const preflight = workbookVerificationSummary(preflightResult);
+    if (preflight.status !== "passed") {
+      return {
+        ok: false,
+        status: "needs_repair",
+        artifactId,
+        operationCount: fullOperations.length,
+        changedTargetCount: 0,
+        error: "workbook_preflight_rejected",
+        repairPrompt: workbookRecord(preflightResult)?.repairPrompt,
+        phases: {
+          inspect: workbookInspectSummary(inspectResult),
+          plan: workbookPlanSummary(fullOperations),
+          preflight,
+          write: { status: "skipped" },
+          verify: { status: "skipped" },
+        },
+      };
+    }
+
+    const writeResult = await WRITE_LOCKED_CELLS_TOOL.execute({
+      artifactId,
+      reason: a.reason?.trim() || "execute verified workbook plan",
+      ops: operations,
+    }, rt);
+    const write = workbookWriteSummary(writeResult, operations);
+    if (write.status !== "completed") {
+      const pendingApproval = write.status === "pending_approval";
+      return {
+        ok: false,
+        status: pendingApproval ? "pending_approval" : "blocked",
+        artifactId,
+        operationCount: fullOperations.length,
+        changedTargetCount: write.committedCount,
+        error: pendingApproval ? "workbook_plan_pending_approval" : "managed_workbook_write_blocked",
+        repairPrompt: pendingApproval
+          ? "Wait for the host to approve or reject the proposed workbook edits; do not report them as committed."
+          : "Resolve the managed-lock, draft, or CAS state before post-write verification.",
+        phases: {
+          inspect: workbookInspectSummary(inspectResult),
+          plan: workbookPlanSummary(fullOperations),
+          preflight,
+          write,
+          verify: { status: "skipped" },
+        },
+      };
+    }
+
+    const verificationResult = await VERIFY_WORKBOOK_TOOL.execute({
+      instruction: a.instruction,
+      artifactId,
+      operations: fullOperations,
+      afterWrite: true,
+    }, rt);
+    const verify = workbookVerificationSummary(verificationResult);
+    const completed = verify.status === "passed";
+    return {
+      ok: completed,
+      status: completed ? "completed" : "needs_repair",
+      artifactId,
+      operationCount: fullOperations.length,
+      changedTargetCount: write.committedCount,
+      approvalBoundary: "RoomTools managed lock and compare-and-set",
+      workflowComplete: completed,
+      ...(completed ? { nextAction: "Return the final answer. Do not call another workbook tool." } : {
+        error: "workbook_post_write_verification_failed",
+        repairPrompt: workbookRecord(verificationResult)?.repairPrompt,
+      }),
+      phases: {
+        inspect: workbookInspectSummary(inspectResult),
+        plan: workbookPlanSummary(fullOperations),
+        preflight,
+        write,
+        verify,
+      },
+    };
+  },
+};
+
+function workbookRecord(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : undefined;
+}
+
+function workbookInspectSummary(result: unknown): Record<string, unknown> {
+  const record = workbookRecord(result);
+  const inspection = workbookRecord(record?.inspection);
+  return {
+    status: record?.ok === true ? "completed" : "failed",
+    receiptHash: stableTraceHash(result),
+    inspectedCellCount: record?.inspectedCellCount ?? 0,
+    findingCount: Array.isArray(inspection?.findings) ? inspection.findings.length : 0,
+    targetBandCount: Array.isArray(inspection?.targetBands) ? inspection.targetBands.length : 0,
+  };
+}
+
+function workbookPlanSummary(operations: Array<WorkbookSuggestedPlanOperation & { baseVersion?: number }>): Record<string, unknown> {
+  return {
+    status: "completed",
+    operationCount: operations.length,
+    conflictCount: 0,
+    planHash: stableTraceHash(operations),
+    targets: operations.map((operation) => operation.elementId),
+  };
+}
+
+function workbookVerificationSummary(result: unknown): Record<string, unknown> {
+  const record = workbookRecord(result);
+  const plan = workbookRecord(record?.plan);
+  const candidate = workbookRecord(record?.candidate);
+  return {
+    status: record?.status === "passed" ? "passed" : "needs_repair",
+    receiptHash: stableTraceHash(result),
+    issueCount: Number(plan?.issueCount ?? 0) + Number(candidate?.issueCount ?? 0),
+    checkedCount: candidate?.checkedCount ?? (plan?.checks ? workbookRecord(plan.checks)?.operationCount : undefined) ?? 0,
+    ...(record?.status === "passed" ? {} : { repairPrompt: record?.repairPrompt }),
+  };
+}
+
+function workbookWriteSummary(
+  result: unknown,
+  operations: Array<WorkbookSuggestedPlanOperation & { baseVersion?: number }>,
+): Record<string, unknown> & { status: string; committedCount: number } {
+  const record = workbookRecord(result);
+  const results = Array.isArray(record?.results) ? record.results.map(workbookRecord).filter(Boolean) as Record<string, unknown>[] : [];
+  const committed = results.filter((entry) => entry.ok === true && entry.skipped !== true);
+  const skipped = results.filter((entry) => entry.skipped === true);
+  const pending = results.filter((entry) => entry.pendingApproval === true);
+  const failed = results.filter((entry) => entry.ok !== true && entry.pendingApproval !== true);
+  const pendingApproval = record?.pendingApproval === true || pending.length > 0;
+  const completed = record?.ok === true && !pendingApproval && record.drafted !== true && failed.length === 0;
+  return {
+    status: completed ? "completed" : pendingApproval ? "pending_approval" : "blocked",
+    receiptHash: stableTraceHash(result),
+    targetCount: operations.length,
+    committedCount: committed.length || (completed && results.length === 0 ? operations.length : 0),
+    skippedCount: skipped.length,
+    failedCount: failed.length,
+    mutationReceiptIds: results.flatMap((entry) => typeof entry.mutationReceiptId === "string" ? [entry.mutationReceiptId] : []),
+    coordination: record?.coordination,
+    ...(pendingApproval ? {
+      pendingApproval: true,
+      proposalIds: pending.flatMap((entry) => typeof entry.proposalId === "string" ? [entry.proposalId] : []),
+    } : {}),
+    ...(record?.drafted === true ? { drafted: true, draftId: record.draftId } : {}),
+  };
+}
+
+function workbookOperationAlreadySatisfied(operation: WorkbookSuggestedPlanOperation, rawValue: unknown): boolean {
+  const record = workbookRecord(rawValue);
+  const formula = typeof record?.formula === "string" ? record.formula : undefined;
+  if (operation.formula) {
+    return normalizeWorkbookFormula(formula) === normalizeWorkbookFormula(operation.formula)
+      && (!operation.numFmt || record?.numFmt === operation.numFmt);
+  }
+  const scalar = record && Object.prototype.hasOwnProperty.call(record, "value") ? record.value : rawValue;
+  return Object.prototype.hasOwnProperty.call(operation, "value")
+    && payloadsEquivalent(scalar, operation.value)
+    && (!operation.numFmt || record?.numFmt === operation.numFmt);
+}
+
+function normalizeWorkbookFormula(value: string | undefined): string | undefined {
+  const normalized = value?.trim().replace(/^=/, "").replace(/\s+/g, "").toUpperCase();
+  return normalized || undefined;
+}
 
 function observedCellsFromSnapshot(snapshot: Awaited<ReturnType<RoomTools["snapshot"]>>): WorkbookObservedCell[] {
   const sheet = snapshot.artifactId;

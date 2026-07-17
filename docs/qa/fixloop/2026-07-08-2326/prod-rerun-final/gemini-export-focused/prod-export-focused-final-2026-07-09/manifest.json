@@ -1,0 +1,18 @@
+{
+  "runId": "prod-export-focused-final-2026-07-09",
+  "generatedAt": "2026-07-09T07:31:45.924Z",
+  "model": "gemini-3.5-flash",
+  "primaryOnly": true,
+  "all": false,
+  "includeIgnored": false,
+  "assets": [
+    {
+      "id": "docs-qa-fixloop-2026-07-08-2326-prod-rerun-final-artifacts-videos-export-xlsx-focused",
+      "class": "live_browser_proof",
+      "title": "Export Xlsx Focused",
+      "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\qa\\fixloop\\2026-07-08-2326\\prod-rerun-final\\artifacts\\videos\\export-xlsx-focused.webm",
+      "relPath": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-final/artifacts/videos/export-xlsx-focused.webm",
+      "purpose": "Live Playwright browser benchmark proof clip. Judge only visible product behavior: fresh-room flow, uploads, public NodeAgent invocation, streaming/tool traces, focus/attention UI, artifact creation/download, and production honesty. Clip duration, silence, or README pacing is not a product defect."
+    }
+  ]
+}

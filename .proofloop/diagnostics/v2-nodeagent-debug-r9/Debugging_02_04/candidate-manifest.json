@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "taskId": "Debugging/02_04",
+  "mode": "nodeagent-workbook",
+  "model": "cohere/north-mini-code:free",
+  "requestedModel": "openrouter/free-auto",
+  "sourceAgentManifest": "tasks/Debugging_02_04/agent/task.json",
+  "agentWorkspaceManifest": "agent-workspace/agent-workspace-manifest.json",
+  "candidateWorkbook": "candidate-01-Inconsistent Color Coding_input.xlsx",
+  "nodeAgentReceipt": "nodeagent-workbook-receipt.json",
+  "nodeAgentTrace": "nodeagent-workbook-trace.json",
+  "appliedOperationCount": 24,
+  "repairAttemptCount": 0,
+  "verificationStatus": "passed",
+  "modelContext": {
+    "runtime": "frameRunner -> runAgent -> RoomTools",
+    "maxSteps": 15,
+    "snapshotMaxCells": 1200,
+    "evaluatorMetadataAccess": "none"
+  },
+  "modelUsage": {
+    "inputTokens": 111961,
+    "outputTokens": 4692,
+    "cachedInputTokens": 0
+  },
+  "modelCostUsd": 0,
+  "traceId": "spreadsheetbench-nodeagent-89c00e4f",
+  "note": "nodeagent-workbook executes the staged task through the canonical NodeAgent frame/runtime and production managed workbook tools before evaluator metadata becomes available."
+}

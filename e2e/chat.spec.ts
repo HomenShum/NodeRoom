@@ -205,4 +205,68 @@ test.describe("chat — optimistic send + edit (memory mode)", () => {
     await agentChips.first().click();
     await expect(chat.getByTestId("chat-composer")).toHaveValue(new RegExp("^" + label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   });
+
+  test("composer context and mention menus stay portaled, contained, and keyboard-operable", async ({ page }) => {
+    const chat = publicChat(page);
+    const composer = chat.getByTestId("chat-composer");
+    await composer.focus();
+
+    await chat.getByTestId("chat-context").click();
+    const picker = page.getByTestId("chat-context-picker");
+    await expect(picker).toBeVisible();
+    expect(await picker.evaluate((node) => node.offsetParent !== null)).toBe(true);
+    expect(await picker.evaluate((node) => node.closest(".r-composer"))).toBeNull();
+    expect(await picker.evaluate((node) => Boolean(node.closest("[data-radix-popper-content-wrapper]")))).toBe(true);
+
+    const pickerBounds = await picker.boundingBox();
+    const viewport = page.viewportSize();
+    expect(pickerBounds).not.toBeNull();
+    expect(viewport).not.toBeNull();
+    expect(pickerBounds!.x).toBeGreaterThanOrEqual(0);
+    expect(pickerBounds!.y).toBeGreaterThanOrEqual(0);
+    expect(pickerBounds!.x + pickerBounds!.width).toBeLessThanOrEqual(viewport!.width);
+    expect(pickerBounds!.y + pickerBounds!.height).toBeLessThanOrEqual(viewport!.height);
+
+    await picker.getByTestId("chat-context-search").fill("Diligence memo");
+    const contextOption = picker.getByTestId("chat-context-option").filter({ hasText: "Diligence memo" }).first();
+    await expect(contextOption).toBeVisible();
+    await contextOption.click();
+    await expect(chat.getByLabel("Message references")).toContainText("Diligence memo");
+    await expect(composer).toBeFocused();
+
+    await composer.fill("@q3");
+    const mentionMenu = page.getByTestId("mention-menu");
+    await expect(mentionMenu).toBeVisible();
+    expect(await mentionMenu.evaluate((node) => node.closest(".r-composer"))).toBeNull();
+    await composer.press("Enter");
+    await expect(mentionMenu).toHaveCount(0);
+    await expect(chat.getByLabel("Message references")).toContainText("Q3 variance");
+    await expect(composer).toBeFocused();
+  });
+
+  for (const viewport of [
+    { name: "compact desktop", width: 900, height: 700 },
+    { name: "phone", width: 375, height: 812 },
+  ]) {
+    test(`context picker remains inside the ${viewport.name} viewport`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await enterDemoRoom(page);
+      const chat = publicChat(page);
+      if (!(await chat.isVisible())) {
+        await page.getByRole("button", { name: "Toggle Copilot panel" }).click();
+      }
+      await expect(chat).toBeVisible();
+      await chat.getByTestId("chat-context").click();
+
+      const picker = page.getByTestId("chat-context-picker");
+      await expect(picker).toBeVisible();
+      const bounds = await picker.boundingBox();
+      expect(bounds).not.toBeNull();
+      expect(bounds!.x).toBeGreaterThanOrEqual(0);
+      expect(bounds!.y).toBeGreaterThanOrEqual(0);
+      expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(viewport.width);
+      expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(viewport.height);
+      await expect(page.locator("html")).toHaveJSProperty("scrollWidth", viewport.width);
+    });
+  }
 });

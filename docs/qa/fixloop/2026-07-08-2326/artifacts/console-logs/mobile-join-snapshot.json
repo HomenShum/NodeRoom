@@ -1,0 +1,38 @@
+[
+  {
+    "type": "debug",
+    "text": "[vite] connecting...",
+    "location": {
+      "url": "http://127.0.0.1:5280/@vite/client",
+      "line": 788,
+      "column": 8,
+      "lineNumber": 788,
+      "columnNumber": 8
+    },
+    "ts": "2026-07-09T06:38:28.533Z"
+  },
+  {
+    "type": "debug",
+    "text": "[vite] connected.",
+    "location": {
+      "url": "http://127.0.0.1:5280/@vite/client",
+      "line": 911,
+      "column": 14,
+      "lineNumber": 911,
+      "columnNumber": 14
+    },
+    "ts": "2026-07-09T06:38:28.564Z"
+  },
+  {
+    "type": "info",
+    "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold",
+    "location": {
+      "url": "http://127.0.0.1:5280/node_modules/.vite/deps/react-dom_client.js?v=a4efca03",
+      "line": 20102,
+      "column": 53,
+      "lineNumber": 20102,
+      "columnNumber": 53
+    },
+    "ts": "2026-07-09T06:38:28.851Z"
+  }
+]

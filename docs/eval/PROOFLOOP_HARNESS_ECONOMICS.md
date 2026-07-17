@@ -1,14 +1,14 @@
 # Proof Loop Harness Economics
 
-Generated: 2026-07-09T06:32:52.609Z
+Generated: 2026-07-10T14:12:03.832Z
 
 This ledger records harness/config versions and cheaper model routes for Proof Loop product gates while preserving official scorer boundaries.
 
 ## Summary
 
 - Package version: 0.1.1
-- Git commit: e4078098f39a067f8c5e613afbf4d667d2f2f993 (dirty)
-- Harness files tracked: 23
+- Git commit: 5f67d8e1f3fe57073a92f1ab51ea8a37a3e8b3a7 (dirty)
+- Harness files tracked: 25
 - Missing harness files: 0
 - OpenRouter candidates: 25
 - Proxy judge candidates: 8
@@ -23,6 +23,7 @@ This ledger records harness/config versions and cheaper model routes for Proof L
 - Proxy judges can keep product Proof Loop moving when official scorer credentials or hosted judges are missing.
 - Proxy judges must not be promoted as official leaderboard scores unless the benchmark accepts that judge/scorer path.
 - Official score receipts and product proof receipts remain separate artifacts.
+- Official-score lane runs should pass the free-first/economics preflight before spending model or judge budget.
 - Judge credentials are not intrinsically required when an accepted official scorer or accepted proxy-judge path exists.
 
 ## Best Proxy Judge Candidates
@@ -65,7 +66,7 @@ This ledger records harness/config versions and cheaper model routes for Proof L
 |---|---|---:|---:|---|
 | `spreadsheetbench-v1` | Full 912-task model-run outputs and SpreadsheetBench workbook scorer receipt. | yes | no | `deepseek/deepseek-v4-flash` |
 | `spreadsheetbench-v2` | Full 321-task bundle, run artifacts, workbook scorer, and rendered chart-grader receipt. | yes | no | `deepseek/deepseek-v4-flash` |
-| `finch` | Upstream Finch scorer imports Azure OpenAI judge output for official claim. | yes | no | `deepseek/deepseek-v4-flash` |
+| `finch` | Finch official claim requires the canonical GPT-5-mini judge via the recorded direct-OpenAI transport equivalent or the released Azure path. | yes | no | `deepseek/deepseek-v4-flash` |
 | `finauditing` | Official-format FinSM/FinRE/FinMR predictions and the accepted FinMR judge path. | yes | no | `deepseek/deepseek-v4-flash` |
 | `workstreambench` | Upstream official task bundle, rubric, and scorer or author-provided package. | yes | no | `deepseek/deepseek-v4-flash` |
 
@@ -83,16 +84,18 @@ This ledger records harness/config versions and cheaper model routes for Proof L
 - `proofloop/notion/live.notion.config.json`: 48f3b060db525f38ccbe1dfacf97ecd8c08915e46b50cf08c2c10e53ea0d5077
 - `proofloop/benchmarks/finch/adapter.json`: 9cb926196b3ee226476bdf06297f6aa612476f392ea39894846fba1c4b0c0055
 - `proofloop/benchmarks/finauditing/adapter.json`: 1dcd4fbeb7a8186bf58c58c9fac976d73a406aa62087a6dda3502de978c6f7b4
-- `proofloop/benchmarks/workstreambench/adapter.json`: 3b09da01743a7a1db85e2c415a9e07ca474c9b725c9aec5f42580a3aad9059be
+- `proofloop/benchmarks/workstreambench/adapter.json`: 4fd62b14aeedcccec7a99ca79b9e6d61bf47ae0ca8be13c4d0ce452ae6d88102
 - `scripts/proofloop-company-task-coverage.ts`: 66eb7e8dd23b3a3eca2d363cfde287260af8604859be047ece606ef101342a5a
 - `scripts/proofloop-harness-economics.ts`: 88af3482e8bc8d8ed15a8df44756e2498159b3682d350a404c86be063b1fb53c
-- `src/eval/proofloopGoalSupervisor.ts`: 928a1ec86f5cee7ced97a5ec6eaddd1a07a3a3fa35436eefdfe902864cb6cd1a
-- `src/eval/proofloopBlockerSolver.ts`: e840ede52b09036a5c28427238eef1457930133a6841cd8e12d3983e932c8538
+- `scripts/proofloop-official-score-preflight.ts`: 0ded51ed27c4ade3e5f1ccff85227effe0c2fb4572319f9078ea91c305043877
+- `src/eval/proofloopGoalSupervisor.ts`: bfdba66b6b032387a32a165b5299793b2959f78f4fa85b0e47655137cbc023cc
+- `src/eval/proofloopBlockerSolver.ts`: a3227ad6a6a9fa2c03011e7300d694f4711b683ff46146f3971e1f45618601e9
 - `src/eval/proofloopModelTracking.ts`: 5c0fc9e9daa64add3c40833546a2b5bbd86a2fac14801c86302d3a1434f65bc2
-- `src/eval/proofloopBenchmarkNormalization.ts`: 6b50358571a4b978e7b72e4c969f1399e446b3f87aa714c1e2dd5ee51fb46aec
-- `src/eval/proofloopBenchmarkBoard.ts`: 7942b9b1290149a2cdc1dca12f5eb8f869f97953da2f67c77c1d54ec603d3c66
+- `src/eval/proofloopBenchmarkNormalization.ts`: 388d6567596285bda0991bdd6cd6d4589b64986eeb18dda652f4e71f186616d3
+- `src/eval/proofloopBenchmarkBoard.ts`: 94cede60723d519a5a64b5bc6f19e525da5ef1d06f0ff7e1800b2e7df6c63d83
 - `src/eval/proofloopCompanyTaskCoverage.ts`: 5ba36a4bf91555d4144c5ee709e0dc1d8c37fa7f8f95be63516987b93652e800
-- `src/eval/proofloopHarnessEconomics.ts`: fde021345bf656bcd7c4c6a328bafeae1918e0bd2cc9ec34a024d3029d0cca55
+- `src/eval/proofloopHarnessEconomics.ts`: 68262a842b659f1cba6ed1f65e12c619077a960331e862cbd784c5872b18254e
+- `src/eval/proofloopOfficialScorePreflight.ts`: 273eba7f112c75e8901a9570ad0926fb31fae797d49b7165d8ec6df5cf27cab8
 - `src/eval/proofloopLiveBrowserPrompt.ts`: 930b20ce976736bf2b8be2a6bb2b308d1756015c1cde5f83f1fed950e67f2ac7
 
 ## Recommendations

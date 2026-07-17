@@ -1,0 +1,37 @@
+{
+  "premise": {
+    "narrationSec": 6.7,
+    "chars": 92,
+    "status": "ready"
+  },
+  "product-proof": {
+    "narrationSec": 8.5,
+    "chars": 118,
+    "status": "ready"
+  },
+  "denominator": {
+    "narrationSec": 10.7,
+    "chars": 95,
+    "status": "ready"
+  },
+  "conflict": {
+    "narrationSec": 9.4,
+    "chars": 74,
+    "status": "ready"
+  },
+  "fixes": {
+    "narrationSec": 9.1,
+    "chars": 115,
+    "status": "ready"
+  },
+  "external-scorers": {
+    "narrationSec": 9.1,
+    "chars": 113,
+    "status": "ready"
+  },
+  "gate": {
+    "narrationSec": 9.4,
+    "chars": 110,
+    "status": "ready"
+  }
+}

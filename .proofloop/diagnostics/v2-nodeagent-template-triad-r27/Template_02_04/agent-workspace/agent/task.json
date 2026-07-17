@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "taskId": "Template/02_04",
+  "track": "spreadsheetbench-v2",
+  "category": "Template",
+  "instruction": "Use the average balance method for interest expense.",
+  "inputFiles": [
+    "inputs/01-02_04_input.xlsx"
+  ],
+  "promptFiles": []
+}

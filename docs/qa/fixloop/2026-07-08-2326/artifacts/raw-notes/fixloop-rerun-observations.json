@@ -1,0 +1,73 @@
+{
+  "schema": "noderoom-fixloop-rerun-v1",
+  "runId": "2026-07-08-2326",
+  "generatedAt": "2026-07-09T06:38:32.552Z",
+  "baseUrl": "http://127.0.0.1:5280",
+  "targetScope": "local fixed dev server; production deploy not verified",
+  "roomCode": "NRFXMRD4XOH2",
+  "status": "pass",
+  "observations": [
+    {
+      "label": "ssr-create-cta",
+      "status": "pass",
+      "startedAt": "2026-07-09T06:38:02.224Z",
+      "finishedAt": "2026-07-09T06:38:03.232Z",
+      "result": {
+        "href": "/?create=1&surface=desktop&name=Host&title=Startup%20diligence",
+        "landedUrl": "http://127.0.0.1:5280/?create=1&surface=desktop&name=Host&title=Startup%20diligence"
+      },
+      "artifacts": {
+        "screenshot": "docs/qa/fixloop/2026-07-08-2326/artifacts/screenshots/ssr-create-cta.png",
+        "trace": "docs/qa/fixloop/2026-07-08-2326/artifacts/traces/ssr-create-cta.zip",
+        "video": "docs/qa/fixloop/2026-07-08-2326/artifacts/videos/ssr-create-cta.webm",
+        "consoleLog": "docs/qa/fixloop/2026-07-08-2326/artifacts/console-logs/ssr-create-cta.json",
+        "networkLog": "docs/qa/fixloop/2026-07-08-2326/artifacts/network-logs/ssr-create-cta.json"
+      }
+    },
+    {
+      "label": "live-create-export-reload",
+      "status": "pass",
+      "startedAt": "2026-07-09T06:38:03.302Z",
+      "finishedAt": "2026-07-09T06:38:28.353Z",
+      "result": {
+        "roomCode": "NRFXMRD4XOH2",
+        "finalUrl": "http://127.0.0.1:5280/?room=NRFXMRD4XOH2&name=QA-FIXLOOP",
+        "export": {
+          "path": "docs/qa/fixloop/2026-07-08-2326/artifacts/downloads/live-create-q3-variance.xlsx",
+          "suggestedFilename": "Q3_variance.xlsx",
+          "bytes": 6560,
+          "magic": "PK"
+        },
+        "chat": {
+          "status": "pass",
+          "message": "Fix-loop smoke ping 1783579102342"
+        }
+      },
+      "artifacts": {
+        "screenshot": "docs/qa/fixloop/2026-07-08-2326/artifacts/screenshots/live-create-export-reload.png",
+        "trace": "docs/qa/fixloop/2026-07-08-2326/artifacts/traces/live-create-export-reload.zip",
+        "video": "docs/qa/fixloop/2026-07-08-2326/artifacts/videos/live-create-export-reload.webm",
+        "consoleLog": "docs/qa/fixloop/2026-07-08-2326/artifacts/console-logs/live-create-export-reload.json",
+        "networkLog": "docs/qa/fixloop/2026-07-08-2326/artifacts/network-logs/live-create-export-reload.json"
+      }
+    },
+    {
+      "label": "mobile-join-snapshot",
+      "status": "pass",
+      "startedAt": "2026-07-09T06:38:28.408Z",
+      "finishedAt": "2026-07-09T06:38:32.307Z",
+      "result": {
+        "roomCode": "NRFXMRD4XOH2",
+        "bodyPreview": "9:41\nN\nStartup Diligence\nStartup Diligence\nRoom\nStartup Diligence\nLIVE\nMode\nSuggest only\nNote\nNote\nDetected\n8\nDetected\nVoice note\nPaste source\nPhoto\nSaved · scanning after pause\n22 words · private\n\nRaw notes stay private. NodeRoom only surfaces structured signals — it never edits your note or researches without approval.\n\n2 people are & 1 agent here\n\nYou joined this room — watch every artifact live, chat, and follow anyone. Locks and receipts apply to every edit, yours and the agent’s.\n\nGot it"
+      },
+      "artifacts": {
+        "screenshot": "docs/qa/fixloop/2026-07-08-2326/artifacts/screenshots/mobile-join-snapshot.png",
+        "trace": "docs/qa/fixloop/2026-07-08-2326/artifacts/traces/mobile-join-snapshot.zip",
+        "video": "docs/qa/fixloop/2026-07-08-2326/artifacts/videos/mobile-join-snapshot.webm",
+        "consoleLog": "docs/qa/fixloop/2026-07-08-2326/artifacts/console-logs/mobile-join-snapshot.json",
+        "networkLog": "docs/qa/fixloop/2026-07-08-2326/artifacts/network-logs/mobile-join-snapshot.json"
+      }
+    }
+  ],
+  "issues": []
+}

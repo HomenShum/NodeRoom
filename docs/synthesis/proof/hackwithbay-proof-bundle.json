@@ -1,0 +1,669 @@
+{
+  "manifestVersion": 1,
+  "roomId": "room_52",
+  "manifestId": "room_52:proof-bundle:5715baf1:manifest:baf347df",
+  "generatedAt": 1783593897844,
+  "receipt": {
+    "receiptVersion": 1,
+    "roomId": "room_52",
+    "receiptId": "room_52:proof-bundle:5715baf1",
+    "generatedAt": 1783593897844,
+    "artifactCount": 8,
+    "kindCounts": {
+      "spreadsheet": 2,
+      "notebook": 1,
+      "wall": 0,
+      "deck": 1,
+      "graph": 1,
+      "trace": 2,
+      "proposal": 0,
+      "export": 1
+    },
+    "statusCounts": {
+      "empty": 2,
+      "ready": 5,
+      "running": 0,
+      "needs_review": 1,
+      "failed": 0,
+      "pending": 0,
+      "approved": 0,
+      "rejected": 0
+    },
+    "evidenceCount": 0,
+    "unresolvedCount": 7,
+    "traceIds": [
+      "tr_54",
+      "tr_60"
+    ],
+    "proposalIds": [],
+    "sourceIds": [
+      "art_55",
+      "art_56",
+      "art_57",
+      "https://app.daytona.io",
+      "https://cloud.rocketride.ai",
+      "https://console.neo4j.io",
+      "https://dashboard.butterbase.ai",
+      "https://github.com/topoteretes/cognee",
+      "https://portal.opsera.io/signup",
+      "https://tokenfactory.nebius.com/settings/api-keys"
+    ],
+    "items": [
+      {
+        "id": "artifact:art_55",
+        "kind": "notebook",
+        "status": "ready",
+        "title": "HackwithBay Demo Brief",
+        "version": 1,
+        "traceIds": [],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "artifact:art_56",
+        "kind": "spreadsheet",
+        "status": "empty",
+        "title": "HackwithBay Integration Map",
+        "version": 1,
+        "traceIds": [],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "artifact:art_57",
+        "kind": "spreadsheet",
+        "status": "empty",
+        "title": "Provider Setup Checklist",
+        "version": 1,
+        "traceIds": [],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "deck:room_52:storyboard",
+        "kind": "deck",
+        "status": "needs_review",
+        "title": "HackwithBay 3.0 - BTB Graph Agent readout",
+        "version": 1,
+        "traceIds": [
+          "tr_54",
+          "tr_60"
+        ],
+        "proposalIds": [],
+        "sourceIds": [
+          "art_55",
+          "art_56",
+          "art_57"
+        ],
+        "evidenceCount": 0,
+        "unresolvedCount": 7
+      },
+      {
+        "id": "export:room_52:proof-bundle",
+        "kind": "export",
+        "status": "ready",
+        "title": "Room proof export",
+        "traceIds": [
+          "tr_54",
+          "tr_60"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "graph:room_52",
+        "kind": "graph",
+        "status": "ready",
+        "title": "Proof graph",
+        "traceIds": [
+          "tr_54",
+          "tr_60"
+        ],
+        "proposalIds": [],
+        "sourceIds": [
+          "art_55",
+          "art_56",
+          "art_57",
+          "https://app.daytona.io",
+          "https://cloud.rocketride.ai",
+          "https://console.neo4j.io",
+          "https://dashboard.butterbase.ai",
+          "https://github.com/topoteretes/cognee",
+          "https://portal.opsera.io/signup",
+          "https://tokenfactory.nebius.com/settings/api-keys"
+        ],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "trace:tr_54",
+        "kind": "trace",
+        "status": "ready",
+        "title": "HackwithBay Host created \"HackwithBay 3.0 - BTB Graph Agent\"",
+        "traceIds": [
+          "tr_54"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "trace:tr_60",
+        "kind": "trace",
+        "status": "ready",
+        "title": "HackwithBay 3.0 route seeded for BTB upload, graph memory, Nebius agent chat, Daytona code execution, and provider setup receipts.",
+        "traceIds": [
+          "tr_60"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      }
+    ],
+    "knownGaps": [
+      {
+        "itemId": "deck:room_52:storyboard",
+        "title": "HackwithBay 3.0 - BTB Graph Agent readout",
+        "status": "needs_review",
+        "unresolvedCount": 7,
+        "reason": "human_review_required"
+      }
+    ],
+    "integrityHash": "5715baf1"
+  },
+  "traceReplay": {
+    "roomId": "room_52",
+    "eventCount": 2,
+    "status": "ready",
+    "traceIds": [
+      "tr_54",
+      "tr_60"
+    ],
+    "proposalIds": [],
+    "artifactIds": [],
+    "phases": [
+      {
+        "id": "room",
+        "label": "Room setup",
+        "status": "ready",
+        "traceIds": [
+          "tr_54"
+        ],
+        "artifactIds": [],
+        "proposalIds": [],
+        "startAt": 1783593889947,
+        "endAt": 1783593889947,
+        "summary": "1 event"
+      },
+      {
+        "id": "agent",
+        "label": "Agent work",
+        "status": "ready",
+        "traceIds": [
+          "tr_60"
+        ],
+        "artifactIds": [],
+        "proposalIds": [],
+        "startAt": 1783593889947,
+        "endAt": 1783593889947,
+        "summary": "1 event"
+      }
+    ],
+    "criticalPath": [
+      {
+        "id": "room",
+        "label": "Room setup",
+        "status": "ready",
+        "traceIds": [
+          "tr_54"
+        ],
+        "artifactIds": [],
+        "proposalIds": [],
+        "startAt": 1783593889947,
+        "endAt": 1783593889947,
+        "summary": "1 event"
+      },
+      {
+        "id": "agent",
+        "label": "Agent work",
+        "status": "ready",
+        "traceIds": [
+          "tr_60"
+        ],
+        "artifactIds": [],
+        "proposalIds": [],
+        "startAt": 1783593889947,
+        "endAt": 1783593889947,
+        "summary": "1 event"
+      }
+    ],
+    "replayHash": "c08a86e1"
+  },
+  "artifacts": [
+    {
+      "id": "artifact:art_55",
+      "kind": "notebook",
+      "sourceKind": "note",
+      "title": "HackwithBay Demo Brief",
+      "summary": "5 blocks - 1 section",
+      "status": "ready",
+      "version": 1,
+      "ownerName": "HackwithBay Host",
+      "receipt": {
+        "traceIds": [],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "artifactId": "art_55",
+          "elementId": "doc",
+          "label": "HackwithBay 3.0 demo map"
+        },
+        {
+          "artifactId": "art_55",
+          "label": "HackwithBay Demo Brief"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "comment",
+          "label": "Comment"
+        },
+        {
+          "id": "ask_nodeagent",
+          "label": "Ask NodeAgent"
+        },
+        {
+          "id": "propose_patch",
+          "label": "Propose patch"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "elementCount": 1,
+        "visibility": "room",
+        "tags": "hackwithbay, btb, demo-brief",
+        "blockCount": 5,
+        "sectionCount": 1,
+        "agentBlockCount": 0,
+        "humanBlockCount": 5,
+        "citationCount": 0
+      }
+    },
+    {
+      "id": "artifact:art_56",
+      "kind": "spreadsheet",
+      "sourceKind": "sheet",
+      "title": "HackwithBay Integration Map",
+      "summary": "35 item(s): NodeRoom BTB graph agent, Project, Homen, #/hackwithbay, BankerToolBench task btb-067cb834, Room NodeAgent",
+      "status": "empty",
+      "version": 1,
+      "ownerName": "HackwithBay Host",
+      "receipt": {
+        "traceIds": [],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "artifactId": "art_56",
+          "label": "HackwithBay Integration Map"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "comment",
+          "label": "Comment"
+        },
+        {
+          "id": "ask_nodeagent",
+          "label": "Ask NodeAgent"
+        },
+        {
+          "id": "propose_patch",
+          "label": "Propose patch"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "elementCount": 84,
+        "visibility": "room",
+        "tags": "noderoom, btb, graph, agent, project, homen, hackwithbay, bankertoolbench, task, 067cb834"
+      }
+    },
+    {
+      "id": "artifact:art_57",
+      "kind": "spreadsheet",
+      "sourceKind": "sheet",
+      "title": "Provider Setup Checklist",
+      "summary": "23 item(s): Butterbase, Tool, project URL, anon/server key if provided, Stored project/user/upload/payment rows, Neo4j Aura, NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD",
+      "status": "empty",
+      "version": 1,
+      "ownerName": "HackwithBay Host",
+      "receipt": {
+        "traceIds": [],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "artifactId": "art_57",
+          "label": "Provider Setup Checklist"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "comment",
+          "label": "Comment"
+        },
+        {
+          "id": "ask_nodeagent",
+          "label": "Ask NodeAgent"
+        },
+        {
+          "id": "propose_patch",
+          "label": "Propose patch"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "elementCount": 35,
+        "visibility": "room",
+        "tags": "butterbase, tool, project, url, anon, server, key, provided, stored, user"
+      }
+    },
+    {
+      "id": "deck:room_52:storyboard",
+      "kind": "deck",
+      "sourceKind": "deck_storyboard",
+      "title": "HackwithBay 3.0 - BTB Graph Agent readout",
+      "summary": "3 storyboard sections - 0 evidence",
+      "status": "needs_review",
+      "version": 1,
+      "receipt": {
+        "traceIds": [
+          "tr_54",
+          "tr_60"
+        ],
+        "sourceIds": [
+          "art_55",
+          "art_56",
+          "art_57"
+        ],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 7
+      },
+      "refs": [
+        {
+          "elementId": "slide-1-hackwithbay-demo-brief",
+          "label": "HackwithBay Demo Brief"
+        },
+        {
+          "elementId": "slide-2-hackwithbay-integration-map",
+          "label": "HackwithBay Integration Map"
+        },
+        {
+          "elementId": "slide-3-provider-setup-checklist",
+          "label": "Provider Setup Checklist"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "comment",
+          "label": "Comment"
+        },
+        {
+          "id": "ask_nodeagent",
+          "label": "Ask NodeAgent"
+        },
+        {
+          "id": "propose_patch",
+          "label": "Propose patch"
+        },
+        {
+          "id": "export",
+          "label": "Export"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "storyboardStatus": "needs_review",
+        "sectionCount": 3
+      }
+    },
+    {
+      "id": "export:room_52:proof-bundle",
+      "kind": "export",
+      "sourceKind": "export_bundle",
+      "title": "Room proof export",
+      "summary": "ZIP export - 3 artifacts",
+      "status": "ready",
+      "receipt": {
+        "traceIds": [
+          "tr_54",
+          "tr_60"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "exportId": "room_52:proof-bundle",
+          "label": "Room proof export"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "export",
+          "label": "Download"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "format": "zip",
+        "artifactCount": 3
+      }
+    },
+    {
+      "id": "graph:room_52",
+      "kind": "graph",
+      "sourceKind": "semantic_graph",
+      "title": "Proof graph",
+      "summary": "74 nodes - 170 edges - 0 backed facts",
+      "status": "ready",
+      "receipt": {
+        "traceIds": [
+          "tr_60",
+          "tr_54"
+        ],
+        "sourceIds": [
+          "art_56",
+          "art_57",
+          "art_55",
+          "https://app.daytona.io",
+          "https://cloud.rocketride.ai",
+          "https://console.neo4j.io",
+          "https://dashboard.butterbase.ai",
+          "https://github.com/topoteretes/cognee",
+          "https://portal.opsera.io/signup",
+          "https://tokenfactory.nebius.com/settings/api-keys"
+        ],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "traceId": "tr_54",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_60",
+          "label": "Trace-linked graph node"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "comment",
+          "label": "Comment"
+        },
+        {
+          "id": "ask_nodeagent",
+          "label": "Ask NodeAgent"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "nodes": 74,
+        "edges": 170,
+        "companies": 12,
+        "people": 10
+      }
+    },
+    {
+      "id": "trace:tr_54",
+      "kind": "trace",
+      "sourceKind": "trace_event",
+      "title": "HackwithBay Host created \"HackwithBay 3.0 - BTB Graph Agent\"",
+      "status": "ready",
+      "ownerName": "HackwithBay Host",
+      "receipt": {
+        "traceIds": [
+          "tr_54"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "traceId": "tr_54",
+          "label": "HackwithBay Host created \"HackwithBay 3.0 - BTB Graph Agent\""
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "traceType": "room_created"
+      }
+    },
+    {
+      "id": "trace:tr_60",
+      "kind": "trace",
+      "sourceKind": "trace_event",
+      "title": "HackwithBay 3.0 route seeded for BTB upload, graph memory, Nebius agent chat, Daytona code execution, and provider setup receipts.",
+      "summary": "This is a demo map until provider accounts and keys are configured.",
+      "status": "ready",
+      "ownerName": "Nebius NodeAgent",
+      "receipt": {
+        "traceIds": [
+          "tr_60"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "traceId": "tr_60",
+          "label": "HackwithBay 3.0 route seeded for BTB upload, graph memory, Nebius agent chat, Daytona code execution, and provider setup receipts."
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "traceType": "agent_status"
+      }
+    }
+  ],
+  "exportIntents": [
+    {
+      "kind": "proof_bundle_sidecar",
+      "format": "json",
+      "receiptId": "room_52:proof-bundle:5715baf1",
+      "replayHash": "c08a86e1",
+      "knownGapCount": 1
+    }
+  ],
+  "integrityHash": "baf347df"
+}

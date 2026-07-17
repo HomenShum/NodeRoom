@@ -1,0 +1,41 @@
+{
+  "schema": "noderoom-fixloop-gemini-final-summary-v1",
+  "runId": "prod-boot-progress-desktop-2026-07-09",
+  "generatedAt": "2026-07-09T09:55:50.990Z",
+  "model": "gemini-3.5-flash",
+  "desktop": {
+    "input": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-boot-progress/artifacts/videos/live-create-export-reload.webm",
+    "raw": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-boot-progress/gemini-desktop/latest.json",
+    "summary": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-boot-progress/gemini-desktop/prod-boot-progress-desktop-2026-07-09/summary.md",
+    "verdict": "publish",
+    "score": 8,
+    "maxScore": 16,
+    "defects": [],
+    "closedPriorDefects": [
+      {
+        "id": "GEMINI-P2-001",
+        "observed": "Brief black-frame transitions around workspace navigation and reload.",
+        "closure": "Not reported after private-route SSR boot shell and hydrated live boot shell patch; final Gemini desktop result has no defects."
+      },
+      {
+        "id": "GEMINI-P2-002",
+        "observed": "After reloading, the active sheet resets to 'Company research' instead of preserving 'Q3 variance'.",
+        "closure": "Not reported after active-artifact persistence patch; production Playwright also verifies Q3 variance remains active after reload."
+      },
+      {
+        "id": "GEMINI-P2-003",
+        "observed": "Initial live-room boot skeleton felt sluggish.",
+        "closure": "Not reported after staged live-room boot progress was added."
+      }
+    ]
+  },
+  "mobile": {
+    "input": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-all-remaining/artifacts/videos/mobile-join-snapshot.webm",
+    "raw": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-all-remaining/gemini-mobile/latest.json",
+    "summary": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-all-remaining/gemini-mobile/prod-all-remaining-mobile-2026-07-09/summary.md",
+    "verdict": "publish",
+    "score": 8,
+    "maxScore": 16,
+    "defects": []
+  }
+}

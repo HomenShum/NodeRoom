@@ -1,0 +1,291 @@
+{
+  "schema": "nodeagent.trace.v1",
+  "traceId": "spreadsheetbench-nodeagent-e327caad",
+  "createdAt": 1784035915660,
+  "updatedAt": 1784036018618,
+  "trigger": {
+    "kind": "benchmark",
+    "prompt": "Complete the deferred tax analysis. Fill in all empty cells for Years 2-4. Leave Tax Accounting income statement rows and Year 1 cells unchanged.",
+    "selectedArtifactIds": [
+      "DeferredTax"
+    ],
+    "openedSurface": "spreadsheetbench.nodeagent.bridge"
+  },
+  "plan": {
+    "goal": "Complete the deferred tax analysis. Fill in all empty cells for Years 2-4. Leave Tax Accounting income statement rows and Year 1 cells unchanged.",
+    "plannedReads": [
+      {
+        "kind": "artifact",
+        "refId": "DeferredTax",
+        "label": "Agent-visible worksheet"
+      }
+    ],
+    "plannedWrites": [
+      {
+        "kind": "artifact",
+        "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r28\\Template_05_02\\candidate-01-05_02_input.xlsx",
+        "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+        "hash": "02df4e339b6a838aba54fcf23a2e734bc9ac0d5e3e9adced8b0440d25c398467"
+      }
+    ],
+    "approvalRequired": false,
+    "riskFlags": [
+      "evaluator_isolation",
+      "workbook_mutation",
+      "cas_managed_write"
+    ]
+  },
+  "contextPack": {
+    "worldModelHash": "fnv1a:f56ba765",
+    "includedRefs": [
+      {
+        "kind": "frame",
+        "refId": "rf_spreadsheetbench-nodeagent-e327caad",
+        "label": "Reasoning frame"
+      }
+    ],
+    "excludedRefs": []
+  },
+  "steps": [
+    {
+      "stepId": "spreadsheetbench-nodeagent-e327caad:tool:000:inspect-workbook",
+      "traceId": "spreadsheetbench-nodeagent-e327caad",
+      "phase": "tool_call",
+      "title": "Tool call: inspect_workbook",
+      "summary": "Called inspect_workbook and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-e327caad:tool:000:inspect-workbook:args",
+          "hash": "fnv1a:1d5b24f1",
+          "label": "inspect_workbook args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-e327caad:tool:000:inspect-workbook:result",
+          "hash": "fnv1a:df42987a",
+          "label": "inspect_workbook result"
+        }
+      ],
+      "tool": {
+        "name": "inspect_workbook",
+        "argsHash": "fnv1a:1d5b24f1",
+        "resultHash": "fnv1a:df42987a",
+        "status": "ok",
+        "latencyMs": 20
+      },
+      "timings": {
+        "startedAt": 1784035915660,
+        "endedAt": 1784035915680,
+        "latencyMs": 20
+      },
+      "verdict": {
+        "status": "ok"
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-e327caad:tool:001:read-range",
+      "traceId": "spreadsheetbench-nodeagent-e327caad",
+      "phase": "tool_call",
+      "title": "Tool call: read_range",
+      "summary": "Called read_range and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-e327caad:tool:001:read-range:args",
+          "hash": "fnv1a:54bf0c7e",
+          "label": "read_range args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-e327caad:tool:001:read-range:result",
+          "hash": "fnv1a:1e16c25c",
+          "label": "read_range result"
+        }
+      ],
+      "tool": {
+        "name": "read_range",
+        "argsHash": "fnv1a:54bf0c7e",
+        "resultHash": "fnv1a:1e16c25c",
+        "status": "ok",
+        "latencyMs": 0
+      },
+      "timings": {
+        "startedAt": 1784035915660,
+        "endedAt": 1784035915660,
+        "latencyMs": 0
+      },
+      "verdict": {
+        "status": "ok"
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-e327caad:tool:003:handoff",
+      "traceId": "spreadsheetbench-nodeagent-e327caad",
+      "phase": "reason",
+      "title": "Runtime handoff",
+      "summary": "Runtime produced a resumable handoff receipt.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-e327caad:tool:003:handoff:args",
+          "hash": "fnv1a:6af658a1",
+          "label": "handoff args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-e327caad:tool:003:handoff:result",
+          "hash": "fnv1a:16bf73e9",
+          "label": "handoff result"
+        }
+      ],
+      "tool": {
+        "name": "handoff",
+        "argsHash": "fnv1a:6af658a1",
+        "resultHash": "fnv1a:16bf73e9",
+        "status": "ok",
+        "latencyMs": 0
+      },
+      "timings": {
+        "startedAt": 1784035915660,
+        "endedAt": 1784035915660,
+        "latencyMs": 0
+      },
+      "verdict": {
+        "status": "ok"
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "receiptId": "spreadsheetbench-nodeagent-e327caad:evidence:spreadsheetbench-inspect",
+      "traceId": "spreadsheetbench-nodeagent-e327caad",
+      "label": "SpreadsheetBench inspect",
+      "sourceRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-e327caad:bridge:event:0",
+          "label": "inspect_workbook",
+          "hash": "fnv1a:df42987a"
+        }
+      ],
+      "artifactRefs": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r28\\Template_05_02\\candidate-01-05_02_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+          "hash": "02df4e339b6a838aba54fcf23a2e734bc9ac0d5e3e9adced8b0440d25c398467"
+        }
+      ],
+      "factHash": "fnv1a:dea522d3",
+      "verifier": "spreadsheetBenchNodeAgentBridge",
+      "status": "verified"
+    },
+    {
+      "receiptId": "spreadsheetbench-nodeagent-e327caad:evidence:spreadsheetbench-preflight",
+      "traceId": "spreadsheetbench-nodeagent-e327caad",
+      "label": "SpreadsheetBench preflight",
+      "sourceRefs": [],
+      "artifactRefs": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r28\\Template_05_02\\candidate-01-05_02_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+          "hash": "02df4e339b6a838aba54fcf23a2e734bc9ac0d5e3e9adced8b0440d25c398467"
+        }
+      ],
+      "factHash": "fnv1a:cc17ac59",
+      "verifier": "verify_workbook",
+      "status": "verified"
+    },
+    {
+      "receiptId": "spreadsheetbench-nodeagent-e327caad:evidence:spreadsheetbench-verify",
+      "traceId": "spreadsheetbench-nodeagent-e327caad",
+      "label": "SpreadsheetBench verify",
+      "sourceRefs": [],
+      "artifactRefs": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r28\\Template_05_02\\candidate-01-05_02_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+          "hash": "02df4e339b6a838aba54fcf23a2e734bc9ac0d5e3e9adced8b0440d25c398467"
+        }
+      ],
+      "factHash": "fnv1a:e6c334c4",
+      "verifier": "verify_workbook",
+      "status": "verified"
+    },
+    {
+      "receiptId": "spreadsheetbench-nodeagent-e327caad:evidence:spreadsheetbench-repair",
+      "traceId": "spreadsheetbench-nodeagent-e327caad",
+      "label": "SpreadsheetBench repair",
+      "sourceRefs": [],
+      "artifactRefs": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r28\\Template_05_02\\candidate-01-05_02_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+          "hash": "02df4e339b6a838aba54fcf23a2e734bc9ac0d5e3e9adced8b0440d25c398467"
+        }
+      ],
+      "factHash": "fnv1a:12966d23",
+      "verifier": "spreadsheetBenchNodeAgentBridge",
+      "status": "verified"
+    },
+    {
+      "receiptId": "spreadsheetbench-nodeagent-e327caad:evidence:spreadsheetbench-formula-recalculation",
+      "traceId": "spreadsheetbench-nodeagent-e327caad",
+      "label": "SpreadsheetBench formula recalculation",
+      "sourceRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-e327caad:formula-recalculation",
+          "label": "NodeAgent formula recalculation receipt",
+          "hash": "fnv1a:89ba56d3"
+        }
+      ],
+      "artifactRefs": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r28\\Template_05_02\\candidate-01-05_02_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+          "hash": "02df4e339b6a838aba54fcf23a2e734bc9ac0d5e3e9adced8b0440d25c398467"
+        }
+      ],
+      "factHash": "fnv1a:89ba56d3",
+      "verifier": "nodeagent-formula-engine",
+      "status": "verified"
+    }
+  ],
+  "mutations": [],
+  "approvals": [],
+  "eval": {
+    "proofArtifacts": [
+      {
+        "kind": "artifact",
+        "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r28\\Template_05_02\\candidate-01-05_02_input.xlsx",
+        "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+        "hash": "02df4e339b6a838aba54fcf23a2e734bc9ac0d5e3e9adced8b0440d25c398467"
+      }
+    ],
+    "benchmarkCaseId": "Template/05_02"
+  },
+  "final": {
+    "outputArtifactRefs": [
+      {
+        "kind": "artifact",
+        "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r28\\Template_05_02\\candidate-01-05_02_input.xlsx",
+        "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+        "hash": "02df4e339b6a838aba54fcf23a2e734bc9ac0d5e3e9adced8b0440d25c398467"
+      }
+    ],
+    "summary": "Paused after an agent runtime error.",
+    "status": "failed"
+  }
+}

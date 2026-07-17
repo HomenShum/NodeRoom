@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "taskId": "Template/06_11",
+  "track": "spreadsheetbench-v2",
+  "category": "Template",
+  "instruction": "Forecast Cash as prior period Cash plus Changes in Working Capital.",
+  "inputFiles": [
+    "inputs/01-06_11_input.xlsx"
+  ],
+  "promptFiles": []
+}

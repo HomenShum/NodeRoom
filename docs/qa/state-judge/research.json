@@ -1,23 +1,23 @@
 {
   "surface": "research",
   "judgeModel": "gemini-3.5-flash",
-  "judgedAt": "2026-06-11T21:16:50.424Z",
+  "judgedAt": "2026-07-12T11:10:47.310Z",
   "stateCount": 3,
   "scores": {
     "state_legibility": 7,
-    "affordance_honesty": 7,
-    "consistency": 6,
-    "contrast": 5,
-    "polish": 6
+    "affordance_honesty": 6,
+    "consistency": 7,
+    "contrast": 6,
+    "polish": 7
   },
-  "average": 6.2,
+  "average": 6.6,
   "pass": false,
   "topIssues": [
-    "Image 2 (import-open): The 'Import / update rows' button floats at the bottom-right of the textarea, leaving an awkward, empty layout gap directly above it.",
-    "Image 1 (default): Low contrast on the sub-header metadata ('4 accounts · 4 pending...') and table headers makes them difficult to read against the dark background."
+    "image 2 (import-open): The 'Import / update rows' button is styled as active (terracotta fill) despite the input textarea being empty, presenting a false affordance.",
+    "image 3 (import-empty-error): The submit button remains active and clickable in the error state instead of switching to a disabled visual style."
   ],
   "fixSuggestions": [
-    "Reposition the import button directly below the textarea or center it vertically to eliminate the empty space gap.",
-    "Increase the brightness of the muted gray text elements to improve readability and meet contrast standards."
+    "Keep the 'Import / update rows' button visually disabled until valid text is entered into the import textarea.",
+    "Increase the contrast of the gray 'pending' status text and the dark orange 'needs_review' text against the dark grid background."
   ]
 }

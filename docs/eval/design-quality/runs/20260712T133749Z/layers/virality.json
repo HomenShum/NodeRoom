@@ -1,0 +1,15 @@
+{
+  "runId": "20260712T133749Z",
+  "commitSha": "5f67d8e1+dirty",
+  "generatedAt": "2026-07-12T13:38:35.253Z",
+  "command": "a11y",
+  "sourceTreeHash": "07724d971f5f94c665f2499fc508454101326b3decd0d4be41810130af7e2db1",
+  "status": "heuristic",
+  "note": "Virality signals are currently static UI affordance checks; event analytics remain future work.",
+  "viralitySignals": {
+    "roomInviteVisible": true,
+    "shareActionVisible": true,
+    "downstreamHandoffVisible": true,
+    "notificationDeepLinkVisible": true
+  }
+}

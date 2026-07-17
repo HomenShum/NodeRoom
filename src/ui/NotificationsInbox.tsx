@@ -30,6 +30,8 @@ import { AtSign, Bell, Check, Eye, ListChecks, X } from "lucide-react";
 import type { FunctionReference } from "convex/server";
 import { api } from "../../convex/_generated/api";
 import type { ActorProof } from "../app/store";
+import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
+import { ScrollArea } from "../components/ui/scroll-area";
 import { textEntryIsActive } from "./focusMode";
 import {
   NOTIFICATION_TIERS,
@@ -137,7 +139,6 @@ function NotificationsInboxInner({ roomId, requester }: { roomId: string; reques
   const [open, setOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const rootRef = useRef<HTMLDivElement | null>(null);
   /** Last sheet cell the pointer touched — the W key's fallback "focused cell". */
   const lastCellRef = useRef<FocusedRowTarget | null>(null);
 
@@ -211,41 +212,27 @@ function NotificationsInboxInner({ roomId, requester }: { roomId: string; reques
   }, []);
 
   // Esc / outside-pointerdown close — dismissable chrome, standard contract.
-  useEffect(() => {
-    if (!open) return;
-    const onEsc = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
-    const onOutside = (e: PointerEvent) => {
-      if (rootRef.current && e.target instanceof Node && !rootRef.current.contains(e.target)) setOpen(false);
-    };
-    window.addEventListener("keydown", onEsc);
-    document.addEventListener("pointerdown", onOutside);
-    return () => {
-      window.removeEventListener("keydown", onEsc);
-      document.removeEventListener("pointerdown", onOutside);
-    };
-  }, [open]);
-
   return (
-    <div className="r-notif" ref={rootRef} data-noderoom-surface="shell.notifications">
+    <div className="r-notif" data-noderoom-surface="shell.notifications">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
       <button
         type="button"
         className="r-iconbtn r-notif-bell"
         data-testid="notifications-bell"
         data-on={String(open)}
         data-unread={String(unread > 0)}
-        aria-haspopup="dialog"
-        aria-expanded={open}
         title={unread > 0 ? `${unread} unread notification${unread === 1 ? "" : "s"}` : "Notifications"}
         aria-label={unread > 0 ? `Open notifications — ${unread} unread` : "Open notifications"}
-        onClick={() => setOpen((v) => !v)}
       >
         <Bell size={16} />
         {unread > 0 && (
           <span className="r-notif-badge" data-testid="notifications-unread-badge">{unread > 99 ? "99+" : unread}</span>
         )}
       </button>
-      {open && (
-        <div className="r-notif-panel" role="dialog" aria-label="Notifications" data-testid="notifications-inbox">
+        </PopoverTrigger>
+        <PopoverContent className="r-notif-panel" align="end" side="bottom" sideOffset={8} collisionPadding={8} aria-label="Notifications" data-testid="notifications-inbox">
+          <ScrollArea className="r-notif-scroll">
           <div className="r-notif-head">
             <Bell size={13} />
             <span className="r-notif-title">Notifications</span>
@@ -290,8 +277,9 @@ function NotificationsInboxInner({ roomId, requester }: { roomId: string; reques
               ))}
             </div>
           ))}
-        </div>
-      )}
+          </ScrollArea>
+        </PopoverContent>
+      </Popover>
       {toast && (
         <div className="r-notif-toast" role="status" aria-live="polite" data-testid="watch-toast">{toast}</div>
       )}

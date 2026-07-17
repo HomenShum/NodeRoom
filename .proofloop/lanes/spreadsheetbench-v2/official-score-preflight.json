@@ -1,0 +1,145 @@
+{
+  "schema": "proofloop-official-score-preflight-v1",
+  "generatedAt": "2026-07-09T09:49:40.845Z",
+  "status": "pass",
+  "officialBenchmarkScoreClaim": false,
+  "paidProviderCalls": false,
+  "requiredBeforeExpensiveLaneRuns": true,
+  "command": "npm run benchmark:proofloop:official-preflight -- --strict",
+  "refreshCommand": "npm run openrouter:free -- --limit=8 --json-out docs/eval/openrouter-free-model-discovery.json && npm run benchmark:proofloop:free-model-gauge -- --skip-live --strict && npm run benchmark:proofloop:harness-economics -- --strict && npm run benchmark:proofloop:official-preflight -- --strict",
+  "evidence": [
+    "docs/eval/openrouter-free-model-discovery.json",
+    "docs/eval/proofloop-free-openrouter-nodeagent-gauge.json",
+    "docs/eval/proofloop-harness-economics.json",
+    "docs/eval/proofloop-official-score-preflight.json",
+    "docs/eval/PROOFLOOP_OFFICIAL_SCORE_PREFLIGHT.md"
+  ],
+  "summary": {
+    "checksPassed": 7,
+    "checksFailed": 0,
+    "lanesGuarded": 6,
+    "freeRoutesDiscovered": 8,
+    "freeGaugeEstimatedCostUsd": 0,
+    "proxyJudgeCandidates": 8
+  },
+  "checks": [
+    {
+      "id": "free-discovery-receipt-present",
+      "status": "pass",
+      "detail": "8 tool-capable free route(s) discovered.",
+      "evidence": [
+        "docs/eval/openrouter-free-model-discovery.json"
+      ]
+    },
+    {
+      "id": "free-gauge-zero-provider-spend",
+      "status": "pass",
+      "detail": "Free gauge estimated cost is $0.000000.",
+      "evidence": [
+        "docs/eval/proofloop-free-openrouter-nodeagent-gauge.json"
+      ]
+    },
+    {
+      "id": "free-gauge-not-official-score",
+      "status": "pass",
+      "detail": "Free model gauge is labeled as non-official benchmark evidence.",
+      "evidence": [
+        "docs/eval/proofloop-free-openrouter-nodeagent-gauge.json"
+      ]
+    },
+    {
+      "id": "free-gauge-has-usable-route-or-safe-skip",
+      "status": "pass",
+      "detail": "Gauge passed=0, skipped=4, failed=0.",
+      "evidence": [
+        "docs/eval/proofloop-free-openrouter-nodeagent-gauge.json"
+      ]
+    },
+    {
+      "id": "harness-economics-receipt-present",
+      "status": "pass",
+      "detail": "Harness economics tracks 25 file(s), missing 0; proxy candidates 8.",
+      "evidence": [
+        "docs/eval/proofloop-harness-economics.json"
+      ]
+    },
+    {
+      "id": "official-claim-boundary-preserved",
+      "status": "pass",
+      "detail": "Every official score lane still requires an accepted scorer or accepted judge contract before a claim.",
+      "evidence": [
+        "docs/eval/proofloop-harness-economics.json"
+      ]
+    },
+    {
+      "id": "expensive-lanes-have-preflight-next-command",
+      "status": "pass",
+      "detail": "6 lane checklist(s) start with the official preflight command.",
+      "evidence": [
+        "docs/eval/proofloop-official-score-preflight.json"
+      ]
+    }
+  ],
+  "lanes": [
+    {
+      "lane": "bankertoolbench",
+      "blockedWhen": "Full-suite scored receipt or Gandalf/Harbor official execution evidence is missing.",
+      "safeNextCommand": "npm run benchmark:proofloop:official-preflight -- --strict && npm run benchmark:bankertoolbench:fullsuite-gate -- --assert",
+      "checklist": [
+        "Keep BTB official score claims tied to full-suite gate or accepted Gandalf/Harbor receipts.",
+        "Do not use proxy/free model sweeps as leaderboard score evidence."
+      ]
+    },
+    {
+      "lane": "spreadsheetbench-v1",
+      "blockedWhen": "Full 912-task model-run output and SpreadsheetBench scorer receipt are missing.",
+      "safeNextCommand": "npm run benchmark:proofloop:official-preflight -- --strict && npm run benchmark:official:task-coverage -- --strict",
+      "checklist": [
+        "Confirm the 912-task stage and contamination receipts before model spend.",
+        "Use free/proxy routes for iteration only; official claim requires SpreadsheetBench scorer output."
+      ]
+    },
+    {
+      "lane": "spreadsheetbench-v2",
+      "blockedWhen": "Full V2 run artifacts, workbook scorer, or chart grader receipt are missing.",
+      "safeNextCommand": "npm run benchmark:proofloop:official-preflight -- --strict && npm run benchmark:official:task-coverage -- --strict",
+      "checklist": [
+        "Confirm the 321-task stage and chart-grader path before model spend.",
+        "Keep rendered chart grading separate from proxy judge triage."
+      ]
+    },
+    {
+      "lane": "finch",
+      "blockedWhen": "Upstream Finch content_parts rendering or accepted Azure judge/scorer receipt is missing.",
+      "safeNextCommand": "npm run benchmark:proofloop:official-preflight -- --strict && npm run benchmark:proofloop:adapter-blockers -- --id finch --strict",
+      "checklist": [
+        "Refresh the typed adapter blocker receipt after importing upstream scorer output.",
+        "Do not label OpenRouter proxy judge evidence as Finch official score evidence."
+      ]
+    },
+    {
+      "lane": "finauditing",
+      "blockedWhen": "Accepted FinMR judge path or official scorer import is missing.",
+      "safeNextCommand": "npm run benchmark:proofloop:official-preflight -- --strict && npm run benchmark:proofloop:adapter-blockers -- --id finauditing --strict",
+      "checklist": [
+        "Refresh the typed adapter blocker receipt after importing accepted scorer output.",
+        "OpenAI or other judge credentials block official promotion only, not local output export proof."
+      ]
+    },
+    {
+      "lane": "workstreambench",
+      "blockedWhen": "Upstream official task bundle, rubric, or scorer package is not available.",
+      "safeNextCommand": "npm run benchmark:proofloop:official-preflight -- --strict && npm run benchmark:proofloop:adapter-blockers -- --id workstreambench --strict",
+      "checklist": [
+        "Keep local proof as proxy-only until upstream bundle/scorer evidence exists.",
+        "Refresh the typed adapter blocker receipt after locking any author-provided package."
+      ]
+    }
+  ],
+  "policy": [
+    "Run this preflight before any official-score lane command that could spend model or judge budget.",
+    "The preflight itself does not call paid providers; the free model gauge is invoked with --skip-live by the official-scores goal.",
+    "Free/proxy routes can support product iteration and blocker triage, but they cannot become official benchmark score claims without accepted scorer receipts.",
+    "Official claims stay gated by benchmark scorer receipts or explicitly accepted judge contracts."
+  ]
+}

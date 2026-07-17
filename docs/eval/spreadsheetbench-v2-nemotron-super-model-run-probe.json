@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-09T10:34:18.459Z",
+  "stageRoot": "staged-v2-full",
+  "outputRoot": "run-v2-nemotron-super-probe",
+  "mode": "model-edit-plan",
+  "taskOffset": 0,
+  "taskCount": 1,
+  "passCount": 0,
+  "averageOverall": 0,
+  "caseCount": 1,
+  "caseRunCount": 1,
+  "casePassCount": 0,
+  "casePassRate": 0,
+  "repeatCount": 1,
+  "attemptCount": 1,
+  "passRate": 0,
+  "retryPolicy": {
+    "maxRetries": 0,
+    "retryOn": [
+      "candidate_generation",
+      "scoring"
+    ],
+    "stopOnPass": true
+  },
+  "retryStats": {
+    "retriedCaseRunCount": 0,
+    "retryAttemptCount": 0,
+    "passedAfterRetryCount": 0,
+    "exhaustedCaseRunCount": 1
+  },
+  "stats": {
+    "latencyMs": {
+      "p50": 420252,
+      "p95": 420252,
+      "max": 420252
+    },
+    "failureCounts": {
+      "candidate_generation:The operation was aborted due to timeout": 1
+    }
+  },
+  "harness": {
+    "toolPolicy": "agent_dir_only_until_candidate",
+    "evaluatorAccess": "after_candidate_emit_only",
+    "budget": {
+      "modelCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "providerCostUsd": 0
+    }
+  },
+  "warnings": [
+    "tasks/Debugging_01_01#1.1: The operation was aborted due to timeout"
+  ],
+  "caseRuns": [
+    {
+      "taskId": "Debugging/01_01",
+      "taskDir": "tasks/Debugging_01_01",
+      "repeatIndex": 1,
+      "attempts": [
+        1
+      ],
+      "finalAttemptIndex": 1,
+      "pass": false,
+      "stopReason": "retry_exhausted",
+      "bestOverall": 0
+    }
+  ],
+  "results": [
+    {
+      "taskId": "Debugging/01_01",
+      "track": "spreadsheetbench-v2",
+      "category": "Debugging",
+      "mode": "model-edit-plan",
+      "attemptIndex": 1,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Debugging_01_01",
+      "agentManifest": "tasks/Debugging_01_01/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_01_01/evaluator/evaluator.json",
+      "error": {
+        "phase": "candidate_generation",
+        "message": "The operation was aborted due to timeout"
+      },
+      "model": {
+        "name": "nvidia/nemotron-3-super-120b-a12b:free",
+        "calls": 0,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 420030,
+        "candidateGeneration": 420237,
+        "scoring": 0,
+        "total": 420252
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Debugging_01_01/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Debugging_01_01/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "snapshot_agent_workbook",
+          "detail": "14 sheet(s), 642 cell(s)"
+        }
+      ]
+    }
+  ]
+}

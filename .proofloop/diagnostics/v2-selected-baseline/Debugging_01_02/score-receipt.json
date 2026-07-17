@@ -1,0 +1,1512 @@
+{
+  "schema": 1,
+  "verifier": "spreadsheetbench_workbook_scorer",
+  "generatedAt": "2026-07-14T09:13:02.768Z",
+  "taskId": "Debugging/01_02",
+  "track": "spreadsheetbench-v2",
+  "mode": "model-edit-plan",
+  "attemptIndex": 1,
+  "repeatIndex": 1,
+  "tryIndex": 1,
+  "candidateWorkbook": "Debugging_01_02/candidate-01-Embedded Hardcode_input.xlsx",
+  "agentManifest": "tasks/Debugging_01_02/agent/task.json",
+  "evaluatorManifest": "tasks/Debugging_01_02/evaluator/evaluator.json",
+  "score": {
+    "schema": 1,
+    "generatedAt": "2026-07-14T09:13:02.768Z",
+    "taskId": "Debugging/01_02",
+    "candidateWorkbook": "candidate-01-Embedded Hardcode_input.xlsx",
+    "goldWorkbook": "01-01_golden.xlsx",
+    "answerPosition": "'Ex 1 - LBO'!B1:AK95,'Ex 2 - Valuation Bridge'!B2:C36,'Ex 3 - PF P&L'!B1:I30,'Ex 4 - Organic Operating Model'!B1:AF41,'Ex 5 - M&A'!B1:AB81,'Ex 6 - Amdocs Historical M&A'!B2:J19,'Ex 7 - SOFR'!B2:E79,'Ex 8 - Public Comps'!B2:F37,'Ex 9 - Transaction Comps'!B2:G24,'Ex 10 - Balance Sheet'!B2:F33,'Ex 11 - Income Statement'!B2:K28,'Ex 12 - Cash Flow Statement'!B2:G44",
+    "ranges": [
+      "'Ex 1 - LBO'!B1:AK95",
+      "'Ex 2 - Valuation Bridge'!B2:C36",
+      "'Ex 3 - PF P&L'!B1:I30",
+      "'Ex 4 - Organic Operating Model'!B1:AF41",
+      "'Ex 5 - M&A'!B1:AB81",
+      "'Ex 6 - Amdocs Historical M&A'!B2:J19",
+      "'Ex 7 - SOFR'!B2:E79",
+      "'Ex 8 - Public Comps'!B2:F37",
+      "'Ex 9 - Transaction Comps'!B2:G24",
+      "'Ex 10 - Balance Sheet'!B2:F33",
+      "'Ex 11 - Income Statement'!B2:K28",
+      "'Ex 12 - Cash Flow Statement'!B2:G44"
+    ],
+    "totals": {
+      "comparedCells": 8668,
+      "valueMatches": 6918,
+      "formulaCells": 1933,
+      "formulaMatches": 1816,
+      "styleCells": 8668,
+      "styleMatches": 0,
+      "styleLayoutItems": 700,
+      "styleLayoutMatches": 98,
+      "mismatches": 11137,
+      "missingSheets": 0
+    },
+    "scores": {
+      "value": 0.798108,
+      "formula": 0.939472,
+      "style": 0.010461,
+      "chartPackage": 0,
+      "overall": 0.43701025
+    },
+    "pass": false,
+    "warnings": [
+      "mismatch list capped at 200/11137",
+      "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+    ],
+    "mismatches": [
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "B1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "C1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "D1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "E1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "F1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "G1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "H1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "I1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "J1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "K1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "L1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "M1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "N1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "O1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "P1",
+        "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"},\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"center\"},\"border\":{\"bottom\":{\"color\":{\"indexed\":64},\"style\":\"thin\"},\"left\":{\"color\":{\"indexed\":64},\"style\":\"thin\"},\"right\":{\"color\":{\"indexed\":64},\"style\":\"thin\"},\"top\":{\"color\":{\"indexed\":64},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "Ex 1 - LBO",
+        "cell": "Q1",
+        "expected": "2026",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "Q1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "Ex 1 - LBO",
+        "cell": "R1",
+        "expected": "2027",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "R1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "Ex 1 - LBO",
+        "cell": "S1",
+        "expected": "2028",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "S1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "Ex 1 - LBO",
+        "cell": "T1",
+        "expected": "2029",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "T1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "Ex 1 - LBO",
+        "cell": "U1",
+        "expected": "2030",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "U1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "V1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "W1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "X1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "Y1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "Z1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AA1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AB1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AC1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AD1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AE1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AF1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AG1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AH1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AI1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AJ1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AK1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "B2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "C2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "D2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "E2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "F2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "G2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "H2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "I2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "J2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "K2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "L2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "M2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "N2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "O2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "P2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "Q2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "R2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "S2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "T2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "U2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "V2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "W2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "X2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "Y2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "Z2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AA2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AB2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AC2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AD2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AE2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AF2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AG2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AH2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AI2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AJ2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AK2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "B3",
+        "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"middle\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FF000080\"},\"fgColor\":{\"argb\":\"FF002060\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"theme\":0},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"middle\"},\"border\":{},\"fill\":{\"bgColor\":{\"indexed\":64},\"fgColor\":{\"argb\":\"FF002060\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"theme\":0},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "C3",
+        "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"middle\",\"wrapText\":false},\"border\":{},\"fill\":{\"bgColor\":{\"argb\":\"FF000080\"},\"fgColor\":{\"argb\":\"FF002060\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"theme\":0},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "D3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "E3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "F3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "G3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "H3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "I3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "J3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "K3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "L3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "M3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "N3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "O3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "P3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "Q3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "R3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "S3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "T3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "U3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "V3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "W3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "X3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "Y3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "Z3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AA3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AB3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AC3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AD3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AE3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AF3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AG3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AH3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AI3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AJ3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AK3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "B4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "C4",
+        "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"center\"},\"border\":{\"left\":{\"color\":{\"indexed\":64},\"style\":\"thin\"},\"right\":{\"color\":{\"indexed\":64},\"style\":\"thin\"},\"top\":{\"color\":{\"indexed\":64},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "D4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "E4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "F4",
+        "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"center\"},\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "G4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "H4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "I4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "J4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "K4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "L4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "M4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "N4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "O4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "P4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "Q4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "R4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "S4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "T4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "U4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "V4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "W4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "X4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "Y4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "Z4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AA4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AB4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AC4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AD4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AE4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AF4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AG4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AH4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AI4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AJ4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AK4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "B5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "C5",
+        "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"},\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"center\"},\"border\":{\"bottom\":{\"color\":{\"indexed\":64},\"style\":\"thin\"},\"left\":{\"color\":{\"indexed\":64},\"style\":\"thin\"},\"right\":{\"color\":{\"indexed\":64},\"style\":\"thin\"},\"top\":{\"color\":{\"indexed\":64},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "D5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "E5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "F5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "G5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "H5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "I5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "J5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "K5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "L5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "M5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "N5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "O5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "P5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "Q5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "R5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "S5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "T5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "U5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "V5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "W5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "X5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "Y5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "Z5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AA5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AB5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AC5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AD5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AE5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AF5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AG5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AH5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AI5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AJ5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "AK5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "B6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "C6",
+        "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"},\"left\":{\"style\":\"thin\"},\"right\":{\"style\":\"thin\"},\"top\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"center\"},\"border\":{\"bottom\":{\"color\":{\"indexed\":64},\"style\":\"thin\"},\"left\":{\"color\":{\"indexed\":64},\"style\":\"thin\"},\"right\":{\"color\":{\"indexed\":64},\"style\":\"thin\"},\"top\":{\"color\":{\"indexed\":64},\"style\":\"thin\"}},\"fill\":{\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "D6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "E6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "F6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "G6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "H6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "I6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "J6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "K6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "L6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "M6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "N6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "O6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Ex 1 - LBO",
+        "cell": "P6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Garamond\",\"size\":12}}"
+      }
+    ],
+    "chartPackage": {
+      "schema": 1,
+      "generatedAt": "2026-07-14T09:13:02.768Z",
+      "taskId": "Debugging/01_02",
+      "candidateWorkbook": "candidate-01-Embedded Hardcode_input.xlsx",
+      "goldWorkbook": "01-01_golden.xlsx",
+      "verifier": "xlsx_chart_package_static",
+      "totals": {
+        "goldChartParts": 2,
+        "candidateChartParts": 0,
+        "matchedChartParts": 0,
+        "missingChartParts": 2,
+        "extraChartParts": 0,
+        "mismatchedChartParts": 0
+      },
+      "scores": {
+        "package": 0
+      },
+      "pass": false,
+      "candidateParts": [],
+      "goldParts": [
+        {
+          "path": "xl/drawings/drawing1.xml",
+          "kind": "drawing",
+          "sha256": "4b01a176a0c08fc7fde00a5a1ff39b194d2a7ffbb2796af63c5fa11a643e6326",
+          "bytes": 2542
+        },
+        {
+          "path": "xl/drawings/drawing2.xml",
+          "kind": "drawing",
+          "sha256": "17edc7d920ca01dad843d6c5e00e0df06ae356fbb9366eb17ad3f57d44c03ec9",
+          "bytes": 2382
+        }
+      ],
+      "mismatches": [
+        {
+          "kind": "missing_chart_part",
+          "path": "xl/drawings/drawing1.xml",
+          "expected": "4b01a176a0c08fc7fde00a5a1ff39b194d2a7ffbb2796af63c5fa11a643e6326"
+        },
+        {
+          "kind": "missing_chart_part",
+          "path": "xl/drawings/drawing2.xml",
+          "expected": "17edc7d920ca01dad843d6c5e00e0df06ae356fbb9366eb17ad3f57d44c03ec9"
+        }
+      ],
+      "warnings": [
+        "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+      ]
+    }
+  }
+}

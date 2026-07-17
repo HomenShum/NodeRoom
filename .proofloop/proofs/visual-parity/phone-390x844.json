@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-12T13:34:28.753Z",
+  "viewport": {
+    "id": "phone-390x844",
+    "width": 390,
+    "height": 844
+  },
+  "screenshots": [
+    ".proofloop/proofs/visual-parity/phone-390x844/spreadsheet.png",
+    ".proofloop/proofs/visual-parity/phone-390x844/notebook-editor.png",
+    ".proofloop/proofs/visual-parity/phone-390x844/notebook-kernel.png",
+    ".proofloop/proofs/visual-parity/phone-390x844/deck.png",
+    ".proofloop/proofs/visual-parity/phone-390x844/graph.png",
+    ".proofloop/proofs/visual-parity/phone-390x844/graph-controls.png",
+    ".proofloop/proofs/visual-parity/phone-390x844/graph-agent.png",
+    ".proofloop/proofs/visual-parity/phone-390x844/trace.png",
+    ".proofloop/proofs/visual-parity/phone-390x844/chat.png"
+  ],
+  "surfaces": [
+    "spreadsheet",
+    "notebook-editor",
+    "notebook-kernel",
+    "deck",
+    "graph",
+    "graph-controls",
+    "graph-agent",
+    "trace",
+    "chat"
+  ],
+  "rootOverflow": "passed",
+  "consoleErrors": []
+}

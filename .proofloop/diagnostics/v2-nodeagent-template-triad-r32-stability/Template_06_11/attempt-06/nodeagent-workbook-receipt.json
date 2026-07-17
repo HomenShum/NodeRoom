@@ -1,0 +1,2464 @@
+{
+  "schema": "noderoom.spreadsheetbench.nodeagent_bridge.v1",
+  "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+  "taskId": "Template/06_11",
+  "track": "spreadsheetbench-v2",
+  "category": "Template",
+  "candidateWorkbookPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r32-stability\\Template_06_11\\attempt-06\\candidate-01-06_11_input.xlsx",
+  "candidateWorkbookSha256": "23c9a2ee723c72f2c29ec47b6246135b1e0c1925524d22eb485129de16bf8ab2",
+  "outcome": {
+    "status": "completed",
+    "mutatingTask": true,
+    "changedCellCount": 26,
+    "finalVerificationStatus": "passed"
+  },
+  "stages": {
+    "inspect": {
+      "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+      "stage": "inspect",
+      "status": "completed",
+      "attempts": 1,
+      "summary": "Workbook inspection completed.",
+      "events": [
+        {
+          "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+          "eventIndex": 1,
+          "step": 1,
+          "tool": "inspect_workbook",
+          "argsHash": "fnv1a:e4fb12c8",
+          "resultHash": "fnv1a:be5d34f0"
+        }
+      ]
+    },
+    "plan": {
+      "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+      "stage": "plan",
+      "status": "completed",
+      "attempts": 1,
+      "operationCount": 26,
+      "summary": "Plan captured by 1 preflight attempt(s); 26 final operation(s).",
+      "events": [
+        {
+          "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+          "eventIndex": 4,
+          "step": 4,
+          "tool": "execute_verified_workbook_plan",
+          "argsHash": "fnv1a:3394a970",
+          "resultHash": "fnv1a:337ce012"
+        }
+      ]
+    },
+    "preflight": {
+      "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+      "stage": "preflight",
+      "status": "completed",
+      "attempts": 1,
+      "operationCount": 26,
+      "summary": "Final plan preflight passed.",
+      "events": [
+        {
+          "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+          "eventIndex": 4,
+          "step": 4,
+          "tool": "execute_verified_workbook_plan",
+          "argsHash": "fnv1a:3394a970",
+          "resultHash": "fnv1a:337ce012"
+        }
+      ]
+    },
+    "write": {
+      "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+      "stage": "write",
+      "status": "completed",
+      "attempts": 1,
+      "operationCount": 26,
+      "summary": "1 managed write call(s); final write completed.",
+      "events": [
+        {
+          "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+          "eventIndex": 4,
+          "step": 4,
+          "tool": "execute_verified_workbook_plan",
+          "argsHash": "fnv1a:3394a970",
+          "resultHash": "fnv1a:337ce012"
+        }
+      ]
+    },
+    "verify": {
+      "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+      "stage": "verify",
+      "status": "completed",
+      "attempts": 1,
+      "operationCount": 26,
+      "summary": "Final post-write verification passed.",
+      "events": [
+        {
+          "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+          "eventIndex": 4,
+          "step": 4,
+          "tool": "execute_verified_workbook_plan",
+          "argsHash": "fnv1a:3394a970",
+          "resultHash": "fnv1a:337ce012"
+        }
+      ]
+    },
+    "repair": {
+      "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+      "stage": "repair",
+      "status": "skipped",
+      "attempts": 0,
+      "summary": "No repair was required.",
+      "events": []
+    }
+  },
+  "isolation": {
+    "boundary": "agent_visible_files_only",
+    "agentRoot": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r32-stability\\Template_06_11\\attempt-06\\agent-workspace\\agent",
+    "openedAgentFiles": [
+      "task.json",
+      "inputs/01-06_11_input.xlsx"
+    ],
+    "evaluatorMetadataAccess": "none",
+    "evaluatorFileReadCount": 0,
+    "candidateEmittedBeforeEvaluatorAccess": true
+  },
+  "model": {
+    "name": "cohere/north-mini-code:free",
+    "calls": 6,
+    "usage": {
+      "inputTokens": 46663,
+      "outputTokens": 3168,
+      "cachedInputTokens": 0
+    }
+  },
+  "recalculation": {
+    "engine": "nodeagent-formula-engine",
+    "attemptedFormulaCount": 26,
+    "refreshedFormulaCount": 26,
+    "unresolvedFormulaCount": 0,
+    "unresolved": []
+  },
+  "frame": {
+    "frameId": "rf_spreadsheetbench-nodeagent-2b4d689a",
+    "status": "completed",
+    "allowedToolNames": [
+      "inspect_workbook",
+      "execute_verified_workbook_plan",
+      "verify_workbook",
+      "list_artifacts",
+      "read_range",
+      "search_sheet_context",
+      "write_locked_cell",
+      "write_locked_cells",
+      "say"
+    ],
+    "missingToolNames": [],
+    "agentResult": {
+      "finalText": "Forecast complete: WC_Forecast now shows Cash & Equivalents as prior period Cash plus Changes in Working Capital across all quarters (F15:H30).",
+      "steps": 6,
+      "exhausted": false,
+      "stopReason": "done",
+      "budget": {
+        "startedAt": 1784037407543,
+        "now": 1784037441231,
+        "deadlineAt": 1784038127504,
+        "reserveMs": 0,
+        "elapsedMs": 33688,
+        "remainingMs": 686273,
+        "usableMs": 686273,
+        "maxSteps": 18,
+        "attemptedSteps": 6
+      },
+      "trace": [
+        {
+          "step": 0,
+          "tool": "list_artifacts",
+          "args": {},
+          "result": [
+            {
+              "id": "WC_Forecast",
+              "title": "WC_Forecast",
+              "kind": "sheet",
+              "readHint": "Use artifactId \"WC_Forecast\" with A1 addresses."
+            }
+          ],
+          "ms": 1
+        },
+        {
+          "step": 1,
+          "tool": "inspect_workbook",
+          "args": {
+            "instruction": "Forecast Cash as prior period Cash plus Changes in Working Capital.",
+            "artifactId": "WC_Forecast",
+            "maxCells": 80
+          },
+          "result": {
+            "ok": true,
+            "artifactId": "WC_Forecast",
+            "artifactVersion": 1,
+            "inspectedCellCount": 144,
+            "confirmedSearchCellCount": 20,
+            "cells": [
+              {
+                "elementId": "A2",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B2",
+                "value": "XYZ CORPORATION",
+                "version": 1
+              },
+              {
+                "elementId": "A3",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B3",
+                "value": "Working Capital Forecast Model",
+                "version": 1
+              },
+              {
+                "elementId": "A4",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B4",
+                "value": "($ in millions)",
+                "version": 1
+              },
+              {
+                "elementId": "A6",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B6",
+                "value": "Fiscal Year Ends December",
+                "version": 1
+              },
+              {
+                "elementId": "C6",
+                "value": "FY 2024",
+                "version": 1
+              },
+              {
+                "elementId": "D6",
+                "value": "Q1 2025E",
+                "version": 1
+              },
+              {
+                "elementId": "E6",
+                "value": "Q2 2025E",
+                "version": 1
+              },
+              {
+                "elementId": "F6",
+                "value": "Q3 2025E",
+                "version": 1
+              },
+              {
+                "elementId": "G6",
+                "value": "Q4 2025E",
+                "version": 1
+              },
+              {
+                "elementId": "H6",
+                "value": "FY 2025E",
+                "version": 1
+              },
+              {
+                "elementId": "A8",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B8",
+                "value": "Income Statement (Condensed)",
+                "version": 1
+              },
+              {
+                "elementId": "C8",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "D8",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "E8",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "F8",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "G8",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "F9",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "G9",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "H9",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "F11",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "G11",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "H11",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "H12",
+                "value": null,
+                "version": 0,
+                "numFmt": "0.00%"
+              },
+              {
+                "elementId": "A13",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B13",
+                "value": "Gross Margin",
+                "version": 1
+              },
+              {
+                "elementId": "C13",
+                "value": 13160,
+                "version": 1,
+                "formula": "C9-C11",
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "D13",
+                "value": 3815,
+                "version": 1,
+                "formula": "D9-D11",
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "E13",
+                "value": 3175,
+                "version": 1,
+                "formula": "E9-E11",
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "F13",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "G13",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "H13",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "A14",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B14",
+                "value": "Balance Sheet (Working Capital)",
+                "version": 1
+              },
+              {
+                "elementId": "C14",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "D14",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "E14",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "F14",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "G14",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "H14",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "A15",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B15",
+                "value": "Cash & Equivalents",
+                "version": 1
+              },
+              {
+                "elementId": "C15",
+                "value": 4890,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "D15",
+                "value": 6980,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "E15",
+                "value": 5620,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "F15",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "G15",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "H15",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "E17",
+                "value": 4890,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "F17",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "G17",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "H17",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "E20",
+                "value": 6390,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "F20",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "G20",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "H20",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "E23",
+                "value": 6550,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "F23",
+                "value": 6849,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "G23",
+                "value": 6849,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "H23",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "E25",
+                "value": 5920,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "F25",
+                "value": 5920,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "G25",
+                "value": 5920,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "H25",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "B28",
+                "value": "Statement of Cash Flows",
+                "version": 1
+              },
+              {
+                "elementId": "A29",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B29",
+                "value": "Operating Activities",
+                "version": 1
+              },
+              {
+                "elementId": "A30",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B30",
+                "value": "Changes in Working Capital",
+                "version": 1
+              },
+              {
+                "elementId": "C30",
+                "value": 0,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "D30",
+                "value": -1180,
+                "version": 1,
+                "formula": "-(D17-C17)-(D20-C20)-(D23-C23)+(D25-C25)",
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "E30",
+                "value": -4430,
+                "version": 1,
+                "formula": "-(E17-D17)-(E20-D20)-(E23-D23)+(E25-D25)",
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "F30",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "G30",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "H30",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "B32",
+                "value": "Note: All quarterly calculations use 90 days per quarter",
+                "version": 1
+              }
+            ],
+            "inspection": {
+              "schema": 1,
+              "mutatingTask": true,
+              "allowEmptyPlan": false,
+              "referencedSheets": [],
+              "explicitReferences": [],
+              "targetCandidates": [
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "F15",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "G15",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "H15",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "F30",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "G30",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "H30",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "F9",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "G9",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "H9",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "F11",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "G11",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "H11",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "H12",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "F13",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "G13",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "H13",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "F17",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "G17",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "H17",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "F20",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "G20",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "H20",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "H23",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "F25",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "G25",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "H25",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                }
+              ],
+              "targetBands": [
+                {
+                  "sheet": "WC_Forecast",
+                  "range": "F15:H15",
+                  "addresses": [
+                    "F15",
+                    "G15",
+                    "H15"
+                  ],
+                  "source": "semantic_relation",
+                  "confidence": "high",
+                  "reason": "Cash & Equivalents follows the requested prior-period relationship"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "range": "F30:H30",
+                  "addresses": [
+                    "F30",
+                    "G30",
+                    "H30"
+                  ],
+                  "source": "semantic_relation",
+                  "confidence": "high",
+                  "reason": "Changes in Working Capital must be extended from the visible formula pattern before calculating Cash & Equivalents"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "range": "F9:H30",
+                  "addresses": [
+                    "F9",
+                    "G9",
+                    "H9",
+                    "F11",
+                    "G11",
+                    "H11",
+                    "H12",
+                    "F13",
+                    "G13",
+                    "H13",
+                    "F15",
+                    "G15",
+                    "H15",
+                    "F17",
+                    "G17",
+                    "H17",
+                    "F20",
+                    "G20",
+                    "H20",
+                    "H23",
+                    "F25",
+                    "G25",
+                    "H25",
+                    "F30",
+                    "G30",
+                    "H30"
+                  ],
+                  "source": "calculation_method",
+                  "confidence": "high",
+                  "reason": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint"
+                }
+              ],
+              "dependencyCandidates": [
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "E15",
+                  "reason": "F15 depends on E15 under the requested calculation rule"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "F30",
+                  "reason": "F15 depends on F30 under the requested calculation rule"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "F15",
+                  "reason": "G15 depends on F15 under the requested calculation rule"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "G30",
+                  "reason": "H30 follows the visible formula pattern from G30"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "G15",
+                  "reason": "H15 depends on G15 under the requested calculation rule"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "F17",
+                  "reason": "G30 follows the visible formula pattern from F17"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "E17",
+                  "reason": "F30 follows the visible formula pattern from E17"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "F20",
+                  "reason": "G30 follows the visible formula pattern from F20"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "E20",
+                  "reason": "F30 follows the visible formula pattern from E20"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "F23",
+                  "reason": "G30 follows the visible formula pattern from F23"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "E23",
+                  "reason": "F30 follows the visible formula pattern from E23"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "F25",
+                  "reason": "G30 follows the visible formula pattern from F25"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "E25",
+                  "reason": "F30 follows the visible formula pattern from E25"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "G17",
+                  "reason": "G30 follows the visible formula pattern from G17"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "G20",
+                  "reason": "G30 follows the visible formula pattern from G20"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "G23",
+                  "reason": "G30 follows the visible formula pattern from G23"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "G25",
+                  "reason": "G30 follows the visible formula pattern from G25"
+                },
+                {
+                  "sheet": "WC_Forecast",
+                  "address": "D30",
+                  "reason": "H30 follows the visible formula pattern from D30"
+                }
+              ],
+              "findings": [
+                {
+                  "kind": "semantic_formula_target",
+                  "severity": "info",
+                  "sheet": "WC_Forecast",
+                  "address": "F9",
+                  "relatedAddresses": [
+                    "G9",
+                    "H9",
+                    "F11",
+                    "G11",
+                    "H11",
+                    "H12",
+                    "F13",
+                    "G13",
+                    "H13",
+                    "F15",
+                    "G15",
+                    "H15",
+                    "F17",
+                    "G17",
+                    "H17",
+                    "F20",
+                    "G20",
+                    "H20",
+                    "H23",
+                    "F25",
+                    "G25",
+                    "H25",
+                    "F30",
+                    "G30",
+                    "H30"
+                  ],
+                  "detail": "Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint; 26 formula cells are required by the visible row and period structure.",
+                  "recommendedAction": "Use the exact formula operations in formulaFillSuggestions for F9:H30."
+                },
+                {
+                  "kind": "semantic_formula_target",
+                  "severity": "info",
+                  "sheet": "WC_Forecast",
+                  "address": "F15",
+                  "relatedAddresses": [
+                    "G15",
+                    "H15"
+                  ],
+                  "detail": "B15=Cash & Equivalents identifies F15, G15, H15 as formula targets.",
+                  "recommendedAction": "Use prior-period Cash & Equivalents at E15 and same-period Changes in Working Capital at F30; for example =E15+F30."
+                },
+                {
+                  "kind": "semantic_formula_target",
+                  "severity": "info",
+                  "sheet": "WC_Forecast",
+                  "address": "F30",
+                  "relatedAddresses": [
+                    "G30",
+                    "H30"
+                  ],
+                  "detail": "B30=Changes in Working Capital identifies a required dependency formula band.",
+                  "recommendedAction": "Extend the visible formula pattern exactly: F30=-(F17-E17)-(F20-E20)-(F23-E23)+(F25-E25), G30=-(G17-F17)-(G20-F20)-(G23-F23)+(G25-F25), H30=SUM(D30:G30)."
+                }
+              ],
+              "formulaFillSuggestions": [
+                {
+                  "sheet": "WC_Forecast",
+                  "range": "F9:H30",
+                  "anchorAddress": "F9",
+                  "sourceFormula": "E9*(1+F10)",
+                  "operations": [
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "F9",
+                      "formula": "E9*(1+F10)"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "G9",
+                      "formula": "F9*(1+G10)"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "H9",
+                      "formula": "SUM(D9:G9)"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "F11",
+                      "formula": "F9*F12"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "G11",
+                      "formula": "G9*G12"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "H11",
+                      "formula": "SUM(D11:G11)"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "H12",
+                      "formula": "H11/H9"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "F13",
+                      "formula": "F9-F11"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "G13",
+                      "formula": "G9-G11"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "H13",
+                      "formula": "SUM(D13:G13)"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "F15",
+                      "formula": "E15+F30"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "G15",
+                      "formula": "F15+G30"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "H15",
+                      "formula": "G15"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "F17",
+                      "formula": "(F9/90)*F18"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "G17",
+                      "formula": "(G9/90)*G18"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "H17",
+                      "formula": "G17"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "F20",
+                      "formula": "(F11/90)*F21"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "G20",
+                      "formula": "(G11/90)*G21"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "H20",
+                      "formula": "G20"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "H23",
+                      "formula": "G23"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "F25",
+                      "formula": "E25"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "G25",
+                      "formula": "F25"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "H25",
+                      "formula": "G25"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "F30",
+                      "formula": "-(F17-E17)-(F20-E20)-(F23-E23)+(F25-E25)"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "G30",
+                      "formula": "-(G17-F17)-(G20-F20)-(G23-F23)+(G25-F25)"
+                    },
+                    {
+                      "sheet": "WC_Forecast",
+                      "cell": "H30",
+                      "formula": "SUM(D30:G30)"
+                    }
+                  ]
+                }
+              ],
+              "formulaRepairSuggestions": [],
+              "valueSuggestions": [],
+              "rankedCellKeys": [
+                "wc_forecast!F9",
+                "wc_forecast!G9",
+                "wc_forecast!H9",
+                "wc_forecast!F11",
+                "wc_forecast!G11",
+                "wc_forecast!H11",
+                "wc_forecast!H12",
+                "wc_forecast!F13",
+                "wc_forecast!G13",
+                "wc_forecast!H13",
+                "wc_forecast!F15",
+                "wc_forecast!G15",
+                "wc_forecast!H15",
+                "wc_forecast!F17",
+                "wc_forecast!G17",
+                "wc_forecast!H17",
+                "wc_forecast!F20",
+                "wc_forecast!G20",
+                "wc_forecast!H20",
+                "wc_forecast!H23",
+                "wc_forecast!F25",
+                "wc_forecast!G25",
+                "wc_forecast!H25",
+                "wc_forecast!F30",
+                "wc_forecast!G30",
+                "wc_forecast!H30",
+                "wc_forecast!B15",
+                "wc_forecast!E15",
+                "wc_forecast!E17",
+                "wc_forecast!E20",
+                "wc_forecast!E23",
+                "wc_forecast!F23",
+                "wc_forecast!G23",
+                "wc_forecast!E25",
+                "wc_forecast!D30",
+                "wc_forecast!B30",
+                "wc_forecast!A2",
+                "wc_forecast!B2",
+                "wc_forecast!A3",
+                "wc_forecast!B3",
+                "wc_forecast!A4",
+                "wc_forecast!B4",
+                "wc_forecast!A13",
+                "wc_forecast!B13",
+                "wc_forecast!C13",
+                "wc_forecast!D13",
+                "wc_forecast!E13",
+                "wc_forecast!A14",
+                "wc_forecast!B14",
+                "wc_forecast!C14",
+                "wc_forecast!D14",
+                "wc_forecast!E14",
+                "wc_forecast!F14",
+                "wc_forecast!G14",
+                "wc_forecast!H14",
+                "wc_forecast!A15",
+                "wc_forecast!C15",
+                "wc_forecast!D15",
+                "wc_forecast!A29",
+                "wc_forecast!B29",
+                "wc_forecast!A30",
+                "wc_forecast!C30",
+                "wc_forecast!E30",
+                "wc_forecast!B28",
+                "wc_forecast!B32"
+              ],
+              "recommendedReads": [
+                {
+                  "sheet": "WC_Forecast",
+                  "addresses": [
+                    "F9",
+                    "G9",
+                    "H9",
+                    "F11",
+                    "G11",
+                    "H11",
+                    "H12",
+                    "F13",
+                    "G13",
+                    "H13",
+                    "F15",
+                    "G15",
+                    "H15",
+                    "F17",
+                    "G17",
+                    "H17"
+                  ],
+                  "reason": "template_formula_contract, calculation_row_context_B14, semantic_formula_target, semantic_formula_dependency, semantic_dependency_formula_source, calculation_row_context_B30"
+                }
+              ],
+              "completionChecks": [
+                "Every edited cell belongs to the requested workbook scope.",
+                "Existing formulas are not replaced by scalars unless the task explicitly requires it.",
+                "Changed formulas contain no broken references or obvious self-reference.",
+                "Every changed target is re-read and checked after the write or recorded as pending approval.",
+                "Unsupported macro, validation, or full-format work is reported as unresolved; chart requests require a real chart operation rather than a prose claim."
+              ]
+            }
+          },
+          "ms": 103
+        },
+        {
+          "step": 2,
+          "tool": "read_range",
+          "args": {
+            "elementIds": [
+              "C15",
+              "D15",
+              "E15",
+              "F15",
+              "G15",
+              "H15",
+              "F30",
+              "G30",
+              "H30"
+            ],
+            "artifactId": "WC_Forecast"
+          },
+          "result": [
+            {
+              "id": "C15",
+              "value": {
+                "value": 4890,
+                "numFmt": "#,##0"
+              },
+              "version": 1,
+              "locked": null
+            },
+            {
+              "id": "D15",
+              "value": {
+                "value": 6980,
+                "numFmt": "#,##0"
+              },
+              "version": 1,
+              "locked": null
+            },
+            {
+              "id": "E15",
+              "value": {
+                "value": 5620,
+                "numFmt": "#,##0"
+              },
+              "version": 1,
+              "locked": null
+            },
+            {
+              "id": "F15",
+              "value": {
+                "value": null,
+                "numFmt": "#,##0"
+              },
+              "version": 0,
+              "locked": null
+            },
+            {
+              "id": "G15",
+              "value": {
+                "value": null,
+                "numFmt": "#,##0"
+              },
+              "version": 0,
+              "locked": null
+            },
+            {
+              "id": "H15",
+              "value": {
+                "value": null,
+                "numFmt": "#,##0"
+              },
+              "version": 0,
+              "locked": null
+            },
+            {
+              "id": "F30",
+              "value": {
+                "value": null,
+                "numFmt": "#,##0"
+              },
+              "version": 0,
+              "locked": null
+            },
+            {
+              "id": "G30",
+              "value": {
+                "value": null,
+                "numFmt": "#,##0"
+              },
+              "version": 0,
+              "locked": null
+            },
+            {
+              "id": "H30",
+              "value": {
+                "value": null,
+                "numFmt": "#,##0"
+              },
+              "version": 0,
+              "locked": null
+            }
+          ],
+          "ms": 0
+        },
+        {
+          "step": 3,
+          "tool": "read_range",
+          "args": {
+            "elementIds": [
+              "E15",
+              "F17",
+              "E17",
+              "F20",
+              "E20",
+              "F23",
+              "E23",
+              "F25",
+              "E25",
+              "D15",
+              "G15",
+              "H15",
+              "G30",
+              "H30",
+              "C15"
+            ],
+            "artifactId": "WC_Forecast"
+          },
+          "result": [
+            {
+              "id": "E15",
+              "value": {
+                "value": 5620,
+                "numFmt": "#,##0"
+              },
+              "version": 1,
+              "locked": null
+            },
+            {
+              "id": "F17",
+              "value": {
+                "value": null,
+                "numFmt": "#,##0"
+              },
+              "version": 0,
+              "locked": null
+            },
+            {
+              "id": "E17",
+              "value": {
+                "value": 4890,
+                "numFmt": "#,##0"
+              },
+              "version": 1,
+              "locked": null
+            },
+            {
+              "id": "F20",
+              "value": {
+                "value": null,
+                "numFmt": "#,##0"
+              },
+              "version": 0,
+              "locked": null
+            },
+            {
+              "id": "E20",
+              "value": {
+                "value": 6390,
+                "numFmt": "#,##0"
+              },
+              "version": 1,
+              "locked": null
+            },
+            {
+              "id": "F23",
+              "value": {
+                "value": 6849,
+                "numFmt": "#,##0"
+              },
+              "version": 1,
+              "locked": null
+            },
+            {
+              "id": "E23",
+              "value": {
+                "value": 6550,
+                "numFmt": "#,##0"
+              },
+              "version": 1,
+              "locked": null
+            },
+            {
+              "id": "F25",
+              "value": {
+                "value": 5920,
+                "numFmt": "#,##0"
+              },
+              "version": 1,
+              "locked": null
+            },
+            {
+              "id": "E25",
+              "value": {
+                "value": 5920,
+                "numFmt": "#,##0"
+              },
+              "version": 1,
+              "locked": null
+            },
+            {
+              "id": "D15",
+              "value": {
+                "value": 6980,
+                "numFmt": "#,##0"
+              },
+              "version": 1,
+              "locked": null
+            },
+            {
+              "id": "G15",
+              "value": {
+                "value": null,
+                "numFmt": "#,##0"
+              },
+              "version": 0,
+              "locked": null
+            },
+            {
+              "id": "H15",
+              "value": {
+                "value": null,
+                "numFmt": "#,##0"
+              },
+              "version": 0,
+              "locked": null
+            },
+            {
+              "id": "G30",
+              "value": {
+                "value": null,
+                "numFmt": "#,##0"
+              },
+              "version": 0,
+              "locked": null
+            },
+            {
+              "id": "H30",
+              "value": {
+                "value": null,
+                "numFmt": "#,##0"
+              },
+              "version": 0,
+              "locked": null
+            },
+            {
+              "id": "C15",
+              "value": {
+                "value": 4890,
+                "numFmt": "#,##0"
+              },
+              "version": 1,
+              "locked": null
+            }
+          ],
+          "ms": 0
+        },
+        {
+          "step": 4,
+          "tool": "execute_verified_workbook_plan",
+          "args": {
+            "instruction": "Forecast Cash as prior period Cash plus Changes in Working Capital.",
+            "artifactId": "WC_Forecast",
+            "maxCells": 200
+          },
+          "result": {
+            "ok": true,
+            "status": "completed",
+            "artifactId": "WC_Forecast",
+            "operationCount": 26,
+            "changedTargetCount": 26,
+            "approvalBoundary": "RoomTools managed lock and compare-and-set",
+            "workflowComplete": true,
+            "nextAction": "Return the final answer. Do not call another workbook tool.",
+            "phases": {
+              "inspect": {
+                "status": "completed",
+                "receiptHash": "fnv1a:ecd06f13",
+                "inspectedCellCount": 144,
+                "findingCount": 3,
+                "targetBandCount": 3
+              },
+              "plan": {
+                "status": "completed",
+                "operationCount": 26,
+                "conflictCount": 0,
+                "planHash": "fnv1a:77669c0e",
+                "targets": [
+                  "F9",
+                  "G9",
+                  "H9",
+                  "F11",
+                  "G11",
+                  "H11",
+                  "H12",
+                  "F13",
+                  "G13",
+                  "H13",
+                  "F15",
+                  "G15",
+                  "H15",
+                  "F17",
+                  "G17",
+                  "H17",
+                  "F20",
+                  "G20",
+                  "H20",
+                  "H23",
+                  "F25",
+                  "G25",
+                  "H25",
+                  "F30",
+                  "G30",
+                  "H30"
+                ]
+              },
+              "preflight": {
+                "status": "passed",
+                "receiptHash": "fnv1a:8eec60c9",
+                "issueCount": 0,
+                "checkedCount": 26
+              },
+              "write": {
+                "status": "completed",
+                "receiptHash": "fnv1a:2de5c2e4",
+                "targetCount": 26,
+                "committedCount": 26,
+                "skippedCount": 0,
+                "failedCount": 0,
+                "mutationReceiptIds": [
+                  "sbench-mutation-1",
+                  "sbench-mutation-2",
+                  "sbench-mutation-3",
+                  "sbench-mutation-4",
+                  "sbench-mutation-5",
+                  "sbench-mutation-6",
+                  "sbench-mutation-7",
+                  "sbench-mutation-8",
+                  "sbench-mutation-9",
+                  "sbench-mutation-10",
+                  "sbench-mutation-11",
+                  "sbench-mutation-12",
+                  "sbench-mutation-13",
+                  "sbench-mutation-14",
+                  "sbench-mutation-15",
+                  "sbench-mutation-16",
+                  "sbench-mutation-17",
+                  "sbench-mutation-18",
+                  "sbench-mutation-19",
+                  "sbench-mutation-20",
+                  "sbench-mutation-21",
+                  "sbench-mutation-22",
+                  "sbench-mutation-23",
+                  "sbench-mutation-24",
+                  "sbench-mutation-25",
+                  "sbench-mutation-26"
+                ],
+                "coordination": {
+                  "mode": "managed_lock_batch",
+                  "targetIds": [
+                    "F9",
+                    "G9",
+                    "H9",
+                    "F11",
+                    "G11",
+                    "H11",
+                    "H12",
+                    "F13",
+                    "G13",
+                    "H13",
+                    "F15",
+                    "G15",
+                    "H15",
+                    "F17",
+                    "G17",
+                    "H17",
+                    "F20",
+                    "G20",
+                    "H20",
+                    "H23",
+                    "F25",
+                    "G25",
+                    "H25",
+                    "F30",
+                    "G30",
+                    "H30"
+                  ],
+                  "acquired": true,
+                  "lockId": "sbench-lock-1",
+                  "released": true,
+                  "mergedDrafts": 0,
+                  "skippedCount": 0
+                }
+              },
+              "verify": {
+                "status": "passed",
+                "receiptHash": "fnv1a:1d927f8f",
+                "issueCount": 0,
+                "checkedCount": 26
+              }
+            }
+          },
+          "ms": 60
+        },
+        {
+          "step": 5,
+          "tool": "say",
+          "args": {
+            "text": "Forecast complete: WC_Forecast now shows Cash & Equivalents as prior period Cash plus Changes in Working Capital across all quarters (F15:H30)."
+          },
+          "result": {
+            "ok": true
+          },
+          "ms": 0
+        }
+      ],
+      "messages": [
+        {
+          "role": "user",
+          "content": "NODEAGENT REASONING FRAME\nFrame ID: rf_spreadsheetbench-nodeagent-2b4d689a\nPhase: execute\nStatus entering run: pending\nFrame goal: Forecast Cash as prior period Cash plus Changes in Working Capital.\n\nFRAME CONTEXT PACK:\nGlobal goal: Forecast Cash as prior period Cash plus Changes in Working Capital.\nParent summary: SpreadsheetBench staged task Template/06_11; evaluator metadata remains outside this frame.\nCurrent artifact digest: task:Template/06_11; track:spreadsheetbench-v2; sheets:WC_Forecast\nRelevant cache keys: (none)\nRelevant OKF concept IDs: (none)\nOpen questions: (none)\nConstraints:\n- Use only the staged agent manifest, agent input workbook, and agent prompt files.\n- Never request or infer evaluator metadata, answer positions, scorer settings, or gold workbooks.\n- Inspect, preflight, use managed RoomTools writes, and verify every changed target.\n- Treat a failed preflight or post-write verification as repair guidance, not permission to weaken verification.\nExpected output schema: noderoom.spreadsheetbench.nodeagent_bridge.v1\n\nEVIDENCE STATE:\nRequired evidence:\n- workbook inspection\n- edit-plan preflight\n- managed write receipt\n- post-write verification\nAvailable refs: (none)\nMissing refs: (none)\nStale refs: (none)\n\nAllowed tools for this frame:\n- inspect_workbook\n- execute_verified_workbook_plan\n- verify_workbook\n- list_artifacts\n- read_range\n- search_sheet_context\n- write_locked_cell\n- write_locked_cells\n- say\n\nFrame rules:\n- Use this frame envelope as the active task boundary.\n- Do not inherit unrelated room transcript or meta-harness memory.\n- Prefer cache, OKF, and explicit evidence before provider or network work.\n- Use lock/CAS/draft tools for room mutations.\n- If evidence is missing, say what is missing instead of guessing.\n\nAdditional frame instructions:\n- Staged SpreadsheetBench task ID: Template/06_11.\n- Agent-visible input workbook name: 01-06_11_input.xlsx. Use descriptive filename terms as audit clues, then confirm them against workbook evidence.\n- Visible worksheet artifact IDs: \"WC_Forecast\".\n- Complete task instruction: Forecast Cash as prior period Cash plus Changes in Working Capital.\n- Treat high-confidence target bands and value/formula suggestions from inspect_workbook as the target-selection contract. Do not replace them with unlabeled blank cells, and preflight every high-confidence target before writing.\n- The first verify_workbook call for a proposed operation set is the durable plan/preflight boundary. Do not write a plan that returns needs_repair; submit a corrected replacement plan first.\n- When inspect_workbook returns a complete high-confidence formula/value contract, prefer execute_verified_workbook_plan with the same task instruction and artifactId. It performs deterministic plan materialization, preflight, managed-lock writes, and post-write verification without requiring a large echoed operation array.\n- For formula writes, pass write_locked_cell(s) direct formula, result, and optional numFmt fields; pass the same formula/result/numFmt operations to verify_workbook.\n- When inspect_workbook returns workbookWideRepairContract, complete every listed repair one worksheet at a time: inspect that artifact, preflight its complete repair set, write it, and post-verify it before moving to the next artifact.\n- After every managed write, call verify_workbook with afterWrite=true for all changed targets. Use repairPrompt for at most one focused repair before reporting unresolved work.\n- No evaluator manifest, gold workbook, answer position, or scorer metadata exists in this frame or in any available tool."
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "toolCalls": [
+            {
+              "id": "list_artifacts_mh1896m77bc0",
+              "tool": "list_artifacts",
+              "args": {}
+            }
+          ]
+        },
+        {
+          "role": "tool",
+          "toolCallId": "list_artifacts_mh1896m77bc0",
+          "toolName": "list_artifacts",
+          "content": "[{\"id\":\"WC_Forecast\",\"title\":\"WC_Forecast\",\"kind\":\"sheet\",\"readHint\":\"Use artifactId \\\"WC_Forecast\\\" with A1 addresses.\"}]"
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "toolCalls": [
+            {
+              "id": "inspect_workbook_5es9qytsa481",
+              "tool": "inspect_workbook",
+              "args": {
+                "instruction": "Forecast Cash as prior period Cash plus Changes in Working Capital.",
+                "artifactId": "WC_Forecast",
+                "maxCells": 80
+              }
+            }
+          ]
+        },
+        {
+          "role": "tool",
+          "toolCallId": "inspect_workbook_5es9qytsa481",
+          "toolName": "inspect_workbook",
+          "content": "{\"ok\":true,\"artifactId\":\"WC_Forecast\",\"artifactVersion\":1,\"inspectedCellCount\":144,\"confirmedSearchCellCount\":20,\"cells\":[{\"elementId\":\"A2\",\"value\":null,\"version\":0},{\"elementId\":\"B2\",\"value\":\"XYZ CORPORATION\",\"version\":1},{\"elementId\":\"A3\",\"value\":null,\"version\":0},{\"elementId\":\"B3\",\"value\":\"Working Capital Forecast Model\",\"version\":1},{\"elementId\":\"A4\",\"value\":null,\"version\":0},{\"elementId\":\"B4\",\"value\":\"($ in millions)\",\"version\":1},{\"elementId\":\"A6\",\"value\":null,\"version\":0},{\"elementId\":\"B6\",\"value\":\"Fiscal Year Ends December\",\"version\":1},{\"elementId\":\"C6\",\"value\":\"FY 2024\",\"version\":1},{\"elementId\":\"D6\",\"value\":\"Q1 2025E\",\"version\":1},{\"elementId\":\"E6\",\"value\":\"Q2 2025E\",\"version\":1},{\"elementId\":\"F6\",\"value\":\"Q3 2025E\",\"version\":1},{\"elementId\":\"G6\",\"value\":\"Q4 2025E\",\"version\":1},{\"elementId\":\"H6\",\"value\":\"FY 2025E\",\"version\":1},{\"elementId\":\"A8\",\"value\":null,\"version\":0},{\"elementId\":\"B8\",\"value\":\"Income Statement (Condensed)\",\"version\":1},{\"elementId\":\"C8\",\"value\":null,\"version\":0},{\"elementId\":\"D8\",\"value\":null,\"version\":0},{\"elementId\":\"E8\",\"value\":null,\"version\":0},{\"elementId\":\"F8\",\"value\":null,\"version\":0},{\"elementId\":\"G8\",\"value\":null,\"version\":0},{\"elementId\":\"F9\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"G9\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"H9\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"F11\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"G11\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"H11\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"H12\",\"value\":null,\"version\":0,\"numFmt\":\"0.00%\"},{\"elementId\":\"A13\",\"value\":null,\"version\":0},{\"elementId\":\"B13\",\"value\":\"Gross Margin\",\"version\":1},{\"elementId\":\"C13\",\"value\":13160,\"version\":1,\"formula\":\"C9-C11\",\"numFmt\":\"#,##0\"},{\"elementId\":\"D13\",\"value\":3815,\"version\":1,\"formula\":\"D9-D11\",\"numFmt\":\"#,##0\"},{\"elementId\":\"E13\",\"value\":3175,\"version\":1,\"formula\":\"E9-E11\",\"numFmt\":\"#,##0\"},{\"elementId\":\"F13\",\"value\":null,\"version\":0},{\"elementId\":\"G13\",\"value\":null,\"version\":0},{\"elementId\":\"H13\",\"value\":null,\"version\":0},{\"elementId\":\"A14\",\"value\":null,\"version\":0},{\"elementId\":\"B14\",\"value\":\"Balance Sheet (Working Capital)\",\"version\":1},{\"elementId\":\"C14\",\"value\":null,\"version\":0},{\"elementId\":\"D14\",\"value\":null,\"version\":0},{\"elementId\":\"E14\",\"value\":null,\"version\":0},{\"elementId\":\"F14\",\"value\":null,\"version\":0},{\"elementId\":\"G14\",\"value\":null,\"version\":0},{\"elementId\":\"H14\",\"value\":null,\"version\":0},{\"elementId\":\"A15\",\"value\":null,\"version\":0},{\"elementId\":\"B15\",\"value\":\"Cash & Equivalents\",\"version\":1},{\"elementId\":\"C15\",\"value\":4890,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"D15\",\"value\":6980,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"E15\",\"value\":5620,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"F15\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"G15\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"H15\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"E17\",\"value\":4890,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"F17\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"G17\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"H17\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"E20\",\"value\":6390,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"F20\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"G20\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"H20\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"E23\",\"value\":6550,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"F23\",\"value\":6849,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"G23\",\"value\":6849,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"H23\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"E25\",\"value\":5920,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"F25\",\"value\":5920,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"G25\",\"value\":5920,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"H25\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"B28\",\"value\":\"Statement of Cash Flows\",\"version\":1},{\"elementId\":\"A29\",\"value\":null,\"version\":0},{\"elementId\":\"B29\",\"value\":\"Operating Activities\",\"version\":1},{\"elementId\":\"A30\",\"value\":null,\"version\":0},{\"elementId\":\"B30\",\"value\":\"Changes in Working Capital\",\"version\":1},{\"elementId\":\"C30\",\"value\":0,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"D30\",\"value\":-1180,\"version\":1,\"formula\":\"-(D17-C17)-(D20-C20)-(D23-C23)+(D25-C25)\",\"numFmt\":\"#,##0\"},{\"elementId\":\"E30\",\"value\":-4430,\"version\":1,\"formula\":\"-(E17-D17)-(E20-D20)-(E23-D23)+(E25-D25)\",\"numFmt\":\"#,##0\"},{\"elementId\":\"F30\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"G30\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"H30\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"B32\",\"value\":\"Note: All quarterly calculations use 90 days per quarter\",\"version\":1}],\"inspection\":{\"schema\":1,\"mutatingTask\":true,\"allowEmptyPlan\":false,\"referencedSheets\":[],\"explicitReferences\":[],\"targetCandidates\":[{\"sheet\":\"WC_Forecast\",\"address\":\"F15\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"G15\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"H15\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"F30\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"G30\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"H30\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"F9\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"G9\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"H9\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"F11\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"G11\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"H11\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"H12\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"F13\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"G13\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"H13\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"F17\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"G17\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"H17\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"F20\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"G20\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"H20\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"H23\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"F25\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"G25\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"},{\"sheet\":\"WC_Forecast\",\"address\":\"H25\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"}],\"targetBands\":[{\"sheet\":\"WC_Forecast\",\"range\":\"F15:H15\",\"addresses\":[\"F15\",\"G15\",\"H15\"],\"source\":\"semantic_relation\",\"confidence\":\"high\",\"reason\":\"Cash & Equivalents follows the requested prior-period relationship\"},{\"sheet\":\"WC_Forecast\",\"range\":\"F30:H30\",\"addresses\":[\"F30\",\"G30\",\"H30\"],\"source\":\"semantic_relation\",\"confidence\":\"high\",\"reason\":\"Changes in Working Capital must be extended from the visible formula pattern before calculating Cash & Equivalents\"},{\"sheet\":\"WC_Forecast\",\"range\":\"F9:H30\",\"addresses\":[\"F9\",\"G9\",\"H9\",\"F11\",\"G11\",\"H11\",\"H12\",\"F13\",\"G13\",\"H13\",\"F15\",\"G15\",\"H15\",\"F17\",\"G17\",\"H17\",\"F20\",\"G20\",\"H20\",\"H23\",\"F25\",\"G25\",\"H25\",\"F30\",\"G30\",\"H30\"],\"source\":\"calculation_method\",\"confidence\":\"high\",\"reason\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint\"}],\"dependencyCandidates\":[{\"sheet\":\"WC_Forecast\",\"address\":\"E15\",\"reason\":\"F15 depends on E15 under the requested calculation rule\"},{\"sheet\":\"WC_Forecast\",\"address\":\"F30\",\"reason\":\"F15 depends on F30 under the requested calculation rule\"},{\"sheet\":\"WC_Forecast\",\"address\":\"F15\",\"reason\":\"G15 depends on F15 under the requested calculation rule\"},{\"sheet\":\"WC_Forecast\",\"address\":\"G30\",\"reason\":\"H30 follows the visible formula pattern from G30\"},{\"sheet\":\"WC_Forecast\",\"address\":\"G15\",\"reason\":\"H15 depends on G15 under the requested calculation rule\"},{\"sheet\":\"WC_Forecast\",\"address\":\"F17\",\"reason\":\"G30 follows the visible formula pattern from F17\"},{\"sheet\":\"WC_Forecast\",\"address\":\"E17\",\"reason\":\"F30 follows the visible formula pattern from E17\"},{\"sheet\":\"WC_Forecast\",\"address\":\"F20\",\"reason\":\"G30 follows the visible formula pattern from F20\"},{\"sheet\":\"WC_Forecast\",\"address\":\"E20\",\"reason\":\"F30 follows the visible formula pattern from E20\"},{\"sheet\":\"WC_Forecast\",\"address\":\"F23\",\"reason\":\"G30 follows the visible formula pattern from F23\"},{\"sheet\":\"WC_Forecast\",\"address\":\"E23\",\"reason\":\"F30 follows the visible formula pattern from E23\"},{\"sheet\":\"WC_Forecast\",\"address\":\"F25\",\"reason\":\"G30 follows the visible formula pattern from F25\"},{\"sheet\":\"WC_Forecast\",\"address\":\"E25\",\"reason\":\"F30 follows the visible formula pattern from E25\"},{\"sheet\":\"WC_Forecast\",\"address\":\"G17\",\"reason\":\"G30 follows the visible formula pattern from G17\"},{\"sheet\":\"WC_Forecast\",\"address\":\"G20\",\"reason\":\"G30 follows the visible formula pattern from G20\"},{\"sheet\":\"WC_Forecast\",\"address\":\"G23\",\"reason\":\"G30 follows the visible formula pattern from G23\"},{\"sheet\":\"WC_Forecast\",\"address\":\"G25\",\"reason\":\"G30 follows the visible formula pattern from G25\"},{\"sheet\":\"WC_Forecast\",\"address\":\"D30\",\"reason\":\"H30 follows the visible formula pattern from D30\"}],\"findings\":[{\"kind\":\"semantic_formula_target\",\"severity\":\"info\",\"sheet\":\"WC_Forecast\",\"address\":\"F9\",\"relatedAddresses\":[\"G9\",\"H9\",\"F11\",\"G11\",\"H11\",\"H12\",\"F13\",\"G13\",\"H13\",\"F15\",\"G15\",\"H15\",\"F17\",\"G17\",\"H17\",\"F20\",\"G20\",\"H20\",\"H23\",\"F25\",\"G25\",\"H25\",\"F30\",\"G30\",\"H30\"],\"detail\":\"Visible quarterly working-capital rows require upstream operating formulas before the cash recurrence and FY endpoint; 26 formula cells are required by the visible row and period structure.\",\"recommendedAction\":\"Use the exact formula operations in formulaFillSuggestions for F9:H30.\"},{\"kind\":\"semantic_formula_target\",\"severity\":\"info\",\"sheet\":\"WC_Forecast\",\"address\":\"F15\",\"relatedAddresses\":[\"G15\",\"H15\"],\"detail\":\"B15=Cash & Equivalents identifies F15, G15, H15 as formula targets.\",\"recommendedAction\":\"Use prior-period Cash & Equivalents at E15 and same-period Changes in Working Capital at F30; for example =E15+F30.\"},{\"kind\":\"semantic_formula_target\",\"severity\":\"info\",\"sheet\":\"WC_Forecast\",\"address\":\"F30\",\"relatedAddresses\":[\"G30\",\"H30\"],\"detail\":\"B30=Changes in Working Capital identifies a required dependency formula band.\",\"recommendedAction\":\"Extend the visible formula pattern exactly: F30=-(F17-E17)-(F20-E20)-(F23-E23)+(F25-E25), G30=-(G17-F17)-(G20-F20)-(G23-F23)+(G25-F25), H30=SUM(D30:G30).\"}],\"formulaFillSuggestions\":[{\"sheet\":\"WC_Forecast\",\"range\":\"F9:H30\",\"anchorAddress\":\"F9\",\"sourceFormula\":\"E9*(1+F10)\",\"operations\":[{\"sheet\":\"WC_Forecast\",\"cell\":\"F9\",\"formula\":\"E9*(1+F10)\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"G9\",\"formula\":\"F9*(1+G10)\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"H9\",\"formula\":\"SUM(D9:G9)\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"F11\",\"formula\":\"F9*F12\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"G11\",\"formula\":\"G9*G12\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"H11\",\"formula\":\"SUM(D11:G11)\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"H12\",\"formula\":\"H11/H9\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"F13\",\"formula\":\"F9-F11\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"G13\",\"formula\":\"G9-G11\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"H13\",\"formula\":\"SUM(D13:G13)\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"F15\",\"formula\":\"E15+F30\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"G15\",\"formula\":\"F15+G30\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"H15\",\"formula\":\"G15\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"F17\",\"formula\":\"(F9/90)*F18\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"G17\",\"formula\":\"(G9/90)*G18\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"H17\",\"formula\":\"G17\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"F20\",\"formula\":\"(F11/90)*F21\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"G20\",\"formula\":\"(G11/90)*G21\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"H20\",\"formula\":\"G20\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"H23\",\"formula\":\"G23\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"F25\",\"formula\":\"E25\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"G25\",\"formula\":\"F25\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"H25\",\"formula\":\"G25\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"F30\",\"formula\":\"-(F17-E17)-(F20-E20)-(F23-E23)+(F25-E25)\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"G30\",\"formula\":\"-(G17-F17)-(G20-F20)-(G23-F23)+(G25-F25)\"},{\"sheet\":\"WC_Forecast\",\"cell\":\"H30\",\"formula\":\"SUM(D30:G30)\"}]}],\"formulaRepairSuggestions\":[],\"valueSuggestions\":[],\"rankedCellKeys\":[\"wc_forecast!F9\",\"wc_forecast!G9\",\"wc_forecast!H9\",\"wc_forecast!F11\",\"wc_forecast!G11\",\"wc_forecast!H11\",\"wc_forecast!H12\",\"wc_forecast!F13\",\"wc_forecast!G13\",\"wc_forecast!H13\",\"wc_forecast!F15\",\"wc_forecast!G15\",\"wc_forecast!H15\",\"wc_forecast!F17\",\"wc_forecast!G17\",\"wc_forecast!H17\",\"wc_forecast!F20\",\"wc_forecast!G20\",\"wc_forecast!H20\",\"wc_forecast!H23\",\"wc_forecast!F25\",\"wc_forecast!G25\",\"wc_forecast!H25\",\"wc_forecast!F30\",\"wc_forecast!G30\",\"wc_forecast!H30\",\"wc_forecast!B15\",\"wc_forecast!E15\",\"wc_forecast!E17\",\"wc_forecast!E20\",\"wc_forecast!E23\",\"wc_forecast!F23\",\"wc_forecast!G23\",\"wc_forecast!E25\",\"wc_forecast!D30\",\"wc_forecast!B30\",\"wc_forecast!A2\",\"wc_forecast!B2\",\"wc_forecast!A3\",\"wc_forecast!B3\",\"wc_forecast!A4\",\"wc_forecast!B4\",\"wc_forecast!A13\",\"wc_forecast!B13\",\"wc_forecast!C13\",\"wc_forecast!D13\",\"wc_forecast!E13\",\"wc_forecast!A14\",\"wc_forecast!B14\",\"wc_forecast!C14\",\"wc_forecast!D14\",\"wc_forecast!E14\",\"wc_forecast!F14\",\"wc_forecast!G14\",\"wc_forecast!H14\",\"wc_forecast!A15\",\"wc_forecast!C15\",\"wc_forecast!D15\",\"wc_forecast!A29\",\"wc_forecast!B29\",\"wc_forecast!A30\",\"wc_forecast!C30\",\"wc_forecast!E30\",\"wc_forecast!B28\",\"wc_forecast!B32\"],\"recommendedReads\":[{\"sheet\":\"WC_Forecast\",\"addresses\":[\"F9\",\"G9\",\"H9\",\"F11\",\"G11\",\"H11\",\"H12\",\"F13\",\"G13\",\"H13\",\"F15\",\"G15\",\"H15\",\"F17\",\"G17\",\"H17\"],\"reason\":\"template_formula_contract, calculation_row_context_B14, semantic_formula_target, semantic_formula_dependency, semantic_dependency_formula_source, calculation_row_context_B30\"}],\"completionChecks\":[\"Every edited cell belongs to the requested workbook scope.\",\"Existing formulas are not replaced by scalars unless the task explicitly requires it.\",\"Changed formulas contain no broken references or obvious self-reference.\",\"Every changed target is re-read and checked after the write or recorded as pending approval.\",\"Unsupported macro, validation, or full-format work is reported as unresolved; chart requests require a real chart operation rather than a prose claim.\"]}}"
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "toolCalls": [
+            {
+              "id": "read_range_dhmn7cmbv7xv",
+              "tool": "read_range",
+              "args": {
+                "elementIds": [
+                  "C15",
+                  "D15",
+                  "E15",
+                  "F15",
+                  "G15",
+                  "H15",
+                  "F30",
+                  "G30",
+                  "H30"
+                ],
+                "artifactId": "WC_Forecast"
+              }
+            }
+          ]
+        },
+        {
+          "role": "tool",
+          "toolCallId": "read_range_dhmn7cmbv7xv",
+          "toolName": "read_range",
+          "content": "[{\"id\":\"C15\",\"value\":{\"value\":4890,\"numFmt\":\"#,##0\"},\"version\":1,\"locked\":null},{\"id\":\"D15\",\"value\":{\"value\":6980,\"numFmt\":\"#,##0\"},\"version\":1,\"locked\":null},{\"id\":\"E15\",\"value\":{\"value\":5620,\"numFmt\":\"#,##0\"},\"version\":1,\"locked\":null},{\"id\":\"F15\",\"value\":{\"value\":null,\"numFmt\":\"#,##0\"},\"version\":0,\"locked\":null},{\"id\":\"G15\",\"value\":{\"value\":null,\"numFmt\":\"#,##0\"},\"version\":0,\"locked\":null},{\"id\":\"H15\",\"value\":{\"value\":null,\"numFmt\":\"#,##0\"},\"version\":0,\"locked\":null},{\"id\":\"F30\",\"value\":{\"value\":null,\"numFmt\":\"#,##0\"},\"version\":0,\"locked\":null},{\"id\":\"G30\",\"value\":{\"value\":null,\"numFmt\":\"#,##0\"},\"version\":0,\"locked\":null},{\"id\":\"H30\",\"value\":{\"value\":null,\"numFmt\":\"#,##0\"},\"version\":0,\"locked\":null}]"
+        },
+        {
+          "role": "user",
+          "content": "HARNESS NOTE: every tool call so far has been a read. The table in your context already holds the data - stop reading. Next turn: Finish the task now: use read_range if you still need current versions, then call write_locked_cells or write_locked_cell_results for the affected range when possible (pendingApproval or drafted results are SUCCESS - never retry them)."
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "toolCalls": [
+            {
+              "id": "read_range_8db797q9rdef",
+              "tool": "read_range",
+              "args": {
+                "elementIds": [
+                  "E15",
+                  "F17",
+                  "E17",
+                  "F20",
+                  "E20",
+                  "F23",
+                  "E23",
+                  "F25",
+                  "E25",
+                  "D15",
+                  "G15",
+                  "H15",
+                  "G30",
+                  "H30",
+                  "C15"
+                ],
+                "artifactId": "WC_Forecast"
+              }
+            }
+          ]
+        },
+        {
+          "role": "tool",
+          "toolCallId": "read_range_8db797q9rdef",
+          "toolName": "read_range",
+          "content": "[{\"id\":\"E15\",\"value\":{\"value\":5620,\"numFmt\":\"#,##0\"},\"version\":1,\"locked\":null},{\"id\":\"F17\",\"value\":{\"value\":null,\"numFmt\":\"#,##0\"},\"version\":0,\"locked\":null},{\"id\":\"E17\",\"value\":{\"value\":4890,\"numFmt\":\"#,##0\"},\"version\":1,\"locked\":null},{\"id\":\"F20\",\"value\":{\"value\":null,\"numFmt\":\"#,##0\"},\"version\":0,\"locked\":null},{\"id\":\"E20\",\"value\":{\"value\":6390,\"numFmt\":\"#,##0\"},\"version\":1,\"locked\":null},{\"id\":\"F23\",\"value\":{\"value\":6849,\"numFmt\":\"#,##0\"},\"version\":1,\"locked\":null},{\"id\":\"E23\",\"value\":{\"value\":6550,\"numFmt\":\"#,##0\"},\"version\":1,\"locked\":null},{\"id\":\"F25\",\"value\":{\"value\":5920,\"numFmt\":\"#,##0\"},\"version\":1,\"locked\":null},{\"id\":\"E25\",\"value\":{\"value\":5920,\"numFmt\":\"#,##0\"},\"version\":1,\"locked\":null},{\"id\":\"D15\",\"value\":{\"value\":6980,\"numFmt\":\"#,##0\"},\"version\":1,\"locked\":null},{\"id\":\"G15\",\"value\":{\"value\":null,\"numFmt\":\"#,##0\"},\"version\":0,\"locked\":null},{\"id\":\"H15\",\"value\":{\"value\":null,\"numFmt\":\"#,##0\"},\"version\":0,\"locked\":null},{\"id\":\"G30\",\"value\":{\"value\":null,\"numFmt\":\"#,##0\"},\"version\":0,\"locked\":null},{\"id\":\"H30\",\"value\":{\"value\":null,\"numFmt\":\"#,##0\"},\"version\":0,\"locked\":null},{\"id\":\"C15\",\"value\":{\"value\":4890,\"numFmt\":\"#,##0\"},\"version\":1,\"locked\":null}]"
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "toolCalls": [
+            {
+              "id": "execute_verified_workbook_plan_gyevec4m3krd",
+              "tool": "execute_verified_workbook_plan",
+              "args": {
+                "instruction": "Forecast Cash as prior period Cash plus Changes in Working Capital.",
+                "artifactId": "WC_Forecast",
+                "maxCells": 200
+              }
+            }
+          ]
+        },
+        {
+          "role": "tool",
+          "toolCallId": "execute_verified_workbook_plan_gyevec4m3krd",
+          "toolName": "execute_verified_workbook_plan",
+          "content": "{\"ok\":true,\"status\":\"completed\",\"artifactId\":\"WC_Forecast\",\"operationCount\":26,\"changedTargetCount\":26,\"approvalBoundary\":\"RoomTools managed lock and compare-and-set\",\"workflowComplete\":true,\"nextAction\":\"Return the final answer. Do not call another workbook tool.\",\"phases\":{\"inspect\":{\"status\":\"completed\",\"receiptHash\":\"fnv1a:ecd06f13\",\"inspectedCellCount\":144,\"findingCount\":3,\"targetBandCount\":3},\"plan\":{\"status\":\"completed\",\"operationCount\":26,\"conflictCount\":0,\"planHash\":\"fnv1a:77669c0e\",\"targets\":[\"F9\",\"G9\",\"H9\",\"F11\",\"G11\",\"H11\",\"H12\",\"F13\",\"G13\",\"H13\",\"F15\",\"G15\",\"H15\",\"F17\",\"G17\",\"H17\",\"F20\",\"G20\",\"H20\",\"H23\",\"F25\",\"G25\",\"H25\",\"F30\",\"G30\",\"H30\"]},\"preflight\":{\"status\":\"passed\",\"receiptHash\":\"fnv1a:8eec60c9\",\"issueCount\":0,\"checkedCount\":26},\"write\":{\"status\":\"completed\",\"receiptHash\":\"fnv1a:2de5c2e4\",\"targetCount\":26,\"committedCount\":26,\"skippedCount\":0,\"failedCount\":0,\"mutationReceiptIds\":[\"sbench-mutation-1\",\"sbench-mutation-2\",\"sbench-mutation-3\",\"sbench-mutation-4\",\"sbench-mutation-5\",\"sbench-mutation-6\",\"sbench-mutation-7\",\"sbench-mutation-8\",\"sbench-mutation-9\",\"sbench-mutation-10\",\"sbench-mutation-11\",\"sbench-mutation-12\",\"sbench-mutation-13\",\"sbench-mutation-14\",\"sbench-mutation-15\",\"sbench-mutation-16\",\"sbench-mutation-17\",\"sbench-mutation-18\",\"sbench-mutation-19\",\"sbench-mutation-20\",\"sbench-mutation-21\",\"sbench-mutation-22\",\"sbench-mutation-23\",\"sbench-mutation-24\",\"sbench-mutation-25\",\"sbench-mutation-26\"],\"coordination\":{\"mode\":\"managed_lock_batch\",\"targetIds\":[\"F9\",\"G9\",\"H9\",\"F11\",\"G11\",\"H11\",\"H12\",\"F13\",\"G13\",\"H13\",\"F15\",\"G15\",\"H15\",\"F17\",\"G17\",\"H17\",\"F20\",\"G20\",\"H20\",\"H23\",\"F25\",\"G25\",\"H25\",\"F30\",\"G30\",\"H30\"],\"acquired\":true,\"lockId\":\"sbench-lock-1\",\"released\":true,\"mergedDrafts\":0,\"skippedCount\":0}},\"verify\":{\"status\":\"passed\",\"receiptHash\":\"fnv1a:1d927f8f\",\"issueCount\":0,\"checkedCount\":26}}}"
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "toolCalls": [
+            {
+              "id": "say_tvdjt68gawq6",
+              "tool": "say",
+              "args": {
+                "text": "Forecast complete: WC_Forecast now shows Cash & Equivalents as prior period Cash plus Changes in Working Capital across all quarters (F15:H30)."
+              }
+            }
+          ]
+        },
+        {
+          "role": "tool",
+          "toolCallId": "say_tvdjt68gawq6",
+          "toolName": "say",
+          "content": "{\"ok\":true}"
+        }
+      ],
+      "usage": {
+        "inputTokens": 46663,
+        "outputTokens": 3168,
+        "modelCalls": 6,
+        "cachedInputTokens": 0
+      }
+    },
+    "stateDelta": {
+      "summary": "Forecast complete: WC_Forecast now shows Cash & Equivalents as prior period Cash plus Changes in Working Capital across all quarters (F15:H30).",
+      "changedArtifacts": [],
+      "cacheKeysTouched": [],
+      "okfConceptIdsTouched": [],
+      "openQuestions": [],
+      "nextActions": [
+        "Run verification frame."
+      ]
+    },
+    "verification": {
+      "status": "completed",
+      "reason": "Frame completed.",
+      "needsReview": false,
+      "evidenceState": {
+        "required": [
+          "workbook inspection",
+          "edit-plan preflight",
+          "managed write receipt",
+          "post-write verification"
+        ],
+        "availableRefs": [],
+        "missingRefs": [],
+        "staleRefs": []
+      }
+    },
+    "updatedFrame": {
+      "frameId": "rf_spreadsheetbench-nodeagent-2b4d689a",
+      "goal": "Forecast Cash as prior period Cash plus Changes in Working Capital.",
+      "phase": "execute",
+      "status": "completed",
+      "contextPack": {
+        "globalGoal": "Forecast Cash as prior period Cash plus Changes in Working Capital.",
+        "parentSummary": "SpreadsheetBench staged task Template/06_11; evaluator metadata remains outside this frame.",
+        "currentArtifactDigest": "task:Template/06_11; track:spreadsheetbench-v2; sheets:WC_Forecast",
+        "relevantOkfConceptIds": [],
+        "relevantCacheKeys": [],
+        "openQuestions": [],
+        "constraints": [
+          "Use only the staged agent manifest, agent input workbook, and agent prompt files.",
+          "Never request or infer evaluator metadata, answer positions, scorer settings, or gold workbooks.",
+          "Inspect, preflight, use managed RoomTools writes, and verify every changed target.",
+          "Treat a failed preflight or post-write verification as repair guidance, not permission to weaken verification."
+        ],
+        "expectedOutputSchema": "noderoom.spreadsheetbench.nodeagent_bridge.v1"
+      },
+      "toolAllowlist": [
+        "inspect_workbook",
+        "execute_verified_workbook_plan",
+        "verify_workbook",
+        "list_artifacts",
+        "read_range",
+        "search_sheet_context",
+        "write_locked_cell",
+        "write_locked_cells",
+        "say"
+      ],
+      "evidenceState": {
+        "required": [
+          "workbook inspection",
+          "edit-plan preflight",
+          "managed write receipt",
+          "post-write verification"
+        ],
+        "availableRefs": [],
+        "missingRefs": [],
+        "staleRefs": []
+      },
+      "stateDelta": {
+        "summary": "Forecast complete: WC_Forecast now shows Cash & Equivalents as prior period Cash plus Changes in Working Capital across all quarters (F15:H30).",
+        "changedArtifacts": [],
+        "cacheKeysTouched": [],
+        "okfConceptIdsTouched": [],
+        "openQuestions": [],
+        "nextActions": [
+          "Run verification frame."
+        ]
+      }
+    }
+  },
+  "trace": {
+    "schema": "nodeagent.trace.v1",
+    "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+    "createdAt": 1784037407504,
+    "updatedAt": 1784037441231,
+    "trigger": {
+      "kind": "benchmark",
+      "prompt": "Forecast Cash as prior period Cash plus Changes in Working Capital.",
+      "selectedArtifactIds": [
+        "WC_Forecast"
+      ],
+      "openedSurface": "spreadsheetbench.nodeagent.bridge"
+    },
+    "plan": {
+      "goal": "Forecast Cash as prior period Cash plus Changes in Working Capital.",
+      "plannedReads": [
+        {
+          "kind": "artifact",
+          "refId": "WC_Forecast",
+          "label": "Agent-visible worksheet"
+        }
+      ],
+      "plannedWrites": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r32-stability\\Template_06_11\\attempt-06\\candidate-01-06_11_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-06_11_input.xlsx",
+          "hash": "23c9a2ee723c72f2c29ec47b6246135b1e0c1925524d22eb485129de16bf8ab2"
+        }
+      ],
+      "approvalRequired": false,
+      "riskFlags": [
+        "evaluator_isolation",
+        "workbook_mutation",
+        "cas_managed_write"
+      ]
+    },
+    "contextPack": {
+      "worldModelHash": "fnv1a:bfb7e696",
+      "includedRefs": [
+        {
+          "kind": "frame",
+          "refId": "rf_spreadsheetbench-nodeagent-2b4d689a",
+          "label": "Reasoning frame"
+        }
+      ],
+      "excludedRefs": []
+    },
+    "steps": [
+      {
+        "stepId": "spreadsheetbench-nodeagent-2b4d689a:tool:000:list-artifacts",
+        "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+        "phase": "tool_call",
+        "title": "Tool call: list_artifacts",
+        "summary": "Called list_artifacts and recorded args/result hashes.",
+        "inputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-2b4d689a:tool:000:list-artifacts:args",
+            "hash": "fnv1a:5465b825",
+            "label": "list_artifacts args"
+          }
+        ],
+        "outputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-2b4d689a:tool:000:list-artifacts:result",
+            "hash": "fnv1a:38bd8b02",
+            "label": "list_artifacts result"
+          }
+        ],
+        "tool": {
+          "name": "list_artifacts",
+          "argsHash": "fnv1a:5465b825",
+          "resultHash": "fnv1a:38bd8b02",
+          "status": "ok",
+          "latencyMs": 1
+        },
+        "timings": {
+          "startedAt": 1784037407504,
+          "endedAt": 1784037407505,
+          "latencyMs": 1
+        },
+        "verdict": {
+          "status": "ok"
+        }
+      },
+      {
+        "stepId": "spreadsheetbench-nodeagent-2b4d689a:tool:001:inspect-workbook",
+        "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+        "phase": "tool_call",
+        "title": "Tool call: inspect_workbook",
+        "summary": "Called inspect_workbook and recorded args/result hashes.",
+        "inputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-2b4d689a:tool:001:inspect-workbook:args",
+            "hash": "fnv1a:e4fb12c8",
+            "label": "inspect_workbook args"
+          }
+        ],
+        "outputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-2b4d689a:tool:001:inspect-workbook:result",
+            "hash": "fnv1a:be5d34f0",
+            "label": "inspect_workbook result"
+          }
+        ],
+        "tool": {
+          "name": "inspect_workbook",
+          "argsHash": "fnv1a:e4fb12c8",
+          "resultHash": "fnv1a:be5d34f0",
+          "status": "ok",
+          "latencyMs": 103
+        },
+        "timings": {
+          "startedAt": 1784037407504,
+          "endedAt": 1784037407607,
+          "latencyMs": 103
+        },
+        "verdict": {
+          "status": "ok"
+        }
+      },
+      {
+        "stepId": "spreadsheetbench-nodeagent-2b4d689a:tool:002:read-range",
+        "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+        "phase": "tool_call",
+        "title": "Tool call: read_range",
+        "summary": "Called read_range and recorded args/result hashes.",
+        "inputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-2b4d689a:tool:002:read-range:args",
+            "hash": "fnv1a:f119e79d",
+            "label": "read_range args"
+          }
+        ],
+        "outputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-2b4d689a:tool:002:read-range:result",
+            "hash": "fnv1a:7652ab32",
+            "label": "read_range result"
+          }
+        ],
+        "tool": {
+          "name": "read_range",
+          "argsHash": "fnv1a:f119e79d",
+          "resultHash": "fnv1a:7652ab32",
+          "status": "ok",
+          "latencyMs": 0
+        },
+        "timings": {
+          "startedAt": 1784037407504,
+          "endedAt": 1784037407504,
+          "latencyMs": 0
+        },
+        "verdict": {
+          "status": "ok"
+        }
+      },
+      {
+        "stepId": "spreadsheetbench-nodeagent-2b4d689a:tool:003:read-range",
+        "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+        "phase": "tool_call",
+        "title": "Tool call: read_range",
+        "summary": "Called read_range and recorded args/result hashes.",
+        "inputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-2b4d689a:tool:003:read-range:args",
+            "hash": "fnv1a:f5874ada",
+            "label": "read_range args"
+          }
+        ],
+        "outputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-2b4d689a:tool:003:read-range:result",
+            "hash": "fnv1a:98932fd1",
+            "label": "read_range result"
+          }
+        ],
+        "tool": {
+          "name": "read_range",
+          "argsHash": "fnv1a:f5874ada",
+          "resultHash": "fnv1a:98932fd1",
+          "status": "ok",
+          "latencyMs": 0
+        },
+        "timings": {
+          "startedAt": 1784037407504,
+          "endedAt": 1784037407504,
+          "latencyMs": 0
+        },
+        "verdict": {
+          "status": "ok"
+        }
+      },
+      {
+        "stepId": "spreadsheetbench-nodeagent-2b4d689a:tool:004:execute-verified-workbook-plan",
+        "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+        "phase": "tool_call",
+        "title": "Tool call: execute_verified_workbook_plan",
+        "summary": "Called execute_verified_workbook_plan and recorded args/result hashes.",
+        "inputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-2b4d689a:tool:004:execute-verified-workbook-plan:args",
+            "hash": "fnv1a:3394a970",
+            "label": "execute_verified_workbook_plan args"
+          }
+        ],
+        "outputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-2b4d689a:tool:004:execute-verified-workbook-plan:result",
+            "hash": "fnv1a:337ce012",
+            "label": "execute_verified_workbook_plan result"
+          }
+        ],
+        "tool": {
+          "name": "execute_verified_workbook_plan",
+          "argsHash": "fnv1a:3394a970",
+          "resultHash": "fnv1a:337ce012",
+          "status": "ok",
+          "latencyMs": 60
+        },
+        "timings": {
+          "startedAt": 1784037407504,
+          "endedAt": 1784037407564,
+          "latencyMs": 60
+        },
+        "verdict": {
+          "status": "ok"
+        }
+      },
+      {
+        "stepId": "spreadsheetbench-nodeagent-2b4d689a:tool:005:say",
+        "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+        "phase": "tool_call",
+        "title": "Tool call: say",
+        "summary": "Called say and recorded args/result hashes.",
+        "inputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-2b4d689a:tool:005:say:args",
+            "hash": "fnv1a:44cca3f4",
+            "label": "say args"
+          }
+        ],
+        "outputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-2b4d689a:tool:005:say:result",
+            "hash": "fnv1a:24e882c5",
+            "label": "say result"
+          }
+        ],
+        "tool": {
+          "name": "say",
+          "argsHash": "fnv1a:44cca3f4",
+          "resultHash": "fnv1a:24e882c5",
+          "status": "ok",
+          "latencyMs": 0
+        },
+        "timings": {
+          "startedAt": 1784037407504,
+          "endedAt": 1784037407504,
+          "latencyMs": 0
+        },
+        "verdict": {
+          "status": "ok"
+        }
+      }
+    ],
+    "evidence": [
+      {
+        "receiptId": "spreadsheetbench-nodeagent-2b4d689a:evidence:spreadsheetbench-inspect",
+        "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+        "label": "SpreadsheetBench inspect",
+        "sourceRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-2b4d689a:bridge:event:1",
+            "label": "inspect_workbook",
+            "hash": "fnv1a:be5d34f0"
+          }
+        ],
+        "artifactRefs": [
+          {
+            "kind": "artifact",
+            "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r32-stability\\Template_06_11\\attempt-06\\candidate-01-06_11_input.xlsx",
+            "label": "SpreadsheetBench candidate candidate-01-06_11_input.xlsx",
+            "hash": "23c9a2ee723c72f2c29ec47b6246135b1e0c1925524d22eb485129de16bf8ab2"
+          }
+        ],
+        "factHash": "fnv1a:dea522d3",
+        "verifier": "spreadsheetBenchNodeAgentBridge",
+        "status": "verified"
+      },
+      {
+        "receiptId": "spreadsheetbench-nodeagent-2b4d689a:evidence:spreadsheetbench-preflight",
+        "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+        "label": "SpreadsheetBench preflight",
+        "sourceRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-2b4d689a:bridge:event:4",
+            "label": "execute_verified_workbook_plan",
+            "hash": "fnv1a:337ce012"
+          }
+        ],
+        "artifactRefs": [
+          {
+            "kind": "artifact",
+            "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r32-stability\\Template_06_11\\attempt-06\\candidate-01-06_11_input.xlsx",
+            "label": "SpreadsheetBench candidate candidate-01-06_11_input.xlsx",
+            "hash": "23c9a2ee723c72f2c29ec47b6246135b1e0c1925524d22eb485129de16bf8ab2"
+          }
+        ],
+        "factHash": "fnv1a:b271056e",
+        "verifier": "verify_workbook",
+        "status": "verified"
+      },
+      {
+        "receiptId": "spreadsheetbench-nodeagent-2b4d689a:evidence:spreadsheetbench-verify",
+        "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+        "label": "SpreadsheetBench verify",
+        "sourceRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-2b4d689a:bridge:event:4",
+            "label": "execute_verified_workbook_plan",
+            "hash": "fnv1a:337ce012"
+          }
+        ],
+        "artifactRefs": [
+          {
+            "kind": "artifact",
+            "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r32-stability\\Template_06_11\\attempt-06\\candidate-01-06_11_input.xlsx",
+            "label": "SpreadsheetBench candidate candidate-01-06_11_input.xlsx",
+            "hash": "23c9a2ee723c72f2c29ec47b6246135b1e0c1925524d22eb485129de16bf8ab2"
+          }
+        ],
+        "factHash": "fnv1a:635e653b",
+        "verifier": "verify_workbook",
+        "status": "verified"
+      },
+      {
+        "receiptId": "spreadsheetbench-nodeagent-2b4d689a:evidence:spreadsheetbench-repair",
+        "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+        "label": "SpreadsheetBench repair",
+        "sourceRefs": [],
+        "artifactRefs": [
+          {
+            "kind": "artifact",
+            "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r32-stability\\Template_06_11\\attempt-06\\candidate-01-06_11_input.xlsx",
+            "label": "SpreadsheetBench candidate candidate-01-06_11_input.xlsx",
+            "hash": "23c9a2ee723c72f2c29ec47b6246135b1e0c1925524d22eb485129de16bf8ab2"
+          }
+        ],
+        "factHash": "fnv1a:12966d23",
+        "verifier": "spreadsheetBenchNodeAgentBridge",
+        "status": "verified"
+      },
+      {
+        "receiptId": "spreadsheetbench-nodeagent-2b4d689a:evidence:spreadsheetbench-formula-recalculation",
+        "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+        "label": "SpreadsheetBench formula recalculation",
+        "sourceRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-2b4d689a:formula-recalculation",
+            "label": "NodeAgent formula recalculation receipt",
+            "hash": "fnv1a:e03fd7fb"
+          }
+        ],
+        "artifactRefs": [
+          {
+            "kind": "artifact",
+            "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r32-stability\\Template_06_11\\attempt-06\\candidate-01-06_11_input.xlsx",
+            "label": "SpreadsheetBench candidate candidate-01-06_11_input.xlsx",
+            "hash": "23c9a2ee723c72f2c29ec47b6246135b1e0c1925524d22eb485129de16bf8ab2"
+          }
+        ],
+        "factHash": "fnv1a:e03fd7fb",
+        "verifier": "nodeagent-formula-engine",
+        "status": "verified"
+      }
+    ],
+    "mutations": [
+      {
+        "receiptId": "spreadsheetbench-nodeagent-2b4d689a:mutation:3394a970",
+        "traceId": "spreadsheetbench-nodeagent-2b4d689a",
+        "targetRefs": [
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!F9",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!G9",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!H9",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!F11",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!G11",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!H11",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!H12",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!F13",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!G13",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!H13",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!F15",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!G15",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!H15",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!F17",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!G17",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!H17",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!F20",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!G20",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!H20",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!H23",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!F25",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!G25",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!H25",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!F30",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!G30",
+            "label": "SpreadsheetBench workbook target"
+          },
+          {
+            "kind": "cell",
+            "refId": "WC_Forecast!H30",
+            "label": "SpreadsheetBench workbook target"
+          }
+        ],
+        "payloadHash": "fnv1a:3394a970",
+        "status": "committed"
+      }
+    ],
+    "approvals": [],
+    "eval": {
+      "proofArtifacts": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r32-stability\\Template_06_11\\attempt-06\\candidate-01-06_11_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-06_11_input.xlsx",
+          "hash": "23c9a2ee723c72f2c29ec47b6246135b1e0c1925524d22eb485129de16bf8ab2"
+        }
+      ],
+      "benchmarkCaseId": "Template/06_11"
+    },
+    "final": {
+      "outputArtifactRefs": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-template-triad-r32-stability\\Template_06_11\\attempt-06\\candidate-01-06_11_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-06_11_input.xlsx",
+          "hash": "23c9a2ee723c72f2c29ec47b6246135b1e0c1925524d22eb485129de16bf8ab2"
+        }
+      ],
+      "summary": "Forecast complete: WC_Forecast now shows Cash & Equivalents as prior period Cash plus Changes in Working Capital across all quarters (F15:H30).",
+      "status": "completed"
+    }
+  }
+}

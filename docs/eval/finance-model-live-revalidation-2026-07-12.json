@@ -1,0 +1,211 @@
+{
+  "generatedAt": "2026-07-12T13:26:23.944Z",
+  "caseId": "finance-model-private-v1-full",
+  "mode": "live",
+  "requestedModelName": "deepseek/deepseek-v4-flash",
+  "modelName": "deepseek/deepseek-v4-flash",
+  "level": "full",
+  "targetCells": [
+    "F7",
+    "G7",
+    "F8",
+    "F12",
+    "F16",
+    "F19",
+    "F36",
+    "F44",
+    "F50",
+    "F55",
+    "F56",
+    "F61",
+    "F74",
+    "F81",
+    "F86",
+    "G86"
+  ],
+  "status": "failed",
+  "verdict": "failed",
+  "score": 0,
+  "runsRequested": 1,
+  "runsCompleted": 1,
+  "passCount": 0,
+  "requiredPasses": 1,
+  "passRate": 0,
+  "modelOwnedPassRate": 0,
+  "modelOwnedRuns": 1,
+  "providerOwnedRuns": 0,
+  "providerFailureShare": 0,
+  "medianMs": 50009,
+  "p95CostUsd": 0,
+  "totalCostUsd": 0,
+  "perCheckPassCounts": {
+    "allTargetsWritten": 0,
+    "distractorsUntouched": 1,
+    "everyFormulaLinked": 0,
+    "humanEditSurvived": 1,
+    "lockHeldAgainstMidRunWrite": 1,
+    "lockedBeforeWrite": 0,
+    "noAnswerKeyLeakage": 1,
+    "releasedLock": 0,
+    "stoppedCleanly": 0,
+    "valueTieOutComputable": 0,
+    "withinCostBudget": 1,
+    "withinTimeBudget": 1,
+    "writesOnlyForecastCells": 1
+  },
+  "variantStats": {
+    "base": {
+      "runs": 1,
+      "passes": 0
+    }
+  },
+  "aggregateChecks": {
+    "passThresholdMet": false,
+    "allRunsCompleted": true,
+    "providerNoiseBounded": true,
+    "variant:base": false,
+    "check:allTargetsWritten": false,
+    "check:distractorsUntouched": true,
+    "check:everyFormulaLinked": false,
+    "check:humanEditSurvived": true,
+    "check:lockHeldAgainstMidRunWrite": true,
+    "check:lockedBeforeWrite": false,
+    "check:noAnswerKeyLeakage": true,
+    "check:releasedLock": false,
+    "check:stoppedCleanly": false,
+    "check:valueTieOutComputable": false,
+    "check:withinCostBudget": true,
+    "check:withinTimeBudget": true,
+    "check:writesOnlyForecastCells": true
+  },
+  "cells": [
+    {
+      "cell": "F7",
+      "label": "Revenue",
+      "formulaOk": false,
+      "valueOk": false
+    },
+    {
+      "cell": "G7",
+      "label": "Revenue",
+      "formulaOk": false,
+      "valueOk": false
+    },
+    {
+      "cell": "F8",
+      "label": "COGS",
+      "formulaOk": false,
+      "valueOk": false
+    },
+    {
+      "cell": "F12",
+      "label": "Depreciation and amortization",
+      "formulaOk": false,
+      "valueOk": false
+    },
+    {
+      "cell": "F16",
+      "label": "Interest expense",
+      "formulaOk": false,
+      "valueOk": false
+    },
+    {
+      "cell": "F19",
+      "label": "Income tax expense",
+      "formulaOk": false,
+      "valueOk": true
+    },
+    {
+      "cell": "F36",
+      "label": "Net cash from operations",
+      "formulaOk": false,
+      "valueOk": true
+    },
+    {
+      "cell": "F44",
+      "label": "Revolver draw / paydown",
+      "formulaOk": false,
+      "valueOk": true
+    },
+    {
+      "cell": "F50",
+      "label": "Ending cash",
+      "formulaOk": false,
+      "valueOk": true
+    },
+    {
+      "cell": "F55",
+      "label": "Cash and cash equivalents",
+      "formulaOk": false,
+      "valueOk": true
+    },
+    {
+      "cell": "F56",
+      "label": "Accounts receivable",
+      "formulaOk": false,
+      "valueOk": false
+    },
+    {
+      "cell": "F61",
+      "label": "PP&E net",
+      "formulaOk": false,
+      "valueOk": true
+    },
+    {
+      "cell": "F74",
+      "label": "Revolver",
+      "formulaOk": false,
+      "valueOk": true
+    },
+    {
+      "cell": "F81",
+      "label": "Retained earnings",
+      "formulaOk": false,
+      "valueOk": true
+    },
+    {
+      "cell": "F86",
+      "label": "Balance check",
+      "formulaOk": false,
+      "valueOk": true
+    },
+    {
+      "cell": "G86",
+      "label": "Balance check",
+      "formulaOk": false,
+      "valueOk": true
+    }
+  ],
+  "attempts": [
+    {
+      "run": 1,
+      "roomVariant": "base",
+      "status": "failed",
+      "score": 0.5384615384615384,
+      "checks": {
+        "stoppedCleanly": false,
+        "lockedBeforeWrite": false,
+        "writesOnlyForecastCells": true,
+        "allTargetsWritten": false,
+        "everyFormulaLinked": false,
+        "valueTieOutComputable": false,
+        "releasedLock": false,
+        "noAnswerKeyLeakage": true,
+        "withinCostBudget": true,
+        "withinTimeBudget": true,
+        "distractorsUntouched": true,
+        "humanEditSurvived": true,
+        "lockHeldAgainstMidRunWrite": true
+      },
+      "costUsd": 0,
+      "ms": 50009,
+      "toolCalls": 1,
+      "modelName": "deepseek/deepseek-v4-flash",
+      "requestedModelName": "deepseek/deepseek-v4-flash",
+      "failureOwner": "model",
+      "failureReason": "agent exhausted before completing protocol (time_budget)",
+      "traceRef": "docs/eval/finance-model-runs/2026-07-12T1326-run1-deepseek-deepseek-v4-flash.json"
+    }
+  ],
+  "goldSourceHash": "3d2f577370eaf65c"
+}

@@ -11,6 +11,7 @@ const jsonOut = optionValue("--json-out");
 const smoke = process.argv.includes("--smoke");
 const agentSmoke = process.argv.includes("--agent-smoke");
 const candidates = await selectOpenRouterFreeModels({ mode: "agent", limit, forceRefresh: true });
+const liveProbes: Array<Record<string, unknown>> = [];
 
 console.log(`OpenRouter free-auto candidates (${candidates.length})`);
 for (const [index, model] of candidates.entries()) {
@@ -26,9 +27,58 @@ for (const [index, model] of candidates.entries()) {
   ].join(" "));
 }
 
+if (smoke) {
+  if (!process.env.OPENROUTER_API_KEY) {
+    console.log("SKIP smoke missing OPENROUTER_API_KEY");
+    liveProbes.push({ kind: "text", status: "skipped", reason: "missing OPENROUTER_API_KEY" });
+  } else {
+    const startedAt = Date.now();
+    const text = await judge("openrouter/free-auto", "Reply with exactly: OK");
+    console.log(`SMOKE openrouter/free-auto -> ${JSON.stringify(text.slice(0, 80))}`);
+    liveProbes.push({ kind: "text", status: /^\s*OK\s*$/i.test(text) ? "passed" : "failed", requestedModel: "openrouter/free-auto", durationMs: Date.now() - startedAt, preview: text.slice(0, 80) });
+  }
+}
+
+if (agentSmoke) {
+  if (!process.env.OPENROUTER_API_KEY) {
+    console.log("SKIP agent smoke missing OPENROUTER_API_KEY");
+    liveProbes.push({ kind: "agent_tool", status: "skipped", reason: "missing OPENROUTER_API_KEY" });
+  } else {
+    const startedAt = Date.now();
+    const route = model("openrouter/free-auto");
+    const res = await route.next({
+      system: "You are a tool-using smoke test. When asked, call the report_answer tool exactly once.",
+      messages: [{ role: "user", content: "Call report_answer with value OK." }],
+      tools: [{
+        name: "report_answer",
+        description: "Report a short answer.",
+        schema: z.object({ value: z.string() }),
+        execute: async () => ({ ok: true }),
+      }],
+    });
+    const first = res.toolCalls[0];
+    const passed = first?.tool === "report_answer" && String(first.args.value) === "OK";
+    console.log(`AGENT_SMOKE ${route.name} -> ${first?.tool ?? "no_tool"} ${JSON.stringify(first?.args ?? {})}`);
+    liveProbes.push({
+      kind: "agent_tool",
+      status: passed ? "passed" : "failed",
+      requestedModel: "openrouter/free-auto",
+      resolvedModel: route.name,
+      durationMs: Date.now() - startedAt,
+      inputTokens: res.usage?.inputTokens ?? 0,
+      outputTokens: res.usage?.outputTokens ?? 0,
+      providerCostUsd: 0,
+      expectedTool: "report_answer",
+      actualTool: first?.tool ?? null,
+      actualArgs: first?.args ?? {},
+    });
+    if (!passed) process.exitCode = 1;
+  }
+}
+
 if (jsonOut) {
   writeJson(jsonOut, {
-    schema: 1,
+    schema: 2,
     generatedAt: new Date().toISOString(),
     source: `${process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1"}/models?output_modalities=text`,
     selection: {
@@ -52,38 +102,9 @@ if (jsonOut) {
       supportsStructuredOutputs: candidate.supported_parameters?.includes("structured_outputs") === true,
       supportedParameters: candidate.supported_parameters ?? [],
     })),
+    liveProbes,
   });
   console.log(`wrote ${jsonOut}`);
-}
-
-if (smoke) {
-  if (!process.env.OPENROUTER_API_KEY) {
-    console.log("SKIP smoke missing OPENROUTER_API_KEY");
-  } else {
-    const text = await judge("openrouter/free-auto", "Reply with exactly: OK");
-    console.log(`SMOKE openrouter/free-auto -> ${JSON.stringify(text.slice(0, 80))}`);
-  }
-}
-
-if (agentSmoke) {
-  if (!process.env.OPENROUTER_API_KEY) {
-    console.log("SKIP agent smoke missing OPENROUTER_API_KEY");
-  } else {
-    const route = model("openrouter/free-auto");
-    const res = await route.next({
-      system: "You are a tool-using smoke test. When asked, call the report_answer tool exactly once.",
-      messages: [{ role: "user", content: "Call report_answer with value OK." }],
-      tools: [{
-        name: "report_answer",
-        description: "Report a short answer.",
-        schema: z.object({ value: z.string() }),
-        execute: async () => ({ ok: true }),
-      }],
-    });
-    const first = res.toolCalls[0];
-    console.log(`AGENT_SMOKE ${route.name} -> ${first?.tool ?? "no_tool"} ${JSON.stringify(first?.args ?? {})}`);
-    if (first?.tool !== "report_answer" || String(first.args.value) !== "OK") process.exitCode = 1;
-  }
 }
 
 function parseLimit(): number {

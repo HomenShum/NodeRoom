@@ -1,0 +1,42 @@
+{
+  "capturedAt": "2026-07-09T10:48:07.069Z",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "sourceUrl": "http://127.0.0.1:5897/mobile/app-terracotta/app-terracotta.html",
+  "currentUrl": "http://127.0.0.1:5173/#mobile?mode=memory",
+  "source": {
+    "label": "source-app-terracotta",
+    "homeMetrics": {
+      "url": "http://127.0.0.1:5897/mobile/app-terracotta/app-terracotta.html",
+      "hasApp": true,
+      "bgApp": "#FBF4E7",
+      "accentPrimary": "#C56A3C",
+      "visibleText": "9:41 N Q3 Diligence 4 RECENTS DECK CardioNova investor update +1 deck · 6 slides · review Open deck SHEET CardioNova sheet v42 · 2 to review Open sheet PLAN CardioNova work plan Read 4 approved sources Propose Runway cell Attach evidence Read-only · est. $0.01 Open plan EVIDENCE Funding evidence “raising Series B” deck p.12 TechCrunch · Mar 2026 2 sources · 1 gap Open evidence FAVORITES Q3 Diligence room 6 live · 2 agents Open room CardioNova company sheet v42 · 2 fields to review Open sheet Car",
+      "overflowX": 0
+    },
+    "deckCaptured": true,
+    "deckError": null
+  },
+  "current": {
+    "label": "current-mobile-memory",
+    "homeMetrics": {
+      "url": "http://127.0.0.1:5173/#mobile?mode=memory",
+      "hasApp": true,
+      "bgApp": "#FBF4E7",
+      "accentPrimary": "#C56A3C",
+      "visibleText": "9:41 N Q3 Diligence Live 4 people 2 agents 4 $0.03 today RECENTS DECK CardioNova investor update +1 deck · 6 slides · review Open deck SHEET CardioNova sheet v42 · 2 to review Open sheet PLAN CardioNova work plan Read 4 approved sources Propose Runway cell Attach evidence Read-only · est. $0.01 Open plan EVIDENCE Funding evidence “raising Series B” deck p.12 TechCrunch · Mar 2026 2 sources · 1 gap Open evidence FAVORITES Q3 Diligence room 6 live · 2 agents Open room CardioNova company sheet v42 ",
+      "overflowX": 0
+    },
+    "deckCaptured": true,
+    "deckError": null
+  },
+  "consoleMessages": [
+    "info: %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold",
+    "warning: You are using the in-browser Babel transformer. Be sure to precompile your scripts for production - https://babeljs.io/docs/setup/",
+    "debug: [vite] connecting...",
+    "debug: [vite] connected.",
+    "info: %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+  ]
+}

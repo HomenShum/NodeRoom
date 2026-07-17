@@ -1,23 +1,25 @@
 {
   "surface": "landing",
   "judgeModel": "gemini-3.5-flash",
-  "judgedAt": "2026-06-11T21:16:03.895Z",
+  "judgedAt": "2026-07-12T11:10:08.041Z",
   "stateCount": 3,
   "scores": {
-    "state_legibility": 6,
-    "affordance_honesty": 7,
-    "consistency": 6,
+    "state_legibility": 5,
+    "affordance_honesty": 6,
+    "consistency": 7,
     "contrast": 5,
-    "polish": 7
+    "polish": 6
   },
-  "average": 6.2,
+  "average": 5.8,
   "pass": false,
   "topIssues": [
-    "image 3 (default - light): The join input container retains a colored terracotta border in its default state, which conflicts with the focus-ring grammar established in the dark focus state.",
-    "image 1 (default - dark): Low contrast on the 'DISPLAY NAME' label and 'e.g. Priya' placeholder text makes form fields hard to read against the dark background."
+    "Image 2 (join-focus): The focus ring wraps both the text input and the 'Join room' button together, making it unclear where the input boundary ends and the button begins.",
+    "Image 1 & 2 (default/join-focus): Low contrast on secondary metadata text, such as 'no account • join as guest' and the table footer details, making them hard to read against the dark background.",
+    "Image 3 (default light): Faint card borders and light gray text on the white background reduce structural definition and readability in the light theme."
   ],
   "fixSuggestions": [
-    "Use a neutral gray border for the join input in the light theme default state, reserving the terracotta border exclusively for active focus.",
-    "Increase the contrast of all label, placeholder, and secondary body text across both dark and light themes to meet WCAG AA standards."
+    "Isolate the focus ring to the text input area only, rather than wrapping the entire input-button container.",
+    "Increase contrast for secondary text and metadata across both dark and light themes to meet WCAG AA standards.",
+    "Add subtle drop shadows or slightly darker borders to the cards in the light theme to improve visual hierarchy."
   ]
 }

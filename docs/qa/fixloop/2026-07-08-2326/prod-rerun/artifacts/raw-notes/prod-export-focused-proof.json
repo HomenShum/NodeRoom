@@ -1,0 +1,18 @@
+{
+  "schema": "noderoom-prod-export-focused-proof-v1",
+  "generatedAt": "2026-07-09T07:26:31.057Z",
+  "baseUrl": "https://noderoom.live",
+  "roomCode": "NRXPMRD6NIWN",
+  "status": "pass",
+  "export": {
+    "suggestedFilename": "Q3_variance.xlsx",
+    "path": "docs/qa/fixloop/2026-07-08-2326/prod-rerun/artifacts/downloads/export-focused-q3-variance.xlsx",
+    "bytes": 6560,
+    "magic": "PK"
+  },
+  "artifacts": {
+    "video": "docs/qa/fixloop/2026-07-08-2326/prod-rerun/artifacts/videos/export-xlsx-focused.webm",
+    "before": "docs/qa/fixloop/2026-07-08-2326/prod-rerun/artifacts/screenshots/export-focused-before.png",
+    "afterClick": "docs/qa/fixloop/2026-07-08-2326/prod-rerun/artifacts/screenshots/export-focused-after-click.png"
+  }
+}

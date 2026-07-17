@@ -1,0 +1,81 @@
+{
+  "capturedAt": "2026-07-10T00:14:56.627Z",
+  "sha256": "e3a7a5f6801beb506635eb652644682ecad9802eeb0c297dc641cccf36eb1ba1",
+  "metrics": {
+    "overflowX": 0,
+    "smallTargets": [
+      {
+        "label": "Plan",
+        "width": 68.703125,
+        "height": 32,
+        "cls": "na-art-tab"
+      },
+      {
+        "label": "Slides",
+        "width": 79.453125,
+        "height": 32,
+        "cls": "na-art-tab"
+      },
+      {
+        "label": "Comments",
+        "width": 110.8125,
+        "height": 32,
+        "cls": "na-art-tab"
+      },
+      {
+        "label": "Evidence",
+        "width": 99.265625,
+        "height": 32,
+        "cls": "na-art-tab"
+      },
+      {
+        "label": "Export",
+        "width": 83.5625,
+        "height": 32,
+        "cls": "na-art-tab"
+      },
+      {
+        "label": "View all slides",
+        "width": 34,
+        "height": 34,
+        "cls": "na-tool"
+      },
+      {
+        "label": "Zoom in",
+        "width": 34,
+        "height": 34,
+        "cls": "na-tool"
+      },
+      {
+        "label": "Export deck",
+        "width": 34,
+        "height": 34,
+        "cls": "na-tool"
+      },
+      {
+        "label": "Sharpen this slide",
+        "width": 152.5625,
+        "height": 32,
+        "cls": "primary"
+      },
+      {
+        "label": "Tighten copy",
+        "width": 123.984375,
+        "height": 32,
+        "cls": ""
+      },
+      {
+        "label": "Check the claim",
+        "width": 142.609375,
+        "height": 32,
+        "cls": ""
+      },
+      {
+        "label": "Send",
+        "width": 34,
+        "height": 34,
+        "cls": "na-compose-send"
+      }
+    ]
+  }
+}

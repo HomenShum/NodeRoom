@@ -11,7 +11,7 @@
   {
     "id": "finauditing-official-score",
     "suite": "finauditing",
-    "status": "needs_scaffold_or_run",
+    "status": "blocked_external",
     "passed": false,
     "score": null,
     "sourceFile": ".proofloop/lanes/finauditing/blocker-analysis.json",
@@ -20,7 +20,7 @@
   {
     "id": "finch-official-score",
     "suite": "finch",
-    "status": "needs_scaffold_or_run",
+    "status": "blocked_external",
     "passed": false,
     "score": null,
     "sourceFile": ".proofloop/lanes/finch/blocker-analysis.json",

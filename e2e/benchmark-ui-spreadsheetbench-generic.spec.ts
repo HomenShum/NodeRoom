@@ -32,8 +32,19 @@ type CaseResult = {
   downloadedWorkbook: string;
   bytes: number;
   magic: string;
+  agentEvidence: AgentUiEvidence;
   score: Awaited<ReturnType<typeof scoreSpreadsheetBenchWorkbook>>;
   passed: boolean;
+};
+
+type AgentUiEvidence = {
+  routeText: string;
+  approvalPolicy: string;
+  mutationCount: number;
+  receiptCount: number;
+  receiptText: string;
+  tools: string[];
+  postWriteVerification: "passed";
 };
 
 const BASE = process.env.BENCH_BASE_URL ?? process.env.PLAYWRIGHT_BASE_URL ?? "https://noderoom.live";
@@ -114,6 +125,7 @@ test.describe(`${TRACK} generic prod-browser adapter`, () => {
         downloadedWorkbook: result.downloadedWorkbook,
         bytes: result.bytes,
         magic: result.magic,
+        agentEvidence: result.agentEvidence,
         passed: result.passed,
         score: {
           pass: result.score.pass,
@@ -137,6 +149,9 @@ test.describe(`${TRACK} generic prod-browser adapter`, () => {
           "deliverable_export_download",
           "artifact_reopen_validation",
           "official_scorer_handoff",
+          "resolved_model_route_visible",
+          "inspect_preflight_managed_write_postverify_visible",
+          "mutation_receipt_visible",
         ] : []),
         "no_memory_mode_shortcut",
       ],
@@ -166,7 +181,7 @@ async function runWorkbookCase(
   await openUploadedWorkbook(page, basename(inputPath));
 
   const expectedPhrase = `${staged.agent.taskId} spreadsheetbench case ${caseIndex + 1} complete`;
-  await invokeNodeAgent(page, [
+  const agentEvidence = await invokeNodeAgent(page, [
     `@nodeagent You are completing ${TRACK} task ${staged.agent.taskId}, case ${caseIndex + 1}.`,
     "Use the uploaded workbook currently open in the room.",
     staged.agent.instruction,
@@ -208,6 +223,7 @@ async function runWorkbookCase(
     downloadedWorkbook: downloadPath,
     bytes: statSync(downloadPath).size,
     magic,
+    agentEvidence,
     score,
     passed: score.pass,
   };
@@ -219,6 +235,7 @@ async function createFreshRoom(page: Page): Promise<void> {
   await page.getByTestId("create-room").click({ timeout: 60_000 });
   const displayName = page.getByTestId("create-display-name");
   if (await displayName.isVisible().catch(() => false)) await displayName.fill("Proof Loop");
+  await page.getByLabel("Auto-approve conflict-free edits").check();
   await page.getByTestId("create-room-submit").click({ timeout: 30_000 });
   await expect(page.getByText(/live convex/i)).toBeVisible({ timeout: 60_000 });
 }
@@ -235,7 +252,7 @@ async function selectAgentRoute(page: Page): Promise<void> {
 
 async function uploadWorkbook(page: Page, path: string): Promise<void> {
   await ensureBinderOpen(page);
-  const fileInput = page.locator(".r-file-input");
+  const fileInput = page.getByTestId("chat-file-input");
   await fileInput.waitFor({ state: "attached", timeout: 30_000 });
   await fileInput.setInputFiles(path);
   await expect(page.getByTestId("binder-artifact").filter({ hasText: binderTitlePattern(basename(path)) }).first())
@@ -248,7 +265,7 @@ async function openUploadedWorkbook(page: Page, filename: string): Promise<void>
   await expect(page.getByTestId("sheet-grid").or(page.locator(".r-grid")).first()).toBeVisible({ timeout: 90_000 });
 }
 
-async function invokeNodeAgent(page: Page, prompt: string, expectedPhrase: string): Promise<void> {
+async function invokeNodeAgent(page: Page, prompt: string, expectedPhrase: string): Promise<AgentUiEvidence> {
   const composer = page.locator('textarea[data-testid="chat-composer"]').first();
   await expect(composer).toBeVisible({ timeout: 30_000 });
   const agentMessages = page.locator('[data-testid="chat-message"].agent');
@@ -271,8 +288,15 @@ async function invokeNodeAgent(page: Page, prompt: string, expectedPhrase: strin
     intervals: [1000, 2000, 5000],
   }).toBe(1);
 
+  const detailToggle = page.getByTestId("job-detail-toggle").first();
+  await expect(detailToggle).toBeVisible({ timeout: 30_000 });
+  if ((await detailToggle.getAttribute("aria-expanded")) !== "true") await detailToggle.click();
+  await expect(page.getByTestId("job-detail").first()).toBeVisible({ timeout: 30_000 });
+
   const deadline = Date.now() + AGENT_TIMEOUT_MS;
   let lastText = "";
+  let lastDetailText = "";
+  let routeText = "";
   let sawFreshAgentOutput = false;
   while (Date.now() < deadline) {
     const status = await quickText(page.getByTestId("job-status").first(), 1000);
@@ -285,14 +309,69 @@ async function invokeNodeAgent(page: Page, prompt: string, expectedPhrase: strin
       || streamCount > streamCountBefore
       || latestStream.length > 0;
     lastText = `${status}\n${latestAgentMessage}\n${latestStream}`.slice(-2000);
+    const detailText = await quickText(page.getByTestId("job-detail").first(), 500);
+    if (detailText) lastDetailText = detailText;
+    const route = page.locator(".r-job-route").first();
+    const visibleRoute = `${await quickText(route, 500)} ${await route.getAttribute("title").catch(() => "") ?? ""}`.trim();
+    if (visibleRoute) routeText = visibleRoute;
     if (sawFreshAgentOutput && /\b(failed|blocked|cancelled)\b/i.test(status)) throw new Error(`NodeAgent failed: ${lastText}`);
     if (new RegExp(escapeRegex(expectedPhrase), "i").test(`${latestAgentMessage}\n${latestStream}`) || (sawFreshAgentOutput && /\b(completed|done)\b/i.test(status))) {
       await expect.poll(async () => page.locator(".r-cell.locked").count(), { timeout: 60_000 }).toBe(0);
-      return;
+      return collectAgentEvidence(page, { detailText: lastDetailText, routeText });
     }
     await page.waitForTimeout(2000);
   }
   throw new Error(`Timed out waiting for NodeAgent completion. Last text: ${lastText}`);
+}
+
+async function collectAgentEvidence(
+  page: Page,
+  observed: { detailText: string; routeText: string },
+): Promise<AgentUiEvidence> {
+  const stream = page.getByTestId("agent-unified-stream").last();
+  await expect(stream).toBeVisible({ timeout: 30_000 });
+  const progressToggle = stream.getByTestId("agent-progress-details-toggle");
+  if (await progressToggle.isVisible().catch(() => false)) {
+    if ((await progressToggle.getAttribute("aria-expanded")) !== "true") await progressToggle.click();
+    await expect(stream.getByTestId("agent-progress-details")).toBeVisible({ timeout: 30_000 });
+  }
+
+  const inspect = stream.locator('[data-part="tool-inspect_workbook"][data-status="done"]');
+  const writes = stream.locator([
+    '[data-part="tool-write_locked_cell"][data-status="done"]',
+    '[data-part="tool-write_locked_cells"][data-status="done"]',
+  ].join(", "));
+  const verifications = stream.locator('[data-part="tool-verify_workbook"][data-status="done"]');
+  await expect(inspect.first(), "the production run must visibly inspect the workbook").toBeVisible({ timeout: 30_000 });
+  await expect(writes.first(), "the production run must visibly use a managed write tool").toBeVisible({ timeout: 30_000 });
+  expect(await stream.locator('[data-part="tool-execute_verified_workbook_plan"]').count(), "the benchmark-only compound executor must not be exposed in production").toBe(0);
+  expect(await verifications.count(), "preflight and post-write verification must both be visible").toBeGreaterThanOrEqual(2);
+
+  const verificationPayloads = await verifications.locator(".r-agent-part-payload").allTextContents();
+  expect(verificationPayloads.some((payload) =>
+    /"afterWrite"\s*:\s*true/.test(payload)
+    && /"phase"\s*:\s*"post_write"/.test(payload)
+    && /"status"\s*:\s*"passed"/.test(payload)
+  ), "a verify_workbook result must prove a passed post-write phase").toBe(true);
+
+  expect(observed.routeText, "the requested and resolved model route must remain visible").toMatch(/openrouter|anthropic|google|openai|groq|mistral|cohere|nvidia|qwen/i);
+  expect(observed.detailText, "job detail must identify the direct-edit policy").toMatch(/Policy\s+(?:auto|auto_allow)/i);
+  const mutationCount = telemetryCount(observed.detailText, "Mutations");
+  const receiptCount = telemetryCount(observed.detailText, "Receipts");
+  expect(mutationCount, "a completed workbook edit must record a durable mutation").toBeGreaterThan(0);
+  expect(receiptCount, "a completed workbook edit must record a durable receipt").toBeGreaterThan(0);
+  const receiptText = observed.detailText.match(/receipt\s+[^\r\n]+/i)?.[0] ?? "";
+  expect(receiptText, "job detail must expose the mutation receipt and affected target").not.toBe("");
+
+  return {
+    routeText: observed.routeText,
+    approvalPolicy: "auto",
+    mutationCount,
+    receiptCount,
+    receiptText,
+    tools: ["inspect_workbook", "verify_workbook", "write_locked_cell(s)", "verify_workbook"],
+    postWriteVerification: "passed",
+  };
 }
 
 async function exportActiveWorkbook(page: Page, outPath: string): Promise<string> {
@@ -392,6 +471,11 @@ function binderTitlePattern(filename: string): RegExp {
 
 function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function telemetryCount(text: string, label: string): number {
+  const match = text.match(new RegExp(`${escapeRegex(label)}\\s+(\\d+)`, "i"));
+  return match ? Number(match[1]) : 0;
 }
 
 async function quickText(locator: ReturnType<Page["locator"]>, timeout = 250): Promise<string> {

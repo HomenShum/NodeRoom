@@ -1,0 +1,180 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-10T21:38:06.166Z",
+  "stageRoot": "staged-v1-912",
+  "outputRoot": "run-v1-model-repair-hy3",
+  "mode": "model-edit-plan",
+  "taskOffset": 0,
+  "taskCount": 2,
+  "passCount": 0,
+  "averageOverall": 0,
+  "caseCount": 2,
+  "caseRunCount": 2,
+  "casePassCount": 0,
+  "casePassRate": 0,
+  "repeatCount": 1,
+  "attemptCount": 2,
+  "passRate": 0,
+  "retryPolicy": {
+    "maxRetries": 0,
+    "retryOn": [
+      "candidate_generation",
+      "scoring"
+    ],
+    "stopOnPass": true
+  },
+  "retryStats": {
+    "retriedCaseRunCount": 0,
+    "retryAttemptCount": 0,
+    "passedAfterRetryCount": 0,
+    "exhaustedCaseRunCount": 2
+  },
+  "stats": {
+    "latencyMs": {
+      "p50": 90075,
+      "p95": 90087,
+      "max": 90087
+    },
+    "failureCounts": {
+      "candidate_generation:The operation was aborted due to timeout": 2
+    }
+  },
+  "harness": {
+    "toolPolicy": "agent_dir_only_until_candidate",
+    "evaluatorAccess": "after_candidate_emit_only",
+    "modelContextPolicy": {
+      "batchSize": 1,
+      "snapshotMaxCells": 200,
+      "snapshotMaxCellChars": null,
+      "instructionMaxChars": null,
+      "repairAttempts": 1,
+      "selectedTaskCount": 2
+    },
+    "budget": {
+      "modelCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "providerCostUsd": 0
+    }
+  },
+  "warnings": [
+    "tasks/37456#1.1: The operation was aborted due to timeout",
+    "tasks/532-3#1.1: The operation was aborted due to timeout"
+  ],
+  "caseRuns": [
+    {
+      "taskId": "37456",
+      "taskDir": "tasks/37456",
+      "repeatIndex": 1,
+      "attempts": [
+        1
+      ],
+      "finalAttemptIndex": 1,
+      "pass": false,
+      "stopReason": "retry_exhausted",
+      "bestOverall": 0
+    },
+    {
+      "taskId": "532-3",
+      "taskDir": "tasks/532-3",
+      "repeatIndex": 1,
+      "attempts": [
+        2
+      ],
+      "finalAttemptIndex": 2,
+      "pass": false,
+      "stopReason": "retry_exhausted",
+      "bestOverall": 0
+    }
+  ],
+  "results": [
+    {
+      "taskId": "37456",
+      "track": "spreadsheetbench-v1",
+      "mode": "model-edit-plan",
+      "attemptIndex": 1,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/37456",
+      "agentManifest": "tasks/37456/agent/task.json",
+      "evaluatorManifest": "tasks/37456/evaluator/evaluator.json",
+      "error": {
+        "phase": "candidate_generation",
+        "message": "The operation was aborted due to timeout"
+      },
+      "model": {
+        "name": "tencent/hy3:free",
+        "calls": 0,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 90010,
+        "candidateGeneration": 90087,
+        "scoring": 0,
+        "total": 90087
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/37456/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "37456/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "snapshot_agent_workbook",
+          "detail": "1 sheet(s), 147 cell(s)"
+        }
+      ]
+    },
+    {
+      "taskId": "532-3",
+      "track": "spreadsheetbench-v1",
+      "mode": "model-edit-plan",
+      "attemptIndex": 2,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/532-3",
+      "agentManifest": "tasks/532-3/agent/task.json",
+      "evaluatorManifest": "tasks/532-3/evaluator/evaluator.json",
+      "error": {
+        "phase": "candidate_generation",
+        "message": "The operation was aborted due to timeout"
+      },
+      "model": {
+        "name": "tencent/hy3:free",
+        "calls": 0,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 90007,
+        "candidateGeneration": 90074,
+        "scoring": 0,
+        "total": 90075
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/532-3/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "532-3/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "snapshot_agent_workbook",
+          "detail": "2 sheet(s), 120 cell(s)"
+        }
+      ]
+    }
+  ]
+}

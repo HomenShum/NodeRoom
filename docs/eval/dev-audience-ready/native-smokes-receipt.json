@@ -1,0 +1,81 @@
+{
+  "schema": "proofloop-dev-audience-native-smokes-receipt-v1",
+  "generatedAt": "2026-07-09T07:36:45.869Z",
+  "status": "pass",
+  "promptSha256": "b275175542fded3cf6b7f1b003926e8c44128dfa1bfc3c2309f0d1f2c732da80",
+  "paidModelCalls": false,
+  "hosts": [
+    {
+      "hostId": "cursor",
+      "status": "pass",
+      "launch": {
+        "command": "node scripts/proofloop.mjs agents launch cursor --prompt .proofloop/agents/native/dev-audience-ready-smoke-prompt-no-spaces.md --run-dir .proofloop/agents/native/dev-audience-ready-cursor",
+        "exitCode": 0,
+        "stdoutTail": "proofloop agent launch: cursor launch_ready\nproofloop agent launch: receipt .proofloop/agents/native/dev-audience-ready-cursor/cursor-native-launch.json\n  cursor launch completed; collect session export next.\n  command: node \"D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\scripts\\proofloop-cursor-launch.mjs\" --prompt-file \"D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\agents\\native\\dev-audience-ready-smoke-prompt-no-spaces.md\" --export \"D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\agents\\native\\dev-audience-ready-cursor\\cursor-session.atif.json\" --run-dir \"D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\agents\\native\\dev-audience-ready-cursor\"\n  export: .proofloop/agents/native/dev-audience-ready-cursor/cursor-session.atif.json\n  next: npm run proofloop -- agents collect cursor --run-dir .proofloop/agents/native/dev-audience-ready-cursor\n  next: npm run proofloop -- agents verify cursor --run-dir .proofloop/agents/native/dev-audience-ready-cursor --strict\n",
+        "stderrTail": ""
+      },
+      "collect": {
+        "command": "node scripts/proofloop.mjs agents collect cursor --run-dir .proofloop/agents/native/dev-audience-ready-cursor --strict",
+        "exitCode": 0,
+        "stdoutTail": "proofloop agent collect: cursor trace_ready\nproofloop agent collect: receipt .proofloop/agents/native/dev-audience-ready-cursor/cursor-native-session-export.json\n  cursor session evidence collected.\n  evidence: .proofloop/agents/native/dev-audience-ready-cursor/cursor-native-launch.json\n  evidence: .proofloop/agents/native/dev-audience-ready-cursor/cursor-native-session-export.json\n  evidence: .proofloop/agents/native/dev-audience-ready-cursor/cursor-session.atif.json\n  evidence: .proofloop/agents/native/dev-audience-ready-cursor/cursor-stderr.log\n  evidence: .proofloop/agents/native/dev-audience-ready-cursor/cursor-stdout.log\n  next: npm run proofloop -- agents verify cursor --run-dir .proofloop/agents/native/dev-audience-ready-cursor --strict\n",
+        "stderrTail": ""
+      },
+      "launchReceipt": ".proofloop/agents/native/dev-audience-ready-cursor/cursor-native-launch.json",
+      "sessionReceipt": ".proofloop/agents/native/dev-audience-ready-cursor/cursor-native-session-export.json"
+    },
+    {
+      "hostId": "windsurf",
+      "status": "pass",
+      "launch": {
+        "command": "node scripts/proofloop.mjs agents launch windsurf --prompt .proofloop/agents/native/dev-audience-ready-smoke-prompt-no-spaces.md --run-dir .proofloop/agents/native/dev-audience-ready-windsurf",
+        "exitCode": 0,
+        "stdoutTail": "proofloop agent launch: windsurf launch_ready\nproofloop agent launch: receipt .proofloop/agents/native/dev-audience-ready-windsurf/windsurf-native-launch.json\n  windsurf launch completed; collect session export next.\n  command: node \"D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\scripts\\proofloop-windsurf-launch.mjs\" --prompt-file \"D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\agents\\native\\dev-audience-ready-smoke-prompt-no-spaces.md\" --export \"D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\agents\\native\\dev-audience-ready-windsurf\\windsurf-session.atif.json\" --run-dir \"D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\agents\\native\\dev-audience-ready-windsurf\"\n  export: .proofloop/agents/native/dev-audience-ready-windsurf/windsurf-session.atif.json\n  next: npm run proofloop -- agents collect windsurf --run-dir .proofloop/agents/native/dev-audience-ready-windsurf\n  next: npm run proofloop -- agents verify windsurf --run-dir .proofloop/agents/native/dev-audience-ready-windsurf --strict\n",
+        "stderrTail": ""
+      },
+      "collect": {
+        "command": "node scripts/proofloop.mjs agents collect windsurf --run-dir .proofloop/agents/native/dev-audience-ready-windsurf --strict",
+        "exitCode": 0,
+        "stdoutTail": "proofloop agent collect: windsurf trace_ready\nproofloop agent collect: receipt .proofloop/agents/native/dev-audience-ready-windsurf/windsurf-native-session-export.json\n  windsurf session evidence collected.\n  evidence: .proofloop/agents/native/dev-audience-ready-windsurf/git-diff.patch\n  evidence: .proofloop/agents/native/dev-audience-ready-windsurf/windsurf-native-launch.json\n  evidence: .proofloop/agents/native/dev-audience-ready-windsurf/windsurf-native-session-export.json\n  evidence: .proofloop/agents/native/dev-audience-ready-windsurf/windsurf-session.atif.json\n  evidence: .proofloop/agents/native/dev-audience-ready-windsurf/windsurf-stderr.log\n  next: npm run proofloop -- agents verify windsurf --run-dir .proofloop/agents/native/dev-audience-ready-windsurf --strict\n",
+        "stderrTail": ""
+      },
+      "launchReceipt": ".proofloop/agents/native/dev-audience-ready-windsurf/windsurf-native-launch.json",
+      "sessionReceipt": ".proofloop/agents/native/dev-audience-ready-windsurf/windsurf-native-session-export.json"
+    },
+    {
+      "hostId": "devin-api",
+      "status": "pass",
+      "launch": {
+        "command": "node scripts/proofloop.mjs agents launch devin-api --prompt .proofloop/agents/native/dev-audience-ready-smoke-prompt-no-spaces.md --run-dir .proofloop/agents/native/dev-audience-ready-devin-api",
+        "exitCode": 0,
+        "stdoutTail": "proofloop agent launch: devin-api launch_ready\nproofloop agent launch: receipt .proofloop/agents/native/dev-audience-ready-devin-api/devin-api-native-launch.json\n  devin-api launch completed (https://app.devin.ai/sessions/dry-run-devin-session); collect session export next.\n  command: node \"D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\scripts\\proofloop-devin-api-launch.mjs\" --prompt-file \"D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\agents\\native\\dev-audience-ready-smoke-prompt-no-spaces.md\" --export \"D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\agents\\native\\dev-audience-ready-devin-api\\devin-api-session.atif.json\" --run-dir \"D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\agents\\native\\dev-audience-ready-devin-api\"\n  export: .proofloop/agents/native/dev-audience-ready-devin-api/devin-api-session.atif.json\n  next: npm run proofloop -- agents collect devin-api --run-dir .proofloop/agents/native/dev-audience-ready-devin-api\n  next: npm run proofloop -- agents verify devin-api --run-dir .proofloop/agents/native/dev-audience-ready-devin-api --strict\n",
+        "stderrTail": ""
+      },
+      "collect": {
+        "command": "node scripts/proofloop.mjs agents collect devin-api --run-dir .proofloop/agents/native/dev-audience-ready-devin-api --strict",
+        "exitCode": 0,
+        "stdoutTail": "proofloop agent collect: devin-api trace_ready\nproofloop agent collect: receipt .proofloop/agents/native/dev-audience-ready-devin-api/devin-api-native-session-export.json\n  devin-api session evidence collected.\n  evidence: .proofloop/agents/native/dev-audience-ready-devin-api/devin-api-native-launch.json\n  evidence: .proofloop/agents/native/dev-audience-ready-devin-api/devin-api-native-session-export.json\n  evidence: .proofloop/agents/native/dev-audience-ready-devin-api/devin-api-session.atif.json\n  evidence: .proofloop/agents/native/dev-audience-ready-devin-api/devin-api-stderr.log\n  evidence: .proofloop/agents/native/dev-audience-ready-devin-api/devin-api-stdout.log\n  next: npm run proofloop -- agents verify devin-api --run-dir .proofloop/agents/native/dev-audience-ready-devin-api --strict\n",
+        "stderrTail": ""
+      },
+      "launchReceipt": ".proofloop/agents/native/dev-audience-ready-devin-api/devin-api-native-launch.json",
+      "sessionReceipt": ".proofloop/agents/native/dev-audience-ready-devin-api/devin-api-native-session-export.json"
+    },
+    {
+      "hostId": "generic-cli",
+      "status": "pass",
+      "launch": {
+        "command": "node scripts/proofloop.mjs agents launch generic-cli --prompt .proofloop/agents/native/dev-audience-ready-smoke-prompt-no-spaces.md --run-dir .proofloop/agents/native/dev-audience-ready-generic-cli",
+        "exitCode": 0,
+        "stdoutTail": "proofloop agent launch: generic-cli launch_ready\nproofloop agent launch: receipt .proofloop/agents/native/dev-audience-ready-generic-cli/generic-cli-native-launch.json\n  generic-cli launch completed; collect session export next.\n  command: node scripts/proofloop-generic-cursor-bridge.mjs\n  export: .proofloop/agents/native/dev-audience-ready-generic-cli/generic-cli-session.atif.json\n  next: npm run proofloop -- agents collect generic-cli --run-dir .proofloop/agents/native/dev-audience-ready-generic-cli\n  next: npm run proofloop -- agents verify generic-cli --run-dir .proofloop/agents/native/dev-audience-ready-generic-cli --strict\n",
+        "stderrTail": ""
+      },
+      "collect": {
+        "command": "node scripts/proofloop.mjs agents collect generic-cli --run-dir .proofloop/agents/native/dev-audience-ready-generic-cli --strict",
+        "exitCode": 0,
+        "stdoutTail": "proofloop agent collect: generic-cli trace_ready\nproofloop agent collect: receipt .proofloop/agents/native/dev-audience-ready-generic-cli/generic-cli-native-session-export.json\n  generic-cli session evidence collected.\n  evidence: .proofloop/agents/native/dev-audience-ready-generic-cli/generic-cli-native-launch.json\n  evidence: .proofloop/agents/native/dev-audience-ready-generic-cli/generic-cli-native-session-export.json\n  evidence: .proofloop/agents/native/dev-audience-ready-generic-cli/generic-cli-session.atif.json\n  evidence: .proofloop/agents/native/dev-audience-ready-generic-cli/generic-cli-stderr.log\n  evidence: .proofloop/agents/native/dev-audience-ready-generic-cli/generic-cli-stdout.log\n  next: npm run proofloop -- agents verify generic-cli --run-dir .proofloop/agents/native/dev-audience-ready-generic-cli --strict\n",
+        "stderrTail": ""
+      },
+      "launchReceipt": ".proofloop/agents/native/dev-audience-ready-generic-cli/generic-cli-native-launch.json",
+      "sessionReceipt": ".proofloop/agents/native/dev-audience-ready-generic-cli/generic-cli-native-session-export.json"
+    }
+  ]
+}

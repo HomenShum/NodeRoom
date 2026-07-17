@@ -1,0 +1,48 @@
+{
+  "runId": "20260712T133749Z",
+  "commitSha": "5f67d8e1+dirty",
+  "generatedAt": "2026-07-12T13:38:35.253Z",
+  "command": "a11y",
+  "sourceTreeHash": "07724d971f5f94c665f2499fc508454101326b3decd0d4be41810130af7e2db1",
+  "status": "written",
+  "note": "Full design-quality scorecard.",
+  "verdict": "needs_functional_gate",
+  "blockers": [
+    "functional gate not run in this design-quality pass",
+    "accessibility gate failed"
+  ],
+  "functionalStatus": "not_run",
+  "performanceStatus": "passed",
+  "accessibilityStatus": "failed",
+  "performanceEvidencePath": "docs/eval/design-quality/browser/20260712T133749Z/browser.json",
+  "accessibilityEvidencePath": "docs/eval/design-quality/browser/20260712T133749Z/browser.json",
+  "browserEvidence": {
+    "runId": "20260712T133749Z",
+    "source": "collected",
+    "freshness": {
+      "valid": true,
+      "reason": "collected_after_source_tree_hash_mismatch"
+    },
+    "evidencePath": "docs/eval/design-quality/browser/20260712T133749Z/browser.json",
+    "appUrl": "http://127.0.0.1:5317",
+    "generatedAt": "2026-07-12T13:38:35.250Z",
+    "commitSha": "5f67d8e1+dirty",
+    "sourceTreeHash": "07724d971f5f94c665f2499fc508454101326b3decd0d4be41810130af7e2db1"
+  },
+  "uiUxScore": {
+    "total": 63.2,
+    "max": 100,
+    "dimensions": {
+      "workflowClarity": 8.7,
+      "firstThirtySecondMagic": 7.5,
+      "visualHierarchyDensity": 6.8,
+      "professionalRelevance": 6.9,
+      "responsivenessInteraction": 12,
+      "artifactLegibility": 6.5,
+      "evidenceTraceClarity": 8.4,
+      "accessibility": 0,
+      "agentCollaborationState": 0,
+      "shareabilityViralityLoop": 6.4
+    }
+  }
+}

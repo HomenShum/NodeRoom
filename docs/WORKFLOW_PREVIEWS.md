@@ -126,8 +126,8 @@ Note → Spreadsheet navigation, but not the grounding action itself.)*
 - **Gate:** `npm run eval:finance-model`, `npm run eval:finance-model -- --gold
   "C:\path\to\modeling-test.xlsx"`, `tests/financeModelRuntime.test.ts`,
   `evals/financeModelRuntime.ts`, and `evals/financeModelLive.ts --level=full`.
-  Current full live promotion: `deepseek/deepseek-v4-flash` (16/16, 174.8s,
-  $0.0792).
+  No full live route is currently promoted. The June 5/5 batch is historical;
+  the 2026-07-12 bounded revalidation failed before workbook writes.
 
 ## HALO Trace Skill Previews
 

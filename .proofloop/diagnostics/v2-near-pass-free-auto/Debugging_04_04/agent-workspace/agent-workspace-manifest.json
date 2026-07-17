@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "taskId": "Debugging/04_04",
+  "boundary": "agent_visible_files_only",
+  "sourceAgentManifest": "tasks/Debugging_04_04/agent/task.json",
+  "workspaceAgentManifest": "agent/task.json",
+  "copiedFiles": [
+    {
+      "role": "manifest",
+      "path": "agent/task.json"
+    },
+    {
+      "role": "input",
+      "path": "agent/inputs/01-Inconsistent Color Coding_input.xlsx"
+    }
+  ],
+  "policy": "candidate generation reads only this workspace; private scoring metadata is opened after candidate emission."
+}

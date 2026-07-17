@@ -2,24 +2,26 @@
   "schema": "proofloop-official-output-manifest-v1",
   "adapterId": "finch",
   "status": "complete",
-  "generatedAt": "2026-07-04T14:38:21.457Z",
+  "generatedAt": "2026-07-10T13:13:07.894Z",
   "officialTaskCount": 172,
   "outputTaskCount": 172,
-  "contentPartsCount": 0,
+  "contentPartsCount": 172,
+  "contentPartsSha256": "3ec34639c8223c4ceb8f13307725539a9a04317fed00805f302dc86cfd7de2e2",
   "outputRoot": ".tmp/official-benchmarks/proofloop-official-outputs/finch",
   "officialFormat": "Finch eval_set/<model>/content_parts.jsonl produced by upstream src/prompt_build_pipeline.py from official task JSONL plus model workbook outputs.",
-  "generationPolicy": "No-op source-workbook baseline; sufficient to prove exporter/scorer-ingestion shape, not sufficient to claim a good model score.",
+  "generationPolicy": "No-op source-workbook baseline regenerated non-destructively; existing upstream content parts were preserved.",
   "upstreamPipeline": {
     "ran": false,
     "exitCode": null,
     "contentPartsPath": ".tmp/official-benchmarks/proofloop-official-outputs/finch/eval_set/noderoom-source-workbook-baseline/content_parts.jsonl",
-    "status": "skipped",
+    "status": "complete",
     "blocker": "Upstream Finch content_parts rendering skipped by default because it is slow and not required to prove model-output artifact coverage."
   },
-  "generatedBlankWorkbookCount": 10,
+  "generatedBlankWorkbookCount": 19,
   "blockers": [],
   "evidence": [
     "docs/eval/proofloop-official-task-bundles/finch.json",
-    ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json"
+    ".tmp/official-benchmarks/proofloop-official-outputs/finch/model-output-manifest.json",
+    ".tmp/official-benchmarks/proofloop-official-outputs/finch/eval_set/noderoom-source-workbook-baseline/content_parts.jsonl"
   ]
 }

@@ -1,0 +1,89 @@
+{
+  "runId": "20260712T133749Z",
+  "commitSha": "5f67d8e1+dirty",
+  "generatedAt": "2026-07-12T13:38:35.253Z",
+  "command": "a11y",
+  "sourceTreeHash": "07724d971f5f94c665f2499fc508454101326b3decd0d4be41810130af7e2db1",
+  "status": "passed",
+  "note": "Fresh Playwright browser evidence collected for this command.",
+  "browserEvidence": {
+    "runId": "20260712T133749Z",
+    "source": "collected",
+    "freshness": {
+      "valid": true,
+      "reason": "collected_after_source_tree_hash_mismatch"
+    },
+    "evidencePath": "docs/eval/design-quality/browser/20260712T133749Z/browser.json",
+    "appUrl": "http://127.0.0.1:5317",
+    "generatedAt": "2026-07-12T13:38:35.250Z",
+    "commitSha": "5f67d8e1+dirty",
+    "sourceTreeHash": "07724d971f5f94c665f2499fc508454101326b3decd0d4be41810130af7e2db1"
+  },
+  "artifacts": {
+    "videoPath": "docs/eval/live-browser-proofs/live-convex-broad-proof-20260620.webm",
+    "screenshots": [
+      "docs/eval/design-quality/browser/20260712T133749Z/desktop-1440.png",
+      "docs/eval/design-quality/browser/20260712T133749Z/mobile-375.png",
+      "docs/qa/state-captures/sheet/proposal-pending--dark--1860.png",
+      "docs/qa/state-captures/chat/composer-empty--dark--1860.png"
+    ],
+    "domSnapshots": [
+      "docs/eval/design-quality/browser/20260712T133749Z/desktop-1440.dom.json",
+      "docs/eval/design-quality/browser/20260712T133749Z/mobile-375.dom.json",
+      "docs/qa/state-captures/manifest.json"
+    ],
+    "tracePath": "docs/eval/MEDIA_JUDGE.md",
+    "perfTracePath": "docs/eval/design-quality/browser/20260712T133749Z/browser.json",
+    "convexRunIds": []
+  },
+  "findings": [
+    {
+      "surface": "desktop-1440",
+      "severity": "P2",
+      "check": "contrast",
+      "detail": "span.r-owner-avatar 3.91:1 at 9px"
+    },
+    {
+      "surface": "desktop-1440",
+      "severity": "P2",
+      "check": "contrast",
+      "detail": "span.r-owner-avatar 3.52:1 at 9px"
+    },
+    {
+      "surface": "desktop-1440",
+      "severity": "P2",
+      "check": "contrast",
+      "detail": "span.r-owner-avatar 4.17:1 at 9px"
+    },
+    {
+      "surface": "desktop-1440",
+      "severity": "P1",
+      "check": "contrast",
+      "detail": "span.r-owner-avatar 2.87:1 at 9px"
+    },
+    {
+      "surface": "desktop-1440",
+      "severity": "P2",
+      "check": "contrast",
+      "detail": "span.r-owner-avatar 3.91:1 at 9px"
+    },
+    {
+      "surface": "desktop-1440",
+      "severity": "P2",
+      "check": "contrast",
+      "detail": "span.r-owner-avatar 3.52:1 at 9px"
+    },
+    {
+      "surface": "desktop-1440",
+      "severity": "P2",
+      "check": "contrast",
+      "detail": "span.r-owner-avatar 4.17:1 at 9px"
+    },
+    {
+      "surface": "desktop-1440",
+      "severity": "P1",
+      "check": "contrast",
+      "detail": "span.r-owner-avatar 2.87:1 at 9px"
+    }
+  ]
+}

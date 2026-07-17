@@ -1,5 +1,11 @@
 # Design → Prod UI/UX Parity Plan
 
+> Authority notice (2026-07-10): this is a historical implementation inventory,
+> not a visual source of truth. Latest production/main owns behavior. The
+> approved `docs/design/UI_CONTRACT.md` and surface-specific taste contracts own
+> visual decisions. Standalone artifacts and similarity scores are evidence
+> only; pixel parity cannot approve a design or satisfy the taste gate.
+
 ## Status refresh — after the parity ship (`298fa06f` on main, 2026-07-03)
 
 A large parity push landed after this plan was first written. Re-verified
@@ -194,7 +200,7 @@ Effort: 2–3 days + the metrics query.
 5. Cell↔facet freshness join for stale chips (data exists; needs a query).
 Everything else is rendering data that already exists.
 
-## Design-token reconciliation (blocked on one click)
+## Design-token reconciliation (historical note)
 
 The design files import `assets/colors_and_type.css` (DM Sans + DM Serif
 Display; desktop `#101317/#171B20/#D97757`; mobile terracotta-on-cream
@@ -203,8 +209,10 @@ files (plus `feature-map/fmap-app.jsx` — the 55-feature × 12-system parity
 checklist with live specimens — and the `scale/` state specimens) requires
 granting the Claude Design connector: **claude.ai/design/settings → Connect
 to Claude Design**. Until then this plan is component-accurate but not
-pixel-exact; after consent, each workstream should start by lifting the
-exact CSS from the corresponding design source directory.
+pixel-exact. The linked exports have since been located and inventoried. Each
+workstream must classify source decisions as KEEP, REFINE, REJECT, or NEEDS
+PRODUCT DECISION and implement only the approved contract. Exact CSS is never
+lifted by default.
 
 ## Build order (per the handoff)
 

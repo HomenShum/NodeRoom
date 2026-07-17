@@ -1,0 +1,71 @@
+{
+  "asset": {
+    "id": "docs-qa-fixloop-2026-07-08-2326-prod-rerun-all-remaining-artifacts-videos-live-create-export-reload",
+    "class": "live_browser_proof",
+    "title": "Live Create Export Reload",
+    "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\qa\\fixloop\\2026-07-08-2326\\prod-rerun-all-remaining\\artifacts\\videos\\live-create-export-reload.webm",
+    "relPath": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-all-remaining/artifacts/videos/live-create-export-reload.webm",
+    "purpose": "Live Playwright browser benchmark proof clip. Judge only visible product behavior: fresh-room flow, uploads, public NodeAgent invocation, streaming/tool traces, focus/attention UI, artifact creation/download, and production honesty. Clip duration, silence, or README pacing is not a product defect."
+  },
+  "model": "gemini-3.5-flash",
+  "status": "judged",
+  "mediaPath": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-all-remaining/artifacts/videos/live-create-export-reload.webm",
+  "mediaType": "video/webm",
+  "bytes": 2174759,
+  "judge": {
+    "verdict": "publish",
+    "summary": "The video successfully demonstrates the end-to-end flow of entering a room from the landing page, navigating sheets, exporting data to XLSX, and reloading the workspace to verify state persistence.",
+    "scores": {
+      "featureClarity": {
+        "score": 1,
+        "evidence": "Demonstrates room entry, sheet navigation, XLSX export, and page reload clearly."
+      },
+      "workflowCompleteness": {
+        "score": 1,
+        "evidence": "Shows the complete sequence from the landing page to active workspace interaction and reload."
+      },
+      "visualDesign": {
+        "score": 1,
+        "evidence": "Maintains a consistent dark-mode aesthetic with high-density data layouts, though skeleton transitions are slightly abrupt."
+      },
+      "consistency": {
+        "score": 1,
+        "evidence": "Aligns with the established NodeRoom design system, featuring spreadsheets, agent logs, and chat sidebars."
+      },
+      "evidenceQuality": {
+        "score": 1,
+        "evidence": "Captured from a live browser session showing authentic UI interactions and loading states."
+      },
+      "legibility": {
+        "score": 1,
+        "evidence": "Text and numbers in the spreadsheet cells are readable, though dense."
+      },
+      "professionalRelevance": {
+        "score": 1,
+        "evidence": "Highly relevant for demonstrating data export and workspace persistence to technical and business users."
+      },
+      "productionHonesty": {
+        "score": 1,
+        "evidence": "Accurately depicts loading skeletons and the actual reload behavior of the application."
+      }
+    },
+    "observedEvidence": [
+      "Landing page with live demo widget",
+      "Navigation to Q3 variance sheet",
+      "Export XLSX action",
+      "Page reload and skeleton loading state"
+    ],
+    "missingEvidence": [],
+    "defects": [
+      {
+        "ts": "00:15",
+        "severity": "P2",
+        "observed": "After reloading, the active sheet resets to 'Company research' instead of preserving the user's previous selection of 'Q3 variance'.",
+        "fix": "Preserve the active sheet state in the URL or local storage across reloads."
+      }
+    ],
+    "suggestedReadmeCaption": "Watch the seamless flow of entering a NodeRoom, exporting financial sheets to XLSX, and reloading the workspace with full state integrity."
+  },
+  "score": 8,
+  "maxScore": 16
+}

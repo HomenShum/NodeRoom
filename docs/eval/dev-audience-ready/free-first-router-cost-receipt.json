@@ -1,0 +1,366 @@
+{
+  "schema": "proofloop-dev-audience-free-first-router-cost-receipt-v1",
+  "generatedAt": "2026-07-09T07:36:59.282Z",
+  "status": "pass",
+  "liveOpenRouterFetch": "live",
+  "selectedFreeAutoRoutes": [
+    {
+      "id": "cohere/north-mini-code:free",
+      "name": "Cohere: North Mini Code (free)",
+      "contextLength": 256000,
+      "score": 2688,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": false,
+      "promptPrice": "0",
+      "completionPrice": "0",
+      "reasons": [
+        "large context",
+        "newly listed on OpenRouter",
+        "tools",
+        "tool choice",
+        "reasoning controls",
+        "latest coding/agent specialist"
+      ]
+    },
+    {
+      "id": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "name": "NVIDIA: Nemotron 3 Ultra (free)",
+      "contextLength": 1000000,
+      "score": 2460,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": false,
+      "promptPrice": "0",
+      "completionPrice": "0",
+      "reasons": [
+        "1M context",
+        "recent OpenRouter listing",
+        "tools",
+        "tool choice",
+        "reasoning controls",
+        "large reasoning model"
+      ]
+    },
+    {
+      "id": "nvidia/nemotron-3-super-120b-a12b:free",
+      "name": "NVIDIA: Nemotron 3 Super (free)",
+      "contextLength": 1000000,
+      "score": 2410,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": true,
+      "promptPrice": "0",
+      "completionPrice": "0",
+      "reasons": [
+        "1M context",
+        "tools",
+        "tool choice",
+        "structured outputs",
+        "json response format",
+        "reasoning controls",
+        "large reasoning model"
+      ]
+    },
+    {
+      "id": "qwen/qwen3-coder:free",
+      "name": "Qwen: Qwen3 Coder 480B A35B (free)",
+      "contextLength": 1048576,
+      "score": 2270,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": false,
+      "promptPrice": "0",
+      "completionPrice": "0",
+      "reasons": [
+        "1M context",
+        "tools",
+        "tool choice",
+        "coding/agent specialist"
+      ]
+    },
+    {
+      "id": "google/gemma-4-26b-a4b-it:free",
+      "name": "Google: Gemma 4 26B A4B  (free)",
+      "contextLength": 262144,
+      "score": 1961.0720000000001,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": true,
+      "promptPrice": "0",
+      "completionPrice": "0",
+      "reasons": [
+        "large context",
+        "tools",
+        "tool choice",
+        "structured outputs",
+        "json response format",
+        "reasoning controls",
+        "strong Google open model"
+      ]
+    },
+    {
+      "id": "qwen/qwen3-next-80b-a3b-instruct:free",
+      "name": "Qwen: Qwen3 Next 80B A3B Instruct (free)",
+      "contextLength": 262144,
+      "score": 1951.0720000000001,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": true,
+      "promptPrice": "0",
+      "completionPrice": "0",
+      "reasons": [
+        "large context",
+        "tools",
+        "tool choice",
+        "structured outputs",
+        "json response format",
+        "strong instruct model"
+      ]
+    },
+    {
+      "id": "google/gemma-4-31b-it:free",
+      "name": "Google: Gemma 4 31B (free)",
+      "contextLength": 262144,
+      "score": 1821.0720000000001,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": false,
+      "promptPrice": "0",
+      "completionPrice": "0",
+      "reasons": [
+        "large context",
+        "tools",
+        "tool choice",
+        "json response format",
+        "reasoning controls",
+        "strong Google open model"
+      ]
+    },
+    {
+      "id": "openai/gpt-oss-120b:free",
+      "name": "OpenAI: gpt-oss-120b (free)",
+      "contextLength": 131072,
+      "score": 1745.536,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": false,
+      "promptPrice": "0",
+      "completionPrice": "0",
+      "reasons": [
+        "tools",
+        "tool choice",
+        "reasoning controls",
+        "120B open model"
+      ]
+    }
+  ],
+  "rankedLiveFreeRoutes": [
+    {
+      "id": "cohere/north-mini-code:free",
+      "name": "Cohere: North Mini Code (free)",
+      "contextLength": 256000,
+      "score": 2688,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": false,
+      "promptPrice": "0",
+      "completionPrice": "0",
+      "reasons": [
+        "large context",
+        "newly listed on OpenRouter",
+        "tools",
+        "tool choice",
+        "reasoning controls",
+        "latest coding/agent specialist"
+      ]
+    },
+    {
+      "id": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "name": "NVIDIA: Nemotron 3 Ultra (free)",
+      "contextLength": 1000000,
+      "score": 2460,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": false,
+      "promptPrice": "0",
+      "completionPrice": "0",
+      "reasons": [
+        "1M context",
+        "recent OpenRouter listing",
+        "tools",
+        "tool choice",
+        "reasoning controls",
+        "large reasoning model"
+      ]
+    },
+    {
+      "id": "nvidia/nemotron-3-super-120b-a12b:free",
+      "name": "NVIDIA: Nemotron 3 Super (free)",
+      "contextLength": 1000000,
+      "score": 2410,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": true,
+      "promptPrice": "0",
+      "completionPrice": "0",
+      "reasons": [
+        "1M context",
+        "tools",
+        "tool choice",
+        "structured outputs",
+        "json response format",
+        "reasoning controls",
+        "large reasoning model"
+      ]
+    },
+    {
+      "id": "qwen/qwen3-coder:free",
+      "name": "Qwen: Qwen3 Coder 480B A35B (free)",
+      "contextLength": 1048576,
+      "score": 2270,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": false,
+      "promptPrice": "0",
+      "completionPrice": "0",
+      "reasons": [
+        "1M context",
+        "tools",
+        "tool choice",
+        "coding/agent specialist"
+      ]
+    },
+    {
+      "id": "google/gemma-4-26b-a4b-it:free",
+      "name": "Google: Gemma 4 26B A4B  (free)",
+      "contextLength": 262144,
+      "score": 1961.0720000000001,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": true,
+      "promptPrice": "0",
+      "completionPrice": "0",
+      "reasons": [
+        "large context",
+        "tools",
+        "tool choice",
+        "structured outputs",
+        "json response format",
+        "reasoning controls",
+        "strong Google open model"
+      ]
+    },
+    {
+      "id": "qwen/qwen3-next-80b-a3b-instruct:free",
+      "name": "Qwen: Qwen3 Next 80B A3B Instruct (free)",
+      "contextLength": 262144,
+      "score": 1951.0720000000001,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": true,
+      "promptPrice": "0",
+      "completionPrice": "0",
+      "reasons": [
+        "large context",
+        "tools",
+        "tool choice",
+        "structured outputs",
+        "json response format",
+        "strong instruct model"
+      ]
+    },
+    {
+      "id": "google/gemma-4-31b-it:free",
+      "name": "Google: Gemma 4 31B (free)",
+      "contextLength": 262144,
+      "score": 1821.0720000000001,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": false,
+      "promptPrice": "0",
+      "completionPrice": "0",
+      "reasons": [
+        "large context",
+        "tools",
+        "tool choice",
+        "json response format",
+        "reasoning controls",
+        "strong Google open model"
+      ]
+    },
+    {
+      "id": "openai/gpt-oss-120b:free",
+      "name": "OpenAI: gpt-oss-120b (free)",
+      "contextLength": 131072,
+      "score": 1745.536,
+      "supportsTools": true,
+      "supportsToolChoice": true,
+      "supportsStructuredOutputs": false,
+      "promptPrice": "0",
+      "completionPrice": "0",
+      "reasons": [
+        "tools",
+        "tool choice",
+        "reasoning controls",
+        "120B open model"
+      ]
+    }
+  ],
+  "spendingFlags": {
+    "FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION": false,
+    "VOICE_ALLOW_PAID_FALLBACK": false,
+    "VITE_VOICE_TTS_ALLOW_HOSTED_IN_FREE_ONLY": false
+  },
+  "checks": [
+    {
+      "id": "live-free-models-available",
+      "pass": true
+    },
+    {
+      "id": "live-free-models-zero-priced",
+      "pass": true
+    },
+    {
+      "id": "free-gauge-zero-cost",
+      "pass": true
+    },
+    {
+      "id": "free-gauge-has-passing-route",
+      "pass": true
+    },
+    {
+      "id": "discovery-has-tool-routes",
+      "pass": true
+    },
+    {
+      "id": "voice-stt-free-local-fallback-visible",
+      "pass": true
+    },
+    {
+      "id": "voice-tts-browser-first",
+      "pass": true
+    },
+    {
+      "id": "voice-free-only-flag-parses",
+      "pass": true
+    },
+    {
+      "id": "paid-file-egress-promotion-off",
+      "pass": true
+    },
+    {
+      "id": "voice-paid-fallback-off",
+      "pass": true
+    },
+    {
+      "id": "official-score-boundaries-preserved",
+      "pass": true
+    }
+  ],
+  "policy": [
+    "Default dev-audience proof must not run paid provider workloads.",
+    "openrouter/free-auto and browser/local voice paths are checked before paid routes.",
+    "Proxy/free routes can support product iteration but cannot become official benchmark score claims without accepted scorer receipts."
+  ]
+}

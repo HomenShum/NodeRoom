@@ -1,0 +1,743 @@
+{
+  "schema": 1,
+  "kind": "no_provider_repair_replay",
+  "officialScore": false,
+  "note": "Replays supplied model text through agent-visible inspection, preflight repair, candidate verification, and the staged scorer. It is a harness regression receipt, not a new model score.",
+  "scriptedOutputCount": 1,
+  "actualModelCalls": 1,
+  "report": {
+    "schema": 1,
+    "generatedAt": "2026-07-10T23:14:40.744Z",
+    "stageRoot": "staged-v2-full",
+    "outputRoot": "v2-hy3-replay-16-02",
+    "mode": "model-edit-plan",
+    "taskOffset": 0,
+    "taskCount": 1,
+    "passCount": 0,
+    "averageOverall": 0.480491,
+    "caseCount": 1,
+    "caseRunCount": 1,
+    "casePassCount": 0,
+    "casePassRate": 0,
+    "repeatCount": 1,
+    "attemptCount": 1,
+    "passRate": 0,
+    "retryPolicy": {
+      "maxRetries": 0,
+      "retryOn": [
+        "candidate_generation",
+        "scoring"
+      ],
+      "stopOnPass": true
+    },
+    "retryStats": {
+      "retriedCaseRunCount": 0,
+      "retryAttemptCount": 0,
+      "passedAfterRetryCount": 0,
+      "exhaustedCaseRunCount": 0
+    },
+    "stats": {
+      "latencyMs": {
+        "p50": 9680,
+        "p95": 9680,
+        "max": 9680
+      },
+      "failureCounts": {}
+    },
+    "harness": {
+      "toolPolicy": "agent_dir_only_until_candidate",
+      "evaluatorAccess": "after_candidate_emit_only",
+      "modelContextPolicy": {
+        "batchSize": 1,
+        "snapshotMaxCells": 800,
+        "snapshotMaxCellChars": null,
+        "instructionMaxChars": null,
+        "repairAttempts": 0,
+        "selectedTaskCount": 1
+      },
+      "budget": {
+        "modelCalls": 1,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "providerCostUsd": 0
+      }
+    },
+    "warnings": [],
+    "caseRuns": [
+      {
+        "taskId": "Financial_Model/16_02",
+        "taskDir": "tasks/Financial_Model_16_02",
+        "repeatIndex": 1,
+        "attempts": [
+          1
+        ],
+        "finalAttemptIndex": 1,
+        "pass": false,
+        "stopReason": "failed_score",
+        "bestOverall": 0.480491
+      }
+    ],
+    "results": [
+      {
+        "taskId": "Financial_Model/16_02",
+        "track": "spreadsheetbench-v2",
+        "category": "Financial_Model",
+        "mode": "model-edit-plan",
+        "attemptIndex": 1,
+        "repeatIndex": 1,
+        "tryIndex": 1,
+        "taskDir": "tasks/Financial_Model_16_02",
+        "agentManifest": "tasks/Financial_Model_16_02/agent/task.json",
+        "evaluatorManifest": "tasks/Financial_Model_16_02/evaluator/evaluator.json",
+        "candidateWorkbook": "Financial_Model_16_02/candidate-01-16_02_Ramjet_input.xlsx",
+        "sidecarEvidence": {
+          "candidateManifest": {
+            "path": "Financial_Model_16_02/candidate-manifest.json",
+            "sha256": "5c6e312356d54f90ed6f5cd92c4af8e04cd0e7cff24e7f2d0237af6462aacf62",
+            "bytes": 1754
+          },
+          "agentWorkspaceManifest": {
+            "path": "Financial_Model_16_02/agent-workspace/agent-workspace-manifest.json",
+            "sha256": "65e457c6ed20ffc3fd74bc9696fd54647ae46b0a773cd41361b24d428a59e774",
+            "bytes": 526
+          },
+          "editPlan": {
+            "path": "Financial_Model_16_02/model-edit-plan.json",
+            "sha256": "585380d6dd651dbb9ac8a6d8e81aa9a4fe063689c9bb8a044c2d2e06498ec5f8",
+            "bytes": 4170,
+            "kind": "generated"
+          },
+          "rawModelOutput": {
+            "path": "Financial_Model_16_02/model-output.txt",
+            "sha256": "d5a87336e98c2dcc3d16d321b65ca4ef912106bba454bc0773d371b797cb916d",
+            "bytes": 4169
+          },
+          "workbookInspection": {
+            "path": "Financial_Model_16_02/workbook-inspection.json",
+            "sha256": "25ece6c8076cfca216da26fc20f3ff78da0179f7c6b5b4eb770ce22dc2770670",
+            "bytes": 98835
+          },
+          "editVerification": {
+            "path": "Financial_Model_16_02/model-edit-verification.json",
+            "sha256": "f6b6341565c9e36d56b81cc0501ae9eaa990f2bde2319bcbd90a13bb847c516b",
+            "bytes": 121440
+          },
+          "formulaResultPolicy": "deterministic_local_subset",
+          "supportedFormulaFunctions": [
+            "SUM",
+            "AVERAGE",
+            "MIN",
+            "MAX",
+            "MEDIAN",
+            "COUNT",
+            "COUNTA",
+            "ABS",
+            "ROUND",
+            "ROUNDUP",
+            "ROUNDDOWN",
+            "AND",
+            "OR",
+            "NOT",
+            "IF",
+            "IFERROR",
+            "SUMIF",
+            "COUNTIF",
+            "AVERAGEIF",
+            "SUMIFS",
+            "COUNTIFS",
+            "AVERAGEIFS",
+            "MATCH",
+            "INDEX",
+            "VLOOKUP",
+            "XLOOKUP",
+            "SUMPRODUCT",
+            "LEFT",
+            "RIGHT",
+            "MID",
+            "LEN",
+            "FIND",
+            "SEARCH",
+            "REPLACE",
+            "TEXT",
+            "DATE",
+            "VALUE",
+            "CONCATENATE",
+            "TRIM"
+          ],
+          "appliedOperationCount": 41,
+          "repairAttemptCount": 0,
+          "verificationStatus": "needs_repair"
+        },
+        "scorerReceipt": {
+          "path": "Financial_Model_16_02/score-receipt.json",
+          "sha256": "3e0ff63a929be6adc747e40f54fbaa88cf1e0528469975ed0057f500d18c3a8a",
+          "bytes": 13968
+        },
+        "score": {
+          "schema": 1,
+          "generatedAt": "2026-07-10T23:14:40.744Z",
+          "taskId": "Financial_Model/16_02",
+          "candidateWorkbook": "candidate-01-16_02_Ramjet_input.xlsx",
+          "goldWorkbook": "01-16_Ramjet_golden.xlsx",
+          "answerPosition": "'Financials'!B2:H81,'Valuation Summary and Football'!B2:S46,'Assumptions'!A2:K119,'Synergies and Intgn Exp'!B1:K52,'Income Statement'!B2:K54,'Balance Sheet'!B2:L47,'Cash Flow'!B2:K27,'BS_Sch'!B2:K34,'Ratios'!B2:K25,'Valuation Summary'!B2:AL44,'Graphs'!B3:M49,'Trading Comps'!B1:DN12,'Transaction Comps'!A2:Q16,'BS'!B1:K54,'CF'!B1:G28,'P&L'!B1:I84,'Revenue Analysis'!A1:H258,'Client Analysis'!A1:G131,'Headcount Analysis'!A2:J182,'Certification Analysis'!A2:D51",
+          "ranges": [
+            "'Financials'!B2:H81",
+            "'Valuation Summary and Football'!B2:S46",
+            "'Assumptions'!A2:K119",
+            "'Synergies and Intgn Exp'!B1:K52",
+            "'Income Statement'!B2:K54",
+            "'Balance Sheet'!B2:L47",
+            "'Cash Flow'!B2:K27",
+            "'BS_Sch'!B2:K34",
+            "'Ratios'!B2:K25",
+            "'Valuation Summary'!B2:AL44",
+            "'Graphs'!B3:M49",
+            "'Trading Comps'!B1:DN12",
+            "'Transaction Comps'!A2:Q16",
+            "'BS'!B1:K54",
+            "'CF'!B1:G28",
+            "'P&L'!B1:I84",
+            "'Revenue Analysis'!A1:H258",
+            "'Client Analysis'!A1:G131",
+            "'Headcount Analysis'!A2:J182",
+            "'Certification Analysis'!A2:D51"
+          ],
+          "totals": {
+            "comparedCells": 15239,
+            "valueMatches": 14615,
+            "formulaCells": 3868,
+            "formulaMatches": 1866,
+            "styleCells": 0,
+            "styleMatches": 0,
+            "styleLayoutItems": 0,
+            "styleLayoutMatches": 0,
+            "mismatches": 2626,
+            "missingSheets": 0
+          },
+          "scores": {
+            "value": 0.959052,
+            "formula": 0.48242,
+            "style": null,
+            "chartPackage": 0,
+            "overall": 0.4804906666666667
+          },
+          "pass": false,
+          "warnings": [
+            "mismatch list capped at 50/2626",
+            "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+          ],
+          "mismatches": [
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "H9",
+              "expected": "=G9-F9+E9",
+              "actual": "=H8"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "H10",
+              "expected": "=G10-F10+E10",
+              "actual": "=H8"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "H11",
+              "expected": "=G11-F11+E11",
+              "actual": "=H8"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "H12",
+              "expected": "=G12-F12+E12",
+              "actual": "=H8"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "H13",
+              "expected": "=G13-F13+E13",
+              "actual": "=H8"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "D14",
+              "expected": "=D10-SUM(D11:D13)",
+              "actual": "=C14"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "E14",
+              "expected": "=E10-SUM(E11:E13)",
+              "actual": "=C14"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "F14",
+              "expected": "=F10-SUM(F11:F13)",
+              "actual": "=C14"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "G14",
+              "expected": "=G10-SUM(G11:G13)",
+              "actual": "=C14"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "H14",
+              "expected": "=H10-SUM(H11:H13)",
+              "actual": "=C14"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "D17",
+              "expected": "=D14-D15-D16",
+              "actual": "=C17"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "E17",
+              "expected": "=E14-E15-E16",
+              "actual": "=C17"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "F17",
+              "expected": "=F14-F15-F16",
+              "actual": "=C17"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "G17",
+              "expected": "=G14-G15-G16",
+              "actual": "=C17"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "H17",
+              "expected": "=H14-H15-H16",
+              "actual": "=C17"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "D19",
+              "expected": "=D17-D18",
+              "actual": "=C19"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "E19",
+              "expected": "=E17-E18",
+              "actual": "=C19"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "F19",
+              "expected": "=F17-F18",
+              "actual": "=C19"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "G19",
+              "expected": "=G17-G18",
+              "actual": "=C19"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "H19",
+              "expected": "=H17-H18",
+              "actual": "=C19"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "D21",
+              "expected": "=D19/D24",
+              "actual": "=C21"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "E21",
+              "expected": "=E19/E24",
+              "actual": "=C21"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "F21",
+              "expected": "=F19/F24",
+              "actual": "=C21"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "G21",
+              "expected": "=G19/G24",
+              "actual": "=C21"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "H21",
+              "expected": "=H19/H24",
+              "actual": "=C21"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "D22",
+              "expected": "=D19/D25",
+              "actual": "=C22"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "E22",
+              "expected": "=E19/E25",
+              "actual": "=C22"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "F22",
+              "expected": "=F19/F25",
+              "actual": "=C22"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "G22",
+              "expected": "=G19/G25",
+              "actual": "=C22"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "H22",
+              "expected": "=H19/H25",
+              "actual": "=C22"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "D24",
+              "expected": "=D32",
+              "actual": "=C24"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "E24",
+              "expected": "=E32",
+              "actual": "=C24"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "F24",
+              "expected": "=F32",
+              "actual": "=C24"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "G24",
+              "expected": "=G32",
+              "actual": "=C24"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "H24",
+              "expected": "=H32",
+              "actual": "=C24"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "D25",
+              "expected": "=D36",
+              "actual": "=C25"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "E25",
+              "expected": "=E36",
+              "actual": "=C25"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "F25",
+              "expected": "=F36",
+              "actual": "=C25"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "G25",
+              "expected": "=G36",
+              "actual": "=C25"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "H25",
+              "expected": "=H36",
+              "actual": "=C25"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "D31",
+              "expected": "=D19",
+              "actual": "=C31"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "E31",
+              "expected": "=E19",
+              "actual": "=C31"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "F31",
+              "expected": "=F19",
+              "actual": "=C31"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "G31",
+              "expected": "=G19",
+              "actual": "=C31"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "H31",
+              "expected": "=H19",
+              "actual": "=C31"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "D34",
+              "expected": "=D32",
+              "actual": "=C34"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "E34",
+              "expected": "=E32",
+              "actual": "=C34"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "F34",
+              "expected": "=F32",
+              "actual": "=C34"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "G34",
+              "expected": "=G32",
+              "actual": "=C34"
+            },
+            {
+              "kind": "formula",
+              "sheet": "Financials",
+              "cell": "H34",
+              "expected": "=H32",
+              "actual": "=C34"
+            }
+          ],
+          "chartPackage": {
+            "schema": 1,
+            "generatedAt": "2026-07-10T23:14:40.744Z",
+            "taskId": "Financial_Model/16_02",
+            "candidateWorkbook": "candidate-01-16_02_Ramjet_input.xlsx",
+            "goldWorkbook": "01-16_Ramjet_golden.xlsx",
+            "verifier": "xlsx_chart_package_static",
+            "totals": {
+              "goldChartParts": 7,
+              "candidateChartParts": 0,
+              "matchedChartParts": 0,
+              "missingChartParts": 7,
+              "extraChartParts": 0,
+              "mismatchedChartParts": 0
+            },
+            "scores": {
+              "package": 0
+            },
+            "pass": false,
+            "candidateParts": [],
+            "goldParts": [
+              {
+                "path": "xl/charts/chart1.xml",
+                "kind": "chart",
+                "sha256": "df519b2d46d41ea62a4e62b5fca8ac6cdf5eae800e4cf3069d185075f4e87195",
+                "bytes": 7961
+              },
+              {
+                "path": "xl/charts/chart2.xml",
+                "kind": "chart",
+                "sha256": "24a72ab4c30804e819f5af0f88f46d61683bca26f7c396f49d436bef619300e9",
+                "bytes": 6530
+              },
+              {
+                "path": "xl/charts/chart3.xml",
+                "kind": "chart",
+                "sha256": "98ff88227517bfce0e6ea2dbe89b94ce4a363cd33eb13ed6e120d8626952c886",
+                "bytes": 6163
+              },
+              {
+                "path": "xl/charts/chart4.xml",
+                "kind": "chart",
+                "sha256": "bafeff3ff936fd411051ef19f35539405a96ba6dc53fa8297db1ae53b91c1135",
+                "bytes": 6320
+              },
+              {
+                "path": "xl/charts/chart5.xml",
+                "kind": "chart",
+                "sha256": "4ae6b3396498037acb7a5252f15f386a7950b83b6420f6600e6adedc8ddd87f7",
+                "bytes": 6502
+              },
+              {
+                "path": "xl/drawings/drawing1.xml",
+                "kind": "drawing",
+                "sha256": "777bc714f04ef105c544da32bdfc2cb2c31ee8b90e72d97ed8d6abd743233646",
+                "bytes": 1130
+              },
+              {
+                "path": "xl/drawings/drawing2.xml",
+                "kind": "drawing",
+                "sha256": "52fe40311a8766f4f61b2bb9c593543442eaa7b52c85b9465da4fc7338699fe9",
+                "bytes": 3610
+              }
+            ],
+            "mismatches": [
+              {
+                "kind": "missing_chart_part",
+                "path": "xl/charts/chart1.xml",
+                "expected": "df519b2d46d41ea62a4e62b5fca8ac6cdf5eae800e4cf3069d185075f4e87195"
+              },
+              {
+                "kind": "missing_chart_part",
+                "path": "xl/charts/chart2.xml",
+                "expected": "24a72ab4c30804e819f5af0f88f46d61683bca26f7c396f49d436bef619300e9"
+              },
+              {
+                "kind": "missing_chart_part",
+                "path": "xl/charts/chart3.xml",
+                "expected": "98ff88227517bfce0e6ea2dbe89b94ce4a363cd33eb13ed6e120d8626952c886"
+              },
+              {
+                "kind": "missing_chart_part",
+                "path": "xl/charts/chart4.xml",
+                "expected": "bafeff3ff936fd411051ef19f35539405a96ba6dc53fa8297db1ae53b91c1135"
+              },
+              {
+                "kind": "missing_chart_part",
+                "path": "xl/charts/chart5.xml",
+                "expected": "4ae6b3396498037acb7a5252f15f386a7950b83b6420f6600e6adedc8ddd87f7"
+              },
+              {
+                "kind": "missing_chart_part",
+                "path": "xl/drawings/drawing1.xml",
+                "expected": "777bc714f04ef105c544da32bdfc2cb2c31ee8b90e72d97ed8d6abd743233646"
+              },
+              {
+                "kind": "missing_chart_part",
+                "path": "xl/drawings/drawing2.xml",
+                "expected": "52fe40311a8766f4f61b2bb9c593543442eaa7b52c85b9465da4fc7338699fe9"
+              }
+            ],
+            "warnings": [
+              "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+            ]
+          }
+        },
+        "model": {
+          "name": "spreadsheetbench/no-provider-repair-replay",
+          "calls": 1,
+          "usage": {
+            "inputTokens": 0,
+            "outputTokens": 0
+          },
+          "costUsd": 0
+        },
+        "timingsMs": {
+          "modelPlanning": 2,
+          "candidateGeneration": 5176,
+          "scoring": 4464,
+          "total": 9680
+        },
+        "trajectory": [
+          {
+            "step": "read_agent_manifest",
+            "detail": "tasks/Financial_Model_16_02/agent/task.json"
+          },
+          {
+            "step": "prepare_agent_workspace",
+            "detail": "Financial_Model_16_02/agent-workspace/agent-workspace-manifest.json"
+          },
+          {
+            "step": "snapshot_agent_workbook",
+            "detail": "24 sheet(s), 660 cell(s)"
+          },
+          {
+            "step": "call_model_for_edit_plan",
+            "detail": "spreadsheetbench/no-provider-repair-replay"
+          },
+          {
+            "step": "verify_edit_plan",
+            "detail": "needs_repair: 1 issue(s)"
+          },
+          {
+            "step": "verify_candidate_workbook",
+            "detail": "needs_repair: 41/41 changed cell(s) verified"
+          },
+          {
+            "step": "emit_candidate_workbook",
+            "detail": "Financial_Model_16_02/candidate-01-16_02_Ramjet_input.xlsx"
+          },
+          {
+            "step": "read_evaluator_manifest",
+            "detail": "tasks/Financial_Model_16_02/evaluator/evaluator.json"
+          },
+          {
+            "step": "score_candidate",
+            "detail": "2626 cell mismatch(es), 7 chart-package mismatch(es)"
+          }
+        ]
+      }
+    ]
+  }
+}

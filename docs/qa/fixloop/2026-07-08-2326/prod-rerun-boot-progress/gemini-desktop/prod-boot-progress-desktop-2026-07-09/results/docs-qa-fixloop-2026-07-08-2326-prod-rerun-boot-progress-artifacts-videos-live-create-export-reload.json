@@ -1,0 +1,64 @@
+{
+  "asset": {
+    "id": "docs-qa-fixloop-2026-07-08-2326-prod-rerun-boot-progress-artifacts-videos-live-create-export-reload",
+    "class": "live_browser_proof",
+    "title": "Live Create Export Reload",
+    "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\qa\\fixloop\\2026-07-08-2326\\prod-rerun-boot-progress\\artifacts\\videos\\live-create-export-reload.webm",
+    "relPath": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-boot-progress/artifacts/videos/live-create-export-reload.webm",
+    "purpose": "Live Playwright browser benchmark proof clip. Judge only visible product behavior: fresh-room flow, uploads, public NodeAgent invocation, streaming/tool traces, focus/attention UI, artifact creation/download, and production honesty. Clip duration, silence, or README pacing is not a product defect."
+  },
+  "model": "gemini-3.5-flash",
+  "status": "judged",
+  "mediaPath": "docs/qa/fixloop/2026-07-08-2326/prod-rerun-boot-progress/artifacts/videos/live-create-export-reload.webm",
+  "mediaType": "video/webm",
+  "bytes": 1825286,
+  "judge": {
+    "verdict": "publish",
+    "summary": "The video successfully demonstrates the complete lifecycle of a NodeRoom session, including room creation, sheet navigation, XLSX export, and a successful page reload that preserves the active workspace state.",
+    "scores": {
+      "featureClarity": {
+        "score": 1,
+        "evidence": "Clearly shows the room creation steps followed by spreadsheet interaction and export actions."
+      },
+      "workflowCompleteness": {
+        "score": 1,
+        "evidence": "Captures the entire flow from initial boot sequence to post-reload state verification."
+      },
+      "visualDesign": {
+        "score": 1,
+        "evidence": "Maintains a clean, high-density dark mode interface with structured panels and clear active states."
+      },
+      "consistency": {
+        "score": 1,
+        "evidence": "Integrates sheets, agent chat, and room status indicators consistently with the NodeRoom design system."
+      },
+      "evidenceQuality": {
+        "score": 1,
+        "evidence": "Recorded directly from a live browser session showing authentic loading states and interactions."
+      },
+      "legibility": {
+        "score": 1,
+        "evidence": "UI text, sheet cells, and chat messages remain readable throughout the clip."
+      },
+      "professionalRelevance": {
+        "score": 1,
+        "evidence": "Demonstrates critical workspace persistence and export capabilities relevant to professional users."
+      },
+      "productionHonesty": {
+        "score": 1,
+        "evidence": "Accurately depicts the reload transition and loading times without artificial cuts."
+      }
+    },
+    "observedEvidence": [
+      "Room creation progress screen",
+      "Company research and Q3 variance sheets",
+      "Export XLSX action",
+      "Browser reload and state recovery"
+    ],
+    "missingEvidence": [],
+    "defects": [],
+    "suggestedReadmeCaption": "Watch NodeRoom initialize a startup diligence workspace, navigate financial sheets, export data, and seamlessly recover state after a browser reload."
+  },
+  "score": 8,
+  "maxScore": 16
+}

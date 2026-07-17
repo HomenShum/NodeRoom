@@ -163,7 +163,17 @@ describe("Chat reasoning-frame job detail", () => {
       latestSteps: [],
       streamEvents: [],
       streamParts: [
-        { type: "text" as const, text: "Calculating now. | Row | Q2 | Q3 | Variance % | |---|---:|---:|---:| | Revenue | $10,000 | $12,400 | +24% |", state: "streaming" as const },
+        {
+          type: "text" as const,
+          text: [
+            "Calculating now.",
+            "",
+            "| Row | Q2 | Q3 | Variance % |",
+            "| --- | ---: | ---: | ---: |",
+            "| Revenue | $10,000 | $12,400 | +24% |",
+          ].join("\n"),
+          state: "streaming" as const,
+        },
         { type: "tool-write_locked_cells" as const, toolName: "write_locked_cells", toolCallId: "call-write", state: "call" as const, status: "started" as const, input: { ops: 10 } },
       ],
     });
@@ -176,11 +186,21 @@ describe("Chat reasoning-frame job detail", () => {
     expect(screen.getByText("Updated Sheet 1")).toBeTruthy();
     expect(screen.getByRole("table")).toBeTruthy();
     expect(screen.getByRole("columnheader", { name: "Variance %" })).toBeTruthy();
+    const detailsToggle = screen.getByTestId("agent-progress-details-toggle");
+    expect(detailsToggle.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByTestId("agent-progress-details")).toBeNull();
     expect(screen.queryByText("write_locked_cells")).toBeNull();
-    fireEvent.click(screen.getByTestId("agent-progress-details-toggle"));
+    fireEvent.click(detailsToggle);
+    expect(detailsToggle.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByTestId("agent-progress-details")).toBeTruthy();
     expect(screen.getByText("write_locked_cells")).toBeTruthy();
     fireEvent.click(screen.getByText("write_locked_cells"));
     expect(screen.getByText(/"ops": 10/)).toBeTruthy();
+    fireEvent.click(detailsToggle);
+    expect(detailsToggle.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByTestId("agent-progress-details")).toBeNull();
+    expect(screen.queryByText("write_locked_cells")).toBeNull();
+    expect(screen.getByRole("table")).toBeTruthy();
     expect(screen.queryByTestId("agent-operation-stream")).toBeNull();
   });
 

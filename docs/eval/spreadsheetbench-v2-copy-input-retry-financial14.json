@@ -1,0 +1,1785 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-09T10:19:01.809Z",
+  "stageRoot": "staged-v2-full",
+  "outputRoot": "run-v2-copy-input-retry-financial14",
+  "mode": "copy-input-baseline",
+  "taskOffset": 165,
+  "taskCount": 5,
+  "passCount": 0,
+  "averageOverall": 0.384993,
+  "caseCount": 5,
+  "caseRunCount": 5,
+  "casePassCount": 0,
+  "casePassRate": 0,
+  "repeatCount": 1,
+  "attemptCount": 5,
+  "passRate": 0,
+  "retryPolicy": {
+    "maxRetries": 0,
+    "retryOn": [
+      "candidate_generation",
+      "scoring"
+    ],
+    "stopOnPass": true
+  },
+  "retryStats": {
+    "retriedCaseRunCount": 0,
+    "retryAttemptCount": 0,
+    "passedAfterRetryCount": 0,
+    "exhaustedCaseRunCount": 0
+  },
+  "stats": {
+    "latencyMs": {
+      "p50": 7759,
+      "p95": 10701,
+      "max": 10701
+    },
+    "failureCounts": {}
+  },
+  "harness": {
+    "toolPolicy": "agent_dir_only_until_candidate",
+    "evaluatorAccess": "after_candidate_emit_only",
+    "budget": {
+      "modelCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "providerCostUsd": 0
+    }
+  },
+  "warnings": [],
+  "caseRuns": [
+    {
+      "taskId": "Financial_Model/14_01",
+      "taskDir": "tasks/Financial_Model_14_01",
+      "repeatIndex": 1,
+      "attempts": [
+        1
+      ],
+      "finalAttemptIndex": 1,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.386602
+    },
+    {
+      "taskId": "Financial_Model/14_02",
+      "taskDir": "tasks/Financial_Model_14_02",
+      "repeatIndex": 1,
+      "attempts": [
+        2
+      ],
+      "finalAttemptIndex": 2,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.386123
+    },
+    {
+      "taskId": "Financial_Model/14_03",
+      "taskDir": "tasks/Financial_Model_14_03",
+      "repeatIndex": 1,
+      "attempts": [
+        3
+      ],
+      "finalAttemptIndex": 3,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.385573
+    },
+    {
+      "taskId": "Financial_Model/14_04",
+      "taskDir": "tasks/Financial_Model_14_04",
+      "repeatIndex": 1,
+      "attempts": [
+        4
+      ],
+      "finalAttemptIndex": 4,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.384169
+    },
+    {
+      "taskId": "Financial_Model/14_05",
+      "taskDir": "tasks/Financial_Model_14_05",
+      "repeatIndex": 1,
+      "attempts": [
+        5
+      ],
+      "finalAttemptIndex": 5,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.382498
+    }
+  ],
+  "results": [
+    {
+      "taskId": "Financial_Model/14_01",
+      "track": "spreadsheetbench-v2",
+      "category": "Financial_Model",
+      "mode": "copy-input-baseline",
+      "attemptIndex": 1,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Financial_Model_14_01",
+      "agentManifest": "tasks/Financial_Model_14_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_14_01/evaluator/evaluator.json",
+      "candidateWorkbook": "Financial_Model_14_01/candidate-01-14_01_Refinery_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Financial_Model_14_01/candidate-manifest.json",
+          "sha256": "497e3662d6771af1f3ce75bc10a7b856225b6620016c1129b854ac8989bba41d",
+          "bytes": 404
+        },
+        "agentWorkspaceManifest": {
+          "path": "Financial_Model_14_01/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "0047e52d71d9c815bf810a75cbc488931d39ca42128bc476823b4a81ab62c01a",
+          "bytes": 528
+        }
+      },
+      "scorerReceipt": {
+        "path": "Financial_Model_14_01/score-receipt.json",
+        "sha256": "f3d2d0e289bf1016314fcb4d766a1ad00ee6e487ae1837b8230839d753c7749a",
+        "bytes": 9390
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-09T10:19:01.809Z",
+        "taskId": "Financial_Model/14_01",
+        "candidateWorkbook": "candidate-01-14_01_Refinery_input.xlsx",
+        "goldWorkbook": "01-14_Refinery_golden.xlsx",
+        "answerPosition": "'DCF_Income Approach'!B1:O50,'Peers'!B2:F16,'Reported Profit & Loss'!A1:H86,'Profit & Loss'!A1:R50,'Balance sheet'!B3:Q64,'CFS'!A1:L53,'Cash Flow'!A1:N48,'WACC'!B3:G48,'Revenue'!A2:AF36,'Refining Yield'!A2:AH52,'Product Pricing'!A2:X34,'Operating Expenses'!A1:Q126,'Other Income'!A1:R54,'Debt, Interest and Finance Cost'!B1:O46,'Debt Profile - 31st March 2019'!B1:Q58,'Fixed Asset & Depreciation'!B2:M98,'NCD'!B3:BW181,'TL'!A1:BW376,'Depreciation (Companies Act)'!B2:P185,'Depreciation (IT act)'!A3:J72,'Capex details'!B6:P54,'Depn - IT _Current'!A3:I95,'Amortization with extra payment'!B1:P369,'Debt Details'!A1:T59,'Tax ( MAT)'!A2:K8,'WC workings'!A2:M21,'Working Capital'!B2:P32,'Tax-DCF'!A1:J19,'Tax-P&L'!A1:J61,'FS Notes'!A5:F212,'PL'!B3:F51,'1 - Crude Oil  Brent (... Data'!A1:J1855,'1 - Crude Oil  Gulf Co... Data'!A1:J1855,'Tax rates'!A1:D18,'Ann 1 & 2'!B2:I85,'Ann 3'!B2:T101,'Ann 5'!B2:K30,'Ann 6'!B2:Q33,'Ann 8'!B1:D27,'Ann 9'!B1:D32,'Conversion'!B3:C16,'Crude Forecast'!A6:BQ52,'Forecasts_WPIUSD'!A1:P121",
+        "ranges": [
+          "'DCF_Income Approach'!B1:O50",
+          "'Peers'!B2:F16",
+          "'Reported Profit & Loss'!A1:H86",
+          "'Profit & Loss'!A1:R50",
+          "'Balance sheet'!B3:Q64",
+          "'CFS'!A1:L53",
+          "'Cash Flow'!A1:N48",
+          "'WACC'!B3:G48",
+          "'Revenue'!A2:AF36",
+          "'Refining Yield'!A2:AH52",
+          "'Product Pricing'!A2:X34",
+          "'Operating Expenses'!A1:Q126",
+          "'Other Income'!A1:R54",
+          "'Debt, Interest and Finance Cost'!B1:O46",
+          "'Debt Profile - 31st March 2019'!B1:Q58",
+          "'Fixed Asset & Depreciation'!B2:M98",
+          "'NCD'!B3:BW181",
+          "'TL'!A1:BW376",
+          "'Depreciation (Companies Act)'!B2:P185",
+          "'Depreciation (IT act)'!A3:J72",
+          "'Capex details'!B6:P54",
+          "'Depn - IT _Current'!A3:I95",
+          "'Amortization with extra payment'!B1:P369",
+          "'Debt Details'!A1:T59",
+          "'Tax ( MAT)'!A2:K8",
+          "'WC workings'!A2:M21",
+          "'Working Capital'!B2:P32",
+          "'Tax-DCF'!A1:J19",
+          "'Tax-P&L'!A1:J61",
+          "'FS Notes'!A5:F212",
+          "'PL'!B3:F51",
+          "'1 - Crude Oil  Brent (... Data'!A1:J1855",
+          "'1 - Crude Oil  Gulf Co... Data'!A1:J1855",
+          "'Tax rates'!A1:D18",
+          "'Ann 1 & 2'!B2:I85",
+          "'Ann 3'!B2:T101",
+          "'Ann 5'!B2:K30",
+          "'Ann 6'!B2:Q33",
+          "'Ann 8'!B1:D27",
+          "'Ann 9'!B1:D32",
+          "'Conversion'!B3:C16",
+          "'Crude Forecast'!A6:BQ52",
+          "'Forecasts_WPIUSD'!A1:P121"
+        ],
+        "totals": {
+          "comparedCells": 116653,
+          "valueMatches": 114887,
+          "formulaCells": 31244,
+          "formulaMatches": 5466,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 27544,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.984861,
+          "formula": 0.174946,
+          "style": null,
+          "chartPackage": 0,
+          "overall": 0.3866023333333333
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 20/27544",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+        ],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "E7",
+            "expected": "5029.55847069654",
+            "actual": "5029.669314328463"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "F7",
+            "expected": "8410.62984034186",
+            "actual": "8410.975916278487"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "G7",
+            "expected": "8691.42436124565",
+            "actual": "8684.55078477039"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "H7",
+            "expected": "9235.84973315109",
+            "actual": "9221.708965068003"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "I7",
+            "expected": "8118.71121766263",
+            "actual": "8095.37590283485"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "J7",
+            "expected": "9976.08466484422",
+            "actual": "9952.21127213566"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "K7",
+            "expected": "10388.7495413536",
+            "actual": "10360.527818943176"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "L7",
+            "expected": "10700.4120275943",
+            "actual": "10671.34365351147"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "E9",
+            "expected": "3865.66966563273",
+            "actual": "3865.780509264652"
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "E9",
+            "expected": "=E7-E8",
+            "actual": "=D9"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "F9",
+            "expected": "4220.13222324191",
+            "actual": "4220.47829917854"
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "F9",
+            "expected": "=F7-F8",
+            "actual": "=D9"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "G9",
+            "expected": "5094.60068262161",
+            "actual": "5087.7271061463525"
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "G9",
+            "expected": "=G7-G8",
+            "actual": "=D9"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "H9",
+            "expected": "6129.23090500168",
+            "actual": "6115.090136918596"
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "H9",
+            "expected": "=H7-H8",
+            "actual": "=D9"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "I9",
+            "expected": "5409.12911680922",
+            "actual": "5385.793801981439"
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "I9",
+            "expected": "=I7-I8",
+            "actual": "=D9"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "J9",
+            "expected": "7590.20493137861",
+            "actual": "7566.331538670045"
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "J9",
+            "expected": "=J7-J8",
+            "actual": "=D9"
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-09T10:19:01.809Z",
+          "taskId": "Financial_Model/14_01",
+          "candidateWorkbook": "candidate-01-14_01_Refinery_input.xlsx",
+          "goldWorkbook": "01-14_Refinery_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 2,
+            "candidateChartParts": 1,
+            "matchedChartParts": 0,
+            "missingChartParts": 1,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 1
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [
+            {
+              "path": "xl/drawings/drawing1.xml",
+              "kind": "drawing",
+              "sha256": "ab52458e69ff96a4bdbd2720e904698484c84748f8e15c7d4c0cf5f8f9ca3311",
+              "bytes": 1262
+            }
+          ],
+          "goldParts": [
+            {
+              "path": "xl/drawings/drawing1.xml",
+              "kind": "drawing",
+              "sha256": "918d87c3247da90517e5f11acc7f8d35956988d02a469ba1ec640be2e32531fb",
+              "bytes": 298
+            },
+            {
+              "path": "xl/drawings/drawing2.xml",
+              "kind": "drawing",
+              "sha256": "a268d244ce01f651c2cbbfefb800360d4929ed5e2c8e9f90520430652c133a40",
+              "bytes": 960
+            }
+          ],
+          "mismatches": [
+            {
+              "kind": "chart_xml",
+              "path": "xl/drawings/drawing1.xml",
+              "expected": "918d87c3247da90517e5f11acc7f8d35956988d02a469ba1ec640be2e32531fb",
+              "actual": "ab52458e69ff96a4bdbd2720e904698484c84748f8e15c7d4c0cf5f8f9ca3311"
+            },
+            {
+              "kind": "missing_chart_part",
+              "path": "xl/drawings/drawing2.xml",
+              "expected": "a268d244ce01f651c2cbbfefb800360d4929ed5e2c8e9f90520430652c133a40"
+            }
+          ],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+          ]
+        }
+      },
+      "timingsMs": {
+        "candidateGeneration": 9,
+        "scoring": 10659,
+        "total": 10701
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Financial_Model_14_01/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Financial_Model_14_01/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Financial_Model_14_01/candidate-01-14_01_Refinery_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Financial_Model_14_01/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "27544 cell mismatch(es), 2 chart-package mismatch(es)"
+        }
+      ]
+    },
+    {
+      "taskId": "Financial_Model/14_02",
+      "track": "spreadsheetbench-v2",
+      "category": "Financial_Model",
+      "mode": "copy-input-baseline",
+      "attemptIndex": 2,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Financial_Model_14_02",
+      "agentManifest": "tasks/Financial_Model_14_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_14_02/evaluator/evaluator.json",
+      "candidateWorkbook": "Financial_Model_14_02/candidate-01-14_02_Refinery_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Financial_Model_14_02/candidate-manifest.json",
+          "sha256": "8a478b1c7d501ff12af6bb04b5c0ac1c47a4bdebf36700e59e1404098592a98d",
+          "bytes": 404
+        },
+        "agentWorkspaceManifest": {
+          "path": "Financial_Model_14_02/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "2e74a45ad9805b8f74f29fe74e8801f7242e13d99d2f643e3b455a98547f7002",
+          "bytes": 528
+        }
+      },
+      "scorerReceipt": {
+        "path": "Financial_Model_14_02/score-receipt.json",
+        "sha256": "133c74f37aad994c297b56a2d174262b5b0bb3021c225afcf4e82f3725054767",
+        "bytes": 9383
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-09T10:19:01.809Z",
+        "taskId": "Financial_Model/14_02",
+        "candidateWorkbook": "candidate-01-14_02_Refinery_input.xlsx",
+        "goldWorkbook": "01-14_Refinery_golden.xlsx",
+        "answerPosition": "'DCF_Income Approach'!B1:O50,'Peers'!B2:F16,'Reported Profit & Loss'!A1:H86,'Profit & Loss'!A1:R50,'Balance sheet'!B3:Q64,'CFS'!A1:L53,'Cash Flow'!A1:N48,'WACC'!B3:G48,'Revenue'!A2:AF36,'Refining Yield'!A2:AH52,'Product Pricing'!A2:X34,'Operating Expenses'!A1:Q126,'Other Income'!A1:R54,'Debt, Interest and Finance Cost'!B1:O46,'Debt Profile - 31st March 2019'!B1:Q58,'Fixed Asset & Depreciation'!B2:M98,'NCD'!B3:BW181,'TL'!A1:BW376,'Depreciation (Companies Act)'!B2:P185,'Depreciation (IT act)'!A3:J72,'Capex details'!B6:P54,'Depn - IT _Current'!A3:I95,'Amortization with extra payment'!B1:P369,'Debt Details'!A1:T59,'Tax ( MAT)'!A2:K8,'WC workings'!A2:M21,'Working Capital'!B2:P32,'Tax-DCF'!A1:J19,'Tax-P&L'!A1:J61,'FS Notes'!A5:F212,'PL'!B3:F51,'1 - Crude Oil  Brent (... Data'!A1:J1855,'1 - Crude Oil  Gulf Co... Data'!A1:J1855,'Tax rates'!A1:D18,'Ann 1 & 2'!B2:I85,'Ann 3'!B2:T101,'Ann 5'!B2:K30,'Ann 6'!B2:Q33,'Ann 8'!B1:D27,'Ann 9'!B1:D32,'Conversion'!B3:C16,'Crude Forecast'!A6:BQ52,'Forecasts_WPIUSD'!A1:P121",
+        "ranges": [
+          "'DCF_Income Approach'!B1:O50",
+          "'Peers'!B2:F16",
+          "'Reported Profit & Loss'!A1:H86",
+          "'Profit & Loss'!A1:R50",
+          "'Balance sheet'!B3:Q64",
+          "'CFS'!A1:L53",
+          "'Cash Flow'!A1:N48",
+          "'WACC'!B3:G48",
+          "'Revenue'!A2:AF36",
+          "'Refining Yield'!A2:AH52",
+          "'Product Pricing'!A2:X34",
+          "'Operating Expenses'!A1:Q126",
+          "'Other Income'!A1:R54",
+          "'Debt, Interest and Finance Cost'!B1:O46",
+          "'Debt Profile - 31st March 2019'!B1:Q58",
+          "'Fixed Asset & Depreciation'!B2:M98",
+          "'NCD'!B3:BW181",
+          "'TL'!A1:BW376",
+          "'Depreciation (Companies Act)'!B2:P185",
+          "'Depreciation (IT act)'!A3:J72",
+          "'Capex details'!B6:P54",
+          "'Depn - IT _Current'!A3:I95",
+          "'Amortization with extra payment'!B1:P369",
+          "'Debt Details'!A1:T59",
+          "'Tax ( MAT)'!A2:K8",
+          "'WC workings'!A2:M21",
+          "'Working Capital'!B2:P32",
+          "'Tax-DCF'!A1:J19",
+          "'Tax-P&L'!A1:J61",
+          "'FS Notes'!A5:F212",
+          "'PL'!B3:F51",
+          "'1 - Crude Oil  Brent (... Data'!A1:J1855",
+          "'1 - Crude Oil  Gulf Co... Data'!A1:J1855",
+          "'Tax rates'!A1:D18",
+          "'Ann 1 & 2'!B2:I85",
+          "'Ann 3'!B2:T101",
+          "'Ann 5'!B2:K30",
+          "'Ann 6'!B2:Q33",
+          "'Ann 8'!B1:D27",
+          "'Ann 9'!B1:D32",
+          "'Conversion'!B3:C16",
+          "'Crude Forecast'!A6:BQ52",
+          "'Forecasts_WPIUSD'!A1:P121"
+        ],
+        "totals": {
+          "comparedCells": 116653,
+          "valueMatches": 114723,
+          "formulaCells": 31244,
+          "formulaMatches": 5465,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 27709,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.983455,
+          "formula": 0.174914,
+          "style": null,
+          "chartPackage": 0,
+          "overall": 0.386123
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 20/27709",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+        ],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "E7",
+            "expected": "5029.55847069654",
+            "actual": "5023.2909056150365"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "F7",
+            "expected": "8410.62984034186",
+            "actual": "8397.91416375968"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "G7",
+            "expected": "8691.42436124565",
+            "actual": "8669.820921707314"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "H7",
+            "expected": "9235.84973315109",
+            "actual": "9209.305097729248"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "I7",
+            "expected": "8118.71121766263",
+            "actual": "8087.33021664805"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "J7",
+            "expected": "9976.08466484422",
+            "actual": "9942.217381651652"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "K7",
+            "expected": "10388.7495413536",
+            "actual": "10354.604729147532"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "L7",
+            "expected": "10700.4120275943",
+            "actual": "10665.242871021957"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "E9",
+            "expected": "3865.66966563273",
+            "actual": "3859.402100551226"
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "E9",
+            "expected": "=E7-E8",
+            "actual": "=D9"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "F9",
+            "expected": "4220.13222324191",
+            "actual": "4207.416546659733"
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "F9",
+            "expected": "=F7-F8",
+            "actual": "=D9"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "G9",
+            "expected": "5094.60068262161",
+            "actual": "5072.997243083277"
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "G9",
+            "expected": "=G7-G8",
+            "actual": "=D9"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "H9",
+            "expected": "6129.23090500168",
+            "actual": "6102.686269579841"
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "H9",
+            "expected": "=H7-H8",
+            "actual": "=D9"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "I9",
+            "expected": "5409.12911680922",
+            "actual": "5377.748115794639"
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "I9",
+            "expected": "=I7-I8",
+            "actual": "=D9"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "J9",
+            "expected": "7590.20493137861",
+            "actual": "7556.337648186036"
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "J9",
+            "expected": "=J7-J8",
+            "actual": "=D9"
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-09T10:19:01.809Z",
+          "taskId": "Financial_Model/14_02",
+          "candidateWorkbook": "candidate-01-14_02_Refinery_input.xlsx",
+          "goldWorkbook": "01-14_Refinery_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 2,
+            "candidateChartParts": 1,
+            "matchedChartParts": 0,
+            "missingChartParts": 1,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 1
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [
+            {
+              "path": "xl/drawings/drawing1.xml",
+              "kind": "drawing",
+              "sha256": "ab52458e69ff96a4bdbd2720e904698484c84748f8e15c7d4c0cf5f8f9ca3311",
+              "bytes": 1262
+            }
+          ],
+          "goldParts": [
+            {
+              "path": "xl/drawings/drawing1.xml",
+              "kind": "drawing",
+              "sha256": "918d87c3247da90517e5f11acc7f8d35956988d02a469ba1ec640be2e32531fb",
+              "bytes": 298
+            },
+            {
+              "path": "xl/drawings/drawing2.xml",
+              "kind": "drawing",
+              "sha256": "a268d244ce01f651c2cbbfefb800360d4929ed5e2c8e9f90520430652c133a40",
+              "bytes": 960
+            }
+          ],
+          "mismatches": [
+            {
+              "kind": "chart_xml",
+              "path": "xl/drawings/drawing1.xml",
+              "expected": "918d87c3247da90517e5f11acc7f8d35956988d02a469ba1ec640be2e32531fb",
+              "actual": "ab52458e69ff96a4bdbd2720e904698484c84748f8e15c7d4c0cf5f8f9ca3311"
+            },
+            {
+              "kind": "missing_chart_part",
+              "path": "xl/drawings/drawing2.xml",
+              "expected": "a268d244ce01f651c2cbbfefb800360d4929ed5e2c8e9f90520430652c133a40"
+            }
+          ],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+          ]
+        }
+      },
+      "timingsMs": {
+        "candidateGeneration": 10,
+        "scoring": 8084,
+        "total": 8176
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Financial_Model_14_02/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Financial_Model_14_02/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Financial_Model_14_02/candidate-01-14_02_Refinery_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Financial_Model_14_02/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "27709 cell mismatch(es), 2 chart-package mismatch(es)"
+        }
+      ]
+    },
+    {
+      "taskId": "Financial_Model/14_03",
+      "track": "spreadsheetbench-v2",
+      "category": "Financial_Model",
+      "mode": "copy-input-baseline",
+      "attemptIndex": 3,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Financial_Model_14_03",
+      "agentManifest": "tasks/Financial_Model_14_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_14_03/evaluator/evaluator.json",
+      "candidateWorkbook": "Financial_Model_14_03/candidate-01-14_03_Refinery_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Financial_Model_14_03/candidate-manifest.json",
+          "sha256": "9413345dffbc65851e012124fbadec10aa31e8455943e42c2daeb2525eba03d3",
+          "bytes": 404
+        },
+        "agentWorkspaceManifest": {
+          "path": "Financial_Model_14_03/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "59390cacb1a1904abadec130130d536ef1c0d2d6901d212bc9074a4678a73b32",
+          "bytes": 528
+        }
+      },
+      "scorerReceipt": {
+        "path": "Financial_Model_14_03/score-receipt.json",
+        "sha256": "c6a41b09ef6896222cc98143e2d4da84f0c1047ea480e373e71367b8d2403abd",
+        "bytes": 9398
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-09T10:19:01.809Z",
+        "taskId": "Financial_Model/14_03",
+        "candidateWorkbook": "candidate-01-14_03_Refinery_input.xlsx",
+        "goldWorkbook": "01-14_Refinery_golden.xlsx",
+        "answerPosition": "'DCF_Income Approach'!B1:O50,'Peers'!B2:F16,'Reported Profit & Loss'!A1:H86,'Profit & Loss'!A1:R50,'Balance sheet'!B3:Q64,'CFS'!A1:L53,'Cash Flow'!A1:N48,'WACC'!B3:G48,'Revenue'!A2:AF36,'Refining Yield'!A2:AH52,'Product Pricing'!A2:X34,'Operating Expenses'!A1:Q126,'Other Income'!A1:R54,'Debt, Interest and Finance Cost'!B1:O46,'Debt Profile - 31st March 2019'!B1:Q58,'Fixed Asset & Depreciation'!B2:M98,'NCD'!B3:BW181,'TL'!A1:BW376,'Depreciation (Companies Act)'!B2:P185,'Depreciation (IT act)'!A3:J72,'Capex details'!B6:P54,'Depn - IT _Current'!A3:I95,'Amortization with extra payment'!B1:P369,'Debt Details'!A1:T59,'Tax ( MAT)'!A2:K8,'WC workings'!A2:M21,'Working Capital'!B2:P32,'Tax-DCF'!A1:J19,'Tax-P&L'!A1:J61,'FS Notes'!A5:F212,'PL'!B3:F51,'1 - Crude Oil  Brent (... Data'!A1:J1855,'1 - Crude Oil  Gulf Co... Data'!A1:J1855,'Tax rates'!A1:D18,'Ann 1 & 2'!B2:I85,'Ann 3'!B2:T101,'Ann 5'!B2:K30,'Ann 6'!B2:Q33,'Ann 8'!B1:D27,'Ann 9'!B1:D32,'Conversion'!B3:C16,'Crude Forecast'!A6:BQ52,'Forecasts_WPIUSD'!A1:P121",
+        "ranges": [
+          "'DCF_Income Approach'!B1:O50",
+          "'Peers'!B2:F16",
+          "'Reported Profit & Loss'!A1:H86",
+          "'Profit & Loss'!A1:R50",
+          "'Balance sheet'!B3:Q64",
+          "'CFS'!A1:L53",
+          "'Cash Flow'!A1:N48",
+          "'WACC'!B3:G48",
+          "'Revenue'!A2:AF36",
+          "'Refining Yield'!A2:AH52",
+          "'Product Pricing'!A2:X34",
+          "'Operating Expenses'!A1:Q126",
+          "'Other Income'!A1:R54",
+          "'Debt, Interest and Finance Cost'!B1:O46",
+          "'Debt Profile - 31st March 2019'!B1:Q58",
+          "'Fixed Asset & Depreciation'!B2:M98",
+          "'NCD'!B3:BW181",
+          "'TL'!A1:BW376",
+          "'Depreciation (Companies Act)'!B2:P185",
+          "'Depreciation (IT act)'!A3:J72",
+          "'Capex details'!B6:P54",
+          "'Depn - IT _Current'!A3:I95",
+          "'Amortization with extra payment'!B1:P369",
+          "'Debt Details'!A1:T59",
+          "'Tax ( MAT)'!A2:K8",
+          "'WC workings'!A2:M21",
+          "'Working Capital'!B2:P32",
+          "'Tax-DCF'!A1:J19",
+          "'Tax-P&L'!A1:J61",
+          "'FS Notes'!A5:F212",
+          "'PL'!B3:F51",
+          "'1 - Crude Oil  Brent (... Data'!A1:J1855",
+          "'1 - Crude Oil  Gulf Co... Data'!A1:J1855",
+          "'Tax rates'!A1:D18",
+          "'Ann 1 & 2'!B2:I85",
+          "'Ann 3'!B2:T101",
+          "'Ann 5'!B2:K30",
+          "'Ann 6'!B2:Q33",
+          "'Ann 8'!B1:D27",
+          "'Ann 9'!B1:D32",
+          "'Conversion'!B3:C16",
+          "'Crude Forecast'!A6:BQ52",
+          "'Forecasts_WPIUSD'!A1:P121"
+        ],
+        "totals": {
+          "comparedCells": 116653,
+          "valueMatches": 114691,
+          "formulaCells": 31244,
+          "formulaMatches": 5422,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 27784,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.983181,
+          "formula": 0.173537,
+          "style": null,
+          "chartPackage": 0,
+          "overall": 0.3855726666666666
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 20/27784",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+        ],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "F7",
+            "expected": "8410.62984034186",
+            "actual": "8409.57780000661"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "G7",
+            "expected": "8691.42436124565",
+            "actual": "8689.345192802755"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "H7",
+            "expected": "9235.84973315109",
+            "actual": "9232.876476415291"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "I7",
+            "expected": "8118.71121766263",
+            "actual": "8115.699643568099"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "J7",
+            "expected": "9976.08466484422",
+            "actual": "9973.077825092165"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "K7",
+            "expected": "10388.7495413536",
+            "actual": "10385.501068371113"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "L7",
+            "expected": "10700.4120275943",
+            "actual": "10697.066100422247"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "J8",
+            "expected": "2385.87973346561",
+            "actual": "2344.03293295394"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "K8",
+            "expected": "2110.44999252038",
+            "actual": "1990.6464317744503"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "L8",
+            "expected": "577.513197911139",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "E9",
+            "expected": "=E7-E8",
+            "actual": "=D9"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "F9",
+            "expected": "4220.13222324191",
+            "actual": "4219.080182906662"
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "F9",
+            "expected": "=F7-F8",
+            "actual": "=D9"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "G9",
+            "expected": "5094.60068262161",
+            "actual": "5092.521514178718"
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "G9",
+            "expected": "=G7-G8",
+            "actual": "=D9"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "H9",
+            "expected": "6129.23090500168",
+            "actual": "6126.257648265884"
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "H9",
+            "expected": "=H7-H8",
+            "actual": "=D9"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "I9",
+            "expected": "5409.12911680922",
+            "actual": "5406.117542714688"
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "I9",
+            "expected": "=I7-I8",
+            "actual": "=D9"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "J9",
+            "expected": "7590.20493137861",
+            "actual": "7629.044892138225"
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-09T10:19:01.809Z",
+          "taskId": "Financial_Model/14_03",
+          "candidateWorkbook": "candidate-01-14_03_Refinery_input.xlsx",
+          "goldWorkbook": "01-14_Refinery_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 2,
+            "candidateChartParts": 1,
+            "matchedChartParts": 0,
+            "missingChartParts": 1,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 1
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [
+            {
+              "path": "xl/drawings/drawing1.xml",
+              "kind": "drawing",
+              "sha256": "ab52458e69ff96a4bdbd2720e904698484c84748f8e15c7d4c0cf5f8f9ca3311",
+              "bytes": 1262
+            }
+          ],
+          "goldParts": [
+            {
+              "path": "xl/drawings/drawing1.xml",
+              "kind": "drawing",
+              "sha256": "918d87c3247da90517e5f11acc7f8d35956988d02a469ba1ec640be2e32531fb",
+              "bytes": 298
+            },
+            {
+              "path": "xl/drawings/drawing2.xml",
+              "kind": "drawing",
+              "sha256": "a268d244ce01f651c2cbbfefb800360d4929ed5e2c8e9f90520430652c133a40",
+              "bytes": 960
+            }
+          ],
+          "mismatches": [
+            {
+              "kind": "chart_xml",
+              "path": "xl/drawings/drawing1.xml",
+              "expected": "918d87c3247da90517e5f11acc7f8d35956988d02a469ba1ec640be2e32531fb",
+              "actual": "ab52458e69ff96a4bdbd2720e904698484c84748f8e15c7d4c0cf5f8f9ca3311"
+            },
+            {
+              "kind": "missing_chart_part",
+              "path": "xl/drawings/drawing2.xml",
+              "expected": "a268d244ce01f651c2cbbfefb800360d4929ed5e2c8e9f90520430652c133a40"
+            }
+          ],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+          ]
+        }
+      },
+      "timingsMs": {
+        "candidateGeneration": 9,
+        "scoring": 7698,
+        "total": 7759
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Financial_Model_14_03/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Financial_Model_14_03/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Financial_Model_14_03/candidate-01-14_03_Refinery_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Financial_Model_14_03/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "27784 cell mismatch(es), 2 chart-package mismatch(es)"
+        }
+      ]
+    },
+    {
+      "taskId": "Financial_Model/14_04",
+      "track": "spreadsheetbench-v2",
+      "category": "Financial_Model",
+      "mode": "copy-input-baseline",
+      "attemptIndex": 4,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Financial_Model_14_04",
+      "agentManifest": "tasks/Financial_Model_14_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_14_04/evaluator/evaluator.json",
+      "candidateWorkbook": "Financial_Model_14_04/candidate-01-14_04_Refinery_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Financial_Model_14_04/candidate-manifest.json",
+          "sha256": "8e416d5facebe4993018ae0b7c2ebea6fbe501639edd1bf2fdc7fa3c0d134dab",
+          "bytes": 404
+        },
+        "agentWorkspaceManifest": {
+          "path": "Financial_Model_14_04/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "2407e346680d5dbcf56f6de94be3bc32458f015049f28c638e2cf2c001c2bed0",
+          "bytes": 528
+        }
+      },
+      "scorerReceipt": {
+        "path": "Financial_Model_14_04/score-receipt.json",
+        "sha256": "2bfc57f203c84c074e8918437e7fdafa1183ba5f205d515136ef0461235b2a38",
+        "bytes": 9470
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-09T10:19:01.809Z",
+        "taskId": "Financial_Model/14_04",
+        "candidateWorkbook": "candidate-01-14_04_Refinery_input.xlsx",
+        "goldWorkbook": "01-14_Refinery_golden.xlsx",
+        "answerPosition": "'DCF_Income Approach'!B1:O50,'Peers'!B2:F16,'Reported Profit & Loss'!A1:H86,'Profit & Loss'!A1:R50,'Balance sheet'!B3:Q64,'CFS'!A1:L53,'Cash Flow'!A1:N48,'WACC'!B3:G48,'Revenue'!A2:AF36,'Refining Yield'!A2:AH52,'Product Pricing'!A2:X34,'Operating Expenses'!A1:Q126,'Other Income'!A1:R54,'Debt, Interest and Finance Cost'!B1:O46,'Debt Profile - 31st March 2019'!B1:Q58,'Fixed Asset & Depreciation'!B2:M98,'NCD'!B3:BW181,'TL'!A1:BW376,'Depreciation (Companies Act)'!B2:P185,'Depreciation (IT act)'!A3:J72,'Capex details'!B6:P54,'Depn - IT _Current'!A3:I95,'Amortization with extra payment'!B1:P369,'Debt Details'!A1:T59,'Tax ( MAT)'!A2:K8,'WC workings'!A2:M21,'Working Capital'!B2:P32,'Tax-DCF'!A1:J19,'Tax-P&L'!A1:J61,'FS Notes'!A5:F212,'PL'!B3:F51,'1 - Crude Oil  Brent (... Data'!A1:J1855,'1 - Crude Oil  Gulf Co... Data'!A1:J1855,'Tax rates'!A1:D18,'Ann 1 & 2'!B2:I85,'Ann 3'!B2:T101,'Ann 5'!B2:K30,'Ann 6'!B2:Q33,'Ann 8'!B1:D27,'Ann 9'!B1:D32,'Conversion'!B3:C16,'Crude Forecast'!A6:BQ52,'Forecasts_WPIUSD'!A1:P121",
+        "ranges": [
+          "'DCF_Income Approach'!B1:O50",
+          "'Peers'!B2:F16",
+          "'Reported Profit & Loss'!A1:H86",
+          "'Profit & Loss'!A1:R50",
+          "'Balance sheet'!B3:Q64",
+          "'CFS'!A1:L53",
+          "'Cash Flow'!A1:N48",
+          "'WACC'!B3:G48",
+          "'Revenue'!A2:AF36",
+          "'Refining Yield'!A2:AH52",
+          "'Product Pricing'!A2:X34",
+          "'Operating Expenses'!A1:Q126",
+          "'Other Income'!A1:R54",
+          "'Debt, Interest and Finance Cost'!B1:O46",
+          "'Debt Profile - 31st March 2019'!B1:Q58",
+          "'Fixed Asset & Depreciation'!B2:M98",
+          "'NCD'!B3:BW181",
+          "'TL'!A1:BW376",
+          "'Depreciation (Companies Act)'!B2:P185",
+          "'Depreciation (IT act)'!A3:J72",
+          "'Capex details'!B6:P54",
+          "'Depn - IT _Current'!A3:I95",
+          "'Amortization with extra payment'!B1:P369",
+          "'Debt Details'!A1:T59",
+          "'Tax ( MAT)'!A2:K8",
+          "'WC workings'!A2:M21",
+          "'Working Capital'!B2:P32",
+          "'Tax-DCF'!A1:J19",
+          "'Tax-P&L'!A1:J61",
+          "'FS Notes'!A5:F212",
+          "'PL'!B3:F51",
+          "'1 - Crude Oil  Brent (... Data'!A1:J1855",
+          "'1 - Crude Oil  Gulf Co... Data'!A1:J1855",
+          "'Tax rates'!A1:D18",
+          "'Ann 1 & 2'!B2:I85",
+          "'Ann 3'!B2:T101",
+          "'Ann 5'!B2:K30",
+          "'Ann 6'!B2:Q33",
+          "'Ann 8'!B1:D27",
+          "'Ann 9'!B1:D32",
+          "'Conversion'!B3:C16",
+          "'Crude Forecast'!A6:BQ52",
+          "'Forecasts_WPIUSD'!A1:P121"
+        ],
+        "totals": {
+          "comparedCells": 116653,
+          "valueMatches": 114084,
+          "formulaCells": 31244,
+          "formulaMatches": 5453,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 28360,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.977977,
+          "formula": 0.17453,
+          "style": null,
+          "chartPackage": 0,
+          "overall": 0.384169
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 20/28360",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+        ],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "G6",
+            "expected": "54152.1380258443",
+            "actual": "52931.136837175254"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "H6",
+            "expected": "55266.743245797",
+            "actual": "54020.61037538703"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "I6",
+            "expected": "49388.3340910707",
+            "actual": "48274.74528682445"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "J6",
+            "expected": "57971.5486044786",
+            "actual": "56664.428842720146"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "K6",
+            "expected": "59420.8373195906",
+            "actual": "58081.03956378816"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "L6",
+            "expected": "61203.4624391783",
+            "actual": "59823.4707507018"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "E7",
+            "expected": "5029.55847069654",
+            "actual": "5043.6927454382585"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "F7",
+            "expected": "8410.62984034186",
+            "actual": "8449.844176870687"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "G7",
+            "expected": "8691.42436124565",
+            "actual": "7549.748115157572"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "H7",
+            "expected": "9235.84973315109",
+            "actual": "8094.73240261408"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "I7",
+            "expected": "8118.71121766263",
+            "actual": "7128.071907965905"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "J7",
+            "expected": "9976.08466484422",
+            "actual": "8787.35065748505"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "K7",
+            "expected": "10388.7495413536",
+            "actual": "9174.958152234116"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "L7",
+            "expected": "10700.4120275943",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "J8",
+            "expected": "2385.87973346561",
+            "actual": "2385.65925707948"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "K8",
+            "expected": "2110.44999252038",
+            "actual": "2109.81878880118"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "L8",
+            "expected": "577.513197911139",
+            "actual": "574.4704796802541"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "E9",
+            "expected": "3865.66966563273",
+            "actual": "3879.803940374448"
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF_Income Approach",
+            "cell": "E9",
+            "expected": "=E7-E8",
+            "actual": "=D9"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "F9",
+            "expected": "4220.13222324191",
+            "actual": "4259.34655977074"
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-09T10:19:01.809Z",
+          "taskId": "Financial_Model/14_04",
+          "candidateWorkbook": "candidate-01-14_04_Refinery_input.xlsx",
+          "goldWorkbook": "01-14_Refinery_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 2,
+            "candidateChartParts": 1,
+            "matchedChartParts": 0,
+            "missingChartParts": 1,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 1
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [
+            {
+              "path": "xl/drawings/drawing1.xml",
+              "kind": "drawing",
+              "sha256": "ab52458e69ff96a4bdbd2720e904698484c84748f8e15c7d4c0cf5f8f9ca3311",
+              "bytes": 1262
+            }
+          ],
+          "goldParts": [
+            {
+              "path": "xl/drawings/drawing1.xml",
+              "kind": "drawing",
+              "sha256": "918d87c3247da90517e5f11acc7f8d35956988d02a469ba1ec640be2e32531fb",
+              "bytes": 298
+            },
+            {
+              "path": "xl/drawings/drawing2.xml",
+              "kind": "drawing",
+              "sha256": "a268d244ce01f651c2cbbfefb800360d4929ed5e2c8e9f90520430652c133a40",
+              "bytes": 960
+            }
+          ],
+          "mismatches": [
+            {
+              "kind": "chart_xml",
+              "path": "xl/drawings/drawing1.xml",
+              "expected": "918d87c3247da90517e5f11acc7f8d35956988d02a469ba1ec640be2e32531fb",
+              "actual": "ab52458e69ff96a4bdbd2720e904698484c84748f8e15c7d4c0cf5f8f9ca3311"
+            },
+            {
+              "kind": "missing_chart_part",
+              "path": "xl/drawings/drawing2.xml",
+              "expected": "a268d244ce01f651c2cbbfefb800360d4929ed5e2c8e9f90520430652c133a40"
+            }
+          ],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+          ]
+        }
+      },
+      "timingsMs": {
+        "candidateGeneration": 7,
+        "scoring": 6049,
+        "total": 6101
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Financial_Model_14_04/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Financial_Model_14_04/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Financial_Model_14_04/candidate-01-14_04_Refinery_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Financial_Model_14_04/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "28360 cell mismatch(es), 2 chart-package mismatch(es)"
+        }
+      ]
+    },
+    {
+      "taskId": "Financial_Model/14_05",
+      "track": "spreadsheetbench-v2",
+      "category": "Financial_Model",
+      "mode": "copy-input-baseline",
+      "attemptIndex": 5,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Financial_Model_14_05",
+      "agentManifest": "tasks/Financial_Model_14_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_14_05/evaluator/evaluator.json",
+      "candidateWorkbook": "Financial_Model_14_05/candidate-01-14_05_Refinery_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Financial_Model_14_05/candidate-manifest.json",
+          "sha256": "1ca4419950a531e938fab7183d75719197f074c73c180b4aa484046b239812bb",
+          "bytes": 404
+        },
+        "agentWorkspaceManifest": {
+          "path": "Financial_Model_14_05/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "9fd368034c97a37347f3bdd6a9e7c9880b0576fde1cbf45b7d9176cbf5490ab0",
+          "bytes": 528
+        }
+      },
+      "scorerReceipt": {
+        "path": "Financial_Model_14_05/score-receipt.json",
+        "sha256": "577531f9f9b9331855dff999eefcaa4e00f2221ff989d41e252268e43236b772",
+        "bytes": 9270
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-09T10:19:01.809Z",
+        "taskId": "Financial_Model/14_05",
+        "candidateWorkbook": "candidate-01-14_05_Refinery_input.xlsx",
+        "goldWorkbook": "01-14_Refinery_golden.xlsx",
+        "answerPosition": "'DCF_Income Approach'!B1:O50,'Peers'!B2:F16,'Reported Profit & Loss'!A1:H86,'Profit & Loss'!A1:R50,'Balance sheet'!B3:Q64,'CFS'!A1:L53,'Cash Flow'!A1:N48,'WACC'!B3:G48,'Revenue'!A2:AF36,'Refining Yield'!A2:AH52,'Product Pricing'!A2:X34,'Operating Expenses'!A1:Q126,'Other Income'!A1:R54,'Debt, Interest and Finance Cost'!B1:O46,'Debt Profile - 31st March 2019'!B1:Q58,'Fixed Asset & Depreciation'!B2:M98,'NCD'!B3:BW181,'TL'!A1:BW376,'Depreciation (Companies Act)'!B2:P185,'Depreciation (IT act)'!A3:J72,'Capex details'!B6:P54,'Depn - IT _Current'!A3:I95,'Amortization with extra payment'!B1:P369,'Debt Details'!A1:T59,'Tax ( MAT)'!A2:K8,'WC workings'!A2:M21,'Working Capital'!B2:P32,'Tax-DCF'!A1:J19,'Tax-P&L'!A1:J61,'FS Notes'!A5:F212,'PL'!B3:F51,'1 - Crude Oil  Brent (... Data'!A1:J1855,'1 - Crude Oil  Gulf Co... Data'!A1:J1855,'Tax rates'!A1:D18,'Ann 1 & 2'!B2:I85,'Ann 3'!B2:T101,'Ann 5'!B2:K30,'Ann 6'!B2:Q33,'Ann 8'!B1:D27,'Ann 9'!B1:D32,'Conversion'!B3:C16,'Crude Forecast'!A6:BQ52,'Forecasts_WPIUSD'!A1:P121",
+        "ranges": [
+          "'DCF_Income Approach'!B1:O50",
+          "'Peers'!B2:F16",
+          "'Reported Profit & Loss'!A1:H86",
+          "'Profit & Loss'!A1:R50",
+          "'Balance sheet'!B3:Q64",
+          "'CFS'!A1:L53",
+          "'Cash Flow'!A1:N48",
+          "'WACC'!B3:G48",
+          "'Revenue'!A2:AF36",
+          "'Refining Yield'!A2:AH52",
+          "'Product Pricing'!A2:X34",
+          "'Operating Expenses'!A1:Q126",
+          "'Other Income'!A1:R54",
+          "'Debt, Interest and Finance Cost'!B1:O46",
+          "'Debt Profile - 31st March 2019'!B1:Q58",
+          "'Fixed Asset & Depreciation'!B2:M98",
+          "'NCD'!B3:BW181",
+          "'TL'!A1:BW376",
+          "'Depreciation (Companies Act)'!B2:P185",
+          "'Depreciation (IT act)'!A3:J72",
+          "'Capex details'!B6:P54",
+          "'Depn - IT _Current'!A3:I95",
+          "'Amortization with extra payment'!B1:P369",
+          "'Debt Details'!A1:T59",
+          "'Tax ( MAT)'!A2:K8",
+          "'WC workings'!A2:M21",
+          "'Working Capital'!B2:P32",
+          "'Tax-DCF'!A1:J19",
+          "'Tax-P&L'!A1:J61",
+          "'FS Notes'!A5:F212",
+          "'PL'!B3:F51",
+          "'1 - Crude Oil  Brent (... Data'!A1:J1855",
+          "'1 - Crude Oil  Gulf Co... Data'!A1:J1855",
+          "'Tax rates'!A1:D18",
+          "'Ann 1 & 2'!B2:I85",
+          "'Ann 3'!B2:T101",
+          "'Ann 5'!B2:K30",
+          "'Ann 6'!B2:Q33",
+          "'Ann 8'!B1:D27",
+          "'Ann 9'!B1:D32",
+          "'Conversion'!B3:C16",
+          "'Crude Forecast'!A6:BQ52",
+          "'Forecasts_WPIUSD'!A1:P121"
+        ],
+        "totals": {
+          "comparedCells": 116653,
+          "valueMatches": 113499,
+          "formulaCells": 31244,
+          "formulaMatches": 5453,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 28945,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.972963,
+          "formula": 0.17453,
+          "style": null,
+          "chartPackage": 0,
+          "overall": 0.3824976666666667
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 20/28945",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+        ],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "D6",
+            "expected": "11038.4383662343",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "E6",
+            "expected": "39515.7336317445",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "F6",
+            "expected": "52538.3637336206",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "G6",
+            "expected": "54152.1380258443",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "H6",
+            "expected": "55266.743245797",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "I6",
+            "expected": "49388.3340910707",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "J6",
+            "expected": "57971.5486044786",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "K6",
+            "expected": "59420.8373195906",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "L6",
+            "expected": "61203.4624391783",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "D7",
+            "expected": "961.657004814536",
+            "actual": "-10076.78136141981"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "E7",
+            "expected": "5029.55847069654",
+            "actual": "#DIV/0!"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "F7",
+            "expected": "8410.62984034186",
+            "actual": "#DIV/0!"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "G7",
+            "expected": "8691.42436124565",
+            "actual": "#DIV/0!"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "H7",
+            "expected": "9235.84973315109",
+            "actual": "#DIV/0!"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "I7",
+            "expected": "8118.71121766263",
+            "actual": "#DIV/0!"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "J7",
+            "expected": "9976.08466484422",
+            "actual": "#DIV/0!"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "K7",
+            "expected": "10388.7495413536",
+            "actual": "#DIV/0!"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "L7",
+            "expected": "10700.4120275943",
+            "actual": "#DIV/0!"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "J8",
+            "expected": "2385.87973346561",
+            "actual": "#DIV/0!"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF_Income Approach",
+            "cell": "K8",
+            "expected": "2110.44999252038",
+            "actual": "#DIV/0!"
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-09T10:19:01.809Z",
+          "taskId": "Financial_Model/14_05",
+          "candidateWorkbook": "candidate-01-14_05_Refinery_input.xlsx",
+          "goldWorkbook": "01-14_Refinery_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 2,
+            "candidateChartParts": 1,
+            "matchedChartParts": 0,
+            "missingChartParts": 1,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 1
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [
+            {
+              "path": "xl/drawings/drawing1.xml",
+              "kind": "drawing",
+              "sha256": "ab52458e69ff96a4bdbd2720e904698484c84748f8e15c7d4c0cf5f8f9ca3311",
+              "bytes": 1262
+            }
+          ],
+          "goldParts": [
+            {
+              "path": "xl/drawings/drawing1.xml",
+              "kind": "drawing",
+              "sha256": "918d87c3247da90517e5f11acc7f8d35956988d02a469ba1ec640be2e32531fb",
+              "bytes": 298
+            },
+            {
+              "path": "xl/drawings/drawing2.xml",
+              "kind": "drawing",
+              "sha256": "a268d244ce01f651c2cbbfefb800360d4929ed5e2c8e9f90520430652c133a40",
+              "bytes": 960
+            }
+          ],
+          "mismatches": [
+            {
+              "kind": "chart_xml",
+              "path": "xl/drawings/drawing1.xml",
+              "expected": "918d87c3247da90517e5f11acc7f8d35956988d02a469ba1ec640be2e32531fb",
+              "actual": "ab52458e69ff96a4bdbd2720e904698484c84748f8e15c7d4c0cf5f8f9ca3311"
+            },
+            {
+              "kind": "missing_chart_part",
+              "path": "xl/drawings/drawing2.xml",
+              "expected": "a268d244ce01f651c2cbbfefb800360d4929ed5e2c8e9f90520430652c133a40"
+            }
+          ],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+          ]
+        }
+      },
+      "timingsMs": {
+        "candidateGeneration": 9,
+        "scoring": 5611,
+        "total": 5658
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Financial_Model_14_05/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Financial_Model_14_05/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Financial_Model_14_05/candidate-01-14_05_Refinery_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Financial_Model_14_05/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "28945 cell mismatch(es), 2 chart-package mismatch(es)"
+        }
+      ]
+    }
+  ]
+}

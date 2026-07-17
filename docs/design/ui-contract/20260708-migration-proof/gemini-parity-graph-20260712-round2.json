@@ -1,0 +1,129 @@
+{
+  "generatedAt": "2026-07-12T11:50:17.491Z",
+  "model": "gemini-3.5-flash",
+  "media": ".proofloop/proofs/visual-parity/desktop-1456x940/graph.png",
+  "reference": "docs/design/ui-contract/20260708-migration-proof/standalone-interior-graph.png",
+  "rubricMean": 3,
+  "lowestDim": {
+    "dim": "product.whatIsHappening",
+    "score": 2
+  },
+  "betterThanReference": [
+    "product:worse",
+    "hierarchy-typography:worse",
+    "layout-spacing:worse",
+    "color-state:worse"
+  ],
+  "counts": {
+    "P0": 0,
+    "P1": 7,
+    "P2": 2
+  },
+  "passBar": false,
+  "lensScores": [
+    {
+      "lens": "product",
+      "scores": {
+        "whatIsHappening": 2,
+        "whyTrust": 2,
+        "whatNext": 3
+      }
+    },
+    {
+      "lens": "hierarchy-typography",
+      "scores": {
+        "hierarchy": 3,
+        "typography": 3
+      }
+    },
+    {
+      "lens": "layout-spacing",
+      "scores": {
+        "spacingRhythm": 3,
+        "alignment": 4,
+        "density": 2
+      }
+    },
+    {
+      "lens": "color-state",
+      "scores": {
+        "colorDiscipline": 4,
+        "stateSignal": 4
+      }
+    }
+  ],
+  "findings": [
+    {
+      "lens": "product",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Entity graph visualization",
+      "issue": "Nodes are heavily overlapping, text labels are clipped, and connection lines are tangled, making the current state completely illegible.",
+      "fix": "Apply the clean, spaced-out radial layout from the reference design to ensure all node labels and connections are fully readable."
+    },
+    {
+      "lens": "product",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "NodeAgent chat messages",
+      "issue": "The version transition is displayed as 'v1 -> v1' for both agent actions, which fails to show actual progress or honest state change.",
+      "fix": "Update the version progression to reflect actual state changes (e.g., 'v41 -> v42' and 'v42 -> v43') as shown in the reference."
+    },
+    {
+      "lens": "hierarchy-typography",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Graph node labels",
+      "issue": "The candidate uses a monospace font for the entity graph node labels, which increases their horizontal footprint, causes severe overlapping, and looks less integrated than the sans-serif used in the reference.",
+      "fix": "Change the font family of the entity graph node labels to the standard sans-serif font used in the reference."
+    },
+    {
+      "lens": "hierarchy-typography",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Entity graph work surface",
+      "issue": "Labels are overlapping heavily (e.g., 'Company research row rc_cardionova' overlapping 'fetch cardionova.com'), destroying the visual hierarchy and readability of the central work surface.",
+      "fix": "Implement proper node spacing or label truncation to prevent text overlaps and maintain a clean, readable hierarchy."
+    },
+    {
+      "lens": "layout-spacing",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Entity Graph Nodes",
+      "issue": "The nodes in the entity graph are extremely crowded, overlapping, and clashing, violating the calm-but-alive density and the spacing rhythm.",
+      "fix": "Reposition the nodes with a minimum of 24px clearance between boundaries, adopting the clean radial layout of the reference to prevent text collisions."
+    },
+    {
+      "lens": "layout-spacing",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Top Navigation Tabs",
+      "issue": "Tabs are crowded and suffer from text truncation ('Risk / opportunity ...') due to lack of stable control dimensions.",
+      "fix": "Introduce the '+3' overflow dropdown pattern to keep tab widths stable and maintain consistent 16px spacing between visible tabs."
+    },
+    {
+      "lens": "color-state",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Room toggle button",
+      "issue": "The 'Room' button in the chat header is filled with terracotta, violating the single-accent discipline and departing from the reference.",
+      "fix": "Set the 'Room' toggle button background to neutral dark gray as shown in the reference."
+    },
+    {
+      "lens": "color-state",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Chat message left border",
+      "issue": "Homen's message box features an unapproved vertical terracotta accent line on its left edge.",
+      "fix": "Remove the terracotta left border to restore the neutral message container styling."
+    },
+    {
+      "lens": "color-state",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Chat send button",
+      "issue": "The send button icon is rendered in neutral gray instead of the approved terracotta accent.",
+      "fix": "Recolor the send button icon to terracotta to match the reference design."
+    }
+  ]
+}

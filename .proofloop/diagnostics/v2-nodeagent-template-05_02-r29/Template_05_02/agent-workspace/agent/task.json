@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "taskId": "Template/05_02",
+  "track": "spreadsheetbench-v2",
+  "category": "Template",
+  "instruction": "Complete the deferred tax analysis. Fill in all empty cells for Years 2-4. Leave Tax Accounting income statement rows and Year 1 cells unchanged.",
+  "inputFiles": [
+    "inputs/01-05_02_input.xlsx"
+  ],
+  "promptFiles": []
+}

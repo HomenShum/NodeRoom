@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-10T23:07:10.075Z",
+  "selection": {
+    "policy": "sha256_task_id_modulo_selected_before_workbook_inspection",
+    "modulus": 10,
+    "residue": 1,
+    "limit": 10,
+    "selectedTaskIds": [
+      "Debugging/01_07",
+      "Debugging/02_09",
+      "Debugging/02_10",
+      "Debugging/03_03",
+      "Debugging/03_05",
+      "Debugging/03_10",
+      "Debugging/04_06",
+      "Debugging/04_09",
+      "Debugging/04_10",
+      "Debugging/05_06"
+    ],
+    "selectedTaskIdsSha256": "a6404d7dcc8df0bcc60cf2f56d629589d7da33ef630bb4a58323a3a4702a3901"
+  },
+  "boundary": {
+    "candidateGeneration": "agent_visible_manifest_and_input_workbook_only",
+    "evaluatorMetadataRead": false,
+    "goldenWorkbookRead": false,
+    "modelCalls": 0,
+    "note": "This is an exploration replay of the same high-confidence visible formula repair fallback used by the product runner; scoring happens only after candidate emission."
+  },
+  "summary": {
+    "n": 10,
+    "baseReg": 0.9947899999999998,
+    "newReg": 0.9948799999999999,
+    "baseMod": 0.53789,
+    "newMod": 0.53789,
+    "deltaMod": 0,
+    "passes": 0
+  },
+  "rows": [
+    {
+      "id": "01_07",
+      "ops": 0,
+      "baseReg": 1,
+      "newReg": 1,
+      "baseMod": 0,
+      "newMod": 0,
+      "deltaMod": 0,
+      "pass": 0
+    },
+    {
+      "id": "02_09",
+      "ops": 0,
+      "baseReg": 1,
+      "newReg": 1,
+      "baseMod": 0.8866,
+      "newMod": 0.8866,
+      "deltaMod": 0,
+      "pass": 0
+    },
+    {
+      "id": "02_10",
+      "ops": 0,
+      "baseReg": 1,
+      "newReg": 1,
+      "baseMod": 0.7426,
+      "newMod": 0.7426,
+      "deltaMod": 0,
+      "pass": 0
+    },
+    {
+      "id": "03_03",
+      "ops": 5,
+      "baseReg": 0.9662,
+      "newReg": 0.9662,
+      "baseMod": 0.3836,
+      "newMod": 0.3836,
+      "deltaMod": 0,
+      "pass": 0
+    },
+    {
+      "id": "03_05",
+      "ops": 0,
+      "baseReg": 1,
+      "newReg": 1,
+      "baseMod": 0,
+      "newMod": 0,
+      "deltaMod": 0,
+      "pass": 0
+    },
+    {
+      "id": "03_10",
+      "ops": 5,
+      "baseReg": 0.9967,
+      "newReg": 0.9967,
+      "baseMod": 0.7714,
+      "newMod": 0.7714,
+      "deltaMod": 0,
+      "pass": 0
+    },
+    {
+      "id": "04_06",
+      "ops": 0,
+      "baseReg": 1,
+      "newReg": 1,
+      "baseMod": 0.8424,
+      "newMod": 0.8424,
+      "deltaMod": 0,
+      "pass": 0
+    },
+    {
+      "id": "04_09",
+      "ops": 0,
+      "baseReg": 1,
+      "newReg": 1,
+      "baseMod": 0.927,
+      "newMod": 0.927,
+      "deltaMod": 0,
+      "pass": 0
+    },
+    {
+      "id": "04_10",
+      "ops": 0,
+      "baseReg": 0.9962,
+      "newReg": 0.9962,
+      "baseMod": 0.8253,
+      "newMod": 0.8253,
+      "deltaMod": 0,
+      "pass": 0
+    },
+    {
+      "id": "05_06",
+      "ops": 5,
+      "baseReg": 0.9888,
+      "newReg": 0.9897,
+      "baseMod": 0,
+      "newMod": 0,
+      "deltaMod": 0,
+      "pass": 0
+    }
+  ],
+  "officialEvaluatorResult": {
+    "path": ".tmp/official-benchmarks/spreadsheetbench-v2-repo/results/Debugging/noderoom-visible-repair-validation_Debugging__regression.json"
+  }
+}

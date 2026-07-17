@@ -1,0 +1,793 @@
+{
+  "schema": 1,
+  "verifier": "spreadsheetbench_workbook_scorer",
+  "generatedAt": "2026-07-14T10:55:27.234Z",
+  "taskId": "Debugging/02_04",
+  "track": "spreadsheetbench-v2",
+  "mode": "copy-input-baseline",
+  "attemptIndex": 1,
+  "repeatIndex": 1,
+  "tryIndex": 1,
+  "candidateWorkbook": "Debugging_02_04/candidate-01-Inconsistent Color Coding_input.xlsx",
+  "agentManifest": "tasks/Debugging_02_04/agent/task.json",
+  "evaluatorManifest": "tasks/Debugging_02_04/evaluator/evaluator.json",
+  "score": {
+    "schema": 1,
+    "generatedAt": "2026-07-14T10:55:27.234Z",
+    "taskId": "Debugging/02_04",
+    "candidateWorkbook": "candidate-01-Inconsistent Color Coding_input.xlsx",
+    "goldWorkbook": "01-02_golden.xlsx",
+    "answerPosition": "'DCF'!B1:Z35,'WACC'!B2:M22,'Cover'!B2:C16,'Synergies'!B1:AC82,'Merger Model'!B2:J85,'Berk-Hath Investment Package'!B2:K44,'Exhibit 1'!A1:C29,'Exhibit 2'!A1:C32,'Exhibit 3'!A1:F19,'Exhibit 4a'!A1:M14,'Exhibit 5'!A1:C16,'Exhibit 6'!A1:J47,'Exhibit 7'!A1:D38,'Exhibit 8b'!A1:G25,'Exhibit 9'!A1:P30",
+    "ranges": [
+      "'DCF'!B1:Z35",
+      "'WACC'!B2:M22",
+      "'Cover'!B2:C16",
+      "'Synergies'!B1:AC82",
+      "'Merger Model'!B2:J85",
+      "'Berk-Hath Investment Package'!B2:K44",
+      "'Exhibit 1'!A1:C29",
+      "'Exhibit 2'!A1:C32",
+      "'Exhibit 3'!A1:F19",
+      "'Exhibit 4a'!A1:M14",
+      "'Exhibit 5'!A1:C16",
+      "'Exhibit 6'!A1:J47",
+      "'Exhibit 7'!A1:D38",
+      "'Exhibit 8b'!A1:G25",
+      "'Exhibit 9'!A1:P30"
+    ],
+    "totals": {
+      "comparedCells": 6443,
+      "valueMatches": 5680,
+      "formulaCells": 721,
+      "formulaMatches": 721,
+      "styleCells": 6443,
+      "styleMatches": 14,
+      "styleLayoutItems": 696,
+      "styleLayoutMatches": 87,
+      "mismatches": 7801,
+      "missingSheets": 0
+    },
+    "scores": {
+      "value": 0.881577,
+      "formula": 1,
+      "style": 0.014148,
+      "chartPackage": null,
+      "overall": 0.6319083333333334
+    },
+    "pass": false,
+    "warnings": [
+      "mismatch list capped at 100/7801",
+      "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+      "chart_package: gold workbook has no chart or drawing XML parts"
+    ],
+    "mismatches": [
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "B1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "C1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "D1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "E1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "F1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "G1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "H1",
+        "expected": "2018",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "H1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "I1",
+        "expected": "2019",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "I1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J1",
+        "expected": "2020",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "J1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K1",
+        "expected": "2021",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "K1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L1",
+        "expected": "2022",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "L1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M1",
+        "expected": "2023",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "M1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "N1",
+        "expected": "2024",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "N1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "O1",
+        "expected": "2025",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "O1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "P1",
+        "expected": "2026",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "P1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Q1",
+        "expected": "2027",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "Q1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "R1",
+        "expected": "2028",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "R1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "S1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "T1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "U1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "V1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "W1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "X1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "Y1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "Z1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "B2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "C2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "D2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "E2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "F2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "G2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "H2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "I2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"argb\":\"FF0000FF\"},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J2",
+        "expected": "1",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "J2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K2",
+        "expected": "2",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "K2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L2",
+        "expected": "3",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "L2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M2",
+        "expected": "4",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "M2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "N2",
+        "expected": "5",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "N2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "O2",
+        "expected": "6",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "O2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "P2",
+        "expected": "7",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "P2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Q2",
+        "expected": "8",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "Q2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "R2",
+        "expected": "9",
+        "actual": ""
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "R2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "S2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "T2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "U2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "V2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "W2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "X2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "Y2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "Z2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "B3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "C3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "D3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "E3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "F3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "G3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "H3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "I3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "J3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "K3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "L3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "M3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "N3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "O3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "P3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "Q3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "R3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "S3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "T3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "U3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "V3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "W3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "X3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "Y3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "Z3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "B4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "C4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "D4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "E4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DCF",
+        "cell": "F4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Times New Roman\",\"size\":12}}"
+      }
+    ],
+    "chartPackage": {
+      "schema": 1,
+      "generatedAt": "2026-07-14T10:55:27.234Z",
+      "taskId": "Debugging/02_04",
+      "candidateWorkbook": "candidate-01-Inconsistent Color Coding_input.xlsx",
+      "goldWorkbook": "01-02_golden.xlsx",
+      "verifier": "xlsx_chart_package_static",
+      "totals": {
+        "goldChartParts": 0,
+        "candidateChartParts": 0,
+        "matchedChartParts": 0,
+        "missingChartParts": 0,
+        "extraChartParts": 0,
+        "mismatchedChartParts": 0
+      },
+      "scores": {
+        "package": 0
+      },
+      "pass": false,
+      "candidateParts": [],
+      "goldParts": [],
+      "mismatches": [],
+      "warnings": [
+        "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+        "gold workbook has no chart or drawing XML parts"
+      ]
+    }
+  }
+}

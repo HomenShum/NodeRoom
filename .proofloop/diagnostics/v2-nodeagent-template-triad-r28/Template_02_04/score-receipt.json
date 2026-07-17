@@ -1,0 +1,764 @@
+{
+  "schema": 1,
+  "verifier": "spreadsheetbench_workbook_scorer",
+  "generatedAt": "2026-07-14T13:30:50.485Z",
+  "taskId": "Template/02_04",
+  "track": "spreadsheetbench-v2",
+  "mode": "nodeagent-workbook",
+  "attemptIndex": 1,
+  "repeatIndex": 1,
+  "tryIndex": 1,
+  "candidateWorkbook": "Template_02_04/candidate-01-02_04_input.xlsx",
+  "agentManifest": "tasks/Template_02_04/agent/task.json",
+  "evaluatorManifest": "tasks/Template_02_04/evaluator/evaluator.json",
+  "score": {
+    "schema": 1,
+    "generatedAt": "2026-07-14T13:30:50.485Z",
+    "taskId": "Template/02_04",
+    "candidateWorkbook": "candidate-01-02_04_input.xlsx",
+    "goldWorkbook": "01-02_04_golden.xlsx",
+    "answerPosition": "'DebtWaterfall'!A1:E26",
+    "ranges": [
+      "'DebtWaterfall'!A1:E26"
+    ],
+    "totals": {
+      "comparedCells": 130,
+      "valueMatches": 130,
+      "formulaCells": 46,
+      "formulaMatches": 46,
+      "styleCells": 130,
+      "styleMatches": 42,
+      "styleLayoutItems": 32,
+      "styleLayoutMatches": 22,
+      "mismatches": 98,
+      "missingSheets": 0
+    },
+    "scores": {
+      "value": 1,
+      "formula": 1,
+      "style": 0.395062,
+      "chartPackage": null,
+      "overall": 0.7983540000000001
+    },
+    "pass": false,
+    "warnings": [
+      "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+      "chart_package: gold workbook has no chart or drawing XML parts"
+    ],
+    "mismatches": [
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B1",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Arial\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B2",
+        "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "C2",
+        "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "D2",
+        "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "E2",
+        "expected": "{\"alignment\":{\"horizontal\":\"center\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"center\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "C4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "D4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "E4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "C5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "D5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "E5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF000000\"},\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF000000\"},\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "C6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "D6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "E6",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A8",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF000000\"},\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF000000\"},\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}",
+        "actual": "{\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "C9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "D9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "E9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A10",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}",
+        "actual": "{\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B10",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "C10",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "D10",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "E10",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A11",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}",
+        "actual": "{\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B11",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "C11",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "D11",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "E11",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A12",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}",
+        "actual": "{\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B12",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"0.00%\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"0.00%\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "C12",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"0.00%\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"0.00%\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "D12",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"0.00%\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"0.00%\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "E12",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"0.00%\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"0.00%\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A13",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}",
+        "actual": "{\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B13",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "C13",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "D13",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "E13",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A15",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF000000\"},\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF000000\"},\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A16",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}",
+        "actual": "{\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B16",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "C16",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "D16",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "E16",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A17",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}",
+        "actual": "{\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B17",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "C17",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "D17",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "E17",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A18",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}",
+        "actual": "{\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B18",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "C18",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "D18",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "E18",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A19",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}",
+        "actual": "{\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B19",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"0.00%\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"0.00%\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "C19",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"0.00%\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"0.00%\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "D19",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"0.00%\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"0.00%\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "E19",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"0.00%\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"0.00%\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A20",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}",
+        "actual": "{\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"#,##0.0_);(#,##0.0)\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B20",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "C20",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "D20",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "E20",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A22",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF000000\"},\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF000000\"},\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A23",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B23",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "C23",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "D23",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "E23",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A24",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B24",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "C24",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "D24",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "E24",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "A25",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "B25",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "C25",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "D25",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "E25",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":10},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "column:A",
+        "expected": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":31.57}",
+        "actual": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":31.421875}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "column:B",
+        "expected": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":14.28}",
+        "actual": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":14.28125}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "row:6",
+        "expected": "{\"collapsed\":false,\"height\":14.25,\"hidden\":false,\"outlineLevel\":0}",
+        "actual": "{\"collapsed\":false,\"height\":13.5,\"hidden\":false,\"outlineLevel\":0}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "row:10",
+        "expected": "{\"collapsed\":false,\"height\":14.25,\"hidden\":false,\"outlineLevel\":0}",
+        "actual": "{\"collapsed\":false,\"height\":13.5,\"hidden\":false,\"outlineLevel\":0}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "row:11",
+        "expected": "{\"collapsed\":false,\"height\":14.25,\"hidden\":false,\"outlineLevel\":0}",
+        "actual": "{\"collapsed\":false,\"height\":13.5,\"hidden\":false,\"outlineLevel\":0}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "row:13",
+        "expected": "{\"collapsed\":false,\"height\":14.25,\"hidden\":false,\"outlineLevel\":0}",
+        "actual": "{\"collapsed\":false,\"height\":13.5,\"hidden\":false,\"outlineLevel\":0}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "row:18",
+        "expected": "{\"collapsed\":false,\"height\":14.25,\"hidden\":false,\"outlineLevel\":0}",
+        "actual": "{\"collapsed\":false,\"height\":13.5,\"hidden\":false,\"outlineLevel\":0}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "row:20",
+        "expected": "{\"collapsed\":false,\"height\":14.25,\"hidden\":false,\"outlineLevel\":0}",
+        "actual": "{\"collapsed\":false,\"height\":13.5,\"hidden\":false,\"outlineLevel\":0}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "row:23",
+        "expected": "{\"collapsed\":false,\"height\":14.25,\"hidden\":false,\"outlineLevel\":0}",
+        "actual": "{\"collapsed\":false,\"height\":13.5,\"hidden\":false,\"outlineLevel\":0}"
+      },
+      {
+        "kind": "style",
+        "sheet": "DebtWaterfall",
+        "cell": "row:24",
+        "expected": "{\"collapsed\":false,\"height\":14.25,\"hidden\":false,\"outlineLevel\":0}",
+        "actual": "{\"collapsed\":false,\"height\":13.5,\"hidden\":false,\"outlineLevel\":0}"
+      }
+    ],
+    "chartPackage": {
+      "schema": 1,
+      "generatedAt": "2026-07-14T13:30:50.485Z",
+      "taskId": "Template/02_04",
+      "candidateWorkbook": "candidate-01-02_04_input.xlsx",
+      "goldWorkbook": "01-02_04_golden.xlsx",
+      "verifier": "xlsx_chart_package_static",
+      "totals": {
+        "goldChartParts": 0,
+        "candidateChartParts": 0,
+        "matchedChartParts": 0,
+        "missingChartParts": 0,
+        "extraChartParts": 0,
+        "mismatchedChartParts": 0
+      },
+      "scores": {
+        "package": 0
+      },
+      "pass": false,
+      "candidateParts": [],
+      "goldParts": [],
+      "mismatches": [],
+      "warnings": [
+        "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+        "gold workbook has no chart or drawing XML parts"
+      ]
+    }
+  }
+}

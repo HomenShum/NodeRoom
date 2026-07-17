@@ -1,0 +1,634 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-09T23:44:54.622Z",
+  "stageRoot": "staged-v1",
+  "outputRoot": "run-v1-chunked-resume-probe",
+  "mode": "model-edit-plan",
+  "chunked": true,
+  "chunkSize": 1,
+  "chunks": [
+    {
+      "index": 1,
+      "offset": 0,
+      "limit": 1,
+      "reportPath": ".tmp/official-benchmarks/run-v1-chunked-resume-probe/.chunks/chunk-001-0-1.json",
+      "taskCount": 1,
+      "passCount": 0,
+      "exitCode": 0
+    },
+    {
+      "index": 2,
+      "offset": 1,
+      "limit": 1,
+      "reportPath": ".tmp/official-benchmarks/run-v1-chunked-resume-probe/.chunks/chunk-002-1-1.json",
+      "taskCount": 1,
+      "passCount": 1,
+      "exitCode": 0
+    },
+    {
+      "index": 3,
+      "offset": 2,
+      "limit": 1,
+      "reportPath": ".tmp/official-benchmarks/run-v1-chunked-resume-probe/.chunks/chunk-003-2-1.json",
+      "taskCount": 1,
+      "passCount": 1,
+      "exitCode": 0
+    }
+  ],
+  "taskCount": 3,
+  "passCount": 2,
+  "averageOverall": 0.925,
+  "caseCount": 3,
+  "caseRunCount": 3,
+  "casePassCount": 2,
+  "casePassRate": 0.666667,
+  "repeatCount": 1,
+  "attemptCount": 3,
+  "passRate": 0.666667,
+  "retryPolicy": {
+    "maxRetries": 0,
+    "retryOn": [
+      "candidate_generation",
+      "scoring"
+    ],
+    "stopOnPass": true
+  },
+  "retryStats": {
+    "retriedCaseRunCount": 0,
+    "retryAttemptCount": 0,
+    "passedAfterRetryCount": 0,
+    "exhaustedCaseRunCount": 0
+  },
+  "stats": {
+    "latencyMs": {
+      "p50": 8508,
+      "p95": 15807,
+      "max": 15807
+    },
+    "failureCounts": {}
+  },
+  "harness": {
+    "toolPolicy": "agent_dir_only_until_candidate",
+    "evaluatorAccess": "after_candidate_emit_only",
+    "budget": {
+      "modelCalls": 3,
+      "inputTokens": 50519,
+      "outputTokens": 2113,
+      "providerCostUsd": 0
+    }
+  },
+  "warnings": [],
+  "caseRuns": [
+    {
+      "taskId": "13-1",
+      "taskDir": "tasks/13-1",
+      "repeatIndex": 1,
+      "attempts": [
+        1
+      ],
+      "finalAttemptIndex": 1,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.775
+    },
+    {
+      "taskId": "17-35",
+      "taskDir": "tasks/17-35",
+      "repeatIndex": 1,
+      "attempts": [
+        1
+      ],
+      "finalAttemptIndex": 1,
+      "pass": true,
+      "stopReason": "passed",
+      "bestOverall": 1
+    },
+    {
+      "taskId": "22-47",
+      "taskDir": "tasks/22-47",
+      "repeatIndex": 1,
+      "attempts": [
+        1
+      ],
+      "finalAttemptIndex": 1,
+      "pass": true,
+      "stopReason": "passed",
+      "bestOverall": 1
+    }
+  ],
+  "results": [
+    {
+      "taskId": "13-1",
+      "track": "spreadsheetbench-v1",
+      "mode": "model-edit-plan",
+      "attemptIndex": 1,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/13-1",
+      "agentManifest": "tasks/13-1/agent/task.json",
+      "evaluatorManifest": "tasks/13-1/evaluator/evaluator.json",
+      "candidateWorkbook": "13-1/candidate-01-1_13-1_init.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "13-1/candidate-manifest.json",
+          "sha256": "c6622cc0a7bb17f08deac0e0e3879b9d204b02247d4598aeb56b15bfa9c2b5b8",
+          "bytes": 1376
+        },
+        "agentWorkspaceManifest": {
+          "path": "13-1/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "0abd9eab4648e96038de3c6040ad33768476249f2f5383c766f4b36f3fe4625d",
+          "bytes": 566
+        },
+        "editPlan": {
+          "path": "13-1/model-edit-plan.json",
+          "sha256": "0b3c4b5f0cc9e5947a435a085a0a93f6627ebd4458259364a63b927b5b121bb3",
+          "bytes": 1084,
+          "kind": "generated"
+        },
+        "rawModelOutput": {
+          "path": "13-1/model-output.txt",
+          "sha256": "965d99f49ee7b6ef9cd25d8e9a273548a1d2cb17663a01fde753e42b0ff89bef",
+          "bytes": 1083
+        },
+        "formulaResultPolicy": "deterministic_local_subset",
+        "supportedFormulaFunctions": [
+          "SUM",
+          "AVERAGE",
+          "MIN",
+          "MAX",
+          "COUNT",
+          "COUNTA",
+          "ABS",
+          "ROUND",
+          "ROUNDUP",
+          "ROUNDDOWN",
+          "IF",
+          "IFERROR",
+          "SUMIF",
+          "COUNTIF",
+          "AVERAGEIF",
+          "SUMIFS",
+          "COUNTIFS",
+          "AVERAGEIFS",
+          "MATCH",
+          "INDEX",
+          "VLOOKUP",
+          "XLOOKUP",
+          "SUMPRODUCT",
+          "LEFT",
+          "RIGHT",
+          "MID",
+          "LEN",
+          "FIND",
+          "SEARCH",
+          "REPLACE",
+          "TEXT",
+          "DATE",
+          "VALUE",
+          "CONCATENATE",
+          "TRIM"
+        ],
+        "appliedOperationCount": 3
+      },
+      "scorerReceipt": {
+        "path": "13-1/score-receipt.json",
+        "sha256": "2ab5c24a1bd04d40c763609707b6d0ea7b89062ed23d5c9598aa316b018753b7",
+        "bytes": 1881
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-09T23:44:28.004Z",
+        "taskId": "13-1",
+        "candidateWorkbook": "candidate-01-1_13-1_init.xlsx",
+        "goldWorkbook": "01-1_13-1_golden.xlsx",
+        "answerPosition": "A3:D32",
+        "ranges": [
+          "'LISTS'!A3:D32"
+        ],
+        "totals": {
+          "comparedCells": 120,
+          "valueMatches": 93,
+          "formulaCells": 0,
+          "formulaMatches": 0,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 27,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.775,
+          "formula": null,
+          "style": null,
+          "chartPackage": null,
+          "overall": 0.775
+        },
+        "pass": false,
+        "warnings": [],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "LISTS",
+            "cell": "A4",
+            "expected": "2",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LISTS",
+            "cell": "A5",
+            "expected": "3",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LISTS",
+            "cell": "A6",
+            "expected": "4",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LISTS",
+            "cell": "A7",
+            "expected": "5",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LISTS",
+            "cell": "A8",
+            "expected": "6",
+            "actual": ""
+          }
+        ]
+      },
+      "model": {
+        "name": "nvidia/nemotron-3-super-120b-a12b:free",
+        "requestedName": "openrouter/free-auto",
+        "calls": 1,
+        "usage": {
+          "inputTokens": 10502,
+          "outputTokens": 895,
+          "cachedInputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 7122,
+        "candidateGeneration": 7368,
+        "scoring": 28,
+        "total": 7430
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/13-1/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "13-1/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "snapshot_agent_workbook",
+          "detail": "2 sheet(s), 302 cell(s)"
+        },
+        {
+          "step": "call_model_for_edit_plan",
+          "detail": "nvidia/nemotron-3-super-120b-a12b:free"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "13-1/candidate-01-1_13-1_init.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/13-1/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "27 cell mismatch(es)"
+        }
+      ]
+    },
+    {
+      "taskId": "17-35",
+      "track": "spreadsheetbench-v1",
+      "mode": "model-edit-plan",
+      "attemptIndex": 1,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/17-35",
+      "agentManifest": "tasks/17-35/agent/task.json",
+      "evaluatorManifest": "tasks/17-35/evaluator/evaluator.json",
+      "candidateWorkbook": "17-35/candidate-01-1_17-35_init.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "17-35/candidate-manifest.json",
+          "sha256": "27dec75de2316f3d9f31dead6a16accdda5eeafdafecc00d813d61f55efadb3c",
+          "bytes": 1379
+        },
+        "agentWorkspaceManifest": {
+          "path": "17-35/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "5bbf818a5c56937ce64cd978f543478c039860b8534853e82ffb1fd19ead25bf",
+          "bytes": 569
+        },
+        "editPlan": {
+          "path": "17-35/model-edit-plan.json",
+          "sha256": "f5b8a09882ead18eb03b647c9c8c2ff27036df8d6124b653c2c9426eee0a79fe",
+          "bytes": 238,
+          "kind": "generated"
+        },
+        "rawModelOutput": {
+          "path": "17-35/model-output.txt",
+          "sha256": "202fadf579be628c6193d1c30cd36c2edb5d28754ec0eba85aa93c8e8779b2f9",
+          "bytes": 159
+        },
+        "formulaResultPolicy": "deterministic_local_subset",
+        "supportedFormulaFunctions": [
+          "SUM",
+          "AVERAGE",
+          "MIN",
+          "MAX",
+          "COUNT",
+          "COUNTA",
+          "ABS",
+          "ROUND",
+          "ROUNDUP",
+          "ROUNDDOWN",
+          "IF",
+          "IFERROR",
+          "SUMIF",
+          "COUNTIF",
+          "AVERAGEIF",
+          "SUMIFS",
+          "COUNTIFS",
+          "AVERAGEIFS",
+          "MATCH",
+          "INDEX",
+          "VLOOKUP",
+          "XLOOKUP",
+          "SUMPRODUCT",
+          "LEFT",
+          "RIGHT",
+          "MID",
+          "LEN",
+          "FIND",
+          "SEARCH",
+          "REPLACE",
+          "TEXT",
+          "DATE",
+          "VALUE",
+          "CONCATENATE",
+          "TRIM"
+        ],
+        "appliedOperationCount": 1
+      },
+      "scorerReceipt": {
+        "path": "17-35/score-receipt.json",
+        "sha256": "c46ea58ce4611f521a5122acc8e0b3456f90020680b41b3ff07d00aa565f1fa6",
+        "bytes": 1204
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-09T23:44:27.999Z",
+        "taskId": "17-35",
+        "candidateWorkbook": "candidate-01-1_17-35_init.xlsx",
+        "goldWorkbook": "01-1_17-35_golden.xlsx",
+        "answerPosition": "I6:M295",
+        "ranges": [
+          "'FILTER 5b'!I6:M295"
+        ],
+        "totals": {
+          "comparedCells": 1450,
+          "valueMatches": 1450,
+          "formulaCells": 0,
+          "formulaMatches": 0,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 0,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 1,
+          "formula": null,
+          "style": null,
+          "chartPackage": null,
+          "overall": 1
+        },
+        "pass": true,
+        "warnings": [],
+        "mismatches": []
+      },
+      "model": {
+        "name": "nvidia/nemotron-3-super-120b-a12b:free",
+        "requestedName": "openrouter/free-auto",
+        "calls": 1,
+        "usage": {
+          "inputTokens": 36789,
+          "outputTokens": 423,
+          "cachedInputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 15386,
+        "candidateGeneration": 15738,
+        "scoring": 43,
+        "total": 15807
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/17-35/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "17-35/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "snapshot_agent_workbook",
+          "detail": "1 sheet(s), 800 cell(s)"
+        },
+        {
+          "step": "call_model_for_edit_plan",
+          "detail": "nvidia/nemotron-3-super-120b-a12b:free"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "17-35/candidate-01-1_17-35_init.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/17-35/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "0 cell mismatch(es)"
+        }
+      ]
+    },
+    {
+      "taskId": "22-47",
+      "track": "spreadsheetbench-v1",
+      "mode": "model-edit-plan",
+      "attemptIndex": 1,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/22-47",
+      "agentManifest": "tasks/22-47/agent/task.json",
+      "evaluatorManifest": "tasks/22-47/evaluator/evaluator.json",
+      "candidateWorkbook": "22-47/candidate-01-1_22-47_init.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "22-47/candidate-manifest.json",
+          "sha256": "d51d810cd09f32eccf2a732883b1b23e0ca9622cf3d88ed18e99d1ad7f528df1",
+          "bytes": 1378
+        },
+        "agentWorkspaceManifest": {
+          "path": "22-47/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "f0c3a9d9b2f1a26be62d39ad03cc6e19daf7d5a9a6f0af6ee565f8a4f6ad388d",
+          "bytes": 569
+        },
+        "editPlan": {
+          "path": "22-47/model-edit-plan.json",
+          "sha256": "3c1714ccd66816d240ff0e135eadaf269abd60700b149297ef2840415708ca3f",
+          "bytes": 361,
+          "kind": "generated"
+        },
+        "rawModelOutput": {
+          "path": "22-47/model-output.txt",
+          "sha256": "7a2daba670131234bfd3020699f1c6404e7383d877fdbaa3ebdab80350b29528",
+          "bytes": 348
+        },
+        "formulaResultPolicy": "deterministic_local_subset",
+        "supportedFormulaFunctions": [
+          "SUM",
+          "AVERAGE",
+          "MIN",
+          "MAX",
+          "COUNT",
+          "COUNTA",
+          "ABS",
+          "ROUND",
+          "ROUNDUP",
+          "ROUNDDOWN",
+          "IF",
+          "IFERROR",
+          "SUMIF",
+          "COUNTIF",
+          "AVERAGEIF",
+          "SUMIFS",
+          "COUNTIFS",
+          "AVERAGEIFS",
+          "MATCH",
+          "INDEX",
+          "VLOOKUP",
+          "XLOOKUP",
+          "SUMPRODUCT",
+          "LEFT",
+          "RIGHT",
+          "MID",
+          "LEN",
+          "FIND",
+          "SEARCH",
+          "REPLACE",
+          "TEXT",
+          "DATE",
+          "VALUE",
+          "CONCATENATE",
+          "TRIM"
+        ],
+        "appliedOperationCount": 1
+      },
+      "scorerReceipt": {
+        "path": "22-47/score-receipt.json",
+        "sha256": "ba9be78e1f3a70eadff005a79503b32170c43544e358b63164e5958a27736438",
+        "bytes": 1195
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-09T23:44:37.022Z",
+        "taskId": "22-47",
+        "candidateWorkbook": "candidate-01-1_22-47_init.xlsx",
+        "goldWorkbook": "01-1_22-47_golden.xlsx",
+        "answerPosition": "F2:H10",
+        "ranges": [
+          "'sheet1'!F2:H10"
+        ],
+        "totals": {
+          "comparedCells": 27,
+          "valueMatches": 27,
+          "formulaCells": 0,
+          "formulaMatches": 0,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 0,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 1,
+          "formula": null,
+          "style": null,
+          "chartPackage": null,
+          "overall": 1
+        },
+        "pass": true,
+        "warnings": [],
+        "mismatches": []
+      },
+      "model": {
+        "name": "nvidia/nemotron-3-super-120b-a12b:free",
+        "requestedName": "openrouter/free-auto",
+        "calls": 1,
+        "usage": {
+          "inputTokens": 3228,
+          "outputTokens": 795,
+          "cachedInputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 8275,
+        "candidateGeneration": 8456,
+        "scoring": 17,
+        "total": 8508
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/22-47/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "22-47/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "snapshot_agent_workbook",
+          "detail": "2 sheet(s), 81 cell(s)"
+        },
+        {
+          "step": "call_model_for_edit_plan",
+          "detail": "nvidia/nemotron-3-super-120b-a12b:free"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "22-47/candidate-01-1_22-47_init.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/22-47/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "0 cell mismatch(es)"
+        }
+      ]
+    }
+  ]
+}

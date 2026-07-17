@@ -1,0 +1,419 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-11T12:05:20.708Z",
+  "stageRoot": "staged-v2-full",
+  "outputRoot": "run-v2-template-14-09-repair",
+  "mode": "model-edit-plan",
+  "taskOffset": 0,
+  "taskCount": 1,
+  "passCount": 0,
+  "averageOverall": 0.404166,
+  "caseCount": 1,
+  "caseRunCount": 1,
+  "casePassCount": 0,
+  "casePassRate": 0,
+  "repeatCount": 1,
+  "attemptCount": 1,
+  "passRate": 0,
+  "retryPolicy": {
+    "maxRetries": 0,
+    "retryOn": [
+      "candidate_generation",
+      "scoring"
+    ],
+    "stopOnPass": true
+  },
+  "retryStats": {
+    "retriedCaseRunCount": 0,
+    "retryAttemptCount": 0,
+    "passedAfterRetryCount": 0,
+    "exhaustedCaseRunCount": 0
+  },
+  "stats": {
+    "latencyMs": {
+      "p50": 298,
+      "p95": 298,
+      "max": 298
+    },
+    "failureCounts": {}
+  },
+  "harness": {
+    "toolPolicy": "agent_dir_only_until_candidate",
+    "evaluatorAccess": "after_candidate_emit_only",
+    "modelContextPolicy": {
+      "batchSize": 1,
+      "snapshotMaxCells": 200,
+      "snapshotMaxCellChars": 160,
+      "instructionMaxChars": null,
+      "repairAttempts": 0,
+      "selectedTaskCount": 1
+    },
+    "budget": {
+      "modelCalls": 1,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "providerCostUsd": 0
+    }
+  },
+  "warnings": [],
+  "caseRuns": [
+    {
+      "taskId": "Template/14_09",
+      "taskDir": "tasks/Template_14_09",
+      "repeatIndex": 1,
+      "attempts": [
+        1
+      ],
+      "finalAttemptIndex": 1,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.404166
+    }
+  ],
+  "results": [
+    {
+      "taskId": "Template/14_09",
+      "track": "spreadsheetbench-v2",
+      "category": "Template",
+      "mode": "model-edit-plan",
+      "attemptIndex": 1,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Template_14_09",
+      "agentManifest": "tasks/Template_14_09/agent/task.json",
+      "evaluatorManifest": "tasks/Template_14_09/evaluator/evaluator.json",
+      "candidateWorkbook": "Template_14_09/candidate-01-14_09_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Template_14_09/candidate-manifest.json",
+          "sha256": "b6587df5a6e89412f134c00f3b1b9d213cbfd1deeef9cd760e5acf9ce1920b0e",
+          "bytes": 1699
+        },
+        "agentWorkspaceManifest": {
+          "path": "Template_14_09/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "87f769ae59ec2f58931a4efaba2e5d8ef08866e83cfc16965aa801b2099f6dec",
+          "bytes": 505
+        },
+        "editPlan": {
+          "path": "Template_14_09/model-edit-plan.json",
+          "sha256": "8106226ffcc2c41bdd82902efeba92b9e872a78b27fbb88763c2d3a86981d995",
+          "bytes": 376,
+          "kind": "generated"
+        },
+        "rawModelOutput": {
+          "path": "Template_14_09/model-output.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "workbookInspection": {
+          "path": "Template_14_09/workbook-inspection.json",
+          "sha256": "e5d6d8609ac5b653b45f0f96e08337130094567304f237a71f1378407e1b833f",
+          "bytes": 4059
+        },
+        "editVerification": {
+          "path": "Template_14_09/model-edit-verification.json",
+          "sha256": "7bb2016ea95080fb8a7b03b15c96a67f36c59b1248a0291336f44c5f4dc8f0b1",
+          "bytes": 5796
+        },
+        "formulaResultPolicy": "deterministic_local_subset",
+        "supportedFormulaFunctions": [
+          "SUM",
+          "AVERAGE",
+          "MIN",
+          "MAX",
+          "MEDIAN",
+          "COUNT",
+          "COUNTA",
+          "ABS",
+          "ROUND",
+          "ROUNDUP",
+          "ROUNDDOWN",
+          "AND",
+          "OR",
+          "NOT",
+          "IF",
+          "IFERROR",
+          "SUMIF",
+          "COUNTIF",
+          "AVERAGEIF",
+          "SUMIFS",
+          "COUNTIFS",
+          "AVERAGEIFS",
+          "MATCH",
+          "INDEX",
+          "VLOOKUP",
+          "XLOOKUP",
+          "SUMPRODUCT",
+          "LEFT",
+          "RIGHT",
+          "MID",
+          "LEN",
+          "FIND",
+          "SEARCH",
+          "REPLACE",
+          "TEXT",
+          "DATE",
+          "VALUE",
+          "CONCATENATE",
+          "TRIM"
+        ],
+        "appliedOperationCount": 3,
+        "repairAttemptCount": 0,
+        "verificationStatus": "passed"
+      },
+      "scorerReceipt": {
+        "path": "Template_14_09/score-receipt.json",
+        "sha256": "3791aec53fcfb596b076c7e63bfd6acc281fcd363ba79f401412ef6759861d12",
+        "bytes": 5452
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-11T12:05:20.708Z",
+        "taskId": "Template/14_09",
+        "candidateWorkbook": "candidate-01-14_09_input.xlsx",
+        "goldWorkbook": "01-14_09_golden.xlsx",
+        "answerPosition": "'Revenue_Projection'!B2:I46",
+        "ranges": [
+          "'Revenue_Projection'!B2:I46"
+        ],
+        "totals": {
+          "comparedCells": 360,
+          "valueMatches": 291,
+          "formulaCells": 69,
+          "formulaMatches": 0,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 138,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.808333,
+          "formula": 0,
+          "style": null,
+          "chartPackage": null,
+          "overall": 0.4041665
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 20/138",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+          "chart_package: gold workbook has no chart or drawing XML parts"
+        ],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "D32",
+            "expected": "6750000",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "D32",
+            "expected": "=C7"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "E32",
+            "expected": "6969375",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "E32",
+            "expected": "=D32*(1+$C$11)"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "F32",
+            "expected": "7195879.6875",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "F32",
+            "expected": "=E32*(1+$C$11)"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "G32",
+            "expected": "7429745.77734375",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "G32",
+            "expected": "=F32*(1+$C$11)"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "H32",
+            "expected": "7671212.51510742",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "H32",
+            "expected": "=G32*(1+$C$11)"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "I32",
+            "expected": "36016212.9799512",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "I32",
+            "expected": "=SUM(D32:H32)"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "D33",
+            "expected": "-101250",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "D33",
+            "expected": "=-D32*$C$12"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "E33",
+            "expected": "-104540.625",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "E33",
+            "expected": "=-E32*$C$12"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "F33",
+            "expected": "-107938.1953125",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "F33",
+            "expected": "=-F32*$C$12"
+          },
+          {
+            "kind": "value",
+            "sheet": "Revenue_Projection",
+            "cell": "G33",
+            "expected": "-111446.186660156",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "Revenue_Projection",
+            "cell": "G33",
+            "expected": "=-G32*$C$12"
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-11T12:05:20.708Z",
+          "taskId": "Template/14_09",
+          "candidateWorkbook": "candidate-01-14_09_input.xlsx",
+          "goldWorkbook": "01-14_09_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 0,
+            "candidateChartParts": 0,
+            "matchedChartParts": 0,
+            "missingChartParts": 0,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 0
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [],
+          "goldParts": [],
+          "mismatches": [],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+            "gold workbook has no chart or drawing XML parts"
+          ]
+        }
+      },
+      "model": {
+        "name": "tencent/hy3:free",
+        "calls": 1,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 80,
+        "candidateGeneration": 197,
+        "scoring": 57,
+        "total": 298
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Template_14_09/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Template_14_09/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "snapshot_agent_workbook",
+          "detail": "1 sheet(s), 77 cell(s)"
+        },
+        {
+          "step": "fallback_to_visible_formula_repairs",
+          "detail": "3 high-confidence operation(s) after provider failure"
+        },
+        {
+          "step": "verify_edit_plan",
+          "detail": "passed: 0 issue(s)"
+        },
+        {
+          "step": "verify_candidate_workbook",
+          "detail": "passed: 3/3 changed cell(s) verified"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Template_14_09/candidate-01-14_09_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Template_14_09/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "138 cell mismatch(es)"
+        }
+      ]
+    }
+  ]
+}

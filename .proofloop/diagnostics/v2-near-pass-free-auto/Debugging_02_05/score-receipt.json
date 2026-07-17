@@ -1,0 +1,1493 @@
+{
+  "schema": 1,
+  "verifier": "spreadsheetbench_workbook_scorer",
+  "generatedAt": "2026-07-14T09:21:52.006Z",
+  "taskId": "Debugging/02_05",
+  "track": "spreadsheetbench-v2",
+  "mode": "model-edit-plan",
+  "attemptIndex": 2,
+  "repeatIndex": 1,
+  "tryIndex": 1,
+  "candidateWorkbook": "Debugging_02_05/candidate-01-Incorrect Average_input.xlsx",
+  "agentManifest": "tasks/Debugging_02_05/agent/task.json",
+  "evaluatorManifest": "tasks/Debugging_02_05/evaluator/evaluator.json",
+  "score": {
+    "schema": 1,
+    "generatedAt": "2026-07-14T09:21:52.006Z",
+    "taskId": "Debugging/02_05",
+    "candidateWorkbook": "candidate-01-Incorrect Average_input.xlsx",
+    "goldWorkbook": "01-02_golden.xlsx",
+    "answerPosition": "'DCF'!B1:Z35,'WACC'!B2:M22,'Cover'!B2:C16,'Synergies'!B1:AC82,'Merger Model'!B2:J85,'Berk-Hath Investment Package'!B2:K44,'Exhibit 1'!A1:C29,'Exhibit 2'!A1:C32,'Exhibit 3'!A1:F19,'Exhibit 4a'!A1:M14,'Exhibit 5'!A1:C16,'Exhibit 6'!A1:J47,'Exhibit 7'!A1:D38,'Exhibit 8b'!A1:G25,'Exhibit 9'!A1:P30",
+    "ranges": [
+      "'DCF'!B1:Z35",
+      "'WACC'!B2:M22",
+      "'Cover'!B2:C16",
+      "'Synergies'!B1:AC82",
+      "'Merger Model'!B2:J85",
+      "'Berk-Hath Investment Package'!B2:K44",
+      "'Exhibit 1'!A1:C29",
+      "'Exhibit 2'!A1:C32",
+      "'Exhibit 3'!A1:F19",
+      "'Exhibit 4a'!A1:M14",
+      "'Exhibit 5'!A1:C16",
+      "'Exhibit 6'!A1:J47",
+      "'Exhibit 7'!A1:D38",
+      "'Exhibit 8b'!A1:G25",
+      "'Exhibit 9'!A1:P30"
+    ],
+    "totals": {
+      "comparedCells": 6443,
+      "valueMatches": 5680,
+      "formulaCells": 721,
+      "formulaMatches": 715,
+      "styleCells": 0,
+      "styleMatches": 0,
+      "styleLayoutItems": 0,
+      "styleLayoutMatches": 0,
+      "mismatches": 769,
+      "missingSheets": 0
+    },
+    "scores": {
+      "value": 0.881577,
+      "formula": 0.991678,
+      "style": null,
+      "chartPackage": null,
+      "overall": 0.9366275
+    },
+    "pass": false,
+    "warnings": [
+      "mismatch list capped at 200/769",
+      "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+      "chart_package: gold workbook has no chart or drawing XML parts"
+    ],
+    "mismatches": [
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "H1",
+        "expected": "2018",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "I1",
+        "expected": "2019",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J1",
+        "expected": "2020",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K1",
+        "expected": "2021",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L1",
+        "expected": "2022",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M1",
+        "expected": "2023",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "N1",
+        "expected": "2024",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "O1",
+        "expected": "2025",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "P1",
+        "expected": "2026",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Q1",
+        "expected": "2027",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "R1",
+        "expected": "2028",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J2",
+        "expected": "1",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K2",
+        "expected": "2",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L2",
+        "expected": "3",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M2",
+        "expected": "4",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "N2",
+        "expected": "5",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "O2",
+        "expected": "6",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "P2",
+        "expected": "7",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Q2",
+        "expected": "8",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "R2",
+        "expected": "9",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "C7",
+        "expected": "Cashflow Assumptions",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "F7",
+        "expected": "Forecast",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "G7",
+        "expected": "Forecast",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "H7",
+        "expected": "Forecast",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "I7",
+        "expected": "Forecast",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J7",
+        "expected": "Forecast",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K7",
+        "expected": "Forecast",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L7",
+        "expected": "Forecast",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M7",
+        "expected": "Forecast",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "N7",
+        "expected": "Forecast",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "O7",
+        "expected": "Forecast",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "P7",
+        "expected": "Forecast",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Q7",
+        "expected": "Forecast",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "R7",
+        "expected": "Forecast",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "C8",
+        "expected": "0.25",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "G8",
+        "expected": "2017A",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "H8",
+        "expected": "2018A",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "I8",
+        "expected": "2019E",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J8",
+        "expected": "2020P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K8",
+        "expected": "2021P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L8",
+        "expected": "2022P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M8",
+        "expected": "2023P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "N8",
+        "expected": "2024P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "O8",
+        "expected": "2025P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "P8",
+        "expected": "2026P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Q8",
+        "expected": "2027P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "R8",
+        "expected": "2028P",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "W8",
+        "expected": "WACC",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "X8",
+        "expected": "WACC",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Y8",
+        "expected": "WACC",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Z8",
+        "expected": "WACC",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "C9",
+        "expected": "0.0869691722391674",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "G9",
+        "expected": "11908",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "H9",
+        "expected": "13382",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "I9",
+        "expected": "12380.9499678667",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J9",
+        "expected": "13150.4970449048",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K9",
+        "expected": "13778.2076026221",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L9",
+        "expected": "14880.8565863918",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M9",
+        "expected": "15901.1614031152",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "N9",
+        "expected": "17747.8533235181",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "O9",
+        "expected": "19578.2028375457",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "P9",
+        "expected": "19969.0773790688",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Q9",
+        "expected": "20372.0408239379",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "R9",
+        "expected": "20775.004268807",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "U9",
+        "expected": "51123.8670461828",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "V9",
+        "expected": "0.076969172239",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "W9",
+        "expected": "0.081969172239",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Y9",
+        "expected": "0.091969172239",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Z9",
+        "expected": "0.096969172239",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "C10",
+        "expected": "0.018",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "H10",
+        "expected": "0.123782331205912",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "I10",
+        "expected": "-0.0748057115627933",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J10",
+        "expected": "0.0621557375674241",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K10",
+        "expected": "0.047732838962194",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L10",
+        "expected": "0.0800284779828632",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M10",
+        "expected": "0.0685649250632778",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "N10",
+        "expected": "0.116135662898253",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "O10",
+        "expected": "0.103130755064457",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "P10",
+        "expected": "0.0199647814851237",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Q10",
+        "expected": "0.0201793721973094",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "R10",
+        "expected": "0.0197802197802199",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "U10",
+        "expected": "0.008",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "V10",
+        "expected": "54647.4402083381",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "U11",
+        "expected": "0.013",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "G12",
+        "expected": "6249",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "H12",
+        "expected": "7332",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "I12",
+        "expected": "7691",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J12",
+        "expected": "8641",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K12",
+        "expected": "9023",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L12",
+        "expected": "9945",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M12",
+        "expected": "10538",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "N12",
+        "expected": "11687",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "O12",
+        "expected": "12874",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "P12",
+        "expected": "13131",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Q12",
+        "expected": "13394",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "R12",
+        "expected": "13662",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "G13",
+        "expected": "-4279",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "H13",
+        "expected": "-4254",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "I13",
+        "expected": "-4280.625",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J13",
+        "expected": "-4504.125",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K13",
+        "expected": "-4691.671875",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L13",
+        "expected": "-4884.65625",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M13",
+        "expected": "-5093.947265625",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "N13",
+        "expected": "-5209.115234375",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "O13",
+        "expected": "-5243.74682617188",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "P13",
+        "expected": "-5349",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Q13",
+        "expected": "-5456",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "R13",
+        "expected": "-5565",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "U13",
+        "expected": "0.023",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "G14",
+        "expected": "-2535",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "H14",
+        "expected": "-459",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "I14",
+        "expected": "-1530.17337944416",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J14",
+        "expected": "-1625.28243444955",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K14",
+        "expected": "-1702.86177916121",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L14",
+        "expected": "-1839.13921556267",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M14",
+        "expected": "-1965.23965805866",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "N14",
+        "expected": "-2193.47406850124",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "O14",
+        "expected": "-2419.68870540008",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "P14",
+        "expected": "-2467.99726166542",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Q14",
+        "expected": "-2517.7998969905",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "R14",
+        "expected": "-2567.60253231559",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "U14",
+        "expected": "0.028",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "G15",
+        "expected": "0.212882096069869",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "H15",
+        "expected": "0.0342998057091616",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "I15",
+        "expected": "0.123590950889515",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "DCF",
+        "cell": "I15",
+        "expected": "=AVERAGE($G$15:$H$15)",
+        "actual": "=AVERAGE($F$15:$H$15)"
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J15",
+        "expected": "0.123590950889515",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K15",
+        "expected": "0.123590950889515",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L15",
+        "expected": "0.123590950889515",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M15",
+        "expected": "0.123590950889515",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "N15",
+        "expected": "0.123590950889515",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "O15",
+        "expected": "0.123590950889515",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "P15",
+        "expected": "0.123590950889515",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Q15",
+        "expected": "0.123590950889515",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "R15",
+        "expected": "0.123590950889515",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "G17",
+        "expected": "-565",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "H17",
+        "expected": "2619",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "I17",
+        "expected": "1880.20162055584",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J17",
+        "expected": "2511.59256555045",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K17",
+        "expected": "2628.46634583879",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L17",
+        "expected": "3221.20453443733",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M17",
+        "expected": "3478.81307631634",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "N17",
+        "expected": "4284.41069712376",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "O17",
+        "expected": "5210.56446842804",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "P17",
+        "expected": "5314.00273833458",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Q17",
+        "expected": "5420.2001030095",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "R17",
+        "expected": "5529.39746768441",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "G18",
+        "expected": "141.25",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "H18",
+        "expected": "-654.75",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "I18",
+        "expected": "-470.05040513896",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J18",
+        "expected": "-627.898141387613",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K18",
+        "expected": "-657.116586459697",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L18",
+        "expected": "-805.301133609332",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M18",
+        "expected": "-869.703269079084",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "N18",
+        "expected": "-1071.10267428094",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "O18",
+        "expected": "-1302.64111710701",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "P18",
+        "expected": "-1328.50068458365",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Q18",
+        "expected": "-1355.05002575237",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "R18",
+        "expected": "-1382.3493669211",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "G19",
+        "expected": "-423.75",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "H19",
+        "expected": "1964.25",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "I19",
+        "expected": "1410.15121541688",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J19",
+        "expected": "1883.69442416284",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K19",
+        "expected": "1971.34975937909",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L19",
+        "expected": "2415.903400828",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M19",
+        "expected": "2609.10980723725",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "N19",
+        "expected": "3213.30802284282",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "O19",
+        "expected": "3907.92335132103",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "P19",
+        "expected": "3985.50205375094",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Q19",
+        "expected": "4065.15007725712",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "R19",
+        "expected": "4147.04810076331",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "G20",
+        "expected": "4279",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "H20",
+        "expected": "4254",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "I20",
+        "expected": "4280.625",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J20",
+        "expected": "4504.125",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K20",
+        "expected": "4691.671875",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L20",
+        "expected": "4884.65625",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M20",
+        "expected": "5093.947265625",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "N20",
+        "expected": "5209.115234375",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "O20",
+        "expected": "5243.74682617188",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "P20",
+        "expected": "5349",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Q20",
+        "expected": "5456",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "R20",
+        "expected": "5565",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "G22",
+        "expected": "3855.25",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "H22",
+        "expected": "6218.25",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "I22",
+        "expected": "5690.77621541688",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J22",
+        "expected": "6387.81942416284",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K22",
+        "expected": "6663.02163437909",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L22",
+        "expected": "7300.559650828",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M22",
+        "expected": "7703.05707286225",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "N22",
+        "expected": "8422.42325721782",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "O22",
+        "expected": "9151.67017749291",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "P22",
+        "expected": "9334.50205375094",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "Q22",
+        "expected": "9521.15007725712",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "R22",
+        "expected": "9712.04810076331",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "I23",
+        "expected": "-6042",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "J23",
+        "expected": "-5781",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "K23",
+        "expected": "-6048",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "L23",
+        "expected": "-6366",
+        "actual": ""
+      },
+      {
+        "kind": "value",
+        "sheet": "DCF",
+        "cell": "M23",
+        "expected": "-5806",
+        "actual": ""
+      }
+    ],
+    "chartPackage": {
+      "schema": 1,
+      "generatedAt": "2026-07-14T09:21:52.006Z",
+      "taskId": "Debugging/02_05",
+      "candidateWorkbook": "candidate-01-Incorrect Average_input.xlsx",
+      "goldWorkbook": "01-02_golden.xlsx",
+      "verifier": "xlsx_chart_package_static",
+      "totals": {
+        "goldChartParts": 0,
+        "candidateChartParts": 0,
+        "matchedChartParts": 0,
+        "missingChartParts": 0,
+        "extraChartParts": 0,
+        "mismatchedChartParts": 0
+      },
+      "scores": {
+        "package": 0
+      },
+      "pass": false,
+      "candidateParts": [],
+      "goldParts": [],
+      "mismatches": [],
+      "warnings": [
+        "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+        "gold workbook has no chart or drawing XML parts"
+      ]
+    }
+  }
+}

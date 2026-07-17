@@ -1,0 +1,78 @@
+{
+  "schema": "proofloop-doctor-v1",
+  "status": "pass",
+  "root": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom",
+  "checks": [
+    {
+      "id": "proofloop-package-script",
+      "title": "proofloop npm script",
+      "status": "pass",
+      "detail": "scripts.proofloop is node scripts/proofloop.mjs."
+    },
+    {
+      "id": "proofloop-cli-wrapper",
+      "title": "CLI wrapper",
+      "status": "pass",
+      "detail": "scripts/proofloop.mjs is present."
+    },
+    {
+      "id": "proofloop-config",
+      "title": "ProofLoop config",
+      "status": "pass",
+      "detail": ".proofloop/config.json exists and parses."
+    },
+    {
+      "id": "proofloop-manifest",
+      "title": "ProofLoop manifest",
+      "status": "pass",
+      "detail": ".proofloop/manifest.json exists and parses."
+    },
+    {
+      "id": "proofloop-agent-docs",
+      "title": "agent docs",
+      "status": "pass",
+      "detail": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\AGENTS.md contains the ProofLoop agent-friendly marker."
+    },
+    {
+      "id": "proofloop-package-script-aliases",
+      "title": "proofloop script aliases",
+      "status": "pass",
+      "detail": "package.json includes proofloop init/live/gate/resume/doctor/report/charts aliases."
+    },
+    {
+      "id": "proofloop-playwright",
+      "title": "Playwright",
+      "status": "pass",
+      "detail": "@playwright/test is declared and installed."
+    },
+    {
+      "id": "proofloop-ui-contracts",
+      "title": "UI contracts",
+      "status": "pass",
+      "detail": "1 stable UI selector(s) found."
+    },
+    {
+      "id": "proofloop-github-workflow",
+      "title": "GitHub proof workflow",
+      "status": "pass",
+      "detail": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.github\\workflows\\proofloop-gate.yml exists."
+    },
+    {
+      "id": "proofloop-gitignore",
+      "title": "gitignore",
+      "status": "pass",
+      "detail": ".gitignore excludes generated ProofLoop run and memory state."
+    },
+    {
+      "id": "proofloop-node-version",
+      "title": "Node.js",
+      "status": "pass",
+      "detail": "Node.js 22.22.2 is active."
+    }
+  ],
+  "summary": {
+    "pass": 11,
+    "warn": 0,
+    "fail": 0
+  }
+}

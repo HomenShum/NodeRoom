@@ -1,0 +1,9 @@
+[
+  {
+    "type": "requestfailed",
+    "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2",
+    "method": "GET",
+    "failure": "net::ERR_ABORTED",
+    "ts": "2026-07-09T09:00:10.727Z"
+  }
+]

@@ -1,0 +1,393 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-11T11:45:05.306Z",
+  "stageRoot": "staged-v2-full",
+  "outputRoot": "run-v2-heldout-hy3-200",
+  "mode": "model-edit-plan",
+  "taskOffset": 1,
+  "taskCount": 1,
+  "passCount": 0,
+  "averageOverall": 0.579116,
+  "caseCount": 1,
+  "caseRunCount": 1,
+  "casePassCount": 0,
+  "casePassRate": 0,
+  "repeatCount": 1,
+  "attemptCount": 1,
+  "passRate": 0,
+  "retryPolicy": {
+    "maxRetries": 0,
+    "retryOn": [
+      "candidate_generation",
+      "scoring"
+    ],
+    "stopOnPass": true
+  },
+  "retryStats": {
+    "retriedCaseRunCount": 0,
+    "retryAttemptCount": 0,
+    "passedAfterRetryCount": 0,
+    "exhaustedCaseRunCount": 0
+  },
+  "stats": {
+    "latencyMs": {
+      "p50": 58980,
+      "p95": 58980,
+      "max": 58980
+    },
+    "failureCounts": {}
+  },
+  "harness": {
+    "toolPolicy": "agent_dir_only_until_candidate",
+    "evaluatorAccess": "after_candidate_emit_only",
+    "modelContextPolicy": {
+      "batchSize": 1,
+      "snapshotMaxCells": 200,
+      "snapshotMaxCellChars": 160,
+      "instructionMaxChars": null,
+      "repairAttempts": 1,
+      "selectedTaskCount": 321
+    },
+    "budget": {
+      "modelCalls": 1,
+      "inputTokens": 46237,
+      "outputTokens": 5993,
+      "providerCostUsd": 0
+    }
+  },
+  "warnings": [],
+  "caseRuns": [
+    {
+      "taskId": "Debugging/01_02",
+      "taskDir": "tasks/Debugging_01_02",
+      "repeatIndex": 1,
+      "attempts": [
+        1
+      ],
+      "finalAttemptIndex": 1,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.579116
+    }
+  ],
+  "results": [
+    {
+      "taskId": "Debugging/01_02",
+      "track": "spreadsheetbench-v2",
+      "category": "Debugging",
+      "mode": "model-edit-plan",
+      "attemptIndex": 1,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Debugging_01_02",
+      "agentManifest": "tasks/Debugging_01_02/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_01_02/evaluator/evaluator.json",
+      "candidateWorkbook": "Debugging_01_02/candidate-01-Embedded Hardcode_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Debugging_01_02/candidate-manifest.json",
+          "sha256": "18e273579e3d748d6aabd4ecc909c4f9f085ecc256503bf0bb991e01f7aba05d",
+          "bytes": 1748
+        },
+        "agentWorkspaceManifest": {
+          "path": "Debugging_01_02/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "1c151135720464a0149e1f7d6020215e1c5e53051852142984b094d18de25679",
+          "bytes": 519
+        },
+        "editPlan": {
+          "path": "Debugging_01_02/model-edit-plan.json",
+          "sha256": "94fe71b060c188b859c0f7bacbcd1f458cf51a26fa933b3cfd77185e484b3a20",
+          "bytes": 451,
+          "kind": "generated"
+        },
+        "rawModelOutput": {
+          "path": "Debugging_01_02/model-output.txt",
+          "sha256": "21dd6970e406c3d8e3ca590129dc035c9c7918ddb2ffada22b71680e421198ed",
+          "bytes": 450
+        },
+        "workbookInspection": {
+          "path": "Debugging_01_02/workbook-inspection.json",
+          "sha256": "683772e0329e7b25ba2aa4612aa035b7a050fd790083d2c271425bc9b72d0ab9",
+          "bytes": 78085
+        },
+        "editVerification": {
+          "path": "Debugging_01_02/model-edit-verification.json",
+          "sha256": "616c291a9d4e421a4bbc7733ab3d5cf8ccb99d8c4c09a0a5cb1d4a7f192155b0",
+          "bytes": 85178
+        },
+        "formulaResultPolicy": "deterministic_local_subset",
+        "supportedFormulaFunctions": [
+          "SUM",
+          "AVERAGE",
+          "MIN",
+          "MAX",
+          "MEDIAN",
+          "COUNT",
+          "COUNTA",
+          "ABS",
+          "ROUND",
+          "ROUNDUP",
+          "ROUNDDOWN",
+          "AND",
+          "OR",
+          "NOT",
+          "IF",
+          "IFERROR",
+          "SUMIF",
+          "COUNTIF",
+          "AVERAGEIF",
+          "SUMIFS",
+          "COUNTIFS",
+          "AVERAGEIFS",
+          "MATCH",
+          "INDEX",
+          "VLOOKUP",
+          "XLOOKUP",
+          "SUMPRODUCT",
+          "LEFT",
+          "RIGHT",
+          "MID",
+          "LEN",
+          "FIND",
+          "SEARCH",
+          "REPLACE",
+          "TEXT",
+          "DATE",
+          "VALUE",
+          "CONCATENATE",
+          "TRIM"
+        ],
+        "appliedOperationCount": 3,
+        "repairAttemptCount": 0,
+        "verificationStatus": "passed"
+      },
+      "scorerReceipt": {
+        "path": "Debugging_01_02/score-receipt.json",
+        "sha256": "6329dbdd0b46f5eb83ef2b00e85b64bc6ba2496bf3270e639789cfe77ffc56ba",
+        "bytes": 5463
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-11T11:45:05.306Z",
+        "taskId": "Debugging/01_02",
+        "candidateWorkbook": "candidate-01-Embedded Hardcode_input.xlsx",
+        "goldWorkbook": "01-01_golden.xlsx",
+        "answerPosition": "'Ex 1 - LBO'!B1:AK95,'Ex 2 - Valuation Bridge'!B2:C36,'Ex 3 - PF P&L'!B1:I30,'Ex 4 - Organic Operating Model'!B1:AF41,'Ex 5 - M&A'!B1:AB81,'Ex 6 - Amdocs Historical M&A'!B2:J19,'Ex 7 - SOFR'!B2:E79,'Ex 8 - Public Comps'!B2:F37,'Ex 9 - Transaction Comps'!B2:G24,'Ex 10 - Balance Sheet'!B2:F33,'Ex 11 - Income Statement'!B2:K28,'Ex 12 - Cash Flow Statement'!B2:G44",
+        "ranges": [
+          "'Ex 1 - LBO'!B1:AK95",
+          "'Ex 2 - Valuation Bridge'!B2:C36",
+          "'Ex 3 - PF P&L'!B1:I30",
+          "'Ex 4 - Organic Operating Model'!B1:AF41",
+          "'Ex 5 - M&A'!B1:AB81",
+          "'Ex 6 - Amdocs Historical M&A'!B2:J19",
+          "'Ex 7 - SOFR'!B2:E79",
+          "'Ex 8 - Public Comps'!B2:F37",
+          "'Ex 9 - Transaction Comps'!B2:G24",
+          "'Ex 10 - Balance Sheet'!B2:F33",
+          "'Ex 11 - Income Statement'!B2:K28",
+          "'Ex 12 - Cash Flow Statement'!B2:G44"
+        ],
+        "totals": {
+          "comparedCells": 8668,
+          "valueMatches": 6916,
+          "formulaCells": 1933,
+          "formulaMatches": 1816,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 1869,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.797877,
+          "formula": 0.939472,
+          "style": null,
+          "chartPackage": 0,
+          "overall": 0.5791163333333333
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 10/1869",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+        ],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "Q1",
+            "expected": "2026",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "R1",
+            "expected": "2027",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "S1",
+            "expected": "2028",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "T1",
+            "expected": "2029",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "U1",
+            "expected": "2030",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "C11",
+            "expected": "18.2034",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "B13",
+            "expected": "Amdocs - Control",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "H13",
+            "expected": "Amdocs - Forecast Drivers",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "O13",
+            "expected": "Amdocs - Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "W13",
+            "expected": "Amdocs - Returns Analysis",
+            "actual": ""
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-11T11:45:05.306Z",
+          "taskId": "Debugging/01_02",
+          "candidateWorkbook": "candidate-01-Embedded Hardcode_input.xlsx",
+          "goldWorkbook": "01-01_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 2,
+            "candidateChartParts": 0,
+            "matchedChartParts": 0,
+            "missingChartParts": 2,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 0
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [],
+          "goldParts": [
+            {
+              "path": "xl/drawings/drawing1.xml",
+              "kind": "drawing",
+              "sha256": "4b01a176a0c08fc7fde00a5a1ff39b194d2a7ffbb2796af63c5fa11a643e6326",
+              "bytes": 2542
+            },
+            {
+              "path": "xl/drawings/drawing2.xml",
+              "kind": "drawing",
+              "sha256": "17edc7d920ca01dad843d6c5e00e0df06ae356fbb9366eb17ad3f57d44c03ec9",
+              "bytes": 2382
+            }
+          ],
+          "mismatches": [
+            {
+              "kind": "missing_chart_part",
+              "path": "xl/drawings/drawing1.xml",
+              "expected": "4b01a176a0c08fc7fde00a5a1ff39b194d2a7ffbb2796af63c5fa11a643e6326"
+            },
+            {
+              "kind": "missing_chart_part",
+              "path": "xl/drawings/drawing2.xml",
+              "expected": "17edc7d920ca01dad843d6c5e00e0df06ae356fbb9366eb17ad3f57d44c03ec9"
+            }
+          ],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+          ]
+        }
+      },
+      "model": {
+        "name": "tencent/hy3:free",
+        "calls": 1,
+        "usage": {
+          "inputTokens": 46237,
+          "outputTokens": 5993,
+          "cachedInputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 57161,
+        "candidateGeneration": 58340,
+        "scoring": 603,
+        "total": 58980
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Debugging_01_02/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Debugging_01_02/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "snapshot_agent_workbook",
+          "detail": "14 sheet(s), 200 cell(s)"
+        },
+        {
+          "step": "call_model_for_edit_plan",
+          "detail": "tencent/hy3:free"
+        },
+        {
+          "step": "verify_edit_plan",
+          "detail": "passed: 0 issue(s)"
+        },
+        {
+          "step": "verify_candidate_workbook",
+          "detail": "passed: 3/3 changed cell(s) verified"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Debugging_01_02/candidate-01-Embedded Hardcode_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Debugging_01_02/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "1869 cell mismatch(es), 2 chart-package mismatch(es)"
+        }
+      ]
+    }
+  ]
+}

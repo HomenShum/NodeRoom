@@ -1,0 +1,56 @@
+{
+  "generatedAt": "2026-07-12T12:16:44.355Z",
+  "model": "gemini-3.5-flash",
+  "media": ".proofloop/proofs/visual-parity/desktop-1456x940/notebook-editor.png",
+  "reference": "docs/design/ui-contract/20260708-migration-proof/standalone-interior-notebook.png",
+  "rubricMean": 5,
+  "lowestDim": {
+    "dim": "product.whatIsHappening",
+    "score": 5
+  },
+  "betterThanReference": [
+    "product:better",
+    "hierarchy-typography:same",
+    "layout-spacing:better",
+    "color-state:same"
+  ],
+  "counts": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0
+  },
+  "passBar": true,
+  "lensScores": [
+    {
+      "lens": "product",
+      "scores": {
+        "whatIsHappening": 5,
+        "whyTrust": 5,
+        "whatNext": 5
+      }
+    },
+    {
+      "lens": "hierarchy-typography",
+      "scores": {
+        "hierarchy": 5,
+        "typography": 5
+      }
+    },
+    {
+      "lens": "layout-spacing",
+      "scores": {
+        "spacingRhythm": 5,
+        "alignment": 5,
+        "density": 5
+      }
+    },
+    {
+      "lens": "color-state",
+      "scores": {
+        "colorDiscipline": 5,
+        "stateSignal": 5
+      }
+    }
+  ],
+  "findings": []
+}

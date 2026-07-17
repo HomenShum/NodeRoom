@@ -1,0 +1,152 @@
+[
+  {
+    "id": "QA-001",
+    "title": "Primary Create a room CTA routes to memory mode instead of a live production room",
+    "severity": "high",
+    "category": "functional",
+    "journey": "landing/create room",
+    "persona": "First-time visitor, room creator/host",
+    "url": "https://noderoom.live/",
+    "browser": "Chromium",
+    "viewport": "1440x920",
+    "timestampInVideo": "followup-landing-create-cta video, after clicking Create a room",
+    "reproSteps": [
+      "Visit https://noderoom.live/",
+      "Click the primary Create a room CTA",
+      "Observe the resulting URL and mode"
+    ],
+    "expected": "The primary production CTA should create or open a live production room, or clearly label itself as a local/demo memory-room flow.",
+    "actual": "The CTA href is /?mode=memory&surface=desktop and the browser lands at https://noderoom.live/?mode=memory&surface=desktop.",
+    "evidence": {
+      "video": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/videos/page@a8e6d785e5136f6af8aa05db613aca60.webm",
+      "trace": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/traces/followup-landing-create-cta.zip",
+      "screenshot": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/screenshots/followup-landing-create-cta.png",
+      "consoleLog": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/console-logs/followup-landing-create-cta.json",
+      "networkLog": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/network-logs/followup-landing-create-cta.json"
+    },
+    "suspectedCause": "Marketing CTA still points to deterministic memory/demo route instead of the live room creation/join route.",
+    "userImpact": "A first-time production user cannot start the real live-room workflow from the strongest CTA and may believe they are using production while actually in memory mode.",
+    "suggestedFix": "Change the production CTA to create a live room or split the CTAs into clearly labeled Live room and Try local demo actions.",
+    "regressionTestCandidate": true
+  },
+  {
+    "id": "QA-002",
+    "title": "Export XLSX affordance does not produce a browser download",
+    "severity": "high",
+    "category": "functional",
+    "journey": "share/invite/export",
+    "persona": "Room creator/host, power user",
+    "url": "https://noderoom.live/?room=QFMRCYTM66&name=QA-DOGFOOD-2026-07-08-2039",
+    "browser": "Chromium",
+    "viewport": "1440x920",
+    "timestampInVideo": "export-xlsx video, click on Export XLSX",
+    "reproSteps": [
+      "Open a live QA room",
+      "Open the Q3 variance sheet",
+      "Click Export XLSX",
+      "Wait for a browser download"
+    ],
+    "expected": "Clicking Export XLSX should emit a downloadable .xlsx file or show an explicit error state.",
+    "actual": "Playwright waited 30 seconds for a download event after clicking Export XLSX and timed out. The UI remained in the room with no visible error.",
+    "evidence": {
+      "video": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/videos/page@816b51e4000cfb736b522cb6cb5a2dbf.webm",
+      "trace": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/traces/export-xlsx.zip",
+      "screenshot": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/screenshots/export-xlsx-after.png",
+      "consoleLog": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/console-logs/export-xlsx.json",
+      "networkLog": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/network-logs/export-xlsx.json"
+    },
+    "suspectedCause": "Export handler is not wired on the live sheet surface, is blocked by state, or does not call the browser download API.",
+    "userImpact": "Users cannot take spreadsheet work out of NodeRoom, which blocks handoff and offline review.",
+    "suggestedFix": "Wire Export XLSX to a deterministic download path and add a visible failure toast if export cannot be generated.",
+    "regressionTestCandidate": true
+  },
+  {
+    "id": "QA-003",
+    "title": "First-run onboarding modal blocks the live room until dismissed",
+    "severity": "medium",
+    "category": "UX",
+    "journey": "create room/chat/collaboration/mobile",
+    "persona": "First-time visitor, invited collaborator/guest, mobile user",
+    "url": "https://noderoom.live/?room=QFMRCYTM66&name=QA-DOGFOOD-2026-07-08-2039",
+    "browser": "Chromium",
+    "viewport": "1440x920 and 390x844",
+    "timestampInVideo": "desktop-room and mobile-room videos, first room render",
+    "reproSteps": [
+      "Join a fresh room in a new browser context",
+      "Observe the first visible room state",
+      "Try to interact with the room before dismissing the overlay"
+    ],
+    "expected": "Onboarding should not hide the full product state or block core chat/collaboration actions without making the dismissal path obvious.",
+    "actual": "A full-screen/modal onboarding step appears over the room in each fresh context. Desktop room contents are blurred behind it; mobile shows a blocking Got it card before the room is usable.",
+    "evidence": {
+      "video": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/videos/page@d2f0f6d044a23906f7b1a6e217385e62.webm",
+      "trace": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/traces/desktop-room.zip",
+      "screenshot": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/screenshots/desktop-room-agent.png",
+      "consoleLog": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/console-logs/desktop-room.json",
+      "networkLog": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/network-logs/desktop-room.json"
+    },
+    "suspectedCause": "Tour gating is implemented as a blocking modal and is scoped per fresh context rather than being progressive or non-blocking.",
+    "userImpact": "A collaborator landing in a room has to dismiss product education before doing the work they came for; automation also mistakes the room as unavailable until the overlay is handled.",
+    "suggestedFix": "Make onboarding non-blocking after join, preserve a visible Skip/Got it control, and add a test that chat is usable immediately after dismissing it.",
+    "regressionTestCandidate": true
+  },
+  {
+    "id": "QA-004",
+    "title": "Production pages emit CSP errors for blocked inline script and event handlers",
+    "severity": "medium",
+    "category": "security-risk",
+    "journey": "landing/create room/reload/mobile",
+    "persona": "All users",
+    "url": "https://noderoom.live/",
+    "browser": "Chromium",
+    "viewport": "desktop and mobile",
+    "timestampInVideo": "console logs across root and room loads",
+    "reproSteps": [
+      "Open https://noderoom.live/",
+      "Open or join a live room",
+      "Inspect browser console output"
+    ],
+    "expected": "Production pages should not emit console errors under the deployed Content Security Policy.",
+    "actual": "Console logs repeatedly report blocked inline script and inline event handlers under script-src 'self' at lines 22, 23, and 45.",
+    "evidence": {
+      "video": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/videos/page@c4144327401eaa8ef799193d030301fc.webm",
+      "trace": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/traces/followup-join-room.zip",
+      "screenshot": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/screenshots/followup-join-after.png",
+      "consoleLog": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/console-logs/followup-join-room.json",
+      "networkLog": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/network-logs/followup-join-room.json"
+    },
+    "suspectedCause": "Deployed HTML still includes inline script/event-handler snippets that are incompatible with the production CSP.",
+    "userImpact": "The current tested flows still worked, but blocked inline handlers are fragile production debt and can break fallback behavior or analytics under stricter browsers.",
+    "suggestedFix": "Move inline script/event handlers into bundled JS or add a nonce/hash-based CSP strategy deliberately.",
+    "regressionTestCandidate": true
+  },
+  {
+    "id": "QA-005",
+    "title": "Landing page first contentful paint is slow in the QA run",
+    "severity": "low",
+    "category": "performance",
+    "journey": "landing",
+    "persona": "First-time visitor",
+    "url": "https://noderoom.live/",
+    "browser": "Chromium",
+    "viewport": "1440x920",
+    "timestampInVideo": "desktop-landing performance capture",
+    "reproSteps": [
+      "Visit https://noderoom.live/",
+      "Read browser navigation and paint timing"
+    ],
+    "expected": "The landing page should render first contentful paint comfortably under common production thresholds.",
+    "actual": "The QA run recorded first paint and first contentful paint at about 3600 ms. Console logs also reported unused preloaded font resources.",
+    "evidence": {
+      "video": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/videos/page@278ee50faf18e1c37c8d81be32eda9b5.webm",
+      "trace": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/traces/desktop-landing.zip",
+      "screenshot": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/screenshots/desktop-landing.png",
+      "consoleLog": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/console-logs/desktop-landing.json",
+      "networkLog": "docs/qa/prod-dogfood/2026-07-08-2039/artifacts/network-logs/desktop-landing.json"
+    },
+    "suspectedCause": "Font preloads and render-critical assets may not be tuned for the deployed landing page.",
+    "userImpact": "A cold first-time visitor can wait long enough for the page to feel less polished.",
+    "suggestedFix": "Audit font loading/preload hints and add a lightweight landing performance budget test.",
+    "regressionTestCandidate": true
+  }
+]

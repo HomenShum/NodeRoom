@@ -1,0 +1,71 @@
+{
+  "asset": {
+    "id": "docs-qa-fixloop-2026-07-08-2326-artifacts-videos-live-create-export-reload",
+    "class": "live_browser_proof",
+    "title": "Live Create Export Reload",
+    "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\docs\\qa\\fixloop\\2026-07-08-2326\\artifacts\\videos\\live-create-export-reload.webm",
+    "relPath": "docs/qa/fixloop/2026-07-08-2326/artifacts/videos/live-create-export-reload.webm",
+    "purpose": "Live Playwright browser benchmark proof clip. Judge only visible product behavior: fresh-room flow, uploads, public NodeAgent invocation, streaming/tool traces, focus/attention UI, artifact creation/download, and production honesty. Clip duration, silence, or README pacing is not a product defect."
+  },
+  "model": "gemini-3.5-flash",
+  "status": "judged",
+  "mediaPath": "docs/qa/fixloop/2026-07-08-2326/artifacts/videos/live-create-export-reload.webm",
+  "mediaType": "video/webm",
+  "bytes": 2718636,
+  "judge": {
+    "verdict": "publish",
+    "summary": "The browser proof demonstrates the end-to-end flow of entering a room, navigating sheets, exporting data, and reloading the interface while preserving state. The UI is highly functional and aligns with the product's design language.",
+    "scores": {
+      "featureClarity": {
+        "score": 1,
+        "evidence": "The video shows room creation, sheet navigation, and a reload sequence, though the export action itself is extremely brief."
+      },
+      "workflowCompleteness": {
+        "score": 1,
+        "evidence": "Captures the transition from the landing page to the active workspace and the subsequent reload, completing the lifecycle."
+      },
+      "visualDesign": {
+        "score": 1,
+        "evidence": "Features a dark, high-density interface with clear active states, though some panels feel slightly crowded."
+      },
+      "consistency": {
+        "score": 1,
+        "evidence": "Maintains the established aesthetic of spreadsheets, chat sidebars, and agent traces."
+      },
+      "evidenceQuality": {
+        "score": 1,
+        "evidence": "Recorded directly from a live browser session showing authentic UI responses and loading states."
+      },
+      "legibility": {
+        "score": 1,
+        "evidence": "Most text and numbers in the spreadsheet cells are readable, though the font size is small."
+      },
+      "professionalRelevance": {
+        "score": 1,
+        "evidence": "Highly relevant for demonstrating data integrity and export workflows to technical auditors."
+      },
+      "productionHonesty": {
+        "score": 1,
+        "evidence": "Honestly depicts the brief blank screen during the browser reload process."
+      }
+    },
+    "observedEvidence": [
+      "Landing page room entry",
+      "Spreadsheet data rendering",
+      "Export XLSX button interaction",
+      "Browser reload and state recovery"
+    ],
+    "missingEvidence": [],
+    "defects": [
+      {
+        "ts": "00:21",
+        "severity": "P2",
+        "observed": "A brief black screen occurs during the room reload sequence.",
+        "fix": "Optimize client-side caching or transition animations to soften the reload flicker."
+      }
+    ],
+    "suggestedReadmeCaption": "Watch NodeRoom handle live data export and state preservation across browser reloads."
+  },
+  "score": 8,
+  "maxScore": 16
+}

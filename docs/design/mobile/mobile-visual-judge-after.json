@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "phase": "after",
+  "captured_at": "2026-07-09",
+  "provider": "Gemini Pro web",
+  "loop_limit": 3,
+  "shipping_policy": "Taste judgment controls shipping. Reference similarity is diagnostic evidence only.",
+  "taste_loops": [
+    {
+      "loop": 1,
+      "taste_score": 6.0,
+      "topbar_taste_score": 6.5,
+      "contract_adherence_score": 6.0,
+      "reference_similarity_score": 5.0,
+      "ship_readiness": false,
+      "repairs_taken": [
+        "Added persistent six-destination bottom navigation without overlaying content.",
+        "Removed the duplicate Review badge from the quick-action control.",
+        "Replaced the hamburger-like overflow glyph with an ellipsis.",
+        "Separated artifact type colors from verification-state colors.",
+        "Kept the governed deck composer and governance disclosure visible."
+      ]
+    },
+    {
+      "loop": 2,
+      "taste_score": 5.5,
+      "topbar_taste_score": 6.5,
+      "contract_adherence_score": 6.5,
+      "reference_similarity_score": 6.0,
+      "ship_readiness": false,
+      "repairs_taken": [
+        "Captured canonical screenshots with a normal room title and kept long-title stress proof separate.",
+        "Increased dark-mode muted-text contrast.",
+        "Compacted the 320px artifact grid to avoid a partial third-card sliver.",
+        "Changed the final navigation label from Artifacts to Files."
+      ]
+    },
+    {
+      "loop": 3,
+      "taste_score": 5.5,
+      "topbar_taste_score": 6.0,
+      "contract_adherence_score": 6.5,
+      "reference_similarity_score": 3.5,
+      "ship_readiness": false,
+      "topbar_issues": [
+        {
+          "severity": "low",
+          "issue": "Header layout is dense."
+        }
+      ],
+      "semantic_issues": [
+        {
+          "severity": "low",
+          "issue": "Dark-mode border contrast is low."
+        }
+      ],
+      "geometry_issues": [
+        {
+          "severity": "medium",
+          "issue": "Navigation hit areas appear tight."
+        }
+      ],
+      "navigation_issues": [],
+      "recommended_fixes": [
+        "Verify 44px targets.",
+        "Enhance dark-mode contrast."
+      ],
+      "regressions": [],
+      "positive_observations": [
+        "Flat safe-area header.",
+        "Stable Review badge.",
+        "Correct column scaling."
+      ]
+    }
+  ],
+  "judgment_a": {
+    "provider": "Gemini Pro",
+    "judgment": "taste_product_quality_loop_3",
+    "taste_score": 5.5,
+    "topbar_taste_score": 6.0,
+    "contract_adherence_score": 6.5,
+    "reference_similarity_score": 3.5,
+    "ship_readiness": false
+  },
+  "judgment_b": {
+    "provider": "Gemini Pro",
+    "judgment": "approved_contract_adherence",
+    "taste_score": 8.5,
+    "topbar_taste_score": 8.5,
+    "contract_adherence_score": 10.0,
+    "reference_similarity_score": 9.5,
+    "ship_readiness": "READY",
+    "issues": [],
+    "positive_observations": [
+      "Light and dark mobile widths were represented in the evidence set.",
+      "Body overflow stayed within the one-pixel tolerance.",
+      "The header uses the approved 52px row plus safe area.",
+      "All six navigation destinations remain reachable.",
+      "Production mode has no synthetic device chrome."
+    ]
+  },
+  "combined_gate": {
+    "status": "blocked",
+    "reason": "The independent taste judgment remained below threshold after the maximum three repair loops. The passing contract judgment does not override the taste gate.",
+    "thresholds": {
+      "taste_score": 8.0,
+      "topbar_taste_score": 8.5,
+      "contract_adherence_score": 9.0
+    },
+    "final_scores": {
+      "taste_score": 5.5,
+      "topbar_taste_score": 6.0,
+      "contract_adherence_score": 10.0
+    }
+  }
+}

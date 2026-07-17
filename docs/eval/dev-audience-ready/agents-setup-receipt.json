@@ -1,0 +1,25 @@
+{
+  "schema": "proofloop-dev-audience-agent-setup-receipt-v1",
+  "generatedAt": "2026-07-09T07:36:43.330Z",
+  "status": "pass",
+  "command": "node scripts/proofloop.mjs agents setup all --local --strict",
+  "exitCode": 0,
+  "adapterStatuses": {
+    "codex": "ready",
+    "claude-code": "ready",
+    "cursor": "ready",
+    "windsurf": "ready",
+    "devin": "ready",
+    "generic-cli": "ready"
+  },
+  "stdoutTail": "proofloop agent: codex ready\nproofloop agent: receipt .proofloop/setup/agents/codex.json\n  codex hooks installed via codex.\n  hooks: .codex/hooks.local.json\n  launch: codex exec --json\n  setup pack: .proofloop/setup/agents/codex-setup-pack.md\n  mcp bridge: .proofloop/mcp/proofloop-mcp.json\n  next: npm run proofloop -- run bankertoolbench --agent codex --closed-loop\nproofloop agent: claude-code ready\nproofloop agent: receipt .proofloop/setup/agents/claude-code.json\n  claude-code hooks installed via claude-code.\n  hooks: .claude/settings.local.json\n  launch: claude --print --input-format text\n  setup pack: .proofloop/setup/agents/claude-code-setup-pack.md\n  mcp bridge: .proofloop/mcp/proofloop-mcp.json\n  next: npm run proofloop -- run bankertoolbench --agent claude-code --closed-loop\nproofloop agent: cursor ready\nproofloop agent: receipt .proofloop/setup/agents/cursor.json\n  Cursor native launcher is ready; runtime verification still requires Cursor CLI evidence and ProofLoop gate receipts.\n  launch: npm run proofloop -- agents launch cursor --prompt {promptPath}\n  setup pack: .proofloop/setup/agents/cursor-setup-pack.md\n  mcp bridge: .proofloop/mcp/proofloop-mcp.json\n  next: npm run proofloop -- agents launch cursor --prompt <repair-prompt.md>\nproofloop agent: windsurf ready\nproofloop agent: receipt .proofloop/setup/agents/windsurf.json\n  Windsurf native launcher is configured; runtime verification still requires session export evidence and ProofLoop gate receipts.\n  launch: npm run proofloop -- agents launch windsurf --prompt {promptPath}\n  setup pack: .proofloop/setup/agents/windsurf-setup-pack.md\n  mcp bridge: .proofloop/mcp/proofloop-mcp.json\n  next: npm run proofloop -- agents launch windsurf --prompt <repair-prompt.md>\nproofloop agent: devin ready\nproofloop agent: receipt .proofloop/setup/agents/devin.json\n  Devin native launcher is ready; runtime verification still requires Devin API/CLI evidence and ProofLoop gate receipts.\n  launch: npm run proofloop -- agents launch devin-api --prompt {promptPath}\n  setup pack: .proofloop/setup/agents/devin-setup-pack.md\n  mcp bridge: .proofloop/mcp/proofloop-mcp.json\n  next: npm run proofloop -- agents launch devin-api --prompt <repair-prompt.md>\nproofloop agent: generic-cli ready\nproofloop agent: receipt .proofloop/setup/agents/generic-cli.json\n  generic-cli adapter is ready.\n  launch: node scripts/proofloop-generic-cursor-bridge.mjs\n  setup pack: .proofloop/setup/agents/generic-cli-setup-pack.md\n  mcp bridge: .proofloop/mcp/proofloop-mcp.json\n  next: npm run proofloop -- agents launch generic-cli --prompt <repair-prompt.md>\n",
+  "stderrTail": "",
+  "evidence": [
+    ".proofloop/setup/agents/codex.json",
+    ".proofloop/setup/agents/claude-code.json",
+    ".proofloop/setup/agents/cursor.json",
+    ".proofloop/setup/agents/windsurf.json",
+    ".proofloop/setup/agents/devin.json",
+    ".proofloop/setup/agents/generic-cli.json"
+  ]
+}

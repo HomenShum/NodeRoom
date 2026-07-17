@@ -19,8 +19,9 @@
  */
 
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
-import { Search, CornerDownLeft } from "lucide-react";
+import { CornerDownLeft } from "lucide-react";
 import { useStore } from "../app/store";
+import { CommandDialog, CommandInput, CommandItem, CommandList } from "../components/ui/command";
 import { textEntryIsActive } from "./focusMode";
 import "./command-palette.css";
 
@@ -71,17 +72,21 @@ export function CommandPalette({
   const [cursor, setCursor] = useState(0);
   const openRef = useRef(open);
   openRef.current = open;
-  const inputRef = useRef<HTMLInputElement>(null);
-  /** Where keyboard focus was when ⌘K fired — Esc puts the user back there. */
+  const restoreFocusRef = useRef(true);
   const prevFocusRef = useRef<HTMLElement | null>(null);
+  /** Where keyboard focus was when ⌘K fired — Esc puts the user back there. */
 
   const closePalette = (restoreFocus: boolean) => {
+    restoreFocusRef.current = restoreFocus;
     setOpen(false);
     setQuery("");
     setCursor(0);
     if (restoreFocus) {
-      const prev = prevFocusRef.current;
-      if (prev && prev.isConnected) prev.focus();
+      const previous = prevFocusRef.current;
+      if (previous?.isConnected) {
+        previous.focus();
+        queueMicrotask(() => { if (previous.isConnected) previous.focus(); });
+      }
     }
     prevFocusRef.current = null;
   };
@@ -102,17 +107,13 @@ export function CommandPalette({
       // Never steal ⌘K mid-typing (chat composer, cell editor, notebook).
       if (textEntryIsActive()) return;
       e.preventDefault();
+      restoreFocusRef.current = true;
       prevFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       setOpen(true);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
-
-  // Focus lands in the filter input the moment the palette opens.
-  useEffect(() => {
-    if (open) inputRef.current?.focus();
-  }, [open]);
 
   const artifacts = store.listArtifacts(roomId);
   const entries = useMemo<PaletteEntry[]>(() => {
@@ -134,15 +135,6 @@ export function CommandPalette({
   // past the end of the list, and there's no state-sync loop to latch.
   const selected = visible.length === 0 ? -1 : Math.min(cursor, visible.length - 1);
 
-  // Keep the active row in view as j/k walks a longer-than-viewport list.
-  useEffect(() => {
-    if (!open || selected < 0) return;
-    const el = document.getElementById(`r-cmdk-opt-${selected}`);
-    if (el && typeof el.scrollIntoView === "function") el.scrollIntoView({ block: "nearest" });
-  }, [open, selected, query]);
-
-  if (!open) return null;
-
   const runEntry = (entry: PaletteEntry | undefined) => {
     if (!entry) return;
     // Close first WITHOUT restoring focus — actions like "Jump to chat composer"
@@ -150,6 +142,7 @@ export function CommandPalette({
     setOpen(false);
     setQuery("");
     setCursor(0);
+    restoreFocusRef.current = false;
     prevFocusRef.current = null;
     if (entry.kind === "artifact" && entry.artifactId) onOpenArtifact(entry.artifactId);
     else entry.run?.();
@@ -183,60 +176,57 @@ export function CommandPalette({
       step(k === "j" ? 1 : -1);
       return;
     }
-    // Focus trap: arrows are the navigation; Tab never escapes the dialog.
-    if (k === "Tab") e.preventDefault();
   };
 
   return (
-    <div
-      className="r-cmdk-backdrop"
-      role="presentation"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) closePalette(true);
+    <CommandDialog
+      open={open}
+      onOpenChange={(nextOpen) => { if (!nextOpen) closePalette(true); }}
+      title="Command palette"
+      description="Search artifacts and commands"
+      className="r-cmdk"
+      showCloseButton={false}
+      contentTestId="command-palette"
+      commandProps={{ shouldFilter: false, value: selected >= 0 ? visible[selected]?.id : undefined }}
+      contentProps={{
+        unstyled: true,
+        overlayClassName: "r-cmdk-backdrop",
+        onCloseAutoFocus: (event) => {
+          if (!restoreFocusRef.current) event.preventDefault();
+          restoreFocusRef.current = true;
+        },
       }}
     >
-      <div className="r-cmdk" role="dialog" aria-modal="true" aria-label="Command palette" data-testid="command-palette" onKeyDown={onKeyDown}>
-        <div className="r-cmdk-inputwrap">
-          <Search size={14} aria-hidden />
-          <input
-            ref={inputRef}
+          <CommandInput
+            wrapperClassName="r-cmdk-inputwrap"
             className="r-cmdk-input"
-            role="combobox"
-            aria-expanded="true"
-            aria-autocomplete="list"
-            aria-controls="r-cmdk-list"
-            aria-activedescendant={selected >= 0 ? `r-cmdk-opt-${selected}` : undefined}
             aria-label="Search artifacts and commands"
             placeholder="Search artifacts and commands…"
             data-testid="command-palette-input"
             value={query}
-            onChange={(e) => {
-              setQuery(e.currentTarget.value);
+            onKeyDown={onKeyDown}
+            onValueChange={(value) => {
+              setQuery(value);
               setCursor(0);
             }}
+            trailing={<kbd className="r-cmdk-kbd">esc</kbd>}
           />
-          <kbd className="r-cmdk-kbd">esc</kbd>
-        </div>
-        <div className="r-cmdk-list" role="listbox" id="r-cmdk-list" aria-label="Palette results">
+        <CommandList className="r-cmdk-list" id="r-cmdk-list" aria-label="Palette results">
           {visible.map((entry, i) => (
-            <button
+            <CommandItem
               key={entry.id}
-              type="button"
-              role="option"
               id={`r-cmdk-opt-${i}`}
-              aria-selected={i === selected}
+              value={entry.id}
               className="r-cmdk-item"
               data-selected={String(i === selected)}
               data-kind={entry.kind}
               data-testid="command-palette-item"
-              // mousedown would steal focus from the input before click lands.
-              onMouseDown={(e) => e.preventDefault()}
               onMouseEnter={() => setCursor(i)}
-              onClick={() => runEntry(entry)}
+              onSelect={() => runEntry(entry)}
             >
               <span className="r-cmdk-item-label">{entry.label}</span>
               {entry.hint && <span className="r-cmdk-item-hint">{entry.hint}</span>}
-            </button>
+            </CommandItem>
           ))}
           {moreCount > 0 && (
             <div className="r-cmdk-more" data-testid="command-palette-more">
@@ -248,13 +238,12 @@ export function CommandPalette({
               No matches for “{query}”
             </div>
           )}
-        </div>
+        </CommandList>
         <div className="r-cmdk-foot" aria-hidden>
           <span><kbd className="r-cmdk-kbd">↑↓</kbd><kbd className="r-cmdk-kbd">j·k</kbd> navigate</span>
           <span><kbd className="r-cmdk-kbd"><CornerDownLeft size={9} /></kbd> run</span>
           <span><kbd className="r-cmdk-kbd">esc</kbd> close</span>
         </div>
-      </div>
-    </div>
+    </CommandDialog>
   );
 }

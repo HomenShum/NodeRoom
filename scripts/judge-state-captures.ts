@@ -88,7 +88,24 @@ async function judge(surface: string, caps: Capture[]): Promise<Verdict> {
     if (!res.ok) throw new Error(`judge HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`);
     const body = (await res.json()) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
     const text = body.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
-    parsed = JSON.parse(text.replace(/^```json\s*|\s*```$/g, ""));
+    const raw = text.replace(/^```json\s*|\s*```$/g, "").trim();
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      const repair = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${JUDGE_MODEL}:generateContent?key=${key}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `Repair the following malformed response into strict JSON matching {"scores":{"state_legibility":number,"affordance_honesty":number,"consistency":number,"contrast":number,"polish":number},"topIssues":string[],"fixSuggestions":string[]}. Return JSON only.\n\n${raw}` }] }],
+          generationConfig: { responseMimeType: "application/json", temperature: 0 },
+        }),
+        signal: controller.signal,
+      });
+      if (!repair.ok) throw new Error(`judge repair HTTP ${repair.status}: ${(await repair.text()).slice(0, 200)}`);
+      const repairBody = (await repair.json()) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
+      const repairedText = repairBody.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("") ?? "";
+      parsed = JSON.parse(repairedText.replace(/^```json\s*|\s*```$/g, "").trim());
+    }
   } finally {
     clearTimeout(timer);
   }

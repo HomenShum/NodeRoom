@@ -1,0 +1,523 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-11T11:36:15.118Z",
+  "stageRoot": "staged-v2-full",
+  "outputRoot": "run-v2-heldout-current",
+  "mode": "model-edit-plan",
+  "taskOffset": 0,
+  "taskCount": 3,
+  "passCount": 0,
+  "averageOverall": 0.192782,
+  "caseCount": 3,
+  "caseRunCount": 3,
+  "casePassCount": 0,
+  "casePassRate": 0,
+  "repeatCount": 1,
+  "attemptCount": 3,
+  "passRate": 0,
+  "retryPolicy": {
+    "maxRetries": 0,
+    "retryOn": [
+      "candidate_generation",
+      "scoring"
+    ],
+    "stopOnPass": true
+  },
+  "retryStats": {
+    "retriedCaseRunCount": 0,
+    "retryAttemptCount": 0,
+    "passedAfterRetryCount": 0,
+    "exhaustedCaseRunCount": 2
+  },
+  "stats": {
+    "latencyMs": {
+      "p50": 120330,
+      "p95": 120475,
+      "max": 120475
+    },
+    "failureCounts": {
+      "candidate_generation:The operation was aborted due to timeout": 2
+    }
+  },
+  "harness": {
+    "toolPolicy": "agent_dir_only_until_candidate",
+    "evaluatorAccess": "after_candidate_emit_only",
+    "modelContextPolicy": {
+      "batchSize": 1,
+      "snapshotMaxCells": 800,
+      "snapshotMaxCellChars": 256,
+      "instructionMaxChars": null,
+      "repairAttempts": 1,
+      "selectedTaskCount": 321
+    },
+    "budget": {
+      "modelCalls": 4,
+      "inputTokens": 121631,
+      "outputTokens": 6536,
+      "providerCostUsd": 0
+    }
+  },
+  "warnings": [
+    "tasks/Debugging_01_01#1.1: The operation was aborted due to timeout",
+    "tasks/Debugging_01_03#1.1: The operation was aborted due to timeout"
+  ],
+  "caseRuns": [
+    {
+      "taskId": "Debugging/01_01",
+      "taskDir": "tasks/Debugging_01_01",
+      "repeatIndex": 1,
+      "attempts": [
+        1
+      ],
+      "finalAttemptIndex": 1,
+      "pass": false,
+      "stopReason": "retry_exhausted",
+      "bestOverall": 0
+    },
+    {
+      "taskId": "Debugging/01_02",
+      "taskDir": "tasks/Debugging_01_02",
+      "repeatIndex": 1,
+      "attempts": [
+        2
+      ],
+      "finalAttemptIndex": 2,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.578347
+    },
+    {
+      "taskId": "Debugging/01_03",
+      "taskDir": "tasks/Debugging_01_03",
+      "repeatIndex": 1,
+      "attempts": [
+        3
+      ],
+      "finalAttemptIndex": 3,
+      "pass": false,
+      "stopReason": "retry_exhausted",
+      "bestOverall": 0
+    }
+  ],
+  "results": [
+    {
+      "taskId": "Debugging/01_01",
+      "track": "spreadsheetbench-v2",
+      "category": "Debugging",
+      "mode": "model-edit-plan",
+      "attemptIndex": 1,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Debugging_01_01",
+      "agentManifest": "tasks/Debugging_01_01/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_01_01/evaluator/evaluator.json",
+      "error": {
+        "phase": "candidate_generation",
+        "message": "The operation was aborted due to timeout"
+      },
+      "model": {
+        "name": "openrouter/free",
+        "calls": 1,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 120010,
+        "candidateGeneration": 120475,
+        "scoring": 0,
+        "total": 120475
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Debugging_01_01/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Debugging_01_01/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "snapshot_agent_workbook",
+          "detail": "14 sheet(s), 642 cell(s)"
+        }
+      ]
+    },
+    {
+      "taskId": "Debugging/01_02",
+      "track": "spreadsheetbench-v2",
+      "category": "Debugging",
+      "mode": "model-edit-plan",
+      "attemptIndex": 2,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Debugging_01_02",
+      "agentManifest": "tasks/Debugging_01_02/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_01_02/evaluator/evaluator.json",
+      "candidateWorkbook": "Debugging_01_02/candidate-01-Embedded Hardcode_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Debugging_01_02/candidate-manifest.json",
+          "sha256": "14bb99ce1f6bc6be22273b06568a61fc793727a3401b7f54e53623fa15e61ff1",
+          "bytes": 1791
+        },
+        "agentWorkspaceManifest": {
+          "path": "Debugging_01_02/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "1c151135720464a0149e1f7d6020215e1c5e53051852142984b094d18de25679",
+          "bytes": 519
+        },
+        "editPlan": {
+          "path": "Debugging_01_02/model-edit-plan.json",
+          "sha256": "d7e676d84d36778335f14f7e5b95c8cf7b308fc61ee94d33d9451d87add06d3d",
+          "bytes": 4242,
+          "kind": "generated"
+        },
+        "rawModelOutput": {
+          "path": "Debugging_01_02/model-output.txt",
+          "sha256": "21df4d6ae911469ee182880a33afabbc0ce894acf3bc3a89adff7c6e5070fdd1",
+          "bytes": 274
+        },
+        "workbookInspection": {
+          "path": "Debugging_01_02/workbook-inspection.json",
+          "sha256": "683772e0329e7b25ba2aa4612aa035b7a050fd790083d2c271425bc9b72d0ab9",
+          "bytes": 78085
+        },
+        "editVerification": {
+          "path": "Debugging_01_02/model-edit-verification.json",
+          "sha256": "3ac03e54131b834e4e88495c63a05ef0f3a2e8e890e9f0e30725ab2c3dfa0e7f",
+          "bytes": 95821
+        },
+        "repairOutputs": [
+          {
+            "path": "Debugging_01_02/model-repair-output-01.txt",
+            "sha256": "be14d6f15183efd921f0c380836b5a7087a5feadc6bb0f06a9c2ce6ae7e5265d",
+            "bytes": 3684
+          }
+        ],
+        "formulaResultPolicy": "deterministic_local_subset",
+        "supportedFormulaFunctions": [
+          "SUM",
+          "AVERAGE",
+          "MIN",
+          "MAX",
+          "MEDIAN",
+          "COUNT",
+          "COUNTA",
+          "ABS",
+          "ROUND",
+          "ROUNDUP",
+          "ROUNDDOWN",
+          "AND",
+          "OR",
+          "NOT",
+          "IF",
+          "IFERROR",
+          "SUMIF",
+          "COUNTIF",
+          "AVERAGEIF",
+          "SUMIFS",
+          "COUNTIFS",
+          "AVERAGEIFS",
+          "MATCH",
+          "INDEX",
+          "VLOOKUP",
+          "XLOOKUP",
+          "SUMPRODUCT",
+          "LEFT",
+          "RIGHT",
+          "MID",
+          "LEN",
+          "FIND",
+          "SEARCH",
+          "REPLACE",
+          "TEXT",
+          "DATE",
+          "VALUE",
+          "CONCATENATE",
+          "TRIM"
+        ],
+        "appliedOperationCount": 32,
+        "repairAttemptCount": 1,
+        "verificationStatus": "needs_repair"
+      },
+      "scorerReceipt": {
+        "path": "Debugging_01_02/score-receipt.json",
+        "sha256": "122ad2191a5d5d9ad0c2229cddaed1867f8a7a03e480127746b0ed2b0c59a867",
+        "bytes": 5462
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-11T11:36:15.118Z",
+        "taskId": "Debugging/01_02",
+        "candidateWorkbook": "candidate-01-Embedded Hardcode_input.xlsx",
+        "goldWorkbook": "01-01_golden.xlsx",
+        "answerPosition": "'Ex 1 - LBO'!B1:AK95,'Ex 2 - Valuation Bridge'!B2:C36,'Ex 3 - PF P&L'!B1:I30,'Ex 4 - Organic Operating Model'!B1:AF41,'Ex 5 - M&A'!B1:AB81,'Ex 6 - Amdocs Historical M&A'!B2:J19,'Ex 7 - SOFR'!B2:E79,'Ex 8 - Public Comps'!B2:F37,'Ex 9 - Transaction Comps'!B2:G24,'Ex 10 - Balance Sheet'!B2:F33,'Ex 11 - Income Statement'!B2:K28,'Ex 12 - Cash Flow Statement'!B2:G44",
+        "ranges": [
+          "'Ex 1 - LBO'!B1:AK95",
+          "'Ex 2 - Valuation Bridge'!B2:C36",
+          "'Ex 3 - PF P&L'!B1:I30",
+          "'Ex 4 - Organic Operating Model'!B1:AF41",
+          "'Ex 5 - M&A'!B1:AB81",
+          "'Ex 6 - Amdocs Historical M&A'!B2:J19",
+          "'Ex 7 - SOFR'!B2:E79",
+          "'Ex 8 - Public Comps'!B2:F37",
+          "'Ex 9 - Transaction Comps'!B2:G24",
+          "'Ex 10 - Balance Sheet'!B2:F33",
+          "'Ex 11 - Income Statement'!B2:K28",
+          "'Ex 12 - Cash Flow Statement'!B2:G44"
+        ],
+        "totals": {
+          "comparedCells": 8668,
+          "valueMatches": 6896,
+          "formulaCells": 1933,
+          "formulaMatches": 1816,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 1889,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.79557,
+          "formula": 0.939472,
+          "style": null,
+          "chartPackage": 0,
+          "overall": 0.5783473333333333
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 10/1889",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+        ],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "Q1",
+            "expected": "2026",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "R1",
+            "expected": "2027",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "S1",
+            "expected": "2028",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "T1",
+            "expected": "2029",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "U1",
+            "expected": "2030",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "C11",
+            "expected": "18.2034",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "B13",
+            "expected": "Amdocs - Control",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "H13",
+            "expected": "Amdocs - Forecast Drivers",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "O13",
+            "expected": "Amdocs - Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Ex 1 - LBO",
+            "cell": "W13",
+            "expected": "Amdocs - Returns Analysis",
+            "actual": ""
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-11T11:36:15.118Z",
+          "taskId": "Debugging/01_02",
+          "candidateWorkbook": "candidate-01-Embedded Hardcode_input.xlsx",
+          "goldWorkbook": "01-01_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 2,
+            "candidateChartParts": 0,
+            "matchedChartParts": 0,
+            "missingChartParts": 2,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 0
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [],
+          "goldParts": [
+            {
+              "path": "xl/drawings/drawing1.xml",
+              "kind": "drawing",
+              "sha256": "4b01a176a0c08fc7fde00a5a1ff39b194d2a7ffbb2796af63c5fa11a643e6326",
+              "bytes": 2542
+            },
+            {
+              "path": "xl/drawings/drawing2.xml",
+              "kind": "drawing",
+              "sha256": "17edc7d920ca01dad843d6c5e00e0df06ae356fbb9366eb17ad3f57d44c03ec9",
+              "bytes": 2382
+            }
+          ],
+          "mismatches": [
+            {
+              "kind": "missing_chart_part",
+              "path": "xl/drawings/drawing1.xml",
+              "expected": "4b01a176a0c08fc7fde00a5a1ff39b194d2a7ffbb2796af63c5fa11a643e6326"
+            },
+            {
+              "kind": "missing_chart_part",
+              "path": "xl/drawings/drawing2.xml",
+              "expected": "17edc7d920ca01dad843d6c5e00e0df06ae356fbb9366eb17ad3f57d44c03ec9"
+            }
+          ],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+          ]
+        }
+      },
+      "model": {
+        "name": "openrouter/free",
+        "calls": 2,
+        "usage": {
+          "inputTokens": 121631,
+          "outputTokens": 6536,
+          "cachedInputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 45725,
+        "candidateGeneration": 46444,
+        "scoring": 425,
+        "total": 46923
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Debugging_01_02/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Debugging_01_02/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "snapshot_agent_workbook",
+          "detail": "14 sheet(s), 642 cell(s)"
+        },
+        {
+          "step": "call_model_for_edit_plan",
+          "detail": "openrouter/free"
+        },
+        {
+          "step": "verify_edit_plan",
+          "detail": "needs_repair: 1 issue(s)"
+        },
+        {
+          "step": "repair_edit_plan",
+          "detail": "attempt 1: passed, 0 issue(s)"
+        },
+        {
+          "step": "verify_candidate_workbook",
+          "detail": "needs_repair: 31/32 changed cell(s) verified"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Debugging_01_02/candidate-01-Embedded Hardcode_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Debugging_01_02/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "1889 cell mismatch(es), 2 chart-package mismatch(es)"
+        }
+      ]
+    },
+    {
+      "taskId": "Debugging/01_03",
+      "track": "spreadsheetbench-v2",
+      "category": "Debugging",
+      "mode": "model-edit-plan",
+      "attemptIndex": 3,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Debugging_01_03",
+      "agentManifest": "tasks/Debugging_01_03/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_01_03/evaluator/evaluator.json",
+      "error": {
+        "phase": "candidate_generation",
+        "message": "The operation was aborted due to timeout"
+      },
+      "model": {
+        "name": "openrouter/free",
+        "calls": 1,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 120005,
+        "candidateGeneration": 120327,
+        "scoring": 0,
+        "total": 120330
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Debugging_01_03/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Debugging_01_03/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "snapshot_agent_workbook",
+          "detail": "14 sheet(s), 648 cell(s)"
+        }
+      ]
+    }
+  ]
+}

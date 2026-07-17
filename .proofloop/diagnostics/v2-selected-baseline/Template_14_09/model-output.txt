@@ -1,0 +1,1 @@
+{"schema":1,"operations":[{"sheet":"Revenue_Projection","cell":"F34","value":0,"numFmt":"0.0%"},{"sheet":"Revenue_Projection","cell":"G34","value":0,"numFmt":"0.0%"},{"sheet":"Revenue_Projection","cell":"H34","value":0,"numFmt":"0.0%"}]}

@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "taskId": "Financial_Model/11_04",
+  "track": "spreadsheetbench-v2",
+  "category": "Financial_Model",
+  "instruction": "Complete the financial model based on the provided assumptions. Ensure the existing structure, layout, and formatting of the model are preserved throughout the process.\nIn the Comps sheet, calculate Enterprise Value using the adjusted median multiple. In the Txn Comparison sheet, calculate P/E for FY25–FY27. In the Summary sheet, calculate Total Revenue for FY21–FY30 from TLT and Switchgear segments. In the IS sheet, calculate PAT for FY26E–FY30E, then calculate EBITDA for FY21A–FY30E. In the Ratio Analysis sheet, calculate Current Ratio for all periods.",
+  "inputFiles": [
+    "inputs/01-11_04_Switchgear_input.xlsx"
+  ],
+  "promptFiles": []
+}

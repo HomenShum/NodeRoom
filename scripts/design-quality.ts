@@ -471,7 +471,10 @@ async function collectBrowserEvidence(): Promise<BrowserEvidence> {
 }
 
 async function enterDesignRoom(page: Page, baseUrl: string, width: number) {
-  await page.goto(`${baseUrl}/?mode=memory`, { waitUntil: "domcontentloaded" });
+  // This runner measures the responsive desktop work surface at both viewports.
+  // Without the explicit surface, a narrow viewport is intentionally routed to
+  // the separate mobile product and the desktop quality selectors cannot exist.
+  await page.goto(`${baseUrl}/?mode=memory&surface=desktop`, { waitUntil: "domcontentloaded" });
   const artifact = page.getByTestId("artifact-panel");
   const inside = await artifact.waitFor({ state: "visible", timeout: 1_500 }).then(() => true, () => false);
   if (!inside) {

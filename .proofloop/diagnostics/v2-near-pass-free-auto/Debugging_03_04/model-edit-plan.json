@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "operations": [
+    {
+      "sheet": "LBO",
+      "cell": "J15",
+      "formula": "+'Ex 10 - Proj. Income Statement'!D31",
+      "value": "+'Ex 10 - Proj. Income Statement'!D31"
+    },
+    {
+      "sheet": "LBO",
+      "cell": "K15",
+      "formula": "+'Ex 10 - Proj. Income Statement'!E31",
+      "value": "+'Ex 10 - Proj. Income Statement'!E31"
+    },
+    {
+      "sheet": "LBO",
+      "cell": "L15",
+      "formula": "+'Ex 10 - Proj. Income Statement'!F31",
+      "value": "+'Ex 10 - Proj. Income Statement'!F31"
+    },
+    {
+      "sheet": "LBO",
+      "cell": "M15",
+      "formula": "+'Ex 10 - Proj. Income Statement'!G31",
+      "value": "+'Ex 10 - Proj. Income Statement'!G31"
+    },
+    {
+      "sheet": "LBO",
+      "cell": "N15",
+      "formula": "+'Ex 10 - Proj. Income Statement'!H31",
+      "value": "+'Ex 10 - Proj. Income Statement'!H31"
+    }
+  ]
+}

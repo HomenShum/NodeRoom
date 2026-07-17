@@ -1,0 +1,1464 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-09T10:19:01.809Z",
+  "stageRoot": "staged-v2-full",
+  "outputRoot": "run-v2-copy-input-retry-financial02",
+  "mode": "copy-input-baseline",
+  "taskOffset": 105,
+  "taskCount": 5,
+  "passCount": 0,
+  "averageOverall": 0.852757,
+  "caseCount": 5,
+  "caseRunCount": 5,
+  "casePassCount": 0,
+  "casePassRate": 0,
+  "repeatCount": 1,
+  "attemptCount": 5,
+  "passRate": 0,
+  "retryPolicy": {
+    "maxRetries": 0,
+    "retryOn": [
+      "candidate_generation",
+      "scoring"
+    ],
+    "stopOnPass": true
+  },
+  "retryStats": {
+    "retriedCaseRunCount": 0,
+    "retryAttemptCount": 0,
+    "passedAfterRetryCount": 0,
+    "exhaustedCaseRunCount": 0
+  },
+  "stats": {
+    "latencyMs": {
+      "p50": 471,
+      "p95": 572,
+      "max": 572
+    },
+    "failureCounts": {}
+  },
+  "harness": {
+    "toolPolicy": "agent_dir_only_until_candidate",
+    "evaluatorAccess": "after_candidate_emit_only",
+    "budget": {
+      "modelCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "providerCostUsd": 0
+    }
+  },
+  "warnings": [],
+  "caseRuns": [
+    {
+      "taskId": "Financial_Model/02_01",
+      "taskDir": "tasks/Financial_Model_02_01",
+      "repeatIndex": 1,
+      "attempts": [
+        1
+      ],
+      "finalAttemptIndex": 1,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.849782
+    },
+    {
+      "taskId": "Financial_Model/02_02",
+      "taskDir": "tasks/Financial_Model_02_02",
+      "repeatIndex": 1,
+      "attempts": [
+        2
+      ],
+      "finalAttemptIndex": 2,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.85309
+    },
+    {
+      "taskId": "Financial_Model/02_03",
+      "taskDir": "tasks/Financial_Model_02_03",
+      "repeatIndex": 1,
+      "attempts": [
+        3
+      ],
+      "finalAttemptIndex": 3,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.848925
+    },
+    {
+      "taskId": "Financial_Model/02_04",
+      "taskDir": "tasks/Financial_Model_02_04",
+      "repeatIndex": 1,
+      "attempts": [
+        4
+      ],
+      "finalAttemptIndex": 4,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.856637
+    },
+    {
+      "taskId": "Financial_Model/02_05",
+      "taskDir": "tasks/Financial_Model_02_05",
+      "repeatIndex": 1,
+      "attempts": [
+        5
+      ],
+      "finalAttemptIndex": 5,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.855352
+    }
+  ],
+  "results": [
+    {
+      "taskId": "Financial_Model/02_01",
+      "track": "spreadsheetbench-v2",
+      "category": "Financial_Model",
+      "mode": "copy-input-baseline",
+      "attemptIndex": 1,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Financial_Model_02_01",
+      "agentManifest": "tasks/Financial_Model_02_01/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_02_01/evaluator/evaluator.json",
+      "candidateWorkbook": "Financial_Model_02_01/candidate-01-02_01_PP_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Financial_Model_02_01/candidate-manifest.json",
+          "sha256": "60060394feb33ede6332efbafc0dfd37cc7067f73ba6defdde36ba4f465aa9c0",
+          "bytes": 398
+        },
+        "agentWorkspaceManifest": {
+          "path": "Financial_Model_02_01/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "835842f4d9839f2af3b165c1076053744c8ceee5717f30702610b7c38968c374",
+          "bytes": 522
+        }
+      },
+      "scorerReceipt": {
+        "path": "Financial_Model_02_01/score-receipt.json",
+        "sha256": "f4bc42038cbe1eb2a92f0a0d650b80efa4b10b8685b3d00bbdc5e601b883f903",
+        "bytes": 5947
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-09T10:19:01.809Z",
+        "taskId": "Financial_Model/02_01",
+        "candidateWorkbook": "candidate-01-02_01_PP_input.xlsx",
+        "goldWorkbook": "01-02_PP_golden.xlsx",
+        "answerPosition": "'IS,BS,CF'!B3:K121,'Revenue & COGS Schedule'!B1:O23,'BS schedules'!A1:J164,'Ratios'!B1:K31,'Peer Comparison'!B1:K11,'Valuation snapshot'!B1:C7,'SOTP Astral'!B1:N13,'Realization & EBIT Per KG'!B1:L23,'Rough Valuation'!B1:I18",
+        "ranges": [
+          "'IS,BS,CF'!B3:K121",
+          "'Revenue & COGS Schedule'!B1:O23",
+          "'BS schedules'!A1:J164",
+          "'Ratios'!B1:K31",
+          "'Peer Comparison'!B1:K11",
+          "'Valuation snapshot'!B1:C7",
+          "'SOTP Astral'!B1:N13",
+          "'Realization & EBIT Per KG'!B1:L23",
+          "'Rough Valuation'!B1:I18"
+        ],
+        "totals": {
+          "comparedCells": 4152,
+          "valueMatches": 3022,
+          "formulaCells": 1167,
+          "formulaMatches": 1134,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 1163,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.727842,
+          "formula": 0.971722,
+          "style": null,
+          "chartPackage": null,
+          "overall": 0.849782
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 20/1163",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+          "chart_package: gold workbook has no chart or drawing XML parts"
+        ],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "C11",
+            "expected": "69346.2",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "F17",
+            "expected": "2020",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "G17",
+            "expected": "2021",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "H17",
+            "expected": "2022",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "I17",
+            "expected": "2023",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "J17",
+            "expected": "2024",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "K17",
+            "expected": "2025",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "H19",
+            "expected": "24605.9880112328",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "I19",
+            "expected": "27066.5868123561",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "J19",
+            "expected": "29773.2454935917",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "K19",
+            "expected": "32750.5700429509",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "E21",
+            "expected": "15789.95",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "F21",
+            "expected": "16426.01",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "G21",
+            "expected": "20890.99",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "H21",
+            "expected": "24605.9880112328",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "I21",
+            "expected": "27066.5868123561",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "J21",
+            "expected": "29773.2454935917",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "K21",
+            "expected": "32750.5700429509",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "E22",
+            "expected": "-11273.61",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "F22",
+            "expected": "-11264.37",
+            "actual": ""
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-09T10:19:01.809Z",
+          "taskId": "Financial_Model/02_01",
+          "candidateWorkbook": "candidate-01-02_01_PP_input.xlsx",
+          "goldWorkbook": "01-02_PP_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 0,
+            "candidateChartParts": 0,
+            "matchedChartParts": 0,
+            "missingChartParts": 0,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 0
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [],
+          "goldParts": [],
+          "mismatches": [],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+            "gold workbook has no chart or drawing XML parts"
+          ]
+        }
+      },
+      "timingsMs": {
+        "candidateGeneration": 8,
+        "scoring": 425,
+        "total": 471
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Financial_Model_02_01/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Financial_Model_02_01/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Financial_Model_02_01/candidate-01-02_01_PP_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Financial_Model_02_01/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "1163 cell mismatch(es)"
+        }
+      ]
+    },
+    {
+      "taskId": "Financial_Model/02_02",
+      "track": "spreadsheetbench-v2",
+      "category": "Financial_Model",
+      "mode": "copy-input-baseline",
+      "attemptIndex": 2,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Financial_Model_02_02",
+      "agentManifest": "tasks/Financial_Model_02_02/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_02_02/evaluator/evaluator.json",
+      "candidateWorkbook": "Financial_Model_02_02/candidate-01-02_02_PP_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Financial_Model_02_02/candidate-manifest.json",
+          "sha256": "69c281603e49e7c61e61fa80724c752b2592ce2d8190d964f93996be21d1b646",
+          "bytes": 398
+        },
+        "agentWorkspaceManifest": {
+          "path": "Financial_Model_02_02/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "83c4322a25458956452962bda012d366e15ed0102e01a014693438b77b15e3f9",
+          "bytes": 522
+        }
+      },
+      "scorerReceipt": {
+        "path": "Financial_Model_02_02/score-receipt.json",
+        "sha256": "1d457523e522f06d1176ab9432bb85135863ee4de2378c568e3bb88232101c8b",
+        "bytes": 5935
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-09T10:19:01.809Z",
+        "taskId": "Financial_Model/02_02",
+        "candidateWorkbook": "candidate-01-02_02_PP_input.xlsx",
+        "goldWorkbook": "01-02_PP_golden.xlsx",
+        "answerPosition": "'IS,BS,CF'!B3:K121,'Revenue & COGS Schedule'!B1:O23,'BS schedules'!A1:J164,'Ratios'!B1:K31,'Peer Comparison'!B1:K11,'Valuation snapshot'!B1:C7,'SOTP Astral'!B1:N13,'Realization & EBIT Per KG'!B1:L23,'Rough Valuation'!B1:I18",
+        "ranges": [
+          "'IS,BS,CF'!B3:K121",
+          "'Revenue & COGS Schedule'!B1:O23",
+          "'BS schedules'!A1:J164",
+          "'Ratios'!B1:K31",
+          "'Peer Comparison'!B1:K11",
+          "'Valuation snapshot'!B1:C7",
+          "'SOTP Astral'!B1:N13",
+          "'Realization & EBIT Per KG'!B1:L23",
+          "'Rough Valuation'!B1:I18"
+        ],
+        "totals": {
+          "comparedCells": 4152,
+          "valueMatches": 3021,
+          "formulaCells": 1167,
+          "formulaMatches": 1142,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 1156,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.727601,
+          "formula": 0.978578,
+          "style": null,
+          "chartPackage": null,
+          "overall": 0.8530895000000001
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 20/1156",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+          "chart_package: gold workbook has no chart or drawing XML parts"
+        ],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "C11",
+            "expected": "69346.2",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "IS,BS,CF",
+            "cell": "C11",
+            "expected": "=C10*C6"
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "F17",
+            "expected": "2020",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "G17",
+            "expected": "2021",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "H17",
+            "expected": "2022",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "I17",
+            "expected": "2023",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "J17",
+            "expected": "2024",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "K17",
+            "expected": "2025",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "H19",
+            "expected": "24605.9880112328",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "I19",
+            "expected": "27066.5868123561",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "J19",
+            "expected": "29773.2454935917",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "K19",
+            "expected": "32750.5700429509",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "E21",
+            "expected": "15789.95",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "F21",
+            "expected": "16426.01",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "G21",
+            "expected": "20890.99",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "H21",
+            "expected": "24605.9880112328",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "I21",
+            "expected": "27066.5868123561",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "J21",
+            "expected": "29773.2454935917",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "K21",
+            "expected": "32750.5700429509",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "E22",
+            "expected": "-11273.61",
+            "actual": ""
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-09T10:19:01.809Z",
+          "taskId": "Financial_Model/02_02",
+          "candidateWorkbook": "candidate-01-02_02_PP_input.xlsx",
+          "goldWorkbook": "01-02_PP_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 0,
+            "candidateChartParts": 0,
+            "matchedChartParts": 0,
+            "missingChartParts": 0,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 0
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [],
+          "goldParts": [],
+          "mismatches": [],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+            "gold workbook has no chart or drawing XML parts"
+          ]
+        }
+      },
+      "timingsMs": {
+        "candidateGeneration": 6,
+        "scoring": 302,
+        "total": 347
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Financial_Model_02_02/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Financial_Model_02_02/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Financial_Model_02_02/candidate-01-02_02_PP_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Financial_Model_02_02/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "1156 cell mismatch(es)"
+        }
+      ]
+    },
+    {
+      "taskId": "Financial_Model/02_03",
+      "track": "spreadsheetbench-v2",
+      "category": "Financial_Model",
+      "mode": "copy-input-baseline",
+      "attemptIndex": 3,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Financial_Model_02_03",
+      "agentManifest": "tasks/Financial_Model_02_03/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_02_03/evaluator/evaluator.json",
+      "candidateWorkbook": "Financial_Model_02_03/candidate-01-02_03_PP_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Financial_Model_02_03/candidate-manifest.json",
+          "sha256": "f336c1eb7913f4cc73ee8b00dd3f9d9b487932c5617f58647f2de9897608a5ab",
+          "bytes": 398
+        },
+        "agentWorkspaceManifest": {
+          "path": "Financial_Model_02_03/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "c16ab9ce49c8debcf163daa2438b4f83d4d5fa020439573efd86c5f61c632a96",
+          "bytes": 522
+        }
+      },
+      "scorerReceipt": {
+        "path": "Financial_Model_02_03/score-receipt.json",
+        "sha256": "b1cdebc1b0aba6b6eb49cb3c641f58f6c170bc0c323e46a5ce39c0b1c1dbf1de",
+        "bytes": 5948
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-09T10:19:01.809Z",
+        "taskId": "Financial_Model/02_03",
+        "candidateWorkbook": "candidate-01-02_03_PP_input.xlsx",
+        "goldWorkbook": "01-02_PP_golden.xlsx",
+        "answerPosition": "'IS,BS,CF'!B3:K121,'Revenue & COGS Schedule'!B1:O23,'BS schedules'!A1:J164,'Ratios'!B1:K31,'Peer Comparison'!B1:K11,'Valuation snapshot'!B1:C7,'SOTP Astral'!B1:N13,'Realization & EBIT Per KG'!B1:L23,'Rough Valuation'!B1:I18",
+        "ranges": [
+          "'IS,BS,CF'!B3:K121",
+          "'Revenue & COGS Schedule'!B1:O23",
+          "'BS schedules'!A1:J164",
+          "'Ratios'!B1:K31",
+          "'Peer Comparison'!B1:K11",
+          "'Valuation snapshot'!B1:C7",
+          "'SOTP Astral'!B1:N13",
+          "'Realization & EBIT Per KG'!B1:L23",
+          "'Rough Valuation'!B1:I18"
+        ],
+        "totals": {
+          "comparedCells": 4152,
+          "valueMatches": 3022,
+          "formulaCells": 1167,
+          "formulaMatches": 1132,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 1165,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.727842,
+          "formula": 0.970009,
+          "style": null,
+          "chartPackage": null,
+          "overall": 0.8489255
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 20/1165",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+          "chart_package: gold workbook has no chart or drawing XML parts"
+        ],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "C11",
+            "expected": "69346.2",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "F17",
+            "expected": "2020",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "G17",
+            "expected": "2021",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "H17",
+            "expected": "2022",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "I17",
+            "expected": "2023",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "J17",
+            "expected": "2024",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "K17",
+            "expected": "2025",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "H19",
+            "expected": "24605.9880112328",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "I19",
+            "expected": "27066.5868123561",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "J19",
+            "expected": "29773.2454935917",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "K19",
+            "expected": "32750.5700429509",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "E21",
+            "expected": "15789.95",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "F21",
+            "expected": "16426.01",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "G21",
+            "expected": "20890.99",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "H21",
+            "expected": "24605.9880112328",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "I21",
+            "expected": "27066.5868123561",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "J21",
+            "expected": "29773.2454935917",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "K21",
+            "expected": "32750.5700429509",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "E22",
+            "expected": "-11273.61",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "F22",
+            "expected": "-11264.37",
+            "actual": ""
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-09T10:19:01.809Z",
+          "taskId": "Financial_Model/02_03",
+          "candidateWorkbook": "candidate-01-02_03_PP_input.xlsx",
+          "goldWorkbook": "01-02_PP_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 0,
+            "candidateChartParts": 0,
+            "matchedChartParts": 0,
+            "missingChartParts": 0,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 0
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [],
+          "goldParts": [],
+          "mismatches": [],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+            "gold workbook has no chart or drawing XML parts"
+          ]
+        }
+      },
+      "timingsMs": {
+        "candidateGeneration": 5,
+        "scoring": 512,
+        "total": 572
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Financial_Model_02_03/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Financial_Model_02_03/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Financial_Model_02_03/candidate-01-02_03_PP_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Financial_Model_02_03/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "1165 cell mismatch(es)"
+        }
+      ]
+    },
+    {
+      "taskId": "Financial_Model/02_04",
+      "track": "spreadsheetbench-v2",
+      "category": "Financial_Model",
+      "mode": "copy-input-baseline",
+      "attemptIndex": 4,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Financial_Model_02_04",
+      "agentManifest": "tasks/Financial_Model_02_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_02_04/evaluator/evaluator.json",
+      "candidateWorkbook": "Financial_Model_02_04/candidate-01-02_04_PP_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Financial_Model_02_04/candidate-manifest.json",
+          "sha256": "627aaef80ca234b183774341b330a359efa6cfaddcb9bcfb636734348b553bfb",
+          "bytes": 398
+        },
+        "agentWorkspaceManifest": {
+          "path": "Financial_Model_02_04/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "a157053f89d2669ba5b9db466b4c428e37f2a2c5657a63b6443063022ec5c6d9",
+          "bytes": 522
+        }
+      },
+      "scorerReceipt": {
+        "path": "Financial_Model_02_04/score-receipt.json",
+        "sha256": "d4c6e58fe59b0578f7e8eea20345c36b43a7dd8158513302dc58420bdcbc5247",
+        "bytes": 5957
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-09T10:19:01.809Z",
+        "taskId": "Financial_Model/02_04",
+        "candidateWorkbook": "candidate-01-02_04_PP_input.xlsx",
+        "goldWorkbook": "01-02_PP_golden.xlsx",
+        "answerPosition": "'IS,BS,CF'!B3:K121,'Revenue & COGS Schedule'!B1:O23,'BS schedules'!A1:J164,'Ratios'!B1:K31,'Peer Comparison'!B1:K11,'Valuation snapshot'!B1:C7,'SOTP Astral'!B1:N13,'Realization & EBIT Per KG'!B1:L23,'Rough Valuation'!B1:I18",
+        "ranges": [
+          "'IS,BS,CF'!B3:K121",
+          "'Revenue & COGS Schedule'!B1:O23",
+          "'BS schedules'!A1:J164",
+          "'Ratios'!B1:K31",
+          "'Peer Comparison'!B1:K11",
+          "'Valuation snapshot'!B1:C7",
+          "'SOTP Astral'!B1:N13",
+          "'Realization & EBIT Per KG'!B1:L23",
+          "'Rough Valuation'!B1:I18"
+        ],
+        "totals": {
+          "comparedCells": 4152,
+          "valueMatches": 3022,
+          "formulaCells": 1167,
+          "formulaMatches": 1150,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 1147,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.727842,
+          "formula": 0.985433,
+          "style": null,
+          "chartPackage": null,
+          "overall": 0.8566374999999999
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 20/1147",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+          "chart_package: gold workbook has no chart or drawing XML parts"
+        ],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "C11",
+            "expected": "69346.2",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "F17",
+            "expected": "2020",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "G17",
+            "expected": "2021",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "H17",
+            "expected": "2022",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "I17",
+            "expected": "2023",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "J17",
+            "expected": "2024",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "K17",
+            "expected": "2025",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "H19",
+            "expected": "24605.9880112328",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "I19",
+            "expected": "27066.5868123561",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "J19",
+            "expected": "29773.2454935917",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "K19",
+            "expected": "32750.5700429509",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "E21",
+            "expected": "15789.95",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "F21",
+            "expected": "16426.01",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "G21",
+            "expected": "20890.99",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "H21",
+            "expected": "24605.9880112328",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "I21",
+            "expected": "27066.5868123561",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "J21",
+            "expected": "29773.2454935917",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "K21",
+            "expected": "32750.5700429509",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "E22",
+            "expected": "-11273.61",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "F22",
+            "expected": "-11264.37",
+            "actual": ""
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-09T10:19:01.809Z",
+          "taskId": "Financial_Model/02_04",
+          "candidateWorkbook": "candidate-01-02_04_PP_input.xlsx",
+          "goldWorkbook": "01-02_PP_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 0,
+            "candidateChartParts": 0,
+            "matchedChartParts": 0,
+            "missingChartParts": 0,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 0
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [],
+          "goldParts": [],
+          "mismatches": [],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+            "gold workbook has no chart or drawing XML parts"
+          ]
+        }
+      },
+      "timingsMs": {
+        "candidateGeneration": 8,
+        "scoring": 352,
+        "total": 413
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Financial_Model_02_04/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Financial_Model_02_04/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Financial_Model_02_04/candidate-01-02_04_PP_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Financial_Model_02_04/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "1147 cell mismatch(es)"
+        }
+      ]
+    },
+    {
+      "taskId": "Financial_Model/02_05",
+      "track": "spreadsheetbench-v2",
+      "category": "Financial_Model",
+      "mode": "copy-input-baseline",
+      "attemptIndex": 5,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Financial_Model_02_05",
+      "agentManifest": "tasks/Financial_Model_02_05/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_02_05/evaluator/evaluator.json",
+      "candidateWorkbook": "Financial_Model_02_05/candidate-01-02_05_PP_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Financial_Model_02_05/candidate-manifest.json",
+          "sha256": "b5008daaef7781c9210e2a13e9585962f68812f27f212a16e9ae7fed7222305c",
+          "bytes": 398
+        },
+        "agentWorkspaceManifest": {
+          "path": "Financial_Model_02_05/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "1abf336e32d9a090e3ffc4ccafe7699af5061da02243df2f4c66ee4d82eab4a7",
+          "bytes": 522
+        }
+      },
+      "scorerReceipt": {
+        "path": "Financial_Model_02_05/score-receipt.json",
+        "sha256": "827b1331378734b684401d5536de5d67809ec1ff22f65c57590b8040b608b58d",
+        "bytes": 5947
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-09T10:19:01.809Z",
+        "taskId": "Financial_Model/02_05",
+        "candidateWorkbook": "candidate-01-02_05_PP_input.xlsx",
+        "goldWorkbook": "01-02_PP_golden.xlsx",
+        "answerPosition": "'IS,BS,CF'!B3:K121,'Revenue & COGS Schedule'!B1:O23,'BS schedules'!A1:J164,'Ratios'!B1:K31,'Peer Comparison'!B1:K11,'Valuation snapshot'!B1:C7,'SOTP Astral'!B1:N13,'Realization & EBIT Per KG'!B1:L23,'Rough Valuation'!B1:I18",
+        "ranges": [
+          "'IS,BS,CF'!B3:K121",
+          "'Revenue & COGS Schedule'!B1:O23",
+          "'BS schedules'!A1:J164",
+          "'Ratios'!B1:K31",
+          "'Peer Comparison'!B1:K11",
+          "'Valuation snapshot'!B1:C7",
+          "'SOTP Astral'!B1:N13",
+          "'Realization & EBIT Per KG'!B1:L23",
+          "'Rough Valuation'!B1:I18"
+        ],
+        "totals": {
+          "comparedCells": 4152,
+          "valueMatches": 3022,
+          "formulaCells": 1167,
+          "formulaMatches": 1147,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 1150,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.727842,
+          "formula": 0.982862,
+          "style": null,
+          "chartPackage": null,
+          "overall": 0.855352
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 20/1150",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+          "chart_package: gold workbook has no chart or drawing XML parts"
+        ],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "C11",
+            "expected": "69346.2",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "F17",
+            "expected": "2020",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "G17",
+            "expected": "2021",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "H17",
+            "expected": "2022",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "I17",
+            "expected": "2023",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "J17",
+            "expected": "2024",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "K17",
+            "expected": "2025",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "H19",
+            "expected": "24605.9880112328",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "I19",
+            "expected": "27066.5868123561",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "J19",
+            "expected": "29773.2454935917",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "K19",
+            "expected": "32750.5700429509",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "E21",
+            "expected": "15789.95",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "F21",
+            "expected": "16426.01",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "G21",
+            "expected": "20890.99",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "H21",
+            "expected": "24605.9880112328",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "I21",
+            "expected": "27066.5868123561",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "J21",
+            "expected": "29773.2454935917",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "K21",
+            "expected": "32750.5700429509",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "E22",
+            "expected": "-11273.61",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "IS,BS,CF",
+            "cell": "F22",
+            "expected": "-11264.37",
+            "actual": ""
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-09T10:19:01.809Z",
+          "taskId": "Financial_Model/02_05",
+          "candidateWorkbook": "candidate-01-02_05_PP_input.xlsx",
+          "goldWorkbook": "01-02_PP_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 0,
+            "candidateChartParts": 0,
+            "matchedChartParts": 0,
+            "missingChartParts": 0,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 0
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [],
+          "goldParts": [],
+          "mismatches": [],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+            "gold workbook has no chart or drawing XML parts"
+          ]
+        }
+      },
+      "timingsMs": {
+        "candidateGeneration": 10,
+        "scoring": 466,
+        "total": 535
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Financial_Model_02_05/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Financial_Model_02_05/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Financial_Model_02_05/candidate-01-02_05_PP_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Financial_Model_02_05/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "1150 cell mismatch(es)"
+        }
+      ]
+    }
+  ]
+}

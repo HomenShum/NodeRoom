@@ -1,0 +1,1139 @@
+{
+  "schema": "noderoom.spreadsheetbench.nodeagent_bridge.v1",
+  "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+  "taskId": "Template/05_02",
+  "track": "spreadsheetbench-v2",
+  "category": "Template",
+  "candidateWorkbookPath": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-smoke-candidates-r3\\Template_05_02\\candidate-01-05_02_input.xlsx",
+  "candidateWorkbookSha256": "6ebd61417f65753d8fc753a5ef004e0a5247d2bb6bed8ba4781abbd81f676a8e",
+  "outcome": {
+    "status": "failed",
+    "mutatingTask": true,
+    "changedCellCount": 0,
+    "finalVerificationStatus": "missing"
+  },
+  "stages": {
+    "inspect": {
+      "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+      "stage": "inspect",
+      "status": "completed",
+      "attempts": 1,
+      "summary": "Workbook inspection completed.",
+      "events": [
+        {
+          "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+          "eventIndex": 1,
+          "step": 1,
+          "tool": "inspect_workbook",
+          "argsHash": "fnv1a:1d5b24f1",
+          "resultHash": "fnv1a:9be9e418"
+        }
+      ]
+    },
+    "plan": {
+      "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+      "stage": "plan",
+      "status": "skipped",
+      "attempts": 0,
+      "operationCount": 0,
+      "summary": "No explicit operation plan reached preflight.",
+      "events": []
+    },
+    "preflight": {
+      "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+      "stage": "preflight",
+      "status": "skipped",
+      "attempts": 0,
+      "operationCount": 0,
+      "summary": "No plan preflight receipt was produced.",
+      "events": []
+    },
+    "write": {
+      "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+      "stage": "write",
+      "status": "skipped",
+      "attempts": 0,
+      "operationCount": 0,
+      "summary": "No managed workbook write was attempted.",
+      "events": []
+    },
+    "verify": {
+      "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+      "stage": "verify",
+      "status": "skipped",
+      "attempts": 0,
+      "operationCount": 0,
+      "summary": "No post-write verification receipt was produced.",
+      "events": []
+    },
+    "repair": {
+      "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+      "stage": "repair",
+      "status": "skipped",
+      "attempts": 0,
+      "summary": "No repair was required.",
+      "events": []
+    }
+  },
+  "isolation": {
+    "boundary": "agent_visible_files_only",
+    "agentRoot": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-smoke-candidates-r3\\Template_05_02\\agent-workspace\\agent",
+    "openedAgentFiles": [
+      "task.json",
+      "inputs/01-05_02_input.xlsx"
+    ],
+    "evaluatorMetadataAccess": "none",
+    "evaluatorFileReadCount": 0,
+    "candidateEmittedBeforeEvaluatorAccess": true
+  },
+  "model": {
+    "name": "nvidia/nemotron-3-super-120b-a12b:free",
+    "calls": 2,
+    "usage": {
+      "inputTokens": 12005,
+      "outputTokens": 360,
+      "cachedInputTokens": 0
+    }
+  },
+  "frame": {
+    "frameId": "rf_spreadsheetbench-nodeagent-5c41b1f5",
+    "status": "blocked",
+    "allowedToolNames": [
+      "inspect_workbook",
+      "verify_workbook",
+      "list_artifacts",
+      "read_range",
+      "search_sheet_context",
+      "write_locked_cell",
+      "write_locked_cells",
+      "say"
+    ],
+    "missingToolNames": [],
+    "agentResult": {
+      "finalText": "Paused after an agent runtime error.",
+      "steps": 3,
+      "exhausted": false,
+      "stopReason": "error",
+      "handoff": {
+        "reason": "error",
+        "summary": "Paused after an agent runtime error.",
+        "nextGoal": "[execute frame rf_spreadsheetbench-nodeagent-5c41b1f5] Complete the deferred tax analysis. Fill in all empty cells for Years 2-4. Leave Tax Accounting income statement rows and Year 1 cells unchanged.",
+        "remainingToolCalls": [],
+        "messageCount": 5,
+        "traceCount": 2
+      },
+      "budget": {
+        "startedAt": 1784024393195,
+        "now": 1784024496045,
+        "deadlineAt": 1784025473154,
+        "reserveMs": 0,
+        "elapsedMs": 102850,
+        "remainingMs": 977109,
+        "usableMs": 977109,
+        "maxSteps": 15,
+        "attemptedSteps": 3
+      },
+      "trace": [
+        {
+          "step": 0,
+          "tool": "list_artifacts",
+          "args": {},
+          "result": [
+            {
+              "id": "DeferredTax",
+              "title": "DeferredTax",
+              "kind": "sheet",
+              "readHint": "Use artifactId \"DeferredTax\" with A1 addresses."
+            }
+          ],
+          "ms": 0
+        },
+        {
+          "step": 1,
+          "tool": "inspect_workbook",
+          "args": {
+            "instruction": "Complete the deferred tax analysis. Fill in all empty cells for Years 2-4. Leave Tax Accounting income statement rows and Year 1 cells unchanged.",
+            "artifactId": "DeferredTax",
+            "maxCells": 80
+          },
+          "result": {
+            "ok": true,
+            "artifactId": "DeferredTax",
+            "artifactVersion": 1,
+            "inspectedCellCount": 95,
+            "confirmedSearchCellCount": 20,
+            "cells": [
+              {
+                "elementId": "A2",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B2",
+                "value": "Deferred Tax Analysis",
+                "version": 1
+              },
+              {
+                "elementId": "A4",
+                "value": "A software company sold 3-year licenses generating cash of $180 in year 2, $120 in year 3, and $60 in year 4 (reported to IRS). Under GAAP, the company recognizes revenue of $120 per year evenly over years 2-4 due to service obligations.",
+                "version": 1
+              },
+              {
+                "elementId": "B4",
+                "value": "A software company sold 3-year licenses generating cash of $180 in year 2, $120 in year 3, and $60 in year 4 (reported to IRS). Under GAAP, the company recognizes $120 in revenue evenly over years 2-4 due to service obligations.",
+                "version": 1
+              },
+              {
+                "elementId": "A6",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B6",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "C6",
+                "value": "Book Accounting",
+                "version": 1
+              },
+              {
+                "elementId": "D6",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "E6",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "F6",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "G6",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "H6",
+                "value": "Tax Accounting",
+                "version": 1
+              },
+              {
+                "elementId": "A7",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B7",
+                "value": "Income Statement",
+                "version": 1
+              },
+              {
+                "elementId": "C7",
+                "value": "Year 1",
+                "version": 1
+              },
+              {
+                "elementId": "D7",
+                "value": "Year 2",
+                "version": 1
+              },
+              {
+                "elementId": "E7",
+                "value": "Year 3",
+                "version": 1
+              },
+              {
+                "elementId": "F7",
+                "value": "Year 4",
+                "version": 1
+              },
+              {
+                "elementId": "G7",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "H7",
+                "value": "Year 2",
+                "version": 1
+              },
+              {
+                "elementId": "I7",
+                "value": "Year 3",
+                "version": 1
+              },
+              {
+                "elementId": "J7",
+                "value": "Year 4",
+                "version": 1
+              },
+              {
+                "elementId": "A8",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B8",
+                "value": "Revenue",
+                "version": 1
+              },
+              {
+                "elementId": "C8",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "D8",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "E8",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "F8",
+                "value": null,
+                "version": 0,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "G8",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "H8",
+                "value": 180,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "I8",
+                "value": 120,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "J8",
+                "value": 60,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "A9",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B9",
+                "value": "Operating expenses",
+                "version": 1
+              },
+              {
+                "elementId": "C9",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "D9",
+                "value": 50,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "E9",
+                "value": 50,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "F9",
+                "value": 50,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "G9",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "H9",
+                "value": 50,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "I9",
+                "value": 50,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "J9",
+                "value": 50,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "A10",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B10",
+                "value": "Pretax income",
+                "version": 1
+              },
+              {
+                "elementId": "A11",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B11",
+                "value": "Income tax (35% rate)",
+                "version": 1
+              },
+              {
+                "elementId": "A12",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B12",
+                "value": "Net income",
+                "version": 1
+              },
+              {
+                "elementId": "A15",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B15",
+                "value": "Cash",
+                "version": 1
+              },
+              {
+                "elementId": "C15",
+                "value": 0,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "A16",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B16",
+                "value": "Deferred tax assets",
+                "version": 1
+              },
+              {
+                "elementId": "C16",
+                "value": 0,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "A17",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B17",
+                "value": "Equipment",
+                "version": 1
+              },
+              {
+                "elementId": "C17",
+                "value": 75,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "A20",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B20",
+                "value": "Debt",
+                "version": 1
+              },
+              {
+                "elementId": "C20",
+                "value": 30,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "A21",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B21",
+                "value": "Deferred revenue",
+                "version": 1
+              },
+              {
+                "elementId": "C21",
+                "value": 0,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "A22",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B22",
+                "value": "Deferred tax liabilities",
+                "version": 1
+              },
+              {
+                "elementId": "C22",
+                "value": 0,
+                "version": 1,
+                "numFmt": "#,##0"
+              },
+              {
+                "elementId": "A23",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B23",
+                "value": "Total liabilities",
+                "version": 1
+              },
+              {
+                "elementId": "A30",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B30",
+                "value": "Cash Flow Statement",
+                "version": 1
+              },
+              {
+                "elementId": "C30",
+                "value": "Year 1",
+                "version": 1
+              },
+              {
+                "elementId": "D30",
+                "value": "Year 2",
+                "version": 1
+              },
+              {
+                "elementId": "E30",
+                "value": "Year 3",
+                "version": 1
+              },
+              {
+                "elementId": "F30",
+                "value": "Year 4",
+                "version": 1
+              },
+              {
+                "elementId": "A31",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B31",
+                "value": "Net income",
+                "version": 1
+              },
+              {
+                "elementId": "A32",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B32",
+                "value": "Change in deferred tax assets",
+                "version": 1
+              },
+              {
+                "elementId": "A33",
+                "value": null,
+                "version": 0
+              },
+              {
+                "elementId": "B33",
+                "value": "Change in deferred revenue",
+                "version": 1
+              }
+            ],
+            "inspection": {
+              "schema": 1,
+              "mutatingTask": true,
+              "allowEmptyPlan": false,
+              "referencedSheets": [],
+              "explicitReferences": [],
+              "targetCandidates": [],
+              "targetBands": [],
+              "dependencyCandidates": [],
+              "findings": [],
+              "formulaFillSuggestions": [],
+              "formulaRepairSuggestions": [],
+              "valueSuggestions": [],
+              "rankedCellKeys": [
+                "deferredtax!A2",
+                "deferredtax!B2",
+                "deferredtax!A4",
+                "deferredtax!B4",
+                "deferredtax!A6",
+                "deferredtax!B6",
+                "deferredtax!C6",
+                "deferredtax!D6",
+                "deferredtax!E6",
+                "deferredtax!F6",
+                "deferredtax!G6",
+                "deferredtax!H6",
+                "deferredtax!A7",
+                "deferredtax!B7",
+                "deferredtax!C7",
+                "deferredtax!D7",
+                "deferredtax!E7",
+                "deferredtax!F7",
+                "deferredtax!G7",
+                "deferredtax!H7",
+                "deferredtax!I7",
+                "deferredtax!J7",
+                "deferredtax!A8",
+                "deferredtax!B8",
+                "deferredtax!C8",
+                "deferredtax!D8",
+                "deferredtax!E8",
+                "deferredtax!F8",
+                "deferredtax!G8",
+                "deferredtax!H8",
+                "deferredtax!I8",
+                "deferredtax!J8",
+                "deferredtax!A9",
+                "deferredtax!B9",
+                "deferredtax!C9",
+                "deferredtax!D9",
+                "deferredtax!E9",
+                "deferredtax!F9",
+                "deferredtax!G9",
+                "deferredtax!H9",
+                "deferredtax!I9",
+                "deferredtax!J9",
+                "deferredtax!A10",
+                "deferredtax!B10",
+                "deferredtax!A11",
+                "deferredtax!B11",
+                "deferredtax!A12",
+                "deferredtax!B12",
+                "deferredtax!A15",
+                "deferredtax!B15",
+                "deferredtax!C15",
+                "deferredtax!A16",
+                "deferredtax!B16",
+                "deferredtax!C16",
+                "deferredtax!A17",
+                "deferredtax!B17",
+                "deferredtax!C17",
+                "deferredtax!A20",
+                "deferredtax!B20",
+                "deferredtax!C20",
+                "deferredtax!A21",
+                "deferredtax!B21",
+                "deferredtax!C21",
+                "deferredtax!A22",
+                "deferredtax!B22",
+                "deferredtax!C22",
+                "deferredtax!A23",
+                "deferredtax!B23",
+                "deferredtax!A30",
+                "deferredtax!B30",
+                "deferredtax!C30",
+                "deferredtax!D30",
+                "deferredtax!E30",
+                "deferredtax!F30",
+                "deferredtax!A31",
+                "deferredtax!B31",
+                "deferredtax!A32",
+                "deferredtax!B32",
+                "deferredtax!A33",
+                "deferredtax!B33",
+                "deferredtax!A34",
+                "deferredtax!B34",
+                "deferredtax!C14",
+                "deferredtax!D14",
+                "deferredtax!E14",
+                "deferredtax!F14"
+              ],
+              "recommendedReads": [
+                {
+                  "sheet": "DeferredTax",
+                  "addresses": [
+                    "A2",
+                    "B2",
+                    "A4",
+                    "B4",
+                    "A6",
+                    "B6",
+                    "C6",
+                    "D6",
+                    "E6",
+                    "F6",
+                    "G6",
+                    "H6",
+                    "A7",
+                    "B7",
+                    "C7",
+                    "D7"
+                  ],
+                  "reason": "calculation_row_context_B2, sheet_representative, task_term_match, calculation_row_context_A4, calculation_row_context_B4, calculation_row_context_C6"
+                }
+              ],
+              "completionChecks": [
+                "Every edited cell belongs to the requested workbook scope.",
+                "Existing formulas are not replaced by scalars unless the task explicitly requires it.",
+                "Changed formulas contain no broken references or obvious self-reference.",
+                "Every changed target is re-read and checked after the write or recorded as pending approval.",
+                "Unsupported macro, validation, or full-format work is reported as unresolved; chart requests require a real chart operation rather than a prose claim."
+              ]
+            }
+          },
+          "ms": 7
+        },
+        {
+          "step": 3,
+          "tool": "handoff",
+          "args": {
+            "reason": "error",
+            "deadlineAt": 1784025473154,
+            "reserveMs": 0
+          },
+          "result": {
+            "reason": "error",
+            "summary": "Paused after an agent runtime error.",
+            "nextGoal": "[execute frame rf_spreadsheetbench-nodeagent-5c41b1f5] Complete the deferred tax analysis. Fill in all empty cells for Years 2-4. Leave Tax Accounting income statement rows and Year 1 cells unchanged.",
+            "remainingToolCalls": [],
+            "messageCount": 5,
+            "traceCount": 2
+          },
+          "ms": 0
+        }
+      ],
+      "messages": [
+        {
+          "role": "user",
+          "content": "NODEAGENT REASONING FRAME\nFrame ID: rf_spreadsheetbench-nodeagent-5c41b1f5\nPhase: execute\nStatus entering run: pending\nFrame goal: Complete the deferred tax analysis. Fill in all empty cells for Years 2-4. Leave Tax Accounting income statement rows and Year 1 cells unchanged.\n\nFRAME CONTEXT PACK:\nGlobal goal: Complete the deferred tax analysis. Fill in all empty cells for Years 2-4. Leave Tax Accounting income statement rows and Year 1 cells unchanged.\nParent summary: SpreadsheetBench staged task Template/05_02; evaluator metadata remains outside this frame.\nCurrent artifact digest: task:Template/05_02; track:spreadsheetbench-v2; sheets:DeferredTax\nRelevant cache keys: (none)\nRelevant OKF concept IDs: (none)\nOpen questions: (none)\nConstraints:\n- Use only the staged agent manifest, agent input workbook, and agent prompt files.\n- Never request or infer evaluator metadata, answer positions, scorer settings, or gold workbooks.\n- Inspect, preflight, use managed RoomTools writes, and verify every changed target.\n- Treat a failed preflight or post-write verification as repair guidance, not permission to weaken verification.\nExpected output schema: noderoom.spreadsheetbench.nodeagent_bridge.v1\n\nEVIDENCE STATE:\nRequired evidence:\n- workbook inspection\n- edit-plan preflight\n- managed write receipt\n- post-write verification\nAvailable refs: (none)\nMissing refs: (none)\nStale refs: (none)\n\nAllowed tools for this frame:\n- inspect_workbook\n- verify_workbook\n- list_artifacts\n- read_range\n- search_sheet_context\n- write_locked_cell\n- write_locked_cells\n- say\n\nFrame rules:\n- Use this frame envelope as the active task boundary.\n- Do not inherit unrelated room transcript or meta-harness memory.\n- Prefer cache, OKF, and explicit evidence before provider or network work.\n- Use lock/CAS/draft tools for room mutations.\n- If evidence is missing, say what is missing instead of guessing.\n\nAdditional frame instructions:\n- Staged SpreadsheetBench task ID: Template/05_02.\n- Visible worksheet artifact IDs: \"DeferredTax\".\n- Complete task instruction: Complete the deferred tax analysis. Fill in all empty cells for Years 2-4. Leave Tax Accounting income statement rows and Year 1 cells unchanged.\n- Treat high-confidence target bands and value/formula suggestions from inspect_workbook as the target-selection contract. Do not replace them with unlabeled blank cells, and preflight every high-confidence target before writing.\n- The first verify_workbook call for a proposed operation set is the durable plan/preflight boundary. Do not write a plan that returns needs_repair; submit a corrected replacement plan first.\n- For formula writes, pass write_locked_cell(s) direct formula, result, and optional numFmt fields; pass the same formula/result/numFmt operations to verify_workbook.\n- After every managed write, call verify_workbook with afterWrite=true for all changed targets. Use repairPrompt for at most one focused repair before reporting unresolved work.\n- No evaluator manifest, gold workbook, answer position, or scorer metadata exists in this frame or in any available tool."
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "toolCalls": [
+            {
+              "id": "call-7e9bc312-e6dd-46b6-a842-e33390a2dc6e",
+              "tool": "list_artifacts",
+              "args": {}
+            }
+          ]
+        },
+        {
+          "role": "tool",
+          "toolCallId": "call-7e9bc312-e6dd-46b6-a842-e33390a2dc6e",
+          "toolName": "list_artifacts",
+          "content": "[{\"id\":\"DeferredTax\",\"title\":\"DeferredTax\",\"kind\":\"sheet\",\"readHint\":\"Use artifactId \\\"DeferredTax\\\" with A1 addresses.\"}]"
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "toolCalls": [
+            {
+              "id": "call-3216cdb9-5270-4891-ab2a-36a7289a9ba7",
+              "tool": "inspect_workbook",
+              "args": {
+                "instruction": "Complete the deferred tax analysis. Fill in all empty cells for Years 2-4. Leave Tax Accounting income statement rows and Year 1 cells unchanged.",
+                "artifactId": "DeferredTax",
+                "maxCells": 80
+              }
+            }
+          ]
+        },
+        {
+          "role": "tool",
+          "toolCallId": "call-3216cdb9-5270-4891-ab2a-36a7289a9ba7",
+          "toolName": "inspect_workbook",
+          "content": "{\"ok\":true,\"artifactId\":\"DeferredTax\",\"artifactVersion\":1,\"inspectedCellCount\":95,\"confirmedSearchCellCount\":20,\"cells\":[{\"elementId\":\"A2\",\"value\":null,\"version\":0},{\"elementId\":\"B2\",\"value\":\"Deferred Tax Analysis\",\"version\":1},{\"elementId\":\"A4\",\"value\":\"A software company sold 3-year licenses generating cash of $180 in year 2, $120 in year 3, and $60 in year 4 (reported to IRS). Under GAAP, the company recognizes revenue of $120 per year evenly over years 2-4 due to service obligations.\",\"version\":1},{\"elementId\":\"B4\",\"value\":\"A software company sold 3-year licenses generating cash of $180 in year 2, $120 in year 3, and $60 in year 4 (reported to IRS). Under GAAP, the company recognizes $120 in revenue evenly over years 2-4 due to service obligations.\",\"version\":1},{\"elementId\":\"A6\",\"value\":null,\"version\":0},{\"elementId\":\"B6\",\"value\":null,\"version\":0},{\"elementId\":\"C6\",\"value\":\"Book Accounting\",\"version\":1},{\"elementId\":\"D6\",\"value\":null,\"version\":0},{\"elementId\":\"E6\",\"value\":null,\"version\":0},{\"elementId\":\"F6\",\"value\":null,\"version\":0},{\"elementId\":\"G6\",\"value\":null,\"version\":0},{\"elementId\":\"H6\",\"value\":\"Tax Accounting\",\"version\":1},{\"elementId\":\"A7\",\"value\":null,\"version\":0},{\"elementId\":\"B7\",\"value\":\"Income Statement\",\"version\":1},{\"elementId\":\"C7\",\"value\":\"Year 1\",\"version\":1},{\"elementId\":\"D7\",\"value\":\"Year 2\",\"version\":1},{\"elementId\":\"E7\",\"value\":\"Year 3\",\"version\":1},{\"elementId\":\"F7\",\"value\":\"Year 4\",\"version\":1},{\"elementId\":\"G7\",\"value\":null,\"version\":0},{\"elementId\":\"H7\",\"value\":\"Year 2\",\"version\":1},{\"elementId\":\"I7\",\"value\":\"Year 3\",\"version\":1},{\"elementId\":\"J7\",\"value\":\"Year 4\",\"version\":1},{\"elementId\":\"A8\",\"value\":null,\"version\":0},{\"elementId\":\"B8\",\"value\":\"Revenue\",\"version\":1},{\"elementId\":\"C8\",\"value\":null,\"version\":0},{\"elementId\":\"D8\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"E8\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"F8\",\"value\":null,\"version\":0,\"numFmt\":\"#,##0\"},{\"elementId\":\"G8\",\"value\":null,\"version\":0},{\"elementId\":\"H8\",\"value\":180,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"I8\",\"value\":120,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"J8\",\"value\":60,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"A9\",\"value\":null,\"version\":0},{\"elementId\":\"B9\",\"value\":\"Operating expenses\",\"version\":1},{\"elementId\":\"C9\",\"value\":null,\"version\":0},{\"elementId\":\"D9\",\"value\":50,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"E9\",\"value\":50,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"F9\",\"value\":50,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"G9\",\"value\":null,\"version\":0},{\"elementId\":\"H9\",\"value\":50,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"I9\",\"value\":50,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"J9\",\"value\":50,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"A10\",\"value\":null,\"version\":0},{\"elementId\":\"B10\",\"value\":\"Pretax income\",\"version\":1},{\"elementId\":\"A11\",\"value\":null,\"version\":0},{\"elementId\":\"B11\",\"value\":\"Income tax (35% rate)\",\"version\":1},{\"elementId\":\"A12\",\"value\":null,\"version\":0},{\"elementId\":\"B12\",\"value\":\"Net income\",\"version\":1},{\"elementId\":\"A15\",\"value\":null,\"version\":0},{\"elementId\":\"B15\",\"value\":\"Cash\",\"version\":1},{\"elementId\":\"C15\",\"value\":0,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"A16\",\"value\":null,\"version\":0},{\"elementId\":\"B16\",\"value\":\"Deferred tax assets\",\"version\":1},{\"elementId\":\"C16\",\"value\":0,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"A17\",\"value\":null,\"version\":0},{\"elementId\":\"B17\",\"value\":\"Equipment\",\"version\":1},{\"elementId\":\"C17\",\"value\":75,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"A20\",\"value\":null,\"version\":0},{\"elementId\":\"B20\",\"value\":\"Debt\",\"version\":1},{\"elementId\":\"C20\",\"value\":30,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"A21\",\"value\":null,\"version\":0},{\"elementId\":\"B21\",\"value\":\"Deferred revenue\",\"version\":1},{\"elementId\":\"C21\",\"value\":0,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"A22\",\"value\":null,\"version\":0},{\"elementId\":\"B22\",\"value\":\"Deferred tax liabilities\",\"version\":1},{\"elementId\":\"C22\",\"value\":0,\"version\":1,\"numFmt\":\"#,##0\"},{\"elementId\":\"A23\",\"value\":null,\"version\":0},{\"elementId\":\"B23\",\"value\":\"Total liabilities\",\"version\":1},{\"elementId\":\"A30\",\"value\":null,\"version\":0},{\"elementId\":\"B30\",\"value\":\"Cash Flow Statement\",\"version\":1},{\"elementId\":\"C30\",\"value\":\"Year 1\",\"version\":1},{\"elementId\":\"D30\",\"value\":\"Year 2\",\"version\":1},{\"elementId\":\"E30\",\"value\":\"Year 3\",\"version\":1},{\"elementId\":\"F30\",\"value\":\"Year 4\",\"version\":1},{\"elementId\":\"A31\",\"value\":null,\"version\":0},{\"elementId\":\"B31\",\"value\":\"Net income\",\"version\":1},{\"elementId\":\"A32\",\"value\":null,\"version\":0},{\"elementId\":\"B32\",\"value\":\"Change in deferred tax assets\",\"version\":1},{\"elementId\":\"A33\",\"value\":null,\"version\":0},{\"elementId\":\"B33\",\"value\":\"Change in deferred revenue\",\"version\":1}],\"inspection\":{\"schema\":1,\"mutatingTask\":true,\"allowEmptyPlan\":false,\"referencedSheets\":[],\"explicitReferences\":[],\"targetCandidates\":[],\"targetBands\":[],\"dependencyCandidates\":[],\"findings\":[],\"formulaFillSuggestions\":[],\"formulaRepairSuggestions\":[],\"valueSuggestions\":[],\"rankedCellKeys\":[\"deferredtax!A2\",\"deferredtax!B2\",\"deferredtax!A4\",\"deferredtax!B4\",\"deferredtax!A6\",\"deferredtax!B6\",\"deferredtax!C6\",\"deferredtax!D6\",\"deferredtax!E6\",\"deferredtax!F6\",\"deferredtax!G6\",\"deferredtax!H6\",\"deferredtax!A7\",\"deferredtax!B7\",\"deferredtax!C7\",\"deferredtax!D7\",\"deferredtax!E7\",\"deferredtax!F7\",\"deferredtax!G7\",\"deferredtax!H7\",\"deferredtax!I7\",\"deferredtax!J7\",\"deferredtax!A8\",\"deferredtax!B8\",\"deferredtax!C8\",\"deferredtax!D8\",\"deferredtax!E8\",\"deferredtax!F8\",\"deferredtax!G8\",\"deferredtax!H8\",\"deferredtax!I8\",\"deferredtax!J8\",\"deferredtax!A9\",\"deferredtax!B9\",\"deferredtax!C9\",\"deferredtax!D9\",\"deferredtax!E9\",\"deferredtax!F9\",\"deferredtax!G9\",\"deferredtax!H9\",\"deferredtax!I9\",\"deferredtax!J9\",\"deferredtax!A10\",\"deferredtax!B10\",\"deferredtax!A11\",\"deferredtax!B11\",\"deferredtax!A12\",\"deferredtax!B12\",\"deferredtax!A15\",\"deferredtax!B15\",\"deferredtax!C15\",\"deferredtax!A16\",\"deferredtax!B16\",\"deferredtax!C16\",\"deferredtax!A17\",\"deferredtax!B17\",\"deferredtax!C17\",\"deferredtax!A20\",\"deferredtax!B20\",\"deferredtax!C20\",\"deferredtax!A21\",\"deferredtax!B21\",\"deferredtax!C21\",\"deferredtax!A22\",\"deferredtax!B22\",\"deferredtax!C22\",\"deferredtax!A23\",\"deferredtax!B23\",\"deferredtax!A30\",\"deferredtax!B30\",\"deferredtax!C30\",\"deferredtax!D30\",\"deferredtax!E30\",\"deferredtax!F30\",\"deferredtax!A31\",\"deferredtax!B31\",\"deferredtax!A32\",\"deferredtax!B32\",\"deferredtax!A33\",\"deferredtax!B33\",\"deferredtax!A34\",\"deferredtax!B34\",\"deferredtax!C14\",\"deferredtax!D14\",\"deferredtax!E14\",\"deferredtax!F14\"],\"recommendedReads\":[{\"sheet\":\"DeferredTax\",\"addresses\":[\"A2\",\"B2\",\"A4\",\"B4\",\"A6\",\"B6\",\"C6\",\"D6\",\"E6\",\"F6\",\"G6\",\"H6\",\"A7\",\"B7\",\"C7\",\"D7\"],\"reason\":\"calculation_row_context_B2, sheet_representative, task_term_match, calculation_row_context_A4, calculation_row_context_B4, calculation_row_context_C6\"}],\"completionChecks\":[\"Every edited cell belongs to the requested workbook scope.\",\"Existing formulas are not replaced by scalars unless the task explicitly requires it.\",\"Changed formulas contain no broken references or obvious self-reference.\",\"Every changed target is re-read and checked after the write or recorded as pending approval.\",\"Unsupported macro, validation, or full-format work is reported as unresolved; chart requests require a real chart operation rather than a prose claim.\"]}}"
+        }
+      ],
+      "usage": {
+        "inputTokens": 12005,
+        "outputTokens": 360,
+        "modelCalls": 2,
+        "cachedInputTokens": 0
+      }
+    },
+    "stateDelta": {
+      "summary": "Paused after an agent runtime error.",
+      "changedArtifacts": [],
+      "cacheKeysTouched": [],
+      "okfConceptIdsTouched": [],
+      "openQuestions": [],
+      "nextActions": [
+        "Resume frame from error handoff."
+      ]
+    },
+    "verification": {
+      "status": "blocked",
+      "reason": "Frame did not finish: error.",
+      "blockedReason": "Paused after an agent runtime error.",
+      "needsReview": false,
+      "evidenceState": {
+        "required": [
+          "workbook inspection",
+          "edit-plan preflight",
+          "managed write receipt",
+          "post-write verification"
+        ],
+        "availableRefs": [],
+        "missingRefs": [],
+        "staleRefs": []
+      }
+    },
+    "updatedFrame": {
+      "frameId": "rf_spreadsheetbench-nodeagent-5c41b1f5",
+      "goal": "Complete the deferred tax analysis. Fill in all empty cells for Years 2-4. Leave Tax Accounting income statement rows and Year 1 cells unchanged.",
+      "phase": "execute",
+      "status": "blocked",
+      "contextPack": {
+        "globalGoal": "Complete the deferred tax analysis. Fill in all empty cells for Years 2-4. Leave Tax Accounting income statement rows and Year 1 cells unchanged.",
+        "parentSummary": "SpreadsheetBench staged task Template/05_02; evaluator metadata remains outside this frame.",
+        "currentArtifactDigest": "task:Template/05_02; track:spreadsheetbench-v2; sheets:DeferredTax",
+        "relevantOkfConceptIds": [],
+        "relevantCacheKeys": [],
+        "openQuestions": [],
+        "constraints": [
+          "Use only the staged agent manifest, agent input workbook, and agent prompt files.",
+          "Never request or infer evaluator metadata, answer positions, scorer settings, or gold workbooks.",
+          "Inspect, preflight, use managed RoomTools writes, and verify every changed target.",
+          "Treat a failed preflight or post-write verification as repair guidance, not permission to weaken verification."
+        ],
+        "expectedOutputSchema": "noderoom.spreadsheetbench.nodeagent_bridge.v1"
+      },
+      "toolAllowlist": [
+        "inspect_workbook",
+        "verify_workbook",
+        "list_artifacts",
+        "read_range",
+        "search_sheet_context",
+        "write_locked_cell",
+        "write_locked_cells",
+        "say"
+      ],
+      "evidenceState": {
+        "required": [
+          "workbook inspection",
+          "edit-plan preflight",
+          "managed write receipt",
+          "post-write verification"
+        ],
+        "availableRefs": [],
+        "missingRefs": [],
+        "staleRefs": []
+      },
+      "stateDelta": {
+        "summary": "Paused after an agent runtime error.",
+        "changedArtifacts": [],
+        "cacheKeysTouched": [],
+        "okfConceptIdsTouched": [],
+        "openQuestions": [],
+        "nextActions": [
+          "Resume frame from error handoff."
+        ]
+      }
+    },
+    "runtimeError": "Error: openrouter/free-auto request deadline exceeded after nvidia/nemotron-3-super-120b-a12b:free, qwen/qwen3-next-80b-a3b-instruct:free, qwen/qwen3-coder:free"
+  },
+  "trace": {
+    "schema": "nodeagent.trace.v1",
+    "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+    "createdAt": 1784024393154,
+    "updatedAt": 1784024496045,
+    "trigger": {
+      "kind": "benchmark",
+      "prompt": "Complete the deferred tax analysis. Fill in all empty cells for Years 2-4. Leave Tax Accounting income statement rows and Year 1 cells unchanged.",
+      "selectedArtifactIds": [
+        "DeferredTax"
+      ],
+      "openedSurface": "spreadsheetbench.nodeagent.bridge"
+    },
+    "plan": {
+      "goal": "Complete the deferred tax analysis. Fill in all empty cells for Years 2-4. Leave Tax Accounting income statement rows and Year 1 cells unchanged.",
+      "plannedReads": [
+        {
+          "kind": "artifact",
+          "refId": "DeferredTax",
+          "label": "Agent-visible worksheet"
+        }
+      ],
+      "plannedWrites": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-smoke-candidates-r3\\Template_05_02\\candidate-01-05_02_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+          "hash": "6ebd61417f65753d8fc753a5ef004e0a5247d2bb6bed8ba4781abbd81f676a8e"
+        }
+      ],
+      "approvalRequired": false,
+      "riskFlags": [
+        "evaluator_isolation",
+        "workbook_mutation",
+        "cas_managed_write"
+      ]
+    },
+    "contextPack": {
+      "worldModelHash": "fnv1a:f56ba765",
+      "includedRefs": [
+        {
+          "kind": "frame",
+          "refId": "rf_spreadsheetbench-nodeagent-5c41b1f5",
+          "label": "Reasoning frame"
+        }
+      ],
+      "excludedRefs": []
+    },
+    "steps": [
+      {
+        "stepId": "spreadsheetbench-nodeagent-5c41b1f5:tool:000:list-artifacts",
+        "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+        "phase": "tool_call",
+        "title": "Tool call: list_artifacts",
+        "summary": "Called list_artifacts and recorded args/result hashes.",
+        "inputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-5c41b1f5:tool:000:list-artifacts:args",
+            "hash": "fnv1a:5465b825",
+            "label": "list_artifacts args"
+          }
+        ],
+        "outputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-5c41b1f5:tool:000:list-artifacts:result",
+            "hash": "fnv1a:9ac0e114",
+            "label": "list_artifacts result"
+          }
+        ],
+        "tool": {
+          "name": "list_artifacts",
+          "argsHash": "fnv1a:5465b825",
+          "resultHash": "fnv1a:9ac0e114",
+          "status": "ok",
+          "latencyMs": 0
+        },
+        "timings": {
+          "startedAt": 1784024393154,
+          "endedAt": 1784024393154,
+          "latencyMs": 0
+        },
+        "verdict": {
+          "status": "ok"
+        }
+      },
+      {
+        "stepId": "spreadsheetbench-nodeagent-5c41b1f5:tool:001:inspect-workbook",
+        "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+        "phase": "tool_call",
+        "title": "Tool call: inspect_workbook",
+        "summary": "Called inspect_workbook and recorded args/result hashes.",
+        "inputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-5c41b1f5:tool:001:inspect-workbook:args",
+            "hash": "fnv1a:1d5b24f1",
+            "label": "inspect_workbook args"
+          }
+        ],
+        "outputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-5c41b1f5:tool:001:inspect-workbook:result",
+            "hash": "fnv1a:9be9e418",
+            "label": "inspect_workbook result"
+          }
+        ],
+        "tool": {
+          "name": "inspect_workbook",
+          "argsHash": "fnv1a:1d5b24f1",
+          "resultHash": "fnv1a:9be9e418",
+          "status": "ok",
+          "latencyMs": 7
+        },
+        "timings": {
+          "startedAt": 1784024393154,
+          "endedAt": 1784024393161,
+          "latencyMs": 7
+        },
+        "verdict": {
+          "status": "ok"
+        }
+      },
+      {
+        "stepId": "spreadsheetbench-nodeagent-5c41b1f5:tool:003:handoff",
+        "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+        "phase": "reason",
+        "title": "Runtime handoff",
+        "summary": "Runtime produced a resumable handoff receipt.",
+        "inputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-5c41b1f5:tool:003:handoff:args",
+            "hash": "fnv1a:a893d96f",
+            "label": "handoff args"
+          }
+        ],
+        "outputRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-5c41b1f5:tool:003:handoff:result",
+            "hash": "fnv1a:ce857ae0",
+            "label": "handoff result"
+          }
+        ],
+        "tool": {
+          "name": "handoff",
+          "argsHash": "fnv1a:a893d96f",
+          "resultHash": "fnv1a:ce857ae0",
+          "status": "ok",
+          "latencyMs": 0
+        },
+        "timings": {
+          "startedAt": 1784024393154,
+          "endedAt": 1784024393154,
+          "latencyMs": 0
+        },
+        "verdict": {
+          "status": "ok"
+        }
+      }
+    ],
+    "evidence": [
+      {
+        "receiptId": "spreadsheetbench-nodeagent-5c41b1f5:evidence:spreadsheetbench-inspect",
+        "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+        "label": "SpreadsheetBench inspect",
+        "sourceRefs": [
+          {
+            "kind": "tool_result",
+            "refId": "spreadsheetbench-nodeagent-5c41b1f5:bridge:event:1",
+            "label": "inspect_workbook",
+            "hash": "fnv1a:9be9e418"
+          }
+        ],
+        "artifactRefs": [
+          {
+            "kind": "artifact",
+            "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-smoke-candidates-r3\\Template_05_02\\candidate-01-05_02_input.xlsx",
+            "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+            "hash": "6ebd61417f65753d8fc753a5ef004e0a5247d2bb6bed8ba4781abbd81f676a8e"
+          }
+        ],
+        "factHash": "fnv1a:dea522d3",
+        "verifier": "spreadsheetBenchNodeAgentBridge",
+        "status": "verified"
+      },
+      {
+        "receiptId": "spreadsheetbench-nodeagent-5c41b1f5:evidence:spreadsheetbench-preflight",
+        "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+        "label": "SpreadsheetBench preflight",
+        "sourceRefs": [],
+        "artifactRefs": [
+          {
+            "kind": "artifact",
+            "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-smoke-candidates-r3\\Template_05_02\\candidate-01-05_02_input.xlsx",
+            "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+            "hash": "6ebd61417f65753d8fc753a5ef004e0a5247d2bb6bed8ba4781abbd81f676a8e"
+          }
+        ],
+        "factHash": "fnv1a:cc17ac59",
+        "verifier": "verify_workbook",
+        "status": "verified"
+      },
+      {
+        "receiptId": "spreadsheetbench-nodeagent-5c41b1f5:evidence:spreadsheetbench-verify",
+        "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+        "label": "SpreadsheetBench verify",
+        "sourceRefs": [],
+        "artifactRefs": [
+          {
+            "kind": "artifact",
+            "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-smoke-candidates-r3\\Template_05_02\\candidate-01-05_02_input.xlsx",
+            "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+            "hash": "6ebd61417f65753d8fc753a5ef004e0a5247d2bb6bed8ba4781abbd81f676a8e"
+          }
+        ],
+        "factHash": "fnv1a:e6c334c4",
+        "verifier": "verify_workbook",
+        "status": "verified"
+      },
+      {
+        "receiptId": "spreadsheetbench-nodeagent-5c41b1f5:evidence:spreadsheetbench-repair",
+        "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+        "label": "SpreadsheetBench repair",
+        "sourceRefs": [],
+        "artifactRefs": [
+          {
+            "kind": "artifact",
+            "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-smoke-candidates-r3\\Template_05_02\\candidate-01-05_02_input.xlsx",
+            "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+            "hash": "6ebd61417f65753d8fc753a5ef004e0a5247d2bb6bed8ba4781abbd81f676a8e"
+          }
+        ],
+        "factHash": "fnv1a:12966d23",
+        "verifier": "spreadsheetBenchNodeAgentBridge",
+        "status": "verified"
+      }
+    ],
+    "mutations": [],
+    "approvals": [],
+    "eval": {
+      "proofArtifacts": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-smoke-candidates-r3\\Template_05_02\\candidate-01-05_02_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+          "hash": "6ebd61417f65753d8fc753a5ef004e0a5247d2bb6bed8ba4781abbd81f676a8e"
+        }
+      ],
+      "benchmarkCaseId": "Template/05_02"
+    },
+    "final": {
+      "outputArtifactRefs": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-smoke-candidates-r3\\Template_05_02\\candidate-01-05_02_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+          "hash": "6ebd61417f65753d8fc753a5ef004e0a5247d2bb6bed8ba4781abbd81f676a8e"
+        }
+      ],
+      "summary": "Paused after an agent runtime error.",
+      "status": "failed"
+    }
+  }
+}

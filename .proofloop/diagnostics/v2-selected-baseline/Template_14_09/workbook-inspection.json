@@ -1,0 +1,138 @@
+{
+  "schema": 1,
+  "mutatingTask": true,
+  "allowEmptyPlan": false,
+  "referencedSheets": [],
+  "explicitReferences": [],
+  "targetCandidates": [
+    {
+      "sheet": "Revenue_Projection",
+      "address": "F34",
+      "reason": "row label B34=Concessions; year header F30=Year 3"
+    },
+    {
+      "sheet": "Revenue_Projection",
+      "address": "G34",
+      "reason": "row label B34=Concessions; year header G30=Year 4"
+    },
+    {
+      "sheet": "Revenue_Projection",
+      "address": "H34",
+      "reason": "row label B34=Concessions; year header H30=Year 5"
+    }
+  ],
+  "dependencyCandidates": [],
+  "findings": [
+    {
+      "kind": "implicit_assignment_target",
+      "severity": "info",
+      "sheet": "Revenue_Projection",
+      "address": "F34",
+      "detail": "F34 is the visible row/year intersection for an explicit value assignment.",
+      "recommendedAction": "Set the requested value and preserve the surrounding row and workbook structure."
+    },
+    {
+      "kind": "implicit_assignment_target",
+      "severity": "info",
+      "sheet": "Revenue_Projection",
+      "address": "G34",
+      "detail": "G34 is the visible row/year intersection for an explicit value assignment.",
+      "recommendedAction": "Set the requested value and preserve the surrounding row and workbook structure."
+    },
+    {
+      "kind": "implicit_assignment_target",
+      "severity": "info",
+      "sheet": "Revenue_Projection",
+      "address": "H34",
+      "detail": "H34 is the visible row/year intersection for an explicit value assignment.",
+      "recommendedAction": "Set the requested value and preserve the surrounding row and workbook structure."
+    }
+  ],
+  "formulaFillSuggestions": [],
+  "formulaRepairSuggestions": [],
+  "valueSuggestions": [
+    {
+      "confidence": "high",
+      "sheet": "Revenue_Projection",
+      "cell": "F34",
+      "value": 0,
+      "numFmt": "0.0%",
+      "evidence": [
+        "row label B34=Concessions",
+        "year header F30=Year 3"
+      ]
+    },
+    {
+      "confidence": "high",
+      "sheet": "Revenue_Projection",
+      "cell": "G34",
+      "value": 0,
+      "numFmt": "0.0%",
+      "evidence": [
+        "row label B34=Concessions",
+        "year header G30=Year 4"
+      ]
+    },
+    {
+      "confidence": "high",
+      "sheet": "Revenue_Projection",
+      "cell": "H34",
+      "value": 0,
+      "numFmt": "0.0%",
+      "evidence": [
+        "row label B34=Concessions",
+        "year header H30=Year 5"
+      ]
+    }
+  ],
+  "rankedCellKeys": [
+    "revenue_projection!F34",
+    "revenue_projection!G34",
+    "revenue_projection!H34",
+    "revenue_projection!B12",
+    "revenue_projection!C12",
+    "revenue_projection!B13",
+    "revenue_projection!C13",
+    "revenue_projection!B14",
+    "revenue_projection!C14",
+    "revenue_projection!B33",
+    "revenue_projection!C33",
+    "revenue_projection!B34",
+    "revenue_projection!C34",
+    "revenue_projection!B35",
+    "revenue_projection!C35",
+    "revenue_projection!B2",
+    "revenue_projection!C46"
+  ],
+  "recommendedReads": [
+    {
+      "sheet": "Revenue_Projection",
+      "addresses": [
+        "F34",
+        "G34",
+        "H34",
+        "B12",
+        "C12",
+        "B13",
+        "C13",
+        "B14",
+        "C14",
+        "B33",
+        "C33",
+        "B34",
+        "C34",
+        "B35",
+        "C35",
+        "B2"
+      ],
+      "reason": "implicit_assignment_target, calculation_row_context_B13, task_term_match, calculation_row_context_B14, calculation_row_context_B34, sheet_representative"
+    }
+  ],
+  "completionChecks": [
+    "Every edited cell belongs to the requested workbook scope.",
+    "Existing formulas are not replaced by scalars unless the task explicitly requires it.",
+    "Changed formulas contain no broken references or obvious self-reference.",
+    "Every changed target is re-read and checked after the write or recorded as pending approval.",
+    "Unsupported macro, validation, or full-format work is reported as unresolved; chart requests require a real chart operation rather than a prose claim."
+  ]
+}

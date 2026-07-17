@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "taskId": "Template/16_02",
+  "track": "spreadsheetbench-v2",
+  "category": "Template",
+  "instruction": "Complete the financial model based on the provided assumptions. Ensure that all formulas, references, and calculations are correct.",
+  "inputFiles": [
+    "inputs/01-16_02_input.xlsx"
+  ],
+  "promptFiles": []
+}

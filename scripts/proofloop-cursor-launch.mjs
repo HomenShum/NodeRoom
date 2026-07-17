@@ -18,6 +18,26 @@ if (!existsSync(promptPath)) {
 }
 
 const prompt = readFileSync(promptPath, "utf8");
+if (process.env.PROOFLOOP_CURSOR_DRY_RUN === "1") {
+  const startedAt = new Date().toISOString();
+  const finishedAt = new Date().toISOString();
+  mkdirSync(dirname(exportPath), { recursive: true });
+  writeFileSync(exportPath, `${JSON.stringify({
+    schema: "proofloop-cursor-session-export-v1",
+    host: "cursor",
+    dryRun: true,
+    startedAt,
+    finishedAt,
+    runDir,
+    promptPath,
+    command: "dry-run cursor-agent -p --trust --output-format text <prompt>",
+    exitCode: 0,
+    stdout: "dry-run cursor native launch ok\n",
+    stderr: "",
+  }, null, 2)}\n`, "utf8");
+  process.stdout.write("dry-run cursor native launch ok\n");
+  process.exit(0);
+}
 const binary = process.env.PROOFLOOP_CURSOR_BINARY || findBinary(["cursor-agent", "cursor"]);
 if (!binary) {
   console.error("Cursor CLI not found. Install Cursor CLI or set PROOFLOOP_CURSOR_COMMAND/PROOFLOOP_CURSOR_BINARY.");

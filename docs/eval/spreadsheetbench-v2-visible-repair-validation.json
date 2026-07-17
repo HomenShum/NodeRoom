@@ -1,0 +1,285 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-10T23:05:43.570Z",
+  "track": "spreadsheetbench-v2",
+  "category": "Debugging",
+  "selection": {
+    "policy": "sha256_task_id_modulo_selected_before_workbook_inspection",
+    "modulus": 10,
+    "residue": 1,
+    "limit": 10,
+    "selectedTaskIds": [
+      "Debugging/01_07",
+      "Debugging/02_09",
+      "Debugging/02_10",
+      "Debugging/03_03",
+      "Debugging/03_05",
+      "Debugging/03_10",
+      "Debugging/04_06",
+      "Debugging/04_09",
+      "Debugging/04_10",
+      "Debugging/05_06"
+    ],
+    "selectedTaskIdsSha256": "a6404d7dcc8df0bcc60cf2f56d629589d7da33ef630bb4a58323a3a4702a3901"
+  },
+  "boundary": {
+    "candidateGeneration": "agent_visible_manifest_and_input_workbook_only",
+    "evaluatorMetadataRead": false,
+    "goldenWorkbookRead": false,
+    "modelCalls": 0,
+    "note": "This is an exploration replay of the same high-confidence visible formula repair fallback used by the product runner; scoring happens only after candidate emission."
+  },
+  "taskCount": 10,
+  "taskWithRepairCount": 3,
+  "operationCount": 15,
+  "results": [
+    {
+      "taskId": "Debugging/01_07",
+      "selectionBucket": 1,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_01_07/agent/task.json",
+      "agentManifestSha256": "52903419bff6bf7df07d63fcf4c84d317b644424e419f07b23ddcf5f54e678ff",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_01_07/agent/inputs/01-Incorrect Index Match_input.xlsx",
+      "inputSha256": "97f867b9624e3496dc8673842aafb951ccc5f45c285b70cc1284b99f38956789",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 3660,
+      "findingCount": 93,
+      "formulaRepairSuggestionCount": 0,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 0,
+      "operations": [],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-validation/Debugging/01_07_output.xlsx",
+      "outputSha256": "145d5ad4cbe61f1901d7cddb85e48ddcfac12ad875315c4b4076a5468aaddab4"
+    },
+    {
+      "taskId": "Debugging/02_09",
+      "selectionBucket": 1,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_02_09/agent/task.json",
+      "agentManifestSha256": "1a97e112278eac7933cef733817692dc32beb55803b87f346b57749fcadd8ef9",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_02_09/agent/inputs/01-Relative vs Absolute DIfference_input.xlsx",
+      "inputSha256": "04dbc3abefe1f46126f6e17276abaff2ce6590dac18b432e2991e4b1aa3234ee",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 2158,
+      "findingCount": 100,
+      "formulaRepairSuggestionCount": 0,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 0,
+      "operations": [],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-validation/Debugging/02_09_output.xlsx",
+      "outputSha256": "f62b63671e371cd9d9adce9bd5310dd76396b7785253b4f07c2c608cfc0cfdb2"
+    },
+    {
+      "taskId": "Debugging/02_10",
+      "selectionBucket": 1,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_02_10/agent/task.json",
+      "agentManifestSha256": "aa835248494b6e7bc724dd693c3aec9b305e9f1bbf683c6e3279c0a22636f9dc",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_02_10/agent/inputs/01-Unit Mismatch_input.xlsx",
+      "inputSha256": "c5944f9440a895c42c63ab768cf9903d345968a9906281063213c68610daa916",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 2159,
+      "findingCount": 97,
+      "formulaRepairSuggestionCount": 0,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 0,
+      "operations": [],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-validation/Debugging/02_10_output.xlsx",
+      "outputSha256": "fa1f3df1faac36bf374dc6cfd42c2fd5d3c787d73f1b54fa3341e5a38e3a43dc"
+    },
+    {
+      "taskId": "Debugging/03_03",
+      "selectionBucket": 1,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_03_03/agent/task.json",
+      "agentManifestSha256": "2fa4b056dfde8341cc4d907ce6c045e176374e1653670752a6cee55a11b340d7",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_03_03/agent/inputs/01-Errors_input.xlsx",
+      "inputSha256": "429746c05f685b8de96b29cd29406ff85425952f60829b23dbdcef85682a1c72",
+      "instructionSha256": "dc098d8de4ea689b42517eeeaafd71794f50b5f5913b758dec08d7a73dcf9b30",
+      "observedCellCount": 1865,
+      "findingCount": 89,
+      "formulaRepairSuggestionCount": 5,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 5,
+      "operations": [
+        {
+          "sheet": "LBO",
+          "cell": "J13",
+          "formula": "+'Ex 10 - Proj. Income Statement'!D31"
+        },
+        {
+          "sheet": "LBO",
+          "cell": "K13",
+          "formula": "+'Ex 10 - Proj. Income Statement'!E31"
+        },
+        {
+          "sheet": "LBO",
+          "cell": "L13",
+          "formula": "+'Ex 10 - Proj. Income Statement'!F31"
+        },
+        {
+          "sheet": "LBO",
+          "cell": "M13",
+          "formula": "+'Ex 10 - Proj. Income Statement'!G31"
+        },
+        {
+          "sheet": "LBO",
+          "cell": "N13",
+          "formula": "+'Ex 10 - Proj. Income Statement'!H31"
+        }
+      ],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-validation/Debugging/03_03_output.xlsx",
+      "outputSha256": "a7899fbdc7242d5efb857dcae9ace08797df6d5494cbb9d9bf32eefb16c48c17"
+    },
+    {
+      "taskId": "Debugging/03_05",
+      "selectionBucket": 1,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_03_05/agent/task.json",
+      "agentManifestSha256": "5ca80f016bc40399ea1086f2992e725bf33a31a457307cb66786c79d62a2d45c",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_03_05/agent/inputs/01-Incorrect AVERAGE Formulas_input.xlsx",
+      "inputSha256": "b154619a3e9d283c3f3f29388854ceedc07b005962c5709b0343519feb1c3aa7",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 1875,
+      "findingCount": 46,
+      "formulaRepairSuggestionCount": 0,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 0,
+      "operations": [],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-validation/Debugging/03_05_output.xlsx",
+      "outputSha256": "f6d17b3ffe9bb4b15d00e49dc31128ee9572dc4c99043bd3decf40dca4988e8e"
+    },
+    {
+      "taskId": "Debugging/03_10",
+      "selectionBucket": 1,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_03_10/agent/task.json",
+      "agentManifestSha256": "c533e47d71814f8124fcfa399228ac15e48d1f70c56a9fa1a22768ce73659560",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_03_10/agent/inputs/01-Unit Mismatch_input.xlsx",
+      "inputSha256": "8ec530aa156f1830043b48d701e37797f8ce84fe9a013999770d7fdcfdd1f740",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 1875,
+      "findingCount": 76,
+      "formulaRepairSuggestionCount": 5,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 5,
+      "operations": [
+        {
+          "sheet": "LBO",
+          "cell": "J15",
+          "formula": "+'Ex 10 - Proj. Income Statement'!D31"
+        },
+        {
+          "sheet": "LBO",
+          "cell": "K15",
+          "formula": "+'Ex 10 - Proj. Income Statement'!E31"
+        },
+        {
+          "sheet": "LBO",
+          "cell": "L15",
+          "formula": "+'Ex 10 - Proj. Income Statement'!F31"
+        },
+        {
+          "sheet": "LBO",
+          "cell": "M15",
+          "formula": "+'Ex 10 - Proj. Income Statement'!G31"
+        },
+        {
+          "sheet": "LBO",
+          "cell": "N15",
+          "formula": "+'Ex 10 - Proj. Income Statement'!H31"
+        }
+      ],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-validation/Debugging/03_10_output.xlsx",
+      "outputSha256": "32b8d8abe23cb777d689bacd5dc78dce6a2e56f5ff7317c635fc61bfc474e38f"
+    },
+    {
+      "taskId": "Debugging/04_06",
+      "selectionBucket": 1,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_04_06/agent/task.json",
+      "agentManifestSha256": "be3da7a446f8221e38e5c2ce0ad9a8826ba17454d09bfc8ee701d83ab9b6d30e",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_04_06/agent/inputs/01-Incorrect Cross Sheet References_input.xlsx",
+      "inputSha256": "5b44c960fb8a29619c1c5305cbf7c7a361f7b3582832a58307710d7e34083f99",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 3483,
+      "findingCount": 100,
+      "formulaRepairSuggestionCount": 26,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 0,
+      "operations": [],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-validation/Debugging/04_06_output.xlsx",
+      "outputSha256": "52720a324fd747a9919151d0cab507d0e70d598d1fa6b6eafef9334c45393aae"
+    },
+    {
+      "taskId": "Debugging/04_09",
+      "selectionBucket": 1,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_04_09/agent/task.json",
+      "agentManifestSha256": "38830fcd4c3f40a52989c2821bcb25ce481f3d24858556aa0527b32039c7df02",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_04_09/agent/inputs/01-Relative vs Absolute References_input.xlsx",
+      "inputSha256": "db2bb797924d3db4b455f891b22f413c1f5819b9d2bd08eb0a41eb6cbb2ced32",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 3483,
+      "findingCount": 100,
+      "formulaRepairSuggestionCount": 26,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 0,
+      "operations": [],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-validation/Debugging/04_09_output.xlsx",
+      "outputSha256": "00533653c9611ce3a1dec82679468404c58374a80cf28f67cc3b58ca76f48b26"
+    },
+    {
+      "taskId": "Debugging/04_10",
+      "selectionBucket": 1,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_04_10/agent/task.json",
+      "agentManifestSha256": "5e8dc9037164681fd9c724a3f7d2d755719cbeb1e1e4157ee78c40267b65a6b2",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_04_10/agent/inputs/01-Unit Mismatch_input.xlsx",
+      "inputSha256": "591ba6628753083cf20bb3a1484cdc312a74283f55021dc1a568236886955ee3",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 3483,
+      "findingCount": 100,
+      "formulaRepairSuggestionCount": 26,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 0,
+      "operations": [],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-validation/Debugging/04_10_output.xlsx",
+      "outputSha256": "5682e0b911d66fdd1119a2ca906c8f406e050ee48249cec67e542661b20caca4"
+    },
+    {
+      "taskId": "Debugging/05_06",
+      "selectionBucket": 1,
+      "agentManifest": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_05_06/agent/task.json",
+      "agentManifestSha256": "3b2d67b30900d70e4b9652fabb8ae0397cb51088017f652fc7a3f4033d028ab1",
+      "input": ".tmp/official-benchmarks/staged-v2-full/tasks/Debugging_05_06/agent/inputs/01-Incorrect Cross Sheet References_input.xlsx",
+      "inputSha256": "84016f905d1c6362c9d1313730e6d0ff0093f0eb9c3c597777c93449d4376550",
+      "instructionSha256": "aff8940e4177337589f0cc731c5dd3ca63c1ab1e4b17905c90be2fd91c0fe846",
+      "observedCellCount": 2661,
+      "findingCount": 100,
+      "formulaRepairSuggestionCount": 5,
+      "formulaFillSuggestionCount": 0,
+      "operationCount": 5,
+      "operations": [
+        {
+          "sheet": "Financial Performance",
+          "cell": "B10",
+          "formula": "B9+1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "B14",
+          "formula": "B13+1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "B18",
+          "formula": "B17+1"
+        },
+        {
+          "sheet": "Financial Performance",
+          "cell": "G21",
+          "formula": "(G20/G8)^(1/3)-1"
+        },
+        {
+          "sheet": "Model",
+          "cell": "I26",
+          "formula": "I22+I24"
+        }
+      ],
+      "output": ".tmp/official-benchmarks/v2-visible-repair-validation/Debugging/05_06_output.xlsx",
+      "outputSha256": "da8f7e0b5c6f88c82a5ef7e24cdc6f6875323cdd758d8d05094c6dfe5f3c71df"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema":1,
+  "operations":[
+    {"sheet":"Ex 1 - LBO","cell":"AI17","formula":"=AC28","result":14.2034},
+    {"sheet":"Ex 1 - LBO","cell":"AF38","formula":"=AC28","result":14.2034},
+    {"sheet":"Ex 1 - LBO","cell":"AF47","formula":"=AC28","result":14.2034},
+    {"sheet":"Ex 1 - LBO","cell":"X18","formula":"=AI17","result":14.2},
+    {"sheet":"Ex 1 - LBO","cell":"Y18","formula":"=X18","result":14.2},
+    {"sheet":"Ex 1 - LBO","cell":"Z18","formula":"=X18","result":14.2},
+    {"sheet":"Ex 1 - LBO","cell":"AA18","formula":"=X18","result":14.2},
+    {"sheet":"Ex 1 - LBO","cell":"AB18","formula":"=X18","result":14.2},
+    {"sheet":"Ex 1 - LBO","cell":"AC18","formula":"=X18","result":14.2},
+    {"sheet":"Ex 2 - Valuation Bridge","cell":"C7","formula":"=('Ex 1 - LBO'!AC18-'Ex 1 - LBO'!X18)*'Ex 1 - LBO'!X18"}
+  ]
+}

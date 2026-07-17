@@ -1,23 +1,23 @@
 {
   "surface": "topbar",
   "judgeModel": "gemini-3.5-flash",
-  "judgedAt": "2026-06-11T21:16:13.113Z",
+  "judgedAt": "2026-07-12T11:10:17.563Z",
   "stateCount": 7,
   "scores": {
     "state_legibility": 7,
-    "affordance_honesty": 6,
-    "consistency": 6,
-    "contrast": 5,
+    "affordance_honesty": 7,
+    "consistency": 7,
+    "contrast": 6,
     "polish": 6
   },
-  "average": 6,
+  "average": 6.6,
   "pass": false,
   "topIssues": [
-    "Image 6 (autoallow-off): The inactive switch track has extremely low contrast against its parent container, making the toggle boundary nearly invisible.",
-    "Image 7 (default, light): The theme toggle button features a solid background plate, creating an inconsistent visual style compared to the adjacent borderless help and leave icons."
+    "Image 7 (default light): Terracotta text on the room-code chip has lower contrast against the light background.",
+    "Image 5 & 6 (auto-allow): Label text changes dynamically ('auto-allow' to 'review'), which can cause layout shifts."
   ],
   "fixSuggestions": [
-    "Increase the background contrast of the inactive switch track in the off-state to clearly define its boundaries.",
-    "Remove the background plate from the light-theme toggle button to match the flat, borderless style of neighboring utility icons."
+    "Darken the terracotta accent color slightly in light mode to improve text readability.",
+    "Use a static label for the toggle and rely solely on the switch state to convey status."
   ]
 }

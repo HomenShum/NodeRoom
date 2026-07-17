@@ -1,0 +1,427 @@
+{
+  "schema": 1,
+  "verifier": "spreadsheetbench_workbook_scorer",
+  "generatedAt": "2026-07-14T10:42:57.330Z",
+  "taskId": "Template/06_11",
+  "track": "spreadsheetbench-v2",
+  "mode": "nodeagent-workbook",
+  "attemptIndex": 1,
+  "repeatIndex": 1,
+  "tryIndex": 1,
+  "candidateWorkbook": "Template_06_11/candidate-01-06_11_input.xlsx",
+  "agentManifest": "tasks/Template_06_11/agent/task.json",
+  "evaluatorManifest": "tasks/Template_06_11/evaluator/evaluator.json",
+  "score": {
+    "schema": 1,
+    "generatedAt": "2026-07-14T10:42:57.330Z",
+    "taskId": "Template/06_11",
+    "candidateWorkbook": "candidate-01-06_11_input.xlsx",
+    "goldWorkbook": "01-06_11_golden.xlsx",
+    "answerPosition": "'WC_Forecast'!B2:H32",
+    "ranges": [
+      "'WC_Forecast'!B2:H32"
+    ],
+    "totals": {
+      "comparedCells": 217,
+      "valueMatches": 193,
+      "formulaCells": 28,
+      "formulaMatches": 4,
+      "styleCells": 217,
+      "styleMatches": 30,
+      "styleLayoutItems": 39,
+      "styleLayoutMatches": 34,
+      "mismatches": 240,
+      "missingSheets": 0
+    },
+    "scores": {
+      "value": 0.889401,
+      "formula": 0.142857,
+      "style": 0.25,
+      "chartPackage": null,
+      "overall": 0.4274193333333334
+    },
+    "pass": false,
+    "warnings": [
+      "mismatch list capped at 50/240",
+      "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+      "chart_package: gold workbook has no chart or drawing XML parts"
+    ],
+    "mismatches": [
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "B2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF000080\"},\"name\":\"Arial\",\"size\":12},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FF000080\"},\"italic\":true,\"name\":\"Arial\",\"size\":12}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "C2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "D2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "E2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "F2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "G2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "H2",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "B3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "C3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "D3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "E3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "F3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "G3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "H3",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "B4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"italic\":true,\"name\":\"Arial\",\"size\":9},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":9}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "C4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "D4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "E4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "F4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "G4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "H4",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "B5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "C5",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "B6",
+        "expected": "{\"alignment\":{\"horizontal\":\"right\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"right\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "C6",
+        "expected": "{\"alignment\":{\"horizontal\":\"right\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"right\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "D6",
+        "expected": "{\"alignment\":{\"horizontal\":\"right\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"right\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "E6",
+        "expected": "{\"alignment\":{\"horizontal\":\"right\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"right\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "F6",
+        "expected": "{\"alignment\":{\"horizontal\":\"right\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"right\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "G6",
+        "expected": "{\"alignment\":{\"horizontal\":\"right\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"right\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "H6",
+        "expected": "{\"alignment\":{\"horizontal\":\"right\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"bgColor\":{\"argb\":\"FF666699\"},\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"horizontal\":\"right\",\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"fgColor\":{\"argb\":\"FF4472C4\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"color\":{\"argb\":\"FFFFFFFF\"},\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "B7",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "C7",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"bottom\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"color\":{\"theme\":1},\"name\":\"Calibri\",\"size\":11},\"numFmt\":\"General\"}",
+        "actual": "{\"font\":{}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "B8",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"}},\"fill\":{\"bgColor\":{\"argb\":\"FFCCFFFF\"},\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"fgColor\":{\"argb\":\"FFD9E1F2\"},\"pattern\":\"solid\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "C8",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":8},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":8}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "D8",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":8},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":8}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "E8",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":8},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":8}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "F8",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":8},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":8}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "G8",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":8},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":8}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "H8",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":8},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"medium\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":8}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "B9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"name\":\"Arial\",\"size\":10},\"numFmt\":\"General\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Arial\",\"size\":10}}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "C9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":8},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":8},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "D9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":8},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":8},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "E9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":8},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":8},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "value",
+        "sheet": "WC_Forecast",
+        "cell": "F9",
+        "expected": "7592.55",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "WC_Forecast",
+        "cell": "F9",
+        "expected": "=E9*(1+F10)"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "F9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":8},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":8},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "value",
+        "sheet": "WC_Forecast",
+        "cell": "G9",
+        "expected": "7843.10415",
+        "actual": ""
+      },
+      {
+        "kind": "formula",
+        "sheet": "WC_Forecast",
+        "cell": "G9",
+        "expected": "=F9*(1+G10)"
+      },
+      {
+        "kind": "style",
+        "sheet": "WC_Forecast",
+        "cell": "G9",
+        "expected": "{\"alignment\":{\"horizontal\":\"general\",\"indent\":0,\"shrinkToFit\":false,\"textRotation\":0,\"vertical\":\"top\",\"wrapText\":false},\"border\":{\"bottom\":{\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"name\":\"Calibri\",\"size\":8},\"numFmt\":\"#,##0\"}",
+        "actual": "{\"alignment\":{\"vertical\":\"top\"},\"border\":{\"bottom\":{\"color\":{\"argb\":\"FF000000\"},\"style\":\"thin\"}},\"fill\":{\"pattern\":\"none\",\"type\":\"pattern\"},\"font\":{\"bold\":true,\"italic\":true,\"name\":\"Calibri\",\"size\":8},\"numFmt\":\"#,##0\"}"
+      },
+      {
+        "kind": "value",
+        "sheet": "WC_Forecast",
+        "cell": "H9",
+        "expected": "29905.65415",
+        "actual": ""
+      }
+    ],
+    "chartPackage": {
+      "schema": 1,
+      "generatedAt": "2026-07-14T10:42:57.330Z",
+      "taskId": "Template/06_11",
+      "candidateWorkbook": "candidate-01-06_11_input.xlsx",
+      "goldWorkbook": "01-06_11_golden.xlsx",
+      "verifier": "xlsx_chart_package_static",
+      "totals": {
+        "goldChartParts": 0,
+        "candidateChartParts": 0,
+        "matchedChartParts": 0,
+        "missingChartParts": 0,
+        "extraChartParts": 0,
+        "mismatchedChartParts": 0
+      },
+      "scores": {
+        "package": 0
+      },
+      "pass": false,
+      "candidateParts": [],
+      "goldParts": [],
+      "mismatches": [],
+      "warnings": [
+        "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+        "gold workbook has no chart or drawing XML parts"
+      ]
+    }
+  }
+}

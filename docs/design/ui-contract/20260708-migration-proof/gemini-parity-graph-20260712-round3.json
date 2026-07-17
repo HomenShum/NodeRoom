@@ -1,0 +1,105 @@
+{
+  "generatedAt": "2026-07-12T11:58:28.618Z",
+  "model": "gemini-3.5-flash",
+  "media": ".proofloop/proofs/visual-parity/desktop-1456x940/graph.png",
+  "reference": "docs/design/ui-contract/20260708-migration-proof/standalone-interior-graph.png",
+  "rubricMean": 3.77,
+  "lowestDim": {
+    "dim": "product.whyTrust",
+    "score": 2
+  },
+  "betterThanReference": [
+    "product:worse",
+    "hierarchy-typography:worse",
+    "layout-spacing:worse",
+    "color-state:same"
+  ],
+  "counts": {
+    "P0": 0,
+    "P1": 3,
+    "P2": 3
+  },
+  "passBar": false,
+  "lensScores": [
+    {
+      "lens": "product",
+      "scores": {
+        "whatIsHappening": 3,
+        "whyTrust": 2,
+        "whatNext": 3
+      }
+    },
+    {
+      "lens": "hierarchy-typography",
+      "scores": {
+        "hierarchy": 4,
+        "typography": 4
+      }
+    },
+    {
+      "lens": "layout-spacing",
+      "scores": {
+        "spacingRhythm": 4,
+        "alignment": 4.2,
+        "density": 3.5
+      }
+    },
+    {
+      "lens": "color-state",
+      "scores": {
+        "colorDiscipline": 5,
+        "stateSignal": 5
+      }
+    }
+  ],
+  "findings": [
+    {
+      "lens": "product",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Room NodeAgent chat messages",
+      "issue": "Version provenance is broken, showing 'v1 -> v1' for both reconciliation actions instead of the correct sequential versions ('v41 -> v42' and 'v42 -> v43') as shown in the reference and bottom status bar ('v42').",
+      "fix": "Update the version badges in the agent chat messages to display 'v41 -> v42' and 'v42 -> v43' respectively."
+    },
+    {
+      "lens": "product",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Entity graph",
+      "issue": "The graph layout is extremely cluttered with overlapping nodes, unreadable text, and chaotic edge crossings, failing to clearly represent the entity relationships.",
+      "fix": "Apply the clean, radial star-like layout from the reference centered around 'CardioNova' and 'Q3 variance' to make relationships legible."
+    },
+    {
+      "lens": "hierarchy-typography",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Left sidebar nested items",
+      "issue": "Parent categories like 'Room sheets', 'Boards', and 'Knowledge' lack collapsible chevrons and distinct styling, making the nested hierarchy feel flat and harder to scan compared to the reference.",
+      "fix": "Apply collapsible chevron indicators and distinct category styling to clearly differentiate parent containers from child items."
+    },
+    {
+      "lens": "hierarchy-typography",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Top navigation tabs",
+      "issue": "The 'Risk / opportunity ...' tab is truncated with an ellipsis, which looks untidy and reduces readability.",
+      "fix": "Implement an overflow dropdown (such as the '+3' pill in the reference) to keep active tab labels fully readable and clean."
+    },
+    {
+      "lens": "layout-spacing",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Top navigation tab bar",
+      "issue": "Tabs are crowded and lack an overflow dropdown, causing tight horizontal spacing and violating the calm-but-alive density.",
+      "fix": "Implement the '+3' overflow dropdown for tabs exceeding the safe horizontal boundary as shown in the reference."
+    },
+    {
+      "lens": "layout-spacing",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Left sidebar (Room Binder)",
+      "issue": "Excessive vertical density with too many expanded items and flat lists, creating an inconsistent vertical rhythm.",
+      "fix": "Group and nest items under collapsible category headers (e.g., Financials, Diligence, Governance) with consistent 8px/12px vertical spacing."
+    }
+  ]
+}

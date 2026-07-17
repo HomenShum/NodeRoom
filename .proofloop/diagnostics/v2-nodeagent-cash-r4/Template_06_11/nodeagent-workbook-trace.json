@@ -1,0 +1,960 @@
+{
+  "schema": "nodeagent.trace.v1",
+  "traceId": "spreadsheetbench-nodeagent-f921662f",
+  "createdAt": 1784025539061,
+  "updatedAt": 1784025634445,
+  "trigger": {
+    "kind": "benchmark",
+    "prompt": "Forecast Cash as prior period Cash plus Changes in Working Capital.",
+    "selectedArtifactIds": [
+      "WC_Forecast"
+    ],
+    "openedSurface": "spreadsheetbench.nodeagent.bridge"
+  },
+  "plan": {
+    "goal": "Forecast Cash as prior period Cash plus Changes in Working Capital.",
+    "plannedReads": [
+      {
+        "kind": "artifact",
+        "refId": "WC_Forecast",
+        "label": "Agent-visible worksheet"
+      }
+    ],
+    "plannedWrites": [
+      {
+        "kind": "artifact",
+        "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-cash-r4\\Template_06_11\\candidate-01-06_11_input.xlsx",
+        "label": "SpreadsheetBench candidate candidate-01-06_11_input.xlsx",
+        "hash": "ccb79db94a1deefa63061dc8ac153c38aa87c021ea10a136c7a4545efc38ee1d"
+      }
+    ],
+    "approvalRequired": false,
+    "riskFlags": [
+      "evaluator_isolation",
+      "workbook_mutation",
+      "cas_managed_write"
+    ]
+  },
+  "contextPack": {
+    "worldModelHash": "fnv1a:bfb7e696",
+    "includedRefs": [
+      {
+        "kind": "frame",
+        "refId": "rf_spreadsheetbench-nodeagent-f921662f",
+        "label": "Reasoning frame"
+      }
+    ],
+    "excludedRefs": []
+  },
+  "steps": [
+    {
+      "stepId": "spreadsheetbench-nodeagent-f921662f:tool:000:inspect-workbook",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "phase": "tool_call",
+      "title": "Tool call: inspect_workbook",
+      "summary": "Called inspect_workbook and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:000:inspect-workbook:args",
+          "hash": "fnv1a:e4fb12c8",
+          "label": "inspect_workbook args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:000:inspect-workbook:result",
+          "hash": "fnv1a:1468e7e5",
+          "label": "inspect_workbook result"
+        }
+      ],
+      "tool": {
+        "name": "inspect_workbook",
+        "argsHash": "fnv1a:e4fb12c8",
+        "resultHash": "fnv1a:1468e7e5",
+        "status": "ok",
+        "latencyMs": 29
+      },
+      "timings": {
+        "startedAt": 1784025539061,
+        "endedAt": 1784025539090,
+        "latencyMs": 29
+      },
+      "verdict": {
+        "status": "ok"
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-f921662f:tool:001:read-range",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "phase": "tool_call",
+      "title": "Tool call: read_range",
+      "summary": "Called read_range and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:001:read-range:args",
+          "hash": "fnv1a:4bba4a11",
+          "label": "read_range args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:001:read-range:result",
+          "hash": "fnv1a:f520d901",
+          "label": "read_range result"
+        }
+      ],
+      "tool": {
+        "name": "read_range",
+        "argsHash": "fnv1a:4bba4a11",
+        "resultHash": "fnv1a:f520d901",
+        "status": "ok",
+        "latencyMs": 0
+      },
+      "timings": {
+        "startedAt": 1784025539061,
+        "endedAt": 1784025539061,
+        "latencyMs": 0
+      },
+      "verdict": {
+        "status": "ok"
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-f921662f:tool:002:search-sheet-context",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "phase": "tool_call",
+      "title": "Tool call: search_sheet_context",
+      "summary": "Called search_sheet_context and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:002:search-sheet-context:args",
+          "hash": "fnv1a:4bc78ec0",
+          "label": "search_sheet_context args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:002:search-sheet-context:result",
+          "hash": "fnv1a:412a6943",
+          "label": "search_sheet_context result"
+        }
+      ],
+      "tool": {
+        "name": "search_sheet_context",
+        "argsHash": "fnv1a:4bc78ec0",
+        "resultHash": "fnv1a:412a6943",
+        "status": "ok",
+        "latencyMs": 2
+      },
+      "timings": {
+        "startedAt": 1784025539061,
+        "endedAt": 1784025539063,
+        "latencyMs": 2
+      },
+      "verdict": {
+        "status": "ok"
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-f921662f:tool:003:read-range",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "phase": "tool_call",
+      "title": "Tool call: read_range",
+      "summary": "Called read_range and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:003:read-range:args",
+          "hash": "fnv1a:ea7a9e5e",
+          "label": "read_range args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:003:read-range:result",
+          "hash": "fnv1a:f1604683",
+          "label": "read_range result"
+        }
+      ],
+      "tool": {
+        "name": "read_range",
+        "argsHash": "fnv1a:ea7a9e5e",
+        "resultHash": "fnv1a:f1604683",
+        "status": "ok",
+        "latencyMs": 0
+      },
+      "timings": {
+        "startedAt": 1784025539061,
+        "endedAt": 1784025539061,
+        "latencyMs": 0
+      },
+      "verdict": {
+        "status": "ok"
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-f921662f:tool:004:write-locked-cells",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "phase": "tool_call",
+      "title": "Tool call: write_locked_cells",
+      "summary": "Called write_locked_cells and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:004:write-locked-cells:args",
+          "hash": "fnv1a:4ed291b6",
+          "label": "write_locked_cells args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:004:write-locked-cells:result",
+          "hash": "fnv1a:27960110",
+          "label": "write_locked_cells result"
+        }
+      ],
+      "tool": {
+        "name": "write_locked_cells",
+        "argsHash": "fnv1a:4ed291b6",
+        "resultHash": "fnv1a:27960110",
+        "status": "failed",
+        "latencyMs": 4
+      },
+      "timings": {
+        "startedAt": 1784025539061,
+        "endedAt": 1784025539065,
+        "latencyMs": 4
+      },
+      "verdict": {
+        "status": "failed",
+        "reason": "Tool result contained an error-shaped payload."
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-f921662f:tool:005:verify-workbook",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "phase": "tool_call",
+      "title": "Tool call: verify_workbook",
+      "summary": "Called verify_workbook and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:005:verify-workbook:args",
+          "hash": "fnv1a:db0d6787",
+          "label": "verify_workbook args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:005:verify-workbook:result",
+          "hash": "fnv1a:054eb212",
+          "label": "verify_workbook result"
+        }
+      ],
+      "tool": {
+        "name": "verify_workbook",
+        "argsHash": "fnv1a:db0d6787",
+        "resultHash": "fnv1a:054eb212",
+        "status": "failed",
+        "latencyMs": 12
+      },
+      "timings": {
+        "startedAt": 1784025539061,
+        "endedAt": 1784025539073,
+        "latencyMs": 12
+      },
+      "verdict": {
+        "status": "failed",
+        "reason": "Tool result contained an error-shaped payload."
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-f921662f:tool:006:verify-workbook",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "phase": "tool_call",
+      "title": "Tool call: verify_workbook",
+      "summary": "Called verify_workbook and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:006:verify-workbook:args",
+          "hash": "fnv1a:fc37ec0e",
+          "label": "verify_workbook args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:006:verify-workbook:result",
+          "hash": "fnv1a:43d670f8",
+          "label": "verify_workbook result"
+        }
+      ],
+      "tool": {
+        "name": "verify_workbook",
+        "argsHash": "fnv1a:fc37ec0e",
+        "resultHash": "fnv1a:43d670f8",
+        "status": "failed",
+        "latencyMs": 16
+      },
+      "timings": {
+        "startedAt": 1784025539061,
+        "endedAt": 1784025539077,
+        "latencyMs": 16
+      },
+      "verdict": {
+        "status": "failed",
+        "reason": "Tool result contained an error-shaped payload."
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-f921662f:tool:007:read-range",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "phase": "tool_call",
+      "title": "Tool call: read_range",
+      "summary": "Called read_range and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:007:read-range:args",
+          "hash": "fnv1a:638c6e6d",
+          "label": "read_range args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:007:read-range:result",
+          "hash": "fnv1a:1ee052a1",
+          "label": "read_range result"
+        }
+      ],
+      "tool": {
+        "name": "read_range",
+        "argsHash": "fnv1a:638c6e6d",
+        "resultHash": "fnv1a:1ee052a1",
+        "status": "ok",
+        "latencyMs": 0
+      },
+      "timings": {
+        "startedAt": 1784025539061,
+        "endedAt": 1784025539061,
+        "latencyMs": 0
+      },
+      "verdict": {
+        "status": "ok"
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-f921662f:tool:008:verify-workbook",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "phase": "tool_call",
+      "title": "Tool call: verify_workbook",
+      "summary": "Called verify_workbook and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:008:verify-workbook:args",
+          "hash": "fnv1a:aa719812",
+          "label": "verify_workbook args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:008:verify-workbook:result",
+          "hash": "fnv1a:02221e07",
+          "label": "verify_workbook result"
+        }
+      ],
+      "tool": {
+        "name": "verify_workbook",
+        "argsHash": "fnv1a:aa719812",
+        "resultHash": "fnv1a:02221e07",
+        "status": "failed",
+        "latencyMs": 11
+      },
+      "timings": {
+        "startedAt": 1784025539061,
+        "endedAt": 1784025539072,
+        "latencyMs": 11
+      },
+      "verdict": {
+        "status": "failed",
+        "reason": "Tool result contained an error-shaped payload."
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-f921662f:tool:009:read-range",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "phase": "tool_call",
+      "title": "Tool call: read_range",
+      "summary": "Called read_range and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:009:read-range:args",
+          "hash": "fnv1a:49c5cdba",
+          "label": "read_range args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:009:read-range:result",
+          "hash": "fnv1a:7c4ab7a9",
+          "label": "read_range result"
+        }
+      ],
+      "tool": {
+        "name": "read_range",
+        "argsHash": "fnv1a:49c5cdba",
+        "resultHash": "fnv1a:7c4ab7a9",
+        "status": "ok",
+        "latencyMs": 0
+      },
+      "timings": {
+        "startedAt": 1784025539061,
+        "endedAt": 1784025539061,
+        "latencyMs": 0
+      },
+      "verdict": {
+        "status": "ok"
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-f921662f:tool:010:write-locked-cells",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "phase": "tool_call",
+      "title": "Tool call: write_locked_cells",
+      "summary": "Called write_locked_cells and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:010:write-locked-cells:args",
+          "hash": "fnv1a:0f57bf86",
+          "label": "write_locked_cells args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:010:write-locked-cells:result",
+          "hash": "fnv1a:27960110",
+          "label": "write_locked_cells result"
+        }
+      ],
+      "tool": {
+        "name": "write_locked_cells",
+        "argsHash": "fnv1a:0f57bf86",
+        "resultHash": "fnv1a:27960110",
+        "status": "failed",
+        "latencyMs": 0
+      },
+      "timings": {
+        "startedAt": 1784025539061,
+        "endedAt": 1784025539061,
+        "latencyMs": 0
+      },
+      "verdict": {
+        "status": "failed",
+        "reason": "Tool result contained an error-shaped payload."
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-f921662f:tool:011:verify-workbook",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "phase": "tool_call",
+      "title": "Tool call: verify_workbook",
+      "summary": "Called verify_workbook and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:011:verify-workbook:args",
+          "hash": "fnv1a:aa719812",
+          "label": "verify_workbook args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:011:verify-workbook:result",
+          "hash": "fnv1a:02221e07",
+          "label": "verify_workbook result"
+        }
+      ],
+      "tool": {
+        "name": "verify_workbook",
+        "argsHash": "fnv1a:aa719812",
+        "resultHash": "fnv1a:02221e07",
+        "status": "failed",
+        "latencyMs": 6
+      },
+      "timings": {
+        "startedAt": 1784025539061,
+        "endedAt": 1784025539067,
+        "latencyMs": 6
+      },
+      "verdict": {
+        "status": "failed",
+        "reason": "Tool result contained an error-shaped payload."
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-f921662f:tool:012:write-locked-cells",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "phase": "tool_call",
+      "title": "Tool call: write_locked_cells",
+      "summary": "Called write_locked_cells and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:012:write-locked-cells:args",
+          "hash": "fnv1a:ae080372",
+          "label": "write_locked_cells args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:012:write-locked-cells:result",
+          "hash": "fnv1a:27960110",
+          "label": "write_locked_cells result"
+        }
+      ],
+      "tool": {
+        "name": "write_locked_cells",
+        "argsHash": "fnv1a:ae080372",
+        "resultHash": "fnv1a:27960110",
+        "status": "failed",
+        "latencyMs": 1
+      },
+      "timings": {
+        "startedAt": 1784025539061,
+        "endedAt": 1784025539062,
+        "latencyMs": 1
+      },
+      "verdict": {
+        "status": "failed",
+        "reason": "Tool result contained an error-shaped payload."
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-f921662f:tool:013:verify-workbook",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "phase": "tool_call",
+      "title": "Tool call: verify_workbook",
+      "summary": "Called verify_workbook and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:013:verify-workbook:args",
+          "hash": "fnv1a:02b5af18",
+          "label": "verify_workbook args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:013:verify-workbook:result",
+          "hash": "fnv1a:02221e07",
+          "label": "verify_workbook result"
+        }
+      ],
+      "tool": {
+        "name": "verify_workbook",
+        "argsHash": "fnv1a:02b5af18",
+        "resultHash": "fnv1a:02221e07",
+        "status": "failed",
+        "latencyMs": 8
+      },
+      "timings": {
+        "startedAt": 1784025539061,
+        "endedAt": 1784025539069,
+        "latencyMs": 8
+      },
+      "verdict": {
+        "status": "failed",
+        "reason": "Tool result contained an error-shaped payload."
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-f921662f:tool:014:write-locked-cell",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "phase": "tool_call",
+      "title": "Tool call: write_locked_cell",
+      "summary": "Called write_locked_cell and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:014:write-locked-cell:args",
+          "hash": "fnv1a:b7b3cd4e",
+          "label": "write_locked_cell args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:014:write-locked-cell:result",
+          "hash": "fnv1a:27960110",
+          "label": "write_locked_cell result"
+        }
+      ],
+      "tool": {
+        "name": "write_locked_cell",
+        "argsHash": "fnv1a:b7b3cd4e",
+        "resultHash": "fnv1a:27960110",
+        "status": "failed",
+        "latencyMs": 2
+      },
+      "timings": {
+        "startedAt": 1784025539061,
+        "endedAt": 1784025539063,
+        "latencyMs": 2
+      },
+      "verdict": {
+        "status": "failed",
+        "reason": "Tool result contained an error-shaped payload."
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-f921662f:tool:015:handoff",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "phase": "reason",
+      "title": "Runtime handoff",
+      "summary": "Runtime produced a resumable handoff receipt.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:015:handoff:args",
+          "hash": "fnv1a:9db6c19f",
+          "label": "handoff args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:tool:015:handoff:result",
+          "hash": "fnv1a:6a3fa469",
+          "label": "handoff result"
+        }
+      ],
+      "tool": {
+        "name": "handoff",
+        "argsHash": "fnv1a:9db6c19f",
+        "resultHash": "fnv1a:6a3fa469",
+        "status": "ok",
+        "latencyMs": 0
+      },
+      "timings": {
+        "startedAt": 1784025539061,
+        "endedAt": 1784025539061,
+        "latencyMs": 0
+      },
+      "verdict": {
+        "status": "ok"
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "receiptId": "spreadsheetbench-nodeagent-f921662f:evidence:spreadsheetbench-inspect",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "label": "SpreadsheetBench inspect",
+      "sourceRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:bridge:event:0",
+          "label": "inspect_workbook",
+          "hash": "fnv1a:1468e7e5"
+        }
+      ],
+      "artifactRefs": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-cash-r4\\Template_06_11\\candidate-01-06_11_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-06_11_input.xlsx",
+          "hash": "ccb79db94a1deefa63061dc8ac153c38aa87c021ea10a136c7a4545efc38ee1d"
+        }
+      ],
+      "factHash": "fnv1a:dea522d3",
+      "verifier": "spreadsheetBenchNodeAgentBridge",
+      "status": "verified"
+    },
+    {
+      "receiptId": "spreadsheetbench-nodeagent-f921662f:evidence:spreadsheetbench-preflight",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "label": "SpreadsheetBench preflight",
+      "sourceRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:bridge:event:5",
+          "label": "verify_workbook",
+          "hash": "fnv1a:054eb212"
+        },
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:bridge:event:6",
+          "label": "verify_workbook",
+          "hash": "fnv1a:43d670f8"
+        },
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:bridge:event:8",
+          "label": "verify_workbook",
+          "hash": "fnv1a:02221e07"
+        },
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:bridge:event:11",
+          "label": "verify_workbook",
+          "hash": "fnv1a:02221e07"
+        },
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:bridge:event:13",
+          "label": "verify_workbook",
+          "hash": "fnv1a:02221e07"
+        }
+      ],
+      "artifactRefs": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-cash-r4\\Template_06_11\\candidate-01-06_11_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-06_11_input.xlsx",
+          "hash": "ccb79db94a1deefa63061dc8ac153c38aa87c021ea10a136c7a4545efc38ee1d"
+        }
+      ],
+      "factHash": "fnv1a:01455509",
+      "verifier": "verify_workbook",
+      "status": "needs_review"
+    },
+    {
+      "receiptId": "spreadsheetbench-nodeagent-f921662f:evidence:spreadsheetbench-verify",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "label": "SpreadsheetBench verify",
+      "sourceRefs": [],
+      "artifactRefs": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-cash-r4\\Template_06_11\\candidate-01-06_11_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-06_11_input.xlsx",
+          "hash": "ccb79db94a1deefa63061dc8ac153c38aa87c021ea10a136c7a4545efc38ee1d"
+        }
+      ],
+      "factHash": "fnv1a:e6c334c4",
+      "verifier": "verify_workbook",
+      "status": "verified"
+    },
+    {
+      "receiptId": "spreadsheetbench-nodeagent-f921662f:evidence:spreadsheetbench-repair",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "label": "SpreadsheetBench repair",
+      "sourceRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:bridge:event:5",
+          "label": "verify_workbook",
+          "hash": "fnv1a:054eb212"
+        },
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:bridge:event:6",
+          "label": "verify_workbook",
+          "hash": "fnv1a:43d670f8"
+        },
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:bridge:event:8",
+          "label": "verify_workbook",
+          "hash": "fnv1a:02221e07"
+        },
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:bridge:event:11",
+          "label": "verify_workbook",
+          "hash": "fnv1a:02221e07"
+        },
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-f921662f:bridge:event:13",
+          "label": "verify_workbook",
+          "hash": "fnv1a:02221e07"
+        }
+      ],
+      "artifactRefs": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-cash-r4\\Template_06_11\\candidate-01-06_11_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-06_11_input.xlsx",
+          "hash": "ccb79db94a1deefa63061dc8ac153c38aa87c021ea10a136c7a4545efc38ee1d"
+        }
+      ],
+      "factHash": "fnv1a:dcccc24d",
+      "verifier": "spreadsheetBenchNodeAgentBridge",
+      "status": "needs_review"
+    }
+  ],
+  "mutations": [
+    {
+      "receiptId": "spreadsheetbench-nodeagent-f921662f:mutation:4ed291b6",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "targetRefs": [
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!C28",
+          "label": "SpreadsheetBench workbook target"
+        },
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!D28",
+          "label": "SpreadsheetBench workbook target"
+        },
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!E28",
+          "label": "SpreadsheetBench workbook target"
+        },
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!F28",
+          "label": "SpreadsheetBench workbook target"
+        },
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!G28",
+          "label": "SpreadsheetBench workbook target"
+        },
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!H28",
+          "label": "SpreadsheetBench workbook target"
+        }
+      ],
+      "payloadHash": "fnv1a:4ed291b6",
+      "status": "conflict"
+    },
+    {
+      "receiptId": "spreadsheetbench-nodeagent-f921662f:mutation:0f57bf86",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "targetRefs": [
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!C28",
+          "label": "SpreadsheetBench workbook target"
+        },
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!D28",
+          "label": "SpreadsheetBench workbook target"
+        },
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!E28",
+          "label": "SpreadsheetBench workbook target"
+        },
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!F28",
+          "label": "SpreadsheetBench workbook target"
+        },
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!G28",
+          "label": "SpreadsheetBench workbook target"
+        },
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!H28",
+          "label": "SpreadsheetBench workbook target"
+        }
+      ],
+      "payloadHash": "fnv1a:0f57bf86",
+      "status": "conflict"
+    },
+    {
+      "receiptId": "spreadsheetbench-nodeagent-f921662f:mutation:ae080372",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "targetRefs": [
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!C28",
+          "label": "SpreadsheetBench workbook target"
+        },
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!D28",
+          "label": "SpreadsheetBench workbook target"
+        },
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!E28",
+          "label": "SpreadsheetBench workbook target"
+        },
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!F28",
+          "label": "SpreadsheetBench workbook target"
+        },
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!G28",
+          "label": "SpreadsheetBench workbook target"
+        },
+        {
+          "kind": "cell",
+          "refId": "WC_Forecast!H28",
+          "label": "SpreadsheetBench workbook target"
+        }
+      ],
+      "payloadHash": "fnv1a:ae080372",
+      "status": "conflict"
+    },
+    {
+      "receiptId": "spreadsheetbench-nodeagent-f921662f:mutation:b7b3cd4e",
+      "traceId": "spreadsheetbench-nodeagent-f921662f",
+      "targetRefs": [
+        {
+          "kind": "cell",
+          "refId": "C28",
+          "label": "SpreadsheetBench workbook target"
+        }
+      ],
+      "payloadHash": "fnv1a:b7b3cd4e",
+      "status": "conflict"
+    }
+  ],
+  "approvals": [],
+  "eval": {
+    "proofArtifacts": [
+      {
+        "kind": "artifact",
+        "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-cash-r4\\Template_06_11\\candidate-01-06_11_input.xlsx",
+        "label": "SpreadsheetBench candidate candidate-01-06_11_input.xlsx",
+        "hash": "ccb79db94a1deefa63061dc8ac153c38aa87c021ea10a136c7a4545efc38ee1d"
+      }
+    ],
+    "benchmarkCaseId": "Template/06_11"
+  },
+  "final": {
+    "outputArtifactRefs": [
+      {
+        "kind": "artifact",
+        "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-cash-r4\\Template_06_11\\candidate-01-06_11_input.xlsx",
+        "label": "SpreadsheetBench candidate candidate-01-06_11_input.xlsx",
+        "hash": "ccb79db94a1deefa63061dc8ac153c38aa87c021ea10a136c7a4545efc38ee1d"
+      }
+    ],
+    "summary": "Checkpointed after this run slice used its configured step window; resume with preserved trace, context, and remaining work.",
+    "status": "needs_review"
+  }
+}

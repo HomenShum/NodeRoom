@@ -1,0 +1,6780 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-14T09:21:52.006Z",
+  "stageRoot": "staged-v2-full",
+  "outputRoot": "v2-near-pass-free-auto",
+  "mode": "model-edit-plan",
+  "taskOffset": 0,
+  "taskCount": 6,
+  "passCount": 0,
+  "averageOverall": 0.51479,
+  "caseCount": 6,
+  "caseRunCount": 6,
+  "casePassCount": 0,
+  "casePassRate": 0,
+  "repeatCount": 1,
+  "attemptCount": 6,
+  "passRate": 0,
+  "retryPolicy": {
+    "maxRetries": 0,
+    "retryOn": [
+      "candidate_generation",
+      "scoring"
+    ],
+    "stopOnPass": true
+  },
+  "retryStats": {
+    "retriedCaseRunCount": 0,
+    "retryAttemptCount": 0,
+    "passedAfterRetryCount": 0,
+    "exhaustedCaseRunCount": 2
+  },
+  "stats": {
+    "latencyMs": {
+      "p50": 127273,
+      "p95": 184464,
+      "max": 184464
+    },
+    "failureCounts": {
+      "candidate_generation:openrouter/free-auto failed for nvidia/nemotron-3-super-120b-a12b:free, google/gemma-4-26b-a4b-it:free, google/gemma-4-31b-it:free, qwen/qwen3-coder:free, openai/gpt-oss-20b:free, nvidia/nemotron-nano-9b-v2:free: This endpoint's maximum context length is 128000 tokens. However, you requested about 180473 tokens (180473 of text input). Please reduce the length of either one, or use the context-compression plugin to compress your prompt automatically.": 1,
+      "candidate_generation:openrouter/free-auto request deadline exceeded after cohere/north-mini-code:free, meta-llama/llama-3.3-70b-instruct:free, cognitivecomputations/dolphin-mistral-24b-venice-edition:free, poolside/laguna-xs-2.1:free": 1
+    }
+  },
+  "harness": {
+    "toolPolicy": "agent_dir_only_until_candidate",
+    "evaluatorAccess": "after_candidate_emit_only",
+    "modelContextPolicy": {
+      "batchSize": 1,
+      "snapshotMaxCells": 800,
+      "snapshotMaxCellChars": 256,
+      "instructionMaxChars": null,
+      "repairAttempts": 2,
+      "selectedTaskCount": 6
+    },
+    "budget": {
+      "modelCalls": 7,
+      "inputTokens": 197983,
+      "outputTokens": 11888,
+      "providerCostUsd": 0
+    }
+  },
+  "warnings": [
+    "tasks/Financial_Model_11_04#1.1: openrouter/free-auto failed for nvidia/nemotron-3-super-120b-a12b:free, google/gemma-4-26b-a4b-it:free, google/gemma-4-31b-it:free, qwen/qwen3-coder:free, openai/gpt-oss-20b:free, nvidia/nemotron-nano-9b-v2:free: This endpoint's maximum context length is 128000 tokens. However, you requested about 180473 tokens (180473 of text input). Please reduce the length of either one, or use the context-compression plugin to compress your prompt automatically.",
+    "tasks/Template_16_02#1.1: openrouter/free-auto request deadline exceeded after cohere/north-mini-code:free, meta-llama/llama-3.3-70b-instruct:free, cognitivecomputations/dolphin-mistral-24b-venice-edition:free, poolside/laguna-xs-2.1:free"
+  ],
+  "caseRuns": [
+    {
+      "taskId": "Debugging/02_04",
+      "taskDir": "tasks/Debugging_02_04",
+      "repeatIndex": 1,
+      "attempts": [
+        1
+      ],
+      "finalAttemptIndex": 1,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.938708
+    },
+    {
+      "taskId": "Debugging/02_05",
+      "taskDir": "tasks/Debugging_02_05",
+      "repeatIndex": 1,
+      "attempts": [
+        2
+      ],
+      "finalAttemptIndex": 2,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.936627
+    },
+    {
+      "taskId": "Debugging/03_04",
+      "taskDir": "tasks/Debugging_03_04",
+      "repeatIndex": 1,
+      "attempts": [
+        3
+      ],
+      "finalAttemptIndex": 3,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.625757
+    },
+    {
+      "taskId": "Debugging/04_04",
+      "taskDir": "tasks/Debugging_04_04",
+      "repeatIndex": 1,
+      "attempts": [
+        4
+      ],
+      "finalAttemptIndex": 4,
+      "pass": false,
+      "stopReason": "failed_score",
+      "bestOverall": 0.587644
+    },
+    {
+      "taskId": "Financial_Model/11_04",
+      "taskDir": "tasks/Financial_Model_11_04",
+      "repeatIndex": 1,
+      "attempts": [
+        5
+      ],
+      "finalAttemptIndex": 5,
+      "pass": false,
+      "stopReason": "retry_exhausted",
+      "bestOverall": 0
+    },
+    {
+      "taskId": "Template/16_02",
+      "taskDir": "tasks/Template_16_02",
+      "repeatIndex": 1,
+      "attempts": [
+        6
+      ],
+      "finalAttemptIndex": 6,
+      "pass": false,
+      "stopReason": "retry_exhausted",
+      "bestOverall": 0
+    }
+  ],
+  "results": [
+    {
+      "taskId": "Debugging/02_04",
+      "track": "spreadsheetbench-v2",
+      "category": "Debugging",
+      "mode": "model-edit-plan",
+      "attemptIndex": 1,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Debugging_02_04",
+      "agentManifest": "tasks/Debugging_02_04/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_02_04/evaluator/evaluator.json",
+      "candidateWorkbook": "Debugging_02_04/candidate-01-Inconsistent Color Coding_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Debugging_02_04/candidate-manifest.json",
+          "sha256": "d86749066fa11c7384a15e88ebc089ac423938a615c6e51b60603b76c72b5854",
+          "bytes": 1858
+        },
+        "agentWorkspaceManifest": {
+          "path": "Debugging_02_04/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "0c77fe16d422399792d155ec5ed01974554f4d25e12c42aa83e7392a3c5b5ab0",
+          "bytes": 527
+        },
+        "editPlan": {
+          "path": "Debugging_02_04/model-edit-plan.json",
+          "sha256": "f6c006b797f3d740273d5fec9e6c567b7852301a5b907b045ad71b9b50801d3d",
+          "bytes": 355,
+          "kind": "generated"
+        },
+        "rawModelOutput": {
+          "path": "Debugging_02_04/model-output.txt",
+          "sha256": "12a2f2eb4c24cc7205ec10fb2a9ee2965a562bff18f9512de3343577f8dda0fd",
+          "bytes": 279
+        },
+        "workbookInspection": {
+          "path": "Debugging_02_04/workbook-inspection.json",
+          "sha256": "73c2b8e9f5192cf46ad2ccb6ea67e5e979ed720fb933652890f5d4ddf7984480",
+          "bytes": 34127
+        },
+        "editVerification": {
+          "path": "Debugging_02_04/model-edit-verification.json",
+          "sha256": "ce76dbd096f5601de32ef9c4653fef76e464750902e328efb51b27b9e760857f",
+          "bytes": 38607
+        },
+        "repairOutputs": [
+          {
+            "path": "Debugging_02_04/model-repair-output-01.txt",
+            "sha256": "b3b6e606e65fd36dff7f42aa3b39c3d52498009af5861bedc079045f09ea6103",
+            "bytes": 354
+          }
+        ],
+        "formulaResultPolicy": "deterministic_local_subset",
+        "supportedFormulaFunctions": [
+          "SUM",
+          "AVERAGE",
+          "MIN",
+          "MAX",
+          "MEDIAN",
+          "COUNT",
+          "COUNTA",
+          "ABS",
+          "ROUND",
+          "ROUNDUP",
+          "ROUNDDOWN",
+          "AND",
+          "OR",
+          "NOT",
+          "IF",
+          "IFERROR",
+          "SUMIF",
+          "COUNTIF",
+          "AVERAGEIF",
+          "SUMIFS",
+          "COUNTIFS",
+          "AVERAGEIFS",
+          "MATCH",
+          "INDEX",
+          "VLOOKUP",
+          "XLOOKUP",
+          "SUMPRODUCT",
+          "LEFT",
+          "RIGHT",
+          "MID",
+          "LEN",
+          "FIND",
+          "SEARCH",
+          "REPLACE",
+          "TEXT",
+          "DATE",
+          "VALUE",
+          "CONCATENATE",
+          "TRIM"
+        ],
+        "appliedOperationCount": 3,
+        "repairAttemptCount": 1,
+        "verificationStatus": "passed"
+      },
+      "scorerReceipt": {
+        "path": "Debugging_02_04/score-receipt.json",
+        "sha256": "be7cdc07fdd01923b708b45bbde71da75826775758d62c9eb2d8d1a2087c6581",
+        "bytes": 32030
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-14T09:21:52.006Z",
+        "taskId": "Debugging/02_04",
+        "candidateWorkbook": "candidate-01-Inconsistent Color Coding_input.xlsx",
+        "goldWorkbook": "01-02_golden.xlsx",
+        "answerPosition": "'DCF'!B1:Z35,'WACC'!B2:M22,'Cover'!B2:C16,'Synergies'!B1:AC82,'Merger Model'!B2:J85,'Berk-Hath Investment Package'!B2:K44,'Exhibit 1'!A1:C29,'Exhibit 2'!A1:C32,'Exhibit 3'!A1:F19,'Exhibit 4a'!A1:M14,'Exhibit 5'!A1:C16,'Exhibit 6'!A1:J47,'Exhibit 7'!A1:D38,'Exhibit 8b'!A1:G25,'Exhibit 9'!A1:P30",
+        "ranges": [
+          "'DCF'!B1:Z35",
+          "'WACC'!B2:M22",
+          "'Cover'!B2:C16",
+          "'Synergies'!B1:AC82",
+          "'Merger Model'!B2:J85",
+          "'Berk-Hath Investment Package'!B2:K44",
+          "'Exhibit 1'!A1:C29",
+          "'Exhibit 2'!A1:C32",
+          "'Exhibit 3'!A1:F19",
+          "'Exhibit 4a'!A1:M14",
+          "'Exhibit 5'!A1:C16",
+          "'Exhibit 6'!A1:J47",
+          "'Exhibit 7'!A1:D38",
+          "'Exhibit 8b'!A1:G25",
+          "'Exhibit 9'!A1:P30"
+        ],
+        "totals": {
+          "comparedCells": 6443,
+          "valueMatches": 5680,
+          "formulaCells": 721,
+          "formulaMatches": 718,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 766,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.881577,
+          "formula": 0.995839,
+          "style": null,
+          "chartPackage": null,
+          "overall": 0.9387080000000001
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 200/766",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+          "chart_package: gold workbook has no chart or drawing XML parts"
+        ],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H1",
+            "expected": "2018",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I1",
+            "expected": "2019",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J1",
+            "expected": "2020",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K1",
+            "expected": "2021",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L1",
+            "expected": "2022",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M1",
+            "expected": "2023",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N1",
+            "expected": "2024",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O1",
+            "expected": "2025",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P1",
+            "expected": "2026",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q1",
+            "expected": "2027",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R1",
+            "expected": "2028",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J2",
+            "expected": "1",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K2",
+            "expected": "2",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L2",
+            "expected": "3",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M2",
+            "expected": "4",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N2",
+            "expected": "5",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O2",
+            "expected": "6",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P2",
+            "expected": "7",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q2",
+            "expected": "8",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R2",
+            "expected": "9",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "C7",
+            "expected": "Cashflow Assumptions",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "F7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "C8",
+            "expected": "0.25",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G8",
+            "expected": "2017A",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H8",
+            "expected": "2018A",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I8",
+            "expected": "2019E",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J8",
+            "expected": "2020P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K8",
+            "expected": "2021P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L8",
+            "expected": "2022P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M8",
+            "expected": "2023P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N8",
+            "expected": "2024P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O8",
+            "expected": "2025P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P8",
+            "expected": "2026P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q8",
+            "expected": "2027P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R8",
+            "expected": "2028P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "W8",
+            "expected": "WACC",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "X8",
+            "expected": "WACC",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Y8",
+            "expected": "WACC",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Z8",
+            "expected": "WACC",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "C9",
+            "expected": "0.0869691722391674",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G9",
+            "expected": "11908",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H9",
+            "expected": "13382",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I9",
+            "expected": "12380.9499678667",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J9",
+            "expected": "13150.4970449048",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K9",
+            "expected": "13778.2076026221",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L9",
+            "expected": "14880.8565863918",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M9",
+            "expected": "15901.1614031152",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N9",
+            "expected": "17747.8533235181",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O9",
+            "expected": "19578.2028375457",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P9",
+            "expected": "19969.0773790688",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q9",
+            "expected": "20372.0408239379",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R9",
+            "expected": "20775.004268807",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "U9",
+            "expected": "51123.8670461828",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "V9",
+            "expected": "0.076969172239",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "W9",
+            "expected": "0.081969172239",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Y9",
+            "expected": "0.091969172239",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Z9",
+            "expected": "0.096969172239",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "C10",
+            "expected": "0.018",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H10",
+            "expected": "0.123782331205912",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I10",
+            "expected": "-0.0748057115627933",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J10",
+            "expected": "0.0621557375674241",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K10",
+            "expected": "0.047732838962194",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L10",
+            "expected": "0.0800284779828632",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M10",
+            "expected": "0.0685649250632778",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N10",
+            "expected": "0.116135662898253",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O10",
+            "expected": "0.103130755064457",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P10",
+            "expected": "0.0199647814851237",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q10",
+            "expected": "0.0201793721973094",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R10",
+            "expected": "0.0197802197802199",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "U10",
+            "expected": "0.008",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "V10",
+            "expected": "54647.4402083381",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "U11",
+            "expected": "0.013",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G12",
+            "expected": "6249",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H12",
+            "expected": "7332",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I12",
+            "expected": "7691",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J12",
+            "expected": "8641",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K12",
+            "expected": "9023",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L12",
+            "expected": "9945",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M12",
+            "expected": "10538",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N12",
+            "expected": "11687",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O12",
+            "expected": "12874",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P12",
+            "expected": "13131",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q12",
+            "expected": "13394",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R12",
+            "expected": "13662",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G13",
+            "expected": "-4279",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H13",
+            "expected": "-4254",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I13",
+            "expected": "-4280.625",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J13",
+            "expected": "-4504.125",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K13",
+            "expected": "-4691.671875",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L13",
+            "expected": "-4884.65625",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M13",
+            "expected": "-5093.947265625",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N13",
+            "expected": "-5209.115234375",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O13",
+            "expected": "-5243.74682617188",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P13",
+            "expected": "-5349",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q13",
+            "expected": "-5456",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R13",
+            "expected": "-5565",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "U13",
+            "expected": "0.023",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G14",
+            "expected": "-2535",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H14",
+            "expected": "-459",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I14",
+            "expected": "-1530.17337944416",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J14",
+            "expected": "-1625.28243444955",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K14",
+            "expected": "-1702.86177916121",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L14",
+            "expected": "-1839.13921556267",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M14",
+            "expected": "-1965.23965805866",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N14",
+            "expected": "-2193.47406850124",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O14",
+            "expected": "-2419.68870540008",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P14",
+            "expected": "-2467.99726166542",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q14",
+            "expected": "-2517.7998969905",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R14",
+            "expected": "-2567.60253231559",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "U14",
+            "expected": "0.028",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G15",
+            "expected": "0.212882096069869",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H15",
+            "expected": "0.0342998057091616",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G17",
+            "expected": "-565",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H17",
+            "expected": "2619",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I17",
+            "expected": "1880.20162055584",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J17",
+            "expected": "2511.59256555045",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K17",
+            "expected": "2628.46634583879",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L17",
+            "expected": "3221.20453443733",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M17",
+            "expected": "3478.81307631634",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N17",
+            "expected": "4284.41069712376",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O17",
+            "expected": "5210.56446842804",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P17",
+            "expected": "5314.00273833458",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q17",
+            "expected": "5420.2001030095",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R17",
+            "expected": "5529.39746768441",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G18",
+            "expected": "141.25",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H18",
+            "expected": "-654.75",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I18",
+            "expected": "-470.05040513896",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J18",
+            "expected": "-627.898141387613",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K18",
+            "expected": "-657.116586459697",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L18",
+            "expected": "-805.301133609332",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M18",
+            "expected": "-869.703269079084",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N18",
+            "expected": "-1071.10267428094",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O18",
+            "expected": "-1302.64111710701",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P18",
+            "expected": "-1328.50068458365",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q18",
+            "expected": "-1355.05002575237",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R18",
+            "expected": "-1382.3493669211",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G19",
+            "expected": "-423.75",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H19",
+            "expected": "1964.25",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I19",
+            "expected": "1410.15121541688",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J19",
+            "expected": "1883.69442416284",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K19",
+            "expected": "1971.34975937909",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L19",
+            "expected": "2415.903400828",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M19",
+            "expected": "2609.10980723725",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N19",
+            "expected": "3213.30802284282",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O19",
+            "expected": "3907.92335132103",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P19",
+            "expected": "3985.50205375094",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q19",
+            "expected": "4065.15007725712",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R19",
+            "expected": "4147.04810076331",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G20",
+            "expected": "4279",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H20",
+            "expected": "4254",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I20",
+            "expected": "4280.625",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J20",
+            "expected": "4504.125",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K20",
+            "expected": "4691.671875",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L20",
+            "expected": "4884.65625",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M20",
+            "expected": "5093.947265625",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N20",
+            "expected": "5209.115234375",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O20",
+            "expected": "5243.74682617188",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P20",
+            "expected": "5349",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q20",
+            "expected": "5456",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R20",
+            "expected": "5565",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G22",
+            "expected": "3855.25",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H22",
+            "expected": "6218.25",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I22",
+            "expected": "5690.77621541688",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J22",
+            "expected": "6387.81942416284",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K22",
+            "expected": "6663.02163437909",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L22",
+            "expected": "7300.559650828",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M22",
+            "expected": "7703.05707286225",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N22",
+            "expected": "8422.42325721782",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O22",
+            "expected": "9151.67017749291",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P22",
+            "expected": "9334.50205375094",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q22",
+            "expected": "9521.15007725712",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R22",
+            "expected": "9712.04810076331",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I23",
+            "expected": "-6042",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J23",
+            "expected": "-5781",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K23",
+            "expected": "-6048",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L23",
+            "expected": "-6366",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M23",
+            "expected": "-5806",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N23",
+            "expected": "-5371",
+            "actual": ""
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-14T09:21:52.006Z",
+          "taskId": "Debugging/02_04",
+          "candidateWorkbook": "candidate-01-Inconsistent Color Coding_input.xlsx",
+          "goldWorkbook": "01-02_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 0,
+            "candidateChartParts": 0,
+            "matchedChartParts": 0,
+            "missingChartParts": 0,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 0
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [],
+          "goldParts": [],
+          "mismatches": [],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+            "gold workbook has no chart or drawing XML parts"
+          ]
+        }
+      },
+      "model": {
+        "name": "nvidia/nemotron-3-super-120b-a12b:free",
+        "requestedName": "openrouter/free-auto",
+        "calls": 2,
+        "usage": {
+          "inputTokens": 95389,
+          "outputTokens": 5351,
+          "cachedInputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 60893,
+        "candidateGeneration": 62957,
+        "scoring": 1755,
+        "total": 64755
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Debugging_02_04/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Debugging_02_04/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "snapshot_agent_workbook",
+          "detail": "16 sheet(s), 683 cell(s)"
+        },
+        {
+          "step": "call_model_for_edit_plan",
+          "detail": "nvidia/nemotron-3-super-120b-a12b:free"
+        },
+        {
+          "step": "verify_edit_plan",
+          "detail": "needs_repair: 3 issue(s)"
+        },
+        {
+          "step": "repair_edit_plan",
+          "detail": "attempt 1: passed, 0 issue(s)"
+        },
+        {
+          "step": "verify_candidate_workbook",
+          "detail": "passed: 3/3 changed cell(s) verified"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Debugging_02_04/candidate-01-Inconsistent Color Coding_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Debugging_02_04/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "766 cell mismatch(es)"
+        }
+      ]
+    },
+    {
+      "taskId": "Debugging/02_05",
+      "track": "spreadsheetbench-v2",
+      "category": "Debugging",
+      "mode": "model-edit-plan",
+      "attemptIndex": 2,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Debugging_02_05",
+      "agentManifest": "tasks/Debugging_02_05/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_02_05/evaluator/evaluator.json",
+      "candidateWorkbook": "Debugging_02_05/candidate-01-Incorrect Average_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Debugging_02_05/candidate-manifest.json",
+          "sha256": "113877c5e489a623ddd7fb3408e332b4ab6a0fed63b93bf3cada87ebc4921f72",
+          "bytes": 1814
+        },
+        "agentWorkspaceManifest": {
+          "path": "Debugging_02_05/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "c2aedd7c5c2a1cf47cce4011d6a718297deeb45b1bca8b89c805b7c05b2920ab",
+          "bytes": 519
+        },
+        "editPlan": {
+          "path": "Debugging_02_05/model-edit-plan.json",
+          "sha256": "f6c006b797f3d740273d5fec9e6c567b7852301a5b907b045ad71b9b50801d3d",
+          "bytes": 355,
+          "kind": "generated"
+        },
+        "rawModelOutput": {
+          "path": "Debugging_02_05/model-output.txt",
+          "sha256": "b3b6e606e65fd36dff7f42aa3b39c3d52498009af5861bedc079045f09ea6103",
+          "bytes": 354
+        },
+        "workbookInspection": {
+          "path": "Debugging_02_05/workbook-inspection.json",
+          "sha256": "73c2b8e9f5192cf46ad2ccb6ea67e5e979ed720fb933652890f5d4ddf7984480",
+          "bytes": 34127
+        },
+        "editVerification": {
+          "path": "Debugging_02_05/model-edit-verification.json",
+          "sha256": "4648f740ef5beb541fc5176794dcebc73a42053747b7da274ae83a2183df9332",
+          "bytes": 38607
+        },
+        "formulaResultPolicy": "deterministic_local_subset",
+        "supportedFormulaFunctions": [
+          "SUM",
+          "AVERAGE",
+          "MIN",
+          "MAX",
+          "MEDIAN",
+          "COUNT",
+          "COUNTA",
+          "ABS",
+          "ROUND",
+          "ROUNDUP",
+          "ROUNDDOWN",
+          "AND",
+          "OR",
+          "NOT",
+          "IF",
+          "IFERROR",
+          "SUMIF",
+          "COUNTIF",
+          "AVERAGEIF",
+          "SUMIFS",
+          "COUNTIFS",
+          "AVERAGEIFS",
+          "MATCH",
+          "INDEX",
+          "VLOOKUP",
+          "XLOOKUP",
+          "SUMPRODUCT",
+          "LEFT",
+          "RIGHT",
+          "MID",
+          "LEN",
+          "FIND",
+          "SEARCH",
+          "REPLACE",
+          "TEXT",
+          "DATE",
+          "VALUE",
+          "CONCATENATE",
+          "TRIM"
+        ],
+        "appliedOperationCount": 3,
+        "repairAttemptCount": 0,
+        "verificationStatus": "passed"
+      },
+      "scorerReceipt": {
+        "path": "Debugging_02_05/score-receipt.json",
+        "sha256": "16599aee6357fa7b29dcf0b335c634a7d060c78174cc6e6ca63e097c641ccc97",
+        "bytes": 32036
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-14T09:21:52.006Z",
+        "taskId": "Debugging/02_05",
+        "candidateWorkbook": "candidate-01-Incorrect Average_input.xlsx",
+        "goldWorkbook": "01-02_golden.xlsx",
+        "answerPosition": "'DCF'!B1:Z35,'WACC'!B2:M22,'Cover'!B2:C16,'Synergies'!B1:AC82,'Merger Model'!B2:J85,'Berk-Hath Investment Package'!B2:K44,'Exhibit 1'!A1:C29,'Exhibit 2'!A1:C32,'Exhibit 3'!A1:F19,'Exhibit 4a'!A1:M14,'Exhibit 5'!A1:C16,'Exhibit 6'!A1:J47,'Exhibit 7'!A1:D38,'Exhibit 8b'!A1:G25,'Exhibit 9'!A1:P30",
+        "ranges": [
+          "'DCF'!B1:Z35",
+          "'WACC'!B2:M22",
+          "'Cover'!B2:C16",
+          "'Synergies'!B1:AC82",
+          "'Merger Model'!B2:J85",
+          "'Berk-Hath Investment Package'!B2:K44",
+          "'Exhibit 1'!A1:C29",
+          "'Exhibit 2'!A1:C32",
+          "'Exhibit 3'!A1:F19",
+          "'Exhibit 4a'!A1:M14",
+          "'Exhibit 5'!A1:C16",
+          "'Exhibit 6'!A1:J47",
+          "'Exhibit 7'!A1:D38",
+          "'Exhibit 8b'!A1:G25",
+          "'Exhibit 9'!A1:P30"
+        ],
+        "totals": {
+          "comparedCells": 6443,
+          "valueMatches": 5680,
+          "formulaCells": 721,
+          "formulaMatches": 715,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 769,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.881577,
+          "formula": 0.991678,
+          "style": null,
+          "chartPackage": null,
+          "overall": 0.9366275
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 200/769",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+          "chart_package: gold workbook has no chart or drawing XML parts"
+        ],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H1",
+            "expected": "2018",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I1",
+            "expected": "2019",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J1",
+            "expected": "2020",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K1",
+            "expected": "2021",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L1",
+            "expected": "2022",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M1",
+            "expected": "2023",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N1",
+            "expected": "2024",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O1",
+            "expected": "2025",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P1",
+            "expected": "2026",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q1",
+            "expected": "2027",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R1",
+            "expected": "2028",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J2",
+            "expected": "1",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K2",
+            "expected": "2",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L2",
+            "expected": "3",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M2",
+            "expected": "4",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N2",
+            "expected": "5",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O2",
+            "expected": "6",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P2",
+            "expected": "7",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q2",
+            "expected": "8",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R2",
+            "expected": "9",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "C7",
+            "expected": "Cashflow Assumptions",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "F7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R7",
+            "expected": "Forecast",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "C8",
+            "expected": "0.25",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G8",
+            "expected": "2017A",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H8",
+            "expected": "2018A",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I8",
+            "expected": "2019E",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J8",
+            "expected": "2020P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K8",
+            "expected": "2021P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L8",
+            "expected": "2022P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M8",
+            "expected": "2023P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N8",
+            "expected": "2024P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O8",
+            "expected": "2025P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P8",
+            "expected": "2026P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q8",
+            "expected": "2027P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R8",
+            "expected": "2028P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "W8",
+            "expected": "WACC",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "X8",
+            "expected": "WACC",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Y8",
+            "expected": "WACC",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Z8",
+            "expected": "WACC",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "C9",
+            "expected": "0.0869691722391674",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G9",
+            "expected": "11908",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H9",
+            "expected": "13382",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I9",
+            "expected": "12380.9499678667",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J9",
+            "expected": "13150.4970449048",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K9",
+            "expected": "13778.2076026221",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L9",
+            "expected": "14880.8565863918",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M9",
+            "expected": "15901.1614031152",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N9",
+            "expected": "17747.8533235181",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O9",
+            "expected": "19578.2028375457",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P9",
+            "expected": "19969.0773790688",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q9",
+            "expected": "20372.0408239379",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R9",
+            "expected": "20775.004268807",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "U9",
+            "expected": "51123.8670461828",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "V9",
+            "expected": "0.076969172239",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "W9",
+            "expected": "0.081969172239",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Y9",
+            "expected": "0.091969172239",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Z9",
+            "expected": "0.096969172239",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "C10",
+            "expected": "0.018",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H10",
+            "expected": "0.123782331205912",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I10",
+            "expected": "-0.0748057115627933",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J10",
+            "expected": "0.0621557375674241",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K10",
+            "expected": "0.047732838962194",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L10",
+            "expected": "0.0800284779828632",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M10",
+            "expected": "0.0685649250632778",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N10",
+            "expected": "0.116135662898253",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O10",
+            "expected": "0.103130755064457",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P10",
+            "expected": "0.0199647814851237",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q10",
+            "expected": "0.0201793721973094",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R10",
+            "expected": "0.0197802197802199",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "U10",
+            "expected": "0.008",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "V10",
+            "expected": "54647.4402083381",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "U11",
+            "expected": "0.013",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G12",
+            "expected": "6249",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H12",
+            "expected": "7332",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I12",
+            "expected": "7691",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J12",
+            "expected": "8641",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K12",
+            "expected": "9023",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L12",
+            "expected": "9945",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M12",
+            "expected": "10538",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N12",
+            "expected": "11687",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O12",
+            "expected": "12874",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P12",
+            "expected": "13131",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q12",
+            "expected": "13394",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R12",
+            "expected": "13662",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G13",
+            "expected": "-4279",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H13",
+            "expected": "-4254",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I13",
+            "expected": "-4280.625",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J13",
+            "expected": "-4504.125",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K13",
+            "expected": "-4691.671875",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L13",
+            "expected": "-4884.65625",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M13",
+            "expected": "-5093.947265625",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N13",
+            "expected": "-5209.115234375",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O13",
+            "expected": "-5243.74682617188",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P13",
+            "expected": "-5349",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q13",
+            "expected": "-5456",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R13",
+            "expected": "-5565",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "U13",
+            "expected": "0.023",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G14",
+            "expected": "-2535",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H14",
+            "expected": "-459",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I14",
+            "expected": "-1530.17337944416",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J14",
+            "expected": "-1625.28243444955",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K14",
+            "expected": "-1702.86177916121",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L14",
+            "expected": "-1839.13921556267",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M14",
+            "expected": "-1965.23965805866",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N14",
+            "expected": "-2193.47406850124",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O14",
+            "expected": "-2419.68870540008",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P14",
+            "expected": "-2467.99726166542",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q14",
+            "expected": "-2517.7998969905",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R14",
+            "expected": "-2567.60253231559",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "U14",
+            "expected": "0.028",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G15",
+            "expected": "0.212882096069869",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H15",
+            "expected": "0.0342998057091616",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "formula",
+            "sheet": "DCF",
+            "cell": "I15",
+            "expected": "=AVERAGE($G$15:$H$15)",
+            "actual": "=AVERAGE($F$15:$H$15)"
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R15",
+            "expected": "0.123590950889515",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G17",
+            "expected": "-565",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H17",
+            "expected": "2619",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I17",
+            "expected": "1880.20162055584",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J17",
+            "expected": "2511.59256555045",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K17",
+            "expected": "2628.46634583879",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L17",
+            "expected": "3221.20453443733",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M17",
+            "expected": "3478.81307631634",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N17",
+            "expected": "4284.41069712376",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O17",
+            "expected": "5210.56446842804",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P17",
+            "expected": "5314.00273833458",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q17",
+            "expected": "5420.2001030095",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R17",
+            "expected": "5529.39746768441",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G18",
+            "expected": "141.25",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H18",
+            "expected": "-654.75",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I18",
+            "expected": "-470.05040513896",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J18",
+            "expected": "-627.898141387613",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K18",
+            "expected": "-657.116586459697",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L18",
+            "expected": "-805.301133609332",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M18",
+            "expected": "-869.703269079084",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N18",
+            "expected": "-1071.10267428094",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O18",
+            "expected": "-1302.64111710701",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P18",
+            "expected": "-1328.50068458365",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q18",
+            "expected": "-1355.05002575237",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R18",
+            "expected": "-1382.3493669211",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G19",
+            "expected": "-423.75",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H19",
+            "expected": "1964.25",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I19",
+            "expected": "1410.15121541688",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J19",
+            "expected": "1883.69442416284",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K19",
+            "expected": "1971.34975937909",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L19",
+            "expected": "2415.903400828",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M19",
+            "expected": "2609.10980723725",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N19",
+            "expected": "3213.30802284282",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O19",
+            "expected": "3907.92335132103",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P19",
+            "expected": "3985.50205375094",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q19",
+            "expected": "4065.15007725712",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R19",
+            "expected": "4147.04810076331",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G20",
+            "expected": "4279",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H20",
+            "expected": "4254",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I20",
+            "expected": "4280.625",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J20",
+            "expected": "4504.125",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K20",
+            "expected": "4691.671875",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L20",
+            "expected": "4884.65625",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M20",
+            "expected": "5093.947265625",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N20",
+            "expected": "5209.115234375",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O20",
+            "expected": "5243.74682617188",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P20",
+            "expected": "5349",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q20",
+            "expected": "5456",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R20",
+            "expected": "5565",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "G22",
+            "expected": "3855.25",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "H22",
+            "expected": "6218.25",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I22",
+            "expected": "5690.77621541688",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J22",
+            "expected": "6387.81942416284",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K22",
+            "expected": "6663.02163437909",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L22",
+            "expected": "7300.559650828",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M22",
+            "expected": "7703.05707286225",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "N22",
+            "expected": "8422.42325721782",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "O22",
+            "expected": "9151.67017749291",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "P22",
+            "expected": "9334.50205375094",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "Q22",
+            "expected": "9521.15007725712",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "R22",
+            "expected": "9712.04810076331",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "I23",
+            "expected": "-6042",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "J23",
+            "expected": "-5781",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "K23",
+            "expected": "-6048",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "L23",
+            "expected": "-6366",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "DCF",
+            "cell": "M23",
+            "expected": "-5806",
+            "actual": ""
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-14T09:21:52.006Z",
+          "taskId": "Debugging/02_05",
+          "candidateWorkbook": "candidate-01-Incorrect Average_input.xlsx",
+          "goldWorkbook": "01-02_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 0,
+            "candidateChartParts": 0,
+            "matchedChartParts": 0,
+            "missingChartParts": 0,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 0
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [],
+          "goldParts": [],
+          "mismatches": [],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade.",
+            "gold workbook has no chart or drawing XML parts"
+          ]
+        }
+      },
+      "model": {
+        "name": "nvidia/nemotron-3-super-120b-a12b:free",
+        "requestedName": "openrouter/free-auto",
+        "calls": 1,
+        "usage": {
+          "inputTokens": 53576,
+          "outputTokens": 3130,
+          "cachedInputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 28998,
+        "candidateGeneration": 29882,
+        "scoring": 1603,
+        "total": 31539
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Debugging_02_05/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Debugging_02_05/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "snapshot_agent_workbook",
+          "detail": "16 sheet(s), 683 cell(s)"
+        },
+        {
+          "step": "call_model_for_edit_plan",
+          "detail": "nvidia/nemotron-3-super-120b-a12b:free"
+        },
+        {
+          "step": "verify_edit_plan",
+          "detail": "passed: 0 issue(s)"
+        },
+        {
+          "step": "verify_candidate_workbook",
+          "detail": "passed: 3/3 changed cell(s) verified"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Debugging_02_05/candidate-01-Incorrect Average_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Debugging_02_05/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "769 cell mismatch(es)"
+        }
+      ]
+    },
+    {
+      "taskId": "Debugging/03_04",
+      "track": "spreadsheetbench-v2",
+      "category": "Debugging",
+      "mode": "model-edit-plan",
+      "attemptIndex": 3,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Debugging_03_04",
+      "agentManifest": "tasks/Debugging_03_04/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_03_04/evaluator/evaluator.json",
+      "candidateWorkbook": "Debugging_03_04/candidate-01-Inconsistent Color Coding_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Debugging_03_04/candidate-manifest.json",
+          "sha256": "8711f5475b2a60519f0c993d796c83f58247726c8c8a5e629c7533c629dd94f8",
+          "bytes": 1822
+        },
+        "agentWorkspaceManifest": {
+          "path": "Debugging_03_04/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "5d9969d78257fc2f952c386820de15142bcceccfd751aeb5960e5b729aa2c711",
+          "bytes": 527
+        },
+        "editPlan": {
+          "path": "Debugging_03_04/model-edit-plan.json",
+          "sha256": "d31b0b33dc0a98f261151643421d5b79235823dda5ab20f4c8cfad0b40f8d0f8",
+          "bytes": 885,
+          "kind": "generated"
+        },
+        "rawModelOutput": {
+          "path": "Debugging_03_04/model-output.txt",
+          "sha256": "e67f32aa2040d971fb9255dfc3397ab1072d794b13b5b24a59aafd1b51bbf6b2",
+          "bytes": 884
+        },
+        "workbookInspection": {
+          "path": "Debugging_03_04/workbook-inspection.json",
+          "sha256": "1064826040570a2e0e9b5d9519193c53e1a83706b2cb136689e26f9e68eab34e",
+          "bytes": 35429
+        },
+        "editVerification": {
+          "path": "Debugging_03_04/model-edit-verification.json",
+          "sha256": "8d2ee498a591fa6affc79d5a1ae9881681a6dfba9b17c4052a390e04709b3874",
+          "bytes": 40583
+        },
+        "formulaResultPolicy": "deterministic_local_subset",
+        "supportedFormulaFunctions": [
+          "SUM",
+          "AVERAGE",
+          "MIN",
+          "MAX",
+          "MEDIAN",
+          "COUNT",
+          "COUNTA",
+          "ABS",
+          "ROUND",
+          "ROUNDUP",
+          "ROUNDDOWN",
+          "AND",
+          "OR",
+          "NOT",
+          "IF",
+          "IFERROR",
+          "SUMIF",
+          "COUNTIF",
+          "AVERAGEIF",
+          "SUMIFS",
+          "COUNTIFS",
+          "AVERAGEIFS",
+          "MATCH",
+          "INDEX",
+          "VLOOKUP",
+          "XLOOKUP",
+          "SUMPRODUCT",
+          "LEFT",
+          "RIGHT",
+          "MID",
+          "LEN",
+          "FIND",
+          "SEARCH",
+          "REPLACE",
+          "TEXT",
+          "DATE",
+          "VALUE",
+          "CONCATENATE",
+          "TRIM"
+        ],
+        "appliedOperationCount": 5,
+        "repairAttemptCount": 0,
+        "verificationStatus": "passed"
+      },
+      "scorerReceipt": {
+        "path": "Debugging_03_04/score-receipt.json",
+        "sha256": "fb57b6f55c7f2d803ccdc21270edc3cf41d3f5bad8b0c24001ca546b39a3506a",
+        "bytes": 32481
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-14T09:21:52.006Z",
+        "taskId": "Debugging/03_04",
+        "candidateWorkbook": "candidate-01-Inconsistent Color Coding_input.xlsx",
+        "goldWorkbook": "01-03_golden.xlsx",
+        "answerPosition": "'Cover'!B2:E9,'LBO'!B1:V70,'Valuation Bridge'!B2:C8,'Ex 2 - Income Statement'!B2:H38,'Ex 3 - Balance Sheet'!B2:E45,'Ex 8 - Stock Performance'!B2:F40,'Ex 9 - Perf Metrics'!B2:J117,'Ex 10 - Forecast Assumptions '!B2:H50,'Ex 10 - Proj. Income Statement'!B2:H36,'Ex 11 - Multiples'!B2:J40,'Ex 12 - Debt Schedule'!B2:H23,'Ex 13 - Transaction Comps'!B2:G30",
+        "ranges": [
+          "'Cover'!B2:E9",
+          "'LBO'!B1:V70",
+          "'Valuation Bridge'!B2:C8",
+          "'Ex 2 - Income Statement'!B2:H38",
+          "'Ex 3 - Balance Sheet'!B2:E45",
+          "'Ex 8 - Stock Performance'!B2:F40",
+          "'Ex 9 - Perf Metrics'!B2:J117",
+          "'Ex 10 - Forecast Assumptions '!B2:H50",
+          "'Ex 10 - Proj. Income Statement'!B2:H36",
+          "'Ex 11 - Multiples'!B2:J40",
+          "'Ex 12 - Debt Schedule'!B2:H23",
+          "'Ex 13 - Transaction Comps'!B2:G30"
+        ],
+        "totals": {
+          "comparedCells": 4457,
+          "valueMatches": 3910,
+          "formulaCells": 554,
+          "formulaMatches": 554,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 547,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.877272,
+          "formula": 1,
+          "style": null,
+          "chartPackage": 0,
+          "overall": 0.6257573333333334
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 200/547",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+        ],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "Cover",
+            "cell": "E4",
+            "expected": "LBO of BWW",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J1",
+            "expected": "2018",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K1",
+            "expected": "2019",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L1",
+            "expected": "2020",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M1",
+            "expected": "2021",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N1",
+            "expected": "2022",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "R1",
+            "expected": "2018",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "S1",
+            "expected": "2019",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "T1",
+            "expected": "2020",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "U1",
+            "expected": "2021",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "V1",
+            "expected": "2022",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "C4",
+            "expected": "Master Control",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "C9",
+            "expected": "Acquisition Assumptions",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "F9",
+            "expected": "Sources & Uses",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "I9",
+            "expected": "Unlevered Free Cash Flow",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J9",
+            "expected": "Unlevered Free Cash Flow",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K9",
+            "expected": "Unlevered Free Cash Flow",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L9",
+            "expected": "Unlevered Free Cash Flow",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M9",
+            "expected": "Unlevered Free Cash Flow",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N9",
+            "expected": "Unlevered Free Cash Flow",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "Q9",
+            "expected": "Returns Summary",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "R9",
+            "expected": "Returns Summary",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "S9",
+            "expected": "Returns Summary",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "T9",
+            "expected": "Returns Summary",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "U9",
+            "expected": "Returns Summary",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "V9",
+            "expected": "Returns Summary",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "C10",
+            "expected": "276.775",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "I10",
+            "expected": "2017E",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J10",
+            "expected": "2018P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K10",
+            "expected": "2019P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L10",
+            "expected": "2020P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M10",
+            "expected": "2021P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N10",
+            "expected": "2022P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "Q10",
+            "expected": "2017E",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "R10",
+            "expected": "2018P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "S10",
+            "expected": "2019P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "T10",
+            "expected": "2020P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "U10",
+            "expected": "2021P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "V10",
+            "expected": "2022P",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "F11",
+            "expected": "100",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "I11",
+            "expected": "2077.8",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J11",
+            "expected": "2068.6923686",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K11",
+            "expected": "1991.750501403",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L11",
+            "expected": "1904.68637940854",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M11",
+            "expected": "1813.71091283724",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N11",
+            "expected": "1759.2923877341",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "Q11",
+            "expected": "276.775",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "R11",
+            "expected": "294.105117865",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "S11",
+            "expected": "305.696078757888",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "T11",
+            "expected": "324.65344907765",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "U11",
+            "expected": "339.164553089301",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "V11",
+            "expected": "352.79733461982",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "C12",
+            "expected": "10.3102520097552",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "F12",
+            "expected": "1575",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "Q12",
+            "expected": "10.3102520097552",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "R12",
+            "expected": "10.3102520097552",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "S12",
+            "expected": "10.3102520097552",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "T12",
+            "expected": "10.3102520097552",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "U12",
+            "expected": "10.3102520097552",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "V12",
+            "expected": "10.3102520097552",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "F13",
+            "expected": "485",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "I13",
+            "expected": "276.775",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J13",
+            "expected": "294.105117865",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K13",
+            "expected": "305.696078757888",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L13",
+            "expected": "324.65344907765",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M13",
+            "expected": "339.164553089301",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N13",
+            "expected": "352.79733461982",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "Q13",
+            "expected": "2853.62",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "R13",
+            "expected": "3032.29788254691",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "S13",
+            "expected": "3151.80361038781",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "T13",
+            "expected": "3347.25887582681",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "U13",
+            "expected": "3496.8720151267",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "V13",
+            "expected": "3637.42942830029",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "F14",
+            "expected": "9.907",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "I14",
+            "expected": "0.133205794590432",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J14",
+            "expected": "0.142169576457633",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K14",
+            "expected": "0.153481110481737",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L14",
+            "expected": "0.170449819239252",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M14",
+            "expected": "0.187000337644071",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N14",
+            "expected": "0.20053365607647",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "Q14",
+            "expected": "-2160",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "R14",
+            "expected": "-2085.38616160125",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "S14",
+            "expected": "-1979.94320245648",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "T14",
+            "expected": "-1848.89085794589",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "U14",
+            "expected": "-1694.54585473226",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "V14",
+            "expected": "-1554.44105149301",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "C15",
+            "expected": "20.778",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "F15",
+            "expected": "803.62",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "F16",
+            "expected": "2973.527",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J16",
+            "expected": "149.64",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K16",
+            "expected": "140.88",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L16",
+            "expected": "131.28",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M16",
+            "expected": "121.68",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N16",
+            "expected": "114.48",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "Q16",
+            "expected": "693.62",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "R16",
+            "expected": "946.911720945661",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "S16",
+            "expected": "1171.86040793132",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "T16",
+            "expected": "1498.36801788092",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "U16",
+            "expected": "1802.32616039443",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "V16",
+            "expected": "2082.98837680728",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "I17",
+            "expected": "125.397",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J17",
+            "expected": "144.465117865",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K17",
+            "expected": "164.816078757888",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L17",
+            "expected": "193.37344907765",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M17",
+            "expected": "217.484553089301",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N17",
+            "expected": "238.31733461982",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "Q17",
+            "expected": "803.62",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "R17",
+            "expected": "803.62",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "S17",
+            "expected": "803.62",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "T17",
+            "expected": "803.62",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "U17",
+            "expected": "803.62",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "V17",
+            "expected": "803.62",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "C18",
+            "expected": "Purchase Price Consideration",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "I18",
+            "expected": "0.0603508518625469",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J18",
+            "expected": "0.0698340265850004",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K18",
+            "expected": "0.0827493597424932",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L18",
+            "expected": "0.101525086317727",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M18",
+            "expected": "0.119911366001037",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N18",
+            "expected": "0.135462039329781",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "F19",
+            "expected": "2438.524",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "R19",
+            "expected": "1.1783078083493",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "S19",
+            "expected": "1.45822703259167",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "T19",
+            "expected": "1.8645230555249",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "U19",
+            "expected": "2.24275921504496",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "V19",
+            "expected": "2.59200664095876",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "F20",
+            "expected": "110",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J20",
+            "expected": "0.25",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K20",
+            "expected": "0.25",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L20",
+            "expected": "0.25",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M20",
+            "expected": "0.25",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N20",
+            "expected": "0.25",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "R20",
+            "expected": "0.178307808349296",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "S20",
+            "expected": "0.207570715358598",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "T20",
+            "expected": "0.230805002264421",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "U20",
+            "expected": "0.22375833401477",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "V20",
+            "expected": "0.209838002140421",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "C21",
+            "expected": "2438.524",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "F21",
+            "expected": "425.003",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "C22",
+            "expected": "425.003",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "F22",
+            "expected": "2973.527",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "C23",
+            "expected": "9.907",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J23",
+            "expected": "108.34883839875",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K23",
+            "expected": "123.612059068416",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L23",
+            "expected": "145.030086808238",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M23",
+            "expected": "163.113414816976",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N23",
+            "expected": "178.738000964865",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "C24",
+            "expected": "2853.62",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J24",
+            "expected": "59.4",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K24",
+            "expected": "72",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L24",
+            "expected": "72",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M24",
+            "expected": "72",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N24",
+            "expected": "36",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "C25",
+            "expected": "10.3102520097552",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "F25",
+            "expected": "2963.62",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J25",
+            "expected": "149.64",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K25",
+            "expected": "140.88",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L25",
+            "expected": "131.28",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M25",
+            "expected": "121.68",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N25",
+            "expected": "114.48",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "F26",
+            "expected": "2963.62",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J26",
+            "expected": "-149.64",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K26",
+            "expected": "-140.88",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L26",
+            "expected": "-131.28",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M26",
+            "expected": "-121.68",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N26",
+            "expected": "-114.48",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "C27",
+            "expected": "Leverage Assumptions ($ in millions)",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "C28",
+            "expected": "0.018",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J28",
+            "expected": "167.74883839875",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K28",
+            "expected": "195.612059068416",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L28",
+            "expected": "217.030086808238",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M28",
+            "expected": "235.113414816976",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N28",
+            "expected": "214.738000964865",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "C29",
+            "expected": "0.035",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "I30",
+            "expected": "Debt Schedule",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J30",
+            "expected": "Debt Schedule",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K30",
+            "expected": "Debt Schedule",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L30",
+            "expected": "Debt Schedule",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M30",
+            "expected": "Debt Schedule",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N30",
+            "expected": "Debt Schedule",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "I31",
+            "expected": "2017E",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J31",
+            "expected": "2018E",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K31",
+            "expected": "2019E",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L31",
+            "expected": "2020E",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M31",
+            "expected": "2021E",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N31",
+            "expected": "2022E",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "C32",
+            "expected": "100",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "I32",
+            "expected": "0.018",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J32",
+            "expected": "0.018",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K32",
+            "expected": "0.018",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L32",
+            "expected": "0.018",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M32",
+            "expected": "0.018",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N32",
+            "expected": "0.018",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "I33",
+            "expected": "0.035",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J33",
+            "expected": "0.035",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "K33",
+            "expected": "0.035",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "L33",
+            "expected": "0.035",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "M33",
+            "expected": "0.035",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "N33",
+            "expected": "0.035",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "C35",
+            "expected": "1575",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "LBO",
+            "cell": "J35",
+            "expected": "167.74883839875",
+            "actual": ""
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-14T09:21:52.006Z",
+          "taskId": "Debugging/03_04",
+          "candidateWorkbook": "candidate-01-Inconsistent Color Coding_input.xlsx",
+          "goldWorkbook": "01-03_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 1,
+            "candidateChartParts": 0,
+            "matchedChartParts": 0,
+            "missingChartParts": 1,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 0
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [],
+          "goldParts": [
+            {
+              "path": "xl/drawings/drawing1.xml",
+              "kind": "drawing",
+              "sha256": "79685d9523b35d6f3a54c6112873f8d85f1a34fafc6e9c92402bcf8b411261dd",
+              "bytes": 983
+            }
+          ],
+          "mismatches": [
+            {
+              "kind": "missing_chart_part",
+              "path": "xl/drawings/drawing1.xml",
+              "expected": "79685d9523b35d6f3a54c6112873f8d85f1a34fafc6e9c92402bcf8b411261dd"
+            }
+          ],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+          ]
+        }
+      },
+      "model": {
+        "name": "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "requestedName": "openrouter/free-auto",
+        "calls": 1,
+        "usage": {
+          "inputTokens": 49018,
+          "outputTokens": 3407,
+          "cachedInputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 171534,
+        "candidateGeneration": 172636,
+        "scoring": 330,
+        "total": 173112
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Debugging_03_04/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Debugging_03_04/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "snapshot_agent_workbook",
+          "detail": "13 sheet(s), 615 cell(s)"
+        },
+        {
+          "step": "call_model_for_edit_plan",
+          "detail": "nvidia/nemotron-3-ultra-550b-a55b:free"
+        },
+        {
+          "step": "verify_edit_plan",
+          "detail": "passed: 0 issue(s)"
+        },
+        {
+          "step": "verify_candidate_workbook",
+          "detail": "passed: 5/5 changed cell(s) verified"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Debugging_03_04/candidate-01-Inconsistent Color Coding_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Debugging_03_04/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "547 cell mismatch(es), 1 chart-package mismatch(es)"
+        }
+      ]
+    },
+    {
+      "taskId": "Debugging/04_04",
+      "track": "spreadsheetbench-v2",
+      "category": "Debugging",
+      "mode": "model-edit-plan",
+      "attemptIndex": 4,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Debugging_04_04",
+      "agentManifest": "tasks/Debugging_04_04/agent/task.json",
+      "evaluatorManifest": "tasks/Debugging_04_04/evaluator/evaluator.json",
+      "candidateWorkbook": "Debugging_04_04/candidate-01-Inconsistent Color Coding_input.xlsx",
+      "sidecarEvidence": {
+        "candidateManifest": {
+          "path": "Debugging_04_04/candidate-manifest.json",
+          "sha256": "43010527c6a7e4eefded9ee03620766542f0399fa57063e8cebfc9c0b2cee0fe",
+          "bytes": 1788
+        },
+        "agentWorkspaceManifest": {
+          "path": "Debugging_04_04/agent-workspace/agent-workspace-manifest.json",
+          "sha256": "f39d3e92044ff457f91def7fac4029f2e8bf2d56744d93dea367fd1fa0d519d4",
+          "bytes": 527
+        },
+        "editPlan": {
+          "path": "Debugging_04_04/model-edit-plan.json",
+          "sha256": "60a3321cb2ddd7ec7e15b596ba99a4290f5aa40cb14459865ea115409e0842f7",
+          "bytes": 1494,
+          "kind": "generated"
+        },
+        "rawModelOutput": {
+          "path": "Debugging_04_04/model-output.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "workbookInspection": {
+          "path": "Debugging_04_04/workbook-inspection.json",
+          "sha256": "d2bad0c8217f29ea41dedfcef8418cf7a51c629ebcfbb7f56284bc9ae12b5310",
+          "bytes": 76278
+        },
+        "editVerification": {
+          "path": "Debugging_04_04/model-edit-verification.json",
+          "sha256": "14d1a71f7806ebfcf4566a005427a788ff709cd2255bc6f986acc3abdb6dcd4f",
+          "bytes": 87889
+        },
+        "formulaResultPolicy": "deterministic_local_subset",
+        "supportedFormulaFunctions": [
+          "SUM",
+          "AVERAGE",
+          "MIN",
+          "MAX",
+          "MEDIAN",
+          "COUNT",
+          "COUNTA",
+          "ABS",
+          "ROUND",
+          "ROUNDUP",
+          "ROUNDDOWN",
+          "AND",
+          "OR",
+          "NOT",
+          "IF",
+          "IFERROR",
+          "SUMIF",
+          "COUNTIF",
+          "AVERAGEIF",
+          "SUMIFS",
+          "COUNTIFS",
+          "AVERAGEIFS",
+          "MATCH",
+          "INDEX",
+          "VLOOKUP",
+          "XLOOKUP",
+          "SUMPRODUCT",
+          "LEFT",
+          "RIGHT",
+          "MID",
+          "LEN",
+          "FIND",
+          "SEARCH",
+          "REPLACE",
+          "TEXT",
+          "DATE",
+          "VALUE",
+          "CONCATENATE",
+          "TRIM"
+        ],
+        "appliedOperationCount": 16,
+        "repairAttemptCount": 0,
+        "verificationStatus": "passed"
+      },
+      "scorerReceipt": {
+        "path": "Debugging_04_04/score-receipt.json",
+        "sha256": "d35909dbb33cb85696e4247315c6b15672186ebcd1f5e5a225c6686a73935123",
+        "bytes": 34608
+      },
+      "score": {
+        "schema": 1,
+        "generatedAt": "2026-07-14T09:21:52.006Z",
+        "taskId": "Debugging/04_04",
+        "candidateWorkbook": "candidate-01-Inconsistent Color Coding_input.xlsx",
+        "goldWorkbook": "01-04_golden.xlsx",
+        "answerPosition": "'Control'!B2:G9,'Summary'!D2:H17,'Assumptions'!B2:L36,'Income Statement'!B2:J57,'Balance Sheet'!B2:J74,'Cash Flow Statement'!B2:H43,'PP&E, Debt, NWC'!B2:L91,'Line Item Metrics'!A2:I35,'WACC'!B2:N65,'DCF'!B2:P34,'Sources & Uses'!B3:M32,'LBO Analysis'!B2:J51,'Returns'!B2:J13",
+        "ranges": [
+          "'Control'!B2:G9",
+          "'Summary'!D2:H17",
+          "'Assumptions'!B2:L36",
+          "'Income Statement'!B2:J57",
+          "'Balance Sheet'!B2:J74",
+          "'Cash Flow Statement'!B2:H43",
+          "'PP&E, Debt, NWC'!B2:L91",
+          "'Line Item Metrics'!A2:I35",
+          "'WACC'!B2:N65",
+          "'DCF'!B2:P34",
+          "'Sources & Uses'!B3:M32",
+          "'LBO Analysis'!B2:J51",
+          "'Returns'!B2:J13"
+        ],
+        "totals": {
+          "comparedCells": 5509,
+          "valueMatches": 4203,
+          "formulaCells": 1466,
+          "formulaMatches": 1466,
+          "styleCells": 0,
+          "styleMatches": 0,
+          "styleLayoutItems": 0,
+          "styleLayoutMatches": 0,
+          "mismatches": 1306,
+          "missingSheets": 0
+        },
+        "scores": {
+          "value": 0.762933,
+          "formula": 1,
+          "style": null,
+          "chartPackage": 0,
+          "overall": 0.5876443333333333
+        },
+        "pass": false,
+        "warnings": [
+          "mismatch list capped at 200/1306",
+          "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+        ],
+        "mismatches": [
+          {
+            "kind": "value",
+            "sheet": "Summary",
+            "cell": "H12",
+            "expected": "57.968341030264",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Summary",
+            "cell": "H13",
+            "expected": "0.239964514016342",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "D2",
+            "expected": "2021",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "E2",
+            "expected": "2022",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "F2",
+            "expected": "2023",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "G2",
+            "expected": "2024",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "H2",
+            "expected": "2025",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "D3",
+            "expected": "0.045",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "E3",
+            "expected": "0.05",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "F3",
+            "expected": "0.055",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "G3",
+            "expected": "0.06",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "H3",
+            "expected": "0.065",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "D6",
+            "expected": "0.0445828449286071",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "E6",
+            "expected": "0.0445828449286071",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "F6",
+            "expected": "0.0445828449286071",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "G6",
+            "expected": "0.0445828449286071",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "H6",
+            "expected": "0.0445828449286071",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "D7",
+            "expected": "0.000596399480496177",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "E7",
+            "expected": "0.000596399480496177",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "F7",
+            "expected": "0.000596399480496177",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "G7",
+            "expected": "0.000596399480496177",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "H7",
+            "expected": "0.000596399480496177",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "D8",
+            "expected": "0.21",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "E8",
+            "expected": "0.21",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "F8",
+            "expected": "0.21",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "G8",
+            "expected": "0.21",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "H8",
+            "expected": "0.21",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "D21",
+            "expected": "0.015",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "E21",
+            "expected": "0.02",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "F21",
+            "expected": "0.025",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "G21",
+            "expected": "0.03",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "H21",
+            "expected": "0.035",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "D24",
+            "expected": "0.0445828449286071",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "E24",
+            "expected": "0.0445828449286071",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "F24",
+            "expected": "0.0445828449286071",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "G24",
+            "expected": "0.0445828449286071",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "H24",
+            "expected": "0.0445828449286071",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "D25",
+            "expected": "0.000596399480496177",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "E25",
+            "expected": "0.000596399480496177",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "F25",
+            "expected": "0.000596399480496177",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "G25",
+            "expected": "0.000596399480496177",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "H25",
+            "expected": "0.000596399480496177",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "D26",
+            "expected": "0.21",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "E26",
+            "expected": "0.21",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "F26",
+            "expected": "0.21",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "G26",
+            "expected": "0.21",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Assumptions",
+            "cell": "H26",
+            "expected": "0.21",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "B6",
+            "expected": "Monro, Inc. (NASDAQ: MNRO)",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "B7",
+            "expected": "H: (2014-2020)  E: (2021-2025)",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E7",
+            "expected": "Bull Case",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "B8",
+            "expected": "In $MM",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E11",
+            "expected": "Historical",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F11",
+            "expected": "Historical",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G11",
+            "expected": "Historical",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H11",
+            "expected": "Historical",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I11",
+            "expected": "Historical",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "C12",
+            "expected": "2014",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E12",
+            "expected": "2016",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F12",
+            "expected": "2017",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G12",
+            "expected": "2018",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H12",
+            "expected": "2019",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I12",
+            "expected": "2020",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J12",
+            "expected": "2021",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J14",
+            "expected": "182.649419333333",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J15",
+            "expected": "30.6256199333333",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J16",
+            "expected": "115.9367935",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J17",
+            "expected": "631.361154233333",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J18",
+            "expected": "352.494593",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "C19",
+            "expected": "831.432",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D19",
+            "expected": "894.492",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E19",
+            "expected": "943.651",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F19",
+            "expected": "1021.511",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G19",
+            "expected": "1127.815",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H19",
+            "expected": "1200.23",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I19",
+            "expected": "1256.524",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J19",
+            "expected": "1313.06758",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J20",
+            "expected": "-781.2752101",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D21",
+            "expected": "353.35",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E21",
+            "expected": "385.703",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F21",
+            "expected": "396.889",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G21",
+            "expected": "435.574",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H21",
+            "expected": "465.228",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I21",
+            "expected": "476.658",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J21",
+            "expected": "531.7923699",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J22",
+            "expected": "-295.4402055",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D23",
+            "expected": "145.51",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E23",
+            "expected": "160.358",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F23",
+            "expected": "161.013",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G23",
+            "expected": "176.631",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H23",
+            "expected": "182.274",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I23",
+            "expected": "166.688",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J23",
+            "expected": "236.3521644",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J24",
+            "expected": "-58.5402882999214",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D25",
+            "expected": "109.789",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E25",
+            "expected": "120.589",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F25",
+            "expected": "116.384",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G25",
+            "expected": "127.296",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H25",
+            "expected": "126.743",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I25",
+            "expected": "101.702",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J25",
+            "expected": "177.811876100079",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J26",
+            "expected": "-108.243085614738",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J27",
+            "expected": "0.783112822568373",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D28",
+            "expected": "99.3549999999999",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E28",
+            "expected": "105.421",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F28",
+            "expected": "97.244",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G28",
+            "expected": "103.454",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H28",
+            "expected": "100.36",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I28",
+            "expected": "74.2740000000001",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J28",
+            "expected": "70.3519033079091",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D35",
+            "expected": "99.3549999999999",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E35",
+            "expected": "105.421",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F35",
+            "expected": "97.244",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G35",
+            "expected": "101.504",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H35",
+            "expected": "99.7600000000001",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I35",
+            "expected": "64.9340000000001",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J35",
+            "expected": "70.3519033079091",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J36",
+            "expected": "-14.7738996946609",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D37",
+            "expected": "61.7989999999999",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E37",
+            "expected": "66.805",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F37",
+            "expected": "61.526",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G37",
+            "expected": "61.9850000000001",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H37",
+            "expected": "79.152",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I37",
+            "expected": "48.6840000000001",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J37",
+            "expected": "55.5780036132482",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J38",
+            "expected": "-0.449",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D39",
+            "expected": "61.4039999999999",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E39",
+            "expected": "66.349",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F39",
+            "expected": "61.079",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G39",
+            "expected": "61.6170000000001",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H39",
+            "expected": "78.744",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I39",
+            "expected": "48.2350000000001",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J39",
+            "expected": "55.1290036132482",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D43",
+            "expected": "2015",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E43",
+            "expected": "2016",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F43",
+            "expected": "2017",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G43",
+            "expected": "2018",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H43",
+            "expected": "2019",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I43",
+            "expected": "2020",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J43",
+            "expected": "2021",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D45",
+            "expected": "0.15",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E45",
+            "expected": "0.15",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F45",
+            "expected": "0.13",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G45",
+            "expected": "0.13",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H45",
+            "expected": "0.14",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I45",
+            "expected": "0.134607854684829",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J45",
+            "expected": "0.139101309114138",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D46",
+            "expected": "0.03",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E46",
+            "expected": "0.03",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F46",
+            "expected": "0.02",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G46",
+            "expected": "0.02",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H46",
+            "expected": "0.02",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I46",
+            "expected": "0.0199423170588067",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J46",
+            "expected": "0.0233237195098011",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D47",
+            "expected": "0.1",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E47",
+            "expected": "0.1",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F47",
+            "expected": "0.09",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G47",
+            "expected": "0.08",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H47",
+            "expected": "0.08",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I47",
+            "expected": "0.0797676765425889",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J47",
+            "expected": "0.0882946127570982",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D48",
+            "expected": "0.44",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E48",
+            "expected": "0.45",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F48",
+            "expected": "0.49",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G48",
+            "expected": "0.5",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H48",
+            "expected": "0.5",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I48",
+            "expected": "0.504974835339397",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J48",
+            "expected": "0.480829139223233",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D49",
+            "expected": "0.28",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E49",
+            "expected": "0.27",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F49",
+            "expected": "0.27",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G49",
+            "expected": "0.27",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H49",
+            "expected": "0.26",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I49",
+            "expected": "0.260707316374379",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J49",
+            "expected": "0.26845121939573",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D50",
+            "expected": "0.0758450480616575",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E50",
+            "expected": "0.054957450709453",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F50",
+            "expected": "0.0825093175337068",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G50",
+            "expected": "0.104065448144954",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H50",
+            "expected": "0.0642082256398433",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I50",
+            "expected": "0.046902676986911",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J50",
+            "expected": "0.045",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D52",
+            "expected": "0.604971313326447",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E52",
+            "expected": "0.5912652029193",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F52",
+            "expected": "0.611468696861806",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G52",
+            "expected": "0.613789495617632",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H52",
+            "expected": "0.612384293010506",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I52",
+            "expected": "0.620653485329369",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J52",
+            "expected": "0.595",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D53",
+            "expected": "0.232355348063482",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E53",
+            "expected": "0.238801209345404",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F53",
+            "expected": "0.230908918259324",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G53",
+            "expected": "0.229597052708113",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H53",
+            "expected": "0.235749814618865",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "I53",
+            "expected": "0.246688483467089",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "J53",
+            "expected": "0.225",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "D54",
+            "expected": "0.0399343985189359",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "E54",
+            "expected": "0.0421437586565372",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "F54",
+            "expected": "0.0436892015847113",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "G54",
+            "expected": "0.043743876433635",
+            "actual": ""
+          },
+          {
+            "kind": "value",
+            "sheet": "Income Statement",
+            "cell": "H54",
+            "expected": "0.0462669654982795",
+            "actual": ""
+          }
+        ],
+        "chartPackage": {
+          "schema": 1,
+          "generatedAt": "2026-07-14T09:21:52.006Z",
+          "taskId": "Debugging/04_04",
+          "candidateWorkbook": "candidate-01-Inconsistent Color Coding_input.xlsx",
+          "goldWorkbook": "01-04_golden.xlsx",
+          "verifier": "xlsx_chart_package_static",
+          "totals": {
+            "goldChartParts": 1,
+            "candidateChartParts": 0,
+            "matchedChartParts": 0,
+            "missingChartParts": 1,
+            "extraChartParts": 0,
+            "mismatchedChartParts": 0
+          },
+          "scores": {
+            "package": 0
+          },
+          "pass": false,
+          "candidateParts": [],
+          "goldParts": [
+            {
+              "path": "xl/drawings/drawing1.xml",
+              "kind": "drawing",
+              "sha256": "0a4b2ad422f188df123e8cca2be6a2a96d25daa841800b61071c0e946518e0f2",
+              "bytes": 997
+            }
+          ],
+          "mismatches": [
+            {
+              "kind": "missing_chart_part",
+              "path": "xl/drawings/drawing1.xml",
+              "expected": "0a4b2ad422f188df123e8cca2be6a2a96d25daa841800b61071c0e946518e0f2"
+            }
+          ],
+          "warnings": [
+            "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+          ]
+        }
+      },
+      "model": {
+        "name": "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "requestedName": "openrouter/free-auto",
+        "calls": 1,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 180006,
+        "candidateGeneration": 182865,
+        "scoring": 1553,
+        "total": 184464
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Debugging_04_04/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Debugging_04_04/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "snapshot_agent_workbook",
+          "detail": "13 sheet(s), 703 cell(s)"
+        },
+        {
+          "step": "fallback_to_visible_formula_repairs",
+          "detail": "16 high-confidence operation(s) after provider failure"
+        },
+        {
+          "step": "verify_edit_plan",
+          "detail": "passed: 0 issue(s)"
+        },
+        {
+          "step": "verify_candidate_workbook",
+          "detail": "passed: 16/16 changed cell(s) verified"
+        },
+        {
+          "step": "emit_candidate_workbook",
+          "detail": "Debugging_04_04/candidate-01-Inconsistent Color Coding_input.xlsx"
+        },
+        {
+          "step": "read_evaluator_manifest",
+          "detail": "tasks/Debugging_04_04/evaluator/evaluator.json"
+        },
+        {
+          "step": "score_candidate",
+          "detail": "1306 cell mismatch(es), 1 chart-package mismatch(es)"
+        }
+      ]
+    },
+    {
+      "taskId": "Financial_Model/11_04",
+      "track": "spreadsheetbench-v2",
+      "category": "Financial_Model",
+      "mode": "model-edit-plan",
+      "attemptIndex": 5,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Financial_Model_11_04",
+      "agentManifest": "tasks/Financial_Model_11_04/agent/task.json",
+      "evaluatorManifest": "tasks/Financial_Model_11_04/evaluator/evaluator.json",
+      "error": {
+        "phase": "candidate_generation",
+        "message": "openrouter/free-auto failed for nvidia/nemotron-3-super-120b-a12b:free, google/gemma-4-26b-a4b-it:free, google/gemma-4-31b-it:free, qwen/qwen3-coder:free, openai/gpt-oss-20b:free, nvidia/nemotron-nano-9b-v2:free: This endpoint's maximum context length is 128000 tokens. However, you requested about 180473 tokens (180473 of text input). Please reduce the length of either one, or use the context-compression plugin to compress your prompt automatically."
+      },
+      "model": {
+        "name": "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "requestedName": "openrouter/free-auto",
+        "calls": 1,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 118723,
+        "candidateGeneration": 127273,
+        "scoring": 0,
+        "total": 127273
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Financial_Model_11_04/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Financial_Model_11_04/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "snapshot_agent_workbook",
+          "detail": "18 sheet(s), 753 cell(s)"
+        }
+      ]
+    },
+    {
+      "taskId": "Template/16_02",
+      "track": "spreadsheetbench-v2",
+      "category": "Template",
+      "mode": "model-edit-plan",
+      "attemptIndex": 6,
+      "repeatIndex": 1,
+      "tryIndex": 1,
+      "taskDir": "tasks/Template_16_02",
+      "agentManifest": "tasks/Template_16_02/agent/task.json",
+      "evaluatorManifest": "tasks/Template_16_02/evaluator/evaluator.json",
+      "error": {
+        "phase": "candidate_generation",
+        "message": "openrouter/free-auto request deadline exceeded after cohere/north-mini-code:free, meta-llama/llama-3.3-70b-instruct:free, cognitivecomputations/dolphin-mistral-24b-venice-edition:free, poolside/laguna-xs-2.1:free"
+      },
+      "model": {
+        "name": "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "requestedName": "openrouter/free-auto",
+        "calls": 1,
+        "usage": {
+          "inputTokens": 0,
+          "outputTokens": 0
+        },
+        "costUsd": 0
+      },
+      "timingsMs": {
+        "modelPlanning": 180016,
+        "candidateGeneration": 180086,
+        "scoring": 0,
+        "total": 180087
+      },
+      "trajectory": [
+        {
+          "step": "read_agent_manifest",
+          "detail": "tasks/Template_16_02/agent/task.json"
+        },
+        {
+          "step": "prepare_agent_workspace",
+          "detail": "Template_16_02/agent-workspace/agent-workspace-manifest.json"
+        },
+        {
+          "step": "snapshot_agent_workbook",
+          "detail": "3 sheet(s), 212 cell(s)"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+{
+  "capturedAt": "2026-07-10T00:13:51.803Z",
+  "browser": "chromium",
+  "receipts": [
+    {
+      "name": "home-light",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "screenshot": "home-light-320x568.png",
+      "sha256": "553002108d9502397c0df61c8faea21a1236cbf6c90439cdb68cbaec41e69720",
+      "consoleErrors": [],
+      "networkFailures": [],
+      "url": "http://127.0.0.1:5173/#mobile?mode=memory",
+      "theme": "light",
+      "overflowX": 0,
+      "appOverflowX": 0,
+      "syntheticStatus": false,
+      "header": {
+        "height": 52,
+        "top": 0
+      },
+      "tokens": {
+        "bg": "#fbf4e7",
+        "accent": "#c56a3c",
+        "attention": "#8b5510"
+      },
+      "smallTargets": [],
+      "cls": 0.007885702837319914,
+      "longTasks": [
+        80,
+        55
+      ]
+    },
+    {
+      "name": "home-light",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "screenshot": "home-light-375x812.png",
+      "sha256": "88d2c82c6a68508e16b6dc8fcd2eaef2a547842c53e9fb9baa969a9d5e77e1d9",
+      "consoleErrors": [],
+      "networkFailures": [],
+      "url": "http://127.0.0.1:5173/#mobile?mode=memory",
+      "theme": "light",
+      "overflowX": 0,
+      "appOverflowX": 0,
+      "syntheticStatus": false,
+      "header": {
+        "height": 52,
+        "top": 0
+      },
+      "tokens": {
+        "bg": "#fbf4e7",
+        "accent": "#c56a3c",
+        "attention": "#8b5510"
+      },
+      "smallTargets": [],
+      "cls": 0.006219658099565629,
+      "longTasks": [
+        86,
+        55
+      ]
+    },
+    {
+      "name": "home-light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshot": "home-light-390x844.png",
+      "sha256": "f03cbe8411504d16a3a0b0a49eee563528a45878ae6bdd9a0278dbd73d9f152e",
+      "consoleErrors": [],
+      "networkFailures": [],
+      "url": "http://127.0.0.1:5173/#mobile?mode=memory",
+      "theme": "light",
+      "overflowX": 0,
+      "appOverflowX": 0,
+      "syntheticStatus": false,
+      "header": {
+        "height": 52,
+        "top": 0
+      },
+      "tokens": {
+        "bg": "#fbf4e7",
+        "accent": "#c56a3c",
+        "attention": "#8b5510"
+      },
+      "smallTargets": [],
+      "cls": 0.0024961646367617357,
+      "longTasks": [
+        86,
+        55
+      ]
+    },
+    {
+      "name": "home-light",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "screenshot": "home-light-430x932.png",
+      "sha256": "913a3e8b0ba7d7891b16522c89be1fa8e58f1b3dd6a5f474a45834e8fc293e53",
+      "consoleErrors": [],
+      "networkFailures": [],
+      "url": "http://127.0.0.1:5173/#mobile?mode=memory",
+      "theme": "light",
+      "overflowX": 0,
+      "appOverflowX": 0,
+      "syntheticStatus": false,
+      "header": {
+        "height": 52,
+        "top": 0
+      },
+      "tokens": {
+        "bg": "#fbf4e7",
+        "accent": "#c56a3c",
+        "attention": "#8b5510"
+      },
+      "smallTargets": [],
+      "cls": 0.0020748087853839506,
+      "longTasks": [
+        80,
+        52
+      ]
+    },
+    {
+      "name": "home-dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshot": "home-dark-390x844.png",
+      "sha256": "a47fa478da36210561d76a1faaa7e682d4aafccc1b3b5fdb22beed52028fda8f",
+      "consoleErrors": [],
+      "networkFailures": [],
+      "url": "http://127.0.0.1:5173/#mobile?mode=memory",
+      "theme": "dark",
+      "overflowX": 0,
+      "appOverflowX": 0,
+      "syntheticStatus": false,
+      "header": {
+        "height": 52,
+        "top": 0
+      },
+      "tokens": {
+        "bg": "#0b0d10",
+        "accent": "#d97757",
+        "attention": "#d8a23e"
+      },
+      "smallTargets": [],
+      "cls": 0.0007944792033822702,
+      "longTasks": [
+        85,
+        54
+      ]
+    },
+    {
+      "name": "overflow-light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshot": "overflow-light-390x844.png",
+      "sha256": "f2055b4ae2ce6eb7e51e6d6c853732eaf7ff551872e3d421a40d475a6b737d93",
+      "consoleErrors": [],
+      "networkFailures": [],
+      "url": "http://127.0.0.1:5173/#mobile?mode=memory",
+      "theme": "light",
+      "overflowX": 0,
+      "appOverflowX": 0,
+      "syntheticStatus": false,
+      "header": {
+        "height": 52,
+        "top": 0
+      },
+      "tokens": {
+        "bg": "#fbf4e7",
+        "accent": "#c56a3c",
+        "attention": "#8b5510"
+      },
+      "smallTargets": [],
+      "cls": 0.0024961646367617357,
+      "longTasks": [
+        82,
+        55
+      ]
+    },
+    {
+      "name": "review-light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshot": "review-light-390x844.png",
+      "sha256": "99f4e7458e4a9a99ba327a95ac86e3be874a2053179592643c2d56bf1375625d",
+      "consoleErrors": [],
+      "networkFailures": [],
+      "url": "http://127.0.0.1:5173/#mobile?mode=memory",
+      "theme": "light",
+      "overflowX": 0,
+      "appOverflowX": 0,
+      "syntheticStatus": false,
+      "header": {
+        "height": 52,
+        "top": 0
+      },
+      "tokens": {
+        "bg": "#fbf4e7",
+        "accent": "#c56a3c",
+        "attention": "#8b5510"
+      },
+      "smallTargets": [],
+      "cls": 0.0024961646367617357,
+      "longTasks": [
+        86,
+        57
+      ]
+    },
+    {
+      "name": "deck-light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "error": "Open deck count 2"
+    }
+  ]
+}

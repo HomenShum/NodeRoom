@@ -1,0 +1,84 @@
+{
+  "generatedAt": "2026-07-09T10:13:08.700Z",
+  "siteUrl": "https://noderoom.live/",
+  "startDate": "2026-06-08",
+  "endDate": "2026-07-06",
+  "dryRun": true,
+  "dimensions": [
+    "query",
+    "page"
+  ],
+  "queryRows": [
+    {
+      "keys": [
+        "collaborative ai room"
+      ],
+      "clicks": 6,
+      "impressions": 420,
+      "ctr": 0.0142,
+      "position": 18.4
+    },
+    {
+      "keys": [
+        "startup diligence ai"
+      ],
+      "clicks": 2,
+      "impressions": 210,
+      "ctr": 0.0095,
+      "position": 24.1
+    }
+  ],
+  "pageRows": [
+    {
+      "keys": [
+        "https://noderoom.live/"
+      ],
+      "clicks": 8,
+      "impressions": 510,
+      "ctr": 0.0156,
+      "position": 19.3
+    },
+    {
+      "keys": [
+        "https://noderoom.live/use-cases/startups/"
+      ],
+      "clicks": 1,
+      "impressions": 140,
+      "ctr": 0.0071,
+      "position": 28.2
+    }
+  ],
+  "opportunities": {
+    "poorCtrQueries": [
+      {
+        "keys": [
+          "collaborative ai room"
+        ],
+        "clicks": 6,
+        "impressions": 420,
+        "ctr": 0.0142,
+        "position": 18.4
+      },
+      {
+        "keys": [
+          "startup diligence ai"
+        ],
+        "clicks": 2,
+        "impressions": 210,
+        "ctr": 0.0095,
+        "position": 24.1
+      }
+    ],
+    "impressionPages": [
+      {
+        "keys": [
+          "https://noderoom.live/use-cases/startups/"
+        ],
+        "clicks": 1,
+        "impressions": 140,
+        "ctr": 0.0071,
+        "position": 28.2
+      }
+    ]
+  }
+}

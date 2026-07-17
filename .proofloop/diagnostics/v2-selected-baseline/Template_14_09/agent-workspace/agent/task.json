@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "taskId": "Template/14_09",
+  "track": "spreadsheetbench-v2",
+  "category": "Template",
+  "instruction": "Concessions are 0% in Years 3–5.",
+  "inputFiles": [
+    "inputs/01-14_09_input.xlsx"
+  ],
+  "promptFiles": []
+}

@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-09T09:48:32.198Z",
+  "verifier": "spreadsheetbench_chart_visual_probe",
+  "status": "chart_visual_grade_proven",
+  "pass": true,
+  "renderer": {
+    "required": true,
+    "candidates": [
+      {
+        "command": "soffice --version",
+        "exitCode": null,
+        "stdoutPreview": "",
+        "stderrPreview": "spawnSync soffice ENOENT",
+        "ok": false
+      },
+      {
+        "command": "libreoffice --version",
+        "exitCode": null,
+        "stdoutPreview": "",
+        "stderrPreview": "spawnSync libreoffice ENOENT",
+        "ok": false
+      },
+      {
+        "command": "soffice.exe --version",
+        "exitCode": null,
+        "stdoutPreview": "",
+        "stderrPreview": "spawnSync soffice.exe ENOENT",
+        "ok": false
+      },
+      {
+        "command": "C:\\Program Files\\LibreOffice\\program\\soffice.com --headless --version",
+        "exitCode": 0,
+        "stdoutPreview": "LibreOffice 26.2.4.2 0229ac93fcf0d7cbc6376066c6f35021cef002dc",
+        "stderrPreview": "",
+        "ok": true
+      },
+      {
+        "command": "C:\\Program Files\\LibreOffice\\program\\soffice.exe --headless --version",
+        "exitCode": null,
+        "stdoutPreview": "",
+        "stderrPreview": "spawnSync C:\\Program Files\\LibreOffice\\program\\soffice.exe ETIMEDOUT",
+        "ok": false
+      }
+    ],
+    "selected": "C:\\Program Files\\LibreOffice\\program\\soffice.com --headless --version"
+  },
+  "imagePair": {
+    "required": true,
+    "candidateImage": {
+      "path": "candidate-oracle.png",
+      "sha256": "6a796468c629153041a40d57efb5abc775677051bf1d712c7c9303d2a872782c",
+      "bytes": 163628,
+      "width": 1584,
+      "height": 1224
+    },
+    "goldImage": {
+      "path": "gold.png",
+      "sha256": "6a796468c629153041a40d57efb5abc775677051bf1d712c7c9303d2a872782c",
+      "bytes": 163628,
+      "width": 1584,
+      "height": 1224
+    },
+    "available": true
+  },
+  "vlm": {
+    "required": true,
+    "model": "gemini-3.5-flash",
+    "apiKeyPresent": true,
+    "reportPath": "docs\\eval\\spreadsheetbench-chart-visual\\task-126\\vlm-report.json",
+    "reportAccepted": true
+  },
+  "warnings": []
+}

@@ -1,0 +1,73 @@
+{
+  "generatedAt": "2026-07-12T12:14:10.071Z",
+  "model": "gemini-3.5-flash",
+  "media": ".proofloop/proofs/visual-parity/desktop-1456x940/notebook-editor.png",
+  "reference": "docs/design/ui-contract/20260708-migration-proof/standalone-interior-notebook.png",
+  "rubricMean": 4.7,
+  "lowestDim": {
+    "dim": "product.whatIsHappening",
+    "score": 4
+  },
+  "betterThanReference": [
+    "product:worse",
+    "hierarchy-typography:same",
+    "layout-spacing:same",
+    "color-state:same"
+  ],
+  "counts": {
+    "P0": 0,
+    "P1": 1,
+    "P2": 1
+  },
+  "passBar": false,
+  "lensScores": [
+    {
+      "lens": "product",
+      "scores": {
+        "whatIsHappening": 4,
+        "whyTrust": 4,
+        "whatNext": 5
+      }
+    },
+    {
+      "lens": "hierarchy-typography",
+      "scores": {
+        "hierarchy": 5,
+        "typography": 5
+      }
+    },
+    {
+      "lens": "layout-spacing",
+      "scores": {
+        "spacingRhythm": 5,
+        "alignment": 5,
+        "density": 5
+      }
+    },
+    {
+      "lens": "color-state",
+      "scores": {
+        "colorDiscipline": 4,
+        "stateSignal": 5
+      }
+    }
+  ],
+  "findings": [
+    {
+      "lens": "product",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Q3 variance sheet preview",
+      "issue": "The inline table preview showing the account, Q3 value, and variance percentage is missing at the bottom of the notebook card.",
+      "fix": "Render the embedded sheet table preview inline at the bottom of the notebook card as shown in the reference design."
+    },
+    {
+      "lens": "color-state",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Homen avatar",
+      "issue": "The avatar for user 'Homen' uses the terracotta accent, which conflicts with the rule reserving terracotta exclusively for agent focus (NodeAgent).",
+      "fix": "Change the avatar color for Homen to a neutral or non-agent color tone to preserve the terracotta signature for NodeAgent."
+    }
+  ]
+}

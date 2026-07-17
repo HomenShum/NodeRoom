@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "operations": [
+    {
+      "sheet": "Balance Sheet",
+      "cell": "J68",
+      "formula": "I68"
+    },
+    {
+      "sheet": "Balance Sheet",
+      "cell": "K68",
+      "formula": "J68"
+    },
+    {
+      "sheet": "Balance Sheet",
+      "cell": "L68",
+      "formula": "K68"
+    },
+    {
+      "sheet": "Balance Sheet",
+      "cell": "M68",
+      "formula": "L68"
+    },
+    {
+      "sheet": "Balance Sheet",
+      "cell": "N68",
+      "formula": "M68"
+    },
+    {
+      "sheet": "Income Statement",
+      "cell": "J32",
+      "formula": "$H32"
+    },
+    {
+      "sheet": "Income Statement",
+      "cell": "K32",
+      "formula": "$H32"
+    },
+    {
+      "sheet": "Income Statement",
+      "cell": "L32",
+      "formula": "$H32"
+    },
+    {
+      "sheet": "Income Statement",
+      "cell": "M32",
+      "formula": "$H32"
+    },
+    {
+      "sheet": "Income Statement",
+      "cell": "N32",
+      "formula": "$H32"
+    },
+    {
+      "sheet": "PP&E, Debt, NWC",
+      "cell": "C67",
+      "formula": "C57"
+    },
+    {
+      "sheet": "PP&E, Debt, NWC",
+      "cell": "C68",
+      "formula": "C58"
+    },
+    {
+      "sheet": "PP&E, Debt, NWC",
+      "cell": "C69",
+      "formula": "C59"
+    },
+    {
+      "sheet": "PP&E, Debt, NWC",
+      "cell": "C70",
+      "formula": "K57"
+    },
+    {
+      "sheet": "PP&E, Debt, NWC",
+      "cell": "C71",
+      "formula": "K58"
+    },
+    {
+      "sheet": "WACC",
+      "cell": "F65",
+      "formula": "SUM(F57:F64)"
+    }
+  ]
+}

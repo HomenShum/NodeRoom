@@ -1,18 +1,65 @@
 {
   "schema": "proofloop-free-openrouter-nodeagent-gauge-v1",
-  "generatedAt": "2026-07-06T02:30:32.660Z",
+  "generatedAt": "2026-07-11T01:18:33.910Z",
   "source": "https://openrouter.ai/api/v1/models?output_modalities=text",
   "harnessVersion": "nodeagent-tool-loop-free-model-gauge-v1",
   "officialBenchmarkScoreClaim": false,
+  "selection": {
+    "offset": 0,
+    "limit": 4,
+    "explicitModels": [
+      "cohere/north-mini-code:free",
+      "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "nvidia/nemotron-3-super-120b-a12b:free",
+      "qwen/qwen3-coder:free",
+      "google/gemma-4-26b-a4b-it:free",
+      "qwen/qwen3-next-80b-a3b-instruct:free",
+      "openai/gpt-oss-120b:free",
+      "tencent/hy3:free"
+    ]
+  },
   "summary": {
-    "total": 6,
-    "passed": 3,
+    "total": 8,
+    "passed": 5,
     "failed": 3,
     "skipped": 0,
-    "estimatedCostUsd": 0
+    "estimatedCostUsd": 0,
+    "attemptedRequests": 8,
+    "completedRequests": 5
   },
   "rows": [
     {
+      "catalogRank": 1,
+      "modelId": "openai/gpt-oss-120b:free",
+      "name": "OpenAI: gpt-oss-120b (free)",
+      "status": "failed",
+      "supportsTools": true,
+      "contextLength": 131072,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "estimatedCostUsd": 0,
+      "durationMs": 7429,
+      "attemptedRequests": 1,
+      "completedRequests": 0,
+      "error": "Failed after 3 attempts. Last error: Provider returned error"
+    },
+    {
+      "catalogRank": 2,
+      "modelId": "tencent/hy3:free",
+      "name": "Tencent: Hy3 (free)",
+      "status": "passed",
+      "resolvedModel": "tencent/hy3:free",
+      "supportsTools": true,
+      "contextLength": 262144,
+      "inputTokens": 320,
+      "outputTokens": 81,
+      "estimatedCostUsd": 0,
+      "durationMs": 2513,
+      "attemptedRequests": 1,
+      "completedRequests": 1
+    },
+    {
+      "catalogRank": 4,
       "modelId": "cohere/north-mini-code:free",
       "name": "Cohere: North Mini Code (free)",
       "status": "passed",
@@ -20,11 +67,14 @@
       "supportsTools": true,
       "contextLength": 256000,
       "inputTokens": 137,
-      "outputTokens": 110,
+      "outputTokens": 109,
       "estimatedCostUsd": 0,
-      "durationMs": 1393
+      "durationMs": 1733,
+      "attemptedRequests": 1,
+      "completedRequests": 1
     },
     {
+      "catalogRank": 5,
       "modelId": "nvidia/nemotron-3-ultra-550b-a55b:free",
       "name": "NVIDIA: Nemotron 3 Ultra (free)",
       "status": "passed",
@@ -32,11 +82,14 @@
       "supportsTools": true,
       "contextLength": 1000000,
       "inputTokens": 434,
-      "outputTokens": 78,
+      "outputTokens": 77,
       "estimatedCostUsd": 0,
-      "durationMs": 4570
+      "durationMs": 1682,
+      "attemptedRequests": 1,
+      "completedRequests": 1
     },
     {
+      "catalogRank": 6,
       "modelId": "nvidia/nemotron-3-super-120b-a12b:free",
       "name": "NVIDIA: Nemotron 3 Super (free)",
       "status": "passed",
@@ -44,11 +97,14 @@
       "supportsTools": true,
       "contextLength": 1000000,
       "inputTokens": 434,
-      "outputTokens": 75,
+      "outputTokens": 71,
       "estimatedCostUsd": 0,
-      "durationMs": 1128
+      "durationMs": 898,
+      "attemptedRequests": 1,
+      "completedRequests": 1
     },
     {
+      "catalogRank": 7,
       "modelId": "qwen/qwen3-coder:free",
       "name": "Qwen: Qwen3 Coder 480B A35B (free)",
       "status": "failed",
@@ -57,10 +113,13 @@
       "inputTokens": 0,
       "outputTokens": 0,
       "estimatedCostUsd": 0,
-      "durationMs": 58974,
+      "durationMs": 36736,
+      "attemptedRequests": 1,
+      "completedRequests": 0,
       "error": "Failed after 3 attempts. Last error: Provider returned error"
     },
     {
+      "catalogRank": 8,
       "modelId": "google/gemma-4-26b-a4b-it:free",
       "name": "Google: Gemma 4 26B A4B  (free)",
       "status": "failed",
@@ -69,20 +128,25 @@
       "inputTokens": 0,
       "outputTokens": 0,
       "estimatedCostUsd": 0,
-      "durationMs": 6477,
+      "durationMs": 7065,
+      "attemptedRequests": 1,
+      "completedRequests": 0,
       "error": "Failed after 3 attempts. Last error: Provider returned error"
     },
     {
+      "catalogRank": 9,
       "modelId": "qwen/qwen3-next-80b-a3b-instruct:free",
       "name": "Qwen: Qwen3 Next 80B A3B Instruct (free)",
-      "status": "failed",
+      "status": "passed",
+      "resolvedModel": "qwen/qwen3-next-80b-a3b-instruct:free",
       "supportsTools": true,
       "contextLength": 262144,
-      "inputTokens": 0,
-      "outputTokens": 0,
+      "inputTokens": 420,
+      "outputTokens": 68,
       "estimatedCostUsd": 0,
-      "durationMs": 53933,
-      "error": "Failed after 3 attempts. Last error: Provider returned error"
+      "durationMs": 24524,
+      "attemptedRequests": 1,
+      "completedRequests": 1
     }
   ]
 }

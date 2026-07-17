@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "taskId": "Template/06_11",
+  "mode": "nodeagent-workbook",
+  "model": "cohere/north-mini-code:free",
+  "requestedModel": "openrouter/free-auto",
+  "sourceAgentManifest": "tasks/Template_06_11/agent/task.json",
+  "agentWorkspaceManifest": "agent-workspace/agent-workspace-manifest.json",
+  "candidateWorkbook": "candidate-01-06_11_input.xlsx",
+  "nodeAgentReceipt": "nodeagent-workbook-receipt.json",
+  "nodeAgentTrace": "nodeagent-workbook-trace.json",
+  "appliedOperationCount": 6,
+  "repairAttemptCount": 2,
+  "verificationStatus": "passed",
+  "modelContext": {
+    "runtime": "frameRunner -> runAgent -> RoomTools",
+    "maxSteps": 15,
+    "snapshotMaxCells": 1200,
+    "evaluatorMetadataAccess": "none"
+  },
+  "modelUsage": {
+    "inputTokens": 73687,
+    "outputTokens": 4989,
+    "cachedInputTokens": 0
+  },
+  "modelCostUsd": 0,
+  "traceId": "spreadsheetbench-nodeagent-a636606a",
+  "note": "nodeagent-workbook executes the staged task through the canonical NodeAgent frame/runtime and production managed workbook tools before evaluator metadata becomes available."
+}

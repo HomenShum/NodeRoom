@@ -1,0 +1,81 @@
+{
+  "generatedAt": "2026-07-12T12:01:00.879Z",
+  "model": "gemini-3.5-flash",
+  "media": ".proofloop/proofs/visual-parity/desktop-1456x940/notebook-editor.png",
+  "reference": "docs/design/ui-contract/20260708-migration-proof/standalone-interior-notebook.png",
+  "rubricMean": 4.5,
+  "lowestDim": {
+    "dim": "color-state.colorDiscipline",
+    "score": 3
+  },
+  "betterThanReference": [
+    "product:better",
+    "hierarchy-typography:worse",
+    "layout-spacing:same",
+    "color-state:worse"
+  ],
+  "counts": {
+    "P0": 0,
+    "P1": 1,
+    "P2": 2
+  },
+  "passBar": false,
+  "lensScores": [
+    {
+      "lens": "product",
+      "scores": {
+        "whatIsHappening": 5,
+        "whyTrust": 5,
+        "whatNext": 5
+      }
+    },
+    {
+      "lens": "hierarchy-typography",
+      "scores": {
+        "hierarchy": 5,
+        "typography": 4
+      }
+    },
+    {
+      "lens": "layout-spacing",
+      "scores": {
+        "spacingRhythm": 5,
+        "alignment": 5,
+        "density": 5
+      }
+    },
+    {
+      "lens": "color-state",
+      "scores": {
+        "colorDiscipline": 3,
+        "stateSignal": 3
+      }
+    }
+  ],
+  "findings": [
+    {
+      "lens": "hierarchy-typography",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Blockquote text",
+      "issue": "The blockquote font has been changed to a serif typeface, which deviates from the clean, sober sans-serif system established in the reference design.",
+      "fix": "Change the blockquote font-family back to the primary sans-serif face, using only italics for emphasis as shown in the reference."
+    },
+    {
+      "lens": "color-state",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Sidebar document icons",
+      "issue": "Every document, sheet, and folder icon in the left sidebar is colored in terracotta/orange, violating the 'neutral at rest' rule and diluting the agent focus accent.",
+      "fix": "Change sidebar icons to a neutral gray or white at rest, reserving color strictly for active states or specific agent indicators."
+    },
+    {
+      "lens": "color-state",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "SFT-RFT badge",
+      "issue": "The SFT-RFT badge in the top header uses an orange border/text, adding unnecessary color noise to the global navigation.",
+      "fix": "Render the SFT-RFT badge in a neutral gray or low-contrast border style."
+    }
+  ]
+}

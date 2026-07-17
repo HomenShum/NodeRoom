@@ -1,0 +1,318 @@
+{
+  "schema": 1,
+  "captured_at": "2026-07-09",
+  "scope": "NodeRoom mobile terracotta shell and governed work-artifact review",
+  "status": "local_pass_taste_certification_blocked",
+  "authority_order": [
+    "Latest production/main is the behavioral source of truth.",
+    "Approved UI, mobile taste, and mobile header contracts are the visual source of truth.",
+    "Standalone HTML, screenshots, Cloud captures, and legacy prototypes are design evidence that may be kept, refined, or rejected.",
+    "CSS cascade accidents, stale snapshots, prototype chrome, and similarity scores are not design decisions."
+  ],
+  "shipping_policy": "Taste score controls shipping; reference similarity cannot satisfy or override the taste gate.",
+  "lane_boundary": {
+    "preserved_existing_lane": [
+      "live work-artifact and storyboard projection",
+      "graph and semantic-artifact changes",
+      "proofloop and benchmark changes",
+      "dirty worktree edits outside the mobile scope"
+    ],
+    "new_mobile_scope": [
+      "semantic mobile token and shell layers",
+      "stable production mobile header and navigation",
+      "production versus preview device-frame boundary",
+      "live jobs, trace, review, and proposal adapters",
+      "governed-deck DOM and mobile interaction repair",
+      "focused mobile tests, visual proof, and receipts"
+    ],
+    "backend_or_nodeagent_core_mutated": false,
+    "certification_gate_weakened": false
+  },
+  "contract_assertions": {
+    "viewports": [
+      "320x568",
+      "375x812",
+      "390x844",
+      "430x932"
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "maximum_body_overflow_px": 1,
+    "header_row_px": 52,
+    "minimum_touch_target_px": 44,
+    "bottom_navigation_destinations": 6,
+    "production_synthetic_device_chrome": false,
+    "preview_synthetic_device_chrome": true,
+    "stable_header_actions": [
+      "Review",
+      "Overflow"
+    ],
+    "secondary_surfaces_checked": [
+      "Review",
+      "Agent jobs",
+      "People",
+      "Room activity",
+      "Usage",
+      "Trace",
+      "Share",
+      "Settings"
+    ],
+    "governed_deck_siblings_checked": [
+      "thumbnails",
+      "slide toolbar",
+      "slide preview",
+      "element-scoped request",
+      "proposal decision controls",
+      "evidence",
+      "export receipt affordance"
+    ]
+  },
+  "commands": [
+    {
+      "command": "npm run nodeagent:frame:smoke",
+      "status": "pass"
+    },
+    {
+      "command": "npm run omnigent:nodeagent:smoke",
+      "status": "pass_with_external_cli_absent",
+      "detail": "Local adapter and frame smoke passed; the external omni CLI is not installed."
+    },
+    {
+      "command": "npm run typecheck -- --pretty false",
+      "status": "pass"
+    },
+    {
+      "command": "npm run build",
+      "status": "pass_with_existing_chunk_size_warning"
+    },
+    {
+      "command": "npm run design:audit",
+      "status": "pass_with_guidance_only_drift_warnings"
+    },
+    {
+      "command": "npm test -- --run tests/mobileGapScreens.test.tsx tests/mobileAgentModelRouting.test.tsx tests/workArtifacts.test.ts tests/semanticGraph.test.ts tests/mobileDeckLive.test.tsx tests/mobileHeader.test.tsx tests/mobileShellAdapters.test.tsx tests/designSystemManifest.test.ts",
+      "status": "pass",
+      "tests_passed": 92
+    },
+    {
+      "command": "npx playwright test e2e/mobile-terracotta-contract.spec.ts e2e/mobile-story-surfaces.spec.ts e2e/full-modern-ux-bar.spec.ts --grep '(#mobile|mobile universal|production shell|synthetic device chrome|governed deck|review and secondary|mobile terracotta cards)' --trace on --reporter=line",
+      "status": "pass_with_expected_live_skip",
+      "tests_passed": 15,
+      "tests_skipped": 1,
+      "skip_reason": "PLAYWRIGHT_EXPECT_MOBILE_LIVE was not enabled for an authenticated Convex deployment."
+    },
+    {
+      "command": "PLAYWRIGHT_BASE_URL=https://noderoom.live PLAYWRIGHT_REUSE_SERVER=1 npx playwright test e2e/mobile-terracotta-contract.spec.ts --grep 'light production shell 390x844' --project=chromium --workers=1 --retries=0",
+      "status": "failed_deployed_version_stale",
+      "tests_failed": 1,
+      "first_failure": "Expected zero .na-fab-badge elements; deployed build rendered one. The same deployed DOM also had no mobile-bottom-nav."
+    },
+    {
+      "command": "npm run proofloop -- doctor --json",
+      "status": "pass",
+      "checks_passed": 11
+    },
+    {
+      "command": "npm run proofloop -- manifest --dense",
+      "status": "pass",
+      "manifest_status": "official-scores:needs_scaffold_or_run"
+    },
+    {
+      "command": "npm run proofloop -- gate --goal official-scores",
+      "status": "blocked_outside_mobile_scope",
+      "blocked_tasks": 5,
+      "detail": "SpreadsheetBench V1/V2 model runs and Finch, FinAuditing, and WorkstreamBench accepted scorer receipts remain outside this mobile lane."
+    },
+    {
+      "command": "npm run test:product:memory",
+      "status": "blocked_by_unrelated_desktop_and_other_lane_failures",
+      "tests_passed": 41,
+      "tests_skipped": 1,
+      "tests_failed": 10,
+      "mobile_failures_repaired": 1,
+      "remaining_unrelated_failures": 9,
+      "detail": "A read-only triage found no remaining mobile-caused failures; the stale mobile room-selector assertion was repaired and its focused release-bar test now passes."
+    }
+  ],
+  "deployment_recheck_2026_07_10": {
+    "viewport": "390x844",
+    "public_root": "Marketing landing remains the first screen.",
+    "public_create_href": "/?create=1&surface=desktop&name=Host&title=Startup%20diligence",
+    "direct_mobile_entry": "Live join form rendered.",
+    "direct_demo_intent": "Normalized to #mobile and rendered review consent before mutation.",
+    "deployed_memory_shell": {
+      "background": "rgb(251, 244, 231)",
+      "header_present": true,
+      "horizontal_overflow_px": 0,
+      "synthetic_chrome_count": 0,
+      "duplicate_fab_badge_count": 1,
+      "bottom_navigation_present": false
+    },
+    "post_consent_room_creation_tested": false,
+    "status": "fail"
+  },
+  "independent_judgments": {
+    "taste_judgment_a": {
+      "provider": "Gemini Pro web",
+      "loops": 3,
+      "taste_score": 5.5,
+      "topbar_taste_score": 6.0,
+      "contract_adherence_score": 6.5,
+      "ship_readiness": false
+    },
+    "contract_judgment_b": {
+      "provider": "Gemini Pro web",
+      "taste_score": 8.5,
+      "topbar_taste_score": 8.5,
+      "contract_adherence_score": 10.0,
+      "reference_similarity_score": 9.5,
+      "ship_readiness": "READY"
+    },
+    "combined_gate": "blocked",
+    "reason": "Taste judgment A remained below the 8.0 overall and 8.5 topbar thresholds after the maximum three loops."
+  },
+  "artifacts": [
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-light-320x568.png",
+      "bytes": 36078,
+      "sha256": "53e2cf49d812c8de9bae827cc9bd09f5a6c1e8fbe1609fbb49ea51be968a2c3a"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-light-375x812.png",
+      "bytes": 72981,
+      "sha256": "fbdf525f13774f59f9af977770db03a909ec8e11a6802b5cc40434848db65e1d"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-light-390x844.png",
+      "bytes": 78949,
+      "sha256": "bfc8e580e206369ee718ff00fc09d391203f49521a509da0b534d86d354029a1"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-light-430x932.png",
+      "bytes": 90579,
+      "sha256": "b3f37617fd571aeba0c2eb1ef05f4e4257ae4142578e55477db0a3130b36500f"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-dark-320x568.png",
+      "bytes": 36154,
+      "sha256": "9f6c8cf801486024c5d666a60338ec76456b20485926047e5658a484d98a17d2"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-dark-375x812.png",
+      "bytes": 72646,
+      "sha256": "3029af283eb338b3b7e9782be1c82af396ff35162f62d7adc6a2dc04802dd3f8"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-dark-390x844.png",
+      "bytes": 78726,
+      "sha256": "f05110654ac338622f4d4381a8a45e47b6467a84e8bc2e164630203638a9235f"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-dark-430x932.png",
+      "bytes": 90452,
+      "sha256": "434906a0f7b655e97d1d29845fbf32b841551a2af8b2eddbc8b1a6bd1b91717b"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-long-title-light-320x568.png",
+      "bytes": 36403,
+      "sha256": "c831f78260348554535498ee90366873960d8416daf01651ac20337bc1f71285"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-long-title-light-375x812.png",
+      "bytes": 73904,
+      "sha256": "ef0f6b588ba52e4f18584495b7a17d9f69de901636b2be1c36daf0d7fea0b279"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-long-title-light-390x844.png",
+      "bytes": 80032,
+      "sha256": "10bba4dd09ddb1ba457d2f9e3f1815447447a51dbf2bb222d6608e4227679b71"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-long-title-light-430x932.png",
+      "bytes": 92079,
+      "sha256": "952b7f7709af486e561b9bf219b6a3c78c9484ff61c2d0e24b8927c84db0d60c"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-long-title-dark-320x568.png",
+      "bytes": 36391,
+      "sha256": "c2bc108ddb36bb70a6928d07e4ff893c8e16b3e57dd11718081d8bd28a14312a"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-long-title-dark-375x812.png",
+      "bytes": 73404,
+      "sha256": "ad75c8fb58572bb0ee9e3fd0a0d87bb1fd13bc4435365f19406daebc9d1147c4"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-long-title-dark-390x844.png",
+      "bytes": 79633,
+      "sha256": "ac9425a8e5224d9f43591f9172e4375d2cec587bfa182d31ba03aa1ee4145155"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-long-title-dark-430x932.png",
+      "bytes": 91802,
+      "sha256": "9de04163291b020241aee6d5256b1f7fb9c29ce579dbe49ba288bc77ab7ec008"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-governed-deck-390x844.png",
+      "bytes": 66310,
+      "sha256": "bff442e5d75f8a199bec2dc7d283b1343afa57f7e89afe4d4137d78912d633b5"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/mobile-judge-contact-sheet.png",
+      "bytes": 563180,
+      "sha256": "3c6e6a6e10ae71aad7701bfc48ed00e3565cefd29e8b502e1bac2f9a2f38d610"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/governed-deck-trace.zip",
+      "bytes": 1310975,
+      "sha256": "758ff4c2470e156b672d165d8cd01ee2a2566c21168e7e363ec3d78ff2866d47"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/governed-deck-video.webm",
+      "bytes": 141949,
+      "sha256": "e5702a9979a8c92334a104952174dcf8d6df7272d2d745e860ab906ac8adb1f2"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/secondary-surfaces-trace.zip",
+      "bytes": 3240408,
+      "sha256": "8e7f252ff69738258d4cdba646228011c616609964c6cb0d8ab2e659a4fbb8f1"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/secondary-surfaces-video.webm",
+      "bytes": 600831,
+      "sha256": "34b9c8421e557e022fc6c5f26b19616f25de769996e73b96547ec0ed18159568"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/production-light-390x844-trace.zip",
+      "bytes": 1611757,
+      "sha256": "159859fe823f34d3c569f9a5a19fe53e5cf012ca35c2748b0fd0cde3bc9ee887"
+    },
+    {
+      "path": "docs/design/mobile/artifacts/final/production-light-390x844-video.webm",
+      "bytes": 68721,
+      "sha256": "691671a41c556d47c3e9c4f30224500ada20687d97b041596a4afebeb88af1d4"
+    }
+  ],
+  "remaining_blockers": [
+    {
+      "id": "taste-certification",
+      "owner": "product_design",
+      "detail": "A materially different visual direction or an explicit acceptance decision is required; the allowed three critic loops are exhausted.",
+      "resume": "Review docs/design/mobile/mobile-visual-judge-after.json and the final contact sheet before changing the visual direction."
+    },
+    {
+      "id": "deployed-live-mobile-proof",
+      "owner": "deployment_and_credentials",
+      "detail": "Production exposes mobile entry and consent but serves an older shell with a duplicate FAB badge and no bottom navigation. Authenticated post-consent room proof is also outstanding.",
+      "resume": "Deploy the current local mobile shell, then set PLAYWRIGHT_BASE_URL=https://noderoom.live and PLAYWRIGHT_EXPECT_MOBILE_LIVE=1 and rerun the mobile contract plus live room case."
+    },
+    {
+      "id": "global-official-scores",
+      "owner": "other_proofloop_lanes",
+      "detail": "The global official-scores gate has five benchmark/scorer blockers unrelated to this mobile implementation.",
+      "resume": "npm run proofloop -- resume --goal official-scores --dense"
+    }
+  ]
+}

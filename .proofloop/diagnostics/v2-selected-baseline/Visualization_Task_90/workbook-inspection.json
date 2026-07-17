@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "mutatingTask": true,
+  "allowEmptyPlan": false,
+  "referencedSheets": [
+    "Data"
+  ],
+  "explicitReferences": [],
+  "targetCandidates": [],
+  "dependencyCandidates": [],
+  "findings": [],
+  "formulaFillSuggestions": [],
+  "formulaRepairSuggestions": [],
+  "valueSuggestions": [],
+  "rankedCellKeys": [
+    "data!A1",
+    "data!B1",
+    "data!C1",
+    "data!A2",
+    "data!B2",
+    "data!C2",
+    "data!C3",
+    "data!C4",
+    "data!C8"
+  ],
+  "recommendedReads": [
+    {
+      "sheet": "Data",
+      "addresses": [
+        "A1",
+        "B1",
+        "C1",
+        "A2",
+        "B2",
+        "C2",
+        "C3",
+        "C4",
+        "C8"
+      ],
+      "reason": "task_term_match, calculation_row_context_A1, calculation_row_context_B1, calculation_row_context_C1, sheet_representative, existing_formula"
+    }
+  ],
+  "completionChecks": [
+    "Every edited cell belongs to the requested workbook scope.",
+    "Existing formulas are not replaced by scalars unless the task explicitly requires it.",
+    "Changed formulas contain no broken references or obvious self-reference.",
+    "Every changed target is re-read and checked after the write or recorded as pending approval.",
+    "Unsupported macro, validation, or full-format work is reported as unresolved; chart requests require a real chart operation rather than a prose claim."
+  ]
+}

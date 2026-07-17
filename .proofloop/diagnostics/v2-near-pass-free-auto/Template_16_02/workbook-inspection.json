@@ -1,0 +1,300 @@
+{
+  "schema": 1,
+  "mutatingTask": true,
+  "allowEmptyPlan": false,
+  "referencedSheets": [
+    "Assumptions"
+  ],
+  "explicitReferences": [],
+  "targetCandidates": [],
+  "dependencyCandidates": [],
+  "findings": [
+    {
+      "kind": "formula_error",
+      "severity": "error",
+      "sheet": "DirectCap",
+      "address": "C47",
+      "detail": "Cell currently evaluates to {\"error\":\"#DIV/0!\"}.",
+      "recommendedAction": "Inspect dependencies and repair the formula or source error."
+    },
+    {
+      "kind": "hardcoded_in_formula_band",
+      "severity": "warning",
+      "sheet": "RentRoll",
+      "address": "F7",
+      "relatedAddresses": [
+        "E7",
+        "G7"
+      ],
+      "detail": "F7 is a scalar between neighboring formula cells.",
+      "recommendedAction": "Check whether the scalar should be a translated formula before preserving or replacing it."
+    },
+    {
+      "kind": "hardcoded_in_formula_band",
+      "severity": "warning",
+      "sheet": "RentRoll",
+      "address": "H7",
+      "relatedAddresses": [
+        "G7",
+        "I7"
+      ],
+      "detail": "H7 is a scalar between neighboring formula cells.",
+      "recommendedAction": "Check whether the scalar should be a translated formula before preserving or replacing it."
+    },
+    {
+      "kind": "hardcoded_in_formula_band",
+      "severity": "warning",
+      "sheet": "RentRoll",
+      "address": "J7",
+      "relatedAddresses": [
+        "I7",
+        "K7"
+      ],
+      "detail": "J7 is a scalar between neighboring formula cells.",
+      "recommendedAction": "Check whether the scalar should be a translated formula before preserving or replacing it."
+    },
+    {
+      "kind": "hardcoded_in_formula_band",
+      "severity": "warning",
+      "sheet": "RentRoll",
+      "address": "E11",
+      "relatedAddresses": [
+        "D11",
+        "F11"
+      ],
+      "detail": "E11 is a scalar between neighboring formula cells.",
+      "recommendedAction": "Check whether the scalar should be a translated formula before preserving or replacing it."
+    },
+    {
+      "kind": "hardcoded_in_formula_band",
+      "severity": "warning",
+      "sheet": "RentRoll",
+      "address": "G11",
+      "relatedAddresses": [
+        "F11",
+        "H11"
+      ],
+      "detail": "G11 is a scalar between neighboring formula cells.",
+      "recommendedAction": "Check whether the scalar should be a translated formula before preserving or replacing it."
+    },
+    {
+      "kind": "blank_in_formula_band",
+      "severity": "warning",
+      "sheet": "DirectCap",
+      "address": "C22",
+      "relatedAddresses": [
+        "C21",
+        "C23"
+      ],
+      "detail": "C22 is blank between neighboring formula cells.",
+      "recommendedAction": "Inspect the neighboring formula pattern and fill the gap only when the row or column logic is consistent."
+    },
+    {
+      "kind": "blank_in_formula_band",
+      "severity": "warning",
+      "sheet": "DirectCap",
+      "address": "C40",
+      "relatedAddresses": [
+        "C39",
+        "C41"
+      ],
+      "detail": "C40 is blank between neighboring formula cells.",
+      "recommendedAction": "Inspect the neighboring formula pattern and fill the gap only when the row or column logic is consistent."
+    },
+    {
+      "kind": "blank_in_formula_band",
+      "severity": "warning",
+      "sheet": "RentRoll",
+      "address": "M7",
+      "relatedAddresses": [
+        "L7",
+        "N7"
+      ],
+      "detail": "M7 is blank between neighboring formula cells.",
+      "recommendedAction": "Inspect the neighboring formula pattern and fill the gap only when the row or column logic is consistent."
+    }
+  ],
+  "formulaFillSuggestions": [],
+  "formulaRepairSuggestions": [],
+  "valueSuggestions": [],
+  "rankedCellKeys": [
+    "directcap!C47",
+    "rentroll!F7",
+    "rentroll!H7",
+    "rentroll!J7",
+    "rentroll!E11",
+    "rentroll!G11",
+    "directcap!C22",
+    "directcap!C40",
+    "rentroll!M7",
+    "assumptions!B2",
+    "assumptions!B4",
+    "assumptions!B5",
+    "assumptions!C5",
+    "assumptions!B14",
+    "assumptions!B15",
+    "assumptions!C15",
+    "directcap!B11",
+    "directcap!D11",
+    "directcap!B12",
+    "directcap!D12",
+    "directcap!B13",
+    "directcap!C13",
+    "directcap!B15",
+    "directcap!B16",
+    "directcap!D16",
+    "directcap!B17",
+    "directcap!D17",
+    "directcap!B18",
+    "directcap!D18",
+    "directcap!B19",
+    "directcap!D19",
+    "directcap!B20",
+    "directcap!D20",
+    "directcap!B23",
+    "directcap!C23",
+    "directcap!B24",
+    "directcap!C24",
+    "directcap!C25",
+    "directcap!B29",
+    "directcap!D29",
+    "directcap!B30",
+    "directcap!D30",
+    "directcap!B31",
+    "directcap!D31",
+    "directcap!B32",
+    "directcap!D32",
+    "directcap!B33",
+    "directcap!D33",
+    "directcap!B34",
+    "directcap!D34",
+    "directcap!B35",
+    "directcap!D35",
+    "directcap!B36",
+    "directcap!B37",
+    "directcap!D37",
+    "directcap!B38",
+    "directcap!D38",
+    "directcap!B39",
+    "directcap!C39",
+    "directcap!B40",
+    "directcap!B45",
+    "directcap!D45",
+    "assumptions!B7",
+    "assumptions!B12",
+    "directcap!C6",
+    "rentroll!E7",
+    "rentroll!G7",
+    "rentroll!I7",
+    "rentroll!K7",
+    "rentroll!L7",
+    "rentroll!N7",
+    "rentroll!O7",
+    "rentroll!P7",
+    "rentroll!Q7",
+    "rentroll!E8",
+    "rentroll!G8",
+    "rentroll!I8",
+    "rentroll!K8",
+    "rentroll!L8",
+    "rentroll!N8",
+    "rentroll!O8",
+    "rentroll!P8",
+    "rentroll!Q8",
+    "rentroll!E9",
+    "rentroll!G9",
+    "rentroll!I9",
+    "rentroll!K9",
+    "rentroll!L9",
+    "rentroll!N9",
+    "rentroll!O9",
+    "rentroll!P9",
+    "rentroll!Q9",
+    "rentroll!E10",
+    "rentroll!G10",
+    "rentroll!I10",
+    "rentroll!K10",
+    "rentroll!L10",
+    "rentroll!N10",
+    "rentroll!O10",
+    "rentroll!P10",
+    "rentroll!Q10",
+    "rentroll!C11",
+    "rentroll!I11",
+    "rentroll!J11",
+    "rentroll!K11",
+    "rentroll!L11",
+    "rentroll!N11",
+    "rentroll!O11",
+    "rentroll!P11",
+    "rentroll!Q11",
+    "assumptions!C12",
+    "directcap!C21",
+    "directcap!C41",
+    "directcap!C43",
+    "rentroll!B4",
+    "rentroll!D11",
+    "rentroll!F11",
+    "rentroll!H11",
+    "rentroll!C21",
+    "directcap!B2",
+    "rentroll!B2",
+    "assumptions!C38"
+  ],
+  "recommendedReads": [
+    {
+      "sheet": "DirectCap",
+      "addresses": [
+        "C47",
+        "C22",
+        "C40",
+        "B11",
+        "D11",
+        "B12",
+        "D12",
+        "B13",
+        "C13",
+        "B15",
+        "B16",
+        "D16",
+        "B17",
+        "D17",
+        "B18",
+        "D18"
+      ],
+      "reason": "formula_result_error, existing_formula, sheet_extent, blank_in_formula_band, calculation_row_context_D12, task_term_match"
+    },
+    {
+      "sheet": "RentRoll",
+      "addresses": [
+        "F7",
+        "H7",
+        "J7",
+        "E11",
+        "G11",
+        "M7"
+      ],
+      "reason": "hardcoded_in_formula_band, task_term_match, blank_in_formula_band"
+    },
+    {
+      "sheet": "Assumptions",
+      "addresses": [
+        "B2",
+        "B4",
+        "B5",
+        "C5",
+        "B14",
+        "B15",
+        "C15"
+      ],
+      "reason": "task_term_match, calculation_row_context_B2, sheet_representative, calculation_row_context_B4, calculation_row_context_B14"
+    }
+  ],
+  "completionChecks": [
+    "Every edited cell belongs to the requested workbook scope.",
+    "Existing formulas are not replaced by scalars unless the task explicitly requires it.",
+    "Changed formulas contain no broken references or obvious self-reference.",
+    "Every changed target is re-read and checked after the write or recorded as pending approval.",
+    "Unsupported macro, validation, or full-format work is reported as unresolved; chart requests require a real chart operation rather than a prose claim."
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "schema": 1,
+  "verifier": "spreadsheetbench_workbook_scorer",
+  "generatedAt": "2026-07-14T09:13:02.768Z",
+  "taskId": "Visualization/Task 90",
+  "track": "spreadsheetbench-v2",
+  "mode": "model-edit-plan",
+  "attemptIndex": 4,
+  "repeatIndex": 1,
+  "tryIndex": 1,
+  "candidateWorkbook": "Visualization_Task_90/candidate-01-Task 90_input.xlsx",
+  "agentManifest": "tasks/Visualization_Task_90/agent/task.json",
+  "evaluatorManifest": "tasks/Visualization_Task_90/evaluator/evaluator.json",
+  "score": {
+    "schema": 1,
+    "generatedAt": "2026-07-14T09:13:02.768Z",
+    "taskId": "Visualization/Task 90",
+    "candidateWorkbook": "candidate-01-Task 90_input.xlsx",
+    "goldWorkbook": "01-Task 90_golden.xlsx",
+    "ranges": [
+      "'Data'!A1:C8"
+    ],
+    "totals": {
+      "comparedCells": 24,
+      "valueMatches": 24,
+      "formulaCells": 7,
+      "formulaMatches": 7,
+      "styleCells": 24,
+      "styleMatches": 24,
+      "styleLayoutItems": 12,
+      "styleLayoutMatches": 9,
+      "mismatches": 3,
+      "missingSheets": 0
+    },
+    "scores": {
+      "value": 1,
+      "formula": 1,
+      "style": 0.916667,
+      "chartPackage": 0,
+      "overall": 0.72916675
+    },
+    "pass": false,
+    "warnings": [
+      "chart_package: xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+    ],
+    "mismatches": [
+      {
+        "kind": "style",
+        "sheet": "Data",
+        "cell": "column:A",
+        "expected": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":15.7265625}",
+        "actual": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":15.7109375}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Data",
+        "cell": "column:B",
+        "expected": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":12.6328125}",
+        "actual": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":12.7109375}"
+      },
+      {
+        "kind": "style",
+        "sheet": "Data",
+        "cell": "column:C",
+        "expected": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":12.36328125}",
+        "actual": "{\"collapsed\":false,\"hidden\":false,\"outlineLevel\":0,\"width\":12.28515625}"
+      }
+    ],
+    "chartPackage": {
+      "schema": 1,
+      "generatedAt": "2026-07-14T09:13:02.768Z",
+      "taskId": "Visualization/Task 90",
+      "candidateWorkbook": "candidate-01-Task 90_input.xlsx",
+      "goldWorkbook": "01-Task 90_golden.xlsx",
+      "verifier": "xlsx_chart_package_static",
+      "totals": {
+        "goldChartParts": 2,
+        "candidateChartParts": 2,
+        "matchedChartParts": 0,
+        "missingChartParts": 0,
+        "extraChartParts": 0,
+        "mismatchedChartParts": 2
+      },
+      "scores": {
+        "package": 0
+      },
+      "pass": false,
+      "candidateParts": [
+        {
+          "path": "xl/charts/chart1.xml",
+          "kind": "chart",
+          "sha256": "61c7f75b7b6aeba678c8dfb2fdb04c648bfe4e3807c50e6ea28ac02ea902646a",
+          "bytes": 6036
+        },
+        {
+          "path": "xl/drawings/drawing1.xml",
+          "kind": "drawing",
+          "sha256": "c23ffb0e7b70c15d1fd566de017dd2d5ea6687c7184f0510d4693de747545a71",
+          "bytes": 1220
+        }
+      ],
+      "goldParts": [
+        {
+          "path": "xl/charts/chart1.xml",
+          "kind": "chart",
+          "sha256": "30dcfdec67365515e98a2290df6e32a06d1448b37b258202c7382e4e6dce519f",
+          "bytes": 15401
+        },
+        {
+          "path": "xl/drawings/drawing1.xml",
+          "kind": "drawing",
+          "sha256": "ec99c17622b5e8059727f8c2aa9358379096919d4757e65ec2e97f9bbaa33a52",
+          "bytes": 1230
+        }
+      ],
+      "mismatches": [
+        {
+          "kind": "chart_xml",
+          "path": "xl/charts/chart1.xml",
+          "expected": "30dcfdec67365515e98a2290df6e32a06d1448b37b258202c7382e4e6dce519f",
+          "actual": "61c7f75b7b6aeba678c8dfb2fdb04c648bfe4e3807c50e6ea28ac02ea902646a"
+        },
+        {
+          "kind": "chart_xml",
+          "path": "xl/drawings/drawing1.xml",
+          "expected": "ec99c17622b5e8059727f8c2aa9358379096919d4757e65ec2e97f9bbaa33a52",
+          "actual": "c23ffb0e7b70c15d1fd566de017dd2d5ea6687c7184f0510d4693de747545a71"
+        }
+      ],
+      "warnings": [
+        "xlsx_chart_package_static compares chart/drawing XML package parts only; it is not a rendered visual or VLM chart-quality grade."
+      ]
+    }
+  }
+}

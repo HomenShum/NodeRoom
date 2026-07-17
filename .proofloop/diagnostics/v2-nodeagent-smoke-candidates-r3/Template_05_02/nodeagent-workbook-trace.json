@@ -1,0 +1,267 @@
+{
+  "schema": "nodeagent.trace.v1",
+  "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+  "createdAt": 1784024393154,
+  "updatedAt": 1784024496045,
+  "trigger": {
+    "kind": "benchmark",
+    "prompt": "Complete the deferred tax analysis. Fill in all empty cells for Years 2-4. Leave Tax Accounting income statement rows and Year 1 cells unchanged.",
+    "selectedArtifactIds": [
+      "DeferredTax"
+    ],
+    "openedSurface": "spreadsheetbench.nodeagent.bridge"
+  },
+  "plan": {
+    "goal": "Complete the deferred tax analysis. Fill in all empty cells for Years 2-4. Leave Tax Accounting income statement rows and Year 1 cells unchanged.",
+    "plannedReads": [
+      {
+        "kind": "artifact",
+        "refId": "DeferredTax",
+        "label": "Agent-visible worksheet"
+      }
+    ],
+    "plannedWrites": [
+      {
+        "kind": "artifact",
+        "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-smoke-candidates-r3\\Template_05_02\\candidate-01-05_02_input.xlsx",
+        "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+        "hash": "6ebd61417f65753d8fc753a5ef004e0a5247d2bb6bed8ba4781abbd81f676a8e"
+      }
+    ],
+    "approvalRequired": false,
+    "riskFlags": [
+      "evaluator_isolation",
+      "workbook_mutation",
+      "cas_managed_write"
+    ]
+  },
+  "contextPack": {
+    "worldModelHash": "fnv1a:f56ba765",
+    "includedRefs": [
+      {
+        "kind": "frame",
+        "refId": "rf_spreadsheetbench-nodeagent-5c41b1f5",
+        "label": "Reasoning frame"
+      }
+    ],
+    "excludedRefs": []
+  },
+  "steps": [
+    {
+      "stepId": "spreadsheetbench-nodeagent-5c41b1f5:tool:000:list-artifacts",
+      "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+      "phase": "tool_call",
+      "title": "Tool call: list_artifacts",
+      "summary": "Called list_artifacts and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-5c41b1f5:tool:000:list-artifacts:args",
+          "hash": "fnv1a:5465b825",
+          "label": "list_artifacts args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-5c41b1f5:tool:000:list-artifacts:result",
+          "hash": "fnv1a:9ac0e114",
+          "label": "list_artifacts result"
+        }
+      ],
+      "tool": {
+        "name": "list_artifacts",
+        "argsHash": "fnv1a:5465b825",
+        "resultHash": "fnv1a:9ac0e114",
+        "status": "ok",
+        "latencyMs": 0
+      },
+      "timings": {
+        "startedAt": 1784024393154,
+        "endedAt": 1784024393154,
+        "latencyMs": 0
+      },
+      "verdict": {
+        "status": "ok"
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-5c41b1f5:tool:001:inspect-workbook",
+      "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+      "phase": "tool_call",
+      "title": "Tool call: inspect_workbook",
+      "summary": "Called inspect_workbook and recorded args/result hashes.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-5c41b1f5:tool:001:inspect-workbook:args",
+          "hash": "fnv1a:1d5b24f1",
+          "label": "inspect_workbook args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-5c41b1f5:tool:001:inspect-workbook:result",
+          "hash": "fnv1a:9be9e418",
+          "label": "inspect_workbook result"
+        }
+      ],
+      "tool": {
+        "name": "inspect_workbook",
+        "argsHash": "fnv1a:1d5b24f1",
+        "resultHash": "fnv1a:9be9e418",
+        "status": "ok",
+        "latencyMs": 7
+      },
+      "timings": {
+        "startedAt": 1784024393154,
+        "endedAt": 1784024393161,
+        "latencyMs": 7
+      },
+      "verdict": {
+        "status": "ok"
+      }
+    },
+    {
+      "stepId": "spreadsheetbench-nodeagent-5c41b1f5:tool:003:handoff",
+      "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+      "phase": "reason",
+      "title": "Runtime handoff",
+      "summary": "Runtime produced a resumable handoff receipt.",
+      "inputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-5c41b1f5:tool:003:handoff:args",
+          "hash": "fnv1a:a893d96f",
+          "label": "handoff args"
+        }
+      ],
+      "outputRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-5c41b1f5:tool:003:handoff:result",
+          "hash": "fnv1a:ce857ae0",
+          "label": "handoff result"
+        }
+      ],
+      "tool": {
+        "name": "handoff",
+        "argsHash": "fnv1a:a893d96f",
+        "resultHash": "fnv1a:ce857ae0",
+        "status": "ok",
+        "latencyMs": 0
+      },
+      "timings": {
+        "startedAt": 1784024393154,
+        "endedAt": 1784024393154,
+        "latencyMs": 0
+      },
+      "verdict": {
+        "status": "ok"
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "receiptId": "spreadsheetbench-nodeagent-5c41b1f5:evidence:spreadsheetbench-inspect",
+      "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+      "label": "SpreadsheetBench inspect",
+      "sourceRefs": [
+        {
+          "kind": "tool_result",
+          "refId": "spreadsheetbench-nodeagent-5c41b1f5:bridge:event:1",
+          "label": "inspect_workbook",
+          "hash": "fnv1a:9be9e418"
+        }
+      ],
+      "artifactRefs": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-smoke-candidates-r3\\Template_05_02\\candidate-01-05_02_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+          "hash": "6ebd61417f65753d8fc753a5ef004e0a5247d2bb6bed8ba4781abbd81f676a8e"
+        }
+      ],
+      "factHash": "fnv1a:dea522d3",
+      "verifier": "spreadsheetBenchNodeAgentBridge",
+      "status": "verified"
+    },
+    {
+      "receiptId": "spreadsheetbench-nodeagent-5c41b1f5:evidence:spreadsheetbench-preflight",
+      "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+      "label": "SpreadsheetBench preflight",
+      "sourceRefs": [],
+      "artifactRefs": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-smoke-candidates-r3\\Template_05_02\\candidate-01-05_02_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+          "hash": "6ebd61417f65753d8fc753a5ef004e0a5247d2bb6bed8ba4781abbd81f676a8e"
+        }
+      ],
+      "factHash": "fnv1a:cc17ac59",
+      "verifier": "verify_workbook",
+      "status": "verified"
+    },
+    {
+      "receiptId": "spreadsheetbench-nodeagent-5c41b1f5:evidence:spreadsheetbench-verify",
+      "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+      "label": "SpreadsheetBench verify",
+      "sourceRefs": [],
+      "artifactRefs": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-smoke-candidates-r3\\Template_05_02\\candidate-01-05_02_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+          "hash": "6ebd61417f65753d8fc753a5ef004e0a5247d2bb6bed8ba4781abbd81f676a8e"
+        }
+      ],
+      "factHash": "fnv1a:e6c334c4",
+      "verifier": "verify_workbook",
+      "status": "verified"
+    },
+    {
+      "receiptId": "spreadsheetbench-nodeagent-5c41b1f5:evidence:spreadsheetbench-repair",
+      "traceId": "spreadsheetbench-nodeagent-5c41b1f5",
+      "label": "SpreadsheetBench repair",
+      "sourceRefs": [],
+      "artifactRefs": [
+        {
+          "kind": "artifact",
+          "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-smoke-candidates-r3\\Template_05_02\\candidate-01-05_02_input.xlsx",
+          "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+          "hash": "6ebd61417f65753d8fc753a5ef004e0a5247d2bb6bed8ba4781abbd81f676a8e"
+        }
+      ],
+      "factHash": "fnv1a:12966d23",
+      "verifier": "spreadsheetBenchNodeAgentBridge",
+      "status": "verified"
+    }
+  ],
+  "mutations": [],
+  "approvals": [],
+  "eval": {
+    "proofArtifacts": [
+      {
+        "kind": "artifact",
+        "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-smoke-candidates-r3\\Template_05_02\\candidate-01-05_02_input.xlsx",
+        "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+        "hash": "6ebd61417f65753d8fc753a5ef004e0a5247d2bb6bed8ba4781abbd81f676a8e"
+      }
+    ],
+    "benchmarkCaseId": "Template/05_02"
+  },
+  "final": {
+    "outputArtifactRefs": [
+      {
+        "kind": "artifact",
+        "refId": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\noderoom\\.proofloop\\diagnostics\\v2-nodeagent-smoke-candidates-r3\\Template_05_02\\candidate-01-05_02_input.xlsx",
+        "label": "SpreadsheetBench candidate candidate-01-05_02_input.xlsx",
+        "hash": "6ebd61417f65753d8fc753a5ef004e0a5247d2bb6bed8ba4781abbd81f676a8e"
+      }
+    ],
+    "summary": "Paused after an agent runtime error.",
+    "status": "failed"
+  }
+}

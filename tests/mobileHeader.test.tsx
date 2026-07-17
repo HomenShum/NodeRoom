@@ -76,7 +76,7 @@ describe("MobileHeader", () => {
 
   it("opens only secondary commands and closes before invoking one", () => {
     const actions = renderHeader(4);
-    fireEvent.click(screen.getByRole("button", { name: "More room actions" }));
+    fireEvent.keyDown(screen.getByRole("button", { name: "More room actions" }), { key: "Enter" });
 
     const menu = screen.getByTestId("mobile-overflow-menu");
     expect(within(menu).getByRole("menuitem", { name: "Agent jobs 2" })).toBeTruthy();
@@ -93,7 +93,7 @@ describe("MobileHeader", () => {
     renderHeader(4, title);
     expect(screen.getByTestId("mobile-room-title").textContent).toContain(title);
 
-    fireEvent.click(screen.getByRole("button", { name: "More room actions" }));
+    fireEvent.keyDown(screen.getByRole("button", { name: "More room actions" }), { key: "Enter" });
     fireEvent.keyDown(document, { key: "Escape" });
     expect(screen.queryByTestId("mobile-overflow-menu")).toBeNull();
   });

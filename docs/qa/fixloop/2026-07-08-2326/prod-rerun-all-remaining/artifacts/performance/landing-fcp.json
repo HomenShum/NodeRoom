@@ -1,0 +1,10 @@
+{
+  "url": "https://noderoom.live/",
+  "firstPaintMs": 700,
+  "firstContentfulPaintMs": 700,
+  "domContentLoadedMs": 673,
+  "loadEventEndMs": 803,
+  "budgetMs": 3500,
+  "passed": true,
+  "measuredAt": "2026-07-09T08:32:08.599Z"
+}

@@ -185,15 +185,20 @@ describe("PeoplePanel — Dana opens the panel", () => {
     expect(screen.getByTestId("people-empty").textContent).toContain("zzz-nobody");
   });
 
-  it("Esc and outside pointer-down dismiss the panel (no undismissable chrome)", () => {
+  it("Esc and outside pointer-down dismiss the panel (no undismissable chrome)", async () => {
     const { onClose } = renderPanel();
-    fireEvent.keyDown(window, { key: "Escape" });
+    fireEvent.keyDown(screen.getByTestId("people-panel"), { key: "Escape" });
     expect(onClose).toHaveBeenCalledTimes(1);
-    fireEvent.mouseDown(document.body);
-    expect(onClose).toHaveBeenCalledTimes(2);
+    cleanup();
+    const outside = renderPanel().onClose;
+    await act(async () => {
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    });
+    fireEvent.pointerDown(document.body);
+    expect(outside).toHaveBeenCalledTimes(1);
     // Clicking INSIDE the panel does not dismiss it.
-    fireEvent.mouseDown(screen.getByTestId("people-panel"));
-    expect(onClose).toHaveBeenCalledTimes(2);
+    fireEvent.pointerDown(screen.getByTestId("people-panel"));
+    expect(outside).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -292,6 +297,7 @@ describe("PeoplePanel — Follow (camera-follow with an honest leash)", () => {
     // Unmount mid-follow: the teardown path must also clear the live interval.
     fireEvent.click(screen.getByLabelText("Follow Priya"));
     unmount();
+    act(() => { vi.runOnlyPendingTimers(); });
     expect(vi.getTimerCount()).toBe(0);
     const addedKeydown = added.mock.calls.filter((c) => c[0] === "keydown").length;
     const removedKeydown = removed.mock.calls.filter((c) => c[0] === "keydown").length;

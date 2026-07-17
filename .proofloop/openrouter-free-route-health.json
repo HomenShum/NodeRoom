@@ -1,0 +1,132 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-14T13:59:27.272Z",
+  "routes": [
+    {
+      "modelId": "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+      "attempts": 1,
+      "successes": 0,
+      "consecutiveFailures": 1,
+      "lastLatencyMs": 60005,
+      "lastAttemptAt": 1784021672290,
+      "cooldownUntil": 1784021972290
+    },
+    {
+      "modelId": "cohere/north-mini-code:free",
+      "attempts": 518,
+      "successes": 508,
+      "consecutiveFailures": 0,
+      "lastLatencyMs": 2350,
+      "lastAttemptAt": 1784037567271,
+      "cooldownUntil": 1784037567271
+    },
+    {
+      "modelId": "google/gemma-4-26b-a4b-it:free",
+      "attempts": 3,
+      "successes": 0,
+      "consecutiveFailures": 3,
+      "lastLatencyMs": 7581,
+      "lastAttemptAt": 1784036212834,
+      "cooldownUntil": 1784037412834
+    },
+    {
+      "modelId": "google/gemma-4-31b-it:free",
+      "attempts": 3,
+      "successes": 0,
+      "consecutiveFailures": 3,
+      "lastLatencyMs": 6698,
+      "lastAttemptAt": 1784036219533,
+      "cooldownUntil": 1784037419533
+    },
+    {
+      "modelId": "meta-llama/llama-3.3-70b-instruct:free",
+      "attempts": 2,
+      "successes": 0,
+      "consecutiveFailures": 2,
+      "lastLatencyMs": 45003,
+      "lastAttemptAt": 1784029404613,
+      "cooldownUntil": 1784030004613
+    },
+    {
+      "modelId": "nvidia/nemotron-3-super-120b-a12b:free",
+      "attempts": 70,
+      "successes": 62,
+      "consecutiveFailures": 1,
+      "lastLatencyMs": 19803,
+      "lastAttemptAt": 1784035971007,
+      "cooldownUntil": 1784036271007
+    },
+    {
+      "modelId": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "attempts": 27,
+      "successes": 19,
+      "consecutiveFailures": 4,
+      "lastLatencyMs": 2275,
+      "lastAttemptAt": 1784035973283,
+      "cooldownUntil": 1784037773283
+    },
+    {
+      "modelId": "nvidia/nemotron-nano-9b-v2:free",
+      "attempts": 1,
+      "successes": 0,
+      "consecutiveFailures": 1,
+      "lastLatencyMs": 201,
+      "lastAttemptAt": 1784021493825,
+      "cooldownUntil": 1784021793825
+    },
+    {
+      "modelId": "openai/gpt-oss-20b:free",
+      "attempts": 4,
+      "successes": 2,
+      "consecutiveFailures": 1,
+      "lastLatencyMs": 45007,
+      "lastAttemptAt": 1784029500662,
+      "cooldownUntil": 1784029800662
+    },
+    {
+      "modelId": "openrouter/free",
+      "attempts": 19,
+      "successes": 15,
+      "consecutiveFailures": 1,
+      "lastLatencyMs": 45011,
+      "lastAttemptAt": 1784036205251,
+      "cooldownUntil": 1784036505251
+    },
+    {
+      "modelId": "poolside/laguna-xs-2.1:free",
+      "attempts": 15,
+      "successes": 14,
+      "consecutiveFailures": 0,
+      "lastLatencyMs": 14538,
+      "lastAttemptAt": 1784029558306,
+      "cooldownUntil": 1784029558306
+    },
+    {
+      "modelId": "qwen/qwen3-coder:free",
+      "attempts": 6,
+      "successes": 0,
+      "consecutiveFailures": 6,
+      "lastLatencyMs": 35888,
+      "lastAttemptAt": 1784036054693,
+      "cooldownUntil": 1784037854693
+    },
+    {
+      "modelId": "qwen/qwen3-next-80b-a3b-instruct:free",
+      "attempts": 6,
+      "successes": 0,
+      "consecutiveFailures": 6,
+      "lastLatencyMs": 45007,
+      "lastAttemptAt": 1784036018291,
+      "cooldownUntil": 1784037818291
+    },
+    {
+      "modelId": "tencent/hy3:free",
+      "attempts": 25,
+      "successes": 19,
+      "consecutiveFailures": 1,
+      "lastLatencyMs": 45007,
+      "lastAttemptAt": 1784036103188,
+      "cooldownUntil": 1784036403188
+    }
+  ]
+}

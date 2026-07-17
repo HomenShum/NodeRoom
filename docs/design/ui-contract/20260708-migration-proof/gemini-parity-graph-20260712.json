@@ -1,0 +1,145 @@
+{
+  "generatedAt": "2026-07-12T11:31:32.633Z",
+  "model": "gemini-3.5-flash",
+  "media": ".proofloop/proofs/visual-parity/desktop-1456x940/graph.png",
+  "reference": "docs/design/ui-contract/20260708-migration-proof/standalone-interior-graph.png",
+  "rubricMean": 2.9,
+  "lowestDim": {
+    "dim": "product.whatIsHappening",
+    "score": 2
+  },
+  "betterThanReference": [
+    "product:worse",
+    "hierarchy-typography:worse",
+    "layout-spacing:worse",
+    "color-state:worse"
+  ],
+  "counts": {
+    "P0": 0,
+    "P1": 8,
+    "P2": 3
+  },
+  "passBar": false,
+  "lensScores": [
+    {
+      "lens": "product",
+      "scores": {
+        "whatIsHappening": 2,
+        "whyTrust": 3,
+        "whatNext": 2
+      }
+    },
+    {
+      "lens": "hierarchy-typography",
+      "scores": {
+        "hierarchy": 3,
+        "typography": 3
+      }
+    },
+    {
+      "lens": "layout-spacing",
+      "scores": {
+        "spacingRhythm": 3,
+        "alignment": 4,
+        "density": 2
+      }
+    },
+    {
+      "lens": "color-state",
+      "scores": {
+        "colorDiscipline": 3,
+        "stateSignal": 4
+      }
+    }
+  ],
+  "findings": [
+    {
+      "lens": "product",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Entity graph visualization",
+      "issue": "The graph is extremely cluttered with overlapping text, tiny nodes, and messy lines, making it impossible to read what is happening.",
+      "fix": "Clean up the graph layout to match the reference, using larger spaced-out nodes with clear labels and directional arrows."
+    },
+    {
+      "lens": "product",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "NodeAgent sidebar / chat panel in main area",
+      "issue": "The NODEAGENT panel and the search/filter bar above the graph add excessive cognitive load and distract from the primary entity graph.",
+      "fix": "Remove the secondary NODEAGENT panel and filter bar from the Entity view to focus on the graph itself, as shown in the reference."
+    },
+    {
+      "lens": "product",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Chat version badges",
+      "issue": "The version badges for NodeAgent reconciliations show v1 -> v1, which is incorrect and doesn't match the current room state of v42.",
+      "fix": "Update the version badges to show the correct progression (e.g., v41 -> v42 and v42 -> v43) to maintain trust and provenance."
+    },
+    {
+      "lens": "hierarchy-typography",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Entity graph node labels",
+      "issue": "Node labels are rendered as raw, tiny, overlapping text strings without containers, severely degrading readability and visual hierarchy.",
+      "fix": "Wrap node labels in pill-shaped container badges with standardized, sober typography as seen in the reference."
+    },
+    {
+      "lens": "hierarchy-typography",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "NODEAGENT sidebar panel",
+      "issue": "The persistent right-hand panel inside the graph canvas introduces excessive typographic noise (all-caps headers, multiple button labels, input placeholders) that competes with the main visualization.",
+      "fix": "Remove or collapse this panel to allow the primary entity graph to carry focus, matching the clean layout of the reference."
+    },
+    {
+      "lens": "hierarchy-typography",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Graph canvas toolbar",
+      "issue": "The secondary search input and filter buttons ('Evidence', 'Agent', 'Human') clutter the top of the canvas and disrupt the clean hierarchy.",
+      "fix": "Remove these extra inline controls to restore the minimalist toolbar layout of the reference."
+    },
+    {
+      "lens": "layout-spacing",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Central graph panel toolbar",
+      "issue": "The secondary toolbar containing search, filter pills, and time-range buttons introduces excessive control density, violating the calm-room target.",
+      "fix": "Remove the secondary filter toolbar and search bar, keeping only the primary view tabs as seen in the reference."
+    },
+    {
+      "lens": "layout-spacing",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "NodeAgent inline sidebar",
+      "issue": "The right-aligned NodeAgent panel inside the graph workspace squeezes the canvas, causing text overlaps and high visual density.",
+      "fix": "Remove this inline sidebar to restore the spacious, single-focus layout of the entity graph."
+    },
+    {
+      "lens": "layout-spacing",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Graph mini-map",
+      "issue": "The mini-map overlay in the bottom-right corner of the graph canvas adds unnecessary visual noise and extra control elements.",
+      "fix": "Remove the mini-map overlay to maintain a clean, uncluttered canvas area."
+    },
+    {
+      "lens": "color-state",
+      "severity": 3,
+      "pLevel": "P1",
+      "element": "Filter controls ('8' badge and '2h' button)",
+      "issue": "Uses the reserved terracotta accent color for active filter states, diluting the agent focus signal.",
+      "fix": "Recolor active filter states to a neutral medium-gray or muted secondary color instead of terracotta."
+    },
+    {
+      "lens": "color-state",
+      "severity": 2,
+      "pLevel": "P2",
+      "element": "Graph mini-map",
+      "issue": "Displays a stack of highly saturated multi-colored bars, creating unnecessary visual noise.",
+      "fix": "Mute or desaturate the mini-map indicator colors to maintain a calm, neutral background."
+    }
+  ]
+}

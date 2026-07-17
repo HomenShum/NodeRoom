@@ -1,0 +1,2406 @@
+{
+  "manifestVersion": 1,
+  "roomId": "room_1",
+  "manifestId": "room_1:proof-bundle:a0a58c21:manifest:c14d3ca6",
+  "generatedAt": 1783863791336,
+  "receipt": {
+    "receiptVersion": 1,
+    "roomId": "room_1",
+    "receiptId": "room_1:proof-bundle:a0a58c21",
+    "generatedAt": 1783863791336,
+    "artifactCount": 24,
+    "kindCounts": {
+      "spreadsheet": 3,
+      "notebook": 5,
+      "wall": 1,
+      "deck": 1,
+      "graph": 1,
+      "trace": 12,
+      "proposal": 0,
+      "export": 1
+    },
+    "statusCounts": {
+      "empty": 3,
+      "ready": 13,
+      "running": 0,
+      "needs_review": 6,
+      "failed": 2,
+      "pending": 0,
+      "approved": 0,
+      "rejected": 0
+    },
+    "evidenceCount": 99,
+    "unresolvedCount": 33,
+    "traceIds": [
+      "tr_18",
+      "tr_20",
+      "tr_21",
+      "tr_3",
+      "tr_31",
+      "tr_32",
+      "tr_33",
+      "tr_34",
+      "tr_35",
+      "tr_36",
+      "tr_37",
+      "tr_38",
+      "tr_39",
+      "tr_40",
+      "tr_41",
+      "tr_42",
+      "tr_43",
+      "tr_44",
+      "tr_45",
+      "tr_46",
+      "tr_47",
+      "tr_48",
+      "tr_49",
+      "tr_5",
+      "tr_51",
+      "tr_54",
+      "tr_55",
+      "tr_56",
+      "tr_57",
+      "tr_58",
+      "tr_59",
+      "tr_60",
+      "tr_61",
+      "tr_62",
+      "tr_63",
+      "tr_64",
+      "tr_65",
+      "tr_68",
+      "tr_7",
+      "tr_71",
+      "tr_72",
+      "tr_73",
+      "tr_74",
+      "tr_78",
+      "tr_80"
+    ],
+    "proposalIds": [],
+    "sourceIds": [
+      "art_10",
+      "art_11",
+      "art_12",
+      "art_13",
+      "art_14",
+      "art_15",
+      "art_16",
+      "art_8",
+      "art_9",
+      "https://atlasnova.com",
+      "https://cardionova.com",
+      "https://cardionova.com/security",
+      "https://crestnova.com",
+      "https://crunchbase.com/org/cardionova",
+      "https://fluxnova.com",
+      "https://fluxnova.com/security",
+      "https://harbornova.com",
+      "https://harbornova.com/security",
+      "https://helionova.com",
+      "https://helionova.com/security",
+      "https://lumennova.com",
+      "https://netsuite.example.com/close/q3",
+      "https://neuronova.com",
+      "https://nimbusnova.com",
+      "https://orbitnova.com",
+      "https://pitchbook.com/profiles/company/cardionova",
+      "https://pulsenova.com",
+      "https://quantanova.com",
+      "https://verdenova.com",
+      "https://verdenova.com/security",
+      "https://vertexnova.com",
+      "https://vertexnova.com/security",
+      "rc_cardionova-primary-source",
+      "rc_cardionova-security-source"
+    ],
+    "items": [
+      {
+        "id": "artifact:art_10",
+        "kind": "notebook",
+        "status": "ready",
+        "title": "Today's Brief",
+        "version": 1,
+        "traceIds": [],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "artifact:art_11",
+        "kind": "spreadsheet",
+        "status": "empty",
+        "title": "Q3 variance",
+        "version": 2,
+        "traceIds": [
+          "tr_68",
+          "tr_72",
+          "tr_73"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "artifact:art_12",
+        "kind": "spreadsheet",
+        "status": "needs_review",
+        "title": "Company research",
+        "version": 1,
+        "traceIds": [],
+        "proposalIds": [],
+        "sourceIds": [
+          "https://cardionova.com",
+          "https://cardionova.com/security",
+          "https://fluxnova.com",
+          "https://fluxnova.com/security",
+          "https://harbornova.com",
+          "https://harbornova.com/security",
+          "https://helionova.com",
+          "https://helionova.com/security",
+          "https://verdenova.com",
+          "https://verdenova.com/security",
+          "https://vertexnova.com",
+          "https://vertexnova.com/security"
+        ],
+        "evidenceCount": 72,
+        "unresolvedCount": 1
+      },
+      {
+        "id": "artifact:art_13",
+        "kind": "spreadsheet",
+        "status": "empty",
+        "title": "Runway / milestones",
+        "version": 9,
+        "traceIds": [
+          "tr_61",
+          "tr_62",
+          "tr_63",
+          "tr_64"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "artifact:art_14",
+        "kind": "notebook",
+        "status": "needs_review",
+        "title": "Diligence memo",
+        "version": 1,
+        "traceIds": [],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 1
+      },
+      {
+        "id": "artifact:art_15",
+        "kind": "notebook",
+        "status": "ready",
+        "title": "Open questions / workplan",
+        "version": 1,
+        "traceIds": [],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "artifact:art_16",
+        "kind": "wall",
+        "status": "empty",
+        "title": "Risk / opportunity wall",
+        "version": 1,
+        "traceIds": [],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "artifact:art_8",
+        "kind": "notebook",
+        "status": "needs_review",
+        "title": "Capture Notebook",
+        "version": 1,
+        "traceIds": [],
+        "proposalIds": [],
+        "sourceIds": [
+          "https://crunchbase.com/org/cardionova",
+          "https://netsuite.example.com/close/q3",
+          "https://pitchbook.com/profiles/company/cardionova"
+        ],
+        "evidenceCount": 3,
+        "unresolvedCount": 1
+      },
+      {
+        "id": "artifact:art_9",
+        "kind": "notebook",
+        "status": "ready",
+        "title": "Agent wiki",
+        "version": 1,
+        "traceIds": [],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "deck:room_1:storyboard",
+        "kind": "deck",
+        "status": "needs_review",
+        "title": "Q3 diligence readout",
+        "version": 1,
+        "traceIds": [
+          "tr_18",
+          "tr_20",
+          "tr_21",
+          "tr_3",
+          "tr_31",
+          "tr_32",
+          "tr_33",
+          "tr_34",
+          "tr_35",
+          "tr_36",
+          "tr_37",
+          "tr_38",
+          "tr_39",
+          "tr_40",
+          "tr_41",
+          "tr_42",
+          "tr_43",
+          "tr_44",
+          "tr_45",
+          "tr_46",
+          "tr_47",
+          "tr_48",
+          "tr_49",
+          "tr_5",
+          "tr_51",
+          "tr_54",
+          "tr_55",
+          "tr_56",
+          "tr_57",
+          "tr_58",
+          "tr_59",
+          "tr_60",
+          "tr_61",
+          "tr_62",
+          "tr_63",
+          "tr_64",
+          "tr_65",
+          "tr_68",
+          "tr_7",
+          "tr_71",
+          "tr_72",
+          "tr_73",
+          "tr_74",
+          "tr_78",
+          "tr_80"
+        ],
+        "proposalIds": [],
+        "sourceIds": [
+          "art_10",
+          "art_11",
+          "art_12",
+          "art_8",
+          "art_9"
+        ],
+        "evidenceCount": 12,
+        "unresolvedCount": 7
+      },
+      {
+        "id": "export:room_1:proof-bundle",
+        "kind": "export",
+        "status": "ready",
+        "title": "Room proof export",
+        "traceIds": [
+          "tr_65",
+          "tr_68",
+          "tr_71",
+          "tr_72",
+          "tr_73",
+          "tr_74",
+          "tr_78",
+          "tr_80"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "graph:room_1",
+        "kind": "graph",
+        "status": "needs_review",
+        "title": "Proof graph",
+        "traceIds": [
+          "tr_18",
+          "tr_20",
+          "tr_21",
+          "tr_3",
+          "tr_31",
+          "tr_32",
+          "tr_33",
+          "tr_34",
+          "tr_35",
+          "tr_36",
+          "tr_37",
+          "tr_38",
+          "tr_39",
+          "tr_40",
+          "tr_41",
+          "tr_42",
+          "tr_43",
+          "tr_44",
+          "tr_45",
+          "tr_46",
+          "tr_47",
+          "tr_48",
+          "tr_49",
+          "tr_5",
+          "tr_51",
+          "tr_54",
+          "tr_55",
+          "tr_56",
+          "tr_57",
+          "tr_58",
+          "tr_59",
+          "tr_60",
+          "tr_61",
+          "tr_62",
+          "tr_63",
+          "tr_64",
+          "tr_65",
+          "tr_68",
+          "tr_7",
+          "tr_71",
+          "tr_72",
+          "tr_73",
+          "tr_74",
+          "tr_78",
+          "tr_80"
+        ],
+        "proposalIds": [],
+        "sourceIds": [
+          "art_10",
+          "art_11",
+          "art_12",
+          "art_13",
+          "art_14",
+          "art_15",
+          "art_16",
+          "art_8",
+          "art_9",
+          "https://atlasnova.com",
+          "https://cardionova.com",
+          "https://cardionova.com/security",
+          "https://crestnova.com",
+          "https://crunchbase.com/org/cardionova",
+          "https://fluxnova.com",
+          "https://fluxnova.com/security",
+          "https://harbornova.com",
+          "https://harbornova.com/security",
+          "https://helionova.com",
+          "https://helionova.com/security",
+          "https://lumennova.com",
+          "https://netsuite.example.com/close/q3",
+          "https://neuronova.com",
+          "https://nimbusnova.com",
+          "https://orbitnova.com",
+          "https://pitchbook.com/profiles/company/cardionova",
+          "https://pulsenova.com",
+          "https://quantanova.com",
+          "https://verdenova.com",
+          "https://verdenova.com/security",
+          "https://vertexnova.com",
+          "https://vertexnova.com/security",
+          "rc_cardionova-primary-source",
+          "rc_cardionova-security-source"
+        ],
+        "evidenceCount": 12,
+        "unresolvedCount": 20
+      },
+      {
+        "id": "trace:tr_61",
+        "kind": "trace",
+        "status": "ready",
+        "title": "Room NodeAgent set rw_pulley__burn = $210K/mo",
+        "traceIds": [
+          "tr_61"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "trace:tr_62",
+        "kind": "trace",
+        "status": "ready",
+        "title": "Room NodeAgent set rw_pulley__runway = ~16.2 months (to ~Oct 2027)",
+        "traceIds": [
+          "tr_62"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "trace:tr_63",
+        "kind": "trace",
+        "status": "ready",
+        "title": "Room NodeAgent set rw_pulley__status = sourced",
+        "traceIds": [
+          "tr_63"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "trace:tr_64",
+        "kind": "trace",
+        "status": "ready",
+        "title": "Room NodeAgent released lock on rw_cardionova__cash, rw_cardionova__burn, rw_cardionova__runway, rw_cardionova__status, rw_pulley__cash, rw_pulley__burn, rw_pulley__runway, rw_pulley__status",
+        "traceIds": [
+          "tr_64"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "trace:tr_65",
+        "kind": "trace",
+        "status": "ready",
+        "title": "Room NodeAgent: done — released lock",
+        "traceIds": [
+          "tr_65"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "trace:tr_68",
+        "kind": "trace",
+        "status": "ready",
+        "title": "Homen locked r_rev__variance — host reviewing the revenue variance",
+        "traceIds": [
+          "tr_68"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "trace:tr_71",
+        "kind": "trace",
+        "status": "ready",
+        "title": "Room NodeAgent drafted 1 change(s) for merge — Revenue variance stale-patch drill",
+        "traceIds": [
+          "tr_71"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "trace:tr_72",
+        "kind": "trace",
+        "status": "ready",
+        "title": "Homen set r_rev__variance = +24%",
+        "traceIds": [
+          "tr_72"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "trace:tr_73",
+        "kind": "trace",
+        "status": "ready",
+        "title": "Homen released lock on r_rev__variance",
+        "traceIds": [
+          "tr_73"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      {
+        "id": "trace:tr_74",
+        "kind": "trace",
+        "status": "failed",
+        "title": "Smart-merge: 0 op(s) merged cleanly; 1 need review (value diverged while locked)",
+        "traceIds": [
+          "tr_74"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 1
+      },
+      {
+        "id": "trace:tr_78",
+        "kind": "trace",
+        "status": "failed",
+        "title": "Semantic rebase opened 1 conflict(s); 1 review proposal(s) created",
+        "traceIds": [
+          "tr_78"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 1
+      },
+      {
+        "id": "trace:tr_80",
+        "kind": "trace",
+        "status": "needs_review",
+        "title": "Homen rejected Room NodeAgent's edit to r_rev__variance",
+        "traceIds": [
+          "tr_80"
+        ],
+        "proposalIds": [],
+        "sourceIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 1
+      }
+    ],
+    "knownGaps": [
+      {
+        "itemId": "artifact:art_12",
+        "title": "Company research",
+        "status": "needs_review",
+        "unresolvedCount": 1,
+        "reason": "human_review_required"
+      },
+      {
+        "itemId": "artifact:art_14",
+        "title": "Diligence memo",
+        "status": "needs_review",
+        "unresolvedCount": 1,
+        "reason": "human_review_required"
+      },
+      {
+        "itemId": "artifact:art_8",
+        "title": "Capture Notebook",
+        "status": "needs_review",
+        "unresolvedCount": 1,
+        "reason": "human_review_required"
+      },
+      {
+        "itemId": "deck:room_1:storyboard",
+        "title": "Q3 diligence readout",
+        "status": "needs_review",
+        "unresolvedCount": 7,
+        "reason": "human_review_required"
+      },
+      {
+        "itemId": "graph:room_1",
+        "title": "Proof graph",
+        "status": "needs_review",
+        "unresolvedCount": 20,
+        "reason": "human_review_required"
+      },
+      {
+        "itemId": "trace:tr_74",
+        "title": "Smart-merge: 0 op(s) merged cleanly; 1 need review (value diverged while locked)",
+        "status": "failed",
+        "unresolvedCount": 1,
+        "reason": "failed_or_rejected"
+      },
+      {
+        "itemId": "trace:tr_78",
+        "title": "Semantic rebase opened 1 conflict(s); 1 review proposal(s) created",
+        "status": "failed",
+        "unresolvedCount": 1,
+        "reason": "failed_or_rejected"
+      },
+      {
+        "itemId": "trace:tr_80",
+        "title": "Homen rejected Room NodeAgent's edit to r_rev__variance",
+        "status": "needs_review",
+        "unresolvedCount": 1,
+        "reason": "human_review_required"
+      }
+    ],
+    "integrityHash": "a0a58c21"
+  },
+  "traceReplay": {
+    "roomId": "room_1",
+    "eventCount": 45,
+    "status": "failed",
+    "traceIds": [
+      "tr_3",
+      "tr_5",
+      "tr_7",
+      "tr_18",
+      "tr_20",
+      "tr_21",
+      "tr_31",
+      "tr_32",
+      "tr_33",
+      "tr_34",
+      "tr_35",
+      "tr_36",
+      "tr_37",
+      "tr_38",
+      "tr_39",
+      "tr_40",
+      "tr_41",
+      "tr_42",
+      "tr_43",
+      "tr_44",
+      "tr_45",
+      "tr_46",
+      "tr_47",
+      "tr_48",
+      "tr_49",
+      "tr_51",
+      "tr_54",
+      "tr_55",
+      "tr_56",
+      "tr_57",
+      "tr_58",
+      "tr_59",
+      "tr_60",
+      "tr_61",
+      "tr_62",
+      "tr_63",
+      "tr_64",
+      "tr_65",
+      "tr_68",
+      "tr_71",
+      "tr_72",
+      "tr_73",
+      "tr_74",
+      "tr_78",
+      "tr_80"
+    ],
+    "proposalIds": [
+      "prop_76"
+    ],
+    "artifactIds": [
+      "art_11",
+      "art_12",
+      "art_13",
+      "art_14"
+    ],
+    "phases": [
+      {
+        "id": "room",
+        "label": "Room setup",
+        "status": "ready",
+        "traceIds": [
+          "tr_3",
+          "tr_5",
+          "tr_7"
+        ],
+        "artifactIds": [],
+        "proposalIds": [],
+        "startAt": 1783863784722,
+        "endAt": 1783863784722,
+        "summary": "3 events"
+      },
+      {
+        "id": "agent",
+        "label": "Agent work",
+        "status": "running",
+        "traceIds": [
+          "tr_18",
+          "tr_21",
+          "tr_31",
+          "tr_36",
+          "tr_45",
+          "tr_46",
+          "tr_47",
+          "tr_48",
+          "tr_51",
+          "tr_55",
+          "tr_65"
+        ],
+        "artifactIds": [
+          "art_11"
+        ],
+        "proposalIds": [],
+        "startAt": 1783863784723,
+        "endAt": 1783863788866,
+        "summary": "11 events - 1 review"
+      },
+      {
+        "id": "edit",
+        "label": "Artifact edits",
+        "status": "ready",
+        "traceIds": [
+          "tr_20",
+          "tr_32",
+          "tr_33",
+          "tr_34",
+          "tr_37",
+          "tr_38",
+          "tr_39",
+          "tr_40",
+          "tr_42",
+          "tr_43",
+          "tr_44",
+          "tr_54",
+          "tr_56",
+          "tr_57",
+          "tr_58",
+          "tr_59",
+          "tr_60",
+          "tr_61",
+          "tr_62",
+          "tr_63",
+          "tr_64",
+          "tr_68",
+          "tr_72",
+          "tr_73"
+        ],
+        "artifactIds": [
+          "art_11",
+          "art_12",
+          "art_13"
+        ],
+        "proposalIds": [],
+        "startAt": 1783863784723,
+        "endAt": 1783863790021,
+        "summary": "24 events"
+      },
+      {
+        "id": "review",
+        "label": "Review decisions",
+        "status": "failed",
+        "traceIds": [
+          "tr_41",
+          "tr_71",
+          "tr_74",
+          "tr_78",
+          "tr_80"
+        ],
+        "artifactIds": [
+          "art_11"
+        ],
+        "proposalIds": [
+          "prop_76"
+        ],
+        "startAt": 1783863784723,
+        "endAt": 1783863790106,
+        "summary": "5 events - 1 proposal - 1 review - 2 failed"
+      },
+      {
+        "id": "notebook",
+        "label": "Notebook read model",
+        "status": "needs_review",
+        "traceIds": [
+          "tr_35",
+          "tr_49"
+        ],
+        "artifactIds": [
+          "art_14"
+        ],
+        "proposalIds": [],
+        "startAt": 1783863784723,
+        "endAt": 1783863784723,
+        "summary": "2 events - 2 review"
+      }
+    ],
+    "criticalPath": [
+      {
+        "id": "agent",
+        "label": "Agent work",
+        "status": "running",
+        "traceIds": [
+          "tr_18",
+          "tr_21",
+          "tr_31",
+          "tr_36",
+          "tr_45",
+          "tr_46",
+          "tr_47",
+          "tr_48",
+          "tr_51",
+          "tr_55",
+          "tr_65"
+        ],
+        "artifactIds": [
+          "art_11"
+        ],
+        "proposalIds": [],
+        "startAt": 1783863784723,
+        "endAt": 1783863788866,
+        "summary": "11 events - 1 review"
+      },
+      {
+        "id": "review",
+        "label": "Review decisions",
+        "status": "failed",
+        "traceIds": [
+          "tr_41",
+          "tr_71",
+          "tr_74",
+          "tr_78",
+          "tr_80"
+        ],
+        "artifactIds": [
+          "art_11"
+        ],
+        "proposalIds": [
+          "prop_76"
+        ],
+        "startAt": 1783863784723,
+        "endAt": 1783863790106,
+        "summary": "5 events - 1 proposal - 1 review - 2 failed"
+      },
+      {
+        "id": "notebook",
+        "label": "Notebook read model",
+        "status": "needs_review",
+        "traceIds": [
+          "tr_35",
+          "tr_49"
+        ],
+        "artifactIds": [
+          "art_14"
+        ],
+        "proposalIds": [],
+        "startAt": 1783863784723,
+        "endAt": 1783863784723,
+        "summary": "2 events - 2 review"
+      }
+    ],
+    "replayHash": "948d9152"
+  },
+  "artifacts": [
+    {
+      "id": "artifact:art_10",
+      "kind": "notebook",
+      "sourceKind": "note",
+      "title": "Today's Brief",
+      "summary": "1 block - 1 section",
+      "status": "ready",
+      "version": 1,
+      "ownerName": "Homen",
+      "receipt": {
+        "traceIds": [],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "artifactId": "art_10",
+          "elementId": "doc:6c501fcf",
+          "label": "Notebook body"
+        },
+        {
+          "artifactId": "art_10",
+          "label": "Today's Brief"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "comment",
+          "label": "Comment"
+        },
+        {
+          "id": "ask_nodeagent",
+          "label": "Ask NodeAgent"
+        },
+        {
+          "id": "propose_patch",
+          "label": "Propose patch"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "elementCount": 1,
+        "visibility": "room",
+        "blockCount": 1,
+        "sectionCount": 1,
+        "agentBlockCount": 0,
+        "humanBlockCount": 1,
+        "citationCount": 0
+      }
+    },
+    {
+      "id": "artifact:art_11",
+      "kind": "spreadsheet",
+      "sourceKind": "sheet",
+      "title": "Q3 variance",
+      "summary": "5 item(s): Revenue, COGS, Gross profit, OpEx, Net income",
+      "status": "empty",
+      "version": 2,
+      "ownerName": "Homen",
+      "receipt": {
+        "traceIds": [
+          "tr_68",
+          "tr_72",
+          "tr_73"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "artifactId": "art_11",
+          "label": "Q3 variance"
+        },
+        {
+          "artifactId": "art_11",
+          "traceId": "tr_68",
+          "label": "Homen locked r_rev__variance — host reviewing the revenue variance"
+        },
+        {
+          "artifactId": "art_11",
+          "traceId": "tr_72",
+          "label": "Homen set r_rev__variance = +24%"
+        },
+        {
+          "artifactId": "art_11",
+          "traceId": "tr_73",
+          "label": "Homen released lock on r_rev__variance"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "comment",
+          "label": "Comment"
+        },
+        {
+          "id": "ask_nodeagent",
+          "label": "Ask NodeAgent"
+        },
+        {
+          "id": "propose_patch",
+          "label": "Propose patch"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "elementCount": 25,
+        "visibility": "room",
+        "tags": "revenue, cogs, gross, profit, opex, net, income"
+      }
+    },
+    {
+      "id": "artifact:art_12",
+      "kind": "spreadsheet",
+      "sourceKind": "sheet",
+      "title": "Company research",
+      "summary": "60 item(s): CardioNova, https://cardionova.com, complete, A, Cap table and hospital AI diligence, Maya",
+      "status": "needs_review",
+      "version": 1,
+      "ownerName": "Homen",
+      "receipt": {
+        "traceIds": [],
+        "sourceIds": [
+          "https://cardionova.com",
+          "https://cardionova.com/security",
+          "https://fluxnova.com",
+          "https://fluxnova.com/security",
+          "https://vertexnova.com",
+          "https://vertexnova.com/security",
+          "https://harbornova.com",
+          "https://harbornova.com/security",
+          "https://helionova.com",
+          "https://helionova.com/security",
+          "https://verdenova.com",
+          "https://verdenova.com/security"
+        ],
+        "proposalIds": [],
+        "evidenceCount": 72,
+        "unresolvedCount": 1
+      },
+      "refs": [
+        {
+          "artifactId": "art_12",
+          "label": "Company research"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "comment",
+          "label": "Comment"
+        },
+        {
+          "id": "ask_nodeagent",
+          "label": "Ask NodeAgent"
+        },
+        {
+          "id": "propose_patch",
+          "label": "Propose patch"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "elementCount": 196,
+        "visibility": "room",
+        "tags": "cardionova, https, com, complete, cap, table, hospital, diligence, maya, new"
+      }
+    },
+    {
+      "id": "artifact:art_13",
+      "kind": "spreadsheet",
+      "sourceKind": "sheet",
+      "title": "Runway / milestones",
+      "summary": "6 item(s): CardioNova, Unknown, Gap: needs sourced cash and burn, needs_evidence, Pulley, Gap: refresh financing and hiring signals",
+      "status": "empty",
+      "version": 9,
+      "ownerName": "Homen",
+      "receipt": {
+        "traceIds": [
+          "tr_61",
+          "tr_62",
+          "tr_63",
+          "tr_64"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "artifactId": "art_13",
+          "label": "Runway / milestones"
+        },
+        {
+          "artifactId": "art_13",
+          "traceId": "tr_61",
+          "label": "Room NodeAgent set rw_pulley__burn = $210K/mo"
+        },
+        {
+          "artifactId": "art_13",
+          "traceId": "tr_62",
+          "label": "Room NodeAgent set rw_pulley__runway = ~16.2 months (to ~Oct 2027)"
+        },
+        {
+          "artifactId": "art_13",
+          "traceId": "tr_63",
+          "label": "Room NodeAgent set rw_pulley__status = sourced"
+        },
+        {
+          "artifactId": "art_13",
+          "traceId": "tr_64",
+          "label": "Room NodeAgent released lock on rw_cardionova__cash, rw_cardionova__burn, rw_cardionova__runway, rw_cardionova__status, rw_pulley__cash, rw_pulley__burn, rw_pulley__runway, rw_pulley__status"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "comment",
+          "label": "Comment"
+        },
+        {
+          "id": "ask_nodeagent",
+          "label": "Ask NodeAgent"
+        },
+        {
+          "id": "propose_patch",
+          "label": "Propose patch"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "elementCount": 12,
+        "visibility": "room",
+        "tags": "cardionova, unknown, gap, needs, sourced, cash, burn, evidence, pulley, refresh"
+      }
+    },
+    {
+      "id": "artifact:art_14",
+      "kind": "notebook",
+      "sourceKind": "note",
+      "title": "Diligence memo",
+      "summary": "2 blocks - 1 section - 1 review",
+      "status": "needs_review",
+      "version": 1,
+      "ownerName": "Homen",
+      "receipt": {
+        "traceIds": [],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 1
+      },
+      "refs": [
+        {
+          "artifactId": "art_14",
+          "elementId": "doc:dad28022",
+          "label": "Startup banking diligence memo"
+        },
+        {
+          "artifactId": "art_14",
+          "label": "Diligence memo"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "comment",
+          "label": "Comment"
+        },
+        {
+          "id": "ask_nodeagent",
+          "label": "Ask NodeAgent"
+        },
+        {
+          "id": "propose_patch",
+          "label": "Propose patch"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "elementCount": 1,
+        "visibility": "room",
+        "blockCount": 2,
+        "sectionCount": 1,
+        "agentBlockCount": 0,
+        "humanBlockCount": 2,
+        "citationCount": 0
+      }
+    },
+    {
+      "id": "artifact:art_15",
+      "kind": "notebook",
+      "sourceKind": "note",
+      "title": "Open questions / workplan",
+      "summary": "5 blocks - 1 section",
+      "status": "ready",
+      "version": 1,
+      "ownerName": "Homen",
+      "receipt": {
+        "traceIds": [],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "artifactId": "art_15",
+          "elementId": "doc:8e3288ed",
+          "label": "Open diligence questions / workplan"
+        },
+        {
+          "artifactId": "art_15",
+          "label": "Open questions / workplan"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "comment",
+          "label": "Comment"
+        },
+        {
+          "id": "ask_nodeagent",
+          "label": "Ask NodeAgent"
+        },
+        {
+          "id": "propose_patch",
+          "label": "Propose patch"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "elementCount": 1,
+        "visibility": "room",
+        "blockCount": 5,
+        "sectionCount": 1,
+        "agentBlockCount": 0,
+        "humanBlockCount": 5,
+        "citationCount": 0
+      }
+    },
+    {
+      "id": "artifact:art_16",
+      "kind": "wall",
+      "sourceKind": "wall",
+      "title": "Risk / opportunity wall",
+      "summary": "3 items",
+      "status": "empty",
+      "version": 1,
+      "ownerName": "Homen",
+      "receipt": {
+        "traceIds": [],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "artifactId": "art_16",
+          "label": "Risk / opportunity wall"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "comment",
+          "label": "Comment"
+        },
+        {
+          "id": "ask_nodeagent",
+          "label": "Ask NodeAgent"
+        },
+        {
+          "id": "propose_patch",
+          "label": "Propose patch"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "elementCount": 3,
+        "visibility": "room"
+      }
+    },
+    {
+      "id": "artifact:art_8",
+      "kind": "notebook",
+      "sourceKind": "note",
+      "title": "Capture Notebook",
+      "summary": "15 blocks - 4 sections - 3 agent - 3 sources - 1 review",
+      "status": "needs_review",
+      "version": 1,
+      "ownerName": "Homen",
+      "receipt": {
+        "traceIds": [],
+        "sourceIds": [
+          "https://crunchbase.com/org/cardionova",
+          "https://netsuite.example.com/close/q3",
+          "https://pitchbook.com/profiles/company/cardionova"
+        ],
+        "proposalIds": [],
+        "evidenceCount": 3,
+        "unresolvedCount": 1
+      },
+      "refs": [
+        {
+          "artifactId": "art_8",
+          "elementId": "nb-claim-h",
+          "label": "Claim"
+        },
+        {
+          "artifactId": "art_8",
+          "elementId": "nb-funding",
+          "label": "Funding"
+        },
+        {
+          "artifactId": "art_8",
+          "elementId": "nb-risk-h",
+          "label": "Risk"
+        },
+        {
+          "artifactId": "art_8",
+          "elementId": "nb-title",
+          "label": "CardioNova - diligence brief"
+        },
+        {
+          "artifactId": "art_8",
+          "label": "Capture Notebook"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "comment",
+          "label": "Comment"
+        },
+        {
+          "id": "ask_nodeagent",
+          "label": "Ask NodeAgent"
+        },
+        {
+          "id": "propose_patch",
+          "label": "Propose patch"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "elementCount": 1,
+        "visibility": "room",
+        "blockCount": 15,
+        "sectionCount": 4,
+        "agentBlockCount": 3,
+        "humanBlockCount": 12,
+        "citationCount": 3
+      }
+    },
+    {
+      "id": "artifact:art_9",
+      "kind": "notebook",
+      "sourceKind": "note",
+      "title": "Agent wiki",
+      "summary": "1 block - 1 section",
+      "status": "ready",
+      "version": 1,
+      "ownerName": "Homen",
+      "receipt": {
+        "traceIds": [],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "artifactId": "art_9",
+          "elementId": "doc:57fc7b89",
+          "label": "Notebook body"
+        },
+        {
+          "artifactId": "art_9",
+          "label": "Agent wiki"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "comment",
+          "label": "Comment"
+        },
+        {
+          "id": "ask_nodeagent",
+          "label": "Ask NodeAgent"
+        },
+        {
+          "id": "propose_patch",
+          "label": "Propose patch"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "elementCount": 1,
+        "visibility": "room",
+        "blockCount": 1,
+        "sectionCount": 1,
+        "agentBlockCount": 0,
+        "humanBlockCount": 1,
+        "citationCount": 0
+      }
+    },
+    {
+      "id": "deck:room_1:storyboard",
+      "kind": "deck",
+      "sourceKind": "deck_storyboard",
+      "title": "Q3 diligence readout",
+      "summary": "5 storyboard sections - 12 evidence",
+      "status": "needs_review",
+      "version": 1,
+      "receipt": {
+        "traceIds": [
+          "tr_3",
+          "tr_5",
+          "tr_7",
+          "tr_18",
+          "tr_20",
+          "tr_21",
+          "tr_31",
+          "tr_32",
+          "tr_33",
+          "tr_34",
+          "tr_35",
+          "tr_36",
+          "tr_37",
+          "tr_38",
+          "tr_39",
+          "tr_40",
+          "tr_41",
+          "tr_42",
+          "tr_43",
+          "tr_44",
+          "tr_45",
+          "tr_46",
+          "tr_47",
+          "tr_48",
+          "tr_49",
+          "tr_51",
+          "tr_54",
+          "tr_55",
+          "tr_56",
+          "tr_57",
+          "tr_58",
+          "tr_59",
+          "tr_60",
+          "tr_61",
+          "tr_62",
+          "tr_63",
+          "tr_64",
+          "tr_65",
+          "tr_68",
+          "tr_71",
+          "tr_72",
+          "tr_73",
+          "tr_74",
+          "tr_78",
+          "tr_80"
+        ],
+        "sourceIds": [
+          "art_8",
+          "art_9",
+          "art_10",
+          "art_11",
+          "art_12"
+        ],
+        "proposalIds": [],
+        "evidenceCount": 12,
+        "unresolvedCount": 7
+      },
+      "refs": [
+        {
+          "elementId": "slide-1-capture-notebook",
+          "label": "Capture Notebook"
+        },
+        {
+          "elementId": "slide-2-agent-wiki",
+          "label": "Agent wiki"
+        },
+        {
+          "elementId": "slide-3-today-s-brief",
+          "label": "Today's Brief"
+        },
+        {
+          "elementId": "slide-4-q3-variance",
+          "label": "Q3 variance"
+        },
+        {
+          "elementId": "slide-5-company-research",
+          "label": "Company research"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "comment",
+          "label": "Comment"
+        },
+        {
+          "id": "ask_nodeagent",
+          "label": "Ask NodeAgent"
+        },
+        {
+          "id": "propose_patch",
+          "label": "Propose patch"
+        },
+        {
+          "id": "export",
+          "label": "Export"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "storyboardStatus": "needs_review",
+        "sectionCount": 5
+      }
+    },
+    {
+      "id": "export:room_1:proof-bundle",
+      "kind": "export",
+      "sourceKind": "export_bundle",
+      "title": "Room proof export",
+      "summary": "ZIP export - 9 artifacts",
+      "status": "ready",
+      "receipt": {
+        "traceIds": [
+          "tr_65",
+          "tr_68",
+          "tr_71",
+          "tr_72",
+          "tr_73",
+          "tr_74",
+          "tr_78",
+          "tr_80"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "exportId": "room_1:proof-bundle",
+          "label": "Room proof export"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "export",
+          "label": "Download"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "format": "zip",
+        "artifactCount": 9
+      }
+    },
+    {
+      "id": "graph:room_1",
+      "kind": "graph",
+      "sourceKind": "semantic_graph",
+      "title": "Proof graph",
+      "summary": "185 nodes - 393 edges - 12 backed facts",
+      "status": "needs_review",
+      "receipt": {
+        "traceIds": [
+          "tr_18",
+          "tr_20",
+          "tr_21",
+          "tr_31",
+          "tr_32",
+          "tr_33",
+          "tr_34",
+          "tr_35",
+          "tr_36",
+          "tr_37",
+          "tr_38",
+          "tr_39",
+          "tr_40",
+          "tr_41",
+          "tr_42",
+          "tr_43",
+          "tr_44",
+          "tr_45",
+          "tr_46",
+          "tr_47",
+          "tr_48",
+          "tr_49",
+          "tr_54",
+          "tr_55",
+          "tr_56",
+          "tr_57",
+          "tr_58",
+          "tr_59",
+          "tr_60",
+          "tr_61",
+          "tr_62",
+          "tr_63",
+          "tr_64",
+          "tr_65",
+          "tr_71",
+          "tr_74",
+          "tr_78",
+          "tr_51",
+          "tr_7",
+          "tr_3",
+          "tr_68",
+          "tr_72",
+          "tr_73",
+          "tr_80",
+          "tr_5"
+        ],
+        "sourceIds": [
+          "art_12",
+          "art_11",
+          "art_13",
+          "art_9",
+          "art_8",
+          "art_14",
+          "art_15",
+          "art_16",
+          "art_10",
+          "rc_cardionova-primary-source",
+          "rc_cardionova-security-source",
+          "https://cardionova.com",
+          "https://fluxnova.com",
+          "https://vertexnova.com",
+          "https://harbornova.com",
+          "https://helionova.com",
+          "https://verdenova.com",
+          "https://cardionova.com/security",
+          "https://fluxnova.com/security",
+          "https://vertexnova.com/security",
+          "https://harbornova.com/security",
+          "https://helionova.com/security",
+          "https://verdenova.com/security",
+          "https://atlasnova.com",
+          "https://crestnova.com",
+          "https://crunchbase.com/org/cardionova",
+          "https://lumennova.com",
+          "https://netsuite.example.com/close/q3",
+          "https://neuronova.com",
+          "https://nimbusnova.com",
+          "https://orbitnova.com",
+          "https://pitchbook.com/profiles/company/cardionova",
+          "https://pulsenova.com",
+          "https://quantanova.com"
+        ],
+        "proposalIds": [],
+        "evidenceCount": 12,
+        "unresolvedCount": 20
+      },
+      "refs": [
+        {
+          "traceId": "tr_18",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_20",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_21",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_3",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_31",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_32",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_33",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_34",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_35",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_36",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_37",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_38",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_39",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_40",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_41",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_42",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_43",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_44",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_45",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_46",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_47",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_48",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_49",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_5",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_51",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_54",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_55",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_56",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_57",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_58",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_59",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_60",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_61",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_62",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_63",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_64",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_65",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_68",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_7",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_71",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_72",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_73",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_74",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_78",
+          "label": "Trace-linked graph node"
+        },
+        {
+          "traceId": "tr_80",
+          "label": "Trace-linked graph node"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "comment",
+          "label": "Comment"
+        },
+        {
+          "id": "ask_nodeagent",
+          "label": "Ask NodeAgent"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "nodes": 185,
+        "edges": 393,
+        "companies": 15,
+        "people": 7
+      }
+    },
+    {
+      "id": "trace:tr_61",
+      "kind": "trace",
+      "sourceKind": "trace_event",
+      "title": "Room NodeAgent set rw_pulley__burn = $210K/mo",
+      "summary": "edit_cell · rw_pulley__burn = $210K/mo · v1 → v2",
+      "status": "ready",
+      "ownerName": "Room NodeAgent",
+      "receipt": {
+        "traceIds": [
+          "tr_61"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "artifactId": "art_13",
+          "elementId": "rw_pulley__burn",
+          "traceId": "tr_61",
+          "label": "Room NodeAgent set rw_pulley__burn = $210K/mo"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "traceType": "edit_applied",
+        "elementId": "rw_pulley__burn"
+      }
+    },
+    {
+      "id": "trace:tr_62",
+      "kind": "trace",
+      "sourceKind": "trace_event",
+      "title": "Room NodeAgent set rw_pulley__runway = ~16.2 months (to ~Oct 2027)",
+      "summary": "edit_cell · rw_pulley__runway = ~16.2 months (to ~Oct 2027) · v1 → v2",
+      "status": "ready",
+      "ownerName": "Room NodeAgent",
+      "receipt": {
+        "traceIds": [
+          "tr_62"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "artifactId": "art_13",
+          "elementId": "rw_pulley__runway",
+          "traceId": "tr_62",
+          "label": "Room NodeAgent set rw_pulley__runway = ~16.2 months (to ~Oct 2027)"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "traceType": "edit_applied",
+        "elementId": "rw_pulley__runway"
+      }
+    },
+    {
+      "id": "trace:tr_63",
+      "kind": "trace",
+      "sourceKind": "trace_event",
+      "title": "Room NodeAgent set rw_pulley__status = sourced",
+      "summary": "edit_cell · rw_pulley__status = sourced · v1 → v2",
+      "status": "ready",
+      "ownerName": "Room NodeAgent",
+      "receipt": {
+        "traceIds": [
+          "tr_63"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "artifactId": "art_13",
+          "elementId": "rw_pulley__status",
+          "traceId": "tr_63",
+          "label": "Room NodeAgent set rw_pulley__status = sourced"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "traceType": "edit_applied",
+        "elementId": "rw_pulley__status"
+      }
+    },
+    {
+      "id": "trace:tr_64",
+      "kind": "trace",
+      "sourceKind": "trace_event",
+      "title": "Room NodeAgent released lock on rw_cardionova__cash, rw_cardionova__burn, rw_cardionova__runway, rw_cardionova__status, rw_pulley__cash, rw_pulley__burn, rw_pulley__runway, rw_pulley__status",
+      "summary": "release_lock · lock_53 → smart-merge waiting drafts",
+      "status": "ready",
+      "ownerName": "Room NodeAgent",
+      "receipt": {
+        "traceIds": [
+          "tr_64"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "artifactId": "art_13",
+          "elementId": "rw_cardionova__cash",
+          "traceId": "tr_64",
+          "label": "Room NodeAgent released lock on rw_cardionova__cash, rw_cardionova__burn, rw_cardionova__runway, rw_cardionova__status, rw_pulley__cash, rw_pulley__burn, rw_pulley__runway, rw_pulley__status"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "traceType": "lock_released",
+        "elementId": "rw_cardionova__cash"
+      }
+    },
+    {
+      "id": "trace:tr_65",
+      "kind": "trace",
+      "sourceKind": "trace_event",
+      "title": "Room NodeAgent: done — released lock",
+      "status": "ready",
+      "ownerName": "Room NodeAgent",
+      "receipt": {
+        "traceIds": [
+          "tr_65"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "traceId": "tr_65",
+          "label": "Room NodeAgent: done — released lock"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "traceType": "agent_status"
+      }
+    },
+    {
+      "id": "trace:tr_68",
+      "kind": "trace",
+      "sourceKind": "trace_event",
+      "title": "Homen locked r_rev__variance — host reviewing the revenue variance",
+      "summary": "propose_lock · [r_rev__variance] · reason: \"host reviewing the revenue variance\" → ok",
+      "status": "ready",
+      "ownerName": "Homen",
+      "receipt": {
+        "traceIds": [
+          "tr_68"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "artifactId": "art_11",
+          "elementId": "r_rev__variance",
+          "traceId": "tr_68",
+          "label": "Homen locked r_rev__variance — host reviewing the revenue variance"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "traceType": "lock_acquired",
+        "elementId": "r_rev__variance"
+      }
+    },
+    {
+      "id": "trace:tr_71",
+      "kind": "trace",
+      "sourceKind": "trace_event",
+      "title": "Room NodeAgent drafted 1 change(s) for merge — Revenue variance stale-patch drill",
+      "summary": "create_draft · 1 ops · blockedBy lock_67",
+      "status": "ready",
+      "ownerName": "Room NodeAgent",
+      "receipt": {
+        "traceIds": [
+          "tr_71"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "traceId": "tr_71",
+          "label": "Room NodeAgent drafted 1 change(s) for merge — Revenue variance stale-patch drill"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "traceType": "draft_created"
+      }
+    },
+    {
+      "id": "trace:tr_72",
+      "kind": "trace",
+      "sourceKind": "trace_event",
+      "title": "Homen set r_rev__variance = +24%",
+      "summary": "edit_cell · r_rev__variance = +24% · v1 → v2",
+      "status": "ready",
+      "ownerName": "Homen",
+      "receipt": {
+        "traceIds": [
+          "tr_72"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "artifactId": "art_11",
+          "elementId": "r_rev__variance",
+          "traceId": "tr_72",
+          "label": "Homen set r_rev__variance = +24%"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "traceType": "edit_applied",
+        "elementId": "r_rev__variance"
+      }
+    },
+    {
+      "id": "trace:tr_73",
+      "kind": "trace",
+      "sourceKind": "trace_event",
+      "title": "Homen released lock on r_rev__variance",
+      "summary": "release_lock · lock_67 → smart-merge waiting drafts",
+      "status": "ready",
+      "ownerName": "Homen",
+      "receipt": {
+        "traceIds": [
+          "tr_73"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 0
+      },
+      "refs": [
+        {
+          "artifactId": "art_11",
+          "elementId": "r_rev__variance",
+          "traceId": "tr_73",
+          "label": "Homen released lock on r_rev__variance"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "traceType": "lock_released",
+        "elementId": "r_rev__variance"
+      }
+    },
+    {
+      "id": "trace:tr_74",
+      "kind": "trace",
+      "sourceKind": "trace_event",
+      "title": "Smart-merge: 0 op(s) merged cleanly; 1 need review (value diverged while locked)",
+      "summary": "smart_merge · 0 applied, 1 flagged → needs_review",
+      "status": "failed",
+      "ownerName": "Room NodeAgent",
+      "receipt": {
+        "traceIds": [
+          "tr_74"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 1
+      },
+      "refs": [
+        {
+          "traceId": "tr_74",
+          "label": "Smart-merge: 0 op(s) merged cleanly; 1 need review (value diverged while locked)"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "traceType": "draft_conflict"
+      }
+    },
+    {
+      "id": "trace:tr_78",
+      "kind": "trace",
+      "sourceKind": "trace_event",
+      "title": "Semantic rebase opened 1 conflict(s); 1 review proposal(s) created",
+      "summary": "semantic_rebase - decision=needs_human_review - proposals=1 - human-authored state wins by default",
+      "status": "failed",
+      "ownerName": "Room NodeAgent",
+      "receipt": {
+        "traceIds": [
+          "tr_78"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 1
+      },
+      "refs": [
+        {
+          "traceId": "tr_78",
+          "label": "Semantic rebase opened 1 conflict(s); 1 review proposal(s) created"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "traceType": "semantic_conflict"
+      }
+    },
+    {
+      "id": "trace:tr_80",
+      "kind": "trace",
+      "sourceKind": "trace_event",
+      "title": "Homen rejected Room NodeAgent's edit to r_rev__variance",
+      "status": "needs_review",
+      "ownerName": "Homen",
+      "receipt": {
+        "traceIds": [
+          "tr_80"
+        ],
+        "sourceIds": [],
+        "proposalIds": [],
+        "evidenceCount": 0,
+        "unresolvedCount": 1
+      },
+      "refs": [
+        {
+          "traceId": "tr_80",
+          "label": "Homen rejected Room NodeAgent's edit to r_rev__variance"
+        }
+      ],
+      "actions": [
+        {
+          "id": "open",
+          "label": "Open"
+        },
+        {
+          "id": "view_trace",
+          "label": "View trace"
+        }
+      ],
+      "meta": {
+        "traceType": "proposal_resolved"
+      }
+    }
+  ],
+  "exportIntents": [
+    {
+      "kind": "proof_bundle_sidecar",
+      "format": "json",
+      "receiptId": "room_1:proof-bundle:a0a58c21",
+      "replayHash": "948d9152",
+      "knownGapCount": 8
+    }
+  ],
+  "integrityHash": "c14d3ca6"
+}
