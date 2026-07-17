@@ -1,10 +1,13 @@
 /** Public/private Copilot chat surfaces. Reads via useStore(). */
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type ClipboardEvent, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
-import { Lock, MessageCircle, Globe, Send, Square, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, Link2, X, Timer, RefreshCw, ChevronDown, ChevronUp, ChevronRight, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2, Brain, Target, Mic, MicOff, Search, AlertTriangle } from "lucide-react";
+import { Lock, MessageCircle, Globe, Send, Square, Sparkles, Copy, Check, ArrowUpRight, Pencil, Paperclip, Link2, X, Timer, RefreshCw, ChevronDown, ChevronUp, ChevronRight, ListChecks, GitBranch, ShieldCheck, Database, FileText, StickyNote, Table2, Brain, Target, Mic, MicOff, AlertTriangle } from "lucide-react";
 import { useQuery } from "convex/react";
 import { Reasoning, ReasoningContent, ReasoningTrigger } from "@/components/ai-elements/reasoning";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { Suggestion } from "@/components/ai-elements/suggestion";
+import { Button } from "@/components/ui/button";
+import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentModelSelection, type PrivateStreamAccess, type RoomStore } from "../app/store";
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
@@ -946,7 +949,6 @@ function AgentModelPicker({
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const rootRef = useRef<HTMLDivElement>(null);
   const selectedChoice = choices.find((choice) => choice.model === (modelPolicy || defaultModel));
   const selectedPreset = AGENT_MODEL_PRESETS.find((preset) => preset.value === mode) ?? AGENT_MODEL_PRESETS[0];
   const triggerLabel = mode === "specific" ? (selectedChoice?.model ?? (modelPolicy || "Specific model")) : selectedPreset.label;
@@ -959,23 +961,6 @@ function AgentModelPicker({
     if (!q) return choices;
     return choices.filter((choice) => choice.searchText.includes(q));
   }, [choices, search]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onMouseDown = (event: MouseEvent) => {
-      const target = event.target;
-      if (target instanceof Node && rootRef.current && !rootRef.current.contains(target)) setOpen(false);
-    };
-    const onKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("mousedown", onMouseDown);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", onMouseDown);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open]);
 
   const choosePreset = (next: AgentModelSelection["mode"]) => {
     onModeChange(next);
@@ -990,7 +975,8 @@ function AgentModelPicker({
   };
 
   return (
-    <div className="r-model-picker" ref={rootRef}>
+    <Popover open={open} onOpenChange={setOpen}>
+      <div className="r-model-picker">
       {/* Compatibility hooks for existing proof scripts. The visible product UI is the trigger/popover below. */}
       <select
         className="r-model-compat"
@@ -1015,38 +1001,47 @@ function AgentModelPicker({
         aria-hidden="true"
         tabIndex={-1}
       />
-      <button
-        type="button"
-        className="r-model-trigger"
-        data-testid="chat-model-trigger"
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-controls="agent-model-picker-list"
-        title={triggerDetail}
-        onClick={() => setOpen((value) => !value)}
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="r-model-trigger"
+            data-testid="chat-model-trigger"
+            aria-haspopup="listbox"
+            aria-controls="agent-model-picker-list"
+            title={triggerDetail}
+          >
+            <Brain size={13} />
+            <span className="r-model-trigger-label">{triggerLabel}</span>
+            <span className="r-model-trigger-badge">{triggerBadge}</span>
+            <ChevronDown size={13} />
+          </Button>
+        </PopoverTrigger>
+      </div>
+      <PopoverContent
+        className="r-model-popover"
+        data-testid="chat-model-popover"
+        side="top"
+        align="end"
+        sideOffset={8}
+        collisionPadding={8}
+        avoidCollisions
       >
-        <Brain size={13} />
-        <span className="r-model-trigger-label">{triggerLabel}</span>
-        <span className="r-model-trigger-badge">{triggerBadge}</span>
-        <ChevronDown size={13} />
-      </button>
-      {open && (
-        <div className="r-model-popover" data-testid="chat-model-popover">
-          <div className="r-model-search">
-            <Search size={13} />
-            <input
-              value={search}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
-              placeholder="Search provider or model"
-              data-testid="chat-model-search"
-              autoFocus
-            />
-          </div>
+        <Command className="r-model-command" shouldFilter={false}>
+          <CommandInput
+            value={search}
+            onValueChange={setSearch}
+            placeholder="Search provider or model"
+            data-testid="chat-model-search"
+            aria-label="Search provider or model"
+          />
           <div className="r-model-presets" role="group" aria-label="Agent route presets">
             {AGENT_MODEL_PRESETS.map((preset) => (
-              <button
+              <Button
                 key={preset.value}
                 type="button"
+                variant="outline"
                 className="r-model-preset"
                 data-selected={String(mode === preset.value)}
                 data-testid={`chat-model-preset-${preset.value}`}
@@ -1057,22 +1052,21 @@ function AgentModelPicker({
                   <small>{preset.detail}</small>
                 </span>
                 <em>{preset.badge}</em>
-              </button>
+              </Button>
             ))}
           </div>
-          <div className="r-model-list" id="agent-model-picker-list" role="listbox" aria-label="Specific NodeAgent models">
+          <CommandList className="r-model-list" id="agent-model-picker-list" aria-label="Specific NodeAgent models">
             {filteredChoices.length === 0 ? (
-              <div className="r-model-empty">No matching models</div>
+              <CommandEmpty className="r-model-empty">No matching models</CommandEmpty>
             ) : filteredChoices.map((choice) => (
-              <button
+              <CommandItem
                 key={`${choice.provider}-${choice.model}`}
-                type="button"
+                value={`${choice.model} ${choice.providerLabel}`}
                 className="r-model-option"
-                role="option"
                 aria-selected={mode === "specific" && (modelPolicy || defaultModel) === choice.model}
-                data-selected={String(mode === "specific" && (modelPolicy || defaultModel) === choice.model)}
+                data-current={String(mode === "specific" && (modelPolicy || defaultModel) === choice.model)}
                 data-testid={`chat-model-option-${agentModelTestId(choice.model)}`}
-                onClick={() => chooseModel(choice.model)}
+                onSelect={() => chooseModel(choice.model)}
               >
                 <span className="r-model-option-main">
                   <b>{choice.model}</b>
@@ -1083,12 +1077,12 @@ function AgentModelPicker({
                   <em>{choice.contextLabel}</em>
                   <em>tools</em>
                 </span>
-              </button>
+              </CommandItem>
             ))}
-          </div>
-        </div>
-      )}
-    </div>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -1331,8 +1325,6 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const [refs, setRefs] = useState<ArtifactRef[]>([]);
   const [dropActive, setDropActive] = useState(false);
   const [thinking, setThinking] = useState(false);
-  const [slashOpen, setSlashOpen] = useState(false);
-  const [slashIndex, setSlashIndex] = useState(0);
   // @-mention typeahead (matches Cursor/Notion): type @ to attach a room artifact as a reference.
   const [mention, setMention] = useState<{ q: string; start: number } | null>(null);
   const [mentionIndex, setMentionIndex] = useState(0);
@@ -1462,10 +1454,9 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       };
     })), [specificModelGroups]);
   const defaultSpecificModel = specificModelGroups[0]?.models[0] ?? "";
-  const slashOptions = useMemo(() => [] as { label: string; insert: string; hint: string }[], [store.mode]);
   type MentionItem =
     | { kind: "agent"; key: string; label: string; hint: string }
-    | { kind: "artifact"; key: string; label: string; hint: string; ref: ArtifactRef };
+    | { kind: "context"; key: string; label: string; hint: string; ref: ArtifactRef };
   const mentionMatches = useMemo<MentionItem[]>(() => {
     if (!mention) return [];
     const q = mention.q.toLowerCase();
@@ -1479,7 +1470,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     for (const a of store.listArtifacts(roomId)) {
       const ref = { id: a.id, title: a.title, kind: a.kind, contextKind: "artifact" as const };
       if (already.has(artifactRefKey(ref)) || (q !== "" && !a.title.toLowerCase().includes(q))) continue;
-      items.push({ kind: "artifact", key: a.id, label: a.title, hint: a.kind, ref });
+      items.push({ kind: "context", key: a.id, label: a.title, hint: a.kind, ref });
       if (items.length >= 7) break;
     }
     return items;
@@ -1807,7 +1798,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     const cid = crypto.randomUUID();
     void store.postMessage({ roomId, channel, author: me, text: messageText, clientMsgId: cid, kind: "chat" })
       .then((fb) => { if (fb && !fb.ok) setFailedSends((f) => { if (f.some((x) => x.cid === cid)) return f; const next = [...f, { cid, text: messageText }]; return next.length > MAX_FAILED_SENDS ? next.slice(-MAX_FAILED_SENDS) : next; }); });
-    setText(""); setRefs([]); setSlashOpen(false); setSlashIndex(0); setMention(null); setMentionIndex(0); setContextPickerOpen(false); setContextQuery("");
+    setText(""); setRefs([]); setMention(null); setMentionIndex(0); setContextPickerOpen(false); setContextQuery("");
     requestAnimationFrame(grow);
 
     const publicNodeAgentRequest = !isPrivate ? parsePublicNodeAgentRequest(t) : null;
@@ -1880,7 +1871,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     void store.retryLongFreeJob(longJob.id).then((fb) => { if (!fb.ok) setJobErr(jobReason(fb.reason)); }).finally(() => setJobBusy(null));
   };
 
-  const applySlash = (insert: string) => { setText(insert); setSlashOpen(false); setSlashIndex(0); requestAnimationFrame(() => { grow(); taRef.current?.focus(); }); };
+  const applyComposerPrompt = (insert: string) => { setText(insert); requestAnimationFrame(() => { grow(); taRef.current?.focus(); }); };
   const applyMention = (item: MentionItem) => {
     if (!mention) return;
     const head = (v: string) => v.slice(0, mention.start);
@@ -1983,13 +1974,15 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
 
   const onChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const v = e.target.value; setText(v); grow();
-    const open = !isPrivate && v.trimStart() === "/" && slashOptions.length > 0;
-    setSlashOpen(open);
-    if (open) setSlashIndex(0);
     // @-mention: an @ at the caret (start or after whitespace) opens the artifact picker.
     const caret = e.target.selectionStart ?? v.length;
-    const m = open ? null : /(?:^|\s)@(\S*)$/.exec(v.slice(0, caret));
-    if (m) { setMention({ q: m[1], start: caret - m[1].length - 1 }); setMentionIndex(0); }
+    const m = /(?:^|\s)@(\S*)$/.exec(v.slice(0, caret));
+    if (m) {
+      setContextPickerOpen(false);
+      setContextQuery("");
+      setMention({ q: m[1], start: caret - m[1].length - 1 });
+      setMentionIndex(0);
+    }
     else setMention(null);
   };
   const onPaste = (e: ClipboardEvent<HTMLTextAreaElement>) => {
@@ -2005,25 +1998,8 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       if (e.key === "Tab" || (e.key === "Enter" && !e.shiftKey)) { e.preventDefault(); applyMention(mentionMatches[mentionIndex] ?? mentionMatches[0]); return; }
       if (e.key === "Escape") { e.preventDefault(); setMention(null); return; }
     }
-    if (slashOpen && slashOptions.length > 0) {
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        setSlashIndex((i) => (i + 1) % slashOptions.length);
-        return;
-      }
-      if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setSlashIndex((i) => (i - 1 + slashOptions.length) % slashOptions.length);
-        return;
-      }
-      if (e.key === "Tab" || (e.key === "Enter" && !e.shiftKey)) {
-        e.preventDefault();
-        applySlash(slashOptions[slashIndex]?.insert ?? slashOptions[0].insert);
-        return;
-      }
-    }
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
-    else if (e.key === "Escape") { if (slashOpen) setSlashOpen(false); else taRef.current?.blur(); }
+    else if (e.key === "Escape") taRef.current?.blur();
   };
   const canSend = !uploadingFiles && (text.trim().length > 0 || refs.length > 0);
   const rootClass = `${embedded ? `r-chat-embedded nr-chat-panel ${isPrivate ? "private" : "public"}` : `r-panel nr-panel nr-chat-panel ${isPrivate ? "right nr-panel--right" : "center nr-panel--center"}`}${isPrivate ? "" : " fx-chat"}`;
@@ -2177,7 +2153,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
       )}
 
       {showDecisionCard && (
-        <DecisionAssistantPanel state={decisionState} onPrompt={applySlash} />
+        <DecisionAssistantPanel state={decisionState} onPrompt={applyComposerPrompt} />
       )}
       {pinnedAgentResearchReceipt && (
         <div className="r-pinned-agent-receipt" data-testid="pinned-agent-research-receipt">
@@ -2287,41 +2263,6 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             </button>
           </div>
         )}
-        {slashOpen && slashOptions.length > 0 && (
-          <div className="r-slash" role="listbox" aria-label="Commands">
-            {slashOptions.map((c, i) => (
-              <button key={c.label} className="r-slash-item" role="option" aria-selected={i === slashIndex} onMouseEnter={() => setSlashIndex(i)} onMouseDown={(e) => { e.preventDefault(); applySlash(c.insert); }}>
-                <span className="cmd">{c.label}</span><span className="hint">{c.hint}</span>
-              </button>
-            ))}
-          </div>
-        )}
-        {mention && mentionMatches.length > 0 && (
-          <div className="r-slash" role="listbox" aria-label="Mention" data-testid="mention-menu">
-            {mentionMatches.map((item, i) => (
-              <button key={item.key} className="r-slash-item" role="option" aria-selected={i === mentionIndex} data-testid={item.kind === "agent" ? "mention-agent" : "mention-item"} onMouseEnter={() => setMentionIndex(i)} onMouseDown={(e) => { e.preventDefault(); applyMention(item); }}>
-                <span className="cmd">@{item.label}</span><span className="hint">{item.hint}</span>
-              </button>
-            ))}
-          </div>
-        )}
-        {contextPickerOpen && (
-          <div className="r-context-picker" data-testid="chat-context-picker" role="dialog" aria-label="Attach work context">
-            <div className="r-context-picker-search">
-              <Search size={12} />
-              <input autoFocus value={contextQuery} onChange={(event) => setContextQuery(event.target.value)} placeholder="Find artifacts, slides, proposals, or traces" />
-              <button type="button" aria-label="Close context picker" onClick={() => { setContextPickerOpen(false); setContextQuery(""); }}><X size={12} /></button>
-            </div>
-            <div className="r-context-picker-list" role="listbox">
-              {contextOptions.map((option) => (
-                <button key={option.key} type="button" role="option" onClick={() => { addRef(option.ref); setContextPickerOpen(false); setContextQuery(""); requestAnimationFrame(() => taRef.current?.focus()); }}>
-                  <span>{option.label}</span><em>{option.hint}</em>
-                </button>
-              ))}
-              {contextOptions.length === 0 && <p>No matching room context.</p>}
-            </div>
-          </div>
-        )}
         {refs.length > 0 && (
           <div className="r-ref-composer" aria-label="Message references">
             {refs.map((ref) => (
@@ -2361,10 +2302,62 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             aria-label="Attach files"
             tabIndex={-1}
           />
-          <textarea ref={taRef} rows={1} value={text} onChange={onChange} onKeyDown={onKeyDown} onPaste={onPaste}
-            placeholder={isPrivate ? (roomLane ? "Tell your agent to act in the room…" : "Ask privately…") : "Message the room or @nod"}
-            data-testid="chat-composer"
-            aria-label={isPrivate ? "Ask privately" : "Message the room"} />
+          <Popover
+            open={mention !== null && mentionMatches.length > 0}
+            onOpenChange={(open) => { if (!open) { setMention(null); setMentionIndex(0); } }}
+          >
+            <PopoverAnchor asChild>
+              <textarea
+                ref={taRef}
+                rows={1}
+                value={text}
+                onChange={onChange}
+                onKeyDown={onKeyDown}
+                onPaste={onPaste}
+                placeholder={isPrivate ? (roomLane ? "Tell your agent to act in the room…" : "Ask privately…") : "Message the room or @nod"}
+                data-testid="chat-composer"
+                aria-controls={mention !== null && mentionMatches.length > 0 ? "chat-mention-list" : undefined}
+                aria-expanded={mention !== null && mentionMatches.length > 0}
+                aria-label={isPrivate ? "Ask privately" : "Message the room"}
+              />
+            </PopoverAnchor>
+            <PopoverContent
+              className="r-composer-popover r-mention-popover"
+              data-testid="mention-menu"
+              align="start"
+              side="top"
+              sideOffset={7}
+              collisionPadding={8}
+              onOpenAutoFocus={(event) => event.preventDefault()}
+              onCloseAutoFocus={(event) => event.preventDefault()}
+            >
+              <Command
+                className="r-composer-command"
+                shouldFilter={false}
+                value={mentionMatches[mentionIndex]?.key ?? ""}
+                onValueChange={(key) => {
+                  const index = mentionMatches.findIndex((item) => item.key === key);
+                  if (index >= 0) setMentionIndex(index);
+                }}
+              >
+                <CommandList id="chat-mention-list" className="r-composer-command-list" aria-label="Mention">
+                  {mentionMatches.map((item, index) => (
+                    <CommandItem
+                      key={item.key}
+                      value={item.key}
+                      className="r-composer-command-item"
+                      data-testid={item.kind === "agent" ? "mention-agent" : "mention-item"}
+                      onMouseEnter={() => setMentionIndex(index)}
+                      onSelect={() => applyMention(item)}
+                    >
+                      <span className="cmd">{item.kind === "agent" ? `@${item.label}` : item.label}</span>
+                      <span className="hint">{item.hint}</span>
+                    </CommandItem>
+                  ))}
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
           {/* One calm toolbar row (assistant-ui/shadcn): attach + an unobtrusive searchable
               model chip on the left, send on the right. AgentModelPicker keeps hidden
               value hooks only for legacy proof scripts. */}
@@ -2392,18 +2385,68 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             >
               {voiceListening ? <MicOff size={15} /> : <Mic size={15} />}
             </button>
-            <button
-              className="r-attach r-context-btn"
-              type="button"
-              data-testid="chat-context"
-              data-active={String(contextPickerOpen)}
-              aria-expanded={contextPickerOpen}
-              aria-label="Attach work context"
-              title="Attach work context"
-              onClick={() => setContextPickerOpen((open) => !open)}
+            <Popover
+              open={contextPickerOpen}
+              onOpenChange={(open) => {
+                setContextPickerOpen(open);
+                if (open) { setMention(null); setMentionIndex(0); }
+                else setContextQuery("");
+              }}
             >
-              <Link2 size={15} />
-            </button>
+              <PopoverTrigger asChild>
+                <button
+                  className="r-attach r-context-btn"
+                  type="button"
+                  data-testid="chat-context"
+                  data-active={String(contextPickerOpen)}
+                  aria-expanded={contextPickerOpen}
+                  aria-label="Attach work context"
+                  title="Attach work context"
+                >
+                  <Link2 size={15} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="r-composer-popover r-context-picker"
+                data-testid="chat-context-picker"
+                align="start"
+                side="top"
+                sideOffset={7}
+                collisionPadding={8}
+                onCloseAutoFocus={(event) => { event.preventDefault(); taRef.current?.focus(); }}
+              >
+                <Command className="r-composer-command" shouldFilter={false}>
+                  <CommandInput
+                    autoFocus
+                    value={contextQuery}
+                    onValueChange={setContextQuery}
+                    placeholder="Find artifacts, slides, proposals, or traces"
+                    aria-label="Find work context"
+                    data-testid="chat-context-search"
+                  />
+                  <CommandList className="r-composer-command-list" aria-label="Work context">
+                    <CommandEmpty className="r-composer-command-empty">No matching room context.</CommandEmpty>
+                    {contextOptions.map((option) => (
+                      <CommandItem
+                        key={option.key}
+                        value={`${option.label} ${option.hint}`}
+                        className="r-composer-command-item"
+                        data-testid="chat-context-option"
+                        onSelect={() => {
+                          addRef(option.ref);
+                          setContextPickerOpen(false);
+                          setContextQuery("");
+                          requestAnimationFrame(() => taRef.current?.focus());
+                        }}
+                      >
+                        <span className="cmd">{option.label}</span>
+                        <span className="hint">{option.hint}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
             {showModelSelection && (
               <AgentModelPicker
                 mode={modelSelectionMode}
@@ -2427,7 +2470,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             )}
           </div>
         </div>
-        {!isPrivate && !slashOpen && (
+        {!isPrivate && (
           <div className="r-composer-hint">
             {longJobTerminal && lastAgentInputRef.current && (
               <button className="r-chip r-chip-regen" data-testid="chat-regenerate" title="Run the last agent request again" onClick={() => send(lastAgentInputRef.current!)}><RefreshCw size={11} /> Regenerate</button>
@@ -2435,7 +2478,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             {contextualPrompts.length > 0 && (
               <span className="ai-scope r-composer-suggestions">
                 {contextualPrompts.map((prompt) => (
-                  <Suggestion key={prompt.insert} suggestion={prompt.label} onClick={() => applySlash(prompt.insert)} />
+                  <Suggestion key={prompt.insert} suggestion={prompt.label} onClick={() => applyComposerPrompt(prompt.insert)} />
                 ))}
               </span>
             )}

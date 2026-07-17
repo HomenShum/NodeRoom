@@ -44,9 +44,114 @@ function baseStore(): any {
   };
 }
 
-describe("Chat model picker polish", () => {
+describe("Chat composer primitive polish", () => {
   beforeEach(() => {
+    vi.stubGlobal("ResizeObserver", class ResizeObserver {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    });
+    HTMLElement.prototype.scrollIntoView = vi.fn();
     mockStore.current = baseStore();
+  });
+
+  it("portals the picker outside clipping ancestors and restores focus on Escape", async () => {
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+
+    const trigger = screen.getByTestId("chat-model-trigger");
+    fireEvent.click(trigger);
+
+    const popover = screen.getByTestId("chat-model-popover");
+    expect(popover.closest(".r-model-picker")).toBeNull();
+    expect(popover.closest("[data-radix-popper-content-wrapper]")).toBeTruthy();
+
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByTestId("chat-model-popover")).toBeNull());
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it("portals and searches governed work context, then restores composer focus", async () => {
+    const store = baseStore();
+    const artifact = {
+      id: "sheet1",
+      roomId: "r1",
+      kind: "sheet",
+      title: "Q3 variance",
+      version: 1,
+      order: ["deck_storyboard"],
+      updatedAt: 1,
+      elements: {
+        deck_storyboard: { id: "deck_storyboard", type: "deck_storyboard", value: { slides: [{ slideId: "slide1", title: "Board readout" }] } },
+      },
+    };
+    store.listArtifacts = () => [artifact];
+    store.listProposals = () => [{ id: "proposal1", artifactId: "sheet1", status: "pending", op: { elementId: "revenue" } }];
+    store.listTraces = () => [{ id: "trace1", type: "agent_run", summary: "Revenue repair", refs: { artifactId: "sheet1", elementId: "revenue" } }];
+    mockStore.current = store;
+
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+    const composer = screen.getByTestId("chat-composer");
+    composer.focus();
+    fireEvent.click(screen.getByTestId("chat-context"));
+
+    const picker = screen.getByTestId("chat-context-picker");
+    expect(picker.closest(".r-composer")).toBeNull();
+    expect(picker.closest("[data-radix-popper-content-wrapper]")).toBeTruthy();
+
+    fireEvent.change(screen.getByTestId("chat-context-search"), { target: { value: "proposal" } });
+    const options = await screen.findAllByTestId("chat-context-option");
+    expect(options).toHaveLength(1);
+    expect(options[0].textContent).toContain("Proposal: revenue");
+    fireEvent.click(options[0]);
+
+    await waitFor(() => expect(screen.queryByTestId("chat-context-picker")).toBeNull());
+    expect(screen.getByLabelText("Message references").textContent).toContain("Proposal: revenue");
+    expect(document.activeElement).toBe(composer);
+  });
+
+  it("keeps @ typeahead keyboard-complete in a portaled Command surface", async () => {
+    const store = baseStore();
+    store.listArtifacts = () => [{
+      id: "sheet1",
+      roomId: "r1",
+      kind: "sheet",
+      title: "Q3 variance",
+      version: 1,
+      order: [],
+      updatedAt: 1,
+      elements: {},
+    }];
+    mockStore.current = store;
+
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+    const composer = screen.getByTestId("chat-composer") as HTMLTextAreaElement;
+    composer.focus();
+    fireEvent.change(composer, { target: { value: "@q3", selectionStart: 3 } });
+
+    const menu = await screen.findByTestId("mention-menu");
+    expect(menu.closest(".r-composer")).toBeNull();
+    expect(composer.getAttribute("aria-expanded")).toBe("true");
+    fireEvent.keyDown(composer, { key: "Enter" });
+
+    await waitFor(() => expect(screen.queryByTestId("mention-menu")).toBeNull());
+    expect(composer.value).toBe("");
+    expect(screen.getByLabelText("Message references").textContent).toContain("Q3 variance");
+    expect(document.activeElement).toBe(composer);
+  });
+
+  it("closes @ typeahead with Escape and keeps compatibility slash aliases hidden", async () => {
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+    const composer = screen.getByTestId("chat-composer") as HTMLTextAreaElement;
+    composer.focus();
+    fireEvent.change(composer, { target: { value: "@", selectionStart: 1 } });
+    expect(await screen.findByTestId("mention-menu")).toBeTruthy();
+    fireEvent.keyDown(composer, { key: "Escape" });
+
+    await waitFor(() => expect(screen.queryByTestId("mention-menu")).toBeNull());
+    expect(document.activeElement).toBe(composer);
+
+    fireEvent.change(composer, { target: { value: "/free inspect this workbook", selectionStart: 27 } });
+    expect(screen.queryByRole("listbox", { name: "Commands" })).toBeNull();
   });
 
   it("offers a searchable model picker and sends the selected specific model", async () => {

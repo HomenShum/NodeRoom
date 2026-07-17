@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, FileText, Table2, MessageSquare, Upload, GitBranch, Sparkles, AlertTriangle, CircleDot, Search, TableProperties, MinusCircle, GraduationCap, Send, CheckSquare, Square, HelpCircle } from "lucide-react";
 import type { PassiveActivityItem } from "../../app/store";
+import { ScrollArea } from "../../components/ui/scroll-area";
 import { NodeReveal } from "../motion/NodeReveal";
 
 /** Calm return-state inbox for passive room intelligence. Lists what the room noticed,
@@ -142,7 +143,7 @@ export function NoteworthyInbox({
   };
 
   return (
-    <div className="r-inbox" role="dialog" aria-label="Passive room intelligence" data-testid="noteworthy-inbox">
+    <div className="r-inbox" data-testid="noteworthy-inbox">
       <div className="r-inbox-head">
         <span className="r-inbox-title"><Sparkles size={13} /> Room intelligence</span>
         {onSetPolicy && assistivePolicy && (
@@ -198,6 +199,7 @@ export function NoteworthyInbox({
               )}
             </div>
           )}
+        <ScrollArea className="r-inbox-scroll">
         <ul className="r-inbox-list">
           {displayItems.map((item, idx) => {
             const Icon = sourceIcon(item.sourceKind);
@@ -368,6 +370,7 @@ export function NoteworthyInbox({
             );
           })}
         </ul>
+        </ScrollArea>
         </>
       )}
     </div>

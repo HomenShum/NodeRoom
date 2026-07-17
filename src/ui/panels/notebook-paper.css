@@ -233,7 +233,7 @@
 }
 
 .r-nb-patch-popover {
-  position: absolute;
+  position: static;
   display: grid;
   gap: 7px;
   padding: 10px;

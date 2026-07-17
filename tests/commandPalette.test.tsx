@@ -15,7 +15,7 @@
  * text, regex-metachar queries don't crash), and sustained use (20 open/close
  * cycles leave no accumulated window listeners).
  */
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const mockStore = vi.hoisted(() => ({ current: {} as any }));
@@ -88,9 +88,9 @@ describe("CommandPalette — Dana summons and drives it from the keyboard", () =
     const input = paletteInput();
     expect(document.activeElement).toBe(input);
     expect(input.getAttribute("role")).toBe("combobox");
-    expect(input.getAttribute("aria-controls")).toBe("r-cmdk-list");
-    expect(input.getAttribute("aria-activedescendant")).toBe("r-cmdk-opt-0");
-    expect(screen.getByRole("listbox")).toBeTruthy();
+    const listbox = screen.getByRole("listbox");
+    expect(input.getAttribute("aria-controls")).toBe(listbox.id);
+    expect(items()[0].getAttribute("aria-selected")).toBe("true");
     // Empty query: core actions first, then the room's artifacts as "Open <title>".
     const labels = items().map((el) => el.textContent ?? "");
     expect(labels[0]).toContain("Toggle focus mode");
@@ -165,7 +165,7 @@ describe("CommandPalette — Dana summons and drives it from the keyboard", () =
     expect(screen.queryByTestId("command-palette")).toBeNull();
   });
 
-  it("Esc closes and restores focus to the element Dana was on before ⌘K", () => {
+  it("Esc closes and restores focus to the element Dana was on before ⌘K", async () => {
     mockStore.current = { listArtifacts: () => roomArtifacts };
     const { list } = makeActions();
     render(
@@ -180,7 +180,7 @@ describe("CommandPalette — Dana summons and drives it from the keyboard", () =
     expect(document.activeElement).toBe(paletteInput());
     fireEvent.keyDown(paletteInput(), { key: "Escape" });
     expect(screen.queryByTestId("command-palette")).toBeNull();
-    expect(document.activeElement).toBe(prev);
+    await waitFor(() => expect(document.activeElement).toBe(prev));
   });
 
   it("j/k and arrows walk the selection (wrap at the ends); a typed query turns j back into a letter unless Ctrl is held", () => {

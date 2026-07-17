@@ -21,6 +21,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search, X } from "lucide-react";
 import { useStore, type PresenceClaim, type RoomStore } from "../app/store";
+import { Dialog, DialogContent, DialogTitle } from "../components/ui/dialog";
+import { ScrollArea } from "../components/ui/scroll-area";
 import { focusStage } from "./stageFocus";
 import type { Actor, AgentSession, Member } from "../engine/types";
 import "./people-panel.css";
@@ -138,9 +140,6 @@ export function PeoplePanel({ roomId, me, open, onClose, onOpenArtifact }: {
   storeRef.current = store;
   const onOpenRef = useRef(onOpenArtifact);
   onOpenRef.current = onOpenArtifact;
-  const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
-
   const [query, setQuery] = useState("");
   const [expanded, setExpanded] = useState<Partial<Record<PersonRole, boolean>>>({});
   const [following, setFollowing] = useState<PersonRow | null>(null);
@@ -212,23 +211,6 @@ export function PeoplePanel({ roomId, me, open, onClose, onOpenArtifact }: {
     };
   }, [following, roomId, applyFollowTarget, stopFollow]);
 
-  // Panel dismissal: Esc closes, and a pointer-down anywhere outside the panel/trigger closes.
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onCloseRef.current(); };
-    const onDocPointer = (e: MouseEvent) => {
-      const el = e.target as Element | null;
-      if (el?.closest?.('[data-testid="people-panel"], [data-testid="people-trigger"]')) return;
-      onCloseRef.current();
-    };
-    window.addEventListener("keydown", onKey);
-    document.addEventListener("mousedown", onDocPointer, true);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.removeEventListener("mousedown", onDocPointer, true);
-    };
-  }, [open]);
-
   const now = Date.now();
   const groups = useMemo(() => {
     if (!open) return [];
@@ -243,8 +225,17 @@ export function PeoplePanel({ roomId, me, open, onClose, onOpenArtifact }: {
 
   return (
     <>
-      {open && (
-        <div className="r-people-panel sc-ppanel" role="dialog" aria-label="People in this room" data-testid="people-panel">
+      <Dialog open={open} modal={false} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
+        <DialogContent
+          className="r-people-panel sc-ppanel"
+          data-testid="people-panel"
+          aria-label="People in this room"
+          hideOverlay
+          showCloseButton={false}
+          unstyled
+        >
+          <DialogTitle className="sr-only">People in this room</DialogTitle>
+          <ScrollArea className="r-people-scroll">
           <div className="r-people-search sc-search">
             <Search size={13} />
             <input placeholder="Find people…" aria-label="Find people" value={query} onChange={(e) => setQuery(e.currentTarget.value)} />
@@ -303,8 +294,9 @@ export function PeoplePanel({ roomId, me, open, onClose, onOpenArtifact }: {
           {groups.every((g) => (q ? g.rows.filter((r) => r.name.toLowerCase().includes(q)).length : g.rows.length) === 0) && (
             <div className="r-people-empty" data-testid="people-empty">No one matches “{query.trim()}”</div>
           )}
-        </div>
-      )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
       {following && (
         <div className="r-people-follow-pill" data-testid="follow-pill" role="status">
           Following {following.name} — Esc to stop

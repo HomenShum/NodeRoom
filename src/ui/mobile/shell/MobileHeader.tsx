@@ -1,4 +1,5 @@
 import * as React from "react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../../components/ui/dropdown-menu";
 import { Ico, type IconName } from "../MobileIcons";
 
 export interface MobileHeaderAction {
@@ -32,29 +33,6 @@ export function MobileHeader({
   onOpenReview,
   secondaryActions,
 }: MobileHeaderProps): React.ReactElement {
-  const [menuOpen, setMenuOpen] = React.useState(false);
-  const menuRoot = React.useRef<HTMLDivElement | null>(null);
-
-  React.useEffect(() => {
-    if (!menuOpen) return;
-    const closeOutside = (event: PointerEvent): void => {
-      if (!menuRoot.current?.contains(event.target as Node)) setMenuOpen(false);
-    };
-    const closeOnEscape = (event: KeyboardEvent): void => {
-      if (event.key === "Escape") setMenuOpen(false);
-    };
-    document.addEventListener("pointerdown", closeOutside);
-    document.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.removeEventListener("pointerdown", closeOutside);
-      document.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [menuOpen]);
-
-  const choose = (action: MobileHeaderAction): void => {
-    setMenuOpen(false);
-    action.onSelect();
-  };
   const reviewLabel = reviewCount > 0
     ? `Review inbox, ${reviewCount} ${reviewCount === 1 ? "item" : "items"}`
     : "Review inbox, 0 items";
@@ -95,37 +73,34 @@ export function MobileHeader({
             ) : null}
           </button>
 
-          <div className="mobile-overflow-wrap" ref={menuRoot}>
+          <DropdownMenu>
+          <div className="mobile-overflow-wrap">
+            <DropdownMenuTrigger asChild>
             <button
               type="button"
               className="mobile-header-action"
               data-testid="mobile-overflow-action"
               aria-label="More room actions"
-              aria-haspopup="menu"
-              aria-expanded={menuOpen ? "true" : "false"}
               title="More room actions"
-              onClick={() => setMenuOpen((open) => !open)}
             >
               {Ico("more", { "aria-hidden": true })}
             </button>
-            {menuOpen ? (
-              <div className="mobile-overflow-menu" data-testid="mobile-overflow-menu" role="menu" aria-label="Room actions">
+            </DropdownMenuTrigger>
+              <DropdownMenuContent className="mobile-overflow-menu" data-testid="mobile-overflow-menu" aria-label="Room actions" align="end" sideOffset={4} collisionPadding={8}>
                 {secondaryActions.map((action) => (
-                  <button
+                  <DropdownMenuItem
                     key={action.id}
-                    type="button"
                     className="mobile-overflow-item"
-                    role="menuitem"
-                    onClick={() => choose(action)}
+                    onSelect={action.onSelect}
                   >
                     {Ico(action.icon, { "aria-hidden": true })}
                     <span>{action.label}</span>
                     {action.meta ? <span className="mobile-overflow-meta">{action.meta}</span> : null}
-                  </button>
+                  </DropdownMenuItem>
                 ))}
-              </div>
-            ) : null}
+              </DropdownMenuContent>
           </div>
+          </DropdownMenu>
         </div>
       </header>
     </div>

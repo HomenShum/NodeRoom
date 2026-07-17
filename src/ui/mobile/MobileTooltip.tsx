@@ -12,8 +12,12 @@
    Style parity: React.createElement (NOT JSX), strict TS.
    ============================================================================ */
 import * as React from "react";
-
-const h = React.createElement;
+import {
+  Tooltip as RadixTooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../components/ui/tooltip";
 
 export type TooltipSide = "top" | "bottom" | "left" | "right";
 
@@ -26,8 +30,6 @@ export interface TooltipProps {
   children: React.ReactNode;
 }
 
-let tipSeq = 0;
-
 /**
  * Tooltip — hover/focus/long-press bubble around a single trigger.
  * The trigger remains clickable; we only attach reveal/hide handlers to the
@@ -35,14 +37,7 @@ let tipSeq = 0;
  */
 export function Tooltip({ label, side = "bottom", children }: TooltipProps): React.ReactElement {
   const [show, setShow] = React.useState<boolean>(false);
-  const idRef = React.useRef<string | undefined>(undefined);
   const pressTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-
-  if (idRef.current === undefined) {
-    tipSeq += 1;
-    idRef.current = `na-tip-${tipSeq}`;
-  }
-  const tipId = idRef.current;
 
   const clearPress = React.useCallback((): void => {
     if (pressTimer.current !== undefined) {
@@ -53,7 +48,6 @@ export function Tooltip({ label, side = "bottom", children }: TooltipProps): Rea
 
   React.useEffect(() => clearPress, [clearPress]);
 
-  const open = React.useCallback((): void => setShow(true), []);
   const close = React.useCallback((): void => {
     clearPress();
     setShow(false);
@@ -65,32 +59,18 @@ export function Tooltip({ label, side = "bottom", children }: TooltipProps): Rea
     pressTimer.current = setTimeout(() => setShow(true), 380);
   }, [clearPress]);
 
-  return h(
-    "span",
-    {
-      className: "na-tip",
-      // Desktop hover
-      onPointerEnter: open,
-      onPointerLeave: close,
-      // Keyboard focus (focus bubbles from focusable child)
-      onFocus: open,
-      onBlur: close,
-      // Touch long-press
-      onTouchStart,
-      onTouchEnd: close,
-      onTouchCancel: close,
-    },
-    children,
-    h(
-      "span",
-      {
-        className: "na-tip-bubble",
-        role: "tooltip",
-        id: tipId,
-        "data-side": side,
-        "data-show": show ? "" : undefined,
-      },
-      label,
-    ),
+  return (
+    <TooltipProvider delayDuration={300}>
+      <RadixTooltip open={show} onOpenChange={setShow}>
+        <TooltipTrigger asChild>
+          <span className="na-tip" onTouchStart={onTouchStart} onTouchEnd={close} onTouchCancel={close}>
+            {children}
+          </span>
+        </TooltipTrigger>
+        <TooltipContent className="na-tip-bubble" side={side} sideOffset={6} collisionPadding={8}>
+          {label}
+        </TooltipContent>
+      </RadixTooltip>
+    </TooltipProvider>
   );
 }

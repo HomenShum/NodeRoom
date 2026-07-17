@@ -420,7 +420,7 @@ button.na-row:hover .chevR { transform: translateX(3px); color: var(--na-accent)
 
 /* ── overlay + sheets ───────────────────────────────────────────────────── */
 .na-scrim { position: absolute; inset: 0; z-index: 40; background: rgb(43 29 20 / 0.4); opacity: 0; pointer-events: none; transition: opacity var(--duration-normal); }
-.na-scrim[data-open="true"] { opacity: 1; pointer-events: auto; }
+.na-scrim[data-open="true"], .na-scrim[data-state="open"] { opacity: 1; pointer-events: auto; }
 .na-sheet {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 41;
   display: flex; flex-direction: column; max-height: 90%;
@@ -919,7 +919,7 @@ button.na-row:hover .chevR { transform: translateX(3px); color: var(--na-accent)
 .na-revact-btn[data-type="approve"] > svg:first-child { color: var(--na-warn); }
 .na-revact-btn[data-type="gap"]     > svg:first-child { color: var(--na-bad); }
 .na-revact-btn[data-type="coach"]   > svg:first-child { color: var(--na-priv); }
-.na-revmenu { position: absolute; right: 11px; top: calc(100% + 5px); z-index: 30; min-width: 168px; padding: 5px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-app); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; gap: 2px; animation: na-rise .15s var(--ease-out-expo) both; }
+.na-revmenu { position: static; z-index: 46; min-width: 168px; padding: 5px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-app); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; gap: 2px; animation: na-rise .15s var(--ease-out-expo) both; }
 .na-revmenu-row { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 0; border-radius: 8px; background: none; font-family: var(--font-ui); font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; text-align: left; white-space: nowrap; }
 .na-revmenu-row svg { width: 15px; height: 15px; flex: none; color: var(--text-tertiary); }
 .na-revmenu-row:hover { background: var(--bg-hover); }
@@ -1027,7 +1027,7 @@ button.na-row:hover .chevR { transform: translateX(3px); color: var(--na-accent)
 .na-dock-bar .mk { width: 26px; height: 26px; flex: none; display: grid; place-items: center; border-radius: 999px; background: linear-gradient(to bottom right, var(--na-accent), var(--na-accent-hover)); color: #fff; }
 .na-dock-bar .mk svg { width: 15px; height: 15px; }
 .na-add { position: relative; flex: none; }
-.na-add-fan { position: absolute; left: 0; bottom: calc(100% + 14px); z-index: 2; min-width: 232px; display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+.na-add-fan { position: static; z-index: 42; min-width: 232px; padding: 0; border: 0; background: transparent; box-shadow: none; display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
 .na-add-cap { align-self: flex-start; margin-bottom: 2px; padding: 4px 10px; border-radius: 999px; background: var(--text-primary); color: var(--bg-app); font-family: var(--font-ui); font-size: 11px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; box-shadow: var(--shadow-md); animation: na-fab-pop .24s var(--ease-out-expo) both; }
 .na-add-act { display: flex; align-items: center; gap: 11px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; animation: na-fab-pop .3s var(--ease-out-expo) both; animation-delay: var(--d); }
 .na-add-act .fa-ic { flex: none; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 13px; background: var(--bg-secondary); border: 1px solid var(--border-strong); color: var(--na-accent); box-shadow: var(--shadow-md); transition: background var(--duration-fast), transform var(--duration-fast) var(--ease-out-expo); }
@@ -1085,7 +1085,7 @@ button.na-row:hover .chevR { transform: translateX(3px); color: var(--na-accent)
 
 /* fan: action stack rising from the button, aligned to its left edge */
 .na-fab-fan {
-  position: absolute; left: 0; bottom: calc(100% + 12px); z-index: 1;
+  position: static; z-index: 42; padding: 0; border: 0; background: transparent; box-shadow: none;
   display: flex; flex-direction: column-reverse; align-items: flex-start; gap: 12px;
 }
 .na-fab-act {
@@ -1334,7 +1334,7 @@ button.na-row:hover .chevR { transform: translateX(3px); color: var(--na-accent)
 .na-model-chip[data-on="true"] { border-color: color-mix(in srgb, var(--na-accent) 45%, transparent); color: var(--text-primary); }
 .na-model-chip > svg:first-child { width: 15px; height: 15px; color: var(--na-accent); }
 .na-model-chip > svg:last-child { width: 13px; height: 13px; color: var(--text-tertiary); }
-.na-menu { position: absolute; bottom: calc(100% + 8px); left: 0; z-index: 6; min-width: 248px; max-width: 78vw; padding: 6px; border-radius: 16px; background: var(--bg-primary); border: 1px solid var(--border-strong); box-shadow: var(--shadow-xl); display: flex; flex-direction: column; gap: 2px; animation: na-menu-in .16s var(--ease-out-expo); }
+.na-menu { position: static; z-index: 46; min-width: 248px; max-width: 78vw; padding: 6px; border-radius: 16px; background: var(--bg-primary); border: 1px solid var(--border-strong); box-shadow: var(--shadow-xl); display: flex; flex-direction: column; gap: 2px; animation: na-menu-in .16s var(--ease-out-expo); }
 @keyframes na-menu-in { from { opacity: 0; transform: translateY(6px) scale(.98); } to { opacity: 1; transform: none; } }
 .na-menu-row { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 10px; padding: 9px 10px; border: 0; border-radius: 11px; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background var(--duration-fast); }
 .na-menu-row:hover { background: var(--bg-hover); }
