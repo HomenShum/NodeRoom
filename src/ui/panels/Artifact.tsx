@@ -2836,6 +2836,19 @@ function Sheet({ roomId, me, art, proof, onError }: { roomId: string; me: Actor;
   const doUndo = () => { void store.undoLastEdit(roomId, me).then((f) => { if (!f.ok) onError(f); }); };
   return (
     <>
+      {/* Slim artifact header: identity + engine provenance live UP HERE (reference-parity),
+          leaving the footer for actions and hints only. */}
+      <div className="r-sheet-head">
+        <span className="r-sheet-head-title">{art.title}</span>
+        <span className="grow" />
+        <span className="r-dataframe-badge">
+          <Package size={12} aria-hidden="true" />
+          <span>
+            <span className="kicker">versionedSync</span>
+            <span className="r-vpill next">v{art.version}</span>
+          </span>
+        </span>
+      </div>
       <div className="r-art-body">
         <div className="r-sheet-wrap" ref={sheetWrapRef}>
           <AttentionOverlay boxes={overlayBoxes} resolver={overlayResolver} mode="live" />
@@ -2898,13 +2911,6 @@ function Sheet({ roomId, me, art, proof, onError }: { roomId: string; me: Actor;
         </div>
       </div>
       <div className="r-sheet-foot fx-shfoot">
-        <span className="r-dataframe-badge">
-          <Package size={12} aria-hidden="true" />
-          <span>
-            <span className="kicker">versionedSync</span>
-            <span className="r-vpill next">v{art.version}</span>
-          </span>
-        </span>
         <button className="r-mini-btn" disabled={!store.canUndo(roomId)} title="Undo last applied room edit (Ctrl+Z)" onClick={doUndo}><Undo2 size={12} /> Undo</button>
         <span className="grow" />
         <span className="mono tiny faint">click a Variance or Note cell to edit by hand</span>
