@@ -1,0 +1,306 @@
+{
+  "url": "http://127.0.0.1:5260/?mode=memory&surface=desktop",
+  "scheme": "dark",
+  "viewport": {
+    "width": 1512,
+    "height": 812
+  },
+  "when": "2026-07-17T20:33:31.875Z",
+  "signals": {
+    "counts": {
+      "visibleElements": 831,
+      "textElements": 200
+    },
+    "fontSizes": {
+      "unique": 13,
+      "scale": [
+        9,
+        9.5,
+        10,
+        10.5,
+        11,
+        11.2,
+        11.5,
+        12,
+        12.5,
+        13,
+        13.5,
+        14,
+        15
+      ],
+      "histogram": {
+        "9": 3,
+        "10": 26,
+        "11": 43,
+        "12": 26,
+        "13": 30,
+        "14": 2,
+        "15": 1,
+        "10.5": 33,
+        "12.5": 15,
+        "9.5": 10,
+        "11.2": 4,
+        "13.5": 4,
+        "11.5": 3
+      }
+    },
+    "fontWeights": {
+      "unique": 8,
+      "values": [
+        400,
+        500,
+        600,
+        650,
+        700,
+        750,
+        800,
+        900
+      ]
+    },
+    "textColors": {
+      "unique": 8,
+      "offAllowlistCount": 0,
+      "offAllowlist": [],
+      "histogram": {
+        "#f2f4f7": 57,
+        "#8a94a0": 56,
+        "#99a3ae": 42,
+        "#c6ccd4": 23,
+        "#ffffff": 16,
+        "#e59579": 4,
+        "#2e9e6b": 1,
+        "#9dc3d8": 1
+      }
+    },
+    "spacing": {
+      "uniqueValues": 21,
+      "scale": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        12,
+        14,
+        16,
+        20,
+        60,
+        77,
+        87,
+        114,
+        131,
+        304,
+        369
+      ],
+      "totalDecls": 1373,
+      "offGrid4Count": 1012,
+      "offGrid4Rate": 0.737,
+      "offGrid8Count": 1012
+    },
+    "radii": {
+      "unique": 8,
+      "values": [
+        4,
+        6,
+        7,
+        8,
+        9,
+        10,
+        16,
+        50
+      ]
+    },
+    "shadows": {
+      "unique": 8
+    },
+    "icons": {
+      "uniqueSizes": 8,
+      "sizes": [
+        "11x11",
+        "16x16",
+        "15x15",
+        "12x13",
+        "13x13",
+        "14x14",
+        "12x12",
+        "6x12"
+      ]
+    },
+    "contrast": {
+      "flagged": 0,
+      "worst": []
+    },
+    "alignment": {
+      "distinctLeftEdges": 78,
+      "strayRate": 0.392
+    },
+    "motion": {
+      "reducedMotionActive": false,
+      "animatedInfinite": 0,
+      "transitionsWithDuration": 133,
+      "over400ms": 0,
+      "over400msSamples": []
+    },
+    "focus": {
+      "focusVisibleRules": 36,
+      "focusRules": 38
+    }
+  },
+  "rubric": {
+    "V1": {
+      "name": "Type-scale discipline",
+      "score": 0,
+      "why": "13 distinct font-sizes (<=7 disciplined, >10 sprawl)"
+    },
+    "V2": {
+      "name": "Spacing / grid rhythm",
+      "score": 0,
+      "why": "off-4px rate 0.737 (<=0.10 good), 21 distinct spacing values (<=12 good)"
+    },
+    "V3": {
+      "name": "Color restraint & token adherence",
+      "score": 2,
+      "why": "8 distinct text colors (<=12 good)"
+    },
+    "V4": {
+      "name": "Hierarchy (weight + size + value)",
+      "score": 2,
+      "why": "8 distinct font-weights (>=2 needed for weight hierarchy)"
+    },
+    "V5": {
+      "name": "Contrast / legibility (WCAG)",
+      "score": 2,
+      "why": "0 text nodes below WCAG floor (0 = pass)"
+    },
+    "V6": {
+      "name": "Radius / shadow / elevation consistency",
+      "score": 0,
+      "why": "8 radii, 8 shadows, 8 icon sizes (each <=4 = defined levels)"
+    },
+    "V7": {
+      "name": "Alignment / edge discipline",
+      "score": 1,
+      "why": "0.392 of block elements off the 8 dominant left-edges (<=0.25 good)"
+    },
+    "V8": {
+      "name": "State polish (empty / loading / error)",
+      "score": null,
+      "why": "vision-judge only — capture empty+loading+error PNGs; not derivable from one static DOM read"
+    },
+    "V9": {
+      "name": "Motion restraint",
+      "score": 2,
+      "why": "0 transitions >400ms, 0 infinite animations"
+    }
+  },
+  "targets": [
+    {
+      "id": "V1",
+      "name": "Type-scale discipline",
+      "score": 0,
+      "why": "13 distinct font-sizes (<=7 disciplined, >10 sprawl)",
+      "evidence": {
+        "scale": [
+          9,
+          9.5,
+          10,
+          10.5,
+          11,
+          11.2,
+          11.5,
+          12,
+          12.5,
+          13,
+          13.5,
+          14,
+          15
+        ]
+      }
+    },
+    {
+      "id": "V2",
+      "name": "Spacing / grid rhythm",
+      "score": 0,
+      "why": "off-4px rate 0.737 (<=0.10 good), 21 distinct spacing values (<=12 good)",
+      "evidence": {
+        "offGrid4Rate": 0.737,
+        "offGrid4Count": 1012,
+        "uniqueValues": 21,
+        "scale": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          12,
+          14,
+          16,
+          20,
+          60,
+          77,
+          87,
+          114,
+          131,
+          304,
+          369
+        ]
+      }
+    },
+    {
+      "id": "V6",
+      "name": "Radius / shadow / elevation consistency",
+      "score": 0,
+      "why": "8 radii, 8 shadows, 8 icon sizes (each <=4 = defined levels)",
+      "evidence": {
+        "radii": [
+          4,
+          6,
+          7,
+          8,
+          9,
+          10,
+          16,
+          50
+        ],
+        "shadows": 8,
+        "iconSizes": [
+          "11x11",
+          "16x16",
+          "15x15",
+          "12x13",
+          "13x13",
+          "14x14",
+          "12x12",
+          "6x12"
+        ]
+      }
+    },
+    {
+      "id": "V7",
+      "name": "Alignment / edge discipline",
+      "score": 1,
+      "why": "0.392 of block elements off the 8 dominant left-edges (<=0.25 good)",
+      "evidence": {
+        "strayRate": 0.392,
+        "distinctLeftEdges": 78
+      }
+    }
+  ],
+  "focusOk": true,
+  "aggregate": {
+    "measuredDims": 8,
+    "score": 9,
+    "max": 16,
+    "pct": 56
+  }
+}

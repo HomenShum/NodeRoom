@@ -1052,7 +1052,11 @@ const VERIFY_WORKBOOK_TOOL: AgentTool = {
     const confirmedIds = [...new Set([...elementIds, ...contextIds])];
     const confirmed = await rt.readRange(confirmedIds, sheet);
     const targetVersions = new Map(elementIds.map((elementId, index) => [elementId, confirmed[index]?.version]));
-    const targetsWithoutVersions = elementIds.filter((elementId) => !Number.isInteger(targetVersions.get(elementId)));
+    // A target without a version is a cell that does not exist yet — a first write to a
+    // blank sheet. That is a CREATE (the managed write path defaults creates to
+    // baseVersion 0), not a coverage failure: failing preflight here deadlocks blank
+    // sheets, because no re-read can ever version a cell that nothing may write.
+    const newCellTargets = elementIds.filter((elementId) => !Number.isInteger(targetVersions.get(elementId)));
     const targetsWithStaleVersions = a.operations.flatMap((operation) => {
       const currentVersion = targetVersions.get(operation.elementId);
       return operation.baseVersion !== undefined && currentVersion !== undefined && operation.baseVersion !== currentVersion
@@ -1086,15 +1090,14 @@ const VERIFY_WORKBOOK_TOOL: AgentTool = {
     const candidate = a.afterWrite === false
       ? undefined
       : verifyWorkbookValues({ cells, checks: checksForWorkbookOperations(operations) });
-    const versionCoveragePassed = a.afterWrite !== false
-      || (targetsWithoutVersions.length === 0 && targetsWithStaleVersions.length === 0);
+    const versionCoveragePassed = a.afterWrite !== false || targetsWithStaleVersions.length === 0;
     const status = plan.status === "passed" && (!candidate || candidate.status === "passed") && versionCoveragePassed
       ? "passed" as const
       : "needs_repair" as const;
     const approvedOperations = a.afterWrite === false && status === "passed"
       ? a.operations.map((operation) => ({
         ...operation,
-        baseVersion: targetVersions.get(operation.elementId)!,
+        baseVersion: targetVersions.get(operation.elementId) ?? 0,
       }))
       : undefined;
     return {
@@ -1105,11 +1108,9 @@ const VERIFY_WORKBOOK_TOOL: AgentTool = {
       plan,
       ...(approvedOperations ? { approvedOperations } : {}),
       ...(candidate ? { candidate } : {}),
+      ...(a.afterWrite === false && newCellTargets.length > 0 ? { newCellTargets } : {}),
       repairPrompt: [
         ...plan.issues.map((issue) => `${issue.kind}: ${issue.repair}`),
-        ...(targetsWithoutVersions.length > 0
-          ? [`target_version_unavailable: Re-read ${targetsWithoutVersions.join(", ")} before approving this write plan.`]
-          : []),
         ...(targetsWithStaleVersions.length > 0
           ? [`stale_target_version: Re-inspect ${targetsWithStaleVersions.map((target) => `${target.elementId} (expected ${target.expected}, actual ${target.actual})`).join(", ")} before approving this write plan.`]
           : []),

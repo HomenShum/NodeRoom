@@ -13,6 +13,7 @@ import type * as agentArtifacts from "../agentArtifacts.js";
 import type * as agentJobRunner from "../agentJobRunner.js";
 import type * as agentJobs from "../agentJobs.js";
 import type * as agentRuns from "../agentRuns.js";
+import type * as agentStepChain from "../agentStepChain.js";
 import type * as agentStepJournal from "../agentStepJournal.js";
 import type * as agentStepJournalClient from "../agentStepJournalClient.js";
 import type * as agentSteps from "../agentSteps.js";
@@ -97,6 +98,7 @@ declare const fullApi: ApiFromModules<{
   agentJobRunner: typeof agentJobRunner;
   agentJobs: typeof agentJobs;
   agentRuns: typeof agentRuns;
+  agentStepChain: typeof agentStepChain;
   agentStepJournal: typeof agentStepJournal;
   agentStepJournalClient: typeof agentStepJournalClient;
   agentSteps: typeof agentSteps;
