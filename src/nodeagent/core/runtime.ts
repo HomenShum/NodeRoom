@@ -47,6 +47,11 @@ export const TOOL_REQUIRED_NO_CALL_MARKER = "tool_required_no_call";
 export const TOOL_REQUIRED_NO_CALL_TERMINAL_MARKER = "tool_required_no_call_terminal";
 const TOOL_REQUIRED_NO_CALL_TERMINAL_AFTER = 4;
 const DETERMINISTIC_TOOL_FAILURE_TERMINAL_AFTER = 4;
+// Accrued (non-consecutive) cap: an identical deterministic block recurring across turns
+// means the loop is not converging even when reads/verifies succeed in between — the live
+// blocked-write doom loop (room NRNXCFYJK5B) interleaved inspect/verify successes between
+// blocked writes, so the consecutive counter above reset every cycle and never tripped.
+const DETERMINISTIC_TOOL_FAILURE_ACCRUED_TERMINAL_AFTER = 6;
 
 function isAbortLike(error: unknown): boolean {
   return error instanceof Error && (error.name === "AbortError" || /aborted|abort/i.test(error.message));
@@ -842,6 +847,7 @@ export async function runAgent(opts: {
   let readToolsWithheldNoted = false;
   let deterministicFailureKey: string | undefined;
   let deterministicFailureCount = 0;
+  const deterministicFailureTotals = new Map<string, number>();
   const managedWriteToolsAvailable = tools.some((tool) => tool.name.startsWith("write_locked_cell"));
   const btbPackageToolAvailable = tools.some((tool) => tool.name === "create_btb_deliverable_package");
   const btbPackageTools = new Set(["create_btb_deliverable_package"]);
@@ -1155,31 +1161,38 @@ export async function runAgent(opts: {
           }
         }
         const failureKey = deterministicToolFailureKey(call.tool, result);
+        let accruedFailureCount = 0;
         if (failureKey) {
           if (failureKey === deterministicFailureKey) deterministicFailureCount += 1;
           else {
             deterministicFailureKey = failureKey;
             deterministicFailureCount = 1;
           }
+          accruedFailureCount = (deterministicFailureTotals.get(failureKey) ?? 0) + 1;
+          deterministicFailureTotals.set(failureKey, accruedFailureCount);
         } else {
           deterministicFailureKey = undefined;
           deterministicFailureCount = 0;
         }
-        if (deterministicFailureCount >= DETERMINISTIC_TOOL_FAILURE_TERMINAL_AFTER) {
+        if (
+          deterministicFailureCount >= DETERMINISTIC_TOOL_FAILURE_TERMINAL_AFTER
+          || accruedFailureCount >= DETERMINISTIC_TOOL_FAILURE_ACCRUED_TERMINAL_AFTER
+        ) {
+          const trippedCount = Math.max(deterministicFailureCount, accruedFailureCount);
           emitStreamEvent({
             kind: "warning",
             step,
             status: "failed",
             title: "Repeated tool failure",
-            text: `NodeAgent stopped after ${deterministicFailureCount} identical deterministic tool failures.`,
-            metadata: { tool: call.tool, deterministicFailureCount },
+            text: `NodeAgent stopped after ${trippedCount} identical deterministic tool failures.`,
+            metadata: { tool: call.tool, deterministicFailureCount: trippedCount },
           });
           const handoff = emitHandoff(
             step + 1,
             "step_budget",
             step + 1,
             pendingToolCalls,
-            `NodeAgent stopped after ${deterministicFailureCount} identical deterministic failures from ${call.tool}. Retry with corrected arguments, a corrected approved plan, or a different model route.`,
+            `NodeAgent stopped after ${trippedCount} identical deterministic failures from ${call.tool} (repeats counted across turns, even when other tools succeeded in between). Retry with corrected arguments, a corrected approved plan, or a different model route.`,
             "protocol_stall",
           );
           return finish("step_budget", step + 1, true, handoff);

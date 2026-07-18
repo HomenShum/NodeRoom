@@ -2,44 +2,28 @@
   "generatedNote": "regenerate with `npm run qa:states`",
   "captures": [
     {
-      "surface": "sheet",
-      "state": "empty-cells",
+      "surface": "landing",
+      "state": "default",
       "theme": "dark",
       "width": 1860,
-      "file": "sheet/empty-cells--dark--1860.png",
-      "mustBeTrue": "Empty variance cells show a '+ add' affordance (not 'null'); existing values use neutral/sign-aware color, not all-green."
+      "file": "landing/default--dark--1860.png",
+      "mustBeTrue": "Single filled primary CTA (Try sample room); Join is a bordered secondary, not a second filled button. Display name is requested in the confirmation dialog after either action."
     },
     {
-      "surface": "sheet",
-      "state": "cell-editing",
+      "surface": "landing",
+      "state": "join-focus",
       "theme": "dark",
       "width": 1860,
-      "file": "sheet/cell-editing--dark--1860.png",
-      "mustBeTrue": "An editing cell shows a clearly-bordered input; a negative value previews in the danger color (sign-aware)."
+      "file": "landing/join-focus--dark--1860.png",
+      "mustBeTrue": "The code input shows a visible focus ring; the Join button stays the quieter secondary."
     },
     {
-      "surface": "sheet",
-      "state": "proposal-pending",
-      "theme": "dark",
+      "surface": "landing",
+      "state": "default",
+      "theme": "light",
       "width": 1860,
-      "file": "sheet/proposal-pending--dark--1860.png",
-      "mustBeTrue": "Agent edits arrive as inline proposals: the suggested VALUE carries the accent; the ✓ accept / ✗ reject controls are neutral ghosts of equal weight (no ban-circle, no solid-accent button)."
-    },
-    {
-      "surface": "sheet",
-      "state": "proposal-accept-hover",
-      "theme": "dark",
-      "width": 1860,
-      "file": "sheet/proposal-accept-hover--dark--1860.png",
-      "mustBeTrue": "Hovering ✓ accept tints green (semantic confirm), not the brand accent."
-    },
-    {
-      "surface": "sheet",
-      "state": "proposal-reject-hover",
-      "theme": "dark",
-      "width": 1860,
-      "file": "sheet/proposal-reject-hover--dark--1860.png",
-      "mustBeTrue": "Hovering ✗ reject tints soft-red (semantic decline); the glyph is an X, never a ban-circle."
+      "file": "landing/default--light--1860.png",
+      "mustBeTrue": "Same hierarchy holds in light theme; the primary CTA is the only filled button."
     },
     {
       "surface": "topbar",
@@ -47,7 +31,7 @@
       "theme": "dark",
       "width": 1860,
       "file": "topbar/default--dark--1860.png",
-      "mustBeTrue": "Room-code chip, auto-allow switch, avatars, panel toggles, theme, help, leave — all consistent height; one accent at most."
+      "mustBeTrue": "Clean bar: brand, room-code chip, presence facepile + live, one settings icon — agent-commits, focus, theme, and leave now live in settings."
     },
     {
       "surface": "topbar",
@@ -95,55 +79,7 @@
       "theme": "light",
       "width": 1860,
       "file": "topbar/default--light--1860.png",
-      "mustBeTrue": "Top bar holds contrast in light theme; the theme-toggle icon reflects the light state; no invisible icons."
-    },
-    {
-      "surface": "research",
-      "state": "default",
-      "theme": "dark",
-      "width": 1860,
-      "file": "research/default--dark--1860.png",
-      "mustBeTrue": "Research grid with pending rows; the 'Enrich N pending' and 'Import accounts' buttons are normally-sized, not slabs."
-    },
-    {
-      "surface": "research",
-      "state": "import-open",
-      "theme": "dark",
-      "width": 1860,
-      "file": "research/import-open--dark--1860.png",
-      "mustBeTrue": "The import form: the 'Import / update rows' button sits bottom-right beside the textarea at NORMAL height — it does NOT stretch to a giant orange block matching the 3-row textarea."
-    },
-    {
-      "surface": "research",
-      "state": "import-empty-error",
-      "theme": "dark",
-      "width": 1860,
-      "file": "research/import-empty-error--dark--1860.png",
-      "mustBeTrue": "Submitting an empty paste shows an inline explanation full-width below the field (no silent dead button, no layout shift of the submit)."
-    },
-    {
-      "surface": "landing",
-      "state": "default",
-      "theme": "dark",
-      "width": 1860,
-      "file": "landing/default--dark--1860.png",
-      "mustBeTrue": "Single filled primary CTA (Enter the room); Join is a bordered secondary, not a second filled button. Name field present."
-    },
-    {
-      "surface": "landing",
-      "state": "join-focus",
-      "theme": "dark",
-      "width": 1860,
-      "file": "landing/join-focus--dark--1860.png",
-      "mustBeTrue": "The code input shows a visible focus ring; the Join button stays the quieter secondary."
-    },
-    {
-      "surface": "landing",
-      "state": "default",
-      "theme": "light",
-      "width": 1860,
-      "file": "landing/default--light--1860.png",
-      "mustBeTrue": "Same hierarchy holds in light theme; the primary CTA is the only filled button."
+      "mustBeTrue": "Top bar holds contrast in light theme; the icons stay legible; no invisible icons."
     },
     {
       "surface": "leftrail",
@@ -151,7 +87,7 @@
       "theme": "dark",
       "width": 1860,
       "file": "leftrail/default--dark--1860.png",
-      "mustBeTrue": "File rows (the OPEN artifact carries a persistent selected background - selection, not hover); the upload button; the inert 'Data room exports' source row is muted and must NOT look like the clickable artifact rows."
+      "mustBeTrue": "File rows use weight plus an accent icon for the open artifact, distinct from hover without adding a boxed selected row. Lower actions remain reachable by scrolling; inert rows must not look clickable."
     },
     {
       "surface": "leftrail",
@@ -159,7 +95,7 @@
       "theme": "dark",
       "width": 1860,
       "file": "leftrail/file-hover--dark--1860.png",
-      "mustBeTrue": "A non-selected file row (Agent wiki) shows a hover-fill - distinct from both the default rows and the accent-tinted SELECTED row (Q3 variance)."
+      "mustBeTrue": "A non-selected Agent wiki row shows a hover fill, distinct from both default rows and the weight-plus-accent-icon selected Q3 variance row."
     },
     {
       "surface": "leftrail",
@@ -167,7 +103,7 @@
       "theme": "dark",
       "width": 1860,
       "file": "leftrail/static-hover--dark--1860.png",
-      "mustBeTrue": "The inert data-room source row does NOT highlight on hover - it stays muted. (The 'Agent wiki' row carries a persistent SELECTED background because it is the open artifact - that is selection, not hover.)"
+      "mustBeTrue": "The inert Permissions row does NOT highlight on hover - it stays muted. The selected artifact keeps its persistent background because that is selection, not hover."
     },
     {
       "surface": "chat",
@@ -175,7 +111,7 @@
       "theme": "dark",
       "width": 1860,
       "file": "chat/composer-empty--dark--1860.png",
-      "mustBeTrue": "Empty composer with placeholder + send affordance; the send control state reflects empty input."
+      "mustBeTrue": "Empty composer has a muted disabled send control. Voice and detailed hints are intentionally hidden at rest and reveal on hover or keyboard focus to preserve workspace area."
     },
     {
       "surface": "chat",
@@ -199,7 +135,71 @@
       "theme": "dark",
       "width": 1860,
       "file": "chat/message-hover--dark--1860.png",
-      "mustBeTrue": "Hovering YOUR OWN message reveals its action controls (copy/edit/promote) at a legible size."
+      "mustBeTrue": "Hovering your own public message reveals its Copy and Edit controls at a legible size. Promote is reserved for private-agent output moving into public chat."
+    },
+    {
+      "surface": "sheet",
+      "state": "empty-cells",
+      "theme": "dark",
+      "width": 1860,
+      "file": "sheet/empty-cells--dark--1860.png",
+      "mustBeTrue": "Empty variance cells show a '+ add' affordance (not 'null'); existing values use neutral/sign-aware color, not all-green."
+    },
+    {
+      "surface": "sheet",
+      "state": "cell-editing",
+      "theme": "dark",
+      "width": 1860,
+      "file": "sheet/cell-editing--dark--1860.png",
+      "mustBeTrue": "An editing cell shows a clearly-bordered input; a negative value previews in the danger color (sign-aware)."
+    },
+    {
+      "surface": "sheet",
+      "state": "proposal-pending",
+      "theme": "dark",
+      "width": 1860,
+      "file": "sheet/proposal-pending--dark--1860.png",
+      "mustBeTrue": "Agent edits arrive as inline proposals: the suggested VALUE carries the accent; the ✓ accept / ✗ reject controls are neutral ghosts of equal weight (no ban-circle, no solid-accent button)."
+    },
+    {
+      "surface": "sheet",
+      "state": "proposal-accept-hover",
+      "theme": "dark",
+      "width": 1860,
+      "file": "sheet/proposal-accept-hover--dark--1860.png",
+      "mustBeTrue": "Hovering ✓ accept tints green (semantic confirm), not the brand accent."
+    },
+    {
+      "surface": "sheet",
+      "state": "proposal-reject-hover",
+      "theme": "dark",
+      "width": 1860,
+      "file": "sheet/proposal-reject-hover--dark--1860.png",
+      "mustBeTrue": "Hovering ✗ reject tints soft-red (semantic decline); the glyph is an X, never a ban-circle."
+    },
+    {
+      "surface": "research",
+      "state": "default",
+      "theme": "dark",
+      "width": 1860,
+      "file": "research/default--dark--1860.png",
+      "mustBeTrue": "Research grid with pending rows; the 'Enrich N pending' and 'Import accounts' buttons are normally-sized, not slabs."
+    },
+    {
+      "surface": "research",
+      "state": "import-open",
+      "theme": "dark",
+      "width": 1860,
+      "file": "research/import-open--dark--1860.png",
+      "mustBeTrue": "The import form keeps an active normal-height submit at bottom-right. Empty submit is intentionally clickable so it can explain the required format inline instead of becoming a silent dead button."
+    },
+    {
+      "surface": "research",
+      "state": "import-empty-error",
+      "theme": "dark",
+      "width": 1860,
+      "file": "research/import-empty-error--dark--1860.png",
+      "mustBeTrue": "Submitting an empty paste keeps the text and active retry path, then shows a full-width inline format explanation with no silent disabled button or submit layout shift."
     }
   ]
 }
