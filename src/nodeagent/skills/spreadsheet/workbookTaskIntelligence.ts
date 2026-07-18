@@ -279,8 +279,18 @@ export function workbookCellKey(sheet: string, address: string): string {
   return `${sheet.trim().toLowerCase()}!${normalizeAddress(address)}`;
 }
 
+/** Structured room-sheet ids whose column segment is a plain letter run (`r6__B`,
+ *  `r12__aa`) are the same cell as their A1 twin (`B6`, `AA12`). Instruction-derived
+ *  targets parse as A1 while agent plans write structured ids, so without this
+ *  canonicalization target-coverage can never match on blank room sheets — the live
+ *  write deadlock's second layer (room NR44HTRXVCD, 2026-07-18). Semantic column ids
+ *  (`r_rev__variance`) have no A1 twin and pass through untouched. */
+const STRUCTURED_LETTER_ID_RE = /^R(\d+)__([A-Z]{1,3})$/;
+
 export function normalizeAddress(address: string): string {
-  return address.replace(/\$/g, "").trim().toUpperCase();
+  const trimmed = address.replace(/\$/g, "").trim().toUpperCase();
+  const structured = STRUCTURED_LETTER_ID_RE.exec(trimmed);
+  return structured ? `${structured[2]}${structured[1]}` : trimmed;
 }
 
 export function normalizeFormula(formula: string | undefined): string | undefined {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/spreadsheet/cellMutator";
+import { normalizeAddress, workbookCellKey } from "../src/nodeagent/skills/spreadsheet/workbookTaskIntelligence";
 import type { RoomTools } from "../src/nodeagent/core/types";
 
 /**
@@ -27,6 +28,21 @@ function roomToolsWithVersions(versionById: Record<string, number | undefined>) 
   };
   return rt as RoomTools;
 }
+
+describe("structured id and A1 address canonicalization", () => {
+  it("maps structured letter-column ids onto their A1 twin so target coverage can match", () => {
+    expect(normalizeAddress("r6__B")).toBe("B6");
+    expect(normalizeAddress("R12__aa")).toBe("AA12");
+    expect(workbookCellKey("Sheet 1", "r6__B")).toBe(workbookCellKey("Sheet 1", "B6"));
+    expect(workbookCellKey("Sheet 1", "$B$6")).toBe(workbookCellKey("Sheet 1", "r6__B"));
+  });
+
+  it("leaves semantic column ids and plain A1 addresses untouched", () => {
+    expect(normalizeAddress("r_rev__variance")).toBe("R_REV__VARIANCE");
+    expect(normalizeAddress("B6")).toBe("B6");
+    expect(normalizeAddress("r1__metric")).toBe("R1__METRIC");
+  });
+});
 
 describe("verify_workbook preflight on blank sheets", () => {
   it("exposes the tool under test", () => {
