@@ -145,25 +145,26 @@ model/harness selection.
 
 NodeRoom uses an **orchestrator-worker** model routing pattern — the same
 architecture that OpenAI, Anthropic, and Claude Code have converged on in
-2025–2026. A high-intelligence orchestrator model (`z-ai/glm-5.2`, AA Index
-51.1) handles planning, verification, and synthesis. A cheaper worker model
-(`minimax/minimax-m3`, AA Index 44.4, 4x cheaper) executes bounded tool calls,
-search, and evidence gathering. The orchestrator reviews worker output before
-committing.
+2025–2026. A high-intelligence orchestrator model (`moonshotai/kimi-k3`, 1M
+context) handles planning, verification, and synthesis. A cheaper worker model
+(`minimax/minimax-m3`, 4x cheaper) executes bounded tool calls, search, and
+evidence gathering. The orchestrator reviews worker output before committing.
+(`z-ai/glm-5.2` remains a demoted fallback route, not the default.)
 
 This maps directly to NodeRoom's five-phase frame loop:
 
 ```
-intake      → orchestrator (glm-5.2)   normalize request
-plan        → orchestrator (glm-5.2)   decompose, decide cache vs research
+intake      → orchestrator (kimi-k3)   normalize request
+plan        → orchestrator (kimi-k3)   decompose, decide cache vs research
 execute     → worker (minimax-m3)      search, read, write, evidence
-verify      → orchestrator (glm-5.2)   check evidence, freshness, claims
-synthesize  → orchestrator (glm-5.2)   summarize for room trace + UI
+verify      → orchestrator (kimi-k3)   check evidence, freshness, claims
+synthesize  → orchestrator (kimi-k3)   summarize for room trace + UI
 ```
 
-The split gives near-minimax cost with near-glm intelligence for cognitive
-phases: ~$0.08 per deep-dive job vs $0.15 for glm-only or $0.06 for
-minimax-only. Full design record in
+The split concentrates spend on the cognitive phases (a frontier orchestrator)
+while keeping bulk execution on a cheap worker; per-job cost is bounded by the
+`AGENT_MAX_USD_PER_SLICE`, `ROOM_MAX_USD_PER_DAY`, and `GLOBAL_MAX_USD_PER_MONTH`
+caps rather than by model choice alone. Full design record in
 [`docs/ORCHESTRATOR_WORKER_ROUTING.md`](docs/ORCHESTRATOR_WORKER_ROUTING.md).
 The smallest adoption proof is runnable with:
 
