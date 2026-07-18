@@ -538,9 +538,11 @@ function LiveProofPill() {
   // No placeholder ghosts (em-dashes read as a broken page), and no zero-bragging:
   // a social-proof strip with nothing to prove should not render at all. Verified
   // against prod: metrics:landingMetrics currently returns { roomsLive: 0, ... }.
-  if (metrics === undefined) return null;
-  if (metrics.roomsLive.value === 0 && metrics.cellsCommittedToday.value === 0) return null;
-  return <ProofPillView rooms={metrics.roomsLive} cells={metrics.cellsCommittedToday} demo={false} />;
+  const rooms = metrics?.roomsLive;
+  const cells = metrics?.cellsCommittedToday;
+  if (!rooms || !cells) return null;
+  if (rooms.value === 0 && cells.value === 0) return null;
+  return <ProofPillView rooms={rooms} cells={cells} demo={false} />;
 }
 
 function LandingProofPill({ live }: { live: boolean }) {
