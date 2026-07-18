@@ -152,6 +152,8 @@ export const modelPricing: Record<string, ModelPricing> = {
   "z-ai/glm-4.7": { inputPer1M: 0.40, outputPer1M: 1.50, contextWindow: 202752 },
   "glm-5.2": { inputPer1M: 0.77, outputPer1M: 2.42, cachedInputPer1M: 0.18, contextWindow: 1048576 },
   "z-ai/glm-5.2": { inputPer1M: 0.77, outputPer1M: 2.42, cachedInputPer1M: 0.18, contextWindow: 1048576 },
+  "kimi-k3": { inputPer1M: 3.00, outputPer1M: 15.00, contextWindow: 1048576 },
+  "moonshotai/kimi-k3": { inputPer1M: 3.00, outputPer1M: 15.00, contextWindow: 1048576 },
   "kimi-k2.6": { inputPer1M: 0.75, outputPer1M: 3.50, contextWindow: 262144 },
   "moonshotai/kimi-k2.6": { inputPer1M: 0.75, outputPer1M: 3.50, contextWindow: 262144 },
   "kimi-k2.7-code": { inputPer1M: 0.74, outputPer1M: 3.50, cachedInputPer1M: 0.15, contextWindow: 262144 },
@@ -297,16 +299,18 @@ export const llmModelCatalog: ModelCatalog = {
     coding: ["gemini-3.1-pro-preview", "gemini-3-flash-preview", "gemini-2.5-pro"],
   },
   openrouter: {
-    chat: ["z-ai/glm-5.2", "moonshotai/kimi-k2.7-code", "qwen/qwen3.7-plus", "minimax/minimax-m3", OPENROUTER_FREE_AUTO_MODEL, "stepfun/step-3.7-flash", "z-ai/glm-4.7-flash"],
-    agent: ["z-ai/glm-5.2", "moonshotai/kimi-k2.7-code", "qwen/qwen3.7-plus", "nvidia/nemotron-3-ultra-550b-a55b", "minimax/minimax-m3", OPENROUTER_FREE_AUTO_MODEL, "stepfun/step-3.7-flash"],
+    // Kimi K3 (1M ctx) leads the agentic lanes; z-ai/glm-5.2 demoted to fallback so no
+    // room lands on the GLM route by default. Free-auto stays in the ladder for free-only rooms.
+    chat: ["moonshotai/kimi-k3", "moonshotai/kimi-k2.7-code", "z-ai/glm-5.2", "qwen/qwen3.7-plus", "minimax/minimax-m3", OPENROUTER_FREE_AUTO_MODEL, "stepfun/step-3.7-flash", "z-ai/glm-4.7-flash"],
+    agent: ["moonshotai/kimi-k3", "moonshotai/kimi-k2.7-code", "z-ai/glm-5.2", "qwen/qwen3.7-plus", "nvidia/nemotron-3-ultra-550b-a55b", "minimax/minimax-m3", OPENROUTER_FREE_AUTO_MODEL, "stepfun/step-3.7-flash"],
     router: ["qwen/qwen3.7-plus", "minimax/minimax-m3", "stepfun/step-3.7-flash", OPENROUTER_FREE_AUTO_MODEL, "z-ai/glm-4.7-flash"],
-    judge: ["z-ai/glm-5.2", "moonshotai/kimi-k2.7-code", "qwen/qwen3.7-plus", "nvidia/nemotron-3-ultra-550b-a55b", "minimax/minimax-m3"],
-    analysis: ["z-ai/glm-5.2", "moonshotai/kimi-k2.7-code", "qwen/qwen3.7-plus", "nvidia/nemotron-3-ultra-550b-a55b", "minimax/minimax-m3"],
-    deepResearch: ["z-ai/glm-5.2", "qwen/qwen3.7-plus", "nvidia/nemotron-3-ultra-550b-a55b", "moonshotai/kimi-k2.7-code", "minimax/minimax-m3"],
+    judge: ["moonshotai/kimi-k3", "z-ai/glm-5.2", "moonshotai/kimi-k2.7-code", "qwen/qwen3.7-plus", "nvidia/nemotron-3-ultra-550b-a55b", "minimax/minimax-m3"],
+    analysis: ["moonshotai/kimi-k3", "z-ai/glm-5.2", "moonshotai/kimi-k2.7-code", "qwen/qwen3.7-plus", "nvidia/nemotron-3-ultra-550b-a55b", "minimax/minimax-m3"],
+    deepResearch: ["moonshotai/kimi-k3", "z-ai/glm-5.2", "qwen/qwen3.7-plus", "nvidia/nemotron-3-ultra-550b-a55b", "moonshotai/kimi-k2.7-code", "minimax/minimax-m3"],
     vision: [],
     fileSearch: ["qwen/qwen3.7-plus", "minimax/minimax-m3", "moonshotai/kimi-k2.7-code", OPENROUTER_FREE_AUTO_MODEL, "z-ai/glm-4.7-flash"],
     voice: [],
-    coding: ["moonshotai/kimi-k2.7-code", "z-ai/glm-5.2", "qwen/qwen3.7-plus", "minimax/minimax-m3", "cohere/north-mini-code:free", OPENROUTER_FREE_AUTO_MODEL],
+    coding: ["moonshotai/kimi-k3", "moonshotai/kimi-k2.7-code", "z-ai/glm-5.2", "qwen/qwen3.7-plus", "minimax/minimax-m3", "cohere/north-mini-code:free", OPENROUTER_FREE_AUTO_MODEL],
   },
   xai: {
     chat: ["grok-3-mini", "grok-4-1-fast-reasoning"],

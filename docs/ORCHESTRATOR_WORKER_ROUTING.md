@@ -30,10 +30,10 @@ it:
 ## Model Assignment
 
 ```
-Orchestrator (plan, verify, synthesize)  →  z-ai/glm-5.2
-    AA Intelligence Index: 51.1 (top open-weight)
-    $0.95 / $3.00 per 1M tokens
+Orchestrator (plan, verify, synthesize)  →  moonshotai/kimi-k3
+    $3.00 / $15.00 per 1M tokens
     1M context
+    (z-ai/glm-5.2 remains a demoted fallback in the openrouter agent ladder)
     Best agentic score (43.1) — strong tool-call planning
 
 Worker (execute, evidence, search)  →  minimax/minimax-m3
@@ -157,7 +157,7 @@ active.
 ### Environment variables
 
 ```
-AGENT_ORCHESTRATOR_MODEL=z-ai/glm-5.2     # plan, verify, synthesize
+AGENT_ORCHESTRATOR_MODEL=moonshotai/kimi-k3   # plan, verify, synthesize
 AGENT_WORKER_MODEL=minimax/minimax-m3     # execute, evidence, search
 AGENT_RESEARCH_MODEL=minimax/minimax-m3   # backward compat (worker for research mode)
 ```
