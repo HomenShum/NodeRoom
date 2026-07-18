@@ -535,7 +535,14 @@ function ProofPillView({ rooms, cells, demo }: { rooms?: LandingMetric; cells?: 
 /** Mounted ONLY in live mode — memory mode has no ConvexProvider and useQuery would throw. */
 function LiveProofPill() {
   const metrics = useQuery(landingMetricsQuery, {});
-  return <ProofPillView rooms={metrics?.roomsLive} cells={metrics?.cellsCommittedToday} demo={false} />;
+  // No placeholder ghosts (em-dashes read as a broken page), and no zero-bragging:
+  // a social-proof strip with nothing to prove should not render at all. Verified
+  // against prod: metrics:landingMetrics currently returns { roomsLive: 0, ... }.
+  const rooms = metrics?.roomsLive;
+  const cells = metrics?.cellsCommittedToday;
+  if (!rooms || !cells) return null;
+  if (rooms.value === 0 && cells.value === 0) return null;
+  return <ProofPillView rooms={rooms} cells={cells} demo={false} />;
 }
 
 function LandingProofPill({ live }: { live: boolean }) {
