@@ -317,7 +317,7 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-file .fn { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 13px; font-weight: 650; color: var(--text-primary); line-height: 1.22; white-space: normal; }
 .r-file-name { min-width: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; white-space: normal; }
 .r-file-ext { flex: none; display: inline-flex; align-items: center; min-height: 16px; padding: 1px 5px; border-radius: 5px; border: 1px solid var(--line); background: var(--bg-primary); color: var(--text-tertiary); font-family: var(--font-mono); font-size: 9px; line-height: 1; font-weight: 800; }
-.r-file .fm { font-size: 11.2px; line-height: 1.25; color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-file .fm { font-size: 11px; line-height: 1.25; color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-file > * { min-width: 0; } /* let the text column shrink so .fn/.fm ellipsis instead of reflowing the rail */
 .r-file-input { display: none; }
 .r-file.r-upload { margin-top: 6px; border-style: dashed; }
@@ -417,7 +417,7 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-person { display: flex; align-items: center; gap: var(--space-2); padding: 8px var(--space-2); min-height: 42px; border-radius: 9px; }
 .r-person:hover { background: var(--bg-hover); }
 .r-person .pn { font-size: 13px; line-height: 1.25; font-weight: 650; }
-.r-person .pr { font-size: 11.2px; line-height: 1.25; color: var(--text-tertiary); }
+.r-person .pr { font-size: 11px; line-height: 1.25; color: var(--text-tertiary); }
 .r-dot-live { width: 7px; height: 7px; border-radius: 50%; background: var(--success); flex: none; box-shadow: 0 0 0 3px rgba(46,158,107,.18); }
 .r-avatar { width: 28px; height: 28px; border-radius: 50%; flex: none; display: grid; place-items: center; font-size: 11px; font-weight: 700; color: #fff; }
 .r-avatar.agent { border-radius: 8px; } .r-avatar.sm { width: 24px; height: 24px; font-size: 10px; }
@@ -539,7 +539,7 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-coach-card-head span[data-status="verified"], .r-coach-runway-row[data-status="verified"] span { border-color: rgba(46,158,107,.28); background: rgba(46,158,107,.10); color: var(--success-ink); }
 .r-coach-card-head span[data-status="needs_review"], .r-coach-runway-row[data-status="needs_review"] span { border-color: var(--warning-border); background: var(--warning-tint); color: var(--warning-ink); }
 .r-coach-card-head span[data-status="manual"], .r-coach-card-head span[data-status="estimated"], .r-coach-runway-row[data-status="gap"] span { border-color: var(--danger-border); background: var(--danger-tint); color: var(--danger-ink); }
-.r-coach-card p, .r-coach-cue p, .r-coach-runway-row p { margin: 0; color: var(--text-secondary); font-size: 11.2px; line-height: 1.35; overflow-wrap: anywhere; }
+.r-coach-card p, .r-coach-cue p, .r-coach-runway-row p { margin: 0; color: var(--text-secondary); font-size: 11px; line-height: 1.35; overflow-wrap: anywhere; }
 .r-coach-card small, .r-coach-cue small, .r-coach-handoff small { display: block; margin-top: 5px; color: var(--text-muted); font-size: 10px; line-height: 1.25; overflow-wrap: anywhere; }
 .r-coach-open { position: absolute; top: 8px; right: 8px; color: var(--text-tertiary); }
 .r-coach-cue { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2); }

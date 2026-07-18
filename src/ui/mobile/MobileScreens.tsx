@@ -1015,15 +1015,21 @@ export function Home({ ctx }: { ctx: MobileCtx }): React.ReactElement {
                 recentSignature(r.sig),
                 (function () {
                   const o = openMeta(r.kind);
+                  // Meta gets its own full-width row (title -> meta -> action): paired with
+                  // the open button it ellipsized to meaningless fragments ("deck ·...").
                   return React.createElement(
-                    "span",
-                    { className: "rc-foot" },
+                    React.Fragment,
+                    null,
                     React.createElement("span", { className: "rc-meta" }, r.meta),
                     React.createElement(
                       "span",
-                      { className: "na-openbtn", "data-kind": r.kind },
-                      Ico(o.icon),
-                      React.createElement("span", null, o.label),
+                      { className: "rc-foot" },
+                      React.createElement(
+                        "span",
+                        { className: "na-openbtn", "data-kind": r.kind },
+                        Ico(o.icon),
+                        React.createElement("span", null, o.label),
+                      ),
                     ),
                   );
                 })(),

@@ -2244,7 +2244,11 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
         </div>
       )}
 
-      <div className="r-chat" ref={feedRef} onScroll={onScroll} aria-live="polite" data-testid="chat-feed">
+      {/* role="log" gives implicit polite liveness (additions announced, not the whole feed)
+          without the [aria-live] attribute, which the aria-hidden package exempts from modal
+          hiding — an explicit attribute here kept all 130+ feed elements screen-reader
+          reachable behind open dialogs. */}
+      <div className="r-chat" ref={feedRef} onScroll={onScroll} role="log" aria-label={isPrivate ? "Private chat messages" : "Room chat messages"} data-testid="chat-feed">
         {showEmptyState && (
           <div className="r-chat-empty" data-testid={isPrivate ? "private-chat-empty" : "public-chat-empty"}>
             <span>{isPrivate ? "Ask your NodeAgent privately, or switch it to Room mode." : emptyStateHint}</span>
@@ -2397,7 +2401,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
                 onChange={onChange}
                 onKeyDown={onKeyDown}
                 onPaste={onPaste}
-                placeholder={isPrivate ? (roomLane ? "Tell your agent to act in the room…" : "Ask privately…") : "Message the room or @nod"}
+                placeholder={isPrivate ? (roomLane ? "Tell your agent to act in the room…" : "Ask privately…") : "Message the room or @nodeagent"}
                 data-testid="chat-composer"
                 aria-controls={mention !== null && mentionMatches.length > 0 ? "chat-mention-list" : undefined}
                 aria-expanded={mention !== null && mentionMatches.length > 0}

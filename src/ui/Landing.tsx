@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "convex/react";
 import type { FunctionReference } from "convex/server";
-import { ArrowLeft, ArrowRight, Check, Lock, Moon, Plus, Sparkles, Users, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Lock, Moon, Plus, Sparkles, Users, X } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import { createFreshRoom, enterDemoRoomAsHost, joinRoomByCode } from "../app/roomStore";
 import { NodeReveal } from "./motion/NodeReveal";
@@ -171,7 +171,13 @@ export function Landing({
                 </div>
                 {shownError && <div id="landing-join-error" className="r-join-error" role="alert">{shownError}</div>}
                 <LandingProofPill live={live} />
-                <div className="r-land2-trust"><Check size={14} /> Sign-in required · Code-access rooms · Review-first agent edits</div>
+                {/* Same chip vocabulary as the SSR shell's proof points (.nr-ssr-proof) so
+                    first paint and hydrated app read as one design. */}
+                <div className="r-land2-trust" aria-label="NodeRoom guarantees">
+                  <span>Sign-in required</span>
+                  <span>Code-access rooms</span>
+                  <span>Review-first agent edits</span>
+                </div>
               </div>
               <div><LandingDemoLoop /></div>
             </div>
