@@ -1161,6 +1161,8 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
    version pill, chromeless column count. .r-vpill.next keeps its accent — it is a pending-commit
    semantic, not decoration. */
 .r-sheet-foot { padding: 10px 14px; border-top: 1px solid color-mix(in srgb, var(--line) 55%, transparent); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+/* The engine badge is provenance, not a headline — quiet mono, no uppercase shout. */
+.r-dataframe-badge .kicker { text-transform: none; letter-spacing: 0; font-family: var(--font-mono); font-weight: 600; font-size: 10px; }
 .r-vpill { font-family: var(--font-mono); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: transparent; border: 1px solid var(--line); color: var(--text-muted); }
 .r-vpill.next { background: var(--accent-tint); border-color: var(--accent-border); color: var(--accent-ink); }
 .r-cols-pill { display: inline-flex; align-items: center; min-height: 22px; padding: 0 7px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--text-muted); font-family: var(--font-mono); font-size: 10.5px; font-weight: 800; white-space: nowrap; }

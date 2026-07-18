@@ -2131,7 +2131,7 @@ export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: stri
   const selectedRowId = selected.rowId;
   const selectedColId = selected.colId;
   const dataframeMeta = art.meta?.dataframe;
-  const sheetKicker = dataframeMeta?.sourceFile === "blank-room" || dataframeMeta?.sourceFile === "blank-room-agent" ? "versionedSpreadsheetSync" : art.meta?.upload ? "uploadedSpreadsheet" : "dataframe";
+  const sheetKicker = dataframeMeta?.sourceFile === "blank-room" || dataframeMeta?.sourceFile === "blank-room-agent" ? "versionedSync" : art.meta?.upload ? "uploaded" : "dataframe";
   const columnCountLabel = cols.length < columns.length ? `${cols.length} of ${columns.length} cols` : `${cols.length} cols`;
   const columnCountTitle = cols.length < columns.length ? `${columns.length - cols.length} hidden columns available from the column menu` : "All columns visible";
   const footerColumnLabel = `${columns.length} columns`;
@@ -2901,7 +2901,7 @@ function Sheet({ roomId, me, art, proof, onError }: { roomId: string; me: Actor;
         <span className="r-dataframe-badge">
           <Package size={12} aria-hidden="true" />
           <span>
-            <span className="kicker">versionedSpreadsheetSync</span>
+            <span className="kicker">versionedSync</span>
             <span className="r-vpill next">v{art.version}</span>
           </span>
         </span>
