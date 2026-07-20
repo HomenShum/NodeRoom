@@ -20,7 +20,7 @@ preverified fixture actor (`hostAuthVerified: true`)
   -> NodeRoom's existing NodeAgent runtime + a deck tool adapter
   -> NodeAgent creates an unapplied proposal
   -> host review accepts it and advances v1 -> v2
-  -> reload + portable snapshot round-trip
+  -> same in-memory repository re-read + portable snapshot JSON round-trip
   -> create two unapplied proposals from v1
   -> review both candidates
   -> accept one proposal and advance to v2
@@ -112,7 +112,8 @@ npm run nodeslide:consumer:proof -- --root ../NodeSlide --json-out .proofloop/no
   host-policy evidence binding created by the repository.
 - A scripted model invokes a NodeSlide deck tool through NodeRoom's canonical
   `runAgent`; the tool produces an unapplied proposal, the host accepts it,
-  and the accepted edit survives repository reload and JSON round-trip.
+  and the accepted edit survives a same-instance in-memory repository re-read
+  and portable snapshot JSON round-trip.
 - NodeSlide tool names and query/mutation classifications fail closed when
   missing, duplicated, or colliding with existing NodeRoom tools.
 - The NodeRoom actor/principal adapter is normalization-only. This proof starts
@@ -146,11 +147,12 @@ them. The complete I7 journey still requires product wiring and proof for:
 Until those boundaries are available, the repository-port proof is kept
 explicit instead of hiding source imports behind a pretend production adapter.
 
-The proof receipt therefore reports `productionCreate`, `manualArtifactEdit`,
-`productionBackend`, `sameSnapshotMemoryAndConvex`, `durableRoomActivity`,
-`mountedReactStudio`, `presenter`, `pptxExport`, and
-`exportedSnapshotRevalidation` as `false`. A successful receipt must not be
-read as evidence for those still-open I7 steps.
+The v3 proof receipt therefore reports `durableReceiptPersistence`,
+`packageReload`, `productionAuthorization`, `productionCreate`,
+`manualArtifactEdit`, `productionBackend`, `sameSnapshotMemoryAndConvex`,
+`durableRoomActivity`, `mountedReactStudio`, `presenter`, `pptxExport`, and
+`exportedSnapshotRevalidation` as `false`. A successful receipt must not be read
+as evidence for those still-open I7 steps.
 
 ## Cross-repository CI
 

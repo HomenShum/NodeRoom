@@ -18,6 +18,10 @@ import {
 import type { AgentModel } from "../src/nodeagent/core/types";
 import { InMemoryRoomTools } from "../src/nodeagent/skills/integration/noderoomAdapter";
 import { resolveNodeSlidePackedArtifacts } from "./nodeslide-consumer-artifacts";
+import {
+  assertNodeSlideConsumerProofReceiptV3,
+  NODESLIDE_CONSUMER_PROOF_SCHEMA_VERSION,
+} from "./nodeslide-consumer-proof-receipt";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -808,14 +812,14 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
       .join(",") === "1,2",
     "authorized direct path did not preserve exactly v1 -> v2.",
   );
-  const authorizationReload = await authorizationRepository.getDeck({
+  const authorizationReread = await authorizationRepository.getDeck({
     deckId: authorizationSnapshot.deck.id,
     principal,
   });
   assert(
-    authorizationReload?.elements[0]?.content ===
+    authorizationReread?.elements[0]?.content ===
       "Applied through the authorized direct path",
-    "authorized direct patch did not survive repository reload.",
+    "authorized direct patch did not survive a same-repository re-read.",
   );
   const authorizationReceipts =
     authorizationRepository.receiptsForDeck?.(authorizationSnapshot.deck.id) ??
@@ -1022,16 +1026,16 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
     principalId: principal.userId,
     resourceId: pendingNodeAgentProposalId,
   });
-  const reloadedNodeAgentSnapshot = await nodeAgentRepository.getDeck({
+  const rereadNodeAgentSnapshot = await nodeAgentRepository.getDeck({
     deckId: nodeAgentSnapshot.deck.id,
     principal,
   });
   assert(
-    reloadedNodeAgentSnapshot?.elements[0]?.content ===
+    rereadNodeAgentSnapshot?.elements[0]?.content ===
       "Proposed through NodeRoom NodeAgent",
-    "accepted NodeAgent edit did not survive repository reload.",
+    "accepted NodeAgent edit did not survive a same-repository re-read.",
   );
-  const serializedNodeAgentSnapshot = JSON.stringify(reloadedNodeAgentSnapshot);
+  const serializedNodeAgentSnapshot = JSON.stringify(rereadNodeAgentSnapshot);
   const reopenedNodeAgentSnapshot = JSON.parse(
     serializedNodeAgentSnapshot,
   ) as PortableDeckSnapshot;
@@ -1199,7 +1203,7 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
   }
 
   return {
-    schemaVersion: "noderoom.nodeslide-consumer-proof/v2",
+    schemaVersion: NODESLIDE_CONSUMER_PROOF_SCHEMA_VERSION,
     passed: true,
     package: {
       name: loaded.packageName,
@@ -1270,8 +1274,8 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
         acceptedVersion: nodeAgentAcceptance.snapshot.deck.version,
         receipt: nodeAgentAcceptance.receipt,
         adapterStatusMessages: nodeAgentActivity,
-        reloadPreservedEdit:
-          reloadedNodeAgentSnapshot?.elements[0]?.content ===
+        sameRepositoryRereadPreservedEdit:
+          rereadNodeAgentSnapshot?.elements[0]?.content ===
           "Proposed through NodeRoom NodeAgent",
         portableSnapshotRoundTrip: reopenedNodeAgentSnapshot.deck.version === 2,
       },
@@ -1281,15 +1285,17 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
       proposalReviewAccept: true,
       compareAndSwap: true,
       versions: true,
-      receipts: true,
+      inMemoryReceiptLedger: true,
       legacyPermissionCallback: false,
       fixtureAuthorizationEvidenceBinding: true,
       authorizationBoundReceipts: true,
       frozenOperationAuthorizationRequests: true,
       existingNodeAgentRuntime: true,
       agentProposalStayedUnapplied: true,
-      reload: true,
+      sameRepositoryReread: true,
       portableSnapshotRoundTrip: true,
+      durableReceiptPersistence: false,
+      packageReload: false,
       productionAuthorization: false,
       productionCreate: false,
       manualArtifactEdit: false,
@@ -1311,6 +1317,7 @@ async function main(): Promise<void> {
     : await loadFromPackedArtifact(options.artifact as string);
   try {
     const proof = await runProof(loaded);
+    assertNodeSlideConsumerProofReceiptV3(proof);
     const serialized = `${JSON.stringify(proof, null, 2)}\n`;
     if (options.jsonOut) {
       const outputPath = resolve(options.jsonOut);
