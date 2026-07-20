@@ -5,7 +5,9 @@ export type NodeRoomNodeSlideMembershipRole = "host" | "member";
 export type NodeRoomNodeSlidePermission =
   | "nodeslide:read"
   | "nodeslide:propose"
-  | "nodeslide:write";
+  | "nodeslide:write"
+  | "nodeslide:approve"
+  | "nodeslide:export";
 
 /**
  * Structural subset of the portable NodeSlide principal contract.
@@ -32,6 +34,20 @@ export interface VerifiedNodeRoomActorForNodeSlide {
   allowDeckWrites?: boolean;
 }
 
+export function nodeSlidePermissionsForMembership(
+  membershipRole: NodeRoomNodeSlideMembershipRole,
+): readonly NodeRoomNodeSlidePermission[] {
+  return membershipRole === "host"
+    ? [
+        "nodeslide:read",
+        "nodeslide:propose",
+        "nodeslide:write",
+        "nodeslide:approve",
+        "nodeslide:export",
+      ]
+    : ["nodeslide:read", "nodeslide:propose", "nodeslide:export"];
+}
+
 /**
  * Normalize a host-verified NodeRoom actor for a NodeSlide repository port.
  * NodeRoom remains the identity and authorization authority.
@@ -47,11 +63,10 @@ export function toNodeSlidePrincipalFromVerifiedActor(
     input.actor.kind === "agent"
       ? `noderoom:agent:${input.actor.scope ?? "public"}`
       : `noderoom:${input.membershipRole}`;
-  const permissions: NodeRoomNodeSlidePermission[] = [
-    "nodeslide:read",
-    "nodeslide:propose",
-  ];
-  if (input.allowDeckWrites === true) permissions.push("nodeslide:write");
+  const membershipPermissions = nodeSlidePermissionsForMembership(input.membershipRole);
+  const permissions = input.allowDeckWrites === true
+    ? [...membershipPermissions]
+    : membershipPermissions.filter((permission) => permission !== "nodeslide:write");
 
   return {
     userId: input.actor.id,
