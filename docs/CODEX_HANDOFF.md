@@ -1,3 +1,10 @@
+> **Historical handoff (superseded).** Start with
+> [`docs/NEXT_SESSION.md`](./NEXT_SESSION.md), the canonical NodeRoom handoff as of
+> 2026-07-20. The content below is retained for provenance and may describe
+> obsolete implementation or deployment state; revalidate it before use.
+
+---
+
 # Codex Handoff — NodeRoom AI Elements adoption + audit follow-through
 
 **Date:** 2026-07-14 · **Author:** prior Claude session · **For:** a Codex agent picking up cold.
