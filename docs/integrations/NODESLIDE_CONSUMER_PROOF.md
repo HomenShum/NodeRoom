@@ -9,8 +9,10 @@ The proof loads a built `@nodeslide/testing` entrypoint from either a sibling
 NodeSlide checkout or an npm package tarball. It then verifies:
 
 ```text
-host-verified NodeRoom actor
+preverified fixture actor (`hostAuthVerified: true`)
   -> normalized NodeSlide principal
+  -> one frozen, operation-scoped repository authorization request
+  -> NodeRoom policy evidence bound into the resulting receipt
   -> NodeRoom's existing NodeAgent runtime + a deck tool adapter
   -> NodeAgent creates an unapplied proposal
   -> host review accepts it and advances v1 -> v2
@@ -21,6 +23,7 @@ host-verified NodeRoom actor
   -> reject the competing stale base through CAS
   -> preserve versions and trace-bound receipts
   -> replay acceptance idempotently
+  -> cover direct apply, explicit rejection, and custom-receipt authorization
 ```
 
 The adapter contract is compiled against the real `AgentModel`, `AgentTool`,
@@ -90,24 +93,35 @@ npm run nodeslide:consumer:proof -- --root ../NodeSlide --json-out .proofloop/no
   repository port.
 - A proposal remains unapplied until review and acceptance.
 - Acceptance advances the deck exactly once and produces a trace-bound
-  receipt.
+  receipt with a nested authorization binding.
 - A competing proposal pinned to the old base becomes stale instead of
   overwriting the accepted change.
+- The deterministic fixture authorizer receives one deeply frozen request object
+  per callback invocation, and the proof observes all repository actions:
+  `deck.read`, `patch.apply`, `proposal.create`, `proposal.accept`,
+  `proposal.reject`, `versions.list`, and `receipt.store`.
+  It returns only opaque policy evidence (`issuer`, `policyId`,
+  `policyVersion`, and `evidenceId`), never an ActorProof or bearer credential.
+- Direct-apply, proposal-create, proposal-accept, proposal-reject, stale, and
+  custom receipts preserve the exact principal, deck, action, resource, and
+  host-policy evidence binding created by the repository.
 - A scripted model invokes a NodeSlide deck tool through NodeRoom's canonical
   `runAgent`; the tool produces an unapplied proposal, the host accepts it,
   and the accepted edit survives repository reload and JSON round-trip.
 - NodeSlide tool names and query/mutation classifications fail closed when
   missing, duplicated, or colliding with existing NodeRoom tools.
-- The NodeRoom actor/principal adapter is normalization-only. Existing
-  `ActorProof` and room-membership verification remain authoritative.
+- The NodeRoom actor/principal adapter is normalization-only. This proof starts
+  from a preverified fixture and does not execute `ActorProof`, room-membership,
+  route-policy, or production write-policy verification. Those checks must remain
+  authoritative in a production server-side authorizer.
 - No NodeRoom NodeAgent, auth, route, artifact, or Convex implementation is
   replaced by this proof.
 
 ## What remains before a mounted product integration
 
-This is not yet a NodeSlide studio mounted in NodeRoom. The current package
-slice has a controlled viewer and proposal comparison, but the complete I7
-journey still requires separate, versioned deliverables and product wiring:
+This is not yet a NodeSlide studio mounted in NodeRoom. Controlled UI packages
+exist in the NodeSlide package slice, but this NodeRoom proof does not mount
+them. The complete I7 journey still requires product wiring and proof for:
 
 1. the remaining controlled/headless surfaces (editable canvas, selection,
    agent thread, presenter, and their accessibility contracts);
@@ -116,9 +130,10 @@ journey still requires separate, versioned deliverables and product wiring:
    authority without parallel tables;
 3. an explicit translation between NodeRoom's current deck storyboard object
    model and NodeSlide `DeckSpec`;
-4. server-side authorization that validates the existing NodeRoom
-   `ActorProof`, membership, and write policy before creating the normalized
-   principal;
+4. a production implementation of the demonstrated authorizer that validates
+   NodeRoom's existing `ActorProof`, membership, and write policy server-side
+   before returning opaque evidence (the proof uses a deterministic policy
+   callback and never treats principal normalization as authentication);
 5. a published version or immutable tarball digest for every consumed package;
 6. browser proof covering mount, reload, agent proposal, comparison,
    acceptance, presenter, PPTX export, and reopen.
@@ -134,9 +149,10 @@ read as evidence for those still-open I7 steps.
 
 ## Cross-repository CI
 
-NodeRoom CI checks out NodeSlide, builds the package workspaces, runs
-NodeSlide's packed consumer smoke, packs `@nodeslide/testing`, and runs this
-same NodeRoom consumer command from the tarball. NodeSlide CI should invoke the
-same command against the candidate NodeSlide checkout; together those jobs make
-a package-boundary regression fail before either repository merges. No source
+NodeRoom candidate CI checks out NodeSlide `main`, builds the package workspaces,
+runs NodeSlide's packed consumer smoke, packs `@nodeslide/testing`, and runs this
+same NodeRoom consumer command from the tarball. NodeSlide candidate CI checks
+out NodeRoom `main` and invokes the consumer proof against the candidate
+NodeSlide checkout. This is bilateral candidate-versus-counterpart-main
+coverage, not an atomic gate for two simultaneous candidate SHAs. No source
 copy, npm link, second Convex client, or mutable `latest` package is involved.
