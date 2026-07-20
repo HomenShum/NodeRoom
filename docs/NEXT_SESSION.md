@@ -1,8 +1,8 @@
 # NodeRoom next-session handoff
 
 Last updated: 2026-07-20
-Canonical checkpoint: `origin/main` at `45444488` (merged PR #224)
-Counterpart code checkpoint: NodeSlide `main` at `4fcbf588` (merged PR #19)
+Canonical checkpoint: `origin/main` at `4a4a3c25` (merged PR #226)
+Counterpart code checkpoint: NodeSlide `main` at `12a8527c` (merged PR #23)
 
 This is the current handoff for the NodeRoom side of the NodeSlide integration.
 Older handoffs are retained for provenance, but their implementation and deploy
@@ -11,10 +11,15 @@ before acting on them.
 
 ## Current state
 
-PR #224 merged the NodeSlide authorization-spine consumer rollout into NodeRoom.
-NodeRoom consumes NodeSlide through the built package boundary and exercises that
-boundary with its existing NodeAgent runtime and a deck-tool adapter. Candidate CI
-now checks out NodeSlide at `main`.
+PR #224 merged the NodeSlide authorization-spine consumer rollout into NodeRoom,
+and PR #226 completed the cutover by removing the temporary legacy-v0 bridge. The
+packed-consumer proof now requires exactly one deeply frozen operation-v1 request
+per authorizer callback, binds evidence into receipts, and covers all seven
+repository actions. NodeRoom consumes NodeSlide through the built package boundary
+and exercises that boundary with its existing NodeAgent runtime and a deck-tool
+adapter. Candidate CI checks out NodeSlide at `main`; NodeSlide PR #23's replay fix
+for rejected origins also passed that packed consumer gate and does not change the
+package authorization ABI.
 
 This is still a contract/conformance slice, not a mounted NodeSlide product
 integration. The controlled UI packages are not mounted in NodeRoom, and no new
