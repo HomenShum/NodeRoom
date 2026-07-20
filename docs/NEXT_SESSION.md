@@ -3,7 +3,9 @@
 Last updated: 2026-07-20
 NodeRoom product-code checkpoint before this docs-only handoff: `4a4a3c25`
 (merged PR #226)
-Counterpart product-code checkpoint: NodeSlide `main` at `12a8527c` (merged PR #23)
+Counterpart product-code checkpoint: NodeSlide `12a8527c` (merged PR #23 and
+manually deployed to production Convex); its current docs-only `main` tip is
+`5d5e2035` (merged PR #24)
 
 This is the current handoff for the NodeRoom side of the NodeSlide integration.
 Older handoffs are retained for provenance, but their implementation and deploy
@@ -12,15 +14,18 @@ before acting on them.
 
 ## Current state
 
-PR #224 merged the NodeSlide authorization-spine consumer rollout into NodeRoom,
-and PR #226 completed the cutover by removing the temporary legacy-v0 bridge. The
-packed-consumer proof now requires exactly one deeply frozen operation-v1 request
-per authorizer callback, binds evidence into receipts, and covers all seven
-repository actions. NodeRoom consumes NodeSlide through the built package boundary
-and exercises that boundary with its existing NodeAgent runtime and a deck-tool
-adapter. Candidate CI checks out NodeSlide at `main`; NodeSlide PR #23's replay fix
-for rejected origins also passed that packed consumer gate and does not change the
-package authorization ABI.
+PR #224 merged the NodeSlide authorization-spine consumer rollout into NodeRoom.
+PR #226 completed the packed-consumer proof harness's operation-v1-only cutover:
+it removed the temporary legacy-v0 bridge; requires exactly one deeply frozen,
+valid operation-v1 request per fixture-authorizer callback; binds proof evidence
+into receipts; covers all seven repository actions; and fails closed otherwise.
+It did not introduce or remove a production NodeRoom authorizer.
+
+NodeRoom consumes NodeSlide through the built package boundary and exercises that
+boundary with its existing NodeAgent runtime and a deck-tool adapter. Candidate
+CI checks out NodeSlide at `main`; NodeSlide PR #23's rejected-origin replay fix
+also passed that packed consumer gate and does not change the package
+authorization ABI.
 
 This is still a contract/conformance slice, not a mounted NodeSlide product
 integration. The controlled UI packages are not mounted in NodeRoom, and no new
@@ -28,20 +33,31 @@ production NodeRoom storage or authorization authority was introduced.
 
 ## Recorded proof
 
-The following deterministic evidence was recorded during the authorization-spine
-work:
+The following deterministic evidence was recorded for exact NodeRoom
+`4a4a3c25` and then-current NodeSlide code `c4fa5568` in
+[NodeRoom CI run 29730336006](https://github.com/HomenShum/NodeRoom/actions/runs/29730336006):
 
 - `npm run prod:gate` passed with 360 test files / 2,530 tests, 29 Playwright
   journeys, the production build, and the security gate green.
 - `npm run nodeslide:consumer:proof` passed the operation-v1 package lifecycle and
-  reported 25 host-authorization checks.
+  reported 25 host-authorization checks and
+  `legacyPermissionCallback: false`.
 - The consumer receipt reported
   `authorizationMode: "deterministic-preverified-fixture"` and explicitly reported:
   `actorProofValidated: false`, `roomMembershipValidated: false`, and
   `productionPolicyExecuted: false`.
-- The proof covered an unapplied proposal, review/acceptance, CAS-stale competition,
-  idempotent replay, direct apply, rejection, receipt persistence, package reload,
-  and a NodeAgent tool invocation through the repository boundary.
+- The proof covered an unapplied proposal, review/acceptance, CAS-stale
+  competition, idempotent replay, direct apply, rejection, inspection of the
+  in-memory receipt ledger, a `getDeck` re-read from the same memory repository,
+  a JSON round-trip of the snapshot, and a NodeAgent tool invocation through the
+  repository boundary. It did not prove durable receipt persistence or package
+  reload.
+- The latest reverse proof in
+  [NodeSlide main job 88323293014](https://github.com/HomenShum/NodeSlide/actions/runs/29733297145/job/88323293014)
+  checked out exact NodeRoom `9eee92dd` from exact NodeSlide `5d5e2035`; those
+  tips contain product-code baselines `4a4a3c25` and `12a8527c`, respectively.
+  It passed with operation-v1, 25 authorization checks, every repository action
+  observed, and the legacy callback disabled.
 
 Treat those results as evidence for the tested commit and commands, not as a live
 deployment claim. Run the relevant gate again after substantive changes. The
