@@ -66,7 +66,9 @@ jobs:
       - name: Resolve immutable NodeSlide producer
         id: nodeslide-release
         shell: bash
-        run: echo "sha=$(node -p \"require('./noderoom/vendor/nodeslide/release-lock.json').nodeSlideCommit\")" >> "$GITHUB_OUTPUT"
+        run: |
+          sha="$(node -p 'require("./noderoom/vendor/nodeslide/release-lock.json").nodeSlideCommit')"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
 
       - name: Checkout NodeSlide package producer
         uses: actions/checkout@v4
