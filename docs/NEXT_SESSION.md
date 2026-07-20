@@ -1,10 +1,11 @@
 # NodeRoom next-session handoff
 
 Last updated: 2026-07-20
-Canonical checkpoint: `origin/main` at `4a4a3c25` (merged PR #226)
-Counterpart checkpoint: NodeSlide `12a8527c` (merged PR #23 and manually
-deployed to production Convex); the preceding docs-only handoff tip was
-`464baf37` (merged PR #22)
+NodeRoom product-code checkpoint before this docs-only handoff: `4a4a3c25`
+(merged PR #226)
+Counterpart product-code checkpoint: NodeSlide `12a8527c` (merged PR #23 and
+manually deployed to production Convex); its current docs-only `main` tip is
+`5d5e2035` (merged PR #24)
 
 This is the current handoff for the NodeRoom side of the NodeSlide integration.
 Older handoffs are retained for provenance, but their implementation and deploy
@@ -14,14 +15,17 @@ before acting on them.
 ## Current state
 
 PR #224 merged the NodeSlide authorization-spine consumer rollout into NodeRoom.
-NodeRoom consumes NodeSlide through the built package boundary and exercises that
-boundary with its existing NodeAgent runtime and a deck-tool adapter. Candidate CI
-now checks out NodeSlide at `main`.
+PR #226 completed the packed-consumer proof harness's operation-v1-only cutover:
+it removed the temporary legacy-v0 bridge; requires exactly one deeply frozen,
+valid operation-v1 request per fixture-authorizer callback; binds proof evidence
+into receipts; covers all seven repository actions; and fails closed otherwise.
+It did not introduce or remove a production NodeRoom authorizer.
 
-PR #226 completed the packed-consumer proof harness's operation-v1-only
-cutover. It removed the legacy-v0 bridge, and the fixture authorizer fails
-closed unless it receives exactly one valid operation-v1 request. It did not
-introduce or remove a production NodeRoom authorizer.
+NodeRoom consumes NodeSlide through the built package boundary and exercises that
+boundary with its existing NodeAgent runtime and a deck-tool adapter. Candidate
+CI checks out NodeSlide at `main`; NodeSlide PR #23's rejected-origin replay fix
+also passed that packed consumer gate and does not change the package
+authorization ABI.
 
 This is still a contract/conformance slice, not a mounted NodeSlide product
 integration. The controlled UI packages are not mounted in NodeRoom, and no new
