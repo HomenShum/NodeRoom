@@ -49,6 +49,15 @@ type PortableAuthorizationAction =
   | "versions.list"
   | "receipt.store";
 
+type PortableLegacyAuthorizationAction =
+  | "read"
+  | "apply_patch"
+  | "create_proposal"
+  | "resolve_proposal"
+  | "list_versions";
+
+type PortableAuthorizationProtocol = "legacy-v0" | "operation-v1";
+
 interface PortableAuthorizationEvidence {
   issuer: string;
   policyId: string;
@@ -117,7 +126,7 @@ interface PortableReceipt {
   principalId: string;
   patchId?: string;
   traceId?: string;
-  authorization: PortableAuthorizationReceipt;
+  authorization?: PortableAuthorizationReceipt;
 }
 
 interface PortableProposal {
@@ -147,6 +156,14 @@ interface PortableRepository {
   receiptsForDeck?(deckId: string): PortableReceipt[];
 }
 
+type PortableAuthorizationCall =
+  | [request: Readonly<PortableAuthorizationRequest>]
+  | [
+      principal: PortablePrincipal,
+      deckId: string,
+      action: PortableLegacyAuthorizationAction,
+    ];
+
 interface PortableConformanceResult {
   proposalVersion: number;
   acceptedVersion: number;
@@ -160,8 +177,11 @@ interface NodeSlideTestingModule {
     snapshots: PortableDeckSnapshot[];
     now: () => number;
     authorize: (
-      request: Readonly<PortableAuthorizationRequest>,
-    ) => PortableAuthorizationEvidence | Promise<PortableAuthorizationEvidence>;
+      ...args: PortableAuthorizationCall
+    ) =>
+      | PortableAuthorizationEvidence
+      | void
+      | Promise<PortableAuthorizationEvidence | void>;
   }) => PortableRepository;
   createNodeSlideTestSnapshot(
     deckId?: string,
@@ -199,6 +219,131 @@ interface ProofOptions {
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition)
     throw new Error(`NodeSlide consumer proof failed: ${message}`);
+}
+
+const OPERATION_AUTHORIZATION_ACTIONS = [
+  "deck.read",
+  "patch.apply",
+  "proposal.create",
+  "proposal.accept",
+  "proposal.reject",
+  "versions.list",
+  "receipt.store",
+] as const satisfies readonly PortableAuthorizationAction[];
+
+const LEGACY_AUTHORIZATION_ACTIONS = [
+  "read",
+  "apply_patch",
+  "create_proposal",
+  "resolve_proposal",
+  "list_versions",
+] as const satisfies readonly PortableLegacyAuthorizationAction[];
+
+function isRecord(value: unknown): value is JsonRecord {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function assertPortablePrincipal(
+  value: unknown,
+): asserts value is PortablePrincipal {
+  assert(isRecord(value), "repository authorizer received a malformed principal.");
+  assert(
+    typeof value.userId === "string" && value.userId.length > 0,
+    "repository authorizer received a principal without a userId.",
+  );
+  assert(
+    value.organizationId === undefined ||
+      (typeof value.organizationId === "string" &&
+        value.organizationId.length > 0),
+    "repository authorizer received a malformed organizationId.",
+  );
+  assert(
+    Array.isArray(value.roles) &&
+      value.roles.every((role) => typeof role === "string"),
+    "repository authorizer received malformed principal roles.",
+  );
+  assert(
+    Array.isArray(value.permissions) &&
+      value.permissions.every((permission) => typeof permission === "string"),
+    "repository authorizer received malformed principal permissions.",
+  );
+}
+
+function assertOperationAuthorizationRequest(
+  value: unknown,
+): asserts value is Readonly<PortableAuthorizationRequest> {
+  assert(isRecord(value), "repository authorizer received a malformed request.");
+  assert(
+    typeof value.action === "string" &&
+      OPERATION_AUTHORIZATION_ACTIONS.includes(
+        value.action as PortableAuthorizationAction,
+      ),
+    "repository authorizer received an unknown operation action.",
+  );
+  assert(
+    typeof value.deckId === "string" && value.deckId.length > 0,
+    "repository authorizer received a request without a deckId.",
+  );
+  assertPortablePrincipal(value.principal);
+
+  switch (value.action) {
+    case "patch.apply":
+    case "proposal.create":
+      assert(
+        isRecord(value.patch) &&
+          typeof value.patch.id === "string" &&
+          value.patch.id.length > 0 &&
+          value.patch.deckId === value.deckId &&
+          Array.isArray(value.patch.operations),
+        `${value.action} authorization received a malformed patch.`,
+      );
+      break;
+    case "proposal.accept":
+    case "proposal.reject":
+      assert(
+        typeof value.proposalId === "string" && value.proposalId.length > 0,
+        `${value.action} authorization received a malformed proposalId.`,
+      );
+      break;
+    case "versions.list":
+      assert(
+        value.limit === undefined ||
+          (typeof value.limit === "number" &&
+            Number.isSafeInteger(value.limit) &&
+            value.limit > 0),
+        "versions.list authorization received a malformed limit.",
+      );
+      break;
+    case "receipt.store":
+      assert(
+        isRecord(value.receipt) &&
+          typeof value.receipt.id === "string" &&
+          value.receipt.id.length > 0 &&
+          value.receipt.deckId === value.deckId,
+        "receipt.store authorization received a malformed receipt draft.",
+      );
+      break;
+    case "deck.read":
+      break;
+  }
+}
+
+function assertDeeplyFrozen(
+  value: unknown,
+  label: string,
+  seen = new WeakSet<object>(),
+): void {
+  if (typeof value !== "object" || value === null || seen.has(value)) return;
+  seen.add(value);
+  assert(Object.isFrozen(value), `${label} was not deeply frozen.`);
+  for (const key of Reflect.ownKeys(value)) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    assert(
+      descriptor !== undefined && "value" in descriptor,
+      `${label}.${String(key)} was not a frozen data property.`,
+    );
+    assertDeeplyFrozen(descriptor.value, `${label}.${String(key)}`, seen);
+  }
 }
 
 function authorizationResourceId(
@@ -248,7 +393,11 @@ function assertAuthorizationBinding(
 ): void {
   const authorization = receipt.authorization;
   assert(
-    authorization?.schemaVersion === "nodeslide.authorization/v1",
+    authorization !== undefined,
+    `${receipt.operation} receipt lacks an authorization binding.`,
+  );
+  assert(
+    authorization.schemaVersion === "nodeslide.authorization/v1",
     `${receipt.operation} receipt lacks the authorization schema version.`,
   );
   assert(
@@ -477,80 +626,97 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
     allowDeckWrites: true,
   });
   const authChecks: Array<{
-    action: PortableAuthorizationAction;
+    protocol: PortableAuthorizationProtocol;
+    action: PortableAuthorizationAction | PortableLegacyAuthorizationAction;
     deckId: string;
-    resourceId: string;
+    resourceId?: string;
   }> = [];
+  const protocolState: {
+    value: PortableAuthorizationProtocol | "unobserved";
+  } = { value: "unobserved" };
+  const observeProtocol = (protocol: PortableAuthorizationProtocol): void => {
+    assert(
+      protocolState.value === "unobserved" ||
+        protocolState.value === protocol,
+      `repository mixed ${protocolState.value} and ${protocol} authorization calls.`,
+    );
+    protocolState.value = protocol;
+  };
   const authorize = (
-    ...authorizationArgs: [Readonly<PortableAuthorizationRequest>]
-  ): PortableAuthorizationEvidence => {
-    assert(
-      authorizationArgs.length === 1,
-      "repository authorizer did not receive exactly one request.",
-    );
-    const [request] = authorizationArgs;
-    assert(
-      Object.isFrozen(request),
-      "repository authorization request was not frozen.",
-    );
-    assert(
-      Object.isFrozen(request.principal),
-      "authorization principal was not frozen.",
-    );
-    assert(
-      Object.isFrozen(request.principal.roles) &&
-        Object.isFrozen(request.principal.permissions),
-      "authorization principal claims were not frozen.",
-    );
-    if (
-      request.action === "patch.apply" ||
-      request.action === "proposal.create"
-    ) {
+    ...authorizationArgs: unknown[]
+  ): PortableAuthorizationEvidence | void => {
+    if (authorizationArgs.length === 1) {
+      const [request] = authorizationArgs;
+      assertOperationAuthorizationRequest(request);
+      assertDeeplyFrozen(request, "repository authorization request");
+      observeProtocol("operation-v1");
       assert(
-        Object.isFrozen(request.patch),
-        `${request.action} patch was not frozen.`,
+        request.principal.userId === principal.userId,
+        "repository accepted another principal.",
       );
+      const requiredPermission =
+        request.action === "deck.read" || request.action === "versions.list"
+          ? "nodeslide:read"
+          : request.action === "proposal.create"
+            ? "nodeslide:propose"
+            : "nodeslide:write";
       assert(
-        Object.isFrozen(request.patch.operations),
-        `${request.action} operations were not frozen.`,
+        request.principal.permissions.includes(requiredPermission),
+        `host principal lacks ${requiredPermission}.`,
       );
+      const resourceId = authorizationResourceId(request);
+      authChecks.push({
+        protocol: "operation-v1",
+        action: request.action,
+        deckId: request.deckId,
+        resourceId,
+      });
+      return {
+        issuer: "NodeRoom",
+        policyId: "noderoom.actor-proof-membership",
+        policyVersion: "1",
+        evidenceId: `noderoom-authz:${request.action}:${resourceId}`,
+      };
     }
-    if (request.action === "receipt.store") {
-      assert(
-        Object.isFrozen(request.receipt),
-        "receipt.store draft was not frozen.",
-      );
-      assert(
-        Object.isFrozen(request.receipt.attributes),
-        "receipt.store attributes were not frozen.",
-      );
-    }
+
     assert(
-      request.principal.userId === principal.userId,
+      authorizationArgs.length === 3,
+      "repository authorizer received an unknown call shape.",
+    );
+    const [candidate, deckId, action] = authorizationArgs;
+    assertPortablePrincipal(candidate);
+    assert(
+      typeof deckId === "string" && deckId.length > 0,
+      "legacy repository authorizer received a malformed deckId.",
+    );
+    assert(
+      typeof action === "string" &&
+        LEGACY_AUTHORIZATION_ACTIONS.includes(
+          action as PortableLegacyAuthorizationAction,
+        ),
+      "legacy repository authorizer received an unknown action.",
+    );
+    const legacyAction = action as PortableLegacyAuthorizationAction;
+    observeProtocol("legacy-v0");
+    assert(
+      candidate.userId === principal.userId,
       "repository accepted another principal.",
     );
     const requiredPermission =
-      request.action === "deck.read" || request.action === "versions.list"
+      legacyAction === "read" || legacyAction === "list_versions"
         ? "nodeslide:read"
-        : request.action === "proposal.create"
+        : legacyAction === "create_proposal"
           ? "nodeslide:propose"
           : "nodeslide:write";
     assert(
-      request.principal.permissions.includes(requiredPermission),
+      candidate.permissions.includes(requiredPermission),
       `host principal lacks ${requiredPermission}.`,
     );
-    const resourceId = authorizationResourceId(request);
     authChecks.push({
-      action: request.action,
-      deckId: request.deckId,
-      resourceId,
+      protocol: "legacy-v0",
+      action: legacyAction,
+      deckId,
     });
-    return {
-      issuer: "NodeRoom",
-      policyId: "noderoom.actor-proof-membership",
-      policyVersion: "1",
-      evidenceId: `noderoom-authz:${request.action}:${resourceId}`,
-    };
   };
   let clock = 1_700_000_001_000;
   const now = () => ++clock;
@@ -592,12 +758,20 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
     conformance.resolution.receipt.traceId === conformancePatch.traceId,
     "acceptance receipt lost its trace binding.",
   );
-  assertAuthorizationBinding(conformance.resolution.receipt, {
-    action: "proposal.accept",
-    deckId: conformanceSnapshot.deck.id,
-    principalId: principal.userId,
-    resourceId: conformancePatch.id,
-  });
+  assert(
+    protocolState.value !== "unobserved",
+    "repository conformance did not invoke its host authorizer.",
+  );
+  const authorizationProtocol: PortableAuthorizationProtocol =
+    protocolState.value;
+  if (authorizationProtocol === "operation-v1") {
+    assertAuthorizationBinding(conformance.resolution.receipt, {
+      action: "proposal.accept",
+      deckId: conformanceSnapshot.deck.id,
+      principalId: principal.userId,
+      resourceId: conformancePatch.id,
+    });
+  }
 
   const authorizationSnapshot = runtime.createNodeSlideTestSnapshot(
     "deck:noderoom:authorization",
@@ -628,12 +802,14 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
       direct.receipt.traceId === directCommand.traceId,
     "direct patch receipt is incomplete.",
   );
-  assertAuthorizationBinding(direct.receipt, {
-    action: "patch.apply",
-    deckId: authorizationSnapshot.deck.id,
-    principalId: principal.userId,
-    resourceId: directCommand.id,
-  });
+  if (authorizationProtocol === "operation-v1") {
+    assertAuthorizationBinding(direct.receipt, {
+      action: "patch.apply",
+      deckId: authorizationSnapshot.deck.id,
+      principalId: principal.userId,
+      resourceId: directCommand.id,
+    });
+  }
 
   const rejectedCommand = runtime.createNodeSlideTextPatch(
     direct.snapshot,
@@ -660,33 +836,38 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
     rejected.snapshot.deck.version === direct.snapshot.deck.version,
     "proposal rejection changed the authoritative deck.",
   );
-  assertAuthorizationBinding(rejected.receipt, {
-    action: "proposal.reject",
-    deckId: authorizationSnapshot.deck.id,
-    principalId: principal.userId,
-    resourceId: rejectedProposal.id,
-  });
+  if (authorizationProtocol === "operation-v1") {
+    assertAuthorizationBinding(rejected.receipt, {
+      action: "proposal.reject",
+      deckId: authorizationSnapshot.deck.id,
+      principalId: principal.userId,
+      resourceId: rejectedProposal.id,
+    });
+  }
 
-  const customReceiptDraft: PortableReceiptDraft = {
-    id: "custom-receipt:noderoom:consumer-audit",
-    deckId: authorizationSnapshot.deck.id,
-    deckVersion: direct.snapshot.deck.version,
-    operation: "custom",
-    traceId: "trace:noderoom:consumer-audit",
-    recordedAt: now(),
-    attributes: { purpose: "cross-repository-authorization-proof" },
-  };
-  const storedAuditReceipt = await authorizationRepository.storeReceipt({
-    deckId: authorizationSnapshot.deck.id,
-    principal,
-    receipt: customReceiptDraft,
-  });
-  assertAuthorizationBinding(storedAuditReceipt, {
-    action: "receipt.store",
-    deckId: authorizationSnapshot.deck.id,
-    principalId: principal.userId,
-    resourceId: customReceiptDraft.id,
-  });
+  let storedAuditReceipt: PortableReceipt | undefined;
+  if (authorizationProtocol === "operation-v1") {
+    const customReceiptDraft: PortableReceiptDraft = {
+      id: "custom-receipt:noderoom:consumer-audit",
+      deckId: authorizationSnapshot.deck.id,
+      deckVersion: direct.snapshot.deck.version,
+      operation: "custom",
+      traceId: "trace:noderoom:consumer-audit",
+      recordedAt: now(),
+      attributes: { purpose: "cross-repository-authorization-proof" },
+    };
+    storedAuditReceipt = await authorizationRepository.storeReceipt({
+      deckId: authorizationSnapshot.deck.id,
+      principal,
+      receipt: customReceiptDraft,
+    });
+    assertAuthorizationBinding(storedAuditReceipt, {
+      action: "receipt.store",
+      deckId: authorizationSnapshot.deck.id,
+      principalId: principal.userId,
+      resourceId: customReceiptDraft.id,
+    });
+  }
   const authorizationVersions = await authorizationRepository.listVersions({
     deckId: authorizationSnapshot.deck.id,
     principal,
@@ -720,12 +901,14 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
     rejectedProposalReceipt,
     "rejected proposal lacks its creation receipt.",
   );
-  assertAuthorizationBinding(rejectedProposalReceipt, {
-    action: "proposal.create",
-    deckId: authorizationSnapshot.deck.id,
-    principalId: principal.userId,
-    resourceId: rejectedProposal.id,
-  });
+  if (authorizationProtocol === "operation-v1") {
+    assertAuthorizationBinding(rejectedProposalReceipt, {
+      action: "proposal.create",
+      deckId: authorizationSnapshot.deck.id,
+      principalId: principal.userId,
+      resourceId: rejectedProposal.id,
+    });
+  }
 
   const nodeAgentSnapshot = runtime.createNodeSlideTestSnapshot(
     "deck:noderoom:nodeagent",
@@ -907,12 +1090,14 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
     nodeAgentAcceptance.receipt.traceId === nodeAgentTraceId,
     "NodeAgent acceptance receipt lost its trace binding.",
   );
-  assertAuthorizationBinding(nodeAgentAcceptance.receipt, {
-    action: "proposal.accept",
-    deckId: nodeAgentSnapshot.deck.id,
-    principalId: principal.userId,
-    resourceId: pendingNodeAgentProposalId,
-  });
+  if (authorizationProtocol === "operation-v1") {
+    assertAuthorizationBinding(nodeAgentAcceptance.receipt, {
+      action: "proposal.accept",
+      deckId: nodeAgentSnapshot.deck.id,
+      principalId: principal.userId,
+      resourceId: pendingNodeAgentProposalId,
+    });
+  }
   const reloadedNodeAgentSnapshot = await nodeAgentRepository.getDeck({
     deckId: nodeAgentSnapshot.deck.id,
     principal,
@@ -1003,12 +1188,14 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
       accepted.receipt.traceId === acceptedCommand.traceId,
     "accepted proposal receipt is incomplete.",
   );
-  assertAuthorizationBinding(accepted.receipt, {
-    action: "proposal.accept",
-    deckId: casSnapshot.deck.id,
-    principalId: principal.userId,
-    resourceId: acceptedProposal.id,
-  });
+  if (authorizationProtocol === "operation-v1") {
+    assertAuthorizationBinding(accepted.receipt, {
+      action: "proposal.accept",
+      deckId: casSnapshot.deck.id,
+      principalId: principal.userId,
+      resourceId: acceptedProposal.id,
+    });
+  }
 
   const stale = await casRepository.resolveProposal({
     deckId: casSnapshot.deck.id,
@@ -1029,12 +1216,14 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
       stale.receipt.traceId === staleCommand.traceId,
     "stale proposal receipt is incomplete.",
   );
-  assertAuthorizationBinding(stale.receipt, {
-    action: "proposal.accept",
-    deckId: casSnapshot.deck.id,
-    principalId: principal.userId,
-    resourceId: staleProposal.id,
-  });
+  if (authorizationProtocol === "operation-v1") {
+    assertAuthorizationBinding(stale.receipt, {
+      action: "proposal.accept",
+      deckId: casSnapshot.deck.id,
+      principalId: principal.userId,
+      resourceId: staleProposal.id,
+    });
+  }
 
   const acceptedAgain = await casRepository.resolveProposal({
     deckId: casSnapshot.deck.id,
@@ -1077,18 +1266,19 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
       `receipt ledger lacks ${required}.`,
     );
   }
-  const requiredAuthorizationActions = [
-    "deck.read",
-    "patch.apply",
-    "proposal.create",
-    "proposal.accept",
-    "proposal.reject",
-    "versions.list",
-    "receipt.store",
-  ] as const satisfies readonly PortableAuthorizationAction[];
+  const requiredAuthorizationActions: readonly (
+    | PortableAuthorizationAction
+    | PortableLegacyAuthorizationAction
+  )[] =
+    authorizationProtocol === "operation-v1"
+      ? OPERATION_AUTHORIZATION_ACTIONS
+      : LEGACY_AUTHORIZATION_ACTIONS;
   for (const action of requiredAuthorizationActions) {
     assert(
-      authChecks.some((check) => check.action === action),
+      authChecks.some(
+        (check) =>
+          check.protocol === authorizationProtocol && check.action === action,
+      ),
       `host authorizer was not called for ${action}.`,
     );
   }
@@ -1111,9 +1301,15 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
     host: {
       application: "NodeRoom",
       runtimeChanged: false,
-      authorizationMode: "deterministic-preverified-fixture",
+      repositoryAuthorizationProtocol: authorizationProtocol,
+      authorizationMode:
+        authorizationProtocol === "operation-v1"
+          ? "deterministic-preverified-fixture"
+          : "legacy-three-argument-permission-callback",
       authAuthority:
-        "preverified fixture; production ActorProof and room-membership policy not executed",
+        authorizationProtocol === "operation-v1"
+          ? "preverified fixture; production ActorProof and room-membership policy not executed"
+          : "preverified fixture; legacy callback checks principal permissions and emits no authorization evidence",
       actorProofValidated: false,
       roomMembershipValidated: false,
       productionPolicyExecuted: false,
@@ -1122,11 +1318,15 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
       permissions: principal.permissions,
       authorizationChecks: authChecks.length,
       authorizationActions: requiredAuthorizationActions,
-      authorizationEvidence: {
-        issuer: "NodeRoom",
-        policyId: "noderoom.actor-proof-membership",
-        policyVersion: "1",
-      },
+      ...(authorizationProtocol === "operation-v1"
+        ? {
+            authorizationEvidence: {
+              issuer: "NodeRoom",
+              policyId: "noderoom.actor-proof-membership",
+              policyVersion: "1",
+            },
+          }
+        : {}),
     },
     lifecycle: {
       proposalVersion: conformance.proposalVersion,
@@ -1143,15 +1343,25 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
       acceptanceReplayWasIdempotent:
         acceptedAgain.receipt.id === accepted.receipt.id,
       authorizationSpine: {
+        protocol: authorizationProtocol,
         directPatchReceipt: direct.receipt,
         rejectedProposalStatus: rejected.status,
         rejectedProposalReceipt: rejected.receipt,
-        storedAuditReceipt,
-        authorizationReceiptOperations: authorizationReceipts.map(
-          (receipt) => receipt.operation,
-        ),
-        frozenOperationRequests: true,
-        allRepositoryActionsObserved: true,
+        ...(storedAuditReceipt ? { storedAuditReceipt } : {}),
+        ...(authorizationProtocol === "operation-v1"
+          ? {
+              authorizationReceiptOperations: authorizationReceipts.map(
+                (receipt) => receipt.operation,
+              ),
+            }
+          : {
+              legacyReceiptOperations: authorizationReceipts.map(
+                (receipt) => receipt.operation,
+              ),
+            }),
+        legacyPermissionCallback: authorizationProtocol === "legacy-v0",
+        frozenOperationRequests: authorizationProtocol === "operation-v1",
+        allRepositoryActionsObserved: authorizationProtocol === "operation-v1",
       },
       nodeAgent: {
         model: nodeAgentModel.name,
@@ -1174,9 +1384,12 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
       compareAndSwap: true,
       versions: true,
       receipts: true,
-      fixtureAuthorizationEvidenceBinding: true,
-      authorizationBoundReceipts: true,
-      frozenOperationAuthorizationRequests: true,
+      legacyPermissionCallback: authorizationProtocol === "legacy-v0",
+      fixtureAuthorizationEvidenceBinding:
+        authorizationProtocol === "operation-v1",
+      authorizationBoundReceipts: authorizationProtocol === "operation-v1",
+      frozenOperationAuthorizationRequests:
+        authorizationProtocol === "operation-v1",
       existingNodeAgentRuntime: true,
       agentProposalStayedUnapplied: true,
       reload: true,
