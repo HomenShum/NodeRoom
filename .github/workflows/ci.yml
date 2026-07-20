@@ -52,3 +52,55 @@ jobs:
 
       - name: Ladder eval
         run: npm run ladder
+
+  nodeslide-consumer:
+    name: NodeSlide packed consumer
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout NodeRoom
+        uses: actions/checkout@v4
+        with:
+          path: noderoom
+
+      - name: Checkout NodeSlide package producer
+        uses: actions/checkout@v4
+        with:
+          repository: HomenShum/NodeSlide
+          ref: main
+          path: nodeslide
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            noderoom/package-lock.json
+            nodeslide/package-lock.json
+
+      - name: Install NodeRoom dependencies
+        working-directory: noderoom
+        run: npm ci
+
+      - name: Install and build NodeSlide packages
+        working-directory: nodeslide
+        run: |
+          npm ci
+          npm run packages:build
+
+      - name: Prove NodeSlide publish-shaped package surface
+        working-directory: nodeslide
+        run: npm run packages:consumer:smoke
+
+      - name: Pack versioned NodeSlide testing artifact
+        working-directory: nodeslide
+        run: |
+          mkdir -p "$RUNNER_TEMP/nodeslide-packages"
+          npm pack --workspace @nodeslide/testing --pack-destination "$RUNNER_TEMP/nodeslide-packages"
+
+      - name: Run NodeRoom NodeAgent consumer journey
+        working-directory: noderoom
+        env:
+          NODESLIDE_PACKAGE_ARTIFACT: ${{ runner.temp }}/nodeslide-packages
+        run: npm run nodeslide:consumer:proof
