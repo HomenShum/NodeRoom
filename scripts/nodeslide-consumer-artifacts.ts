@@ -4,6 +4,8 @@ import { basename, join, resolve } from "node:path";
 const NODESLIDE_TESTING_ARTIFACT = /^nodeslide-testing-([0-9A-Za-z.+-]+)\.tgz$/u;
 const NODESLIDE_CLOSURE_ARTIFACT =
   /^nodeslide-(contracts|engine|backend|testing)-([0-9A-Za-z.+-]+)\.tgz$/u;
+const NODESLIDE_RELEASE_ARTIFACT =
+  /^nodeslide-(agent|contracts|engine|backend|client-http|convex|testing|react-headless|react|registry|cli)-([0-9A-Za-z.+-]+)\.tgz$/u;
 const CLOSURE_ORDER = ["contracts", "engine", "backend", "testing"] as const;
 
 type NodeSlideClosurePackage = (typeof CLOSURE_ORDER)[number];
@@ -36,12 +38,16 @@ export async function resolveNodeSlidePackedArtifacts(
   >();
   for (const entry of (await readdir(candidate)).sort()) {
     if (!entry.endsWith(".tgz")) continue;
-    const match = NODESLIDE_CLOSURE_ARTIFACT.exec(entry);
-    if (!match) {
+    const releaseMatch = NODESLIDE_RELEASE_ARTIFACT.exec(entry);
+    if (!releaseMatch) {
       throw new Error(
-        `${candidate} contains unexpected tarball ${entry}; expected only the private @nodeslide contracts/engine/backend/testing closure.`,
+        `${candidate} contains unexpected tarball ${entry}; expected a versioned @nodeslide release artifact.`,
       );
     }
+    const match = NODESLIDE_CLOSURE_ARTIFACT.exec(entry);
+    // A complete immutable release directory may contain the larger package
+    // family. The consumer proof installs only its exact testing closure.
+    if (!match) continue;
     const packageName = match[1] as NodeSlideClosurePackage;
     const version = match[2];
     if (!version) throw new Error(`${entry} has no package version.`);

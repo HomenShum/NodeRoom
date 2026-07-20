@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState, type ReactElement } from "react";
 import { useMutation, useQuery } from "convex/react";
 import type { FunctionReference } from "convex/server";
+import type { NodeSlideStudioShellActions } from "@nodeslide/react";
+import type { DeckSnapshot } from "@nodeslide/contracts";
 import { ArrowLeft, ArrowRight, CheckCircle2, Copy, Download, FileDown, FileText, History, MessageCircle, MessageSquarePlus, Plus, RotateCcw, Save, ShieldAlert, Sparkles, Trash2, Users, X } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import type { ActorProof, PresenceClaim } from "../../app/store";
@@ -11,6 +13,11 @@ import { buildDeckPatchPlan, deckPatchPlanFileName, deckPatchPlanJson, deckPatch
 import { buildDeckPreviewExport, deckPreviewFileName } from "./deckPreviewExport";
 import { buildDeckPdfExport, deckPdfMimeType } from "./deckPdfExport";
 import { buildDeckPptxExport, deckPptxMimeType } from "./deckPptxExport";
+import {
+  createNodeRoomNodeSlideReplaceTextCommand,
+  nodeSlidePurposeElementId,
+  nodeSlideTitleElementId,
+} from "../../integrations/nodeslide/storyboardTranslation";
 
 function slideStatusLabel(status: DeckSlidePlan["status"]): string {
   if (status === "needs_review") return "Needs review";
@@ -65,6 +72,7 @@ export function DeckStoryboardWorkbench({
   onFocusObject,
   onAddComment,
   onResolveComment,
+  nodeSlideMount,
 }: {
   storyboard: DeckStoryboard;
   artifactId?: string;
@@ -84,6 +92,11 @@ export function DeckStoryboardWorkbench({
   onFocusObject?: (objectId: string | null) => void;
   onAddComment?: (slideId: string, body: string, targetObjectId?: string) => Promise<{ ok: boolean; reason?: string }>;
   onResolveComment?: (comment: DeckComment) => Promise<{ ok: boolean; reason?: string }>;
+  nodeSlideMount?: {
+    snapshot: DeckSnapshot;
+    actions: NodeSlideStudioShellActions;
+    busy: boolean;
+  };
 }): ReactElement {
   const [draft, setDraft] = useState(() => cloneStoryboard(storyboard));
   const [baseSnapshot, setBaseSnapshot] = useState(() => cloneStoryboard(storyboard));
@@ -118,6 +131,22 @@ export function DeckStoryboardWorkbench({
   const selectedSlideObjectId = selectedSlide ? deckSlideElementId(selectedSlide.slideId) : "";
   const selectedComments = comments.filter((comment) => comment.slideId === selectedSlide?.slideId);
   const selectedPresences = presences.filter((presence) => presence.targetId === selectedSlide?.slideId || presence.targetId === selectedSlideObjectId);
+  const mountedTitleSource = selectedSlide && nodeSlideMount
+    ? nodeSlideMount.snapshot.elements.find((element) => element.id === nodeSlideTitleElementId(selectedSlide.slideId))?.content
+    : undefined;
+  const mountedPurposeSource = selectedSlide && nodeSlideMount
+    ? nodeSlideMount.snapshot.elements.find((element) => element.id === nodeSlidePurposeElementId(selectedSlide.slideId))?.content
+    : undefined;
+  const [mountedTitle, setMountedTitle] = useState("");
+  const [mountedPurpose, setMountedPurpose] = useState("");
+  useEffect(() => {
+    setMountedTitle(typeof mountedTitleSource === "string" ? mountedTitleSource : selectedSlide?.title ?? "");
+    setMountedPurpose(typeof mountedPurposeSource === "string" ? mountedPurposeSource : selectedSlide?.purpose ?? "");
+  }, [mountedPurposeSource, mountedTitleSource, selectedSlide?.slideId]);
+  const selectSlide = (slideId: string) => {
+    setSelectedSlideId(slideId);
+    nodeSlideMount?.actions.select({ slideId, elementIds: [] });
+  };
   const updateDraft = (mutate: (next: DeckStoryboard) => void) => {
     setDraft((current) => {
       const next = cloneStoryboard(current);
@@ -347,7 +376,7 @@ export function DeckStoryboardWorkbench({
       <div className="wa-deck-grid">
         <div className="wa-deck-slides" role="list" aria-label="Storyboard slides">
           {draft.slides.map((slide, index) => (
-            <article key={slide.slideId} className="wa-deck-slide" role="listitem" data-status={slide.status} data-selected={String(selectedSlide?.slideId === slide.slideId)} data-testid="deck-storyboard-slide" onClick={() => setSelectedSlideId(slide.slideId)}>
+            <article key={slide.slideId} className="wa-deck-slide" role="listitem" data-status={slide.status} data-selected={String(selectedSlide?.slideId === slide.slideId)} data-testid="deck-storyboard-slide" onClick={() => selectSlide(slide.slideId)}>
               <div className="wa-deck-slide-num">{index + 1}</div>
               {presences.some((presence) => presence.targetId === slide.slideId || presence.targetId === deckSlideElementId(slide.slideId)) && (
                 <div className="wa-deck-presence" aria-label={`People editing ${slide.title}`}>
@@ -439,6 +468,56 @@ export function DeckStoryboardWorkbench({
               )}
               <label>Title<input value={selectedSlide.title} onFocus={() => onFocusObject?.(selectedSlideObjectId)} onChange={(event) => updateDraft((next) => { next.slides.find((slide) => slide.slideId === selectedSlide.slideId)!.title = event.target.value; })} /></label>
               <label>Purpose<textarea rows={2} value={selectedSlide.purpose} onFocus={() => onFocusObject?.(selectedSlideObjectId)} onChange={(event) => updateDraft((next) => { next.slides.find((slide) => slide.slideId === selectedSlide.slideId)!.purpose = event.target.value; })} /></label>
+              {nodeSlideMount && (
+                <div className="wa-deck-mounted-actions" data-testid="nodeslide-mounted-actions">
+                  <span>NodeSlide 0.2.0 controlled boundary</span>
+                  <label>
+                    NodeSlide title command
+                    <input
+                      data-testid="nodeslide-mounted-title"
+                      value={mountedTitle}
+                      onChange={(event) => setMountedTitle(event.target.value)}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    disabled={!nodeSlideMount.actions.canPatch || nodeSlideMount.busy || !mountedTitle.trim()}
+                    onClick={() => nodeSlideMount.actions.patch(createNodeRoomNodeSlideReplaceTextCommand({
+                      snapshot: nodeSlideMount.snapshot,
+                      slideId: selectedSlide.slideId,
+                      elementId: nodeSlideTitleElementId(selectedSlide.slideId),
+                      text: mountedTitle,
+                      source: "human",
+                      summary: `Apply the host title edit for ${selectedSlide.slideId}`,
+                    }))}
+                  >
+                    Apply title through NodeSlide
+                  </button>
+                  <label>
+                    NodeSlide purpose proposal
+                    <textarea
+                      data-testid="nodeslide-mounted-purpose"
+                      rows={2}
+                      value={mountedPurpose}
+                      onChange={(event) => setMountedPurpose(event.target.value)}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    disabled={!nodeSlideMount.actions.canPropose || nodeSlideMount.busy || !mountedPurpose.trim()}
+                    onClick={() => nodeSlideMount.actions.propose(createNodeRoomNodeSlideReplaceTextCommand({
+                      snapshot: nodeSlideMount.snapshot,
+                      slideId: selectedSlide.slideId,
+                      elementId: nodeSlidePurposeElementId(selectedSlide.slideId),
+                      text: mountedPurpose,
+                      source: "human",
+                      summary: `Propose the purpose edit for ${selectedSlide.slideId}`,
+                    }))}
+                  >
+                    Propose purpose for review
+                  </button>
+                </div>
+              )}
               <div className="wa-deck-editor-claims">
                 <span>Claims</span>
                 {selectedSlide.claims.map((claim) => (

@@ -1,11 +1,19 @@
 import JSZip from "jszip";
 import { describe, expect, it } from "vitest";
+import { z } from "zod";
 import { RoomEngine } from "../src/engine/roomEngine";
 import type { Actor, Artifact } from "../src/engine/types";
 import {
   NodeRoomArtifactNodeSlideRepository,
   nodeRoomNodeSlidePrincipalForMember,
 } from "../src/integrations/nodeslide/nodeRoomArtifactRepository";
+import {
+  runNodeSlideWithNodeAgent,
+  type NodeSlideAgentAdapter,
+  type NodeSlideRoomTools,
+} from "../src/integrations/nodeslide/nodeAgentAdapter";
+import type { AgentModel } from "../src/nodeagent/core/types";
+import { InMemoryRoomTools } from "../src/nodeagent/skills/integration/noderoomAdapter";
 import {
   nodeSlideClaimElementId,
   translateNodeRoomArtifactToNodeSlide,
@@ -83,9 +91,88 @@ describe("mounted NodeSlide lifecycle on NodeRoom memory authority", () => {
     expect(applied.snapshot.elements.find((element) => element.id === claim.id)?.content).toBe("Host manual edit");
     expect(applied.receipt.authorization.evidence).toEqual({ issuer: "noderoom", policyId: "noderoom.nodeslide.artifact-authority", policyVersion: "1" });
 
-    const currentClaim = applied.snapshot.elements.find((element) => element.id === claim.id)!;
-    const candidateA = replaceClaimCommand({ deckId: deck.id, deckVersion: applied.snapshot.deck.version, slideId: slide.id, slideVersion: applied.snapshot.slides[0].version, elementId: claim.id, elementVersion: currentClaim.version, id: "patch:agent-a", text: "NodeAgent reviewed proposal", source: "agent" });
-    const candidateB = replaceClaimCommand({ deckId: deck.id, deckVersion: applied.snapshot.deck.version, slideId: slide.id, slideVersion: applied.snapshot.slides[0].version, elementId: claim.id, elementVersion: currentClaim.version, id: "patch:agent-b", text: "Competing stale proposal", source: "agent" });
+    let nodeAgentProposalId: string | undefined;
+    const mountedRuntime: NodeSlideRoomTools = {
+      async snapshot() {
+        const snapshot = await repository.getDeck({ deckId: deck.id, principal });
+        if (!snapshot) throw new Error("mounted deck missing");
+        return { deckId: snapshot.deck.id, version: snapshot.deck.version, slides: snapshot.slides };
+      },
+      async readRange() {
+        const snapshot = await repository.getDeck({ deckId: deck.id, principal });
+        return snapshot?.elements.find((element) => element.id === claim.id) ?? null;
+      },
+      async proposeLock() { return { ok: true }; },
+      async releaseLock() {},
+      async applyDeckPatch({ patch }) {
+        const proposal = await repository.createProposal({
+          deckId: deck.id,
+          principal,
+          patch: patch as NodeRoomNodeSlidePatchCommand,
+        });
+        nodeAgentProposalId = proposal.id;
+        return { ok: false, pendingApproval: true, proposalId: proposal.id };
+      },
+      async say() {},
+    };
+    const nodeAgentPatch = replaceClaimCommand({
+      deckId: deck.id,
+      deckVersion: applied.snapshot.deck.version,
+      slideId: applied.snapshot.slides[0].id,
+      slideVersion: applied.snapshot.slides[0].version,
+      elementId: claim.id,
+      elementVersion: applied.snapshot.elements.find((element) => element.id === claim.id)!.version,
+      id: "patch:nodeagent",
+      text: "NodeAgent mounted proposal",
+      source: "agent",
+    });
+    const adapter = {
+      rt: mountedRuntime,
+      tools: [{
+        name: "nodeslide_propose_patch",
+        description: "Propose one governed patch against the mounted NodeRoom deck.",
+        schema: z.object({}),
+        execute: async (_args: unknown, rt: NodeSlideRoomTools) =>
+          rt.applyDeckPatch({ patch: nodeAgentPatch, expectedVersion: nodeAgentPatch.baseDeckVersion }),
+      }],
+      systemPrompt: "Use the mounted NodeSlide proposal tool and leave acceptance to the host.",
+      toolClasses: { nodeslide_propose_patch: "mutation" },
+    } satisfies NodeSlideAgentAdapter;
+    let agentTurn = 0;
+    const model: AgentModel = {
+      name: "mounted-nodeslide-proof",
+      async next() {
+        agentTurn += 1;
+        return agentTurn === 1
+          ? { toolCalls: [{ id: "call:mounted:1", tool: "nodeslide_propose_patch", args: {} }], done: false }
+          : { text: "The mounted proposal is ready for host review.", toolCalls: [], done: true };
+      },
+    };
+    const agentResult = await runNodeSlideWithNodeAgent({
+      adapter,
+      rt: new InMemoryRoomTools(engine, room.id, deck.id, hostActor, "session:nodeslide"),
+      goal: "Propose one reviewed claim change on the mounted deck.",
+      model,
+      maxSteps: 2,
+    });
+    expect(agentResult).toMatchObject({ stopReason: "done", steps: 2 });
+    expect(agentResult.trace[0]).toMatchObject({
+      tool: "nodeslide_propose_patch",
+      result: { ok: false, pendingApproval: true },
+    });
+    if (!nodeAgentProposalId) throw new Error("NodeAgent proposal missing");
+    expect((await repository.resolveProposal({
+      deckId: deck.id,
+      principal,
+      proposalId: nodeAgentProposalId,
+      decision: "accept",
+    })).status).toBe("accepted");
+
+    const afterNodeAgent = await repository.getDeck({ deckId: deck.id, principal });
+    if (!afterNodeAgent) throw new Error("mounted deck missing after NodeAgent proposal");
+    const currentClaim = afterNodeAgent.elements.find((element) => element.id === claim.id)!;
+    const candidateA = replaceClaimCommand({ deckId: deck.id, deckVersion: afterNodeAgent.deck.version, slideId: slide.id, slideVersion: afterNodeAgent.slides[0].version, elementId: claim.id, elementVersion: currentClaim.version, id: "patch:agent-a", text: "NodeAgent reviewed proposal", source: "agent" });
+    const candidateB = replaceClaimCommand({ deckId: deck.id, deckVersion: afterNodeAgent.deck.version, slideId: slide.id, slideVersion: afterNodeAgent.slides[0].version, elementId: claim.id, elementVersion: currentClaim.version, id: "patch:agent-b", text: "Competing stale proposal", source: "agent" });
     const proposalA = await repository.createProposal({ deckId: deck.id, principal, patch: candidateA });
     const proposalB = await repository.createProposal({ deckId: deck.id, principal, patch: candidateB });
     const accepted = await repository.resolveProposal({ deckId: deck.id, principal, proposalId: proposalA.id, decision: "accept" });

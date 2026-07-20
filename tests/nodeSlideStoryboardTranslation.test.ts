@@ -92,14 +92,14 @@ describe("NodeRoom storyboard to NodeSlide translation", () => {
       synthesized: ["theme", "text_layout", "source_labels"],
       unsupportedRoundTrips: ["freeform_geometry", "element_style", "charts", "images", "video", "math"],
     });
-    expect(first.snapshot.elements.some((element) => element.role.startsWith("claim:"))).toBe(true);
+    expect(first.snapshot.elements.some((element) => element.role?.startsWith("claim:") === true)).toBe(true);
   });
 
   it("translates one claim edit to the existing object-CAS element", () => {
     const artifact = deckArtifact();
     const mounted = translateNodeRoomArtifactToNodeSlide(artifact).snapshot;
     const slide = mounted.slides[0];
-    const claim = mounted.elements.find((element) => element.slideId === slide.id && element.role.startsWith("claim:"));
+    const claim = mounted.elements.find((element) => element.slideId === slide.id && element.role?.startsWith("claim:") === true);
     if (!claim) throw new Error("claim element missing");
     const mutation = planNodeSlidePatchForNodeRoom(artifact, replaceCommand(artifact, claim.id, claim.version));
     expect(mutation).toMatchObject({

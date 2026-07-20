@@ -36,6 +36,23 @@ describe("NodeSlide packed consumer artifacts", () => {
     expect(resolved.installArtifacts).toEqual(closure.map((entry) => join(directory, entry)));
   });
 
+  it("selects the testing closure from a complete immutable release directory", async () => {
+    const directory = await artifactDirectory([
+      ...closure,
+      "nodeslide-react-headless-0.1.0.tgz",
+      "nodeslide-react-0.1.0.tgz",
+      "nodeslide-convex-0.1.0.tgz",
+    ]);
+
+    const resolved = await resolveNodeSlidePackedArtifacts(directory);
+    expect(resolved.installArtifacts).toEqual(closure.map((entry) => join(directory, entry)));
+  });
+
+  it("still rejects tarballs outside the declared NodeSlide package family", async () => {
+    const directory = await artifactDirectory([...closure, "nodeslide-surprise-0.1.0.tgz"]);
+    await expect(resolveNodeSlidePackedArtifacts(directory)).rejects.toThrow(/unexpected tarball/u);
+  });
+
   it("rejects a directory without the testing entrypoint", async () => {
     const directory = await artifactDirectory(closure.filter((entry) => !entry.includes("testing")));
 

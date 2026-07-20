@@ -13,6 +13,7 @@ vi.mock("convex/react", () => ({
     mockConvex.args.push(args);
     return args === "skip" ? undefined : mockConvex.rows;
   },
+  useMutation: () => vi.fn().mockResolvedValue({ ok: true }),
 }));
 vi.mock("../src/app/store", () => ({ useStore: () => storeRef.current }));
 

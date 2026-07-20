@@ -162,6 +162,7 @@
     "nodeagent:frame:smoke": "tsx scripts/nodeagent-frame-smoke.ts",
     "nodeagent:ingestion:smoke": "tsx scripts/nodeagent-ingestion-orchestrator-smoke.ts",
     "nodeslide:consumer:proof": "tsx scripts/nodeslide-consumer-proof.ts",
+    "nodeslide:mounted:release:proof": "tsx scripts/nodeslide-mounted-release-proof.ts --lock vendor/nodeslide/release-lock.json",
     "omnigent:nodeagent:smoke": "tsx scripts/omnigent-nodeagent-smoke.ts --json-out docs/eval/omnigent-nodeagent-smoke.json",
     "nodeagent:api-docs": "tsx scripts/nodeagent-api-docs.ts",
     "halo:self-improve:smoke": "tsx scripts/halo-self-improvement-smoke.ts --strict",
@@ -288,6 +289,12 @@
     "@evilmartians/agent-prism-types": "^0.0.9",
     "@ikhrustalev/convex-debouncer": "^0.1.2",
     "@llamaindex/liteparse": "^2.0.5",
+    "@nodeslide/backend": "file:vendor/nodeslide/nodeslide-backend-0.2.0.tgz",
+    "@nodeslide/contracts": "file:vendor/nodeslide/nodeslide-contracts-0.2.0.tgz",
+    "@nodeslide/convex": "file:vendor/nodeslide/nodeslide-convex-0.2.0.tgz",
+    "@nodeslide/engine": "file:vendor/nodeslide/nodeslide-engine-0.2.0.tgz",
+    "@nodeslide/react": "file:vendor/nodeslide/nodeslide-react-0.2.0.tgz",
+    "@nodeslide/react-headless": "file:vendor/nodeslide/nodeslide-react-headless-0.2.0.tgz",
     "@radix-ui/react-use-controllable-state": "^1.2.3",
     "@streamdown/cjk": "^1.0.3",
     "@streamdown/code": "^1.1.1",
@@ -305,7 +312,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "convex": "^1.41.0",
+    "convex": "^1.42.3",
     "embla-carousel-react": "^8.6.0",
     "exceljs": "^4.4.0",
     "jszip": "^3.10.1",
@@ -354,6 +361,9 @@
     "ws": "8.21.0"
   },
   "overrides": {
+    "minimatch@3.1.5": {
+      "brace-expansion": "1.1.16"
+    },
     "convex": {
       "esbuild": "0.28.1"
     },

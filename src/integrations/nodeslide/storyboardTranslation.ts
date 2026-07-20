@@ -1,3 +1,10 @@
+import type {
+  DeckSnapshot,
+  PatchOperation,
+  SlideElement,
+  ThemeSpec,
+} from "@nodeslide/contracts";
+import type { NodeSlidePatchCommand } from "@nodeslide/backend";
 import type { Artifact } from "../../engine/types";
 import {
   readCollaborativeDeckArtifact,
@@ -14,73 +21,9 @@ export const NODEROOM_NODESLIDE_TRANSLATION_VERSION =
   "noderoom.nodeslide.translation/v1" as const;
 export const NODESLIDE_SCHEMA_VERSION = "nodeslide.slidelang/v1" as const;
 
-export type NodeRoomNodeSlidePatchOperation = {
-  op: "replace_text";
-  slideId: string;
-  elementId: string;
-  text: string;
-  sourceIds?: string[];
-};
-
-export interface NodeRoomNodeSlidePatchCommand {
-  id: string;
-  deckId: string;
-  baseDeckVersion: number;
-  baseSlideVersions: Record<string, number>;
-  baseElementVersions: Record<string, number>;
-  scope: {
-    kind: "deck" | "slide" | "elements" | "bounding_box" | "comment";
-    deckId: string;
-    operationMode: "copy" | "style" | "layout" | "unrestricted";
-    slideIds?: string[];
-    elementIds?: string[];
-  };
-  operations: NodeRoomNodeSlidePatchOperation[];
-  source: "human" | "agent" | "import" | "system";
-  summary: string;
-  traceId?: string;
-}
-
-export interface NodeRoomNodeSlideSnapshot {
-  deck: {
-    schemaVersion: typeof NODESLIDE_SCHEMA_VERSION;
-    toolchainVersion: "noderoom-storyboard-adapter/1.0.0";
-    id: string;
-    projectId: string;
-    title: string;
-    brief: {
-      prompt: string;
-      audience: string;
-      purpose: string;
-      successCriteria: string[];
-    };
-    theme: NodeRoomNodeSlideTheme;
-    slideOrder: string[];
-    version: number;
-    status: "draft" | "ready";
-    createdAt: number;
-    updatedAt: number;
-  };
-  slides: Array<{
-    id: string;
-    deckId: string;
-    title: string;
-    notes?: string;
-    background: string;
-    elementOrder: string[];
-    version: number;
-  }>;
-  elements: NodeRoomNodeSlideElement[];
-  sources: Array<{
-    id: string;
-    deckId: string;
-    title: string;
-    sourceType: "internal";
-    retrievedAt: number;
-    citation: string;
-    status: "ready";
-  }>;
-}
+export type NodeRoomNodeSlidePatchOperation = Extract<PatchOperation, { op: "replace_text" }>;
+export type NodeRoomNodeSlidePatchCommand = NodeSlidePatchCommand;
+export type NodeRoomNodeSlideSnapshot = DeckSnapshot;
 
 export interface NodeRoomNodeSlideTranslationReceipt {
   schemaVersion: typeof NODEROOM_NODESLIDE_TRANSLATION_VERSION;
@@ -117,40 +60,12 @@ export interface NodeRoomDeckObjectMutation {
   slideId: string;
 }
 
-type NodeRoomNodeSlideTheme = {
-  id: string;
-  name: string;
-  mode: "light";
-  colors: {
-    canvas: string;
-    ink: string;
-    muted: string;
-    accent: string;
-    accentSoft: string;
-    insight: string;
-    insightInk: string;
-    trace: string;
-    border: string;
-  };
-  typography: { display: string; body: string; data: string };
-  defaultRadius: number;
-  spacingUnit: number;
-};
-
-type NodeRoomNodeSlideElement = {
-  id: string;
-  slideId: string;
-  name: string;
+type NodeRoomNodeSlideTheme = ThemeSpec;
+type NodeRoomNodeSlideElement = SlideElement & {
   kind: "text";
   role: "title" | "purpose" | `claim:${DeckStoryboardClaim["status"]}`;
-  bbox: { x: number; y: number; width: number; height: number };
   rotation: 0;
-  content: string;
-  style: Record<string, string | number>;
-  sourceIds: string[];
   locked: false;
-  exportCapabilities: ["web_native", "pptx_editable", "google_importable"];
-  version: number;
 };
 
 const THEME: NodeRoomNodeSlideTheme = {
@@ -415,6 +330,53 @@ export function nodeSlidePurposeElementId(slideId: string): string {
 
 export function nodeSlideClaimElementId(claimId: string): string {
   return `noderoom:claim:${encodeURIComponent(claimId)}`;
+}
+
+/**
+ * Builds the narrow command accepted by NodeRoom's mounted production adapter.
+ * All CAS clocks come from the translated snapshot; callers cannot invent a
+ * version while moving a visible edit through the controlled React surface.
+ */
+export function createNodeRoomNodeSlideReplaceTextCommand(input: {
+  snapshot: NodeRoomNodeSlideSnapshot;
+  slideId: string;
+  elementId: string;
+  text: string;
+  source: "human" | "agent";
+  summary: string;
+  id?: string;
+  traceId?: string;
+}): NodeRoomNodeSlidePatchCommand {
+  const slide = input.snapshot.slides.find((candidate) => candidate.id === input.slideId);
+  const element = input.snapshot.elements.find((candidate) => candidate.id === input.elementId);
+  if (!slide || !element || element.slideId !== slide.id || !slide.elementOrder.includes(element.id)) {
+    throw new Error("nodeslide_patch_element_scope_mismatch");
+  }
+  const text = canonicalText(input.text);
+  return {
+    id: input.id ?? crypto.randomUUID(),
+    deckId: input.snapshot.deck.id,
+    baseDeckVersion: input.snapshot.deck.version,
+    baseSlideVersions: { [slide.id]: slide.version },
+    baseElementVersions: { [element.id]: element.version },
+    scope: {
+      kind: "elements",
+      deckId: input.snapshot.deck.id,
+      slideIds: [slide.id],
+      elementIds: [element.id],
+      operationMode: "copy",
+    },
+    operations: [{
+      op: "replace_text",
+      slideId: slide.id,
+      elementId: element.id,
+      text,
+      ...(element.sourceIds.length > 0 ? { sourceIds: [...element.sourceIds] } : {}),
+    }],
+    source: input.source,
+    summary: canonicalText(input.summary),
+    ...(input.traceId ? { traceId: input.traceId } : {}),
+  };
 }
 
 function requireMountedDeck(artifact: Artifact): CollaborativeDeckSnapshot {
