@@ -11,6 +11,10 @@ NodeSlide checkout or an npm package tarball. It then verifies:
 ```text
 host-verified NodeRoom actor
   -> normalized NodeSlide principal
+  -> NodeRoom's existing NodeAgent runtime + a deck tool adapter
+  -> NodeAgent creates an unapplied proposal
+  -> host review accepts it and advances v1 -> v2
+  -> reload + portable snapshot round-trip
   -> create two unapplied proposals from v1
   -> review both candidates
   -> accept one proposal and advance to v2
@@ -18,6 +22,14 @@ host-verified NodeRoom actor
   -> preserve versions and trace-bound receipts
   -> replay acceptance idempotently
 ```
+
+The adapter contract is compiled against the real `AgentModel`, `AgentTool`,
+`RoomTools`, `AgentResult`, and `runAgent` implementation in this repository.
+It is implemented at
+`src/integrations/nodeslide/nodeAgentAdapter.ts`; it binds NodeSlide tools to
+NodeAgent instead of introducing another model loop. The canonical ownership
+and distribution decisions remain in NodeSlide's
+[ECOSYSTEM.md](https://github.com/HomenShum/NodeSlide/blob/main/docs/ECOSYSTEM.md).
 
 ## Repository-root mode
 
@@ -55,8 +67,8 @@ npm run nodeslide:consumer:proof
 
 `NODESLIDE_PACKAGE_ARTIFACT` may also name a directory containing exactly one
 `nodeslide-testing-*.tgz`. The harness installs the tarball with scripts
-disabled in an operating-system temp directory and removes that directory when
-the proof finishes.
+disabled in an operating-system temp directory, records its SHA-256 in the
+receipt, and removes that directory when the proof finishes.
 
 Write a machine-readable receipt without committing generated output:
 
@@ -73,6 +85,11 @@ npm run nodeslide:consumer:proof -- --root ../NodeSlide --json-out .proofloop/no
   receipt.
 - A competing proposal pinned to the old base becomes stale instead of
   overwriting the accepted change.
+- A scripted model invokes a NodeSlide deck tool through NodeRoom's canonical
+  `runAgent`; the tool produces an unapplied proposal, the host accepts it,
+  and the accepted edit survives repository reload and JSON round-trip.
+- NodeSlide tool names and query/mutation classifications fail closed when
+  missing, duplicated, or colliding with existing NodeRoom tools.
 - The NodeRoom actor/principal adapter is normalization-only. Existing
   `ActorProof` and room-membership verification remain authoritative.
 - No NodeRoom NodeAgent, auth, route, artifact, or Convex implementation is
@@ -80,11 +97,12 @@ npm run nodeslide:consumer:proof -- --root ../NodeSlide --json-out .proofloop/no
 
 ## What remains before a mounted product integration
 
-This is not yet a NodeSlide studio mounted in NodeRoom. That requires separate,
-versioned deliverables that do not exist in the current package slice:
+This is not yet a NodeSlide studio mounted in NodeRoom. The current package
+slice has a controlled viewer and proposal comparison, but the complete I7
+journey still requires separate, versioned deliverables and product wiring:
 
-1. a controlled/headless React package (canvas, selection, proposal review,
-   presenter, and accessibility contracts);
+1. the remaining controlled/headless surfaces (editable canvas, selection,
+   agent thread, presenter, and their accessibility contracts);
 2. a production NodeRoom repository adapter mapping NodeSlide deck snapshots,
    proposals, versions, and receipts onto NodeRoom's existing artifact and CAS
    authority without parallel tables;
@@ -99,3 +117,18 @@ versioned deliverables that do not exist in the current package slice:
 
 Until those boundaries are available, the repository-port proof is kept
 explicit instead of hiding source imports behind a pretend production adapter.
+
+The proof receipt therefore reports `productionCreate`, `manualArtifactEdit`,
+`productionBackend`, `sameSnapshotMemoryAndConvex`, `durableRoomActivity`,
+`mountedReactStudio`, `presenter`, `pptxExport`, and
+`exportedSnapshotRevalidation` as `false`. A successful receipt must not be
+read as evidence for those still-open I7 steps.
+
+## Cross-repository CI
+
+NodeRoom CI checks out NodeSlide, builds the package workspaces, runs
+NodeSlide's packed consumer smoke, packs `@nodeslide/testing`, and runs this
+same NodeRoom consumer command from the tarball. NodeSlide CI should invoke the
+same command against the candidate NodeSlide checkout; together those jobs make
+a package-boundary regression fail before either repository merges. No source
+copy, npm link, second Convex client, or mutable `latest` package is involved.

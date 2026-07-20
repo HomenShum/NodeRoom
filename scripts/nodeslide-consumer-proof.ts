@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
 import {
   mkdir,
@@ -10,10 +11,20 @@ import {
   writeFile,
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
+import { z } from "zod";
+import { buildDemoRoom } from "../src/engine/demoRoom";
+import { RoomEngine } from "../src/engine/roomEngine";
 import { toNodeSlidePrincipalFromVerifiedActor } from "../src/integrations/nodeslide/hostPrincipal";
+import {
+  runNodeSlideWithNodeAgent,
+  type NodeSlideAgentAdapter,
+  type NodeSlideRoomTools,
+} from "../src/integrations/nodeslide/nodeAgentAdapter";
+import type { AgentModel } from "../src/nodeagent/core/types";
+import { InMemoryRoomTools } from "../src/nodeagent/skills/integration/noderoomAdapter";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -97,6 +108,7 @@ interface LoadedTestingModule {
   inputKind: "repository-root" | "packed-artifact";
   packageName: string;
   packageVersion: string;
+  integritySha256?: string;
   cleanup: () => Promise<void>;
 }
 
@@ -201,7 +213,15 @@ async function resolvePackedArtifact(input: string): Promise<string> {
 async function loadFromPackedArtifact(artifactInput: string): Promise<LoadedTestingModule> {
   const artifact = await resolvePackedArtifact(artifactInput);
   assert(artifact.endsWith(".tgz"), `${artifact} is not an npm package tarball.`);
-  const installRoot = await mkdtemp(join(tmpdir(), "noderoom-nodeslide-consumer-"));
+  const integritySha256 = createHash("sha256")
+    .update(await readFile(artifact))
+    .digest("hex");
+  const temporaryRoot = resolve(tmpdir());
+  const installRoot = await mkdtemp(join(temporaryRoot, "noderoom-nodeslide-consumer-"));
+  assert(
+    installRoot.startsWith(`${temporaryRoot}${sep}`),
+    `temporary install escaped ${temporaryRoot}.`,
+  );
   try {
     runNpm(
       [
@@ -227,6 +247,7 @@ async function loadFromPackedArtifact(artifactInput: string): Promise<LoadedTest
       inputKind: "packed-artifact",
       packageName: identity.name,
       packageVersion: identity.version,
+      integritySha256,
       cleanup: () => rm(installRoot, { recursive: true, force: true }),
     };
   } catch (error) {
@@ -317,6 +338,177 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
   assert(
     conformance.resolution.receipt.traceId === conformancePatch.traceId,
     "acceptance receipt lost its trace binding.",
+  );
+
+  const nodeAgentSnapshot = runtime.createNodeSlideTestSnapshot(
+    "deck:noderoom:nodeagent",
+    1_700_000_000_050,
+  );
+  const nodeAgentRepository = new runtime.MemoryNodeSlideRepository({
+    snapshots: [nodeAgentSnapshot],
+    now,
+    authorize,
+  });
+  const nodeAgentTraceId = "trace:noderoom:nodeagent";
+  const nodeAgentActivity: string[] = [];
+  let pendingNodeAgentProposalId: string | undefined;
+  const nodeSlideRoomTools: NodeSlideRoomTools = {
+    async snapshot() {
+      const current = await nodeAgentRepository.getDeck({
+        deckId: nodeAgentSnapshot.deck.id,
+        principal,
+      });
+      assert(current, "NodeAgent deck snapshot was not found.");
+      return {
+        deckId: current.deck.id,
+        version: current.deck.version,
+        slides: current.slides,
+      };
+    },
+    async readRange({ slideId }) {
+      const current = await nodeAgentRepository.getDeck({
+        deckId: nodeAgentSnapshot.deck.id,
+        principal,
+      });
+      assert(current, "NodeAgent deck snapshot was not found for readRange.");
+      return current.slides.find((slide) => slide.id === slideId) ?? null;
+    },
+    async proposeLock() {
+      return { ok: true };
+    },
+    async releaseLock() {},
+    async applyDeckPatch({ patch, expectedVersion }) {
+      const current = await nodeAgentRepository.getDeck({
+        deckId: nodeAgentSnapshot.deck.id,
+        principal,
+      });
+      assert(current, "NodeAgent deck snapshot was not found before proposal creation.");
+      if (current.deck.version !== expectedVersion) {
+        return {
+          ok: false,
+          conflict: true,
+          expected: expectedVersion,
+          actual: current.deck.version,
+        };
+      }
+      const proposal = await nodeAgentRepository.createProposal({
+        deckId: current.deck.id,
+        principal,
+        patch: patch as PortablePatchCommand,
+      });
+      pendingNodeAgentProposalId = proposal.id;
+      return { ok: false, pendingApproval: true, proposalId: proposal.id };
+    },
+    async say(text) {
+      nodeAgentActivity.push(text);
+    },
+  };
+  const nodeSlideAgentAdapter = {
+    rt: nodeSlideRoomTools,
+    tools: [
+      {
+        name: "nodeslide_propose_text",
+        description: "Create an unapplied NodeSlide text proposal for host review.",
+        schema: z.object({ text: z.string().min(1) }),
+        async execute(args: unknown, rt: NodeSlideRoomTools) {
+          const { text } = args as { text: string };
+          const current = await rt.snapshot();
+          const patch = runtime.createNodeSlideTextPatch(
+            nodeAgentSnapshot,
+            text,
+            "patch:noderoom:nodeagent",
+          );
+          patch.traceId = nodeAgentTraceId;
+          const outcome = await rt.applyDeckPatch({ patch, expectedVersion: current.version });
+          await rt.say("NodeAgent created a NodeSlide proposal for host review.");
+          return outcome;
+        },
+      },
+    ],
+    systemPrompt:
+      "Use the supplied NodeSlide tools. Leave deck mutations unapplied until the host reviews them.",
+    toolClasses: { nodeslide_propose_text: "mutation" },
+  } satisfies NodeSlideAgentAdapter;
+  let nodeAgentTurn = 0;
+  const nodeAgentModel: AgentModel = {
+    name: "nodeslide-consumer-scripted-model",
+    async next() {
+      nodeAgentTurn += 1;
+      if (nodeAgentTurn === 1) {
+        return {
+          toolCalls: [
+            {
+              id: "call:noderoom:nodeslide:1",
+              tool: "nodeslide_propose_text",
+              args: { text: "Proposed through NodeRoom NodeAgent" },
+            },
+          ],
+          done: false,
+        };
+      }
+      return { text: "The deck proposal is ready for host review.", toolCalls: [], done: true };
+    },
+  };
+  const roomEngine = new RoomEngine();
+  const demo = buildDemoRoom(roomEngine);
+  const nodeRoomTools = new InMemoryRoomTools(
+    roomEngine,
+    demo.roomId,
+    demo.sheetId,
+    demo.agents.room,
+    demo.sessions.room,
+  );
+  const nodeAgentResult = await runNodeSlideWithNodeAgent({
+    adapter: nodeSlideAgentAdapter,
+    rt: nodeRoomTools,
+    goal: "Propose a reviewed NodeSlide title change.",
+    model: nodeAgentModel,
+    maxSteps: 2,
+  });
+  assert(nodeAgentResult.stopReason === "done", "NodeAgent did not finish the proposal run.");
+  assert(nodeAgentResult.trace.length === 1, "NodeAgent did not execute exactly one deck tool.");
+  assert(
+    nodeAgentResult.trace[0]?.tool === "nodeslide_propose_text",
+    "NodeAgent trace did not record the NodeSlide tool.",
+  );
+  const beforeNodeAgentAcceptance = await nodeAgentRepository.getDeck({
+    deckId: nodeAgentSnapshot.deck.id,
+    principal,
+  });
+  assert(
+    beforeNodeAgentAcceptance?.deck.version === 1,
+    "NodeAgent proposal mutated the authoritative deck before host acceptance.",
+  );
+  assert(pendingNodeAgentProposalId, "NodeAgent did not create a reviewable proposal.");
+  const nodeAgentAcceptance = await nodeAgentRepository.resolveProposal({
+    deckId: nodeAgentSnapshot.deck.id,
+    principal,
+    proposalId: pendingNodeAgentProposalId,
+    decision: "accept",
+  });
+  assert(nodeAgentAcceptance.status === "accepted", "host did not accept the NodeAgent proposal.");
+  assert(
+    nodeAgentAcceptance.snapshot.deck.version === 2,
+    "accepted NodeAgent proposal did not advance the deck to v2.",
+  );
+  assert(
+    nodeAgentAcceptance.receipt.traceId === nodeAgentTraceId,
+    "NodeAgent acceptance receipt lost its trace binding.",
+  );
+  const reloadedNodeAgentSnapshot = await nodeAgentRepository.getDeck({
+    deckId: nodeAgentSnapshot.deck.id,
+    principal,
+  });
+  assert(
+    reloadedNodeAgentSnapshot?.elements[0]?.content === "Proposed through NodeRoom NodeAgent",
+    "accepted NodeAgent edit did not survive repository reload.",
+  );
+  const serializedNodeAgentSnapshot = JSON.stringify(reloadedNodeAgentSnapshot);
+  const reopenedNodeAgentSnapshot = JSON.parse(serializedNodeAgentSnapshot) as PortableDeckSnapshot;
+  assert(
+    reopenedNodeAgentSnapshot.deck.version === 2 &&
+      reopenedNodeAgentSnapshot.elements[0]?.content === "Proposed through NodeRoom NodeAgent",
+    "portable snapshot round-trip did not preserve the accepted NodeAgent edit.",
   );
 
   const casSnapshot = runtime.createNodeSlideTestSnapshot(
@@ -432,6 +624,7 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
       name: loaded.packageName,
       version: loaded.packageVersion,
       inputKind: loaded.inputKind,
+      ...(loaded.integritySha256 ? { integritySha256: loaded.integritySha256 } : {}),
       entrypoint:
         loaded.inputKind === "repository-root"
           ? "packages/testing/dist/index.js"
@@ -459,6 +652,20 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
       versions: versions.map((version) => version.version).sort(),
       receiptOperations,
       acceptanceReplayWasIdempotent: acceptedAgain.receipt.id === accepted.receipt.id,
+      nodeAgent: {
+        model: nodeAgentModel.name,
+        stopReason: nodeAgentResult.stopReason,
+        steps: nodeAgentResult.steps,
+        toolTrace: nodeAgentResult.trace.map((event) => event.tool),
+        proposalStayedUnapplied: beforeNodeAgentAcceptance?.deck.version === 1,
+        acceptedVersion: nodeAgentAcceptance.snapshot.deck.version,
+        receipt: nodeAgentAcceptance.receipt,
+        adapterStatusMessages: nodeAgentActivity,
+        reloadPreservedEdit:
+          reloadedNodeAgentSnapshot?.elements[0]?.content ===
+          "Proposed through NodeRoom NodeAgent",
+        portableSnapshotRoundTrip: reopenedNodeAgentSnapshot.deck.version === 2,
+      },
     },
     scope: {
       repositoryPort: true,
@@ -466,8 +673,19 @@ async function runProof(loaded: LoadedTestingModule): Promise<JsonRecord> {
       compareAndSwap: true,
       versions: true,
       receipts: true,
+      existingNodeAgentRuntime: true,
+      agentProposalStayedUnapplied: true,
+      reload: true,
+      portableSnapshotRoundTrip: true,
+      productionCreate: false,
+      manualArtifactEdit: false,
       productionBackend: false,
+      sameSnapshotMemoryAndConvex: false,
+      durableRoomActivity: false,
       mountedReactStudio: false,
+      presenter: false,
+      pptxExport: false,
+      exportedSnapshotRevalidation: false,
     },
   };
 }
