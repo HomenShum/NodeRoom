@@ -1,8 +1,10 @@
 # NodeRoom next-session handoff
 
 Last updated: 2026-07-20
-Canonical checkpoint: `origin/main` at `45444488` (merged PR #224)
-Counterpart code checkpoint: NodeSlide `main` at `4fcbf588` (merged PR #19)
+Canonical checkpoint: `origin/main` at `4a4a3c25` (merged PR #226)
+Counterpart checkpoint: NodeSlide `12a8527c` (merged PR #23 and manually
+deployed to production Convex); the preceding docs-only handoff tip was
+`464baf37` (merged PR #22)
 
 This is the current handoff for the NodeRoom side of the NodeSlide integration.
 Older handoffs are retained for provenance, but their implementation and deploy
@@ -16,26 +18,41 @@ NodeRoom consumes NodeSlide through the built package boundary and exercises tha
 boundary with its existing NodeAgent runtime and a deck-tool adapter. Candidate CI
 now checks out NodeSlide at `main`.
 
+PR #226 completed the packed-consumer proof harness's operation-v1-only
+cutover. It removed the legacy-v0 bridge, and the fixture authorizer fails
+closed unless it receives exactly one valid operation-v1 request. It did not
+introduce or remove a production NodeRoom authorizer.
+
 This is still a contract/conformance slice, not a mounted NodeSlide product
 integration. The controlled UI packages are not mounted in NodeRoom, and no new
 production NodeRoom storage or authorization authority was introduced.
 
 ## Recorded proof
 
-The following deterministic evidence was recorded during the authorization-spine
-work:
+The following deterministic evidence was recorded for exact NodeRoom
+`4a4a3c25` and then-current NodeSlide code `c4fa5568` in
+[NodeRoom CI run 29730336006](https://github.com/HomenShum/NodeRoom/actions/runs/29730336006):
 
 - `npm run prod:gate` passed with 360 test files / 2,530 tests, 29 Playwright
   journeys, the production build, and the security gate green.
 - `npm run nodeslide:consumer:proof` passed the operation-v1 package lifecycle and
-  reported 25 host-authorization checks.
+  reported 25 host-authorization checks and
+  `legacyPermissionCallback: false`.
 - The consumer receipt reported
   `authorizationMode: "deterministic-preverified-fixture"` and explicitly reported:
   `actorProofValidated: false`, `roomMembershipValidated: false`, and
   `productionPolicyExecuted: false`.
-- The proof covered an unapplied proposal, review/acceptance, CAS-stale competition,
-  idempotent replay, direct apply, rejection, receipt persistence, package reload,
-  and a NodeAgent tool invocation through the repository boundary.
+- The proof covered an unapplied proposal, review/acceptance, CAS-stale
+  competition, idempotent replay, direct apply, rejection, inspection of the
+  in-memory receipt ledger, a `getDeck` re-read from the same memory repository,
+  a JSON round-trip of the snapshot, and a NodeAgent tool invocation through the
+  repository boundary. It did not prove durable receipt persistence or package
+  reload.
+- The latest reverse proof in
+  [NodeSlide main job 88318743208](https://github.com/HomenShum/NodeSlide/actions/runs/29731886752/job/88318743208)
+  checked out exact NodeRoom `4a4a3c25` from NodeSlide `12a8527c` and passed with
+  operation-v1, 25 authorization checks, every repository action observed, and
+  the legacy callback disabled.
 
 Treat those results as evidence for the tested commit and commands, not as a live
 deployment claim. Run the relevant gate again after substantive changes. The
