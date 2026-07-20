@@ -162,7 +162,6 @@
     "nodeagent:frame:smoke": "tsx scripts/nodeagent-frame-smoke.ts",
     "nodeagent:ingestion:smoke": "tsx scripts/nodeagent-ingestion-orchestrator-smoke.ts",
     "nodeslide:consumer:proof": "tsx scripts/nodeslide-consumer-proof.ts",
-    "nodeslide:mounted:release:proof": "tsx scripts/nodeslide-mounted-release-proof.ts --lock vendor/nodeslide/release-lock.json",
     "omnigent:nodeagent:smoke": "tsx scripts/omnigent-nodeagent-smoke.ts --json-out docs/eval/omnigent-nodeagent-smoke.json",
     "nodeagent:api-docs": "tsx scripts/nodeagent-api-docs.ts",
     "halo:self-improve:smoke": "tsx scripts/halo-self-improvement-smoke.ts --strict",

@@ -1,66 +1,83 @@
 # NodeSlide consumer and mounted-product proof
 
-NodeRoom keeps two complementary proofs.
+NodeRoom keeps two complementary proof surfaces. Neither replaces NodeRoom's
+authentication, NodeAgent runtime, artifact storage, object CAS, proposals,
+traces, or room activity.
 
 ## Portable repository contract
 
-`npm run nodeslide:consumer:proof` consumes `@nodeslide/testing` from either an
-exact NodeSlide checkout or a same-version packed contracts/engine/backend/testing
+`npm run nodeslide:consumer:proof` consumes `@nodeslide/testing` from either a
+NodeSlide checkout or a same-version packed contracts/engine/backend/testing
 closure. It proves the operation-v1 repository protocol, frozen authorization
 request, unapplied proposal review, CAS-stale competition, idempotent replay,
-receipt binding, and a NodeAgent tool invocation. Its actor is deliberately a
-preverified fixture, so its v3 receipt continues to report production and
-durability claims as false.
+receipt binding, and a NodeAgent tool invocation.
+
+Its actor is deliberately a preverified fixture. The v3 receipt therefore keeps
+production authorization, durable backend, mounted React, presenter, and export
+claims false; a successful fixture receipt must not be relabeled as mounted or
+production evidence.
 
 ```powershell
 $env:NODESLIDE_ROOT = "D:\path\to\NodeSlide"
 npm run nodeslide:consumer:proof
 ```
 
-## Mounted NodeRoom product
+## Mounted NodeRoom product boundary
 
-The product implementation is separate from that fixture proof:
+The mounted implementation is separate from that fixture proof:
 
-- `convex/nodeslideHost.ts` executes NodeRoom ActorProof/membership and write
-  policy before using existing artifact/CAS/proposal/trace/activity storage.
-- `src/integrations/nodeslide/nodeRoomArtifactRepository.ts` provides the Memory
-  authority with the same governed repository semantics.
-- `src/integrations/nodeslide/storyboardTranslation.ts` maps NodeRoom's
-  storyboard into real `@nodeslide/contracts` snapshots and patch commands.
-- `src/integrations/nodeslide/NodeRoomNodeSlideStudioMount.tsx` mounts the packed
-  controlled React shell into `DeckStoryboardWorkbench`.
-- `tests/nodeSlideMountedMemoryJourney.test.ts` and
-  `tests/nodeSlideMountedConvexJourney.test.ts` prove the two authorities.
-- `tests/nodeSlideStudioMount.test.tsx` proves host/member command gating and CAS
-  clocks at the React mount.
+- `convex/nodeslideHost.ts` verifies the existing `ActorProof`, room
+  membership, artifact scope/visibility/tag, route policy, and host/member write
+  policy before reading or mutating product data.
+- Reads, direct patches, proposals, decisions, versions, receipts, traces, and
+  activity use NodeRoom's existing artifact and object-CAS authority. No
+  parallel product tables were added.
+- `storyboardTranslation.ts` maps the collaborative storyboard into real
+  `@nodeslide/contracts` snapshots. Its writable reverse boundary accepts one
+  text replacement with deck, slide, and element CAS clocks.
+- `NodeRoomNodeSlideStudioMount.tsx` literally mounts the controlled
+  `@nodeslide/react` shell around NodeRoom's richer storyboard workbench.
+  Members may propose; only hosts may directly patch or resolve.
+- The package Convex component is mounted under the isolated `nodeslide`
+  namespace for independent component consumers and migrations. It is not the
+  source of truth for NodeRoom's mounted product path.
+- The memory journey runs NodeRoom's actual NodeAgent model/tool loop, leaves
+  its proposal unapplied, requires host acceptance, and rejects a competing
+  stale base. The Convex journey proves durable authorization, CAS, proposal,
+  reload, history, activity, and credential-free receipt behavior.
 
-## Immutable package release
+## Private development package closure
 
-NodeSlide releases
-[`v0.1.0`](https://github.com/HomenShum/NodeSlide/releases/tag/v0.1.0) and
-[`v0.2.0`](https://github.com/HomenShum/NodeSlide/releases/tag/v0.2.0) are
-GitHub-immutable and attested. v0.2.0 is bound to exact producer commit
-`39a9ebfcbaaeef52556bc263d386ea4859f476bb`.
+The mounted branch currently vendors only the six publish-shaped 0.2.0 runtime
+tarballs required to compile and test the boundary: contracts, engine, backend,
+react-headless, react, and convex. `package-lock.json` pins every file dependency
+by npm SHA-512 integrity.
 
-The complete v0.2.0 artifact set and upgrade receipt are mirrored under
-`vendor/nodeslide/`; `release-lock.json` binds their digests. Run:
+These bytes are a private development closure, not a public release receipt.
+They intentionally carry no producer commit, tag, or immutable-release claim.
+The concurrently published v0.2.0 predates the final review fixes and is not an
+approved NodeRoom producer. Do not add a release lock or exact-producer CI pin
+until the post-review immutable patch release is generated from merged
+NodeSlide `main`.
 
-```powershell
-$env:NODESLIDE_ROOT = "D:\path\to\NodeSlide-at-39a9ebf"
-npm run nodeslide:mounted:release:proof
-```
+`scripts/nodeslide-mounted-release-proof.ts` implements the final fail-closed
+consumer gate. It requires `--lock <path>` explicitly and verifies manifest and
+upgrade-proof digests, every package digest, lockstep versions, clean install,
+NodeRoom lockfile pins, package exports, component governance/grant exports,
+and an exact NodeSlide checkout. It must continue to reject execution when the
+canonical lock is absent.
 
-The proof rejects a mismatched producer checkout, changed manifest or upgrade
-receipt, changed package bytes, mixed versions, package-lock integrity drift,
-or missing controlled/component exports.
+## Remaining evidence boundary
 
-## CI
+The deterministic implementation and tests do not prove a recorded browser or
+live-production journey. Still required after the canonical package release:
 
-The NodeSlide consumer job reads the immutable producer SHA from the committed
-release lock instead of following a moving producer branch. It then runs the
-portable package proof, the complete mounted release proof, and the smallest
-Memory/Convex/React mounted journeys. The main `prod:gate` continues to run the
-full NodeRoom corpus.
+1. bind the final post-review NodeSlide patch tag/SHA and immutable artifact set;
+2. run and retain the bilateral install-upgrade/tamper/mixed-release proof;
+3. add the exact producer checkout and mounted proof to CI; and
+4. capture browser evidence covering mount, reload, NodeAgent proposal, visible
+   comparison, host acceptance, presenter, PPTX export, and reopen.
 
-Recorded browser/a11y media remains a separate acceptance class; deterministic
-component tests must not be presented as camera proof.
+The existing cross-repository portable CI may continue following the agreed
+candidate/main policy until that immutable release lock exists. Never substitute
+a local development commit or mutable `latest` package for the final gate.

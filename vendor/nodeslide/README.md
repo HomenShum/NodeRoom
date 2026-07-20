@@ -1,13 +1,11 @@
-# NodeSlide immutable mounted release
+# NodeSlide runtime closure
 
-This directory contains the complete publish-shaped `@nodeslide/*` v0.2.0
-artifact set generated from merged NodeSlide main commit
-`39a9ebfcbaaeef52556bc263d386ea4859f476bb`.
+These six publish-shaped `@nodeslide/*` tarballs are the private runtime closure
+needed to compile and test NodeRoom's mounted studio and isolated Convex
+component. `package-lock.json` pins each file by npm SHA-512 integrity.
 
-`nodeslide-artifacts.json` binds every tarball to SHA-256 and npm SHA-512
-integrity. `install-upgrade-proof.json` records the clean 0.1.0 to 0.2.0
-install/upgrade proof, including tamper and mixed-release rejection.
-`release-lock.json` binds both receipts and the exact producer commit consumed by
-NodeRoom CI. The six runtime tarballs are exact `file:` dependencies in
-`package.json` and `package-lock.json`; the remaining packages stay here so the
-release proof can verify the complete lockstep set.
+This directory is not a public-release receipt and deliberately does not name a
+producer commit. The final cross-repository gate must be bound to artifacts
+regenerated from merged NodeSlide `main`; pass that release lock explicitly to
+`scripts/nodeslide-mounted-release-proof.ts --lock <path>` and require an exact
+NodeSlide checkout before recording a bilateral receipt.

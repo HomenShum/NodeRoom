@@ -2,63 +2,65 @@
 
 Last updated: 2026-07-20.
 
-NodeRoom now contains the mounted NodeSlide product integration. The immutable
-producer is NodeSlide main commit
-`39a9ebfcbaaeef52556bc263d386ea4859f476bb`, release
-[`v0.2.0`](https://github.com/HomenShum/NodeSlide/releases/tag/v0.2.0).
+The mounted NodeSlide implementation is complete on the local integration
+branch, but the package release and browser acceptance remain deliberately
+open. A concurrent session published v0.2.0 before the final review fixes; it is
+not an approved NodeRoom producer. Wait for the post-review immutable patch
+release (expected v0.2.1) and do not bind a local development commit.
 
-## Shipped integration
+## Implemented and locally verified
 
 - `convex/nodeslideHost.ts` maps NodeSlide reads, direct patches, proposals,
-  decisions, versions, and receipts onto NodeRoom's existing
-  `artifacts`/`elements`/`proposals`/`traces`/`elementVersions`/activity authority.
-  It does not add a parallel product store.
-- Every public route validates the existing `ActorProof`, room membership, and
-  host/member policy server-side. Receipts retain only bounded opaque policy
-  evidence; bearer credentials never cross into NodeSlide.
+  decisions, versions, and receipts onto NodeRoom's existing artifacts,
+  elements, proposals, traces, element versions, and activity authority.
+- Public routes validate ActorProof, room membership, deck scope/visibility/tag,
+  and host/member policy before product lookups. Receipts retain bounded opaque
+  evidence and exclude bearer credentials.
 - `storyboardTranslation.ts` provides the explicit loss-aware storyboard to
   `DeckSnapshot` boundary and preserves deck, slide, and element CAS clocks.
-- `NodeRoomNodeSlideStudioMount.tsx` mounts the packed
-  `@nodeslide/react` controlled shell inside the real deck workbench. Members
-  can propose; only hosts can patch or decide.
+- `NodeRoomNodeSlideStudioMount.tsx` mounts the controlled `@nodeslide/react`
+  shell inside the real deck workbench. Members can propose; only hosts can
+  patch or decide.
 - The memory journey runs a real NodeAgent tool call, host review, competing
-  stale proposal, repository reconstruction, presenter/PPTX generation, archive
-  reopen, snapshot revalidation, and credential-free receipt checks.
-- The Convex journey proves the same authorization, CAS, proposal, reload,
-  version-history, room-activity, and receipt behavior on durable tables.
-- `vendor/nodeslide/release-lock.json` binds the complete 11-package v0.2.0 set,
-  the 0.1.0 to 0.2.0 upgrade receipt, and all package/manifest digests to exact
-  NodeSlide main. `package-lock.json` integrity-pins the six runtime packages.
-- CI reads that lock, checks out the exact NodeSlide commit, runs the legacy
-  portable consumer proof, verifies the complete immutable release, and runs
-  the smallest mounted Memory/Convex/React journeys.
+  stale proposal, repository reread, PPTX generation/archive reopen, snapshot
+  revalidation, and credential-free receipts.
+- The Convex journey proves the durable authorization, CAS, proposal, reload,
+  version-history, room-activity, and receipt lifecycle.
+- The isolated package Convex component is mounted as `nodeslide`; NodeRoom's
+  existing artifact authority remains the product source of truth.
+- Six private publish-shaped runtime tarballs are vendored and content-pinned in
+  `package-lock.json`. They are development inputs, not a release receipt.
 
-## Deterministic gates
+## Verified gates
 
-```powershell
-npm run typecheck
-npm run design:audit
-npm run nodeagent:frame:smoke
-npm run omnigent:nodeagent:smoke
-npm test -- --run tests/nodeSlideMountedMemoryJourney.test.ts tests/nodeSlideMountedConvexJourney.test.ts tests/nodeSlideStudioMount.test.tsx
-$env:NODESLIDE_ROOT = "D:\path\to\NodeSlide-at-39a9ebf"
-npm run nodeslide:mounted:release:proof
-npm run floor
-npm run prod:gate
-```
+The final local tree passed:
 
-The mounted release proof is fail-closed on manifest/proof digests, every
-tarball digest, lockstep versions, NodeRoom's package-lock integrities, package
-exports, component governance/grant exports, and the exact producer checkout.
+- application and Convex TypeScript;
+- 366 Vitest files / 2,547 tests;
+- production build (7,499 modules);
+- design-system, UI-layer, and UI-contract audits;
+- security gate;
+- production dependency audit with zero vulnerabilities; and
+- bundle inspection for the literal mounted surface, NodeRoom CAS authority,
+  and host/proposal command controls.
 
-## Honest boundary
+The generic mounted release verifier also fails closed when `--lock` is absent.
 
-This closes the NodeSlide I4 host-authorizer work and the repository, runtime,
-package, and CI portions of I7/I8. The tests prove the mounted React boundary and
-the product workbench's command wiring; they are not a recorded real-browser
-accessibility/camera acceptance. If that stronger evidence is requested, capture
-it as a separate browser proof without weakening or relabeling the deterministic
-journeys above.
+## Next required work
 
-Leave unrelated `.qa/` and `.proofloop/` state uncommitted. Before changing
-NodeAgent, continue to run both required smokes from `AGENTS.md`.
+1. Wait for the NodeSlide security work to merge.
+2. Regenerate the patch-release packages from final merged NodeSlide `main`, publish or
+   otherwise freeze the canonical artifact set, and obtain the exact tag/SHA.
+3. Add a release lock containing manifest and immutable install-upgrade proof
+   digests. Run `scripts/nodeslide-mounted-release-proof.ts --lock <path>` with
+   `NODESLIDE_ROOT` at that exact commit.
+4. Only after step 3 passes, add the exact checkout and mounted release proof to
+   bilateral CI.
+5. Capture a live browser journey for mount/reload, NodeAgent proposal,
+   comparison, host acceptance, presenter, PPTX export, and reopen. Keep camera
+   evidence separate from deterministic test claims.
+
+Do not reintroduce any local producer SHA, a mutable package tag, or a release
+claim based only on unit/Convex/build success. Leave unrelated `.qa/` and
+`.proofloop/` state uncommitted. Before changing NodeAgent, continue running the
+two required smokes from `AGENTS.md`.
