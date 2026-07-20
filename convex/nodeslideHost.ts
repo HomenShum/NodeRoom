@@ -37,12 +37,12 @@ const mountedDeckArgs = {
 export const getMountedDeck = query({
   args: mountedDeckArgs,
   handler: async (ctx, args) => {
-    const deck = await loadDeckArtifact(ctx, args.roomId, args.artifactId);
     const authorization = await authorizeOperation(ctx, {
       ...args,
       action: "deck.read",
       resourceId: String(args.artifactId),
     });
+    const deck = await loadDeckArtifact(ctx, args.roomId, args.artifactId);
     const translated = translateNodeRoomArtifactToNodeSlide(deck);
     return {
       snapshot: translated.snapshot,
@@ -61,13 +61,13 @@ export const applyMountedPatch = mutation({
   args: { ...mountedDeckArgs, patch: v.any() },
   handler: async (ctx, args) => {
     const patch = parsePatchCommand(args.patch);
-    const deck = await loadDeckArtifact(ctx, args.roomId, args.artifactId);
     const authorization = await authorizeOperation(ctx, {
       ...args,
       action: "patch.apply",
       resourceId: patch.id,
       recordEvidence: true,
     });
+    const deck = await loadDeckArtifact(ctx, args.roomId, args.artifactId);
     let mutation;
     try {
       mutation = planNodeSlidePatchForNodeRoom(deck, patch);
@@ -121,13 +121,13 @@ export const createMountedProposal = mutation({
   args: { ...mountedDeckArgs, patch: v.any() },
   handler: async (ctx, args) => {
     const patch = parsePatchCommand(args.patch);
-    const deck = await loadDeckArtifact(ctx, args.roomId, args.artifactId);
     const authorization = await authorizeOperation(ctx, {
       ...args,
       action: "proposal.create",
       resourceId: patch.id,
       recordEvidence: true,
     });
+    const deck = await loadDeckArtifact(ctx, args.roomId, args.artifactId);
     const planned = planNodeSlidePatchForNodeRoom(deck, patch);
     const pending = await ctx.db
       .query("proposals")
@@ -201,10 +201,6 @@ export const resolveMountedProposal = mutation({
     decision: v.union(v.literal("accept"), v.literal("reject")),
   },
   handler: async (ctx, args) => {
-    const proposal = await ctx.db.get(args.proposalId);
-    if (!proposal || String(proposal.artifactId) !== String(args.artifactId)) {
-      return { ok: false as const, reason: "not_found" as const };
-    }
     const action = args.decision === "accept" ? "proposal.accept" as const : "proposal.reject" as const;
     const authorization = await authorizeOperation(ctx, {
       ...args,
@@ -212,6 +208,10 @@ export const resolveMountedProposal = mutation({
       resourceId: String(args.proposalId),
       recordEvidence: true,
     });
+    const proposal = await ctx.db.get(args.proposalId);
+    if (!proposal || String(proposal.artifactId) !== String(args.artifactId)) {
+      return { ok: false as const, reason: "not_found" as const };
+    }
     const result = await resolveProposalCore(ctx, {
       proposalId: args.proposalId,
       approve: args.decision === "accept",
@@ -253,12 +253,12 @@ export const resolveMountedProposal = mutation({
 export const listMountedVersions = query({
   args: { ...mountedDeckArgs, limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    const deck = await loadDeckArtifact(ctx, args.roomId, args.artifactId);
     const authorization = await authorizeOperation(ctx, {
       ...args,
       action: "versions.list",
       resourceId: String(args.artifactId),
     });
+    const deck = await loadDeckArtifact(ctx, args.roomId, args.artifactId);
     const limit = Math.max(1, Math.min(Math.floor(args.limit ?? 100), 500));
     const rows = await ctx.db
       .query("elementVersions")
