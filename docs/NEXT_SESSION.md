@@ -1,12 +1,13 @@
 # NodeRoom next-session handoff
 
 Last updated: 2026-07-20
-NodeRoom integration implementation baseline: `4a4a3c25` (merged PR #226).
+NodeRoom packed-consumer proof implementation baseline: `4a4a3c25` (merged
+PR #226).
 This handoff also corrects the executable consumer-proof receipt vocabulary and
 bumps that proof-only schema to v3; it does not add mounted product integration.
 Counterpart product-code checkpoint: NodeSlide `12a8527c` (merged PR #23 and
-manually deployed to production Convex); its current docs-only `main` tip is
-`5d5e2035` (merged PR #24)
+manually deployed to production Convex); its deployment-proof docs checkpoint
+is `5d5e2035` (merged PR #24).
 
 This is the current handoff for the NodeRoom side of the NodeSlide integration.
 Older handoffs are retained for provenance, but their implementation and deploy
