@@ -379,7 +379,7 @@ export type TraceType =
   | "draft_created" | "draft_merged" | "draft_conflict" | "semantic_conflict"
   | "agent_session_started" | "agent_status" | "message"
   | "notebook_read_model" | "agent_work_plan_proposed" | "agent_work_plan_approved"
-  | "schema_changed";
+  | "schema_changed" | "nodeslide_authorized" | "nodeslide_receipt";
 
 export interface TraceEvent {
   id: string;
