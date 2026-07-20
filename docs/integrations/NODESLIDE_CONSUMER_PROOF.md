@@ -58,17 +58,25 @@ committed `file:` dependency:
 ```powershell
 # In NodeSlide
 npm run packages:build
-npm pack --workspace packages/testing --pack-destination .artifacts
+npm pack --workspace @nodeslide/contracts --pack-destination .artifacts
+npm pack --workspace @nodeslide/engine --pack-destination .artifacts
+npm pack --workspace @nodeslide/backend --pack-destination .artifacts
+npm pack --workspace @nodeslide/testing --pack-destination .artifacts
 
 # In NodeRoom
-$env:NODESLIDE_PACKAGE_ARTIFACT = "D:\path\to\.artifacts\nodeslide-testing-0.1.0.tgz"
+$env:NODESLIDE_PACKAGE_ARTIFACT = "D:\path\to\.artifacts"
 npm run nodeslide:consumer:proof
 ```
 
-`NODESLIDE_PACKAGE_ARTIFACT` may also name a directory containing exactly one
-`nodeslide-testing-*.tgz`. The harness installs the tarball with scripts
-disabled in an operating-system temp directory, records its SHA-256 in the
-receipt, and removes that directory when the proof finishes.
+Before the private packages are published, directory input must contain exactly
+one same-version tarball for each member of the testing dependency closure:
+`@nodeslide/contracts`, `@nodeslide/engine`, `@nodeslide/backend`, and
+`@nodeslide/testing`. The harness rejects missing, ambiguous, unexpected, or
+mixed-version NodeSlide artifacts, installs the closure together with scripts
+disabled in an operating-system temp directory, records the testing artifact's
+SHA-256 in the receipt, and removes that directory when the proof finishes.
+Explicit testing-tarball input remains supported for environments where its
+private dependencies are already resolvable.
 
 Write a machine-readable receipt without committing generated output:
 

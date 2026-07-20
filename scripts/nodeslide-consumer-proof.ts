@@ -5,9 +5,7 @@ import {
   mkdir,
   mkdtemp,
   readFile,
-  readdir,
   rm,
-  stat,
   writeFile,
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -19,12 +17,13 @@ import { buildDemoRoom } from "../src/engine/demoRoom";
 import { RoomEngine } from "../src/engine/roomEngine";
 import { toNodeSlidePrincipalFromVerifiedActor } from "../src/integrations/nodeslide/hostPrincipal";
 import {
-  runNodeSlideWithNodeAgent,
   type NodeSlideAgentAdapter,
   type NodeSlideRoomTools,
+  runNodeSlideWithNodeAgent,
 } from "../src/integrations/nodeslide/nodeAgentAdapter";
 import type { AgentModel } from "../src/nodeagent/core/types";
 import { InMemoryRoomTools } from "../src/nodeagent/skills/integration/noderoomAdapter";
+import { resolveNodeSlidePackedArtifacts } from "./nodeslide-consumer-artifacts";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -198,21 +197,9 @@ async function loadFromRepositoryRoot(
   };
 }
 
-async function resolvePackedArtifact(input: string): Promise<string> {
-  const candidate = resolve(input);
-  const candidateStat = await stat(candidate);
-  if (candidateStat.isFile()) return candidate;
-  assert(candidateStat.isDirectory(), `${candidate} is neither a file nor directory.`);
-  const entries = (await readdir(candidate))
-    .filter((entry) => /^nodeslide-testing-.*\.tgz$/u.test(entry))
-    .sort();
-  assert(entries.length === 1, `${candidate} must contain exactly one nodeslide-testing-*.tgz.`);
-  return join(candidate, entries[0]);
-}
-
 async function loadFromPackedArtifact(artifactInput: string): Promise<LoadedTestingModule> {
-  const artifact = await resolvePackedArtifact(artifactInput);
-  assert(artifact.endsWith(".tgz"), `${artifact} is not an npm package tarball.`);
+  const artifacts = await resolveNodeSlidePackedArtifacts(artifactInput);
+  const artifact = artifacts.testingArtifact;
   const integritySha256 = createHash("sha256")
     .update(await readFile(artifact))
     .digest("hex");
@@ -232,7 +219,7 @@ async function loadFromPackedArtifact(artifactInput: string): Promise<LoadedTest
         "--no-package-lock",
         "--no-audit",
         "--no-fund",
-        artifact,
+        ...artifacts.installArtifacts,
       ],
       installRoot,
     );

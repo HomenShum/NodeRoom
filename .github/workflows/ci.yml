@@ -93,10 +93,13 @@ jobs:
         working-directory: nodeslide
         run: npm run packages:consumer:smoke
 
-      - name: Pack versioned NodeSlide testing artifact
+      - name: Pack versioned NodeSlide testing dependency closure
         working-directory: nodeslide
         run: |
           mkdir -p "$RUNNER_TEMP/nodeslide-packages"
+          npm pack --workspace @nodeslide/contracts --pack-destination "$RUNNER_TEMP/nodeslide-packages"
+          npm pack --workspace @nodeslide/engine --pack-destination "$RUNNER_TEMP/nodeslide-packages"
+          npm pack --workspace @nodeslide/backend --pack-destination "$RUNNER_TEMP/nodeslide-packages"
           npm pack --workspace @nodeslide/testing --pack-destination "$RUNNER_TEMP/nodeslide-packages"
 
       - name: Run NodeRoom NodeAgent consumer journey
