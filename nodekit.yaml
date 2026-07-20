@@ -14,9 +14,12 @@ consumes:
   - nodeagent.agent-run
   - nodeagent.policy-context
   - nodeagent.proposal-review
+  - nodeagent.provider-pi
   - nodeagent.trace-workpaper
   - nodetrace.trace-ui-store
   - nodemem.memory
+  - nodeslide.deck
+  - nodeslide.deck-patch
   - proofloop.certification
   - agentic-ui-qa.flight-recorder
 
@@ -47,6 +50,12 @@ contractDeclarations:
     path: src/eval/proofloopAgentAdapters.ts
     mode: adapter
     origin: nodeagent.agent-run
+  - concept: nodeagent.provider-pi
+    signature: agent-model-adapter
+    path: src/nodeagent/models/piAiAdapter.ts
+    mode: adapter
+    origin: nodeagent.provider-pi
+    reason: NodeRoom keeps its production integration while NodeAgent owns the portable Pi provider contract.
   - concept: nodeagent.trace-workpaper
     signature: trace-schema
     path: src/nodeagent/traces/traceTypes.ts
