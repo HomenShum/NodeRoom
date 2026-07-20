@@ -1,3 +1,10 @@
+> **Historical handoff (superseded).** Start with
+> [`docs/NEXT_SESSION.md`](./NEXT_SESSION.md), the canonical NodeRoom handoff as of
+> 2026-07-20. The content below is retained for provenance and may describe
+> obsolete implementation or deployment state; revalidate it before use.
+
+---
+
 # Next Session Handoff
 
 Last updated: 2026-06-19
