@@ -1,8 +1,9 @@
 # NodeRoom next-session handoff
 
 Last updated: 2026-07-20
-NodeRoom product-code checkpoint before this docs-only handoff: `4a4a3c25`
-(merged PR #226)
+NodeRoom integration implementation baseline: `4a4a3c25` (merged PR #226).
+This handoff also corrects the executable consumer-proof receipt vocabulary and
+bumps that proof-only schema to v3; it does not add mounted product integration.
 Counterpart product-code checkpoint: NodeSlide `12a8527c` (merged PR #23 and
 manually deployed to production Convex); its current docs-only `main` tip is
 `5d5e2035` (merged PR #24)
@@ -50,14 +51,20 @@ The following deterministic evidence was recorded for exact NodeRoom
   competition, idempotent replay, direct apply, rejection, inspection of the
   in-memory receipt ledger, a `getDeck` re-read from the same memory repository,
   a JSON round-trip of the snapshot, and a NodeAgent tool invocation through the
-  repository boundary. It did not prove durable receipt persistence or package
-  reload.
+  repository boundary.
 - The latest reverse proof in
   [NodeSlide main job 88323293014](https://github.com/HomenShum/NodeSlide/actions/runs/29733297145/job/88323293014)
   checked out exact NodeRoom `9eee92dd` from exact NodeSlide `5d5e2035`; those
   tips contain product-code baselines `4a4a3c25` and `12a8527c`, respectively.
   It passed with operation-v1, 25 authorization checks, every repository action
   observed, and the legacy callback disabled.
+
+The current proof contract corrects the historical v2 receipt's ambiguous
+`reload` wording. Receipt schema v3 names the exercised claims
+`inMemoryReceiptLedger`, `sameRepositoryReread`, and
+`sameRepositoryRereadPreservedEdit`; a runtime assertion pins those fields and
+explicitly requires `durableReceiptPersistence: false` and
+`packageReload: false` before the receipt is written or printed.
 
 Treat those results as evidence for the tested commit and commands, not as a live
 deployment claim. Run the relevant gate again after substantive changes. The
