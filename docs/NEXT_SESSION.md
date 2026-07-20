@@ -53,10 +53,11 @@ The following deterministic evidence was recorded for exact NodeRoom
   repository boundary. It did not prove durable receipt persistence or package
   reload.
 - The latest reverse proof in
-  [NodeSlide main job 88318743208](https://github.com/HomenShum/NodeSlide/actions/runs/29731886752/job/88318743208)
-  checked out exact NodeRoom `4a4a3c25` from NodeSlide `12a8527c` and passed with
-  operation-v1, 25 authorization checks, every repository action observed, and
-  the legacy callback disabled.
+  [NodeSlide main job 88323293014](https://github.com/HomenShum/NodeSlide/actions/runs/29733297145/job/88323293014)
+  checked out exact NodeRoom `9eee92dd` from exact NodeSlide `5d5e2035`; those
+  tips contain product-code baselines `4a4a3c25` and `12a8527c`, respectively.
+  It passed with operation-v1, 25 authorization checks, every repository action
+  observed, and the legacy callback disabled.
 
 Treat those results as evidence for the tested commit and commands, not as a live
 deployment claim. Run the relevant gate again after substantive changes. The
