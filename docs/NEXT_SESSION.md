@@ -1,8 +1,9 @@
 # NodeRoom next-session handoff
 
 Last updated: 2026-07-20
-Canonical checkpoint: `origin/main` at `4a4a3c25` (merged PR #226)
-Counterpart code checkpoint: NodeSlide `main` at `12a8527c` (merged PR #23)
+NodeRoom product-code checkpoint before this docs-only handoff: `4a4a3c25`
+(merged PR #226)
+Counterpart product-code checkpoint: NodeSlide `main` at `12a8527c` (merged PR #23)
 
 This is the current handoff for the NodeRoom side of the NodeSlide integration.
 Older handoffs are retained for provenance, but their implementation and deploy
