@@ -650,6 +650,47 @@ export class RoomEngine {
   }
 
   /* ───────── proposals (auto-allow OFF) ───────── */
+  /**
+   * Explicit review-path insertion used by controlled integrations. This is
+   * the same proposal map and final-CAS resolution path as agent auto-allow;
+   * it is not a second proposal ledger.
+   */
+  createProposal(args: {
+    roomId: string;
+    artifactId: string;
+    op: ChangeOp;
+    author: Actor;
+    review?: Proposal["review"];
+  }): Proposal {
+    const art = this.artifacts.get(args.artifactId);
+    if (!art || art.roomId !== args.roomId || args.op.artifactId !== args.artifactId) {
+      throw new Error("proposal_artifact_mismatch");
+    }
+    const existing = [...this.proposals.values()].find((proposal) =>
+      samePendingProposal(proposal, args.roomId, args.op, args.author));
+    if (existing) return existing;
+    const proposal: Proposal = {
+      id: this.id("prop"),
+      roomId: args.roomId,
+      artifactId: args.artifactId,
+      op: args.op,
+      author: args.author,
+      status: "pending",
+      createdAt: this.now(),
+      ...(args.review ? { review: args.review } : {}),
+    };
+    this.proposals.set(proposal.id, proposal);
+    this.trace(
+      args.roomId,
+      args.author,
+      "edit_proposed",
+      `${args.author.name} proposed an edit to ${args.op.elementId} (awaiting approval)`,
+      { proposalId: proposal.id, artifactId: args.artifactId, elementId: args.op.elementId },
+    );
+    this.emit();
+    return proposal;
+  }
+
   resolveProposal(proposalId: string, approve: boolean, by: Actor): EditResult | null {
     const p = this.proposals.get(proposalId);
     if (!p || p.status !== "pending") return null;
@@ -669,6 +710,7 @@ export class RoomEngine {
     return res;
   }
   listProposals(roomId: string): Proposal[] { return [...this.proposals.values()].filter((p) => p.roomId === roomId && p.status === "pending"); }
+  getProposal(proposalId: string): Proposal | undefined { return this.proposals.get(proposalId); }
   listSemanticConflicts(roomId: string): SemanticConflictPacket[] { return [...this.semanticConflicts.values()].filter((p) => p.roomId === roomId); }
 
   /* ───────── drafts + smart-merge (point 8) ───────── */
@@ -824,6 +866,10 @@ export class RoomEngine {
   trace(roomId: string, actor: Actor, type: TraceType, summary: string, refs?: Record<string, string>, detail?: string) {
     this.traces.push({ id: this.id("tr"), roomId, ts: this.now(), actor, type, summary, refs, detail });
     if (this.traces.length > MAX_TRACES) this.traces.splice(0, this.traces.length - MAX_TRACES);
+  }
+  recordTrace(roomId: string, actor: Actor, type: TraceType, summary: string, refs?: Record<string, string>, detail?: string): TraceEvent {
+    this.trace(roomId, actor, type, summary, refs, detail);
+    return this.traces[this.traces.length - 1];
   }
   listTraces(roomId: string): TraceEvent[] { return this.traces.filter((t) => t.roomId === roomId); }
 

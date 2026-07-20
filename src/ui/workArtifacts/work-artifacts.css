@@ -984,6 +984,42 @@
   box-shadow: var(--focus-ring, 0 0 0 3px rgba(217,119,87,.2));
 }
 
+.wa-deck-mounted-actions {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--accent-border, rgba(217,119,87,.28));
+  border-radius: 8px;
+  background: var(--accent-tint, rgba(217,119,87,.08));
+}
+
+.wa-deck-mounted-actions > span {
+  color: var(--accent-ink, #e59579);
+  font: 11px/1.2 var(--font-mono);
+}
+
+.wa-deck-mounted-actions button {
+  min-height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--border, rgba(255,255,255,.08));
+  border-radius: 8px;
+  background: rgba(0,0,0,.14);
+  color: var(--text, #f3f6fb);
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.wa-deck-mounted-actions button:hover:not(:disabled) {
+  border-color: var(--accent-border, rgba(217,119,87,.38));
+  color: var(--accent-ink, #e59579);
+}
+
+.wa-deck-mounted-actions button:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
 .wa-deck-editor-claims {
   display: grid;
   gap: 6px;

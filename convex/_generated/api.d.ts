@@ -59,6 +59,7 @@ import type * as metrics from "../metrics.js";
 import type * as modelFrontier from "../modelFrontier.js";
 import type * as nodemem from "../nodemem.js";
 import type * as nodememCompile from "../nodememCompile.js";
+import type * as nodeslideHost from "../nodeslideHost.js";
 import type * as notebookAgent from "../notebookAgent.js";
 import type * as notebookGraph from "../notebookGraph.js";
 import type * as notebookKernel from "../notebookKernel.js";
@@ -144,6 +145,7 @@ declare const fullApi: ApiFromModules<{
   modelFrontier: typeof modelFrontier;
   nodemem: typeof nodemem;
   nodememCompile: typeof nodememCompile;
+  nodeslideHost: typeof nodeslideHost;
   notebookAgent: typeof notebookAgent;
   notebookGraph: typeof notebookGraph;
   notebookKernel: typeof notebookKernel;
@@ -205,4 +207,5 @@ export declare const components: {
   persistentTextStreaming: import("@convex-dev/persistent-text-streaming/_generated/component.js").ComponentApi<"persistentTextStreaming">;
   debouncer: import("@ikhrustalev/convex-debouncer/_generated/component.js").ComponentApi<"debouncer">;
   prosemirrorSync: import("@convex-dev/prosemirror-sync/_generated/component.js").ComponentApi<"prosemirrorSync">;
+  nodeslide: import("@nodeslide/convex/_generated/component.js").ComponentApi<"nodeslide">;
 };

@@ -5,7 +5,10 @@ import { collaborativeDeckArtifactInput, normalizeCollaborativeDeck, type DeckSt
 
 const storeRef: { current: Record<string, unknown> } = { current: {} };
 vi.mock("../src/app/store", () => ({ useStore: () => storeRef.current }));
-vi.mock("convex/react", () => ({ useQuery: () => undefined }));
+vi.mock("convex/react", () => ({
+  useQuery: () => undefined,
+  useMutation: () => vi.fn().mockResolvedValue({ ok: true }),
+}));
 
 import { Artifact } from "../src/ui/panels/Artifact";
 import { WorkArtifactsPanel } from "../src/ui/workArtifacts/WorkArtifactsPanel";

@@ -1,13 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
+import type { FunctionReference } from "convex/server";
+import type { NodeSlidePatchCommand } from "@nodeslide/backend";
+import type { NodeSlideStudioShellActions } from "@nodeslide/react";
+import type { DeckSnapshot } from "@nodeslide/contracts";
 import { Archive, Bot, CheckCircle2, Clock3, Download, FileDown, GitPullRequest, Network, Search, ShieldAlert, Sparkles } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
-import { useStore } from "../../app/store";
+import { useStore, type ActorProof } from "../../app/store";
 import type { Actor, Artifact, Proposal, TraceEvent } from "../../engine/types";
 import { buildSemanticGraph } from "../graph/semanticGraph";
 import { getBrowserNotebookKernelBroker } from "../../notebook/browserKernelBroker";
 import { buildDeckObjectProposalGoal, buildDeckStoryboardFromRoom, buildLivePerformanceSummary, buildNotebookArtifactStructure, buildNotebookArtifactStructureFromReadModel, buildNotebookKernelTables, buildProofBundleExportManifest, buildProofBundleReceipt, buildTraceReplaySummary, buildWorkArtifacts, changedDeckObjectIds, collaborativeDeckArtifactInput, createDeckComment, deckArtifactInputFromStoryboard, deckCommentElementId, deckSlideElementId, findDeckObjectConflicts, isCollaborativeDeckArtifact, mergeCollaborativeDeckObjectChanges, notebookKernelOutputElementId, planDeckObjectMutations, proofBundleManifestFileName, proofBundleManifestJson, readCollaborativeDeckArtifact, readCollaborativeDeckProposal, readNotebookKernelOutputs, resolveDeckComment, type DeckComment, type DeckStoryboard, type WorkArtifactKind, type WorkArtifactStatus, type WorkArtifactViewModel } from ".";
 import { DeckStoryboardWorkbench } from "./DeckStoryboardWorkbench";
+import { NodeRoomNodeSlideStudioMount } from "../../integrations/nodeslide/NodeRoomNodeSlideStudioMount";
+import { translateNodeRoomArtifactToNodeSlide } from "../../integrations/nodeslide/storyboardTranslation";
 import { GraphRelationshipReviewWorkbench } from "./GraphRelationshipReviewWorkbench";
 import { LivePerformanceCenter } from "./LivePerformanceCenter";
 import { NotebookDigestWorkbench } from "./NotebookDigestWorkbench";
@@ -48,6 +54,21 @@ const STATUS_TONE: Record<WorkArtifactStatus, string> = {
   rejected: "failed",
 };
 
+type MountedDeckArgs = {
+  roomId: string;
+  artifactId: string;
+  requester: ActorProof;
+};
+
+const nodeSlideHostApi = (api as unknown as {
+  nodeslideHost: {
+    getMountedDeck: FunctionReference<"query", "public", MountedDeckArgs, { snapshot: DeckSnapshot }>;
+    applyMountedPatch: FunctionReference<"mutation", "public", MountedDeckArgs & { patch: NodeSlidePatchCommand }, { ok: boolean; reason?: string }>;
+    createMountedProposal: FunctionReference<"mutation", "public", MountedDeckArgs & { patch: NodeSlidePatchCommand }, { proposalId: string }>;
+    resolveMountedProposal: FunctionReference<"mutation", "public", MountedDeckArgs & { proposalId: string; decision: "accept" | "reject" }, { ok: boolean; reason?: string }>;
+  };
+}).nodeslideHost;
+
 function iconFor(kind: WorkArtifactKind): ReactElement {
   if (kind === "graph") return <Network size={15} />;
   if (kind === "proposal") return <GitPullRequest size={15} />;
@@ -86,7 +107,17 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact, initialArtifact
   const longJobAttempts = store.lastLongFreeJobAttempts();
   const longJobDetail = store.lastLongFreeJobDetail();
   const canResolve = store.listMembers(roomId).some((member) => member.id === me.id && member.role === "host");
+  const requester = store.actorProof?.() ?? null;
+  const applyMountedPatchMutation = useMutation(nodeSlideHostApi.applyMountedPatch);
+  const createMountedProposalMutation = useMutation(nodeSlideHostApi.createMountedProposal);
+  const resolveMountedProposalMutation = useMutation(nodeSlideHostApi.resolveMountedProposal);
   const [exportMessage, setExportMessage] = useState<string | null>(null);
+  const [nodeSlideBusy, setNodeSlideBusy] = useState(false);
+  const [nodeSlideError, setNodeSlideError] = useState<string | null>(null);
+  const [nodeSlideSelection, setNodeSlideSelection] = useState<{ slideId: string | null; elementIds: readonly string[] }>({
+    slideId: null,
+    elementIds: [],
+  });
   const collaborativeDeckEntries = useMemo(() => artifacts.flatMap((artifact) => {
     const snapshot = readCollaborativeDeckArtifact(artifact);
     return snapshot ? [{ artifact, snapshot }] : [];
@@ -200,6 +231,35 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact, initialArtifact
   const selectedGraph = selectedId === `graph:${roomId}` ? graph : null;
   const selectedTraceId = selectedId?.startsWith("trace:") ? selectedId.slice("trace:".length) : undefined;
   const collaborativeDeckArtifactId = collaborativeDeck?.artifactId;
+  const liveMountedDeck = useQuery(
+    nodeSlideHostApi.getMountedDeck,
+    collaborativeDeckArtifactId && requester
+      ? {
+          roomId: roomId as never,
+          artifactId: collaborativeDeckArtifactId as never,
+          requester,
+        }
+      : "skip",
+  );
+  const localMountedSnapshot = useMemo(() => {
+    if (!activeDeckEntry) return null;
+    try {
+      return translateNodeRoomArtifactToNodeSlide(activeDeckEntry.artifact).snapshot;
+    } catch {
+      return null;
+    }
+  }, [activeDeckEntry]);
+  const nodeSlideSnapshot = (liveMountedDeck?.snapshot ?? localMountedSnapshot) as DeckSnapshot | null;
+  useEffect(() => {
+    if (!nodeSlideSnapshot) return;
+    setNodeSlideSelection((current) => ({
+      slideId: nodeSlideSnapshot.deck.slideOrder.includes(current.slideId ?? "")
+        ? current.slideId
+        : nodeSlideSnapshot.deck.slideOrder[0] ?? null,
+      elementIds: current.elementIds.filter((elementId) =>
+        nodeSlideSnapshot.elements.some((element) => element.id === elementId)),
+    }));
+  }, [nodeSlideSnapshot]);
   const deckPresence = collaborativeDeckArtifactId ? store.listPresence(roomId, collaborativeDeckArtifactId) : [];
   const deckCollaboratorCount = new Set([me.id, ...deckPresence.map((presence) => presence.actor.id)]).size;
   const reviewableDeckProposalIds = collaborativeDeckArtifactId
@@ -333,6 +393,69 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact, initialArtifact
       return { ok: false, reason: error instanceof Error ? error.message : "agent_patch_failed" };
     }
   };
+  const runMountedNodeSlideCommand = async (
+    mode: "apply" | "propose",
+    patch: NodeSlidePatchCommand,
+  ): Promise<void> => {
+    if (!requester || !collaborativeDeckArtifactId) {
+      setNodeSlideError("The mounted NodeSlide write path requires a live, verified room session.");
+      return;
+    }
+    setNodeSlideBusy(true);
+    setNodeSlideError(null);
+    try {
+      if (mode === "apply") {
+        const result = await applyMountedPatchMutation({
+          roomId: roomId as never,
+          artifactId: collaborativeDeckArtifactId as never,
+          requester,
+          patch,
+        });
+        if (!result.ok) throw new Error(result.reason);
+      } else {
+        await createMountedProposalMutation({
+          roomId: roomId as never,
+          artifactId: collaborativeDeckArtifactId as never,
+          requester,
+          patch,
+        });
+      }
+    } catch (error) {
+      setNodeSlideError(error instanceof Error ? error.message : "NodeSlide command failed.");
+    } finally {
+      setNodeSlideBusy(false);
+    }
+  };
+  const resolveDeckProposal = async (
+    proposalId: string,
+    approve: boolean,
+  ): Promise<{ ok: boolean; reason?: string }> => {
+    if (!requester || !collaborativeDeckArtifactId) {
+      return store.resolveProposal(proposalId, approve, me);
+    }
+    setNodeSlideBusy(true);
+    setNodeSlideError(null);
+    try {
+      const result = await resolveMountedProposalMutation({
+        roomId: roomId as never,
+        artifactId: collaborativeDeckArtifactId as never,
+        requester,
+        proposalId: proposalId as never,
+        decision: approve ? "accept" : "reject",
+      });
+      if (!result.ok) {
+        const reason = "reason" in result ? result.reason : "proposal_resolution_failed";
+        return { ok: false, reason };
+      }
+      return { ok: true };
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : "proposal_resolution_failed";
+      setNodeSlideError(reason);
+      return { ok: false, reason };
+    } finally {
+      setNodeSlideBusy(false);
+    }
+  };
   const downloadManifest = () => {
     const liveReceipt = buildProofBundleReceipt({ roomId, artifacts: bundle });
     const manifest = buildProofBundleExportManifest({
@@ -354,6 +477,37 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact, initialArtifact
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
     setExportMessage(`Downloaded ${fileName}`);
   };
+
+  const renderDeckWorkbench = (mount?: {
+    snapshot: DeckSnapshot;
+    actions: NodeSlideStudioShellActions;
+  }) => selectedDeck ? (
+    <DeckStoryboardWorkbench
+      key={collaborativeDeck?.artifactId ?? selectedDeck.deckId}
+      storyboard={selectedDeck}
+      artifactId={collaborativeDeck?.artifactId}
+      collaboratorCount={deckCollaboratorCount}
+      presences={deckPresence}
+      comments={collaborativeDeck?.comments ?? []}
+      roomId={roomId}
+      requester={requester ?? undefined}
+      onSaveStoryboard={saveStoryboard}
+      onAddComment={addDeckComment}
+      onResolveComment={resolveDeckCommentAt}
+      onRequestPatch={requestDeckPatch}
+      reviewableProposalIds={reviewableDeckProposalIds}
+      canResolvePatch={canResolve}
+      onResolvePatch={resolveDeckProposal}
+      onFocusSlide={focusDeckSlide}
+      onFocusObject={focusDeckObject}
+      onClose={() => { focusDeckSlide(null); focusDeckObject(null); setSelectedId(null); }}
+      onOpenArtifact={(artifactId) => {
+        setSelectedId(null);
+        onOpenArtifact(artifactId);
+      }}
+      nodeSlideMount={mount ? { ...mount, busy: nodeSlideBusy } : undefined}
+    />
+  ) : null;
 
   return (
     <div
@@ -415,32 +569,23 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact, initialArtifact
           }}
         />
       )}
-      {selectedDeck && (
-        <DeckStoryboardWorkbench
-          key={collaborativeDeck?.artifactId ?? selectedDeck.deckId}
-          storyboard={selectedDeck}
-          artifactId={collaborativeDeck?.artifactId}
-          collaboratorCount={deckCollaboratorCount}
-          presences={deckPresence}
-          comments={collaborativeDeck?.comments ?? []}
-          roomId={roomId}
-          requester={store.actorProof?.() ?? undefined}
-          onSaveStoryboard={saveStoryboard}
-          onAddComment={addDeckComment}
-          onResolveComment={resolveDeckCommentAt}
-          onRequestPatch={requestDeckPatch}
-          reviewableProposalIds={reviewableDeckProposalIds}
-          canResolvePatch={canResolve}
-          onResolvePatch={(proposalId, approve) => store.resolveProposal(proposalId, approve, me)}
-          onFocusSlide={focusDeckSlide}
-          onFocusObject={focusDeckObject}
-          onClose={() => { focusDeckSlide(null); focusDeckObject(null); setSelectedId(null); }}
-          onOpenArtifact={(artifactId) => {
-            setSelectedId(null);
-            onOpenArtifact(artifactId);
-          }}
-        />
-      )}
+      {selectedDeck && nodeSlideSnapshot ? (
+        <NodeRoomNodeSlideStudioMount
+          snapshot={nodeSlideSnapshot}
+          selection={nodeSlideSelection}
+          isHost={canResolve}
+          busy={nodeSlideBusy}
+          error={nodeSlideError}
+          onSelectionChange={setNodeSlideSelection}
+          onPatch={(patch) => void runMountedNodeSlideCommand("apply", patch)}
+          onPropose={(patch) => void runMountedNodeSlideCommand("propose", patch)}
+          onAccept={(proposalId) => void resolveDeckProposal(proposalId, true)}
+          onReject={(proposalId) => void resolveDeckProposal(proposalId, false)}
+          onExport={() => setNodeSlideError(null)}
+        >
+          {(actions) => renderDeckWorkbench({ snapshot: nodeSlideSnapshot, actions })}
+        </NodeRoomNodeSlideStudioMount>
+      ) : renderDeckWorkbench()}
       {selectedNotebook && (
         <NotebookDigestWorkbench
           structure={selectedNotebook.structure}

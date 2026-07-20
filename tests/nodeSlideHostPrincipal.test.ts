@@ -1,10 +1,26 @@
 import { describe, expect, it } from "vitest";
 import {
+  nodeSlidePermissionsForMembership,
   toNodeSlidePrincipalFromVerifiedActor,
   type VerifiedNodeRoomActorForNodeSlide,
 } from "../src/integrations/nodeslide/hostPrincipal";
 
 describe("NodeRoom NodeSlide host principal adapter", () => {
+  it("derives route grants from authoritative membership roles", () => {
+    expect(nodeSlidePermissionsForMembership("host")).toEqual([
+      "nodeslide:read",
+      "nodeslide:propose",
+      "nodeslide:write",
+      "nodeslide:approve",
+      "nodeslide:export",
+    ]);
+    expect(nodeSlidePermissionsForMembership("member")).toEqual([
+      "nodeslide:read",
+      "nodeslide:propose",
+      "nodeslide:export",
+    ]);
+  });
+
   it("normalizes a verified host without replacing NodeRoom auth", () => {
     const principal = toNodeSlidePrincipalFromVerifiedActor({
       actor: { kind: "user", id: "user:host", name: "Host" },
@@ -16,7 +32,13 @@ describe("NodeRoom NodeSlide host principal adapter", () => {
     expect(principal).toEqual({
       userId: "user:host",
       roles: ["noderoom:host"],
-      permissions: ["nodeslide:read", "nodeslide:propose", "nodeslide:write"],
+      permissions: [
+        "nodeslide:read",
+        "nodeslide:propose",
+        "nodeslide:write",
+        "nodeslide:approve",
+        "nodeslide:export",
+      ],
     });
   });
 
@@ -34,7 +56,11 @@ describe("NodeRoom NodeSlide host principal adapter", () => {
     });
 
     expect(principal.roles).toEqual(["noderoom:agent:private"]);
-    expect(principal.permissions).toEqual(["nodeslide:read", "nodeslide:propose"]);
+    expect(principal.permissions).toEqual([
+      "nodeslide:read",
+      "nodeslide:propose",
+      "nodeslide:export",
+    ]);
   });
 
   it("fails closed if callers bypass the verified-host precondition", () => {

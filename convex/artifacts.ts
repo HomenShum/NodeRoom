@@ -1479,9 +1479,14 @@ export const sourceFilePreviewUrl = query({
   },
 });
 
-export const resolveProposal = mutation({
-  args: { proposalId: v.id("proposals"), approve: v.boolean(), requester: actorProofV },
-  handler: async (ctx, { proposalId, approve, requester }) => {
+export async function resolveProposalCore(
+  ctx: MutationCtx,
+  { proposalId, approve, requester }: {
+    proposalId: Id<"proposals">;
+    approve: boolean;
+    requester: { actor: ActorValue; token?: string };
+  },
+) {
     const proposal = await ctx.db.get(proposalId);
     if (!proposal) return { ok: false as const, reason: "not_found" as const };
     const actor = await requireActorProof(ctx, proposal.roomId, requester);
@@ -1526,7 +1531,11 @@ export const resolveProposal = mutation({
       detail: `proposal ${String(proposalId)} - rejected${proposal.jobId ? ` - job ${String(proposal.jobId)}` : ""}`,
     });
     return { ok: true as const, rejected: true as const };
-  },
+}
+
+export const resolveProposal = mutation({
+  args: { proposalId: v.id("proposals"), approve: v.boolean(), requester: actorProofV },
+  handler: async (ctx, args) => resolveProposalCore(ctx, args),
 });
 
 const researchRowInputV = v.object({
