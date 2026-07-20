@@ -2,6 +2,7 @@
 
 Last updated: 2026-07-20
 Canonical checkpoint: `origin/main` at `45444488` (merged PR #224)
+Counterpart code checkpoint: NodeSlide `main` at `4fcbf588` (merged PR #19)
 
 This is the current handoff for the NodeRoom side of the NodeSlide integration.
 Older handoffs are retained for provenance, but their implementation and deploy
