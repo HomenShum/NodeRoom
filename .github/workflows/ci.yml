@@ -63,11 +63,16 @@ jobs:
         with:
           path: noderoom
 
+      - name: Resolve immutable NodeSlide producer
+        id: nodeslide-release
+        shell: bash
+        run: echo "sha=$(node -p \"require('./noderoom/vendor/nodeslide/release-lock.json').nodeSlideCommit\")" >> "$GITHUB_OUTPUT"
+
       - name: Checkout NodeSlide package producer
         uses: actions/checkout@v4
         with:
           repository: HomenShum/NodeSlide
-          ref: main
+          ref: ${{ steps.nodeslide-release.outputs.sha }}
           path: nodeslide
 
       - name: Setup Node
@@ -107,3 +112,13 @@ jobs:
         env:
           NODESLIDE_PACKAGE_ARTIFACT: ${{ runner.temp }}/nodeslide-packages
         run: npm run nodeslide:consumer:proof
+
+      - name: Verify immutable mounted release and exact producer checkout
+        working-directory: noderoom
+        env:
+          NODESLIDE_ROOT: ${{ github.workspace }}/nodeslide
+        run: npm run nodeslide:mounted:release:proof
+
+      - name: Run smallest mounted Memory and Convex journeys
+        working-directory: noderoom
+        run: npm test -- --run tests/nodeSlideMountedMemoryJourney.test.ts tests/nodeSlideMountedConvexJourney.test.ts tests/nodeSlideStudioMount.test.tsx
