@@ -12,6 +12,7 @@
 import { createContext, useContext, useMemo, useRef, useState, useEffect, useLayoutEffect, useCallback, type ReactNode } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { SMB_LENDING_EVIDENCE_PROPOSAL, SMB_LENDING_PROPOSAL } from "./smbLendingRoomSeed";
 import type { FeedItem } from "../../convex/roomActivity";
 import type { TraceRecord } from "../ui/panels/traceData";
 import { engine, demo, useEngineRev, runDemo, handleSmbLendingLocalProposalResolution } from "./roomStore";
@@ -1830,6 +1831,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
     if (!cur) return;
     local.setQuery(api.artifacts.listProposals, q, cur.filter((p) => String(p.id) !== String(args.proposalId)));
   });
+  const resolveSmbLendingProposalMutation = useMutation(api.smbLending.resolveProposal);
   // "Add accounts" paints instantly: an EXACT client mirror of the server's deterministic row
   // builder (same slugs, same suffix-dedup against order, same default column values), recomputed
   // from fresh state on every replay — so the authoritative swap is pixel-identical.
@@ -2212,7 +2214,10 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         const proposal = (proposals as unknown as Proposal[]).find((p) => p.id === proposalId);
         const undo = proposal ? makeUndoEntry(roomId, artifacts.find((a) => a.id === proposal.artifactId), proposal.op) : null;
         try {
-          const r = await resolveProposalMutation({ proposalId: proposalId as never, approve, requester: proof });
+          const isSmbLending = proposal?.op.opId === SMB_LENDING_PROPOSAL.id || proposal?.op.opId === SMB_LENDING_EVIDENCE_PROPOSAL.id;
+          const r = isSmbLending
+            ? await resolveSmbLendingProposalMutation({ proposalId: proposalId as never, approve, requester: proof })
+            : await resolveProposalMutation({ proposalId: proposalId as never, approve, requester: proof });
           const version = r.ok && "version" in r ? r.version : undefined;
           if (approve && r.ok) pushUndo(undoStack.current, withAppliedVersion(undo, version));
           return r.ok ? { ok: true, version } : { ok: false, reason: r.reason };
@@ -2552,7 +2557,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
         return result.rowId ? { artifactId: targetArt.id as string, rowId: result.rowId as string, created: result.created } : undefined;
       },
     };
-  }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, selectedLongJobRow, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, applyArtifactEditsMutation, applyEditCore, offlineQueue, offlineSnap, scheduleOfflineReplay, sendMsg, toggle, editMsg, resolveProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, runNotebookKernel, createPrivateReplyStream, startAgentJob, startPublicAskJob, selectLongJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, creditMode, creditBalanceQ, creditUsageQ, rid, roomId, proof, me.id, me.name]);
+  }, [data, metaArtifacts, elementsByArtifact, presenceByArtifact, pub, priv, traces, okfLens, runs, jobs, selectedLongJobRow, jobAttempts, jobDetail, proposals, passiveActivity, mergedCaptures, applyCellEdit, applyArtifactEditsMutation, applyEditCore, offlineQueue, offlineSnap, scheduleOfflineReplay, sendMsg, toggle, editMsg, resolveProposalMutation, resolveSmbLendingProposalMutation, addResearchRowsMutation, ensurePassiveResearchRowMutation, createArtifactMutation, uploadSourceFile, runSemanticConflictDrillMutation, runAgent, runPrivateAgent, runNotebookKernel, createPrivateReplyStream, startAgentJob, startPublicAskJob, selectLongJob, updatePresenceMutation, clearPresenceMutation, cancelFreeAutoJob, retryFreeAutoJob, dismissActivityMutation, researchActivityMutation, practiceActivityMutation, creditMode, creditBalanceQ, creditUsageQ, rid, roomId, proof, me.id, me.name]);
 
   // E2E test seam: expose runCollab/runSemanticConflictDrill via window so tests can trigger
   // collaboration and conflict drills without the removed CollabBar buttons.

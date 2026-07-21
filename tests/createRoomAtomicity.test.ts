@@ -41,6 +41,8 @@ const messagesIn = (t: T, roomId: unknown) =>
   t.run(async (ctx) => (await ctx.db.query("messages").collect()).filter((m) => String(m.roomId) === String(roomId)));
 const tracesIn = (t: T, roomId: unknown) =>
   t.run(async (ctx) => (await ctx.db.query("traces").collect()).filter((m) => String(m.roomId) === String(roomId)));
+const proposalsIn = (t: T, roomId: unknown) =>
+  t.run(async (ctx) => (await ctx.db.query("proposals").collect()).filter((p) => String(p.roomId) === String(roomId)));
 
 describe("guided starter room", () => {
   it("creates a concise sample without loading the scale fixture", async () => {
@@ -228,6 +230,35 @@ describe("atomic room create — no orphaned rooms", () => {
     expect(arts.map((a) => a.title)).toEqual(["Q3 variance smoke"]);
     expect((arts[0].meta as { dataframe?: { parser?: string } } | undefined)?.dataframe?.parser).toBe("smoke");
     expect((await elementsOf(t, arts[0]._id)).length).toBe(2);
+  });
+
+  it("create atomically seeds a version-pinned proposal against a seeded artifact", async () => {
+    const t = convexTest(schema, modules);
+    const res = await t.mutation(api.rooms.create, {
+      code: "PROP01", title: "Template room", hostName: "Maya", authToken: HOST_TOKEN,
+      seedArtifacts: [{ kind: "sheet", title: "Evidence", seed: [{ id: "bank_statements__status", value: "missing" }] }],
+      seedProposals: [{
+        artifactIndex: 0,
+        op: { opId: "request-bank-statements", elementId: "bank_statements__status", kind: "set", value: "requested", baseVersion: 1 },
+        author: { kind: "agent", id: "lending-agent", name: "Lending NodeAgent", scope: "public" },
+        review: { kind: "agent_edit", status: "needs_review" },
+      }],
+    });
+    const proposals = await proposalsIn(t, res.roomId);
+    expect(res.proposalIds).toHaveLength(1);
+    expect(proposals).toHaveLength(1);
+    expect(proposals[0].status).toBe("pending");
+    expect(proposals[0].op).toMatchObject({ artifactId: String(res.artifactIds[0]), elementId: "bank_statements__status", baseVersion: 1 });
+  });
+
+  it("rejects an invalid seed proposal before writing any room state", async () => {
+    const t = convexTest(schema, modules);
+    await expect(t.mutation(api.rooms.create, {
+      code: "BADPRP", title: "Template room", hostName: "Maya", authToken: HOST_TOKEN,
+      seedArtifacts: [{ kind: "sheet", title: "Evidence", seed: [{ id: "known", value: "missing" }] }],
+      seedProposals: [{ artifactIndex: 0, op: { opId: "bad", elementId: "unknown", kind: "set", value: "requested", baseVersion: 1 }, author: { kind: "agent", id: "agent", name: "Agent" } }],
+    })).rejects.toThrow(/seed_proposal_element_not_found/);
+    expect(await allRooms(t)).toHaveLength(0);
   });
 
   it("create with an INVALID seed rolls the WHOLE room back — the true mid-seed-failure guarantee", async () => {

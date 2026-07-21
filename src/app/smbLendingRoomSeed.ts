@@ -81,6 +81,40 @@ export const SMB_LENDING_VERIFIED_BUNDLE = exportLendingPacketBundle({
   receipt: SMB_LENDING_VERIFIED_RECEIPT,
 });
 
+type ConvexSeedArtifact = {
+  kind: "sheet" | "note" | "wall";
+  title: string;
+  seed: Array<{ id: string; value: unknown }>;
+  meta?: unknown;
+};
+
+function tableSeed(rows: Array<Record<string, unknown>>, columns: DataframeColumn[]) {
+  return rows.flatMap((row) => columns.map((column) => ({ id: `${String(row.id)}__${column.id}`, value: row[column.id] ?? "" })));
+}
+
+/** Server-authoritative live-room seed consumed by rooms.create in one Convex transaction. */
+export function createSmbLendingConvexSeed() {
+  const artifacts: ConvexSeedArtifact[] = [
+    { kind: "note", title: "Application notebook", seed: [{ id: "doc", value: SMB_LENDING_OVERVIEW_NOTE }], meta: { summary: "Synthetic application state, blocker, critical path, and lending-authority boundary.", tags: ["smb-lending", "synthetic", "application"] } },
+    { kind: "sheet", title: "Evidence checklist", seed: tableSeed(SMB_LENDING_DOCUMENT_ROWS, SMB_LENDING_DOCUMENT_COLUMNS), meta: { dataframe: { columns: SMB_LENDING_DOCUMENT_COLUMNS, rowCount: SMB_LENDING_DOCUMENT_ROWS.length, sourceFile: "restaurant-working-capital.json", parser: "smb_lending_pack_v1", truncated: false, warnings: [] }, summary: "Required and received source documents with exact lineage.", tags: ["smb-lending", "source-backed", "governed"] } },
+    { kind: "sheet", title: "Lending process graph", seed: tableSeed(SMB_LENDING_GRAPH_ROWS, SMB_LENDING_GRAPH_COLUMNS), meta: { dataframe: { columns: SMB_LENDING_GRAPH_COLUMNS, rowCount: SMB_LENDING_GRAPH_ROWS.length, sourceFile: "restaurant-working-capital.json", parser: "smb_lending_pack_v1", truncated: false, warnings: [] }, summary: "Neo4j-compatible read projection with a bounded critical path.", tags: ["smb-lending", "graph", "read-projection"] } },
+    { kind: "sheet", title: "Underwriting workbook", seed: tableSeed(SMB_LENDING_METRIC_ROWS, SMB_LENDING_METRIC_COLUMNS), meta: { dataframe: { columns: SMB_LENDING_METRIC_COLUMNS, rowCount: SMB_LENDING_METRIC_ROWS.length, sourceFile: "restaurant-working-capital.json", parser: "smb_lending_pack_v1", truncated: false, warnings: [] }, summary: "Deterministic EBITDA margin and DSCR calculations with source lineage.", tags: ["smb-lending", "financials", "human-review"] } },
+    { kind: "note", title: "Proposal review", seed: [{ id: "doc", value: SMB_LENDING_PROPOSAL_NOTE }], meta: { summary: "Version-pinned missing-document proposal awaiting human review.", tags: ["proposal", "needs-review", "cas"] } },
+    { kind: "note", title: "Proof receipt", seed: [{ id: "doc", value: SMB_LENDING_PROOF_NOTE }], meta: { summary: "Content-addressed pre-application proof with honest pending-review state.", tags: ["proof", "receipt", "no-credit-decision"] } },
+    { kind: "note", title: "Human review credit packet", seed: [{ id: "doc", value: SMB_LENDING_PENDING_PACKET_NOTE }], meta: { summary: "Decision-free packet regenerated only after verified evidence.", tags: ["credit-packet", "human-review", "no-credit-decision"] } },
+    { kind: "note", title: "Export bundle", seed: [{ id: "doc", value: "pending_evidence_verification" }], meta: { summary: "Canonical exported-bundle bytes are stored here only after evidence verification.", tags: ["export-bundle", "proof", "pending"] } },
+  ];
+  return {
+    artifacts,
+    proposals: [{
+      artifactIndex: 1,
+      op: { opId: SMB_LENDING_PROPOSAL.id, elementId: `${SMB_LENDING_PROPOSAL.documentId}__status`, kind: "set" as const, value: "requested", baseVersion: 1 },
+      author: { kind: "agent" as const, id: "agent_smb_lending", name: "Lending NodeAgent", scope: "public" as const },
+      review: { kind: "agent_edit", reason: SMB_LENDING_PROPOSAL.rationale, reviewerNote: `Domain proposal ${SMB_LENDING_PROPOSAL.id}; application base version ${SMB_LENDING_PROPOSAL.baseVersion}.`, status: "needs_review" },
+    }],
+  };
+}
+
 export const SMB_LENDING_DOCUMENT_COLUMNS: DataframeColumn[] = [
   { id: "document", label: "Document", order: 0, type: "text" },
   { id: "status", label: "Status", order: 1, type: "text" },

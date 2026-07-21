@@ -1,9 +1,34 @@
 import { describe, expect, it } from "vitest";
 
 import { engine, enterSmbLendingDeploymentRoomAsHost, handleSmbLendingLocalProposalResolution } from "../src/app/roomStore";
-import { SMB_LENDING_EVIDENCE_PROPOSAL, SMB_LENDING_EVIDENCE_SOURCE, SMB_LENDING_PROPOSAL, SMB_LENDING_TEMPLATE, SMB_LENDING_VERIFIED_RECEIPT } from "../src/app/smbLendingRoomSeed";
+import { createSmbLendingConvexSeed, SMB_LENDING_EVIDENCE_PROPOSAL, SMB_LENDING_EVIDENCE_SOURCE, SMB_LENDING_PROPOSAL, SMB_LENDING_TEMPLATE, SMB_LENDING_VERIFIED_RECEIPT } from "../src/app/smbLendingRoomSeed";
 
 describe("SMB Lending Deployment Room seed", () => {
+  it("builds the live Convex template with eight artifacts and a pinned first proposal", () => {
+    const live = createSmbLendingConvexSeed();
+    expect(live.artifacts.map((artifact) => artifact.title)).toEqual([
+      "Application notebook",
+      "Evidence checklist",
+      "Lending process graph",
+      "Underwriting workbook",
+      "Proposal review",
+      "Proof receipt",
+      "Human review credit packet",
+      "Export bundle",
+    ]);
+    expect(live.proposals).toHaveLength(1);
+    expect(live.proposals[0]).toMatchObject({
+      artifactIndex: 1,
+      op: {
+        opId: SMB_LENDING_PROPOSAL.id,
+        elementId: `${SMB_LENDING_PROPOSAL.documentId}__status`,
+        value: "requested",
+        baseVersion: 1,
+      },
+    });
+    expect(live.artifacts[1].seed.some((element) => element.id === live.proposals[0].op.elementId && element.value === "missing")).toBe(true);
+  });
+
   it("mounts the synthetic governed lending workflow in the existing NodeRoom shell", () => {
     const session = enterSmbLendingDeploymentRoomAsHost();
     const room = engine.getRoom(session.roomId);

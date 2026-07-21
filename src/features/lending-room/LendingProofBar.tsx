@@ -9,14 +9,20 @@ export function LendingProofBar({ roomId }: { roomId: string }) {
   const store = useStore();
   const [exportResult, setExportResult] = useState<string | null>(null);
   const evidence = store.listArtifacts(roomId).find((artifact) => artifact.title === "Evidence checklist");
+  const exportArtifact = store.listArtifacts(roomId).find((artifact) => artifact.title === "Export bundle");
   const status = String(evidence?.elements[`${SMB_LENDING_PROPOSAL.documentId}__status`]?.value ?? "unknown");
   const source = String(evidence?.elements[`${SMB_LENDING_PROPOSAL.documentId}__source`]?.value ?? "not supplied");
   const verified = status === "verified";
-  const reopened = useMemo(() => verified ? reopenLendingPacketBundle(SMB_LENDING_VERIFIED_BUNDLE) : null, [verified]);
+  const persistedBundle = String(exportArtifact?.elements.doc?.value ?? "");
+  const bundleText = persistedBundle.startsWith("{") ? persistedBundle : store.mode === "memory" && verified ? SMB_LENDING_VERIFIED_BUNDLE : "";
+  const reopened = useMemo(() => {
+    if (!verified || !bundleText) return null;
+    try { return reopenLendingPacketBundle(bundleText); } catch { return null; }
+  }, [bundleText, verified]);
 
   const exportAndReopen = () => {
-    const bundle = reopenLendingPacketBundle(SMB_LENDING_VERIFIED_BUNDLE);
-    const blob = new Blob([SMB_LENDING_VERIFIED_BUNDLE], { type: "application/json" });
+    const bundle = reopenLendingPacketBundle(bundleText);
+    const blob = new Blob([bundleText], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;

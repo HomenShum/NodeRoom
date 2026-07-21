@@ -46,16 +46,25 @@ include billed cost, so cost remains `n/a` rather than an estimate.
 
 ## Remaining production certification
 
-- [ ] Replace the local `EngineStoreProvider` route with an authenticated Convex room-template entrypoint while preserving the local deterministic profile.
-- [ ] Seed the lending artifact bundle atomically through the existing `rooms.create.seedArtifacts` contract; do not create a parallel room backend.
-- [ ] Drive both governed proposal transitions through canonical Convex proposal/CAS mutations and persist their traces and receipts.
-- [ ] Persist the regenerated packet and exported-bundle identity in canonical room state so reload proof does not depend on browser storage.
+- [x] Add an authenticated Convex room-template entrypoint while preserving the local deterministic profile for no-backend CI.
+- [x] Seed the seven-artifact lending bundle and its first version-pinned proposal atomically through the extended `rooms.create` template contract; do not create a parallel room backend.
+- [x] Drive both governed proposal transitions through canonical Convex proposal/CAS mutations and persist their traces and receipts.
+- [x] Persist the regenerated packet, proof receipt, evidence lineage, and exact exported-bundle bytes in canonical room state so reload proof does not depend on browser storage.
 - [ ] Review and merge this change through the normal NodeRoom PR path.
 - [ ] Deploy the exact reviewed frontend/backend commit through the repository runbook.
 - [ ] Use a fresh authenticated production identity and workspace.
 - [ ] Complete upload, proposal, approval, verification, export, reopen, and reload in production.
 - [ ] Capture deployment identity, public URL, screenshots, traces, hashes, and final NodeProof verdict.
 - [ ] Run `npm run prod:gate` before any production-ready claim.
+
+The production implementation now routes `#smb-lending` into an authenticated live room
+when Convex is configured. `rooms.create` validates the complete artifact/proposal
+template before writing and commits the room, host, eight artifacts, and first pending
+proposal in one transaction. Both approvals run through the canonical proposal resolver
+and cell-CAS spine. The second approval atomically writes immutable source lineage,
+regenerates the decision-free packet and receipt, and stores the exact export bytes.
+The deterministic no-Convex route remains unchanged. Production certification is still
+blocked on reviewed merge, exact-commit deployment, and the fresh-user browser journey.
 
 ## Optional graph-depth extension
 
