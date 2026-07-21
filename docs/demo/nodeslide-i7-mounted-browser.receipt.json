@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "noderoom.nodeslide-mounted-browser-proof/v1",
+  "capturedAt": "2026-07-21T03:28:02.952Z",
+  "source": {
+    "baseUrl": "http://127.0.0.1:5317",
+    "mode": "memory",
+    "browser": "chromium"
+  },
+  "journey": [
+    "enter demo room",
+    "open work artifacts",
+    "open deck",
+    "make collaborative deck live",
+    "observe literal NodeSlide mount",
+    "keyboard/a11y observation",
+    "export PPTX"
+  ],
+  "checks": {
+    "collaborativeDeckCreated": true,
+    "mountVisible": true,
+    "packageVersion": "0.2.2",
+    "authority": "noderoom-artifact-cas",
+    "surface": "noderoom-deck-storyboard",
+    "versionBadge": true,
+    "patchActionEnabled": true,
+    "proposalActionEnabled": true,
+    "keyboardFocusVisible": true,
+    "keyboardReachesPatchAction": true,
+    "accessibility": {
+      "interactiveCount": 36,
+      "unnamedInteractive": [],
+      "imagesWithoutAlt": 0
+    },
+    "accessibilityTreeHasMount": true,
+    "pptxZipSignature": true,
+    "pptxBytes": 11496,
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  "artifacts": {
+    "screenshot": "docs/demo/nodeslide-i7-mounted-browser.png",
+    "video": "docs/demo/nodeslide-i7-mounted-browser.webm",
+    "pptx": "docs/demo/nodeslide-i7-mounted-browser.pptx"
+  },
+  "status": "passed",
+  "failures": []
+}

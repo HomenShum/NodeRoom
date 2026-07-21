@@ -554,7 +554,7 @@ export function DeckStoryboardWorkbench({
               ) : <p>No comments on this slide.</p>}
               {onAddComment && (
                 <div className="wa-deck-comment-compose">
-                  <textarea rows={2} value={commentBody} onChange={(event) => setCommentBody(event.target.value)} placeholder="Comment on this slide..." />
+                  <textarea aria-label="Comment on this slide" rows={2} value={commentBody} onChange={(event) => setCommentBody(event.target.value)} placeholder="Comment on this slide..." />
                   <button type="button" disabled={!commentBody.trim() || commentBusy !== null} onClick={() => void addComment()}>
                     <MessageSquarePlus size={11} /> {commentBusy === "create" ? "Adding..." : "Add comment"}
                   </button>
@@ -575,7 +575,7 @@ export function DeckStoryboardWorkbench({
           {onRequestPatch && (
             <div className="wa-deck-side-card wa-deck-request" data-testid="deck-nodeagent-patch-request">
               <h4><MessageSquarePlus size={13} /> Request Patch</h4>
-              <textarea rows={3} value={patchPrompt} onChange={(event) => setPatchPrompt(event.target.value)} placeholder="Ask NodeAgent to revise this slide with room evidence..." />
+              <textarea aria-label="NodeAgent slide revision request" rows={3} value={patchPrompt} onChange={(event) => setPatchPrompt(event.target.value)} placeholder="Ask NodeAgent to revise this slide with room evidence..." />
               <button type="button" disabled={!patchPrompt.trim() || patchSending} onClick={() => void requestPatch()}>{patchSending ? "Sending..." : "Send to NodeAgent"}</button>
             </div>
           )}
