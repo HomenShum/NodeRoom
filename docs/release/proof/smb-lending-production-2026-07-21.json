@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "status": "pass",
+  "date": "2026-07-21",
+  "applicationUrl": "https://noderoom.live",
+  "reviewedCommit": "631c53089a1bd3dc8354e21b20b31bfa880f5020",
+  "pullRequest": "https://github.com/HomenShum/NodeRoom/pull/238",
+  "deployment": {
+    "vercelId": "dpl_4mnkzEvigrAZLcu2brhmc1KS3gaj",
+    "convexDeployment": "zealous-goshawk-766",
+    "servedConvexUrl": "https://zealous-goshawk-766.convex.cloud",
+    "cleanTree": true
+  },
+  "verification": {
+    "authenticated": true,
+    "freshWorkspace": true,
+    "artifactCount": 8,
+    "sequentialProposalApprovals": 2,
+    "finalEvidenceStatus": "verified",
+    "sourceId": "src-bank-statements-q2",
+    "sourceDigest": "sha256:synthetic-bank-statements-q2",
+    "exportReopened": true,
+    "reloadPersisted": true,
+    "noCreditDecision": true
+  },
+  "nodeProof": {
+    "applicationVersion": 3,
+    "applicationHash": "6cf83646c22f4dae8cb922d5aa222f0c3fa33b58786f5078cb77eff76953306d",
+    "packetHash": "59cdd91e4b4b2f71a6ff984c0b108f2317b50ef2dd5dc2aefc645e3260db44dc",
+    "proposalReviewed": true,
+    "baseVersionsMatched": true,
+    "sourceLineagePresent": true
+  },
+  "remaining": [
+    "production browser upload of actual fixture bytes",
+    "optional Neo4j read projection",
+    "Casca-facing deck and walkthrough"
+  ]
+}

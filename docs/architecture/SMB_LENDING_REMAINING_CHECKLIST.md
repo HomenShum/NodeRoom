@@ -47,15 +47,16 @@ include billed cost, so cost remains `n/a` rather than an estimate.
 ## Remaining production certification
 
 - [x] Add an authenticated Convex room-template entrypoint while preserving the local deterministic profile for no-backend CI.
-- [x] Seed the seven-artifact lending bundle and its first version-pinned proposal atomically through the extended `rooms.create` template contract; do not create a parallel room backend.
+- [x] Seed the eight-artifact lending bundle and its first version-pinned proposal atomically through the extended `rooms.create` template contract; do not create a parallel room backend.
 - [x] Drive both governed proposal transitions through canonical Convex proposal/CAS mutations and persist their traces and receipts.
 - [x] Persist the regenerated packet, proof receipt, evidence lineage, and exact exported-bundle bytes in canonical room state so reload proof does not depend on browser storage.
-- [ ] Review and merge this change through the normal NodeRoom PR path.
-- [ ] Deploy the exact reviewed frontend/backend commit through the repository runbook.
-- [ ] Use a fresh authenticated production identity and workspace.
-- [ ] Complete upload, proposal, approval, verification, export, reopen, and reload in production.
-- [ ] Capture deployment identity, public URL, screenshots, traces, hashes, and final NodeProof verdict.
-- [ ] Run `npm run prod:gate` before any production-ready claim.
+- [x] Review and merge this change through the normal NodeRoom PR path.
+- [x] Deploy the exact reviewed frontend/backend commit through the repository runbook.
+- [x] Use an authenticated production identity and create a fresh production workspace.
+- [x] Complete proposal, both approvals, verification, export, reopen, and reload in production.
+- [x] Capture deployment identity, public URL, local screenshots, traces, hashes, and final NodeProof verdict.
+- [x] Run `npm run prod:gate` before any production-ready claim.
+- [ ] Repeat the production journey with actual uploaded fixture bytes instead of the template's synthetic evidence-supply proposal.
 
 The production implementation now routes `#smb-lending` into an authenticated live room
 when Convex is configured. `rooms.create` validates the complete artifact/proposal
@@ -63,8 +64,15 @@ template before writing and commits the room, host, eight artifacts, and first p
 proposal in one transaction. Both approvals run through the canonical proposal resolver
 and cell-CAS spine. The second approval atomically writes immutable source lineage,
 regenerates the decision-free packet and receipt, and stores the exact export bytes.
-The deterministic no-Convex route remains unchanged. Production certification is still
-blocked on reviewed merge, exact-commit deployment, and the fresh-user browser journey.
+The deterministic no-Convex route remains unchanged. PR #238 merged as
+`631c53089a1bd3dc8354e21b20b31bfa880f5020`. The exact clean tree was deployed to
+Convex and Vercel, then exercised through an authenticated production room. The browser
+journey approved both sequential proposals, verified immutable evidence lineage,
+reopened the exported bundle, and recovered the same receipt after reload. The remaining
+production-depth item is a separate real-byte upload case; it is not required to claim
+the template lifecycle itself is production-certified.
+
+Production receipt: `docs/release/SMB_LENDING_PRODUCTION_PROOF_2026-07-21.md`.
 
 ## Optional graph-depth extension
 
