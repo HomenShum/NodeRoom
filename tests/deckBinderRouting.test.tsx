@@ -4,10 +4,10 @@ import type { Actor, Artifact as RoomArtifact } from "../src/engine/types";
 import { collaborativeDeckArtifactInput, normalizeCollaborativeDeck, type DeckStoryboard } from "../src/ui/workArtifacts";
 
 const storeRef: { current: Record<string, unknown> } = { current: {} };
-vi.mock("../src/app/store", () => ({ useStore: () => storeRef.current }));
+vi.mock("../src/app/store", () => ({ HAS_CONVEX: false, useStore: () => storeRef.current }));
 vi.mock("convex/react", () => ({
-  useQuery: () => undefined,
-  useMutation: () => vi.fn().mockResolvedValue({ ok: true }),
+  useQuery: () => { throw new Error("memory artifact UI entered a Convex query"); },
+  useMutation: () => { throw new Error("memory artifact UI entered a Convex mutation"); },
 }));
 
 import { Artifact } from "../src/ui/panels/Artifact";
@@ -80,7 +80,9 @@ describe("collaborative deck binder routing", () => {
   beforeEach(() => {
     const artifacts = [deckArtifact(), deckArtifact("artifact-deck-2", "Pipeline review", "Pipeline decision"), wikiArtifact()];
     storeRef.current = {
-      listArtifacts: () => artifacts,
+      // MemoryStore returns a fresh array as subscriptions publish. Exercise
+      // that identity churn so mounted-selection synchronization cannot loop.
+      listArtifacts: () => [...artifacts],
       listMessages: () => [],
       listProposals: () => [],
       listTraces: () => [],
@@ -117,6 +119,7 @@ describe("collaborative deck binder routing", () => {
 
     expect(await screen.findByRole("heading", { name: "Diligence memo" })).toBeTruthy();
     expect(screen.getAllByTestId("work-artifact-row").filter((row) => row.getAttribute("data-kind") === "deck")).toHaveLength(2);
+    expect(screen.getByLabelText("NodeSlide studio mounted in NodeRoom").getAttribute("data-nodeslide-package-version")).toBe("0.2.2");
 
     fireEvent.change(screen.getByLabelText("Title"), { target: { value: "Dirty deck one slide" } });
     expect((screen.getByLabelText("Title") as HTMLInputElement).value).toBe("Dirty deck one slide");

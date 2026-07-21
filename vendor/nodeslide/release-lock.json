@@ -1,7 +1,11 @@
 {
   "schemaVersion": "noderoom.nodeslide-release-lock/v1",
+  "releaseTag": "v0.2.2",
+  "releaseTagObject": "ec4870300e1ad7ddd74209aada3a47a26779b4bb",
   "nodeSlideCommit": "a88fb57f111db82e9334d68fa7611a51ed54c3c1",
   "releaseVersion": "0.2.2",
+  "immutable": true,
+  "publicProofRunId": 29787121559,
   "manifestFile": "nodeslide-artifacts.json",
   "manifestSha256": "sha256:3930276da868ab25853a7857cb5c2ddab724d9931eabb3e5fb499394a806856a",
   "installUpgradeProofFile": "install-upgrade-proof.json",

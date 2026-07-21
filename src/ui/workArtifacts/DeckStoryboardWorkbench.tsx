@@ -470,7 +470,7 @@ export function DeckStoryboardWorkbench({
               <label>Purpose<textarea rows={2} value={selectedSlide.purpose} onFocus={() => onFocusObject?.(selectedSlideObjectId)} onChange={(event) => updateDraft((next) => { next.slides.find((slide) => slide.slideId === selectedSlide.slideId)!.purpose = event.target.value; })} /></label>
               {nodeSlideMount && (
                 <div className="wa-deck-mounted-actions" data-testid="nodeslide-mounted-actions">
-                  <span>NodeSlide 0.2.0 controlled boundary</span>
+                  <span>NodeSlide 0.2.2 controlled boundary</span>
                   <label>
                     NodeSlide title command
                     <input

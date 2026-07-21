@@ -6,7 +6,7 @@ import type { NodeSlideStudioShellActions } from "@nodeslide/react";
 import type { DeckSnapshot } from "@nodeslide/contracts";
 import { Archive, Bot, CheckCircle2, Clock3, Download, FileDown, GitPullRequest, Network, Search, ShieldAlert, Sparkles } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
-import { useStore, type ActorProof } from "../../app/store";
+import { HAS_CONVEX, useStore, type ActorProof } from "../../app/store";
 import type { Actor, Artifact, Proposal, TraceEvent } from "../../engine/types";
 import { buildSemanticGraph } from "../graph/semanticGraph";
 import { getBrowserNotebookKernelBroker } from "../../notebook/browserKernelBroker";
@@ -69,6 +69,10 @@ const nodeSlideHostApi = (api as unknown as {
   };
 }).nodeslideHost;
 
+const unavailableLiveMutation = async (_args: unknown): Promise<never> => {
+  throw new Error("The mounted NodeSlide write path requires a live, verified room session.");
+};
+
 function iconFor(kind: WorkArtifactKind): ReactElement {
   if (kind === "graph") return <Network size={15} />;
   if (kind === "proposal") return <GitPullRequest size={15} />;
@@ -108,9 +112,18 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact, initialArtifact
   const longJobDetail = store.lastLongFreeJobDetail();
   const canResolve = store.listMembers(roomId).some((member) => member.id === me.id && member.role === "host");
   const requester = store.actorProof?.() ?? null;
-  const applyMountedPatchMutation = useMutation(nodeSlideHostApi.applyMountedPatch);
-  const createMountedProposalMutation = useMutation(nodeSlideHostApi.createMountedProposal);
-  const resolveMountedProposalMutation = useMutation(nodeSlideHostApi.resolveMountedProposal);
+  // HAS_CONVEX is a build-time constant, so this hook sequence cannot change
+  // across renders. Memory rooms must not enter Convex hooks: those hooks throw
+  // without a provider even when a query receives "skip".
+  const applyMountedPatchMutation = HAS_CONVEX
+    ? useMutation(nodeSlideHostApi.applyMountedPatch)
+    : unavailableLiveMutation;
+  const createMountedProposalMutation = HAS_CONVEX
+    ? useMutation(nodeSlideHostApi.createMountedProposal)
+    : unavailableLiveMutation;
+  const resolveMountedProposalMutation = HAS_CONVEX
+    ? useMutation(nodeSlideHostApi.resolveMountedProposal)
+    : unavailableLiveMutation;
   const [exportMessage, setExportMessage] = useState<string | null>(null);
   const [nodeSlideBusy, setNodeSlideBusy] = useState(false);
   const [nodeSlideError, setNodeSlideError] = useState<string | null>(null);
@@ -209,17 +222,19 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact, initialArtifact
     return artifacts.find((candidate) => candidate.id === artifactId && candidate.kind === "note" && !isCollaborativeDeckArtifact(candidate)) ?? null;
   }, [artifacts, selectedId]);
   const notebookRequester = store.actorProof?.() ?? null;
-  const liveNotebookRows = useQuery(
-    api.notebookProcessing.listNotebookBlocks,
-    selectedNotebookArtifact && notebookRequester
-      ? {
-          roomId: roomId as never,
-          artifactId: selectedNotebookArtifact.id as never,
-          requester: notebookRequester,
-          limit: 240,
-        }
-      : "skip",
-  );
+  const liveNotebookRows = HAS_CONVEX
+    ? useQuery(
+        api.notebookProcessing.listNotebookBlocks,
+        selectedNotebookArtifact && notebookRequester
+          ? {
+              roomId: roomId as never,
+              artifactId: selectedNotebookArtifact.id as never,
+              requester: notebookRequester,
+              limit: 240,
+            }
+          : "skip",
+      )
+    : undefined;
   const selectedNotebook = useMemo(() => {
     if (!selectedNotebookArtifact) return null;
     const structure = liveNotebookRows && liveNotebookRows.length > 0
@@ -231,16 +246,18 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact, initialArtifact
   const selectedGraph = selectedId === `graph:${roomId}` ? graph : null;
   const selectedTraceId = selectedId?.startsWith("trace:") ? selectedId.slice("trace:".length) : undefined;
   const collaborativeDeckArtifactId = collaborativeDeck?.artifactId;
-  const liveMountedDeck = useQuery(
-    nodeSlideHostApi.getMountedDeck,
-    collaborativeDeckArtifactId && requester
-      ? {
-          roomId: roomId as never,
-          artifactId: collaborativeDeckArtifactId as never,
-          requester,
-        }
-      : "skip",
-  );
+  const liveMountedDeck = HAS_CONVEX
+    ? useQuery(
+        nodeSlideHostApi.getMountedDeck,
+        collaborativeDeckArtifactId && requester
+          ? {
+              roomId: roomId as never,
+              artifactId: collaborativeDeckArtifactId as never,
+              requester,
+            }
+          : "skip",
+      )
+    : undefined;
   const localMountedSnapshot = useMemo(() => {
     if (!activeDeckEntry) return null;
     try {
@@ -252,13 +269,17 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact, initialArtifact
   const nodeSlideSnapshot = (liveMountedDeck?.snapshot ?? localMountedSnapshot) as DeckSnapshot | null;
   useEffect(() => {
     if (!nodeSlideSnapshot) return;
-    setNodeSlideSelection((current) => ({
-      slideId: nodeSlideSnapshot.deck.slideOrder.includes(current.slideId ?? "")
+    setNodeSlideSelection((current) => {
+      const slideId = nodeSlideSnapshot.deck.slideOrder.includes(current.slideId ?? "")
         ? current.slideId
-        : nodeSlideSnapshot.deck.slideOrder[0] ?? null,
-      elementIds: current.elementIds.filter((elementId) =>
-        nodeSlideSnapshot.elements.some((element) => element.id === elementId)),
-    }));
+        : nodeSlideSnapshot.deck.slideOrder[0] ?? null;
+      const elementIds = current.elementIds.filter((elementId) =>
+        nodeSlideSnapshot.elements.some((element) => element.id === elementId));
+      const selectionUnchanged = slideId === current.slideId
+        && elementIds.length === current.elementIds.length
+        && elementIds.every((elementId, index) => elementId === current.elementIds[index]);
+      return selectionUnchanged ? current : { slideId, elementIds };
+    });
   }, [nodeSlideSnapshot]);
   const deckPresence = collaborativeDeckArtifactId ? store.listPresence(roomId, collaborativeDeckArtifactId) : [];
   const deckCollaboratorCount = new Set([me.id, ...deckPresence.map((presence) => presence.actor.id)]).size;

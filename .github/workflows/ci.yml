@@ -61,6 +61,7 @@ jobs:
       - name: Checkout NodeRoom
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           path: noderoom
 
       - name: Resolve immutable NodeSlide producer
@@ -115,12 +116,15 @@ jobs:
           NODESLIDE_PACKAGE_ARTIFACT: ${{ runner.temp }}/nodeslide-packages
         run: npm run nodeslide:consumer:proof
 
-      - name: Verify immutable mounted release and exact producer checkout
+      - name: Verify immutable mounted release, exact producer, and full mounted journey
         working-directory: noderoom
         env:
           NODESLIDE_ROOT: ${{ github.workspace }}/nodeslide
-        run: npm run nodeslide:mounted:release:proof
+        run: npm run nodeslide:mounted:release:proof -- --json-out nodeslide-mounted-release-proof.json
 
-      - name: Run smallest mounted Memory and Convex journeys
-        working-directory: noderoom
-        run: npm test -- --run tests/nodeSlideMountedMemoryJourney.test.ts tests/nodeSlideMountedConvexJourney.test.ts tests/nodeSlideStudioMount.test.tsx
+      - name: Upload mounted release receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: nodeslide-mounted-release-${{ github.run_id }}
+          path: noderoom/nodeslide-mounted-release-proof.json
+          if-no-files-found: error

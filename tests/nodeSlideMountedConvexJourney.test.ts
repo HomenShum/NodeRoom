@@ -119,6 +119,8 @@ describe("mounted NodeSlide lifecycle on NodeRoom Convex authority", () => {
     expect(first).toMatchObject({ ok: false, reason: "pending_approval" });
     expect(second).toMatchObject({ ok: false, reason: "pending_approval" });
     if (first.ok || second.ok || !first.proposalId || !second.proposalId) throw new Error("agent proposals missing");
+    const beforeAgentAccept = await t.query(getMountedDeck, mountedArgs);
+    expect(beforeAgentAccept.snapshot.elements.find((element) => element.id === nodeSlideElementId)?.content).toBe("Host manual edit");
     expect(await t.mutation(resolveMountedProposal, { ...mountedArgs, proposalId: first.proposalId, decision: "accept" })).toMatchObject({ ok: true, status: "accepted" });
     expect(await t.mutation(resolveMountedProposal, { ...mountedArgs, proposalId: second.proposalId, decision: "accept" })).toMatchObject({ ok: false, reason: "conflict", status: "stale" });
 
@@ -140,6 +142,6 @@ describe("mounted NodeSlide lifecycle on NodeRoom Convex authority", () => {
     expect(durable.traces.filter((trace) => trace.type === "nodeslide_receipt").length).toBeGreaterThanOrEqual(6);
     expect(durable.proposals.length).toBeGreaterThanOrEqual(3);
     expect(durable.activity.some((row) => row.sourceId.includes(claimObjectId))).toBe(true);
-    expect(durable.traces.map((trace) => trace.detail).join("\n")).not.toMatch(/actorProof|requester|nodeslide-host-token/i);
+    expect(durable.traces.map((trace) => trace.detail).join("\n")).not.toMatch(/actorProof|requester|requestDigest|nodeslide-host-token/i);
   });
 });

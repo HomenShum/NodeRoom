@@ -20,6 +20,7 @@ import {
   type NodeRoomNodeSlidePatchCommand,
 } from "../src/integrations/nodeslide/storyboardTranslation";
 import {
+  buildDeckPreviewExport,
   buildDeckPptxExport,
   buildDeckStoryboardFromRoom,
   collaborativeDeckArtifactInput,
@@ -161,6 +162,9 @@ describe("mounted NodeSlide lifecycle on NodeRoom memory authority", () => {
       result: { ok: false, pendingApproval: true },
     });
     if (!nodeAgentProposalId) throw new Error("NodeAgent proposal missing");
+    const beforeNodeAgentAccept = await repository.getDeck({ deckId: deck.id, principal });
+    expect(beforeNodeAgentAccept?.elements.find((element) => element.id === claim.id)?.content).toBe("Host manual edit");
+    expect(engine.listProposals(room.id).find((proposal) => proposal.id === nodeAgentProposalId)?.status).toBe("pending");
     expect((await repository.resolveProposal({
       deckId: deck.id,
       principal,
@@ -187,6 +191,9 @@ describe("mounted NodeSlide lifecycle on NodeRoom memory authority", () => {
 
     const stored = readCollaborativeDeckArtifact(engine.getArtifact(deck.id)!);
     if (!stored) throw new Error("stored storyboard missing");
+    const presenter = buildDeckPreviewExport(stored.storyboard, 0);
+    expect(presenter.slideCount).toBe(stored.storyboard.slides.length);
+    expect(presenter.html).toContain("NodeAgent reviewed proposal");
     const pptx = await buildDeckPptxExport(stored.storyboard, 0);
     const reopened = await JSZip.loadAsync(pptx.bytes);
     expect(reopened.file("ppt/presentation.xml")).toBeTruthy();
@@ -195,7 +202,7 @@ describe("mounted NodeSlide lifecycle on NodeRoom memory authority", () => {
 
     const receipts = engine.listTraces(room.id).filter((trace) => trace.type === "nodeslide_receipt");
     expect(receipts.length).toBeGreaterThanOrEqual(5);
-    expect(receipts.map((trace) => trace.detail).join("\n")).not.toMatch(/actorProof|requester|token/i);
+    expect(receipts.map((trace) => trace.detail).join("\n")).not.toMatch(/actorProof|requester|requestDigest|token/i);
 
     const memberRepository = new NodeRoomArtifactNodeSlideRepository({
       engine,
