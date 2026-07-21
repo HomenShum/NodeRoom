@@ -1,19 +1,21 @@
 {
   "schemaVersion": "nodeslide.immutable-install-upgrade-proof/v1",
-  "passedAt": "2026-07-20T21:41:32.892Z",
+  "passedAt": "2026-07-20T23:26:56.284Z",
   "from": {
     "releaseVersion": "0.1.0",
     "releaseId": "df5567917425901252252e3adb2efb788ec345e4",
     "registryVersion": "0.1.0",
     "manifestSha256": "sha256:7eda4589c3d2c244c2b2e839112f3bc87fc5c4ef12546a145c8aaa18c3fdbf29",
-    "packageCount": 11
+    "packageCount": 11,
+    "publicUrl": "https://github.com/HomenShum/NodeSlide/releases/tag/v0.1.0"
   },
   "to": {
-    "releaseVersion": "0.2.0",
-    "releaseId": "39a9ebfcbaaeef52556bc263d386ea4859f476bb",
-    "registryVersion": "0.2.0",
-    "manifestSha256": "sha256:5fa317c9d7085639c068e6e9f4c003463813bc7ab9a13eaa9c9f547e52caeea6",
-    "packageCount": 11
+    "releaseVersion": "0.2.2",
+    "releaseId": "a88fb57f111db82e9334d68fa7611a51ed54c3c1",
+    "registryVersion": "0.2.2",
+    "manifestSha256": "sha256:3930276da868ab25853a7857cb5c2ddab724d9931eabb3e5fb499394a806856a",
+    "packageCount": 11,
+    "publicUrl": "https://github.com/HomenShum/NodeSlide/releases/tag/v0.2.2"
   },
   "cleanConsumer": true,
   "candidateCliController": true,
@@ -21,5 +23,6 @@
   "lockfileIntegrityPins": true,
   "upgradeReceiptAdvanced": true,
   "tamperedArtifactRejected": true,
-  "mixedReleaseRejected": true
+  "mixedReleaseRejected": true,
+  "candidateRebuildMatchesPublicAssets": true
 }

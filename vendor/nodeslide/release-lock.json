@@ -1,11 +1,11 @@
 {
   "schemaVersion": "noderoom.nodeslide-release-lock/v1",
-  "nodeSlideCommit": "39a9ebfcbaaeef52556bc263d386ea4859f476bb",
-  "releaseVersion": "0.2.0",
+  "nodeSlideCommit": "a88fb57f111db82e9334d68fa7611a51ed54c3c1",
+  "releaseVersion": "0.2.2",
   "manifestFile": "nodeslide-artifacts.json",
-  "manifestSha256": "sha256:5fa317c9d7085639c068e6e9f4c003463813bc7ab9a13eaa9c9f547e52caeea6",
+  "manifestSha256": "sha256:3930276da868ab25853a7857cb5c2ddab724d9931eabb3e5fb499394a806856a",
   "installUpgradeProofFile": "install-upgrade-proof.json",
-  "installUpgradeProofSha256": "sha256:b1eeecb0aca3a59e8858c619ca9c1af3556d4d25aef48d8832c1e777c328ec31",
+  "installUpgradeProofSha256": "sha256:75ec6c37f423445ebcf0b71516b5ce8ebaaf0396d3c864f75f615c3f16dc0724",
   "baselineManifestSha256": "sha256:7eda4589c3d2c244c2b2e839112f3bc87fc5c4ef12546a145c8aaa18c3fdbf29",
   "runtimePackages": [
     "@nodeslide/contracts",
