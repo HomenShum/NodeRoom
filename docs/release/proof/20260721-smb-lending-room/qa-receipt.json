@@ -1,6 +1,6 @@
 {
   "schemaVersion": "noderoom.ui-proof/v1",
-  "capturedAt": "2026-07-21T00:55:20.8562756-07:00",
+  "capturedAt": "2026-07-21T03:15:00-07:00",
   "route": "http://127.0.0.1:5262/#smb-lending",
   "runMode": "SANDBOX DOGFOOD",
   "caseId": "bay-hearth-working-capital",
@@ -51,6 +51,30 @@
       "width": 1440,
       "height": 900,
       "sha256": "819ce720b326b45ad740d5f3e98c70dfe4b33968a9e7f348f5c982e614477e93"
+    },
+    {
+      "path": "smb-lending-verified-export-reopen-1440x900.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4b909bbbb050dd7cb6b834dd84e0fe21f8f900584f6d4b8a749153a75bd3cd07"
+    },
+    {
+      "path": "smb-lending-verified-export-reopen-reload-1440x900.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "32431e3f46475cab931a19f5dc4bf584d9c569a76d6b78880cec6bb41d97a4df"
+    },
+    {
+      "path": "smb-lending-verified-tablet-1024x768.png",
+      "width": 1024,
+      "height": 768,
+      "sha256": "204e6cdab6d49b67a775c7e407bc1a60814a9ce7eca3318416f3f84bfb6025a5"
+    },
+    {
+      "path": "smb-lending-verified-mobile-390x844.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "0e8d08e4baae02981e1338a6c7fc490b4d1057db7ee2123d4b09a12dee161e9c"
     }
   ],
   "approvalJourney": {
@@ -59,7 +83,14 @@
     "approvalAppliedOnce": true,
     "pendingProposalRemoved": true,
     "approvalTraceVisible": true,
-    "checklistStatusAfterCas": "requested",
+    "checklistStatusAfterFirstCas": "requested",
+    "checklistStatusAfterEvidenceCas": "verified",
+    "verifiedSourceHashVisible": true,
+    "packetRegenerated": true,
+    "downloadedBundleReopened": true,
+    "applicationHashVerified": true,
+    "packetHashVerified": true,
+    "verifiedStateRecoveredAfterReload": true,
     "consoleErrorCount": 0,
     "horizontalOverflow": false
   },
@@ -68,19 +99,21 @@
     "convexTypeScript": "pass",
     "domainTests": "10/10 pass",
     "productionBuild": "pass",
-    "repositorySuite": "2555/2555 pass across 369 test files"
+    "goldenSliceBrowser": "3/3 pass across desktop, tablet, and mobile",
+    "repositorySuite": "2558/2558 pass across 369 test files"
   },
   "domainProtocol": {
-    "fourModeEvaluator": "implemented; conformance only, no live result claimed",
+    "fourModeEvaluator": "10 unique local run IDs; manual plus 3 repetitions each for gpt-4.1-mini chat-only, graph-agent, and held-out memory-enhanced lanes",
     "requestedEvidenceTransition": "human reviewed and version pinned",
     "verifiedEvidenceTransition": "human reviewed, version pinned, immutable source hash required",
-    "packetExportReopen": "content hashes verified and tamper rejected",
-    "heldoutMedicalFixture": "pass"
+    "packetExportReopen": "browser download reopened; application and packet hashes independently verified; tamper rejected by domain tests",
+    "heldoutMedicalFixture": "3/3 live model-backed passes with evaluator applied only after candidate emission",
+    "providerCost": "not supplied by the direct OpenAI response; recorded as n/a instead of estimated"
   },
   "limitations": [
     "This is local deterministic proof, not deployed production proof.",
-    "The document request is approved and CAS-applied in the browser. Evidence supply, verification, and packet export/reopen are proven at the domain-contract level but are not yet completed through a fresh production browser.",
+    "The complete two-proposal, export/reopen, and reload journey is proven in the deterministic local browser profile; it is not yet completed through authenticated Convex production state.",
     "The graph is a NodeRoom artifact and Neo4j-compatible projection; a live Aura connection is not part of this receipt.",
-    "No live model or provider call is claimed by this receipt."
+    "The benchmark includes live gpt-4.1-mini calls, but the UI journey remains deterministic and does not claim a live model invocation."
   ]
 }

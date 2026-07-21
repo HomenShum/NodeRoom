@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { engine, enterSmbLendingDeploymentRoomAsHost } from "../src/app/roomStore";
-import { SMB_LENDING_PROPOSAL, SMB_LENDING_TEMPLATE } from "../src/app/smbLendingRoomSeed";
+import { engine, enterSmbLendingDeploymentRoomAsHost, handleSmbLendingLocalProposalResolution } from "../src/app/roomStore";
+import { SMB_LENDING_EVIDENCE_PROPOSAL, SMB_LENDING_EVIDENCE_SOURCE, SMB_LENDING_PROPOSAL, SMB_LENDING_TEMPLATE, SMB_LENDING_VERIFIED_RECEIPT } from "../src/app/smbLendingRoomSeed";
 
 describe("SMB Lending Deployment Room seed", () => {
   it("mounts the synthetic governed lending workflow in the existing NodeRoom shell", () => {
@@ -35,9 +35,28 @@ describe("SMB Lending Deployment Room seed", () => {
 
     const applied = engine.resolveProposal(proposals[0].id, true, session.me);
     expect(applied?.ok).toBe(true);
-    expect(engine.listProposals(session.roomId)).toHaveLength(0);
+    handleSmbLendingLocalProposalResolution(proposals[0], true, session.me);
+    const evidenceProposals = engine.listProposals(session.roomId);
+    expect(evidenceProposals).toHaveLength(1);
+    expect(evidenceProposals[0].op.opId).toBe(SMB_LENDING_EVIDENCE_PROPOSAL.id);
     expect(engine.getArtifact(proposals[0].artifactId)?.elements[proposals[0].op.elementId]?.value).toBe("requested");
     expect(engine.getProposal(proposals[0].id)?.status).toBe("approved");
+
+    const evidenceApplied = engine.resolveProposal(evidenceProposals[0].id, true, session.me);
+    expect(evidenceApplied?.ok).toBe(true);
+    handleSmbLendingLocalProposalResolution(evidenceProposals[0], true, session.me);
+    expect(engine.listProposals(session.roomId)).toHaveLength(0);
+
+    const checklist = engine.getArtifact(proposals[0].artifactId);
+    expect(checklist?.elements[`${SMB_LENDING_PROPOSAL.documentId}__status`]?.value).toBe("verified");
+    expect(checklist?.elements[`${SMB_LENDING_PROPOSAL.documentId}__source`]?.value).toContain(SMB_LENDING_EVIDENCE_SOURCE.contentHash);
+    expect(checklist?.elements[`${SMB_LENDING_PROPOSAL.documentId}__locator`]?.value).toBe(SMB_LENDING_EVIDENCE_SOURCE.locator);
+
+    const finalRoomText = engine.listArtifacts(session.roomId).map(artifactText).join("\n");
+    expect(finalRoomText).toContain(SMB_LENDING_VERIFIED_RECEIPT.applicationHash);
+    expect(finalRoomText).toContain(SMB_LENDING_VERIFIED_RECEIPT.packetHash);
+    expect(finalRoomText).toContain("Required-document blockers:</b> 0");
+    expect(finalRoomText).toContain("Decision:</b> not_made");
   });
 });
 

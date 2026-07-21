@@ -23,19 +23,26 @@ be described publicly as complete.
 
 ## Remaining golden-slice product proof
 
-- [ ] Surface the evidence-supply proposal as a second native NodeRoom browser operation.
-- [ ] Approve supplied evidence in the browser and show `requested -> verified` after CAS.
-- [ ] Regenerate the review packet and proof receipt visibly in the room.
-- [ ] Export the packet bundle from the UI, reopen it, and independently verify its hashes.
-- [ ] Reload the room and prove the verified state and receipt persist.
+- [x] Surface the evidence-supply proposal as a second native NodeRoom browser operation.
+- [x] Approve supplied evidence in the browser and show `requested -> verified` after CAS.
+- [x] Regenerate the review packet and proof receipt visibly in the room.
+- [x] Export the packet bundle from the UI, reopen it, and independently verify its hashes.
+- [x] Reload the room and prove the verified state and receipt persist in the explicitly local demo profile.
+
+The local reload proof uses browser storage and is not a substitute for the unchecked
+Convex production certification below.
 
 ## Remaining benchmark work
 
-- [ ] Run manual, chat-only, graph-agent, and memory-enhanced variants through real run IDs.
-- [ ] Repeat model-backed variants at least three times on locked inputs.
-- [ ] Run the medical-practice fixture as held-out data with the evaluator inaccessible to the agent.
-- [ ] Record runtime, human interventions, tool calls, cost, failures, and repair cycles honestly.
-- [ ] Publish dimensional results and raw receipts; do not publish a universal winner claim.
+- [x] Run manual, chat-only, graph-agent, and memory-enhanced variants through real run IDs.
+- [x] Repeat model-backed variants at least three times on locked inputs.
+- [x] Run the medical-practice fixture as held-out data with the evaluator inaccessible to the agent.
+- [x] Record runtime, human interventions, tool calls, cost availability, failures, and repair cycles honestly.
+- [x] Publish dimensional results and raw receipts; do not publish a universal winner claim.
+
+Live benchmark receipt: `docs/eval/smb-lending/20260721-four-mode/benchmark-receipt.json`.
+All ten runs passed the locked dimensional evaluator. The direct OpenAI response did not
+include billed cost, so cost remains `n/a` rather than an estimate.
 
 ## Remaining production certification
 

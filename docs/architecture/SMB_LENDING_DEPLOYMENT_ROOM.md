@@ -76,3 +76,20 @@ Both transitions reject stale base versions. After evidence verification, the pa
 is regenerated with no unresolved blocker and still records `decision: not_made`.
 The packet, application, and proof receipt can be exported as a content-checked JSON
 bundle; reopen rejects any tampered application or packet.
+
+## Browser-complete local golden slice
+
+The `#smb-lending` route now exposes two sequential native proposal operations. The
+hashed evidence proposal is not created until the document request passes final CAS.
+After the second human approval, NodeRoom writes exact source and locator lineage,
+regenerates the decision-free packet and proof receipt, enables a byte-backed JSON
+download, and independently reopens the downloaded bundle to verify both hashes.
+
+The deterministic local profile persists this synthetic workflow state in browser
+storage so a reload can prove recovery. This is deliberately labeled local; production
+certification still requires the same journey through authenticated Convex state.
+
+The live four-mode benchmark used `gpt-4.1-mini` for three repetitions each of chat-only,
+graph-agent, and memory-enhanced lanes. The medical fixture was held out and the evaluator
+was applied only after candidate emission. Results are dimensional and make no universal
+winner claim.

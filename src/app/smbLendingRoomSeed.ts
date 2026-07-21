@@ -2,12 +2,16 @@ import restaurantFixture from "../../packs/smb-lending-deployment/fixtures/resta
 import type { DataframeColumn } from "../engine/types";
 import {
   calculateLendingMetrics,
+  applyReviewedDocumentRequest,
+  applyReviewedEvidenceSupply,
   createLendingProofReceipt,
   createSmbLendingRoomTemplate,
+  exportLendingPacketBundle,
   findCriticalPath,
   findMissingDocumentBlockers,
   generateReviewPacket,
   proposeMissingDocumentRequest,
+  proposeDocumentEvidenceSupply,
   type LendingApplicationSnapshot,
 } from "../domains/smbLending";
 
@@ -21,12 +25,61 @@ export const SMB_LENDING_PROPOSAL = proposeMissingDocumentRequest(
   "operating-bank-statements-q2",
   "trace-smb-lending-document-request",
 );
+export const SMB_LENDING_REQUESTED_SNAPSHOT = applyReviewedDocumentRequest(
+  SMB_LENDING_FIXTURE,
+  { ...SMB_LENDING_PROPOSAL, status: "approved" },
+  {
+    proposalId: SMB_LENDING_PROPOSAL.id,
+    reviewerId: "fde-host",
+    reviewerAuthority: "human_reviewer",
+    decision: "approved",
+    decidedAt: "2026-07-21T00:00:00.000Z",
+  },
+);
+export const SMB_LENDING_EVIDENCE_SOURCE = {
+  id: "src-bank-statements-q2",
+  label: "Synthetic Q2 operating-bank statements",
+  locator: "fixture://bay-hearth/bank-statements-q2",
+  contentHash: "sha256:synthetic-bank-statements-q2",
+};
+export const SMB_LENDING_EVIDENCE_PROPOSAL = proposeDocumentEvidenceSupply(
+  SMB_LENDING_REQUESTED_SNAPSHOT,
+  SMB_LENDING_PROPOSAL.documentId,
+  SMB_LENDING_EVIDENCE_SOURCE,
+  "trace-smb-lending-evidence-supply",
+);
+export const SMB_LENDING_VERIFIED_SNAPSHOT = applyReviewedEvidenceSupply(
+  SMB_LENDING_REQUESTED_SNAPSHOT,
+  { ...SMB_LENDING_EVIDENCE_PROPOSAL, status: "approved" },
+  {
+    proposalId: SMB_LENDING_EVIDENCE_PROPOSAL.id,
+    reviewerId: "fde-host",
+    reviewerAuthority: "human_reviewer",
+    decision: "approved",
+    decidedAt: "2026-07-21T00:05:00.000Z",
+  },
+);
 export const SMB_LENDING_PACKET = generateReviewPacket(SMB_LENDING_FIXTURE);
 export const SMB_LENDING_RECEIPT = createLendingProofReceipt(
   SMB_LENDING_FIXTURE,
   SMB_LENDING_PACKET,
   [SMB_LENDING_PROPOSAL],
 );
+export const SMB_LENDING_VERIFIED_PACKET = generateReviewPacket(SMB_LENDING_VERIFIED_SNAPSHOT);
+export const SMB_LENDING_VERIFIED_RECEIPT = createLendingProofReceipt(
+  SMB_LENDING_VERIFIED_SNAPSHOT,
+  SMB_LENDING_VERIFIED_PACKET,
+  [
+    { ...SMB_LENDING_PROPOSAL, status: "approved" },
+    { ...SMB_LENDING_EVIDENCE_PROPOSAL, status: "approved" },
+  ],
+);
+export const SMB_LENDING_VERIFIED_BUNDLE = exportLendingPacketBundle({
+  schemaVersion: "noderoom.smb-lending-bundle/v1",
+  application: SMB_LENDING_VERIFIED_SNAPSHOT,
+  packet: SMB_LENDING_VERIFIED_PACKET,
+  receipt: SMB_LENDING_VERIFIED_RECEIPT,
+});
 
 export const SMB_LENDING_DOCUMENT_COLUMNS: DataframeColumn[] = [
   { id: "document", label: "Document", order: 0, type: "text" },
@@ -44,6 +97,17 @@ export const SMB_LENDING_DOCUMENT_ROWS = SMB_LENDING_FIXTURE.documents.map((docu
   source: document.sourceRefs[0]?.id ?? "not supplied",
   locator: document.sourceRefs[0]?.locator ?? "missing",
 }));
+
+export function smbLendingDocumentRows(snapshot: LendingApplicationSnapshot) {
+  return snapshot.documents.map((document) => ({
+    id: document.id,
+    document: document.label,
+    status: document.status,
+    required: document.required ? "yes" : "no",
+    source: document.sourceRefs.map((source) => `${source.id}${source.contentHash ? ` (${source.contentHash})` : ""}`).join(", ") || "not supplied",
+    locator: document.sourceRefs.map((source) => source.locator).join(", ") || "missing",
+  }));
+}
 
 export const SMB_LENDING_GRAPH_COLUMNS: DataframeColumn[] = [
   { id: "from", label: "From", order: 0, type: "text" },
@@ -103,6 +167,16 @@ export const SMB_LENDING_PROPOSAL_NOTE = `
 <p><b>Status:</b> pending human review. The proposal cannot update canonical state until approved against the exact base version.</p>
 `;
 
+export const SMB_LENDING_EVIDENCE_PROPOSAL_NOTE = `
+<h1>Pending evidence-verification proposal</h1>
+<p><b>Proposal:</b> ${SMB_LENDING_EVIDENCE_PROPOSAL.id}</p>
+<p><b>Application transition:</b> requested &rarr; verified at domain base version ${SMB_LENDING_EVIDENCE_PROPOSAL.baseVersion}</p>
+<p><b>Evidence:</b> ${SMB_LENDING_EVIDENCE_SOURCE.label}</p>
+<p><b>Locator:</b> <code>${SMB_LENDING_EVIDENCE_SOURCE.locator}</code></p>
+<p><b>Immutable hash:</b> <code>${SMB_LENDING_EVIDENCE_SOURCE.contentHash}</code></p>
+<p><b>Status:</b> pending human verification. Approval updates canonical evidence state through final CAS and still makes no credit decision.</p>
+`;
+
 export const SMB_LENDING_PROOF_NOTE = `
 <h1>NodeProof pre-application receipt</h1>
 <p><b>Application hash:</b> <code>${SMB_LENDING_RECEIPT.applicationHash}</code></p>
@@ -111,4 +185,32 @@ export const SMB_LENDING_PROOF_NOTE = `
 <p><b>No credit decision:</b> ${SMB_LENDING_RECEIPT.assertions.noCreditDecision}</p>
 <p><b>Source lineage present:</b> ${SMB_LENDING_RECEIPT.assertions.sourceLineagePresent}</p>
 <p><b>Proposal reviewed:</b> ${SMB_LENDING_RECEIPT.assertions.proposalReviewed} (expected false until human review)</p>
+`;
+
+export const SMB_LENDING_PENDING_PACKET_NOTE = `
+<h1>Human review credit packet</h1>
+<p><b>Status:</b> blocked until the requested operating-bank statements are supplied and verified.</p>
+<p><b>Decision:</b> not made. Human credit authority is required.</p>
+`;
+
+export const SMB_LENDING_VERIFIED_PACKET_NOTE = `
+<h1>Human review credit packet</h1>
+<p><b>Application version:</b> ${SMB_LENDING_VERIFIED_PACKET.applicationVersion}</p>
+<p><b>Applicant:</b> ${SMB_LENDING_VERIFIED_PACKET.applicant}</p>
+<p><b>Request:</b> ${SMB_LENDING_VERIFIED_PACKET.request}</p>
+<p><b>Required-document blockers:</b> ${SMB_LENDING_VERIFIED_PACKET.blockers.length}</p>
+<p><b>Latest DSCR:</b> ${SMB_LENDING_VERIFIED_PACKET.metrics.debtServiceCoverage.toFixed(2)}x</p>
+<p><b>Latest EBITDA margin:</b> ${(SMB_LENDING_VERIFIED_PACKET.metrics.ebitdaMargin * 100).toFixed(1)}%</p>
+<p><b>Decision:</b> ${SMB_LENDING_VERIFIED_PACKET.decision}. Human credit authority is required.</p>
+`;
+
+export const SMB_LENDING_VERIFIED_PROOF_NOTE = `
+<h1>NodeProof verified workflow receipt</h1>
+<p><b>Application version:</b> ${SMB_LENDING_VERIFIED_RECEIPT.applicationVersion}</p>
+<p><b>Application hash:</b> <code>${SMB_LENDING_VERIFIED_RECEIPT.applicationHash}</code></p>
+<p><b>Packet hash:</b> <code>${SMB_LENDING_VERIFIED_RECEIPT.packetHash}</code></p>
+<p><b>Proposal reviewed:</b> ${SMB_LENDING_VERIFIED_RECEIPT.assertions.proposalReviewed}</p>
+<p><b>Base versions matched:</b> ${SMB_LENDING_VERIFIED_RECEIPT.assertions.baseVersionMatched}</p>
+<p><b>Source lineage present:</b> ${SMB_LENDING_VERIFIED_RECEIPT.assertions.sourceLineagePresent}</p>
+<p><b>No credit decision:</b> ${SMB_LENDING_VERIFIED_RECEIPT.assertions.noCreditDecision}</p>
 `;

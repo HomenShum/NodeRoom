@@ -21,6 +21,7 @@ import { createFreshRoom, enterBankerToolBenchRoomAsHost, enterDemoRoomAsHost, e
 import type { Actor } from "../engine/types";
 import { authIntentLabel, clearPersistedRoomSessions, launchAuthRequired } from "../auth/launchAuth";
 import { AccountGate } from "./auth/AccountGate";
+import { LendingProofBar } from "../features/lending-room/LendingProofBar";
 
 const liveSessionKey = (code: string) => `noderoom:live:${code.toUpperCase()}`;
 const livePendingKey = (code: string) => `noderoom:livePending:${code.toUpperCase()}`;
@@ -132,6 +133,7 @@ export function App() {
     return (
       <EngineStoreProvider roomId={smbLendingSessionRef.current.roomId} me={smbLendingSessionRef.current.me}>
         <RoomShell roomId={smbLendingSessionRef.current.roomId} me={smbLendingSessionRef.current.me} onLeave={() => { window.location.hash = ""; }} />
+        <LendingProofBar roomId={smbLendingSessionRef.current.roomId} />
       </EngineStoreProvider>
     );
   }

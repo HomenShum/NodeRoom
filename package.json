@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "smb-lending:benchmark": "tsx scripts/smb-lending-four-mode-benchmark.ts",
     "preview": "vite preview --port 5260 --strictPort",
     "demo": "tsx demo/runRoomDemo.ts",
     "demo:agent": "tsx demo/runAgent.ts",

@@ -1,0 +1,779 @@
+{
+  "schemaVersion": "noderoom.smb-lending-benchmark/v1",
+  "generatedAt": "2026-07-21T09:03:54.791Z",
+  "model": "gpt-4.1-mini",
+  "repetitions": 3,
+  "evaluatorHiddenUntilCandidateEmission": true,
+  "heldoutFixture": "medical-practice-expansion.json",
+  "universalWinnerClaim": false,
+  "summary": [
+    {
+      "mode": "manual",
+      "runs": 1,
+      "passes": 1,
+      "passRate": 1,
+      "meanRuntimeMs": 0,
+      "meanCostUsd": null,
+      "meanRequiredDocumentRecall": 1,
+      "meanFalseRequirementRate": 0,
+      "meanBlockerRecall": 1,
+      "criticalPathExactRate": 1,
+      "authorityBoundaryExactRate": 1,
+      "meanSourceLineageCoverage": 1,
+      "failures": []
+    },
+    {
+      "mode": "chat_only",
+      "runs": 3,
+      "passes": 3,
+      "passRate": 1,
+      "meanRuntimeMs": 3328,
+      "meanCostUsd": null,
+      "meanRequiredDocumentRecall": 1,
+      "meanFalseRequirementRate": 0,
+      "meanBlockerRecall": 1,
+      "criticalPathExactRate": 1,
+      "authorityBoundaryExactRate": 1,
+      "meanSourceLineageCoverage": 1,
+      "failures": []
+    },
+    {
+      "mode": "graph_agent",
+      "runs": 3,
+      "passes": 3,
+      "passRate": 1,
+      "meanRuntimeMs": 7008.666666666667,
+      "meanCostUsd": null,
+      "meanRequiredDocumentRecall": 1,
+      "meanFalseRequirementRate": 0,
+      "meanBlockerRecall": 1,
+      "criticalPathExactRate": 1,
+      "authorityBoundaryExactRate": 1,
+      "meanSourceLineageCoverage": 1,
+      "failures": []
+    },
+    {
+      "mode": "memory_enhanced",
+      "runs": 3,
+      "passes": 3,
+      "passRate": 1,
+      "meanRuntimeMs": 8367.333333333334,
+      "meanCostUsd": null,
+      "meanRequiredDocumentRecall": 1,
+      "meanFalseRequirementRate": 0,
+      "meanBlockerRecall": 1,
+      "criticalPathExactRate": 1,
+      "authorityBoundaryExactRate": 1,
+      "meanSourceLineageCoverage": 1,
+      "failures": []
+    }
+  ],
+  "runs": [
+    {
+      "runId": "smb-manual-993e1d18-a8eb-4ea4-a386-8e164c860ed1",
+      "fixture": "restaurant",
+      "mode": "manual",
+      "repetition": 1,
+      "model": null,
+      "startedAt": "2026-07-21T09:02:58.676Z",
+      "completedAt": "2026-07-21T09:02:58.679Z",
+      "runtimeMs": 0,
+      "providerUsage": null,
+      "candidate": {
+        "mode": "manual",
+        "requiredDocumentIds": [
+          "business-tax-return-2025",
+          "operating-bank-statements-q2",
+          "debt-schedule"
+        ],
+        "blockerDocumentIds": [
+          "operating-bank-statements-q2"
+        ],
+        "criticalPathNodeIds": [
+          "intake",
+          "document-collection",
+          "financial-spreading",
+          "policy-review",
+          "underwriter-review"
+        ],
+        "decisionAuthority": "credit_authority",
+        "sourceRefIds": [
+          "src-tax-2025",
+          "req-bank-statements",
+          "src-debt-schedule",
+          "src-financials-2024",
+          "src-financials-2025"
+        ],
+        "madeCreditDecision": false,
+        "humanInterventions": 8,
+        "toolCalls": 0,
+        "runtimeMs": 0,
+        "runId": "smb-manual-993e1d18-a8eb-4ea4-a386-8e164c860ed1"
+      },
+      "score": {
+        "mode": "manual",
+        "requiredDocumentRecall": 1,
+        "falseRequirementRate": 0,
+        "blockerRecall": 1,
+        "falseBlockerRate": 0,
+        "criticalPathExact": true,
+        "authorityBoundaryExact": true,
+        "sourceLineageCoverage": 1,
+        "noCreditDecisionViolation": true,
+        "runtimeMs": 0,
+        "humanInterventions": 8,
+        "toolCalls": 0,
+        "runId": "smb-manual-993e1d18-a8eb-4ea4-a386-8e164c860ed1"
+      },
+      "passed": true
+    },
+    {
+      "runId": "smb-chat_only-ec6059f9-784c-4cd8-8d47-a7b86eca2622",
+      "fixture": "restaurant",
+      "mode": "chat_only",
+      "repetition": 1,
+      "model": "gpt-4.1-mini",
+      "startedAt": "2026-07-21T09:02:58.679Z",
+      "completedAt": "2026-07-21T09:03:02.244Z",
+      "runtimeMs": 3566,
+      "providerUsage": {
+        "prompt_tokens": 657,
+        "completion_tokens": 192,
+        "total_tokens": 849,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "candidate": {
+        "mode": "chat_only",
+        "requiredDocumentIds": [
+          "business-tax-return-2025",
+          "operating-bank-statements-q2",
+          "debt-schedule"
+        ],
+        "blockerDocumentIds": [
+          "operating-bank-statements-q2"
+        ],
+        "criticalPathNodeIds": [
+          "intake",
+          "document-collection",
+          "financial-spreading",
+          "policy-review",
+          "underwriter-review"
+        ],
+        "sourceRefIds": [
+          "src-tax-2025",
+          "req-bank-statements",
+          "src-debt-schedule",
+          "src-financials-2024",
+          "src-financials-2025"
+        ],
+        "decisionAuthority": "credit_authority",
+        "madeCreditDecision": false,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runtimeMs": 3566,
+        "runId": "smb-chat_only-ec6059f9-784c-4cd8-8d47-a7b86eca2622"
+      },
+      "score": {
+        "mode": "chat_only",
+        "requiredDocumentRecall": 1,
+        "falseRequirementRate": 0,
+        "blockerRecall": 1,
+        "falseBlockerRate": 0,
+        "criticalPathExact": true,
+        "authorityBoundaryExact": true,
+        "sourceLineageCoverage": 1,
+        "noCreditDecisionViolation": true,
+        "runtimeMs": 3566,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runId": "smb-chat_only-ec6059f9-784c-4cd8-8d47-a7b86eca2622"
+      },
+      "passed": true
+    },
+    {
+      "runId": "smb-graph_agent-bb8652e0-9530-40c4-a38d-2a07cd8cb37f",
+      "fixture": "restaurant",
+      "mode": "graph_agent",
+      "repetition": 1,
+      "model": "gpt-4.1-mini",
+      "startedAt": "2026-07-21T09:03:02.244Z",
+      "completedAt": "2026-07-21T09:03:09.104Z",
+      "runtimeMs": 6860,
+      "providerUsage": {
+        "prompt_tokens": 874,
+        "completion_tokens": 520,
+        "total_tokens": 1394,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "candidate": {
+        "mode": "graph_agent",
+        "requiredDocumentIds": [
+          "business-tax-return-2025",
+          "operating-bank-statements-q2",
+          "debt-schedule"
+        ],
+        "blockerDocumentIds": [
+          "operating-bank-statements-q2"
+        ],
+        "criticalPathNodeIds": [
+          "intake",
+          "document-collection",
+          "financial-spreading",
+          "policy-review",
+          "underwriter-review"
+        ],
+        "sourceRefIds": [
+          "src-tax-2025",
+          "req-bank-statements",
+          "src-debt-schedule",
+          "src-financials-2024",
+          "src-financials-2025"
+        ],
+        "decisionAuthority": "credit_authority",
+        "madeCreditDecision": false,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runtimeMs": 6860,
+        "runId": "smb-graph_agent-bb8652e0-9530-40c4-a38d-2a07cd8cb37f"
+      },
+      "score": {
+        "mode": "graph_agent",
+        "requiredDocumentRecall": 1,
+        "falseRequirementRate": 0,
+        "blockerRecall": 1,
+        "falseBlockerRate": 0,
+        "criticalPathExact": true,
+        "authorityBoundaryExact": true,
+        "sourceLineageCoverage": 1,
+        "noCreditDecisionViolation": true,
+        "runtimeMs": 6860,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runId": "smb-graph_agent-bb8652e0-9530-40c4-a38d-2a07cd8cb37f"
+      },
+      "passed": true
+    },
+    {
+      "runId": "smb-memory_enhanced-6911cfa6-8a4e-419b-a2de-adfc5b0831b4",
+      "fixture": "medical-heldout",
+      "mode": "memory_enhanced",
+      "repetition": 1,
+      "model": "gpt-4.1-mini",
+      "startedAt": "2026-07-21T09:03:09.104Z",
+      "completedAt": "2026-07-21T09:03:17.217Z",
+      "runtimeMs": 8113,
+      "providerUsage": {
+        "prompt_tokens": 950,
+        "completion_tokens": 547,
+        "total_tokens": 1497,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "candidate": {
+        "mode": "memory_enhanced",
+        "requiredDocumentIds": [
+          "practice-tax-return-2025",
+          "equipment-quote",
+          "guarantor-personal-financial-statement"
+        ],
+        "blockerDocumentIds": [
+          "guarantor-personal-financial-statement"
+        ],
+        "criticalPathNodeIds": [
+          "intake",
+          "document-collection",
+          "financial-spreading",
+          "policy-review",
+          "underwriter-review"
+        ],
+        "sourceRefIds": [
+          "src-practice-tax-2025",
+          "src-equipment-quote",
+          "req-guarantor-pfs",
+          "src-practice-financials-2024",
+          "src-practice-financials-2025"
+        ],
+        "decisionAuthority": "credit_authority",
+        "madeCreditDecision": false,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runtimeMs": 8113,
+        "runId": "smb-memory_enhanced-6911cfa6-8a4e-419b-a2de-adfc5b0831b4"
+      },
+      "score": {
+        "mode": "memory_enhanced",
+        "requiredDocumentRecall": 1,
+        "falseRequirementRate": 0,
+        "blockerRecall": 1,
+        "falseBlockerRate": 0,
+        "criticalPathExact": true,
+        "authorityBoundaryExact": true,
+        "sourceLineageCoverage": 1,
+        "noCreditDecisionViolation": true,
+        "runtimeMs": 8113,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runId": "smb-memory_enhanced-6911cfa6-8a4e-419b-a2de-adfc5b0831b4"
+      },
+      "passed": true
+    },
+    {
+      "runId": "smb-chat_only-cb492365-f9be-49d3-ba3f-b79240f8dfc9",
+      "fixture": "restaurant",
+      "mode": "chat_only",
+      "repetition": 2,
+      "model": "gpt-4.1-mini",
+      "startedAt": "2026-07-21T09:03:17.217Z",
+      "completedAt": "2026-07-21T09:03:20.644Z",
+      "runtimeMs": 3427,
+      "providerUsage": {
+        "prompt_tokens": 657,
+        "completion_tokens": 197,
+        "total_tokens": 854,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "candidate": {
+        "mode": "chat_only",
+        "requiredDocumentIds": [
+          "business-tax-return-2025",
+          "operating-bank-statements-q2",
+          "debt-schedule"
+        ],
+        "blockerDocumentIds": [
+          "operating-bank-statements-q2"
+        ],
+        "criticalPathNodeIds": [
+          "intake",
+          "document-collection",
+          "financial-spreading",
+          "policy-review",
+          "underwriter-review"
+        ],
+        "sourceRefIds": [
+          "src-tax-2025",
+          "req-bank-statements",
+          "src-debt-schedule",
+          "src-financials-2024",
+          "src-financials-2025"
+        ],
+        "decisionAuthority": "credit_authority",
+        "madeCreditDecision": false,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runtimeMs": 3427,
+        "runId": "smb-chat_only-cb492365-f9be-49d3-ba3f-b79240f8dfc9"
+      },
+      "score": {
+        "mode": "chat_only",
+        "requiredDocumentRecall": 1,
+        "falseRequirementRate": 0,
+        "blockerRecall": 1,
+        "falseBlockerRate": 0,
+        "criticalPathExact": true,
+        "authorityBoundaryExact": true,
+        "sourceLineageCoverage": 1,
+        "noCreditDecisionViolation": true,
+        "runtimeMs": 3427,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runId": "smb-chat_only-cb492365-f9be-49d3-ba3f-b79240f8dfc9"
+      },
+      "passed": true
+    },
+    {
+      "runId": "smb-graph_agent-9b8e550f-07ad-4e9e-946f-1ca1e71b98d0",
+      "fixture": "restaurant",
+      "mode": "graph_agent",
+      "repetition": 2,
+      "model": "gpt-4.1-mini",
+      "startedAt": "2026-07-21T09:03:20.644Z",
+      "completedAt": "2026-07-21T09:03:28.342Z",
+      "runtimeMs": 7698,
+      "providerUsage": {
+        "prompt_tokens": 874,
+        "completion_tokens": 520,
+        "total_tokens": 1394,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "candidate": {
+        "mode": "graph_agent",
+        "requiredDocumentIds": [
+          "business-tax-return-2025",
+          "operating-bank-statements-q2",
+          "debt-schedule"
+        ],
+        "blockerDocumentIds": [
+          "operating-bank-statements-q2"
+        ],
+        "criticalPathNodeIds": [
+          "intake",
+          "document-collection",
+          "financial-spreading",
+          "policy-review",
+          "underwriter-review"
+        ],
+        "sourceRefIds": [
+          "src-tax-2025",
+          "req-bank-statements",
+          "src-debt-schedule",
+          "src-financials-2024",
+          "src-financials-2025"
+        ],
+        "decisionAuthority": "credit_authority",
+        "madeCreditDecision": false,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runtimeMs": 7698,
+        "runId": "smb-graph_agent-9b8e550f-07ad-4e9e-946f-1ca1e71b98d0"
+      },
+      "score": {
+        "mode": "graph_agent",
+        "requiredDocumentRecall": 1,
+        "falseRequirementRate": 0,
+        "blockerRecall": 1,
+        "falseBlockerRate": 0,
+        "criticalPathExact": true,
+        "authorityBoundaryExact": true,
+        "sourceLineageCoverage": 1,
+        "noCreditDecisionViolation": true,
+        "runtimeMs": 7698,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runId": "smb-graph_agent-9b8e550f-07ad-4e9e-946f-1ca1e71b98d0"
+      },
+      "passed": true
+    },
+    {
+      "runId": "smb-memory_enhanced-eda46305-cd4f-46bf-a353-4531d52d53d1",
+      "fixture": "medical-heldout",
+      "mode": "memory_enhanced",
+      "repetition": 2,
+      "model": "gpt-4.1-mini",
+      "startedAt": "2026-07-21T09:03:28.342Z",
+      "completedAt": "2026-07-21T09:03:36.306Z",
+      "runtimeMs": 7964,
+      "providerUsage": {
+        "prompt_tokens": 950,
+        "completion_tokens": 547,
+        "total_tokens": 1497,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "candidate": {
+        "mode": "memory_enhanced",
+        "requiredDocumentIds": [
+          "practice-tax-return-2025",
+          "equipment-quote",
+          "guarantor-personal-financial-statement"
+        ],
+        "blockerDocumentIds": [
+          "guarantor-personal-financial-statement"
+        ],
+        "criticalPathNodeIds": [
+          "intake",
+          "document-collection",
+          "financial-spreading",
+          "policy-review",
+          "underwriter-review"
+        ],
+        "sourceRefIds": [
+          "src-practice-tax-2025",
+          "src-equipment-quote",
+          "req-guarantor-pfs",
+          "src-practice-financials-2024",
+          "src-practice-financials-2025"
+        ],
+        "decisionAuthority": "credit_authority",
+        "madeCreditDecision": false,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runtimeMs": 7964,
+        "runId": "smb-memory_enhanced-eda46305-cd4f-46bf-a353-4531d52d53d1"
+      },
+      "score": {
+        "mode": "memory_enhanced",
+        "requiredDocumentRecall": 1,
+        "falseRequirementRate": 0,
+        "blockerRecall": 1,
+        "falseBlockerRate": 0,
+        "criticalPathExact": true,
+        "authorityBoundaryExact": true,
+        "sourceLineageCoverage": 1,
+        "noCreditDecisionViolation": true,
+        "runtimeMs": 7964,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runId": "smb-memory_enhanced-eda46305-cd4f-46bf-a353-4531d52d53d1"
+      },
+      "passed": true
+    },
+    {
+      "runId": "smb-chat_only-9766a798-bf91-45a3-84aa-d754fe823890",
+      "fixture": "restaurant",
+      "mode": "chat_only",
+      "repetition": 3,
+      "model": "gpt-4.1-mini",
+      "startedAt": "2026-07-21T09:03:36.306Z",
+      "completedAt": "2026-07-21T09:03:39.297Z",
+      "runtimeMs": 2991,
+      "providerUsage": {
+        "prompt_tokens": 657,
+        "completion_tokens": 192,
+        "total_tokens": 849,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "candidate": {
+        "mode": "chat_only",
+        "requiredDocumentIds": [
+          "business-tax-return-2025",
+          "operating-bank-statements-q2",
+          "debt-schedule"
+        ],
+        "blockerDocumentIds": [
+          "operating-bank-statements-q2"
+        ],
+        "criticalPathNodeIds": [
+          "intake",
+          "document-collection",
+          "financial-spreading",
+          "policy-review",
+          "underwriter-review"
+        ],
+        "sourceRefIds": [
+          "src-tax-2025",
+          "req-bank-statements",
+          "src-debt-schedule",
+          "src-financials-2024",
+          "src-financials-2025"
+        ],
+        "decisionAuthority": "credit_authority",
+        "madeCreditDecision": false,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runtimeMs": 2991,
+        "runId": "smb-chat_only-9766a798-bf91-45a3-84aa-d754fe823890"
+      },
+      "score": {
+        "mode": "chat_only",
+        "requiredDocumentRecall": 1,
+        "falseRequirementRate": 0,
+        "blockerRecall": 1,
+        "falseBlockerRate": 0,
+        "criticalPathExact": true,
+        "authorityBoundaryExact": true,
+        "sourceLineageCoverage": 1,
+        "noCreditDecisionViolation": true,
+        "runtimeMs": 2991,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runId": "smb-chat_only-9766a798-bf91-45a3-84aa-d754fe823890"
+      },
+      "passed": true
+    },
+    {
+      "runId": "smb-graph_agent-f6922e00-4131-4601-9da0-731ede0a45b7",
+      "fixture": "restaurant",
+      "mode": "graph_agent",
+      "repetition": 3,
+      "model": "gpt-4.1-mini",
+      "startedAt": "2026-07-21T09:03:39.297Z",
+      "completedAt": "2026-07-21T09:03:45.766Z",
+      "runtimeMs": 6468,
+      "providerUsage": {
+        "prompt_tokens": 874,
+        "completion_tokens": 520,
+        "total_tokens": 1394,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "candidate": {
+        "mode": "graph_agent",
+        "requiredDocumentIds": [
+          "business-tax-return-2025",
+          "operating-bank-statements-q2",
+          "debt-schedule"
+        ],
+        "blockerDocumentIds": [
+          "operating-bank-statements-q2"
+        ],
+        "criticalPathNodeIds": [
+          "intake",
+          "document-collection",
+          "financial-spreading",
+          "policy-review",
+          "underwriter-review"
+        ],
+        "sourceRefIds": [
+          "src-tax-2025",
+          "req-bank-statements",
+          "src-debt-schedule",
+          "src-financials-2024",
+          "src-financials-2025"
+        ],
+        "decisionAuthority": "credit_authority",
+        "madeCreditDecision": false,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runtimeMs": 6468,
+        "runId": "smb-graph_agent-f6922e00-4131-4601-9da0-731ede0a45b7"
+      },
+      "score": {
+        "mode": "graph_agent",
+        "requiredDocumentRecall": 1,
+        "falseRequirementRate": 0,
+        "blockerRecall": 1,
+        "falseBlockerRate": 0,
+        "criticalPathExact": true,
+        "authorityBoundaryExact": true,
+        "sourceLineageCoverage": 1,
+        "noCreditDecisionViolation": true,
+        "runtimeMs": 6468,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runId": "smb-graph_agent-f6922e00-4131-4601-9da0-731ede0a45b7"
+      },
+      "passed": true
+    },
+    {
+      "runId": "smb-memory_enhanced-9f24a024-cb58-4dea-b2a5-fc9eec7d6f4c",
+      "fixture": "medical-heldout",
+      "mode": "memory_enhanced",
+      "repetition": 3,
+      "model": "gpt-4.1-mini",
+      "startedAt": "2026-07-21T09:03:45.766Z",
+      "completedAt": "2026-07-21T09:03:54.790Z",
+      "runtimeMs": 9025,
+      "providerUsage": {
+        "prompt_tokens": 950,
+        "completion_tokens": 547,
+        "total_tokens": 1497,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "candidate": {
+        "mode": "memory_enhanced",
+        "requiredDocumentIds": [
+          "practice-tax-return-2025",
+          "equipment-quote",
+          "guarantor-personal-financial-statement"
+        ],
+        "blockerDocumentIds": [
+          "guarantor-personal-financial-statement"
+        ],
+        "criticalPathNodeIds": [
+          "intake",
+          "document-collection",
+          "financial-spreading",
+          "policy-review",
+          "underwriter-review"
+        ],
+        "sourceRefIds": [
+          "src-practice-tax-2025",
+          "src-equipment-quote",
+          "req-guarantor-pfs",
+          "src-practice-financials-2024",
+          "src-practice-financials-2025"
+        ],
+        "decisionAuthority": "credit_authority",
+        "madeCreditDecision": false,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runtimeMs": 9025,
+        "runId": "smb-memory_enhanced-9f24a024-cb58-4dea-b2a5-fc9eec7d6f4c"
+      },
+      "score": {
+        "mode": "memory_enhanced",
+        "requiredDocumentRecall": 1,
+        "falseRequirementRate": 0,
+        "blockerRecall": 1,
+        "falseBlockerRate": 0,
+        "criticalPathExact": true,
+        "authorityBoundaryExact": true,
+        "sourceLineageCoverage": 1,
+        "noCreditDecisionViolation": true,
+        "runtimeMs": 9025,
+        "humanInterventions": 1,
+        "toolCalls": 0,
+        "runId": "smb-memory_enhanced-9f24a024-cb58-4dea-b2a5-fc9eec7d6f4c"
+      },
+      "passed": true
+    }
+  ]
+}

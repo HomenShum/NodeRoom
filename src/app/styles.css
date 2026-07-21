@@ -944,6 +944,15 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-artifact-export { min-height: 28px; white-space: nowrap; flex: 0 0 auto; }
 .r-artifact-export svg { flex: none; }
 .r-export-status { flex: 0 1 150px; min-width: 0; color: var(--text-tertiary); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.r-lending-proof-bar { position: fixed; z-index: 80; left: 50%; bottom: 12px; transform: translateX(-50%); width: min(760px, calc(100vw - 32px)); min-height: 48px; display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--bg-primary) 94%, transparent); box-shadow: 0 14px 40px rgb(15 23 42 / 18%); backdrop-filter: blur(14px); }
+.r-lending-proof-state { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; color: var(--text-secondary); }
+.r-lending-proof-state[data-state="verified"] { color: var(--success); }
+.r-lending-proof-source { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-tertiary); font-family: var(--font-mono); font-size: 10px; }
+.r-lending-proof-bar [role="status"] { color: var(--text-secondary); font-size: 11px; }
+@media (max-width: 640px) {
+  .r-lending-proof-bar { left: 8px; right: 8px; bottom: calc(72px + env(safe-area-inset-bottom)); transform: none; width: auto; flex-wrap: wrap; }
+  .r-lending-proof-source { order: 3; flex-basis: 100%; }
+}
 .r-art-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
 .r-art-body > .r-sheet-wrap { flex: 1; }
 /* honest error state — a hand edit that lost a CAS race */
