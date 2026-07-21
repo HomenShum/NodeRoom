@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "noderoom.casca-fde-package-proof.v1",
+  "generatedAt": "2026-07-21T11:20:00Z",
+  "independentProject": true,
+  "cascaAffiliation": false,
+  "syntheticDataOnly": true,
+  "sourceImplementationCommit": "631c53089a1bd3dc8354e21b20b31bfa880f5020",
+  "sourceProductionProofMerge": "73b1090f088ce29bebff587391c798b1e38b3193",
+  "productionUrl": "https://noderoom.live",
+  "artifacts": [
+    {
+      "path": "casca-fde-noderoom-production-proof.pptx",
+      "sha256": "c445ddfddae22f1dfdfbd8849e70e4b5e06059cc660116f89042de63099c0a1d",
+      "verification": "slides_test.py passed with no overflow; all nine rendered slides inspected"
+    },
+    {
+      "path": "casca-fde-noderoom-walkthrough.mp4",
+      "sha256": "7c55ea6dd03799c08a6700319fbda69f44149528f2af73e4e53b9fd1b3bf089e",
+      "verification": "H.264, 1280x720, yuv420p, 30 fps, 44.97 seconds; frames inspected at 2, 22, and 42 seconds"
+    },
+    {
+      "path": "CASE_STUDY.md",
+      "sha256": "4811196c100b49f3b218673acf86a8ae615cfc545013e659602ae69fa25ab0b6"
+    },
+    {
+      "path": "CLAIMS.md",
+      "sha256": "7f586405ad213d8c53aa303d2a5eb7214800cc0e923899bfa226ea30023f3853"
+    },
+    {
+      "path": "assets/deck-montage.png",
+      "sha256": "be378d89cd6873f8740e6e90773df37bfd34256d5ad866abf9f3d61fc56c7e7f"
+    }
+  ],
+  "openBoundaries": [
+    "actual-byte production browser upload",
+    "optional tenant-scoped Neo4j read projection",
+    "external bank connectors",
+    "public distribution of this exact package"
+  ]
+}

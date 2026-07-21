@@ -82,8 +82,14 @@ Production receipt: `docs/release/SMB_LENDING_PRODUCTION_PROOF_2026-07-21.md`.
 
 ## Casca-facing evidence package
 
-- [ ] Write a clean-room case study that clearly disclaims Casca affiliation.
-- [ ] Separate bank-specific configuration, reusable platform capability, and remaining platform gaps.
-- [ ] Produce an editable proof deck and short walkthrough from the same receipts.
-- [ ] Verify every claim against the exact release commit and proof bundle.
+- [x] Write a clean-room case study that clearly disclaims Casca affiliation.
+- [x] Separate bank-specific configuration, reusable platform capability, and remaining platform gaps.
+- [x] Produce an editable proof deck and short walkthrough from the same receipts.
+- [x] Verify every claim against the exact release commit and proof bundle.
 - [ ] Publish only after the production journey passes; describe earlier output as a prototype.
+
+The checked-in evidence package is under `docs/release/casca-fde/`. It includes the
+case study, public claims ledger, editable nine-slide deck, rendered montage, a
+45-second MP4 walkthrough, and a narration script. Public distribution remains a
+separate consequential action so platform-specific copy and links can be reviewed at
+the exact hashes being published.
