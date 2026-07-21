@@ -102,6 +102,7 @@ export function createSmbLendingConvexSeed() {
     { kind: "note", title: "Proposal review", seed: [{ id: "doc", value: SMB_LENDING_PROPOSAL_NOTE }], meta: { summary: "Version-pinned missing-document proposal awaiting human review.", tags: ["proposal", "needs-review", "cas"] } },
     { kind: "note", title: "Proof receipt", seed: [{ id: "doc", value: SMB_LENDING_PROOF_NOTE }], meta: { summary: "Content-addressed pre-application proof with honest pending-review state.", tags: ["proof", "receipt", "no-credit-decision"] } },
     { kind: "note", title: "Human review credit packet", seed: [{ id: "doc", value: SMB_LENDING_PENDING_PACKET_NOTE }], meta: { summary: "Decision-free packet regenerated only after verified evidence.", tags: ["credit-packet", "human-review", "no-credit-decision"] } },
+    { kind: "note", title: "Export bundle", seed: [{ id: "doc", value: "pending_evidence_verification" }], meta: { summary: "Canonical exported-bundle bytes are stored here only after evidence verification.", tags: ["export-bundle", "proof", "pending"] } },
   ];
   return {
     artifacts,

@@ -4,7 +4,7 @@ import { engine, enterSmbLendingDeploymentRoomAsHost, handleSmbLendingLocalPropo
 import { createSmbLendingConvexSeed, SMB_LENDING_EVIDENCE_PROPOSAL, SMB_LENDING_EVIDENCE_SOURCE, SMB_LENDING_PROPOSAL, SMB_LENDING_TEMPLATE, SMB_LENDING_VERIFIED_RECEIPT } from "../src/app/smbLendingRoomSeed";
 
 describe("SMB Lending Deployment Room seed", () => {
-  it("builds the live Convex template with seven artifacts and a pinned first proposal", () => {
+  it("builds the live Convex template with eight artifacts and a pinned first proposal", () => {
     const live = createSmbLendingConvexSeed();
     expect(live.artifacts.map((artifact) => artifact.title)).toEqual([
       "Application notebook",
@@ -14,6 +14,7 @@ describe("SMB Lending Deployment Room seed", () => {
       "Proposal review",
       "Proof receipt",
       "Human review credit packet",
+      "Export bundle",
     ]);
     expect(live.proposals).toHaveLength(1);
     expect(live.proposals[0]).toMatchObject({

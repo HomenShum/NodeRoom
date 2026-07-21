@@ -107,13 +107,17 @@ authenticated live entrypoint that:
 This path needs no new room database, authentication system, or parallel proposal
 protocol. Neo4j remains an optional read projection after canonical state is committed.
 
-The initial live-template slice implements steps 1 and 2 plus the first proposal gate:
+The live-template implementation completes steps 1 through 4:
 `#smb-lending` redirects to an authenticated create intent, `rooms.create` validates
 the entire bundle before any insert, and one transaction commits the room, host,
-seven artifacts, and a proposal pinned to version 1 of the missing-document status
-cell. The local deterministic route remains active whenever Convex is not configured.
-The second evidence proposal and the packet/proof regeneration are intentionally not
-claimed complete until they use the same canonical Convex CAS and persistence path.
+eight artifacts, and a proposal pinned to version 1 of the missing-document status
+cell. A domain lifecycle mutation wraps the existing canonical proposal resolver and
+cell-CAS primitive: approval one creates the evidence proposal only after final CAS;
+approval two writes the immutable source and locator, regenerates the packet and proof,
+and persists the exact export bundle in the same transaction. A stale approval rolls
+the entire transition back. The local deterministic route remains active whenever
+Convex is not configured. Exact-commit deployment and fresh-user production proof remain
+separate release gates.
 
 The live four-mode benchmark used `gpt-4.1-mini` for three repetitions each of chat-only,
 graph-agent, and memory-enhanced lanes. The medical fixture was held out and the evaluator
