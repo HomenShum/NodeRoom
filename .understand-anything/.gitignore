@@ -1,0 +1,4 @@
+intermediate/*
+!intermediate/scan-result.json
+tmp/
+.trash-*/

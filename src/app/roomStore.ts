@@ -10,7 +10,7 @@
 import { useSyncExternalStore } from "react";
 import { RoomEngine } from "../engine/roomEngine";
 import { buildDemoRoom, playCollab, RESEARCH_COLS, type DemoRoom } from "../engine/demoRoom";
-import type { Actor, CellEvidence, CellPayload, DataframeColumn } from "../engine/types";
+import type { Actor, CellEvidence, CellPayload, DataframeColumn, Proposal } from "../engine/types";
 import {
   BTB_ARTIFACT_ROWS,
   BTB_BOUNDARY_ROWS,
@@ -31,6 +31,29 @@ import {
   HACKWITHBAY_ROOM_TITLE,
   hackwithBaySeed,
 } from "./hackwithBayRoomSeed";
+import {
+  SMB_LENDING_DOCUMENT_COLUMNS,
+  SMB_LENDING_EVIDENCE_PROPOSAL,
+  SMB_LENDING_EVIDENCE_PROPOSAL_NOTE,
+  SMB_LENDING_EVIDENCE_SOURCE,
+  SMB_LENDING_FIXTURE,
+  SMB_LENDING_GRAPH_COLUMNS,
+  SMB_LENDING_GRAPH_ROWS,
+  SMB_LENDING_METRIC_COLUMNS,
+  SMB_LENDING_METRIC_ROWS,
+  SMB_LENDING_OVERVIEW_NOTE,
+  SMB_LENDING_PROOF_NOTE,
+  SMB_LENDING_PROPOSAL,
+  SMB_LENDING_PROPOSAL_NOTE,
+  SMB_LENDING_PENDING_PACKET_NOTE,
+  SMB_LENDING_REQUESTED_SNAPSHOT,
+  SMB_LENDING_TEMPLATE,
+  SMB_LENDING_VERIFIED_BUNDLE,
+  SMB_LENDING_VERIFIED_PACKET_NOTE,
+  SMB_LENDING_VERIFIED_PROOF_NOTE,
+  SMB_LENDING_VERIFIED_SNAPSHOT,
+  smbLendingDocumentRows,
+} from "./smbLendingRoomSeed";
 
 export const engine = new RoomEngine({ now: () => Date.now() });
 export const demo: DemoRoom = buildDemoRoom(engine);
@@ -597,6 +620,284 @@ export function enterBankerToolBenchRoomAsHost(): { roomId: string; me: Actor } 
 
   btbRoom = { roomId: room.id, me };
   return btbRoom;
+}
+
+let smbLendingRoom: { roomId: string; me: Actor } | null = null;
+const SMB_LENDING_BROWSER_STATE_KEY = "noderoom:smb-lending:golden-slice:v1";
+type SmbLendingBrowserPhase = "initial" | "requested" | "verified";
+type SmbLendingRuntimeState = {
+  roomId: string;
+  agent: Actor;
+  sessionId: string;
+  evidenceChecklistId: string;
+  proposalReviewId: string;
+  proofReceiptId: string;
+  creditPacketId: string;
+  phase: SmbLendingBrowserPhase;
+};
+let smbLendingRuntime: SmbLendingRuntimeState | null = null;
+
+function readSmbLendingBrowserPhase(): SmbLendingBrowserPhase {
+  if (typeof window === "undefined") return "initial";
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(SMB_LENDING_BROWSER_STATE_KEY) ?? "null") as { phase?: SmbLendingBrowserPhase } | null;
+    return parsed?.phase === "requested" || parsed?.phase === "verified" ? parsed.phase : "initial";
+  } catch {
+    return "initial";
+  }
+}
+
+function persistSmbLendingBrowserPhase(phase: Exclude<SmbLendingBrowserPhase, "initial">): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(SMB_LENDING_BROWSER_STATE_KEY, JSON.stringify({
+    phase,
+    ...(phase === "verified" ? { bundle: SMB_LENDING_VERIFIED_BUNDLE } : {}),
+    persistedAt: new Date().toISOString(),
+  }));
+}
+
+function setSmbLendingNote(artifactId: string, value: string, actor: Actor, opId: string): void {
+  const element = engine.getArtifact(artifactId)?.elements.doc;
+  if (!element) throw new Error("smb_lending_note_missing");
+  const result = engine.applyEdit({
+    roomId: smbLendingRuntime?.roomId ?? "",
+    actor,
+    op: { opId, artifactId, elementId: "doc", kind: "set", value, baseVersion: element.version },
+  });
+  if (!result.ok) throw new Error(`smb_lending_note_update_failed:${result.reason}`);
+}
+
+/** Local golden-slice orchestration after the generic proposal CAS succeeds. */
+export function handleSmbLendingLocalProposalResolution(proposal: Proposal, approve: boolean, reviewer: Actor): void {
+  const state = smbLendingRuntime;
+  if (!state || proposal.roomId !== state.roomId || !approve) return;
+
+  if (proposal.op.opId === SMB_LENDING_PROPOSAL.id) {
+    const statusElementId = `${SMB_LENDING_PROPOSAL.documentId}__status`;
+    const statusElement = engine.getArtifact(state.evidenceChecklistId)?.elements[statusElementId];
+    if (!statusElement || statusElement.value !== "requested") throw new Error("smb_lending_request_transition_missing");
+    const next = engine.createProposal({
+      roomId: state.roomId,
+      artifactId: state.evidenceChecklistId,
+      author: state.agent,
+      op: {
+        opId: SMB_LENDING_EVIDENCE_PROPOSAL.id,
+        artifactId: state.evidenceChecklistId,
+        elementId: statusElementId,
+        kind: "set",
+        value: "verified",
+        baseVersion: statusElement.version,
+      },
+      review: {
+        kind: "agent_edit",
+        reason: SMB_LENDING_EVIDENCE_PROPOSAL.rationale,
+        reviewerNote: `Immutable evidence ${SMB_LENDING_EVIDENCE_SOURCE.contentHash}; domain base version ${SMB_LENDING_EVIDENCE_PROPOSAL.baseVersion}.`,
+        status: "needs_review",
+      },
+    });
+    setSmbLendingNote(state.proposalReviewId, SMB_LENDING_EVIDENCE_PROPOSAL_NOTE, reviewer, "smb-lending-show-evidence-proposal");
+    engine.updateSession(state.sessionId, { status: "blocked", lastAction: `Proposed ${SMB_LENDING_EVIDENCE_PROPOSAL.id}; waiting for evidence verification` });
+    engine.postMessage({
+      roomId: state.roomId,
+      channel: "public",
+      author: state.agent,
+      text: "The document request passed final CAS. I prepared a separate hashed evidence-supply proposal. A human must verify it before the application can move from requested to verified.",
+      clientMsgId: "smb-lending-agent-evidence-proposal",
+      kind: "agent",
+    });
+    engine.trace(state.roomId, state.agent, "agent_status", `Submitted evidence proposal ${SMB_LENDING_EVIDENCE_PROPOSAL.id}.`, { proposalId: next.id, contentHash: SMB_LENDING_EVIDENCE_SOURCE.contentHash }, "Evidence remains outside canonical state until human verification.");
+    state.phase = "requested";
+    persistSmbLendingBrowserPhase("requested");
+    return;
+  }
+
+  if (proposal.op.opId !== SMB_LENDING_EVIDENCE_PROPOSAL.id) return;
+  const evidenceArtifact = engine.getArtifact(state.evidenceChecklistId);
+  const sourceElementId = `${SMB_LENDING_EVIDENCE_PROPOSAL.documentId}__source`;
+  const locatorElementId = `${SMB_LENDING_EVIDENCE_PROPOSAL.documentId}__locator`;
+  const sourceElement = evidenceArtifact?.elements[sourceElementId];
+  const locatorElement = evidenceArtifact?.elements[locatorElementId];
+  if (!sourceElement || !locatorElement) throw new Error("smb_lending_evidence_lineage_cells_missing");
+  const lineageResult = engine.applyArtifactEdits({
+    roomId: state.roomId,
+    artifactId: state.evidenceChecklistId,
+    actor: reviewer,
+    ops: [
+      { opId: "smb-lending-verified-source", artifactId: state.evidenceChecklistId, elementId: sourceElementId, kind: "set", value: `${SMB_LENDING_EVIDENCE_SOURCE.id} (${SMB_LENDING_EVIDENCE_SOURCE.contentHash})`, baseVersion: sourceElement.version },
+      { opId: "smb-lending-verified-locator", artifactId: state.evidenceChecklistId, elementId: locatorElementId, kind: "set", value: SMB_LENDING_EVIDENCE_SOURCE.locator, baseVersion: locatorElement.version },
+    ],
+  });
+  if (!lineageResult.ok) throw new Error(`smb_lending_lineage_update_failed:${lineageResult.reason}`);
+
+  setSmbLendingNote(state.proposalReviewId, "<h1>Evidence verification complete</h1><p>The requested operating-bank statements are verified with immutable source lineage. No lending decision was made.</p>", reviewer, "smb-lending-close-proposal-review");
+  setSmbLendingNote(state.creditPacketId, SMB_LENDING_VERIFIED_PACKET_NOTE, reviewer, "smb-lending-regenerate-credit-packet");
+  setSmbLendingNote(state.proofReceiptId, SMB_LENDING_VERIFIED_PROOF_NOTE, reviewer, "smb-lending-regenerate-proof-receipt");
+  engine.updateSession(state.sessionId, { status: "done", lastAction: "Verified evidence, regenerated packet, and issued proof receipt" });
+  engine.postMessage({
+    roomId: state.roomId,
+    channel: "public",
+    author: state.agent,
+    text: "Evidence verification passed final CAS. The checklist now shows requested to verified with its source hash, and I regenerated the decision-free human review packet and NodeProof receipt.",
+    clientMsgId: "smb-lending-agent-verified",
+    kind: "agent",
+  });
+  engine.trace(state.roomId, state.agent, "edit_applied", "Regenerated the decision-free human review packet and proof receipt after evidence verification.", { applicationVersion: String(SMB_LENDING_VERIFIED_SNAPSHOT.version), applicationHash: JSON.parse(SMB_LENDING_VERIFIED_BUNDLE).receipt.applicationHash }, "Export/reopen verification remains a separate browser action.");
+  state.phase = "verified";
+  persistSmbLendingBrowserPhase("verified");
+}
+
+/** #smb-lending - the governed synthetic restaurant working-capital golden slice. */
+export function enterSmbLendingDeploymentRoomAsHost(): { roomId: string; me: Actor } {
+  if (smbLendingRoom) return smbLendingRoom;
+
+  const { room, host } = engine.createRoom({ title: SMB_LENDING_TEMPLATE.title, hostName: "FDE Host", autoAllow: true });
+  const me: Actor = { kind: "user", id: host.id, name: host.name };
+  const agent: Actor = { kind: "agent", id: "agent_smb_lending", name: "Lending NodeAgent", scope: "public" };
+  const phase = readSmbLendingBrowserPhase();
+  const initialSnapshot = phase === "verified" ? SMB_LENDING_VERIFIED_SNAPSHOT : phase === "requested" ? SMB_LENDING_REQUESTED_SNAPSHOT : SMB_LENDING_FIXTURE;
+
+  engine.createArtifact({
+    roomId: room.id,
+    kind: "note",
+    title: "Application notebook",
+    by: me,
+    seed: [{ id: "doc", value: SMB_LENDING_OVERVIEW_NOTE }],
+    meta: { summary: "Synthetic application state, blocker, critical path, and lending-authority boundary.", tags: ["smb-lending", "synthetic", "application"] },
+  });
+
+  const tables = [
+    { title: "Evidence checklist", columns: SMB_LENDING_DOCUMENT_COLUMNS, rows: smbLendingDocumentRows(initialSnapshot), summary: "Required and received source documents with exact lineage." },
+    { title: "Lending process graph", columns: SMB_LENDING_GRAPH_COLUMNS, rows: SMB_LENDING_GRAPH_ROWS, summary: "Neo4j-compatible read projection with a bounded critical path." },
+    { title: "Underwriting workbook", columns: SMB_LENDING_METRIC_COLUMNS, rows: SMB_LENDING_METRIC_ROWS, summary: "Deterministic EBITDA margin and DSCR calculations with source lineage." },
+  ];
+  let evidenceChecklistId = "";
+  for (const table of tables) {
+    const artifact = engine.createArtifact({
+      roomId: room.id,
+      kind: "sheet",
+      title: table.title,
+      by: me,
+      seed: sheetSeed(table.rows, table.columns),
+      meta: {
+        dataframe: { columns: table.columns, rowCount: table.rows.length, sourceFile: "restaurant-working-capital.json", parser: "smb_lending_pack_v1", truncated: false, warnings: [] },
+        summary: table.summary,
+        tags: ["smb-lending", "source-backed", "governed"],
+      },
+    });
+    if (table.title === "Evidence checklist") evidenceChecklistId = artifact.id;
+  }
+
+  const requestedStatusElementId = `${SMB_LENDING_PROPOSAL.documentId}__status`;
+  const requestedStatusElement = engine.getArtifact(evidenceChecklistId)?.elements[requestedStatusElementId];
+  if (!requestedStatusElement) throw new Error("smb_lending_missing_document_status_cell");
+  let roomProposal = null as Proposal | null;
+  if (phase === "initial") roomProposal = engine.createProposal({
+    roomId: room.id,
+    artifactId: evidenceChecklistId,
+    author: agent,
+    op: {
+      opId: SMB_LENDING_PROPOSAL.id,
+      artifactId: evidenceChecklistId,
+      elementId: requestedStatusElementId,
+      kind: "set",
+      value: "requested",
+      baseVersion: requestedStatusElement.version,
+    },
+    review: {
+      kind: "agent_edit",
+      reason: SMB_LENDING_PROPOSAL.rationale,
+      reviewerNote: `Domain proposal ${SMB_LENDING_PROPOSAL.id}; application base version ${SMB_LENDING_PROPOSAL.baseVersion}.`,
+      status: "needs_review",
+    },
+  });
+  if (phase === "requested") roomProposal = engine.createProposal({
+    roomId: room.id,
+    artifactId: evidenceChecklistId,
+    author: agent,
+    op: {
+      opId: SMB_LENDING_EVIDENCE_PROPOSAL.id,
+      artifactId: evidenceChecklistId,
+      elementId: requestedStatusElementId,
+      kind: "set",
+      value: "verified",
+      baseVersion: requestedStatusElement.version,
+    },
+    review: {
+      kind: "agent_edit",
+      reason: SMB_LENDING_EVIDENCE_PROPOSAL.rationale,
+      reviewerNote: `Immutable evidence ${SMB_LENDING_EVIDENCE_SOURCE.contentHash}; domain base version ${SMB_LENDING_EVIDENCE_PROPOSAL.baseVersion}.`,
+      status: "needs_review",
+    },
+  });
+
+  const proposalReview = engine.createArtifact({
+    roomId: room.id,
+    kind: "note",
+    title: "Proposal review",
+    by: me,
+    seed: [{ id: "doc", value: phase === "initial" ? SMB_LENDING_PROPOSAL_NOTE : phase === "requested" ? SMB_LENDING_EVIDENCE_PROPOSAL_NOTE : "<h1>Evidence verification complete</h1><p>The requested operating-bank statements are verified with immutable source lineage. No lending decision was made.</p>" }],
+    meta: { summary: "Version-pinned missing-document proposal awaiting human review.", tags: ["proposal", "needs-review", "cas"] },
+  });
+  const proofReceipt = engine.createArtifact({
+    roomId: room.id,
+    kind: "note",
+    title: "Proof receipt",
+    by: me,
+    seed: [{ id: "doc", value: phase === "verified" ? SMB_LENDING_VERIFIED_PROOF_NOTE : SMB_LENDING_PROOF_NOTE }],
+    meta: { summary: "Content-addressed pre-application proof with honest pending-review state.", tags: ["proof", "receipt", "no-credit-decision"] },
+  });
+  const creditPacket = engine.createArtifact({
+    roomId: room.id,
+    kind: "note",
+    title: "Human review credit packet",
+    by: me,
+    seed: [{ id: "doc", value: phase === "verified" ? SMB_LENDING_VERIFIED_PACKET_NOTE : SMB_LENDING_PENDING_PACKET_NOTE }],
+    meta: { summary: "Decision-free packet regenerated only after verified evidence.", tags: ["credit-packet", "human-review", "no-credit-decision"] },
+  });
+
+  const session = engine.startSession({ roomId: room.id, agentId: agent.id, agentName: agent.name, scope: "public" });
+  engine.updateSession(session.id, phase === "verified"
+    ? { status: "done", lastAction: "Verified evidence, regenerated packet, and issued proof receipt" }
+    : { status: "blocked", lastAction: phase === "requested" ? "Waiting for evidence verification" : `Proposed ${SMB_LENDING_PROPOSAL.documentId}; waiting for human review` });
+  smbLendingRuntime = {
+    roomId: room.id,
+    agent,
+    sessionId: session.id,
+    evidenceChecklistId,
+    proposalReviewId: proposalReview.id,
+    proofReceiptId: proofReceipt.id,
+    creditPacketId: creditPacket.id,
+    phase,
+  };
+  engine.postMessage({
+    roomId: room.id,
+    channel: "public",
+    author: agent,
+    text: phase === "verified"
+      ? "I reloaded the locally persisted synthetic workflow receipt. The operating-bank statements remain verified with their immutable source hash, the human review packet is current, and no credit decision was made."
+      : phase === "requested"
+        ? "I reloaded the requested evidence state. The version-pinned document request is applied, but the supplied statements still require human verification before packet regeneration."
+        : "I inspected the synthetic application, calculated source-backed metrics, and found the critical blocker: the three most recent operating-bank statements are missing. I prepared a version-pinned document request for review. I did not make a lending decision or mutate canonical state.",
+    clientMsgId: "smb-lending-agent-blocker",
+    kind: "agent",
+  });
+  engine.postMessage({
+    roomId: room.id,
+    channel: "public",
+    author: me,
+    text: phase === "verified"
+      ? "Verified local demo state reopened. The export action independently rechecks application and packet hashes before downloading."
+      : "Review the evidence checklist, critical path, underwriting workbook, pending proposal, and proof receipt before approving any state change.",
+    clientMsgId: "smb-lending-host-review",
+    kind: "chat",
+  });
+  engine.trace(room.id, agent, "agent_status", "Inspected synthetic application and source inventory.", { caseId: SMB_LENDING_TEMPLATE.caseId }, "No private or JPMorgan data entered the room.");
+  engine.trace(room.id, agent, "agent_status", "Calculated EBITDA margin and DSCR from cited financial statements.", { artifactId: "Underwriting workbook" }, "Calculations are deterministic and do not constitute a credit recommendation.");
+  engine.trace(room.id, agent, "agent_status", "Traversed the process graph and found the missing-bank-statements blocker.", { artifactId: "Lending process graph" }, "Neo4j-compatible graph is a read projection; NodeRoom remains authoritative.");
+  if (roomProposal) engine.trace(room.id, agent, "agent_status", `Submitted proposal ${roomProposal.op.opId} against the current evidence cell version ${roomProposal.op.baseVersion}.`, { proposalId: roomProposal.id, domainProposalId: roomProposal.op.opId }, "Human review and exact-version CAS are required before application.");
+
+  smbLendingRoom = { roomId: room.id, me };
+  return smbLendingRoom;
 }
 
 let hackwithBayRoom: { roomId: string; me: Actor } | null = null;

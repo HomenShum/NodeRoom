@@ -1,0 +1,47 @@
+{
+  "schema": "noderoom-smb-lending-room-ui-contract-v1",
+  "capturedAt": "2026-07-21T00:55:20.8562756-07:00",
+  "route": "#smb-lending",
+  "source": "existing NodeRoom RoomShell and work-artifact primitives",
+  "policy": "The Casca-inspired proof is a synthetic clean-room NodeRoom template, not a Casca clone or affiliated product. NodeRoom remains authoritative; Neo4j is a read projection; all lending decisions remain human-owned.",
+  "threeQuestionGate": {
+    "whatIsHappening": "The room shows the application, missing-document blocker, critical path, calculated metrics, pending proposal, and agent trace.",
+    "whyTrustIt": "Every financial period includes source locators, proposals are pinned to a base version, receipts are content-addressed, and the no-credit-decision boundary is explicit.",
+    "whatNext": "The single next action is human review of the missing-bank-statements proposal before any canonical state change."
+  },
+  "surfaces": [
+    "application notebook",
+    "evidence checklist",
+    "lending process graph",
+    "underwriting workbook",
+    "proposal review",
+    "proof receipt",
+    "public agent trace"
+  ],
+  "viewportsRequired": [
+    { "width": 1440, "height": 900 },
+    { "width": 1024, "height": 768 },
+    { "width": 390, "height": 844 }
+  ],
+  "pages": [
+    {
+      "id": "desktop",
+      "viewport": { "width": 1440, "height": 900 },
+      "screenshotPath": "docs/release/proof/20260721-smb-lending-room/smb-lending-desktop-1440x900.png",
+      "sha256": "bfc08adbb1319de0d118bb0d2255c239724b5481351652487a736ed3b0182ffa"
+    },
+    {
+      "id": "tablet",
+      "viewport": { "width": 1024, "height": 768 },
+      "screenshotPath": "docs/release/proof/20260721-smb-lending-room/smb-lending-tablet-1024x768.png",
+      "sha256": "c77a3ddde7b403a8fba9d4d862e479beb26968c049557c04b5e558a6ec4f7bb6"
+    },
+    {
+      "id": "mobile",
+      "viewport": { "width": 390, "height": 844 },
+      "screenshotPath": "docs/release/proof/20260721-smb-lending-room/smb-lending-mobile-390x844.png",
+      "sha256": "cf8002a9c73691f98c2ea9528992cd24eb114241d75b6c9da908b3fff6167e1b"
+    }
+  ],
+  "baselineStatus": "captured locally; human approval and deployed proof pending"
+}

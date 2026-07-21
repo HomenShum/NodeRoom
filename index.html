@@ -46,7 +46,8 @@
           params.has("room") ||
           params.has("demo") ||
           params.has("create") ||
-          window.location.hash.startsWith("#room");
+          window.location.hash.startsWith("#room") ||
+          /^#\/?smb-lending(?:$|\?)/i.test(window.location.hash);
         if (!isPrivateRoute) return;
         const robots = document.querySelector('meta[name="robots"]');
         if (robots) robots.setAttribute("content", "noindex,nofollow");

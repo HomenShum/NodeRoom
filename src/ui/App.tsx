@@ -17,10 +17,11 @@ const RoomTour = lazy(() => import("../landing/roomTour/RoomTour").then((m) => (
 // paint (same precedent as RoomTour above).
 const PublicRoomPage = lazy(() => import("../alwayson/PublicRoomPage").then((m) => ({ default: m.PublicRoomPage })));
 import { EngineStoreProvider, ConvexStoreProvider, HAS_CONVEX } from "../app/store";
-import { createFreshRoom, enterBankerToolBenchRoomAsHost, enterDemoRoomAsHost, enterHackwithBayRoomAsHost, enterScaleDemoRoomAsHost, enterUpScaleXRoomAsHost } from "../app/roomStore";
+import { createFreshRoom, enterBankerToolBenchRoomAsHost, enterDemoRoomAsHost, enterHackwithBayRoomAsHost, enterScaleDemoRoomAsHost, enterSmbLendingDeploymentRoomAsHost, enterUpScaleXRoomAsHost } from "../app/roomStore";
 import type { Actor } from "../engine/types";
 import { authIntentLabel, clearPersistedRoomSessions, launchAuthRequired } from "../auth/launchAuth";
 import { AccountGate } from "./auth/AccountGate";
+import { LendingProofBar } from "../features/lending-room/LendingProofBar";
 
 const liveSessionKey = (code: string) => `noderoom:live:${code.toUpperCase()}`;
 const livePendingKey = (code: string) => `noderoom:livePending:${code.toUpperCase()}`;
@@ -59,6 +60,7 @@ export function App() {
   const btbSessionRef = useRef<Session | null>(null);
   const hackwithBaySessionRef = useRef<Session | null>(null);
   const upscalexSessionRef = useRef<Session | null>(null);
+  const smbLendingSessionRef = useRef<Session | null>(null);
   useEffect(() => {
     const onHash = () => setHash(readRoutableHash());
     window.addEventListener("hashchange", onHash);
@@ -122,6 +124,16 @@ export function App() {
       <EngineStoreProvider roomId={btbSessionRef.current.roomId} me={btbSessionRef.current.me}>
         <RoomShell roomId={btbSessionRef.current.roomId} me={btbSessionRef.current.me} onLeave={() => { window.location.hash = ""; }} />
         {HAS_CONVEX ? <BtbLiveLedgerPanel /> : null}
+      </EngineStoreProvider>
+    );
+  }
+
+  if (hash === "#smb-lending" || hash === "#/smb-lending") {
+    smbLendingSessionRef.current ??= enterSmbLendingDeploymentRoomAsHost();
+    return (
+      <EngineStoreProvider roomId={smbLendingSessionRef.current.roomId} me={smbLendingSessionRef.current.me}>
+        <RoomShell roomId={smbLendingSessionRef.current.roomId} me={smbLendingSessionRef.current.me} onLeave={() => { window.location.hash = ""; }} />
+        <LendingProofBar roomId={smbLendingSessionRef.current.roomId} />
       </EngineStoreProvider>
     );
   }

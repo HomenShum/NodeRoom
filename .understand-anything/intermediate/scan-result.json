@@ -1,0 +1,151 @@
+{
+  "name": "noderoom",
+  "description": "A live collaborative room where humans and NodeAgents edit shared artifacts through governed locks, drafts, versioned compare-and-swap, and smart merges without silent overwrite.",
+  "languages": [
+    "css",
+    "json",
+    "markdown",
+    "typescript"
+  ],
+  "frameworks": [
+    "React",
+    "Tailwind CSS",
+    "Vite",
+    "Vitest"
+  ],
+  "files": [
+    {
+      "path": "docs/architecture/SMB_LENDING_DEPLOYMENT_ROOM.md",
+      "language": "markdown",
+      "sizeLines": 95,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/architecture/SMB_LENDING_REMAINING_CHECKLIST.md",
+      "language": "markdown",
+      "sizeLines": 68,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/eval/smb-lending/20260721-four-mode/benchmark-receipt.json",
+      "language": "json",
+      "sizeLines": 779,
+      "fileCategory": "config"
+    },
+    {
+      "path": "docs/eval/smb-lending/20260721-four-mode/results.md",
+      "language": "markdown",
+      "sizeLines": 14,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/release/proof/20260721-smb-lending-room/qa-receipt.json",
+      "language": "json",
+      "sizeLines": 119,
+      "fileCategory": "config"
+    },
+    {
+      "path": "e2e/smb-lending-golden-slice.spec.ts",
+      "language": "typescript",
+      "sizeLines": 104,
+      "fileCategory": "code"
+    },
+    {
+      "path": "package.json",
+      "language": "json",
+      "sizeLines": 377,
+      "fileCategory": "config"
+    },
+    {
+      "path": "scripts/smb-lending-four-mode-benchmark.ts",
+      "language": "typescript",
+      "sizeLines": 216,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/roomStore.ts",
+      "language": "typescript",
+      "sizeLines": 1071,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/smbLendingRoomSeed.ts",
+      "language": "typescript",
+      "sizeLines": 216,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/store.tsx",
+      "language": "typescript",
+      "sizeLines": 2582,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/styles.css",
+      "language": "css",
+      "sizeLines": 3335,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "src/features/lending-room/LendingProofBar.tsx",
+      "language": "typescript",
+      "sizeLines": 50,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/ui/App.tsx",
+      "language": "typescript",
+      "sizeLines": 691,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/ui/panels/Artifact.tsx",
+      "language": "typescript",
+      "sizeLines": 4547,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/smbLendingRoomSeed.test.ts",
+      "language": "typescript",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    }
+  ],
+  "totalFiles": 16,
+  "filteredByIgnore": 5181,
+  "estimatedComplexity": "small",
+  "importMap": {
+    "docs/architecture/SMB_LENDING_DEPLOYMENT_ROOM.md": [],
+    "docs/architecture/SMB_LENDING_REMAINING_CHECKLIST.md": [],
+    "docs/eval/smb-lending/20260721-four-mode/benchmark-receipt.json": [],
+    "docs/eval/smb-lending/20260721-four-mode/results.md": [],
+    "docs/release/proof/20260721-smb-lending-room/qa-receipt.json": [],
+    "e2e/smb-lending-golden-slice.spec.ts": [],
+    "package.json": [],
+    "scripts/smb-lending-four-mode-benchmark.ts": [],
+    "src/app/roomStore.ts": [
+      "src/app/smbLendingRoomSeed.ts"
+    ],
+    "src/app/smbLendingRoomSeed.ts": [],
+    "src/app/store.tsx": [
+      "src/app/roomStore.ts"
+    ],
+    "src/app/styles.css": [],
+    "src/features/lending-room/LendingProofBar.tsx": [
+      "src/app/smbLendingRoomSeed.ts",
+      "src/app/store.tsx"
+    ],
+    "src/ui/App.tsx": [
+      "src/app/roomStore.ts",
+      "src/app/store.tsx",
+      "src/features/lending-room/LendingProofBar.tsx"
+    ],
+    "src/ui/panels/Artifact.tsx": [
+      "src/app/store.tsx"
+    ],
+    "tests/smbLendingRoomSeed.test.ts": [
+      "src/app/roomStore.ts",
+      "src/app/smbLendingRoomSeed.ts"
+    ]
+  }
+}

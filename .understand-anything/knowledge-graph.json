@@ -1,0 +1,4517 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "noderoom",
+    "languages": [
+      "css",
+      "json",
+      "markdown",
+      "typescript"
+    ],
+    "frameworks": [
+      "React",
+      "Tailwind CSS",
+      "Vite",
+      "Vitest"
+    ],
+    "description": "A live collaborative room where humans and NodeAgents edit shared artifacts through governed locks, drafts, versioned compare-and-swap, and smart merges without silent overwrite.",
+    "analyzedAt": "2026-07-21T09:39:42.349Z",
+    "gitCommitHash": "6719f2409874b3399ce6eeb20551d6e2893cc7eb"
+  },
+  "nodes": [
+    {
+      "id": "file:src/app/store.tsx",
+      "type": "file",
+      "name": "store.tsx",
+      "filePath": "src/app/store.tsx",
+      "summary": "Defines the RoomStore abstraction and its in-memory and Convex-backed React providers, unifying collaborative artifacts, agent jobs, telemetry, proposals, approvals, uploads, and optimistic edits behind one UI-facing contract.",
+      "tags": [
+        "state-management",
+        "react-context",
+        "convex",
+        "agent-runtime",
+        "collaboration"
+      ],
+      "complexity": "complex",
+      "languageNotes": "TypeScript React code uses typed store contracts and functional components to keep local and Convex-backed behavior aligned."
+    },
+    {
+      "id": "function:src/app/store.tsx:projectAgentRunTelemetry",
+      "type": "function",
+      "name": "projectAgentRunTelemetry",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        67,
+        78
+      ],
+      "summary": "Projects persisted run telemetry into the normalized UI-facing accounting shape.",
+      "tags": [
+        "utility",
+        "state-management",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/store.tsx:selectAgentRunTelemetryForJob",
+      "type": "function",
+      "name": "selectAgentRunTelemetryForJob",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        135,
+        164
+      ],
+      "summary": "Correlates durable job identity with its exact run telemetry while rejecting unrelated room-wide runs.",
+      "tags": [
+        "utility",
+        "state-management",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/store.tsx:mapConvexFreeJob",
+      "type": "function",
+      "name": "mapConvexFreeJob",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        177,
+        210
+      ],
+      "summary": "Maps a Convex free-agent job record into the common job telemetry model.",
+      "tags": [
+        "utility",
+        "state-management",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/store.tsx:projectAgentJobAttemptTelemetry",
+      "type": "function",
+      "name": "projectAgentJobAttemptTelemetry",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        226,
+        240
+      ],
+      "summary": "Projects a persisted job attempt into the normalized attempt telemetry shape.",
+      "tags": [
+        "utility",
+        "state-management",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/store.tsx:durableRouteForModelSelection",
+      "type": "function",
+      "name": "durableRouteForModelSelection",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        328,
+        346
+      ],
+      "summary": "Resolves a model selection into the durable runtime route used for agent execution.",
+      "tags": [
+        "utility",
+        "state-management",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/store.tsx:browserNodeAgentRuntimeProfile",
+      "type": "function",
+      "name": "browserNodeAgentRuntimeProfile",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        348,
+        361
+      ],
+      "summary": "Derives the browser-safe NodeAgent runtime profile for local execution.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "state-management"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/store.tsx:useStore",
+      "type": "function",
+      "name": "useStore",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        499,
+        503
+      ],
+      "summary": "Returns the active RoomStore context and fails fast when no provider is mounted.",
+      "tags": [
+        "utility",
+        "state-management",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/store.tsx:researchTargetFor",
+      "type": "function",
+      "name": "researchTargetFor",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        520,
+        534
+      ],
+      "summary": "Implements research target for behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "state-management",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/store.tsx:canonicalRefs",
+      "type": "function",
+      "name": "canonicalRefs",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        550,
+        561
+      ],
+      "summary": "Implements canonical refs behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "state-management",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/store.tsx:classifyDemoIntent",
+      "type": "function",
+      "name": "classifyDemoIntent",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        574,
+        585
+      ],
+      "summary": "Implements classify demo intent behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "state-management",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/store.tsx:makeUndoEntry",
+      "type": "function",
+      "name": "makeUndoEntry",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        609,
+        619
+      ],
+      "summary": "Builds undo entry data for the surrounding workflow.",
+      "tags": [
+        "utility",
+        "state-management",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/store.tsx:withStoredSourceMeta",
+      "type": "function",
+      "name": "withStoredSourceMeta",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        643,
+        656
+      ],
+      "summary": "Implements with stored source meta behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "state-management",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/store.tsx:memoryFreeJobDetail",
+      "type": "function",
+      "name": "memoryFreeJobDetail",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        684,
+        738
+      ],
+      "summary": "Builds the in-memory durable-job detail view used by the local demo provider.",
+      "tags": [
+        "utility",
+        "state-management",
+        "workflow"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/store.tsx:EngineStoreProvider",
+      "type": "function",
+      "name": "EngineStoreProvider",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        746,
+        1437
+      ],
+      "summary": "Adapts the in-memory RoomEngine and NodeAgent harness into the full RoomStore contract, including proposals, agent runs, artifacts, and local persistence.",
+      "tags": [
+        "component",
+        "react",
+        "state-management"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/store.tsx:ArtifactElementsSubscriber",
+      "type": "function",
+      "name": "ArtifactElementsSubscriber",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        1502,
+        1511
+      ],
+      "summary": "Renders the artifact elements subscriber interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "state-management"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/store.tsx:ArtifactPresenceSubscriber",
+      "type": "function",
+      "name": "ArtifactPresenceSubscriber",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        1513,
+        1522
+      ],
+      "summary": "Renders the artifact presence subscriber interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "collaboration",
+        "state-management"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/store.tsx:normalizeResearchDomainClient",
+      "type": "function",
+      "name": "normalizeResearchDomainClient",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        1542,
+        1552
+      ],
+      "summary": "Normalizes research domain client data into the canonical client representation.",
+      "tags": [
+        "utility",
+        "state-management",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/store.tsx:findExistingResearchRowClient",
+      "type": "function",
+      "name": "findExistingResearchRowClient",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        1561,
+        1570
+      ],
+      "summary": "Implements find existing research row client behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "state-management"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/store.tsx:ConvexStoreProvider",
+      "type": "function",
+      "name": "ConvexStoreProvider",
+      "filePath": "src/app/store.tsx",
+      "lineRange": [
+        1576,
+        2582
+      ],
+      "summary": "Binds reactive Convex queries, mutations, actions, durable jobs, and optimistic UI behavior to the shared RoomStore contract.",
+      "tags": [
+        "component",
+        "react",
+        "state-management"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/features/lending-room/LendingProofBar.tsx",
+      "type": "file",
+      "name": "LendingProofBar.tsx",
+      "filePath": "src/features/lending-room/LendingProofBar.tsx",
+      "summary": "Renders the SMB lending workflow proof bar, exposing evidence status and a byte-backed export-and-reopen action for the verified human-review packet.",
+      "tags": [
+        "component",
+        "smb-lending",
+        "proof-receipt",
+        "artifact-export",
+        "validation"
+      ],
+      "complexity": "simple",
+      "languageNotes": "TypeScript React code uses typed store contracts and functional components to keep local and Convex-backed behavior aligned."
+    },
+    {
+      "id": "function:src/features/lending-room/LendingProofBar.tsx:LendingProofBar",
+      "type": "function",
+      "name": "LendingProofBar",
+      "filePath": "src/features/lending-room/LendingProofBar.tsx",
+      "lineRange": [
+        8,
+        50
+      ],
+      "summary": "Shows the current SMB evidence state and exports a verified, reopen-checked lending packet bundle.",
+      "tags": [
+        "component",
+        "react",
+        "provenance"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/App.tsx",
+      "type": "file",
+      "name": "App.tsx",
+      "filePath": "src/ui/App.tsx",
+      "summary": "Routes NodeRoom's hash- and query-driven experiences, selecting local or Convex store providers and mounting special product surfaces including the SMB lending deployment room.",
+      "tags": [
+        "entry-point",
+        "routing",
+        "component",
+        "authentication",
+        "room-bootstrap"
+      ],
+      "complexity": "complex",
+      "languageNotes": "TypeScript React code uses typed store contracts and functional components to keep local and Convex-backed behavior aligned."
+    },
+    {
+      "id": "function:src/ui/App.tsx:App",
+      "type": "function",
+      "name": "App",
+      "filePath": "src/ui/App.tsx",
+      "lineRange": [
+        57,
+        169
+      ],
+      "summary": "Chooses the active NodeRoom product surface from the URL and mounts the appropriate local or Convex-backed room provider.",
+      "tags": [
+        "component",
+        "react",
+        "routing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/ui/App.tsx:normalizeMobileLandingUrl",
+      "type": "function",
+      "name": "normalizeMobileLandingUrl",
+      "filePath": "src/ui/App.tsx",
+      "lineRange": [
+        180,
+        223
+      ],
+      "summary": "Normalizes legacy mobile landing URLs into the current routable hash/query representation.",
+      "tags": [
+        "utility",
+        "routing",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/App.tsx:ConvexRoomApp",
+      "type": "function",
+      "name": "ConvexRoomApp",
+      "filePath": "src/ui/App.tsx",
+      "lineRange": [
+        277,
+        446
+      ],
+      "summary": "Coordinates authenticated live-room creation, joining, session restoration, and Convex-backed room rendering.",
+      "tags": [
+        "component",
+        "react",
+        "routing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/ui/App.tsx:LiveRoomBootShell",
+      "type": "function",
+      "name": "LiveRoomBootShell",
+      "filePath": "src/ui/App.tsx",
+      "lineRange": [
+        448,
+        494
+      ],
+      "summary": "Displays the loading and recovery shell while a live room request is being resolved.",
+      "tags": [
+        "component",
+        "react",
+        "routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/App.tsx:initialLiveRequest",
+      "type": "function",
+      "name": "initialLiveRequest",
+      "filePath": "src/ui/App.tsx",
+      "lineRange": [
+        514,
+        541
+      ],
+      "summary": "Parses the initial browser URL into a typed live-room join, create, demo, or idle request.",
+      "tags": [
+        "utility",
+        "routing",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/App.tsx:initialLandingIntent",
+      "type": "function",
+      "name": "initialLandingIntent",
+      "filePath": "src/ui/App.tsx",
+      "lineRange": [
+        543,
+        554
+      ],
+      "summary": "Derives the first landing-page intent from current URL state.",
+      "tags": [
+        "utility",
+        "routing",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/App.tsx:writeLiveUrl",
+      "type": "function",
+      "name": "writeLiveUrl",
+      "filePath": "src/ui/App.tsx",
+      "lineRange": [
+        561,
+        578
+      ],
+      "summary": "Writes a canonical live-room URL while preserving the requested navigation semantics.",
+      "tags": [
+        "utility",
+        "routing",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/App.tsx:loadLiveSession",
+      "type": "function",
+      "name": "loadLiveSession",
+      "filePath": "src/ui/App.tsx",
+      "lineRange": [
+        633,
+        657
+      ],
+      "summary": "Restores and validates a persisted live-room session from browser storage.",
+      "tags": [
+        "utility",
+        "routing",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/panels/Artifact.tsx",
+      "type": "file",
+      "name": "Artifact.tsx",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "summary": "Implements NodeRoom's primary artifact workspace across sheets, research tables, notebooks, files, walls, traces, evidence receipts, exports, proposals, and collaborative presence.",
+      "tags": [
+        "component",
+        "artifact-workspace",
+        "spreadsheet",
+        "collaboration",
+        "proof-ui"
+      ],
+      "complexity": "complex",
+      "languageNotes": "TypeScript React code uses typed store contracts and functional components to keep local and Convex-backed behavior aligned."
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:computeRowWindow",
+      "type": "function",
+      "name": "computeRowWindow",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        96,
+        118
+      ],
+      "summary": "Computes a deterministic overscanned sheet row window and spacer heights for constant-cost virtualization.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:ArtifactSurface",
+      "type": "function",
+      "name": "ArtifactSurface",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        133,
+        474
+      ],
+      "summary": "Coordinates artifact tabs, home and trace overlays, work-artifact review, and the selected artifact renderer.",
+      "tags": [
+        "component",
+        "react",
+        "workflow"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:RoomHomeSurface",
+      "type": "function",
+      "name": "RoomHomeSurface",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        498,
+        532
+      ],
+      "summary": "Renders the embedded room-home command center and connects it to artifact navigation.",
+      "tags": [
+        "component",
+        "react",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:Artifact",
+      "type": "function",
+      "name": "Artifact",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        534,
+        675
+      ],
+      "summary": "Provides the top-level artifact workspace with primary and optional secondary split surfaces.",
+      "tags": [
+        "component",
+        "react",
+        "workflow"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:Wiki",
+      "type": "function",
+      "name": "Wiki",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        678,
+        785
+      ],
+      "summary": "Renders the wiki interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "workflow"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:Research",
+      "type": "function",
+      "name": "Research",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        827,
+        1019
+      ],
+      "summary": "Renders the structured company-research workflow with row selection, evidence, enrichment, and export controls.",
+      "tags": [
+        "component",
+        "react",
+        "workflow"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:downloadResearchCsv",
+      "type": "function",
+      "name": "downloadResearchCsv",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1043,
+        1053
+      ],
+      "summary": "Implements download research csv behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:ResearchLegacy",
+      "type": "function",
+      "name": "ResearchLegacy",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1055,
+        1089
+      ],
+      "summary": "Renders the research legacy interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:touchPresence",
+      "type": "function",
+      "name": "touchPresence",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1125,
+        1137
+      ],
+      "summary": "Implements touch presence behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "collaboration",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:presenceLadderModel",
+      "type": "function",
+      "name": "presenceLadderModel",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1166,
+        1169
+      ],
+      "summary": "Derives the bounded presence ladder model for collaborators focused on a cell.",
+      "tags": [
+        "utility",
+        "collaboration",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:PresenceLadder",
+      "type": "function",
+      "name": "PresenceLadder",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1171,
+        1198
+      ],
+      "summary": "Renders the collaborator presence ladder for an artifact element.",
+      "tags": [
+        "component",
+        "react",
+        "collaboration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:EditableCell",
+      "type": "function",
+      "name": "EditableCell",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1206,
+        1224
+      ],
+      "summary": "Renders the editable cell interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "spreadsheet"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:rowIdsOf",
+      "type": "function",
+      "name": "rowIdsOf",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1236,
+        1255
+      ],
+      "summary": "Implements row ids of behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:sheetElementId",
+      "type": "function",
+      "name": "sheetElementId",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1267,
+        1281
+      ],
+      "summary": "Implements sheet element id behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:parseSheetElementId",
+      "type": "function",
+      "name": "parseSheetElementId",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1283,
+        1297
+      ],
+      "summary": "Parses sheet element id identifiers into validated structured data.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:scaleColumnWidth",
+      "type": "function",
+      "name": "scaleColumnWidth",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1305,
+        1315
+      ],
+      "summary": "Implements scale column width behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:sheetColumnWidth",
+      "type": "function",
+      "name": "sheetColumnWidth",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1317,
+        1330
+      ],
+      "summary": "Implements sheet column width behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:dataframeCellAddress",
+      "type": "function",
+      "name": "dataframeCellAddress",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1332,
+        1342
+      ],
+      "summary": "Implements dataframe cell address behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:expandSheetMerges",
+      "type": "function",
+      "name": "expandSheetMerges",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1364,
+        1386
+      ],
+      "summary": "Implements expand sheet merges behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:evidencePopoverModel",
+      "type": "function",
+      "name": "evidencePopoverModel",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1503,
+        1524
+      ],
+      "summary": "Normalizes cell evidence payloads into a bounded popover view model.",
+      "tags": [
+        "utility",
+        "provenance",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:evidenceCheckedLabel",
+      "type": "function",
+      "name": "evidenceCheckedLabel",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1526,
+        1533
+      ],
+      "summary": "Implements evidence checked label behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "provenance",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:evidencePopoverPlacement",
+      "type": "function",
+      "name": "evidencePopoverPlacement",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1536,
+        1548
+      ],
+      "summary": "Implements evidence popover placement behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "provenance",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:EvidenceReceipt",
+      "type": "function",
+      "name": "EvidenceReceipt",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1550,
+        1582
+      ],
+      "summary": "Renders compact or expanded cell evidence provenance with verification timestamps.",
+      "tags": [
+        "component",
+        "react",
+        "provenance"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:cellHistoryEnabled",
+      "type": "function",
+      "name": "cellHistoryEnabled",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1621,
+        1623
+      ],
+      "summary": "Implements cell history enabled behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:historyValuePreview",
+      "type": "function",
+      "name": "historyValuePreview",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1626,
+        1630
+      ],
+      "summary": "Implements history value preview behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:historyTimeAgo",
+      "type": "function",
+      "name": "historyTimeAgo",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1633,
+        1642
+      ],
+      "summary": "Implements history time ago behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:wordDiffSegments",
+      "type": "function",
+      "name": "wordDiffSegments",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1651,
+        1672
+      ],
+      "summary": "Computes word-level segments for compact old-versus-new cell value diffs.",
+      "tags": [
+        "utility",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:CellDiff",
+      "type": "function",
+      "name": "CellDiff",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1675,
+        1687
+      ],
+      "summary": "Renders the cell diff interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "spreadsheet"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:CellHistory",
+      "type": "function",
+      "name": "CellHistory",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1697,
+        1743
+      ],
+      "summary": "Loads and displays bounded cell history with diffs, feedback, and restore context.",
+      "tags": [
+        "component",
+        "react",
+        "spreadsheet"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:CellHistoryPopover",
+      "type": "function",
+      "name": "CellHistoryPopover",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1745,
+        1813
+      ],
+      "summary": "Positions and controls the interactive cell-history popover.",
+      "tags": [
+        "component",
+        "react",
+        "spreadsheet"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:staleLabelFor",
+      "type": "function",
+      "name": "staleLabelFor",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1819,
+        1824
+      ],
+      "summary": "Implements stale label for behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "provenance",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:cellStaleness",
+      "type": "function",
+      "name": "cellStaleness",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1833,
+        1849
+      ],
+      "summary": "Classifies evidence freshness from source checks and artifact update timestamps.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "provenance"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:StaleChip",
+      "type": "function",
+      "name": "StaleChip",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1852,
+        1860
+      ],
+      "summary": "Renders the stale chip interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "provenance"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:renderGenericCellContent",
+      "type": "function",
+      "name": "renderGenericCellContent",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1862,
+        1895
+      ],
+      "summary": "Renders generic cell content content for the artifact workspace.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:GenericResearchWorkflow",
+      "type": "function",
+      "name": "GenericResearchWorkflow",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        1897,
+        2020
+      ],
+      "summary": "Renders the action controls and status model for a generic research sheet.",
+      "tags": [
+        "component",
+        "react",
+        "workflow"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:GenericSheet",
+      "type": "function",
+      "name": "GenericSheet",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        2022,
+        2456
+      ],
+      "summary": "Implements the virtualized collaborative spreadsheet surface with editing, evidence, history, proposals, filters, and exports.",
+      "tags": [
+        "component",
+        "react",
+        "spreadsheet"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:filterGenericSheetRows",
+      "type": "function",
+      "name": "filterGenericSheetRows",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        2458,
+        2472
+      ],
+      "summary": "Filters generic sheet rows data according to the active workspace criteria.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:columnsOf",
+      "type": "function",
+      "name": "columnsOf",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        2474,
+        2483
+      ],
+      "summary": "Implements columns of behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:spreadsheetCellFontColorCss",
+      "type": "function",
+      "name": "spreadsheetCellFontColorCss",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        2490,
+        2494
+      ],
+      "summary": "Implements spreadsheet cell font color css behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:unwrapDisplayCellValue",
+      "type": "function",
+      "name": "unwrapDisplayCellValue",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        2496,
+        2505
+      ],
+      "summary": "Implements unwrap display cell value behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:displayCellValue",
+      "type": "function",
+      "name": "displayCellValue",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        2507,
+        2513
+      ],
+      "summary": "Implements display cell value behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:exportScalarCellValue",
+      "type": "function",
+      "name": "exportScalarCellValue",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        2523,
+        2538
+      ],
+      "summary": "Serializes scalar cell value data into a downloadable artifact representation.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "artifact-export"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:exportCellValue",
+      "type": "function",
+      "name": "exportCellValue",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        2541,
+        2551
+      ],
+      "summary": "Serializes cell value data into a downloadable artifact representation.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "artifact-export"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:applyExportCell",
+      "type": "function",
+      "name": "applyExportCell",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        2554,
+        2592
+      ],
+      "summary": "Writes a normalized artifact cell into an ExcelJS cell, including formulas, styles, and number formats.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "artifact-export"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:exportSheetAsXlsx",
+      "type": "function",
+      "name": "exportSheetAsXlsx",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        2626,
+        2711
+      ],
+      "summary": "Builds and downloads an XLSX workbook from the active artifact set while preserving supported values and styles.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "artifact-export"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:workbookExportSheets",
+      "type": "function",
+      "name": "workbookExportSheets",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        2713,
+        2726
+      ],
+      "summary": "Implements workbook export sheets behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "artifact-export"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:worksheetNameForExport",
+      "type": "function",
+      "name": "worksheetNameForExport",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        2735,
+        2746
+      ],
+      "summary": "Implements worksheet name for export behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "artifact-export"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:appendSheetArtifactWorksheet",
+      "type": "function",
+      "name": "appendSheetArtifactWorksheet",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        2748,
+        2793
+      ],
+      "summary": "Implements append sheet artifact worksheet behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:visibleGenericSheetCellValues",
+      "type": "function",
+      "name": "visibleGenericSheetCellValues",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        2795,
+        2805
+      ],
+      "summary": "Implements visible generic sheet cell values behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "spreadsheet",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:Sheet",
+      "type": "function",
+      "name": "Sheet",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        2811,
+        2920
+      ],
+      "summary": "Renders the sheet interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "spreadsheet"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:InlineProposal",
+      "type": "function",
+      "name": "InlineProposal",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        2934,
+        2960
+      ],
+      "summary": "Renders an inline proposal review card and forwards its resolution through the room store.",
+      "tags": [
+        "component",
+        "react",
+        "proposal-review"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:notebookCitationModel",
+      "type": "function",
+      "name": "notebookCitationModel",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        2996,
+        3013
+      ],
+      "summary": "Extracts and caps notebook citation markers into a stable footnote model.",
+      "tags": [
+        "utility",
+        "notebook",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:combinedNotebookFootnotes",
+      "type": "function",
+      "name": "combinedNotebookFootnotes",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3018,
+        3022
+      ],
+      "summary": "Implements combined notebook footnotes behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "notebook",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:notebookPaperMeta",
+      "type": "function",
+      "name": "notebookPaperMeta",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3026,
+        3040
+      ],
+      "summary": "Implements notebook paper meta behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "notebook",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:blockTextsFromDom",
+      "type": "function",
+      "name": "blockTextsFromDom",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3042,
+        3049
+      ],
+      "summary": "Implements block texts from dom behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:blockTextsFromHtml",
+      "type": "function",
+      "name": "blockTextsFromHtml",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3051,
+        3054
+      ],
+      "summary": "Implements block texts from html behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:diffWetBlockIds",
+      "type": "function",
+      "name": "diffWetBlockIds",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3058,
+        3068
+      ],
+      "summary": "Implements diff wet block ids behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:applyWetInk",
+      "type": "function",
+      "name": "applyWetInk",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3081,
+        3091
+      ],
+      "summary": "Applies wet ink behavior to the active artifact or rendered document.",
+      "tags": [
+        "utility",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:paperDecorations",
+      "type": "function",
+      "name": "paperDecorations",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3105,
+        3154
+      ],
+      "summary": "Implements paper decorations behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "notebook",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:createNotebookPaperInk",
+      "type": "function",
+      "name": "createNotebookPaperInk",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3160,
+        3172
+      ],
+      "summary": "Creates deterministic decorative ink marks for the notebook paper presentation.",
+      "tags": [
+        "utility",
+        "notebook",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:NotebookPaperFrame",
+      "type": "function",
+      "name": "NotebookPaperFrame",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3181,
+        3210
+      ],
+      "summary": "Renders the notebook paper frame interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "notebook"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:NotebookFootnotes",
+      "type": "function",
+      "name": "NotebookFootnotes",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3213,
+        3226
+      ],
+      "summary": "Renders the notebook footnotes interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "notebook"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:SyncedNote",
+      "type": "function",
+      "name": "SyncedNote",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3242,
+        3350
+      ],
+      "summary": "Hosts the collaborative TipTap notebook surface, proof metadata, patch review, and synchronized document state.",
+      "tags": [
+        "component",
+        "react",
+        "notebook"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:SyncedEditorInner",
+      "type": "function",
+      "name": "SyncedEditorInner",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3355,
+        3403
+      ],
+      "summary": "Renders the synced editor inner interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:NotebookEditorControls",
+      "type": "function",
+      "name": "NotebookEditorControls",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3414,
+        3438
+      ],
+      "summary": "Renders the notebook editor controls interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "notebook"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:NotebookPresenceLayer",
+      "type": "function",
+      "name": "NotebookPresenceLayer",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3445,
+        3486
+      ],
+      "summary": "Renders the notebook presence layer interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "notebook",
+        "collaboration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:NotebookInlinePatchLayer",
+      "type": "function",
+      "name": "NotebookInlinePatchLayer",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3497,
+        3574
+      ],
+      "summary": "Projects pending notebook patch proposals onto the editor as reviewable inline decorations.",
+      "tags": [
+        "component",
+        "react",
+        "proposal-review",
+        "notebook"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:textList",
+      "type": "function",
+      "name": "textList",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3598,
+        3610
+      ],
+      "summary": "Implements text list behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:NotebookReadModelPanel",
+      "type": "function",
+      "name": "NotebookReadModelPanel",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3612,
+        3712
+      ],
+      "summary": "Renders notebook blocks and agent plans with plan creation and approval controls.",
+      "tags": [
+        "component",
+        "react",
+        "notebook"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:AgentNotesBlock",
+      "type": "function",
+      "name": "AgentNotesBlock",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3725,
+        3739
+      ],
+      "summary": "Renders the agent notes block interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "notebook"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:SanitizedHtml",
+      "type": "function",
+      "name": "SanitizedHtml",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3745,
+        3771
+      ],
+      "summary": "Renders the sanitized html interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:Note",
+      "type": "function",
+      "name": "Note",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3773,
+        3828
+      ],
+      "summary": "Selects the synchronized or fallback notebook renderer for a note artifact.",
+      "tags": [
+        "component",
+        "react",
+        "notebook"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:FileViewer",
+      "type": "function",
+      "name": "FileViewer",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3844,
+        3928
+      ],
+      "summary": "Renders uploaded files with specialized PDF, office, workbook, and generated-deliverable previews.",
+      "tags": [
+        "component",
+        "react",
+        "workflow"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:PdfFilePreview",
+      "type": "function",
+      "name": "PdfFilePreview",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3938,
+        3961
+      ],
+      "summary": "Renders the pdf file preview interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:useDataUrlObjectUrl",
+      "type": "function",
+      "name": "useDataUrlObjectUrl",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        3963,
+        3983
+      ],
+      "summary": "Provides the use data url object url React hook used by the artifact workspace.",
+      "tags": [
+        "utility",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:OfficeFilePreview",
+      "type": "function",
+      "name": "OfficeFilePreview",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4008,
+        4033
+      ],
+      "summary": "Renders the office file preview interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:generatedBtbDeliverableLabel",
+      "type": "function",
+      "name": "generatedBtbDeliverableLabel",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4051,
+        4061
+      ],
+      "summary": "Implements generated btb deliverable label behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:compactFileTitle",
+      "type": "function",
+      "name": "compactFileTitle",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4063,
+        4073
+      ],
+      "summary": "Implements compact file title behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:readableFileType",
+      "type": "function",
+      "name": "readableFileType",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4075,
+        4087
+      ],
+      "summary": "Reads and validates readable file type state for the active workspace.",
+      "tags": [
+        "utility",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:inventoryItem",
+      "type": "function",
+      "name": "inventoryItem",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4102,
+        4118
+      ],
+      "summary": "Implements inventory item behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:inventoryGroups",
+      "type": "function",
+      "name": "inventoryGroups",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4120,
+        4136
+      ],
+      "summary": "Groups room artifacts into inventory sections for the home and wall views.",
+      "tags": [
+        "utility",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:Wall",
+      "type": "function",
+      "name": "Wall",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4138,
+        4225
+      ],
+      "summary": "Renders the collaborative wall and manages movable sticky-note artifacts.",
+      "tags": [
+        "component",
+        "react",
+        "workflow"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:Sticky",
+      "type": "function",
+      "name": "Sticky",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4229,
+        4240
+      ],
+      "summary": "Renders the sticky interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:traceKindOf",
+      "type": "function",
+      "name": "traceKindOf",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4248,
+        4257
+      ],
+      "summary": "Implements trace kind of behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "observability",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:traceFilterModel",
+      "type": "function",
+      "name": "traceFilterModel",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4263,
+        4269
+      ],
+      "summary": "Builds available trace-kind and participant filters from a trace log.",
+      "tags": [
+        "utility",
+        "observability",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:filterTraces",
+      "type": "function",
+      "name": "filterTraces",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4271,
+        4274
+      ],
+      "summary": "Filters room traces by selected kind and participant.",
+      "tags": [
+        "utility",
+        "observability",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:groupTraceBursts",
+      "type": "function",
+      "name": "groupTraceBursts",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4279,
+        4294
+      ],
+      "summary": "Coalesces nearby trace rows into visual execution bursts.",
+      "tags": [
+        "utility",
+        "observability",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:TraceStrip",
+      "type": "function",
+      "name": "TraceStrip",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4296,
+        4425
+      ],
+      "summary": "Renders filterable, grouped room execution traces and links them to graph exploration.",
+      "tags": [
+        "component",
+        "react",
+        "observability"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:ProposalRow",
+      "type": "function",
+      "name": "ProposalRow",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4429,
+        4466
+      ],
+      "summary": "Renders a proposal decision row with governed reason text and resolution controls.",
+      "tags": [
+        "component",
+        "react",
+        "spreadsheet",
+        "proposal-review"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:compactTraceSummary",
+      "type": "function",
+      "name": "compactTraceSummary",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4477,
+        4487
+      ],
+      "summary": "Implements compact trace summary behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "observability",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:TraceRow",
+      "type": "function",
+      "name": "TraceRow",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4489,
+        4510
+      ],
+      "summary": "Renders the trace row interface and coordinates its local state, store interactions, and user actions.",
+      "tags": [
+        "component",
+        "react",
+        "spreadsheet",
+        "observability"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:toolFor",
+      "type": "function",
+      "name": "toolFor",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4512,
+        4525
+      ],
+      "summary": "Implements tool for behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/panels/Artifact.tsx:traceIcon",
+      "type": "function",
+      "name": "traceIcon",
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "lineRange": [
+        4532,
+        4547
+      ],
+      "summary": "Implements trace icon behavior used by the NodeRoom artifact and collaboration workflow.",
+      "tags": [
+        "utility",
+        "observability",
+        "workflow"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/roomStore.ts",
+      "type": "file",
+      "name": "roomStore.ts",
+      "filePath": "src/app/roomStore.ts",
+      "summary": "Exposes the singleton in-memory RoomEngine to React and constructs several deterministic demonstration rooms, including the governed SMB lending workflow. It coordinates artifact creation, proposal review, CAS-protected transitions, traces, and local browser-state recovery for the lending golden slice.",
+      "tags": [
+        "service",
+        "state-management",
+        "demo-fixtures",
+        "proposal-workflow",
+        "react-store",
+        "tested"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses React's useSyncExternalStore over a mutable engine while keeping the production Convex migration boundary explicit."
+    },
+    {
+      "id": "file:src/app/smbLendingRoomSeed.ts",
+      "type": "file",
+      "name": "smbLendingRoomSeed.ts",
+      "filePath": "src/app/smbLendingRoomSeed.ts",
+      "summary": "Derives the complete synthetic SMB lending room state from a restaurant working-capital fixture, including blockers, critical path, financial metrics, governed proposals, human-review packets, proof receipts, and exportable verified bundles. It also shapes the source-backed tables and explanatory notes rendered by NodeRoom.",
+      "tags": [
+        "data-model",
+        "fixture",
+        "smb-lending",
+        "proof-receipt",
+        "serialization",
+        "tested"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:tests/smbLendingRoomSeed.test.ts",
+      "type": "file",
+      "name": "smbLendingRoomSeed.test.ts",
+      "filePath": "tests/smbLendingRoomSeed.test.ts",
+      "summary": "Integration test for the native NodeRoom SMB lending seed, exercising room construction, document-request approval, evidence verification, CAS application, immutable lineage, packet regeneration, and the no-credit-decision boundary.",
+      "tags": [
+        "test",
+        "integration-test",
+        "smb-lending",
+        "proposal-workflow",
+        "proof-verification"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:useEngineRev",
+      "type": "function",
+      "name": "useEngineRev",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        65,
+        71
+      ],
+      "summary": "Provides a React subscription hook that returns the engine revision and rerenders consumers when the singleton RoomEngine emits changes.",
+      "tags": [
+        "hook",
+        "react-store",
+        "subscription"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:createFreshRoom",
+      "type": "function",
+      "name": "createFreshRoom",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        73,
+        83
+      ],
+      "summary": "Creates a bare collaborative room and seeds a starter variance sheet so StoryLab grid and lease drills have a valid artifact target.",
+      "tags": [
+        "factory",
+        "room-lifecycle",
+        "fixture"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:enterDemoRoomAsHost",
+      "type": "function",
+      "name": "enterDemoRoomAsHost",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        85,
+        87
+      ],
+      "summary": "Returns host credentials for the prebuilt default collaboration demonstration room.",
+      "tags": [
+        "entry-point",
+        "demo-fixtures",
+        "room-lifecycle"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:enterScaleDemoRoomAsHost",
+      "type": "function",
+      "name": "enterScaleDemoRoomAsHost",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        95,
+        161
+      ],
+      "summary": "Builds and enters a large-scale research room with many members, artifacts, locks, sessions, edits, messages, and traces for performance and collaboration testing.",
+      "tags": [
+        "factory",
+        "scale-test",
+        "demo-fixtures",
+        "collaboration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:scaleResearchMeta",
+      "type": "function",
+      "name": "scaleResearchMeta",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        227,
+        251
+      ],
+      "summary": "Constructs dataframe metadata for the scale research artifact, including ordered column definitions and evidence or read-only classifications.",
+      "tags": [
+        "factory",
+        "data-model",
+        "scale-test"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:scaleCompleteOrdinal",
+      "type": "function",
+      "name": "scaleCompleteOrdinal",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        281,
+        290
+      ],
+      "summary": "Caches and returns the completion ordinal for a scale-demo row after determining whether that row is complete.",
+      "tags": [
+        "utility",
+        "memoization",
+        "scale-test"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:scaleResearchRow",
+      "type": "function",
+      "name": "scaleResearchRow",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        292,
+        327
+      ],
+      "summary": "Generates a deterministic research row with company identifiers, completion state, evidence references, and populated cell payloads for the scale fixture.",
+      "tags": [
+        "factory",
+        "data-model",
+        "evidence",
+        "scale-test"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:scaleEvidence",
+      "type": "function",
+      "name": "scaleEvidence",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        333,
+        343
+      ],
+      "summary": "Creates deterministic evidence metadata for a company row and source label in the scale demonstration.",
+      "tags": [
+        "factory",
+        "evidence",
+        "scale-test"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:createScaleCompanionArtifacts",
+      "type": "function",
+      "name": "createScaleCompanionArtifacts",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        376,
+        403
+      ],
+      "summary": "Creates the note, canvas, and other companion artifacts needed to bring the large scale room to its target artifact count.",
+      "tags": [
+        "factory",
+        "artifact-management",
+        "scale-test"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:createScaleNotes",
+      "type": "function",
+      "name": "createScaleNotes",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        405,
+        416
+      ],
+      "summary": "Creates a requested number of deterministic note artifacts with predictable identifiers, content, and tags.",
+      "tags": [
+        "factory",
+        "artifact-management",
+        "fixture"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:seedScaleMessages",
+      "type": "function",
+      "name": "seedScaleMessages",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        418,
+        454
+      ],
+      "summary": "Populates the scale room with deterministic human and agent messages attributed to selected room members.",
+      "tags": [
+        "factory",
+        "messaging",
+        "scale-test",
+        "collaboration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:enterBankerToolBenchRoomAsHost",
+      "type": "function",
+      "name": "enterBankerToolBenchRoomAsHost",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        458,
+        623
+      ],
+      "summary": "Builds the BankerToolBench demonstration room with benchmark matrices, artifacts, boundary notes, agent session state, messages, and execution traces.",
+      "tags": [
+        "factory",
+        "benchmark",
+        "banking",
+        "trace"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:setSmbLendingNote",
+      "type": "function",
+      "name": "setSmbLendingNote",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        659,
+        668
+      ],
+      "summary": "Applies a version-pinned edit to a lending note artifact and fails closed when the target or CAS mutation is unavailable.",
+      "tags": [
+        "utility",
+        "artifact-management",
+        "optimistic-concurrency",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:handleSmbLendingLocalProposalResolution",
+      "type": "function",
+      "name": "handleSmbLendingLocalProposalResolution",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        671,
+        747
+      ],
+      "summary": "Advances the local SMB lending golden slice after generic proposal CAS succeeds: document-request approval creates a separate evidence proposal, while evidence approval writes lineage and regenerates the review packet and proof receipt. It records session, message, trace, and browser-state changes without making a credit decision.",
+      "tags": [
+        "event-handler",
+        "proposal-workflow",
+        "optimistic-concurrency",
+        "proof-receipt",
+        "smb-lending"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:enterSmbLendingDeploymentRoomAsHost",
+      "type": "function",
+      "name": "enterSmbLendingDeploymentRoomAsHost",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        750,
+        901
+      ],
+      "summary": "Constructs the governed SMB lending deployment room from the current persisted phase, seeding application, evidence, graph, workbook, proposal, packet, and receipt artifacts plus a bounded agent session. It restores only the local synthetic demonstration state and keeps NodeRoom authoritative over the optional graph projection.",
+      "tags": [
+        "factory",
+        "smb-lending",
+        "proposal-workflow",
+        "artifact-management",
+        "proof-receipt"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:enterHackwithBayRoomAsHost",
+      "type": "function",
+      "name": "enterHackwithBayRoomAsHost",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        906,
+        994
+      ],
+      "summary": "Builds the HackwithBay hackathon room with focused graph-agent artifacts, checklist data, briefing notes, messages, and trace evidence.",
+      "tags": [
+        "factory",
+        "hackathon",
+        "graph-agent",
+        "demo-fixtures"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:joinRoomByCode",
+      "type": "function",
+      "name": "joinRoomByCode",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        996,
+        1000
+      ],
+      "summary": "Normalizes a room code and participant name before delegating room membership creation to the engine.",
+      "tags": [
+        "entry-point",
+        "room-lifecycle",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:enterUpScaleXRoomAsHost",
+      "type": "function",
+      "name": "enterUpScaleXRoomAsHost",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        1035,
+        1066
+      ],
+      "summary": "Creates and enters an UpScaleX portfolio demonstration room with seeded notes and portfolio data artifacts.",
+      "tags": [
+        "factory",
+        "portfolio",
+        "demo-fixtures"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/roomStore.ts:runDemo",
+      "type": "function",
+      "name": "runDemo",
+      "filePath": "src/app/roomStore.ts",
+      "lineRange": [
+        1068,
+        1071
+      ],
+      "summary": "Runs the collaboration demo with animation behavior selected from the user's reduced-motion preference.",
+      "tags": [
+        "entry-point",
+        "demo-fixtures",
+        "accessibility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/smbLendingRoomSeed.ts:smbLendingDocumentRows",
+      "type": "function",
+      "name": "smbLendingDocumentRows",
+      "filePath": "src/app/smbLendingRoomSeed.ts",
+      "lineRange": [
+        101,
+        110
+      ],
+      "summary": "Projects any lending application snapshot into evidence-checklist rows with document state and joined source identifiers, hashes, and locators.",
+      "tags": [
+        "serialization",
+        "data-model",
+        "source-lineage",
+        "smb-lending"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:docs/architecture/SMB_LENDING_DEPLOYMENT_ROOM.md",
+      "type": "document",
+      "name": "SMB_LENDING_DEPLOYMENT_ROOM.md",
+      "filePath": "docs/architecture/SMB_LENDING_DEPLOYMENT_ROOM.md",
+      "summary": "Architecture decision record for embedding the Casca-inspired SMB lending deployment proof inside NodeRoom. It defines subsystem ownership, the governed evidence lifecycle, the two-fixture benchmark, and the boundary between local browser proof and authenticated production certification.",
+      "tags": [
+        "documentation",
+        "architecture",
+        "smb-lending",
+        "governance",
+        "proof"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:docs/architecture/SMB_LENDING_REMAINING_CHECKLIST.md",
+      "type": "document",
+      "name": "SMB_LENDING_REMAINING_CHECKLIST.md",
+      "filePath": "docs/architecture/SMB_LENDING_REMAINING_CHECKLIST.md",
+      "summary": "Execution ledger separating locally proven SMB lending capabilities from unfinished production, Neo4j, and Casca-facing publication work. It prevents unchecked work from being represented as complete.",
+      "tags": [
+        "documentation",
+        "checklist",
+        "release-gating",
+        "smb-lending",
+        "production-readiness"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "config:docs/eval/smb-lending/20260721-four-mode/benchmark-receipt.json",
+      "type": "config",
+      "name": "benchmark-receipt.json",
+      "filePath": "docs/eval/smb-lending/20260721-four-mode/benchmark-receipt.json",
+      "summary": "Machine-readable receipt for ten SMB lending benchmark runs across manual, chat-only, graph-agent, and memory-enhanced modes. It preserves raw candidates, provider usage, dimensional scores, held-out-fixture status, and the explicit absence of a universal winner claim.",
+      "tags": [
+        "evaluation",
+        "benchmark",
+        "proof-receipt",
+        "smb-lending",
+        "provider-telemetry"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "document:docs/eval/smb-lending/20260721-four-mode/results.md",
+      "type": "document",
+      "name": "results.md",
+      "filePath": "docs/eval/smb-lending/20260721-four-mode/results.md",
+      "summary": "Human-readable dimensional summary of the four-mode SMB lending benchmark, including pass rates, runtime, document and blocker recall, path accuracy, authority compliance, and source coverage. It points reviewers to the raw receipt for run-level evidence.",
+      "tags": [
+        "documentation",
+        "evaluation-results",
+        "benchmark",
+        "smb-lending",
+        "metrics"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:docs/release/proof/20260721-smb-lending-room/qa-receipt.json",
+      "type": "config",
+      "name": "qa-receipt.json",
+      "filePath": "docs/release/proof/20260721-smb-lending-room/qa-receipt.json",
+      "summary": "Release-proof receipt recording the local SMB lending browser journey, screenshot hashes, approval transitions, test gates, protocol assertions, and known limitations. It binds the verified UI evidence to the decision-free packet and benchmark claims.",
+      "tags": [
+        "qa",
+        "proof-receipt",
+        "browser-testing",
+        "release-gating",
+        "smb-lending"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:e2e/smb-lending-golden-slice.spec.ts",
+      "type": "file",
+      "name": "smb-lending-golden-slice.spec.ts",
+      "filePath": "e2e/smb-lending-golden-slice.spec.ts",
+      "summary": "Playwright golden-slice coverage for the SMB lending room across request approval, evidence verification, packet download and hash-checked reopen, local reload recovery, and responsive proof-control reachability. It also asserts zero console errors and horizontal overflow on desktop, tablet, and mobile.",
+      "tags": [
+        "test",
+        "playwright",
+        "end-to-end",
+        "smb-lending",
+        "responsive-qa"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Uses Playwright event capture and browser storage injection to validate both exported bytes and responsive UI behavior."
+    },
+    {
+      "id": "config:package.json",
+      "type": "config",
+      "name": "package.json",
+      "filePath": "package.json",
+      "summary": "NodeRoom package manifest defining its extensive development, evaluation, proof, media, and deployment command surface plus React, Convex, agent, document, and test dependencies. It exposes the SMB lending live benchmark alongside the repository's broader quality gates.",
+      "tags": [
+        "configuration",
+        "build-system",
+        "dependencies",
+        "scripts",
+        "tooling"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:scripts/smb-lending-four-mode-benchmark.ts",
+      "type": "file",
+      "name": "smb-lending-four-mode-benchmark.ts",
+      "filePath": "scripts/smb-lending-four-mode-benchmark.ts",
+      "summary": "Runs and records the four-mode SMB lending evaluation using locked restaurant and medical fixtures, deterministic graph tools, and OpenAI or OpenRouter model calls. It scores candidates only after emission and writes both raw JSON proof and a dimensional Markdown report.",
+      "tags": [
+        "benchmark",
+        "evaluation",
+        "live-provider",
+        "smb-lending",
+        "proof-generation"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Top-level await orchestrates sequential provider runs while strongly typed payload normalization protects the evaluator boundary."
+    },
+    {
+      "id": "function:scripts/smb-lending-four-mode-benchmark.ts:manualCandidate",
+      "type": "function",
+      "name": "manualCandidate",
+      "filePath": "scripts/smb-lending-four-mode-benchmark.ts",
+      "lineRange": [
+        51,
+        62
+      ],
+      "summary": "Builds the deterministic manual baseline from required documents, missing blockers, the critical path, source identifiers, and a fixed human-intervention count while preserving credit authority.",
+      "tags": [
+        "benchmark-baseline",
+        "data-transformation",
+        "smb-lending",
+        "governance"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:scripts/smb-lending-four-mode-benchmark.ts:extractJson",
+      "type": "function",
+      "name": "extractJson",
+      "filePath": "scripts/smb-lending-four-mode-benchmark.ts",
+      "lineRange": [
+        64,
+        84
+      ],
+      "summary": "Extracts and validates the model's JSON candidate, rejecting missing arrays or invalid decision authority and normalizing identifiers and counters into the evaluator contract.",
+      "tags": [
+        "validation",
+        "serialization",
+        "provider-output",
+        "safety-boundary"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:scripts/smb-lending-four-mode-benchmark.ts:callModel",
+      "type": "function",
+      "name": "callModel",
+      "filePath": "scripts/smb-lending-four-mode-benchmark.ts",
+      "lineRange": [
+        86,
+        114
+      ],
+      "summary": "Constructs a mode-specific, credit-safe prompt with optional deterministic graph context, invokes OpenAI or OpenRouter, and returns a normalized candidate plus provider usage telemetry.",
+      "tags": [
+        "live-provider",
+        "api-client",
+        "prompting",
+        "tool-context",
+        "safety-boundary"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:scripts/smb-lending-four-mode-benchmark.ts:executeRun",
+      "type": "function",
+      "name": "executeRun",
+      "filePath": "scripts/smb-lending-four-mode-benchmark.ts",
+      "lineRange": [
+        116,
+        151
+      ],
+      "summary": "Executes one uniquely identified benchmark attempt, captures timestamps and usage, converts failures into explicit empty candidates, applies the hidden evaluator, and returns a complete raw run receipt.",
+      "tags": [
+        "benchmark-runner",
+        "evaluation",
+        "telemetry",
+        "error-handling",
+        "proof-receipt"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/styles.css",
+      "type": "file",
+      "name": "styles.css",
+      "filePath": "src/app/styles.css",
+      "summary": "Global NodeRoom styling for the application shell, artifacts, panels, responsive layouts, and domain-specific UI states. The SMB lending additions define a fixed proof bar with verified-state coloring, source truncation, and a mobile safe-area layout.",
+      "tags": [
+        "stylesheet",
+        "responsive-design",
+        "component-styles",
+        "smb-lending",
+        "design-system",
+        "tested"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses CSS custom properties, color-mix, backdrop filtering, and viewport/safe-area media rules for responsive proof controls."
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:projectAgentRunTelemetry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:projectAgentRunTelemetry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:selectAgentRunTelemetryForJob",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:selectAgentRunTelemetryForJob",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:mapConvexFreeJob",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:projectAgentJobAttemptTelemetry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:projectAgentJobAttemptTelemetry",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:durableRouteForModelSelection",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:browserNodeAgentRuntimeProfile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:useStore",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:useStore",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:researchTargetFor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:canonicalRefs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:classifyDemoIntent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:makeUndoEntry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:withStoredSourceMeta",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:memoryFreeJobDetail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:EngineStoreProvider",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:EngineStoreProvider",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:ArtifactElementsSubscriber",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:ArtifactPresenceSubscriber",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:normalizeResearchDomainClient",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:findExistingResearchRowClient",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:ConvexStoreProvider",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "function:src/app/store.tsx:ConvexStoreProvider",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/store.tsx",
+      "target": "file:src/app/roomStore.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/lending-room/LendingProofBar.tsx",
+      "target": "function:src/features/lending-room/LendingProofBar.tsx:LendingProofBar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/features/lending-room/LendingProofBar.tsx",
+      "target": "function:src/features/lending-room/LendingProofBar.tsx:LendingProofBar",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/lending-room/LendingProofBar.tsx",
+      "target": "file:src/app/smbLendingRoomSeed.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/features/lending-room/LendingProofBar.tsx",
+      "target": "file:src/app/store.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/ui/App.tsx",
+      "target": "function:src/ui/App.tsx:App",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/App.tsx",
+      "target": "function:src/ui/App.tsx:App",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/App.tsx",
+      "target": "function:src/ui/App.tsx:normalizeMobileLandingUrl",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/App.tsx",
+      "target": "function:src/ui/App.tsx:ConvexRoomApp",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/App.tsx",
+      "target": "function:src/ui/App.tsx:LiveRoomBootShell",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/App.tsx",
+      "target": "function:src/ui/App.tsx:initialLiveRequest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/App.tsx",
+      "target": "function:src/ui/App.tsx:initialLandingIntent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/App.tsx",
+      "target": "function:src/ui/App.tsx:writeLiveUrl",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/App.tsx",
+      "target": "function:src/ui/App.tsx:loadLiveSession",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/App.tsx",
+      "target": "file:src/app/roomStore.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/ui/App.tsx",
+      "target": "file:src/app/store.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/ui/App.tsx",
+      "target": "file:src/features/lending-room/LendingProofBar.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:computeRowWindow",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:computeRowWindow",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:ArtifactSurface",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:RoomHomeSurface",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:Artifact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:Artifact",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:Wiki",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:Research",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:Research",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:downloadResearchCsv",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:ResearchLegacy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:ResearchLegacy",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:touchPresence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:presenceLadderModel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:presenceLadderModel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:PresenceLadder",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:PresenceLadder",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:EditableCell",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:rowIdsOf",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:sheetElementId",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:parseSheetElementId",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:scaleColumnWidth",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:sheetColumnWidth",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:dataframeCellAddress",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:expandSheetMerges",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:evidencePopoverModel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:evidencePopoverModel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:evidenceCheckedLabel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:evidenceCheckedLabel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:evidencePopoverPlacement",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:evidencePopoverPlacement",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:EvidenceReceipt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:EvidenceReceipt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:cellHistoryEnabled",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:cellHistoryEnabled",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:historyValuePreview",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:historyValuePreview",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:historyTimeAgo",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:historyTimeAgo",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:wordDiffSegments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:wordDiffSegments",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:CellDiff",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:CellDiff",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:CellHistory",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:CellHistory",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:CellHistoryPopover",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:staleLabelFor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:staleLabelFor",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:cellStaleness",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:cellStaleness",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:StaleChip",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:StaleChip",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:renderGenericCellContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:GenericResearchWorkflow",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:GenericSheet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:GenericSheet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:filterGenericSheetRows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:columnsOf",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:spreadsheetCellFontColorCss",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:spreadsheetCellFontColorCss",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:unwrapDisplayCellValue",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:displayCellValue",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:displayCellValue",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:exportScalarCellValue",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:exportCellValue",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:exportCellValue",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:applyExportCell",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:applyExportCell",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:exportSheetAsXlsx",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:workbookExportSheets",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:worksheetNameForExport",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:appendSheetArtifactWorksheet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:visibleGenericSheetCellValues",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:Sheet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:InlineProposal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:notebookCitationModel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:notebookCitationModel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:combinedNotebookFootnotes",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:combinedNotebookFootnotes",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:notebookPaperMeta",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:notebookPaperMeta",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:blockTextsFromDom",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:blockTextsFromDom",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:blockTextsFromHtml",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:blockTextsFromHtml",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:diffWetBlockIds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:diffWetBlockIds",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:applyWetInk",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:paperDecorations",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:createNotebookPaperInk",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:createNotebookPaperInk",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:NotebookPaperFrame",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:NotebookPaperFrame",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:NotebookFootnotes",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:NotebookFootnotes",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:SyncedNote",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:SyncedNote",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:SyncedEditorInner",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:NotebookEditorControls",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:NotebookPresenceLayer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:NotebookInlinePatchLayer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:textList",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:NotebookReadModelPanel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:AgentNotesBlock",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:SanitizedHtml",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:Note",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:Note",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:FileViewer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:PdfFilePreview",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:useDataUrlObjectUrl",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:OfficeFilePreview",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:generatedBtbDeliverableLabel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:compactFileTitle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:readableFileType",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:inventoryItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:inventoryGroups",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:inventoryGroups",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:Wall",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:Sticky",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:traceKindOf",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:traceKindOf",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:traceFilterModel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:traceFilterModel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:filterTraces",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:filterTraces",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:groupTraceBursts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:groupTraceBursts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:TraceStrip",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:TraceStrip",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:ProposalRow",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:compactTraceSummary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:TraceRow",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:toolFor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "function:src/ui/panels/Artifact.tsx:traceIcon",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/ui/panels/Artifact.tsx",
+      "target": "file:src/app/store.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "file:src/app/smbLendingRoomSeed.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/smbLendingRoomSeed.test.ts",
+      "target": "file:src/app/roomStore.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/smbLendingRoomSeed.test.ts",
+      "target": "file:src/app/smbLendingRoomSeed.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:useEngineRev",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:createFreshRoom",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:enterDemoRoomAsHost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:enterScaleDemoRoomAsHost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:scaleResearchMeta",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:scaleCompleteOrdinal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:scaleResearchRow",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:scaleEvidence",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:createScaleCompanionArtifacts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:createScaleNotes",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:seedScaleMessages",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:enterBankerToolBenchRoomAsHost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:setSmbLendingNote",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:handleSmbLendingLocalProposalResolution",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:enterSmbLendingDeploymentRoomAsHost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:enterHackwithBayRoomAsHost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:joinRoomByCode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:enterUpScaleXRoomAsHost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:runDemo",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/smbLendingRoomSeed.ts",
+      "target": "function:src/app/smbLendingRoomSeed.ts:smbLendingDocumentRows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:useEngineRev",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:createFreshRoom",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:enterDemoRoomAsHost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:enterScaleDemoRoomAsHost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:enterBankerToolBenchRoomAsHost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:handleSmbLendingLocalProposalResolution",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:enterSmbLendingDeploymentRoomAsHost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:enterHackwithBayRoomAsHost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:joinRoomByCode",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:enterUpScaleXRoomAsHost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "function:src/app/roomStore.ts:runDemo",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/smbLendingRoomSeed.ts",
+      "target": "function:src/app/smbLendingRoomSeed.ts:smbLendingDocumentRows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/app/roomStore.ts:enterSmbLendingDeploymentRoomAsHost",
+      "target": "function:src/app/smbLendingRoomSeed.ts:smbLendingDocumentRows",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/roomStore.ts",
+      "target": "file:tests/smbLendingRoomSeed.test.ts",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:src/app/smbLendingRoomSeed.ts",
+      "target": "file:tests/smbLendingRoomSeed.test.ts",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:scripts/smb-lending-four-mode-benchmark.ts",
+      "target": "function:scripts/smb-lending-four-mode-benchmark.ts:manualCandidate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:scripts/smb-lending-four-mode-benchmark.ts",
+      "target": "function:scripts/smb-lending-four-mode-benchmark.ts:extractJson",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:scripts/smb-lending-four-mode-benchmark.ts",
+      "target": "function:scripts/smb-lending-four-mode-benchmark.ts:callModel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:scripts/smb-lending-four-mode-benchmark.ts",
+      "target": "function:scripts/smb-lending-four-mode-benchmark.ts:executeRun",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "document:docs/architecture/SMB_LENDING_DEPLOYMENT_ROOM.md",
+      "target": "file:e2e/smb-lending-golden-slice.spec.ts",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/architecture/SMB_LENDING_DEPLOYMENT_ROOM.md",
+      "target": "file:scripts/smb-lending-four-mode-benchmark.ts",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/architecture/SMB_LENDING_DEPLOYMENT_ROOM.md",
+      "target": "config:docs/eval/smb-lending/20260721-four-mode/benchmark-receipt.json",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/architecture/SMB_LENDING_DEPLOYMENT_ROOM.md",
+      "target": "config:docs/release/proof/20260721-smb-lending-room/qa-receipt.json",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/architecture/SMB_LENDING_REMAINING_CHECKLIST.md",
+      "target": "document:docs/architecture/SMB_LENDING_DEPLOYMENT_ROOM.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/architecture/SMB_LENDING_REMAINING_CHECKLIST.md",
+      "target": "config:docs/eval/smb-lending/20260721-four-mode/benchmark-receipt.json",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/architecture/SMB_LENDING_REMAINING_CHECKLIST.md",
+      "target": "config:docs/release/proof/20260721-smb-lending-room/qa-receipt.json",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/eval/smb-lending/20260721-four-mode/results.md",
+      "target": "config:docs/eval/smb-lending/20260721-four-mode/benchmark-receipt.json",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:docs/eval/smb-lending/20260721-four-mode/benchmark-receipt.json",
+      "target": "file:scripts/smb-lending-four-mode-benchmark.ts",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:docs/release/proof/20260721-smb-lending-room/qa-receipt.json",
+      "target": "file:e2e/smb-lending-golden-slice.spec.ts",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:package.json",
+      "target": "file:scripts/smb-lending-four-mode-benchmark.ts",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:package.json",
+      "target": "file:e2e/smb-lending-golden-slice.spec.ts",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:src/app/styles.css",
+      "target": "file:e2e/smb-lending-golden-slice.spec.ts",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:runtime-state",
+      "name": "NodeRoom Runtime and State",
+      "description": "Provides the shared RoomStore contract, React state providers, deterministic room engine, collaborative proposal lifecycle, CAS transitions, and local recovery used by the SMB lending room.",
+      "nodeIds": [
+        "file:src/app/store.tsx",
+        "file:src/app/roomStore.ts"
+      ]
+    },
+    {
+      "id": "layer:lending-domain-protocol",
+      "name": "Lending Domain Protocol",
+      "description": "Defines the synthetic SMB lending fixture projection, blocker and critical-path semantics, governed evidence proposals, decision-free review packet, receipts, and verified export bundle.",
+      "nodeIds": [
+        "file:src/app/smbLendingRoomSeed.ts"
+      ]
+    },
+    {
+      "id": "layer:presentation-ui",
+      "name": "Presentation and UI",
+      "description": "Routes and renders the native NodeRoom lending workspace, artifact surfaces, responsive proof controls, source status, and export-and-reopen interaction across desktop and mobile layouts.",
+      "nodeIds": [
+        "file:src/features/lending-room/LendingProofBar.tsx",
+        "file:src/ui/App.tsx",
+        "file:src/ui/panels/Artifact.tsx",
+        "file:src/app/styles.css"
+      ]
+    },
+    {
+      "id": "layer:verification-evaluation",
+      "name": "Verification and Evaluation",
+      "description": "Exercises the governed lending protocol through integration and Playwright journeys and runs the live four-mode benchmark with post-emission dimensional scoring and raw provider telemetry.",
+      "nodeIds": [
+        "file:tests/smbLendingRoomSeed.test.ts",
+        "file:e2e/smb-lending-golden-slice.spec.ts",
+        "file:scripts/smb-lending-four-mode-benchmark.ts"
+      ]
+    },
+    {
+      "id": "layer:documentation-proof",
+      "name": "Documentation and Proof",
+      "description": "Records the Casca-inspired architecture, remaining production boundaries, benchmark evidence, browser QA receipts, human-readable results, and limitations that bind public claims to verified artifacts.",
+      "nodeIds": [
+        "document:docs/architecture/SMB_LENDING_DEPLOYMENT_ROOM.md",
+        "document:docs/architecture/SMB_LENDING_REMAINING_CHECKLIST.md",
+        "config:docs/eval/smb-lending/20260721-four-mode/benchmark-receipt.json",
+        "document:docs/eval/smb-lending/20260721-four-mode/results.md",
+        "config:docs/release/proof/20260721-smb-lending-room/qa-receipt.json"
+      ]
+    },
+    {
+      "id": "layer:configuration",
+      "name": "Configuration",
+      "description": "Defines NodeRoom dependencies and exposes the scripts that invoke the SMB lending benchmark and the repository's broader build, test, and proof gates.",
+      "nodeIds": [
+        "config:package.json"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Vertical Architecture",
+      "description": "Start with the architecture decision record to understand why the Casca-inspired SMB lending proof belongs inside NodeRoom rather than in a separate product. It establishes the governed evidence lifecycle, subsystem ownership, synthetic evaluation fixtures, and the crucial distinction between local browser proof and authenticated production certification.",
+      "nodeIds": [
+        "document:docs/architecture/SMB_LENDING_DEPLOYMENT_ROOM.md"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Lending Domain Protocol",
+      "description": "The lending seed turns a locked restaurant working-capital fixture into NodeRoom-native state: documents, blockers, financial metrics, critical paths, proposals, receipts, and a decision-free review packet. This is the domain protocol introduced by the architecture document, and it keeps evidence lineage and human credit authority explicit from the beginning.",
+      "nodeIds": [
+        "file:src/app/smbLendingRoomSeed.ts"
+      ],
+      "languageLesson": "TypeScript domain builders can keep a workflow deterministic by deriving typed projections and receipts from immutable fixture inputs instead of allowing UI components to invent business state."
+    },
+    {
+      "order": 3,
+      "title": "Runtime and CAS",
+      "description": "Building on the domain projection, the room engine constructs the lending room and coordinates proposal review, traces, artifact changes, and compare-and-swap protected transitions. The shared RoomStore contract then presents the same collaboration vocabulary to React through in-memory and Convex-backed providers, which is the architectural seam for eventually moving the proven local journey into durable production state.",
+      "nodeIds": [
+        "file:src/app/roomStore.ts",
+        "file:src/app/store.tsx"
+      ],
+      "languageLesson": "A React context backed by a typed store interface separates UI composition from persistence. CAS guards require the caller's expected version to match current state, preventing a stale proposal from overwriting newer human work."
+    },
+    {
+      "order": 4,
+      "title": "NodeRoom Entry Surface",
+      "description": "App.tsx is the scoped entry point that recognizes the SMB lending route, chooses the appropriate store provider, and mounts the vertical as a native NodeRoom experience. It demonstrates that lending is a specialized room configuration and artifact workflow, not a parallel application shell.",
+      "nodeIds": [
+        "file:src/ui/App.tsx"
+      ],
+      "languageLesson": "React composition keeps routing, provider selection, and feature mounting at the application boundary while domain logic remains in typed modules below it."
+    },
+    {
+      "order": 5,
+      "title": "Artifact and Proof UI",
+      "description": "The artifact panel renders the underlying work product and proposal surfaces, while the lending proof bar exposes verified evidence status and a byte-backed export-and-reopen action. Responsive styles keep that proof control reachable on desktop, tablet, and mobile, connecting the protocol's receipts to something a reviewer can inspect and operate.",
+      "nodeIds": [
+        "file:src/ui/panels/Artifact.tsx",
+        "file:src/features/lending-room/LendingProofBar.tsx",
+        "file:src/app/styles.css"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Protocol Verification",
+      "description": "The integration test exercises the governed sequence beneath the UI: request missing evidence, approve it, verify a source-backed submission, apply it through CAS, regenerate the packet, and retain immutable lineage. It also asserts the most important lending boundary from Step 2: the system prepares a human-review packet but does not make the credit decision.",
+      "nodeIds": [
+        "file:tests/smbLendingRoomSeed.test.ts"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Browser Golden Slice",
+      "description": "The Playwright journey proves that the same sequence is operable through the rendered NodeRoom interface, including approval, evidence verification, download, hash-checked reopen, and local reload recovery. Its desktop, tablet, and mobile assertions extend correctness beyond unit state into the actual user-visible product path while checking console health and horizontal overflow.",
+      "nodeIds": [
+        "file:e2e/smb-lending-golden-slice.spec.ts"
+      ],
+      "languageLesson": "End-to-end tests verify contracts that component tests cannot: browser persistence, downloaded bytes, responsive reachability, and the absence of runtime console failures."
+    },
+    {
+      "order": 8,
+      "title": "Benchmark and Evidence",
+      "description": "The four-mode benchmark compares manual, chat-only, graph-agent, and memory-enhanced behavior on locked restaurant and held-out medical fixtures, scoring candidates only after they are emitted. The machine-readable receipt preserves raw runs and provider telemetry, while the Markdown report summarizes document recall, blocker accuracy, authority compliance, source coverage, and runtime without collapsing them into an unsupported universal winner claim.",
+      "nodeIds": [
+        "file:scripts/smb-lending-four-mode-benchmark.ts",
+        "config:docs/eval/smb-lending/20260721-four-mode/benchmark-receipt.json",
+        "document:docs/eval/smb-lending/20260721-four-mode/results.md"
+      ]
+    },
+    {
+      "order": 9,
+      "title": "Proof and Production Boundary",
+      "description": "The QA receipt binds browser screenshots, hashes, gates, and protocol assertions to the exact locally verified slice, while package scripts make the benchmark and broader repository checks repeatable. Finish with the remaining-work ledger: it deliberately separates completed local proof from unfinished authenticated Convex persistence, production deployment, optional Neo4j projection, and Casca-facing publication work so the vertical cannot overstate its readiness.",
+      "nodeIds": [
+        "config:docs/release/proof/20260721-smb-lending-room/qa-receipt.json",
+        "config:package.json",
+        "document:docs/architecture/SMB_LENDING_REMAINING_CHECKLIST.md"
+      ],
+      "languageLesson": "JSON proof receipts are machine-checkable evidence, while a Markdown execution ledger communicates scope and limitations to humans. Keeping both prevents a passing local demo from being confused with a production certification."
+    }
+  ]
+}

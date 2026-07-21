@@ -4446,9 +4446,9 @@ function ProposalRow({ roomId, me, proposal, onResolved }: { roomId: string; me:
       <span className={"r-trace-ico " + (semantic ? "read" : "commit")}>{semantic ? <GitMerge size={12} /> : <Pencil size={12} />}</span>
       <div className="r-proposal-main">
         <div className="tt">{proposal.author.name} proposed {proposal.op.elementId ?? "an edit"} = {value}</div>
-        {semantic && (
+        {(semantic || reason || note || proposal.review?.status) && (
           <div className="r-proposal-meta" data-testid="semantic-proposal-meta">
-            <span className="r-proposal-badge">Semantic rebase</span>
+            <span className="r-proposal-badge">{semantic ? "Semantic rebase" : "Governed proposal"}</span>
             {proposal.review?.status && <span>{proposal.review.status.replace(/_/g, " ")}</span>}
             {reason && <span className="r-proposal-reason">{reason}</span>}
             {note && <span className="r-proposal-reason">{note}</span>}
