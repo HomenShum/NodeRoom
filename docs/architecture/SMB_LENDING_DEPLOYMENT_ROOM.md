@@ -89,6 +89,24 @@ The deterministic local profile persists this synthetic workflow state in browse
 storage so a reload can prove recovery. This is deliberately labeled local; production
 certification still requires the same journey through authenticated Convex state.
 
+## Production migration path
+
+The production route must remain a NodeRoom room template, not a second application.
+It will preserve the deterministic `#smb-lending` profile for CI while adding an
+authenticated live entrypoint that:
+
+1. calls the existing `rooms.create` mutation with the complete lending artifact
+   bundle in `seedArtifacts`, keeping room creation atomic;
+2. mounts the resulting room through `ConvexStoreProvider`;
+3. submits both lending operations through the canonical proposal and final-CAS
+   mutations rather than the local engine helper;
+4. stores source hashes, packet identity, trace events, and proof receipt as room
+   artifacts so reload recovery is server-authoritative; and
+5. runs export/reopen and NodeProof against the exact deployed commit.
+
+This path needs no new room database, authentication system, or parallel proposal
+protocol. Neo4j remains an optional read projection after canonical state is committed.
+
 The live four-mode benchmark used `gpt-4.1-mini` for three repetitions each of chat-only,
 graph-agent, and memory-enhanced lanes. The medical fixture was held out and the evaluator
 was applied only after candidate emission. Results are dimensional and make no universal

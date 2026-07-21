@@ -1,0 +1,36 @@
+# Casca / SMB-lending vertical analysis scope.
+# Start excluded, then include only the direct implementation and proof surface.
+*
+!package.json
+!src/
+!src/app/
+!src/app/roomStore.ts
+!src/app/smbLendingRoomSeed.ts
+!src/app/store.tsx
+!src/app/styles.css
+!src/features/
+!src/features/lending-room/
+!src/features/lending-room/LendingProofBar.tsx
+!src/ui/
+!src/ui/App.tsx
+!src/ui/panels/
+!src/ui/panels/Artifact.tsx
+!tests/
+!tests/smbLendingRoomSeed.test.ts
+!e2e/
+!e2e/smb-lending-golden-slice.spec.ts
+!scripts/
+!scripts/smb-lending-four-mode-benchmark.ts
+!docs/
+!docs/architecture/
+!docs/architecture/SMB_LENDING_DEPLOYMENT_ROOM.md
+!docs/architecture/SMB_LENDING_REMAINING_CHECKLIST.md
+!docs/eval/
+!docs/eval/smb-lending/
+!docs/eval/smb-lending/20260721-four-mode/
+!docs/eval/smb-lending/20260721-four-mode/benchmark-receipt.json
+!docs/eval/smb-lending/20260721-four-mode/results.md
+!docs/release/
+!docs/release/proof/
+!docs/release/proof/20260721-smb-lending-room/
+!docs/release/proof/20260721-smb-lending-room/qa-receipt.json

@@ -1,0 +1,3655 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "6719f2409874b3399ce6eeb20551d6e2893cc7eb",
+  "generatedAt": "2026-07-21T09:40:15.423Z",
+  "files": {
+    "docs/architecture/SMB_LENDING_DEPLOYMENT_ROOM.md": {
+      "filePath": "docs/architecture/SMB_LENDING_DEPLOYMENT_ROOM.md",
+      "contentHash": "186eb80db7bd0dbcc358555fbd13a10618fcf087629a5378d4709b3f15f2941d",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 114,
+      "hasStructuralAnalysis": true
+    },
+    "docs/architecture/SMB_LENDING_REMAINING_CHECKLIST.md": {
+      "filePath": "docs/architecture/SMB_LENDING_REMAINING_CHECKLIST.md",
+      "contentHash": "54b4acbeb24b65985674e0d27e6732b3f3df5872b5debb289bb268f057310bb9",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 73,
+      "hasStructuralAnalysis": true
+    },
+    "docs/eval/smb-lending/20260721-four-mode/benchmark-receipt.json": {
+      "filePath": "docs/eval/smb-lending/20260721-four-mode/benchmark-receipt.json",
+      "contentHash": "f483c8ed2d74dca35ed9af8905968bc385401da428689e2aa33f5d5797371b38",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 780,
+      "hasStructuralAnalysis": true
+    },
+    "docs/eval/smb-lending/20260721-four-mode/results.md": {
+      "filePath": "docs/eval/smb-lending/20260721-four-mode/results.md",
+      "contentHash": "7f8abb8264e72b59ec671af0802fbfd67d7ecfb11751abbc922b793c8f88d9fa",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 15,
+      "hasStructuralAnalysis": true
+    },
+    "docs/release/proof/20260721-smb-lending-room/qa-receipt.json": {
+      "filePath": "docs/release/proof/20260721-smb-lending-room/qa-receipt.json",
+      "contentHash": "fd4ea9a148a54d5cdf76251f64629aa2835befbd32ae7b67d22e5c46b78f9ba4",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 120,
+      "hasStructuralAnalysis": true
+    },
+    "e2e/smb-lending-golden-slice.spec.ts": {
+      "filePath": "e2e/smb-lending-golden-slice.spec.ts",
+      "contentHash": "9db99a9d0f1e17d435229bb68fe5d73a920013a8e5d02a29ace202371eeeb1b2",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "node:fs/promises",
+          "specifiers": [
+            "readFile"
+          ]
+        },
+        {
+          "source": "@playwright/test",
+          "specifiers": [
+            "expect",
+            "test"
+          ]
+        },
+        {
+          "source": "../src/domains/smbLending",
+          "specifiers": [
+            "reopenLendingPacketBundle",
+            "stableDigest"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 105,
+      "hasStructuralAnalysis": true
+    },
+    "package.json": {
+      "filePath": "package.json",
+      "contentHash": "dd7857b5b9a551b5354deaa8ff14871f572e2219ac27165a9174f53b195c7acc",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 378,
+      "hasStructuralAnalysis": true
+    },
+    "scripts/smb-lending-four-mode-benchmark.ts": {
+      "filePath": "scripts/smb-lending-four-mode-benchmark.ts",
+      "contentHash": "e660325734666cc56229da7faef48eda653304a8ad10ae9d297e3119ff39b3a9",
+      "functions": [
+        {
+          "name": "loadFixture",
+          "params": [
+            "name"
+          ],
+          "returnType": "Promise<LendingApplicationSnapshot>",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "sourceIds",
+          "params": [
+            "snapshot"
+          ],
+          "returnType": "string[]",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "manualCandidate",
+          "params": [
+            "snapshot"
+          ],
+          "returnType": "CandidatePayload",
+          "exported": false,
+          "lineCount": 12
+        },
+        {
+          "name": "extractJson",
+          "params": [
+            "text"
+          ],
+          "returnType": "CandidatePayload",
+          "exported": false,
+          "lineCount": 21
+        },
+        {
+          "name": "callModel",
+          "params": [
+            "args"
+          ],
+          "returnType": "Promise<{ payload: CandidatePayload; usage: ProviderUsage }>",
+          "exported": false,
+          "lineCount": 29
+        },
+        {
+          "name": "executeRun",
+          "params": [
+            "snapshot",
+            "fixture",
+            "mode",
+            "repetition",
+            "memory"
+          ],
+          "returnType": "Promise<RawRun>",
+          "exported": false,
+          "lineCount": 36
+        },
+        {
+          "name": "mean",
+          "params": [
+            "values"
+          ],
+          "returnType": "number | null",
+          "exported": false,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "node:crypto",
+          "specifiers": [
+            "randomUUID"
+          ]
+        },
+        {
+          "source": "node:fs/promises",
+          "specifiers": [
+            "mkdir",
+            "readFile",
+            "writeFile"
+          ]
+        },
+        {
+          "source": "node:path",
+          "specifiers": [
+            "resolve"
+          ]
+        },
+        {
+          "source": "../src/domains/smbLending",
+          "specifiers": [
+            "calculateLendingMetrics",
+            "evaluateLendingBenchmarkCandidate",
+            "findCriticalPath",
+            "findMissingDocumentBlockers",
+            "lendingBenchmarkPassed",
+            "LendingApplicationSnapshot",
+            "LendingBenchmarkCandidate",
+            "LendingBenchmarkMode"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 217,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/roomStore.ts": {
+      "filePath": "src/app/roomStore.ts",
+      "contentHash": "c5fb04203021f5c93f2d15dd9441b5c09b2febddba48f250fd4d68dfcae98225",
+      "functions": [
+        {
+          "name": "useEngineRev",
+          "params": [],
+          "returnType": "number",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "createFreshRoom",
+          "params": [
+            "title",
+            "hostName"
+          ],
+          "returnType": "{ roomId: string; me: Actor }",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "enterDemoRoomAsHost",
+          "params": [
+            "_hostName"
+          ],
+          "returnType": "{ roomId: string; me: Actor }",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "enterScaleDemoRoomAsHost",
+          "params": [
+            "_hostName"
+          ],
+          "returnType": "{ roomId: string; me: Actor }",
+          "exported": true,
+          "lineCount": 67
+        },
+        {
+          "name": "scaleResearchMeta",
+          "params": [],
+          "exported": false,
+          "lineCount": 25
+        },
+        {
+          "name": "scaleResearchSeed",
+          "params": [],
+          "returnType": "Array<{ id: string; value: unknown }>",
+          "exported": false,
+          "lineCount": 9
+        },
+        {
+          "name": "isScaleComplete",
+          "params": [
+            "index"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "scaleCompleteOrdinal",
+          "params": [
+            "index"
+          ],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "scaleResearchRow",
+          "params": [
+            "index"
+          ],
+          "returnType": "Record<(typeof RESEARCH_COLS)[number], unknown>",
+          "exported": false,
+          "lineCount": 36
+        },
+        {
+          "name": "scaleCell",
+          "params": [
+            "value",
+            "status",
+            "evidence",
+            "confidence"
+          ],
+          "returnType": "CellPayload",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "scaleEvidence",
+          "params": [
+            "index",
+            "label",
+            "url"
+          ],
+          "returnType": "CellEvidence",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "scaleRowId",
+          "params": [
+            "index"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "scaleCompanyName",
+          "params": [
+            "index"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "createScaleCompanionArtifacts",
+          "params": [
+            "roomId",
+            "me"
+          ],
+          "exported": false,
+          "lineCount": 28
+        },
+        {
+          "name": "createScaleNotes",
+          "params": [
+            "roomId",
+            "me",
+            "prefix",
+            "count",
+            "tag"
+          ],
+          "exported": false,
+          "lineCount": 12
+        },
+        {
+          "name": "seedScaleMessages",
+          "params": [
+            "roomId",
+            "me",
+            "agent"
+          ],
+          "exported": false,
+          "lineCount": 37
+        },
+        {
+          "name": "enterBankerToolBenchRoomAsHost",
+          "params": [],
+          "returnType": "{ roomId: string; me: Actor }",
+          "exported": true,
+          "lineCount": 166
+        },
+        {
+          "name": "readSmbLendingBrowserPhase",
+          "params": [],
+          "returnType": "SmbLendingBrowserPhase",
+          "exported": false,
+          "lineCount": 9
+        },
+        {
+          "name": "persistSmbLendingBrowserPhase",
+          "params": [
+            "phase"
+          ],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "setSmbLendingNote",
+          "params": [
+            "artifactId",
+            "value",
+            "actor",
+            "opId"
+          ],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "handleSmbLendingLocalProposalResolution",
+          "params": [
+            "proposal",
+            "approve",
+            "reviewer"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 77
+        },
+        {
+          "name": "enterSmbLendingDeploymentRoomAsHost",
+          "params": [],
+          "returnType": "{ roomId: string; me: Actor }",
+          "exported": true,
+          "lineCount": 152
+        },
+        {
+          "name": "enterHackwithBayRoomAsHost",
+          "params": [],
+          "returnType": "{ roomId: string; me: Actor }",
+          "exported": true,
+          "lineCount": 89
+        },
+        {
+          "name": "joinRoomByCode",
+          "params": [
+            "code",
+            "name"
+          ],
+          "returnType": "{ roomId: string; me: Actor } | null",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "enterUpScaleXRoomAsHost",
+          "params": [],
+          "returnType": "{ roomId: string; me: Actor }",
+          "exported": true,
+          "lineCount": 32
+        },
+        {
+          "name": "runDemo",
+          "params": [
+            "conflict"
+          ],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useSyncExternalStore"
+          ]
+        },
+        {
+          "source": "../engine/roomEngine",
+          "specifiers": [
+            "RoomEngine"
+          ]
+        },
+        {
+          "source": "../engine/demoRoom",
+          "specifiers": [
+            "buildDemoRoom",
+            "playCollab",
+            "RESEARCH_COLS",
+            "DemoRoom"
+          ]
+        },
+        {
+          "source": "../engine/types",
+          "specifiers": [
+            "Actor",
+            "CellEvidence",
+            "CellPayload",
+            "DataframeColumn",
+            "Proposal"
+          ]
+        },
+        {
+          "source": "./bankerToolBenchRoomSeed",
+          "specifiers": [
+            "BTB_ARTIFACT_ROWS",
+            "BTB_BOUNDARY_ROWS",
+            "BTB_RUN_MATRIX_COLUMNS",
+            "BTB_RUN_MATRIX_ROWS",
+            "BTB_TASK_NOTE",
+            "BTB_UI_EVIDENCE",
+            "BTB_WORKFLOW_NOTE",
+            "sheetSeed",
+            "tupleSheetSeed"
+          ]
+        },
+        {
+          "source": "./hackwithBayRoomSeed",
+          "specifiers": [
+            "HACKWITHBAY_BRIEF_NOTE",
+            "HACKWITHBAY_CHECKLIST_COLUMNS",
+            "HACKWITHBAY_CHECKLIST_ROWS",
+            "HACKWITHBAY_GRAPH_COLUMNS",
+            "HACKWITHBAY_GRAPH_ROWS",
+            "HACKWITHBAY_ROOM_TITLE",
+            "hackwithBaySeed"
+          ]
+        },
+        {
+          "source": "./smbLendingRoomSeed",
+          "specifiers": [
+            "SMB_LENDING_DOCUMENT_COLUMNS",
+            "SMB_LENDING_EVIDENCE_PROPOSAL",
+            "SMB_LENDING_EVIDENCE_PROPOSAL_NOTE",
+            "SMB_LENDING_EVIDENCE_SOURCE",
+            "SMB_LENDING_FIXTURE",
+            "SMB_LENDING_GRAPH_COLUMNS",
+            "SMB_LENDING_GRAPH_ROWS",
+            "SMB_LENDING_METRIC_COLUMNS",
+            "SMB_LENDING_METRIC_ROWS",
+            "SMB_LENDING_OVERVIEW_NOTE",
+            "SMB_LENDING_PROOF_NOTE",
+            "SMB_LENDING_PROPOSAL",
+            "SMB_LENDING_PROPOSAL_NOTE",
+            "SMB_LENDING_PENDING_PACKET_NOTE",
+            "SMB_LENDING_REQUESTED_SNAPSHOT",
+            "SMB_LENDING_TEMPLATE",
+            "SMB_LENDING_VERIFIED_BUNDLE",
+            "SMB_LENDING_VERIFIED_PACKET_NOTE",
+            "SMB_LENDING_VERIFIED_PROOF_NOTE",
+            "SMB_LENDING_VERIFIED_SNAPSHOT",
+            "smbLendingDocumentRows"
+          ]
+        }
+      ],
+      "exports": [
+        "engine",
+        "demo",
+        "useEngineRev",
+        "createFreshRoom",
+        "enterDemoRoomAsHost",
+        "SCALE_DEMO_ROWS",
+        "SCALE_DEMO_ARTIFACTS",
+        "SCALE_DEMO_MEMBERS",
+        "enterScaleDemoRoomAsHost",
+        "enterBankerToolBenchRoomAsHost",
+        "handleSmbLendingLocalProposalResolution",
+        "enterSmbLendingDeploymentRoomAsHost",
+        "enterHackwithBayRoomAsHost",
+        "joinRoomByCode",
+        "enterUpScaleXRoomAsHost",
+        "runDemo"
+      ],
+      "totalLines": 1072,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/smbLendingRoomSeed.ts": {
+      "filePath": "src/app/smbLendingRoomSeed.ts",
+      "contentHash": "8efce3627c85beda0d0dc6086a2916e6b45d906cf3fa19047e65324c705c6fc3",
+      "functions": [
+        {
+          "name": "smbLendingDocumentRows",
+          "params": [
+            "snapshot"
+          ],
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "../../packs/smb-lending-deployment/fixtures/restaurant-working-capital.json",
+          "specifiers": [
+            "restaurantFixture"
+          ]
+        },
+        {
+          "source": "../engine/types",
+          "specifiers": [
+            "DataframeColumn"
+          ]
+        },
+        {
+          "source": "../domains/smbLending",
+          "specifiers": [
+            "calculateLendingMetrics",
+            "applyReviewedDocumentRequest",
+            "applyReviewedEvidenceSupply",
+            "createLendingProofReceipt",
+            "createSmbLendingRoomTemplate",
+            "exportLendingPacketBundle",
+            "findCriticalPath",
+            "findMissingDocumentBlockers",
+            "generateReviewPacket",
+            "proposeMissingDocumentRequest",
+            "proposeDocumentEvidenceSupply",
+            "LendingApplicationSnapshot"
+          ]
+        }
+      ],
+      "exports": [
+        "SMB_LENDING_FIXTURE",
+        "SMB_LENDING_BLOCKERS",
+        "SMB_LENDING_PATH",
+        "SMB_LENDING_METRICS",
+        "SMB_LENDING_TEMPLATE",
+        "SMB_LENDING_PROPOSAL",
+        "SMB_LENDING_REQUESTED_SNAPSHOT",
+        "SMB_LENDING_EVIDENCE_SOURCE",
+        "SMB_LENDING_EVIDENCE_PROPOSAL",
+        "SMB_LENDING_VERIFIED_SNAPSHOT",
+        "SMB_LENDING_PACKET",
+        "SMB_LENDING_RECEIPT",
+        "SMB_LENDING_VERIFIED_PACKET",
+        "SMB_LENDING_VERIFIED_RECEIPT",
+        "SMB_LENDING_VERIFIED_BUNDLE",
+        "SMB_LENDING_DOCUMENT_COLUMNS",
+        "SMB_LENDING_DOCUMENT_ROWS",
+        "smbLendingDocumentRows",
+        "SMB_LENDING_GRAPH_COLUMNS",
+        "SMB_LENDING_GRAPH_ROWS",
+        "SMB_LENDING_METRIC_COLUMNS",
+        "SMB_LENDING_METRIC_ROWS",
+        "SMB_LENDING_OVERVIEW_NOTE",
+        "SMB_LENDING_PROPOSAL_NOTE",
+        "SMB_LENDING_EVIDENCE_PROPOSAL_NOTE",
+        "SMB_LENDING_PROOF_NOTE",
+        "SMB_LENDING_PENDING_PACKET_NOTE",
+        "SMB_LENDING_VERIFIED_PACKET_NOTE",
+        "SMB_LENDING_VERIFIED_PROOF_NOTE"
+      ],
+      "totalLines": 217,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/store.tsx": {
+      "filePath": "src/app/store.tsx",
+      "contentHash": "51100ff2ac168bd47f28ce57427c5c4fe96e0f982b9528fe64fb893047e04fcb",
+      "functions": [
+        {
+          "name": "paced",
+          "params": [
+            "model",
+            "ms"
+          ],
+          "returnType": "AgentModel",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "persistedCostKind",
+          "params": [
+            "costKind"
+          ],
+          "returnType": "AgentCostKind",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "projectAgentRunTelemetry",
+          "params": [
+            "run"
+          ],
+          "returnType": "AgentRunTelemetry",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "correlationId",
+          "params": [
+            "value"
+          ],
+          "returnType": "string | undefined",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "persistedRunId",
+          "params": [
+            "run"
+          ],
+          "returnType": "string | undefined",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "selectAgentRunTelemetryForJob",
+          "params": [
+            "runs",
+            "job",
+            "detail"
+          ],
+          "returnType": "AgentRunTelemetry | null",
+          "exported": true,
+          "lineCount": 30
+        },
+        {
+          "name": "isActiveFreeJob",
+          "params": [
+            "status"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "mapConvexFreeJob",
+          "params": [
+            "j"
+          ],
+          "returnType": "AgentJobTelemetry",
+          "exported": false,
+          "lineCount": 34
+        },
+        {
+          "name": "projectAgentJobAttemptTelemetry",
+          "params": [
+            "attempt"
+          ],
+          "returnType": "AgentJobAttemptTelemetry",
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "durableRouteForModelSelection",
+          "params": [
+            "selection",
+            "forced"
+          ],
+          "returnType": "DurableAgentRoute",
+          "exported": false,
+          "lineCount": 19
+        },
+        {
+          "name": "browserNodeAgentRuntimeProfile",
+          "params": [],
+          "returnType": "AgentRuntimeProfile | undefined",
+          "exported": false,
+          "lineCount": 14
+        },
+        {
+          "name": "maxAttemptsForRuntimeProfile",
+          "params": [
+            "runtimeProfile",
+            "requested"
+          ],
+          "returnType": "number | undefined",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "useStore",
+          "params": [],
+          "returnType": "RoomStore",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "researchRowIds",
+          "params": [
+            "art"
+          ],
+          "returnType": "string[]",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "slugCompany",
+          "params": [
+            "company"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "researchTargetFor",
+          "params": [
+            "art",
+            "rowId"
+          ],
+          "exported": false,
+          "lineCount": 15
+        },
+        {
+          "name": "targetSheet",
+          "params": [
+            "artifacts",
+            "refs"
+          ],
+          "returnType": "Artifact | undefined",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "targetArtifact",
+          "params": [
+            "artifacts",
+            "refs"
+          ],
+          "returnType": "Artifact | undefined",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "canonicalRefs",
+          "params": [
+            "artifacts",
+            "refs"
+          ],
+          "returnType": "ArtifactRef[] | undefined",
+          "exported": false,
+          "lineCount": 12
+        },
+        {
+          "name": "isVarianceSheet",
+          "params": [
+            "art"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "classifyDemoIntent",
+          "params": [
+            "goal"
+          ],
+          "returnType": "\"research\" | \"runway\" | \"variance\" | \"notes\" | \"workbook\" | null",
+          "exported": false,
+          "lineCount": 12
+        },
+        {
+          "name": "referenceNames",
+          "params": [
+            "refs"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "sheetContextLabel",
+          "params": [
+            "sheet"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "withReferenceContext",
+          "params": [
+            "goal",
+            "refs"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "makeUndoEntry",
+          "params": [
+            "roomId",
+            "art",
+            "op",
+            "appliedVersion"
+          ],
+          "returnType": "UndoEntry | null",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "pushUndo",
+          "params": [
+            "stack",
+            "entry"
+          ],
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "withAppliedVersion",
+          "params": [
+            "entry",
+            "version"
+          ],
+          "returnType": "UndoEntry | null",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "withStoredSourceMeta",
+          "params": [
+            "meta",
+            "sourceFile",
+            "stored"
+          ],
+          "returnType": "ArtifactMeta",
+          "exported": false,
+          "lineCount": 14
+        },
+        {
+          "name": "memoryFreeJobDetail",
+          "params": [
+            "goal",
+            "status",
+            "options"
+          ],
+          "returnType": "AgentJobDetailTelemetry",
+          "exported": false,
+          "lineCount": 55
+        },
+        {
+          "name": "plainTextFromHtml",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "EngineStoreProvider",
+          "params": [
+            "{ roomId, children }"
+          ],
+          "exported": true,
+          "lineCount": 692
+        },
+        {
+          "name": "chanStr",
+          "params": [
+            "ch"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 1
+        },
+        {
+          "name": "isElementsEntriesPayload",
+          "params": [
+            "value"
+          ],
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "elementsPayloadToMap",
+          "params": [
+            "value"
+          ],
+          "returnType": "ElementsMap",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "elementsMapToPayload",
+          "params": [
+            "elements",
+            "previous"
+          ],
+          "returnType": "unknown",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "applyCellToElements",
+          "params": [
+            "elements",
+            "order",
+            "elementId",
+            "kind",
+            "value",
+            "actor"
+          ],
+          "returnType": "{ elements: ElementsMap; order: string[] }",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "ArtifactElementsSubscriber",
+          "params": [
+            "{ roomId, artifactId, proof, onElements, onUnmount }"
+          ],
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "ArtifactPresenceSubscriber",
+          "params": [
+            "{ roomId, artifactId, proof, onPresence, onUnmount }"
+          ],
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "slugResearchRowClient",
+          "params": [
+            "company"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "defaultWebsiteClient",
+          "params": [
+            "company"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "normalizeResearchIdentityClient",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "normalizeResearchDomainClient",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "rowIdsFromOrderClient",
+          "params": [
+            "order"
+          ],
+          "returnType": "string[]",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "cellStringClient",
+          "params": [
+            "art",
+            "rid",
+            "col"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "findExistingResearchRowClient",
+          "params": [
+            "art",
+            "row"
+          ],
+          "returnType": "string | null",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "usableConvexString",
+          "params": [
+            "value"
+          ],
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "ConvexStoreProvider",
+          "params": [
+            "{ roomId, me, proof, children }"
+          ],
+          "exported": true,
+          "lineCount": 1007
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "createContext",
+            "useContext",
+            "useMemo",
+            "useRef",
+            "useState",
+            "useEffect",
+            "useLayoutEffect",
+            "useCallback",
+            "ReactNode"
+          ]
+        },
+        {
+          "source": "convex/react",
+          "specifiers": [
+            "useQuery",
+            "useMutation",
+            "useAction"
+          ]
+        },
+        {
+          "source": "../../convex/_generated/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "../../convex/roomActivity",
+          "specifiers": [
+            "FeedItem"
+          ]
+        },
+        {
+          "source": "../ui/panels/traceData",
+          "specifiers": [
+            "TraceRecord"
+          ]
+        },
+        {
+          "source": "./roomStore",
+          "specifiers": [
+            "engine",
+            "demo",
+            "useEngineRev",
+            "runDemo",
+            "handleSmbLendingLocalProposalResolution"
+          ]
+        },
+        {
+          "source": "../nodeagent/core/runtime",
+          "specifiers": [
+            "runHarness"
+          ]
+        },
+        {
+          "source": "../nodeagent/core/types",
+          "specifiers": [
+            "AgentModel"
+          ]
+        },
+        {
+          "source": "../nodeagent/core/stream",
+          "specifiers": [
+            "buildUnifiedAgentStreamParts",
+            "PersistedAgentStreamEvent",
+            "UnifiedAgentStreamPart"
+          ]
+        },
+        {
+          "source": "../nodeagent/core/plans",
+          "specifiers": [
+            "recomputeVariancePlan",
+            "companyResearchPlan",
+            "notebookOutlinePlan",
+            "workbookAuditPlan"
+          ]
+        },
+        {
+          "source": "../nodeagent/core/worldModel",
+          "specifiers": [
+            "buildResearchContext",
+            "buildNoteContext"
+          ]
+        },
+        {
+          "source": "../nodeagent/models/scripted",
+          "specifiers": [
+            "scriptedModel"
+          ]
+        },
+        {
+          "source": "../nodeagent/skills/integration/noderoomAdapter",
+          "specifiers": [
+            "InMemoryRoomTools"
+          ]
+        },
+        {
+          "source": "../nodeagent/skills/spreadsheet/cellMutator",
+          "specifiers": [
+            "ROOM_TOOLS"
+          ]
+        },
+        {
+          "source": "../nodeagent/core/creditLedger",
+          "specifiers": [
+            "createCreditLedger",
+            "CreditBalance",
+            "CreditLedger",
+            "ReserveResult",
+            "SettleResult",
+            "UsageEvent"
+          ]
+        },
+        {
+          "source": "../nodeagent/core/creditModel",
+          "specifiers": [
+            "AgentCreditMode",
+            "CostEstimate",
+            "DEFAULT_CREDIT_MODE",
+            "DEMO_CREDIT_CONFIG",
+            "estimateCostFor"
+          ]
+        },
+        {
+          "source": "../engine/demoRoom",
+          "specifiers": [
+            "RESEARCH_PLAN"
+          ]
+        },
+        {
+          "source": "../engine/demoRoom",
+          "specifiers": [
+            "CAPTURE_NOTEBOOK_DOC"
+          ]
+        },
+        {
+          "source": "../engine/types",
+          "specifiers": [
+            "Actor",
+            "Artifact",
+            "ArtifactMeta",
+            "ArtifactVisibility",
+            "Channel",
+            "Lock",
+            "Member",
+            "Message",
+            "Room",
+            "TraceEvent",
+            "AgentSession",
+            "Draft",
+            "ChangeOp",
+            "Proposal",
+            "ResearchRowInput"
+          ]
+        },
+        {
+          "source": "./uploadedArtifact",
+          "specifiers": [
+            "UploadedArtifactInput",
+            "UploadedSourceFile"
+          ]
+        },
+        {
+          "source": "../ui/artifactRefs",
+          "specifiers": [
+            "ArtifactRef"
+          ]
+        },
+        {
+          "source": "../notifications/offlineQueue",
+          "specifiers": [
+            "OfflineEditQueue",
+            "isNetworkError",
+            "OfflineQueueSnapshot"
+          ]
+        },
+        {
+          "source": "../notebook/notebookKernel",
+          "specifiers": [
+            "executeNotebookKernel",
+            "NotebookKernelRequest",
+            "NotebookKernelResult"
+          ]
+        }
+      ],
+      "exports": [
+        "OfflineQueueSnapshot",
+        "projectAgentRunTelemetry",
+        "selectAgentRunTelemetryForJob",
+        "projectAgentJobAttemptTelemetry",
+        "UploadedArtifactInput",
+        "useStore",
+        "HAS_CONVEX",
+        "CONVEX_SITE_URL",
+        "EngineStoreProvider",
+        "ConvexStoreProvider"
+      ],
+      "totalLines": 2583,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/styles.css": {
+      "filePath": "src/app/styles.css",
+      "contentHash": "4b20e246a63171ec93a08b2c656fa63cc479c2f39be14b1b898a8fccc77b7a74",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 3336,
+      "hasStructuralAnalysis": false
+    },
+    "src/features/lending-room/LendingProofBar.tsx": {
+      "filePath": "src/features/lending-room/LendingProofBar.tsx",
+      "contentHash": "aa4ba63d36cbfdccf82f355a04a9660233acb24ca4e15e4faebea19579800166",
+      "functions": [
+        {
+          "name": "LendingProofBar",
+          "params": [
+            "{ roomId }"
+          ],
+          "exported": true,
+          "lineCount": 43
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useMemo",
+            "useState"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Download",
+            "FileCheck2",
+            "ShieldCheck"
+          ]
+        },
+        {
+          "source": "../../app/store",
+          "specifiers": [
+            "useStore"
+          ]
+        },
+        {
+          "source": "../../app/smbLendingRoomSeed",
+          "specifiers": [
+            "SMB_LENDING_PROPOSAL",
+            "SMB_LENDING_VERIFIED_BUNDLE"
+          ]
+        },
+        {
+          "source": "../../domains/smbLending",
+          "specifiers": [
+            "reopenLendingPacketBundle"
+          ]
+        }
+      ],
+      "exports": [
+        "LendingProofBar"
+      ],
+      "totalLines": 51,
+      "hasStructuralAnalysis": true
+    },
+    "src/ui/App.tsx": {
+      "filePath": "src/ui/App.tsx",
+      "contentHash": "ee44f11a6aca8ccf4df5da202be640a4df1de8844e57c83100c44e126a0d152a",
+      "functions": [
+        {
+          "name": "liveSessionKey",
+          "params": [
+            "code"
+          ],
+          "exported": false,
+          "lineCount": 1
+        },
+        {
+          "name": "livePendingKey",
+          "params": [
+            "code"
+          ],
+          "exported": false,
+          "lineCount": 1
+        },
+        {
+          "name": "App",
+          "params": [],
+          "exported": true,
+          "lineCount": 113
+        },
+        {
+          "name": "readRoutableHash",
+          "params": [],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "normalizeMobileLandingUrl",
+          "params": [
+            "location"
+          ],
+          "returnType": "string | null",
+          "exported": false,
+          "lineCount": 44
+        },
+        {
+          "name": "isMobileHash",
+          "params": [
+            "hash"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "isMobileLandingViewport",
+          "params": [],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "copyParam",
+          "params": [
+            "source",
+            "target",
+            "key"
+          ],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "normalizeSourceHash",
+          "params": [
+            "hash"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "initialMemorySession",
+          "params": [],
+          "returnType": "Session | null",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "MemoryApp",
+          "params": [
+            "{ session, onSession }"
+          ],
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "ConvexApp",
+          "params": [],
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "AuthenticatedConvexApp",
+          "params": [],
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "ConvexRoomApp",
+          "params": [
+            "{ auth, signOut }"
+          ],
+          "exported": false,
+          "lineCount": 170
+        },
+        {
+          "name": "LiveRoomBootShell",
+          "params": [
+            "{ code, kind }"
+          ],
+          "exported": false,
+          "lineCount": 47
+        },
+        {
+          "name": "initialLiveRequest",
+          "params": [],
+          "returnType": "LiveRequest",
+          "exported": false,
+          "lineCount": 28
+        },
+        {
+          "name": "initialLandingIntent",
+          "params": [],
+          "returnType": "\"create\" | \"join\" | \"sample\" | null",
+          "exported": false,
+          "lineCount": 12
+        },
+        {
+          "name": "initialLandingCode",
+          "params": [],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "writeLiveUrl",
+          "params": [
+            "kind",
+            "code",
+            "_name",
+            "title",
+            "options"
+          ],
+          "exported": false,
+          "lineCount": 18
+        },
+        {
+          "name": "clearLiveUrl",
+          "params": [],
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "normalizeLiveRoomCode",
+          "params": [
+            "raw"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "cleanLiveName",
+          "params": [
+            "raw",
+            "fallback"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "cleanLiveTitle",
+          "params": [
+            "raw",
+            "fallback"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "isJoinFailure",
+          "params": [
+            "value"
+          ],
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "joinFailureMessage",
+          "params": [
+            "error"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "friendlyLiveError",
+          "params": [
+            "error"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "makeLiveRoomCode",
+          "params": [],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "randomToken",
+          "params": [],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "loadLiveSession",
+          "params": [
+            "key"
+          ],
+          "returnType": "LiveSession | null",
+          "exported": false,
+          "lineCount": 25
+        },
+        {
+          "name": "saveLivePending",
+          "params": [
+            "code",
+            "value"
+          ],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "readLivePending",
+          "params": [
+            "code"
+          ],
+          "returnType": "PendingLiveRequest | null",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "clearLivePending",
+          "params": [
+            "code"
+          ],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "isPersistedLiveId",
+          "params": [
+            "value"
+          ],
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "isPersistedLiveName",
+          "params": [
+            "value"
+          ],
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "isPersistedLiveToken",
+          "params": [
+            "value"
+          ],
+          "exported": false,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "lazy",
+            "Suspense",
+            "useEffect",
+            "useRef",
+            "useState"
+          ]
+        },
+        {
+          "source": "convex/react",
+          "specifiers": [
+            "useConvexAuth",
+            "useMutation",
+            "useQuery"
+          ]
+        },
+        {
+          "source": "@convex-dev/auth/react",
+          "specifiers": [
+            "useAuthActions"
+          ]
+        },
+        {
+          "source": "../../convex/_generated/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "./Landing",
+          "specifiers": [
+            "Landing"
+          ]
+        },
+        {
+          "source": "./RoomShell",
+          "specifiers": [
+            "RoomShell"
+          ]
+        },
+        {
+          "source": "./BtbLiveLedgerPanel",
+          "specifiers": [
+            "BtbLiveLedgerPanel"
+          ]
+        },
+        {
+          "source": "./FrontierObservationsPanel",
+          "specifiers": [
+            "FrontierObservationsPanel"
+          ]
+        },
+        {
+          "source": "../landing/LandingStory",
+          "specifiers": [
+            "LandingStory"
+          ]
+        },
+        {
+          "source": "../app/store",
+          "specifiers": [
+            "EngineStoreProvider",
+            "ConvexStoreProvider",
+            "HAS_CONVEX"
+          ]
+        },
+        {
+          "source": "../app/roomStore",
+          "specifiers": [
+            "createFreshRoom",
+            "enterBankerToolBenchRoomAsHost",
+            "enterDemoRoomAsHost",
+            "enterHackwithBayRoomAsHost",
+            "enterScaleDemoRoomAsHost",
+            "enterSmbLendingDeploymentRoomAsHost",
+            "enterUpScaleXRoomAsHost"
+          ]
+        },
+        {
+          "source": "../engine/types",
+          "specifiers": [
+            "Actor"
+          ]
+        },
+        {
+          "source": "../auth/launchAuth",
+          "specifiers": [
+            "authIntentLabel",
+            "clearPersistedRoomSessions",
+            "launchAuthRequired"
+          ]
+        },
+        {
+          "source": "./auth/AccountGate",
+          "specifiers": [
+            "AccountGate"
+          ]
+        },
+        {
+          "source": "../features/lending-room/LendingProofBar",
+          "specifiers": [
+            "LendingProofBar"
+          ]
+        }
+      ],
+      "exports": [
+        "App"
+      ],
+      "totalLines": 692,
+      "hasStructuralAnalysis": true
+    },
+    "src/ui/panels/Artifact.tsx": {
+      "filePath": "src/ui/panels/Artifact.tsx",
+      "contentHash": "cc8a2475ee80ee7d9692392c1041af79caafb697b718d9d3f930577fe79f00f1",
+      "functions": [
+        {
+          "name": "computeRowWindow",
+          "params": [
+            "scrollTop",
+            "viewportPx",
+            "totalRows",
+            "focusedIndex",
+            "rowPx",
+            "overscan"
+          ],
+          "returnType": "RowWindow",
+          "exported": true,
+          "lineCount": 23
+        },
+        {
+          "name": "ArtifactSurface",
+          "params": [
+            "{ roomId, me, proof, artId, onArt, style, surfaceKey = \"primary\", headerExtra, openIds, onCloseArtifact, onOpenChat }"
+          ],
+          "exported": false,
+          "lineCount": 342
+        },
+        {
+          "name": "ArtifactAuxSurfaceFallback",
+          "params": [],
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "makeBlankRoomCode",
+          "params": [],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "RoomHomeSurface",
+          "params": [
+            "{ roomId, me, style, onOpenChat, embedded, artifacts, onOpenArtifact, contextArtifactId }"
+          ],
+          "exported": false,
+          "lineCount": 35
+        },
+        {
+          "name": "Artifact",
+          "params": [
+            "props"
+          ],
+          "exported": true,
+          "lineCount": 142
+        },
+        {
+          "name": "Wiki",
+          "params": [
+            "{ roomId, art, onOpenArtifact }"
+          ],
+          "exported": false,
+          "lineCount": 108
+        },
+        {
+          "name": "artifactWikiMeta",
+          "params": [
+            "art"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "coColor",
+          "params": [
+            "name"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "coAvatarStyle",
+          "params": [
+            "name"
+          ],
+          "returnType": "{ background: string; color: string }",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "coInitials",
+          "params": [
+            "name"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "Research",
+          "params": [
+            "{ roomId, me, art }"
+          ],
+          "exported": true,
+          "lineCount": 193
+        },
+        {
+          "name": "parseResearchRows",
+          "params": [
+            "text"
+          ],
+          "returnType": "ResearchRowInput[]",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "freshnessLabel",
+          "params": [
+            "last"
+          ],
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "freshnessClass",
+          "params": [
+            "last"
+          ],
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "csvEscape",
+          "params": [
+            "value"
+          ],
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "downloadResearchCsv",
+          "params": [
+            "art",
+            "rowIds",
+            "cell"
+          ],
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "ResearchLegacy",
+          "params": [
+            "{ art }"
+          ],
+          "exported": true,
+          "lineCount": 35
+        },
+        {
+          "name": "commit",
+          "params": [
+            "store",
+            "roomId",
+            "me",
+            "artId",
+            "elementId",
+            "value"
+          ],
+          "returnType": "Promise<EditFeedback | null>",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "createElement",
+          "params": [
+            "store",
+            "roomId",
+            "me",
+            "artId",
+            "elementId",
+            "value"
+          ],
+          "returnType": "Promise<EditFeedback>",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "deleteElement",
+          "params": [
+            "store",
+            "roomId",
+            "me",
+            "artId",
+            "elementId"
+          ],
+          "returnType": "Promise<EditFeedback | null>",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "editErrorMsg",
+          "params": [
+            "f"
+          ],
+          "exported": false,
+          "lineCount": 9
+        },
+        {
+          "name": "lockedByOther",
+          "params": [
+            "store",
+            "artId",
+            "elementId",
+            "me"
+          ],
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "draftedFor",
+          "params": [
+            "store",
+            "roomId",
+            "artId",
+            "elementId"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "memberColor",
+          "params": [
+            "store",
+            "roomId",
+            "actor"
+          ],
+          "returnType": "string | undefined",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "touchPresence",
+          "params": [
+            "store",
+            "roomId",
+            "artId",
+            "me",
+            "targetId",
+            "mode",
+            "color"
+          ],
+          "exported": false,
+          "lineCount": 13
+        },
+        {
+          "name": "presenceForCell",
+          "params": [
+            "rows",
+            "elementId",
+            "me"
+          ],
+          "returnType": "PresenceClaim | null",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "presenceStyle",
+          "params": [
+            "row"
+          ],
+          "returnType": "CSSProperties | undefined",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "presenceLabel",
+          "params": [
+            "row"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "presenceLadderModel",
+          "params": [
+            "rows",
+            "elementId",
+            "selfId",
+            "now"
+          ],
+          "returnType": "LadderResult",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "PresenceLadder",
+          "params": [
+            "{ rows, elementId, selfId }"
+          ],
+          "exported": true,
+          "lineCount": 28
+        },
+        {
+          "name": "valueClass",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "EditableCell",
+          "params": [
+            "{ value, disabled, align, onCommit, addLabel, onEditStart, onEditEnd }"
+          ],
+          "exported": false,
+          "lineCount": 19
+        },
+        {
+          "name": "isBlankSpreadsheet",
+          "params": [
+            "art"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "dataframeRowCount",
+          "params": [
+            "art"
+          ],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "rowIdsOf",
+          "params": [
+            "art"
+          ],
+          "returnType": "string[]",
+          "exported": false,
+          "lineCount": 20
+        },
+        {
+          "name": "cellVal",
+          "params": [
+            "art",
+            "rowId",
+            "col"
+          ],
+          "exported": false,
+          "lineCount": 1
+        },
+        {
+          "name": "colsOf",
+          "params": [
+            "art"
+          ],
+          "returnType": "string[]",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "sheetElementId",
+          "params": [
+            "art",
+            "rowId",
+            "colId"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 15
+        },
+        {
+          "name": "parseSheetElementId",
+          "params": [
+            "art",
+            "elementId"
+          ],
+          "returnType": "{ rowId: string; colId: string }",
+          "exported": false,
+          "lineCount": 15
+        },
+        {
+          "name": "dataframeColumnWidth",
+          "params": [
+            "col",
+            "index"
+          ],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "scaleColumnWidth",
+          "params": [
+            "col",
+            "index"
+          ],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "sheetColumnWidth",
+          "params": [
+            "art",
+            "col",
+            "index"
+          ],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 14
+        },
+        {
+          "name": "dataframeCellAddress",
+          "params": [
+            "art",
+            "cols",
+            "rows",
+            "key"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "isNumberLikeCell",
+          "params": [
+            "value"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 9
+        },
+        {
+          "name": "cellHasVisibleValue",
+          "params": [
+            "value"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "lettersToColumnNumber",
+          "params": [
+            "letters"
+          ],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "expandSheetMerges",
+          "params": [
+            "merges"
+          ],
+          "returnType": "{ mergeAnchor: Map<string, { colSpan: number; rowSpan: number }>; mergeCovered: Set<string> }",
+          "exported": false,
+          "lineCount": 23
+        },
+        {
+          "name": "normalizeDataframeColumn",
+          "params": [
+            "col"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "isGenericStatusColumn",
+          "params": [
+            "col"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "isGenericOwnerColumn",
+          "params": [
+            "col"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "isGenericSourceColumn",
+          "params": [
+            "col"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "extractUrl",
+          "params": [
+            "value"
+          ],
+          "returnType": "string | null",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "sourceHost",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "statusTone",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "statusText",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "sheetStatusFilterForValue",
+          "params": [
+            "value"
+          ],
+          "returnType": "SheetStatusFilter",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "sheetStatusFilterLabel",
+          "params": [
+            "filter"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "evidenceTitle",
+          "params": [
+            "payload"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "evidenceReceiptLink",
+          "params": [
+            "item"
+          ],
+          "returnType": "string | undefined",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "clampEvidenceText",
+          "params": [
+            "text",
+            "max"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "confidencePctOf",
+          "params": [
+            "confidence"
+          ],
+          "returnType": "number | undefined",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "evidencePopoverModel",
+          "params": [
+            "payload"
+          ],
+          "returnType": "EvidencePopoverModel",
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "evidenceCheckedLabel",
+          "params": [
+            "ts",
+            "now"
+          ],
+          "returnType": "string | undefined",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "evidencePopoverPlacement",
+          "params": [
+            "rect",
+            "viewport"
+          ],
+          "returnType": "{ flip: \"down\" | \"up\"; align: \"right\" | \"left\" }",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "EvidenceReceipt",
+          "params": [
+            "{ payload, compact = false, checkedAt }"
+          ],
+          "exported": true,
+          "lineCount": 33
+        },
+        {
+          "name": "cellHistoryEnabled",
+          "params": [
+            "mode",
+            "proof"
+          ],
+          "returnType": "boolean",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "historyValuePreview",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "historyTimeAgo",
+          "params": [
+            "ts",
+            "now"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "wordDiffSegments",
+          "params": [
+            "oldText",
+            "nextText"
+          ],
+          "returnType": "{ old: DiffSegment[]; next: DiffSegment[] }",
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "CellDiff",
+          "params": [
+            "{ version, oldValue, currentValue }"
+          ],
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "CellHistory",
+          "params": [
+            "{ roomId, artifactId, elementId, requester, currentValue, shifted, onFeedback }"
+          ],
+          "exported": true,
+          "lineCount": 47
+        },
+        {
+          "name": "CellHistoryPopover",
+          "params": [
+            "{ roomId, artifactId, elementId, requester, currentValue, onClose, onFeedback }"
+          ],
+          "exported": false,
+          "lineCount": 69
+        },
+        {
+          "name": "staleLabelFor",
+          "params": [
+            "checkedAt",
+            "now"
+          ],
+          "returnType": "string | undefined",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "cellStaleness",
+          "params": [
+            "payload",
+            "updatedAt",
+            "now"
+          ],
+          "returnType": "string | undefined",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "StaleChip",
+          "params": [
+            "{ label }"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "renderGenericCellContent",
+          "params": [
+            "col",
+            "value"
+          ],
+          "returnType": "ReactNode",
+          "exported": false,
+          "lineCount": 34
+        },
+        {
+          "name": "GenericResearchWorkflow",
+          "params": [
+            "{ roomId, me, art, rows, activeRowId }"
+          ],
+          "exported": false,
+          "lineCount": 124
+        },
+        {
+          "name": "GenericSheet",
+          "params": [
+            "{ roomId, me, art, proof, onError }"
+          ],
+          "exported": true,
+          "lineCount": 435
+        },
+        {
+          "name": "filterGenericSheetRows",
+          "params": [
+            "art",
+            "rows",
+            "cols",
+            "query"
+          ],
+          "returnType": "string[]",
+          "exported": false,
+          "lineCount": 15
+        },
+        {
+          "name": "columnsOf",
+          "params": [
+            "art"
+          ],
+          "returnType": "DataframeColumn[]",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "asCellPayload",
+          "params": [
+            "value"
+          ],
+          "returnType": "CellPayload | null",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "spreadsheetCellFontColorCss",
+          "params": [
+            "art",
+            "elementId"
+          ],
+          "returnType": "string | undefined",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "unwrapDisplayCellValue",
+          "params": [
+            "value",
+            "depth"
+          ],
+          "returnType": "unknown",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "displayCellValue",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "exportScalarCellValue",
+          "params": [
+            "value"
+          ],
+          "returnType": "string | number | boolean | Date | null",
+          "exported": false,
+          "lineCount": 16
+        },
+        {
+          "name": "exportCellValue",
+          "params": [
+            "value"
+          ],
+          "returnType": "import(\"exceljs\").CellValue",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "applyExportCell",
+          "params": [
+            "cell",
+            "value",
+            "importedStyle",
+            "numFmts"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 39
+        },
+        {
+          "name": "appendExportRow",
+          "params": [
+            "worksheet",
+            "values"
+          ],
+          "returnType": "import(\"exceljs\").Row",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "sanitizeFilename",
+          "params": [
+            "name"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "exportSheetAsXlsx",
+          "params": [
+            "art",
+            "visibleRoot",
+            "allArts"
+          ],
+          "returnType": "Promise<XlsxDownloadReceipt>",
+          "exported": false,
+          "lineCount": 86
+        },
+        {
+          "name": "workbookExportSheets",
+          "params": [
+            "active",
+            "allArts"
+          ],
+          "returnType": "Art[]",
+          "exported": false,
+          "lineCount": 14
+        },
+        {
+          "name": "exportWorkbookBaseName",
+          "params": [
+            "active",
+            "sheets"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "worksheetNameForExport",
+          "params": [
+            "art",
+            "used"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 12
+        },
+        {
+          "name": "appendSheetArtifactWorksheet",
+          "params": [
+            "workbook",
+            "art",
+            "usedSheetNames"
+          ],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 46
+        },
+        {
+          "name": "visibleGenericSheetCellValues",
+          "params": [
+            "root",
+            "artifactId"
+          ],
+          "returnType": "Map<string, string>",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "prettyCol",
+          "params": [
+            "col"
+          ],
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "Sheet",
+          "params": [
+            "{ roomId, me, art, proof, onError }"
+          ],
+          "exported": false,
+          "lineCount": 110
+        },
+        {
+          "name": "proposalFor",
+          "params": [
+            "proposals",
+            "artifactId",
+            "elementId"
+          ],
+          "returnType": "Proposal | undefined",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "isSemanticProposal",
+          "params": [
+            "proposal"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "proposalValue",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "InlineProposal",
+          "params": [
+            "{ roomId, me, proposal, onResolved }"
+          ],
+          "exported": false,
+          "lineCount": 27
+        },
+        {
+          "name": "citationHost",
+          "params": [
+            "href"
+          ],
+          "returnType": "string | null",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "notebookCitationModel",
+          "params": [
+            "html",
+            "cap"
+          ],
+          "returnType": "NotebookFootnote[]",
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "combinedNotebookFootnotes",
+          "params": [
+            "docHtml",
+            "agentHtml"
+          ],
+          "returnType": "NotebookFootnote[]",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "notebookPaperMeta",
+          "params": [
+            "...htmls"
+          ],
+          "returnType": "{ blocks: number; needsReview: number }",
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "blockTextsFromDom",
+          "params": [
+            "root"
+          ],
+          "returnType": "Map<string, string>",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "blockTextsFromHtml",
+          "params": [
+            "html"
+          ],
+          "returnType": "Map<string, string>",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "diffWetBlockIds",
+          "params": [
+            "prev",
+            "next"
+          ],
+          "returnType": "string[]",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "escapeBlockIdSelector",
+          "params": [
+            "id"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "applyWetInk",
+          "params": [
+            "root",
+            "ids"
+          ],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "citationSupDom",
+          "params": [
+            "n"
+          ],
+          "returnType": "HTMLElement",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "paperDecorations",
+          "params": [
+            "doc",
+            "offset",
+            "max"
+          ],
+          "returnType": "DecorationSet",
+          "exported": false,
+          "lineCount": 50
+        },
+        {
+          "name": "createNotebookPaperInk",
+          "params": [
+            "offset",
+            "max"
+          ],
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "NotebookPaperFrame",
+          "params": [
+            "{ title, meta, children, footer }"
+          ],
+          "exported": true,
+          "lineCount": 30
+        },
+        {
+          "name": "NotebookFootnotes",
+          "params": [
+            "{ notes }"
+          ],
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "agentNotesHtml",
+          "params": [
+            "art"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "SyncedNote",
+          "params": [
+            "{ roomId, me, proof, art }"
+          ],
+          "exported": true,
+          "lineCount": 109
+        },
+        {
+          "name": "SyncedEditorInner",
+          "params": [
+            "{\n  docId, roomId, me, art, store, setNoteErr, onDirty, onDocHtml,\n}"
+          ],
+          "exported": false,
+          "lineCount": 49
+        },
+        {
+          "name": "NotebookEditorControlsFromContext",
+          "params": [],
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "NotebookEditorControls",
+          "params": [
+            "{ editor }"
+          ],
+          "exported": false,
+          "lineCount": 25
+        },
+        {
+          "name": "NotebookPresenceLayer",
+          "params": [
+            "{ roomId, artifactId, containerRef }"
+          ],
+          "exported": false,
+          "lineCount": 42
+        },
+        {
+          "name": "NotebookInlinePatchLayer",
+          "params": [
+            "{ roomId, artifactId, containerRef }"
+          ],
+          "exported": false,
+          "lineCount": 78
+        },
+        {
+          "name": "payloadRecord",
+          "params": [
+            "payload"
+          ],
+          "returnType": "Record<string, unknown>",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "textList",
+          "params": [
+            "value",
+            "key"
+          ],
+          "returnType": "string[]",
+          "exported": false,
+          "lineCount": 13
+        },
+        {
+          "name": "NotebookReadModelPanel",
+          "params": [
+            "{\n  blocks,\n  plans,\n  dirtyStatus,\n  onCreatePlan,\n  onApprovePlan,\n}"
+          ],
+          "exported": false,
+          "lineCount": 101
+        },
+        {
+          "name": "AgentNotesBlock",
+          "params": [
+            "{ art, citationOffset = 0 }"
+          ],
+          "exported": false,
+          "lineCount": 15
+        },
+        {
+          "name": "SanitizedHtml",
+          "params": [
+            "{ html, className, citationOffset = 0 }"
+          ],
+          "exported": false,
+          "lineCount": 27
+        },
+        {
+          "name": "Note",
+          "params": [
+            "{ roomId, me, proof, art }"
+          ],
+          "exported": true,
+          "lineCount": 56
+        },
+        {
+          "name": "isUploadedFileDoc",
+          "params": [
+            "value"
+          ],
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "FileViewer",
+          "params": [
+            "{ roomId, me, proof, art, doc }"
+          ],
+          "exported": false,
+          "lineCount": 85
+        },
+        {
+          "name": "isPdfFileDoc",
+          "params": [
+            "doc"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "isPersistedArtifactId",
+          "params": [
+            "id"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "PdfFilePreview",
+          "params": [
+            "{ doc, previewUrl, loadingSourceUrl }"
+          ],
+          "exported": false,
+          "lineCount": 24
+        },
+        {
+          "name": "useDataUrlObjectUrl",
+          "params": [
+            "dataUrl",
+            "mimeType"
+          ],
+          "returnType": "string | null",
+          "exported": false,
+          "lineCount": 21
+        },
+        {
+          "name": "objectUrlFromDataUrl",
+          "params": [
+            "dataUrl",
+            "fallbackMimeType"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 9
+        },
+        {
+          "name": "bytesFromBase64",
+          "params": [
+            "base64"
+          ],
+          "returnType": "Uint8Array",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "arrayBufferFromBytes",
+          "params": [
+            "bytes"
+          ],
+          "returnType": "ArrayBuffer",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "OfficeFilePreview",
+          "params": [
+            "{ preview, error }"
+          ],
+          "exported": false,
+          "lineCount": 26
+        },
+        {
+          "name": "artifactTabDisplay",
+          "params": [
+            "artifact"
+          ],
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "fileViewerDisplay",
+          "params": [
+            "fileName",
+            "mimeType"
+          ],
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "generatedBtbDeliverableLabel",
+          "params": [
+            "fileName"
+          ],
+          "returnType": "string | null",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "compactFileTitle",
+          "params": [
+            "fileName"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "readableFileType",
+          "params": [
+            "fileName",
+            "mimeType"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 13
+        },
+        {
+          "name": "fileExtension",
+          "params": [
+            "fileName"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "formatBytes",
+          "params": [
+            "bytes"
+          ],
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "inventoryItem",
+          "params": [
+            "art"
+          ],
+          "returnType": "InventoryItem",
+          "exported": false,
+          "lineCount": 17
+        },
+        {
+          "name": "inventoryGroups",
+          "params": [
+            "arts"
+          ],
+          "returnType": "{ key: string; label: string; Icon: LucideIcon; items: InventoryItem[] }[]",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "Wall",
+          "params": [
+            "{ roomId, me, art, onOpenArtifact }"
+          ],
+          "exported": false,
+          "lineCount": 88
+        },
+        {
+          "name": "Sticky",
+          "params": [
+            "{ roomId, me, artId, id, v, locked, author, onDelete, onError }"
+          ],
+          "exported": false,
+          "lineCount": 12
+        },
+        {
+          "name": "traceKindOf",
+          "params": [
+            "type"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "traceFilterModel",
+          "params": [
+            "log"
+          ],
+          "returnType": "{ kinds: string[]; people: string[] }",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "filterTraces",
+          "params": [
+            "log",
+            "kind",
+            "person"
+          ],
+          "returnType": "TraceEvent[]",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "groupTraceBursts",
+          "params": [
+            "rows"
+          ],
+          "returnType": "TraceBurstGroup[]",
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "TraceStrip",
+          "params": [
+            "{ roomId, me, onOpenGraph }"
+          ],
+          "exported": true,
+          "lineCount": 130
+        },
+        {
+          "name": "ProposalRow",
+          "params": [
+            "{ roomId, me, proposal, onResolved }"
+          ],
+          "exported": false,
+          "lineCount": 38
+        },
+        {
+          "name": "proposalErrMsg",
+          "params": [
+            "reason"
+          ],
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "compactTraceSummary",
+          "params": [
+            "summary"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "TraceRow",
+          "params": [
+            "{ t }"
+          ],
+          "exported": false,
+          "lineCount": 22
+        },
+        {
+          "name": "toolFor",
+          "params": [
+            "type"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 14
+        },
+        {
+          "name": "statusFor",
+          "params": [
+            "type"
+          ],
+          "returnType": "\"ok\" | \"error\" | \"info\"",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "traceIcon",
+          "params": [
+            "type"
+          ],
+          "returnType": "{ cls: string; Icon: LucideIcon }",
+          "exported": false,
+          "lineCount": 16
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "Fragment",
+            "Suspense",
+            "lazy",
+            "useEffect",
+            "useMemo",
+            "useRef",
+            "useState",
+            "CSSProperties",
+            "ReactNode"
+          ]
+        },
+        {
+          "source": "@tiptap/react",
+          "specifiers": [
+            "useEditor",
+            "useCurrentEditor",
+            "EditorContent",
+            "EditorProvider"
+          ]
+        },
+        {
+          "source": "@tiptap/core",
+          "specifiers": [
+            "Extension",
+            "Editor"
+          ]
+        },
+        {
+          "source": "@tiptap/pm/state",
+          "specifiers": [
+            "Plugin",
+            "PluginKey"
+          ]
+        },
+        {
+          "source": "@tiptap/pm/view",
+          "specifiers": [
+            "Decoration",
+            "DecorationSet"
+          ]
+        },
+        {
+          "source": "@tiptap/pm/model",
+          "specifiers": [
+            "PmDocNode"
+          ]
+        },
+        {
+          "source": "convex/react",
+          "specifiers": [
+            "useQuery",
+            "useMutation"
+          ]
+        },
+        {
+          "source": "convex/server",
+          "specifiers": [
+            "FunctionReference"
+          ]
+        },
+        {
+          "source": "./artifact-receipts.css",
+          "specifiers": []
+        },
+        {
+          "source": "./notebook-paper.css",
+          "specifiers": []
+        },
+        {
+          "source": "@convex-dev/prosemirror-sync/tiptap",
+          "specifiers": [
+            "useTiptapSync"
+          ]
+        },
+        {
+          "source": "../../notebook/extensions",
+          "specifiers": [
+            "NOTEBOOK_EXTENSIONS"
+          ]
+        },
+        {
+          "source": "../../../convex/_generated/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Table2",
+            "FileText",
+            "StickyNote",
+            "Users",
+            "GitMerge",
+            "RotateCcw",
+            "History",
+            "Search",
+            "BookOpen",
+            "Home",
+            "ListChecks",
+            "Lock",
+            "Unlock",
+            "Ban",
+            "Pencil",
+            "Plus",
+            "Check",
+            "AlertTriangle",
+            "Eye",
+            "Circle",
+            "ChevronRight",
+            "ChevronDown",
+            "Download",
+            "Trash2",
+            "Undo2",
+            "X",
+            "Columns2",
+            "MoreHorizontal",
+            "Mail",
+            "Hash",
+            "Layers",
+            "Linkedin",
+            "Activity",
+            "Share2",
+            "Clock3",
+            "LucideIcon",
+            "Sparkles",
+            "Folder",
+            "Briefcase",
+            "Package",
+            "FileIcon"
+          ]
+        },
+        {
+          "source": "../../app/store",
+          "specifiers": [
+            "useStore",
+            "ActorProof",
+            "RoomStore",
+            "EditFeedback",
+            "PresenceClaim"
+          ]
+        },
+        {
+          "source": "../../app/spreadsheetIndex",
+          "specifiers": [
+            "columnLetters"
+          ]
+        },
+        {
+          "source": "../stageFocus",
+          "specifiers": [
+            "onStageFocus",
+            "focusStage",
+            "StageFocusTarget"
+          ]
+        },
+        {
+          "source": "./TodaysBrief",
+          "specifiers": [
+            "TodaysBrief"
+          ]
+        },
+        {
+          "source": "../traceLens/evidence",
+          "specifiers": [
+            "classifyEvidence"
+          ]
+        },
+        {
+          "source": "../../engine/types",
+          "specifiers": [
+            "Actor",
+            "Art",
+            "CellEvidence",
+            "CellPayload",
+            "DataframeColumn",
+            "DocumentParseMeta",
+            "ExcelCellStyle",
+            "Proposal",
+            "TraceEvent",
+            "ResearchRowInput"
+          ]
+        },
+        {
+          "source": "../../shared/spreadsheetFontColor",
+          "specifiers": [
+            "normalizeSpreadsheetFontColor",
+            "spreadsheetFontColorToCss"
+          ]
+        },
+        {
+          "source": "../overlay/AttentionOverlay",
+          "specifiers": [
+            "AttentionOverlay"
+          ]
+        },
+        {
+          "source": "../overlay/spreadsheetResolver",
+          "specifiers": [
+            "createSpreadsheetResolver"
+          ]
+        },
+        {
+          "source": "../overlay/focusBoxesForSheet",
+          "specifiers": [
+            "focusBoxesForSheet",
+            "SheetCellState"
+          ]
+        },
+        {
+          "source": "../openRoomReference",
+          "specifiers": [
+            "OPT_ARTIFACT_PREFIX",
+            "optimisticArtifactIdentity"
+          ]
+        },
+        {
+          "source": "../presenceLadder",
+          "specifiers": [
+            "ladderFor",
+            "LADDER_MEMBER_CAP",
+            "LadderResult"
+          ]
+        },
+        {
+          "source": "../../nodeagent/skills/integration/downstreamPublish",
+          "specifiers": [
+            "prepareDownstreamDrafts",
+            "PreparedDownstreamDraft"
+          ]
+        },
+        {
+          "source": "./workbookFilePreview",
+          "specifiers": [
+            "isWorkbookPreviewDoc",
+            "workbookPreviewArtifactFromDataUrl"
+          ]
+        },
+        {
+          "source": "./officeFilePreview",
+          "specifiers": [
+            "isOfficePreviewDoc",
+            "officePreviewFromDataUrl",
+            "OfficePreview"
+          ]
+        },
+        {
+          "source": "../room/RoomHome",
+          "specifiers": [
+            "RoomHome"
+          ]
+        },
+        {
+          "source": "../workArtifacts/notebookPatchDiff",
+          "specifiers": [
+            "buildNotebookPatchDiff",
+            "notebookPatchValueText",
+            "NotebookPatchDiff"
+          ]
+        },
+        {
+          "source": "../../components/ui/hover-card",
+          "specifiers": [
+            "HoverCard",
+            "HoverCardContent",
+            "HoverCardTrigger"
+          ]
+        },
+        {
+          "source": "../../components/ui/popover",
+          "specifiers": [
+            "Popover",
+            "PopoverContent",
+            "PopoverTrigger"
+          ]
+        },
+        {
+          "source": "../../components/ui/scroll-area",
+          "specifiers": [
+            "ScrollArea"
+          ]
+        },
+        {
+          "source": "../workArtifacts/collaborativeDeck",
+          "specifiers": [
+            "isCollaborativeDeckArtifact"
+          ]
+        },
+        {
+          "source": "../workArtifacts/workArtifactsNavigation",
+          "specifiers": [
+            "onOpenWorkArtifactsReview"
+          ]
+        }
+      ],
+      "exports": [
+        "SCALE_SHEET_ROW_PX",
+        "SCALE_SHEET_OVERSCAN",
+        "computeRowWindow",
+        "Artifact",
+        "Research",
+        "ResearchLegacy",
+        "presenceLadderModel",
+        "PresenceLadder",
+        "EVIDENCE_POPOVER_MAX_ITEMS",
+        "EVIDENCE_POPOVER_SNIPPET_MAX",
+        "evidencePopoverModel",
+        "evidenceCheckedLabel",
+        "evidencePopoverPlacement",
+        "EvidenceReceipt",
+        "CELL_HISTORY_LIMIT",
+        "CELL_DIFF_MAX_WORDS",
+        "cellHistoryEnabled",
+        "historyValuePreview",
+        "historyTimeAgo",
+        "wordDiffSegments",
+        "CellDiff",
+        "CellHistory",
+        "STALE_AFTER_MS",
+        "staleLabelFor",
+        "cellStaleness",
+        "StaleChip",
+        "GenericSheet",
+        "spreadsheetCellFontColorCss",
+        "displayCellValue",
+        "exportCellValue",
+        "applyExportCell",
+        "NOTEBOOK_FOOTNOTE_CAP",
+        "notebookCitationModel",
+        "combinedNotebookFootnotes",
+        "notebookPaperMeta",
+        "blockTextsFromDom",
+        "blockTextsFromHtml",
+        "diffWetBlockIds",
+        "createNotebookPaperInk",
+        "NotebookPaperFrame",
+        "NotebookFootnotes",
+        "SyncedNote",
+        "Note",
+        "inventoryGroups",
+        "traceKindOf",
+        "TRACE_PEOPLE_MAX",
+        "traceFilterModel",
+        "filterTraces",
+        "groupTraceBursts",
+        "TraceStrip"
+      ],
+      "totalLines": 4548,
+      "hasStructuralAnalysis": true
+    },
+    "tests/smbLendingRoomSeed.test.ts": {
+      "filePath": "tests/smbLendingRoomSeed.test.ts",
+      "contentHash": "4b50e162484a08cccf0a4771d462f5fa4c49c34ba754138a2f2ffbd4eb90618c",
+      "functions": [
+        {
+          "name": "artifactText",
+          "params": [
+            "artifact"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 4
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "expect",
+            "it"
+          ]
+        },
+        {
+          "source": "../src/app/roomStore",
+          "specifiers": [
+            "engine",
+            "enterSmbLendingDeploymentRoomAsHost",
+            "handleSmbLendingLocalProposalResolution"
+          ]
+        },
+        {
+          "source": "../src/app/smbLendingRoomSeed",
+          "specifiers": [
+            "SMB_LENDING_EVIDENCE_PROPOSAL",
+            "SMB_LENDING_EVIDENCE_SOURCE",
+            "SMB_LENDING_PROPOSAL",
+            "SMB_LENDING_TEMPLATE",
+            "SMB_LENDING_VERIFIED_RECEIPT"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 67,
+      "hasStructuralAnalysis": true
+    }
+  }
+}

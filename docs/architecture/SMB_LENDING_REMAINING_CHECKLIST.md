@@ -19,7 +19,7 @@ be described publicly as complete.
 - [x] Mount the restaurant case as a native NodeRoom route and artifact set.
 - [x] Complete a local browser proposal approval and CAS application journey.
 - [x] Capture desktop, tablet, and mobile screenshots with zero console errors or overflow.
-- [x] Pass root and Convex typechecks, 2,555 repository tests, and the production build.
+- [x] Pass root and Convex typechecks, 2,558 repository tests, and the production build.
 
 ## Remaining golden-slice product proof
 
@@ -46,6 +46,10 @@ include billed cost, so cost remains `n/a` rather than an estimate.
 
 ## Remaining production certification
 
+- [ ] Replace the local `EngineStoreProvider` route with an authenticated Convex room-template entrypoint while preserving the local deterministic profile.
+- [ ] Seed the lending artifact bundle atomically through the existing `rooms.create.seedArtifacts` contract; do not create a parallel room backend.
+- [ ] Drive both governed proposal transitions through canonical Convex proposal/CAS mutations and persist their traces and receipts.
+- [ ] Persist the regenerated packet and exported-bundle identity in canonical room state so reload proof does not depend on browser storage.
 - [ ] Review and merge this change through the normal NodeRoom PR path.
 - [ ] Deploy the exact reviewed frontend/backend commit through the repository runbook.
 - [ ] Use a fresh authenticated production identity and workspace.
