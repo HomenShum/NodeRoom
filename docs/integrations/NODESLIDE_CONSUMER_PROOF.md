@@ -38,15 +38,16 @@ The product implementation is separate from that fixture proof:
 
 NodeSlide releases
 [`v0.1.0`](https://github.com/HomenShum/NodeSlide/releases/tag/v0.1.0) and
-[`v0.2.0`](https://github.com/HomenShum/NodeSlide/releases/tag/v0.2.0) are
-GitHub-immutable and attested. v0.2.0 is bound to exact producer commit
-`39a9ebfcbaaeef52556bc263d386ea4859f476bb`.
+[`v0.2.2`](https://github.com/HomenShum/NodeSlide/releases/tag/v0.2.2) are
+GitHub-immutable and attested. v0.2.2 is bound to exact producer commit
+`a88fb57f111db82e9334d68fa7611a51ed54c3c1` and passed the public
+[`v0.1.0 → v0.2.2` install/upgrade proof](https://github.com/HomenShum/NodeSlide/actions/runs/29787121559).
 
-The complete v0.2.0 artifact set and upgrade receipt are mirrored under
+The complete v0.2.2 artifact set and upgrade receipt are mirrored under
 `vendor/nodeslide/`; `release-lock.json` binds their digests. Run:
 
 ```powershell
-$env:NODESLIDE_ROOT = "D:\path\to\NodeSlide-at-39a9ebf"
+$env:NODESLIDE_ROOT = "D:\path\to\NodeSlide-at-a88fb57f"
 npm run nodeslide:mounted:release:proof
 ```
 
