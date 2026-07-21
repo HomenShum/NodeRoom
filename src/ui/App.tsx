@@ -22,6 +22,7 @@ import type { Actor } from "../engine/types";
 import { authIntentLabel, clearPersistedRoomSessions, launchAuthRequired } from "../auth/launchAuth";
 import { AccountGate } from "./auth/AccountGate";
 import { LendingProofBar } from "../features/lending-room/LendingProofBar";
+import { createSmbLendingConvexSeed } from "../app/smbLendingRoomSeed";
 
 const liveSessionKey = (code: string) => `noderoom:live:${code.toUpperCase()}`;
 const livePendingKey = (code: string) => `noderoom:livePending:${code.toUpperCase()}`;
@@ -42,6 +43,7 @@ interface LiveSession {
   name: string;
   token: string;
   experience?: "workspace" | "sample";
+  template?: LiveTemplate;
 }
 
 interface PendingLiveRequest {
@@ -50,9 +52,11 @@ interface PendingLiveRequest {
   token?: string;
 }
 
+type LiveTemplate = "smb-lending";
+
 type LiveRequest =
   | { kind: "idle" }
-  | { kind: "join" | "create" | "demo"; code: string; name: string; title?: string; autoAllow?: boolean };
+  | { kind: "join" | "create" | "demo"; code: string; name: string; title?: string; autoAllow?: boolean; template?: LiveTemplate };
 
 export function App() {
   const [hash, setHash] = useState(() => readRoutableHash());
@@ -129,6 +133,7 @@ export function App() {
   }
 
   if (hash === "#smb-lending" || hash === "#/smb-lending") {
+    if (HAS_CONVEX) return <LiveSmbLendingLauncher />;
     smbLendingSessionRef.current ??= enterSmbLendingDeploymentRoomAsHost();
     return (
       <EngineStoreProvider roomId={smbLendingSessionRef.current.roomId} me={smbLendingSessionRef.current.me}>
@@ -166,6 +171,22 @@ export function App() {
   }
 
   return HAS_CONVEX ? <ConvexApp /> : <MemoryApp session={memorySession} onSession={setMemorySession} />;
+}
+
+function LiveSmbLendingLauncher() {
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    url.hash = "";
+    url.search = "";
+    url.searchParams.set("create", makeLiveRoomCode());
+    url.searchParams.set("confirmed", "1");
+    url.searchParams.set("template", "smb-lending");
+    url.searchParams.set("title", "SMB Lending Deployment Room");
+    url.searchParams.set("name", "FDE Host");
+    window.history.replaceState(null, "", url);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  }, []);
+  return <LiveRoomBootShell code="NEW" kind="create" />;
 }
 
 function readRoutableHash(): string {
@@ -351,20 +372,22 @@ function ConvexRoomApp({ auth, signOut }: { auth: LaunchAuthState; signOut?: () 
         });
         joined = { roomId: String(result.roomId), memberId: String(result.memberId) };
       } else if (request.kind === "create") {
+        const templateSeed = request.template === "smb-lending" ? createSmbLendingConvexSeed() : null;
         const result = await createRoom({
           code: request.code,
           title: request.title ?? "My workspace",
           hostName: name,
           authToken: token,
           autoAllow: request.autoAllow ?? false,
+          ...(templateSeed ? { seedArtifacts: templateSeed.artifacts, seedProposals: templateSeed.proposals } : {}),
         });
         joined = { roomId: String(result.roomId), memberId: String(result.memberId) };
       }
       if (!joined) throw new Error(`Room ${request.code} was not found. Create it or check the code.`);
-      const next: LiveSession = { roomId: joined.roomId, memberId: joined.memberId, name: joined.name ?? name, token, experience };
+      const next: LiveSession = { roomId: joined.roomId, memberId: joined.memberId, name: joined.name ?? name, token, experience, template: request.template };
       try { localStorage.setItem(liveSessionKey(request.code), JSON.stringify(next)); } catch { /* ignore */ }
       clearLivePending(request.code);
-      writeLiveUrl("join", request.code, next.name, undefined, { sample: experience === "sample" });
+      writeLiveUrl("join", request.code, next.name, undefined, { sample: experience === "sample", template: next.template });
       setSession(next);
     })()
       .catch((e) => { setError(friendlyLiveError(e)); })
@@ -441,6 +464,7 @@ function ConvexRoomApp({ auth, signOut }: { auth: LaunchAuthState; signOut?: () 
   return (
     <ConvexStoreProvider roomId={session.roomId} me={me} proof={proof}>
       <RoomShell roomId={session.roomId} me={me} onLeave={leave} onSignOut={signOutAccount} proof={proof} />
+      {session.template === "smb-lending" ? <LendingProofBar roomId={session.roomId} /> : null}
     </ConvexStoreProvider>
   );
 }
@@ -517,6 +541,7 @@ function initialLiveRequest(): LiveRequest {
   const name = cleanLiveName(params.get("name") ?? "", "Guest");
   const demoParam = params.get("demo");
   const createParam = params.get("create");
+  const template = params.get("template") === "smb-lending" ? "smb-lending" as const : undefined;
   const joinParam = params.get("room");
   const confirmed = params.get("confirmed") === "1";
   const autoAllow = params.get("policy") === "auto";
@@ -529,13 +554,13 @@ function initialLiveRequest(): LiveRequest {
     const code = normalizeLiveRoomCode(createParam && createParam !== "1" ? createParam : makeLiveRoomCode());
     const pending = readLivePending(code);
     const title = cleanLiveTitle(pending?.title ?? params.get("title") ?? "", "My workspace");
-    return code ? { kind: "create", code, name: cleanLiveName(pending?.name ?? params.get("name") ?? "", "Host"), title, autoAllow } : { kind: "idle" };
+    return code ? { kind: "create", code, name: cleanLiveName(pending?.name ?? params.get("name") ?? "", "Host"), title, autoAllow, template } : { kind: "idle" };
   }
   if (joinParam) {
     const code = normalizeLiveRoomCode(joinParam);
     const saved = code ? loadLiveSession(liveSessionKey(code)) : null;
     const pending = code ? readLivePending(code) : null;
-    return code && (confirmed || saved) ? { kind: "join", code, name: saved?.name ?? cleanLiveName(pending?.name ?? name, "Guest") } : { kind: "idle" };
+    return code && (confirmed || saved) ? { kind: "join", code, name: saved?.name ?? cleanLiveName(pending?.name ?? name, "Guest"), template: saved?.template ?? template } : { kind: "idle" };
   }
   return { kind: "idle" };
 }
@@ -563,7 +588,7 @@ function writeLiveUrl(
   code: string,
   _name: string,
   title?: string,
-  options: { confirmed?: boolean; autoAllow?: boolean; sample?: boolean } = {},
+  options: { confirmed?: boolean; autoAllow?: boolean; sample?: boolean; template?: LiveTemplate } = {},
 ) {
   if (typeof window === "undefined") return;
   const url = new URL(window.location.href);
@@ -574,6 +599,7 @@ function writeLiveUrl(
   if (options.confirmed) url.searchParams.set("confirmed", "1");
   if (options.autoAllow) url.searchParams.set("policy", "auto");
   if (options.sample) url.searchParams.set("sample", "1");
+  if (options.template) url.searchParams.set("template", options.template);
   window.history.replaceState(null, "", url);
 }
 

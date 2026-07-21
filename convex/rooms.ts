@@ -492,6 +492,21 @@ export const create = mutation({
       seed: v.array(v.object({ id: v.string(), value: v.any() })),
       meta: v.optional(v.any()),
     }))),
+    // Optional proposal seeds reference an artifact by its position in seedArtifacts so the room,
+    // artifacts, and first review gate commit atomically without exposing provisional database ids
+    // to the client. This is a generic template primitive, not a lending-specific bypass.
+    seedProposals: v.optional(v.array(v.object({
+      artifactIndex: v.number(),
+      op: v.object({
+        opId: v.string(),
+        elementId: v.string(),
+        kind: v.union(v.literal("set"), v.literal("create"), v.literal("delete")),
+        value: v.optional(v.any()),
+        baseVersion: v.number(),
+      }),
+      author: v.object({ kind: v.literal("agent"), id: v.string(), name: v.string(), scope: v.optional(v.union(v.literal("public"), v.literal("private"))) }),
+      review: v.optional(v.any()),
+    }))),
   },
   handler: async (ctx, a) => {
     const now = Date.now();
@@ -502,8 +517,16 @@ export const create = mutation({
     // Validate the whole seed bundle BEFORE the first insert, so an invalid seed rejects the create
     // without writing anything (per-artifact size caps + a bound on how many artifacts one call may seed).
     const seedArtifacts = a.seedArtifacts ?? [];
+    const seedProposals = a.seedProposals ?? [];
     if (seedArtifacts.length > MAX_SEED_ARTIFACTS_PER_ROOM) throw new Error("too_many_seed_artifacts");
     for (const art of seedArtifacts) assertCreateArtifactLimits(art);
+    if (seedProposals.length > MAX_SEED_ARTIFACTS_PER_ROOM) throw new Error("too_many_seed_proposals");
+    for (const proposal of seedProposals) {
+      if (!Number.isInteger(proposal.artifactIndex) || proposal.artifactIndex < 0 || proposal.artifactIndex >= seedArtifacts.length) throw new Error("invalid_seed_proposal_artifact");
+      if (!proposal.op.opId || !proposal.op.elementId || proposal.op.baseVersion !== 1) throw new Error("invalid_seed_proposal_op");
+      const target = seedArtifacts[proposal.artifactIndex];
+      if (proposal.op.kind !== "create" && !target.seed.some((element) => element.id === proposal.op.elementId)) throw new Error("seed_proposal_element_not_found");
+    }
     const existing = await ctx.db.query("rooms").withIndex("by_code", (q) => q.eq("code", code)).first();
     if (existing) throw new Error("room_code_taken");
     const roomId = await ctx.db.insert("rooms", { code, title: a.title, hostId: "", autoAllow: a.autoAllow ?? false, status: "live", createdAt: now, experience: "workspace", starterBackfill: "ready" });
@@ -517,7 +540,20 @@ export const create = mutation({
     for (const art of seedArtifacts) {
       artifactIds.push(await insertStarterArtifact(ctx, { roomId, kind: art.kind, title: art.title, seed: art.seed, meta: art.meta, actor, now }));
     }
-    return { roomId, memberId, artifactIds };
+    const proposalIds: Id<"proposals">[] = [];
+    for (const proposal of seedProposals) {
+      const artifactId = artifactIds[proposal.artifactIndex];
+      proposalIds.push(await ctx.db.insert("proposals", {
+        roomId,
+        artifactId,
+        op: { ...proposal.op, artifactId: String(artifactId) },
+        author: proposal.author,
+        review: proposal.review,
+        status: "pending",
+        createdAt: now,
+      }));
+    }
+    return { roomId, memberId, artifactIds, proposalIds };
   },
 });
 
