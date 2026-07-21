@@ -6,6 +6,8 @@ import { tmpdir } from "node:os";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
+import { convexTest } from "convex-test";
+import { componentsGeneric } from "convex/server";
 
 const execFileAsync = promisify(execFile);
 const LOCK_SCHEMA = "noderoom.nodeslide-release-lock/v1" as const;
@@ -13,8 +15,12 @@ const MANIFEST_SCHEMA = "nodeslide.artifacts/v1" as const;
 
 type ReleaseLock = {
   schemaVersion: typeof LOCK_SCHEMA;
+  releaseTag: string;
+  releaseTagObject: string;
   nodeSlideCommit: string;
   releaseVersion: string;
+  immutable: true;
+  publicProofRunId: number;
   manifestFile: string;
   manifestSha256: `sha256:${string}`;
   installUpgradeProofFile: string;
@@ -79,6 +85,8 @@ const runtimeEntries = lock.runtimePackages.map((name) => {
   if (!entry) fail(`runtime package ${name} is absent from the artifact manifest`);
   return entry;
 });
+const testingEntry = byName.get("@nodeslide/testing");
+if (!testingEntry) fail("@nodeslide/testing is absent from the artifact manifest");
 
 const nodeRoomPackageLock = record(await readJson(resolve("package-lock.json")), "NodeRoom package lock");
 const packageRows = record(nodeRoomPackageLock.packages, "NodeRoom package lock packages");
@@ -95,14 +103,10 @@ for (const entry of runtimeEntries) {
 
 const temporaryRoot = await mkdtemp(join(tmpdir(), "noderoom-nodeslide-release-"));
 let installedPackages: Array<{ name: string; version: string }> = [];
+let isolatedComponentProof: Awaited<ReturnType<typeof runFreshIsolatedComponentProof>> | null = null;
+const npmCli = resolveNpmCli();
 try {
   await writeFile(join(temporaryRoot, "package.json"), JSON.stringify({ private: true, type: "module" }));
-  const npmCliCandidates = [
-    process.env.npm_execpath,
-    join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js"),
-  ].filter((candidate): candidate is string => Boolean(candidate));
-  const npmCli = npmCliCandidates.find((candidate) => existsSync(candidate));
-  if (!npmCli) fail("npm-cli.js was not found; run this proof through npm");
   await execFileAsync(process.execPath, [npmCli,
     "install",
     "--ignore-scripts",
@@ -111,6 +115,7 @@ try {
     "--no-save",
     "--package-lock=false",
     ...runtimeEntries.map((entry) => resolve(artifactRoot, entry.file)),
+    resolve(artifactRoot, testingEntry.file),
   ], { cwd: temporaryRoot, maxBuffer: 16 * 1024 * 1024 });
 
   installedPackages = await Promise.all(lock.runtimePackages.map(async (name) => {
@@ -134,9 +139,13 @@ try {
   if (componentPackage.NODESLIDE_COMPONENT_GRANT_VERSION !== "nodeslide.component-grant/v1") {
     fail("@nodeslide/convex component grant protocol is missing");
   }
+  isolatedComponentProof = await runFreshIsolatedComponentProof(temporaryRoot);
 } finally {
   await rm(temporaryRoot, { recursive: true, force: true });
 }
+if (!isolatedComponentProof) fail("fresh isolated component proof did not complete");
+
+const nodeRoomJourneyProof = await runNodeRoomJourneyTests(npmCli);
 
 const nodeRoomCommit = await gitCommit(process.cwd());
 const nodeRoomDirty = (await execFileAsync("git", ["status", "--porcelain"], { cwd: process.cwd() })).stdout.trim().length > 0;
@@ -152,6 +161,10 @@ const receipt = {
   nodeSlideCommit: lock.nodeSlideCommit,
   checkedNodeSlideCommit,
   releaseVersion: lock.releaseVersion,
+  releaseTag: lock.releaseTag,
+  releaseTagObject: lock.releaseTagObject,
+  immutable: lock.immutable,
+  publicProofRunId: lock.publicProofRunId,
   releaseId: manifest.releaseId,
   manifestSha256: lock.manifestSha256,
   installUpgradeProofSha256: lock.installUpgradeProofSha256,
@@ -166,10 +179,14 @@ const receipt = {
     controlledReactExportVerified: true,
     convexGovernanceExportVerified: true,
     componentGrantProtocolVerified: true,
+    isolatedComponent: isolatedComponentProof,
+    nodeRoomJourney: nodeRoomJourneyProof,
     nodeRoomPackageLockPinsVerified: true,
     producerInstallUpgradeReceiptVerified: true,
     producerTamperRejectionVerified: upgradeProof.tamperedArtifactRejected,
     producerMixedReleaseRejectionVerified: upgradeProof.mixedReleaseRejected,
+    producerCandidateRebuildMatchesPublicAssets:
+      upgradeProof.candidateRebuildMatchesPublicAssets,
     exactNodeSlideCheckoutVerified: checkedNodeSlideCommit !== null,
     exactNodeRoomCommitRecorded: nodeRoomCommit !== null,
   },
@@ -178,6 +195,213 @@ const receipt = {
 const output = `${JSON.stringify(receipt, null, 2)}\n`;
 if (jsonOut) await writeFile(resolve(jsonOut), output);
 process.stdout.write(output);
+
+async function runFreshIsolatedComponentProof(temporaryRoot: string) {
+  const packageRoot = join(temporaryRoot, "node_modules", "@nodeslide");
+  const componentRoot = join(packageRoot, "convex", "dist", "component");
+  const testing = await import(
+    pathToFileURL(join(packageRoot, "testing", "dist", "index.js")).href
+  ) as {
+    createNodeSlideTestSnapshot(deckId: string): {
+      deck: { id: string; updatedAt: number; version: number };
+      elements: Array<{ content?: unknown }>;
+    };
+    createNodeSlideTextPatch(
+      snapshot: unknown,
+      text: string,
+      id?: string,
+    ): { id: string; deckId: string; summary: string };
+  };
+  const componentProtocol = await import(
+    pathToFileURL(join(packageRoot, "convex", "dist", "component.js")).href
+  ) as {
+    nodeSlideComponentPatchDigest(patch: unknown): Promise<string>;
+  };
+  const componentSchemaModule = await import(
+    pathToFileURL(join(packageRoot, "convex", "dist", "componentSchema.js")).href
+  ) as { default: Parameters<ReturnType<typeof convexTest>["registerComponent"]>[1] };
+
+  const mounted = convexTest({
+    modules: { "./_generated/server.js": async () => ({}) },
+  });
+  mounted.registerComponent("nodeslide", componentSchemaModule.default, {
+    "./_generated/server.js": () => import(
+      pathToFileURL(join(componentRoot, "_generated", "server.js")).href
+    ),
+    "./repository.js": () => import(
+      pathToFileURL(join(componentRoot, "repository.js")).href
+    ),
+  });
+  const repository = componentsGeneric().nodeslide.repository;
+  const snapshot = testing.createNodeSlideTestSnapshot(
+    "deck:noderoom:fresh-mounted-release",
+  );
+  const grant = (
+    id: string,
+    action: "deck.initialize" | "deck.read" | "patch.apply",
+    resourceKind: "deck" | "patch",
+    resourceId: string,
+    authorizedAt: number,
+    requestDigest?: string,
+  ) => ({
+    schemaVersion: "nodeslide.component-grant/v1" as const,
+    id: `grant:noderoom:release:${id}`,
+    principalId: "user:noderoom:release-proof",
+    deckId: snapshot.deck.id,
+    action,
+    resource: { kind: resourceKind, id: resourceId },
+    ...(requestDigest ? { requestDigest } : {}),
+    authorizedAt,
+    evidence: {
+      issuer: "noderoom",
+      policyId: "noderoom.nodeslide.artifact-authority",
+      policyVersion: "1",
+      evidenceId: `evidence:${id}`,
+    },
+  });
+
+  await mounted.mutation(repository.initializeDeck, {
+    snapshot,
+    grant: grant(
+      "initialize",
+      "deck.initialize",
+      "deck",
+      snapshot.deck.id,
+      snapshot.deck.updatedAt,
+    ),
+  });
+  const patch = testing.createNodeSlideTextPatch(
+    snapshot,
+    "Fresh installed component accepted exact command",
+    "patch:noderoom:fresh-mounted-release",
+  );
+  const patchDigest = await componentProtocol.nodeSlideComponentPatchDigest(patch);
+  if (!/^sha256:[0-9a-f]{64}$/u.test(patchDigest)) {
+    fail("fresh component returned a non-canonical patch digest");
+  }
+  const boundGrant = grant(
+    "exact-patch",
+    "patch.apply",
+    "patch",
+    patch.id,
+    snapshot.deck.updatedAt + 1,
+    patchDigest,
+  );
+  await requireRejected(
+    () => mounted.mutation(repository.applyPatch, {
+      deckId: snapshot.deck.id,
+      patch: { ...patch, summary: "Substituted after authorization" },
+      grant: boundGrant,
+    }),
+    /not bound/u,
+    "substituted component command",
+  );
+  const applied = record(await mounted.mutation(repository.applyPatch, {
+    deckId: snapshot.deck.id,
+    patch,
+    grant: boundGrant,
+  }), "fresh component apply result");
+  await requireRejected(
+    () => mounted.mutation(repository.applyPatch, {
+      deckId: snapshot.deck.id,
+      patch,
+      grant: boundGrant,
+    }),
+    /already consumed/u,
+    "replayed component grant",
+  );
+  const reread = record(await mounted.query(repository.getDeck, {
+    deckId: snapshot.deck.id,
+    grant: grant(
+      "read",
+      "deck.read",
+      "deck",
+      snapshot.deck.id,
+      snapshot.deck.updatedAt + 2,
+    ),
+  }), "fresh component reread");
+  const rereadElements = reread.elements;
+  if (
+    !Array.isArray(rereadElements) ||
+    !rereadElements.some((element) =>
+      element && typeof element === "object" &&
+      (element as Record<string, unknown>).content ===
+        "Fresh installed component accepted exact command")
+  ) {
+    fail("fresh component exact command did not survive reread");
+  }
+  const componentReceipt = record(applied.receipt, "fresh component receipt");
+  if (/requestDigest|requester|token|actorProof/iu.test(JSON.stringify(componentReceipt))) {
+    fail("fresh component receipt leaked a grant digest or NodeRoom credential field");
+  }
+
+  return {
+    mountedFromFreshInstall: true,
+    initialized: true,
+    patchDigestVerified: true,
+    substitutedCommandRejectedBeforeConsumption: true,
+    exactCommandAccepted: true,
+    grantReplayRejected: true,
+    rereadPreservedAcceptedEdit: true,
+    receiptExcludedRequestDigest: true,
+    actorProofNeverEnteredComponent: true,
+  };
+}
+
+async function runNodeRoomJourneyTests(npmCli: string) {
+  const testFiles = [
+    "tests/nodeSlideMountedMemoryJourney.test.ts",
+    "tests/nodeSlideMountedConvexJourney.test.ts",
+    "tests/nodeSlideMountedIsolatedComponentJourney.test.ts",
+    "tests/nodeSlideStudioMount.test.tsx",
+  ];
+  await execFileAsync(process.execPath, [
+    npmCli,
+    "test",
+    "--",
+    "--run",
+    ...testFiles,
+  ], {
+    cwd: process.cwd(),
+    maxBuffer: 32 * 1024 * 1024,
+  });
+  return {
+    passed: true,
+    testFiles,
+    actorProofAndMembershipAuthorization: true,
+    createAndManualEdit: true,
+    existingNodeAgentReviewStayedUnappliedUntilAccept: true,
+    activityAndCredentialFreeReceipts: true,
+    reloadAndVersionHistory: true,
+    presenterPptxReopenAndRevalidation: true,
+    memoryAndConvexSemanticParity: true,
+  };
+}
+
+async function requireRejected(
+  operation: () => Promise<unknown>,
+  expected: RegExp,
+  label: string,
+): Promise<void> {
+  try {
+    await operation();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (expected.test(message)) return;
+    fail(`${label} rejected for the wrong reason: ${message}`);
+  }
+  fail(`${label} did not reject`);
+}
+
+function resolveNpmCli(): string {
+  const candidates = [
+    process.env.npm_execpath,
+    join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js"),
+  ].filter((candidate): candidate is string => Boolean(candidate));
+  const npmCli = candidates.find((candidate) => existsSync(candidate));
+  if (!npmCli) fail("npm-cli.js was not found; run this proof through npm");
+  return npmCli;
+}
 
 function argument(name: string): string | undefined {
   const index = args.indexOf(name);
@@ -194,8 +418,15 @@ async function readJson(path: string): Promise<unknown> {
 function parseLock(value: unknown): ReleaseLock {
   const lock = record(value, "release lock");
   requireEqual(lock.schemaVersion, LOCK_SCHEMA, "release lock schema");
+  requireString(lock.releaseTag, "releaseTag", /^v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/u);
+  requireString(lock.releaseTagObject, "releaseTagObject", /^[0-9a-f]{40}$/u);
   requireString(lock.nodeSlideCommit, "nodeSlideCommit", /^[0-9a-f]{40}$/u);
   requireString(lock.releaseVersion, "releaseVersion", /^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/u);
+  requireEqual(lock.releaseTag, `v${lock.releaseVersion}`, "release tag/version binding");
+  requireEqual(lock.immutable, true, "immutable release flag");
+  if (!Number.isSafeInteger(lock.publicProofRunId) || Number(lock.publicProofRunId) < 1) {
+    fail("publicProofRunId is invalid");
+  }
   requireString(lock.manifestFile, "manifestFile", /^[0-9A-Za-z._-]+\.json$/u);
   requireString(lock.manifestSha256, "manifestSha256", /^sha256:[0-9a-f]{64}$/u);
   requireString(lock.installUpgradeProofFile, "installUpgradeProofFile", /^[0-9A-Za-z._-]+\.json$/u);
@@ -214,6 +445,7 @@ function parseUpgradeProof(value: unknown): {
   to: { manifestSha256: string; releaseId: string; releaseVersion: string };
   tamperedArtifactRejected: true;
   mixedReleaseRejected: true;
+  candidateRebuildMatchesPublicAssets: true;
 } {
   const proof = record(value, "install-upgrade proof");
   requireEqual(proof.schemaVersion, "nodeslide.immutable-install-upgrade-proof/v1", "install-upgrade proof schema");
@@ -231,6 +463,7 @@ function parseUpgradeProof(value: unknown): {
     "upgradeReceiptAdvanced",
     "tamperedArtifactRejected",
     "mixedReleaseRejected",
+    "candidateRebuildMatchesPublicAssets",
   ] as const) {
     requireEqual(proof[claim], true, `install-upgrade ${claim}`);
   }
@@ -243,6 +476,7 @@ function parseUpgradeProof(value: unknown): {
     },
     tamperedArtifactRejected: true,
     mixedReleaseRejected: true,
+    candidateRebuildMatchesPublicAssets: true,
   };
 }
 

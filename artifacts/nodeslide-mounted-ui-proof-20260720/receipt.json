@@ -1,0 +1,74 @@
+{
+  "schema": "noderoom.nodeslide-mounted-ui-proof/v1",
+  "capturedAt": "2026-07-21T02:16:14.6459902Z",
+  "capturedOnLocalDate": "2026-07-20",
+  "route": "http://127.0.0.1:5287/?demo=1&name=CodexUI&surface=desktop",
+  "acceptanceClass": "literal-browser-a11y",
+  "camera": {
+    "authorityMode": "memory",
+    "authenticatedConvexCamera": false,
+    "authenticatedConvexDeterministicProof": true,
+    "reason": "The live Convex deployment correctly rejected the disposable unauthenticated sample with production_identity_required; no identity check was bypassed."
+  },
+  "journey": [
+    "Open the real NodeRoom Artifacts surface.",
+    "Open the generated Q3 diligence readout deck.",
+    "Edit the first slide title to Capture Notebook — mounted v0.2.2.",
+    "Persist it with Make live.",
+    "Reopen the persisted deck artifact.",
+    "Observe the literal mounted NodeSlide region, package boundary, and command controls.",
+    "Attempt the mounted title command without a live identity and observe the fail-closed alert."
+  ],
+  "accessibleTree": {
+    "region": "NodeSlide studio mounted in NodeRoom",
+    "workbench": "Deck storyboard workbench",
+    "deckHeading": "Q3 diligence readout",
+    "persistedSlideHeading": "Capture Notebook — mounted v0.2.2",
+    "controls": [
+      "NodeSlide title command",
+      "Apply title through NodeSlide",
+      "NodeSlide purpose proposal",
+      "Propose purpose for review"
+    ],
+    "failClosedAlert": "The mounted NodeSlide write path requires a live, verified room session."
+  },
+  "domAttributes": {
+    "aria-label": "NodeSlide studio mounted in NodeRoom",
+    "data-nodeslide-package-version": "0.2.2",
+    "data-nodeslide-authority": "noderoom-artifact-cas",
+    "data-nodeslide-surface": "noderoom-deck-storyboard"
+  },
+  "browserConsole": {
+    "localApplicationErrors": 0,
+    "localApplicationWarnings": 0,
+    "excludedExtensionEntries": 10,
+    "observation": "A fresh tab completed the full camera journey and remained stable for eight seconds after reopen. Extension-origin entries were excluded from the local application count."
+  },
+  "screenshots": [
+    {
+      "file": "mounted-artifact-command-surface-clean.jpg",
+      "mediaType": "image/jpeg",
+      "width": 2560,
+      "height": 1431,
+      "bytes": 279084,
+      "sha256": "0a0022343073ff4a6edf506ba0268f97591118bb41214bdcea87974058b79ac7"
+    },
+    {
+      "file": "memory-write-fails-closed-clean.jpg",
+      "mediaType": "image/jpeg",
+      "width": 2560,
+      "height": 1431,
+      "bytes": 275492,
+      "sha256": "6fc76fec4ffa1920baeeb3a0d56afe93e0ed016174865ac7e4a7ea05274ec409"
+    }
+  ],
+  "deterministicProof": {
+    "script": "scripts/nodeslide-mounted-release-proof.ts",
+    "isolatedComponentJourney": "tests/nodeSlideMountedIsolatedComponentJourney.test.ts",
+    "memoryJourney": "tests/nodeSlideMountedMemoryJourney.test.ts",
+    "convexJourney": "tests/nodeSlideMountedConvexJourney.test.ts",
+    "reactMountJourney": "tests/nodeSlideStudioMount.test.tsx",
+    "producerReleaseRun": "https://github.com/HomenShum/NodeSlide/actions/runs/29787121559",
+    "producerReleaseTag": "https://github.com/HomenShum/NodeSlide/releases/tag/v0.2.2"
+  }
+}

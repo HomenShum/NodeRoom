@@ -3,7 +3,7 @@ import type { NodeSlidePatchCommand, NodeSlideProposalDecision } from "@nodeslid
 import type { DeckPatch, DeckSnapshot } from "@nodeslide/contracts";
 import type { ReactNode } from "react";
 
-export const NODEROOM_NODESLIDE_PACKAGE_VERSION = "0.2.0" as const;
+export const NODEROOM_NODESLIDE_PACKAGE_VERSION = "0.2.2" as const;
 
 export interface NodeRoomNodeSlideStudioMountProps {
   snapshot: DeckSnapshot;

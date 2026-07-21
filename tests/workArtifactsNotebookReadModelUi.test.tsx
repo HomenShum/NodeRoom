@@ -15,7 +15,7 @@ vi.mock("convex/react", () => ({
   },
   useMutation: () => vi.fn().mockResolvedValue({ ok: true }),
 }));
-vi.mock("../src/app/store", () => ({ useStore: () => storeRef.current }));
+vi.mock("../src/app/store", () => ({ HAS_CONVEX: true, useStore: () => storeRef.current }));
 
 import { WorkArtifactsPanel } from "../src/ui/workArtifacts/WorkArtifactsPanel";
 

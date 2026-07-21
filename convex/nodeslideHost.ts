@@ -1,6 +1,13 @@
 import { v } from "convex/values";
+import {
+  NODESLIDE_COMPONENT_GRANT_VERSION,
+  nodeSlideComponentPatchDigest,
+  type NodeSlideComponentGrant,
+} from "@nodeslide/convex/component";
+import type { FunctionReference } from "convex/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
-import { internalQuery, mutation, query } from "./_generated/server";
+import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
+import { components } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { applyCellEditCore, resolveProposalCore } from "./artifacts";
 import { actorProofV, requireActorProof, requireArtifactInRoom, sha256Hex, type ActorValue } from "./lib";
@@ -33,6 +40,23 @@ const mountedDeckArgs = {
   artifactId: v.id("artifacts"),
   requester: actorProofV,
 };
+
+// The packaged component carries its exact repository declarations, but the
+// current Convex app codegen narrows this mounted property to `{}`. Keep the
+// runtime reference from generated `components` and spell the three consumed
+// functions structurally until the upstream codegen preserves that shape.
+const nodeSlideComponentRepository = (components.nodeslide as unknown as {
+  repository: {
+    initializeDeck: FunctionReference<"mutation", "public", {
+      snapshot: unknown;
+      grant: NodeSlideComponentGrant;
+    }, unknown, "nodeslide">;
+    getDeck: FunctionReference<"query", "public", {
+      deckId: string;
+      grant: NodeSlideComponentGrant;
+    }, unknown, "nodeslide">;
+  };
+}).repository;
 
 export const getMountedDeck = query({
   args: mountedDeckArgs,
@@ -315,6 +339,62 @@ export const storeMountedReceipt = mutation({
   },
 });
 
+/**
+ * Server-only bridge into the package-owned isolated component namespace.
+ * NodeRoom authenticates ActorProof and room membership before minting the
+ * one-time component grant; the component never receives the ActorProof.
+ */
+export const initializeMountedComponent = internalMutation({
+  args: mountedDeckArgs,
+  handler: async (ctx, args) => {
+    const deck = await loadDeckArtifact(ctx, args.roomId, args.artifactId);
+    const translated = translateNodeRoomArtifactToNodeSlide(deck);
+    const grant = await componentGrantForAuthorizedRequest(ctx, {
+      ...args,
+      action: "deck.initialize",
+      resource: { kind: "deck", id: String(args.artifactId) },
+      recordEvidence: true,
+    });
+    const snapshot = await ctx.runMutation(nodeSlideComponentRepository.initializeDeck, {
+      snapshot: translated.snapshot,
+      grant,
+    });
+    return {
+      snapshot,
+      translationReceipt: translated.receipt,
+      authorization: componentAuthorizationReceipt(grant),
+    };
+  },
+});
+
+export const issueMountedComponentPatchGrant = internalQuery({
+  args: { ...mountedDeckArgs, patch: v.any() },
+  handler: async (ctx, args) => {
+    const patch = parsePatchCommand(args.patch);
+    return componentGrantForAuthorizedRequest(ctx, {
+      ...args,
+      action: "patch.apply",
+      resource: { kind: "patch", id: patch.id },
+      patch,
+    });
+  },
+});
+
+export const getMountedComponentDeck = internalQuery({
+  args: mountedDeckArgs,
+  handler: async (ctx, args) => {
+    const grant = await componentGrantForAuthorizedRequest(ctx, {
+      ...args,
+      action: "deck.read",
+      resource: { kind: "deck", id: String(args.artifactId) },
+    });
+    return ctx.runQuery(nodeSlideComponentRepository.getDeck, {
+      deckId: String(args.artifactId),
+      grant,
+    });
+  },
+});
+
 async function authorizeOperation(
   ctx: DbCtx,
   args: {
@@ -364,6 +444,72 @@ async function authorizeOperation(
     ...decision,
     actor,
     evidence: { ...decision.evidence, evidenceId: String(evidenceTraceId) },
+  };
+}
+
+async function componentGrantForAuthorizedRequest(
+  ctx: DbCtx,
+  args: {
+    roomId: Id<"rooms">;
+    artifactId: Id<"artifacts">;
+    requester: Requester;
+    action: "deck.initialize" | "deck.read" | "patch.apply";
+    resource: NodeSlideComponentGrant["resource"];
+    patch?: NodeRoomNodeSlidePatchCommand;
+    recordEvidence?: boolean;
+  },
+): Promise<NodeSlideComponentGrant> {
+  if (args.action === "patch.apply" && !args.patch) {
+    throw new Error("nodeslide_component_patch_required");
+  }
+  const authorization = await authorizeOperation(ctx, {
+    roomId: args.roomId,
+    artifactId: args.artifactId,
+    requester: args.requester,
+    // Component initialization is a host-only write. Reuse the same strongest
+    // NodeRoom write-policy decision without pretending it is a repository
+    // receipt action understood by older NodeSlide consumers.
+    action: args.action === "deck.read" ? "deck.read" : "patch.apply",
+    resourceId: args.resource.id,
+    recordEvidence: args.recordEvidence,
+  });
+  const requestDigest = args.patch
+    ? await nodeSlideComponentPatchDigest(args.patch)
+    : undefined;
+  const authorizedAt = Date.now();
+  const grantFingerprint = await sha256Hex([
+    authorization.principal.userId,
+    String(args.artifactId),
+    args.action,
+    args.resource.kind,
+    args.resource.id,
+    requestDigest ?? "no-request-digest",
+    authorization.evidence.evidenceId ?? "no-evidence-id",
+    String(authorizedAt),
+  ].join("\n"));
+  return {
+    schemaVersion: NODESLIDE_COMPONENT_GRANT_VERSION,
+    id: `grant:noderoom:${grantFingerprint}`,
+    principalId: authorization.principal.userId,
+    deckId: String(args.artifactId),
+    action: args.action,
+    resource: args.resource,
+    ...(requestDigest ? { requestDigest } : {}),
+    authorizedAt,
+    evidence: authorization.evidence,
+  };
+}
+
+function componentAuthorizationReceipt(grant: NodeSlideComponentGrant) {
+  return {
+    schemaVersion: "nodeslide.authorization/v1" as const,
+    id: grant.id,
+    principalId: grant.principalId,
+    deckId: grant.deckId,
+    action: grant.action,
+    resource: grant.resource,
+    authorizedAt: grant.authorizedAt,
+    evidence: grant.evidence,
   };
 }
 
