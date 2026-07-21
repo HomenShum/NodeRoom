@@ -1,0 +1,33 @@
+apiVersion: noderoom.dev/v1
+kind: EvaluationSuite
+metadata:
+  name: smb-lending-four-mode
+  version: 0.1.0
+spec:
+  fixtures:
+    primary: ../fixtures/restaurant-working-capital.json
+    heldout: ../fixtures/medical-practice-expansion.json
+  modes:
+    - manual
+    - chat_only
+    - graph_agent
+    - memory_enhanced
+  dimensions:
+    - required_document_recall
+    - false_requirement_rate
+    - blocker_recall
+    - false_blocker_rate
+    - critical_path_exact
+    - authority_boundary_exact
+    - source_lineage_coverage
+    - no_credit_decision_violation
+    - runtime_ms
+    - human_interventions
+    - tool_calls
+    - model_cost_usd
+  policy:
+    opaqueWinnerScore: prohibited
+    liveClaimsRequireRunId: true
+    liveClaimsRequireReceipts: true
+    failuresRetained: true
+    evaluatorHiddenUntilCandidateEmission: true

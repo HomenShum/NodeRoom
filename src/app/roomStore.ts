@@ -31,6 +31,19 @@ import {
   HACKWITHBAY_ROOM_TITLE,
   hackwithBaySeed,
 } from "./hackwithBayRoomSeed";
+import {
+  SMB_LENDING_DOCUMENT_COLUMNS,
+  SMB_LENDING_DOCUMENT_ROWS,
+  SMB_LENDING_GRAPH_COLUMNS,
+  SMB_LENDING_GRAPH_ROWS,
+  SMB_LENDING_METRIC_COLUMNS,
+  SMB_LENDING_METRIC_ROWS,
+  SMB_LENDING_OVERVIEW_NOTE,
+  SMB_LENDING_PROOF_NOTE,
+  SMB_LENDING_PROPOSAL,
+  SMB_LENDING_PROPOSAL_NOTE,
+  SMB_LENDING_TEMPLATE,
+} from "./smbLendingRoomSeed";
 
 export const engine = new RoomEngine({ now: () => Date.now() });
 export const demo: DemoRoom = buildDemoRoom(engine);
@@ -597,6 +610,114 @@ export function enterBankerToolBenchRoomAsHost(): { roomId: string; me: Actor } 
 
   btbRoom = { roomId: room.id, me };
   return btbRoom;
+}
+
+let smbLendingRoom: { roomId: string; me: Actor } | null = null;
+
+/** #smb-lending - the governed synthetic restaurant working-capital golden slice. */
+export function enterSmbLendingDeploymentRoomAsHost(): { roomId: string; me: Actor } {
+  if (smbLendingRoom) return smbLendingRoom;
+
+  const { room, host } = engine.createRoom({ title: SMB_LENDING_TEMPLATE.title, hostName: "FDE Host", autoAllow: true });
+  const me: Actor = { kind: "user", id: host.id, name: host.name };
+  const agent: Actor = { kind: "agent", id: "agent_smb_lending", name: "Lending NodeAgent", scope: "public" };
+
+  engine.createArtifact({
+    roomId: room.id,
+    kind: "note",
+    title: "Application notebook",
+    by: me,
+    seed: [{ id: "doc", value: SMB_LENDING_OVERVIEW_NOTE }],
+    meta: { summary: "Synthetic application state, blocker, critical path, and lending-authority boundary.", tags: ["smb-lending", "synthetic", "application"] },
+  });
+
+  const tables = [
+    { title: "Evidence checklist", columns: SMB_LENDING_DOCUMENT_COLUMNS, rows: SMB_LENDING_DOCUMENT_ROWS, summary: "Required and received source documents with exact lineage." },
+    { title: "Lending process graph", columns: SMB_LENDING_GRAPH_COLUMNS, rows: SMB_LENDING_GRAPH_ROWS, summary: "Neo4j-compatible read projection with a bounded critical path." },
+    { title: "Underwriting workbook", columns: SMB_LENDING_METRIC_COLUMNS, rows: SMB_LENDING_METRIC_ROWS, summary: "Deterministic EBITDA margin and DSCR calculations with source lineage." },
+  ];
+  let evidenceChecklistId = "";
+  for (const table of tables) {
+    const artifact = engine.createArtifact({
+      roomId: room.id,
+      kind: "sheet",
+      title: table.title,
+      by: me,
+      seed: sheetSeed(table.rows, table.columns),
+      meta: {
+        dataframe: { columns: table.columns, rowCount: table.rows.length, sourceFile: "restaurant-working-capital.json", parser: "smb_lending_pack_v1", truncated: false, warnings: [] },
+        summary: table.summary,
+        tags: ["smb-lending", "source-backed", "governed"],
+      },
+    });
+    if (table.title === "Evidence checklist") evidenceChecklistId = artifact.id;
+  }
+
+  const requestedStatusElementId = `${SMB_LENDING_PROPOSAL.documentId}__status`;
+  const requestedStatusElement = engine.getArtifact(evidenceChecklistId)?.elements[requestedStatusElementId];
+  if (!requestedStatusElement) throw new Error("smb_lending_missing_document_status_cell");
+  const roomProposal = engine.createProposal({
+    roomId: room.id,
+    artifactId: evidenceChecklistId,
+    author: agent,
+    op: {
+      opId: SMB_LENDING_PROPOSAL.id,
+      artifactId: evidenceChecklistId,
+      elementId: requestedStatusElementId,
+      kind: "set",
+      value: "requested",
+      baseVersion: requestedStatusElement.version,
+    },
+    review: {
+      kind: "agent_edit",
+      reason: SMB_LENDING_PROPOSAL.rationale,
+      reviewerNote: `Domain proposal ${SMB_LENDING_PROPOSAL.id}; application base version ${SMB_LENDING_PROPOSAL.baseVersion}.`,
+      status: "needs_review",
+    },
+  });
+
+  engine.createArtifact({
+    roomId: room.id,
+    kind: "note",
+    title: "Proposal review",
+    by: me,
+    seed: [{ id: "doc", value: SMB_LENDING_PROPOSAL_NOTE }],
+    meta: { summary: "Version-pinned missing-document proposal awaiting human review.", tags: ["proposal", "needs-review", "cas"] },
+  });
+  engine.createArtifact({
+    roomId: room.id,
+    kind: "note",
+    title: "Proof receipt",
+    by: me,
+    seed: [{ id: "doc", value: SMB_LENDING_PROOF_NOTE }],
+    meta: { summary: "Content-addressed pre-application proof with honest pending-review state.", tags: ["proof", "receipt", "no-credit-decision"] },
+  });
+
+  const session = engine.startSession({ roomId: room.id, agentId: agent.id, agentName: agent.name, scope: "public" });
+  engine.updateSession(session.id, { status: "blocked", lastAction: `Proposed ${SMB_LENDING_PROPOSAL.documentId}; waiting for human review` });
+  engine.postMessage({
+    roomId: room.id,
+    channel: "public",
+    author: agent,
+    text: "I inspected the synthetic application, calculated source-backed metrics, and found the critical blocker: the three most recent operating-bank statements are missing. I prepared a version-pinned document request for review. I did not make a lending decision or mutate canonical state.",
+    clientMsgId: "smb-lending-agent-blocker",
+    kind: "agent",
+  });
+  engine.postMessage({
+    roomId: room.id,
+    channel: "public",
+    author: me,
+    text: "Review the evidence checklist, critical path, underwriting workbook, pending proposal, and proof receipt before approving any state change.",
+    clientMsgId: "smb-lending-host-review",
+    kind: "chat",
+  });
+  engine.trace(room.id, agent, "agent_status", "Inspected synthetic application and source inventory.", { caseId: SMB_LENDING_TEMPLATE.caseId }, "No private or JPMorgan data entered the room.");
+  engine.trace(room.id, agent, "agent_status", "Calculated EBITDA margin and DSCR from cited financial statements.", { artifactId: "Underwriting workbook" }, "Calculations are deterministic and do not constitute a credit recommendation.");
+  engine.trace(room.id, agent, "agent_status", "Traversed the process graph and found the missing-bank-statements blocker.", { artifactId: "Lending process graph" }, "Neo4j-compatible graph is a read projection; NodeRoom remains authoritative.");
+  engine.trace(room.id, agent, "agent_status", `Submitted proposal ${SMB_LENDING_PROPOSAL.id} against application version ${SMB_LENDING_PROPOSAL.baseVersion}.`, { proposalId: roomProposal.id, domainProposalId: SMB_LENDING_PROPOSAL.id }, "Human review and exact-version CAS are required before application.");
+
+  smbLendingRoom = { roomId: room.id, me };
+  return smbLendingRoom;
 }
 
 let hackwithBayRoom: { roomId: string; me: Actor } | null = null;

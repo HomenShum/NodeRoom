@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "noderoom.smb-lending-application/v1",
+  "caseId": "bay-hearth-working-capital",
+  "version": 1,
+  "applicant": "Bay Hearth Foods LLC",
+  "request": "$350,000 working-capital request",
+  "syntheticNotice": "SYNTHETIC - NO REAL CUSTOMER DATA. Independent evaluation fixture; not lending advice or a lending decision.",
+  "documents": [
+    {
+      "id": "business-tax-return-2025",
+      "label": "2025 business tax return",
+      "status": "received",
+      "required": true,
+      "sourceRefs": [{ "id": "src-tax-2025", "label": "Synthetic 2025 business tax return", "locator": "fixture://bay-hearth/tax-return-2025" }]
+    },
+    {
+      "id": "operating-bank-statements-q2",
+      "label": "Most recent three operating-bank statements",
+      "status": "missing",
+      "required": true,
+      "sourceRefs": [{ "id": "req-bank-statements", "label": "Synthetic document checklist", "locator": "fixture://bay-hearth/checklist#bank-statements" }]
+    },
+    {
+      "id": "debt-schedule",
+      "label": "Current debt schedule",
+      "status": "received",
+      "required": true,
+      "sourceRefs": [{ "id": "src-debt-schedule", "label": "Synthetic debt schedule", "locator": "fixture://bay-hearth/debt-schedule" }]
+    }
+  ],
+  "financials": [
+    {
+      "period": "2024",
+      "revenueUsd": 3200000,
+      "ebitdaUsd": 380000,
+      "debtServiceUsd": 240000,
+      "sourceRef": { "id": "src-financials-2024", "label": "Synthetic 2024 financials", "locator": "fixture://bay-hearth/financials#2024" }
+    },
+    {
+      "period": "2025",
+      "revenueUsd": 3650000,
+      "ebitdaUsd": 475000,
+      "debtServiceUsd": 260000,
+      "sourceRef": { "id": "src-financials-2025", "label": "Synthetic 2025 financials", "locator": "fixture://bay-hearth/financials#2025" }
+    }
+  ],
+  "graph": {
+    "nodes": [
+      { "id": "intake", "label": "Applicant intake", "owner": "agent" },
+      { "id": "document-collection", "label": "Document collection", "owner": "human_reviewer" },
+      { "id": "financial-spreading", "label": "Financial spreading", "owner": "agent" },
+      { "id": "policy-review", "label": "Policy and exception review", "owner": "credit_authority" },
+      { "id": "underwriter-review", "label": "Human underwriter review", "owner": "credit_authority" }
+    ],
+    "edges": [
+      { "from": "intake", "to": "document-collection", "relationship": "unlocks" },
+      { "from": "document-collection", "to": "financial-spreading", "relationship": "unlocks" },
+      { "from": "financial-spreading", "to": "policy-review", "relationship": "unlocks" },
+      { "from": "policy-review", "to": "underwriter-review", "relationship": "unlocks" }
+    ]
+  }
+}

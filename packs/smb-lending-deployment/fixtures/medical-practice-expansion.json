@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "noderoom.smb-lending-application/v1",
+  "caseId": "harbor-view-medical-equipment",
+  "version": 1,
+  "applicant": "Harbor View Medical Practice PLLC",
+  "request": "$275,000 equipment and expansion request",
+  "syntheticNotice": "SYNTHETIC - NO REAL CUSTOMER DATA. Held-out evaluation fixture; not lending advice or a lending decision.",
+  "documents": [
+    {
+      "id": "practice-tax-return-2025",
+      "label": "2025 practice tax return",
+      "status": "received",
+      "required": true,
+      "sourceRefs": [{ "id": "src-practice-tax-2025", "label": "Synthetic practice tax return", "locator": "fixture://harbor-view/tax-return-2025" }]
+    },
+    {
+      "id": "equipment-quote",
+      "label": "Equipment quote",
+      "status": "received",
+      "required": true,
+      "sourceRefs": [{ "id": "src-equipment-quote", "label": "Synthetic equipment quote", "locator": "fixture://harbor-view/equipment-quote" }]
+    },
+    {
+      "id": "guarantor-personal-financial-statement",
+      "label": "Guarantor personal financial statement",
+      "status": "missing",
+      "required": true,
+      "sourceRefs": [{ "id": "req-guarantor-pfs", "label": "Synthetic document checklist", "locator": "fixture://harbor-view/checklist#guarantor-pfs" }]
+    }
+  ],
+  "financials": [
+    {
+      "period": "2024",
+      "revenueUsd": 1850000,
+      "ebitdaUsd": 295000,
+      "debtServiceUsd": 155000,
+      "sourceRef": { "id": "src-practice-financials-2024", "label": "Synthetic 2024 practice financials", "locator": "fixture://harbor-view/financials#2024" }
+    },
+    {
+      "period": "2025",
+      "revenueUsd": 2140000,
+      "ebitdaUsd": 342000,
+      "debtServiceUsd": 170000,
+      "sourceRef": { "id": "src-practice-financials-2025", "label": "Synthetic 2025 practice financials", "locator": "fixture://harbor-view/financials#2025" }
+    }
+  ],
+  "graph": {
+    "nodes": [
+      { "id": "intake", "label": "Applicant intake", "owner": "agent" },
+      { "id": "document-collection", "label": "Document collection", "owner": "human_reviewer" },
+      { "id": "financial-spreading", "label": "Financial spreading", "owner": "agent" },
+      { "id": "policy-review", "label": "Policy and exception review", "owner": "credit_authority" },
+      { "id": "underwriter-review", "label": "Human underwriter review", "owner": "credit_authority" }
+    ],
+    "edges": [
+      { "from": "intake", "to": "document-collection", "relationship": "unlocks" },
+      { "from": "document-collection", "to": "financial-spreading", "relationship": "unlocks" },
+      { "from": "financial-spreading", "to": "policy-review", "relationship": "unlocks" },
+      { "from": "policy-review", "to": "underwriter-review", "relationship": "unlocks" }
+    ]
+  }
+}

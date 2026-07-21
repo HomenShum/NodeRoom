@@ -1,0 +1,51 @@
+apiVersion: noderoom.dev/v1alpha1
+kind: CapabilityPack
+metadata:
+  id: smb-lending-deployment
+  name: SMB Lending Deployment
+  version: 0.1.0
+  status: experimental
+spec:
+  roomTemplate: smb-lending-deployment
+  runtime: nodeagent
+  writeMode: proposal-only
+  authoritativeState: noderoom
+  graphProjection:
+    portableContract: NodeGraphDocument
+    adapters:
+      - in-memory
+      - neo4j-read-projection
+  artifacts:
+    - lending-application
+    - lending-process-graph
+    - financial-spreading-workbook
+    - document-evidence-room
+    - human-review-credit-packet
+    - deployment-feedback-board
+  authority:
+    agent:
+      - inspect-synthetic-evidence
+      - calculate-deterministic-ratios
+      - find-process-blockers
+      - propose-document-request
+      - prepare-review-packet
+    humanReviewer:
+      - approve-document-request
+      - verify-extracted-fact
+      - accept-artifact-proposal
+    creditAuthority:
+      - make-credit-decision
+      - approve-policy-exception
+  fixtures:
+    primary: fixtures/restaurant-working-capital.json
+    heldout: fixtures/medical-practice-expansion.json
+  evaluations:
+    - golden-slice
+    - stale-proposal
+    - human-authority-boundary
+    - source-lineage
+    - export-reopen
+  disclaimers:
+    - Synthetic data only.
+    - Independent implementation exercise; not affiliated with Casca or any bank.
+    - The agent prepares review artifacts and never makes a lending decision.

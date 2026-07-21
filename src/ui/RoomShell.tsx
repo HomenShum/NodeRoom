@@ -264,12 +264,15 @@ export function RoomShell({ roomId, me, onLeave, onSignOut, proof }: { roomId: s
     // On compact screens the panels are stacked fixed overlays — opening all three would bury the
     // chat the tour points at, so it starts from the chat-only default there.
     if (!seen) {
-      if (!isCompact) setShow({ left: true, stage: true, copilot: true });
+      // The 981-1199px band deliberately uses an overlay binder. Do not let the
+      // first-run tour reopen that overlay on top of the work surface; keep the
+      // explicit Room toggle as its entry point just like the responsive contract says.
+      if (!isCompact && !isMid) setShow({ left: true, stage: true, copilot: true });
       setDockStep(0);
       setWalkDockOpen(true);
       try { localStorage.setItem(TOUR_KEY, "done"); } catch { /* ignore */ }
     }
-  }, [isCompact]);
+  }, [isCompact, isMid]);
   // Drop a stale split-view pin if its artifact vanished. MUST run before the `!room` early return:
   // a LIVE room mounts with room=undefined and resolves a tick later, so a hook placed AFTER the
   // return changes the hook count between those two renders ("rendered more hooks than previous").
