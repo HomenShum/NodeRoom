@@ -308,7 +308,8 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact, initialArtifact
   const saveStoryboard = async (next: DeckStoryboard, base: DeckStoryboard): Promise<{ ok: boolean; reason?: string }> => {
     if (!collaborativeDeck) {
       try {
-        await store.uploadArtifact({ roomId, artifact: collaborativeDeckArtifactInput(next), actor: me, visibility: "room" });
+        const artifactId = await store.uploadArtifact({ roomId, artifact: collaborativeDeckArtifactInput(next), actor: me, visibility: "room" });
+        setSelectedId(`deck:${artifactId}`);
         return { ok: true };
       } catch (error) {
         return { ok: false, reason: error instanceof Error ? error.message : "deck_create_failed" };
