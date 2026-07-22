@@ -10,4 +10,4 @@ permissions:
 
 jobs:
   node-platform:
-    uses: HomenShum/node-platform/.github/workflows/repo-conformance.yml@ef4ac8a011b230efa3324892a193abe02ff2d673
+    uses: HomenShum/node-platform/.github/workflows/repo-conformance.yml@5c9aa6443ca8e61dc8886fbf0a0b4a7b72858e63 # Node 24 action pins (PR #8)
