@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "nodekit.caseflow-consumer-verdict/v1",
+  "consumer": "HomenShum/NodeRoom",
+  "application": "NodeRoom / NodeSheet artifact collaboration",
+  "integrationMaturity": "verified-consumer-adapter",
+  "consumerImplementationCommit": "7e6780f5a740dcd3a098ec2e37b7fb45f4eec61f",
+  "nodekitSourceCommit": "5cc61578b3c1bd5b5c8195b83347b91f8b83242b",
+  "nodekitDependency": "https://codeload.github.com/HomenShum/node-platform/tar.gz/5cc61578b3c1bd5b5c8195b83347b91f8b83242b",
+  "supportedImport": "@homenshum/nodekit/caseflow",
+  "backend": "convex-test",
+  "passed": true,
+  "qualifyingConsumer": true,
+  "assertions": {
+    "activeRunStartIsIdempotent": true,
+    "canonicalVersionAdvancedOnce": true,
+    "contentAddressedReceipt": true,
+    "exceptionStatePreserved": true,
+    "nextActionOwnerExplicit": true,
+    "oneAuthoritativeCase": true,
+    "repeatedCompletionIsIdempotent": true,
+    "repeatedDecisionIsIdempotent": true,
+    "staleProposalFailedClosed": true,
+    "twoAuthenticatedMembers": true,
+    "crossOwnerAccessDenied": true,
+    "reloadDurability": true,
+    "realNodeRoomArtifactCas": true
+  },
+  "checks": [
+    {
+      "command": "npx vitest run tests/nodekitCaseflowConformance.test.ts --reporter=verbose",
+      "passed": true,
+      "testFiles": 1,
+      "tests": 3
+    },
+    {
+      "command": "npm run floor",
+      "passed": true,
+      "testFiles": 371,
+      "tests": 2566
+    },
+    {
+      "command": "npm run build",
+      "passed": true,
+      "modulesTransformed": 7508
+    },
+    {
+      "command": "npm audit --omit=dev --audit-level=moderate",
+      "passed": true,
+      "vulnerabilities": 0
+    },
+    {
+      "command": "git diff --check",
+      "passed": true
+    }
+  ],
+  "evidenceSha256": {
+    "package.json": "5f37c8ab4247abc7703dd93c191a7688353a2a2591141b47cee5194175ad64bb",
+    "package-lock.json": "7ad9dc3dd73ed62b8ad798b904b3764c30a6cc954ac6500dee724b16aee6f2ad",
+    "convex/schema.ts": "423f1b80bb7fdfb627b0d42e98de47575fae531e9fb6db867079e2d2f271a015",
+    "convex/nodekitCaseflow.ts": "ac7f49441dffeeda7b7d6d7391819f84ee5116b83aa079e184b6281ba409f9e0",
+    "convex/nodekitCaseflowTables.ts": "da07cf37bc8e3528dfe654893bf8a1ac21e73e79a1e3d3c235339819ebe24367",
+    "src/integrations/nodekit/caseflowAdapter.ts": "d718838f8f1e197aa7ff098d13273e67dae3a3f227f2df5321b74967ce206662",
+    "tests/nodekitCaseflowConformance.test.ts": "8ead6c3931849531e85d5bd9dc8eaf04d4a06503dcf6b0853c5ca3dca59d46b3",
+    "docs/NODEKIT_CASEFLOW_ADOPTION.md": "52f16bffb8a9d7178919bd50927040d38cc2a77c2c31ab3cb3ff33bd86b1e1e0"
+  },
+  "ownershipBoundary": {
+    "applicationOwned": [
+      "authentication and room membership",
+      "RoomTools and agent jobs",
+      "journals and leases",
+      "NodeRoom artifacts and CAS",
+      "domain receipts and evidence",
+      "storage and UI"
+    ],
+    "futureComponentCandidate": [
+      "cases",
+      "runs and stages",
+      "artifact references and portable versions",
+      "proposals and approvals",
+      "exceptions",
+      "events",
+      "completion receipts"
+    ]
+  },
+  "claimBoundary": [
+    "This verdict qualifies only the NodeRoom / NodeSheet consumer at the referenced implementation commit.",
+    "The adapter exercises real NodeRoom artifact and element CAS, but existing agent-job, domain-workflow, and UI flows are not projected into Caseflow by this slice.",
+    "The generic conformance journey truthfully records no domain receipt IDs.",
+    "This is not evidence of three independent consumers or component extraction readiness.",
+    "This does not claim npm publication, Convex deployment, production mutation, or release approval."
+  ],
+  "immutable": true
+}
