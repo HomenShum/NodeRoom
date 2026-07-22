@@ -288,6 +288,7 @@
     "@dnd-kit/modifiers": "^9.0.0",
     "@evilmartians/agent-prism-data": "^0.0.9",
     "@evilmartians/agent-prism-types": "^0.0.9",
+    "@homenshum/nodekit": "https://codeload.github.com/HomenShum/node-platform/tar.gz/5cc61578b3c1bd5b5c8195b83347b91f8b83242b",
     "@ikhrustalev/convex-debouncer": "^0.1.2",
     "@llamaindex/liteparse": "^2.0.5",
     "@nodeslide/backend": "file:vendor/nodeslide/nodeslide-backend-0.2.2.tgz",
