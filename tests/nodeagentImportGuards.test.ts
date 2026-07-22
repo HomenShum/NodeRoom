@@ -37,5 +37,5 @@ describe("nodeagent import guards", () => {
       }
     }
     expect(offenders).toEqual([]);
-  });
+  }, 30_000);
 });

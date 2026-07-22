@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "noderoom.node-gym-packed-consumer-proof/v1",
+  "package": {
+    "name": "@nodekit/gym-core",
+    "version": "0.1.0",
+    "artifactFile": "vendor/nodekit-gym-core/nodekit-gym-core-0.1.0.tgz",
+    "sha256": "sha256:b8c14013a54fc7419ebfda806553573c4b6e3d1dde2a17f11a61f5ddd88fc0c2",
+    "integrity": "sha512-jzQ7eapfnmwnBJZyh0SfOJkXhGFHDRQo30uU3rpRAWwp7T8QcP6OwloLTciTsvr4ICEHDMmNM+JoouELSHMa1Q==",
+    "dependencySpec": "file:vendor/nodekit-gym-core/nodekit-gym-core-0.1.0.tgz"
+  },
+  "immutableInstall": {
+    "lockMetadataVerified": true,
+    "artifactDigestVerified": true,
+    "packageJsonExactFilePinVerified": true,
+    "packageLockVersionVerified": true,
+    "packageLockIntegrityVerified": true,
+    "freshInstallWithScriptsDisabled": true,
+    "freshInstallDependencyFree": true,
+    "freshInstallExportsVerified": true,
+    "packedPackageJsonDigestVerified": true,
+    "mutableTagUsed": false,
+    "workspaceLinkUsed": false
+  },
+  "nodeRoomJourney": {
+    "schemaVersion": "noderoom.node-gym-consumer-proof/v1",
+    "proofLane": "deterministic-contract-control",
+    "package": {
+      "name": "@nodekit/gym-core",
+      "version": "0.1.0",
+      "dependencyFreeDomainCore": true
+    },
+    "task": {
+      "id": "noderoom-evidence-bound-room-change",
+      "taskClass": "noderoom.room-change-review",
+      "taskDigest": "sha256:9961f880cac5a885b8f2ffd9e80bc0d3e706c328ed13d68e700443a8e44af0e5",
+      "evidenceDigest": "sha256:e46edbdf67b101f3da3d01ae0c9d592aa16b9551535d7201272eb5a814ecdf52",
+      "referenceDigest": "sha256:a61464d4b75f44c84f4b216111fe6f325db94a796b3461652bce8a9315866e4a",
+      "traceId": "trace:nodegym:room-change-control",
+      "synthetic": true
+    },
+    "matrix": {
+      "runCount": 6,
+      "harnessCount": 2,
+      "repetitions": 3,
+      "exactHarnessPairs": 3,
+      "modelId": "noderoom-deterministic-control",
+      "currentHarness": "noderoom-room-change-current@1.0.0",
+      "challengerHarness": "noderoom-room-change-evidence-first@1.0.0",
+      "pairingVerified": true,
+      "adaptedReceipts": 6
+    },
+    "evaluation": {
+      "automatedHardGatesPassed": true,
+      "firstUnreliableCurriculumLevel": null,
+      "diagnosisCodes": {
+        "noderoom-evidence-bound-room-change__noderoom-deterministic-control__noderoom-room-change-current__1": [],
+        "noderoom-evidence-bound-room-change__noderoom-deterministic-control__noderoom-room-change-current__2": [],
+        "noderoom-evidence-bound-room-change__noderoom-deterministic-control__noderoom-room-change-current__3": [],
+        "noderoom-evidence-bound-room-change__noderoom-deterministic-control__noderoom-room-change-evidence-first__1": [],
+        "noderoom-evidence-bound-room-change__noderoom-deterministic-control__noderoom-room-change-evidence-first__2": [],
+        "noderoom-evidence-bound-room-change__noderoom-deterministic-control__noderoom-room-change-evidence-first__3": []
+      },
+      "notAnOfficialBenchmark": true,
+      "noModelCapabilityClaim": true
+    },
+    "promotion": {
+      "decision": "hold",
+      "blockers": [
+        "human_review_incomplete",
+        "preference_win_rate_below_gate"
+      ],
+      "matchedCases": 3,
+      "comparisonMode": "harness",
+      "matchedIdentityCohorts": 1,
+      "preferenceWinRate": 0,
+      "meanUtilityDelta": 0.05789999999999984,
+      "stableRepetitions": 3,
+      "dimensionRegressions": [],
+      "autoApply": false,
+      "mutationApplied": false,
+      "humanAcceptanceRequired": true
+    },
+    "shadowRoute": {
+      "mode": "fallback",
+      "model": "noderoom-deterministic-control",
+      "harness": "noderoom-room-change-current@1.0.0",
+      "userVisible": false
+    },
+    "governance": {
+      "autoApply": false,
+      "userVisibleShadowRouting": false,
+      "humanOwnedArtifactUnchanged": true,
+      "credentialsPersisted": false
+    }
+  }
+}

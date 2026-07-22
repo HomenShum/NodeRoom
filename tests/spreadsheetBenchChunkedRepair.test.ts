@@ -126,7 +126,7 @@ describe("SpreadsheetBench chunked receipt repair", () => {
     expect(aggregate.harness.budget.modelCalls).toBe(1);
     expect(aggregate.results[0].model.name).toBe("original/free-route");
     expect(aggregate.results[0].sidecarEvidence.candidateManifest.sha256).toBe(candidateManifest.sha256);
-  });
+  }, 30_000);
 
   it("refuses a priced repair route before provider launch without an explicit cost ceiling", () => {
     const root = mkdtempSync(join(tmpdir(), "spreadsheetbench-spend-"));

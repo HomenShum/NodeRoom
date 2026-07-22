@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "noderoom.nodekit-gym-core-lock/v1",
+  "immutable": true,
+  "package": {
+    "name": "@nodekit/gym-core",
+    "version": "0.1.0",
+    "artifactFile": "nodekit-gym-core-0.1.0.tgz",
+    "sha256": "sha256:b8c14013a54fc7419ebfda806553573c4b6e3d1dde2a17f11a61f5ddd88fc0c2",
+    "integrity": "sha512-jzQ7eapfnmwnBJZyh0SfOJkXhGFHDRQo30uU3rpRAWwp7T8QcP6OwloLTciTsvr4ICEHDMmNM+JoouELSHMa1Q==",
+    "dependencySpec": "file:vendor/nodekit-gym-core/nodekit-gym-core-0.1.0.tgz"
+  },
+  "producer": {
+    "repository": "NodeSlide",
+    "packagePath": "packages/gym-core",
+    "packageJsonSha256": "sha256:ef4167fd4a7374a5fb86d9f59719bd1c7b9c837209df381ac56ae0d5901ccd82",
+    "artifactIsAuthority": true
+  },
+  "governance": {
+    "mutableTagAllowed": false,
+    "workspaceLinkAllowed": false,
+    "autoApply": false
+  }
+}
