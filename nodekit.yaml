@@ -13,12 +13,15 @@ consumes:
   - nodeplatform.environment
   - nodeagent.agent-run
   - nodeagent.policy-context
+  - nodeagent.provider-pi
   - nodeagent.proposal-review
   - nodeagent.trace-workpaper
   - nodetrace.trace-ui-store
   - nodemem.memory
   - proofloop.certification
   - agentic-ui-qa.flight-recorder
+  - nodeslide.deck
+  - nodeslide.deck-patch
 
 commands:
   dev: { script: dev, mode: service }
@@ -42,6 +45,11 @@ proof:
   receiptSchema: null
 
 contractDeclarations:
+  - concept: nodeagent.provider-pi
+    signature: agent-model-adapter
+    path: src/nodeagent/models/piAiAdapter.ts
+    mode: adapter
+    origin: nodeagent.provider-pi
   - concept: nodeagent.agent-run
     signature: agent-run-result
     path: src/eval/proofloopAgentAdapters.ts
