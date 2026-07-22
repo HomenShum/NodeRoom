@@ -37,7 +37,8 @@ describe("proofloop ci install github", () => {
     const workflow = readFileSync(result.workflowPath, "utf8");
     // The exact gate contract from scripts/proofloop-cli.ts cmdGoalGate.
     expect(workflow).toContain("npx tsx scripts/proofloop-cli.ts gate --goal official-scores");
-    expect(workflow).toContain("actions/setup-node@v4");
+    expect(workflow).toContain("actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1");
+    expect(workflow).toContain("actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0");
     expect(workflow).toContain("node-version: 22");
     expect(workflow).toContain("npm ci");
     expect(workflow).not.toContain(PROOFLOOP_CI_GOAL_PLACEHOLDER);
