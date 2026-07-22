@@ -18,7 +18,7 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 import { authTables } from "@convex-dev/auth/server";
 import { refutationVerdictV } from "./lib";
-import { nodekitCaseflowTables } from "./nodekitCaseflowTables";
+import { nodekitCaseflowBindingTables } from "./nodekitCaseflowTables";
 import { notificationEventsTable, watchesTable } from "./watchesTables";
 
 const actor = v.object({
@@ -146,7 +146,7 @@ const agentArtifactStatusV = v.union(
 
 export default defineSchema({
   ...authTables,
-  ...nodekitCaseflowTables,
+  ...nodekitCaseflowBindingTables,
   rooms: defineTable({
     code: v.string(),
     title: v.string(),

@@ -1,670 +1,547 @@
+import {
+  type ComponentApi,
+  createNodeKitCaseflowClient,
+} from "@homenshum/nodekit/convex-caseflow";
 import { v } from "convex/values";
+import { components } from "./_generated/api";
 import type { Doc, Id } from "./_generated/dataModel";
-import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
-import { applyCellEditCore } from "./artifacts";
-import { actorProofV, requireActorProof, sha256Hex, type ActorValue } from "./lib";
+import {
+  mutation,
+  query,
+  type MutationCtx,
+  type QueryCtx,
+} from "./_generated/server";
+import { applyCellEditCore, assertCreateArtifactLimits } from "./artifacts";
+import {
+  actorProofV,
+  requireActorProof,
+  sha256Hex,
+  type ActorValue,
+} from "./lib";
 
-const CASEFLOW_SCHEMA_VERSIONS = {
-  approval: "nodekit.approval/v1",
-  artifact: "nodekit.artifact/v1",
-  case: "nodekit.case/v1",
-  event: "nodekit.caseflow-event/v1",
-  exception: "nodekit.exception/v1",
-  proposal: "nodekit.proposal/v1",
-  receipt: "nodekit.receipt/v1",
-  run: "nodekit.run/v1",
-} as const;
+const componentApi = (
+  components as unknown as {
+    nodekitCaseflow: ComponentApi<"nodekitCaseflow">;
+  }
+).nodekitCaseflow;
+const caseflow = createNodeKitCaseflowClient(componentApi);
 
-const MAX_TITLE_LENGTH = 200;
-const MAX_PRIMARY_JOB_LENGTH = 2_000;
-const MAX_STAGE_COUNT = 32;
-const MAX_STAGE_TEXT_LENGTH = 160;
-const MAX_EXCEPTION_TEXT_LENGTH = 2_000;
 const CANONICAL_ELEMENT_ID = "nodekit:caseflow:canonical";
-const TERMINAL_RUN_STATUSES = new Set(["cancelled", "completed", "failed_safely"]);
-
 type DbCtx = QueryCtx | MutationCtx;
 type Requester = { actor: ActorValue; token?: string };
-type CaseflowScope = {
+type CaseBinding = Doc<"nodekitCaseflowBindings">;
+type RunBinding = Doc<"nodekitCaseflowRunBindings">;
+type ArtifactBinding = Doc<"nodekitCaseflowArtifactBindings">;
+
+type Scope = {
   actor: ActorValue;
+  componentActor: { id: string; type: "human" };
   member: Doc<"members">;
   room: Doc<"rooms">;
+  scopeKey: string;
 };
-
-function requiredText(value: unknown, label: string, maxLength: number): string {
-  const normalized = String(value ?? "").trim();
-  if (!normalized) throw new Error(`caseflow_${label}_required`);
-  if (normalized.length > maxLength) throw new Error(`caseflow_${label}_too_long`);
-  return normalized;
-}
-
-function optionalText(value: unknown, maxLength: number): string {
-  const normalized = String(value ?? "").trim();
-  if (normalized.length > maxLength) throw new Error("caseflow_text_too_long");
-  return normalized;
-}
-
-function iso(timestamp: number): string {
-  return new Date(timestamp).toISOString();
-}
-
-function canonicalJson(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
-  if (value && typeof value === "object") {
-    const object = value as Record<string, unknown>;
-    return `{${Object.keys(object)
-      .sort()
-      .map((key) => `${JSON.stringify(key)}:${canonicalJson(object[key])}`)
-      .join(",")}}`;
-  }
-  const serialized = JSON.stringify(value);
-  if (serialized === undefined) throw new Error("caseflow_value_not_json");
-  return serialized;
-}
-
-async function contentHash(value: unknown): Promise<string> {
-  return sha256Hex(canonicalJson(value));
-}
-
-async function requireScope(
-  ctx: DbCtx,
-  roomId: Id<"rooms">,
-  requester: Requester,
-): Promise<CaseflowScope> {
-  const actor = await requireActorProof(ctx, roomId, requester);
-  const [member, room] = await Promise.all([
-    ctx.db.get(actor.id as Id<"members">),
-    ctx.db.get(roomId),
-  ]);
-  if (!member || String(member.roomId) !== String(roomId)) throw new Error("caseflow_member_scope_mismatch");
-  if (!room || room.status !== "live") throw new Error("caseflow_room_not_live");
-  return { actor, member, room };
-}
-
-function requireOwnedRecord<T extends { roomId: Id<"rooms">; ownerMemberId: Id<"members"> }>(
-  scope: CaseflowScope,
-  record: T | null,
-): T {
-  if (
-    !record ||
-    String(record.roomId) !== String(scope.room._id) ||
-    String(record.ownerMemberId) !== String(scope.member._id)
-  ) {
-    throw new Error("caseflow_owner_scope_mismatch");
-  }
-  return record;
-}
-
-async function emit(
-  ctx: MutationCtx,
-  scope: CaseflowScope,
-  args: {
-    runId?: Id<"nodekitCaseflowRuns">;
-    aggregateType: string;
-    aggregateId: string;
-    eventType: string;
-    payload?: unknown;
-    occurredAt?: number;
-  },
-) {
-  const previous = await ctx.db
-    .query("nodekitCaseflowEvents")
-    .withIndex("by_aggregate_sequence", (q) => q.eq("aggregateId", args.aggregateId))
-    .order("desc")
-    .first();
-  return ctx.db.insert("nodekitCaseflowEvents", {
-    roomId: scope.room._id,
-    ownerMemberId: scope.member._id,
-    runId: args.runId,
-    schemaVersion: CASEFLOW_SCHEMA_VERSIONS.event,
-    aggregateType: args.aggregateType,
-    aggregateId: args.aggregateId,
-    eventType: args.eventType,
-    sequence: (previous?.sequence ?? 0) + 1,
-    payload: args.payload ?? {},
-    occurredAt: args.occurredAt ?? Date.now(),
-  });
-}
-
-function portableCase(record: Doc<"nodekitCaseflowCases">) {
-  return {
-    caseId: String(record._id),
-    createdAt: iso(record.createdAt),
-    currentRunId: record.currentRunId ? String(record.currentRunId) : null,
-    primaryJob: record.primaryJob,
-    schemaVersion: record.schemaVersion,
-    status: record.status,
-    title: record.title,
-    updatedAt: iso(record.updatedAt),
-  };
-}
-
-function portableRun(record: Doc<"nodekitCaseflowRuns">) {
-  return {
-    caseId: String(record.caseId),
-    createdAt: iso(record.createdAt),
-    currentStageId: record.currentStageId,
-    nextAction: record.nextAction,
-    nextActionOwner: record.nextActionOwner,
-    runId: String(record._id),
-    schemaVersion: record.schemaVersion,
-    stages: record.stages,
-    status: record.status,
-    updatedAt: iso(record.updatedAt),
-  };
-}
-
-async function portableArtifact(ctx: DbCtx, record: Doc<"nodekitCaseflowArtifacts">) {
-  const versions = await ctx.db
-    .query("nodekitCaseflowArtifactVersions")
-    .withIndex("by_artifact_version", (q) => q.eq("artifactId", record._id))
-    .collect();
-  return {
-    artifactId: String(record._id),
-    caseId: String(record.caseId),
-    canonicalVersion: record.canonicalVersion,
-    createdAt: iso(record.createdAt),
-    kind: record.kind,
-    nodeRoomArtifactId: String(record.nodeRoomArtifactId),
-    runId: String(record.runId),
-    schemaVersion: record.schemaVersion,
-    title: record.title,
-    updatedAt: iso(record.updatedAt),
-    versions: versions.map((version) => ({
-      content: version.content,
-      contentHash: version.contentHash,
-      createdAt: iso(version.createdAt),
-      ...(version.proposalId ? { proposalId: String(version.proposalId) } : {}),
-      version: version.version,
-    })),
-  };
-}
-
-function portableProposal(record: Doc<"nodekitCaseflowProposals">) {
-  return {
-    artifactId: String(record.artifactId),
-    baseVersion: record.baseVersion,
-    createdAt: iso(record.createdAt),
-    patch: record.patch,
-    proposalId: String(record._id),
-    rationale: record.rationale,
-    schemaVersion: record.schemaVersion,
-    status: record.status,
-    ...(record.decidedAt ? { decidedAt: iso(record.decidedAt) } : {}),
-  };
-}
-
-function portableApproval(record: Doc<"nodekitCaseflowApprovals">) {
-  return {
-    approvalId: String(record._id),
-    comment: record.comment,
-    decidedAt: iso(record.decidedAt),
-    decision: record.decision,
-    proposalId: String(record.proposalId),
-    schemaVersion: record.schemaVersion,
-  };
-}
-
-function portableException(record: Doc<"nodekitCaseflowExceptions">) {
-  return {
-    code: record.code,
-    exceptionId: String(record._id),
-    message: record.message,
-    preservedState: record.preservedState,
-    raisedAt: iso(record.raisedAt),
-    resolution: record.resolution ?? null,
-    runId: String(record.runId),
-    schemaVersion: record.schemaVersion,
-    status: record.status,
-    ...(record.resolvedAt ? { resolvedAt: iso(record.resolvedAt) } : {}),
-  };
-}
-
-function portableEvent(record: Doc<"nodekitCaseflowEvents">) {
-  return {
-    actor: { type: "user", id: String(record.ownerMemberId) },
-    aggregateId: record.aggregateId,
-    aggregateType: record.aggregateType,
-    eventId: String(record._id),
-    eventType: record.eventType,
-    occurredAt: iso(record.occurredAt),
-    payload: record.payload,
-    schemaVersion: record.schemaVersion,
-    sequence: record.sequence,
-  };
-}
-
-function portableReceipt(record: Doc<"nodekitCaseflowReceipts">) {
-  return {
-    ...(record.body as Record<string, unknown>),
-    receiptId: String(record._id),
-    receiptHash: record.receiptHash,
-  };
-}
-
-async function ownedCase(ctx: DbCtx, scope: CaseflowScope, caseId: Id<"nodekitCaseflowCases">) {
-  return requireOwnedRecord(scope, await ctx.db.get(caseId));
-}
-
-async function ownedRun(ctx: DbCtx, scope: CaseflowScope, runId: Id<"nodekitCaseflowRuns">) {
-  return requireOwnedRecord(scope, await ctx.db.get(runId));
-}
-
-async function ownedArtifact(ctx: DbCtx, scope: CaseflowScope, artifactId: Id<"nodekitCaseflowArtifacts">) {
-  return requireOwnedRecord(scope, await ctx.db.get(artifactId));
-}
-
-async function ownedProposal(ctx: DbCtx, scope: CaseflowScope, proposalId: Id<"nodekitCaseflowProposals">) {
-  return requireOwnedRecord(scope, await ctx.db.get(proposalId));
-}
-
-async function ownedException(ctx: DbCtx, scope: CaseflowScope, exceptionId: Id<"nodekitCaseflowExceptions">) {
-  return requireOwnedRecord(scope, await ctx.db.get(exceptionId));
-}
 
 const scopeArgs = {
   roomId: v.id("rooms"),
   requester: actorProofV,
 };
 
+function canonicalJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value !== null && typeof value === "object") {
+    const object = value as Record<string, unknown>;
+    return `{${Object.keys(object)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${canonicalJson(object[key])}`)
+      .join(",")}}`;
+  }
+  const encoded = JSON.stringify(value);
+  if (encoded === undefined) throw new Error("caseflow_domain_value_not_json");
+  return encoded;
+}
+
+async function requireScope(
+  ctx: DbCtx,
+  roomId: Id<"rooms">,
+  requester: Requester,
+): Promise<Scope> {
+  const actor = await requireActorProof(ctx, roomId, requester);
+  const [member, room] = await Promise.all([
+    ctx.db.get(actor.id as Id<"members">),
+    ctx.db.get(roomId),
+  ]);
+  if (!member || String(member.roomId) !== String(roomId)) {
+    throw new Error("caseflow_member_scope_mismatch");
+  }
+  if (!room || room.status !== "live") throw new Error("caseflow_room_not_live");
+  const digest = await sha256Hex(
+    ["noderoom.nodekit-caseflow/v1", String(roomId), String(member._id)].join("\u001f"),
+  );
+  return {
+    actor,
+    componentActor: { id: String(member._id), type: "human" },
+    member,
+    room,
+    scopeKey: `noderoom_${digest}`,
+  };
+}
+
+function assertOwnedBinding(
+  scope: Scope,
+  binding: CaseBinding | RunBinding | ArtifactBinding | null,
+) {
+  if (
+    binding === null ||
+    String(binding.roomId) !== String(scope.room._id) ||
+    String(binding.ownerMemberId) !== String(scope.member._id) ||
+    binding.scopeKey !== scope.scopeKey
+  ) {
+    throw new Error("caseflow_owner_scope_mismatch");
+  }
+  return binding;
+}
+
+async function caseBindingByCase(ctx: DbCtx, scope: Scope, caseId: string) {
+  return assertOwnedBinding(
+    scope,
+    await ctx.db
+      .query("nodekitCaseflowBindings")
+      .withIndex("by_case", (q) => q.eq("caseId", caseId))
+      .unique(),
+  ) as CaseBinding;
+}
+
+async function caseBindingByRun(ctx: DbCtx, scope: Scope, runId: string) {
+  return assertOwnedBinding(
+    scope,
+    await ctx.db
+      .query("nodekitCaseflowRunBindings")
+      .withIndex("by_run", (q) => q.eq("runId", runId))
+      .unique(),
+  ) as RunBinding;
+}
+
+async function artifactBindingByComponent(
+  ctx: DbCtx,
+  scope: Scope,
+  componentArtifactId: string,
+) {
+  return assertOwnedBinding(
+    scope,
+    await ctx.db
+      .query("nodekitCaseflowArtifactBindings")
+      .withIndex("by_component_artifact", (q) =>
+        q.eq("componentArtifactId", componentArtifactId),
+      )
+      .unique(),
+  ) as ArtifactBinding;
+}
+
+function withNodeRoomArtifact<T extends Record<string, unknown>>(
+  artifact: T,
+  binding: ArtifactBinding,
+) {
+  return {
+    ...artifact,
+    canonicalElementId: binding.canonicalElementId,
+    nodeRoomArtifactId: String(binding.nodeRoomArtifactId),
+  };
+}
+
+async function requireSynchronizedArtifact(
+  ctx: DbCtx,
+  scope: Scope,
+  binding: ArtifactBinding,
+) {
+  const [componentArtifact, nodeRoomArtifact, element] = await Promise.all([
+    caseflow.getArtifact(ctx, {
+      artifactId: binding.componentArtifactId,
+      scopeKey: scope.scopeKey,
+    }),
+    ctx.db.get(binding.nodeRoomArtifactId),
+    ctx.db
+      .query("elements")
+      .withIndex("by_artifact", (q) =>
+        q
+          .eq("artifactId", binding.nodeRoomArtifactId)
+          .eq("elementId", binding.canonicalElementId),
+      )
+      .unique(),
+  ]);
+  if (componentArtifact === null || nodeRoomArtifact === null || element === null) {
+    throw new Error("caseflow_artifact_binding_incomplete");
+  }
+  if (
+    String(nodeRoomArtifact.roomId) !== String(scope.room._id) ||
+    nodeRoomArtifact.visibility !== "private" ||
+    nodeRoomArtifact.createdBy?.id !== String(scope.member._id)
+  ) {
+    throw new Error("caseflow_domain_artifact_scope_mismatch");
+  }
+  const canonical = componentArtifact.versions.at(-1);
+  if (
+    canonical === undefined ||
+    componentArtifact.canonicalVersion !== element.version ||
+    nodeRoomArtifact.version !== element.version ||
+    canonical.version !== element.version ||
+    canonicalJson(canonical.content) !== canonicalJson(element.value)
+  ) {
+    throw new Error(
+      `caseflow_domain_artifact_drift:${componentArtifact.canonicalVersion}:${element.version}`,
+    );
+  }
+  return { componentArtifact, element, nodeRoomArtifact };
+}
+
 export const createCase = mutation({
-  args: {
-    ...scopeArgs,
-    title: v.string(),
-    primaryJob: v.string(),
-  },
+  args: { ...scopeArgs, title: v.string(), primaryJob: v.string() },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const scope = await requireScope(ctx, args.roomId, args.requester);
+    const created = await caseflow.createCase(ctx, {
+      actor: scope.componentActor,
+      primaryJob: args.primaryJob,
+      scopeKey: scope.scopeKey,
+      title: args.title,
+    });
+    const existing = await ctx.db
+      .query("nodekitCaseflowBindings")
+      .withIndex("by_case", (q) => q.eq("caseId", created.caseId))
+      .unique();
+    if (existing !== null) {
+      assertOwnedBinding(scope, existing);
+      return created;
+    }
     const now = Date.now();
-    const caseId = await ctx.db.insert("nodekitCaseflowCases", {
-      roomId: scope.room._id,
-      ownerMemberId: scope.member._id,
-      schemaVersion: CASEFLOW_SCHEMA_VERSIONS.case,
-      title: requiredText(args.title, "title", MAX_TITLE_LENGTH),
-      primaryJob: requiredText(args.primaryJob, "primary_job", MAX_PRIMARY_JOB_LENGTH),
-      status: "ready",
+    await ctx.db.insert("nodekitCaseflowBindings", {
+      caseId: created.caseId,
       createdAt: now,
+      ownerMemberId: scope.member._id,
+      roomId: scope.room._id,
+      scopeKey: scope.scopeKey,
       updatedAt: now,
     });
-    const record = await ctx.db.get(caseId);
-    if (!record) throw new Error("caseflow_case_insert_failed");
-    await emit(ctx, scope, {
-      aggregateType: "case",
-      aggregateId: String(caseId),
-      eventType: "case.created",
-      payload: portableCase(record),
-      occurredAt: now,
-    });
-    return portableCase(record);
+    return created;
   },
 });
 
-const stageV = v.object({
-  id: v.optional(v.string()),
-  label: v.optional(v.string()),
-  owner: v.optional(v.string()),
+export const updateCaseInput = mutation({
+  args: {
+    ...scopeArgs,
+    caseId: v.string(),
+    primaryJob: v.optional(v.string()),
+    title: v.optional(v.string()),
+  },
+  returns: v.any(),
+  handler: async (ctx, args) => {
+    const scope = await requireScope(ctx, args.roomId, args.requester);
+    await caseBindingByCase(ctx, scope, args.caseId);
+    return caseflow.updateCaseInput(ctx, {
+      actor: scope.componentActor,
+      caseId: args.caseId,
+      scopeKey: scope.scopeKey,
+      ...(args.primaryJob === undefined ? {} : { primaryJob: args.primaryJob }),
+      ...(args.title === undefined ? {} : { title: args.title }),
+    });
+  },
 });
 
 export const startRun = mutation({
   args: {
     ...scopeArgs,
-    caseId: v.id("nodekitCaseflowCases"),
-    stages: v.array(stageV),
+    caseId: v.string(),
+    stages: v.array(
+      v.object({ id: v.string(), label: v.string(), owner: v.string() }),
+    ),
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const scope = await requireScope(ctx, args.roomId, args.requester);
-    const caseRecord = await ownedCase(ctx, scope, args.caseId);
-    if (caseRecord.currentRunId) {
-      const current = await ctx.db.get(caseRecord.currentRunId);
-      if (current && !TERMINAL_RUN_STATUSES.has(current.status)) return portableRun(current);
+    const binding = await caseBindingByCase(ctx, scope, args.caseId);
+    const run = await caseflow.startRun(ctx, {
+      actor: scope.componentActor,
+      caseId: args.caseId,
+      scopeKey: scope.scopeKey,
+      stages: args.stages,
+    });
+    const existingRunBinding = await ctx.db
+      .query("nodekitCaseflowRunBindings")
+      .withIndex("by_run", (q) => q.eq("runId", run.runId))
+      .unique();
+    if (existingRunBinding === null) {
+      await ctx.db.insert("nodekitCaseflowRunBindings", {
+        caseId: args.caseId,
+        createdAt: Date.now(),
+        ownerMemberId: scope.member._id,
+        roomId: scope.room._id,
+        runId: run.runId,
+        scopeKey: scope.scopeKey,
+      });
+    } else {
+      const ownedRun = assertOwnedBinding(scope, existingRunBinding) as RunBinding;
+      if (ownedRun.caseId !== args.caseId) {
+        throw new Error("run does not belong to case: caseflow_run_case_mismatch");
+      }
     }
-    if (args.stages.length === 0) throw new Error("caseflow_run_stages_required");
-    if (args.stages.length > MAX_STAGE_COUNT) throw new Error("caseflow_too_many_stages");
-    const seen = new Set<string>();
-    const stages = args.stages.map((stage, index) => {
-      const id = requiredText(stage.id ?? `stage-${index + 1}`, "stage_id", MAX_STAGE_TEXT_LENGTH);
-      if (seen.has(id)) throw new Error("caseflow_duplicate_stage_id");
-      seen.add(id);
-      return {
-        id,
-        label: requiredText(stage.label ?? stage.id ?? `Stage ${index + 1}`, "stage_label", MAX_STAGE_TEXT_LENGTH),
-        owner: optionalText(stage.owner ?? "system", MAX_STAGE_TEXT_LENGTH) || "system",
-        status: (index === 0 ? "active" : "pending") as "active" | "pending",
-      };
-    });
-    const now = Date.now();
-    const runId = await ctx.db.insert("nodekitCaseflowRuns", {
-      roomId: scope.room._id,
-      ownerMemberId: scope.member._id,
-      caseId: caseRecord._id,
-      schemaVersion: CASEFLOW_SCHEMA_VERSIONS.run,
-      status: "active",
-      stages,
-      currentStageId: stages[0].id,
-      nextAction: stages[0].label,
-      nextActionOwner: stages[0].owner,
-      createdAt: now,
-      updatedAt: now,
-    });
-    await ctx.db.patch(caseRecord._id, { currentRunId: runId, status: "in_progress", updatedAt: now });
-    const run = await ctx.db.get(runId);
-    if (!run) throw new Error("caseflow_run_insert_failed");
-    await emit(ctx, scope, {
-      runId,
-      aggregateType: "run",
-      aggregateId: String(runId),
-      eventType: "run.started",
-      payload: portableRun(run),
-      occurredAt: now,
-    });
-    await emit(ctx, scope, {
-      runId,
-      aggregateType: "run",
-      aggregateId: String(runId),
-      eventType: "stage.entered",
-      payload: { stageId: run.currentStageId },
-      occurredAt: now,
-    });
-    return portableRun(run);
+    if (binding.currentRunId !== run.runId) {
+      await ctx.db.patch(binding._id, {
+        currentRunId: run.runId,
+        updatedAt: Date.now(),
+      });
+    }
+    return run;
   },
 });
 
 export const enterStage = mutation({
   args: {
     ...scopeArgs,
-    runId: v.id("nodekitCaseflowRuns"),
-    stageId: v.string(),
+    idempotencyKey: v.optional(v.string()),
     nextAction: v.optional(v.string()),
     nextActionOwner: v.optional(v.string()),
+    runId: v.string(),
+    stageId: v.string(),
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const scope = await requireScope(ctx, args.roomId, args.requester);
-    const run = await ownedRun(ctx, scope, args.runId);
-    if (TERMINAL_RUN_STATUSES.has(run.status)) throw new Error(`caseflow_run_terminal:${run.status}`);
-    const targetIndex = run.stages.findIndex((stage) => stage.id === args.stageId);
-    if (targetIndex < 0) throw new Error("caseflow_stage_not_found");
-    const stages = run.stages.map((stage, index) => ({
-      ...stage,
-      status: (index < targetIndex ? "completed" : index === targetIndex ? "active" : "pending") as
-        "completed" | "active" | "pending",
-    }));
-    const now = Date.now();
-    const nextAction = optionalText(args.nextAction ?? stages[targetIndex].label, MAX_STAGE_TEXT_LENGTH) || stages[targetIndex].label;
-    const nextActionOwner = optionalText(args.nextActionOwner ?? stages[targetIndex].owner, MAX_STAGE_TEXT_LENGTH) || stages[targetIndex].owner;
-    await ctx.db.patch(run._id, {
-      stages,
-      currentStageId: args.stageId,
-      nextAction,
-      nextActionOwner,
-      updatedAt: now,
+    await caseBindingByRun(ctx, scope, args.runId);
+    return caseflow.enterStage(ctx, {
+      actor: scope.componentActor,
+      runId: args.runId,
+      scopeKey: scope.scopeKey,
+      stageId: args.stageId,
+      ...(args.idempotencyKey === undefined
+        ? {}
+        : { idempotencyKey: args.idempotencyKey }),
+      ...(args.nextAction === undefined ? {} : { nextAction: args.nextAction }),
+      ...(args.nextActionOwner === undefined
+        ? {}
+        : { nextActionOwner: args.nextActionOwner }),
     });
-    await emit(ctx, scope, {
-      runId: run._id,
-      aggregateType: "run",
-      aggregateId: String(run._id),
-      eventType: "stage.entered",
-      payload: { stageId: args.stageId, nextAction, nextActionOwner },
-      occurredAt: now,
-    });
-    const updated = await ctx.db.get(run._id);
-    if (!updated) throw new Error("caseflow_run_missing_after_stage");
-    return portableRun(updated);
   },
 });
 
 export const createArtifact = mutation({
   args: {
     ...scopeArgs,
-    caseId: v.id("nodekitCaseflowCases"),
-    runId: v.id("nodekitCaseflowRuns"),
-    kind: v.optional(v.string()),
-    title: v.string(),
+    caseId: v.string(),
     content: v.any(),
+    idempotencyKey: v.optional(v.string()),
+    kind: v.optional(v.string()),
+    runId: v.string(),
+    title: v.optional(v.string()),
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const scope = await requireScope(ctx, args.roomId, args.requester);
-    const [caseRecord, run] = await Promise.all([
-      ownedCase(ctx, scope, args.caseId),
-      ownedRun(ctx, scope, args.runId),
-    ]);
-    if (String(run.caseId) !== String(caseRecord._id)) throw new Error("caseflow_run_case_mismatch");
-    const title = requiredText(args.title, "artifact_title", MAX_TITLE_LENGTH);
-    const kind = optionalText(args.kind ?? "generic", MAX_STAGE_TEXT_LENGTH) || "generic";
+    const caseBinding = await caseBindingByCase(ctx, scope, args.caseId);
+    if (caseBinding.currentRunId !== args.runId) {
+      throw new Error("run does not belong to case: caseflow_run_case_mismatch");
+    }
+    const componentArtifact = await caseflow.createArtifact(ctx, {
+      actor: scope.componentActor,
+      caseId: args.caseId,
+      content: args.content,
+      runId: args.runId,
+      scopeKey: scope.scopeKey,
+      ...(args.idempotencyKey === undefined
+        ? {}
+        : { idempotencyKey: args.idempotencyKey }),
+      ...(args.kind === undefined ? {} : { kind: args.kind }),
+      ...(args.title === undefined ? {} : { title: args.title }),
+    });
+    const existing = await ctx.db
+      .query("nodekitCaseflowArtifactBindings")
+      .withIndex("by_component_artifact", (q) =>
+        q.eq("componentArtifactId", componentArtifact.artifactId),
+      )
+      .unique();
+    if (existing !== null) {
+      const binding = assertOwnedBinding(scope, existing) as ArtifactBinding;
+      return withNodeRoomArtifact(componentArtifact, binding);
+    }
+
+    const title = componentArtifact.title;
+    const content = componentArtifact.versions[0]?.content;
     const now = Date.now();
-    const nodeRoomArtifactId = await ctx.db.insert("artifacts", {
-      roomId: scope.room._id,
-      kind: "sheet",
+    const meta = {
+      caseflowArtifactId: componentArtifact.artifactId,
+      caseflowKind: componentArtifact.kind,
+      caseId: componentArtifact.caseId,
+      integration: "@homenshum/nodekit/convex-caseflow",
+      runId: componentArtifact.runId,
+    };
+    assertCreateArtifactLimits({
+      meta,
+      seed: [{ id: CANONICAL_ELEMENT_ID, value: content }],
       title,
-      version: 1,
-      order: [CANONICAL_ELEMENT_ID],
-      updatedAt: now,
+    });
+    const nodeRoomArtifactId = await ctx.db.insert("artifacts", {
       createdBy: scope.actor,
+      kind: "sheet",
+      meta,
+      order: [CANONICAL_ELEMENT_ID],
+      roomId: scope.room._id,
+      title,
+      updatedAt: now,
+      version: 1,
       visibility: "private",
-      meta: {
-        integration: "nodekit-caseflow",
-        caseId: String(caseRecord._id),
-        runId: String(run._id),
-        caseflowKind: kind,
-      },
     });
     await ctx.db.insert("elements", {
       artifactId: nodeRoomArtifactId,
       elementId: CANONICAL_ELEMENT_ID,
-      version: 1,
-      value: args.content,
       updatedAt: now,
       updatedBy: scope.actor,
+      value: content,
+      version: 1,
     });
-    const artifactId = await ctx.db.insert("nodekitCaseflowArtifacts", {
-      roomId: scope.room._id,
-      ownerMemberId: scope.member._id,
-      caseId: caseRecord._id,
-      runId: run._id,
-      nodeRoomArtifactId,
+    const bindingId = await ctx.db.insert("nodekitCaseflowArtifactBindings", {
       canonicalElementId: CANONICAL_ELEMENT_ID,
-      schemaVersion: CASEFLOW_SCHEMA_VERSIONS.artifact,
-      kind,
-      title,
-      canonicalVersion: 1,
+      caseId: args.caseId,
+      componentArtifactId: componentArtifact.artifactId,
       createdAt: now,
+      nodeRoomArtifactId,
+      ownerMemberId: scope.member._id,
+      roomId: scope.room._id,
+      runId: args.runId,
+      scopeKey: scope.scopeKey,
       updatedAt: now,
     });
-    await ctx.db.insert("nodekitCaseflowArtifactVersions", {
-      artifactId,
-      version: 1,
-      content: args.content,
-      contentHash: await contentHash(args.content),
-      createdAt: now,
+    await ctx.db.insert("traces", {
+      actor: scope.actor,
+      detail: `component ${componentArtifact.artifactId} · ${String(nodeRoomArtifactId)}`,
+      roomId: scope.room._id,
+      summary: `${scope.actor.name} added ${title} through NodeKit Caseflow`,
+      ts: now,
+      type: "edit_applied",
     });
-    const artifact = await ctx.db.get(artifactId);
-    if (!artifact) throw new Error("caseflow_artifact_insert_failed");
-    await emit(ctx, scope, {
-      runId: run._id,
-      aggregateType: "artifact",
-      aggregateId: String(artifactId),
-      eventType: "artifact.created",
-      payload: { artifactId: String(artifactId), nodeRoomArtifactId: String(nodeRoomArtifactId), version: 1 },
-      occurredAt: now,
-    });
-    return portableArtifact(ctx, artifact);
+    const binding = await ctx.db.get(bindingId);
+    if (binding === null) throw new Error("caseflow_artifact_binding_insert_failed");
+    return withNodeRoomArtifact(componentArtifact, binding);
   },
 });
 
 export const createProposal = mutation({
   args: {
     ...scopeArgs,
-    artifactId: v.id("nodekitCaseflowArtifacts"),
+    artifactId: v.string(),
     baseVersion: v.number(),
+    idempotencyKey: v.optional(v.string()),
     patch: v.any(),
     rationale: v.optional(v.string()),
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const scope = await requireScope(ctx, args.roomId, args.requester);
-    const artifact = await ownedArtifact(ctx, scope, args.artifactId);
-    if (!Number.isSafeInteger(args.baseVersion) || args.baseVersion < 1) throw new Error("caseflow_invalid_base_version");
-    if (args.baseVersion !== artifact.canonicalVersion) {
-      throw new Error(`caseflow_stale_proposal_base:${args.baseVersion}:${artifact.canonicalVersion}`);
+    const binding = await artifactBindingByComponent(ctx, scope, args.artifactId);
+    const { componentArtifact } = await requireSynchronizedArtifact(
+      ctx,
+      scope,
+      binding,
+    );
+    if (args.baseVersion !== componentArtifact.canonicalVersion) {
+      throw new Error(
+        `caseflow_stale_proposal_base:${args.baseVersion}:${componentArtifact.canonicalVersion}`,
+      );
     }
-    const now = Date.now();
-    const proposalId = await ctx.db.insert("nodekitCaseflowProposals", {
-      roomId: scope.room._id,
-      ownerMemberId: scope.member._id,
-      artifactId: artifact._id,
-      schemaVersion: CASEFLOW_SCHEMA_VERSIONS.proposal,
+    return caseflow.createProposal(ctx, {
+      actor: scope.componentActor,
+      artifactId: args.artifactId,
       baseVersion: args.baseVersion,
       patch: args.patch,
-      patchHash: await contentHash(args.patch),
-      rationale: optionalText(args.rationale, MAX_PRIMARY_JOB_LENGTH),
-      status: "pending",
-      createdAt: now,
+      scopeKey: scope.scopeKey,
+      ...(args.idempotencyKey === undefined
+        ? {}
+        : { idempotencyKey: args.idempotencyKey }),
+      ...(args.rationale === undefined ? {} : { rationale: args.rationale }),
     });
-    const proposal = await ctx.db.get(proposalId);
-    if (!proposal) throw new Error("caseflow_proposal_insert_failed");
-    await emit(ctx, scope, {
-      runId: artifact.runId,
-      aggregateType: "proposal",
-      aggregateId: String(proposalId),
-      eventType: "proposal.created",
-      payload: portableProposal(proposal),
-      occurredAt: now,
-    });
-    return portableProposal(proposal);
   },
 });
 
 export const decideProposal = mutation({
   args: {
     ...scopeArgs,
-    proposalId: v.id("nodekitCaseflowProposals"),
-    decision: v.union(v.literal("accepted"), v.literal("rejected")),
     comment: v.optional(v.string()),
+    decision: v.union(v.literal("accepted"), v.literal("rejected")),
+    proposalId: v.string(),
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const scope = await requireScope(ctx, args.roomId, args.requester);
-    const proposal = await ownedProposal(ctx, scope, args.proposalId);
-    const artifact = await ownedArtifact(ctx, scope, proposal.artifactId);
-    if (proposal.status !== "pending") {
-      const approval = await ctx.db
-        .query("nodekitCaseflowApprovals")
-        .withIndex("by_proposal", (q) => q.eq("proposalId", proposal._id))
-        .unique();
-      const repeatedDecisionMatches = approval?.decision === args.decision && (
-        proposal.status === args.decision ||
-        (proposal.status === "conflicted" && args.decision === "accepted")
-      );
-      if (!approval || !repeatedDecisionMatches) throw new Error(`caseflow_proposal_already_${proposal.status}`);
-      return {
-        approval: portableApproval(approval),
-        artifact: await portableArtifact(ctx, artifact),
-        proposal: portableProposal(proposal),
-        reused: true,
-      };
-    }
-
-    const now = Date.now();
-    const approvalId = await ctx.db.insert("nodekitCaseflowApprovals", {
-      roomId: scope.room._id,
-      ownerMemberId: scope.member._id,
-      proposalId: proposal._id,
-      schemaVersion: CASEFLOW_SCHEMA_VERSIONS.approval,
-      decision: args.decision,
-      comment: optionalText(args.comment, MAX_PRIMARY_JOB_LENGTH),
-      decidedAt: now,
+    const pending = await caseflow.listPendingApprovals(ctx, {
+      limit: 500,
+      scopeKey: scope.scopeKey,
     });
-    const approval = await ctx.db.get(approvalId);
-    if (!approval) throw new Error("caseflow_approval_insert_failed");
-
-    if (args.decision === "accepted" && proposal.baseVersion !== artifact.canonicalVersion) {
-      await ctx.db.patch(proposal._id, { status: "conflicted", decidedAt: now });
-      await emit(ctx, scope, {
-        runId: artifact.runId,
-        aggregateType: "proposal",
-        aggregateId: String(proposal._id),
-        eventType: "proposal.conflicted",
-        payload: { canonicalVersion: artifact.canonicalVersion },
-        occurredAt: now,
+    const pendingProposal = pending.find(
+      (proposal) => proposal.proposalId === args.proposalId,
+    );
+    let binding: ArtifactBinding | null = null;
+    let synchronized:
+      | Awaited<ReturnType<typeof requireSynchronizedArtifact>>
+      | undefined;
+    if (pendingProposal !== undefined) {
+      binding = await artifactBindingByComponent(
+        ctx,
+        scope,
+        pendingProposal.artifactId,
+      );
+      const componentArtifact = await caseflow.getArtifact(ctx, {
+        artifactId: pendingProposal.artifactId,
+        scopeKey: scope.scopeKey,
       });
-      const conflicted = await ctx.db.get(proposal._id);
-      if (!conflicted) throw new Error("caseflow_proposal_missing_after_conflict");
-      return {
-        approval: portableApproval(approval),
-        artifact: await portableArtifact(ctx, artifact),
-        proposal: portableProposal(conflicted),
-        reused: false,
-      };
+      if (componentArtifact === null) throw new Error("caseflow_artifact_not_found");
+      // A stale component proposal must reach Caseflow so it becomes an explicit
+      // conflict. A component-current proposal must also match NodeRoom's real
+      // canonical artifact before either side is allowed to advance.
+      if (
+        args.decision === "accepted" &&
+        pendingProposal.baseVersion === componentArtifact.canonicalVersion
+      ) {
+        synchronized = await requireSynchronizedArtifact(ctx, scope, binding);
+      }
     }
 
-    if (args.decision === "accepted") {
+    const decided = await caseflow.decideProposal(ctx, {
+      actor: scope.componentActor,
+      decision: args.decision,
+      proposalId: args.proposalId,
+      scopeKey: scope.scopeKey,
+      ...(args.comment === undefined ? {} : { comment: args.comment }),
+    });
+    binding ??= await artifactBindingByComponent(
+      ctx,
+      scope,
+      decided.artifact.artifactId,
+    );
+    if (
+      args.decision === "accepted" &&
+      decided.proposal.status === "accepted" &&
+      !decided.reused
+    ) {
+      synchronized ??= await requireSynchronizedArtifact(ctx, scope, binding);
       const applied = await applyCellEditCore(ctx, {
-        roomId: scope.room._id,
-        artifactId: artifact.nodeRoomArtifactId,
-        elementId: artifact.canonicalElementId,
-        kind: "set",
-        value: proposal.patch,
-        baseVersion: proposal.baseVersion,
         actor: scope.actor,
+        artifactId: binding.nodeRoomArtifactId,
+        baseVersion: decided.proposal.baseVersion,
+        elementId: binding.canonicalElementId,
+        kind: "set",
+        roomId: scope.room._id,
+        value: decided.proposal.patch,
       });
       if (!applied.ok) {
-        if (applied.reason !== "conflict") throw new Error(`caseflow_artifact_apply_failed:${applied.reason}`);
-        await ctx.db.patch(proposal._id, { status: "conflicted", decidedAt: now });
-        await emit(ctx, scope, {
-          runId: artifact.runId,
-          aggregateType: "proposal",
-          aggregateId: String(proposal._id),
-          eventType: "proposal.conflicted",
-          payload: { canonicalVersion: artifact.canonicalVersion, actual: applied.actual },
-          occurredAt: now,
-        });
-      } else {
-        await ctx.db.patch(artifact._id, { canonicalVersion: applied.version, updatedAt: now });
-        await ctx.db.insert("nodekitCaseflowArtifactVersions", {
-          artifactId: artifact._id,
-          version: applied.version,
-          content: proposal.patch,
-          contentHash: proposal.patchHash,
-          proposalId: proposal._id,
-          createdAt: now,
-        });
-        await ctx.db.patch(proposal._id, { status: "accepted", decidedAt: now });
-        await emit(ctx, scope, {
-          runId: artifact.runId,
-          aggregateType: "artifact",
-          aggregateId: String(artifact._id),
-          eventType: "artifact.version_created",
-          payload: { proposalId: String(proposal._id), version: applied.version },
-          occurredAt: now,
-        });
-        await emit(ctx, scope, {
-          runId: artifact.runId,
-          aggregateType: "proposal",
-          aggregateId: String(proposal._id),
-          eventType: "proposal.accepted",
-          payload: { approvalId: String(approvalId) },
-          occurredAt: now,
-        });
+        throw new Error(`caseflow_domain_apply_failed:${applied.reason}`);
       }
-    } else {
-      await ctx.db.patch(proposal._id, { status: "rejected", decidedAt: now });
-      await emit(ctx, scope, {
-        runId: artifact.runId,
-        aggregateType: "proposal",
-        aggregateId: String(proposal._id),
-        eventType: "proposal.rejected",
-        payload: { approvalId: String(approvalId) },
-        occurredAt: now,
-      });
+      if (applied.version !== decided.artifact.canonicalVersion) {
+        throw new Error(
+          `caseflow_domain_version_diverged:${applied.version}:${decided.artifact.canonicalVersion}`,
+        );
+      }
+      await ctx.db.patch(binding._id, { updatedAt: Date.now() });
     }
-
-    const [updatedArtifact, updatedProposal] = await Promise.all([
-      ctx.db.get(artifact._id),
-      ctx.db.get(proposal._id),
-    ]);
-    if (!updatedArtifact || !updatedProposal) throw new Error("caseflow_decision_state_missing");
     return {
-      approval: portableApproval(approval),
-      artifact: await portableArtifact(ctx, updatedArtifact),
-      proposal: portableProposal(updatedProposal),
-      reused: false,
+      ...decided,
+      artifact: withNodeRoomArtifact(decided.artifact, binding),
     };
   },
 });
@@ -672,224 +549,230 @@ export const decideProposal = mutation({
 export const raiseException = mutation({
   args: {
     ...scopeArgs,
-    runId: v.id("nodekitCaseflowRuns"),
-    code: v.string(),
-    message: v.string(),
+    code: v.optional(v.string()),
+    idempotencyKey: v.optional(v.string()),
+    message: v.optional(v.string()),
     preservedState: v.optional(v.any()),
+    runId: v.string(),
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const scope = await requireScope(ctx, args.roomId, args.requester);
-    const run = await ownedRun(ctx, scope, args.runId);
-    if (TERMINAL_RUN_STATUSES.has(run.status)) throw new Error(`caseflow_run_terminal:${run.status}`);
-    const now = Date.now();
-    const exceptionId = await ctx.db.insert("nodekitCaseflowExceptions", {
-      roomId: scope.room._id,
-      ownerMemberId: scope.member._id,
-      runId: run._id,
-      schemaVersion: CASEFLOW_SCHEMA_VERSIONS.exception,
-      code: requiredText(args.code, "exception_code", MAX_STAGE_TEXT_LENGTH),
-      message: requiredText(args.message, "exception_message", MAX_EXCEPTION_TEXT_LENGTH),
-      preservedState: args.preservedState ?? {},
-      status: "open",
-      raisedAt: now,
+    await caseBindingByRun(ctx, scope, args.runId);
+    return caseflow.raiseException(ctx, {
+      actor: scope.componentActor,
+      runId: args.runId,
+      scopeKey: scope.scopeKey,
+      ...(args.code === undefined ? {} : { code: args.code }),
+      ...(args.idempotencyKey === undefined
+        ? {}
+        : { idempotencyKey: args.idempotencyKey }),
+      ...(args.message === undefined ? {} : { message: args.message }),
+      ...(args.preservedState === undefined
+        ? {}
+        : { preservedState: args.preservedState }),
     });
-    await ctx.db.patch(run._id, {
-      status: "blocked",
-      nextAction: "Resolve exception",
-      nextActionOwner: "user",
-      updatedAt: now,
-    });
-    await emit(ctx, scope, {
-      runId: run._id,
-      aggregateType: "run",
-      aggregateId: String(run._id),
-      eventType: "exception.raised",
-      payload: { code: args.code, exceptionId: String(exceptionId) },
-      occurredAt: now,
-    });
-    const exception = await ctx.db.get(exceptionId);
-    if (!exception) throw new Error("caseflow_exception_insert_failed");
-    return portableException(exception);
   },
 });
 
 export const resolveException = mutation({
   args: {
     ...scopeArgs,
-    exceptionId: v.id("nodekitCaseflowExceptions"),
-    resolution: v.optional(v.string()),
+    exceptionId: v.string(),
     nextAction: v.optional(v.string()),
     nextActionOwner: v.optional(v.string()),
+    resolution: v.optional(v.string()),
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const scope = await requireScope(ctx, args.roomId, args.requester);
-    const exception = await ownedException(ctx, scope, args.exceptionId);
-    const run = await ownedRun(ctx, scope, exception.runId);
-    if (exception.status === "resolved") {
-      return { exception: portableException(exception), run: portableRun(run), reused: true };
-    }
-    const now = Date.now();
-    const resolution = optionalText(args.resolution ?? "resolved", MAX_EXCEPTION_TEXT_LENGTH) || "resolved";
-    const nextAction = optionalText(args.nextAction ?? "Continue run", MAX_STAGE_TEXT_LENGTH) || "Continue run";
-    const nextActionOwner = optionalText(args.nextActionOwner ?? "system", MAX_STAGE_TEXT_LENGTH) || "system";
-    await ctx.db.patch(exception._id, { status: "resolved", resolution, resolvedAt: now });
-    await ctx.db.patch(run._id, { status: "active", nextAction, nextActionOwner, updatedAt: now });
-    await emit(ctx, scope, {
-      runId: run._id,
-      aggregateType: "run",
-      aggregateId: String(run._id),
-      eventType: "exception.resolved",
-      payload: { exceptionId: String(exception._id), resolution },
-      occurredAt: now,
+    return caseflow.resolveException(ctx, {
+      actor: scope.componentActor,
+      exceptionId: args.exceptionId,
+      scopeKey: scope.scopeKey,
+      ...(args.nextAction === undefined ? {} : { nextAction: args.nextAction }),
+      ...(args.nextActionOwner === undefined
+        ? {}
+        : { nextActionOwner: args.nextActionOwner }),
+      ...(args.resolution === undefined ? {} : { resolution: args.resolution }),
     });
-    const [updatedException, updatedRun] = await Promise.all([
-      ctx.db.get(exception._id),
-      ctx.db.get(run._id),
-    ]);
-    if (!updatedException || !updatedRun) throw new Error("caseflow_exception_resolution_missing");
-    return { exception: portableException(updatedException), run: portableRun(updatedRun), reused: false };
   },
 });
 
-export const completeRun = mutation({
+async function assertRunArtifactsSynchronized(
+  ctx: DbCtx,
+  scope: Scope,
+  runId: string,
+) {
+  const bindings = await ctx.db
+    .query("nodekitCaseflowArtifactBindings")
+    .withIndex("by_run", (q) => q.eq("runId", runId))
+    .collect();
+  for (const binding of bindings) {
+    assertOwnedBinding(scope, binding);
+    await requireSynchronizedArtifact(ctx, scope, binding);
+  }
+}
+
+async function terminateRun(
+  ctx: MutationCtx,
   args: {
-    ...scopeArgs,
-    runId: v.id("nodekitCaseflowRuns"),
+    roomId: Id<"rooms">;
+    requester: Requester;
+    reason?: string;
+    runId: string;
   },
-  handler: async (ctx, args) => {
-    const scope = await requireScope(ctx, args.roomId, args.requester);
-    const run = await ownedRun(ctx, scope, args.runId);
-    if (run.status === "completed") {
-      const receipt = await ctx.db
-        .query("nodekitCaseflowReceipts")
-        .withIndex("by_run", (q) => q.eq("runId", run._id))
-        .unique();
-      if (!receipt) throw new Error("caseflow_completed_run_missing_receipt");
-      return { receipt: portableReceipt(receipt), run: portableRun(run), reused: true };
-    }
-    if (TERMINAL_RUN_STATUSES.has(run.status)) throw new Error(`caseflow_run_terminal:${run.status}`);
-    const openException = await ctx.db
-      .query("nodekitCaseflowExceptions")
-      .withIndex("by_run_status", (q) => q.eq("runId", run._id).eq("status", "open"))
-      .first();
-    if (openException) throw new Error("caseflow_run_has_unresolved_exceptions");
+  status: "cancelled" | "completed" | "failed_safely",
+) {
+  const scope = await requireScope(ctx, args.roomId, args.requester);
+  await caseBindingByRun(ctx, scope, args.runId);
+  await assertRunArtifactsSynchronized(ctx, scope, args.runId);
+  const common = {
+    actor: scope.componentActor,
+    runId: args.runId,
+    scopeKey: scope.scopeKey,
+  };
+  if (status === "completed") return caseflow.completeRun(ctx, common);
+  if (status === "cancelled") {
+    return caseflow.cancelRun(ctx, {
+      ...common,
+      ...(args.reason === undefined ? {} : { reason: args.reason }),
+    });
+  }
+  return caseflow.failRunSafely(ctx, {
+    ...common,
+    ...(args.reason === undefined ? {} : { reason: args.reason }),
+  });
+}
 
-    const caseRecord = await ownedCase(ctx, scope, run.caseId);
-    const now = Date.now();
-    await ctx.db.patch(run._id, {
-      status: "completed",
-      nextAction: "Review receipt",
-      nextActionOwner: "user",
-      stages: run.stages.map((stage) => ({ ...stage, status: "completed" as const })),
-      updatedAt: now,
-    });
-    await ctx.db.patch(caseRecord._id, { status: "completed", updatedAt: now });
-    await emit(ctx, scope, {
-      runId: run._id,
-      aggregateType: "run",
-      aggregateId: String(run._id),
-      eventType: "run.completed",
-      payload: {},
-      occurredAt: now,
-    });
+export const completeRun = mutation({
+  args: { ...scopeArgs, runId: v.string() },
+  returns: v.any(),
+  handler: (ctx, args) => terminateRun(ctx, args, "completed"),
+});
 
-    const artifacts = await ctx.db
-      .query("nodekitCaseflowArtifacts")
-      .withIndex("by_run", (q) => q.eq("runId", run._id))
-      .collect();
-    const proposalGroups = await Promise.all(artifacts.map((artifact) =>
-      ctx.db.query("nodekitCaseflowProposals")
-        .withIndex("by_artifact", (q) => q.eq("artifactId", artifact._id))
-        .collect()
-    ));
-    const events = await ctx.db
-      .query("nodekitCaseflowEvents")
-      .withIndex("by_run", (q) => q.eq("runId", run._id))
-      .collect();
-    const receiptBody = {
-      applicationRefs: {
-        nodeRoomArtifactIds: artifacts.map((artifact) => String(artifact.nodeRoomArtifactId)),
-        /** Domain receipts stay application-owned; none are fabricated for generic conformance. */
-        domainReceiptIds: [] as string[],
-      },
-      artifactIds: artifacts.map((artifact) => String(artifact._id)),
-      caseId: String(caseRecord._id),
-      eventIds: events.map((event) => String(event._id)),
-      generatedAt: iso(now),
-      proposalIds: proposalGroups.flat().map((proposal) => String(proposal._id)),
-      runId: String(run._id),
-      schemaVersion: CASEFLOW_SCHEMA_VERSIONS.receipt,
-      status: "completed" as const,
-    };
-    const receiptId = await ctx.db.insert("nodekitCaseflowReceipts", {
-      roomId: scope.room._id,
-      ownerMemberId: scope.member._id,
-      runId: run._id,
-      schemaVersion: CASEFLOW_SCHEMA_VERSIONS.receipt,
-      body: receiptBody,
-      receiptHash: await contentHash(receiptBody),
-      createdAt: now,
-    });
-    const receipt = await ctx.db.get(receiptId);
-    if (!receipt) throw new Error("caseflow_receipt_insert_failed");
-    await emit(ctx, scope, {
-      runId: run._id,
-      aggregateType: "run",
-      aggregateId: String(run._id),
-      eventType: "receipt.created",
-      payload: { receiptId: String(receiptId), receiptHash: receipt.receiptHash },
-      occurredAt: now,
-    });
-    const updatedRun = await ctx.db.get(run._id);
-    if (!updatedRun) throw new Error("caseflow_run_missing_after_completion");
-    return { receipt: portableReceipt(receipt), run: portableRun(updatedRun), reused: false };
-  },
+export const cancelRun = mutation({
+  args: { ...scopeArgs, reason: v.optional(v.string()), runId: v.string() },
+  returns: v.any(),
+  handler: (ctx, args) => terminateRun(ctx, args, "cancelled"),
+});
+
+export const failRunSafely = mutation({
+  args: { ...scopeArgs, reason: v.optional(v.string()), runId: v.string() },
+  returns: v.any(),
+  handler: (ctx, args) => terminateRun(ctx, args, "failed_safely"),
 });
 
 export const snapshot = query({
   args: scopeArgs,
+  returns: v.any(),
   handler: async (ctx, args) => {
     const scope = await requireScope(ctx, args.roomId, args.requester);
-    const [cases, runs, artifacts, proposals, exceptions, events, receipts] = await Promise.all([
-      ctx.db.query("nodekitCaseflowCases")
-        .withIndex("by_room_owner", (q) => q.eq("roomId", scope.room._id).eq("ownerMemberId", scope.member._id))
+    const [caseBindings, runBindings, artifactBindings, pending] = await Promise.all([
+      ctx.db
+        .query("nodekitCaseflowBindings")
+        .withIndex("by_room_owner", (q) =>
+          q
+            .eq("roomId", scope.room._id)
+            .eq("ownerMemberId", scope.member._id),
+        )
         .collect(),
-      ctx.db.query("nodekitCaseflowRuns")
-        .withIndex("by_room_owner", (q) => q.eq("roomId", scope.room._id).eq("ownerMemberId", scope.member._id))
+      ctx.db
+        .query("nodekitCaseflowRunBindings")
+        .withIndex("by_room_owner", (q) =>
+          q
+            .eq("roomId", scope.room._id)
+            .eq("ownerMemberId", scope.member._id),
+        )
         .collect(),
-      ctx.db.query("nodekitCaseflowArtifacts")
-        .withIndex("by_room_owner", (q) => q.eq("roomId", scope.room._id).eq("ownerMemberId", scope.member._id))
+      ctx.db
+        .query("nodekitCaseflowArtifactBindings")
+        .withIndex("by_room_owner", (q) =>
+          q
+            .eq("roomId", scope.room._id)
+            .eq("ownerMemberId", scope.member._id),
+        )
         .collect(),
-      ctx.db.query("nodekitCaseflowProposals")
-        .withIndex("by_room_owner", (q) => q.eq("roomId", scope.room._id).eq("ownerMemberId", scope.member._id))
-        .collect(),
-      ctx.db.query("nodekitCaseflowExceptions")
-        .withIndex("by_room_owner", (q) => q.eq("roomId", scope.room._id).eq("ownerMemberId", scope.member._id))
-        .collect(),
-      ctx.db.query("nodekitCaseflowEvents")
-        .withIndex("by_room_owner", (q) => q.eq("roomId", scope.room._id).eq("ownerMemberId", scope.member._id))
-        .collect(),
-      ctx.db.query("nodekitCaseflowReceipts")
-        .withIndex("by_room_owner", (q) => q.eq("roomId", scope.room._id).eq("ownerMemberId", scope.member._id))
-        .collect(),
+      caseflow.listPendingApprovals(ctx, {
+        limit: 500,
+        scopeKey: scope.scopeKey,
+      }),
     ]);
-    const proposalIds = new Set(proposals.map((proposal) => String(proposal._id)));
-    const approvalGroups = await Promise.all(proposals.map((proposal) =>
-      ctx.db.query("nodekitCaseflowApprovals")
-        .withIndex("by_proposal", (q) => q.eq("proposalId", proposal._id))
-        .collect()
-    ));
+    const cases = (
+      await Promise.all(
+        caseBindings.map((binding) =>
+          caseflow.getCase(ctx, {
+            caseId: binding.caseId,
+            scopeKey: scope.scopeKey,
+          }),
+        ),
+      )
+    ).filter((record) => record !== null);
+    const runIds = [...new Set(runBindings.map((binding) => binding.runId))];
+    const runs = (
+      await Promise.all(
+        runIds.map((runId) =>
+          caseflow.getRun(ctx, { runId, scopeKey: scope.scopeKey }),
+        ),
+      )
+    ).filter((record) => record !== null);
+    const artifacts = (
+      await Promise.all(
+        artifactBindings.map(async (binding) => {
+          const artifact = await caseflow.getArtifact(ctx, {
+            artifactId: binding.componentArtifactId,
+            scopeKey: scope.scopeKey,
+          });
+          return artifact === null
+            ? null
+            : withNodeRoomArtifact(artifact, binding);
+        }),
+      )
+    ).filter((record) => record !== null);
+    const receipts = (
+      await Promise.all(
+        runIds.map((runId) =>
+          caseflow.getReceiptForRun(ctx, {
+            runId,
+            scopeKey: scope.scopeKey,
+          }),
+        ),
+      )
+    ).filter((record) => record !== null);
+    const events = (
+      await Promise.all(
+        runIds.map((runId) =>
+          caseflow.getTimeline(ctx, {
+            aggregateId: runId,
+            aggregateType: "run",
+            limit: 500,
+            scopeKey: scope.scopeKey,
+          }),
+        ),
+      )
+    ).flat();
     return {
-      approvals: approvalGroups.flat()
-        .filter((approval) => proposalIds.has(String(approval.proposalId)))
-        .map(portableApproval),
-      artifacts: await Promise.all(artifacts.map((artifact) => portableArtifact(ctx, artifact))),
-      cases: cases.map(portableCase),
-      events: events.map(portableEvent),
-      exceptions: exceptions.map(portableException),
-      proposals: proposals.map(portableProposal),
-      receipts: receipts.map(portableReceipt),
-      runs: runs.map(portableRun),
+      approvals: [],
+      artifacts,
+      cases,
+      events,
+      exceptions: [],
+      proposals: pending,
+      receipts,
+      runs,
     };
+  },
+});
+
+export const getReceipt = query({
+  args: { ...scopeArgs, runId: v.string() },
+  returns: v.any(),
+  handler: async (ctx, args) => {
+    const scope = await requireScope(ctx, args.roomId, args.requester);
+    await caseBindingByRun(ctx, scope, args.runId);
+    return caseflow.getReceiptForRun(ctx, {
+      runId: args.runId,
+      scopeKey: scope.scopeKey,
+    });
   },
 });

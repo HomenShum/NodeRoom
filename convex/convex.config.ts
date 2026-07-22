@@ -5,6 +5,7 @@ import persistentTextStreaming from "@convex-dev/persistent-text-streaming/conve
 import debouncer from "@ikhrustalev/convex-debouncer/convex.config.js";
 import prosemirrorSync from "@convex-dev/prosemirror-sync/convex.config.js";
 import nodeslide from "@nodeslide/convex/convex.config.js";
+import nodekitCaseflow from "@homenshum/nodekit/convex.config.js";
 
 const app = defineApp();
 
@@ -16,6 +17,7 @@ app.use(workpool, { name: "agentWorkpool" });
 app.use(persistentTextStreaming);
 app.use(debouncer);
 app.use(prosemirrorSync);
+app.use(nodekitCaseflow);
 // Isolated package-owned storage surface. NodeRoom's mounted product writes
 // remain authoritative in artifacts/elements/proposals; this mount gives
 // migrations and independent component consumers their own Convex namespace.

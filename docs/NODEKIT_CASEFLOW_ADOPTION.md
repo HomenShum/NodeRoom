@@ -1,64 +1,128 @@
-# NodeKit Caseflow adoption boundary
+# NodeRoom × NodeKit Caseflow consumer boundary
 
-NodeRoom/NodeSheet consumes NodeKit Caseflow from the exact source candidate
-`5cc61578b3c1bd5b5c8195b83347b91f8b83242b`. The dependency is pinned to that
-commit's immutable GitHub archive, and application code imports the supported
-`@homenshum/nodekit/caseflow` subpath. This is a consumer integration, not a
-published Convex component and not evidence that NodeKit is released on npm.
-
-## Runtime mapping
-
-| Portable Caseflow concept | NodeRoom implementation |
-| --- | --- |
-| Case | `nodekitCaseflowCases`, scoped to a verified room member |
-| Run and stages | `nodekitCaseflowRuns`; active start is claim-or-reuse and stages keep an explicit next-action owner |
-| Artifact | `nodekitCaseflowArtifacts` references a real private NodeRoom `artifacts` row and its reserved canonical `elements` cell |
-| Artifact version | `nodekitCaseflowArtifactVersions` records the portable version and content hash; the authoritative write still passes through `applyCellEditCore` and NodeRoom's existing element CAS |
-| Proposal and approval | `nodekitCaseflowProposals` and `nodekitCaseflowApprovals`; proposals do not mutate canonical content, stale acceptance fails closed, and a repeated identical decision returns the original approval without a second version |
-| Exception and recovery | `nodekitCaseflowExceptions`; preserved state remains durable and resolution sets an explicit next action and owner |
-| Event and receipt | `nodekitCaseflowEvents` plus immutable `nodekitCaseflowReceipts`; completion hashes the exact canonical receipt body and repeated completion returns the same row and hash |
-
-The client adapter is
-`src/integrations/nodekit/caseflowAdapter.ts`. It overwrites any caller-supplied
-scope with its application-owned `roomId` and actor proof before invoking the
-Convex functions in `convex/nodekitCaseflow.ts`. Every public lifecycle function
-calls `requireActorProof`, reloads the member and room, requires a live room, and
-checks the record's `roomId` and `ownerMemberId`. A different authenticated
-member in the same room cannot read or mutate another member's lifecycle.
+NodeRoom now mounts the packaged NodeKit Caseflow Convex component. The former
+895-line copied backend and nine host lifecycle tables are gone. This worktree
+uses a provisional local tarball while NodeKit's final exact-revision package is
+being frozen, so it is an engineering-valid consumer implementation but not yet
+a final qualifying receipt or production claim.
 
 ## Ownership boundary
 
-Application-owned data stays in NodeRoom:
+The installed component owns all portable lifecycle state:
 
-- Convex Auth identity, `rooms`, `members`, membership roles, revocation, and actor proof;
-- `artifacts`, `elements`, `elementVersions`, locks, drafts, and the existing domain proposal surface;
-- `RoomTools`, `agentJobs`, attempts, model-step journal, operation journal, leases, and streams;
-- traces, `agentMutationReceipts`, finance and evaluation receipts, evidence, exports, file storage, and UI state.
+- cases, runs, and stages;
+- artifact metadata and immutable versions;
+- proposals and approvals;
+- exceptions and recovery state;
+- timeline events;
+- terminal receipt-v2 records.
 
-Possible future Caseflow-component-owned data is limited to the isolated
-`nodekitCaseflow*` lifecycle tables: cases, runs/stages, artifact references and
-portable versions, proposals/approvals, exceptions, events, and completion
-receipts. A component would receive only server-resolved owner/workspace and
-external-resource identifiers. It must not own or reimplement NodeRoom auth,
-room roles, domain artifacts, jobs, journals, prompts, model execution, storage,
-or UI.
+NodeRoom owns only application authority and domain state:
 
-The generic conformance journey has no `agentJob`, so its receipt truthfully
-records an empty `domainReceiptIds` list instead of inventing a domain receipt.
-When an application workflow launches Caseflow, existing NodeRoom domain
-receipt IDs can be referenced while their source rows remain application-owned.
+- Convex Auth identity, rooms, members, revocation, and membership roles;
+- real NodeRoom artifacts, elements, version history, locks, and cell CAS;
+- agent jobs, leases, traces, model calls, evidence, files, exports, and UI.
 
-## Verification and claim boundary
+The host schema contains three relationship tables, not a lifecycle fork:
 
-`tests/nodekitCaseflowConformance.test.ts` uses `convex-test` and the packaged
-`runCaseflowConformance` function. It separately proves two Convex-authenticated
-members, member-owner isolation, stale conflict behavior, exact decision and
-completion reuse, exception recovery, next-action ownership, reload durability,
-one authoritative artifact version increment, and receipt-hash recomputation
-with NodeKit's packaged `contentHash`.
+| Host table | Purpose |
+| --- | --- |
+| `nodekitCaseflowBindings` | Binds a component case and its current run to one authenticated room member and an opaque scope key. |
+| `nodekitCaseflowRunBindings` | Retains every component run-to-case relationship so old receipts and timelines survive later reruns. |
+| `nodekitCaseflowArtifactBindings` | Binds a component artifact ID to the real private NodeRoom artifact and canonical element. |
 
-This revision may count only as the NodeRoom/NodeSheet consumer if those tests,
-NodeRoom's floor, and build pass on the same implementation revision. It does
-not establish three consumers, authorize component extraction, publish a
-package, deploy Convex, mutate production, or satisfy NodeKit submission gates
-that require independent consumers or human evidence.
+No token, bearer, model secret, prompt, proposal body, approval, exception, event,
+or receipt is copied into these binding tables.
+
+## Authenticated wrapper
+
+`convex/nodekitCaseflow.ts` is the thin host wrapper. Every public function:
+
+1. verifies the NodeRoom actor proof;
+2. requires the Convex identity to match the member in production mode;
+3. requires a live room and non-revoked membership;
+4. derives the opaque component `scopeKey` server-side from room and member IDs;
+5. checks the host binding before calling the component;
+6. replaces any portable actor with the authenticated member identity.
+
+The component never receives a token and the browser never receives `scopeKey`.
+A second authenticated member in the same room gets a different scope and cannot
+read or mutate the first member's lifecycle.
+
+## One artifact authority
+
+The component stores the portable artifact history, while NodeRoom's artifact is
+the product's authoritative editable object. The versions remain aligned:
+
+```text
+component proposal
+→ component base-version check
+→ NodeRoom artifact/element preflight
+→ component decision
+→ NodeRoom applyCellEditCore CAS
+→ one outer Convex transaction commits both sides
+```
+
+If a human edits the NodeRoom element first, acceptance fails before the component
+advances and the human value remains canonical. If a lock causes NodeRoom CAS to
+reject after the component call begins, the outer mutation rolls back the component
+decision too; clearing the lock and retrying applies one component version and one
+NodeRoom version. Completion, cancellation, and safe failure verify that every
+bound artifact still matches before a receipt can be issued.
+
+## Local verification coverage
+
+`tests/nodekitCaseflowConformance.test.ts` registers the component exported by the
+installed package in `convex-test` and proves:
+
+- the packaged `runCaseflowConformance()` suite passes in its authenticated
+  `host-bound` actor profile with a real cross-owner and forged-identity probe;
+- actual component execution through the mounted host wrapper;
+- required Convex identity and room-member ownership;
+- two-member isolation and forged-identity rejection;
+- idempotent stage, artifact, proposal, decision, exception, and terminal retries;
+- a real private NodeRoom artifact and existing `applyCellEditCore` CAS;
+- stale component proposal conflict without a second canonical version;
+- newer human edit preservation;
+- cross-component rollback when NodeRoom CAS is locked;
+- multiple-exception containment and explicit recovery ownership;
+- reload durability, including prior-run timelines and receipts after a rerun;
+- cancellation and failed-safe terminal receipts;
+- receipt-v2 artifact, proposal, approval, event, and content-hash bindings.
+
+## Evidence and final-package gate
+
+`scripts/prove-nodekit-caseflow-consumer.mjs` is fail-closed. It requires:
+
+- a committed consumer source set;
+- a NodeKit tarball packed from a clean 40-character source commit;
+- the exact 64-character distributable source hash and tarball SHA-256;
+- lockfile integrity matching the tarball manifest;
+- adapter constants bound to those exact identities;
+- component tests, the complete NodeRoom floor, production build, and production audit;
+- recursively byte-verified source, logs, package manifest, and nested evidence;
+- a canonical content hash over the final local consumer verdict.
+
+The complete floor runs with two Vitest workers and a 60-second infrastructure
+timeout. All assertions remain intact; this prevents the repository's
+filesystem-heavy 5-second defaults from failing only because other worktrees
+share the same CPU and disk.
+
+The package preparation step also hashes the distributable source and Git status
+immediately before and after `npm pack`. If either changes while npm is reading
+the package, the archive is discarded. This prevents a concurrent edit from
+producing a tarball whose recorded source identity describes different bytes.
+
+The current provisional manifest intentionally records
+`source.workingTreeClean=false`, so the proof command refuses to issue a passing
+verdict. After NodeKit freezes, replace the tarball and manifest, reinstall, update
+the three constants in `src/integrations/nodekit/caseflowAdapter.ts`, commit that
+exact package binding, and then run:
+
+```bash
+npm run proof:nodekit-caseflow
+```
+
+That local receipt still does not claim production deployment, a signed-in browser
+journey, npm publication, Convex submission, or independent ProofLoop approval.
+Those remain separate external gates.
