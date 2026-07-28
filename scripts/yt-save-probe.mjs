@@ -4,7 +4,7 @@ import { chromium } from "playwright";
 
 const browser = await chromium.connectOverCDP("http://127.0.0.1:9222", { timeout: 30_000 });
 const page = await browser.contexts()[0].newPage();
-await page.goto("https://studio.youtube.com/video/YUpSMEkkK4Q/edit", { waitUntil: "domcontentloaded", timeout: 90_000 });
+await page.goto("https://studio.youtube.com/video/3N7sBxFLFOc/edit", { waitUntil: "domcontentloaded", timeout: 90_000 });
 await page.locator("#visibility-text").first().waitFor({ timeout: 60_000 });
 await page.waitForTimeout(2000);
 await page.locator("#visibility-text").first().click({ timeout: 15_000 });

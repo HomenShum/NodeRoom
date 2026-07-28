@@ -1,57 +1,53 @@
 #!/usr/bin/env node
 /**
- * yt-verify.mjs — confirm the uploads exist on YouTube, from the live page.
+ * yt-verify.mjs — confirm the published roster is publicly reachable, and that
+ * the superseded uploads are NOT.
  *
- * A script that printed "DONE" is not evidence. This loads each watch URL and
- * the Studio content list and reports what the DOM actually says.
+ * A script that printed "DONE" is not evidence.
+ *
+ * Two deliberate changes from the browser-driven version:
+ *
+ * 1. NO BROWSER. This used connectOverCDP, which meant a verifier could only
+ *    run when Chrome happened to be up with a debugging port — and, before the
+ *    close-kills-Chrome fix, could take the user's browser down with it. The
+ *    oembed endpoint answers the actual question (is this public, and what is
+ *    its title) over plain HTTP, with no session and nothing to break.
+ *
+ * 2. IT CHECKS BOTH DIRECTIONS. Confirming the good ones resolve proves
+ *    nothing about the ones that should be gone. A PASS here means the roster
+ *    is reachable AND every superseded id is refused — the second half is what
+ *    would catch a privatize that silently did nothing.
+ *
+ *   node scripts/yt-verify.mjs
  */
-import { chromium } from "playwright";
+import { PUBLISHED, SUPERSEDED } from "./yt-roster.mjs";
 
-const TARGETS = [
-  { key: "NodeRoom", url: "https://youtu.be/YUpSMEkkK4Q", expect: "review every agent change" },
-  { key: "NodeSlide", url: "https://youtu.be/q1CL1hCO_0Q", expect: "decks that stay editable" },
-];
+const oembed = async (id) => {
+  const r = await fetch(`https://www.youtube.com/oembed?url=https://youtu.be/${id}&format=json`);
+  return { status: r.status, title: r.ok ? (await r.json()).title : null };
+};
 
-const browser = await chromium.connectOverCDP("http://127.0.0.1:9222", { timeout: 20_000 });
-const ctx = browser.contexts()[0];
 let bad = 0;
 
-for (const t of TARGETS) {
-  const page = await ctx.newPage();
-  await page.goto(t.url, { waitUntil: "domcontentloaded", timeout: 60_000 });
-  await page.waitForTimeout(6000);
-  const title = (await page.title()) ?? "";
-  const h1 = (await page.locator("h1 yt-formatted-string, h1").first().textContent().catch(() => "")) ?? "";
-  const player = await page.locator("video").count();
-  const ok = new RegExp(t.expect, "i").test(title + " " + h1) && player > 0;
+console.log(`published roster — expect HTTP 200 and a matching title (${PUBLISHED.length})`);
+for (const v of PUBLISHED) {
+  const { status, title } = await oembed(v.id);
+  // Both conditions matter: a 200 alone would pass even if the id pointed at
+  // some other video, and two of these titles share every word but the product.
+  const ok = status === 200 && (title ?? "").includes(v.expect);
   if (!ok) bad++;
-  console.log(`${ok ? "PASS" : "FAIL"}  ${t.key}`);
-  console.log(`      url    ${page.url()}`);
-  console.log(`      title  ${title.replace(/ - YouTube$/, "")}`);
-  console.log(`      <video> elements: ${player}`);
-  await page.close();
+  console.log(`  ${ok ? "PASS" : "FAIL"}  ${v.key.padEnd(22)} ${v.id}  HTTP ${status}`);
+  if (!ok) console.log(`        expected title to contain: ${v.expect}\n        got: ${title ?? "(not public)"}`);
 }
 
-// Cross-check visibility from Studio, where "Unlisted" is stated explicitly.
-const s = await ctx.newPage();
-await s.goto("https://studio.youtube.com/channel/UCTsBmSJ6a2_IwP9f-svxR3Q/videos/upload", {
-  waitUntil: "domcontentloaded",
-  timeout: 60_000,
-});
-await s.waitForTimeout(8000);
-const rows = await s.evaluate(() =>
-  [...document.querySelectorAll("ytcp-video-row")].slice(0, 4).map((r) => {
-    const txt = (sel) => r.querySelector(sel)?.textContent?.trim() ?? "";
-    return {
-      title: txt("#video-title") || txt("h3"),
-      visibility: txt("#visibility-text") || txt('[id*="visibility"]'),
-    };
-  }),
-);
-console.log("\nStudio content list (top 4):");
-for (const r of rows) console.log(`  ${(r.visibility || "?").padEnd(10)} ${r.title.slice(0, 72)}`);
+console.log(`\nsuperseded — expect NOT publicly resolvable (${SUPERSEDED.length})`);
+for (const v of SUPERSEDED) {
+  const { status, title } = await oembed(v.id);
+  const ok = status !== 200;
+  if (!ok) bad++;
+  console.log(`  ${ok ? "PASS" : "FAIL"}  ${v.id}  HTTP ${status}  ${v.why}`);
+  if (!ok) console.log(`        STILL PUBLIC as "${title}" — privatize did not take`);
+}
 
-await s.close();
-// Do NOT browser.close() a connectOverCDP connection — Playwright closes the
-// user's REAL Chrome and the debugging port dies with it.
+console.log(`\n${bad === 0 ? "roster verified — all published reachable, all superseded refused" : `${bad} check(s) FAILED`}`);
 process.exitCode = bad === 0 ? 0 : 1;

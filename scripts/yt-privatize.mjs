@@ -15,15 +15,10 @@
  *   node scripts/yt-privatize.mjs <videoId> [videoId...]
  */
 import { chromium } from "playwright";
-
-const KEEPERS = new Set([
-  "3N7sBxFLFOc", // NodeRoom drills (silent)
-  "qpzHP5-pWvw", // NodeRoom fresh-user (silent)
-  "M9cc5Gj1pQE", // NodeSlide deck (silent)
-  "uvXf7e4hwt4", // NodeRoom narrated
-  "5FnzEKmm9fw", // NodeSlide narrated
-  "eCMEWKoq5C0", // NodeSlide extras narrated
-]);
+// The keeper allowlist is imported, never re-typed here: a second copy of the
+// roster is a second thing to forget to update, and this one is load-bearing —
+// it is the only thing standing between a typo'd id and a hidden keeper.
+import { KEEPERS } from "./yt-roster.mjs";
 
 const ids = process.argv.slice(2);
 if (!ids.length) {
