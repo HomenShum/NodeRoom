@@ -1,0 +1,140 @@
+id: obs-greptile-custom-context-1
+source:
+  url: https://mobbin.com/screens/2a746782-8550-4a0f-9ce6-862b6384b4ee
+  app: Greptile — The AI code reviewer
+  surface: Custom Context (edit what the agent knows) — list + details inspector
+  platform: Web, Desktop 1512x945
+  capturedVia: mobbin-live
+firstSeenAt: 2026-07-28
+lastVerifiedAt: 2026-07-28
+
+# Why this reference: this is the surface where a human edits the rules an agent
+# will act on. Getting it wrong is not a styling error — it changes what the
+# agent does next.
+
+facts:
+  - id: f1
+    kind: relationship
+    subject: page layout
+    property: editor placement
+    value: "persistent right-hand Details inspector beside the list, not a modal over it; the full rules table stays visible and readable while one rule is edited"
+    locatorDescription: "Rules table occupies the left ~62% of the content area; 'Details' panel occupies the right ~28% with its own header row"
+
+  - id: f2
+    kind: count
+    subject: Details inspector header
+    property: action controls
+    value: 4
+    unit: controls
+    locatorDescription: "Left to right: delete (icon-only, tinted square), Cancel (text), Save (filled), close X"
+
+  - id: f3
+    kind: relationship
+    subject: Save button
+    property: visual weight versus siblings
+    value: "the ONLY filled high-contrast control in the panel; Cancel is text-only with no border, close is a bare glyph"
+    locatorDescription: "Details panel header, rightmost pair before the X"
+
+  - id: f4
+    kind: relationship
+    subject: destructive control
+    property: placement and treatment
+    value: "delete is icon-only in a tinted square, positioned at the FAR opposite end of the action row from Save, with Cancel between them"
+    locatorDescription: "Details panel header, leftmost control in the action group"
+
+  - id: f5
+    kind: count
+    subject: rules table
+    property: data columns
+    value: 6
+    unit: columns
+    locatorDescription: "RULES, SCOPE, TYPE, USAGE, LAST UPDATED, STATUS — plus a leading selection checkbox"
+
+  - id: f6
+    kind: relationship
+    subject: STATUS column on this table
+    property: chromatic ink usage
+    value: "'ACTIVE' rendered as uppercase letter-spaced GREY text with no colour and no tile — the same product's Pull Requests table spends green on a passed check, and this table spends none"
+    locatorDescription: "STATUS column, all four rows; compare obs-greptile-pull-requests-1/f5"
+
+  - id: f7
+    kind: measurement
+    subject: USAGE cell
+    property: zero-value display
+    value: "0 reviews"
+    locatorDescription: "USAGE column — the count is printed rather than blanked, dashed, or hidden, on all four rows"
+
+  - id: f8
+    kind: count
+    subject: sortable columns
+    property: columns carrying a sort control
+    value: 2
+    unit: columns
+    locatorDescription: "USAGE and LAST UPDATED carry sort affordances; RULES, SCOPE, TYPE and STATUS do not"
+
+  - id: f9
+    kind: relationship
+    subject: rule row
+    property: progressive disclosure
+    value: "each row opens with a disclosure chevron and carries a count chip ('1 file') beside the rule name, so scope size is legible before expanding"
+    locatorDescription: "RULES column, left edge of each of the four rows"
+
+  - id: f10
+    kind: relationship
+    subject: Pattern field
+    property: type differentiation
+    value: "monospace value with a right-aligned 'PATTERN' type chip inside the field's label row"
+    locatorDescription: "Details panel, first field below the header"
+
+  - id: f11
+    kind: relationship
+    subject: read-only context fields
+    property: editability signalling
+    value: "File path and Source repo render as grey filled blocks without input borders, visually distinct from the editable Description textarea above them"
+    locatorDescription: "Details panel, 'Files (1)' section"
+
+  - id: f12
+    kind: relationship
+    subject: section headings in the inspector
+    property: count disclosure
+    value: "heading carries its own count — 'Files (1)' — rather than requiring the reader to count children"
+    locatorDescription: "Details panel, below the Status toggle"
+
+  - id: f13
+    kind: relationship
+    subject: Status control
+    property: control type for a binary agent-affecting state
+    value: "toggle switch with the word 'Active' to its right; no colour beyond the toggle track"
+    locatorDescription: "Details panel, 'Status' label followed by the switch"
+
+  - id: f14
+    kind: relationship
+    subject: Scope section
+    property: additive control
+    value: "'+ Add Scope' rendered as a bordered secondary button, distinct from the filled Save"
+    locatorDescription: "Details panel, below the Repository / File pattern pair"
+
+problemTags:
+  - edit-what-the-agent-knows
+  - config-that-changes-agent-behaviour
+  - list-plus-detail-editing
+  - honest-zero-display
+
+intentTags:
+  - one-primary-action-per-panel
+  - separate-destructive-from-commit
+  - keep-list-context-while-editing
+
+layoutTags:
+  - list-with-persistent-inspector
+  - no-modal-for-item-edit
+
+interactionTags:
+  - toggle-for-agent-affecting-state
+  - progressive-disclosure-rows
+  - explicit-cancel-and-save
+
+notRecorded:
+  - timing
+  - easing
+  - choreography

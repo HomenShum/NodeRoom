@@ -1,0 +1,141 @@
+# DesignRules — hypotheses about the facts in design-dna/observations/.
+# A rule is falsifiable and carries a confidence. Mechanism lives here, never in
+# an observation.
+
+- id: rule-1
+  statement: >
+    In a product where an agent produces output a human must trust, chromatic
+    ink is spent only on verification state; every other status is carried by
+    case, weight and greyscale.
+  mechanismHypothesis: >
+    If colour appears on ordinary statuses it stops being a signal and becomes
+    decoration, and the reader can no longer tell "a check passed" from "a row
+    exists" without reading. Reserving it keeps one glance meaningful.
+  confidence: high
+  evidence:
+    - obs-greptile-pull-requests-1/f5
+    - obs-greptile-pull-requests-1/f6
+    - obs-greptile-custom-context-1/f6
+  whyThisConfidence: >
+    Two tables in the SAME product, same session, same visual system: the
+    review-history table spends green on a passed check and the rules table
+    spends none on ACTIVE. That is a deliberate split, not a style drift.
+  appliesWhen:
+    - the surface reports on work an agent did
+    - more than one status vocabulary exists in the product
+  doesNotApplyWhen:
+    - status IS the product's primary data (a monitoring or incident tool)
+  localCorroboration: >
+    Matches NodeRoom's own written rule — "green only ever means a passed check,
+    no decorative green, no green CTAs" — which until now had no external
+    reference behind it. This observation is that reference.
+
+- id: rule-2
+  statement: >
+    An agent product may report on decisions without hosting them, and doing so
+    is a legitimate design choice rather than a missing feature.
+  mechanismHypothesis: >
+    Greptile's decision lives where the work lives (the GitHub PR). Rebuilding an
+    approve/reject surface would duplicate the system of record and create two
+    places a decision could appear to have been made. The dashboard carries
+    history; the host carries the verdict.
+  confidence: medium
+  evidence:
+    - obs-greptile-pull-requests-1/f7
+    - obs-greptile-pull-requests-1/f8
+  whyThisConfidence: >
+    The absence of any approve/reject control is directly observed, and every
+    visible status is terminal. What is NOT observed is whether a decision
+    surface exists deeper in the product; 135 screens were not exhaustively read.
+  appliesWhen:
+    - the artifact under review already has an authoritative host
+  doesNotApplyWhen:
+    - the product IS the system of record — which is NodeRoom's case, so rule-2
+      informs the boundary question rather than settling it
+
+- id: rule-3
+  statement: >
+    On a panel that can change what an agent does, exactly one control is filled;
+    the destructive control is icon-only and placed at the opposite end of the
+    action row.
+  mechanismHypothesis: >
+    Visual weight is read as consequence. One filled control makes the committing
+    action unambiguous, and distance plus a reduced-affordance treatment makes
+    the irreversible one hard to hit by momentum.
+  confidence: high
+  evidence:
+    - obs-greptile-custom-context-1/f2
+    - obs-greptile-custom-context-1/f3
+    - obs-greptile-custom-context-1/f4
+    - obs-greptile-custom-context-1/f14
+  appliesWhen:
+    - the panel commits a change that alters agent behaviour
+  doesNotApplyWhen:
+    - the surface is read-only
+
+- id: rule-4
+  statement: >
+    A zero is printed, not blanked. "0 reviews" is displayed where a dash or an
+    empty cell would fit.
+  mechanismHypothesis: >
+    An empty cell is ambiguous between "none" and "not loaded". Printing the
+    zero distinguishes a measured absence from an unknown, which is the same
+    distinction an honest staleness field makes.
+  confidence: medium
+  evidence:
+    - obs-greptile-custom-context-1/f7
+  appliesWhen:
+    - the count is known to be zero
+  doesNotApplyWhen:
+    - the value was never fetched — then the cell must say so, not print 0
+
+- id: rule-5
+  statement: >
+    Item editing happens in a persistent inspector beside the list, not in a
+    modal over it.
+  mechanismHypothesis: >
+    Editing one rule is usually a comparison against the others. A modal hides
+    exactly the context the edit depends on and forces the reader to hold it in
+    memory.
+  confidence: medium
+  evidence:
+    - obs-greptile-custom-context-1/f1
+    - obs-greptile-custom-context-1/f9
+  appliesWhen:
+    - items in the list are peers whose settings interact
+  doesNotApplyWhen:
+    - the edit is a single destructive confirmation
+  localCorroboration: >
+    NodeRoom's RoomShell is already binder / stage / inspector. This is the same
+    topology arrived at independently.
+
+- id: rule-6
+  statement: >
+    A table with two rows renders two rows. It is not stretched, padded with
+    placeholders, or given taller rows to fill the viewport.
+  mechanismHypothesis: >
+    Filling space to look busy misrepresents volume. A short table that looks
+    short tells the truth about how much work exists.
+  confidence: medium
+  evidence:
+    - obs-greptile-pull-requests-1/f13
+  appliesWhen:
+    - real row counts are low and variable
+  doesNotApplyWhen:
+    - emptiness would read as a failed load — then an explicit empty state is
+      required, which is a different component
+
+# --- Coverage, stated so a later reader does not mistake this for a survey ---
+coverage:
+  appsObserved: 1
+  surfacesObserved: 2
+  surfacesAvailable: 135
+  note: >
+    Two surfaces of 135 were inspected. Every rule above is a hypothesis from a
+    narrow sample of ONE product. No rule here has been tested against a second
+    app, and none may be cited as a norm until it has been.
+  motionFacts: >
+    None. Mobbin screens are static; timing, easing and choreography were not
+    observed and were therefore not recorded. Any motion rung decision that
+    wants to cite this reference must first inspect the Animations tab or the
+    live product.
