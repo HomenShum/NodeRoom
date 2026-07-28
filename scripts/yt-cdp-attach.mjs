@@ -56,7 +56,7 @@ const run = async () => {
     say(`create-btn ${create > 0 ? "present" : "NOT FOUND"}`);
   }
 
-  await browser.close(); // detaches CDP; does NOT kill the Chrome window
+  // Do NOT browser.close() a connectOverCDP connection — it kills the real Chrome. // detaches CDP; does NOT kill the Chrome window
   return auth;
 };
 

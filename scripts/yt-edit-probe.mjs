@@ -40,4 +40,5 @@ console.log(`\nbuttons:`);
 buttons.forEach((b) => console.log("  " + JSON.stringify(b)));
 
 await page.close();
-await browser.close();
+// Do NOT browser.close() a connectOverCDP connection — Playwright closes the
+// user's REAL Chrome and the debugging port dies with it.

@@ -17,4 +17,5 @@ const cookies = await ctx.cookies("https://www.youtube.com");
 console.log(`cookies for youtube.com: ${cookies.length}`);
 console.log(`  names: ${cookies.slice(0, 12).map((c) => c.name).join(", ")}`);
 await page.close();
-await browser.close();
+// Do NOT browser.close() a connectOverCDP connection — Playwright closes the
+// user's REAL Chrome and the debugging port dies with it.

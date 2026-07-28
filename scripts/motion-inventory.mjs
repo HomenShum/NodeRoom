@@ -110,11 +110,16 @@ const sweep = async (ctx, t, reduced) => {
 // is not a gate, and localhost needs no signed-in session anyway.
 let browser;
 let transport;
+// Track WHICH transport we got: browser.close() on a connectOverCDP connection
+// closes the user's REAL Chrome, so the same call is correct on one path and
+// destructive on the other. Only a browser we launched is ours to close.
+let weLaunchedIt = false;
 try {
   browser = await chromium.connectOverCDP(`http://127.0.0.1:${PORT}`, { timeout: 8_000 });
   transport = `attached over CDP :${PORT}`;
 } catch {
   browser = await chromium.launch();
+  weLaunchedIt = true;
   transport = "launched own chromium (CDP endpoint unreachable)";
 }
 console.log(`  transport: ${transport}`);
@@ -126,7 +131,7 @@ for (const t of TARGETS) {
   const reduced = await sweep(ctx, t, true);
   report.push({ app: t.app, url: t.url, normal, reduced });
 }
-await browser.close();
+if (weLaunchedIt) await browser.close();
 await writeFile(OUT, JSON.stringify(report, null, 2), "utf8");
 
 for (const r of report) {

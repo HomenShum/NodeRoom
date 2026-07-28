@@ -136,5 +136,6 @@ const after = (await title.textContent())?.trim();
 console.log(`  after:  ${after}`);
 console.log(after === TITLE ? "  SAVED — title matches" : "  MISMATCH — not saved");
 await page.close();
-await browser.close();
+// Do NOT browser.close() a connectOverCDP connection — Playwright closes the
+// user's REAL Chrome and the debugging port dies with it.
 process.exitCode = after === TITLE ? 0 : 1;

@@ -52,5 +52,6 @@ console.log("\nStudio content list (top 4):");
 for (const r of rows) console.log(`  ${(r.visibility || "?").padEnd(10)} ${r.title.slice(0, 72)}`);
 
 await s.close();
-await browser.close();
+// Do NOT browser.close() a connectOverCDP connection — Playwright closes the
+// user's REAL Chrome and the debugging port dies with it.
 process.exitCode = bad === 0 ? 0 : 1;

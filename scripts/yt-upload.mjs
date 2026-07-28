@@ -288,7 +288,7 @@ const run = async () => {
   const confirmed = await page.locator("text=/video (link|published|uploaded)/i").count();
   step(12, `post-save confirmation elements: ${confirmed}`);
 
-  await browser.close();
+  // Do NOT browser.close() a connectOverCDP connection — it kills the real Chrome.
   return { url, confirmed };
 };
 

@@ -13,8 +13,27 @@
 $listening = Get-NetTCPConnection -LocalPort 9222 -State Listen -ErrorAction SilentlyContinue
 if ($listening) { "CDP already up (pid " + $listening[0].OwningProcess + ")"; exit 0 }
 
-Get-Process chrome -ErrorAction SilentlyContinue | Stop-Process -Force
-Start-Sleep -Seconds 4
+# Close GRACEFULLY. Stop-Process -Force was killing the user's real browser
+# without letting it write its session file — that is what produced the
+# "Chrome didn't shut down correctly / Restore pages?" banner and lost open
+# tabs. CloseMainWindow() is the same as clicking the X: Chrome saves session
+# state and reopens cleanly. Force is a last resort, only for a window that
+# refuses to close.
+$chrome = Get-Process chrome -ErrorAction SilentlyContinue
+if ($chrome) {
+  "closing Chrome gracefully so it saves its session..."
+  foreach ($p in $chrome) { if (-not $p.HasExited -and $p.MainWindowHandle -ne 0) { [void]$p.CloseMainWindow() } }
+  for ($i = 0; $i -lt 15; $i++) {
+    Start-Sleep -Seconds 1
+    if (-not (Get-Process chrome -ErrorAction SilentlyContinue)) { break }
+  }
+  $stubborn = Get-Process chrome -ErrorAction SilentlyContinue
+  if ($stubborn) {
+    "  (still up after 15s — forcing; session may not be saved)"
+    $stubborn | Stop-Process -Force
+    Start-Sleep -Seconds 3
+  }
+}
 
 $exe = "C:\Program Files\Google\Chrome\Application\chrome.exe"
 $udd = "$env:LOCALAPPDATA\Google\Chrome\User Data"
@@ -23,7 +42,7 @@ Start-Process -FilePath $exe -ArgumentList @(
   "--user-data-dir=$udd",
   "--disable-extensions",
   "--no-first-run",
-  "about:blank"
+  "--restore-last-session"
 )
 
 for ($i = 0; $i -lt 20; $i++) {

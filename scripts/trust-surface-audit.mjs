@@ -133,7 +133,7 @@ const run = async () => {
     report.targets.push(entry);
   }
 
-  await browser.close();
+  // Do NOT browser.close() a connectOverCDP connection — it kills the real Chrome.
   return report;
 };
 
