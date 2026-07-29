@@ -1,0 +1,100 @@
+SCOPE
+Six Investigation Mode release blockers: identity collisions, manual evidence trust,
+runtime authorization correlation, output/run/pack attestations, per-evidence freshness,
+and honest durable browser proof.
+
+FOCUSED SCENARIO TESTS
+Command:
+npx vitest run tests/agentJobsRuntime.test.ts tests/agentJobsSource.test.ts tests/investigationMode.test.ts tests/investigationSurface.test.tsx tests/researchHarness.test.ts tests/artifactsPseudoTabPersistence.test.tsx --maxWorkers=1 --no-file-parallelism
+
+Result:
+Exit code: 0
+Test Files: 6 passed (6)
+Tests: 111 passed (111)
+
+ADJACENT REGRESSION TESTS
+Command:
+npx vitest run tests/agentJobsSource.test.ts tests/chatScale.test.ts tests/roomHomeWorkLanes.test.tsx tests/roomShellTelemetry.test.ts
+
+Result:
+Exit code: 0
+Test Files: 4 passed (4)
+Tests: 63 passed (63)
+
+STATIC VERIFICATION
+- npx tsc --noEmit --pretty false: PASS
+- npx tsc --noEmit --project convex/tsconfig.json --pretty false: PASS
+- npm run nodeagent:frame:smoke: PASS
+- npm run omnigent:nodeagent:smoke: PASS (Omnigent CLI not installed; optional outer live check skipped)
+- npm run design:audit: PASS (guidance-only legacy token warnings remain)
+- git diff --check: PASS
+
+REPOSITORY FLOOR
+Command:
+npm run floor
+
+Result:
+Exit code: 0
+Test Files: 374 passed (374)
+Tests: 2589 passed (2589)
+
+PRODUCTION GATE
+Command:
+npm run prod:gate
+
+Result:
+Exit code: 1 at the first npm audit step.
+Baseline advisories: 9 high, 1 critical in @auth/core and exceljs transitives.
+Dependency manifest/lockfile diff versus origin/main: none.
+
+All remaining production-gate commands were run in their original order and passed:
+- security gate
+- design audit and UI contract checks
+- QA matrix and content fluency
+- proof staleness and fresh-room proofs
+- SLO gate
+- root and Convex typechecks
+- 374 files / 2589 tests
+- product-memory browser gate: 29 passed
+- production build: Vite transformed 7,516 modules
+- post-build dist security gate
+
+The dependency audit is recorded as an unchanged repository-baseline blocker. No
+force upgrade or unrelated dependency mutation was included in this change.
+
+BLOCKER RESOLUTION
+- Duplicate company labels now receive row-bound entity keys; duplicate dataset,
+  frame, child-frame, and cache-key identities fail validation.
+- Manual/computed/literal/unverified/tampered evidence remains visible but cannot
+  satisfy support or freshness. Only untampered source/upload receipts can.
+- Each managed evidence write carries its own verifiedAt and canonical receiptDigest.
+- Durable launch receipts bind consent, actor, current plan, exact dataset identity,
+  and exact artifact version. The server recomputes and attests those values.
+- Job correlation uses only an exact untampered receipt. Artifact/title/goal/session
+  heuristics and uncorrelated room-wide telemetry are excluded.
+- Output, run, and research-pack digests bind status source, job/run provenance,
+  terminal result claims, dataset claim artifacts, and task-run receipts.
+- Sparse research scope expands every dataset row across all eight authorized
+  research fields and fails closed above 8,192 writes before scheduling.
+- Element-scoped execution exposes only `write_locked_cell_result` and
+  `write_locked_cell_results`; every durable investigation write declares
+  `sealed_cell_payload_v1`, so scalar or forged payloads cannot bypass evidence.
+- `resultDigest` is persisted only while terminalizing the exact finalized run,
+  binds the authorization and latest mutation receipt, is cleared on retry, and
+  is never synthesized by a read query.
+
+DURABLE BROWSER PROOF
+Status: BLOCKED, FAIL CLOSED.
+
+Audit:
+- .env.local: missing
+- VITE_CONVEX_URL: unset
+- VITE_CONVEX_SITE_URL: unset
+- CONVEX_DEPLOYMENT: unset
+- No local Convex listener was found on ports 3210 or 3211.
+- Port 5260 had a preview listener, but without Convex configuration it is memory mode.
+
+Conclusion:
+No terminal 5/5 durable-backend browser claim was made. The existing memory preview
+is sufficient only for UI rendering and interaction evidence, not for a persisted
+server-attested launch/result receipt.

@@ -1,0 +1,118 @@
+{
+  "schemaVersion": "noderoom.design-dna-score-receipt/v1",
+  "id": "score-investigation-mode-2026-07-28",
+  "surface": "NodeRoom Investigation Mode",
+  "ruleIds": [
+    "rule-7"
+  ],
+  "scale": {
+    "min": 0,
+    "max": 4,
+    "anchors": {
+      "0": "No cited relationship is present in the subject evidence.",
+      "2": "One cited relationship is present in the subject evidence.",
+      "4": "Selection-to-detail, record scanning, and object-action hierarchy are present in the subject evidence."
+    }
+  },
+  "criteria": [
+    {
+      "id": "selection-detail-binding",
+      "question": "Does selecting an investigation task retain the task sequence and bind one exact run-detail region to that task?",
+      "score": 2,
+      "maxScore": 2,
+      "citations": [
+        "obs-stackai-run-details-1/f2",
+        "obs-stackai-run-details-1/f4",
+        "obs-stackai-run-details-1/f6",
+        "obs-stackai-selected-node-1/f2",
+        "obs-stackai-selected-node-1/f3",
+        "obs-stackai-selected-node-1/f4"
+      ],
+      "subjectEvidence": [
+        "src/ui/investigation/InvestigationReport.tsx#analysis-task-run",
+        "src/ui/investigation/InvestigationReport.tsx#nr-investigation-run-detail",
+        "tests/investigationSurface.test.tsx"
+      ],
+      "finding": "Each analysis-task-run controls nr-investigation-run-detail while the task sequence remains on the Investigation surface."
+    },
+    {
+      "id": "record-scan",
+      "question": "Are investigation counts and categorical task states aligned for row-by-row scanning?",
+      "score": 1,
+      "maxScore": 1,
+      "citations": [
+        "obs-airtable-data-grid-1/f1",
+        "obs-airtable-data-grid-1/f2",
+        "obs-airtable-data-grid-1/f3",
+        "obs-airtable-data-grid-1/f5"
+      ],
+      "subjectEvidence": [
+        "evidence/investigation-mode-vertical-slice/after-teaching-case.png",
+        "tests/investigationSurface.test.tsx"
+      ],
+      "finding": "The metric strip and task rows retain field alignment and explicit categorical state."
+    },
+    {
+      "id": "identity-metrics-action",
+      "question": "Does the report place investigation identity and evidence metrics before its run action and supporting detail?",
+      "score": 1,
+      "maxScore": 1,
+      "citations": [
+        "obs-coinbase-asset-detail-1/f1",
+        "obs-coinbase-asset-detail-1/f2",
+        "obs-coinbase-asset-detail-1/f4",
+        "obs-coinbase-asset-detail-1/f8"
+      ],
+      "subjectEvidence": [
+        "evidence/investigation-mode-vertical-slice/after-teaching-case.png",
+        "tests/investigationSurface.test.tsx"
+      ],
+      "finding": "Dataset identity and seven evidence metrics precede the run action and the report or teaching-case detail."
+    }
+  ],
+  "score": 4,
+  "scoreBasis": "Sum of criterion scores; 2 + 1 + 1 = 4.",
+  "citedFacts": [
+    "obs-airtable-data-grid-1/f1",
+    "obs-airtable-data-grid-1/f2",
+    "obs-airtable-data-grid-1/f3",
+    "obs-airtable-data-grid-1/f5",
+    "obs-coinbase-asset-detail-1/f1",
+    "obs-coinbase-asset-detail-1/f2",
+    "obs-coinbase-asset-detail-1/f4",
+    "obs-coinbase-asset-detail-1/f8",
+    "obs-stackai-run-details-1/f2",
+    "obs-stackai-run-details-1/f4",
+    "obs-stackai-run-details-1/f6",
+    "obs-stackai-selected-node-1/f2",
+    "obs-stackai-selected-node-1/f3",
+    "obs-stackai-selected-node-1/f4"
+  ],
+  "humanReview": {
+    "status": "not-run",
+    "decision": null,
+    "reviewer": null,
+    "reason": "No independent human review was recorded for this automated score."
+  },
+  "evidence": {
+    "repositoryCommitAtCapture": "219ecd8739b33ae59111d7950ec275d6d04d7e6b",
+    "exactLocalScreenshot": {
+      "path": "D:\\VSCode Projects\\noderoom-investigation-mode\\.tmp\\codex-investigation-release\\final-exact-head-teaching-case.png",
+      "sha256": "e3ca305020e15e5a2661d8a3537b64e9b6762b31add5ffa18ba2957d5dcf237c",
+      "gating": false
+    },
+    "durableScreenshot": {
+      "path": "evidence/investigation-mode-vertical-slice/after-teaching-case.png",
+      "sha256": "e3ca305020e15e5a2661d8a3537b64e9b6762b31add5ffa18ba2957d5dcf237c",
+      "gating": true
+    }
+  },
+  "notScored": [
+    "Animation timing, easing, and choreography were not observed.",
+    "No independent user-completion study was run.",
+    "The task-detail criterion is bound to DOM contract evidence because the cited screenshot shows the Teaching case view."
+  ],
+  "boundary": "This receipt scores reference traceability for one Investigation Mode capture; it is not a production deployment or audience-evidence receipt.",
+  "scoredBy": "codex-design-dna-validator",
+  "scoredAt": "2026-07-28"
+}

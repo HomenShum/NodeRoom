@@ -9,6 +9,15 @@ import { hashToken } from "../convex/lib";
 import type { Id } from "../convex/_generated/dataModel";
 import workflowSchema from "../node_modules/@convex-dev/workflow/dist/component/schema.js";
 import workpoolSchema from "../node_modules/@convex-dev/workpool/dist/component/schema.js";
+import {
+  buildAnalysisDatasetV1,
+  buildResearchPlanV1,
+} from "../src/nodeagent/investigation";
+import {
+  cellEvidenceVerificationStatus,
+  sealCellEvidence,
+} from "../src/nodeagent/core/evidenceReceipt";
+import { MAX_CELL_EVIDENCE_ITEMS } from "../src/engine/types";
 
 const modules = import.meta.glob("../convex/**/*.ts");
 const workflowModules = import.meta.glob("../node_modules/@convex-dev/workflow/dist/component/**/*.js");
@@ -25,6 +34,13 @@ delete (modules as Record<string, unknown>)["../convex/agent.ts"];
 });
 
 const token = "0123456789abcdefghijklmnopqrstuvwxyzTOKEN";
+
+function trustedSourceReceipt(verifiedAt: number) {
+  return {
+    contentDigest: `sha256:${"a".repeat(64)}`,
+    verifiedAt,
+  };
+}
 
 describe("agentJobs runtime contract", () => {
   it("dedupes createOrReuse by idempotency key and records one creation operation", async () => {
@@ -139,6 +155,511 @@ describe("agentJobs runtime contract", () => {
       traceLevel: "full_operation_ledger",
     });
     expect(detail?.job.request).not.toMatchObject({ forged: true });
+  });
+
+  it("runs a sparse production investigation through only scoped, sealed writes and persists an execution-bound result", async () => {
+    const { t, proof, actor, roomId, artifactId } = await setupRoom({ autoAllow: true });
+    const writableFields = [
+      "summary",
+      "funding",
+      "headcount",
+      "recent_signal",
+      "source",
+      "source2",
+      "last_researched",
+      "status",
+    ];
+    await t.run(async (ctx) => {
+      await ctx.db.patch(artifactId, {
+        title: "Company research",
+        order: ["row1__company", "row1__website", "row1__status"],
+        meta: {
+          dataframe: {
+            columns: [
+              { id: "company", label: "Company", order: 0, mode: "manual", type: "text", agentWritable: false },
+              { id: "website", label: "Website", order: 1, mode: "manual", type: "text", agentWritable: false },
+              ...writableFields.map((field, index) => ({
+                id: field,
+                label: field,
+                order: index + 2,
+                mode: field === "status" ? "classify" : "enrich",
+                type: "text",
+                agentWritable: true,
+              })),
+            ],
+            rowCount: 1,
+            parser: "test",
+          },
+        },
+      });
+      await Promise.all([
+        ["row1__company", "CardioNova"],
+        ["row1__website", "https://cardionova.example"],
+        ["row1__status", "pending"],
+      ].map(([elementId, value]) => ctx.db.insert("elements", {
+          artifactId,
+          elementId,
+          value,
+          version: 1,
+          updatedAt: Date.now(),
+          updatedBy: actor,
+        })));
+    });
+    const snapshot = await t.run(async (ctx) => ({
+      artifact: await ctx.db.get(artifactId),
+      elements: await ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", artifactId)).collect(),
+      traces: await ctx.db.query("traces").withIndex("by_room", (q) => q.eq("roomId", roomId)).order("desc").take(24),
+    }));
+    if (!snapshot.artifact) throw new Error("expected investigation artifact");
+    const dataset = buildAnalysisDatasetV1({
+      id: String(artifactId),
+      roomId: String(roomId),
+      kind: snapshot.artifact.kind,
+      title: snapshot.artifact.title,
+      version: snapshot.artifact.version,
+      elements: Object.fromEntries(snapshot.elements.map((element) => [element.elementId, {
+        id: element.elementId,
+        version: element.version,
+        value: element.value,
+        updatedAt: element.updatedAt,
+        updatedBy: element.updatedBy,
+      }])),
+      order: snapshot.artifact.order,
+      updatedAt: snapshot.artifact.updatedAt,
+      createdBy: snapshot.artifact.createdBy,
+      visibility: snapshot.artifact.visibility,
+      meta: snapshot.artifact.meta,
+    });
+    const traceIds = snapshot.traces
+      .slice()
+      .sort((left, right) => left.ts - right.ts || String(left._id).localeCompare(String(right._id)))
+      .map((trace) => String(trace._id));
+    const plan = buildResearchPlanV1({ dataset, traceIds });
+    const approvedAt = Date.now();
+    const investigation = {
+      schema: "noderoom.investigation-launch-intent/v1" as const,
+      planId: plan.planId,
+      planDigest: plan.planDigest,
+      datasetId: dataset.datasetId,
+      datasetVersionId: dataset.versionId,
+      datasetContentHash: dataset.contentHash,
+      artifactId: String(artifactId),
+      artifactVersion: 1,
+      consent: {
+        publicSourceRetrieval: true as const,
+        approvedAt,
+      },
+    };
+
+    await expect(t.mutation(api.agentJobs.start, {
+      roomId,
+      artifactId,
+      requester: proof,
+      goal: "Research a forged dataset hash.",
+      mode: "research" as const,
+      request: {
+        investigation: {
+          ...investigation,
+          datasetContentHash: "forged-dataset-content",
+        },
+      },
+    })).rejects.toThrow("investigation_dataset_version_mismatch");
+
+    await expect(t.mutation(api.agentJobs.start, {
+      roomId,
+      artifactId,
+      requester: proof,
+      goal: "Research a forged plan.",
+      mode: "research" as const,
+      request: {
+        investigation: {
+          ...investigation,
+          planDigest: "forged-plan-digest",
+        },
+      },
+    })).rejects.toThrow("investigation_plan_mismatch");
+
+    const started = await t.mutation(api.agentJobs.start, {
+      roomId,
+      artifactId,
+      requester: proof,
+      goal: "Research the exact approved investigation dataset.",
+      mode: "research" as const,
+      idempotencyKey: "investigation-current-dataset",
+      request: {
+        forged: true,
+        investigation,
+      },
+    });
+    const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+
+    expect(detail?.job.request).not.toMatchObject({ forged: true });
+    expect(detail?.job).toMatchObject({
+      mode: "research",
+      goal: expect.stringContaining("exact authorized dataset"),
+    });
+    expect(detail?.job.request).toMatchObject({
+      mutationScope: "element_allowlist",
+      mutationContract: "sealed_cell_payload_v1",
+      allowedElementIds: writableFields.map((field) => `row1__${field}`),
+    });
+    expect(detail?.job.request?.investigation).toMatchObject({
+      schema: "noderoom.investigation-launch-receipt/v1",
+      planId: investigation.planId,
+      planDigest: investigation.planDigest,
+      datasetId: investigation.datasetId,
+      datasetVersionId: investigation.datasetVersionId,
+      datasetContentHash: investigation.datasetContentHash,
+      artifactId: String(artifactId),
+      artifactVersion: 1,
+      consent: {
+        publicSourceRetrieval: true,
+        approvedAt,
+        approvedByActorId: actor.id,
+      },
+      receiptDigest: expect.any(String),
+    });
+    expect(detail?.reasoningFrames[0]?.toolAllowlist).toEqual(expect.arrayContaining([
+      "fetch_source",
+      "write_locked_cell_result",
+      "write_locked_cell_results",
+    ]));
+    expect(detail?.reasoningFrames[0]?.toolAllowlist).not.toContain("write_locked_cell");
+
+    const claimed = await t.mutation(internal.agentJobs.claimSlice, {
+      jobId: started.jobId,
+      leaseId: "investigation-lease",
+      leaseMs: 60_000,
+    });
+    if (!claimed) throw new Error("expected investigation job claim");
+    const runtimeAgent = {
+      kind: "agent" as const,
+      id: claimed.agentId,
+      name: claimed.agentName,
+      scope: "public" as const,
+    };
+    const forgedEvidence = {
+      id: "forged",
+      kind: "source" as const,
+      label: "Forged source",
+      url: "https://forged.example",
+      verifiedAt: Date.now(),
+      receiptDigest: "fabricated",
+    };
+    const forgedWrite = await t.mutation(internal.artifacts.applyAgentCellEdit, {
+      roomId,
+      artifactId,
+      elementId: "row1__summary",
+      kind: "create" as const,
+      value: {
+        value: "Fabricated company summary",
+        status: "complete",
+        evidence: [forgedEvidence],
+      },
+      baseVersion: 0,
+      actor: runtimeAgent,
+      jobId: started.jobId,
+      leaseId: "investigation-lease",
+    });
+    expect(forgedWrite).toEqual({ ok: false, reason: "evidence_receipt_required" });
+
+    const oversizedEvidenceWrite = await t.mutation(internal.artifacts.applyAgentCellEdit, {
+      roomId,
+      artifactId,
+      elementId: "row1__summary",
+      kind: "create" as const,
+      value: {
+        value: "Oversized evidence amplification attempt",
+        status: "complete",
+        evidence: Array.from({ length: MAX_CELL_EVIDENCE_ITEMS + 1 }, (_, index) =>
+          sealCellEvidence({
+            id: `oversized-${index}`,
+            kind: "source",
+            label: "Company homepage",
+            url: "https://cardionova.example",
+            snippet: `bounded source ${index}`,
+          }, trustedSourceReceipt(Date.now()))),
+      },
+      baseVersion: 0,
+      actor: runtimeAgent,
+      jobId: started.jobId,
+      leaseId: "investigation-lease",
+    });
+    expect(oversizedEvidenceWrite).toEqual({ ok: false, reason: "evidence_receipt_required" });
+
+    const malformedBboxWrite = await t.mutation(internal.artifacts.applyAgentCellEdit, {
+      roomId,
+      artifactId,
+      elementId: "row1__summary",
+      kind: "create" as const,
+      value: {
+        value: "Malformed positional evidence",
+        status: "needs_review",
+        evidence: [{
+          id: "malformed-bbox",
+          kind: "source",
+          label: "Unverified positional citation",
+          url: "https://cardionova.example/review",
+          bbox: { x: 10, y: 20, width: -1, height: 40, unit: "px" },
+        }],
+      },
+      baseVersion: 0,
+      actor: runtimeAgent,
+      jobId: started.jobId,
+      leaseId: "investigation-lease",
+    });
+    expect(malformedBboxWrite).toEqual({ ok: false, reason: "evidence_receipt_required" });
+
+    const reviewWrite = await t.mutation(internal.artifacts.applyAgentCellEdit, {
+      roomId,
+      artifactId,
+      elementId: "row1__summary",
+      kind: "create" as const,
+      value: {
+        value: "A visible claim that remains explicitly unverified",
+        status: "needs_review",
+        evidence: [{
+          id: "unverified-review-source",
+          kind: "source",
+          label: "Unverified source presentation",
+          url: "https://cardionova.example/review",
+          snippet: "This source presentation has no trusted receipt.",
+        }],
+      },
+      baseVersion: 0,
+      actor: runtimeAgent,
+      jobId: started.jobId,
+      leaseId: "investigation-lease",
+    });
+    expect(reviewWrite).toMatchObject({ ok: true, version: 1 });
+
+    const replayedWrite = await t.mutation(internal.artifacts.applyAgentCellEdit, {
+      roomId,
+      artifactId,
+      elementId: "row1__summary",
+      kind: "create" as const,
+      value: {
+        value: "Replayed company summary",
+        status: "complete",
+        evidence: [sealCellEvidence({
+          id: "stale-seal",
+          kind: "source",
+          label: "Stale source receipt",
+          url: "https://cardionova.example",
+        }, trustedSourceReceipt(approvedAt - 60_000))],
+      },
+      baseVersion: 0,
+      actor: runtimeAgent,
+      jobId: started.jobId,
+      leaseId: "investigation-lease",
+    });
+    expect(replayedWrite).toEqual({ ok: false, reason: "evidence_receipt_required" });
+
+    const sealedButUnscopedWrite = await t.mutation(internal.artifacts.applyAgentCellEdit, {
+      roomId,
+      artifactId,
+      elementId: "row1__company",
+      value: {
+        value: "Overwrite attempt",
+        status: "complete",
+        evidence: [sealCellEvidence({
+          id: "scope-check",
+          kind: "source",
+          label: "Company homepage",
+          url: "https://cardionova.example",
+        })],
+      },
+      baseVersion: 1,
+      actor: runtimeAgent,
+      jobId: started.jobId,
+      leaseId: "investigation-lease",
+    });
+    expect(sealedButUnscopedWrite).toEqual({ ok: false, reason: "job_scope_violation" });
+
+    for (const field of writableFields) {
+      const evidence = sealCellEvidence({
+        id: `source-${field}`,
+        kind: "source",
+        label: "Company homepage",
+        url: "https://cardionova.example",
+        snippet: `${field} evidence`,
+      }, trustedSourceReceipt(Date.now()));
+      const applied = await t.mutation(internal.artifacts.applyAgentCellEdit, {
+        roomId,
+        artifactId,
+        elementId: `row1__${field}`,
+        kind: field === "status" || field === "summary" ? "set" as const : "create" as const,
+        value: {
+          value: field === "status" ? "complete" : `${field} result`,
+          status: "complete",
+          evidence: [evidence],
+        },
+        baseVersion: field === "status" || field === "summary" ? 1 : 0,
+        actor: runtimeAgent,
+        jobId: started.jobId,
+        leaseId: "investigation-lease",
+      });
+      expect(applied).toMatchObject({ ok: true });
+    }
+
+    const written = await t.run(async (ctx) => (
+      ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", artifactId)).collect()
+    ));
+    for (const field of writableFields) {
+      const element = written.find((row) => row.elementId === `row1__${field}`);
+      const evidence = (element?.value as { evidence?: Array<Parameters<typeof cellEvidenceVerificationStatus>[0]> } | undefined)?.evidence?.[0];
+      expect(evidence && cellEvidenceVerificationStatus(evidence)).toBe("verified");
+    }
+
+    const runId = await t.run((ctx) => ctx.db.insert("agentRuns", {
+      jobId: started.jobId,
+      roomId,
+      agentId: runtimeAgent.id,
+      model: "test-model",
+      goal: detail?.job.goal ?? "investigation",
+      steps: 12,
+      traceRecordCount: 12,
+      modelCalls: 1,
+      toolCalls: writableFields.length + 3,
+      conflictsSurvived: 0,
+      inputTokens: 200,
+      outputTokens: 100,
+      costUsd: 0.001,
+      costKind: "exact" as const,
+      ms: 500,
+      exhausted: false,
+      stopReason: "done",
+      createdAt: Date.now(),
+    }));
+    const finished = await t.mutation(internal.agentJobs.finishInteractive, {
+      jobId: started.jobId,
+      runId,
+      status: "completed" as const,
+      finalText: "Sparse company research completed with sealed evidence.",
+      resolvedModel: "test-model",
+      stopReason: "done",
+      ms: 500,
+      inputTokens: 200,
+      outputTokens: 100,
+      costUsd: 0.001,
+      costKind: "exact" as const,
+      modelCalls: 1,
+      toolCalls: writableFields.length + 3,
+    });
+    expect(finished).toEqual({ ok: true });
+    const completed = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+    expect(completed?.job).toMatchObject({
+      status: "completed",
+      latestRunId: runId,
+      resultDigest: expect.any(String),
+    });
+    const persistedResultDigest = completed?.job.resultDigest;
+    await t.run((ctx) => ctx.db.patch(started.jobId, { resultDigest: undefined }));
+    const receiptRemoved = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+    expect(receiptRemoved?.job.resultDigest).toBeUndefined();
+    expect(persistedResultDigest).toHaveLength(16);
+    const currentArtifactVersion = await t.run(async (ctx) => (await ctx.db.get(artifactId))?.version);
+    if (!currentArtifactVersion) throw new Error("expected current artifact version");
+
+    await expect(t.mutation(api.agentJobs.start, {
+      roomId,
+      artifactId,
+      requester: proof,
+      goal: "Research with expired consent.",
+      mode: "research" as const,
+      idempotencyKey: "investigation-expired-consent",
+      request: {
+        investigation: {
+          ...investigation,
+          artifactVersion: currentArtifactVersion,
+          consent: { ...investigation.consent, approvedAt: approvedAt - 10 * 60_000 },
+        },
+      },
+    })).rejects.toThrow("investigation_consent_expired");
+
+    await expect(t.mutation(api.agentJobs.start, {
+      roomId,
+      artifactId,
+      requester: proof,
+      goal: "Research a drifted artifact version.",
+      mode: "research" as const,
+      idempotencyKey: "investigation-version-drift",
+      request: {
+        investigation: {
+          ...investigation,
+          artifactVersion: 999,
+        },
+      },
+    })).rejects.toThrow("investigation_artifact_version_mismatch");
+  });
+
+  it("fails closed before scheduling when sparse intended writes exceed the 8,192-cell bound", async () => {
+    const { t, proof, actor, roomId, artifactId } = await setupRoom({ autoAllow: true });
+    const rowIds = Array.from({ length: 1_025 }, (_, index) => `row${index + 1}`);
+    await t.run(async (ctx) => {
+      await ctx.db.patch(artifactId, {
+        title: "Company research",
+        order: rowIds.map((rowId) => `${rowId}__company`),
+      });
+      await Promise.all(rowIds.map((rowId, index) => ctx.db.insert("elements", {
+        artifactId,
+        elementId: `${rowId}__company`,
+        value: `Company ${index + 1}`,
+        version: 1,
+        updatedAt: Date.now(),
+        updatedBy: actor,
+      })));
+    });
+    const snapshot = await t.run(async (ctx) => ({
+      artifact: await ctx.db.get(artifactId),
+      elements: await ctx.db.query("elements").withIndex("by_artifact", (q) => q.eq("artifactId", artifactId)).collect(),
+    }));
+    if (!snapshot.artifact) throw new Error("expected bounded investigation artifact");
+    const dataset = buildAnalysisDatasetV1({
+      id: String(artifactId),
+      roomId: String(roomId),
+      kind: snapshot.artifact.kind,
+      title: snapshot.artifact.title,
+      version: snapshot.artifact.version,
+      elements: Object.fromEntries(snapshot.elements.map((element) => [element.elementId, {
+        id: element.elementId,
+        version: element.version,
+        value: element.value,
+        updatedAt: element.updatedAt,
+        updatedBy: element.updatedBy,
+      }])),
+      order: snapshot.artifact.order,
+      updatedAt: snapshot.artifact.updatedAt,
+      createdBy: snapshot.artifact.createdBy,
+      visibility: snapshot.artifact.visibility,
+      meta: snapshot.artifact.meta,
+    });
+    const plan = buildResearchPlanV1({ dataset, traceIds: [] });
+    await expect(t.mutation(api.agentJobs.start, {
+      roomId,
+      artifactId,
+      requester: proof,
+      goal: "Research the bounded sparse portfolio.",
+      mode: "research" as const,
+      request: {
+        investigation: {
+          schema: "noderoom.investigation-launch-intent/v1" as const,
+          planId: plan.planId,
+          planDigest: plan.planDigest,
+          datasetId: dataset.datasetId,
+          datasetVersionId: dataset.versionId,
+          datasetContentHash: dataset.contentHash,
+          artifactId: String(artifactId),
+          artifactVersion: snapshot.artifact.version,
+          consent: {
+            publicSourceRetrieval: true as const,
+            approvedAt: Date.now(),
+          },
+        },
+      },
+    })).rejects.toThrow("investigation_write_scope_too_large");
+    const jobs = await t.query(api.agentJobs.list, { roomId, requester: proof });
+    expect(jobs).toHaveLength(0);
   });
 
   it("starts public chat asks server-side against the active work-surface artifact", async () => {

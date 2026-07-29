@@ -14,6 +14,9 @@ vi.mock("../src/ui/workArtifacts/WorkArtifactsPanel", () => ({
     <div data-testid="work-artifacts-panel" data-initial-artifact-id={initialArtifactId ?? ""} />
   ),
 }));
+vi.mock("../src/ui/investigation/InvestigationReport", () => ({
+  InvestigationSurface: ({ roomId }: { roomId: string }) => <div data-testid="investigation-report" data-room-id={roomId} />,
+}));
 
 import { Artifact } from "../src/ui/panels/Artifact";
 
@@ -83,6 +86,19 @@ describe("work artifacts pseudo-tab routing", () => {
 
     view.rerender(<Artifact roomId="room-1" me={host} artId="artifact-wiki" onArt={onArt} />);
     await waitFor(() => expect(screen.queryByTestId("work-artifacts-panel")).toBeNull());
+    expect(screen.getByText("Room wiki")).toBeTruthy();
+  });
+
+  it("opens Investigation as a pinned work surface and returns to the selected artifact", async () => {
+    const onArt = vi.fn();
+    render(<Artifact roomId="room-1" me={host} artId="artifact-wiki" onArt={onArt} />);
+
+    fireEvent.click(screen.getByTestId("investigation-tab"));
+    expect(await screen.findByTestId("investigation-report")).toBeTruthy();
+    expect(screen.getByTestId("investigation-tab").getAttribute("data-active")).toBe("true");
+
+    fireEvent.click(screen.getAllByTestId("artifact-filetab")[0]);
+    await waitFor(() => expect(screen.queryByTestId("investigation-report")).toBeNull());
     expect(screen.getByText("Room wiki")).toBeTruthy();
   });
 });

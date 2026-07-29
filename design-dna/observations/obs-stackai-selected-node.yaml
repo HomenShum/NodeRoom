@@ -1,0 +1,81 @@
+id: obs-stackai-selected-node-1
+source:
+  url: https://mobbin.com/screens/5ef8b027-f8ea-4a46-9c11-ab04084430c2
+  app: StackAI
+  surface: Selected execution node
+  capturedVia: mobbin-live
+firstSeenAt: 2026-07-28
+lastVerifiedAt: 2026-07-28
+license:
+  pixelsStored: false
+  durableArtifact: facts-and-source-url-only
+
+facts:
+  - id: f1
+    kind: count
+    subject: execution node list
+    property: highlighted nodes
+    value: 1
+    unit: node
+    locatorDescription: "OpenAI row carrying the highlight state in the vertical node list."
+
+  - id: f2
+    kind: relationship
+    subject: selected node
+    property: binding to node detail
+    value: "the highlighted OpenAI row and the detail-region identity refer to the same execution node"
+    locatorDescription: "Highlighted OpenAI row and the identity label at the start of the right-side detail region."
+
+  - id: f3
+    kind: relationship
+    subject: execution node list
+    property: visibility during detail inspection
+    value: "Files, Text Input, OpenAI, and Output remain visible while node detail is shown"
+    locatorDescription: "Vertical node list to the left of the selected-node detail region."
+
+  - id: f4
+    kind: count
+    subject: node detail
+    property: execution field groups
+    value: 4
+    unit: groups
+    locatorDescription: "Input, output, model, and token groups in the selected-node detail region."
+
+  - id: f5
+    kind: relationship
+    subject: node input and output
+    property: co-location
+    value: "input and output appear in the same node detail region"
+    locatorDescription: "Input group and output group within the selected-node detail."
+
+  - id: f6
+    kind: relationship
+    subject: model and token fields
+    property: association with selected execution
+    value: "model and token values are presented as fields of the selected node execution"
+    locatorDescription: "Model and token groups below the selected-node identity."
+
+  - id: f7
+    kind: relationship
+    subject: selected-node layout
+    property: column order
+    value: "the vertical node list precedes the node detail region from left to right"
+    locatorDescription: "Node list in the left region and input/output/model/token detail in the right region."
+
+problemTags:
+  - execution-node-inspection
+  - input-output-traceability
+intentTags:
+  - keep-execution-sequence-context-during-inspection
+  - expose-selected-node-execution-fields
+layoutTags:
+  - vertical-node-list-with-detail
+  - detail-associated-with-selection
+interactionTags:
+  - in-place-node-selection
+  - selection-detail-binding
+
+notRecorded:
+  - timing
+  - easing
+  - choreography

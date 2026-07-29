@@ -24,7 +24,16 @@ import { enqueueFileProcessingJob } from "./fileProcessing";
 // Shared COLUMN normalizer — the SAME id/order/BOUND rules as the in-memory RoomEngine lane, so the
 // governed-columns schema can never drift between the two lanes. (docs/architecture/AGENT_GOVERNED_COLUMNS.md)
 import { normalizeColumns, columnIdOfElement, type ColumnInput } from "../src/engine/columns";
-import type { DataframeColumn } from "../src/engine/types";
+import { cellEvidenceVerificationStatus } from "../src/nodeagent/core/evidenceReceipt";
+import {
+  MAX_CELL_EVIDENCE_ID_CHARS,
+  MAX_CELL_EVIDENCE_ITEMS,
+  MAX_CELL_EVIDENCE_LABEL_CHARS,
+  MAX_CELL_EVIDENCE_SNIPPET_CHARS,
+  MAX_CELL_EVIDENCE_SOURCE_CHARS,
+  type CellEvidence,
+  type DataframeColumn,
+} from "../src/engine/types";
 
 const MAX_ARTIFACT_TITLE_CHARS = 180;
 // Convex v.array() arguments are rejected above 8,192 items before this
@@ -429,10 +438,88 @@ function dataframeColumnForElement(meta: unknown, elementId: string): DataframeC
 function hasCellPayloadEvidence(value: unknown): boolean {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const evidence = (value as { evidence?: unknown }).evidence;
-  return Array.isArray(evidence) && evidence.some((item) => {
-    const e = objectRecord(item);
-    return typeof e.id === "string" && typeof e.kind === "string" && typeof e.label === "string";
+  return Array.isArray(evidence)
+    && evidence.length > 0
+    && evidence.length <= MAX_CELL_EVIDENCE_ITEMS
+    && evidence.every((item) => {
+      const e = objectRecord(item);
+      const boundedOptionalString = (field: unknown, max: number) =>
+        field === undefined || (typeof field === "string" && field.length <= max);
+      const boundedNumber = (field: unknown, min: number, max: number, integer = false) =>
+        typeof field === "number"
+        && Number.isFinite(field)
+        && field >= min
+        && field <= max
+        && (!integer || Number.isInteger(field));
+      const boundedOptionalNumber = (field: unknown, min: number, max: number, integer = false) =>
+        field === undefined || boundedNumber(field, min, max, integer);
+      const boundedOptionalBbox = (field: unknown) => {
+        if (field === undefined) return true;
+        if (!field || typeof field !== "object" || Array.isArray(field)) return false;
+        const bbox = objectRecord(field);
+        return boundedNumber(bbox.x, -1_000_000_000, 1_000_000_000)
+          && boundedNumber(bbox.y, -1_000_000_000, 1_000_000_000)
+          && boundedNumber(bbox.width, 0, 1_000_000_000)
+          && boundedNumber(bbox.height, 0, 1_000_000_000)
+          && (bbox.unit === undefined || ["px", "pt", "normalized"].includes(String(bbox.unit)));
+      };
+      return typeof e.id === "string"
+        && e.id.length > 0
+        && e.id.length <= MAX_CELL_EVIDENCE_ID_CHARS
+        && ["upload", "source", "computed", "manual"].includes(String(e.kind))
+        && typeof e.label === "string"
+        && e.label.length > 0
+        && e.label.length <= MAX_CELL_EVIDENCE_LABEL_CHARS
+        && boundedOptionalString(e.source, MAX_CELL_EVIDENCE_SOURCE_CHARS)
+        && boundedOptionalString(e.url, MAX_CELL_EVIDENCE_SOURCE_CHARS)
+        && boundedOptionalString(e.snippet, MAX_CELL_EVIDENCE_SNIPPET_CHARS)
+        && boundedOptionalString(e.sourceStorageId, MAX_CELL_EVIDENCE_ID_CHARS)
+        && boundedOptionalString(e.sourceArtifactId, MAX_CELL_EVIDENCE_ID_CHARS)
+        && boundedOptionalString(e.providerFileId, MAX_CELL_EVIDENCE_ID_CHARS)
+        && boundedOptionalString(e.sheetName, MAX_CELL_EVIDENCE_LABEL_CHARS)
+        && boundedOptionalString(e.column, 64)
+        && boundedOptionalString(e.contentDigest, 80)
+        && boundedOptionalString(e.receiptDigest, 256)
+        && boundedOptionalNumber(e.row, 1, 1_048_576, true)
+        && boundedOptionalNumber(e.page, 1, 1_000_000, true)
+        && boundedOptionalNumber(e.confidence, 0, 1)
+        && boundedOptionalNumber(e.verifiedAt, 0, Number.MAX_SAFE_INTEGER)
+        && boundedOptionalBbox(e.bbox);
+    });
+}
+
+function hasFreshSealedSourceEvidence(
+  value: unknown,
+  args: { jobCreatedAt: number; now: number },
+): boolean {
+  if (!hasCellPayloadEvidence(value)) return false;
+  const evidence = (value as { evidence?: unknown }).evidence;
+  if (!Array.isArray(evidence)) return false;
+  const sourceEvidence = evidence.filter((item): item is CellEvidence => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return false;
+    const kind = (item as { kind?: unknown }).kind;
+    return kind === "source" || kind === "upload";
   });
+  if (!sourceEvidence.length) return false;
+  return sourceEvidence.every((item) => (
+    cellEvidenceVerificationStatus(item) === "verified"
+    && typeof item.verifiedAt === "number"
+    && item.verifiedAt >= args.jobCreatedAt - 30_000
+    && item.verifiedAt <= args.now + 30_000
+  ));
+}
+
+function satisfiesSealedCellPayloadContract(
+  value: unknown,
+  args: { jobCreatedAt: number; now: number },
+): boolean {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const status = (value as { status?: unknown }).status;
+  if (status === "complete") return hasFreshSealedSourceEvidence(value, args);
+  if (["running", "needs_review", "failed", "gap"].includes(String(status))) {
+    return hasCellPayloadEvidence(value);
+  }
+  return false;
 }
 
 /** Declared column ids on a sheet's governed schema (empty when the sheet has no dataframe schema yet). */
@@ -892,15 +979,26 @@ export async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) 
     await requireActorInRoom(ctx, a.roomId, a.actor);
     if (!canReadArtifact(art, a.actor)) throw new Error("artifact_not_visible");
     const job = await requireActiveAgentJobLease(ctx, a);
+    const kind = a.kind ?? "set";
     if (job?.request && typeof job.request === "object" && !Array.isArray(job.request)) {
-      const allowed = (job.request as { allowedElementIds?: unknown }).allowedElementIds;
+      const request = job.request as {
+        allowedElementIds?: unknown;
+        mutationContract?: unknown;
+      };
+      const allowed = request.allowedElementIds;
       if (Array.isArray(allowed) && allowed.some((value) => typeof value === "string" && value.length > 0)) {
         const inArtifactScope = String(job.artifactId) === String(a.artifactId);
         const inElementScope = allowed.includes(a.elementId);
         if (!inArtifactScope || !inElementScope) return { ok: false as const, reason: "job_scope_violation" as const };
       }
+      if (
+        request.mutationContract === "sealed_cell_payload_v1"
+        && kind !== "delete"
+        && !satisfiesSealedCellPayloadContract(a.value, { jobCreatedAt: job.createdAt, now: Date.now() })
+      ) {
+        return { ok: false as const, reason: "evidence_receipt_required" as const };
+      }
     }
-    const kind = a.kind ?? "set";
     // 1. LOCK gate — a held range is read-only for non-holders; P0-5 lease fencing for the holder.
     //    Kleppmann's fencing-token failure mode: TTL (5min) < slice budget (9min) means a long job's
     //    own lease can lapse mid-run. activeLockOn erases expired locks, which silently degraded the

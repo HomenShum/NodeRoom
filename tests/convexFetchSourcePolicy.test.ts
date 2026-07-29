@@ -1,86 +1,85 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const fetchSourceRealMock = vi.hoisted(() => vi.fn());
+vi.mock("../src/nodeagent/skills/search/fetchSource", () => ({
+  fetchSourceReal: fetchSourceRealMock,
+}));
+
 import { fetchSourceForConvex } from "../convex/convexRoomTools";
+import { TrustedSourceReceiptRegistry } from "../src/nodeagent/core/evidenceReceipt";
 
-describe("Convex fetch_source target policy", () => {
-  it("keeps the Convex runtime fetch on HTTPS", async () => {
-    await expect(fetchSourceForConvex("http://example.com")).resolves.toMatchObject({
+describe("Convex fetch_source boundary", () => {
+  beforeEach(() => {
+    fetchSourceRealMock.mockReset();
+  });
+
+  it("delegates to the one shared Node-runtime network boundary", async () => {
+    fetchSourceRealMock.mockResolvedValue({
+      ok: true,
+      title: "Public source",
+      snippet: "Evidence text",
+      url: "https://public.example/source",
+      provenance: "network_fetch",
+    });
+
+    await expect(fetchSourceForConvex("https://public.example/source")).resolves.toMatchObject({
+      ok: true,
+      title: "Public source",
+    });
+    expect(fetchSourceRealMock).toHaveBeenCalledExactlyOnceWith(
+      "https://public.example/source",
+    );
+  });
+
+  it("preserves honest failures from the shared boundary without fallback success", async () => {
+    fetchSourceRealMock.mockResolvedValue({ ok: false, error: "http_429" });
+
+    await expect(fetchSourceForConvex("https://public.example/rate-limited")).resolves.toEqual({
       ok: false,
-      error: "https_required",
+      error: "http_429",
     });
   });
 
-  it("blocks direct private, loopback, and metadata targets before fetch", async () => {
-    await expect(fetchSourceForConvex("https://127.0.0.1/")).resolves.toMatchObject({
-      ok: false,
-      error: "blocked_private_or_reserved_ip",
-    });
-    await expect(fetchSourceForConvex("https://localhost/")).resolves.toMatchObject({
-      ok: false,
-      error: "blocked_private_or_metadata_host",
-    });
-    await expect(fetchSourceForConvex("https://169.254.169.254/latest/meta-data/")).resolves.toMatchObject({
-      ok: false,
-      error: "blocked_private_or_metadata_host",
-    });
-  });
-
-  it("follows safe HTTPS redirects without dropping the SSRF guard", async () => {
-    const originalFetch = globalThis.fetch;
-    try {
-      globalThis.fetch = (async (input: string | URL | Request) => {
-        const href = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
-        if (href === "https://example.com/start") {
-          return new Response("", {
-            status: 302,
-            headers: { location: "https://example.org/final" },
-          });
-        }
-        return new Response("<html><title>Redirected</title><body>Final source text.</body></html>", {
-          status: 200,
-          headers: { "content-type": "text/html" },
-        });
-      }) as typeof fetch;
-
-      await expect(fetchSourceForConvex("https://example.com/start")).resolves.toMatchObject({
-        ok: true,
-        title: "Redirected",
-        url: "https://example.org/final",
+  it("registers exact fetched bytes in the caller's slice registry without adding receipt fields to the model result", async () => {
+    const now = 1_785_288_000_000;
+    const source = {
+      ok: true as const,
+      title: "Public source",
+      snippet: "Evidence text",
+      url: "https://public.example/source",
+      provenance: "network_fetch" as const,
+    };
+    fetchSourceRealMock.mockImplementation(async (
+      _url: string,
+      onTrustedCapture: (capture: {
+        source: typeof source;
+        exactBytes: Uint8Array;
+        verifiedAt: number;
+      }) => Promise<boolean>,
+    ) => {
+      const recorded = await onTrustedCapture({
+        source,
+        exactBytes: new TextEncoder().encode("<main>Evidence text</main>"),
+        verifiedAt: now,
       });
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
-  });
+      return recorded ? source : { ok: false, error: "receipt_registration_failed" };
+    });
+    const receipts = new TrustedSourceReceiptRegistry({ now: () => now });
 
-  it("blocks redirects that land on private or metadata hosts", async () => {
-    const originalFetch = globalThis.fetch;
-    try {
-      globalThis.fetch = (async () => new Response("", {
-        status: 302,
-        headers: { location: "https://127.0.0.1/private" },
-      })) as typeof fetch;
+    const result = await fetchSourceForConvex(source.url, receipts);
 
-      await expect(fetchSourceForConvex("https://example.com/start")).resolves.toMatchObject({
-        ok: false,
-        error: "blocked_private_or_reserved_ip",
-      });
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
-  });
-
-  it("treats protected source responses as non-redirection guidance instead of red tool failures", async () => {
-    const originalFetch = globalThis.fetch;
-    try {
-      globalThis.fetch = (async () => new Response("Unauthorized", { status: 401 })) as typeof fetch;
-
-      await expect(fetchSourceForConvex("https://query1.finance.yahoo.com/v7/finance/download/MSFT"))
-        .resolves.toMatchObject({
-          ok: true,
-          title: "query1.finance.yahoo.com",
-          snippet: expect.stringContaining("Use capture_source"),
-        });
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+    expect(result).toEqual(source);
+    expect(result).not.toHaveProperty("contentDigest");
+    expect(result).not.toHaveProperty("verifiedAt");
+    expect(receipts.resolve({
+      id: "evidence:public",
+      kind: "source",
+      label: source.title,
+      url: source.url,
+      snippet: source.snippet,
+    })).toMatchObject({
+      contentDigest: expect.stringMatching(/^sha256:[0-9a-f]{64}$/),
+      verifiedAt: now,
+    });
   });
 });

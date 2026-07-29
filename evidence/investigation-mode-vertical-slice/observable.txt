@@ -1,0 +1,1 @@
+﻿Observable: the existing live-room artifact surface has no Investigation report, and no ResearchPlanV1 lifecycle contract exists. The after state must expose a real Investigation work surface backed by deterministic plan, versioned dataset, DAG/cache, run, provenance, validation, and research-pack contracts.

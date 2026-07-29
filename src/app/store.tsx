@@ -18,6 +18,7 @@ import type { TraceRecord } from "../ui/panels/traceData";
 import { engine, demo, useEngineRev, runDemo, handleSmbLendingLocalProposalResolution } from "./roomStore";
 // Specific imports (NOT the nodeagent barrel) so Node-only model adapters never reach the client bundle.
 import { runAgent as runHarness } from "../nodeagent/core/runtime";
+import { stableJournalHash } from "../nodeagent/core/journal";
 import type { AgentModel } from "../nodeagent/core/types";
 import { buildUnifiedAgentStreamParts, type PersistedAgentStreamEvent, type UnifiedAgentStreamPart } from "../nodeagent/core/stream";
 import { recomputeVariancePlan, companyResearchPlan, notebookOutlinePlan, workbookAuditPlan } from "../nodeagent/core/plans";
@@ -41,6 +42,12 @@ import type { UploadedArtifactInput, UploadedSourceFile } from "./uploadedArtifa
 import type { ArtifactRef } from "../ui/artifactRefs";
 import { OfflineEditQueue, isNetworkError, type OfflineQueueSnapshot } from "../notifications/offlineQueue";
 import { executeNotebookKernel, type NotebookKernelRequest, type NotebookKernelResult } from "../notebook/notebookKernel";
+import {
+  buildInvestigationWorkspaceV1,
+  investigationLaunchIntentMatchesV1,
+  type InvestigationLaunchIntentV1,
+  type InvestigationLaunchReceiptV1,
+} from "../nodeagent/investigation";
 
 export type { OfflineQueueSnapshot } from "../notifications/offlineQueue";
 
@@ -85,6 +92,7 @@ export type AgentJobTelemetry = {
     allowedElementIds?: string[];
     mutationScope?: string;
     targetArtifactId?: string;
+    investigation?: InvestigationLaunchReceiptV1;
   };
   goal?: string;
   status: string;
@@ -100,6 +108,7 @@ export type AgentJobTelemetry = {
   stopReason?: string;
   nextRunAt?: number;
   finalText?: string;
+  resultDigest?: string;
   error?: string;
   latestRunId?: string;
   actionSliceCount?: number;
@@ -168,7 +177,7 @@ export function selectAgentRunTelemetryForJob(
 type FreeJobRow = {
   _id: string; artifactId?: string; request?: AgentJobTelemetry["request"]; goal?: string; status: string; entrypoint?: string; scope?: string; runtime?: string; attempts: number; maxAttempts: number;
   runtimeProfile?: AgentRuntimeProfile; modelPolicy: string; approvalPolicy?: string; evidencePolicy?: string; handoff?: { reason?: string }; nextRunAt?: number;
-  finalText?: string; error?: string; latestRunId?: string; actionSliceCount?: number; queryCount?: number; mutationCount?: number;
+  finalText?: string; resultDigest?: string; error?: string; latestRunId?: string; actionSliceCount?: number; queryCount?: number; mutationCount?: number;
   modelCallCount?: number; toolCallCount?: number; costUsd?: number; costKind?: AgentCostKind; schedulerHandoffCount?: number; receiptCount?: number; createdAt?: number; updatedAt: number;
 };
 /** A job is an active "work lane" until it succeeds or is cancelled — failed/paused stay visible so the user can retry/dismiss. */
@@ -194,6 +203,7 @@ function mapConvexFreeJob(j: FreeJobRow): AgentJobTelemetry {
     stopReason: j.handoff?.reason,
     nextRunAt: j.nextRunAt,
     finalText: j.finalText,
+    resultDigest: j.resultDigest,
     error: j.error,
     latestRunId: j.latestRunId ? String(j.latestRunId) : undefined,
     actionSliceCount: j.actionSliceCount,
@@ -443,7 +453,7 @@ export interface RoomStore {
   askPrivateAgent(input: AgentAskInput, opts?: { publish?: boolean }): Promise<void>;
   startLongFreeAgent(input: AgentAskInput): Promise<void>;
   /** Enrich every PENDING company on the research sheet (ParselyFi loop) — status-gated, sourced. */
-  askResearch(): Promise<void>;
+  askResearch(input: InvestigationLaunchIntentV1): Promise<void>;
   /** The selected durable job's correlated run telemetry, or the room's latest run when no durable job exists. */
   lastRun(): AgentRunTelemetry | null;
   lastLongFreeJob(): AgentJobTelemetry | null;
@@ -532,6 +542,34 @@ function researchTargetFor(art: Artifact, rowId: string) {
     sourceUrl: website,
     source2Url: `https://en.wikipedia.org/wiki/${encodeURIComponent(company.replace(/\s+/g, "_"))}`,
   };
+}
+
+function assertCurrentInvestigationIntent(args: {
+  roomId: string;
+  artifacts: readonly Artifact[];
+  traces: readonly unknown[];
+  intent: InvestigationLaunchIntentV1;
+}): void {
+  const normalizedTraces = args.traces.map((trace) => {
+    const row = trace as TraceEvent & { _id?: unknown };
+    return {
+      ...row,
+      id: row.id ?? String(row._id ?? ""),
+      roomId: String(row.roomId),
+    };
+  });
+  const workspace = buildInvestigationWorkspaceV1({
+    roomId: args.roomId,
+    artifacts: args.artifacts,
+    traces: normalizedTraces,
+  });
+  if (!workspace.plan || !workspace.dataset || !investigationLaunchIntentMatchesV1({
+    intent: args.intent,
+    plan: workspace.plan,
+    dataset: workspace.dataset,
+  })) {
+    throw new Error("investigation_launch_intent_stale");
+  }
 }
 
 function targetSheet(artifacts: Artifact[], refs?: ArtifactRef[]): Artifact | undefined {
@@ -1248,7 +1286,13 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       });
       if (result.finalText) engine.postMessage({ roomId, channel: "public", author: actor, text: result.finalText, clientMsgId: crypto.randomUUID(), kind: "agent" });
     },
-    askResearch: async () => {
+    askResearch: async (input) => {
+      assertCurrentInvestigationIntent({
+        roomId,
+        artifacts: engine.listArtifacts(roomId),
+        traces: engine.listTraces(roomId),
+        intent: input,
+      });
       const research = engine.listArtifacts(roomId).find((a) => a.title === "Company research");
       const sess = engine.listSessions(roomId).find((s) => s.scope === "public");
       if (!research || !sess) return;
@@ -2364,7 +2408,13 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           mode: sheet.title === "Company research" ? "research" : "variance",
         });
       },
-      askResearch: async () => {
+      askResearch: async (input) => {
+        assertCurrentInvestigationIntent({
+          roomId: rid,
+          artifacts,
+          traces,
+          intent: input,
+        });
         const research = artifacts.find((a) => a.title === "Company research");
         const sess = sessions.find((s) => s.scope === "public");
         if (!research || !sess) return;
@@ -2381,7 +2431,18 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
           traceLevel: "full_operation_ledger",
           autoAllow: true,
           mode: "research",
-          goal: "Research every pending or stale company: claim its editable research cells, set status to running, fetch the website plus a corroborating source when available, write summary/funding/headcount/recent_signal, write citations into __source and __source2, set last_researched to today's ISO date, set status to complete, then release. Cite only sources you fetched.",
+          request: { investigation: input },
+          idempotencyKey: `investigation:${stableJournalHash({
+            roomId: rid,
+            artifactId: research.id,
+            planId: input.planId,
+            planDigest: input.planDigest,
+            datasetId: input.datasetId,
+            datasetVersionId: input.datasetVersionId,
+            datasetContentHash: input.datasetContentHash,
+            artifactVersion: input.artifactVersion,
+          })}`,
+          goal: "Research every pending or stale company: claim its editable research cells, set status to running, fetch the website plus a corroborating source when available, write summary/funding/headcount/recent_signal, write citations into __source and __source2, set last_researched to today's ISO date, and set status to complete only when every exact network source is sealed; otherwise set needs_review, then release. Cite only sources you fetched.",
         });
       },
       lastRun: () => {

@@ -362,11 +362,25 @@ export class InMemoryRoomTools implements RoomTools {
   }
 
   async fetchSource(url: string): Promise<SourceResult> {
-    // No-keys / in-memory path: a deterministic stub (no network in the browser; tests stay hermetic).
-    // The Convex action does a real SSRF-guarded fetch — see convexRoomTools.fetchSource.
+    // No-keys / in-memory path: a deterministic presentation fixture. It is
+    // explicit in the tool result and can never mint a trusted source receipt.
+    // The Convex action performs the real SSRF-guarded network fetch.
     try {
-      const host = new URL(url).hostname.replace(/^www\./, "");
-      return { ok: true, title: host, snippet: `Reference page at ${host} (stub — live runs fetch the real page).`, url };
+      const parsed = new URL(url);
+      if (parsed.protocol !== "https:") return { ok: false, error: "https_required" };
+      if (parsed.username || parsed.password) {
+        return { ok: false, error: "url_credentials_forbidden" };
+      }
+      const host = parsed.hostname.replace(/^www\./, "");
+      const snippet = `Reference page at ${host} (stub — live runs fetch the real page).`;
+      const source = {
+        ok: true as const,
+        title: host,
+        snippet,
+        url: parsed.toString(),
+        provenance: "synthetic_fixture" as const,
+      };
+      return source;
     } catch {
       return { ok: false, error: "invalid url" };
     }

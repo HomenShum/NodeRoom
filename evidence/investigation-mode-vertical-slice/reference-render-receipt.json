@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "noderoom.reference-render-receipt/v1",
+  "receiptId": "render-investigation-mode-2026-07-28",
+  "surface": "NodeRoom Investigation Mode",
+  "capturedAt": "2026-07-28",
+  "candidate": {
+    "repositoryCommitAtCapture": "219ecd8739b33ae59111d7950ec275d6d04d7e6b",
+    "route": "/?mode=memory&surface=desktop&demo=INVESTIGATION&name=Founder&focusMode=0"
+  },
+  "capture": {
+    "exactLocalScreenshot": {
+      "path": "D:\\VSCode Projects\\noderoom-investigation-mode\\.tmp\\codex-investigation-release\\final-exact-head-teaching-case.png",
+      "sha256": "e3ca305020e15e5a2661d8a3537b64e9b6762b31add5ffa18ba2957d5dcf237c",
+      "gating": false
+    },
+    "durableScreenshot": {
+      "path": "evidence/investigation-mode-vertical-slice/after-teaching-case.png",
+      "sha256": "e3ca305020e15e5a2661d8a3537b64e9b6762b31add5ffa18ba2957d5dcf237c",
+      "gating": true
+    }
+  },
+  "referenceProvenance": {
+    "observationFacts": [
+      {
+        "observationId": "obs-stackai-run-details-1",
+        "factIds": [
+          "f2",
+          "f4",
+          "f6"
+        ]
+      },
+      {
+        "observationId": "obs-stackai-selected-node-1",
+        "factIds": [
+          "f2",
+          "f3",
+          "f4"
+        ]
+      },
+      {
+        "observationId": "obs-airtable-data-grid-1",
+        "factIds": [
+          "f1",
+          "f2",
+          "f3",
+          "f5"
+        ]
+      },
+      {
+        "observationId": "obs-coinbase-asset-detail-1",
+        "factIds": [
+          "f1",
+          "f2",
+          "f4",
+          "f8"
+        ]
+      }
+    ],
+    "designRuleIds": [
+      "rule-7"
+    ],
+    "scoreReceipt": {
+      "id": "score-investigation-mode-2026-07-28",
+      "path": "design-dna/score-receipts/score-investigation-mode-2026-07-28.json"
+    },
+    "humanReview": {
+      "status": "not-run",
+      "decision": null,
+      "reviewer": null,
+      "reason": "No independent human review was recorded for this automated render receipt."
+    }
+  },
+  "verification": {
+    "taskSelectionLocator": "analysis-task-run",
+    "taskDetailLocator": "nr-investigation-run-detail",
+    "testEvidence": "tests/investigationSurface.test.tsx"
+  }
+}

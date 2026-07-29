@@ -14,6 +14,7 @@ import { companyResearchPlan } from "../src/nodeagent/core/plans";
 import { buildResearchContext } from "../src/nodeagent/core/worldModel";
 import { ROOM_TOOLS } from "../src/nodeagent/skills/spreadsheet/cellMutator";
 import type { CellPayload } from "../src/engine/types";
+import { cellEvidenceVerificationStatus } from "../src/nodeagent/core/evidenceReceipt";
 
 const COMPANIES = [
   { rowId: "c1", name: "Acme AI", url: "https://acme.example", source2Url: "https://wiki.example/acme" },
@@ -55,26 +56,40 @@ const plan = () => COMPANIES.map((c) => ({
 }));
 
 describe("company research harness (ParselyFi loop)", () => {
-  it("enriches every pending row: status pending→complete, sourced, no clobber", async () => {
+  it("keeps browser-only synthetic enrichment in review while preserving the trace and source presentation", async () => {
     const { engine, sheetId, rt } = setup();
     const res = await runAgent({ rt, goal: "Research all pending companies.", model: scriptedModel(companyResearchPlan(plan())), tools: ROOM_TOOLS, contextBuilder: buildResearchContext, maxSteps: 40 });
     expect(res.exhausted).toBe(false);
     const art = engine.getArtifact(sheetId)!;
     for (const c of COMPANIES) {
-      expect(payload(art.elements[`${c.rowId}__status`].value).value).toBe("complete");
+      expect(payload(art.elements[`${c.rowId}__status`].value).value).toBe("needs_review");
       expect(String(payload(art.elements[`${c.rowId}__summary`].value).value)).toContain("researched summary");
       expect(String(payload(art.elements[`${c.rowId}__funding`].value).value)).toContain("funding signal");
       expect(String(payload(art.elements[`${c.rowId}__recent_signal`].value).value)).toContain("recent signal");
       expect(String(payload(art.elements[`${c.rowId}__source`].value).value).length).toBeGreaterThan(0);
       expect(String(payload(art.elements[`${c.rowId}__source2`].value).value).length).toBeGreaterThan(0);
       expect(payload(art.elements[`${c.rowId}__last_researched`].value).value).toBe("2026-06-07");
-      expect(payload(art.elements[`${c.rowId}__summary`].value).evidence?.[0]?.kind).toBe("source");
+      const receipt = payload(art.elements[`${c.rowId}__summary`].value).evidence?.[0];
+      expect(receipt?.kind).toBe("source");
+      expect(receipt?.snippet).toContain("Reference page at");
+      expect(receipt).not.toHaveProperty("verifiedAt");
+      expect(receipt).not.toHaveProperty("contentDigest");
+      expect(receipt).not.toHaveProperty("receiptDigest");
+      expect(cellEvidenceVerificationStatus(receipt!)).toBe("unverified");
+      expect(payload(art.elements[`${c.rowId}__summary`].value).status).toBe("needs_review");
       expect(payload(art.elements[`${c.rowId}__summary`].value).confidence).toBeGreaterThan(0);
     }
     expect(res.trace.filter((t) => t.tool === "write_cell_result").length).toBeGreaterThan(0);
     expect(res.trace.filter((t) => (t.tool === "edit_cell" || t.tool === "write_cell_result") && (t.result as { conflict?: boolean })?.conflict).length).toBe(0);
     expect(res.trace.filter((t) => t.tool === "release_lock").length).toBe(COMPANIES.length); // one lock cycle per company
     expect(res.trace.filter((t) => t.tool === "fetch_source").length).toBe(COMPANIES.length * 2); // multi-source, not invented
+    expect(res.trace.filter((t) => t.tool === "fetch_source").every((t) => {
+      const result = t.result as Record<string, unknown>;
+      return result.provenance === "synthetic_fixture"
+        && !("contentDigest" in result)
+        && !("verifiedAt" in result)
+        && !("receiptDigest" in result);
+    })).toBe(true);
   });
 
   it("is status-gated: rows already 'complete' are skipped (batch-pending only)", async () => {

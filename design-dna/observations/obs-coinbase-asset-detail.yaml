@@ -1,0 +1,90 @@
+id: obs-coinbase-asset-detail-1
+source:
+  url: https://mobbin.com/screens/47c660d9-e55d-4627-9a5d-193b2948dea3
+  app: Coinbase
+  surface: Asset detail
+  capturedVia: mobbin-live
+firstSeenAt: 2026-07-28
+lastVerifiedAt: 2026-07-28
+license:
+  pixelsStored: false
+  durableArtifact: facts-and-source-url-only
+
+facts:
+  - id: f1
+    kind: relationship
+    subject: asset identity
+    property: placement
+    value: "Tether identity appears before the asset tabs and price chart"
+    locatorDescription: "Tether heading at the start of the asset content region."
+
+  - id: f2
+    kind: count
+    subject: asset navigation
+    property: visible tabs
+    value: 3
+    unit: tabs
+    locatorDescription: "Three tabs directly below the Tether identity."
+
+  - id: f3
+    kind: relationship
+    subject: price history
+    property: representation
+    value: "price history is represented by one chart in the center content region"
+    locatorDescription: "Price chart below the asset tabs and current price."
+
+  - id: f4
+    kind: count
+    subject: price chart
+    property: visible range choices
+    value: 6
+    unit: choices
+    locatorDescription: "Six time-range choices associated with the price chart."
+
+  - id: f5
+    kind: count
+    subject: order card
+    property: transaction modes
+    value: 3
+    unit: modes
+    locatorDescription: "Buy, Sell, and Convert controls at the top of the order card."
+
+  - id: f6
+    kind: count
+    subject: order card
+    property: review-order controls
+    value: 1
+    unit: control
+    locatorDescription: "Review order call to action below the amount and payment controls."
+
+  - id: f7
+    kind: relationship
+    subject: order card
+    property: placement relative to price chart
+    value: "the order card occupies a column adjacent to the price chart"
+    locatorDescription: "Price chart in the center region and Buy/Sell/Convert card in the neighboring region."
+
+  - id: f8
+    kind: relationship
+    subject: asset detail layout
+    property: reading order
+    value: "asset identity and tabs precede the chart; the transaction modes precede Review order"
+    locatorDescription: "Tether heading, tab row, chart region, and adjacent order card."
+
+problemTags:
+  - object-detail-orientation
+  - chart-and-action-separation
+intentTags:
+  - identify-object-before-chart
+  - separate-chart-from-order-entry
+layoutTags:
+  - asset-chart-with-adjacent-order-card
+  - tabs-before-price-chart
+interactionTags:
+  - chart-range-selection
+  - buy-sell-convert-modes
+
+notRecorded:
+  - timing
+  - easing
+  - choreography

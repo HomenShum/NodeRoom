@@ -7,7 +7,18 @@ import { actorProofV, requireActorProof, requireArtifactInRoom, type ActorValue 
 import { assertCreateArtifactLimits } from "./artifacts";
 import { syncSpreadsheetIndexFromSeed } from "./spreadsheetIndexLib";
 import { classifyIntakeMessage, buildPlanPreview } from "../src/nodeagent/core/intakePreflight";
-import { buildRoomWorkReasoningPlan, roomWorkFacetFrameId, roomWorkPhaseFrameId, DEEP_DIVE_TOOL_ALLOWLIST, FRAME_TOOL_ALLOWLIST, type ReasoningFramePlan } from "../src/nodeagent/core/reasoningFrames";
+import { stableJournalHash } from "../src/nodeagent/core/journal";
+import { buildRoomWorkReasoningPlan, roomWorkFacetFrameId, roomWorkPhaseFrameId, DEEP_DIVE_TOOL_ALLOWLIST, ELEMENT_SCOPED_WRITE_TOOL_ALLOWLIST, FRAME_TOOL_ALLOWLIST, type ReasoningFramePlan } from "../src/nodeagent/core/reasoningFrames";
+import {
+  buildAnalysisDatasetV1,
+  buildResearchPlanV1,
+  finalizeInvestigationLaunchReceiptV1,
+  INVESTIGATION_CONSENT_MAX_AGE_MS,
+  investigationLaunchIntentMatchesV1,
+  parseInvestigationLaunchIntentV1,
+  parseInvestigationLaunchReceiptV1,
+  type InvestigationLaunchReceiptV1,
+} from "../src/nodeagent/investigation";
 import {
   FREE_FILE_EGRESS_BLOCK_REASON,
   freeFileEgressPromotionAllowed,
@@ -20,8 +31,21 @@ import { finalizePublicAgentJobStreamAfterTerminal } from "./agentStreamTerminal
 
 // BOUND: cap a single bulk-diligence fan-out so one command can't enqueue unbounded jobs.
 const MAX_BULK_COMPANIES = 50;
+const MAX_INVESTIGATION_ELEMENTS = 8_192;
+const MAX_INVESTIGATION_WRITE_IDS = 8_192;
 const LEASE_EXPIRY_GRACE_MS = 30_000;
 const DEFAULT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
+const INVESTIGATION_RESEARCH_GOAL = "Research every pending or stale company in the exact authorized dataset: claim only its editable research fields, retrieve public sources, write evidence-bearing summary/funding/headcount/recent_signal plus source/source2/last_researched/status, and release every managed lock.";
+const INVESTIGATION_WRITABLE_FIELD_IDS = [
+  "summary",
+  "funding",
+  "headcount",
+  "recent_signal",
+  "source",
+  "source2",
+  "last_researched",
+  "status",
+] as const;
 function companyKeyOf(name: string): string {
   return name.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
 }
@@ -969,6 +993,86 @@ function terminalJobText(status: TerminalJobStatus, error?: string, finalText?: 
   return `Agent job failed${error ? `: ${error}` : "."}`;
 }
 
+async function persistedInvestigationResultDigest(ctx: any, args: {
+  job: any;
+  status: TerminalJobStatus;
+  runId?: Id<"agentRuns">;
+  error?: string;
+  finalText?: string;
+  receiptCount?: number;
+}): Promise<string | undefined> {
+  const request = args.job.request && typeof args.job.request === "object" && !Array.isArray(args.job.request)
+    ? args.job.request as Record<string, unknown>
+    : null;
+  const authorization = parseInvestigationLaunchReceiptV1(request?.investigation);
+  if (!authorization) return undefined;
+  const runId = args.runId;
+  if (!runId) return undefined;
+  const run = await ctx.db.get(runId);
+  if (
+    !run
+    || String(run.jobId ?? "") !== String(args.job._id)
+    || String(run.roomId) !== String(args.job.roomId)
+    || run.goal !== args.job.goal
+    || run.createdAt < args.job.createdAt - 30_000
+    || typeof run.stopReason !== "string"
+    || !run.stopReason.trim()
+  ) {
+    return undefined;
+  }
+  const artifact = await ctx.db.get(args.job.artifactId);
+  if (!artifact || String(artifact.roomId) !== String(args.job.roomId)) return undefined;
+  const latestReceipts = await ctx.db.query("agentMutationReceipts")
+    .withIndex("by_job", (q: any) => q.eq("jobId", args.job._id))
+    .order("desc")
+    .take(1);
+  const latestReceipt = latestReceipts[0];
+  return stableJournalHash({
+    schema: "noderoom.investigation-terminal-result/v1",
+    authorizationReceiptDigest: authorization.receiptDigest,
+    jobId: String(args.job._id),
+    runId: String(runId),
+    terminalStatus: args.status,
+    finalText: args.finalText ?? args.job.finalText ?? null,
+    error: args.error ?? args.job.error ?? null,
+    artifact: {
+      artifactId: String(artifact._id),
+      version: artifact.version,
+      updatedAt: artifact.updatedAt,
+    },
+    execution: {
+      agentId: run.agentId,
+      model: run.model,
+      goal: run.goal,
+      steps: run.steps,
+      traceRecordCount: run.traceRecordCount ?? null,
+      modelCalls: run.modelCalls ?? null,
+      toolCalls: run.toolCalls,
+      conflictsSurvived: run.conflictsSurvived,
+      inputTokens: run.inputTokens,
+      outputTokens: run.outputTokens,
+      cachedInputTokens: run.cachedInputTokens ?? null,
+      cacheCreationInputTokens: run.cacheCreationInputTokens ?? null,
+      costUsd: run.costUsd,
+      costKind: run.costKind ?? null,
+      ms: run.ms,
+      exhausted: run.exhausted,
+      stopReason: run.stopReason,
+      createdAt: run.createdAt,
+    },
+    mutationReceipts: {
+      count: args.receiptCount ?? args.job.receiptCount ?? 0,
+      latest: latestReceipt ? {
+        receiptId: String(latestReceipt._id),
+        mutationName: latestReceipt.mutationName,
+        inputHash: latestReceipt.inputHash,
+        affectedIds: latestReceipt.affectedIds,
+        createdAt: latestReceipt.createdAt,
+      } : null,
+    },
+  });
+}
+
 async function ensureTerminalJobReceipts(ctx: any, args: {
   job: any;
   status: TerminalJobStatus;
@@ -1041,7 +1145,14 @@ async function terminalizeAgentJob(ctx: any, args: {
     now,
     error: args.error,
   });
-  await ctx.db.patch(args.job._id, {
+  const resultDigest = await persistedInvestigationResultDigest(ctx, {
+    job: args.job,
+    status: args.status,
+    runId: args.job.latestRunId,
+    error: args.error,
+    finalText: text,
+  });
+  await ctx.db.patch(args.job._id, clean({
     status: args.status,
     leaseId: "",
     leaseUntil: 0,
@@ -1052,7 +1163,8 @@ async function terminalizeAgentJob(ctx: any, args: {
     mutationCount: (args.job.mutationCount ?? 0) + 1,
     updatedAt: now,
     completedAt: now,
-  });
+    resultDigest,
+  }) as any);
   await recordOperationEvent(ctx, {
     jobId: args.job._id,
     sequence: (args.job.actionSliceCount ?? 0) + (args.job.queryCount ?? 0) + (args.job.mutationCount ?? 0) + (args.job.modelCallCount ?? 0) + (args.job.toolCallCount ?? 0) + (args.job.schedulerHandoffCount ?? 0) + 4,
@@ -1283,6 +1395,17 @@ export const finishInteractive = internalMutation({
       }));
       await recordOperationEvent(ctx, { jobId: a.jobId, runId: a.runId, sequence: baseSequence + 4, kind: "scheduler", name: "agentWorkflows.freeAutoWorkflow", countDelta: 1, status: "completed", startedAt: now, completedAt: now });
     }
+    const receiptCount = (job.receiptCount ?? 0) + (a.receiptCount ?? 0);
+    const resultDigest = a.status === "paused"
+      ? undefined
+      : await persistedInvestigationResultDigest(ctx, {
+        job,
+        status: a.status,
+        runId: a.runId,
+        error: a.error,
+        finalText: a.finalText,
+        receiptCount,
+      });
     await ctx.db.patch(a.jobId, clean({
       status: a.status,
       attempts: attempt,
@@ -1305,12 +1428,13 @@ export const finishInteractive = internalMutation({
       cacheCreationInputTokens: accounting.cacheCreationInputTokens + (a.cacheCreationInputTokens ?? 0),
       costUsd: accounting.costUsd + a.costUsd,
       costKind: aggregateCostKind(accounting.costKind, costKind),
-      receiptCount: (job.receiptCount ?? 0) + (a.receiptCount ?? 0),
+      receiptCount,
       schedulerHandoffCount: (job.schedulerHandoffCount ?? 0) + (workflowId ? 1 : 0),
       leaseId: "",
       leaseUntil: 0,
       updatedAt: now,
       completedAt: a.status === "paused" ? undefined : now,
+      resultDigest,
     }) as any);
     if (a.status !== "paused") {
       await ensureTerminalJobReceipts(ctx, {
@@ -1905,7 +2029,14 @@ function durableMaxAttemptsForJob(job: DurableJobAttemptIdentity, requestedMaxAt
     : requestedMaxAttempts;
 }
 
-const ELEMENT_SCOPED_FRAME_TOOL_ALLOWLIST = ["snapshot", "list_artifacts", "read_range", "search_sheet_context", "write_locked_cell"];
+const ELEMENT_SCOPED_FRAME_TOOL_ALLOWLIST = [
+  "snapshot",
+  "list_artifacts",
+  "read_range",
+  "search_sheet_context",
+  "fetch_source",
+  ...ELEMENT_SCOPED_WRITE_TOOL_ALLOWLIST,
+];
 
 function requestAllowedElementIds(request: unknown): string[] {
   if (!request || typeof request !== "object" || Array.isArray(request)) return [];
@@ -2164,6 +2295,56 @@ function modeForArtifact(artifact: { title?: string }): "variance" | "research" 
   return undefined;
 }
 
+function investigationRequestField(request: unknown): { present: boolean; value?: unknown } {
+  if (!request || typeof request !== "object" || Array.isArray(request)) return { present: false };
+  const record = request as Record<string, unknown>;
+  return Object.prototype.hasOwnProperty.call(record, "investigation")
+    ? { present: true, value: record.investigation }
+    : { present: false };
+}
+
+async function currentInvestigationContracts(
+  ctx: any,
+  roomId: Id<"rooms">,
+  artifact: any,
+) {
+  const elementRows = await ctx.db.query("elements")
+    .withIndex("by_artifact", (q: any) => q.eq("artifactId", artifact._id))
+    .take(MAX_INVESTIGATION_ELEMENTS + 1);
+  if (elementRows.length > MAX_INVESTIGATION_ELEMENTS) {
+    throw new Error("investigation_dataset_too_large");
+  }
+  const traceRows = await ctx.db.query("traces")
+    .withIndex("by_room", (q: any) => q.eq("roomId", roomId))
+    .order("desc")
+    .take(24);
+  const dataset = buildAnalysisDatasetV1({
+    id: String(artifact._id),
+    roomId: String(roomId),
+    kind: artifact.kind,
+    title: artifact.title,
+    version: artifact.version,
+    elements: Object.fromEntries(elementRows.map((element: any) => [element.elementId, {
+      id: element.elementId,
+      version: element.version,
+      value: element.value,
+      updatedAt: element.updatedAt,
+      updatedBy: element.updatedBy,
+    }])),
+    order: artifact.order,
+    updatedAt: artifact.updatedAt,
+    createdBy: artifact.createdBy,
+    visibility: artifact.visibility,
+    meta: artifact.meta,
+  });
+  const traceIds = traceRows
+    .slice()
+    .sort((a: any, b: any) => a.ts - b.ts || String(a._id).localeCompare(String(b._id)))
+    .map((trace: any) => String(trace._id));
+  const plan = buildResearchPlanV1({ dataset, traceIds, now: Date.now() });
+  return { dataset, plan };
+}
+
 async function derivePublicStartPolicy(ctx: any, a: DurableStartAgentJobArgs): Promise<DurableStartAgentJobArgs> {
   const requestedRoute = a.routePolicy ?? (a.modelPolicy ? "explicit" : "fast_default");
   const routePolicy: RoutePolicy = requestedRoute === "free_auto"
@@ -2181,8 +2362,16 @@ async function derivePublicStartPolicy(ctx: any, a: DurableStartAgentJobArgs): P
       ? "host_review"
       : "auto_commit_safe";
   const modelPolicy = routePolicy === "explicit" ? a.modelPolicy : undefined;
+  const requestedInvestigation = investigationRequestField(a.request);
+  const investigation = requestedInvestigation.present
+    ? parseInvestigationLaunchIntentV1(requestedInvestigation.value)
+    : null;
+  if (requestedInvestigation.present && !investigation) {
+    throw new Error("investigation_launch_intent_invalid");
+  }
   return {
     ...a,
+    goal: investigation ? INVESTIGATION_RESEARCH_GOAL : a.goal,
     entrypoint,
     scope: "public_room",
     routePolicy,
@@ -2192,7 +2381,8 @@ async function derivePublicStartPolicy(ctx: any, a: DurableStartAgentJobArgs): P
     evidencePolicy: "public_only",
     traceLevel: "full_operation_ledger",
     autoAllow: entrypoint !== "free" && room?.autoAllow !== false,
-    request: undefined,
+    mode: investigation ? "research" : a.mode,
+    request: investigation ? { investigation } : undefined,
   };
 }
 
@@ -2210,6 +2400,57 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
   requireJobArtifactAccess(artifact, actor, { allowPrivate: scope === "private_user" || entrypoint === "private_agent" || a.evidencePolicy === "private_allowed" });
   const room = await ctx.db.get(a.roomId);
   const now = Date.now();
+  const requestedInvestigation = investigationRequestField(a.request);
+  const investigationIntent = requestedInvestigation.present
+    ? parseInvestigationLaunchIntentV1(requestedInvestigation.value)
+    : null;
+  if (requestedInvestigation.present && !investigationIntent) {
+    throw new Error("investigation_launch_intent_invalid");
+  }
+  let investigationReceipt: InvestigationLaunchReceiptV1 | undefined;
+  let investigationAllowedElementIds: string[] | undefined;
+  if (investigationIntent) {
+    if (artifact.title !== "Company research") {
+      throw new Error("investigation_artifact_invalid");
+    }
+    if (
+      investigationIntent.artifactId !== String(a.artifactId) ||
+      investigationIntent.artifactVersion !== artifact.version
+    ) {
+      throw new Error("investigation_artifact_version_mismatch");
+    }
+    if (
+      investigationIntent.consent.approvedAt > now + 30_000 ||
+      now - investigationIntent.consent.approvedAt > INVESTIGATION_CONSENT_MAX_AGE_MS
+    ) {
+      throw new Error("investigation_consent_expired");
+    }
+    const current = await currentInvestigationContracts(ctx, a.roomId, artifact);
+    if (
+      investigationIntent.datasetId !== current.dataset.datasetId ||
+      investigationIntent.datasetVersionId !== current.dataset.versionId ||
+      investigationIntent.datasetContentHash !== current.dataset.contentHash
+    ) {
+      throw new Error("investigation_dataset_version_mismatch");
+    }
+    if (!investigationLaunchIntentMatchesV1({
+      intent: investigationIntent,
+      plan: current.plan,
+      dataset: current.dataset,
+    })) {
+      throw new Error("investigation_plan_mismatch");
+    }
+    investigationReceipt = finalizeInvestigationLaunchReceiptV1(investigationIntent, actor.id);
+    investigationAllowedElementIds = current.dataset.rows.flatMap((row) => (
+      INVESTIGATION_WRITABLE_FIELD_IDS.map((field) => `${row.rowId}__${field}`)
+    ));
+    if (investigationAllowedElementIds.length > MAX_INVESTIGATION_WRITE_IDS) {
+      throw new Error("investigation_write_scope_too_large");
+    }
+    if (!investigationAllowedElementIds.length) {
+      throw new Error("investigation_write_scope_empty");
+    }
+  }
   let modelPolicy = defaultModelPolicyForRoute({ routePolicy, entrypoint, mode: a.mode, modelPolicy: a.modelPolicy });
   const egressArtifacts = await providerEgressArtifactsForRoom(ctx, a.roomId, artifact);
   const freeFileEgressDecision = providerEgressDecision({
@@ -2231,14 +2472,26 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
       ? PUBLIC_BENCHMARK_COMPLETION_MAX_ATTEMPTS
       : 20;
   const maxAttempts = boundedMaxAttempts(a.maxAttempts, defaultMaxAttempts, { execution, scope, runtimeProfile });
-  const idempotencyKey = a.idempotencyKey ?? defaultJobIdempotencyKey({
-    roomId: a.roomId,
-    artifactId: a.artifactId,
-    actorId: actor.id,
-    goal: a.goal,
-    entrypoint,
-    runtimeProfile,
-  });
+  const idempotencyKey = investigationReceipt
+    ? `investigation:${stableJournalHash({
+      roomId: String(a.roomId),
+      artifactId: String(a.artifactId),
+      actorId: actor.id,
+      planId: investigationReceipt.planId,
+      planDigest: investigationReceipt.planDigest,
+      datasetId: investigationReceipt.datasetId,
+      datasetVersionId: investigationReceipt.datasetVersionId,
+      datasetContentHash: investigationReceipt.datasetContentHash,
+      artifactVersion: investigationReceipt.artifactVersion,
+    })}`
+    : a.idempotencyKey ?? defaultJobIdempotencyKey({
+      roomId: a.roomId,
+      artifactId: a.artifactId,
+      actorId: actor.id,
+      goal: a.goal,
+      entrypoint,
+      runtimeProfile,
+    });
   const prior = await ctx.db.query("agentJobs").withIndex("by_idempotency", (q: any) => q.eq("idempotencyKey", idempotencyKey)).order("desc").take(5);
   const reusable = prior.find((job: any) => String(job.roomId) === String(a.roomId) && String(job.artifactId) === String(a.artifactId) && !terminalStatuses.has(job.status));
   if (reusable) {
@@ -2274,7 +2527,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     // Central admission gate: every workflow-backed durable route gets the same intent classification,
     // affected-set check, blocked-job trace, and no-provider-spend fail-closed behavior.
     const intake = classifyIntakeMessage(a.goal);
-    const scopedElementIds = requestAllowedElementIds(a.request);
+    const scopedElementIds = investigationAllowedElementIds ?? requestAllowedElementIds(a.request);
     const elementIds = scopedElementIds.length
       ? scopedElementIds
       : (await ctx.db.query("elements").withIndex("by_artifact", (q: any) => q.eq("artifactId", a.artifactId)).collect()).map((e: any) => e.elementId);
@@ -2307,6 +2560,12 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
     : {};
   const request = clean({
     ...requestBase,
+    ...(investigationReceipt ? { investigation: investigationReceipt } : {}),
+    ...(investigationReceipt ? {
+      allowedElementIds: investigationAllowedElementIds,
+      mutationScope: "element_allowlist",
+      mutationContract: "sealed_cell_payload_v1",
+    } : {}),
     roomId: String(a.roomId),
     targetArtifactId: String(a.artifactId),
     commandText: a.goal,
@@ -2434,7 +2693,9 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
           "Mark unsupported claims as needs_review instead of guessing.",
         ],
       },
-      toolAllowlist: requestAllowedElementIds(a.request).length ? ELEMENT_SCOPED_FRAME_TOOL_ALLOWLIST : FRAME_TOOL_ALLOWLIST.execute,
+      toolAllowlist: (investigationAllowedElementIds ?? requestAllowedElementIds(a.request)).length
+        ? ELEMENT_SCOPED_FRAME_TOOL_ALLOWLIST
+        : FRAME_TOOL_ALLOWLIST.execute,
       createdAt: now,
       updatedAt: now,
     }));
@@ -2913,6 +3174,8 @@ export const retry = mutation({
       runtime: "workflow",
       workflowId: String(workflowId),
       error: undefined,
+      latestRunId: undefined,
+      resultDigest: undefined,
       completedAt: undefined,
       mutationCount: (job.mutationCount ?? 0) + 1,
       schedulerHandoffCount: (job.schedulerHandoffCount ?? 0) + 1,
@@ -3594,6 +3857,16 @@ export const finishSlice = internalMutation({
       startedAt: now,
       completedAt: now,
     });
+    if (terminalStatuses.has(effectiveNextStatus)) {
+      const resultDigest = await persistedInvestigationResultDigest(ctx, {
+        job,
+        status: effectiveNextStatus as TerminalJobStatus,
+        runId: a.runId,
+        error: a.error,
+        finalText: a.finalText === undefined ? undefined : capStreamText(a.finalText, 60_000),
+      });
+      if (resultDigest) patch.resultDigest = resultDigest;
+    }
     await ctx.db.patch(a.jobId, patch as any);
     if (terminalStatuses.has(effectiveNextStatus)) {
       await ensureTerminalJobReceipts(ctx, {
@@ -3670,6 +3943,12 @@ export const completeDeterministicBenchmarkSlice = internalMutation({
       startedAt: now,
       completedAt: now,
     });
+    const resultDigest = await persistedInvestigationResultDigest(ctx, {
+      job,
+      status: "completed",
+      runId: a.runId,
+      finalText: capStreamText(a.finalText, 60_000),
+    });
     await ctx.db.patch(a.jobId, {
       status: "completed",
       leaseId: "",
@@ -3684,6 +3963,7 @@ export const completeDeterministicBenchmarkSlice = internalMutation({
       // The deterministic HMDA executor never calls a model.
       modelCallCount: job.modelCallCount ?? 0,
       mutationCount: (job.mutationCount ?? 0) + 1,
+      ...(resultDigest ? { resultDigest } : {}),
     });
     await ensureTerminalJobReceipts(ctx, {
       job,

@@ -125,15 +125,44 @@
     - emptiness would read as a failed load — then an explicit empty state is
       required, which is a different component
 
+- id: rule-7
+  statement: >
+    On a multi-step execution surface, selecting one task keeps the task
+    sequence visible and binds one detail region to that task's execution
+    fields.
+  mechanismHypothesis: >
+    Keeping the sequence and the selected task detail on one surface lets a
+    reviewer compare task state with run context without reconstructing the
+    sequence after a page transition.
+  confidence: medium
+  evidence:
+    - obs-stackai-run-details-1/f2
+    - obs-stackai-run-details-1/f4
+    - obs-stackai-run-details-1/f6
+    - obs-stackai-selected-node-1/f2
+    - obs-stackai-selected-node-1/f3
+    - obs-stackai-selected-node-1/f4
+  whyThisConfidence: >
+    The Run Details surface establishes the persistent execution sequence and
+    time-axis layout; the selected-node surface shows that sequence retained
+    beside one node's detail. No task-completion study was run, so the mechanism
+    remains a hypothesis.
+  appliesWhen:
+    - the execution has multiple tasks or nodes
+    - a reviewer needs task-level inputs, outputs, or state
+  doesNotApplyWhen:
+    - the execution contains one task
+    - task detail is authoritative only in another system
+
 # --- Coverage, stated so a later reader does not mistake this for a survey ---
 coverage:
-  appsObserved: 1
-  surfacesObserved: 2
-  surfacesAvailable: 135
+  appsObserved: 4
+  surfacesObserved: 6
+  surfacesAvailable: unknown
   note: >
-    Two surfaces of 135 were inspected. Every rule above is a hypothesis from a
-    narrow sample of ONE product. No rule here has been tested against a second
-    app, and none may be cited as a norm until it has been.
+    Rules 1-6 come from two Greptile surfaces. Rule 7 comes from two StackAI
+    execution surfaces. Airtable and Coinbase observations are retained as
+    facts but do not add another rule. No rule here is a cross-product norm.
   motionFacts: >
     None. Mobbin screens are static; timing, easing and choreography were not
     observed and were therefore not recorded. Any motion rung decision that

@@ -1,0 +1,107 @@
+{
+  "url": "http://127.0.0.1:5260/?mode=memory&surface=desktop&demo=INVESTIGATION&name=Founder&focusMode=0",
+  "viewport": {
+    "width": 1456,
+    "height": 940
+  },
+  "investigationTabCount": 1,
+  "reportCount": 1,
+  "runAttempted": true,
+  "observedRunning": true,
+  "beforeRun": {
+    "state": "ready",
+    "datasetText": "Datasetv1-3496c89aContent hash3496c89a54Artifactv1 · Company researchCaptured7/28/2026, 5:59:47 PM",
+    "datasetVersion": "v1-3496c89a",
+    "planStatus": "Validated",
+    "researchPackText": "ResearchPackV1Evidence-bound claims JSON24 sourced24 stale24 needs review0% coverage85cb2cf147EntityClaimEvidenceCardioNovasummaryCardioNova has sourced product, buyer, and deployment notes ready for partner review.Stale sourceCardioNovafundingFunding profile captured; refresh before final IC use.Stale sourceCardioNovaheadcountSource-backed operating range attached.Stale sourceCardioNovarecent signalRecent diligence signal is source-backed and ready to cite.Stale sourceFluxNovasummaryFluxNova has sourced product, buyer, and deployment notes ready for partner review.Stale sourceFluxNovafundingFunding profile captured; refresh before final IC use.Stale sourceFluxNovaheadcountSource-backed operating range attached.Stale sourceFluxNovarecent signalRecent diligence signal is source-backed and ready to cite.Stale sourceHarborNovasummaryHarborNova has sourced product, buyer, and deployment notes ready for partner review.Stale sourceHarborNovafundingFunding profile captured; refresh before final IC use.Stale sourceHarborNovaheadcountSource-backed operating range attached.Stale sourceHarborNovarecent signalRecent diligence signal is source-backed and ready to cite.Stale sourceHelioNovasummaryHelioNova has sourced product, buyer, and deployment notes ready for partner review.Stale sourceHelioNovafundingFunding profile captured; refresh before final IC use.Stale sourceHelioNovaheadcountSo",
+    "tasks": [
+      {
+        "text": "01Inventory the live roomintake · planComplete",
+        "status": "completed"
+      },
+      {
+        "text": "02Build the cache-first analysis DAGplan · planComplete",
+        "status": "completed"
+      },
+      {
+        "text": "03Resolve stale or missing evidenceexecute · planQueued",
+        "status": "queued"
+      },
+      {
+        "text": "04Validate evidence and contradictionsverify · planBlocked",
+        "status": "blocked"
+      },
+      {
+        "text": "05Compile the research packsynthesize · planBlocked",
+        "status": "blocked"
+      }
+    ],
+    "metrics": {
+      "Entities": "14",
+      "Tasks": "5",
+      "Resolved": "2",
+      "Sources": "38",
+      "Review": "24"
+    },
+    "xlsxExportVisible": false,
+    "documentOverflowX": 0,
+    "surfaceOverflowX": 0
+  },
+  "exportedContract": {
+    "suggestedFilename": "noderoom-investigation-v1-3496c89a.json",
+    "datasetSchema": "noderoom.analysis-dataset/v1",
+    "datasetVersionId": "v1-3496c89a",
+    "planSchema": "noderoom.research-plan/v1",
+    "taskRunSchemas": [
+      "noderoom.analysis-task-run/v1"
+    ],
+    "taskRunCount": 5,
+    "packSchema": "noderoom.research-pack/v1",
+    "packDigest": "85cb2cf147742c7f",
+    "teachingCaseTitle": "CardioNova: evidence-bound diligence case"
+  },
+  "teachingCaseText": "Interactive teaching caseCardioNova: evidence-bound diligence caseReview 4 claims from v1-3496c89a. Every conclusion must remain bound to this dataset version and its source receipts.Decision promptWhich claims are safe to carry into a downstream-ready diligence draft, and which must remain needs review?summaryCardioNova has sourced product, buyer, and deployment notes ready for partner review.Refresh cited sourcefundingFunding profile captured; refresh before final IC use.Refresh cited sourceheadcountSource-backed operating range attached.Refresh cited sourcerecent signalRecent diligence signal is source-backed and ready to cite.Refresh cited sourceQuestions still openWhat current source refreshes summary for CardioNova?What current source refreshes funding for CardioNova?What current source refreshes headcount for CardioNova?What current source refreshes recent signal for CardioNova?Learning objectivesSeparate observed facts from interpretation.Treat dataset version and source lineage as part of the answer.Keep downstream synthesis blocked when required evidence is missing.Recommended next stepResolve 4 evidence gaps before promoting the case.",
+  "afterRun": {
+    "state": "ready",
+    "datasetText": "Datasetv37-5b44f6f4Content hash5b44f6f493Artifactv37 · Company researchCaptured7/28/2026, 5:59:54 PM",
+    "datasetVersion": "v37-5b44f6f4",
+    "planStatus": "Validated",
+    "researchPackText": "ResearchPackV1Evidence-bound claims JSON40 sourced40 stale40 needs review0% coveraged0405f1caeEntityClaimEvidenceAtlasNovasummaryAtlasNova requires sourced product, buyer, deployment, and operating-risk research before partner use.Stale sourceAtlasNovafundingAtlasNova funding profile requires confirmation from the attached primary sources.Stale sourceAtlasNovaheadcountAtlasNova operating scale requires a current source-backed headcount range.Stale sourceAtlasNovarecent signalWarehouse ops underwriting; refresh the latest supporting signal before review.Stale sourceCardioNovasummaryCardioNova has sourced product, buyer, and deployment notes ready for partner review.Stale sourceCardioNovafundingFunding profile captured; refresh before final IC use.Stale sourceCardioNovaheadcountSource-backed operating range attached.Stale sourceCardioNovarecent signalRecent diligence signal is source-backed and ready to cite.Stale sourceCrestNovasummaryCrestNova requires sourced product, buyer, deployment, and operating-risk research before partner use.Stale sourceCrestNovafundingCrestNova funding profile requires confirmation from the attached primary sources.Stale sourceCrestNovaheadcountCrestNova operating scale requires a current source-backed headcount range.Stale sourceCrestNovarecent signalRevenue operations; refresh the latest supporting signal before review.Stale sourceFluxNovasummaryFlu",
+    "tasks": [
+      {
+        "text": "01Inventory the live roomintake · planComplete",
+        "status": "completed"
+      },
+      {
+        "text": "02Build the cache-first analysis DAGplan · planComplete",
+        "status": "completed"
+      },
+      {
+        "text": "03Resolve stale or missing evidenceexecute · planQueued",
+        "status": "queued"
+      },
+      {
+        "text": "04Validate evidence and contradictionsverify · planBlocked",
+        "status": "blocked"
+      },
+      {
+        "text": "05Compile the research packsynthesize · planBlocked",
+        "status": "blocked"
+      }
+    ],
+    "metrics": {
+      "Entities": "14",
+      "Tasks": "5",
+      "Resolved": "2",
+      "Sources": "102",
+      "Review": "40"
+    },
+    "xlsxExportVisible": false,
+    "documentOverflowX": 0,
+    "surfaceOverflowX": 0
+  },
+  "errors": [],
+  "assertions": [
+    "PASS"
+  ]
+}

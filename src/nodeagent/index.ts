@@ -28,6 +28,7 @@ export * from "./retrieval";
 export * from "./retrieval/tools";
 export * from "./tools";
 export * from "./ingestion/twoPoolOrchestrator";
+export * from "./investigation";
 
 export * from "./analytics/coachEvents";
 

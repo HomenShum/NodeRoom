@@ -35,6 +35,10 @@ import { focusBoxesForSheet, type SheetCellState } from "../overlay/focusBoxesFo
 import { OPT_ARTIFACT_PREFIX, optimisticArtifactIdentity } from "../openRoomReference";
 import { ladderFor, LADDER_MEMBER_CAP, type LadderResult } from "../presenceLadder";
 import { prepareDownstreamDrafts, type PreparedDownstreamDraft } from "../../nodeagent/skills/integration/downstreamPublish";
+import {
+  buildInvestigationLaunchIntentV1,
+  buildInvestigationWorkspaceV1,
+} from "../../nodeagent/investigation";
 import { isWorkbookPreviewDoc, workbookPreviewArtifactFromDataUrl } from "./workbookFilePreview";
 import { isOfficePreviewDoc, officePreviewFromDataUrl, type OfficePreview } from "./officeFilePreview";
 import { RoomHome } from "../room/RoomHome";
@@ -45,9 +49,33 @@ import { ScrollArea } from "../../components/ui/scroll-area";
 import { isCollaborativeDeckArtifact } from "../workArtifacts/collaborativeDeck";
 import { onOpenWorkArtifactsReview } from "../workArtifacts/workArtifactsNavigation";
 
+async function runAuthorizedInvestigationResearch(store: RoomStore, roomId: string): Promise<void> {
+  if (
+    store.mode === "convex" &&
+    typeof window !== "undefined" &&
+    !window.confirm("Allow this investigation run to retrieve public sources for the exact current Company research dataset?")
+  ) {
+    return;
+  }
+  const workspace = buildInvestigationWorkspaceV1({
+    roomId,
+    artifacts: store.listArtifacts(roomId),
+    traces: store.listTraces(roomId),
+    sessions: store.listSessions(roomId),
+  });
+  if (!workspace.plan || !workspace.dataset || !workspace.validation.valid) {
+    throw new Error("investigation_plan_unavailable");
+  }
+  await store.askResearch(buildInvestigationLaunchIntentV1({
+    plan: workspace.plan,
+    dataset: workspace.dataset,
+  }));
+}
+
 const TraceSurface = lazy(() => import("./TraceSurface").then((m) => ({ default: m.TraceSurface })));
 const KnowledgeGraph = lazy(() => import("./KnowledgeGraph").then((m) => ({ default: m.KnowledgeGraph })));
 const WorkArtifactsPanel = lazy(() => import("../workArtifacts/WorkArtifactsPanel").then((m) => ({ default: m.WorkArtifactsPanel })));
+const InvestigationSurface = lazy(() => import("../investigation/InvestigationReport").then((m) => ({ default: m.InvestigationSurface })));
 
 /** Downstream handoff destinations → compact icon + short label (replaces 5 wide ghost buttons). */
 const HANDOFF_ICONS: Record<string, LucideIcon> = { gmail: Mail, notion: FileText, slack: Hash, linear: Layers, linkedin: Linkedin };
@@ -178,6 +206,8 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   const [workArtifactsOpen, setWorkArtifactsOpen] = useState(selectedCollaborativeDeck);
   const [reviewJobId, setReviewJobId] = useState<string | undefined>();
   const wasCollaborativeDeck = useRef(selectedCollaborativeDeck);
+  // Pinned work-surface projection over the live room and existing NodeAgent runtime.
+  const [investigationOpen, setInvestigationOpen] = useState(false);
   // Knowledge graph: a derived node-link view of how this room's artifacts reference each other.
   const [graphOpen, setGraphOpen] = useState(false);
   const [editErr, setEditErr] = useState<string | null>(null);
@@ -195,6 +225,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
       setWorkArtifactsOpen(true);
       setHomeOpen(false);
       setTraceOpen(false);
+      setInvestigationOpen(false);
       setGraphOpen(false);
     } else if (leavingCollaborativeDeck) {
       setWorkArtifactsOpen(false);
@@ -205,6 +236,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
     setWorkArtifactsOpen(true);
     setHomeOpen(false);
     setTraceOpen(false);
+    setInvestigationOpen(false);
     setGraphOpen(false);
   }), []);
   useEffect(() => {
@@ -215,7 +247,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
     const end = start + active.offsetWidth;
     if (start < strip.scrollLeft) strip.scrollLeft = start;
     else if (end > strip.scrollLeft + strip.clientWidth) strip.scrollLeft = end - strip.clientWidth;
-  }, [artId, traceOpen, homeOpen, workArtifactsOpen, graphOpen]);
+  }, [artId, traceOpen, homeOpen, workArtifactsOpen, investigationOpen, graphOpen]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.key.toLowerCase() !== "z") return;
@@ -283,7 +315,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
     const visibleIds = new Set(visibleOpenTabArts.map((a) => a.id));
     overflowTabArts = openTabArts.filter((a) => !visibleIds.has(a.id));
   }
-  const overflowActive = !traceOpen && !homeOpen && !workArtifactsOpen && !graphOpen && overflowTabArts.some((a) => a.id === artId);
+  const overflowActive = !traceOpen && !homeOpen && !workArtifactsOpen && !investigationOpen && !graphOpen && overflowTabArts.some((a) => a.id === artId);
   // Inline rename (double-click / F2) — replaces the window.prompt modal, honoring the same
   // inline-not-modal standard we hold cells to. Enter commits, Esc cancels; auto-saves via setArtifactMeta.
   const renameArtifact = (a: Art) => setRenamingId(a.id);
@@ -295,7 +327,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   const pick = (t: TabId) => { const a = artFor(t); if (a) { onArt(a.id); setTab(t); } };
   const openArtifact = (a: Art) => { onArt(a.id); setTab(tabForArt(a.id)); };
   // A Trace step / evidence card opens its literal source on the work surface (switch + pulse the cell).
-  const openTraceSource = (artifactId: string, elementId?: string) => { onArt(artifactId); focusStage({ artifactId, elementId }); setTraceOpen(false); };
+  const openTraceSource = (artifactId: string, elementId?: string) => { onArt(artifactId); focusStage({ artifactId, elementId }); setTraceOpen(false); setInvestigationOpen(false); };
   const visibility = selected?.visibility ?? "room";
   // Two-way owner-gated visibility: you can share YOUR sheet to the room or pull it back to private.
   const ownsSelected = !!selected?.createdBy && ((selected.createdBy as Actor).id === me.id || (selected.createdBy as Actor).ownerId === me.id);
@@ -328,13 +360,13 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
         <div ref={tabStripRef} className="r-tabs fx-tabs" data-testid={surfaceKey === "secondary" ? "artifact-tabs-secondary" : "artifact-tabs"}>
           {/* Home is a pinned, non-closeable pseudo-tab: the room command center is always one click away. */}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab fx-tab r-hometab" data-active={String(homeOpen)} data-testid="home-tab" title="Room Home — command center, inventory, and work lanes" onClick={() => { setHomeOpen(true); setWorkArtifactsOpen(false); setTraceOpen(false); setGraphOpen(false); }}>
+            <button type="button" className="r-tab fx-tab r-hometab" data-active={String(homeOpen)} data-testid="home-tab" title="Room Home — command center, inventory, and work lanes" onClick={() => { setHomeOpen(true); setWorkArtifactsOpen(false); setTraceOpen(false); setInvestigationOpen(false); setGraphOpen(false); }}>
               <Home size={13} /> Home
             </button>
           )}
           {openIds
             ? visibleOpenTabArts.map((a) => (
-                <button key={a.id} className="r-tab fx-tab r-filetab" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(isCollaborativeDeckArtifact(a)); setGraphOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
+                <button key={a.id} className="r-tab fx-tab r-filetab" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !investigationOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(isCollaborativeDeckArtifact(a)); setInvestigationOpen(false); setGraphOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
                   {tabIcon(a)}
                   {renamingId === a.id ? (
                     <input className="r-filetab-rename" defaultValue={a.title} autoFocus aria-label="Rename file"
@@ -351,7 +383,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
                 </button>
               ))
             : TABS.filter((t) => artFor(t.id)).map((t) => (
-                <button key={t.id} className="r-tab fx-tab" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !graphOpen && activeTab === t.id)} onClick={() => { pick(t.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(false); setGraphOpen(false); }}>
+                <button key={t.id} className="r-tab fx-tab" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !investigationOpen && !graphOpen && activeTab === t.id)} onClick={() => { pick(t.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(false); setInvestigationOpen(false); setGraphOpen(false); }}>
                   <t.Icon size={13} /> {t.label}
                 </button>
               ))}
@@ -362,30 +394,35 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
               </summary>
               <div className="r-tab-overflow-menu" role="menu">
                 {openTabArts.map((a) => (
-                  <button key={a.id} type="button" role="menuitem" className="r-tab-overflow-item" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(isCollaborativeDeckArtifact(a)); setGraphOpen(false); tabMenuRef.current?.removeAttribute("open"); }}>{tabIcon(a)} <span>{a.title}</span></button>
+                  <button key={a.id} type="button" role="menuitem" className="r-tab-overflow-item" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !investigationOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(isCollaborativeDeckArtifact(a)); setInvestigationOpen(false); setGraphOpen(false); tabMenuRef.current?.removeAttribute("open"); }}>{tabIcon(a)} <span>{a.title}</span></button>
                 ))}
               </div>
             </details>
           )}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab fx-tab r-artifact-bundletab" data-active={String(workArtifactsOpen)} data-testid="work-artifacts-tab" title="Room proof bundle — artifacts, proposals, traces, graph, and exports" onClick={() => { setReviewJobId(undefined); setWorkArtifactsOpen(true); setHomeOpen(false); setTraceOpen(false); setGraphOpen(false); }}>
+            <button type="button" className="r-tab fx-tab r-artifact-bundletab" data-active={String(workArtifactsOpen)} data-testid="work-artifacts-tab" title="Room proof bundle — artifacts, proposals, traces, graph, and exports" onClick={() => { setReviewJobId(undefined); setWorkArtifactsOpen(true); setHomeOpen(false); setTraceOpen(false); setInvestigationOpen(false); setGraphOpen(false); }}>
               <Package size={13} /> Artifacts
+            </button>
+          )}
+          {surfaceKey !== "secondary" && (
+            <button type="button" className="r-tab fx-tab r-investigationtab" data-active={String(investigationOpen)} data-testid="investigation-tab" title="Investigation Mode — versioned plan, evidence DAG, and research pack" onClick={() => { setInvestigationOpen(true); setHomeOpen(false); setWorkArtifactsOpen(false); setTraceOpen(false); setGraphOpen(false); }}>
+              <Search size={13} /> Investigation
             </button>
           )}
           {/* Trace is a pinned work-surface tab alongside the artifacts (agent + QA provenance). */}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab fx-tab r-tracetab" data-active={String(traceOpen)} data-testid="trace-tab" title="Agent + QA trace records" onClick={() => { setTraceOpen(true); setHomeOpen(false); setWorkArtifactsOpen(false); setGraphOpen(false); }}>
+            <button type="button" className="r-tab fx-tab r-tracetab" data-active={String(traceOpen)} data-testid="trace-tab" title="Agent + QA trace records" onClick={() => { setTraceOpen(true); setHomeOpen(false); setWorkArtifactsOpen(false); setInvestigationOpen(false); setGraphOpen(false); }}>
               <Activity size={13} /> Run trace
             </button>
           )}
           {surfaceKey !== "secondary" && (
-            <button type="button" className="r-tab fx-tab r-graphtab" data-active={String(graphOpen)} data-testid="graph-tab" title="Knowledge graph — how this room's artifacts reference each other" onClick={() => { setGraphOpen(true); setHomeOpen(false); setWorkArtifactsOpen(false); setTraceOpen(false); }}>
+            <button type="button" className="r-tab fx-tab r-graphtab" data-active={String(graphOpen)} data-testid="graph-tab" title="Knowledge graph — how this room's artifacts reference each other" onClick={() => { setGraphOpen(true); setHomeOpen(false); setWorkArtifactsOpen(false); setInvestigationOpen(false); setTraceOpen(false); }}>
               <Share2 size={13} /> Entity graph
             </button>
           )}
         </div>
         {headerExtra}
-        {activeTab === "sheet" && sheet && (
+        {!investigationOpen && activeTab === "sheet" && sheet && (
           <button
             type="button"
             className="r-btn ghost r-artifact-export"
@@ -400,7 +437,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
             {exportBusy ? "Preparing..." : "Export XLSX"}
           </button>
         )}
-        {activeTab === "sheet" && sheet && (exportBusy || exportErr || exportOk) && (
+        {!investigationOpen && activeTab === "sheet" && sheet && (exportBusy || exportErr || exportOk) && (
           <span className="r-export-status" role={exportErr ? "alert" : "status"} data-testid="artifact-export-xlsx-status">
             {exportBusy ? "Building workbook" : exportErr ?? exportOk}
           </span>
@@ -432,15 +469,19 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
           onOpenChat={onOpenChat}
           artifacts={arts.map((a) => ({ id: a.id, title: a.title, kind: a.kind, updatedAt: a.updatedAt, owner: a.createdBy?.name, visibility: a.visibility }))}
           contextArtifactId={selected?.kind === "sheet" ? selected.id : sheet?.id}
-          onOpenArtifact={(id) => { onArt(id); setHomeOpen(false); }}
+          onOpenArtifact={(id) => { onArt(id); setHomeOpen(false); setInvestigationOpen(false); }}
         />
+      ) : investigationOpen ? (
+        <Suspense fallback={<ArtifactAuxSurfaceFallback />}>
+          <InvestigationSurface roomId={roomId} />
+        </Suspense>
       ) : traceOpen ? (
         <Suspense fallback={<ArtifactAuxSurfaceFallback />}>
           <TraceSurface roomId={roomId} onOpenSource={openTraceSource} />
         </Suspense>
       ) : workArtifactsOpen ? (
         <Suspense fallback={<ArtifactAuxSurfaceFallback />}>
-          <WorkArtifactsPanel roomId={roomId} me={me} initialArtifactId={selectedCollaborativeDeck ? artId : undefined} reviewJobId={reviewJobId} onOpenArtifact={(id) => { onArt(id); setWorkArtifactsOpen(false); }} />
+          <WorkArtifactsPanel roomId={roomId} me={me} initialArtifactId={selectedCollaborativeDeck ? artId : undefined} reviewJobId={reviewJobId} onOpenArtifact={(id) => { onArt(id); setWorkArtifactsOpen(false); setInvestigationOpen(false); }} />
         </Suspense>
       ) : graphOpen ? (
         <Suspense fallback={<ArtifactAuxSurfaceFallback />}>
@@ -462,7 +503,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
         </>
       )}
 
-      {!traceOpen && !workArtifactsOpen && !graphOpen && activeTab !== "note" && (
+      {!traceOpen && !workArtifactsOpen && !investigationOpen && !graphOpen && activeTab !== "note" && (
         <TraceStrip
           roomId={roomId}
           me={me}
@@ -842,7 +883,7 @@ export function Research({ roomId, me, art }: { roomId: string; me: Actor; art: 
   const cell = (rid: string, c: string) => displayCellValue(art.elements[`${rid}__${c}`]?.value);
   const pending = rowIds.filter((rid) => (cell(rid, "status") || "pending") === "pending").length;
   const complete = rowIds.filter((rid) => cell(rid, "status") === "complete").length;
-  const run = async () => { setRunning(true); try { await store.askResearch(); } finally { setRunning(false); } };
+  const run = async () => { setRunning(true); try { await runAuthorizedInvestigationResearch(store, roomId); } finally { setRunning(false); } };
   const addRows = async () => {
     const rows = parseResearchRows(pasteText);
     if (!rows.length) return;
@@ -1058,7 +1099,7 @@ export function ResearchLegacy({ art }: { art: Art }) {
   const rowIds = [...new Set(art.order.map((e) => e.split("__")[0]))];
   const cell = (rid: string, c: string) => displayCellValue(art.elements[`${rid}__${c}`]?.value);
   const pending = rowIds.filter((rid) => (cell(rid, "status") || "pending") === "pending").length;
-  const run = async () => { setRunning(true); try { await store.askResearch(); } finally { setRunning(false); } };
+  const run = async () => { setRunning(true); try { await runAuthorizedInvestigationResearch(store, art.roomId); } finally { setRunning(false); } };
   const srcLink = (src: string) => { const u = src.match(/https?:\/\/\S+/)?.[0]; return u ? <a href={u} target="_blank" rel="noreferrer">{src}</a> : <span>{src}</span>; };
   return (
     <div className="r-art-body">
@@ -1928,7 +1969,7 @@ function GenericResearchWorkflow({ roomId, me, art, rows, activeRowId }: {
 
   const run = async () => {
     setRunning(true);
-    try { await store.askResearch(); } finally { setRunning(false); }
+    try { await runAuthorizedInvestigationResearch(store, roomId); } finally { setRunning(false); }
   };
   const addRows = async () => {
     const parsed = parseResearchRows(pasteText);

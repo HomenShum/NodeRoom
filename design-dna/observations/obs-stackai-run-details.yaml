@@ -1,0 +1,80 @@
+id: obs-stackai-run-details-1
+source:
+  url: https://mobbin.com/screens/bb0174f4-60aa-4e30-ac5f-73679b160f38
+  app: StackAI
+  surface: Run details
+  capturedVia: mobbin-live
+firstSeenAt: 2026-07-28
+lastVerifiedAt: 2026-07-28
+license:
+  pixelsStored: false
+  durableArtifact: facts-and-source-url-only
+
+facts:
+  - id: f1
+    kind: count
+    subject: run header
+    property: displayed run status
+    value: 1
+    unit: status
+    locatorDescription: "Run header above the execution sequence."
+
+  - id: f2
+    kind: relationship
+    subject: execution nodes
+    property: node order
+    value: "Files, Text Input, OpenAI, and Output are arranged from top to bottom"
+    locatorDescription: "Node-name column on the left side of the run details surface."
+
+  - id: f3
+    kind: count
+    subject: execution node list
+    property: visible nodes
+    value: 4
+    unit: nodes
+    locatorDescription: "Files, Text Input, OpenAI, and Output rows in the node list."
+
+  - id: f4
+    kind: relationship
+    subject: execution node rows
+    property: time-axis alignment
+    value: "each node row is aligned to the same horizontal run-time axis"
+    locatorDescription: "Node rows on the left and their time bars on the shared axis to the right."
+
+  - id: f5
+    kind: relationship
+    subject: run status
+    property: placement relative to execution rows
+    value: "the run status appears before the execution node rows"
+    locatorDescription: "Run header above the Files, Text Input, OpenAI, and Output rows."
+
+  - id: f6
+    kind: relationship
+    subject: execution node rows
+    property: identity-duration pairing
+    value: "each visible node name shares a row with its duration bar"
+    locatorDescription: "Files, Text Input, OpenAI, and Output labels aligned with bars on the run-time axis."
+
+  - id: f7
+    kind: relationship
+    subject: execution duration
+    property: representation
+    value: "node durations are represented as bars against the shared time axis"
+    locatorDescription: "Horizontal duration bars aligned with the four node rows."
+
+problemTags:
+  - multi-step-run-inspection
+  - task-result-traceability
+intentTags:
+  - compare-node-duration-on-one-axis
+  - scan-execution-order-and-timing
+layoutTags:
+  - vertical-node-list-with-time-axis
+  - run-header-before-task-detail
+interactionTags:
+  - none-observed-static-capture
+
+notRecorded:
+  - timing
+  - easing
+  - choreography

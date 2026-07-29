@@ -28,7 +28,7 @@ import { appendProofloopRepairMessage, proofloopSupervisorDecision } from "../sr
 import { tryRunHmdaUnderwritingBenchmark } from "../src/nodeagent/core/hmdaUnderwritingExecutor";
 import type { AgentMessage, AgentModelRouteState, AgentResult, AgentTraceEvent, ToolCall, RoomTools } from "../src/nodeagent/core/types";
 import type { AgentStreamEventDraft } from "../src/nodeagent/core/stream";
-import type { EvidenceState, FrameDelta, ReasoningFrame, ReasoningFrameStatus } from "../src/nodeagent/core/reasoningFrames";
+import { ELEMENT_SCOPED_WRITE_TOOL_ALLOWLIST, type EvidenceState, type FrameDelta, type ReasoningFrame, type ReasoningFrameStatus } from "../src/nodeagent/core/reasoningFrames";
 import type { Actor } from "../src/engine/types";
 import { journalSliceKey, stableJournalHash } from "../src/nodeagent/core/journal";
 import {
@@ -152,7 +152,10 @@ type LiveOperationKind = "action" | "query" | "mutation" | "model_call" | "tool_
 
 const QUERY_TOOLS = new Set(["snapshot", "list_artifacts", "awareness", "read_range", "search_sheet_context", "inspect_workbook", "verify_workbook", "fetch_source", "read_notebook"]);
 const MUTATION_TOOLS = new Set(["propose_lock", "release_lock", "edit_cell", "create_draft", "say", "update_wiki", "append_notebook_outline", "write_cell_result", "write_locked_cell", "write_locked_cell_result", "write_locked_cells", "write_locked_cell_results"]);
-const ELEMENT_SCOPED_TOOL_NAMES = new Set([...QUERY_TOOLS, "write_locked_cell"]);
+const ELEMENT_SCOPED_TOOL_NAMES = new Set([
+  ...QUERY_TOOLS,
+  ...ELEMENT_SCOPED_WRITE_TOOL_ALLOWLIST,
+]);
 
 function hasElementMutationScope(request: unknown): boolean {
   if (!request || typeof request !== "object" || Array.isArray(request)) return false;

@@ -34,7 +34,7 @@ describe("fetch_source network guard", () => {
     const result = await (await fetchSourceReal())("https://private.example/");
 
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error).toBe("blocked host (SSRF)");
+    if (!result.ok) expect(result.error).toBe("blocked_private_or_reserved_ip");
     expect(undiciMocks.fetch).not.toHaveBeenCalled();
   });
 
@@ -63,12 +63,12 @@ describe("fetch_source network guard", () => {
 
     const privateResult = await (await fetchSourceReal())("https://public.example/");
     expect(privateResult.ok).toBe(false);
-    if (!privateResult.ok) expect(privateResult.error).toBe("blocked redirect");
+    if (!privateResult.ok) expect(privateResult.error).toBe("blocked_private_or_reserved_ip");
 
     undiciMocks.fetch.mockImplementation(async () => new Response(null, { status: 302, headers: { location: "http://example.com/" } }));
     const protocolResult = await (await fetchSourceReal())("https://public.example/");
     expect(protocolResult.ok).toBe(false);
-    if (!protocolResult.ok) expect(protocolResult.error).toBe("blocked redirect");
+    if (!protocolResult.ok) expect(protocolResult.error).toBe("https_required");
   });
 
   it("applies the total timeout to DNS validation", async () => {
@@ -80,6 +80,6 @@ describe("fetch_source network guard", () => {
     const result = await pending;
 
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error).toBe("blocked host (SSRF)");
+    if (!result.ok) expect(result.error).toBe("timeout");
   });
 });
