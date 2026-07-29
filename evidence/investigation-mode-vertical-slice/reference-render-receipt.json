@@ -4,7 +4,7 @@
   "surface": "NodeRoom Investigation Mode",
   "capturedAt": "2026-07-28",
   "candidate": {
-    "repositoryCommitAtCapture": "219ecd8739b33ae59111d7950ec275d6d04d7e6b",
+    "repositoryCommitAtCapture": "2a9f4b8be3e56b77b1945f9d7ca760fa0e428048",
     "route": "/?mode=memory&surface=desktop&demo=INVESTIGATION&name=Founder&focusMode=0"
   },
   "capture": {
