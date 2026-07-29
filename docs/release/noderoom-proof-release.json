@@ -1,0 +1,574 @@
+{
+  "schema": "noderoom-proof-release-v1",
+  "generatedAt": "2026-07-12T19:24:22.630Z",
+  "releaseId": "noderoom-proof-release-2026-07",
+  "product": {
+    "name": "NodeRoom",
+    "version": "0.1.1",
+    "gitCommit": "d6d005bef4695f445860dd3d01bb75f3cf272075"
+  },
+  "publication": {
+    "status": "certified",
+    "publishable": true,
+    "gateStatus": "passed",
+    "blockers": [],
+    "rule": "Publish completion claims only when task coverage, accepted external scorers, repository validation, six-persona dogfood, the storyboard media judge, and the persisted ProofLoop gate all pass."
+  },
+  "method": [
+    "Lock public task bundles and upstream scorer revisions before running candidates.",
+    "Keep exploration open, but keep certification fixtures, scorer semantics, and promotion gates immutable.",
+    "Require generated plans, raw model output, candidate hashes, workspace manifests, and scorer-attempt receipts for task coverage.",
+    "Show live product behavior and benchmark receipts together; neither screenshots nor aggregate scores substitute for the other.",
+    "Run analyst, researcher, finance-operator, founder, reviewer, and guest-observer workflows from fresh landing states, including mutation, conflict handling, evidence review, and export.",
+    "Record costs, retries, parse failures, blocked lanes, and negative results instead of publishing only successful examples.",
+    "Route product and exploration work free-first; reserve a pinned paid model for certification only when the benchmark defines it.",
+    "Keep canonical judge identity separate from API transport; direct OpenAI is the Finch certification path, Azure is optional compatibility only, and free-router or frontier judges remain non-promotable disagreement evidence."
+  ],
+  "results": {
+    "taskCoverage": {
+      "expectedTasks": 1739,
+      "stagedTasks": 1739,
+      "modelRunCases": 1733,
+      "completeTracks": 5,
+      "tracks": 5,
+      "receipt": "docs/eval/official-benchmark-task-coverage.json"
+    },
+    "spreadsheets": [
+      {
+        "id": "spreadsheetbench-v1",
+        "title": "SpreadsheetBench V1",
+        "status": "official_scored",
+        "officialRequired": true,
+        "measurementSource": "accepted_official_scorer_receipt",
+        "cases": 912,
+        "passCount": 70,
+        "passRate": 0.07675439,
+        "averageOverall": 0.09612573,
+        "receipt": "docs/eval/spreadsheetbench-v1-912-model-run.json",
+        "officialReceipt": "docs/eval/spreadsheetbench-v1-accepted-official-scorer-receipt.json",
+        "candidateProxy": {
+          "cases": 912,
+          "passCount": 89,
+          "passRate": 0.097588,
+          "averageOverall": 0.335084,
+          "receipt": "docs/eval/spreadsheetbench-v1-912-model-run.json"
+        },
+        "models": [
+          {
+            "name": "openai/gpt-oss-20b:free",
+            "tasks": 865,
+            "calls": 268.75,
+            "inputTokens": 612285,
+            "outputTokens": 322956,
+            "costUsd": 0
+          },
+          {
+            "name": "gpt-5.4-nano",
+            "tasks": 45,
+            "calls": 45,
+            "inputTokens": 56534,
+            "outputTokens": 13427,
+            "costUsd": 0.02809055
+          },
+          {
+            "name": "gpt-5.4-mini",
+            "tasks": 2,
+            "calls": 2,
+            "inputTokens": 2759,
+            "outputTokens": 197,
+            "costUsd": 0.00295575
+          }
+        ],
+        "embeddedProviderCostUsd": 0.0310463
+      },
+      {
+        "id": "spreadsheetbench-verified-400",
+        "title": "SpreadsheetBench Verified400",
+        "status": "proxy_scored",
+        "officialRequired": false,
+        "measurementSource": "candidate_proxy_report",
+        "cases": 400,
+        "passCount": 14,
+        "passRate": 0.035,
+        "averageOverall": 0.259266,
+        "receipt": "docs/eval/spreadsheetbench-v1-verified-400-model-run.json",
+        "candidateProxy": {
+          "cases": 400,
+          "passCount": 14,
+          "passRate": 0.035,
+          "averageOverall": 0.259266,
+          "receipt": "docs/eval/spreadsheetbench-v1-verified-400-model-run.json"
+        },
+        "models": [
+          {
+            "name": "openai/gpt-oss-20b:free",
+            "tasks": 376,
+            "calls": 118.25,
+            "inputTokens": 263321,
+            "outputTokens": 149549,
+            "costUsd": 0
+          },
+          {
+            "name": "gpt-5.4-nano",
+            "tasks": 22,
+            "calls": 22,
+            "inputTokens": 26151,
+            "outputTokens": 7158,
+            "costUsd": 0.0141777
+          },
+          {
+            "name": "gpt-5.4-mini",
+            "tasks": 2,
+            "calls": 2,
+            "inputTokens": 2759,
+            "outputTokens": 197,
+            "costUsd": 0.00295575
+          }
+        ],
+        "embeddedProviderCostUsd": 0.01713345
+      },
+      {
+        "id": "spreadsheetbench-v2",
+        "title": "SpreadsheetBench V2",
+        "status": "official_scored",
+        "officialRequired": true,
+        "measurementSource": "accepted_official_scorer_receipt",
+        "cases": 321,
+        "passCount": 0,
+        "passRate": 0,
+        "averageOverall": 0,
+        "receipt": "docs/eval/spreadsheetbench-v2-321-model-run.json",
+        "officialReceipt": "docs/eval/spreadsheetbench-v2-accepted-official-scorer-receipt.json",
+        "candidateProxy": {
+          "cases": 321,
+          "passCount": 0,
+          "passRate": 0,
+          "averageOverall": 0.523337,
+          "receipt": "docs/eval/spreadsheetbench-v2-321-model-run.json"
+        },
+        "models": [
+          {
+            "name": "openai/gpt-oss-20b:free",
+            "tasks": 302,
+            "calls": 99,
+            "inputTokens": 1353445,
+            "outputTokens": 71346,
+            "costUsd": 0
+          },
+          {
+            "name": "nvidia/nemotron-3-super-120b-a12b:free",
+            "tasks": 2,
+            "calls": 2,
+            "inputTokens": 43186,
+            "outputTokens": 1947,
+            "costUsd": 0
+          },
+          {
+            "name": "gpt-5.4-nano",
+            "tasks": 15,
+            "calls": 15,
+            "inputTokens": 226741,
+            "outputTokens": 7415,
+            "costUsd": 0.05461695
+          },
+          {
+            "name": "qwen/qwen3-next-80b-a3b-instruct:free",
+            "tasks": 2,
+            "calls": 1,
+            "inputTokens": 43605,
+            "outputTokens": 38,
+            "costUsd": 0
+          }
+        ],
+        "embeddedProviderCostUsd": 0.05461695
+      }
+    ],
+    "external": [
+      {
+        "id": "finauditing",
+        "title": "FinAuditing",
+        "status": "scored",
+        "expected": 332,
+        "completed": 332,
+        "unit": "FinMR rows",
+        "outputCoverage": "0/1102",
+        "model": "gpt-5-mini",
+        "provider": "openai",
+        "providerCostUsd": 0.04181175,
+        "primaryMetric": {
+          "label": "FinRE macro F1",
+          "value": 0.16265750286368844
+        },
+        "receipt": "docs/eval/proofloop-official-scores/finauditing.json",
+        "receiptSha256": "58a00413e1810f5589044bcca2d6d02014382c737cf8336069e0538bb37fba51",
+        "blockers": []
+      },
+      {
+        "id": "workstreambench",
+        "title": "MBABench",
+        "status": "scored",
+        "expected": 38,
+        "completed": 38,
+        "unit": "cases",
+        "outputCoverage": "38/38",
+        "model": "google/gemini-3-flash-preview",
+        "provider": "google",
+        "providerCostUsd": 6.67212,
+        "primaryMetric": {
+          "label": "Mean score",
+          "value": 11.51315789
+        },
+        "receipt": "docs/eval/proofloop-official-scores/workstreambench.json",
+        "receiptSha256": "50844fb947dfc1de6b8d8777d89be9871feb94d05d92e195ab9baea170031c57",
+        "blockers": []
+      },
+      {
+        "id": "finch",
+        "title": "Finch / FinWorkBench",
+        "status": "scored",
+        "expected": 172,
+        "completed": 172,
+        "unit": "tasks",
+        "outputCoverage": "172/172",
+        "model": "gpt-5-mini",
+        "provider": "openai",
+        "providerCostUsd": 1.368019,
+        "primaryMetric": {
+          "label": "Mean score",
+          "value": 0.0872093
+        },
+        "receipt": "docs/eval/proofloop-official-scores/finch.json",
+        "receiptSha256": "0284b1b02e8fbdae0934af808633c61dcda163a320db0ee23e2d8c237ae8640b",
+        "blockers": []
+      }
+    ],
+    "validation": {
+      "schema": "noderoom-proof-release-validation-v1",
+      "generatedAt": "2026-07-12T19:16:28.0254492Z",
+      "status": "passed",
+      "typecheck": "passed",
+      "tests": {
+        "status": "passed",
+        "files": 318,
+        "cases": 2128
+      },
+      "featureInteriorTests": {
+        "status": "passed",
+        "productMemoryPassed": 51,
+        "intentionalSkips": 1,
+        "visualMatrixPassed": 36,
+        "personaWorkflowsPassed": 6
+      },
+      "build": {
+        "status": "passed",
+        "warning": null,
+        "mainChunkKb": 840.22,
+        "chunkSizeWarningLimitKb": 1100
+      },
+      "productionGate": {
+        "status": "passed",
+        "durationSeconds": 339.4,
+        "auditVulnerabilities": 0,
+        "sourceSecurity": "passed",
+        "distributionSecurity": "passed",
+        "sloRuns": 8,
+        "sloCompletionRate": 1,
+        "sloP95Ms": 26
+      },
+      "accessibility": {
+        "status": "passed",
+        "deterministicViolations": 0,
+        "keyboard": "passed",
+        "reducedMotion": "passed"
+      },
+      "performance": {
+        "status": "passed",
+        "cls": 0,
+        "longTasks": 0,
+        "maxInteractionMs": 49
+      },
+      "pythonJudgeCompile": "passed",
+      "nodeAgentFrameSmoke": "passed",
+      "omnigentAdapterSmoke": "passed; outer Omnigent CLI is not installed locally",
+      "proofloopDoctor": {
+        "status": "passed",
+        "checks": 11,
+        "warnings": 0,
+        "failures": 0
+      },
+      "proofloopOfficialScores": {
+        "status": "passed",
+        "requiredTasksPassed": 17,
+        "blockedTasks": 0,
+        "resumeNext": "none",
+        "strictPreflightChecks": "7/7",
+        "strictPreflightLanes": 6
+      },
+      "personaDogfood": {
+        "status": "passed",
+        "personas": 6,
+        "visibleSteps": 79,
+        "consoleErrors": 0,
+        "receipt": "docs/eval/noderoom-persona-dogfood-receipt.json"
+      },
+      "storyboardVideoJudge": {
+        "status": "publish",
+        "score": "16/16",
+        "defects": 0,
+        "remainingGap": "none"
+      },
+      "lint": "unavailable",
+      "evidence": [
+        "docs/synthesis/WORK_ARTIFACTS_PROGRESS_RECEIPT.md",
+        "docs/eval/official-benchmark-task-coverage.json",
+        "docs/eval/FINCH_RECOVERY_COST_LEDGER.md",
+        "docs/eval/noderoom-persona-dogfood-receipt.json",
+        "episodes/noderoom-proof-release-v1/judge.md",
+        "episodes/noderoom-proof-release-v1/media-manifest.json"
+      ]
+    },
+    "personaDogfood": {
+      "status": "passed",
+      "count": 6,
+      "totalVisibleSteps": 79,
+      "averageAgentLatencyMs": 2769,
+      "consoleErrors": 0,
+      "receipt": "docs/eval/noderoom-persona-dogfood-receipt.json",
+      "personas": [
+        {
+          "id": "analyst",
+          "label": "Analyst",
+          "route": "scripted/memory-workbook",
+          "screenshot": "docs/release/media/persona-analyst.png",
+          "exportKind": "xlsx",
+          "userVisibleSteps": 12
+        },
+        {
+          "id": "researcher",
+          "label": "Researcher",
+          "route": "scripted/memory-research",
+          "screenshot": "docs/release/media/persona-researcher.png",
+          "exportKind": "nodegraph-json",
+          "userVisibleSteps": 17
+        },
+        {
+          "id": "finance-operator",
+          "label": "Finance operator",
+          "route": "scripted/memory-runway",
+          "screenshot": "docs/release/media/persona-finance-operator.png",
+          "exportKind": "xlsx",
+          "userVisibleSteps": 13
+        },
+        {
+          "id": "founder",
+          "label": "Founder",
+          "route": "scripted/memory-notebook",
+          "screenshot": "docs/release/media/persona-founder.png",
+          "exportKind": "pptx",
+          "userVisibleSteps": 15
+        },
+        {
+          "id": "reviewer",
+          "label": "Reviewer",
+          "route": "scripted/memory-workbook",
+          "screenshot": "docs/release/media/persona-reviewer.png",
+          "exportKind": "proof-bundle-json",
+          "userVisibleSteps": 10
+        },
+        {
+          "id": "guest-observer",
+          "label": "Guest observer",
+          "route": "scripted/free-auto",
+          "screenshot": "docs/release/media/persona-guest-observer.png",
+          "exportKind": "proof-bundle-json",
+          "userVisibleSteps": 12
+        }
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "coverage-is-not-quality",
+      "finding": "Full execution coverage does not imply high task performance: V1 passed 70/912 and V2 passed 0/321 under the bounded model-edit-plan route.",
+      "implication": "Publish coverage, average score, and pass count together."
+    },
+    {
+      "id": "cheap-first-repair",
+      "finding": "Most spreadsheet receipts were recovered from free routes; paid fallbacks were limited to exact missing tasks with explicit caps.",
+      "implication": "Resume by task id and preserve hash-verified evidence before escalating model cost."
+    },
+    {
+      "id": "external-score-boundary",
+      "finding": "Every external scorer lane has an accepted upstream receipt.",
+      "implication": "Proxy judges and no-provider smokes prove wiring, not official scores."
+    },
+    {
+      "id": "product-and-benchmark-proof",
+      "finding": "Live deck, notebook, graph, and chat proof exposed integration issues that benchmark-only runs would not detect.",
+      "implication": "Ship product-state screenshots and deterministic receipts as one proof packet."
+    }
+  ],
+  "fixes": [
+    {
+      "id": "spreadsheet-receipt-repair",
+      "title": "Hash-verified resumable SpreadsheetBench repair",
+      "finding": "Interrupted and cross-model runs left valid task receipts stranded in archives.",
+      "change": "Recover exact task receipts only when candidate, raw output, manifests, and hashes verify; rerun only missing tasks.",
+      "files": [
+        "scripts/spreadsheetbench-run-chunked.ts",
+        "tests/spreadsheetBenchChunkedRepair.test.ts"
+      ]
+    },
+    {
+      "id": "formula-json-repair",
+      "title": "Formula-aware model JSON salvage",
+      "finding": "Nested formula quotes could make otherwise usable model plans invalid JSON.",
+      "change": "Repair unescaped formula quotes without rewriting legitimate empty-string formula arguments.",
+      "files": [
+        "src/eval/spreadsheetBenchRunner.ts",
+        "tests/spreadsheetBenchRunner.test.ts"
+      ]
+    },
+    {
+      "id": "score-rate-source",
+      "title": "Model-run pass-rate provenance",
+      "finding": "The V1 coverage ledger displayed the copy-input baseline pass rate instead of the model-run pass rate.",
+      "change": "Bind the published pass rate to the model-run report and pin it in tests.",
+      "files": [
+        "src/eval/officialBenchmarkTaskCoverage.ts",
+        "tests/officialBenchmarkTaskCoverage.test.ts"
+      ]
+    },
+    {
+      "id": "provider-spend-guard",
+      "title": "Retry-aware provider cost ceilings",
+      "finding": "Failed or retried judge calls could escape a success-only call counter.",
+      "change": "Charge every provider attempt against call and reserve ceilings and reject over-cap promotion receipts.",
+      "files": [
+        "scripts/finch-official-judge.py",
+        "tests/finchOfficialJudgeCostGuard.test.ts",
+        "tests/proofloopPromoteOfficialScore.test.ts"
+      ]
+    },
+    {
+      "id": "finch-canonical-transport",
+      "title": "Canonical Finch judge without Azure lock-in",
+      "finding": "The released Finch script hard-coded Azure transport even though the paper calibrates the GPT-5-mini judge model and exact prompt/parser contract.",
+      "change": "Use direct OpenAI as the hash-verified certification transport, keep Azure optional, route ordinary work free-first, and make OpenRouter free-auto structurally non-promotable shadow evidence.",
+      "files": [
+        "scripts/finch-official-judge.py",
+        "src/eval/finchJudgeDisagreement.ts",
+        "tests/finchOfficialJudgeCostGuard.test.ts",
+        "tests/proofloopPromoteOfficialScore.test.ts"
+      ]
+    },
+    {
+      "id": "finch-output-regeneration-safety",
+      "title": "Non-destructive Finch scorer-input regeneration",
+      "finding": "A routine output-manifest refresh could delete rendered content_parts and demote already-accepted score claims.",
+      "change": "Clean only regenerable model outputs, preserve eval_set, and retain a promoted claim only while accepted-receipt and full-coverage invariants still hold.",
+      "files": [
+        "src/eval/finchOfficialOutputSafety.ts",
+        "scripts/proofloop-official-outputs.ts",
+        "tests/finchOfficialOutputSafety.test.ts"
+      ]
+    },
+    {
+      "id": "finch-task-input-binding",
+      "title": "Prompt-hash-bound Finch resume",
+      "finding": "A provider/model-matched result could be resumed after its individual content record changed, allowing stale task evidence into a newly hashed aggregate receipt.",
+      "change": "Hash each canonical task record, store that hash on the judge result, and rerun any row whose expected prompt hash does not match.",
+      "files": [
+        "scripts/finch-official-judge.py",
+        "tests/finchOfficialJudgeCostGuard.test.ts"
+      ]
+    },
+    {
+      "id": "finch-free-shadow-context",
+      "title": "Free-router shadow context guard",
+      "finding": "Finch's released 128k completion reserve can exceed a free endpoint's total context before the small JSON judgment is generated.",
+      "change": "Cap only the non-promotable OpenRouter shadow at 8,192 completion tokens while preserving the released canonical request unchanged.",
+      "files": [
+        "scripts/finch-official-judge.py",
+        "docs/eval/FINCH_JUDGE_CONTRACT.md",
+        "tests/finchOfficialJudgeCostGuard.test.ts"
+      ]
+    },
+    {
+      "id": "work-artifact-interiors",
+      "title": "Real work-artifact interiors",
+      "finding": "The shell migration did not prove deck editing, notebook execution, graph exploration, or scoped chat context.",
+      "change": "Add CAS-backed deck state, bounded notebook kernel receipts, draggable graph clusters, and openable chat references.",
+      "files": [
+        "src/ui/workArtifacts/",
+        "src/notebook/notebookKernel.ts",
+        "src/ui/graph/semanticGraphClusters.ts",
+        "src/ui/artifactRefs.ts"
+      ]
+    }
+  ],
+  "versions": {
+    "nodeRoom": "0.1.1",
+    "gitCommit": "d6d005bef4695f445860dd3d01bb75f3cf272075",
+    "candidateAndJudgeModels": [
+      "openai/gpt-oss-20b:free",
+      "gpt-5.4-nano",
+      "gpt-5.4-mini",
+      "nvidia/nemotron-3-super-120b-a12b:free",
+      "qwen/qwen3-next-80b-a3b-instruct:free",
+      "gpt-5-mini",
+      "google/gemini-3-flash-preview"
+    ],
+    "receiptSchemas": [
+      "1",
+      "proofloop-official-score-receipt-v1"
+    ],
+    "upstreamReceiptHashes": {
+      "finauditing": "58a00413e1810f5589044bcca2d6d02014382c737cf8336069e0538bb37fba51",
+      "workstreambench": "50844fb947dfc1de6b8d8777d89be9871feb94d05d92e195ab9baea170031c57",
+      "finch": "0284b1b02e8fbdae0934af808633c61dcda163a320db0ee23e2d8c237ae8640b"
+    }
+  },
+  "assets": [
+    {
+      "label": "Fresh-user vertical receipt",
+      "path": "docs/eval/NODEROOM_FRESH_USER_VERTICAL_PROOF.md"
+    },
+    {
+      "label": "Six-persona dogfood receipt",
+      "path": "docs/eval/noderoom-persona-dogfood-receipt.json"
+    },
+    {
+      "label": "Collaborative deck",
+      "path": "docs/synthesis/proof/m24-deck-collaboration-proof.png"
+    },
+    {
+      "label": "Notebook kernel",
+      "path": "docs/synthesis/proof/m25-notebook-kernel-proof.png"
+    },
+    {
+      "label": "Graph clusters",
+      "path": "docs/synthesis/proof/m26-graph-cluster-drag-proof.png"
+    },
+    {
+      "label": "Scoped chat context",
+      "path": "docs/synthesis/proof/m27-chat-context-proof.png"
+    }
+  ],
+  "mediaReview": {
+    "verdict": "publish",
+    "score": "16/16",
+    "receipt": "episodes/noderoom-proof-release-v1/judge.md",
+    "remainingGap": "No unresolved visual-judge defects."
+  },
+  "reproducibility": [
+    "npm run benchmark:official:task-coverage -- --strict",
+    "npm run benchmark:proofloop:official-preflight -- --strict",
+    "npm run benchmark:finch:canonical-judge -- --resume --max-calls 516 --allow-provider-spend --max-provider-cost-usd <approved-cap>",
+    "npm run benchmark:finch:judge-disagreement",
+    "npm test -- --run",
+    "npm run build",
+    "npm run proofloop -- gate --goal official-scores",
+    "npm run proofs:publish:check"
+  ]
+}
