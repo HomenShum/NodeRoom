@@ -1,0 +1,10 @@
+{
+  "name": "fstream",
+  "version": "1.0.12+noderoom.fail-closed.1",
+  "description": "Fail-closed fstream compatibility boundary for ExcelJS's parse-only unzipper usage.",
+  "license": "MIT",
+  "main": "index.cjs",
+  "files": [
+    "index.cjs"
+  ]
+}

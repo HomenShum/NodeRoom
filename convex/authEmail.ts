@@ -11,7 +11,8 @@ type MailEnvironment = {
 
 export function normalizeAuthEmail(value: unknown): string {
   if (typeof value !== "string") throw new Error("invalid_email");
-  const email = value.trim().toLowerCase();
+  if (value.length > 512) throw new Error("invalid_email");
+  const email = value.normalize("NFKC").trim().toLowerCase();
   if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw new Error("invalid_email");
   }

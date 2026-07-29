@@ -1,0 +1,58 @@
+Observable: production dependency audit after remediation
+Base commit: b800709408a3a33b672f239fdbf7d5f348b6d282
+Command: npm audit --omit=dev --audit-level=moderate
+Exit: 0
+
+found 0 vulnerabilities
+
+The stricter all-dependency command also passes:
+Command: npm audit --audit-level=moderate
+Exit: 0
+
+found 0 vulnerabilities
+
+Exact installed production paths:
+noderoom@0.1.1
++-- @auth/core@0.41.3
++-- @convex-dev/auth@0.0.94
+| `-- @auth/core@0.41.3 deduped
++-- exceljs@4.4.0 overridden
+| +-- archiver@npm:@excel.js/archiver@0.0.5 overridden
+| `-- unzipper@0.10.14 deduped
++-- fstream@1.0.12+noderoom.fail-closed.1 -> vendor/exceljs-security/fstream
+`-- unzipper@0.10.14 overridden
+  `-- fstream@1.0.12+noderoom.fail-closed.1 deduped -> vendor/exceljs-security/fstream
+
+Compatibility proof:
+Command: npm test -- --run tests/authEmailVerification.test.ts tests/exceljsDependencyCompatibility.test.ts tests/artifactXlsxExport.test.ts tests/spreadsheetParser.test.ts
+Exit: 0
+Test Files: 4 passed
+Tests: 19 passed
+
+Repeated compatibility stress:
+Command: 12 consecutive runs of tests/exceljsDependencyCompatibility.test.ts
+Exit: 0
+Runs: 12/12
+Scenario per run: 1,024-row stream; 16 waves x 4 concurrent writers; truncated input; exact dependency/fail-closed resolution
+
+Canonical floor:
+Command: npm run floor
+Exit: 0
+Test Files: 373 passed
+Tests: 2571 passed
+
+Full production gate:
+Command: npm run prod:gate
+Exit: 0
+Security gate: pass (source and dist)
+Design audit: pass (existing guidance-only token warnings retained)
+QA matrix: current
+Content fluency: pass
+Proof staleness: pass
+Fresh-room proofs: FR-010 and FR-020 pass
+SLO gate: pass (8/8 completed, 0 errors, p95 18ms)
+Root and Convex typechecks: pass
+Test Files: 373 passed
+Tests: 2571 passed
+Product-memory Playwright: pass
+Production build: pass

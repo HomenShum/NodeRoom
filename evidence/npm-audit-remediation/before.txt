@@ -1,0 +1,75 @@
+Observable: production dependency audit on clean origin/main before remediation
+Commit: b800709408a3a33b672f239fdbf7d5f348b6d282
+Command: npm audit --omit=dev --audit-level=moderate
+Exit: 1
+
+# npm audit report
+
+@auth/core  <=0.41.2
+Severity: critical
+Auth.js: getToken() throws an uncaught exception on malformed Bearer authorization headers - https://github.com/advisories/GHSA-xmf8-cvqr-rfgj
+Auth.js: Email normalizer validates the address before Unicode normalization, allowing a homoglyph @ bypass - https://github.com/advisories/GHSA-7rqj-j65f-68wh
+Auth.js: OAuth state, nonce, and PKCE check cookies are not bound to the provider that created them - https://github.com/advisories/GHSA-x445-f3h2-j279
+fix available via `npm audit fix --force`
+Will install @auth/core@0.41.3, which is outside the stated dependency range
+node_modules/@auth/core
+
+brace-expansion  <=5.0.7
+Severity: high
+brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash - https://github.com/advisories/GHSA-mh99-v99m-4gvg
+fix available via `npm audit fix --force`
+Will install exceljs@4.1.1, which is a breaking change
+node_modules/minimatch/node_modules/brace-expansion
+node_modules/readdir-glob/node_modules/brace-expansion
+  minimatch  2.0.0 - 10.0.2
+  Depends on vulnerable versions of brace-expansion
+  node_modules/minimatch
+  node_modules/readdir-glob/node_modules/minimatch
+    glob  4.3.0 - 10.5.0
+    Depends on vulnerable versions of minimatch
+    node_modules/glob
+      archiver-utils  >=0.2.0
+      Depends on vulnerable versions of glob
+      node_modules/archiver-utils
+      node_modules/zip-stream/node_modules/archiver-utils
+        archiver  0.20.0 - 7.0.1
+        Depends on vulnerable versions of archiver-utils
+        Depends on vulnerable versions of readdir-glob
+        Depends on vulnerable versions of zip-stream
+        node_modules/archiver
+          exceljs  >=4.2.0
+          Depends on vulnerable versions of archiver
+          node_modules/exceljs
+        zip-stream  0.8.0 - 6.0.1
+        Depends on vulnerable versions of archiver-utils
+        node_modules/zip-stream
+      rimraf  2.3.0 - 3.0.2 || 4.2.0 - 5.0.10
+      Depends on vulnerable versions of glob
+      node_modules/rimraf
+    readdir-glob  <=2.0.3
+    Depends on vulnerable versions of minimatch
+    node_modules/readdir-glob
+
+10 vulnerabilities (9 high, 1 critical)
+
+Exact installed production paths:
+noderoom@0.1.1
++-- @auth/core@0.41.1
++-- @convex-dev/auth@0.0.94
+| `-- @auth/core@0.41.1 deduped
+`-- exceljs@4.4.0 overridden
+  +-- archiver@5.3.2
+  | +-- archiver-utils@2.1.0
+  | | `-- glob@7.2.3
+  | |   `-- minimatch@3.1.5
+  | |     `-- brace-expansion@1.1.16 overridden
+  | +-- readdir-glob@1.1.3
+  | | `-- minimatch@5.1.9
+  | |   `-- brace-expansion@2.1.2
+  | `-- zip-stream@4.1.1
+  |   `-- archiver-utils@3.0.4
+  |     `-- glob@7.2.3 deduped
+  `-- unzipper@0.10.14
+    `-- fstream@1.0.12
+      `-- rimraf@2.7.1
+        `-- glob@7.2.3 deduped

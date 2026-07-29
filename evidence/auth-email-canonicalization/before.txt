@@ -1,0 +1,14 @@
+Observable: email-provider identifier canonicalization before the @auth/core 0.41.3 remediation is complete
+Command: npm test -- --run tests/authEmailVerification.test.ts
+Exit: 1
+
+Test Files: 1 failed (1)
+Tests: 1 failed | 3 passed (4)
+
+Failed scenario:
+normalizeAuthEmail(" Person＠Example.COM ") should canonicalize the fullwidth
+separator before validation, but the implementation throws "invalid_email".
+
+The same pre-fix implementation validates the raw string before Unicode
+normalization, so a second fullwidth separator can be introduced downstream:
+"victim@example.com＠attacker.example".

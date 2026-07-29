@@ -8,7 +8,10 @@ import {
 describe("password email verification", () => {
   it("normalizes account email identifiers and rejects malformed values", () => {
     expect(normalizeAuthEmail(" Person@Example.COM ")).toBe("person@example.com");
+    expect(normalizeAuthEmail(" Person＠Example.COM ")).toBe("person@example.com");
     expect(() => normalizeAuthEmail("not-an-email")).toThrow("invalid_email");
+    expect(() => normalizeAuthEmail("victim@example.com＠attacker.example")).toThrow("invalid_email");
+    expect(() => normalizeAuthEmail(`${"a".repeat(600)}@example.com`)).toThrow("invalid_email");
   });
 
   it("generates an email-bound eight digit challenge", async () => {

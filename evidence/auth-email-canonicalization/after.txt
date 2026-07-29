@@ -1,0 +1,14 @@
+Observable: email-provider identifier canonicalization after remediation
+Command: npm test -- --run tests/authEmailVerification.test.ts
+Exit: 0
+
+Test Files: 1 passed (1)
+Tests: 4 passed (4)
+
+The scenario now proves:
+- a single fullwidth @ canonicalizes to the intended ASCII address;
+- a second separator exposed by NFKC is rejected;
+- malformed input is rejected;
+- oversized input is rejected before Unicode normalization;
+- missing mail transport still fails closed; and
+- the configured transport receives only the normalized address and challenge.
