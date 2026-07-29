@@ -407,11 +407,17 @@ function cellPayload(args: {
   const allSourceEvidenceVerified = sourceEvidence.length > 0 && sourceEvidence.every(
     (item) => cellEvidenceVerificationStatus(item) === "verified",
   );
+  const status = args.status === "complete" && !allSourceEvidenceVerified
+    ? "needs_review"
+    : args.status;
+  const statusCellValue = args.elementId.endsWith("__status")
+    && typeof args.value === "string"
+    && ["empty", "running", "complete", "needs_review", "failed", "gap"].includes(args.value)
+    ? status
+    : args.value;
   return {
-    value: args.value,
-    status: args.status === "complete" && !allSourceEvidenceVerified
-      ? "needs_review"
-      : args.status,
+    value: statusCellValue,
+    status,
     confidence: args.confidence,
     error: args.error,
     normalizedValue: args.normalizedValue,

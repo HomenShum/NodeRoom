@@ -28,6 +28,8 @@ describe("WORKFLOW EVAL — GTM enrichment (persona: Maya, sales-ops; fill pendi
     const maxSteps = 14 * RESEARCH_PLAN.length + 4;
     const r = await runAgent({ rt, goal, model: scriptedModel(companyResearchPlan(RESEARCH_PLAN as CompanyResearchTarget[])), tools: ROOM_TOOLS, maxSteps, contextBuilder: buildResearchContext });
     expect(r.stopReason).toBe("done");
+    expect(r.finalText).toContain(`Researched ${RESEARCH_PLAN.length} companies with structured fields`);
+    expect(r.finalText).toContain(`review required for ${RESEARCH_PLAN.length} companies`);
 
     const el = (id: string) => engine.getArtifact(d.researchId)!.elements[id]?.value;
     const targetIds = new Set(RESEARCH_PLAN.map((target) => target.rowId));

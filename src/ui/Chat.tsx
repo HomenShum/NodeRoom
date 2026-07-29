@@ -64,6 +64,7 @@ type DecisionAssistantState = {
   body: string;
   progressLabel: string;
   progressPct: number;
+  progressTone: "neutral" | "success" | "warning";
   metrics: DecisionMetric[];
   reviewSignals: string[];
   prompts: ContextualPrompt[];
@@ -72,6 +73,7 @@ type AgentResearchReceipt = {
   artifactId: string;
   cellId: string;
   company: string;
+  outcome: "complete" | "needs_review";
   rowCount: number;
   sourceCount: number;
   sourceLabel: string;
@@ -116,8 +118,12 @@ function artifactCellEvidenceCount(artifact: Artifact, rowId: string, col: strin
 function buildAgentResearchReceipt(artifact: Artifact | undefined, rowCount = 1, preferredRowId?: string): AgentResearchReceipt | null {
   if (!artifact || artifact.kind !== "sheet" || !/company|research/i.test(artifact.title ?? "")) return null;
   const rows = artifactRowIds(artifact);
-  const completedRows = rows.filter((id) => (artifactCellValue(artifact, id, "status") || "").toLowerCase() === "complete");
-  const freshestRowId = completedRows.reduce<string | undefined>((freshest, candidate) => {
+  const outcomeFor = (id: string) => (artifactCellValue(artifact, id, "status") || "").toLowerCase();
+  const receiptEligibleRows = rows.filter((id) => {
+    const outcome = outcomeFor(id);
+    return outcome === "complete" || outcome === "needs_review";
+  });
+  const freshestRowId = receiptEligibleRows.reduce<string | undefined>((freshest, candidate) => {
     if (!freshest) return candidate;
     const updatedAt = (id: string) => Math.max(
       artifact.elements[`${id}__status`]?.updatedAt ?? 0,
@@ -127,11 +133,12 @@ function buildAgentResearchReceipt(artifact: Artifact | undefined, rowCount = 1,
     );
     return updatedAt(candidate) > updatedAt(freshest) ? candidate : freshest;
   }, undefined);
-  const rowId = preferredRowId && completedRows.includes(preferredRowId) ? preferredRowId : freshestRowId;
+  const rowId = preferredRowId && receiptEligibleRows.includes(preferredRowId) ? preferredRowId : freshestRowId;
   if (!rowId) return null;
+  const outcome = outcomeFor(rowId) as AgentResearchReceipt["outcome"];
   const company = artifactCellValue(artifact, rowId, "company") || rowId;
   const evidenceCols = ["status", "summary", "funding", "headcount", "recent_signal", "source", "source2"];
-  const evidenceRows = rows.length >= 100 ? completedRows : [rowId];
+  const evidenceRows = rows.length >= 100 ? receiptEligibleRows : [rowId];
   const allEvidence = evidenceRows.flatMap((id) => evidenceCols.flatMap((col) => artifactCellEvidence(artifact, id, col)));
   const seenEvidence = new Set<string>();
   const uniqueEvidence = allEvidence.filter((item) => {
@@ -152,6 +159,7 @@ function buildAgentResearchReceipt(artifact: Artifact | undefined, rowCount = 1,
     artifactId: artifact.id,
     cellId: `${rowId}__status`,
     company,
+    outcome,
     rowCount: Math.max(1, rowCount),
     sourceCount: uniqueEvidence.length,
     sourceLabel: first.label || "Source receipt",
@@ -168,8 +176,23 @@ function buildResearchDecisionState(artifact: Artifact | undefined): DecisionAss
   if (!rows.length) return null;
   const statusFor = (rowId: string) => (artifactCellValue(artifact, rowId, "status") || "pending").toLowerCase();
   const completedRows = rows.filter((rowId) => statusFor(rowId) === "complete");
+  const needsReviewRows = rows.filter((rowId) => statusFor(rowId) === "needs_review");
+  const researchedRows = rows.filter((rowId) => {
+    const status = statusFor(rowId);
+    return status === "complete" || status === "needs_review";
+  });
   const pendingRows = rows.filter((rowId) => statusFor(rowId) === "pending");
-  const activeRowId = completedRows[0] ?? rows[0];
+  const activeRowId = researchedRows.reduce<string | undefined>((freshest, candidate) => {
+    if (!freshest) return candidate;
+    const updatedAt = (id: string) => Math.max(
+      artifact.elements[`${id}__status`]?.updatedAt ?? 0,
+      artifact.elements[`${id}__summary`]?.updatedAt ?? 0,
+      artifact.elements[`${id}__source`]?.updatedAt ?? 0,
+      artifact.elements[`${id}__source2`]?.updatedAt ?? 0,
+    );
+    return updatedAt(candidate) > updatedAt(freshest) ? candidate : freshest;
+  }, undefined) ?? rows[0];
+  const activeNeedsReview = statusFor(activeRowId) === "needs_review";
   const company = artifactCellValue(artifact, activeRowId, "company") || activeRowId;
   const evidenceFields = ["status", "summary", "funding", "headcount", "recent_signal", "source", "source2", "last_researched"];
   const rowSources = Math.max(
@@ -191,16 +214,16 @@ function buildResearchDecisionState(artifact: Artifact | undefined): DecisionAss
   const reviewSignals = updatedFieldLabels
     .filter(([col]) => REVIEW_SIGNAL_RE.test(artifactCellValue(artifact, activeRowId, col)))
     .map(([, label]) => label);
-  const progressPct = Math.max(8, Math.round((completedRows.length / rows.length) * 100));
-  const title = completedRows.length
+  const progressPct = Math.max(8, Math.round((researchedRows.length / rows.length) * 100));
+  const title = researchedRows.length
     ? `${company} is ready for review`
     : `${rows.length} companies ready to enrich`;
-  const body = completedRows.length
+  const body = researchedRows.length
     ? reviewSignals.length
       ? `${reviewSignals.join(", ")} still need human judgment before this moves forward.`
       : `${updatedFields.length || evidenceCellCount} fields are backed by visible source metadata.`
     : `${pendingRows.length} pending companies can be enriched from the active research sheet.`;
-  const prompts: ContextualPrompt[] = completedRows.length
+  const prompts: ContextualPrompt[] = researchedRows.length
     ? [
       { label: "Review sources", insert: `@nodeagent verify ${company} sources and flag any unsupported claims as needs review` },
       { label: "Find evidence gaps", insert: `@nodeagent identify remaining evidence gaps for ${company} and the company research sheet` },
@@ -212,15 +235,20 @@ function buildResearchDecisionState(artifact: Artifact | undefined): DecisionAss
     ];
   return {
     artifactId: artifact.id,
-    eyebrow: completedRows.length ? "Ready for review" : "Research queue",
+    eyebrow: researchedRows.length ? (activeNeedsReview ? "Needs review" : "Ready for review") : "Research queue",
     title,
     body,
-    progressLabel: `${completedRows.length}/${rows.length} complete`,
+    progressLabel: `${completedRows.length}/${rows.length} complete · ${needsReviewRows.length} needs review`,
     progressPct,
+    progressTone: needsReviewRows.length
+      ? "warning"
+      : completedRows.length === rows.length
+        ? "success"
+        : "neutral",
     metrics: [
       { label: "Complete", value: `${completedRows.length}/${rows.length}`, tone: completedRows.length ? "good" : "muted" },
       { label: "Sources", value: rowSources ? `${rowSources}` : "0", tone: rowSources ? "good" : "warn" },
-      { label: "Updated", value: `${updatedFields.length}`, tone: updatedFields.length ? "good" : "muted" },
+      { label: "Review", value: `${needsReviewRows.length}`, tone: needsReviewRows.length ? "warn" : "good" },
       { label: "Pending", value: `${pendingRows.length}`, tone: pendingRows.length ? "warn" : "good" },
     ],
     reviewSignals,
@@ -2589,7 +2617,7 @@ function DecisionAssistantPanel({ state, onPrompt }: { state: DecisionAssistantS
           <strong>{state.title}</strong>
         </div>
       </div>
-      <div className="r-decision-progress" aria-label={state.progressLabel}>
+      <div className="r-decision-progress" data-tone={state.progressTone} aria-label={state.progressLabel}>
         <span style={{ width: `${state.progressPct}%` }} />
         <b>{state.progressLabel}</b>
       </div>
@@ -2722,6 +2750,13 @@ function AgentResearchReceiptStrip({
       </button>
       <span className="r-agent-receipt-version" data-testid="agent-version-receipt">
         v{receipt.fromVersion} -&gt; v{receipt.toVersion}
+      </span>
+      <span
+        className="r-agent-receipt-chip"
+        data-testid="agent-research-outcome"
+        data-outcome={receipt.outcome}
+      >
+        {receipt.outcome === "needs_review" ? "Needs review" : "Complete"}
       </span>
       <span className="r-agent-receipt-chip" data-testid="agent-lock-released-receipt"><Lock size={12} /> lock released</span>
       <span className="r-agent-receipt-quote" style={{ gridColumn: "1 / -1" }}>

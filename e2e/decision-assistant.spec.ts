@@ -1,6 +1,6 @@
 import { test, expect, enterDemoRoom, publicChat } from "./fixtures";
 
-test("decision assistant summarizes a completed research run and pre-fills next actions", async ({ page }) => {
+test("decision assistant preserves a review-required research outcome and pre-fills next actions", async ({ page }) => {
   await enterDemoRoom(page);
 
   await page
@@ -18,7 +18,9 @@ test("decision assistant summarizes a completed research run and pre-fills next 
   await chat.getByTestId("chat-send").click();
 
   const agentReceipt = chat.getByTestId("chat-feed").getByTestId("agent-research-receipt")
-    .filter({ hasText: /Researched 1 company with structured fields/i }).first();
+    .filter({ hasText: /Researched 1 company with structured fields/i })
+    .filter({ hasText: /CardioNova/i })
+    .last();
   await expect(agentReceipt.getByText(/Researched 1 company with structured fields/i)).toBeVisible({ timeout: 30_000 });
   // Agent-commits policy moved into the settings panel (design-target parity); open it to read state.
   await page.getByTestId("room-settings-btn").click();
@@ -28,6 +30,8 @@ test("decision assistant summarizes a completed research run and pre-fills next 
   await expect(agentReceipt).toBeVisible();
   await expect(agentReceipt).toContainText(/CardioNova/i);
   await expect(agentReceipt.getByTestId("agent-source-receipt")).toHaveText("2 sources");
+  await expect(agentReceipt.getByTestId("agent-research-outcome")).toHaveText("Needs review");
+  await expect(agentReceipt.getByTestId("agent-research-outcome")).toHaveAttribute("data-outcome", "needs_review");
   await expect(agentReceipt.getByTestId("agent-version-receipt")).toContainText(/v\d+\s*->\s*v\d+/);
   await expect(agentReceipt.getByTestId("agent-lock-released-receipt")).toContainText(/lock released/i);
   await expect(agentReceipt.getByTestId("agent-view-row")).toBeVisible();
@@ -36,14 +40,16 @@ test("decision assistant summarizes a completed research run and pre-fills next 
   await chat.hover();
   await expect(decision).toBeVisible();
   await expect(decision).toContainText("CardioNova is ready for review");
-  await expect(decision).toContainText(/\d+\/14 complete/);
+  await expect(decision).toContainText(/\d+\/14 complete · \d+ needs review/);
   await expect(decision).toContainText("Sources");
+  await expect(decision).toContainText("Review");
   await expect(decision).toContainText("Pending");
+  await expect(decision.locator(".r-decision-progress")).toHaveAttribute("data-tone", "warning");
   await expect(decision.getByRole("button", { name: "Find evidence gaps" })).toBeVisible();
 
   const sheet = page.getByTestId("sheet-grid");
   const statusCell = sheet.locator('[data-cell-key="rc_cardionova__status"]');
-  await expect(statusCell.getByTestId("grid-status-chip")).toHaveText("complete");
+  await expect(statusCell.getByTestId("grid-status-chip")).toHaveText("needs_review");
   await expect(statusCell.getByTestId("grid-cite-chip")).toHaveText("2 src");
   await expect(sheet.locator('[data-cell-key="rc_cardionova__owner"]').getByTestId("grid-owner-chip")).toContainText("Maya");
   await expect(page.locator(".r-sheet-bar").getByTestId("grid-column-count")).toHaveText("6 of 14 cols");
@@ -53,8 +59,10 @@ test("decision assistant summarizes a completed research run and pre-fills next 
   await expect(sheet.locator(".r-row-empty")).toHaveCount(0);
   await expect(sheet.getByTestId("grid-add-row")).toBeVisible();
   await statusCell.getByTestId("grid-cite-chip").hover();
-  await expect(statusCell.getByTestId("grid-cite-popover")).toBeVisible();
-  await expect(statusCell.getByTestId("grid-cite-popover")).toContainText(/cardionova/i);
+  // Radix portals hover-card content to the document body, so scope by its evidence text rather than the grid cell.
+  const cardionovaPopover = page.getByTestId("grid-cite-popover").filter({ hasText: /cardionova/i });
+  await expect(cardionovaPopover).toBeVisible();
+  await expect(cardionovaPopover).toContainText(/cardionova/i);
 
   const gridVisualState = await statusCell.evaluate((cell) => {
     const row = cell.closest("tr");

@@ -133,6 +133,46 @@ function cellWasSet(msgs: AgentMessage[], elementId: string, value: unknown): bo
     return !!(r?.ok || r?.pendingApproval) && args?.elementId === elementId && args.value === value;
   });
 }
+type PersistedResearchOutcome = "complete" | "needs_review";
+function persistedResearchOutcome(
+  msgs: AgentMessage[],
+  elementId: string,
+  committedVersion: number,
+): PersistedResearchOutcome | undefined {
+  for (let i = msgs.length - 1; i >= 0; i -= 1) {
+    const m = msgs[i];
+    if (m.role !== "tool" || m.toolName !== "read_range") continue;
+    try {
+      const cells = JSON.parse(m.content) as Array<{ id?: unknown; value?: unknown; version?: unknown }>;
+      if (!Array.isArray(cells)) continue;
+      const cell = cells.find((candidate) =>
+        candidate.id === elementId
+        && typeof candidate.version === "number"
+        && candidate.version >= committedVersion);
+      if (!cell) continue;
+      const payload = cell.value && typeof cell.value === "object"
+        ? cell.value as Record<string, unknown>
+        : undefined;
+      const outcome = payload?.status ?? cell.value;
+      return outcome === "complete" || outcome === "needs_review" ? outcome : undefined;
+    } catch {
+      // Ignore malformed/stale tool history; the planner will request a fresh read.
+    }
+  }
+  return undefined;
+}
+function statusWritePendingApproval(msgs: AgentMessage[], elementId: string): boolean {
+  for (let i = msgs.length - 1; i >= 0; i -= 1) {
+    const m = msgs[i];
+    if (m.role !== "tool" || (m.toolName !== "edit_cell" && m.toolName !== "write_cell_result")) continue;
+    const args = callArgsFor(msgs, m.toolCallId, m.toolName);
+    if (args?.elementId !== elementId) continue;
+    const result = parse(m.content);
+    if (result?.pendingApproval) return true;
+    if (result?.ok) return false;
+  }
+  return false;
+}
 function fetchResultsFor(
   msgs: AgentMessage[],
   urls: string[],
@@ -250,7 +290,39 @@ export function companyResearchPlan(companies: CompanyResearchTarget[]): Planner
 
     const done = completedCompanies(messages);
     const cur = companies.find((c) => !done.has(c.rowId));
-    if (!cur) return { say: `Processed ${companies.length} ${companies.length === 1 ? "company" : "companies"} with structured fields and explicit complete-or-review outcomes.`, done: true };
+    if (!cur) {
+      const companyLabel = companies.length === 1 ? "company" : "companies";
+      const persistedOutcomes = companies.map((company) => {
+        const elementId = `${company.rowId}__status`;
+        const committedVersion = editedVersion(messages, elementId);
+        return {
+          elementId,
+          pendingApproval: statusWritePendingApproval(messages, elementId),
+          outcome: committedVersion === undefined
+            ? undefined
+            : persistedResearchOutcome(messages, elementId, committedVersion),
+        };
+      });
+      const missingReads = persistedOutcomes.filter((entry) => !entry.pendingApproval && !entry.outcome);
+      if (missingReads.length) {
+        return {
+          say: "Verifying the persisted research outcomes before reporting completion.",
+          toolCalls: [{ tool: "read_range", args: { elementIds: missingReads.map((entry) => entry.elementId) } }],
+        };
+      }
+      const completeCount = persistedOutcomes.filter((entry) => entry.outcome === "complete").length;
+      const reviewCount = persistedOutcomes.filter((entry) => entry.outcome === "needs_review").length;
+      const approvalCount = persistedOutcomes.filter((entry) => entry.pendingApproval).length;
+      const outcomeParts = [
+        ...(completeCount ? [`${completeCount} ${completeCount === 1 ? "company has" : "companies have"} sealed source receipts`] : []),
+        ...(reviewCount ? [`review required for ${reviewCount} ${reviewCount === 1 ? "company" : "companies"} because persisted source receipts were not sealed`] : []),
+        ...(approvalCount ? [`writes pending host approval for ${approvalCount} ${approvalCount === 1 ? "company" : "companies"}`] : []),
+      ];
+      return {
+        say: `Researched ${companies.length} ${companyLabel} with structured fields · ${outcomeParts.join("; ") || "no persisted outcomes requested"}.`,
+        done: true,
+      };
+    }
     return { say: `Researching ${cur.rowId} - claiming its row.`, toolCalls: [{ tool: "propose_lock", args: { elementIds: cellIds(cur.rowId), reason: `research ${cur.rowId}` } }] };
   };
 }

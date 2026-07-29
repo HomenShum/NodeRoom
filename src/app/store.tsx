@@ -36,6 +36,12 @@ function paced(model: AgentModel, ms: number): AgentModel {
   return { ...model, next: async (args) => { await new Promise((r) => setTimeout(r, ms)); return model.next(args); } };
 }
 import { RESEARCH_PLAN } from "../engine/demoRoom";
+import {
+  researchRowIds,
+  researchRowsForGoal,
+  researchRowsForInvestigation,
+  researchSheetStatusMessage,
+} from "./researchRouting";
 import { CAPTURE_NOTEBOOK_DOC } from "../engine/demoRoom";
 import type { Actor, Artifact, ArtifactMeta, ArtifactVisibility, Channel, Lock, Member, Message, Room, TraceEvent, AgentSession, Draft, ChangeOp, Proposal, ResearchRowInput } from "../engine/types";
 import type { UploadedArtifactInput, UploadedSourceFile } from "./uploadedArtifact";
@@ -520,11 +526,6 @@ export const HAS_CONVEX =
 export const CONVEX_SITE_URL = (import.meta.env.VITE_CONVEX_SITE_URL as string | undefined) ?? "";
 const locallyCreatedPrivateStreams = new Set<string>();
 
-function researchRowIds(art: Artifact): string[] {
-  const ids: string[] = [];
-  for (const eid of art.order) { const rid = eid.split("__")[0]; if (!ids.includes(rid)) ids.push(rid); }
-  return ids;
-}
 function slugCompany(company: string): string {
   return company.toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 32) || "company";
 }
@@ -1159,21 +1160,12 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
         const research = artifacts.find((a) => a.kind === "sheet" && a.title === "Company research");
         if (research) {
           const actor: Actor = { kind: "agent", id: pub.agentId, name: pub.agentName, scope: "public" };
-          const allRows = researchRowIds(research);
-          const pendingRows = allRows
-            .filter((rowId) => String(research.elements[`${rowId}__status`]?.value ?? "pending") === "pending");
           // Scope to the company named in the goal (e.g. "diligence CardioNova") so the run finishes
           // fast and live; only fan out to the whole watchlist when the goal explicitly asks for it.
-          const g = input.goal.toLowerCase();
-          const wantsAll = /\b(all|every|batch|watchlist|bulk|each|companies)\b/.test(g);
-          const named = wantsAll ? [] : allRows.filter((rowId) => {
-            const name = String(research.elements[`${rowId}__company`]?.value ?? "").toLowerCase();
-            return name.length > 1 && g.includes(name);
-          });
-          const rows = named.length ? named : pendingRows;
+          const rows = researchRowsForGoal(research, input.goal);
           const pending = rows.map((rowId) => researchTargetFor(research, rowId));
           if (pending.length === 0) {
-            engine.postMessage({ roomId, channel: "public", author: actor, text: "Every company on the research sheet is already sourced and complete.", clientMsgId: crypto.randomUUID(), kind: "agent" });
+            engine.postMessage({ roomId, channel: "public", author: actor, text: researchSheetStatusMessage(research), clientMsgId: crypto.randomUUID(), kind: "agent" });
             return;
           }
           const rt = new InMemoryRoomTools(engine, roomId, research.id, actor, pub.id);
@@ -1297,11 +1289,10 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       const sess = engine.listSessions(roomId).find((s) => s.scope === "public");
       if (!research || !sess) return;
       const actor: Actor = { kind: "agent", id: sess.agentId, name: sess.agentName, scope: "public" };
-      const pending = researchRowIds(research)
-        .filter((rowId) => String(research.elements[`${rowId}__status`]?.value ?? "pending") === "pending")
+      const pending = researchRowsForInvestigation(research)
         .map((rowId) => researchTargetFor(research, rowId));
       if (pending.length === 0) {
-        engine.postMessage({ roomId, channel: "public", author: actor, text: "Every company on the research sheet is already complete.", clientMsgId: crypto.randomUUID(), kind: "agent" });
+        engine.postMessage({ roomId, channel: "public", author: actor, text: researchSheetStatusMessage(research), clientMsgId: crypto.randomUUID(), kind: "agent" });
         return;
       }
       const rt = new InMemoryRoomTools(engine, roomId, research.id, actor, sess.id);

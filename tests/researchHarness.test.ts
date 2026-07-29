@@ -1,7 +1,7 @@
 /**
  * Scenario: an analyst drops a list of companies into the room. The public Room
  * NodeAgent enriches every PENDING row with sourced research — for each company:
- * claim its cells → read + fetch a source → write summary + citation + status=complete
+ * claim its cells → read + fetch a source → write summary + citation + a persisted complete-or-review outcome
  * → release — through the SAME lock/CAS/release contract, fully traced. (ParselyFi loop.)
  */
 import { describe, it, expect } from "vitest";
@@ -90,6 +90,41 @@ describe("company research harness (ParselyFi loop)", () => {
         && !("verifiedAt" in result)
         && !("receiptDigest" in result);
     })).toBe(true);
+  });
+
+  it("reports the persisted review outcome when network-shaped evidence cannot mint a trusted receipt", async () => {
+    const { engine, sheetId, rt } = setup();
+    rt.fetchSource = async (url: string) => {
+      const parsed = new URL(url);
+      return {
+        ok: true,
+        title: parsed.hostname,
+        snippet: `Unsealed response from ${parsed.hostname}.`,
+        url: parsed.toString(),
+        provenance: "network_fetch",
+      };
+    };
+    const target = plan()[0];
+    const res = await runAgent({
+      rt,
+      goal: "Research Acme AI, but never describe an unsealed source as complete.",
+      model: scriptedModel(companyResearchPlan([target])),
+      tools: ROOM_TOOLS,
+      contextBuilder: buildResearchContext,
+      maxSteps: 20,
+    });
+
+    expect(res.stopReason).toBe("done");
+    expect(res.finalText).toContain("review required for 1 company");
+    expect(res.finalText).not.toContain("all source receipts sealed");
+    const persisted = payload(engine.getArtifact(sheetId)!.elements["c1__status"].value);
+    expect(persisted.value).toBe("needs_review");
+    expect(persisted.status).toBe("needs_review");
+    const finalStatusRead = res.trace.filter((event) =>
+      event.tool === "read_range"
+      && Array.isArray((event.args as { elementIds?: unknown }).elementIds)
+      && ((event.args as { elementIds: string[] }).elementIds).includes("c1__status")).at(-1);
+    expect(finalStatusRead).toBeTruthy();
   });
 
   it("is status-gated: rows already 'complete' are skipped (batch-pending only)", async () => {
