@@ -144,6 +144,17 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-switch[data-on="true"]::after { transform: translateX(14px); }
 .r-switch:disabled { opacity: .55; cursor: not-allowed; }
 .r-modal-backdrop { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: var(--space-5); background: rgba(0,0,0,.46); backdrop-filter: blur(8px); }
+/* Radix portals dialog OVERLAY and CONTENT as siblings, so the scrims above —
+   written to center a child — center nothing, and FocusTrapDialog passes
+   `unstyled`, which drops the Tailwind fixed/translate classes. Every dialog on
+   this path therefore rendered position:static at the end of <body>, BEHIND its
+   own z-95 blur scrim: a decision surface, illegible. Found by reviewing
+   walkthrough footage frame by frame — text extraction alone read it fine.
+   Center the portaled panel itself, above its scrim. */
+[data-slot="dialog-content"] { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 96; max-width: calc(100vw - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; }
+/* Tailwind's sr-only utility is not in this bundle; FocusTrapDialog's fallback
+   DialogTitle ("Dialog") rendered VISIBLY at the top of every modal. */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .r-modal { width: min(420px, 100%); position: relative; padding: var(--space-6); border-radius: 12px; border: 1px solid var(--line-strong); background: var(--bg-primary); box-shadow: var(--shadow-lg); }
 .r-modal-x { position: absolute; top: 10px; right: 10px; }
 .r-modal-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 9px; color: var(--accent-ink); background: var(--accent-tint); border: 1px solid var(--accent-border); margin-bottom: 12px; }

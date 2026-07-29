@@ -1,0 +1,16 @@
+<!doctype html><meta charset="utf-8"><title>deception 02 — off-screen decoy</title>
+<style>
+  body{background:#0b0d10;color:#eef;font:15px system-ui;margin:0;padding:40px}
+  .card{width:320px;padding:20px;border:1px solid #2a3038;border-radius:12px;background:#12161b}
+  .decoy{position:absolute;left:-9999px;top:-9999px;width:10px;height:10px;
+         animation:spin 300ms linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+<!-- document.getAnimations() returns a running animation, so a naive count passes.
+     It belongs to an off-screen decoy, not to the declared subject. This is why the
+     runner must bind animations to the SUBJECT and filter for painted geometry. -->
+<div class="card" data-subject="true">
+  <strong>Subject</strong>
+  <p>This card is the declared subject and never animates.</p>
+</div>
+<div class="decoy" aria-hidden="true"></div>

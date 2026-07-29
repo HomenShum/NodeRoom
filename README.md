@@ -843,10 +843,26 @@ result, with step captions and a progress bar. Regenerate and judge any time wit
 directly with `npm run walkthrough-review -- <feature-id> --ui-review`; lower-level
 capture/render commands remain `npm run walkthroughs` + `npm run walkthroughs:render`.
 
+### The NodeRoom walkthrough clips — three ways in
+
+Three clips are published. Lengths are `ffprobe` readings of the source renders, not estimates:
+
+| Clip | Length | Audio | Journey |
+|---|---|---|---|
+| [NodeRoom — review every agent change](https://youtu.be/3N7sBxFLFOc) | 24s | silent | R1 — the `#story` no-clobber drills |
+| [NodeRoom — from landing to a room](https://youtu.be/qpzHP5-pWvw) | 17s | silent | R2 + R3 — hydrated landing → create a room → join by code |
+| [NodeRoom — the full walkthrough, narrated](https://youtu.be/uvXf7e4hwt4) | 79s | local-TTS voiceover | R1 + R2 + R3 in one continuous pass |
+
+![Fresh-user landing flow: the hydrated landing page loads, Create a room opens the "How should NodeAgent edits land?" policy choice, and the inline ENTER CODE control joins an existing room by share code](docs/walkthroughs/fresh-user-landing.gif)
+<sub>The 17s fresh-user clip inline, because GitHub does not play video in a README. Rendered from the same source MP4 with this repo's two-pass palette recipe ([`scripts/walkthroughs/render.ts`](scripts/walkthroughs/render.ts): `fps=12`, 896px lanczos, `palettegen stats_mode=diff` → `paletteuse` bayer/`diff_mode=rectangle`). Filming it found and fixed a shipped regression: after the Radix migration every `FocusTrapDialog` modal rendered *behind* its own blur scrim. The hydrated React landing also turned out to be a different page from the SSR shell — join is an inline control there, not a dialog.</sub>
+
+<sub>**Coverage, honestly.** These three cover **3 of the 6 NodeRoom journeys** on the journey map (R1 drills, R2 create-a-room, R3 join-by-code); across both products the tally is **10 of 13 journeys shot, 0 reachable and unshot**. The two unfilmed NodeRoom journeys share one root cause, not two: **R5** (in-room review/approve — the product's core journey) and **R4** (mobile approver) both need a signed-in, seeded live room, and R5 is **declined by the owner** ("no seed room") rather than missed. **R6** is not a distinct journey after probing — the `#story` "Architecture" button navigates within the page already filmed in R1. At element level the R1 capture touches **6/21 elements** on an 8,570px surface with 17 controls: a journey clip, not a control sweep.</sub>
+
 ### ▶ Full end-to-end demo — the live analyst room (narrated, with music)
 
 The whole wedge in ~75 seconds — **Capture → Research → Brief → Evidence → Handoff** — with OpenAI TTS
-narration and an original ambient music bed mixed under the voice. This is the only clip here with **audio**.
+narration and an original ambient music bed mixed under the voice. This is the only clip embedded here with **audio**
+(the narrated walkthrough above plays on YouTube).
 
 https://github.com/HomenShum/noderoom/raw/main/episodes/noderoom-analyst-room-v1/renders/short.mp4
 

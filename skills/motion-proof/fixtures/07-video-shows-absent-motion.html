@@ -1,0 +1,17 @@
+<!doctype html><meta charset="utf-8"><title>deception 07 — video shows motion the app does not contain</title>
+<style>
+  body{background:#0b0d10;color:#eef;font:15px system-ui;margin:0;padding:40px}
+  .card{width:320px;padding:20px;border-radius:12px;border:1px solid #2a3038;background:#12161b}
+  .shim{margin-top:12px;height:8px;border-radius:4px;
+        background:linear-gradient(90deg,#12161b,#2a3038,#12161b)}
+</style>
+<!-- The shipped artifact — a README GIF — shows a shimmer sweep. The live page has
+     no animations at all. A video judge scores the recording highly and reports
+     healthy motion; getAnimations() returns zero on the real page.
+     This fixture is the entire argument for the instrument order: the only
+     instrument that can be fooled here is the one the council demoted. -->
+<div class="card" data-subject="true">
+  <strong>Subject</strong>
+  <p>The README GIF for this component shows a shimmer sweep. Nothing here animates.</p>
+  <div class="shim" data-claims-motion="shimmer 1200ms"></div>
+</div>

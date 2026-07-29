@@ -82,6 +82,14 @@
       .nr-boot-step.now { color: #e59579; border-color: rgba(217,119,87,.28); background: rgba(217,119,87,.16); }
       @keyframes nr-boot-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
       @media (prefers-reduced-motion: reduce) { .nr-boot-line { animation: none; } }
+      /* Failure must not look like loading. When boot fails the skeleton stops
+         moving and dims: a shimmer is a claim that work is still in progress. */
+      .nr-ssr-private[data-boot-state="failed"] .nr-boot-line { animation: none; opacity: .28; }
+      .nr-ssr-private[data-boot-state="failed"] .nr-boot-status { border-color: rgba(255,255,255,.14); background: rgba(255,255,255,.04); }
+      .nr-ssr-private[data-boot-state="failed"] .nr-boot-status strong { color: #f2f4f7; }
+      .nr-boot-retry { justify-self: start; margin-top: 8px; min-height: 32px; padding: 0 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,.18); background: #b0562f; color: #fff; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+      .nr-boot-retry:hover { background: #9a4b29; }
+      .nr-boot-retry:focus-visible { outline: 2px solid #d97757; outline-offset: 2px; }
       @media (max-width: 860px) {
         .nr-boot-main { grid-template-columns: 1fr; }
         .nr-boot-rail, .nr-boot-chat { display: none; }

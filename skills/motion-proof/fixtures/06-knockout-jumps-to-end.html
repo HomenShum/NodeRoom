@@ -1,0 +1,22 @@
+<!doctype html><meta charset="utf-8"><title>deception 06 — knockout jumps to the end</title>
+<style>
+  body{background:#0b0d10;color:#eef;font:15px system-ui;margin:0;padding:40px}
+  .card{width:320px;padding:20px;border-radius:12px;border:1px solid #2a3038;background:#12161b;
+        opacity:0;transform:translateY(8px);animation:enter 240ms ease forwards}
+  @keyframes enter{to{opacity:1;transform:none}}
+</style>
+<!-- This was a defect in motion-proof's OWN first draft, which is the argument for
+     keeping the corpus: the gate's author is not exempt from it.
+     ?knockout=scrub FINISHES the animation instead of preventing its construction.
+     The end state is identical to the honest run, so a naive before/after diff sees
+     no difference and reports the knockout as passing. The mechanism was never
+     removed — only fast-forwarded. A real knockout stubs the driver at the seam. -->
+<div class="card" data-subject="true">
+  <strong>Card</strong>
+  <p>Knockout mode scrubs to the end rather than stubbing the driver.</p>
+</div>
+<script>
+  if (new URLSearchParams(location.search).get("knockout") === "scrub") {
+    document.getAnimations().forEach(function (a) { a.finish(); });
+  }
+</script>

@@ -1,0 +1,12 @@
+<!doctype html><meta charset="utf-8"><title>deception 01 — exists but never mounts</title>
+<style>
+  body{background:#0b0d10;color:#eef;font:15px system-ui;margin:0;padding:40px}
+  .card{width:320px;padding:20px;border:1px solid #2a3038;border-radius:12px;background:#12161b;
+        animation:enter 240ms ease forwards}
+  @keyframes enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+<!-- The CSS is perfect and a grep for the keyframe passes. The element is never
+     mounted, so the animation never exists. This is the "CSS is correct" spec
+     claim that motion-proof explicitly refuses to accept as proof. -->
+<p>Static text only. The animated card below lives in a template and is never inserted.</p>
+<template id="never-used"><div class="card" data-subject="true">unmounted</div></template>

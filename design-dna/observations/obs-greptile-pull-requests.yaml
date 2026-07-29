@@ -1,0 +1,144 @@
+id: obs-greptile-pull-requests-1
+source:
+  url: https://mobbin.com/screens/38767e9a-f40e-436a-a3de-af5bf7a1b2f8
+  app: Greptile — The AI code reviewer
+  surface: Pull Requests (review history list)
+  platform: Web, Desktop 1512x945
+  capturedVia: mobbin-live
+firstSeenAt: 2026-07-28
+lastVerifiedAt: 2026-07-28
+
+# Why this reference: Greptile is an agent that proposes code-review comments and
+# a human decides. That is NodeRoom's problem with the nouns changed.
+
+facts:
+  - id: f1
+    kind: count
+    subject: primary navigation
+    property: top-level tab count
+    value: 8
+    unit: tabs
+    locatorDescription: "Horizontal tab row under the org switcher: Analytics, Repositories, Code Review Settings, Custom Context, Pull Requests, Code Providers, Integrations, Organization Settings"
+
+  - id: f2
+    kind: relationship
+    subject: active navigation tab
+    property: selected-state indicator
+    value: "solid underline directly beneath the label, plus darker label colour; inactive labels are grey"
+    locatorDescription: "'Pull Requests' tab versus its seven siblings"
+
+  - id: f3
+    kind: count
+    subject: review-history table
+    property: data columns
+    value: 7
+    unit: columns
+    locatorDescription: "PR #, PR NAME, REPO, BRANCH, STATUS, # REVIEWS, LAST UPDATED — plus a leading selection checkbox column"
+
+  - id: f4
+    kind: relationship
+    subject: column headers
+    property: differentiation from cell text
+    value: "uppercase with wide letter-spacing and grey fill; visually smaller than cell text — differentiated by case and colour, not by weight"
+    locatorDescription: "Header row of the review-history table"
+
+  - id: f5
+    kind: relationship
+    subject: STATUS cell
+    property: chromatic ink usage
+    value: "the green check tile is the ONLY chromatic element inside the table; every other cell is greyscale"
+    locatorDescription: "STATUS column, rows #2 and #1, rounded-square light-green tile containing a check glyph, followed by the word COMPLETED"
+
+  - id: f6
+    kind: relationship
+    subject: STATUS label
+    property: typographic treatment
+    value: "COMPLETED rendered uppercase and letter-spaced in grey — the WORD carries no colour; only the check tile does"
+    locatorDescription: "STATUS column cell text, immediately right of the green tile"
+
+  - id: f7
+    kind: count
+    subject: decision affordances on this surface
+    property: approve / reject / merge / dismiss controls
+    value: 0
+    unit: controls
+    locatorDescription: "Entire table and page body — the only interactive controls are row checkboxes, a search field, and one sort chevron"
+
+  - id: f8
+    kind: relationship
+    subject: STATUS vocabulary
+    property: terminal versus pending states
+    value: "both visible rows read COMPLETED; the surface reports finished reviews rather than hosting an undecided one"
+    locatorDescription: "STATUS column values"
+
+  - id: f9
+    kind: count
+    subject: sortable columns
+    property: columns carrying a sort chevron
+    value: 1
+    unit: columns
+    locatorDescription: "LAST UPDATED is the only header with a chevron affordance"
+
+  - id: f10
+    kind: relationship
+    subject: LAST UPDATED cell
+    property: time format
+    value: "relative ('about 3 hours ago', 'about 4 hours ago') rather than an absolute timestamp"
+    locatorDescription: "Rightmost data column, both rows"
+
+  - id: f11
+    kind: relationship
+    subject: BRANCH cell
+    property: overflow handling
+    value: "truncated with a trailing ellipsis ('test-greptile-re…') rather than wrapped or column-widened"
+    locatorDescription: "BRANCH column, both rows"
+
+  - id: f12
+    kind: relationship
+    subject: REPO cell
+    property: provenance marker
+    value: "source-system glyph (GitHub mark) precedes the repo name in every row"
+    locatorDescription: "REPO column, left of the text 'laravel'"
+
+  - id: f13
+    kind: relationship
+    subject: table body
+    property: vertical fill behaviour
+    value: "table ends after its two real rows; the remaining ~60% of the viewport stays empty rather than being filled with placeholder rows or stretched row heights"
+    locatorDescription: "Region below the last table row down to the page fold"
+
+  - id: f14
+    kind: relationship
+    subject: search field
+    property: dual affordance
+    value: "single full-width input whose placeholder advertises two behaviours — 'Search pull requests or click to add filters'"
+    locatorDescription: "Input directly above the table header row"
+
+problemTags:
+  - agent-output-review
+  - dense-data-scan
+  - trust-state-legibility
+  - low-volume-table
+
+intentTags:
+  - report-history-not-host-decisions
+  - spend-colour-only-on-verification
+
+layoutTags:
+  - full-width-table
+  - horizontal-tab-nav
+  - no-vertical-stretch
+
+interactionTags:
+  - single-sort-column
+  - row-multiselect
+  - search-and-filter-in-one-field
+
+# Timing, easing and choreography facts are NOT recorded for this surface.
+# Mobbin screens are static captures; recording a duration from one would be a
+# fabrication. Motion facts for this app require the Animations tab or the live
+# product, and neither was inspected.
+notRecorded:
+  - timing
+  - easing
+  - choreography

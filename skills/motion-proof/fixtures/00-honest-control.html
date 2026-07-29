@@ -1,0 +1,17 @@
+<!doctype html><meta charset="utf-8"><title>control — honest motion</title>
+<style>
+  body{background:#0b0d10;color:#eef;font:15px system-ui;margin:0;padding:40px}
+  .card{width:320px;padding:20px;border:1px solid #2a3038;border-radius:12px;background:#12161b;
+        opacity:0;transform:translateY(8px);animation:enter 240ms cubic-bezier(.16,1,.3,1) forwards}
+  @keyframes enter{to{opacity:1;transform:translateY(0)}}
+  @media (prefers-reduced-motion: reduce){
+    .card{animation:none;opacity:1;transform:none}   /* SAME final state, not a second design */
+  }
+</style>
+<!-- The control. Declared motion actually runs on the declared subject, and the
+     reduced-motion path collapses to the identical final state. A runner that
+     cannot pass this is broken; a runner that passes ONLY this is untested. -->
+<div class="card" data-subject="true">
+  <strong>Honest</strong>
+  <p>Declared: 240ms enter, opacity + 8px rise. It runs, on this element.</p>
+</div>

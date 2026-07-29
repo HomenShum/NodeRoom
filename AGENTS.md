@@ -28,9 +28,13 @@ Use these files as the map:
 - `src/nodeagent/skills/integration/omnigentAdapter.ts` - Omnigent YAML compatibility checks.
 - `docs/NODEAGENT_ADOPTION.md` - porting checklist.
 - `docs/OMNIGENT_INTEGRATION.md` - Omnigent boundary and smoke command.
+- `skills/probe-first/SKILL.md` - refuse to draft outreach to a person without a verified, dated, source-backed research hook.
 
 Rules:
 
+- No outreach draft to a named person without a verified research hook on the
+  contact record. Enforce it on the tool-call path, not in a prompt; a prompt
+  rule loses under pressure. See `skills/probe-first/`.
 - Keep writes behind `RoomTools`; do not mutate engine/backend state directly in
   harness examples.
 - Keep durable memory in frames/cache/job rows, not prompt transcripts or

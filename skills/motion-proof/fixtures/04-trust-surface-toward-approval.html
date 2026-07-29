@@ -1,0 +1,21 @@
+<!doctype html><meta charset="utf-8"><title>deception 04 — trust surface animates toward approval</title>
+<style>
+  body{background:#0b0d10;color:#eef;font:15px system-ui;margin:0;padding:40px}
+  .proposal{width:360px;padding:18px;border-radius:12px;border:1px solid #2a3038;background:#12161b}
+  .verdict{margin-top:14px;padding:10px 12px;border-radius:8px;border:1px solid #2a3038;
+           background:#12161b;animation:toApproved 1200ms ease-in-out forwards}
+  /* The most dangerous fixture in the corpus. Motion carries an UNDECIDED proposal
+     into the visual language of acceptance — green fill, green border — while
+     data-decision stays "none". Nobody approved anything. A viewer who looks away
+     and back reads it as accepted. Per motion-ladder this is a correctness finding
+     at any duration, and the video judge must never be allowed to overrule it. */
+  @keyframes toApproved{
+    60%{background:#12301c;border-color:#2f7a45;color:#9ff0b5}
+    100%{background:#12301c;border-color:#3ea55c;color:#b6ffcb}
+  }
+</style>
+<div class="proposal" data-trust-surface="proposal" data-state="undecided">
+  <strong>Agent proposal · not yet reviewed</strong>
+  <p>Revenue Q3 → $12,400 (v41 → v42)</p>
+  <div class="verdict" data-subject="true" data-decision="none">Pending your review</div>
+</div>

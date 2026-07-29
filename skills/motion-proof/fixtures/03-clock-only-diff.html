@@ -1,0 +1,18 @@
+<!doctype html><meta charset="utf-8"><title>deception 03 — clock-only diff</title>
+<style>
+  body{background:#0b0d10;color:#eef;font:15px system-ui;margin:0;padding:40px}
+  .card{width:320px;padding:20px;border:1px solid #2a3038;border-radius:12px;background:#12161b}
+  .clock{font-variant-numeric:tabular-nums;color:#7fdcc0;margin:12px 0 0}
+</style>
+<!-- Two screenshots taken moments apart DIFFER, so a pixel-diff gate reports change.
+     Nothing animated: the delta is a ticking clock. getAnimations() returns zero. -->
+<div class="card" data-subject="true">
+  <strong>Subject</strong>
+  <p>No animation is declared or running on this element.</p>
+  <p class="clock" id="c">--:--:--</p>
+</div>
+<script>
+  setInterval(function () {
+    document.getElementById("c").textContent = new Date().toISOString().slice(11, 23);
+  }, 60);
+</script>
