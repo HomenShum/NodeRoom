@@ -128,8 +128,46 @@ govern — as a test, an invariant, or at minimum a dated note.
 - NodeSlide #110 and NodeRoom #244 need a human to confirm the merge once CI is green.
   NodeSlide's repo does not allow auto-merge, and `--admin` would bypass a branch-protection
   rule that was set deliberately — so it was not used.
-- `ScoreReceipt` (third link of `ReferenceObservation → DesignRule → ScoreReceipt`) was being
-  emitted by a parallel agent when this was written; confirm it landed and that its schema
-  validates the existing records unmodified.
+- ~~`ScoreReceipt` … confirm it landed~~ **DONE — see below.**
 - The 7 deception fixtures are runnable but are not yet wired into CI. They should be — that
   is what turns the corpus from a demonstration into a gate.
+
+---
+
+## The reference corpus chain — completed, in `node-platform` (a DIFFERENT repo)
+
+`ReferenceObservation → DesignRule → ScoreReceipt` was two-thirds real: two record types
+existed with an executable gate, but **no `ScoreReceipt` was ever emitted**, and the records
+declared `schemaVersion` strings with **no schema file to validate them**. Both are now closed.
+
+Verified by running it, with real exit codes rather than piped output:
+
+    PASS  direction (real corpus)          exit 0   3 records · 14 facts · 24 citations
+    FAIL  direction (malformed fixtures)   exit 1   6 named defects, each asserted by a test
+    EMPTY corpus                           exit 3   not-run is never a pass
+    test/reference-corpus-gate.test.mjs    8/8
+
+Three things in it worth inheriting:
+
+1. **The subject I proposed was rejected, correctly.** I suggested scoring the NodeRoom
+   create-room dialog. `rule-absence-is-not-zero` does not govern it — it renders no figure,
+   has no unbound data source, and zero is not a value it could display; the rule's own
+   `doesNotApplyWhen` excludes it outright. The rejection is recorded **on the receipt** under
+   `ruleApplicability.rejectedSubjects` so nobody re-litigates it. Citing a rule at a subject
+   it does not govern is the exact failure the corpus exists to prevent.
+2. **`withinRuleDerivation`.** Three of the receipt's six criteria cite facts the rule does not
+   stand on. That is allowed, but it is now marked, **recomputed by the gate**, and it is
+   precisely what the human override disputes. A criterion quietly borrowing authority from
+   outside the rule's derivation used to be invisible.
+3. **The gate was wired into nothing.** No npm script and no CI job referenced
+   `reference-corpus-gate.mjs` — it ran only when someone typed it. It is now reached by
+   `npm test`. Schemas were proven non-vacuous against **33 dishonest mutations, 33 refused**.
+
+### Landmine in that repo
+
+The whole chain was swept into commit **`f60cffa0`**, whose message reads
+*"fix(package): the CRLF shebang npm rewrites…"* — unrelated to any of it — on branch
+`feat/close-the-loop`, already pushed. The work is not lost, but `git log` will not lead
+anyone to it. That branch is **42 commits ahead of `main`** and is not mine, so the mislabelled
+commit was left alone rather than rewriting pushed history on someone else's branch. If you
+own that branch, consider splitting the commit before it merges.
