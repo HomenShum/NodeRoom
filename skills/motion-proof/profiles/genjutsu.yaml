@@ -1,0 +1,142 @@
+# genjutsu — the adversarial profile for motion-proof
+#
+# Referenced by SKILL.md:132 since this skill was written; the file did not
+# exist until 2026-07-28. A skill that names a profile it does not ship is
+# itself an instance of what this profile hunts: a persuasive impression of
+# rigour with nothing behind it.
+#
+# Genjutsu is an illusion technique. The failure this profile hunts is motion
+# that produces a convincing visual impression of progress, causality, or
+# completion WITHOUT the underlying state actually changing.
+#
+# Council 2026-07-28 (NK-Mom's-Biz x Slide-AI) ruled genjutsu is a PROFILE here,
+# not a sixth overlapping system — the vocabulary without the architecture.
+# Slide-AI's public name for the fixture set is "Motion Deception Corpus".
+
+version: 1
+name: genjutsu
+summary: >-
+  Motion that looks like progress while state stands still. Every check below
+  answers the general tell: what would this have reported if the subject did
+  not exist? If the answer is "the same thing", the green is worth nothing.
+
+# The instrument order is not negotiable and is the reason this profile exists.
+# Corrected 2026-07-28: the first draft made the video judge primary. A video is
+# a re-observation of something the browser already knows precisely.
+instruments:
+  primary:                       # these decide pass/fail
+    - Element.getAnimations()
+    - Web Animations API timing (declared vs effective)
+    - animationstart/end, transitionrun/end
+    - PerformanceObserver long-task + rAF sampling
+    - DOM mutation timeline
+  secondary:                     # advisory only, never overrides primary
+    - video semantic judge
+  never_blend: true              # no single "motion score" — layers reported separately
+
+checks:
+  - id: timeline-knockout
+    intent: Remove the mechanism, re-render, and require the delta to equal the claimed difference.
+    method: >-
+      Stub the adapter at the seam / refuse the import / unmount the driver so the
+      timeline is NEVER CONSTRUCTED. Then diff.
+    forbidden_implementation: >-
+      GSAP timeScale(0) or any jump-to-end / progress(1) scrub. Council named this a
+      known deception: the final state is exactly what the un-knocked-out run also
+      produces, so the knockout falsely passes. This was a defect in this skill's own
+      first draft — the gate's author is not exempt from the corpus.
+    fails_when:
+      - page is identical with the mechanism removed   # motion never ran; dead code passing review
+      - more differs than declared                     # something undeclared animates; motion-ladder forbids unnamed owners
+
+  - id: frozen-frame-comparison
+    intent: First and last frames against the DECLARED start and final states.
+    fails_when:
+      - final state does not match the declared end state
+      - content flashes before the motion starts
+
+  - id: reversed-choreography
+    intent: Reverse the order; if nothing a user can name changes, the order carried no information.
+    fails_when:
+      - reversing the sequence produces no nameable difference
+
+  - id: reduced-motion-equivalence
+    intent: prefers-reduced-motion must collapse to the SAME final state.
+    method: Emulate in the real browser. Never verify by grep.
+    fails_when:
+      - reduced-motion path shows a DIFFERENT design (a failure, not a variant)
+      - one recording is offered as proof of both paths
+
+  - id: decorative-layer-removal
+    intent: Does comprehension survive without the decorative layers?
+    fails_when:
+      - removing decoration changes what the user can understand
+
+  - id: task-completion-with-and-without
+    intent: The strongest signal available — can the task be completed either way?
+    fails_when:
+      - the task is only completable with motion running
+
+  - id: apparent-progress-no-state-transition
+    intent: >-
+      A spinner, sweep, or fill that animates while nothing behind it advanced.
+      The trust-surfaces class in motion form: a failure that animates like a
+      loading state is lying about which state the system is in.
+    fails_when:
+      - an indicator animates while its underlying state is unchanged
+      - a failed operation renders as an in-progress affordance
+
+# One structural check per run, independent of the rubric.
+forbidden_surface_sweep:
+  surfaces: [proposal, conflict, failed_safe, diff, review]
+  rule: >-
+    No motion on trust-decision surfaces. A transition found here is a correctness
+    finding AT ANY DURATION — it can make a not-yet-accepted change feel accepted.
+  severity: correctness
+
+# Runner obligations. Both were real defects found in this session's own tooling.
+runner_requirements:
+  - id: painted-only
+    rule: >-
+      getComputedStyle reports animationName for elements inside display:none
+      subtrees. Filter for PAINTED visibility and report hidden counts SEPARATELY
+      rather than folding them into the total.
+  - id: unknown-instruction-must-throw
+    rule: >-
+      An unrecognised instruction must FAIL, never no-op. A capture runner that
+      silently skips a typo'd action produces a recording of a frozen viewport that
+      looks exactly like a successful one.
+
+# The fixtures this profile must beat. Each passes a naive motion check.
+# Implemented as runnable pages in ../fixtures/ — a corpus that is only a list
+# is a gate nobody attacked.
+deception_corpus:
+  - id: never-mounts
+    fixture: fixtures/01-exists-but-never-mounts.html
+    deception: CSS animation is declared but the element is never mounted.
+  - id: offscreen-decoy
+    fixture: fixtures/02-offscreen-decoy.html
+    deception: The animation targets an off-screen decoy, not the visible subject.
+  - id: clock-only-diff
+    fixture: fixtures/03-clock-only-diff.html
+    deception: Screenshots differ only because a clock ticked; nothing animated.
+  - id: trust-surface-toward-approval
+    fixture: fixtures/04-trust-surface-toward-approval.html
+    deception: >-
+      An undecided proposal animates toward apparent approval. The most dangerous
+      form — motion moving a not-yet-accepted change toward feeling accepted.
+    severity: correctness
+  - id: reduced-motion-different-design
+    fixture: fixtures/05-reduced-motion-different-design.html
+    deception: prefers-reduced-motion renders a different design, not the same final state.
+  - id: knockout-jumps-to-end
+    fixture: fixtures/06-knockout-jumps-to-end.html
+    deception: >-
+      The knockout scrubs the timeline to its end instead of preventing construction,
+      so the "without motion" run produces the same final state and falsely passes.
+  - id: video-shows-absent-motion
+    fixture: fixtures/07-video-shows-absent-motion.html
+    deception: >-
+      A prerendered video/GIF of motion the live application does not contain.
+      Deterministic instruments see no animations; only the video judge is fooled —
+      which is the entire argument for the instrument order above.
