@@ -1,6 +1,7 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   buildProvenanceMeta,
@@ -240,5 +241,50 @@ describe("raw build provenance output", () => {
       expectedSha: checkoutSha,
       outputRoot,
     })).rejects.toThrow(/ai-elements-check\.html must contain exactly one/);
+  });
+});
+
+describe("Vercel deploy-input provenance", () => {
+  it("ships the verifier required by the production build without uploading unrelated scripts", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "noderoom-vercel-inputs-"));
+    temporaryDirectories.push(root);
+    await mkdir(path.join(root, "scripts", "lib"), { recursive: true });
+    await Promise.all([
+      writeFile(path.join(root, ".gitignore"), await readFile(".vercelignore", "utf8"), "utf8"),
+      writeFile(path.join(root, "scripts", "verify-build-provenance.ts"), "// required deploy input\n", "utf8"),
+      writeFile(path.join(root, "scripts", "local-only.ts"), "// bounded out of deploy input\n", "utf8"),
+      writeFile(path.join(root, "scripts", "lib", "security-only.ts"), "// bounded out of deploy input\n", "utf8"),
+    ]);
+
+    const initialized = spawnSync("git", ["init", "--quiet"], {
+      cwd: root,
+      encoding: "utf8",
+    });
+    expect(initialized.status, initialized.stderr).toBe(0);
+
+    const verifier = spawnSync(
+      "git",
+      ["check-ignore", "--no-index", "--quiet", "--", "scripts/verify-build-provenance.ts"],
+      { cwd: root, encoding: "utf8" },
+    );
+    const unrelatedScript = spawnSync(
+      "git",
+      ["check-ignore", "--no-index", "--quiet", "--", "scripts/local-only.ts"],
+      { cwd: root, encoding: "utf8" },
+    );
+    const unrelatedNestedScript = spawnSync(
+      "git",
+      ["check-ignore", "--no-index", "--quiet", "--", "scripts/lib/security-only.ts"],
+      { cwd: root, encoding: "utf8" },
+    );
+
+    expect(verifier.status).toBe(1);
+    expect(unrelatedScript.status).toBe(0);
+    expect(unrelatedNestedScript.status).toBe(0);
+
+    const packageJson = JSON.parse(await readFile("package.json", "utf8")) as {
+      scripts?: Record<string, string>;
+    };
+    expect(packageJson.scripts?.build).toContain("tsx scripts/verify-build-provenance.ts");
   });
 });

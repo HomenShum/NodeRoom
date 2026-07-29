@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { auditInlineScriptCsp } from "./lib/cspIntegrity";
 
 type HeaderRule = { source: string; headers: Array<{ key: string; value: string }> };
 type VercelConfig = { headers?: HeaderRule[] };
@@ -39,6 +40,7 @@ function trackedFiles(): string[] {
     .map((file) => file.replace(/\\/g, "/"));
 }
 
+const trackedRepositoryFiles = trackedFiles();
 const vercelPath = new URL("vercel.json", rootUrl);
 expect(existsSync(vercelPath), "vercel.json must define production security headers");
 
@@ -62,6 +64,16 @@ expect(hasDirectiveToken(cspDirectives, "frame-ancestors", "'none'"), "CSP frame
 expect(hasDirectiveToken(cspDirectives, "form-action", "'self'"), "CSP form-action must include 'self'");
 expect(hasDirectiveToken(cspDirectives, "connect-src", "'self'"), "CSP connect-src must include 'self'");
 expect(cspDirectives.has("upgrade-insecure-requests"), "CSP must contain upgrade-insecure-requests");
+expect(!hasDirectiveToken(cspDirectives, "script-src", "'unsafe-inline'"), "CSP script-src must not allow unsafe-inline");
+
+const htmlEntryFiles = trackedRepositoryFiles.filter(
+  (file) => /^[^/]+\.html$/u.test(file) || /^public\/.+\.html$/u.test(file),
+);
+const inlineScriptAudit = auditInlineScriptCsp({
+  htmlByFile: Object.fromEntries(htmlEntryFiles.map((file) => [file, read(file)])),
+  scriptSrcTokens: cspDirectives.get("script-src") ?? [],
+});
+for (const finding of inlineScriptAudit.findings) failures.push(finding);
 
 const forbiddenBrowserProviders = [
   "api.openai.com",
@@ -91,7 +103,7 @@ expect(
   "production source maps must require VITE_BUILD_SOURCEMAP=1",
 );
 
-const sourceFiles = trackedFiles().filter((file) => {
+const sourceFiles = trackedRepositoryFiles.filter((file) => {
   if (file === "scripts/security-gate.ts") return false;
   if (file.startsWith("docs/eval/traces/")) return false;
   return /\.(?:cjs|css|html|js|json|jsx|mjs|md|ts|tsx|txt|yml|yaml)$/.test(file);
@@ -199,6 +211,22 @@ if (includeDist) {
   expect(existsSync(distUrl), "dist must exist before running security:gate -- --dist");
   if (existsSync(distUrl)) {
     const distFiles = collectDistFiles(distUrl);
+    const distRootPath = fileURLToPath(distUrl);
+    const distHtmlEntries = Object.fromEntries(
+      distFiles
+        .filter((file) => file.pathname.endsWith(".html"))
+        .map((file) => [
+          fileURLToPath(file).slice(distRootPath.length).replace(/\\/g, "/"),
+          readFileSync(file, "utf8"),
+        ]),
+    );
+    const distInlineScriptAudit = auditInlineScriptCsp({
+      htmlByFile: distHtmlEntries,
+      scriptSrcTokens: cspDirectives.get("script-src") ?? [],
+    });
+    for (const finding of distInlineScriptAudit.findings) {
+      failures.push(`built HTML: ${finding}`);
+    }
     const sourcemaps = distFiles.filter((file) => file.pathname.endsWith(".map"));
     expect(process.env.VITE_BUILD_SOURCEMAP === "1" || sourcemaps.length === 0, "production dist must not contain sourcemap files unless VITE_BUILD_SOURCEMAP=1");
     for (const file of distFiles) {
