@@ -12,7 +12,16 @@
 
 import { z } from "zod";
 import type { AgentTool, EditOutcome, RoomTools } from "../../core/types";
-import type { CellEvidence, CellPayload, CellStatus } from "../../../engine/types";
+import {
+  MAX_CELL_EVIDENCE_ID_CHARS,
+  MAX_CELL_EVIDENCE_ITEMS,
+  MAX_CELL_EVIDENCE_LABEL_CHARS,
+  MAX_CELL_EVIDENCE_SNIPPET_CHARS,
+  MAX_CELL_EVIDENCE_SOURCE_CHARS,
+  type CellEvidence,
+  type CellPayload,
+  type CellStatus,
+} from "../../../engine/types";
 import { normalizeSpreadsheetFontColor } from "../../../shared/spreadsheetFontColor";
 import { runAlgorithmArtifactFromRoomTools, type AlgorithmArtifact } from "./algorithmArtifacts";
 import { BANKER_COACH_TOOLS } from "../bankerCoach/tools";
@@ -20,6 +29,11 @@ import { OKF_RETRIEVAL_TOOLS } from "../../retrieval/tools";
 import { retrieveUntilSufficient } from "../../retrieval/retrievalLoop";
 import { NOTEBOOK_TOOLS } from "../notebook/notebookTools";
 import { stableTraceHash } from "../../traces";
+import {
+  cellEvidenceVerificationStatus,
+  sealCellEvidence,
+  type TrustedCellEvidenceReceipt,
+} from "../../core/evidenceReceipt";
 import {
   buildWorkbookSuggestedPlan,
   checksForWorkbookOperations,
@@ -40,10 +54,26 @@ import {
  * before validation so a slightly-malformed batch call succeeds instead of looping. Batch stays
  * first-class and the single-cell tools are unaffected — this only widens what a batch call accepts.
  */
-function tolerantArray<T extends z.ZodTypeAny>(item: T, opts: { min?: number; singleString?: boolean } = {}) {
-  const base = opts.min != null ? z.array(item).min(opts.min) : z.array(item);
+const MAX_MANAGED_BATCH_OPS = 2_048;
+export const MAX_MANAGED_EVIDENCE_REVIEW_CONCURRENCY = 8;
+const MAX_JSONISH_CHARS = 262_144;
+const MAX_ENCODED_EVIDENCE_CHARS = 131_072;
+
+function tolerantArray<T extends z.ZodTypeAny>(
+  item: T,
+  opts: {
+    min?: number;
+    max?: number;
+    maxStringChars?: number;
+    singleString?: boolean;
+  } = {},
+) {
+  let base = z.array(item);
+  if (opts.min != null) base = base.min(opts.min);
+  if (opts.max != null) base = base.max(opts.max);
   return z.preprocess((v) => {
     if (typeof v === "string") {
+      if (opts.maxStringChars != null && v.length > opts.maxStringChars) return undefined;
       try {
         v = JSON.parse(v);
       } catch {
@@ -51,12 +81,14 @@ function tolerantArray<T extends z.ZodTypeAny>(item: T, opts: { min?: number; si
       }
     }
     if (v != null && !Array.isArray(v) && typeof v === "object") return [v];
+    if (Array.isArray(v) && opts.max != null && v.length > opts.max) return undefined;
     return v;
   }, base);
 }
 
 function parseJsonish(value: unknown): unknown {
   if (typeof value !== "string") return value;
+  if (value.length > MAX_JSONISH_CHARS) return value;
   try {
     return JSON.parse(value);
   } catch {
@@ -122,6 +154,7 @@ function normalizeParallelBatchCall(value: unknown, fields: ParallelField[] = []
     (field.opKey === "fontColor" || field.opKey === "numFmt")
     && field.inputKeys.some((key) => record[key] !== undefined));
   if (!elementIds.length || (values.length === 0 ? !hasStyleOnlyField : values.length !== elementIds.length)) return record;
+  if (elementIds.length > MAX_MANAGED_BATCH_OPS) return record;
   if (baseVersions.length && baseVersions.length !== 1 && baseVersions.length !== elementIds.length) return record;
 
   const kinds = arrayish(record.kinds ?? record.kind);
@@ -272,10 +305,14 @@ function normalizeBatchArgs(value: unknown, fields: ParallelField[] = [], wrapWo
     ? parallel as Record<string, unknown>
     : {};
   const rawOps = record.ops ?? record.cells;
+  const rawOpList = arrayish(rawOps);
+  if (rawOpList.length > MAX_MANAGED_BATCH_OPS) {
+    throw new Error("managed_write_batch_limit_exceeded");
+  }
   return {
     reason: typeof record.reason === "string" ? record.reason : undefined,
     artifactId: typeof record.artifactId === "string" ? record.artifactId : undefined,
-    ops: arrayish(rawOps).map((op) => normalizeScalarOp(op, wrapWorkbookPayload)),
+    ops: rawOpList.map((op) => normalizeScalarOp(op, wrapWorkbookPayload)),
   };
 }
 
@@ -294,28 +331,56 @@ const fontColorSchema = z.string().refine(
   "fontColor must be RRGGBB, #RRGGBB, AARRGGBB, or #AARRGGBB",
 );
 const evidenceSchema = z.object({
-  id: z.string().optional(),
+  id: z.string().max(MAX_CELL_EVIDENCE_ID_CHARS).optional(),
   kind: z.enum(["upload", "source", "computed", "manual"]),
-  label: z.string(),
-  source: z.string().optional(),
-  sourceStorageId: z.string().optional(),
-  sourceArtifactId: z.string().optional(),
-  providerFileId: z.string().optional(),
-  sheetName: z.string().optional(),
-  row: z.number().optional(),
-  column: z.string().optional(),
-  page: z.number().int().positive().optional(),
+  label: z.string().min(1).max(MAX_CELL_EVIDENCE_LABEL_CHARS),
+  source: z.string().max(MAX_CELL_EVIDENCE_SOURCE_CHARS).optional(),
+  sourceStorageId: z.string().max(MAX_CELL_EVIDENCE_ID_CHARS).optional(),
+  sourceArtifactId: z.string().max(MAX_CELL_EVIDENCE_ID_CHARS).optional(),
+  providerFileId: z.string().max(MAX_CELL_EVIDENCE_ID_CHARS).optional(),
+  sheetName: z.string().max(MAX_CELL_EVIDENCE_LABEL_CHARS).optional(),
+  row: z.number().int().min(1).max(1_048_576).optional(),
+  column: z.string().max(64).optional(),
+  page: z.number().int().positive().max(1_000_000).optional(),
   bbox: z.object({
-    x: z.number(),
-    y: z.number(),
-    width: z.number(),
-    height: z.number(),
+    x: z.number().finite().min(-1_000_000_000).max(1_000_000_000),
+    y: z.number().finite().min(-1_000_000_000).max(1_000_000_000),
+    width: z.number().finite().min(0).max(1_000_000_000),
+    height: z.number().finite().min(0).max(1_000_000_000),
     unit: z.enum(["px", "pt", "normalized"]).optional(),
   }).optional(),
-  url: z.string().optional(),
-  snippet: z.string().optional(),
+  url: z.string().max(MAX_CELL_EVIDENCE_SOURCE_CHARS).optional(),
+  snippet: z.string().max(MAX_CELL_EVIDENCE_SNIPPET_CHARS).optional(),
   confidence: z.coerce.number().min(0).max(1).optional(),
 });
+const managedEvidenceArraySchema = tolerantArray(evidenceSchema, {
+  min: 1,
+  max: MAX_CELL_EVIDENCE_ITEMS,
+  maxStringChars: MAX_ENCODED_EVIDENCE_CHARS,
+});
+
+function validatedManagedEvidence(value: unknown): CellEvidence[] {
+  return managedEvidenceArraySchema.parse(value) as CellEvidence[];
+}
+
+export async function mapWithManagedReviewConcurrency<T, R>(
+  items: T[],
+  mapper: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let cursor = 0;
+  const workers = Array.from({
+    length: Math.min(MAX_MANAGED_EVIDENCE_REVIEW_CONCURRENCY, items.length),
+  }, async () => {
+    while (cursor < items.length) {
+      const index = cursor;
+      cursor += 1;
+      results[index] = await mapper(items[index], index);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
 
 function cellPayload(args: {
   elementId: string;
@@ -328,20 +393,38 @@ function cellPayload(args: {
   formula?: string;
   fontColor?: string;
   review?: CellPayload["review"];
-}): CellPayload {
+}, trustedReceiptFor?: (evidence: CellEvidence) => TrustedCellEvidenceReceipt | undefined): CellPayload {
+  const evidence = validatedManagedEvidence(args.evidence).map((item, idx) => {
+    const normalized = {
+      ...item,
+      id: item.id || `${item.kind}:${args.elementId}:${idx + 1}`,
+    };
+    return sealCellEvidence(normalized, trustedReceiptFor?.(normalized));
+  });
+  const sourceEvidence = evidence.filter(
+    (item) => item.kind === "source" || item.kind === "upload",
+  );
+  const allSourceEvidenceVerified = sourceEvidence.length > 0 && sourceEvidence.every(
+    (item) => cellEvidenceVerificationStatus(item) === "verified",
+  );
+  const status = args.status === "complete" && !allSourceEvidenceVerified
+    ? "needs_review"
+    : args.status;
+  const statusCellValue = args.elementId.endsWith("__status")
+    && typeof args.value === "string"
+    && ["empty", "running", "complete", "needs_review", "failed", "gap"].includes(args.value)
+    ? status
+    : args.value;
   return {
-    value: args.value,
-    status: args.status,
+    value: statusCellValue,
+    status,
     confidence: args.confidence,
     error: args.error,
     normalizedValue: args.normalizedValue,
     formula: args.formula,
     fontColor: args.fontColor,
     review: args.review,
-    evidence: args.evidence.map((e, idx) => ({
-      ...e,
-      id: e.id || `${e.kind}:${args.elementId}:${idx + 1}`,
-    })),
+    evidence,
   };
 }
 
@@ -372,12 +455,16 @@ async function reviewedCellPayload(args: {
   formula?: string;
   fontColor?: string;
 }, rt: RoomTools): Promise<CellPayload> {
-  if (!rt.okf || !shouldCheckOkfEvidence(args)) return cellPayload(args);
-  const claim = `${args.elementId}: ${compactClaimValue(args.value)}`;
+  const boundedEvidence = validatedManagedEvidence(args.evidence);
+  const boundedArgs = { ...args, evidence: boundedEvidence };
+  const trustedReceiptFor = (evidence: CellEvidence) =>
+    rt.resolveTrustedCellEvidenceReceipt?.(evidence);
+  if (!rt.okf || !shouldCheckOkfEvidence(boundedArgs)) return cellPayload(boundedArgs, trustedReceiptFor);
+  const claim = `${boundedArgs.elementId}: ${compactClaimValue(boundedArgs.value)}`;
   const query = [
-    args.elementId,
-    compactClaimValue(args.value),
-    ...args.evidence.flatMap((e) => [e.label, e.source, e.url, e.sourceArtifactId, e.snippet]).filter((v): v is string => !!v),
+    boundedArgs.elementId,
+    compactClaimValue(boundedArgs.value),
+    ...boundedEvidence.flatMap((e) => [e.label, e.source, e.url, e.sourceArtifactId, e.snippet]).filter((v): v is string => !!v),
   ].join(" ").slice(0, 900);
   try {
     const packet = await retrieveUntilSufficient({
@@ -389,23 +476,23 @@ async function reviewedCellPayload(args: {
     const memo = packet.evidenceMemos[0];
     const status = memo?.recommendedAction === "answer" ? args.status : "needs_review";
     return cellPayload({
-      ...args,
+      ...boundedArgs,
       status,
       review: {
         evidenceMemo: memo,
         caveat: packet.caveat,
         source: "okf_evidence_memo",
       },
-    });
+    }, trustedReceiptFor);
   } catch (error) {
     return cellPayload({
-      ...args,
+      ...boundedArgs,
       status: "needs_review",
       review: {
         caveat: `OKF evidence check unavailable: ${error instanceof Error ? error.message : String(error)}`,
         source: "okf_evidence_memo",
       },
-    });
+    }, trustedReceiptFor);
   }
 }
 
@@ -790,8 +877,8 @@ const scalarOpInputSchema = scalarOpInputObject.superRefine(addScalarOpIssues);
 const scalarBatchSchema = z.object({
   reason: z.string().optional().describe("one short phrase shown in the room trace"),
   artifactId: z.string().optional(),
-  ops: tolerantArray(scalarOpInputSchema, { min: 1 }).optional(),
-  cells: tolerantArray(scalarOpInputSchema, { min: 1 }).optional(),
+  ops: tolerantArray(scalarOpInputSchema, { min: 1, max: MAX_MANAGED_BATCH_OPS }).optional(),
+  cells: tolerantArray(scalarOpInputSchema, { min: 1, max: MAX_MANAGED_BATCH_OPS }).optional(),
   elementIds: z.any().optional(),
   cellIds: z.any().optional(),
   ids: z.any().optional(),
@@ -852,7 +939,7 @@ const WRITE_LOCKED_CELL_RESULT_TOOL: AgentTool = {
     normalizedValue: z.any().optional(),
     formula: z.string().optional(),
     error: z.string().optional(),
-    evidence: tolerantArray(evidenceSchema, { min: 1 }),
+    evidence: managedEvidenceArraySchema,
     reason: z.string().optional().describe("one short phrase shown in the room trace"),
     kind: z.enum(["set", "create"]).optional().describe("'set' updates an existing result cell; 'create' adds a new one"),
     artifactId: z.string().optional(),
@@ -896,15 +983,15 @@ const resultOpInputSchema = scalarOpInputObject.extend({
   normalizedValue: z.any().optional(),
   formula: z.string().optional(),
   error: z.string().optional(),
-  evidence: tolerantArray(evidenceSchema, { min: 1 }),
+  evidence: managedEvidenceArraySchema,
   kind: z.enum(["set", "create"]).optional(),
 }).superRefine(addScalarOpIssues);
 
 const resultBatchSchema = z.object({
   reason: z.string().optional().describe("one short phrase shown in the room trace"),
   artifactId: z.string().optional(),
-  ops: tolerantArray(resultOpInputSchema, { min: 1 }).optional(),
-  cells: tolerantArray(resultOpInputSchema, { min: 1 }).optional(),
+  ops: tolerantArray(resultOpInputSchema, { min: 1, max: MAX_MANAGED_BATCH_OPS }).optional(),
+  cells: tolerantArray(resultOpInputSchema, { min: 1, max: MAX_MANAGED_BATCH_OPS }).optional(),
   elementIds: z.any().optional(),
   cellIds: z.any().optional(),
   ids: z.any().optional(),
@@ -955,7 +1042,7 @@ const WRITE_LOCKED_CELL_RESULTS_TOOL: AgentTool = {
   schema: resultBatchSchema,
   execute: async (a: unknown, rt) => {
     const normalized = normalizeBatchArgs(a, resultParallelFields, false);
-    const ops = await Promise.all(normalized.ops.map(async (op) => {
+    const ops = await mapWithManagedReviewConcurrency(normalized.ops, async (op) => {
       const raw = normalizeRawOp(op);
       const resultOp = {
         ...op,
@@ -968,7 +1055,7 @@ const WRITE_LOCKED_CELL_RESULTS_TOOL: AgentTool = {
         kind: op.kind === "create" ? "create" as const : "set" as const,
       };
       return { ...op, kind: resultOp.kind, value: await reviewedCellPayload(resultOp, rt) };
-    }));
+    });
     return writeBatchWithManagedLock({ reason: normalized.reason, artifactId: normalized.artifactId, ops }, rt);
   },
 };
@@ -1692,7 +1779,7 @@ export const ROOM_TOOLS: AgentTool[] = [
       normalizedValue: z.any().optional(),
       formula: z.string().optional(),
       error: z.string().optional(),
-      evidence: tolerantArray(evidenceSchema, { min: 1 }),
+      evidence: managedEvidenceArraySchema,
       kind: z.enum(["set", "create"]).optional().describe("'set' updates an existing result cell; 'create' adds a new one"),
       artifactId: z.string().optional().describe("another file's id from list_artifacts; omit for the primary file"),
     }),
@@ -1825,8 +1912,8 @@ export const ROOM_TOOLS: AgentTool[] = [
   },
   {
     name: "fetch_source",
-    description: "Fetch a real web page for sourced enrichment. Returns { ok:true, title, snippet, url } or { ok:false, error }. Use the returned title/url as the CITATION when you write a researched value — NEVER cite a source you did not fetch.",
-    schema: z.object({ url: z.string().describe("an https URL to fetch as evidence") }),
+    description: "Fetch a source presentation for enrichment. Returns { ok:true, title, snippet, url, provenance } or { ok:false, error }. provenance=network_fetch is a real bounded fetch and may receive a verified receipt; provenance=synthetic_fixture is demo-only and can NEVER support a verified claim. When writing sourced evidence, copy a network result's title, final URL, and snippet EXACTLY; omitted or changed snippets cannot receive a verified source receipt. NEVER cite a source you did not fetch in this run.",
+    schema: z.object({ url: z.string().min(1).max(2_048).describe("an https URL to fetch as evidence") }),
     execute: (a: { url: string }, rt) => rt.fetchSource(a.url),
   },
   // Notebook lane: structured block reads + governed outline appends (both

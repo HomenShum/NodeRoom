@@ -63,6 +63,12 @@ export type ArtifactVisibility = "private" | "room" | "public";
 
 export type DataframeColumnMode = "manual" | "enrich" | "resolve" | "classify" | "compute";
 export type CellStatus = "empty" | "running" | "complete" | "needs_review" | "failed" | "gap";
+/** Hard persistence/trust-gate bound shared by browser tools and Convex writes. */
+export const MAX_CELL_EVIDENCE_ITEMS = 16;
+export const MAX_CELL_EVIDENCE_ID_CHARS = 256;
+export const MAX_CELL_EVIDENCE_LABEL_CHARS = 256;
+export const MAX_CELL_EVIDENCE_SOURCE_CHARS = 2_048;
+export const MAX_CELL_EVIDENCE_SNIPPET_CHARS = 4_096;
 
 export interface CellEvidence {
   id: string;
@@ -80,6 +86,12 @@ export interface CellEvidence {
   url?: string;
   snippet?: string;
   confidence?: number;
+  /** Trusted adapter capture time; never accepted from model-authored evidence. */
+  verifiedAt?: number;
+  /** SHA-256 of exact bounded source bytes, attached only through a trusted receipt. */
+  contentDigest?: string;
+  /** Canonical digest of every evidence field except this receipt itself. */
+  receiptDigest?: string;
 }
 
 export interface CellPayload {

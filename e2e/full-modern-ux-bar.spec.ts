@@ -252,7 +252,7 @@ test.describe("full modern UX release bar", () => {
     const sourceCell = panel.locator('[data-cell-key="rc_cardionova__source"]').or(cardioRow.locator(".r-research-src")).first();
     const source2Cell = panel.locator('[data-cell-key="rc_cardionova__source2"]').or(cardioRow.locator(".r-research-src")).first();
     const freshCell = panel.locator('[data-cell-key="rc_cardionova__last_researched"]').or(cardioRow.locator("td").nth(6)).first();
-    await expect(statusCell).toContainText(/complete/i);
+    await expect(statusCell).toContainText(/needs[_ ]review/i);
     await expect(summaryCell).toContainText(/sourced account profile with GTM fit/i);
     await expect(fundingCell).toContainText(/Funding signal captured from sourced research/i);
     await expect(sourceCell).toContainText(/cardionova\.com/);

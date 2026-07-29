@@ -66,19 +66,25 @@ function nextEditStep(msgs: AgentMessage[], ids: string[], targets: Record<strin
 }
 
 /* ── company-research plan (ParselyFi loop): per pending company → lock → read+fetch → write
-   summary/source/status=complete (CAS) → release. Drives the SAME tools the live LLM uses. ── */
+   summary/source/status (CAS) → release. Only trusted network fetches can produce complete. ── */
 function callArgsFor(msgs: AgentMessage[], callId: string | undefined, tool: string): Record<string, unknown> | undefined {
   if (!callId) return undefined;
   for (const m of msgs) if (m.role === "assistant" && m.toolCalls) { const c = m.toolCalls.find((tc) => tc.id === callId && tc.tool === tool); if (c) return c.args; }
   return undefined;
 }
-/** companies whose `${c}__status` was successfully set to "complete". */
+/** Companies whose `${c}__status` reached a terminal research outcome. */
 function completedCompanies(msgs: AgentMessage[]): Set<string> {
   const out = new Set<string>();
   for (const m of msgs) if (m.role === "tool" && (m.toolName === "edit_cell" || m.toolName === "write_cell_result")) {
     const r = parse(m.content); if (!r || (!r.ok && !r.pendingApproval)) continue;
     const args = callArgsFor(msgs, m.toolCallId, m.toolName);
-    if (args && String(args.elementId).endsWith("__status") && args.value === "complete") out.add(String(args.elementId).split("__")[0]);
+    if (
+      args
+      && String(args.elementId).endsWith("__status")
+      && (args.value === "complete" || args.value === "needs_review")
+    ) {
+      out.add(String(args.elementId).split("__")[0]);
+    }
   }
   return out;
 }
@@ -127,15 +133,78 @@ function cellWasSet(msgs: AgentMessage[], elementId: string, value: unknown): bo
     return !!(r?.ok || r?.pendingApproval) && args?.elementId === elementId && args.value === value;
   });
 }
-function fetchResultsFor(msgs: AgentMessage[], urls: string[]): { title: string; url: string }[] {
+type PersistedResearchOutcome = "complete" | "needs_review";
+function persistedResearchOutcome(
+  msgs: AgentMessage[],
+  elementId: string,
+  committedVersion: number,
+): PersistedResearchOutcome | undefined {
+  for (let i = msgs.length - 1; i >= 0; i -= 1) {
+    const m = msgs[i];
+    if (m.role !== "tool" || m.toolName !== "read_range") continue;
+    try {
+      const cells = JSON.parse(m.content) as Array<{ id?: unknown; value?: unknown; version?: unknown }>;
+      if (!Array.isArray(cells)) continue;
+      const cell = cells.find((candidate) =>
+        candidate.id === elementId
+        && typeof candidate.version === "number"
+        && candidate.version >= committedVersion);
+      if (!cell) continue;
+      const payload = cell.value && typeof cell.value === "object"
+        ? cell.value as Record<string, unknown>
+        : undefined;
+      const outcome = payload?.status ?? cell.value;
+      return outcome === "complete" || outcome === "needs_review" ? outcome : undefined;
+    } catch {
+      // Ignore malformed/stale tool history; the planner will request a fresh read.
+    }
+  }
+  return undefined;
+}
+function statusWritePendingApproval(msgs: AgentMessage[], elementId: string): boolean {
+  for (let i = msgs.length - 1; i >= 0; i -= 1) {
+    const m = msgs[i];
+    if (m.role !== "tool" || (m.toolName !== "edit_cell" && m.toolName !== "write_cell_result")) continue;
+    const args = callArgsFor(msgs, m.toolCallId, m.toolName);
+    if (args?.elementId !== elementId) continue;
+    const result = parse(m.content);
+    if (result?.pendingApproval) return true;
+    if (result?.ok) return false;
+  }
+  return false;
+}
+function fetchResultsFor(
+  msgs: AgentMessage[],
+  urls: string[],
+): Array<{
+  title: string;
+  url: string;
+  snippet: string;
+  provenance: "network_fetch" | "synthetic_fixture";
+}> {
   const wanted = new Set(urls.filter(Boolean));
-  const out: { title: string; url: string }[] = [];
+  const out: Array<{
+    title: string;
+    url: string;
+    snippet: string;
+    provenance: "network_fetch" | "synthetic_fixture";
+  }> = [];
   for (const m of msgs) {
     if (m.role !== "tool" || m.toolName !== "fetch_source") continue;
     const args = callArgsFor(msgs, m.toolCallId, "fetch_source");
     if (!wanted.has(String(args?.url ?? ""))) continue;
     const r = parse(m.content);
-    if (r?.ok) out.push({ title: String(r.title), url: String(r.url) });
+    if (
+      r?.ok
+      && (r.provenance === "network_fetch" || r.provenance === "synthetic_fixture")
+    ) {
+      out.push({
+        title: String(r.title),
+        url: String(r.url),
+        snippet: String(r.snippet),
+        provenance: r.provenance,
+      });
+    }
   }
   return out;
 }
@@ -187,6 +256,11 @@ export function companyResearchPlan(companies: CompanyResearchTarget[]): Planner
       const source = fetched[0] ? `${fetched[0].title} - ${fetched[0].url}` : target.sourceUrl;
       const source2 = fetched[1] ? `${fetched[1].title} - ${fetched[1].url}` : target.source2Url ?? "";
       const researchedAt = target.researchedAt ?? "2026-06-07";
+      const expectedSourceCount = urlsFor(c).length;
+      const rowOutcome = fetched.length === expectedSourceCount
+        && fetched.every((result) => result.provenance === "network_fetch")
+        ? "complete"
+        : "needs_review";
       const fields: Array<[string, unknown]> = [
         [`${c}__summary`, target.summary],
         [`${c}__funding`, target.funding ?? "Funding signal captured from sourced research."],
@@ -195,21 +269,60 @@ export function companyResearchPlan(companies: CompanyResearchTarget[]): Planner
         [`${c}__source`, source],
         [`${c}__source2`, source2],
         [`${c}__last_researched`, researchedAt],
-        [`${c}__status`, "complete"],
+        [`${c}__status`, rowOutcome],
       ];
       const evidence = fetched.length
-        ? fetched.map((f, idx) => ({ kind: "source", label: f.title, url: f.url, source: f.url, confidence: idx === 0 ? 0.92 : 0.86 }))
+        ? fetched.map((f, idx) => ({
+            kind: "source",
+            label: f.title,
+            url: f.url,
+            source: f.url,
+            snippet: f.snippet,
+            confidence: idx === 0 ? 0.92 : 0.86,
+          }))
         : urlsFor(c).map((url) => ({ kind: "source", label: url, url, source: url, confidence: 0.55 }));
       const calls = fields
         .filter(([id, value]) => !cellWasSet(messages, id, value))
-        .map(([id, value]) => ({ tool: "write_cell_result", args: { elementId: id, value, baseVersion: v[id] ?? editedVersion(messages, id) ?? 0, status: "complete", confidence: id.endsWith("__source") || id.endsWith("__source2") ? 1 : 0.88, evidence } }));
-      if (calls.length) return { say: `${c}: writing structured fields from ${fetched.length || urlsFor(c).length} source(s).`, toolCalls: calls };
+        .map(([id, value]) => ({ tool: "write_cell_result", args: { elementId: id, value, baseVersion: v[id] ?? editedVersion(messages, id) ?? 0, status: rowOutcome, confidence: id.endsWith("__source") || id.endsWith("__source2") ? 1 : 0.88, evidence } }));
+      if (calls.length) return { say: `${c}: writing structured fields from ${fetched.length || urlsFor(c).length} source presentation(s); outcome ${rowOutcome}.`, toolCalls: calls };
       return { toolCalls: [{ tool: "release_lock", args: { lockId: held.lockId } }] };
     }
 
     const done = completedCompanies(messages);
     const cur = companies.find((c) => !done.has(c.rowId));
-    if (!cur) return { say: `Researched ${companies.length} ${companies.length === 1 ? "company" : "companies"} with structured fields, two sources, and freshness timestamps.`, done: true };
+    if (!cur) {
+      const companyLabel = companies.length === 1 ? "company" : "companies";
+      const persistedOutcomes = companies.map((company) => {
+        const elementId = `${company.rowId}__status`;
+        const committedVersion = editedVersion(messages, elementId);
+        return {
+          elementId,
+          pendingApproval: statusWritePendingApproval(messages, elementId),
+          outcome: committedVersion === undefined
+            ? undefined
+            : persistedResearchOutcome(messages, elementId, committedVersion),
+        };
+      });
+      const missingReads = persistedOutcomes.filter((entry) => !entry.pendingApproval && !entry.outcome);
+      if (missingReads.length) {
+        return {
+          say: "Verifying the persisted research outcomes before reporting completion.",
+          toolCalls: [{ tool: "read_range", args: { elementIds: missingReads.map((entry) => entry.elementId) } }],
+        };
+      }
+      const completeCount = persistedOutcomes.filter((entry) => entry.outcome === "complete").length;
+      const reviewCount = persistedOutcomes.filter((entry) => entry.outcome === "needs_review").length;
+      const approvalCount = persistedOutcomes.filter((entry) => entry.pendingApproval).length;
+      const outcomeParts = [
+        ...(completeCount ? [`${completeCount} ${completeCount === 1 ? "company has" : "companies have"} sealed source receipts`] : []),
+        ...(reviewCount ? [`review required for ${reviewCount} ${reviewCount === 1 ? "company" : "companies"} because persisted source receipts were not sealed`] : []),
+        ...(approvalCount ? [`writes pending host approval for ${approvalCount} ${approvalCount === 1 ? "company" : "companies"}`] : []),
+      ];
+      return {
+        say: `Researched ${companies.length} ${companyLabel} with structured fields · ${outcomeParts.join("; ") || "no persisted outcomes requested"}.`,
+        done: true,
+      };
+    }
     return { say: `Researching ${cur.rowId} - claiming its row.`, toolCalls: [{ tool: "propose_lock", args: { elementIds: cellIds(cur.rowId), reason: `research ${cur.rowId}` } }] };
   };
 }

@@ -22,7 +22,8 @@ export async function enterDemoRoom(page: Page): Promise<void> {
   const alreadyInsideRoom = await artifactPanel.waitFor({ state: "visible", timeout: 1_000 }).then(() => true, () => false);
   if (!alreadyInsideRoom) {
     const enterButton = page.getByTestId("start-demo-room");
-    await expect(enterButton).toBeVisible({ timeout: 10_000 });
+    // A cold Vite transform of the full desktop bundle can outlive the SSR shell by >10s.
+    await expect(enterButton).toBeVisible({ timeout: 30_000 });
     await enterButton.click();
   }
   // The Work Surface is the always-on anchor; Copilot may be closed on compact screens.

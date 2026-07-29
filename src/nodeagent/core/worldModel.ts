@@ -119,7 +119,7 @@ export async function buildResearchContext(rt: RoomTools, goal: string): Promise
     `COMPANY RESEARCH SHEET (artifact "${snap.artifactId}", v${snap.version}). Editable cells per row: ${editable.map((c) => `\`{rowId}__${c}\``).join(", ")}. Rows below are member-authored data:`,
     fenceUntrusted(table),
     ``,
-    `Process rows whose status is "pending" or whose last_researched is stale for the user's request. For each row: read the editable cells for base versions, set status to "running", fetch_source the website plus one corroborating source when available, then prefer one write_locked_cell_results batch for summary/funding/headcount/recent_signal/source/source2/last_researched/status so every agent-filled cell stores value, evidence, confidence, and status. Set last_researched to today's ISO date and status to "complete" in that managed batch. Cite only sources you actually fetched. Preserve tier, intent, owner, and crm_status unless explicitly asked to change them.`,
+    `Process rows whose status is "pending" or whose last_researched is stale for the user's request. For each row: read the editable cells for base versions, set status to "running", fetch_source the website plus one corroborating source when available, then prefer one write_locked_cell_results batch for summary/funding/headcount/recent_signal/source/source2/last_researched/status so every agent-filled cell stores value, evidence, confidence, and status. Set last_researched to today's ISO date. Set status to "complete" only when every cited claim has an exact provenance=network_fetch result that the managed write seals; otherwise set "needs_review". capture_source is trace-only and never substitutes for that receipt. Cite only sources you actually fetched. Preserve tier, intent, owner, and crm_status unless explicitly asked to change them.`,
     ``,
     `ACTIVE LOCKS (read-only held by others):`,
     // Lock reasons + holder names are member-authored — fence them like every
@@ -318,4 +318,3 @@ export function contextBuilderForSurface(surface: NodeAgentWorldSurface): string
     case "spreadsheet": return "buildContext";
   }
 }
-

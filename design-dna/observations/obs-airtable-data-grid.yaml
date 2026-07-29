@@ -1,0 +1,87 @@
+id: obs-airtable-data-grid-1
+source:
+  url: https://mobbin.com/screens/8ad4f505-28a8-4b6b-86a9-58c7d4c4dbd4
+  app: Airtable
+  surface: Data grid
+  capturedVia: mobbin-live
+firstSeenAt: 2026-07-28
+lastVerifiedAt: 2026-07-28
+license:
+  pixelsStored: false
+  durableArtifact: facts-and-source-url-only
+
+facts:
+  - id: f1
+    kind: relationship
+    subject: records
+    property: grid mapping
+    value: "one record occupies one row and one field occupies one column"
+    locatorDescription: "Numbered grid rows beneath the field-header row."
+
+  - id: f2
+    kind: relationship
+    subject: field headers
+    property: alignment with values
+    value: "each field header shares a vertical column with its values"
+    locatorDescription: "Header row and the cell values directly below each header."
+
+  - id: f3
+    kind: relationship
+    subject: project status values
+    property: categorical encoding
+    value: "status text is contained in a label within the Project Status column"
+    locatorDescription: "Project Status cells for Planning, In Progress, Review, and Completed."
+
+  - id: f4
+    kind: count
+    subject: visible status vocabulary
+    property: categories
+    value: 4
+    unit: categories
+    locatorDescription: "Planning, In Progress, Review, and Completed labels in the Project Status column."
+
+  - id: f5
+    kind: relationship
+    subject: row identity
+    property: position
+    value: "row numbers appear in a column before project data"
+    locatorDescription: "Number column at the left edge of the grid."
+
+  - id: f6
+    kind: relationship
+    subject: grid controls
+    property: placement
+    value: "field visibility, filter, group, sort, and color controls appear above the field-header row"
+    locatorDescription: "Control row between the base tabs and the grid header."
+
+  - id: f7
+    kind: relationship
+    subject: view navigation
+    property: placement relative to grid
+    value: "the current grid view is listed in a rail to the left of the records"
+    locatorDescription: "View rail containing Grid view beside the first data column."
+
+  - id: f8
+    kind: relationship
+    subject: empty cells
+    property: representation
+    value: "cells without a field value remain empty inside the grid"
+    locatorDescription: "Rows with no cover image or field value under their column headers."
+
+problemTags:
+  - dense-record-scan
+  - categorical-state-scan
+intentTags:
+  - align-fields-across-records
+  - keep-state-in-a-dedicated-column
+layoutTags:
+  - field-column-grid
+  - view-rail-beside-records
+interactionTags:
+  - grid-view-selection
+  - column-filter-sort-controls
+
+notRecorded:
+  - timing
+  - easing
+  - choreography

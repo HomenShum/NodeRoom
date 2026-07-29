@@ -20,7 +20,7 @@ const scalarOf = (v: unknown): unknown =>
   v && typeof v === "object" && "value" in (v as Record<string, unknown>) ? (v as { value: unknown }).value : v;
 
 describe("WORKFLOW EVAL — GTM enrichment (persona: Maya, sales-ops; fill pending accounts, keep CRM)", () => {
-  it("enriches every pending account to complete with sourced CellPayloads + evidence, CRM columns untouched", async () => {
+  it("enriches every pending account with synthetic evidence held for review and leaves CRM columns untouched", async () => {
     const engine = new RoomEngine();
     const d = buildDemoRoom(engine);
     const rt = new InMemoryRoomTools(engine, d.roomId, d.researchId, d.agents.room, d.sessions.room);
@@ -28,19 +28,50 @@ describe("WORKFLOW EVAL — GTM enrichment (persona: Maya, sales-ops; fill pendi
     const maxSteps = 14 * RESEARCH_PLAN.length + 4;
     const r = await runAgent({ rt, goal, model: scriptedModel(companyResearchPlan(RESEARCH_PLAN as CompanyResearchTarget[])), tools: ROOM_TOOLS, maxSteps, contextBuilder: buildResearchContext });
     expect(r.stopReason).toBe("done");
+    expect(r.finalText).toContain(`Researched ${RESEARCH_PLAN.length} companies with structured fields`);
+    expect(r.finalText).toContain(`review required for ${RESEARCH_PLAN.length} companies`);
 
     const el = (id: string) => engine.getArtifact(d.researchId)!.elements[id]?.value;
+    const targetIds = new Set(RESEARCH_PLAN.map((target) => target.rowId));
     for (const c of RESEARCH_COMPANIES) {
-      expect(String(scalarOf(el(`${c.id}__status`)))).toBe("complete");                 // pending → complete
+      expect(String(scalarOf(el(`${c.id}__status`)))).toBe(targetIds.has(c.id) ? "needs_review" : "complete");
       for (const col of ["summary", "funding", "headcount", "recent_signal", "source"]) {
-        const p = el(`${c.id}__${col}`) as { evidence?: unknown[] } | undefined;
+        const p = el(`${c.id}__${col}`) as { evidence?: unknown[]; status?: string } | undefined;
         expect(String(scalarOf(p) ?? "").length).toBeGreaterThan(0);                     // blank filled
         expect(Array.isArray(p?.evidence) && p!.evidence!.length >= 1).toBe(true);        // evidence-bearing
+        expect(p?.status).toBe(targetIds.has(c.id) ? "needs_review" : "complete");       // synthetic fixture cannot self-certify
       }
       expect(el(`${c.id}__tier`)).toBe(c.tier);                                           // CRM untouched (still seeded scalar)
       expect(el(`${c.id}__crm_status`)).toBe(c.crmStatus);
       expect(el(`${c.id}__owner`)).toBe(c.owner);
     }
+  });
+
+  it("keeps a synthetic-review row eligible on a later analyst rerun instead of silently treating it as complete", async () => {
+    const engine = new RoomEngine();
+    const d = buildDemoRoom(engine);
+    const rt = new InMemoryRoomTools(engine, d.roomId, d.researchId, d.agents.room, d.sessions.room);
+    const target = RESEARCH_PLAN[0] as CompanyResearchTarget;
+    const run = () => runAgent({
+      rt,
+      goal: `Recheck ${target.rowId} until its sources can be sealed.`,
+      model: scriptedModel(companyResearchPlan([target])),
+      tools: ROOM_TOOLS,
+      maxSteps: 18,
+      contextBuilder: buildResearchContext,
+    });
+
+    expect((await run()).stopReason).toBe("done");
+    const firstStatus = engine.getArtifact(d.researchId)!.elements[`${target.rowId}__status`];
+    expect(scalarOf(firstStatus.value)).toBe("needs_review");
+    expect((firstStatus.value as { status?: string }).status).toBe("needs_review");
+    const firstVersion = firstStatus.version;
+
+    expect((await run()).stopReason).toBe("done");
+    const rerunStatus = engine.getArtifact(d.researchId)!.elements[`${target.rowId}__status`];
+    expect(scalarOf(rerunStatus.value)).toBe("needs_review");
+    expect((rerunStatus.value as { status?: string }).status).toBe("needs_review");
+    expect(rerunStatus.version).toBeGreaterThan(firstVersion);
   });
 });
 

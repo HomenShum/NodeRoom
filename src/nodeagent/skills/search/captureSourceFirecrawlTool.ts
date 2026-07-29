@@ -19,8 +19,8 @@ const schema = z.object({
 export const captureSourceFirecrawlTool: AgentTool = {
   name: "capture_source",
   description:
-    "Capture a public source page with Firecrawl, screenshot it, and extract structured values with evidence. " +
-    "Use when a finance/GTM claim needs source-of-truth web evidence; use fetch_source for cheaper text-only snippets.",
+    "Capture a public source page with Firecrawl, screenshot it, and extract trace-only structured context. " +
+    "This tool does not issue a sealed source receipt: call fetch_source and cite its exact network result before marking a managed claim complete; capture-only claims must remain needs_review.",
   schema,
   async execute(args: z.infer<typeof schema>, rt: RoomTools) {
     const r = await runCapture({
@@ -33,6 +33,7 @@ export const captureSourceFirecrawlTool: AgentTool = {
     await rt.recordCapture?.({ url: r.url, goal: args.goal, ok: r.ok, title: r.title, error: r.error, data: r.data, steps: r.steps });
     return {
       ok: r.ok,
+      provenance: "capture_trace_only" as const,
       url: r.url,
       title: r.title,
       data: r.data,

@@ -37,7 +37,10 @@ e2e
 tests
 evals
 demo
-scripts
+# Build-time provenance is part of the deploy contract. Keep the scripts directory
+# traversable while excluding every script except the verifier invoked by `npm run build`.
+/scripts/*
+!/scripts/verify-build-provenance.ts
 /.agent
 /.claude
 /.kilo

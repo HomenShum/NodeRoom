@@ -978,6 +978,7 @@ export default defineSchema({
     schedulerHandoffCount: v.optional(v.number()),
     receiptCount: v.optional(v.number()),
     latestRunId: v.optional(v.id("agentRuns")),
+    resultDigest: v.optional(v.string()),
     leaseId: v.optional(v.string()),
     leaseUntil: v.optional(v.number()),
     nextRunAt: v.optional(v.number()),

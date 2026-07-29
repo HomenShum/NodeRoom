@@ -1,0 +1,20 @@
+COMMAND
+npx vitest run tests/investigationMode.test.ts tests/investigationSurface.test.tsx tests/researchHarness.test.ts tests/agentJobsRuntime.test.ts -t "Investigation|investigation launch receipt|company research harness"
+
+RESULT
+Exit code: 1
+Test Files  4 failed (4)
+Tests       8 failed | 11 passed | 54 skipped (73)
+
+EXPECTED RED FAILURES
+- Durable request had no persisted request.investigation receipt.
+- Duplicate "Same Co" rows produced one entity identity instead of two.
+- A generic durable job without an authorization receipt changed the workspace to running.
+- Manual-only evidence changed the workspace to complete.
+- An expired per-field source receipt was still reported as supported.
+- Cached and server-completed execute runs had the same output digest.
+- Managed research writes had no per-evidence verifiedAt or receiptDigest.
+- The consent-gated run callback received no plan/dataset-bound launch intent.
+
+UNCHANGED BASELINE WITHIN THE SAME COMMAND
+11 pre-existing Investigation and research-harness assertions passed.

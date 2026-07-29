@@ -575,7 +575,9 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-decision-eyebrow { color: var(--text-tertiary); font-size: 9.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .r-decision-head strong { min-width: 0; color: var(--text-primary); font-size: 13px; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-decision-progress { position: relative; height: 20px; display: flex; align-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: 7px; background: var(--bg-primary); }
-.r-decision-progress span { position: absolute; inset: 0 auto 0 0; min-width: 8px; border-radius: 6px; background: color-mix(in srgb, var(--success) 28%, transparent); }
+.r-decision-progress span { position: absolute; inset: 0 auto 0 0; min-width: 8px; border-radius: 6px; background: color-mix(in srgb, var(--accent-primary) 24%, transparent); }
+.r-decision-progress[data-tone="success"] span { background: color-mix(in srgb, var(--success) 28%, transparent); }
+.r-decision-progress[data-tone="warning"] span { background: var(--warning-tint); }
 .r-decision-progress b { position: relative; z-index: 1; padding-left: 8px; color: var(--text-secondary); font-size: 10.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .r-decision-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
 .r-decision-metrics span { min-width: 0; display: grid; gap: 1px; padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-primary); }

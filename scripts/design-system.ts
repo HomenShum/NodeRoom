@@ -10,6 +10,10 @@ import {
   type DesignDriftInput,
   type DesignDriftResult,
 } from "../src/design/designSystem";
+import {
+  validateReferenceProvenance,
+  type ReferenceProvenanceValidation,
+} from "./reference-provenance";
 
 const command = process.argv[2] ?? "help";
 const json = process.argv.includes("--json");
@@ -21,13 +25,15 @@ if (command === "manifest") {
 } else if (command === "audit") {
   const result = auditNodeRoomDesignSystem(readDesignFiles());
   const drift = auditDesignTokenDrift(readDriftInputs());
+  const referenceProvenance = validateReferenceProvenance();
   if (json) {
-    console.log(JSON.stringify({ ...result, drift }, null, 2));
+    console.log(JSON.stringify({ ...result, drift, referenceProvenance }, null, 2));
   } else {
     write(result);
     printDrift(drift);
+    printReferenceProvenance(referenceProvenance);
   }
-  if (!result.ok) process.exitCode = 1;
+  if (!result.ok || !referenceProvenance.ok) process.exitCode = 1;
 } else {
   const help = [
     "NodeRoom design-system CLI",
@@ -37,6 +43,7 @@ if (command === "manifest") {
     "  tsx scripts/design-system.ts audit --json",
     "",
     "audit = hard gate (regressions fail) + token-drift slop detector (warnings only):",
+    "  - reference observation/fact/rule/score/render links (missing links fail)",
     "  - hex colors outside the canonical token set (design-reference/assets/colors_and_type.css + styles.css :root tokens)",
     "  - font sizes off the 11/12/13/14/15/17/20/26/31/40px type scale",
     "  - border radii off the 4/6/8/10/12/16/9999px radius scale",
@@ -90,6 +97,18 @@ function printDrift(drift: DesignDriftResult) {
   const omitted = drift.findings.length - shown.length;
   if (omitted > 0) {
     console.log(`... ${omitted} more drift warnings - run "npm run design:audit -- --json" for the full list`);
+  }
+}
+
+function printReferenceProvenance(
+  result: ReferenceProvenanceValidation,
+): void {
+  const { summary } = result;
+  console.log(
+    `reference-provenance: ${result.ok ? "pass" : "fail"} (${summary.observations} observations, ${summary.facts} facts, ${summary.rules} rules, ${summary.scoreReceipts} score receipts, ${summary.citedFacts} cited facts)`,
+  );
+  for (const finding of result.findings) {
+    console.log(`ERROR ${finding.code} ${finding.ref} - ${finding.message}`);
   }
 }
 

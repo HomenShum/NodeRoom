@@ -15,8 +15,10 @@
  */
 
 import type { ZodTypeAny } from "zod";
+import type { CellEvidence } from "../../engine/types";
 import type { ProviderRouteReceipt } from "../guardrails/egressPolicy";
 import type { OkfRetrievalPort } from "../retrieval/types";
+import type { TrustedCellEvidenceReceipt } from "./evidenceReceipt";
 
 /* ── conversation ── */
 export type Role = "user" | "assistant" | "tool";
@@ -181,7 +183,19 @@ export interface SnapshotElement { id: string; value: unknown; version: number; 
 /** `rows` is the sheet-shaped projection; `elements` is the kind-agnostic raw element list
  *  (present in live mode) that note/wall context builders read. */
 export interface RoomSnapshot { artifactId: string; version: number; kind: string; rows: RoomSnapshotRow[]; elements?: SnapshotElement[]; }
-export type SourceResult = { ok: true; title: string; snippet: string; url: string } | { ok: false; error: string };
+export type SourceResult =
+  | {
+      ok: true;
+      title: string;
+      snippet: string;
+      url: string;
+      /**
+       * Origin class is model-visible and trace-visible. Only `network_fetch`
+       * results can be registered by the trusted receipt boundary.
+       */
+      provenance: "network_fetch" | "synthetic_fixture";
+    }
+  | { ok: false; error: string };
 export type SpreadsheetContextHit =
   | { kind: "cell"; elementId: string; coordinate: string; rowHeader: string; columnHeader: string; rawValue: string; semanticSummary: string; score: number }
   | { kind: "chunk"; chunkId: string; elementIds: string[]; text: string; score: number };
@@ -325,6 +339,11 @@ export interface RoomTools {
   say(text: string): Promise<void>;
   /** Fetch a source URL for sourced enrichment — bounded (SSRF-guarded, timeout, size cap). */
   fetchSource(url: string): Promise<SourceResult>;
+  /**
+   * Internal adapter seam, never exposed as a model tool. Resolves only source
+   * presentations fetched by this exact RoomTools runtime/slice.
+   */
+  resolveTrustedCellEvidenceReceipt?(evidence: CellEvidence): TrustedCellEvidenceReceipt | undefined;
   /** Persist a finished live capture (screenshots + boxes) so it renders in the Trace tab.
    *  Optional: only the server (Convex) port implements it; in-memory/browser ports omit it. */
   citeInFile?(input: { target: string; label?: string; fileName?: string }): Promise<unknown>;

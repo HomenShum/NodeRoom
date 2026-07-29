@@ -14,10 +14,15 @@ import { makeFunctionReference } from "convex/server";
 import type { ActionCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import type { RoomTools, RoomSnapshot, AwarenessView, CellView, EditOutcome, MergeView, SourceResult, ArtifactRef, SpreadsheetContextHit, SetColumnsOutcome, ReadNotebookOutcome, ApplyNotebookOutlineOutcome, ApplyNotebookBlockEditOutcome, NotebookEnrichmentPlan, NotebookOutlineSection } from "../src/nodeagent/core/types";
-import type { Actor } from "../src/engine/types";
+import type { Actor, CellEvidence } from "../src/engine/types";
 import type { ClaimSupportResult, EvidenceRef, LiteralSourceResult, OkfConceptFilter, OkfRetrievalPort, RetrievalHit } from "../src/nodeagent/retrieval/types";
 import type { OkfConcept } from "../src/nodeagent/okf/types";
 import { embedOkfText } from "./okfEmbeddingProvider";
+import { fetchSourceReal } from "../src/nodeagent/skills/search/fetchSource";
+import {
+  TrustedSourceReceiptRegistry,
+  type TrustedCellEvidenceReceipt,
+} from "../src/nodeagent/core/evidenceReceipt";
 
 const artifactsGetSheetRef = makeFunctionReference<"query">("artifacts:getSheet") as any;
 const collabAwarenessRef = makeFunctionReference<"query">("collab:awareness") as any;
@@ -65,6 +70,7 @@ async function sha256hex(s: string): Promise<string> {
 
 export class ConvexRoomTools implements RoomTools {
   public readonly okf: OkfRetrievalPort;
+  private readonly sourceReceipts = new TrustedSourceReceiptRegistry();
 
   constructor(
     private ctx: ActionCtx,
@@ -402,7 +408,15 @@ export class ConvexRoomTools implements RoomTools {
   }
 
   /** Convex-standard-runtime source fetch: HTTPS-only, target-guarded, timeout-bound, and size-capped. */
-  fetchSource(url: string): Promise<SourceResult> { return fetchSourceForConvex(url); }
+  fetchSource(url: string): Promise<SourceResult> {
+    return fetchSourceForConvex(url, this.sourceReceipts);
+  }
+
+  resolveTrustedCellEvidenceReceipt(
+    evidence: CellEvidence,
+  ): TrustedCellEvidenceReceipt | undefined {
+    return this.sourceReceipts.resolve(evidence);
+  }
 
   /** Persist an agent's live capture (screenshots → Convex storage, boxes kept) → renders in the Trace tab. */
   /** Ground a figure from an uploaded PDF: citePdf.cite (Node) parses + locates + boxes + persists. */
@@ -646,118 +660,18 @@ class ConvexOkfRetrievalPort implements OkfRetrievalPort {
   }
 }
 
-export async function fetchSourceForConvex(url: string): Promise<SourceResult> {
-  let parsed: URL;
-  try {
-    parsed = new URL(url);
-  } catch {
-    return { ok: false, error: "invalid_url" };
-  }
-  if (parsed.protocol !== "https:") return { ok: false, error: "https_required" };
-  const hostBlock = blockedConvexFetchHost(parsed.hostname);
-  if (hostBlock) return { ok: false, error: hostBlock };
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 8_000);
-  try {
-    let current = parsed;
-    let res: Response | undefined;
-    for (let redirects = 0; redirects <= 5; redirects++) {
-      res = await fetch(current.toString(), {
-        redirect: "manual",
-        signal: controller.signal,
-        headers: { "user-agent": "NodeRoomAgent/0.1" },
-      });
-      if (res.status < 300 || res.status >= 400) break;
-      const location = res.headers.get("location");
-      if (!location) return { ok: false, error: "redirect_missing_location" };
-      const next = new URL(location, current);
-      if (next.protocol !== "https:") return { ok: false, error: "https_required" };
-      const redirectBlock = blockedConvexFetchHost(next.hostname);
-      if (redirectBlock) return { ok: false, error: redirectBlock };
-      current = next;
-      if (redirects === 5) return { ok: false, error: "too_many_redirects" };
-    }
-    if (!res) return { ok: false, error: "fetch_failed" };
-    if (res.status === 401 || res.status === 403 || res.status === 429) {
-      return {
-        ok: true,
-        title: current.hostname,
-        snippet: `Text fetch unavailable with HTTP ${res.status}. Use capture_source for browser-rendered evidence or choose an unauthenticated source endpoint.`,
-        url: current.toString(),
-      };
-    }
-    if (!res.ok) return { ok: false, error: `http_${res.status}` };
-    const raw = (await res.text()).slice(0, 50_000);
-    const title = raw.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]?.replace(/\s+/g, " ").trim()
-      || current.hostname;
-    const snippet = raw
-      .replace(/<script[\s\S]*?<\/script>/gi, " ")
-      .replace(/<style[\s\S]*?<\/style>/gi, " ")
-      .replace(/<[^>]+>/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
-      .slice(0, 1_200);
-    return { ok: true, title, snippet, url: current.toString() };
-  } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : String(error) };
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-function blockedConvexFetchHost(hostname: string): string | null {
-  const host = hostname.toLowerCase().replace(/^\[|\]$/g, "").replace(/\.$/, "");
-  if (!host || host.includes("%")) return "blocked_host";
-  if (
-    host === "localhost" ||
-    host.endsWith(".localhost") ||
-    host.endsWith(".local") ||
-    host === "metadata.google.internal" ||
-    host === "metadata" ||
-    host === "169.254.169.254"
-  ) {
-    return "blocked_private_or_metadata_host";
-  }
-  const v4 = normalizedIpv4(host);
-  if (v4 && privateOrReservedIpv4(v4)) return "blocked_private_or_reserved_ip";
-  if (privateOrReservedIpv6(host)) return "blocked_private_or_reserved_ip";
-  return null;
-}
-
-function normalizedIpv4(host: string): number[] | null {
-  const parts = host.split(".");
-  if (parts.length !== 4) return null;
-  const nums = parts.map((part) => {
-    if (!/^\d+$/.test(part)) return Number.NaN;
-    const n = Number(part);
-    return Number.isInteger(n) && n >= 0 && n <= 255 ? n : Number.NaN;
-  });
-  return nums.every((n) => Number.isInteger(n)) ? nums : null;
-}
-
-function privateOrReservedIpv4(ip: number[]): boolean {
-  const [a, b] = ip;
-  return (
-    a === 0 ||
-    a === 10 ||
-    a === 127 ||
-    (a === 100 && b >= 64 && b <= 127) ||
-    (a === 169 && b === 254) ||
-    (a === 172 && b >= 16 && b <= 31) ||
-    (a === 192 && b === 168) ||
-    a >= 224
-  );
-}
-
-function privateOrReservedIpv6(host: string): boolean {
-  const normalized = host.toLowerCase();
-  return (
-    normalized === "::1" ||
-    normalized === "::" ||
-    normalized.startsWith("fc") ||
-    normalized.startsWith("fd") ||
-    normalized.startsWith("fe80:") ||
-    normalized.startsWith("0:0:0:0:0:0:0:1")
-  );
+export async function fetchSourceForConvex(
+  url: string,
+  sourceReceipts?: TrustedSourceReceiptRegistry,
+): Promise<SourceResult> {
+  // Both interactive and durable Convex entrypoints use the Node runtime.
+  // Keep one network boundary here: the shared implementation DNS-resolves each
+  // hop, pins Undici's connect lookup to those validated answers, bounds the
+  // body while streaming, and reports non-2xx responses as failures.
+  return sourceReceipts
+    ? fetchSourceReal(
+        url,
+        (capture) => sourceReceipts.recordFetchedSource(capture),
+      )
+    : fetchSourceReal(url);
 }
