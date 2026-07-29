@@ -1,0 +1,104 @@
+episode:
+  id: noderoom-proof-release-v1
+  title: "NodeRoom proof release: working product, measured limits, reproducible receipts"
+  thesis: "A credible product release shows the workflow, the benchmark denominator, the negative results, the fixes, and the gate that permits the claim."
+  outputs: [readme_gif, linkedin_video, x_video, social_cards]
+
+scenes:
+  - id: premise
+    type: title_card
+    status: ready
+    axis: "live product behavior + full benchmark denominator"
+    viewerQuestion: "Did NodeRoom prove real product behavior and run the full declared benchmark denominator?"
+    narration: "We tested real deck, notebook, graph, and chat states against every declared benchmark task."
+    evidence: docs/release/noderoom-proof-release.json
+    callouts:
+      - "product state + benchmark receipts"
+      - "coverage is not a pass claim"
+
+  - id: product-proof
+    type: app_capture
+    status: ready
+    axis: "same room, four specialized work-artifact interiors"
+    viewerQuestion: "Do the new work-artifact interiors perform real actions?"
+    narration: "Deck saves, notebook kernels, draggable graph clusters, and scoped chat references all run through real product paths."
+    sources:
+      - docs/release/media/persona-founder.png
+      - docs/eval/notebook-kernel-success-proof.png
+      - docs/synthesis/proof/m26-graph-cluster-drag-proof.png
+      - docs/release/media/persona-analyst.png
+    focalSequence:
+      - "founder deck export and evidence review"
+      - "notebook blocks and isolated Pyodide receipt"
+      - "selected graph cluster, relevant path, and NodeAgent prompts"
+      - "analyst live-performance receipts beside room chat"
+    motion: "tight feature crop with restrained five-percent push-in"
+    evidence: docs/eval/noderoom-persona-dogfood-receipt.json
+
+  - id: denominator
+    type: title_card
+    status: ready
+    axis: "declared public tasks vs executed task receipts"
+    viewerQuestion: "Was the full declared task set executed?"
+    narration: "The strict ledger executes 1,739 of 1,739 staged tasks, including every SpreadsheetBench track."
+    evidence: docs/eval/official-benchmark-task-coverage.json
+    callouts:
+      - "SpreadsheetBench V1: 912/912"
+      - "Verified400: 400/400"
+      - "SpreadsheetBench V2: 321/321"
+
+  - id: conflict
+    type: title_card
+    status: ready
+    axis: "execution coverage vs measured quality"
+    viewerQuestion: "Did full execution translate into strong performance?"
+    narration: "Coverage exposed weak quality: V1 passed 89 of 912; V2 passed zero of 321."
+    evidence: docs/release/noderoom-proof-release.json
+    verdicts:
+      - label: coverage
+        text: "complete"
+        tone: pass
+      - label: quality
+        text: "still weak"
+        tone: fail
+
+  - id: fixes
+    type: code_diff
+    status: ready
+    axis: "observed failure vs regression-locked repair"
+    viewerQuestion: "What changed because the full run failed?"
+    narration: "Failures drove exact resume, parser, cost, transport, and non-destructive scorer-input fixes, each locked by tests."
+    render: code
+    codeFile: src/eval/finchOfficialOutputSafety.ts
+    codeStart: "export function resetFinchModelOutputBaseline"
+    codeEnd: "export function shouldPreserveOfficialScoreClaim"
+    codeTitle: "Finch regeneration safety"
+    callouts:
+      - "preserve rendered eval_set"
+      - "revalidate before retaining a claim"
+    evidence: docs/release/NODEROOM_PROOF_RELEASE.md#fixes
+
+  - id: external-scorers
+    type: title_card
+    status: ready
+    axis: "canonical score evidence vs non-promotable shadow evidence"
+    viewerQuestion: "Which external score claims have accepted upstream receipts?"
+    narration: "FinAuditing, MBABench, and canonical Finch are accepted. Free-router votes remain non-promotable shadow evidence."
+    evidence: docs/eval/proofloop-official-scores
+    callouts:
+      - "Finch: 172/172 canonical judge"
+      - "direct OpenAI, no Azure resource"
+      - "free router cannot promote"
+
+  - id: gate
+    type: title_card
+    status: ready
+    axis: "historical ledger state vs current revalidated evidence"
+    viewerQuestion: "May this be posted as a completed certification release?"
+    narration: "The current gate passes: seventeen required tasks, zero blocked, accepted receipts, and repository validation."
+    evidence: docs/eval/proofloop-goal-ledger.json
+    callouts:
+      - "17/17 required goal tasks"
+      - "0 blocked tasks"
+      - "README generated from receipts"
+    exitDecision: "Publish the certified README proof packet and storyboarded clip; keep proxy and shadow results explicitly labeled."

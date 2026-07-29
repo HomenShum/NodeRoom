@@ -1,0 +1,37 @@
+{
+  "schema": "feature-proof-media-manifest-v1",
+  "episodeId": "noderoom-proof-release-v1",
+  "generatedAt": "2026-07-12T19:14:51.532Z",
+  "storyboard": {
+    "path": "episodes/noderoom-proof-release-v1/storyboard.yaml",
+    "bytes": 4635,
+    "sha256": "c4898d9339fb4f60844beaa6cf2936c6de52489f0e3057f88d1b6be68685a2b9"
+  },
+  "video": {
+    "path": "episodes/noderoom-proof-release-v1/renders/short.mp4",
+    "bytes": 8634511,
+    "sha256": "a263ad07c559412988928fddbd9d9179e9f186c699e66f1857de52241ea91ee1",
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "durationSeconds": 74.154667
+  },
+  "readmePreview": {
+    "path": "episodes/noderoom-proof-release-v1/renders/teaser.gif",
+    "bytes": 5098780,
+    "sha256": "393f7c8976101031f35bcc33176b5f3195c73d8a334476826e0771d2a1e0967a",
+    "startSeconds": 9.1,
+    "durationSeconds": 9.3
+  },
+  "visualJudge": {
+    "model": "gemini-3.5-flash (video understanding)",
+    "verdict": "publish",
+    "score": "16/16",
+    "jsonPath": "episodes/noderoom-proof-release-v1/judge.json",
+    "jsonSha256": "50663e57ba1f150ee0c3d72e5785853216914f7d82edc3f576d94048854e3b92",
+    "markdownPath": "episodes/noderoom-proof-release-v1/judge.md",
+    "markdownSha256": "ad14de930ccee23e93f53e1c78f81753575363ebfd55063ea09c22950d2a51b0",
+    "remainingPriority": "none",
+    "remainingGap": "No unresolved visual-judge defects."
+  }
+}
