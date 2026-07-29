@@ -1,0 +1,133 @@
+{
+  "schemaVersion": "nodekit.score-receipt/v1",
+  "receiptId": "score-noderoom-note-surfaces-single-accent-inline-before",
+  "ruleId": "rule-single-accent-inline",
+  "subject": {
+    "id": "noderoom-note-surface-color-before",
+    "name": "NodeRoom note-shaped surfaces, baseline — color and elevation on NoteworthyInbox and NotebookDigestWorkbench",
+    "kind": "platform-surface",
+    "surface": "Color carriers in NoteworthyInbox (src/app/styles.css:220-261, 2547-2552) and NotebookDigestWorkbench (src/ui/workArtifacts/work-artifacts.css:1503-2050). NodeRoom's own accent is terracotta #D97757 (accent-ink #e59579); Mew's teal transfers as a rule, never as a hue.",
+    "evidenceBasis": "recorded-observation",
+    "evidenceRef": "source checkout, noderoom worktree at commit 9c99889f: work-artifacts.css:1666-1668 (data-type hue), 1634-1643 (block index chips), styles.css:220 (popover shadow), 232-235 (status pill tones)",
+    "observedAt": "2026-07-29"
+  },
+  "derivedFrom": {
+    "collectionId": "note-surface",
+    "observationIds": ["obs-mew-tokens", "obs-mew-stream"],
+    "factIds": [
+      "obs-mew-tokens/f1",
+      "obs-mew-tokens/f5",
+      "obs-mew-stream/f2"
+    ]
+  },
+  "ruleApplicability": {
+    "applies": true,
+    "appliesWhenSatisfied": [
+      "text-dominant surfaces where inline metadata must be scannable: digest block meta rows carry kind/type/role/status labels inline; inbox items carry entity names, reasons, and source kinds",
+      "dark-first product where saturation fatigues quickly: NodeRoom ships a dark theme with terracotta as its single named accent (RoomShell ACCENTS map holds exactly one key)"
+    ],
+    "doesNotApplyWhenChecked": [
+      {
+        "clause": "data visualization surfaces needing categorical palettes (dataviz skill governs there)",
+        "fires": false,
+        "note": "Neither surface renders a chart. Kernel chart output in the digest is summarized as a text line (type, axes, point count), not plotted."
+      },
+      {
+        "clause": "status-heavy dashboards where semantic red/amber/green carry meaning the accent cannot",
+        "fires": false,
+        "note": "These are entry lists, not status dashboards. Semantic state colors that do appear — danger on failed inbox items, green on accepted/ready digest states, warning on suggested pills — carry decision-relevant state on trust surfaces and are exempted per element rather than disqualifying the surface. The rule is applied here to non-semantic color only, and no fix may touch trust-surface state styling (rule-single-accent-inline may not override trust-surface neutrality)."
+      }
+    ]
+  },
+  "scale": {
+    "min": 0,
+    "max": 4,
+    "anchors": {
+      "0": "two or more non-semantic hues loose in body text and the accent spent on per-entry decoration — color cannot function as a retrieval signal",
+      "1": "one foreign non-semantic hue remains inline, or the accent decorates every entry uniformly",
+      "2": "no foreign inline hue and no per-entry accent decoration, but no meaningful inline accent carrier exists either — color encodes nothing retrievable",
+      "3": "the accent is carried by meaningful inline elements; chrome accent or elevation still sits past the measured bound (shadows over 8px blur or above 0.067 alpha, obs-mew-tokens/f5)",
+      "4": "one accent hue carried only by meaningful inline elements, achromatic chrome, every shadow within the measured tokens (obs-mew-tokens/f1, f5)"
+    }
+  },
+  "criteria": [
+    {
+      "id": "c1-foreign-inline-hue",
+      "question": "Does any non-semantic hue outside the app accent appear on inline elements?",
+      "score": 1,
+      "citations": [
+        {
+          "observationId": "obs-mew-tokens",
+          "factIds": ["f1"],
+          "relation": "falls-short-of",
+          "withinRuleDerivation": true,
+          "note": "Mew holds a single accent hue with a full ramp. The digest paints block-type labels periwinkle #b8c7ff (work-artifacts.css:1666-1668) — a second, unrelated hue with no token behind it, on the most repeated inline metadata element."
+        },
+        {
+          "observationId": "obs-mew-stream",
+          "factIds": ["f2"],
+          "relation": "falls-short-of",
+          "withinRuleDerivation": true,
+          "note": "In Mew, inline hashtags and links are the only colored body-text elements, all in the accent. Here the colored inline element carries a hue that is not the accent, so color stops being a reliable signal for anything."
+        }
+      ],
+      "finding": "One foreign non-semantic hue (#b8c7ff) rides every typed block's meta row. Green #55d49a on accepted/ready is semantic state and exempt."
+    },
+    {
+      "id": "c2-accent-as-decoration",
+      "question": "Is the accent spent on uniform per-entry decoration rather than on meaning?",
+      "score": 1,
+      "citations": [
+        {
+          "observationId": "obs-mew-stream",
+          "factIds": ["f2"],
+          "relation": "falls-short-of",
+          "withinRuleDerivation": true,
+          "note": "Every digest block renders an accent-tinted, accent-inked index chip (work-artifacts.css:1634-1643) regardless of state or meaning. Accent on all 48 visible blocks equally is decoration: it distinguishes nothing."
+        }
+      ],
+      "finding": "The block index chip spends the accent uniformly on every entry, which is the opposite of color-as-retrieval-signal: a terracotta element should mean something is there."
+    },
+    {
+      "id": "c3-inline-carrier-exists",
+      "question": "Does any meaningful inline element carry the accent, making color a retrieval signal?",
+      "score": 2,
+      "citations": [
+        {
+          "observationId": "obs-mew-stream",
+          "factIds": ["f2"],
+          "relation": "falls-short-of",
+          "withinRuleDerivation": true,
+          "note": "In the inbox, entity names — the retrievable token, this surface's analog of a hashtag — render as plain bold text (styles.css:255). The accent appears on buttons and the practice panel border instead. Nothing inline in body text carries the accent on either surface."
+        }
+      ],
+      "finding": "No inline accent carrier exists. The accent lives on affordances (batch-research button, practice panel) while the one element a reader would scan for — the entity name — is achromatic."
+    },
+    {
+      "id": "c4-elevation-within-bound",
+      "question": "Do shadows stay within the measured bound — at most 8px blur at 0.05-0.067 alpha?",
+      "score": 2,
+      "citations": [
+        {
+          "observationId": "obs-mew-tokens",
+          "factIds": ["f5"],
+          "relation": "falls-short-of",
+          "withinRuleDerivation": true,
+          "note": "Mew's three shadow tokens all stay at or under 8px blur, alpha 0.05-0.067. The inbox popover ships box-shadow 0 12px 32px rgba(0,0,0,.18) (styles.css:220) — 4x the blur, ~3x the alpha. Digest entries carry no shadows at all."
+        }
+      ],
+      "finding": "One overlay shadow exceeds the bound; entry-level elevation is absent everywhere else. Scored 2 rather than lower because the excess sits on a floating overlay container, not on entries."
+    }
+  ],
+  "score": 1,
+  "scoreBasis": "Ladder: the subject sits at the highest anchor it fully satisfies. c1 (one foreign inline hue) and c2 (accent decorating every entry) hold the subject at anchor 1 — either alone would. c3 and c4 record what the surface must add or shed to climb; they cannot lift a subject still carrying a foreign inline hue.",
+  "notScored": [
+    "Semantic state colors on trust surfaces — danger on failed items, warning on suggested pills, green on accepted/ready, accent tint on needs_review blocks. The trust-surfaces contract governs those and this rule explicitly may not override it.",
+    "Whether the chrome grays are hue-linked to the terracotta accent (obs-mew-tokens/f3) — answering requires resolving every CSS custom property to computed values, which code reading alone cannot do reliably. Not assessed.",
+    "The command palette and room chrome outside the two note surfaces.",
+    "Runtime rendering — no computed-style audit was performed for this baseline."
+  ],
+  "boundary": "Scored from source at commit 9c99889f. Hex literals were read directly from the stylesheets; CSS variable fallbacks were taken at face value. A computed-style audit could move c4 if the popover shadow is overridden at runtime, and could open the obs-mew-tokens/f3 gray-tinting question this receipt declined to score.",
+  "scoredBy": "note-surface corpus scoring pass, noderoom feat/note-surface-dna, against note-surface.single-accent-inline.rule.json unmodified",
+  "scoredAt": "2026-07-29"
+}

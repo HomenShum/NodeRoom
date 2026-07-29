@@ -1616,29 +1616,42 @@
   gap: 10px;
 }
 
+/* Divider-separated stream: entries meet at their rule, no inter-card gap. */
+.wa-notebook-blocks {
+  gap: 0;
+}
+
+/* Stream, not chrome (note-surface obs-mew-stream/f1): digest blocks are divider-separated
+   stream entries, not bordered tiles — the treatment the full-screen notebook detail view
+   ([data-detail="notebook"] below) already applies. needs_review keeps its tint: that is
+   pending-review state on a trust surface, not entry chrome. */
 .wa-notebook-block {
   display: grid;
   grid-template-columns: 34px minmax(0, 1fr);
   gap: 12px;
-  padding: 11px 12px;
-  border: 1px solid rgba(255,255,255,.065);
-  border-radius: 8px;
-  background: rgba(255,255,255,.025);
+  padding: 11px 4px;
+  /* zero-width borders carry the style/color the [data-detail="notebook"] variant's
+     border-width override still depends on */
+  border: 0 solid var(--border, rgba(255,255,255,.08));
+}
+
+.wa-notebook-block + .wa-notebook-block {
+  border-top-width: 1px;
 }
 
 .wa-notebook-block[data-status="needs_review"] {
-  border-color: rgba(217,119,87,.22);
   background: rgba(217,119,87,.045);
+  box-shadow: inset 2px 0 0 rgba(217,119,87,.35);
 }
 
+/* Single accent, inline-only (note-surface obs-mew-stream/f2): the index is ordering
+   chrome and stays achromatic — accent on every block's index chip was decoration. */
 .wa-notebook-block-index {
   display: grid;
   place-items: center;
   width: 28px;
   height: 28px;
-  border-radius: 8px;
-  color: var(--accent-ink, #e59579);
-  background: rgba(217,119,87,.12);
+  color: var(--muted, #9aa3af);
   font: 700 11px/1 var(--font-mono);
 }
 
@@ -1663,8 +1676,11 @@
   font: 10px/1.25 var(--font-mono);
 }
 
+/* Single accent, inline-only (note-surface obs-mew-tokens/f1, obs-mew-stream/f2): typed
+   block labels are meaningful inline metadata and carry the app accent — the foreign
+   periwinkle hue this rule replaced encoded nothing NodeRoom's own hue cannot. */
 .wa-notebook-block-meta span[data-type] {
-  color: #b8c7ff;
+  color: var(--accent-ink, #e59579);
 }
 
 .wa-notebook-block-meta span[data-status="needs_review"] {

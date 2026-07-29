@@ -1,0 +1,138 @@
+{
+  "schemaVersion": "nodekit.score-receipt/v1",
+  "receiptId": "score-noderoom-note-surfaces-stream-not-chrome-before",
+  "ruleId": "rule-stream-not-chrome",
+  "subject": {
+    "id": "noderoom-note-surfaces-before",
+    "name": "NodeRoom note-shaped surfaces, baseline — NoteworthyInbox item list and NotebookDigestWorkbench block list",
+    "kind": "platform-surface",
+    "surface": "NoteworthyInbox renders passive room-intelligence entries in a popover list (src/ui/insights/NoteworthyInbox.tsx; src/app/styles.css:220-261). NotebookDigestWorkbench renders notebook blocks in document order in its main column (src/ui/workArtifacts/NotebookDigestWorkbench.tsx; src/ui/workArtifacts/work-artifacts.css:1503-1732).",
+    "evidenceBasis": "recorded-observation",
+    "evidenceRef": "source checkout, noderoom worktree at commit 9c99889f (origin/main): src/app/styles.css:224-228 (.r-inbox-list, .r-inbox-item), work-artifacts.css:1598-1632 (.wa-notebook-grid, .wa-notebook-block)",
+    "observedAt": "2026-07-29"
+  },
+  "derivedFrom": {
+    "collectionId": "note-surface",
+    "observationIds": ["obs-mew-stream", "obs-evernote-contrast"],
+    "factIds": [
+      "obs-mew-stream/f1",
+      "obs-evernote-contrast/f1",
+      "obs-evernote-contrast/f2"
+    ]
+  },
+  "ruleApplicability": {
+    "applies": true,
+    "appliesWhenSatisfied": [
+      "review-in-time-order is the primary job: the inbox lists what the room noticed most-recent-first, and the digest lists notebook blocks in document order",
+      "entries are short and heterogeneous: inbox items carry a title, a clamped 3-line preview and metadata; digest blocks are single-paragraph entries with type labels",
+      "organization is emergent rather than upfront: inbox items group by detected entity name only when 5+ exist (digest mode), never by user-chosen folders"
+    ],
+    "doesNotApplyWhenChecked": [
+      {
+        "clause": "long-form documents with internal heading hierarchy (obs-fabric-contrast/f1)",
+        "fires": false,
+        "note": "Neither surface renders headed long-form documents. Inbox previews are clamped to 3 lines; digest blocks render one paragraph each. The full notebook editor (a Tiptap document) is a different surface and is not scored here."
+      },
+      {
+        "clause": "workflows where retrieval at 10k+ items dominates capture (obs-evernote-contrast/f1)",
+        "fires": false,
+        "note": "Both lists are bounded: the digest caps at 48 visible blocks with a '+N more' line, and the inbox collapses into entity digest mode at 5+ items. Neither is a retrieval-at-scale workload."
+      },
+      {
+        "clause": "multi-user triage queues where list-vs-detail is load-bearing",
+        "fires": false,
+        "note": "There is no list-vs-detail split to preserve: each inbox item carries its own actions and expansion inline, and digest blocks are terminal (detail lives in the separate editor). No pane pair exists whose separation carries the workflow."
+      }
+    ]
+  },
+  "scale": {
+    "min": 0,
+    "max": 4,
+    "anchors": {
+      "0": "multi-pane chrome with bordered note cards, in the shape of Evernote's three simultaneous panes (obs-evernote-contrast/f1, f2)",
+      "1": "one scrolling column, but every entry is a bordered or filled card with its own background and corner radius",
+      "2": "mixed treatment: some entries de-carded or the column unified, card chrome remains elsewhere in the entry list",
+      "3": "entries separated by dividers only, no per-entry card chrome; residual simultaneous-pane structure remains outside the entry list",
+      "4": "a single divider-separated column and nothing else — no cards, no per-note background, no simultaneous second pane (obs-mew-stream/f1)"
+    }
+  },
+  "criteria": [
+    {
+      "id": "c1-inbox-entry-boundary",
+      "question": "How are NoteworthyInbox entries bounded — divider or card?",
+      "score": 1,
+      "citations": [
+        {
+          "observationId": "obs-mew-stream",
+          "factIds": ["f1"],
+          "relation": "falls-short-of",
+          "withinRuleDerivation": true,
+          "note": "Mew separates notes with a 1px rule and nothing else. Every .r-inbox-item ships as a card: background var(--bg-secondary), border-radius 8px, 4px margin between items (styles.css:226)."
+        },
+        {
+          "observationId": "obs-evernote-contrast",
+          "factIds": ["f2"],
+          "relation": "matches-counterexample",
+          "withinRuleDerivation": true,
+          "note": "Per-entry filled cards in a dedicated list is the Evernote list-pane pattern, minus the border. The friction is spent on entry boundaries rather than on reading order."
+        }
+      ],
+      "finding": "Every inbox entry is a filled rounded card. The list is a stack of cards, not a stream. Failed items additionally carry a danger tint and border — that part is state signaling on a trust surface (failed state) and is not counted against this criterion."
+    },
+    {
+      "id": "c2-digest-block-boundary",
+      "question": "How are NotebookDigestWorkbench blocks bounded — divider or card?",
+      "score": 1,
+      "citations": [
+        {
+          "observationId": "obs-mew-stream",
+          "factIds": ["f1"],
+          "relation": "falls-short-of",
+          "withinRuleDerivation": true,
+          "note": "Each .wa-notebook-block carries border 1px rgba(255,255,255,.065), border-radius 8px, and its own background rgba(255,255,255,.025) (work-artifacts.css:1619-1627). Blocks read as tiles, not as a stream of entries."
+        },
+        {
+          "observationId": "obs-evernote-contrast",
+          "factIds": ["f2"],
+          "relation": "matches-counterexample",
+          "withinRuleDerivation": true,
+          "note": "Bordered card per note in a list column is the recorded Evernote counterexample shape."
+        }
+      ],
+      "finding": "Blocks are bordered, filled, rounded cards. The needs_review tint (work-artifacts.css:1629-1632) is pending-review state signaling and is retained by design; the uniform card chrome on every block is what falls short."
+    },
+    {
+      "id": "c3-pane-structure",
+      "question": "Does either surface split into simultaneous panes before the entries can be read?",
+      "score": 3,
+      "citations": [
+        {
+          "observationId": "obs-evernote-contrast",
+          "factIds": ["f1"],
+          "relation": "falls-short-of",
+          "withinRuleDerivation": true,
+          "note": "Evernote holds three simultaneous panes. The inbox is a single column with zero panes. The digest is a two-column grid (blocks + 28% aside, work-artifacts.css:1598-1603), but the aside is review tooling — patch previews, execution preview, sections — not a second note list or an editor pane."
+        },
+        {
+          "observationId": "obs-mew-stream",
+          "factIds": ["f1"],
+          "relation": "falls-short-of",
+          "withinRuleDerivation": true,
+          "note": "Mew is one column, full stop. The digest's aside keeps it short of that, though the aside carries proposal/diff trust surfaces that this task explicitly may not fold away."
+        }
+      ],
+      "finding": "Inbox: single column, meets the pane test. Digest: one entry column plus a review aside. The aside hosts trust surfaces (patch previews with before/after diffs) governed by the trust-surfaces contract, so it stays; it is counted here honestly as residual pane structure."
+    }
+  ],
+  "score": 1,
+  "scoreBasis": "Ladder: the subject sits at the highest anchor it fully satisfies. c1 and c2 place both entry lists at anchor 1 — one scrolling column whose every entry is a filled card. c3 alone would sit higher but cannot lift a subject whose entry boundaries are cards.",
+  "notScored": [
+    "The full notebook editor (Tiptap document surface) — a long-form headed document, outside this rule per its doesNotApplyWhen.",
+    "The wall artifact's capture cards (r-capture-card post-its) — spatial canvas entries, not a time-ordered stream.",
+    "Runtime render: scores derive from source and stylesheets at commit 9c99889f; no browser render was measured for this baseline receipt.",
+    "Density above the render bounds (48 digest blocks, 5+ inbox digest grouping) — behavior at scale is bounded by code, not observed."
+  ],
+  "boundary": "Scored from the checked-out source, not a running page. Class-to-style mapping was traced by hand from JSX className to stylesheet rules; a computed-style audit could move c1 or c2 if another rule overrides these selectors, but no such override was found in src/app/styles.css or work-artifacts.css.",
+  "scoredBy": "note-surface corpus scoring pass, noderoom feat/note-surface-dna, against note-surface.stream-not-chrome.rule.json unmodified",
+  "scoredAt": "2026-07-29"
+}

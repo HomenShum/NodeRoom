@@ -28,6 +28,23 @@ import { Badge, Button, IconButton, Modal, Panel, Switch, Tabs } from "./primiti
 import { LiveRegion } from "../accessibility/liveRegion";
 import type { Actor, Channel } from "../engine/types";
 
+/** Post-it palette shared with the wall's own Capture button (panels/Artifact.tsx addSticky). */
+const WALL_CAPTURE_COLORS = ["#E8C9B8", "#F2DE9B", "#BFD8D5", "#CFC7E8", "#D7E7B5"] as const;
+
+/**
+ * Build the create-op payload for a palette-initiated wall capture (note-surface
+ * rule-capture-always-armed, obs-mew-stream/f4). Pure so the scenario tests can
+ * drive it straight through the room engine: empty text (no classification is
+ * asked before the first keystroke), preset position, color cycled by wall size.
+ */
+export function buildWallCapture(wall: { order: string[] }): { elementId: string; value: { text: string; x: number; y: number; color: string } } {
+  const elementId = `s_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+  return {
+    elementId,
+    value: { text: "", x: 0, y: 0, color: WALL_CAPTURE_COLORS[wall.order.length % WALL_CAPTURE_COLORS.length] },
+  };
+}
+
 const AUTO_ACCEPT_PREF_KEY = "noderoom:autoAcceptConsent:v1";
 const ACTIVE_ARTIFACT_PREF_PREFIX = "noderoom:activeArtifact:v1:";
 export const PANEL_LAYOUT_PREF_KEY = "noderoom:desktopPanelWidths:v1";
@@ -570,7 +587,39 @@ export function RoomShell({ roomId, me, onLeave, onSignOut, proof }: { roomId: s
     showWorkSurface();
     requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-testid="${testid}"]`)?.click());
   };
+  // Capture, always armed (note-surface obs-mew-stream/f4): the global keystroke layer
+  // carries a capture command that creates a wall capture and lands the caret in it —
+  // no destination choice and no classification question before the first keystroke
+  // (obs-evernote-contrast/f4 is the counterexample this refuses to match). Honest
+  // absence: a room without a wall artifact doesn't list a dead command.
+  const wallArt = arts.find((a) => a.kind === "wall");
+  const captureThought = () => {
+    if (!wallArt) return;
+    const capture = buildWallCapture(wallArt);
+    void store
+      .applyEdit({
+        roomId,
+        op: {
+          opId: crypto.randomUUID(),
+          artifactId: wallArt.id,
+          elementId: capture.elementId,
+          kind: "create",
+          value: capture.value,
+          baseVersion: 0,
+        },
+        actor: me,
+      })
+      .then(() => {
+        openArtifact(wallArt.id);
+        // Two frames: one for the stage to mount the wall, one for the sticky to land.
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          document.querySelector<HTMLElement>(`[data-postit-id="${capture.elementId}"] .pt-text`)?.focus();
+        }));
+      });
+  };
   const paletteActions: PaletteAction[] = [
+    // Capture first: the palette's job during a live room is catching the thought.
+    ...(wallArt ? [{ id: "capture-thought", label: "Capture a thought", hint: "wall", run: captureThought } satisfies PaletteAction] : []),
     { id: "toggle-focus-mode", label: "Toggle focus mode", hint: focusMode.enabled ? "on" : "off", run: toggleFocusMode },
     // Auto-allow is host-gated (the switch is disabled for guests); the palette
     // simply doesn't list it for non-hosts instead of offering a dead command.
