@@ -1,5 +1,5 @@
 import { useRef, useState, type ReactElement } from "react";
-import { BookOpen, Calculator, CheckCircle2, FileText, Layers3, LoaderCircle, Play, ShieldAlert, Square, X } from "lucide-react";
+import { BookOpen, Calculator, CheckCircle2, ChevronDown, ChevronUp, FileText, Layers3, LoaderCircle, Play, Send, ShieldAlert, Square, X } from "lucide-react";
 import type { Proposal } from "../../engine/types";
 import type { NotebookArtifactStructure } from "./notebookStructure";
 import { buildNotebookExecutionPreview } from "./notebookExecutionPreview";
@@ -7,6 +7,11 @@ import type { NotebookExecutionPreviewItem } from "./notebookExecutionPreview";
 import type { NotebookKernelStoredOutput } from "./notebookKernelAdapter";
 import { buildNotebookPatchDiff, type NotebookPatchDiff } from "./notebookPatchDiff";
 import { classifyNotebookTypedBlocks, summarizeNotebookTypedBlocks, type NotebookTypedBlockKind } from "./notebookTypedBlocks";
+import {
+  deriveNoteCaptureState,
+  safelyEvaluateNoteSurfaceReferenceConsumption,
+  referenceProjectionLabel,
+} from "../../engine/noteSurfaceReference";
 
 export interface NotebookDigestStats {
   blocks: number;
@@ -113,6 +118,7 @@ export function NotebookDigestWorkbench({
   onClose,
   onOpenArtifact,
   onExecuteKernel,
+  onCapture,
 }: {
   structure: NotebookArtifactStructure;
   proposals?: Proposal[];
@@ -120,11 +126,16 @@ export function NotebookDigestWorkbench({
   onClose: () => void;
   onOpenArtifact: (artifactId: string) => void;
   onExecuteKernel?: (item: NotebookExecutionPreviewItem, options: { backend: "safe" | "pyodide"; signal: AbortSignal }) => Promise<{ ok: boolean; reason?: string }>;
+  onCapture?: (text: string) => Promise<{ ok: boolean; reason?: string }>;
 }): ReactElement {
   const [runningKernelId, setRunningKernelId] = useState<string | null>(null);
   const [kernelMessage, setKernelMessage] = useState<string | null>(null);
   const [kernelBackend, setKernelBackend] = useState<"safe" | "pyodide">("safe");
   const kernelAbortRef = useRef<AbortController | null>(null);
+  const [captureText, setCaptureText] = useState("");
+  const [captureMessage, setCaptureMessage] = useState<string | null>(null);
+  const [captureConflict, setCaptureConflict] = useState(false);
+  const [provenanceExpanded, setProvenanceExpanded] = useState(false);
   const stats = notebookDigestStats(structure);
   const patchPreviews = buildNotebookPatchPreviewItems(structure, proposals);
   const typedBlocks = classifyNotebookTypedBlocks(structure);
@@ -134,6 +145,34 @@ export function NotebookDigestWorkbench({
   const visibleBlocks = structure.blocks.slice(0, 48);
   const hiddenBlocks = Math.max(0, structure.blocks.length - visibleBlocks.length);
   const needsReview = structure.status === "needs_review" || structure.proposalIds.length > 0;
+  const pendingProposal = proposals.some(
+    (proposal) => proposal.status === "pending" && structure.proposalIds.includes(proposal.id),
+  );
+  const capture = deriveNoteCaptureState({
+    hasPendingProposal: pendingProposal,
+    provenanceExpanded,
+    hasConflict: captureConflict,
+  });
+  const referenceEvaluation = structure.referenceConsumption
+    ? safelyEvaluateNoteSurfaceReferenceConsumption(structure.referenceConsumption)
+    : null;
+  const submitCapture = async () => {
+    const text = captureText.trim();
+    if (!text || !onCapture || capture.state === "disarmed") return;
+    setCaptureMessage(null);
+    const result = await onCapture(text);
+    if (result.ok) {
+      setCaptureText("");
+      setCaptureConflict(false);
+      setProvenanceExpanded(false);
+      setCaptureMessage("Captured in this notebook.");
+      return;
+    }
+    setCaptureConflict(result.reason === "conflict");
+    setCaptureMessage(result.reason === "conflict"
+      ? "This notebook changed while you were capturing. Review the conflict before retrying."
+      : result.reason ?? "Capture failed.");
+  };
   const executeKernel = async (item: NotebookExecutionPreviewItem) => {
     if (!onExecuteKernel || runningKernelId) return;
     const controller = new AbortController();
@@ -167,6 +206,54 @@ export function NotebookDigestWorkbench({
           </button>
         </div>
       </header>
+
+      <div
+        className="wa-note-capture"
+        data-testid="notebook-note-capture"
+        data-capture-state={capture.state}
+        data-capture-reason={capture.reason}
+      >
+        <div className="wa-note-capture-copy">
+          <span>Quick capture</span>
+          <p>{capture.state === "disarmed"
+            ? capture.reason === "conflict"
+              ? "Resolve the stale notebook state before adding another note."
+              : "Finish this review before adding another note."
+            : structure.blockCount === 0
+              ? "Start the stream. Classification can happen after the thought is safe."
+              : "Add to the stream without leaving the evidence chain."}</p>
+        </div>
+        <div className="wa-note-capture-entry">
+          <textarea
+            rows={2}
+            value={captureText}
+            disabled={capture.state === "disarmed" || !onCapture}
+            aria-label="Capture note"
+            placeholder={capture.state === "armed" ? "Capture a thought…" : "Capture paused during review"}
+            onChange={(event) => setCaptureText(event.target.value)}
+            onKeyDown={(event) => {
+              if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+                event.preventDefault();
+                void submitCapture();
+              }
+            }}
+          />
+          <button
+            type="button"
+            data-testid="notebook-note-capture-submit"
+            disabled={!onCapture || capture.state === "disarmed" || captureText.trim().length === 0}
+            onClick={() => void submitCapture()}
+          >
+            <Send size={12} />
+            Capture
+          </button>
+        </div>
+        {captureMessage && (
+          <div className="wa-note-capture-message" role={captureConflict ? "alert" : "status"}>
+            {captureMessage}
+          </div>
+        )}
+      </div>
 
       <div className="wa-notebook-meta">
         <span data-status={structure.status}>
@@ -220,6 +307,50 @@ export function NotebookDigestWorkbench({
         </div>
 
         <aside className="wa-notebook-side">
+          <div
+            className="wa-notebook-side-card wa-reference-chain"
+            data-testid="notebook-reference-chain"
+            data-reference-status={referenceEvaluation?.projection ?? "not-bound"}
+          >
+            <button
+              type="button"
+              className="wa-reference-chain-toggle"
+              aria-expanded={provenanceExpanded}
+              onClick={() => setProvenanceExpanded((expanded) => !expanded)}
+            >
+              <span>
+                <ShieldAlert size={13} />
+                Reference chain
+              </span>
+              <span>
+                {referenceEvaluation ? referenceProjectionLabel(referenceEvaluation.projection) : "No canonical chain"}
+                {provenanceExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+              </span>
+            </button>
+            {provenanceExpanded && (
+              <div className="wa-reference-chain-detail" data-testid="notebook-reference-chain-detail">
+                {structure.referenceConsumption ? (
+                  <>
+                    <dl>
+                      <div><dt>Observation</dt><dd>{structure.referenceConsumption.observation.observationId}</dd></div>
+                      <div><dt>Rule</dt><dd>{structure.referenceConsumption.rule.ruleId}</dd></div>
+                      <div><dt>Edge</dt><dd>{structure.referenceConsumption.edge.edgeId}</dd></div>
+                      <div><dt>Commit</dt><dd>{structure.referenceConsumption.candidate.commitSha.slice(0, 12)}</dd></div>
+                      <div><dt>Authority</dt><dd>{structure.referenceConsumption.edge.authority.kind}</dd></div>
+                    </dl>
+                    <a href={structure.referenceConsumption.observation.source.sourceUrl} target="_blank" rel="noreferrer">
+                      Open inspected reference
+                    </a>
+                    {referenceEvaluation && referenceEvaluation.findings.length > 0 && (
+                      <p role="alert">{referenceEvaluation.findings.join(" · ")}</p>
+                    )}
+                  </>
+                ) : (
+                  <p>No immutable NodeKit reference consumption is attached to this note.</p>
+                )}
+              </div>
+            )}
+          </div>
           <div className="wa-notebook-side-card">
             <h4><ShieldAlert size={13} /> Patch Previews</h4>
             {patchPreviews.length > 0 ? (

@@ -26,6 +26,11 @@ import { enqueueFileProcessingJob } from "./fileProcessing";
 import { normalizeColumns, columnIdOfElement, type ColumnInput } from "../src/engine/columns";
 import { cellEvidenceVerificationStatus } from "../src/nodeagent/core/evidenceReceipt";
 import {
+  verifyNoteSurfaceReferenceConsumptionBindings,
+  type NoteSurfaceReferenceConsumption,
+} from "../src/engine/noteSurfaceReference";
+import { verifyNoteSurfaceReferenceAuthority } from "./lib/noteSurfaceReferenceAuthority";
+import {
   MAX_CELL_EVIDENCE_ID_CHARS,
   MAX_CELL_EVIDENCE_ITEMS,
   MAX_CELL_EVIDENCE_LABEL_CHARS,
@@ -1376,6 +1381,68 @@ export const setArtifactMeta = mutation({
       await enqueueArtifactSnapshotForOkf(ctx, { roomId: a.roomId, artifactId: a.artifactId });
     }
     return { ok: true as const };
+  },
+});
+
+/**
+ * Persist one immutable NodeKit reference-consumption snapshot on a note.
+ * The artifact version is the CAS token; exact replay is idempotent.
+ */
+export const setNoteSurfaceReferenceConsumption = internalMutation({
+  args: {
+    roomId: v.id("rooms"),
+    artifactId: v.id("artifacts"),
+    expectedArtifactVersion: v.number(),
+    consumption: v.any(),
+    requester: actorProofV,
+  },
+  handler: async (ctx, a) => {
+    const actor = await requireActorProof(ctx, a.roomId, a.requester);
+    const art = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+    if (!actorOwnsArtifact(art, actor)) throw new Error("artifact_meta_forbidden");
+    if (art.kind !== "note") return { ok: false as const, reason: "not_note" as const };
+
+    const consumption = a.consumption as NoteSurfaceReferenceConsumption;
+    const evaluation = await verifyNoteSurfaceReferenceConsumptionBindings(consumption, {
+      roomId: String(a.roomId),
+      artifactId: String(a.artifactId),
+    });
+    if (!evaluation.accepted) {
+      return {
+        ok: false as const,
+        reason: "invalid_reference_consumption" as const,
+        findings: evaluation.findings.slice(0, 32),
+      };
+    }
+    const authorityFindings = await verifyNoteSurfaceReferenceAuthority(consumption);
+    if (authorityFindings.length > 0) {
+      return {
+        ok: false as const,
+        reason: "invalid_reference_authority" as const,
+        findings: authorityFindings.slice(0, 32),
+      };
+    }
+
+    const meta = (art.meta as Record<string, unknown> | undefined) ?? {};
+    const previous = meta.noteSurfaceReferenceConsumption as NoteSurfaceReferenceConsumption | undefined;
+    if (previous?.consumptionId === consumption.consumptionId) {
+      return { ok: true as const, version: art.version, idempotent: true as const };
+    }
+    if (art.version !== a.expectedArtifactVersion) {
+      return {
+        ok: false as const,
+        reason: "conflict" as const,
+        currentVersion: art.version,
+      };
+    }
+
+    const nextVersion = art.version + 1;
+    await ctx.db.patch(a.artifactId, {
+      meta: { ...meta, noteSurfaceReferenceConsumption: consumption },
+      version: nextVersion,
+      updatedAt: Date.now(),
+    });
+    return { ok: true as const, version: nextVersion, idempotent: false as const };
   },
 });
 

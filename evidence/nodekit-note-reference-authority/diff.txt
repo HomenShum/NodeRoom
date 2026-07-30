@@ -1,0 +1,97 @@
+
+InputObject
+-----------
+ Test Files  1 passed (1)
+      Tests  22 passed (22)
+   Start at  22:44:12
+   Duration  339ms (transform 62ms, setup 35ms, import 90ms, tests 61ms, environment 0ms)
+ ❯ |node| tests/noteSurfaceReference.test.ts (23 tests | 4 failed) 62ms
+     × rejects a resealed consumption when an atomic observation changes behind its digest 7ms
+     × rejects a resealed consumption when the score verdict is not derived from rule results 2ms
+     × rejects a resealed consumption when the edge content changes behind its digest 1ms
+     × bounds the record by encoded UTF-8 bytes rather than UTF-16 character count 7ms
+node.exe :
+At line:1 char:1
++ & "C:\nvm4w\nodejs/node.exe" "C:\nvm4w\nodejs/node_modules/npm/bin/np ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/noteSurfaceReference.test.ts > NodeRoom note-surface reference consumption > rejects a resealed
+consumption when an atomic observation changes behind its digest
+AssertionError: expected true to be false // Object.is equality
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/noteSurfaceReference.test.ts:215:29
+    213|     const resealed = await reseal(record);
+    214|     const result = evaluateNoteSurfaceReferenceConsumption(resealed);
+    215|     expect(result.accepted).toBe(false);
+       |                             ^
+    216|     expect(result.findings).toContain("observation-content-digest");
+    217|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |node| tests/noteSurfaceReference.test.ts > NodeRoom note-surface reference consumption > rejects a resealed
+consumption when the score verdict is not derived from rule results
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/noteSurfaceReference.test.ts:224:29
+    222|     const resealed = await reseal(record);
+    223|     const result = evaluateNoteSurfaceReferenceConsumption(resealed);
+    224|     expect(result.accepted).toBe(false);
+       |                             ^
+    225|     expect(result.findings).toContain("score-verdict-not-derived");
+    226|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |node| tests/noteSurfaceReference.test.ts > NodeRoom note-surface reference consumption > rejects a resealed
+consumption when the edge content changes behind its digest
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/noteSurfaceReference.test.ts:233:29
+    231|     const resealed = await reseal(record);
+    232|     const result = evaluateNoteSurfaceReferenceConsumption(resealed);
+    233|     expect(result.accepted).toBe(false);
+       |                             ^
+    234|     expect(result.findings).toContain("edge-content-digest");
+    235|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |node| tests/noteSurfaceReference.test.ts > NodeRoom note-surface reference consumption > bounds the record by
+encoded UTF-8 bytes rather than UTF-16 character count
+AssertionError: expected [] to include 'record-too-large'
+ ❯ tests/noteSurfaceReference.test.ts:244:72
+    242|     expect(new TextEncoder().encode(JSON.stringify(resealed)).byteLeng…
+    243|       .toBeGreaterThan(MAX_NOTE_SURFACE_REFERENCE_BYTES);
+    244|     expect(evaluateNoteSurfaceReferenceConsumption(resealed).findings)…
+       |                                                                        ^
+    245|   });
+    246|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 19 passed (23)
+   Start at  22:23:23
+   Duration  643ms (transform 131ms, setup 63ms, import 301ms, tests 62ms, environment 0ms)

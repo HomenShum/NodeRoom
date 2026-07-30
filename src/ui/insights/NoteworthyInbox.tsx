@@ -61,6 +61,7 @@ export function openTarget(item: PassiveActivityItem): { artifactId: string; ele
 
 export function NoteworthyInbox({
   items,
+  referenceProjections = [],
   costPreview,
   assistivePolicy,
   onSetPolicy,
@@ -73,6 +74,12 @@ export function NoteworthyInbox({
   onPractice,
 }: {
   items: PassiveActivityItem[];
+  referenceProjections?: Array<{
+    artifactId: string;
+    title: string;
+    status: "bound" | "needs-review" | "failed";
+    label: string;
+  }>;
   /** P3: Cost preview with p50/p90/hard cap bands and confidence. Null in memory mode. */
   costPreview?: { p50Usd: number; p90Usd: number; hardCapUsd: number; avgTokens: number; sampleSize: number; confidence: "high" | "medium" | "low"; basis: string } | null;
   /** P3: Room assistive policy for settings display. */
@@ -172,7 +179,23 @@ export function NoteworthyInbox({
         )}
         <button className="r-iconbtn" aria-label="Close inbox" onClick={onClose}><X size={14} /></button>
       </div>
-      {items.length === 0 ? (
+      {referenceProjections.length > 0 && (
+        <div className="r-inbox-reference-list" data-testid="noteworthy-reference-projections" aria-label="Canonical reference status">
+          {referenceProjections.map((projection) => (
+            <button
+              key={projection.artifactId}
+              type="button"
+              className="r-inbox-reference-row"
+              data-reference-projection={projection.status}
+              onClick={() => onOpenArtifact(projection.artifactId)}
+            >
+              <span>{projection.title}</span>
+              <span>{projection.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      {items.length === 0 && referenceProjections.length === 0 ? (
         <div className="r-inbox-empty">Nothing needs attention right now.</div>
       ) : (
         <>

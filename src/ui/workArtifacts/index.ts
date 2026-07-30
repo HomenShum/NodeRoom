@@ -14,6 +14,7 @@ export * from "./notebookKernelAdapter";
 export * from "./notebookStructure";
 export * from "./notebookPatchDiff";
 export * from "./notebookTypedBlocks";
+export * from "../../engine/noteSurfaceReference";
 export * from "./ProposalReviewCenter";
 export * from "./proofBundleExport";
 export * from "./proofBundleReceipt";

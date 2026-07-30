@@ -3,6 +3,10 @@ import { Sparkles } from "lucide-react";
 import { useStore } from "../../app/store";
 import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
 import { NoteworthyInbox } from "./NoteworthyInbox";
+import {
+  safelyEvaluateNoteSurfaceReferenceConsumption,
+  referenceProjectionLabel,
+} from "../../engine/noteSurfaceReference";
 import { NodeCount } from "../motion/NodeCount";
 import type { PassiveActivityItem } from "../../app/store";
 
@@ -29,22 +33,35 @@ export function PassiveAgentChip({
   const store = useStore();
   const feed = store.listPassiveActivity?.(roomId) ?? [];
   const items = actionable(feed);
+  const referenceProjections = (typeof store.listArtifacts === "function" ? store.listArtifacts(roomId) : []).flatMap((artifact) => {
+    const consumption = artifact.meta?.noteSurfaceReferenceConsumption;
+    if (!consumption) return [];
+    const evaluation = safelyEvaluateNoteSurfaceReferenceConsumption(consumption);
+    return [{
+      artifactId: artifact.id,
+      title: artifact.title,
+      status: evaluation.projection,
+      label: referenceProjectionLabel(evaluation.projection),
+    }];
+  });
+  const attentionCount = items.length
+    + referenceProjections.filter((projection) => projection.status !== "bound").length;
   const costPreview = store.researchCostPreview?.() ?? null;
   const assistivePolicy = store.roomAssistivePolicy?.() ?? null;
   const [open, setOpen] = useState(false);
   const [pulse, setPulse] = useState(false);
-  const previousCountRef = useRef(items.length);
+  const previousCountRef = useRef(attentionCount);
 
   useEffect(() => {
     const previous = previousCountRef.current;
-    previousCountRef.current = items.length;
-    if (items.length <= previous || previous === 0) { setPulse(false); return; }
+    previousCountRef.current = attentionCount;
+    if (attentionCount <= previous || previous === 0) { setPulse(false); return; }
     setPulse(true);
     const timeout = window.setTimeout(() => setPulse(false), 900);
     return () => window.clearTimeout(timeout);
-  }, [items.length]);
+  }, [attentionCount]);
 
-  if (items.length === 0) return null;
+  if (attentionCount === 0) return null;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -56,14 +73,15 @@ export function PassiveAgentChip({
         data-new={pulse ? "true" : "false"}
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-label={`Room noticed ${items.length} item${items.length === 1 ? "" : "s"}. Open passive intelligence inbox.`}
+        aria-label={`Room noticed ${attentionCount} item${attentionCount === 1 ? "" : "s"}. Open passive intelligence inbox.`}
       >
-        <Sparkles size={12} /> <b>Room</b> noticed <NodeCount value={items.length} from={items.length} duration={520} className="r-passive-chip-count" /> item{items.length === 1 ? "" : "s"}
+        <Sparkles size={12} /> <b>Room</b> noticed <NodeCount value={attentionCount} from={attentionCount} duration={520} className="r-passive-chip-count" /> item{attentionCount === 1 ? "" : "s"}
       </button>
       </PopoverTrigger>
       <PopoverContent className="r-passive-popover" align="end" side="top" sideOffset={8} collisionPadding={8} aria-label="Passive room intelligence">
         <NoteworthyInbox
           items={items}
+          referenceProjections={referenceProjections}
           costPreview={costPreview}
           assistivePolicy={assistivePolicy}
           onSetPolicy={(mode) => { void store.setRoomAssistivePolicy?.(mode); }}

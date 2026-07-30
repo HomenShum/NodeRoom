@@ -1,0 +1,53 @@
+{
+  "schema": "nodekit.note-reference-surface-proof/v1",
+  "generatedAt": "2026-07-30T06:19:26.732Z",
+  "variant": "before",
+  "viewport": {
+    "id": "phone-320x568",
+    "width": 320,
+    "height": 568
+  },
+  "states": [
+    {
+      "id": "populated-armed",
+      "screenshot": "evidence/nodekit-note-reference-surface/before/phone-320x568/populated-armed.png",
+      "equivalentSurface": false,
+      "captureState": null,
+      "captureReason": null
+    },
+    {
+      "id": "reference-review-disarmed",
+      "screenshot": "evidence/nodekit-note-reference-surface/before/phone-320x568/reference-review-disarmed.png",
+      "equivalentSurface": false,
+      "captureState": null,
+      "captureReason": null
+    },
+    {
+      "id": "empty-armed",
+      "screenshot": "evidence/nodekit-note-reference-surface/before/phone-320x568/empty-armed.png",
+      "equivalentSurface": false,
+      "captureState": null,
+      "captureReason": null
+    },
+    {
+      "id": "captured-reopened",
+      "screenshot": "evidence/nodekit-note-reference-surface/before/phone-320x568/captured-reopened.png",
+      "equivalentSurface": false,
+      "captureState": null,
+      "captureReason": null
+    }
+  ],
+  "fullReload": {
+    "screenshot": "evidence/nodekit-note-reference-surface/before/phone-320x568/full-reload-memory-reset.png",
+    "result": "memory-session-reset",
+    "note": "The keyless memory-mode harness intentionally returns to the landing screen on full reload; component close/reopen persistence is verified above."
+  },
+  "checks": {
+    "charset": "UTF-8",
+    "horizontalOverflow": true,
+    "consoleErrors": [],
+    "failedRequests": [],
+    "serverErrors": [],
+    "seriousOrCriticalA11y": []
+  }
+}

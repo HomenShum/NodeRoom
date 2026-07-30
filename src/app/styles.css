@@ -222,6 +222,14 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-inbox-title { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-secondary); font-weight: 600; }
 .r-inbox-scroll { min-height: 0; flex: 1; }
 .r-inbox-list { list-style: none; margin: 0; padding: 4px; }
+.r-inbox-reference-list { display: grid; border-bottom: 1px solid var(--line); }
+.r-inbox-reference-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; width: 100%; padding: 8px 10px; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--text-secondary); cursor: pointer; text-align: left; }
+.r-inbox-reference-row:last-child { border-bottom: 0; }
+.r-inbox-reference-row:hover { background: var(--bg-hover); }
+.r-inbox-reference-row > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
+.r-inbox-reference-row > span:first-child { color: var(--text-primary); font-size: 11px; font-weight: 650; }
+.r-inbox-reference-row[data-reference-projection="failed"] > span:last-child { color: var(--danger-ink); }
+.r-inbox-reference-row[data-reference-projection="needs-review"] > span:last-child { color: var(--warning-ink); }
 .r-inbox-empty { padding: 16px 12px; color: var(--text-tertiary); font-size: 11.5px; text-align: center; }
 .r-inbox-item { padding: 8px var(--space-2); border-radius: 8px; border: 1px solid transparent; margin-bottom: 4px; background: var(--bg-secondary); }
 .r-inbox-item[data-tone="failed"] { border-color: var(--danger-border); background: var(--danger-tint); }
