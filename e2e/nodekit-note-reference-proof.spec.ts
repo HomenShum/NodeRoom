@@ -5,7 +5,8 @@ import { expect, test, type Page } from "@playwright/test";
 
 const variant = process.env.NODEKIT_PROOF_VARIANT === "before" ? "before" : "after";
 const expectsReferenceSurface = variant === "after";
-const outputRoot = join("evidence", "nodekit-note-reference-surface", variant);
+const outputRoot = process.env.NODEKIT_PROOF_OUTPUT_ROOT
+  ?? join("evidence", "nodekit-note-reference-surface", variant);
 const captureText = "Founder note: test the authority boundary before approving the reference edge.";
 const viewports = [
   { id: "desktop-1440x900", width: 1440, height: 900 },
@@ -155,6 +156,31 @@ for (const viewport of viewports) {
       const capture = page.getByTestId("notebook-note-capture");
       await expect(capture).toHaveAttribute("data-capture-state", "armed");
       await expect(capture).toHaveAttribute("data-capture-reason", "NORMAL_NOTE_CONTEXT");
+      const summaryMeta = page.getByTestId("notebook-summary-meta");
+      await expect(summaryMeta.locator(":scope > span")).toHaveCount(3);
+      await expect(summaryMeta).toContainText("notes");
+      await expect(summaryMeta).toContainText("references");
+      const notebookTools = page.getByTestId("notebook-tools");
+      await expect(notebookTools).not.toHaveAttribute("open", "");
+      await expect(page.getByTestId("notebook-execution-preview")).toBeHidden();
+      await notebookTools.locator("summary").dispatchEvent("click");
+      await expect(notebookTools).toHaveAttribute("open", "");
+      await expect(page.getByTestId("notebook-execution-preview")).toBeVisible();
+      await notebookTools.locator("summary").dispatchEvent("click");
+      await expect(notebookTools).not.toHaveAttribute("open", "");
+      if (viewport.width <= 760) {
+        const mobileLayout = await page.locator(".wa-notebook-grid").evaluate((grid) => {
+          const blocks = grid.querySelector<HTMLElement>(".wa-notebook-blocks");
+          const side = grid.querySelector<HTMLElement>(".wa-notebook-side");
+          return {
+            columns: getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length,
+            blocksTop: blocks?.getBoundingClientRect().top ?? Number.NaN,
+            sideTop: side?.getBoundingClientRect().top ?? Number.NaN,
+          };
+        });
+        expect(mobileLayout.columns).toBe(1);
+        expect(mobileLayout.sideTop).toBeLessThan(mobileLayout.blocksTop);
+      }
       states.push(await captureState(page, viewport.id, "populated-armed", true));
 
       await page.getByRole("button", { name: /Reference chain/i }).dispatchEvent("click");

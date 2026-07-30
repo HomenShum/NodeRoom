@@ -1,5 +1,14 @@
 # NotebookDigestWorkbench
 
+## 2026-07-30 — Declutter the notebook into a capture-first work surface
+
+Reduce the default notebook to one dominant Capture action, a flat note stream,
+three summary signals, and compact reference/tool disclosures. Keep proof and
+operator controls reachable without making them persistent dashboard regions.
+Desktop uses a list plus compact inspector; narrow web uses one content column.
+
+**Evidence**: `evidence/notebook-declutter/`
+
 ## 2026-07-30 — Surface exact V2 trust and rule evidence
 
 Use stable capture reason codes, disarm pending proposals before provenance

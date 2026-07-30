@@ -259,18 +259,13 @@ export function NotebookDigestWorkbench({
         )}
       </div>
 
-      <div className="wa-notebook-meta">
+      <div className="wa-notebook-meta" data-testid="notebook-summary-meta">
         <span data-status={structure.status}>
           {needsReview ? <ShieldAlert size={12} /> : <CheckCircle2 size={12} />}
           {stats.statusLabel}
         </span>
-        <span>{stats.blocks} blocks</span>
-        <span>{stats.sections} sections</span>
-        <span>{stats.agentBlocks} agent</span>
-        <span>{stats.humanBlocks} human</span>
-        <span>{stats.sources} sources</span>
-        <span>{stats.traces} traces</span>
-        <span>{stats.proposals} proposals</span>
+        <span>{stats.blocks} notes</span>
+        <span>{stats.sources} references</span>
       </div>
 
       <div className="wa-notebook-grid">
@@ -287,10 +282,10 @@ export function NotebookDigestWorkbench({
               <div className="wa-notebook-block-index">{block.index + 1}</div>
               <div className="wa-notebook-block-copy">
                 <div className="wa-notebook-block-meta">
-                  <span>{block.kind.replace("_", " ")}</span>
                   <span data-type={typedById.get(block.id)?.type}>{typeLabel(typedById.get(block.id)?.type ?? "text")}</span>
-                  <span>{block.role}</span>
-                  <span data-status={block.status}>{blockStatusLabel(block.status)}</span>
+                  {(block.status === "needs_review" || block.status === "accepted") && (
+                    <span data-status={block.status}>{blockStatusLabel(block.status)}</span>
+                  )}
                 </div>
                 <p>{block.text}</p>
                 {(block.sourceIds.length > 0 || block.traceIds.length > 0 || block.proposalIds.length > 0) && (
@@ -396,6 +391,12 @@ export function NotebookDigestWorkbench({
               </div>
             )}
           </div>
+          <details className="wa-notebook-tools" data-testid="notebook-tools">
+            <summary>
+              <span><Layers3 size={13} /> Notebook tools</span>
+              <span>Run, review, organize <ChevronDown size={12} /></span>
+            </summary>
+            <div className="wa-notebook-tools-content">
           <div className="wa-notebook-side-card">
             <h4><ShieldAlert size={13} /> Patch Previews</h4>
             {patchPreviews.length > 0 ? (
@@ -523,6 +524,8 @@ export function NotebookDigestWorkbench({
               <p>No source references detected.</p>
             )}
           </div>
+            </div>
+          </details>
         </aside>
       </div>
     </section>

@@ -1,5 +1,14 @@
 # NodeKit note reference proof
 
+## 2026-07-30 — Prove the capture-first notebook at three viewports
+
+Assert the three-signal summary, collapsed notebook tools, progressive
+reference disclosure, mobile one-column ordering, empty-state capture,
+capture persistence after reopen, no console/server failures, and automated
+accessibility at desktop, 390px, and 320px widths.
+
+**Evidence**: `evidence/notebook-declutter/after-proof/`
+
 ## 2026-07-30 — Stabilize the production-preview demo
 
 Boot the canonical seeded room directly and wait on the owned workspace surface
