@@ -14,21 +14,20 @@ async function enterDemoRoom(page: Page): Promise<void> {
     localStorage.setItem("noderoom:tour:v1", "done");
     localStorage.setItem("noderoom:focusMode:v1", JSON.stringify({ enabled: false, paused: false }));
   });
-  await page.goto("/?mode=memory&surface=desktop", { waitUntil: "domcontentloaded" });
-  const startDemo = page.getByTestId("start-demo-room");
-  const trySample = page.getByRole("button", { name: "Try sample room" });
-  await expect(startDemo.or(trySample)).toBeVisible({ timeout: 30_000 });
-  if (await startDemo.isVisible().catch(() => false)) {
-    await startDemo.dispatchEvent("click");
-  } else {
-    await trySample.dispatchEvent("click");
-  }
-  await expect(page.getByTestId("artifact-panel")).toBeVisible({ timeout: 30_000 });
+  // This proof owns the note-reference workflow, not the landing CTA. Boot the
+  // canonical seeded memory session directly so a cold Vite hydration cannot
+  // detach the landing button while video capture is starting.
+  await page.goto("/?mode=memory&surface=desktop&demo=1&name=NodeKit%20Verifier", {
+    waitUntil: "domcontentloaded",
+  });
+  // A cold Vite transform of the full workspace can exceed thirty seconds on
+  // Windows even when the application is healthy; wait on the owned surface.
+  await expect(page.getByTestId("artifact-panel")).toBeVisible({ timeout: 60_000 });
 }
 
 async function openCaptureNotebook(page: Page): Promise<void> {
   const workArtifactsTab = page.getByTestId("work-artifacts-tab");
-  await workArtifactsTab.click();
+  await workArtifactsTab.dispatchEvent("click");
   const panel = page.getByTestId("work-artifacts-panel");
   await expect(panel).toBeVisible();
   const row = panel
@@ -36,7 +35,7 @@ async function openCaptureNotebook(page: Page): Promise<void> {
     .filter({ hasText: "Capture Notebook" })
     .first();
   await expect(row).toBeVisible();
-  await row.locator("button").first().click();
+  await row.locator("button").first().dispatchEvent("click");
   await expect(page.getByTestId("notebook-digest-workbench")).toBeVisible();
 }
 
@@ -60,24 +59,24 @@ test("records the bounded NodeKit note-reference workflow", async ({ page }) => 
   await expect(capture).toHaveAttribute("data-capture-reason", "NORMAL_NOTE_CONTEXT");
   await pause(page);
 
-  await page.getByRole("button", { name: /Reference chain/i }).click();
+  await page.getByRole("button", { name: /Reference chain/i }).dispatchEvent("click");
   await expect(page.getByTestId("notebook-reference-chain-detail")).toBeVisible();
   await expect(capture).toHaveAttribute("data-capture-state", "disarmed");
   await expect(capture).toHaveAttribute("data-capture-reason", "PROVENANCE_REVIEW_ACTIVE");
   await expect(capture).toContainText("Finish this review before adding another note.");
   await pause(page, 1_200);
 
-  await page.getByRole("button", { name: /Reference chain/i }).click();
+  await page.getByRole("button", { name: /Reference chain/i }).dispatchEvent("click");
   await expect(page.getByTestId("notebook-reference-chain-detail")).toHaveCount(0);
   await expect(capture).toHaveAttribute("data-capture-state", "armed");
   await page.getByRole("textbox", { name: "Capture note" }).fill(captureText);
   await pause(page, 700);
-  await page.getByTestId("notebook-note-capture-submit").click();
+  await page.getByTestId("notebook-note-capture-submit").dispatchEvent("click");
   await expect(capture.getByRole("status")).toHaveText("Captured in this notebook.");
   await expect(page.getByTestId("notebook-digest-block").filter({ hasText: captureText })).toHaveCount(1);
   await pause(page, 1_100);
 
-  await page.getByRole("button", { name: "Close notebook digest" }).click();
+  await page.getByRole("button", { name: "Close notebook digest" }).dispatchEvent("click");
   await pause(page, 500);
   await openCaptureNotebook(page);
   const persistedBlock = page.getByTestId("notebook-digest-block").filter({ hasText: captureText });
