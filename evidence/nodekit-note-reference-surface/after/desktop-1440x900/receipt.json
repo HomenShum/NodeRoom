@@ -1,6 +1,6 @@
 {
   "schema": "nodekit.note-reference-surface-proof/v1",
-  "generatedAt": "2026-07-30T06:21:05.038Z",
+  "generatedAt": "2026-07-30T07:27:23.962Z",
   "variant": "after",
   "viewport": {
     "id": "desktop-1440x900",
@@ -13,28 +13,28 @@
       "screenshot": "evidence/nodekit-note-reference-surface/after/desktop-1440x900/populated-armed.png",
       "equivalentSurface": true,
       "captureState": "armed",
-      "captureReason": "ready"
+      "captureReason": "NORMAL_NOTE_CONTEXT"
     },
     {
       "id": "reference-review-disarmed",
       "screenshot": "evidence/nodekit-note-reference-surface/after/desktop-1440x900/reference-review-disarmed.png",
       "equivalentSurface": true,
       "captureState": "disarmed",
-      "captureReason": "reference-review"
+      "captureReason": "PROVENANCE_REVIEW_ACTIVE"
     },
     {
       "id": "empty-armed",
       "screenshot": "evidence/nodekit-note-reference-surface/after/desktop-1440x900/empty-armed.png",
       "equivalentSurface": true,
       "captureState": "armed",
-      "captureReason": "ready"
+      "captureReason": "NORMAL_NOTE_CONTEXT"
     },
     {
       "id": "captured-reopened",
       "screenshot": "evidence/nodekit-note-reference-surface/after/desktop-1440x900/captured-reopened.png",
       "equivalentSurface": true,
       "captureState": "armed",
-      "captureReason": "ready"
+      "captureReason": "NORMAL_NOTE_CONTEXT"
     }
   ],
   "fullReload": {

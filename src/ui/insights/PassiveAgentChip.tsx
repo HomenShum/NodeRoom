@@ -5,6 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/pop
 import { NoteworthyInbox } from "./NoteworthyInbox";
 import {
   safelyEvaluateNoteSurfaceReferenceConsumption,
+  noteSurfaceReferenceView,
   referenceProjectionLabel,
 } from "../../engine/noteSurfaceReference";
 import { NodeCount } from "../motion/NodeCount";
@@ -37,15 +38,17 @@ export function PassiveAgentChip({
     const consumption = artifact.meta?.noteSurfaceReferenceConsumption;
     if (!consumption) return [];
     const evaluation = safelyEvaluateNoteSurfaceReferenceConsumption(consumption);
+    const view = noteSurfaceReferenceView(consumption);
     return [{
       artifactId: artifact.id,
       title: artifact.title,
       status: evaluation.projection,
       label: referenceProjectionLabel(evaluation.projection),
+      summary: `${view.scoreReceipt.coverage.requiredRuleCount} required rules · ${view.scoreReceipt.coverage.evaluatedRuleCount} evaluated · external proof ${evaluation.projection === "verified" ? "verified" : "not run"}`,
     }];
   });
   const attentionCount = items.length
-    + referenceProjections.filter((projection) => projection.status !== "bound").length;
+    + referenceProjections.filter((projection) => projection.status !== "verified").length;
   const costPreview = store.researchCostPreview?.() ?? null;
   const assistivePolicy = store.roomAssistivePolicy?.() ?? null;
   const [open, setOpen] = useState(false);

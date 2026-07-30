@@ -9,6 +9,7 @@ import { buildNotebookPatchDiff, type NotebookPatchDiff } from "./notebookPatchD
 import { classifyNotebookTypedBlocks, summarizeNotebookTypedBlocks, type NotebookTypedBlockKind } from "./notebookTypedBlocks";
 import {
   deriveNoteCaptureState,
+  noteSurfaceReferenceView,
   safelyEvaluateNoteSurfaceReferenceConsumption,
   referenceProjectionLabel,
 } from "../../engine/noteSurfaceReference";
@@ -156,6 +157,9 @@ export function NotebookDigestWorkbench({
   const referenceEvaluation = structure.referenceConsumption
     ? safelyEvaluateNoteSurfaceReferenceConsumption(structure.referenceConsumption)
     : null;
+  const referenceView = structure.referenceConsumption
+    ? noteSurfaceReferenceView(structure.referenceConsumption)
+    : null;
   const submitCapture = async () => {
     const text = captureText.trim();
     if (!text || !onCapture || capture.state === "disarmed") return;
@@ -216,7 +220,7 @@ export function NotebookDigestWorkbench({
         <div className="wa-note-capture-copy">
           <span>Quick capture</span>
           <p>{capture.state === "disarmed"
-            ? capture.reason === "conflict"
+            ? capture.reason === "CONFLICT_REVIEW_ACTIVE"
               ? "Resolve the stale notebook state before adding another note."
               : "Finish this review before adding another note."
             : structure.blockCount === 0
@@ -329,18 +333,59 @@ export function NotebookDigestWorkbench({
             </button>
             {provenanceExpanded && (
               <div className="wa-reference-chain-detail" data-testid="notebook-reference-chain-detail">
-                {structure.referenceConsumption ? (
+                {referenceView ? (
                   <>
                     <dl>
-                      <div><dt>Observation</dt><dd>{structure.referenceConsumption.observation.observationId}</dd></div>
-                      <div><dt>Rule</dt><dd>{structure.referenceConsumption.rule.ruleId}</dd></div>
-                      <div><dt>Edge</dt><dd>{structure.referenceConsumption.edge.edgeId}</dd></div>
-                      <div><dt>Commit</dt><dd>{structure.referenceConsumption.candidate.commitSha.slice(0, 12)}</dd></div>
-                      <div><dt>Authority</dt><dd>{structure.referenceConsumption.edge.authority.kind}</dd></div>
+                      <div><dt>Case</dt><dd>{structure.referenceConsumption && "caseBinding" in structure.referenceConsumption ? structure.referenceConsumption.caseBinding.caseId : "Legacy V1"}</dd></div>
+                      <div><dt>Surface</dt><dd>{referenceView.surfaceId} · {referenceView.stateId}</dd></div>
+                      <div><dt>Commit</dt><dd>{referenceView.candidateCommit.slice(0, 12)}</dd></div>
+                      <div><dt>Rules</dt><dd>{referenceView.scoreReceipt.coverage.requiredRuleCount} required · {referenceView.scoreReceipt.coverage.evaluatedRuleCount} evaluated</dd></div>
+                      <div><dt>External proof</dt><dd>{referenceEvaluation?.projection === "verified" ? "Verified" : "Not run"}</dd></div>
                     </dl>
-                    <a href={structure.referenceConsumption.observation.source.sourceUrl} target="_blank" rel="noreferrer">
-                      Open inspected reference
-                    </a>
+                    <p data-testid="notebook-reference-summary">
+                      {referenceView.scoreReceipt.coverage.requiredRuleCount} required rules · {referenceView.scoreReceipt.coverage.evaluatedRuleCount} evaluated · external proof {referenceEvaluation?.projection === "verified" ? "verified" : "not run"}
+                    </p>
+                    <div className="wa-reference-rules" data-testid="notebook-reference-rules">
+                      {referenceView.rules.map((rule) => {
+                        const result = referenceView.scoreReceipt.rules.find((candidate) => candidate.ruleId === rule.ruleId);
+                        const observations = rule.sourceObservationRefs
+                          .map((ref) => referenceView.observations.find((observation) => observation.observationId === ref.observationId))
+                          .filter((observation): observation is NonNullable<typeof observation> => Boolean(observation));
+                        return (
+                          <details key={rule.ruleId} className="wa-reference-rule" data-result={result?.result ?? "not-evaluated"}>
+                            <summary>
+                              <span>{rule.statement}</span>
+                              <b>{result?.result ?? "not evaluated"}</b>
+                            </summary>
+                            <dl>
+                              <div><dt>Mechanism</dt><dd>{rule.mechanismHypothesis}</dd></div>
+                              <div><dt>Applies when</dt><dd>{rule.appliesWhen.join(" · ")}</dd></div>
+                              <div><dt>Does not apply</dt><dd>{rule.doesNotApplyWhen.join(" · ")}</dd></div>
+                              <div><dt>Observations</dt><dd>{observations.length}</dd></div>
+                              <div><dt>Runtime evidence</dt><dd>{result?.evidenceRefs.length ?? 0}</dd></div>
+                              <div><dt>Rule digest</dt><dd>{rule.contentDigest}</dd></div>
+                            </dl>
+                            {observations.map((observation) => (
+                              <div key={observation.observationId} className="wa-reference-observation">
+                                {observation.facts.map((fact) => (
+                                  <p key={fact.factId}>
+                                    <b>{fact.subject} {fact.relation} {String(fact.object)}</b>
+                                    <span>{fact.locatorDescription}</span>
+                                  </p>
+                                ))}
+                                <p>{observation.problemTags.join(" · ")}</p>
+                                <p>First seen {observation.source.firstSeenAt} · last verified {observation.source.lastVerifiedAt}</p>
+                                <p>{observation.contentDigest}</p>
+                                <a href={observation.source.sourceUrl} target="_blank" rel="noreferrer">Open inspected reference</a>
+                              </div>
+                            ))}
+                            <div className="wa-reference-runtime" aria-label="Runtime evidence">
+                              {(result?.evidenceRefs ?? []).map((evidenceRef) => <span key={evidenceRef}>{evidenceRef}</span>)}
+                            </div>
+                          </details>
+                        );
+                      })}
+                    </div>
                     {referenceEvaluation && referenceEvaluation.findings.length > 0 && (
                       <p role="alert">{referenceEvaluation.findings.join(" · ")}</p>
                     )}

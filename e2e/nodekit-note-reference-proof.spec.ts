@@ -154,13 +154,13 @@ for (const viewport of viewports) {
     } else {
       const capture = page.getByTestId("notebook-note-capture");
       await expect(capture).toHaveAttribute("data-capture-state", "armed");
-      await expect(capture).toHaveAttribute("data-capture-reason", "ready");
+      await expect(capture).toHaveAttribute("data-capture-reason", "NORMAL_NOTE_CONTEXT");
       states.push(await captureState(page, viewport.id, "populated-armed", true));
 
       await page.getByRole("button", { name: /Reference chain/i }).dispatchEvent("click");
       await expect(page.getByTestId("notebook-reference-chain-detail")).toBeVisible();
       await expect(capture).toHaveAttribute("data-capture-state", "disarmed");
-      await expect(capture).toHaveAttribute("data-capture-reason", "reference-review");
+      await expect(capture).toHaveAttribute("data-capture-reason", "PROVENANCE_REVIEW_ACTIVE");
       await expect(capture).toContainText("Finish this review before adding another note.");
       states.push(await captureState(page, viewport.id, "reference-review-disarmed", true, "notebook-reference-chain"));
 
@@ -176,7 +176,7 @@ for (const viewport of viewports) {
       const emptyCapture = page.getByTestId("notebook-note-capture");
       await expect(page.getByTestId("notebook-digest-block")).toHaveCount(0);
       await expect(emptyCapture).toHaveAttribute("data-capture-state", "armed");
-      await expect(emptyCapture).toHaveAttribute("data-capture-reason", "ready");
+      await expect(emptyCapture).toHaveAttribute("data-capture-reason", "NORMAL_NOTE_CONTEXT");
       await expect(emptyCapture).toContainText("Start the stream. Classification can happen after the thought is safe.");
       states.push(await captureState(page, viewport.id, "empty-armed", true));
 

@@ -1,6 +1,8 @@
 /** Shared canonical reference contract used by the engine, Convex, and UI projections. */
-export const NOTE_SURFACE_REFERENCE_CONSUMPTION_SCHEMA =
+export const NOTE_SURFACE_REFERENCE_CONSUMPTION_V1_SCHEMA =
   "noderoom.note-surface-reference-consumption/v1" as const;
+export const NOTE_SURFACE_REFERENCE_CONSUMPTION_SCHEMA =
+  "noderoom.note-surface-reference-consumption/v2" as const;
 export const MAX_NOTE_SURFACE_REFERENCE_BYTES = 256 * 1024;
 
 export type ReferenceResult =
@@ -10,7 +12,26 @@ export type ReferenceResult =
   | "not-applicable";
 
 export type NoteCaptureState = "armed" | "disarmed";
-export type ReferenceProjectionStatus = "bound" | "needs-review" | "failed";
+export type NoteCaptureReasonCode =
+  | "NORMAL_NOTE_CONTEXT"
+  | "ROOM_AUTHORITY_UNRESOLVED"
+  | "PROVENANCE_REVIEW_ACTIVE"
+  | "PROPOSAL_REVIEW_ACTIVE"
+  | "CONFLICT_REVIEW_ACTIVE"
+  | "FAILED_SAFE_ACTIVE";
+export type ReferenceProjectionStatus =
+  | "verified"
+  | "incomplete"
+  | "failed"
+  | "not-evaluated";
+export type NoteSurfaceId =
+  | "noteworthy-inbox"
+  | "notebook-digest-workbench";
+export type NoteSurfaceStateId =
+  | "populated-stream"
+  | "empty-first-capture"
+  | "provenance-expanded-review"
+  | "after-submit-reload";
 
 export interface ReferenceChainRecordRef {
   schemaVersion: string;
@@ -201,8 +222,8 @@ export interface ExternalReferenceRunSnapshot {
   contentDigest: string;
 }
 
-export interface NoteSurfaceReferenceConsumption {
-  schemaVersion: typeof NOTE_SURFACE_REFERENCE_CONSUMPTION_SCHEMA;
+export interface NoteSurfaceReferenceConsumptionV1 {
+  schemaVersion: typeof NOTE_SURFACE_REFERENCE_CONSUMPTION_V1_SCHEMA;
   consumptionId: string;
   roomId: string;
   artifactId: string;
@@ -226,6 +247,83 @@ export interface NoteSurfaceReferenceConsumption {
   computedStyleEvidenceRefs: string[];
   createdAt: string;
   contentDigest: string;
+}
+
+export interface NoteSurfaceReferenceConsumptionV2 {
+  schemaVersion: typeof NOTE_SURFACE_REFERENCE_CONSUMPTION_SCHEMA;
+  consumptionId: string;
+  caseBinding: {
+    caseId: string;
+    stageId: string;
+    caseContentHash: string;
+  };
+  repositoryBinding: {
+    remote: string;
+    commitSha: string;
+    treeHash: string;
+  };
+  artifactBinding: {
+    roomId: string;
+    artifactId: string;
+    ownerId: string;
+    noteId?: string;
+    casVersion: string;
+    artifactContentHash: string;
+  };
+  candidateBinding: {
+    candidateId: string;
+    candidateContentHash: string;
+    renderReceipts: Array<{
+      receiptId: string;
+      receiptDigest: string;
+      stateId: NoteSurfaceStateId;
+      viewportId: string;
+    }>;
+  };
+  surface: {
+    surfaceId: NoteSurfaceId;
+    stateId: NoteSurfaceStateId;
+    trustDecisionSurface: boolean;
+  };
+  capturePolicy: {
+    expected: NoteCaptureState;
+    reasonCode: NoteCaptureReasonCode;
+  };
+  proofProfile: {
+    profileId: string;
+    profileDigest: string;
+  };
+  snapshots: {
+    externalRun: ExternalReferenceRunSnapshot;
+    observations: ReferenceObservationSnapshot[];
+    rules: DesignRuleSnapshot[];
+    scoreReceipt: ReferenceScoreReceiptSnapshot;
+    edges: ReferenceChainEdge[];
+  };
+  reviewBinding: {
+    reviewReceiptId: string;
+    reviewReceiptDigest: string;
+  };
+  contentDigest: string;
+}
+
+export type NoteSurfaceReferenceConsumption =
+  | NoteSurfaceReferenceConsumptionV1
+  | NoteSurfaceReferenceConsumptionV2;
+
+export interface NoteSurfaceReferenceView {
+  externalRun: ExternalReferenceRunSnapshot;
+  observations: ReferenceObservationSnapshot[];
+  rules: DesignRuleSnapshot[];
+  scoreReceipt: ReferenceScoreReceiptSnapshot;
+  edges: ReferenceChainEdge[];
+  roomId: string;
+  artifactId: string;
+  candidateCommit: string;
+  surfaceId: NoteSurfaceId;
+  stateId: NoteSurfaceStateId;
+  reviewReceiptId?: string;
+  reviewReceiptDigest?: string;
 }
 
 export interface NoteCaptureContext {
@@ -273,6 +371,18 @@ function inspectKeys(
     findings.push(...inspectKeys(child, options, [...path, key]));
   }
   return findings;
+}
+
+function inspectExactKeys(
+  value: unknown,
+  expectedKeys: readonly string[],
+  path: string,
+): string[] {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return [`invalid-object:${path}`];
+  const expected = new Set(expectedKeys);
+  return Object.keys(value as Record<string, unknown>)
+    .filter((key) => !expected.has(key))
+    .map((key) => `unknown-key:${path}.${key}`);
 }
 
 function recordRefMatches(
@@ -344,6 +454,91 @@ export async function referenceDigest(value: unknown): Promise<string> {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
+export function isNoteSurfaceReferenceConsumptionV2(
+  record: NoteSurfaceReferenceConsumption,
+): record is NoteSurfaceReferenceConsumptionV2 {
+  return record.schemaVersion === NOTE_SURFACE_REFERENCE_CONSUMPTION_SCHEMA;
+}
+
+export function noteSurfaceReferenceView(
+  record: NoteSurfaceReferenceConsumption,
+): NoteSurfaceReferenceView {
+  if (isNoteSurfaceReferenceConsumptionV2(record)) {
+    return {
+      externalRun: record.snapshots.externalRun,
+      observations: record.snapshots.observations,
+      rules: record.snapshots.rules,
+      scoreReceipt: record.snapshots.scoreReceipt,
+      edges: record.snapshots.edges,
+      roomId: record.artifactBinding.roomId,
+      artifactId: record.artifactBinding.artifactId,
+      candidateCommit: record.repositoryBinding.commitSha,
+      surfaceId: record.surface.surfaceId,
+      stateId: record.surface.stateId,
+      reviewReceiptId: record.reviewBinding.reviewReceiptId,
+      reviewReceiptDigest: record.reviewBinding.reviewReceiptDigest,
+    };
+  }
+  return {
+    externalRun: record.externalRun,
+    observations: [record.observation],
+    rules: [record.rule],
+    scoreReceipt: record.scoreReceipt,
+    edges: [record.edge],
+    roomId: record.roomId,
+    artifactId: record.artifactId,
+    candidateCommit: record.candidate.commitSha,
+    surfaceId: "notebook-digest-workbench",
+    stateId: "populated-stream",
+  };
+}
+
+export interface NoteSurfaceV1AdapterBindings {
+  caseBinding: NoteSurfaceReferenceConsumptionV2["caseBinding"];
+  repositoryBinding: NoteSurfaceReferenceConsumptionV2["repositoryBinding"];
+  artifactBinding: NoteSurfaceReferenceConsumptionV2["artifactBinding"];
+  candidateBinding: NoteSurfaceReferenceConsumptionV2["candidateBinding"];
+  surface: NoteSurfaceReferenceConsumptionV2["surface"];
+  capturePolicy: NoteSurfaceReferenceConsumptionV2["capturePolicy"];
+  proofProfile: NoteSurfaceReferenceConsumptionV2["proofProfile"];
+  reviewBinding: NoteSurfaceReferenceConsumptionV2["reviewBinding"];
+}
+
+/**
+ * Compatibility is explicit: V1 did not carry durable Caseflow, owner, CAS,
+ * render-state, proof-profile, or review identities, so callers must supply
+ * those bindings from canonical records. The adapter never fabricates them.
+ */
+export async function adaptNoteSurfaceReferenceConsumptionV1(
+  record: NoteSurfaceReferenceConsumptionV1,
+  bindings: NoteSurfaceV1AdapterBindings,
+): Promise<NoteSurfaceReferenceConsumptionV2> {
+  const body = {
+    schemaVersion: NOTE_SURFACE_REFERENCE_CONSUMPTION_SCHEMA,
+    caseBinding: structuredClone(bindings.caseBinding),
+    repositoryBinding: structuredClone(bindings.repositoryBinding),
+    artifactBinding: structuredClone(bindings.artifactBinding),
+    candidateBinding: structuredClone(bindings.candidateBinding),
+    surface: structuredClone(bindings.surface),
+    capturePolicy: structuredClone(bindings.capturePolicy),
+    proofProfile: structuredClone(bindings.proofProfile),
+    snapshots: {
+      externalRun: structuredClone(record.externalRun),
+      observations: [structuredClone(record.observation)],
+      rules: [structuredClone(record.rule)],
+      scoreReceipt: structuredClone(record.scoreReceipt),
+      edges: [structuredClone(record.edge)],
+    },
+    reviewBinding: structuredClone(bindings.reviewBinding),
+  };
+  const contentDigest = await referenceDigest(body);
+  return {
+    ...body,
+    consumptionId: `note_surface_consumption_${contentDigest.slice(0, 24)}`,
+    contentDigest,
+  };
+}
+
 function scoreCoverage(rules: ReferenceScoreReceiptSnapshot["rules"]): ReferenceScoreReceiptSnapshot["coverage"] {
   return {
     requiredRuleCount: rules.length,
@@ -379,20 +574,25 @@ async function verifyDerivedRecord(
 
 export function deriveNoteCaptureState(context: NoteCaptureContext): {
   state: NoteCaptureState;
-  reason: "ready" | "reference-review" | "conflict";
+  reason: NoteCaptureReasonCode;
 } {
-  if (context.hasConflict) return { state: "disarmed", reason: "conflict" };
-  if (context.provenanceExpanded) {
-    return { state: "disarmed", reason: "reference-review" };
+  if (context.hasConflict) return { state: "disarmed", reason: "CONFLICT_REVIEW_ACTIVE" };
+  if (context.hasPendingProposal) {
+    return { state: "disarmed", reason: "PROPOSAL_REVIEW_ACTIVE" };
   }
-  return { state: "armed", reason: "ready" };
+  if (context.provenanceExpanded) {
+    return { state: "disarmed", reason: "PROVENANCE_REVIEW_ACTIVE" };
+  }
+  return { state: "armed", reason: "NORMAL_NOTE_CONTEXT" };
 }
 
-export function evaluateNoteSurfaceReferenceConsumption(
-  record: NoteSurfaceReferenceConsumption,
+function evaluateNoteSurfaceReferenceConsumptionV1(
+  record: NoteSurfaceReferenceConsumptionV1,
   expected?: {
     roomId: string;
     artifactId: string;
+    ownerId?: string;
+    casVersion?: string;
     observation?: ReferenceObservationSnapshot;
     rule?: DesignRuleSnapshot;
     scoreReceipt?: ReferenceScoreReceiptSnapshot;
@@ -414,7 +614,7 @@ export function evaluateNoteSurfaceReferenceConsumption(
     || (record.edge.authority.receiptRefs?.length ?? 0) > 32
     || record.edge.limitations.length > 32
   ) findings.push("edge-bounds");
-  if (record.schemaVersion !== NOTE_SURFACE_REFERENCE_CONSUMPTION_SCHEMA) findings.push("schema-version");
+  if (record.schemaVersion !== NOTE_SURFACE_REFERENCE_CONSUMPTION_V1_SCHEMA) findings.push("schema-version");
   if (!record.consumptionId.trim()) findings.push("consumption-id");
   if (!isCanonicalInstant(record.createdAt)) findings.push("created-at");
   if (!HASH.test(record.contentDigest)) findings.push("content-digest");
@@ -529,12 +729,231 @@ export function evaluateNoteSurfaceReferenceConsumption(
   }
 
   const accepted = findings.length === 0;
-  const projection: ReferenceProjectionStatus = !accepted
-    ? "failed"
-    : record.scoreReceipt.verdict === "pass"
-      ? "bound"
-      : "needs-review";
+  const projection: ReferenceProjectionStatus = !accepted ? "failed" : "incomplete";
   return { accepted, findings: [...new Set(findings)].sort(), projection };
+}
+
+function evaluateNoteSurfaceReferenceConsumptionV2(
+  record: NoteSurfaceReferenceConsumptionV2,
+  expected?: {
+    roomId: string;
+    artifactId: string;
+    observation?: ReferenceObservationSnapshot;
+    rule?: DesignRuleSnapshot;
+    scoreReceipt?: ReferenceScoreReceiptSnapshot;
+    edge?: ReferenceChainEdge;
+    caseBinding?: NoteSurfaceReferenceConsumptionV2["caseBinding"];
+    repositoryBinding?: NoteSurfaceReferenceConsumptionV2["repositoryBinding"];
+    proofProfile?: NoteSurfaceReferenceConsumptionV2["proofProfile"];
+    ownerId?: string;
+    casVersion?: string;
+  },
+): NoteSurfaceReferenceEvaluation {
+  const findings: string[] = [];
+  const encodedBytes = new TextEncoder().encode(JSON.stringify(record)).byteLength;
+  if (encodedBytes > MAX_NOTE_SURFACE_REFERENCE_BYTES) findings.push("record-too-large");
+  if (record.schemaVersion !== NOTE_SURFACE_REFERENCE_CONSUMPTION_SCHEMA) findings.push("schema-version");
+  if (!record.consumptionId.trim()) findings.push("consumption-id");
+  if (!HASH.test(record.contentDigest)) findings.push("content-digest");
+
+  const { observations, rules, scoreReceipt, edges, externalRun } = record.snapshots;
+  if (observations.length === 0) findings.push("missing-observations");
+  if (rules.length === 0) findings.push("missing-rules");
+  if (observations.length > 64) findings.push("too-many-observations");
+  if (rules.length > 64) findings.push("too-many-rules");
+  if (scoreReceipt.rules.length > 64) findings.push("too-many-rule-results");
+  if (edges.length === 0 || edges.length > 128) findings.push("edge-bounds");
+  if (record.candidateBinding.renderReceipts.length === 0) findings.push("missing-render-receipts");
+  if (record.candidateBinding.renderReceipts.length > 48) findings.push("too-many-render-receipts");
+  if (!record.surface.trustDecisionSurface) findings.push("trust-surface-misclassified");
+  findings.push(...inspectExactKeys(record, [
+    "schemaVersion",
+    "consumptionId",
+    "caseBinding",
+    "repositoryBinding",
+    "artifactBinding",
+    "candidateBinding",
+    "surface",
+    "capturePolicy",
+    "proofProfile",
+    "snapshots",
+    "reviewBinding",
+    "contentDigest",
+  ], "record"));
+  findings.push(...inspectExactKeys(record.caseBinding, [
+    "caseId", "stageId", "caseContentHash",
+  ], "record.caseBinding"));
+  findings.push(...inspectExactKeys(record.repositoryBinding, [
+    "remote", "commitSha", "treeHash",
+  ], "record.repositoryBinding"));
+  findings.push(...inspectExactKeys(record.artifactBinding, [
+    "roomId", "artifactId", "ownerId", "noteId", "casVersion", "artifactContentHash",
+  ], "record.artifactBinding"));
+  findings.push(...inspectExactKeys(record.candidateBinding, [
+    "candidateId", "candidateContentHash", "renderReceipts",
+  ], "record.candidateBinding"));
+  findings.push(...inspectExactKeys(record.surface, [
+    "surfaceId", "stateId", "trustDecisionSurface",
+  ], "record.surface"));
+  findings.push(...inspectExactKeys(record.capturePolicy, [
+    "expected", "reasonCode",
+  ], "record.capturePolicy"));
+  findings.push(...inspectExactKeys(record.proofProfile, [
+    "profileId", "profileDigest",
+  ], "record.proofProfile"));
+  findings.push(...inspectExactKeys(record.snapshots, [
+    "externalRun", "observations", "rules", "scoreReceipt", "edges",
+  ], "record.snapshots"));
+  findings.push(...inspectExactKeys(record.reviewBinding, [
+    "reviewReceiptId", "reviewReceiptDigest",
+  ], "record.reviewBinding"));
+  for (const [index, receipt] of record.candidateBinding.renderReceipts.entries()) {
+    findings.push(...inspectExactKeys(receipt, [
+      "receiptId", "receiptDigest", "stateId", "viewportId",
+    ], `record.candidateBinding.renderReceipts.${index}`));
+  }
+
+  const expectedCaptureState = record.capturePolicy.reasonCode === "NORMAL_NOTE_CONTEXT"
+    ? "armed"
+    : "disarmed";
+  if (record.capturePolicy.expected !== expectedCaptureState) findings.push("capture-policy-drift");
+
+  if (
+    !record.caseBinding.caseId.trim()
+    || !record.caseBinding.stageId.trim()
+    || !HASH.test(record.caseBinding.caseContentHash)
+  ) findings.push("case-binding");
+  if (
+    !record.repositoryBinding.remote.trim()
+    || !COMMIT.test(record.repositoryBinding.commitSha)
+    || !HASH.test(record.repositoryBinding.treeHash)
+  ) findings.push("repository-binding");
+  if (
+    !record.artifactBinding.roomId.trim()
+    || !record.artifactBinding.artifactId.trim()
+    || !record.artifactBinding.ownerId.trim()
+    || !record.artifactBinding.casVersion.trim()
+    || !HASH.test(record.artifactBinding.artifactContentHash)
+  ) findings.push("artifact-binding");
+  if (
+    !record.candidateBinding.candidateId.trim()
+    || !HASH.test(record.candidateBinding.candidateContentHash)
+  ) findings.push("candidate-binding");
+  if (
+    !record.reviewBinding.reviewReceiptId.trim()
+    || !HASH.test(record.reviewBinding.reviewReceiptDigest)
+  ) findings.push("review-binding");
+  if (!record.proofProfile.profileId.trim() || !HASH.test(record.proofProfile.profileDigest)) {
+    findings.push("proof-profile");
+  }
+
+  if (
+    scoreReceipt.profile !== record.proofProfile.profileId
+    || scoreReceipt.profileManifest.digest !== record.proofProfile.profileDigest
+  ) findings.push("proof-profile-drift");
+  if (
+    scoreReceipt.candidate.candidateId !== record.candidateBinding.candidateId
+    || scoreReceipt.candidate.candidateReceiptDigest !== record.candidateBinding.candidateContentHash
+    || scoreReceipt.candidate.candidateCommit !== record.repositoryBinding.commitSha
+  ) findings.push("candidate-binding-drift");
+  const scoreRender = record.candidateBinding.renderReceipts.find(
+    (receipt) => receipt.receiptId === scoreReceipt.candidate.renderReceiptId,
+  );
+  if (!scoreRender || scoreRender.receiptDigest !== scoreReceipt.candidate.renderReceiptDigest) {
+    findings.push("render-receipt-drift");
+  }
+
+  if (
+    externalRun.status !== "pass"
+    || externalRun.provider !== "mobbin"
+    || externalRun.operation !== "authenticated-live-inspection"
+    || externalRun.policyId !== "nodekit.mobbin-remote-mcp/v1"
+    || externalRun.producer.tool !== "mobbin/search_flows"
+  ) findings.push("external-run-contract");
+  if (!externalRun.sourceUrl || !/^https:\/\/mobbin\.com\//.test(externalRun.sourceUrl)) {
+    findings.push("missing-mobbin-url");
+  }
+  if (
+    !isCanonicalInstant(externalRun.checkedAt)
+    || !isCanonicalInstant(externalRun.expiresAt)
+    || !isCanonicalInstant(externalRun.attestation.signedAt)
+    || Date.parse(externalRun.checkedAt) >= Date.parse(externalRun.expiresAt)
+  ) findings.push("external-run-time");
+
+  findings.push(...inspectKeys(record, { rejectAuthority: false, rejectCaches: true }));
+  for (const edge of edges) {
+    findings.push(...inspectKeys(edge, { rejectAuthority: true, rejectCaches: true }, ["snapshots", "edges", edge.edgeId]));
+    if (!exactJson(edge.caseBinding, record.caseBinding)) findings.push("edge-case-binding-drift");
+    if (!exactJson(edge.repositoryBinding, record.repositoryBinding)) findings.push("edge-repository-binding-drift");
+    if ((edge.authority.attestationRefs?.length ?? 0) + (edge.authority.receiptRefs?.length ?? 0) === 0) {
+      findings.push("edge-authority-evidence");
+    }
+  }
+
+  const observationsById = new Map(observations.map((observation) => [observation.observationId, observation]));
+  const rulesById = new Map(rules.map((rule) => [rule.ruleId, rule]));
+  for (const rule of rules) {
+    for (const ref of rule.sourceObservationRefs) {
+      const observation = observationsById.get(ref.observationId);
+      if (!observation || observation.contentDigest !== ref.observationDigest) {
+        findings.push("observation-digest-drift");
+        continue;
+      }
+      const factIds = new Set(observation.facts.map((fact) => fact.factId));
+      if (ref.factIds.some((factId) => !factIds.has(factId))) findings.push("atomic-fact-drift");
+    }
+    const scored = scoreReceipt.rules.find((candidate) => candidate.ruleId === rule.ruleId);
+    if (!scored || scored.ruleDigest !== rule.contentDigest) findings.push("rule-digest-drift");
+  }
+  if (scoreReceipt.rules.some((scored) => !rulesById.has(scored.ruleId))) findings.push("score-rule-not-canonical");
+  const derivedCoverage = scoreCoverage(scoreReceipt.rules);
+  if (!exactJson(scoreReceipt.coverage, derivedCoverage)) findings.push("score-coverage-not-derived");
+  if (scoreReceipt.verdict !== scoreVerdict(derivedCoverage)) findings.push("score-verdict-not-derived");
+
+  if (expected) {
+    if (
+      record.artifactBinding.roomId !== expected.roomId
+      || record.artifactBinding.artifactId !== expected.artifactId
+    ) findings.push("artifact-binding-drift");
+    if (expected.ownerId && record.artifactBinding.ownerId !== expected.ownerId) {
+      findings.push("artifact-owner-binding-drift");
+    }
+    if (expected.casVersion && record.artifactBinding.casVersion !== expected.casVersion) {
+      findings.push("artifact-cas-binding-drift");
+    }
+    if (expected.caseBinding && !exactJson(record.caseBinding, expected.caseBinding)) findings.push("case-binding-drift");
+    if (expected.repositoryBinding && !exactJson(record.repositoryBinding, expected.repositoryBinding)) {
+      findings.push("repository-binding-drift");
+    }
+    if (expected.proofProfile && !exactJson(record.proofProfile, expected.proofProfile)) {
+      findings.push("proof-profile-drift");
+    }
+    if (expected.observation && !observations.some((value) => exactJson(value, expected.observation))) {
+      findings.push("canonical-observation-drift");
+    }
+    if (expected.rule && !rules.some((value) => exactJson(value, expected.rule))) findings.push("canonical-rule-drift");
+    if (expected.scoreReceipt && !exactJson(scoreReceipt, expected.scoreReceipt)) findings.push("canonical-score-drift");
+    if (expected.edge && !edges.some((value) => exactJson(value, expected.edge))) findings.push("canonical-edge-drift");
+  }
+
+  const accepted = findings.length === 0;
+  return {
+    accepted,
+    findings: [...new Set(findings)].sort(),
+    // NodeProof is an external barrier. This compatibility envelope intentionally
+    // cannot self-assert that barrier, so a structurally valid record is incomplete.
+    projection: accepted ? "incomplete" : "failed",
+  };
+}
+
+export function evaluateNoteSurfaceReferenceConsumption(
+  record: NoteSurfaceReferenceConsumption,
+  expected?: Parameters<typeof evaluateNoteSurfaceReferenceConsumptionV2>[1],
+): NoteSurfaceReferenceEvaluation {
+  if (isNoteSurfaceReferenceConsumptionV2(record)) {
+    return evaluateNoteSurfaceReferenceConsumptionV2(record, expected);
+  }
+  return evaluateNoteSurfaceReferenceConsumptionV1(record, expected);
 }
 
 export function safelyEvaluateNoteSurfaceReferenceConsumption(
@@ -569,48 +988,55 @@ export async function verifyNoteSurfaceReferenceConsumptionBindings(
   if (!structural.accepted) return structural;
   const findings = [...structural.findings];
   try {
+    const view = noteSurfaceReferenceView(record);
     const {
       runId: _runId,
       subjectDigest: _subjectDigest,
       contentDigest: _contentDigest,
       attestation: _attestation,
       ...externalSubject
-    } = record.externalRun;
+    } = view.externalRun;
     const expectedSubjectDigest = await referenceDigest(externalSubject);
-    if (record.externalRun.subjectDigest !== expectedSubjectDigest) {
+    if (view.externalRun.subjectDigest !== expectedSubjectDigest) {
       findings.push("external-run-subject-digest");
     }
-    if (record.externalRun.runId !== `external_run_${expectedSubjectDigest.slice(0, 24)}`) {
+    if (view.externalRun.runId !== `external_run_${expectedSubjectDigest.slice(0, 24)}`) {
       findings.push("external-run-id");
     }
-    const { contentDigest: _externalContentDigest, ...externalBody } = record.externalRun;
-    if (record.externalRun.contentDigest !== await referenceDigest(externalBody)) {
+    const { contentDigest: _externalContentDigest, ...externalBody } = view.externalRun;
+    if (view.externalRun.contentDigest !== await referenceDigest(externalBody)) {
       findings.push("external-run-content-digest");
     }
+    for (const observation of view.observations) {
+      findings.push(...await verifyDerivedRecord(
+        observation as unknown as Record<string, unknown>,
+        "observationId",
+        "observation",
+        "observation-content-digest",
+      ));
+    }
+    for (const rule of view.rules) {
+      findings.push(...await verifyDerivedRecord(
+        rule as unknown as Record<string, unknown>,
+        "ruleId",
+        "rule",
+        "rule-content-digest",
+      ));
+    }
     findings.push(...await verifyDerivedRecord(
-      record.observation as unknown as Record<string, unknown>,
-      "observationId",
-      "observation",
-      "observation-content-digest",
-    ));
-    findings.push(...await verifyDerivedRecord(
-      record.rule as unknown as Record<string, unknown>,
-      "ruleId",
-      "rule",
-      "rule-content-digest",
-    ));
-    findings.push(...await verifyDerivedRecord(
-      record.scoreReceipt as unknown as Record<string, unknown>,
+      view.scoreReceipt as unknown as Record<string, unknown>,
       "receiptId",
       "score",
       "score-content-digest",
     ));
-    findings.push(...await verifyDerivedRecord(
-      record.edge as unknown as Record<string, unknown>,
-      "edgeId",
-      "reference_chain_edge",
-      "edge-content-digest",
-    ));
+    for (const edge of view.edges) {
+      findings.push(...await verifyDerivedRecord(
+        edge as unknown as Record<string, unknown>,
+        "edgeId",
+        "reference_chain_edge",
+        "edge-content-digest",
+      ));
+    }
     findings.push(...await verifyDerivedRecord(
       record as unknown as Record<string, unknown>,
       "consumptionId",
@@ -625,23 +1051,20 @@ export async function verifyNoteSurfaceReferenceConsumptionBindings(
   return {
     accepted,
     findings: uniqueFindings,
-    projection: !accepted
-      ? "failed"
-      : record.scoreReceipt.verdict === "pass"
-        ? "bound"
-        : "needs-review",
+    projection: accepted ? "incomplete" : "failed",
   };
 }
 
 export function referenceProjectionLabel(status: ReferenceProjectionStatus): string {
-  if (status === "bound") return "Reference chain bound";
-  if (status === "needs-review") return "Reference review incomplete";
-  return "Reference chain failed";
+  if (status === "verified") return "Verified";
+  if (status === "incomplete") return "Incomplete";
+  if (status === "not-evaluated") return "Not evaluated";
+  return "Failed";
 }
 
 export function reconcileReferenceProjection(
   record: NoteSurfaceReferenceConsumption,
-  claimed: ReferenceProjectionStatus,
+  claimed: ReferenceProjectionStatus | "bound" | "needs-review",
 ): {
   projection: ReferenceProjectionStatus;
   repaired: boolean;

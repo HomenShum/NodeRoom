@@ -2,6 +2,7 @@ import type {
   ExternalReferenceRunSnapshot,
   NoteSurfaceReferenceConsumption,
 } from "../../src/engine/noteSurfaceReference";
+import { noteSurfaceReferenceView } from "../../src/engine/noteSurfaceReference";
 
 const MAX_TRUST_POLICY_BYTES = 64 * 1024;
 const MAX_TRUST_CREDENTIALS = 128;
@@ -122,15 +123,16 @@ export async function verifyNoteSurfaceReferenceAuthority(
   }
 
   const policyDigest = await sha256Utf8(rawPolicy);
+  const view = noteSurfaceReferenceView(record);
   if (
-    !HASH.test(record.scoreReceipt.trustPolicy.digest)
-    || record.scoreReceipt.trustPolicy.path !== "reference/trust-policy.json"
-    || record.scoreReceipt.trustPolicy.digest !== policyDigest
+    !HASH.test(view.scoreReceipt.trustPolicy.digest)
+    || view.scoreReceipt.trustPolicy.path !== "reference/trust-policy.json"
+    || view.scoreReceipt.trustPolicy.digest !== policyDigest
   ) {
     findings.push("external-run-trust-policy-drift");
   }
 
-  const run = record.externalRun;
+  const run = view.externalRun;
   const attestation = run.attestation;
   const credential = policy.credentials[attestation.keyId];
   const producer = `${run.producer.tool}@${run.producer.version}`;

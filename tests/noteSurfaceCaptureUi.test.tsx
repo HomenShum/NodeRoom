@@ -4,6 +4,7 @@ import type { Proposal } from "../src/engine/types";
 import { NotebookDigestWorkbench } from "../src/ui/workArtifacts/NotebookDigestWorkbench";
 import { NoteworthyInbox } from "../src/ui/insights/NoteworthyInbox";
 import type { NotebookArtifactStructure } from "../src/ui/workArtifacts/notebookStructure";
+import { buildNoteSurfaceReferenceFixture } from "./fixtures/noteSurfaceReferenceFixture";
 
 function structure(overrides: Partial<NotebookArtifactStructure> = {}): NotebookArtifactStructure {
   return {
@@ -69,6 +70,7 @@ describe("note-surface capture states", () => {
       />,
     );
     expect(screen.getByTestId("notebook-note-capture").getAttribute("data-capture-state")).toBe("armed");
+    expect(screen.getByTestId("notebook-note-capture").getAttribute("data-capture-reason")).toBe("NORMAL_NOTE_CONTEXT");
 
     rerender(
       <NotebookDigestWorkbench
@@ -79,10 +81,11 @@ describe("note-surface capture states", () => {
       />,
     );
     expect(screen.getByTestId("notebook-note-capture").getAttribute("data-capture-state")).toBe("armed");
+    expect(screen.getByTestId("notebook-note-capture").getAttribute("data-capture-reason")).toBe("NORMAL_NOTE_CONTEXT");
     expect(screen.getByText(/Start the stream/i)).toBeTruthy();
   });
 
-  it("disarms while provenance is expanded and rearms when review closes", () => {
+  it("disarms a pending proposal while provenance is collapsed and stays disarmed when details close", () => {
     render(
       <NotebookDigestWorkbench
         structure={structure({ status: "needs_review", proposalIds: ["proposal-1"] })}
@@ -92,12 +95,29 @@ describe("note-surface capture states", () => {
         onCapture={vi.fn().mockResolvedValue({ ok: true })}
       />,
     );
+    expect(screen.getByTestId("notebook-note-capture").getAttribute("data-capture-state")).toBe("disarmed");
+    expect(screen.getByTestId("notebook-note-capture").getAttribute("data-capture-reason")).toBe("PROPOSAL_REVIEW_ACTIVE");
     fireEvent.click(screen.getByRole("button", { name: /Reference chain/i }));
     expect(screen.getByTestId("notebook-note-capture").getAttribute("data-capture-state")).toBe("disarmed");
     expect(screen.getByText("Finish this review before adding another note.")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: /Reference chain/i }));
-    expect(screen.getByTestId("notebook-note-capture").getAttribute("data-capture-state")).toBe("armed");
+    expect(screen.getByTestId("notebook-note-capture").getAttribute("data-capture-state")).toBe("disarmed");
+  });
+
+  it("disarms provenance-only review and rearms when details close", () => {
+    render(
+      <NotebookDigestWorkbench
+        structure={structure()}
+        onClose={vi.fn()}
+        onOpenArtifact={vi.fn()}
+        onCapture={vi.fn().mockResolvedValue({ ok: true })}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /Reference chain/i }));
+    expect(screen.getByTestId("notebook-note-capture").getAttribute("data-capture-reason")).toBe("PROVENANCE_REVIEW_ACTIVE");
+    fireEvent.click(screen.getByRole("button", { name: /Reference chain/i }));
+    expect(screen.getByTestId("notebook-note-capture").getAttribute("data-capture-reason")).toBe("NORMAL_NOTE_CONTEXT");
   });
 
   it("submits once, clears the capture, and remains armed for the next thought", async () => {
@@ -133,7 +153,27 @@ describe("note-surface capture states", () => {
     await waitFor(() => {
       expect(screen.getByTestId("notebook-note-capture").getAttribute("data-capture-state")).toBe("disarmed");
     });
+    expect(screen.getByTestId("notebook-note-capture").getAttribute("data-capture-reason")).toBe("CONFLICT_REVIEW_ACTIVE");
     expect(screen.getByRole("alert").textContent).toContain("changed while you were capturing");
+  });
+
+  it("shows V2 rule mechanism, applicability, evidence counts, and incomplete external proof", async () => {
+    const referenceConsumption = await buildNoteSurfaceReferenceFixture();
+    render(
+      <NotebookDigestWorkbench
+        structure={structure({ referenceConsumption })}
+        onClose={vi.fn()}
+        onOpenArtifact={vi.fn()}
+        onCapture={vi.fn().mockResolvedValue({ ok: true })}
+      />,
+    );
+    expect(screen.getByText("Incomplete")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /Reference chain/i }));
+    expect(screen.getByTestId("notebook-reference-summary").textContent)
+      .toContain("1 required rules · 1 evaluated · external proof not run");
+    fireEvent.click(screen.getByText("Keep capture in one continuous note stream."));
+    expect(screen.getByText(/always-present inline entry removes navigation cost/i)).toBeTruthy();
+    expect(screen.getByText("computed-style:stream-divider")).toBeTruthy();
   });
 });
 
@@ -146,15 +186,17 @@ describe("reference status projection", () => {
         referenceProjections={[{
           artifactId: "note-1",
           title: "Capture notebook",
-          status: "failed",
-          label: "Reference chain failed",
+          status: "incomplete",
+          label: "Incomplete",
+          summary: "2 required rules · 2 evaluated · external proof not run",
         }]}
         onOpenArtifact={onOpenArtifact}
         onClose={vi.fn()}
       />,
     );
     const projection = screen.getByTestId("noteworthy-reference-projections");
-    expect(projection.querySelector("[data-reference-projection='failed']")).toBeTruthy();
+    expect(projection.querySelector("[data-reference-projection='incomplete']")).toBeTruthy();
+    expect(screen.getByText("2 required rules · 2 evaluated · external proof not run")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /Capture notebook/i }));
     expect(onOpenArtifact).toHaveBeenCalledWith("note-1");
   });

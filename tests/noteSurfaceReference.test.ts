@@ -1,224 +1,51 @@
 import { describe, expect, it } from "vitest";
 import {
-  MAX_NOTE_SURFACE_REFERENCE_BYTES,
-  NOTE_SURFACE_REFERENCE_CONSUMPTION_SCHEMA,
+  NOTE_SURFACE_REFERENCE_CONSUMPTION_V1_SCHEMA,
+  adaptNoteSurfaceReferenceConsumptionV1,
   canonicalJson,
   deriveNoteCaptureState,
   evaluateNoteSurfaceReferenceConsumption,
+  noteSurfaceReferenceView,
   reconcileReferenceProjection,
   referenceDigest,
   safelyEvaluateNoteSurfaceReferenceConsumption,
   verifyNoteSurfaceReferenceConsumptionBindings,
   verifyNoteSurfaceReferenceConsumptionDigest,
-  type NoteSurfaceReferenceConsumption,
-  type ReferenceChainEdge,
+  type NoteSurfaceReferenceConsumptionV1,
+  type NoteSurfaceReferenceConsumptionV2,
+  type NoteSurfaceV1AdapterBindings,
 } from "../src/engine/noteSurfaceReference";
+import {
+  buildNoteSurfaceReferenceFixture,
+  resealNoteSurfaceReferenceFixture,
+} from "./fixtures/noteSurfaceReferenceFixture";
 
-const HASH_A = "a".repeat(64);
-const HASH_B = "b".repeat(64);
-const COMMIT = "c".repeat(40);
-const NOW = "2026-07-30T05:00:00.000Z";
+function clone<T>(value: T): T {
+  return structuredClone(value);
+}
 
-async function fixture(roomId = "room-1", artifactId = "note-1"): Promise<NoteSurfaceReferenceConsumption> {
-  const observationBody = {
-    schemaVersion: "nodekit.reference-loop-observation/v1" as const,
-    source: {
-      origin: "mobbin" as const,
-      sourceUrl: "https://mobbin.com/screens/f45a639a-28e6-4a02-82a4-ccbe15e5bc13",
-      sourcePolicyId: "atlas:mobbin/v1",
-      firstSeenAt: NOW,
-      lastVerifiedAt: NOW,
-      accessMode: "remote-mcp" as const,
-    },
-    problemTags: ["fast note capture"],
-    intentTags: ["preserve thought before classification"],
-    layoutTags: ["continuous note stream"],
-    interactionTags: ["inline capture"],
-    facts: [{
-      factId: "fact:single-column",
-      kind: "relationship" as const,
-      subject: "note content",
-      relation: "occupies",
-      object: "one centered content column",
-      unit: "layout",
-      locatorDescription: "Primary note screen content region",
-    }],
-    prohibitedMaterial: {
-      storedPixels: false as const,
-      cachedSourcePayload: false as const,
-      embeddingStored: false as const,
-    },
-  };
-  const observationDigest = await referenceDigest(observationBody);
-  const observation = {
-    ...observationBody,
-    observationId: `observation_${observationDigest.slice(0, 24)}`,
-    contentDigest: observationDigest,
-  };
-  const ruleBody = {
-    schemaVersion: "nodekit.reference-loop-design-rule/v1" as const,
-    sourceObservationRefs: [{
-      observationId: observation.observationId,
-      observationDigest: observation.contentDigest,
-      factIds: ["fact:single-column"],
-    }],
-    statement: "Keep capture in one continuous note stream.",
-    problemTags: ["fast note capture"],
-    intentTags: ["preserve thought before classification"],
-    layoutTags: ["continuous note stream"],
-    interactionTags: ["inline capture"],
-    mechanismHypothesis: "An always-present inline entry removes navigation cost before classification.",
-    appliesWhen: ["The user is capturing unstructured evidence into a note stream."],
-    doesNotApplyWhen: ["A protected proposal or provenance review is open."],
-    confidence: {
-      observation: "high" as const,
-      audienceFit: "medium" as const,
-      causal: "low" as const,
-    },
-    requiredEvidence: ["computed-style:stream-divider"],
-  };
-  const ruleDigest = await referenceDigest(ruleBody);
-  const rule = {
-    ...ruleBody,
-    ruleId: `rule_${ruleDigest.slice(0, 24)}`,
-    contentDigest: ruleDigest,
-  };
-  const scoreBody = {
-    schemaVersion: "nodekit.reference-score-receipt/v1" as const,
-    profile: "noderoom-note-surface",
-    profileManifest: {
-      path: "reference/profiles/noderoom-note-surface.json",
-      digest: HASH_A,
-    },
-    trustPolicy: {
-      path: "reference/trust-policy.json" as const,
-      digest: HASH_B,
-    },
-    candidate: {
-      candidateId: "candidate:note-surface",
-      renderReceiptId: "render:note-surface",
-      renderReceiptDigest: HASH_A,
-      candidateReceiptDigest: HASH_B,
-      candidateCommit: COMMIT,
-    },
-    rules: [{
-      ruleId: rule.ruleId,
-      ruleDigest: rule.contentDigest,
-      result: "satisfied" as const,
-      factIds: ["fact:single-column"],
-      evidenceRefs: ["computed-style:stream-divider"],
-    }],
-    coverage: {
-      requiredRuleCount: 1,
-      evaluatedRuleCount: 1,
-      satisfiedRuleCount: 1,
-      violatedRuleCount: 0,
-      notObservedCount: 0,
-      notApplicableCount: 0,
-    },
-    verdict: "pass" as const,
-  };
-  const scoreDigest = await referenceDigest(scoreBody);
-  const scoreReceipt = {
-    ...scoreBody,
-    receiptId: `score_${scoreDigest.slice(0, 24)}`,
-    contentDigest: scoreDigest,
-  };
-  const factsDigest = await referenceDigest(observation.facts);
-  const externalRunSubject = {
-    schemaVersion: "nodekit.external-reference-run/v1" as const,
-    provider: "mobbin" as const,
-    operation: "authenticated-live-inspection" as const,
-    policyId: "nodekit.mobbin-remote-mcp/v1" as const,
-    status: "pass" as const,
-    checkedAt: NOW,
-    expiresAt: "2026-08-30T05:00:00.000Z",
-    sourceUrl: observation.source.sourceUrl,
-    remoteObjectId: "f45a639a-28e6-4a02-82a4-ccbe15e5bc13",
-    runNonce: "nonce-note-surface-20260730",
-    producer: {
-      tool: "mobbin/search_flows" as const,
-      version: "2026-07-30",
-    },
-    observationId: observation.observationId,
-    observationDigest: observation.contentDigest,
-    factsDigest,
-    prohibitedMaterial: {
-      storedPixels: false as const,
-      cachedSourcePayload: false as const,
-      embeddingStored: false as const,
-      ragIndexed: false as const,
-      trainingUsed: false as const,
-    },
-  };
-  const externalSubjectDigest = await referenceDigest(externalRunSubject);
-  const externalRunBody = {
-    ...externalRunSubject,
-    runId: `external_run_${externalSubjectDigest.slice(0, 24)}`,
-    subjectDigest: externalSubjectDigest,
-    attestation: {
-      schemaVersion: "nodekit.reference-service-attestation/v1" as const,
-      purpose: "mobbin-external-reference-run" as const,
-      keyId: "mobbin-remote-mcp:test-key",
-      subjectDigest: externalSubjectDigest,
-      signedAt: NOW,
-      algorithm: "Ed25519" as const,
-      signatureEncoding: "base64url" as const,
-      signature: "test_signature_not_authority_000000000000",
-    },
-  };
-  const externalRun = {
-    ...externalRunBody,
-    contentDigest: await referenceDigest(externalRunBody),
-  };
-  const edgeBody = {
-    schemaVersion: "nodekit.reference-chain-edge/v1" as const,
-    from: {
-      schemaVersion: observation.schemaVersion,
-      idField: "observationId" as const,
-      recordId: observation.observationId,
-      contentDigest: observation.contentDigest,
-    },
-    to: {
-      schemaVersion: rule.schemaVersion,
-      idField: "ruleId" as const,
-      recordId: rule.ruleId,
-      contentDigest: rule.contentDigest,
-    },
-    caseBinding: { caseId: "case:note-surface", stageId: "build", caseContentHash: HASH_A },
-    repositoryBinding: { remote: "https://github.com/HomenShum/NodeRoom", commitSha: COMMIT, treeHash: HASH_B },
-    authority: {
-      kind: "deterministic" as const,
-      receiptRefs: [{
-        schemaVersion: scoreReceipt.schemaVersion,
-        idField: "receiptId" as const,
-        recordId: scoreReceipt.receiptId,
-        contentDigest: scoreReceipt.contentDigest,
-      }],
-    },
-    createdAt: NOW,
-    limitations: ["The edge binds evidence and does not issue a verdict."],
-  };
-  const edgeDigest = await referenceDigest(edgeBody);
-  const edge: ReferenceChainEdge = {
-    ...edgeBody,
-    edgeId: `reference_chain_edge_${edgeDigest.slice(0, 24)}`,
-    contentDigest: edgeDigest,
-  };
+async function v1Fixture(
+  suppliedV2?: NoteSurfaceReferenceConsumptionV2,
+): Promise<NoteSurfaceReferenceConsumptionV1> {
+  const v2 = suppliedV2 ?? await buildNoteSurfaceReferenceFixture();
+  const view = noteSurfaceReferenceView(v2);
   const body = {
-    schemaVersion: NOTE_SURFACE_REFERENCE_CONSUMPTION_SCHEMA,
-    roomId,
-    artifactId,
-    externalRun,
-    observation,
-    rule,
-    scoreReceipt,
-    edge,
-    candidate: { commitSha: COMMIT, renderCommitShas: [COMMIT, COMMIT] },
+    schemaVersion: NOTE_SURFACE_REFERENCE_CONSUMPTION_V1_SCHEMA,
+    roomId: view.roomId,
+    artifactId: view.artifactId,
+    externalRun: clone(view.externalRun),
+    observation: clone(view.observations[0]!),
+    rule: clone(view.rules[0]!),
+    scoreReceipt: clone(view.scoreReceipt),
+    edge: clone(view.edges[0]!),
+    candidate: {
+      commitSha: view.candidateCommit,
+      renderCommitShas: [view.candidateCommit],
+    },
     review: { mode: "fresh-context" as const, claimedIndependent: false },
     surface: { requiresTrustTreatment: true, classification: "trust-surface" as const },
     computedStyleEvidenceRefs: ["computed-style:stream-divider"],
-    createdAt: NOW,
+    createdAt: "2026-07-30T05:00:00.000Z",
   };
   const contentDigest = await referenceDigest(body);
   return {
@@ -228,123 +55,179 @@ async function fixture(roomId = "room-1", artifactId = "note-1"): Promise<NoteSu
   };
 }
 
-function clone(record: NoteSurfaceReferenceConsumption): NoteSurfaceReferenceConsumption {
-  return structuredClone(record);
-}
-
-async function reseal(record: NoteSurfaceReferenceConsumption): Promise<NoteSurfaceReferenceConsumption> {
-  const { consumptionId: _consumptionId, contentDigest: _contentDigest, ...body } = record;
-  const contentDigest = await referenceDigest(body);
+function adapterBindings(v2: NoteSurfaceReferenceConsumptionV2): NoteSurfaceV1AdapterBindings {
   return {
-    ...body,
-    consumptionId: `note_surface_consumption_${contentDigest.slice(0, 24)}`,
-    contentDigest,
+    caseBinding: clone(v2.caseBinding),
+    repositoryBinding: clone(v2.repositoryBinding),
+    artifactBinding: clone(v2.artifactBinding),
+    candidateBinding: clone(v2.candidateBinding),
+    surface: clone(v2.surface),
+    capturePolicy: clone(v2.capturePolicy),
+    proofProfile: clone(v2.proofProfile),
+    reviewBinding: clone(v2.reviewBinding),
   };
 }
 
-describe("NodeRoom note-surface reference consumption", () => {
-  it("accepts one exact, immutable, authority-bound consumption record", async () => {
-    const record = await fixture();
+describe("NodeRoom note-surface reference consumption V2", () => {
+  it("accepts an exact V2 envelope but remains incomplete without external NodeProof", async () => {
+    const record = await buildNoteSurfaceReferenceFixture();
     expect(evaluateNoteSurfaceReferenceConsumption(record)).toEqual({
       accepted: true,
       findings: [],
-      projection: "bound",
+      projection: "incomplete",
     });
     expect(await verifyNoteSurfaceReferenceConsumptionDigest(record)).toBe(true);
-    expect(canonicalJson({ z: 1, a: 2 })).toBe('{"a":2,"z":1}');
   });
 
-  it("fails malformed and oversized agent payloads as bounded data", async () => {
+  it("serializes one V2 envelope identically across 100 runs", async () => {
+    const record = await buildNoteSurfaceReferenceFixture();
+    const serializations = Array.from({ length: 100 }, () => canonicalJson(clone(record)));
+    expect(new Set(serializations).size).toBe(1);
+  });
+
+  it("normalizes V1 deterministically only when canonical missing bindings are supplied", async () => {
+    const v2 = await buildNoteSurfaceReferenceFixture();
+    const v1 = await v1Fixture(v2);
+    const bindings = adapterBindings(v2);
+    const normalized = await Promise.all(
+      Array.from({ length: 100 }, () => adaptNoteSurfaceReferenceConsumptionV1(v1, bindings)),
+    );
+    expect(new Set(normalized.map(canonicalJson)).size).toBe(1);
+    expect(normalized[0]).toEqual(v2);
+  });
+
+  it("rejects case and stage binding drift", async () => {
+    const record = clone(await buildNoteSurfaceReferenceFixture());
+    record.caseBinding.stageId = "prove";
+    const resealed = await resealNoteSurfaceReferenceFixture(record);
+    const result = evaluateNoteSurfaceReferenceConsumption(resealed);
+    expect(result.accepted).toBe(false);
+    expect(result.findings).toContain("edge-case-binding-drift");
+  });
+
+  it("rejects repository remote, commit, or tree drift", async () => {
+    const record = clone(await buildNoteSurfaceReferenceFixture());
+    record.repositoryBinding.treeHash = "d".repeat(64);
+    const resealed = await resealNoteSurfaceReferenceFixture(record);
+    const result = evaluateNoteSurfaceReferenceConsumption(resealed);
+    expect(result.accepted).toBe(false);
+    expect(result.findings).toContain("edge-repository-binding-drift");
+  });
+
+  it("rejects proof-profile digest drift", async () => {
+    const record = clone(await buildNoteSurfaceReferenceFixture());
+    record.proofProfile.profileDigest = "d".repeat(64);
+    const resealed = await resealNoteSurfaceReferenceFixture(record);
+    expect(evaluateNoteSurfaceReferenceConsumption(resealed).findings)
+      .toContain("proof-profile-drift");
+  });
+
+  it("does not let an envelope override a mutated embedded rule", async () => {
+    const record = clone(await buildNoteSurfaceReferenceFixture());
+    record.snapshots.rules[0]!.statement = "Forged rule";
+    const resealed = await resealNoteSurfaceReferenceFixture(record);
+    const result = await verifyNoteSurfaceReferenceConsumptionBindings(resealed);
+    expect(result.accepted).toBe(false);
+    expect(result.findings).toContain("rule-content-digest");
+  });
+
+  it("does not leave the feed verified after a mutated score", async () => {
+    const record = clone(await buildNoteSurfaceReferenceFixture());
+    record.snapshots.scoreReceipt.verdict = "fail";
+    const resealed = await resealNoteSurfaceReferenceFixture(record);
+    const result = await verifyNoteSurfaceReferenceConsumptionBindings(resealed);
+    expect(result.projection).toBe("failed");
+    expect(result.findings).toContain("score-verdict-not-derived");
+  });
+
+  it("invalidates the candidate when a render receipt changes", async () => {
+    const record = clone(await buildNoteSurfaceReferenceFixture());
+    record.candidateBinding.renderReceipts[0]!.receiptDigest = "d".repeat(64);
+    const resealed = await resealNoteSurfaceReferenceFixture(record);
+    expect(evaluateNoteSurfaceReferenceConsumption(resealed).findings)
+      .toContain("render-receipt-drift");
+  });
+
+  it("keeps populated note context armed with the exact reason code", () => {
+    expect(deriveNoteCaptureState({
+      hasPendingProposal: false,
+      provenanceExpanded: false,
+      hasConflict: false,
+    })).toEqual({ state: "armed", reason: "NORMAL_NOTE_CONTEXT" });
+  });
+
+  it("keeps empty first capture armed with the exact reason code", () => {
+    expect(deriveNoteCaptureState({
+      hasPendingProposal: false,
+      provenanceExpanded: false,
+      hasConflict: false,
+    })).toEqual({ state: "armed", reason: "NORMAL_NOTE_CONTEXT" });
+  });
+
+  it("disarms a pending proposal even when provenance is collapsed", () => {
+    expect(deriveNoteCaptureState({
+      hasPendingProposal: true,
+      provenanceExpanded: false,
+      hasConflict: false,
+    })).toEqual({ state: "disarmed", reason: "PROPOSAL_REVIEW_ACTIVE" });
+  });
+
+  it("disarms a conflict with the exact reason code", () => {
+    expect(deriveNoteCaptureState({
+      hasPendingProposal: true,
+      provenanceExpanded: true,
+      hasConflict: true,
+    })).toEqual({ state: "disarmed", reason: "CONFLICT_REVIEW_ACTIVE" });
+  });
+
+  it("does not represent a fresh-context V1 review as independent", async () => {
+    const record = await v1Fixture();
+    record.review.claimedIndependent = true;
+    const { consumptionId: _id, contentDigest: _digest, ...body } = record;
+    const contentDigest = await referenceDigest(body);
+    const resealed: NoteSurfaceReferenceConsumptionV1 = {
+      ...body,
+      consumptionId: `note_surface_consumption_${contentDigest.slice(0, 24)}`,
+      contentDigest,
+    };
+    expect(evaluateNoteSurfaceReferenceConsumption(resealed).findings)
+      .toContain("fresh-context-claimed-independent");
+  });
+
+  it("repairs any caller claim of bound or verified to Incomplete without NodeProof", async () => {
+    const record = await buildNoteSurfaceReferenceFixture();
+    expect(reconcileReferenceProjection(record, "bound")).toMatchObject({
+      projection: "incomplete",
+      repaired: true,
+    });
+    expect(reconcileReferenceProjection(record, "verified")).toMatchObject({
+      projection: "incomplete",
+      repaired: true,
+    });
+  });
+
+  it("fails all 20 adversarial attempts to add a second semantic truth", async () => {
+    const semanticAliases = [
+      "ruleStatement", "applicability", "edgeKind", "verdict", "approved",
+      "verified", "requiredEvidence", "observationFact", "candidateStatus", "reviewStatus",
+      "caseStatus", "repositoryStatus", "artifactStatus", "surfaceStatus", "proofStatus",
+      "captureStatus", "scoreStatus", "runtimeEvidence", "authorityStatus", "shipmentStatus",
+    ];
+    for (const alias of semanticAliases) {
+      const record = clone(await buildNoteSurfaceReferenceFixture()) as NoteSurfaceReferenceConsumptionV2 & Record<string, unknown>;
+      record[alias] = alias === "approved" || alias === "verified" ? true : "forged";
+      const resealed = await resealNoteSurfaceReferenceFixture(record);
+      const result = evaluateNoteSurfaceReferenceConsumption(resealed);
+      expect(result.accepted, alias).toBe(false);
+      expect(result.findings, alias).toContain(`unknown-key:record.${alias}`);
+    }
+  });
+
+  it("fails malformed payloads as bounded data", () => {
     expect(safelyEvaluateNoteSurfaceReferenceConsumption({ schemaVersion: "wrong" })).toEqual({
       accepted: false,
       findings: ["malformed-reference-consumption"],
       projection: "failed",
     });
-    const record = clone(await fixture());
-    record.observation.facts = Array.from({ length: 257 }, (_, index) => ({
-      ...record.observation.facts[0]!,
-      factId: `fact:${index}`,
-    }));
-    expect(safelyEvaluateNoteSurfaceReferenceConsumption(record).findings).toContain("too-many-facts");
-  });
-
-  it.each([
-    ["external run NOT_RUN", (record: NoteSurfaceReferenceConsumption) => { Object.assign(record.externalRun, { status: "not-run" }); }, "external-run-not-pass"],
-    ["cached Mobbin screenshot path", (record: NoteSurfaceReferenceConsumption) => { Object.assign(record, { cachedScreenshotPath: "mobbin.png" }); }, "prohibited-cache:cachedScreenshotPath"],
-    ["missing mobbin_url", (record: NoteSurfaceReferenceConsumption) => { record.externalRun.sourceUrl = ""; }, "missing-mobbin-url"],
-    ["changed atomic fact", (record: NoteSurfaceReferenceConsumption) => { record.observation.facts[0]!.factId = "fact:changed"; }, "atomic-fact-drift"],
-    ["missing lastVerifiedAt", (record: NoteSurfaceReferenceConsumption) => { record.observation.source.lastVerifiedAt = ""; }, "missing-last-verified-at"],
-    ["wrong observation digest", (record: NoteSurfaceReferenceConsumption) => { record.rule.sourceObservationRefs[0]!.observationDigest = HASH_B; }, "observation-digest-drift"],
-    ["changed rule digest after consumption", (record: NoteSurfaceReferenceConsumption) => { record.rule.contentDigest = HASH_A; }, "rule-digest-drift"],
-    ["N/A without reason", (record: NoteSurfaceReferenceConsumption) => { record.scoreReceipt.rules[0]!.result = "not-applicable"; }, "not-applicable-without-reason"],
-    ["trust surface marked non-trust", (record: NoteSurfaceReferenceConsumption) => { record.surface.classification = "non-trust-surface"; }, "trust-surface-misclassified"],
-    ["candidate commit changed in one render", (record: NoteSurfaceReferenceConsumption) => { record.candidate.renderCommitShas[1] = "e".repeat(40); }, "candidate-commit-drift"],
-    ["missing computed-style evidence", (record: NoteSurfaceReferenceConsumption) => { record.computedStyleEvidenceRefs = []; }, "missing-computed-style-evidence"],
-    ["fresh-context reviewer labeled independent", (record: NoteSurfaceReferenceConsumption) => { record.review.claimedIndependent = true; }, "fresh-context-claimed-independent"],
-    ["caller verdict on edge", (record: NoteSurfaceReferenceConsumption) => { Object.assign(record.edge, { verdict: "pass" }); }, "caller-authority:edge.verdict"],
-    ["caller approval inside edge", (record: NoteSurfaceReferenceConsumption) => { Object.assign(record.edge.authority, { approved: true }); }, "caller-authority:edge.authority.approved"],
-  ])("rejects mutation: %s", async (_label, mutate, finding) => {
-    const record = clone(await fixture());
-    mutate(record);
-    const result = evaluateNoteSurfaceReferenceConsumption(record);
-    expect(result.accepted).toBe(false);
-    expect(result.projection).toBe("failed");
-    expect(result.findings).toContain(finding);
-    expect(await verifyNoteSurfaceReferenceConsumptionDigest(record)).toBe(false);
-  });
-
-  it("rejects a resealed consumption when an atomic observation changes behind its digest", async () => {
-    const record = clone(await fixture());
-    record.observation.facts[0]!.object = "forged layout claim";
-    const resealed = await reseal(record);
-    const result = await verifyNoteSurfaceReferenceConsumptionBindings(resealed);
-    expect(result.accepted).toBe(false);
-    expect(result.findings).toContain("observation-content-digest");
-  });
-
-  it("rejects a resealed consumption when the score verdict is not derived from rule results", async () => {
-    const record = clone(await fixture());
-    record.scoreReceipt.verdict = "fail";
-    const resealed = await reseal(record);
-    const result = await verifyNoteSurfaceReferenceConsumptionBindings(resealed);
-    expect(result.accepted).toBe(false);
-    expect(result.findings).toContain("score-verdict-not-derived");
-  });
-
-  it("rejects a resealed consumption when the edge content changes behind its digest", async () => {
-    const record = clone(await fixture());
-    record.edge.limitations = ["This forged limitation was not part of the bound edge."];
-    const resealed = await reseal(record);
-    const result = await verifyNoteSurfaceReferenceConsumptionBindings(resealed);
-    expect(result.accepted).toBe(false);
-    expect(result.findings).toContain("edge-content-digest");
-  });
-
-  it("bounds the record by encoded UTF-8 bytes rather than UTF-16 character count", async () => {
-    const record = clone(await fixture());
-    Object.assign(record, { padding: "😀".repeat(100_000) });
-    const resealed = await reseal(record);
-    expect(JSON.stringify(resealed).length).toBeLessThan(MAX_NOTE_SURFACE_REFERENCE_BYTES);
-    expect(new TextEncoder().encode(JSON.stringify(resealed)).byteLength)
-      .toBeGreaterThan(MAX_NOTE_SURFACE_REFERENCE_BYTES);
-    expect(evaluateNoteSurfaceReferenceConsumption(resealed).findings).toContain("record-too-large");
-  });
-
-  it("disarms capture during provenance proposal review and conflict, then rearms after reload", () => {
-    expect(deriveNoteCaptureState({ hasPendingProposal: false, provenanceExpanded: false, hasConflict: false }))
-      .toEqual({ state: "armed", reason: "ready" });
-    expect(deriveNoteCaptureState({ hasPendingProposal: true, provenanceExpanded: true, hasConflict: false }))
-      .toEqual({ state: "disarmed", reason: "reference-review" });
-    expect(deriveNoteCaptureState({ hasPendingProposal: true, provenanceExpanded: true, hasConflict: true }))
-      .toEqual({ state: "disarmed", reason: "conflict" });
-    expect(deriveNoteCaptureState({ hasPendingProposal: false, provenanceExpanded: false, hasConflict: false }))
-      .toEqual({ state: "armed", reason: "ready" });
-  });
-
-  it("fails a falsely bound inbox projection when its receipt verdict is not derived", async () => {
-    const record = clone(await fixture());
-    record.scoreReceipt.verdict = "fail";
-    const result = reconcileReferenceProjection(record, "bound");
-    expect(result).toMatchObject({ projection: "failed", repaired: true });
   });
 });

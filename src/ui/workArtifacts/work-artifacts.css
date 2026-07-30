@@ -1878,6 +1878,86 @@
   font-size: 11px;
 }
 
+.wa-reference-chain-detail > p {
+  margin: 0;
+  color: var(--muted, #9aa3af);
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+
+.wa-reference-rules {
+  display: grid;
+  gap: 7px;
+}
+
+.wa-reference-rule {
+  border: 1px solid var(--border, rgba(255,255,255,.08));
+  border-radius: 8px;
+  background: rgba(255,255,255,.018);
+}
+
+.wa-reference-rule > summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 8px;
+  color: var(--text, #f3f6fb);
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.wa-reference-rule > summary b {
+  color: var(--muted, #9aa3af);
+  font: 9px/1.4 var(--font-mono);
+  text-transform: uppercase;
+}
+
+.wa-reference-rule[data-result="satisfied"] > summary b {
+  color: var(--success-ink, #77c69c);
+}
+
+.wa-reference-rule > dl,
+.wa-reference-observation,
+.wa-reference-runtime {
+  padding: 0 8px 8px;
+}
+
+.wa-reference-observation {
+  display: grid;
+  gap: 5px;
+  border-top: 1px solid var(--border, rgba(255,255,255,.06));
+  padding-top: 8px;
+}
+
+.wa-reference-observation p {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--muted, #9aa3af);
+  font: 9.5px/1.4 var(--font-mono);
+}
+
+.wa-reference-observation b {
+  color: var(--text, #f3f6fb);
+  font-family: var(--font-sans);
+}
+
+.wa-reference-runtime {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.wa-reference-runtime span {
+  border-radius: 999px;
+  padding: 3px 6px;
+  background: rgba(255,255,255,.04);
+  color: var(--muted, #9aa3af);
+  font: 9px/1.25 var(--font-mono);
+}
+
 .wa-notebook-section {
   display: grid;
   gap: 3px;

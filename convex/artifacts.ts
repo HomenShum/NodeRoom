@@ -27,6 +27,7 @@ import { normalizeColumns, columnIdOfElement, type ColumnInput } from "../src/en
 import { cellEvidenceVerificationStatus } from "../src/nodeagent/core/evidenceReceipt";
 import {
   verifyNoteSurfaceReferenceConsumptionBindings,
+  isNoteSurfaceReferenceConsumptionV2,
   type NoteSurfaceReferenceConsumption,
 } from "../src/engine/noteSurfaceReference";
 import { verifyNoteSurfaceReferenceAuthority } from "./lib/noteSurfaceReferenceAuthority";
@@ -1403,9 +1404,18 @@ export const setNoteSurfaceReferenceConsumption = internalMutation({
     if (art.kind !== "note") return { ok: false as const, reason: "not_note" as const };
 
     const consumption = a.consumption as NoteSurfaceReferenceConsumption;
+    if (!isNoteSurfaceReferenceConsumptionV2(consumption)) {
+      return {
+        ok: false as const,
+        reason: "invalid_reference_consumption" as const,
+        findings: ["v2-required-for-new-write"],
+      };
+    }
     const evaluation = await verifyNoteSurfaceReferenceConsumptionBindings(consumption, {
       roomId: String(a.roomId),
       artifactId: String(a.artifactId),
+      ownerId: String(actor.id),
+      casVersion: String(a.expectedArtifactVersion),
     });
     if (!evaluation.accepted) {
       return {

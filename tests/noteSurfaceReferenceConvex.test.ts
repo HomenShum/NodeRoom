@@ -97,8 +97,8 @@ async function resealExternalRun(
   consumption: Awaited<ReturnType<typeof buildNoteSurfaceReferenceFixture>>,
 ) {
   const next = structuredClone(consumption);
-  const { contentDigest: _externalDigest, ...externalBody } = next.externalRun;
-  next.externalRun.contentDigest = await referenceDigest(externalBody);
+  const { contentDigest: _externalDigest, ...externalBody } = next.snapshots.externalRun;
+  next.snapshots.externalRun.contentDigest = await referenceDigest(externalBody);
   return resealNoteSurfaceReferenceFixture(next);
 }
 
@@ -109,6 +109,7 @@ describe("artifacts.setNoteSurfaceReferenceConsumption", () => {
     const consumption = await buildNoteSurfaceReferenceFixture(
       String(seeded.roomId),
       String(seeded.artifactId),
+      String(seeded.host.actor.id),
     );
 
     const configuredPolicy = process.env.NODEKIT_REFERENCE_TRUST_POLICY_JSON;
@@ -140,6 +141,7 @@ describe("artifacts.setNoteSurfaceReferenceConsumption", () => {
     const consumption = await buildNoteSurfaceReferenceFixture(
       String(seeded.roomId),
       String(seeded.artifactId),
+      String(seeded.host.actor.id),
     );
     const configuredPolicy = process.env.NODEKIT_REFERENCE_TRUST_POLICY_JSON;
     process.env.NODEKIT_REFERENCE_TRUST_POLICY_JSON = " ".repeat(64 * 1024 + 1);
@@ -170,9 +172,10 @@ describe("artifacts.setNoteSurfaceReferenceConsumption", () => {
     const consumption = await buildNoteSurfaceReferenceFixture(
       String(seeded.roomId),
       String(seeded.artifactId),
+      String(seeded.host.actor.id),
     );
-    consumption.externalRun.attestation.signature =
-      `${consumption.externalRun.attestation.signature.slice(0, -1)}B`;
+    consumption.snapshots.externalRun.attestation.signature =
+      `${consumption.snapshots.externalRun.attestation.signature.slice(0, -1)}B`;
     const forged = await resealExternalRun(consumption);
 
     const result = await t.mutation(internal.artifacts.setNoteSurfaceReferenceConsumption, {
@@ -197,6 +200,7 @@ describe("artifacts.setNoteSurfaceReferenceConsumption", () => {
     const consumption = await buildNoteSurfaceReferenceFixture(
       String(seeded.roomId),
       String(seeded.artifactId),
+      String(seeded.host.actor.id),
     );
     const configuredPolicy = process.env.NODEKIT_REFERENCE_TRUST_POLICY_JSON;
     process.env.NODEKIT_REFERENCE_TRUST_POLICY_JSON = `${NOTE_REFERENCE_TRUST_POLICY_JSON}\n`;
@@ -227,6 +231,7 @@ describe("artifacts.setNoteSurfaceReferenceConsumption", () => {
     const consumption = await buildNoteSurfaceReferenceFixture(
       String(seeded.roomId),
       String(seeded.artifactId),
+      String(seeded.host.actor.id),
     );
     vi.setSystemTime(new Date("2026-08-06T05:00:00.001Z"));
 
@@ -246,12 +251,13 @@ describe("artifacts.setNoteSurfaceReferenceConsumption", () => {
     expect((await artifactState(t, seeded.artifactId))?.version).toBe(1);
   });
 
-  it("persists one verified record, treats exact replay as idempotent, and increments once", async () => {
+  it("persists one authority-validated record, treats exact replay as idempotent, and increments once", async () => {
     const t = createHarness();
     const seeded = await seedNote(t);
     const consumption = await buildNoteSurfaceReferenceFixture(
       String(seeded.roomId),
       String(seeded.artifactId),
+      String(seeded.host.actor.id),
     );
 
     const first = await t.mutation(internal.artifacts.setNoteSurfaceReferenceConsumption, {
@@ -283,9 +289,11 @@ describe("artifacts.setNoteSurfaceReferenceConsumption", () => {
     const first = await buildNoteSurfaceReferenceFixture(
       String(seeded.roomId),
       String(seeded.artifactId),
+      String(seeded.host.actor.id),
     );
     const secondDraft = structuredClone(first);
-    secondDraft.review = { mode: "independent-model", claimedIndependent: true };
+    secondDraft.reviewBinding.reviewReceiptId = "review:note-surface:independent-model";
+    secondDraft.reviewBinding.reviewReceiptDigest = "d".repeat(64);
     const second = await resealNoteSurfaceReferenceFixture(secondDraft);
 
     const results = await Promise.all([
@@ -321,8 +329,9 @@ describe("artifacts.setNoteSurfaceReferenceConsumption", () => {
     const forged = await buildNoteSurfaceReferenceFixture(
       String(seeded.roomId),
       String(seeded.artifactId),
+      String(seeded.host.actor.id),
     );
-    forged.observation.facts[0]!.object = "caller-forged relationship";
+    forged.snapshots.observations[0]!.facts[0]!.object = "caller-forged relationship";
     const topLevelResealed = await resealNoteSurfaceReferenceFixture(forged);
 
     const result = await t.mutation(internal.artifacts.setNoteSurfaceReferenceConsumption, {
@@ -350,6 +359,7 @@ describe("artifacts.setNoteSurfaceReferenceConsumption", () => {
     const consumption = await buildNoteSurfaceReferenceFixture(
       String(note.roomId),
       String(note.artifactId),
+      String(note.host.actor.id),
     );
     await expect(t.mutation(internal.artifacts.setNoteSurfaceReferenceConsumption, {
       roomId: note.roomId,
@@ -363,6 +373,7 @@ describe("artifacts.setNoteSurfaceReferenceConsumption", () => {
     const sheetConsumption = await buildNoteSurfaceReferenceFixture(
       String(sheet.roomId),
       String(sheet.artifactId),
+      String(sheet.host.actor.id),
     );
     expect(await t.mutation(internal.artifacts.setNoteSurfaceReferenceConsumption, {
       roomId: sheet.roomId,

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, FileText, Table2, MessageSquare, Upload, GitBranch, Sparkles, AlertTriangle, CircleDot, Search, TableProperties, MinusCircle, GraduationCap, Send, CheckSquare, Square, HelpCircle } from "lucide-react";
 import type { PassiveActivityItem } from "../../app/store";
+import type { ReferenceProjectionStatus } from "../../engine/noteSurfaceReference";
 import { ScrollArea } from "../../components/ui/scroll-area";
 import { NodeReveal } from "../motion/NodeReveal";
 
@@ -77,8 +78,9 @@ export function NoteworthyInbox({
   referenceProjections?: Array<{
     artifactId: string;
     title: string;
-    status: "bound" | "needs-review" | "failed";
+    status: ReferenceProjectionStatus;
     label: string;
+    summary?: string;
   }>;
   /** P3: Cost preview with p50/p90/hard cap bands and confidence. Null in memory mode. */
   costPreview?: { p50Usd: number; p90Usd: number; hardCapUsd: number; avgTokens: number; sampleSize: number; confidence: "high" | "medium" | "low"; basis: string } | null;
@@ -190,7 +192,10 @@ export function NoteworthyInbox({
               onClick={() => onOpenArtifact(projection.artifactId)}
             >
               <span>{projection.title}</span>
-              <span>{projection.label}</span>
+              <span>
+                <b>{projection.label}</b>
+                {projection.summary && <small>{projection.summary}</small>}
+              </span>
             </button>
           ))}
         </div>

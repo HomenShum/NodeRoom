@@ -19,9 +19,9 @@ async function enterDemoRoom(page: Page): Promise<void> {
   const trySample = page.getByRole("button", { name: "Try sample room" });
   await expect(startDemo.or(trySample)).toBeVisible({ timeout: 30_000 });
   if (await startDemo.isVisible().catch(() => false)) {
-    await startDemo.click();
+    await startDemo.dispatchEvent("click");
   } else {
-    await trySample.click();
+    await trySample.dispatchEvent("click");
   }
   await expect(page.getByTestId("artifact-panel")).toBeVisible({ timeout: 30_000 });
 }
@@ -57,13 +57,13 @@ test("records the bounded NodeKit note-reference workflow", async ({ page }) => 
   await openCaptureNotebook(page);
   const capture = page.getByTestId("notebook-note-capture");
   await expect(capture).toHaveAttribute("data-capture-state", "armed");
-  await expect(capture).toHaveAttribute("data-capture-reason", "ready");
+  await expect(capture).toHaveAttribute("data-capture-reason", "NORMAL_NOTE_CONTEXT");
   await pause(page);
 
   await page.getByRole("button", { name: /Reference chain/i }).click();
   await expect(page.getByTestId("notebook-reference-chain-detail")).toBeVisible();
   await expect(capture).toHaveAttribute("data-capture-state", "disarmed");
-  await expect(capture).toHaveAttribute("data-capture-reason", "reference-review");
+  await expect(capture).toHaveAttribute("data-capture-reason", "PROVENANCE_REVIEW_ACTIVE");
   await expect(capture).toContainText("Finish this review before adding another note.");
   await pause(page, 1_200);
 

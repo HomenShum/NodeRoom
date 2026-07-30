@@ -2,6 +2,7 @@ import {
   NOTE_SURFACE_REFERENCE_CONSUMPTION_SCHEMA,
   referenceDigest,
   type NoteSurfaceReferenceConsumption,
+  type NoteSurfaceReferenceConsumptionV2,
   type ReferenceChainEdge,
 } from "../../src/engine/noteSurfaceReference";
 
@@ -26,7 +27,9 @@ const NOW = "2026-07-30T05:00:00.000Z";
 export async function buildNoteSurfaceReferenceFixture(
   roomId = "room-1",
   artifactId = "note-1",
-): Promise<NoteSurfaceReferenceConsumption> {
+  ownerId = "user:test-owner",
+  casVersion = "1",
+): Promise<NoteSurfaceReferenceConsumptionV2> {
   const observationBody = {
     schemaVersion: "nodekit.reference-loop-observation/v1" as const,
     source: {
@@ -222,18 +225,50 @@ export async function buildNoteSurfaceReferenceFixture(
   };
   const body = {
     schemaVersion: NOTE_SURFACE_REFERENCE_CONSUMPTION_SCHEMA,
-    roomId,
-    artifactId,
-    externalRun,
-    observation,
-    rule,
-    scoreReceipt,
-    edge,
-    candidate: { commitSha: COMMIT, renderCommitShas: [COMMIT, COMMIT] },
-    review: { mode: "fresh-context" as const, claimedIndependent: false },
-    surface: { requiresTrustTreatment: true, classification: "trust-surface" as const },
-    computedStyleEvidenceRefs: ["computed-style:stream-divider"],
-    createdAt: NOW,
+    caseBinding: structuredClone(edge.caseBinding),
+    repositoryBinding: structuredClone(edge.repositoryBinding),
+    artifactBinding: {
+      roomId,
+      artifactId,
+      ownerId,
+      noteId: artifactId,
+      casVersion,
+      artifactContentHash: NOTE_REFERENCE_HASH_A,
+    },
+    candidateBinding: {
+      candidateId: scoreReceipt.candidate.candidateId,
+      candidateContentHash: scoreReceipt.candidate.candidateReceiptDigest,
+      renderReceipts: [{
+        receiptId: scoreReceipt.candidate.renderReceiptId,
+        receiptDigest: scoreReceipt.candidate.renderReceiptDigest,
+        stateId: "populated-stream" as const,
+        viewportId: "desktop-1440x900",
+      }],
+    },
+    surface: {
+      surfaceId: "notebook-digest-workbench" as const,
+      stateId: "populated-stream" as const,
+      trustDecisionSurface: true,
+    },
+    capturePolicy: {
+      expected: "armed" as const,
+      reasonCode: "NORMAL_NOTE_CONTEXT" as const,
+    },
+    proofProfile: {
+      profileId: scoreReceipt.profile,
+      profileDigest: scoreReceipt.profileManifest.digest,
+    },
+    snapshots: {
+      externalRun,
+      observations: [observation],
+      rules: [rule],
+      scoreReceipt,
+      edges: [edge],
+    },
+    reviewBinding: {
+      reviewReceiptId: "review:note-surface:fresh-context",
+      reviewReceiptDigest: NOTE_REFERENCE_HASH_B,
+    },
   };
   const contentDigest = await referenceDigest(body);
   return {
@@ -243,14 +278,14 @@ export async function buildNoteSurfaceReferenceFixture(
   };
 }
 
-export async function resealNoteSurfaceReferenceFixture(
-  record: NoteSurfaceReferenceConsumption,
-): Promise<NoteSurfaceReferenceConsumption> {
+export async function resealNoteSurfaceReferenceFixture<T extends NoteSurfaceReferenceConsumption>(
+  record: T,
+): Promise<T> {
   const { consumptionId: _consumptionId, contentDigest: _contentDigest, ...body } = record;
   const contentDigest = await referenceDigest(body);
   return {
     ...body,
     consumptionId: `note_surface_consumption_${contentDigest.slice(0, 24)}`,
     contentDigest,
-  };
+  } as T;
 }
