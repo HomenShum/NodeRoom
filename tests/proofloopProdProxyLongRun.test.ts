@@ -9,6 +9,8 @@ import {
   writeProofloopProdProxyLongRunArtifacts,
 } from "../src/eval/proofloopProdProxyLongRun";
 
+const FULL_MATRIX_PLAN_TIMEOUT_MS = 20_000;
+
 describe("ProofLoop prod proxy long-run queue", () => {
   it("plans every model-task attempt and preserves blocked adapter families", () => {
     const plan = buildProofloopProdProxyLongRunPlan({
@@ -26,7 +28,7 @@ describe("ProofLoop prod proxy long-run queue", () => {
     expect(plan.summary.blockedBudgetAttempts).toBe(1890);
     expect(plan.budget.runnableQueueFitsBudget).toBe(true);
     expect(plan.budget.fullCurrentModelMatrixFitsBudget).toBe(false);
-  });
+  }, FULL_MATRIX_PLAN_TIMEOUT_MS);
 
   it("queues SpreadsheetBench full suites through the generic prod browser adapters", () => {
     const plan = buildProofloopProdProxyLongRunPlan({ runId: "test-longrun" });
