@@ -62,6 +62,7 @@ describe("work artifacts notebook read-model bridge", () => {
       lastLongFreeJob: () => null,
       lastLongFreeJobAttempts: () => [],
       lastLongFreeJobDetail: () => null,
+      applyEdit: vi.fn().mockResolvedValue({ ok: true, version: 3 }),
     };
   });
 
@@ -79,5 +80,19 @@ describe("work artifacts notebook read-model bridge", () => {
       artifactId: "artifact-notebook",
       limit: 240,
     }));
+  });
+
+  it("restores the exact selected notebook from the route artifact id", async () => {
+    render(
+      <WorkArtifactsPanel
+        roomId="room-1"
+        me={host}
+        initialArtifactId="artifact-notebook"
+        onOpenArtifact={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByTestId("notebook-digest-workbench")).toBeTruthy();
+    expect(screen.getByTestId("notebook-note-capture").getAttribute("data-capture-state")).toBe("armed");
   });
 });

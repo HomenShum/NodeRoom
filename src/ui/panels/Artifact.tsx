@@ -481,7 +481,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
         </Suspense>
       ) : workArtifactsOpen ? (
         <Suspense fallback={<ArtifactAuxSurfaceFallback />}>
-          <WorkArtifactsPanel roomId={roomId} me={me} initialArtifactId={selectedCollaborativeDeck ? artId : undefined} reviewJobId={reviewJobId} onOpenArtifact={(id) => { onArt(id); setWorkArtifactsOpen(false); setInvestigationOpen(false); }} />
+          <WorkArtifactsPanel roomId={roomId} me={me} initialArtifactId={artId} reviewJobId={reviewJobId} onOpenArtifact={(id) => { onArt(id); setWorkArtifactsOpen(false); setInvestigationOpen(false); }} />
         </Suspense>
       ) : graphOpen ? (
         <Suspense fallback={<ArtifactAuxSurfaceFallback />}>

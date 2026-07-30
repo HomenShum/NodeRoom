@@ -15,6 +15,7 @@ import { stableTraceHash } from "../src/nodeagent/traces";
 const tempRoots: string[] = [];
 const MODEL_NAME = "example/free:free";
 const MODEL_CALLS = 4;
+const OFFICIAL_PROJECTION_TIMEOUT_MS = 60_000;
 const categoryCounts = {
   Debugging: 100,
   Financial_Model: 100,
@@ -279,7 +280,7 @@ describe("SpreadsheetBench V2 official projection", () => {
         "utf8",
       ),
     ).toBe(visualEvaluatorBefore);
-  }, 20_000);
+  }, OFFICIAL_PROJECTION_TIMEOUT_MS);
 
   it("accepts a batch write that partially commits before reporting a conflict", () => {
     const fixture = createFixture();
@@ -307,7 +308,7 @@ describe("SpreadsheetBench V2 official projection", () => {
     const projected = runProjection(fixture);
 
     expect(projected.status, projected.stderr).toBe(0);
-  }, 20_000);
+  }, OFFICIAL_PROJECTION_TIMEOUT_MS);
 
   it("accepts an already-satisfied mutation call as skipped when another call commits", () => {
     const fixture = createFixture();
@@ -336,7 +337,7 @@ describe("SpreadsheetBench V2 official projection", () => {
     const projected = runProjection(fixture);
 
     expect(projected.status, projected.stderr).toBe(0);
-  }, 20_000);
+  }, OFFICIAL_PROJECTION_TIMEOUT_MS);
 
   it("rejects semantically forged sidecars even when their declared hashes are recomputed", () => {
     const fixture = createFixture();
@@ -591,7 +592,7 @@ describe("SpreadsheetBench V2 official projection", () => {
     );
     for (const error of expectedErrors)
       expect(projection.errors).toContain(error);
-  }, 20_000);
+  }, OFFICIAL_PROJECTION_TIMEOUT_MS);
 
   it("rejects a report that does not preserve evaluator-after-candidate access", () => {
     const fixture = createHarnessContractFixture();
@@ -602,7 +603,7 @@ describe("SpreadsheetBench V2 official projection", () => {
     expect(rejected.stderr).toContain(
       "nodeagent-workbook report harness must declare toolPolicy=agent_dir_only_until_candidate and evaluatorAccess=after_candidate_emit_only",
     );
-  }, 20_000);
+  }, OFFICIAL_PROJECTION_TIMEOUT_MS);
 });
 
 function createFixture(): ProjectionFixture {

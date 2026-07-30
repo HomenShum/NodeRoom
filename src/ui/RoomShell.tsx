@@ -743,6 +743,7 @@ export function RoomShell({ roomId, me, onLeave, onSignOut, proof }: { roomId: s
       {walkDockOpen && <RoomWalkthroughDock steps={tourSteps} step={dockStep} pace={replayPace} onStep={selectDockStep} onReplay={startTour} onDismiss={dismissWalkDock} />}
       <SignalStatusStrip roomId={roomId} me={me} focusModeEnabled={focusMode.enabled} onOpenArtifact={openArtifact} />
       <RoomTweaksPanel
+        roomId={roomId}
         open={tweaksOpen}
         accent={accent}
         backgroundGlow={backgroundGlow}
@@ -912,6 +913,7 @@ function RoomWalkthroughDock({
 }
 
 function RoomTweaksPanel({
+  roomId,
   open,
   accent,
   backgroundGlow,
@@ -931,6 +933,7 @@ function RoomTweaksPanel({
   canLeave,
   onClose,
 }: {
+  roomId: string;
   open: boolean;
   accent: AccentKey;
   backgroundGlow: boolean;
@@ -950,6 +953,13 @@ function RoomTweaksPanel({
   canLeave: boolean;
   onClose: () => void;
 }) {
+  const store = useStore();
+  const room = store.getRoom(roomId);
+  const credit = store.creditBalance?.();
+  const q3MemoryDemo = store.mode === "memory" && room?.title === "Q3 diligence";
+  const availableCredits = credit
+    ? (q3MemoryDemo && credit.demo ? 18 : credit.availableCredits)
+    : null;
   if (!open) return null;
   return (
     <div className="r-tweaks" data-testid="room-tweaks">
@@ -1013,6 +1023,17 @@ function RoomTweaksPanel({
           <span><Crosshair size={12} /> Focus mode</span>
           <Switch checked={focusEnabled} aria-label="Focus Mode follows the selected agent job" data-testid="focus-mode-switch" title="Follow the current agent job on the work surface" onClick={onToggleFocus} />
         </label>
+      </div>
+      <div className="r-tweaks-section" data-testid="room-usage-credits">
+        <span className="r-tweaks-label"><Gauge size={12} /> Usage</span>
+        <div className="r-tweak-line">
+          <span>Credits</span>
+          <b>
+            {credit && credit.enforced && availableCredits !== null
+              ? `${availableCredits.toFixed(0)}${credit.reservedCredits ? ` (${credit.reservedCredits.toFixed(0)} held)` : ""}${credit.demo ? " demo" : ""}`
+              : "Not metered"}
+          </b>
+        </div>
       </div>
       <div className="r-tweaks-section">
         <span className="r-tweaks-label">Room</span>
@@ -1088,8 +1109,6 @@ function SignalStatusStrip({
   const jobRisk = ["failed", "blocked", "cancelled", "paused"].includes(jobStatus);
   const jobLive = !!job && !["completed", "failed", "cancelled", "blocked", "paused"].includes(jobStatus);
   const jobTelemetry = job ? selectedJobSignalTelemetry(job, run) : null;
-  const credit = store.creditBalance?.();
-  const demoCreditValue = q3MemoryDemo && credit?.demo ? 18 : credit?.availableCredits;
   const reconciledStatusPrefix = "Room NodeAgent · ";
   const reconciledStatusText = status.text.startsWith(reconciledStatusPrefix)
     ? status.text.slice(reconciledStatusPrefix.length)
@@ -1099,9 +1118,6 @@ function SignalStatusStrip({
     : reconciledStatusText;
   const showPassiveChip = !(q3MemoryDemo && cloudReconciledStatusText);
   const signals = [
-    ...(credit && credit.enforced
-      ? [{ k: "Credits", v: `${(demoCreditValue ?? credit.availableCredits).toFixed(0)}${credit.reservedCredits ? ` (${credit.reservedCredits.toFixed(0)} held)` : ""}${credit.demo ? " demo" : ""}` }]
-      : []),
     ...(proposals.length ? [{ k: "Review", v: `${proposals.length} pending` }] : []),
     ...(jobRisk ? [{ k: "Run", v: jobStatus }] : []),
     ...(jobLive && jobTelemetry
@@ -1184,10 +1200,6 @@ function SignalStatusStrip({
               <button key={s.k} className="r-signal-chip" data-testid="signal-review" style={{ border: "none", cursor: "pointer" }} title="Open the pending proposal on the stage" onClick={openProposal}>
                 <b>{s.k}</b>{s.v}
               </button>
-            ) : s.k === "Credits" ? (
-              <span key={s.k} className="r-signal-chip r-credit-chip" data-testid="signal-credits" title="Demo credits — 1 credit = $0.25. The live wallet meters real spend (not metered until the credit backend deploys).">
-                <b>{s.k}</b>{s.v}
-              </span>
             ) : (
               <span key={s.k} className="r-signal-chip"><b>{s.k}</b>{s.v}</span>
             ),

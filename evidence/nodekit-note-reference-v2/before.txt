@@ -1,0 +1,33 @@
+CHANGE
+Upgrade the note-surface reference contract from V1 optimistic projection to the
+V2 identity-bound, external-proof-honest NodeKit contract.
+
+COMMAND
+npx vitest run tests/noteSurfaceReference.test.ts tests/noteSurfaceCaptureUi.test.tsx --reporter=verbose
+
+BEFORE RESULT
+Test Files  2 passed (2)
+Tests       27 passed (27)
+Duration    37.70s
+
+BEFORE BEHAVIOR PROVED BY THE PASSING TESTS
+- A valid internally scored V1 record is expected to project as "bound".
+- Capture reasons are "ready", "reference-review", and "conflict".
+- A pending proposal only disarms capture when provenance is also expanded.
+- The UI does not expose the V2 case, repository, artifact, candidate, surface,
+  proof-profile, or review bindings.
+- Missing external NodeProof is not represented as an explicit Incomplete state.
+
+AUTHORITATIVE TEST SIGNALS
+- tests/noteSurfaceReference.test.ts:
+  "accepts one exact, immutable, authority-bound consumption record" expects
+  projection: "bound".
+- tests/noteSurfaceReference.test.ts:
+  "disarms capture during provenance proposal review and conflict..." expects
+  reasons "ready", "reference-review", and "conflict".
+
+UNCHANGED TARGET
+- Existing Ed25519 service-attestation verification.
+- Existing Mobbin provenance and prohibited-material validation.
+- Existing CAS/idempotency and owner/note persistence checks.
+- Existing notebook capture and provenance-review journeys.

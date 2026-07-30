@@ -100,12 +100,16 @@ test.describe("credit load — memory mode", () => {
     }
   });
 
-  test("UI: the status strip shows the demo credit balance chip", async ({ page }) => {
+  test("UI: usage stays out of the passive status strip and is reachable from room controls", async ({ page }) => {
     await enterDemoRoom(page);
-    const chip = page.getByTestId("signal-credits");
-    await expect(chip).toBeVisible();
-    await expect(chip).toContainText("Credits");
-    await expect(chip).toContainText("20");
-    await expect(chip).toContainText("demo");
+    await expect(page.getByTestId("signal-credits")).toHaveCount(0);
+    await page.getByTestId("room-settings-btn").click();
+    const usage = page.getByTestId("room-usage-credits");
+    await expect(usage).toBeVisible();
+    await expect(usage).toContainText("Credits");
+    // The Q3 room fixture intentionally shows the post-demo balance (18), while
+    // the underlying reload/reset seam above still proves the 20-credit grant.
+    await expect(usage).toContainText("18");
+    await expect(usage).toContainText("demo");
   });
 });

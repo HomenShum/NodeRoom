@@ -1,0 +1,13 @@
+{
+  "schema": "nodekit.note-reference-demo/v1",
+  "mode": "memory",
+  "captureText": "Founder note: verify the authority boundary before approving this reference edge.",
+  "checks": {
+    "initialCaptureArmed": true,
+    "referenceReviewDisarmedCapture": true,
+    "exactCaptureConfirmed": true,
+    "exactCapturePresentAfterCloseAndReopen": true,
+    "consoleErrors": 0,
+    "failedRequests": 0
+  }
+}

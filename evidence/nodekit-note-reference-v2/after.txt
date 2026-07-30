@@ -1,0 +1,58 @@
+CHANGE
+Upgrade note-surface reference consumption to the V2 identity envelope and
+fail closed until an external NodeProof barrier verifies the full edge chain.
+
+IDENTICAL FOCUSED COMMAND
+npx vitest run tests/noteSurfaceReference.test.ts tests/noteSurfaceReferenceConvex.test.ts tests/noteSurfaceCaptureUi.test.tsx
+
+AFTER RESULT
+Test Files  3 passed (3)
+Tests       33 passed (33)
+Duration    6.77s
+
+AFTER BEHAVIOR
+- Structurally valid V2 records project as "incomplete", not "bound".
+- New writes require V2.
+- V1 can be normalized only when canonical missing bindings are supplied.
+- Caseflow, repository, artifact owner/CAS, candidate render, surface/state,
+  proof-profile, and review receipt identities are explicit.
+- Capture uses exact machine-readable reason codes.
+- Pending proposals disarm capture even when provenance is collapsed.
+- Twenty attempts to add a second semantic truth are rejected.
+- Workbench rule detail exposes mechanism, applicability, result, observation
+  count, runtime evidence count, digests, atomic facts, locators, timestamps,
+  problem tags, and the inspected Mobbin URL.
+- Inbox and workbench state that external proof was not run.
+
+ADDITIONAL GATES
+- App TypeScript: PASS
+- Convex TypeScript: PASS
+- Production build and provenance verification: PASS
+- Candidate Playwright proof: 3/3 viewports PASS, 12 requested states captured
+- Browser checks: UTF-8, no overflow, no console/network/5xx failures, and no
+  serious or critical accessibility violations
+- Architecture budget: exit 0, review required for the expected changed surfaces
+- Convex boundary check: known baseline failure at convex/artifacts.ts concerning
+  agentMutationReceipts; unchanged and outside this slice
+- Full repository suite: 384/384 files and 2,706/2,706 tests PASS. The first
+  prod-gate attempt had one unrelated SpreadsheetBench timeout; its 5/5 isolated
+  rerun and the complete full-suite rerun both passed.
+- Product-memory browser matrix: 29/29 PASS
+- Dist security gate: PASS
+
+EXTERNAL BARRIERS
+- External NodeProof: NOT RUN; the repository has a policy runbook but no
+  configured external verifier command or receipt.
+- Gemini media judge: NOT RUN; GOOGLE_GENERATIVE_AI_API_KEY and GEMINI_API_KEY
+  are absent from process, user, and machine environments.
+- Narrated demo regeneration: BLOCKED after two attempts by the same dev-server
+  landing-navigation detach/reload race. The deterministic 12-state proof sweep
+  is current and green; failed demo artifacts remain isolated under the ignored
+  Playwright output directory.
+
+UNCHANGED
+- Existing Ed25519 authority verification and trust-policy byte pinning.
+- Existing Mobbin provenance and prohibited-material validation.
+- Existing owner/note/CAS/idempotency persistence behavior.
+- Existing unrelated dirty visual-parity artifacts were not staged or modified
+  as part of this V2 patch.

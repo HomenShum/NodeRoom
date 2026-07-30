@@ -1,0 +1,52 @@
+
+InputObject                                                                                                        Side
+                                                                                                                   Indi
+                                                                                                                   cato
+                                                                                                                   r
+-----------                                                                                                        ----
+ Test Files  1 passed (1)                                                                                          =>
+      Tests  8 passed (8)                                                                                          =>
+   Start at  22:44:05                                                                                              =>
+   Duration  1.75s (transform 434ms, setup 38ms, import 477ms, tests 1.04s, environment 44ms)                      =>
+ ❯ |node| tests/noteSurfaceReferenceConvex.test.ts (5 tests | 1 failed) 1282ms                                     <=
+     × rejects a digest-closed record whose Mobbin service signature is not trusted 1230ms                         <=
+node.exe :                                                                                                         <=
+At line:1 char:1                                                                                                   <=
++ & "C:\nvm4w\nodejs/node.exe" "C:\nvm4w\nodejs/node_modules/npm/bin/np ...                                        <=
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                                            <=
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException                                          <=
+    + FullyQualifiedErrorId : NativeCommandError                                                                   <=
+                                                                                                                   <=
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯                                                                                     <=
+ FAIL  |node| tests/noteSurfaceReferenceConvex.test.ts > artifacts.setNoteSurfaceReferenceConsumption > rejects a  <=
+digest-closed record whose Mobbin service signature is not trusted                                                 <=
+AssertionError: expected { idempotent: false, ok: true, …(1) } to match object { ok: false, …(2) }                 <=
+(2 matching properties omitted from actual)                                                                        <=
+- Expected                                                                                                         <=
++ Received                                                                                                         <=
+                                                                                                                   <=
+  {                                                                                                                <=
+-   "findings": ArrayContaining [                                                                                  <=
+-     "external-run-trust-policy-unconfigured",                                                                    <=
+-   ],                                                                                                             <=
+-   "ok": false,                                                                                                   <=
+-   "reason": "invalid_reference_authority",                                                                       <=
++   "ok": true,                                                                                                    <=
+  }                                                                                                                <=
+                                                                                                                   <=
+ ❯ tests/noteSurfaceReferenceConvex.test.ts:101:20                                                                 <=
+     99|     });                                                                                                   <=
+    100|                                                                                                           <=
+    101|     expect(result).toMatchObject({                                                                        <=
+       |                    ^                                                                                      <=
+    102|       ok: false,                                                                                          <=
+    103|       reason: "invalid_reference_authority",                                                              <=
+                                                                                                                   <=
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯                                                                                     <=
+                                                                                                                   <=
+                                                                                                                   <=
+ Test Files  1 failed (1)                                                                                          <=
+      Tests  1 failed | 4 passed (5)                                                                               <=
+   Start at  22:38:57                                                                                              <=
+   Duration  2.08s (transform 464ms, setup 38ms, import 529ms, tests 1.28s, environment 53ms)                      <=
+                                                                                                                   <=

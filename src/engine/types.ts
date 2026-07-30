@@ -223,6 +223,8 @@ export interface ArtifactMeta {
   /** Agent-managed metadata derived from content; feeds the OKF/RAG embedding (concept frontmatter). */
   summary?: string;
   tags?: string[];
+  /** Immutable NodeKit reference snapshots consumed by this note surface. */
+  noteSurfaceReferenceConsumption?: import("./noteSurfaceReference").NoteSurfaceReferenceConsumption;
   upload?: {
     fileName: string;
     mimeType: string;

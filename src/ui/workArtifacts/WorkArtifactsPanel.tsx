@@ -141,10 +141,15 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact, initialArtifact
       : undefined
   ), [collaborativeDeckEntries, initialArtifactId]);
   const directDeckId = directDeckEntry ? `deck:${directDeckEntry.artifact.id}` : null;
-  const [selectedId, setSelectedId] = useState<string | null>(directDeckId);
+  const directNotebookId = initialArtifactId
+    && artifacts.some((artifact) => artifact.id === initialArtifactId && artifact.kind === "note")
+    ? `artifact:${initialArtifactId}`
+    : null;
+  const directSelectedId = directDeckId ?? directNotebookId;
+  const [selectedId, setSelectedId] = useState<string | null>(directSelectedId);
   useEffect(() => {
-    if (directDeckId) setSelectedId(directDeckId);
-  }, [directDeckId]);
+    if (directSelectedId) setSelectedId(directSelectedId);
+  }, [directSelectedId]);
   const selectedDeckEntry = useMemo(() => (
     selectedId?.startsWith("deck:")
       ? collaborativeDeckEntries.find((entry) => `deck:${entry.artifact.id}` === selectedId)
@@ -613,6 +618,28 @@ export function WorkArtifactsPanel({ roomId, me, onOpenArtifact, initialArtifact
           structure={selectedNotebook.structure}
           proposals={proposals}
           kernelOutputs={readNotebookKernelOutputs(selectedNotebook.artifact)}
+          onCapture={async (text) => {
+            const latestArtifact = store.getArtifact(selectedNotebook.artifact.id) ?? selectedNotebook.artifact;
+            const elementId = `capture_${Date.now().toString(36)}_${crypto.randomUUID().slice(0, 8)}`;
+            const feedback = await store.applyEdit({
+              roomId,
+              actor: me,
+              op: {
+                opId: crypto.randomUUID(),
+                artifactId: latestArtifact.id,
+                elementId,
+                kind: "create",
+                value: {
+                  text,
+                  status: "draft",
+                  capturedAt: new Date().toISOString(),
+                  capturedBy: { id: me.id, name: me.name, kind: me.kind },
+                },
+                baseVersion: 0,
+              },
+            });
+            return feedback.ok ? { ok: true } : { ok: false, reason: feedback.reason };
+          }}
           onExecuteKernel={async (item, execution) => {
             const result = execution.backend === "pyodide"
               ? await getBrowserNotebookKernelBroker().start({ backend: "pyodide", kind: "python", input: item.input, tables: notebookKernelTables, traceId: traces[0]?.id }, { signal: execution.signal }).result

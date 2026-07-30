@@ -1,5 +1,6 @@
 import type { Artifact, CellEvidence, CellPayload, Element, Proposal, TraceEvent } from "../../engine/types";
 import type { WorkArtifactStatus } from "./workArtifactTypes";
+import type { NoteSurfaceReferenceConsumption } from "../../engine/noteSurfaceReference";
 
 export type NotebookBlockRole = "human" | "agent" | "unknown";
 export type NotebookBlockKind = "heading" | "paragraph" | "list_item" | "quote" | "code" | "unknown";
@@ -44,6 +45,7 @@ export interface NotebookArtifactStructure {
   sourceIds: string[];
   traceIds: string[];
   proposalIds: string[];
+  referenceConsumption?: NoteSurfaceReferenceConsumption;
   blocks: NotebookBlockDigest[];
   sections: NotebookSectionDigest[];
 }
@@ -71,7 +73,7 @@ const MAX_NOTEBOOK_BLOCKS = 240;
 const MAX_SOURCE_IDS = 80;
 
 function isCellPayload(value: unknown): value is CellPayload {
-  return typeof value === "object" && value !== null && ("status" in value || "evidence" in value || "confidence" in value || "error" in value);
+  return typeof value === "object" && value !== null && Object.prototype.hasOwnProperty.call(value, "value");
 }
 
 function unique(values: Array<string | undefined>): string[] {
@@ -440,6 +442,7 @@ function finalizeNotebookArtifactStructure(args: {
     sourceIds,
     traceIds,
     proposalIds,
+    referenceConsumption: artifact.meta?.noteSurfaceReferenceConsumption,
     blocks,
     sections,
   };

@@ -230,6 +230,32 @@ describe("work artifact adapters", () => {
     expect(structure.summary).toContain("4 blocks");
   });
 
+  it("shows a human quick-capture object as a notebook block instead of mistaking it for a cell wrapper", () => {
+    const capturedNote: Artifact = {
+      ...structuredNotebook,
+      id: "art-quick-capture-note",
+      order: ["capture-1"],
+      elements: {
+        "capture-1": cell("capture-1", {
+          text: "Call out the unresolved hospital deployment reference.",
+          status: "draft",
+          capturedAt: "2026-07-30T05:00:00.000Z",
+          capturedBy: { id: human.id, name: human.name, kind: human.kind },
+        }),
+      },
+    };
+
+    const structure = buildNotebookArtifactStructure(capturedNote);
+
+    expect(structure.blockCount).toBe(1);
+    expect(structure.humanBlockCount).toBe(1);
+    expect(structure.blocks[0]).toMatchObject({
+      elementId: "capture-1",
+      text: "Call out the unresolved hospital deployment reference.",
+      status: "draft",
+    });
+  });
+
   it("summarizes notebook digest stats for the openable workbench", () => {
     const structure = buildNotebookArtifactStructure(structuredNotebook, { traces: [trace], proposals: [proposal] });
     const stats = notebookDigestStats(structure);

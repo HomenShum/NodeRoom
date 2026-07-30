@@ -1,0 +1,53 @@
+{
+  "schema": "nodekit.note-reference-surface-proof/v1",
+  "generatedAt": "2026-07-30T07:27:47.486Z",
+  "variant": "after",
+  "viewport": {
+    "id": "phone-320x568",
+    "width": 320,
+    "height": 568
+  },
+  "states": [
+    {
+      "id": "populated-armed",
+      "screenshot": "evidence/nodekit-note-reference-surface/after/phone-320x568/populated-armed.png",
+      "equivalentSurface": true,
+      "captureState": "armed",
+      "captureReason": "NORMAL_NOTE_CONTEXT"
+    },
+    {
+      "id": "reference-review-disarmed",
+      "screenshot": "evidence/nodekit-note-reference-surface/after/phone-320x568/reference-review-disarmed.png",
+      "equivalentSurface": true,
+      "captureState": "disarmed",
+      "captureReason": "PROVENANCE_REVIEW_ACTIVE"
+    },
+    {
+      "id": "empty-armed",
+      "screenshot": "evidence/nodekit-note-reference-surface/after/phone-320x568/empty-armed.png",
+      "equivalentSurface": true,
+      "captureState": "armed",
+      "captureReason": "NORMAL_NOTE_CONTEXT"
+    },
+    {
+      "id": "captured-reopened",
+      "screenshot": "evidence/nodekit-note-reference-surface/after/phone-320x568/captured-reopened.png",
+      "equivalentSurface": true,
+      "captureState": "armed",
+      "captureReason": "NORMAL_NOTE_CONTEXT"
+    }
+  ],
+  "fullReload": {
+    "screenshot": "evidence/nodekit-note-reference-surface/after/phone-320x568/full-reload-memory-reset.png",
+    "result": "memory-session-reset",
+    "note": "The keyless memory-mode harness intentionally returns to the landing screen on full reload; component close/reopen persistence is verified above."
+  },
+  "checks": {
+    "charset": "UTF-8",
+    "horizontalOverflow": true,
+    "consoleErrors": [],
+    "failedRequests": [],
+    "serverErrors": [],
+    "seriousOrCriticalA11y": []
+  }
+}
