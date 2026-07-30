@@ -1,5 +1,18 @@
 # Note reference consumption
 
+## 2026-07-30 — Add the V2 identity and compatibility envelope
+
+Bind canonical snapshots to exact Caseflow, repository, artifact owner/CAS,
+candidate render, surface/state, proof-profile, and review-receipt identities.
+Keep V1 readable through an explicit adapter, require V2 for new writes, reject
+unknown semantic aliases, and project valid records as Incomplete until an
+external NodeProof barrier verifies the chain.
+
+**Commit**: 05d9fe3a. **Author**: Codex.
+
+**Evidence**: `evidence/nodekit-note-reference-v2/`,
+`evidence/nodekit-note-reference-surface/after/`
+
 ## 2026-07-29 — Bind note references to canonical NodeKit records
 
 Define one engine-level contract for digest-closed observations, design rules,
