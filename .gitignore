@@ -110,3 +110,7 @@ docs/seo/journey-artifacts/
 
 # Prod dogfood raw traces/videos are local proof output; keep compact receipts in docs/qa/*.md.
 docs/qa/prod-dogfood/
+
+# A nested clone used for conformance checks. Committing it produces a gitlink
+# that is empty for everyone else — worse than not tracking it at all.
+.qa/node-platform-conformance-*/
