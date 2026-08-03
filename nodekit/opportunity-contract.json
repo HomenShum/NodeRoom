@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "nodekit.opportunity-contract/v1",
+  "user": "A person working in a shared room beside an AI agent, and the agent working beside them.",
+  "problem": "A human and an agent editing the same surface clobber each other, and the loser of the race finds out afterwards. README: 'without clobbering each other'.",
+  "wedge": "Advisory presence, versioned compare-and-set, drafts and proposals, and short publish leases, so neither party silently overwrites the other.",
+  "primaryJob": "Let a human and a NodeAgent edit the same spreadsheet, notebook or post-it surface at the same time without silent overwrite.",
+  "inputs": [
+    "room_messages",
+    "shared_surface_state",
+    "agent_proposals",
+    "presence_and_intent_claims"
+  ],
+  "primaryArtifact": "A live shared surface with per-room traces, where every write is versioned and every agent change arrives as a draft or proposal.",
+  "rejectedAlternatives": [
+    {
+      "alternative": "Last-write-wins on the shared surface.",
+      "reason": "It produces exactly the silent overwrite the room exists to prevent, and the loser cannot tell it happened."
+    },
+    {
+      "alternative": "Locking the surface for one editor at a time.",
+      "reason": "It serialises collaboration; the product's premise is a human and an agent working beside each other, not in turns."
+    }
+  ],
+  "openUnknowns": [
+    "Whether short publish leases are long enough for a human edit and short enough not to block the agent — the README describes a next lease layer, so the current one is not final.",
+    "The repository ships docs/GAPS_NOT_DONE.md, so the product itself declares work not done; those gaps are unknowns for this contract too."
+  ],
+  "successCondition": "A human and an agent both complete work on the same surface in one session, and neither one's change is lost or silently replaced.",
+  "authorityLimits": {
+    "read": [
+      "room messages",
+      "shared surface state",
+      "presence and intent claims"
+    ],
+    "propose": [
+      "surface edits as drafts",
+      "merge proposals",
+      "route preference changes"
+    ],
+    "approve": [],
+    "prohibited": [
+      "publish a draft to the shared surface without a human",
+      "resolve a human/agent conflict unilaterally",
+      "write outside a held publish lease"
+    ]
+  },
+  "derivedFrom": {
+    "source": "noderoom/README.md (and docs/GAPS_NOT_DONE.md, which the product ships to declare its own gaps)",
+    "method": "mixed",
+    "derivedBy": "node-platform delivery-brief work, 2026-08-03",
+    "unverifiedFields": [
+      "openUnknowns — partly from the product's own GAPS_NOT_DONE.md, partly judgement",
+      "rejectedAlternatives — inferred from the README's framing, not from a stated decision record"
+    ]
+  }
+}
