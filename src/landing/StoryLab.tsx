@@ -567,7 +567,7 @@ function RebasePanel(): React.ReactElement {
       {proposalId ? (
         <div className="sl-chip" data-testid="story-lab-rebase-proposal" role="status">
           <div className="sl-chip-h">
-            <span className="sl-chip-dot" /> Waiting on you — the AI's edit needs your OK (semantic_rebase)
+            <span className="sl-chip-dot" /> Waiting on you — the AI's edit needs your OK
           </div>
           <p className="sl-chip-b">
             The AI wanted <code>AGENT-proposed</code>; the human wrote <code>HUMAN-wins</code>. If you approve, the
