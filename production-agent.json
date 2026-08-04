@@ -1,0 +1,116 @@
+{
+  "$schema": "./schemas/production-agent.v1.schema.json",
+  "schemaVersion": "production-agent/v1",
+  "application": "noderoom.nodeagent",
+  "declaredAt": "2026-08-04",
+  "goalTranslation": {
+    "businessGoal": "A room-scoped voice/chat agent completes user-assigned tasks (research, documents, spreadsheets) end to end without a human babysitting the run",
+    "quantifiedTarget": {
+      "metric": "task-completion-rate",
+      "comparator": "at-least",
+      "value": 1,
+      "rationale": "scripts/slo-gate.ts thresholds.completionRate = 1 over minRuns = 8"
+    },
+    "decomposition": [
+      "goal_decomposition (src/noderl/loop/loopPolicy.ts requiredLoops)",
+      "constraint_satisfaction",
+      "plan_execute_replan",
+      "score_retry",
+      "progress_evaluation",
+      "memory_update"
+    ]
+  },
+  "hitl": {
+    "tiers": [
+      {
+        "action": "read/draft voice commands (classifyRisk returns read|draft, src/voice/commandClassifier.ts)",
+        "risk": "low",
+        "mode": "auto"
+      },
+      {
+        "action": "write/destructive voice commands (commandRequiresConfirmation gates riskLevel write|destructive behind awaiting_confirmation, src/voice/commandClassifier.ts:139-146)",
+        "risk": "high",
+        "mode": "suspend-approve",
+        "resumeAfterApproval": true
+      },
+      {
+        "action": "credit-spending agent actions flagged requiresApproval: true (src/nodeagent/core/creditModel.ts:170)",
+        "risk": "high",
+        "mode": "suspend-approve",
+        "resumeAfterApproval": true
+      }
+    ]
+  },
+  "toolFaultTolerance": {
+    "interception": {
+      "rawErrorsReachUser": false,
+      "how": "sanitizeProviderError (src/nodeagent/models/providerParserLive.ts:214) strips provider payloads/keys before any error reaches the user or the agent's own reasoning"
+    },
+    "retry": {
+      "maxAttempts": 4,
+      "backoff": "exponential",
+      "baseDelayMs": 2000,
+      "maxDelayMs": 23400,
+      "jitter": true
+    },
+    "fallback": {
+      "kind": "degraded-ui",
+      "description": "After retries, adapter.ts tries fallbackModelFor (src/nodeagent/models/adapter.ts:215) for a cross-model retry; if that also fails the room shows a sanitized failed-run state instead of a raw provider error"
+    },
+    "toolContract": {
+      "descriptionsUnambiguous": true,
+      "fewShotForComplexParams": true
+    }
+  },
+  "context": {
+    "strategies": ["retrieval-extraction", "summarization"],
+    "tokenBudgetPerRun": 1200
+  },
+  "slos": [
+    {
+      "metric": "completionRate",
+      "comparator": "at-least",
+      "value": 1,
+      "rationale": "scripts/slo-gate.ts thresholds over 8 scripted room runs"
+    },
+    {
+      "metric": "errorRate",
+      "comparator": "at-most",
+      "value": 0,
+      "rationale": "scripts/slo-gate.ts maxErrorRate = 0"
+    },
+    {
+      "metric": "p95RunMs",
+      "comparator": "at-most",
+      "value": 2500,
+      "rationale": "scripts/slo-gate.ts p95RunMs threshold; p95, not p99 — see production-agent.gaps.md"
+    }
+  ],
+  "runtimeGuards": {
+    "loopBreaker": {
+      "maxIterations": 100,
+      "maxDepth": 1
+    },
+    "circuitBreaker": {
+      "errorRateThreshold": 1,
+      "onTrip": "A single failed call on a free route starts a per-model cooldown: base 5min doubling per consecutive failure, capped at 30min (src/nodeagent/models/openRouterFreeModels.ts:285-287); routing falls over to the next healthy free model"
+    },
+    "costFuse": {
+      "maxTokensPerRun": 250000,
+      "onTrip": "Run aborts when spendLimits trip: maxTokens 250000 or maxCostUsd 2 per run (convex/agent.ts:641-645). Note: the USD fuse is per-run, not per-day, so it lives in this text rather than maxSpendUsdPerDay"
+    }
+  },
+  "release": {
+    "judgeRegression": {
+      "command": "npm run media:gemini-judge — nightly cron '0 9 * * *' plus workflow_dispatch in .github/workflows/nightly-judge.yml; schedule-only because the judge spends Gemini tokens. Trigger field omitted: the schema enum has no 'scheduled' value and declaring on-commit/on-pr/pre-deploy would be false (see production-agent.gaps.md)"
+    },
+    "modelMigration": {
+      "pinnedModel": "z-ai/glm-5.2 (DEFAULT_MODEL_ID, src/landing/modelRegistry.ts:37)",
+      "migrationEvalCommand": "npm run ladder"
+    },
+    "tracing": {
+      "traceIdPropagated": true,
+      "field": "traceId (traceIdForRun, src/nodeagent/traces/traceRecorder.ts:100)"
+    }
+  }
+}
