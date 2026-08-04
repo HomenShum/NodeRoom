@@ -212,10 +212,11 @@ function LabGrid({ roomId, me }: { roomId: string; me: Actor }): React.ReactElem
       <style>{LAB_STYLE}</style>
       <div className="sl-head">
         <span className="sl-kicker">Try it live</span>
-        <h3 className="sl-title">A real grid on the in-browser engine — no keys, no network.</h3>
+        <h3 className="sl-title">A real spreadsheet, running right here — nothing scripted.</h3>
         <p className="sl-sub">
-          Type a variance to see <b>Layer 1</b> (optimistic commit), then run the <b>Layer 5</b> no-clobber
-          test — every edit below calls the same compare-and-swap path as the live room.
+          Type in a Variance cell and it saves instantly (<b>Layer 1</b>). Then press the button below to
+          watch an AI teammate try to overwrite your edit — and get told no (<b>Layer 5</b>, the no-clobber
+          test — the same engine call as a live room).
         </p>
       </div>
 
@@ -239,7 +240,7 @@ function LabGrid({ roomId, me }: { roomId: string; me: Actor }): React.ReactElem
 
         <div className="sl-actions">
           <button className="sl-btn primary" onClick={() => void runNoClobber()}>
-            ▶ Run the no-clobber test
+            ▶ Let the AI try to overwrite my edit
           </button>
           <button className="sl-btn" onClick={() => void reset()}>
             Reset cell
@@ -250,14 +251,14 @@ function LabGrid({ roomId, me }: { roomId: string; me: Actor }): React.ReactElem
         {conflict ? (
           <div className="sl-conflict" role="status">
             <div className="sl-conflict-h">
-              <span className="sl-conflict-dot" /> Conflict — returned as data, not a clobber
+              <span className="sl-conflict-dot" /> The AI tried to overwrite your edit — and got told no
             </div>
             <p className="sl-conflict-b">
-              You staged <code>{conflict.value}</code> on <b>{conflict.cell}</b> at version{" "}
-              <code>v{conflict.base}</code>. NodeAgent committed <code>2,400</code> first, advancing it to{" "}
-              <code>v{conflict.actual}</code>. Your stale-baseline write was <b>rejected</b> — the engine
-              returned <code>{"{ ok:false, reason:'conflict' }"}</code> instead of overwriting. That rejection
-              is Layer 5; the reviewable rebase that follows is Layer 6.
+              You typed <code>{conflict.value}</code> into <b>{conflict.cell}</b>, but NodeAgent saved{" "}
+              <code>2,400</code> first (version <code>v{conflict.base}</code> → <code>v{conflict.actual}</code>).
+              Instead of letting the slower write silently win, the engine <b>rejected</b> it and reported the
+              clash: <code>{"{ ok:false, reason:'conflict' }"}</code>. That refusal is Layer 5 (no-clobber); the
+              reviewable fix-up that follows is Layer 6.
             </p>
           </div>
         ) : null}
@@ -310,8 +311,9 @@ function LeasePanel({ roomId, me }: { roomId: string; me: Actor }): React.ReactE
       state: "pass",
       label: (
         <>
-          <b>L7 lease acquired</b> on <code>OpEx · Variance</code> — <code>{lr.lock.id}</code>, TTL{" "}
-          <code>{ttlMs !== null ? Math.round(ttlMs / 1000) + "s" : "—"}</code> (auto-expires if the holder crashes).
+          <b>You now hold the cell</b> — <code>OpEx · Variance</code> is reserved for{" "}
+          <code>{ttlMs !== null ? Math.round(ttlMs / 1000) + "s" : "—"}</code>, then frees itself even if you crash
+          (L7 lease <code>{lr.lock.id}</code>).
         </>
       ),
     });
@@ -328,9 +330,9 @@ function LeasePanel({ roomId, me }: { roomId: string; me: Actor }): React.ReactE
         state: "pass",
         label: (
           <>
-            <b>NodeAgent's write blocked</b> — engine returned{" "}
-            <code>{"{ ok:false, reason:'locked' }"}</code> with <code>by={blocked.by.name}</code>,{" "}
-            <code>{"lockId=" + blocked.lockId}</code>. No clobber of the leased cell.
+            <b>The AI tried to write into your cell — and was turned away</b>. The engine answered{" "}
+            <code>{"{ ok:false, reason:'locked' }"}</code> (held by <code>{blocked.by.name}</code>,{" "}
+            <code>{"lockId=" + blocked.lockId}</code>). Your cell stays yours.
           </>
         ),
       });
@@ -351,8 +353,8 @@ function LeasePanel({ roomId, me }: { roomId: string; me: Actor }): React.ReactE
       state: "pass",
       label: (
         <>
-          <b>L4 draft staged around the lock</b> — <code>{draft.id}</code> ({draft.ops.length} op), pending until the
-          lease lifts. The agent never blocks on the human.
+          <b>So the AI parked its work to the side</b> — a draft (<code>{draft.id}</code>, {draft.ops.length} op)
+          waiting for you to finish. It never has to interrupt you (L4 draft-around-lock).
         </>
       ),
     });
@@ -365,9 +367,9 @@ function LeasePanel({ roomId, me }: { roomId: string; me: Actor }): React.ReactE
       state: "pass",
       label: (
         <>
-          <b>Lease released → smart-merge ran</b> — verdict <code>{verdict}</code>,{" "}
-          {outcome ? outcome.resolution.applied.length : 0} op applied cleanly onto canonical state. OpEx · Variance is
-          now <code>{String(engine.getArtifact(artId)?.elements[LEASE_CELL]?.value ?? "")}</code> at{" "}
+          <b>You let go — and the AI's parked work merged in</b> (smart-merge verdict <code>{verdict}</code>,{" "}
+          {outcome ? outcome.resolution.applied.length : 0} op applied). OpEx · Variance is now{" "}
+          <code>{String(engine.getArtifact(artId)?.elements[LEASE_CELL]?.value ?? "")}</code> at{" "}
           <code>v{verOf(LEASE_CELL)}</code>.
         </>
       ),
@@ -386,15 +388,17 @@ function LeasePanel({ roomId, me }: { roomId: string; me: Actor }): React.ReactE
   return (
     <div className="sl-panel" data-testid="story-lab-lease">
       <span className="sl-ptag">Try it live — Layers 4 + 7</span>
-      <h3 className="sl-ph">Draft-around-lock, then smart-merge on release.</h3>
+      <h3 className="sl-ph">You hold a cell. The AI works around you — and merges in when you're done.</h3>
       <p className="sl-pp">
-        L7 is the lock half of the L4 flow. You take a <b>short commit lease</b> on one cell (with a TTL so a crashed
-        holder never blocks it forever). NodeAgent can't clobber it — so it <b>drafts around the lock</b> and the engine
-        <b> smart-merges</b> the draft the moment you release. Same engine calls as the live room.
+        <span className="sl-hint">(draft-around-lock, then smart-merge on release — L7 is the lock half of the L4 flow)</span>
+        <br />
+        You reserve one cell for a short time — the hold expires on its own, so a crashed holder can never block it
+        forever. The AI can't overwrite a reserved cell, so it <b>writes its work off to the side</b>, and the moment
+        you let go, the engine <b>folds that work in</b>. Same engine calls as the live room.
       </p>
       <div className="sl-actions">
         <button className="sl-btn primary" onClick={run} disabled={done} data-testid="story-lab-lease-run">
-          ▶ Run the lease + draft-around-lock drill
+          ▶ Reserve a cell and let the AI work around me
         </button>
         <button className="sl-btn" onClick={reset}>
           Reset
@@ -402,8 +406,8 @@ function LeasePanel({ roomId, me }: { roomId: string; me: Actor }): React.ReactE
       </div>
       {leaseMs !== null ? (
         <div className="sl-lease" data-testid="story-lab-lease-ttl">
-          <span className="sl-lease-dot" /> Lease TTL {Math.round(leaseMs / 1000)}s — affected range:{" "}
-          OpEx · Variance
+          <span className="sl-lease-dot" /> You're holding OpEx · Variance — hold expires on its own in{" "}
+          {Math.round(leaseMs / 1000)}s (lease TTL)
         </div>
       ) : null}
       {steps.length ? (
@@ -464,7 +468,8 @@ function RebasePanel(): React.ReactElement {
       state: "pass",
       label: (
         <>
-          <b>Agent drafted</b> <code>AGENT-proposed</code> at <code>v{base}</code> (draft <code>{draft.id}</code>).
+          <b>The AI proposed</b> <code>AGENT-proposed</code>, based on version <code>v{base}</code> (draft{" "}
+          <code>{draft.id}</code>).
         </>
       ),
     });
@@ -479,8 +484,8 @@ function RebasePanel(): React.ReactElement {
       state: "pass",
       label: (
         <>
-          <b>Human committed first</b> — cell is now <code>HUMAN-wins</code> at <code>v{verOf()}</code>. The agent's
-          draft baseline is stale.
+          <b>A human saved first</b> — the cell is now <code>HUMAN-wins</code> at <code>v{verOf()}</code>, so the
+          AI's proposal is based on an out-of-date version.
         </>
       ),
     });
@@ -495,9 +500,10 @@ function RebasePanel(): React.ReactElement {
         state: "pass",
         label: (
           <>
-            <b>Smart-merge → review proposal</b> — verdict <code>{outcome.resolution.verdict}</code>; engine opened{" "}
-            <code>review.kind = "semantic_rebase"</code> (<code>status={prop.review.status}</code>) instead of
-            overwriting the human. No clobber, no silent merge.
+            <b>The engine spotted the disagreement and asked for a human decision</b> — verdict{" "}
+            <code>{outcome.resolution.verdict}</code>; it opened a review proposal (
+            <code>review.kind = "semantic_rebase"</code>, <code>status={prop.review.status}</code>) instead of
+            overwriting the human. Nobody's edit was silently lost.
           </>
         ),
       });
@@ -532,16 +538,17 @@ function RebasePanel(): React.ReactElement {
   return (
     <div className="sl-panel" data-testid="story-lab-rebase">
       <span className="sl-ptag">Try it live — Layer 6</span>
-      <h3 className="sl-ph">A stale agent write becomes reviewable judgment.</h3>
+      <h3 className="sl-ph">When you and the AI disagree, you get the deciding vote.</h3>
       <p className="sl-pp">
-        Runs in a separate <b>review-mode room</b> (<code>autoAllow:false</code>). An agent drafts a value, a human
-        lands a different one first, and the merge flags the divergence — so the engine opens a{" "}
-        <code>semantic_rebase</code> <b>review proposal</b> instead of clobbering. You approve it, and it re-applies at
-        the current version.
+        <span className="sl-hint">(a stale agent write becomes a semantic-rebase review proposal)</span>
+        <br />
+        The AI proposes a value, but a human saves a different one first. Instead of overwriting either side, the
+        engine turns the AI's late edit into a <b>suggestion waiting for your approval</b>. Approve it, and it lands
+        on top of the latest version — nothing lost. Runs in a separate review-mode room (<code>autoAllow:false</code>).
       </p>
       <div className="sl-actions">
         <button className="sl-btn primary" onClick={run} disabled={steps.length > 0} data-testid="story-lab-rebase-run">
-          ▶ Run the stale-write → review drill
+          ▶ Watch a late AI edit become a suggestion
         </button>
         <button className="sl-btn" onClick={reset}>
           Reset
@@ -560,11 +567,11 @@ function RebasePanel(): React.ReactElement {
       {proposalId ? (
         <div className="sl-chip" data-testid="story-lab-rebase-proposal" role="status">
           <div className="sl-chip-h">
-            <span className="sl-chip-dot" /> Review proposal — semantic_rebase · needs review
+            <span className="sl-chip-dot" /> Waiting on you — the AI's edit needs your OK (semantic_rebase)
           </div>
           <p className="sl-chip-b">
-            NodeAgent's <code>AGENT-proposed</code> diverged from the human's <code>HUMAN-wins</code>. Approving
-            re-applies it onto the <b>current</b> version (a fresh CAS write), not the stale baseline.
+            The AI wanted <code>AGENT-proposed</code>; the human wrote <code>HUMAN-wins</code>. If you approve, the
+            AI's value lands on the <b>latest</b> version of the cell — not the outdated one it started from.
           </p>
           <button className="sl-btn primary" onClick={approve} data-testid="story-lab-rebase-approve">
             ✓ Approve proposal
