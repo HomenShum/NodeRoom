@@ -136,7 +136,7 @@ async function settleWithAbort<T>(promise: Promise<T>, signal?: AbortSignal): Pr
   });
 }
 
-function toolResultFailed(result: unknown): boolean {
+export function toolResultFailed(result: unknown): boolean {
   if (!result || typeof result !== "object") return false;
   const object = result as Record<string, unknown>;
   if (object.pendingApproval === true) return false;

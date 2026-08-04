@@ -15,9 +15,6 @@ note records the resulting validation failures instead of faking compliance.
 
 ## Truthful-but-lossy mappings (schema shape vs. reality)
 
-- **SLO latency is p95, not p99.** `scripts/slo-gate.ts` gates `p95RunMs <= 2500`. The
-  schema's prose asks for p99-latency-ms; the repo does not measure p99, so the contract
-  declares `p95RunMs`.
 - **Cost fuse is per-run USD, not per-day.** `convex/agent.ts:643` caps `maxCostUsd` at $2
   per run. The schema only models `maxSpendUsdPerDay`, so the contract declares
   `maxTokensPerRun: 250000` and records the $2/run fuse in `onTrip` text.

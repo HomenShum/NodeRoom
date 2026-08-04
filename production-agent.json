@@ -68,22 +68,22 @@
   },
   "slos": [
     {
-      "metric": "completionRate",
+      "metric": "task-completion-rate",
       "comparator": "at-least",
-      "value": 1,
-      "rationale": "scripts/slo-gate.ts thresholds over 8 scripted room runs"
+      "value": 0.95,
+      "rationale": "scripts/slo-gate.ts thresholds['task-completion-rate'] over 8 scripted room runs; the legacy completionRate >= 1 gate stays enforced and is tighter"
     },
     {
-      "metric": "errorRate",
+      "metric": "tool-call-error-rate",
       "comparator": "at-most",
-      "value": 0,
-      "rationale": "scripts/slo-gate.ts maxErrorRate = 0"
+      "value": 0.001,
+      "rationale": "scripts/slo-gate.ts thresholds['tool-call-error-rate']: failed tool-call trace events / total tool calls; the legacy run-level errorRate = 0 gate stays enforced"
     },
     {
-      "metric": "p95RunMs",
+      "metric": "p99-latency-ms",
       "comparator": "at-most",
       "value": 2500,
-      "rationale": "scripts/slo-gate.ts p95RunMs threshold; p95, not p99 — see production-agent.gaps.md"
+      "rationale": "scripts/slo-gate.ts thresholds['p99-latency-ms']: true 99th percentile of run latencies; the p95RunMs <= 2500 gate also stays enforced"
     }
   ],
   "runtimeGuards": {
