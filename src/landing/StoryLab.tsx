@@ -15,6 +15,8 @@
    stay illustrated in the scroll story above, not faked here.
    ============================================================================ */
 import * as React from "react";
+import { motion } from "motion/react";
+import { PressButton, Rise } from "../ui/motion/motionPrims";
 import { engine, createFreshRoom } from "../app/roomStore";
 import { EngineStoreProvider, useStore } from "../app/store";
 import type { Actor } from "../engine/types";
@@ -61,9 +63,8 @@ const LAB_STYLE = `
 .sl-flash{animation:slflash .7s ease;}
 @keyframes slflash{0%{background:var(--accent-primary-bg,#fbede3);}100%{background:var(--bg-primary,#fdfcfa);}}
 .sl-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;}
-.sl-btn{border:1px solid var(--border-strong,rgba(0,0,0,.16));background:var(--bg-primary,#fff);color:var(--text-primary,#1a1714);font:inherit;font-size:13px;font-weight:600;padding:8px 13px;border-radius:9px;cursor:pointer;transition:transform .1s,box-shadow .15s;}
+.sl-btn{border:1px solid var(--border-strong,rgba(0,0,0,.16));background:var(--bg-primary,#fff);color:var(--text-primary,#1a1714);font:inherit;font-size:13px;font-weight:600;padding:8px 13px;border-radius:9px;cursor:pointer;transition:box-shadow .15s;}
 .sl-btn:hover{box-shadow:0 2px 8px -2px rgba(0,0,0,.18);}
-.sl-btn:active{transform:scale(.97);}
 .sl-btn.primary{background:var(--accent-primary,#d97757);border-color:var(--accent-primary,#d97757);color:#fff;}
 .sl-hint{font-size:12px;color:var(--text-tertiary,#928a80);}
 .sl-conflict{margin-top:14px;border:1px solid var(--na-bad,#c0492f);border-left-width:3px;border-radius:10px;background:var(--na-bad-bg,#fbe8e0);padding:12px 14px;}
@@ -208,7 +209,7 @@ function LabGrid({ roomId, me }: { roomId: string; me: Actor }): React.ReactElem
   };
 
   return (
-    <div className="sl-wrap" data-testid="story-lab">
+    <Rise inView className="sl-wrap" data-testid="story-lab">
       <style>{LAB_STYLE}</style>
       <div className="sl-head">
         <span className="sl-kicker">Try it live</span>
@@ -239,17 +240,23 @@ function LabGrid({ roomId, me }: { roomId: string; me: Actor }): React.ReactElem
         </div>
 
         <div className="sl-actions">
-          <button className="sl-btn primary" onClick={() => void runNoClobber()}>
+          <PressButton className="sl-btn primary" onClick={() => void runNoClobber()}>
             ▶ Let the AI try to overwrite my edit
-          </button>
-          <button className="sl-btn" onClick={() => void reset()}>
+          </PressButton>
+          <PressButton className="sl-btn" onClick={() => void reset()}>
             Reset cell
-          </button>
+          </PressButton>
           <span className="sl-hint">…or just type in any Variance cell.</span>
         </div>
 
         {conflict ? (
-          <div className="sl-conflict" role="status">
+          <motion.div
+            className="sl-conflict"
+            role="status"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 380, damping: 28 }}
+          >
             <div className="sl-conflict-h">
               <span className="sl-conflict-dot" /> The AI tried to overwrite your edit — and got told no
             </div>
@@ -260,10 +267,10 @@ function LabGrid({ roomId, me }: { roomId: string; me: Actor }): React.ReactElem
               clash: <code>{"{ ok:false, reason:'conflict' }"}</code>. That refusal is Layer 5 (no-clobber); the
               reviewable fix-up that follows is Layer 6.
             </p>
-          </div>
+          </motion.div>
         ) : null}
       </div>
-    </div>
+    </Rise>
   );
 }
 
@@ -386,7 +393,7 @@ function LeasePanel({ roomId, me }: { roomId: string; me: Actor }): React.ReactE
   };
 
   return (
-    <div className="sl-panel" data-testid="story-lab-lease">
+    <Rise inView className="sl-panel" data-testid="story-lab-lease">
       <span className="sl-ptag">Try it live — Layers 4 + 7</span>
       <h3 className="sl-ph">You hold a cell. The AI works around you — and merges in when you're done.</h3>
       <p className="sl-pp">
@@ -397,30 +404,42 @@ function LeasePanel({ roomId, me }: { roomId: string; me: Actor }): React.ReactE
         you let go, the engine <b>folds that work in</b>. Same engine calls as the live room.
       </p>
       <div className="sl-actions">
-        <button className="sl-btn primary" onClick={run} disabled={done} data-testid="story-lab-lease-run">
+        <PressButton className="sl-btn primary" onClick={run} disabled={done} data-testid="story-lab-lease-run">
           ▶ Reserve a cell and let the AI work around me
-        </button>
-        <button className="sl-btn" onClick={reset}>
+        </PressButton>
+        <PressButton className="sl-btn" onClick={reset}>
           Reset
-        </button>
+        </PressButton>
       </div>
       {leaseMs !== null ? (
-        <div className="sl-lease" data-testid="story-lab-lease-ttl">
+        <motion.div
+          className="sl-lease"
+          data-testid="story-lab-lease-ttl"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 380, damping: 28 }}
+        >
           <span className="sl-lease-dot" /> You're holding OpEx · Variance — hold expires on its own in{" "}
           {Math.round(leaseMs / 1000)}s (lease TTL)
-        </div>
+        </motion.div>
       ) : null}
       {steps.length ? (
         <ol className="sl-steps" data-testid="story-lab-lease-steps" role="status">
           {steps.map((s, i) => (
-            <li className={"sl-step " + s.state} key={i}>
+            <motion.li
+              className={"sl-step " + s.state}
+              key={i}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut", delay: i * 0.09 }}
+            >
               <span className="sl-step-ix">{s.state === "pass" ? "✓" : s.state === "fail" ? "✕" : i + 1}</span>
               <span>{s.label}</span>
-            </li>
+            </motion.li>
           ))}
         </ol>
       ) : null}
-    </div>
+    </Rise>
   );
 }
 
@@ -536,7 +555,7 @@ function RebasePanel(): React.ReactElement {
   };
 
   return (
-    <div className="sl-panel" data-testid="story-lab-rebase">
+    <Rise inView className="sl-panel" data-testid="story-lab-rebase">
       <span className="sl-ptag">Try it live — Layer 6</span>
       <h3 className="sl-ph">When you and the AI disagree, you get the deciding vote.</h3>
       <p className="sl-pp">
@@ -547,25 +566,38 @@ function RebasePanel(): React.ReactElement {
         on top of the latest version — nothing lost. Runs in a separate review-mode room (<code>autoAllow:false</code>).
       </p>
       <div className="sl-actions">
-        <button className="sl-btn primary" onClick={run} disabled={steps.length > 0} data-testid="story-lab-rebase-run">
+        <PressButton className="sl-btn primary" onClick={run} disabled={steps.length > 0} data-testid="story-lab-rebase-run">
           ▶ Watch a late AI edit become a suggestion
-        </button>
-        <button className="sl-btn" onClick={reset}>
+        </PressButton>
+        <PressButton className="sl-btn" onClick={reset}>
           Reset
-        </button>
+        </PressButton>
       </div>
       {steps.length ? (
         <ol className="sl-steps" data-testid="story-lab-rebase-steps" role="status">
           {steps.map((s, i) => (
-            <li className={"sl-step " + s.state} key={i}>
+            <motion.li
+              className={"sl-step " + s.state}
+              key={i}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut", delay: i * 0.09 }}
+            >
               <span className="sl-step-ix">{s.state === "pass" ? "✓" : s.state === "fail" ? "✕" : i + 1}</span>
               <span>{s.label}</span>
-            </li>
+            </motion.li>
           ))}
         </ol>
       ) : null}
       {proposalId ? (
-        <div className="sl-chip" data-testid="story-lab-rebase-proposal" role="status">
+        <motion.div
+          className="sl-chip"
+          data-testid="story-lab-rebase-proposal"
+          role="status"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 380, damping: 28 }}
+        >
           <div className="sl-chip-h">
             <span className="sl-chip-dot" /> Waiting on you — the AI's edit needs your OK
           </div>
@@ -573,13 +605,20 @@ function RebasePanel(): React.ReactElement {
             The AI wanted <code>AGENT-proposed</code>; the human wrote <code>HUMAN-wins</code>. If you approve, the
             AI's value lands on the <b>latest</b> version of the cell — not the outdated one it started from.
           </p>
-          <button className="sl-btn primary" onClick={approve} data-testid="story-lab-rebase-approve">
+          <PressButton className="sl-btn primary" onClick={approve} data-testid="story-lab-rebase-approve">
             ✓ Approve proposal
-          </button>
-        </div>
+          </PressButton>
+        </motion.div>
       ) : null}
       {approved ? (
-        <div className="sl-evi" data-testid="story-lab-rebase-approved" role="status">
+        <motion.div
+          className="sl-evi"
+          data-testid="story-lab-rebase-approved"
+          role="status"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 380, damping: 28 }}
+        >
           <div className="sl-evi-h">
             <span className="sl-evi-dot" /> Approved — re-applied at the current version
           </div>
@@ -593,9 +632,9 @@ function RebasePanel(): React.ReactElement {
               <code>v{verOf()}</code>
             </span>
           </div>
-        </div>
+        </motion.div>
       ) : null}
-    </div>
+    </Rise>
   );
 }
 
