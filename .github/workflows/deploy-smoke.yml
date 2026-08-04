@@ -1,0 +1,82 @@
+# Post-deploy smoke check + automatic rollback for the Vercel production deploy.
+#
+# Deploy path this attaches to: the frontend ships via Vercel's Git integration on
+# push to main (project prj_0J6pWGp03jEgA3DrsqAJDHK5cnSY, team_RRpVnMU6vxwAeiOQPTMkKGcZ;
+# there is no deploy step in CI and this workflow does not add one). Vercel's GitHub
+# integration reports each deploy back as a GitHub deployment; the `deployment_status`
+# trigger with state == success IS the "wait for Ready" — Vercel only emits success
+# once the deployment is Ready. If the integration is ever disconnected (the exact
+# landmine ship-prod-verify.mjs exists to catch), this event never fires; the
+# workflow_dispatch trigger remains as the manual path.
+#
+# On smoke failure: `vercel rollback` re-aliases production to the previous Ready
+# deployment (requires the VERCEL_TOKEN repo secret), and the job fails loudly either
+# way. The smoke re-uses scripts/ship-prod-verify.mjs — raw-HTML signal grep, no JS
+# execution — with retries to cover CDN/alias propagation. Signals were verified
+# present in live production HTML at the time this workflow was written.
+#
+# Deliberately NOT here: scripts/slo-gate.ts — it exercises the local agent engine,
+# not the deployed site, and already runs in `npm run prod:gate`. The static SPA has
+# no health endpoint; the raw-HTML signal grep is the health check.
+name: deploy-smoke
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Production URL to smoke-check"
+        required: false
+        default: "https://noderoom.live"
+
+permissions:
+  contents: read
+  deployments: read
+
+concurrency:
+  group: deploy-smoke
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    # deployment_status fires for every state; act only on Ready production deploys.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       contains(github.event.deployment_status.environment, 'Production'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+      - name: Smoke-check raw production HTML
+        env:
+          PROD_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.url || 'https://noderoom.live' }}
+        # 3 attempts, 20s apart: the deployment is Ready before this runs, so retries
+        # only absorb alias/CDN propagation, not build time.
+        run: |
+          for attempt in 1 2 3; do
+            if node scripts/ship-prod-verify.mjs --url "$PROD_URL" \
+              --signal 'data-testid="ssr-private-boot-shell"' \
+              --signal '<title>NodeRoom - live collaborative AI rooms with NodeAgents</title>'; then
+              exit 0
+            fi
+            echo "smoke attempt $attempt failed; retrying in 20s"
+            sleep 20
+          done
+          echo "::error::Production smoke FAILED after 3 attempts against $PROD_URL"
+          exit 1
+      - name: Automatic rollback to previous Ready deployment
+        if: failure()
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: team_RRpVnMU6vxwAeiOQPTMkKGcZ
+          VERCEL_PROJECT_ID: prj_0J6pWGp03jEgA3DrsqAJDHK5cnSY
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "::error::Smoke FAILED and the VERCEL_TOKEN repo secret is unset — cannot roll back automatically. Roll back manually: npx vercel rollback --scope $VERCEL_ORG_ID"
+            exit 1
+          fi
+          npx --yes vercel@latest rollback --yes --token "$VERCEL_TOKEN"
+          echo "::error::Production smoke FAILED — rolled back to the previous Ready deployment. The failing deploy is still in Vercel for inspection; fix before re-deploying."
