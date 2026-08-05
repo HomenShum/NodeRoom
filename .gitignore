@@ -110,3 +110,6 @@ docs/seo/journey-artifacts/
 
 # Prod dogfood raw traces/videos are local proof output; keep compact receipts in docs/qa/*.md.
 docs/qa/prod-dogfood/
+
+.vercel
+.env*
