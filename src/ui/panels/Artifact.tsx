@@ -48,6 +48,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/pop
 import { ScrollArea } from "../../components/ui/scroll-area";
 import { isCollaborativeDeckArtifact } from "../workArtifacts/collaborativeDeck";
 import { onOpenWorkArtifactsReview } from "../workArtifacts/workArtifactsNavigation";
+import { NodeBookArtifactElementSurface } from "../../notebook/NodeBookArtifactElementSurface";
+import { NodeRoomNodeBookWorkspaceSurface } from "../../notebook/NodeBookWorkspaceSurface";
 
 async function runAuthorizedInvestigationResearch(store: RoomStore, roomId: string): Promise<void> {
   if (
@@ -210,6 +212,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   const [investigationOpen, setInvestigationOpen] = useState(false);
   // Knowledge graph: a derived node-link view of how this room's artifacts reference each other.
   const [graphOpen, setGraphOpen] = useState(false);
+  const [nodeBookOpen, setNodeBookOpen] = useState(false);
   const [editErr, setEditErr] = useState<string | null>(null);
   const [exportBusy, setExportBusy] = useState(false);
   const [exportErr, setExportErr] = useState<string | null>(null);
@@ -217,6 +220,9 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
   useEffect(() => { if (!editErr) return; const t = setTimeout(() => setEditErr(null), 4000); return () => clearTimeout(t); }, [editErr]);
   useEffect(() => { if (!exportErr) return; const t = setTimeout(() => setExportErr(null), 6000); return () => clearTimeout(t); }, [exportErr]);
   useEffect(() => { if (!exportOk) return; const t = setTimeout(() => setExportOk(null), 6000); return () => clearTimeout(t); }, [exportOk]);
+  useEffect(() => {
+    if (homeOpen || traceOpen || workArtifactsOpen || investigationOpen || graphOpen) setNodeBookOpen(false);
+  }, [graphOpen, homeOpen, investigationOpen, traceOpen, workArtifactsOpen]);
   useEffect(() => { setTab(tabForArt(artId)); }, [artId, wiki?.id, sheet?.id, research?.id, note?.id, wall?.id, arts.length]);
   useEffect(() => {
     const leavingCollaborativeDeck = wasCollaborativeDeck.current && !selectedCollaborativeDeck;
@@ -227,6 +233,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
       setTraceOpen(false);
       setInvestigationOpen(false);
       setGraphOpen(false);
+      setNodeBookOpen(false);
     } else if (leavingCollaborativeDeck) {
       setWorkArtifactsOpen(false);
     }
@@ -238,6 +245,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
     setTraceOpen(false);
     setInvestigationOpen(false);
     setGraphOpen(false);
+    setNodeBookOpen(false);
   }), []);
   useEffect(() => {
     const strip = tabStripRef.current;
@@ -247,7 +255,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
     const end = start + active.offsetWidth;
     if (start < strip.scrollLeft) strip.scrollLeft = start;
     else if (end > strip.scrollLeft + strip.clientWidth) strip.scrollLeft = end - strip.clientWidth;
-  }, [artId, traceOpen, homeOpen, workArtifactsOpen, investigationOpen, graphOpen]);
+  }, [artId, traceOpen, homeOpen, workArtifactsOpen, investigationOpen, graphOpen, nodeBookOpen]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.key.toLowerCase() !== "z") return;
@@ -315,7 +323,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
     const visibleIds = new Set(visibleOpenTabArts.map((a) => a.id));
     overflowTabArts = openTabArts.filter((a) => !visibleIds.has(a.id));
   }
-  const overflowActive = !traceOpen && !homeOpen && !workArtifactsOpen && !investigationOpen && !graphOpen && overflowTabArts.some((a) => a.id === artId);
+  const overflowActive = !traceOpen && !homeOpen && !workArtifactsOpen && !investigationOpen && !graphOpen && !nodeBookOpen && overflowTabArts.some((a) => a.id === artId);
   // Inline rename (double-click / F2) — replaces the window.prompt modal, honoring the same
   // inline-not-modal standard we hold cells to. Enter commits, Esc cancels; auto-saves via setArtifactMeta.
   const renameArtifact = (a: Art) => setRenamingId(a.id);
@@ -366,7 +374,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
           )}
           {openIds
             ? visibleOpenTabArts.map((a) => (
-                <button key={a.id} className="r-tab fx-tab r-filetab" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !investigationOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(isCollaborativeDeckArtifact(a)); setInvestigationOpen(false); setGraphOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
+                <button key={a.id} className="r-tab fx-tab r-filetab" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !investigationOpen && !graphOpen && !nodeBookOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(isCollaborativeDeckArtifact(a)); setInvestigationOpen(false); setGraphOpen(false); setNodeBookOpen(false); }} onDoubleClick={() => renameArtifact(a)} title={a.meta?.summary ? `${a.title} — ${a.meta.summary}` : `${a.title} (double-click to rename)`} data-testid="artifact-filetab">
                   {tabIcon(a)}
                   {renamingId === a.id ? (
                     <input className="r-filetab-rename" defaultValue={a.title} autoFocus aria-label="Rename file"
@@ -383,7 +391,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
                 </button>
               ))
             : TABS.filter((t) => artFor(t.id)).map((t) => (
-                <button key={t.id} className="r-tab fx-tab" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !investigationOpen && !graphOpen && activeTab === t.id)} onClick={() => { pick(t.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(false); setInvestigationOpen(false); setGraphOpen(false); }}>
+                <button key={t.id} className="r-tab fx-tab" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !investigationOpen && !graphOpen && !nodeBookOpen && activeTab === t.id)} onClick={() => { pick(t.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(false); setInvestigationOpen(false); setGraphOpen(false); setNodeBookOpen(false); }}>
                   <t.Icon size={13} /> {t.label}
                 </button>
               ))}
@@ -394,7 +402,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
               </summary>
               <div className="r-tab-overflow-menu" role="menu">
                 {openTabArts.map((a) => (
-                  <button key={a.id} type="button" role="menuitem" className="r-tab-overflow-item" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !investigationOpen && !graphOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(isCollaborativeDeckArtifact(a)); setInvestigationOpen(false); setGraphOpen(false); tabMenuRef.current?.removeAttribute("open"); }}>{tabIcon(a)} <span>{a.title}</span></button>
+                  <button key={a.id} type="button" role="menuitem" className="r-tab-overflow-item" data-active={String(!traceOpen && !homeOpen && !workArtifactsOpen && !investigationOpen && !graphOpen && !nodeBookOpen && a.id === artId)} onClick={() => { onArt(a.id); setTraceOpen(false); setHomeOpen(false); setWorkArtifactsOpen(isCollaborativeDeckArtifact(a)); setInvestigationOpen(false); setGraphOpen(false); setNodeBookOpen(false); tabMenuRef.current?.removeAttribute("open"); }}>{tabIcon(a)} <span>{a.title}</span></button>
                 ))}
               </div>
             </details>
@@ -402,6 +410,11 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
           {surfaceKey !== "secondary" && (
             <button type="button" className="r-tab fx-tab r-artifact-bundletab" data-active={String(workArtifactsOpen)} data-testid="work-artifacts-tab" title="Room proof bundle — artifacts, proposals, traces, graph, and exports" onClick={() => { setReviewJobId(undefined); setWorkArtifactsOpen(true); setHomeOpen(false); setTraceOpen(false); setInvestigationOpen(false); setGraphOpen(false); }}>
               <Package size={13} /> Artifacts
+            </button>
+          )}
+          {surfaceKey !== "secondary" && (
+            <button type="button" className="r-tab fx-tab" data-active={String(nodeBookOpen)} data-testid="nodebook-tab" title="NodeBook shared workspace" onClick={() => { setNodeBookOpen(true); setGraphOpen(false); setHomeOpen(false); setTraceOpen(false); setWorkArtifactsOpen(false); setInvestigationOpen(false); }}>
+              <BookOpen size={13} /> NodeBook
             </button>
           )}
           {surfaceKey !== "secondary" && (
@@ -422,7 +435,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
           )}
         </div>
         {headerExtra}
-        {!investigationOpen && activeTab === "sheet" && sheet && (
+        {!investigationOpen && !nodeBookOpen && activeTab === "sheet" && sheet && (
           <button
             type="button"
             className="r-btn ghost r-artifact-export"
@@ -437,7 +450,7 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
             {exportBusy ? "Preparing..." : "Export XLSX"}
           </button>
         )}
-        {!investigationOpen && activeTab === "sheet" && sheet && (exportBusy || exportErr || exportOk) && (
+        {!investigationOpen && !nodeBookOpen && activeTab === "sheet" && sheet && (exportBusy || exportErr || exportOk) && (
           <span className="r-export-status" role={exportErr ? "alert" : "status"} data-testid="artifact-export-xlsx-status">
             {exportBusy ? "Building workbook" : exportErr ?? exportOk}
           </span>
@@ -483,6 +496,8 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
         <Suspense fallback={<ArtifactAuxSurfaceFallback />}>
           <WorkArtifactsPanel roomId={roomId} me={me} initialArtifactId={artId} reviewJobId={reviewJobId} onOpenArtifact={(id) => { onArt(id); setWorkArtifactsOpen(false); setInvestigationOpen(false); }} />
         </Suspense>
+      ) : nodeBookOpen ? (
+        <NodeRoomNodeBookWorkspaceSurface roomId={roomId} onOpenArtifact={(id) => { onArt(id); setNodeBookOpen(false); }} />
       ) : graphOpen ? (
         <Suspense fallback={<ArtifactAuxSurfaceFallback />}>
           <KnowledgeGraph roomId={roomId} onOpenArtifact={(id) => { onArt(id); setGraphOpen(false); }} />
@@ -498,12 +513,18 @@ function ArtifactSurface({ roomId, me, proof, artId, onArt, style, surfaceKey = 
           {/* Research = an empty NAMED-COLUMN grid the agent populates (matches the prototype's structured
               grid, not a raw A1 sheet). Rendered by GenericSheet — no separate <Research> renderer. */}
           {activeTab === "research" && research && <GenericSheet roomId={roomId} me={me} art={research} proof={proof} onError={(f) => setEditErr(editErrorMsg(f))} />}
-          {activeTab === "note" && note && (NOTEBOOK_SYNC_ENABLED && proof ? <SyncedNote roomId={roomId} me={me} proof={proof} art={note} /> : <Note roomId={roomId} me={me} proof={proof} art={note} />)}
+          {activeTab === "note" && note && (
+            <NodeBookArtifactElementSurface
+              roomId={roomId}
+              artifact={note}
+              fallback={NOTEBOOK_SYNC_ENABLED && proof ? <SyncedNote roomId={roomId} me={me} proof={proof} art={note} /> : <Note roomId={roomId} me={me} proof={proof} art={note} />}
+            />
+          )}
           {activeTab === "wall" && wall && <Wall roomId={roomId} me={me} art={wall} onOpenArtifact={onArt} />}
         </>
       )}
 
-      {!traceOpen && !workArtifactsOpen && !investigationOpen && !graphOpen && activeTab !== "note" && (
+      {!traceOpen && !workArtifactsOpen && !investigationOpen && !graphOpen && !nodeBookOpen && activeTab !== "note" && (
         <TraceStrip
           roomId={roomId}
           me={me}
