@@ -21,6 +21,7 @@ import { focusStage } from "./stageFocus";
 import { BankerCoachPanel } from "./artifacts/BankerCoachPanel";
 import { TraceLensProvider } from "./traceLens/useTraceLens";
 import { TraceLensPanel } from "./traceLens/TraceLensPanel";
+import { LiveGraphRail } from "./graph/LiveGraphRail";
 import { PassiveAgentChip } from "./insights/PassiveAgentChip";
 import { OPT_ARTIFACT_PREFIX, optimisticArtifactIdentity, resolveRoomOpenTarget } from "./openRoomReference";
 import { readFocusModeClientState, persistFocusModeClientState, textEntryIsActive, type FocusModeClientState } from "./focusMode";
@@ -789,6 +790,8 @@ export function RoomShell({ roomId, me, onLeave, onSignOut, proof }: { roomId: s
           single poll interval — survives dismissing the panel. */}
       <PeoplePanel roomId={roomId} me={me} open={peopleOpen} onClose={() => setPeopleOpen(false)} onOpenArtifact={openArtifact} />
       <TraceLensPanel roomId={roomId} onOpenArtifact={openArtifact} />
+      {/* Live session graph rail — real room events (trace log) rendered by the vendored NodeGraph renderer. */}
+      <LiveGraphRail roomId={roomId} />
     </div>
     </TraceLensProvider>
   );

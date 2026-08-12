@@ -1,5 +1,7 @@
 node_modules/
 dist/
+# vendored @homenshum/nodegraph-live build (pending npm publish) must be committed
+!vendor/nodegraph-live/dist/
 build/
 *.tsbuildinfo
 .env

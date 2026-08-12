@@ -86,6 +86,17 @@ per-element versions (CAS), presence/intent is advisory rather than a disabled o
 or branch work from a committed snapshot, and publishing uses checked writes that either commit
 cleanly or become reviewable conflict proposals.
 
+## Live graph rail
+
+![Live session graph rail fed by real room events](docs/release/media/live-graph-rail.png)
+
+The collapsible right-rail panel (`src/ui/graph/LiveGraphRail.tsx`, rendered by the vendored
+[@homenshum/nodegraph-live](vendor/nodegraph-live/README.md)) draws the room's real trace
+events — edits, locks, drafts, proposals — as interaction-history (traversal) edges only:
+room events carry no measured counts and no versioned curated source, so the rail never
+shows measured-evidence or assertion edges it cannot back. Regenerate with
+`node scripts/capture-live-graph-rail.mjs` (exits nonzero if the rail shows 0 entities).
+
 ## Collaboration Architecture Evolution
 
 The legacy choices were useful proofs, but they were not exactly the product
