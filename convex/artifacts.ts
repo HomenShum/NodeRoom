@@ -944,7 +944,7 @@ async function applyApprovedProposal(
     ts: now,
   });
   const summary = op.kind === "delete" ? `${author.name} deleted ${op.elementId}` : `${author.name} set ${op.elementId} = ${formatCellForTrace(approvedValue)}`;
-  await ctx.db.insert("traces", { roomId, ts: now, actor: author, type: "edit_applied", summary, detail: `edit_cell - ${op.elementId} = ${formatCellForTrace(approvedValue)} - v${actual} -> v${nextVersion}${lineage?.jobId ? ` - job ${String(lineage.jobId)}` : ""}` });
+  await ctx.db.insert("traces", { roomId, ts: now, actor: author, type: "edit_applied", summary, detail: `edit_cell - ${op.elementId} = ${formatCellForTrace(approvedValue)} - v${actual} -> v${nextVersion}${lineage?.jobId ? ` - job ${String(lineage.jobId)}` : ""}`, refs: { artifactId: String(artifactId), elementId: op.elementId } });
   await enqueueArtifactSnapshotForOkf(ctx, { roomId, artifactId, createdByJobId: lineage?.jobId });
   let mutationReceiptId: Id<"agentMutationReceipts"> | undefined;
   if (lineage?.jobId) {
@@ -1132,7 +1132,7 @@ export async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) 
     }
     const nextVersion = kind === "delete" ? actual : actual + 1;
     // 4. TRACE — every applied edit is auditable.
-    await ctx.db.insert("traces", { roomId: art.roomId, ts: now, actor: a.actor, type: "edit_applied", summary: `${a.actor.name} set ${a.elementId} = ${formatCellForTrace(a.value)}`, detail: `edit_cell · ${a.elementId} = ${formatCellForTrace(a.value)} · v${actual} → v${actual + 1}` });
+    await ctx.db.insert("traces", { roomId: art.roomId, ts: now, actor: a.actor, type: "edit_applied", summary: `${a.actor.name} set ${a.elementId} = ${formatCellForTrace(a.value)}`, detail: `edit_cell · ${a.elementId} = ${formatCellForTrace(a.value)} · v${actual} → v${actual + 1}`, refs: { artifactId: String(a.artifactId), elementId: a.elementId } });
     // 5. VERSION LOG — append the BEFORE-image this write superseded (the row keyed
     //    version N holds the value the element had AT version N, so restoring N is a
     //    lookup + this same CAS write). APPLIED writes only — the conflict/locked/
@@ -1305,6 +1305,7 @@ export const startAgentIntentConflictProof = mutation({
       type: "agent_intent_started",
       summary: `NodeAgent planned ${elementId} from v${baseVersion}`,
       detail: `agent_intent - affected=${elementId} - baseVersion=${baseVersion}`,
+      refs: { artifactId: String(a.artifactId), elementId },
     });
     await ctx.scheduler.runAfter(AGENT_INTENT_CONFLICT_DELAY_MS, internal.artifacts.commitAgentIntentConflictProof, {
       roomId: a.roomId,
@@ -1944,6 +1945,7 @@ export const commitAgentIntentConflictProof = internalMutation({
         ? `NodeAgent committed ${a.elementId}`
         : `NodeAgent did not overwrite ${a.elementId}; ${result.reason}`,
       detail: `agent_intent_commit - baseVersion=${a.baseVersion} - result=${JSON.stringify(result).slice(0, 320)}`,
+      refs: { artifactId: String(a.artifactId), elementId: a.elementId },
     });
     return result;
   },
@@ -2082,7 +2084,7 @@ export const createArtifact = mutation({
     for (const s of a.seed) await ctx.db.insert("elements", { artifactId, elementId: s.id, value: s.value, version: 1, updatedAt: now, updatedBy: by });
     if (sourceFile && !sourceFile.artifactId) await ctx.db.patch(sourceFile._id, { artifactId, status: "linked", linkedAt: now });
     await syncSpreadsheetIndexFromSeed(ctx, { artifactId, title: a.title, kind: a.kind, meta, seed: a.seed, now });
-    await ctx.db.insert("traces", { roomId: a.roomId, ts: now, actor: by, type: "edit_applied", summary: `${by.name} added ${a.title}`, detail: `create_artifact · ${a.kind} · ${String(artifactId)}` });
+    await ctx.db.insert("traces", { roomId: a.roomId, ts: now, actor: by, type: "edit_applied", summary: `${by.name} added ${a.title}`, detail: `create_artifact · ${a.kind} · ${String(artifactId)}`, refs: { artifactId: String(artifactId) } });
     await enqueueArtifactSnapshotForOkf(ctx, { roomId: a.roomId, artifactId });
     return artifactId;
   },

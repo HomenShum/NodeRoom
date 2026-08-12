@@ -2082,7 +2082,7 @@ export function ConvexStoreProvider({ roomId, me, proof, children }: { roomId: s
     const drafts = (data?.drafts ?? []) as unknown as Draft[];
     const isHost = members.some((m) => m.id === me.id && m.role === "host");
     const reshapeMsgs = (rows: typeof pub): Message[] => rows.map((m: { _id: string; roomId: string; channel: string; author: Actor; text: string; clientMsgId: string; kind: Message["kind"]; jobId?: string; createdAt: number; streamId?: string }) => ({ id: m._id as string, roomId: m.roomId as string, channel: m.channel === "public" ? "public" : { private: m.channel }, author: m.author as Actor, text: m.text, clientMsgId: m.clientMsgId, kind: m.kind, jobId: m.jobId ? String(m.jobId) : undefined, createdAt: m.createdAt, streamId: m.streamId }));
-    const allTraces = (traces as { _id: string; roomId: string; ts: number; actor: Actor; type: string; summary: string; detail?: string }[]).map((t) => ({ id: t._id, roomId: t.roomId, ts: t.ts, actor: t.actor, type: t.type as TraceEvent["type"], summary: t.summary, detail: t.detail }));
+    const allTraces = (traces as { _id: string; roomId: string; ts: number; actor: Actor; type: string; summary: string; detail?: string; refs?: Record<string, string> }[]).map((t) => ({ id: t._id, roomId: t.roomId, ts: t.ts, actor: t.actor, type: t.type as TraceEvent["type"], summary: t.summary, detail: t.detail, refs: t.refs }));
     // Hoisted sheet resolution — shared by addActivityToSheet (researchActivity resolves server-side).
     const researchSheet = metaArtifacts.find((a) => (a as { kind?: string }).kind === "sheet" && (a as { title?: string }).title === "Company research");
 

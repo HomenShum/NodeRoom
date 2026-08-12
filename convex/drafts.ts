@@ -32,7 +32,7 @@ export const createDraft = internalMutation({
     const now = Date.now();
     const draftId = await ctx.db.insert("drafts", { roomId: a.roomId, artifactId: a.artifactId, jobId: a.jobId, author: a.author, ops: a.ops, note: a.note, blockedByLockId: a.blockedByLockId, status: "pending", createdAt: now });
     const note = a.author.scope === "private" ? "[private draft]" : a.note;
-    await ctx.db.insert("traces", { roomId: a.roomId, ts: now, actor: a.author, type: "draft_created", summary: `${a.author.name} drafted ${a.ops.length} change(s): ${note}`, detail: `create_draft · ${a.ops.length} ops · blockedBy ${a.blockedByLockId ?? "—"}` });
+    await ctx.db.insert("traces", { roomId: a.roomId, ts: now, actor: a.author, type: "draft_created", summary: `${a.author.name} drafted ${a.ops.length} change(s): ${note}`, detail: `create_draft · ${a.ops.length} ops · blockedBy ${a.blockedByLockId ?? "—"}`, refs: { artifactId: String(a.artifactId) } });
     return { draftId };
   },
 });

@@ -14,7 +14,7 @@ import { internal } from "./_generated/api";
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
 import { streamingComponent } from "./streaming";
 import { streamPrivateReplyText } from "./streamingModel";
-import { privateAgentSystemPrompt } from "./agent";
+import { privateAgentSystemPrompt } from "./agentPrompts";
 import { auth } from "./auth";
 
 const http = httpRouter();

@@ -390,6 +390,10 @@ export default defineSchema({
     type: v.string(),
     summary: v.string(),
     detail: v.optional(v.string()),
+    /** Structured participants of the event (artifactId, elementId, …) — the same
+     *  TraceEvent.refs the memory engine carries; the live graph rail needs them
+     *  to draw artifact/element nodes instead of actors only. */
+    refs: v.optional(v.record(v.string(), v.string())),
   }).index("by_room", ["roomId", "ts"]),
 
   /** Live web/SEC source captures — a screenshot + extracted values WITH the on-screen box each came

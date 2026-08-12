@@ -1,4 +1,11 @@
+"use node";
+
 /**
+ * "use node": this module is the ONLY caller of the SSRF-guarded fetch
+ * (src/nodeagent/skills/search/fetchSource.ts), whose DNS-pinning guard needs
+ * node:dns / node:net / undici, so it must run in the Node runtime. Its only
+ * importers (agent.ts, agentJobRunner.ts) are already Node-runtime actions.
+ *
  * ConvexRoomTools — the RoomTools port implemented over Convex. It is the ONLY
  * thing that differs between the spike and production: the agent harness
  * (context.ts, tools.ts, runtime.ts) is byte-for-byte identical; here each method

@@ -101,6 +101,22 @@ room events carry no measured counts and no versioned curated source, so the rai
 shows measured-evidence or assertion edges it cannot back. Regenerate with
 `node scripts/capture-live-graph-rail.mjs` (exits nonzero if the rail shows 0 entities).
 
+### On the live Convex tier
+
+![Live Convex tier: sample room on a real Convex deployment with the rail populating from Convex trace rows — seeded artifacts, a NodeAgent intent proof, and a pending conflict proposal](docs/release/media/live-graph-rail-live.gif)
+
+[Watch as MP4](docs/release/media/live-graph-rail-live.mp4) · regenerate: `node scripts/record-live-graph-rail.mjs --live`
+
+Same rail, but every event is a row in the Convex `traces` table streaming back over a
+reactive subscription: creating the sample room seeds the artifacts, `__runConflictDrill`
+files a real proposal (the NodeAgent intent-proof traces you see), and the graph's
+artifact/element nodes come from the `refs` column those trace writes now carry.
+Honest caveats: the clip is keyless — the dev deployment has no model keys, so the
+`__runCollab` agent job enqueues but its model call fails over honestly (`retrying`,
+no fabricated edits), and the live scenario is smaller than the memory-mode script
+(fewer events, so fewer nodes). Gate: `node scripts/capture-live-graph-rail.mjs --live`
+exits nonzero unless the rail shows entities AND at least one edge from Convex rows.
+
 ## Collaboration Architecture Evolution
 
 The legacy choices were useful proofs, but they were not exactly the product

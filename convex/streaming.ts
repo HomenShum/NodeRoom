@@ -22,7 +22,7 @@ import { internalMutation, internalQuery, mutation, query } from "./_generated/s
 import type { Id } from "./_generated/dataModel";
 import type { MutationCtx } from "./_generated/server";
 import { actorProofV, actorV, requireActiveAgentJobLease, requireActorCanUseChannel, requireActorProof } from "./lib";
-import { summarizeRoomForPrivate } from "./agent";
+import { summarizeRoomForPrivate } from "./agentPrompts";
 import { assertProviderEgressAllowed } from "../src/nodeagent/guardrails/egressPolicy";
 import { streamingComponent } from "./streamingComponent";
 export { streamingComponent } from "./streamingComponent";
