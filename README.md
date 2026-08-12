@@ -9,6 +9,10 @@ post-it surfaces — with advisory presence, versioned CAS, drafts/proposals, an
 short publish leases so a human and an AI agent can work beside each other without
 silent overwrite.**
 
+![Demo room running the real collaboration scenario with the live graph rail open — 13 entities and 14 edges built from 34 real room events](docs/release/media/live-graph-rail.gif)
+
+[Watch as MP4](docs/release/media/live-graph-rail.mp4) · every edge is a real trace event ([analysis](docs/GRAPH_INTEGRATION.md)) · regenerate: `node scripts/record-live-graph-rail.mjs`
+
 `multi-panel room` · `public + private agents` · `route preference` · `presence + intent claims` · `draft-for-merge` · `per-room traces` · `NodeMem memory` · `live Convex + real LLM`
 
 [Why Convex](#why-convex-and-why-not) · [Architecture evolution](#collaboration-architecture-evolution) · [Audience fluency](#audience-world-proof-artifacts) · [Solo automation](#how-i-automated-the-process-as-a-single-person) · [Lessons](#lessons-from-building-noderoom) · [Managed writes](#managed-writes-legacy-lock-proof-and-next-lease-layer) · [Multi-user proof](docs/eval/MULTI_USER_COORDINATION_PROOF.md) · [June 2026 target](docs/TARGET_2026_06.md) · [Sequences](#live-collaboration-sequence) · [Harness reasoning](docs/HARNESS_RECURSIVE_REASONING.md) · [Orchestrator-worker routing](docs/ORCHESTRATOR_WORKER_ROUTING.md) · [Adoption](docs/NODEAGENT_ADOPTION.md) · [Why & HALO](docs/WHY_NODEAGENT_AND_HALO.md) · [Quickstart](#quickstart) · [Agent runtime](docs/AGENT_RUNTIME.md) · [NodeAgent source map](docs/NODEAGENT_SOURCE_MAP.md) · [Agent eval](docs/AGENT_EVAL.md) · [Model eval matrix](docs/eval/MODEL_EVAL_MATRIX.md) · [Feature eval backlog](docs/eval/FEATURE_EVAL_BACKLOG.md) · [Agent wiki](docs/AGENT_WIKI.md) · [Design](docs/DESIGN.md) · [Stack](docs/STACK.md) · [Walkthrough](docs/WALKTHROUGH.md) · [Architecture](docs/ARCHITECTURE.md) · [Diagrams](docs/diagrams/README.md) · [Open gaps](docs/GAPS_NOT_DONE.md)
