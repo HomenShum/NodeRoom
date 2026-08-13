@@ -343,32 +343,88 @@ chunks are the source of truth and the subscription re-renders from them.
 
 ---
 
-## Step 9 — Failure and recovery, end to end
+## Step 9 — Failure and recovery
 
-Four distinct failures, four distinct owners. This is the list to read before
-changing anything in the request path.
+**File:** `src/ui/Chat.tsx`
+**Symbol:** `buildAgentFailureNotice`
+**Called by:** the `.catch(...)` on `store.askAgent` inside `send` (Step 3)
+**Calls next:** nothing — it renders
+
+**Why this exists**
+This is the last stop on the request path, and it is a surface where a person
+decides whether to trust the assistant. A stack trace here is a defect, not a
+debug aid. The function turns a provider error into a sentence a non-engineer can
+act on, and carries the context needed to reproduce: which model selection was
+used, what was asked, whether it was the public or private agent, and which job
+id.
+
+**Core code**
+```ts
+}).catch((e) => {
+  if (aliveRef.current) {
+    setAgentErr(buildAgentFailureNotice(e, { selection: modelSelection, requestText: t, source: "public", jobId: longJob?.id }));
+    setThinking(false);
+  }
+});
+```
+
+**Input** — the thrown error, plus the request context.
+**Output** — a rendered failure notice; on the live tier the long-running job
+also exposes `cancelJob` and `retryJob`.
+**Failure behavior** — `aliveRef` guards the update, so a user who left the room
+before the failure arrived does not get state written into a stale component.
+**Next** — Step 10.
+
+**The other three failures on this path**, each with its own owner:
 
 | What fails | Where it is handled | What the user sees |
 |---|---|---|
-| App bundle never loads | `src/landing/boot.ts` — timeout + rejection both set `data-boot-state="failed"` | "Could not open the room" and a **Reload** button |
-| A render throws | `src/app/ErrorBoundary.tsx` — clears `noderoom:` session keys | Error surface, and a reload that is not poisoned by cached state |
-| A chat post fails | `src/ui/Chat.tsx` — `failedSends`, capped, retried by the same `clientMsgId` | The message with a retry control; retry cannot double-post |
-| The agent fails | `buildAgentFailureNotice` in `src/ui/Chat.tsx`; live jobs additionally expose `cancelJob` / `retryJob` | A sentence naming what went wrong, plus Cancel / Retry on long jobs |
+| App bundle never loads | `src/landing/boot.ts` — a 20s timeout *and* a rejection handler both set `data-boot-state="failed"` | "Could not open the room" and a **Reload** button |
+| A render throws | `src/app/ErrorBoundary.tsx` — clears `noderoom:` session keys | An error surface, and a reload that is not poisoned by cached state |
+| A chat post fails | `src/ui/Chat.tsx` — `failedSends` (capped at `MAX_FAILED_SENDS`), retried with the same `clientMsgId` | The message with a retry control; retry cannot double-post |
 
 ---
 
 ## Step 10 — The tests that prove this flow
 
-Run everything with `npm test`. These are the ones that hold the path above:
+**File:** `tests/noClobberWedge.test.ts`
+**Symbol:** `describe("The no-clobber wedge: human + agent on the same live cell")`
+**Called by:** `npm test`
+**Calls next:** the real Convex functions, in-process, via `convex-test`
+
+**Why this exists**
+Steps 3 through 7 make one promise — a write never silently overwrites another —
+and that promise is only meaningful if the whole beat is run in sequence with the
+human's contested cell held throughout. The sub-parts are covered elsewhere; this
+is the sequence.
+
+**Core code** (the beats, from the file's own header)
+```
+BEAT 1  human edits the contested cell C2
+BEAT 2  agent's write to C2 carries a STALE baseVersion -> CAS REJECTS it
+BEAT 3  in review mode that edit becomes a proposal; approval RE-RUNS CAS
+TRACE   the rejected clobber left NO edit_applied trace
+```
+
+**Input** — a seeded room in the in-process Convex deployment.
+**Output** — pass/fail. No deployment, no key, no network.
+**Failure behavior** — if this goes red after a change to the write path, stop
+and read `docs/codebase/CONCERNS.md` before continuing.
+**Next** — nothing; this is the end of the path.
+
+**The rest of the suite that holds this flow:**
 
 | Test | What it pins |
 |---|---|
-| `tests/noClobberWedge.test.ts` | The whole beat, in sequence, against the real Convex functions: human edits a cell, agent's stale write is CAS-rejected, review-mode proposal re-runs CAS on approval, human's value survives, and the rejected write left no `edit_applied` trace. |
-| `tests/roomEngine.test.ts`, `tests/roomEngineAtomicEdits.test.ts` | `applyEdit`'s gates directly — conflict, lock, duplicate `opId`, atomic bundles. |
-| `tests/agentRuntime.test.ts`, `tests/agentReliability.test.ts` | The loop in Step 6: budgets, handoffs, journal replay, tool failure handling. |
-| `tests/demoRoomChatOrder.test.ts` | Step 3's ordering: the seeded transcript must sort before anything a visitor sends, at any hour, with the clock pinned so it fails on the old code all day rather than only before breakfast. |
-| `tests/buildProvenance.test.ts` | Step 1's shipped HTML carries the commit it was built from. |
-| `e2e/human-agent-concurrency.spec.ts` | The same story in a real browser with a human and the agent editing at once. |
+| `tests/roomEngine.test.ts`, `tests/roomEngineAtomicEdits.test.ts` | Step 7's gates directly — conflict, lock, duplicate `opId`, atomic bundles |
+| `tests/agentRuntime.test.ts`, `tests/agentReliability.test.ts` | Step 6: budgets, handoffs, journal replay, tool-failure handling |
+| `tests/demoRoomChatOrder.test.ts` | Step 3's ordering: the seeded transcript must sort before anything a visitor sends, at any hour |
+| `tests/buildProvenance.test.ts` | Step 1's shipped HTML carries the commit it was built from |
+| `e2e/human-agent-concurrency.spec.ts` | The same story in a real browser, with a human and the agent editing at once |
+
+**Before you trust a green run:** `npm test` currently exits **1** on this commit,
+with two pre-existing failures that are not yours. `docs/codebase/CONCERNS.md`
+names them and explains why one of them is a gate doing its job.
 
 ---
 
