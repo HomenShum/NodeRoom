@@ -62,7 +62,9 @@ for (const s of SURFACES) {
     await skipTourIfPresent(page);
     await page.waitForTimeout(2200);
     // mask volatile regions so the baseline diff is deterministic (not flaky on dynamic data)
-    const mask = [".r-roomcode", ".r-trace-item .td", ".r-av", ".r-avatar", "[data-testid='status-strip']"]
+    // .r-msg .time: the seeded transcript is anchored to the visitor's clock (so it always
+    // sorts before what they send), which makes its clock labels volatile by design.
+    const mask = [".r-roomcode", ".r-trace-item .td", ".r-msg .time", ".r-av", ".r-avatar", "[data-testid='status-strip']"]
       .map((sel) => page.locator(sel));
     await expect(page).toHaveScreenshot(`${s.name}.png`, {
       // Approved baselines were authored on Windows; CI runs Ubuntu. Keep the

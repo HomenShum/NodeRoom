@@ -286,8 +286,15 @@ export function buildDemoRoom(engine: RoomEngine): DemoRoom {
   engine.trace(room.id, roomAgent, "edit_applied", "retrieval.search · source-backed variance notes", { artifactId: sheetId }, "retrieval.search · NetSuite export + sheet cells → ok");
   engine.trace(room.id, roomAgent, "edit_applied", "synthesis.answer · reconciled Q3 variance · v42", { artifactId: sheetId }, "synthesis.answer · Revenue + COGS variance → committed");
   engine.trace(room.id, roomAgent, "notebook_read_model", "notebook.write · draft board memo evidence", { artifactId: noteId }, "notebook.write · memo outline + citations → queued");
-  const chatBase = new Date();
-  chatBase.setHours(9, 38, 0, 0);
+  // The seeded conversation is the room's HISTORY: it has to sort before anything
+  // the visitor sends, because the chat is pinned to its newest line. It used to be
+  // stamped at a fixed wall-clock hour (09:38 today), which is in the FUTURE for
+  // anyone who opens the room before that hour — their own message and the agent's
+  // reply then sorted ABOVE the whole demo transcript and scrolled off the top, so
+  // the receipt they had just asked for was invisible. Anchor the transcript to the
+  // clock the engine actually stamps messages with (Date.now in the app, an injected
+  // clock in tests) and end it one minute in the past, so a live message always
+  // lands after it at any hour, in any timezone.
   const chatOffsets = new Map([
     ["seed-01-homen-question", 0],
     ["seed-02-homen-command", 0],
@@ -297,9 +304,13 @@ export function buildDemoRoom(engine: RoomEngine): DemoRoom {
     ["seed-06-agent-handoff", 6],
     ["seed-07-homen-memo", 8],
   ]);
-  for (const msg of engine.listMessages(room.id, "public")) {
-    const offset = chatOffsets.get(msg.clientMsgId);
-    if (offset !== undefined) msg.createdAt = chatBase.getTime() + offset * 60_000;
+  const seededChat = engine.listMessages(room.id, "public").filter((m) => chatOffsets.has(m.clientMsgId));
+  if (seededChat.length) {
+    const spanMinutes = Math.max(...chatOffsets.values());
+    const newestSeed = Math.max(...seededChat.map((m) => m.createdAt)) - 60_000;
+    for (const msg of seededChat) {
+      msg.createdAt = newestSeed - (spanMinutes - chatOffsets.get(msg.clientMsgId)!) * 60_000;
+    }
   }
 
   const span = (id: string, parent: string, startMs: number, durationMs: number, kind: string, extra = "") =>

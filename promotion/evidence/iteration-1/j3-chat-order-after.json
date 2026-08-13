@@ -1,0 +1,120 @@
+{
+  "label": "after",
+  "baseUrl": "http://127.0.0.1:4305",
+  "browserClockLocal": "04:00:00",
+  "capturedAt": "2026-08-13T12:01:41.209Z",
+  "prompt": "@nodeagent recompute the Q3 variance column",
+  "replyArrived": true,
+  "seededCount": 7,
+  "liveCount": 2,
+  "lastSeededIndex": 6,
+  "firstLiveIndex": 7,
+  "sentMessageIndex": 7,
+  "sentMessageInView": true,
+  "agentReplyIndex": 8,
+  "agentReplyInView": true,
+  "consoleErrors": [],
+  "feed": [
+    {
+      "index": 0,
+      "clientMsgId": "seed-01-homen-question",
+      "seeded": true,
+      "who": "Homen",
+      "time": "3:51",
+      "isSentPrompt": false,
+      "isAgentReceipt": false,
+      "text": "Homen3:51Can the room reconcile Q3 variance against the NetSuite close before the board read? Copy Edit",
+      "inView": false
+    },
+    {
+      "index": 1,
+      "clientMsgId": "seed-02-homen-command",
+      "seeded": true,
+      "who": "Homen",
+      "time": "3:51",
+      "isSentPrompt": false,
+      "isAgentReceipt": false,
+      "text": "Homen3:51@nodeagent reconcile Q3 revenue and COGS variance Copy Edit",
+      "inView": false
+    },
+    {
+      "index": 2,
+      "clientMsgId": "seed-03-agent-reconciled",
+      "seeded": true,
+      "who": "Room NodeAgent",
+      "time": "3:52",
+      "isSentPrompt": false,
+      "isAgentReceipt": false,
+      "text": "Room NodeAgentagent3:52Researched 2 companies with structured fields · 2 sourcesv1 -> v1Complete lock releasedCardioNova",
+      "inView": false
+    },
+    {
+      "index": 3,
+      "clientMsgId": "seed-04-priya-cogs",
+      "seeded": true,
+      "who": "Priya",
+      "time": "3:54",
+      "isSentPrompt": false,
+      "isAgentReceipt": false,
+      "text": "Priya3:54The +27.5% on COGS is volume, not price - noting it on the row so it survives the sync. Copy",
+      "inView": true
+    },
+    {
+      "index": 4,
+      "clientMsgId": "seed-05-quokka-joined",
+      "seeded": true,
+      "who": "guest · quokka",
+      "time": "3:55",
+      "isSentPrompt": false,
+      "isAgentReceipt": false,
+      "text": "guest · quokka3:55anon - quokka joined as guest · view + chat Copy",
+      "inView": true
+    },
+    {
+      "index": 5,
+      "clientMsgId": "seed-06-agent-handoff",
+      "seeded": true,
+      "who": "Room NodeAgent",
+      "time": "3:57",
+      "isSentPrompt": false,
+      "isAgentReceipt": false,
+      "text": "Room NodeAgentagent3:57Researched 3 companies with structured fields · 2 sourcesv1 -> v1Complete lock releasedCardioNova",
+      "inView": true
+    },
+    {
+      "index": 6,
+      "clientMsgId": "seed-07-homen-memo",
+      "seeded": true,
+      "who": "Homen",
+      "time": "3:59",
+      "isSentPrompt": false,
+      "isAgentReceipt": false,
+      "text": "Homen3:59Good. Draft the reconciliation memo and clip the variance exhibit for the board read. Copy Edit",
+      "inView": true
+    },
+    {
+      "index": 7,
+      "clientMsgId": "60abe915-8bbf-4f44-8705-6f39948210f9",
+      "seeded": false,
+      "who": "Homen",
+      "time": "4:00",
+      "isSentPrompt": true,
+      "isAgentReceipt": false,
+      "text": "Homen4:00@nodeagent recompute the Q3 variance column Copy Edit",
+      "inView": true
+    },
+    {
+      "index": 8,
+      "clientMsgId": "f73a7d21-ad7e-4820-8a09-04b571b718bc",
+      "seeded": false,
+      "who": "Room NodeAgent",
+      "time": "4:00",
+      "isSentPrompt": false,
+      "isAgentReceipt": true,
+      "text": "Room NodeAgentagent4:00Committed r_rev +24%, r_cogs +27.5%, r_gp +21.7%, r_ni +22.4%. Lock released. Copy",
+      "inView": true
+    }
+  ],
+  "orderingCorrect": true,
+  "pass": true
+}

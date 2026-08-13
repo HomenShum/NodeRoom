@@ -85,9 +85,12 @@ Each journey states, in this order:
   `Room NodeAgent · reconciled Q3 variance · v42`.
 - **Evidence:** `evidence/baseline/j3-agent-reply.png`,
   `evidence/baseline/prod-agent-receipt.png` (1,719ms from send to receipt).
-  **PASSES on the artifact, but the receipt is not where the user is looking** —
-  see defect D-1: the reply sorts above the seeded transcript and is off-screen
-  in that same capture.
+  At baseline this **passed on the artifact but not where the user was looking** —
+  defect D-1: the reply sorted above the seeded transcript and was off-screen in
+  that same capture. **Fixed in iteration 1.** The receipt is now the last line of
+  the chat and in view: `evidence/iteration-1/j3-chat-order-after.png` (with the
+  defect state kept alongside it as `j3-chat-order-before.png`). Re-runnable:
+  `node scripts/promotion-chat-order-proof.mjs --base-url http://127.0.0.1:4305`.
 
 ## J4 — Steering journey: "Nothing the assistant writes lands until I say so"
 
