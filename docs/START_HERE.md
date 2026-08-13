@@ -24,11 +24,11 @@ path below.
 
 ```bash
 npm install
-npm run dev                     # http://127.0.0.1:5260  (port set in vite.config.ts)
+npm run dev                     # http://localhost:5260  (port set in vite.config.ts)
 ```
 
 Open `/?mode=memory` and click **Try sample room** — the keyless landing CTA,
-`data-testid="start-demo-room"` (`src/ui/Landing.tsx:146`; with a Convex URL set
+`data-testid={live ? "create-room" : "start-demo-room"}` (`src/ui/Landing.tsx:145`; with a Convex URL set
 the same button reads "Create a room" instead). With no `.env.local` the app
 runs entirely in the browser against an in-memory engine with a scripted
 assistant: no keys, no database, no network. That is the tier a stranger can
@@ -170,7 +170,7 @@ validators reject anything malformed before it reaches a queue, and whose
 room. Never trust the client-side parse alone; it exists to decide *intent*, not
 *permission*.
 
-**Core code**
+**Core code** (`convex/agentJobs.ts`)
 ```ts
 export const startPublicAsk = mutation({
   args: { roomId: v.id("rooms"), requester: actorProofV, goal: v.string(), /* ... */ },
@@ -246,12 +246,17 @@ supplies the implementation: `InMemoryRoomTools` in the browser,
 `ConvexRoomTools` on the server. That is why the same run can be exercised by a
 fast unit test and by production.
 
-Tools are registered as plain data in one array, `ROOM_TOOLS`. A tool is a name,
-a human-readable description the model actually reads, a Zod schema, and an
-`execute` that forwards to the port. Adding a capability means adding an entry
-here — not editing the loop.
+Tools are registered as plain data in one array, `ROOM_TOOLS` — and that array is
+**not in this file**. It lives in `src/nodeagent/skills/spreadsheet/cellMutator.ts`,
+which `src/app/store.tsx` imports and passes in as `tools`. The loop never names a
+tool. A tool is a name, a human-readable description the model actually reads, a
+Zod schema, and an `execute` that forwards to the port. Adding a capability means
+adding an entry to that array — not editing the loop. The live tier passes a
+longer list built from the same one, `SERVER_PRODUCTION_ROOM_TOOLS` in
+`src/nodeagent/skills/server/productionTools.ts`, because some tools need a server
+(`fs`, an SSRF-guarded fetch) and must stay out of the browser bundle.
 
-**Core code**
+**Core code** (`src/nodeagent/skills/spreadsheet/cellMutator.ts`)
 ```ts
 export const ROOM_TOOLS: AgentTool[] = [
   /* ... */
@@ -390,7 +395,7 @@ before the failure arrived does not get state written into a stale component.
 ## Step 10 — The tests that prove this flow
 
 **File:** `tests/noClobberWedge.test.ts`
-**Symbol:** `describe("The no-clobber wedge: human + agent on the same live cell")`
+**Symbol:** `The no-clobber wedge: human + agent on the same live cell` (the `describe` block)
 **Called by:** `npm test`
 **Calls next:** the real Convex functions, in-process, via `convex-test`
 
@@ -423,6 +428,7 @@ and read `docs/codebase/CONCERNS.md` before continuing.
 | `tests/demoRoomChatOrder.test.ts` | Step 3's ordering: the seeded transcript must sort before anything a visitor sends, at any hour |
 | `tests/buildProvenance.test.ts` | Step 1's shipped HTML carries the commit it was built from |
 | `e2e/human-agent-concurrency.spec.ts` | The same story in a real browser, with a human and the agent editing at once |
+| `tests/walkthroughCitations.test.ts` | This file and `.tours/`: every citation has to name the symbol or substring at the line it points to, so a step cannot drift onto the wrong code and stay green |
 
 **Before you trust a green run:** `npm test` currently exits **1** on this commit,
 with two pre-existing failures that are not yours. `docs/codebase/CONCERNS.md`

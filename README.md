@@ -33,7 +33,7 @@ This README is 2,500+ lines of proof and history. It is **not** the way in.
 |---|---|
 | **[docs/START_HERE.md](docs/START_HERE.md)** | One real user request — "@nodeagent recompute the Q3 variance column" — followed through the code in the order it executes, from the script tag to the database write. Start here. |
 | [docs/codebase/](docs/codebase/) | Stack, structure, architecture, conventions, integrations, testing, and **what is currently broken** (`CONCERNS.md` — the test suite exits 1 on purpose; read why before you assume you caused it). |
-| [.tours/](.tours/) | The same walk, clickable, with the VS Code CodeTour extension. Every location is validated against this commit. |
+| [.tours/](.tours/) | The same walk, clickable, with the VS Code CodeTour extension. Every step carries the `pattern` its cited line must match, and `tests/walkthroughCitations.test.ts` asserts it — a line number alone would prove the anchor is in range, never that it is the right one. |
 | [docs/SIMPLIFICATION_REPORT.md](docs/SIMPLIFICATION_REPORT.md) | What the last reduction pass deleted, what it measured, and every finding it deliberately left alone. |
 
 Run it with no keys and no database:
