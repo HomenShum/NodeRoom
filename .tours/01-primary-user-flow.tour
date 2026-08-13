@@ -1,0 +1,68 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "1 — One message, from Send to a changed cell",
+  "description": "A person types '@nodeagent recompute the Q3 variance column' into a shared room and presses Send. This tour follows that one action through the code, in the order it executes. Run the app first with `npm run dev` and open /?mode=memory.",
+  "ref": "wave3-human-ready",
+  "steps": [
+    {
+      "file": "index.html",
+      "line": 221,
+      "title": "The one script tag",
+      "description": "Everything starts here. `index.html` is a static marketing page that search crawlers can read, and this is the only script that can turn it into the application. Nothing else is loaded up front."
+    },
+    {
+      "file": "src/landing/boot.ts",
+      "line": 60,
+      "title": "Decide whether this visitor needs the app at all",
+      "description": "A visitor who is only reading the landing copy should never download the React workspace. `start()` runs when the URL says 'room' or on the first real interaction, and it dynamically imports the app.\n\nThe timeout below it is the interesting part: a hung chunk import never rejects, so a `.catch()` alone cannot cover it. Without this, a failed load looked exactly like a slow one — the shimmer ran forever under 'Opening room'."
+    },
+    {
+      "file": "src/app/main.tsx",
+      "line": 9,
+      "title": "The tier is chosen once, here",
+      "description": "`VITE_CONVEX_URL` set means a live Convex backend. Unset means the room runs entirely in this browser tab against an in-memory engine with a scripted model — no keys, no network.\n\nThis is the only place that branches on it. Everything below is written against one interface."
+    },
+    {
+      "file": "src/ui/Chat.tsx",
+      "line": 1879,
+      "title": "The primary user action",
+      "description": "`send` is what the Send button calls. Two separate things happen and it matters that they are separate:\n\n1. The message is posted to the room, with a client-generated `clientMsgId` — that id is how a retry updates the same message instead of double-posting it.\n2. Only then is the text inspected to see whether it was addressed to the assistant."
+    },
+    {
+      "file": "src/ui/Chat.tsx",
+      "line": 1166,
+      "title": "Where text becomes intent",
+      "description": "The assistant that can edit the shared sheet is addressable ONLY as a leading `@nodeagent …` directive. Mentioning it mid-sentence does not summon it.\n\nThis decides intent. It does not decide permission — that happens on the server, in the next step but one."
+    },
+    {
+      "file": "src/app/store.tsx",
+      "line": 1089,
+      "title": "The seam: one interface, two providers",
+      "description": "`RoomStore` is the boundary between the UI and its data source. Chat, the artifact panel and the rails call `useStore()` and never touch the engine or Convex directly.\n\nThis is the in-memory `askAgent`: it builds `InMemoryRoomTools` and runs the agent loop right here in the tab. Scroll to line 2330 for the Convex twin, which instead calls a mutation and hands off to a durable server job."
+    },
+    {
+      "file": "convex/agentJobs.ts",
+      "line": 2782,
+      "title": "Where input becomes trusted (live tier)",
+      "description": "This is the real trust boundary. Convex validators reject a malformed payload before a job row exists, and `requireActorProof` checks that this browser is actually a member of this room.\n\nThe client-side parse two steps back exists to decide what the user meant. This decides what they are allowed to do."
+    },
+    {
+      "file": "src/engine/roomEngine.ts",
+      "line": 403,
+      "title": "The write that refuses to clobber",
+      "description": "`applyEdit` is the whole product in one function. Gates run in order — duplicate op, lock, review-mode proposal, compare-and-swap, formula protection — and EVERY rejection is returned as data, never thrown, because the agent has to read the rejection and retry."
+    },
+    {
+      "file": "src/engine/roomEngine.ts",
+      "line": 621,
+      "title": "Compare-and-swap: the one line the product is about",
+      "description": "The writer sent the version it last read. If the element has moved on since, the write loses and the writer is handed the current version.\n\nA rejected write leaves NO `edit_applied` trace entry. That is what makes the room trace a record of what happened rather than what was attempted."
+    },
+    {
+      "file": "tests/noClobberWedge.test.ts",
+      "line": 12,
+      "title": "The test that proves all of it",
+      "description": "Four beats against the real Convex functions: the human edits the contested cell, the agent's stale write is CAS-rejected, review mode turns it into a proposal whose approval re-runs CAS, and the human's value survives.\n\nIf you change anything on the write path and this stays green, you probably kept the promise. If it goes red, stop."
+    }
+  ]
+}

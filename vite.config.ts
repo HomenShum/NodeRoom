@@ -247,7 +247,6 @@ export default defineConfig(({ command, mode }) => {
       rollupOptions: {
         input: {
           main: fileURLToPath(new URL("./index.html", import.meta.url)),
-          aiElementsCheck: fileURLToPath(new URL("./ai-elements-check.html", import.meta.url)),
         },
         output: {
           manualChunks(id) {

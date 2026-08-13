@@ -1,0 +1,68 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "2 — The agent: one loop, two hosts",
+  "description": "How a goal becomes tool calls, where tools are registered, and how the same loop runs both in a browser tab with no keys and as a durable server job. Read tour 1 first.",
+  "ref": "wave3-human-ready",
+  "steps": [
+    {
+      "file": "src/nodeagent/core/runtime.ts",
+      "line": 496,
+      "title": "runAgent — the loop that owns no state",
+      "description": "Takes a goal, a model, a tool list and budgets. Returns a result plus a stream of trace events.\n\nNotice what it does NOT import: no database client, no React. It reaches the world only through `rt: RoomTools`. That is why the same run can be exercised by a fast unit test and by production."
+    },
+    {
+      "file": "src/nodeagent/core/runtime.ts",
+      "line": 513,
+      "title": "Budgets are parameters, not ambient config",
+      "description": "`maxSteps`, `deadlineAt` + `reserveMs`, `spendLimits` + `priceStep`, `journal`, `compaction`. Read the comment on `priceStep`: without it the dollar half of the spend ceiling silently receives `costUsd: 0` and does nothing. That was a real defect, and the comment is the fix's receipt.\n\nA run that hits a budget stops with a resumable handoff, not a failure."
+    },
+    {
+      "file": "src/nodeagent/core/types.ts",
+      "line": 279,
+      "title": "RoomTools — the port",
+      "description": "One interface, implemented twice. This is the seam that makes the keyless demo genuinely the same product as the live tier rather than a mock of it.\n\nNothing automatically checks that both implementations stay in step. See docs/codebase/CONCERNS.md."
+    },
+    {
+      "file": "src/nodeagent/skills/spreadsheet/cellMutator.ts",
+      "line": 1738,
+      "title": "Tools are data, not code paths",
+      "description": "`ROOM_TOOLS` is a plain array. A tool is a name, a description, a Zod schema, and an `execute` that forwards to the port. Adding a capability means adding an entry here — the loop does not change."
+    },
+    {
+      "file": "src/nodeagent/skills/spreadsheet/cellMutator.ts",
+      "line": 1765,
+      "title": "A tool description is user-facing text",
+      "description": "This description is read at runtime by a language model. It states the protocol the model most easily gets wrong — 'baseVersion MUST be the version you last read', 'Never ignore a conflict' — and it explains a non-obvious result: `pendingApproval: true` is SUCCESS, do not retry.\n\nTreat editing a description as a behaviour change, because it is."
+    },
+    {
+      "file": "src/nodeagent/skills/integration/noderoomAdapter.ts",
+      "line": 339,
+      "title": "Implementation 1 — in the browser",
+      "description": "`InMemoryRoomTools.editCell` forwards to `RoomEngine.applyEdit`. No network, no keys. This is what runs in the sample room."
+    },
+    {
+      "file": "convex/convexRoomTools.ts",
+      "line": 355,
+      "title": "Implementation 2 — against the database",
+      "description": "The same method signature, backed by the Convex `elements` table with the same CAS/lock/proposal rules. Same tool definitions, same loop, different store."
+    },
+    {
+      "file": "convex/agentJobRunner.ts",
+      "line": 946,
+      "title": "The live tier calls the same runAgent",
+      "description": "Note the extra hooks the server passes and the browser does not: `onTextDelta` streams provider prose to the asking tab, `onStreamEvent` records tool/step parts, `onTrace` records live operations, and `journal` makes a retried slice replay a completed step instead of re-calling — and re-paying for — the model."
+    },
+    {
+      "file": "convex/convex.config.ts",
+      "line": 14,
+      "title": "Why there are two workflow components",
+      "description": "A second `workflow` mount named `passiveWorkflow` exists so background/passive jobs get their own workpool with `maxParallelism = 1` and can never starve a foreground agent run. One line, one real production failure mode."
+    },
+    {
+      "file": "src/nodeagent/core/stream.ts",
+      "line": 108,
+      "title": "How progress reaches the screen",
+      "description": "Model prose, tool calls and step boundaries arrive as separate events and are merged into one ordered part list, so a single message bubble can show reasoning, a tool call and the answer in the order they happened — not a spinner that ends in a wall of text."
+    }
+  ]
+}

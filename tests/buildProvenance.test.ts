@@ -192,7 +192,7 @@ describe("build provenance identity", () => {
 });
 
 describe("raw build provenance output", () => {
-  it("verifies the exact checkout identity in both generated HTML entries", async () => {
+  it("verifies the exact checkout identity in every generated HTML entry", async () => {
     const outputRoot = await createOutput(Object.fromEntries(
       BUILD_PROVENANCE_HTML_ENTRIES.map((entry) => [entry, htmlWithProvenance(checkoutSha)]),
     ));
@@ -206,41 +206,41 @@ describe("raw build provenance output", () => {
     });
   });
 
-  it("fails when the secondary HTML entry carries a different commit", async () => {
+  // These three cases targeted ai-elements-check.html, the second build entry, until
+  // that AI Elements catalogue page was deleted. Same assertions, same failure
+  // messages, now on index.html — the only entry the build emits.
+  it("fails when a generated HTML entry carries a different commit", async () => {
     const outputRoot = await createOutput({
-      "index.html": htmlWithProvenance(checkoutSha),
-      "ai-elements-check.html": htmlWithProvenance(conflictingSha),
+      "index.html": htmlWithProvenance(conflictingSha),
     });
 
     await expect(verifyBuildProvenanceOutput({
       expectedSha: checkoutSha,
       outputRoot,
-    })).rejects.toThrow(/ai-elements-check\.html build SHA does not match/);
+    })).rejects.toThrow(/index\.html build SHA does not match/);
   });
 
-  it("fails when either raw HTML entry is missing its single provenance tag", async () => {
+  it("fails when a raw HTML entry is missing its single provenance tag", async () => {
     const outputRoot = await createOutput({
-      "index.html": htmlWithProvenance(checkoutSha),
-      "ai-elements-check.html": "<!doctype html><html><head></head><body></body></html>",
+      "index.html": "<!doctype html><html><head></head><body></body></html>",
     });
 
     await expect(verifyBuildProvenanceOutput({
       expectedSha: checkoutSha,
       outputRoot,
-    })).rejects.toThrow(/ai-elements-check\.html must contain exactly one/);
+    })).rejects.toThrow(/index\.html must contain exactly one/);
   });
 
   it("fails when an unquoted duplicate provenance tag is appended", async () => {
     const duplicate = `<meta name=noderoom-build-sha content=${checkoutSha} data-provenance=commit>`;
     const outputRoot = await createOutput({
-      "index.html": htmlWithProvenance(checkoutSha),
-      "ai-elements-check.html": htmlWithProvenance(checkoutSha).replace("</head>", `${duplicate}</head>`),
+      "index.html": htmlWithProvenance(checkoutSha).replace("</head>", `${duplicate}</head>`),
     });
 
     await expect(verifyBuildProvenanceOutput({
       expectedSha: checkoutSha,
       outputRoot,
-    })).rejects.toThrow(/ai-elements-check\.html must contain exactly one/);
+    })).rejects.toThrow(/index\.html must contain exactly one/);
   });
 });
 

@@ -5,7 +5,6 @@ import { loadBuildEnvironment, resolveBuildSha } from "../vite.config";
 
 export const BUILD_PROVENANCE_HTML_ENTRIES = [
   "index.html",
-  "ai-elements-check.html",
 ] as const;
 
 const MAX_HTML_BYTES = 2 * 1024 * 1024;

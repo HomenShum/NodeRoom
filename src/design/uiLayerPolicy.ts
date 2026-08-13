@@ -15,7 +15,6 @@ export type UiLayerAuditResult = {
 const IMPORT_RE = /(?:import|export)\s+(?:type\s+)?(?:[\s\S]*?\s+from\s+)?["']([^"']+)["']|import\(\s*["']([^"']+)["']\s*\)/g;
 
 const RADIX_AI_ELEMENT_EXCEPTIONS = new Set([
-  "src/components/ai-elements/chain-of-thought.tsx",
   "src/components/ai-elements/reasoning.tsx",
 ]);
 
@@ -44,7 +43,7 @@ function auditPrimitiveImport(file: string, packageName: string, findings: UiLay
   findings.push({
     file,
     packageName,
-    reason: "Radix behavior must be wrapped by src/components/ui; AI Elements has only the two recorded controllable-state exceptions.",
+    reason: "Radix behavior must be wrapped by src/components/ui; AI Elements has only the one recorded controllable-state exception.",
   });
 }
 

@@ -22,7 +22,6 @@ describe("production CSP integrity", () => {
 
     expect(auditInlineScriptCsp({
       htmlByFile: {
-        "ai-elements-check.html": '<script type="module" src="/src/aiElementsCheck.tsx"></script>',
         "index.html": indexHtml,
       },
       scriptSrcTokens: ["'self'", ...expectedHashes],

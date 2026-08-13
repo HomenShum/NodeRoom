@@ -25,6 +25,23 @@ silent overwrite.**
 
 </div>
 
+## New here? Read four files, in this order.
+
+This README is 2,500 lines of proof and history. It is **not** the way in.
+
+| Read | Why |
+|---|---|
+| **[docs/START_HERE.md](docs/START_HERE.md)** | One real user request — "@nodeagent recompute the Q3 variance column" — followed through the code in the order it executes, from the script tag to the database write. Start here. |
+| [docs/codebase/](docs/codebase/) | Stack, structure, architecture, conventions, integrations, testing, and **what is currently broken** (`CONCERNS.md` — the test suite exits 1 on purpose; read why before you assume you caused it). |
+| [.tours/](.tours/) | The same walk, clickable, with the VS Code CodeTour extension. Every location is validated against this commit. |
+| [docs/SIMPLIFICATION_REPORT.md](docs/SIMPLIFICATION_REPORT.md) | What the last reduction pass deleted, what it measured, and every finding it deliberately left alone. |
+
+Run it with no keys and no database:
+
+```bash
+npm install && npm run dev      # then open /?mode=memory and click "Try sample room"
+```
+
 > **Benchmark claims come ONLY from the generated Proof Release block below and the
 > live board** ([`docs/eval/PROOFLOOP_BENCHMARK_BOARD.md`](docs/eval/PROOFLOOP_BENCHMARK_BOARD.md)).
 > Benchmark numbers in the prose further down this README are a historical snapshot —

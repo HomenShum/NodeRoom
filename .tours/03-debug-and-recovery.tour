@@ -1,0 +1,62 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "3 — When it breaks: four failures, four owners",
+  "description": "Where each class of failure is handled, what the user sees, and where to look first when something is wrong. Every stop here exists because the failure it handles actually happened.",
+  "ref": "wave3-human-ready",
+  "steps": [
+    {
+      "file": "src/landing/boot.ts",
+      "line": 32,
+      "title": "Failure 1 — the app never loads",
+      "description": "`markBootState` writes the state into the DOM (`data-boot-state=\"loading\" | \"failed\"`) so a human, a test, or an inspecting agent can read it.\n\nOn failure it replaces the progress rail — which is claiming progress that is no longer happening — with a message and one Reload button. Telling someone to reload without giving them a control is a half-finished state."
+    },
+    {
+      "file": "src/landing/boot.ts",
+      "line": 30,
+      "title": "Why there is a timer at all",
+      "description": "20 seconds. A hung dynamic import never rejects, so a `.catch()` handler cannot cover it. Without this timeout a rejected or stalled chunk import (a stale hash after a deploy is the usual cause) left the shimmer running forever: a failure wearing a loading state.\n\nIf you are debugging a blank room, open DevTools and read `data-boot-state` on `.nr-ssr-private` first."
+    },
+    {
+      "file": "src/app/ErrorBoundary.tsx",
+      "line": 32,
+      "title": "Failure 2 — a render throws",
+      "description": "The whole app is wrapped in this. The important detail is `clearSessionPrefix=\"noderoom:\"`: on error it clears the app's own session-storage keys, so a corrupt cached room cannot re-crash the app on every reload. Without that, one bad cached value is a permanent brick."
+    },
+    {
+      "file": "src/ui/Chat.tsx",
+      "line": 269,
+      "title": "Failure 3 — a message fails to post, and the list is bounded",
+      "description": "`MAX_FAILED_SENDS = 50`, FIFO. Every in-memory collection on an agent path needs a cap and an eviction rule; agents loop, and an unbounded list fills memory in minutes rather than months."
+    },
+    {
+      "file": "src/ui/Chat.tsx",
+      "line": 1944,
+      "title": "Retry that cannot double-post",
+      "description": "`retrySend` re-sends with the SAME `clientMsgId`. That id is what makes the retry idempotent at the store, so a user hammering Retry on a flaky connection does not produce five copies of their message."
+    },
+    {
+      "file": "src/ui/Chat.tsx",
+      "line": 935,
+      "title": "Failure 4 — the agent fails",
+      "description": "`buildAgentFailureNotice` turns a provider error into a sentence a non-engineer can act on, carrying which model selection was used, what was asked, and which job it was. A stack trace on this surface is a defect, not a debug aid — this is a surface where a user decides whether to trust the assistant."
+    },
+    {
+      "file": "src/engine/roomEngine.ts",
+      "line": 409,
+      "title": "A denial is not an error",
+      "description": "A lock denial writes an `edit_blocked` trace entry and returns `{ ok: false, reason: \"locked\", by, lockId }`. It does not throw. Same for conflicts, pending proposals and formula protection.\n\nWhen you are debugging 'the agent did nothing', read the trace: a blocked edit is recorded, an applied one is recorded, and a rejected one deliberately is not recorded as applied."
+    },
+    {
+      "file": "tests/noClobberWedge.test.ts",
+      "line": 64,
+      "title": "The regression suite for all of the above",
+      "description": "Runs against the real Convex schema and functions via `convex-test`, in-process, with no deployment. Note the module-glob deletion just above the describe block — Node-only actions are removed before mounting so they do not get pulled into the edge runtime. Copy that block when you add a `convex-test` suite."
+    },
+    {
+      "file": "docs/codebase/CONCERNS.md",
+      "line": 1,
+      "title": "What is known to be broken right now",
+      "description": "Before you assume you broke something: `npm test` currently exits 1 with two pre-existing failures, one of which (`proofStaleness`) is a deliberate decay gate doing its job. This file lists every open defect with its reproduction, plus the one real import cycle and the dependencies that resolve only by hoisting."
+    }
+  ]
+}
