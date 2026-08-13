@@ -25,7 +25,7 @@ Environment for all runs: Windows 11, Node 22.22.2, `npm install --no-audit
 | Duplicate blocks | 179 clones | 175 clones | **−4** | `npx jscpd@4 src convex --ignore "**/_generated/**"` |
 | Duplicate lines | 1,726 | 1,658 | **−68** | same run |
 | Duplicate percentage | 1.17 % | 1.17 % | 0 | same run |
-| Circular dependencies | 7 | 7 | 0 | `npx dependency-cruiser@16 --validate src/landing/boot.ts convex/*.ts` |
+| Circular dependencies (relative imports only — see note) | 7 | 7 | 0 | `npx dependency-cruiser@16 --validate src/landing/boot.ts convex/*.ts` |
 | Vitest — failing files | 4 | 2 | −2 (see note) | `npm test -- --run` |
 | Vitest — failing tests | 5 | 2 | −3 (see note) | same run |
 | Vitest — passing tests | 2,712 | 2,714 | +2 | same run |
@@ -67,6 +67,13 @@ Split of that last row, because it matters which half is which:
 - **Circular dependencies did not move.** See "left unresolved" below — six of
   the seven are type-only and erased at compile time; the seventh is deliberate
   mutual recursion.
+- **The circular-dependency measurement is partial, in both columns.**
+  dependency-cruiser does not resolve this repo's `@/*` path aliases under
+  `moduleResolution: "bundler"`, so 7 is the count among *relative* imports. A
+  cycle crossing an aliased import would not appear in either column. The
+  limitation and how to reproduce it are in `docs/codebase/CONCERNS.md`; it is
+  recorded rather than papered over because a clean-looking number from a tool
+  that cannot see half the graph is worse than no number.
 - **The bundle numbers are large because of a duplicated entry, not minification
   luck.** See the next section.
 

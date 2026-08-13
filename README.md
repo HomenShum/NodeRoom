@@ -27,7 +27,7 @@ silent overwrite.**
 
 ## New here? Read four files, in this order.
 
-This README is 2,500 lines of proof and history. It is **not** the way in.
+This README is 2,500+ lines of proof and history. It is **not** the way in.
 
 | Read | Why |
 |---|---|

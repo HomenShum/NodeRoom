@@ -24,10 +24,12 @@ path below.
 
 ```bash
 npm install
-npm run dev                     # http://localhost:5173
+npm run dev                     # http://127.0.0.1:5260  (port set in vite.config.ts)
 ```
 
-Open `/?mode=memory`, click **Try sample room**. With no `.env.local` the app
+Open `/?mode=memory` and click **Try sample room** — the keyless landing CTA,
+`data-testid="start-demo-room"` (`src/ui/Landing.tsx:146`; with a Convex URL set
+the same button reads "Create a room" instead). With no `.env.local` the app
 runs entirely in the browser against an in-memory engine with a scripted
 assistant: no keys, no database, no network. That is the tier a stranger can
 reach, and it is the tier every step below is written against. Where the live

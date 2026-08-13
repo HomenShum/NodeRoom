@@ -40,8 +40,22 @@ Because the suite is red, **this repository does not pass the HUMAN-READY gate**
 ("build, typecheck, tests and browser checks pass"). Build and typecheck are
 green; tests are not.
 
-## One real import cycle
+## One real import cycle — and a limit on how well we can see them
 
+**Read this caveat before trusting the number.** dependency-cruiser does not
+resolve this repo's TypeScript path aliases (`@/*`, `@ui/*`, `@nodeagent/*`),
+because `tsconfig.json` sets `moduleResolution: "bundler"`. Passing `--ts-config`
+does not help; the aliases come back `couldNotResolve`. So the cycle count below
+covers **relative imports only**. A cycle that runs through an `@/…` import is
+invisible to this tool as configured, and nothing in this repo currently measures
+those. Reproducing the limitation:
+
+```bash
+npx dependency-cruiser@16 --output-type json src/ui/Chat.tsx   | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const m=JSON.parse(s).modules.find(x=>x.source==='src/ui/Chat.tsx');console.log(m.dependencies.filter(d=>d.couldNotResolve).map(d=>d.module))})"
+# -> [ '@/components/ai-elements/message', '@/components/ui/button', ... ]
+```
+
+With that caveat stated,
 `npx dependency-cruiser@16 --validate src/landing/boot.ts convex/*.ts` reports
 seven `no-circular` violations. Six of them are **type-only in at least one
 direction** — the importing side uses `import type`, which is erased at compile
@@ -90,7 +104,7 @@ The type-only six, for completeness:
 
 ## Repository ergonomics
 
-- **The README is 2,537 lines / 193 KB.** It is the first file a stranger opens
+- **The README is 2,554 lines / 190 KB.** It is the first file a stranger opens
   and it is not readable in one sitting. `docs/START_HERE.md` now exists as the
   actual front door, but the README has not been reduced — that is feature-level
   editorial work, not structural reduction, and it was out of scope for this
