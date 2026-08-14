@@ -3,10 +3,22 @@
   "review": "Vercel Web Interface Guidelines",
   "guidelinesSource": "https://vercel.com/design/guidelines",
   "guidelinesFetched": "2026-08-13",
-  "note": "This is a guideline-by-guideline review with a measurement per rule. It is not a Lighthouse or axe score and does not reuse one.",
+  "note": "This is a guideline-by-guideline review with a measurement per rule. It is not a Lighthouse or axe score and does not reuse one — this file shares no input with promotion-web-quality-audit.mjs.",
+  "coverage": {
+    "rulesReviewedHere": 19,
+    "publishedRulesTotalApprox": 120,
+    "claim": "Partial coverage, deliberately. These are the rules decidable by a measurement on the rendered page. Rules needing human judgement (optical alignment, easing choice, copy voice) or a device lab (iOS Low Power Mode, macOS Safari) were NOT reviewed and must not be read as clean.",
+    "notReviewedExamples": [
+      "Layout — Optical alignment",
+      "Animations — Easing fits the subject",
+      "Performance — Device/browser matrix",
+      "Copywriting — Title Case",
+      "Design — Layered shadows"
+    ]
+  },
   "baseUrl": "http://127.0.0.1:4903",
   "landingUrl": "http://127.0.0.1:4903/?mode=memory&surface=desktop",
-  "capturedAt": "2026-08-14T01:56:49.751Z",
+  "capturedAt": "2026-08-14T02:17:34.052Z",
   "screenshots": [
     "wig-room-1440.png",
     "wig-after-reload.png",
