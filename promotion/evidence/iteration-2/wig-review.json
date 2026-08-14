@@ -1,0 +1,440 @@
+{
+  "condition": 7,
+  "review": "Vercel Web Interface Guidelines",
+  "guidelinesSource": "https://vercel.com/design/guidelines",
+  "guidelinesFetched": "2026-08-13",
+  "note": "This is a guideline-by-guideline review with a measurement per rule. It is not a Lighthouse or axe score and does not reuse one.",
+  "baseUrl": "http://127.0.0.1:4903",
+  "landingUrl": "http://127.0.0.1:4903/?mode=memory&surface=desktop",
+  "capturedAt": "2026-08-14T01:56:49.751Z",
+  "screenshots": [
+    "wig-room-1440.png",
+    "wig-after-reload.png",
+    "wig-mobile-412.png",
+    "wig-reduced-motion.png",
+    "wig-width-320.png",
+    "wig-width-360.png",
+    "wig-width-412.png",
+    "wig-width-768.png",
+    "wig-width-1280.png",
+    "wig-width-1440.png"
+  ],
+  "rulesReviewed": 19,
+  "majorCount": 9,
+  "minorCount": 4,
+  "okCount": 6,
+  "findings": [
+    {
+      "section": "Design",
+      "rule": "Browser UI matches your background / color-scheme",
+      "verdict": "minor",
+      "measurement": {
+        "themeColor": null,
+        "colorScheme": "dark"
+      },
+      "note": "meta[name=theme-color] and the root color-scheme, read from the landing route."
+    },
+    {
+      "section": "Interactions",
+      "rule": "Respect zoom",
+      "verdict": "ok",
+      "measurement": {
+        "viewportMeta": "width=device-width, initial-scale=1.0, viewport-fit=cover"
+      },
+      "note": "Never disable browser zoom capability."
+    },
+    {
+      "section": "Content",
+      "rule": "Accurate page titles",
+      "verdict": "major",
+      "measurement": {
+        "landingTitle": "NodeRoom - live collaborative AI rooms with NodeAgents",
+        "roomTitle": "NodeRoom - live collaborative AI rooms with NodeAgents",
+        "identical": true
+      },
+      "note": "<title> must reflect current context. Landing and room share one title, so a tab strip, a bookmark and a history entry cannot tell them apart."
+    },
+    {
+      "section": "Content",
+      "rule": "Headings & skip link",
+      "verdict": "major",
+      "measurement": {
+        "landingSkipLinks": [],
+        "landingLandmarks": 2,
+        "roomLandmarks": 0,
+        "roomMainLandmarks": 0
+      },
+      "note": "Hierarchical headings and a 'Skip to content' link. The room renders zero landmark elements, so there is nothing to skip to and no region to jump between."
+    },
+    {
+      "section": "Content",
+      "rule": "Icon-only buttons are named",
+      "verdict": "ok",
+      "measurement": {
+        "iconOnlyVisible": 8,
+        "unnamed": []
+      },
+      "note": "Icon-only buttons need a descriptive aria-label."
+    },
+    {
+      "section": "Content",
+      "rule": "Tabular numbers for comparisons",
+      "verdict": "minor",
+      "measurement": {
+        "numericCells": 26,
+        "withoutTabularNums": [
+          {
+            "text": "+3",
+            "cls": "r-tab fx-tab r-tab-overf",
+            "fontVariantNumeric": "normal"
+          }
+        ]
+      },
+      "note": "Figures a reader compares down a column should use font-variant-numeric: tabular-nums."
+    },
+    {
+      "section": "Content",
+      "rule": "Semantics before ARIA",
+      "verdict": "major",
+      "measurement": {
+        "composer": {
+          "tag": "TEXTAREA",
+          "fontSizePx": 13.5,
+          "ariaExpanded": "false",
+          "role": null,
+          "touchAction": "auto",
+          "accessibleName": "Message the room"
+        }
+      },
+      "note": "A textarea has no expandable role, so aria-expanded on it announces a state the control cannot have. Same node axe reports as critical aria-allowed-attr."
+    },
+    {
+      "section": "Interactions",
+      "rule": "Match visual & hit targets",
+      "verdict": "major",
+      "measurement": {
+        "interactiveCount": 85,
+        "under24px": 30,
+        "worst": [
+          {
+            "tag": "INPUT",
+            "testid": null,
+            "cls": "",
+            "w": 196,
+            "h": 18,
+            "label": ""
+          },
+          {
+            "tag": "BUTTON",
+            "testid": null,
+            "cls": "r-resize",
+            "w": 6,
+            "h": 803,
+            "label": "Resize files panel"
+          },
+          {
+            "tag": "SPAN",
+            "testid": null,
+            "cls": "r-filetab-x",
+            "w": 16,
+            "h": 16,
+            "label": "Close Q3 variance"
+          },
+          {
+            "tag": "SPAN",
+            "testid": null,
+            "cls": "r-filetab-x",
+            "w": 16,
+            "h": 16,
+            "label": "Close Company research"
+          },
+          {
+            "tag": "BUTTON",
+            "testid": "artifact-visibility-toggle",
+            "cls": "r-tag fx-shared r-tag-toggle public",
+            "w": 69,
+            "h": 21,
+            "label": "Shared"
+          },
+          {
+            "tag": "BUTTON",
+            "testid": "cell-edit-control",
+            "cls": "r-cell-edit",
+            "w": 133,
+            "h": 21,
+            "label": "add"
+          },
+          {
+            "tag": "BUTTON",
+            "testid": "cell-edit-control",
+            "cls": "r-cell-edit",
+            "w": 48,
+            "h": 21,
+            "label": "note"
+          },
+          {
+            "tag": "BUTTON",
+            "testid": "cell-edit-control",
+            "cls": "r-cell-edit",
+            "w": 133,
+            "h": 21,
+            "label": "add"
+          },
+          {
+            "tag": "BUTTON",
+            "testid": "cell-edit-control",
+            "cls": "r-cell-edit",
+            "w": 48,
+            "h": 21,
+            "label": "note"
+          },
+          {
+            "tag": "BUTTON",
+            "testid": "cell-edit-control",
+            "cls": "r-cell-edit",
+            "w": 133,
+            "h": 21,
+            "label": "add"
+          }
+        ]
+      },
+      "note": "Visual targets under 24px must expand their hit target to at least 24px."
+    },
+    {
+      "section": "Interactions",
+      "rule": "Confirm destructive actions / Undo",
+      "verdict": "major",
+      "measurement": {
+        "undo": {
+          "title": "Undo last applied room edit (Ctrl+Z)",
+          "disabled": true
+        }
+      },
+      "note": "An agent editing your sheet is destructive; the guideline asks for confirmation or an Undo with a safe window. Measured on arrival — see the after-edit measurement below for the state that decides it."
+    },
+    {
+      "section": "Animations",
+      "rule": "Never transition: all",
+      "verdict": "minor",
+      "measurement": {
+        "elements": 2,
+        "sample": [
+          "BUTTON.inline-flex"
+        ]
+      },
+      "note": "Explicitly list only the properties you intend to animate."
+    },
+    {
+      "section": "Interactions",
+      "rule": "URL as state",
+      "verdict": "major",
+      "measurement": {
+        "urlInRoom": "http://127.0.0.1:4903/?mode=memory&surface=desktop",
+        "urlOnLanding": "http://127.0.0.1:4903/?mode=memory&surface=desktop",
+        "urlChangedOnEnter": false,
+        "afterReload": {
+          "url": "http://127.0.0.1:4903/?mode=memory&surface=desktop",
+          "roomVisible": false,
+          "landingCtaVisible": true
+        }
+      },
+      "note": "State must survive share, refresh and Back/Forward. Entering the room changes nothing in the URL, so a refresh drops the visitor back on the landing page and a shared link never opens the room."
+    },
+    {
+      "section": "Interactions",
+      "rule": "Deep-link everything",
+      "verdict": "major",
+      "measurement": {
+        "historyLengthInRoom": 2,
+        "afterBack": {
+          "url": "about:blank",
+          "roomVisible": false
+        }
+      },
+      "note": "Entering the room pushes no history entry, so Back leaves the application instead of returning to the landing page."
+    },
+    {
+      "section": "Interactions",
+      "rule": "Clear focus",
+      "verdict": "major",
+      "measurement": {
+        "tabPresses": 40,
+        "focusedElements": 40,
+        "withoutVisibleRing": 1,
+        "examples": [
+          {
+            "tag": "INPUT",
+            "testid": null,
+            "cls": "",
+            "placeholder": "Find in binder...",
+            "parent": "LABEL.r-rail-search r-binder-search sc-search",
+            "label": "",
+            "outline": "rgb(242, 244, 247) none 0px",
+            "boxShadow": "none",
+            "visibleRing": false
+          }
+        ]
+      },
+      "note": "Every focusable element must show a visible focus ring."
+    },
+    {
+      "section": "Interactions",
+      "rule": "Keyboard works everywhere",
+      "verdict": "major",
+      "measurement": {
+        "tabPresses": 40,
+        "reachedChatComposer": false,
+        "reachedSheetCell": false,
+        "distinctTestidsReached": [
+          "people-trigger",
+          "room-settings-btn",
+          "binder-artifact",
+          "binder-agent",
+          "home-tab",
+          "artifact-filetab",
+          "work-artifacts-tab",
+          "nodebook-tab",
+          "investigation-tab",
+          "trace-tab",
+          "artifact-split-toggle",
+          "artifact-export-xlsx"
+        ]
+      },
+      "note": "40 consecutive Tab presses from a fresh room. The two controls the journeys are about are the chat composer and a sheet cell."
+    },
+    {
+      "section": "Interactions",
+      "rule": "Don't block paste",
+      "verdict": "ok",
+      "measurement": {
+        "pasteEventDefaultPrevented": false
+      },
+      "note": "A paste event dispatched on the chat composer; blocked means the app called preventDefault on it."
+    },
+    {
+      "section": "Forms",
+      "rule": "Textarea behavior",
+      "verdict": "minor",
+      "measurement": {
+        "enterBehaviour": {
+          "valueAfterEnter": "",
+          "cleared": true
+        }
+      },
+      "note": "In a textarea the guideline wants Enter to insert a newline and Cmd/Ctrl+Enter to submit. Cleared means Enter submitted instead. Chat convention differs from the guideline, so this is recorded, not treated as major."
+    },
+    {
+      "section": "Interactions",
+      "rule": "Mobile input size",
+      "verdict": "ok",
+      "measurement": {
+        "device": "Pixel 7 (412px)",
+        "inputsVisible": 1,
+        "under16px": []
+      },
+      "note": "Input font size must be at least 16px on mobile or iOS Safari zooms the page on focus."
+    },
+    {
+      "section": "Layout",
+      "rule": "Responsive coverage / No excessive scrollbars",
+      "verdict": "ok",
+      "measurement": {
+        "widths": [
+          320,
+          360,
+          412,
+          768,
+          1280,
+          1440
+        ],
+        "sweep": [
+          {
+            "width": 320,
+            "scrollWidth": 320,
+            "innerWidth": 320,
+            "mobileShell": true,
+            "desktopCta": false,
+            "overflow": false,
+            "consoleErrors": [],
+            "failedRequests": []
+          },
+          {
+            "width": 360,
+            "scrollWidth": 360,
+            "innerWidth": 360,
+            "mobileShell": true,
+            "desktopCta": false,
+            "overflow": false,
+            "consoleErrors": [],
+            "failedRequests": []
+          },
+          {
+            "width": 412,
+            "scrollWidth": 412,
+            "innerWidth": 412,
+            "mobileShell": true,
+            "desktopCta": false,
+            "overflow": false,
+            "consoleErrors": [],
+            "failedRequests": []
+          },
+          {
+            "width": 768,
+            "scrollWidth": 768,
+            "innerWidth": 768,
+            "mobileShell": false,
+            "desktopCta": true,
+            "overflow": false,
+            "consoleErrors": [],
+            "failedRequests": []
+          },
+          {
+            "width": 1280,
+            "scrollWidth": 1280,
+            "innerWidth": 1280,
+            "mobileShell": false,
+            "desktopCta": true,
+            "overflow": false,
+            "consoleErrors": [],
+            "failedRequests": []
+          },
+          {
+            "width": 1440,
+            "scrollWidth": 1440,
+            "innerWidth": 1440,
+            "mobileShell": false,
+            "desktopCta": true,
+            "overflow": false,
+            "consoleErrors": [],
+            "failedRequests": []
+          }
+        ],
+        "overflowingWidths": [],
+        "widthsWithConsoleErrorsOrFailedRequests": []
+      },
+      "note": "Every supported width was loaded and measured: horizontal overflow (scrollWidth vs innerWidth), which shell rendered, and any console error or failed request at that width. This is also the measurement behind promotion conditions 3, 4 and 9."
+    },
+    {
+      "section": "Animations",
+      "rule": "Honor prefers-reduced-motion",
+      "verdict": "ok",
+      "measurement": {
+        "elementsStillAnimating": 0,
+        "sample": []
+      },
+      "note": "Measured in a context with prefers-reduced-motion: reduce. Counts elements still carrying a running CSS animation."
+    }
+  ],
+  "majors": [
+    "Content — Accurate page titles",
+    "Content — Headings & skip link",
+    "Content — Semantics before ARIA",
+    "Interactions — Match visual & hit targets",
+    "Interactions — Confirm destructive actions / Undo",
+    "Interactions — URL as state",
+    "Interactions — Deep-link everything",
+    "Interactions — Clear focus",
+    "Interactions — Keyboard works everywhere"
+  ],
+  "pass": false
+}

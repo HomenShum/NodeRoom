@@ -1,0 +1,283 @@
+{
+  "condition": 8,
+  "baseUrl": "http://127.0.0.1:4903",
+  "mobileUrl": "http://127.0.0.1:4903/?mode=memory",
+  "landingUrl": "http://127.0.0.1:4903/?mode=memory&surface=desktop",
+  "capturedAt": "2026-08-14T01:58:00.924Z",
+  "node": "v22.22.2",
+  "lighthouseMobile": {
+    "label": "landing-mobile",
+    "url": "http://127.0.0.1:4903/?mode=memory",
+    "artifact": "lighthouse-landing-mobile.json",
+    "lighthouseVersion": "13.4.1",
+    "formFactor": "mobile",
+    "throttling": "simulate",
+    "scores": {
+      "performance": 0.47,
+      "accessibility": 0.95,
+      "best-practices": 1,
+      "seo": 1,
+      "agentic-browsing": 1
+    },
+    "lcpMs": 10168.764699999998,
+    "cls": 0,
+    "fcpMs": 6716.802199999999,
+    "tbtMs": 437.9999999999991,
+    "ttiMs": 10642.756599999997,
+    "failingAudits": [
+      {
+        "id": "first-contentful-paint",
+        "score": 0.02,
+        "title": "First Contentful Paint"
+      },
+      {
+        "id": "largest-contentful-paint",
+        "score": 0,
+        "title": "Largest Contentful Paint"
+      },
+      {
+        "id": "speed-index",
+        "score": 0.28,
+        "title": "Speed Index"
+      },
+      {
+        "id": "total-blocking-time",
+        "score": 0.64,
+        "title": "Total Blocking Time"
+      },
+      {
+        "id": "max-potential-fid",
+        "score": 0.11,
+        "title": "Max Potential First Input Delay"
+      },
+      {
+        "id": "interactive",
+        "score": 0.23,
+        "title": "Time to Interactive"
+      },
+      {
+        "id": "valid-source-maps",
+        "score": 0,
+        "title": "Missing source maps for large first-party JavaScript"
+      },
+      {
+        "id": "color-contrast",
+        "score": 0,
+        "title": "Background and foreground colors do not have a sufficient contrast ratio."
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "score": 0,
+        "title": "Elements with visible text labels do not have matching accessible names."
+      },
+      {
+        "id": "unminified-javascript",
+        "score": 0.5,
+        "title": "Minify JavaScript"
+      },
+      {
+        "id": "unused-css-rules",
+        "score": 0,
+        "title": "Reduce unused CSS"
+      },
+      {
+        "id": "unused-javascript",
+        "score": 0,
+        "title": "Reduce unused JavaScript"
+      },
+      {
+        "id": "forced-reflow-insight",
+        "score": 0,
+        "title": "Forced reflow"
+      },
+      {
+        "id": "legacy-javascript-insight",
+        "score": 0.5,
+        "title": "Legacy JavaScript"
+      },
+      {
+        "id": "network-dependency-tree-insight",
+        "score": 0,
+        "title": "Network dependency tree"
+      },
+      {
+        "id": "render-blocking-insight",
+        "score": 0,
+        "title": "Render-blocking requests"
+      }
+    ]
+  },
+  "lighthouseDesktop": {
+    "label": "landing-desktop",
+    "url": "http://127.0.0.1:4903/?mode=memory&surface=desktop",
+    "artifact": "lighthouse-landing-desktop.json",
+    "lighthouseVersion": "13.4.1",
+    "formFactor": "desktop",
+    "throttling": "simulate",
+    "scores": {
+      "performance": 0.91,
+      "accessibility": 0.93,
+      "best-practices": 1,
+      "seo": 1,
+      "agentic-browsing": 1
+    },
+    "lcpMs": 1431.4444999999998,
+    "cls": 0.0127253585500394,
+    "fcpMs": 1109.384575,
+    "tbtMs": 126.5,
+    "ttiMs": 1668.3296499999997,
+    "failingAudits": [
+      {
+        "id": "first-contentful-paint",
+        "score": 0.8,
+        "title": "First Contentful Paint"
+      },
+      {
+        "id": "largest-contentful-paint",
+        "score": 0.83,
+        "title": "Largest Contentful Paint"
+      },
+      {
+        "id": "speed-index",
+        "score": 0.93,
+        "title": "Speed Index"
+      },
+      {
+        "id": "total-blocking-time",
+        "score": 0.94,
+        "title": "Total Blocking Time"
+      },
+      {
+        "id": "max-potential-fid",
+        "score": 0.75,
+        "title": "Max Potential First Input Delay"
+      },
+      {
+        "id": "interactive",
+        "score": 0.98,
+        "title": "Time to Interactive"
+      },
+      {
+        "id": "valid-source-maps",
+        "score": 0,
+        "title": "Missing source maps for large first-party JavaScript"
+      },
+      {
+        "id": "color-contrast",
+        "score": 0,
+        "title": "Background and foreground colors do not have a sufficient contrast ratio."
+      },
+      {
+        "id": "heading-order",
+        "score": 0,
+        "title": "Heading elements are not in a sequentially-descending order"
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "score": 0,
+        "title": "Elements with visible text labels do not have matching accessible names."
+      },
+      {
+        "id": "unminified-javascript",
+        "score": 0.5,
+        "title": "Minify JavaScript"
+      },
+      {
+        "id": "unused-css-rules",
+        "score": 0.5,
+        "title": "Reduce unused CSS"
+      },
+      {
+        "id": "unused-javascript",
+        "score": 0,
+        "title": "Reduce unused JavaScript"
+      },
+      {
+        "id": "legacy-javascript-insight",
+        "score": 0.5,
+        "title": "Legacy JavaScript"
+      },
+      {
+        "id": "network-dependency-tree-insight",
+        "score": 0,
+        "title": "Network dependency tree"
+      },
+      {
+        "id": "render-blocking-insight",
+        "score": 0,
+        "title": "Render-blocking requests"
+      }
+    ]
+  },
+  "axeCliLanding": {
+    "artifact": "axe-cli-landing.json",
+    "url": "http://127.0.0.1:4903/?mode=memory&surface=desktop",
+    "testEngine": "4.12.1",
+    "violations": [
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "nodes": 1,
+        "help": "Heading levels should only increase by one"
+      },
+      {
+        "id": "region",
+        "impact": "moderate",
+        "nodes": 1,
+        "help": "All page content should be contained by landmarks"
+      }
+    ],
+    "passCount": 34,
+    "incompleteCount": 2
+  },
+  "axeRoom": {
+    "artifact": "axe-room.json",
+    "screenshot": "room-1440-audited.png",
+    "provedAppUpBy": "[data-testid=\"artifact-panel\"] visible",
+    "tags": [
+      "wcag2a",
+      "wcag2aa",
+      "wcag21a",
+      "wcag21aa"
+    ],
+    "axeVersion": "4.12.1",
+    "violations": [
+      {
+        "id": "aria-allowed-attr",
+        "impact": "critical",
+        "nodes": 1,
+        "help": "Elements must only use supported ARIA attributes",
+        "targets": [
+          "textarea"
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": 4,
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "targets": [
+          ".r-live-count",
+          ".on",
+          ".r-spine-step.fx-step[data-state=\"next\"]:nth-child(4)",
+          ".r-spine-step.fx-step[data-state=\"next\"]:nth-child(5)"
+        ]
+      }
+    ],
+    "passCount": 27,
+    "incompleteCount": 2,
+    "consoleErrors": [],
+    "failedRequests": []
+  },
+  "commands": [
+    "npx --yes lighthouse@13.4.1 http://127.0.0.1:4903/?mode=memory --output=json --output-path=C:\\Users\\hshum\\AppData\\Local\\Temp\\claude\\D--VSCode-Projects-cheiron-ai-take-home\\440ef9e9-83bb-4fe6-8676-4fdaaf332f3e\\scratchpad\\limits\\NodeRoom\\repo\\promotion\\evidence\\iteration-2\\lighthouse-landing-mobile.json --chrome-flags=--headless --quiet",
+    "npx --yes lighthouse@13.4.1 http://127.0.0.1:4903/?mode=memory&surface=desktop --output=json --output-path=C:\\Users\\hshum\\AppData\\Local\\Temp\\claude\\D--VSCode-Projects-cheiron-ai-take-home\\440ef9e9-83bb-4fe6-8676-4fdaaf332f3e\\scratchpad\\limits\\NodeRoom\\repo\\promotion\\evidence\\iteration-2\\lighthouse-landing-desktop.json --chrome-flags=--headless --quiet --preset=desktop",
+    "npx --yes @axe-core/cli@4.13.0 http://127.0.0.1:4903/?mode=memory&surface=desktop --load-delay 8000 --dir C:\\Users\\hshum\\AppData\\Local\\Temp\\claude\\D--VSCode-Projects-cheiron-ai-take-home\\440ef9e9-83bb-4fe6-8676-4fdaaf332f3e\\scratchpad\\limits\\NodeRoom\\repo\\promotion\\evidence\\iteration-2 --save axe-cli-landing.json"
+  ],
+  "majors": [
+    "lighthouse/landing-mobile: LCP 10169ms exceeds the 4000ms \"poor\" threshold",
+    "axe-room: critical aria-allowed-attr on 1 node(s) — Elements must only use supported ARIA attributes",
+    "axe-room: serious color-contrast on 4 node(s) — Elements must meet minimum color contrast ratio thresholds"
+  ],
+  "pass": false
+}

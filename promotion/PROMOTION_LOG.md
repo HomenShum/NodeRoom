@@ -80,7 +80,12 @@ reproduction; a hunch is not a defect.
 | D-3 | Major | J3 | Same room, 1440×900. Click the first `data-testid="cell-edit-control"` (row 1 VARIANCE, showing `+24%`), type `human note baseline` into `data-testid="cell-editor"`, press Enter. The cell commits **empty** — `+24%` → `""` — rather than the typed text or a rejection message. Silent data loss on a hand edit, on the surface whose entire promise is that edits are never silently lost. Evidence: `evidence/baseline/j4-after-human-edit.png`. Not yet root-caused; the editor may be typed (percentage) and swallowing an invalid value. | OPEN |
 | D-4 | Major | J4 | `DEMO.md` §4.2 tells a demo audience that auto-allow is off by default and agent edits arrive as reviewable proposals. In the keyless sample room the review queue reads **"no pending proposals"** and no UI control produces one, so the product's central trust claim cannot be seen by anyone who has not stood up a Convex deployment with a model key. Evidence: `evidence/baseline/j4-review-queue.png`. | OPEN |
 | D-5 | Major (a11y) | all | axe-core (wcag2a/2aa/21a/21aa) on the sample room at 1440×900 returns critical `aria-allowed-attr`: the chat `textarea` carries `aria-expanded="false"`, unsupported on that element, so screen readers get a control that claims a state it cannot have. Plus 5 serious `color-contrast` nodes, worst `.r-walkdock-pace` at **1.55:1** against 4.5:1 required. | OPEN |
-| D-6 | Minor (a11y) | J1 | From a fresh load of the sample room, 25 consecutive Tab presses never leave the left binder rail and there is no skip link (`SKIP_LINKS=[]`). A keyboard user cannot reach the sheet or the chat composer without tabbing through every binder item. One focused input (the binder search box) has neither an outline nor a box-shadow, so its focus is invisible. | OPEN |
+| D-6 | Minor (a11y) | J1 | From a fresh load of the sample room, 25 consecutive Tab presses never leave the left binder rail and there is no skip link (`SKIP_LINKS=[]`). A keyboard user cannot reach the sheet or the chat composer without tabbing through every binder item. One focused input (the binder search box) has neither an outline nor a box-shadow, so its focus is invisible. **Iteration 2 re-measured this at 40 Tab presses and raises the severity from Minor to Major**: 40 presses focus 40 elements and reach neither `chat-composer` nor `cell-edit-control`, so a keyboard user cannot reach *either* control the canonical journeys are about — not merely "not without effort". The ringless control is confirmed as the binder search box by its placeholder `Find in binder...` inside `LABEL.r-rail-search r-binder-search`. Guidelines: *Interactions — Keyboard works everywhere*, *Interactions — Clear focus*. Evidence: `evidence/iteration-2/wig-review.json`. | OPEN — severity raised to Major in iteration 2 |
+| D-8 | Major | J1, J3 | Chromium 1440×900, production build on port 4903. `/?mode=memory&surface=desktop` → **Try sample room** → the room opens and the URL does not change: it is still `/?mode=memory&surface=desktop`, byte for byte. Two consequences, both measured. **Refresh** (F5) drops the visitor back on the marketing landing page — `roomVisible: false`, `landingCtaVisible: true` — with the same URL in the bar, so nothing about the address explains why the page is different. **Back** leaves the application entirely: `history.length` is still 2 inside the room, so entering pushed no entry, and `goBack()` lands on `about:blank`. A link to the room cannot be sent to a colleague. Guidelines: *Interactions — URL as state*, *Interactions — Deep-link everything*. Evidence: `evidence/iteration-2/wig-after-reload.png`, `evidence/iteration-2/wig-review.json`. | OPEN |
+| D-9 | Major | J1 | Same room. The room renders **zero** landmark elements — no `main`, `nav`, `header`, `footer`, `aside` or ARIA equivalent (`roomLandmarks: 0`, `roomMainLandmarks: 0`) — and the landing route offers no skip link (`landingSkipLinks: []`). A screen-reader or keyboard user has no region to jump between and nothing to skip to, which is the mechanism that would have made D-6 survivable. axe reports the landing half of this independently as `region`. Guideline: *Content — Headings & skip link*. Evidence: `evidence/iteration-2/wig-review.json`, `evidence/iteration-2/axe-cli-landing.json`. | OPEN |
+| D-10 | Major | J3, J5 | Same room, 1440×900. **30 of 85** visible interactive controls are under 24px on one axis. Among them the primary work control: every `data-testid="cell-edit-control"` is 21px high, so the buttons a person uses to edit the sheet by hand are below the minimum on every row. Also the file-tab close buttons `.r-filetab-x` at 16×16, and the panel resize handle `.r-resize` at 6px wide. Guideline: *Interactions — Match visual & hit targets* (expand to ≥24px; 44px on mobile). Evidence: `evidence/iteration-2/wig-review.json` → `Interactions — Match visual & hit targets`, `evidence/iteration-2/wig-room-1440.png`. | OPEN |
+| D-11 | Major (perf) | J5 | Lighthouse 13.4.1 mobile preset (Moto G Power class, 4x CPU slowdown, 1,638Kbps) against `/?mode=memory` on the production build — the phone shell a real phone visitor gets. First contentful paint **6,717ms**, largest contentful paint **10,169ms**, time to interactive **10,643ms**, performance **0.47**. The same build on the desktop preset scores 0.91 with LCP 1,431ms, so this is the phone shell's cost, not a machine artefact. The build ships a 1,909kB `mermaid` chunk and a 1,038kB `workbook-vendor` chunk. Evidence: `evidence/iteration-2/lighthouse-landing-mobile.json` (and `-desktop.json` for the contrast). | OPEN |
+| D-12 | Minor | J1 | The `<title>` is `NodeRoom - live collaborative AI rooms with NodeAgents` on the landing page and the identical string inside the room, so a tab strip, a bookmark and a browser history entry cannot tell the marketing page from the workspace. Same root cause as D-8 — no route changes when the app does. Guideline: *Content — Accurate page titles*. Evidence: `evidence/iteration-2/wig-review.json` → `Content — Accurate page titles`. | OPEN |
 | D-7 | Minor (docs) | J1 | `DEMO.md` is the repo's stage script and is stale against the shipped UI: it instructs the presenter to click **"Enter the Q3 diligence room"** and then **"Run collaboration"**. The current landing CTA is **"Try sample room"** (`data-testid="start-demo-room"`), and the string "Run collaboration" exists only in `src/landing/roomTour/RoomTourArtifact.tsx` (the `#room-tour` marketing artifact), not in the room. Anyone following DEMO.md live will hunt for controls that are not there. | OPEN |
 
 ## Iterations
@@ -170,3 +175,154 @@ reproduction; a hunch is not a defect.
   open, and a condition that names "no major defect" cannot pass while two remain.
   Condition 1 stays UNVERIFIED: J4 is still not drivable keyless. Scorecard 4/12 →
   **5/12**.
+
+### Iteration 2 — 2026-08-13 — the two audits, and the review that is not an audit
+
+This wave **measures; it does not fix**. No product code, test, config or asset was
+modified. The files added are two producer scripts under `scripts/` and
+`promotion/evidence/iteration-2/`. Its job was the two conditions earlier waves
+could not close: **7** (Web Interface Guidelines review) and **8** (web-quality
+audit), plus any adjacent row the same runs gave real evidence for.
+
+Environment: fresh `git clone` of `main` at commit `81504b0`, Windows 11, Node
+22.22.2, no `.env.local` — the keyless in-memory tier a stranger reaches.
+`npm install` exit 0. `npm run build` exit 0 (`tsc --noEmit` + `vite build` 2m11s
++ `verify-build-provenance` `{"status":"pass","expectedSha":"81504b0c…"}`). Served
+with `npx vite preview --host 127.0.0.1 --port 4903 --strictPort`. Every number
+below came from that production build in a rendered Chromium, started after the
+build so nothing was measured against a stale process.
+
+#### Condition 8 — the web-quality audit. FAIL, now with both halves of its evidence.
+
+Producer: `scripts/promotion-web-quality-audit.mjs`, exit **1** while a major
+stands. It runs, and records verbatim, the commands it ran:
+
+    npx --yes lighthouse@13.4.1 <url> --output=json --output-path=<file> --chrome-flags="--headless" [--preset=desktop]
+    npx --yes @axe-core/cli@4.13.0 <url> --load-delay 8000 --dir <out> --save axe-cli-landing.json
+
+plus an axe-core pass through Playwright for the room. Artifacts, all committed:
+`lighthouse-landing-mobile.json`, `lighthouse-landing-desktop.json`,
+`axe-cli-landing.json`, `axe-room.json`, `room-1440-audited.png`,
+`web-quality-summary.json`.
+
+| Surface | Perf | A11y | LCP | FCP | TTI | CLS |
+|---|---|---|---|---|---|---|
+| phone shell, `/?mode=memory`, mobile preset | **0.47** | 0.95 | **10,169ms** | 6,717ms | 10,643ms | 0.000 |
+| desktop surface, `surface=desktop`, desktop preset | 0.91 | 0.93 | 1,431ms | 1,109ms | 1,668ms | 0.013 |
+
+Three majors, all in `web-quality-summary.json` under `majors`:
+
+1. `lighthouse/landing-mobile`: LCP 10,169ms against Google's 4,000ms "poor" line.
+2. `axe-room`: **critical** `aria-allowed-attr` on the chat `textarea` — 1 node.
+3. `axe-room`: **serious** `color-contrast` — 4 nodes (`.r-live-count`, `.on`, two
+   `.r-spine-step[data-state="next"]`).
+
+axe CLI on the landing route found 2 moderate issues (`heading-order`, `region`),
+below the major line, which feed defect D-9.
+
+**The baseline row for condition 8 said "Core Web Vitals were not measured." They
+are now.** That is the substantive change here: the verdict did not move, but it
+stopped resting on a partial measurement whose tool was gone.
+
+One trap worth keeping: `@axe-core/cli` with no `--load-delay` reported
+**"0 violations found!"** — a perfect score, because NodeRoom boots into a shimmer
+and axe graded the skeleton. Every axe run in the producer now waits, and the
+summary records what proved the app was actually up.
+
+#### Condition 7 — the Web Interface Guidelines review. UNVERIFIED → **FAIL**.
+
+Guidelines fetched 2026-08-13 from https://vercel.com/design/guidelines (reachable;
+no fallback needed). Producer: `scripts/promotion-wig-review.mjs`, exit **1** while
+a major stands. **19 rules reviewed: 9 major, 4 minor, 6 clean.** Every verdict is
+a measurement taken from the rendered page, stored beside the rule it belongs to in
+`evidence/iteration-2/wig-review.json`.
+
+**This is not a Lighthouse score wearing a different label.** The three most
+important findings are things no audit tool tests, and Lighthouse scored this app
+0.91 on desktop while all three were true.
+
+| Guideline | Measurement | Verdict |
+|---|---|---|
+| Interactions — URL as state | Entering the room leaves the URL byte-identical; F5 then shows the marketing page (`roomVisible: false`, `landingCtaVisible: true`) | **major** — D-8 |
+| Interactions — Deep-link everything | `history.length` still 2 inside the room; `goBack()` lands on `about:blank` | **major** — D-8 |
+| Content — Accurate page titles | landing and room `<title>` identical | **major** — D-12 |
+| Content — Headings & skip link | room renders 0 landmarks and 0 `main`; landing has no skip link | **major** — D-9 |
+| Content — Semantics before ARIA | `aria-expanded="false"` on a `TEXTAREA` | **major** — same node as D-5 |
+| Interactions — Match visual & hit targets | 30 of 85 visible controls under 24px, including every `cell-edit-control` at 21px | **major** — D-10 |
+| Interactions — Confirm destructive actions / Undo | the Undo control is `disabled` on arrival | **major** — D-2, independently reproduced |
+| Interactions — Keyboard works everywhere | 40 Tabs; `chat-composer` and `cell-edit-control` both unreached | **major** — D-6 |
+| Interactions — Clear focus | 1 of 40 focused controls has no outline and no box-shadow | **major** — D-6 |
+| Design — theme-color / color-scheme | `meta[name=theme-color]` absent; `color-scheme: dark` present | minor |
+| Content — Tabular numbers | 26 numeric cells, 25 use `tabular-nums`; one overflow chip does not | minor |
+| Animations — Never `transition: all` | 2 elements animate with `transition-property: all` | minor |
+| Forms — Textarea behavior | Enter submits and clears the composer rather than inserting a newline | minor — chat convention differs from the guideline; recorded, not charged |
+| Interactions — Respect zoom | `width=device-width, initial-scale=1.0, viewport-fit=cover` — nothing disabled | clean |
+| Interactions — Don't block paste | paste event on the composer, `defaultPrevented: false` | clean |
+| Interactions — Mobile input size | Pixel 7, every visible input at least 16px | clean |
+| Content — Icon-only buttons are named | 8 icon-only buttons visible, 0 unnamed | clean |
+| Animations — Honor `prefers-reduced-motion` | 0 elements still animating under `reducedMotion: reduce` | clean |
+| Layout — Responsive coverage / No excessive scrollbars | six widths, no overflow, shell switches at the breakpoint | clean |
+
+#### Conditions 3, 4, 9 — same verdict, real evidence underneath it now
+
+The baseline recorded these PASS from measurements whose tool was not retained. The
+width sweep inside `scripts/promotion-wig-review.mjs` re-measures all three in one
+pass and commits both the readout and the pictures. It loads `/?mode=memory` with
+**no `surface=` override**, so the app picks its own shell — an earlier draft of
+this script pinned `surface=desktop` and would have "proved" the phone layout was
+intentional while forcing the desktop one.
+
+| width | scrollWidth | shell | console errors | failed requests |
+|---|---|---|---|---|
+| 320 | 320 | phone | 0 | 0 |
+| 360 | 360 | phone | 0 | 0 |
+| 412 | 412 | phone | 0 | 0 |
+| 768 | 768 | desktop | 0 | 0 |
+| 1280 | 1280 | desktop | 0 | 0 |
+| 1440 | 1440 | desktop | 0 | 0 |
+
+#### Condition 10 — PASS → **FAIL**
+
+The baseline's PASS was a localhost desktop measurement with a warm cache and no
+throttling. Under Lighthouse's mobile emulation the phone shell takes **10,643ms**
+to become interactive. J5 is explicitly a phone journey, so this is in scope, and
+ten seconds is obstruction by any reading. Desktop is unaffected (TTI 1,668ms).
+Nothing regressed between iteration 1 and iteration 2 — the app had simply never
+been measured under these conditions.
+
+#### Two checks this wave got wrong, and how they were caught
+
+Recorded because the next reader will otherwise re-derive them, and because a
+review that never fails its own checks is not a review:
+
+1. **`transition-property: all` flags the whole document.** `all` is the CSS
+   *initial value*, so testing `getComputedStyle(el).transitionProperty === "all"`
+   matched 926 elements including `<head>`, `<meta>` and `<title>`. Corrected to
+   also require a non-zero `transition-duration`: the real count is **2**.
+2. **The tabular-numbers rule scored a sample of zero.** It read
+   `[data-testid="cell-edit-control"]`, which says "add"/"note" while the VARIANCE
+   column is empty, found no digits, and returned a clean verdict on nothing.
+   Corrected to scan numeric leaf nodes in the work panel: 26 figures, 25 already
+   `tabular-nums`. The rule really is nearly clean — but it was clean by luck, not
+   by measurement, until the selector was fixed.
+
+A third correction was methodological: both Lighthouse presets initially ran
+against `surface=desktop`, which reported the desktop layout's cost as the phone
+experience. Each preset now audits the surface it corresponds to.
+
+#### What was deliberately NOT done
+
+No Convex deployment, no secret set or rotated, nothing published, production not
+touched. `npm test -- --run` was **not** re-run this wave — condition 11 therefore
+keeps iteration 1's FAIL and its reasons unchanged rather than borrowing a fresh
+claim; `npm run build` was run and was green. Conditions 1 and 5 were not
+re-measured: J4 is still not drivable keyless, and the error and agent-running
+states still have no way to be triggered in this tier, so both keep their
+UNVERIFIED and their reason.
+
+- **Conditions newly PASS:** none.
+- **Conditions moved:** **7** UNVERIFIED → FAIL (review performed, 9 majors);
+  **10** PASS → FAIL (first measurement under phone conditions).
+- **Rows re-evidenced without changing verdict:** 3, 4, 6, 8, 9 — each now names a
+  committed artifact and a committed, re-runnable producer.
+- Scorecard 5/12 → **4/12**.
