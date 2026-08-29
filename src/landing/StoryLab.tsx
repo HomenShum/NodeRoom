@@ -15,8 +15,7 @@
    stay illustrated in the scroll story above, not faked here.
    ============================================================================ */
 import * as React from "react";
-import { motion } from "motion/react";
-import { PressButton, Rise } from "../ui/motion/motionPrims";
+import { Arrive, PressButton, Rise } from "../motion/motionPrims";
 import { engine, createFreshRoom } from "../app/roomStore";
 import { EngineStoreProvider, useStore } from "../app/store";
 import type { Actor } from "../engine/types";
@@ -420,16 +419,13 @@ function LeasePanel({ roomId, me }: { roomId: string; me: Actor }): React.ReactE
       {steps.length ? (
         <ol className="sl-steps" data-testid="story-lab-lease-steps" role="status">
           {steps.map((s, i) => (
-            <motion.li
+            <Arrive as="li" y={6} delay={i * 90}
               className={"sl-step " + s.state}
               key={i}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, ease: "easeOut", delay: i * 0.09 }}
             >
               <span className="sl-step-ix">{s.state === "pass" ? "✓" : s.state === "fail" ? "✕" : i + 1}</span>
               <span>{s.label}</span>
-            </motion.li>
+            </Arrive>
           ))}
         </ol>
       ) : null}
@@ -570,16 +566,13 @@ function RebasePanel(): React.ReactElement {
       {steps.length ? (
         <ol className="sl-steps" data-testid="story-lab-rebase-steps" role="status">
           {steps.map((s, i) => (
-            <motion.li
+            <Arrive as="li" y={6} delay={i * 90}
               className={"sl-step " + s.state}
               key={i}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, ease: "easeOut", delay: i * 0.09 }}
             >
               <span className="sl-step-ix">{s.state === "pass" ? "✓" : s.state === "fail" ? "✕" : i + 1}</span>
               <span>{s.label}</span>
-            </motion.li>
+            </Arrive>
           ))}
         </ol>
       ) : null}

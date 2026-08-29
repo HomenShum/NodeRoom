@@ -20,6 +20,7 @@ const TAGS = {
   p: motion.p,
   h1: motion.h1,
   h2: motion.h2,
+  li: motion.li,
 } as const;
 type Tag = keyof typeof TAGS;
 
@@ -78,5 +79,16 @@ export function PressButton({ children, ...rest }: { children?: ReactNode } & Om
     >
       {children}
     </motion.button>
+  );
+}
+
+/** Arrival of a new item into a feed or step log — the 'arrive' gesture. One-shot,
+ *  transform/opacity only. spring=true uses the settle spring; false a 350ms ease-out. */
+export function Arrive({ as = "div", y = 8, spring = false, delay = 0, children, ...rest }: { as?: Tag; y?: number; spring?: boolean; /** ms */ delay?: number; children?: ReactNode } & Omit<HTMLMotionProps<"div">, "children">) {
+  const M = TAGS[as] as typeof motion.div;
+  return (
+    <M initial={{ opacity: 0, y }} animate={{ opacity: 1, y: 0 }}
+      transition={spring ? { type: "spring", stiffness: 380, damping: 28, delay: delay / 1000 } : { duration: 0.3, ease: "easeOut", delay: delay / 1000 }}
+      {...rest}>{children}</M>
   );
 }

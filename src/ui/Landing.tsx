@@ -9,7 +9,7 @@ import type { FunctionReference } from "convex/server";
 import { ArrowRight, Lock, Moon, Plus, Sparkles, Users, X } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import { createFreshRoom, enterDemoRoomAsHost, joinRoomByCode } from "../app/roomStore";
-import { MotionRoot, Rise } from "./motion/motionPrims";
+import { MotionRoot, Rise } from "../motion/motionPrims";
 import { FocusTrapDialog } from "./primitives/FocusTrapDialog";
 import type { Session } from "./App";
 import "./landing.css";

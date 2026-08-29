@@ -10,7 +10,7 @@ import { useRef, useState } from "react";
 import { ArrowRight, BookOpen, FileSpreadsheet, GitMerge, ShieldCheck, Sparkles } from "lucide-react";
 import { demo } from "../app/roomStore";
 import type { Session } from "../ui/App";
-import { MotionRoot, Rise } from "../ui/motion/motionPrims";
+import { MotionRoot, Rise } from "../motion/motionPrims";
 import { StoryStage } from "./StoryStage";
 import { StoryLab } from "./StoryLab";
 import { StoryQuickDemo } from "./StoryQuickDemo";
