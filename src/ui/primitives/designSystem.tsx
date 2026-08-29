@@ -1,8 +1,6 @@
 import type {
   ButtonHTMLAttributes,
   HTMLAttributes,
-  InputHTMLAttributes,
-  LabelHTMLAttributes,
   ReactNode,
 } from "react";
 import { FocusTrapDialog } from "./FocusTrapDialog";
@@ -81,52 +79,6 @@ export function Badge({ tone = "neutral", className, ...props }: BadgeProps) {
 
 export function Tabs({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return <div {...props} className={cx("nr-tabs", className)} />;
-}
-
-export function TextInput({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
-  return <input {...props} className={cx("nr-input", className)} />;
-}
-
-type SearchFieldProps = LabelHTMLAttributes<HTMLLabelElement> & {
-  icon?: ReactNode;
-  inputProps: InputHTMLAttributes<HTMLInputElement>;
-};
-
-export function SearchField({ icon, inputProps, className, ...props }: SearchFieldProps) {
-  return (
-    <label {...props} className={cx("nr-search-field", className)}>
-      {icon}
-      <input {...inputProps} className={cx("nr-input", inputProps.className)} />
-    </label>
-  );
-}
-
-export function EmptyState({
-  icon,
-  title,
-  children,
-  className,
-  ...props
-}: HTMLAttributes<HTMLDivElement> & { icon?: ReactNode; title: ReactNode }) {
-  return (
-    <div {...props} className={cx("nr-empty-state", className)}>
-      {icon && <div className="nr-empty-state__icon">{icon}</div>}
-      <strong>{title}</strong>
-      {children && <div className="nr-empty-state__body">{children}</div>}
-    </div>
-  );
-}
-
-export function LoadingState({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div {...props} className={cx("nr-loading-state", className)} />;
-}
-
-export function ErrorState({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div {...props} role={props.role ?? "alert"} className={cx("nr-error-state", className)} />;
-}
-
-export function Popover({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div {...props} className={cx("nr-popover", className)} />;
 }
 
 type ModalProps = {

@@ -661,5 +661,3 @@ export function CoachSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   );
 }
 
-// Re-export the internal scope helper so the module surface mirrors the prototype.
-export { scopeTable };

@@ -79,5 +79,7 @@ describe("NodeRoom full NodeBook workspace projection", () => {
       view.container.querySelector<HTMLButtonElement>(`[data-nodebook-node-id="visual-${kind}"]`)!.click();
       await vi.waitFor(() => expect(view.container.querySelector(`[data-nodebook-artifact-kind="${kind}"] [data-nodebook-artifact-rendered] svg`)).toBeTruthy(), { timeout: 15_000 });
     }
-  }, 60_000);
+    // was 60_000: cold vitest transform of the six lazy renderer plugins (mermaid/vega/drawio/...)
+    // measured 70.95s on Windows under load 2026-08-29; warm runs take ~7s. 180s = cold + headroom.
+  }, 180_000);
 });

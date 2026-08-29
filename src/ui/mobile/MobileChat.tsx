@@ -151,54 +151,6 @@ export function AgentChat({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   );
 }
 
-// ── UNIVERSAL COMPOSER ──────────────────────────────────────────────────
-export function Composer({ ctx }: { ctx: MobileCtx }): React.ReactElement {
-  const m = ctx.composerMode;
-  const showQuick = ctx.tab === "agent";
-  const modeMeta: Record<ComposerMode, { icon: IconName; label: string; ph: string }> = {
-    note:  { icon: "pen", label: "Note", ph: "Dump a private note…" },
-    room:  { icon: "room", label: "Room", ph: "Message the room…  @agent to ask" },
-    agent: { icon: "sparkles", label: "Agent", ph: "Ask NodeAgent to do something…" },
-    source: { icon: "link", label: "Source", ph: "Paste a URL or describe a source…" },
-  };
-  const MODES: ComposerMode[] = ["note", "room", "agent"];
-  const quickPrompts = ctx.isLive ? [
-    { icon: "search" as IconName, text: "Plan a source-backed first artifact", kind: "plan" as const },
-    { icon: "pen" as IconName, text: "Draft a follow-up from current room evidence", kind: "draft" as const },
-    { icon: "coach" as IconName, text: "Help me explain the largest evidence gap", kind: "coach" as const },
-    { icon: "note" as IconName, text: "Summarize this room's sourced findings", kind: "summary" as const },
-  ] : D.QUICK_PROMPTS;
-
-  return React.createElement("div", { className: "na-composer" },
-    showQuick && React.createElement("div", { className: "na-quick" },
-      quickPrompts.map((q, i) => React.createElement("button", { key: i, onClick: () => ctx.runQuick(q) },
-        Ico(q.icon), q.text))),
-
-    React.createElement("div", { className: "na-modes" },
-      MODES.map((id) => React.createElement("button", {
-        key: id, className: "na-mode", "data-mode": id, "data-active": m === id,
-        onClick: () => ctx.setComposerMode(id),
-      }, Ico(modeMeta[id].icon), modeMeta[id].label))),
-
-    ctx.listening
-      ? React.createElement("div", { className: "na-composer-row" },
-          React.createElement("div", { className: "na-listening" },
-            React.createElement("span", { className: "na-wave" },
-              React.createElement("i", null), React.createElement("i", null), React.createElement("i", null), React.createElement("i", null), React.createElement("i", null)),
-            "Listening…"),
-          React.createElement(Tooltip, { label: "Stop", side: "top", children: React.createElement("button", { className: "na-mic", "data-listening": "true", onClick: ctx.stopVoice, "aria-label": "Stop", title: "Stop" }, Ico("mic")) }),
-          React.createElement("button", { className: "na-send", disabled: true }, Ico("arrowRight")))
-      : React.createElement("div", { className: "na-composer-row" },
-          React.createElement("textarea", {
-            className: "na-composer-field", rows: 1, value: ctx.draft,
-            placeholder: modeMeta[m].ph,
-            onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => ctx.setDraft(e.target.value),
-            onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ctx.sendComposer(); } },
-          }),
-          React.createElement(Tooltip, { label: "Voice to text", side: "top", children: React.createElement("button", { className: "na-mic", onClick: ctx.startVoice, "aria-label": "Voice to text", title: "Voice to text" }, Ico("mic")) }),
-          React.createElement(Tooltip, { label: "Send", side: "top", children: React.createElement("button", { className: "na-send", disabled: !ctx.draft.trim(), onClick: ctx.sendComposer, "aria-label": "Send", title: "Send" }, Ico("arrowRight")) })));
-}
-
 // ── JOBS SHEET ────────────────────────────────────────────────────────────
 // Compact, traceable rows — status dot, title, inline trace chips. No big
 // cards or action buttons; the running job carries a thin progress underline

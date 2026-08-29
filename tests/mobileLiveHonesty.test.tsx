@@ -2,7 +2,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SourceOverlay, TraceOverlay } from "../src/ui/mobile/MobileOverlay";
-import { Composer, RoomChat } from "../src/ui/mobile/MobileChat";
+import { RoomChat } from "../src/ui/mobile/MobileChat";
 import { buildMobileRecents, projectMobileSheetRow, resolveMobileExperience } from "../src/ui/mobile/MobileAppLive";
 import { Home } from "../src/ui/mobile/MobileScreens";
 import { EvidenceSheet, PlanSheet } from "../src/ui/mobile/MobileSheets";
@@ -105,30 +105,15 @@ describe("mobile live-room honesty", () => {
     expect(setTab).toHaveBeenCalledWith("agent");
   });
 
-  it("uses live people and generic live prompts instead of CardioNova fixtures", () => {
-    const runQuick = vi.fn();
-    const { rerender } = render(<RoomChat ctx={liveCtx({
+  it("uses live people instead of CardioNova fixtures", () => {
+    render(<RoomChat ctx={liveCtx({
       people: { member_live: { name: "Amina", short: "AM", color: "#345", agent: false } },
       roomMsgs: [{ id: "m-live", who: "member_live", kind: "msg", t: "now", text: "Live room message" }],
       mentionPerson: vi.fn(),
       retryMessage: vi.fn(),
     })} />);
-
     expect(screen.getByText("Amina")).toBeTruthy();
-    rerender(<Composer ctx={liveCtx({
-      tab: "agent",
-      composerMode: "agent",
-      draft: "",
-      listening: false,
-      runQuick,
-      setComposerMode: vi.fn(),
-      sendComposer: vi.fn(),
-      startVoice: vi.fn(),
-      stopVoice: vi.fn(),
-    })} />);
     expect(screen.queryByText(/CardioNova/i)).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Plan a source-backed first artifact" }));
-    expect(runQuick).toHaveBeenCalledWith(expect.objectContaining({ text: "Plan a source-backed first artifact" }));
   });
 
   it("projects an arbitrary live sheet without substituting the sample company", () => {

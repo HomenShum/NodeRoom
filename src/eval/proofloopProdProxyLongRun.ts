@@ -5,6 +5,7 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  statSync,
   readdirSync,
   writeFileSync,
 } from "node:fs";
@@ -942,11 +943,21 @@ function writeText(root: string, path: string, value: string): void {
   writeFileSync(absolute, value, "utf8");
 }
 
+// Long-run state.json files grow to ~15MB on dogfood machines; parsing one per plan build
+// made repeated builds cost seconds. Memoized by absolute path + mtime so a changed file
+// still re-reads. ponytail: unbounded Map \u2014 entries are a handful of state files per process.
+const readJsonCache = new Map<string, { mtimeMs: number; value: unknown }>();
+
 function readJson<T>(root: string, path: string): T | undefined {
   const absolute = resolve(root, path);
   if (!existsSync(absolute)) return undefined;
   try {
-    return JSON.parse(readFileSync(absolute, "utf8").replace(/^\uFEFF/, "")) as T;
+    const mtimeMs = statSync(absolute).mtimeMs;
+    const hit = readJsonCache.get(absolute);
+    if (hit && hit.mtimeMs === mtimeMs) return hit.value as T;
+    const value = JSON.parse(readFileSync(absolute, "utf8").replace(/^\uFEFF/, "")) as T;
+    readJsonCache.set(absolute, { mtimeMs, value });
+    return value;
   } catch {
     return undefined;
   }

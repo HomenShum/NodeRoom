@@ -134,9 +134,9 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-btn.ghost { background: transparent; border-color: transparent; color: var(--text-muted); }
 .r-btn.ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
 .r-btn:disabled { opacity: .5; cursor: default; }
-.r-pill-auto { display: inline-flex; align-items: center; gap: 8px; padding: 5px 6px 5px var(--space-3); border-radius: 9px; border: 1px solid var(--line); background: transparent; font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; flex-shrink: 0; } /* calm: hairline carries it */
-.r-pill-auto b { color: var(--accent-ink); font-size: 11px; font-weight: 800; letter-spacing: .01em; }
-.r-pill-auto-label { color: var(--text-muted); font-size: 11px; font-weight: 750; }
+ /* calm: hairline carries it */
+
+
 .r-focus-mode-control[data-on="true"] { color: var(--accent-ink); border-color: var(--accent-border); background: var(--accent-tint); }
 .r-switch { width: 32px; height: 18px; border-radius: 999px; background: var(--bg-hover); position: relative; transition: background .18s; flex: none; border: none; padding: 0; }
 .r-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform .18s var(--ease-spring); box-shadow: 0 1px 2px rgba(0,0,0,.3); }
@@ -369,74 +369,15 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-tree-copy { min-width: 0; }
 .r-tree-count { margin-left: auto; flex: none; min-width: 18px; height: 18px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 999px; color: var(--text-tertiary); font-family: var(--font-mono); font-size: 9.5px; background: var(--bg-primary); }
 .r-tree-empty { padding: 6px var(--space-2); color: var(--text-tertiary); font-size: 11px; }
-.r-sidebar-chat {
-  width: 100%;
-  min-width: 0;
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) 20px;
-  align-items: center;
-  gap: 8px;
-  padding: var(--space-2);
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  background: transparent;
-  color: var(--text-secondary);
-  text-align: left;
-}
-.r-sidebar-chat:hover {
-  border-color: var(--accent-border);
-  background: var(--accent-tint);
-  color: var(--text-primary);
-}
-.r-sidebar-chat:disabled {
-  opacity: .62;
-  cursor: default;
-}
-.r-sidebar-chat-ico {
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  border-radius: 7px;
-  background: var(--bg-primary);
-  color: var(--accent-ink);
-  border: 1px solid var(--line);
-}
-.r-sidebar-chat-title {
-  min-width: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) max-content;
-  align-items: baseline;
-  gap: 8px;
-}
-.r-sidebar-chat-title span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--text-primary);
-  font-size: 12.5px;
-  font-weight: 800;
-}
-.r-sidebar-chat-title em {
-  flex: none;
-  max-width: 84px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--text-tertiary);
-  font-style: normal;
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-}
-.r-sidebar-chat-open {
-  width: 20px;
-  height: 20px;
-  display: grid;
-  place-items: center;
-  color: var(--text-tertiary);
-}
-.r-sidebar-chat:hover .r-sidebar-chat-open { color: var(--accent-ink); }
+
+
+
+
+
+
+
+
+
 .r-person { display: flex; align-items: center; gap: var(--space-2); padding: 8px var(--space-2); min-height: 42px; border-radius: 9px; }
 .r-person:hover { background: var(--bg-hover); }
 .r-person .pn { font-size: 13px; line-height: 1.25; font-weight: 650; }
@@ -946,8 +887,8 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
   .r-agent-workflow-progress-preview { grid-column: 2; white-space: normal; overflow-wrap: anywhere; }
 }
 .r-activity { display: flex; align-items: center; gap: 8px; padding: 4px 2px; }
-.r-activity-ico { width: 20px; height: 20px; border-radius: 6px; flex: none; display: grid; place-items: center; background: var(--bg-secondary); border: 1px solid var(--line); color: var(--accent-ink); font-size: 10px; }
-.r-activity-text { font-size: 11.5px; color: var(--text-muted); line-height: 1.35; flex: 1; min-width: 0; }
+
+
 
 /* artifact */
 .r-tabs { display: flex; gap: 3px; min-width: 0; max-width: 100%; }
@@ -982,18 +923,18 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-art-body > .r-sheet-wrap { flex: 1; }
 /* honest error state — a hand edit that lost a CAS race */
 .r-art-error { display: flex; align-items: center; gap: var(--space-2); padding: 8px 14px; background: var(--danger-tint); border-bottom: 1px solid var(--danger-border); color: var(--danger-ink); font-size: 12px; font-weight: 600; animation: msgIn .2s var(--ease-out-expo) both; }
-.r-beat-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+
 
 .r-sheet-wrap { padding: 0; overflow: auto; }
 .r-sheet { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.5px; }
 .r-sheet[data-sheet-kind="generic"] { width: 100%; table-layout: fixed; }
-.r-excel-grid { table-layout: fixed; }
-.r-excel-grid th, .r-excel-grid td { min-width: 92px; max-width: 180px; }
-.r-excel-grid .r-excel-corner, .r-excel-grid .r-excel-rowhead { position: sticky; left: 0; z-index: 2; width: 52px; min-width: 52px; max-width: 52px; background: var(--bg-primary); }
-.r-excel-grid .r-excel-col { text-align: center; font-family: var(--font-mono); }
-.r-excel-grid .r-excel-rowhead { text-align: right; font-variant-numeric: tabular-nums; border-right: 1px solid var(--line); }
-.r-excel-grid .r-excel-cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.r-excel-grid .r-excel-cell:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+
+
+
+
+
+
 
 /* Quadratic-grounded grid: sticky gray column headers + thin gridlines + a row-number gutter,
    so the dark sheet reads as a real spreadsheet instead of a borderless data table. */
@@ -2038,17 +1979,17 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 .r-cta-row[data-live="true"] .r-join-inline input { width: 122px; }
 .r-join-inline input::placeholder { color: var(--text-tertiary); letter-spacing: .04em; }
 .r-cta-row[data-live="true"] .r-join-inline .r-btn { min-height: 34px; padding: var(--space-2) 12px; }
-.r-feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 44px; }
+
 
 /* Proof metrics — credibility counters on the landing (CountUp-driven). */
 .r-proof-grid { display: flex; flex-wrap: wrap; gap: 28px; margin-top: 36px; padding: 18px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .r-proof { display: flex; flex-direction: column; gap: 2px; }
 .r-proof > span:first-child { font-size: 26px; font-weight: 800; color: var(--text-primary); font-variant-numeric: tabular-nums; line-height: 1; }
 .r-proof-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: .06em; }
-.r-feature { min-height: 146px; padding: 18px; border-radius: 12px; border: 1px solid var(--line); background: color-mix(in srgb, var(--bg-primary) 72%, transparent); }
-.r-feature .fi { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; background: var(--accent-tint); color: var(--accent-ink); margin-bottom: 12px; font-size: 16px; }
-.r-feature h3 { font-size: 14px; font-weight: 700; margin: 0 0 5px; letter-spacing: -.01em; }
-.r-feature p { font-size: 12.5px; line-height: 1.55; color: var(--text-muted); margin: 0; }
+
+
+
+
 .r-story-tape { flex: none; display: flex; align-items: center; gap: 14px; width: min(1040px, calc(100% - 64px)); margin: 0 auto 22px; padding: var(--space-3) 0 0; border-top: 1px solid var(--line); color: var(--text-muted); }
 .r-story-meta { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .r-story-meta span { font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; color: var(--text-tertiary); text-transform: uppercase; white-space: nowrap; }
@@ -2146,7 +2087,9 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
 @media (max-width: 640px) {
   .r-top { gap: 4px; padding: 0 8px; overflow-x: auto; scrollbar-width: none; }
   .r-top::-webkit-scrollbar { display: none; }
-  .r-roomcode, .r-avatars, .r-pill-auto, .r-brand span { display: none; }
+.r-roomcode,
+.r-avatars,
+.r-brand span { display: none; }
   .r-brand { flex: none; max-width: 98px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .r-toggle-group { flex: none; gap: 3px; padding: 3px; }
   .r-toggle-group .r-iconbtn {
@@ -2213,7 +2156,7 @@ button.r-tracevu-step:hover, button.r-tracevu-step:focus-visible { border-color:
   .r-research-import { grid-template-columns: 1fr; }
   .r-research-import .r-btn { width: 100%; justify-content: center; }
   .r-research-detail { grid-template-columns: 1fr; }
-  .r-feature-grid { grid-template-columns: 1fr; }
+
   .r-landing { padding: 32px 16px; }
   .r-landing-top { padding: 14px 16px; }
   .r-landing .r-field { width: min(100%, 360px); max-width: none !important; }
@@ -3081,15 +3024,13 @@ body.nr-honesty-on [data-evidence-class="unsourced"]     { background-color: col
   background: color-mix(in srgb, var(--bg-primary) 84%, transparent);
 }
 
-.r-top .r-pill-auto,
 .r-top .r-live-count {
   background: color-mix(in srgb, var(--bg-secondary) 72%, transparent);
   border-color: color-mix(in srgb, var(--line) 82%, transparent);
 }
 
 .r-top .r-avatars,
-.r-top .r-live-count,
-.r-top .r-pill-auto {
+.r-top .r-live-count {
   opacity: .74;
   transition: opacity var(--motion-fast), background var(--motion-fast), border-color var(--motion-fast);
 }
@@ -3097,9 +3038,7 @@ body.nr-honesty-on [data-evidence-class="unsourced"]     { background-color: col
 .r-top:hover .r-avatars,
 .r-top:focus-within .r-avatars,
 .r-top:hover .r-live-count,
-.r-top:focus-within .r-live-count,
-.r-top:hover .r-pill-auto,
-.r-top:focus-within .r-pill-auto {
+.r-top:focus-within .r-live-count {
   opacity: 1;
 }
 
