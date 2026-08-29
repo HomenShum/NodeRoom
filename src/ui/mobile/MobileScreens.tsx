@@ -521,6 +521,160 @@ export function riStyle(tone: string): React.CSSProperties {
   };
 }
 
+// ── STRUCTURED EXTRACTION (LlamaCloud-style results) ──────────────────────────────────────────────────────────
+// One object with key→value rows + per-field confidence, plus a JSON view.
+function toJSON(ex: D.Extract): Record<string, unknown> {
+  const o: Record<string, unknown> = {};
+  ex.groups.forEach((g: D.ExtractGroup) => {
+    if (g.id === "entity") g.rows.forEach((r: D.ExtractRow) => { o[r.k] = r.v; });
+    else {
+      const sub: Record<string, unknown> = {};
+      g.rows.forEach((r: D.ExtractRow) => { sub[r.k] = r.v; });
+      o[g.id] = sub;
+    }
+  });
+  return o;
+}
+
+function highlightJSON(obj: Record<string, unknown>): React.ReactElement[] {
+  const text = JSON.stringify(obj, null, 2);
+  return text.split("\n").map((line: string, i: number) => {
+    const m = line.match(/^(\s*)(?:"([^"]+)"\s*:\s*)?(.*)$/);
+    const indent = (m && m[1]) || "",
+      key = m && m[2];
+    const rest = (m && m[3]) || "";
+    const nodes: React.ReactNode[] = [indent];
+    if (key != null) {
+      nodes.push(React.createElement("span", { key: "k", className: "jk" }, '"' + key + '"'));
+      nodes.push(": ");
+    }
+    if (rest) {
+      const trail = (rest.match(/,$/) || [""])[0];
+      const core = trail ? rest.slice(0, -1) : rest;
+      let cls = "jp";
+      if (/^".*"$/.test(core)) cls = "js";
+      else if (/^-?\d/.test(core)) cls = "jn";
+      else if (/^(true|false|null)$/.test(core)) cls = "jn";
+      else if (/^[{}[\]]$/.test(core)) cls = "jp";
+      if (core) nodes.push(React.createElement("span", { key: "v", className: cls }, core));
+      if (trail) nodes.push(trail);
+    }
+    return React.createElement("div", { key: i, className: "jline" }, ...nodes);
+  });
+}
+
+export function ExtractCard({ ctx }: { ctx: MobileCtx }): React.ReactElement {
+  const [view, setView] = React.useState<"fields" | "json">("fields");
+  const ex = ctx.extract;
+  const flash: string[] = ctx.flashKeys || [];
+  const conf = (c: number) =>
+    c <= 0
+      ? { txt: "gap", cls: "gap" }
+      : c < 0.9
+        ? { txt: Math.round(c * 100) + "%", cls: "low" }
+        : { txt: Math.round(c * 100) + "%", cls: "ok" };
+
+  return React.createElement(
+    "div",
+    { className: "na-detected" },
+    React.createElement(
+      "div",
+      { className: "na-detected-head" },
+      React.createElement(
+        "span",
+        { className: "na-detected-cap" },
+        "Detected in this note · ",
+        React.createElement("b", { className: "low-key" }, "orange"),
+        " = low confidence",
+      ),
+      React.createElement(
+        "div",
+        { className: "na-subtabs" },
+        React.createElement(
+          "button",
+          {
+            className: "na-subtab",
+            "data-active": view === "fields" ? "true" : null,
+            onClick: () => setView("fields"),
+          },
+          "Fields",
+        ),
+        React.createElement(
+          "button",
+          {
+            className: "na-subtab",
+            "data-active": view === "json" ? "true" : null,
+            onClick: () => setView("json"),
+          },
+          "JSON",
+        ),
+      ),
+    ),
+
+    view === "fields"
+      ? React.createElement(
+          "div",
+          { className: "na-extract-body" },
+          ex.groups.map((g: D.ExtractGroup) =>
+            React.createElement(
+              "div",
+              { key: g.id, className: "na-egroup" },
+              React.createElement(
+                "div",
+                { className: "na-egroup-lab" },
+                g.flag && React.createElement("span", { className: "flag" }),
+                g.label,
+              ),
+              React.createElement(
+                "div",
+                { className: "na-egroup-rows" },
+                g.rows.map((r: D.ExtractRow) => {
+                  const c = conf(r.conf);
+                  return React.createElement(
+                    "div",
+                    {
+                      key: r.k,
+                      className: "erow",
+                      tabIndex: 0,
+                      "data-low": c.cls === "low" ? "true" : null,
+                      "data-gap": c.cls === "gap" ? "true" : null,
+                      "data-flash": flash.includes(g.id + "." + r.k) ? "true" : null,
+                      onClick: () => ctx.openSheet("plan"),
+                      onKeyDown: (e: React.KeyboardEvent) => {
+                        if (e.key === "Enter") ctx.openSheet("plan");
+                      },
+                    },
+                    React.createElement("span", { className: "ek" }, r.k),
+                    React.createElement(
+                      "span",
+                      { className: "ev", style: r.mono ? { fontFamily: "var(--font-mono)" } : undefined },
+                      r.v,
+                    ),
+                    React.createElement("span", { className: "ec " + c.cls }, c.txt),
+                    React.createElement(
+                      "span",
+                      { className: "tip", role: "tooltip" },
+                      React.createElement("b", null, r.v),
+                      React.createElement(
+                        "i",
+                        null,
+                        c.cls === "gap" ? "no source yet" : "confidence " + c.txt,
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ),
+        )
+      : React.createElement(
+          "div",
+          { className: "na-extract-body" },
+          React.createElement("div", { className: "na-json" }, highlightJSON(toJSON(ex))),
+        ),
+  );
+}
+
 // ── HOME (Notion-style recents + favorites, quiet) ───────────────────────────────────────────────────────────
 // ── Per-type signature previews — each artifact reads as its own object ────────
 function recentSignature(sig: D.RecentSig | null | undefined): React.ReactElement | null {

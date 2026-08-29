@@ -239,6 +239,62 @@
 .na-seg button[data-active="true"] { background: linear-gradient(to bottom right, var(--na-accent), var(--na-accent-hover)); color: #fff; box-shadow: var(--shadow-xs); }
 
 
+.na-extract-body { padding: 12px 2px 2px; }
+.na-egroup + .na-egroup { margin-top: 16px; }
+.na-egroup-lab {
+  display: flex; align-items: center; gap: 6px; margin: 0 2px 3px;
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .09em; color: var(--text-tertiary);
+}
+.na-egroup-lab .flag { width: 5px; height: 5px; border-radius: 50%; background: var(--na-warn); }
+.na-egroup-rows { display: flex; flex-direction: column; gap: 1px; }
+.erow {
+  display: grid; grid-template-columns: minmax(0,104px) minmax(0,1fr) auto;
+  align-items: center; gap: 10px; padding: 6px 8px; margin: 0 -6px; border-radius: 6px;
+  position: relative; cursor: pointer; outline: none;
+  transition: background var(--duration-fast) var(--ease-out-expo), color var(--duration-fast) var(--ease-out-expo);
+}
+.erow:hover, .erow:focus-visible { background: var(--bg-hover); }
+.erow:focus-visible { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--na-accent) 50%, transparent); }
+.erow .ek { font-size: 12px; font-weight: 500; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.erow .ev { font-size: 14px; color: var(--text-primary); letter-spacing: -0.1px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.erow .ec { font-size: 11px; font-family: var(--font-mono); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+.erow .ec.low { color: var(--na-warn); }
+.erow .ec.gap { color: var(--na-bad); }
+.erow[data-low="true"] { background: var(--na-warn-bg); }
+.erow[data-low="true"]:hover, .erow[data-low="true"]:focus-visible { background: #F4DCA8; }
+.erow[data-low="true"] .ev, .erow[data-low="true"]:hover .ev { color: var(--na-warn); }
+.erow[data-gap="true"] .ev { color: var(--na-bad); font-style: italic; }
+.erow[data-flash="true"] { animation: na-ink 1.5s var(--ease-out-expo); }
+
+@keyframes na-ink {
+  0%   { box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--na-accent) 18%, transparent); }
+  100% { box-shadow: inset 0 0 0 999px transparent; }
+}
+
+/* dark warm-ink tooltip (DS dark tooltip variant) */
+.erow .tip {
+  position: absolute; left: 50%; bottom: calc(100% - 2px); z-index: 6;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 8px 12px; border-radius: 8px; white-space: nowrap; pointer-events: none;
+  background: #2B1D14; border: 1px solid #2B1D14; box-shadow: var(--shadow-md);
+  opacity: 0; transform: translate(-50%, 4px) scale(.96);
+  transition: opacity .16s var(--ease-out-expo), transform .16s var(--ease-out-expo);
+}
+.erow .tip b { font-size: 13px; font-weight: 500; color: #FBF4E7; letter-spacing: -0.1px; }
+.erow .tip i { font-size: 10px; font-style: normal; color: #C8B89E; font-family: var(--font-mono); }
+.erow .tip::after {
+  content: ""; position: absolute; left: 50%; bottom: -4px;
+  width: 8px; height: 8px; transform: translateX(-50%) rotate(45deg); background: #2B1D14;
+}
+.erow:hover .tip, .erow:focus-visible .tip { opacity: 1; transform: translate(-50%, 0) scale(1); }
+
+.na-json { font-family: var(--font-mono); font-size: 12px; line-height: 1.7; padding: 13px 14px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-app); overflow-x: auto; color: var(--text-secondary); }
+.na-json .jline { white-space: pre; }
+.na-json .jk { color: var(--na-accent-hover); }
+.na-json .js { color: var(--na-ok); }
+.na-json .jn { color: var(--na-priv); }
+.na-json .jp { color: var(--text-tertiary); }
+
 /* the "NodeRoom noticed" banner */
 .na-noticed {
   display: grid; grid-template-columns: 40px minmax(0,1fr) auto;
@@ -1995,6 +2051,7 @@ button.na-row:hover .chevR { transform: translateX(3px); color: var(--na-accent)
 .na-app .na-slideframe,
 .na-app .na-present-cell,
 .na-app .na-stat,
+.na-app .na-json,
 .na-app .na-export-prov,
 .na-app .na-compose-row,
 .na-app .na-patch-tray,

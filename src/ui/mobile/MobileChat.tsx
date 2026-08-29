@@ -6,10 +6,9 @@
    ============================================================================ */
 import * as React from "react";
 import { Ico } from "./MobileIcons";
-import type { IconName } from "./MobileIcons";
 import { Pill } from "./MobileScreens";
 import * as D from "./mobileData";
-import type { Person, Job, ComposerMode } from "./mobileData";
+import type { Person, Job } from "./mobileData";
 import { getModelLabel } from "../../landing/modelRegistry";
 import type { MobileCtx } from "./mobileTypes";
 import { SkeletonChat } from "./MobileSkeleton";

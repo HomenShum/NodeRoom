@@ -893,17 +893,6 @@ function parseResearchRows(text: string): ResearchRowInput[] {
     return [{ company: cols[0], website: cols[1], tier: cols[2], intent: cols[3], owner: cols[4], crmStatus: cols[5] }];
   });
 }
-function freshnessLabel(last: string) {
-  if (!last) return "never";
-  const days = Math.floor((Date.now() - Date.parse(last)) / 86_400_000);
-  if (!Number.isFinite(days)) return "unknown";
-  return days > 30 ? `${days}d stale` : "fresh";
-}
-function freshnessClass(last: string) {
-  if (!last) return "stale";
-  const days = Math.floor((Date.now() - Date.parse(last)) / 86_400_000);
-  return Number.isFinite(days) && days <= 30 ? "fresh" : "stale";
-}
 function csvEscape(value: string) {
   const safe = /^[\s]*[=+\-@]/.test(value) ? `'${value}` : value;
   return /[",\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
@@ -920,6 +909,20 @@ function downloadResearchCsv(art: Art, rowIds: string[], cell: (rid: string, c: 
   URL.revokeObjectURL(url);
 }
 
+/* ── helpers (take the store) ── */
+async function commit(store: RoomStore, roomId: string, me: Actor, artId: string, elementId: string, value: unknown): Promise<EditFeedback | null> {
+  const el = store.getArtifact(artId)?.elements[elementId];
+  if (!el || Object.is(el.value, value)) return null;
+  return store.applyEdit({ roomId, op: { opId: crypto.randomUUID(), artifactId: artId, elementId, kind: "set", value, baseVersion: el.version }, actor: me });
+}
+async function createElement(store: RoomStore, roomId: string, me: Actor, artId: string, elementId: string, value: unknown): Promise<EditFeedback> {
+  return store.applyEdit({ roomId, op: { opId: crypto.randomUUID(), artifactId: artId, elementId, kind: "create", value, baseVersion: 0 }, actor: me });
+}
+async function deleteElement(store: RoomStore, roomId: string, me: Actor, artId: string, elementId: string): Promise<EditFeedback | null> {
+  const el = store.getArtifact(artId)?.elements[elementId];
+  if (!el) return null;
+  return store.applyEdit({ roomId, op: { opId: crypto.randomUUID(), artifactId: artId, elementId, kind: "delete", value: null, baseVersion: el.version }, actor: me });
+}
 const editErrorMsg = (f: EditFeedback) =>
   f.reason === "nothing_to_undo" ? "Nothing to undo yet."
     : f.reason === "conflict" ? "That cell changed since you opened it — your edit was reverted. Re-open it to see the new value."
