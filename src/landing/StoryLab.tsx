@@ -250,12 +250,9 @@ function LabGrid({ roomId, me }: { roomId: string; me: Actor }): React.ReactElem
         </div>
 
         {conflict ? (
-          <motion.div
+          <div
             className="sl-conflict"
             role="status"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: "spring", stiffness: 380, damping: 28 }}
           >
             <div className="sl-conflict-h">
               <span className="sl-conflict-dot" /> The AI tried to overwrite your edit — and got told no
@@ -267,7 +264,7 @@ function LabGrid({ roomId, me }: { roomId: string; me: Actor }): React.ReactElem
               clash: <code>{"{ ok:false, reason:'conflict' }"}</code>. That refusal is Layer 5 (no-clobber); the
               reviewable fix-up that follows is Layer 6.
             </p>
-          </motion.div>
+          </div>
         ) : null}
       </div>
     </Rise>
@@ -412,16 +409,13 @@ function LeasePanel({ roomId, me }: { roomId: string; me: Actor }): React.ReactE
         </PressButton>
       </div>
       {leaseMs !== null ? (
-        <motion.div
+        <div
           className="sl-lease"
           data-testid="story-lab-lease-ttl"
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring", stiffness: 380, damping: 28 }}
         >
           <span className="sl-lease-dot" /> You're holding OpEx · Variance — hold expires on its own in{" "}
           {Math.round(leaseMs / 1000)}s (lease TTL)
-        </motion.div>
+        </div>
       ) : null}
       {steps.length ? (
         <ol className="sl-steps" data-testid="story-lab-lease-steps" role="status">
@@ -590,13 +584,10 @@ function RebasePanel(): React.ReactElement {
         </ol>
       ) : null}
       {proposalId ? (
-        <motion.div
+        <div
           className="sl-chip"
           data-testid="story-lab-rebase-proposal"
           role="status"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring", stiffness: 380, damping: 28 }}
         >
           <div className="sl-chip-h">
             <span className="sl-chip-dot" /> Waiting on you — the AI's edit needs your OK
@@ -605,19 +596,16 @@ function RebasePanel(): React.ReactElement {
             The AI wanted <code>AGENT-proposed</code>; the human wrote <code>HUMAN-wins</code>. If you approve, the
             AI's value lands on the <b>latest</b> version of the cell — not the outdated one it started from.
           </p>
-          <PressButton className="sl-btn primary" onClick={approve} data-testid="story-lab-rebase-approve">
+          <button type="button" className="sl-btn primary" onClick={approve} data-testid="story-lab-rebase-approve">
             ✓ Approve proposal
-          </PressButton>
-        </motion.div>
+          </button>
+        </div>
       ) : null}
       {approved ? (
-        <motion.div
+        <div
           className="sl-evi"
           data-testid="story-lab-rebase-approved"
           role="status"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring", stiffness: 380, damping: 28 }}
         >
           <div className="sl-evi-h">
             <span className="sl-evi-dot" /> Approved — re-applied at the current version
@@ -632,7 +620,7 @@ function RebasePanel(): React.ReactElement {
               <code>v{verOf()}</code>
             </span>
           </div>
-        </motion.div>
+        </div>
       ) : null}
     </Rise>
   );

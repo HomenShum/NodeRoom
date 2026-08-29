@@ -113,11 +113,11 @@ export function LandingStory({ onEnter, onBack }: { onEnter: (s: Session) => voi
         </div>
 
         {/* ── Final proof board ────────────────────────────────────────── */}
-        <Rise as="section" inView className="rs-proof-section">
+        <section className="rs-proof-section">
           <h2 className="rs-section-h">The artifact feels like Excel. The audit trail feels like Git.</h2>
           <p className="rs-section-sub">Formula. Digits. Source. Human edit. Trace. All visible before approval.</p>
           <ProofBoard />
-        </Rise>
+        </section>
 
         {/* ── Live public rooms (Always-On Rooms gallery) ──────────────── */}
         <AlwaysOnCards />
