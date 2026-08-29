@@ -134,7 +134,7 @@ export function RoomTour(): React.ReactElement {
       <div className="rt-top">
         <div className="rt-mark">N</div>
         <div className="rt-brand">
-          NodeAgent
+          NodeRoom
           {inRoom ? <span>{"  ·  " + roomTitle}</span> : null}
         </div>
         {inRoom ? (

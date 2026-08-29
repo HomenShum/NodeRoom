@@ -73,7 +73,7 @@ const LAB_STYLE = `
 .sl-conflict-b{margin:7px 0 0;font-size:12.5px;line-height:1.55;color:var(--text-secondary,#5c5650);}
 .sl-conflict-b code{font-family:var(--font-mono,ui-monospace,monospace);font-size:11.5px;background:rgba(0,0,0,.06);padding:1px 5px;border-radius:4px;}
 /* ── additive: panels for L4/L7, L6, and the L2/L3 + mobile honesty notes ── */
-.sl-panel{margin-top:16px;border:1px solid var(--border-color,rgba(0,0,0,.1));border-radius:14px;background:var(--bg-secondary,#fff);box-shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px -12px rgba(0,0,0,.1);padding:16px;}
+.sl-panel{max-width:min(760px,calc(100% - 40px));margin:16px auto 0;border:1px solid var(--border-color,rgba(0,0,0,.1));border-radius:14px;background:var(--bg-secondary,#fff);box-shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px -12px rgba(0,0,0,.1);padding:16px;}
 .sl-ptag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-primary,#d97757);}
 .sl-ph{margin:5px 0 3px;font-size:15.5px;font-weight:700;letter-spacing:-.01em;color:var(--text-primary,#1a1714);}
 .sl-pp{margin:0 0 12px;font-size:12.5px;line-height:1.5;color:var(--text-secondary,#5c5650);max-width:62ch;}

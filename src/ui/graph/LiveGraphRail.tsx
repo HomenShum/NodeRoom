@@ -31,7 +31,10 @@ function traceParticipants(t: TraceEvent, artifactTitle: (id: string) => string 
   if (title) {
     entities.push({ kind: "artifact", label: title });
     const elementId = t.refs?.elementId ?? t.refs?.cell;
-    if (elementId) entities.push({ kind: "element", label: `${title} · ${elementId}` });
+    // Cell refs (C2) read fine; machine row ids (r_rev_variance) don't — humanize for display only.
+    // Labels are never a tool contract (graphAgentContext.ts warns against deriving ids from them).
+    const elementLabel = elementId && (/^[A-Z]{1,2}\d+$/.test(elementId) ? elementId : elementId.replace(/^r_/, "").replace(/_/g, " "));
+    if (elementLabel) entities.push({ kind: "element", label: `${title} · ${elementLabel}` });
   }
   return entities;
 }
@@ -126,7 +129,7 @@ export const LiveGraphRail = memo(function LiveGraphRail({ roomId }: { roomId: s
           <NodeGraphCanvas nodes={snap.nodes} edges={snap.edges} visits={session.visitsById()} dark={dark} height={Math.max(320, window.innerHeight - 140)} />
         </Suspense>
       </div>
-      <p style={{ flex: "none", margin: 0, padding: "var(--space-2) var(--space-3)", borderTop: "1px solid var(--line)", font: "500 10.5px var(--font-ui)", color: "var(--text-tertiary)" }}>
+      <p style={{ flex: "none", margin: 0, padding: "var(--space-2) var(--space-3)", borderTop: "1px solid var(--line)", font: "500 11.5px/1.5 var(--font-ui)", color: "var(--text-muted)" }}>
         Built from real room events (trace log). Edges are interaction history; room events carry no
         measured counts, so entities read “unknown — not measured”. No curated assertion edges: the
         keyless demo path has no versioned source to receipt.

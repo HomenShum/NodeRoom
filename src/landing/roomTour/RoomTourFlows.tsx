@@ -31,7 +31,7 @@ export function Landing({
       <div className="rt-landing">
         <div className="rt-eyebrow">
           <span className="rt-dot-live" />
-          NodeAgent · live collaborative rooms
+          NodeRoom · live collaborative rooms
         </div>
         <h1 className="rt-h1">
           Bring people and <span className="accent">agents</span> into the same room.

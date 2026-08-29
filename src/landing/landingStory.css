@@ -8,7 +8,7 @@
 
 .rs-page {
   --rs-human: #a78bfa;            /* active-edit presence signal */
-  --rs-agent: #8C92E0;            /* agent / indigo */
+  --rs-agent: #D97757;            /* agent provenance — same terracotta as the app (was indigo #8C92E0, off-token) */
   --rs-lane: rgba(94, 106, 210, .10);
   --rs-maxw: 1100px;
 }
@@ -372,10 +372,10 @@
    FLOATING LAYER VISUALS
    ============================================================================ */
 .rs-float { position: absolute; z-index: 5; animation: rsPop .42s var(--ease-spring) both; }
-.rs-float-tr { top: -14px; right: -14px; }
+.rs-float-tr { bottom: calc(100% + 8px); top: auto; right: 10px; } /* above the card — was top:-14/right:-14, which sat on the sheet header (avatars, Synced) at 1440 */
 .rs-float-br { bottom: -16px; right: -10px; }
-.rs-float-r  { top: 50%; right: -26px; transform: translateY(-50%); }
-.rs-float-wide { left: 50%; bottom: -28px; transform: translateX(-50%); width: min(94%, 460px); }
+.rs-float-r  { top: 50%; right: -26px; translate: 0 -50%; } /* translate, not transform — rsPop ends at transform:none and was clobbering placement */
+.rs-float-wide { left: 50%; bottom: -28px; translate: -50% 0; width: min(94%, 460px); } /* translate, not transform — same rsPop clobber; this is why the L6 card clipped the viewport */
 
 .rs-float .rs-pulse-card, .rs-float .rs-intent-card, .rs-float .rs-copilot-card,
 .rs-float .rs-branch-card, .rs-float .rs-cas-card, .rs-float .rs-rebase,
@@ -418,7 +418,7 @@
 .rs-cas-no .rs-cas-a { color: var(--warning-ink); }
 
 .rs-rebase { padding: 14px; }
-.rs-rebase-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.rs-rebase-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } /* minmax(0,) — 1fr min-content floor pushed the float past the viewport at 1440 */
 .rs-rb-card { border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; background: var(--bg-secondary); }
 .rs-rb-human { border-color: var(--rs-human); }
 .rs-rb-agent { border-color: var(--rs-agent); }
@@ -481,8 +481,8 @@
   .rs-rail { order: 1; }
   .rs-layer-section { min-height: 62vh; }
   .rs-scene-host { box-shadow: var(--shadow-md); }
-  .rs-float-r { position: static; transform: none; margin-top: 10px; }
-  .rs-float-wide { position: static; transform: none; width: 100%; margin-top: 10px; }
+  .rs-float-r { position: static; translate: none; margin-top: 10px; }
+  .rs-float-wide { position: static; translate: none; width: 100%; margin-top: 10px; }
   .rs-float-tr, .rs-float-br { top: auto; bottom: -12px; right: -6px; }
   .rs-copilot-card, .rs-branch-card { width: auto; }
 }

@@ -2749,13 +2749,23 @@ function AgentResearchReceiptStrip({
       <span className="r-agent-receipt-version" data-testid="agent-version-receipt">
         v{receipt.fromVersion} -&gt; v{receipt.toVersion}
       </span>
-      <span
-        className="r-agent-receipt-chip"
-        data-testid="agent-research-outcome"
-        data-outcome={receipt.outcome}
-      >
-        {receipt.outcome === "needs_review" ? "Needs review" : "Complete"}
-      </span>
+      {/* The amber chip is what the eye lands on — it must BE the review affordance, not sit next to it. */}
+      {receipt.outcome === "needs_review" ? (
+        <button
+          type="button"
+          className="r-agent-receipt-chip"
+          data-testid="agent-research-outcome"
+          data-outcome={receipt.outcome}
+          title="Open the rows awaiting review"
+          onClick={() => onOpenArtifact?.(receipt.artifactId, { split: true, elementId: receipt.cellId })}
+        >
+          Needs review
+        </button>
+      ) : (
+        <span className="r-agent-receipt-chip" data-testid="agent-research-outcome" data-outcome={receipt.outcome}>
+          Complete
+        </span>
+      )}
       <span className="r-agent-receipt-chip" data-testid="agent-lock-released-receipt"><Lock size={12} /> lock released</span>
       <span className="r-agent-receipt-quote" style={{ gridColumn: "1 / -1" }}>
         <b>{receipt.company}</b>

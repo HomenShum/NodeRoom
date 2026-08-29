@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "convex/react";
 import type { FunctionReference } from "convex/server";
-import { ArrowLeft, ArrowRight, Lock, Moon, Plus, Sparkles, Users, X } from "lucide-react";
+import { ArrowRight, Lock, Moon, Plus, Sparkles, Users, X } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import { createFreshRoom, enterDemoRoomAsHost, joinRoomByCode } from "../app/roomStore";
 import { MotionRoot, Rise } from "./motion/motionPrims";
@@ -202,14 +202,11 @@ export function Landing({
               <strong>The public surface</strong>
             </div>
             <div className="r-story-actions">
-              <button className="r-iconbtn" type="button" aria-label="Previous story step" title="Previous story step">
-                <ArrowLeft size={15} />
-              </button>
               <button className="r-iconbtn" type="button" aria-label="Open product story" title="Open product story" onClick={() => { window.location.hash = "story"; }}>
                 <ArrowRight size={15} />
               </button>
             </div>
-            <span className="r-story-command">apps/web · scratchnode.live shell</span>
+            <span className="r-story-command">apps/web · noderoom.live shell</span>
           </div>
         </div>
         {live && joinDialogCode && (

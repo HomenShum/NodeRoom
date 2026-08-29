@@ -619,6 +619,9 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-msg-artifact-foot span[data-status="failed"] { color: var(--danger-ink); border-color: var(--danger-border); }
 .r-agent-receipt { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 6px; align-items: center; margin-top: 8px; max-width: min(100%, 460px); padding: 7px; border: 1px solid var(--accent-border); border-radius: 8px; background: color-mix(in srgb, var(--accent-tint) 72%, transparent); }
 .r-agent-receipt-chip, .r-agent-receipt-version { display: inline-flex; align-items: center; gap: 4px; min-height: 22px; padding: 0 7px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg-primary); color: var(--accent-ink); font-size: 10.5px; font-weight: 800; white-space: nowrap; }
+/* needs_review renders as a real button (the chip IS the review affordance) — same skin, plus intent */
+button.r-agent-receipt-chip { font-family: inherit; cursor: pointer; }
+button.r-agent-receipt-chip:hover, button.r-agent-receipt-chip:focus-visible { border-color: var(--accent-border, var(--accent-primary)); }
 .r-agent-receipt-version { color: var(--text-secondary); font-family: var(--font-mono); }
 .r-agent-receipt-quote { min-width: 0; display: grid; gap: 1px; color: var(--text-secondary); font-size: 11.5px; line-height: 1.3; }
 .r-agent-receipt-quote b, .r-agent-receipt-quote span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -3297,3 +3300,8 @@ body.nr-honesty-on [data-evidence-class="unsourced"]     { background-color: col
     grid-template-columns: auto minmax(0, 1fr) auto auto;
   }
 }
+
+/* NodeBook tab host empty state (no visual artifacts yet) */
+.r-nodebook-empty { margin: auto; max-width: 380px; padding: 40px 24px; text-align: center; color: var(--text-muted); display: grid; gap: 8px; }
+.r-nodebook-empty strong { color: var(--text-primary); font-size: 14px; }
+.r-nodebook-empty p { margin: 0; font-size: 12.5px; line-height: 1.55; }
