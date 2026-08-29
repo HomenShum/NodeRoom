@@ -1,114 +1,46 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-12T19:16:28.0254492Z",
+  "generatedAt": "2026-08-29T23:16:30Z",
   "environment": {
-    "kind": "local-dev",
-    "roomId": "NR1LI7BASBB",
-    "roomData": "synthetic-guided-sample"
+    "kind": "live-prod",
+    "baseUrl": "https://noderoom.live",
+    "roomId": "NRSDDEYWAZI",
+    "roomData": "synthetic-guided-sample",
+    "entryPath": "visible funnel: landing -> Try a sample -> consent dialog -> sign-in gate -> GitHub OAuth -> room"
+  },
+  "funnelProof": {
+    "coldVisitorFunnelRestored": true,
+    "outageRootCause": "Vercel production env VITE_CONVEX_URL pointed at the standby Convex deployment (aromatic-bass-102) while VITE_CONVEX_SITE_URL and every convex deploy pointed at zealous-goshawk-766; the crossed pair made auth:signIn throw for every visitor. Fixed 2026-08-29 by repointing the env; guarded forever by ship-prod-verify --chunk-signal/--chunk-absent.",
+    "coldVisitorProbe": "fresh Playwright context: landing -> sample dialog -> gate -> Continue with GitHub -> redirected to github.com login (fresh-user-proof/github-redirect.png)",
+    "authenticatedEntry": "GitHub OAuth completed with an existing session and landed in the live room; first github-provider authAccount on this deployment"
   },
   "freshUserRun": {
     "routeMode": "free",
-    "resolvedModel": "tencent/hy3:free",
+    "routeControl": "visible picker: Adaptive (recommended) / Free $0 / Top paid / Specific model; Free selected",
+    "resolvedModel": "cohere/north-mini-code:free",
     "modelTurns": 3,
-    "toolCalls": 3,
-    "latencyMs": 22861,
+    "toolCalls": 2,
+    "tools": ["list_artifacts", "read_notebook"],
+    "traceWallClockMs": 9000,
+    "traceSpans": 4,
+    "spanTimings": { "context.gather_x2": 330, "list_artifacts": 47, "read_notebook": 283 },
     "modelCostUsd": 0,
-    "tools": ["list_artifacts", "read_notebook", "say"],
     "readOnly": true,
-    "returnedBlockIds": [
-      "legacy-dac84c29-1",
-      "legacy-dac84c29-2",
-      "legacy-dac84c29-3",
-      "legacy-dac84c29-4",
-      "legacy-dac84c29-5"
-    ]
+    "artifactChanges": 0,
+    "returnedBlockIds": ["legacy-dac84c29-1", "legacy-dac84c29-2", "legacy-dac84c29-3", "legacy-dac84c29-4", "legacy-dac84c29-5"],
+    "blockIdsMatchJulyBaseline": true
   },
-  "featureProof": {
-    "collaborativeDeck": {
-      "persistedVersion": 3,
-      "storyboardSections": 6,
-      "interactions": ["rename", "duplicate", "reorder", "save"]
-    },
-    "notebookKernel": {
-      "mode": "bounded-calculation",
-      "expression": "(2400 - 1100) - 450",
-      "result": 850,
-      "receiptHash": "e0c5f851"
-    },
-    "entityGraph": {
-      "persistedRoomNodes": 88,
-      "cardioNovaDepth0": {"nodes": 8, "links": 14},
-      "cardioNovaDepth1": {"nodes": 53, "links": 117},
-      "drag": {
-        "from": "translate(570px,0px)",
-        "to": "translate(865px,150px)"
-      }
-    },
-    "governedProposal": {
-      "pendingBefore": 1,
-      "pendingAfter": 0,
-      "approved": true,
-      "resultingNotebookBlocks": 18,
-      "resultingNotebookSections": 5
-    }
+  "surfaceProof": {
+    "runTrace": "AgentPrism-style spans opened from the room; 4 spans, per-span durations recorded, version chip v246 -> v247",
+    "proofBundle": { "receiptId": "9cde9378", "artifacts": 17, "evidence": 0, "review": 16, "traces": 8 },
+    "reviewCenter": { "pending": 0, "edits": 0, "rebases": 0, "note": "honest zero — the run was read-only" },
+    "livePerformance": { "messages": 6, "human": 2, "agent": 4, "agentTraces": 1, "tools": 2, "costUsd": 0 },
+    "entityGraph": { "entities": 2, "edges": 0, "events": 8, "note": "fresh room; graph honestly reports edges as interaction history only" }
   },
-  "personaDogfood": {
-    "status": "passed",
-    "personas": [
-      "analyst",
-      "researcher",
-      "finance-operator",
-      "founder",
-      "reviewer",
-      "guest-observer"
-    ],
-    "freshLanding": true,
-    "nodeAgent": true,
-    "mutation": true,
-    "conflictOrErrorHandling": true,
-    "evidenceReview": true,
-    "export": true,
-    "visibleSteps": 79,
-    "consoleErrors": 0,
-    "receipt": "docs/eval/noderoom-persona-dogfood-receipt.json"
+  "scope": {
+    "reverifiedToday": ["cold-visitor funnel end to end", "free-route read-only agent run with trace receipts", "work-artifact proof bundle counts", "run-trace surface", "entity-graph surface", "review-center honest zeros"],
+    "notRerun": ["collaborative deck versioning", "notebook kernel bounded expression", "governed agent edit approval flow"],
+    "note": "The 2026-07-12 receipt's deeper feature proofs are retired from this claim rather than carried forward under a fresh date; re-prove them individually if a surface claim needs them."
   },
-  "validation": {
-    "testFilesPassed": 318,
-    "testsPassed": 2128,
-    "testsFailed": 0,
-    "typecheck": "passed",
-    "convexTypecheck": "passed",
-    "build": "passed",
-    "initialChunkKb": 840.22,
-    "chunkSizeWarning": false,
-    "productionMemoryBrowser": {
-      "passed": 51,
-      "intentionalSkips": 1
-    },
-    "visualParityStatesPassed": 36,
-    "accessibilityViolations": 0,
-    "performance": {
-      "cls": 0,
-      "longTasks": 0,
-      "maxInteractionMs": 49
-    },
-    "nodeagentFrameSmoke": "passed",
-    "omnigentCompatibilitySmoke": "passed",
-    "proofloopOfficialScoresGate": "passed",
-    "proofloopOfficialGoalTasksPassed": 17,
-    "proofloopBlockedTasks": 0,
-    "storyboardMediaJudge": {
-      "verdict": "publish",
-      "score": "16/16",
-      "defects": 0
-    },
-    "lint": "unavailable-no-script"
-  },
-  "limits": [
-    "OpenRouter free endpoint capacity is not guaranteed.",
-    "Notebook execution excludes arbitrary Python, shell, package, network, and unrestricted SQL access.",
-    "Neo4j/Cognee persistence and external graph synchronization were not configured or live-tested.",
-    "SpreadsheetBench V2 accepted full-suite score remains 0/321 exact task passes; the separate Task 90 receipt is a scoped 3/3 visual-judge proof.",
-    "External Neo4j, Jupyter, and container deployments require explicit configuration, credentials, and isolation."
-  ]
+  "evidenceDir": ".qa/evidence/20260829-ui-endtoend/fresh-user-proof/"
 }
