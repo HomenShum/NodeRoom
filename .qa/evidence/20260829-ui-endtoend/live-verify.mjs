@@ -7,19 +7,21 @@ const found = new Map(signals.map(s => [s, null]));
 const html = await (await fetch(base, { headers: { 'user-agent': 'noderoom-live-verify' } })).text();
 for (const s of signals) if (html.includes(s)) found.set(s, 'index.html');
 // collect chunk urls from index.html, then one level of their static imports
-const chunkRe = /\/assets\/[A-Za-z0-9._-]+\.js/g;
-let frontier = [...new Set(html.match(chunkRe) ?? [])];
-for (let depth = 0; depth < 3 && frontier.length; depth++) {
+const absRe = /\/assets\/[A-Za-z0-9._-]+\.js/g;
+const relRe = /["'`]\.\/([A-Za-z0-9._-]+\.js)["'`]/g;
+let frontier = [...new Set(html.match(absRe) ?? [])];
+for (let depth = 0; depth < 4 && frontier.length; depth++) {
   const next = [];
   for (const path of frontier) {
     if (seen.has(path)) continue; seen.add(path);
     const body = await (await fetch(base + path)).text().catch(() => '');
     for (const s of signals) if (!found.get(s) && body.includes(s)) found.set(s, path);
     if ([...found.values()].every(Boolean)) break;
-    next.push(...(body.match(chunkRe) ?? []));
+    next.push(...(body.match(absRe) ?? []));
+    for (const m of body.matchAll(relRe)) next.push('/assets/' + m[1]);
   }
   if ([...found.values()].every(Boolean)) break;
-  frontier = [...new Set(next)];
+  frontier = [...new Set(next)].filter(p => !seen.has(p));
 }
 let ok = true;
 for (const [s, where] of found) {
