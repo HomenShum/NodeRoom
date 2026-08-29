@@ -15,14 +15,18 @@
 
 const args = process.argv.slice(2);
 const signals = [];
+const chunkSignals = [];
+const chunkAbsent = [];
 let url = "https://noderoom.live";
 for (let i = 0; i < args.length; i++) {
   if (args[i] === "--url") url = args[++i];
   else if (args[i] === "--signal") signals.push(args[++i]);
+  else if (args[i] === "--chunk-signal") chunkSignals.push(args[++i]);
+  else if (args[i] === "--chunk-absent") chunkAbsent.push(args[++i]);
 }
 
-if (signals.length === 0) {
-  console.error("[ship-prod-verify] FAIL (usage): at least one --signal \"<string expected in raw prod HTML>\" is required — pick a string your change adds (testid, copy, slug).");
+if (signals.length === 0 && chunkSignals.length === 0 && chunkAbsent.length === 0) {
+  console.error("[ship-prod-verify] FAIL (usage): at least one --signal / --chunk-signal / --chunk-absent is required — pick a string your change adds (testid, copy, slug, baked config).");
   process.exit(2);
 }
 
@@ -70,3 +74,41 @@ if (missing.length > 0) {
 }
 
 console.log(`[ship-prod-verify] OK — ${url} (HTTP ${res.status}, ${bytes} bytes) contains all ${signals.length} signal(s).`);
+
+// ── chunk-graph leg — app content and config ship in hashed JS chunks, not raw HTML.
+// --chunk-signal asserts a string exists somewhere in the chunk graph; --chunk-absent
+// asserts it exists NOWHERE. The absent check exists because of 2026-08-29: the live
+// bundle was baked with VITE_CONVEX_URL pointing at the standby Convex deployment
+// (aromatic-bass-102) while every convex deploy targeted zealous-goshawk-766 — a
+// split-brain that broke prod sign-in and that no raw-HTML signal could catch.
+if (chunkSignals.length > 0 || chunkAbsent.length > 0) {
+  const base = new URL(url).origin;
+  const absRe = /\/assets\/[A-Za-z0-9._-]+\.js/g;
+  const relRe = /["'`]\.\/([A-Za-z0-9._-]+\.js)["'`]/g;
+  const found = new Map(chunkSignals.map((s) => [s, null]));
+  const absentHits = new Map(chunkAbsent.map((s) => [s, null]));
+  const seen = new Set();
+  let frontier = [...new Set(html.match(absRe) ?? [])];
+  for (let depth = 0; depth < 4 && frontier.length; depth++) {
+    const next = [];
+    for (const path of frontier) {
+      if (seen.has(path)) continue;
+      seen.add(path);
+      const body = await fetch(base + path).then((r) => (r.ok ? r.text() : "")).catch(() => "");
+      for (const s of chunkSignals) if (!found.get(s) && body.includes(s)) found.set(s, path);
+      for (const s of chunkAbsent) if (!absentHits.get(s) && body.includes(s)) absentHits.set(s, path);
+      next.push(...(body.match(absRe) ?? []));
+      for (const m of body.matchAll(relRe)) next.push("/assets/" + m[1]);
+    }
+    frontier = [...new Set(next)].filter((p) => !seen.has(p));
+  }
+  const chunkMissing = chunkSignals.filter((s) => !found.get(s));
+  const absentViolations = chunkAbsent.filter((s) => absentHits.get(s));
+  if (chunkMissing.length > 0 || absentViolations.length > 0) {
+    for (const s of chunkMissing) console.error(`[ship-prod-verify] FAIL (chunk-signal): ${JSON.stringify(s)} not found in ${seen.size} chunks`);
+    for (const s of absentViolations) console.error(`[ship-prod-verify] FAIL (chunk-absent): ${JSON.stringify(s)} FOUND in ${absentHits.get(s)} — forbidden string is live`);
+    console.error("[ship-prod-verify] The change is NOT live (or ships forbidden config). Check the Vercel env + deployment before re-claiming.");
+    process.exit(1);
+  }
+  console.log(`[ship-prod-verify] OK — chunk graph (${seen.size} chunks): ${chunkSignals.length} present, ${chunkAbsent.length} confirmed absent.`);
+}

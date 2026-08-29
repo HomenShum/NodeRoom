@@ -37,7 +37,7 @@
     "doctor": "npm run proofloop:doctor",
     "check": "npm run floor",
     "proof": "npm run fresh-room:proofs",
-    "ship:prod": "npm run convex:deploy:guard && npm run convex:deploy && node scripts/ship-prod-verify.mjs",
+    "ship:prod": "npm run convex:deploy:guard && npm run convex:deploy && node scripts/ship-prod-verify.mjs --chunk-signal zealous-goshawk-766.convex.cloud --chunk-absent aromatic-bass-102",
     "convex:dev": "convex dev",
     "convex:deploy": "convex dev --once --env-file .env.local && tsx scripts/convex-deploy-verify.ts",
     "convex:deploy:guard": "node -e \"const fs=require('fs');const m=fs.readFileSync('.env.local','utf8').match(/^CONVEX_DEPLOYMENT=(.+)$/m);if(!m||!/zealous-goshawk-766/.test(m[1])){console.error('[guard] .env.local CONVEX_DEPLOYMENT must resolve to zealous-goshawk-766 (the deployment Vercel production reads from). Got:',m?m[1]:'(unset)');process.exit(1);}console.log('[guard] OK — CONVEX_DEPLOYMENT='+m[1]);\"",
