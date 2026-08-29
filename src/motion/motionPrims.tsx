@@ -39,10 +39,13 @@ type RiseProps = {
 export function Rise({ as = "div", delay = 0, y = 10, inView = false, children, ...rest }: RiseProps) {
   const M = TAGS[as] as typeof motion.div;
   const visible = { opacity: 1, y: 0 };
+  // whileInView needs IntersectionObserver; without it (jsdom, old engines) motion throws an
+  // uncaught error that unmounts the whole tree — degrade to animate-on-mount instead.
+  const canObserve = typeof IntersectionObserver !== "undefined";
   return (
     <M
       initial={{ opacity: 0, y }}
-      {...(inView
+      {...(inView && canObserve
         ? { whileInView: visible, viewport: { once: true, amount: 0.2 } }
         : { animate: visible })}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: delay / 1000 }}

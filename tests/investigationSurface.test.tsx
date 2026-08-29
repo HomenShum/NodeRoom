@@ -283,8 +283,10 @@ describe("Investigation report surface", () => {
     expect(status.getAttribute("data-tone")).toBe("review");
     expect(screen.getByTestId("investigation-metric-collected-refs").querySelector("strong")?.textContent)
       .toBe(String(pending.researchPack?.sourceRefs.length ?? pending.dataset?.sourceRefs.length ?? 0));
-    expect(screen.getByTestId("investigation-metric-verified-refs").querySelector("strong")?.textContent).toBe("0");
-    expect(screen.getByTestId("investigation-metric-supported-claims").querySelector("strong")?.textContent).toBe("0");
+    // was "0": an idle workspace has not RUN verification, so a zero here is not a measurement —
+    // the tile renders an em dash until a run exists (a completed run's zero still shows "0", line ~125).
+    expect(screen.getByTestId("investigation-metric-verified-refs").querySelector("strong")?.textContent).toBe("—");
+    expect(screen.getByTestId("investigation-metric-supported-claims").querySelector("strong")?.textContent).toBe("—");
     expect(screen.getByTestId("investigation-report").getAttribute("data-evidence-state")).toBe("pending_review");
   });
 

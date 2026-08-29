@@ -34,7 +34,7 @@
     },
     {
       "file": "src/ui/Chat.tsx",
-      "line": 1944,
+      "line": 1943,
       "pattern": "const retrySend = \\(cid: string, text: string\\)",
       "title": "Retry that cannot double-post",
       "description": "`retrySend` re-sends with the SAME `clientMsgId`. That id is what makes the retry idempotent at the store, so a user hammering Retry on a flaky connection does not produce five copies of their message."
