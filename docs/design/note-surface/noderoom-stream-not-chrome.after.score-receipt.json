@@ -1,0 +1,138 @@
+{
+  "schemaVersion": "nodekit.score-receipt/v1",
+  "receiptId": "score-noderoom-note-surfaces-stream-not-chrome-after",
+  "ruleId": "rule-stream-not-chrome",
+  "subject": {
+    "id": "noderoom-note-surfaces-after",
+    "name": "NodeRoom note-shaped surfaces, after the note-surface fix — NoteworthyInbox item list and NotebookDigestWorkbench block list",
+    "kind": "platform-surface",
+    "surface": "The same two entry lists as the baseline receipt (score-noderoom-note-surfaces-stream-not-chrome-before), re-scored after the feat/note-surface-dna change: inbox items and digest blocks now render as divider-separated stream rows instead of filled cards.",
+    "evidenceBasis": "recorded-observation",
+    "evidenceRef": "source, noderoom branch feat/note-surface-dna: src/app/styles.css (.r-inbox-item + .r-inbox-item divider, no per-item background), src/ui/workArtifacts/work-artifacts.css (.wa-notebook-block + .wa-notebook-block divider, zero-width base border, gap 0)",
+    "observedAt": "2026-07-29"
+  },
+  "derivedFrom": {
+    "collectionId": "note-surface",
+    "observationIds": ["obs-mew-stream", "obs-evernote-contrast"],
+    "factIds": [
+      "obs-mew-stream/f1",
+      "obs-evernote-contrast/f1",
+      "obs-evernote-contrast/f2"
+    ]
+  },
+  "ruleApplicability": {
+    "applies": true,
+    "appliesWhenSatisfied": [
+      "review-in-time-order is the primary job: unchanged from the baseline receipt",
+      "entries are short and heterogeneous: unchanged",
+      "organization is emergent rather than upfront: unchanged"
+    ],
+    "doesNotApplyWhenChecked": [
+      {
+        "clause": "long-form documents with internal heading hierarchy (obs-fabric-contrast/f1)",
+        "fires": false,
+        "note": "Unchanged: neither surface renders headed long-form documents."
+      },
+      {
+        "clause": "workflows where retrieval at 10k+ items dominates capture (obs-evernote-contrast/f1)",
+        "fires": false,
+        "note": "Unchanged: both lists remain bounded (48 digest blocks, inbox digest grouping at 5+)."
+      },
+      {
+        "clause": "multi-user triage queues where list-vs-detail is load-bearing",
+        "fires": false,
+        "note": "Unchanged: no list-vs-detail pane pair exists on either surface."
+      }
+    ]
+  },
+  "scale": {
+    "min": 0,
+    "max": 4,
+    "anchors": {
+      "0": "multi-pane chrome with bordered note cards, in the shape of Evernote's three simultaneous panes (obs-evernote-contrast/f1, f2)",
+      "1": "one scrolling column, but every entry is a bordered or filled card with its own background and corner radius",
+      "2": "mixed treatment: some entries de-carded or the column unified, card chrome remains elsewhere in the entry list",
+      "3": "entries separated by dividers only, no per-entry card chrome; residual simultaneous-pane structure remains outside the entry list",
+      "4": "a single divider-separated column and nothing else — no cards, no per-note background, no simultaneous second pane (obs-mew-stream/f1)"
+    }
+  },
+  "criteria": [
+    {
+      "id": "c1-inbox-entry-boundary",
+      "question": "How are NoteworthyInbox entries bounded — divider or card?",
+      "score": 4,
+      "citations": [
+        {
+          "observationId": "obs-mew-stream",
+          "factIds": ["f1"],
+          "relation": "meets",
+          "withinRuleDerivation": true,
+          "note": "Entries now meet at a 1px rule (.r-inbox-item + .r-inbox-item { border-top: 1px solid var(--line) }) with no per-entry background, radius, or margin. Failed items keep a danger tint plus an inset left edge — failure-state signaling on a trust surface, deliberately retained — and researching items keep an inset accent edge as a live indicator."
+        },
+        {
+          "observationId": "obs-evernote-contrast",
+          "factIds": ["f2"],
+          "relation": "exceeds",
+          "withinRuleDerivation": true,
+          "note": "The bordered-card-per-note counterexample shape no longer describes this list."
+        }
+      ],
+      "finding": "Divider-separated stream rows. State styling survives on exactly the rows that carry state, which is the difference between chrome and signal."
+    },
+    {
+      "id": "c2-digest-block-boundary",
+      "question": "How are NotebookDigestWorkbench blocks bounded — divider or card?",
+      "score": 4,
+      "citations": [
+        {
+          "observationId": "obs-mew-stream",
+          "factIds": ["f1"],
+          "relation": "meets",
+          "withinRuleDerivation": true,
+          "note": "Blocks lost their border, radius, and background; siblings meet at a 1px rule with zero grid gap. The base border is declared at zero width solid so the full-screen [data-detail=notebook] variant's border-width override keeps its own divider — the treatment that variant already used, now shared by the default view. needs_review keeps its tint and gains an inset accent edge: pending-review state, not chrome."
+        },
+        {
+          "observationId": "obs-evernote-contrast",
+          "factIds": ["f2"],
+          "relation": "exceeds",
+          "withinRuleDerivation": true,
+          "note": "No bordered tiles remain in the entry column."
+        }
+      ],
+      "finding": "Divider-separated stream entries, consistent between the digest's default and full-screen views."
+    },
+    {
+      "id": "c3-pane-structure",
+      "question": "Does either surface split into simultaneous panes before the entries can be read?",
+      "score": 3,
+      "citations": [
+        {
+          "observationId": "obs-evernote-contrast",
+          "factIds": ["f1"],
+          "relation": "falls-short-of",
+          "withinRuleDerivation": true,
+          "note": "Unchanged from baseline: the digest keeps its blocks + 28% aside grid. The aside hosts patch previews with before/after diffs — proposal and diff trust surfaces governed by the trust-surfaces contract — and folding it away was explicitly out of this change's licence."
+        },
+        {
+          "observationId": "obs-mew-stream",
+          "factIds": ["f1"],
+          "relation": "falls-short-of",
+          "withinRuleDerivation": true,
+          "note": "Mew's one-column absolute remains unmet by the digest. Recorded unimproved, on purpose."
+        }
+      ],
+      "finding": "Unimproved and honestly so: the aside is review tooling for pending proposals, and removing it to satisfy a note-surface rule would trade a trust surface for a style point."
+    }
+  ],
+  "score": 3,
+  "scoreBasis": "Ladder: the subject sits at the highest anchor it fully satisfies. c1 and c2 now satisfy the divider-only entry treatment; c3's residual aside holds the subject at anchor 3 rather than 4.",
+  "notScored": [
+    "The full notebook editor (Tiptap document surface) — outside this rule per its doesNotApplyWhen, unchanged.",
+    "The wall artifact's capture cards — spatial canvas entries, not a time-ordered stream, unchanged.",
+    "Runtime render: this after-receipt, like the baseline, scores from source; the repo's unit suite and the trust-surface selftest were run, but no computed-style audit of these two selectors was performed.",
+    "Whether readers perceive the divider treatment as easier to scan — audience-task evidence (M3) does not exist for this rule yet, per the rule's own tier ladder."
+  ],
+  "boundary": "Scored from source on branch feat/note-surface-dna, diffed against commit 9c99889f. The claims about which selectors changed are verifiable in the branch diff; the claim that no other selector re-cards these entries was checked by grep over both stylesheets and the [data-detail=notebook] variant block.",
+  "scoredBy": "note-surface corpus scoring pass, noderoom feat/note-surface-dna, against note-surface.stream-not-chrome.rule.json unmodified",
+  "scoredAt": "2026-07-29"
+}
