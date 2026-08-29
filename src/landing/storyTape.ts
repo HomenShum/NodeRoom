@@ -21,33 +21,8 @@
  * otherwise — that honesty is the product story, not a footnote.
  */
 
-export type ActorKind = "human" | "agent";
-
-export interface Actor {
-  id: string;
-  name: string;
-  color: string;
-  kind: ActorKind;
-}
-
-/** Active-edit signal color — distinct from member identity colors so "someone is
- *  editing here" reads at a glance regardless of whose avatar it is. */
 export const PRESENCE_COLOR = "#a78bfa";
 
-/** Real demo-room members (from src/engine/demoRoom.ts). */
-export const MEMBERS: Actor[] = [
-  { id: "u_homen", name: "Homen", color: "#d97757", kind: "human" },
-  { id: "u_priya", name: "Priya", color: "#5b9bf5", kind: "human" },
-  { id: "u_guest", name: "quokka", color: "#7bd089", kind: "human" },
-];
-
-export const AGENTS: Actor[] = [
-  { id: "agent_room", name: "Room NodeAgent", color: "#d97757", kind: "agent" },
-  { id: "agent_priv", name: "Finance Agent", color: "#8C92E0", kind: "agent" },
-];
-
-// ── The shared artifact: the real "Q3 variance" sheet ──────────────────────────
-// Columns A–E. Row 1 is the header. Values are the exact demo figures.
 export const COLUMNS = ["A", "B", "C", "D", "E"] as const;
 
 export interface GridCell {
@@ -276,33 +251,4 @@ export const PROOF_ROWS: ProofRow[] = [
   { source: "Source row 18", output: "Evidence badge", proof: "Citation" },
   { source: "Human edited C2", output: "C2 preserved", proof: "No clobber · CAS" },
   { source: "Agent branch v43", output: "Patch committed v47", proof: "Trace" },
-];
-
-// ── Canonical event tape (Milestone 3 contract) ────────────────────────────────
-// One declarative timeline. Render it into the landing animation, the README GIF,
-// a Remotion video, and an E2E visual proof — one source of truth, four surfaces.
-export type LandingEvent =
-  | { t: number; kind: "select_cell"; cell: string; actor: string }
-  | { t: number; kind: "type_local"; cell: string; value: string }
-  | { t: number; kind: "presence"; cell: string; actor: string; state: "editing" }
-  | { t: number; kind: "agent_stream"; text: string }
-  | { t: number; kind: "branch_patch"; target: string; value: string }
-  | { t: number; kind: "cas_check"; cell: string; base: number; current: number; result: "pass" | "conflict" }
-  | { t: number; kind: "semantic_resolution"; summary: string }
-  | { t: number; kind: "commit_lease"; cells: string[]; ms: number }
-  | { t: number; kind: "status"; text: string };
-
-export const EVENT_TAPE: LandingEvent[] = [
-  { t: 0.0, kind: "select_cell", cell: "C2", actor: "u_homen" },
-  { t: 0.4, kind: "type_local", cell: "C2", value: "12,400" },
-  { t: 0.8, kind: "status", text: "C2 committed v42 → v43" },
-  { t: 1.2, kind: "presence", cell: "C2", actor: "u_homen", state: "editing" },
-  { t: 1.6, kind: "agent_stream", text: "Reading Q3 source rows…" },
-  { t: 2.0, kind: "agent_stream", text: "Checking formula dependencies…" },
-  { t: 2.4, kind: "agent_stream", text: "Drafting variance explanation…" },
-  { t: 2.8, kind: "branch_patch", target: "D2", value: "2,400" },
-  { t: 3.2, kind: "cas_check", cell: "D2", base: 7, current: 7, result: "pass" },
-  { t: 3.6, kind: "semantic_resolution", summary: "Keep human edit, add agent value to upside, mark needs_review" },
-  { t: 4.0, kind: "commit_lease", cells: ["D2", "E2", "Memo:Risk"], ms: 428 },
-  { t: 4.4, kind: "status", text: "Applied · released · trace written" },
 ];

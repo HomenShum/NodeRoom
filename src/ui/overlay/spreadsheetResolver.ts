@@ -2,8 +2,8 @@
  * SpreadsheetFocusResolver — cellRange -> viewport-px rects, for ALL three sheet renderers.
  *
  * Critic fixes baked in:
- *  - UNION selector `td[data-cell-key="id"], td[data-element-id="id"]`: ExcelGridSheet (the wedge) emits
- *    data-cell-key ONLY (Artifact.tsx:1344); Generic/Sheet emit both. One selector covers all three.
+ *  - UNION selector `td[data-cell-key="id"], td[data-element-id="id"]`: Generic/Sheet emit both
+ *    attributes (ExcelGridSheet, which emitted data-cell-key only, was removed ~2026-06-25).
  *  - viewport-px relative to the scroll host (not %-of-offsetParent) so boxes don't drift under scroll;
  *    AttentionOverlay re-resolves on scroll/resize.
  *  - partial virtualization: a range merges the union of the VISIBLE cells found; fully off-screen -> rects:[]

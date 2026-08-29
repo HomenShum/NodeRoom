@@ -1374,14 +1374,13 @@ type ChatProps = {
   activeArtifactId?: string;
   style?: CSSProperties;
   onOpenArtifact?: (id: string, options?: { split?: boolean; elementId?: string }) => boolean | void;
-  coach?: ReactNode;
   embedded?: boolean;
   testId?: string;
 };
 
 type ContextPickerOption = { key: string; label: string; hint: string; ref: ArtifactRef };
 
-export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId, style, onOpenArtifact, coach, embedded = false, testId }: ChatProps) {
+export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId, style, onOpenArtifact, embedded = false, testId }: ChatProps) {
   const store = useStore();
   const [text, setText] = useState("");
   const [refs, setRefs] = useState<ArtifactRef[]>([]);
@@ -2351,7 +2350,6 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
             </div>
           </div>
         )}
-        {!isPrivate && coach}
         {showJump && (
           <button
             type="button"

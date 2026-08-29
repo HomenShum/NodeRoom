@@ -238,6 +238,7 @@
 .na-seg button { min-height: 26px; padding: 0 11px; border: 0; border-radius: 9px; background: transparent; color: var(--text-muted); font-family: var(--font-ui); font-size: 12px; font-weight: 500; cursor: pointer; transition: all var(--duration-normal); }
 .na-seg button[data-active="true"] { background: linear-gradient(to bottom right, var(--na-accent), var(--na-accent-hover)); color: #fff; box-shadow: var(--shadow-xs); }
 
+
 .na-extract-body { padding: 12px 2px 2px; }
 .na-egroup + .na-egroup { margin-top: 16px; }
 .na-egroup-lab {

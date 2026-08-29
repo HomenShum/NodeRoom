@@ -45,43 +45,7 @@ function SheetHead({
   );
 }
 
-type ScopeLane = { variant: "will" | "wont" | "create"; label: string; icon: IconName; mark: IconName; items: string[] };
 
-function scopeTable(P: D.Plan): React.ReactElement {
-  const lanes: ScopeLane[] = [
-    { variant: "will", label: "Will read", icon: "eye", mark: "check", items: P.willRead },
-    { variant: "wont", label: "Will not read", icon: "lock", mark: "x", items: P.wontRead },
-    { variant: "create", label: "Will create", icon: "plus", mark: "check", items: P.willCreate },
-  ];
-  return React.createElement(
-    "div",
-    { className: "na-scope-table" },
-    lanes.map((ln) =>
-      React.createElement(
-        "div",
-        { key: ln.variant, className: "na-scope-group", "data-variant": ln.variant },
-        React.createElement(
-          "div",
-          { className: "na-scope-grouphead" },
-          React.createElement("span", { className: "lh-tag " + ln.variant }, Ico(ln.icon), ln.label),
-          React.createElement("span", { className: "lh-count" }, ln.items.length),
-        ),
-        React.createElement(
-          "ul",
-          { className: "na-scope-items" },
-          ln.items.map((it, i) =>
-            React.createElement(
-              "li",
-              { key: i },
-              React.createElement("span", { className: "sm " + ln.variant }, Ico(ln.mark)),
-              React.createElement("span", { className: "st" }, it),
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
-}
 
 // ── WORK PLAN / APPROVAL (z.ai-style chat — actions via composer, no big buttons) ──
 export function PlanSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
@@ -661,5 +625,3 @@ export function CoachSheet({ ctx }: { ctx: MobileCtx }): React.ReactElement {
   );
 }
 
-// Re-export the internal scope helper so the module surface mirrors the prototype.
-export { scopeTable };

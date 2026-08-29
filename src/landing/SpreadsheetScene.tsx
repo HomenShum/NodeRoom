@@ -1,9 +1,9 @@
 /**
  * SpreadsheetScene — a static mock of the real NodeRoom workbook grid.
  *
- * It mirrors the production markup from src/ui/panels/Artifact.tsx (`xl-grid`
- * table, `xl-col` / `xl-rowhead` / `xl-cell`, `xl-fbar` formula bar) so the
- * landing page looks like the actual product, then layers story-only overlay
+ * It uses landing-local `xl-*` markup (the production ExcelGridSheet renderer was
+ * removed ~2026-06-25; these classes now live only here + landingStory.css) so the
+ * landing page looks like the product, then layers story-only overlay
  * classes (scoped under `.r-story`) for presence, agent lane, CAS, etc.
  *
  * Pure presentational: it renders whatever overlay state the active layer feeds.

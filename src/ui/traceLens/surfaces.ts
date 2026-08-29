@@ -9,7 +9,6 @@ export const SURFACES: Record<string, SurfaceMeta> = {
   // Work surface
   "workSurface.sheet": { id: "workSurface.sheet", label: "Spreadsheet", proofAvailable: true, about: "The shared financial grid. Agent-filled cells carry source evidence, status, and version." },
   "workSurface.genericSheet": { id: "workSurface.genericSheet", label: "Table", proofAvailable: false, about: "An uploaded or generic table view." },
-  "workSurface.excelGridSheet": { id: "workSurface.excelGridSheet", label: "Excel grid", proofAvailable: true, about: "An uploaded .xlsx rendered as an Excel-style grid; cells keep coordinates and evidence." },
   "workSurface.research": { id: "workSurface.research", label: "Company research", proofAvailable: true, about: "Diligence rows enriched by the agent, each backed by sources and a freshness signal." },
   "workSurface.note": { id: "workSurface.note", label: "Note", proofAvailable: false, about: "A shared rich-text note artifact." },
   "workSurface.wall": { id: "workSurface.wall", label: "Wall", proofAvailable: false, about: "A sticky-note canvas for risks and open questions." },

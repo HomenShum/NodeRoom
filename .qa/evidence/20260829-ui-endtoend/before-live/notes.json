@@ -1,0 +1,141 @@
+{
+  "landing": {
+    "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+    "errors": [],
+    "testids": [
+      "ssr-private-boot-shell"
+    ]
+  },
+  "story": {
+    "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+    "errors": [],
+    "testids": [
+      "story-variance-cell",
+      "story-agent-send",
+      "story-lab",
+      "story-lab-lease",
+      "story-lab-lease-run",
+      "story-lab-rebase",
+      "story-lab-rebase-run",
+      "story-lab-notes",
+      "story-lab-l2l3",
+      "story-lab-mobile-evidence",
+      "ao-landing-cards",
+      "ao-card-expositio-pulse",
+      "ao-card-open",
+      "ao-card-subscribe",
+      "ao-card-noderoom-live-ops",
+      "ao-card-agentic-rl-watch"
+    ]
+  },
+  "mobile": {
+    "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+    "errors": [],
+    "testids": [
+      "mobile-join-submit",
+      "mobile-create-room",
+      "mobile-sample-room"
+    ]
+  },
+  "room-tour": {
+    "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+    "errors": [],
+    "testids": [
+      "create-room"
+    ]
+  },
+  "memory-room:missed": "[data-testid=\"tour-skip\"]",
+  "memory-room": {
+    "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+    "errors": [],
+    "testids": [
+      "people-trigger",
+      "room-settings-btn",
+      "left-rail",
+      "binder-scale-count",
+      "binder-search",
+      "binder-artifact",
+      "binder-review-queue",
+      "binder-agent",
+      "work-surface",
+      "artifact-panel",
+      "artifact-tabs",
+      "home-tab",
+      "artifact-filetab",
+      "work-artifacts-tab",
+      "nodebook-tab",
+      "investigation-tab",
+      "trace-tab",
+      "graph-tab",
+      "artifact-split-toggle",
+      "artifact-export-xlsx",
+      "artifact-visibility-toggle",
+      "attention-overlay",
+      "sheet-cell",
+      "cell-edit-control",
+      "room-trace",
+      "copilot-panel",
+      "copilot-tab-public",
+      "copilot-tab-private",
+      "public-chat-panel",
+      "chat-feed",
+      "chat-day-divider",
+      "chat-message",
+      "chat-edit",
+      "agent-research-receipt",
+      "agent-view-row",
+      "agent-source-receipt",
+      "agent-version-receipt",
+      "agent-research-outcome",
+      "agent-lock-released-receipt",
+      "chat-file-input"
+    ]
+  },
+  "memory-room-trace:missed": "[data-testid=\"tour-skip\"]",
+  "memory-room-trace": {
+    "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+    "errors": [],
+    "testids": [
+      "people-trigger",
+      "room-settings-btn",
+      "left-rail",
+      "binder-scale-count",
+      "binder-search",
+      "binder-artifact",
+      "binder-review-queue",
+      "binder-agent",
+      "work-surface",
+      "artifact-panel",
+      "artifact-tabs",
+      "home-tab",
+      "artifact-filetab",
+      "work-artifacts-tab",
+      "nodebook-tab",
+      "investigation-tab",
+      "trace-tab",
+      "graph-tab",
+      "artifact-split-toggle",
+      "artifact-export-xlsx",
+      "artifact-visibility-toggle",
+      "trace-surface",
+      "trace-runs",
+      "trace-view-records",
+      "trace-view-runs",
+      "trace-run-item",
+      "trace-run-tree",
+      "trace-run-filter-all",
+      "trace-run-filter-issues",
+      "trace-span-row",
+      "trace-span-attrs",
+      "copilot-panel",
+      "copilot-tab-public",
+      "copilot-tab-private",
+      "public-chat-panel",
+      "chat-feed",
+      "chat-day-divider",
+      "chat-message",
+      "chat-edit",
+      "agent-research-receipt"
+    ]
+  }
+}

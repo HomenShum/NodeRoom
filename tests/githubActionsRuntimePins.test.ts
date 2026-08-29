@@ -51,7 +51,8 @@ describe("GitHub Actions JavaScript runtime pins", () => {
   it("binds Node Platform conformance to the warning-free immutable producer", () => {
     const workflow = readFileSync(join(workflowDirectory, "node-platform-conformance.yml"), "utf8");
     expect(workflow).toContain(
-      "HomenShum/node-platform/.github/workflows/repo-conformance.yml@5c9aa6443ca8e61dc8886fbf0a0b4a7b72858e63 # Node 24 action pins (PR #8)",
+      // repo renamed node-platform -> NodeKit in 5de0508e; the immutable SHA pin is unchanged
+      "HomenShum/NodeKit/.github/workflows/repo-conformance.yml@5c9aa6443ca8e61dc8886fbf0a0b4a7b72858e63 # Node 24 action pins (PR #8)",
     );
   });
 });

@@ -84,13 +84,6 @@ export function LeftRail({ roomId, me, artId, onPick, style }: { roomId: string;
     onPick(firstProposal.artifactId);
     requestAnimationFrame(() => focusStage({ artifactId: firstProposal.artifactId, elementId: firstProposal.op?.elementId }));
   };
-  const sub = (a: { kind: string; title: string; version: number; elements: Record<string, unknown>; order?: string[]; meta?: { excelGrid?: { rows: number; columns: number }; upload?: { fileName: string } } }) => {
-    if (a.title === WIKI_TITLE) return `v${a.version} · live TOC`;
-    const sourceName = sourceFileLabel(a);
-    const base = uploadDocMeta(a) ?? (a.kind === "sheet" ? `v${a.version} · ${rowCount(a)} rows` : a.kind === "wall" ? `${a.order?.length ?? 0} notes` : "edited recently");
-    return sourceName && sourceName !== a.title && !base.includes(sourceName) ? `${sourceName} · ${base}` : base;
-  };
-  void sub;
   const searchNeedle = query.trim().toLowerCase();
   const toggleSection = (id: string) => setOpenSections((current) => ({ ...current, [id]: !current[id] }));
   const pinnedRows = useMemo(() => {
@@ -208,25 +201,6 @@ export function LeftRail({ roomId, me, artId, onPick, style }: { roomId: string;
         <TreeSection id="proof" title="Review & proof" count={proofRows.length} rows={filterTreeRows(proofRows, searchNeedle)} open={openSections.proof} searching={!!searchNeedle} onToggle={toggleSection}>
           {(row) => <BinderTreeRowView key={row.id} row={row} artId={artId} onPick={onPick} />}
         </TreeSection>
-        {false && (
-        <div className="r-rail-section">
-          {firstProposal ? (
-            <button type="button" className="r-file" data-testid="binder-review-queue" title="Open the first pending proposal" onClick={openProposal}>
-            <span className="fi"><Activity size={14} /></span>
-            <span><div className="fn">Review queue</div><div className="fm">{proposals.length} pending proposal{proposals.length === 1 ? "" : "s"}</div></span>
-            </button>
-          ) : (
-            <div className="r-file r-file-static">
-              <span className="fi"><Activity size={14} /></span>
-              <span><div className="fn">Review queue</div><div className="fm">no pending proposals</div></span>
-            </div>
-          )}
-          <div className="r-file r-file-static">
-            <span className="fi"><ShieldCheck size={14} /></span>
-            <span><div className="fn">Permissions</div><div className="fm">host controls · {traces.length} trace events</div></span>
-          </div>
-        </div>
-        )}
 
         <div className="r-rail-section r-tree-section">
           <button type="button" className="r-tree-section-head sc-sec fx-folder" data-open={String(!!searchNeedle || openSections.people)} onClick={() => toggleSection("people")} aria-expanded={!!searchNeedle || !!openSections.people}>

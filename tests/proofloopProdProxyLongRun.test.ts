@@ -1,7 +1,12 @@
 import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { vi, describe, expect, it } from "vitest";
+
+// These plans dogfood the REAL local .proofloop state; a grown ~15MB longrun state.json
+// measured 2.5s/build on 2026-08-29 (was <1s when the 5s default was calibrated).
+// readJson is now memoized by mtime; 30s keeps honest headroom for the first cold read.
+vi.setConfig({ testTimeout: 30_000 });
 import {
   buildProofloopProdProxyLongRunPlan,
   loadProofloopProdProxyLongRunPlanByRunId,
