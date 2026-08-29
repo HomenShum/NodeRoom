@@ -1,5 +1,6 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { Bot, CheckCircle2, Send, Table2 } from "lucide-react";
+import { Arrive, Settle } from "../motion/motionPrims";
 import { buildStoryAgentTurn, type StoryAgentTurn } from "./storyQuickDemoModel";
 
 const BASE_ROWS = [
@@ -60,8 +61,8 @@ export function StoryQuickDemo() {
                     aria-label="Q3 revenue cell C2"
                   />
                 </td>
-                <td className="rs-demo-formula" data-testid="story-variance-cell">{variance}</td>
-                <td className="rs-demo-note">{note}</td>
+                <td className="rs-demo-formula" data-testid="story-variance-cell"><Settle key={variance}>{variance}</Settle></td>
+                <td className="rs-demo-note"><Settle key={note}>{note}</Settle></td>
               </tr>
               {BASE_ROWS.slice(1).map((row) => (
                 <tr key={row.label}>
@@ -95,13 +96,16 @@ export function StoryQuickDemo() {
                 <span>Change C2, then send the prompt.</span>
               </div>
             ) : turns.map((turn, index) => (
-              <div className="rs-demo-turn" key={`${turn.prompt}-${index}`}>
+              <Arrive
+                className="rs-demo-turn"
+                key={`${turn.prompt}-${index}`}
+              >
                 <div className="rs-demo-human">{turn.prompt}</div>
                 <div className="rs-demo-agent">
                   {turn.steps.map((step) => <span key={step}>{step}</span>)}
                   <b>{turn.finalText}</b>
                 </div>
-              </div>
+              </Arrive>
             ))}
           </div>
 

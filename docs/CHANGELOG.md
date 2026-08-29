@@ -1,5 +1,46 @@
 # Changelog
 
+## 2026-07-29 - Note-surface design rules applied to note-shaped surfaces
+
+### What changed
+
+- `src/app/styles.css` — NoteworthyInbox entries are divider-separated stream
+  rows instead of filled cards; failed/researching state styling retained as
+  trust-surface signaling; entity names in the why-panel carry the accent as
+  the surface's one inline color carrier.
+- `src/ui/workArtifacts/work-artifacts.css` — NotebookDigestWorkbench blocks
+  drop card chrome for dividers (matching the full-screen notebook detail
+  view); typed-block labels move from foreign `#b8c7ff` to `var(--accent-ink)`;
+  the per-block accent index chip goes achromatic.
+- `src/ui/RoomShell.tsx` — the ctrl/cmd+K palette lists "Capture a thought"
+  first: `buildWallCapture` creates an empty wall capture through the CAS
+  spine (no classification before the first keystroke), opens the wall, and
+  focuses the new post-it. Rooms without a wall list no dead command.
+- `tests/captureThought.test.ts` — scenario suite: empty-text capture,
+  50-capture burst id uniqueness, shared color cycle, CAS replay refusal.
+- `docs/design/note-surface/` — six score receipts (before/after per rule),
+  every criterion citing observation/fact ids from the node-platform
+  note-surface corpus; validated by `reference-corpus-gate.mjs` (exit 0).
+
+### Verification
+
+- Typecheck clean; vitest 2672 passed with the same 3 load-dependent flakes
+  as the untouched origin/main baseline (each passes in isolation).
+- Trust-surface selftest PASS before and after; live gate after the change:
+  boot-FAILED trust surface PASS, landing NOT_RUN (no trust surface there).
+- Per-rule scores, cited per criterion in the receipts: stream-not-chrome
+  1 -> 3, single-accent-inline 1 -> 3, capture-always-armed 1 -> 3. Unimproved
+  criteria (digest review aside, popover shadow, mobile capture affordance)
+  stay at their honest scores on the record.
+
+### Why it matters in plain language
+
+NodeRoom's note surfaces now spend their friction budget the way a capture
+tool should: entries read as one calm stream, color means something when it
+appears, and a thought can be captured from anywhere in the room with one
+keystroke and no questions — while every proposal, conflict, and failed state
+keeps the styling the trust-surface gate demands.
+
 ## 2026-07-05 - ProofLoop prod-browser adapter versioning and free-model gauge
 
 ### What changed

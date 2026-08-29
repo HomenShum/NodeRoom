@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "nodekit.score-receipt/v1",
+  "receiptId": "score-noderoom-capture-path-capture-always-armed-before",
+  "ruleId": "rule-capture-always-armed",
+  "subject": {
+    "id": "noderoom-capture-path-before",
+    "name": "NodeRoom capture path, baseline — command palette actions plus the wall Capture button",
+    "kind": "platform-surface",
+    "surface": "The route from 'I have a thought' to a first keystroke of capture: the ctrl/cmd+K command palette's action list (src/ui/RoomShell.tsx:573-585, src/ui/CommandPalette.tsx) and the wall artifact's Capture button (src/ui/panels/Artifact.tsx:4185-4212), which creates a contentEditable post-it (Artifact.tsx:4270-4281).",
+    "evidenceBasis": "recorded-observation",
+    "evidenceRef": "source checkout, noderoom worktree at commit 9c99889f: RoomShell.tsx paletteActions array (8 actions, none capture), Artifact.tsx addSticky/postit-add, CommandPalette.tsx global keydown listener",
+    "observedAt": "2026-07-29"
+  },
+  "derivedFrom": {
+    "collectionId": "note-surface",
+    "observationIds": ["obs-mew-stream", "obs-evernote-contrast"],
+    "factIds": [
+      "obs-mew-stream/f4",
+      "obs-mew-stream/f6",
+      "obs-evernote-contrast/f4"
+    ]
+  },
+  "ruleApplicability": {
+    "applies": true,
+    "appliesWhenSatisfied": [
+      "the surface's value depends on catching transient input: NodeRoom's wall exists for quick captures during live collaboration ('Quick captures', Artifact.tsx:4252), and a thought that arrives mid-review is lost if capture waits on navigation"
+    ],
+    "doesNotApplyWhenChecked": [
+      {
+        "clause": "compliance-bound intake where classification is legally prior (the trust-surfaces contract governs those forms)",
+        "fires": false,
+        "note": "Wall captures are free-text post-its with no legal or policy classification requirement. Nothing about a room capture is compliance-bound intake."
+      }
+    ]
+  },
+  "scale": {
+    "min": 0,
+    "max": 4,
+    "anchors": {
+      "0": "no capture affordance exists anywhere without opening a specific artifact, and no global entry point exists at all",
+      "1": "a single global entry point (the palette keystroke) exists, but it lists no capture command — capture still sits behind destination navigation, in the shape of Evernote's choose-first gate (obs-evernote-contrast/f4)",
+      "2": "the global entry point carries a capture command, but it asks a classification question — type, destination, color — before accepting text",
+      "3": "the global keystroke path arms a text-ready capture with no classification question; a persistent mobile capture affordance is absent (short of obs-mew-stream/f6)",
+      "4": "one global keystroke on desktop plus a persistent floating control on mobile, and neither asks anything before the first keystroke (obs-mew-stream/f4, f6)"
+    }
+  },
+  "criteria": [
+    {
+      "id": "c1-global-keystroke-capture",
+      "question": "Is capture reachable from every state via one global keystroke?",
+      "score": 1,
+      "citations": [
+        {
+          "observationId": "obs-mew-stream",
+          "factIds": ["f4"],
+          "relation": "falls-short-of",
+          "withinRuleDerivation": true,
+          "note": "Mew's cmd+k adds a note to the top of the stream. NodeRoom's ctrl/cmd+K opens a palette whose eight actions cover focus mode, auto-allow, invite, trace, graph, chat, and watch — no capture. The only capture button lives inside the wall artifact after it is opened on the stage."
+        }
+      ],
+      "finding": "The keystroke layer exists and is reachable from every state (a window-level listener), but it arms navigation, not capture. One keystroke reaches a search box; capture is still several decisions away."
+    },
+    {
+      "id": "c2-no-classification-before-text",
+      "question": "Does the path to capture ask a classification question before accepting text?",
+      "score": 1,
+      "citations": [
+        {
+          "observationId": "obs-evernote-contrast",
+          "factIds": ["f4"],
+          "relation": "matches-counterexample",
+          "withinRuleDerivation": true,
+          "note": "Evernote gates capture behind a Note/Task/Event destination choice. NodeRoom gates it behind an artifact destination choice: the user must locate and open the wall artifact (via binder or palette search) before the Capture button exists on screen. The destination question is implicit but still paid before the first keystroke."
+        },
+        {
+          "observationId": "obs-mew-stream",
+          "factIds": ["f4"],
+          "relation": "falls-short-of",
+          "withinRuleDerivation": true,
+          "note": "Once the wall is open, the Capture button itself asks nothing — it creates a post-it immediately with a preset color. The cost is concentrated entirely in getting there, and the created post-it still requires a second click before typing (contentEditable is not focused on create)."
+        }
+      ],
+      "finding": "Destination selection precedes capture, and the created post-it arrives unfocused with placeholder text 'New note' — so after all navigation the thought still waits on one more click."
+    },
+    {
+      "id": "c3-mobile-persistent-affordance",
+      "question": "Does a persistent floating capture control exist on mobile?",
+      "score": 0,
+      "citations": [
+        {
+          "observationId": "obs-mew-stream",
+          "factIds": ["f4", "f6"],
+          "relation": "falls-short-of",
+          "withinRuleDerivation": true,
+          "note": "Mew's iOS build keeps a persistent mic+compose pair bottom-right in the identical single-column layout. NodeRoom's compact layout (max-width 980px) collapses panels but adds no floating capture control; the wall path is the same navigation with smaller targets."
+        }
+      ],
+      "finding": "No persistent capture affordance exists in the compact layout. This is an absence the desktop fix does not close, and it is recorded as such."
+    }
+  ],
+  "score": 1,
+  "scoreBasis": "Ladder: the subject sits at the highest anchor it fully satisfies. A global keystroke entry point exists (anchor 1's condition) but carries no capture command, so anchors 2-4 are closed. c3's zero records the mobile absence separately; it cannot lower the subject below the anchor its desktop path earns, and it blocks anchor 4 permanently until a mobile affordance ships.",
+  "notScored": [
+    "Capture into the chat composer — chat messages are a different record type with a different job; routing thoughts into chat is not note capture.",
+    "The notebook editor's typing path — long-form authoring, not transient capture.",
+    "Latency from keystroke to editable state — requires a runtime measurement this source-only baseline cannot make.",
+    "Whether textEntryIsActive() guarding the palette keystroke ever wrongly blocks a capture intent — behavioral, needs observation."
+  ],
+  "boundary": "Scored from source at commit 9c99889f. The click-count and decision-count claims were traced through RoomShell -> CommandPalette -> Artifact Wall code paths by hand; a recorded user session could revise c2 if an untraced shortcut exists, but none was found in the palette action list or the wall component.",
+  "scoredBy": "note-surface corpus scoring pass, noderoom feat/note-surface-dna, against note-surface.capture-always-armed.rule.json unmodified",
+  "scoredAt": "2026-07-29"
+}

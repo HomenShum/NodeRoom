@@ -6,10 +6,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "convex/react";
 import type { FunctionReference } from "convex/server";
-import { ArrowLeft, ArrowRight, Lock, Moon, Plus, Sparkles, Users, X } from "lucide-react";
+import { ArrowRight, Lock, Moon, Plus, Sparkles, Users, X } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import { createFreshRoom, enterDemoRoomAsHost, joinRoomByCode } from "../app/roomStore";
-import { NodeReveal } from "./motion/NodeReveal";
+import { MotionRoot, Rise } from "../motion/motionPrims";
 import { FocusTrapDialog } from "./primitives/FocusTrapDialog";
 import type { Session } from "./App";
 import "./landing.css";
@@ -115,6 +115,7 @@ export function Landing({
   };
 
   return (
+    <MotionRoot>
     <div className="r-app">
       <div className="r-screen">
         <div className="r-landing-shell">
@@ -131,17 +132,17 @@ export function Landing({
           <main className="r-landing">
             <div className="r-land2-grid">
               <div>
-                <span className="r-eyebrow"><span className="r-dot-live" /> Shared workrooms for people and NodeAgents</span>
-                <h1 className="r-h1">
+                <Rise as="span" className="r-eyebrow"><span className="r-dot-live" /> Shared workrooms for people and NodeAgents</Rise>
+                <Rise as="h1" className="r-h1" delay={60}>
                   Work with AI. <span className="accent">Review every change.</span>
-                </h1>
-                <NodeReveal delay={140} distance={8}>
+                </Rise>
+                <Rise delay={140} y={8}>
                   <p className="r-lede">
                     NodeRoom is a shared workspace where people and NodeAgents work on the same files,
                     spreadsheets, and notes. Every agent edit can stay reviewable and source-backed.
                   </p>
-                </NodeReveal>
-                <div className="r-cta-row" data-live={String(live)}>
+                </Rise>
+                <Rise className="r-cta-row" delay={220} data-live={String(live)}>
                   <button data-testid={live ? "create-room" : "start-demo-room"} className="r-btn primary" disabled={busy} onClick={live ? createRoom : enterDemo}>
                     {live ? <Plus size={17} /> : <Sparkles size={17} />} {live ? "Create a room" : "Try sample room"}
                   </button>
@@ -168,29 +169,29 @@ export function Landing({
                       <Sparkles size={16} /> Try sample
                     </button>
                   )}
-                </div>
+                </Rise>
                 {shownError && <div id="landing-join-error" className="r-join-error" role="alert">{shownError}</div>}
                 <LandingProofPill live={live} />
                 {/* Same chip vocabulary as the SSR shell's proof points (.nr-ssr-proof) so
                     first paint and hydrated app read as one design. */}
-                <div className="r-land2-trust" aria-label="NodeRoom guarantees">
+                <Rise className="r-land2-trust" delay={300} aria-label="NodeRoom guarantees">
                   <span>Sign-in required</span>
                   <span>Code-access rooms</span>
                   <span>Review-first agent edits</span>
-                </div>
+                </Rise>
               </div>
-              <div><LandingDemoLoop /></div>
+              <Rise delay={180} y={14}><LandingDemoLoop /></Rise>
             </div>
 
             <div className="r-land2-featstrip">
               {LANDING_FEATURES.map((f, i) => (
-                <NodeReveal key={f.h} delay={280 + i * 80} distance={10}>
+                <Rise key={f.h} inView delay={i * 90} y={12}>
                   <div className="r-land2-feat">
                     <div className="r-land2-feat-shot"><MicroShot kind={f.shot} /></div>
                     <h3>{f.h}</h3>
                     <p>{f.p}</p>
                   </div>
-                </NodeReveal>
+                </Rise>
               ))}
             </div>
           </main>
@@ -201,14 +202,11 @@ export function Landing({
               <strong>The public surface</strong>
             </div>
             <div className="r-story-actions">
-              <button className="r-iconbtn" type="button" aria-label="Previous story step" title="Previous story step">
-                <ArrowLeft size={15} />
-              </button>
               <button className="r-iconbtn" type="button" aria-label="Open product story" title="Open product story" onClick={() => { window.location.hash = "story"; }}>
                 <ArrowRight size={15} />
               </button>
             </div>
-            <span className="r-story-command">apps/web · scratchnode.live shell</span>
+            <span className="r-story-command">apps/web · noderoom.live shell</span>
           </div>
         </div>
         {live && joinDialogCode && (
@@ -324,6 +322,7 @@ export function Landing({
         )}
       </div>
     </div>
+    </MotionRoot>
   );
 }
 

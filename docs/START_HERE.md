@@ -28,7 +28,7 @@ npm run dev                     # http://localhost:5260  (port set in vite.confi
 ```
 
 Open `/?mode=memory` and click **Try sample room** — the keyless landing CTA,
-`data-testid={live ? "create-room" : "start-demo-room"}` (`src/ui/Landing.tsx:145`; with a Convex URL set
+`data-testid={live ? "create-room" : "start-demo-room"}` (`src/ui/Landing.tsx:146`; with a Convex URL set
 the same button reads "Create a room" instead). With no `.env.local` the app
 runs entirely in the browser against an in-memory engine with a scripted
 assistant: no keys, no database, no network. That is the tier a stranger can

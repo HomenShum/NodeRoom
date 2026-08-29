@@ -27,7 +27,7 @@
     },
     {
       "file": "src/ui/Chat.tsx",
-      "line": 1879,
+      "line": 1878,
       "pattern": "const send = \\(raw\\?: string",
       "title": "The primary user action",
       "description": "`send` is what the Send button calls. Two separate things happen and it matters that they are separate:\n\n1. The message is posted to the room, with a client-generated `clientMsgId` — that id is how a retry updates the same message instead of double-posting it.\n2. Only then is the text inspected to see whether it was addressed to the assistant."

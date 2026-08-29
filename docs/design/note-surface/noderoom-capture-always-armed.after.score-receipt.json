@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "nodekit.score-receipt/v1",
+  "receiptId": "score-noderoom-capture-path-capture-always-armed-after",
+  "ruleId": "rule-capture-always-armed",
+  "subject": {
+    "id": "noderoom-capture-path-after",
+    "name": "NodeRoom capture path, after the note-surface fix — palette 'Capture a thought' plus the wall Capture button",
+    "kind": "platform-surface",
+    "surface": "The same route as the baseline receipt (score-noderoom-capture-path-capture-always-armed-before), re-scored after feat/note-surface-dna added a capture command to the ctrl/cmd+K palette: buildWallCapture (src/ui/RoomShell.tsx) creates an empty wall capture through the CAS spine, opens the wall, and focuses the new post-it's contentEditable.",
+    "evidenceBasis": "recorded-observation",
+    "evidenceRef": "source, noderoom branch feat/note-surface-dna: RoomShell.tsx buildWallCapture + capture-thought palette action (listed first), tests/captureThought.test.ts (4 scenario tests, passing: empty-text op, 50-capture burst, color cycle, CAS replay refusal)",
+    "observedAt": "2026-07-29"
+  },
+  "derivedFrom": {
+    "collectionId": "note-surface",
+    "observationIds": ["obs-mew-stream", "obs-evernote-contrast"],
+    "factIds": [
+      "obs-mew-stream/f4",
+      "obs-mew-stream/f6",
+      "obs-evernote-contrast/f4"
+    ]
+  },
+  "ruleApplicability": {
+    "applies": true,
+    "appliesWhenSatisfied": [
+      "the surface's value depends on catching transient input: unchanged from the baseline receipt"
+    ],
+    "doesNotApplyWhenChecked": [
+      {
+        "clause": "compliance-bound intake where classification is legally prior (the trust-surfaces contract governs those forms)",
+        "fires": false,
+        "note": "Unchanged: wall captures are free-text post-its with no classification requirement, and the new palette command asks nothing."
+      }
+    ]
+  },
+  "scale": {
+    "min": 0,
+    "max": 4,
+    "anchors": {
+      "0": "no capture affordance exists anywhere without opening a specific artifact, and no global entry point exists at all",
+      "1": "a single global entry point (the palette keystroke) exists, but it lists no capture command — capture still sits behind destination navigation, in the shape of Evernote's choose-first gate (obs-evernote-contrast/f4)",
+      "2": "the global entry point carries a capture command, but it asks a classification question — type, destination, color — before accepting text",
+      "3": "the global keystroke path arms a text-ready capture with no classification question; a persistent mobile capture affordance is absent (short of obs-mew-stream/f6)",
+      "4": "one global keystroke on desktop plus a persistent floating control on mobile, and neither asks anything before the first keystroke (obs-mew-stream/f4, f6)"
+    }
+  },
+  "criteria": [
+    {
+      "id": "c1-global-keystroke-capture",
+      "question": "Is capture reachable from every state via one global keystroke?",
+      "score": 3,
+      "citations": [
+        {
+          "observationId": "obs-mew-stream",
+          "factIds": ["f4"],
+          "relation": "falls-short-of",
+          "withinRuleDerivation": true,
+          "note": "Mew's cmd+k adds the note directly to the top of the stream. NodeRoom's ctrl/cmd+K now lists 'Capture a thought' first, so the path is keystroke, Enter (the first row is preselected), typing — one selection step more than Mew's direct add, from any state where the user is not already mid-typing (the palette deliberately never steals ctrl/cmd+K from a text field)."
+        }
+      ],
+      "finding": "One keystroke and one Enter from every non-typing state. The residual selection step and the textEntryIsActive guard keep this short of Mew's direct-add fact."
+    },
+    {
+      "id": "c2-no-classification-before-text",
+      "question": "Does the path to capture ask a classification question before accepting text?",
+      "score": 3,
+      "citations": [
+        {
+          "observationId": "obs-evernote-contrast",
+          "factIds": ["f4"],
+          "relation": "exceeds",
+          "withinRuleDerivation": true,
+          "note": "The Evernote gate — choose a destination type before capturing — is no longer paid: the command picks the wall itself, presets position and color, creates the element with empty text, and focuses its contentEditable. Nothing is asked between intent and caret."
+        },
+        {
+          "observationId": "obs-mew-stream",
+          "factIds": ["f4"],
+          "relation": "meets",
+          "withinRuleDerivation": true,
+          "note": "Deferring classification to after the thought is safe is the mechanism this rule names; the wall's existing edit affordances (color, position, deletion) remain available after capture. The caret-landing is a best-effort two-frame focus; in convex mode a slow round-trip can leave the capture created but unfocused, which is a caveat on arming, not on capture."
+        }
+      ],
+      "finding": "Zero classification questions before the first keystroke. Scenario tests pin the contract: empty text, preset placement, CAS create, burst-safe ids."
+    },
+    {
+      "id": "c3-mobile-persistent-affordance",
+      "question": "Does a persistent floating capture control exist on mobile?",
+      "score": 0,
+      "citations": [
+        {
+          "observationId": "obs-mew-stream",
+          "factIds": ["f4", "f6"],
+          "relation": "falls-short-of",
+          "withinRuleDerivation": true,
+          "note": "Unchanged from baseline: the compact layout gained nothing. A palette keystroke is not a mobile affordance — there is no hardware ctrl/cmd+K on a phone — and this fix did not attempt one."
+        }
+      ],
+      "finding": "Still absent, still zero. Recorded unimproved; closing it is a separate change with its own layout consequences, not a side effect this task should smuggle in."
+    }
+  ],
+  "score": 3,
+  "scoreBasis": "Ladder: the subject sits at the highest anchor it fully satisfies. The desktop path now arms a text-ready capture with no classification (anchor 3's condition); c3's mobile absence keeps anchor 4 closed.",
+  "notScored": [
+    "Capture into the chat composer — unchanged, a different record type.",
+    "Keystroke-to-caret latency in convex mode — the two-frame focus is best-effort and was not measured against a live backend.",
+    "Whether users discover the palette command — discoverability is an audience-task question (M3) no evidence here can answer.",
+    "The wall's spatial canvas behavior after many palette captures stack at x:0 y:0 — a layout question outside this rule's licence."
+  ],
+  "boundary": "Scored from source on branch feat/note-surface-dna plus its passing scenario tests, not from a recorded user session. The click-count claims trace the palette code path by hand; the focus claim is implemented but unverified against a running browser in this receipt.",
+  "scoredBy": "note-surface corpus scoring pass, noderoom feat/note-surface-dna, against note-surface.capture-always-armed.rule.json unmodified",
+  "scoredAt": "2026-07-29"
+}

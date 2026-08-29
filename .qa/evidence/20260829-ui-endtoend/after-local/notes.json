@@ -1,0 +1,22 @@
+{
+  "story": {
+    "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+    "errors": [],
+    "testids": [
+      "story-variance-cell",
+      "story-agent-send",
+      "story-lab",
+      "story-lab-lease",
+      "story-lab-lease-run",
+      "story-lab-rebase",
+      "story-lab-rebase-run",
+      "story-lab-notes",
+      "story-lab-l2l3",
+      "story-lab-mobile-evidence",
+      "ao-landing-cards",
+      "ao-card-expositio-pulse",
+      "ao-card-open",
+      "ao-card-subscribe"
+    ]
+  }
+}

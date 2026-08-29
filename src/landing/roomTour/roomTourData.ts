@@ -132,9 +132,9 @@ export interface Step {
   panels?: PanelId[];
 }
 export const STEPS: Step[] = [
-  { id: "landing", label: "NodeAgent", kicker: "01 · Surface",
+  { id: "landing", label: "NodeRoom", kicker: "01 · Surface",
     title: "The public surface", screen: "landing",
-    file: "apps/web · scratchnode.live shell",
+    file: "apps/web · noderoom.live shell",
     blurb: "Start with one room URL. Sign in to host a workspace or join an invited room with its code." },
   { id: "create", label: "Create room", kicker: "02 · Rooms",
     title: "Host a room", screen: "create",

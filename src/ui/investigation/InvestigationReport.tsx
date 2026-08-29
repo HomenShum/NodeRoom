@@ -539,8 +539,9 @@ export function InvestigationReport({
         <div><Route size={13} /><span>Tasks</span><strong>{workspace.summary.taskCount}</strong></div>
         <div><CheckCircle2 size={13} /><span>Runs complete</span><strong>{workspace.summary.completedTaskCount}</strong></div>
         <div data-testid="investigation-metric-collected-refs"><BookOpen size={13} /><span>Refs collected</span><strong>{trust.collectedSourceRefCount}</strong></div>
-        <div data-testid="investigation-metric-verified-refs"><ShieldCheck size={13} /><span>Refs verified</span><strong>{trust.verifiedSourceRefCount}</strong></div>
-        <div data-testid="investigation-metric-supported-claims"><CheckCircle2 size={13} /><span>Claims supported</span><strong>{trust.supportedClaimCount}</strong></div>
+        {/* An unrun verifier is not a measured zero: idle + 0 renders as an em dash, a completed run's 0 stays 0. */}
+        <div data-testid="investigation-metric-verified-refs" title={runtimeState === "idle" && trust.verifiedSourceRefCount === 0 ? "Not yet verified — run pending research" : undefined}><ShieldCheck size={13} /><span>Refs verified</span><strong>{runtimeState === "idle" && trust.verifiedSourceRefCount === 0 ? "—" : trust.verifiedSourceRefCount}</strong></div>
+        <div data-testid="investigation-metric-supported-claims" title={runtimeState === "idle" && trust.supportedClaimCount === 0 ? "Not yet verified — run pending research" : undefined}><CheckCircle2 size={13} /><span>Claims supported</span><strong>{runtimeState === "idle" && trust.supportedClaimCount === 0 ? "—" : trust.supportedClaimCount}</strong></div>
         <div data-testid="investigation-metric-review-claims"><AlertTriangle size={13} /><span>Claims to review</span><strong>{trust.reviewRequiredClaimCount}</strong></div>
       </div>
 

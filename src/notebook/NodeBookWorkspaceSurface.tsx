@@ -157,5 +157,16 @@ export function NodeRoomNodeBookWorkspaceSurfaceFromArtifacts(props: { roomId: s
   if (next !== projection.current) revision.current += 1;
   projection.current = next;
   if (next.status === "error") return <div role="alert" data-nodebook-host-error>{`NodeBook preview unavailable: ${next.error.message.slice(0, 300)}`}</div>;
+  // With zero visual artifacts the vendored surface degenerates into three panes of the same
+  // text-node list (every demo room today — the visual-envelope lane has no producers yet).
+  // An honest empty state beats chrome around nothing; the binder already lists the docs.
+  if (next.snapshot.artifacts.length === 0) {
+    return (
+      <div className="r-nodebook-empty" data-testid="nodebook-empty" role="note">
+        <strong>No visual artifacts yet</strong>
+        <p>Diagrams, charts, and infographics land here when an agent produces them. Text docs live in the binder on the left.</p>
+      </div>
+    );
+  }
   return <NodeBookHostErrorBoundary resetKey={`${props.roomId}:${revision.current}`}><NodeRoomNodeBookWorkspaceSurfaceInner {...props} snapshot={next.snapshot} /></NodeBookHostErrorBoundary>;
 }
