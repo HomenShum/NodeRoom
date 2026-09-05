@@ -1,0 +1,253 @@
+{
+  "schema": "noderoom-entry-observation/v1",
+  "startedAt": "2026-09-05T10:07:13.068Z",
+  "sourceCommit": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+  "sourceBindings": "../source-before.json",
+  "cells": [
+    {
+      "width": 320,
+      "routeName": "natural-memory",
+      "captures": [
+        {
+          "name": "natural-memory-320-entry",
+          "pngSha256": "64c02da293b21c2ee42f28ca355a14dc0078acb1e8cd855be917e1dcda134c42",
+          "domSha256": "a63b3fbae4905e9b2d2d6b66875e686a95eab711835b5583a85901786c88fb13",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "natural-memory-320-sheet",
+          "pngSha256": "aaa291c4ab3ce0e1eac4980782353508eef4134e432cdc109e79f8eb471b224c",
+          "domSha256": "bb00ad40596ef8e7740462a41c2f447b38effaec2d7c061e482c34882a3b8f7a",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "natural-memory-320-sheet-export",
+          "pngSha256": "0d31095997576747d92314b8983c12b6bcaea3f6c121bd49864daf5c19499650",
+          "domSha256": "666b9074e185b5728e70a75f75804ed3340fe8fa036169ff3bd6f0508ca26aef",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "natural-memory-320-after-download",
+          "pngSha256": "8700cd692b21945713e23eb5510c2982b8b2bb13ecb0f9fdc4736e011a5edfc8",
+          "domSha256": "784ed390516c266be31b479ab4f2f7cfd50e72ff141cf270d8fa9900577a7713",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "natural-memory-320-room",
+          "pngSha256": "113eb93f06b26b0e664735de8075da1b5a4da9408e3a73fa5fa32535de341a7b",
+          "domSha256": "dec416ec5b0df7503000d727aa6d2969d4daa0ae8963ffca2aacb9d4fca022d8",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "natural-memory-320-review-plan",
+          "pngSha256": "39c9c66cb8862a204d326b5c961618af60a1b23eb89c400b74e671c58e3f92cf",
+          "domSha256": "e78d5d477d5058c39d06fdb497d83cc90ef47cd79c089a3a82b4b5e9327cb4da",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "natural-memory-320-review-completed",
+          "pngSha256": "4c4d360cd9a3c48d598f22e4953f9589ebaa526d4ab2a1f31c4247730501b75a",
+          "domSha256": "2fa67e13f32eed4920c5329bb3e09144fca67960d5b0d02d0f08cbd8151dc589",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "natural-memory-320-evidence",
+          "pngSha256": "eb1717908077bcb0cdc0923ad0110b5eec03716614e0c9bcac72389d1d836257",
+          "domSha256": "e84542324ec3b796adb1c3287640971cc75c9adf56d905cb826f6a6b52119d74",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "natural-memory-320-review-after-reload",
+          "pngSha256": "8933004dca4c8d4b3d96fc5b8ece48a5f457f3cc1c557585be48b8d618b6d0ce",
+          "domSha256": "85b5031a54fd226579aa8773669253be41be30b94640b96c99f89b9602009268",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        }
+      ],
+      "console": [
+        {
+          "type": "error",
+          "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+        },
+        {
+          "type": "error",
+          "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+        }
+      ],
+      "pageErrors": [],
+      "downloads": [],
+      "exportButtons": [
+        "",
+        "Plan",
+        "Sheet8",
+        "Evidence",
+        "Export",
+        "Spreadsheet",
+        "PowerPoint",
+        "Download XLSX",
+        "",
+        "Restore",
+        "",
+        "Restore",
+        ""
+      ],
+      "downloadToast": "",
+      "downloadCountAfterWait": 0,
+      "status": "OBSERVED"
+    },
+    {
+      "width": 390,
+      "routeName": "natural-memory",
+      "captures": [
+        {
+          "name": "natural-memory-390-entry",
+          "pngSha256": "35911f9f6a61f52c5bdcaadde961aeac04fd9d7495945485c084d3c30157c42b",
+          "domSha256": "a63b3fbae4905e9b2d2d6b66875e686a95eab711835b5583a85901786c88fb13",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "natural-memory-390-sheet",
+          "pngSha256": "a127a03bfabb21fdfc291fb05123eb0719ce9a069b339c21d6bdb630cfcde832",
+          "domSha256": "bb00ad40596ef8e7740462a41c2f447b38effaec2d7c061e482c34882a3b8f7a",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "natural-memory-390-sheet-export",
+          "pngSha256": "e74f913be9de14a64ff9f78f1218b4bb9f1e1b02df6962fffe7836e50ade1573",
+          "domSha256": "666b9074e185b5728e70a75f75804ed3340fe8fa036169ff3bd6f0508ca26aef",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "natural-memory-390-after-download",
+          "pngSha256": "af3aed0e44d5dabc03a25b9e160f51d3d94d257b128b4339e4ebd516913efff5",
+          "domSha256": "784ed390516c266be31b479ab4f2f7cfd50e72ff141cf270d8fa9900577a7713",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "natural-memory-390-room",
+          "pngSha256": "f678f713683a1bafd9c7bfbd72e4cef32058728f5194858627ebfede5eb39e6c",
+          "domSha256": "dec416ec5b0df7503000d727aa6d2969d4daa0ae8963ffca2aacb9d4fca022d8",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "natural-memory-390-review-plan",
+          "pngSha256": "2de65858a2461f1603a58530d320ce5a5dceacc7e7e1821ed70477a06ebe5330",
+          "domSha256": "e78d5d477d5058c39d06fdb497d83cc90ef47cd79c089a3a82b4b5e9327cb4da",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "natural-memory-390-review-completed",
+          "pngSha256": "1a168899971398833e5737f5be57aab59f910e450ddac40f3e93cc125c05143b",
+          "domSha256": "2fa67e13f32eed4920c5329bb3e09144fca67960d5b0d02d0f08cbd8151dc589",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "natural-memory-390-evidence",
+          "pngSha256": "4040723abf3f1815860b18a850eec9cc279947faf4939ec2e4c405eef2e3eaf2",
+          "domSha256": "e84542324ec3b796adb1c3287640971cc75c9adf56d905cb826f6a6b52119d74",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "natural-memory-390-review-after-reload",
+          "pngSha256": "3836c9fcd49e24cc8bdb3daaf00daf3181b4a86a26c645c3452b4ae85977718d",
+          "domSha256": "85b5031a54fd226579aa8773669253be41be30b94640b96c99f89b9602009268",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        }
+      ],
+      "console": [
+        {
+          "type": "error",
+          "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+        },
+        {
+          "type": "error",
+          "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+        }
+      ],
+      "pageErrors": [],
+      "downloads": [],
+      "exportButtons": [
+        "",
+        "Plan",
+        "Sheet8",
+        "Evidence",
+        "Export",
+        "Spreadsheet",
+        "PowerPoint",
+        "Download XLSX",
+        "",
+        "Restore",
+        "",
+        "Restore",
+        ""
+      ],
+      "downloadToast": "",
+      "downloadCountAfterWait": 0,
+      "status": "OBSERVED"
+    }
+  ],
+  "externalRequests": [
+    {
+      "width": 320,
+      "routeName": "natural-memory",
+      "url": "https://fonts.googleapis.com/css2",
+      "action": "blocked"
+    },
+    {
+      "width": 320,
+      "routeName": "natural-memory",
+      "url": "https://fonts.googleapis.com/css2",
+      "action": "blocked"
+    },
+    {
+      "width": 390,
+      "routeName": "natural-memory",
+      "url": "https://fonts.googleapis.com/css2",
+      "action": "blocked"
+    },
+    {
+      "width": 390,
+      "routeName": "natural-memory",
+      "url": "https://fonts.googleapis.com/css2",
+      "action": "blocked"
+    }
+  ],
+  "errors": [],
+  "status": "OBSERVED",
+  "finishedAt": "2026-09-05T10:07:31.024Z"
+}

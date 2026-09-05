@@ -1,0 +1,94 @@
+{
+  "label": "before-final",
+  "kind": "real-installed-library-boundary-not-NodeRoom-exploit-certification",
+  "executedBrowserHandlers": false,
+  "count": 1025,
+  "phases": [
+    {
+      "name": "burst",
+      "count": 1000
+    },
+    {
+      "name": "sustained",
+      "count": 25
+    }
+  ],
+  "inheritedResults": 1025,
+  "executableAttributeResults": 1025,
+  "legitimateAttributeLoss": 0,
+  "checks": {
+    "prototypeRetained": false,
+    "noExecutableInheritedAttributes": false,
+    "legitimateAttributesRetained": true,
+    "globalPrototypeUnchanged": true
+  },
+  "samples": [
+    {
+      "phase": "burst",
+      "i": 0,
+      "ownKeys": [
+        "data-review-id",
+        "class"
+      ],
+      "inherited": true,
+      "executable": true,
+      "legitimate": true,
+      "html": "<img data-review-id=\"burst-0\" class=\"first second\" data-prototype-canary=\"inherited\" onerror=\"globalThis.__dependencyCanary=1\">"
+    },
+    {
+      "phase": "burst",
+      "i": 999,
+      "ownKeys": [
+        "data-review-id",
+        "class"
+      ],
+      "inherited": true,
+      "executable": true,
+      "legitimate": true,
+      "html": "<img data-review-id=\"burst-999\" class=\"first second\" data-prototype-canary=\"inherited\" onerror=\"globalThis.__dependencyCanary=1\">"
+    },
+    {
+      "phase": "sustained",
+      "i": 0,
+      "ownKeys": [
+        "data-review-id",
+        "class"
+      ],
+      "inherited": true,
+      "executable": true,
+      "legitimate": true,
+      "html": "<img data-review-id=\"sustained-0\" class=\"first second\" data-prototype-canary=\"inherited\" onerror=\"globalThis.__dependencyCanary=1\">"
+    },
+    {
+      "phase": "sustained",
+      "i": 24,
+      "ownKeys": [
+        "data-review-id",
+        "class"
+      ],
+      "inherited": true,
+      "executable": true,
+      "legitimate": true,
+      "html": "<img data-review-id=\"sustained-24\" class=\"first second\" data-prototype-canary=\"inherited\" onerror=\"globalThis.__dependencyCanary=1\">"
+    }
+  ],
+  "hashes": [
+    {
+      "path": "package.json",
+      "sha256": "7e6758419aef89fccb653258fd0c7c6258cd818e716a50924cec88a92ac19f32"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "ee580757a997b0fd846ee802bd1c283889a6fb3ee8eb8d1efef6e5170df2689a"
+    },
+    {
+      "path": "node_modules/@tiptap/core/dist/index.cjs",
+      "sha256": "684a05f7538c2aaa9bc5f8acba33a4fa2a4a9b14bc5a36e1e73ab2c607e68b63"
+    },
+    {
+      "path": "node_modules/prosemirror-model/dist/index.cjs",
+      "sha256": "3873ddb45c10f9ce16ae9a5a9d53c86786b30cf965e1dc150cea14cb5ff3e0c1"
+    }
+  ],
+  "passed": false
+}

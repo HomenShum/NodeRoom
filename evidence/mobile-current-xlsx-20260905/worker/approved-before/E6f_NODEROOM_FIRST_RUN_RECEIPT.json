@@ -1,0 +1,422 @@
+{
+  "schema": "noderoom-first-run-receipt/v1",
+  "status": "EXECUTED_WITH_OPEN_PRODUCT_AND_GATE_HOLDS",
+  "namedProof": "NODEROOM-FIRST-RUN-01",
+  "at": "2026-09-05T10:13:13.172154+00:00",
+  "source": {
+    "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "commit": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+    "branch": "codex/noderoom-current-consumer-20260905",
+    "kind": "fresh application source-build consumer, not installed CLI",
+    "lockSha256": "ee580757a997b0fd846ee802bd1c283889a6fb3ee8eb8d1efef6e5170df2689a",
+    "indexSha256": "1ea5535b041e3ed40fab49801816d24fbe732338ba0173adac074c97aca6cf3c",
+    "workingTreeClean": true,
+    "sourceBindings": "E6f-noderoom-first-run/source-before.json",
+    "boundSourceCount": 1563,
+    "allBoundSourceUnchanged": true
+  },
+  "commands": [
+    {
+      "startedAt": "2026-09-05T09:42:51.203542+00:00",
+      "finishedAt": "2026-09-05T09:42:53.041430+00:00",
+      "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+      "argv": [
+        "cmd.exe",
+        "/d",
+        "/c",
+        "npm",
+        "audit",
+        "--json"
+      ],
+      "timeoutSeconds": 180,
+      "timedOut": false,
+      "exitCode": 1,
+      "elapsedSeconds": 1.844,
+      "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\audit-baseline.log",
+      "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+    },
+    {
+      "startedAt": "2026-09-05T09:45:14.873025+00:00",
+      "finishedAt": "2026-09-05T09:45:16.438987+00:00",
+      "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+      "argv": [
+        "cmd.exe",
+        "/d",
+        "/c",
+        "npm",
+        "audit",
+        "--omit=dev",
+        "--json"
+      ],
+      "timeoutSeconds": 180,
+      "timedOut": false,
+      "exitCode": 1,
+      "elapsedSeconds": 1.563,
+      "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\audit-production-baseline.log",
+      "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+    },
+    {
+      "startedAt": "2026-09-05T09:46:37.686569+00:00",
+      "finishedAt": "2026-09-05T09:48:09.458089+00:00",
+      "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+      "argv": [
+        "cmd.exe",
+        "/d",
+        "/c",
+        "npm",
+        "run",
+        "build"
+      ],
+      "timeoutSeconds": 900,
+      "timedOut": false,
+      "exitCode": 0,
+      "elapsedSeconds": 91.765,
+      "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\build-baseline.log",
+      "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+    },
+    {
+      "startedAt": "2026-09-05T09:39:02.426135+00:00",
+      "finishedAt": "2026-09-05T09:39:03.120523+00:00",
+      "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+      "argv": [
+        "cmd.exe",
+        "/d",
+        "/c",
+        "npm",
+        "run",
+        "design:manifest"
+      ],
+      "timeoutSeconds": 120,
+      "timedOut": false,
+      "exitCode": 0,
+      "elapsedSeconds": 0.703,
+      "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\design-manifest.log",
+      "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+    },
+    {
+      "startedAt": "2026-09-05T09:38:53.427791+00:00",
+      "finishedAt": "2026-09-05T09:38:57.799583+00:00",
+      "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+      "argv": [
+        "cmd.exe",
+        "/d",
+        "/c",
+        "npm",
+        "run",
+        "doctor"
+      ],
+      "timeoutSeconds": 120,
+      "timedOut": false,
+      "exitCode": 0,
+      "elapsedSeconds": 4.359,
+      "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\doctor.log",
+      "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+    },
+    {
+      "startedAt": "2026-09-05T09:51:47.001835+00:00",
+      "finishedAt": "2026-09-05T09:51:52.473393+00:00",
+      "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+      "argv": [
+        "node",
+        "C:/Users/hshum/.codex/worktrees/5dba/nodebench-ai/docs/plans/portfolio-recovery-20260904/E6f-noderoom-first-run/observe-entry.mjs",
+        "entry-before-01"
+      ],
+      "timeoutSeconds": 300,
+      "timedOut": false,
+      "exitCode": 0,
+      "elapsedSeconds": 5.469,
+      "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\entry-observation-01.log",
+      "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+    },
+    {
+      "startedAt": "2026-09-05T09:39:23.036184+00:00",
+      "finishedAt": "2026-09-05T09:46:13.150084+00:00",
+      "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+      "argv": [
+        "cmd.exe",
+        "/d",
+        "/c",
+        "npm",
+        "run",
+        "floor"
+      ],
+      "timeoutSeconds": 1200,
+      "timedOut": false,
+      "exitCode": 1,
+      "elapsedSeconds": 410.125,
+      "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\floor-baseline.log",
+      "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+    },
+    {
+      "startedAt": "2026-09-05T09:48:48.322182+00:00",
+      "finishedAt": "2026-09-05T09:51:01.220111+00:00",
+      "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+      "argv": [
+        "cmd.exe",
+        "/d",
+        "/c",
+        "npm",
+        "run",
+        "test:product:memory"
+      ],
+      "timeoutSeconds": 1200,
+      "timedOut": false,
+      "exitCode": 0,
+      "elapsedSeconds": 132.891,
+      "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\memory-suite-baseline.log",
+      "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+    },
+    {
+      "startedAt": "2026-09-05T10:07:12.761339+00:00",
+      "finishedAt": "2026-09-05T10:07:31.038898+00:00",
+      "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+      "argv": [
+        "node",
+        "C:/Users/hshum/.codex/worktrees/5dba/nodebench-ai/docs/plans/portfolio-recovery-20260904/E6f-noderoom-first-run/observe-mobile-download.mjs",
+        "mobile-download-before-01"
+      ],
+      "timeoutSeconds": 180,
+      "timedOut": false,
+      "exitCode": 0,
+      "elapsedSeconds": 18.281,
+      "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\mobile-download-observation-01.log",
+      "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+    },
+    {
+      "startedAt": "2026-09-05T10:11:09.833115+00:00",
+      "finishedAt": "2026-09-05T10:11:16.165456+00:00",
+      "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+      "argv": [
+        "node",
+        "C:/Users/hshum/.codex/worktrees/5dba/nodebench-ai/docs/plans/portfolio-recovery-20260904/E6f-noderoom-first-run/observe-mobile-edit-keyboard.mjs",
+        "mobile-edit-keyboard-before-01"
+      ],
+      "timeoutSeconds": 120,
+      "timedOut": false,
+      "exitCode": 0,
+      "elapsedSeconds": 6.344,
+      "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\mobile-edit-keyboard-observation-01.log",
+      "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+    },
+    {
+      "startedAt": "2026-09-05T10:04:33.909132+00:00",
+      "finishedAt": "2026-09-05T10:04:41.079166+00:00",
+      "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+      "argv": [
+        "node",
+        "C:/Users/hshum/.codex/worktrees/5dba/nodebench-ai/docs/plans/portfolio-recovery-20260904/E6f-noderoom-first-run/observe-mobile-targets.mjs",
+        "mobile-targets-before-01"
+      ],
+      "timeoutSeconds": 180,
+      "timedOut": false,
+      "exitCode": 0,
+      "elapsedSeconds": 7.171,
+      "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\mobile-targets-observation-01.log",
+      "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+    },
+    {
+      "startedAt": "2026-09-05T10:05:15.815066+00:00",
+      "finishedAt": "2026-09-05T10:05:37.777943+00:00",
+      "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+      "argv": [
+        "node",
+        "C:/Users/hshum/.codex/worktrees/5dba/nodebench-ai/docs/plans/portfolio-recovery-20260904/E6f-noderoom-first-run/observe-mobile-targets-settled.mjs",
+        "mobile-targets-before-02"
+      ],
+      "timeoutSeconds": 180,
+      "timedOut": false,
+      "exitCode": 0,
+      "elapsedSeconds": 21.969,
+      "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\mobile-targets-observation-02.log",
+      "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+    },
+    {
+      "startedAt": "2026-09-05T09:37:32.699381+00:00",
+      "finishedAt": "2026-09-05T09:37:59.172274+00:00",
+      "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+      "argv": [
+        "cmd.exe",
+        "/d",
+        "/c",
+        "npm",
+        "ci"
+      ],
+      "timeoutSeconds": 900,
+      "timedOut": false,
+      "exitCode": 0,
+      "elapsedSeconds": 26.469,
+      "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\npm-ci.log",
+      "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+    },
+    {
+      "startedAt": "2026-09-05T10:08:26.368459+00:00",
+      "finishedAt": "2026-09-05T10:08:51.242067+00:00",
+      "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+      "argv": [
+        "node",
+        "C:/Users/hshum/.codex/worktrees/5dba/nodebench-ai/docs/plans/portfolio-recovery-20260904/E6f-noderoom-first-run/observe-recovery-history.mjs",
+        "recovery-history-before-01"
+      ],
+      "timeoutSeconds": 180,
+      "timedOut": false,
+      "exitCode": 0,
+      "elapsedSeconds": 24.875,
+      "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\recovery-history-observation-01.log",
+      "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+    },
+    {
+      "startedAt": "2026-09-05T09:38:59.028961+00:00",
+      "finishedAt": "2026-09-05T09:39:01.325845+00:00",
+      "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+      "argv": [
+        "cmd.exe",
+        "/d",
+        "/c",
+        "npm",
+        "run",
+        "proofloop",
+        "--",
+        "ui",
+        "contract",
+        "--dense"
+      ],
+      "timeoutSeconds": 120,
+      "timedOut": false,
+      "exitCode": 0,
+      "elapsedSeconds": 2.296,
+      "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\ui-contract.log",
+      "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+    },
+    {
+      "startedAt": "2026-09-05T09:54:33.058143+00:00",
+      "finishedAt": "2026-09-05T10:00:00.658008+00:00",
+      "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+      "argv": [
+        "node",
+        "C:/Users/hshum/.codex/worktrees/5dba/nodebench-ai/docs/plans/portfolio-recovery-20260904/E6f-noderoom-first-run/observe-work.mjs",
+        "work-before-01"
+      ],
+      "timeoutSeconds": 360,
+      "timedOut": false,
+      "exitCode": 0,
+      "elapsedSeconds": 327.594,
+      "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\work-observation-01.log",
+      "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+    },
+    {
+      "startedAt": "2026-09-05T10:02:25.046960+00:00",
+      "finishedAt": "2026-09-05T10:03:04.423168+00:00",
+      "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+      "argv": [
+        "node",
+        "C:/Users/hshum/.codex/worktrees/5dba/nodebench-ai/docs/plans/portfolio-recovery-20260904/E6f-noderoom-first-run/observe-work-corrected.mjs",
+        "work-before-02"
+      ],
+      "timeoutSeconds": 240,
+      "timedOut": false,
+      "exitCode": 0,
+      "elapsedSeconds": 39.375,
+      "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\work-observation-02.log",
+      "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+    }
+  ],
+  "browserReports": {
+    "entry-before-01": {
+      "status": "OBSERVED",
+      "cells": 6,
+      "captures": 9,
+      "failedCells": 0,
+      "sha256": "6187b8447dbceb4b6071af3a758e96ae2526e6028d00bd705f57a6b36f643fa0",
+      "consolePageErrors": 0
+    },
+    "mobile-download-before-01": {
+      "status": "OBSERVED",
+      "cells": 2,
+      "captures": 18,
+      "failedCells": 0,
+      "sha256": "2a353a1d2d155ea4d2e82df7e382d724e9cd459da97131b92e144f93669090b0",
+      "consolePageErrors": 0
+    },
+    "mobile-edit-keyboard-before-01": {
+      "status": "OBSERVED",
+      "cells": 2,
+      "captures": 8,
+      "failedCells": 0,
+      "sha256": "2845453d0e3eb7a56c02ca2c9c4101cb9e98ae7ac26230cf90bc9df9abde3aac",
+      "consolePageErrors": 0
+    },
+    "mobile-targets-before-01": {
+      "status": "OBSERVED_WITH_FAILURES",
+      "cells": 4,
+      "captures": 11,
+      "failedCells": 3,
+      "sha256": "88061fdb5061ba404a685e9e3972f93b8472868c74595e8f5e06b2666060b84b",
+      "consolePageErrors": 0
+    },
+    "mobile-targets-before-02": {
+      "status": "OBSERVED",
+      "cells": 4,
+      "captures": 26,
+      "failedCells": 0,
+      "sha256": "62b87023c255ef6ac6aa1e19311df822cecb3dfd06b5440d5406198e676769ad",
+      "consolePageErrors": 0
+    },
+    "recovery-history-before-01": {
+      "status": "OBSERVED",
+      "cells": 2,
+      "captures": 16,
+      "failedCells": 0,
+      "sha256": "c07065e6e9b49711ee210255d1f765bc01a07c1588c77b640b073197601f6adf",
+      "consolePageErrors": 0
+    },
+    "work-before-01": {
+      "status": "OBSERVED_WITH_FAILURES",
+      "cells": 12,
+      "captures": 42,
+      "failedCells": 10,
+      "sha256": "461fcdddb853ad66896169ea5df903cade725c23ffd1f4bc557b5fb9bdb21b31",
+      "consolePageErrors": 0
+    },
+    "work-before-02": {
+      "status": "OBSERVED",
+      "cells": 12,
+      "captures": 56,
+      "failedCells": 0,
+      "sha256": "ef35d2a3be837a863155ae46be21558971a062ee188b783eb69ae777ec27a7a6",
+      "consolePageErrors": 0
+    }
+  },
+  "observedOutcomes": {
+    "desktopVarianceManualEdit": "10/10 corrected desktop-like cells at 320/390/768/1024/1440/1920 preserve manual text and enable Undo",
+    "naturalRouting": "320/390/760 route to seeded mobile;761 routes to desktop",
+    "recovery": "390/1440 actual free job cancellation, keyboard Retry, resulting +21.7%/+22.4% cells",
+    "sustained": "10 distinct human messages retained per390/1440 context",
+    "burst": "one intended message emitted once under actual Send double-click per390/1440",
+    "reload": "desktop10 human messages reset to0;mobile research returns to approval;mobile manual field resets even after closing/reopening modal",
+    "mobileTargets": "Home CardioNova card opens separate sample Q3 diligence tracker;Review andRoom use seeded mobile data",
+    "mobileDownload": "320/390 actual Download XLSX produces exported UI but zero browser downloads after2s;MobileGrid381 only changes local display state"
+  },
+  "holds": [
+    "Native Windows floor:387/388 files,2774/2775 tests;one actual Excel COM structural-repair test exceeds30s. No native phase identity or hang inferred. Independent read-only diagnosis retained.",
+    "Natural mobile export claims a generated1.1MB XLSX without producing a file;functional/trust defect, source unchanged.",
+    "Mobile memory is a separate seeded narrative, locally mutable sample rows and timer-based research. No Convex/provider/shared desktop state certification.",
+    "Mobile local edit resets on modal close/reopen; desktop and mobile memory state reset on reload.",
+    "200% text diagnostic exposes desktop clipped labels/composer and mobile ellipsis;native browser zoom/full accessibility not certified.",
+    "Inherited NodeSlide immutable package mismatch remains separate failed CI gate;no local repair or gate weakening.",
+    "Inherited Gemini nightly credential absence remains operational hold;no environment values/model calls.",
+    "Full audit29 advisories28moderate1high;production28moderate0high/critical. No dependency updates.",
+    "Current instructions refer to two absent mobile design contracts.",
+    "All browser requests outside own origin blocked;fallback-font offline pixels, not brand-font/full visual grade.",
+    "Complete visual/design/responsive/accessibility/performance/user/production grades remain null."
+  ],
+  "grades": {
+    "visual": null,
+    "responsive": null,
+    "interaction": null,
+    "accessibility": null,
+    "performance": null,
+    "production": null
+  },
+  "custody": "E6f-noderoom-first-run/final-unchanged-source-check.json",
+  "scope": "No application, package, source, handoff or test files edited in candidate; only one authorized clean sibling plus ignored install/build/test artifacts and operator proof packet. No commits/pushes/deploys."
+}

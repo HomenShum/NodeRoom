@@ -1,0 +1,5 @@
+
+> noderoom@0.1.1 typecheck
+> tsc --noEmit --pretty false
+
+src/ui/mobile/MobileGrid.tsx(17,3): error TS6196: 'Tone' is declared but never used.

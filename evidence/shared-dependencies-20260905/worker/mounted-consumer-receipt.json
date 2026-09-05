@@ -1,0 +1,153 @@
+{
+  "schemaVersion": "noderoom.nodeslide-mounted-release-proof/v1",
+  "nodeRoomCommit": "de9e02bc31c6bebb421a4889c1606a49f617f0f6",
+  "nodeRoomDirty": true,
+  "nodeSlideCommit": "a88fb57f111db82e9334d68fa7611a51ed54c3c1",
+  "checkedNodeSlideCommit": null,
+  "releaseVersion": "0.2.2",
+  "releaseTag": "v0.2.2",
+  "releaseTagObject": "ec4870300e1ad7ddd74209aada3a47a26779b4bb",
+  "immutable": true,
+  "publicProofRunId": 29787121559,
+  "releaseId": "a88fb57f111db82e9334d68fa7611a51ed54c3c1",
+  "manifestSha256": "sha256:3930276da868ab25853a7857cb5c2ddab724d9931eabb3e5fb499394a806856a",
+  "installUpgradeProofSha256": "sha256:75ec6c37f423445ebcf0b71516b5ce8ebaaf0396d3c864f75f615c3f16dc0724",
+  "baselineManifestSha256": "sha256:7eda4589c3d2c244c2b2e839112f3bc87fc5c4ef12546a145c8aaa18c3fdbf29",
+  "packages": [
+    {
+      "name": "@nodeslide/agent",
+      "file": "nodeslide-agent-0.2.2.tgz",
+      "sha256": "sha256:3ffb3d27c80b8ea673115a4faca39f2964e0876927586409e4f74e05e30a08ac",
+      "integrity": "sha512-LLt7CAEJpNs2DwbWT+AXwk4OaA4wK3pmMLaVCllXv0KKGrlND/l327vY2eDL4fu8q+pDoqwzU4fmzk3k40XMtg=="
+    },
+    {
+      "name": "@nodeslide/contracts",
+      "file": "nodeslide-contracts-0.2.2.tgz",
+      "sha256": "sha256:5cb798fdab903dc651c69c87b263fac9ce8138b62ec54f46c5a97c6835b74723",
+      "integrity": "sha512-VtW2OFl6LGasg8xakcfVapipp4aNw9TADYaiAEpdEvrkkeChzzkSyMhL49YEIfysOnkyIq48FuGAiNN2+xXi/w=="
+    },
+    {
+      "name": "@nodeslide/engine",
+      "file": "nodeslide-engine-0.2.2.tgz",
+      "sha256": "sha256:220e32141b33462f1b463da3d546c5022d9f2d8ce22aa1921cfde9335547f4ee",
+      "integrity": "sha512-Lrn+gDOMrq2C3xr31ALJ3+Y9ARKMsQPOjSaMEA7JkFJAgjBYLudRQCar75zfabUMwcOwuCjwqUGpaSzo1+9//w=="
+    },
+    {
+      "name": "@nodeslide/backend",
+      "file": "nodeslide-backend-0.2.2.tgz",
+      "sha256": "sha256:c90674bc8ec676df1d1d2964d7546f90952f326305d209a74931f9b870761326",
+      "integrity": "sha512-aSH8BgdCMorf1ikWVg6P8o8AmWa53CHxqh2D6x/a13vaBXK6fxGxGYutW5M8w6UPKbEqbHo0/QaGt24hwnHSKQ=="
+    },
+    {
+      "name": "@nodeslide/client-http",
+      "file": "nodeslide-client-http-0.2.2.tgz",
+      "sha256": "sha256:5aeda7071cd61c4223ae7673c51f12710b5b52531ed1194117b0bc1f45f705d4",
+      "integrity": "sha512-NscknIvNre3U536Y4Z2tQyah3f+Xda4gNgkJMOQZ4hEuAVyOcqscYIQz/L8fujs7Htwuzc3ZjNwWVc8+qJI2fQ=="
+    },
+    {
+      "name": "@nodeslide/convex",
+      "file": "nodeslide-convex-0.2.2.tgz",
+      "sha256": "sha256:d70c519b026ecfed4d1b930e9832b899597cc0b2838ed38114a3db6bed2fc364",
+      "integrity": "sha512-Rn8zPBbi1TNOCLPDGSm/SPwcGrtLQGzwVEKbK2VLnfalQmOHduzc/JyrxiCgIkpumvxLdABvDBkjjwFtXgZ/xg=="
+    },
+    {
+      "name": "@nodeslide/testing",
+      "file": "nodeslide-testing-0.2.2.tgz",
+      "sha256": "sha256:de6a428f86300008154c69e74106f7595f499e22fa93ab0e544a6a2fe8fa3a02",
+      "integrity": "sha512-YbgwF6pVhL5PzeydgT9aDXlzbgO6tC0eRC4oyT+AnGvw6Jw9/sTpOEp992jNyoJWs5bQqDQ4GbGeKB0erOWzyg=="
+    },
+    {
+      "name": "@nodeslide/react-headless",
+      "file": "nodeslide-react-headless-0.2.2.tgz",
+      "sha256": "sha256:d11b44e3cfb7702d2757e2155e0e157810c1e73bce016d45751bd7f3761c7ba3",
+      "integrity": "sha512-4/tRDb+Q8NiFb3YLq7xD2dA1BQ0YDurJO3b+PLWx7Vq+j/WU9p9s3gzmGhjSAO7L82NbExVe58E9TWFMqhVYOw=="
+    },
+    {
+      "name": "@nodeslide/react",
+      "file": "nodeslide-react-0.2.2.tgz",
+      "sha256": "sha256:2416791ca0206dd0900266046cf658e6d609d2e994597ceb4f205ccea979b608",
+      "integrity": "sha512-RfFVakw6ibLD0eR97mbxXEG7DFLguVpAGyNKJOkvpYheMWMy3PVrh4ZFEI0Zj+o07iFnp9vhe6yT04TDfiHxOg=="
+    },
+    {
+      "name": "@nodeslide/registry",
+      "file": "nodeslide-registry-0.2.2.tgz",
+      "sha256": "sha256:d36a252ed7997c6bc717189f9445ec0541cd35c607a195ac64660ed285a36cd4",
+      "integrity": "sha512-akXYG2VLYLlG5OkT3sT7CyjKouaO9jF9YW9ABorFfO3Z/a/svfRA7p1aYdvFppOeMzGuQb1GFwefeBDYbwnQyQ=="
+    },
+    {
+      "name": "@nodeslide/cli",
+      "file": "nodeslide-cli-0.2.2.tgz",
+      "sha256": "sha256:328a2021e86607dd8a8febf7daf566f96961aaf948330f060f97a3fa8d0352f8",
+      "integrity": "sha512-OZ9yULSLYYSZSEjQ4jxtCRwP8CGloFCPNewK1N/p9vYgaKcvso1xTojHgLvwHlu/mOdHPfLXlVPst384gaIssw=="
+    }
+  ],
+  "runtimePackages": [
+    {
+      "name": "@nodeslide/contracts",
+      "version": "0.2.2"
+    },
+    {
+      "name": "@nodeslide/engine",
+      "version": "0.2.2"
+    },
+    {
+      "name": "@nodeslide/backend",
+      "version": "0.2.2"
+    },
+    {
+      "name": "@nodeslide/react-headless",
+      "version": "0.2.2"
+    },
+    {
+      "name": "@nodeslide/react",
+      "version": "0.2.2"
+    },
+    {
+      "name": "@nodeslide/convex",
+      "version": "0.2.2"
+    }
+  ],
+  "proof": {
+    "manifestDigestVerified": true,
+    "everyArtifactDigestVerified": true,
+    "lockstepVersionVerified": true,
+    "freshInstallWithScriptsDisabled": true,
+    "controlledReactExportVerified": true,
+    "convexGovernanceExportVerified": true,
+    "componentGrantProtocolVerified": true,
+    "isolatedComponent": {
+      "mountedFromFreshInstall": true,
+      "initialized": true,
+      "patchDigestVerified": true,
+      "substitutedCommandRejectedBeforeConsumption": true,
+      "exactCommandAccepted": true,
+      "grantReplayRejected": true,
+      "rereadPreservedAcceptedEdit": true,
+      "receiptExcludedRequestDigest": true,
+      "actorProofNeverEnteredComponent": true
+    },
+    "nodeRoomJourney": {
+      "passed": true,
+      "testFiles": [
+        "tests/nodeSlideMountedMemoryJourney.test.ts",
+        "tests/nodeSlideMountedConvexJourney.test.ts",
+        "tests/nodeSlideMountedIsolatedComponentJourney.test.ts",
+        "tests/nodeSlideStudioMount.test.tsx"
+      ],
+      "actorProofAndMembershipAuthorization": true,
+      "createAndManualEdit": true,
+      "existingNodeAgentReviewStayedUnappliedUntilAccept": true,
+      "activityAndCredentialFreeReceipts": true,
+      "reloadAndVersionHistory": true,
+      "presenterPptxReopenAndRevalidation": true,
+      "memoryAndConvexSemanticParity": true
+    },
+    "nodeRoomPackageLockPinsVerified": true,
+    "producerInstallUpgradeReceiptVerified": true,
+    "producerTamperRejectionVerified": true,
+    "producerMixedReleaseRejectionVerified": true,
+    "producerCandidateRebuildMatchesPublicAssets": true,
+    "exactNodeSlideCheckoutVerified": false,
+    "exactNodeRoomCommitRecorded": true
+  }
+}

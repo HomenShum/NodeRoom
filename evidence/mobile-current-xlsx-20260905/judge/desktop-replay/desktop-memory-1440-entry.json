@@ -1,0 +1,61 @@
+{
+  "url": "http://127.0.0.1:54433/?mode=memory&surface=desktop",
+  "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+  "body": "N\nNodeRoom\nShared workrooms for people and NodeAgents\nWork with AI. Review every change.\n\nNodeRoom is a shared workspace where people and NodeAgents work on the same files, spreadsheets, and notes. Every agent edit can stay reviewable and source-backed.\n\nTry sample room\nJoin room\n312\nrooms live\n1,284\ncells committed today\nDEMO\nSign-in required\nCode-access rooms\nReview-first agent edits\nN\nQ3\nX-7K\nLIVE DEMO\nHS\nPR\nqk\nNA\nNA\nRoom NodeAgent\n\nLocking the rows I’m about to write — read-only for others, still readable.\n\nACCOUNT\tQ3\tVARIANCE\nRevenue\t$12,400\t\nNA\nCOGS\t$5,100\t\nNA\nGross profit\t$7,300\t—\nversionedSync\nv41\ntraced · NetSuite p.4\nQ3X\n-7K\nsign in · join with code\nShare a code, not a seat\n\nSign in, then join with a six-character room code. Share it only with people you intend to invite.\n\nOpen only what you need\n\nFiles, chat, a live artifact, and your private agent — one to four panels.\n\nNA\nRevenue · locked\ndraft\nGross profit · smart-merge\nv41 → v42\nLocks, then smart-merge\n\nAgents lock the rows they touch and merge drafts on release. No collisions.\n\n01 · SURFACE\nThe public surface\napps/web · noderoom.live shell",
+  "horizontalOverflow": 0,
+  "viewport": {
+    "width": 1440,
+    "height": 960
+  },
+  "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+  "buttons": [
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "NodeRoom home",
+      "text": "NNodeRoom",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Toggle light / dark",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "start-demo-room",
+      "label": null,
+      "text": "Try sample room",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "INPUT",
+      "testId": "join-room-code",
+      "label": "Room code",
+      "text": "",
+      "placeholder": "ENTER CODE",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "join-room",
+      "label": null,
+      "text": "Join room",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Open product story",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    }
+  ]
+}

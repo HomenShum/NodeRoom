@@ -1,0 +1,11 @@
+{
+  "head": "de9e02bc31c6bebb421a4889c1606a49f617f0f6",
+  "indexSha256": "7c6e0eb2988ec11271786c803c79dd077f39e1f1fad08bb2c60f502b00b625ea",
+  "refsSha256": "eaf90ebca88f0ec1f9e6d63c827310747db80acb1c7ab140daa379403289b4e4",
+  "statusSha256": "7d498ab7afc37676ec60a20b6a2d6bf688f410adf59d13195e8be1950b77fc6c",
+  "staged": false,
+  "workerReceiptHistorical": true,
+  "effectiveAddendumSha256": "e44e5a71eb7fb220f4130121905765b2f24186261381f550e92e243ffe5c2b32",
+  "workingDigest": "970483b585a537d45822ebfb8cc2bdfda4466402c8c98e7bc4c8e1aa27dff8b8",
+  "authoredDigest": "fbd839fb06029e4f2c4a7a96fc4da6269e33e16f7683fbc18d38e47332b7d103"
+}

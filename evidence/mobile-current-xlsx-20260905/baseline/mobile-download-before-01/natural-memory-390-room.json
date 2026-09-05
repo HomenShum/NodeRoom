@@ -1,0 +1,181 @@
+{
+  "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+  "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+  "body": "N\nQ3 Diligence\n4\nPR\nPriya\n8m\nPulling the NetSuite Q3 numbers into the variance sheet — revenue looks off vs the close.\nqk\nguest · quokka\n6m\njoined as a guest. read-only on the sheet for now?\nHS\nHomen\n5m\nYou can edit — collaborator access is on. Getting the agent to reconcile the variance.\nNA\nRoom NodeAgent\n4m\nReconciling Q3 revenue against the NetSuite export…\nNA\nRoom NodeAgent\n4m\nCommitted Variance for Revenue and COGS through the sync tool. Lock released.\nv41→v42\nversion\n2\nrows\n0\noverwrites\nNA\nRoom NodeAgent\n4m\nQ3 variance\nsheet · v42 · 3 collaborators\nPR\nPriya\n2m\nNice. @CardioNova still needs the paid-pilot source before we trust runway.\nHome\nCapture\nRoom\nAgent\nReview\nFiles",
+  "horizontalOverflow": 0,
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+  "buttons": [
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-room-context",
+      "label": "Switch room, current room Q3 Diligence",
+      "text": "NQ3 Diligence",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-review-action",
+      "label": "Review inbox, 4 items",
+      "text": "4",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-overflow-action",
+      "label": "More room actions",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Message Priya",
+      "text": "PR",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Priya",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Message guest · quokka",
+      "text": "qk",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "guest · quokka",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Message Homen",
+      "text": "HS",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Homen",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Q3 variancesheet · v42 · 3 collaborators",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Message Priya",
+      "text": "PR",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Priya",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Quick actions",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Add to message",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "INPUT",
+      "testId": null,
+      "label": "Message everyone in this room",
+      "text": "",
+      "placeholder": "Message the room…",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-home",
+      "label": "Home",
+      "text": "Home",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-capture",
+      "label": "Capture",
+      "text": "Capture",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-room",
+      "label": "Room",
+      "text": "Room",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-agent",
+      "label": "Agent",
+      "text": "Agent",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-inbox",
+      "label": "Review",
+      "text": "Review",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-files",
+      "label": "Files",
+      "text": "Files",
+      "placeholder": null,
+      "disabled": false
+    }
+  ]
+}

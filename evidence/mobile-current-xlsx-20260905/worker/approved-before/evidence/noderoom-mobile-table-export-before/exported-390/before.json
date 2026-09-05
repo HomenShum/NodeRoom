@@ -1,0 +1,309 @@
+{
+  "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+  "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+  "body": "N\nQ3 Diligence\n4\nRECENTS\nDECK\nCardioNova investor update\n+1\n6 slides · review\nOpen deck\nSHEET\nCardioNova sheet\nv42 · 2 to review\nOpen sheet\nPLAN\nCardioNova work plan\nRead 4 approved sources\nPropose Runway cell\nAttach evidence\nRead-only · est. $0.01\nOpen plan\nEVIDENCE\nFunding evidence\n“raising Series B”\ndeck p.12\nTechCrunch · Mar 2026\n2 sources · 1 gap\nOpen evidence\nFAVORITES\nQ3 Diligence room\n6 live · 2 agents\nOpen room\nCardioNova company sheet\nv42 · 2 fields to review\nOpen sheet\nCardioNova investor update\ndeck · 6 slides · proposed\nOpen deck\nFunding evidence card\n2 sources · 1 gap\nOpen evidence\nSync reliability note\nedited 2m ago\nOpen note\nBRIEFINGS\nWhy CardioNova runway is needs_review\nfunding · 2 min\nOpen coach\nDefending the Q3 variance commit\nreconciliation · 3 min\nOpen coach\nWhat the paid-pilot gap blocks\nrevenue · 2 min\nOpen coach\nHome\nCapture\nRoom\nAgent\nReview\nFiles\nSpreadsheet\nQ3 diligence tracker\nsheet · v42 · Room\nPlan\nSheet\n8\nEvidence\nExport\nSpreadsheet\nPowerPoint\nQ3_diligence_tracker.xlsx\n3 rows · 1.1 MB\nexported\nDownload again\nRendered from the gated sheet JSON\nEvery exported value carries its source. Flagged cells export with their review status so nothing reads as confirmed before it is.\nPAST VERSIONS\nv42\nQ3 ARR reconciled vs close\njust now\nv41\nCardioNova row added\n12m ago\nRestore\nv40\nImported NetSuite export\n1h ago\nRestore",
+  "horizontalOverflow": 0,
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+  "buttons": [
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-room-context",
+      "label": "Switch room, current room Q3 Diligence",
+      "text": "NQ3 Diligence",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-review-action",
+      "label": "Review inbox, 4 items",
+      "text": "4",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-overflow-action",
+      "label": "More room actions",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "deckCardioNova investor update+16 slides · reviewOpen deck",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "sheetCardioNova sheetv42 · 2 to reviewOpen sheet",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "planCardioNova work planRead 4 approved sourcesPropose Runway cellAttach evidenceRead-only · est. $0.01Open plan",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "evidenceFunding evidence“raising Series B”deck p.12TechCrunch · Mar 20262 sources · 1 gapOpen evidence",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Q3 Diligence room6 live · 2 agentsOpen room",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "CardioNova company sheetv42 · 2 fields to reviewOpen sheet",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "CardioNova investor updatedeck · 6 slides · proposedOpen deck",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Funding evidence card2 sources · 1 gapOpen evidence",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Sync reliability noteedited 2m agoOpen note",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Why CardioNova runway is needs_reviewfunding · 2 minOpen coach",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Defending the Q3 variance commitreconciliation · 3 minOpen coach",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "What the paid-pilot gap blocksrevenue · 2 minOpen coach",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Quick actions",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Add to message",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "INPUT",
+      "testId": null,
+      "label": "Ask NodeAgent",
+      "text": "",
+      "placeholder": "Ask NodeAgent or capture…",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-home",
+      "label": "Home",
+      "text": "Home",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-capture",
+      "label": "Capture",
+      "text": "Capture",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-room",
+      "label": "Room",
+      "text": "Room",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-agent",
+      "label": "Agent",
+      "text": "Agent",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-inbox",
+      "label": "Review",
+      "text": "Review",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-files",
+      "label": "Files",
+      "text": "Files",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Close",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Plan",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Sheet8",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Evidence",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Export",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Spreadsheet",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "PowerPoint",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Download again",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Download v42",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Restore",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Download v41",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Restore",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Download v40",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    }
+  ]
+}

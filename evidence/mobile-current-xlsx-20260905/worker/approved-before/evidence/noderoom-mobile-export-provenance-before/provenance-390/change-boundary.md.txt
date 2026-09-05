@@ -1,0 +1,19 @@
+# UI change boundary
+
+Route: /?mode=memory → /#mobile?mode=memory
+Viewport: 390x844; Chromium anonymous fresh context, offline fallback fonts.
+Source: 2b3e5bd718b80747f32257a8b8af5f15e2310699, 1,563 unchanged bound inputs.
+Trigger: Home → CardioNova sheet → Export.
+Fixture: current checked-in mobileData.SHEET; no live backend, no model.
+
+CHANGE B · Export provenance
+
+Current: readiness, file-size, exported and history actions are seeded display state. The actual Download XLSX action emits no file.
+Expected proposed scope: actual current table export, measured output metadata and honest pending/error/retry state; unsupported historical files must not pretend to download or restore. No producer changes yet authorized.
+Data source: currently displayed SampleSheetArtifact rows, including user edits and recorded cell statuses; never desktop room state.
+
+Protected neighbors: sheet title/close, Sheet/Plan/Evidence navigation, row values, agent proposal/approval semantics, global Home/Room/Agent/Review/Files navigation, live mobile adapter and original desktop runtime.
+
+Required proof after any approved repair: same entry/viewport/fixture; idle/loading/error/success, real downloaded file reopen and exact current values/statuses; actual keyboard, repeated requests, bounded failure/retry and disclosed sample/reload limits.
+
+Boundary may be clipped to the current scroll viewport; history has its own actual scrolled capture. No source styles or app rendering are overridden. Overlay is removed with strict byte-identical DOM restoration.

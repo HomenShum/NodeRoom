@@ -1,0 +1,213 @@
+diff --git a/src/ui/mobile/MobileGrid.tsx b/src/ui/mobile/MobileGrid.tsx
+index 1cc354d4..e4049a5e 100644
+--- a/src/ui/mobile/MobileGrid.tsx
++++ b/src/ui/mobile/MobileGrid.tsx
+@@ -14,7 +14,6 @@ import type { IconName } from "./MobileIcons";
+ import { Pill } from "./MobileScreens";
+ import * as D from "./mobileData";
+ import type {
+-  Tone,
+   Sheet as SheetData,
+   SheetColumn,
+   SheetRow,
+@@ -28,6 +27,8 @@ import type {
+ } from "./mobileData";
+ import type { MobileCtx } from "./mobileTypes";
+ import { haptic } from "./mobileUtil";
++import { buildMobileSampleWorkbook } from "./mobileSheetExport";
++import { downloadXlsxWorkbook, type XlsxDownloadReceipt } from "../workArtifacts/xlsxDownload";
+ import {
+   GESTURE_THRESHOLDS,
+   classifyRelease,
+@@ -202,7 +203,40 @@ function SampleSheetArtifact({ ctx }: { ctx: MobileCtx }): React.ReactElement {
+   const S: SheetData = D.SHEET;
+   const [tab, setTab] = useState<string>("grid");
+   const [rows, setRows] = useState<SheetRow[]>(S.rows);
+-  const [exported, setExported] = useState(false);
++  const [exportReceipt, setExportReceipt] = useState<XlsxDownloadReceipt | null>(null);
++  const [exportError, setExportError] = useState<string | null>(null);
++  const [exportBusy, setExportBusy] = useState(false);
++  const exportAttempt = useRef<AbortController | null>(null);
++  const exportMounted = useRef(true);
++
++  React.useLayoutEffect(() => {
++    exportMounted.current = true;
++    return () => { exportMounted.current = false; exportAttempt.current?.abort(); };
++  }, []);
++  React.useLayoutEffect(() => {
++    setExportReceipt(null);
++    setExportError(null);
++    exportAttempt.current?.abort(new Error("The table changed. Export the current table again."));
++  }, [rows]);
++
++  const exportCurrentTable = async (): Promise<void> => {
++    if (exportAttempt.current) return;
++    const attempt = new AbortController();
++    exportAttempt.current = attempt;
++    setExportBusy(true);
++    setExportReceipt(null);
++    setExportError(null);
++    try {
++      const workbook = await buildMobileSampleWorkbook(S, rows);
++      const receipt = await downloadXlsxWorkbook(workbook, "Q3_diligence_tracker.xlsx", rows.length, attempt.signal);
++      if (exportMounted.current) setExportReceipt(receipt);
++    } catch (error) {
++      if (exportMounted.current) setExportError(error instanceof Error ? error.message : "XLSX download could not start. Try again.");
++    } finally {
++      if (exportAttempt.current === attempt) exportAttempt.current = null;
++      if (exportMounted.current) setExportBusy(false);
++    }
++  };
+ 
+   // sheet-local conversation + composer
+   const [chat, setChat] = useState<GridChatMsg[]>([]);                 // {id, role, text, patch?, resolved?}
+@@ -370,7 +404,7 @@ function SampleSheetArtifact({ ctx }: { ctx: MobileCtx }): React.ReactElement {
+     React.createElement("div", { className: "na-sheet-body", "data-pad": tab === "grid" ? "compose" : undefined },
+       tab === "plan" && React.createElement(SheetPlanView, { S, planChat }),
+       tab === "grid" && React.createElement(GridView, {
+-        S, rows, reviewCount, exported,
++        S, rows, reviewCount, exported: Boolean(exportReceipt),
+         editing, editVal, setEditVal, editRef, startEdit, commitEdit, cancelEdit,
+         onFix: promptFix, onExport: () => setTab("export"), onPresent: () => setPresent(true),
+         chat,
+@@ -378,7 +412,7 @@ function SampleSheetArtifact({ ctx }: { ctx: MobileCtx }): React.ReactElement {
+         rowGesture, isWatched: ctx.isRowWatched,
+       }),
+       tab === "evidence" && React.createElement(SheetEvidence, { S, ctx }),
+-      tab === "export" && React.createElement(SheetExport, { S, rows, exported, onExport: (fmt: string, ver?: string) => { setExported(true); ctx.toast((ver ? ver + " · " : "") + (fmt === "pptx" ? "CardioNova_update.pptx generated" : "Q3_diligence_tracker.xlsx downloaded")); } })),
++      tab === "export" && React.createElement(SheetExport, { S, rows, receipt: exportReceipt, busy: exportBusy, error: exportError, onExport: () => { void exportCurrentTable(); } })),
+ 
+     // bottom region — a chat composer on both Plan and Sheet tabs
+     (tab === "grid" || tab === "plan") && React.createElement("div", { className: "na-sheet-compose" },
+@@ -764,44 +798,41 @@ function ClaimBlock({ E, onOpen }: { E: SheetClaim; onOpen: (s: SheetClaimSuppor
+     gaps.map((g: SheetClaimSupport, i: number) => React.createElement("div", { key: i, className: "na-srcgap" }, Ico("gap"), g.text)));
+ }
+ 
+-// ── EXPORT — XLSX or PowerPoint, both rendered from the gated sheet JSON ───
+-function SheetExport({ S, rows, exported, onExport }: { S: SheetData; rows: SheetRow[]; exported: boolean; onExport: (fmt: string, ver?: string) => void }): React.ReactElement {
+-  const [fmt, setFmt] = useState("xlsx");
+-  const isPptx = fmt === "pptx";
+-  const file = isPptx ? "CardioNova_update.pptx" : "Q3_diligence_tracker.xlsx";
+-  const meta = isPptx ? (rows.length + 1) + " slides · 7.7 MB" : rows.length + " rows · " + S.exportSize;
++// ── EXPORT — real current-table XLSX; unavailable sample history stays explicit ──
++function SheetExport({ S, rows, receipt, busy, error, onExport }: {
++  S: SheetData;
++  rows: SheetRow[];
++  receipt: XlsxDownloadReceipt | null;
++  busy: boolean;
++  error: string | null;
++  onExport: () => void;
++}): React.ReactElement {
+   return React.createElement(React.Fragment, null,
+     React.createElement("div", { className: "na-seg", style: { marginBottom: 12 } },
+-      React.createElement("button", { "data-active": !isPptx, onClick: () => setFmt("xlsx") }, Ico("table"), "Spreadsheet"),
+-      React.createElement("button", { "data-active": isPptx, onClick: () => setFmt("pptx") }, Ico("layers"), "PowerPoint")),
+-    React.createElement("div", { className: "na-export" },
+-      React.createElement("div", { className: "na-export-ico" }, Ico(isPptx ? "layers" : "download")),
++      React.createElement("button", { "data-active": true, "aria-pressed": true }, Ico("table"), "Spreadsheet"),
++      React.createElement("button", { disabled: true, title: "PowerPoint export is unavailable for this table" }, Ico("layers"), "PowerPoint")),
++    React.createElement("div", { className: "na-export", "data-testid": "mobile-table-export-status", role: "status" },
++      React.createElement("div", { className: "na-export-ico" }, Ico("download")),
+       React.createElement("div", { className: "na-export-main" },
+-        React.createElement("strong", null, exported ? file : (isPptx ? "PowerPoint deck ready" : S.exportFormat + " export ready")),
+-        React.createElement("span", null, meta)),
+-      React.createElement(Pill, { tone: (exported ? "ok" : "accent") as Tone }, exported ? "exported" : "ready")),
+-    React.createElement("button", { className: "na-btn primary full", onClick: () => onExport(fmt) }, Ico(isPptx ? "layers" : "download"), isPptx ? (exported ? "Generate again" : "Generate deck") : (exported ? "Download again" : "Download XLSX")),
++        React.createElement("strong", null, busy ? "Preparing XLSX" : receipt ? "Download started" : "Current table XLSX"),
++        React.createElement("span", { style: { overflowWrap: "anywhere" } }, receipt ? `${receipt.fileName} · ${receipt.byteCount.toLocaleString()} bytes` : `${rows.length} rows · ${S.columns.length} columns`)),
++      React.createElement(Pill, { tone: error ? "bad" : receipt ? "ok" : "accent" }, busy ? "preparing" : error ? "not exported" : receipt ? "started" : "local sample")),
++    error && React.createElement("p", { className: "na-prose", role: "alert", "data-testid": "mobile-table-export-error" }, error),
++    React.createElement("button", { className: "na-btn primary full", disabled: busy, onClick: onExport, "data-testid": "mobile-table-export-download" }, Ico("download"), busy ? "Preparing XLSX..." : error ? "Retry XLSX download" : receipt ? "Download again" : "Download XLSX"),
+     React.createElement("div", { className: "na-export-prov" },
+       Ico("shield"),
+       React.createElement("div", null,
+-        React.createElement("strong", null, "Rendered from the gated sheet JSON"),
+-        React.createElement("span", null, isPptx
+-          ? "The deck is generated from the same structured records — source-tracing and the honesty gate run once on the data, so slides can’t introduce a claim the sheet can’t back."
+-          : "Every exported value carries its source. Flagged cells export with their review status so nothing reads as confirmed before it is."))),
+-    isPptx ? React.createElement("div", { className: "na-export-flow" },
+-      React.createElement("span", { className: "fl" }, "sheet JSON", React.createElement("em", null, "source of truth · gated")),
+-      Ico("chevR"),
+-      React.createElement("span", { className: "fl" }, "HTML", React.createElement("em", null, "preview · comment-edit")),
+-      Ico("chevR"),
+-      React.createElement("span", { className: "fl" }, "PPTX / PDF", React.createElement("em", null, "export"))) : null,
+-    React.createElement("div", { className: "na-kicker", style: { marginTop: 8 } }, "Past versions"),
++        React.createElement("strong", null, "Local sample table"),
++        React.createElement("span", null, "Exports the current values with recorded status and claim labels as unverified sample metadata. Edits reset when this sheet closes or the page reloads. PowerPoint export is unavailable for this table."))),
++    React.createElement("div", { className: "na-kicker", style: { marginTop: 8 } }, "Sample version labels"),
++    React.createElement("p", { className: "na-prose" }, "These labels have no saved workbook content. Historical download and restore are unavailable."),
+     React.createElement("div", { className: "na-vers" },
+-      S.versions.map((v: SheetVersion, i: number) => React.createElement("div", { key: i, className: "na-ver", "data-cur": !!v.current },
++      S.versions.map((v: SheetVersion) => React.createElement("div", { key: v.v, className: "na-ver", "data-cur": !!v.current },
+         React.createElement("span", { className: "vtag" }, v.v),
+         React.createElement("span", { className: "vmain" },
+           React.createElement("strong", null, v.label),
+           React.createElement("span", { className: "vt" }, v.t)),
+         React.createElement("div", { className: "na-ver-acts" },
+-          !v.current && React.createElement("button", { className: "na-ver-act", onClick: () => {} }, "Restore"),
+-          React.createElement("button", { className: "na-ver-dl", onClick: () => onExport(fmt, v.v), "aria-label": "Download " + v.v, title: "Download " + v.v }, Ico("download")))))));
++          !v.current && React.createElement("button", { className: "na-ver-act", disabled: true, title: "No saved workbook is available to restore" }, "Restore"),
++          React.createElement("button", { className: "na-ver-dl", disabled: true, "aria-label": "Download " + v.v + " unavailable", title: "No saved workbook is available to download" }, Ico("download")))))));
+ }
+diff --git a/src/ui/panels/Artifact.tsx b/src/ui/panels/Artifact.tsx
+index 276bd298..74c90f35 100644
+--- a/src/ui/panels/Artifact.tsx
++++ b/src/ui/panels/Artifact.tsx
+@@ -50,6 +50,7 @@ import { isCollaborativeDeckArtifact } from "../workArtifacts/collaborativeDeck"
+ import { onOpenWorkArtifactsReview } from "../workArtifacts/workArtifactsNavigation";
+ import { NodeBookArtifactElementSurface } from "../../notebook/NodeBookArtifactElementSurface";
+ import { NodeRoomNodeBookWorkspaceSurface } from "../../notebook/NodeBookWorkspaceSurface";
++import { downloadXlsxWorkbook, type XlsxDownloadReceipt } from "../workArtifacts/xlsxDownload";
+ 
+ async function runAuthorizedInvestigationResearch(store: RoomStore, roomId: string): Promise<void> {
+   if (
+@@ -2436,14 +2437,6 @@ function sanitizeFilename(name: string): string {
+  * Mobile live sheets deliberately keep XLSX disabled until they can identify the selected artifact
+  * and return this same byte-backed receipt; no success toast substitutes for a download.
+  */
+-interface XlsxDownloadReceipt {
+-  fileName: string;
+-  rowCount: number;
+-  sheetCount: number;
+-  byteCount: number;
+-  at: string;
+-}
+-
+ async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null, allArts: Art[] = [art]): Promise<XlsxDownloadReceipt> {
+   const ExcelJSModule = await import("exceljs");
+   const ExcelJS = (ExcelJSModule as { default?: typeof import("exceljs") }).default ?? (ExcelJSModule as unknown as typeof import("exceljs"));
+@@ -2506,29 +2499,11 @@ async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null, all
+     appendSheetArtifactWorksheet(workbook, sibling, usedSheetNames);
+   }
+ 
+-  // writeBuffer() returns an exceljs.Buffer (Uint8Array-compatible); Blob accepts both. NEVER call
+-  // workbook.xlsx.writeFile here — that is Node-only and would crash in the browser.
+-  const buffer = await workbook.xlsx.writeBuffer();
+-  const blob = new Blob([buffer as ArrayBuffer], {
+-    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+-  });
+-  const url = URL.createObjectURL(blob);
+-  const anchor = document.createElement("a");
+-  anchor.href = url;
+-  anchor.download = `${sanitizeFilename(exportWorkbookBaseName(art, exportSheets))}.xlsx`;
+-  anchor.style.display = "none";
+-  document.body.appendChild(anchor);
+-  anchor.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, view: window }));
+-  document.body.removeChild(anchor);
+-  // Keep the object URL alive long enough for Chromium/WebKit to finish download negotiation.
+-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+-  return {
+-    fileName: anchor.download,
+-    rowCount: rows.length,
+-    sheetCount: workbook.worksheets.length,
+-    byteCount: buffer.byteLength,
+-    at: new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
+-  };
++  return downloadXlsxWorkbook(
++    workbook,
++    `${sanitizeFilename(exportWorkbookBaseName(art, exportSheets))}.xlsx`,
++    rows.length,
++  );
+ }
+ 
+ function workbookExportSheets(active: Art, allArts: Art[]): Art[] {

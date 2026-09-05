@@ -1,0 +1,20 @@
+--- prior frozen package
++++ effective package
+@@ -2,7 +2,7 @@
+   "name": "noderoom",
+   "version": "0.1.1",
+   "private": false,
+-  "description": "A live collaborative room where humans and NodeAgents (public + private) edit a shared spreadsheet, note, and post-it wall together \u00e2\u20ac\u201d with a lock -> draft -> smart-merge collaboration model, per-room traces, and auto-allow. Distilled from NodeBench AI / ScratchNode.",
++  "description": "A live collaborative room where humans and NodeAgents (public + private) edit a shared spreadsheet, note, and post-it wall together â€” with a lock -> draft -> smart-merge collaboration model, per-room traces, and auto-allow. Distilled from NodeBench AI / ScratchNode.",
+   "type": "module",
+   "license": "MIT",
+   "author": "Homen Shum",
+@@ -40,7 +40,7 @@
+     "ship:prod": "npm run convex:deploy:guard && npm run convex:deploy && node scripts/ship-prod-verify.mjs --chunk-signal zealous-goshawk-766.convex.cloud --chunk-absent aromatic-bass-102",
+     "convex:dev": "convex dev",
+     "convex:deploy": "convex dev --once --env-file .env.local && tsx scripts/convex-deploy-verify.ts",
+-    "convex:deploy:guard": "node -e \"const fs=require('fs');const m=fs.readFileSync('.env.local','utf8').match(/^CONVEX_DEPLOYMENT=(.+)$/m);if(!m||!/zealous-goshawk-766/.test(m[1])){console.error('[guard] .env.local CONVEX_DEPLOYMENT must resolve to zealous-goshawk-766 (the deployment Vercel production reads from). Got:',m?m[1]:'(unset)');process.exit(1);}console.log('[guard] OK \u2014 CONVEX_DEPLOYMENT='+m[1]);\"",
++    "convex:deploy:guard": "node -e \"const fs=require('fs');const m=fs.readFileSync('.env.local','utf8').match(/^CONVEX_DEPLOYMENT=(.+)$/m);if(!m||!/zealous-goshawk-766/.test(m[1])){console.error('[guard] .env.local CONVEX_DEPLOYMENT must resolve to zealous-goshawk-766 (the deployment Vercel production reads from). Got:',m?m[1]:'(unset)');process.exit(1);}console.log('[guard] OK — CONVEX_DEPLOYMENT='+m[1]);\"",
+     "convex:deploy:verify": "tsx scripts/convex-deploy-verify.ts",
+     "benchmark": "tsx scripts/benchmark/run.ts",
+     "benchmark:official:readiness": "tsx scripts/official-benchmark-readiness.ts",

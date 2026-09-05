@@ -1,0 +1,23 @@
+{
+  "source": {
+    "src/ui/mobile/MobileGrid.tsx": "2ca4846af0b55b8ee490fe16a754e96abac878b62056f37a0baf7bad664aa4ef",
+    "src/ui/mobile/mobileSheetExport.ts": "a99dcf2276282e8d4859faa609bce22d73c8b6895a07eed3c239b8f42ced211c",
+    "src/ui/mobile/mobileData.ts": "adba645a40703f211b8ac2f27058ffefddaedcfff99e0ec0b08a5c8e4a386d85",
+    "src/ui/mobile/MobileApp.tsx": "f2471aa294e13c5e3c055953473695a8fc6c5705057cc80dbae1453cfd25e304",
+    "src/ui/mobile/MobileRoot.tsx": "63f267236fb8d9c68370cfec53d1b775fbf754a4b51e0eae6896bcc69382a7ec",
+    "src/ui/mobile/MobileScreens.tsx": "a25dd7b50189441412d2094dc860e8065963367b617b464b1ad142a10517812b",
+    "src/ui/panels/Artifact.tsx": "701cbef1cbe9ca89dea754b203243dbd760aa04d9062f6053e1615f7cbeb6463",
+    "src/ui/workArtifacts/xlsxDownload.ts": "e2dac3c92c9ef441024f1ee53ed119954f78b626ef20cb5e3986f6545e9da5ab",
+    "src/ui/App.tsx": "a74ba0c89203f08b313bd8532cbab82c4e37cb2063ebd6a88d3d5a430d479648",
+    "package.json": "7e6758419aef89fccb653258fd0c7c6258cd818e716a50924cec88a92ac19f32",
+    "package-lock.json": "ee580757a997b0fd846ee802bd1c283889a6fb3ee8eb8d1efef6e5170df2689a",
+    "e2e/mobile-sample-workbook-export.spec.ts": "b32079d1ef7fa74384ee68740e46495628ed3398001273f9840167cc4c66f775"
+  },
+  "requests": [
+    "https://fonts.googleapis.com/css2"
+  ],
+  "errors": [],
+  "consoleMessages": [
+    "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "schema": "noderoom-entry-observation/v1",
+  "startedAt": "2026-09-05T10:38:50.994Z",
+  "sourceCommit": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+  "sourceBindings": "../../E6f-noderoom-first-run/source-before.json",
+  "cells": [
+    {
+      "width": 1440,
+      "routeName": "desktop-memory",
+      "captures": [
+        {
+          "name": "desktop-memory-1440-entry",
+          "pngSha256": "577aa856fd9b5987f0b0303dc58d1e3bd968aaf576f7bf0a0fea2cf4e1bd92c1",
+          "domSha256": "60b5cbd92cd40cbd199a6e0cd1eeb9d7992c83c9d8f907c62ef14282c1ab1e43",
+          "url": "http://127.0.0.1:54431/?mode=memory&surface=desktop",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "desktop-memory-1440-sample",
+          "pngSha256": "fb9b4f490dc147ec1cacaa48a9da4995ddf2e88faa1a35bf4d6dff02682da9d4",
+          "domSha256": "11aa5007a79e19eca5d42428ed2e3a267a5e3de3a97b7b95ac0a7ddb9caab124",
+          "url": "http://127.0.0.1:54431/?mode=memory&surface=desktop",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        },
+        {
+          "name": "desktop-memory-1440-downloaded",
+          "pngSha256": "468cafe4d31142af8359049f55e53aa84954e958f4631d97183d6672d6e3e429",
+          "domSha256": "6bd7dcdfef8d59846e456bc316e7e749be27e7c1f236105f7f50a1e5c8c0be7b",
+          "url": "http://127.0.0.1:54431/?mode=memory&surface=desktop",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        }
+      ],
+      "console": [
+        {
+          "type": "error",
+          "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+        }
+      ],
+      "pageErrors": [],
+      "workbook": [
+        {
+          "name": "Q3 variance",
+          "rows": [
+            null,
+            [
+              null,
+              "Account",
+              "Q2",
+              "Q3",
+              "Variance",
+              "Note"
+            ],
+            [
+              null,
+              null,
+              "$10,000",
+              "$12,400",
+              "+24%",
+              "Reviewer note: baseline input"
+            ],
+            [
+              null,
+              null,
+              "$4,000",
+              "$5,100",
+              "+27.5%"
+            ],
+            [
+              null,
+              null,
+              "$6,000",
+              "$7,300",
+              "+21.7%"
+            ],
+            [
+              null,
+              null,
+              "$2,200",
+              "$2,650"
+            ],
+            [
+              null,
+              null,
+              "$3,800",
+              "$4,650",
+              "+22.4%"
+            ]
+          ]
+        }
+      ],
+      "download": {
+        "fileName": "Q3_variance.xlsx",
+        "sha256": "1471d3ac3d5ef8c226e658b2cf11c23342dd9a80a12b12bd6628ba9b97973250",
+        "byteCount": 6631
+      },
+      "status": "OBSERVED"
+    }
+  ],
+  "externalRequests": [
+    {
+      "width": 1440,
+      "routeName": "desktop-memory",
+      "url": "https://fonts.googleapis.com/css2",
+      "action": "blocked"
+    }
+  ],
+  "errors": [],
+  "status": "OBSERVED",
+  "finishedAt": "2026-09-05T10:38:58.114Z"
+}

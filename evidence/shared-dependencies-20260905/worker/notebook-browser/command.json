@@ -1,0 +1,17 @@
+{
+  "exitCode": 1,
+  "port": 54511,
+  "sourceSpec": "e2e/notebook-agent-notes.spec.ts",
+  "unchangedSpec": true,
+  "route": "/?mode=memory&surface=desktop",
+  "widths": [
+    1440,
+    375,
+    320
+  ],
+  "serverMode": "built-preview",
+  "retries": 0,
+  "screenshots": "on",
+  "trace": "on",
+  "externalProviderSetup": false
+}

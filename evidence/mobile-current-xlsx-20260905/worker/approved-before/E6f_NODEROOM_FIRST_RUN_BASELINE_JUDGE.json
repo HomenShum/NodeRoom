@@ -1,0 +1,90 @@
+{
+  "at": "2026-09-05T10:22:49.788945+00:00",
+  "verdict": "BASELINE_EVIDENCE_VERIFIED_PRODUCT_AND_WINDOWS_GATE_FAILURES_OPEN",
+  "namedProof": "NODEROOM-FIRST-RUN-01",
+  "reviewer": "Root nonauthor of worker proof; read-only evidence/source/pixel review, no independent browser or COM rerun",
+  "sourceCommit": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+  "checks": [
+    {
+      "name": "Worker receipt exact",
+      "passed": true
+    },
+    {
+      "name": "Frozen manifest exact",
+      "passed": true
+    },
+    {
+      "name": "All645 raw artifacts exact",
+      "passed": true
+    },
+    {
+      "name": "All1563 source inputs exact",
+      "passed": true
+    },
+    {
+      "name": "Current source and working state unchanged",
+      "passed": true
+    },
+    {
+      "name": "Eight observed runs44 cells186 captures",
+      "passed": true
+    },
+    {
+      "name": "Capture hashes exact",
+      "passed": true
+    },
+    {
+      "name": "No observed page exceptions",
+      "passed": true
+    },
+    {
+      "name": "Failed floor preserved",
+      "passed": true
+    },
+    {
+      "name": "Both observed mobile attempts produced zero downloads",
+      "passed": true
+    },
+    {
+      "name": "Source handler only marks exported and toasts",
+      "passed": true
+    },
+    {
+      "name": "Observed mobile edit resets on reopen",
+      "passed": true
+    },
+    {
+      "name": "Observed recovery and bounded history exact",
+      "passed": true
+    }
+  ],
+  "rawArtifacts": 645,
+  "sourceInputs": 1563,
+  "observedRuns": 8,
+  "observedCells": 44,
+  "boundCaptures": 186,
+  "actualPixelsViewed": [
+    "mobile-download-before-01/natural-memory-390-after-download.png",
+    "entry-before-01/natural-memory-390-entry.png",
+    "entry-before-01/desktop-memory-390-sample.png"
+  ],
+  "acceptedClaims": [
+    "A clean application source consumer installs/builds and its normal memory suite runs.",
+    "Observed desktop recovery, temporary history and manual editing are distinct from mobile seeds.",
+    "Current mobile export falsely reports success without a produced artifact.",
+    "Windows floor failure and precise native deadline diagnosis remain open."
+  ],
+  "notClaimed": [
+    "Independent re-execution of worker browser scenarios",
+    "Complete visual/font/responsive/human/device grades",
+    "Excel phase or process state",
+    "Persistent/shared mobile-desktop state",
+    "Provider behavior or production readiness"
+  ],
+  "fullGrades": null,
+  "evidence": [
+    "E6f_NODEROOM_FIRST_RUN_RECEIPT.json",
+    "E6f-noderoom-first-run/artifact-manifest.json",
+    "E6f_NODEROOM_WINDOWS_REPAIR_DIAGNOSIS.json"
+  ]
+}

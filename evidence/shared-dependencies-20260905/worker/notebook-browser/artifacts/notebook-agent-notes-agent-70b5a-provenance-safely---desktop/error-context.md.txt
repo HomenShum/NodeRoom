@@ -1,0 +1,548 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: notebook-agent-notes.spec.ts >> agent notebook notes render provenance safely - desktop
+- Location: e2e\notebook-agent-notes.spec.ts:30:3
+
+# Error details
+
+```
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: "solid"
+Received: "none"
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]: "N"
+    - generic [ref=e6]:
+      - text: NodeRoom
+      - generic [ref=e7]: · Q3 diligence
+    - button "Copy invite link for room r-86w" [ref=e8] [cursor=pointer]:
+      - generic [ref=e9]: SFT-RFT
+      - img [ref=e10]
+    - status [ref=e13]
+    - button "Open people panel — 5 live" [ref=e14] [cursor=pointer]:
+      - generic [ref=e15]:
+        - generic [ref=e16]: H
+        - generic [ref=e18]: P
+        - generic [ref=e20]: GQ
+        - generic [ref=e22]: ◆
+      - generic [ref=e23]: 5 live
+    - button "Open room controls" [ref=e24] [cursor=pointer]:
+      - img [ref=e25]
+  - generic [ref=e26]:
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - img [ref=e29]
+        - generic [ref=e31]: Room Binder
+        - generic "9 binder items" [ref=e32]: "9"
+      - generic [ref=e33]:
+        - generic "Find in binder" [ref=e34]:
+          - img [ref=e35]
+          - textbox "Find in binder" [ref=e38]:
+            - /placeholder: Find in binder...
+        - generic [ref=e39]:
+          - button "Pinned 2" [expanded] [ref=e40] [cursor=pointer]:
+            - img [ref=e41]
+            - generic [ref=e43]: Pinned
+            - emphasis [ref=e44]: "2"
+          - group [ref=e45]:
+            - button "Capture Notebook" [ref=e47]:
+              - img [ref=e49]
+              - generic [ref=e54]: Capture Notebook
+            - button "Agent wiki" [ref=e56]:
+              - img [ref=e58]
+              - generic [ref=e62]: Agent wiki
+        - generic [ref=e63]:
+          - button "Recent 6" [expanded] [ref=e64] [cursor=pointer]:
+            - img [ref=e65]
+            - generic [ref=e67]: Recent
+            - emphasis [ref=e68]: "6"
+          - group [ref=e69]:
+            - button "Capture Notebook edited recently" [active] [ref=e71]:
+              - img [ref=e73]
+              - generic [ref=e76]:
+                - generic [ref=e78]: Capture Notebook
+                - generic [ref=e79]: edited recently
+            - button "Agent wiki" [ref=e81]:
+              - img [ref=e83]
+              - generic [ref=e87]: Agent wiki
+            - button "Today's Brief" [ref=e89]:
+              - img [ref=e91]
+              - generic [ref=e96]: Today's Brief
+            - button "Diligence memo" [ref=e98]:
+              - img [ref=e100]
+              - generic [ref=e105]: Diligence memo
+            - button "Open questions / workplan" [ref=e107]:
+              - img [ref=e109]
+              - generic [ref=e114]: Open questions / workplan
+            - button "Risk / opportunity wall" [ref=e116]:
+              - img [ref=e118]
+              - generic [ref=e123]: Risk / opportunity wall
+        - generic [ref=e124]:
+          - button "Sheets 3" [expanded] [ref=e125] [cursor=pointer]:
+            - img [ref=e126]
+            - generic [ref=e128]: Sheets
+            - emphasis [ref=e129]: "3"
+          - group [ref=e130]:
+            - generic [ref=e131]:
+              - generic "Room sheets" [ref=e132]:
+                - img [ref=e134]
+                - generic [ref=e138]: Room sheets
+                - generic [ref=e139]: "3"
+              - generic [ref=e140]:
+                - button "Company research" [ref=e142]:
+                  - img [ref=e144]
+                  - generic [ref=e148]: Company research
+                - button "Q3 variance" [ref=e150]:
+                  - img [ref=e152]
+                  - generic [ref=e156]: Q3 variance
+                - button "Runway / milestones" [ref=e158]:
+                  - img [ref=e160]
+                  - generic [ref=e164]: Runway / milestones
+        - generic [ref=e165]:
+          - button "Docs 6" [expanded] [ref=e166] [cursor=pointer]:
+            - img [ref=e167]
+            - generic [ref=e169]: Docs
+            - emphasis [ref=e170]: "6"
+          - group [ref=e171]:
+            - generic [ref=e172]:
+              - generic "Boards" [ref=e173]:
+                - img [ref=e175]
+                - generic [ref=e180]: Boards
+                - generic [ref=e181]: "1"
+              - button "Risk / opportunity wall" [ref=e184]:
+                - img [ref=e186]
+                - generic [ref=e191]: Risk / opportunity wall
+            - generic [ref=e192]:
+              - generic "Knowledge" [ref=e193]:
+                - img [ref=e195]
+                - generic [ref=e199]: Knowledge
+                - generic [ref=e200]: "1"
+              - button "Agent wiki" [ref=e203]:
+                - img [ref=e205]
+                - generic [ref=e209]: Agent wiki
+            - generic [ref=e210]:
+              - generic "Notes & memos" [ref=e211]:
+                - img [ref=e213]
+                - generic [ref=e218]: Notes & memos
+                - generic [ref=e219]: "4"
+              - generic [ref=e220]:
+                - button "Capture Notebook" [ref=e222]:
+                  - img [ref=e224]
+                  - generic [ref=e229]: Capture Notebook
+                - button "Diligence memo" [ref=e231]:
+                  - img [ref=e233]
+                  - generic [ref=e238]: Diligence memo
+                - button "Open questions / workplan" [ref=e240]:
+                  - img [ref=e242]
+                  - generic [ref=e247]: Open questions / workplan
+                - button "Today's Brief" [ref=e249]:
+                  - img [ref=e251]
+                  - generic [ref=e256]: Today's Brief
+        - button "Upload file" [ref=e258] [cursor=pointer]:
+          - img [ref=e260]
+          - generic [ref=e264]: Upload file
+        - generic [ref=e265]:
+          - button "Review & proof 2" [expanded] [ref=e266] [cursor=pointer]:
+            - img [ref=e267]
+            - generic [ref=e269]: Review & proof
+            - emphasis [ref=e270]: "2"
+          - group [ref=e271]:
+            - generic "Review queue" [ref=e273]:
+              - img [ref=e275]
+              - generic [ref=e279]: Review queue
+            - generic "Permissions" [ref=e281]:
+              - img [ref=e283]
+              - generic [ref=e288]: Permissions
+        - generic [ref=e289]:
+          - button "People & agents 4 live" [expanded] [ref=e290] [cursor=pointer]:
+            - img [ref=e291]
+            - generic [ref=e293]: People & agents
+            - emphasis [ref=e294]: 4 live
+          - generic [ref=e295]:
+            - generic [ref=e296]:
+              - generic [ref=e297]: H
+              - generic [ref=e298]:
+                - generic [ref=e299]: Homen
+                - generic [ref=e300]: Host
+            - generic [ref=e302]:
+              - generic [ref=e303]: P
+              - generic [ref=e304]:
+                - generic [ref=e305]: Priya
+                - generic [ref=e306]: Finance lead
+            - generic [ref=e308]:
+              - generic [ref=e309]: GQ
+              - generic [ref=e310]:
+                - generic [ref=e311]: guest · quokka
+                - generic [ref=e312]: Member
+            - button "◆ Room NodeAgent Public agent · working · rc_neuronova__status:rc_nimbusnova__status" [ref=e314] [cursor=pointer]:
+              - generic [ref=e315]: ◆
+              - generic [ref=e316]:
+                - generic [ref=e317]: Room NodeAgent
+                - generic [ref=e318]: Public agent · working · rc_neuronova__status:rc_nimbusnova__status
+    - separator "Resize files panel" [ref=e320]
+    - generic [ref=e322]:
+      - generic [ref=e323]:
+        - generic [ref=e324]:
+          - button "Home" [ref=e325] [cursor=pointer]:
+            - img [ref=e326]
+            - text: Home
+          - button "Q3 variance Close Q3 variance" [ref=e329] [cursor=pointer]:
+            - img [ref=e330]
+            - generic [ref=e332]: Q3 variance
+            - button "Close Q3 variance" [ref=e333]:
+              - img [ref=e334]
+          - button "Capture Notebook Close Capture Notebook" [ref=e337] [cursor=pointer]:
+            - img [ref=e338]
+            - generic [ref=e341]: Capture Notebook
+            - button "Close Capture Notebook" [ref=e342]:
+              - img [ref=e343]
+          - group [ref=e346]:
+            - generic "All open tabs" [ref=e347] [cursor=pointer]: "+3"
+          - button "Artifacts" [ref=e348] [cursor=pointer]:
+            - img [ref=e349]
+            - text: Artifacts
+          - button "NodeBook" [ref=e353] [cursor=pointer]:
+            - img [ref=e354]
+            - text: NodeBook
+          - button "Investigation" [ref=e356] [cursor=pointer]:
+            - img [ref=e357]
+            - text: Investigation
+          - button "Run trace" [ref=e360] [cursor=pointer]:
+            - img [ref=e361]
+            - text: Run trace
+        - button "Split the work surface" [ref=e363] [cursor=pointer]:
+          - img [ref=e364]
+        - button "Shared" [ref=e366] [cursor=pointer]:
+          - img [ref=e367]
+          - text: Shared
+      - generic [ref=e373]:
+        - generic [ref=e374]:
+          - generic [ref=e375]: "N"
+          - generic [ref=e376]: Q3 Diligence · Notebook
+          - generic [ref=e377]: Saved · v12
+        - generic [ref=e379]:
+          - generic [ref=e380]:
+            - button "Add Python cell" [ref=e382] [cursor=pointer]:
+              - img [ref=e383]
+            - textbox [ref=e385]:
+              - heading "CardioNova — diligence brief" [level=1] [ref=e386]
+              - paragraph [ref=e387]:
+                - code [ref=e388]: notebook · v12
+                - code [ref=e389]: 3 sources
+                - code [ref=e390]: draft
+              - heading "Funding" [level=2] [ref=e391]
+              - paragraph [ref=e392]:
+                - text: CardioNova closed a
+                - strong [ref=e393]: $14M Series A
+                - text: led by Meridian Health Ventures in
+                - link "February" [ref=e394]:
+                  - /url: https://crunchbase.com/org/cardionova
+                - superscript [ref=e395] [cursor=pointer]: "1"
+                - text: . The round funds hospital-triage deployments in three systems; recognized Q3 revenue reconciles to
+                - strong [ref=e396]: $12,400
+                - text: against the
+                - link "NetSuite close" [ref=e397]:
+                  - /url: https://netsuite.example.com/close/q3
+                - superscript [ref=e398] [cursor=pointer]: "2"
+                - text: .
+              - paragraph [ref=e399]:
+                - text: CLAIM
+                - strong [ref=e400]: Series A totals $14M, led by Meridian Health Ventures.
+                - text: needs review
+              - list [ref=e401]:
+                - listitem [ref=e402]:
+                  - paragraph [ref=e403]:
+                    - code [ref=e404]: verified
+                    - text: Crunchbase —
+                    - link "“$14M, led by Meridian Health Ventures”" [ref=e405]:
+                      - /url: https://crunchbase.com/org/cardionova
+                    - superscript: "1"
+                - listitem [ref=e406]:
+                  - paragraph [ref=e407]:
+                    - code [ref=e408]: conflict
+                    - text: PitchBook lists total raised at
+                    - link "$12M" [ref=e409]:
+                      - /url: https://pitchbook.com/profiles/company/cardionova
+                    - superscript: "3"
+                    - text: .
+              - blockquote [ref=e410]:
+                - text: “
+                - paragraph [ref=e411]: We only sell where the triage model has run against the hospital's own historical admits.
+              - paragraph [ref=e412]: CEO, first partner call · captured to room memory
+              - paragraph [ref=e413]:
+                - strong [ref=e414]: Q3 variance · Sheet
+                - text: synced · v247
+              - code [ref=e416]: ACCOUNT Q3 VARIANCE Revenue $12,400 +24% COGS $5,100 +27.5% Gross profit $7,300 +21.7%
+              - heading "Risk" [level=2] [ref=e417]
+              - list [ref=e418]:
+                - listitem [ref=e419]:
+                  - paragraph [ref=e420]: Deck claims runway of ~14 months at current burn; hiring plan adds 6 heads in Q4.
+                - listitem [ref=e421]:
+                  - paragraph [ref=e422]: Security source still needs a named hospital deployment reference.
+              - paragraph [ref=e423]
+          - generic [ref=e424]:
+            - generic [ref=e425]:
+              - generic [ref=e426]: NodeRoom
+              - generic [ref=e427]: agent-owned · append-only · approved
+              - generic [ref=e428]: by NodeAgent
+            - textbox [ref=e431]:
+              - heading "Agent notes NodeRoom" [level=2] [ref=e432]
+              - heading "Browser proof" [level=3] [ref=e433]
+              - list [ref=e434]:
+                - listitem [ref=e435]:
+                  - paragraph [ref=e436]: Unsupported claim needs review
+                  - text: needs review
+              - paragraph [ref=e437]
+          - generic [ref=e438]:
+            - generic [ref=e439]:
+              - generic [ref=e440]: "1"
+              - link "February" [ref=e441] [cursor=pointer]:
+                - /url: https://crunchbase.com/org/cardionova
+              - generic [ref=e442]: crunchbase.com
+            - generic [ref=e443]:
+              - generic [ref=e444]: "2"
+              - link "NetSuite close" [ref=e445] [cursor=pointer]:
+                - /url: https://netsuite.example.com/close/q3
+              - generic [ref=e446]: netsuite.example.com
+            - generic [ref=e447]:
+              - generic [ref=e448]: "3"
+              - link "$12M" [ref=e449] [cursor=pointer]:
+                - /url: https://pitchbook.com/profiles/company/cardionova
+              - generic [ref=e450]: pitchbook.com
+    - separator "Resize Copilot panel" [ref=e451]
+    - generic [ref=e452]:
+      - generic [ref=e453]:
+        - generic "Shared room chat" [ref=e454]:
+          - button "Room chat 7" [ref=e455] [cursor=pointer]:
+            - img [ref=e456]
+            - text: Room chat
+            - generic [ref=e458]: "7"
+        - tablist "Copilot tabs" [ref=e459]:
+          - tab "Room" [selected] [ref=e460] [cursor=pointer]
+          - tab "Private" [ref=e461] [cursor=pointer]
+      - generic [ref=e464]:
+        - log "Room chat messages" [ref=e465]:
+          - separator "Today" [ref=e466]:
+            - generic [ref=e467]: Today
+          - generic [ref=e468]:
+            - generic [ref=e469]: H
+            - generic [ref=e470]:
+              - generic [ref=e471]:
+                - generic [ref=e472]: Homen
+                - generic [ref=e473]: 5:51
+              - paragraph [ref=e475]: Can the room reconcile Q3 variance against the NetSuite close before the board read?
+              - generic [ref=e476]:
+                - button "Copy message" [ref=e477] [cursor=pointer]:
+                  - img [ref=e478]
+                  - text: Copy
+                - button "Edit message" [ref=e481] [cursor=pointer]:
+                  - img [ref=e482]
+                  - text: Edit
+          - generic [ref=e485]:
+            - generic [ref=e486]: H
+            - generic [ref=e487]:
+              - generic [ref=e488]:
+                - generic [ref=e489]: Homen
+                - generic [ref=e490]: 5:51
+              - generic [ref=e491]: "@nodeagent reconcile Q3 revenue and COGS variance"
+              - generic [ref=e492]:
+                - button "Copy message" [ref=e493] [cursor=pointer]:
+                  - img [ref=e494]
+                  - text: Copy
+                - button "Edit message" [ref=e497] [cursor=pointer]:
+                  - img [ref=e498]
+                  - text: Edit
+          - generic [ref=e501]:
+            - generic [ref=e502]: "N"
+            - generic [ref=e503]:
+              - generic [ref=e504]:
+                - generic [ref=e505]: Room NodeAgent
+                - generic [ref=e506]: agent
+                - generic [ref=e507]: 5:52
+              - generic [ref=e508]:
+                - button "Researched 2 companies with structured fields · 2 sources" [ref=e509] [cursor=pointer]:
+                  - img [ref=e510]
+                  - generic [ref=e512]:
+                    - text: Researched 2 companies with structured fields ·
+                    - generic [ref=e513]: 2 sources
+                - generic [ref=e514]: v1 -> v1
+                - generic [ref=e515]: Complete
+              - button "Copy message" [ref=e517] [cursor=pointer]:
+                - img [ref=e518]
+                - text: Copy
+          - generic [ref=e521]:
+            - generic [ref=e522]: P
+            - generic [ref=e523]:
+              - generic [ref=e524]:
+                - generic [ref=e525]: Priya
+                - generic [ref=e526]: 5:54
+              - paragraph [ref=e528]: The +27.5% on COGS is volume, not price - noting it on the row so it survives the sync.
+              - button "Copy message" [ref=e530] [cursor=pointer]:
+                - img [ref=e531]
+                - text: Copy
+          - generic [ref=e534]:
+            - generic [ref=e535]: GQ
+            - generic [ref=e536]:
+              - generic [ref=e537]:
+                - generic [ref=e538]: guest · quokka
+                - generic [ref=e539]: 5:55
+              - paragraph [ref=e541]: anon - quokka joined as guest · view + chat
+              - button "Copy message" [ref=e543] [cursor=pointer]:
+                - img [ref=e544]
+                - text: Copy
+          - generic [ref=e547]:
+            - generic [ref=e548]: "N"
+            - generic [ref=e549]:
+              - generic [ref=e550]:
+                - generic [ref=e551]: Room NodeAgent
+                - generic [ref=e552]: agent
+                - generic [ref=e553]: 5:57
+              - generic [ref=e554]:
+                - button "Researched 3 companies with structured fields · 2 sources" [ref=e555] [cursor=pointer]:
+                  - img [ref=e556]
+                  - generic [ref=e558]:
+                    - text: Researched 3 companies with structured fields ·
+                    - generic [ref=e559]: 2 sources
+                - generic [ref=e560]: v1 -> v1
+                - generic [ref=e561]: Complete
+              - button "Copy message" [ref=e563] [cursor=pointer]:
+                - img [ref=e564]
+                - text: Copy
+          - generic [ref=e567]:
+            - generic [ref=e568]: H
+            - generic [ref=e569]:
+              - generic [ref=e570]:
+                - generic [ref=e571]: Homen
+                - generic [ref=e572]: 5:59
+              - paragraph [ref=e574]: Good. Draft the reconciliation memo and clip the variance exhibit for the board read.
+              - generic [ref=e575]:
+                - button "Copy message" [ref=e576] [cursor=pointer]:
+                  - img [ref=e577]
+                  - text: Copy
+                - button "Edit message" [ref=e580] [cursor=pointer]:
+                  - img [ref=e581]
+                  - text: Edit
+        - generic [ref=e584]:
+          - generic [ref=e585]:
+            - textbox "Message the room" [ref=e586]:
+              - /placeholder: Message the room or @nodeagent
+            - generic [ref=e587]:
+              - button "Attach files" [ref=e588] [cursor=pointer]:
+                - img [ref=e589]
+              - button "Start voice input":
+                - img
+              - button "Attach work context" [ref=e591] [cursor=pointer]:
+                - img [ref=e592]
+              - button "Send message" [disabled] [ref=e595]:
+                - img [ref=e596]
+          - generic [ref=e600]:
+            - button "@nodeagent diligence CardioNova" [ref=e601] [cursor=pointer]
+            - button "@nodeagent runway gaps" [ref=e602] [cursor=pointer]
+  - generic [ref=e603]:
+    - generic "Workflow progress" [ref=e604]:
+      - generic [ref=e605]:
+        - img [ref=e606]
+        - text: Intake
+      - generic [ref=e608]:
+        - img [ref=e609]
+        - text: Evidence
+      - generic [ref=e611]: Draft
+      - generic [ref=e613]: Review
+      - generic [ref=e614]: Export
+    - status [ref=e615]:
+      - generic [ref=e616]: Room NodeAgent ·
+      - button "reconciled Q3 variance · v42" [ref=e618] [cursor=pointer]
+  - button "Open live session graph (11 entities)" [ref=e619] [cursor=pointer]:
+    - img [ref=e620]
+    - text: Live graph · 11
+```
+
+# Test source
+
+```ts
+  1  | import { test, expect, enterDemoRoom } from "./fixtures";
+  2  | 
+  3  | async function openNoteSurface(page: import("@playwright/test").Page) {
+  4  |   const editor = page.getByTestId("note-editor");
+  5  |   if (!(await editor.waitFor({ state: "visible", timeout: 5_000 }).then(() => true, () => false))) {
+  6  |     const leftRail = page.getByTestId("left-rail");
+  7  |     if (!(await leftRail.isVisible().catch(() => false))) {
+  8  |       await page.getByRole("button", { name: "Toggle Room Binder panel" }).click();
+  9  |     }
+  10 |     const noteArtifact = page
+  11 |       .getByTestId("left-rail")
+  12 |       .getByTestId("binder-artifact")
+  13 |       .filter({ hasText: /Capture Notebook|Note|Diligence memo/i })
+  14 |       .first();
+  15 |     await noteArtifact.click({ force: true });
+  16 |   }
+  17 |   await expect(page.getByTestId("note-editor")).toBeVisible({ timeout: 20_000 });
+  18 | }
+  19 | 
+  20 | async function expectNoHorizontalOverflow(page: import("@playwright/test").Page, width: number) {
+  21 |   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+  22 |   expect(scrollWidth, "agent notes should not create horizontal overflow").toBeLessThanOrEqual(width + 1);
+  23 | }
+  24 | 
+  25 | for (const viewport of [
+  26 |   { name: "desktop", width: 1440, height: 900 },
+  27 |   { name: "mobile", width: 375, height: 812 },
+  28 |   { name: "narrow-mobile", width: 320, height: 812 },
+  29 | ] as const) {
+  30 |   test(`agent notebook notes render provenance safely - ${viewport.name}`, async ({ page }) => {
+  31 |     await page.setViewportSize({ width: viewport.width, height: viewport.height });
+  32 |     await enterDemoRoom(page);
+  33 |     await openNoteSurface(page);
+  34 | 
+  35 |     const seeded = await page.evaluate(() => (window as any).__seedAgentNotes?.([
+  36 |       '<h2 data-agent-root="true" data-author-kind="agent">Agent notes</h2>',
+  37 |       '<h3 data-blockid="e2e-heading" data-author-kind="agent" data-run-id="e2e">Browser proof</h3>',
+  38 |       '<ul><li data-blockid="e2e-claim" data-author-kind="agent" data-run-id="e2e" data-status="needs_review">Unsupported claim needs review</li></ul>',
+  39 |       '<img src=x onerror="window.__agentNotesXss=1">',
+  40 |       '<script>window.__agentNotesXss=1</script>',
+  41 |     ].join("\n")));
+  42 |     expect(seeded).toBeTruthy();
+  43 | 
+  44 |     const notes = page.getByTestId("agent-notes-block");
+  45 |     await expect(notes).toBeVisible({ timeout: 10_000 });
+  46 |     await expect(notes).toContainText("NodeRoom");
+  47 |     await expect(notes).toContainText("Browser proof");
+  48 |     await expect(notes).toContainText("Unsupported claim needs review");
+  49 |     await expect(notes.locator('[data-blockid="e2e-heading"]')).toBeVisible();
+  50 |     await expect(notes.locator('[data-blockid="e2e-claim"][data-author-kind="agent"][data-status="needs_review"]')).toBeVisible();
+  51 | 
+  52 |     const xssRan = await page.evaluate(() => (window as any).__agentNotesXss === 1);
+  53 |     expect(xssRan).toBe(false);
+  54 |     await expect(notes.locator("script, img")).toHaveCount(0);
+  55 | 
+  56 |     const claimStyles = await notes.locator('[data-blockid="e2e-claim"]').evaluate((el) => {
+  57 |       const style = getComputedStyle(el as HTMLElement);
+  58 |       const after = getComputedStyle(el as HTMLElement, "::after");
+  59 |       return {
+  60 |         borderLeftWidth: style.borderLeftWidth,
+  61 |         borderLeftStyle: style.borderLeftStyle,
+  62 |         afterContent: after.content,
+  63 |       };
+  64 |     });
+> 65 |     expect(claimStyles.borderLeftStyle).toBe("solid");
+     |                                         ^ Error: expect(received).toBe(expected) // Object.is equality
+  66 |     expect(claimStyles.borderLeftWidth).toBe("2px");
+  67 |     expect(claimStyles.afterContent).toContain("needs review");
+  68 | 
+  69 |     await expectNoHorizontalOverflow(page, viewport.width);
+  70 |   });
+  71 | }
+  72 | 
+```

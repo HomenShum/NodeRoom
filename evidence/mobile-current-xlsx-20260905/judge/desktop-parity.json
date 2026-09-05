@@ -1,0 +1,760 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "Worker final and fresh independent download equal every baseline worksheet model",
+      "pass": true
+    },
+    {
+      "name": "All actual desktop workbooks reopen as 6631 bytes",
+      "pass": true
+    }
+  ],
+  "outputs": [
+    {
+      "file": "../E6f-noderoom-mobile-export-repair/desktop-baseline-export-01/Q3_variance.xlsx",
+      "sha256": "1471d3ac3d5ef8c226e658b2cf11c23342dd9a80a12b12bd6628ba9b97973250",
+      "bytes": 6631,
+      "sheets": [
+        {
+          "id": 1,
+          "name": "Q3 variance",
+          "dataValidations": {},
+          "properties": {
+            "defaultRowHeight": 15,
+            "dyDescent": 55,
+            "outlineLevelRow": 0,
+            "outlineLevelCol": 0
+          },
+          "state": "visible",
+          "pageSetup": {
+            "fitToPage": false,
+            "margins": {
+              "left": 0.7,
+              "right": 0.7,
+              "top": 0.75,
+              "bottom": 0.75,
+              "header": 0.3,
+              "footer": 0.3
+            },
+            "orientation": "portrait",
+            "horizontalDpi": 4294967295,
+            "verticalDpi": 4294967295,
+            "pageOrder": "downThenOver",
+            "blackAndWhite": false,
+            "draft": false,
+            "cellComments": "None",
+            "errors": "displayed",
+            "scale": 100,
+            "fitToWidth": 1,
+            "fitToHeight": 1,
+            "firstPageNumber": 1,
+            "useFirstPageNumber": false,
+            "usePrinterDefaults": false,
+            "copies": 1
+          },
+          "headerFooter": null,
+          "rowBreaks": [],
+          "views": null,
+          "media": [],
+          "tables": [],
+          "conditionalFormattings": [],
+          "rows": [
+            {
+              "cells": [
+                {
+                  "address": "A1",
+                  "value": "Account",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "B1",
+                  "value": "Q2",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C1",
+                  "value": "Q3",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "D1",
+                  "value": "Variance",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "E1",
+                  "value": "Note",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 1,
+              "min": 1,
+              "max": 5,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            },
+            {
+              "cells": [
+                {
+                  "address": "B2",
+                  "value": "$10,000",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C2",
+                  "value": "$12,400",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "D2",
+                  "value": "+24%",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "E2",
+                  "value": "Reviewer note: baseline input",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 2,
+              "min": 2,
+              "max": 5,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            },
+            {
+              "cells": [
+                {
+                  "address": "B3",
+                  "value": "$4,000",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C3",
+                  "value": "$5,100",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "D3",
+                  "value": "+27.5%",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 3,
+              "min": 2,
+              "max": 4,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            },
+            {
+              "cells": [
+                {
+                  "address": "B4",
+                  "value": "$6,000",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C4",
+                  "value": "$7,300",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "D4",
+                  "value": "+21.7%",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 4,
+              "min": 2,
+              "max": 4,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            },
+            {
+              "cells": [
+                {
+                  "address": "B5",
+                  "value": "$2,200",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C5",
+                  "value": "$2,650",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 5,
+              "min": 2,
+              "max": 3,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            },
+            {
+              "cells": [
+                {
+                  "address": "B6",
+                  "value": "$3,800",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C6",
+                  "value": "$4,650",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "D6",
+                  "value": "+22.4%",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 6,
+              "min": 2,
+              "max": 4,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            }
+          ],
+          "dimensions": {
+            "model": {
+              "top": 1,
+              "left": 1,
+              "bottom": 6,
+              "right": 5
+            }
+          },
+          "merges": []
+        }
+      ]
+    },
+    {
+      "file": "../E6f-noderoom-mobile-export-repair/desktop-final-export/Q3_variance.xlsx",
+      "sha256": "970397054ef3e31c755f27ece71c47a320315a90f20bc996aa23c54608688444",
+      "bytes": 6631,
+      "sheets": [
+        {
+          "id": 1,
+          "name": "Q3 variance",
+          "dataValidations": {},
+          "properties": {
+            "defaultRowHeight": 15,
+            "dyDescent": 55,
+            "outlineLevelRow": 0,
+            "outlineLevelCol": 0
+          },
+          "state": "visible",
+          "pageSetup": {
+            "fitToPage": false,
+            "margins": {
+              "left": 0.7,
+              "right": 0.7,
+              "top": 0.75,
+              "bottom": 0.75,
+              "header": 0.3,
+              "footer": 0.3
+            },
+            "orientation": "portrait",
+            "horizontalDpi": 4294967295,
+            "verticalDpi": 4294967295,
+            "pageOrder": "downThenOver",
+            "blackAndWhite": false,
+            "draft": false,
+            "cellComments": "None",
+            "errors": "displayed",
+            "scale": 100,
+            "fitToWidth": 1,
+            "fitToHeight": 1,
+            "firstPageNumber": 1,
+            "useFirstPageNumber": false,
+            "usePrinterDefaults": false,
+            "copies": 1
+          },
+          "headerFooter": null,
+          "rowBreaks": [],
+          "views": null,
+          "media": [],
+          "tables": [],
+          "conditionalFormattings": [],
+          "rows": [
+            {
+              "cells": [
+                {
+                  "address": "A1",
+                  "value": "Account",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "B1",
+                  "value": "Q2",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C1",
+                  "value": "Q3",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "D1",
+                  "value": "Variance",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "E1",
+                  "value": "Note",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 1,
+              "min": 1,
+              "max": 5,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            },
+            {
+              "cells": [
+                {
+                  "address": "B2",
+                  "value": "$10,000",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C2",
+                  "value": "$12,400",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "D2",
+                  "value": "+24%",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "E2",
+                  "value": "Reviewer note: baseline input",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 2,
+              "min": 2,
+              "max": 5,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            },
+            {
+              "cells": [
+                {
+                  "address": "B3",
+                  "value": "$4,000",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C3",
+                  "value": "$5,100",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "D3",
+                  "value": "+27.5%",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 3,
+              "min": 2,
+              "max": 4,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            },
+            {
+              "cells": [
+                {
+                  "address": "B4",
+                  "value": "$6,000",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C4",
+                  "value": "$7,300",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "D4",
+                  "value": "+21.7%",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 4,
+              "min": 2,
+              "max": 4,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            },
+            {
+              "cells": [
+                {
+                  "address": "B5",
+                  "value": "$2,200",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C5",
+                  "value": "$2,650",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 5,
+              "min": 2,
+              "max": 3,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            },
+            {
+              "cells": [
+                {
+                  "address": "B6",
+                  "value": "$3,800",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C6",
+                  "value": "$4,650",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "D6",
+                  "value": "+22.4%",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 6,
+              "min": 2,
+              "max": 4,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            }
+          ],
+          "dimensions": {
+            "model": {
+              "top": 1,
+              "left": 1,
+              "bottom": 6,
+              "right": 5
+            }
+          },
+          "merges": []
+        }
+      ]
+    },
+    {
+      "file": "desktop-replay/Q3_variance.xlsx",
+      "sha256": "254a11505187fb9dd1c4a6e8bff8cd3385d53525bddb182ace771e30e9c4649a",
+      "bytes": 6631,
+      "sheets": [
+        {
+          "id": 1,
+          "name": "Q3 variance",
+          "dataValidations": {},
+          "properties": {
+            "defaultRowHeight": 15,
+            "dyDescent": 55,
+            "outlineLevelRow": 0,
+            "outlineLevelCol": 0
+          },
+          "state": "visible",
+          "pageSetup": {
+            "fitToPage": false,
+            "margins": {
+              "left": 0.7,
+              "right": 0.7,
+              "top": 0.75,
+              "bottom": 0.75,
+              "header": 0.3,
+              "footer": 0.3
+            },
+            "orientation": "portrait",
+            "horizontalDpi": 4294967295,
+            "verticalDpi": 4294967295,
+            "pageOrder": "downThenOver",
+            "blackAndWhite": false,
+            "draft": false,
+            "cellComments": "None",
+            "errors": "displayed",
+            "scale": 100,
+            "fitToWidth": 1,
+            "fitToHeight": 1,
+            "firstPageNumber": 1,
+            "useFirstPageNumber": false,
+            "usePrinterDefaults": false,
+            "copies": 1
+          },
+          "headerFooter": null,
+          "rowBreaks": [],
+          "views": null,
+          "media": [],
+          "tables": [],
+          "conditionalFormattings": [],
+          "rows": [
+            {
+              "cells": [
+                {
+                  "address": "A1",
+                  "value": "Account",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "B1",
+                  "value": "Q2",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C1",
+                  "value": "Q3",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "D1",
+                  "value": "Variance",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "E1",
+                  "value": "Note",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 1,
+              "min": 1,
+              "max": 5,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            },
+            {
+              "cells": [
+                {
+                  "address": "B2",
+                  "value": "$10,000",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C2",
+                  "value": "$12,400",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "D2",
+                  "value": "+24%",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "E2",
+                  "value": "Reviewer note: baseline input",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 2,
+              "min": 2,
+              "max": 5,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            },
+            {
+              "cells": [
+                {
+                  "address": "B3",
+                  "value": "$4,000",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C3",
+                  "value": "$5,100",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "D3",
+                  "value": "+27.5%",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 3,
+              "min": 2,
+              "max": 4,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            },
+            {
+              "cells": [
+                {
+                  "address": "B4",
+                  "value": "$6,000",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C4",
+                  "value": "$7,300",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "D4",
+                  "value": "+21.7%",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 4,
+              "min": 2,
+              "max": 4,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            },
+            {
+              "cells": [
+                {
+                  "address": "B5",
+                  "value": "$2,200",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C5",
+                  "value": "$2,650",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 5,
+              "min": 2,
+              "max": 3,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            },
+            {
+              "cells": [
+                {
+                  "address": "B6",
+                  "value": "$3,800",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "C6",
+                  "value": "$4,650",
+                  "type": 3,
+                  "style": {}
+                },
+                {
+                  "address": "D6",
+                  "value": "+22.4%",
+                  "type": 3,
+                  "style": {}
+                }
+              ],
+              "number": 6,
+              "min": 2,
+              "max": 4,
+              "style": {},
+              "hidden": false,
+              "outlineLevel": 0,
+              "collapsed": false
+            }
+          ],
+          "dimensions": {
+            "model": {
+              "top": 1,
+              "left": 1,
+              "bottom": 6,
+              "right": 5
+            }
+          },
+          "merges": []
+        }
+      ]
+    }
+  ],
+  "scope": "Full worksheet values, types, styles, rows and columns; ZIP creation timestamps not equal or claimed. Same inherited five blank Account cells remain a separate defect. Native Excel not run."
+}

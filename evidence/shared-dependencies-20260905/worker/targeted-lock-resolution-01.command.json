@@ -1,0 +1,29 @@
+{
+  "startedAt": "2026-09-05T12:40:41.242262+00:00",
+  "finishedAt": "2026-09-05T12:40:43.279804+00:00",
+  "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+  "argv": [
+    "C:/nvm4w/nodejs/node.exe",
+    "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+    "install",
+    "--package-lock-only",
+    "--ignore-scripts",
+    "--no-audit",
+    "--no-fund",
+    "--save-prefix=^",
+    "@tiptap/core@3.30.4",
+    "@tiptap/extension-unique-id@3.30.4",
+    "@tiptap/html@3.30.4",
+    "@tiptap/pm@3.30.4",
+    "@tiptap/react@3.30.4",
+    "@tiptap/starter-kit@3.30.4",
+    "@nodeslide/engine@file:vendor/nodeslide/nodeslide-engine-0.2.2.tgz",
+    "@nodeslide/react-headless@file:vendor/nodeslide/nodeslide-react-headless-0.2.2.tgz"
+  ],
+  "timeoutSeconds": 180,
+  "timedOut": false,
+  "exitCode": 1,
+  "elapsedSeconds": 2.032,
+  "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\targeted-lock-resolution-01.log",
+  "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+}

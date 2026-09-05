@@ -1,0 +1,227 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: notebook-agent-notes.spec.ts >> agent notebook notes render provenance safely - desktop
+- Location: e2e\notebook-agent-notes.spec.ts:30:3
+
+# Error details
+
+```
+Error: expect(locator).toBeVisible() failed
+
+Locator: getByTestId('agent-notes-block')
+Expected: visible
+Timeout: 10000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" with timeout 10000ms
+  - waiting for getByTestId('agent-notes-block')
+
+```
+
+```yaml
+- text: N NodeRoom · Q3 diligence
+- button "Copy invite link for room r-86w": SFT-RFT
+- status
+- button "Open people panel — 5 live": H P GQ ◆ 5 live
+- button "Open room controls"
+- text: Room Binder 9
+- textbox "Find in binder":
+  - /placeholder: Find in binder...
+- button "Pinned 2" [expanded]:
+  - text: Pinned
+  - emphasis: "2"
+- group:
+  - button "Diligence memo"
+  - button "Agent wiki"
+- button "Recent 6" [expanded]:
+  - text: Recent
+  - emphasis: "6"
+- group:
+  - button "Capture Notebook edited recently"
+  - button "Diligence memo"
+  - button "Open questions / workplan"
+  - button "Risk / opportunity wall"
+  - button "Agent wiki"
+  - button "Today's Brief"
+- button "Sheets 3" [expanded]:
+  - text: Sheets
+  - emphasis: "3"
+- group:
+  - text: Room sheets 3
+  - button "Company research"
+  - button "Q3 variance"
+  - button "Runway / milestones"
+- button "Docs 6" [expanded]:
+  - text: Docs
+  - emphasis: "6"
+- group:
+  - text: Boards 1
+  - button "Risk / opportunity wall"
+  - text: Knowledge 1
+  - button "Agent wiki"
+  - text: Notes & memos 4
+  - button "Capture Notebook"
+  - button "Diligence memo"
+  - button "Open questions / workplan"
+  - button "Today's Brief"
+- button "Upload file"
+- button "Review & proof 2" [expanded]:
+  - text: Review & proof
+  - emphasis: "2"
+- group: Review queue Permissions
+- button "People & agents 4 live" [expanded]:
+  - text: People & agents
+  - emphasis: 4 live
+- text: H Homen Host P Priya Finance lead GQ guest · quokka Member
+- button "◆ Room NodeAgent Public agent · working · rc_neuronova__status:rc_nimbusnova__status"
+- separator "Resize files panel"
+- button "Home"
+- button "Q3 variance Close Q3 variance":
+  - text: Q3 variance
+  - button "Close Q3 variance"
+- button "Diligence memo Close Diligence memo":
+  - text: Diligence memo
+  - button "Close Diligence memo"
+- group: "+4"
+- button "Artifacts"
+- button "NodeBook"
+- button "Investigation"
+- button "Run trace"
+- button "Split the work surface"
+- button "Shared"
+- text: Diligence memo 2 blocks
+- button "Add Python cell"
+- textbox:
+  - heading "Startup banking diligence memo" [level=1]
+  - paragraph: Use the Company research sheet for sourced company-level findings, then convert runway and milestone gaps into banker-ready follow-ups. Null cells are real missing inputs, not delete instructions; the agent should leave a clear gap reason when cash, burn, pricing, hiring, or funding proof is unavailable.
+- separator "Resize Copilot panel"
+- button "Room chat 7"
+- tablist "Copilot tabs":
+  - tab "Room" [selected]
+  - tab "Private"
+- log "Room chat messages":
+  - separator "Today"
+  - text: H Homen 5:54
+  - paragraph: Can the room reconcile Q3 variance against the NetSuite close before the board read?
+  - button "Copy message": Copy
+  - button "Edit message": Edit
+  - text: H Homen 5:54 @nodeagent reconcile Q3 revenue and COGS variance
+  - button "Copy message": Copy
+  - button "Edit message": Edit
+  - text: N Room NodeAgent agent 5:55
+  - button "Researched 2 companies with structured fields · 2 sources"
+  - text: v1 -> v1 Complete
+  - button "Copy message": Copy
+  - text: P Priya 5:57
+  - paragraph: The +27.5% on COGS is volume, not price - noting it on the row so it survives the sync.
+  - button "Copy message": Copy
+  - text: GQ guest · quokka 5:58
+  - paragraph: anon - quokka joined as guest · view + chat
+  - button "Copy message": Copy
+  - text: N Room NodeAgent agent 6:00
+  - button "Researched 3 companies with structured fields · 2 sources"
+  - text: v1 -> v1 Complete
+  - button "Copy message": Copy
+  - text: H Homen 6:02
+  - paragraph: Good. Draft the reconciliation memo and clip the variance exhibit for the board read.
+  - button "Copy message": Copy
+  - button "Edit message": Edit
+- textbox "Message the room":
+  - /placeholder: Message the room or @nodeagent
+- button "Attach files"
+- button "Start voice input"
+- button "Attach work context"
+- button "Send message" [disabled]
+- button "@nodeagent draft memo"
+- button "@nodeagent review memo"
+- text: Intake Evidence Draft Review Export
+- status:
+  - text: Room NodeAgent ·
+  - button "reconciled Q3 variance · v42"
+- button "Open live session graph (11 entities)": Live graph · 11
+```
+
+# Test source
+
+```ts
+  1  | import { test, expect, enterDemoRoom } from "./fixtures";
+  2  | 
+  3  | async function openNoteSurface(page: import("@playwright/test").Page) {
+  4  |   const editor = page.getByTestId("note-editor");
+  5  |   if (!(await editor.waitFor({ state: "visible", timeout: 5_000 }).then(() => true, () => false))) {
+  6  |     const leftRail = page.getByTestId("left-rail");
+  7  |     if (!(await leftRail.isVisible().catch(() => false))) {
+  8  |       await page.getByRole("button", { name: "Toggle Room Binder panel" }).click();
+  9  |     }
+  10 |     const noteArtifact = page
+  11 |       .getByTestId("left-rail")
+  12 |       .getByTestId("binder-artifact")
+  13 |       .filter({ hasText: /Capture Notebook|Note|Diligence memo/i })
+  14 |       .first();
+  15 |     await noteArtifact.click({ force: true });
+  16 |   }
+  17 |   await expect(page.getByTestId("note-editor")).toBeVisible({ timeout: 20_000 });
+  18 | }
+  19 | 
+  20 | async function expectNoHorizontalOverflow(page: import("@playwright/test").Page, width: number) {
+  21 |   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+  22 |   expect(scrollWidth, "agent notes should not create horizontal overflow").toBeLessThanOrEqual(width + 1);
+  23 | }
+  24 | 
+  25 | for (const viewport of [
+  26 |   { name: "desktop", width: 1440, height: 900 },
+  27 |   { name: "mobile", width: 375, height: 812 },
+  28 |   { name: "narrow-mobile", width: 320, height: 812 },
+  29 | ] as const) {
+  30 |   test(`agent notebook notes render provenance safely - ${viewport.name}`, async ({ page }) => {
+  31 |     await page.setViewportSize({ width: viewport.width, height: viewport.height });
+  32 |     await enterDemoRoom(page);
+  33 |     await openNoteSurface(page);
+  34 | 
+  35 |     const seeded = await page.evaluate(() => (window as any).__seedAgentNotes?.([
+  36 |       '<h2 data-agent-root="true" data-author-kind="agent">Agent notes</h2>',
+  37 |       '<h3 data-blockid="e2e-heading" data-author-kind="agent" data-run-id="e2e">Browser proof</h3>',
+  38 |       '<ul><li data-blockid="e2e-claim" data-author-kind="agent" data-run-id="e2e" data-status="needs_review">Unsupported claim needs review</li></ul>',
+  39 |       '<img src=x onerror="window.__agentNotesXss=1">',
+  40 |       '<script>window.__agentNotesXss=1</script>',
+  41 |     ].join("\n")));
+  42 |     expect(seeded).toBeTruthy();
+  43 | 
+  44 |     const notes = page.getByTestId("agent-notes-block");
+> 45 |     await expect(notes).toBeVisible({ timeout: 10_000 });
+     |                         ^ Error: expect(locator).toBeVisible() failed
+  46 |     await expect(notes).toContainText("NodeRoom");
+  47 |     await expect(notes).toContainText("Browser proof");
+  48 |     await expect(notes).toContainText("Unsupported claim needs review");
+  49 |     await expect(notes.locator('[data-blockid="e2e-heading"]')).toBeVisible();
+  50 |     await expect(notes.locator('[data-blockid="e2e-claim"][data-author-kind="agent"][data-status="needs_review"]')).toBeVisible();
+  51 | 
+  52 |     const xssRan = await page.evaluate(() => (window as any).__agentNotesXss === 1);
+  53 |     expect(xssRan).toBe(false);
+  54 |     await expect(notes.locator("script, img")).toHaveCount(0);
+  55 | 
+  56 |     const claimStyles = await notes.locator('[data-blockid="e2e-claim"]').evaluate((el) => {
+  57 |       const style = getComputedStyle(el as HTMLElement);
+  58 |       const after = getComputedStyle(el as HTMLElement, "::after");
+  59 |       return {
+  60 |         borderLeftWidth: style.borderLeftWidth,
+  61 |         borderLeftStyle: style.borderLeftStyle,
+  62 |         afterContent: after.content,
+  63 |       };
+  64 |     });
+  65 |     expect(claimStyles.borderLeftStyle).toBe("solid");
+  66 |     expect(claimStyles.borderLeftWidth).toBe("2px");
+  67 |     expect(claimStyles.afterContent).toContain("needs review");
+  68 | 
+  69 |     await expectNoHorizontalOverflow(page, viewport.width);
+  70 |   });
+  71 | }
+  72 | 
+```

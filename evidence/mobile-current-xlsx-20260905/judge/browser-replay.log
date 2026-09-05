@@ -1,0 +1,13 @@
+
+Running 3 tests using 1 worker
+
+(node:31240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:31240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:120:3 › reviewer downloads the exact edited phone table at 390px (5.1s)
+  ok 2 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:167:1 › a failed download, duplicate retry and ten later edits keep their own outcomes (11.4s)
+  ok 3 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:214:1 › rapidly closing an export suppresses its later result and permits a fresh export (5.9s)
+
+  3 passed (23.9s)
+{"status":"PASSED","cells":0,"output":"C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-mobile-export-judge\\browser-replay"}

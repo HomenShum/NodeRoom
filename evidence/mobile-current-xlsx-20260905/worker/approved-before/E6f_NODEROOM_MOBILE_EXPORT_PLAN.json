@@ -1,0 +1,373 @@
+{
+  "schema": "noderoom-mobile-table-export-plan/v1",
+  "status": "AWAITING_PARENT_REVIEW_NO_SOURCE_EDITS",
+  "namedProof": "NODEROOM-MOBILE-TABLE-EXPORT-01",
+  "at": "2026-09-05T10:26:24.043053+00:00",
+  "sourceCommit": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+  "candidate": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+  "sourceInputs": {
+    "src/ui/mobile/MobileGrid.tsx": "0a6668ce922a4eeeabb9b8b65e5f5275f715106f3ffaadcea1d3e733a8d406dc",
+    "src/ui/mobile/mobileData.ts": "adba645a40703f211b8ac2f27058ffefddaedcfff99e0ec0b08a5c8e4a386d85",
+    "src/ui/mobile/MobileApp.tsx": "f2471aa294e13c5e3c055953473695a8fc6c5705057cc80dbae1453cfd25e304",
+    "src/ui/mobile/MobileScreens.tsx": "a25dd7b50189441412d2094dc860e8065963367b617b464b1ad142a10517812b",
+    "src/ui/panels/Artifact.tsx": "7bf92f4e39a291a8bd86a1605274464d4dff84ea6c6961c4a36ee2611b2286dc",
+    "src/ui/workArtifacts/deckPptxExport.ts": "159d7ee347eeae124e11284bd23928dae7b77e58514b7fa919b7abea5385be2f",
+    "tests/artifactXlsxExport.test.ts": "1a84ba5c5722797fa79883c476533c37b3cfea54b38a3385cff7feeff7914825",
+    "tests/mobileSheetDialog.test.tsx": "34ba522e1dbb2504c3ee2f5f9ebe8af4a91296dcac023b25102dbdf65a1ace41",
+    "scripts/run-product-memory-playwright.mjs": "c5be9b03bd8d94e00574042d56b295f490baf9f801f778e1748c52be175afa28",
+    "package.json": "7e6758419aef89fccb653258fd0c7c6258cd818e716a50924cec88a92ac19f32",
+    "package-lock.json": "ee580757a997b0fd846ee802bd1c283889a6fb3ee8eb8d1efef6e5170df2689a"
+  },
+  "beforeArtifacts": [
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/exported-320/before.html",
+      "sha256": "784ed390516c266be31b479ab4f2f7cfd50e72ff141cf270d8fa9900577a7713",
+      "size": 45497
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/exported-320/before.json",
+      "sha256": "ad9f547bfe19e40b1ba336c0446dbbad7f84491f3923a5b091a96aab61eb4f3a",
+      "size": 8451
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/exported-320/before.png",
+      "sha256": "8700cd692b21945713e23eb5510c2982b8b2bb13ecb0f9fdc4736e011a5edfc8",
+      "size": 62836
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/exported-320/change-boundary.md",
+      "sha256": "d46d8e266880a2ebd33da2a8bc1cfeef4a637bf023e93b52b69003a9225bd1d1",
+      "size": 1570
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/exported-320/change-boundary.png",
+      "sha256": "037e55ee206abc1e0d834bcc076eba1e08cbd4be3b3fd3c6fa6a0a5241cfdb42",
+      "size": 63956
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/exported-390/before.html",
+      "sha256": "784ed390516c266be31b479ab4f2f7cfd50e72ff141cf270d8fa9900577a7713",
+      "size": 45497
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/exported-390/before.json",
+      "sha256": "f48c94e268c323cabfe71cd28ba038bbaed5a68df3a1ebf513051c7f4427c87e",
+      "size": 8451
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/exported-390/before.png",
+      "sha256": "5e1b2c1f2c4f1e05aa3c24c72463f084be9f19598190bd254e9b0aad7b13dc7c",
+      "size": 73246
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/exported-390/change-boundary.md",
+      "sha256": "9fe80b53957260ac7b00ab4117fa6451da6bc5e0c4132f13c3cfe8df41f1dff4",
+      "size": 1570
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/exported-390/change-boundary.png",
+      "sha256": "ac175b8c5e67c6c29f98c914690828161310efb9cfa34d27dd31b708cbb95669",
+      "size": 74529
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/history-320/before.html",
+      "sha256": "784ed390516c266be31b479ab4f2f7cfd50e72ff141cf270d8fa9900577a7713",
+      "size": 45497
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/history-320/before.json",
+      "sha256": "ad9f547bfe19e40b1ba336c0446dbbad7f84491f3923a5b091a96aab61eb4f3a",
+      "size": 8451
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/history-320/before.png",
+      "sha256": "7f904f5b7e8e95007456ddcd0d747221ad76ef5c4634c503c963a7ff153981ac",
+      "size": 61178
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/history-320/change-boundary.md",
+      "sha256": "e4b892430f7eea04fc65510a8c66f7f800144b18e954020a0550ac95c5815300",
+      "size": 1597
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/history-320/change-boundary.png",
+      "sha256": "e1dd2e59b73a57b579c515d3f19224dfe431f28b929531fa3f3864706e7c83d7",
+      "size": 62686
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/history-390/before.html",
+      "sha256": "784ed390516c266be31b479ab4f2f7cfd50e72ff141cf270d8fa9900577a7713",
+      "size": 45497
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/history-390/before.json",
+      "sha256": "f48c94e268c323cabfe71cd28ba038bbaed5a68df3a1ebf513051c7f4427c87e",
+      "size": 8451
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/history-390/before.png",
+      "sha256": "6eaa7c4f4f224d7e7a6aeb8bbed4fc1d377deb55d97209f3c93df28364dee897",
+      "size": 72862
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/history-390/change-boundary.md",
+      "sha256": "53fe5ce27ea9d23b4846b734ef8997eba95a3b014d1ae4f744a1115b9ce6f5d7",
+      "size": 1597
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/history-390/change-boundary.png",
+      "sha256": "d8ee9bda645246ee46e7832d387913d1f54c6bfe04c320fd8e0cc71e837993ef",
+      "size": 74428
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/natural-memory-320-entry.html",
+      "sha256": "a63b3fbae4905e9b2d2d6b66875e686a95eab711835b5583a85901786c88fb13",
+      "size": 38028
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/natural-memory-320-entry.json",
+      "sha256": "2a2447738fe183b868a183bdda760810e64f083da22e46acfa1cc38f533621b3",
+      "size": 5915
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/natural-memory-320-entry.png",
+      "sha256": "e296fafba71fa02c49c39bf61f7efbc5ba4add8273d88b668126a4e310e7003c",
+      "size": 45649
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/natural-memory-390-entry.html",
+      "sha256": "a63b3fbae4905e9b2d2d6b66875e686a95eab711835b5583a85901786c88fb13",
+      "size": 38028
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/natural-memory-390-entry.json",
+      "sha256": "42d5813ad3e0acd80089bcb7aedf2ff968bfe86a5b87fd5da987d556f8e2e13f",
+      "size": 5915
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/natural-memory-390-entry.png",
+      "sha256": "3f7eb0c85da3c50f2a247c5a17ce9c242acd039377e429de6f11c36e12863699",
+      "size": 63023
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/ready-320/before.html",
+      "sha256": "666b9074e185b5728e70a75f75804ed3340fe8fa036169ff3bd6f0508ca26aef",
+      "size": 45489
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/ready-320/before.json",
+      "sha256": "e2e8970ea32bc43cceee958e39eac89e0fb8335f4ff281121cb6de1ab50da687",
+      "size": 8438
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/ready-320/before.png",
+      "sha256": "0d31095997576747d92314b8983c12b6bcaea3f6c121bd49864daf5c19499650",
+      "size": 66514
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/ready-320/change-boundary.md",
+      "sha256": "40f59c4b33b33cc383f0918fa714ee22558a186e032fbe263da3e3ef6a53a096",
+      "size": 1552
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/ready-320/change-boundary.png",
+      "sha256": "492c9bcf6fb8af2e886c2d2fc91aedb3de6f2bc986908d773c4eefd181b619e5",
+      "size": 66788
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/ready-390/before.html",
+      "sha256": "666b9074e185b5728e70a75f75804ed3340fe8fa036169ff3bd6f0508ca26aef",
+      "size": 45489
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/ready-390/before.json",
+      "sha256": "cfa2a2ec89c1c6a8d034a4dbb3ce29e301bf4a52d5015bc7d4f76cf21f3555e9",
+      "size": 8438
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/ready-390/before.png",
+      "sha256": "5d72b7c1fa52ae0b61d251591df57b01207dea20ee0260227b00d449fce1656a",
+      "size": 79602
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/ready-390/change-boundary.md",
+      "sha256": "ebb58902af881a9d7ede9812fa4ceac8988829e41942bfcab2010846856380c0",
+      "size": 1552
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/ready-390/change-boundary.png",
+      "sha256": "15277582720d7da4a3c3bcd971bca54393ce814f4978115a8524819a24e16ee0",
+      "size": 80889
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/report.json",
+      "sha256": "6ab1fd174bf80126391f3b55e2d51fae2c4b4ae573e8cb76cb36be77c2bfd70a",
+      "size": 7059
+    },
+    {
+      "path": "evidence/noderoom-mobile-table-export-before/server.log",
+      "sha256": "de4d329377b0b37a4c34245b9938ffcae99db4c04f52cf03953677ecf0134330",
+      "size": 40
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/natural-memory-320-entry.html",
+      "sha256": "a63b3fbae4905e9b2d2d6b66875e686a95eab711835b5583a85901786c88fb13",
+      "size": 38028
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/natural-memory-320-entry.json",
+      "sha256": "2a2447738fe183b868a183bdda760810e64f083da22e46acfa1cc38f533621b3",
+      "size": 5915
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/natural-memory-320-entry.png",
+      "sha256": "a7060047dae3d31942c4022e9b0bc501a7ecd72ed201b6e3314537c1bbede698",
+      "size": 45633
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/natural-memory-390-entry.html",
+      "sha256": "a63b3fbae4905e9b2d2d6b66875e686a95eab711835b5583a85901786c88fb13",
+      "size": 38028
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/natural-memory-390-entry.json",
+      "sha256": "42d5813ad3e0acd80089bcb7aedf2ff968bfe86a5b87fd5da987d556f8e2e13f",
+      "size": 5915
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/natural-memory-390-entry.png",
+      "sha256": "a37c25398be53bc6a785f6f007d79f2ead69fc717d33db8efc2cd07a7c704670",
+      "size": 63036
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/provenance-320/before.html",
+      "sha256": "666b9074e185b5728e70a75f75804ed3340fe8fa036169ff3bd6f0508ca26aef",
+      "size": 45489
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/provenance-320/before.json",
+      "sha256": "e2e8970ea32bc43cceee958e39eac89e0fb8335f4ff281121cb6de1ab50da687",
+      "size": 8438
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/provenance-320/before.png",
+      "sha256": "f4cfc2e5c0f59b27660e30fbc487ba66a4f4f732cc15dbed3fd92e1a648fea8b",
+      "size": 60863
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/provenance-320/change-boundary.md",
+      "sha256": "decd8f6dfa32f9039e112ca1af01b0c9c8107afcbeb76890d7580af1dd0d9e73",
+      "size": 1557
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/provenance-320/change-boundary.png",
+      "sha256": "41d0d18625708dda3e0048b37d231225e8b80c9f2d2d2cfe82247200970a82da",
+      "size": 62132
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/provenance-390/before.html",
+      "sha256": "666b9074e185b5728e70a75f75804ed3340fe8fa036169ff3bd6f0508ca26aef",
+      "size": 45489
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/provenance-390/before.json",
+      "sha256": "cfa2a2ec89c1c6a8d034a4dbb3ce29e301bf4a52d5015bc7d4f76cf21f3555e9",
+      "size": 8438
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/provenance-390/before.png",
+      "sha256": "9542895ccc34a25c0f943eb0f2694dafa7864ca5d66dd4d918d22cfe4ed7e1b5",
+      "size": 76913
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/provenance-390/change-boundary.md",
+      "sha256": "8d74c3f537f5b586b0a54e6d563ac97ac4afb6173cc85218bd5f71fae326b2df",
+      "size": 1557
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/provenance-390/change-boundary.png",
+      "sha256": "80db845b724486bdbb6d0311db5152fe42b9c11fc72b76c7819a528d56a1ba4f",
+      "size": 78215
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/report.json",
+      "sha256": "5623d4de7f6a1464167c64c0a2c436dd48f51780afe3378ed407a17ffb0a2cf6",
+      "size": 3798
+    },
+    {
+      "path": "evidence/noderoom-mobile-export-provenance-before/server.log",
+      "sha256": "de4d329377b0b37a4c34245b9938ffcae99db4c04f52cf03953677ecf0134330",
+      "size": 40
+    }
+  ],
+  "boundaryLabels": {
+    "A": "Table export: format choice, current snapshot, measured output or failure, download action",
+    "B": "Export provenance and sample history: truth about local data and unavailable history"
+  },
+  "recommendedScope": "Produce a real XLSX for the currently displayed local mobile table through shared existing XLSX serialization/download code. Explicitly mark PowerPoint and historic restore/download unavailable for this table; do not invent artifacts or bind to desktop state.",
+  "paths": [
+    {
+      "path": "src/ui/mobile/MobileGrid.tsx",
+      "change": "Replace immediate exported boolean callback with current snapshot / busy / error / measured receipt; exact local sample and lifetime disclosure; unavailable PPTX/history controls truthful."
+    },
+    {
+      "path": "src/ui/panels/Artifact.tsx",
+      "change": "Extract only existing workbook.writeBuffer\u2192Blob\u2192anchor\u2192receipt transport to shared helper; preserve desktop workbook construction, formats, filenames and receipt behavior."
+    },
+    {
+      "path": "src/ui/workArtifacts/xlsxDownload.ts",
+      "change": "New small shared owner for the existing serializer/download mechanics and receipt; two current callers, no new protocol."
+    },
+    {
+      "path": "src/ui/mobile/mobileSheetExport.ts",
+      "change": "Typed projection from existing Sheet and current SheetRow[] into ExcelJS workbook: current values in column/row order, separate cell status/claim metadata explicitly marked sample/unverified. Preserve literal text including leading zeros/formula-like strings. Existing exceljs dependency only."
+    },
+    {
+      "path": "tests/mobileSampleWorkbookExport.test.ts",
+      "change": "Real workbook reopen after edited/flagged/Unicode/formula-like/long input; repeated and changing snapshots preserve exact table and sample metadata; existing desktop export tests unchanged."
+    },
+    {
+      "path": "e2e/mobile-sample-workbook-export.spec.ts",
+      "change": "Natural mobile real controls/edit\u2192download\u2192save/reopen; local resource failure\u2192honest error\u2192explicit retry; duplicate activation and sustained exports; named six widths with natural/explicit mobile distinction; source/pixel/output hashes."
+    },
+    {
+      "path": "HANDOFF.md",
+      "change": "Truthful developer entry and source-build/sample/live split, actual export proof and unchanged open holds."
+    }
+  ],
+  "scopeExclusions": [
+    "No package/lock/dependency change",
+    "No desktop/mobile state bridge, sample research or proposal semantics, persistence/approval/backend/Convex changes",
+    "No PPTX producer changes or new slide format adapter",
+    "No invented historic version content/restore; S.versions contains labels only",
+    "No UI layout/theme/modal sizing overhaul",
+    "No COM rerun/fix while separate Windows scope held",
+    "No source edits before root review; no commit/push/deploy/model calls"
+  ],
+  "stateContract": {
+    "idle": "Current table row/column counts, local sample disclosure; no file ready/size before production. Current-sheet export enabled.",
+    "pending": "Preparing XLSX; one synchronous in-flight claim blocks immediate duplicate activation. Other table navigation/close preserved.",
+    "success": "Only after real browser download dispatch: Download started, actual filename and byte count for captured current rows. Never claim disk save completion. Changing rows invalidates current-export success.",
+    "error": "No exported badge or fake file. Show caught local generation/download failure, preserve rows and offer explicit Retry. No automatic retry or delayed success after leaving view.",
+    "historical": "Seeded version labels have no saved workbook bodies; no active fake restore/download.",
+    "powerpoint": "Existing PPTX producer requires storyboard and clips five claims/132chars; current six-column table has no truthful whole-table adapter. Mark unavailable in this bounded repair rather than generate a mismatched/partial deck."
+  },
+  "verification": [
+    "Retain exact old source/zero-download failures; normalize changed authored bytes to LF before final source-bound browser evidence.",
+    "Run root and Convex TypeScript checks; existing artifactXlsxExport/mobileSheetDialog plus new scenario tests. No native Excel COM test rerun in this slice.",
+    "Normal build and unchanged29-check memory suite; real desktop XLSX download/reopen after transport extraction protects existing owner.",
+    "Real mobile edits before export; reopen captured browser file and compare all3x6 current values and metadata. Include leading zeros, formula-like text, Unicode/newline, flagged/manual status, blank and bounded long value.",
+    "Actual pointer/keyboard download; immediate double activation emits one file; at least10 successive exports after changed values bind their own snapshots, no stale success.",
+    "One explicit local resource failure before download dispatch, no file/no success, same current rows; restore resource and explicit Retry yields valid workbook. Preserve failure artifact.",
+    "320/390/768/1024/1440/1920 source-bound pixels and DOM for natural routing plus explicitly forced mobile route where needed, keyboard focus and200%text diagnostic. No natural-mobile claim at desktop widths.",
+    "Keep genuine3px before and protected neighboring rows/Plan/Sheet/Evidence/live/desktop values. Request fresh judge on final frozen bytes; no publication."
+  ],
+  "remainingHolds": [
+    "Floor Windows structural-repair deadline",
+    "29 dependency advisories,28 in production subset",
+    "NodeSlide immutable package CI mismatch",
+    "Gemini nightly missingcredential",
+    "Mobile sample review is timerbased;manual rows reset on close/reload",
+    "Complete UI/accessibility/performance/provider/production grades remain null"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "method": "Browser-only doubled precomputed font and explicit line height; not native zoom certification",
+  "focus": {
+    "focused": true,
+    "rect": {
+      "x": 18,
+      "y": 735.625,
+      "width": 322,
+      "height": 44,
+      "top": 735.625,
+      "right": 340,
+      "bottom": 779.625,
+      "left": 18
+    },
+    "hit": true
+  }
+}

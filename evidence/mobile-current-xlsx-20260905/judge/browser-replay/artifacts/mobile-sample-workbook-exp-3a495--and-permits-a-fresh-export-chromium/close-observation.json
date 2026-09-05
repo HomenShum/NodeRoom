@@ -1,0 +1,6 @@
+{
+  "method": "Native Export and Close activations in one browser task, followed by actual reopened export completion",
+  "downloadsBeforeReopen": 0,
+  "downloadsAfterFreshExport": 1,
+  "limitation": "Rapid navigation guard only; serializer CPU is not cancelled and no held loading-state screenshot is claimed"
+}

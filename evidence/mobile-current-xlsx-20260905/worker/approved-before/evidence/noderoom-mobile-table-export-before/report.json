@@ -1,0 +1,193 @@
+{
+  "schema": "noderoom-entry-observation/v1",
+  "startedAt": "2026-09-05T10:19:15.851Z",
+  "sourceCommit": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+  "sourceBindings": "../../E6f-noderoom-first-run/source-before.json",
+  "cells": [
+    {
+      "width": 320,
+      "routeName": "natural-memory",
+      "captures": [
+        {
+          "name": "natural-memory-320-entry",
+          "pngSha256": "e296fafba71fa02c49c39bf61f7efbc5ba4add8273d88b668126a4e310e7003c",
+          "domSha256": "a63b3fbae4905e9b2d2d6b66875e686a95eab711835b5583a85901786c88fb13",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        }
+      ],
+      "console": [
+        {
+          "type": "error",
+          "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+        }
+      ],
+      "pageErrors": [],
+      "boundaries": [
+        {
+          "folder": "ready-320",
+          "before": {
+            "name": "ready-320/before",
+            "pngSha256": "0d31095997576747d92314b8983c12b6bcaea3f6c121bd49864daf5c19499650",
+            "domSha256": "666b9074e185b5728e70a75f75804ed3340fe8fa036169ff3bd6f0508ca26aef",
+            "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+            "horizontalOverflow": 0,
+            "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+          },
+          "rectangle": {
+            "left": 15,
+            "right": 273,
+            "top": 588.796875,
+            "bottom": 841,
+            "label": "CHANGE A · Table export"
+          },
+          "boundarySha256": "492c9bcf6fb8af2e886c2d2fc91aedb3de6f2bc986908d773c4eefd181b619e5",
+          "strictDomRestoration": true
+        },
+        {
+          "folder": "exported-320",
+          "before": {
+            "name": "exported-320/before",
+            "pngSha256": "8700cd692b21945713e23eb5510c2982b8b2bb13ecb0f9fdc4736e011a5edfc8",
+            "domSha256": "784ed390516c266be31b479ab4f2f7cfd50e72ff141cf270d8fa9900577a7713",
+            "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+            "horizontalOverflow": 0,
+            "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+          },
+          "rectangle": {
+            "left": 15,
+            "right": 273,
+            "top": 575.796875,
+            "bottom": 826.015625,
+            "label": "CHANGE A · Table export"
+          },
+          "boundarySha256": "037e55ee206abc1e0d834bcc076eba1e08cbd4be3b3fd3c6fa6a0a5241cfdb42",
+          "strictDomRestoration": true
+        },
+        {
+          "folder": "history-320",
+          "before": {
+            "name": "history-320/before",
+            "pngSha256": "7f904f5b7e8e95007456ddcd0d747221ad76ef5c4634c503c963a7ff153981ac",
+            "domSha256": "784ed390516c266be31b479ab4f2f7cfd50e72ff141cf270d8fa9900577a7713",
+            "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+            "horizontalOverflow": 0,
+            "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+          },
+          "rectangle": {
+            "left": 15,
+            "right": 273,
+            "top": 575.796875,
+            "bottom": 831.015625,
+            "label": "CHANGE B · Export provenance"
+          },
+          "boundarySha256": "e1dd2e59b73a57b579c515d3f19224dfe431f28b929531fa3f3864706e7c83d7",
+          "strictDomRestoration": true
+        }
+      ],
+      "status": "OBSERVED"
+    },
+    {
+      "width": 390,
+      "routeName": "natural-memory",
+      "captures": [
+        {
+          "name": "natural-memory-390-entry",
+          "pngSha256": "3f7eb0c85da3c50f2a247c5a17ce9c242acd039377e429de6f11c36e12863699",
+          "domSha256": "a63b3fbae4905e9b2d2d6b66875e686a95eab711835b5583a85901786c88fb13",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        }
+      ],
+      "console": [
+        {
+          "type": "error",
+          "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+        }
+      ],
+      "pageErrors": [],
+      "boundaries": [
+        {
+          "folder": "ready-390",
+          "before": {
+            "name": "ready-390/before",
+            "pngSha256": "5d72b7c1fa52ae0b61d251591df57b01207dea20ee0260227b00d449fce1656a",
+            "domSha256": "666b9074e185b5728e70a75f75804ed3340fe8fa036169ff3bd6f0508ca26aef",
+            "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+            "horizontalOverflow": 0,
+            "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+          },
+          "rectangle": {
+            "left": 15,
+            "right": 343,
+            "top": 588.796875,
+            "bottom": 840.015625,
+            "label": "CHANGE A · Table export"
+          },
+          "boundarySha256": "15277582720d7da4a3c3bcd971bca54393ce814f4978115a8524819a24e16ee0",
+          "strictDomRestoration": true
+        },
+        {
+          "folder": "exported-390",
+          "before": {
+            "name": "exported-390/before",
+            "pngSha256": "5e1b2c1f2c4f1e05aa3c24c72463f084be9f19598190bd254e9b0aad7b13dc7c",
+            "domSha256": "784ed390516c266be31b479ab4f2f7cfd50e72ff141cf270d8fa9900577a7713",
+            "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+            "horizontalOverflow": 0,
+            "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+          },
+          "rectangle": {
+            "left": 15,
+            "right": 343,
+            "top": 588.796875,
+            "bottom": 840.015625,
+            "label": "CHANGE A · Table export"
+          },
+          "boundarySha256": "ac175b8c5e67c6c29f98c914690828161310efb9cfa34d27dd31b708cbb95669",
+          "strictDomRestoration": true
+        },
+        {
+          "folder": "history-390",
+          "before": {
+            "name": "history-390/before",
+            "pngSha256": "6eaa7c4f4f224d7e7a6aeb8bbed4fc1d377deb55d97209f3c93df28364dee897",
+            "domSha256": "784ed390516c266be31b479ab4f2f7cfd50e72ff141cf270d8fa9900577a7713",
+            "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+            "horizontalOverflow": 0,
+            "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+          },
+          "rectangle": {
+            "left": 15,
+            "right": 343,
+            "top": 575.796875,
+            "bottom": 831.265625,
+            "label": "CHANGE B · Export provenance"
+          },
+          "boundarySha256": "d8ee9bda645246ee46e7832d387913d1f54c6bfe04c320fd8e0cc71e837993ef",
+          "strictDomRestoration": true
+        }
+      ],
+      "status": "OBSERVED"
+    }
+  ],
+  "externalRequests": [
+    {
+      "width": 320,
+      "routeName": "natural-memory",
+      "url": "https://fonts.googleapis.com/css2",
+      "action": "blocked"
+    },
+    {
+      "width": 390,
+      "routeName": "natural-memory",
+      "url": "https://fonts.googleapis.com/css2",
+      "action": "blocked"
+    }
+  ],
+  "errors": [],
+  "status": "OBSERVED",
+  "finishedAt": "2026-09-05T10:19:26.117Z"
+}

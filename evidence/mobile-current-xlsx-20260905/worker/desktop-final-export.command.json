@@ -1,0 +1,16 @@
+{
+  "startedAt": "2026-09-05T11:07:17.700824+00:00",
+  "finishedAt": "2026-09-05T11:07:24.790384+00:00",
+  "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+  "argv": [
+    "node",
+    "C:/Users/hshum/.codex/worktrees/5dba/nodebench-ai/docs/plans/portfolio-recovery-20260904/E6f-noderoom-mobile-export-repair/observe-desktop-export-final.mjs",
+    "desktop-final-export"
+  ],
+  "timeoutSeconds": 150,
+  "timedOut": false,
+  "exitCode": 0,
+  "elapsedSeconds": 7.094,
+  "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-mobile-export-repair\\desktop-final-export.log",
+  "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+}

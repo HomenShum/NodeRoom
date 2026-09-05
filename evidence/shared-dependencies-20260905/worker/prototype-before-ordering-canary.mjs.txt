@@ -1,0 +1,51 @@
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+
+const [candidate, output, label] = process.argv.slice(2);
+const require = createRequire(join(candidate, 'package.json'));
+const { mergeAttributes } = require('@tiptap/core');
+const { DOMSerializer, Schema } = require('@tiptap/pm/model');
+const { JSDOM } = require('jsdom');
+const dom = new JSDOM('<!doctype html><body></body>');
+const malicious = JSON.parse('{"__proto__":{"data-prototype-canary":"inherited","onerror":"globalThis.__dependencyCanary=1"}}');
+const globalBefore = Object.getOwnPropertyDescriptors(Object.prototype);
+const samples = [];
+let inheritedResults = 0;
+let executableAttributeResults = 0;
+let legitimateAttributeLoss = 0;
+const phases = [{ name: 'burst', count: 1000 }, { name: 'sustained', count: 25 }];
+for (const phase of phases) {
+  for (let i = 0; i < phase.count; i++) {
+    if (phase.name === 'sustained') await new Promise(resolve => setTimeout(resolve, 20));
+    const marker = `${phase.name}-${i}`;
+    const attrs = mergeAttributes({ 'data-review-id': marker, class: 'first' }, malicious, { class: 'second' });
+    const schema = new Schema({ nodes: { doc: { content: 'image' }, image: { toDOM: () => ['img', attrs] }, text: {} } });
+    const doc = schema.node('doc', null, [schema.node('image')]);
+    const fragment = DOMSerializer.fromSchema(schema).serializeFragment(doc.content, { document: dom.window.document });
+    const img = fragment.firstChild;
+    const inherited = Object.getPrototypeOf(attrs) !== Object.prototype;
+    const executable = img.hasAttribute('onerror');
+    const legitimate = img.getAttribute('data-review-id') === marker && img.className === 'first second';
+    inheritedResults += Number(inherited);
+    executableAttributeResults += Number(executable);
+    legitimateAttributeLoss += Number(!legitimate);
+    const clean = mergeAttributes({ 'data-review-id': `clean-${marker}` });
+    if (Object.getPrototypeOf(clean) !== Object.prototype || clean.onerror !== undefined) throw new Error('cross-instance contamination');
+    if (i === 0 || i === phase.count - 1) samples.push({ phase: phase.name, i, ownKeys: Object.keys(attrs), inherited, executable, legitimate, html: img.outerHTML });
+  }
+}
+const globalUnchanged = JSON.stringify(Object.getOwnPropertyDescriptors(Object.prototype)) === JSON.stringify(globalBefore);
+const checks = {
+  prototypeRetained: inheritedResults === 0,
+  noExecutableInheritedAttributes: executableAttributeResults === 0,
+  legitimateAttributesRetained: legitimateAttributeLoss === 0,
+  globalPrototypeUnchanged: globalUnchanged,
+};
+const hashes = ['package.json', 'package-lock.json', 'node_modules/@tiptap/core/dist/index.cjs', 'node_modules/prosemirror-model/dist/index.cjs'].map(path => ({ path, sha256: createHash('sha256').update(readFileSync(join(candidate, path))).digest('hex') }));
+const result = { label, kind: 'real-installed-library-boundary-not-NodeRoom-exploit-certification', executedBrowserHandlers: false, count: phases.reduce((n, p) => n + p.count, 0), phases, inheritedResults, executableAttributeResults, legitimateAttributeLoss, checks, samples, hashes, passed: Object.values(checks).every(Boolean) };
+writeFileSync(join(output, `prototype-${label}.json`), JSON.stringify(result, null, 2) + '\n');
+console.log(JSON.stringify(result));
+dom.window.close();
+if (!result.passed) process.exitCode = 1;

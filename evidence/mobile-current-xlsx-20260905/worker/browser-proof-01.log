@@ -1,0 +1,36 @@
+
+Running 8 tests using 1 worker
+
+(node:55004) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55004) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:118:3 › reviewer downloads the exact edited phone table at 320px (2.4s)
+  ok 2 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:118:3 › reviewer downloads the exact edited phone table at 390px (2.5s)
+  ok 3 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:118:3 › reviewer downloads the exact edited phone table at 768px (3.7s)
+  ok 4 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:118:3 › reviewer downloads the exact edited phone table at 1024px (3.9s)
+  ok 5 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:118:3 › reviewer downloads the exact edited phone table at 1440px (4.6s)
+  ok 6 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:118:3 › reviewer downloads the exact edited phone table at 1920px (4.7s)
+  ok 7 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:159:1 › a failed download, duplicate retry and ten later edits keep their own outcomes (5.8s)
+  x  8 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:206:1 › closing a preparing table suppresses its later result and permits a fresh export (8.5s)
+
+
+  1) [chromium] › e2e\mobile-sample-workbook-export.spec.ts:206:1 › closing a preparing table suppresses its later result and permits a fresh export 
+
+    Error: No deferred export import observed
+
+      222 |   page.on("download", (download) => downloads.push(download));
+      223 |   await tableDialog(page).getByTestId("mobile-table-export-download").dblclick({ delay: 20 });
+    > 224 |   await Promise.race([requested, new Promise((_, reject) => setTimeout(() => reject(new Error("No deferred export import observed")), 7000))]);
+          |                                                                                     ^
+      225 |   await expect(tableDialog(page).getByTestId("mobile-table-export-download")).toBeDisabled();
+      226 |   await capture(page, info, "preparing-before-close");
+      227 |   await tableDialog(page).getByRole("button", { name: "Close", exact: true }).click();
+        at Timeout._onTimeout (D:\VSCode Projects\cafecorner_nodebench\nodebench_ai4\.portfolio-worktrees\noderoom-current-consumer-20260905\e2e\mobile-sample-workbook-export.spec.ts:224:85)
+
+    Error Context: C:\Users\hshum\.codex\worktrees\5dba\nodebench-ai\docs\plans\portfolio-recovery-20260904\E6f-noderoom-mobile-export-repair\browser-proof-01\artifacts\mobile-sample-workbook-exp-225a5--and-permits-a-fresh-export-chromium\error-context.md
+
+  1 failed
+    [chromium] › e2e\mobile-sample-workbook-export.spec.ts:206:1 › closing a preparing table suppresses its later result and permits a fresh export 
+  7 passed (37.6s)
+{"status":"FAILED","cells":0,"output":"C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-mobile-export-repair\\browser-proof-01"}

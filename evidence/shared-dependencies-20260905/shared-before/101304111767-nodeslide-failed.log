@@ -1,0 +1,1085 @@
+﻿2026-09-05T12:09:37.7531401Z Current runner version: '2.337.0'
+2026-09-05T12:09:37.7550189Z ##[group]Runner Image Provisioner
+2026-09-05T12:09:37.7550912Z Hosted Compute Agent
+2026-09-05T12:09:37.7551746Z Version: 20260828.587
+2026-09-05T12:09:37.7552308Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-05T12:09:37.7552945Z Build Date: 2026-08-28T16:44:25Z
+2026-09-05T12:09:37.7553533Z Worker ID: {1c483057-d37b-43fa-bb7a-ebde7f58da57}
+2026-09-05T12:09:37.7554122Z Azure Region: centralus
+2026-09-05T12:09:37.7554597Z ##[endgroup]
+2026-09-05T12:09:37.7555774Z ##[group]Operating System
+2026-09-05T12:09:37.7556332Z Ubuntu
+2026-09-05T12:09:37.7557053Z 24.04.4
+2026-09-05T12:09:37.7557657Z LTS
+2026-09-05T12:09:37.7558313Z ##[endgroup]
+2026-09-05T12:09:37.7558999Z ##[group]Runner Image
+2026-09-05T12:09:37.7559781Z Image: ubuntu-24.04
+2026-09-05T12:09:37.7560498Z Version: 20260831.293.1
+2026-09-05T12:09:37.7562077Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260831.293/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-05T12:09:37.7564040Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260831.293
+2026-09-05T12:09:37.7565385Z ##[endgroup]
+2026-09-05T12:09:37.7566990Z ##[group]GITHUB_TOKEN Permissions
+2026-09-05T12:09:37.7569211Z Contents: read
+2026-09-05T12:09:37.7569747Z Metadata: read
+2026-09-05T12:09:37.7570272Z Packages: read
+2026-09-05T12:09:37.7570750Z ##[endgroup]
+2026-09-05T12:09:37.7572606Z Secret source: Actions
+2026-09-05T12:09:37.7573476Z Prepare workflow directory
+2026-09-05T12:09:37.7861597Z Prepare all required actions
+2026-09-05T12:09:37.7902604Z Getting action download info
+2026-09-05T12:09:38.0120392Z Download action repository 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-09-05T12:09:38.1283606Z Download action repository 'actions/setup-node@820762786026740c76f36085b0efc47a31fe5020' (SHA:820762786026740c76f36085b0efc47a31fe5020)
+2026-09-05T12:09:38.2261761Z Download action repository 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a' (SHA:043fb46d1a93c77aae656e7c1c64a875d1fc6a0a)
+2026-09-05T12:09:38.4150187Z Complete job name: NodeSlide packed consumer
+2026-09-05T12:09:38.4748556Z ##[group]Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+2026-09-05T12:09:38.4749458Z with:
+2026-09-05T12:09:38.4749948Z   ref: de9e02bc31c6bebb421a4889c1606a49f617f0f6
+2026-09-05T12:09:38.4750545Z   path: noderoom
+2026-09-05T12:09:38.4750993Z   repository: HomenShum/NodeRoom
+2026-09-05T12:09:38.4754456Z   token: ***
+2026-09-05T12:09:38.4754880Z   ssh-strict: true
+2026-09-05T12:09:38.4755316Z   ssh-user: git
+2026-09-05T12:09:38.4755804Z   persist-credentials: true
+2026-09-05T12:09:38.4756292Z   clean: true
+2026-09-05T12:09:38.4756879Z   sparse-checkout-cone-mode: true
+2026-09-05T12:09:38.4757714Z   fetch-depth: 1
+2026-09-05T12:09:38.4758136Z   fetch-tags: false
+2026-09-05T12:09:38.4758603Z   show-progress: true
+2026-09-05T12:09:38.4759034Z   lfs: false
+2026-09-05T12:09:38.4759466Z   submodules: false
+2026-09-05T12:09:38.4759995Z   set-safe-directory: true
+2026-09-05T12:09:38.4760764Z   allow-unsafe-pr-checkout: false
+2026-09-05T12:09:38.4761510Z ##[endgroup]
+2026-09-05T12:09:38.5559894Z Syncing repository: HomenShum/NodeRoom
+2026-09-05T12:09:38.5561509Z ##[group]Getting Git version info
+2026-09-05T12:09:38.5562217Z Working directory is '/home/runner/work/NodeRoom/NodeRoom/noderoom'
+2026-09-05T12:09:38.5563207Z [command]/usr/bin/git version
+2026-09-05T12:09:38.5635222Z git version 2.55.0
+2026-09-05T12:09:38.5648947Z ##[endgroup]
+2026-09-05T12:09:38.5656036Z Temporarily overriding HOME='/home/runner/work/_temp/2bbbe9af-c0a8-4cbd-9fa0-6b76df1911df' before making global git config changes
+2026-09-05T12:09:38.5657509Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-05T12:09:38.5659615Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/NodeRoom/NodeRoom/noderoom
+2026-09-05T12:09:38.5697316Z ##[group]Determining repository object format
+2026-09-05T12:09:38.5698958Z ##[endgroup]
+2026-09-05T12:09:38.5699662Z ##[group]Initializing the repository
+2026-09-05T12:09:38.5702099Z [command]/usr/bin/git init /home/runner/work/NodeRoom/NodeRoom/noderoom
+2026-09-05T12:09:38.5782658Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-05T12:09:38.5783811Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-05T12:09:38.5785231Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-05T12:09:38.5786261Z hint: call:
+2026-09-05T12:09:38.5787040Z hint:
+2026-09-05T12:09:38.5787877Z hint: 	git config --global init.defaultBranch <name>
+2026-09-05T12:09:38.5788672Z hint:
+2026-09-05T12:09:38.5789550Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-05T12:09:38.5790871Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-05T12:09:38.5791916Z hint:
+2026-09-05T12:09:38.5792557Z hint: 	git branch -m <name>
+2026-09-05T12:09:38.5793219Z hint:
+2026-09-05T12:09:38.5794272Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-05T12:09:38.5795543Z Initialized empty Git repository in /home/runner/work/NodeRoom/NodeRoom/noderoom/.git/
+2026-09-05T12:09:38.5798045Z [command]/usr/bin/git remote add origin https://github.com/HomenShum/NodeRoom
+2026-09-05T12:09:38.5828032Z ##[endgroup]
+2026-09-05T12:09:38.5829138Z ##[group]Disabling automatic garbage collection
+2026-09-05T12:09:38.5830617Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-05T12:09:38.5854094Z ##[endgroup]
+2026-09-05T12:09:38.5855181Z ##[group]Setting up auth
+2026-09-05T12:09:38.5855985Z Removing SSH command configuration
+2026-09-05T12:09:38.5859011Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-05T12:09:38.5881941Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-05T12:09:38.6153737Z Removing HTTP extra header
+2026-09-05T12:09:38.6159307Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-05T12:09:38.6180608Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-05T12:09:38.6328271Z Removing includeIf entries pointing to credentials config files
+2026-09-05T12:09:38.6332638Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-05T12:09:38.6356044Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-05T12:09:38.6507196Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-61338a26-1523-43bf-abfa-d4d4b5ba0f71.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-05T12:09:38.6531585Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/NodeRoom/NodeRoom/noderoom/.git.path /home/runner/work/_temp/git-credentials-61338a26-1523-43bf-abfa-d4d4b5ba0f71.config
+2026-09-05T12:09:38.6550968Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/NodeRoom/NodeRoom/noderoom/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-61338a26-1523-43bf-abfa-d4d4b5ba0f71.config
+2026-09-05T12:09:38.6574663Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/noderoom/.git.path /github/runner_temp/git-credentials-61338a26-1523-43bf-abfa-d4d4b5ba0f71.config
+2026-09-05T12:09:38.6596596Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/noderoom/.git/worktrees/*.path /github/runner_temp/git-credentials-61338a26-1523-43bf-abfa-d4d4b5ba0f71.config
+2026-09-05T12:09:38.6615283Z ##[endgroup]
+2026-09-05T12:09:38.6616847Z ##[group]Fetching the repository
+2026-09-05T12:09:38.6621027Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin de9e02bc31c6bebb421a4889c1606a49f617f0f6
+2026-09-05T12:09:54.2906013Z From https://github.com/HomenShum/NodeRoom
+2026-09-05T12:09:54.2907156Z  * branch            de9e02bc31c6bebb421a4889c1606a49f617f0f6 -> FETCH_HEAD
+2026-09-05T12:09:54.2915384Z [command]/usr/bin/git rev-parse --verify --quiet de9e02bc31c6bebb421a4889c1606a49f617f0f6^{object}
+2026-09-05T12:09:54.2936038Z de9e02bc31c6bebb421a4889c1606a49f617f0f6
+2026-09-05T12:09:54.2938287Z ##[endgroup]
+2026-09-05T12:09:54.2939135Z ##[group]Determining the checkout info
+2026-09-05T12:09:54.2940019Z ##[endgroup]
+2026-09-05T12:09:54.2943502Z [command]/usr/bin/git sparse-checkout disable
+2026-09-05T12:09:54.2981647Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-05T12:09:54.3002010Z ##[group]Checking out the ref
+2026-09-05T12:09:54.3004543Z [command]/usr/bin/git checkout --progress --force de9e02bc31c6bebb421a4889c1606a49f617f0f6
+2026-09-05T12:09:56.1776172Z Updating files:  59% (4358/7328)
+2026-09-05T12:09:56.2632918Z Updating files:  60% (4397/7328)
+2026-09-05T12:09:56.3211858Z Updating files:  61% (4471/7328)
+2026-09-05T12:09:56.3850357Z Updating files:  61% (4488/7328)
+2026-09-05T12:09:56.3960284Z Updating files:  62% (4544/7328)
+2026-09-05T12:09:56.4062596Z Updating files:  63% (4617/7328)
+2026-09-05T12:09:56.4170170Z Updating files:  64% (4690/7328)
+2026-09-05T12:09:56.4246995Z Updating files:  65% (4764/7328)
+2026-09-05T12:09:56.4577540Z Updating files:  66% (4837/7328)
+2026-09-05T12:09:56.4673477Z Updating files:  67% (4910/7328)
+2026-09-05T12:09:56.4746289Z Updating files:  68% (4984/7328)
+2026-09-05T12:09:56.4855174Z Updating files:  69% (5057/7328)
+2026-09-05T12:09:56.4943675Z Updating files:  70% (5130/7328)
+2026-09-05T12:09:56.5006619Z Updating files:  71% (5203/7328)
+2026-09-05T12:09:56.5076571Z Updating files:  72% (5277/7328)
+2026-09-05T12:09:56.5154984Z Updating files:  73% (5350/7328)
+2026-09-05T12:09:56.5568573Z Updating files:  74% (5423/7328)
+2026-09-05T12:09:56.5869341Z Updating files:  75% (5496/7328)
+2026-09-05T12:09:56.6026027Z Updating files:  76% (5570/7328)
+2026-09-05T12:09:56.6080036Z Updating files:  77% (5643/7328)
+2026-09-05T12:09:56.6388843Z Updating files:  78% (5716/7328)
+2026-09-05T12:09:56.6437035Z Updating files:  79% (5790/7328)
+2026-09-05T12:09:56.6622650Z Updating files:  80% (5863/7328)
+2026-09-05T12:09:56.6804522Z Updating files:  81% (5936/7328)
+2026-09-05T12:09:56.6921873Z Updating files:  82% (6009/7328)
+2026-09-05T12:09:56.6955652Z Updating files:  83% (6083/7328)
+2026-09-05T12:09:56.6989134Z Updating files:  84% (6156/7328)
+2026-09-05T12:09:56.7025968Z Updating files:  85% (6229/7328)
+2026-09-05T12:09:56.7076507Z Updating files:  86% (6303/7328)
+2026-09-05T12:09:56.7147551Z Updating files:  87% (6376/7328)
+2026-09-05T12:09:56.7199293Z Updating files:  88% (6449/7328)
+2026-09-05T12:09:56.7229784Z Updating files:  89% (6522/7328)
+2026-09-05T12:09:56.7281285Z Updating files:  90% (6596/7328)
+2026-09-05T12:09:56.7324594Z Updating files:  91% (6669/7328)
+2026-09-05T12:09:56.7370699Z Updating files:  92% (6742/7328)
+2026-09-05T12:09:56.7410157Z Updating files:  93% (6816/7328)
+2026-09-05T12:09:56.7443999Z Updating files:  94% (6889/7328)
+2026-09-05T12:09:56.7474546Z Updating files:  95% (6962/7328)
+2026-09-05T12:09:56.7505634Z Updating files:  96% (7035/7328)
+2026-09-05T12:09:56.7534100Z Updating files:  97% (7109/7328)
+2026-09-05T12:09:56.7571040Z Updating files:  98% (7182/7328)
+2026-09-05T12:09:56.7602009Z Updating files:  99% (7255/7328)
+2026-09-05T12:09:56.7602707Z Updating files: 100% (7328/7328)
+2026-09-05T12:09:56.7603477Z Updating files: 100% (7328/7328), done.
+2026-09-05T12:09:56.7676956Z Note: switching to 'de9e02bc31c6bebb421a4889c1606a49f617f0f6'.
+2026-09-05T12:09:56.7677575Z 
+2026-09-05T12:09:56.7678095Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-05T12:09:56.7678797Z changes and commit them, and you can discard any commits you make in this
+2026-09-05T12:09:56.7679638Z state without impacting any branches by switching back to a branch.
+2026-09-05T12:09:56.7680029Z 
+2026-09-05T12:09:56.7680221Z If you want to create a new branch to retain commits you create, you may
+2026-09-05T12:09:56.7680712Z do so (now or later) by using -c with the switch command. Example:
+2026-09-05T12:09:56.7681694Z 
+2026-09-05T12:09:56.7681847Z   git switch -c <new-branch-name>
+2026-09-05T12:09:56.7682076Z 
+2026-09-05T12:09:56.7682232Z Or undo this operation with:
+2026-09-05T12:09:56.7682393Z 
+2026-09-05T12:09:56.7682529Z   git switch -
+2026-09-05T12:09:56.7682682Z 
+2026-09-05T12:09:56.7682979Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-05T12:09:56.7683277Z 
+2026-09-05T12:09:56.7683534Z HEAD is now at de9e02b fix(mobile): export the current sample table as a real workbook
+2026-09-05T12:09:56.7760649Z ##[endgroup]
+2026-09-05T12:09:56.7794122Z [command]/usr/bin/git log -1 --format=%H
+2026-09-05T12:09:56.7816309Z de9e02bc31c6bebb421a4889c1606a49f617f0f6
+2026-09-05T12:09:56.7973190Z ##[group]Run sha="$(node -p 'require("./noderoom/vendor/nodeslide/release-lock.json").nodeSlideCommit')"
+2026-09-05T12:09:56.7973858Z [36;1msha="$(node -p 'require("./noderoom/vendor/nodeslide/release-lock.json").nodeSlideCommit')"[0m
+2026-09-05T12:09:56.7974307Z [36;1mecho "sha=$sha" >> "$GITHUB_OUTPUT"[0m
+2026-09-05T12:09:56.7999010Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-05T12:09:56.7999492Z ##[endgroup]
+2026-09-05T12:09:59.2616516Z ##[group]Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+2026-09-05T12:09:59.2617029Z with:
+2026-09-05T12:09:59.2617314Z   repository: HomenShum/NodeSlide
+2026-09-05T12:09:59.2617633Z   ref: a88fb57f111db82e9334d68fa7611a51ed54c3c1
+2026-09-05T12:09:59.2617931Z   path: nodeslide
+2026-09-05T12:09:59.2620147Z   token: ***
+2026-09-05T12:09:59.2620418Z   ssh-strict: true
+2026-09-05T12:09:59.2620692Z   ssh-user: git
+2026-09-05T12:09:59.2620959Z   persist-credentials: true
+2026-09-05T12:09:59.2621227Z   clean: true
+2026-09-05T12:09:59.2621543Z   sparse-checkout-cone-mode: true
+2026-09-05T12:09:59.2621856Z   fetch-depth: 1
+2026-09-05T12:09:59.2622107Z   fetch-tags: false
+2026-09-05T12:09:59.2622373Z   show-progress: true
+2026-09-05T12:09:59.2622627Z   lfs: false
+2026-09-05T12:09:59.2622910Z   submodules: false
+2026-09-05T12:09:59.2623187Z   set-safe-directory: true
+2026-09-05T12:09:59.2623476Z   allow-unsafe-pr-checkout: false
+2026-09-05T12:09:59.2623773Z ##[endgroup]
+2026-09-05T12:09:59.3355403Z Syncing repository: HomenShum/NodeSlide
+2026-09-05T12:09:59.3358601Z ##[group]Getting Git version info
+2026-09-05T12:09:59.3359045Z Working directory is '/home/runner/work/NodeRoom/NodeRoom/nodeslide'
+2026-09-05T12:09:59.3390247Z [command]/usr/bin/git version
+2026-09-05T12:09:59.3417827Z git version 2.55.0
+2026-09-05T12:09:59.3432283Z ##[endgroup]
+2026-09-05T12:09:59.3439474Z Temporarily overriding HOME='/home/runner/work/_temp/0cd1e35c-59d0-4e54-b7cd-3a10d6cfa977' before making global git config changes
+2026-09-05T12:09:59.3440186Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-05T12:09:59.3443829Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/NodeRoom/NodeRoom/nodeslide
+2026-09-05T12:09:59.3466864Z ##[group]Determining repository object format
+2026-09-05T12:09:59.3468129Z ##[endgroup]
+2026-09-05T12:09:59.3468790Z ##[group]Initializing the repository
+2026-09-05T12:09:59.3471553Z [command]/usr/bin/git init /home/runner/work/NodeRoom/NodeRoom/nodeslide
+2026-09-05T12:09:59.3502818Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-05T12:09:59.3503518Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-05T12:09:59.3504392Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-05T12:09:59.3504798Z hint: call:
+2026-09-05T12:09:59.3505083Z hint:
+2026-09-05T12:09:59.3505412Z hint: 	git config --global init.defaultBranch <name>
+2026-09-05T12:09:59.3505936Z hint:
+2026-09-05T12:09:59.3506374Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-05T12:09:59.3507194Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-05T12:09:59.3507574Z hint:
+2026-09-05T12:09:59.3507857Z hint: 	git branch -m <name>
+2026-09-05T12:09:59.3508124Z hint:
+2026-09-05T12:09:59.3508459Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-05T12:09:59.3509014Z Initialized empty Git repository in /home/runner/work/NodeRoom/NodeRoom/nodeslide/.git/
+2026-09-05T12:09:59.3510176Z [command]/usr/bin/git remote add origin https://github.com/HomenShum/NodeSlide
+2026-09-05T12:09:59.3534382Z ##[endgroup]
+2026-09-05T12:09:59.3534969Z ##[group]Disabling automatic garbage collection
+2026-09-05T12:09:59.3536923Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-05T12:09:59.3557503Z ##[endgroup]
+2026-09-05T12:09:59.3558037Z ##[group]Setting up auth
+2026-09-05T12:09:59.3558458Z Removing SSH command configuration
+2026-09-05T12:09:59.3562237Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-05T12:09:59.3585186Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-05T12:09:59.3738341Z Removing HTTP extra header
+2026-09-05T12:09:59.3742790Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-05T12:09:59.3764544Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-05T12:09:59.3913146Z Removing includeIf entries pointing to credentials config files
+2026-09-05T12:09:59.3917549Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-05T12:09:59.3941430Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-05T12:09:59.4095468Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-17173d18-0b10-4afb-bf32-d7fe4d2c2b47.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-05T12:09:59.4121167Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/NodeRoom/NodeRoom/nodeslide/.git.path /home/runner/work/_temp/git-credentials-17173d18-0b10-4afb-bf32-d7fe4d2c2b47.config
+2026-09-05T12:09:59.4141918Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/NodeRoom/NodeRoom/nodeslide/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-17173d18-0b10-4afb-bf32-d7fe4d2c2b47.config
+2026-09-05T12:09:59.4163484Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/nodeslide/.git.path /github/runner_temp/git-credentials-17173d18-0b10-4afb-bf32-d7fe4d2c2b47.config
+2026-09-05T12:09:59.4185211Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/nodeslide/.git/worktrees/*.path /github/runner_temp/git-credentials-17173d18-0b10-4afb-bf32-d7fe4d2c2b47.config
+2026-09-05T12:09:59.4203010Z ##[endgroup]
+2026-09-05T12:09:59.4203671Z ##[group]Fetching the repository
+2026-09-05T12:09:59.4207966Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin a88fb57f111db82e9334d68fa7611a51ed54c3c1
+2026-09-05T12:10:00.3457384Z From https://github.com/HomenShum/NodeSlide
+2026-09-05T12:10:00.3458174Z  * branch            a88fb57f111db82e9334d68fa7611a51ed54c3c1 -> FETCH_HEAD
+2026-09-05T12:10:00.3467577Z [command]/usr/bin/git rev-parse --verify --quiet a88fb57f111db82e9334d68fa7611a51ed54c3c1^{object}
+2026-09-05T12:10:00.3487951Z a88fb57f111db82e9334d68fa7611a51ed54c3c1
+2026-09-05T12:10:00.3489863Z ##[endgroup]
+2026-09-05T12:10:00.3490556Z ##[group]Determining the checkout info
+2026-09-05T12:10:00.3491180Z ##[endgroup]
+2026-09-05T12:10:00.3495108Z [command]/usr/bin/git sparse-checkout disable
+2026-09-05T12:10:00.3524731Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-05T12:10:00.3545192Z ##[group]Checking out the ref
+2026-09-05T12:10:00.3549078Z [command]/usr/bin/git checkout --progress --force a88fb57f111db82e9334d68fa7611a51ed54c3c1
+2026-09-05T12:10:00.3988937Z Note: switching to 'a88fb57f111db82e9334d68fa7611a51ed54c3c1'.
+2026-09-05T12:10:00.3989379Z 
+2026-09-05T12:10:00.3995827Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-05T12:10:00.3996643Z changes and commit them, and you can discard any commits you make in this
+2026-09-05T12:10:00.3997577Z state without impacting any branches by switching back to a branch.
+2026-09-05T12:10:00.3997975Z 
+2026-09-05T12:10:00.3998260Z If you want to create a new branch to retain commits you create, you may
+2026-09-05T12:10:00.3998837Z do so (now or later) by using -c with the switch command. Example:
+2026-09-05T12:10:00.3999221Z 
+2026-09-05T12:10:00.3999454Z   git switch -c <new-branch-name>
+2026-09-05T12:10:00.3999698Z 
+2026-09-05T12:10:00.3999891Z Or undo this operation with:
+2026-09-05T12:10:00.4000119Z 
+2026-09-05T12:10:00.4000278Z   git switch -
+2026-09-05T12:10:00.4000487Z 
+2026-09-05T12:10:00.4000755Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-05T12:10:00.4001324Z 
+2026-09-05T12:10:00.4001649Z HEAD is now at a88fb57 Prepare reproducible NodeSlide v0.2.2 (#35)
+2026-09-05T12:10:00.4002869Z ##[endgroup]
+2026-09-05T12:10:00.4020852Z [command]/usr/bin/git log -1 --format=%H
+2026-09-05T12:10:00.4038578Z a88fb57f111db82e9334d68fa7611a51ed54c3c1
+2026-09-05T12:10:00.4183612Z ##[group]Run actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+2026-09-05T12:10:00.4183971Z with:
+2026-09-05T12:10:00.4184242Z   node-version: 22
+2026-09-05T12:10:00.4184514Z   cache: npm
+2026-09-05T12:10:00.4184884Z   cache-dependency-path: noderoom/package-lock.json
+nodeslide/package-lock.json
+
+2026-09-05T12:10:00.4185299Z   check-latest: false
+2026-09-05T12:10:00.4187671Z   token: ***
+2026-09-05T12:10:00.4187972Z   package-manager-cache: true
+2026-09-05T12:10:00.4188278Z ##[endgroup]
+2026-09-05T12:10:00.5188471Z Found in cache @ /opt/hostedtoolcache/node/22.23.2/x64
+2026-09-05T12:10:00.5199919Z ##[group]Environment details
+2026-09-05T12:10:00.8435582Z node: v22.23.2
+2026-09-05T12:10:00.8436019Z npm: 10.9.8
+2026-09-05T12:10:00.8436269Z yarn: 1.22.22
+2026-09-05T12:10:00.8437256Z ##[endgroup]
+2026-09-05T12:10:00.8449708Z [command]/opt/hostedtoolcache/node/22.23.2/x64/bin/npm config get cache
+2026-09-05T12:10:00.9275599Z /home/runner/.npm
+2026-09-05T12:10:01.0715271Z npm cache is not found
+2026-09-05T12:10:01.0804380Z ##[group]Run npm ci
+2026-09-05T12:10:01.0804709Z [36;1mnpm ci[0m
+2026-09-05T12:10:01.0836007Z shell: /usr/bin/bash -e {0}
+2026-09-05T12:10:01.0836440Z ##[endgroup]
+2026-09-05T12:10:02.6751407Z npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+2026-09-05T12:10:03.9009333Z npm warn deprecated lodash.isequal@4.5.0: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
+2026-09-05T12:10:03.9461445Z npm warn deprecated source-map@0.8.0-beta.0: The work that was done in this beta branch won't be included in future versions
+2026-09-05T12:10:04.5544498Z npm warn deprecated lucia@3.2.2: This package has been deprecated. Please see https://lucia-auth.com/lucia-v3/migrate.
+2026-09-05T12:10:19.8635993Z 
+2026-09-05T12:10:19.8636975Z added 943 packages, and audited 946 packages in 19s
+2026-09-05T12:10:19.8637334Z 
+2026-09-05T12:10:19.8637731Z 229 packages are looking for funding
+2026-09-05T12:10:19.8638351Z   run `npm fund` for details
+2026-09-05T12:10:19.9170884Z 
+2026-09-05T12:10:19.9172064Z 29 vulnerabilities (28 moderate, 1 high)
+2026-09-05T12:10:19.9172489Z 
+2026-09-05T12:10:19.9172696Z To address all issues, run:
+2026-09-05T12:10:19.9173231Z   npm audit fix
+2026-09-05T12:10:19.9173478Z 
+2026-09-05T12:10:19.9173658Z Run `npm audit` for details.
+2026-09-05T12:10:19.9536301Z ##[group]Run npm ci
+2026-09-05T12:10:19.9536627Z [36;1mnpm ci[0m
+2026-09-05T12:10:19.9537027Z [36;1mnpm run packages:build[0m
+2026-09-05T12:10:19.9557652Z shell: /usr/bin/bash -e {0}
+2026-09-05T12:10:19.9557990Z ##[endgroup]
+2026-09-05T12:10:23.2699712Z npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+2026-09-05T12:10:29.9462767Z 
+2026-09-05T12:10:29.9463591Z added 533 packages, and audited 547 packages in 10s
+2026-09-05T12:10:29.9465536Z 
+2026-09-05T12:10:29.9466255Z 88 packages are looking for funding
+2026-09-05T12:10:29.9466945Z   run `npm fund` for details
+2026-09-05T12:10:29.9722398Z 
+2026-09-05T12:10:29.9723103Z 17 vulnerabilities (8 moderate, 8 high, 1 critical)
+2026-09-05T12:10:29.9723515Z 
+2026-09-05T12:10:29.9723719Z To address issues that do not require attention, run:
+2026-09-05T12:10:29.9724185Z   npm audit fix
+2026-09-05T12:10:29.9724331Z 
+2026-09-05T12:10:29.9724834Z To address all issues (including breaking changes), run:
+2026-09-05T12:10:29.9725365Z   npm audit fix --force
+2026-09-05T12:10:29.9725547Z 
+2026-09-05T12:10:29.9725788Z Run `npm audit` for details.
+2026-09-05T12:10:30.0604798Z 
+2026-09-05T12:10:30.0605412Z > nodeslide@0.1.0 packages:build
+2026-09-05T12:10:30.0608207Z > npm run build --workspace @nodeslide/contracts && npm run build --workspace @nodeslide/engine && npm run build --workspace @nodeslide/backend && npm run build --workspace @nodeslide/testing && npm run build --workspace @nodeslide/agent && npm run build --workspace @nodeslide/client-http && npm run build --workspace @nodeslide/react-headless && npm run build --workspace @nodeslide/react && npm run build --workspace @nodeslide/convex && npm run build --workspace @nodeslide/registry && npm run build --workspace @nodeslide/cli && npm run build --workspace @nodeslide/external-agent && npm run build --workspace nodeslide-mcp
+2026-09-05T12:10:30.0609851Z 
+2026-09-05T12:10:30.1538604Z 
+2026-09-05T12:10:30.1539126Z > @nodeslide/contracts@0.2.2 build
+2026-09-05T12:10:30.1539961Z > tsup src/index.ts --format esm --dts --clean --sourcemap
+2026-09-05T12:10:30.1540334Z 
+2026-09-05T12:10:30.3864871Z [34mCLI[39m Building entry: src/index.ts
+2026-09-05T12:10:30.3873634Z [34mCLI[39m Using tsconfig: tsconfig.json
+2026-09-05T12:10:30.3874365Z [34mCLI[39m tsup v8.5.1
+2026-09-05T12:10:30.3906958Z [34mCLI[39m Target: es2022
+2026-09-05T12:10:30.3918082Z [34mCLI[39m Cleaning output folder
+2026-09-05T12:10:30.3926617Z [34mESM[39m Build start
+2026-09-05T12:10:30.4099686Z [32mESM[39m [1mdist/index.js     [22m[32m11.95 KB[39m
+2026-09-05T12:10:30.4100447Z [32mESM[39m [1mdist/index.js.map [22m[32m41.91 KB[39m
+2026-09-05T12:10:30.4100969Z [32mESM[39m ⚡️ Build success in 17ms
+2026-09-05T12:10:30.6167382Z [34mDTS[39m Build start
+2026-09-05T12:10:31.7537656Z [32mDTS[39m ⚡️ Build success in 1136ms
+2026-09-05T12:10:31.7538386Z [32mDTS[39m [1mdist/index.d.ts [22m[32m41.04 KB[39m
+2026-09-05T12:10:31.8680714Z 
+2026-09-05T12:10:31.8681727Z > @nodeslide/engine@0.2.2 build
+2026-09-05T12:10:31.8682514Z > tsup src/index.ts --format esm --dts --clean --sourcemap --external @nodeslide/contracts
+2026-09-05T12:10:31.8682874Z 
+2026-09-05T12:10:32.0979095Z [34mCLI[39m Building entry: src/index.ts
+2026-09-05T12:10:32.0987000Z [34mCLI[39m Using tsconfig: tsconfig.json
+2026-09-05T12:10:32.0987620Z [34mCLI[39m tsup v8.5.1
+2026-09-05T12:10:32.1019634Z [34mCLI[39m Target: es2022
+2026-09-05T12:10:32.1030392Z [34mCLI[39m Cleaning output folder
+2026-09-05T12:10:32.1038962Z [34mESM[39m Build start
+2026-09-05T12:10:32.1432005Z [32mESM[39m [1mdist/index.js     [22m[32m151.94 KB[39m
+2026-09-05T12:10:32.1433260Z [32mESM[39m [1mdist/index.js.map [22m[32m358.07 KB[39m
+2026-09-05T12:10:32.1434156Z [32mESM[39m ⚡️ Build success in 40ms
+2026-09-05T12:10:32.3310669Z [34mDTS[39m Build start
+2026-09-05T12:10:34.1161760Z [32mDTS[39m ⚡️ Build success in 1785ms
+2026-09-05T12:10:34.1163143Z [32mDTS[39m [1mdist/index.d.ts [22m[32m18.78 KB[39m
+2026-09-05T12:10:34.2293502Z 
+2026-09-05T12:10:34.2294366Z > @nodeslide/backend@0.2.2 build
+2026-09-05T12:10:34.2295513Z > tsup src/index.ts --format esm --dts --clean --sourcemap --external @nodeslide/contracts
+2026-09-05T12:10:34.2295884Z 
+2026-09-05T12:10:34.4582030Z [34mCLI[39m Building entry: src/index.ts
+2026-09-05T12:10:34.4590840Z [34mCLI[39m Using tsconfig: tsconfig.json
+2026-09-05T12:10:34.4591466Z [34mCLI[39m tsup v8.5.1
+2026-09-05T12:10:34.4623286Z [34mCLI[39m Target: es2022
+2026-09-05T12:10:34.4648003Z [34mCLI[39m Cleaning output folder
+2026-09-05T12:10:34.4648419Z [34mESM[39m Build start
+2026-09-05T12:10:34.4793990Z [32mESM[39m [1mdist/index.js     [22m[32m14.35 KB[39m
+2026-09-05T12:10:34.4795296Z [32mESM[39m [1mdist/index.js.map [22m[32m35.04 KB[39m
+2026-09-05T12:10:34.4808004Z [32mESM[39m ⚡️ Build success in 15ms
+2026-09-05T12:10:34.6862582Z [34mDTS[39m Build start
+2026-09-05T12:10:35.8350165Z [32mDTS[39m ⚡️ Build success in 1149ms
+2026-09-05T12:10:35.8351187Z [32mDTS[39m [1mdist/index.d.ts [22m[32m13.31 KB[39m
+2026-09-05T12:10:35.9500901Z 
+2026-09-05T12:10:35.9501700Z > @nodeslide/testing@0.2.2 build
+2026-09-05T12:10:35.9503127Z > tsup src/index.ts --format esm --dts --clean --sourcemap --external @nodeslide/backend --external @nodeslide/contracts --external @nodeslide/engine
+2026-09-05T12:10:35.9503609Z 
+2026-09-05T12:10:36.1767759Z [34mCLI[39m Building entry: src/index.ts
+2026-09-05T12:10:36.1776188Z [34mCLI[39m Using tsconfig: tsconfig.json
+2026-09-05T12:10:36.1777234Z [34mCLI[39m tsup v8.5.1
+2026-09-05T12:10:36.1809069Z [34mCLI[39m Target: es2022
+2026-09-05T12:10:36.1820222Z [34mCLI[39m Cleaning output folder
+2026-09-05T12:10:36.1829014Z [34mESM[39m Build start
+2026-09-05T12:10:36.2049155Z [32mESM[39m [1mdist/index.js     [22m[32m35.85 KB[39m
+2026-09-05T12:10:36.2050122Z [32mESM[39m [1mdist/index.js.map [22m[32m65.90 KB[39m
+2026-09-05T12:10:36.2050932Z [32mESM[39m ⚡️ Build success in 22ms
+2026-09-05T12:10:36.4073393Z [34mDTS[39m Build start
+2026-09-05T12:10:38.2444489Z [32mDTS[39m ⚡️ Build success in 1837ms
+2026-09-05T12:10:38.2445680Z [32mDTS[39m [1mdist/index.d.ts [22m[32m4.40 KB[39m
+2026-09-05T12:10:38.3683496Z 
+2026-09-05T12:10:38.3684493Z > @nodeslide/agent@0.2.2 build
+2026-09-05T12:10:38.3685541Z > tsup src/index.ts --format esm --dts --clean --sourcemap --external @nodeslide/backend --external @nodeslide/contracts
+2026-09-05T12:10:38.3686304Z 
+2026-09-05T12:10:38.5958300Z [34mCLI[39m Building entry: src/index.ts
+2026-09-05T12:10:38.5965980Z [34mCLI[39m Using tsconfig: tsconfig.json
+2026-09-05T12:10:38.5966570Z [34mCLI[39m tsup v8.5.1
+2026-09-05T12:10:38.5998004Z [34mCLI[39m Target: es2022
+2026-09-05T12:10:38.6008831Z [34mCLI[39m Cleaning output folder
+2026-09-05T12:10:38.6017459Z [34mESM[39m Build start
+2026-09-05T12:10:38.6162440Z [32mESM[39m [1mdist/index.js     [22m[32m2.98 KB[39m
+2026-09-05T12:10:38.6163227Z [32mESM[39m [1mdist/index.js.map [22m[32m7.66 KB[39m
+2026-09-05T12:10:38.6164008Z [32mESM[39m ⚡️ Build success in 15ms
+2026-09-05T12:10:38.8254455Z [34mDTS[39m Build start
+2026-09-05T12:10:39.9400656Z [32mDTS[39m ⚡️ Build success in 1115ms
+2026-09-05T12:10:40.0646160Z [32mDTS[39m [1mdist/index.d.ts [22m[32m3.04 KB[39m
+2026-09-05T12:10:40.0646530Z 
+2026-09-05T12:10:40.0646806Z > @nodeslide/client-http@0.2.2 build
+2026-09-05T12:10:40.0647594Z > tsup src/index.ts --format esm --dts --clean --sourcemap --external @nodeslide/backend --external @nodeslide/contracts
+2026-09-05T12:10:40.0648050Z 
+2026-09-05T12:10:40.2951531Z [34mCLI[39m Building entry: src/index.ts
+2026-09-05T12:10:40.2959864Z [34mCLI[39m Using tsconfig: tsconfig.json
+2026-09-05T12:10:40.2960690Z [34mCLI[39m tsup v8.5.1
+2026-09-05T12:10:40.2992131Z [34mCLI[39m Target: es2022
+2026-09-05T12:10:40.3002809Z [34mCLI[39m Cleaning output folder
+2026-09-05T12:10:40.3011516Z [34mESM[39m Build start
+2026-09-05T12:10:40.3224935Z [32mESM[39m [1mdist/index.js     [22m[32m7.04 KB[39m
+2026-09-05T12:10:40.3228217Z [32mESM[39m [1mdist/index.js.map [22m[32m15.24 KB[39m
+2026-09-05T12:10:40.3229190Z [32mESM[39m ⚡️ Build success in 21ms
+2026-09-05T12:10:40.5264912Z [34mDTS[39m Build start
+2026-09-05T12:10:41.6859660Z [32mDTS[39m ⚡️ Build success in 1160ms
+2026-09-05T12:10:41.6860486Z [32mDTS[39m [1mdist/index.d.ts [22m[32m3.39 KB[39m
+2026-09-05T12:10:41.8009669Z 
+2026-09-05T12:10:41.8010282Z > @nodeslide/react-headless@0.2.2 build
+2026-09-05T12:10:41.8011418Z > tsup src/index.ts --format esm --dts --clean --sourcemap --external react --external react/jsx-runtime --external @nodeslide/backend --external @nodeslide/contracts --external @nodeslide/engine
+2026-09-05T12:10:41.8012025Z 
+2026-09-05T12:10:42.0279782Z [34mCLI[39m Building entry: src/index.ts
+2026-09-05T12:10:42.0286667Z [34mCLI[39m Using tsconfig: tsconfig.json
+2026-09-05T12:10:42.0287875Z [34mCLI[39m tsup v8.5.1
+2026-09-05T12:10:42.0319310Z [34mCLI[39m Target: es2022
+2026-09-05T12:10:42.0329336Z [34mCLI[39m Cleaning output folder
+2026-09-05T12:10:42.0337262Z [34mESM[39m Build start
+2026-09-05T12:10:42.0499502Z [32mESM[39m [1mdist/index.js     [22m[32m8.93 KB[39m
+2026-09-05T12:10:42.0500394Z [32mESM[39m [1mdist/index.js.map [22m[32m19.75 KB[39m
+2026-09-05T12:10:42.0501266Z [32mESM[39m ⚡️ Build success in 16ms
+2026-09-05T12:10:42.2538461Z [34mDTS[39m Build start
+2026-09-05T12:10:43.9867684Z [32mDTS[39m ⚡️ Build success in 1734ms
+2026-09-05T12:10:43.9868543Z [32mDTS[39m [1mdist/index.d.ts [22m[32m5.12 KB[39m
+2026-09-05T12:10:44.1056873Z 
+2026-09-05T12:10:44.1057688Z > @nodeslide/react@0.2.2 build
+2026-09-05T12:10:44.1058961Z > tsup src/index.ts --format esm --dts --clean --sourcemap --external react --external react/jsx-runtime --external @nodeslide/backend --external @nodeslide/contracts --external @nodeslide/react-headless
+2026-09-05T12:10:44.1059633Z 
+2026-09-05T12:10:44.3351841Z [34mCLI[39m Building entry: src/index.ts
+2026-09-05T12:10:44.3358764Z [34mCLI[39m Using tsconfig: tsconfig.json
+2026-09-05T12:10:44.3359894Z [34mCLI[39m tsup v8.5.1
+2026-09-05T12:10:44.3391267Z [34mCLI[39m Target: es2022
+2026-09-05T12:10:44.3402076Z [34mCLI[39m Cleaning output folder
+2026-09-05T12:10:44.3410591Z [34mESM[39m Build start
+2026-09-05T12:10:44.3628912Z [32mESM[39m [1mdist/index.js     [22m[32m24.66 KB[39m
+2026-09-05T12:10:44.3629753Z [32mESM[39m [1mdist/index.js.map [22m[32m41.89 KB[39m
+2026-09-05T12:10:44.3630323Z [32mESM[39m ⚡️ Build success in 21ms
+2026-09-05T12:10:44.5606425Z [34mDTS[39m Build start
+2026-09-05T12:10:46.6641227Z [32mDTS[39m ⚡️ Build success in 2104ms
+2026-09-05T12:10:46.6642169Z [32mDTS[39m [1mdist/index.d.ts [22m[32m6.13 KB[39m
+2026-09-05T12:10:46.7804181Z 
+2026-09-05T12:10:46.7804981Z > @nodeslide/convex@0.2.2 build
+2026-09-05T12:10:46.7805591Z > npm run build:client && npm run build:component
+2026-09-05T12:10:46.7805878Z 
+2026-09-05T12:10:46.8787533Z 
+2026-09-05T12:10:46.8788386Z > @nodeslide/convex@0.2.2 build:client
+2026-09-05T12:10:46.8790850Z > tsup src/index.ts src/capabilityHost.ts src/react.tsx src/component.ts src/componentSchema.ts --format esm --dts --clean --sourcemap --external react --external react/jsx-runtime --external convex --external convex/browser --external convex/server --external convex/values --external @nodeslide/backend --external @nodeslide/contracts --external @nodeslide/engine --external @nodeslide/react --external @nodeslide/react-headless
+2026-09-05T12:10:46.8792123Z 
+2026-09-05T12:10:47.1110497Z [34mCLI[39m Building entry: src/capabilityHost.ts, src/component.ts, src/componentSchema.ts, src/index.ts, src/react.tsx
+2026-09-05T12:10:47.1116465Z [34mCLI[39m Using tsconfig: tsconfig.json
+2026-09-05T12:10:47.1118054Z [34mCLI[39m tsup v8.5.1
+2026-09-05T12:10:47.1150688Z [34mCLI[39m Target: es2022
+2026-09-05T12:10:47.1157155Z [34mCLI[39m Cleaning output folder
+2026-09-05T12:10:47.1165215Z [34mESM[39m Build start
+2026-09-05T12:10:47.1392889Z [32mESM[39m [1mdist/capabilityHost.js      [22m[32m333.00 B[39m
+2026-09-05T12:10:47.1394103Z [32mESM[39m [1mdist/componentSchema.js     [22m[32m2.00 KB[39m
+2026-09-05T12:10:47.1395011Z [32mESM[39m [1mdist/react.js               [22m[32m2.74 KB[39m
+2026-09-05T12:10:47.1395622Z [32mESM[39m [1mdist/index.js               [22m[32m968.00 B[39m
+2026-09-05T12:10:47.1396142Z [32mESM[39m [1mdist/chunk-3QWBEMVX.js      [22m[32m6.97 KB[39m
+2026-09-05T12:10:47.1396675Z [32mESM[39m [1mdist/component.js           [22m[32m4.56 KB[39m
+2026-09-05T12:10:47.1397486Z [32mESM[39m [1mdist/chunk-U3H4RHYN.js      [22m[32m5.02 KB[39m
+2026-09-05T12:10:47.1397974Z [32mESM[39m [1mdist/componentSchema.js.map [22m[32m4.31 KB[39m
+2026-09-05T12:10:47.1398546Z [32mESM[39m [1mdist/chunk-3QWBEMVX.js.map  [22m[32m16.95 KB[39m
+2026-09-05T12:10:47.1399053Z [32mESM[39m [1mdist/component.js.map       [22m[32m10.80 KB[39m
+2026-09-05T12:10:47.1399583Z [32mESM[39m [1mdist/index.js.map           [22m[32m71.00 B[39m
+2026-09-05T12:10:47.1400078Z [32mESM[39m [1mdist/chunk-U3H4RHYN.js.map  [22m[32m13.57 KB[39m
+2026-09-05T12:10:47.1400562Z [32mESM[39m [1mdist/capabilityHost.js.map  [22m[32m71.00 B[39m
+2026-09-05T12:10:47.1401381Z [32mESM[39m [1mdist/react.js.map           [22m[32m5.67 KB[39m
+2026-09-05T12:10:47.1402039Z [32mESM[39m ⚡️ Build success in 22ms
+2026-09-05T12:10:47.3425319Z [34mDTS[39m Build start
+2026-09-05T12:10:50.4718714Z [32mDTS[39m ⚡️ Build success in 3129ms
+2026-09-05T12:10:50.4719519Z [32mDTS[39m [1mdist/component.d.ts       [22m[32m2.63 KB[39m
+2026-09-05T12:10:50.4720447Z [32mDTS[39m [1mdist/componentSchema.d.ts [22m[32m176.00 B[39m
+2026-09-05T12:10:50.4721229Z [32mDTS[39m [1mdist/react.d.ts           [22m[32m1.18 KB[39m
+2026-09-05T12:10:50.4722038Z [32mDTS[39m [1mdist/index.d.ts           [22m[32m7.26 KB[39m
+2026-09-05T12:10:50.4722795Z [32mDTS[39m [1mdist/capabilityHost.d.ts  [22m[32m5.45 KB[39m
+2026-09-05T12:10:50.6062079Z 
+2026-09-05T12:10:50.6063142Z > @nodeslide/convex@0.2.2 build:component
+2026-09-05T12:10:50.6064046Z > tsc -p tsconfig.component.json
+2026-09-05T12:10:50.6064369Z 
+2026-09-05T12:10:52.3573833Z 
+2026-09-05T12:10:52.3574630Z > @nodeslide/registry@0.2.2 build
+2026-09-05T12:10:52.3576066Z > tsup src/index.ts --format esm --dts --clean --sourcemap --platform node
+2026-09-05T12:10:52.3576549Z 
+2026-09-05T12:10:52.5871585Z [34mCLI[39m Building entry: src/index.ts
+2026-09-05T12:10:52.5879052Z [34mCLI[39m Using tsconfig: tsconfig.json
+2026-09-05T12:10:52.5879956Z [34mCLI[39m tsup v8.5.1
+2026-09-05T12:10:52.5910362Z [34mCLI[39m Target: es2022
+2026-09-05T12:10:52.5920360Z [34mCLI[39m Cleaning output folder
+2026-09-05T12:10:52.5927895Z [34mESM[39m Build start
+2026-09-05T12:10:52.6076590Z [32mESM[39m [1mdist/index.js     [22m[32m2.58 KB[39m
+2026-09-05T12:10:52.6077934Z [32mESM[39m [1mdist/index.js.map [22m[32m4.87 KB[39m
+2026-09-05T12:10:52.6078880Z [32mESM[39m ⚡️ Build success in 15ms
+2026-09-05T12:10:52.8173568Z [34mDTS[39m Build start
+2026-09-05T12:10:53.7228168Z [32mDTS[39m ⚡️ Build success in 906ms
+2026-09-05T12:10:53.7228735Z [32mDTS[39m [1mdist/index.d.ts [22m[32m1.13 KB[39m
+2026-09-05T12:10:53.8368527Z 
+2026-09-05T12:10:53.8369197Z > @nodeslide/cli@0.2.2 build
+2026-09-05T12:10:53.8369913Z > tsup src/index.ts src/cli.ts --format esm --dts --clean --sourcemap --platform node --external @nodeslide/registry
+2026-09-05T12:10:53.8370295Z 
+2026-09-05T12:10:54.0706170Z [34mCLI[39m Building entry: src/cli.ts, src/index.ts
+2026-09-05T12:10:54.0714062Z [34mCLI[39m Using tsconfig: tsconfig.json
+2026-09-05T12:10:54.0714695Z [34mCLI[39m tsup v8.5.1
+2026-09-05T12:10:54.0746468Z [34mCLI[39m Target: es2022
+2026-09-05T12:10:54.0754046Z [34mCLI[39m Cleaning output folder
+2026-09-05T12:10:54.0762168Z [34mESM[39m Build start
+2026-09-05T12:10:54.0975340Z [32mESM[39m [1mdist/cli.js                [22m[32m3.70 KB[39m
+2026-09-05T12:10:54.0976104Z [32mESM[39m [1mdist/index.js              [22m[32m640.00 B[39m
+2026-09-05T12:10:54.0977266Z [32mESM[39m [1mdist/chunk-5JPW4JHG.js     [22m[32m24.37 KB[39m
+2026-09-05T12:10:54.0978255Z [32mESM[39m [1mdist/cli.js.map            [22m[32m7.06 KB[39m
+2026-09-05T12:10:54.0979106Z [32mESM[39m [1mdist/index.js.map          [22m[32m71.00 B[39m
+2026-09-05T12:10:54.0979899Z [32mESM[39m [1mdist/chunk-5JPW4JHG.js.map [22m[32m46.60 KB[39m
+2026-09-05T12:10:54.0980584Z [32mESM[39m ⚡️ Build success in 21ms
+2026-09-05T12:10:54.3035388Z [34mDTS[39m Build start
+2026-09-05T12:10:55.7318030Z [32mDTS[39m ⚡️ Build success in 1429ms
+2026-09-05T12:10:55.7324540Z [32mDTS[39m [1mdist/cli.d.ts   [22m[32m20.00 B[39m
+2026-09-05T12:10:55.7325471Z [32mDTS[39m [1mdist/index.d.ts [22m[32m4.34 KB[39m
+2026-09-05T12:10:55.8568868Z 
+2026-09-05T12:10:55.8569571Z > @nodeslide/external-agent@0.2.2 build
+2026-09-05T12:10:55.8570510Z > tsup src/index.ts src/cli.ts --format esm --platform node --dts --clean --sourcemap
+2026-09-05T12:10:55.8571019Z 
+2026-09-05T12:10:56.0846068Z [34mCLI[39m Building entry: src/cli.ts, src/index.ts
+2026-09-05T12:10:56.0854594Z [34mCLI[39m Using tsconfig: tsconfig.json
+2026-09-05T12:10:56.0855376Z [34mCLI[39m tsup v8.5.1
+2026-09-05T12:10:56.0887197Z [34mCLI[39m Target: es2022
+2026-09-05T12:10:56.0894079Z [34mCLI[39m Cleaning output folder
+2026-09-05T12:10:56.0902404Z [34mESM[39m Build start
+2026-09-05T12:10:56.1389292Z [32mESM[39m [1mdist/cli.js                [22m[32m6.93 KB[39m
+2026-09-05T12:10:56.1394302Z [32mESM[39m [1mdist/index.js              [22m[32m654.00 B[39m
+2026-09-05T12:10:56.1394887Z [32mESM[39m [1mdist/chunk-QWMUERCR.js     [22m[32m202.84 KB[39m
+2026-09-05T12:10:56.1395429Z [32mESM[39m [1mdist/cli.js.map            [22m[32m12.06 KB[39m
+2026-09-05T12:10:56.1395990Z [32mESM[39m [1mdist/index.js.map          [22m[32m71.00 B[39m
+2026-09-05T12:10:56.1396496Z [32mESM[39m [1mdist/chunk-QWMUERCR.js.map [22m[32m449.06 KB[39m
+2026-09-05T12:10:56.1397062Z [32mESM[39m ⚡️ Build success in 49ms
+2026-09-05T12:10:56.3207816Z [34mDTS[39m Build start
+2026-09-05T12:10:58.2812764Z [32mDTS[39m ⚡️ Build success in 1960ms
+2026-09-05T12:10:58.2818435Z [32mDTS[39m [1mdist/cli.d.ts   [22m[32m20.00 B[39m
+2026-09-05T12:10:58.2819322Z [32mDTS[39m [1mdist/index.d.ts [22m[32m14.17 KB[39m
+2026-09-05T12:10:58.3966210Z 
+2026-09-05T12:10:58.3967087Z > nodeslide-mcp@0.2.2 build
+2026-09-05T12:10:58.3967897Z > tsup src/index.ts --format esm --platform node --dts --clean --sourcemap
+2026-09-05T12:10:58.3968272Z 
+2026-09-05T12:10:58.6248042Z [34mCLI[39m Building entry: src/index.ts
+2026-09-05T12:10:58.6253627Z [34mCLI[39m Using tsconfig: tsconfig.json
+2026-09-05T12:10:58.6255060Z [34mCLI[39m tsup v8.5.1
+2026-09-05T12:10:58.6286558Z [34mCLI[39m Target: es2022
+2026-09-05T12:10:58.6296130Z [34mCLI[39m Cleaning output folder
+2026-09-05T12:10:58.6303886Z [34mESM[39m Build start
+2026-09-05T12:10:58.6822605Z [32mESM[39m [1mdist/index.js     [22m[32m236.00 KB[39m
+2026-09-05T12:10:58.6823440Z [32mESM[39m [1mdist/index.js.map [22m[32m516.58 KB[39m
+2026-09-05T12:10:58.6824197Z [32mESM[39m ⚡️ Build success in 52ms
+2026-09-05T12:10:58.8584788Z [34mDTS[39m Build start
+2026-09-05T12:11:01.4692308Z [32mDTS[39m ⚡️ Build success in 2611ms
+2026-09-05T12:11:01.4692981Z [32mDTS[39m [1mdist/index.d.ts [22m[32m20.00 B[39m
+2026-09-05T12:11:01.5105691Z ##[group]Run npm run packages:consumer:smoke
+2026-09-05T12:11:01.5106072Z [36;1mnpm run packages:consumer:smoke[0m
+2026-09-05T12:11:01.5127445Z shell: /usr/bin/bash -e {0}
+2026-09-05T12:11:01.5127851Z ##[endgroup]
+2026-09-05T12:11:01.5869987Z 
+2026-09-05T12:11:01.5870592Z > nodeslide@0.1.0 packages:consumer:smoke
+2026-09-05T12:11:01.5871130Z > node scripts/package-consumer-smoke.mjs
+2026-09-05T12:11:01.5871358Z 
+2026-09-05T12:11:10.9624679Z {"ok":true,"proposalVersion":1,"acceptedVersion":2,"authorizationBound":true,"headless":true,"typesChecked":true,"rendered":true,"cssExported":true,"httpAdapter":true,"migrationCount":2,"packedComponentMounted":true,"registrySource":true,"cliPlan":true,"agentProposal":true}
+2026-09-05T12:11:11.0404643Z ##[group]Run mkdir -p "$RUNNER_TEMP/nodeslide-packages"
+2026-09-05T12:11:11.0405521Z [36;1mmkdir -p "$RUNNER_TEMP/nodeslide-packages"[0m
+2026-09-05T12:11:11.0406257Z [36;1mnpm pack --workspace @nodeslide/contracts --pack-destination "$RUNNER_TEMP/nodeslide-packages"[0m
+2026-09-05T12:11:11.0407518Z [36;1mnpm pack --workspace @nodeslide/engine --pack-destination "$RUNNER_TEMP/nodeslide-packages"[0m
+2026-09-05T12:11:11.0408415Z [36;1mnpm pack --workspace @nodeslide/backend --pack-destination "$RUNNER_TEMP/nodeslide-packages"[0m
+2026-09-05T12:11:11.0409309Z [36;1mnpm pack --workspace @nodeslide/testing --pack-destination "$RUNNER_TEMP/nodeslide-packages"[0m
+2026-09-05T12:11:11.0438292Z shell: /usr/bin/bash -e {0}
+2026-09-05T12:11:11.0438820Z ##[endgroup]
+2026-09-05T12:11:11.2552277Z npm notice
+2026-09-05T12:11:11.2554192Z npm notice 📦  @nodeslide/contracts@0.2.2
+2026-09-05T12:11:11.2554654Z npm notice Tarball Contents
+2026-09-05T12:11:11.2556612Z npm notice 42.0kB dist/index.d.ts
+2026-09-05T12:11:11.2557300Z npm notice 12.2kB dist/index.js
+2026-09-05T12:11:11.2557656Z npm notice 42.9kB dist/index.js.map
+2026-09-05T12:11:11.2558082Z npm notice 395B package.json
+2026-09-05T12:11:11.2558536Z npm notice Tarball Details
+2026-09-05T12:11:11.2559123Z npm notice name: @nodeslide/contracts
+2026-09-05T12:11:11.2559574Z npm notice version: 0.2.2
+2026-09-05T12:11:11.2560182Z npm notice filename: nodeslide-contracts-0.2.2.tgz
+2026-09-05T12:11:11.2560792Z npm notice package size: 22.3 kB
+2026-09-05T12:11:11.2561238Z npm notice unpacked size: 97.6 kB
+2026-09-05T12:11:11.2562011Z npm notice shasum: f20f9f88145b191db046f97ef71b1954a9a65458
+2026-09-05T12:11:11.2562477Z nodeslide-contracts-0.2.2.tgz
+2026-09-05T12:11:11.2563134Z npm notice integrity: sha512-VtW2OFl6LGasg[...]uGAiNN2+xXi/w==
+2026-09-05T12:11:11.2563675Z npm notice total files: 4
+2026-09-05T12:11:11.2564155Z npm notice
+2026-09-05T12:11:11.4969278Z npm notice
+2026-09-05T12:11:11.4970871Z npm notice 📦  @nodeslide/engine@0.2.2
+2026-09-05T12:11:11.4971452Z npm notice Tarball Contents
+2026-09-05T12:11:11.4972270Z npm notice 19.2kB dist/index.d.ts
+2026-09-05T12:11:11.4972809Z npm notice 155.6kB dist/index.js
+2026-09-05T12:11:11.4973559Z npm notice 366.7kB dist/index.js.map
+2026-09-05T12:11:11.4973955Z npm notice 485B package.json
+2026-09-05T12:11:11.4974371Z npm notice Tarball Details
+2026-09-05T12:11:11.4974760Z npm notice name: @nodeslide/engine
+2026-09-05T12:11:11.4975111Z npm notice version: 0.2.2
+2026-09-05T12:11:11.4975644Z npm notice filename: nodeslide-engine-0.2.2.tgz
+2026-09-05T12:11:11.4976143Z npm notice package size: 116.2 kB
+2026-09-05T12:11:11.4976629Z npm notice unpacked size: 542.0 kB
+2026-09-05T12:11:11.4977409Z npm notice shasum: d35d8354b62a6891cf1f55a0291a137e5a0537d1
+2026-09-05T12:11:11.4978124Z npm notice integrity: sha512-Lrn+gDOMrq2C3[...]UGpaSzo1+9//w==
+2026-09-05T12:11:11.4978523Z npm notice total files: 4
+2026-09-05T12:11:11.4978796Z npm notice
+2026-09-05T12:11:11.4987699Z nodeslide-engine-0.2.2.tgz
+2026-09-05T12:11:11.7034543Z npm notice
+2026-09-05T12:11:11.7035732Z npm notice 📦  @nodeslide/backend@0.2.2
+2026-09-05T12:11:11.7036417Z npm notice Tarball Contents
+2026-09-05T12:11:11.7037282Z npm notice 13.6kB dist/index.d.ts
+2026-09-05T12:11:11.7037818Z npm notice 14.7kB dist/index.js
+2026-09-05T12:11:11.7038278Z npm notice 35.9kB dist/index.js.map
+2026-09-05T12:11:11.7038711Z npm notice 486B package.json
+2026-09-05T12:11:11.7039165Z npm notice Tarball Details
+2026-09-05T12:11:11.7039595Z npm notice name: @nodeslide/backend
+2026-09-05T12:11:11.7040111Z npm notice version: 0.2.2
+2026-09-05T12:11:11.7040602Z npm notice filename: nodeslide-backend-0.2.2.tgz
+2026-09-05T12:11:11.7041086Z npm notice package size: 13.8 kB
+2026-09-05T12:11:11.7041566Z npm notice unpacked size: 64.7 kB
+2026-09-05T12:11:11.7042099Z npm notice shasum: 3e1987ec7b2dda571c176449c3f4c0b3c8c829e2
+2026-09-05T12:11:11.7042849Z npm notice integrity: sha512-aSH8BgdCMorf1[...]QaGt24hwnHSKQ==
+2026-09-05T12:11:11.7043364Z npm notice total files: 4
+2026-09-05T12:11:11.7044209Z npm notice
+2026-09-05T12:11:11.7044789Z nodeslide-backend-0.2.2.tgz
+2026-09-05T12:11:11.9235560Z npm notice
+2026-09-05T12:11:11.9237703Z npm notice 📦  @nodeslide/testing@0.2.2
+2026-09-05T12:11:11.9238371Z npm notice Tarball Contents
+2026-09-05T12:11:11.9239145Z npm notice 4.5kB dist/index.d.ts
+2026-09-05T12:11:11.9239583Z npm notice 36.7kB dist/index.js
+2026-09-05T12:11:11.9240158Z npm notice 67.5kB dist/index.js.map
+2026-09-05T12:11:11.9240596Z npm notice 614B package.json
+2026-09-05T12:11:11.9241068Z npm notice Tarball Details
+2026-09-05T12:11:11.9241644Z npm notice name: @nodeslide/testing
+2026-09-05T12:11:11.9242075Z npm notice version: 0.2.2
+2026-09-05T12:11:11.9242642Z npm notice filename: nodeslide-testing-0.2.2.tgz
+2026-09-05T12:11:11.9243163Z npm notice package size: 23.0 kB
+2026-09-05T12:11:11.9243685Z npm notice unpacked size: 109.3 kB
+2026-09-05T12:11:11.9244251Z npm notice shasum: ccb21097af4b7a79bd4b263ab0c4540948ebc38c
+2026-09-05T12:11:11.9244913Z npm notice integrity: sha512-YbgwF6pVhL5Pz[...]bGeKB0erOWzyg==
+2026-09-05T12:11:11.9245526Z npm notice total files: 4
+2026-09-05T12:11:11.9245877Z npm notice
+2026-09-05T12:11:11.9246283Z nodeslide-testing-0.2.2.tgz
+2026-09-05T12:11:11.9350107Z ##[group]Run npm run nodeslide:consumer:proof
+2026-09-05T12:11:11.9350500Z [36;1mnpm run nodeslide:consumer:proof[0m
+2026-09-05T12:11:11.9370481Z shell: /usr/bin/bash -e {0}
+2026-09-05T12:11:11.9370783Z env:
+2026-09-05T12:11:11.9371134Z   NODESLIDE_PACKAGE_ARTIFACT: /home/runner/work/_temp/nodeslide-packages
+2026-09-05T12:11:11.9371529Z ##[endgroup]
+2026-09-05T12:11:12.0129148Z 
+2026-09-05T12:11:12.0129896Z > noderoom@0.1.1 nodeslide:consumer:proof
+2026-09-05T12:11:12.0130623Z > tsx scripts/nodeslide-consumer-proof.ts
+2026-09-05T12:11:12.0130887Z 
+2026-09-05T12:11:12.7104416Z 
+2026-09-05T12:11:12.7105299Z added 4 packages in 308ms
+2026-09-05T12:11:12.7440825Z {
+2026-09-05T12:11:12.7441622Z   "schemaVersion": "noderoom.nodeslide-consumer-proof/v3",
+2026-09-05T12:11:12.7442195Z   "passed": true,
+2026-09-05T12:11:12.7442519Z   "package": {
+2026-09-05T12:11:12.7443055Z     "name": "@nodeslide/testing",
+2026-09-05T12:11:12.7443414Z     "version": "0.2.2",
+2026-09-05T12:11:12.7443952Z     "inputKind": "packed-artifact",
+2026-09-05T12:11:12.7444559Z     "integritySha256": "de6a428f86300008154c69e74106f7595f499e22fa93ab0e544a6a2fe8fa3a02",
+2026-09-05T12:11:12.7445227Z     "entrypoint": "@nodeslide/testing/dist/index.js"
+2026-09-05T12:11:12.7445681Z   },
+2026-09-05T12:11:12.7445997Z   "host": {
+2026-09-05T12:11:12.7446343Z     "application": "NodeRoom",
+2026-09-05T12:11:12.7446691Z     "runtimeChanged": false,
+2026-09-05T12:11:12.7447355Z     "repositoryAuthorizationProtocol": "operation-v1",
+2026-09-05T12:11:12.7447956Z     "authorizationMode": "deterministic-preverified-fixture",
+2026-09-05T12:11:12.7448796Z     "authAuthority": "preverified fixture; production ActorProof and room-membership policy not executed",
+2026-09-05T12:11:12.7449538Z     "actorProofValidated": false,
+2026-09-05T12:11:12.7450122Z     "roomMembershipValidated": false,
+2026-09-05T12:11:12.7450638Z     "productionPolicyExecuted": false,
+2026-09-05T12:11:12.7451208Z     "principalId": "user:noderoom-consumer",
+2026-09-05T12:11:12.7451665Z     "roles": [
+2026-09-05T12:11:12.7452089Z       "noderoom:host"
+2026-09-05T12:11:12.7452465Z     ],
+2026-09-05T12:11:12.7452797Z     "permissions": [
+2026-09-05T12:11:12.7453191Z       "nodeslide:read",
+2026-09-05T12:11:12.7453571Z       "nodeslide:propose",
+2026-09-05T12:11:12.7454022Z       "nodeslide:write",
+2026-09-05T12:11:12.7454421Z       "nodeslide:approve",
+2026-09-05T12:11:12.7454795Z       "nodeslide:export"
+2026-09-05T12:11:12.7455187Z     ],
+2026-09-05T12:11:12.7455566Z     "authorizationChecks": 25,
+2026-09-05T12:11:12.7456008Z     "authorizationActions": [
+2026-09-05T12:11:12.7456483Z       "deck.read",
+2026-09-05T12:11:12.7456979Z       "patch.apply",
+2026-09-05T12:11:12.7457409Z       "proposal.create",
+2026-09-05T12:11:12.7457787Z       "proposal.accept",
+2026-09-05T12:11:12.7458386Z       "proposal.reject",
+2026-09-05T12:11:12.7459070Z       "versions.list",
+2026-09-05T12:11:12.7459463Z       "receipt.store"
+2026-09-05T12:11:12.7459822Z     ],
+2026-09-05T12:11:12.7460202Z     "authorizationEvidence": {
+2026-09-05T12:11:12.7460647Z       "issuer": "NodeRoom",
+2026-09-05T12:11:12.7461175Z       "policyId": "noderoom.actor-proof-membership",
+2026-09-05T12:11:12.7461702Z       "policyVersion": "1"
+2026-09-05T12:11:12.7462052Z     }
+2026-09-05T12:11:12.7462340Z   },
+2026-09-05T12:11:12.7462687Z   "lifecycle": {
+2026-09-05T12:11:12.7463104Z     "proposalVersion": 1,
+2026-09-05T12:11:12.7463428Z     "acceptedVersion": 2,
+2026-09-05T12:11:12.7463815Z     "conformanceReceiptId": "receipt:patch:noderoom:conformance:2",
+2026-09-05T12:11:12.7464207Z     "reviewedProposalStatus": "ready",
+2026-09-05T12:11:12.7464574Z     "acceptedStatus": "accepted",
+2026-09-05T12:11:12.7464867Z     "acceptedReceipt": {
+2026-09-05T12:11:12.7465223Z       "id": "receipt:patch:noderoom:accepted:3",
+2026-09-05T12:11:12.7465562Z       "deckId": "deck:noderoom:cas",
+2026-09-05T12:11:12.7465841Z       "deckVersion": 2,
+2026-09-05T12:11:12.7466189Z       "operation": "proposal.accepted",
+2026-09-05T12:11:12.7466897Z       "principalId": "user:noderoom-consumer",
+2026-09-05T12:11:12.7467438Z       "patchId": "patch:noderoom:accepted",
+2026-09-05T12:11:12.7467776Z       "traceId": "trace:noderoom:accepted",
+2026-09-05T12:11:12.7468086Z       "recordedAt": 1700000001037,
+2026-09-05T12:11:12.7468432Z       "attributes": {
+2026-09-05T12:11:12.7468700Z         "source": "agent"
+2026-09-05T12:11:12.7468957Z       },
+2026-09-05T12:11:12.7469238Z       "authorization": {
+2026-09-05T12:11:12.7469548Z         "schemaVersion": "nodeslide.authorization/v1",
+2026-09-05T12:11:12.7469960Z         "id": "authorization:proposal.accept:4",
+2026-09-05T12:11:12.7470313Z         "principalId": "user:noderoom-consumer",
+2026-09-05T12:11:12.7470648Z         "deckId": "deck:noderoom:cas",
+2026-09-05T12:11:12.7471009Z         "action": "proposal.accept",
+2026-09-05T12:11:12.7471301Z         "resource": {
+2026-09-05T12:11:12.7471594Z           "kind": "proposal",
+2026-09-05T12:11:12.7471909Z           "id": "patch:noderoom:accepted"
+2026-09-05T12:11:12.7472214Z         },
+2026-09-05T12:11:12.7472490Z         "authorizedAt": 1700000001036,
+2026-09-05T12:11:12.7472813Z         "evidence": {
+2026-09-05T12:11:12.7473112Z           "issuer": "NodeRoom",
+2026-09-05T12:11:12.7473464Z           "policyId": "noderoom.actor-proof-membership",
+2026-09-05T12:11:12.7473816Z           "policyVersion": "1",
+2026-09-05T12:11:12.7474223Z           "evidenceId": "noderoom-authz:proposal.accept:patch:noderoom:accepted"
+2026-09-05T12:11:12.7474629Z         }
+2026-09-05T12:11:12.7474888Z       }
+2026-09-05T12:11:12.7475117Z     },
+2026-09-05T12:11:12.7475367Z     "staleStatus": "stale",
+2026-09-05T12:11:12.7475653Z     "staleReceipt": {
+2026-09-05T12:11:12.7475972Z       "id": "receipt:patch:noderoom:stale:4",
+2026-09-05T12:11:12.7476338Z       "deckId": "deck:noderoom:cas",
+2026-09-05T12:11:12.7476616Z       "deckVersion": 2,
+2026-09-05T12:11:12.7477411Z       "operation": "proposal.stale",
+2026-09-05T12:11:12.7477807Z       "principalId": "user:noderoom-consumer",
+2026-09-05T12:11:12.7478179Z       "patchId": "patch:noderoom:stale",
+2026-09-05T12:11:12.7478549Z       "traceId": "trace:noderoom:stale",
+2026-09-05T12:11:12.7478869Z       "recordedAt": 1700000001039,
+2026-09-05T12:11:12.7479171Z       "attributes": {
+2026-09-05T12:11:12.7479444Z         "source": "agent"
+2026-09-05T12:11:12.7479727Z       },
+2026-09-05T12:11:12.7479976Z       "authorization": {
+2026-09-05T12:11:12.7480329Z         "schemaVersion": "nodeslide.authorization/v1",
+2026-09-05T12:11:12.7480700Z         "id": "authorization:proposal.accept:5",
+2026-09-05T12:11:12.7481067Z         "principalId": "user:noderoom-consumer",
+2026-09-05T12:11:12.7481422Z         "deckId": "deck:noderoom:cas",
+2026-09-05T12:11:12.7481749Z         "action": "proposal.accept",
+2026-09-05T12:11:12.7482072Z         "resource": {
+2026-09-05T12:11:12.7482337Z           "kind": "proposal",
+2026-09-05T12:11:12.7482819Z           "id": "patch:noderoom:stale"
+2026-09-05T12:11:12.7483111Z         },
+2026-09-05T12:11:12.7483393Z         "authorizedAt": 1700000001038,
+2026-09-05T12:11:12.7483675Z         "evidence": {
+2026-09-05T12:11:12.7483983Z           "issuer": "NodeRoom",
+2026-09-05T12:11:12.7484357Z           "policyId": "noderoom.actor-proof-membership",
+2026-09-05T12:11:12.7484711Z           "policyVersion": "1",
+2026-09-05T12:11:12.7485116Z           "evidenceId": "noderoom-authz:proposal.accept:patch:noderoom:stale"
+2026-09-05T12:11:12.7485473Z         }
+2026-09-05T12:11:12.7485742Z       }
+2026-09-05T12:11:12.7486003Z     },
+2026-09-05T12:11:12.7486229Z     "finalVersion": 2,
+2026-09-05T12:11:12.7486494Z     "versions": [
+2026-09-05T12:11:12.7486825Z       1,
+2026-09-05T12:11:12.7487125Z       2
+2026-09-05T12:11:12.7487593Z     ],
+2026-09-05T12:11:12.7487842Z     "receiptOperations": [
+2026-09-05T12:11:12.7488144Z       "proposal.created",
+2026-09-05T12:11:12.7488424Z       "proposal.created",
+2026-09-05T12:11:12.7488801Z       "proposal.accepted",
+2026-09-05T12:11:12.7489104Z       "proposal.stale"
+2026-09-05T12:11:12.7489450Z     ],
+2026-09-05T12:11:12.7489753Z     "acceptanceReplayWasIdempotent": true,
+2026-09-05T12:11:12.7490073Z     "authorizationSpine": {
+2026-09-05T12:11:12.7490544Z       "protocol": "operation-v1",
+2026-09-05T12:11:12.7490853Z       "directPatchReceipt": {
+2026-09-05T12:11:12.7491201Z         "id": "receipt:patch:noderoom:direct:1",
+2026-09-05T12:11:12.7491581Z         "deckId": "deck:noderoom:authorization",
+2026-09-05T12:11:12.7491892Z         "deckVersion": 2,
+2026-09-05T12:11:12.7492213Z         "operation": "patch.applied",
+2026-09-05T12:11:12.7492556Z         "principalId": "user:noderoom-consumer",
+2026-09-05T12:11:12.7492895Z         "patchId": "patch:noderoom:direct",
+2026-09-05T12:11:12.7493263Z         "traceId": "trace:noderoom:direct",
+2026-09-05T12:11:12.7493580Z         "recordedAt": 1700000001010,
+2026-09-05T12:11:12.7493887Z         "attributes": {
+2026-09-05T12:11:12.7494362Z           "source": "agent"
+2026-09-05T12:11:12.7494677Z         },
+2026-09-05T12:11:12.7495049Z         "authorization": {
+2026-09-05T12:11:12.7495526Z           "schemaVersion": "nodeslide.authorization/v1",
+2026-09-05T12:11:12.7496051Z           "id": "authorization:patch.apply:1",
+2026-09-05T12:11:12.7496544Z           "principalId": "user:noderoom-consumer",
+2026-09-05T12:11:12.7497077Z           "deckId": "deck:noderoom:authorization",
+2026-09-05T12:11:12.7497464Z           "action": "patch.apply",
+2026-09-05T12:11:12.7497778Z           "resource": {
+2026-09-05T12:11:12.7498050Z             "kind": "patch",
+2026-09-05T12:11:12.7498362Z             "id": "patch:noderoom:direct"
+2026-09-05T12:11:12.7498660Z           },
+2026-09-05T12:11:12.7498954Z           "authorizedAt": 1700000001009,
+2026-09-05T12:11:12.7499288Z           "evidence": {
+2026-09-05T12:11:12.7499564Z             "issuer": "NodeRoom",
+2026-09-05T12:11:12.7499932Z             "policyId": "noderoom.actor-proof-membership",
+2026-09-05T12:11:12.7500296Z             "policyVersion": "1",
+2026-09-05T12:11:12.7500704Z             "evidenceId": "noderoom-authz:patch.apply:patch:noderoom:direct"
+2026-09-05T12:11:12.7501115Z           }
+2026-09-05T12:11:12.7501351Z         }
+2026-09-05T12:11:12.7501593Z       },
+2026-09-05T12:11:12.7501872Z       "rejectedProposalStatus": "rejected",
+2026-09-05T12:11:12.7502217Z       "rejectedProposalReceipt": {
+2026-09-05T12:11:12.7502572Z         "id": "receipt:patch:noderoom:rejected:3",
+2026-09-05T12:11:12.7502956Z         "deckId": "deck:noderoom:authorization",
+2026-09-05T12:11:12.7503284Z         "deckVersion": 2,
+2026-09-05T12:11:12.7503589Z         "operation": "proposal.rejected",
+2026-09-05T12:11:12.7503953Z         "principalId": "user:noderoom-consumer",
+2026-09-05T12:11:12.7504314Z         "patchId": "patch:noderoom:rejected",
+2026-09-05T12:11:12.7504698Z         "traceId": "trace:noderoom:rejected",
+2026-09-05T12:11:12.7505033Z         "recordedAt": 1700000001015,
+2026-09-05T12:11:12.7505468Z         "attributes": {
+2026-09-05T12:11:12.7505773Z           "source": "agent"
+2026-09-05T12:11:12.7506043Z         },
+2026-09-05T12:11:12.7506278Z         "authorization": {
+2026-09-05T12:11:12.7506669Z           "schemaVersion": "nodeslide.authorization/v1",
+2026-09-05T12:11:12.7507307Z           "id": "authorization:proposal.reject:3",
+2026-09-05T12:11:12.7507953Z           "principalId": "user:noderoom-consumer",
+2026-09-05T12:11:12.7508302Z           "deckId": "deck:noderoom:authorization",
+2026-09-05T12:11:12.7508627Z           "action": "proposal.reject",
+2026-09-05T12:11:12.7508975Z           "resource": {
+2026-09-05T12:11:12.7509257Z             "kind": "proposal",
+2026-09-05T12:11:12.7509599Z             "id": "patch:noderoom:rejected"
+2026-09-05T12:11:12.7509891Z           },
+2026-09-05T12:11:12.7510151Z           "authorizedAt": 1700000001014,
+2026-09-05T12:11:12.7510470Z           "evidence": {
+2026-09-05T12:11:12.7510782Z             "issuer": "NodeRoom",
+2026-09-05T12:11:12.7511174Z             "policyId": "noderoom.actor-proof-membership",
+2026-09-05T12:11:12.7511530Z             "policyVersion": "1",
+2026-09-05T12:11:12.7511985Z             "evidenceId": "noderoom-authz:proposal.reject:patch:noderoom:rejected"
+2026-09-05T12:11:12.7512391Z           }
+2026-09-05T12:11:12.7512680Z         }
+2026-09-05T12:11:12.7512928Z       },
+2026-09-05T12:11:12.7513175Z       "storedAuditReceipt": {
+2026-09-05T12:11:12.7513499Z         "id": "custom-receipt:noderoom:consumer-audit",
+2026-09-05T12:11:12.7513880Z         "deckId": "deck:noderoom:authorization",
+2026-09-05T12:11:12.7514187Z         "deckVersion": 2,
+2026-09-05T12:11:12.7514529Z         "operation": "custom",
+2026-09-05T12:11:12.7514845Z         "traceId": "trace:noderoom:consumer-audit",
+2026-09-05T12:11:12.7515161Z         "recordedAt": 1700000001016,
+2026-09-05T12:11:12.7515465Z         "attributes": {
+2026-09-05T12:11:12.7515819Z           "purpose": "cross-repository-authorization-proof"
+2026-09-05T12:11:12.7516273Z         },
+2026-09-05T12:11:12.7516557Z         "principalId": "user:noderoom-consumer",
+2026-09-05T12:11:12.7516937Z         "authorization": {
+2026-09-05T12:11:12.7517302Z           "schemaVersion": "nodeslide.authorization/v1",
+2026-09-05T12:11:12.7517672Z           "id": "authorization:receipt.store:4",
+2026-09-05T12:11:12.7518059Z           "principalId": "user:noderoom-consumer",
+2026-09-05T12:11:12.7518398Z           "deckId": "deck:noderoom:authorization",
+2026-09-05T12:11:12.7518709Z           "action": "receipt.store",
+2026-09-05T12:11:12.7519013Z           "resource": {
+2026-09-05T12:11:12.7519308Z             "kind": "receipt",
+2026-09-05T12:11:12.7519672Z             "id": "custom-receipt:noderoom:consumer-audit"
+2026-09-05T12:11:12.7519977Z           },
+2026-09-05T12:11:12.7520239Z           "authorizedAt": 1700000001017,
+2026-09-05T12:11:12.7520554Z           "evidence": {
+2026-09-05T12:11:12.7520855Z             "issuer": "NodeRoom",
+2026-09-05T12:11:12.7521192Z             "policyId": "noderoom.actor-proof-membership",
+2026-09-05T12:11:12.7521581Z             "policyVersion": "1",
+2026-09-05T12:11:12.7522287Z             "evidenceId": "noderoom-authz:receipt.store:custom-receipt:noderoom:consumer-audit"
+2026-09-05T12:11:12.7522721Z           }
+2026-09-05T12:11:12.7522971Z         }
+2026-09-05T12:11:12.7523197Z       },
+2026-09-05T12:11:12.7523510Z       "authorizationReceiptOperations": [
+2026-09-05T12:11:12.7523832Z         "patch.applied",
+2026-09-05T12:11:12.7524252Z         "proposal.created",
+2026-09-05T12:11:12.7524626Z         "proposal.rejected",
+2026-09-05T12:11:12.7524894Z         "custom"
+2026-09-05T12:11:12.7525188Z       ],
+2026-09-05T12:11:12.7525563Z       "legacyPermissionCallback": false,
+2026-09-05T12:11:12.7526071Z       "frozenOperationRequests": true,
+2026-09-05T12:11:12.7526554Z       "allRepositoryActionsObserved": true
+2026-09-05T12:11:12.7527078Z     },
+2026-09-05T12:11:12.7527401Z     "nodeAgent": {
+2026-09-05T12:11:12.7527843Z       "model": "nodeslide-consumer-scripted-model",
+2026-09-05T12:11:12.7528567Z       "stopReason": "done",
+2026-09-05T12:11:12.7528939Z       "steps": 2,
+2026-09-05T12:11:12.7529299Z       "toolTrace": [
+2026-09-05T12:11:12.7529696Z         "nodeslide_propose_text"
+2026-09-05T12:11:12.7530087Z       ],
+2026-09-05T12:11:12.7530555Z       "proposalStayedUnapplied": true,
+2026-09-05T12:11:12.7530995Z       "acceptedVersion": 2,
+2026-09-05T12:11:12.7531367Z       "receipt": {
+2026-09-05T12:11:12.7531801Z         "id": "receipt:patch:noderoom:nodeagent:2",
+2026-09-05T12:11:12.7532320Z         "deckId": "deck:noderoom:nodeagent",
+2026-09-05T12:11:12.7532807Z         "deckVersion": 2,
+2026-09-05T12:11:12.7533264Z         "operation": "proposal.accepted",
+2026-09-05T12:11:12.7533755Z         "principalId": "user:noderoom-consumer",
+2026-09-05T12:11:12.7534285Z         "patchId": "patch:noderoom:nodeagent",
+2026-09-05T12:11:12.7534784Z         "traceId": "trace:noderoom:nodeagent",
+2026-09-05T12:11:12.7535421Z         "recordedAt": 1700000001027,
+2026-09-05T12:11:12.7535877Z         "attributes": {
+2026-09-05T12:11:12.7536241Z           "source": "agent"
+2026-09-05T12:11:12.7536630Z         },
+2026-09-05T12:11:12.7537287Z         "authorization": {
+2026-09-05T12:11:12.7537638Z           "schemaVersion": "nodeslide.authorization/v1",
+2026-09-05T12:11:12.7538013Z           "id": "authorization:proposal.accept:5",
+2026-09-05T12:11:12.7538450Z           "principalId": "user:noderoom-consumer",
+2026-09-05T12:11:12.7538952Z           "deckId": "deck:noderoom:nodeagent",
+2026-09-05T12:11:12.7539370Z           "action": "proposal.accept",
+2026-09-05T12:11:12.7539672Z           "resource": {
+2026-09-05T12:11:12.7540161Z             "kind": "proposal",
+2026-09-05T12:11:12.7540671Z             "id": "patch:noderoom:nodeagent"
+2026-09-05T12:11:12.7541133Z           },
+2026-09-05T12:11:12.7541423Z           "authorizedAt": 1700000001026,
+2026-09-05T12:11:12.7541717Z           "evidence": {
+2026-09-05T12:11:12.7541998Z             "issuer": "NodeRoom",
+2026-09-05T12:11:12.7542536Z             "policyId": "noderoom.actor-proof-membership",
+2026-09-05T12:11:12.7543173Z             "policyVersion": "1",
+2026-09-05T12:11:12.7543843Z             "evidenceId": "noderoom-authz:proposal.accept:patch:noderoom:nodeagent"
+2026-09-05T12:11:12.7544242Z           }
+2026-09-05T12:11:12.7544476Z         }
+2026-09-05T12:11:12.7544868Z       },
+2026-09-05T12:11:12.7545372Z       "adapterStatusMessages": [
+2026-09-05T12:11:12.7545933Z         "NodeAgent created a NodeSlide proposal for host review."
+2026-09-05T12:11:12.7546474Z       ],
+2026-09-05T12:11:12.7546980Z       "sameRepositoryRereadPreservedEdit": true,
+2026-09-05T12:11:12.7547554Z       "portableSnapshotRoundTrip": true
+2026-09-05T12:11:12.7548376Z     }
+2026-09-05T12:11:12.7548715Z   },
+2026-09-05T12:11:12.7549158Z   "scope": {
+2026-09-05T12:11:12.7549567Z     "repositoryPort": true,
+2026-09-05T12:11:12.7549921Z     "proposalReviewAccept": true,
+2026-09-05T12:11:12.7550263Z     "compareAndSwap": true,
+2026-09-05T12:11:12.7550567Z     "versions": true,
+2026-09-05T12:11:12.7550968Z     "inMemoryReceiptLedger": true,
+2026-09-05T12:11:12.7551506Z     "legacyPermissionCallback": false,
+2026-09-05T12:11:12.7551992Z     "fixtureAuthorizationEvidenceBinding": true,
+2026-09-05T12:11:12.7552659Z     "authorizationBoundReceipts": true,
+2026-09-05T12:11:12.7553170Z     "frozenOperationAuthorizationRequests": true,
+2026-09-05T12:11:12.7553720Z     "existingNodeAgentRuntime": true,
+2026-09-05T12:11:12.7554184Z     "agentProposalStayedUnapplied": true,
+2026-09-05T12:11:12.7554625Z     "sameRepositoryReread": true,
+2026-09-05T12:11:12.7555095Z     "portableSnapshotRoundTrip": true,
+2026-09-05T12:11:12.7555640Z     "durableReceiptPersistence": false,
+2026-09-05T12:11:12.7556132Z     "packageReload": false,
+2026-09-05T12:11:12.7556536Z     "productionAuthorization": false,
+2026-09-05T12:11:12.7557094Z     "productionCreate": false,
+2026-09-05T12:11:12.7557504Z     "manualArtifactEdit": false,
+2026-09-05T12:11:12.7557889Z     "productionBackend": false,
+2026-09-05T12:11:12.7558978Z     "sameSnapshotMemoryAndConvex": false,
+2026-09-05T12:11:12.7559383Z     "durableRoomActivity": false,
+2026-09-05T12:11:12.7559758Z     "mountedReactStudio": false,
+2026-09-05T12:11:12.7560172Z     "presenter": false,
+2026-09-05T12:11:12.7560504Z     "pptxExport": false,
+2026-09-05T12:11:12.7560902Z     "exportedSnapshotRevalidation": false
+2026-09-05T12:11:12.7561341Z   }
+2026-09-05T12:11:12.7561626Z }
+2026-09-05T12:11:12.7738380Z ##[group]Run npm run nodeslide:mounted:release:proof -- --json-out nodeslide-mounted-release-proof.json
+2026-09-05T12:11:12.7739077Z [36;1mnpm run nodeslide:mounted:release:proof -- --json-out nodeslide-mounted-release-proof.json[0m
+2026-09-05T12:11:12.7759722Z shell: /usr/bin/bash -e {0}
+2026-09-05T12:11:12.7760027Z env:
+2026-09-05T12:11:12.7760333Z   NODESLIDE_ROOT: /home/runner/work/NodeRoom/NodeRoom/nodeslide
+2026-09-05T12:11:12.7760758Z ##[endgroup]
+2026-09-05T12:11:12.8529362Z 
+2026-09-05T12:11:12.8530036Z > noderoom@0.1.1 nodeslide:mounted:release:proof
+2026-09-05T12:11:12.8531040Z > tsx scripts/nodeslide-mounted-release-proof.ts --lock vendor/nodeslide/release-lock.json --json-out nodeslide-mounted-release-proof.json
+2026-09-05T12:11:12.8531613Z 
+2026-09-05T12:11:13.1263883Z /home/runner/work/NodeRoom/NodeRoom/noderoom/scripts/nodeslide-mounted-release-proof.ts:531
+2026-09-05T12:11:13.1264799Z   throw new Error(`NodeSlide mounted release proof failed: ${message}`);
+2026-09-05T12:11:13.1265483Z         ^
+2026-09-05T12:11:13.1265652Z 
+2026-09-05T12:11:13.1266303Z Error: NodeSlide mounted release proof failed: @nodeslide/engine root dependency pin mismatch: expected file:vendor/nodeslide/nodeslide-engine-0.2.2.tgz, received undefined
+2026-09-05T12:11:13.1267531Z     at fail (/home/runner/work/NodeRoom/NodeRoom/noderoom/scripts/nodeslide-mounted-release-proof.ts:531:9)
+2026-09-05T12:11:13.1268380Z     at requireEqual (/home/runner/work/NodeRoom/NodeRoom/noderoom/scripts/nodeslide-mounted-release-proof.ts:511:28)
+2026-09-05T12:11:13.1269231Z     at <anonymous> (/home/runner/work/NodeRoom/NodeRoom/noderoom/scripts/nodeslide-mounted-release-proof.ts:97:3)
+2026-09-05T12:11:13.1269629Z 
+2026-09-05T12:11:13.1269805Z Node.js v22.23.2
+2026-09-05T12:11:13.1399662Z ##[error]Process completed with exit code 1.
+2026-09-05T12:11:13.1503591Z Post job cleanup.
+2026-09-05T12:11:13.2205380Z [command]/usr/bin/git version
+2026-09-05T12:11:13.2242031Z git version 2.55.0
+2026-09-05T12:11:13.2267279Z Temporarily overriding HOME='/home/runner/work/_temp/e5885486-e252-4fa7-a3e0-74c740d870f4' before making global git config changes
+2026-09-05T12:11:13.2268075Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-05T12:11:13.2271084Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/NodeRoom/NodeRoom/nodeslide
+2026-09-05T12:11:13.2294672Z Removing SSH command configuration
+2026-09-05T12:11:13.2299124Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-05T12:11:13.2327250Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-05T12:11:13.2487333Z Removing HTTP extra header
+2026-09-05T12:11:13.2492407Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-05T12:11:13.2516664Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-05T12:11:13.2676499Z Removing includeIf entries pointing to credentials config files
+2026-09-05T12:11:13.2806229Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-05T12:11:13.2818153Z includeif.gitdir:/home/runner/work/NodeRoom/NodeRoom/nodeslide/.git.path
+2026-09-05T12:11:13.2819088Z includeif.gitdir:/home/runner/work/NodeRoom/NodeRoom/nodeslide/.git/worktrees/*.path
+2026-09-05T12:11:13.2820095Z includeif.gitdir:/github/workspace/nodeslide/.git.path
+2026-09-05T12:11:13.2820786Z includeif.gitdir:/github/workspace/nodeslide/.git/worktrees/*.path
+2026-09-05T12:11:13.2822411Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/NodeRoom/NodeRoom/nodeslide/.git.path
+2026-09-05T12:11:13.2823914Z /home/runner/work/_temp/git-credentials-17173d18-0b10-4afb-bf32-d7fe4d2c2b47.config
+2026-09-05T12:11:13.2825123Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/NodeRoom/NodeRoom/nodeslide/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-17173d18\-0b10\-4afb\-bf32\-d7fe4d2c2b47\.config
+2026-09-05T12:11:13.2826347Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/NodeRoom/NodeRoom/nodeslide/.git/worktrees/*.path
+2026-09-05T12:11:13.2827604Z /home/runner/work/_temp/git-credentials-17173d18-0b10-4afb-bf32-d7fe4d2c2b47.config
+2026-09-05T12:11:13.2828869Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/NodeRoom/NodeRoom/nodeslide/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-17173d18\-0b10\-4afb\-bf32\-d7fe4d2c2b47\.config
+2026-09-05T12:11:13.2830598Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/nodeslide/.git.path
+2026-09-05T12:11:13.2838133Z /github/runner_temp/git-credentials-17173d18-0b10-4afb-bf32-d7fe4d2c2b47.config
+2026-09-05T12:11:13.2844210Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/nodeslide/.git.path \/github\/runner_temp\/git\-credentials\-17173d18\-0b10\-4afb\-bf32\-d7fe4d2c2b47\.config
+2026-09-05T12:11:13.2866200Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/nodeslide/.git/worktrees/*.path
+2026-09-05T12:11:13.2883207Z /github/runner_temp/git-credentials-17173d18-0b10-4afb-bf32-d7fe4d2c2b47.config
+2026-09-05T12:11:13.2887348Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/nodeslide/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-17173d18\-0b10\-4afb\-bf32\-d7fe4d2c2b47\.config
+2026-09-05T12:11:13.2911339Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-05T12:11:13.3062532Z Removing credentials config '/home/runner/work/_temp/git-credentials-17173d18-0b10-4afb-bf32-d7fe4d2c2b47.config'
+2026-09-05T12:11:13.3176970Z Post job cleanup.
+2026-09-05T12:11:13.3870606Z [command]/usr/bin/git version
+2026-09-05T12:11:13.3905499Z git version 2.55.0
+2026-09-05T12:11:13.3930763Z Temporarily overriding HOME='/home/runner/work/_temp/ff867d48-7ec2-4238-a448-9ca3e84b8775' before making global git config changes
+2026-09-05T12:11:13.3931749Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-05T12:11:13.3934531Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/NodeRoom/NodeRoom/noderoom
+2026-09-05T12:11:13.3955748Z Removing SSH command configuration
+2026-09-05T12:11:13.3960677Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-05T12:11:13.3985428Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-05T12:11:13.4150821Z Removing HTTP extra header
+2026-09-05T12:11:13.4154141Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-05T12:11:13.4178953Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-05T12:11:13.4341588Z Removing includeIf entries pointing to credentials config files
+2026-09-05T12:11:13.4345595Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-05T12:11:13.4362808Z includeif.gitdir:/home/runner/work/NodeRoom/NodeRoom/noderoom/.git.path
+2026-09-05T12:11:13.4363500Z includeif.gitdir:/home/runner/work/NodeRoom/NodeRoom/noderoom/.git/worktrees/*.path
+2026-09-05T12:11:13.4363938Z includeif.gitdir:/github/workspace/noderoom/.git.path
+2026-09-05T12:11:13.4364322Z includeif.gitdir:/github/workspace/noderoom/.git/worktrees/*.path
+2026-09-05T12:11:13.4368896Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/NodeRoom/NodeRoom/noderoom/.git.path
+2026-09-05T12:11:13.4384274Z /home/runner/work/_temp/git-credentials-61338a26-1523-43bf-abfa-d4d4b5ba0f71.config
+2026-09-05T12:11:13.4391041Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/NodeRoom/NodeRoom/noderoom/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-61338a26\-1523\-43bf\-abfa\-d4d4b5ba0f71\.config
+2026-09-05T12:11:13.4415858Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/NodeRoom/NodeRoom/noderoom/.git/worktrees/*.path
+2026-09-05T12:11:13.4431899Z /home/runner/work/_temp/git-credentials-61338a26-1523-43bf-abfa-d4d4b5ba0f71.config
+2026-09-05T12:11:13.4438290Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/NodeRoom/NodeRoom/noderoom/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-61338a26\-1523\-43bf\-abfa\-d4d4b5ba0f71\.config
+2026-09-05T12:11:13.4465157Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/noderoom/.git.path
+2026-09-05T12:11:13.4486502Z /github/runner_temp/git-credentials-61338a26-1523-43bf-abfa-d4d4b5ba0f71.config
+2026-09-05T12:11:13.4489464Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/noderoom/.git.path \/github\/runner_temp\/git\-credentials\-61338a26\-1523\-43bf\-abfa\-d4d4b5ba0f71\.config
+2026-09-05T12:11:13.4511578Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/noderoom/.git/worktrees/*.path
+2026-09-05T12:11:13.4526351Z /github/runner_temp/git-credentials-61338a26-1523-43bf-abfa-d4d4b5ba0f71.config
+2026-09-05T12:11:13.4531432Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/noderoom/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-61338a26\-1523\-43bf\-abfa\-d4d4b5ba0f71\.config
+2026-09-05T12:11:13.4554601Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-05T12:11:13.4712351Z Removing credentials config '/home/runner/work/_temp/git-credentials-61338a26-1523-43bf-abfa-d4d4b5ba0f71.config'
+2026-09-05T12:11:13.4820713Z Cleaning up orphan processes

@@ -1,0 +1,15 @@
+{
+  "args": [
+    "C:/nvm4w/nodejs/node.exe",
+    "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-tiptap-prototype-canary.mjs",
+    "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-final-judge",
+    "independent-after"
+  ],
+  "startedAt": "2026-09-05T15:06:14.669366+00:00",
+  "finishedAt": "2026-09-05T15:06:16.303727+00:00",
+  "exitCode": 0,
+  "timedOut": false,
+  "environment": "Only normal OS execution variables passed; no provider/backend credential variables or env files read",
+  "scriptSha256": "fc29ebbb4f1c2025d4897c5ee340c21053785c003cee2add7dd2d7ab2813ef02"
+}

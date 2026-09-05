@@ -1,0 +1,13 @@
+{
+  "schema": "noderoom-mobile-export-observation/v1",
+  "startedAt": "2026-09-05T11:06:01.781Z",
+  "baseCommit": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+  "sourceBindings": "artifacts/*/source-bindings.json",
+  "sourceState": "Uncommitted seven-path candidate; base commit alone does not identify these tested bytes",
+  "cells": [],
+  "externalRequests": [],
+  "errors": [],
+  "status": "PASSED",
+  "testExit": 0,
+  "finishedAt": "2026-09-05T11:06:55.131Z"
+}

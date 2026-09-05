@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905
+
+
+ Test Files  3 passed (3)
+      Tests  8 passed (8)
+   Start at  03:37:36
+   Duration  42.35s (transform 2.41s, setup 7.85s, import 23.90s, tests 587ms, environment 32.00s)
+

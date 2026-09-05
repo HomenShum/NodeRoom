@@ -1,0 +1,2 @@
+# Raw evidence is immutable; preserve every byte in this packet.
+* -text

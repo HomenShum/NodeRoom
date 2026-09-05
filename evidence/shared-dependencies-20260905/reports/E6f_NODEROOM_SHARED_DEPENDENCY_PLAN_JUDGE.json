@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-09-05T12:41:41.637985+00:00",
+  "mode": "Builder / independent nonauthor plan judge",
+  "verdict": "APPROVED_BOUNDED_DEPENDENCY_PLAN_NO_CONCRETE_BLOCKER",
+  "requestTrace": "Execute repository recovery with planner-worker-judge and developer/user handoff readiness; independently judge the accepted minimal shared-dependency repair before final replay.",
+  "plan": {
+    "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f_NODEROOM_SHARED_DEPENDENCY_REPAIR_PLAN.json",
+    "sha256": "4f59b9a8fce4e698f6b9280c24c928ba9f2ce63520530167e26fa63ea78bb2c8"
+  },
+  "headBaseline": "de9e02bc31c6bebb421a4889c1606a49f617f0f6",
+  "candidateChangingByWorker": true,
+  "checks": [
+    {
+      "name": "accepted exact plan and markdown binding",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "every frozen plan evidence binding",
+      "pass": true,
+      "detail": 40
+    },
+    {
+      "name": "all 23 baseline inputs equal actual committed blobs",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "all 11 immutable archived packages have exact SHA256 SHA512 and metadata",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "immutable manifestFile binding",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "immutable installUpgradeProofFile binding",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "only the two proposed direct pins are missing",
+      "pass": true,
+      "detail": {
+        "@nodeslide/engine": "file:vendor/nodeslide/nodeslide-engine-0.2.2.tgz",
+        "@nodeslide/react-headless": "file:vendor/nodeslide/nodeslide-react-headless-0.2.2.tgz"
+      }
+    },
+    {
+      "name": "all six existing installed lock rows already bind immutable tarballs",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "baseline cohort contains exactly all 30 recorded packages",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "30 raw registry records bind coherent 3.30.4 internal closure",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "six independent official registry version reads agree",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "only model and view miss ProseMirror required minimums",
+      "pass": true,
+      "detail": {
+        "prosemirror-view": "1.41.9",
+        "prosemirror-model": "1.25.11"
+      }
+    },
+    {
+      "name": "existing nested uuid stays compatible",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "happy-dom already satisfies proposed html peer minimum",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "recorded official advisory identifies first patched 3.30.4",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "no runtime owner or workflow edits in accepted plan",
+      "pass": true,
+      "detail": null
+    }
+  ],
+  "scope": "Review frozen baseline, vendor bytes, official advisory and proposed package metadata only. This is not implementation, install, security remediation, publication or shared-CI approval.",
+  "findings": [],
+  "implementationWatchpoints": [
+    "Lock all 30 Tiptap rows to the selected 3.30.4 cohort; a ^3.30.4 package request alone does not establish the actual selected version.",
+    "Allow only necessary ProseMirror model/view changes; inspect every extra dependency delta and preserve nested uuid compatibility.",
+    "Require actual installed prototype/DOM-serializer before-after evidence and notebook/current-editor scenarios; library canary is not proof of NodeRoom exploitability.",
+    "Preserve all 11 vendor tarballs, both immutable receipts, six runtime lock integrities, old mobile evidence and unmodified checker/workflows.",
+    "The full development audit Browserslist hold remains explicit. Production audit clearance alone cannot certify later production checks.",
+    "Use the ordinary single-followup policy review; de9 history remains failed and a real whole-branch range is not certified."
+  ],
+  "replays": {
+    "install": 0,
+    "build": 0,
+    "browser": 0,
+    "tests": 0,
+    "COM": 0,
+    "provider": 0
+  },
+  "mutation": {
+    "candidate": false,
+    "source": false,
+    "index": false,
+    "refs": false
+  },
+  "fullGrades": null,
+  "overallReadiness": null,
+  "manifest": {
+    "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-dependency-plan-judge\\manifest.json",
+    "sha256": "0b525b9d03f22c1b861145bb514e50d01f029d522a27322414c90af652c5e597"
+  },
+  "next": "Wait for worker final source/proof freeze, then independently review actual package/lock delta and representative proof without duplicating the worker matrix."
+}

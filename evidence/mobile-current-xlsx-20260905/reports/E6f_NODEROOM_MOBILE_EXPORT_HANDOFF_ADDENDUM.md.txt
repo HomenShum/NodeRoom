@@ -1,0 +1,7 @@
+# NodeRoom fresh-checkout browser prerequisite
+
+The independent reviewer found that a new developer could install npm dependencies and still be unable to run the documented browser proof because Chromium was not installed. The parent authorized a documentation-only correction: run `npx playwright install chromium` before the first browser replay. Linux hosts missing system packages may use `--with-deps` where that installation is permitted. This does not run an installer or change the application.
+
+Only `HANDOFF.md` changed. [Exact before/after diff](E6f-noderoom-handoff-prerequisite-addendum-01/HANDOFF.diff), the previous HANDOFF, source digest, freeze and receipt are retained separately. The original 739-artifact packet and original receipt are byte-identical. Runtime/test/package/lock/build/browser bytes are unchanged; no runtime replay was needed or performed.
+
+[Effective seven-file refreeze](E6f_NODEROOM_MOBILE_EXPORT_HANDOFF_ADDENDUM.json): source digest `5be5f9e25b7ba996c516943bb87b2fb918fa4bb36c40547e90285b42a03fd741`. Final HANDOFF SHA256 `ccc6664bafbc12440c702aa4fa715b34f2ea0b35c83554e6deb53b0ccedba2ba`. The prior source digest `d0c341bed80723c345208233f6f8e71c8f3e41e237d30a1ff63439457b0b0f3e` remains the historical execution subject. HEAD, index, refs, status and tracked diff remain unchanged; all seven paths are still unstaged. Await independent judgment; no commit/push.

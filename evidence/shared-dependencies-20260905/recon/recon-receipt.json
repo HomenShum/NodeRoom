@@ -1,0 +1,198 @@
+{
+  "status": "READ_ONLY_CAUSES_CONFIRMED_PLAN_PENDING",
+  "at": "2026-09-05T12:31:15.466941+00:00",
+  "candidate": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+  "head": "de9e02bc31c6bebb421a4889c1606a49f617f0f6",
+  "protected": [
+    {
+      "path": "package.json",
+      "bytes": 26705,
+      "sha256": "7e6758419aef89fccb653258fd0c7c6258cd818e716a50924cec88a92ac19f32",
+      "gitBlobSha1": "d3e06aabdc57db22b5385a2a276960739b9e117c"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 559926,
+      "sha256": "ee580757a997b0fd846ee802bd1c283889a6fb3ee8eb8d1efef6e5170df2689a",
+      "gitBlobSha1": "2c529b918382931bbb855609261ba7f104d9d850"
+    },
+    {
+      "path": "HANDOFF.md",
+      "bytes": 7233,
+      "sha256": "5390d1e4794eb03758e22082f6f0d0f6d11f14ba015b09109f68b3e6c9f8dd90",
+      "gitBlobSha1": "4c03a872bb3f0b33353bfab8b1484ceb55f3f574"
+    },
+    {
+      "path": "scripts/nodeslide-mounted-release-proof.ts",
+      "bytes": 22444,
+      "sha256": "81dee2e18c7e375a16df11d8e9fe05040774f735b0bff63f25c058b0800cc9ce",
+      "gitBlobSha1": "1f516688cfae13e2334bae4910795e0c402e692c"
+    },
+    {
+      "path": "scripts/commit-message.ts",
+      "bytes": 6603,
+      "sha256": "f6649fd322ca310528d5dfbed171d27681179218f0d410d7cec52db50b67a807",
+      "gitBlobSha1": "de9114a2f472f2ba90a4f2762e01144df77dfe22"
+    },
+    {
+      "path": "src/ui/panels/Artifact.tsx",
+      "bytes": 230378,
+      "sha256": "701cbef1cbe9ca89dea754b203243dbd760aa04d9062f6053e1615f7cbeb6463",
+      "gitBlobSha1": "74c90f35c5b67e557684095b7a84497fdf995d2a"
+    },
+    {
+      "path": "src/notebook/extensions.ts",
+      "bytes": 3138,
+      "sha256": "51c2e4d3c9e56e3bb56da771af6641cf08dbc37637c6aa3eea8335a4f5cd15ef",
+      "gitBlobSha1": "edfa7f9fa43d3b535dd3cbc753db2dcc8e938cfa"
+    },
+    {
+      "path": "src/notebook/seed.ts",
+      "bytes": 4419,
+      "sha256": "87c5f75fb3e0a6d776c57762b5404e60484dd49e0f1f1a877b74204f5d2c8d8c",
+      "gitBlobSha1": "a22ac0f26e8d220b16cd2c2d4556114958a65813"
+    },
+    {
+      "path": "vendor/nodeslide/install-upgrade-proof.json",
+      "bytes": 1059,
+      "sha256": "75ec6c37f423445ebcf0b71516b5ce8ebaaf0396d3c864f75f615c3f16dc0724",
+      "gitBlobSha1": "3d4ee8278d9404b32367ca0d01b655ccb4e3b3cb"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-agent-0.2.2.tgz",
+      "bytes": 3718,
+      "sha256": "3ffb3d27c80b8ea673115a4faca39f2964e0876927586409e4f74e05e30a08ac",
+      "gitBlobSha1": "5f5ae8346ae7797c68a8b278982fdd6545a145a1"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-artifacts.json",
+      "bytes": 3802,
+      "sha256": "3930276da868ab25853a7857cb5c2ddab724d9931eabb3e5fb499394a806856a",
+      "gitBlobSha1": "1067a88f436ea34e43ffb9c5e786212306ceddb2"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-backend-0.2.2.tgz",
+      "bytes": 13785,
+      "sha256": "c90674bc8ec676df1d1d2964d7546f90952f326305d209a74931f9b870761326",
+      "gitBlobSha1": "62d58c97080a33512c0ce0afe4dfada4cdc86b8f"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-cli-0.2.2.tgz",
+      "bytes": 22928,
+      "sha256": "328a2021e86607dd8a8febf7daf566f96961aaf948330f060f97a3fa8d0352f8",
+      "gitBlobSha1": "eb904c6be6f8ed0f0ef7bed76ed678600adcdfe5"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-client-http-0.2.2.tgz",
+      "bytes": 6198,
+      "sha256": "5aeda7071cd61c4223ae7673c51f12710b5b52531ed1194117b0bc1f45f705d4",
+      "gitBlobSha1": "e56212cec1c2849795bc9cc6ecd817fbc1b14a38"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-contracts-0.2.2.tgz",
+      "bytes": 22325,
+      "sha256": "5cb798fdab903dc651c69c87b263fac9ce8138b62ec54f46c5a97c6835b74723",
+      "gitBlobSha1": "fa5026e9932b1c46a208e1c66d48e0971c1f6307"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-convex-0.2.2.tgz",
+      "bytes": 34100,
+      "sha256": "d70c519b026ecfed4d1b930e9832b899597cc0b2838ed38114a3db6bed2fc364",
+      "gitBlobSha1": "1eb8353d7b6ba2cd0ddfcdc7740fe72f98bf4b0a"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-engine-0.2.2.tgz",
+      "bytes": 116159,
+      "sha256": "220e32141b33462f1b463da3d546c5022d9f2d8ce22aa1921cfde9335547f4ee",
+      "gitBlobSha1": "91fc403ab6c2d78bd2cf195cc0849c49afc03cb8"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-react-0.2.2.tgz",
+      "bytes": 19511,
+      "sha256": "2416791ca0206dd0900266046cf658e6d609d2e994597ceb4f205ccea979b608",
+      "gitBlobSha1": "5e1a2b34912f9afaac421f4866e3a1d9d6be2b5d"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-react-headless-0.2.2.tgz",
+      "bytes": 8109,
+      "sha256": "d11b44e3cfb7702d2757e2155e0e157810c1e73bce016d45751bd7f3761c7ba3",
+      "gitBlobSha1": "6cbb90f3783a55604d3ad56cb197223c060049bc"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-registry-0.2.2.tgz",
+      "bytes": 3328,
+      "sha256": "d36a252ed7997c6bc717189f9445ec0541cd35c607a195ac64660ed285a36cd4",
+      "gitBlobSha1": "4e744106dc29d8d35d18e34790350a55d9f6a243"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-testing-0.2.2.tgz",
+      "bytes": 22996,
+      "sha256": "de6a428f86300008154c69e74106f7595f499e22fa93ab0e544a6a2fe8fa3a02",
+      "gitBlobSha1": "a51f1bb69b292866df00c59f24bc25bcccf2bdb6"
+    },
+    {
+      "path": "vendor/nodeslide/README.md",
+      "bytes": 910,
+      "sha256": "19a6e48fcf8dfd1a6b9dd50642dd693398a52d167dfe45d80692666e44cdcb30",
+      "gitBlobSha1": "feb17bdf2fa969871ba3c56b2e79a63ae5ac3e3a"
+    },
+    {
+      "path": "vendor/nodeslide/release-lock.json",
+      "bytes": 899,
+      "sha256": "9010c0f488cd0f04a254113dc1ebe5dc6a34512ba6a41c8256a098bdc4c7b7e6",
+      "gitBlobSha1": "aa201ad7c5043f48c0652833ca702b66b929a657"
+    }
+  ],
+  "sourceAndGitUnchanged": true,
+  "gitBindings": {
+    "head": "8a445c187a35ec5c28ef26c48456ba8cee6a9cbc24be413279232bf7c6597139",
+    "status": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "index": "0f9ef98bddbd9412c481a658ee26a229d6b7f5057793adcb3b310beacf495841",
+    "refs": "eaf90ebca88f0ec1f9e6d63c827310747db80acb1c7ab140daa379403289b4e4"
+  },
+  "rawSharedLogs": [
+    {
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-mobile-shared-judge\\101304111767-nodeslide-failed.log",
+      "sha256": "5678498b0d52af5d17a2b8f68872f40bab4b45eabfa32161e1274ac63a4b0720",
+      "bytes": 80659
+    },
+    {
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-mobile-shared-judge\\101304151727.log",
+      "sha256": "4122724364d757bee1304e9f5092df872b740f8f099f62ff7990ff50bacf9790",
+      "bytes": 71964
+    },
+    {
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-mobile-shared-judge\\101304111903.log",
+      "sha256": "1197a26daa7fd2fad36ccbe27521476c09fdf05980163b83ca0eef0cf9c5895b",
+      "bytes": 197941
+    }
+  ],
+  "priorAuditArtifacts": [
+    {
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\audit-baseline.command.json",
+      "bytes": 726,
+      "sha256": "c23f22579acf934d9494826f4949a22b0f08a1d405af01890739c531df39e37e"
+    },
+    {
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\audit-baseline.log",
+      "bytes": 13587,
+      "sha256": "e8debb2017f9eb267de943f0108134b5d60fdb9dc2ca442691da94136e8ed8a6"
+    },
+    {
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\audit-production-baseline.command.json",
+      "bytes": 756,
+      "sha256": "7626e34e6c2e65741a8f69ea71101ecd42f6f9079211a92ac0296a1d9fb18f9e"
+    },
+    {
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\audit-production-baseline.log",
+      "bytes": 12140,
+      "sha256": "223c70ff152bd2a23a4d14a4602a7a2886a60e87af748693f4c4d23852d838db"
+    }
+  ],
+  "installedOrExecutedProduct": false,
+  "readOnlyFailures": [
+    "Windows rg wildcard scripts/nodeslide* did not expand; repeated with directory/file paths.",
+    "Initial Python console default cp1252 could not print a Unicode arrow; re-read with UTF-8 stdout.",
+    "Initial manifest exploratory read assumed artifacts key; actual manifest uses packages, corrected without file mutation."
+  ]
+}

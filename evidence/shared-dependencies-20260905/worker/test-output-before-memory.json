@@ -1,0 +1,55 @@
+{
+  "verified": true,
+  "files": [
+    {
+      "path": "test-results/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45
+    },
+    {
+      "path": "test-results/full-modern-ux-bar-full-mo-3b3c3--keeps-browser-health-clean-chromium/trace.zip",
+      "sha256": "e19e142fd8febbbbf522da01b9daf31f7c5a456ebae522e36fc9b4013cb34d5c",
+      "bytes": 1849046
+    },
+    {
+      "path": "test-results/full-modern-ux-bar-full-mo-8a576-traceable-and-overflow-safe-chromium/trace.zip",
+      "sha256": "1e2b06067eba5d949f21473119e69ef10dd7a0ba26cf3d90cb8b2774d89fcf15",
+      "bytes": 740291
+    },
+    {
+      "path": "test-results/responsive/desktop-1440x900.png",
+      "sha256": "c959c664af9f04bf31cd095c5800a8d8f6c510fbb5d6ea218a2f9d888151d1d3",
+      "bytes": 174780
+    },
+    {
+      "path": "test-results/responsive/desktop-1860x900.png",
+      "sha256": "3f26a7d748951f096e94262df10d3ba099878e307789397c7aa971e53903b446",
+      "bytes": 180566
+    },
+    {
+      "path": "test-results/responsive/laptop-1280x800.png",
+      "sha256": "c4240757676fa63236253b4fbb25ce33f9169ad253fa1db69e86a6576109bb20",
+      "bytes": 154403
+    },
+    {
+      "path": "test-results/responsive/phone-375x812.png",
+      "sha256": "c37f13eadbea9c4e98344259c817f660e526b6ee8ccfebd51a2c86401afb57c4",
+      "bytes": 65039
+    },
+    {
+      "path": "test-results/responsive/tablet-768x1024.png",
+      "sha256": "8f963db54a037991a6fe53c9bc0acd838e7148c660fbbe2822862760da5d0acd",
+      "bytes": 84916
+    },
+    {
+      "path": "test-results/responsive/workspace-1024x768.png",
+      "sha256": "dd63eed94d80846429e512978526ebe7f6f03313a4cfa4bee23f7a84fad361a5",
+      "bytes": 145424
+    },
+    {
+      "path": "test-results/uploaded-workbook-shared-grid.png",
+      "sha256": "52983bccd3e21e613db506778e1e9f2c7182cb7957d23325eece849e8a5e755b",
+      "bytes": 138960
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+# NodeRoom current-table export repair receipt
+
+Builder mode. **Re your request:** make each individual repo usable and ready for developer/user handoff, including visual and interaction evidence — the phone table now produces a real current-value XLSX instead of only changing an exported badge. The candidate is frozen for a fresh judge; it is not committed, pushed or declared fully ready.
+
+[Exact receipt and command exits](E6f_NODEROOM_MOBILE_EXPORT_REPAIR_RECEIPT.json) · [Frozen source and custody](E6f-noderoom-mobile-export-repair/freeze.json) · [Portable artifact manifest](E6f-noderoom-mobile-export-repair/artifact-manifest.json) · [Proof entry and preserved failures](E6f-noderoom-mobile-export-repair/README.md)
+
+## Result and scope
+
+Exactly seven unstaged paths on `codex/noderoom-current-consumer-20260905`, base `2b3e5bd718b80747f32257a8b8af5f15e2310699`. The source digest is `d0c341bed80723c345208233f6f8e71c8f3e41e237d30a1ff63439457b0b0f3e`; the JSON specifies the exact sorted-path serialization. HEAD, index, all refs and the original primary checkout remain unchanged. Among 1,563 protected old source/config files, only the two approved existing owners changed; all 1,561 others match. Fourteen final source files and 485 generated build/test outputs are retained and rehashed.
+
+The mobile owner projects the current three-row, six-column table as literal strings. A separate metadata sheet explicitly marks recorded status and claim references as unverified sample metadata. The shared helper extracts the existing serialization/download tail; it reports measured bytes and dispatch, catches failure, blocks an active duplicate and suppresses obsolete dispatch. It does not claim browser disk-save completion or cancel serializer CPU. PowerPoint and historical restore/download are unavailable because those table contents do not exist.
+
+The projection rejects values exceeding the published 32,767-character or 253-line-feed limits and text the serializer cannot preserve exactly. A real 320px filename overlap was captured, measured and corrected by wrapping the existing metadata span inside the approved export boundary. No modal, backend, provider, dependency or unrelated runtime was changed.
+
+## Observed proof
+
+| Check | Actual result |
+|---|---|
+| Normal production build and root TypeScript | Pass through unchanged memory-suite build |
+| Convex TypeScript | Pass |
+| Existing plus new workbook/dialog scenarios | 8/8 pass |
+| Unchanged memory browser suite | 29/29 pass |
+| Named mobile export browser suite | 8/8 pass; 19 actual files saved and reopened |
+| Browser evidence | 40 final PNGs, HTML, console and 12 current source bindings per scenario |
+| Six widths | 320, 390, 768, 1024, 1440, 1920; natural desktop distinguished from forced mobile above 760 |
+| Failure and accumulated state | Resource failure → explicit retry, immediate duplicate activation → one file, ten later edited snapshots, format rejection → correction, rapid close → no late file → fresh reopened export |
+| Desktop extraction | Real 6,631-byte download; complete reopened worksheet models match baseline |
+| Before custody | All 56 plan-selected artifacts copied with original hashes; original zero-download evidence remains frozen |
+
+The [final browser recount](E6f-noderoom-mobile-export-repair/final-browser-artifact-recount.json) verifies saved PNG/HTML and workbook bytes. The [desktop comparison](E6f-noderoom-mobile-export-repair/desktop-workbook-parity.json) proves parity of values/types/styles/rows/columns, including an inherited missing-label defect; it does not certify desktop completeness.
+
+## Limits and next action
+
+Full visual, responsive, accessibility, performance, provider and production grades remain null. This was an anonymous local application build with fallback fonts. Doubled browser text retained the focused action at 390 and 1440, but is not native zoom or whole-layout certification. The inherited half-height dialog requires scrolling, enlarged tabs have reading limitations, and early edit toasts overlap outcomes. A captured long-running loading state is not claimed; rapid close and the helper's controlled post-serialization abort are separate proofs.
+
+The original floor COM timeout, NodeSlide package mismatch, missing Gemini nightly credential, baseline audit findings and missing design references remain open. No native Office/provider execution, credential read, original server mutation or deployment occurred. The app's embedded SHA names the unchanged base; final source hashes bind the actual uncommitted candidate. HANDOFF prose was finalized after the desktop replay; its final bytes are separately bound without rewriting that historical report.
+
+The initial deferred-import probe failure, unused-import typecheck failure, filename overflow and custody output-format mismatch are preserved with their causes. The corrected custody command matches the original ref representation exactly; refs were never changed to satisfy a check.
+
+Next is independent judgment of this frozen candidate. The separate [desktop Account-label proposal](E6f_NODEROOM_DESKTOP_ACCOUNT_FOLLOW_ON.md) identifies two incorrect `account` lookups where the real seed and renderer use `label`; no such repair is included here.
+
+Receipt JSON SHA256: `1dc9a6b4285d90ba50d35903656a63504552e967d13c967d323c6389ff6f1d58`. Artifact manifest SHA256: `bfaaf096afb8e9dcd8d2a13931c0092f017a0e5ec1f5a7c9dc35be613132eea0` (739 retained artifacts). The receipt and future judgment remain outside the self-hashed artifact manifest.

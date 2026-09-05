@@ -1,0 +1,113 @@
+{
+  "schema": "noderoom-entry-observation/v1",
+  "startedAt": "2026-09-05T10:22:03.629Z",
+  "sourceCommit": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+  "sourceBindings": "../../E6f-noderoom-first-run/source-before.json",
+  "cells": [
+    {
+      "width": 320,
+      "routeName": "natural-memory",
+      "captures": [
+        {
+          "name": "natural-memory-320-entry",
+          "pngSha256": "a7060047dae3d31942c4022e9b0bc501a7ecd72ed201b6e3314537c1bbede698",
+          "domSha256": "a63b3fbae4905e9b2d2d6b66875e686a95eab711835b5583a85901786c88fb13",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        }
+      ],
+      "console": [
+        {
+          "type": "error",
+          "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+        }
+      ],
+      "pageErrors": [],
+      "boundaries": [
+        {
+          "folder": "provenance-320",
+          "before": {
+            "name": "provenance-320/before",
+            "pngSha256": "f4cfc2e5c0f59b27660e30fbc487ba66a4f4f732cc15dbed3fd92e1a648fea8b",
+            "domSha256": "666b9074e185b5728e70a75f75804ed3340fe8fa036169ff3bd6f0508ca26aef",
+            "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+            "horizontalOverflow": 0,
+            "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+          },
+          "rectangle": {
+            "left": 15,
+            "right": 273,
+            "top": 637.515625,
+            "bottom": 782.015625,
+            "label": "CHANGE B · Export provenance"
+          },
+          "boundarySha256": "41d0d18625708dda3e0048b37d231225e8b80c9f2d2d2cfe82247200970a82da",
+          "strictDomRestoration": true
+        }
+      ],
+      "status": "OBSERVED"
+    },
+    {
+      "width": 390,
+      "routeName": "natural-memory",
+      "captures": [
+        {
+          "name": "natural-memory-390-entry",
+          "pngSha256": "a37c25398be53bc6a785f6f007d79f2ead69fc717d33db8efc2cd07a7c704670",
+          "domSha256": "a63b3fbae4905e9b2d2d6b66875e686a95eab711835b5583a85901786c88fb13",
+          "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+          "horizontalOverflow": 0,
+          "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+        }
+      ],
+      "console": [
+        {
+          "type": "error",
+          "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+        }
+      ],
+      "pageErrors": [],
+      "boundaries": [
+        {
+          "folder": "provenance-390",
+          "before": {
+            "name": "provenance-390/before",
+            "pngSha256": "9542895ccc34a25c0f943eb0f2694dafa7864ca5d66dd4d918d22cfe4ed7e1b5",
+            "domSha256": "666b9074e185b5728e70a75f75804ed3340fe8fa036169ff3bd6f0508ca26aef",
+            "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+            "horizontalOverflow": 0,
+            "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699"
+          },
+          "rectangle": {
+            "left": 15,
+            "right": 343,
+            "top": 656.015625,
+            "bottom": 763.765625,
+            "label": "CHANGE B · Export provenance"
+          },
+          "boundarySha256": "80db845b724486bdbb6d0311db5152fe42b9c11fc72b76c7819a528d56a1ba4f",
+          "strictDomRestoration": true
+        }
+      ],
+      "status": "OBSERVED"
+    }
+  ],
+  "externalRequests": [
+    {
+      "width": 320,
+      "routeName": "natural-memory",
+      "url": "https://fonts.googleapis.com/css2",
+      "action": "blocked"
+    },
+    {
+      "width": 390,
+      "routeName": "natural-memory",
+      "url": "https://fonts.googleapis.com/css2",
+      "action": "blocked"
+    }
+  ],
+  "errors": [],
+  "status": "OBSERVED",
+  "finishedAt": "2026-09-05T10:22:08.586Z"
+}

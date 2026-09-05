@@ -1,0 +1,22 @@
+{
+  "productEdits": 0,
+  "browser": {
+    "originalSha256": "7e37ed027d320cd4db2bee873014a9178f10b1bdc482f3585a554f03bcd2aff2",
+    "adaptedSha256": "46461582648a0597a7290a7442317834034a39dc24718d1bce4d2f2143eeb7b0",
+    "changes": [
+      "own port 54433",
+      "fresh judge output directory",
+      "grep only 390px, failure/duplicate/sustained and close scenarios"
+    ]
+  },
+  "desktop": {
+    "originalSha256": "37db71c5a8e7b70a175bc5aa12c2b5444089a4b308847aeebfe36642afc4f0f0",
+    "adaptedSha256": "c5df6f81d7fda816c8b119c1e461601efc71e7c3c2344aaf648537d2a19d03a1",
+    "changes": [
+      "own port 54433",
+      "fresh judge output directory",
+      "honest frozen source binding path"
+    ]
+  },
+  "scope": "Product/browser test bodies unchanged, current built preview; no application response overrides."
+}

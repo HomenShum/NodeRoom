@@ -1,0 +1,165 @@
+{
+  "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+  "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+  "body": "N\nQ3 Diligence\n4\nNEEDS YOU\nCardioNova investor update\n6 slides · 1 source gap · review & export\nreview\nnow\nCardioNova research plan\nApproval needed before any web read\napprove\nnow\nSource gap · paid pilots\nBlocks the revenue-confidence column\n1 gap\n2m\nCoach prompt ready\nPractice the CardioNova review\nreview\n5m\nNetSuite reconciliation\nRead-only run · 4 reads · 0 writes\ndone\n1h\nHome\nCapture\nRoom\nAgent\nReview\nFiles",
+  "horizontalOverflow": 0,
+  "viewport": {
+    "width": 320,
+    "height": 844
+  },
+  "build": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+  "buttons": [
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-room-context",
+      "label": "Switch room, current room Q3 Diligence",
+      "text": "NQ3 Diligence",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-review-action",
+      "label": "Review inbox, 4 items",
+      "text": "4",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-overflow-action",
+      "label": "More room actions",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Card view",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Row view",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "CardioNova investor update6 slides · 1 source gap · review & exportreviewnow",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "CardioNova research planApproval needed before any web readapprovenow",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Source gap · paid pilotsBlocks the revenue-confidence column1 gap2m",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Coach prompt readyPractice the CardioNova reviewreview5m",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "NetSuite reconciliationRead-only run · 4 reads · 0 writesdone1h",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Quick actions",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Add to message",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "INPUT",
+      "testId": null,
+      "label": "Ask NodeAgent",
+      "text": "",
+      "placeholder": "Ask NodeAgent or capture…",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-home",
+      "label": "Home",
+      "text": "Home",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-capture",
+      "label": "Capture",
+      "text": "Capture",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-room",
+      "label": "Room",
+      "text": "Room",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-agent",
+      "label": "Agent",
+      "text": "Agent",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-inbox",
+      "label": "Review",
+      "text": "Review",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "mobile-nav-files",
+      "label": "Files",
+      "text": "Files",
+      "placeholder": null,
+      "disabled": false
+    }
+  ]
+}

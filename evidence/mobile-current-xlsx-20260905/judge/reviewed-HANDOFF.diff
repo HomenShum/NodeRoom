@@ -1,0 +1,19 @@
+--- HANDOFF.md before
++++ HANDOFF.md after
+@@ -33,7 +33,15 @@
+ 
+ These are local candidate results, pending independent review. The embedded build SHA names the unchanged base commit; the portfolio repair receipt binds the actual uncommitted source and output hashes. The initial failed probe assumed a deferred import that was already loaded; its raw failure is retained. The replacement proves rapid navigation and no late file, without claiming a captured long-running loading state. A controlled serializer test separately proves the abort check before dispatch. Browser-only doubled text kept the focused download action visible at 390 and 1440; it is not native zoom or whole-layout certification.
+ 
+-To replay the unchanged workflow and focused workbook checks:
++Before the first browser replay on a fresh checkout, install Playwright's Chromium browser:
++
++```powershell
++npx playwright install chromium
++```
++
++On Linux hosts that also lack the browser's operating-system packages, use `npx playwright install --with-deps chromium` where system-package installation is permitted. The Windows proof used Chromium already installed on this host; `npm ci` alone does not install that browser.
++
++Then replay the unchanged workflow and focused workbook checks:
+ 
+ ```powershell
+ npm run test:product:memory

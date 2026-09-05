@@ -1,0 +1,403 @@
+{
+  "schema": "portfolio-bounded-repair-plan/v1",
+  "id": "NODEROOM-SHARED-DEPENDENCY-01",
+  "status": "READ_ONLY_PLAN_READY_FOR_PARENT_REVIEW",
+  "head": "de9e02bc31c6bebb421a4889c1606a49f617f0f6",
+  "candidate": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+  "markdown": "E6f_NODEROOM_SHARED_DEPENDENCY_REPAIR_PLAN.md",
+  "markdownSha256": "dc798acc6e09cf924eadd5c940e10af795f21c836f0d556747c9990159253bbb",
+  "sourceFiles": [
+    "package.json",
+    "package-lock.json",
+    "HANDOFF.md"
+  ],
+  "newEvidenceRoot": "evidence/shared-dependencies-20260905",
+  "productRuntimeFiles": [],
+  "restoredPins": {
+    "@nodeslide/engine": "file:vendor/nodeslide/nodeslide-engine-0.2.2.tgz",
+    "@nodeslide/react-headless": "file:vendor/nodeslide/nodeslide-react-headless-0.2.2.tgz"
+  },
+  "directTiptapRanges": {
+    "@tiptap/core": "^3.30.4",
+    "@tiptap/extension-unique-id": "^3.30.4",
+    "@tiptap/html": "^3.30.4",
+    "@tiptap/pm": "^3.30.4",
+    "@tiptap/react": "^3.30.4",
+    "@tiptap/starter-kit": "^3.30.4"
+  },
+  "cohortCount": 30,
+  "minimumAdditionalChanges": {
+    "prosemirror-model": "1.25.11",
+    "prosemirror-view": "1.41.9"
+  },
+  "vendorTarballsVerified": 11,
+  "protectedInputs": [
+    {
+      "path": "package.json",
+      "bytes": 26705,
+      "sha256": "7e6758419aef89fccb653258fd0c7c6258cd818e716a50924cec88a92ac19f32",
+      "gitBlobSha1": "d3e06aabdc57db22b5385a2a276960739b9e117c"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 559926,
+      "sha256": "ee580757a997b0fd846ee802bd1c283889a6fb3ee8eb8d1efef6e5170df2689a",
+      "gitBlobSha1": "2c529b918382931bbb855609261ba7f104d9d850"
+    },
+    {
+      "path": "HANDOFF.md",
+      "bytes": 7233,
+      "sha256": "5390d1e4794eb03758e22082f6f0d0f6d11f14ba015b09109f68b3e6c9f8dd90",
+      "gitBlobSha1": "4c03a872bb3f0b33353bfab8b1484ceb55f3f574"
+    },
+    {
+      "path": "scripts/nodeslide-mounted-release-proof.ts",
+      "bytes": 22444,
+      "sha256": "81dee2e18c7e375a16df11d8e9fe05040774f735b0bff63f25c058b0800cc9ce",
+      "gitBlobSha1": "1f516688cfae13e2334bae4910795e0c402e692c"
+    },
+    {
+      "path": "scripts/commit-message.ts",
+      "bytes": 6603,
+      "sha256": "f6649fd322ca310528d5dfbed171d27681179218f0d410d7cec52db50b67a807",
+      "gitBlobSha1": "de9114a2f472f2ba90a4f2762e01144df77dfe22"
+    },
+    {
+      "path": "src/ui/panels/Artifact.tsx",
+      "bytes": 230378,
+      "sha256": "701cbef1cbe9ca89dea754b203243dbd760aa04d9062f6053e1615f7cbeb6463",
+      "gitBlobSha1": "74c90f35c5b67e557684095b7a84497fdf995d2a"
+    },
+    {
+      "path": "src/notebook/extensions.ts",
+      "bytes": 3138,
+      "sha256": "51c2e4d3c9e56e3bb56da771af6641cf08dbc37637c6aa3eea8335a4f5cd15ef",
+      "gitBlobSha1": "edfa7f9fa43d3b535dd3cbc753db2dcc8e938cfa"
+    },
+    {
+      "path": "src/notebook/seed.ts",
+      "bytes": 4419,
+      "sha256": "87c5f75fb3e0a6d776c57762b5404e60484dd49e0f1f1a877b74204f5d2c8d8c",
+      "gitBlobSha1": "a22ac0f26e8d220b16cd2c2d4556114958a65813"
+    },
+    {
+      "path": "vendor/nodeslide/install-upgrade-proof.json",
+      "bytes": 1059,
+      "sha256": "75ec6c37f423445ebcf0b71516b5ce8ebaaf0396d3c864f75f615c3f16dc0724",
+      "gitBlobSha1": "3d4ee8278d9404b32367ca0d01b655ccb4e3b3cb"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-agent-0.2.2.tgz",
+      "bytes": 3718,
+      "sha256": "3ffb3d27c80b8ea673115a4faca39f2964e0876927586409e4f74e05e30a08ac",
+      "gitBlobSha1": "5f5ae8346ae7797c68a8b278982fdd6545a145a1"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-artifacts.json",
+      "bytes": 3802,
+      "sha256": "3930276da868ab25853a7857cb5c2ddab724d9931eabb3e5fb499394a806856a",
+      "gitBlobSha1": "1067a88f436ea34e43ffb9c5e786212306ceddb2"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-backend-0.2.2.tgz",
+      "bytes": 13785,
+      "sha256": "c90674bc8ec676df1d1d2964d7546f90952f326305d209a74931f9b870761326",
+      "gitBlobSha1": "62d58c97080a33512c0ce0afe4dfada4cdc86b8f"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-cli-0.2.2.tgz",
+      "bytes": 22928,
+      "sha256": "328a2021e86607dd8a8febf7daf566f96961aaf948330f060f97a3fa8d0352f8",
+      "gitBlobSha1": "eb904c6be6f8ed0f0ef7bed76ed678600adcdfe5"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-client-http-0.2.2.tgz",
+      "bytes": 6198,
+      "sha256": "5aeda7071cd61c4223ae7673c51f12710b5b52531ed1194117b0bc1f45f705d4",
+      "gitBlobSha1": "e56212cec1c2849795bc9cc6ecd817fbc1b14a38"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-contracts-0.2.2.tgz",
+      "bytes": 22325,
+      "sha256": "5cb798fdab903dc651c69c87b263fac9ce8138b62ec54f46c5a97c6835b74723",
+      "gitBlobSha1": "fa5026e9932b1c46a208e1c66d48e0971c1f6307"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-convex-0.2.2.tgz",
+      "bytes": 34100,
+      "sha256": "d70c519b026ecfed4d1b930e9832b899597cc0b2838ed38114a3db6bed2fc364",
+      "gitBlobSha1": "1eb8353d7b6ba2cd0ddfcdc7740fe72f98bf4b0a"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-engine-0.2.2.tgz",
+      "bytes": 116159,
+      "sha256": "220e32141b33462f1b463da3d546c5022d9f2d8ce22aa1921cfde9335547f4ee",
+      "gitBlobSha1": "91fc403ab6c2d78bd2cf195cc0849c49afc03cb8"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-react-0.2.2.tgz",
+      "bytes": 19511,
+      "sha256": "2416791ca0206dd0900266046cf658e6d609d2e994597ceb4f205ccea979b608",
+      "gitBlobSha1": "5e1a2b34912f9afaac421f4866e3a1d9d6be2b5d"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-react-headless-0.2.2.tgz",
+      "bytes": 8109,
+      "sha256": "d11b44e3cfb7702d2757e2155e0e157810c1e73bce016d45751bd7f3761c7ba3",
+      "gitBlobSha1": "6cbb90f3783a55604d3ad56cb197223c060049bc"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-registry-0.2.2.tgz",
+      "bytes": 3328,
+      "sha256": "d36a252ed7997c6bc717189f9445ec0541cd35c607a195ac64660ed285a36cd4",
+      "gitBlobSha1": "4e744106dc29d8d35d18e34790350a55d9f6a243"
+    },
+    {
+      "path": "vendor/nodeslide/nodeslide-testing-0.2.2.tgz",
+      "bytes": 22996,
+      "sha256": "de6a428f86300008154c69e74106f7595f499e22fa93ab0e544a6a2fe8fa3a02",
+      "gitBlobSha1": "a51f1bb69b292866df00c59f24bc25bcccf2bdb6"
+    },
+    {
+      "path": "vendor/nodeslide/README.md",
+      "bytes": 910,
+      "sha256": "19a6e48fcf8dfd1a6b9dd50642dd693398a52d167dfe45d80692666e44cdcb30",
+      "gitBlobSha1": "feb17bdf2fa969871ba3c56b2e79a63ae5ac3e3a"
+    },
+    {
+      "path": "vendor/nodeslide/release-lock.json",
+      "bytes": 899,
+      "sha256": "9010c0f488cd0f04a254113dc1ebe5dc6a34512ba6a41c8256a098bdc4c7b7e6",
+      "gitBlobSha1": "aa201ad7c5043f48c0652833ca702b66b929a657"
+    }
+  ],
+  "observedGates": {
+    "mounted": "MISSING_TWO_ROOT_PINS",
+    "productionAudit": "28_MODERATE_FROM_CORE_GHSA-cp6q-959q-f8rh",
+    "pushCommitMessage": "HISTORICAL_DE9_MISSING_FIVE_AREA_NAMES",
+    "prRangeMessage": "PASS_DOES_NOT_RETROACTIVELY_VALIDATE_DE9"
+  },
+  "unchanged": {
+    "headIndexRefsStatus": true,
+    "source": true,
+    "vendor": true
+  },
+  "notRun": [
+    "dependency mutation",
+    "npm install",
+    "product commands",
+    "COM",
+    "provider",
+    "build",
+    "CI retry"
+  ],
+  "holds": [
+    "one inherited high development Browserslist finding",
+    "Windows native repair deadline mismatch",
+    "absent nightly credential",
+    "desktop null Account export",
+    "full UI and production grades null"
+  ],
+  "evidence": [
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/head-before.bin",
+      "sha256": "8a445c187a35ec5c28ef26c48456ba8cee6a9cbc24be413279232bf7c6597139",
+      "bytes": 41
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/index-before.bin",
+      "sha256": "0f9ef98bddbd9412c481a658ee26a229d6b7f5057793adcb3b310beacf495841",
+      "bytes": 957092
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/nodeslide-custody.json",
+      "sha256": "5f3bdfa9455b638e3215ff6b734027f632759c017d1be683ba7707e670d30002",
+      "bytes": 9546
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/nodeslide-pin-removal.diff",
+      "sha256": "2eba755bdaffd0ba179b5cd5f0536ccaa0ec147d7f3af1eef759154f78e7cf89",
+      "bytes": 2838
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/recon-receipt.json",
+      "sha256": "77b64acb57fdf772fabdc1ebd91e5f7ce4ce7cd68e9f731f051f60306667d452",
+      "bytes": 8582
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/refs-before.bin",
+      "sha256": "eaf90ebca88f0ec1f9e6d63c827310747db80acb1c7ab140daa379403289b4e4",
+      "bytes": 10390
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/status-before.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-advisory.json",
+      "sha256": "6218be4dbf8c976057f72f837f986a04492502e6c32c36c22875b2d2683dcef1",
+      "bytes": 6732
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-cohort.json",
+      "sha256": "bec78727f0a491fb667144901028f12169a41086ff26c82eab144114c68340e5",
+      "bytes": 19863
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-core-3.30.4.registry.json",
+      "sha256": "c09107125dbaeab33d3475b22c6eff27ade845ac8ee6492ec3ddfde8c98b337d",
+      "bytes": 2730
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-blockquote-3.30.4.registry.json",
+      "sha256": "593a7f58e9890feb90ad10f0405e11fa81dfc93effe8fd8bdd7a5ebc6c43c13c",
+      "bytes": 2448
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-bold-3.30.4.registry.json",
+      "sha256": "e5169227ea8944f18690a491a4d73942695e4b8e619e0705de3230b22a1862f4",
+      "bytes": 2356
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-bubble-menu-3.30.4.registry.json",
+      "sha256": "1d83d3d99c51f91e86531cbf4baa5133a4b0f3652accd24aa4d0bd4d1db75280",
+      "bytes": 2523
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-bullet-list-3.30.4.registry.json",
+      "sha256": "9a5f2bb7a0224a5860fdc9d44bc40553712c3dbcd1c921fd5f92a894d9bdf7bb",
+      "bytes": 2430
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-code-3.30.4.registry.json",
+      "sha256": "2c59fc8b6bc97026b0b3d65f370c58f83a0d8bea93aa6889fedfd54a3d05de0f",
+      "bytes": 2356
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-code-block-3.30.4.registry.json",
+      "sha256": "02bbb07883ef8c0bfea52c1e6dee556e88ce6197106a51630f70619071352415",
+      "bytes": 2446
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-document-3.30.4.registry.json",
+      "sha256": "70324cb12facb7c5f560e392e7e978603388b525cbe6235bade30f6e842bfbf6",
+      "bytes": 2386
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-dropcursor-3.30.4.registry.json",
+      "sha256": "4eea6696c5b0d39051826de1c8b5d38c378bec6ee790870ccac9c5147c1be129",
+      "bytes": 2425
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-floating-menu-3.30.4.registry.json",
+      "sha256": "60deaa244bed8848d744ff8c1f1b9fd7ea097e55c0d9df6d1c398f5ec33df48f",
+      "bytes": 2550
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-gapcursor-3.30.4.registry.json",
+      "sha256": "ad471f6dfc41192550de8c8447ece70a736c33c9e6be45055115a9627462eb91",
+      "bytes": 2418
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-hard-break-3.30.4.registry.json",
+      "sha256": "e4d495a54d4918811e8664eb184d6c2c1b12a2c5c3d5205c25abdf14c3b03135",
+      "bytes": 2403
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-heading-3.30.4.registry.json",
+      "sha256": "6af1c67eaa72e800b8576953f04920143d8b2379172e0938b1eccefc0cc5fe8b",
+      "bytes": 2379
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-horizontal-rule-3.30.4.registry.json",
+      "sha256": "fa40e39f45e910be0ea86b1868a57d1a0b832a5ec9cdec9172231b70e58b8054",
+      "bytes": 2489
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-italic-3.30.4.registry.json",
+      "sha256": "0bab7f7dd87eed16228a20d2afc19e7933b240f8b4c645b57b129383eb2ead35",
+      "bytes": 2371
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-link-3.30.4.registry.json",
+      "sha256": "6058f66e419a35c14207b6be84e6592e113b84be0aaca16a6962d64cbd0b5e9d",
+      "bytes": 2440
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-list-3.30.4.registry.json",
+      "sha256": "dad9a21baeee9d39df8d16ae50af46e63388dbda927506e4d87875d3f9bafd29",
+      "bytes": 3631
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-list-item-3.30.4.registry.json",
+      "sha256": "c6d079b4b82285570a7c54209964eb77a1af203684e6fb45e628a77c5355e933",
+      "bytes": 2416
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-list-keymap-3.30.4.registry.json",
+      "sha256": "3b93c6de0a050a4cfd3ec24785477ba52f263f1750e3c811883840f9d7d81a57",
+      "bytes": 2430
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-ordered-list-3.30.4.registry.json",
+      "sha256": "69ddd6fdf6b47aa3782f7addedfdb031f753d7ab65b794193e6409883bc8a4be",
+      "bytes": 2438
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-paragraph-3.30.4.registry.json",
+      "sha256": "4538b6f9f9cfcf25e1a8347f02bd4ee0d22d5231685d0c0f1cfc2c1706db9b28",
+      "bytes": 2395
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-strike-3.30.4.registry.json",
+      "sha256": "4072bc3ad70b2f32749b9c7b5ebb5dab10746276d194974f46f871d508b1041d",
+      "bytes": 2370
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-text-3.30.4.registry.json",
+      "sha256": "ca5427f337afae32cff894f4077581f944c3639ae1ad644555fd45115d5ff034",
+      "bytes": 2354
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-underline-3.30.4.registry.json",
+      "sha256": "6a39262b69bede66eba1d8289d598256f25830b1b329eecbabfb6e929c4c72a1",
+      "bytes": 2395
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extension-unique-id-3.30.4.registry.json",
+      "sha256": "a837924b0ae4d48abaef094dfce663a9fc576552bd4152c5785c9f3af366ab55",
+      "bytes": 2500
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-extensions-3.30.4.registry.json",
+      "sha256": "b736f81897392e03b35764706a523e1946542ea1f518fceff14a6278da226397",
+      "bytes": 3888
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-html-3.30.4.registry.json",
+      "sha256": "6da8fc9ff1e10b6766789cb4553f56f21c2720f11cebee086a7ea94844bea41d",
+      "bytes": 2655
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-pm-3.30.4.registry.json",
+      "sha256": "2068b81bedfeb6e226677c5e8810882dd7783d726da5d04aa2e83bfe945f3f33",
+      "bytes": 4690
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-react-3.30.4.registry.json",
+      "sha256": "3cea5c6ebacd8eabad26a6c973baae9954f34536e62c9a115486b0099b57b054",
+      "bytes": 3033
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-release.json",
+      "sha256": "d679b50d74f458bed44c323b435fa271ef53fc3a962645ce2beddade52f1657e",
+      "bytes": 1853
+    },
+    {
+      "path": "E6f-noderoom-shared-dependency-recon-01/tiptap-starter-kit-3.30.4.registry.json",
+      "sha256": "79f42cfa5bf519b89a228004ee92bd3db44e32f45830772353b056b684be4e29",
+      "bytes": 3139
+    }
+  ]
+}

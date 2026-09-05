@@ -1,0 +1,29 @@
+{
+  "status": "DOCUMENTATION_ONLY_REFREEZE_PENDING_JUDGE",
+  "at": "2026-09-05T11:25:56.163440+00:00",
+  "reason": "Independent fresh-checkout review found missing browser installation prerequisite. Parent explicitly authorized the one-file correction.",
+  "previousSourceDigest": "d0c341bed80723c345208233f6f8e71c8f3e41e237d30a1ff63439457b0b0f3e",
+  "sourceDigest": "5be5f9e25b7ba996c516943bb87b2fb918fa4bb36c40547e90285b42a03fd741",
+  "sourceDigestFormula": "SHA256(UTF8(JSON.stringify(sorted [path, sha256] entries), no spaces/newline; forward-slash relative paths))",
+  "source": {
+    "HANDOFF.md": "ccc6664bafbc12440c702aa4fa715b34f2ea0b35c83554e6deb53b0ccedba2ba",
+    "e2e/mobile-sample-workbook-export.spec.ts": "b32079d1ef7fa74384ee68740e46495628ed3398001273f9840167cc4c66f775",
+    "src/ui/mobile/MobileGrid.tsx": "2ca4846af0b55b8ee490fe16a754e96abac878b62056f37a0baf7bad664aa4ef",
+    "src/ui/mobile/mobileSheetExport.ts": "a99dcf2276282e8d4859faa609bce22d73c8b6895a07eed3c239b8f42ced211c",
+    "src/ui/panels/Artifact.tsx": "701cbef1cbe9ca89dea754b203243dbd760aa04d9062f6053e1615f7cbeb6463",
+    "src/ui/workArtifacts/xlsxDownload.ts": "e2dac3c92c9ef441024f1ee53ed119954f78b626ef20cb5e3986f6545e9da5ab",
+    "tests/mobileSampleWorkbookExport.test.ts": "abf5f0a69f5f60712d47705615163f33053ce94a41f76c96abd9b62fea7d2285"
+  },
+  "changedOnly": [
+    "HANDOFF.md"
+  ],
+  "beforeHandoffSha256": "ed512357b29f75abced40eb22d0ca68e9d472d0f5a52cc02f21d76174bc2d6b3",
+  "afterHandoffSha256": "ccc6664bafbc12440c702aa4fa715b34f2ea0b35c83554e6deb53b0ccedba2ba",
+  "original739ArtifactManifestUnchanged": true,
+  "originalReceiptUnchanged": true,
+  "candidateHeadIndexRefsStatusAndTrackedDiffUnchanged": true,
+  "runtimeRerun": "Not required: no runtime, test, package, lock, build or browser output changed. Original14-source proof has one documented HANDOFF-only metadata delta.",
+  "prerequisite": "npx playwright install chromium; Linux --with-deps only when system packages are required and permitted",
+  "previousReceipt": "E6f_NODEROOM_MOBILE_EXPORT_REPAIR_RECEIPT.json",
+  "next": "Judge checks this doc delta and binds the effective seven-file source digest. No commit/push."
+}

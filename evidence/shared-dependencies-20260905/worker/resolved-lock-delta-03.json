@@ -1,0 +1,367 @@
+{
+  "delta": [
+    {
+      "path": "",
+      "beforeVersion": "0.1.1",
+      "afterVersion": "0.1.1",
+      "changedFields": [
+        "dependencies"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/core",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-blockquote",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-bold",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-bubble-menu",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.31.3",
+      "changedFields": [
+        "peerDependencies",
+        "version",
+        "resolved",
+        "integrity"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-bullet-list",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-code",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-code-block",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-document",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-dropcursor",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-floating-menu",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.31.3",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-gapcursor",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-hard-break",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-heading",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-horizontal-rule",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-italic",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-link",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-list",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-list-item",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-list-keymap",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-ordered-list",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-paragraph",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-strike",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-text",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-underline",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extension-unique-id",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/extensions",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/html",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "integrity",
+        "peerDependencies",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/pm",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "dependencies",
+        "integrity",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/react",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "peerDependencies",
+        "version",
+        "resolved",
+        "optionalDependencies",
+        "integrity"
+      ]
+    },
+    {
+      "path": "node_modules/@tiptap/starter-kit",
+      "beforeVersion": "3.26.0",
+      "afterVersion": "3.30.4",
+      "changedFields": [
+        "dependencies",
+        "integrity",
+        "version",
+        "resolved"
+      ]
+    },
+    {
+      "path": "node_modules/prosemirror-model",
+      "beforeVersion": "1.25.7",
+      "afterVersion": "1.25.11",
+      "changedFields": [
+        "version",
+        "resolved",
+        "integrity"
+      ]
+    },
+    {
+      "path": "node_modules/prosemirror-view",
+      "beforeVersion": "1.41.8",
+      "afterVersion": "1.42.3",
+      "changedFields": [
+        "dependencies",
+        "version",
+        "resolved",
+        "integrity"
+      ]
+    }
+  ],
+  "allWithinApprovedCohort": true,
+  "nestedUuidUnchanged": true,
+  "packageLockSha256": "a9ad98ac7946d6c11185bb8871e3b6cd5656272fdeaa724ac52f25ab02dd7c23"
+}

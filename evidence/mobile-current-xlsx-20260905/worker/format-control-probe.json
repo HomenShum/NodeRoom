@@ -1,0 +1,75 @@
+{
+  "scope": "Serializer only, not native Excel. Explains conservative mobile rejection; accepted LF and Tab stay literal.",
+  "rows": [
+    {
+      "name": "CR",
+      "inputCodePoints": [
+        97,
+        13,
+        98
+      ],
+      "outputCodePoints": [
+        97,
+        10,
+        98
+      ],
+      "exact": false
+    },
+    {
+      "name": "CRLF",
+      "inputCodePoints": [
+        97,
+        13,
+        10,
+        98
+      ],
+      "outputCodePoints": [
+        97,
+        10,
+        98
+      ],
+      "exact": false
+    },
+    {
+      "name": "NUL",
+      "inputCodePoints": [
+        97,
+        0,
+        98
+      ],
+      "outputCodePoints": [
+        97,
+        98
+      ],
+      "exact": false
+    },
+    {
+      "name": "Tab",
+      "inputCodePoints": [
+        97,
+        9,
+        98
+      ],
+      "outputCodePoints": [
+        97,
+        9,
+        98
+      ],
+      "exact": true
+    },
+    {
+      "name": "LF",
+      "inputCodePoints": [
+        97,
+        10,
+        98
+      ],
+      "outputCodePoints": [
+        97,
+        10,
+        98
+      ],
+      "exact": true
+    }
+  ]
+}

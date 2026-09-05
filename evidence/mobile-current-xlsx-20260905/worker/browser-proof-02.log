@@ -1,0 +1,18 @@
+
+Running 8 tests using 1 worker
+
+(node:12964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:120:3 › reviewer downloads the exact edited phone table at 320px (4.3s)
+  ok 2 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:120:3 › reviewer downloads the exact edited phone table at 390px (4.4s)
+  ok 3 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:120:3 › reviewer downloads the exact edited phone table at 768px (5.2s)
+  ok 4 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:120:3 › reviewer downloads the exact edited phone table at 1024px (5.4s)
+  ok 5 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:120:3 › reviewer downloads the exact edited phone table at 1440px (6.3s)
+  ok 6 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:120:3 › reviewer downloads the exact edited phone table at 1920px (6.2s)
+  ok 7 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:161:1 › a failed download, duplicate retry and ten later edits keep their own outcomes (11.2s)
+  ok 8 [chromium] › e2e\mobile-sample-workbook-export.spec.ts:208:1 › rapidly closing an export suppresses its later result and permits a fresh export (6.0s)
+
+  8 passed (50.7s)
+{"status":"PASSED","cells":0,"output":"C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-mobile-export-repair\\browser-proof-02"}

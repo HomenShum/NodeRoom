@@ -1,0 +1,11 @@
+{
+  "headExact": true,
+  "refsExact": true,
+  "indexEntriesExact": true,
+  "rawIndexSha256": "7c6e0eb2988ec11271786c803c79dd077f39e1f1fad08bb2c60f502b00b625ea",
+  "effectiveFilesStillExact": true,
+  "staged": false,
+  "packageSha256": "70964ae92133d1c6017b6125e190ac1ec62bbf9891c2dbc1b10d0ff45bfca589",
+  "lockSha256": "835ac86997865c2792f03f588b0ec58632b67b9b4fdc864a28a7020c42ab5a92",
+  "handoffSha256": "4de0d1f3a311ff5d74c1215606f3a7eba13d1fcc9773d99c4abe40e2346026db"
+}

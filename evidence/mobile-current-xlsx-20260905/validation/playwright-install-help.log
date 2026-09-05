@@ -1,0 +1,20 @@
+Usage: npx playwright install [options] [browser...]
+
+ensure browsers necessary for this version of Playwright are installed
+
+Options:
+  --with-deps   install system dependencies for browsers
+  --dry-run     do not execute installation, only print information
+  --list        prints list of browsers from all playwright installations
+  --force       force reinstall of already installed browsers
+  --only-shell  only install headless shell when installing chromium
+  --no-shell    do not install chromium headless shell
+  -h, --help    display help for command
+
+
+  Examples:
+    - $ install
+      Install default browsers.
+
+    - $ install chrome firefox
+      Install custom browsers, supports chromium, firefox, webkit, chromium-headless-shell.

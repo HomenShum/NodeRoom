@@ -1,0 +1,30 @@
+{
+  "paths": [
+    "evidence/shared-dependencies-20260905/shared-before/101304111767-nodeslide-failed.log",
+    "evidence/shared-dependencies-20260905/shared-before/101304111903.log",
+    "evidence/shared-dependencies-20260905/shared-before/101304151727.log",
+    "evidence/shared-dependencies-20260905/shared-before/audit-baseline.log",
+    "evidence/shared-dependencies-20260905/shared-before/audit-production-baseline.log",
+    "evidence/shared-dependencies-20260905/worker/audit-full-final.log",
+    "evidence/shared-dependencies-20260905/worker/audit-production-final.log",
+    "evidence/shared-dependencies-20260905/worker/build-final.log",
+    "evidence/shared-dependencies-20260905/worker/convex-typecheck-final.log",
+    "evidence/shared-dependencies-20260905/worker/exact-transitive-resolution-04.log",
+    "evidence/shared-dependencies-20260905/worker/final-root-metadata-refresh-05.log",
+    "evidence/shared-dependencies-20260905/worker/memory-browser-final.log",
+    "evidence/shared-dependencies-20260905/worker/mounted-consumer-final.log",
+    "evidence/shared-dependencies-20260905/worker/notebook-and-export-tests-final.log",
+    "evidence/shared-dependencies-20260905/worker/notebook-browser-before/run.log",
+    "evidence/shared-dependencies-20260905/worker/notebook-browser-before/server.log",
+    "evidence/shared-dependencies-20260905/worker/notebook-browser/run.log",
+    "evidence/shared-dependencies-20260905/worker/notebook-browser/server.log",
+    "evidence/shared-dependencies-20260905/worker/npm-ci-final.log",
+    "evidence/shared-dependencies-20260905/worker/prototype-after.log",
+    "evidence/shared-dependencies-20260905/worker/prototype-before-final.log",
+    "evidence/shared-dependencies-20260905/worker/prototype-before.log",
+    "evidence/shared-dependencies-20260905/worker/targeted-cohort-update-02.log",
+    "evidence/shared-dependencies-20260905/worker/targeted-lock-resolution-01.log",
+    "evidence/shared-dependencies-20260905/worker/targeted-unlocked-install-03.log"
+  ],
+  "meaning": "These exact 25 files require explicit force-add when parent stages; no broader ignore change or force-add is authorized by this judgment."
+}

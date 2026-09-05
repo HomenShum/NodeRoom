@@ -1,0 +1,297 @@
+{
+  "checks": [
+    {
+      "name": "historical implementation receipt exact",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "final encoding addendum exact",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "all 156 effective raw SHA and Git blobs match",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "future Git filters preserve all 156 raw blobs",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "effective working digest matches",
+      "pass": true,
+      "detail": "970483b585a537d45822ebfb8cc2bdfda4466402c8c98e7bc4c8e1aa27dff8b8"
+    },
+    {
+      "name": "effective authored digest matches",
+      "pass": true,
+      "detail": "fbd839fb06029e4f2c4a7a96fc4da6269e33e16f7683fbc18d38e47332b7d103"
+    },
+    {
+      "name": "other 155 frozen files unchanged",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "encoding preservation copies bind original and current",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "only two original UTF8 lines restored",
+      "pass": true,
+      "detail": [
+        5,
+        43
+      ]
+    },
+    {
+      "name": "encoding repair changes no parsed JSON value",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "manifest semantic delta only accepted eight dependency entries",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "exactly 33 expected lock rows differ",
+      "pass": true,
+      "detail": [
+        "",
+        "node_modules/@tiptap/core",
+        "node_modules/@tiptap/extension-blockquote",
+        "node_modules/@tiptap/extension-bold",
+        "node_modules/@tiptap/extension-bubble-menu",
+        "node_modules/@tiptap/extension-bullet-list",
+        "node_modules/@tiptap/extension-code",
+        "node_modules/@tiptap/extension-code-block",
+        "node_modules/@tiptap/extension-document",
+        "node_modules/@tiptap/extension-dropcursor",
+        "node_modules/@tiptap/extension-floating-menu",
+        "node_modules/@tiptap/extension-gapcursor",
+        "node_modules/@tiptap/extension-hard-break",
+        "node_modules/@tiptap/extension-heading",
+        "node_modules/@tiptap/extension-horizontal-rule",
+        "node_modules/@tiptap/extension-italic",
+        "node_modules/@tiptap/extension-link",
+        "node_modules/@tiptap/extension-list",
+        "node_modules/@tiptap/extension-list-item",
+        "node_modules/@tiptap/extension-list-keymap",
+        "node_modules/@tiptap/extension-ordered-list",
+        "node_modules/@tiptap/extension-paragraph",
+        "node_modules/@tiptap/extension-strike",
+        "node_modules/@tiptap/extension-text",
+        "node_modules/@tiptap/extension-underline",
+        "node_modules/@tiptap/extension-unique-id",
+        "node_modules/@tiptap/extensions",
+        "node_modules/@tiptap/html",
+        "node_modules/@tiptap/pm",
+        "node_modules/@tiptap/react",
+        "node_modules/@tiptap/starter-kit",
+        "node_modules/prosemirror-model",
+        "node_modules/prosemirror-view"
+      ]
+    },
+    {
+      "name": "all non-package lock metadata unchanged",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "root lock contains exactly final manifest and unchanged metadata",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "all 30 actual locked versions and official dependency/integrity metadata exact",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "required model/view exact minimums and nested UUID unchanged",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "native constrained solution carried forward without row transplant",
+      "pass": false,
+      "detail": null
+    },
+    {
+      "name": "outlier to final changes only the three temporary native constraints",
+      "pass": true,
+      "detail": [
+        "node_modules/@tiptap/extension-bubble-menu",
+        "node_modules/@tiptap/extension-floating-menu",
+        "node_modules/prosemirror-view"
+      ]
+    },
+    {
+      "name": "7325 of 7328 tracked inputs unchanged with only three allowed differences",
+      "pass": true,
+      "detail": [
+        "HANDOFF.md",
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    {
+      "name": "tracked baseline path set equals actual Git head",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "all 1533 frozen build and installed file hashes exact",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "all 475 current dist files covered without extras",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "all 38 installed identities and locked integrities exact",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "portable manifest and all 152 payload hashes exact",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "portable directory exactly 153 frozen files",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "all 149 original-to-portable raw copies exact",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "all 20 current relative publication links resolve",
+      "pass": true,
+      "detail": 20
+    },
+    {
+      "name": "all 25 inherited ignored raw logs explicitly enumerated",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "before archive raw digest matches retained manifest",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "all 1388 archived before files raw exact",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "portable ZIPs valid and no named private state exports",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "worker actual old library reproduces all 1025 unsafe cases",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "worker and independent installed canaries both pass all 1025",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "independent canary binds effective package lock and actual library bytes",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "raw production audit zero and full audit retains exactly one high",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "raw 51-test seven-file scenario result exists",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "raw 29 memory browser result exists",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "normal command npm-ci-final exited zero",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "normal command mounted-consumer-final exited zero",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "normal command notebook-and-export-tests-final exited zero",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "normal command convex-typecheck-final exited zero",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "normal command build-final exited zero",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "normal command memory-browser-final exited zero",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "normal command audit-production-final exited zero",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "mounted receipt honestly retains dirty de9 and unverified source checkout",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "notebook failures remain 3 before 3 after with only one identical error",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "head refs index retained and source remains unstaged",
+      "pass": false,
+      "detail": null
+    }
+  ],
+  "passed": 45,
+  "failed": [
+    {
+      "name": "native constrained solution carried forward without row transplant",
+      "pass": false,
+      "detail": null
+    },
+    {
+      "name": "head refs index retained and source remains unstaged",
+      "pass": false,
+      "detail": null
+    }
+  ]
+}

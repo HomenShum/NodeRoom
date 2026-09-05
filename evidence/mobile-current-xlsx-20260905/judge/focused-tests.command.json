@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "node",
+    "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905\\node_modules\\vitest\\vitest.mjs",
+    "run",
+    "tests/artifactXlsxExport.test.ts",
+    "tests/mobileSheetDialog.test.tsx",
+    "tests/mobileSampleWorkbookExport.test.ts"
+  ],
+  "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+  "startedAt": "2026-09-05T11:20:56.112992+00:00",
+  "elapsedSeconds": 5.968,
+  "exitCode": 0,
+  "environmentPolicy": "Remove selection/provider/browser variables from child without printing values; no env files read/copied",
+  "sourceEdits": 0
+}

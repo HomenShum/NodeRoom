@@ -1,0 +1,470 @@
+{
+  "current": {
+    "@tiptap/core": "3.26.0",
+    "@tiptap/extension-blockquote": "3.26.0",
+    "@tiptap/extension-bold": "3.26.0",
+    "@tiptap/extension-bubble-menu": "3.26.0",
+    "@tiptap/extension-bullet-list": "3.26.0",
+    "@tiptap/extension-code": "3.26.0",
+    "@tiptap/extension-code-block": "3.26.0",
+    "@tiptap/extension-document": "3.26.0",
+    "@tiptap/extension-dropcursor": "3.26.0",
+    "@tiptap/extension-floating-menu": "3.26.0",
+    "@tiptap/extension-gapcursor": "3.26.0",
+    "@tiptap/extension-hard-break": "3.26.0",
+    "@tiptap/extension-heading": "3.26.0",
+    "@tiptap/extension-horizontal-rule": "3.26.0",
+    "@tiptap/extension-italic": "3.26.0",
+    "@tiptap/extension-link": "3.26.0",
+    "@tiptap/extension-list": "3.26.0",
+    "@tiptap/extension-list-item": "3.26.0",
+    "@tiptap/extension-list-keymap": "3.26.0",
+    "@tiptap/extension-ordered-list": "3.26.0",
+    "@tiptap/extension-paragraph": "3.26.0",
+    "@tiptap/extension-strike": "3.26.0",
+    "@tiptap/extension-text": "3.26.0",
+    "@tiptap/extension-underline": "3.26.0",
+    "@tiptap/extension-unique-id": "3.26.0",
+    "@tiptap/extensions": "3.26.0",
+    "@tiptap/html": "3.26.0",
+    "@tiptap/pm": "3.26.0",
+    "@tiptap/react": "3.26.0",
+    "@tiptap/starter-kit": "3.26.0"
+  },
+  "proposed": "3.30.4",
+  "registry": [
+    {
+      "name": "@tiptap/core",
+      "url": "https://registry.npmjs.org/@tiptap%2Fcore/3.30.4",
+      "file": "tiptap-core-3.30.4.registry.json",
+      "sha256": "c09107125dbaeab33d3475b22c6eff27ade845ac8ee6492ec3ddfde8c98b337d",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/pm": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-V9yKuUfV8qC9WBrnVxkFWmYLBomc3d1CwXoFSjED5DRu5q2oyxv07F+jOJSRogJAY+feHjuxvjhixwxeHm2DXQ=="
+    },
+    {
+      "name": "@tiptap/extension-blockquote",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-blockquote/3.30.4",
+      "file": "tiptap-extension-blockquote-3.30.4.registry.json",
+      "sha256": "593a7f58e9890feb90ad10f0405e11fa81dfc93effe8fd8bdd7a5ebc6c43c13c",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/pm": "3.30.4",
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-n25/pFfDpZRJS4f6Ga/PkNrQFBEr3pRvPkDlY99kl8Kt8jFa1EUxbx+uUVIilqwiUjUnHtwCfqjSDFooQjezjg=="
+    },
+    {
+      "name": "@tiptap/extension-bold",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-bold/3.30.4",
+      "file": "tiptap-extension-bold-3.30.4.registry.json",
+      "sha256": "e5169227ea8944f18690a491a4d73942695e4b8e619e0705de3230b22a1862f4",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-eCOkf+/jdQte7lTZ4pQF10akrsFM4TzYc0ysSAkPa7QA+ex1aI8QT5UUx+mK8RwFo57lqE8PCX/Mx1gTqlCDnQ=="
+    },
+    {
+      "name": "@tiptap/extension-bubble-menu",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-bubble-menu/3.30.4",
+      "file": "tiptap-extension-bubble-menu-3.30.4.registry.json",
+      "sha256": "1d83d3d99c51f91e86531cbf4baa5133a4b0f3652accd24aa4d0bd4d1db75280",
+      "dependencies": {
+        "@floating-ui/dom": "^1.0.0"
+      },
+      "peerDependencies": {
+        "@tiptap/pm": "3.30.4",
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-diB5stCiuffFIIKhDAVvSYTYW/zzEVh7QqTuk2JAqdkAmAGP2YvUXXZBVhA9ITTIYD1+cp5p6rx9pdM25fsVRQ=="
+    },
+    {
+      "name": "@tiptap/extension-bullet-list",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-bullet-list/3.30.4",
+      "file": "tiptap-extension-bullet-list-3.30.4.registry.json",
+      "sha256": "9a5f2bb7a0224a5860fdc9d44bc40553712c3dbcd1c921fd5f92a894d9bdf7bb",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/extension-list": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-kJFOF3U4b1ad4T7Vm+CIIp+nxcr6wwWVeqpVe6Jhq9gudsWCKP0+KVAmOiJCePoDu9fpc/ZuGMXDefXYnyQDxg=="
+    },
+    {
+      "name": "@tiptap/extension-code",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-code/3.30.4",
+      "file": "tiptap-extension-code-3.30.4.registry.json",
+      "sha256": "2c59fc8b6bc97026b0b3d65f370c58f83a0d8bea93aa6889fedfd54a3d05de0f",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-z9v9rBA/0MecUvf8QkcKKOGgceO9X3DT/JvFNka8Mdd68V5fhBs0jGsxYrj3qDWtdXyyUQIWs0t8HzL6LTdLiA=="
+    },
+    {
+      "name": "@tiptap/extension-code-block",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-code-block/3.30.4",
+      "file": "tiptap-extension-code-block-3.30.4.registry.json",
+      "sha256": "02bbb07883ef8c0bfea52c1e6dee556e88ce6197106a51630f70619071352415",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/pm": "3.30.4",
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-eKLKxgLCvi+M5tiLkW+fIMzDtR7HvSKnigSE9RYHZmzSrv1ejVjgNj5FH8nGTim98hXiQGfWotss3zqG6bpdDw=="
+    },
+    {
+      "name": "@tiptap/extension-document",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-document/3.30.4",
+      "file": "tiptap-extension-document-3.30.4.registry.json",
+      "sha256": "70324cb12facb7c5f560e392e7e978603388b525cbe6235bade30f6e842bfbf6",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-N+FbI+X1FVH8HxsM8C4fNkkzKXiyhXc9oh9oSqAIKOAAYGAjnHLMxW9TzYXbvm60SlAn6DIMypNf6nULGEc1oQ=="
+    },
+    {
+      "name": "@tiptap/extension-dropcursor",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-dropcursor/3.30.4",
+      "file": "tiptap-extension-dropcursor-3.30.4.registry.json",
+      "sha256": "4eea6696c5b0d39051826de1c8b5d38c378bec6ee790870ccac9c5147c1be129",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/extensions": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-P1V0y/FKdyNVBImeW3WN+uGI77Uboc0dW44izAjrII0jcW2KUoBQeNrbbm9UZR1xuRvQJ1Z0OrFHmYrxP5ClNQ=="
+    },
+    {
+      "name": "@tiptap/extension-floating-menu",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-floating-menu/3.30.4",
+      "file": "tiptap-extension-floating-menu-3.30.4.registry.json",
+      "sha256": "60deaa244bed8848d744ff8c1f1b9fd7ea097e55c0d9df6d1c398f5ec33df48f",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/pm": "3.30.4",
+        "@tiptap/core": "3.30.4",
+        "@floating-ui/dom": "^1.0.0"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-75kDLGkVqLBL7OPGNhJZQkmI3KGGVN9S5i+ZHKZEhk4HNOQUU+YMs7qu4I/XSJMXSh7mGrQlMi/OD/Fn3JmkKg=="
+    },
+    {
+      "name": "@tiptap/extension-gapcursor",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-gapcursor/3.30.4",
+      "file": "tiptap-extension-gapcursor-3.30.4.registry.json",
+      "sha256": "ad471f6dfc41192550de8c8447ece70a736c33c9e6be45055115a9627462eb91",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/extensions": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-wsuXsB8Rp9BgfWlWYsRVzoHg9LwhoPAQGaw/gku1buDSTMcbLYQvok5MwJ/uJRECaJRLGgbUe5WBXoRvSY+o3g=="
+    },
+    {
+      "name": "@tiptap/extension-hard-break",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-hard-break/3.30.4",
+      "file": "tiptap-extension-hard-break-3.30.4.registry.json",
+      "sha256": "e4d495a54d4918811e8664eb184d6c2c1b12a2c5c3d5205c25abdf14c3b03135",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-eZ66SyfgmMK861S5SYtQROT/+ZfXtDHxllz7ao+X+dcl+DMdffmOzBeSfwrHQENmgl7umjbdAjqC7PT95jaU+w=="
+    },
+    {
+      "name": "@tiptap/extension-heading",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-heading/3.30.4",
+      "file": "tiptap-extension-heading-3.30.4.registry.json",
+      "sha256": "6af1c67eaa72e800b8576953f04920143d8b2379172e0938b1eccefc0cc5fe8b",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-sVJxoRnbfK/QC7IoUw/Ezzx9b87+cqFz5d5WZvN8O8yobDWuh7IS8ZgqZiPypTW5RuhnZI+ahvmSyO3WLm8q5Q=="
+    },
+    {
+      "name": "@tiptap/extension-horizontal-rule",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-horizontal-rule/3.30.4",
+      "file": "tiptap-extension-horizontal-rule-3.30.4.registry.json",
+      "sha256": "fa40e39f45e910be0ea86b1868a57d1a0b832a5ec9cdec9172231b70e58b8054",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/pm": "3.30.4",
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-RmvjVVkUf5pF70XvwI7Sb4vIUSDbLTLEcFl1l5X9vPcDgDT5G0SiUL6l8F49+qYc6wrMvnLcenApnAiiQ0Vbpw=="
+    },
+    {
+      "name": "@tiptap/extension-italic",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-italic/3.30.4",
+      "file": "tiptap-extension-italic-3.30.4.registry.json",
+      "sha256": "0bab7f7dd87eed16228a20d2afc19e7933b240f8b4c645b57b129383eb2ead35",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-6cEjcyjPRcLEMB75BwiUc6S7yzkqc7VPXCeRgY26UqMg4AvcLrseY70+pO4sLv3n2DS5w8DBbMXZJ4rb1BhpUw=="
+    },
+    {
+      "name": "@tiptap/extension-link",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-link/3.30.4",
+      "file": "tiptap-extension-link-3.30.4.registry.json",
+      "sha256": "6058f66e419a35c14207b6be84e6592e113b84be0aaca16a6962d64cbd0b5e9d",
+      "dependencies": {
+        "linkifyjs": "^4.3.3"
+      },
+      "peerDependencies": {
+        "@tiptap/pm": "3.30.4",
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-HPHaey3+nQZl+lsr/RvjoXSgSC67SAkNEF4qNELzzDwMUfI0UrZ3H/HhBe6XBeRnGli9gfuSpeRkh63ke5JpOw=="
+    },
+    {
+      "name": "@tiptap/extension-list",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-list/3.30.4",
+      "file": "tiptap-extension-list-3.30.4.registry.json",
+      "sha256": "dad9a21baeee9d39df8d16ae50af46e63388dbda927506e4d87875d3f9bafd29",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/pm": "3.30.4",
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-Usqez9DBRoG78tdLwPDcd1j1mBBU7mr5D2yrRP2JL/eXXkhAfdWqEFRYXwct5T4/o9JkGcW3aQf+gUvp12v0pw=="
+    },
+    {
+      "name": "@tiptap/extension-list-item",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-list-item/3.30.4",
+      "file": "tiptap-extension-list-item-3.30.4.registry.json",
+      "sha256": "c6d079b4b82285570a7c54209964eb77a1af203684e6fb45e628a77c5355e933",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/extension-list": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-8E1ffdC7v3dwSrsqyxY3YP5uEQHTrwBDDmYF6o2YoHfzQ9nhXX5GmBz8fTxukjXUzSpuO76N/gwHIM8hBfdxMQ=="
+    },
+    {
+      "name": "@tiptap/extension-list-keymap",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-list-keymap/3.30.4",
+      "file": "tiptap-extension-list-keymap-3.30.4.registry.json",
+      "sha256": "3b93c6de0a050a4cfd3ec24785477ba52f263f1750e3c811883840f9d7d81a57",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/extension-list": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-6RIzF3aThqIt4sia81K+6wA7H7bgPKjd3D66qLOGxdqdyfnAegk0OD5pUYhMZKhDCWGYKylyRVd2yIn/VNXqAg=="
+    },
+    {
+      "name": "@tiptap/extension-ordered-list",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-ordered-list/3.30.4",
+      "file": "tiptap-extension-ordered-list-3.30.4.registry.json",
+      "sha256": "69ddd6fdf6b47aa3782f7addedfdb031f753d7ab65b794193e6409883bc8a4be",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/extension-list": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-hInlH8I2UFGGULm9XLPtLWWFBECrYf/eNkloQb+udbF7ltLBL5JRCPcB3aM29qSSUQVxCCN8ICHdbwgpnTUAsw=="
+    },
+    {
+      "name": "@tiptap/extension-paragraph",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-paragraph/3.30.4",
+      "file": "tiptap-extension-paragraph-3.30.4.registry.json",
+      "sha256": "4538b6f9f9cfcf25e1a8347f02bd4ee0d22d5231685d0c0f1cfc2c1706db9b28",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-gM0WXvOP1tNcvpyRXTCtGhwVxye0VaFMCzDPjLrVAUtZMpo3cOrqDSrFl5tCurA59Qc2p5TUOR4g3/fKw8Yx9Q=="
+    },
+    {
+      "name": "@tiptap/extension-strike",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-strike/3.30.4",
+      "file": "tiptap-extension-strike-3.30.4.registry.json",
+      "sha256": "4072bc3ad70b2f32749b9c7b5ebb5dab10746276d194974f46f871d508b1041d",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-iM3QhkEvNwDsxyNKTZM4wwqYhIKOjgXHTamPWnCICrPQ3aYFVdidfpDMePlHl6XL8aEAqPa1Xlj0aumFvSphOQ=="
+    },
+    {
+      "name": "@tiptap/extension-text",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-text/3.30.4",
+      "file": "tiptap-extension-text-3.30.4.registry.json",
+      "sha256": "ca5427f337afae32cff894f4077581f944c3639ae1ad644555fd45115d5ff034",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-bzgVlPhkVan+m6jycXkyq08fKCNyQff/cl/5U+/wQf8s3GlX+Le2/pTxbbC3ClfO1D8VLzLwcd2HJTYIoBOdAA=="
+    },
+    {
+      "name": "@tiptap/extension-underline",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-underline/3.30.4",
+      "file": "tiptap-extension-underline-3.30.4.registry.json",
+      "sha256": "6a39262b69bede66eba1d8289d598256f25830b1b329eecbabfb6e929c4c72a1",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-h6nM3ykKswJLWvJVD1eiUFbanNmNj2SeV+2vuW666/xOy2WPyMnE2NZnsbvCKeK0wlUj7AE3l1m602mFwA4sDg=="
+    },
+    {
+      "name": "@tiptap/extension-unique-id",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextension-unique-id/3.30.4",
+      "file": "tiptap-extension-unique-id-3.30.4.registry.json",
+      "sha256": "a837924b0ae4d48abaef094dfce663a9fc576552bd4152c5785c9f3af366ab55",
+      "dependencies": {
+        "uuid": "^14.0.0"
+      },
+      "peerDependencies": {
+        "@tiptap/pm": "3.30.4",
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-LVHAU+sI8dK89yeQP/ZmBO1M1E44VvKfWcz82hE++sfpMpWPNHIkvJXDP6dhZZg+ilRkHLSGs9zHcAaNXaQRlw=="
+    },
+    {
+      "name": "@tiptap/extensions",
+      "url": "https://registry.npmjs.org/@tiptap%2Fextensions/3.30.4",
+      "file": "tiptap-extensions-3.30.4.registry.json",
+      "sha256": "b736f81897392e03b35764706a523e1946542ea1f518fceff14a6278da226397",
+      "dependencies": {},
+      "peerDependencies": {
+        "@tiptap/pm": "3.30.4",
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-WeBl/ggeNCOoOySX7647lwtSUHWbCh8I1Qqp8NQBsGyHXEE6/7jHbKcxpw4fplOgScgVMfPz8WZ+3yrfXYCUFw=="
+    },
+    {
+      "name": "@tiptap/html",
+      "url": "https://registry.npmjs.org/@tiptap%2Fhtml/3.30.4",
+      "file": "tiptap-html-3.30.4.registry.json",
+      "sha256": "6da8fc9ff1e10b6766789cb4553f56f21c2720f11cebee086a7ea94844bea41d",
+      "dependencies": {},
+      "peerDependencies": {
+        "happy-dom": "^20.8.9",
+        "@tiptap/pm": "3.30.4",
+        "@tiptap/core": "3.30.4"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-ZsVN3m/xe/2pR8GRO2hgg7u79jRB1kKI5tCGmfvsaw2AbLiEhbcZEJ6b2IV199APqBhcbMcBjGOddCT023HMPw=="
+    },
+    {
+      "name": "@tiptap/pm",
+      "url": "https://registry.npmjs.org/@tiptap%2Fpm/3.30.4",
+      "file": "tiptap-pm-3.30.4.registry.json",
+      "sha256": "2068b81bedfeb6e226677c5e8810882dd7783d726da5d04aa2e83bfe945f3f33",
+      "dependencies": {
+        "prosemirror-view": "^1.41.9",
+        "prosemirror-model": "^1.25.11",
+        "prosemirror-state": "^1.4.4",
+        "prosemirror-keymap": "^1.2.3",
+        "prosemirror-tables": "^1.8.5",
+        "prosemirror-history": "^1.5.0",
+        "prosemirror-commands": "^1.7.1",
+        "prosemirror-changeset": "^2.4.1",
+        "prosemirror-gapcursor": "^1.4.1",
+        "prosemirror-transform": "^1.12.0",
+        "prosemirror-dropcursor": "^1.8.2",
+        "prosemirror-inputrules": "^1.5.1",
+        "prosemirror-schema-list": "^1.5.1"
+      },
+      "peerDependencies": {},
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-oPbE+BOzzDKkxsvF9wepTWELvq385oifDkKIigqKCPKpGqplEIHIjNztCj/nOqHCfJBiU9LcoyyWH0qkHAQ9TQ=="
+    },
+    {
+      "name": "@tiptap/react",
+      "url": "https://registry.npmjs.org/@tiptap%2Freact/3.30.4",
+      "file": "tiptap-react-3.30.4.registry.json",
+      "sha256": "3cea5c6ebacd8eabad26a6c973baae9954f34536e62c9a115486b0099b57b054",
+      "dependencies": {
+        "fast-equals": "^5.3.3",
+        "use-sync-external-store": "^1.4.0",
+        "@types/use-sync-external-store": "^0.0.6"
+      },
+      "peerDependencies": {
+        "react": "^17.0.0 || ^18.0.0 || ^19.0.0",
+        "react-dom": "^17.0.0 || ^18.0.0 || ^19.0.0",
+        "@tiptap/pm": "3.30.4",
+        "@tiptap/core": "3.30.4",
+        "@types/react": "^17.0.0 || ^18.0.0 || ^19.0.0",
+        "@types/react-dom": "^17.0.0 || ^18.0.0 || ^19.0.0"
+      },
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-NxGcKg4xBF6ngk6xORyzRCvG9zb7Z/cf59GpDBsiYpPpD/6m+J4kfNF0KVIOhRSAhNxm2u2ZPuGIWBtS/CDUBQ=="
+    },
+    {
+      "name": "@tiptap/starter-kit",
+      "url": "https://registry.npmjs.org/@tiptap%2Fstarter-kit/3.30.4",
+      "file": "tiptap-starter-kit-3.30.4.registry.json",
+      "sha256": "79f42cfa5bf519b89a228004ee92bd3db44e32f45830772353b056b684be4e29",
+      "dependencies": {
+        "@tiptap/pm": "3.30.4",
+        "@tiptap/core": "3.30.4",
+        "@tiptap/extensions": "3.30.4",
+        "@tiptap/extension-bold": "3.30.4",
+        "@tiptap/extension-code": "3.30.4",
+        "@tiptap/extension-link": "3.30.4",
+        "@tiptap/extension-list": "3.30.4",
+        "@tiptap/extension-text": "3.30.4",
+        "@tiptap/extension-italic": "3.30.4",
+        "@tiptap/extension-strike": "3.30.4",
+        "@tiptap/extension-heading": "3.30.4",
+        "@tiptap/extension-document": "3.30.4",
+        "@tiptap/extension-gapcursor": "3.30.4",
+        "@tiptap/extension-list-item": "3.30.4",
+        "@tiptap/extension-paragraph": "3.30.4",
+        "@tiptap/extension-underline": "3.30.4",
+        "@tiptap/extension-blockquote": "3.30.4",
+        "@tiptap/extension-code-block": "3.30.4",
+        "@tiptap/extension-dropcursor": "3.30.4",
+        "@tiptap/extension-hard-break": "3.30.4",
+        "@tiptap/extension-bullet-list": "3.30.4",
+        "@tiptap/extension-list-keymap": "3.30.4",
+        "@tiptap/extension-ordered-list": "3.30.4",
+        "@tiptap/extension-horizontal-rule": "3.30.4"
+      },
+      "peerDependencies": {},
+      "peerDependenciesMeta": {},
+      "integrity": "sha512-rZiv2QOqfQU4/MNsAmvbymIwx0tKrGrtdJg76aEaej+aGU1QNDhZbUNutV8AnZxFjSJMm8rt810qzAU98OmCAg=="
+    }
+  ],
+  "requiredProsemirrorDelta": {
+    "prosemirror-model": {
+      "current": "1.25.7",
+      "minimum": "1.25.11"
+    },
+    "prosemirror-view": {
+      "current": "1.41.8",
+      "minimum": "1.41.9"
+    }
+  },
+  "happyDomInstalled": "20.10.6"
+}

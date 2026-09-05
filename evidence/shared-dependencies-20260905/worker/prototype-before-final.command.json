@@ -1,0 +1,18 @@
+{
+  "startedAt": "2026-09-05T12:40:25.087672+00:00",
+  "finishedAt": "2026-09-05T12:40:26.700458+00:00",
+  "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+  "argv": [
+    "C:/nvm4w/nodejs/node.exe",
+    "C:/Users/hshum/.codex/worktrees/5dba/nodebench-ai/docs/plans/portfolio-recovery-20260904/E6f-noderoom-tiptap-prototype-canary.mjs",
+    "D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905",
+    "C:/Users/hshum/.codex/worktrees/5dba/nodebench-ai/docs/plans/portfolio-recovery-20260904/E6f-noderoom-shared-dependency-repair-01",
+    "before-final"
+  ],
+  "timeoutSeconds": 45,
+  "timedOut": false,
+  "exitCode": 1,
+  "elapsedSeconds": 1.609,
+  "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\prototype-before-final.log",
+  "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+}
