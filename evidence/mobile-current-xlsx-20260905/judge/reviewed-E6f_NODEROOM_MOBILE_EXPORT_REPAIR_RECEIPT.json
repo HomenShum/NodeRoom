@@ -1,0 +1,166 @@
+{
+  "schema": "noderoom-mobile-export-repair/v1",
+  "at": "2026-09-05T11:19:13.457307+00:00",
+  "status": "WORKER_PROOF_PASS_PENDING_INDEPENDENT_JUDGE",
+  "namedProof": "NODEROOM-MOBILE-TABLE-EXPORT-01",
+  "request": "Make each repo ready for actual developer/user use, including visual/responsive/interaction proof; now execute.",
+  "authorization": "Parent approved exact seven-path plan SHA08ebb51b40d65d7d5ff43d7d875bbd97dabfec2d0b67f55baa7196044020dfb0; Excel limits/optional abort guard explicitly clarified; existing export-span wrapping corrected inside the same viewed CHANGE A boundary.",
+  "candidate": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+  "baseCommit": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+  "branch": "codex/noderoom-current-consumer-20260905",
+  "sourceDigest": "d0c341bed80723c345208233f6f8e71c8f3e41e237d30a1ff63439457b0b0f3e",
+  "sourceDigestFormula": "SHA256(UTF8(JSON.stringify(sorted [path, sha256] entries), no spaces/newline; forward-slash relative paths))",
+  "scope": {
+    "HANDOFF.md": "ed512357b29f75abced40eb22d0ca68e9d472d0f5a52cc02f21d76174bc2d6b3",
+    "e2e/mobile-sample-workbook-export.spec.ts": "b32079d1ef7fa74384ee68740e46495628ed3398001273f9840167cc4c66f775",
+    "src/ui/mobile/MobileGrid.tsx": "2ca4846af0b55b8ee490fe16a754e96abac878b62056f37a0baf7bad664aa4ef",
+    "src/ui/mobile/mobileSheetExport.ts": "a99dcf2276282e8d4859faa609bce22d73c8b6895a07eed3c239b8f42ced211c",
+    "src/ui/panels/Artifact.tsx": "701cbef1cbe9ca89dea754b203243dbd760aa04d9062f6053e1615f7cbeb6463",
+    "src/ui/workArtifacts/xlsxDownload.ts": "e2dac3c92c9ef441024f1ee53ed119954f78b626ef20cb5e3986f6545e9da5ab",
+    "tests/mobileSampleWorkbookExport.test.ts": "abf5f0a69f5f60712d47705615163f33053ce94a41f76c96abd9b62fea7d2285"
+  },
+  "state": "Exactly seven unstaged paths; unchanged HEAD/index/refs; no commit or push",
+  "freeze": {
+    "path": "E6f-noderoom-mobile-export-repair/freeze.json",
+    "sha256": "833b9d9d6a284e0ca6a53b40dcff23531989cd40b5f88f1dd2721059cb8612f3"
+  },
+  "artifactManifest": {
+    "path": "E6f-noderoom-mobile-export-repair/artifact-manifest.json",
+    "sha256": "bfaaf096afb8e9dcd8d2a13931c0092f017a0e5ec1f5a7c9dc35be613132eea0",
+    "count": 739
+  },
+  "proof": {
+    "existingMemoryChecks": 29,
+    "targetedWorkbookDialogTests": 8,
+    "browserScenarios": 8,
+    "actualMobileFilesReopened": 19,
+    "finalPngs": 40,
+    "perBrowserSourceBindings": 12,
+    "capturedSourceFiles": 14,
+    "protectedOldInputsUnchanged": 1561,
+    "protectedOldInputsChanged": 2,
+    "generatedOutputsPreserved": 485,
+    "selectedBeforeArtifactsPreserved": 56,
+    "desktopWorksheetModelParity": "PASS including values/types/styles/rows/columns; existing Account blanks remain a defect",
+    "pageErrors": 0,
+    "commands": [
+      {
+        "startedAt": "2026-09-05T11:08:01.436047+00:00",
+        "finishedAt": "2026-09-05T11:08:08.771468+00:00",
+        "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+        "argv": [
+          "npx.cmd",
+          "vitest",
+          "run",
+          "tests/artifactXlsxExport.test.ts",
+          "tests/mobileSheetDialog.test.tsx",
+          "tests/mobileSampleWorkbookExport.test.ts"
+        ],
+        "timeoutSeconds": 180,
+        "timedOut": false,
+        "exitCode": 0,
+        "elapsedSeconds": 7.328,
+        "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-mobile-export-repair\\targeted-tests-final.log",
+        "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+      },
+      {
+        "startedAt": "2026-09-05T11:08:33.558842+00:00",
+        "finishedAt": "2026-09-05T11:08:41.687437+00:00",
+        "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+        "argv": [
+          "npx.cmd",
+          "tsc",
+          "--noEmit",
+          "--project",
+          "convex/tsconfig.json",
+          "--pretty",
+          "false"
+        ],
+        "timeoutSeconds": 180,
+        "timedOut": false,
+        "exitCode": 0,
+        "elapsedSeconds": 8.125,
+        "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-mobile-export-repair\\convex-typecheck-final.log",
+        "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+      },
+      {
+        "startedAt": "2026-09-05T11:03:03.936497+00:00",
+        "finishedAt": "2026-09-05T11:05:09.270821+00:00",
+        "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+        "argv": [
+          "npm.cmd",
+          "run",
+          "test:product:memory"
+        ],
+        "timeoutSeconds": 900,
+        "timedOut": false,
+        "exitCode": 0,
+        "elapsedSeconds": 125.328,
+        "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-mobile-export-repair\\memory-regression-final.log",
+        "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+      },
+      {
+        "startedAt": "2026-09-05T11:06:01.521043+00:00",
+        "finishedAt": "2026-09-05T11:06:55.141693+00:00",
+        "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+        "argv": [
+          "node",
+          "C:/Users/hshum/.codex/worktrees/5dba/nodebench-ai/docs/plans/portfolio-recovery-20260904/E6f-noderoom-mobile-export-repair/run-browser-export-proof.mjs",
+          "browser-proof-final"
+        ],
+        "timeoutSeconds": 360,
+        "timedOut": false,
+        "exitCode": 0,
+        "elapsedSeconds": 53.625,
+        "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-mobile-export-repair\\browser-proof-final.log",
+        "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+      },
+      {
+        "startedAt": "2026-09-05T11:07:17.700824+00:00",
+        "finishedAt": "2026-09-05T11:07:24.790384+00:00",
+        "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+        "argv": [
+          "node",
+          "C:/Users/hshum/.codex/worktrees/5dba/nodebench-ai/docs/plans/portfolio-recovery-20260904/E6f-noderoom-mobile-export-repair/observe-desktop-export-final.mjs",
+          "desktop-final-export"
+        ],
+        "timeoutSeconds": 150,
+        "timedOut": false,
+        "exitCode": 0,
+        "elapsedSeconds": 7.094,
+        "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-mobile-export-repair\\desktop-final-export.log",
+        "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+      }
+    ]
+  },
+  "limits": [
+    "Uncommitted application source build consumer; embedded SHA is base identity, actual tested bytes are bound separately.",
+    "No npm installed CLI, native Office, provider, Convex, host-hook or production proof.",
+    "Natural phone only at <=760; wider mobile component explicitly forced after recording natural desktop.",
+    "Fallback fonts and browser-only doubled text; full UI grades remain null.",
+    "Existing half-height dialog requires scrolling; enlarged tabs and transient toast overlap remain reading limitations.",
+    "No held long-running loading pixels or serializer CPU cancellation claimed. Rapid native navigation and helper abort scenario are separate proofs.",
+    "Desktop before/after Account cells blank; separate two-lookup follow-on proposal, no silent repair.",
+    "Baseline floor COM timeout remains; no rerun or weakening.",
+    "Baseline dependency advisories, NodeSlide immutable release mismatch, missing Gemini nightly credential and absent design docs remain.",
+    "PPTX/history unavailable; sample state/claim labels unverified; edits reset after sheet close/reload."
+  ],
+  "preservedFailures": [
+    "Zero-download original consumer and all original3px boundaries",
+    "typecheck-01 unused import",
+    "browser-proof-01 deferred-import probe assumption; exact hash-reconstructed old test retained",
+    "browser-proof-02 filename overflow and filename-wrap-before3px boundary",
+    "Serializer-only lossy/control probes and lower-layer32768 acceptance limitation",
+    "Custody script ref-output representation mismatch, corrected with exact original command"
+  ],
+  "metadataAfterProof": "HANDOFF prose finalized after desktop replay; desktop runtime/test bindings are unchanged. Final source digest separately binds final HANDOFF.",
+  "grades": {
+    "visual": null,
+    "responsive": null,
+    "accessibility": null,
+    "performance": null,
+    "provider": null,
+    "production": null
+  },
+  "next": "Independent judge only; current candidate source/dist remains frozen. No commit/push."
+}

@@ -1,0 +1,412 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: mobile-sample-workbook-export.spec.ts >> closing a preparing table suppresses its later result and permits a fresh export
+- Location: e2e\mobile-sample-workbook-export.spec.ts:206:1
+
+# Error details
+
+```
+Error: No deferred export import observed
+```
+
+# Page snapshot
+
+```yaml
+- generic [active]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - banner:
+              - button:
+                - generic: "N"
+                - generic: Q3 Diligence
+                - img
+              - generic:
+                - button:
+                  - img
+                  - generic: "4"
+                - generic:
+                  - button:
+                    - img
+          - generic:
+            - generic: Recents
+            - generic:
+              - button:
+                - generic:
+                  - generic:
+                    - img
+                  - generic: deck
+                - strong: CardioNova investor update
+                - generic:
+                  - generic: "+1"
+                - generic: 6 slides · review
+                - generic:
+                  - generic:
+                    - img
+                    - generic: Open deck
+              - button:
+                - generic:
+                  - generic:
+                    - img
+                  - generic: sheet
+                - strong: CardioNova sheet
+                - generic: v42 · 2 to review
+                - generic:
+                  - generic:
+                    - img
+                    - generic: Open sheet
+              - button:
+                - generic:
+                  - generic:
+                    - img
+                  - generic: plan
+                - strong: CardioNova work plan
+                - generic:
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Read 4 approved sources
+                  - generic:
+                    - generic: Propose Runway cell
+                  - generic:
+                    - generic: Attach evidence
+                - generic: Read-only · est. $0.01
+                - generic:
+                  - generic:
+                    - img
+                    - generic: Open plan
+              - button:
+                - generic:
+                  - generic:
+                    - img
+                  - generic: evidence
+                - strong: Funding evidence
+                - generic:
+                  - generic: “raising Series B”
+                  - generic:
+                    - generic:
+                      - img
+                      - text: deck p.12
+                    - generic:
+                      - img
+                      - text: TechCrunch · Mar 2026
+                - generic: 2 sources · 1 gap
+                - generic:
+                  - generic:
+                    - img
+                    - generic: Open evidence
+            - generic: Favorites
+            - generic:
+              - button:
+                - generic:
+                  - img
+                - generic:
+                  - strong: Q3 Diligence room
+                  - generic: 6 live · 2 agents
+                - generic:
+                  - img
+                  - generic: Open room
+              - button:
+                - generic:
+                  - img
+                - generic:
+                  - strong: CardioNova company sheet
+                  - generic: v42 · 2 fields to review
+                - generic:
+                  - img
+                  - generic: Open sheet
+              - button:
+                - generic:
+                  - img
+                - generic:
+                  - strong: CardioNova investor update
+                  - generic: deck · 6 slides · proposed
+                - generic:
+                  - img
+                  - generic: Open deck
+              - button:
+                - generic:
+                  - img
+                - generic:
+                  - strong: Funding evidence card
+                  - generic: 2 sources · 1 gap
+                - generic:
+                  - img
+                  - generic: Open evidence
+              - button:
+                - generic:
+                  - img
+                - generic:
+                  - strong: Sync reliability note
+                  - generic: edited 2m ago
+                - generic:
+                  - img
+                  - generic: Open note
+            - generic: Briefings
+            - generic:
+              - button:
+                - generic:
+                  - img
+                - generic:
+                  - strong: Why CardioNova runway is needs_review
+                  - generic: funding · 2 min
+                - generic:
+                  - img
+                  - generic: Open coach
+              - button:
+                - generic:
+                  - img
+                - generic:
+                  - strong: Defending the Q3 variance commit
+                  - generic: reconciliation · 3 min
+                - generic:
+                  - img
+                  - generic: Open coach
+              - button:
+                - generic:
+                  - img
+                - generic:
+                  - strong: What the paid-pilot gap blocks
+                  - generic: revenue · 2 min
+                - generic:
+                  - img
+                  - generic: Open coach
+          - generic:
+            - generic:
+              - generic:
+                - button:
+                  - generic:
+                    - img
+              - generic:
+                - generic:
+                  - generic:
+                    - button:
+                      - img
+                  - textbox:
+                    - /placeholder: Ask NodeAgent or capture…
+            - navigation:
+              - button:
+                - img
+                - generic: Home
+              - button:
+                - img
+                - generic: Capture
+              - button:
+                - img
+                - generic: Room
+              - button:
+                - img
+                - generic: Agent
+              - button:
+                - img
+                - generic: Review
+              - button:
+                - img
+                - generic: Files
+          - status
+          - dialog "Spreadsheet" [ref=e2]:
+            - heading "Spreadsheet" [level=2] [ref=e3]
+            - generic [ref=e5]:
+              - generic [ref=e6]:
+                - strong [ref=e7]: Q3 diligence tracker
+                - generic [ref=e8]: sheet · v42 · Room
+              - button "Close" [ref=e9] [cursor=pointer]:
+                - img [ref=e10]
+            - generic [ref=e13]:
+              - button "Plan" [ref=e14] [cursor=pointer]:
+                - img [ref=e15]
+                - text: Plan
+              - button "Sheet 8" [ref=e18] [cursor=pointer]:
+                - img [ref=e19]
+                - text: Sheet
+                - generic [ref=e21]: "8"
+              - button "Evidence" [ref=e22] [cursor=pointer]:
+                - img [ref=e23]
+                - text: Evidence
+              - button "Export" [ref=e25] [cursor=pointer]:
+                - img [ref=e26]
+                - text: Export
+            - generic [ref=e28]:
+              - generic [ref=e29]:
+                - button "Spreadsheet" [pressed] [ref=e30] [cursor=pointer]:
+                  - img [ref=e31]
+                  - text: Spreadsheet
+                - button "PowerPoint" [disabled] [ref=e33] [cursor=pointer]:
+                  - img [ref=e34]
+                  - text: PowerPoint
+              - status [ref=e38]:
+                - img [ref=e40]
+                - generic [ref=e42]:
+                  - strong [ref=e43]: Download started
+                  - generic [ref=e44]: Q3_diligence_tracker.xlsx · 8,337 bytes
+                - generic [ref=e45]: started
+              - button "Download again" [ref=e46] [cursor=pointer]:
+                - img [ref=e47]
+                - text: Download again
+              - generic [ref=e49]:
+                - img [ref=e50]
+                - generic [ref=e52]:
+                  - strong [ref=e53]: Local sample table
+                  - generic [ref=e54]: Exports the current values with recorded status and claim labels as unverified sample metadata. Edits reset when this sheet closes or the page reloads. PowerPoint export is unavailable for this table.
+              - generic [ref=e55]: Sample version labels
+              - paragraph [ref=e56]: These labels have no saved workbook content. Historical download and restore are unavailable.
+              - generic [ref=e57]:
+                - generic [ref=e58]:
+                  - generic [ref=e59]: v42
+                  - generic [ref=e60]:
+                    - strong [ref=e61]: Q3 ARR reconciled vs close
+                    - generic [ref=e62]: just now
+                  - button "Download v42 unavailable" [disabled] [ref=e64] [cursor=pointer]:
+                    - img [ref=e65]
+                - generic [ref=e67]:
+                  - generic [ref=e68]: v41
+                  - generic [ref=e69]:
+                    - strong [ref=e70]: CardioNova row added
+                    - generic [ref=e71]: 12m ago
+                  - generic [ref=e72]:
+                    - button "Restore" [disabled] [ref=e73] [cursor=pointer]
+                    - button "Download v41 unavailable" [disabled] [ref=e74] [cursor=pointer]:
+                      - img [ref=e75]
+                - generic [ref=e77]:
+                  - generic [ref=e78]: v40
+                  - generic [ref=e79]:
+                    - strong [ref=e80]: Imported NetSuite export
+                    - generic [ref=e81]: 1h ago
+                  - generic [ref=e82]:
+                    - button "Restore" [disabled] [ref=e83] [cursor=pointer]
+                    - button "Download v40 unavailable" [disabled] [ref=e84] [cursor=pointer]:
+                      - img [ref=e85]
+```
+
+# Test source
+
+```ts
+  124 |     await expect(dialog.getByTestId("mobile-table-export-status")).toContainText("local sample");
+  125 |     await expect(dialog.getByRole("button", { name: "PowerPoint", exact: true })).toBeDisabled();
+  126 |     await capture(page, info, `export-idle-${width}`);
+  127 |     const event = page.waitForEvent("download");
+  128 |     const button = dialog.getByTestId("mobile-table-export-download");
+  129 |     await button.focus();
+  130 |     await button.press("Enter");
+  131 |     const byteCount = await readDownload(await event, info, `current-table-${width}`, product);
+  132 |     await expect(dialog.getByTestId("mobile-table-export-status")).toContainText(`${byteCount.toLocaleString()} bytes`);
+  133 |     await expect(dialog.getByTestId("mobile-table-export-status")).toContainText("Download started");
+  134 |     await capture(page, info, `export-started-${width}`);
+  135 |     await dialog.locator(".na-export-prov").scrollIntoViewIfNeeded();
+  136 |     await capture(page, info, `export-provenance-${width}`);
+  137 |     await dialog.locator(".na-vers").scrollIntoViewIfNeeded();
+  138 |     await expect(dialog.locator(".na-ver-acts button:enabled")).toHaveCount(0);
+  139 |     await capture(page, info, `export-history-${width}`);
+  140 |     if (width === 390 || width === 1440) {
+  141 |       await page.evaluate(() => {
+  142 |         const styles = [...document.querySelectorAll<HTMLElement>("body *")].map((element) => ({ element, font: getComputedStyle(element).fontSize, line: getComputedStyle(element).lineHeight }));
+  143 |         for (const { element, font, line } of styles) {
+  144 |           element.style.fontSize = `${parseFloat(font) * 2}px`;
+  145 |           if (line !== "normal") element.style.lineHeight = `${parseFloat(line) * 2}px`;
+  146 |         }
+  147 |       });
+  148 |       await button.focus();
+  149 |       await capture(page, info, `export-text-enlarged-${width}`);
+  150 |       const focus = await button.evaluate((element) => {
+  151 |         const rect = element.getBoundingClientRect();
+  152 |         return { focused: document.activeElement === element, rect: rect.toJSON(), hit: element.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)) };
+  153 |       });
+  154 |       await writeFile(info.outputPath(`enlargement-${width}.json`), JSON.stringify({ method: "Browser-only doubled precomputed font and explicit line height; not native zoom certification", focus }, null, 2));
+  155 |     }
+  156 |   });
+  157 | }
+  158 | 
+  159 | test("a failed download, duplicate retry and ten later edits keep their own outcomes", async ({ page }, info) => {
+  160 |   await openTable(page, info, 390);
+  161 |   await editProduct(page, "Initial reviewed value");
+  162 |   await openExport(page);
+  163 |   const downloads: Download[] = [];
+  164 |   page.on("download", (download) => downloads.push(download));
+  165 |   await page.evaluate(() => {
+  166 |     const native = URL.createObjectURL;
+  167 |     URL.createObjectURL = function () { URL.createObjectURL = native; throw new Error("The browser could not allocate the download resource."); };
+  168 |   });
+  169 |   await tableDialog(page).getByTestId("mobile-table-export-download").click();
+  170 |   await expect(tableDialog(page).getByRole("alert")).toContainText("could not allocate");
+  171 |   expect(downloads).toHaveLength(0);
+  172 |   await expect(tableDialog(page).getByTestId("mobile-table-export-status")).not.toContainText("Download started");
+  173 |   await capture(page, info, "resource-failed");
+  174 |   const retryEvent = page.waitForEvent("download");
+  175 |   // Two native activations in one browser task, before React can render disabled, exercise the live single-flight claim.
+  176 |   await tableDialog(page).getByTestId("mobile-table-export-download").evaluate((button: HTMLButtonElement) => { button.click(); button.click(); });
+  177 |   await readDownload(await retryEvent, info, "retried-once", "Initial reviewed value");
+  178 |   await expect(tableDialog(page).getByTestId("mobile-table-export-download")).toBeEnabled();
+  179 |   expect(downloads).toHaveLength(1);
+  180 |   await capture(page, info, "resource-recovered");
+  181 |   for (let i = 0; i < 10; i += 1) {
+  182 |     const value = `Reviewed snapshot ${i + 1}`;
+  183 |     await editProduct(page, value);
+  184 |     await openExport(page);
+  185 |     await expect(tableDialog(page).getByTestId("mobile-table-export-status")).not.toContainText("Download started");
+  186 |     const event = page.waitForEvent("download");
+  187 |     await tableDialog(page).getByTestId("mobile-table-export-download").click();
+  188 |     await readDownload(await event, info, `sustained-${i + 1}`, value);
+  189 |   }
+  190 |   expect(downloads).toHaveLength(11);
+  191 |   await editProduct(page, "x".repeat(32_768));
+  192 |   await openExport(page);
+  193 |   await tableDialog(page).getByTestId("mobile-table-export-download").click();
+  194 |   await expect(tableDialog(page).getByRole("alert")).toContainText("32,767-character limit");
+  195 |   expect(downloads).toHaveLength(11);
+  196 |   await capture(page, info, "format-rejected");
+  197 |   await editProduct(page, "Corrected after format rejection");
+  198 |   await openExport(page);
+  199 |   const recovered = page.waitForEvent("download");
+  200 |   await tableDialog(page).getByTestId("mobile-table-export-download").click();
+  201 |   await readDownload(await recovered, info, "format-recovered", "Corrected after format rejection");
+  202 |   expect(downloads).toHaveLength(12);
+  203 |   await capture(page, info, "format-recovered");
+  204 | });
+  205 | 
+  206 | test("closing a preparing table suppresses its later result and permits a fresh export", async ({ page }, info) => {
+  207 |   await openTable(page, info, 390);
+  208 |   await editProduct(page, "Temporary current value");
+  209 |   await openExport(page);
+  210 |   let release!: () => void;
+  211 |   const gate = new Promise<void>((resolve) => { release = resolve; });
+  212 |   let held!: () => void;
+  213 |   const requested = new Promise<void>((resolve) => { held = resolve; });
+  214 |   const heldRequests: string[] = [];
+  215 |   await page.route("**/assets/*.js", async (route) => {
+  216 |     heldRequests.push(new URL(route.request().url()).pathname);
+  217 |     held();
+  218 |     await gate;
+  219 |     await route.continue();
+  220 |   });
+  221 |   const downloads: Download[] = [];
+  222 |   page.on("download", (download) => downloads.push(download));
+  223 |   await tableDialog(page).getByTestId("mobile-table-export-download").dblclick({ delay: 20 });
+> 224 |   await Promise.race([requested, new Promise((_, reject) => setTimeout(() => reject(new Error("No deferred export import observed")), 7000))]);
+      |                                                                                     ^ Error: No deferred export import observed
+  225 |   await expect(tableDialog(page).getByTestId("mobile-table-export-download")).toBeDisabled();
+  226 |   await capture(page, info, "preparing-before-close");
+  227 |   await tableDialog(page).getByRole("button", { name: "Close", exact: true }).click();
+  228 |   release();
+  229 |   await page.waitForLoadState("networkidle");
+  230 |   expect(downloads).toHaveLength(0);
+  231 |   await writeFile(info.outputPath("held-imports.json"), JSON.stringify(heldRequests, null, 2));
+  232 |   await page.unroute("**/assets/*.js");
+  233 |   await page.locator('.na-rcard[data-kind="sheet"]').first().click();
+  234 |   await editProduct(page, "New explicit export after reopen");
+  235 |   await openExport(page);
+  236 |   const event = page.waitForEvent("download");
+  237 |   await tableDialog(page).getByTestId("mobile-table-export-download").click();
+  238 |   await readDownload(await event, info, "reopened-after-cancel", "New explicit export after reopen");
+  239 |   expect(downloads).toHaveLength(1);
+  240 |   await capture(page, info, "reopened-after-cancel");
+  241 | });
+  242 | 
+```

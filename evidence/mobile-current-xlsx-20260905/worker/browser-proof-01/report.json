@@ -1,0 +1,12 @@
+{
+  "schema": "noderoom-entry-observation/v1",
+  "startedAt": "2026-09-05T10:50:23.089Z",
+  "sourceCommit": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+  "sourceBindings": "../../E6f-noderoom-first-run/source-before.json",
+  "cells": [],
+  "externalRequests": [],
+  "errors": [],
+  "status": "FAILED",
+  "testExit": 1,
+  "finishedAt": "2026-09-05T10:51:02.147Z"
+}

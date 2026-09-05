@@ -1,0 +1,512 @@
+{
+  "screenshots": [
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-023d3-edited-phone-table-at-320px-chromium/export-history-320.png",
+      "sha256": "662b40184c74de9dcad624e39000ad44761ce8f11498fa97d73eb703476d6e8f",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-023d3-edited-phone-table-at-320px-chromium/export-idle-320.png",
+      "sha256": "d7fcb36e9134748879c8793a4924cbed0f2b4cbd6c6ad0cb49ef520f4b7ad322",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-023d3-edited-phone-table-at-320px-chromium/export-provenance-320.png",
+      "sha256": "af668938d66d4eaead938dd688d0b60ef3c90ec9081b84fc5e3b964c5960d4a3",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-023d3-edited-phone-table-at-320px-chromium/export-started-320.png",
+      "sha256": "deb91ffd9b8df0dbad2382e7bafb2e8aced7bf876982b575f73fdde9cc257d03",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-023d3-edited-phone-table-at-320px-chromium/natural-entry-320.png",
+      "sha256": "a7060047dae3d31942c4022e9b0bc501a7ecd72ed201b6e3314537c1bbede698",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-2966a-dited-phone-table-at-1920px-chromium/export-history-1920.png",
+      "sha256": "05e4b3f6e6af2df7007e6aa1a812e09a342eb357035413aed484fbbf53e8b7fa",
+      "viewport": {
+        "width": 1920,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-2966a-dited-phone-table-at-1920px-chromium/export-idle-1920.png",
+      "sha256": "fa59039069730b4136f0b2ac0f84c45395acd27eed52f3d9a9127ed2e929db4c",
+      "viewport": {
+        "width": 1920,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-2966a-dited-phone-table-at-1920px-chromium/export-provenance-1920.png",
+      "sha256": "ae5881d69f26d0bef169103fca6db629bcfc5926036cc9292f3782b63190ccd1",
+      "viewport": {
+        "width": 1920,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-2966a-dited-phone-table-at-1920px-chromium/export-started-1920.png",
+      "sha256": "9bd59bb364c79fa3af39cd63833d250b2e8abd46b27257513ee909f69cd23d2e",
+      "viewport": {
+        "width": 1920,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-2966a-dited-phone-table-at-1920px-chromium/natural-entry-1920.png",
+      "sha256": "b21e128e795c2e78d31d1157962c13749fc384bcbf4b2860e419bb939f1efe91",
+      "viewport": {
+        "width": 1920,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-2feb0-dited-phone-table-at-1024px-chromium/export-history-1024.png",
+      "sha256": "ae97c1db49f9212836b7da5e59e5c10c4faedb6ec4eef14e9670f9ac96764092",
+      "viewport": {
+        "width": 1024,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-2feb0-dited-phone-table-at-1024px-chromium/export-idle-1024.png",
+      "sha256": "e91739ed34febfa7a58608d1416e9477fa8bdbb34062764ea2358572ef0e18cc",
+      "viewport": {
+        "width": 1024,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-2feb0-dited-phone-table-at-1024px-chromium/export-provenance-1024.png",
+      "sha256": "b78b558610ca87293c7d623c56dcfe611569dc37e11163ac7c6eabd2ac3fb557",
+      "viewport": {
+        "width": 1024,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-2feb0-dited-phone-table-at-1024px-chromium/export-started-1024.png",
+      "sha256": "6744c64407f9164699e471fa907866c42398427606a85ce45a7d4abff7ec4c16",
+      "viewport": {
+        "width": 1024,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-2feb0-dited-phone-table-at-1024px-chromium/natural-entry-1024.png",
+      "sha256": "8434839d28bedf187954721c74261133b0f660526556b32bac8b632b20afaffa",
+      "viewport": {
+        "width": 1024,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-34462-edited-phone-table-at-390px-chromium/export-history-390.png",
+      "sha256": "6476585ad38065cbb58ca903994d174bd69112bc3bcf4e398bb2f2bbde5ceb1d",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-34462-edited-phone-table-at-390px-chromium/export-idle-390.png",
+      "sha256": "f20295c7d08579067ea673dbf436e82a69278f9733edf92c8df265d6975cd278",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-34462-edited-phone-table-at-390px-chromium/export-provenance-390.png",
+      "sha256": "a3b9f00524bcadf45f76801d4689685c830f2ab090cb9e142218603f74d28d16",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-34462-edited-phone-table-at-390px-chromium/export-started-390.png",
+      "sha256": "dce2b6a70b95851e06311b24a0fee2bf3861e9cdb82a2e2aa8a43a8056ef13b0",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-34462-edited-phone-table-at-390px-chromium/export-text-enlarged-390.png",
+      "sha256": "73e3458b2e870d3f56b3302fe0d5e3068afc365967fdba177a69ecf477bca0d3",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-34462-edited-phone-table-at-390px-chromium/natural-entry-390.png",
+      "sha256": "89d6b4c057b2b543f70cb39cec60b60ac6b23d59bfecade88fcead861125f314",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-3a495--and-permits-a-fresh-export-chromium/closed-without-late-download.png",
+      "sha256": "56a003a5f698da79443a217a10dd543d49e5b4c9334ab21a1dad38c46944d097",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-3a495--and-permits-a-fresh-export-chromium/natural-entry-390.png",
+      "sha256": "89d6b4c057b2b543f70cb39cec60b60ac6b23d59bfecade88fcead861125f314",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-3a495--and-permits-a-fresh-export-chromium/reopened-after-cancel.png",
+      "sha256": "48567df2e39234be1eb3d01e0bd705eb108cbb18330b64710a0834cfaca70756",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-979cd-edited-phone-table-at-768px-chromium/export-history-768.png",
+      "sha256": "d5178a9f037ffa40bddbd81d3a638a141f988a261c15ffc4b0fbcdfa73859b8c",
+      "viewport": {
+        "width": 768,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-979cd-edited-phone-table-at-768px-chromium/export-idle-768.png",
+      "sha256": "a83ccb3f27316e6c0ee3616db7c85448b2d9e39e391d73bddc946f96f0ef719b",
+      "viewport": {
+        "width": 768,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-979cd-edited-phone-table-at-768px-chromium/export-provenance-768.png",
+      "sha256": "f791ff8f550a1d937323d742f47b1caa33008115fae10cbd03443d25e1ceec6c",
+      "viewport": {
+        "width": 768,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-979cd-edited-phone-table-at-768px-chromium/export-started-768.png",
+      "sha256": "8d69ed7d8490943238ad35a972ae066062bde8dfd3523ebbfba8bcdd485c1524",
+      "viewport": {
+        "width": 768,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-979cd-edited-phone-table-at-768px-chromium/natural-entry-768.png",
+      "sha256": "477c11ba1eb0397f8cc694c15a71984fb38afd23059f37c96e584712ec330efc",
+      "viewport": {
+        "width": 768,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-c7f0d-dited-phone-table-at-1440px-chromium/export-history-1440.png",
+      "sha256": "9de0294c8198438b0317dcd1e70209d37df7db1002f77736aa555777ef8c4652",
+      "viewport": {
+        "width": 1440,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-c7f0d-dited-phone-table-at-1440px-chromium/export-idle-1440.png",
+      "sha256": "b71d9b9378ca4c1490266aa075d14beed730b1f9dc8c928fee3b6faaf7b0e5a2",
+      "viewport": {
+        "width": 1440,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-c7f0d-dited-phone-table-at-1440px-chromium/export-provenance-1440.png",
+      "sha256": "a4c0821de7f8f05af1fbd50898a7bca9fee0353899cc3f6ddae0fd34f91d9f59",
+      "viewport": {
+        "width": 1440,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-c7f0d-dited-phone-table-at-1440px-chromium/export-started-1440.png",
+      "sha256": "afe77e444db6559e89c444037aee2e309db01ab155cd87e1dfd5beefcd05ae62",
+      "viewport": {
+        "width": 1440,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-c7f0d-dited-phone-table-at-1440px-chromium/export-text-enlarged-1440.png",
+      "sha256": "6240b2eb2a6b8c2aba4a8b3cd0df84792c3c2208f333053bf948e1e1b06ac40f",
+      "viewport": {
+        "width": 1440,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-c7f0d-dited-phone-table-at-1440px-chromium/natural-entry-1440.png",
+      "sha256": "97a57885ed2e93f8da04db0cc45373e3fbe74be0f1d5c31e6ab8cd0715395a33",
+      "viewport": {
+        "width": 1440,
+        "height": 960
+      },
+      "url": "http://127.0.0.1:54431/?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/format-recovered.png",
+      "sha256": "ed1cca342e1a4b86c50b9c0d73b437a257c9ffe147d262f6417efaafb1964e61",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/format-rejected.png",
+      "sha256": "434025cec50716b188edab80dd5db5e0bf50f042368cf3cb0b2166319551e893",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/natural-entry-390.png",
+      "sha256": "89d6b4c057b2b543f70cb39cec60b60ac6b23d59bfecade88fcead861125f314",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/resource-failed.png",
+      "sha256": "ae8db2f613b4fd20bce473d1e03b5658dbec4e0300ed9c4d880dff56f2144b25",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/resource-recovered.png",
+      "sha256": "9b1405a5ce571988d535ac2c5667e40d1682a4720958ca10bdcc2f764b3993d5",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:54431/#mobile?mode=memory",
+      "documentOverflow": 0
+    }
+  ],
+  "downloads": [
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-023d3-edited-phone-table-at-320px-chromium/current-table-320.xlsx",
+      "sha256": "c6d22be174a9f5086c11f0d10e5e6e9ad4d63cacfddff7a74e8ca7e3520a4dfd",
+      "byteCount": 8359
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-2966a-dited-phone-table-at-1920px-chromium/current-table-1920.xlsx",
+      "sha256": "cb6f98a2ed9172d716d16ee576c94091acbdec33b8dc0980389be4c9c11b8fb8",
+      "byteCount": 8361
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-2feb0-dited-phone-table-at-1024px-chromium/current-table-1024.xlsx",
+      "sha256": "7975a5b64007813ff22a13678e1c9cfedf4d380ad92106ca36a50f323b27a8eb",
+      "byteCount": 8361
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-34462-edited-phone-table-at-390px-chromium/current-table-390.xlsx",
+      "sha256": "2967d9e59a266161d55bc59530f03749247c68084c18d8ef230f541fce5f6f2d",
+      "byteCount": 8359
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-3a495--and-permits-a-fresh-export-chromium/reopened-after-cancel.xlsx",
+      "sha256": "d42795d9f6d8f82acb358fa891c75d0731d88a0ec9042c4ecb11ea6899c8a11c",
+      "byteCount": 8346
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-979cd-edited-phone-table-at-768px-chromium/current-table-768.xlsx",
+      "sha256": "9bfe327acc364c4200ca466668e0cd39d92f453d085caa4a0a207a616438b2e7",
+      "byteCount": 8359
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-c7f0d-dited-phone-table-at-1440px-chromium/current-table-1440.xlsx",
+      "sha256": "481373d502b643426b02845ce14b6ccff36d1ce8a982e0483c7e0fb3a005dd28",
+      "byteCount": 8361
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/format-recovered.xlsx",
+      "sha256": "fabaeaf6674fcb3285be87a4ab5e06bd33c869a35180a43f50e59d98f50dc24b",
+      "byteCount": 8344
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/retried-once.xlsx",
+      "sha256": "07a6031816e840d76941030008f365cf628327bc1bb5b1c53d0828a6f18161d7",
+      "byteCount": 8339
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/sustained-1.xlsx",
+      "sha256": "c7eb7ab8771afbc75bc689277bd9f8a917a29e4bafb58dc6a4c8ebe855bac374",
+      "byteCount": 8340
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/sustained-10.xlsx",
+      "sha256": "bde70e764d12403502de8b445b1a410f4659d198df0f084c752402b70a0d7a74",
+      "byteCount": 8341
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/sustained-2.xlsx",
+      "sha256": "1d559190d7561919f53a234ba8d195a323ed3d64fc42e61568e44dc42df0bbcf",
+      "byteCount": 8340
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/sustained-3.xlsx",
+      "sha256": "4556f7c13587fee9bf3afa52a853062e4741af45daa936dbcd1cf13ae7203f80",
+      "byteCount": 8340
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/sustained-4.xlsx",
+      "sha256": "8a87af57e3ba899f3257193931a07ad2eff098ed898247cece47fe69a5836159",
+      "byteCount": 8340
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/sustained-5.xlsx",
+      "sha256": "d50b3006aa5774be6750cd3733d468f5dc6ad96d82be12cd7b585e841050f2c1",
+      "byteCount": 8340
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/sustained-6.xlsx",
+      "sha256": "2597f78a0c9aff54a025dcfaca526e360066c129760ed5a213b41bc91eef92a6",
+      "byteCount": 8340
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/sustained-7.xlsx",
+      "sha256": "b56b85c723c33ce9f95cc9498d6cf639ad4d2429c305cb75810212465259f981",
+      "byteCount": 8340
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/sustained-8.xlsx",
+      "sha256": "b4c232621875e50f9e5784f90bd6bcb11d1c6301220ccc8a46ff3467d759567a",
+      "byteCount": 8340
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/sustained-9.xlsx",
+      "sha256": "226aaf5ab11088369b19ce587bab4e63fc5f5ce3b097241c48dd437b699e152a",
+      "byteCount": 8340
+    }
+  ],
+  "screenshotCount": 40,
+  "downloadCount": 19,
+  "pageErrors": 0,
+  "externalRequests": "Blocked; fallback Google fonts; no model or shared backend call",
+  "grades": {
+    "visual": null,
+    "responsive": null,
+    "accessibility": null,
+    "performance": null,
+    "production": null
+  }
+}

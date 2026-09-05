@@ -1,0 +1,69 @@
+{
+  "sourceSha256": "9d77993ed62c210c90dd109591567c419e27f25a25156deabc9305fbfa133176",
+  "sourcePath": "src/ui/mobile/MobileGrid.tsx",
+  "viewport": {
+    "width": 320,
+    "height": 844
+  },
+  "baseCommit": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+  "state": "Current candidate before filename wrapping correction",
+  "errors": [],
+  "beforePngSha256": "1f3a72d18419d9f9479a7b88647447b051e4523b6b983b2c7fee5e7690e4ecc1",
+  "measurements": {
+    "card": {
+      "x": 18,
+      "y": 678.015625,
+      "width": 252,
+      "height": 108.5,
+      "top": 678.015625,
+      "right": 270,
+      "bottom": 786.515625,
+      "left": 18
+    },
+    "column": {
+      "x": 86,
+      "y": 736.515625,
+      "width": 101.5625,
+      "height": 36,
+      "top": 736.515625,
+      "right": 187.5625,
+      "bottom": 772.515625,
+      "left": 86
+    },
+    "textRects": [
+      {
+        "x": 86,
+        "y": 737.515625,
+        "width": 131.140625,
+        "height": 16,
+        "top": 737.515625,
+        "right": 217.140625,
+        "bottom": 753.515625,
+        "left": 86
+      },
+      {
+        "x": 86,
+        "y": 755.515625,
+        "width": 65.953125,
+        "height": 16,
+        "top": 755.515625,
+        "right": 151.953125,
+        "bottom": 771.515625,
+        "left": 86
+      }
+    ],
+    "badge": {
+      "x": 199.5625,
+      "y": 721.265625,
+      "width": 56.4375,
+      "height": 22,
+      "top": 721.265625,
+      "right": 256,
+      "bottom": 743.265625,
+      "left": 199.5625
+    }
+  },
+  "boundaryPngSha256": "a30c225b78c35ada2f32435ce73231847b46a6604922564bf68e4fcb442c4019",
+  "domRestored": true,
+  "status": "OBSERVED"
+}

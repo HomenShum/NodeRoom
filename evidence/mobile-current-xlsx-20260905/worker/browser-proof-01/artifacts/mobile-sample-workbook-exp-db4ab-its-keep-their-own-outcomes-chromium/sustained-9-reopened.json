@@ -1,0 +1,268 @@
+{
+  "filename": "Q3_diligence_tracker.xlsx",
+  "sha256": "c6138415e05a13f55333c46ab43d7f9295b3d46d296d6b86212b6aec2bc31433",
+  "byteCount": 8340,
+  "sheets": [
+    {
+      "name": "Current table",
+      "rows": [
+        null,
+        [
+          null,
+          "Company",
+          "Product",
+          "Funding",
+          "Runway",
+          "Q3 ARR",
+          "Contact"
+        ],
+        [
+          null,
+          "CardioNova",
+          "Reviewed snapshot 9",
+          "Possible Series B",
+          "Unknown",
+          "$1.2M",
+          "Maya Chen"
+        ],
+        [
+          null,
+          "Meridian Health",
+          "Remote cardiac monitoring",
+          "Series A · $14M",
+          "18 mo",
+          "$3.4M",
+          "Devon Park"
+        ],
+        [
+          null,
+          "Vitalink",
+          "EHR integration layer",
+          "Seed · $3M",
+          "Unknown",
+          "$0.4M",
+          "Lena Ortiz"
+        ]
+      ]
+    },
+    {
+      "name": "Sample metadata",
+      "rows": [
+        null,
+        [
+          null,
+          "Local synthetic sample",
+          "No live source, provider or approval verification"
+        ],
+        [
+          null,
+          "Table",
+          "Q3 diligence tracker",
+          "Local table ID",
+          "sheet_q3"
+        ],
+        [
+          null,
+          "Lifetime",
+          "Edits reset when the sheet closes or the page reloads."
+        ],
+        [
+          null,
+          "Claim references",
+          "Recorded sample labels only; no verified evidence or historical workbook is implied."
+        ],
+        null,
+        [
+          null,
+          "Row ID",
+          "Column",
+          "Current value",
+          "Recorded status",
+          "Recorded tone",
+          "Sample claim reference",
+          "Verification"
+        ],
+        [
+          null,
+          "r_cardio",
+          "Company",
+          "CardioNova",
+          "not recorded",
+          "not recorded",
+          "",
+          "Unverified sample metadata"
+        ],
+        [
+          null,
+          "r_cardio",
+          "Product",
+          "Reviewed snapshot 9",
+          "manual note",
+          "mute",
+          "",
+          "Unverified sample metadata"
+        ],
+        [
+          null,
+          "r_cardio",
+          "Funding",
+          "Possible Series B",
+          "needs_review",
+          "warn",
+          "funding",
+          "Unverified sample metadata"
+        ],
+        [
+          null,
+          "r_cardio",
+          "Runway",
+          "Unknown",
+          "source gap",
+          "bad",
+          "runway",
+          "Unverified sample metadata"
+        ],
+        [
+          null,
+          "r_cardio",
+          "Q3 ARR",
+          "$1.2M",
+          "source-backed",
+          "ok",
+          "",
+          "Unverified sample metadata"
+        ],
+        [
+          null,
+          "r_cardio",
+          "Contact",
+          "Maya Chen",
+          "manual note",
+          "mute",
+          "",
+          "Unverified sample metadata"
+        ],
+        [
+          null,
+          "r_meridian",
+          "Company",
+          "Meridian Health",
+          "not recorded",
+          "not recorded",
+          "",
+          "Unverified sample metadata"
+        ],
+        [
+          null,
+          "r_meridian",
+          "Product",
+          "Remote cardiac monitoring",
+          "source-backed",
+          "ok",
+          "",
+          "Unverified sample metadata"
+        ],
+        [
+          null,
+          "r_meridian",
+          "Funding",
+          "Series A · $14M",
+          "source-backed",
+          "ok",
+          "",
+          "Unverified sample metadata"
+        ],
+        [
+          null,
+          "r_meridian",
+          "Runway",
+          "18 mo",
+          "source-backed",
+          "ok",
+          "",
+          "Unverified sample metadata"
+        ],
+        [
+          null,
+          "r_meridian",
+          "Q3 ARR",
+          "$3.4M",
+          "source-backed",
+          "ok",
+          "",
+          "Unverified sample metadata"
+        ],
+        [
+          null,
+          "r_meridian",
+          "Contact",
+          "Devon Park",
+          "source-backed",
+          "ok",
+          "",
+          "Unverified sample metadata"
+        ],
+        [
+          null,
+          "r_vitalink",
+          "Company",
+          "Vitalink",
+          "not recorded",
+          "not recorded",
+          "",
+          "Unverified sample metadata"
+        ],
+        [
+          null,
+          "r_vitalink",
+          "Product",
+          "EHR integration layer",
+          "source-backed",
+          "ok",
+          "",
+          "Unverified sample metadata"
+        ],
+        [
+          null,
+          "r_vitalink",
+          "Funding",
+          "Seed · $3M",
+          "needs_review",
+          "warn",
+          "",
+          "Unverified sample metadata"
+        ],
+        [
+          null,
+          "r_vitalink",
+          "Runway",
+          "Unknown",
+          "source gap",
+          "bad",
+          "",
+          "Unverified sample metadata"
+        ],
+        [
+          null,
+          "r_vitalink",
+          "Q3 ARR",
+          "$0.4M",
+          "partial",
+          "warn",
+          "",
+          "Unverified sample metadata"
+        ],
+        [
+          null,
+          "r_vitalink",
+          "Contact",
+          "Lena Ortiz",
+          "manual note",
+          "mute",
+          "",
+          "Unverified sample metadata"
+        ]
+      ]
+    }
+  ]
+}

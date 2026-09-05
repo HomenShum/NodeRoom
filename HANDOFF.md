@@ -1,0 +1,66 @@
+# NodeRoom developer and user handoff
+
+Start with `AGENTS.md`, then `CLAUDE.md`, `docs/WEDGE.md` and `docs/START_HERE.md`. NodeRoom is an application source build; its embedded `src/nodeagent` is the runtime owner. A separately installed NodeAgent library does not update this app.
+
+## Fresh local entry
+
+Use Node 22 and a clean checkout without copied environment files:
+
+```powershell
+npm ci
+npm run doctor
+npm run build
+npm run preview -- --host 127.0.0.1 --port 54431 --strictPort
+```
+
+Open `http://127.0.0.1:54431/?mode=memory`. Natural phone entry uses a separate seeded mobile example. `?mode=memory&surface=desktop` explicitly selects the desktop memory engine. Shared Convex state and provider execution require a separately configured live environment; this keyless proof certifies neither.
+
+The mobile table contains local synthetic rows. Edits reset when the sheet closes or the page reloads; sample research is timer-driven, not a provider call. Do not infer desktop/mobile state continuity from similar CardioNova/Q3 labels.
+
+## Current-table export repair, independently reviewed within scope
+
+The [portable evidence entry](evidence/mobile-current-xlsx-20260905/README.md) includes the [independent verdict](evidence/mobile-current-xlsx-20260905/reports/E6f_NODEROOM_MOBILE_EXPORT_FINAL_JUDGE.json), actual downloads, before/after pixels, failures and exact source bindings. The verdict approves this export slice with the limitations below; it does not certify the whole repository.
+
+The prior phone Download XLSX action set an exported badge without creating a file. The candidate builds a workbook from the current mobile rows and uses the same serialization/download transport as desktop. The main worksheet preserves literal strings, including leading zeros and formula-like text. A separate sheet marks recorded statuses and claim references as unverified sample metadata.
+
+The UI reports measured bytes and **Download started** only after browser dispatch. That does not assert that the browser saved a file to disk. One active attempt blocks immediate duplicate activation. Changing rows or closing the sheet suppresses late dispatch; this does not cancel serializer CPU. Resource/format failures leave the current values intact and require explicit retry. Table PowerPoint and historical download/restore remain unavailable because there is no corresponding table storyboard or saved historic workbook.
+
+The mobile projection rejects unsupported text instead of silently altering it. It enforces [Microsoft's published cell limits](https://support.microsoft.com/en-us/excel/excel-specifications-and-limits) of 32,767 characters and 253 line feeds. UTF-16 length is used conservatively for supplementary characters. XML controls, carriage returns and lone surrogates are rejected because the installed serializer cannot preserve them exactly; line feeds and valid Unicode are retained. Workbook reopen tests do not certify every native Excel version.
+
+## Verification and remaining holds
+
+Baseline source `2b3e5bd7`: doctor 11/11, build and the unchanged seven-spec memory suite 29/29 passed. Floor's two TypeScript checks passed; 387/388 files and 2,774/2,775 tests passed. One Windows native Excel structural-repair scenario exceeded its 30-second test budget. Its actual slow phase is unknown; the separate native deadline diagnosis remains open. This repair did not rerun COM or weaken that test.
+
+The seven-file implementation passed the normal production build, both TypeScript checks, the unchanged memory suite (29/29), existing plus new workbook/dialog scenarios (8/8), and the named browser export suite (8/8). Its final browser run saved and reopened 19 real mobile XLSX files across six widths, resource failure/retry, immediate duplicate activation, ten later edits, format rejection/recovery and rapid close/reopen. At widths above 760, natural desktop entry was recorded separately before explicitly selecting the mobile component. A real desktop download reopened with exactly the baseline worksheet models, including values, types and formatting.
+
+Independent review replayed eight focused tests and three selected browser scenarios, then checked 16 actual mobile files and one desktop file through ZIP/XML independently of ExcelJS. The retained build SHA names the execution's base commit; raw source hashes bind its actual implementation bytes. Publication only adds evidence and updates this handoff after review. The initial failed probe assumed a deferred import that was already loaded; its raw failure is retained. The replacement proves rapid navigation and no late file, without claiming a captured long-running loading state. A controlled serializer test separately proves the abort check before dispatch. Browser-only doubled text kept the focused download action visible at 390 and 1440; it is not native zoom or whole-layout certification.
+
+Before the first browser replay on a fresh checkout, install Playwright's Chromium browser:
+
+```powershell
+npx playwright install chromium
+```
+
+On Linux hosts that also lack the browser's operating-system packages, use `npx playwright install --with-deps chromium` where system-package installation is permitted. The Windows proof used Chromium already installed on this host; `npm ci` alone does not install that browser.
+
+Then replay the unchanged workflow and focused workbook checks:
+
+```powershell
+npm run test:product:memory
+npx vitest run tests/artifactXlsxExport.test.ts tests/mobileSheetDialog.test.tsx tests/mobileSampleWorkbookExport.test.ts
+```
+
+For the named export browser proof, keep the built preview above running and use a second terminal:
+
+```powershell
+$env:PLAYWRIGHT_BASE_URL = 'http://127.0.0.1:54431'
+$env:PLAYWRIGHT_PORT = '54431'
+$env:PLAYWRIGHT_REUSE_SERVER = '1'
+npx playwright test e2e/mobile-sample-workbook-export.spec.ts --workers=1 --retries=0
+```
+
+The scenario writes exact source hashes, HTML, pixels, console observations and reopened downloads to the configured Playwright output directory. It blocks external requests and uses fallback fonts. Preserve that output before another run. The default browser output path is local test evidence, not a deployment or public certificate.
+
+Additional inherited holds: the baseline full dependency audit has 29 findings (28 moderate, one development high); the production subset has 28 moderate findings. The lock is unchanged; this is not a fresh advisory scan. NodeSlide's immutable package CI mismatch and Gemini nightly missing credential remain separate. The old desktop XLSX projection exports blank Account cells despite visible Revenue/COGS labels; this extraction preserves that behavior and does not certify desktop data completeness. Current instructions reference two absent mobile design documents. The inherited half-height mobile dialog requires scrolling; enlarged navigation tabs have reading limitations and transient edit toasts overlap early outcomes. Full visual, responsive, accessibility, performance, provider and production grades remain unassigned.
+
+The retained proof used no provider call, shared backend change, hook activation, original environment read or production deployment. Old branches and dirty worktrees remain preserved.

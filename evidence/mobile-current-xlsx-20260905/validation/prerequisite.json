@@ -1,0 +1,18 @@
+{
+  "node": "v22.22.2",
+  "command": [
+    "node",
+    "node_modules/@playwright/test/cli.js",
+    "install",
+    "--help"
+  ],
+  "exit": 0,
+  "supportsChromiumAndWithDeps": true,
+  "bothCurrentDocsIncludeInstallBeforeBrowserReplay": true,
+  "installationExecuted": false,
+  "reason": "Documentation-only publication; reviewed host already has Chromium. No runtime/browser/build replay needed.",
+  "docs": {
+    "HANDOFF.md": "5390d1e4794eb03758e22082f6f0d0f6d11f14ba015b09109f68b3e6c9f8dd90",
+    "evidence/mobile-current-xlsx-20260905/README.md": "7b51cfde32265cbdfa35df4eabc87f121be28bd37a41e5005e9b335f8da3e635"
+  }
+}

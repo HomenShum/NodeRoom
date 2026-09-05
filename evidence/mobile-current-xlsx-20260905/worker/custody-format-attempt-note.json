@@ -1,0 +1,10 @@
+{
+  "status": "HARNESS_FORMAT_MISMATCH_CORRECTED",
+  "rawFailure": "AssertionError: candidate refs changed",
+  "cause": "Initial script compared git show-ref (hash then ref) against preserved for-each-ref (ref then hash). The corrected command matches exact original bytes; no refs changed.",
+  "preserved": [
+    "freeze-candidate-format-attempt-01.py.txt",
+    "refs-show-ref-format-attempt-01.bin"
+  ],
+  "final": "freeze.json"
+}

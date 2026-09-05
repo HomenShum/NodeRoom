@@ -1,0 +1,782 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "frozen input HANDOFF.md",
+      "pass": true
+    },
+    {
+      "name": "frozen input e2e/mobile-sample-workbook-export.spec.ts",
+      "pass": true
+    },
+    {
+      "name": "frozen input package-lock.json",
+      "pass": true
+    },
+    {
+      "name": "frozen input package.json",
+      "pass": true
+    },
+    {
+      "name": "frozen input src/ui/App.tsx",
+      "pass": true
+    },
+    {
+      "name": "frozen input src/ui/mobile/MobileApp.tsx",
+      "pass": true
+    },
+    {
+      "name": "frozen input src/ui/mobile/MobileGrid.tsx",
+      "pass": true
+    },
+    {
+      "name": "frozen input src/ui/mobile/MobileRoot.tsx",
+      "pass": true
+    },
+    {
+      "name": "frozen input src/ui/mobile/MobileScreens.tsx",
+      "pass": true
+    },
+    {
+      "name": "frozen input src/ui/mobile/mobileData.ts",
+      "pass": true
+    },
+    {
+      "name": "frozen input src/ui/mobile/mobileSheetExport.ts",
+      "pass": true
+    },
+    {
+      "name": "frozen input src/ui/panels/Artifact.tsx",
+      "pass": true
+    },
+    {
+      "name": "frozen input src/ui/workArtifacts/xlsxDownload.ts",
+      "pass": true
+    },
+    {
+      "name": "frozen input tests/mobileSampleWorkbookExport.test.ts",
+      "pass": true
+    },
+    {
+      "name": "actual edited value 0",
+      "pass": true
+    },
+    {
+      "name": "resource failure emits no file",
+      "pass": true
+    },
+    {
+      "name": "failure has no success caption",
+      "pass": true
+    },
+    {
+      "name": "retry can receive visible keyboard focus",
+      "pass": true,
+      "actual": {
+        "focused": true,
+        "hit": true,
+        "rect": {
+          "x": 18,
+          "y": 799.8125,
+          "width": 322,
+          "height": 44,
+          "top": 799.8125,
+          "right": 340,
+          "bottom": 843.8125,
+          "left": 18
+        },
+        "text": "Retry XLSX download"
+      }
+    },
+    {
+      "name": "download completion 0",
+      "pass": true
+    },
+    {
+      "name": "exact literal cell 0",
+      "pass": true,
+      "actual": {
+        "expected": "=SUM(A1:A3)",
+        "actual": "=SUM(A1:A3)"
+      }
+    },
+    {
+      "name": "not an executable formula 0",
+      "pass": true,
+      "actual": {
+        "type": 3
+      }
+    },
+    {
+      "name": "one explicit activation one file 0",
+      "pass": true
+    },
+    {
+      "name": "receipt bytes match actual file 0",
+      "pass": true,
+      "actual": {
+        "status": "Download started\nQ3_diligence_tracker.xlsx · 8,341 bytes\nstarted",
+        "bytes": 8341
+      }
+    },
+    {
+      "name": "actual edited value 1",
+      "pass": true
+    },
+    {
+      "name": "download completion 1",
+      "pass": true
+    },
+    {
+      "name": "exact literal cell 1",
+      "pass": true,
+      "actual": {
+        "expected": "00123",
+        "actual": "00123"
+      }
+    },
+    {
+      "name": "not an executable formula 1",
+      "pass": true,
+      "actual": {
+        "type": 3
+      }
+    },
+    {
+      "name": "one explicit activation one file 1",
+      "pass": true
+    },
+    {
+      "name": "receipt bytes match actual file 1",
+      "pass": true,
+      "actual": {
+        "status": "Download started\nQ3_diligence_tracker.xlsx · 8,333 bytes\nstarted",
+        "bytes": 8333
+      }
+    },
+    {
+      "name": "no page errors",
+      "pass": true,
+      "actual": []
+    },
+    {
+      "name": "unchanged input HANDOFF.md",
+      "pass": true
+    },
+    {
+      "name": "unchanged input e2e/mobile-sample-workbook-export.spec.ts",
+      "pass": true
+    },
+    {
+      "name": "unchanged input package-lock.json",
+      "pass": true
+    },
+    {
+      "name": "unchanged input package.json",
+      "pass": true
+    },
+    {
+      "name": "unchanged input src/ui/App.tsx",
+      "pass": true
+    },
+    {
+      "name": "unchanged input src/ui/mobile/MobileApp.tsx",
+      "pass": true
+    },
+    {
+      "name": "unchanged input src/ui/mobile/MobileGrid.tsx",
+      "pass": true
+    },
+    {
+      "name": "unchanged input src/ui/mobile/MobileRoot.tsx",
+      "pass": true
+    },
+    {
+      "name": "unchanged input src/ui/mobile/MobileScreens.tsx",
+      "pass": true
+    },
+    {
+      "name": "unchanged input src/ui/mobile/mobileData.ts",
+      "pass": true
+    },
+    {
+      "name": "unchanged input src/ui/mobile/mobileSheetExport.ts",
+      "pass": true
+    },
+    {
+      "name": "unchanged input src/ui/panels/Artifact.tsx",
+      "pass": true
+    },
+    {
+      "name": "unchanged input src/ui/workArtifacts/xlsxDownload.ts",
+      "pass": true
+    },
+    {
+      "name": "unchanged input tests/mobileSampleWorkbookExport.test.ts",
+      "pass": true
+    }
+  ],
+  "files": [
+    {
+      "file": "literal-0.xlsx",
+      "value": "=SUM(A1:A3)",
+      "sha256": "334f12d9aad8a7d4391aa39d06aa49a02148175ab1c3e3cfd1194a4f89de3739",
+      "bytes": 8341,
+      "sheets": [
+        {
+          "name": "Current table",
+          "rows": [
+            null,
+            [
+              null,
+              "Company",
+              "Product",
+              "Funding",
+              "Runway",
+              "Q3 ARR",
+              "Contact"
+            ],
+            [
+              null,
+              "CardioNova",
+              "=SUM(A1:A3)",
+              "Possible Series B",
+              "Unknown",
+              "$1.2M",
+              "Maya Chen"
+            ],
+            [
+              null,
+              "Meridian Health",
+              "Remote cardiac monitoring",
+              "Series A · $14M",
+              "18 mo",
+              "$3.4M",
+              "Devon Park"
+            ],
+            [
+              null,
+              "Vitalink",
+              "EHR integration layer",
+              "Seed · $3M",
+              "Unknown",
+              "$0.4M",
+              "Lena Ortiz"
+            ]
+          ]
+        },
+        {
+          "name": "Sample metadata",
+          "rows": [
+            null,
+            [
+              null,
+              "Local synthetic sample",
+              "No live source, provider or approval verification"
+            ],
+            [
+              null,
+              "Table",
+              "Q3 diligence tracker",
+              "Local table ID",
+              "sheet_q3"
+            ],
+            [
+              null,
+              "Lifetime",
+              "Edits reset when the sheet closes or the page reloads."
+            ],
+            [
+              null,
+              "Claim references",
+              "Recorded sample labels only; no verified evidence or historical workbook is implied."
+            ],
+            null,
+            [
+              null,
+              "Row ID",
+              "Column",
+              "Current value",
+              "Recorded status",
+              "Recorded tone",
+              "Sample claim reference",
+              "Verification"
+            ],
+            [
+              null,
+              "r_cardio",
+              "Company",
+              "CardioNova",
+              "not recorded",
+              "not recorded",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_cardio",
+              "Product",
+              "=SUM(A1:A3)",
+              "manual note",
+              "mute",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_cardio",
+              "Funding",
+              "Possible Series B",
+              "needs_review",
+              "warn",
+              "funding",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_cardio",
+              "Runway",
+              "Unknown",
+              "source gap",
+              "bad",
+              "runway",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_cardio",
+              "Q3 ARR",
+              "$1.2M",
+              "source-backed",
+              "ok",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_cardio",
+              "Contact",
+              "Maya Chen",
+              "manual note",
+              "mute",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_meridian",
+              "Company",
+              "Meridian Health",
+              "not recorded",
+              "not recorded",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_meridian",
+              "Product",
+              "Remote cardiac monitoring",
+              "source-backed",
+              "ok",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_meridian",
+              "Funding",
+              "Series A · $14M",
+              "source-backed",
+              "ok",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_meridian",
+              "Runway",
+              "18 mo",
+              "source-backed",
+              "ok",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_meridian",
+              "Q3 ARR",
+              "$3.4M",
+              "source-backed",
+              "ok",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_meridian",
+              "Contact",
+              "Devon Park",
+              "source-backed",
+              "ok",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_vitalink",
+              "Company",
+              "Vitalink",
+              "not recorded",
+              "not recorded",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_vitalink",
+              "Product",
+              "EHR integration layer",
+              "source-backed",
+              "ok",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_vitalink",
+              "Funding",
+              "Seed · $3M",
+              "needs_review",
+              "warn",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_vitalink",
+              "Runway",
+              "Unknown",
+              "source gap",
+              "bad",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_vitalink",
+              "Q3 ARR",
+              "$0.4M",
+              "partial",
+              "warn",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_vitalink",
+              "Contact",
+              "Lena Ortiz",
+              "manual note",
+              "mute",
+              "",
+              "Unverified sample metadata"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "file": "literal-1.xlsx",
+      "value": "00123",
+      "sha256": "73d82ad3027884b4f58253b7a6112528d9771e9a9b2779c88b1dbf31cf3e279c",
+      "bytes": 8333,
+      "sheets": [
+        {
+          "name": "Current table",
+          "rows": [
+            null,
+            [
+              null,
+              "Company",
+              "Product",
+              "Funding",
+              "Runway",
+              "Q3 ARR",
+              "Contact"
+            ],
+            [
+              null,
+              "CardioNova",
+              "00123",
+              "Possible Series B",
+              "Unknown",
+              "$1.2M",
+              "Maya Chen"
+            ],
+            [
+              null,
+              "Meridian Health",
+              "Remote cardiac monitoring",
+              "Series A · $14M",
+              "18 mo",
+              "$3.4M",
+              "Devon Park"
+            ],
+            [
+              null,
+              "Vitalink",
+              "EHR integration layer",
+              "Seed · $3M",
+              "Unknown",
+              "$0.4M",
+              "Lena Ortiz"
+            ]
+          ]
+        },
+        {
+          "name": "Sample metadata",
+          "rows": [
+            null,
+            [
+              null,
+              "Local synthetic sample",
+              "No live source, provider or approval verification"
+            ],
+            [
+              null,
+              "Table",
+              "Q3 diligence tracker",
+              "Local table ID",
+              "sheet_q3"
+            ],
+            [
+              null,
+              "Lifetime",
+              "Edits reset when the sheet closes or the page reloads."
+            ],
+            [
+              null,
+              "Claim references",
+              "Recorded sample labels only; no verified evidence or historical workbook is implied."
+            ],
+            null,
+            [
+              null,
+              "Row ID",
+              "Column",
+              "Current value",
+              "Recorded status",
+              "Recorded tone",
+              "Sample claim reference",
+              "Verification"
+            ],
+            [
+              null,
+              "r_cardio",
+              "Company",
+              "CardioNova",
+              "not recorded",
+              "not recorded",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_cardio",
+              "Product",
+              "00123",
+              "manual note",
+              "mute",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_cardio",
+              "Funding",
+              "Possible Series B",
+              "needs_review",
+              "warn",
+              "funding",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_cardio",
+              "Runway",
+              "Unknown",
+              "source gap",
+              "bad",
+              "runway",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_cardio",
+              "Q3 ARR",
+              "$1.2M",
+              "source-backed",
+              "ok",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_cardio",
+              "Contact",
+              "Maya Chen",
+              "manual note",
+              "mute",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_meridian",
+              "Company",
+              "Meridian Health",
+              "not recorded",
+              "not recorded",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_meridian",
+              "Product",
+              "Remote cardiac monitoring",
+              "source-backed",
+              "ok",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_meridian",
+              "Funding",
+              "Series A · $14M",
+              "source-backed",
+              "ok",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_meridian",
+              "Runway",
+              "18 mo",
+              "source-backed",
+              "ok",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_meridian",
+              "Q3 ARR",
+              "$3.4M",
+              "source-backed",
+              "ok",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_meridian",
+              "Contact",
+              "Devon Park",
+              "source-backed",
+              "ok",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_vitalink",
+              "Company",
+              "Vitalink",
+              "not recorded",
+              "not recorded",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_vitalink",
+              "Product",
+              "EHR integration layer",
+              "source-backed",
+              "ok",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_vitalink",
+              "Funding",
+              "Seed · $3M",
+              "needs_review",
+              "warn",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_vitalink",
+              "Runway",
+              "Unknown",
+              "source gap",
+              "bad",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_vitalink",
+              "Q3 ARR",
+              "$0.4M",
+              "partial",
+              "warn",
+              "",
+              "Unverified sample metadata"
+            ],
+            [
+              null,
+              "r_vitalink",
+              "Contact",
+              "Lena Ortiz",
+              "manual note",
+              "mute",
+              "",
+              "Unverified sample metadata"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "captures": [
+    {
+      "name": "keyboard-retry-visible",
+      "pngSha256": "cc36cf8cb6650429afab9bf4c304103bd30363a77c3a20e6aaa21dcbdd90dc57",
+      "htmlSha256": "73611b085d75eda86d444eecba91d9a56f1655174d959b8136223340b789d627"
+    },
+    {
+      "name": "literal-started-0",
+      "pngSha256": "fae6eff0685d5638632be18bfec2b68b9cb0782c06c2e7583e88d5298ef5ed1c",
+      "htmlSha256": "d54d450fda66e228b15a9893fc16bcb7715543eb3bcb1abf43c014075548556d"
+    },
+    {
+      "name": "literal-started-1",
+      "pngSha256": "298936c4c2d698b921368a2b3f28d2aa90cf87f09911869e6abf1e3ab24d4d63",
+      "htmlSha256": "c179d44ccdba2e3400351e4b7b208d04bbb40af89ae3f12971300004ae18e28d"
+    }
+  ],
+  "errors": [],
+  "externalRequests": [
+    "https://fonts.googleapis.com/css2"
+  ],
+  "sourceDigest": "d0c341bed80723c345208233f6f8e71c8f3e41e237d30a1ff63439457b0b0f3e",
+  "scope": "Actual 390px memory/sample UI; no app response override; one explicit resource-failure injection; fallback fonts; browser pixel and XML/ExcelJS proof, not native Excel."
+}

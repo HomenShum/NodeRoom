@@ -1,0 +1,3 @@
+# CHANGE A: current export filename
+
+The current exported filename has no break opportunity and exceeds the existing text column at320px. Apply overflow-wrap:anywhere only to the existing export metadata span. Preserve card columns, badge, action, modal and other tabs. This is the already approved export owner; no broader layout change. The labelled box is3px and the original DOM was restored exactly.

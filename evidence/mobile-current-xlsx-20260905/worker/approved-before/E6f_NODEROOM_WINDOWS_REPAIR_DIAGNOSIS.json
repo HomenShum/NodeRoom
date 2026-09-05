@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-09-05T09:59:24.840637+00:00",
+  "mode": "Builder",
+  "proof": "NODEROOM-WINDOWS-STRUCTURAL-REPAIR-TIMEOUT-DIAGNOSIS",
+  "verdict": "CAUSAL_BOUNDARY_IDENTIFIED_NATIVE_PHASE_UNPROVEN",
+  "requestTrace": "Re your request to make each repository ready for developer/user handoff: diagnose the one current Windows floor failure without endangering existing Excel work or weakening the test.",
+  "reviewer": {
+    "agent": "/root/nodemem_mobile_judge",
+    "readOnly": true,
+    "implementationNonauthor": true,
+    "contextReuse": true
+  },
+  "source": {
+    "repo": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "head": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+    "branch": "codex/noderoom-current-consumer-20260905",
+    "sourceBindings": "E6f-noderoom-windows-repair-diagnosis/source-bindings.json",
+    "sourceAndGitUntouched": true
+  },
+  "observed": {
+    "floorExitCode": 1,
+    "outerCommandTimedOut": false,
+    "outerBudgetSeconds": 1200,
+    "floorElapsedSeconds": 410.125,
+    "vitestDurationSeconds": 325,
+    "passingTestFiles": 387,
+    "totalTestFiles": 388,
+    "passingTests": 2774,
+    "totalTests": 2775,
+    "failingFile": "tests/spreadsheetBenchNodeAgentBridge.test.ts",
+    "failingTest": "binds every structural repair operation to a mutation target",
+    "testDefinitionLine": 691,
+    "testBudgetMs": 30000,
+    "reportedCaseElapsedMs": 62031,
+    "reportedFileElapsedMs": 63932,
+    "phaseTimingOrNativeReceiptInLog": false,
+    "rootAndConvexTypechecks": "Passed before the chained Vitest command executed."
+  },
+  "confirmedFromExactSource": {
+    "platformDifference": "On win32 the test passes no applyStructuralRepairs adapter; other platforms inject a completed receipt. Windows also opens the synthetic emitted workbook to verify B4=Case, C4=3 and C13 selector formula. The platform split was introduced by commit 13916b670be974e349d25951f63c1e37c3b9287b, preserving the 30s bound.",
+    "upstreamSequence": [
+      "Create a synthetic ExcelJS workbook with ten broken CHOOSE selector formulas.",
+      "Run the contract-first local bridge model; its supplied delegate is a local throwing object, never an external model client.",
+      "Complete the reasoning frame, recalculate in memory and emit the candidate file.",
+      "If structural plans exist, invoke applySpreadsheetBenchStructuralRepairs on the emitted candidate with workbookPath and repairs only.",
+      "The adapter synchronously runs powershell.exe, writes a temporary JSON plan, then parses the final stdout receipt.",
+      "PowerShell activates Excel COM, opens the candidate, inserts/rewrites values/formulas, performs six CalculateFullRebuild passes, saves, closes and attempts Quit/release in finally.",
+      "The bridge hashes and returns the candidate/trace; the test asserts zero delegation, 13 mutation targets, completed verification and the Windows workbook contents."
+    ],
+    "timeoutMismatch": {
+      "testMs": 30000,
+      "nativeDefaultMs": 180000,
+      "nativeMinimumMs": 30000,
+      "synchronous": true,
+      "bridgeForwardsTimeout": false,
+      "modelDeadlineScope": "modelTimeoutMs governs the earlier reasoning frame only; this test supplies none, and structural export occurs afterward.",
+      "outputCapBytes": 4194304
+    },
+    "vitestMechanism": "Installed @vitest/runner 4.1.10 withTimeout uses setTimeout and checks elapsed time again on resolution. A synchronous subprocess can prevent the worker JS timer from running, then trigger a timeout after returning. This explains how a 30s timeout may be reported at62s without proving the historical native operation or duration.",
+    "observabilityGap": "The adapter captures stdout and returns only a success receipt; native phase entry/exit, owned Excel process identity and cleanup confirmation are not emitted into the retained floor log. The adapter removes its temporary plan directory in finally.",
+    "cleanupLimit": "Source attempts workbook Close, Excel Quit and COM release. This does not establish which operations completed historically or whether any owned Excel process remains. No live process or workbook inspection was performed."
+  },
+  "causalAssessment": {
+    "highConfidence": "The test deadline does not bound the reachable synchronous native operation, and the two deadlines are inconsistent. The non-Windows route has different coverage, so its passing result cannot certify Windows native export.",
+    "plausibleButNotProven": "The native branch is the strongest source-based candidate for the elapsed overrun; actual phase arrival/timing was not recorded. Activation, Open, row/formula edits, recalculation, Save, Close/Quit/GC, file I/O, scheduling or combinations remain unlocalized.",
+    "notEstablished": [
+      "Excel hung.",
+      "The native child hit its 180s timeout.",
+      "The workbook was or was not successfully repaired before the late test failure.",
+      "The zero-delegate and all workbook assertions were reached.",
+      "A process remains or existing user work was changed.",
+      "Increasing the test timeout would fix the underlying boundary."
+    ]
+  },
+  "smallestSafeNextProof": {
+    "name": "NODEROOM-STRUCTURAL-EXPORT-DEADLINE-01",
+    "environment": "A disposable Windows user/session or controlled runner with no existing user workbooks. Do not repeat COM on this interactive desktop. Use the existing synthetic fixture; no provider configuration.",
+    "sequence": [
+      "Retain the current failed gate and unchanged 30s native test/13-target/zero-delegate/content assertions.",
+      "Add evidence-only timestamped stage entry/exit around bridge emit/native invocation and native activation/Open/edit/recalculate/Save/Close/Quit; capture bounded stderr separately from the final JSON receipt. Bind exact source and fixture hashes.",
+      "Run only the existing named Windows native case once in that isolated environment. If it exceeds the existing limit, retain its last observed stage and failure; no automatic retry or Excel-wide cleanup.",
+      "Use that measured phase to select the smallest owner fix; separately prove the execution boundary using a harmless owned child that stalls or exits with failure, without substituting it for native Windows repair coverage.",
+      "After a fix, replay the unchanged real native scenario, read its synthetic output contents and hashes, verify zero delegate calls and every 13 mutation target, then run the required full floor in the isolated supported environment."
+    ]
+  },
+  "repairProposal": {
+    "status": "PROPOSED_NOT_IMPLEMENTED",
+    "confirmedBoundaryRepair": "Replace the blocking subprocess seam with an asynchronous bounded child operation, preserve the existing receipt/error rules and 4MiB output cap, and align the native deadline with the caller remaining budget. Remove the inability to honor a sub-30s native budget. Do not just add a JS Promise.race around execFileSync.",
+    "necessaryOwnershipCondition": "A timeout must not report completed, continue later writes unnoticed, or terminate unrelated Excel sessions. Prove ownership and cleanup of the native worker in the isolated runner before claiming safe cancellation; killing only PowerShell is not proof that an out-of-process COM server is closed.",
+    "phaseSpecificFix": "Undecided until a slow stage is observed. Async deadline handling improves bounded failure but does not itself make the native happy path finish within 30s. Preserve the failed floor until the unchanged native contract actually passes.",
+    "expectedOwnerFiles": [
+      "src/eval/spreadsheetBenchStructuralRepair.ts",
+      "scripts/spreadsheetbench-structural-repair.ps1",
+      "src/eval/spreadsheetBenchNodeAgentBridge.ts only if explicit budget/diagnostic propagation is required"
+    ],
+    "forbiddenShortcuts": [
+      "Raise or remove the 30s assertion without a measured and explicitly revised product budget.",
+      "Inject the completed non-Windows adapter on Windows or skip its native output assertions.",
+      "Replace COM structural semantics with an unverified formula-only approximation.",
+      "Kill Excel by process name, attach to the user instance, inspect real workbooks, or assume cleanup from a timed-out wrapper.",
+      "Treat green Linux CI, build or memory-browser tests as proof this Windows gate is green."
+    ],
+    "scope": "No native implementation change is justified as a latency fix until the responsible phase is measured. No broad benchmark redesign or new provider work."
+  },
+  "eightPointChecklistForAnyLaterBackendRepair": {
+    "BOUND": "Preserve bounded diagnostic/output storage; exact targeted input only.",
+    "HONEST_STATUS": "Timeout, missing/invalid receipt and child failure must stay failure.",
+    "HONEST_SCORES": "Floor remains failed and grades null until real proof.",
+    "TIMEOUT": "Caller/native deadline and cancellable owned subprocess must agree.",
+    "SSRF": "No new network path; provider stays absent.",
+    "BOUND_READ": "Retain 4MiB stdout/stderr budget or a tighter measured bounded diagnostic channel.",
+    "ERROR_BOUNDARY": "Propagate asynchronous failure and finish/record owned cleanup without swallowing the primary error.",
+    "DETERMINISTIC": "Preserve exact input/output hashes, sorted repair identities and all 13 mutation targets; no CAS policy changes."
+  },
+  "verification": {
+    "readOnlyChecks": 9,
+    "pass": true,
+    "testsRerun": 0,
+    "nativeCOMRuns": 0,
+    "providerCalls": 0,
+    "processEnumerationOrTermination": false,
+    "environmentWorkbookDatabaseReads": false,
+    "sourceTestsConfigurationEdits": false,
+    "gitMutation": false
+  },
+  "limits": [
+    "Diagnosis is from raw historical floor output and exact current source/dependency implementation; it is not a native reproduction or a phase-duration measurement.",
+    "No existing Excel state was read, changed or closed.",
+    "NodeRoom first-run browser proof and NodeSlide dependency gate remain separate worker scopes. Full readiness/visual/human/production grades remain unassigned."
+  ],
+  "artifacts": [
+    {
+      "path": "E6f-noderoom-windows-repair-diagnosis/floor-baseline.command.json",
+      "bytes": 726,
+      "sha256": "449fc81c8a8674da02dc70253a6897dc439fcdf7b4e157aea90170019609e77e"
+    },
+    {
+      "path": "E6f-noderoom-windows-repair-diagnosis/floor-baseline.log",
+      "bytes": 7904,
+      "sha256": "07eb5c32f39e253eeddaa5486ffbd1c69e5c1a146d4b47e65e7802ef71851f97"
+    },
+    {
+      "path": "E6f-noderoom-windows-repair-diagnosis/historical-platform-test.patch",
+      "bytes": 2272,
+      "sha256": "dc65fbb79f156926ec25282db50bd46d33493ec495868a80c02d0adda098ef1b"
+    },
+    {
+      "path": "E6f-noderoom-windows-repair-diagnosis/read-only-verification.json",
+      "bytes": 2010,
+      "sha256": "3fdd5430ab729748cc3544f86988ac1efa7c3daa380173993dff569cf93368f7"
+    },
+    {
+      "path": "E6f-noderoom-windows-repair-diagnosis/source-bindings.json",
+      "bytes": 3542,
+      "sha256": "53edc929436cf0357f758f4eca26033057981f3bc60382e316eb0af3c2e5b2fd"
+    },
+    {
+      "path": "E6f-noderoom-windows-repair-diagnosis/source-excerpts.json",
+      "bytes": 21288,
+      "sha256": "f9c7f187d040d1596f07aabb30bb787186b18dd7f21bc2ec0e2ccd16348450bf"
+    },
+    {
+      "path": "E6f_NODEROOM_CURRENT_RECON.md",
+      "bytes": 11244,
+      "sha256": "36d483f44fedf4ee0d121006d959a799f6c18713c171cc862afb7f538c34efa2"
+    }
+  ],
+  "nextOwner": "The sole NodeRoom implementation worker may prepare the bounded instrumented isolated proof after root accepts this diagnosis. No implementation or user-approval request was performed."
+}

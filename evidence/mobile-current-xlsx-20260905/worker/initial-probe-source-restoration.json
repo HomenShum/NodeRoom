@@ -1,0 +1,6 @@
+{
+  "method": "Reconstructed from retained next revision by reversing the exact capture/closing-test delta; accepted only after SHA256 matches the original per-test receipt",
+  "expected": "125523d0d07811099219b78b8b1e0ef3c4219de66c2ff0df3bd10a25ae4a4a4d",
+  "actual": "125523d0d07811099219b78b8b1e0ef3c4219de66c2ff0df3bd10a25ae4a4a4d",
+  "matches": true
+}

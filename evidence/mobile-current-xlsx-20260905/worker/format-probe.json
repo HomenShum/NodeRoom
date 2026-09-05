@@ -1,0 +1,56 @@
+[
+  {
+    "name": "literal-leading-zero",
+    "length": 5,
+    "byteCount": 6384,
+    "exact": true,
+    "returnedLength": 5,
+    "type": 3,
+    "formula": null
+  },
+  {
+    "name": "literal-formula",
+    "length": 4,
+    "byteCount": 6384,
+    "exact": true,
+    "returnedLength": 4,
+    "type": 3,
+    "formula": null
+  },
+  {
+    "name": "xml-control",
+    "length": 3,
+    "byteCount": 6382,
+    "exact": false,
+    "returnedLength": 2,
+    "type": 3,
+    "formula": null
+  },
+  {
+    "name": "lone-surrogate",
+    "length": 1,
+    "byteCount": 6387,
+    "exact": false,
+    "returnedLength": 1,
+    "type": 3,
+    "formula": null
+  },
+  {
+    "name": "long-text",
+    "length": 32768,
+    "byteCount": 6439,
+    "exact": true,
+    "returnedLength": 32768,
+    "type": 3,
+    "formula": null
+  },
+  {
+    "name": "unicode-newline",
+    "length": 9,
+    "byteCount": 6410,
+    "exact": true,
+    "returnedLength": 9,
+    "type": 3,
+    "formula": null
+  }
+]

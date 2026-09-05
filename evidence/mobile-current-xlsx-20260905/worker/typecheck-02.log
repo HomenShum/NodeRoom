@@ -1,0 +1,4 @@
+
+> noderoom@0.1.1 typecheck
+> tsc --noEmit --pretty false
+

@@ -1,0 +1,85 @@
+
+> noderoom@0.1.1 floor
+> npm run typecheck -- --pretty false && npx tsc --noEmit --project convex/tsconfig.json --pretty false && npm test -- --run
+
+
+> noderoom@0.1.1 typecheck
+> tsc --noEmit --pretty false
+
+
+> noderoom@0.1.1 test
+> vitest run --run
+
+
+ RUN  v4.1.10 D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905
+
+2:42:09 AM [vite] (client) Failed to load source map for D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/vendor/nodegraph-live/dist/index.js.
+Error: An error occurred while trying to read the map file at index.js.map
+Error: ENOENT: no such file or directory, open 'D:\VSCode Projects\cafecorner_nodebench\nodebench_ai4\.portfolio-worktrees\noderoom-current-consumer-20260905\vendor\nodegraph-live\dist\index.js.map'
+    at open (node:internal/fs/promises:639:25)
+    at Object.readFile (node:internal/fs/promises:1249:14)
+    at extractSourcemapFromFile (file:///D:/VSCode%20Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/node_modules/vite/dist/node/chunks/dep-Dm0c1Wj2.js:11154:53)
+    at loadAndTransform (file:///D:/VSCode%20Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/node_modules/vite/dist/node/chunks/dep-Dm0c1Wj2.js:35807:27)
+2:42:09 AM [vite] (client) Failed to load source map for D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/vendor/nodegraph-live/dist/graph-model.js.
+Error: An error occurred while trying to read the map file at graph-model.js.map
+Error: ENOENT: no such file or directory, open 'D:\VSCode Projects\cafecorner_nodebench\nodebench_ai4\.portfolio-worktrees\noderoom-current-consumer-20260905\vendor\nodegraph-live\dist\graph-model.js.map'
+    at open (node:internal/fs/promises:639:25)
+    at Object.readFile (node:internal/fs/promises:1249:14)
+    at extractSourcemapFromFile (file:///D:/VSCode%20Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/node_modules/vite/dist/node/chunks/dep-Dm0c1Wj2.js:11154:53)
+    at loadAndTransform (file:///D:/VSCode%20Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/node_modules/vite/dist/node/chunks/dep-Dm0c1Wj2.js:35807:27)
+2:42:09 AM [vite] (client) Failed to load source map for D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/vendor/nodegraph-live/dist/session.js.
+Error: An error occurred while trying to read the map file at session.js.map
+Error: ENOENT: no such file or directory, open 'D:\VSCode Projects\cafecorner_nodebench\nodebench_ai4\.portfolio-worktrees\noderoom-current-consumer-20260905\vendor\nodegraph-live\dist\session.js.map'
+    at open (node:internal/fs/promises:639:25)
+    at Object.readFile (node:internal/fs/promises:1249:14)
+    at extractSourcemapFromFile (file:///D:/VSCode%20Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/node_modules/vite/dist/node/chunks/dep-Dm0c1Wj2.js:11154:53)
+    at loadAndTransform (file:///D:/VSCode%20Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/node_modules/vite/dist/node/chunks/dep-Dm0c1Wj2.js:35807:27)
+ ❯ |node| tests/spreadsheetBenchNodeAgentBridge.test.ts (28 tests | 1 failed) 63932ms
+     × binds every structural repair operation to a mutation target 62031ms
+(node:49400) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:44056) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+2:45:42 AM [vite] (ssr) Failed to load source map for D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/vendor/nodegraph-live/dist/index.js.
+Error: An error occurred while trying to read the map file at index.js.map
+Error: ENOENT: no such file or directory, open 'D:\VSCode Projects\cafecorner_nodebench\nodebench_ai4\.portfolio-worktrees\noderoom-current-consumer-20260905\vendor\nodegraph-live\dist\index.js.map'
+    at open (node:internal/fs/promises:639:25)
+    at Object.readFile (node:internal/fs/promises:1249:14)
+    at extractSourcemapFromFile (file:///D:/VSCode%20Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/node_modules/vite/dist/node/chunks/dep-Dm0c1Wj2.js:11154:53)
+    at loadAndTransform (file:///D:/VSCode%20Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/node_modules/vite/dist/node/chunks/dep-Dm0c1Wj2.js:35807:27)
+2:45:42 AM [vite] (ssr) Failed to load source map for D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/vendor/nodegraph-live/dist/graph-model.js.
+Error: An error occurred while trying to read the map file at graph-model.js.map
+Error: ENOENT: no such file or directory, open 'D:\VSCode Projects\cafecorner_nodebench\nodebench_ai4\.portfolio-worktrees\noderoom-current-consumer-20260905\vendor\nodegraph-live\dist\graph-model.js.map'
+    at open (node:internal/fs/promises:639:25)
+    at Object.readFile (node:internal/fs/promises:1249:14)
+    at extractSourcemapFromFile (file:///D:/VSCode%20Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/node_modules/vite/dist/node/chunks/dep-Dm0c1Wj2.js:11154:53)
+    at loadAndTransform (file:///D:/VSCode%20Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/node_modules/vite/dist/node/chunks/dep-Dm0c1Wj2.js:35807:27)
+2:45:42 AM [vite] (ssr) Failed to load source map for D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/vendor/nodegraph-live/dist/session.js.
+Error: An error occurred while trying to read the map file at session.js.map
+Error: ENOENT: no such file or directory, open 'D:\VSCode Projects\cafecorner_nodebench\nodebench_ai4\.portfolio-worktrees\noderoom-current-consumer-20260905\vendor\nodegraph-live\dist\session.js.map'
+    at open (node:internal/fs/promises:639:25)
+    at Object.readFile (node:internal/fs/promises:1249:14)
+    at extractSourcemapFromFile (file:///D:/VSCode%20Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/node_modules/vite/dist/node/chunks/dep-Dm0c1Wj2.js:11154:53)
+    at loadAndTransform (file:///D:/VSCode%20Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/node_modules/vite/dist/node/chunks/dep-Dm0c1Wj2.js:35807:27)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/spreadsheetBenchNodeAgentBridge.test.ts > SpreadsheetBench canonical NodeAgent bridge > binds every structural repair operation to a mutation target
+Error: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/spreadsheetBenchNodeAgentBridge.test.ts:691:3
+    689|   });
+    690|
+    691|   it("binds every structural repair operation to a mutation target", a…
+       |   ^
+    692|     const root = tempRoot();
+    693|     const task = await stagedStructuralRepairTask(root);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 387 passed (388)
+      Tests  1 failed | 2774 passed (2775)
+   Start at  02:40:47
+   Duration  325.00s (transform 15.58s, setup 26.54s, import 199.92s, tests 281.59s, environment 81.42s)
+

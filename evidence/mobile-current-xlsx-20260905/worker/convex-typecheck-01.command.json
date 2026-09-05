@@ -1,0 +1,23 @@
+{
+  "startedAt": "2026-09-05T10:47:31.514528+00:00",
+  "finishedAt": "2026-09-05T10:47:39.597153+00:00",
+  "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+  "argv": [
+    "cmd.exe",
+    "/d",
+    "/c",
+    "npx",
+    "tsc",
+    "--noEmit",
+    "--project",
+    "convex/tsconfig.json",
+    "--pretty",
+    "false"
+  ],
+  "timeoutSeconds": 120,
+  "timedOut": false,
+  "exitCode": 0,
+  "elapsedSeconds": 8.078,
+  "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-mobile-export-repair\\convex-typecheck-01.log",
+  "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+}

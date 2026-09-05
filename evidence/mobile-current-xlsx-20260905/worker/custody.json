@@ -1,0 +1,44 @@
+{
+  "at": "2026-09-05T10:29:10.137163+00:00",
+  "approvedPlanSha256": "08ebb51b40d65d7d5ff43d7d875bbd97dabfec2d0b67f55baa7196044020dfb0",
+  "currentInputs": {
+    "src/ui/mobile/MobileGrid.tsx": "0a6668ce922a4eeeabb9b8b65e5f5275f715106f3ffaadcea1d3e733a8d406dc",
+    "src/ui/mobile/mobileData.ts": "adba645a40703f211b8ac2f27058ffefddaedcfff99e0ec0b08a5c8e4a386d85",
+    "src/ui/mobile/MobileApp.tsx": "f2471aa294e13c5e3c055953473695a8fc6c5705057cc80dbae1453cfd25e304",
+    "src/ui/mobile/MobileScreens.tsx": "a25dd7b50189441412d2094dc860e8065963367b617b464b1ad142a10517812b",
+    "src/ui/panels/Artifact.tsx": "7bf92f4e39a291a8bd86a1605274464d4dff84ea6c6961c4a36ee2611b2286dc",
+    "src/ui/workArtifacts/deckPptxExport.ts": "159d7ee347eeae124e11284bd23928dae7b77e58514b7fa919b7abea5385be2f",
+    "tests/artifactXlsxExport.test.ts": "1a84ba5c5722797fa79883c476533c37b3cfea54b38a3385cff7feeff7914825",
+    "tests/mobileSheetDialog.test.tsx": "34ba522e1dbb2504c3ee2f5f9ebe8af4a91296dcac023b25102dbdf65a1ace41",
+    "scripts/run-product-memory-playwright.mjs": "c5be9b03bd8d94e00574042d56b295f490baf9f801f778e1748c52be175afa28",
+    "package.json": "7e6758419aef89fccb653258fd0c7c6258cd818e716a50924cec88a92ac19f32",
+    "package-lock.json": "ee580757a997b0fd846ee802bd1c283889a6fb3ee8eb8d1efef6e5170df2689a"
+  },
+  "commands": {
+    "head": {
+      "sha256": "e6c627b7bee41d060aa39f81e9815ec7417f3d7c94e36e3182d51cf98ab28a70",
+      "exit": 0
+    },
+    "status": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0
+    },
+    "refs": {
+      "sha256": "dbde28a0f4fc3f028a6712430c017101ad0129655b9e78defe7233b050f16c10",
+      "exit": 0
+    },
+    "index": {
+      "sha256": "1ea5535b041e3ed40fab49801816d24fbe732338ba0173adac074c97aca6cf3c",
+      "exit": 0
+    }
+  },
+  "scope": [
+    "src/ui/mobile/MobileGrid.tsx",
+    "src/ui/panels/Artifact.tsx",
+    "src/ui/workArtifacts/xlsxDownload.ts",
+    "src/ui/mobile/mobileSheetExport.ts",
+    "tests/mobileSampleWorkbookExport.test.ts",
+    "e2e/mobile-sample-workbook-export.spec.ts",
+    "HANDOFF.md"
+  ]
+}

@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "mode": "Builder",
+  "verdict": "APPROVED_SCOPED_MOBILE_CURRENT_XLSX_WITH_INHERITED_HOLDS",
+  "requestTrace": "Make each repository usable and ready for developer/user handoff, including visual UI, responsiveness and interaction standards, using planner-worker-judge.",
+  "scope": "NODEROOM-MOBILE-TABLE-EXPORT-01 only; fresh independent implementation review by a nonauthor reviewer with reused portfolio context. No native Excel, provider, production or full-repository certification.",
+  "candidate": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+  "baseCommit": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+  "branch": "codex/noderoom-current-consumer-20260905",
+  "testedSourceDigest": "d0c341bed80723c345208233f6f8e71c8f3e41e237d30a1ff63439457b0b0f3e",
+  "effectiveSourceDigest": "5be5f9e25b7ba996c516943bb87b2fb918fa4bb36c40547e90285b42a03fd741",
+  "sourceDigestFormula": "SHA256(UTF8(JSON.stringify(sorted [path, sha256] entries), no spaces/newline; forward-slash relative paths))",
+  "effectiveSource": {
+    "HANDOFF.md": "ccc6664bafbc12440c702aa4fa715b34f2ea0b35c83554e6deb53b0ccedba2ba",
+    "e2e/mobile-sample-workbook-export.spec.ts": "b32079d1ef7fa74384ee68740e46495628ed3398001273f9840167cc4c66f775",
+    "src/ui/mobile/MobileGrid.tsx": "2ca4846af0b55b8ee490fe16a754e96abac878b62056f37a0baf7bad664aa4ef",
+    "src/ui/mobile/mobileSheetExport.ts": "a99dcf2276282e8d4859faa609bce22d73c8b6895a07eed3c239b8f42ced211c",
+    "src/ui/panels/Artifact.tsx": "701cbef1cbe9ca89dea754b203243dbd760aa04d9062f6053e1615f7cbeb6463",
+    "src/ui/workArtifacts/xlsxDownload.ts": "e2dac3c92c9ef441024f1ee53ed119954f78b626ef20cb5e3986f6545e9da5ab",
+    "tests/mobileSampleWorkbookExport.test.ts": "abf5f0a69f5f60712d47705615163f33053ce94a41f76c96abd9b62fea7d2285"
+  },
+  "authoredDiffReview": {
+    "paths": 7,
+    "existingOwners": [
+      "src/ui/mobile/MobileGrid.tsx",
+      "src/ui/panels/Artifact.tsx"
+    ],
+    "newOwners": [
+      "src/ui/mobile/mobileSheetExport.ts",
+      "src/ui/workArtifacts/xlsxDownload.ts"
+    ],
+    "tests": [
+      "tests/mobileSampleWorkbookExport.test.ts",
+      "e2e/mobile-sample-workbook-export.spec.ts"
+    ],
+    "handoff": "HANDOFF.md",
+    "finding": "Current rows are projected as literal strings; unsupported consumer text is rejected at the mobile projection. Shared helper preserves desktop workbook semantics and only extracts buffer/Blob/anchor receipt transport. Synchronous attempt ref prevents duplicate dispatch; row changes/unmount abort obsolete results before dispatch. Metadata remains explicitly sampled/unverified; unavailable history/PPTX is disabled.",
+    "dependenciesOrBackendChanges": 0
+  },
+  "independentVerification": {
+    "initialCustody": {
+      "passed": 20,
+      "total": 20,
+      "report": "custody-before.json"
+    },
+    "browser": {
+      "passedScenarios": 3,
+      "scope": [
+        "390px current edited Unicode table with actual keyboard export/200-percent text observations",
+        "resource failure, immediate double activation, ten successive edited snapshots, format rejection/correction",
+        "rapid export/close before async completion followed by fresh reopened export"
+      ],
+      "actualMobileFiles": 14,
+      "elapsedSeconds": 23.9,
+      "report": "browser-replay/report.json",
+      "rawLog": "browser-replay.log",
+      "applicationResponseOverride": false
+    },
+    "literalAndKeyboard": {
+      "passedChecks": 44,
+      "actualMobileFiles": 2,
+      "values": [
+        "=SUM(A1:A3)",
+        "00123"
+      ],
+      "scope": "Actual UI edit, forced resource failure without success/file, visible hit-testable Retry focus, native Enter retry, file capture and literal B2/no formula check. Existing 390px scenario independently carries Unicode.",
+      "report": "literal-keyboard/report.json"
+    },
+    "focusedTests": {
+      "passed": 8,
+      "files": 3,
+      "report": "focused-tests.command.json",
+      "log": "focused-tests.log",
+      "scope": "Existing desktop workbook/mobile dialog plus new literal/Unicode/newline ten-snapshot, 32767/32768 and 253/254 boundary, XML-control/lone-surrogate rejection, held post-serialization abort."
+    },
+    "independentOoxml": {
+      "passedChecks": 53,
+      "files": 17,
+      "mobileFiles": 16,
+      "desktopFiles": 1,
+      "report": "independent-file-check.json",
+      "method": "Python ZIP/ElementTree parses actual raw workbook cells, strings and formula elements independently of ExcelJS. Complete observed consumer matrices agree. Explicit literal strings remain shared/inline strings and no formula element is emitted."
+    },
+    "desktop": {
+      "actualDownloadBytes": 6631,
+      "sha256": "254a11505187fb9dd1c4a6e8bff8cd3385d53525bddb182ace771e30e9c4649a",
+      "fullWorksheetModelParity": true,
+      "comparedFiles": 3,
+      "passedChecks": 2,
+      "report": "desktop-parity.json",
+      "scope": "Worker baseline, worker final and fresh independent actual desktop download have equal worksheet values/types/styles/rows/columns. ZIP timestamps are not equal or claimed. Five inherited blank Account cells remain."
+    },
+    "workerArtifactCustody": {
+      "exactFiles": 739,
+      "bytes": 60987383,
+      "manifestSha256": "bfaaf096afb8e9dcd8d2a13931c0092f017a0e5ec1f5a7c9dc35be613132eea0",
+      "archivedGeneratedFiles": 485,
+      "allGeneratedArchivePayloadsRehashed": true,
+      "servedDistExact": true,
+      "protectedOldInputs": 1561,
+      "oldInputUniverse": 1563
+    },
+    "finalCustody": {
+      "passed": 19,
+      "total": 19,
+      "report": "custody-after.json"
+    },
+    "viewedPixels": {
+      "count": 12,
+      "manifest": "viewed-pixels.json",
+      "actualObservations": [
+        "390px Download started carries actual byte count and wrapping filename.",
+        "390px recorded metadata/local lifetime text is readable; historic actions are disabled.",
+        "Error states show not exported and no success; native Retry actually dispatches one file.",
+        "At doubled browser text the focused download action is visible, with inherited navigation/layout reading limits.",
+        "Worker 320px final filename wraps inside its column; that viewport was viewed, not independently rerun.",
+        "Desktop current notes and calculated cells render before actual download."
+      ]
+    }
+  },
+  "resolvedReviewFinding": {
+    "id": "HANDOFF_CHROMIUM_PREREQUISITE",
+    "before": "New fresh-checkout handoff omitted Chromium provisioning before Playwright replay. Existing local browser cache concealed that setup prerequisite.",
+    "after": "Worker added npx playwright install chromium and the conditional Linux --with-deps command only in HANDOFF. Exact old document/receipt/digest retained.",
+    "addendum": "E6f_NODEROOM_MOBILE_EXPORT_HANDOFF_ADDENDUM.json",
+    "addendumSha256": "cd275894eec2e2fc2b7beff8296204617f180814f11fa695beee79a97ae2da36",
+    "runtimeRerunRequired": false
+  },
+  "preservedJudgeFailure": {
+    "report": "PRE_UTF8_independent-file-check.json",
+    "cause": "Independent Python JSON reader initially used Windows cp1252 for UTF-8 expected reports, causing 16 false comparison failures; ZIP/XML decoding was correct. Explicit UTF-8 JSON decoding makes exact checks pass with unchanged workbook and product bytes.",
+    "causeReceipt": "independent-decoder-cause.json"
+  },
+  "limits": [
+    "Native Excel interoperability not executed; ZIP/ExcelJS/schema boundary proof is lower-layer evidence.",
+    "No held long-running loading pixels; rapid native close and controlled held-serializer abort are separate evidence. Serialization CPU itself is not cancelled.",
+    "Local synthetic sample only. Mobile edits reset on close/reload; shared durable desktop/mobile state is not implied.",
+    "Windowed 390px and reviewed 320px evidence is not complete responsive/device certification. Six-width worker proof remains source-bound but was not rerun wholesale.",
+    "Fallback fonts and browser-only doubled text do not certify native zoom, touch devices, full accessibility or performance. Inherited half-height dialog, horizontally limited enlarged tabs and transient edit-toast overlap remain. The independent keyboard-retry PNG retains a transient fading toast over part of status; error/retry remain visible, and no clean-all-pixels claim is made.",
+    "Transport receipt means download dispatch started, not that a user accepted disk saving. Actual proof files were separately saved/reopened.",
+    "Desktop Account labels are missing before and after extraction. Separate forward repair is outside this verdict.",
+    "Original Windows floor timeout, mounted NodeSlide dependency gate, missing nightly judge credential, historical audit/design-reference holds remain open.",
+    "Normal full floor/29-memory suite/build were not rerun by this judge. Their worker raw logs/artifacts were verified; only named focused tests and scoped actual journeys were independently rerun.",
+    "No source/index/ref edit, commit, push, deployment, COM, provider or environment-value read by judge. Fresh proof outputs are in the central packet; original worker outputs remain unchanged."
+  ],
+  "grade": {
+    "scope": "AGENT_EVALUATED_SCOPED_OBSERVATIONS_ONLY",
+    "mobileCurrentFileIntegrity": "PASS",
+    "honestExportStatus": "PASS_WITH_STATED_DISPATCH_LIMIT",
+    "rapidDuplicateAndObsoleteDispatch": "PASS_SCOPED",
+    "desktopExtractionParity": "PASS_WITH_INHERITED_MISSING_LABELS",
+    "scopedVisualObservation": "OBSERVED_WITH_RECORDED_LAYOUT_LIMITS",
+    "all44Criteria": null,
+    "fullDimensions": null,
+    "overall": null,
+    "humanUsage": null,
+    "production": null,
+    "targetUnchanged": 4.5
+  },
+  "next": "Root may publish the reviewed scoped proof and perform normal exact-byte commit/review. Do not claim full repository readiness; keep the separate desktop label and Windows/integration holds explicit.",
+  "recordedAt": "2026-09-05T11:32:47.576320+00:00",
+  "artifacts": {
+    "path": "E6f-noderoom-mobile-export-judge/artifact-manifest.json",
+    "sha256": "2f6dc8e038e0e4e12aa028787930e6b22d654be254618b3cad176ef6c2e8293d",
+    "count": 145,
+    "bytes": 5612483
+  }
+}

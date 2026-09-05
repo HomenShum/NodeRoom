@@ -1,0 +1,19 @@
+{
+  "startedAt": "2026-09-05T10:48:27.495713+00:00",
+  "finishedAt": "2026-09-05T10:50:08.422903+00:00",
+  "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+  "argv": [
+    "cmd.exe",
+    "/d",
+    "/c",
+    "npm",
+    "run",
+    "build"
+  ],
+  "timeoutSeconds": 240,
+  "timedOut": false,
+  "exitCode": 0,
+  "elapsedSeconds": 100.922,
+  "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-mobile-export-repair\\build-01.log",
+  "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+}

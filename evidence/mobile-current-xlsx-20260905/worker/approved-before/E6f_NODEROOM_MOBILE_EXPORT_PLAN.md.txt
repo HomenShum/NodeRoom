@@ -1,0 +1,40 @@
+# NodeRoom mobile current-table export plan
+
+Builder mode. **Re your request:** make each repo ready for real developer/user use with UI and interaction standards — this closes the reproduced phone download failure without pretending the sample is the desktop room.
+
+**Recommendation:** implement `NODEROOM-MOBILE-TABLE-EXPORT-01`: a real XLSX of the currently displayed mobile table, using the existing workbook serializer/download mechanism, with measured output and honest failure/retry. Keep the separate PowerPoint and historic outputs explicitly unavailable until those data contracts exist. **Plan only; source remains clean and unchanged.** [Exact scope and hashes](E6f_NODEROOM_MOBILE_EXPORT_PLAN.json).
+
+## Actual failure and cause
+
+A person opens Home → CardioNova sheet → Export → Download XLSX. At320 and390, the UI changes to “exported,” “1.1 MB,” and “Download again,” but the browser produces no file. [Frozen first-run receipt](E6f_NODEROOM_FIRST_RUN_RECEIPT.md) retains the zero-download run.
+
+The cause is `SampleSheetArtifact`'s callback at `MobileGrid.tsx:381`: it only calls `setExported(true)` and a toast. `SheetExport` reads the prototype's size/version labels. It never calls a producer, has no byte receipt, and has no failure state. `S.versions` has display labels, not historic workbook bodies. The mobile rows are component-local data; desktop artifact IDs/versions cannot stand in for them.
+
+The existing desktop owner already builds a real ExcelJS workbook and dispatches its bytes in `Artifact.tsx:2447–2531`. Its workbook construction is coupled to engine artifacts and deliberately coerces numeric strings; reusing that projection would corrupt literal phone values such as00123. Reuse only its serialization/download/receipt mechanics, extracted unchanged into a small shared owner with two real callers. The mobile adapter uses the existing ExcelJS dependency with explicit literal cell strings and the actual current rows.
+
+The existing `buildDeckPptxExport` is a storyboard producer and emits only five claims per slide, clipping claim text to132 characters. Calling it with this six-column table without a proper projection would create a different data-loss defect. That additional slide adapter is outside the smallest XLSX repair. The same export region will state that table PowerPoint/history outputs are unavailable; it will not keep fake ready/download/restore promises.
+
+## Actual before boundaries
+
+I viewed all eight labelled PNGs. Each uses real settled old source, a3px magenta box, and strict byte-identical DOM restoration after removing the temporary overlay.
+
+- **CHANGE A · Table export:** [390 ready](evidence/noderoom-mobile-table-export-before/ready-390/change-boundary.png), [390 exported without file](evidence/noderoom-mobile-table-export-before/exported-390/change-boundary.png), matching320 captures in the same root.
+- **CHANGE B · Export provenance:** [390 provenance claim](evidence/noderoom-mobile-export-provenance-before/provenance-390/change-boundary.png), [390 historic actions](evidence/noderoom-mobile-table-export-before/history-390/change-boundary.png), matching320 captures in their roots.
+
+Each folder includes `change-boundary.md`, unannotated pixels, DOM and metadata. The320 ready action initially extends below the current modal viewport; ordinary clicking scrolls it into view. That existing layout behavior is recorded, not repaired by this plan. No source styles were changed to obtain the boundaries.
+
+## Frozen implementation delta
+
+1. Extract only the existing XLSX buffer/Blob/anchor/download receipt tail to `src/ui/workArtifacts/xlsxDownload.ts`; keep desktop workbook semantics and receipt behavior intact.
+2. Add `src/ui/mobile/mobileSheetExport.ts`: project current `SheetRow[]` in existing column order into a real workbook. Include a separate metadata sheet containing current statuses/claim references and an explicit local synthetic sample label. These are recorded sample claims, not fresh verification. Do not export fake version bytes, model receipts, prices or approval claims.
+3. Update only the existing export state/render regions in `MobileGrid.tsx`: pending/error/byte receipt, a synchronous single-flight claim for a rapid second activation, current-snapshot invalidation after editing, and explicit retry. Say “Download started” after actual dispatch; do not claim a browser saved the file to disk. Keep table edits and other tabs intact.
+4. Mark table PowerPoint and historic actions unavailable in the same region, with the local sample/reset limits. No new adapter, engine bridge, API, dependency, setting or generic export framework.
+5. Add one workbook reopen scenario and one actual browser consumer scenario; write concise root `HANDOFF.md`. The JSON names all seven paths. No other source/UI scope is planned.
+
+## Proof and stop point
+
+Reopen actual downloaded XLSX bytes and compare all3×6 current values, including a manual edit, leading zero, formula-like literal, Unicode/newline and longer text. Preserve current recorded review status in the metadata sheet without upgrading it to verified. A download-resource failure must leave rows unchanged, emit no file or success, and recover only through explicit Retry. Immediate double activation must emit once; ten successive changed snapshots must export their own current values.
+
+Run both TypeScript checks, existing desktop workbook/mobile dialog tests plus the new scenario, normal build, and the unchanged29-check memory suite. Include one real desktop XLSX reopen after extraction. Retain source-bound pixels/DOM/console and keyboard/enlargement observations across six widths, explicitly distinguishing natural routing from a forced mobile route at desktop widths. The Windows COM test remains a separate held diagnosis; do not silently disable or rerun it here.
+
+Keep exact old failures, source/candidate custody and all first-run evidence. Freeze final source/test/output hashes for a fresh judge. No commit, push, deployment, model call or hook activation before that review. Parent review of this plan is required before edits, as requested by root; no additional user permission is being sought.

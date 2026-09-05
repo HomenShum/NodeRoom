@@ -1,0 +1,177 @@
+{
+  "at": "2026-09-05T11:14:03.252262+00:00",
+  "candidate": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+  "baseCommit": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+  "branch": "codex/noderoom-current-consumer-20260905",
+  "source": {
+    "scope": {
+      "HANDOFF.md": "ed512357b29f75abced40eb22d0ca68e9d472d0f5a52cc02f21d76174bc2d6b3",
+      "e2e/mobile-sample-workbook-export.spec.ts": "b32079d1ef7fa74384ee68740e46495628ed3398001273f9840167cc4c66f775",
+      "src/ui/mobile/MobileGrid.tsx": "2ca4846af0b55b8ee490fe16a754e96abac878b62056f37a0baf7bad664aa4ef",
+      "src/ui/mobile/mobileSheetExport.ts": "a99dcf2276282e8d4859faa609bce22d73c8b6895a07eed3c239b8f42ced211c",
+      "src/ui/panels/Artifact.tsx": "701cbef1cbe9ca89dea754b203243dbd760aa04d9062f6053e1615f7cbeb6463",
+      "src/ui/workArtifacts/xlsxDownload.ts": "e2dac3c92c9ef441024f1ee53ed119954f78b626ef20cb5e3986f6545e9da5ab",
+      "tests/mobileSampleWorkbookExport.test.ts": "abf5f0a69f5f60712d47705615163f33053ce94a41f76c96abd9b62fea7d2285"
+    },
+    "capturedFiles": {
+      "HANDOFF.md": "ed512357b29f75abced40eb22d0ca68e9d472d0f5a52cc02f21d76174bc2d6b3",
+      "e2e/mobile-sample-workbook-export.spec.ts": "b32079d1ef7fa74384ee68740e46495628ed3398001273f9840167cc4c66f775",
+      "package-lock.json": "ee580757a997b0fd846ee802bd1c283889a6fb3ee8eb8d1efef6e5170df2689a",
+      "package.json": "7e6758419aef89fccb653258fd0c7c6258cd818e716a50924cec88a92ac19f32",
+      "src/ui/App.tsx": "a74ba0c89203f08b313bd8532cbab82c4e37cb2063ebd6a88d3d5a430d479648",
+      "src/ui/mobile/MobileApp.tsx": "f2471aa294e13c5e3c055953473695a8fc6c5705057cc80dbae1453cfd25e304",
+      "src/ui/mobile/MobileGrid.tsx": "2ca4846af0b55b8ee490fe16a754e96abac878b62056f37a0baf7bad664aa4ef",
+      "src/ui/mobile/MobileRoot.tsx": "63f267236fb8d9c68370cfec53d1b775fbf754a4b51e0eae6896bcc69382a7ec",
+      "src/ui/mobile/MobileScreens.tsx": "a25dd7b50189441412d2094dc860e8065963367b617b464b1ad142a10517812b",
+      "src/ui/mobile/mobileData.ts": "adba645a40703f211b8ac2f27058ffefddaedcfff99e0ec0b08a5c8e4a386d85",
+      "src/ui/mobile/mobileSheetExport.ts": "a99dcf2276282e8d4859faa609bce22d73c8b6895a07eed3c239b8f42ced211c",
+      "src/ui/panels/Artifact.tsx": "701cbef1cbe9ca89dea754b203243dbd760aa04d9062f6053e1615f7cbeb6463",
+      "src/ui/workArtifacts/xlsxDownload.ts": "e2dac3c92c9ef441024f1ee53ed119954f78b626ef20cb5e3986f6545e9da5ab",
+      "tests/mobileSampleWorkbookExport.test.ts": "abf5f0a69f5f60712d47705615163f33053ce94a41f76c96abd9b62fea7d2285"
+    },
+    "sourceDigestFormula": "SHA256(UTF8(JSON.stringify(sorted [path, sha256] entries), no spaces/newline; forward-slash relative paths))",
+    "sourceDigest": "d0c341bed80723c345208233f6f8e71c8f3e41e237d30a1ff63439457b0b0f3e"
+  },
+  "commands": {
+    "head": {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit": 0,
+      "sha256": "e6c627b7bee41d060aa39f81e9815ec7417f3d7c94e36e3182d51cf98ab28a70"
+    },
+    "index": {
+      "argv": [
+        "git",
+        "ls-files",
+        "--stage",
+        "-z"
+      ],
+      "exit": 0,
+      "sha256": "1ea5535b041e3ed40fab49801816d24fbe732338ba0173adac074c97aca6cf3c"
+    },
+    "refs": {
+      "argv": [
+        "git",
+        "for-each-ref",
+        "--format=%(refname) %(objectname)"
+      ],
+      "exit": 0,
+      "sha256": "dbde28a0f4fc3f028a6712430c017101ad0129655b9e78defe7233b050f16c10"
+    },
+    "status": {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "-z"
+      ],
+      "exit": 0,
+      "sha256": "1f4b81261f0f5c28a76d3140c918d73bac7bfb58304ddad0800090bfd29e7a08"
+    },
+    "diff": {
+      "argv": [
+        "git",
+        "diff",
+        "--binary"
+      ],
+      "exit": 0,
+      "sha256": "0438cc17a9179f5301ecc80e46dcc0baf693c37dff3867bfa669d8faa2b09d2f"
+    },
+    "diff-check": {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "primary": {
+    "head": {
+      "sha256": "e6c627b7bee41d060aa39f81e9815ec7417f3d7c94e36e3182d51cf98ab28a70",
+      "matchesFirstRunFinal": true
+    },
+    "index": {
+      "sha256": "1ea5535b041e3ed40fab49801816d24fbe732338ba0173adac074c97aca6cf3c",
+      "matchesFirstRunFinal": true
+    },
+    "refs": {
+      "sha256": "dbde28a0f4fc3f028a6712430c017101ad0129655b9e78defe7233b050f16c10",
+      "matchesFirstRunFinal": true
+    },
+    "status": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matchesFirstRunFinal": true
+    },
+    "worktrees": {
+      "sha256": "6f9c796823630ce931df455ac93d1cd47db7ddd0e6336a09d841a63115cd9045",
+      "matchesFirstRunFinal": true
+    }
+  },
+  "protectedTrackedSource": {
+    "count": 1563,
+    "unchanged": 1561,
+    "changed": {
+      "src/ui/mobile/MobileGrid.tsx": {
+        "before": "0a6668ce922a4eeeabb9b8b65e5f5275f715106f3ffaadcea1d3e733a8d406dc",
+        "after": "2ca4846af0b55b8ee490fe16a754e96abac878b62056f37a0baf7bad664aa4ef"
+      },
+      "src/ui/panels/Artifact.tsx": {
+        "before": "7bf92f4e39a291a8bd86a1605274464d4dff84ea6c6961c4a36ee2611b2286dc",
+        "after": "701cbef1cbe9ca89dea754b203243dbd760aa04d9062f6053e1615f7cbeb6463"
+      }
+    }
+  },
+  "browserSourceBindings": [
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-023d3-edited-phone-table-at-320px-chromium/source-bindings.json",
+      "sha256": "31655035a57dca56ada3f9a6477e607f40ef1b58f3b3c270255ada6630fcd6cc",
+      "matched": 12
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-2966a-dited-phone-table-at-1920px-chromium/source-bindings.json",
+      "sha256": "31655035a57dca56ada3f9a6477e607f40ef1b58f3b3c270255ada6630fcd6cc",
+      "matched": 12
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-2feb0-dited-phone-table-at-1024px-chromium/source-bindings.json",
+      "sha256": "31655035a57dca56ada3f9a6477e607f40ef1b58f3b3c270255ada6630fcd6cc",
+      "matched": 12
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-34462-edited-phone-table-at-390px-chromium/source-bindings.json",
+      "sha256": "31655035a57dca56ada3f9a6477e607f40ef1b58f3b3c270255ada6630fcd6cc",
+      "matched": 12
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-3a495--and-permits-a-fresh-export-chromium/source-bindings.json",
+      "sha256": "31655035a57dca56ada3f9a6477e607f40ef1b58f3b3c270255ada6630fcd6cc",
+      "matched": 12
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-979cd-edited-phone-table-at-768px-chromium/source-bindings.json",
+      "sha256": "31655035a57dca56ada3f9a6477e607f40ef1b58f3b3c270255ada6630fcd6cc",
+      "matched": 12
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-c7f0d-dited-phone-table-at-1440px-chromium/source-bindings.json",
+      "sha256": "31655035a57dca56ada3f9a6477e607f40ef1b58f3b3c270255ada6630fcd6cc",
+      "matched": 12
+    },
+    {
+      "path": "browser-proof-final/artifacts/mobile-sample-workbook-exp-db4ab-its-keep-their-own-outcomes-chromium/source-bindings.json",
+      "sha256": "31655035a57dca56ada3f9a6477e607f40ef1b58f3b3c270255ada6630fcd6cc",
+      "matched": 12
+    }
+  ],
+  "state": "Exactly seven unstaged paths; unchanged HEAD/index/refs; no commit or push",
+  "generatedCustody": {
+    "count": 485,
+    "sha256": "80aa47410dad33f4c2c8bbd762aeb0ab81858add86b833cfd71bafa32ba60bdf"
+  },
+  "baselineManifestUnchanged": true
+}

@@ -1,0 +1,16 @@
+worktree D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/noderoom
+HEAD 2b3e5bd718b80747f32257a8b8af5f15e2310699
+branch refs/heads/main
+
+worktree C:/Users/hshum/AppData/Local/Temp/claude/D--VSCode-Projects-cafecorner-nodebench-nodebench-ai4-node-platform/f7b21934-d259-4766-82d4-3607f84fcbbe/scratchpad/noderoom-copy
+HEAD 558460c874e98a816e90f5077b266e1a84955a13
+branch refs/heads/demo/plain-words-copy
+
+worktree C:/Users/hshum/AppData/Local/Temp/claude/D--VSCode-Projects-cafecorner-nodebench-nodebench-ai4-node-platform/f7b21934-d259-4766-82d4-3607f84fcbbe/scratchpad/noderoom-motion
+HEAD 558460c874e98a816e90f5077b266e1a84955a13
+branch refs/heads/demo/motion-landing
+
+worktree D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905
+HEAD 2b3e5bd718b80747f32257a8b8af5f15e2310699
+branch refs/heads/codex/noderoom-current-consumer-20260905
+

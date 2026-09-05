@@ -1,0 +1,9 @@
+{
+  "cause": "Python Path.read_text() used Windows cp1252 for UTF-8 JSON oracles, while ElementTree decoded XML UTF-8 correctly. For example XML 采购 was compared to mojibake from JSON. Explicit UTF-8 JSON decoding corrects the independent reader, not product/workbook data.",
+  "failedChecks": 16,
+  "preserved": [
+    "PRE_UTF8_independent-file-check.py",
+    "PRE_UTF8_independent-file-check.json"
+  ],
+  "workbookOrProductEdits": 0
+}
