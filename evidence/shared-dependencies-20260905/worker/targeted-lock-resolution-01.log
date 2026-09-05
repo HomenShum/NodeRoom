@@ -1,0 +1,33 @@
+npm error code ERESOLVE
+npm error ERESOLVE could not resolve
+npm error
+npm error While resolving: noderoom@0.1.1
+npm error Found: @tiptap/core@3.26.0
+npm error node_modules/@tiptap/core
+npm error   peer @tiptap/core@"^2.7.0 || ^3.10.7" from @convex-dev/prosemirror-sync@0.2.4
+npm error   node_modules/@convex-dev/prosemirror-sync
+npm error     @convex-dev/prosemirror-sync@"^0.2.4" from the root project
+npm error   peer @tiptap/core@"3.26.0" from @tiptap/extension-blockquote@3.26.0
+npm error   node_modules/@tiptap/extension-blockquote
+npm error     @tiptap/extension-blockquote@"^3.26.0" from @tiptap/starter-kit@3.26.0
+npm error     node_modules/@tiptap/starter-kit
+npm error       @tiptap/starter-kit@"3.30.4" from the root project
+npm error   22 more (@tiptap/extension-bold, ...)
+npm error
+npm error Could not resolve dependency:
+npm error @tiptap/core@"3.30.4" from the root project
+npm error
+npm error Conflicting peer dependency: @tiptap/pm@3.30.4
+npm error node_modules/@tiptap/pm
+npm error   peer @tiptap/pm@"3.30.4" from @tiptap/core@3.30.4
+npm error   node_modules/@tiptap/core
+npm error     @tiptap/core@"3.30.4" from the root project
+npm error
+npm error Fix the upstream dependency conflict, or retry
+npm error this command with --force or --legacy-peer-deps
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error D:\ai-agent-hosts\npm-cache\_logs\2026-09-05T12_40_41_381Z-eresolve-report.txt
+npm error A complete log of this run can be found in: D:\ai-agent-hosts\npm-cache\_logs\2026-09-05T12_40_41_381Z-debug-0.log

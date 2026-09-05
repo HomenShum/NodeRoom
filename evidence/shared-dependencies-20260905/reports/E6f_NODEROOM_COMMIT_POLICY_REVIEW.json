@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-09-05T12:32:13.117650+00:00",
+  "verdict": "ORDINARY_SINGLE_FOLLOWUP_CURRENT_HEAD_CHECKING_ALLOWED_WITH_HISTORICAL_LIMIT_RETAINED",
+  "mode": "Builder / independent read-only policy review",
+  "requestTrace": "Execute repository recovery with independent judgment and a reliable developer handoff; determine the legitimate ordinary integration path after the mobile commit failed its message check.",
+  "headInspected": "de9e02bc31c6bebb421a4889c1606a49f617f0f6",
+  "parent": "2b3e5bd718b80747f32257a8b8af5f15e2310699",
+  "candidate": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+  "decision": "One ordinary new dependency commit can be checked on its actual head and its normal pushed range without rewriting de9. A passing new-head check certifies that new commit only. Historical de9 failure and the written full-range discrepancy remain explicit.",
+  "conditions": [
+    "The new commit accurately describes every actual changed area and follows the stricter documented multi-file Change list/Verification/Known limits shape, with verbatim file paths; no claim that dependency edits altered the historical mobile source.",
+    "Explicit npm run commit:check is run after the actual new commit exists; normal existing-branch push CI checks previous pushed head..new HEAD. These commands are future validation, not executed in this review.",
+    "Normal exact-new-head shared checks, including production and mounted consumer gates, must pass before any normal merge recommendation. Current de9 shared CI remains failed.",
+    "No force push, history rewriting, checker change, skip, threshold reduction, or fabricated historical passing check.",
+    "If more than one new commit is pushed, follow the written origin/main..HEAD instruction: on the real branch it includes de9 and would remain failed. This review does not authorize ignoring that command or describing full-PR history as compliant."
+  ],
+  "fullRangeNuance": {
+    "mandatorySourceRule": "docs/COMMIT_ACCURACY.md says Before pushing several commits and supplies npm run commit:check:range -- origin/main..HEAD. That is the actual source condition; it does not require rewriting an already-pushed commit when one ordinary follow-up is pushed.",
+    "realRangeIncludes": [
+      "de9e02bc31c6bebb421a4889c1606a49f617f0f6"
+    ],
+    "historicalOutcome": "The retained push log already establishes de9 missing e2e/evidence/HANDOFF/src/tests area coverage. No checker rerun was needed or performed.",
+    "implementationGap": "The PR workflow statement of a range check does not inspect the full material branch history in the current synthetic-merge topology: first-parent traversal plus merge skipping bypasses de9. A green PR range result cannot be cited as full-history certification.",
+    "documentationGap": "The document says the latest checker validates every file path; source currently validates changed areas. Use the stricter documented shape for the new commit and preserve this discrepancy without changing the checker in the dependency repair."
+  },
+  "hostedRulesRead": {
+    "branchProtection": "Actual API returned 404 Branch not protected. This is a read result, not permission to ignore repository policy.",
+    "applicableRules": [],
+    "inference": "No separate server-enforced full-material-PR-history check was observed in these two successful/explicit API responses. Repository workflow and written constraints still apply."
+  },
+  "sourceRules": [
+    {
+      "source": "docs/COMMIT_ACCURACY.md",
+      "lines": [
+        9,
+        27,
+        44,
+        52,
+        63
+      ],
+      "rule": "A multi-file/evidence commit uses Change list, Verification and Known limits; every changed file path should appear. After committing run commit:check. Before pushing several commits run origin/main..HEAD range. Do not rewrite pushed public wording without explicitly requested force-push."
+    },
+    {
+      "source": ".github/workflows/ci.yml",
+      "lines": [
+        42,
+        46,
+        48,
+        50
+      ],
+      "rule": "PR checks base.sha..HEAD with default synthetic-merge checkout. Existing-branch push checks event.before..HEAD; new-branch push checks latest commit."
+    },
+    {
+      "source": "scripts/commit-message.ts",
+      "lines": [
+        99,
+        143,
+        148,
+        162,
+        166,
+        183
+      ],
+      "rule": "Actual checker verifies changed-area aliases, not every path; skips merge commits; range follows only first parents. Current-head check examines only HEAD."
+    },
+    {
+      "source": "tests/commitMessage.test.ts",
+      "lines": [
+        66,
+        67
+      ],
+      "rule": "Existing test explicitly expects first-parent traversal."
+    },
+    {
+      "source": "CLAUDE.md",
+      "lines": [
+        18,
+        23,
+        25
+      ],
+      "rule": "Floor and full production gate remain the canonical checks; this note does not replace or relax them."
+    }
+  ],
+  "sourceBindings": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c141555ad05fc30e72670bf09e38b6032313e0bdf3f5d20be09c3c2c367cbcdf",
+      "gitBlob": "b4a38488b7ea639d3ca17e600858790617877077"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "773e0dd48f1e45a778f59c863cb4f32ecdeb5646b599f5edf7c864c456e249b6",
+      "gitBlob": "14ca2210d9255b1a30a61831c7668e42e8aa0f2a"
+    },
+    {
+      "path": "docs/COMMIT_ACCURACY.md",
+      "sha256": "02e101d55f2a69e5564aa114400790d90c28fff6d32fd62e8e7ec0d50edd9f7d",
+      "gitBlob": "9e3248112da242e0b3e5077007b6a79793f653f4"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "db6b1f204ce000b204aac7d66391bff53f66a450e0b9c473a8b899b3368c0820",
+      "gitBlob": "bf3e097e60e8f0534982ff3f2e81ba3357e157aa"
+    },
+    {
+      "path": "scripts/commit-message.ts",
+      "sha256": "f6649fd322ca310528d5dfbed171d27681179218f0d410d7cec52db50b67a807",
+      "gitBlob": "de9114a2f472f2ba90a4f2762e01144df77dfe22"
+    },
+    {
+      "path": "tests/commitMessage.test.ts",
+      "sha256": "f7f66477a99a30d35a509bff053f5d3bb4d85be94718c015b356f9a911dfe79b",
+      "gitBlob": "127631e09bba8c2297a8a08711d08f7ddb00ea09"
+    },
+    {
+      "path": "package.json",
+      "sha256": "7e6758419aef89fccb653258fd0c7c6258cd818e716a50924cec88a92ac19f32",
+      "gitBlob": "d3e06aabdc57db22b5385a2a276960739b9e117c"
+    }
+  ],
+  "scopeExclusions": [
+    "No dependency version selection or repair-plan approval yet",
+    "No source/index/ref changes",
+    "No tests/builds/commit-check reruns",
+    "No provider, browser, native Office or environment reads",
+    "No future CI outcome claimed"
+  ],
+  "fullGrades": null,
+  "overall": null,
+  "humanUsage": null,
+  "next": "Await the frozen bounded dependency plan; independently judge actual changed packages and preserved vendor identities, then verify the eventual real commit and normal CI. Keep the three original failures and all advisory limitations in their historical receipts.",
+  "manifest": {
+    "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-commit-policy-review\\manifest.json",
+    "sha256": "99a9a1067bf16a272c407b9ff6119117ba80c0ef48cba427850a5874a806477c"
+  }
+}

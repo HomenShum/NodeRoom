@@ -1,0 +1,60 @@
+{
+  "images": [
+    {
+      "phase": "before",
+      "title": "agent notebook notes render provenance safely - desktop",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\\test-failed-1.png",
+      "sha256": "74492dd1c2c633bee703c7fa1ef24ec21e77137a590eb03cc00fd88a5db59fd1",
+      "viewed": true,
+      "actualObservation": "Diligence memo, rather than the required notes block, is shown."
+    },
+    {
+      "phase": "before",
+      "title": "agent notebook notes render provenance safely - mobile",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-57da6--provenance-safely---mobile\\test-failed-1.png",
+      "sha256": "3247964f118e1c25d5a874361152689dde81dbdd36549a234f7fd94fc7a25641",
+      "viewed": true,
+      "actualObservation": "Diligence memo, rather than the required notes block, is shown."
+    },
+    {
+      "phase": "before",
+      "title": "agent notebook notes render provenance safely - narrow-mobile",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\\test-failed-1.png",
+      "sha256": "357ee015d001d2391adcf002978670687bfe57888bcbf5d1b06c984f451c1d6e",
+      "viewed": true,
+      "actualObservation": "Diligence memo, rather than the required notes block, is shown."
+    },
+    {
+      "phase": "after",
+      "title": "agent notebook notes render provenance safely - desktop",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\\test-failed-1.png",
+      "sha256": "e8a375967eed7da4fba146db258b9acaf00e9f2ddd4a57819367d0edb3d3b764",
+      "viewed": true,
+      "actualObservation": "Actual notebook content is shown; recorded border-style assertion fails."
+    },
+    {
+      "phase": "after",
+      "title": "agent notebook notes render provenance safely - mobile",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-57da6--provenance-safely---mobile\\test-failed-1.png",
+      "sha256": "3247964f118e1c25d5a874361152689dde81dbdd36549a234f7fd94fc7a25641",
+      "viewed": true,
+      "actualObservation": "Diligence memo, rather than the required notes block, is shown."
+    },
+    {
+      "phase": "after",
+      "title": "agent notebook notes render provenance safely - narrow-mobile",
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\\test-failed-1.png",
+      "sha256": "33c929d681eaef05630e5541a6e2d236307c9e6b638015a87035e84d32871867",
+      "viewed": true,
+      "actualObservation": "Risk/opportunity wall is selected; the required note editor is not present."
+    }
+  ],
+  "matchedErrorWidths": [
+    375
+  ],
+  "unmatchedWidths": [
+    1440,
+    320
+  ],
+  "claim": "Failure preservation and visible route/artifact diagnosis only; no notebook pass, no dependency no-regression claim, no visual grade."
+}

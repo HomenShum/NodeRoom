@@ -1,0 +1,234 @@
+{
+  "passed": true,
+  "rows": [
+    {
+      "path": "node_modules/@tiptap/core",
+      "version": "3.30.4",
+      "packageJsonSha256": "0e0b59d6d7ded46195964e5a3ae428c827b2f299bd0c8604fee59faea99cf1d7",
+      "lockIntegrity": "sha512-V9yKuUfV8qC9WBrnVxkFWmYLBomc3d1CwXoFSjED5DRu5q2oyxv07F+jOJSRogJAY+feHjuxvjhixwxeHm2DXQ=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-blockquote",
+      "version": "3.30.4",
+      "packageJsonSha256": "b8303496807f4bfe7df8037e63ee8508486ebb44ea20bab722f4e62633b426aa",
+      "lockIntegrity": "sha512-n25/pFfDpZRJS4f6Ga/PkNrQFBEr3pRvPkDlY99kl8Kt8jFa1EUxbx+uUVIilqwiUjUnHtwCfqjSDFooQjezjg=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-bold",
+      "version": "3.30.4",
+      "packageJsonSha256": "2fcc14cbe39b68f3e6e8567fc5de30b80f97e79adb16c2660a590cce9e3a1eb4",
+      "lockIntegrity": "sha512-eCOkf+/jdQte7lTZ4pQF10akrsFM4TzYc0ysSAkPa7QA+ex1aI8QT5UUx+mK8RwFo57lqE8PCX/Mx1gTqlCDnQ=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-bubble-menu",
+      "version": "3.30.4",
+      "packageJsonSha256": "8b3d3616403ca1b0f10ef29c5e0fb9022886d2ca0663999094e8fa32f783ca3a",
+      "lockIntegrity": "sha512-diB5stCiuffFIIKhDAVvSYTYW/zzEVh7QqTuk2JAqdkAmAGP2YvUXXZBVhA9ITTIYD1+cp5p6rx9pdM25fsVRQ=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-bullet-list",
+      "version": "3.30.4",
+      "packageJsonSha256": "4bd17d9bf635be0fee08741343be24a50d5b15d02948fa27b6ad51a6472f8184",
+      "lockIntegrity": "sha512-kJFOF3U4b1ad4T7Vm+CIIp+nxcr6wwWVeqpVe6Jhq9gudsWCKP0+KVAmOiJCePoDu9fpc/ZuGMXDefXYnyQDxg=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-code",
+      "version": "3.30.4",
+      "packageJsonSha256": "d9aafb2643ec245e45d7dad289c131a91c67679f51d0c78767a83aadac19c295",
+      "lockIntegrity": "sha512-z9v9rBA/0MecUvf8QkcKKOGgceO9X3DT/JvFNka8Mdd68V5fhBs0jGsxYrj3qDWtdXyyUQIWs0t8HzL6LTdLiA=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-code-block",
+      "version": "3.30.4",
+      "packageJsonSha256": "957e218308973e40c3093ce39c0cd053977c7b03aac1149cea413f39aff9c1bf",
+      "lockIntegrity": "sha512-eKLKxgLCvi+M5tiLkW+fIMzDtR7HvSKnigSE9RYHZmzSrv1ejVjgNj5FH8nGTim98hXiQGfWotss3zqG6bpdDw=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-document",
+      "version": "3.30.4",
+      "packageJsonSha256": "6b87765e06756ba572faecfcb042428fa834336e04df9c3bb402fa8b8e4dda43",
+      "lockIntegrity": "sha512-N+FbI+X1FVH8HxsM8C4fNkkzKXiyhXc9oh9oSqAIKOAAYGAjnHLMxW9TzYXbvm60SlAn6DIMypNf6nULGEc1oQ=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-dropcursor",
+      "version": "3.30.4",
+      "packageJsonSha256": "1c864f76de7547f2df193a8b3cad4d5ce440bbd491833bfdd36ebfdb7d2872ab",
+      "lockIntegrity": "sha512-P1V0y/FKdyNVBImeW3WN+uGI77Uboc0dW44izAjrII0jcW2KUoBQeNrbbm9UZR1xuRvQJ1Z0OrFHmYrxP5ClNQ=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-floating-menu",
+      "version": "3.30.4",
+      "packageJsonSha256": "3aabd7a3acba5a164eb1ea8f3a17d7d3be64d888178e072ff28284d8c91158e2",
+      "lockIntegrity": "sha512-75kDLGkVqLBL7OPGNhJZQkmI3KGGVN9S5i+ZHKZEhk4HNOQUU+YMs7qu4I/XSJMXSh7mGrQlMi/OD/Fn3JmkKg=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-gapcursor",
+      "version": "3.30.4",
+      "packageJsonSha256": "48c69af5b8a027ce1ea7436870d8b36c04c8d961c70c54318fa1485e5d6e07fe",
+      "lockIntegrity": "sha512-wsuXsB8Rp9BgfWlWYsRVzoHg9LwhoPAQGaw/gku1buDSTMcbLYQvok5MwJ/uJRECaJRLGgbUe5WBXoRvSY+o3g=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-hard-break",
+      "version": "3.30.4",
+      "packageJsonSha256": "58a8bcd82e570a4d68c384e13fa8045d3fca9d5c9bb0ca380b6b883471524668",
+      "lockIntegrity": "sha512-eZ66SyfgmMK861S5SYtQROT/+ZfXtDHxllz7ao+X+dcl+DMdffmOzBeSfwrHQENmgl7umjbdAjqC7PT95jaU+w=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-heading",
+      "version": "3.30.4",
+      "packageJsonSha256": "a166bb467d3296548b30b5db2abf67596ceef203c9803f13b203a98e7fa29488",
+      "lockIntegrity": "sha512-sVJxoRnbfK/QC7IoUw/Ezzx9b87+cqFz5d5WZvN8O8yobDWuh7IS8ZgqZiPypTW5RuhnZI+ahvmSyO3WLm8q5Q=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-horizontal-rule",
+      "version": "3.30.4",
+      "packageJsonSha256": "e3fa8b75efdb590943c99e4a4c91dead59ae235401b7b2b360d194e1ee9c2f3b",
+      "lockIntegrity": "sha512-RmvjVVkUf5pF70XvwI7Sb4vIUSDbLTLEcFl1l5X9vPcDgDT5G0SiUL6l8F49+qYc6wrMvnLcenApnAiiQ0Vbpw=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-italic",
+      "version": "3.30.4",
+      "packageJsonSha256": "11d6cbbfd44e49492bcad3c92e152cca6611e54d400242ce6fe82403e37ae17c",
+      "lockIntegrity": "sha512-6cEjcyjPRcLEMB75BwiUc6S7yzkqc7VPXCeRgY26UqMg4AvcLrseY70+pO4sLv3n2DS5w8DBbMXZJ4rb1BhpUw=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-link",
+      "version": "3.30.4",
+      "packageJsonSha256": "91e71e52b646aea3013806bdb254a0a22c3119bbbd1bbe6b13770cd7ab02c1df",
+      "lockIntegrity": "sha512-HPHaey3+nQZl+lsr/RvjoXSgSC67SAkNEF4qNELzzDwMUfI0UrZ3H/HhBe6XBeRnGli9gfuSpeRkh63ke5JpOw=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-list",
+      "version": "3.30.4",
+      "packageJsonSha256": "59f5a20e324beeeece805cf303d87fa51b9a6b09a109ba974c56ec3bc846d69b",
+      "lockIntegrity": "sha512-Usqez9DBRoG78tdLwPDcd1j1mBBU7mr5D2yrRP2JL/eXXkhAfdWqEFRYXwct5T4/o9JkGcW3aQf+gUvp12v0pw=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-list-item",
+      "version": "3.30.4",
+      "packageJsonSha256": "5fd88d20f7d8792ae1a347c20efbe9492a69ca1df62ef09dc636314951b77203",
+      "lockIntegrity": "sha512-8E1ffdC7v3dwSrsqyxY3YP5uEQHTrwBDDmYF6o2YoHfzQ9nhXX5GmBz8fTxukjXUzSpuO76N/gwHIM8hBfdxMQ=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-list-keymap",
+      "version": "3.30.4",
+      "packageJsonSha256": "67b2905ddbbe5d45ec73769630f8f1edaf68ac681e00b3fb5f50fb42f2a7077b",
+      "lockIntegrity": "sha512-6RIzF3aThqIt4sia81K+6wA7H7bgPKjd3D66qLOGxdqdyfnAegk0OD5pUYhMZKhDCWGYKylyRVd2yIn/VNXqAg=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-ordered-list",
+      "version": "3.30.4",
+      "packageJsonSha256": "b21a3a356df615a68bc4bc5f886494df1e94008f1135dea284974b9625e704f2",
+      "lockIntegrity": "sha512-hInlH8I2UFGGULm9XLPtLWWFBECrYf/eNkloQb+udbF7ltLBL5JRCPcB3aM29qSSUQVxCCN8ICHdbwgpnTUAsw=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-paragraph",
+      "version": "3.30.4",
+      "packageJsonSha256": "abce5776cd6196bcbdb7c7322a8db3ccff38250f6e0d37c41a6cd7dc6d64909c",
+      "lockIntegrity": "sha512-gM0WXvOP1tNcvpyRXTCtGhwVxye0VaFMCzDPjLrVAUtZMpo3cOrqDSrFl5tCurA59Qc2p5TUOR4g3/fKw8Yx9Q=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-strike",
+      "version": "3.30.4",
+      "packageJsonSha256": "c735294726d2eab7c8823bc3a5601b32e86e187400602367983e2014229be9d6",
+      "lockIntegrity": "sha512-iM3QhkEvNwDsxyNKTZM4wwqYhIKOjgXHTamPWnCICrPQ3aYFVdidfpDMePlHl6XL8aEAqPa1Xlj0aumFvSphOQ=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-text",
+      "version": "3.30.4",
+      "packageJsonSha256": "72f22c816486cfdd940719154c658c9e80ce4c368b22c19b80de73c2064eee72",
+      "lockIntegrity": "sha512-bzgVlPhkVan+m6jycXkyq08fKCNyQff/cl/5U+/wQf8s3GlX+Le2/pTxbbC3ClfO1D8VLzLwcd2HJTYIoBOdAA=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-underline",
+      "version": "3.30.4",
+      "packageJsonSha256": "3611d005dd367b58293eb4600aa0f2178e926b67961a4d66a8c31525f861c92e",
+      "lockIntegrity": "sha512-h6nM3ykKswJLWvJVD1eiUFbanNmNj2SeV+2vuW666/xOy2WPyMnE2NZnsbvCKeK0wlUj7AE3l1m602mFwA4sDg=="
+    },
+    {
+      "path": "node_modules/@tiptap/extension-unique-id",
+      "version": "3.30.4",
+      "packageJsonSha256": "d9008469c07889bfa5a5b713b349c7e9b96fbe343ba952b49502fb45d69af031",
+      "lockIntegrity": "sha512-LVHAU+sI8dK89yeQP/ZmBO1M1E44VvKfWcz82hE++sfpMpWPNHIkvJXDP6dhZZg+ilRkHLSGs9zHcAaNXaQRlw=="
+    },
+    {
+      "path": "node_modules/@tiptap/extensions",
+      "version": "3.30.4",
+      "packageJsonSha256": "5c2cb635ca8515d8adb0ad6414a5e83cf49d46f704cbacf4fe1e5086f5aa5137",
+      "lockIntegrity": "sha512-WeBl/ggeNCOoOySX7647lwtSUHWbCh8I1Qqp8NQBsGyHXEE6/7jHbKcxpw4fplOgScgVMfPz8WZ+3yrfXYCUFw=="
+    },
+    {
+      "path": "node_modules/@tiptap/html",
+      "version": "3.30.4",
+      "packageJsonSha256": "c3e2efcd77ff322ff465ca019b62cbe50765f90daa0883346a3480692d8af89f",
+      "lockIntegrity": "sha512-ZsVN3m/xe/2pR8GRO2hgg7u79jRB1kKI5tCGmfvsaw2AbLiEhbcZEJ6b2IV199APqBhcbMcBjGOddCT023HMPw=="
+    },
+    {
+      "path": "node_modules/@tiptap/pm",
+      "version": "3.30.4",
+      "packageJsonSha256": "97a8ec8da97929c8c2a1433bed564b7c3160a348e93839066e503bc0a2bd6e2f",
+      "lockIntegrity": "sha512-oPbE+BOzzDKkxsvF9wepTWELvq385oifDkKIigqKCPKpGqplEIHIjNztCj/nOqHCfJBiU9LcoyyWH0qkHAQ9TQ=="
+    },
+    {
+      "path": "node_modules/@tiptap/react",
+      "version": "3.30.4",
+      "packageJsonSha256": "c66fb1c16926d3b1bd2de389990078ae255a1a4858fec9ed763856142f307572",
+      "lockIntegrity": "sha512-NxGcKg4xBF6ngk6xORyzRCvG9zb7Z/cf59GpDBsiYpPpD/6m+J4kfNF0KVIOhRSAhNxm2u2ZPuGIWBtS/CDUBQ=="
+    },
+    {
+      "path": "node_modules/@tiptap/starter-kit",
+      "version": "3.30.4",
+      "packageJsonSha256": "20b6692bdbd441d5fe4f8e0263397e5fd665eb83b253b8e951e1db41f788fcca",
+      "lockIntegrity": "sha512-rZiv2QOqfQU4/MNsAmvbymIwx0tKrGrtdJg76aEaej+aGU1QNDhZbUNutV8AnZxFjSJMm8rt810qzAU98OmCAg=="
+    },
+    {
+      "path": "node_modules/prosemirror-model",
+      "version": "1.25.11",
+      "packageJsonSha256": "a02b6388308d718ccaa125a0359b615e33119eab8f9b7b7e2475099afabc6af3",
+      "lockIntegrity": "sha512-QWg9RhnpLlogAmp3p96uEFrE5txQpFynd4vhBAELkwgOCWQs/X0yCzB3/hrHqiPwf91RG5KyWq6553zs9JqIOQ=="
+    },
+    {
+      "path": "node_modules/prosemirror-view",
+      "version": "1.41.9",
+      "packageJsonSha256": "fe038d20d51fd3f06fbdfc43035e6eb2ed485fa772d499fb87c82d4498269798",
+      "lockIntegrity": "sha512-clTunTX+eaLbr87L1V1QPheRlEQJyTlL3gXe9x3jQIk3rL0RVWxviDGz8tFaydwIVm+hKhYCyr+R/zBtWr9s6A=="
+    },
+    {
+      "path": "node_modules/@nodeslide/backend",
+      "version": "0.2.2",
+      "packageJsonSha256": "2439131625b88b46f5f2f34758310a09557f8791bb55a5981a7d963d661246fd",
+      "lockIntegrity": "sha512-aSH8BgdCMorf1ikWVg6P8o8AmWa53CHxqh2D6x/a13vaBXK6fxGxGYutW5M8w6UPKbEqbHo0/QaGt24hwnHSKQ=="
+    },
+    {
+      "path": "node_modules/@nodeslide/contracts",
+      "version": "0.2.2",
+      "packageJsonSha256": "fec35b28698e4543d9175c2512bc29def63241c883443094467d1441e352844f",
+      "lockIntegrity": "sha512-VtW2OFl6LGasg8xakcfVapipp4aNw9TADYaiAEpdEvrkkeChzzkSyMhL49YEIfysOnkyIq48FuGAiNN2+xXi/w=="
+    },
+    {
+      "path": "node_modules/@nodeslide/convex",
+      "version": "0.2.2",
+      "packageJsonSha256": "ee2276692f668ca76ad012c8e52fd8b3c14918e022a6d4a2dcaaad5c1fbbc3e5",
+      "lockIntegrity": "sha512-Rn8zPBbi1TNOCLPDGSm/SPwcGrtLQGzwVEKbK2VLnfalQmOHduzc/JyrxiCgIkpumvxLdABvDBkjjwFtXgZ/xg=="
+    },
+    {
+      "path": "node_modules/@nodeslide/engine",
+      "version": "0.2.2",
+      "packageJsonSha256": "90cff20a520ad05700abe1eea55a5ca1f60d9573f6770a1ed6c9634a5dd4e6ed",
+      "lockIntegrity": "sha512-Lrn+gDOMrq2C3xr31ALJ3+Y9ARKMsQPOjSaMEA7JkFJAgjBYLudRQCar75zfabUMwcOwuCjwqUGpaSzo1+9//w=="
+    },
+    {
+      "path": "node_modules/@nodeslide/react",
+      "version": "0.2.2",
+      "packageJsonSha256": "a04ddecb814a02df4154e001197dae492cd8eb0b13e0070f981d950d8a998b04",
+      "lockIntegrity": "sha512-RfFVakw6ibLD0eR97mbxXEG7DFLguVpAGyNKJOkvpYheMWMy3PVrh4ZFEI0Zj+o07iFnp9vhe6yT04TDfiHxOg=="
+    },
+    {
+      "path": "node_modules/@nodeslide/react-headless",
+      "version": "0.2.2",
+      "packageJsonSha256": "dad27e7fc21c45a4cd74b478fbc4e9f3159f7a4e00155ae1c4f6fe7922b72229",
+      "lockIntegrity": "sha512-4/tRDb+Q8NiFb3YLq7xD2dA1BQ0YDurJO3b+PLWx7Vq+j/WU9p9s3gzmGhjSAO7L82NbExVe58E9TWFMqhVYOw=="
+    }
+  ],
+  "lockSha256": "835ac86997865c2792f03f588b0ec58632b67b9b4fdc864a28a7020c42ab5a92"
+}

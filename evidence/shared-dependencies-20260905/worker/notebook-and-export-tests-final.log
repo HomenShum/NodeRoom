@@ -1,0 +1,13 @@
+
+> noderoom@0.1.1 test
+> vitest run --run tests/notebookPaper.test.tsx tests/nativeNotebookProsemirror.test.ts tests/nativeNotebookProsemirrorStatic.test.ts tests/notebookBlockOps.test.ts tests/notebookAgentOutline.test.ts tests/mobileSampleWorkbookExport.test.ts tests/artifactXlsxExport.test.ts
+
+
+ RUN  v4.1.10 D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905
+
+
+ Test Files  7 passed (7)
+      Tests  51 passed (51)
+   Start at  05:53:23
+   Duration  39.60s (transform 2.56s, setup 221ms, import 38.43s, tests 35.28s, environment 698ms)
+

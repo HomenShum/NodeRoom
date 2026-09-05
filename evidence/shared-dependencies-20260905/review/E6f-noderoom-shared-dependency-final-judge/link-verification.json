@@ -1,0 +1,104 @@
+{
+  "links": [
+    {
+      "source": "HANDOFF.md",
+      "target": "evidence/mobile-current-xlsx-20260905/README.md",
+      "exists": true
+    },
+    {
+      "source": "HANDOFF.md",
+      "target": "evidence/mobile-current-xlsx-20260905/reports/E6f_NODEROOM_MOBILE_EXPORT_FINAL_JUDGE.json",
+      "exists": true
+    },
+    {
+      "source": "HANDOFF.md",
+      "target": "evidence/shared-dependencies-20260905/README.md",
+      "exists": true
+    },
+    {
+      "source": "evidence/shared-dependencies-20260905/README.md",
+      "target": "worker/final-lock-delta.json",
+      "exists": true
+    },
+    {
+      "source": "evidence/shared-dependencies-20260905/README.md",
+      "target": "worker/installed-identities-final.json",
+      "exists": true
+    },
+    {
+      "source": "evidence/shared-dependencies-20260905/README.md",
+      "target": "worker/audit-production-final.log",
+      "exists": true
+    },
+    {
+      "source": "evidence/shared-dependencies-20260905/README.md",
+      "target": "worker/audit-full-final.log",
+      "exists": true
+    },
+    {
+      "source": "evidence/shared-dependencies-20260905/README.md",
+      "target": "worker/mounted-consumer-receipt.json",
+      "exists": true
+    },
+    {
+      "source": "evidence/shared-dependencies-20260905/README.md",
+      "target": "worker/prototype-before-final.json",
+      "exists": true
+    },
+    {
+      "source": "evidence/shared-dependencies-20260905/README.md",
+      "target": "worker/prototype-after.json",
+      "exists": true
+    },
+    {
+      "source": "evidence/shared-dependencies-20260905/README.md",
+      "target": "worker/build-final.log",
+      "exists": true
+    },
+    {
+      "source": "evidence/shared-dependencies-20260905/README.md",
+      "target": "worker/notebook-and-export-tests-final.log",
+      "exists": true
+    },
+    {
+      "source": "evidence/shared-dependencies-20260905/README.md",
+      "target": "worker/memory-browser-final.log",
+      "exists": true
+    },
+    {
+      "source": "evidence/shared-dependencies-20260905/README.md",
+      "target": "worker/notebook-browser/results.json",
+      "exists": true
+    },
+    {
+      "source": "evidence/shared-dependencies-20260905/README.md",
+      "target": "worker/notebook-browser-before/results.json",
+      "exists": true
+    },
+    {
+      "source": "evidence/shared-dependencies-20260905/README.md",
+      "target": "worker/notebook-before-after-comparison.json",
+      "exists": true
+    },
+    {
+      "source": "evidence/shared-dependencies-20260905/README.md",
+      "target": "worker/installed-and-build-before.zip",
+      "exists": true
+    },
+    {
+      "source": "evidence/shared-dependencies-20260905/README.md",
+      "target": "worker/installed-and-build-before.json",
+      "exists": true
+    },
+    {
+      "source": "evidence/shared-dependencies-20260905/README.md",
+      "target": "worker/built-installed-proof-bindings.json",
+      "exists": true
+    },
+    {
+      "source": "evidence/shared-dependencies-20260905/README.md",
+      "target": "raw-copy-map.json",
+      "exists": true
+    }
+  ]
+}

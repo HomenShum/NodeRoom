@@ -1,0 +1,98 @@
+{
+  "label": "after",
+  "kind": "real-installed-library-boundary-not-NodeRoom-exploit-certification",
+  "executedBrowserHandlers": false,
+  "count": 1025,
+  "phases": [
+    {
+      "name": "burst",
+      "count": 1000
+    },
+    {
+      "name": "sustained",
+      "count": 25
+    }
+  ],
+  "inheritedResults": 0,
+  "executableAttributeResults": 0,
+  "legitimateAttributeLoss": 0,
+  "checks": {
+    "prototypeRetained": true,
+    "noExecutableInheritedAttributes": true,
+    "legitimateAttributesRetained": true,
+    "globalPrototypeUnchanged": true
+  },
+  "samples": [
+    {
+      "phase": "burst",
+      "i": 0,
+      "ownKeys": [
+        "data-review-id",
+        "class",
+        "__proto__"
+      ],
+      "inherited": false,
+      "executable": false,
+      "legitimate": true,
+      "html": "<img data-review-id=\"burst-0\" class=\"first second\" __proto__=\"[object Object]\">"
+    },
+    {
+      "phase": "burst",
+      "i": 999,
+      "ownKeys": [
+        "data-review-id",
+        "class",
+        "__proto__"
+      ],
+      "inherited": false,
+      "executable": false,
+      "legitimate": true,
+      "html": "<img data-review-id=\"burst-999\" class=\"first second\" __proto__=\"[object Object]\">"
+    },
+    {
+      "phase": "sustained",
+      "i": 0,
+      "ownKeys": [
+        "data-review-id",
+        "class",
+        "__proto__"
+      ],
+      "inherited": false,
+      "executable": false,
+      "legitimate": true,
+      "html": "<img data-review-id=\"sustained-0\" class=\"first second\" __proto__=\"[object Object]\">"
+    },
+    {
+      "phase": "sustained",
+      "i": 24,
+      "ownKeys": [
+        "data-review-id",
+        "class",
+        "__proto__"
+      ],
+      "inherited": false,
+      "executable": false,
+      "legitimate": true,
+      "html": "<img data-review-id=\"sustained-24\" class=\"first second\" __proto__=\"[object Object]\">"
+    }
+  ],
+  "hashes": [
+    {
+      "path": "package.json",
+      "sha256": "6e3c85ee6a12848e617fe9531fca9b3c91989cdc2c2444b3be3e7bd2c18af688"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "835ac86997865c2792f03f588b0ec58632b67b9b4fdc864a28a7020c42ab5a92"
+    },
+    {
+      "path": "node_modules/@tiptap/core/dist/index.cjs",
+      "sha256": "4af6897fb16ec01236cbbf9510147828c17074df4e22dcb36c215c6da76c76a8"
+    },
+    {
+      "path": "node_modules/prosemirror-model/dist/index.cjs",
+      "sha256": "a13009be6c410612024b8c1360a58c79ad0729da88303169ea011f83c044f69e"
+    }
+  ],
+  "passed": true
+}

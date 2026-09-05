@@ -1,0 +1,14 @@
+{
+  "args": [
+    "git",
+    "--no-optional-locks",
+    "-C",
+    "D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905",
+    "ls-files",
+    "--stage",
+    "-z"
+  ],
+  "exitCode": 128,
+  "stderr": "error: bad signature 0x36303031\nfatal: index file corrupt\n",
+  "stdoutBytes": 0
+}

@@ -1,0 +1,13 @@
+Builder — **the frozen dependency plan is approved for its bounded scope; no concrete blocker found**. This approves the plan, not completed remediation or integration.
+
+**Re your request:** make these repositories ready for handoff through planner-worker-judge — I independently checked plan `4f59b9a8fce4e698f6b9280c24c928ba9f2ce63520530167e26fa63ea78bb2c8` against actual baseline `de9e02bc31c6bebb421a4889c1606a49f617f0f6`, all 23 protected inputs, all 11 vendored tarballs, both immutable receipt hashes and all 30 proposed package records. Every named check passes.
+
+The two NodeSlide root pins are exactly the missing declarations. Existing transitive rows already bind the correct v0.2.2 archives and integrities, so restoring those declarations addresses the owner without changing the release contract. All six runtime packages remain required.
+
+The [reviewed advisory](https://github.com/advisories/GHSA-cp6q-959q-f8rh) marks 3.30.4 patched, and the [upstream release](https://github.com/ueberdosis/tiptap/releases/tag/v3.30.4) confirms the prototype-handling repair. Independent official registry reads for all six direct requests agree with the frozen metadata. The 30-package internal peer closure requires a coherent cohort; a core-only swap is insufficient. Only ProseMirror model and view miss the proposed minimums in the baseline. Preserve the already-compatible nested uuid 14.0.1 and other unrelated rows.
+
+The plan correctly keeps the library canary separate from a demonstrated application exploit and requires actual installed serializer and notebook proof. Its selected local checks do not replace the unchanged full gate or erase the native Windows repair hold. Existing mobile evidence, vendor identity, development-only audit finding and de9 commit-message failure remain historical facts.
+
+No install, build, browser, product test, COM, provider or candidate mutation was performed by this review. The worker is actively implementing; all source comparisons here target the frozen committed baseline, not an asserted clean intermediate checkout. Await final source/proof freeze before any independent replay.
+
+Raw static checks and independent registry receipts: [manifest.json](E6f-noderoom-dependency-plan-judge/manifest.json), SHA-256 `0b525b9d03f22c1b861145bb514e50d01f029d522a27322414c90af652c5e597`. Whole-product grades and readiness remain unresolved.

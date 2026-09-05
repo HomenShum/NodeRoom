@@ -1,0 +1,53 @@
+{
+  "archives": [
+    {
+      "path": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905\\evidence\\shared-dependencies-20260905\\worker\\installed-and-build-before.zip",
+      "entries": 1388,
+      "crcError": null,
+      "exact": true
+    },
+    {
+      "path": "worker/test-output-before-memory.zip",
+      "entries": 10,
+      "crcError": null,
+      "privateStateNames": []
+    },
+    {
+      "path": "worker/notebook-browser/artifacts/notebook-agent-notes-agent-57da6--provenance-safely---mobile/trace.zip",
+      "entries": 92,
+      "crcError": null,
+      "privateStateNames": []
+    },
+    {
+      "path": "worker/notebook-browser/artifacts/notebook-agent-notes-agent-70b5a-provenance-safely---desktop/trace.zip",
+      "entries": 74,
+      "crcError": null,
+      "privateStateNames": []
+    },
+    {
+      "path": "worker/notebook-browser/artifacts/notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile/trace.zip",
+      "entries": 90,
+      "crcError": null,
+      "privateStateNames": []
+    },
+    {
+      "path": "worker/notebook-browser-before/artifacts/notebook-agent-notes-agent-57da6--provenance-safely---mobile/trace.zip",
+      "entries": 89,
+      "crcError": null,
+      "privateStateNames": []
+    },
+    {
+      "path": "worker/notebook-browser-before/artifacts/notebook-agent-notes-agent-70b5a-provenance-safely---desktop/trace.zip",
+      "entries": 94,
+      "crcError": null,
+      "privateStateNames": []
+    },
+    {
+      "path": "worker/notebook-browser-before/artifacts/notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile/trace.zip",
+      "entries": 91,
+      "crcError": null,
+      "privateStateNames": []
+    }
+  ],
+  "scope": "Known keyless synthetic browser traces and installed/build custody; no source environment files, original database or authenticated browser session exported."
+}

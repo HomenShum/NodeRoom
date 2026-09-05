@@ -1,0 +1,179 @@
+{
+  "before": {
+    "stats": {
+      "startTime": "2026-09-05T13:03:37.800Z",
+      "duration": 54876.78,
+      "expected": 0,
+      "skipped": 0,
+      "unexpected": 3,
+      "flaky": 0
+    },
+    "cases": [
+      {
+        "title": "agent notebook notes render provenance safely - desktop",
+        "status": "failed",
+        "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByTestId('agent-notes-block')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 10000ms\n  - waiting for getByTestId('agent-notes-block')\n",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\\error-context.md"
+          },
+          {
+            "name": "trace",
+            "contentType": "application/zip",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\\trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "agent notebook notes render provenance safely - mobile",
+        "status": "failed",
+        "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByTestId('agent-notes-block')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 10000ms\n  - waiting for getByTestId('agent-notes-block')\n",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-57da6--provenance-safely---mobile\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-57da6--provenance-safely---mobile\\error-context.md"
+          },
+          {
+            "name": "trace",
+            "contentType": "application/zip",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-57da6--provenance-safely---mobile\\trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "agent notebook notes render provenance safely - narrow-mobile",
+        "status": "failed",
+        "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByTestId('agent-notes-block')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 10000ms\n  - waiting for getByTestId('agent-notes-block')\n",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\\error-context.md"
+          },
+          {
+            "name": "trace",
+            "contentType": "application/zip",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\\trace.zip"
+          }
+        ]
+      }
+    ]
+  },
+  "after": {
+    "stats": {
+      "startTime": "2026-09-05T13:00:42.942Z",
+      "duration": 54433.627,
+      "expected": 0,
+      "skipped": 0,
+      "unexpected": 3,
+      "flaky": 0
+    },
+    "cases": [
+      {
+        "title": "agent notebook notes render provenance safely - desktop",
+        "status": "failed",
+        "error": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: \"solid\"\nReceived: \"none\"",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\\error-context.md"
+          },
+          {
+            "name": "trace",
+            "contentType": "application/zip",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\\trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "agent notebook notes render provenance safely - mobile",
+        "status": "failed",
+        "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByTestId('agent-notes-block')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 10000ms\n  - waiting for getByTestId('agent-notes-block')\n",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-57da6--provenance-safely---mobile\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-57da6--provenance-safely---mobile\\error-context.md"
+          },
+          {
+            "name": "trace",
+            "contentType": "application/zip",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-57da6--provenance-safely---mobile\\trace.zip"
+          }
+        ]
+      },
+      {
+        "title": "agent notebook notes render provenance safely - narrow-mobile",
+        "status": "failed",
+        "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByTestId('note-editor')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 20000ms\n  - waiting for getByTestId('note-editor')\n",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\\error-context.md"
+          },
+          {
+            "name": "trace",
+            "contentType": "application/zip",
+            "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\\trace.zip"
+          }
+        ]
+      }
+    ]
+  },
+  "unchangedCaseErrors": [
+    {
+      "title": "agent notebook notes render provenance safely - desktop",
+      "sameError": false,
+      "beforeStatus": "failed",
+      "afterStatus": "failed"
+    },
+    {
+      "title": "agent notebook notes render provenance safely - mobile",
+      "sameError": true,
+      "beforeStatus": "failed",
+      "afterStatus": "failed"
+    },
+    {
+      "title": "agent notebook notes render provenance safely - narrow-mobile",
+      "sameError": false,
+      "beforeStatus": "failed",
+      "afterStatus": "failed"
+    }
+  ],
+  "claim": "The exact unchanged notebook spec fails on preserved before and candidate after builds. No notebook pass or visual grade is claimed."
+}

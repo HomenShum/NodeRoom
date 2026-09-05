@@ -1,0 +1,896 @@
+[
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\accepted-resolver-adjustment.json",
+    "path": "worker/accepted-resolver-adjustment.json",
+    "bytes": 1384,
+    "sha256": "c502d0313395129e60cb9f5169e90fcf4e83e9225e724ad356a603877327899c"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\accepted-stale-lock-unlock.json",
+    "path": "worker/accepted-stale-lock-unlock.json",
+    "bytes": 22728,
+    "sha256": "d53cffdba2fa38bf2caf8388e1683684e4f4fb7822ffffa5d56a43d14c3f9929"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\accepted-three-temporary-constraints.json",
+    "path": "worker/accepted-three-temporary-constraints.json",
+    "bytes": 293,
+    "sha256": "8bf4b4d5d0abb38ea066694813c661940bac70c84aad114f51779eda09de3a64"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\audit-full-final.command.json",
+    "path": "worker/audit-full-final.command.json",
+    "bytes": 784,
+    "sha256": "430470005ff12c02b74cb71a13c23d476265afc8fac56d0cf9603ea57ec755dd"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\audit-full-final.log",
+    "path": "worker/audit-full-final.log",
+    "bytes": 1817,
+    "sha256": "a7a7e3e874cd507316fab60b63da33c3e391e5bc50b96fe60e77142345a7a63b"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\audit-production-final.command.json",
+    "path": "worker/audit-production-final.command.json",
+    "bytes": 840,
+    "sha256": "a5318817e9cb24aa45e5d078e9065f6527e5500ade9802f8401e6a48197175f1"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\audit-production-final.log",
+    "path": "worker/audit-production-final.log",
+    "bytes": 368,
+    "sha256": "ce43163cc4ddeab26ebd90c253b102724514d02fcdc666f4aa87a0136fee9af6"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\baseline-preview\\extraction.json",
+    "path": "worker/baseline-preview/extraction.json",
+    "bytes": 80446,
+    "sha256": "45b3658e0ed40abfd4ab116df374e7d4ed7b901869ecd3af4d10c2d1aef6d2a9"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\before-HANDOFF.md",
+    "path": "worker/before-HANDOFF.md.txt",
+    "bytes": 7233,
+    "sha256": "5390d1e4794eb03758e22082f6f0d0f6d11f14ba015b09109f68b3e6c9f8dd90"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\before-package-lock.json",
+    "path": "worker/before-package-lock.json",
+    "bytes": 559926,
+    "sha256": "ee580757a997b0fd846ee802bd1c283889a6fb3ee8eb8d1efef6e5170df2689a"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\before-package.json",
+    "path": "worker/before-package.json",
+    "bytes": 26705,
+    "sha256": "7e6758419aef89fccb653258fd0c7c6258cd818e716a50924cec88a92ac19f32"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\build-final.command.json",
+    "path": "worker/build-final.command.json",
+    "bytes": 779,
+    "sha256": "6942af4767547c18914a5d6bb5057636c3d608fd36fafe776fc2295d4c46d776"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\build-final.log",
+    "path": "worker/build-final.log",
+    "bytes": 37879,
+    "sha256": "7154ea7a1518bf8c99fd47484abccd86db3e4443a752795d2d9c11888affb7dc"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\built-installed-proof-bindings.json",
+    "path": "worker/built-installed-proof-bindings.json",
+    "bytes": 282372,
+    "sha256": "fd269e8b2585d21d3e625020a403370302a2cb2fb24ae892e7fa3a6dfe0cd9a5"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\convex-typecheck-final.command.json",
+    "path": "worker/convex-typecheck-final.command.json",
+    "bytes": 842,
+    "sha256": "16672cf03da34ee147787a0292fce5df20e0581a04c8c05421e620ad3dae0d22"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\convex-typecheck-final.log",
+    "path": "worker/convex-typecheck-final.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\exact-transitive-resolution-04.command.json",
+    "path": "worker/exact-transitive-resolution-04.command.json",
+    "bytes": 874,
+    "sha256": "77056472f8dc821c537f06e3de211b727b8801458ebdedfdbf26c2c31f285557"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\exact-transitive-resolution-04.log",
+    "path": "worker/exact-transitive-resolution-04.log",
+    "bytes": 18,
+    "sha256": "b125771fda8addd462adfe7f7b03299feb35e28badbb2d16ae8589e371216f8f"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\final-lock-delta.json",
+    "path": "worker/final-lock-delta.json",
+    "bytes": 48324,
+    "sha256": "b4cb4ee2c538f7540b23d2a4a4d952bc9d4f1adb8e2b0c4e96fe86e97dd6742e"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\final-root-metadata-refresh-05.command.json",
+    "path": "worker/final-root-metadata-refresh-05.command.json",
+    "bytes": 876,
+    "sha256": "0fdbae5a3c20fe14e34beb6c22ec2a69df88483dbf87c597ddbbcfb58e3dafb3"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\final-root-metadata-refresh-05.log",
+    "path": "worker/final-root-metadata-refresh-05.log",
+    "bytes": 18,
+    "sha256": "b125771fda8addd462adfe7f7b03299feb35e28badbb2d16ae8589e371216f8f"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\head-before.bin",
+    "path": "worker/head-before.bin",
+    "bytes": 41,
+    "sha256": "8a445c187a35ec5c28ef26c48456ba8cee6a9cbc24be413279232bf7c6597139"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\index-before.bin",
+    "path": "worker/index-before.bin",
+    "bytes": 957092,
+    "sha256": "0f9ef98bddbd9412c481a658ee26a229d6b7f5057793adcb3b310beacf495841"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\installed-and-build-before.json",
+    "path": "worker/installed-and-build-before.json",
+    "bytes": 253451,
+    "sha256": "2eb8473e6beb3798c26296f8a5ee2b1d61e31c936155b7a6098a7cdad43cb8b5"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\installed-and-build-before.zip",
+    "path": "worker/installed-and-build-before.zip",
+    "bytes": 17392947,
+    "sha256": "19ad1547f977cbd45b7341b228a915356874fd0dc56e3971eed7dbddfc1222ce"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\installed-identities-final.json",
+    "path": "worker/installed-identities-final.json",
+    "bytes": 11889,
+    "sha256": "d615cf98c6bfa6106c30137968049c2762fbbd48a610e40978d7062b41c1dd4b"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\memory-browser-final.command.json",
+    "path": "worker/memory-browser-final.command.json",
+    "bytes": 864,
+    "sha256": "f11d082e04678bcb4cd2fcc5c0b4bc3a8d2609db523ef668dd5ab1bfb2f3dabd"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\memory-browser-final.log",
+    "path": "worker/memory-browser-final.log",
+    "bytes": 5361,
+    "sha256": "7c421ea54e91b5a9b6e6194f2b30a1a7ab5b9e889d3976d9fc6ea9ac7da72ec8"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\mounted-consumer-final.command.json",
+    "path": "worker/mounted-consumer-final.command.json",
+    "bytes": 1012,
+    "sha256": "95be08c6b3412dec197bd59085f3204ee79929ce3a0ae1a1bcd02fe0ebe3890c"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\mounted-consumer-final.log",
+    "path": "worker/mounted-consumer-final.log",
+    "bytes": 6616,
+    "sha256": "7df2baa6b605b5c3903276f192d790f7abf5dfd3a2c444758a5f0136c1286f14"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\mounted-consumer-receipt.json",
+    "path": "worker/mounted-consumer-receipt.json",
+    "bytes": 6303,
+    "sha256": "e34521f4936408fdfd9b85e6b5e86f5dd1d022420516aeeb3bf2fbb96a87ea40"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-and-export-tests-final.command.json",
+    "path": "worker/notebook-and-export-tests-final.command.json",
+    "bytes": 1121,
+    "sha256": "7a2e234ba232b65246ea8ac3ee9f6180d945e658172431a04c4248b6f26d3dbc"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-and-export-tests-final.log",
+    "path": "worker/notebook-and-export-tests-final.log",
+    "bytes": 601,
+    "sha256": "bc518417a20b89aeec8df23d91a69bda72c62218eebc962e3d309a8ff48b24b4"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-before-after-comparison.json",
+    "path": "worker/notebook-before-after-comparison.json",
+    "bytes": 10376,
+    "sha256": "360421e68b40946998813fe1f78d8022353c9d530782d4ccd44730a79dae21bf"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\.last-run.json",
+    "path": "worker/notebook-browser/artifacts/.last-run.json",
+    "bytes": 194,
+    "sha256": "7b249269e9c18498755e15f7606908fb8150d54c316d7df5738d8382b1509395"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-57da6--provenance-safely---mobile\\error-context.md",
+    "path": "worker/notebook-browser/artifacts/notebook-agent-notes-agent-57da6--provenance-safely---mobile/error-context.md.txt",
+    "bytes": 5816,
+    "sha256": "98fc3fbec0e7d9aec9c8d4508058a3fc92b682bdbb82886a41e109ba6335d8e7"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-57da6--provenance-safely---mobile\\test-failed-1.png",
+    "path": "worker/notebook-browser/artifacts/notebook-agent-notes-agent-57da6--provenance-safely---mobile/test-failed-1.png",
+    "bytes": 51530,
+    "sha256": "3247964f118e1c25d5a874361152689dde81dbdd36549a234f7fd94fc7a25641"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-57da6--provenance-safely---mobile\\trace.zip",
+    "path": "worker/notebook-browser/artifacts/notebook-agent-notes-agent-57da6--provenance-safely---mobile/trace.zip",
+    "bytes": 1415376,
+    "sha256": "dd91236647f92f3308db1001d727f433cb23fb9eb5799d1d61ef9b77d7d87b65"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\\error-context.md",
+    "path": "worker/notebook-browser/artifacts/notebook-agent-notes-agent-70b5a-provenance-safely---desktop/error-context.md.txt",
+    "bytes": 24764,
+    "sha256": "0c4b9d5a405e9b8d2b6b34296f0afc073b24caddec24318745c94dbeae601d71"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\\test-failed-1.png",
+    "path": "worker/notebook-browser/artifacts/notebook-agent-notes-agent-70b5a-provenance-safely---desktop/test-failed-1.png",
+    "bytes": 223392,
+    "sha256": "e8a375967eed7da4fba146db258b9acaf00e9f2ddd4a57819367d0edb3d3b764"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\\trace.zip",
+    "path": "worker/notebook-browser/artifacts/notebook-agent-notes-agent-70b5a-provenance-safely---desktop/trace.zip",
+    "bytes": 2552441,
+    "sha256": "40ad9ccd9b1973aab4245ab0104bb513a1c5b4deeebb481925ca9b55f9410056"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\\error-context.md",
+    "path": "worker/notebook-browser/artifacts/notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile/error-context.md.txt",
+    "bytes": 5869,
+    "sha256": "ae7f89b081a71568710bfb5940ef070f9b1450131c0736b873fdf72ef7a2f574"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\\test-failed-1.png",
+    "path": "worker/notebook-browser/artifacts/notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile/test-failed-1.png",
+    "bytes": 56174,
+    "sha256": "33c929d681eaef05630e5541a6e2d236307c9e6b638015a87035e84d32871867"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\artifacts\\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\\trace.zip",
+    "path": "worker/notebook-browser/artifacts/notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile/trace.zip",
+    "bytes": 1304843,
+    "sha256": "379d22dd9b2b253bce8ec5427fe7fa3222fe7ecfd41c91ed4376c2bd0edeec85"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\command.json",
+    "path": "worker/notebook-browser/command.json",
+    "bytes": 327,
+    "sha256": "4b4048b51bd2d11c953f45a86a29f5217f2f0d8b8bb1e1e0f744eadae1025869"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\playwright.config.cjs",
+    "path": "worker/notebook-browser/playwright.config.cjs",
+    "bytes": 821,
+    "sha256": "d979f0ccac00f27520a6c277f60925b9b6c88981ad225df13e97992012fba546"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\results.json",
+    "path": "worker/notebook-browser/results.json",
+    "bytes": 19263,
+    "sha256": "09f0c344c4630170cda0828637da65211dc607415b2027eaf15b48e332984b55"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\run.log",
+    "path": "worker/notebook-browser/run.log",
+    "bytes": 10773,
+    "sha256": "d9854f62e4f0f6b140113d6b60b839fdba2786795bd6f3567c0e010253cf5e9e"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser\\server.log",
+    "path": "worker/notebook-browser/server.log",
+    "bytes": 40,
+    "sha256": "e7978796254d9d2843818f419a44c903326f45492df536fa67dd548de2fe5b8f"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\.last-run.json",
+    "path": "worker/notebook-browser-before/artifacts/.last-run.json",
+    "bytes": 194,
+    "sha256": "7b249269e9c18498755e15f7606908fb8150d54c316d7df5738d8382b1509395"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-57da6--provenance-safely---mobile\\error-context.md",
+    "path": "worker/notebook-browser-before/artifacts/notebook-agent-notes-agent-57da6--provenance-safely---mobile/error-context.md.txt",
+    "bytes": 5816,
+    "sha256": "98fc3fbec0e7d9aec9c8d4508058a3fc92b682bdbb82886a41e109ba6335d8e7"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-57da6--provenance-safely---mobile\\test-failed-1.png",
+    "path": "worker/notebook-browser-before/artifacts/notebook-agent-notes-agent-57da6--provenance-safely---mobile/test-failed-1.png",
+    "bytes": 51530,
+    "sha256": "3247964f118e1c25d5a874361152689dde81dbdd36549a234f7fd94fc7a25641"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-57da6--provenance-safely---mobile\\trace.zip",
+    "path": "worker/notebook-browser-before/artifacts/notebook-agent-notes-agent-57da6--provenance-safely---mobile/trace.zip",
+    "bytes": 1326226,
+    "sha256": "a9a1c7e88bd14c3038a690508016944bd3bc2be91101d280f4339af58f1ac2df"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\\error-context.md",
+    "path": "worker/notebook-browser-before/artifacts/notebook-agent-notes-agent-70b5a-provenance-safely---desktop/error-context.md.txt",
+    "bytes": 8863,
+    "sha256": "26f0bf79c2dd40d7823a3a59cdc9484f1674b61d61168fb0a183874ee40c6dd2"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\\test-failed-1.png",
+    "path": "worker/notebook-browser-before/artifacts/notebook-agent-notes-agent-70b5a-provenance-safely---desktop/test-failed-1.png",
+    "bytes": 169324,
+    "sha256": "74492dd1c2c633bee703c7fa1ef24ec21e77137a590eb03cc00fd88a5db59fd1"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\\trace.zip",
+    "path": "worker/notebook-browser-before/artifacts/notebook-agent-notes-agent-70b5a-provenance-safely---desktop/trace.zip",
+    "bytes": 3478903,
+    "sha256": "d3cf52fcedcb1053a60ca3777c45e645df515d222470c1aa9b1922c016c01604"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\\error-context.md",
+    "path": "worker/notebook-browser-before/artifacts/notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile/error-context.md.txt",
+    "bytes": 5523,
+    "sha256": "187b817b3fbbce60304f1ccc5488d581c01369baa71ec0ad0b4a11b9524af68c"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\\test-failed-1.png",
+    "path": "worker/notebook-browser-before/artifacts/notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile/test-failed-1.png",
+    "bytes": 46322,
+    "sha256": "357ee015d001d2391adcf002978670687bfe57888bcbf5d1b06c984f451c1d6e"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\\trace.zip",
+    "path": "worker/notebook-browser-before/artifacts/notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile/trace.zip",
+    "bytes": 1246989,
+    "sha256": "dc09ad1f40d779b62d40ffc845ffc7bbfb213a2eb5d69a891e2fcbe4ed23d0e5"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\command.json",
+    "path": "worker/notebook-browser-before/command.json",
+    "bytes": 327,
+    "sha256": "cd05e53f5b8d577f7641e2017b041d6cd39a34cdbbb2154052293e61019b8511"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\playwright.config.cjs",
+    "path": "worker/notebook-browser-before/playwright.config.cjs",
+    "bytes": 835,
+    "sha256": "f05c09247af0e4b39ca6d8d565c85c55d28a9149fc67c69d286bfc6e79c3f5ae"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\results.json",
+    "path": "worker/notebook-browser-before/results.json",
+    "bytes": 19718,
+    "sha256": "662c5f2f3a56238ee5bc76d7bf6e3d4f76c2d4746d62801dc252e2e01899e99e"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\run.log",
+    "path": "worker/notebook-browser-before/run.log",
+    "bytes": 10990,
+    "sha256": "767211248ca86a0fd5ce172e4227ba5c694f776d59af6a74d84cfddc20028ffe"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\server.log",
+    "path": "worker/notebook-browser-before/server.log",
+    "bytes": 40,
+    "sha256": "d2a2e983f3c6306406bde7c829f4bbb8dda60c01897ced2b53ccadddfe297d79"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\npm-ci-final.command.json",
+    "path": "worker/npm-ci-final.command.json",
+    "bytes": 764,
+    "sha256": "952980c6f986de7f8d624ee5ca1c48bb411ad2b81dd46b2374556dd5f545bbbb"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\npm-ci-final.log",
+    "path": "worker/npm-ci-final.log",
+    "bytes": 714,
+    "sha256": "e7434d27bdb823e8d6cfa913be7ef161152aa34e438b828f0f6d2365643e3e27"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\prototype-after.command.json",
+    "path": "worker/prototype-after.command.json",
+    "bytes": 1107,
+    "sha256": "64de478dbf2a65079c35bdd9a639dc2e988cadae65f0110e1fa6ea58fee42baf"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\prototype-after.json",
+    "path": "worker/prototype-after.json",
+    "bytes": 2493,
+    "sha256": "d1a5be7072ef2db96a0003c4024230041a53f5315841a61c4dd386fe8124f2a1"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\prototype-after.log",
+    "path": "worker/prototype-after.log",
+    "bytes": 1852,
+    "sha256": "ddbc921c8c10e5abf09c5264cd9282ddeaa47ea685c82307ea2d6111ef820323"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\prototype-before-final.command.json",
+    "path": "worker/prototype-before-final.command.json",
+    "bytes": 1120,
+    "sha256": "cb67c2957b88f24d12c8f49c6e82184a72e390794115908361130f14f2ca8d5d"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\prototype-before-final.json",
+    "path": "worker/prototype-before-final.json",
+    "bytes": 2617,
+    "sha256": "d542c578048141f34e1b02573a7860429cb0882978b912fac330dcbc907aec1e"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\prototype-before-final.log",
+    "path": "worker/prototype-before-final.log",
+    "bytes": 2012,
+    "sha256": "48a24cbbf700f87506657797243dc5e6f8061765c10f7bc379cf6aba19626451"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\prototype-before-ordering-canary.mjs.txt",
+    "path": "worker/prototype-before-ordering-canary.mjs.txt",
+    "bytes": 3491,
+    "sha256": "cfa9fc83574c685111fd17167b03e4780e15bf2b8652599b52a0489a245a129a"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\prototype-before.command.json",
+    "path": "worker/prototype-before.command.json",
+    "bytes": 1108,
+    "sha256": "12dfe023719e0def0fcf25e0045d85f27f627d4bebdc26e70eb02fd28bdc0a57"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\prototype-before.json",
+    "path": "worker/prototype-before.json",
+    "bytes": 2290,
+    "sha256": "4d686744e13da02186ba3490415045a17bb9215d0aaa554631addfc3eece7695"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\prototype-before.log",
+    "path": "worker/prototype-before.log",
+    "bytes": 1685,
+    "sha256": "42d19bad528b5a28e2ef6e235d79e511acd29b148edfdd413cad9321bc9b9219"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\refs-before.bin",
+    "path": "worker/refs-before.bin",
+    "bytes": 10390,
+    "sha256": "eaf90ebca88f0ec1f9e6d63c827310747db80acb1c7ab140daa379403289b4e4"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\resolved-lock-delta-03.json",
+    "path": "worker/resolved-lock-delta-03.json",
+    "bytes": 8402,
+    "sha256": "3d9afd4d93208552aa4691ece75167fe43a39cfb37f7dd6b028c8f6f4b2b9c6e"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\resolved-out-of-target-lock-03.json",
+    "path": "worker/resolved-out-of-target-lock-03.json",
+    "bytes": 560109,
+    "sha256": "a9ad98ac7946d6c11185bb8871e3b6cd5656272fdeaa724ac52f25ab02dd7c23"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\run-command.py",
+    "path": "worker/run-command.py",
+    "bytes": 1919,
+    "sha256": "017a32019ba2572cdb30574567188dbc7e43dcd798ecf05b81e6b9568f5ae23d"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\run-memory-final.mjs",
+    "path": "worker/run-memory-final.mjs",
+    "bytes": 739,
+    "sha256": "b8b08689d9fc204e3bfecb68b6c8a7b0a9dbaf5b0ff6743ad62cc51e030563bd"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\run-notebook-before.py",
+    "path": "worker/run-notebook-before.py",
+    "bytes": 2732,
+    "sha256": "c92c4a430ac1f38ad5648a195bbb7adad68876522465809c6475927c572610f6"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\run-notebook-browser.py",
+    "path": "worker/run-notebook-browser.py",
+    "bytes": 2683,
+    "sha256": "cb79d2df27e3ca47c8737e739fe27640602f890247d6922d4933f6de7eb4a9d8"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\status-before.bin",
+    "path": "worker/status-before.bin",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\targeted-cohort-update-02.command.json",
+    "path": "worker/targeted-cohort-update-02.command.json",
+    "bytes": 1860,
+    "sha256": "a916a5c1bf432a820329212f1c690941bc232c7813a74486d11d63a31912c542"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\targeted-cohort-update-02.log",
+    "path": "worker/targeted-cohort-update-02.log",
+    "bytes": 1352,
+    "sha256": "fb6ad703a634868a79caf67982395e5e4f2bd2cb2dcc06d9481f78fbd3210a06"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\targeted-lock-resolution-01.command.json",
+    "path": "worker/targeted-lock-resolution-01.command.json",
+    "bytes": 1252,
+    "sha256": "6f8e341a365428da7cfbc00bdc91df31925ebee569a27716992bb1693bded419"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\targeted-lock-resolution-01.log",
+    "path": "worker/targeted-lock-resolution-01.log",
+    "bytes": 1623,
+    "sha256": "187ebf75b09d8056912aed073ef65d0d41ff3e8b666d45c2f961fe1a3b969fc5"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\targeted-unlocked-install-03.command.json",
+    "path": "worker/targeted-unlocked-install-03.command.json",
+    "bytes": 874,
+    "sha256": "2603869b951e32446cca672e597f9a7e4cd4497610852b318a1d00e606fb02f8"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\targeted-unlocked-install-03.log",
+    "path": "worker/targeted-unlocked-install-03.log",
+    "bytes": 3860,
+    "sha256": "79603664d86fe14643a569c9891e10202bf72f15443b48d7161debb8e9e3c84f"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\temporary-constraints-resolved-lock-04.json",
+    "path": "worker/temporary-constraints-resolved-lock-04.json",
+    "bytes": 560203,
+    "sha256": "398d1664e68cc7ca37388be8358a104ac29a4f59fa7e420a83470b2f465ea1d2"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\temporary-exact-roots-package.json",
+    "path": "worker/temporary-exact-roots-package.json",
+    "bytes": 26869,
+    "sha256": "92ca7819a9cc01688737e11cbd56602c66dbfdfaf86fd8396ffde69582702ed9"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\temporary-outlier-root-constraints-package.json",
+    "path": "worker/temporary-outlier-root-constraints-package.json",
+    "bytes": 27012,
+    "sha256": "dd661248775e1d4ce290b7b7c02003af66cd6f2a876860259a5eed43712db287"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\test-output-before-memory.json",
+    "path": "worker/test-output-before-memory.json",
+    "bytes": 1923,
+    "sha256": "f1c818f38e140b0f580eff0fbd3e09103905dcc30d9e49698981e427ff7d1139"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\test-output-before-memory.zip",
+    "path": "worker/test-output-before-memory.zip",
+    "bytes": 3484389,
+    "sha256": "1a4acb5ed34ff3a3ccd22590ee9ad5c4230891694a3c7addfd522eb7fe27df53"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\tracked-before.json",
+    "path": "worker/tracked-before.json",
+    "bytes": 1501623,
+    "sha256": "592e2c674c2547e865599955cbde2bbdad3b5737fde1b43e66ad0541279e1703"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\unlocked-cohort-lock-input.json",
+    "path": "worker/unlocked-cohort-lock-input.json",
+    "bytes": 541953,
+    "sha256": "3a85298c9daafb2d680d000da195ac62c128bd7dabc00cded3281c029f6cc5d1"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\verify-lock-delta.py",
+    "path": "worker/verify-lock-delta.py",
+    "bytes": 2852,
+    "sha256": "f6c5e1d6c4b61cd65ea8ff9a339a6248e55768f0fa6d74be18d17eb4e58ceb82"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\head-before.bin",
+    "path": "recon/head-before.bin",
+    "bytes": 41,
+    "sha256": "8a445c187a35ec5c28ef26c48456ba8cee6a9cbc24be413279232bf7c6597139"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\index-before.bin",
+    "path": "recon/index-before.bin",
+    "bytes": 957092,
+    "sha256": "0f9ef98bddbd9412c481a658ee26a229d6b7f5057793adcb3b310beacf495841"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\nodeslide-custody.json",
+    "path": "recon/nodeslide-custody.json",
+    "bytes": 9546,
+    "sha256": "5f3bdfa9455b638e3215ff6b734027f632759c017d1be683ba7707e670d30002"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\nodeslide-pin-removal.diff",
+    "path": "recon/nodeslide-pin-removal.diff",
+    "bytes": 2838,
+    "sha256": "2eba755bdaffd0ba179b5cd5f0536ccaa0ec147d7f3af1eef759154f78e7cf89"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\recon-receipt.json",
+    "path": "recon/recon-receipt.json",
+    "bytes": 8582,
+    "sha256": "77b64acb57fdf772fabdc1ebd91e5f7ce4ce7cd68e9f731f051f60306667d452"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\refs-before.bin",
+    "path": "recon/refs-before.bin",
+    "bytes": 10390,
+    "sha256": "eaf90ebca88f0ec1f9e6d63c827310747db80acb1c7ab140daa379403289b4e4"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\status-before.bin",
+    "path": "recon/status-before.bin",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-advisory.json",
+    "path": "recon/tiptap-advisory.json",
+    "bytes": 6732,
+    "sha256": "6218be4dbf8c976057f72f837f986a04492502e6c32c36c22875b2d2683dcef1"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-cohort.json",
+    "path": "recon/tiptap-cohort.json",
+    "bytes": 19863,
+    "sha256": "bec78727f0a491fb667144901028f12169a41086ff26c82eab144114c68340e5"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-core-3.30.4.registry.json",
+    "path": "recon/tiptap-core-3.30.4.registry.json",
+    "bytes": 2730,
+    "sha256": "c09107125dbaeab33d3475b22c6eff27ade845ac8ee6492ec3ddfde8c98b337d"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-blockquote-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-blockquote-3.30.4.registry.json",
+    "bytes": 2448,
+    "sha256": "593a7f58e9890feb90ad10f0405e11fa81dfc93effe8fd8bdd7a5ebc6c43c13c"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-bold-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-bold-3.30.4.registry.json",
+    "bytes": 2356,
+    "sha256": "e5169227ea8944f18690a491a4d73942695e4b8e619e0705de3230b22a1862f4"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-bubble-menu-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-bubble-menu-3.30.4.registry.json",
+    "bytes": 2523,
+    "sha256": "1d83d3d99c51f91e86531cbf4baa5133a4b0f3652accd24aa4d0bd4d1db75280"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-bullet-list-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-bullet-list-3.30.4.registry.json",
+    "bytes": 2430,
+    "sha256": "9a5f2bb7a0224a5860fdc9d44bc40553712c3dbcd1c921fd5f92a894d9bdf7bb"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-code-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-code-3.30.4.registry.json",
+    "bytes": 2356,
+    "sha256": "2c59fc8b6bc97026b0b3d65f370c58f83a0d8bea93aa6889fedfd54a3d05de0f"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-code-block-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-code-block-3.30.4.registry.json",
+    "bytes": 2446,
+    "sha256": "02bbb07883ef8c0bfea52c1e6dee556e88ce6197106a51630f70619071352415"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-document-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-document-3.30.4.registry.json",
+    "bytes": 2386,
+    "sha256": "70324cb12facb7c5f560e392e7e978603388b525cbe6235bade30f6e842bfbf6"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-dropcursor-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-dropcursor-3.30.4.registry.json",
+    "bytes": 2425,
+    "sha256": "4eea6696c5b0d39051826de1c8b5d38c378bec6ee790870ccac9c5147c1be129"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-floating-menu-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-floating-menu-3.30.4.registry.json",
+    "bytes": 2550,
+    "sha256": "60deaa244bed8848d744ff8c1f1b9fd7ea097e55c0d9df6d1c398f5ec33df48f"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-gapcursor-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-gapcursor-3.30.4.registry.json",
+    "bytes": 2418,
+    "sha256": "ad471f6dfc41192550de8c8447ece70a736c33c9e6be45055115a9627462eb91"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-hard-break-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-hard-break-3.30.4.registry.json",
+    "bytes": 2403,
+    "sha256": "e4d495a54d4918811e8664eb184d6c2c1b12a2c5c3d5205c25abdf14c3b03135"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-heading-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-heading-3.30.4.registry.json",
+    "bytes": 2379,
+    "sha256": "6af1c67eaa72e800b8576953f04920143d8b2379172e0938b1eccefc0cc5fe8b"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-horizontal-rule-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-horizontal-rule-3.30.4.registry.json",
+    "bytes": 2489,
+    "sha256": "fa40e39f45e910be0ea86b1868a57d1a0b832a5ec9cdec9172231b70e58b8054"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-italic-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-italic-3.30.4.registry.json",
+    "bytes": 2371,
+    "sha256": "0bab7f7dd87eed16228a20d2afc19e7933b240f8b4c645b57b129383eb2ead35"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-link-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-link-3.30.4.registry.json",
+    "bytes": 2440,
+    "sha256": "6058f66e419a35c14207b6be84e6592e113b84be0aaca16a6962d64cbd0b5e9d"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-list-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-list-3.30.4.registry.json",
+    "bytes": 3631,
+    "sha256": "dad9a21baeee9d39df8d16ae50af46e63388dbda927506e4d87875d3f9bafd29"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-list-item-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-list-item-3.30.4.registry.json",
+    "bytes": 2416,
+    "sha256": "c6d079b4b82285570a7c54209964eb77a1af203684e6fb45e628a77c5355e933"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-list-keymap-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-list-keymap-3.30.4.registry.json",
+    "bytes": 2430,
+    "sha256": "3b93c6de0a050a4cfd3ec24785477ba52f263f1750e3c811883840f9d7d81a57"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-ordered-list-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-ordered-list-3.30.4.registry.json",
+    "bytes": 2438,
+    "sha256": "69ddd6fdf6b47aa3782f7addedfdb031f753d7ab65b794193e6409883bc8a4be"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-paragraph-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-paragraph-3.30.4.registry.json",
+    "bytes": 2395,
+    "sha256": "4538b6f9f9cfcf25e1a8347f02bd4ee0d22d5231685d0c0f1cfc2c1706db9b28"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-strike-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-strike-3.30.4.registry.json",
+    "bytes": 2370,
+    "sha256": "4072bc3ad70b2f32749b9c7b5ebb5dab10746276d194974f46f871d508b1041d"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-text-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-text-3.30.4.registry.json",
+    "bytes": 2354,
+    "sha256": "ca5427f337afae32cff894f4077581f944c3639ae1ad644555fd45115d5ff034"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-underline-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-underline-3.30.4.registry.json",
+    "bytes": 2395,
+    "sha256": "6a39262b69bede66eba1d8289d598256f25830b1b329eecbabfb6e929c4c72a1"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extension-unique-id-3.30.4.registry.json",
+    "path": "recon/tiptap-extension-unique-id-3.30.4.registry.json",
+    "bytes": 2500,
+    "sha256": "a837924b0ae4d48abaef094dfce663a9fc576552bd4152c5785c9f3af366ab55"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-extensions-3.30.4.registry.json",
+    "path": "recon/tiptap-extensions-3.30.4.registry.json",
+    "bytes": 3888,
+    "sha256": "b736f81897392e03b35764706a523e1946542ea1f518fceff14a6278da226397"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-html-3.30.4.registry.json",
+    "path": "recon/tiptap-html-3.30.4.registry.json",
+    "bytes": 2655,
+    "sha256": "6da8fc9ff1e10b6766789cb4553f56f21c2720f11cebee086a7ea94844bea41d"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-pm-3.30.4.registry.json",
+    "path": "recon/tiptap-pm-3.30.4.registry.json",
+    "bytes": 4690,
+    "sha256": "2068b81bedfeb6e226677c5e8810882dd7783d726da5d04aa2e83bfe945f3f33"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-react-3.30.4.registry.json",
+    "path": "recon/tiptap-react-3.30.4.registry.json",
+    "bytes": 3033,
+    "sha256": "3cea5c6ebacd8eabad26a6c973baae9954f34536e62c9a115486b0099b57b054"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-release.json",
+    "path": "recon/tiptap-release.json",
+    "bytes": 1853,
+    "sha256": "d679b50d74f458bed44c323b435fa271ef53fc3a962645ce2beddade52f1657e"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-recon-01\\tiptap-starter-kit-3.30.4.registry.json",
+    "path": "recon/tiptap-starter-kit-3.30.4.registry.json",
+    "bytes": 3139,
+    "sha256": "79f42cfa5bf519b89a228004ee92bd3db44e32f45830772353b056b684be4e29"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f_NODEROOM_SHARED_DEPENDENCY_REPAIR_PLAN.md",
+    "path": "reports/E6f_NODEROOM_SHARED_DEPENDENCY_REPAIR_PLAN.md.txt",
+    "bytes": 11588,
+    "sha256": "dc798acc6e09cf924eadd5c940e10af795f21c836f0d556747c9990159253bbb"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f_NODEROOM_SHARED_DEPENDENCY_REPAIR_PLAN.json",
+    "path": "reports/E6f_NODEROOM_SHARED_DEPENDENCY_REPAIR_PLAN.json",
+    "bytes": 15963,
+    "sha256": "4f59b9a8fce4e698f6b9280c24c928ba9f2ce63520530167e26fa63ea78bb2c8"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f_NODEROOM_SHARED_DEPENDENCY_PLAN_JUDGE.md",
+    "path": "reports/E6f_NODEROOM_SHARED_DEPENDENCY_PLAN_JUDGE.md.txt",
+    "bytes": 2406,
+    "sha256": "daaf14b380ae93322410b3411edc3b2d8c20452d96039b062423e26cf5164967"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f_NODEROOM_SHARED_DEPENDENCY_PLAN_JUDGE.json",
+    "path": "reports/E6f_NODEROOM_SHARED_DEPENDENCY_PLAN_JUDGE.json",
+    "bytes": 4965,
+    "sha256": "71472ab5bc26847df5ac698b53501866b8f1e2b0fb4ca1a697a047ecf569be44"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f_NODEROOM_COMMIT_POLICY_REVIEW.json",
+    "path": "reports/E6f_NODEROOM_COMMIT_POLICY_REVIEW.json",
+    "bytes": 7425,
+    "sha256": "b241a9f57e1470674978806553cc81a75d9d6bdcb7067d57a46d3074101ccc56"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-tiptap-prototype-canary.mjs",
+    "path": "prototype-canary.mjs",
+    "bytes": 3902,
+    "sha256": "fc29ebbb4f1c2025d4897c5ee340c21053785c003cee2add7dd2d7ab2813ef02"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-mobile-shared-judge\\101304111767-nodeslide-failed.log",
+    "path": "shared-before/101304111767-nodeslide-failed.log",
+    "bytes": 80659,
+    "sha256": "5678498b0d52af5d17a2b8f68872f40bab4b45eabfa32161e1274ac63a4b0720"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-mobile-shared-judge\\101304151727.log",
+    "path": "shared-before/101304151727.log",
+    "bytes": 71964,
+    "sha256": "4122724364d757bee1304e9f5092df872b740f8f099f62ff7990ff50bacf9790"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-mobile-shared-judge\\101304111903.log",
+    "path": "shared-before/101304111903.log",
+    "bytes": 197941,
+    "sha256": "1197a26daa7fd2fad36ccbe27521476c09fdf05980163b83ca0eef0cf9c5895b"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\audit-baseline.log",
+    "path": "shared-before/audit-baseline.log",
+    "bytes": 13587,
+    "sha256": "e8debb2017f9eb267de943f0108134b5d60fdb9dc2ca442691da94136e8ed8a6"
+  },
+  {
+    "source": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-first-run\\audit-production-baseline.log",
+    "path": "shared-before/audit-production-baseline.log",
+    "bytes": 12140,
+    "sha256": "223c70ff152bd2a23a4d14a4602a7a2886a60e87af748693f4c4d23852d838db"
+  }
+]

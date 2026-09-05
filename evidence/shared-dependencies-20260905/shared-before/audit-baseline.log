@@ -1,0 +1,507 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "@tiptap/core": {
+      "name": "@tiptap/core",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        {
+          "source": 1158508,
+          "name": "@tiptap/core",
+          "dependency": "@tiptap/core",
+          "title": "Tiptap: mergeAttributes() turns an own __proto__ key into inherited executable DOM attributes",
+          "url": "https://github.com/advisories/GHSA-cp6q-959q-f8rh",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-79",
+            "CWE-1321"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": ">=2.0.0-alpha.0 <3.30.4"
+        }
+      ],
+      "effects": [
+        "@tiptap/extension-blockquote",
+        "@tiptap/extension-bold",
+        "@tiptap/extension-bubble-menu",
+        "@tiptap/extension-code",
+        "@tiptap/extension-code-block",
+        "@tiptap/extension-document",
+        "@tiptap/extension-floating-menu",
+        "@tiptap/extension-hard-break",
+        "@tiptap/extension-heading",
+        "@tiptap/extension-horizontal-rule",
+        "@tiptap/extension-italic",
+        "@tiptap/extension-link",
+        "@tiptap/extension-list",
+        "@tiptap/extension-paragraph",
+        "@tiptap/extension-strike",
+        "@tiptap/extension-text",
+        "@tiptap/extension-underline",
+        "@tiptap/extension-unique-id",
+        "@tiptap/extensions",
+        "@tiptap/html",
+        "@tiptap/react"
+      ],
+      "range": "<=3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/core"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-blockquote": {
+      "name": "@tiptap/extension-blockquote",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-blockquote"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-bold": {
+      "name": "@tiptap/extension-bold",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-bold"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-bubble-menu": {
+      "name": "@tiptap/extension-bubble-menu",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-bubble-menu"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-bullet-list": {
+      "name": "@tiptap/extension-bullet-list",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/extension-list"
+      ],
+      "effects": [],
+      "range": "3.0.0-beta.0 - 3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-bullet-list"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-code": {
+      "name": "@tiptap/extension-code",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-code"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-code-block": {
+      "name": "@tiptap/extension-code-block",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-code-block"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-document": {
+      "name": "@tiptap/extension-document",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-document"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-dropcursor": {
+      "name": "@tiptap/extension-dropcursor",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/extensions"
+      ],
+      "effects": [],
+      "range": "3.0.0-beta.0 - 3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-dropcursor"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-floating-menu": {
+      "name": "@tiptap/extension-floating-menu",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-floating-menu"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-gapcursor": {
+      "name": "@tiptap/extension-gapcursor",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/extensions"
+      ],
+      "effects": [],
+      "range": "3.0.0-beta.0 - 3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-gapcursor"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-hard-break": {
+      "name": "@tiptap/extension-hard-break",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-hard-break"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-heading": {
+      "name": "@tiptap/extension-heading",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-heading"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-horizontal-rule": {
+      "name": "@tiptap/extension-horizontal-rule",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-horizontal-rule"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-italic": {
+      "name": "@tiptap/extension-italic",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-italic"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-link": {
+      "name": "@tiptap/extension-link",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-link"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-list": {
+      "name": "@tiptap/extension-list",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [
+        "@tiptap/extension-bullet-list",
+        "@tiptap/extension-list-item",
+        "@tiptap/extension-list-keymap",
+        "@tiptap/extension-ordered-list"
+      ],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-list"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-list-item": {
+      "name": "@tiptap/extension-list-item",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/extension-list"
+      ],
+      "effects": [],
+      "range": "3.0.0-beta.0 - 3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-list-item"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-list-keymap": {
+      "name": "@tiptap/extension-list-keymap",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/extension-list"
+      ],
+      "effects": [],
+      "range": "3.0.0-beta.0 - 3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-list-keymap"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-ordered-list": {
+      "name": "@tiptap/extension-ordered-list",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/extension-list"
+      ],
+      "effects": [],
+      "range": "3.0.0-beta.0 - 3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-ordered-list"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-paragraph": {
+      "name": "@tiptap/extension-paragraph",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-paragraph"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-strike": {
+      "name": "@tiptap/extension-strike",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-strike"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-text": {
+      "name": "@tiptap/extension-text",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-text"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-underline": {
+      "name": "@tiptap/extension-underline",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-underline"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extension-unique-id": {
+      "name": "@tiptap/extension-unique-id",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-beta.30 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extension-unique-id"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/extensions": {
+      "name": "@tiptap/extensions",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [
+        "@tiptap/extension-dropcursor",
+        "@tiptap/extension-gapcursor"
+      ],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/extensions"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/html": {
+      "name": "@tiptap/html",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/html"
+      ],
+      "fixAvailable": true
+    },
+    "@tiptap/react": {
+      "name": "@tiptap/react",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "@tiptap/core"
+      ],
+      "effects": [],
+      "range": "<=3.0.0-next.8 || 3.22.4 - 3.30.3",
+      "nodes": [
+        "node_modules/@tiptap/react"
+      ],
+      "fixAvailable": true
+    },
+    "browserslist": {
+      "name": "browserslist",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1153171,
+          "name": "browserslist",
+          "dependency": "browserslist",
+          "title": "Browserslist: Unbounded memory growth (no cache eviction) via distinct query results, leading to eventual OOM",
+          "url": "https://github.com/advisories/GHSA-c83g-rgw3-j3cx",
+          "severity": "high",
+          "cwe": [
+            "CWE-770"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=4.28.6"
+        },
+        {
+          "source": 1153172,
+          "name": "browserslist",
+          "dependency": "browserslist",
+          "title": "Browserslist: Uncaught crash / prototype write via untrusted browserslist-stats.json custom stats (normalizeStats)",
+          "url": "https://github.com/advisories/GHSA-73wf-gq98-2v4g",
+          "severity": "high",
+          "cwe": [
+            "CWE-248",
+            "CWE-1321"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=4.28.6"
+        }
+      ],
+      "effects": [],
+      "range": "<=4.28.6",
+      "nodes": [
+        "node_modules/browserslist"
+      ],
+      "fixAvailable": true
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 28,
+      "high": 1,
+      "critical": 0,
+      "total": 29
+    },
+    "dependencies": {
+      "prod": 600,
+      "dev": 423,
+      "optional": 152,
+      "peer": 18,
+      "peerOptional": 0,
+      "total": 1077
+    }
+  }
+}

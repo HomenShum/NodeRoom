@@ -1,0 +1,146 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: notebook-agent-notes.spec.ts >> agent notebook notes render provenance safely - narrow-mobile
+- Location: e2e\notebook-agent-notes.spec.ts:30:3
+
+# Error details
+
+```
+Error: expect(locator).toBeVisible() failed
+
+Locator: getByTestId('note-editor')
+Expected: visible
+Timeout: 20000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" with timeout 20000ms
+  - waiting for getByTestId('note-editor')
+
+```
+
+```yaml
+- text: "N"
+- status
+- button "Toggle Room Binder panel": Room
+- button "Show Work Surface panel" [pressed]: Work
+- button "Toggle Copilot panel": Chat
+- button "Open room controls"
+- button "Risk / opportunity wall"
+- group: "+3"
+- button "Shared"
+- button "Capture"
+- text: Click any file card to open it. Click a capture to edit. Spreadsheets 3
+- button "Q3 variance 5 rows"
+- button "Company research 14 rows"
+- button "Runway / milestones 2 rows"
+- text: Notes 5
+- button "Capture Notebook note"
+- button "Agent wiki live TOC"
+- button "Today's Brief note"
+- button "Diligence memo note"
+- button "Open questions / workplan note"
+- text: Walls 1
+- button "Risk / opportunity wall 3 captures"
+- text: Quick captures 3
+- button "Delete post-it"
+- textbox "Edit post-it text"
+- text: — Homen
+- button "Delete post-it"
+- textbox "Edit post-it text"
+- text: — Homen
+- button "Delete post-it"
+- textbox "Edit post-it text"
+- text: — Homen
+- button "Expand room trace": Room trace · 26 events
+- button "Entity graph"
+- text: Intake Evidence Draft
+- status:
+  - text: Room NodeAgent ·
+  - button "reconciled Q3 variance · v42"
+- button "Open live session graph (9 entities)": Live graph · 9
+```
+
+# Test source
+
+```ts
+  1  | import { test, expect, enterDemoRoom } from "./fixtures";
+  2  | 
+  3  | async function openNoteSurface(page: import("@playwright/test").Page) {
+  4  |   const editor = page.getByTestId("note-editor");
+  5  |   if (!(await editor.waitFor({ state: "visible", timeout: 5_000 }).then(() => true, () => false))) {
+  6  |     const leftRail = page.getByTestId("left-rail");
+  7  |     if (!(await leftRail.isVisible().catch(() => false))) {
+  8  |       await page.getByRole("button", { name: "Toggle Room Binder panel" }).click();
+  9  |     }
+  10 |     const noteArtifact = page
+  11 |       .getByTestId("left-rail")
+  12 |       .getByTestId("binder-artifact")
+  13 |       .filter({ hasText: /Capture Notebook|Note|Diligence memo/i })
+  14 |       .first();
+  15 |     await noteArtifact.click({ force: true });
+  16 |   }
+> 17 |   await expect(page.getByTestId("note-editor")).toBeVisible({ timeout: 20_000 });
+     |                                                 ^ Error: expect(locator).toBeVisible() failed
+  18 | }
+  19 | 
+  20 | async function expectNoHorizontalOverflow(page: import("@playwright/test").Page, width: number) {
+  21 |   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+  22 |   expect(scrollWidth, "agent notes should not create horizontal overflow").toBeLessThanOrEqual(width + 1);
+  23 | }
+  24 | 
+  25 | for (const viewport of [
+  26 |   { name: "desktop", width: 1440, height: 900 },
+  27 |   { name: "mobile", width: 375, height: 812 },
+  28 |   { name: "narrow-mobile", width: 320, height: 812 },
+  29 | ] as const) {
+  30 |   test(`agent notebook notes render provenance safely - ${viewport.name}`, async ({ page }) => {
+  31 |     await page.setViewportSize({ width: viewport.width, height: viewport.height });
+  32 |     await enterDemoRoom(page);
+  33 |     await openNoteSurface(page);
+  34 | 
+  35 |     const seeded = await page.evaluate(() => (window as any).__seedAgentNotes?.([
+  36 |       '<h2 data-agent-root="true" data-author-kind="agent">Agent notes</h2>',
+  37 |       '<h3 data-blockid="e2e-heading" data-author-kind="agent" data-run-id="e2e">Browser proof</h3>',
+  38 |       '<ul><li data-blockid="e2e-claim" data-author-kind="agent" data-run-id="e2e" data-status="needs_review">Unsupported claim needs review</li></ul>',
+  39 |       '<img src=x onerror="window.__agentNotesXss=1">',
+  40 |       '<script>window.__agentNotesXss=1</script>',
+  41 |     ].join("\n")));
+  42 |     expect(seeded).toBeTruthy();
+  43 | 
+  44 |     const notes = page.getByTestId("agent-notes-block");
+  45 |     await expect(notes).toBeVisible({ timeout: 10_000 });
+  46 |     await expect(notes).toContainText("NodeRoom");
+  47 |     await expect(notes).toContainText("Browser proof");
+  48 |     await expect(notes).toContainText("Unsupported claim needs review");
+  49 |     await expect(notes.locator('[data-blockid="e2e-heading"]')).toBeVisible();
+  50 |     await expect(notes.locator('[data-blockid="e2e-claim"][data-author-kind="agent"][data-status="needs_review"]')).toBeVisible();
+  51 | 
+  52 |     const xssRan = await page.evaluate(() => (window as any).__agentNotesXss === 1);
+  53 |     expect(xssRan).toBe(false);
+  54 |     await expect(notes.locator("script, img")).toHaveCount(0);
+  55 | 
+  56 |     const claimStyles = await notes.locator('[data-blockid="e2e-claim"]').evaluate((el) => {
+  57 |       const style = getComputedStyle(el as HTMLElement);
+  58 |       const after = getComputedStyle(el as HTMLElement, "::after");
+  59 |       return {
+  60 |         borderLeftWidth: style.borderLeftWidth,
+  61 |         borderLeftStyle: style.borderLeftStyle,
+  62 |         afterContent: after.content,
+  63 |       };
+  64 |     });
+  65 |     expect(claimStyles.borderLeftStyle).toBe("solid");
+  66 |     expect(claimStyles.borderLeftWidth).toBe("2px");
+  67 |     expect(claimStyles.afterContent).toContain("needs review");
+  68 | 
+  69 |     await expectNoHorizontalOverflow(page, viewport.width);
+  70 |   });
+  71 | }
+  72 | 
+```

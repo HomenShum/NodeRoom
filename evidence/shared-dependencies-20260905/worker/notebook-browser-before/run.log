@@ -1,0 +1,148 @@
+
+Running 3 tests using 1 worker
+
+[1A[2K(node:20940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:20940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/3] e2e\notebook-agent-notes.spec.ts:30:3 › agent notebook notes render provenance safely - desktop
+[1A[2K  1) e2e\notebook-agent-notes.spec.ts:30:3 › agent notebook notes render provenance safely - desktop 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('agent-notes-block')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('agent-notes-block')[22m
+
+
+      43 |
+      44 |     const notes = page.getByTestId("agent-notes-block");
+    > 45 |     await expect(notes).toBeVisible({ timeout: 10_000 });
+         |                         ^
+      46 |     await expect(notes).toContainText("NodeRoom");
+      47 |     await expect(notes).toContainText("Browser proof");
+      48 |     await expect(notes).toContainText("Unsupported claim needs review");
+        at D:\VSCode Projects\cafecorner_nodebench\nodebench_ai4\.portfolio-worktrees\noderoom-current-consumer-20260905\e2e\notebook-agent-notes.spec.ts:45:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    C:\Users\hshum\.codex\worktrees\5dba\nodebench-ai\docs\plans\portfolio-recovery-20260904\E6f-noderoom-shared-dependency-repair-01\notebook-browser-before\artifacts\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: C:\Users\hshum\.codex\worktrees\5dba\nodebench-ai\docs\plans\portfolio-recovery-20260904\E6f-noderoom-shared-dependency-repair-01\notebook-browser-before\artifacts\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    C:\Users\hshum\.codex\worktrees\5dba\nodebench-ai\docs\plans\portfolio-recovery-20260904\E6f-noderoom-shared-dependency-repair-01\notebook-browser-before\artifacts\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\trace.zip
+    Usage:
+
+        npx playwright show-trace C:\Users\hshum\.codex\worktrees\5dba\nodebench-ai\docs\plans\portfolio-recovery-20260904\E6f-noderoom-shared-dependency-repair-01\notebook-browser-before\artifacts\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:58600) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:58600) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[2/3] e2e\notebook-agent-notes.spec.ts:30:3 › agent notebook notes render provenance safely - mobile
+[1A[2K  2) e2e\notebook-agent-notes.spec.ts:30:3 › agent notebook notes render provenance safely - mobile 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('agent-notes-block')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('agent-notes-block')[22m
+
+
+      43 |
+      44 |     const notes = page.getByTestId("agent-notes-block");
+    > 45 |     await expect(notes).toBeVisible({ timeout: 10_000 });
+         |                         ^
+      46 |     await expect(notes).toContainText("NodeRoom");
+      47 |     await expect(notes).toContainText("Browser proof");
+      48 |     await expect(notes).toContainText("Unsupported claim needs review");
+        at D:\VSCode Projects\cafecorner_nodebench\nodebench_ai4\.portfolio-worktrees\noderoom-current-consumer-20260905\e2e\notebook-agent-notes.spec.ts:45:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    C:\Users\hshum\.codex\worktrees\5dba\nodebench-ai\docs\plans\portfolio-recovery-20260904\E6f-noderoom-shared-dependency-repair-01\notebook-browser-before\artifacts\notebook-agent-notes-agent-57da6--provenance-safely---mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: C:\Users\hshum\.codex\worktrees\5dba\nodebench-ai\docs\plans\portfolio-recovery-20260904\E6f-noderoom-shared-dependency-repair-01\notebook-browser-before\artifacts\notebook-agent-notes-agent-57da6--provenance-safely---mobile\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    C:\Users\hshum\.codex\worktrees\5dba\nodebench-ai\docs\plans\portfolio-recovery-20260904\E6f-noderoom-shared-dependency-repair-01\notebook-browser-before\artifacts\notebook-agent-notes-agent-57da6--provenance-safely---mobile\trace.zip
+    Usage:
+
+        npx playwright show-trace C:\Users\hshum\.codex\worktrees\5dba\nodebench-ai\docs\plans\portfolio-recovery-20260904\E6f-noderoom-shared-dependency-repair-01\notebook-browser-before\artifacts\notebook-agent-notes-agent-57da6--provenance-safely---mobile\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:18132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:18132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[3/3] e2e\notebook-agent-notes.spec.ts:30:3 › agent notebook notes render provenance safely - narrow-mobile
+[1A[2K  3) e2e\notebook-agent-notes.spec.ts:30:3 › agent notebook notes render provenance safely - narrow-mobile 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('agent-notes-block')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('agent-notes-block')[22m
+
+
+      43 |
+      44 |     const notes = page.getByTestId("agent-notes-block");
+    > 45 |     await expect(notes).toBeVisible({ timeout: 10_000 });
+         |                         ^
+      46 |     await expect(notes).toContainText("NodeRoom");
+      47 |     await expect(notes).toContainText("Browser proof");
+      48 |     await expect(notes).toContainText("Unsupported claim needs review");
+        at D:\VSCode Projects\cafecorner_nodebench\nodebench_ai4\.portfolio-worktrees\noderoom-current-consumer-20260905\e2e\notebook-agent-notes.spec.ts:45:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    C:\Users\hshum\.codex\worktrees\5dba\nodebench-ai\docs\plans\portfolio-recovery-20260904\E6f-noderoom-shared-dependency-repair-01\notebook-browser-before\artifacts\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: C:\Users\hshum\.codex\worktrees\5dba\nodebench-ai\docs\plans\portfolio-recovery-20260904\E6f-noderoom-shared-dependency-repair-01\notebook-browser-before\artifacts\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    C:\Users\hshum\.codex\worktrees\5dba\nodebench-ai\docs\plans\portfolio-recovery-20260904\E6f-noderoom-shared-dependency-repair-01\notebook-browser-before\artifacts\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\trace.zip
+    Usage:
+
+        npx playwright show-trace C:\Users\hshum\.codex\worktrees\5dba\nodebench-ai\docs\plans\portfolio-recovery-20260904\E6f-noderoom-shared-dependency-repair-01\notebook-browser-before\artifacts\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K  3 failed
+    e2e\notebook-agent-notes.spec.ts:30:3 › agent notebook notes render provenance safely - desktop 
+    e2e\notebook-agent-notes.spec.ts:30:3 › agent notebook notes render provenance safely - mobile ─
+    e2e\notebook-agent-notes.spec.ts:30:3 › agent notebook notes render provenance safely - narrow-mobile 

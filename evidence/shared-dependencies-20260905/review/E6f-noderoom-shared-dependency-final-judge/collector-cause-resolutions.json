@@ -1,0 +1,39 @@
+{
+  "nativeResolver": {
+    "pass": true,
+    "initialFailurePreserved": true,
+    "actualDelta": [
+      {
+        "path": "node_modules/@tiptap/extension-bubble-menu",
+        "fields": {
+          "optional": {
+            "before": null,
+            "after": true
+          }
+        }
+      },
+      {
+        "path": "node_modules/@tiptap/extension-floating-menu",
+        "fields": {
+          "optional": {
+            "before": null,
+            "after": true
+          }
+        }
+      }
+    ],
+    "cause": "The initial reviewer comparison wrongly required unchanged optional metadata after removing temporary direct constraints. Native final refresh correctly restores optional:true on the two menu packages; versions, resolved URLs, integrity and every other package-row field are identical to the retained native solution. No transplanted row or invented integrity was observed."
+  },
+  "indexCustody": {
+    "pass": true,
+    "initialFailurePreserved": true,
+    "baselineRepresentation": "git ls-files --stage -z bytes, not raw .git/index",
+    "actualEntries": 7328,
+    "allModeStageBlobPathEntriesExact": true,
+    "entryStreamSha256": "0f9ef98bddbd9412c481a658ee26a229d6b7f5057793adcb3b310beacf495841",
+    "currentRawIndexSha256": "7c6e0eb2988ec11271786c803c79dd077f39e1f1fad08bb2c60f502b00b625ea",
+    "priorReviewerRawIndexSha256": "7c6e0eb2988ec11271786c803c79dd077f39e1f1fad08bb2c60f502b00b625ea",
+    "rawIndexMatchesPriorIndependentCapture": true,
+    "cause": "The reviewer initially compared different representations, then incorrectly offered the serialized entry stream as GIT_INDEX_FILE. Git rejected that read-only alternate file as an invalid index; the actual repository index was never corrupt. The error/probe remains retained. Root disclosed ordinary Git diff/status reads, but available exact bytes show no index change."
+  }
+}

@@ -1,0 +1,44 @@
+[product-memory] using http://127.0.0.1:54512
+[product-memory] server=preview skip-build
+
+Running 29 tests using 1 worker
+
+(node:55220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › e2e\chat.spec.ts:12:3 › chat — optimistic send + edit (memory mode) › send renders an instant, stably-keyed, confirmed bubble (4.5s)
+  ok  2 [chromium] › e2e\chat.spec.ts:26:3 › chat — optimistic send + edit (memory mode) › editing own message paints the new text in place (1.9s)
+  ok  3 [chromium] › e2e\chat.spec.ts:43:3 › chat — optimistic send + edit (memory mode) › can send an artifact reference without extra text (1.9s)
+  ok  4 [chromium] › e2e\chat.spec.ts:86:3 › chat — optimistic send + edit (memory mode) › chat artifact references open beside the primary work surface on desktop (1.5s)
+  ok  5 [chromium] › e2e\chat.spec.ts:110:3 › chat — optimistic send + edit (memory mode) › mobile chat artifact references switch back to the work surface (3.3s)
+  ok  6 [chromium] › e2e\chat.spec.ts:140:3 › chat — optimistic send + edit (memory mode) › dropping a file into chat uploads it and attaches a reference (1.4s)
+  ok  7 [chromium] › e2e\chat.spec.ts:156:3 › chat — optimistic send + edit (memory mode) › paperclip upload attaches a file reference from the composer (1.4s)
+  ok  8 [chromium] › e2e\chat.spec.ts:174:3 › chat — optimistic send + edit (memory mode) › pasting a file into the composer uploads it as a reference (1.5s)
+  ok  9 [chromium] › e2e\chat.spec.ts:193:3 › chat — optimistic send + edit (memory mode) › @nodeagent quick chips replace /ask and /free as the taught public agent UX (1.4s)
+  ok 10 [chromium] › e2e\excel-grid.spec.ts:69:1 › an uploaded plain sheet renders as an aligned dark work-surface grid, not the Excel-paper UI (1.6s)
+  ok 11 [chromium] › e2e\excel-grid.spec.ts:94:1 › uploaded workbook renders in the shared Sheet 1 grid, not the false Excel-paper UI (1.6s)
+  ok 12 [chromium] › e2e\privacy-job-wall-proposal.spec.ts:10:3 › privacy, job, wall, and proposal browser coverage › private chat messages and memory-mode agent replies do not leak into public chat (1.6s)
+  ok 13 [chromium] › e2e\privacy-job-wall-proposal.spec.ts:37:3 › privacy, job, wall, and proposal browser coverage › wall post-its can be added, edited through blur commit, and deleted (1.7s)
+  ok 14 [chromium] › e2e\privacy-job-wall-proposal.spec.ts:68:3 › privacy, job, wall, and proposal browser coverage › free-route job controls expose status, details, cancel, and retry in the browser (7.1s)
+  ok 15 [chromium] › e2e\privacy-job-wall-proposal.spec.ts:111:3 › privacy, job, wall, and proposal browser coverage › semantic conflict proposal reject removes the CRS suggestion without overwriting the host value (1.9s)
+  ok 16 [chromium] › e2e\responsive-qa.spec.ts:45:3 › responsive QA - phone-375x812 (1.9s)
+  ok 17 [chromium] › e2e\responsive-qa.spec.ts:45:3 › responsive QA - tablet-768x1024 (1.9s)
+  ok 18 [chromium] › e2e\responsive-qa.spec.ts:45:3 › responsive QA - workspace-1024x768 (1.8s)
+  ok 19 [chromium] › e2e\responsive-qa.spec.ts:45:3 › responsive QA - laptop-1280x800 (1.8s)
+  ok 20 [chromium] › e2e\responsive-qa.spec.ts:45:3 › responsive QA - desktop-1440x900 (1.8s)
+  ok 21 [chromium] › e2e\responsive-qa.spec.ts:45:3 › responsive QA - desktop-1860x900 (1.9s)
+  ok 22 [chromium] › e2e\semantic-rebase.spec.ts:14:1 › semantic rebase conflict drill is visible, reviewable, and applies only after host approval (1.9s)
+  ok 23 [chromium] › e2e\work-surface-split.spec.ts:24:5 › center-stage split mode › desktop-1440 — split opens a second surface beside the primary (1.5s)
+  ok 24 [chromium] › e2e\work-surface-split.spec.ts:24:5 › center-stage split mode › laptop-1280 — split opens a second surface beside the primary (1.5s)
+  ok 25 [chromium] › e2e\work-surface-split.spec.ts:24:5 › center-stage split mode › workspace-1024 — single surface, no split control (1.3s)
+  ok 26 [chromium] › e2e\work-surface-split.spec.ts:24:5 › center-stage split mode › tablet-768 — single surface, no split control (1.3s)
+  ok 27 [chromium] › e2e\work-surface-split.spec.ts:71:3 › center-stage split mode › banker coach evidence opens its source beside the primary work surface (1.5s)
+(node:11664) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11664) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 28 [chromium] › e2e\full-modern-ux-bar.spec.ts:193:3 › full modern UX release bar › desktop public agent shows immediate progress, mutates artifacts, and keeps browser health clean (8.5s)
+  ok 29 [chromium] › e2e\full-modern-ux-bar.spec.ts:281:3 › full modern UX release bar › mobile terracotta cards are operable, traceable, and overflow-safe (5.6s)
+
+  29 passed (1.2m)

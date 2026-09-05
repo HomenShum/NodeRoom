@@ -1,0 +1,10 @@
+{
+  "parentAuthorized": true,
+  "temporaryOnly": {
+    "@tiptap/extension-bubble-menu": "3.30.4",
+    "@tiptap/extension-floating-menu": "3.30.4",
+    "prosemirror-view": "1.41.9"
+  },
+  "finalRootDependenciesMustBeOriginalPlusTwoNodeSlidePins": true,
+  "runtimeInstallBeforeRemoval": false
+}

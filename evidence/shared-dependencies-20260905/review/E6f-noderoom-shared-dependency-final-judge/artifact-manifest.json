@@ -1,0 +1,136 @@
+{
+  "files": [
+    {
+      "path": "actual-authored.diff",
+      "bytes": 37199,
+      "sha256": "0bbdd0f1ebee1719e57a1723852f79c4b08884d0ce62fabfe5ce2556435316bf"
+    },
+    {
+      "path": "alternate-index-probe-failure.json",
+      "bytes": 354,
+      "sha256": "f6d8566c0eb253b09c3433e2c3d15b350fad41be9edd7f0e81d51b2762cde14e"
+    },
+    {
+      "path": "archive-inventory.json",
+      "bytes": 1963,
+      "sha256": "4c51ac479642d9c7d6cfcef8c7101952665d8195d5a02257defff88f1ac3f4a8"
+    },
+    {
+      "path": "before-archive-verification.json",
+      "bytes": 290934,
+      "sha256": "e9a19582f9618e692517d785b9ccdc1cd5049f8cf8f88210d4e0d81053d8de2c"
+    },
+    {
+      "path": "canary-independent.command.json",
+      "bytes": 858,
+      "sha256": "0acaaec90ceef20f42922d99cce6a7ada281b2d35ef25ca15aac96d5e0bdc43d"
+    },
+    {
+      "path": "canary-independent.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "canary-independent.stdout.log",
+      "bytes": 1864,
+      "sha256": "8afe275bb36727c17e92389be28aae0f4f8127279f868a13c00937ef765e6d26"
+    },
+    {
+      "path": "checks.json",
+      "bytes": 8344,
+      "sha256": "de8a46d8621e39ec93881f425bd08e8f6339348cf24c6b27cf88c8fefc1f1aeb"
+    },
+    {
+      "path": "collector-cause-resolutions.json",
+      "bytes": 1907,
+      "sha256": "2afd9e0c34a95ac92f476c256b33a8f8cedc49f340323fa025edae57edfcc2e9"
+    },
+    {
+      "path": "credential-pattern-review.json",
+      "bytes": 330,
+      "sha256": "8681d2b96bef8ba9a6a6b45364cf49f40183dc8f067c87e915638a08a7a0b1ba"
+    },
+    {
+      "path": "custody-final.json",
+      "bytes": 649,
+      "sha256": "d5d1d6a7af7611a1c5c1fbf39e52d5b2dc3b0f6d528d713274e78931aca6378e"
+    },
+    {
+      "path": "effective-156-bindings.json",
+      "bytes": 91027,
+      "sha256": "067aa9be80c9be5b0fba585e77c345423f58f5eee09d5e5e1d66e9afcc6515ec"
+    },
+    {
+      "path": "encoding-only.diff",
+      "bytes": 2209,
+      "sha256": "dbec7177927b636c24bd4c40fb509f6419ea2823bb4a8aad23437df586df9f42"
+    },
+    {
+      "path": "explicit-ignored-staging-paths.json",
+      "bytes": 2205,
+      "sha256": "4bea1eebf151be154b1a90717beed2ee49a0d19952c2a2a002501229b3e03cfb"
+    },
+    {
+      "path": "final-effective-custody.json",
+      "bytes": 486,
+      "sha256": "79d4c5ffe5be8b494cc9578907506efa0e2e1f54aef94488f38ceca73d563245"
+    },
+    {
+      "path": "independent-lock-delta.json",
+      "bytes": 8780,
+      "sha256": "ef17b2027afa95fafdee8ba816e8bec1a258ccb2c9204eebb2bf32cba50cb1bd"
+    },
+    {
+      "path": "index-at-observed-drift.bin",
+      "bytes": 1129061,
+      "sha256": "7c6e0eb2988ec11271786c803c79dd077f39e1f1fad08bb2c60f502b00b625ea"
+    },
+    {
+      "path": "index-current-entries.bin",
+      "bytes": 957092,
+      "sha256": "0f9ef98bddbd9412c481a658ee26a229d6b7f5057793adcb3b310beacf495841"
+    },
+    {
+      "path": "installed-build-verification.json",
+      "bytes": 336561,
+      "sha256": "0a75c1cf043ff6a75a864d29ea0490140e19ba016ffc17ad7006479dafd8d201"
+    },
+    {
+      "path": "link-verification.json",
+      "bytes": 3191,
+      "sha256": "c5c48d73a78b017f7c1456df175801d1e7a5e45ff13bea80e3491b96489b8ae6"
+    },
+    {
+      "path": "portable-verification.json",
+      "bytes": 103424,
+      "sha256": "6bcd224153c339e966ed1b3328eb8a6a4046318c7fed644b82f356644411713b"
+    },
+    {
+      "path": "protected-source-verification.json",
+      "bytes": 1015870,
+      "sha256": "5d07c3383098870f0e3ad85d3d7365aa42bda82da664dfcb0f82bc7e178d82e5"
+    },
+    {
+      "path": "prototype-independent-after.json",
+      "bytes": 2505,
+      "sha256": "22c733a44c5f70f05ca46697d7c374cc6524f4124d0ec45e522841e479387c40"
+    },
+    {
+      "path": "reviewed-prototype-canary.mjs.txt",
+      "bytes": 3902,
+      "sha256": "fc29ebbb4f1c2025d4897c5ee340c21053785c003cee2add7dd2d7ab2813ef02"
+    },
+    {
+      "path": "viewed-notebook-failures.json",
+      "bytes": 3831,
+      "sha256": "48afbf4f9d7d7d9bf1fa1194fd7b5fd5932329926a8d26fd0c9865d252895f60"
+    }
+  ],
+  "count": 25,
+  "bytes": 4004546,
+  "excludes": [
+    "self",
+    "external final judge MD/JSON"
+  ],
+  "failurePreservation": "checks.json remains initial 45/47; collector-cause-resolutions.json resolves the two reviewer assumptions without candidate/test/gate changes."
+}

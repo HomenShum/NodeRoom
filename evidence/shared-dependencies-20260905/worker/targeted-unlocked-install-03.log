@@ -1,0 +1,78 @@
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: @tiptap/extension-bubble-menu@3.31.3
+npm warn Found: @tiptap/core@3.30.4
+npm warn node_modules/@tiptap/core
+npm warn   @tiptap/core@"3.30.4" from the root project
+npm warn   5 more (@convex-dev/prosemirror-sync, ...)
+npm warn
+npm warn Could not resolve dependency:
+npm warn peer @tiptap/core@"3.31.3" from @tiptap/extension-bubble-menu@3.31.3
+npm warn node_modules/@tiptap/extension-bubble-menu
+npm warn   optional @tiptap/extension-bubble-menu@"^3.30.4" from @tiptap/react@3.30.4
+npm warn   node_modules/@tiptap/react
+npm warn
+npm warn Conflicting peer dependency: @tiptap/core@3.31.3
+npm warn node_modules/@tiptap/core
+npm warn   peer @tiptap/core@"3.31.3" from @tiptap/extension-bubble-menu@3.31.3
+npm warn   node_modules/@tiptap/extension-bubble-menu
+npm warn     optional @tiptap/extension-bubble-menu@"^3.30.4" from @tiptap/react@3.30.4
+npm warn     node_modules/@tiptap/react
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: @tiptap/extension-bubble-menu@3.31.3
+npm warn Found: @tiptap/pm@3.30.4
+npm warn node_modules/@tiptap/pm
+npm warn   @tiptap/pm@"3.30.4" from the root project
+npm warn   5 more (@tiptap/core, @tiptap/extension-unique-id, ...)
+npm warn
+npm warn Could not resolve dependency:
+npm warn peer @tiptap/pm@"3.31.3" from @tiptap/extension-bubble-menu@3.31.3
+npm warn node_modules/@tiptap/extension-bubble-menu
+npm warn   optional @tiptap/extension-bubble-menu@"^3.30.4" from @tiptap/react@3.30.4
+npm warn   node_modules/@tiptap/react
+npm warn
+npm warn Conflicting peer dependency: @tiptap/pm@3.31.3
+npm warn node_modules/@tiptap/pm
+npm warn   peer @tiptap/pm@"3.31.3" from @tiptap/extension-bubble-menu@3.31.3
+npm warn   node_modules/@tiptap/extension-bubble-menu
+npm warn     optional @tiptap/extension-bubble-menu@"^3.30.4" from @tiptap/react@3.30.4
+npm warn     node_modules/@tiptap/react
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: @tiptap/extension-floating-menu@3.31.3
+npm warn Found: @tiptap/core@3.30.4
+npm warn node_modules/@tiptap/core
+npm warn   @tiptap/core@"3.30.4" from the root project
+npm warn   5 more (@convex-dev/prosemirror-sync, ...)
+npm warn
+npm warn Could not resolve dependency:
+npm warn peer @tiptap/core@"3.31.3" from @tiptap/extension-floating-menu@3.31.3
+npm warn node_modules/@tiptap/extension-floating-menu
+npm warn   optional @tiptap/extension-floating-menu@"^3.30.4" from @tiptap/react@3.30.4
+npm warn   node_modules/@tiptap/react
+npm warn
+npm warn Conflicting peer dependency: @tiptap/core@3.31.3
+npm warn node_modules/@tiptap/core
+npm warn   peer @tiptap/core@"3.31.3" from @tiptap/extension-floating-menu@3.31.3
+npm warn   node_modules/@tiptap/extension-floating-menu
+npm warn     optional @tiptap/extension-floating-menu@"^3.30.4" from @tiptap/react@3.30.4
+npm warn     node_modules/@tiptap/react
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: @tiptap/extension-floating-menu@3.31.3
+npm warn Found: @tiptap/pm@3.30.4
+npm warn node_modules/@tiptap/pm
+npm warn   @tiptap/pm@"3.30.4" from the root project
+npm warn   5 more (@tiptap/core, @tiptap/extension-unique-id, ...)
+npm warn
+npm warn Could not resolve dependency:
+npm warn peer @tiptap/pm@"3.31.3" from @tiptap/extension-floating-menu@3.31.3
+npm warn node_modules/@tiptap/extension-floating-menu
+npm warn   optional @tiptap/extension-floating-menu@"^3.30.4" from @tiptap/react@3.30.4
+npm warn   node_modules/@tiptap/react
+npm warn
+npm warn Conflicting peer dependency: @tiptap/pm@3.31.3
+npm warn node_modules/@tiptap/pm
+npm warn   peer @tiptap/pm@"3.31.3" from @tiptap/extension-floating-menu@3.31.3
+npm warn   node_modules/@tiptap/extension-floating-menu
+npm warn     optional @tiptap/extension-floating-menu@"^3.30.4" from @tiptap/react@3.30.4
+npm warn     node_modules/@tiptap/react
+
+up to date in 2s

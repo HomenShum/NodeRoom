@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-09-05T15:26:25.398210+00:00",
+  "mode": "Builder / independent nonauthor source and publication judge",
+  "verdict": "APPROVED_SCOPED_DEPENDENCY_REPAIR_WITH_NOTEBOOK_AND_SHARED_INTEGRATION_HOLDS",
+  "requestTrace": "The user asked to execute recovery with planner-worker-judge and make each repository ready for developer/user handoff, including real visual/responsive/interaction standards. This judgment verifies the bounded NodeRoom dependency repair and its evidence without treating failed notebook coverage or old shared CI as passing.",
+  "candidate": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+  "head": "de9e02bc31c6bebb421a4889c1606a49f617f0f6",
+  "staged": false,
+  "authoredPaths": [
+    "package.json",
+    "package-lock.json",
+    "HANDOFF.md"
+  ],
+  "effectiveFiles": 156,
+  "effectiveWorkingDigest": "970483b585a537d45822ebfb8cc2bdfda4466402c8c98e7bc4c8e1aa27dff8b8",
+  "effectiveAuthoredDigest": "fbd839fb06029e4f2c4a7a96fc4da6269e33e16f7683fbc18d38e47332b7d103",
+  "workerReceipt": {
+    "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f_NODEROOM_SHARED_DEPENDENCY_REPAIR_RECEIPT.json",
+    "sha256": "aebfe101bf3a98be0754e54f1b0ec32d1259bbb9eb550f223b1684826fc3132d",
+    "bytes": 67192
+  },
+  "encodingAddendum": {
+    "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f_NODEROOM_DEPENDENCY_PACKAGE_ENCODING_ADDENDUM.json",
+    "sha256": "e44e5a71eb7fb220f4130121905765b2f24186261381f550e92e243ffe5c2b32",
+    "bytes": 47278
+  },
+  "planJudge": {
+    "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f_NODEROOM_SHARED_DEPENDENCY_PLAN_JUDGE.json",
+    "sha256": "71472ab5bc26847df5ac698b53501866b8f1e2b0fb4ca1a697a047ecf569be44",
+    "bytes": 4965
+  },
+  "commitPolicyJudge": {
+    "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f_NODEROOM_COMMIT_POLICY_REVIEW.json",
+    "sha256": "b241a9f57e1470674978806553cc81a75d9d6bdcb7067d57a46d3074101ccc56",
+    "bytes": 7425
+  },
+  "initialCollector": {
+    "checks": 47,
+    "passed": 45,
+    "failed": 2,
+    "originalPreserved": true,
+    "candidateDefectsFromThoseTwoFailures": 0
+  },
+  "causalResolutions": {
+    "nativeResolver": {
+      "pass": true,
+      "initialFailurePreserved": true,
+      "actualDelta": [
+        {
+          "path": "node_modules/@tiptap/extension-bubble-menu",
+          "fields": {
+            "optional": {
+              "before": null,
+              "after": true
+            }
+          }
+        },
+        {
+          "path": "node_modules/@tiptap/extension-floating-menu",
+          "fields": {
+            "optional": {
+              "before": null,
+              "after": true
+            }
+          }
+        }
+      ],
+      "cause": "The initial reviewer comparison wrongly required unchanged optional metadata after removing temporary direct constraints. Native final refresh correctly restores optional:true on the two menu packages; versions, resolved URLs, integrity and every other package-row field are identical to the retained native solution. No transplanted row or invented integrity was observed."
+    },
+    "indexCustody": {
+      "pass": true,
+      "initialFailurePreserved": true,
+      "baselineRepresentation": "git ls-files --stage -z bytes, not raw .git/index",
+      "actualEntries": 7328,
+      "allModeStageBlobPathEntriesExact": true,
+      "entryStreamSha256": "0f9ef98bddbd9412c481a658ee26a229d6b7f5057793adcb3b310beacf495841",
+      "currentRawIndexSha256": "7c6e0eb2988ec11271786c803c79dd077f39e1f1fad08bb2c60f502b00b625ea",
+      "priorReviewerRawIndexSha256": "7c6e0eb2988ec11271786c803c79dd077f39e1f1fad08bb2c60f502b00b625ea",
+      "rawIndexMatchesPriorIndependentCapture": true,
+      "cause": "The reviewer initially compared different representations, then incorrectly offered the serialized entry stream as GIT_INDEX_FILE. Git rejected that read-only alternate file as an invalid index; the actual repository index was never corrupt. The error/probe remains retained. Root disclosed ordinary Git diff/status reads, but available exact bytes show no index change."
+    }
+  },
+  "verified": {
+    "rawWorkingAndFutureGitFilteredBlobs": 156,
+    "protectedTrackedUnchanged": 7325,
+    "trackedTotal": 7328,
+    "changedTracked": 3,
+    "lockRowsChanged": 33,
+    "tiptapExactVersion": "3.30.4",
+    "tiptapCount": 30,
+    "modelVersion": "1.25.11",
+    "viewVersion": "1.41.9",
+    "unchangedNestedUuid": "14.0.1",
+    "installedIdentities": 38,
+    "buildAndInstalledFileBindings": 1533,
+    "currentDistFiles": 475,
+    "portableFiles": 153,
+    "portablePayloads": 152,
+    "rawCopyBindings": 149,
+    "currentRelativeLinks": 20,
+    "beforeArchiveFiles": 1388,
+    "ignoredRawLogsRequiringExplicitStaging": 25,
+    "viewedPngs": 6
+  },
+  "independentReplay": {
+    "name": "real installed Tiptap mergeAttributes / ProseMirror DOM serializer canary",
+    "count": 1025,
+    "prototypeChanges": 0,
+    "inheritedExecutableAttributes": 0,
+    "legitimateAttributeLoss": 0,
+    "cleanObjectAndGlobalControls": true,
+    "exitCode": 0,
+    "result": {
+      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-final-judge\\prototype-independent-after.json",
+      "sha256": "22c733a44c5f70f05ca46697d7c374cc6524f4124d0ec45e522841e479387c40",
+      "bytes": 2505
+    },
+    "scope": "Library attribute boundary only; no browser event handler execution and no exploit of a NodeRoom route. Includes 1000 burst cases and 25 cases spaced by 20ms; this is not long-duration product/load certification."
+  },
+  "workerProofReadback": {
+    "normalNpmCi": "PASS",
+    "mountedFreshInstalledConsumer": "PASS_WITH_EXACT_PRODUCER_CHECKOUT_NOT_RUN_LOCALLY",
+    "mountedReceiptDirtyHead": "de9e02bc31c6bebb421a4889c1606a49f617f0f6",
+    "mountedCheckedNodeSlideCommit": null,
+    "mountedRuntimeTarballs": 11,
+    "mountedJourneyFiles": 4,
+    "notebookExportTestFiles": 7,
+    "notebookExportTests": 51,
+    "rootAndConvexTypecheck": "PASS",
+    "normalBuild": "PASS",
+    "unchangedMemoryBrowserTests": 29,
+    "productionAuditFindings": 0,
+    "fullAuditHigh": 1,
+    "fullAuditScope": "Inherited development Browserslist finding",
+    "beforeCanaryUnsafe": 1025,
+    "afterCanaryUnsafe": 0
+  },
+  "notebookHold": {
+    "status": "UNRESOLVED",
+    "beforeFailed": 3,
+    "afterFailed": 3,
+    "exactMatchingErrorWidths": [
+      375
+    ],
+    "unmatchedArtifactOrStepWidths": [
+      1440,
+      320
+    ],
+    "actualPixels": "Before all three show Diligence memo; after 375 still shows that memo, desktop shows Capture Notebook with a border-style assertion failure, and 320 shows Risk/opportunity wall with no note editor. Six PNGs and traces are retained.",
+    "interpretation": "These runs do not prove notebook success or absence of dependency regression. They are explicit desktop-workbench routes at narrow widths, not natural mobile certification. No UI assertions were waived or changed."
+  },
+  "publication": {
+    "existing153FilePacket": "APPROVED_AS_EXACT_HISTORICAL_RAW_EVIDENCE",
+    "manifestSha256": "19208fb33d9ea1dbcedd3825f14cb252850ad63f4473a1c8ebbbd4ccc28b1506",
+    "encodingChange": "Only the two original de9 UTF-8 description/guard-message lines were restored. Parsed JSON, dependency requests, lock and all other 155 candidate files are identical. No reinstall/retest is necessary for that spelling-only correction.",
+    "pendingMetadata": {
+      "status": "BOUNDED_METADATA_EXTENSION_REQUIRED_BEFORE_FINAL_COMMIT_RECOMMENDATION",
+      "parentAccepted": true,
+      "scope": "Copy exact final judgment and package-encoding addendum plus historical freeze into portable review evidence, and update HANDOFF accepted-local-review link while shared CI remains pending. Preserve the existing 153-file historical packet and its manifest. Independently verify that extension before normal staging/commit.",
+      "reason": "The package spelling correction is currently explained in central P; worker proof intentionally retains its earlier raw package hash. The portable follow-up must carry the equivalence receipt so a fresh reader can reconcile those bytes."
+    },
+    "credentialPatternScan": {
+      "textFilesAndMembers": 1379,
+      "textBytes": 36850347,
+      "hits": 0,
+      "scope": "Exact portable text and direct ZIP text members; standard credential and private-key signatures, no environment file reads and no matched values printed. Known grammar false-positive requires exact previously reviewed asset hash."
+    },
+    "privateState": "No named environment, original database or authenticated browser-session export found in the reviewed packet/archive paths; proof uses keyless synthetic state."
+  },
+  "remainingHolds": [
+    "Fresh exact-new-head normal shared CI and explicit material-head commit check",
+    "Historical de9 commit-message failure retained; no full material-PR message-history certification",
+    "Unresolved notebook browser coverage",
+    "Inherited high development Browserslist advisory",
+    "Native Windows Office deadline failure",
+    "Missing nightly credential",
+    "Desktop Account values export blank",
+    "Full visual/responsive/accessibility/performance/provider/native Office/production/human evaluation unresolved"
+  ],
+  "fullGrades": null,
+  "overallReadiness": null,
+  "humanUsage": null,
+  "target": 4.5,
+  "mutation": {
+    "candidate": false,
+    "source": false,
+    "index": false,
+    "refs": false,
+    "dependencyResolution": false,
+    "install": false,
+    "build": false,
+    "browserLaunch": false,
+    "providerCalls": 0,
+    "COMCalls": 0,
+    "commitPushDeploy": false
+  },
+  "next": "Complete and independently review only the parent-owned portable metadata extension, then stage the exact reviewed paths including the 25 explicitly ignored logs; make an ordinary conforming commit and inspect its normal exact-head workflows. Do not infer later full gate success from production audit clearance.",
+  "finalCustody": {
+    "headExact": true,
+    "refsExact": true,
+    "indexEntriesExact": true,
+    "rawIndexSha256": "7c6e0eb2988ec11271786c803c79dd077f39e1f1fad08bb2c60f502b00b625ea",
+    "effectiveFilesStillExact": true,
+    "staged": false,
+    "packageSha256": "70964ae92133d1c6017b6125e190ac1ec62bbf9891c2dbc1b10d0ff45bfca589",
+    "lockSha256": "835ac86997865c2792f03f588b0ec58632b67b9b4fdc864a28a7020c42ab5a92",
+    "handoffSha256": "4de0d1f3a311ff5d74c1215606f3a7eba13d1fcc9773d99c4abe40e2346026db"
+  },
+  "artifactManifest": {
+    "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-final-judge\\artifact-manifest.json",
+    "sha256": "eb1c444d213b90232a8702f97a856838858b21aba83fd4b6dcd136a940110dc4",
+    "bytes": 4497
+  }
+}

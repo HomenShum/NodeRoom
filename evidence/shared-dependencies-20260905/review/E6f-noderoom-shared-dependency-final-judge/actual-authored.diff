@@ -1,0 +1,734 @@
+diff --git a/HANDOFF.md b/HANDOFF.md
+index 4c03a872..0ee991f2 100644
+--- a/HANDOFF.md
++++ b/HANDOFF.md
+@@ -61,6 +61,16 @@ npx playwright test e2e/mobile-sample-workbook-export.spec.ts --workers=1 --retr
+ 
+ The scenario writes exact source hashes, HTML, pixels, console observations and reopened downloads to the configured Playwright output directory. It blocks external requests and uses fallback fonts. Preserve that output before another run. The default browser output path is local test evidence, not a deployment or public certificate.
+ 
+-Additional inherited holds: the baseline full dependency audit has 29 findings (28 moderate, one development high); the production subset has 28 moderate findings. The lock is unchanged; this is not a fresh advisory scan. NodeSlide's immutable package CI mismatch and Gemini nightly missing credential remain separate. The old desktop XLSX projection exports blank Account cells despite visible Revenue/COGS labels; this extraction preserves that behavior and does not certify desktop data completeness. Current instructions reference two absent mobile design documents. The inherited half-height mobile dialog requires scrolling; enlarged navigation tabs have reading limitations and transient edit toasts overlap early outcomes. Full visual, responsive, accessibility, performance, provider and production grades remain unassigned.
++Historical mobile-freeze holds: its baseline full dependency audit had 29 findings (28 moderate, one development high), and the production subset had 28 moderate findings. That export-only freeze kept the lock unchanged. The later dependency candidate and its current audit/mounted status are described below; these historical receipts are not rewritten. Gemini nightly still lacks its required credential. The old desktop XLSX projection exports blank Account cells despite visible Revenue/COGS labels; this extraction preserves that behavior and does not certify desktop data completeness. Current instructions reference two absent mobile design documents. The inherited half-height mobile dialog requires scrolling; enlarged navigation tabs have reading limitations and transient edit toasts overlap early outcomes. Full visual, responsive, accessibility, performance, provider and production grades remain unassigned.
+ 
+ The retained proof used no provider call, shared backend change, hook activation, original environment read or production deployment. Old branches and dirty worktrees remain preserved.
++
++## Current dependency candidate, final independent review pending
++
++Read the [dependency proof and fresh commands](evidence/shared-dependencies-20260905/README.md) after this handoff. It restores the two exact NodeSlide file pins required by the immutable release contract and upgrades the coherent 30-package Tiptap cohort to 3.30.4, with only its required ProseMirror model/view minimums. All other lock rows and the nested uuid 14.0.1 remain unchanged.
++
++Normal install, the unchanged fresh mounted consumer, 51 notebook/export scenarios, both TypeScript checks, build and 29 unchanged memory browser cases passed. The production audit now has zero findings; full audit retains one high development-only Browserslist finding. The real installed library prototype canary changes from 1,025 unsafe before cases to zero after, without claiming a NodeRoom exploit or executed browser handler.
++
++The dedicated notebook provenance browser spec remains unresolved: 3/3 failed on both preserved old and new built output, and only the 375 px failure matched exactly. Different artifact selection/steps at desktop and 320 px prevent a no-regression claim. All six screenshots/traces and original assertions are retained. This candidate has no notebook UI repair or full visual grade.
++
++The unchanged full shared gates and actual new-commit check are still required before integration; the historical de9 commit-message failure remains. The Windows native Office deadline, absent nightly credential and separately planned desktop Account-label repair are open. Current dependency proof does not replace the original mobile export source/lock bindings or authorize a deployment.
+diff --git a/package-lock.json b/package-lock.json
+index 2c529b91..e189bd4a 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -32,18 +32,20 @@
+         "@nodeslide/backend": "file:vendor/nodeslide/nodeslide-backend-0.2.2.tgz",
+         "@nodeslide/contracts": "file:vendor/nodeslide/nodeslide-contracts-0.2.2.tgz",
+         "@nodeslide/convex": "file:vendor/nodeslide/nodeslide-convex-0.2.2.tgz",
++        "@nodeslide/engine": "file:vendor/nodeslide/nodeslide-engine-0.2.2.tgz",
+         "@nodeslide/react": "file:vendor/nodeslide/nodeslide-react-0.2.2.tgz",
++        "@nodeslide/react-headless": "file:vendor/nodeslide/nodeslide-react-headless-0.2.2.tgz",
+         "@radix-ui/react-use-controllable-state": "^1.2.3",
+         "@streamdown/cjk": "^1.0.3",
+         "@streamdown/code": "^1.1.1",
+         "@streamdown/math": "^1.0.2",
+         "@streamdown/mermaid": "^1.0.2",
+-        "@tiptap/core": "^3.26.0",
+-        "@tiptap/extension-unique-id": "^3.26.0",
+-        "@tiptap/html": "^3.26.0",
+-        "@tiptap/pm": "^3.26.0",
+-        "@tiptap/react": "^3.26.0",
+-        "@tiptap/starter-kit": "^3.26.0",
++        "@tiptap/core": "^3.30.4",
++        "@tiptap/extension-unique-id": "^3.30.4",
++        "@tiptap/html": "^3.30.4",
++        "@tiptap/pm": "^3.30.4",
++        "@tiptap/react": "^3.30.4",
++        "@tiptap/starter-kit": "^3.30.4",
+         "@xyflow/react": "^12.11.0",
+         "ai": "^6.0.206",
+         "class-variance-authority": "^0.7.1",
+@@ -5376,48 +5378,49 @@
+       }
+     },
+     "node_modules/@tiptap/core": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/core/-/core-3.26.0.tgz",
+-      "integrity": "sha512-7jTed/RirIVsp+lLdLvGzGqF3EBGpnGHGYKOwz6t28V2BIJLAFdUhfEVdWie7xPxQNWK0TP+fPlsqZS0vxfHBg==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/core/-/core-3.30.4.tgz",
++      "integrity": "sha512-V9yKuUfV8qC9WBrnVxkFWmYLBomc3d1CwXoFSjED5DRu5q2oyxv07F+jOJSRogJAY+feHjuxvjhixwxeHm2DXQ==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/pm": "3.26.0"
++        "@tiptap/pm": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-blockquote": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-blockquote/-/extension-blockquote-3.26.0.tgz",
+-      "integrity": "sha512-57accpka9affjiJRjP2LMNCDJDTMjTvO23RJCxtP43sp9cTIZ7YZnyDfRxCINTRBNK0X4o4w2+emOLyRwsk3CA==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-blockquote/-/extension-blockquote-3.30.4.tgz",
++      "integrity": "sha512-n25/pFfDpZRJS4f6Ga/PkNrQFBEr3pRvPkDlY99kl8Kt8jFa1EUxbx+uUVIilqwiUjUnHtwCfqjSDFooQjezjg==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0"
++        "@tiptap/core": "3.30.4",
++        "@tiptap/pm": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-bold": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-bold/-/extension-bold-3.26.0.tgz",
+-      "integrity": "sha512-j6CzTMofcGJ5iMoUgDRQpM0FkG00jBID3aKqs+UBbgtzLgtG/CI/91tMFv0XPC30LeFA895qYgvGZtHdejZhiQ==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-bold/-/extension-bold-3.30.4.tgz",
++      "integrity": "sha512-eCOkf+/jdQte7lTZ4pQF10akrsFM4TzYc0ysSAkPa7QA+ex1aI8QT5UUx+mK8RwFo57lqE8PCX/Mx1gTqlCDnQ==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0"
++        "@tiptap/core": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-bubble-menu": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-bubble-menu/-/extension-bubble-menu-3.26.0.tgz",
+-      "integrity": "sha512-H2E3Hp0lV79jQV8YGtdDJkXkUalXZeYzKCx+vCZlDpb2ChS7/rNT9YY7poRA1NlJLUO0DH1wbAnFhx9KZMUx5g==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-bubble-menu/-/extension-bubble-menu-3.30.4.tgz",
++      "integrity": "sha512-diB5stCiuffFIIKhDAVvSYTYW/zzEVh7QqTuk2JAqdkAmAGP2YvUXXZBVhA9ITTIYD1+cp5p6rx9pdM25fsVRQ==",
+       "license": "MIT",
+       "optional": true,
+       "dependencies": {
+@@ -5428,80 +5431,80 @@
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0",
+-        "@tiptap/pm": "3.26.0"
++        "@tiptap/core": "3.30.4",
++        "@tiptap/pm": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-bullet-list": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-bullet-list/-/extension-bullet-list-3.26.0.tgz",
+-      "integrity": "sha512-Jv7BX+kBB2wUIvO/NhuUjv+T3kAed2Tjr664fgQ2zKT6X69jKIkYuCCedrIHuOyaOQ+SBDuH9h51wYv/E97QgQ==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-bullet-list/-/extension-bullet-list-3.30.4.tgz",
++      "integrity": "sha512-kJFOF3U4b1ad4T7Vm+CIIp+nxcr6wwWVeqpVe6Jhq9gudsWCKP0+KVAmOiJCePoDu9fpc/ZuGMXDefXYnyQDxg==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/extension-list": "3.26.0"
++        "@tiptap/extension-list": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-code": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-code/-/extension-code-3.26.0.tgz",
+-      "integrity": "sha512-VJYcV6rvjnENRTroOi9tDcHWW6G0pmCoRETwatlbgfDzuCmkTOwVwQjeJCXOVMMLNPzNiXZzibsRCUt+Azq/jw==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-code/-/extension-code-3.30.4.tgz",
++      "integrity": "sha512-z9v9rBA/0MecUvf8QkcKKOGgceO9X3DT/JvFNka8Mdd68V5fhBs0jGsxYrj3qDWtdXyyUQIWs0t8HzL6LTdLiA==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0"
++        "@tiptap/core": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-code-block": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-code-block/-/extension-code-block-3.26.0.tgz",
+-      "integrity": "sha512-WPN9iZ3UjeDD2ckDzSs9tleibXv0cLj7j575NxuvjhwZTehYGNeYDSUTi+6DQUG6bKbhGg9Wcei5H0131vvJHg==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-code-block/-/extension-code-block-3.30.4.tgz",
++      "integrity": "sha512-eKLKxgLCvi+M5tiLkW+fIMzDtR7HvSKnigSE9RYHZmzSrv1ejVjgNj5FH8nGTim98hXiQGfWotss3zqG6bpdDw==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0",
+-        "@tiptap/pm": "3.26.0"
++        "@tiptap/core": "3.30.4",
++        "@tiptap/pm": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-document": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-document/-/extension-document-3.26.0.tgz",
+-      "integrity": "sha512-Xhd6DCjaxCN4otQNvV6qra+XuoIjk6Vyjm87E5xn5Y/BMw7UGAG7LTkk3C2IEvxKrVZwJjalfxEqdHOgXQzVfw==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-document/-/extension-document-3.30.4.tgz",
++      "integrity": "sha512-N+FbI+X1FVH8HxsM8C4fNkkzKXiyhXc9oh9oSqAIKOAAYGAjnHLMxW9TzYXbvm60SlAn6DIMypNf6nULGEc1oQ==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0"
++        "@tiptap/core": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-dropcursor": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-dropcursor/-/extension-dropcursor-3.26.0.tgz",
+-      "integrity": "sha512-rhAtp5J/YVDUCUIc5T7b0XY9dLeuI72JgOr53w0QQc0VA0uwbfTn7sx0LI9PDCE9uwmDH8H3snVRZRnAvlM8oA==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-dropcursor/-/extension-dropcursor-3.30.4.tgz",
++      "integrity": "sha512-P1V0y/FKdyNVBImeW3WN+uGI77Uboc0dW44izAjrII0jcW2KUoBQeNrbbm9UZR1xuRvQJ1Z0OrFHmYrxP5ClNQ==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/extensions": "3.26.0"
++        "@tiptap/extensions": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-floating-menu": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-floating-menu/-/extension-floating-menu-3.26.0.tgz",
+-      "integrity": "sha512-reQ77NRYAOP7iPudsNbzLBuBTdL2aGxZzjccUFmE2lNdmwP23n9A/JhkuUhshVBs/6IozvahI+smG3Bnea0TCQ==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-floating-menu/-/extension-floating-menu-3.30.4.tgz",
++      "integrity": "sha512-75kDLGkVqLBL7OPGNhJZQkmI3KGGVN9S5i+ZHKZEhk4HNOQUU+YMs7qu4I/XSJMXSh7mGrQlMi/OD/Fn3JmkKg==",
+       "license": "MIT",
+       "optional": true,
+       "funding": {
+@@ -5510,80 +5513,80 @@
+       },
+       "peerDependencies": {
+         "@floating-ui/dom": "^1.0.0",
+-        "@tiptap/core": "3.26.0",
+-        "@tiptap/pm": "3.26.0"
++        "@tiptap/core": "3.30.4",
++        "@tiptap/pm": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-gapcursor": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-gapcursor/-/extension-gapcursor-3.26.0.tgz",
+-      "integrity": "sha512-SIe68SDwx2fozt/XKG0FhCwzz/yRN6Bvo4D5TqvfDg6NK3PQb1DS4GN9PilmJqbY+kXryuiWEEJOWi7HpO8SuQ==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-gapcursor/-/extension-gapcursor-3.30.4.tgz",
++      "integrity": "sha512-wsuXsB8Rp9BgfWlWYsRVzoHg9LwhoPAQGaw/gku1buDSTMcbLYQvok5MwJ/uJRECaJRLGgbUe5WBXoRvSY+o3g==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/extensions": "3.26.0"
++        "@tiptap/extensions": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-hard-break": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-hard-break/-/extension-hard-break-3.26.0.tgz",
+-      "integrity": "sha512-baXvv/rtOTVd2Axjb7Zbb41Y9Qmy3U2fP7EHqLuhViqGxVX8LwQtP0PHUXEZkPokbBpRez10+dmOlvvsYFKAZQ==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-hard-break/-/extension-hard-break-3.30.4.tgz",
++      "integrity": "sha512-eZ66SyfgmMK861S5SYtQROT/+ZfXtDHxllz7ao+X+dcl+DMdffmOzBeSfwrHQENmgl7umjbdAjqC7PT95jaU+w==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0"
++        "@tiptap/core": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-heading": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-heading/-/extension-heading-3.26.0.tgz",
+-      "integrity": "sha512-qenEQEgzE5FjQay/H6iKOnwIt6DPO27cS+v0mGhXmrL1MjrNER4X0ZkATJbVd0WA6ffsAGaP44NKYDworGeidw==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-heading/-/extension-heading-3.30.4.tgz",
++      "integrity": "sha512-sVJxoRnbfK/QC7IoUw/Ezzx9b87+cqFz5d5WZvN8O8yobDWuh7IS8ZgqZiPypTW5RuhnZI+ahvmSyO3WLm8q5Q==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0"
++        "@tiptap/core": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-horizontal-rule": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-horizontal-rule/-/extension-horizontal-rule-3.26.0.tgz",
+-      "integrity": "sha512-a+N/C4wkQV+/8x4ShdoiC2JdTW3Tw84C5cAloYLFMeaWmRa2me9ACSI+zo0SO9bbH9RJwsoRp7eaxBbk27eF1Q==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-horizontal-rule/-/extension-horizontal-rule-3.30.4.tgz",
++      "integrity": "sha512-RmvjVVkUf5pF70XvwI7Sb4vIUSDbLTLEcFl1l5X9vPcDgDT5G0SiUL6l8F49+qYc6wrMvnLcenApnAiiQ0Vbpw==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0",
+-        "@tiptap/pm": "3.26.0"
++        "@tiptap/core": "3.30.4",
++        "@tiptap/pm": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-italic": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-italic/-/extension-italic-3.26.0.tgz",
+-      "integrity": "sha512-s8oFpH+0xmhvY19f452/2dExO3p1tjxh761g6cg4irwEUNUEAJKF2VLcjiaeOhNJ+pmnQYxb+VSkwkXvO+7vHQ==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-italic/-/extension-italic-3.30.4.tgz",
++      "integrity": "sha512-6cEjcyjPRcLEMB75BwiUc6S7yzkqc7VPXCeRgY26UqMg4AvcLrseY70+pO4sLv3n2DS5w8DBbMXZJ4rb1BhpUw==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0"
++        "@tiptap/core": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-link": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-link/-/extension-link-3.26.0.tgz",
+-      "integrity": "sha512-FA/d157aBxyvZFvsdc5eSu46tmHWXebAsqOQSvivOMyw+deBb00VlMsf+iD2J8+sekjbMYwx/hvbsu+xUoX43Q==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-link/-/extension-link-3.30.4.tgz",
++      "integrity": "sha512-HPHaey3+nQZl+lsr/RvjoXSgSC67SAkNEF4qNELzzDwMUfI0UrZ3H/HhBe6XBeRnGli9gfuSpeRkh63ke5JpOw==",
+       "license": "MIT",
+       "dependencies": {
+         "linkifyjs": "^4.3.3"
+@@ -5593,119 +5596,119 @@
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0",
+-        "@tiptap/pm": "3.26.0"
++        "@tiptap/core": "3.30.4",
++        "@tiptap/pm": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-list": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-list/-/extension-list-3.26.0.tgz",
+-      "integrity": "sha512-EM8woyHDNKLEQ+lWUEoDtA4KrwP6fei/mYX1NxseMzKHHo7LFecx7wk6sovAXZrUvdML/yFBihgiMiO5VIsfkg==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-list/-/extension-list-3.30.4.tgz",
++      "integrity": "sha512-Usqez9DBRoG78tdLwPDcd1j1mBBU7mr5D2yrRP2JL/eXXkhAfdWqEFRYXwct5T4/o9JkGcW3aQf+gUvp12v0pw==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0",
+-        "@tiptap/pm": "3.26.0"
++        "@tiptap/core": "3.30.4",
++        "@tiptap/pm": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-list-item": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-list-item/-/extension-list-item-3.26.0.tgz",
+-      "integrity": "sha512-MccGyj9HY4fkl04eIiFoTCkr8067Jku/VVdJNtRWW104Spx43C/7V2zpbxPvpcDhq3dW384fDxYXfpnb186xLg==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-list-item/-/extension-list-item-3.30.4.tgz",
++      "integrity": "sha512-8E1ffdC7v3dwSrsqyxY3YP5uEQHTrwBDDmYF6o2YoHfzQ9nhXX5GmBz8fTxukjXUzSpuO76N/gwHIM8hBfdxMQ==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/extension-list": "3.26.0"
++        "@tiptap/extension-list": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-list-keymap": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-list-keymap/-/extension-list-keymap-3.26.0.tgz",
+-      "integrity": "sha512-oBcj6qaNrRHQ+N0+pDuOVAQa4Nx9r8Cm5ANvyM2lTpoy60sOLOizuVvcvw1andVxbSrsZ1N/Sk+RZWyv1uoWyQ==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-list-keymap/-/extension-list-keymap-3.30.4.tgz",
++      "integrity": "sha512-6RIzF3aThqIt4sia81K+6wA7H7bgPKjd3D66qLOGxdqdyfnAegk0OD5pUYhMZKhDCWGYKylyRVd2yIn/VNXqAg==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/extension-list": "3.26.0"
++        "@tiptap/extension-list": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-ordered-list": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-ordered-list/-/extension-ordered-list-3.26.0.tgz",
+-      "integrity": "sha512-ItLdFlcMsJz2vhbs1PcUfcN7nzVqGBOwPeCrrWxjrgscp+K3JoOGD+HhVVpBACOMwivUrlh8Ry5Ohvues2nOeA==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-ordered-list/-/extension-ordered-list-3.30.4.tgz",
++      "integrity": "sha512-hInlH8I2UFGGULm9XLPtLWWFBECrYf/eNkloQb+udbF7ltLBL5JRCPcB3aM29qSSUQVxCCN8ICHdbwgpnTUAsw==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/extension-list": "3.26.0"
++        "@tiptap/extension-list": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-paragraph": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-paragraph/-/extension-paragraph-3.26.0.tgz",
+-      "integrity": "sha512-h8fYLikg4qN39IghQ1y9g+zzUsgxBpDi5YS3IZbWoxWYYx1YqLL8nAvOiPr7Us14aQ0TjA2/xY7zqmyf29rX1A==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-paragraph/-/extension-paragraph-3.30.4.tgz",
++      "integrity": "sha512-gM0WXvOP1tNcvpyRXTCtGhwVxye0VaFMCzDPjLrVAUtZMpo3cOrqDSrFl5tCurA59Qc2p5TUOR4g3/fKw8Yx9Q==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0"
++        "@tiptap/core": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-strike": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-strike/-/extension-strike-3.26.0.tgz",
+-      "integrity": "sha512-jUll3Pqhq7u1JKvO0B6USW/bmVmUsO6sRcxo/d5tXqLhS0tWAobOGoGU2IgwXnQDSjf+vF73RYD5tRGDLkRC9Q==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-strike/-/extension-strike-3.30.4.tgz",
++      "integrity": "sha512-iM3QhkEvNwDsxyNKTZM4wwqYhIKOjgXHTamPWnCICrPQ3aYFVdidfpDMePlHl6XL8aEAqPa1Xlj0aumFvSphOQ==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0"
++        "@tiptap/core": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-text": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-text/-/extension-text-3.26.0.tgz",
+-      "integrity": "sha512-yZXdevp3/8omGbb40Z52VfvID+tsRNhPQ1GNUToD56XSr2BjdJyAzAb9rWGgDKgVMUPLgJ26yT0O278RFqOKhA==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-text/-/extension-text-3.30.4.tgz",
++      "integrity": "sha512-bzgVlPhkVan+m6jycXkyq08fKCNyQff/cl/5U+/wQf8s3GlX+Le2/pTxbbC3ClfO1D8VLzLwcd2HJTYIoBOdAA==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0"
++        "@tiptap/core": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-underline": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-underline/-/extension-underline-3.26.0.tgz",
+-      "integrity": "sha512-LlVkivH5cBwov/EMD8BL7ZRcU6YcadiSVIffLW1hyalw9YfhaFzoLxjtWhL7jiU/n2Kg+9dXSZxmV2hTeTwyrQ==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-underline/-/extension-underline-3.30.4.tgz",
++      "integrity": "sha512-h6nM3ykKswJLWvJVD1eiUFbanNmNj2SeV+2vuW666/xOy2WPyMnE2NZnsbvCKeK0wlUj7AE3l1m602mFwA4sDg==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0"
++        "@tiptap/core": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-unique-id": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extension-unique-id/-/extension-unique-id-3.26.0.tgz",
+-      "integrity": "sha512-hlIiUeouSM/TJCBqmM4LODxDxA2+lQwKyxDo0JWt52IZrDc2r4ccvN2AmjJeg0qmRUSLv93gb0d/sjUUi1fE+Q==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extension-unique-id/-/extension-unique-id-3.30.4.tgz",
++      "integrity": "sha512-LVHAU+sI8dK89yeQP/ZmBO1M1E44VvKfWcz82hE++sfpMpWPNHIkvJXDP6dhZZg+ilRkHLSGs9zHcAaNXaQRlw==",
+       "license": "MIT",
+       "dependencies": {
+         "uuid": "^14.0.0"
+@@ -5715,8 +5718,8 @@
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0",
+-        "@tiptap/pm": "3.26.0"
++        "@tiptap/core": "3.30.4",
++        "@tiptap/pm": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/extension-unique-id/node_modules/uuid": {
+@@ -5733,53 +5736,53 @@
+       }
+     },
+     "node_modules/@tiptap/extensions": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/extensions/-/extensions-3.26.0.tgz",
+-      "integrity": "sha512-4wajuqnO2X0+LVvsBjW/xk3/tmdb16bNL939QhicAay4YYqXITeV2v3XJsryzmG4L5GkK1yLxvRGk4aLoxWrnA==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/extensions/-/extensions-3.30.4.tgz",
++      "integrity": "sha512-WeBl/ggeNCOoOySX7647lwtSUHWbCh8I1Qqp8NQBsGyHXEE6/7jHbKcxpw4fplOgScgVMfPz8WZ+3yrfXYCUFw==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0",
+-        "@tiptap/pm": "3.26.0"
++        "@tiptap/core": "3.30.4",
++        "@tiptap/pm": "3.30.4"
+       }
+     },
+     "node_modules/@tiptap/html": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/html/-/html-3.26.0.tgz",
+-      "integrity": "sha512-/phoyaP+EWxpy3xFPfE6+nYfT3ce7KgmIujPBXvCrn4jCFwX5I/PwX2PmUYL6MDdmIu0vunM/To6ttLRrFmYMQ==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/html/-/html-3.30.4.tgz",
++      "integrity": "sha512-ZsVN3m/xe/2pR8GRO2hgg7u79jRB1kKI5tCGmfvsaw2AbLiEhbcZEJ6b2IV199APqBhcbMcBjGOddCT023HMPw==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0",
+-        "@tiptap/pm": "3.26.0",
++        "@tiptap/core": "3.30.4",
++        "@tiptap/pm": "3.30.4",
+         "happy-dom": "^20.8.9"
+       }
+     },
+     "node_modules/@tiptap/pm": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/pm/-/pm-3.26.0.tgz",
+-      "integrity": "sha512-q4RDeWwVrhOL0jJCGRgGxLSdjOYwzQ4h2InURZVhC66433ipcHd6f3bqSOhcXZ4r0sFmMNsuF7aZmUntjWLc7w==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/pm/-/pm-3.30.4.tgz",
++      "integrity": "sha512-oPbE+BOzzDKkxsvF9wepTWELvq385oifDkKIigqKCPKpGqplEIHIjNztCj/nOqHCfJBiU9LcoyyWH0qkHAQ9TQ==",
+       "license": "MIT",
+       "dependencies": {
+-        "prosemirror-changeset": "^2.3.0",
+-        "prosemirror-commands": "^1.6.2",
+-        "prosemirror-dropcursor": "^1.8.1",
+-        "prosemirror-gapcursor": "^1.3.2",
+-        "prosemirror-history": "^1.4.1",
+-        "prosemirror-inputrules": "^1.4.0",
++        "prosemirror-changeset": "^2.4.1",
++        "prosemirror-commands": "^1.7.1",
++        "prosemirror-dropcursor": "^1.8.2",
++        "prosemirror-gapcursor": "^1.4.1",
++        "prosemirror-history": "^1.5.0",
++        "prosemirror-inputrules": "^1.5.1",
+         "prosemirror-keymap": "^1.2.3",
+-        "prosemirror-model": "^1.25.7",
+-        "prosemirror-schema-list": "^1.5.0",
++        "prosemirror-model": "^1.25.11",
++        "prosemirror-schema-list": "^1.5.1",
+         "prosemirror-state": "^1.4.4",
+-        "prosemirror-tables": "^1.8.0",
++        "prosemirror-tables": "^1.8.5",
+         "prosemirror-transform": "^1.12.0",
+-        "prosemirror-view": "^1.41.8"
++        "prosemirror-view": "^1.41.9"
+       },
+       "funding": {
+         "type": "github",
+@@ -5787,9 +5790,9 @@
+       }
+     },
+     "node_modules/@tiptap/react": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/react/-/react-3.26.0.tgz",
+-      "integrity": "sha512-NLPAG6tk4/AsfOsUNsbGqdgIHuGsD4A/hlYriozuo+LCAAduuluhzsL/MEHZXtFT4GXUOlCdaEqNCOrMuz/zaw==",
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/react/-/react-3.30.4.tgz",
++      "integrity": "sha512-NxGcKg4xBF6ngk6xORyzRCvG9zb7Z/cf59GpDBsiYpPpD/6m+J4kfNF0KVIOhRSAhNxm2u2ZPuGIWBtS/CDUBQ==",
+       "license": "MIT",
+       "dependencies": {
+         "@types/use-sync-external-store": "^0.0.6",
+@@ -5801,12 +5804,12 @@
+         "url": "https://github.com/sponsors/ueberdosis"
+       },
+       "optionalDependencies": {
+-        "@tiptap/extension-bubble-menu": "^3.26.0",
+-        "@tiptap/extension-floating-menu": "^3.26.0"
++        "@tiptap/extension-bubble-menu": "^3.30.4",
++        "@tiptap/extension-floating-menu": "^3.30.4"
+       },
+       "peerDependencies": {
+-        "@tiptap/core": "3.26.0",
+-        "@tiptap/pm": "3.26.0",
++        "@tiptap/core": "3.30.4",
++        "@tiptap/pm": "3.30.4",
+         "@types/react": "^17.0.0 || ^18.0.0 || ^19.0.0",
+         "@types/react-dom": "^17.0.0 || ^18.0.0 || ^19.0.0",
+         "react": "^17.0.0 || ^18.0.0 || ^19.0.0",
+@@ -5814,35 +5817,35 @@
+       }
+     },
+     "node_modules/@tiptap/starter-kit": {
+-      "version": "3.26.0",
+-      "resolved": "https://registry.npmjs.org/@tiptap/starter-kit/-/starter-kit-3.26.0.tgz",
+-      "integrity": "sha512-o34EtMfqtBaljdmeElZsRG/067oGx9Zcq+j2GWo71KlZe22ga/ALexeTf1c+ETsjCxSTKR6eyQ4RZvz/2JpYfg==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "@tiptap/core": "^3.26.0",
+-        "@tiptap/extension-blockquote": "^3.26.0",
+-        "@tiptap/extension-bold": "^3.26.0",
+-        "@tiptap/extension-bullet-list": "^3.26.0",
+-        "@tiptap/extension-code": "^3.26.0",
+-        "@tiptap/extension-code-block": "^3.26.0",
+-        "@tiptap/extension-document": "^3.26.0",
+-        "@tiptap/extension-dropcursor": "^3.26.0",
+-        "@tiptap/extension-gapcursor": "^3.26.0",
+-        "@tiptap/extension-hard-break": "^3.26.0",
+-        "@tiptap/extension-heading": "^3.26.0",
+-        "@tiptap/extension-horizontal-rule": "^3.26.0",
+-        "@tiptap/extension-italic": "^3.26.0",
+-        "@tiptap/extension-link": "^3.26.0",
+-        "@tiptap/extension-list": "^3.26.0",
+-        "@tiptap/extension-list-item": "^3.26.0",
+-        "@tiptap/extension-list-keymap": "^3.26.0",
+-        "@tiptap/extension-ordered-list": "^3.26.0",
+-        "@tiptap/extension-paragraph": "^3.26.0",
+-        "@tiptap/extension-strike": "^3.26.0",
+-        "@tiptap/extension-text": "^3.26.0",
+-        "@tiptap/extension-underline": "^3.26.0",
+-        "@tiptap/extensions": "^3.26.0",
+-        "@tiptap/pm": "^3.26.0"
++      "version": "3.30.4",
++      "resolved": "https://registry.npmjs.org/@tiptap/starter-kit/-/starter-kit-3.30.4.tgz",
++      "integrity": "sha512-rZiv2QOqfQU4/MNsAmvbymIwx0tKrGrtdJg76aEaej+aGU1QNDhZbUNutV8AnZxFjSJMm8rt810qzAU98OmCAg==",
++      "license": "MIT",
++      "dependencies": {
++        "@tiptap/core": "3.30.4",
++        "@tiptap/extension-blockquote": "3.30.4",
++        "@tiptap/extension-bold": "3.30.4",
++        "@tiptap/extension-bullet-list": "3.30.4",
++        "@tiptap/extension-code": "3.30.4",
++        "@tiptap/extension-code-block": "3.30.4",
++        "@tiptap/extension-document": "3.30.4",
++        "@tiptap/extension-dropcursor": "3.30.4",
++        "@tiptap/extension-gapcursor": "3.30.4",
++        "@tiptap/extension-hard-break": "3.30.4",
++        "@tiptap/extension-heading": "3.30.4",
++        "@tiptap/extension-horizontal-rule": "3.30.4",
++        "@tiptap/extension-italic": "3.30.4",
++        "@tiptap/extension-link": "3.30.4",
++        "@tiptap/extension-list": "3.30.4",
++        "@tiptap/extension-list-item": "3.30.4",
++        "@tiptap/extension-list-keymap": "3.30.4",
++        "@tiptap/extension-ordered-list": "3.30.4",
++        "@tiptap/extension-paragraph": "3.30.4",
++        "@tiptap/extension-strike": "3.30.4",
++        "@tiptap/extension-text": "3.30.4",
++        "@tiptap/extension-underline": "3.30.4",
++        "@tiptap/extensions": "3.30.4",
++        "@tiptap/pm": "3.30.4"
+       },
+       "funding": {
+         "type": "github",
+@@ -12127,9 +12130,9 @@
+       }
+     },
+     "node_modules/prosemirror-model": {
+-      "version": "1.25.7",
+-      "resolved": "https://registry.npmjs.org/prosemirror-model/-/prosemirror-model-1.25.7.tgz",
+-      "integrity": "sha512-A79aN8QEFUwI6cax8Yq4Rpcx1TJZ3Kagn+ii7qLo4/V8H3mMiHrhFyhTyHHvpSnOgMPpWiDGSwM3etwrxE50ug==",
++      "version": "1.25.11",
++      "resolved": "https://registry.npmjs.org/prosemirror-model/-/prosemirror-model-1.25.11.tgz",
++      "integrity": "sha512-QWg9RhnpLlogAmp3p96uEFrE5txQpFynd4vhBAELkwgOCWQs/X0yCzB3/hrHqiPwf91RG5KyWq6553zs9JqIOQ==",
+       "license": "MIT",
+       "dependencies": {
+         "orderedmap": "^2.0.0"
+@@ -12180,12 +12183,12 @@
+       }
+     },
+     "node_modules/prosemirror-view": {
+-      "version": "1.41.8",
+-      "resolved": "https://registry.npmjs.org/prosemirror-view/-/prosemirror-view-1.41.8.tgz",
+-      "integrity": "sha512-TnKDdohEatgyZNGCDWIdccOHXhYloJwbwU+phw/a23KBvJIR9lWQWW7WHHK3vBdOLDNuF7TaX98GObUZOWkOnA==",
++      "version": "1.41.9",
++      "resolved": "https://registry.npmjs.org/prosemirror-view/-/prosemirror-view-1.41.9.tgz",
++      "integrity": "sha512-clTunTX+eaLbr87L1V1QPheRlEQJyTlL3gXe9x3jQIk3rL0RVWxviDGz8tFaydwIVm+hKhYCyr+R/zBtWr9s6A==",
+       "license": "MIT",
+       "dependencies": {
+-        "prosemirror-model": "^1.20.0",
++        "prosemirror-model": "^1.25.8",
+         "prosemirror-state": "^1.0.0",
+         "prosemirror-transform": "^1.1.0"
+       }
+diff --git a/package.json b/package.json
+index d3e06aab..a1aad98a 100644
+--- a/package.json
++++ b/package.json
+@@ -298,18 +298,20 @@
+     "@nodeslide/backend": "file:vendor/nodeslide/nodeslide-backend-0.2.2.tgz",
+     "@nodeslide/contracts": "file:vendor/nodeslide/nodeslide-contracts-0.2.2.tgz",
+     "@nodeslide/convex": "file:vendor/nodeslide/nodeslide-convex-0.2.2.tgz",
++    "@nodeslide/engine": "file:vendor/nodeslide/nodeslide-engine-0.2.2.tgz",
+     "@nodeslide/react": "file:vendor/nodeslide/nodeslide-react-0.2.2.tgz",
++    "@nodeslide/react-headless": "file:vendor/nodeslide/nodeslide-react-headless-0.2.2.tgz",
+     "@radix-ui/react-use-controllable-state": "^1.2.3",
+     "@streamdown/cjk": "^1.0.3",
+     "@streamdown/code": "^1.1.1",
+     "@streamdown/math": "^1.0.2",
+     "@streamdown/mermaid": "^1.0.2",
+-    "@tiptap/core": "^3.26.0",
+-    "@tiptap/extension-unique-id": "^3.26.0",
+-    "@tiptap/html": "^3.26.0",
+-    "@tiptap/pm": "^3.26.0",
+-    "@tiptap/react": "^3.26.0",
+-    "@tiptap/starter-kit": "^3.26.0",
++    "@tiptap/core": "^3.30.4",
++    "@tiptap/extension-unique-id": "^3.30.4",
++    "@tiptap/html": "^3.30.4",
++    "@tiptap/pm": "^3.30.4",
++    "@tiptap/react": "^3.30.4",
++    "@tiptap/starter-kit": "^3.30.4",
+     "@xyflow/react": "^12.11.0",
+     "ai": "^6.0.206",
+     "class-variance-authority": "^0.7.1",

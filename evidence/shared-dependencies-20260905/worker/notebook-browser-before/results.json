@@ -1,0 +1,297 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\playwright.config.cjs",
+    "rootDir": "D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/hshum/.codex/worktrees/5dba/nodebench-ai/docs/plans/portfolio-recovery-20260904/E6f-noderoom-shared-dependency-repair-01/notebook-browser-before/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "notebook-agent-notes.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "notebook-agent-notes.spec.ts",
+      "file": "notebook-agent-notes.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "agent notebook notes render provenance safely - desktop",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 18030,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('agent-notes-block')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('agent-notes-block')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('agent-notes-block')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('agent-notes-block')\u001b[22m\n\n    at D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905\\e2e\\notebook-agent-notes.spec.ts:45:25",
+                    "location": {
+                      "file": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905\\e2e\\notebook-agent-notes.spec.ts",
+                      "column": 25,
+                      "line": 45
+                    },
+                    "snippet": "  43 |\n  44 |     const notes = page.getByTestId(\"agent-notes-block\");\n> 45 |     await expect(notes).toBeVisible({ timeout: 10_000 });\n     |                         ^\n  46 |     await expect(notes).toContainText(\"NodeRoom\");\n  47 |     await expect(notes).toContainText(\"Browser proof\");\n  48 |     await expect(notes).toContainText(\"Unsupported claim needs review\");"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905\\e2e\\notebook-agent-notes.spec.ts",
+                        "column": 25,
+                        "line": 45
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('agent-notes-block')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('agent-notes-block')\u001b[22m\n\n\n  43 |\n  44 |     const notes = page.getByTestId(\"agent-notes-block\");\n> 45 |     await expect(notes).toBeVisible({ timeout: 10_000 });\n     |                         ^\n  46 |     await expect(notes).toContainText(\"NodeRoom\");\n  47 |     await expect(notes).toContainText(\"Browser proof\");\n  48 |     await expect(notes).toContainText(\"Unsupported claim needs review\");\n    at D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905\\e2e\\notebook-agent-notes.spec.ts:45:25"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T13:03:38.250Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-70b5a-provenance-safely---desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905\\e2e\\notebook-agent-notes.spec.ts",
+                    "column": 25,
+                    "line": 45
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2407be9ba699b92552f5-5d6d43eb4bbb9e070cc3",
+          "file": "notebook-agent-notes.spec.ts",
+          "line": 30,
+          "column": 3
+        },
+        {
+          "title": "agent notebook notes render provenance safely - mobile",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 17009,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('agent-notes-block')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('agent-notes-block')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('agent-notes-block')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('agent-notes-block')\u001b[22m\n\n    at D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905\\e2e\\notebook-agent-notes.spec.ts:45:25",
+                    "location": {
+                      "file": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905\\e2e\\notebook-agent-notes.spec.ts",
+                      "column": 25,
+                      "line": 45
+                    },
+                    "snippet": "  43 |\n  44 |     const notes = page.getByTestId(\"agent-notes-block\");\n> 45 |     await expect(notes).toBeVisible({ timeout: 10_000 });\n     |                         ^\n  46 |     await expect(notes).toContainText(\"NodeRoom\");\n  47 |     await expect(notes).toContainText(\"Browser proof\");\n  48 |     await expect(notes).toContainText(\"Unsupported claim needs review\");"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905\\e2e\\notebook-agent-notes.spec.ts",
+                        "column": 25,
+                        "line": 45
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('agent-notes-block')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('agent-notes-block')\u001b[22m\n\n\n  43 |\n  44 |     const notes = page.getByTestId(\"agent-notes-block\");\n> 45 |     await expect(notes).toBeVisible({ timeout: 10_000 });\n     |                         ^\n  46 |     await expect(notes).toContainText(\"NodeRoom\");\n  47 |     await expect(notes).toContainText(\"Browser proof\");\n  48 |     await expect(notes).toContainText(\"Unsupported claim needs review\");\n    at D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905\\e2e\\notebook-agent-notes.spec.ts:45:25"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T13:03:57.301Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-57da6--provenance-safely---mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-57da6--provenance-safely---mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-57da6--provenance-safely---mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905\\e2e\\notebook-agent-notes.spec.ts",
+                    "column": 25,
+                    "line": 45
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2407be9ba699b92552f5-4df5f5bc8ab9ccdc1a8c",
+          "file": "notebook-agent-notes.spec.ts",
+          "line": 30,
+          "column": 3
+        },
+        {
+          "title": "agent notebook notes render provenance safely - narrow-mobile",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 17034,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('agent-notes-block')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('agent-notes-block')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('agent-notes-block')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('agent-notes-block')\u001b[22m\n\n    at D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905\\e2e\\notebook-agent-notes.spec.ts:45:25",
+                    "location": {
+                      "file": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905\\e2e\\notebook-agent-notes.spec.ts",
+                      "column": 25,
+                      "line": 45
+                    },
+                    "snippet": "  43 |\n  44 |     const notes = page.getByTestId(\"agent-notes-block\");\n> 45 |     await expect(notes).toBeVisible({ timeout: 10_000 });\n     |                         ^\n  46 |     await expect(notes).toContainText(\"NodeRoom\");\n  47 |     await expect(notes).toContainText(\"Browser proof\");\n  48 |     await expect(notes).toContainText(\"Unsupported claim needs review\");"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905\\e2e\\notebook-agent-notes.spec.ts",
+                        "column": 25,
+                        "line": 45
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('agent-notes-block')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('agent-notes-block')\u001b[22m\n\n\n  43 |\n  44 |     const notes = page.getByTestId(\"agent-notes-block\");\n> 45 |     await expect(notes).toBeVisible({ timeout: 10_000 });\n     |                         ^\n  46 |     await expect(notes).toContainText(\"NodeRoom\");\n  47 |     await expect(notes).toContainText(\"Browser proof\");\n  48 |     await expect(notes).toContainText(\"Unsupported claim needs review\");\n    at D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905\\e2e\\notebook-agent-notes.spec.ts:45:25"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-05T13:04:15.186Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-shared-dependency-repair-01\\notebook-browser-before\\artifacts\\notebook-agent-notes-agent-f837f-ance-safely---narrow-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905\\e2e\\notebook-agent-notes.spec.ts",
+                    "column": 25,
+                    "line": 45
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2407be9ba699b92552f5-e6969067d2d8f7b11891",
+          "file": "notebook-agent-notes.spec.ts",
+          "line": 30,
+          "column": 3
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-05T13:03:37.800Z",
+    "duration": 54876.78,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}
