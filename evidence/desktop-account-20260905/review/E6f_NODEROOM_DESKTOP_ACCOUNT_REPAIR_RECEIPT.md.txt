@@ -1,0 +1,36 @@
+# NodeRoom desktop Account export: frozen for independent review
+
+Builder. Re the request to make each repository usable for developers and users: a reviewer now receives the same five Account labels shown in the desktop Q3 grid when downloading its XLSX. This is a bounded worker result awaiting a fresh judge, with no commit or push.
+
+The current branch is `codex/noderoom-desktop-account-20260905` on normally merged base `034a8f963dfa037d860f5364032319506be3e2e0`. The [JSON receipt](E6f_NODEROOM_DESKTOP_ACCOUNT_REPAIR_RECEIPT.json) binds the exact four working files, preserved base/index/refs, installed dependencies, build and 132 operator artifacts. The source digest is `c4484a6d673c6ae4a43a4e2ebbe1ce94a2903a9e8e74a6c02a5212f30180c4d1`; its serialization is stated in JSON.
+
+Only `src/ui/panels/Artifact.tsx`, `tests/artifactXlsxExport.test.ts`, `e2e/excel-grid.spec.ts` and `HANDOFF.md` changed. The application delta is two `__account` lookups corrected to the existing `__label` producer contract. There is no alias, helper, provider, dependency, timeout, skip or configuration change. All 7,508 other tracked files and all 37 installed dependency manifests match before custody; refs, index and worktree registrations are unchanged. Prior mobile/dependency packets remain historical and exact.
+
+## Actual before and after
+
+- [Current merged-base before boundary](E6f-noderoom-desktop-account-repair-01/before/change-boundary.png): actual 1440 × 960 memory-engine grid, local recomputation and edited note. Five visible labels became five blank XLSX cells. [Raw comparison](E6f-noderoom-desktop-account-repair-01/before/ui-to-workbook.json).
+- [Current candidate after boundary](E6f-noderoom-desktop-account-repair-01/after/change-boundary.png): same route, viewport and initial inputs. All five downloaded labels match. The other 25 worksheet cells and all 30 cell styles are unchanged. [Report and workbook hashes](E6f-noderoom-desktop-account-repair-01/after/report.json).
+- A second ordinary export contains a later edited note while the earlier file retains its original bytes and note. Direct ZIP/XML inspection independently of ExcelJS verifies seven retained file copies representing five unique workbook payloads, including the failing baseline. [XML readback](E6f-noderoom-desktop-account-repair-01/raw-workbook-xml-check.json).
+- Reverting just the two corrected lookups against the final tests reproduces both missing-label failures. Exact source was restored before final build and browser proof. [Knockout bindings](E6f-noderoom-desktop-account-repair-01/knockout-source-bindings.json), [raw failure](E6f-noderoom-desktop-account-repair-01/account-final-fixture-knockout.log).
+
+## Verification
+
+| Command / proof | Result |
+| --- | --- |
+| `npm run build` | PASS, including root TypeScript and build provenance; build stamp names the base, exact working bytes are separately bound |
+| `tsc --noEmit --project convex/tsconfig.json --pretty false` | PASS |
+| `npm run design:audit` | PASS |
+| `npm test -- --run tests/artifactXlsxExport.test.ts tests/mobileSampleWorkbookExport.test.ts tests/mobileSheetDialog.test.tsx` | 10/10 across three files |
+| `playwright test e2e/excel-grid.spec.ts` on owned built preview | 3/3; zero skipped/flaky; original config and 30-second budget |
+| Final-fixture lookup knockout | Expected failure: two label scenarios fail, four original cases pass |
+| Git diff, dependency and custody checks | PASS; four unstaged paths only |
+
+The component scenarios exercise actual export actions and ExcelJS serialization, replacing only the browser dispatch boundary. They cover current and sibling canonical sheets, four later edits per case and immediate duplicate activation. The sibling case is a typed store fixture; actual current-sheet downloads and unchanged generic uploaded-grid behavior are separately browser-proven. All browser/preview sessions owned by this slice are closed. Preserved build archives contain 475 files each and were reread and hash-verified.
+
+The [command ledger](E6f-noderoom-desktop-account-repair-01/final-commands.json) retains every exit, duration and raw log. Early fixture omissions and TypeScript buffer typing failures remain preserved. The first source-binding writer used a nonexistent path and produced no receipt; the corrected post-browser receipt matches pre-build source hashes and baseline custody. A packaging count initially omitted duplicate reporter attachments; that failure remains recorded without altering the successful runtime proof.
+
+## Limits and next action
+
+No full floor/prod rerun, native Office/COM, model call, live backend, hook activation or deployment was performed. Existing notebook failures, native Excel deadline, provider/nightly setup and all full visual/responsive/accessibility/performance/production grades remain open. Screenshots use fallback fonts at one desktop viewport; they establish the unchanged visible grid and actual export path, not whole-product visual quality. No ignored/local environment contents were inspected; the preserved custody wording addendum correctly distinguishes hash-only tracked public environment templates.
+
+The next step is independent review of the [freeze](E6f-noderoom-desktop-account-repair-01/freeze.json) and [manifest](E6f-noderoom-desktop-account-repair-01/manifest.json), followed by parent-owned publication and normal shared integration. The original 4173/4174 processes and original checkout were not operated by this worker.

@@ -1,0 +1,75 @@
+
+> noderoom@0.1.1 test
+> vitest run --run tests/artifactXlsxExport.test.ts
+
+
+ RUN  v4.1.10 D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905
+
+ ❯ |node| tests/artifactXlsxExport.test.ts (6 tests | 2 failed) 167ms
+     × keeps Account labels through repeated reviewer exports of the current sheet 42ms
+     × keeps Account labels through repeated reviewer exports of the sibling sheet 75ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/artifactXlsxExport.test.ts > NodeRoom XLSX cell export > keeps Account labels through repeated reviewer exports of the current sheet
+TypeError: store.canUndo is not a function
+ ❯ Sheet src/ui/panels/Artifact.tsx:2710:57
+    2708|       </div>
+    2709|       <div className="r-sheet-foot fx-shfoot">
+    2710|         <button className="r-mini-btn" disabled={!store.canUndo(roomId…
+       |                                                         ^
+    2711|         <span className="grow" />
+    2712|         <span className="mono tiny faint">click a Variance or Note cel…
+ ❯ Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:25904:20
+ ❯ renderWithHooks node_modules/react-dom/cjs/react-dom-client.development.js:7662:22
+ ❯ updateFunctionComponent node_modules/react-dom/cjs/react-dom-client.development.js:10166:19
+ ❯ beginWork node_modules/react-dom/cjs/react-dom-client.development.js:11778:18
+ ❯ runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:17641:22
+ ❯ workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:17469:41
+ ❯ renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:17450:11
+ ❯ performWorkOnRoot node_modules/react-dom/cjs/react-dom-client.development.js:16583:35
+ ❯ performWorkOnRootViaSchedulerTask node_modules/react-dom/cjs/react-dom-client.development.js:18957:7
+ ❯ flushActQueue node_modules/react/cjs/react.development.js:590:34
+ ❯ process.env.NODE_ENV.exports.act node_modules/react/cjs/react.development.js:884:10
+ ❯ node_modules/@testing-library/react/dist/act-compat.js:46:25
+ ❯ renderRoot node_modules/@testing-library/react/dist/pure.js:189:26
+ ❯ Proxy.render node_modules/@testing-library/react/dist/pure.js:291:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |node| tests/artifactXlsxExport.test.ts > NodeRoom XLSX cell export > keeps Account labels through repeated reviewer exports of the sibling sheet
+AssertionError: expected [ null, null, null, null, null ] to deeply equal [ 'Revenue', 'COGS', …(3) ]
+
+- Expected
++ Received
+
+  [
+-   "Revenue",
+-   "COGS",
+-   "Gross profit",
+-   "OpEx",
+-   "Net income",
++   null,
++   null,
++   null,
++   null,
++   null,
+  ]
+
+ ❯ tests/artifactXlsxExport.test.ts:169:79
+    167|       await reopened.xlsx.load(exportFixture.bytes[revision - 1]);
+    168|       const sheet = reopened.getWorksheet("Q3 variance")!;
+    169|       expect(SHEET_ROWS.map((_, index) => sheet.getCell(index + 2, 1).…
+       |                                                                               ^
+    170|       expect(sheet.getCell("B2").value).toBe(SHEET_ROWS[0].q2);
+    171|       expect(sheet.getCell("C2").value).toBe(SHEET_ROWS[0].q3);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  09:32:32
+   Duration  42.87s (transform 878ms, setup 8.74s, import 4.71s, tests 167ms, environment 27.76s)
+

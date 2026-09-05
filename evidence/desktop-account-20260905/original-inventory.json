@@ -1,0 +1,1202 @@
+{
+  "scope": "Original operator custody; seven retained-only files are not portable payloads",
+  "files": [
+    {
+      "path": "account-browser-suite.command.json",
+      "bytes": 862,
+      "sha256": "f8f8c8249304267c5359245c96b25f81714f87da259c15aa800f8f532ba87be1",
+      "gitBlobSha1": "0f8c0dd2458b9cd7c7fde9fcbf1449650dc5af4c",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-browser-suite.command.json",
+      "included": true,
+      "portablePath": "operator/account-browser-suite.command.json"
+    },
+    {
+      "path": "account-browser-suite.log",
+      "bytes": 821,
+      "sha256": "53e6dd4281f42e819f68a92e4a2bfad6bf1545f6d52dd05672f10eb81fa8250a",
+      "gitBlobSha1": "ba1ebfca9014ec413acf10ae8cb5ca5293261aea",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-browser-suite.log",
+      "included": true,
+      "portablePath": "operator/account-browser-suite.log"
+    },
+    {
+      "path": "account-convex-typecheck.command.json",
+      "bytes": 950,
+      "sha256": "cd281e6ec1bdefe7190785f003366e1ea9a0421cc6459c0dd7750cf8701ba300",
+      "gitBlobSha1": "22c63dd9ecc4454aa15459baf2722d559101b11c",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-convex-typecheck.command.json",
+      "included": true,
+      "portablePath": "operator/account-convex-typecheck.command.json"
+    },
+    {
+      "path": "account-convex-typecheck.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gitBlobSha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-convex-typecheck.log",
+      "included": true,
+      "portablePath": "operator/account-convex-typecheck.log"
+    },
+    {
+      "path": "account-design-audit.command.json",
+      "bytes": 734,
+      "sha256": "b4b6cea4dfcbba7f507080e1e50b86e052581a62c70b05a411bf83d748c2412c",
+      "gitBlobSha1": "81f80189a2defc38b315f2ff13ae9d7d08a408b6",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-design-audit.command.json",
+      "included": true,
+      "portablePath": "operator/account-design-audit.command.json"
+    },
+    {
+      "path": "account-design-audit.log",
+      "bytes": 5304,
+      "sha256": "3845700737cf617d4d35a4577c200b03148a660ed3490f7d0f038c688fa05dde",
+      "gitBlobSha1": "e2392f8e7632fe11ad3c7c79595c303f4165b4d5",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-design-audit.log",
+      "included": true,
+      "portablePath": "operator/account-design-audit.log"
+    },
+    {
+      "path": "account-final-build.command.json",
+      "bytes": 727,
+      "sha256": "1bf2f5aeb4fd1663ed5bb452bad53966fc4ca656e1d587a64b35a77874b66213",
+      "gitBlobSha1": "29e4858825ef10f1145720c9e2c920ea199ef690",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-final-build.command.json",
+      "included": true,
+      "portablePath": "operator/account-final-build.command.json"
+    },
+    {
+      "path": "account-final-build.log",
+      "bytes": 37879,
+      "sha256": "fd4d6fa4c2181f3e6dd0a57a121a9b04db3d180a17fe3ab58b4b2507ef64349c",
+      "gitBlobSha1": "28c74921552921b367ca2a9570630b8ad7aa67d5",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-final-build.log",
+      "included": true,
+      "portablePath": "operator/account-final-build.log"
+    },
+    {
+      "path": "account-final-fixture-knockout.command.json",
+      "bytes": 790,
+      "sha256": "37af593e401cba60e5088fe8c0611df04e4c45e5905dd5c878c0db62ca7beb68",
+      "gitBlobSha1": "0b4c961785e4f5128dfef98e9ba3d68479e48eb9",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-final-fixture-knockout.command.json",
+      "included": true,
+      "portablePath": "operator/account-final-fixture-knockout.command.json"
+    },
+    {
+      "path": "account-final-fixture-knockout.log",
+      "bytes": 1857,
+      "sha256": "b9b304b0456a20254297a859845f2e78911afc2f2b3e61f7719da0f0c64e854c",
+      "gitBlobSha1": "667141c73d3ae3380e8b1a7af8f9b844084f4dd1",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-final-fixture-knockout.log",
+      "included": true,
+      "portablePath": "operator/account-final-fixture-knockout.log"
+    },
+    {
+      "path": "account-final-scenarios.command.json",
+      "bytes": 872,
+      "sha256": "8be6956a7431240dc77c24829b96629220ce5247b3666bfd5d98384530fef9b7",
+      "gitBlobSha1": "e02b9c30688c47ba4f3653e97e1ccca8b9399b64",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-final-scenarios.command.json",
+      "included": true,
+      "portablePath": "operator/account-final-scenarios.command.json"
+    },
+    {
+      "path": "account-final-scenarios.log",
+      "bytes": 450,
+      "sha256": "1ebdf4ba92666fdb19d716a8ebe94aa4d53c1e3b2a2cf93da090abee21772a11",
+      "gitBlobSha1": "7427b37d4e20d29d2ee55320880c45bd1aa622f4",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-final-scenarios.log",
+      "included": true,
+      "portablePath": "operator/account-final-scenarios.log"
+    },
+    {
+      "path": "account-matched-after.command.json",
+      "bytes": 857,
+      "sha256": "9c0a8eeccc66923d7d5fa2077744d49a3a2a9a693a8e1716f16c54ff845d4184",
+      "gitBlobSha1": "17023ad8bcee2f5d81b8a2cef9aa274f70b57129",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-matched-after.command.json",
+      "included": true,
+      "portablePath": "operator/account-matched-after.command.json"
+    },
+    {
+      "path": "account-matched-after.log",
+      "bytes": 188,
+      "sha256": "534c4a05a52956ef0e3b2fa23a2e2d3b2c3eddf75acc7422278d266d9daab55c",
+      "gitBlobSha1": "92847cb482e4e1c1da19078855d272abc1efb8db",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-matched-after.log",
+      "included": true,
+      "portablePath": "operator/account-matched-after.log"
+    },
+    {
+      "path": "account-scenarios-after-02.command.json",
+      "bytes": 835,
+      "sha256": "ec0e0ebfb4d65fa32458d1804c49b8e405f95c4aa9081a57132051151b0cea68",
+      "gitBlobSha1": "f71c1b463798b202d010a79975dcd11c4e8b0af3",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-scenarios-after-02.command.json",
+      "included": true,
+      "portablePath": "operator/account-scenarios-after-02.command.json"
+    },
+    {
+      "path": "account-scenarios-after-02.log",
+      "bytes": 1507,
+      "sha256": "7d4c883ea8c95d18fbb2d9c12dfa5994ff7872b8de5c3a0bf48b4c7b8b110f6a",
+      "gitBlobSha1": "09e24307706038a3d6ba74238450e375386d4dff",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-scenarios-after-02.log",
+      "included": true,
+      "portablePath": "operator/account-scenarios-after-02.log"
+    },
+    {
+      "path": "account-scenarios-after-03.command.json",
+      "bytes": 834,
+      "sha256": "ba52cc191314ed5b6eaa734b09d65d556a862b3e5ce21c44cd0b18a14ef2e469",
+      "gitBlobSha1": "94f3b65989ab5ccb7bc85fc4edd22972123a31c6",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-scenarios-after-03.command.json",
+      "included": true,
+      "portablePath": "operator/account-scenarios-after-03.command.json"
+    },
+    {
+      "path": "account-scenarios-after-03.log",
+      "bytes": 415,
+      "sha256": "b5f213f2fb56f2806732bd2d75d9770df99b38f5aa6cc2f0d2b1ac51899cb576",
+      "gitBlobSha1": "7824ca6e98bf838d76213894378b30e5dbef310b",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-scenarios-after-03.log",
+      "included": true,
+      "portablePath": "operator/account-scenarios-after-03.log"
+    },
+    {
+      "path": "account-scenarios-after.command.json",
+      "bytes": 832,
+      "sha256": "30580438b2a3bc9f0f8a809b7b12f8400ea880d0c8fd1f3839f71e69ec9e75ff",
+      "gitBlobSha1": "5fa65cb7431ec678c7ab98d75558a6dd62faf899",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-scenarios-after.command.json",
+      "included": true,
+      "portablePath": "operator/account-scenarios-after.command.json"
+    },
+    {
+      "path": "account-scenarios-after.log",
+      "bytes": 1507,
+      "sha256": "648d5ea37e91bea13682b778bff94a78263823fa3449084b208d54d0c7e743c0",
+      "gitBlobSha1": "4f3bdd5e6e92f2f7b17067e192faa66a1b02853c",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-scenarios-after.log",
+      "included": true,
+      "portablePath": "operator/account-scenarios-after.log"
+    },
+    {
+      "path": "account-scenarios-before-02.command.json",
+      "bytes": 787,
+      "sha256": "d750a93e8ee6d53f9e1cbce38262518fcd055c8662e51c2fccd3e6de6c00698c",
+      "gitBlobSha1": "f8863c4d93e3ffc433d5673be1089262ebdcd429",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-scenarios-before-02.command.json",
+      "included": true,
+      "portablePath": "operator/account-scenarios-before-02.command.json"
+    },
+    {
+      "path": "account-scenarios-before-02.log",
+      "bytes": 1857,
+      "sha256": "0414a1878a2c3582768d3b6659edc156745e3fee78e91cad05ceb8e488090ea0",
+      "gitBlobSha1": "142945eee3e9467f95a9d2eb005f3c9ebb8cffd4",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-scenarios-before-02.log",
+      "included": true,
+      "portablePath": "operator/account-scenarios-before-02.log"
+    },
+    {
+      "path": "account-scenarios-before.command.json",
+      "bytes": 785,
+      "sha256": "deae3dd34ff36b11d3cd97a34b06155df5f1c636e5516c841bbb7eee22cdbd98",
+      "gitBlobSha1": "b2943b885af06009593ab499785ba0b367e28334",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-scenarios-before.command.json",
+      "included": true,
+      "portablePath": "operator/account-scenarios-before.command.json"
+    },
+    {
+      "path": "account-scenarios-before.log",
+      "bytes": 3684,
+      "sha256": "2a718d7e264acb249b9b60e7e414c589e845934cf6665c43f88e6340a58f856f",
+      "gitBlobSha1": "d8e77feffa83e75209eae1e14f39e1a8b128f2d3",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-scenarios-before.log",
+      "included": true,
+      "portablePath": "operator/account-scenarios-before.log"
+    },
+    {
+      "path": "account-typecheck.command.json",
+      "bytes": 771,
+      "sha256": "76f585ec6838cac8847c047b37f6a7a89c186596cd119218011295609a2325c7",
+      "gitBlobSha1": "57c64309fab0de698eda79803130042d6191bd47",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-typecheck.command.json",
+      "included": true,
+      "portablePath": "operator/account-typecheck.command.json"
+    },
+    {
+      "path": "account-typecheck.log",
+      "bytes": 1724,
+      "sha256": "51d5d08485705e4fd2b12e52f4ad3e270f06f2a8fe5dbca77babbe5375ba05dd",
+      "gitBlobSha1": "5244bbafe6219fa83158239d9771866b236d602c",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-typecheck.log",
+      "included": true,
+      "portablePath": "operator/account-typecheck.log"
+    },
+    {
+      "path": "after/change-boundary.md",
+      "bytes": 742,
+      "sha256": "67ff09b9fe36fda962caa4b1ac4d40d3694fec4035f4e7d28aa62e48579a1b0d",
+      "gitBlobSha1": "da680ad01171af0daa6b93a5acb45f9031432846",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\change-boundary.md",
+      "included": true,
+      "portablePath": "operator/after/change-boundary.md.txt"
+    },
+    {
+      "path": "after/change-boundary.png",
+      "bytes": 135281,
+      "sha256": "7efd166666c487ff28c3659bb7dc4a08a9fe2c2af9c02f134e6880094b27b40d",
+      "gitBlobSha1": "4c6747fca891e71271efb16212136ed80d3c28a8",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\change-boundary.png",
+      "included": true,
+      "portablePath": "operator/after/change-boundary.png"
+    },
+    {
+      "path": "after/desktop-memory-1440-downloaded.html",
+      "bytes": 88024,
+      "sha256": "d8835c7c4006f6c3e6641f2bf60a42ebd548ed2e6dcf54a5a2db977dc058fabd",
+      "gitBlobSha1": "b950720133993bd90b1370cc5247695849173468",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\desktop-memory-1440-downloaded.html",
+      "included": true,
+      "portablePath": "operator/after/desktop-memory-1440-downloaded.html.txt"
+    },
+    {
+      "path": "after/desktop-memory-1440-downloaded.json",
+      "bytes": 18240,
+      "sha256": "cf4890a8798a4250ac259e0d07650a8b38aac328c97f1cda5365d301a4fd8142",
+      "gitBlobSha1": "47edc2e32511272c62937f7ff29d85878f2be648",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\desktop-memory-1440-downloaded.json",
+      "included": true,
+      "portablePath": "operator/after/desktop-memory-1440-downloaded.json"
+    },
+    {
+      "path": "after/desktop-memory-1440-downloaded.png",
+      "bytes": 133268,
+      "sha256": "ef099b2a6b9c226ab4c6508b80dd36dd79818af70b840ae573ed651d16ba988a",
+      "gitBlobSha1": "31820cd47e9ad5fc31d268660fa0227b0834fa86",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\desktop-memory-1440-downloaded.png",
+      "included": true,
+      "portablePath": "operator/after/desktop-memory-1440-downloaded.png"
+    },
+    {
+      "path": "after/desktop-memory-1440-entry.html",
+      "bytes": 22547,
+      "sha256": "6a97e3ae6b9c591ee81637e32ee4b1cdaa2ce1151c834bc8d606d0f6c003f710",
+      "gitBlobSha1": "3fd9c271ec1a22710da7a67cb5955423bf43c0b9",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\desktop-memory-1440-entry.html",
+      "included": true,
+      "portablePath": "operator/after/desktop-memory-1440-entry.html.txt"
+    },
+    {
+      "path": "after/desktop-memory-1440-entry.json",
+      "bytes": 2526,
+      "sha256": "ec8e57893efef341f849f7e18f35a281acc15c4412551ac2cbdf2ee2f620421a",
+      "gitBlobSha1": "28ca574fb23ab20b87c62b4ec3d8210784c7bab1",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\desktop-memory-1440-entry.json",
+      "included": true,
+      "portablePath": "operator/after/desktop-memory-1440-entry.json"
+    },
+    {
+      "path": "after/desktop-memory-1440-entry.png",
+      "bytes": 184250,
+      "sha256": "1edf336806df3b4be374f010335643257d918860f3c30ee786b75ec4754c44a3",
+      "gitBlobSha1": "b8d5f906623e73326ab808649186df6b6e335e13",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\desktop-memory-1440-entry.png",
+      "included": true,
+      "portablePath": "operator/after/desktop-memory-1440-entry.png"
+    },
+    {
+      "path": "after/desktop-memory-1440-later-download.html",
+      "bytes": 87989,
+      "sha256": "e5be86de764b545a1015b09f714b3f4b022a1bf57dff0bd2a69b79b9ab8b9c37",
+      "gitBlobSha1": "16a96d892d3343c8c35f419aa4e3f1223a81a534",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\desktop-memory-1440-later-download.html",
+      "included": true,
+      "portablePath": "operator/after/desktop-memory-1440-later-download.html.txt"
+    },
+    {
+      "path": "after/desktop-memory-1440-later-download.json",
+      "bytes": 18256,
+      "sha256": "bd376990941821aa0b3297e40b163aab61b7ca1821703c134478e1c2e6b604ad",
+      "gitBlobSha1": "b9390e77a187fb50aa3fa513a448618e09a64586",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\desktop-memory-1440-later-download.json",
+      "included": true,
+      "portablePath": "operator/after/desktop-memory-1440-later-download.json"
+    },
+    {
+      "path": "after/desktop-memory-1440-later-download.png",
+      "bytes": 135016,
+      "sha256": "57012fa7146507f83b6a39a41d224bdb73818a38c15bc283783edc379c3ecce5",
+      "gitBlobSha1": "7d76802a7e398acab82798e9f09ae5fa40793d51",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\desktop-memory-1440-later-download.png",
+      "included": true,
+      "portablePath": "operator/after/desktop-memory-1440-later-download.png"
+    },
+    {
+      "path": "after/desktop-memory-1440-sample.html",
+      "bytes": 89828,
+      "sha256": "835b624532ae30303e5c119201f6c04d8cc1fa8fb1780105bd32b044b9010df4",
+      "gitBlobSha1": "6a3b67b3fc4ce6ae4c71101740436bb737985e34",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\desktop-memory-1440-sample.html",
+      "included": true,
+      "portablePath": "operator/after/desktop-memory-1440-sample.html.txt"
+    },
+    {
+      "path": "after/desktop-memory-1440-sample.json",
+      "bytes": 19475,
+      "sha256": "6fd9171e17e09917bc180f88a47e2c55e44fa62cd89893b2b3b1ca4bcfb4bb11",
+      "gitBlobSha1": "d401987b201f1212eab62c7dd7c9144d90ed03e1",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\desktop-memory-1440-sample.json",
+      "included": true,
+      "portablePath": "operator/after/desktop-memory-1440-sample.json"
+    },
+    {
+      "path": "after/desktop-memory-1440-sample.png",
+      "bytes": 136588,
+      "sha256": "35ee01f36f1e96ff6f5a76166979884ba97c72cf17454ce6c1eae3fb809b1dc5",
+      "gitBlobSha1": "0d9ba02dd483813878f14bf7c93679f3c4baae23",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\desktop-memory-1440-sample.png",
+      "included": true,
+      "portablePath": "operator/after/desktop-memory-1440-sample.png"
+    },
+    {
+      "path": "after/Q3_variance.xlsx",
+      "bytes": 6685,
+      "sha256": "f932564a012f2cb46dea3a92eb90c80004895f5d55a0460c47ad7573379aa52f",
+      "gitBlobSha1": "aa969897f4d09ef8cdc6591021056fcf1dc31dd1",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\Q3_variance.xlsx",
+      "included": true,
+      "portablePath": "operator/after/Q3_variance.xlsx"
+    },
+    {
+      "path": "after/report.json",
+      "bytes": 14238,
+      "sha256": "e93686c12a62b356d9f1f2c2c4b02b2fc5c21816b0b3cca389a5fbb8c45d4460",
+      "gitBlobSha1": "b5f8921649c41603ad1ea96763da85a851a2f12c",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\report.json",
+      "included": true,
+      "portablePath": "operator/after/report.json"
+    },
+    {
+      "path": "after/review-2-Q3_variance.xlsx",
+      "bytes": 6691,
+      "sha256": "fd854667bbd9f4c8cb55d62abc7f98fedd1b5c8b332f827f889a163f7952c1aa",
+      "gitBlobSha1": "6bec4b4d21729a71921b7ca9d1a76eb8cc43723d",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\review-2-Q3_variance.xlsx",
+      "included": true,
+      "portablePath": "operator/after/review-2-Q3_variance.xlsx"
+    },
+    {
+      "path": "after/server.log",
+      "bytes": 40,
+      "sha256": "0386ad966f6aa33781e062d9b528e22f2f95d68f68b974f9cb0b35cb28180a8d",
+      "gitBlobSha1": "6e5f17b3753c1e80493efa1a6f9f4652fd1d87a3",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\server.log",
+      "included": true,
+      "portablePath": "operator/after/server.log"
+    },
+    {
+      "path": "after/ui-to-workbook.json",
+      "bytes": 1996,
+      "sha256": "ae4383866314affd0d9ceb452b50b3ed0da6dcbab22c259e254a97e776007bdd",
+      "gitBlobSha1": "dd704fd5a38d630cb83b3c04b3db436343473b5d",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after\\ui-to-workbook.json",
+      "included": true,
+      "portablePath": "operator/after/ui-to-workbook.json"
+    },
+    {
+      "path": "after-source-bindings.json",
+      "bytes": 2118,
+      "sha256": "b6f06a5a0ccfc04684d6e8f4488629210a1979d4067cca3dd108a4dc44b57803",
+      "gitBlobSha1": "decee105dcc7bffc997928447616d02bdb63275a",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after-source-bindings.json",
+      "included": true,
+      "portablePath": "operator/after-source-bindings.json"
+    },
+    {
+      "path": "after-tracked-bindings.json",
+      "bytes": 2014455,
+      "sha256": "1984bc8d97c06b981f795d0fb85e677647bdce26bdcb7a0aba959f48e48a6209",
+      "gitBlobSha1": "c7a8d4bad50f35ff4bf4301d8ed740f8f72a6e5a",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\after-tracked-bindings.json",
+      "included": false,
+      "portablePath": null
+    },
+    {
+      "path": "before/change-boundary.md",
+      "bytes": 645,
+      "sha256": "b6d322e44efe7725e9db4ec6fae8e6a0e93bf5b302ffcf1fe80b49faf278399e",
+      "gitBlobSha1": "0128c3c799833ac6824fa8a7c6a0f64d3dfce021",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before\\change-boundary.md",
+      "included": true,
+      "portablePath": "operator/before/change-boundary.md.txt"
+    },
+    {
+      "path": "before/change-boundary.png",
+      "bytes": 135909,
+      "sha256": "fceb0dc7ca8665b6c3d49ce5ecf226c80293c571c17dbdbb57ddf1dbf896671d",
+      "gitBlobSha1": "0800e17c7db3f1741305c2a50153a0e70c82000b",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before\\change-boundary.png",
+      "included": true,
+      "portablePath": "operator/before/change-boundary.png"
+    },
+    {
+      "path": "before/desktop-memory-1440-downloaded.html",
+      "bytes": 87806,
+      "sha256": "b89c9b2057e9f2d7e901acdd6f5226291a6fa3956e655c32b13914b8c559e3a5",
+      "gitBlobSha1": "16732a58f0af67e9cba17bc7f0f2ef7235ff381e",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before\\desktop-memory-1440-downloaded.html",
+      "included": true,
+      "portablePath": "operator/before/desktop-memory-1440-downloaded.html.txt"
+    },
+    {
+      "path": "before/desktop-memory-1440-downloaded.json",
+      "bytes": 18164,
+      "sha256": "f828755c1cf6f73b14aa4e6698f8eba9f3947b8459c59f1a5db81ea7ebb6db81",
+      "gitBlobSha1": "0b154c31ad23e4c3b13ab2da693cdb99a90e865d",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before\\desktop-memory-1440-downloaded.json",
+      "included": true,
+      "portablePath": "operator/before/desktop-memory-1440-downloaded.json"
+    },
+    {
+      "path": "before/desktop-memory-1440-downloaded.png",
+      "bytes": 133801,
+      "sha256": "d748f5992dec7ddee8816c83d8c6d8be7ddf754456cf64142417a2178afcee57",
+      "gitBlobSha1": "12ffb4cd96dd697ee4f5aef6790fba0560193e10",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before\\desktop-memory-1440-downloaded.png",
+      "included": true,
+      "portablePath": "operator/before/desktop-memory-1440-downloaded.png"
+    },
+    {
+      "path": "before/desktop-memory-1440-entry.html",
+      "bytes": 22547,
+      "sha256": "e0057268ff744c13eeb009343cc9a5132e7f5a3da7fd2ae832b4d8f3aab1d339",
+      "gitBlobSha1": "c913c8aa6afb0505cfce5a64949a52b7aaa2d37e",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before\\desktop-memory-1440-entry.html",
+      "included": true,
+      "portablePath": "operator/before/desktop-memory-1440-entry.html.txt"
+    },
+    {
+      "path": "before/desktop-memory-1440-entry.json",
+      "bytes": 2526,
+      "sha256": "a2f88a5a01a2a089aba35b6a02a040a3dad46e0af31b3a962933d3d2a0989d8c",
+      "gitBlobSha1": "7f163245d1dccd50ec506a153d2d2de476f99656",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before\\desktop-memory-1440-entry.json",
+      "included": true,
+      "portablePath": "operator/before/desktop-memory-1440-entry.json"
+    },
+    {
+      "path": "before/desktop-memory-1440-entry.png",
+      "bytes": 184247,
+      "sha256": "e507a0b6b569bf42ee5f62cd5dc6bfd31f280a4d147bc175b4c1a432251dee33",
+      "gitBlobSha1": "b72b9a39e697c8d4a5b73655a0fd62cbd0b63740",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before\\desktop-memory-1440-entry.png",
+      "included": true,
+      "portablePath": "operator/before/desktop-memory-1440-entry.png"
+    },
+    {
+      "path": "before/desktop-memory-1440-sample.html",
+      "bytes": 89828,
+      "sha256": "38ad55be105664b0e2d053e56b3c32add132c209886aa19a528cf10be3a9ba61",
+      "gitBlobSha1": "c513a041b9d1c888d261506c03402e5081eef5a6",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before\\desktop-memory-1440-sample.html",
+      "included": true,
+      "portablePath": "operator/before/desktop-memory-1440-sample.html.txt"
+    },
+    {
+      "path": "before/desktop-memory-1440-sample.json",
+      "bytes": 19475,
+      "sha256": "6405182569264169158df1a05a2eceb7c751049d8f12e906efabb26b3d09cac9",
+      "gitBlobSha1": "e45a02eb27903f50a4453bae289dc3e3950b8a30",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before\\desktop-memory-1440-sample.json",
+      "included": true,
+      "portablePath": "operator/before/desktop-memory-1440-sample.json"
+    },
+    {
+      "path": "before/desktop-memory-1440-sample.png",
+      "bytes": 136425,
+      "sha256": "3044c6e8b91dd77ae682d12c566fbdeac14e7a8100e07cda70ae096641006da7",
+      "gitBlobSha1": "c729783715a2893f4c5919ef7d5a4f96a5bb0c06",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before\\desktop-memory-1440-sample.png",
+      "included": true,
+      "portablePath": "operator/before/desktop-memory-1440-sample.png"
+    },
+    {
+      "path": "before/Q3_variance.xlsx",
+      "bytes": 6631,
+      "sha256": "06dd606710f763f7e6016e81a8022667d69ab61f871cf50328484dec5f98dc31",
+      "gitBlobSha1": "98f62b33ada98750d69edf9123dccdb2fde4a853",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before\\Q3_variance.xlsx",
+      "included": true,
+      "portablePath": "operator/before/Q3_variance.xlsx"
+    },
+    {
+      "path": "before/report.json",
+      "bytes": 6297,
+      "sha256": "b0858750daf2ee5d2a86cf9ce8db4cc7f11608c8d6dc6e930871c072fc100ace",
+      "gitBlobSha1": "0ab507f870ede269c7bba74207622a0bbb58696d",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before\\report.json",
+      "included": true,
+      "portablePath": "operator/before/report.json"
+    },
+    {
+      "path": "before/server.log",
+      "bytes": 40,
+      "sha256": "fff0986d5228571d97dbd413cee519c7365978ac978a3f727447d367cec5a1b9",
+      "gitBlobSha1": "1d3ce8fab033e29995dcf66b267a03e7642b2ace",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before\\server.log",
+      "included": true,
+      "portablePath": "operator/before/server.log"
+    },
+    {
+      "path": "before/ui-to-workbook.json",
+      "bytes": 1977,
+      "sha256": "b51471c257bb69e3c81423596b397b3def917ae8e29695bb7db7f6bcd481b60d",
+      "gitBlobSha1": "1d114a2a0efcf9380b8e4b4567a90b636fb090b7",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before\\ui-to-workbook.json",
+      "included": true,
+      "portablePath": "operator/before/ui-to-workbook.json"
+    },
+    {
+      "path": "before-browser.command.json",
+      "bytes": 852,
+      "sha256": "b231bdfdc3bfc6efee4f3e49e3c605101dd20d53d7861fb03c8c70f916b6980f",
+      "gitBlobSha1": "c7181d021e267ebc0958c761e62fb6ab7e4896ec",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before-browser.command.json",
+      "included": true,
+      "portablePath": "operator/before-browser.command.json"
+    },
+    {
+      "path": "before-browser.log",
+      "bytes": 189,
+      "sha256": "14097e0766c4a7d8464116c231807878f8538b5db646b95f03a2ea26314c1c42",
+      "gitBlobSha1": "4e93f486806d69ad511565bb6e8f15bce79e7fa3",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before-browser.log",
+      "included": true,
+      "portablePath": "operator/before-browser.log"
+    },
+    {
+      "path": "before-build.command.json",
+      "bytes": 721,
+      "sha256": "7665503d1cf5a937366c28c097671b23bf6ee0f44e86aaae41c86c11d6fbb8c1",
+      "gitBlobSha1": "b0862a6b8485185f14c04fc5dde9bf7f00a950fa",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before-build.command.json",
+      "included": true,
+      "portablePath": "operator/before-build.command.json"
+    },
+    {
+      "path": "before-build.log",
+      "bytes": 37879,
+      "sha256": "c977ae458d1d5842ad534ece92b5d89915aec139de90e3760d5c75684b7a6a0a",
+      "gitBlobSha1": "146359d951e8ae0a3a590f3009d71f9de42be804",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before-build.log",
+      "included": true,
+      "portablePath": "operator/before-build.log"
+    },
+    {
+      "path": "before-current-dist-bindings.json",
+      "bytes": 80419,
+      "sha256": "bbdec57187ffbb5c8cae106d574c93c8fa511d95cd8bd0c92f6322f146653a6f",
+      "gitBlobSha1": "fe30cedcf44e17f85895478caa3cf5cf5f33f75f",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before-current-dist-bindings.json",
+      "included": true,
+      "portablePath": "operator/before-current-dist-bindings.json"
+    },
+    {
+      "path": "before-current-dist.zip",
+      "bytes": 13911045,
+      "sha256": "bbe97176b7eb84b4e117c180b3dbe7141cd62a33193cc762e563ac9d1678f98f",
+      "gitBlobSha1": "66193589c6ff5e0e5ebe647d2407d55954ceedc6",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before-current-dist.zip",
+      "included": false,
+      "portablePath": null
+    },
+    {
+      "path": "before-design-manifest.command.json",
+      "bytes": 737,
+      "sha256": "2110cd0b0c0a42a9e376e2aa2693abec03c4995cc413b848b29dcc6b6bacffaf",
+      "gitBlobSha1": "63d09199a981e417a49fee49a8624e1578da5129",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before-design-manifest.command.json",
+      "included": true,
+      "portablePath": "operator/before-design-manifest.command.json"
+    },
+    {
+      "path": "before-design-manifest.log",
+      "bytes": 11077,
+      "sha256": "f237e3b83aa87c94168b2f9bcb62d79e98c9171d2c514ef6414893f87c0f067f",
+      "gitBlobSha1": "28b7656de8f864f0813d0dc21c95c1b47a8a7534",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before-design-manifest.log",
+      "included": true,
+      "portablePath": "operator/before-design-manifest.log"
+    },
+    {
+      "path": "before-head.txt",
+      "bytes": 82,
+      "sha256": "a3b47e0c62a30037f782daad21f1e3f494945d123f0c5366f4d5b01b8b043d9e",
+      "gitBlobSha1": "72a617a663026fd05411d5816f8ca1692b7694c9",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before-head.txt",
+      "included": true,
+      "portablePath": "operator/before-head.txt"
+    },
+    {
+      "path": "before-index.txt",
+      "bytes": 983004,
+      "sha256": "08be2cca888379e88a875ff7df9269c1a4eafde9fc6c13cf9c002df7b8945425",
+      "gitBlobSha1": "3e34b3a196123d3234ebca8208f1cdcc4a8433d8",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before-index.txt",
+      "included": false,
+      "portablePath": null
+    },
+    {
+      "path": "before-refs.txt",
+      "bytes": 10482,
+      "sha256": "f07794386fdccb054b31c01567fd46458101cff69033c65a5c3125485eeb63df",
+      "gitBlobSha1": "6116c8a43f4ef609c608ad2cf6cdde04573065c8",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before-refs.txt",
+      "included": true,
+      "portablePath": "operator/before-refs.txt"
+    },
+    {
+      "path": "before-status.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gitBlobSha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before-status.txt",
+      "included": true,
+      "portablePath": "operator/before-status.txt"
+    },
+    {
+      "path": "before-tracked-bindings.json",
+      "bytes": 2014453,
+      "sha256": "91796cb1574d891d08f4f3275986fa2c77e24e0f5bdc2ae78b94238e3750b49f",
+      "gitBlobSha1": "ea4e94ba71bd99fbd750a3a74ad23056798f20bd",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before-tracked-bindings.json",
+      "included": false,
+      "portablePath": null
+    },
+    {
+      "path": "before-worktrees.txt",
+      "bytes": 900,
+      "sha256": "de1222d5d9910730bc1fccc42c093dba52613bbfbeb5592444c28887240fd22f",
+      "gitBlobSha1": "014d6a2d43da6260640915039153f05a4e191e78",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before-worktrees.txt",
+      "included": true,
+      "portablePath": "operator/before-worktrees.txt"
+    },
+    {
+      "path": "bind-after-source.py",
+      "bytes": 1266,
+      "sha256": "ea2bc4f2b1b8c3e9ad306a58532a405288d699968e9d9b6154d7cb04df5b8ab0",
+      "gitBlobSha1": "a49dd0f197c35280cc413748db4ba514dd5546bb",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\bind-after-source.py",
+      "included": true,
+      "portablePath": "operator/bind-after-source.py.txt"
+    },
+    {
+      "path": "browser-suite/command.json",
+      "bytes": 900,
+      "sha256": "71d51f0470af31d5e63663ae4484777fbee4cc2507d2193aeed19fb8ae9b538f",
+      "gitBlobSha1": "c3a759e9b8067a6c989d02aa903bb2f290fc7435",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\browser-suite\\command.json",
+      "included": true,
+      "portablePath": "operator/browser-suite/command.json"
+    },
+    {
+      "path": "browser-suite/playwright.json",
+      "bytes": 6441,
+      "sha256": "a4af8977c989faa4de58744395a5c8e424e4dbffcaae556dee9e99bd88401beb",
+      "gitBlobSha1": "ae107111c838e1c10d49da0652eb6a31ee2c3a6f",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\browser-suite\\playwright.json",
+      "included": true,
+      "portablePath": "operator/browser-suite/playwright.json"
+    },
+    {
+      "path": "browser-suite/playwright.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gitBlobSha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\browser-suite\\playwright.stderr.log",
+      "included": true,
+      "portablePath": "operator/browser-suite/playwright.stderr.log"
+    },
+    {
+      "path": "browser-suite/prior-hardcoded-screenshot.png",
+      "bytes": 138533,
+      "sha256": "12cdde17e3892a3402b0a9e794c0f66b683733367f179c76c418de7102ce4dd7",
+      "gitBlobSha1": "e8b7287c3a82dd2e7423210272faaf663eee95cc",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\browser-suite\\prior-hardcoded-screenshot.png",
+      "included": true,
+      "portablePath": "operator/browser-suite/prior-hardcoded-screenshot.png"
+    },
+    {
+      "path": "browser-suite/results/.last-run.json",
+      "bytes": 45,
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "gitBlobSha1": "cbcc1fbac11a74b608b2b3edc3a2ffd6ab639cb2",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\browser-suite\\results\\.last-run.json",
+      "included": true,
+      "portablePath": "operator/browser-suite/results/.last-run.json"
+    },
+    {
+      "path": "browser-suite/results/excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium/attachments/review-1-xlsx-8d322e6991638bbf510ae3e72dba7d7b1229f8bd.xlsx",
+      "bytes": 6685,
+      "sha256": "acac9fdf9711781302c79fb142dbbaeaf775e224a426c32204e8ab2f3a22db32",
+      "gitBlobSha1": "a128b1df8453f248efd1200d80c4b0e1a0c58886",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\browser-suite\\results\\excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium\\attachments\\review-1-xlsx-8d322e6991638bbf510ae3e72dba7d7b1229f8bd.xlsx",
+      "included": true,
+      "portablePath": "operator/browser-suite/results/excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium/attachments/review-1-xlsx-8d322e6991638bbf510ae3e72dba7d7b1229f8bd.xlsx"
+    },
+    {
+      "path": "browser-suite/results/excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium/attachments/review-2-xlsx-d8bd07bada085ad796bb49244ecd789b4ea58285.xlsx",
+      "bytes": 6692,
+      "sha256": "495e4fd5fed1a6e4c5340b1cde5b9e1fb33559a37ca3c55993f79fa1a594623a",
+      "gitBlobSha1": "124cef5bd12e2b24543b6fbc17614542fa8cb6a8",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\browser-suite\\results\\excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium\\attachments\\review-2-xlsx-d8bd07bada085ad796bb49244ecd789b4ea58285.xlsx",
+      "included": true,
+      "portablePath": "operator/browser-suite/results/excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium/attachments/review-2-xlsx-d8bd07bada085ad796bb49244ecd789b4ea58285.xlsx"
+    },
+    {
+      "path": "browser-suite/results/excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium/desktop-account-current-export.png",
+      "bytes": 135059,
+      "sha256": "42ffda5a38b1edd79a599c9dde79e60d9978ced5efcc6717e07da73da2ad89c4",
+      "gitBlobSha1": "232f6e2dc20f84681f936b9dd4422fc57b2f78cb",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\browser-suite\\results\\excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium\\desktop-account-current-export.png",
+      "included": true,
+      "portablePath": "operator/browser-suite/results/excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium/desktop-account-current-export.png"
+    },
+    {
+      "path": "browser-suite/results/excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium/review-1-Q3_variance.xlsx",
+      "bytes": 6685,
+      "sha256": "acac9fdf9711781302c79fb142dbbaeaf775e224a426c32204e8ab2f3a22db32",
+      "gitBlobSha1": "a128b1df8453f248efd1200d80c4b0e1a0c58886",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\browser-suite\\results\\excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium\\review-1-Q3_variance.xlsx",
+      "included": true,
+      "portablePath": "operator/browser-suite/results/excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium/review-1-Q3_variance.xlsx"
+    },
+    {
+      "path": "browser-suite/results/excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium/review-2-Q3_variance.xlsx",
+      "bytes": 6692,
+      "sha256": "495e4fd5fed1a6e4c5340b1cde5b9e1fb33559a37ca3c55993f79fa1a594623a",
+      "gitBlobSha1": "124cef5bd12e2b24543b6fbc17614542fa8cb6a8",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\browser-suite\\results\\excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium\\review-2-Q3_variance.xlsx",
+      "included": true,
+      "portablePath": "operator/browser-suite/results/excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium/review-2-Q3_variance.xlsx"
+    },
+    {
+      "path": "browser-suite/server.log",
+      "bytes": 40,
+      "sha256": "07a33901221a45dd2ad564f2f9ef2a20f2b5ac6f60f0549688a4a2e2357bfee6",
+      "gitBlobSha1": "0f334470c4bfffb9e3a5fa1175ec0323b9e4d762",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\browser-suite\\server.log",
+      "included": true,
+      "portablePath": "operator/browser-suite/server.log"
+    },
+    {
+      "path": "browser-suite/uploaded-workbook-shared-grid.png",
+      "bytes": 138953,
+      "sha256": "d31c290f875c48b83a91941e95f125b16ec1335cc67080a41e7755bec1fde7ea",
+      "gitBlobSha1": "22431aa85a407feecd7965a52a7a762ff88bbb30",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\browser-suite\\uploaded-workbook-shared-grid.png",
+      "included": true,
+      "portablePath": "operator/browser-suite/uploaded-workbook-shared-grid.png"
+    },
+    {
+      "path": "custody-environment-wording-addendum.json",
+      "bytes": 456,
+      "sha256": "9e882eaf69658cb02c0b7c1c9bdd1ef47072e3b4c0cda2689d40e81ace4dc232",
+      "gitBlobSha1": "58ea52cc6b3fc4c049796e8ce33565b0adfdc369",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\custody-environment-wording-addendum.json",
+      "included": true,
+      "portablePath": "operator/custody-environment-wording-addendum.json"
+    },
+    {
+      "path": "custody.json",
+      "bytes": 587,
+      "sha256": "3d5f2f12d1e38800809e497249f2841d4a8cc18431933e82b351045b418417a7",
+      "gitBlobSha1": "507937dcd2f961733449a383135d883f606815b5",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\custody.json",
+      "included": true,
+      "portablePath": "operator/custody.json"
+    },
+    {
+      "path": "final-commands.json",
+      "bytes": 13244,
+      "sha256": "1cae9b8d88b0bc5e58c9b7207059666cb5591c3dba62dd04fc52ddbe40b2b491",
+      "gitBlobSha1": "61cb6232bf08e58ed4a15ea84b64a9b0af6704c0",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\final-commands.json",
+      "included": true,
+      "portablePath": "operator/final-commands.json"
+    },
+    {
+      "path": "final-dist-bindings.json",
+      "bytes": 108908,
+      "sha256": "377ae4aa61d13f645086a22d91a1b5f40cd7578a2754f0b6bc507a94a33d4193",
+      "gitBlobSha1": "55792ba04eca2cc0179fd930ec9520373d30d1f6",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\final-dist-bindings.json",
+      "included": true,
+      "portablePath": "operator/final-dist-bindings.json"
+    },
+    {
+      "path": "final-dist.zip",
+      "bytes": 13910943,
+      "sha256": "beff80376f74dc220a4cc2d30b709218ca38bb25024b82f0d95fc9f894a2346e",
+      "gitBlobSha1": "b9d5eaa0c00cd6927fa16ae9e1cdad54eaf21195",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\final-dist.zip",
+      "included": false,
+      "portablePath": null
+    },
+    {
+      "path": "final-head.txt",
+      "bytes": 82,
+      "sha256": "a3b47e0c62a30037f782daad21f1e3f494945d123f0c5366f4d5b01b8b043d9e",
+      "gitBlobSha1": "72a617a663026fd05411d5816f8ca1692b7694c9",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\final-head.txt",
+      "included": true,
+      "portablePath": "operator/final-head.txt"
+    },
+    {
+      "path": "final-index.txt",
+      "bytes": 983004,
+      "sha256": "08be2cca888379e88a875ff7df9269c1a4eafde9fc6c13cf9c002df7b8945425",
+      "gitBlobSha1": "3e34b3a196123d3234ebca8208f1cdcc4a8433d8",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\final-index.txt",
+      "included": false,
+      "portablePath": null
+    },
+    {
+      "path": "final-refs.txt",
+      "bytes": 10482,
+      "sha256": "f07794386fdccb054b31c01567fd46458101cff69033c65a5c3125485eeb63df",
+      "gitBlobSha1": "6116c8a43f4ef609c608ad2cf6cdde04573065c8",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\final-refs.txt",
+      "included": true,
+      "portablePath": "operator/final-refs.txt"
+    },
+    {
+      "path": "final-source.diff",
+      "bytes": 21105,
+      "sha256": "e17642f2b102c50cafd5aeb2ca9143b315e8a924bd88da7fc107b837218e62cf",
+      "gitBlobSha1": "d253c442766029a5b115b0ffde809e22fb691f6d",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\final-source.diff",
+      "included": true,
+      "portablePath": "operator/final-source.diff"
+    },
+    {
+      "path": "final-status.txt",
+      "bytes": 106,
+      "sha256": "b20623a321bc49a827209c22a4343f4a0e966e84fa38f17a1add4af2897053fb",
+      "gitBlobSha1": "59351f9826bfc32680dfd5c746f8f59433ac92d1",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\final-status.txt",
+      "included": true,
+      "portablePath": "operator/final-status.txt"
+    },
+    {
+      "path": "final-worktrees.txt",
+      "bytes": 900,
+      "sha256": "de1222d5d9910730bc1fccc42c093dba52613bbfbeb5592444c28887240fd22f",
+      "gitBlobSha1": "014d6a2d43da6260640915039153f05a4e191e78",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\final-worktrees.txt",
+      "included": true,
+      "portablePath": "operator/final-worktrees.txt"
+    },
+    {
+      "path": "freeze-attempt-01.error.txt",
+      "bytes": 327,
+      "sha256": "855c9e4cc9afacbdc66bd9b0ff022299ac6f207a4175cc91b90b6aaecd86b819",
+      "gitBlobSha1": "6e35f3011931fb40b07785e06564c2bd16a2ce9d",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\freeze-attempt-01.error.txt",
+      "included": true,
+      "portablePath": "operator/freeze-attempt-01.error.txt"
+    },
+    {
+      "path": "freeze-final.py",
+      "bytes": 8648,
+      "sha256": "33b5394ae5344e1a4e359ad99440c7eaf9863fa25299428e5ac4b5074b3f5131",
+      "gitBlobSha1": "b5b66304c08388b94ff56a98f61d04c6c261c8ab",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\freeze-final.py",
+      "included": true,
+      "portablePath": "operator/freeze-final.py.txt"
+    },
+    {
+      "path": "freeze.json",
+      "bytes": 4300,
+      "sha256": "4e8640d97bbfe6bedd46521f40c15bd3c24e161e37384cbbf35452bff4d15605",
+      "gitBlobSha1": "cd2c8b75bd8d522c3f5ce7828be89eba64ad7382",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\freeze.json",
+      "included": true,
+      "portablePath": "operator/freeze.json"
+    },
+    {
+      "path": "freeze.py",
+      "bytes": 8688,
+      "sha256": "e71fc4a740ec4d414fdf3ef4356a47df1eaac6f54b60f3d7bf6b4b4549492cdb",
+      "gitBlobSha1": "5615d601d18c3ab19a486d8faf225d5ded6a206a",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\freeze.py",
+      "included": true,
+      "portablePath": "operator/freeze.py.txt"
+    },
+    {
+      "path": "handoff-link-check.json",
+      "bytes": 1022,
+      "sha256": "c42acdd4e4c48608ae67ea80b46345a1fff00e4ecac891df629b78c877e1259d",
+      "gitBlobSha1": "ce88be9536218b864827737a74fe7036c21c6c54",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\handoff-link-check.json",
+      "included": true,
+      "portablePath": "operator/handoff-link-check.json"
+    },
+    {
+      "path": "installed-bindings.json",
+      "bytes": 8015,
+      "sha256": "4ac5e25ea31035cde5ddcda74bd79d3587f1029052232dbceedecc71d516476a",
+      "gitBlobSha1": "db7766e5499e1f1996a964815438f83b62c37c02",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\installed-bindings.json",
+      "included": true,
+      "portablePath": "operator/installed-bindings.json"
+    },
+    {
+      "path": "knockout-final-Artifact.tsx.txt",
+      "bytes": 230374,
+      "sha256": "013064b20f5fea117e2e8b96755d2d93fce490e9eb5f6845b1b1cd6f386b07a0",
+      "gitBlobSha1": "37dac53ca1f89fb671db075898603bcdcb3ab796",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\knockout-final-Artifact.tsx.txt",
+      "included": true,
+      "portablePath": "operator/knockout-final-Artifact.tsx.txt"
+    },
+    {
+      "path": "knockout-final-artifactXlsxExport.test.ts.txt",
+      "bytes": 9444,
+      "sha256": "3c48be964ca1c7e5083801d7875bc8a74f075f38e56fcab3e621e799b6ffc136",
+      "gitBlobSha1": "424266f4a1225c11bdd66b381d3089990ca6376b",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\knockout-final-artifactXlsxExport.test.ts.txt",
+      "included": true,
+      "portablePath": "operator/knockout-final-artifactXlsxExport.test.ts.txt"
+    },
+    {
+      "path": "knockout-regressed-Artifact.tsx.txt",
+      "bytes": 230378,
+      "sha256": "701cbef1cbe9ca89dea754b203243dbd760aa04d9062f6053e1615f7cbeb6463",
+      "gitBlobSha1": "74c90f35c5b67e557684095b7a84497fdf995d2a",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\knockout-regressed-Artifact.tsx.txt",
+      "included": true,
+      "portablePath": "operator/knockout-regressed-Artifact.tsx.txt"
+    },
+    {
+      "path": "knockout-source-bindings.json",
+      "bytes": 373,
+      "sha256": "605ce705fc0472437ec1c13eb84ce090ae0f57a25c918e35ab203618e2481e17",
+      "gitBlobSha1": "6af82e81f718785f419626db6a26271da3155a3f",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\knockout-source-bindings.json",
+      "included": true,
+      "portablePath": "operator/knockout-source-bindings.json"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 30868,
+      "sha256": "4e5fb3dabe91e0515f4506e3e2b6389c6bffd9bdef2fb0735c360b9a66c0883f",
+      "gitBlobSha1": "054cfea65ff5668d252beaf628c513c4675d3ead",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\manifest.json",
+      "included": true,
+      "portablePath": "operator/manifest.json"
+    },
+    {
+      "path": "observe-after.mjs",
+      "bytes": 14774,
+      "sha256": "2cda94d11bee146005c9bf6e427a0bbc81ef58b25bd16540ea843435422a2f9e",
+      "gitBlobSha1": "8b08728e0dfff20bb21aed47491f52905816a11e",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\observe-after.mjs",
+      "included": true,
+      "portablePath": "operator/observe-after.mjs.txt"
+    },
+    {
+      "path": "observe-before.mjs",
+      "bytes": 11466,
+      "sha256": "016805ef1fb300a68e503274e694e1645d98622dc24d5008fcfb3d33a9365d2c",
+      "gitBlobSha1": "6a2630487efbcc034bf9a3328af29cecc77e0a14",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\observe-before.mjs",
+      "included": true,
+      "portablePath": "operator/observe-before.mjs.txt"
+    },
+    {
+      "path": "prepare-after-probe.py",
+      "bytes": 4991,
+      "sha256": "f849034d67047a3bd39f81108287376125853e9b64aba63ac2a4bec3771f47de",
+      "gitBlobSha1": "587ac10b4f07455b7487523ca5874f97fc6b91c9",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\prepare-after-probe.py",
+      "included": true,
+      "portablePath": "operator/prepare-after-probe.py.txt"
+    },
+    {
+      "path": "preserve-build-and-knockout.py",
+      "bytes": 2534,
+      "sha256": "b619d075de2a348cec71da1d2e94c0a025d25678fe22d7c30363f50948c19e10",
+      "gitBlobSha1": "d14a5fd2abaa0f17b279e7233943bee9f700330a",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\preserve-build-and-knockout.py",
+      "included": true,
+      "portablePath": "operator/preserve-build-and-knockout.py.txt"
+    },
+    {
+      "path": "prior-dist-bindings.json",
+      "bytes": 75526,
+      "sha256": "95cf73d55ada0e26a5c68867d94e55051f4b723eadba7a879c98a5acedb3ede5",
+      "gitBlobSha1": "f9901bff341d0b206239d1237916ca5457193674",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\prior-dist-bindings.json",
+      "included": true,
+      "portablePath": "operator/prior-dist-bindings.json"
+    },
+    {
+      "path": "prior-dist.zip",
+      "bytes": 13915799,
+      "sha256": "49f620f909df6054e5e910fb3271cdb92a5022e9059856b83d8a07ca79a7c251",
+      "gitBlobSha1": "016c7353342a584070e2a84218ef13ef3d9c388f",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\prior-dist.zip",
+      "included": false,
+      "portablePath": null
+    },
+    {
+      "path": "raw-workbook-xml-check.json",
+      "bytes": 7633,
+      "sha256": "01e5d8911026927000f301d95b085022d2ac73fee6588f50fe8c8649cb65491b",
+      "gitBlobSha1": "223df71424bdab2cf912f3410bb5aa8322b60c34",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\raw-workbook-xml-check.json",
+      "included": true,
+      "portablePath": "operator/raw-workbook-xml-check.json"
+    },
+    {
+      "path": "run-browser-suite.mjs",
+      "bytes": 3977,
+      "sha256": "f66242a3bb9064ef9d838fa7d382754dbe71312a87219da114c49ec9754d10c3",
+      "gitBlobSha1": "044de8c236b59209cf722807d224e10699a42985",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\run-browser-suite.mjs",
+      "included": true,
+      "portablePath": "operator/run-browser-suite.mjs.txt"
+    },
+    {
+      "path": "run-command.py",
+      "bytes": 1919,
+      "sha256": "017a32019ba2572cdb30574567188dbc7e43dcd798ecf05b81e6b9568f5ae23d",
+      "gitBlobSha1": "f5e549636258478ee8a7acf338e0d8f08a13d15b",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\run-command.py",
+      "included": true,
+      "portablePath": "operator/run-command.py.txt"
+    },
+    {
+      "path": "source-after/e2e/excel-grid.spec.ts",
+      "bytes": 10117,
+      "sha256": "a0f13b4194018d14b918dc90de827bce5969730b2b10bcb4ed611db6a4333f73",
+      "gitBlobSha1": "e9b9be5756c193dda6523dcab1fad7543b89b982",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\source-after\\e2e\\excel-grid.spec.ts",
+      "included": true,
+      "portablePath": "operator/source-after/e2e/excel-grid.spec.ts.txt"
+    },
+    {
+      "path": "source-after/HANDOFF.md",
+      "bytes": 12495,
+      "sha256": "863cf1d6dc6a02b1a0cbfc547603164f60511face20a96f89592cdb4729a8035",
+      "gitBlobSha1": "49706cb18d223f12c4f0b1ad116e6f95f493801e",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\source-after\\HANDOFF.md",
+      "included": true,
+      "portablePath": "operator/source-after/HANDOFF.md.txt"
+    },
+    {
+      "path": "source-after/src/ui/panels/Artifact.tsx",
+      "bytes": 230374,
+      "sha256": "013064b20f5fea117e2e8b96755d2d93fce490e9eb5f6845b1b1cd6f386b07a0",
+      "gitBlobSha1": "37dac53ca1f89fb671db075898603bcdcb3ab796",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\source-after\\src\\ui\\panels\\Artifact.tsx",
+      "included": true,
+      "portablePath": "operator/source-after/src/ui/panels/Artifact.tsx.txt"
+    },
+    {
+      "path": "source-after/tests/artifactXlsxExport.test.ts",
+      "bytes": 9444,
+      "sha256": "3c48be964ca1c7e5083801d7875bc8a74f075f38e56fcab3e621e799b6ffc136",
+      "gitBlobSha1": "424266f4a1225c11bdd66b381d3089990ca6376b",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\source-after\\tests\\artifactXlsxExport.test.ts",
+      "included": true,
+      "portablePath": "operator/source-after/tests/artifactXlsxExport.test.ts.txt"
+    },
+    {
+      "path": "source-before/e2e/excel-grid.spec.ts",
+      "bytes": 6851,
+      "sha256": "ffd4f9ff464148b6e01eb27c02ae13db2e539247be68071bfdd54c7ef559b890",
+      "gitBlobSha1": "9fbb8a28c71c2d4aeee91388568a58925018217a",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\source-before\\e2e\\excel-grid.spec.ts",
+      "included": true,
+      "portablePath": "operator/source-before/e2e/excel-grid.spec.ts.txt"
+    },
+    {
+      "path": "source-before/HANDOFF.md",
+      "bytes": 9372,
+      "sha256": "15dc28a7fff811f917cab5b627ccc6306c2e45dbdf1a7be815fa08a16a08e6e6",
+      "gitBlobSha1": "3b3cececfbffa6f8f769eeaee03d0dbec84bb722",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\source-before\\HANDOFF.md",
+      "included": true,
+      "portablePath": "operator/source-before/HANDOFF.md.txt"
+    },
+    {
+      "path": "source-before/package-lock.json",
+      "bytes": 560115,
+      "sha256": "835ac86997865c2792f03f588b0ec58632b67b9b4fdc864a28a7020c42ab5a92",
+      "gitBlobSha1": "e189bd4a22b99eeb1ddd6a71512b96d503f43abc",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\source-before\\package-lock.json",
+      "included": true,
+      "portablePath": "operator/source-before/package-lock.json"
+    },
+    {
+      "path": "source-before/package.json",
+      "bytes": 26875,
+      "sha256": "70964ae92133d1c6017b6125e190ac1ec62bbf9891c2dbc1b10d0ff45bfca589",
+      "gitBlobSha1": "a1aad98a889e644db8c0690ec6f09c36e6f0c4ee",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\source-before\\package.json",
+      "included": true,
+      "portablePath": "operator/source-before/package.json"
+    },
+    {
+      "path": "source-before/src/app/styles.css",
+      "bytes": 281660,
+      "sha256": "654ea434a1c3fcca6fbd8dcbce1a6ba4c0977c209f5df3be4db1ddd748efb575",
+      "gitBlobSha1": "1f86356a46862f4aa39b41b1b8c8f4b3e42fe386",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\source-before\\src\\app\\styles.css",
+      "included": true,
+      "portablePath": "operator/source-before/src/app/styles.css.txt"
+    },
+    {
+      "path": "source-before/src/ui/panels/Artifact.tsx",
+      "bytes": 230378,
+      "sha256": "701cbef1cbe9ca89dea754b203243dbd760aa04d9062f6053e1615f7cbeb6463",
+      "gitBlobSha1": "74c90f35c5b67e557684095b7a84497fdf995d2a",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\source-before\\src\\ui\\panels\\Artifact.tsx",
+      "included": true,
+      "portablePath": "operator/source-before/src/ui/panels/Artifact.tsx.txt"
+    },
+    {
+      "path": "source-before/src/ui/workArtifacts/xlsxDownload.ts",
+      "bytes": 1504,
+      "sha256": "e2dac3c92c9ef441024f1ee53ed119954f78b626ef20cb5e3986f6545e9da5ab",
+      "gitBlobSha1": "d1c9c7fb91aa4af009755b2c2a7a0f9e1deebcac",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\source-before\\src\\ui\\workArtifacts\\xlsxDownload.ts",
+      "included": true,
+      "portablePath": "operator/source-before/src/ui/workArtifacts/xlsxDownload.ts.txt"
+    },
+    {
+      "path": "source-before/tests/artifactXlsxExport.test.ts",
+      "bytes": 3256,
+      "sha256": "1a84ba5c5722797fa79883c476533c37b3cfea54b38a3385cff7feeff7914825",
+      "gitBlobSha1": "452d795d63a2330d1955eef5a25d98c1596cbc48",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\source-before\\tests\\artifactXlsxExport.test.ts",
+      "included": true,
+      "portablePath": "operator/source-before/tests/artifactXlsxExport.test.ts.txt"
+    },
+    {
+      "path": "source-normalization.json",
+      "bytes": 749,
+      "sha256": "bee79d08df91a3957e5d8e3463305025771a5ab3007ad5bc50f6d94adbfc62a9",
+      "gitBlobSha1": "e06ea3a994e9d6d851a616b99d944f2990665677",
+      "localCustodyPath": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\source-normalization.json",
+      "included": true,
+      "portablePath": "operator/source-normalization.json"
+    }
+  ]
+}

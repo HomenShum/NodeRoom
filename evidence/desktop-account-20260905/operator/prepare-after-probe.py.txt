@@ -1,0 +1,55 @@
+from pathlib import Path
+p = Path(__file__).parent
+s = (p / 'observe-before.mjs').read_text(encoding='utf-8')
+s = s.replace("path.join(packet, 'before')", "path.join(packet, 'after')")
+s = s.replace('54521', '54522')
+s = s.replace("sourceBindings: '../before-tracked-bindings.json'", "sourceBindings: '../after-source-bindings.json'")
+s = s.replace('Clean merged034a8f9 source and approved Tiptap3.30.4/ProseMirror cohort; current desktop defect baseline', 'Merged034a8f9 plus uncommitted exact four-owner Account repair; approved dependencies unchanged; build SHA identifies base, source hash receipt identifies candidate')
+s = s.replace("if(comparisons.length!==5||comparisons.some(row=>row.matches||!row.uiAccount||row.xlsxAccount!==null))throw Error('Expected five actual missing Account labels not reproduced');", "if(comparisons.length!==5||comparisons.some(row=>!row.matches||!row.uiAccount))throw Error('Current Account label roundtrip failed');")
+s = s.replace('allFiveMismatch:true', 'allFiveMatch:true')
+anchor = "        const html=await page.content();"
+extra = '''        const beforeReport=JSON.parse(await readFile(path.join(packet,'before/report.json'),'utf8'));
+        const beforeFile=path.join(packet,'before',beforeReport.cells[0].download.fileName);
+        const beforeBook=new ExcelJS.Workbook();await beforeBook.xlsx.readFile(beforeFile);
+        const oldSheet=beforeBook.worksheets[0];
+        const parity=[];
+        for(let row=1;row<=6;row++)for(let col=1;col<=5;col++){
+          const old=oldSheet.getCell(row,col), current=exported.getCell(row,col);
+          const labelChanged=col===1&&row>1;
+          const valueMatches=JSON.stringify(old.value)===JSON.stringify(current.value);
+          const styleMatches=JSON.stringify(old.style)===JSON.stringify(current.style);
+          if((!labelChanged&&!valueMatches)||!styleMatches)throw Error(`Unexpected workbook delta ${current.address}`);
+          parity.push({cell:current.address,valueMatches,styleMatches,allowedLabelChange:labelChanged,before:old.value,after:current.value});
+        }
+        cell.baselineParity={beforeWorkbookSha256:hash(await readFile(beforeFile)),afterWorkbookSha256:cell.download.sha256,cells:parity,sheetNameUnchanged:oldSheet.name===exported.name,columnsUnchanged:JSON.stringify(oldSheet.columns.map(c=>c.width))===JSON.stringify(exported.columns.map(c=>c.width))};
+        if(!cell.baselineParity.sheetNameUnchanged||!cell.baselineParity.columnsUnchanged)throw Error('Workbook layout changed');
+'''
+assert s.count(anchor)==1
+s=s.replace(anchor,extra+anchor)
+old="A reviewer sees five Account labels but receives five blank cells in the real XLSX."
+s=s.replace(old,"A reviewer now receives the same five Account labels in the real XLSX. The earlier blank output remains preserved in the sibling before folder.")
+s=s.replace('Captured on merged034a8f9 current source', 'Captured on the uncommitted source-bound two-lookup repair over merged034a8f9')
+anchor="        cell.status = 'OBSERVED';"
+extra='''        const firstBytes=await readFile(saved);
+        const nextNote='Reviewer note: revised before handoff';
+        await page.locator('[data-cell-key="r_rev__note"] button').click();
+        await page.locator('input.r-cell-input').fill(nextNote);
+        await page.locator('input.r-cell-input').press('Enter');
+        const nextEvent=page.waitForEvent('download');await page.getByTestId('artifact-export-xlsx').click();
+        const next=await nextEvent;if(await next.failure())throw Error('Second download failed');
+        const nextPath=path.join(output,'review-2-'+next.suggestedFilename());await next.saveAs(nextPath);
+        const nextBook=new ExcelJS.Workbook();await nextBook.xlsx.readFile(nextPath);
+        const nextSheet=nextBook.worksheets[0];
+        if(JSON.stringify(comparisons.map((r,i)=>nextSheet.getCell(i+2,1).value))!==JSON.stringify(comparisons.map(r=>r.uiAccount)))throw Error('Later labels drifted');
+        if(nextSheet.getCell('E2').value!==nextNote)throw Error('Later output not current');
+        if(hash(await readFile(saved))!==hash(firstBytes))throw Error('Earlier file mutated');
+        const firstReopened=new ExcelJS.Workbook();await firstReopened.xlsx.readFile(saved);
+        if(firstReopened.worksheets[0].getCell('E2').value!=='Reviewer note: baseline input')throw Error('Earlier output state changed');
+        cell.laterExport={fileName:path.basename(nextPath),sha256:hash(await readFile(nextPath)),note:nextSheet.getCell('E2').value,labels:comparisons.map((r,i)=>nextSheet.getCell(i+2,1).value),earlierBytesPreserved:true,earlierStatePreserved:true};
+        cell.captures.push(await capture(page,`${routeName}-${width}-later-download`));
+        if(cell.pageErrors.length)throw Error('Unexpected page error');
+'''
+assert s.count(anchor)==1
+s=s.replace(anchor,extra+anchor)
+(p / 'observe-after.mjs').write_text(s,encoding='utf-8',newline='\n')
+print('Created matched after probe; original probe and outputs unchanged')

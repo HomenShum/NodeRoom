@@ -1,0 +1,1 @@
+2026-09-05: freeze.py stopped at line58: AssertionError:7. The browser reporter retained two duplicate attachment copies in addition to the five unique actual XLSX outputs. This was a packaging count error after source/dist custody, not a runtime/export failure. Original freeze script and generated archive remain unchanged.

@@ -1,0 +1,107 @@
+{
+  "schema": "bounded-independent-judge-artifacts/v1",
+  "selfExcluded": true,
+  "files": [
+    {
+      "path": "actual-head.bin",
+      "bytes": 82,
+      "sha256": "a3b47e0c62a30037f782daad21f1e3f494945d123f0c5366f4d5b01b8b043d9e"
+    },
+    {
+      "path": "actual-index.bin",
+      "bytes": 983004,
+      "sha256": "08be2cca888379e88a875ff7df9269c1a4eafde9fc6c13cf9c002df7b8945425"
+    },
+    {
+      "path": "actual-refs.bin",
+      "bytes": 10482,
+      "sha256": "f07794386fdccb054b31c01567fd46458101cff69033c65a5c3125485eeb63df"
+    },
+    {
+      "path": "actual-source.diff",
+      "bytes": 21105,
+      "sha256": "e17642f2b102c50cafd5aeb2ca9143b315e8a924bd88da7fc107b837218e62cf"
+    },
+    {
+      "path": "actual-status.txt",
+      "bytes": 106,
+      "sha256": "b20623a321bc49a827209c22a4343f4a0e966e84fa38f17a1add4af2897053fb"
+    },
+    {
+      "path": "actual-worktrees.bin",
+      "bytes": 900,
+      "sha256": "de1222d5d9910730bc1fccc42c093dba52613bbfbeb5592444c28887240fd22f"
+    },
+    {
+      "path": "artifact-bindings.json",
+      "bytes": 29198,
+      "sha256": "d58f0b6bc92ae504b4e296cf87e8acf1806f3fc436f2fd1889bac6b72fa22506"
+    },
+    {
+      "path": "checks-in-progress.json",
+      "bytes": 19393,
+      "sha256": "81ddbc9f5ca984faa3bb07b88f092f6d4b674da8eb43f04ede8403f2180c8b7a"
+    },
+    {
+      "path": "checks.json",
+      "bytes": 20715,
+      "sha256": "c2654b4e4b7d99f4c2c64589d1a8a63baa8193c482c96e74e2ebb7ae7c8e4335"
+    },
+    {
+      "path": "closing-custody.json",
+      "bytes": 366,
+      "sha256": "8925233fdf62d82c72c96ff73fae4ea0fd461efbf621b1b5af91e9b3be1e0669"
+    },
+    {
+      "path": "collector-search-failure.txt",
+      "bytes": 675,
+      "sha256": "5adf14eb0f01f568a7fd6962bb08b27b5b7b1896a887cef848bb0b5a935cc6ac"
+    },
+    {
+      "path": "command-results.json",
+      "bytes": 13244,
+      "sha256": "1cae9b8d88b0bc5e58c9b7207059666cb5591c3dba62dd04fc52ddbe40b2b491"
+    },
+    {
+      "path": "freeze-desktop-account-judge.py",
+      "bytes": 17188,
+      "sha256": "b253a2f9efd27e59f673ebe3dd1eef2895f907da64f9af91d746fb46e3728a8d"
+    },
+    {
+      "path": "handoff-links.json",
+      "bytes": 1013,
+      "sha256": "6d7be4b59458260393283be54a86a38bdd87cedb1797b048d46c686eecb366c0"
+    },
+    {
+      "path": "independent-zip-xml.json",
+      "bytes": 63293,
+      "sha256": "04125b608e845e44142628f2aa7cb66f0d481083ca614fc615baf0518b5c407a"
+    },
+    {
+      "path": "retained-failure-bindings.json",
+      "bytes": 1852,
+      "sha256": "71be7ba4fbb1f96e1afe948b0eafdd56d0c6b9207191372451df652f78051b22"
+    },
+    {
+      "path": "review-desktop-account.py",
+      "bytes": 13495,
+      "sha256": "a314fede2a7190cd0e212773a5ccd8d36542afcae37d830e461387035eba92f4"
+    },
+    {
+      "path": "source-bindings.json",
+      "bytes": 849,
+      "sha256": "ed994576e577eb52c3c3cc85fba4cb4cc3df2fc43bc42f7ca1e1fb202fa2d3dc"
+    },
+    {
+      "path": "source-trace.json",
+      "bytes": 19826,
+      "sha256": "e0afe8c9b1dbda60314767bcb000f383849baccbe2748bc9ff165338ee5113c1"
+    },
+    {
+      "path": "viewed-pixels.json",
+      "bytes": 3040,
+      "sha256": "b65e5bf14d7db89f5de730140891c0b325b9abd1c9e7ef46879ee9fdbf223d7f"
+    }
+  ],
+  "artifactCount": 20
+}

@@ -1,0 +1,290 @@
+
+> noderoom@0.1.1 design:manifest
+> tsx scripts/design-system.ts manifest --json
+
+{
+  "apiVersion": 1,
+  "type": "noderoom.design-system.manifest",
+  "data": {
+    "name": "NodeRoom Design System",
+    "version": 1,
+    "inspiration": [
+      {
+        "source": "facebook/astryx",
+        "appliedAs": "CLI-readable manifest and audit, not runtime component replacement."
+      },
+      {
+        "source": "Astryx principle: guidance over enforcement",
+        "appliedAs": "Document concrete component roles and catch the highest-risk regressions with checks."
+      },
+      {
+        "source": "Astryx principle: one system for humans and agents",
+        "appliedAs": "The same manifest is readable by people, tests, and coding agents."
+      }
+    ],
+    "principles": [
+      "Default state shows data; hover or focus reveals apparatus.",
+      "Receipts are product objects, not status-bar prose.",
+      "Selection is terracotta or neutral; green is reserved for success semantics.",
+      "Dense work surfaces use fixed dimensions and ellipsis instead of mid-word wrapping.",
+      "Mobile exposes desktop hover details through sheets or compact controls, without page overflow.",
+      "Demo or walkthrough chrome must be dismissible and must not become permanent product furniture."
+    ],
+    "tokens": [
+      {
+        "name": "--space-1",
+        "role": "4px spacing base",
+        "value": "4px"
+      },
+      {
+        "name": "--accent-primary",
+        "role": "selection, focus, and agent provenance accent",
+        "value": "#D97757"
+      },
+      {
+        "name": "--success",
+        "role": "completed/success only, never selection",
+        "value": "#2E9E6B"
+      },
+      {
+        "name": "--focus-ring",
+        "role": "keyboard-visible focus halo",
+        "value": "terracotta alpha ring"
+      },
+      {
+        "name": "--r",
+        "role": "default container radius ceiling",
+        "value": "12px"
+      }
+    ],
+    "components": [
+      {
+        "name": "SheetGrid",
+        "selectors": [
+          ".r-sheet",
+          ".r-cell",
+          ".r-sheet-bar"
+        ],
+        "role": "Dense spreadsheet surface for diligence data.",
+        "must": [
+          "Rows are 44px in the generic sheet.",
+          "Cell values ellipsize and retain full value in title or detail path.",
+          "Column count lives in the sheet bar.",
+          "Agent-written cells can pulse without changing layout."
+        ],
+        "avoid": [
+          "word-break: break-all on grid values.",
+          "Green selection rings.",
+          "Rows stretched by badges or receipts."
+        ]
+      },
+      {
+        "name": "ReceiptChips",
+        "selectors": [
+          ".r-cite-chip",
+          ".r-agent-receipt",
+          ".r-agent-receipt-chip"
+        ],
+        "role": "Visible provenance for sources, versions, locks, and row targets.",
+        "must": [
+          "Agent research messages expose source count, version delta, lock release, and row navigation.",
+          "In-cell cite chips reveal source detail without expanding row height.",
+          "Large sheets gate passive evidence overlays so receipts do not blanket the grid."
+        ],
+        "avoid": [
+          "Claims only in chat prose.",
+          "Source badges that stretch row height.",
+          "Duplicate source-chip plus cite-chip treatment in source columns."
+        ]
+      },
+      {
+        "name": "IdentityChips",
+        "selectors": [
+          ".r-owner-chip",
+          ".r-owner-avatar",
+          ".r-avatars"
+        ],
+        "role": "Consistent person/agent identity language across chat, grid, and shell.",
+        "must": [
+          "Owner cells use avatar chips instead of bare names.",
+          "Avatar labels remain compact and ellipsized."
+        ],
+        "avoid": [
+          "Plain owner text in dense grids."
+        ]
+      },
+      {
+        "name": "WalkthroughDock",
+        "selectors": [
+          ".r-walkdock",
+          "[data-testid=\"walkthrough-dock-dismiss\"]"
+        ],
+        "role": "Optional learning chrome that never traps the product viewport.",
+        "must": [
+          "Dismiss control is always present.",
+          "Phone layout fits without body overflow."
+        ],
+        "avoid": [
+          "Permanent second status bar."
+        ]
+      },
+      {
+        "name": "ScaleBinder",
+        "selectors": [
+          ".r-binder-search",
+          ".r-binder-count",
+          ".r-tree-section-head",
+          ".r-tree-row",
+          ".sc-count"
+        ],
+        "role": "Large-room Binder navigation for hundreds of workbooks and dozens of live people.",
+        "must": [
+          "Large rooms expose real workbook counts and search.",
+          "Pinned, recent, sheet, doc, notebook, and upload sections render as a nested tree.",
+          "People lists collapse while preserving the live count."
+        ],
+        "avoid": [
+          "Rendering every artifact or participant row in the default scale viewport.",
+          "Summary-card groups that duplicate the tree navigation."
+        ]
+      },
+      {
+        "name": "SharedDialog",
+        "selectors": [
+          "FocusTrapDialog",
+          "[role=\"dialog\"][aria-modal=\"true\"]"
+        ],
+        "role": "Shared modal behavior for regular rooms and public room overlays.",
+        "must": [
+          "Trap focus inside the dialog.",
+          "Close on Escape and scrim click.",
+          "Restore focus to the opener when the caller provides a trigger path."
+        ],
+        "avoid": [
+          "One-off modal traps in feature bundles."
+        ]
+      },
+      {
+        "name": "MobileTerracottaRoom",
+        "selectors": [
+          ".na-app",
+          ".na-nav",
+          ".na-sheet",
+          ".na-ios-bleed"
+        ],
+        "role": "NodeRoom mobile system: cream, terracotta, stable room commands, bottom navigation, and governed sheets.",
+        "must": [
+          "Use the terracotta mobile tokens, not the dark Always-On public-room shell.",
+          "Render the same .na-app shell in memory preview and live room mode.",
+          "Render synthetic device chrome only in explicit preview mode and keep production full-bleed.",
+          "Expose room, agent, inbox, artifact, and sheet actions through mobile-native controls."
+        ],
+        "avoid": [
+          "Calling public #rooms mobile parity proof for the #mobile product route.",
+          "Proving only #mobile?mode=memory when validating live user usage.",
+          "Replacing bottom sheets with clipped desktop tables on phones."
+        ]
+      },
+      {
+        "name": "MobileLiveBootstrap",
+        "selectors": [
+          "?demo=review",
+          "?room=",
+          "#mobile?demo=review",
+          "#mobile?room=",
+          ".na-join",
+          "RoomJoinConsent"
+        ],
+        "role": "Universal mobile entry path that routes phone-sized NodeRoom URLs into live terracotta create/join before mounting MobileTerracottaRoom.",
+        "must": [
+          "Route phone-sized standard NodeRoom URLs into #mobile before desktop or public-room shells render.",
+          "Keep a named surface=desktop harness escape for desktop responsive QA, not for normal users.",
+          "Route demo creation through explicit consent before minting the room.",
+          "Support join, demo, and create intents from standard URL parameters.",
+          "Replace the URL with #mobile?room=<code> after a live room is created or joined.",
+          "Mount MobileAppLive inside the same terracotta shell as memory mode."
+        ],
+        "avoid": [
+          "Requiring real mobile users to know or type a #mobile hash.",
+          "Landing first-time phone users on the dark public-room shell.",
+          "Auto-firing live room mutations from URL parsing.",
+          "Using ?mode=memory as proof of live room behavior."
+        ]
+      },
+      {
+        "name": "PublicRoomFrame",
+        "selectors": [
+          ".ao-public",
+          ".ao-frame",
+          ".ao-proof"
+        ],
+        "role": "Always-On public room variant of the NodeRoom work surface.",
+        "must": [
+          "Expose data-ao-source so demo and live states are distinguishable.",
+          "Use the shared token system for surfaces, focus, ink, and semantic states.",
+          "Keep proof receipts visible as product objects."
+        ],
+        "avoid": [
+          "Demo-only metrics in live bundles.",
+          "Fake proof copy without a stored receipt."
+        ]
+      },
+      {
+        "name": "PublicRoomControls",
+        "selectors": [
+          ".ao-btn",
+          ".ao-chip",
+          ".ao-tab",
+          ".ao-filter"
+        ],
+        "role": "Public-room button, chip, tab, and filter variants.",
+        "must": [
+          "Use the same focus-ring and accent semantics as .r-* controls.",
+          "Support keyboard tab roving on tablists and radio groups.",
+          "Keep mobile controls clickable without horizontal page overflow."
+        ],
+        "avoid": [
+          "Invisible focus state.",
+          "Duplicated dialog behavior."
+        ]
+      },
+      {
+        "name": "PublicRoomDataSurfaces",
+        "selectors": [
+          ".ao-sheet",
+          ".ao-paper-cards",
+          ".ao-runlog"
+        ],
+        "role": "Read-only public data surfaces for papers, mobile cards, and proof traces.",
+        "must": [
+          "Keep desktop tables dense and ellipsized.",
+          "Use mobile cards for small screens instead of clipped tables.",
+          "Keep trace rows bounded so costs, retries, and skipped work remain inspectable."
+        ],
+        "avoid": [
+          "Unbounded table overflow on phones.",
+          "Trace rows whose child content escapes the row."
+        ]
+      }
+    ],
+    "auditChecks": [
+      "required token aliases exist",
+      "generic sheet rows stay 44px",
+      "grid values ellipsize instead of breaking words",
+      "selected sheet cell is not success green",
+      "agent research receipt exposes source, version, lock, and row target",
+      "scale sheets expose filters and rendered-row window proof",
+      "large sheets demote passive evidence overlays and duplicate source badges",
+      "scale columns use domain widths instead of generic label-length compression",
+      "large binders expose count, search, nested tree navigation, and collapsed people",
+      "walkthrough dock is dismissible",
+      "phone top bar hides secondary utilities instead of clipping them",
+      "shared dialog primitive backs both regular-room and public-room modals",
+      "mobile terracotta room is tracked separately from public Always-On rooms",
+      "mobile live bootstrap can enter a Convex room without memory-mode shortcuts",
+      "public Always-On room exposes live/demo source, keyboard tabs, mobile cards, and proof receipts",
+      "public subscription copy does not claim a confirmation email was sent before a sender exists",
+      "token drift (off-palette hex, off-scale font-size, off-scale border-radius) is reported as warnings"
+    ]
+  }
+}

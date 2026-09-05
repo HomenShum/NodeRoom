@@ -1,0 +1,261 @@
+[
+  {
+    "path": "node_modules/@playwright/test",
+    "version": "1.60.0",
+    "lockVersion": "1.60.0",
+    "matches": true,
+    "sha256": "cf92117ef1d8cbf1e4b2dffb63a0da552c0173bd6052f0f45711c0f00b79dc99"
+  },
+  {
+    "path": "node_modules/@tiptap/core",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "0e0b59d6d7ded46195964e5a3ae428c827b2f299bd0c8604fee59faea99cf1d7"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-blockquote",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "b8303496807f4bfe7df8037e63ee8508486ebb44ea20bab722f4e62633b426aa"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-bold",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "2fcc14cbe39b68f3e6e8567fc5de30b80f97e79adb16c2660a590cce9e3a1eb4"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-bubble-menu",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "8b3d3616403ca1b0f10ef29c5e0fb9022886d2ca0663999094e8fa32f783ca3a"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-bullet-list",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "4bd17d9bf635be0fee08741343be24a50d5b15d02948fa27b6ad51a6472f8184"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-code",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "d9aafb2643ec245e45d7dad289c131a91c67679f51d0c78767a83aadac19c295"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-code-block",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "957e218308973e40c3093ce39c0cd053977c7b03aac1149cea413f39aff9c1bf"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-document",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "6b87765e06756ba572faecfcb042428fa834336e04df9c3bb402fa8b8e4dda43"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-dropcursor",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "1c864f76de7547f2df193a8b3cad4d5ce440bbd491833bfdd36ebfdb7d2872ab"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-floating-menu",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "3aabd7a3acba5a164eb1ea8f3a17d7d3be64d888178e072ff28284d8c91158e2"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-gapcursor",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "48c69af5b8a027ce1ea7436870d8b36c04c8d961c70c54318fa1485e5d6e07fe"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-hard-break",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "58a8bcd82e570a4d68c384e13fa8045d3fca9d5c9bb0ca380b6b883471524668"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-heading",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "a166bb467d3296548b30b5db2abf67596ceef203c9803f13b203a98e7fa29488"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-horizontal-rule",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "e3fa8b75efdb590943c99e4a4c91dead59ae235401b7b2b360d194e1ee9c2f3b"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-italic",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "11d6cbbfd44e49492bcad3c92e152cca6611e54d400242ce6fe82403e37ae17c"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-link",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "91e71e52b646aea3013806bdb254a0a22c3119bbbd1bbe6b13770cd7ab02c1df"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-list",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "59f5a20e324beeeece805cf303d87fa51b9a6b09a109ba974c56ec3bc846d69b"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-list-item",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "5fd88d20f7d8792ae1a347c20efbe9492a69ca1df62ef09dc636314951b77203"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-list-keymap",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "67b2905ddbbe5d45ec73769630f8f1edaf68ac681e00b3fb5f50fb42f2a7077b"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-ordered-list",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "b21a3a356df615a68bc4bc5f886494df1e94008f1135dea284974b9625e704f2"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-paragraph",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "abce5776cd6196bcbdb7c7322a8db3ccff38250f6e0d37c41a6cd7dc6d64909c"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-strike",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "c735294726d2eab7c8823bc3a5601b32e86e187400602367983e2014229be9d6"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-text",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "72f22c816486cfdd940719154c658c9e80ce4c368b22c19b80de73c2064eee72"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-underline",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "3611d005dd367b58293eb4600aa0f2178e926b67961a4d66a8c31525f861c92e"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-unique-id",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "d9008469c07889bfa5a5b713b349c7e9b96fbe343ba952b49502fb45d69af031"
+  },
+  {
+    "path": "node_modules/@tiptap/extension-unique-id/node_modules/uuid",
+    "version": "14.0.1",
+    "lockVersion": "14.0.1",
+    "matches": true,
+    "sha256": "c799ba49b586a7205ed6c0b6c1b06052118f6d0ed98cdad46af3f682658d5758"
+  },
+  {
+    "path": "node_modules/@tiptap/extensions",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "5c2cb635ca8515d8adb0ad6414a5e83cf49d46f704cbacf4fe1e5086f5aa5137"
+  },
+  {
+    "path": "node_modules/@tiptap/html",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "c3e2efcd77ff322ff465ca019b62cbe50765f90daa0883346a3480692d8af89f"
+  },
+  {
+    "path": "node_modules/@tiptap/pm",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "97a8ec8da97929c8c2a1433bed564b7c3160a348e93839066e503bc0a2bd6e2f"
+  },
+  {
+    "path": "node_modules/@tiptap/react",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "c66fb1c16926d3b1bd2de389990078ae255a1a4858fec9ed763856142f307572"
+  },
+  {
+    "path": "node_modules/@tiptap/starter-kit",
+    "version": "3.30.4",
+    "lockVersion": "3.30.4",
+    "matches": true,
+    "sha256": "20b6692bdbd441d5fe4f8e0263397e5fd665eb83b253b8e951e1db41f788fcca"
+  },
+  {
+    "path": "node_modules/exceljs",
+    "version": "4.4.0",
+    "lockVersion": "4.4.0",
+    "matches": true,
+    "sha256": "3f81d65b7244dbd7407c9d6d706877c123c2740f4667f09e059148c898455486"
+  },
+  {
+    "path": "node_modules/playwright",
+    "version": "1.60.0",
+    "lockVersion": "1.60.0",
+    "matches": true,
+    "sha256": "8be9edc5642a8c761b677e7af8b9937f36c0443a91e14765877716d70034e5bf"
+  },
+  {
+    "path": "node_modules/prosemirror-model",
+    "version": "1.25.11",
+    "lockVersion": "1.25.11",
+    "matches": true,
+    "sha256": "a02b6388308d718ccaa125a0359b615e33119eab8f9b7b7e2475099afabc6af3"
+  },
+  {
+    "path": "node_modules/prosemirror-view",
+    "version": "1.41.9",
+    "lockVersion": "1.41.9",
+    "matches": true,
+    "sha256": "fe038d20d51fd3f06fbdfc43035e6eb2ed485fa772d499fb87c82d4498269798"
+  },
+  {
+    "path": "node_modules/vite",
+    "version": "6.4.3",
+    "lockVersion": "6.4.3",
+    "matches": true,
+    "sha256": "a1d0149fd986fd34b6d35503d2c0d8d9f743c4dbaaf94fbc11812bc84b05884d"
+  }
+]

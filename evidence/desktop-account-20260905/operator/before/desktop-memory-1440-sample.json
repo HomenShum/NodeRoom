@@ -1,0 +1,765 @@
+{
+  "url": "http://127.0.0.1:54521/?mode=memory&surface=desktop",
+  "title": "NodeRoom - live collaborative AI rooms with NodeAgents",
+  "body": "N\nNodeRoom · Q3 diligence\nSFT-RFT\nH\nP\nGQ\n◆\n5 live\nRoom Binder\n9\nPINNED\n2\nQ3 variance\nAgent wiki\nRECENT\n6\nAgent wiki\nToday's Brief\nDiligence memo\nOpen questions / workplan\nRisk / opportunity wall\nCapture Notebook\nSHEETS\n3\nRoom sheets\n3\nCompany research\nQ3 variance\nRunway / milestones\nDOCS\n6\nBoards\n1\nRisk / opportunity wall\nKnowledge\n1\nAgent wiki\nNotes & memos\n4\nCapture Notebook\nDiligence memo\nOpen questions / workplan\nToday's Brief\nUpload file\nREVIEW & PROOF\n2\nReview queue\nPermissions\nPEOPLE & AGENTS\n4 LIVE\nH\nHomen\nHost\nP\nPriya\nFinance lead\nGQ\nguest · quokka\nMember\n◆\nRoom NodeAgent\nPublic agent · working · rc_neuronova__status:rc_nimbusnova__status\nHome\nQ3 variance\nCompany research\n+3\nArtifacts\nNodeBook\nInvestigation\nRun trace\nExport XLSX\nShared\nQ3 variance\nversionedSync\nv1\n\tACCOUNT\tQ2\tQ3\tVARIANCE\tNOTE\n1\tRevenue\t$10,000\t$12,400\t\nadd\n\t\nnote\n\n2\tCOGS\t$4,000\t$5,100\t\nadd\n\t\nnote\n\n3\tGross profit\t$6,000\t$7,300\t\nadd\n\t\nnote\n\n4\tOpEx\t$2,200\t$2,650\t\nadd\n\t\nnote\n\n5\tNet income\t$3,800\t$4,650\t\nadd\n\t\nnote\n\n6\t\t\t\t\t\n7\t\t\t\t\t\n8\t\t\t\t\t\n9\t\t\t\t\t\n10\t\t\t\t\t\n11\t\t\t\t\t\n12\t\t\t\t\t\n13\t\t\t\t\t\n14\t\t\t\t\t\n15\t\t\t\t\t\n16\t\t\t\t\t\n17\t\t\t\t\t\n18\t\t\t\t\t\n19\t\t\t\t\t\n20\t\t\t\t\t\n21\t\t\t\t\t\n22\t\t\t\t\t\n23\t\t\t\t\t\n24\t\t\t\t\t\nUndo\nclick a Variance or Note cell to edit by hand\nRoom trace\n· 26 events\nEntity graph\nRoom chat\n7\nRoom\nPrivate\nTODAY\nH\nHomen\n9:16\n\nCan the room reconcile Q3 variance against the NetSuite close before the board read?\n\nCopy\nEdit\nH\nHomen\n9:16\n@nodeagent reconcile Q3 revenue and COGS variance\nCopy\nEdit\nN\nRoom NodeAgent\nagent\n9:17\nResearched 2 companies with structured fields · 2 sources\nv1 -> v1\nComplete\nCopy\nP\nPriya\n9:19\n\nThe +27.5% on COGS is volume, not price - noting it on the row so it survives the sync.\n\nCopy\nGQ\nguest · quokka\n9:20\n\nanon - quokka joined as guest · view + chat\n\nCopy\nN\nRoom NodeAgent\nagent\n9:22\nResearched 3 companies with structured fields · 2 sources\nv1 -> v1\nComplete\nCopy\nH\nHomen\n9:24\n\nGood. Draft the reconciliation memo and clip the variance exhibit for the board read.\n\nCopy\nEdit\n@nodeagent diligence CardioNova\n@nodeagent runway gaps\n01 - WELCOME TO NODEROOM\nA live diligence room where bankers, guests, and NodeAgents gather company facts, enrich shared grids, and prepare runway, milestone, and handoff artifacts without clobbering each other. This memory demo is safe: nothing is sent anywhere.\nStandard\nReplay\nIntake\nEvidence\nDraft\nReview\nExport\nRoom NodeAgent ·\nreconciled Q3 variance · v42\nLive graph · 9",
+  "horizontalOverflow": 0,
+  "viewport": {
+    "width": 1440,
+    "height": 960
+  },
+  "build": "034a8f963dfa037d860f5364032319506be3e2e0",
+  "buttons": [
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Copy invite link for room r-86w",
+      "text": "SFT-RFT",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "people-trigger",
+      "label": "Open people panel — 5 live",
+      "text": "HPGQ◆5 live",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "room-settings-btn",
+      "label": "Open room controls",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "INPUT",
+      "testId": null,
+      "label": null,
+      "text": "",
+      "placeholder": "Find in binder...",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Pinned2",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-artifact",
+      "label": null,
+      "text": "Q3 varianceOpen now - Sheet · v1 · 5 rows",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-artifact",
+      "label": null,
+      "text": "Agent wikiPinned - v1 · live TOC",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Recent6",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-artifact",
+      "label": null,
+      "text": "Agent wikiv1 · live TOC",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-artifact",
+      "label": null,
+      "text": "Today's Briefedited recently",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-artifact",
+      "label": null,
+      "text": "Diligence memoedited recently",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-artifact",
+      "label": null,
+      "text": "Open questions / workplanedited recently",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-artifact",
+      "label": null,
+      "text": "Risk / opportunity wall3 notes",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-artifact",
+      "label": null,
+      "text": "Capture Notebookedited recently",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Sheets3",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-artifact",
+      "label": null,
+      "text": "Company researchSheet · v1 · 14 rows",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-artifact",
+      "label": null,
+      "text": "Q3 varianceSheet · v1 · 5 rows",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-artifact",
+      "label": null,
+      "text": "Runway / milestonesSheet · v1 · 2 rows",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Docs6",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-artifact",
+      "label": null,
+      "text": "Risk / opportunity wall3 notes",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-artifact",
+      "label": null,
+      "text": "Agent wikiv1 · live TOC",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-artifact",
+      "label": null,
+      "text": "Capture Notebookedited recently",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-artifact",
+      "label": null,
+      "text": "Diligence memoedited recently",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-artifact",
+      "label": null,
+      "text": "Open questions / workplanedited recently",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-artifact",
+      "label": null,
+      "text": "Today's Briefedited recently",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Upload fileCSV, XLSX, text, image, PDF",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Review & proof2",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "People & agents4 live",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "binder-agent",
+      "label": null,
+      "text": "◆Room NodeAgentPublic agent · working · rc_neuronova__status:rc_nimbusnova__status",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Resize files panel",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "home-tab",
+      "label": null,
+      "text": "Home",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "artifact-filetab",
+      "label": null,
+      "text": "Q3 variance",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "artifact-filetab",
+      "label": null,
+      "text": "Company research",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Q3 variance",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Company research",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Capture Notebook",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Risk / opportunity wall",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Agent wiki",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "work-artifacts-tab",
+      "label": null,
+      "text": "Artifacts",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "nodebook-tab",
+      "label": null,
+      "text": "NodeBook",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "investigation-tab",
+      "label": null,
+      "text": "Investigation",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "trace-tab",
+      "label": null,
+      "text": "Run trace",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "artifact-split-toggle",
+      "label": "Split the work surface",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "artifact-export-xlsx",
+      "label": "Export workbook to XLSX",
+      "text": "Export XLSX",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "artifact-visibility-toggle",
+      "label": null,
+      "text": "Shared",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "cell-edit-control",
+      "label": null,
+      "text": "add",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "cell-edit-control",
+      "label": null,
+      "text": "note",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "cell-edit-control",
+      "label": null,
+      "text": "add",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "cell-edit-control",
+      "label": null,
+      "text": "note",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "cell-edit-control",
+      "label": null,
+      "text": "add",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "cell-edit-control",
+      "label": null,
+      "text": "note",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "cell-edit-control",
+      "label": null,
+      "text": "add",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "cell-edit-control",
+      "label": null,
+      "text": "note",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "cell-edit-control",
+      "label": null,
+      "text": "add",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "cell-edit-control",
+      "label": null,
+      "text": "note",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Undo",
+      "placeholder": null,
+      "disabled": true
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Expand room trace",
+      "text": "Room trace· 26 events",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Entity graph",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Resize Copilot panel",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Room chat7",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "copilot-tab-public",
+      "label": null,
+      "text": "Room",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "copilot-tab-private",
+      "label": null,
+      "text": "Private",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Copy message",
+      "text": "Copy",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "chat-edit",
+      "label": "Edit message",
+      "text": "Edit",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Copy message",
+      "text": "Copy",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "chat-edit",
+      "label": "Edit message",
+      "text": "Edit",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "agent-view-row",
+      "label": null,
+      "text": "Researched 2 companies with structured fields · 2 sources",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Copy message",
+      "text": "Copy",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Copy message",
+      "text": "Copy",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Copy message",
+      "text": "Copy",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "agent-view-row",
+      "label": null,
+      "text": "Researched 3 companies with structured fields · 2 sources",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Copy message",
+      "text": "Copy",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Copy message",
+      "text": "Copy",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "chat-edit",
+      "label": "Edit message",
+      "text": "Edit",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "TEXTAREA",
+      "testId": "chat-composer",
+      "label": "Message the room",
+      "text": "",
+      "placeholder": "Message the room or @nodeagent",
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "chat-attach",
+      "label": "Attach files",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "chat-voice",
+      "label": "Start voice input",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "chat-context",
+      "label": "Attach work context",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "chat-send",
+      "label": "Send message",
+      "text": "",
+      "placeholder": null,
+      "disabled": true
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "@nodeagent diligence CardioNova",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "@nodeagent runway gaps",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Show step 1",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Show step 2",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Show step 3",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Show step 4",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Show step 5",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Show step 6",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Show step 7",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Previous walkthrough step",
+      "text": "",
+      "placeholder": null,
+      "disabled": true
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": "Next walkthrough step",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": null,
+      "label": null,
+      "text": "Replay",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "walkthrough-dock-dismiss",
+      "label": "Dismiss walkthrough dock",
+      "text": "",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "status-open",
+      "label": null,
+      "text": "reconciled Q3 variance · v42",
+      "placeholder": null,
+      "disabled": false
+    },
+    {
+      "tag": "BUTTON",
+      "testId": "live-graph-rail-toggle",
+      "label": "Open live session graph (9 entities)",
+      "text": "Live graph · 9",
+      "placeholder": null,
+      "disabled": false
+    }
+  ]
+}

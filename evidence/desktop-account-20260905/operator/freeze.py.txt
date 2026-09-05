@@ -1,0 +1,82 @@
+from pathlib import Path
+import datetime, hashlib, json, re, subprocess, zipfile
+import xml.etree.ElementTree as ET
+
+o=Path(__file__).parent
+p=o.parent
+r=Path('D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905')
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def write(name,value):
+    (o/name).write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
+def git(*args):return subprocess.check_output(['git','--no-optional-locks',*args],cwd=r)
+def binding(path,relative):
+    assert not path.is_symlink() and not (path.stat().st_file_attributes & 1024), relative
+    b=path.read_bytes()
+    return {'path':relative,'bytes':len(b),'sha256':sha(b),'gitBlobSha1':hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()}
+owned=['src/ui/panels/Artifact.tsx','tests/artifactXlsxExport.test.ts','e2e/excel-grid.spec.ts','HANDOFF.md']
+for name in owned:assert b'\r\n' not in (r/name).read_bytes(),name
+for row in json.loads((o/'source-normalization.json').read_text(encoding='utf-8')):
+    assert sha((r/row['path']).read_bytes())==row['afterSha256'],row['path']
+before=json.loads((o/'before-tracked-bindings.json').read_text(encoding='utf-8'))
+after=[binding(r/x['path'],x['path']) for x in before]
+changed=[a['path'] for a,b in zip(after,before) if a['sha256']!=b['sha256']]
+assert set(changed)==set(owned),changed
+write('after-tracked-bindings.json',after)
+for label,args in {'head':['rev-parse','HEAD','HEAD^{tree}'],'refs':['for-each-ref','--format=%(refname) %(objectname)'],'index':['ls-files','--stage','-z'],'worktrees':['worktree','list','--porcelain']}.items():
+    actual=git(*args);assert actual==(o/f'before-{label}.txt').read_bytes(),label
+    (o/f'final-{label}.txt').write_bytes(actual)
+status=git('status','--porcelain=v1');(o/'final-status.txt').write_bytes(status)
+assert set(line[3:] for line in status.decode().splitlines())==set(owned),status
+assert git('diff','--cached','--name-only')==b''
+subprocess.run(['git','--no-optional-locks','diff','--check'],cwd=r,check=True)
+diff=git('diff','--binary','--',*owned);(o/'final-source.diff').write_bytes(diff)
+installed=json.loads((o/'installed-bindings.json').read_text(encoding='utf-8'))
+for x in installed:assert sha((r/x['path']/'package.json').read_bytes())==x['sha256'],x['path']
+source=[binding(r/name,name) for name in sorted(owned)]
+for x in source:
+    dest=o/'source-after'/x['path'];dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes((r/x['path']).read_bytes())
+source_digest=sha(json.dumps(source,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode('utf-8'))
+links=[]
+for target in re.findall(r'\]\(([^)]+)\)',(r/'HANDOFF.md').read_text(encoding='utf-8')):
+    if re.match(r'https?://',target):continue
+    dest=(r/target.split('#')[0]).resolve()
+    assert dest.is_file(),target
+    links.append({'target':target,'sha256':sha(dest.read_bytes())})
+write('handoff-link-check.json',{'links':links,'chromiumPrerequisite': 'npx playwright install chromium' in (r/'HANDOFF.md').read_text(encoding='utf-8'),'status':'PASS'})
+dist=[]
+with zipfile.ZipFile(o/'final-dist.zip','x',compression=zipfile.ZIP_DEFLATED) as z:
+    for f in sorted((r/'dist').rglob('*')):
+        if not f.is_file():continue
+        row=binding(f,f.relative_to(r/'dist').as_posix());dist.append(row);z.writestr(row['path'],f.read_bytes())
+with zipfile.ZipFile(o/'final-dist.zip') as z:
+    for row in dist:assert sha(z.read(row['path']))==row['sha256']
+write('final-dist-bindings.json',{'files':dist,'archiveSha256':sha((o/'final-dist.zip').read_bytes()),'rereadAllEntries':True})
+ns={'s':'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
+xml_rows=[]
+files=[o/'before/Q3_variance.xlsx',o/'after/Q3_variance.xlsx',o/'after/review-2-Q3_variance.xlsx']
+files+=sorted((o/'browser-suite/results').rglob('review-*.xlsx'))
+assert len(files)==5,len(files)
+for f in files:
+    with zipfile.ZipFile(f) as z:
+        shared=ET.fromstring(z.read('xl/sharedStrings.xml'))
+        strings=[''.join(node.itertext()) for node in shared.findall('s:si',ns)]
+        sheet=ET.fromstring(z.read('xl/worksheets/sheet1.xml'))
+        values={}
+        for cell in sheet.findall('.//s:c',ns):
+            raw=cell.find('s:v',ns)
+            if raw is None:continue
+            values[cell.attrib['r']]=strings[int(raw.text)] if cell.attrib.get('t')=='s' else raw.text
+        labels=[values.get(f'A{i}') for i in range(2,7)]
+        expected=[None]*5 if f==files[0] else ['Revenue','COGS','Gross profit','OpEx','Net income']
+        assert labels==expected,(str(f),labels)
+        xml_rows.append({'path':f.relative_to(o).as_posix(),'sha256':sha(f.read_bytes()),'accountLabels':labels,'note':values.get('E2'),'xmlCells':values,'scope':'Direct ZIP/XML read; no ExcelJS or native Office'})
+write('raw-workbook-xml-check.json',{'status':'PASS','files':xml_rows})
+commands=[json.loads(f.read_text(encoding='utf-8')) for f in sorted(o.glob('*.command.json'))]
+write('final-commands.json',commands)
+proof={'schema':'noderoom-desktop-account-worker-freeze/v1','at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'FROZEN_AWAITING_INDEPENDENT_JUDGE','namedProof':'NODEROOM-DESKTOP-ACCOUNT-EXPORT-01','candidate':str(r),'baseCommit':'034a8f963dfa037d860f5364032319506be3e2e0','baseTree':'8fbd0d5d0ca31a71a70c45208ba8a5fd6a64a831','branch':'codex/noderoom-desktop-account-20260905','source':source,'sourceDigest':source_digest,'sourceDigestFormula':"sha256(UTF8(json.dumps(source,ensure_ascii=False,sort_keys=True,separators=(',',':')))); source sorted by path, fields exactly path/bytes/sha256/gitBlobSha1",'diffSha256':sha(diff),'indexSha256':sha((o/'final-index.txt').read_bytes()),'refsSha256':sha((o/'final-refs.txt').read_bytes()),'trackedFilesChecked':len(after),'protectedTrackedFilesUnchanged':len(after)-len(owned),'installedManifestsUnchanged':len(installed),'finalDistFiles':len(dist),'handoffLinksVerified':len(links),'sourceIndexRefsUnchangedExceptOwnedWorkingBytes':True,'staged':False,'committed':False,'pushed':False,'runtimeSourceDelta':'Exactly two __account to __label lookups; no other application source change','results':{'finalAffectedTests':{'files':3,'passed':10},'browserSuite':{'passed':3,'failed':0,'skipped':0,'flaky':0},'matchedBeforeAfter':{'labelsChanged':5,'otherCellValuesPreserved':25,'allCellStylesPreserved':30,'laterNotePreserved':True,'earlierFileUnchanged':True},'knockout':{'failed':2,'passed':4,'exactSourceRestored':True},'rawXmlFilesVerified':5,'normalBuild':'PASS','convexTypecheck':'PASS','designAudit':'PASS','diffCheck':'PASS'},'limitations':['No full floor/prod suite rerun; existing native Office deadline and notebook failures remain open. No timeout/skip/config change.','Current and sibling component scenarios mock only download dispatch and serialize real workbooks. Sibling case is a typed fixture; actual browser journey proves current canonical sheet.','Actual screenshot viewport1440x960 with fallback fonts; no full responsive/accessibility/performance grade.','Build stamp identifies merged base; working source hashes bind this uncommitted candidate.','Earlier fixture/type errors and all failures retained; final source-bound knockout supplies exact current fixture causal proof.','Initial after-source binding writer used nonexistent export path and wrote no output. Corrected receipt was written after the browser; unchanged runtime/test hashes independently match pre-build normalization and custody.','No local/ignored environment contents, providers, COM/native Office, deployment, hooks, original4173/4174 actions. Public tracked environment examples were hash-only custody inputs, as corrected in the preserved addendum.'],'grades':{'visual':None,'responsive':None,'interaction':None,'performance':None,'production':None}}
+write('freeze.json',proof)
+manifest=[binding(f,f.relative_to(o).as_posix()) for f in sorted(o.rglob('*')) if f.is_file() and f.name!='manifest.json']
+write('manifest.json',{'schema':'operator-evidence-manifest/v1','files':manifest,'selfExcluded':True})
+receipt={'freeze':f'{o.name}/freeze.json','freezeSha256':sha((o/'freeze.json').read_bytes()),'manifest':f'{o.name}/manifest.json','manifestSha256':sha((o/'manifest.json').read_bytes()),'artifactCount':len(manifest),**proof}
+(p/'E6f_NODEROOM_DESKTOP_ACCOUNT_REPAIR_RECEIPT.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
+print(json.dumps({'sourceDigest':source_digest,'freezeSha256':receipt['freezeSha256'],'manifestSha256':receipt['manifestSha256'],'artifactCount':len(manifest),'protected':len(after)-4,'dist':len(dist)},indent=2))

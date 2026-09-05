@@ -1,0 +1,27 @@
+[
+  {
+    "target": "evidence/mobile-current-xlsx-20260905/README.md",
+    "exists": true,
+    "sha256": "7b51cfde32265cbdfa35df4eabc87f121be28bd37a41e5005e9b335f8da3e635"
+  },
+  {
+    "target": "evidence/mobile-current-xlsx-20260905/reports/E6f_NODEROOM_MOBILE_EXPORT_FINAL_JUDGE.json",
+    "exists": true,
+    "sha256": "a3d2b9e6f0c032496589c3ef6046955627360f47f06a01acf8949548653aecca"
+  },
+  {
+    "target": "evidence/shared-dependencies-20260905/README.md",
+    "exists": true,
+    "sha256": "81b1f04c43b6e1a020e6175f0753e7e4cca0340648c3c8b180113b40c3559df1"
+  },
+  {
+    "target": "evidence/shared-dependencies-20260905/review/E6f_NODEROOM_SHARED_DEPENDENCY_FINAL_JUDGE.md",
+    "exists": true,
+    "sha256": "a186cc162c1680f92f44c90545b1430f49ab02f4af851f9f4dbd907353a63b24"
+  },
+  {
+    "target": "evidence/shared-dependencies-20260905/review/E6f_NODEROOM_DEPENDENCY_PACKAGE_ENCODING_ADDENDUM.md",
+    "exists": true,
+    "sha256": "7b6c58557a0b06ba731b61a9efd4a9de70b281b63aba0f1a15f4762fcf01a686"
+  }
+]

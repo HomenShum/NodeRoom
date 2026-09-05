@@ -2458,7 +2458,7 @@ async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null, all
     appendExportRow(worksheet, ["Account", "Q2", "Q3", "Variance", "Note"]);
     for (const rid of rows) {
       appendExportRow(worksheet, [
-        art.elements[`${rid}__label`]?.value,
+        art.elements[`${rid}__account`]?.value,
         art.elements[`${rid}__q2`]?.value,
         art.elements[`${rid}__q3`]?.value,
         art.elements[`${rid}__variance`]?.value,
@@ -2553,7 +2553,7 @@ function appendSheetArtifactWorksheet(
     appendExportRow(worksheet, ["Account", "Q2", "Q3", "Variance", "Note"]);
     for (const rid of rows) {
       appendExportRow(worksheet, [
-        art.elements[`${rid}__label`]?.value,
+        art.elements[`${rid}__account`]?.value,
         art.elements[`${rid}__q2`]?.value,
         art.elements[`${rid}__q3`]?.value,
         art.elements[`${rid}__variance`]?.value,

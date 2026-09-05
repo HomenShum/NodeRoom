@@ -1,0 +1,49 @@
+
+> noderoom@0.1.1 test
+> vitest run --run tests/artifactXlsxExport.test.ts
+
+
+ RUN  v4.1.10 D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905
+
+ ❯ |node| tests/artifactXlsxExport.test.ts (6 tests | 2 failed) 226ms
+     × keeps Account labels through repeated reviewer exports of the current sheet 124ms
+     × keeps Account labels through repeated reviewer exports of the sibling sheet 56ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/artifactXlsxExport.test.ts > NodeRoom XLSX cell export > keeps Account labels through repeated reviewer exports of the current sheet
+ FAIL  |node| tests/artifactXlsxExport.test.ts > NodeRoom XLSX cell export > keeps Account labels through repeated reviewer exports of the sibling sheet
+AssertionError: expected [ null, null, null, null, null ] to deeply equal [ 'Revenue', 'COGS', …(3) ]
+
+- Expected
++ Received
+
+  [
+-   "Revenue",
+-   "COGS",
+-   "Gross profit",
+-   "OpEx",
+-   "Net income",
++   null,
++   null,
++   null,
++   null,
++   null,
+  ]
+
+ ❯ tests/artifactXlsxExport.test.ts:169:79
+    167|       await reopened.xlsx.load(exportFixture.bytes[revision - 1]);
+    168|       const sheet = reopened.getWorksheet("Q3 variance")!;
+    169|       expect(SHEET_ROWS.map((_, index) => sheet.getCell(index + 2, 1).…
+       |                                                                               ^
+    170|       expect(sheet.getCell("B2").value).toBe(SHEET_ROWS[0].q2);
+    171|       expect(sheet.getCell("C2").value).toBe(SHEET_ROWS[0].q3);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  09:34:43
+   Duration  3.28s (transform 506ms, setup 164ms, import 2.20s, tests 226ms, environment 549ms)
+

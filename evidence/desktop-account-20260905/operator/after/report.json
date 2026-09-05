@@ -1,0 +1,502 @@
+{
+  "schema": "noderoom-entry-observation/v1",
+  "startedAt": "2026-09-05T16:48:03.654Z",
+  "baseCommit": "034a8f963dfa037d860f5364032319506be3e2e0",
+  "sourceBindings": "../after-source-bindings.json",
+  "sourceState": "Merged034a8f9 plus uncommitted exact four-owner Account repair; approved dependencies unchanged; build SHA identifies base, source hash receipt identifies candidate",
+  "cells": [
+    {
+      "width": 1440,
+      "routeName": "desktop-memory",
+      "captures": [
+        {
+          "name": "desktop-memory-1440-entry",
+          "pngSha256": "1edf336806df3b4be374f010335643257d918860f3c30ee786b75ec4754c44a3",
+          "domSha256": "6a97e3ae6b9c591ee81637e32ee4b1cdaa2ce1151c834bc8d606d0f6c003f710",
+          "url": "http://127.0.0.1:54522/?mode=memory&surface=desktop",
+          "horizontalOverflow": 0,
+          "build": "034a8f963dfa037d860f5364032319506be3e2e0"
+        },
+        {
+          "name": "desktop-memory-1440-sample",
+          "pngSha256": "35ee01f36f1e96ff6f5a76166979884ba97c72cf17454ce6c1eae3fb809b1dc5",
+          "domSha256": "835b624532ae30303e5c119201f6c04d8cc1fa8fb1780105bd32b044b9010df4",
+          "url": "http://127.0.0.1:54522/?mode=memory&surface=desktop",
+          "horizontalOverflow": 0,
+          "build": "034a8f963dfa037d860f5364032319506be3e2e0"
+        },
+        {
+          "name": "desktop-memory-1440-downloaded",
+          "pngSha256": "ef099b2a6b9c226ab4c6508b80dd36dd79818af70b840ae573ed651d16ba988a",
+          "domSha256": "d8835c7c4006f6c3e6641f2bf60a42ebd548ed2e6dcf54a5a2db977dc058fabd",
+          "url": "http://127.0.0.1:54522/?mode=memory&surface=desktop",
+          "horizontalOverflow": 0,
+          "build": "034a8f963dfa037d860f5364032319506be3e2e0"
+        },
+        {
+          "name": "desktop-memory-1440-later-download",
+          "pngSha256": "57012fa7146507f83b6a39a41d224bdb73818a38c15bc283783edc379c3ecce5",
+          "domSha256": "e5be86de764b545a1015b09f714b3f4b022a1bf57dff0bd2a69b79b9ab8b9c37",
+          "url": "http://127.0.0.1:54522/?mode=memory&surface=desktop",
+          "horizontalOverflow": 0,
+          "build": "034a8f963dfa037d860f5364032319506be3e2e0"
+        }
+      ],
+      "console": [
+        {
+          "type": "error",
+          "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+        }
+      ],
+      "pageErrors": [],
+      "workbook": [
+        {
+          "name": "Q3 variance",
+          "rows": [
+            null,
+            [
+              null,
+              "Account",
+              "Q2",
+              "Q3",
+              "Variance",
+              "Note"
+            ],
+            [
+              null,
+              "Revenue",
+              "$10,000",
+              "$12,400",
+              "+24%",
+              "Reviewer note: baseline input"
+            ],
+            [
+              null,
+              "COGS",
+              "$4,000",
+              "$5,100",
+              "+27.5%"
+            ],
+            [
+              null,
+              "Gross profit",
+              "$6,000",
+              "$7,300",
+              "+21.7%"
+            ],
+            [
+              null,
+              "OpEx",
+              "$2,200",
+              "$2,650"
+            ],
+            [
+              null,
+              "Net income",
+              "$3,800",
+              "$4,650",
+              "+22.4%"
+            ]
+          ]
+        }
+      ],
+      "download": {
+        "fileName": "Q3_variance.xlsx",
+        "sha256": "f932564a012f2cb46dea3a92eb90c80004895f5d55a0460c47ad7573379aa52f",
+        "byteCount": 6685
+      },
+      "accountComparison": {
+        "ui": {
+          "title": "Q3 variance",
+          "headers": [
+            "",
+            "Account",
+            "Q2",
+            "Q3",
+            "Variance",
+            "Note"
+          ],
+          "rows": [
+            {
+              "id": "r_rev",
+              "account": "Revenue",
+              "cells": [
+                "Revenue",
+                "$10,000",
+                "$12,400",
+                "+24%",
+                "Reviewer note: baseline input"
+              ]
+            },
+            {
+              "id": "r_cogs",
+              "account": "COGS",
+              "cells": [
+                "COGS",
+                "$4,000",
+                "$5,100",
+                "+27.5%",
+                " note"
+              ]
+            },
+            {
+              "id": "r_gp",
+              "account": "Gross profit",
+              "cells": [
+                "Gross profit",
+                "$6,000",
+                "$7,300",
+                "+21.7%",
+                " note"
+              ]
+            },
+            {
+              "id": "r_opex",
+              "account": "OpEx",
+              "cells": [
+                "OpEx",
+                "$2,200",
+                "$2,650",
+                " add",
+                " note"
+              ]
+            },
+            {
+              "id": "r_ni",
+              "account": "Net income",
+              "cells": [
+                "Net income",
+                "$3,800",
+                "$4,650",
+                "+22.4%",
+                " note"
+              ]
+            }
+          ]
+        },
+        "rows": [
+          {
+            "rowId": "r_rev",
+            "uiAccount": "Revenue",
+            "xlsxAccount": "Revenue",
+            "matches": true
+          },
+          {
+            "rowId": "r_cogs",
+            "uiAccount": "COGS",
+            "xlsxAccount": "COGS",
+            "matches": true
+          },
+          {
+            "rowId": "r_gp",
+            "uiAccount": "Gross profit",
+            "xlsxAccount": "Gross profit",
+            "matches": true
+          },
+          {
+            "rowId": "r_opex",
+            "uiAccount": "OpEx",
+            "xlsxAccount": "OpEx",
+            "matches": true
+          },
+          {
+            "rowId": "r_ni",
+            "uiAccount": "Net income",
+            "xlsxAccount": "Net income",
+            "matches": true
+          }
+        ],
+        "allFiveMatch": true,
+        "workbook": {
+          "fileName": "Q3_variance.xlsx",
+          "sha256": "f932564a012f2cb46dea3a92eb90c80004895f5d55a0460c47ad7573379aa52f",
+          "byteCount": 6685
+        }
+      },
+      "baselineParity": {
+        "beforeWorkbookSha256": "06dd606710f763f7e6016e81a8022667d69ab61f871cf50328484dec5f98dc31",
+        "afterWorkbookSha256": "f932564a012f2cb46dea3a92eb90c80004895f5d55a0460c47ad7573379aa52f",
+        "cells": [
+          {
+            "cell": "A1",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "Account",
+            "after": "Account"
+          },
+          {
+            "cell": "B1",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "Q2",
+            "after": "Q2"
+          },
+          {
+            "cell": "C1",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "Q3",
+            "after": "Q3"
+          },
+          {
+            "cell": "D1",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "Variance",
+            "after": "Variance"
+          },
+          {
+            "cell": "E1",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "Note",
+            "after": "Note"
+          },
+          {
+            "cell": "A2",
+            "valueMatches": false,
+            "styleMatches": true,
+            "allowedLabelChange": true,
+            "before": null,
+            "after": "Revenue"
+          },
+          {
+            "cell": "B2",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "$10,000",
+            "after": "$10,000"
+          },
+          {
+            "cell": "C2",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "$12,400",
+            "after": "$12,400"
+          },
+          {
+            "cell": "D2",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "+24%",
+            "after": "+24%"
+          },
+          {
+            "cell": "E2",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "Reviewer note: baseline input",
+            "after": "Reviewer note: baseline input"
+          },
+          {
+            "cell": "A3",
+            "valueMatches": false,
+            "styleMatches": true,
+            "allowedLabelChange": true,
+            "before": null,
+            "after": "COGS"
+          },
+          {
+            "cell": "B3",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "$4,000",
+            "after": "$4,000"
+          },
+          {
+            "cell": "C3",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "$5,100",
+            "after": "$5,100"
+          },
+          {
+            "cell": "D3",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "+27.5%",
+            "after": "+27.5%"
+          },
+          {
+            "cell": "E3",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": null,
+            "after": null
+          },
+          {
+            "cell": "A4",
+            "valueMatches": false,
+            "styleMatches": true,
+            "allowedLabelChange": true,
+            "before": null,
+            "after": "Gross profit"
+          },
+          {
+            "cell": "B4",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "$6,000",
+            "after": "$6,000"
+          },
+          {
+            "cell": "C4",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "$7,300",
+            "after": "$7,300"
+          },
+          {
+            "cell": "D4",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "+21.7%",
+            "after": "+21.7%"
+          },
+          {
+            "cell": "E4",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": null,
+            "after": null
+          },
+          {
+            "cell": "A5",
+            "valueMatches": false,
+            "styleMatches": true,
+            "allowedLabelChange": true,
+            "before": null,
+            "after": "OpEx"
+          },
+          {
+            "cell": "B5",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "$2,200",
+            "after": "$2,200"
+          },
+          {
+            "cell": "C5",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "$2,650",
+            "after": "$2,650"
+          },
+          {
+            "cell": "D5",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": null,
+            "after": null
+          },
+          {
+            "cell": "E5",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": null,
+            "after": null
+          },
+          {
+            "cell": "A6",
+            "valueMatches": false,
+            "styleMatches": true,
+            "allowedLabelChange": true,
+            "before": null,
+            "after": "Net income"
+          },
+          {
+            "cell": "B6",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "$3,800",
+            "after": "$3,800"
+          },
+          {
+            "cell": "C6",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "$4,650",
+            "after": "$4,650"
+          },
+          {
+            "cell": "D6",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": "+22.4%",
+            "after": "+22.4%"
+          },
+          {
+            "cell": "E6",
+            "valueMatches": true,
+            "styleMatches": true,
+            "allowedLabelChange": false,
+            "before": null,
+            "after": null
+          }
+        ],
+        "sheetNameUnchanged": true,
+        "columnsUnchanged": true
+      },
+      "boundary": {
+        "rect": {
+          "x": 336.078125,
+          "y": 163,
+          "width": 131.640625,
+          "height": 177
+        },
+        "pngSha256": "7efd166666c487ff28c3659bb7dc4a08a9fe2c2af9c02f134e6880094b27b40d",
+        "domRestored": true
+      },
+      "laterExport": {
+        "fileName": "review-2-Q3_variance.xlsx",
+        "sha256": "fd854667bbd9f4c8cb55d62abc7f98fedd1b5c8b332f827f889a163f7952c1aa",
+        "note": "Reviewer note: revised before handoff",
+        "labels": [
+          "Revenue",
+          "COGS",
+          "Gross profit",
+          "OpEx",
+          "Net income"
+        ],
+        "earlierBytesPreserved": true,
+        "earlierStatePreserved": true
+      },
+      "status": "OBSERVED"
+    }
+  ],
+  "externalRequests": [
+    {
+      "width": 1440,
+      "routeName": "desktop-memory",
+      "url": "https://fonts.googleapis.com/css2",
+      "action": "blocked"
+    }
+  ],
+  "errors": [],
+  "status": "OBSERVED",
+  "finishedAt": "2026-09-05T16:48:10.746Z"
+}

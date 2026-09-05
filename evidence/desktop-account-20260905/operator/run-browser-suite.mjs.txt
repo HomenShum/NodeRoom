@@ -1,0 +1,43 @@
+import { spawn, spawnSync } from 'node:child_process';
+import { createWriteStream } from 'node:fs';
+import { readFile, writeFile, mkdir, rename } from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
+
+const packet=path.dirname(fileURLToPath(import.meta.url));
+const root='D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905';
+const output=path.join(packet,'browser-suite');await mkdir(output);
+const base='http://127.0.0.1:54523';
+const env={...process.env};
+for(const key of Object.keys(env))if(/^(VITE_|VERCEL_|CONVEX_|OPENAI_|OPENROUTER_|ANTHROPIC_|GOOGLE_GENERATIVE_|GITHUB_SHA|PLAYWRIGHT_|PRODUCT_MEMORY_)/.test(key))delete env[key];
+env.PLAYWRIGHT_BASE_URL=base;env.PLAYWRIGHT_PORT='54523';env.PLAYWRIGHT_REUSE_SERVER='1';
+const hash=b=>createHash('sha256').update(b).digest('hex');
+const oldScreenshot=path.join(root,'test-results/uploaded-workbook-shared-grid.png');
+let oldBytes;try{oldBytes=await readFile(oldScreenshot);await writeFile(path.join(output,'prior-hardcoded-screenshot.png'),oldBytes);}catch(e){if(e.code!=='ENOENT')throw e;}
+const report={startedAt:new Date().toISOString(),base,config:'playwright.config.ts unchanged',timeoutPolicy:'Existing30s; no retries/timeout/skip/config override',oldScreenshotExisted:oldBytes!==undefined};
+const log=createWriteStream(path.join(output,'server.log'));
+const server=spawn(process.execPath,[path.join(root,'node_modules/vite/bin/vite.js'),'preview','--host','127.0.0.1','--port','54523','--strictPort'],{cwd:root,env,windowsHide:true,stdio:['ignore','pipe','pipe']});
+server.stdout.pipe(log);server.stderr.pipe(log);let ready=false;server.stdout.on('data',b=>{if(String(b).includes(base))ready=true;});
+try{
+  const deadline=Date.now()+30000;
+  while(true){if(server.exitCode!==null)throw Error(`Preview exit${server.exitCode}`);if(ready)try{if((await fetch(base,{signal:AbortSignal.timeout(1000)})).ok)break;}catch{}if(Date.now()>deadline)throw Error('Preview deadline');await new Promise(r=>setTimeout(r,100));}
+  const args=[path.join(root,'node_modules/@playwright/test/cli.js'),'test','e2e/excel-grid.spec.ts','--output',path.join(output,'results'),'--reporter=json'];
+  report.argv=[process.execPath,...args];
+  const stdout=createWriteStream(path.join(output,'playwright.json')),stderr=createWriteStream(path.join(output,'playwright.stderr.log'));
+  const child=spawn(process.execPath,args,{cwd:root,env,windowsHide:true,stdio:['ignore','pipe','pipe']});child.stdout.pipe(stdout);child.stderr.pipe(stderr);
+  const watchdog=setTimeout(()=>spawnSync('taskkill',['/PID',String(child.pid),'/T','/F'],{windowsHide:true}),180000);
+  report.exitCode=await new Promise(resolve=>child.once('exit',resolve));clearTimeout(watchdog);
+  await Promise.all([new Promise(r=>stdout.end(r)),new Promise(r=>stderr.end(r))]);
+}catch(e){report.error=String(e);report.exitCode=1;}
+finally{
+  if(server.exitCode===null)spawnSync('taskkill',['/PID',String(server.pid),'/T','/F'],{windowsHide:true});
+  await new Promise(r=>server.exitCode!==null?r():server.once('exit',r));await new Promise(r=>log.end(r));
+  try{
+    const produced=await readFile(oldScreenshot);report.producedHardcodedScreenshotSha256=hash(produced);
+    if(oldBytes!==undefined){await writeFile(path.join(output,'uploaded-workbook-shared-grid.png'),produced);await writeFile(oldScreenshot,oldBytes);report.oldScreenshotRestored=hash(await readFile(oldScreenshot))===hash(oldBytes);}
+    else{await rename(oldScreenshot,path.join(output,'uploaded-workbook-shared-grid.png'));report.newOwnedScreenshotMovedToPacket=true;}
+  }catch(e){if(e.code!=='ENOENT')throw e;report.hardcodedScreenshotNotProduced=true;}
+  report.finishedAt=new Date().toISOString();await writeFile(path.join(output,'command.json'),JSON.stringify(report,null,2)+'\n');
+}
+console.log(JSON.stringify(report));process.exitCode=report.exitCode===0?0:1;

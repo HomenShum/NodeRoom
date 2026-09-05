@@ -1,0 +1,281 @@
+[
+  {
+    "startedAt": "2026-09-05T16:49:31.824933+00:00",
+    "finishedAt": "2026-09-05T16:49:48.017732+00:00",
+    "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "argv": [
+      "C:/nvm4w/nodejs/node.exe",
+      "C:/Users/hshum/.codex/worktrees/5dba/nodebench-ai/docs/plans/portfolio-recovery-20260904/E6f-noderoom-desktop-account-repair-01/run-browser-suite.mjs"
+    ],
+    "timeoutSeconds": 240,
+    "timedOut": false,
+    "exitCode": 0,
+    "elapsedSeconds": 16.188,
+    "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-browser-suite.log",
+    "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+  },
+  {
+    "startedAt": "2026-09-05T16:50:11.238280+00:00",
+    "finishedAt": "2026-09-05T16:50:17.484680+00:00",
+    "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "argv": [
+      "C:/nvm4w/nodejs/node.exe",
+      "D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905/node_modules/typescript/bin/tsc",
+      "--noEmit",
+      "--project",
+      "convex/tsconfig.json",
+      "--pretty",
+      "false"
+    ],
+    "timeoutSeconds": 180,
+    "timedOut": false,
+    "exitCode": 0,
+    "elapsedSeconds": 6.25,
+    "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-convex-typecheck.log",
+    "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+  },
+  {
+    "startedAt": "2026-09-05T16:50:35.099323+00:00",
+    "finishedAt": "2026-09-05T16:50:37.487250+00:00",
+    "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "argv": [
+      "C:/nvm4w/nodejs/npm.cmd",
+      "run",
+      "design:audit"
+    ],
+    "timeoutSeconds": 120,
+    "timedOut": false,
+    "exitCode": 0,
+    "elapsedSeconds": 2.391,
+    "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-design-audit.log",
+    "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+  },
+  {
+    "startedAt": "2026-09-05T16:45:52.517234+00:00",
+    "finishedAt": "2026-09-05T16:46:37.607725+00:00",
+    "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "argv": [
+      "C:/nvm4w/nodejs/npm.cmd",
+      "run",
+      "build"
+    ],
+    "timeoutSeconds": 300,
+    "timedOut": false,
+    "exitCode": 0,
+    "elapsedSeconds": 45.094,
+    "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-final-build.log",
+    "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+  },
+  {
+    "startedAt": "2026-09-05T16:45:35.596568+00:00",
+    "finishedAt": "2026-09-05T16:45:40.046441+00:00",
+    "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "argv": [
+      "C:/nvm4w/nodejs/npm.cmd",
+      "test",
+      "--",
+      "--run",
+      "tests/artifactXlsxExport.test.ts"
+    ],
+    "timeoutSeconds": 120,
+    "timedOut": false,
+    "exitCode": 1,
+    "elapsedSeconds": 4.453,
+    "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-final-fixture-knockout.log",
+    "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+  },
+  {
+    "startedAt": "2026-09-05T16:50:38.493021+00:00",
+    "finishedAt": "2026-09-05T16:50:42.864967+00:00",
+    "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "argv": [
+      "C:/nvm4w/nodejs/npm.cmd",
+      "test",
+      "--",
+      "--run",
+      "tests/artifactXlsxExport.test.ts",
+      "tests/mobileSampleWorkbookExport.test.ts",
+      "tests/mobileSheetDialog.test.tsx"
+    ],
+    "timeoutSeconds": 120,
+    "timedOut": false,
+    "exitCode": 0,
+    "elapsedSeconds": 4.36,
+    "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-final-scenarios.log",
+    "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+  },
+  {
+    "startedAt": "2026-09-05T16:48:03.345579+00:00",
+    "finishedAt": "2026-09-05T16:48:10.759509+00:00",
+    "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "argv": [
+      "C:/nvm4w/nodejs/node.exe",
+      "C:/Users/hshum/.codex/worktrees/5dba/nodebench-ai/docs/plans/portfolio-recovery-20260904/E6f-noderoom-desktop-account-repair-01/observe-after.mjs"
+    ],
+    "timeoutSeconds": 120,
+    "timedOut": false,
+    "exitCode": 0,
+    "elapsedSeconds": 7.422,
+    "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-matched-after.log",
+    "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+  },
+  {
+    "startedAt": "2026-09-05T16:36:08.191716+00:00",
+    "finishedAt": "2026-09-05T16:36:12.464936+00:00",
+    "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "argv": [
+      "C:/nvm4w/nodejs/npm.cmd",
+      "test",
+      "--",
+      "--run",
+      "tests/artifactXlsxExport.test.ts",
+      "tests/mobileSampleWorkbookExport.test.ts"
+    ],
+    "timeoutSeconds": 120,
+    "timedOut": false,
+    "exitCode": 1,
+    "elapsedSeconds": 4.281,
+    "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-scenarios-after-02.log",
+    "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+  },
+  {
+    "startedAt": "2026-09-05T16:37:48.875680+00:00",
+    "finishedAt": "2026-09-05T16:37:53.229245+00:00",
+    "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "argv": [
+      "C:/nvm4w/nodejs/npm.cmd",
+      "test",
+      "--",
+      "--run",
+      "tests/artifactXlsxExport.test.ts",
+      "tests/mobileSampleWorkbookExport.test.ts"
+    ],
+    "timeoutSeconds": 120,
+    "timedOut": false,
+    "exitCode": 0,
+    "elapsedSeconds": 4.36,
+    "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-scenarios-after-03.log",
+    "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+  },
+  {
+    "startedAt": "2026-09-05T16:35:06.877891+00:00",
+    "finishedAt": "2026-09-05T16:35:11.192289+00:00",
+    "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "argv": [
+      "C:/nvm4w/nodejs/npm.cmd",
+      "test",
+      "--",
+      "--run",
+      "tests/artifactXlsxExport.test.ts",
+      "tests/mobileSampleWorkbookExport.test.ts"
+    ],
+    "timeoutSeconds": 120,
+    "timedOut": false,
+    "exitCode": 1,
+    "elapsedSeconds": 4.313,
+    "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-scenarios-after.log",
+    "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+  },
+  {
+    "startedAt": "2026-09-05T16:34:42.752230+00:00",
+    "finishedAt": "2026-09-05T16:34:46.920539+00:00",
+    "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "argv": [
+      "C:/nvm4w/nodejs/npm.cmd",
+      "test",
+      "--",
+      "--run",
+      "tests/artifactXlsxExport.test.ts"
+    ],
+    "timeoutSeconds": 120,
+    "timedOut": false,
+    "exitCode": 1,
+    "elapsedSeconds": 4.172,
+    "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-scenarios-before-02.log",
+    "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+  },
+  {
+    "startedAt": "2026-09-05T16:32:27.818950+00:00",
+    "finishedAt": "2026-09-05T16:33:15.159735+00:00",
+    "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "argv": [
+      "C:/nvm4w/nodejs/npm.cmd",
+      "test",
+      "--",
+      "--run",
+      "tests/artifactXlsxExport.test.ts"
+    ],
+    "timeoutSeconds": 120,
+    "timedOut": false,
+    "exitCode": 1,
+    "elapsedSeconds": 47.344,
+    "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-scenarios-before.log",
+    "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+  },
+  {
+    "startedAt": "2026-09-05T16:36:13.542669+00:00",
+    "finishedAt": "2026-09-05T16:36:34.743435+00:00",
+    "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "argv": [
+      "C:/nvm4w/nodejs/npm.cmd",
+      "run",
+      "typecheck",
+      "--",
+      "--pretty",
+      "false"
+    ],
+    "timeoutSeconds": 180,
+    "timedOut": false,
+    "exitCode": 2,
+    "elapsedSeconds": 21.203,
+    "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-typecheck.log",
+    "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+  },
+  {
+    "startedAt": "2026-09-05T16:25:42.189978+00:00",
+    "finishedAt": "2026-09-05T16:26:06.097882+00:00",
+    "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "argv": [
+      "C:/nvm4w/nodejs/node.exe",
+      "C:/Users/hshum/.codex/worktrees/5dba/nodebench-ai/docs/plans/portfolio-recovery-20260904/E6f-noderoom-desktop-account-repair-01/observe-before.mjs"
+    ],
+    "timeoutSeconds": 180,
+    "timedOut": false,
+    "exitCode": 0,
+    "elapsedSeconds": 23.906,
+    "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before-browser.log",
+    "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+  },
+  {
+    "startedAt": "2026-09-05T16:22:53.001124+00:00",
+    "finishedAt": "2026-09-05T16:25:32.694036+00:00",
+    "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "argv": [
+      "C:/nvm4w/nodejs/npm.cmd",
+      "run",
+      "build"
+    ],
+    "timeoutSeconds": 360,
+    "timedOut": false,
+    "exitCode": 0,
+    "elapsedSeconds": 159.688,
+    "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before-build.log",
+    "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+  },
+  {
+    "startedAt": "2026-09-05T16:28:26.335288+00:00",
+    "finishedAt": "2026-09-05T16:28:27.089737+00:00",
+    "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+    "argv": [
+      "C:/nvm4w/nodejs/npm.cmd",
+      "run",
+      "design:manifest"
+    ],
+    "timeoutSeconds": 60,
+    "timedOut": false,
+    "exitCode": 0,
+    "elapsedSeconds": 0.75,
+    "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\before-design-manifest.log",
+    "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+  }
+]

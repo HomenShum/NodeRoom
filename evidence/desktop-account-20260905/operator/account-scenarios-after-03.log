@@ -1,0 +1,13 @@
+
+> noderoom@0.1.1 test
+> vitest run --run tests/artifactXlsxExport.test.ts tests/mobileSampleWorkbookExport.test.ts
+
+
+ RUN  v4.1.10 D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905
+
+
+ Test Files  2 passed (2)
+      Tests  9 passed (9)
+   Start at  09:37:49
+   Duration  3.45s (transform 561ms, setup 177ms, import 2.41s, tests 737ms, environment 576ms)
+

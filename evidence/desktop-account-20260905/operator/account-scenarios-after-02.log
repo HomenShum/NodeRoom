@@ -1,0 +1,37 @@
+
+> noderoom@0.1.1 test
+> vitest run --run tests/artifactXlsxExport.test.ts tests/mobileSampleWorkbookExport.test.ts
+
+
+ RUN  v4.1.10 D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905
+
+ ❯ |node| tests/artifactXlsxExport.test.ts (6 tests | 1 failed) 408ms
+     × keeps Account labels through repeated reviewer exports of the sibling sheet 60ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/artifactXlsxExport.test.ts > NodeRoom XLSX cell export > keeps Account labels through repeated reviewer exports of the sibling sheet
+AssertionError: expected null to be 'Review workbook' // Object.is equality
+
+- Expected:
+"Review workbook"
+
++ Received:
+null
+
+ ❯ tests/artifactXlsxExport.test.ts:177:71
+    175|       expect(sheet.getCell("E2").value).toBe(note);
+    176|       if (surface === "sibling sheet") {
+    177|         expect(reopened.getWorksheet("Summary")!.getCell("A1").value).…
+       |                                                                       ^
+    178|         expect(reopened.getWorksheet("Summary")!.getCell("B1").formula…
+    179|         expect(reopened.getWorksheet("Summary")!.getCell("B1").result)…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 8 passed (9)
+   Start at  09:36:09
+   Duration  3.36s (transform 541ms, setup 171ms, import 2.48s, tests 569ms, environment 569ms)
+
