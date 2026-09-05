@@ -1,0 +1,7 @@
+Read-only collector search failed once with nonexistent/glob-as-literal paths. Source-range printing in the same call succeeded. This is a collector error, not a source/test failure. The corrected search was rg over the observed src directory, with no source writes or test run.
+
+Retained stderr from the failed tool call:
+rg: src/app/seed*: The filename, directory name, or volume label syntax is incorrect. (os error 123)
+rg: src/ui/grid.tsx: The system cannot find the file specified. (os error 2)
+rg: src/domain: The system cannot find the file specified. (os error 2)
+rg: src/app/store*: The filename, directory name, or volume label syntax is incorrect. (os error 123)

@@ -1,0 +1,8 @@
+{
+  "at": "2026-09-05T17:14:42.453382+00:00",
+  "fourSourcesExact": true,
+  "headRefsEntryStreamWorktreeRegistrationsStatusUnchanged": true,
+  "indexMeaning": "ls-files --stage -z entry bytes; no raw index metadata assertion",
+  "sourceDigest": "c4484a6d673c6ae4a43a4e2ebbe1ce94a2903a9e8e74a6c02a5212f30180c4d1",
+  "noSourceIndexRefOrRuntimeMutationByJudge": true
+}

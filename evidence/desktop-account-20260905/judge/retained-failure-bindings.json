@@ -1,0 +1,54 @@
+[
+  {
+    "artifact": "account-final-fixture-knockout.log",
+    "sha256": "b9b304b0456a20254297a859845f2e78911afc2f2b3e61f7719da0f0c64e854c"
+  },
+  {
+    "artifact": "account-scenarios-after-02.command.json",
+    "sha256": "ec0e0ebfb4d65fa32458d1804c49b8e405f95c4aa9081a57132051151b0cea68"
+  },
+  {
+    "artifact": "account-scenarios-after-02.log",
+    "sha256": "7d4c883ea8c95d18fbb2d9c12dfa5994ff7872b8de5c3a0bf48b4c7b8b110f6a"
+  },
+  {
+    "artifact": "account-scenarios-after-03.command.json",
+    "sha256": "ba52cc191314ed5b6eaa734b09d65d556a862b3e5ce21c44cd0b18a14ef2e469"
+  },
+  {
+    "artifact": "account-scenarios-after-03.log",
+    "sha256": "b5f213f2fb56f2806732bd2d75d9770df99b38f5aa6cc2f0d2b1ac51899cb576"
+  },
+  {
+    "artifact": "account-scenarios-after.command.json",
+    "sha256": "30580438b2a3bc9f0f8a809b7b12f8400ea880d0c8fd1f3839f71e69ec9e75ff"
+  },
+  {
+    "artifact": "account-scenarios-after.log",
+    "sha256": "648d5ea37e91bea13682b778bff94a78263823fa3449084b208d54d0c7e743c0"
+  },
+  {
+    "artifact": "account-scenarios-before-02.command.json",
+    "sha256": "d750a93e8ee6d53f9e1cbce38262518fcd055c8662e51c2fccd3e6de6c00698c"
+  },
+  {
+    "artifact": "account-scenarios-before-02.log",
+    "sha256": "0414a1878a2c3582768d3b6659edc156745e3fee78e91cad05ceb8e488090ea0"
+  },
+  {
+    "artifact": "account-scenarios-before.command.json",
+    "sha256": "deae3dd34ff36b11d3cd97a34b06155df5f1c636e5516c841bbb7eee22cdbd98"
+  },
+  {
+    "artifact": "account-scenarios-before.log",
+    "sha256": "2a718d7e264acb249b9b60e7e414c589e845934cf6665c43f88e6340a58f856f"
+  },
+  {
+    "artifact": "account-typecheck.log",
+    "sha256": "51d5d08485705e4fd2b12e52f4ad3e270f06f2a8fe5dbca77babbe5375ba05dd"
+  },
+  {
+    "artifact": "freeze-attempt-01.error.txt",
+    "sha256": "855c9e4cc9afacbdc66bd9b0ff022299ac6f207a4175cc91b90b6aaecd86b819"
+  }
+]

@@ -1,0 +1,1486 @@
+[
+  {
+    "file": {
+      "path": "before/Q3_variance.xlsx",
+      "bytes": 6631,
+      "sha256": "06dd606710f763f7e6016e81a8022667d69ab61f871cf50328484dec5f98dc31",
+      "gitBlobSha1": "98f62b33ada98750d69edf9123dccdb2fde4a853"
+    },
+    "sheetNames": [
+      "Q3 variance"
+    ],
+    "stylesSha256": "b162294abd5acb68586c0433eae4f5c97480787c08dda49d1fa145f3b7b0a692",
+    "cells": {
+      "A1": {
+        "value": "Account",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B1": {
+        "value": "Q2",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C1": {
+        "value": "Q3",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D1": {
+        "value": "Variance",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E1": {
+        "value": "Note",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B2": {
+        "value": "$10,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C2": {
+        "value": "$12,400",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D2": {
+        "value": "+24%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E2": {
+        "value": "Reviewer note: baseline input",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B3": {
+        "value": "$4,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C3": {
+        "value": "$5,100",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D3": {
+        "value": "+27.5%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B4": {
+        "value": "$6,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C4": {
+        "value": "$7,300",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D4": {
+        "value": "+21.7%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B5": {
+        "value": "$2,200",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C5": {
+        "value": "$2,650",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B6": {
+        "value": "$3,800",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C6": {
+        "value": "$4,650",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D6": {
+        "value": "+22.4%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A2": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A3": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E3": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A4": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E4": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A5": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D5": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E5": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A6": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E6": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      }
+    },
+    "zipMembers": [
+      "[Content_Types].xml",
+      "_rels/",
+      "_rels/.rels",
+      "xl/",
+      "xl/_rels/",
+      "xl/_rels/workbook.xml.rels",
+      "xl/worksheets/",
+      "xl/worksheets/sheet1.xml",
+      "xl/sharedStrings.xml",
+      "xl/theme/",
+      "xl/theme/theme1.xml",
+      "xl/styles.xml",
+      "docProps/",
+      "docProps/app.xml",
+      "docProps/core.xml",
+      "xl/workbook.xml"
+    ]
+  },
+  {
+    "file": {
+      "path": "after/Q3_variance.xlsx",
+      "bytes": 6685,
+      "sha256": "f932564a012f2cb46dea3a92eb90c80004895f5d55a0460c47ad7573379aa52f",
+      "gitBlobSha1": "aa969897f4d09ef8cdc6591021056fcf1dc31dd1"
+    },
+    "sheetNames": [
+      "Q3 variance"
+    ],
+    "stylesSha256": "b162294abd5acb68586c0433eae4f5c97480787c08dda49d1fa145f3b7b0a692",
+    "cells": {
+      "A1": {
+        "value": "Account",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B1": {
+        "value": "Q2",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C1": {
+        "value": "Q3",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D1": {
+        "value": "Variance",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E1": {
+        "value": "Note",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A2": {
+        "value": "Revenue",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B2": {
+        "value": "$10,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C2": {
+        "value": "$12,400",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D2": {
+        "value": "+24%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E2": {
+        "value": "Reviewer note: baseline input",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A3": {
+        "value": "COGS",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B3": {
+        "value": "$4,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C3": {
+        "value": "$5,100",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D3": {
+        "value": "+27.5%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A4": {
+        "value": "Gross profit",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B4": {
+        "value": "$6,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C4": {
+        "value": "$7,300",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D4": {
+        "value": "+21.7%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A5": {
+        "value": "OpEx",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B5": {
+        "value": "$2,200",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C5": {
+        "value": "$2,650",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A6": {
+        "value": "Net income",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B6": {
+        "value": "$3,800",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C6": {
+        "value": "$4,650",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D6": {
+        "value": "+22.4%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E3": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E4": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D5": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E5": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E6": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      }
+    },
+    "zipMembers": [
+      "[Content_Types].xml",
+      "_rels/",
+      "_rels/.rels",
+      "xl/",
+      "xl/_rels/",
+      "xl/_rels/workbook.xml.rels",
+      "xl/worksheets/",
+      "xl/worksheets/sheet1.xml",
+      "xl/sharedStrings.xml",
+      "xl/theme/",
+      "xl/theme/theme1.xml",
+      "xl/styles.xml",
+      "docProps/",
+      "docProps/app.xml",
+      "docProps/core.xml",
+      "xl/workbook.xml"
+    ]
+  },
+  {
+    "file": {
+      "path": "after/review-2-Q3_variance.xlsx",
+      "bytes": 6691,
+      "sha256": "fd854667bbd9f4c8cb55d62abc7f98fedd1b5c8b332f827f889a163f7952c1aa",
+      "gitBlobSha1": "6bec4b4d21729a71921b7ca9d1a76eb8cc43723d"
+    },
+    "sheetNames": [
+      "Q3 variance"
+    ],
+    "stylesSha256": "b162294abd5acb68586c0433eae4f5c97480787c08dda49d1fa145f3b7b0a692",
+    "cells": {
+      "A1": {
+        "value": "Account",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B1": {
+        "value": "Q2",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C1": {
+        "value": "Q3",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D1": {
+        "value": "Variance",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E1": {
+        "value": "Note",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A2": {
+        "value": "Revenue",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B2": {
+        "value": "$10,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C2": {
+        "value": "$12,400",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D2": {
+        "value": "+24%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E2": {
+        "value": "Reviewer note: revised before handoff",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A3": {
+        "value": "COGS",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B3": {
+        "value": "$4,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C3": {
+        "value": "$5,100",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D3": {
+        "value": "+27.5%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A4": {
+        "value": "Gross profit",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B4": {
+        "value": "$6,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C4": {
+        "value": "$7,300",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D4": {
+        "value": "+21.7%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A5": {
+        "value": "OpEx",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B5": {
+        "value": "$2,200",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C5": {
+        "value": "$2,650",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A6": {
+        "value": "Net income",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B6": {
+        "value": "$3,800",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C6": {
+        "value": "$4,650",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D6": {
+        "value": "+22.4%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E3": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E4": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D5": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E5": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E6": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      }
+    },
+    "zipMembers": [
+      "[Content_Types].xml",
+      "_rels/",
+      "_rels/.rels",
+      "xl/",
+      "xl/_rels/",
+      "xl/_rels/workbook.xml.rels",
+      "xl/worksheets/",
+      "xl/worksheets/sheet1.xml",
+      "xl/sharedStrings.xml",
+      "xl/theme/",
+      "xl/theme/theme1.xml",
+      "xl/styles.xml",
+      "docProps/",
+      "docProps/app.xml",
+      "docProps/core.xml",
+      "xl/workbook.xml"
+    ]
+  },
+  {
+    "file": {
+      "path": "browser-suite/results/excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium/attachments/review-1-xlsx-8d322e6991638bbf510ae3e72dba7d7b1229f8bd.xlsx",
+      "bytes": 6685,
+      "sha256": "acac9fdf9711781302c79fb142dbbaeaf775e224a426c32204e8ab2f3a22db32",
+      "gitBlobSha1": "a128b1df8453f248efd1200d80c4b0e1a0c58886"
+    },
+    "sheetNames": [
+      "Q3 variance"
+    ],
+    "stylesSha256": "b162294abd5acb68586c0433eae4f5c97480787c08dda49d1fa145f3b7b0a692",
+    "cells": {
+      "A1": {
+        "value": "Account",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B1": {
+        "value": "Q2",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C1": {
+        "value": "Q3",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D1": {
+        "value": "Variance",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E1": {
+        "value": "Note",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A2": {
+        "value": "Revenue",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B2": {
+        "value": "$10,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C2": {
+        "value": "$12,400",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D2": {
+        "value": "+24%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E2": {
+        "value": "Reviewer note: checked source",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A3": {
+        "value": "COGS",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B3": {
+        "value": "$4,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C3": {
+        "value": "$5,100",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D3": {
+        "value": "+27.5%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A4": {
+        "value": "Gross profit",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B4": {
+        "value": "$6,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C4": {
+        "value": "$7,300",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D4": {
+        "value": "+21.7%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A5": {
+        "value": "OpEx",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B5": {
+        "value": "$2,200",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C5": {
+        "value": "$2,650",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A6": {
+        "value": "Net income",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B6": {
+        "value": "$3,800",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C6": {
+        "value": "$4,650",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D6": {
+        "value": "+22.4%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E3": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E4": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D5": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E5": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E6": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      }
+    },
+    "zipMembers": [
+      "[Content_Types].xml",
+      "_rels/",
+      "_rels/.rels",
+      "xl/",
+      "xl/_rels/",
+      "xl/_rels/workbook.xml.rels",
+      "xl/worksheets/",
+      "xl/worksheets/sheet1.xml",
+      "xl/sharedStrings.xml",
+      "xl/theme/",
+      "xl/theme/theme1.xml",
+      "xl/styles.xml",
+      "docProps/",
+      "docProps/app.xml",
+      "docProps/core.xml",
+      "xl/workbook.xml"
+    ]
+  },
+  {
+    "file": {
+      "path": "browser-suite/results/excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium/attachments/review-2-xlsx-d8bd07bada085ad796bb49244ecd789b4ea58285.xlsx",
+      "bytes": 6692,
+      "sha256": "495e4fd5fed1a6e4c5340b1cde5b9e1fb33559a37ca3c55993f79fa1a594623a",
+      "gitBlobSha1": "124cef5bd12e2b24543b6fbc17614542fa8cb6a8"
+    },
+    "sheetNames": [
+      "Q3 variance"
+    ],
+    "stylesSha256": "b162294abd5acb68586c0433eae4f5c97480787c08dda49d1fa145f3b7b0a692",
+    "cells": {
+      "A1": {
+        "value": "Account",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B1": {
+        "value": "Q2",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C1": {
+        "value": "Q3",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D1": {
+        "value": "Variance",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E1": {
+        "value": "Note",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A2": {
+        "value": "Revenue",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B2": {
+        "value": "$10,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C2": {
+        "value": "$12,400",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D2": {
+        "value": "+24%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E2": {
+        "value": "Reviewer note: revised before handoff",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A3": {
+        "value": "COGS",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B3": {
+        "value": "$4,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C3": {
+        "value": "$5,100",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D3": {
+        "value": "+27.5%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A4": {
+        "value": "Gross profit",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B4": {
+        "value": "$6,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C4": {
+        "value": "$7,300",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D4": {
+        "value": "+21.7%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A5": {
+        "value": "OpEx",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B5": {
+        "value": "$2,200",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C5": {
+        "value": "$2,650",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A6": {
+        "value": "Net income",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B6": {
+        "value": "$3,800",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C6": {
+        "value": "$4,650",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D6": {
+        "value": "+22.4%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E3": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E4": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D5": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E5": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E6": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      }
+    },
+    "zipMembers": [
+      "[Content_Types].xml",
+      "_rels/",
+      "_rels/.rels",
+      "xl/",
+      "xl/_rels/",
+      "xl/_rels/workbook.xml.rels",
+      "xl/worksheets/",
+      "xl/worksheets/sheet1.xml",
+      "xl/sharedStrings.xml",
+      "xl/theme/",
+      "xl/theme/theme1.xml",
+      "xl/styles.xml",
+      "docProps/",
+      "docProps/app.xml",
+      "docProps/core.xml",
+      "xl/workbook.xml"
+    ]
+  },
+  {
+    "file": {
+      "path": "browser-suite/results/excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium/review-1-Q3_variance.xlsx",
+      "bytes": 6685,
+      "sha256": "acac9fdf9711781302c79fb142dbbaeaf775e224a426c32204e8ab2f3a22db32",
+      "gitBlobSha1": "a128b1df8453f248efd1200d80c4b0e1a0c58886"
+    },
+    "sheetNames": [
+      "Q3 variance"
+    ],
+    "stylesSha256": "b162294abd5acb68586c0433eae4f5c97480787c08dda49d1fa145f3b7b0a692",
+    "cells": {
+      "A1": {
+        "value": "Account",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B1": {
+        "value": "Q2",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C1": {
+        "value": "Q3",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D1": {
+        "value": "Variance",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E1": {
+        "value": "Note",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A2": {
+        "value": "Revenue",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B2": {
+        "value": "$10,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C2": {
+        "value": "$12,400",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D2": {
+        "value": "+24%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E2": {
+        "value": "Reviewer note: checked source",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A3": {
+        "value": "COGS",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B3": {
+        "value": "$4,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C3": {
+        "value": "$5,100",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D3": {
+        "value": "+27.5%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A4": {
+        "value": "Gross profit",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B4": {
+        "value": "$6,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C4": {
+        "value": "$7,300",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D4": {
+        "value": "+21.7%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A5": {
+        "value": "OpEx",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B5": {
+        "value": "$2,200",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C5": {
+        "value": "$2,650",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A6": {
+        "value": "Net income",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B6": {
+        "value": "$3,800",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C6": {
+        "value": "$4,650",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D6": {
+        "value": "+22.4%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E3": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E4": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D5": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E5": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E6": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      }
+    },
+    "zipMembers": [
+      "[Content_Types].xml",
+      "_rels/",
+      "_rels/.rels",
+      "xl/",
+      "xl/_rels/",
+      "xl/_rels/workbook.xml.rels",
+      "xl/worksheets/",
+      "xl/worksheets/sheet1.xml",
+      "xl/sharedStrings.xml",
+      "xl/theme/",
+      "xl/theme/theme1.xml",
+      "xl/styles.xml",
+      "docProps/",
+      "docProps/app.xml",
+      "docProps/core.xml",
+      "xl/workbook.xml"
+    ]
+  },
+  {
+    "file": {
+      "path": "browser-suite/results/excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium/review-2-Q3_variance.xlsx",
+      "bytes": 6692,
+      "sha256": "495e4fd5fed1a6e4c5340b1cde5b9e1fb33559a37ca3c55993f79fa1a594623a",
+      "gitBlobSha1": "124cef5bd12e2b24543b6fbc17614542fa8cb6a8"
+    },
+    "sheetNames": [
+      "Q3 variance"
+    ],
+    "stylesSha256": "b162294abd5acb68586c0433eae4f5c97480787c08dda49d1fa145f3b7b0a692",
+    "cells": {
+      "A1": {
+        "value": "Account",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B1": {
+        "value": "Q2",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C1": {
+        "value": "Q3",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D1": {
+        "value": "Variance",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E1": {
+        "value": "Note",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A2": {
+        "value": "Revenue",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B2": {
+        "value": "$10,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C2": {
+        "value": "$12,400",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D2": {
+        "value": "+24%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E2": {
+        "value": "Reviewer note: revised before handoff",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A3": {
+        "value": "COGS",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B3": {
+        "value": "$4,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C3": {
+        "value": "$5,100",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D3": {
+        "value": "+27.5%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A4": {
+        "value": "Gross profit",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B4": {
+        "value": "$6,000",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C4": {
+        "value": "$7,300",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D4": {
+        "value": "+21.7%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A5": {
+        "value": "OpEx",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B5": {
+        "value": "$2,200",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C5": {
+        "value": "$2,650",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "A6": {
+        "value": "Net income",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "B6": {
+        "value": "$3,800",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "C6": {
+        "value": "$4,650",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D6": {
+        "value": "+22.4%",
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E3": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E4": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "D5": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E5": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      },
+      "E6": {
+        "value": null,
+        "formula": null,
+        "styleIndex": 0,
+        "styleXml": "<ns0:xf xmlns:ns0=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" />"
+      }
+    },
+    "zipMembers": [
+      "[Content_Types].xml",
+      "_rels/",
+      "_rels/.rels",
+      "xl/",
+      "xl/_rels/",
+      "xl/_rels/workbook.xml.rels",
+      "xl/worksheets/",
+      "xl/worksheets/sheet1.xml",
+      "xl/sharedStrings.xml",
+      "xl/theme/",
+      "xl/theme/theme1.xml",
+      "xl/styles.xml",
+      "docProps/",
+      "docProps/app.xml",
+      "docProps/core.xml",
+      "xl/workbook.xml"
+    ]
+  }
+]

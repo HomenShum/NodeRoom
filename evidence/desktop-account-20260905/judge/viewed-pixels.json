@@ -1,0 +1,65 @@
+[
+  {
+    "path": "before/change-boundary.png",
+    "bytes": 135909,
+    "sha256": "fceb0dc7ca8665b6c3d49ce5ecf226c80293c571c17dbdbb57ddf1dbf896671d",
+    "width": 1440,
+    "height": 960,
+    "viewedActualPixelsWith": "view_image",
+    "observation": "Actual Account column is marked by a labelled 3 px box. All five labels are visible; the downloaded baseline independently has five blank Account cells."
+  },
+  {
+    "path": "after/change-boundary.png",
+    "bytes": 135281,
+    "sha256": "7efd166666c487ff28c3659bb7dc4a08a9fe2c2af9c02f134e6880094b27b40d",
+    "width": 1440,
+    "height": 960,
+    "viewedActualPixelsWith": "view_image",
+    "observation": "Actual same initial five-label grid and baseline note. Labelled boundary encloses the same column; retained workbook now contains all five labels."
+  },
+  {
+    "path": "before/desktop-memory-1440-downloaded.png",
+    "bytes": 133801,
+    "sha256": "d748f5992dec7ddee8816c83d8c6d8be7ddf754456cf64142417a2178afcee57",
+    "width": 1440,
+    "height": 960,
+    "viewedActualPixelsWith": "view_image",
+    "observation": "Unannotated baseline grid, five visible labels and baseline note; no visual redesign is needed to explain the file defect."
+  },
+  {
+    "path": "after/desktop-memory-1440-downloaded.png",
+    "bytes": 133268,
+    "sha256": "ef099b2a6b9c226ab4c6508b80dd36dd79818af70b840ae573ed651d16ba988a",
+    "width": 1440,
+    "height": 960,
+    "viewedActualPixelsWith": "view_image",
+    "observation": "Unannotated current grid with the same labels/numbers/baseline note and a visible download status. Toolbar content/timestamps/recency differ, so no whole-image byte equality is claimed."
+  },
+  {
+    "path": "after/desktop-memory-1440-later-download.png",
+    "bytes": 135016,
+    "sha256": "57012fa7146507f83b6a39a41d224bdb73818a38c15bc283783edc379c3ecce5",
+    "width": 1440,
+    "height": 960,
+    "viewedActualPixelsWith": "view_image",
+    "observation": "Later note is visibly revised, version rises from v6 to v7, and all Account labels remain readable. The longer note naturally changes table column widths."
+  },
+  {
+    "path": "browser-suite/results/excel-grid-a-reviewer-reop-1660a--edits-and-repeated-exports-chromium/desktop-account-current-export.png",
+    "bytes": 135059,
+    "sha256": "42ffda5a38b1edd79a599c9dde79e60d9978ced5efcc6717e07da73da2ad89c4",
+    "width": 1440,
+    "height": 960,
+    "viewedActualPixelsWith": "view_image",
+    "observation": "Separate ordinary browser suite shows the later note, five readable labels and download status after two actual file saves."
+  },
+  {
+    "path": "browser-suite/uploaded-workbook-shared-grid.png",
+    "bytes": 138953,
+    "sha256": "d31c290f875c48b83a91941e95f125b16ec1335cc67080a41e7755bec1fde7ea",
+    "width": 1280,
+    "height": 720,
+    "viewedActualPixelsWith": "view_image",
+    "observation": "Existing generic uploaded model renders in the shared dark grid with selected D4 and visible values. This is a 1280 x 720 limited compatibility observation, not a whole-layout grade."
+  }
+]

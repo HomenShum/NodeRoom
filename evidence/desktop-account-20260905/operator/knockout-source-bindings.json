@@ -1,0 +1,11 @@
+{
+  "finalSourceSha256": "013064b20f5fea117e2e8b96755d2d93fce490e9eb5f6845b1b1cd6f386b07a0",
+  "regressedSourceSha256": "701cbef1cbe9ca89dea754b203243dbd760aa04d9062f6053e1615f7cbeb6463",
+  "testSha256": "3c48be964ca1c7e5083801d7875bc8a74f075f38e56fcab3e621e799b6ffc136",
+  "restoredExact": true,
+  "changedLines": [
+    2461,
+    2556
+  ],
+  "commandExit": 1
+}

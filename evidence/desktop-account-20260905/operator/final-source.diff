@@ -1,0 +1,244 @@
+diff --git a/HANDOFF.md b/HANDOFF.md
+index 3b3cecec..49706cb1 100644
+--- a/HANDOFF.md
++++ b/HANDOFF.md
+@@ -61,16 +61,33 @@ npx playwright test e2e/mobile-sample-workbook-export.spec.ts --workers=1 --retr
+ 
+ The scenario writes exact source hashes, HTML, pixels, console observations and reopened downloads to the configured Playwright output directory. It blocks external requests and uses fallback fonts. Preserve that output before another run. The default browser output path is local test evidence, not a deployment or public certificate.
+ 
+-Historical mobile-freeze holds: its baseline full dependency audit had 29 findings (28 moderate, one development high), and the production subset had 28 moderate findings. That export-only freeze kept the lock unchanged. The later dependency candidate and its current audit/mounted status are described below; these historical receipts are not rewritten. Gemini nightly still lacks its required credential. The old desktop XLSX projection exports blank Account cells despite visible Revenue/COGS labels; this extraction preserves that behavior and does not certify desktop data completeness. Current instructions reference two absent mobile design documents. The inherited half-height mobile dialog requires scrolling; enlarged navigation tabs have reading limitations and transient edit toasts overlap early outcomes. Full visual, responsive, accessibility, performance, provider and production grades remain unassigned.
++Historical mobile-freeze holds: its baseline full dependency audit had 29 findings (28 moderate, one development high), and the production subset had 28 moderate findings. That export-only freeze kept the lock unchanged. The later dependency candidate and its current audit/mounted status are described below; these historical receipts are not rewritten. Gemini nightly still lacks its required credential. The old desktop XLSX projection exported blank Account cells despite visible Revenue/COGS labels; the mobile extraction preserved that behavior and did not certify desktop data completeness. The separate Account repair below addresses those two lookups. Current instructions reference two absent mobile design documents. The inherited half-height mobile dialog requires scrolling; enlarged navigation tabs have reading limitations and transient edit toasts overlap early outcomes. Full visual, responsive, accessibility, performance, provider and production grades remain unassigned.
+ 
+ The retained proof used no provider call, shared backend change, hook activation, original environment read or production deployment. Old branches and dirty worktrees remain preserved.
+ 
+-## Current dependency repair, local review accepted
++## Dependency repair, reviewed and merged
+ 
+-Read the [dependency proof and fresh commands](evidence/shared-dependencies-20260905/README.md) after this handoff. The [independent judgment](evidence/shared-dependencies-20260905/review/E6f_NODEROOM_SHARED_DEPENDENCY_FINAL_JUDGE.md) accepts this local dependency scope. The [encoding addendum](evidence/shared-dependencies-20260905/review/E6f_NODEROOM_DEPENDENCY_PACKAGE_ENCODING_ADDENDUM.md) explains why the final package spelling differs from the earlier raw worker hash. Shared integration is still pending. It restores the two exact NodeSlide file pins required by the immutable release contract and upgrades the coherent 30-package Tiptap cohort to 3.30.4, with only its required ProseMirror model/view minimums. All other lock rows and the nested uuid 14.0.1 remain unchanged.
++Read the [dependency proof and fresh commands](evidence/shared-dependencies-20260905/README.md) after this handoff. The [independent judgment](evidence/shared-dependencies-20260905/review/E6f_NODEROOM_SHARED_DEPENDENCY_FINAL_JUDGE.md) accepts this local dependency scope. The [encoding addendum](evidence/shared-dependencies-20260905/review/E6f_NODEROOM_DEPENDENCY_PACKAGE_ENCODING_ADDENDUM.md) explains why the final package spelling differs from the earlier raw worker hash. [PR 252](https://github.com/HomenShum/NodeRoom/pull/252) merged normally at `034a8f963dfa037d860f5364032319506be3e2e0` after independent review and the premerge shared gates. It restores the two exact NodeSlide file pins required by the immutable release contract and upgrades the coherent 30-package Tiptap cohort to 3.30.4, with only its required ProseMirror model/view minimums. All other lock rows and the nested uuid 14.0.1 remain unchanged.
+ 
+ Normal install, the unchanged fresh mounted consumer, 51 notebook/export scenarios, both TypeScript checks, build and 29 unchanged memory browser cases passed. The production audit now has zero findings; full audit retains one high development-only Browserslist finding. The real installed library prototype canary changes from 1,025 unsafe before cases to zero after, without claiming a NodeRoom exploit or executed browser handler.
+ 
+ The dedicated notebook provenance browser spec remains unresolved: 3/3 failed on both preserved old and new built output, and only the 375 px failure matched exactly. Different artifact selection/steps at desktop and 320 px prevent a no-regression claim. All six screenshots/traces and original assertions are retained. This candidate has no notebook UI repair or full visual grade.
+ 
+-The unchanged full shared gates and actual new-commit check are still required before integration; the historical de9 commit-message failure remains. The Windows native Office deadline, absent nightly credential and separately planned desktop Account-label repair are open. Current dependency proof does not replace the original mobile export source/lock bindings or authorize a deployment.
++The historical de9 commit-message failure remains recorded; published history was not rewritten. The Windows native Office deadline and absent nightly credential remain open. The merged dependency proof does not replace the original mobile export source/lock bindings or certify a deployment.
++
++## Desktop Account export, awaiting independent review
++
++A reviewer could see Revenue, COGS, Gross profit, OpEx and Net income in the desktop Q3 variance grid but receive five blank Account cells in the downloaded workbook. Both canonical export branches read `__account`; the existing seed and renderer store those values as `__label`. This candidate changes only those two field lookups. It preserves the visible grid, mobile projection, shared download transport and generic uploaded-workbook behavior.
++
++From the fresh local entry above, open `?mode=memory&surface=desktop`, enter the sample room and dismiss its walkthrough. In Room chat, send `@nodeagent recompute the Q3 variance column`. Wait for the committed variance response, edit the Revenue note, then select **Export XLSX**. The downloaded workbook must contain all five visible Account labels. Edit the note again and export a second file; the new file must contain the later note while the first file remains unchanged.
++
++The source-bound worker proof on merged `034a8f9` passed the normal build, the Convex TypeScript check, design audit, ten affected workbook/dialog scenarios and all three existing-plus-new `excel-grid` browser cases with the unchanged 30-second test budget. Current- and sibling-sheet component scenarios reopen eight serialized workbooks across repeated edits and duplicate activation. Temporarily restoring only the two old lookups makes both label scenarios fail; the exact repaired bytes were restored before the final proof. The actual 1440 px desktop journey saved two XLSX files: all five Account cells match the grid, the other 25 cells and all 30 cell styles match the preserved baseline, and the later note does not alter the earlier file. The sibling-sheet case is a typed component/store fixture, not a browser-certified uploaded canonical workbook.
++
++After installing Chromium and starting the built preview as above, replay the affected checks in the second terminal:
++
++```powershell
++npx vitest run tests/artifactXlsxExport.test.ts tests/mobileSampleWorkbookExport.test.ts tests/mobileSheetDialog.test.tsx
++npx playwright test e2e/excel-grid.spec.ts --output test-results/desktop-account
++```
++
++Keep the three `PLAYWRIGHT_*` variables shown above so the browser uses that built preview. Preserve the output before another run; one unchanged uploaded-grid scenario also writes `test-results/uploaded-workbook-shared-grid.png`. The new Account scenario retains both downloaded workbooks and its screenshot. The matched before/after source, grid, PNG, XLSX and raw failure records are retained in the operator packet `E6f-noderoom-desktop-account-repair-01`, pending independent review and portable publication. The browser proof used fallback fonts and the memory engine, with no provider or native Office execution. Its base-commit build stamp is supplemented by exact working-source hashes. These checks do not close the inherited notebook failures, full floor/native Excel timeout, production behavior or whole-product grades.
+diff --git a/e2e/excel-grid.spec.ts b/e2e/excel-grid.spec.ts
+index 9fbb8a28..e9b9be57 100644
+--- a/e2e/excel-grid.spec.ts
++++ b/e2e/excel-grid.spec.ts
+@@ -130,3 +130,53 @@ test("uploaded workbook renders in the shared Sheet 1 grid, not the false Excel-
+ 
+   await page.screenshot({ path: "test-results/uploaded-workbook-shared-grid.png", fullPage: false });
+ });
++
++test("a reviewer reopens every visible Account label after current-sheet edits and repeated exports", async ({ page }, testInfo) => {
++  await page.setViewportSize({ width: 1440, height: 960 });
++  const origin = new URL(String(testInfo.project.use.baseURL)).origin;
++  await page.route("**/*", route => {
++    const url = new URL(route.request().url());
++    return url.origin === origin || ["data:", "blob:"].includes(url.protocol)
++      ? route.continue() : route.abort("blockedbyclient");
++  });
++  await enterDemoRoom(page);
++  const chat = page.getByTestId("public-chat-panel");
++  await chat.getByTestId("chat-composer").fill("@nodeagent recompute the Q3 variance column");
++  await chat.getByTestId("chat-send").click();
++  await expect(chat.getByText("Committed r_rev +24%, r_cogs +27.5%, r_gp +21.7%, r_ni +22.4%. Lock released.", { exact: true })).toBeVisible();
++  const table = page.locator('table.r-sheet[data-noderoom-surface="workSurface.sheet"]').first();
++  const labels = await table.locator("tbody td.label").allTextContents();
++  expect(labels).toEqual(["Revenue", "COGS", "Gross profit", "OpEx", "Net income"]);
++  const stableNumbers = await table.locator("tbody tr").filter({ has: page.locator("td.label") }).evaluateAll(rows =>
++    rows.map(row => [...row.querySelectorAll("td.num .r-val-num")].map(cell => cell.textContent)),
++  );
++  const files: string[] = [];
++  for (const [index, note] of ["Reviewer note: checked source", "Reviewer note: revised before handoff"].entries()) {
++    await page.locator('[data-cell-key="r_rev__note"] button').click();
++    await page.locator("input.r-cell-input").fill(note);
++    await page.locator("input.r-cell-input").press("Enter");
++    await expect(page.locator('[data-cell-key="r_rev__note"]')).toContainText(note);
++    const event = page.waitForEvent("download");
++    await page.getByTestId("artifact-export-xlsx").click();
++    const download = await event;
++    expect(await download.failure()).toBeNull();
++    const file = testInfo.outputPath(`review-${index + 1}-${download.suggestedFilename()}`);
++    await download.saveAs(file);
++    files.push(file);
++    const reopened = new ExcelJS.Workbook();
++    await reopened.xlsx.readFile(file);
++    const sheet = reopened.worksheets[0];
++    expect(sheet.getRow(1).values).toEqual([undefined, "Account", "Q2", "Q3", "Variance", "Note"]);
++    expect(labels.map((_, row) => sheet.getCell(row + 2, 1).value)).toEqual(labels);
++    expect(labels.map((_, row) => [sheet.getCell(row + 2, 2).value, sheet.getCell(row + 2, 3).value])).toEqual(stableNumbers);
++    expect(sheet.getCell("D2").value).toBe("+24%");
++    expect(sheet.getCell("E2").value).toBe(note);
++    await expect(page.getByTestId("artifact-export-xlsx-status")).toContainText("Downloaded");
++    await testInfo.attach(`review-${index + 1}.xlsx`, { path: file, contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
++  }
++  const first = new ExcelJS.Workbook();
++  await first.xlsx.readFile(files[0]);
++  expect(first.worksheets[0].getCell("E2").value).toBe("Reviewer note: checked source");
++  expect(await table.locator("tbody td.label").allTextContents()).toEqual(labels);
++  await page.screenshot({ path: testInfo.outputPath("desktop-account-current-export.png"), caret: "initial" });
++});
+diff --git a/src/ui/panels/Artifact.tsx b/src/ui/panels/Artifact.tsx
+index 74c90f35..37dac53c 100644
+--- a/src/ui/panels/Artifact.tsx
++++ b/src/ui/panels/Artifact.tsx
+@@ -2458,7 +2458,7 @@ async function exportSheetAsXlsx(art: Art, visibleRoot?: HTMLElement | null, all
+     appendExportRow(worksheet, ["Account", "Q2", "Q3", "Variance", "Note"]);
+     for (const rid of rows) {
+       appendExportRow(worksheet, [
+-        art.elements[`${rid}__account`]?.value,
++        art.elements[`${rid}__label`]?.value,
+         art.elements[`${rid}__q2`]?.value,
+         art.elements[`${rid}__q3`]?.value,
+         art.elements[`${rid}__variance`]?.value,
+@@ -2553,7 +2553,7 @@ function appendSheetArtifactWorksheet(
+     appendExportRow(worksheet, ["Account", "Q2", "Q3", "Variance", "Note"]);
+     for (const rid of rows) {
+       appendExportRow(worksheet, [
+-        art.elements[`${rid}__account`]?.value,
++        art.elements[`${rid}__label`]?.value,
+         art.elements[`${rid}__q2`]?.value,
+         art.elements[`${rid}__q3`]?.value,
+         art.elements[`${rid}__variance`]?.value,
+diff --git a/tests/artifactXlsxExport.test.ts b/tests/artifactXlsxExport.test.ts
+index 452d795d..424266f4 100644
+--- a/tests/artifactXlsxExport.test.ts
++++ b/tests/artifactXlsxExport.test.ts
+@@ -1,7 +1,27 @@
++// @vitest-environment jsdom
+ import ExcelJS from "exceljs";
+-import { describe, expect, it } from "vitest";
+-import type { Artifact } from "../src/engine/types";
+-import { applyExportCell, exportCellValue, spreadsheetCellFontColorCss } from "../src/ui/panels/Artifact";
++import { createElement } from "react";
++import { fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { describe, expect, it, vi } from "vitest";
++import type { Actor, Artifact } from "../src/engine/types";
++import { SHEET_ROWS } from "../src/engine/demoRoom";
++
++const exportFixture = vi.hoisted(() => ({
++  store: {} as Record<string, unknown>,
++  bytes: [] as ArrayBuffer[],
++}));
++vi.mock("../src/app/store", () => ({ useStore: () => exportFixture.store }));
++// Keep the real component projection and ExcelJS serialization. Only replace browser dispatch;
++// the companion browser scenario saves and reopens the actual downloaded file.
++vi.mock("../src/ui/workArtifacts/xlsxDownload", () => ({
++  downloadXlsxWorkbook: async (workbook: ExcelJS.Workbook, fileName: string, rowCount: number) => {
++    const bytes = await workbook.xlsx.writeBuffer();
++    exportFixture.bytes.push(bytes);
++    return { fileName, rowCount, sheetCount: workbook.worksheets.length, byteCount: bytes.byteLength, at: "test" };
++  },
++}));
++
++import { Artifact as ArtifactPanel, applyExportCell, exportCellValue, spreadsheetCellFontColorCss } from "../src/ui/panels/Artifact";
+ 
+ describe("NodeRoom XLSX cell export", () => {
+   it("preserves a managed formula, cached result, and number format after reopen", async () => {
+@@ -85,4 +105,86 @@ describe("NodeRoom XLSX cell export", () => {
+     expect(spreadsheetCellFontColorCss(artifact, "A1")).toBe("#11223380");
+     expect(spreadsheetCellFontColorCss(artifact, "A2")).toBe("#AABBCC");
+   });
++
++  it.each(["current sheet", "sibling sheet"] as const)("keeps Account labels through repeated reviewer exports of the %s", async (surface) => {
++    const actor: Actor = { kind: "user", id: "reviewer", name: "Reviewer" };
++    const canonical: Artifact = {
++      id: "variance", roomId: "review-room", title: "Q3 variance", kind: "sheet",
++      version: 1, updatedAt: 1, order: [], elements: {},
++    };
++    const rowIds = SHEET_ROWS.map((row, index) => surface === "current sheet" ? row.id : String(index + 1));
++    SHEET_ROWS.forEach((row, index) => {
++      const values = { label: row.label, q2: row.q2, q3: row.q3,
++        variance: { value: 0.24, formula: "=C2/B2-1", numFmt: "0.0%" }, note: "Initial review" };
++      for (const [column, value] of Object.entries(values)) {
++        const id = `${rowIds[index]}__${column}`;
++        canonical.order.push(id);
++        canonical.elements[id] = { id, value, version: 1, updatedAt: 1, updatedBy: actor };
++      }
++    });
++    const summary: Artifact = {
++      id: "summary", roomId: canonical.roomId, title: "Summary", kind: "sheet",
++      version: 1, updatedAt: 1, order: ["A1", "B1"],
++      elements: {
++        A1: { id: "A1", value: { value: "Review workbook" }, version: 1, updatedAt: 1, updatedBy: actor },
++        B1: { id: "B1", value: { value: 2, formula: "=1+1", numFmt: "0.00" }, version: 1, updatedAt: 1, updatedBy: actor },
++      },
++    };
++    if (surface === "sibling sheet") {
++      // Existing multi-sheet metadata supplies numeric row IDs. The active generic sheet and
++      // its canonical sibling must both survive the same workbook-export action.
++      for (const art of [summary, canonical]) art.meta = {
++        upload: { fileName: "review.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", size: 1, parsedAt: 1 },
++        excelGrid: { sourceFile: "review.xlsx", sheetName: art.title, sheetNames: ["Summary", "Q3 variance"], parser: "exceljs:xlsx-grid", rows: art === canonical ? 5 : 1, columns: art === canonical ? 5 : 2 },
++      };
++      summary.meta!.dataframe = {
++        rowCount: 1, columns: ["A", "B"].map((id, order) => ({ id, label: id, order })),
++      };
++    }
++    const artifacts = surface === "current sheet" ? [canonical] : [summary, canonical];
++    exportFixture.bytes = [];
++    exportFixture.store = {
++      mode: "engine", listArtifacts: () => artifacts, getArtifact: (id: string) => artifacts.find(art => art.id === id),
++      listMessages: () => [], listProposals: () => [], listTraces: () => [], listDrafts: () => [],
++      listMembers: () => [{ id: actor.id, actor, role: "host" }], listSessions: () => [], listPresence: () => [],
++      lockFor: () => null, canUndo: () => false, updatePresence: () => undefined, clearPresence: () => undefined,
++      getRoom: () => ({ id: canonical.roomId, title: "Review room" }),
++      lastRun: () => null, lastLongFreeJob: () => null, lastLongFreeJobAttempts: () => [], lastLongFreeJobDetail: () => null,
++    };
++    const props = { roomId: canonical.roomId, me: actor, artId: artifacts[0].id, onArt: vi.fn() };
++    const view = render(createElement(ArtifactPanel, props));
++    if (surface === "current sheet") {
++      expect([...view.container.querySelectorAll("td.label")].map(cell => cell.textContent)).toEqual(SHEET_ROWS.map(row => row.label));
++    }
++    for (let revision = 1; revision <= 4; revision++) {
++      const note = `Reviewer revision ${revision}`;
++      canonical.elements[`${rowIds[0]}__note`].value = note;
++      canonical.elements[`${rowIds[0]}__note`].version = revision;
++      view.rerender(createElement(ArtifactPanel, props));
++      const button = screen.getByTestId("artifact-export-xlsx");
++      fireEvent.click(button);
++      fireEvent.click(button); // Ordinary burst against the disabled current action starts once.
++      await waitFor(() => expect(exportFixture.bytes).toHaveLength(revision));
++      await waitFor(() => expect((button as HTMLButtonElement).disabled).toBe(false));
++      const reopened = new ExcelJS.Workbook();
++      await reopened.xlsx.load(exportFixture.bytes[revision - 1]);
++      const sheet = reopened.getWorksheet("Q3 variance")!;
++      expect(SHEET_ROWS.map((_, index) => sheet.getCell(index + 2, 1).value)).toEqual(SHEET_ROWS.map(row => row.label));
++      expect(sheet.getCell("B2").value).toBe(SHEET_ROWS[0].q2);
++      expect(sheet.getCell("C2").value).toBe(SHEET_ROWS[0].q3);
++      expect(sheet.getCell("D2").formula).toBe("C2/B2-1");
++      expect(sheet.getCell("D2").result).toBe(0.24);
++      expect(sheet.getCell("D2").numFmt).toBe("0.0%");
++      expect(sheet.getCell("E2").value).toBe(note);
++      if (surface === "sibling sheet") {
++        expect(reopened.getWorksheet("Summary")!.getCell("A1").value).toBe("Review workbook");
++        expect(reopened.getWorksheet("Summary")!.getCell("B1").formula).toBe("1+1");
++        expect(reopened.getWorksheet("Summary")!.getCell("B1").result).toBe(2);
++        expect(reopened.getWorksheet("Summary")!.getCell("B1").numFmt).toBe("0.00");
++      }
++    }
++    const first = new ExcelJS.Workbook();
++    await first.xlsx.load(exportFixture.bytes[0]);
++    expect(first.getWorksheet("Q3 variance")!.getCell("E2").value).toBe("Reviewer revision 1");
++  });
+ });

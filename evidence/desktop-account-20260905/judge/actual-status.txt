@@ -1,0 +1,4 @@
+ M HANDOFF.md
+ M e2e/excel-grid.spec.ts
+ M src/ui/panels/Artifact.tsx
+ M tests/artifactXlsxExport.test.ts

@@ -1,0 +1,108 @@
+{
+  "ui": {
+    "title": "Q3 variance",
+    "headers": [
+      "",
+      "Account",
+      "Q2",
+      "Q3",
+      "Variance",
+      "Note"
+    ],
+    "rows": [
+      {
+        "id": "r_rev",
+        "account": "Revenue",
+        "cells": [
+          "Revenue",
+          "$10,000",
+          "$12,400",
+          "+24%",
+          "Reviewer note: baseline input"
+        ]
+      },
+      {
+        "id": "r_cogs",
+        "account": "COGS",
+        "cells": [
+          "COGS",
+          "$4,000",
+          "$5,100",
+          "+27.5%",
+          " note"
+        ]
+      },
+      {
+        "id": "r_gp",
+        "account": "Gross profit",
+        "cells": [
+          "Gross profit",
+          "$6,000",
+          "$7,300",
+          "+21.7%",
+          " note"
+        ]
+      },
+      {
+        "id": "r_opex",
+        "account": "OpEx",
+        "cells": [
+          "OpEx",
+          "$2,200",
+          "$2,650",
+          " add",
+          " note"
+        ]
+      },
+      {
+        "id": "r_ni",
+        "account": "Net income",
+        "cells": [
+          "Net income",
+          "$3,800",
+          "$4,650",
+          "+22.4%",
+          " note"
+        ]
+      }
+    ]
+  },
+  "rows": [
+    {
+      "rowId": "r_rev",
+      "uiAccount": "Revenue",
+      "xlsxAccount": null,
+      "matches": false
+    },
+    {
+      "rowId": "r_cogs",
+      "uiAccount": "COGS",
+      "xlsxAccount": null,
+      "matches": false
+    },
+    {
+      "rowId": "r_gp",
+      "uiAccount": "Gross profit",
+      "xlsxAccount": null,
+      "matches": false
+    },
+    {
+      "rowId": "r_opex",
+      "uiAccount": "OpEx",
+      "xlsxAccount": null,
+      "matches": false
+    },
+    {
+      "rowId": "r_ni",
+      "uiAccount": "Net income",
+      "xlsxAccount": null,
+      "matches": false
+    }
+  ],
+  "allFiveMismatch": true,
+  "workbook": {
+    "fileName": "Q3_variance.xlsx",
+    "sha256": "06dd606710f763f7e6016e81a8022667d69ab61f871cf50328484dec5f98dc31",
+    "byteCount": 6631
+  }
+}

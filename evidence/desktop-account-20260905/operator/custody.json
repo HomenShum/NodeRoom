@@ -1,0 +1,19 @@
+{
+  "at": "2026-09-05T16:21:02.394719+00:00",
+  "base": "034a8f963dfa037d860f5364032319506be3e2e0",
+  "tree": "8fbd0d5d0ca31a71a70c45208ba8a5fd6a64a831",
+  "ownedPaths": [
+    "src/ui/panels/Artifact.tsx",
+    "tests/artifactXlsxExport.test.ts",
+    "e2e/excel-grid.spec.ts",
+    "HANDOFF.md"
+  ],
+  "trackedFiles": 7512,
+  "installedManifests": 37,
+  "priorDistFiles": 475,
+  "priorDistZipSha256": "49f620f909df6054e5e910fb3271cdb92a5022e9059856b83d8a07ca79a7c251",
+  "priorDistRestoredBytesVerified": true,
+  "sourceEdited": false,
+  "noEnvFilesRead": true,
+  "nativeOfficeCalls": 0
+}

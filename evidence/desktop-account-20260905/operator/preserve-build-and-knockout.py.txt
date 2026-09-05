@@ -1,0 +1,39 @@
+import hashlib, json, pathlib, subprocess, zipfile
+
+out = pathlib.Path(__file__).parent
+root = pathlib.Path('D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905')
+sha = lambda b: hashlib.sha256(b).hexdigest()
+rows = []
+archive = out / 'before-current-dist.zip'
+with zipfile.ZipFile(archive, 'x', compression=zipfile.ZIP_DEFLATED) as z:
+    for p in sorted((root / 'dist').rglob('*')):
+        if p.is_symlink(): raise RuntimeError('Unexpected symlink')
+        if not p.is_file(): continue
+        b = p.read_bytes(); rel = p.relative_to(root / 'dist').as_posix()
+        z.writestr(rel, b); rows.append({'path': rel, 'bytes': len(b), 'sha256': sha(b)})
+with zipfile.ZipFile(archive) as z:
+    for r in rows: assert sha(z.read(r['path'])) == r['sha256']
+(out / 'before-current-dist-bindings.json').write_text(json.dumps({'archive': archive.name, 'sha256': sha(archive.read_bytes()), 'files': rows}, indent=2)+'\n', encoding='utf-8')
+source = root / 'src/ui/panels/Artifact.tsx'
+b = source.read_bytes()
+# Match the two exact fixed export lookups, never renderer or seed fields.
+text = b.decode('utf-8')
+lines = text.splitlines(keepends=True)
+selected = [i for i, line in enumerate(lines) if 'art.elements[`${rid}__label`]?.value' in line]
+assert len(selected) == 2, selected
+for i in selected: lines[i] = lines[i].replace('__label', '__account')
+knocked = ''.join(lines).encode('utf-8')
+(out / 'knockout-final-Artifact.tsx.txt').write_bytes(b)
+(out / 'knockout-regressed-Artifact.tsx.txt').write_bytes(knocked)
+tests = root / 'tests/artifactXlsxExport.test.ts'
+(out / 'knockout-final-artifactXlsxExport.test.ts.txt').write_bytes(tests.read_bytes())
+result = None
+try:
+    source.write_bytes(knocked)
+    result = subprocess.run(['python', '-X', 'utf8', str(out / 'run-command.py'), 'account-final-fixture-knockout', '120', 'C:/nvm4w/nodejs/npm.cmd', 'test', '--', '--run', 'tests/artifactXlsxExport.test.ts'], check=False)
+finally:
+    source.write_bytes(b)
+    assert source.read_bytes() == b
+(out / 'knockout-source-bindings.json').write_text(json.dumps({'finalSourceSha256':sha(b), 'regressedSourceSha256':sha(knocked), 'testSha256':sha(tests.read_bytes()), 'restoredExact':True, 'changedLines':[i+1 for i in selected], 'commandExit':result.returncode}, indent=2)+'\n', encoding='utf-8')
+assert result.returncode != 0, 'Knockout must fail the actual labels scenario'
+print(json.dumps({'distFilesPreserved':len(rows),'sourceRestored':True,'knockoutExit':result.returncode}))

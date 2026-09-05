@@ -1,0 +1,20 @@
+
+> noderoom@0.1.1 typecheck
+> tsc --noEmit --pretty false
+
+tests/artifactXlsxExport.test.ts(19,46): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(elements: Iterable<number>): Uint8Array<ArrayBuffer>', gave the following error.
+    Argument of type 'Buffer' is not assignable to parameter of type 'Iterable<number>'.
+      Property '[Symbol.iterator]' is missing in type 'Buffer' but required in type 'Iterable<number>'.
+  Overload 2 of 4, '(elements: Iterable<unknown>, mapfn?: ((v: unknown, k: number) => number) | undefined, thisArg?: any): Uint8Array<ArrayBuffer>', gave the following error.
+    Argument of type 'Buffer' is not assignable to parameter of type 'Iterable<unknown>'.
+      Property '[Symbol.iterator]' is missing in type 'Buffer' but required in type 'Iterable<unknown>'.
+  Overload 3 of 4, '(arrayLike: ArrayLike<number>): Uint8Array<ArrayBuffer>', gave the following error.
+    Argument of type 'Buffer' is not assignable to parameter of type 'ArrayLike<number>'.
+      Property 'length' is missing in type 'Buffer' but required in type 'ArrayLike<number>'.
+tests/artifactXlsxExport.test.ts(167,32): error TS2345: Argument of type 'Uint8Array<ArrayBufferLike>' is not assignable to parameter of type 'Buffer'.
+  The types of 'slice(...)[Symbol.toStringTag]' are incompatible between these types.
+    Type '"Uint8Array"' is not assignable to type '"ArrayBuffer"'.
+tests/artifactXlsxExport.test.ts(184,27): error TS2345: Argument of type 'Uint8Array<ArrayBufferLike>' is not assignable to parameter of type 'Buffer'.
+  The types of 'slice(...)[Symbol.toStringTag]' are incompatible between these types.
+    Type '"Uint8Array"' is not assignable to type '"ArrayBuffer"'.

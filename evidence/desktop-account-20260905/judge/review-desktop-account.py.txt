@@ -1,0 +1,124 @@
+from pathlib import Path
+import datetime, hashlib, json, re, subprocess, zipfile, xml.etree.ElementTree as ET
+
+P=Path(__file__).parent
+O=P/'E6f-noderoom-desktop-account-repair-01'
+J=P/'E6f-noderoom-desktop-account-judge'
+R=Path('D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905')
+J.mkdir(exist_ok=False)
+sha=lambda b:hashlib.sha256(b).hexdigest()
+blob=lambda b:hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+def read(p):return json.loads(p.read_bytes().decode('utf-8-sig'))
+def write(n,x):(J/n).write_bytes((json.dumps(x,ensure_ascii=False,indent=2)+'\n').encode('utf-8'))
+def git(*args):return subprocess.check_output(['git','--no-optional-locks',*args],cwd=R)
+checks=[]
+def check(name,ok,details):
+    checks.append({'name':name,'passed':bool(ok),'details':details})
+    write('checks-in-progress.json',checks)
+def bind(p,name=None):
+    b=p.read_bytes()
+    return {'path':name or str(p),'bytes':len(b),'sha256':sha(b),'gitBlobSha1':blob(b)}
+
+receipt=P/'E6f_NODEROOM_DESKTOP_ACCOUNT_REPAIR_RECEIPT.json'
+check('Exact worker receipt',sha(receipt.read_bytes())=='15b55c6ba99bfdfedbe04bcbd9b2f4bbe3b51a0fce3c9c2a3d2708ae0f340f73',bind(receipt))
+freeze=read(O/'freeze.json'); manifest=read(O/'manifest.json')
+check('Exact freeze and manifest',sha((O/'freeze.json').read_bytes())=='4e8640d97bbfe6bedd46521f40c15bd3c24e161e37384cbbf35452bff4d15605' and sha((O/'manifest.json').read_bytes())=='4e5fb3dabe91e0515f4506e3e2b6389c6bffd9bdef2fb0735c360b9a66c0883f',{'freeze':bind(O/'freeze.json'),'manifest':bind(O/'manifest.json')})
+actual_artifacts=[bind(O/x['path'],x['path']) for x in manifest['files']]
+artifact_mismatch=[{'expected':x,'actual':y} for x,y in zip(manifest['files'],actual_artifacts) if x!=y]
+actual_names={x.relative_to(O).as_posix() for x in O.rglob('*') if x.is_file() and x.name!='manifest.json'}
+check('All 132 raw artifact bindings',len(actual_artifacts)==132 and not artifact_mismatch and actual_names=={x['path'] for x in actual_artifacts},{'count':len(actual_artifacts),'mismatch':artifact_mismatch,'extraNames':sorted(actual_names-{x['path'] for x in actual_artifacts})})
+write('artifact-bindings.json',actual_artifacts)
+
+source=[bind(R/x['path'],x['path']) for x in freeze['source']]
+source_digest=sha(json.dumps(source,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode('utf-8'))
+check('Four exact current source owners',source==freeze['source'] and source_digest=='c4484a6d673c6ae4a43a4e2ebbe1ce94a2903a9e8e74a6c02a5212f30180c4d1',{'source':source,'sourceDigest':source_digest})
+write('source-bindings.json',source)
+for label,args in {'head':['rev-parse','HEAD','HEAD^{tree}'],'refs':['for-each-ref','--format=%(refname) %(objectname)'],'index':['ls-files','--stage','-z'],'worktrees':['worktree','list','--porcelain']}.items():
+    b=git(*args);(J/f'actual-{label}.bin').write_bytes(b)
+    check('Unchanged '+label,b==(O/f'before-{label}.txt').read_bytes()==(O/f'final-{label}.txt').read_bytes(),{'sha256':sha(b),'bytes':len(b),'representation':'serialized ls-files --stage -z entries, not raw index file' if label=='index' else 'Git output bytes'})
+status=git('status','--porcelain=v1');(J/'actual-status.txt').write_bytes(status)
+check('Exactly four unstaged paths',status==(O/'final-status.txt').read_bytes() and git('diff','--cached','--name-only')==b'',{'status':status.decode(),'branch':git('branch','--show-current').decode().strip()})
+owned={x['path'] for x in source}
+before=read(O/'before-tracked-bindings.json');after=read(O/'after-tracked-bindings.json')
+current=[bind(R/x['path'],x['path']) for x in before]
+changed=[x['path'] for x,y in zip(before,current) if x!=y]
+check('7512 tracked inputs and 7508 protected files',len(current)==7512 and current==after and set(changed)==owned,{'count':len(current),'protected':len(current)-len(changed),'changed':changed,'currentBindingsSha256':sha(json.dumps(current,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode())})
+installed=read(O/'installed-bindings.json')
+installed_bad=[x['path'] for x in installed if sha((R/x['path']/'package.json').read_bytes())!=x['sha256']]
+check('37 installed manifests unchanged',len(installed)==37 and not installed_bad,{'count':len(installed),'mismatch':installed_bad})
+dist=read(O/'final-dist-bindings.json'); dist_bad=[]
+with zipfile.ZipFile(O/'final-dist.zip') as z:
+    expected_names={x['path'] for x in dist['files']}
+    for x in dist['files']:
+        b=(R/'dist'/x['path']).read_bytes()
+        if bind(R/'dist'/x['path'],x['path'])!=x or b!=z.read(x['path']):dist_bad.append(x['path'])
+    names_equal=set(z.namelist())==expected_names=={x.relative_to(R/'dist').as_posix() for x in (R/'dist').rglob('*') if x.is_file()}
+check('475 current dist files equal retained built archive',len(dist['files'])==475 and not dist_bad and names_equal and sha((O/'final-dist.zip').read_bytes())==dist['archiveSha256'],{'count':len(dist['files']),'mismatch':dist_bad,'namesEqual':names_equal,'archiveSha256':dist['archiveSha256']})
+diff=git('diff','--binary','--',*sorted(owned));(J/'actual-source.diff').write_bytes(diff)
+check('Exact reviewed raw diff',diff==(O/'final-source.diff').read_bytes() and sha(diff)==freeze['diffSha256'],{'sha256':sha(diff)})
+app=R/'src/ui/panels/Artifact.tsx'; current_app=app.read_bytes(); base_app=git('show','HEAD:src/ui/panels/Artifact.tsx')
+old=b'art.elements[`${rid}__account`]?.value';new=b'art.elements[`${rid}__label`]?.value'
+check('Application delta is exactly two owned lookup replacements',base_app.count(old)==2 and base_app.replace(old,new)==current_app,{'oldLookupCount':base_app.count(old),'baseSha256':sha(base_app),'currentSha256':sha(current_app)})
+knock=(O/'knockout-regressed-Artifact.tsx.txt').read_bytes()
+check('Causal knockout restores exactly the two old lookups',knock==base_app and (O/'knockout-final-Artifact.tsx.txt').read_bytes()==current_app and (O/'knockout-final-artifactXlsxExport.test.ts.txt').read_bytes()==(R/'tests/artifactXlsxExport.test.ts').read_bytes(),{'regressedSha256':sha(knock),'finalSha256':sha(current_app),'testSha256':sha((R/'tests/artifactXlsxExport.test.ts').read_bytes())})
+
+NS={'s':'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
+def workbook(path):
+    with zipfile.ZipFile(path) as z:
+        strings=[]
+        if 'xl/sharedStrings.xml' in z.namelist():
+            strings=[''.join(t.text or '' for t in si.findall('.//s:t',NS)) for si in ET.fromstring(z.read('xl/sharedStrings.xml')).findall('s:si',NS)]
+        styles=z.read('xl/styles.xml')
+        style_tree=ET.fromstring(styles);xf=style_tree.find('s:cellXfs',NS)
+        cells={}
+        for c in ET.fromstring(z.read('xl/worksheets/sheet1.xml')).findall('.//s:c',NS):
+            v=c.find('s:v',NS);raw=None if v is None else v.text;t=c.get('t')
+            if t=='s':value=strings[int(raw)] if raw is not None else None
+            elif t=='inlineStr':value=''.join(i.text or '' for i in c.findall('.//s:t',NS))
+            elif raw is None:value=None
+            elif t=='b':value=raw=='1'
+            elif t in ('str','e'):value=raw
+            else:
+                try:value=int(raw)
+                except ValueError:
+                    try:value=float(raw)
+                    except ValueError:value=raw
+            f=c.find('s:f',NS);s=int(c.get('s','0'))
+            cells[c.attrib['r']]={'value':value,'formula':None if f is None else {'text':f.text,'attributes':f.attrib},'styleIndex':s,'styleXml':ET.tostring(xf[s],encoding='unicode')}
+        for row in range(1,7):
+            for col in 'ABCDE':
+                key=f'{col}{row}'
+                cells.setdefault(key,{'value':None,'formula':None,'styleIndex':0,'styleXml':ET.tostring(xf[0],encoding='unicode')})
+        return {'file':bind(path,path.relative_to(O).as_posix()),'sheetNames':[s.get('name') for s in ET.fromstring(z.read('xl/workbook.xml')).findall('s:sheets/s:sheet',NS)],'stylesSha256':sha(styles),'cells':cells,'zipMembers':z.namelist()}
+
+paths=[O/'before/Q3_variance.xlsx',O/'after/Q3_variance.xlsx',O/'after/review-2-Q3_variance.xlsx',*sorted((O/'browser-suite/results').rglob('review-*.xlsx'))]
+books=[workbook(x) for x in paths];write('independent-zip-xml.json',books)
+labels=['Revenue','COGS','Gross profit','OpEx','Net income']
+check('Seven actual ZIP/XML workbooks with five unique payloads',len(books)==7 and len({x['file']['sha256'] for x in books})==5 and all([x['cells'][f'A{i}']['value'] for i in range(2,7)]==([None]*5 if n==0 else labels) for n,x in enumerate(books)),{'files':[x['file'] for x in books],'accountLabels':labels})
+before_b,after_b,later=books[:3]
+keys=[f'{c}{r}' for r in range(1,7) for c in 'ABCDE']
+valdiff=[k for k in keys if before_b['cells'][k]['value']!=after_b['cells'][k]['value'] or before_b['cells'][k]['formula']!=after_b['cells'][k]['formula']]
+stylediff=[k for k in keys if {f:before_b['cells'][k][f] for f in ('styleIndex','styleXml')}!={f:after_b['cells'][k][f] for f in ('styleIndex','styleXml')}]
+before_ui=read(O/'before/ui-to-workbook.json')['ui'];after_ui=read(O/'after/ui-to-workbook.json')['ui']
+check('Actual five-label-only workbook delta, 25 other cells and all 30 styles intact',valdiff==['A2','A3','A4','A5','A6'] and stylediff==[] and before_b['stylesSha256']==after_b['stylesSha256'] and before_ui==after_ui,{'valueOrFormulaDiff':valdiff,'otherValueCells':30-len(valdiff),'styleDiff':stylediff,'rawStylesSha256':after_b['stylesSha256'],'beforeAndAfterUiDataExact':before_ui==after_ui})
+later_diff=[k for k in keys if after_b['cells'][k]['value']!=later['cells'][k]['value'] or after_b['cells'][k]['formula']!=later['cells'][k]['formula']]
+browser_first=next(x for x in books if x['file']['path'].endswith('/review-1-Q3_variance.xlsx'))
+browser_second=next(x for x in books if '/browser-suite/' in '/'+x['file']['path'] and x['file']['path'].endswith('/review-2-Q3_variance.xlsx'))
+browser_diff=[k for k in keys if browser_first['cells'][k]['value']!=browser_second['cells'][k]['value'] or browser_first['cells'][k]['formula']!=browser_second['cells'][k]['formula']]
+check('Later note alone changes and prior actual payloads remain exact',later_diff==['E2'] and browser_diff==['E2'] and after_b['file']['sha256']=='f932564a012f2cb46dea3a92eb90c80004895f5d55a0460c47ad7573379aa52f' and all(bind(path)['sha256']==book['file']['sha256'] for path,book in zip(paths,books)),{'matchedDiff':later_diff,'matchedNotes':[after_b['cells']['E2']['value'],later['cells']['E2']['value']],'browserDiff':browser_diff,'browserNotes':[browser_first['cells']['E2']['value'],browser_second['cells']['E2']['value']],'earlierFilesRereadExact':True})
+links=[]
+for target in re.findall(r'\]\(([^)]+)\)',(R/'HANDOFF.md').read_bytes().decode('utf8')):
+    if re.match(r'https?://',target):continue
+    f=(R/target.split('#')[0]).resolve();links.append({'target':target,'exists':f.is_file(),'sha256':sha(f.read_bytes()) if f.is_file() else None})
+check('Handoff local links and Chromium prerequisite',len(links)==5 and all(x['exists'] for x in links) and b'npx playwright install chromium' in (R/'HANDOFF.md').read_bytes(),links)
+write('handoff-links.json',links)
+log=(O/'account-final-scenarios.log').read_text(encoding='utf8');knocklog=(O/'account-final-fixture-knockout.log').read_text(encoding='utf8')
+commands=read(O/'final-commands.json')
+selected={Path(x['log']).name:x for x in commands}
+check('Actual 10-test final command and exact two knockout failures retained','Tests  10 passed (10)' in log and 'Test Files  3 passed (3)' in log and 'Tests  2 failed | 4 passed (6)' in knocklog and 'keeps Account labels through repeated reviewer exports of the current sheet' in knocklog and 'keeps Account labels through repeated reviewer exports of the sibling sheet' in knocklog and selected['account-final-scenarios.log']['exitCode']==0 and selected['account-final-fixture-knockout.log']['exitCode']==1,{'final':selected['account-final-scenarios.log'],'knockout':selected['account-final-fixture-knockout.log']})
+pw=read(O/'browser-suite/playwright.json');specs=pw['suites'][0]['specs'];results=[r for s in specs for t in s['tests'] for r in t['results']]
+check('Actual three browser cases pass without retries or raised deadlines',pw['stats']['expected']==3 and pw['stats']['unexpected']==pw['stats']['skipped']==pw['stats']['flaky']==0 and len(results)==3 and all(x['status']=='passed' and x['retry']==0 for x in results) and all(t['timeout']==30000 for s in specs for t in s['tests']),{'stats':pw['stats'],'cases':[{'title':s['title'],'tests':s['tests']} for s in specs],'source':'Worker actual retained JSON, no independent browser rerun'})
+check('Actual final build, Convex typecheck and design audit exit zero',all(selected[x]['exitCode']==0 and not selected[x]['timedOut'] for x in ['account-final-build.log','account-convex-typecheck.log','account-design-audit.log']),{x:selected[x] for x in ['account-final-build.log','account-convex-typecheck.log','account-design-audit.log']})
+write('command-results.json',commands)
+write('checks.json',{'at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'scope':'Read-only independent desktop Account source / raw artifact / ZIP XML verification; no runtime execution','checks':checks,'passed':sum(x['passed'] for x in checks),'failed':sum(not x['passed'] for x in checks),'sourceDigest':source_digest})
+print(json.dumps({'passed':sum(x['passed'] for x in checks),'failed':[x for x in checks if not x['passed']],'output':str(J)},ensure_ascii=True))

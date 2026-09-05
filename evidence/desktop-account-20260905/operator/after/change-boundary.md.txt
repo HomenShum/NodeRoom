@@ -1,0 +1,3 @@
+# CHANGE A: exported Account values
+
+A reviewer now receives the same five Account labels in the real XLSX. The earlier blank output remains preserved in the sibling before folder. The3px box marks the current Account column, not a proposed screen redesign. Change only the two current canonical Q3 workbook field lookups; preserve visible table, computed variance, edited note, numeric/formula/format behavior, uploaded sheets and shared download transport. Captured on the uncommitted source-bound two-lookup repair over merged034a8f9 and installed reviewed dependencies at1440x960, actual memory journey, fallback fonts, no provider. DOM restored exactly after removing the overlay. The workbook is parsed directly; no native Excel claim.

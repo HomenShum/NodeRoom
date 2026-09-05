@@ -1,0 +1,18 @@
+{
+  "startedAt": "2026-09-05T16:45:35.596568+00:00",
+  "finishedAt": "2026-09-05T16:45:40.046441+00:00",
+  "cwd": "D:\\VSCode Projects\\cafecorner_nodebench\\nodebench_ai4\\.portfolio-worktrees\\noderoom-current-consumer-20260905",
+  "argv": [
+    "C:/nvm4w/nodejs/npm.cmd",
+    "test",
+    "--",
+    "--run",
+    "tests/artifactXlsxExport.test.ts"
+  ],
+  "timeoutSeconds": 120,
+  "timedOut": false,
+  "exitCode": 1,
+  "elapsedSeconds": 4.453,
+  "log": "C:\\Users\\hshum\\.codex\\worktrees\\5dba\\nodebench-ai\\docs\\plans\\portfolio-recovery-20260904\\E6f-noderoom-desktop-account-repair-01\\account-final-fixture-knockout.log",
+  "environmentPolicy": "Remove inherited provider/Vite/Convex/CI-SHA/proof-server variables without outputting values; no env files copied"
+}

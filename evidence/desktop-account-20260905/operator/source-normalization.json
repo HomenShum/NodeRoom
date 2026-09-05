@@ -1,0 +1,20 @@
+[
+  {
+    "path": "src/ui/panels/Artifact.tsx",
+    "beforeSha256": "013064b20f5fea117e2e8b96755d2d93fce490e9eb5f6845b1b1cd6f386b07a0",
+    "afterSha256": "013064b20f5fea117e2e8b96755d2d93fce490e9eb5f6845b1b1cd6f386b07a0",
+    "crlfReplaced": 0
+  },
+  {
+    "path": "tests/artifactXlsxExport.test.ts",
+    "beforeSha256": "3c48be964ca1c7e5083801d7875bc8a74f075f38e56fcab3e621e799b6ffc136",
+    "afterSha256": "3c48be964ca1c7e5083801d7875bc8a74f075f38e56fcab3e621e799b6ffc136",
+    "crlfReplaced": 0
+  },
+  {
+    "path": "e2e/excel-grid.spec.ts",
+    "beforeSha256": "a0f13b4194018d14b918dc90de827bce5969730b2b10bcb4ed611db6a4333f73",
+    "afterSha256": "a0f13b4194018d14b918dc90de827bce5969730b2b10bcb4ed611db6a4333f73",
+    "crlfReplaced": 0
+  }
+]

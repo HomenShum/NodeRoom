@@ -1,0 +1,10 @@
+{
+  "corrects": "custody.json noEnvFilesRead wording",
+  "ignoredOrLocalEnvironmentFilesRead": false,
+  "secretOrEnvironmentValuesInspectedOrPrinted": false,
+  "trackedPublicTemplateBytesIncludedInHashOnlyCustody": [
+    ".env.example",
+    "backend/.env.example"
+  ],
+  "scope": "No values were emitted or used for configuration. The initial noEnvFilesRead field was overbroad because tracked public templates were hashed with all other tracked files."
+}

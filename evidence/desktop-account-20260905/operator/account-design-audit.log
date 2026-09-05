@@ -1,0 +1,56 @@
+
+> noderoom@0.1.1 design:audit
+> tsx scripts/design-system.ts audit && npm run ui:layer-audit && npm run ui:contract:check
+
+design-system audit: pass
+token-drift: 551 warnings (hex 116, type-scale 279, radius 155; allowed hexes 35) - guidance only, never fails the audit
+WARN token-canonical-missing design-reference/assets/colors_and_type.css - Canonical token file was not available; the allowed hex set only covers styles.css :root/[data-theme] tokens.
+WARN token-hex-drift src/app/styles.css:24 - #c0392b is not in the canonical token set.
+WARN token-hex-drift src/app/styles.css:33 - #66717c is not in the canonical token set.
+WARN type-scale-drift src/app/styles.css:63 - font-size 10.5px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN token-hex-drift src/app/styles.css:90 - #C6684A is not in the canonical token set.
+WARN radius-scale-drift src/app/styles.css:90 - border-radius 7px is off the radius scale (4/6/8/10/12/16/9999px).
+WARN token-hex-drift src/app/styles.css:98 - #8f402b is not in the canonical token set.
+WARN type-scale-drift src/app/styles.css:105 - font-size 10px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN radius-scale-drift src/app/styles.css:109 - border-radius 999px is off the radius scale (4/6/8/10/12/16/9999px).
+WARN radius-scale-drift src/app/styles.css:112 - border-radius 999px is off the radius scale (4/6/8/10/12/16/9999px).
+WARN radius-scale-drift src/app/styles.css:124 - border-radius 9px is off the radius scale (4/6/8/10/12/16/9999px).
+WARN radius-scale-drift src/app/styles.css:125 - border-radius 9px is off the radius scale (4/6/8/10/12/16/9999px).
+WARN radius-scale-drift src/app/styles.css:141 - border-radius 999px is off the radius scale (4/6/8/10/12/16/9999px).
+WARN radius-scale-drift src/app/styles.css:160 - border-radius 9px is off the radius scale (4/6/8/10/12/16/9999px).
+WARN type-scale-drift src/app/styles.css:161 - font-size 18px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN type-scale-drift src/app/styles.css:163 - font-size 12.5px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN radius-scale-drift src/app/styles.css:169 - border-radius 14px is off the radius scale (4/6/8/10/12/16/9999px).
+WARN radius-scale-drift src/app/styles.css:172 - border-radius 7px is off the radius scale (4/6/8/10/12/16/9999px).
+WARN radius-scale-drift src/app/styles.css:173 - border-radius 1px is off the radius scale (4/6/8/10/12/16/9999px).
+WARN type-scale-drift src/app/styles.css:177 - font-size 12.5px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN type-scale-drift src/app/styles.css:179 - font-size 10px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN type-scale-drift src/app/styles.css:193 - font-size 10.5px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN type-scale-drift src/app/styles.css:202 - font-size 10.5px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN radius-scale-drift src/app/styles.css:202 - border-radius 7px is off the radius scale (4/6/8/10/12/16/9999px).
+WARN type-scale-drift src/app/styles.css:203 - font-size 9px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN type-scale-drift src/app/styles.css:206 - font-size 11.5px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN type-scale-drift src/app/styles.css:207 - font-size 10.5px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN radius-scale-drift src/app/styles.css:207 - border-radius 7px is off the radius scale (4/6/8/10/12/16/9999px).
+WARN type-scale-drift src/app/styles.css:222 - font-size 11.5px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN type-scale-drift src/app/styles.css:229 - font-size 10px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN type-scale-drift src/app/styles.css:233 - font-size 10px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN type-scale-drift src/app/styles.css:234 - font-size 9px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN type-scale-drift src/app/styles.css:237 - font-size 11.5px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN type-scale-drift src/app/styles.css:247 - font-size 11.5px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN type-scale-drift src/app/styles.css:248 - font-size 9px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN type-scale-drift src/app/styles.css:253 - font-size 10.5px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN type-scale-drift src/app/styles.css:254 - font-size 9.5px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+WARN type-scale-drift src/app/styles.css:258 - font-size 9.5px is off the design type scale (11/12/13/14/15/17/20/26/31/40px).
+... 513 more drift warnings - run "npm run design:audit -- --json" for the full list
+reference-provenance: pass (6 observations, 58 facts, 7 rules, 1 score receipts, 14 cited facts)
+
+> noderoom@0.1.1 ui:layer-audit
+> tsx scripts/ui-layer-audit.ts
+
+ui-layer audit: pass (all, 589 source files)
+
+> noderoom@0.1.1 ui:contract:check
+> tsx scripts/ui-contract-emit.ts --check
+
+ui-contract check: pass (13 elements, 5 invariants, v1.0.0)

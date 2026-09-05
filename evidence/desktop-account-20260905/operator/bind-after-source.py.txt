@@ -1,0 +1,11 @@
+import datetime, hashlib, json
+from pathlib import Path
+o=Path(__file__).parent
+r=Path('D:/VSCode Projects/cafecorner_nodebench/nodebench_ai4/.portfolio-worktrees/noderoom-current-consumer-20260905')
+names=['src/ui/panels/Artifact.tsx','tests/artifactXlsxExport.test.ts','e2e/excel-grid.spec.ts','HANDOFF.md','package.json','package-lock.json','src/ui/workArtifacts/xlsxDownload.ts']
+rows=[]
+for name in names:
+    b=(r/name).read_bytes()
+    rows.append({'path':name,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'gitBlob':hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()})
+(o/'after-source-bindings.json').write_text(json.dumps({'at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'baseCommit':'034a8f963dfa037d860f5364032319506be3e2e0','note':'Written after browser completion. The initial writer failed before output because it used nonexistent src/ui/export/xlsxDownload.ts; corrected to actual workArtifacts owner. Three edited source/test hashes match pre-build source-normalization.json, untouched owners match before custody. HANDOFF remains pre-result text and is separately final-bound. No source change occurred during browser proof.','files':rows},indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'files':len(rows)}))
