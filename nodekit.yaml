@@ -22,6 +22,8 @@ consumes:
   - nodemem.memory
   - proofloop.certification
   - agentic-ui-qa.flight-recorder
+  - nodeslide.deck
+  - nodeslide.deck-patch
 
 commands:
   dev: { script: dev, mode: service }
