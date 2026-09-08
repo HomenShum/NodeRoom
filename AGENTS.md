@@ -108,3 +108,15 @@ Rules:
 - Use the code graph and UI contracts before guessing files, selectors, or routes.
 
 <!-- proofloop-agent-friendly:end -->
+
+<!-- proofloop-task-loop -->
+## Proofloop task loop
+
+- Before benchmark work, run `proofloop task setup --benchmark <name>` if the adapter, hooks, or AGENTS guidance are missing or stale.
+- For benchmark tasks, set up the local environment yourself instead of refusing because setup is local.
+- Use the adapter's install/startup/verify command candidates, but adjust them to the repo if a command is stale.
+- Run the task end to end through the live UI/API path. Do not stop at unit tests when the task requires browser or backend behavior.
+- Do not complete benchmark tasks with mocks, stubs, hard-coded fixtures, deterministic demo paths, intercepted network responses, fake providers, canned screenshots, or fixture-only data unless the task explicitly asks for them.
+- Collect success evidence matching the adapter schema: commands and exit codes, services started, live URLs/endpoints exercised, required markers, verifier output, browser/network traces or screenshots where relevant, and proof artifact paths.
+- If Proofloop writes `.proofloop/task-runs/*/feedback.md`, follow that corrective instruction and rerun the live verifier.
+<!-- /proofloop-task-loop -->

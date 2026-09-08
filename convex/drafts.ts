@@ -13,6 +13,7 @@ import { internalMutation, mutation } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { actorProofV, actorV, activeLockOn, getElement, LOCK_TTL_MS, requireActorInRoom, requireActorProof, requireArtifactInRoom, sameActor } from "./lib";
+import { assertElementDraftWithinLimit, assertElementValueWithinLimit, elementValueLimitViolation } from "../src/engine/elementValueLimits";
 
 const opV = v.object({
   opId: v.string(),
@@ -22,12 +23,17 @@ const opV = v.object({
   value: v.optional(v.any()),
   baseVersion: v.number(),
 });
+const MAX_PENDING_DRAFTS_PER_ROOM = 500;
 
 export const createDraft = internalMutation({
   args: { roomId: v.id("rooms"), artifactId: v.id("artifacts"), author: actorV, ops: v.array(opV), note: v.string(), blockedByLockId: v.optional(v.string()) },
   handler: async (ctx, a) => {
+    for (const op of a.ops) assertElementValueWithinLimit(op.value, op.kind);
+    assertElementDraftWithinLimit(a.ops, a.note);
     await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
     await requireActorInRoom(ctx, a.roomId, a.author);
+    const pending = await ctx.db.query("drafts").withIndex("by_room_status", (q) => q.eq("roomId", a.roomId).eq("status", "pending")).take(MAX_PENDING_DRAFTS_PER_ROOM);
+    if (pending.length >= MAX_PENDING_DRAFTS_PER_ROOM) throw new Error("draft_queue_full");
     const now = Date.now();
     const draftId = await ctx.db.insert("drafts", { roomId: a.roomId, artifactId: a.artifactId, author: a.author, ops: a.ops, note: a.note, blockedByLockId: a.blockedByLockId, status: "pending", createdAt: now });
     const note = a.author.scope === "private" ? "[private draft]" : a.note;
@@ -71,6 +77,8 @@ export const runSemanticConflictDrill = mutation({
 
     const currentValue = a.currentValue ?? "+24%";
     const proposedValue = a.proposedValue ?? "+19%";
+    assertElementValueWithinLimit(currentValue, "set");
+    assertElementValueWithinLimit(proposedValue, "set");
     const current = await getElement(ctx, a.artifactId, elementId);
     const baseVersion = current?.version ?? 0;
     const lockId = await ctx.db.insert("locks", {
@@ -133,7 +141,7 @@ export const runSemanticConflictDrill = mutation({
 });
 
 export async function mergeBlockedDrafts(ctx: MutationCtx, roomId: Id<"rooms">, lockId: string) {
-  const drafts = await ctx.db.query("drafts").withIndex("by_room_status", (q) => q.eq("roomId", roomId).eq("status", "pending")).collect();
+  const drafts = await ctx.db.query("drafts").withIndex("by_room_status_lock", (q) => q.eq("roomId", roomId).eq("status", "pending").eq("blockedByLockId", lockId)).take(MAX_PENDING_DRAFTS_PER_ROOM);
   const now = Date.now();
   const results: { draftId: Id<"drafts">; verdict: string; applied: number; conflicts: number; proposalIds?: Id<"proposals">[] }[] = [];
 
@@ -145,6 +153,10 @@ export async function mergeBlockedDrafts(ctx: MutationCtx, roomId: Id<"rooms">, 
     let orderChanged = false;
 
     for (const op of d.ops) {
+      if (elementValueLimitViolation(op.value, op.kind)) {
+        conflicts.push({ opId: op.opId, elementId: op.elementId });
+        continue;
+      }
       const lock = await activeLockOn(ctx, d.artifactId, op.elementId);
       if (lock && !sameActor(lock.holder, d.author)) {
         conflicts.push({ opId: op.opId, elementId: op.elementId });
@@ -186,6 +198,7 @@ export async function mergeBlockedDrafts(ctx: MutationCtx, roomId: Id<"rooms">, 
       for (const conflict of conflicts) {
         const op = d.ops.find((candidate) => candidate.opId === conflict.opId);
         if (!op) continue;
+        if (elementValueLimitViolation(op.value, op.kind)) continue;
         const current = await getElement(ctx, d.artifactId, op.elementId);
         const proposalId = await ctx.db.insert("proposals", {
           roomId,

@@ -47,6 +47,34 @@ export const CAPTURE_NOTEBOOK_DOC = "<h1>Capture Notebook</h1><p>Who did you tal
 export const WIKI_DOC = "Living wiki for room state, file inventory, agent sessions, workflows, backend map, and recent trace evidence. It updates from artifacts, sessions, runs, and traces.";
 export const BRIEF_DOC = "Today's Brief — the room's ranked next actions, assembled from evidence, runway, and review state. Derived from the room and updated as it changes.";
 
+export const NODEBOOK_DECISION_FLOW_PAYLOAD = JSON.stringify({
+  schemaVersion: "nodekit.diagram/v1",
+  diagramType: "flow",
+  title: "Shared knowledge to decision",
+  nodes: [
+    { id: "capture", label: "Capture shared nodes" },
+    { id: "organize", label: "Organize evidence" },
+    { id: "visualize", label: "Render visual artifact" },
+    { id: "review", label: "Human review" },
+    { id: "publish", label: "Publish to room" },
+  ],
+  edges: [
+    { id: "e1", from: "capture", to: "organize" },
+    { id: "e2", from: "organize", to: "visualize" },
+    { id: "e3", from: "visualize", to: "review" },
+    { id: "e4", from: "review", to: "publish" },
+  ],
+  groups: [],
+  layout: { direction: "LR", seed: "noderoom-demo-v1" },
+});
+export const NODEBOOK_DECISION_FLOW_ENVELOPE = {
+  schemaVersion: "nodebook.visual-artifact/v1",
+  kind: "flow",
+  format: "structured-json",
+  payload: NODEBOOK_DECISION_FLOW_PAYLOAD,
+  contentHash: "d844d7b79e8c4aaffe086de28af158e39163f553da5ae350fd7287e443e003f1",
+} as const;
+
 function researchMeta() {
   return {
     dataframe: {
@@ -161,6 +189,13 @@ export function buildDemoRoom(engine: RoomEngine): DemoRoom {
     seed: [{ id: "doc", value: "<h1>Startup banking diligence memo</h1><p>Use the Company research sheet for sourced company-level findings, then convert runway and milestone gaps into banker-ready follow-ups. Null cells are real missing inputs, not delete instructions; the agent should leave a clear gap reason when cash, burn, pricing, hiring, or funding proof is unavailable.</p>" }],
   }).id;
   engine.createArtifact({ roomId: room.id, kind: "note", title: "Open questions / workplan", by: me, seed: [{ id: "doc", value: workplanDoc() }] });
+  engine.createArtifact({
+    roomId: room.id,
+    kind: "note",
+    title: "Knowledge decision flow",
+    by: me,
+    seed: [{ id: "nodebook:artifact", value: NODEBOOK_DECISION_FLOW_ENVELOPE }],
+  });
 
   const wallId = engine.createArtifact({
     roomId: room.id, kind: "wall", title: "Risk / opportunity wall", by: me,

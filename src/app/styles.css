@@ -1072,6 +1072,28 @@ button.r-offline-pill:hover, button.r-offline-pill:focus-visible { border-color:
 .r-wiki-timeline-row time { font-family: var(--font-mono); color: var(--text-tertiary); font-size: 10.5px; }
 
 .r-note { padding: 22px 26px; max-width: 680px; position: relative; }
+.r-nodebook-artifact {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 22px 26px;
+  background: var(--surface-canvas, var(--bg-primary));
+}
+.r-nodebook-artifact [data-nodebook-surface="artifact"] { min-width: 0; }
+.r-nodebook-artifact [data-nodebook-artifact-rendered] { max-width: 100%; overflow: auto; }
+.r-nodebook-artifact svg { display: block; width: 100%; height: auto; max-width: 100%; }
+.r-nodebook-artifact-error {
+  margin: 22px 26px;
+  padding: 14px 16px;
+  display: grid;
+  gap: 5px;
+  border: 1px solid var(--danger-border, #7f1d1d);
+  border-radius: 8px;
+  background: var(--danger-tint, rgba(127, 29, 29, .12));
+  color: var(--text-primary);
+}
+.r-nodebook-artifact-error span { color: var(--text-secondary); font-size: 12px; }
 /* Agent intent boxes over notebook blocks (presenceClaims targetKind
    notebook_block) — the notebook analog of the cell intent box. */
 .r-nb-presence-layer { position: absolute; inset: 0; pointer-events: none; z-index: 3; }

@@ -56,6 +56,7 @@ import {
   type PmNodeJson,
 } from "../src/notebook/blockOps";
 import { pmJsonToHtml } from "../src/notebook/seed";
+import { notebookCheckpointDecision } from "../src/notebook/notebookCheckpointLimit";
 
 const NOTEBOOK_ELEMENT_ID = "doc";
 const AGENT_NOTES_ELEMENT_ID = "doc:agent";
@@ -414,16 +415,26 @@ async function notebookWriteEffects(ctx: MutationCtx, e: {
   // Checkpoint mirror: legacy viewers (flag-off builds, memory exports) read
   // elements["doc"]. The synced doc stays the source of truth.
   const mirrorHtml = pmJsonToHtml(e.finalDocJson);
-  if (mirrorHtml !== null) {
+  const checkpoint = notebookCheckpointDecision(mirrorHtml);
+  if (checkpoint.status === "write") {
     const docElement = await ctx.db
       .query("elements")
       .withIndex("by_artifact", (q) => q.eq("artifactId", e.artifactId).eq("elementId", NOTEBOOK_ELEMENT_ID))
       .unique();
     if (docElement) {
-      await ctx.db.patch(docElement._id, { value: mirrorHtml, version: docElement.version + 1, updatedAt: now, updatedBy: e.actor });
+      await ctx.db.patch(docElement._id, { value: checkpoint.html, version: docElement.version + 1, updatedAt: now, updatedBy: e.actor });
     } else {
-      await ctx.db.insert("elements", { artifactId: e.artifactId, elementId: NOTEBOOK_ELEMENT_ID, value: mirrorHtml, version: 1, updatedAt: now, updatedBy: e.actor });
+      await ctx.db.insert("elements", { artifactId: e.artifactId, elementId: NOTEBOOK_ELEMENT_ID, value: checkpoint.html, version: 1, updatedAt: now, updatedBy: e.actor });
     }
+  } else if (checkpoint.status === "skip") {
+    await ctx.db.insert("traces", {
+      roomId: e.roomId,
+      ts: now,
+      actor: e.actor,
+      type: "notebook_checkpoint_skipped",
+      summary: "Notebook checkpoint mirror skipped because it exceeded the element value limit",
+      detail: `artifact=${String(e.artifactId)} · source=prosemirror · canonical document remains available`,
+    });
   }
 
   // Read-model refresh through the SAME dirty-event pipeline as human edits

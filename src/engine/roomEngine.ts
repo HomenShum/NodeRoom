@@ -23,6 +23,7 @@
 import { deterministicResolver } from "./merge";
 import { deriveArtifactMeta } from "./artifactMeta";
 import { normalizeColumns, columnIdOfElement, type ColumnInput } from "./columns";
+import { assertElementDraftWithinLimit, assertElementValueBatchWithinLimit, assertElementValueWithinLimit, elementValueLimitViolation } from "./elementValueLimits";
 import {
   buildSemanticConflictPacket,
   formulaOf,
@@ -38,6 +39,10 @@ import type {
 
 const MAX_TRACES = 2000;
 const MAX_MESSAGES = 5000;
+const MAX_PENDING_PROPOSALS = 500;
+const MAX_PENDING_DRAFTS = 500;
+const MAX_RETAINED_RESOLVED_PROPOSALS = 500;
+const MAX_RETAINED_RESOLVED_DRAFTS = 500;
 const MEMBER_COLORS = ["#8F3F27", "#315DA8", "#2F6B44", "#6D3FB2", "#80631F", "#A34B2E"];
 const RESEARCH_ROW_COLS = [
   "company", "website", "status", "tier", "intent", "owner", "crm_status",
@@ -106,6 +111,32 @@ export class RoomEngine {
   private now() { return this.clock(); }
   private id(prefix: string) { return `${prefix}_${++this.idc}`; }
 
+  private evictResolvedProposals(): void {
+    let resolved = [...this.proposals.values()].filter((proposal) => proposal.status !== "pending").length;
+    if (resolved <= MAX_RETAINED_RESOLVED_PROPOSALS) return;
+    for (const [id, proposal] of this.proposals) {
+      if (proposal.status === "pending") continue;
+      this.proposals.delete(id);
+      resolved -= 1;
+      if (resolved <= MAX_RETAINED_RESOLVED_PROPOSALS) break;
+    }
+  }
+
+  private evictResolvedDrafts(): void {
+    let resolved = [...this.drafts.values()].filter((draft) => draft.status !== "pending").length;
+    if (resolved <= MAX_RETAINED_RESOLVED_DRAFTS) return;
+    for (const [id, draft] of this.drafts) {
+      if (draft.status === "pending") continue;
+      this.drafts.delete(id);
+      resolved -= 1;
+      if (resolved <= MAX_RETAINED_RESOLVED_DRAFTS) break;
+    }
+  }
+
+  collectionSizes(): { proposals: number; drafts: number } {
+    return { proposals: this.proposals.size, drafts: this.drafts.size };
+  }
+
   /* ───────── rooms + people (points 2, 3) ───────── */
   createRoom(args: { title: string; hostName: string; autoAllow?: boolean }): { room: Room; host: Member } {
     const now = this.now();
@@ -156,6 +187,8 @@ export class RoomEngine {
 
   /* ───────── artifacts (point 5) ───────── */
   createArtifact(args: { roomId: string; kind: ArtifactKind; title: string; seed?: Array<{ id: string; value: unknown }>; meta?: Artifact["meta"]; by: Actor; visibility?: Artifact["visibility"] }): Artifact {
+    for (const seed of args.seed ?? []) assertElementValueWithinLimit(seed.value, "create");
+    assertElementValueBatchWithinLimit(args.seed ?? []);
     const now = this.now();
     const id = this.id("art");
     const elements: Record<string, Element> = {};
@@ -385,6 +418,8 @@ export class RoomEngine {
       const el = this.artifacts.get(op.artifactId)?.elements[op.elementId];
       return el ? { ok: true, element: { ...el }, fromVersion: el.version, toVersion: el.version } : { ok: false, reason: "duplicate" };
     }
+    const valueViolation = elementValueLimitViolation(op.value, op.kind);
+    if (valueViolation) return { ok: false, reason: valueViolation };
     // Lock check — locked elements are read-only for everyone except the holder.
     const lock = this.lockFor(op.artifactId, op.elementId);
     if (lock && !sameActor(lock.holder, actor)) {
@@ -397,6 +432,7 @@ export class RoomEngine {
     if (actor.kind === "agent" && room && !room.autoAllow) {
       const existing = [...this.proposals.values()].find((p) => samePendingProposal(p, roomId, op, actor));
       if (existing) return { ok: false, reason: "pending_approval", proposalId: existing.id };
+      if (this.listProposals(roomId).length >= MAX_PENDING_PROPOSALS) return { ok: false, reason: "proposal_queue_full" };
       const proposal: Proposal = { id: this.id("prop"), roomId, artifactId: op.artifactId, op, author: actor, status: "pending", createdAt: this.now() };
       this.proposals.set(proposal.id, proposal);
       this.trace(roomId, actor, "edit_proposed", `${actor.name} proposed an edit to ${op.elementId} (awaiting approval)`, { proposalId: proposal.id });
@@ -412,6 +448,8 @@ export class RoomEngine {
   private applyOpInternal(op: ChangeOp, actor: Actor): EditResult {
     const art = this.artifacts.get(op.artifactId);
     if (!art) return { ok: false, reason: "not_found" };
+    const valueViolation = elementValueLimitViolation(op.value, op.kind);
+    if (valueViolation) return { ok: false, reason: valueViolation };
     // Declare-then-fill: once a sheet has a governed schema, an agent may only write DECLARED columns.
     // Undeclared-column writes would otherwise land as invisible orphans (the columns the UI never renders).
     if (actor.kind === "agent" && (op.kind === "set" || op.kind === "create")) {
@@ -481,6 +519,7 @@ export class RoomEngine {
     }
     p.status = approve ? "approved" : "rejected";
     p.resolvedAt = this.now();
+    this.evictResolvedProposals();
     this.trace(p.roomId, by, "proposal_resolved", `${by.name} ${approve ? "approved" : "rejected"} ${p.author.name}'s edit to ${p.op.elementId}`, { proposalId });
     this.emit();
     return res;
@@ -490,6 +529,9 @@ export class RoomEngine {
 
   /* ───────── drafts + smart-merge (point 8) ───────── */
   createDraft(args: { roomId: string; artifactId: string; author: Actor; ops: ChangeOp[]; note: string; blockedByLockId?: string }): Draft {
+    for (const op of args.ops) assertElementValueWithinLimit(op.value, op.kind);
+    assertElementDraftWithinLimit(args.ops, args.note);
+    if (this.listDrafts(args.roomId).filter((draft) => draft.status === "pending").length >= MAX_PENDING_DRAFTS) throw new Error("draft_queue_full");
     const art = this.artifacts.get(args.artifactId);
     const base: Draft["base"] = {};
     for (const op of args.ops) {
@@ -516,6 +558,7 @@ export class RoomEngine {
     draft.status = resolution.verdict === "needs_review" ? "conflict" : "merged";
     draft.resolution = resolution;
     draft.resolvedAt = this.now();
+    this.evictResolvedDrafts();
     const type: TraceType = draft.status === "conflict" ? "draft_conflict" : "draft_merged";
     this.trace(draft.roomId, draft.author, type, `Smart-merge: ${resolution.note}`, { draftId }, `smart_merge · ${resolution.applied.length} applied, ${resolution.conflicts.length} flagged → ${resolution.verdict}`);
     const semantic = resolution.conflicts.length ? this.openSemanticConflict(draft, art, resolution.conflicts) : undefined;

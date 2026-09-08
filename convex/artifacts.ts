@@ -25,11 +25,11 @@ import { enqueueFileProcessingJob } from "./fileProcessing";
 // governed-columns schema can never drift between the two lanes. (docs/architecture/AGENT_GOVERNED_COLUMNS.md)
 import { normalizeColumns, columnIdOfElement, type ColumnInput } from "../src/engine/columns";
 import type { DataframeColumn } from "../src/engine/types";
+import { elementValueLimitViolation } from "../src/engine/elementValueLimits";
 
 const MAX_ARTIFACT_TITLE_CHARS = 180;
-// Convex v.array() arguments are rejected above 8,192 items before this
-// mutation body can run, so keep the local contract aligned with that boundary.
-const MAX_ARTIFACT_SEED_ELEMENTS = 8_192;
+// Product cap shared with the memory twin; lower than Convex's generic array ceiling.
+const MAX_ARTIFACT_SEED_ELEMENTS = 512;
 const MAX_ARTIFACT_SEED_BYTES = 5_000_000;
 const MAX_ELEMENT_ID_CHARS = 160;
 const MAX_RAW_UPLOAD_BYTES = 25_000_000;
@@ -40,6 +40,7 @@ const SPREADSHEET_INDEX_QUIET_MS = 1_500;
 const AGENT_INTENT_CONFLICT_DELAY_MS = 6_000;
 const AGENT_INTENT_TTL_MS = 45_000;
 const AGENT_COMMIT_LEASE_TTL_MS = 20_000;
+const MAX_PENDING_PROPOSALS_PER_ROOM = 500;
 const visibilityV = v.union(v.literal("private"), v.literal("room"), v.literal("public"));
 type Visibility = "private" | "room" | "public";
 type ArtifactAcl = { visibility?: Visibility; createdBy?: ActorValue };
@@ -278,6 +279,12 @@ export function assertCreateArtifactLimits(a: { title: string; seed: Array<{ id:
     if (!s.id || s.id.length > MAX_ELEMENT_ID_CHARS) throw new Error("Artifact seed contains an invalid element id.");
     if (ids.has(s.id)) throw new Error(`Artifact seed contains duplicate element id: ${s.id}`);
     ids.add(s.id);
+    const violation = elementValueLimitViolation(s.value, "create");
+    if (violation) throw new Error(violation);
+  }
+  if (a.meta !== undefined) {
+    const metaViolation = elementValueLimitViolation(a.meta, "create");
+    if (metaViolation) throw new Error(metaViolation);
   }
   const bytes = new TextEncoder().encode(JSON.stringify({ seed: a.seed, meta: a.meta ?? null })).byteLength;
   if (bytes > MAX_ARTIFACT_SEED_BYTES) throw new Error("Artifact seed payload is too large for one mutation.");
@@ -711,6 +718,8 @@ function versionLogSnapshot(value: unknown): { value: unknown; truncated: boolea
 
 async function applyApprovedProposal(ctx: MutationCtx, roomId: Id<"rooms">, artifactId: Id<"artifacts">, op: ProposalOp, author: ActorValue) {
   if (String(op.artifactId) !== String(artifactId)) throw new Error("proposal_artifact_mismatch");
+  const valueViolation = elementValueLimitViolation(op.value, op.kind);
+  if (valueViolation) return { ok: false as const, reason: valueViolation };
   const art = await requireArtifactInRoom(ctx, roomId, artifactId);
   const el = await getElement(ctx, artifactId, op.elementId);
   const actual = el?.version ?? 0;
@@ -748,6 +757,8 @@ export async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) 
     const job = a.jobId ? await ctx.db.get(a.jobId) : null;
     if (a.jobId && (!job || String(job.roomId) !== String(a.roomId))) throw new Error("job_room_mismatch");
     const kind = a.kind ?? "set";
+    const valueViolation = elementValueLimitViolation(a.value, kind);
+    if (valueViolation) return { ok: false as const, reason: valueViolation };
     // 1. LOCK gate — a held range is read-only for non-holders; P0-5 lease fencing for the holder.
     //    Kleppmann's fencing-token failure mode: TTL (5min) < slice budget (9min) means a long job's
     //    own lease can lapse mid-run. activeLockOn erases expired locks, which silently degraded the
@@ -816,9 +827,10 @@ export async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) 
     if (policyViolation) return { ok: false as const, reason: policyViolation };
     const room = await ctx.db.get(a.roomId);
     if (a.actor.kind === "agent" && room && !room.autoAllow) {
-      const pending = await ctx.db.query("proposals").withIndex("by_room_status", (q) => q.eq("roomId", a.roomId).eq("status", "pending")).collect();
+      const pending = await ctx.db.query("proposals").withIndex("by_room_status", (q) => q.eq("roomId", a.roomId).eq("status", "pending")).take(MAX_PENDING_PROPOSALS_PER_ROOM);
       const existing = pending.find((proposal) => samePendingProposal(proposal, a, kind));
       if (existing) return { ok: false as const, reason: "pending_approval" as const, proposalId: existing._id };
+      if (pending.length >= MAX_PENDING_PROPOSALS_PER_ROOM) return { ok: false as const, reason: "proposal_queue_full" as const };
       const proposalId = await ctx.db.insert("proposals", {
         roomId: a.roomId,
         artifactId: a.artifactId,
@@ -1163,7 +1175,7 @@ export const listProposals = query({
   args: { roomId: v.id("rooms"), requester: actorProofV },
   handler: async (ctx, { roomId, requester }) => {
     const actor = await requireActorProof(ctx, roomId, requester);
-    const rows = await ctx.db.query("proposals").withIndex("by_room_status", (q) => q.eq("roomId", roomId).eq("status", "pending")).collect();
+    const rows = await ctx.db.query("proposals").withIndex("by_room_status", (q) => q.eq("roomId", roomId).eq("status", "pending")).take(MAX_PENDING_PROPOSALS_PER_ROOM);
     const visibleRows = [];
     for (const row of rows) {
       const art = await ctx.db.get(row.artifactId);

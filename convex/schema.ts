@@ -294,7 +294,9 @@ export default defineSchema({
     status: v.union(v.literal("pending"), v.literal("merged"), v.literal("discarded"), v.literal("conflict")),
     createdAt: v.number(),
     resolvedAt: v.optional(v.number()),
-  }).index("by_room_status", ["roomId", "status"]),
+  })
+    .index("by_room_status", ["roomId", "status"])
+    .index("by_room_status_lock", ["roomId", "status", "blockedByLockId"]),
 
   proposals: defineTable({
     roomId: v.id("rooms"),
@@ -953,6 +955,16 @@ export default defineSchema({
     toolCallCount: v.optional(v.number()),
     schedulerHandoffCount: v.optional(v.number()),
     receiptCount: v.optional(v.number()),
+    // Legacy aggregate telemetry remains on jobs created by the previous
+    // workflow runner. New writes use the *Count fields and attempt rows, but
+    // deployments must continue to validate and read the historical summaries.
+    inputTokens: v.optional(v.number()),
+    outputTokens: v.optional(v.number()),
+    cachedInputTokens: v.optional(v.number()),
+    cacheCreationInputTokens: v.optional(v.number()),
+    cacheReadInputTokens: v.optional(v.number()),
+    costKind: v.optional(v.string()),
+    costUsd: v.optional(v.number()),
     latestRunId: v.optional(v.id("agentRuns")),
     leaseId: v.optional(v.string()),
     leaseUntil: v.optional(v.number()),
@@ -979,6 +991,14 @@ export default defineSchema({
     inputTokens: v.number(),
     outputTokens: v.number(),
     cachedInputTokens: v.optional(v.number()),
+    // Backward-compatible telemetry written by an earlier job runner. Keep the
+    // fields optional so historical attempts remain readable while current
+    // writers continue using the normalized counters above.
+    cacheCreationInputTokens: v.optional(v.number()),
+    cacheReadInputTokens: v.optional(v.number()),
+    costKind: v.optional(v.string()),
+    modelCalls: v.optional(v.number()),
+    toolCalls: v.optional(v.number()),
     costUsd: v.number(),
     error: v.optional(v.string()),
     scheduledNextAt: v.optional(v.number()),
@@ -988,6 +1008,12 @@ export default defineSchema({
 
   agentModelStepJournal: defineTable({
     jobId: v.id("agentJobs"),
+    // Historical journal rows claimed accounting work directly. The current
+    // runner no longer writes these fields, but production deployments must
+    // continue to validate the durable rows created by that runner.
+    accountedRunId: v.optional(v.id("agentRuns")),
+    accountingClaimedAt: v.optional(v.number()),
+    leaseId: v.optional(v.string()),
     sliceKey: v.string(),
     step: v.number(),
     model: v.string(),

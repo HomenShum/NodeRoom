@@ -268,7 +268,7 @@ export type EditResult =
   | { ok: false; reason: "locked"; by: Actor; lockId: string }
   | { ok: false; reason: "conflict"; expected: number; actual: number }
   | { ok: false; reason: "pending_approval"; proposalId: string }
-  | { ok: false; reason: "not_found" | "invalid" | "duplicate" | "formula_protected" | "no_such_column" };
+  | { ok: false; reason: "not_found" | "invalid" | "duplicate" | "formula_protected" | "no_such_column" | "value_too_large" | "value_not_serializable" | "proposal_queue_full" };
 
 /* ───────────────────────── locks (affected range) ───────────────────────── */
 
