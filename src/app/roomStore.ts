@@ -29,8 +29,10 @@ import {
   HACKWITHBAY_GRAPH_COLUMNS,
   HACKWITHBAY_GRAPH_ROWS,
   HACKWITHBAY_ROOM_TITLE,
+  HACKWITHBAY_VISUAL_ARTIFACTS,
   hackwithBaySeed,
 } from "./hackwithBayRoomSeed";
+import { NODEBOOK_VISUAL_ELEMENT_ID, NODEBOOK_VISUAL_SCHEMA_VERSION } from "../notebook/visualArtifactEnvelope";
 import {
   SMB_LENDING_DOCUMENT_COLUMNS,
   SMB_LENDING_EVIDENCE_PROPOSAL,
@@ -958,6 +960,29 @@ export function enterHackwithBayRoomAsHost(): { roomId: string; me: Actor } {
       tags: ["hackwithbay", "setup", "providers"],
     },
   });
+
+  for (const visual of HACKWITHBAY_VISUAL_ARTIFACTS) {
+    engine.createArtifact({
+      roomId: room.id,
+      kind: "note",
+      title: visual.title,
+      by: me,
+      seed: [{
+        id: NODEBOOK_VISUAL_ELEMENT_ID,
+        value: {
+          schemaVersion: NODEBOOK_VISUAL_SCHEMA_VERSION,
+          kind: visual.kind,
+          format: visual.format,
+          payload: visual.payload,
+          contentHash: visual.contentHash,
+        },
+      }],
+      meta: {
+        summary: `${visual.title} rendered through NodeRoom's shared NodeBook surface.`,
+        tags: ["hackwithbay", "nodebook", "visual-proof", visual.kind],
+      },
+    });
+  }
 
   engine.postMessage({
     roomId: room.id,

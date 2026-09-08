@@ -12,6 +12,103 @@ export const HACKWITHBAY_REQUIRED_TECH = [
   "Opsera",
 ] as const;
 
+// Canonical hashes were computed from each NodeBook renderer's validated
+// payload, so the production seed exercises the same integrity path as a
+// generated artifact without needing a provider run.
+export const HACKWITHBAY_VISUAL_ARTIFACTS = [
+  {
+    title: "Visual proof · Mind map",
+    kind: "mindmap",
+    format: "structured-json",
+    payload: JSON.stringify({
+      schemaVersion: "nodekit.diagram/v1",
+      diagramType: "mindmap",
+      nodes: [
+        { id: "room", label: "HackwithBay evidence room" },
+        { id: "sources", label: "Sources", parentId: "room" },
+        { id: "agent", label: "NodeAgent", parentId: "room" },
+        { id: "proof", label: "Visual proofs", parentId: "room" },
+      ],
+      edges: [
+        { id: "edge-sources", from: "room", to: "sources" },
+        { id: "edge-agent", from: "room", to: "agent" },
+        { id: "edge-proof", from: "room", to: "proof" },
+      ],
+      groups: [],
+      layout: { direction: "LR", seed: "hackwithbay-mindmap-v1" },
+    }),
+    contentHash: "1838a605f2fc37f2cd66181a4ee19012c26fdf4db257eef4587e08679038246f",
+  },
+  {
+    title: "Visual proof · Flow diagram",
+    kind: "flow",
+    format: "structured-json",
+    payload: JSON.stringify({
+      schemaVersion: "nodekit.diagram/v1",
+      diagramType: "flow",
+      nodes: [
+        { id: "upload", label: "Upload evidence" },
+        { id: "retrieve", label: "Retrieve context" },
+        { id: "validate", label: "Validate claims" },
+        { id: "present", label: "Present artifacts" },
+      ],
+      edges: [
+        { id: "upload-retrieve", from: "upload", to: "retrieve" },
+        { id: "retrieve-validate", from: "retrieve", to: "validate" },
+        { id: "validate-present", from: "validate", to: "present" },
+      ],
+      groups: [],
+      layout: { direction: "LR", seed: "hackwithbay-flow-v1" },
+    }),
+    contentHash: "b343b0666e360e4349c237eb4d9991faa9558d10c1ea3ed954b610d684d9de7a",
+  },
+  {
+    title: "Visual proof · Vega-Lite chart",
+    kind: "chart",
+    format: "vega-lite-json",
+    payload: JSON.stringify({
+      data: { values: [
+        { label: "Source coverage", value: 6 },
+        { label: "Agent steps", value: 4 },
+        { label: "Visual formats", value: 6 },
+      ] },
+      mark: "bar",
+      encoding: {
+        x: { field: "label", type: "nominal" },
+        y: { field: "value", type: "quantitative" },
+      },
+    }),
+    contentHash: "8f1585e66deffb2213f64b113b88882d859be2aa46fa7752d18ce20c8cfb05ac",
+  },
+  {
+    title: "Visual proof · Draw.io diagram",
+    kind: "drawio",
+    format: "drawio-xml",
+    payload: '<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="a" value="Draw.io architecture proof" vertex="1" parent="1"><mxGeometry x="20" y="20" width="180" height="50"/></mxCell></root></mxGraphModel>',
+    contentHash: "bf290d7524f537b3cf4cde2e2454c6c26d1a98ac2a08359048a9ac215b131796",
+  },
+  {
+    title: "Visual proof · Mermaid diagram",
+    kind: "mermaid",
+    format: "mermaid",
+    payload: "flowchart LR\nEvidence-->NodeAgent\nNodeAgent-->VisualArtifacts",
+    contentHash: "36726dc34b4e995edaecc3556b2619f55d19fcfc99c65b0a77cc6e4f4642ed52",
+  },
+  {
+    title: "Visual proof · Infographic",
+    kind: "infographic",
+    format: "infographic-json",
+    payload: JSON.stringify({
+      schemaVersion: "nodekit.infographic/v1",
+      canvas: { width: 960, columns: 2 },
+      theme: { background: "#f8fafc", surface: "#ffffff", text: "#0f172a", muted: "#64748b", accent: "#2563eb" },
+      title: "HackwithBay visual artifact proof",
+      sections: [{ id: "formats", type: "metric", title: "Visual formats", value: 6 }],
+    }),
+    contentHash: "e776ba30bd13f54dec363ede268ade5554b30434143f426318b9f3736d38fe9b",
+  },
+] as const;
+
 export const HACKWITHBAY_BRIEF_NOTE = `
 <h1>HackwithBay 3.0 demo map</h1>
 <p><b>Demo claim:</b> NodeRoom can turn a BankerToolBench task into a graph-aware agent workflow: upload the task bundle, ingest it into memory, run the agent, execute code in a sandbox, and present source-backed artifacts, traces, and graph relationships in the room UI.</p>
