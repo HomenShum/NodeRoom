@@ -92,7 +92,8 @@ async function enterVisualDemoRoom(page: Page): Promise<void> {
     localStorage.setItem("noderoom:tour:v1", "done");
     localStorage.setItem("noderoom:focusMode:v1", JSON.stringify({ enabled: false, paused: false }));
   });
-  await page.goto("/?mode=memory&surface=desktop&demo=1&name=Homen", { waitUntil: "domcontentloaded" });
+  await page.goto("/?mode=memory&surface=desktop", { waitUntil: "domcontentloaded" });
+  await page.getByTestId("start-demo-room").click();
   await expect(page.getByTestId("artifact-panel")).toBeVisible({ timeout: 20_000 });
   await page.addStyleTag({
     content: `
