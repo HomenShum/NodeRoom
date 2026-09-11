@@ -24,7 +24,10 @@ jobs:
           GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
         run: npm run media:gemini-judge
       - name: Upload judge verdicts
-        if: always()
+        # Only after a successful judge run: docs/eval/gemini-media-judges/ is git-tracked, so
+        # uploading it with always() republished the committed (stale) verdicts as if freshly judged
+        # on every failed run (37/37 scheduled failures while the Gemini key was absent).
+        if: success()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: gemini-media-judge-${{ github.run_id }}
