@@ -13,6 +13,8 @@
 <p align="center"><a href="#quickstart">Quickstart</a> · <a href="docs/START_HERE.md">Code&nbsp;walkthrough</a> · <a href="HANDOFF.md">Handoff</a> · <a href="https://noderoom.live">Live&nbsp;demo</a> · <a href="https://homenshum.github.io/">All&nbsp;projects</a></p>
 <!-- brand:end -->
 
+# NodeRoom
+
 ### A live room where humans and NodeAgents edit together — without clobbering each other.
 
 **Public room chat, a private NodeAgent, and shared spreadsheet / native-notebook /
