@@ -9,6 +9,8 @@ post-it surfaces — with advisory presence, versioned CAS, drafts/proposals, an
 short publish leases so a human and an AI agent can work beside each other without
 silent overwrite.**
 
+**Developers and coding agents:** [Read the four-file start guide](#new-here-read-four-files-in-this-order) or [jump to Quickstart](#quickstart) for the no-key local demo and separate live setup.
+
 ![Demo room running the real collaboration scenario with the live graph rail open — 13 entities and 14 edges built from 34 real room events](docs/release/media/live-graph-rail.gif)
 
 [Watch as MP4](docs/release/media/live-graph-rail.mp4) · every edge is a real trace event ([analysis](docs/GRAPH_INTEGRATION.md)) · regenerate: `node scripts/record-live-graph-rail.mjs`
