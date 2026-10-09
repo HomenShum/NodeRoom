@@ -332,7 +332,7 @@
     "saxes": "5.0.1",
     "streamdown": "^2.5.0",
     "tailwind-merge": "^3.6.0",
-    "undici": "^8.10.0",
+    "undici": "^8.11.2",
     "unpdf": "^1.6.2",
     "unzipper": "0.10.14",
     "zod": "4.3.6"
