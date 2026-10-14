@@ -147,12 +147,11 @@ function providerCandidates(explicit?: string): string[] {
     process.env.STARTUP_DILIGENCE_PROVIDER_MODEL,
     process.env.AGENT_RESEARCH_MODEL,
     process.env.AGENT_MODEL,
-    process.env.GOOGLE_GENERATIVE_AI_API_KEY ? "gemini-3.5-flash" : undefined,
-    process.env.GOOGLE_GENERATIVE_AI_API_KEY ? "gemini-2.5-flash" : undefined,
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY ? "gemini-3.8-flash" : undefined,
     process.env.OPENROUTER_API_KEY ? "moonshotai/kimi-k2.6" : undefined,
     process.env.OPENROUTER_API_KEY ? "z-ai/glm-4.7-flash" : undefined,
     process.env.OPENAI_API_KEY ? "gpt-5.4-nano" : undefined,
-    process.env.ANTHROPIC_API_KEY ? "claude-haiku-4-5" : undefined,
+    process.env.ANTHROPIC_API_KEY ? "claude-haiku-5-5" : undefined,
   ].filter((value): value is string => !!value && value.trim().length > 0);
   return [...new Set(candidates.map((value) => value.trim()))];
 }

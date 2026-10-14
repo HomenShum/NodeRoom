@@ -5,7 +5,7 @@
  * point is addressed. This is the independent "does the live workflow truly relieve the
  * pain" check, before the Remotion demo.
  *
- *   npx tsx scripts/eval/painJudge.ts            # gemini-3.5-flash
+ *   npx tsx scripts/eval/painJudge.ts            # gemini-3.6-flash
  *   JUDGE_MODEL=gemini-3.1-flash-lite npx tsx scripts/eval/painJudge.ts
  */
 import "../benchmark/loadEnv";
@@ -15,7 +15,7 @@ import { generateText } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 
 const ROOT = process.cwd();
-const MODEL = process.env.JUDGE_MODEL || "gemini-3.5-flash";
+const MODEL = process.env.JUDGE_MODEL || "gemini-3.6-flash";
 const google = createGoogleGenerativeAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY });
 
 const FRAMES: [string, string][] = [

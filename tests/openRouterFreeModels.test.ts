@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { priceRun } from "../src/nodeagent/models/adapter";
+import { DEFAULT_AGENT_MODEL } from "../convex/modelDefaults";
 import { getProviderForModel, resolveModelAlias } from "../src/nodeagent/models/modelCatalog";
 import {
   OPENROUTER_FREE_AUTO_MODEL,
@@ -226,7 +227,8 @@ describe("OpenRouter free auto routing", () => {
 
   it("keeps free-auto opt-in instead of hiding it behind generic aliases", () => {
     expect(resolveModelAlias("openrouter")).toBe("z-ai/glm-5.2");
-    expect(resolveModelAlias("auto")).toBe("gemini-3.5-flash");
+    // was "gemini-3.5-flash" (deprecated by Google 2026-10-08); the alias now follows the default-model constant.
+    expect(resolveModelAlias("auto")).toBe(DEFAULT_AGENT_MODEL);
     expect(resolveModelAlias("free")).toBe(OPENROUTER_FREE_AUTO_MODEL);
     expect(resolveModelAlias("free-auto")).toBe(OPENROUTER_FREE_AUTO_MODEL);
     expect(resolveModelAlias("kimi")).toBe("moonshotai/kimi-k2.7-code");

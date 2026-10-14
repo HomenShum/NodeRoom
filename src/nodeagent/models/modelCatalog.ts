@@ -13,18 +13,15 @@
  * - gpt-5.4-mini: Efficient reasoning
  * - gpt-5.4-nano: Ultra-efficient
  *
- * Anthropic (current + compatibility lanes):
- * - claude-opus-4.7: latest flagship
- * - claude-sonnet-4.6: latest balanced lane
- * - claude-haiku-4.5: latest fast lane
+ * Anthropic (5.5 lanes first; 4.x kept as compatibility lanes for persisted rooms):
+ * - claude-opus-5-5 / claude-sonnet-5-5 / claude-haiku-5-5: current flagship / balanced / fast
+ * - claude-opus-4.7 / claude-sonnet-4.6 / claude-haiku-4.5: compatibility lanes
  *
- * Google (6 models):
- * - gemini-3.1-pro-preview: latest flagship preview
- * - gemini-3-flash-preview: fast preview lane
- * - gemini-3.1-flash-lite-preview: low-cost preview lane
- * - gemini-2.5-pro: Stable flagship (1M context)
- * - gemini-2.5-flash: stable efficient lane
- * - gemini-2.5-flash-lite: ultra-efficient stable lane
+ * Google (live lanes; the 2026-10 refresh, SPEC Part A §A.2.9):
+ * - gemini-3.1-pro-preview: the one Pro
+ * - gemini-3.8-flash: GA Flash (DEFAULT_AGENT_MODEL)
+ * - gemini-3.5-flash-lite: low-cost lane
+ * - gemini-3-flash-preview / gemini-3.1-flash-lite-preview / gemini-2.5-*: pricing rows kept for persisted rooms only
  *
  * For model resolution logic, see: convex/domains/agents/mcp_tools/models/
  */
@@ -34,6 +31,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { OPENROUTER_FREE_AUTO_MODEL, OPENROUTER_FREE_META_MODEL, freeOpenRouterPricing } from "./openRouterFreeModels";
+import { DEFAULT_AGENT_MODEL } from "../../../convex/modelDefaults";
 
 /** Provider-neutral, free-first NodeAgent route. Concrete providers are resolved by the adapter. */
 export const NODEAGENT_FREE_AUTO_MODEL = "nodeagent/free-auto";
@@ -67,6 +65,8 @@ export interface ModelPricing {
   outputPer1M: number;   // Cost per 1M output tokens
   cachedInputPer1M?: number; // Cached input discount (if supported)
   contextWindow: number; // Max context window
+  /** Date the vendor list price was read (A.0.6 agreement test). Present on the 2026-10 refresh rows. */
+  pricingAsOf?: string;
 }
 
 export const modelPricing: Record<string, ModelPricing> = {
@@ -101,6 +101,21 @@ export const modelPricing: Record<string, ModelPricing> = {
   "gemini-3.1-flash-lite": { inputPer1M: 0.25, outputPer1M: 1.50, contextWindow: 1000000 },
   "gemini-3.5-flash": { inputPer1M: 1.50, outputPer1M: 9.00, contextWindow: 1000000 }, // latest, most-intelligent Flash
   "gpt-5.5": { inputPer1M: 5.00, outputPer1M: 30.00, contextWindow: 400000 }, // OpenAI flagship (newer than 5.4)
+  // ── 2026-10 model refresh (SPEC Part A §A.2.9; vendor list prices read 2026-10-10, frontier.json) ──
+  // claude-haiku-5-5 is TIERED: $0.50/$2.50 for prompts above 100K tokens (this row is the <=100K tier).
+  "claude-haiku-5-5": { inputPer1M: 0.10, outputPer1M: 0.50, cachedInputPer1M: 0.01, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
+  "claude-sonnet-5-5": { inputPer1M: 2.00, outputPer1M: 10.00, cachedInputPer1M: 0.10, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
+  "claude-opus-5-5": { inputPer1M: 4.00, outputPer1M: 20.00, cachedInputPer1M: 0.20, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
+  // OpenRouter transport of the same models (slug form, A.0.5); same list price.
+  "anthropic/claude-haiku-5.5": { inputPer1M: 0.10, outputPer1M: 0.50, cachedInputPer1M: 0.01, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
+  "anthropic/claude-sonnet-5.5": { inputPer1M: 2.00, outputPer1M: 10.00, cachedInputPer1M: 0.10, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
+  "anthropic/claude-opus-5.5": { inputPer1M: 4.00, outputPer1M: 20.00, cachedInputPer1M: 0.20, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
+  // Exact id behind the claude-opus-4.7 display id (it used to be rewritten to 4-8; see modelAliases).
+  "claude-opus-4-7": { inputPer1M: 5.00, outputPer1M: 25.00, cachedInputPer1M: 0.50, contextWindow: 1000000 },
+  // Gemini Flash intro price: $0.75/$3.75 through 2026-12-31, then $1.50/$7.50 from 2027-01-01 (re-price then).
+  "gemini-3.8-flash": { inputPer1M: 0.75, outputPer1M: 3.75, cachedInputPer1M: 0.075, contextWindow: 1048576, pricingAsOf: "2026-10-10" },
+  "gemini-3.6-flash": { inputPer1M: 0.75, outputPer1M: 3.75, contextWindow: 1048576, pricingAsOf: "2026-10-10" }, // ladder receipt baseline (3.5 is served as 3.6)
+  "gemini-3.5-flash-lite": { inputPer1M: 0.30, outputPer1M: 2.50, cachedInputPer1M: 0.03, contextWindow: 1048576, pricingAsOf: "2026-10-10" },
   // OpenRouter FREE tier (tool-calling) — needs OPENROUTER_API_KEY to actually run:
   [OPENROUTER_FREE_AUTO_MODEL]: freeOpenRouterPricing(1_000_000),
   [OPENROUTER_FREE_META_MODEL]: freeOpenRouterPricing(200_000),
@@ -212,7 +227,7 @@ export const tierLimits: Record<UserTier, TierLimits> = {
     tokensPerDay: 10_000,
     maxTokensPerRequest: 2_000,
     allowedProviders: ["openai", "anthropic", "gemini"],
-    allowedModels: ["gpt-5.4-nano", "claude-haiku-4.5", "gemini-3.1-flash-lite-preview"],
+    allowedModels: ["gpt-5.4-nano", "claude-haiku-4.5", "gemini-3.1-flash-lite-preview", "claude-haiku-5-5", "gemini-3.5-flash-lite"],
     costLimitPerDay: 0.01,
   },
   free: {
@@ -220,7 +235,7 @@ export const tierLimits: Record<UserTier, TierLimits> = {
     tokensPerDay: 100_000,
     maxTokensPerRequest: 8_000,
     allowedProviders: ["openai", "anthropic", "gemini"],
-    allowedModels: ["gpt-5.4-mini", "gpt-5.4-nano", "claude-haiku-4.5", "gemini-2.5-flash"],
+    allowedModels: ["gpt-5.4-mini", "gpt-5.4-nano", "claude-haiku-4.5", "gemini-2.5-flash", "claude-haiku-5-5", "gemini-3.5-flash-lite"],
     costLimitPerDay: 0.50,
   },
   pro: {
@@ -269,34 +284,36 @@ export const llmModelCatalog: ModelCatalog = {
     coding: ["gpt-5.4", "gpt-5.4-mini"],
   },
   anthropic: {
-    chat: ["claude-haiku-4.5", "claude-sonnet-4.6"],
-    agent: ["claude-haiku-4.5", "claude-sonnet-4.6", "claude-opus-4.7"],
-    router: ["claude-haiku-4.5"],
-    judge: ["claude-sonnet-4.6", "claude-opus-4.7"],
-    analysis: ["claude-sonnet-4.6", "claude-opus-4.7"],
-    deepResearch: ["claude-sonnet-4.6", "claude-opus-4.7"],
-    vision: ["claude-sonnet-4.6", "claude-opus-4.7"],
-    fileSearch: ["claude-haiku-4.5"],
-    voice: ["claude-haiku-4.5"],
-    coding: ["claude-sonnet-4.6", "claude-opus-4.7"],
+    // 5.5 ids first (add-only; the 4.x ids stay valid for persisted rooms).
+    chat: ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-haiku-4.5", "claude-sonnet-4.6"],
+    agent: ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5", "claude-haiku-4.5", "claude-sonnet-4.6", "claude-opus-4.7"],
+    router: ["claude-haiku-5-5", "claude-haiku-4.5"],
+    judge: ["claude-sonnet-5-5", "claude-opus-5-5", "claude-sonnet-4.6", "claude-opus-4.7"],
+    analysis: ["claude-sonnet-5-5", "claude-opus-5-5", "claude-sonnet-4.6", "claude-opus-4.7"],
+    deepResearch: ["claude-sonnet-5-5", "claude-opus-5-5", "claude-sonnet-4.6", "claude-opus-4.7"],
+    vision: ["claude-sonnet-5-5", "claude-opus-5-5", "claude-sonnet-4.6", "claude-opus-4.7"],
+    fileSearch: ["claude-haiku-5-5", "claude-haiku-4.5"],
+    voice: ["claude-haiku-5-5", "claude-haiku-4.5"],
+    coding: ["claude-sonnet-5-5", "claude-opus-5-5", "claude-sonnet-4.6", "claude-opus-4.7"],
   },
   gemini: {
-    // Gemini 3 (preview) → 2.5 (stable) → 2.0 (deprecated March 31 2026).
-    // Callers can still override explicitly with any model ID.
-    chat: ["gemini-3-flash-preview", "gemini-3.1-flash-lite-preview", "gemini-2.5-flash"],
-    agent: ["gemini-3.1-pro-preview", "gemini-3-flash-preview", "gemini-2.5-pro"],
-    router: ["gemini-3.1-flash-lite-preview", "gemini-2.5-flash-lite"],
-    judge: ["gemini-3.1-pro-preview", "gemini-3-flash-preview", "gemini-2.5-pro"],
-    analysis: ["gemini-3.1-pro-preview", "gemini-3-flash-preview", "gemini-2.5-pro"],
+    // GA Flash (3.8) + Flash-Lite (3.5) + the one Pro (3.1 preview). gemini-3.1-flash-lite-preview was shut
+    // down 2026-05-25; gemini-2.5-* is prior-users-only (OpenRouter expiry 2026-10-20); gemini-3-flash-preview
+    // is deprecated. Their pricing rows stay for persisted rooms. Callers can still override with any id.
+    chat: ["gemini-3.8-flash", "gemini-3.5-flash-lite"],
+    agent: ["gemini-3.1-pro-preview", "gemini-3.8-flash"],
+    router: ["gemini-3.5-flash-lite"],
+    judge: ["gemini-3.1-pro-preview", "gemini-3.8-flash"],
+    analysis: ["gemini-3.1-pro-preview", "gemini-3.8-flash"],
     deepResearch: [
       "deep-research-preview-04-2026",
       "deep-research-max-preview-04-2026",
       "deep-research-pro-preview-12-2025",
     ],
-    vision: ["gemini-3-flash-preview", "gemini-3.1-pro-preview", "gemini-2.5-pro"],
-    fileSearch: ["gemini-3.1-flash-lite-preview", "gemini-2.5-flash-lite"],
-    voice: ["gemini-3.1-flash-lite-preview", "gemini-2.5-flash-lite"],
-    coding: ["gemini-3.1-pro-preview", "gemini-3-flash-preview", "gemini-2.5-pro"],
+    vision: ["gemini-3.8-flash", "gemini-3.1-pro-preview"],
+    fileSearch: ["gemini-3.5-flash-lite"],
+    voice: ["gemini-3.5-flash-lite"],
+    coding: ["gemini-3.1-pro-preview", "gemini-3.8-flash"],
   },
   openrouter: {
     // Kimi K3 (1M ctx) leads the agentic lanes; z-ai/glm-5.2 demoted to fallback so no
@@ -612,14 +629,24 @@ export const modelAliases: Record<string, string> = {
   "claude": "claude-sonnet-4.6",
   "claude-4": "claude-sonnet-4.6",
   "claude-sonnet": "claude-sonnet-4.6",
-  "claude-opus": "claude-opus-4.7",
+  // The opus shortcuts keep resolving to 4-8 (what "claude-opus-4.7" used to be rewritten to); the dotted
+  // display id below is now exact. Moving the shortcuts to 5.5 is a product decision, not part of this refresh.
+  "claude-opus": "claude-opus-4-8",
   "claude-haiku": "claude-haiku-4.5",
-  // Dotted display ids -> hyphenated direct-API ids (dotted Anthropic ids 404; opus display lags to 4-8).
+  // Dotted display ids -> hyphenated direct-API ids (dotted Anthropic ids 404). Explicit table (A.0.5):
+  // the old /\./g regex rewrite is gone, so every dotted id that may sit in a persisted row is listed.
+  "claude-sonnet-4.5": "claude-sonnet-4-5",
   "claude-sonnet-4.6": "claude-sonnet-4-6",
   "claude-haiku-4.5": "claude-haiku-4-5",
-  "claude-opus-4.7": "claude-opus-4-8",
+  "claude-opus-4.5": "claude-opus-4-5",
+  "claude-opus-4.6": "claude-opus-4-6",
+  "claude-opus-4.7": "claude-opus-4-7", // was "claude-opus-4-8" (lossy: a 4.7 request silently ran 4.8)
+  "claude-opus-4.8": "claude-opus-4-8",
+  "claude-haiku-5.5": "claude-haiku-5-5",
+  "claude-sonnet-5.5": "claude-sonnet-5-5",
+  "claude-opus-5.5": "claude-opus-5-5",
   "sonnet": "claude-sonnet-4.6",
-  "opus": "claude-opus-4.7",
+  "opus": "claude-opus-4-8",
   "haiku": "claude-haiku-4.5",
   "anthropic": "claude-sonnet-4.6",
 
@@ -639,7 +666,7 @@ export const modelAliases: Record<string, string> = {
 
   // OpenRouter aliases
   "openrouter": "z-ai/glm-5.2",
-  "auto": "gemini-3.5-flash",
+  "auto": DEFAULT_AGENT_MODEL,
   "free": OPENROUTER_FREE_AUTO_MODEL,
   "free-auto": OPENROUTER_FREE_AUTO_MODEL,
   "openrouter-auto": OPENROUTER_FREE_AUTO_MODEL,
@@ -698,6 +725,42 @@ export const modelAliases: Record<string, string> = {
   "nebius/deepseek-v4-pro": "nebius/deepseek-ai/DeepSeek-V4-Pro",
 };
 
+// ═══════════════════════════════════════════════════════════════════════════
+// CLAUDE 5.5 REQUEST-SHAPE FACTS (SPEC §1.3, keyed by exact wire id, never by pattern)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** Claude 5.5 wire ids: direct `claude-*-5-5`, OpenRouter `anthropic/claude-*-5.5` (SPEC §1.2). */
+const CLAUDE_55_IDS: ReadonlySet<string> = new Set([
+  "claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5",
+  "anthropic/claude-haiku-5.5", "anthropic/claude-sonnet-5.5", "anthropic/claude-opus-5.5",
+]);
+
+/** Ids whose §1.3 row rejects a forced `tool_choice` (`any` / named) with a 400. Haiku 5.5 accepts it. */
+const FORCED_TOOL_CHOICE_FORBIDDEN: ReadonlySet<string> = new Set([
+  "claude-sonnet-5-5", "claude-opus-5-5", "claude-fable-5-1",
+  "anthropic/claude-sonnet-5.5", "anthropic/claude-opus-5.5", "anthropic/claude-fable-5.1",
+]);
+
+/** Thinking counts toward max_tokens on 5.5, so caps sized for 4.5 truncate. */
+export function isClaude55Id(modelId: string): boolean {
+  return CLAUDE_55_IDS.has(modelId.trim().toLowerCase());
+}
+
+/** True when the provider would 400 a forced tool_choice; callers send `auto` and validate after the turn. */
+export function forbidsForcedToolChoice(modelId: string): boolean {
+  return FORCED_TOOL_CHOICE_FORBIDDEN.has(modelId.trim().toLowerCase());
+}
+
+/** Default effort per 5.5 id (SPEC §1.3), sent explicitly so a vendor default change cannot move the lane. */
+export function claudeDefaultEffort(modelId: string): "medium" | "high" | undefined {
+  switch (modelId.trim().toLowerCase()) {
+    case "claude-haiku-5-5": case "anthropic/claude-haiku-5.5": return "medium";
+    case "claude-sonnet-5-5": case "anthropic/claude-sonnet-5.5": return "high";
+    case "claude-opus-5-5": case "anthropic/claude-opus-5.5": return "medium";
+    default: return undefined;
+  }
+}
+
 /**
  * Resolve a model alias to its full model ID.
  * If no alias exists, returns the original input.
@@ -707,9 +770,7 @@ export function resolveModelAlias(modelInput: string): string {
   // Resolve up to two hops: a shortcut ("claude-sonnet") -> dotted display id ("claude-sonnet-4.6")
   // -> hyphenated direct-API id ("claude-sonnet-4-6"). Dotted Anthropic ids 404.
   const once = modelAliases[normalized] ?? modelInput;
-  const twice = modelAliases[once.toLowerCase().trim()] ?? once;
-  if (twice.startsWith("claude-") && twice.includes(".")) return twice.replace(/\./g, "-");
-  return twice;
+  return modelAliases[once.toLowerCase().trim()] ?? once;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -806,33 +867,43 @@ export function validateContextWindow(
 export const modelFallbackChains: Record<string, string[]> = {
   // OpenAI flagship → smaller OpenAI → cross-provider small model
   "gpt-5.4": ["z-ai/glm-5.2", "moonshotai/kimi-k2.7-code", "gemini-3.1-pro-preview", "gpt-5.4-mini", "minimax/minimax-m3"],
-  "gpt-5.4-mini": ["gemini-3.1-flash-lite-preview", "minimax/minimax-m3", "qwen/qwen3.7-plus", "gemini-3-flash-preview", "gpt-5.4-nano"],
+  "gpt-5.4-mini": ["gemini-3.5-flash-lite", "minimax/minimax-m3", "qwen/qwen3.7-plus", "gemini-3.8-flash", "gpt-5.4-nano"],
 
   // Anthropic premium → cheaper Anthropic → cross-provider small model
+  // Claude 5.5 ids (the migration-guide successors); the 4.x keys below stay for persisted rooms.
+  "claude-opus-5-5": ["claude-sonnet-5-5", "z-ai/glm-5.2", "gpt-5.4", "gemini-3.1-pro-preview", "gpt-5.4-mini"],
+  "claude-sonnet-5-5": ["z-ai/glm-5.2", "gpt-5.4-mini", "gemini-3.8-flash", "moonshotai/kimi-k2.7-code", "minimax/minimax-m3"],
+  "claude-haiku-5-5": ["gpt-5.4-nano", "gemini-3.5-flash-lite", "qwen/qwen3.7-plus", "minimax/minimax-m3", "z-ai/glm-4.7-flash"],
   "claude-opus-4.7": ["claude-sonnet-4.6", "z-ai/glm-5.2", "gpt-5.4", "gemini-3.1-pro-preview", "gpt-5.4-mini"],
-  "claude-sonnet-4.6": ["z-ai/glm-5.2", "gpt-5.4-mini", "gemini-3-flash-preview", "moonshotai/kimi-k2.7-code", "minimax/minimax-m3"],
-  "claude-haiku-4.5": ["gpt-5.4-nano", "gemini-3.1-flash-lite-preview", "qwen/qwen3.7-plus", "minimax/minimax-m3", "z-ai/glm-4.7-flash"],
-  "claude-opus-4.1": ["claude-opus-4", "claude-sonnet-4", "claude-haiku-3.5", "gpt-5.4-mini", "gemini-2.5-flash"],
-  "claude-opus-4": ["claude-sonnet-4", "claude-haiku-3.5", "gpt-5.4-mini", "gemini-2.5-flash"],
-  "claude-sonnet-4": ["claude-haiku-3.5", "gpt-5.4-mini", "gemini-2.5-flash"],
+  "claude-sonnet-4.6": ["z-ai/glm-5.2", "gpt-5.4-mini", "gemini-3.8-flash", "moonshotai/kimi-k2.7-code", "minimax/minimax-m3"],
+  "claude-haiku-4.5": ["gpt-5.4-nano", "gemini-3.5-flash-lite", "qwen/qwen3.7-plus", "minimax/minimax-m3", "z-ai/glm-4.7-flash"],
+  // Retired Claude 4 / 4.1 / Haiku 3.5 keys: members that are retired are dropped, the chain points at live ids.
+  "claude-opus-4.1": ["claude-sonnet-5-5", "gpt-5.4-mini", "gemini-3.8-flash"],
+  "claude-opus-4": ["claude-sonnet-5-5", "gpt-5.4-mini", "gemini-3.8-flash"],
+  "claude-sonnet-4": ["claude-sonnet-5-5", "gpt-5.4-mini", "gemini-3.8-flash"],
 
-  // Gemini 3.x preview → stable 2.5 → cross-provider advisor/executor lanes
-  "gemini-3.1-pro-preview": ["z-ai/glm-5.2", "gemini-3-flash-preview", "gemini-2.5-pro", "moonshotai/kimi-k2.7-code", "gpt-5.4"],
-  "gemini-3-flash-preview": ["qwen/qwen3.7-plus", "gemini-3.1-flash-lite-preview", "gemini-2.5-flash", "gpt-5.4-mini", "minimax/minimax-m3"],
-  "gemini-3.1-flash-lite-preview": ["qwen/qwen3.7-plus", "gemini-3-flash-preview", "gemini-2.5-flash-lite", "gpt-5.4-mini", "minimax/minimax-m3"],
-  "gemini-2.5-pro": ["z-ai/glm-5.2", "gemini-3.1-pro-preview", "gemini-3-flash-preview", "moonshotai/kimi-k2.7-code", "gpt-5.4"],
-  "gemini-2.5-flash": ["qwen/qwen3.7-plus", "gemini-3-flash-preview", "gemini-3.1-flash-lite-preview", "gpt-5.4-mini", "minimax/minimax-m3"],
+  // Gemini 3.x GA Flash / Flash-Lite + the one Pro → cross-provider advisor/executor lanes. Retired or
+  // prior-users-only members (gemini-3.1-flash-lite-preview, gemini-2.5-*) are dropped from the values;
+  // those ids stay as keys so a persisted room still on one of them has an escape route.
+  "gemini-3.8-flash": ["qwen/qwen3.7-plus", "gemini-3.5-flash-lite", "gpt-5.4-mini", "minimax/minimax-m3"],
+  "gemini-3.6-flash": ["qwen/qwen3.7-plus", "gemini-3.5-flash-lite", "gpt-5.4-mini", "minimax/minimax-m3"],
+  "gemini-3.5-flash-lite": ["qwen/qwen3.7-plus", "gemini-3.8-flash", "gpt-5.4-mini", "minimax/minimax-m3"],
+  "gemini-3.1-pro-preview": ["z-ai/glm-5.2", "gemini-3.8-flash", "moonshotai/kimi-k2.7-code", "gpt-5.4"],
+  "gemini-3-flash-preview": ["qwen/qwen3.7-plus", "gemini-3.5-flash-lite", "gpt-5.4-mini", "minimax/minimax-m3"],
+  "gemini-3.1-flash-lite-preview": ["qwen/qwen3.7-plus", "gemini-3.8-flash", "gpt-5.4-mini", "minimax/minimax-m3"],
+  "gemini-2.5-pro": ["z-ai/glm-5.2", "gemini-3.1-pro-preview", "gemini-3.8-flash", "moonshotai/kimi-k2.7-code", "gpt-5.4"],
+  "gemini-2.5-flash": ["qwen/qwen3.7-plus", "gemini-3.8-flash", "gemini-3.5-flash-lite", "gpt-5.4-mini", "minimax/minimax-m3"],
   "deep-research-max-preview-04-2026": ["deep-research-preview-04-2026", "gemini-3.1-pro-preview", "gpt-5.4"],
-  "deep-research-preview-04-2026": ["deep-research-max-preview-04-2026", "gemini-3.1-pro-preview", "gemini-2.5-pro"],
+  "deep-research-preview-04-2026": ["deep-research-max-preview-04-2026", "gemini-3.1-pro-preview"],
   "deep-research-pro-preview-12-2025": ["deep-research-preview-04-2026", "deep-research-max-preview-04-2026", "gemini-3.1-pro-preview"],
   "glm-5.2": ["moonshotai/kimi-k2.7-code", "qwen/qwen3.7-plus", "gemini-3.1-pro-preview", "gpt-5.4", "minimax/minimax-m3"],
   "z-ai/glm-5.2": ["moonshotai/kimi-k2.7-code", "qwen/qwen3.7-plus", "gemini-3.1-pro-preview", "gpt-5.4", "minimax/minimax-m3"],
   "nebius/zai-org/GLM-5.2": ["qwen/qwen3.7-plus", "nebius/MiniMaxAI/MiniMax-M2.5", "cohere/north-mini-code:free"],
   "kimi-k2.7-code": ["z-ai/glm-5.2", "qwen/qwen3.7-plus", "gemini-3.1-pro-preview", "gpt-5.4", "minimax/minimax-m3"],
   "moonshotai/kimi-k2.7-code": ["z-ai/glm-5.2", "qwen/qwen3.7-plus", "gemini-3.1-pro-preview", "gpt-5.4", "minimax/minimax-m3"],
-  "qwen/qwen3.7-plus": ["minimax/minimax-m3", "z-ai/glm-5.2", "gemini-3.1-flash-lite-preview", "stepfun/step-3.7-flash"],
-  "minimax-m3": ["qwen/qwen3.7-plus", "gemini-3.1-flash-lite-preview", "gpt-5.4-mini", "gemini-3-flash-preview"],
-  "minimax/minimax-m3": ["qwen/qwen3.7-plus", "gemini-3.1-flash-lite-preview", "gpt-5.4-mini", "gemini-3-flash-preview"],
+  "qwen/qwen3.7-plus": ["minimax/minimax-m3", "z-ai/glm-5.2", "gemini-3.5-flash-lite", "stepfun/step-3.7-flash"],
+  "minimax-m3": ["qwen/qwen3.7-plus", "gemini-3.5-flash-lite", "gpt-5.4-mini", "gemini-3.8-flash"],
+  "minimax/minimax-m3": ["qwen/qwen3.7-plus", "gemini-3.5-flash-lite", "gpt-5.4-mini", "gemini-3.8-flash"],
 };
 
 export function getNextFallback(model: string, attempted: string[]): string | null {

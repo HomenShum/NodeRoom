@@ -25,10 +25,12 @@ describe("live provider parser helpers", () => {
   });
 
   it("prefers explicit and env models before defaults without duplicates", () => {
-    const candidates = providerParserModelCandidates("gemini", "gemini-3.5-flash", {
+    // Defaults were [3.5-flash, 3-flash-preview, 2.5-flash, 2.0-flash]; 2.5 expires on OpenRouter 2026-10-20 and 2.0 is
+    // shut down, so the defaults are [3.8-flash, 3.6-flash]. Passing 3.8-flash as the preferred id keeps the dedupe check.
+    const candidates = providerParserModelCandidates("gemini", "gemini-3.8-flash", {
       PROVIDER_PARSER_GEMINI_MODEL: "gemini-2.5-flash",
     });
-    expect(candidates.slice(0, 3)).toEqual(["gemini-3.5-flash", "gemini-2.5-flash", "gemini-3-flash-preview"]);
+    expect(candidates.slice(0, 3)).toEqual(["gemini-3.8-flash", "gemini-2.5-flash", "gemini-3.6-flash"]);
   });
 
   it("redacts API key values from provider errors", () => {

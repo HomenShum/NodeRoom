@@ -5,7 +5,7 @@
  * Verifies the architecture invariant: canonical Convex storageId != disposable provider file id.
  *
  *   npx tsx scripts/eval/providerParseSmoke.ts                       # gemini default
- *   npx tsx scripts/eval/providerParseSmoke.ts gemini-3.5-flash,gpt-5.4-mini,claude-haiku-4-5
+ *   npx tsx scripts/eval/providerParseSmoke.ts gemini-3.8-flash,gpt-5.4-mini,claude-haiku-5-5
  */
 import "../benchmark/loadEnv";
 import { z } from "zod";
@@ -18,7 +18,7 @@ import { priceRun } from "../../src/nodeagent/models/adapter";
 import { artifactsFromProviderExtraction, providerFileCacheMeta, type CanonicalFileRef, type ProviderExtraction, type ProviderUploadResult } from "../../src/app/providerParserAdapter";
 import type { CellPayload, ProviderParser } from "../../src/engine/types";
 
-const MODELS = (process.argv[2] || "gemini-3.5-flash,gpt-5.4-mini,claude-haiku-4-5").split(",").map((s) => s.trim());
+const MODELS = (process.argv[2] || "gemini-3.8-flash,gpt-5.4-mini,claude-haiku-5-5").split(",").map((s) => s.trim());
 
 // Synthetic messy diligence text — the ParselyFi/PitchBook archetype (unstructured → structured), no private data.
 const SAMPLE = `Diligence scratch notes (messy):

@@ -1,6 +1,7 @@
 import type { ModelPricing } from "../models/modelCatalog";
 import { getModelPricing, getProviderForModel, resolveModelAlias } from "../models/modelCatalog";
 import { OPENROUTER_FREE_AUTO_MODEL, selectOpenRouterFreeModels } from "../models/openRouterFreeModels";
+import { DEFAULT_AGENT_MODEL } from "../../../convex/modelDefaults";
 
 export type NodeAgentRouteRisk = "low" | "medium" | "high";
 export type NodeAgentLatencyClass = "interactive" | "batch" | "overnight";
@@ -81,7 +82,7 @@ export interface ReviewAdaptiveRoute {
 export function defaultRouteForTask(taskType: AdaptiveRouteRequest["taskType"]): string {
   if (taskType === "research" || taskType === "finance") return process.env.AGENT_RESEARCH_MODEL ?? "minimax/minimax-m3";
   if (taskType === "router") return process.env.AGENT_ROUTER_MODEL ?? OPENROUTER_FREE_AUTO_MODEL;
-  return process.env.AGENT_MODEL ?? "gemini-3.5-flash";
+  return process.env.AGENT_MODEL ?? DEFAULT_AGENT_MODEL;
 }
 
 export function chooseModelRoute(request: AdaptiveRouteRequest): AdaptiveRouteDecision {
@@ -133,6 +134,8 @@ export function chooseNodeAgentRoute(req: NodeAgentRouteRequest): NodeAgentRoute
       requireN5Promotion: true,
     };
   }
+  // Fast lane stays on the model with the recorded L1-L4 ladder pass. It moves to DEFAULT_AGENT_MODEL only
+  // after docs/eval/ladder/model-refresh-noderoom.json exists (SPEC Part A §A.2.9; requireN5Promotion below).
   const modelId = "gemini-3.5-flash";
   return {
     model: modelId,

@@ -28,13 +28,13 @@ import {
 } from "../src/nodeagent/guardrails/egressPolicy";
 import { parseBulkCompanyIngest } from "../src/nodeagent/skills/finance/bulkIngest";
 import { finalizePublicAgentJobStreamAfterTerminal } from "./agentStreamTerminal";
+import { DEFAULT_AGENT_MODEL, DEFAULT_FILE_EGRESS_MODEL } from "./modelDefaults";
 
 // BOUND: cap a single bulk-diligence fan-out so one command can't enqueue unbounded jobs.
 const MAX_BULK_COMPANIES = 50;
 const MAX_INVESTIGATION_ELEMENTS = 8_192;
 const MAX_INVESTIGATION_WRITE_IDS = 8_192;
 const LEASE_EXPIRY_GRACE_MS = 30_000;
-const DEFAULT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
 const INVESTIGATION_RESEARCH_GOAL = "Research every pending or stale company in the exact authorized dataset: claim only its editable research fields, retrieve public sources, write evidence-bearing summary/funding/headcount/recent_signal plus source/source2/last_researched/status, and release every managed lock.";
 const INVESTIGATION_WRITABLE_FIELD_IDS = [
   "summary",
@@ -2098,9 +2098,9 @@ function defaultModelPolicyForRoute(args: { routePolicy: RoutePolicy; entrypoint
   if (args.modelPolicy) return args.modelPolicy;
   if (args.routePolicy === "explicit") throw new Error("explicit_route_requires_modelPolicy");
   if (args.routePolicy === "free_auto" || args.entrypoint === "free") return "openrouter/free-auto";
-  if (args.routePolicy === "top_paid") return process.env.AGENT_TOP_PAID_MODEL ?? process.env.AGENT_MODEL ?? "anthropic/claude-sonnet-4";
+  if (args.routePolicy === "top_paid") return process.env.AGENT_TOP_PAID_MODEL ?? process.env.AGENT_MODEL ?? "anthropic/claude-sonnet-5.5";
   if (args.mode === "research") return process.env.AGENT_RESEARCH_MODEL ?? process.env.AGENT_WORKER_MODEL ?? "minimax/minimax-m3";
-  return process.env.AGENT_ORCHESTRATOR_MODEL ?? process.env.AGENT_MODEL ?? "gemini-3.5-flash";
+  return process.env.AGENT_ORCHESTRATOR_MODEL ?? process.env.AGENT_MODEL ?? DEFAULT_AGENT_MODEL;
 }
 
 function configuredFileEgressModel() {

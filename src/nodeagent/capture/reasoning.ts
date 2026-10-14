@@ -20,7 +20,7 @@ function providerFor(modelId: string): LanguageModel {
   return anthropic(modelId); // default + all claude-* ids
 }
 
-export function aiSdkReasoner(modelId = "claude-haiku-4-5"): ReasoningModel {
+export function aiSdkReasoner(modelId = "claude-haiku-5-5"): ReasoningModel {
   return {
     name: modelId,
     async decide<T>({ system, instruction, context, schema, signal }: {

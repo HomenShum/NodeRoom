@@ -19,6 +19,7 @@
 
 import { v } from "convex/values";
 import { makeFunctionReference } from "convex/server";
+import { DEFAULT_AGENT_MODEL, DEFAULT_FILE_EGRESS_MODEL } from "./modelDefaults";
 import { action } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { actorProofV } from "./lib";
@@ -62,7 +63,6 @@ const MIN_ACTION_RESERVE_MS = 10_000;
 const ACTION_SAFETY_MARGIN_MS = 15_000;
 const DEFAULT_CONTEXT_MAX_CHARS = 24_000;
 const DEFAULT_CONTEXT_KEEP_RECENT = 10;
-const DEFAULT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
 const roomsFullRef = makeFunctionReference<"query">("rooms:full");
 const agentJobsCreateOrReuseRef = makeFunctionReference<"mutation">("agentJobs:createOrReuse") as any;
 const agentJobsFinishInteractiveRef = makeFunctionReference<"mutation">("agentJobs:finishInteractive") as any;
@@ -338,12 +338,13 @@ export const runRoomAgent = action({
     //  - research (background synthesis): deepseek-v4-flash — first route to clear the v3 composite-
     //    synthesis benchmark 9/9 at $0.0034/run (docs/eval/results.json; ~300x cheaper than gemini-3.5-flash's
     //    measured $1.10/task). Evidence covers the fetch->synthesize->write shape ONLY.
-    //  - interactive collaboration (lock/CAS/draft): stays on gemini-3.5-flash, the only route with a
-    //    recorded L1-L4 collaboration-ladder pass. flash gets this lane only after it passes the ladder.
+    //  - interactive collaboration (lock/CAS/draft): DEFAULT_AGENT_MODEL (gemini-3.8-flash). The recorded
+    //    L1-L4 collaboration-ladder pass is for gemini-3.5-flash (Google now serves it as 3.6); this default
+    //    merges only with docs/eval/ladder/model-refresh-noderoom.json (3.6 + 3.8, 8/8 pass).
     const egressArtifacts = providerEgressArtifactsFromRoomState(roomState);
     const requestedModelName = a.mode === "research"
       ? (process.env.AGENT_RESEARCH_MODEL ?? "minimax/minimax-m3")
-      : (process.env.AGENT_MODEL ?? "gemini-3.5-flash");
+      : (process.env.AGENT_MODEL ?? DEFAULT_AGENT_MODEL);
     const model = agentModel(modelNameForEgress(requestedModelName, "public_ask", egressArtifacts), { entrypoint: "public_ask" });
     const egressDecision = providerEgressDecision({
       model: model.name,
@@ -780,7 +781,7 @@ export const runPrivateAgent = action({
     const requester = roomState.members.find((m: { id: unknown }) => String(m.id) === a.requester.actor.id) as { id: unknown; name: string } | undefined;
     if (!requester) throw new Error("member_required");
     const egressArtifacts = providerEgressArtifactsFromRoomState(roomState);
-    const model = agentModel(modelNameForEgress(process.env.AGENT_MODEL ?? "gemini-3.5-flash", "private_agent", egressArtifacts), { entrypoint: "private_agent" });
+    const model = agentModel(modelNameForEgress(process.env.AGENT_MODEL ?? DEFAULT_AGENT_MODEL, "private_agent", egressArtifacts), { entrypoint: "private_agent" });
     const egressDecision = providerEgressDecision({
       model: model.name,
       entrypoint: "private_agent",

@@ -10,7 +10,7 @@ import { z } from "zod";
 const args = process.argv.slice(2);
 const taskId = optionValue("--task-id") ?? "Visualization/Task 126";
 const sheet = optionValue("--sheet") ?? "Surprise";
-const model = optionValue("--model") ?? process.env.GEMINI_MEDIA_JUDGE_MODEL ?? "gemini-3.5-flash";
+const model = optionValue("--model") ?? process.env.GEMINI_MEDIA_JUDGE_MODEL ?? "gemini-3.6-flash";
 const outDir = resolve(optionValue("--out-dir") ?? join("docs", "eval", "spreadsheetbench-chart-visual", "task-126"));
 const tempDir = resolve(optionValue("--tmp-dir") ?? join(".tmp", "spreadsheetbench-chart-visual", "task-126"));
 const jsonOut = resolve(optionValue("--json-out") ?? join(outDir, "vlm-report.json"));
@@ -93,7 +93,6 @@ const result = await generateObject({
   model: google(model),
   schema: judgeSchema,
   messages,
-  temperature: 0,
 });
 
 const judged = result.object;

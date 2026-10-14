@@ -471,7 +471,9 @@ describe("long-running agent job source invariants", () => {
     expect(runner).toContain("agentJobRunner.runFreeAutoJobSlice");
     expect(runner).toContain("onTrace: (event)");
     expect(runner).toContain("liveOperationKind(event)");
-    expect(model).toContain("AGENT_MODEL_MAX_OUTPUT_TOKENS");
+    // The output-token cap moved to the module convexModel.ts and adapter.ts share (SPEC A.2.9); same knob, same default.
+    expect(model).toContain('from "./outputTokens"');
+    expect(readFileSync("src/nodeagent/models/outputTokens.ts", "utf8")).toContain("AGENT_MODEL_MAX_OUTPUT_TOKENS");
     expect(model).toContain("chat_template_kwargs");
     expect(model).toContain("enable_thinking: false");
     expect(model).toContain("isOpenRouterHybridThinkingModel");

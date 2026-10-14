@@ -1,6 +1,7 @@
 import type { AgentMessage, AgentModel, AgentStep, AgentTool, AgentToolChoice, RoomTools, ToolCall } from "../core/types";
 import { runAgent } from "../core/runtime";
 import { normalizeInteropModelRoute } from "./modelInterop";
+import { forbidsForcedToolChoice, resolveModelAlias } from "../models/modelCatalog";
 
 export type LangChainMessageLike = {
   role?: string;
@@ -43,7 +44,7 @@ export function createLangChainAgentModel(chatModel: LangChainChatModelLike, opt
     async next({ system, messages, tools, signal, onTextDelta, toolChoice }): Promise<AgentStep> {
       const toolDefs = langChainToolDefinitions(tools);
       const runnable = typeof chatModel.bindTools === "function" && toolDefs.length
-        ? chatModel.bindTools(toolDefs, langChainToolChoiceConfig(toolChoice))
+        ? chatModel.bindTools(toolDefs, langChainToolChoiceConfig(toolChoice, modelNameFor(chatModel)))
         : chatModel;
       const output = await runnable.invoke(
         toLangChainMessages(system, messages),
@@ -205,8 +206,9 @@ function argsValue(value: unknown): Record<string, unknown> {
   return objectRecord(value) ?? {};
 }
 
-function langChainToolChoiceConfig(toolChoice?: AgentToolChoice): Record<string, unknown> {
-  return toolChoice === "required" ? { tool_choice: "any" } : {};
+function langChainToolChoiceConfig(toolChoice: AgentToolChoice | undefined, modelName: string): Record<string, unknown> {
+  // Claude 5.5 Sonnet/Opus reject a forced tool_choice (SPEC §1.3); leave it unset so the provider default (auto) applies.
+  return toolChoice === "required" && !forbidsForcedToolChoice(resolveModelAlias(modelName)) ? { tool_choice: "any" } : {};
 }
 
 function modelNameFor(model: LangChainChatModelLike): string {

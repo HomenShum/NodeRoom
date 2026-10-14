@@ -662,6 +662,34 @@ describe("agentJobs runtime contract", () => {
     expect(jobs).toHaveLength(0);
   });
 
+  it("derives the default model per route policy from the refreshed ids when no env or client model is set", async () => {
+    // SPEC A.2.9: top_paid was "anthropic/claude-sonnet-4" (retired 2026-06-15); the orchestrator default was
+    // "gemini-3.5-flash" (deprecated 2026-10-08). The ids are literals here on purpose.
+    for (const name of ["AGENT_MODEL", "AGENT_TOP_PAID_MODEL", "AGENT_ORCHESTRATOR_MODEL"]) vi.stubEnv(name, undefined);
+    try {
+      const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+      const policies: Array<[string, string]> = [];
+      for (const routePolicy of ["top_paid", "fast_default"] as const) {
+        const started = await t.mutation(api.agentJobs.startPublicAsk, {
+          roomId,
+          requester: proof,
+          goal: `default model for ${routePolicy}`,
+          contextArtifactId: String(artifactId),
+          routePolicy,
+          disposition: "redirect" as const,
+        });
+        const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+        policies.push([routePolicy, String(detail?.job.modelPolicy)]);
+      }
+      expect(policies).toEqual([
+        ["top_paid", "anthropic/claude-sonnet-5.5"],
+        ["fast_default", "gemini-3.8-flash"],
+      ]);
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
   it("starts public chat asks server-side against the active work-surface artifact", async () => {
     const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
 

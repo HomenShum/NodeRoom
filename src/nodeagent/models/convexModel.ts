@@ -8,7 +8,8 @@
  */
 
 import type { AgentMessage, AgentModel, AgentModelRouteState, AgentStep, AgentTool, AgentToolChoice, TokenUsage, ToolCall } from "../core/types";
-import { getModelPricing, getProviderForModel, modelFallbackChains, modelPricing, resolveModelAlias } from "./modelCatalog";
+import { forbidsForcedToolChoice, getModelPricing, getProviderForModel, modelFallbackChains, modelPricing, resolveModelAlias } from "./modelCatalog";
+import { modelMaxOutputTokens } from "./outputTokens";
 import {
   isOpenRouterFreeAutoModel,
   openRouterFreeCandidateTimeoutMs,
@@ -109,7 +110,6 @@ type GeminiResponse = {
 
 const OPENROUTER_REFERER = "https://noderoom.local";
 const OPENROUTER_TITLE = "NodeRoom benchmark";
-const DEFAULT_MAX_OUTPUT_TOKENS = 8_192;
 const UNKNOWN_MODEL_RESERVE_INPUT_PER_1M = Object.values(modelPricing)
   .reduce((highest, pricing) => Math.max(highest, pricing.inputPer1M), 1);
 const UNKNOWN_MODEL_RESERVE_OUTPUT_PER_1M = Object.values(modelPricing)
@@ -271,7 +271,7 @@ function convexAttemptCostReservationUsd(
   if (inputPer1M === 0 && outputPer1M === 0) return 0;
   return (
     inputTokenUpperBound * inputPer1M
-    + modelMaxOutputTokens() * outputPer1M
+    + modelMaxOutputTokens(modelId) * outputPer1M
   ) / 1_000_000;
 }
 
@@ -840,7 +840,7 @@ async function openAiCompatibleBlockingStep(args: {
     messages: [{ role: "system", content: args.system }, ...toOpenAiMessages(args.messages)],
     tools: args.tools.length ? args.tools.map(openAiTool) : undefined,
     tool_choice: args.tools.length ? openAiCompatibleToolChoice(args.modelId, args.endpoint, args.toolChoice) : undefined,
-    ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens()),
+    ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens(args.modelId)),
     ...openAiCompatibleProviderOptions(args.modelId, args.endpoint),
   }, {
     ...args.headers,
@@ -890,7 +890,7 @@ async function openAiCompatibleStreamStep(args: {
       messages: [{ role: "system", content: args.system }, ...toOpenAiMessages(args.messages)],
       tools: args.tools.length ? args.tools.map(openAiTool) : undefined,
       tool_choice: args.tools.length ? openAiCompatibleToolChoice(args.modelId, args.endpoint, args.toolChoice) : undefined,
-      ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens()),
+      ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens(args.modelId)),
       ...openAiCompatibleProviderOptions(args.modelId, args.endpoint),
     })),
     signal: args.signal,
@@ -959,7 +959,7 @@ async function anthropicStep(
 ) {
   const res = await postJson<AnthropicResponse>("https://api.anthropic.com/v1/messages", {
     model: modelId,
-    max_tokens: modelMaxOutputTokens(),
+    max_tokens: modelMaxOutputTokens(modelId),
     system,
     messages: toAnthropicMessages(messages),
     tools: tools.length ? tools.map(anthropicTool) : undefined,
@@ -1002,7 +1002,7 @@ async function geminiStep(
     systemInstruction: { parts: [{ text: system }] },
     contents: toGeminiContents(messages),
     tools: tools.length ? [{ functionDeclarations: tools.map(geminiTool) }] : undefined,
-    generationConfig: { maxOutputTokens: modelMaxOutputTokens() },
+    generationConfig: { maxOutputTokens: modelMaxOutputTokens(modelId) },
   }, {}, signal, onProviderRequest);
 
   const parts = res.candidates?.[0]?.content?.parts ?? [];
@@ -1045,7 +1045,7 @@ async function geminiStreamStep(
       systemInstruction: { parts: [{ text: system }] },
       contents: toGeminiContents(messages),
       tools: tools.length ? [{ functionDeclarations: tools.map(geminiTool) }] : undefined,
-      generationConfig: { maxOutputTokens: modelMaxOutputTokens() },
+      generationConfig: { maxOutputTokens: modelMaxOutputTokens(modelId) },
     })),
     signal,
   });
@@ -1802,16 +1802,6 @@ function nebiusBaseUrl(): string {
   return envValue("NEBIUS_BASE_URL") ?? "https://api.tokenfactory.nebius.com/v1";
 }
 
-function modelMaxOutputTokens(): number {
-  return envNumber("AGENT_MODEL_MAX_OUTPUT_TOKENS", DEFAULT_MAX_OUTPUT_TOKENS, 1_024, 32_000);
-}
-
-function envNumber(name: string, fallback: number, min: number, max: number): number {
-  const raw = Number(envValue(name) ?? fallback);
-  if (!Number.isFinite(raw)) return fallback;
-  return Math.max(min, Math.min(max, raw));
-}
-
 function openAiCompatibleProviderOptions(modelId: string, endpoint: string): JsonObject {
   // GLM/Qwen hybrid-thinking models served through OpenRouter/vLLM can spend the entire
   // output cap on hidden thinking, and Qwen rejects required tool_choice while thinking.
@@ -1827,6 +1817,11 @@ function openAiCompatibleToolChoice(modelId: string, endpoint: string, requested
   // NodeAgent still validates required writes/packages after the turn, so provider-level `auto`
   // is the compatible transport hint while the harness remains strict.
   if (choice === "required" && isOpenRouterEndpoint(endpoint) && isOpenRouterQwenHybridThinkingModel(modelId)) {
+    return "auto";
+  }
+  // Claude 5.5 Sonnet/Opus (and Fable 5.1) answer a forced tool_choice with a 400 (SPEC §1.3). Whether
+  // OpenRouter rewrites it is unobserved, so send `auto`; the harness validates required writes after the turn.
+  if (choice === "required" && isOpenRouterEndpoint(endpoint) && forbidsForcedToolChoice(modelId)) {
     return "auto";
   }
   return choice;
