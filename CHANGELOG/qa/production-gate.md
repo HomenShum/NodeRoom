@@ -28,3 +28,30 @@ Actual CI evidence:
 - Current push: [verify job 113648159309](https://github.com/HomenShum/NodeRoom/actions/runs/37877122824/job/113648159309).
 
 At this entry's preparation, ordinary publication and natural CI for this documentation amendment are **PENDING**. This record does not make earlier failed runs pass or certify merge readiness, production, all security, or completion of the repository portfolio.
+
+## 2026-10-14 — Refresh the compatible sanitizer lock and retain release blockers
+
+Developers and coding agents can install the patched DOMPurify sanitizer while retaining the reviewed Undici repair. This follow-up updates only DOMPurify's locked version, registry URL and integrity from 3.4.14 to 3.4.17; Mermaid's existing `^3.3.3` range already permits it. No application renderer code, dependency ranges or freshness policy changed.
+
+**Base**: `c8789df42a425f6d101ecfac8e29a0cfa4b06eb9` (PR 256). **Status**: uncommitted local follow-up; publication and natural CI pending. **Author**: Codex.
+
+The targeted command was `npm update dompurify --package-lock-only --ignore-scripts --no-audit --no-fund`. A record-by-record assertion found only the three intended DOMPurify fields changed; all 1,078 other lock records, including the root record, matched the base. The published 3.4.17 tarball URL and integrity matched the new lock. Direct Undici 8.11.2, nested Undici 6.28.1, Mermaid 11.16.1, KaTeX 0.16.47, manifests, README, tests and proof assets remained unchanged.
+
+| Local observation | Before | After |
+| --- | --- | --- |
+| Locked DOMPurify | 3.4.14; patched-target assertion exited 1 | 3.4.17; assertion exited 0 |
+| Production audit, unchanged moderate threshold | 11 low affected package nodes; DOMPurify present; exit 0 | 10 low affected package nodes; DOMPurify absent; exit 0 |
+| Other audit findings | No moderate/high/critical or Undici finding | Identical remaining vulnerability records; low KaTeX chain remains |
+
+Candidate checks ran on Node 22.22.2 and npm 10.9.7 in a fresh isolated checkout:
+
+- `npm ci --ignore-scripts --no-audit --no-fund` passed, adding 938 packages. Installed/locked parity passed for DOMPurify, both Undici versions, Mermaid and KaTeX. Lifecycle scripts stayed disabled; install deprecation warnings were retained.
+- `npm run floor` exited 1: application and Convex typechecks passed; 388 test files and 2,779 tests passed; one test failed. `tests/proofStaleness.test.ts` rejected `docs/eval/noderoom-fresh-user-vertical-proof.json` at 45.6 days old against the unchanged 30-day window. No receipt timestamp, window, test, claim or verifier was edited. This is not a passing floor.
+- The canonical suite includes the existing source-fetch SSRF, pinned-DNS, redirect, byte/chunk-budget, timeout, repeated-wave and receipt scenarios, plus Streamdown plugin selection and the NodeBook workspace renderer integration. Transport is mocked in the network scenarios; the renderer integration uses jsdom. These checks do not prove real TLS behavior, pixel quality or universal sanitizer immunity. Vendored NodeGraph missing-source-map warnings were retained.
+- `npm run build` passed, including the build-provenance verifier for `index.html` at checkout HEAD `c8789df`. The working tree included this uncommitted lock patch. Large-chunk warnings were retained; no bundle-threshold change was made.
+
+The low KaTeX finding remains explicit: the patched 0.18.2 release is outside the four current incoming `^0.16` ranges, and the vendored NodeBook packages pin Mermaid 11.16.1. No forced override, direct dependency, renderer removal or wider migration was introduced. See the [KaTeX advisory](https://github.com/KaTeX/KaTeX/security/advisories/GHSA-238p-pmpm-9mq7).
+
+Private raw logs, exit records, registry binding, installed parity, graph comparison and hashes are retained under the campaign directory `_campaign-20261014/evidence/noderoom-sanitizer-followup/`; they are not published with this entry. The identical audit command on both sides was `npm audit --omit=dev --audit-level=moderate --json --ignore-scripts`.
+
+Full `prod:gate`, fresh-user/room re-verification, product-memory/browser checks, distribution security gate, Ladder evaluation, deployment and merge readiness were not established by this local run. The existing stale-proof blocker remains unresolved. No browser automation, provider/model call, paid run, commit, push, merge or NodeRL registration retry was performed. A passing audit threshold and local build are not a production or zero-vulnerability certificate.
