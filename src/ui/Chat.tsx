@@ -13,6 +13,7 @@ import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentJobT
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
 import { api } from "../../convex/_generated/api";
+import { DEFAULT_AGENT_MODEL } from "../../convex/modelDefaults";
 import type { Actor, Artifact, CellPayload, Channel, Message } from "../engine/types";
 import { getProviderForModel, llmModelCatalog, modelPricing, resolveModelAlias, type LlmProvider } from "../nodeagent/models/modelCatalog";
 import {
@@ -1687,7 +1688,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     if (override) return override;
     if (forceFree) return { mode: "free" };
     return modelSelectionMode === "specific"
-      ? { mode: "specific", modelPolicy: specificModelPolicy || defaultSpecificModel || "gemini-3.5-flash" }
+      ? { mode: "specific", modelPolicy: specificModelPolicy || defaultSpecificModel || DEFAULT_AGENT_MODEL }
       : { mode: modelSelectionMode };
   };
 

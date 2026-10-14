@@ -28,7 +28,7 @@ const opt = (n: string) => args.find((a) => a.startsWith(`--${n}=`))?.slice(n.le
 const mediaPath = opt("media");
 const refPath = opt("reference");
 const floorPath = opt("floor");
-const model = process.env.GEMINI_UI_REVIEW_MODEL ?? "gemini-3.5-flash";
+const model = process.env.GEMINI_UI_REVIEW_MODEL ?? "gemini-3.6-flash";
 const outPath = opt("out") ?? join(process.cwd(), ".tmp-qa", "design-rubric.json");
 if (!mediaPath) throw new Error("--media=<candidate png> required");
 if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) throw new Error("GOOGLE_GENERATIVE_AI_API_KEY required");
@@ -72,7 +72,7 @@ async function judgeLens(lens: typeof LENSES[number]) {
     { type: "file", data: candidate, filename: "candidate.png", mediaType: "image/png" },
   ];
   if (reference) content.push({ type: "file", data: reference, filename: "reference.png", mediaType: "image/png" });
-  const { object } = await generateObject({ model: google(model), schema: lensSchema(lens.dims), messages: [{ role: "user", content }], temperature: 0.2 });
+  const { object } = await generateObject({ model: google(model), schema: lensSchema(lens.dims), messages: [{ role: "user", content }] });
   return { lens: lens.key, ...object };
 }
 

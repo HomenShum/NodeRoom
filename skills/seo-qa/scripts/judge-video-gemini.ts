@@ -9,7 +9,7 @@ import { z } from "zod";
 const ROOT = process.cwd();
 const args = process.argv.slice(2);
 const input = optionValue("--input");
-const model = optionValue("--model") ?? process.env.GEMINI_SEO_VIDEO_JUDGE_MODEL ?? process.env.GEMINI_MEDIA_JUDGE_MODEL ?? "gemini-3.5-flash";
+const model = optionValue("--model") ?? process.env.GEMINI_SEO_VIDEO_JUDGE_MODEL ?? process.env.GEMINI_MEDIA_JUDGE_MODEL ?? "gemini-3.6-flash";
 const scenario = optionValue("--scenario") ?? "landing";
 const dryRun = hasFlag("--dry-run");
 const outDir = optionValue("--out-dir") ?? join(ROOT, "docs", "seo", "journey-artifacts", "gemini-video-judges");
@@ -63,7 +63,6 @@ async function judgeVideo(): Promise<{ input: string; model: string; scenario: s
     model: google(model),
     schema,
     messages,
-    temperature: 0.2,
   });
   return {
     input: slash(relative(ROOT, inputPath)),

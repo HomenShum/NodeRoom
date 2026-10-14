@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { normalizeInteropModelRoute } from "../src/nodeagent/integrations/modelInterop";
+import { DEFAULT_AGENT_MODEL } from "../convex/modelDefaults";
 import {
   getProviderForModel,
   NODEAGENT_FREE_AUTO_MODEL,
@@ -34,7 +35,8 @@ vi.mock("@ai-sdk/google", () => ({
 }));
 
 const OPENROUTER_MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
-const GOOGLE_MODEL = "gemini-3.5-flash";
+// The direct-Google fallback id is the default-model constant (was the literal "gemini-3.5-flash", deprecated 2026-10-08).
+const GOOGLE_MODEL = DEFAULT_AGENT_MODEL;
 const ROUTING_ENV = [
   "OPENROUTER_API_KEY",
   "OPENROUTER_FREE_MODEL_CACHE_MS",
@@ -162,8 +164,10 @@ describe("provider-neutral NodeAgent free-first routing", () => {
           billing: {
             free: false,
             classification: "catalog_priced",
-            inputPer1M: 1.5,
-            outputPer1M: 9,
+            // gemini-3.8-flash vendor list price, read 2026-10-10 (SPEC A.2.9 R-row; pricingAsOf in modelCatalog).
+            // Was 1.5 / 9 for the deprecated gemini-3.5-flash.
+            inputPer1M: 0.75,
+            outputPer1M: 3.75,
           },
         },
       },

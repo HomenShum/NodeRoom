@@ -43,6 +43,7 @@ import {
 } from "../src/nodeagent/guardrails/egressPolicy";
 import { makeConvexStepJournal } from "./agentStepJournalClient";
 import { createVerifiedWorkbookWorkflowHook } from "../src/nodeagent/guardrails/workbookWorkflow";
+import { DEFAULT_AGENT_MODEL, DEFAULT_FILE_EGRESS_MODEL } from "./modelDefaults";
 
 const CONVEX_ACTION_LIMIT_MS = 10 * 60_000;
 const DEFAULT_SLICE_BUDGET_MS = 7 * 60_000;
@@ -53,7 +54,6 @@ const DEFAULT_LEASE_EXTRA_MS = 60_000;
 const DEFAULT_RESUME_DELAY_MS = 5_000;
 const DEFAULT_CONTEXT_MAX_CHARS = 24_000;
 const DEFAULT_CONTEXT_KEEP_RECENT = 10;
-const DEFAULT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
 const RESUME_CHECKPOINT_PREFIX = "RESUME CHECKPOINT:";
 const agentJobsClaimSliceRef = makeFunctionReference<"mutation">("agentJobs:claimSlice") as any;
 const agentJobsFinishSliceRef = makeFunctionReference<"mutation">("agentJobs:finishSlice") as any;
@@ -509,7 +509,7 @@ export const runFreeAutoJobSlice = internalAction({
     const roomArtifacts = await ctx.runQuery(artifactsListForRoomRef, { roomId: claimed.roomId }) as Array<{ title?: string; kind?: string; meta?: unknown; visibility?: string }>;
     const egressArtifacts = providerEgressArtifactsForClaimedJob(roomArtifacts, claimed);
     let entrypoint = runnerEntrypoint(claimed);
-    const modelPolicy = claimed.modelPolicy || (entrypoint === "free" ? "openrouter/free-auto" : process.env.AGENT_MODEL ?? "gemini-3.5-flash");
+    const modelPolicy = claimed.modelPolicy || (entrypoint === "free" ? "openrouter/free-auto" : process.env.AGENT_MODEL ?? DEFAULT_AGENT_MODEL);
     let resolvedModelPolicy = modelPolicy === "openrouter/free-auto"
       ? process.env.FREE_AUTO_JOB_MODEL ?? modelPolicy
       : modelPolicy;

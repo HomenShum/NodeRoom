@@ -100,9 +100,13 @@ describe("production QA matrix", () => {
 
   it("keeps the Convex interactive fallback on a ladder-safe route", () => {
     const source = readFileSync(join(root, "convex/agent.ts"), "utf8");
-    const match = source.match(/AGENT_MODEL\s*\?\?\s*"([^"]+)"/);
+    // The fallback is either a literal or, since the 2026-10 model refresh, the DEFAULT_AGENT_MODEL constant that
+    // convex/modelDefaults.ts owns. Both must resolve to an explicit id; the L1-L4 check below is unchanged.
+    const match = source.match(/AGENT_MODEL\s*\?\?\s*(?:"([^"]+)"|(DEFAULT_AGENT_MODEL))/);
     expect(match, "convex/agent.ts must declare an explicit AGENT_MODEL fallback").toBeTruthy();
-    const fallback = match![1];
+    const constant = readFileSync(join(root, "convex/modelDefaults.ts"), "utf8").match(/export const DEFAULT_AGENT_MODEL\s*=\s*"([^"]+)"/)?.[1];
+    expect(match![1] || constant, "DEFAULT_AGENT_MODEL must be a string literal").toBeTruthy();
+    const fallback = (match![1] ?? constant)!;
     const route = matrix.modelLadder.routes.find((r) => r.modelRoute === fallback);
     expect(route, `${fallback} is not recorded in the model ladder`).toBeTruthy();
     expect([route!.l1, route!.l2, route!.l3, route!.l4], `${fallback} is not L1-L4 safe`).toEqual([

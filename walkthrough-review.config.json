@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "defaultModel": "gemini-3.5-flash",
+  "defaultModel": "gemini-3.6-flash",
   "defaultBase": "https://noderoom.live",
   "envFile": ".env.local",
   "outputRoot": "docs/eval/walkthrough-review",
