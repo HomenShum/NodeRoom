@@ -8,6 +8,7 @@
 import { generateObject, type LanguageModel } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createOpenAI } from "@ai-sdk/openai";
+import { claudeEffortProviderOptions } from "../models/modelCatalog";
 import type { ReasoningModel } from "./types";
 
 // Trim env keys: a stray trailing \r (Windows copy/pipe artifact in `convex env set`) would otherwise
@@ -40,6 +41,7 @@ export function aiSdkReasoner(modelId = "claude-haiku-5-5"): ReasoningModel {
         schema, // zod schema → generateObject validates the result to T
         system,
         messages: [{ role: "user", content }],
+        ...claudeEffortProviderOptions(modelId), // explicit SPEC §1.3 effort for claude-*-5-5
         abortSignal: signal,
       });
       return object as T;

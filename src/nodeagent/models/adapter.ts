@@ -22,11 +22,13 @@ import { openai, createOpenAI } from "@ai-sdk/openai";
 import { z } from "zod";
 import type { AgentModel, AgentMessage, AgentTool, AgentToolChoice, ToolCall } from "../core/types";
 import {
-  claudeDefaultEffort,
+  claudeEffortProviderOptions,
   forbidsForcedToolChoice,
   getProviderForModel,
   getModelPricing,
   isNodeAgentFreeAutoModel,
+  needsStrictTools,
+  priceTokens,
   NODEAGENT_FREE_AUTO_MODEL,
   resolveModelAlias,
 } from "./modelCatalog";
@@ -92,14 +94,33 @@ function providerFor(modelId: string): LanguageModel {
 export type DispatchPolicy = { maxRetries: number; crossModelFallback: boolean };
 export const DEFAULT_DISPATCH_POLICY: DispatchPolicy = { maxRetries: 3, crossModelFallback: true };
 
+/**
+ * One provider request as the receipt needs it (SPEC A.0.3): what was asked for, what the adapter chose, the
+ * model string the PROVIDER answered with (`echoedModel`, null when the request threw), its usage, its cost
+ * (the settled price, or the full reservation when usage is unknown) and whether it was a fallback dispatch.
+ */
+export type DispatchRecord = {
+  requestedModel: string;
+  resolvedModel: string;
+  echoedModel: string | null;
+  usage: { inputTokens: number; outputTokens: number } | null;
+  costUsd: number;
+  fallbackUsed: boolean;
+};
+
+/** A paid run issues at most a few hundred requests; the bound only guards a loop that lost its cap. */
+export const MAX_DISPATCH_RECORDS = 4096;
+
 /** Job-wide USD meter for a paid run. Moves at dispatches only (see `meteredDispatch`). */
 export type SpendMeter = {
   maxUsd: number;
   spentUsd: number;
   requests: number;
   stoppedBy: null | "spend_budget" | "unpriced_model";
+  /** One row per issued request, oldest first, capped at MAX_DISPATCH_RECORDS (`requests` keeps counting). */
+  dispatches: DispatchRecord[];
 };
-export const createSpendMeter = (maxUsd: number): SpendMeter => ({ maxUsd, spentUsd: 0, requests: 0, stoppedBy: null });
+export const createSpendMeter = (maxUsd: number): SpendMeter => ({ maxUsd, spentUsd: 0, requests: 0, stoppedBy: null, dispatches: [] });
 
 /** A dispatch the budget cannot cover. `receipt.stopReason` is what runtime.ts turns into a `spend_budget` handoff. */
 export class SpendBudgetError extends Error {
@@ -147,6 +168,7 @@ export function model(modelId: string, options: ModelAdapterOptions = {}): Agent
       const safeMessages = messages.map((m) => (m.role === "user" && m.content ? { ...m, content: redactPII(m.content).text } : m));
       const dispatch: DispatchContext = {
         policy: dispatchPolicy,
+        requestedModel: modelId,
         meter,
         maxCostUsd,
         inputTokenUpperBound: meter ? requestInputTokenUpperBound(safeSystem, safeMessages, tools) : 0,
@@ -193,14 +215,14 @@ export async function judge(modelId: string, prompt: string): Promise<string> {
 /** Cost from the catalog's pricing (per 1M tokens) — single source of truth, no parallel table. */
 export const priceRun = (modelId: string, inTok: number, outTok: number): number => {
   const p = getModelPricing(resolveModelAlias(modelId));
-  return (inTok * (p?.inputPer1M ?? 1) + outTok * (p?.outputPer1M ?? 5)) / 1_000_000;
+  return p ? priceTokens(p, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
 };
 
 /** Same formula as `priceRun`, but an id with no pricing row throws instead of costing a guessed $1/$5. */
 export const priceRunStrict = (modelId: string, inTok: number, outTok: number): number => {
   const p = getModelPricing(resolveModelAlias(modelId));
   if (!p) throw new UnpricedModelError(modelId);
-  return (inTok * p.inputPer1M + outTok * p.outputPer1M) / 1_000_000;
+  return priceTokens(p, inTok, outTok);
 };
 
 /**
@@ -212,7 +234,8 @@ export function reserveDispatch(modelId: string, inputTokenUpperBound: number, r
   const resolved = resolveModelAlias(modelId);
   const p = getModelPricing(resolved);
   if (!p) throw new UnpricedModelError(modelId);
-  const reserveUsd = (inputTokenUpperBound * p.inputPer1M + modelMaxOutputTokens(resolved) * p.outputPer1M) / 1_000_000;
+  // The prompt upper bound picks the tier, so a long prompt reserves at the long-context rates.
+  const reserveUsd = priceTokens(p, inputTokenUpperBound, modelMaxOutputTokens(resolved));
   if (reserveUsd > remainingUsd) {
     throw new SpendBudgetError(`dispatch to ${modelId} reserves $${reserveUsd.toFixed(6)}, above the $${Math.max(0, remainingUsd).toFixed(6)} left`);
   }
@@ -221,6 +244,8 @@ export function reserveDispatch(modelId: string, inputTokenUpperBound: number, r
 
 type DispatchContext = {
   policy: DispatchPolicy;
+  /** The id the caller asked `model()` for; recorded on every dispatch row. */
+  requestedModel?: string;
   meter?: SpendMeter;
   /** Remaining dollars the runtime handed to this turn (`next({ maxCostUsd })`). */
   maxCostUsd?: number;
@@ -242,13 +267,32 @@ export function requestInputTokenUpperBound(system: string, messages: AgentMessa
  * cap is never issued), then settle to the priced usage. A request that throws, or answers without usage,
  * keeps its full reservation: unknown usage is charged at the worst case. No meter = no change.
  */
-async function meteredDispatch<T extends { usage?: { inputTokens?: number; outputTokens?: number } }>(
+/**
+ * The model string the PROVIDER answered with, read from the raw response body (`modelVersion` for Google,
+ * `model` for Anthropic / OpenAI-compatible). The AI SDK's `response.modelId` is not used: @ai-sdk/google fills it
+ * with the id that was REQUESTED, so it can never show Google serving a request under another model.
+ */
+export function providerEchoedModel(res: { response?: { body?: unknown } }): string | null {
+  const body = res.response?.body;
+  if (typeof body !== "object" || body === null) return null;
+  const { modelVersion, model: model_ } = body as { modelVersion?: unknown; model?: unknown };
+  const echoed = typeof modelVersion === "string" ? modelVersion : typeof model_ === "string" ? model_ : null;
+  return echoed && echoed.trim() ? echoed : null;
+}
+
+async function meteredDispatch<T extends { usage?: { inputTokens?: number; outputTokens?: number }; response?: { body?: unknown } }>(
   ctx: DispatchContext,
   modelId: string,
   run: () => Promise<T>,
+  fallbackUsed = false,
 ): Promise<T> {
   const meter = ctx.meter;
   if (!meter) return run();
+  // A refused reservation or an unpriced id is terminal for the job: nothing may dispatch after it, whatever
+  // path (retry, fallback, candidate loop) asks next.
+  if (meter.stoppedBy) {
+    throw new SpendBudgetError(`dispatch to ${modelId} refused: the meter already stopped (${meter.stoppedBy})`);
+  }
   const remaining = Math.min(meter.maxUsd - meter.spentUsd, ctx.maxCostUsd ?? Number.POSITIVE_INFINITY);
   let reserveUsd: number;
   try {
@@ -259,11 +303,24 @@ async function meteredDispatch<T extends { usage?: { inputTokens?: number; outpu
   }
   meter.spentUsd += reserveUsd;
   meter.requests += 1;
+  const record: DispatchRecord = {
+    requestedModel: ctx.requestedModel ?? modelId,
+    resolvedModel: modelId,
+    echoedModel: null,
+    usage: null,
+    costUsd: reserveUsd, // unknown usage is charged at the worst case
+    fallbackUsed,
+  };
+  if (meter.dispatches.length < MAX_DISPATCH_RECORDS) meter.dispatches.push(record);
   const res = await run();
+  record.echoedModel = providerEchoedModel(res);
   const input = res.usage?.inputTokens;
   const output = res.usage?.outputTokens;
   if (Number.isFinite(input) && Number.isFinite(output)) {
-    meter.spentUsd += priceRunStrict(modelId, input as number, output as number) - reserveUsd;
+    const settled = priceRunStrict(modelId, input as number, output as number);
+    meter.spentUsd += settled - reserveUsd;
+    record.usage = { inputTokens: input as number, outputTokens: output as number };
+    record.costUsd = settled;
   }
   return res;
 }
@@ -376,28 +433,30 @@ async function generateAgentText(
     });
   }
   if (!isOpenRouterFreeAutoModel(modelId)) {
-    const call = async (id: string) => {
+    const call = async (id: string, fallbackUsed: boolean) => {
       const providerRoute = assertProviderRouteAllowed({ model: id, entrypoint, env: process.env });
       assertProviderEgressAllowed({ model: id, entrypoint, artifacts, env: process.env });
       const res = await withRetry(() => meteredDispatch(dispatch, id, () => generateText({
         model: providerFor(id),
         system,
         messages,
-        tools: sdkTools,
+        tools: sdkToolsForModel(sdkTools, id, toolChoice),
         toolChoice: Object.keys(sdkTools).length ? sdkToolChoiceForModel(id, toolChoice) : undefined,
         maxOutputTokens: modelMaxOutputTokens(id),
         maxRetries: 0, // withRetry is the only retry layer: every physical request is one reserved attempt
-        ...anthropicProviderOptions(id),
+        ...claudeEffortProviderOptions(id), // explicit SPEC §1.3 effort: a vendor default change cannot move the lane
         abortSignal: signal,
-      })), signal, dispatch.policy.maxRetries);
+      }), fallbackUsed), signal, dispatch.policy.maxRetries);
       return { res, providerRoute };
     };
     try {
-      return { ...await call(modelId), resolvedModel: modelId };
+      return { ...await call(modelId, false), resolvedModel: modelId };
     } catch (error) {
+      // A refused reservation is the budget's decision, not an outage: no fallback model may be tried after it.
+      if (error instanceof SpendBudgetError) throw error;
       const fb = fallbackModelFor(modelId, dispatch.policy);
       if (!fb || signal?.aborted) throw error;
-      return { ...await call(fb), resolvedModel: fb }; // primary exhausted retries → cross-model safety net
+      return { ...await call(fb, true), resolvedModel: fb }; // primary exhausted retries → cross-model safety net
     }
   }
   hydrateOpenRouterFreeRouteHealth();
@@ -424,7 +483,7 @@ async function generateAgentText(
         model: openrouter().chat(candidate.id),
         system,
         messages,
-        tools: sdkTools,
+        tools: sdkToolsForModel(sdkTools, candidate.id, toolChoice),
         toolChoice: Object.keys(sdkTools).length ? sdkToolChoiceForModel(candidate.id, toolChoice) : undefined,
         maxOutputTokens: modelMaxOutputTokens(candidate.id),
         maxRetries: 0,
@@ -515,6 +574,9 @@ async function generateProviderNeutralAgentText(args: {
   } catch (primaryError) {
     const unavailable = openRouterPrimaryUnavailable(primaryError);
     if (!unavailable || args.signal?.aborted) throw primaryError;
+    // The direct Google route is a cross-model fallback (free OpenRouter -> paid Gemini): a policy that forbids
+    // cross-model fallback forbids it, and a refused reservation is never recovered from.
+    if (primaryError instanceof SpendBudgetError || !args.dispatch.policy.crossModelFallback) throw primaryError;
 
     const configuredKey = envValue("GOOGLE_GENERATIVE_AI_API_KEY");
     if (!configuredKey) {
@@ -556,7 +618,7 @@ async function generateProviderNeutralAgentText(args: {
         maxOutputTokens: modelMaxOutputTokens(fallbackModel),
         maxRetries: 0,
         abortSignal: args.signal,
-      })), args.signal, args.dispatch.policy.maxRetries);
+      }), true), args.signal, args.dispatch.policy.maxRetries);
       return {
         res,
         resolvedModel: fallbackModel,
@@ -836,10 +898,10 @@ function envValue(name: string): string | undefined {
   return value || undefined;
 }
 
-/** Explicit effort for Claude 5.5 on the direct AI-SDK path: the SPEC §1.3 default per id, so a vendor default change cannot move the lane. */
-function anthropicProviderOptions(modelId: string): { providerOptions?: { anthropic: { effort: "medium" | "high" } } } {
-  const effort = claudeDefaultEffort(modelId);
-  return effort && getProviderForModel(modelId) === "anthropic" ? { providerOptions: { anthropic: { effort } } } : {};
+/** `strict: true` on every tool definition exactly when a forced tool choice was downgraded to `auto` (SPEC §1.3). */
+function sdkToolsForModel(sdkTools: SdkToolSet, modelId: string, requested?: AgentToolChoice): SdkToolSet {
+  if (!needsStrictTools(modelId, requested)) return sdkTools;
+  return Object.fromEntries(Object.entries(sdkTools).map(([name, t]) => [name, { ...t, strict: true }]));
 }
 
 function sdkToolChoiceForModel(modelId: string, requested?: AgentToolChoice): AgentToolChoice {

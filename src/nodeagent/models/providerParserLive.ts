@@ -13,6 +13,7 @@ import {
   type ProviderUploadResult,
 } from "../../app/providerParserAdapter";
 import type { ProviderFileCacheMeta, ProviderParser } from "../../engine/types";
+import { claudeEffortProviderOptions } from "./modelCatalog";
 import type { UploadedArtifactInput } from "../../app/uploadedArtifact";
 import {
   assertProviderEgressAllowed,
@@ -248,22 +249,24 @@ async function extractWithLiveProvider(args: {
 }): Promise<{ extraction: ProviderExtraction; providerRoute: ProviderRouteReceipt }> {
   const providerRoute = assertProviderParserAllowed(args);
   const model = providerLanguageModel(args.provider, providerRoute.resolvedModel);
+  // Explicit SPEC §1.3 effort for claude-*-5-5 on the direct Anthropic transport (no-op for every other provider/id).
+  const effort = args.provider === "anthropic" ? claudeEffortProviderOptions(providerRoute.resolvedModel) : {};
   const prompt = buildExtractionPrompt(args.prompt, args.file, args.source);
   const input = buildPromptInput(prompt, args.file, args.source);
 
   const extraction = await extractProviderExtractionWithFallback({
     structured: async () => {
       const res = "messages" in input
-        ? await generateObject({ model, schema: providerExtractionSchema, messages: input.messages })
-        : await generateObject({ model, schema: providerExtractionSchema, prompt: input.prompt });
+        ? await generateObject({ model, schema: providerExtractionSchema, messages: input.messages, ...effort })
+        : await generateObject({ model, schema: providerExtractionSchema, prompt: input.prompt, ...effort });
       return res.object;
     },
     text: async () => {
       const textPrompt = `${prompt}\n\nReturn JSON only. The JSON must match this shape: ${schemaHint()}`;
       const textInput = buildPromptInput(textPrompt, args.file, args.source);
       const res = "messages" in textInput
-        ? await generateText({ model, messages: textInput.messages })
-        : await generateText({ model, prompt: textInput.prompt });
+        ? await generateText({ model, messages: textInput.messages, ...effort })
+        : await generateText({ model, prompt: textInput.prompt, ...effort });
       return res.text;
     },
   });

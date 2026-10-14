@@ -88,11 +88,19 @@ describe("meter moves at dispatches (adapter path, fake transport)", () => {
     expect(meter.spentUsd).toBeCloseTo(priceRunStrict(PRICED, 1_000, 200) + RESERVE, 12); // the failed dispatch's reservation is retained
   });
 
-  it("(b) the same outage under the default policy reserves once per attempt and never crosses the cap", async () => {
+  it("(b) the same sequence (charged response, then ECONNRESET) under the default policy reserves once per attempt and never crosses the cap", async () => {
     vi.useFakeTimers();
-    fakeTransport(() => unavailable());
-    const meter = createSpendMeter(RESERVE * 2.5); // room for two reservations, not three
+    fakeTransport((n) => {
+      if (n === 1) return ok(1_000, 200);
+      throw Object.assign(new Error("fetch failed: ECONNRESET"), { code: "ECONNRESET" }); // transient: the default policy retries it
+    });
+    const first = priceRunStrict(PRICED, 1_000, 200);
+    const meter = createSpendMeter(first + RESERVE * 2.5); // after the charged answer: room for two more reservations, not three
     const m = model(PRICED, { meter }); // default policy: 3 retries, fallback allowed (no AGENT_FALLBACK_MODEL set)
+
+    await m.next(TURN);
+    expect(calls).toHaveLength(1);
+    expect(meter.spentUsd).toBeCloseTo(first, 12);
 
     const outcome = m.next(TURN).then(() => null, (e: unknown) => e);
     await vi.advanceTimersByTimeAsync(120_000);
@@ -100,10 +108,50 @@ describe("meter moves at dispatches (adapter path, fake transport)", () => {
 
     expect(error).toBeInstanceOf(SpendBudgetError);
     expect((error as SpendBudgetError).receipt.stopReason).toBe("spend_budget");
-    expect(calls).toHaveLength(2); // the attempt whose reservation would cross the cap is never issued
-    expect(meter.requests).toBe(2);
+    expect(calls).toHaveLength(3); // the charged answer + two reset attempts; the attempt whose reservation would cross the cap is not issued
+    expect(meter.requests).toBe(3);
+    expect(meter.spentUsd).toBeCloseTo(first + RESERVE * 2, 12); // each issued attempt kept its own reservation
     expect(meter.spentUsd).toBeLessThanOrEqual(meter.maxUsd);
     expect(meter.stoppedBy).toBe("spend_budget");
+  });
+
+  it("every issued request leaves one receipt row: requested/resolved id, the provider's echoed model, usage, cost, fallbackUsed", async () => {
+    fakeTransport(() => new Response(JSON.stringify({
+      candidates: [{ content: { role: "model", parts: [{ text: "ok" }] }, finishReason: "STOP", index: 0 }],
+      usageMetadata: { promptTokenCount: 1_000, candidatesTokenCount: 200, totalTokenCount: 1_200 },
+      modelVersion: "gemini-3.6-flash", // Google serving the request under another model than the one asked for
+    }), { status: 200, headers: { "content-type": "application/json" } }));
+    const meter = createSpendMeter(10);
+    await model(PRICED, { dispatch: RECEIPT, meter }).next(TURN);
+    expect(meter.dispatches).toEqual([{
+      requestedModel: PRICED,
+      resolvedModel: PRICED,
+      echoedModel: "gemini-3.6-flash",
+      usage: { inputTokens: 1_000, outputTokens: 200 },
+      costUsd: priceRunStrict(PRICED, 1_000, 200),
+      fallbackUsed: false,
+    }]);
+  });
+
+  it("a cross-model fallback dispatch is marked fallbackUsed: true (the receipt rejects such a row)", async () => {
+    vi.useFakeTimers();
+    process.env.AGENT_FALLBACK_MODEL = "gemini-3.5-flash-lite";
+    fakeTransport((_n, call) => call.url.includes("/models/gemini-3.5-flash-lite:") ? ok(100, 10) : unavailable());
+    const meter = createSpendMeter(10);
+    const outcome = model(PRICED, { meter }).next(TURN); // default policy: 4 attempts on the primary, then the fallback model
+    await vi.advanceTimersByTimeAsync(120_000);
+    await outcome;
+    expect(meter.dispatches.map((d) => [d.resolvedModel, d.requestedModel, d.fallbackUsed])).toEqual([
+      [PRICED, PRICED, false], [PRICED, PRICED, false], [PRICED, PRICED, false], [PRICED, PRICED, false],
+      ["gemini-3.5-flash-lite", PRICED, true],
+    ]);
+  });
+
+  it("a request that throws keeps its full reservation as its row cost, with no echoed model or usage", async () => {
+    fakeTransport(() => { throw Object.assign(new Error("fetch failed: ECONNRESET"), { code: "ECONNRESET" }); });
+    const meter = createSpendMeter(10);
+    await expect(model(PRICED, { dispatch: RECEIPT, meter }).next(TURN)).rejects.toThrow(/ECONNRESET/);
+    expect(meter.dispatches).toEqual([{ requestedModel: PRICED, resolvedModel: PRICED, echoedModel: null, usage: null, costUsd: RESERVE, fallbackUsed: false }]);
   });
 
   it("(c) a reservation above the remaining budget before the first dispatch throws spend_budget with zero fetch calls", async () => {
@@ -169,6 +217,39 @@ describe("(g) zero requests for an unpriced id", () => {
     expect(meter.requests).toBe(4);
   });
 
+  it("a terminal stop ends the dispatch: an unpriced primary never reaches a priced AGENT_FALLBACK_MODEL", async () => {
+    process.env.AGENT_FALLBACK_MODEL = PRICED; // would be affordable and priced: must still not be dispatched
+    fakeTransport(() => ok());
+    const meter = createSpendMeter(10);
+    const error = await model(UNPRICED, { meter }).next(TURN).then(() => null, (e: unknown) => e); // default policy: fallback allowed
+    expect(error).toBeInstanceOf(UnpricedModelError);
+    expect(meter.stoppedBy).toBe("unpriced_model");
+    expect(calls).toHaveLength(0);
+    expect(meter.requests).toBe(0);
+  });
+
+  it("a terminal stop ends the dispatch: a cap-refused primary never reaches a cheaper AGENT_FALLBACK_MODEL", async () => {
+    process.env.AGENT_FALLBACK_MODEL = "gemini-3.5-flash-lite"; // its reservation would fit under the cap
+    fakeTransport(() => ok());
+    const cheap = reserveDispatch("gemini-3.5-flash-lite", BOUND, Number.POSITIVE_INFINITY);
+    expect(cheap).toBeLessThan(RESERVE);
+    const meter = createSpendMeter((RESERVE + cheap) / 2); // primary does not fit, the fallback would
+    const error = await model(PRICED, { meter }).next(TURN).then(() => null, (e: unknown) => e);
+    expect(error).toBeInstanceOf(SpendBudgetError);
+    expect(meter.stoppedBy).toBe("spend_budget");
+    expect(calls).toHaveLength(0);
+    expect(meter.requests).toBe(0);
+    expect(meter.spentUsd).toBe(0);
+  });
+
+  it("after a stop the meter refuses every further dispatch, even a different model that would fit", async () => {
+    fakeTransport(() => ok());
+    const meter = createSpendMeter(10);
+    meter.stoppedBy = "spend_budget";
+    await expect(model("gemini-3.5-flash-lite", { dispatch: RECEIPT, meter }).next(TURN)).rejects.toBeInstanceOf(SpendBudgetError);
+    expect(calls).toHaveLength(0);
+  });
+
   it("an unmetered adapter is unchanged: no reservation, no refusal", async () => {
     fakeTransport(() => ok());
     const step = await model(UNPRICED).next(TURN); // no meter: legacy callers are not budget-gated
@@ -223,29 +304,61 @@ describe("main(): pre-flight and the grid", () => {
     expect(calls).toHaveLength(0);
   });
 
-  it("(e) a grid driven through the adapter stops before the cap; budget.requests equals the fetch count; a stop is not a receipt", async () => {
-    // Every answer is a valid tool call (list_artifacts takes no arguments, so the loop keeps going) that bills ~$2.25
-    // of input (3M tokens at $0.75/M), far above its reservation: the cap is crossed by settlement, and every later
-    // dispatch must be refused instead of issued.
-    const cap = 5;
-    fakeTransport(() => {
-      billedUsd += 2.25;
+  it("(e) usage within each reservation, a context that outgrows the scripted pre-flight: the grid stops BEFORE the cap, spentUsd <= maxUsd, budget.requests equals the fetch count", async () => {
+    // Pass the pre-flight with the smallest admissible cap (the estimate itself), then answer every step with a tool
+    // call plus 20K characters of text so the real prompt outgrows the scripted dry run the estimate was built on.
+    // Each answer bills half its request body in tokens (realistic, and below the 1-byte-per-token reservation), so
+    // no settlement ever exceeds its reservation: the only thing that can end the grid is a refused reservation.
+    fakeTransport(() => ok());
+    const probe = await runMain(["--real", PRICED, "--levels=1-4", "--max-cost-usd=0.0001"]);
+    const cap = Math.ceil(probe.report!.budget.estimateUsd * 1e4) / 1e4; // >= the estimate, so the pre-flight admits it
+    expect(calls).toHaveLength(0);
+
+    fakeTransport((_n, call) => {
+      const tokens = Math.floor(JSON.stringify(call.body).length / 2);
+      billedUsd += priceRunStrict(PRICED, tokens, 50);
       return new Response(JSON.stringify({
-        candidates: [{ content: { role: "model", parts: [{ functionCall: { name: "list_artifacts", args: {} } }] }, finishReason: "STOP", index: 0 }],
-        usageMetadata: { promptTokenCount: 3_000_000, candidatesTokenCount: 10, totalTokenCount: 3_000_010 },
+        candidates: [{ content: { role: "model", parts: [{ text: "x".repeat(20_000) }, { functionCall: { name: "list_artifacts", args: {} } }] }, finishReason: "STOP", index: 0 }],
+        usageMetadata: { promptTokenCount: tokens, candidatesTokenCount: 50, totalTokenCount: tokens + 50 },
+        modelVersion: PRICED,
       }), { status: 200, headers: { "content-type": "application/json" } });
     });
-    let issuedAfterCap = 0;
-    const base = globalThis.fetch;
-    vi.stubGlobal("fetch", async (...args: Parameters<typeof fetch>) => { if (billedUsd >= cap) issuedAfterCap += 1; return base(...args); });
 
     const { exitCode, report } = await runMain(["--real", PRICED, "--levels=1-4", `--max-cost-usd=${cap}`]);
-    expect(calls.length).toBeGreaterThan(2); // the cap is crossed by settlement, not before the first answers
-    expect(issuedAfterCap).toBe(0);
-    expect(report?.budget.requests).toBe(calls.length);
-    expect(report?.budget.stoppedBy).toBe("spend_budget");
-    expect(report?.dispatchPolicy).toEqual(RECEIPT);
-    expect(report?.testedCommit).toMatch(/^[0-9a-f]{40}$/);
-    expect(exitCode).toBe(1);
+    const budget = report!.budget;
+    expect(budget.stoppedBy).toBe("spend_budget"); // a reservation was refused...
+    expect(budget.spentUsd).toBeLessThanOrEqual(budget.maxUsd); // ...so the cap was never crossed
+    expect(budget.spentUsd).toBeLessThan(budget.maxUsd); // the grid stopped short of it, not on it
+    expect(billedUsd).toBeLessThanOrEqual(budget.maxUsd);
+    expect(calls.length).toBeGreaterThan(2);
+    expect(budget.requests).toBe(calls.length); // nothing was issued after the stop
+    expect(budget.requests).toBeLessThan(budget.requestCeiling);
+    expect(exitCode).toBe(1); // a stop is not a receipt
+  });
+
+  it("the --json-out report carries what an A.0.3 review needs: command, candidateIds, echoedModels, rows, environment, requestCeiling", async () => {
+    fakeTransport(() => new Response(JSON.stringify({
+      candidates: [{ content: { role: "model", parts: [{ text: "done" }] }, finishReason: "STOP", index: 0 }],
+      usageMetadata: { promptTokenCount: 500, candidatesTokenCount: 20, totalTokenCount: 520 },
+      modelVersion: "gemini-3.6-flash", // Google answering as another model: the receipt must show it
+    }), { status: 200, headers: { "content-type": "application/json" } }));
+    const probe = await runMain(["--real", PRICED, "--levels=1-4", "--max-cost-usd=0.0001"]);
+    const cap = Math.ceil(probe.report!.budget.estimateUsd * 1e4) / 1e4;
+
+    const { report } = await runMain(["--real", PRICED, "--levels=1-4", `--max-cost-usd=${cap}`]);
+    expect(report?.command).toContain(`--real ${PRICED}`);
+    expect(report?.candidateIds).toEqual([PRICED]);
+    expect(report?.echoedModels).toEqual(["gemini-3.6-flash"]);
+    expect(report?.environment).toMatchObject({ node: process.version, platform: process.platform });
+    expect(report?.rows.length).toBe(calls.length);
+    expect(report?.rows[0]).toMatchObject({
+      requestedModel: PRICED,
+      resolvedModel: PRICED,
+      echoedModel: "gemini-3.6-flash",
+      usage: { inputTokens: 500, outputTokens: 20 },
+      fallbackUsed: false,
+    });
+    expect(report?.budget.requests).toBeLessThanOrEqual(report?.budget.requestCeiling);
+    expect(report?.results.every((r: { dispatches: unknown[] }) => Array.isArray(r.dispatches))).toBe(true);
   });
 });

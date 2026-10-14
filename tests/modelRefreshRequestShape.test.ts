@@ -102,6 +102,17 @@ describe("Claude 5.5 over the direct Anthropic HTTP step (convexModel.anthropicS
     });
   }
 
+  // SPEC §1.3: where a forced tool_choice is replaced by `auto`, the tool definitions carry strict: true instead.
+  for (const c of [{ id: "claude-haiku-5-5", strict: undefined }, { id: "claude-sonnet-5-5", strict: true }, { id: "claude-opus-5-5", strict: true }] as const) {
+    it(`${c.id}: a required tool choice ${c.strict ? "ships strict tool definitions" : "keeps plain tool definitions (a forced choice is accepted)"}`, async () => {
+      installFakeTransport(() => anthropicOk(c.id));
+      await convexModel(c.id).next({ system: "s", messages: [{ role: "user", content: "hi" }], tools: [NOOP_TOOL], toolChoice: "required" });
+      expect(seen[0].body.tools[0].strict).toBe(c.strict);
+      await convexModel(c.id).next({ system: "s", messages: [{ role: "user", content: "hi" }], tools: [NOOP_TOOL], toolChoice: "auto" });
+      expect(seen[1].body.tools[0].strict, "no downgrade happened, so no strict").toBeUndefined();
+    });
+  }
+
   it("a pre-5.5 id keeps the configured cap (the floor is keyed to the 5.5 ids only)", async () => {
     installFakeTransport(() => anthropicOk("claude-haiku-4-5"));
     process.env.AGENT_MODEL_MAX_OUTPUT_TOKENS = "1024";
@@ -142,6 +153,19 @@ describe("anthropic/claude-*-5.5 over OpenRouter (convexModel.openAiCompatibleSt
       ["anthropic/claude-haiku-5.5", "required"],
     ]);
   });
+
+  it("the auto downgrade ships strict: true tool definitions; a kept forced choice does not", async () => {
+    installFakeTransport(() => chatOk("x"));
+    const turn = { system: "s", messages: [{ role: "user" as const, content: "hi" }], tools: [NOOP_TOOL], toolChoice: "required" as const };
+    await convexModel("anthropic/claude-sonnet-5.5").next(turn);
+    await convexModel("anthropic/claude-opus-5.5").next(turn);
+    await convexModel("anthropic/claude-haiku-5.5").next(turn);
+    expect(seen.map((r) => [r.body.model, r.body.tools[0].function.strict])).toEqual([
+      ["anthropic/claude-sonnet-5.5", true],
+      ["anthropic/claude-opus-5.5", true],
+      ["anthropic/claude-haiku-5.5", undefined],
+    ]);
+  });
 });
 
 describe("Claude 5.5 over the AI-SDK adapter (adapter.model, direct Anthropic)", () => {
@@ -169,6 +193,8 @@ describe("Claude 5.5 over the AI-SDK adapter (adapter.model, direct Anthropic)",
       expect(body.max_tokens).toBe(8192);
       if (c.forcedAllowed) expect(body.tool_choice?.type).toBe("any");
       else expect(body.tool_choice?.type).toBe("auto");
+      // §1.3: `auto` replaces a forced choice together with strict tool definitions; Haiku keeps the forced choice, no strict.
+      expect(body.tools[0].strict).toBe(c.forcedAllowed ? undefined : true);
     });
   }
 
@@ -200,6 +226,19 @@ describe("capture reasoner (aiSdkReasoner)", () => {
     });
     expect(seen[0].body.model).toBe("claude-haiku-5-5");
     expectNoSamplingKeys(seen[0].body);
+    expect(seen[0].body.output_config?.effort).toBe("medium"); // explicit §1.3 default for Haiku 5.5, not the vendor's
+  });
+
+  it("an explicit claude-sonnet-5-5 id sends effort high (the caller's id, not a default, picks the row)", async () => {
+    installFakeTransport(() => ({ ...anthropicOk("claude-sonnet-5-5"), content: [{ type: "text", text: "{\"ok\":true}" }] }));
+    await aiSdkReasoner("claude-sonnet-5-5").decide({
+      system: "s",
+      instruction: "decide",
+      context: { title: "t", url: "https://example.test", a11y: "tree" } as any,
+      schema: z.object({ ok: z.boolean() }),
+    });
+    expect(seen[0].body.model).toBe("claude-sonnet-5-5");
+    expect(seen[0].body.output_config?.effort).toBe("high");
   });
 });
 

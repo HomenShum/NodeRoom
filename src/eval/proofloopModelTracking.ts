@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { normalizeInteropModelRoute } from "../nodeagent/integrations/modelInterop";
-import { getModelPricing, resolveModelAlias } from "../nodeagent/models/modelCatalog";
+import { getModelPricing, priceTokens, resolveModelAlias } from "../nodeagent/models/modelCatalog";
 
 export type ProofloopModelRole = "planner" | "worker" | "judge" | "verifier";
 export type ProofloopCostAccountingStatus = "actual" | "estimated" | "free" | "unknown";
@@ -274,7 +274,7 @@ function finiteNonNegative(value: number | null | undefined): value is number {
 function estimateModelCostUsd(modelId: string, tokensIn: number, tokensOut: number): number | undefined {
   const pricing = getModelPricing(resolveModelAlias(modelId));
   if (!pricing) return undefined;
-  return Number(((tokensIn * pricing.inputPer1M + tokensOut * pricing.outputPer1M) / 1_000_000).toFixed(8));
+  return Number(priceTokens(pricing, tokensIn, tokensOut).toFixed(8));
 }
 
 function freeAccountingSource(modelId: string, provider: string): ProofloopCostAccountingSource {

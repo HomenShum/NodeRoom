@@ -175,6 +175,17 @@ describe("provider-neutral NodeAgent free-first routing", () => {
     expect(step.providerRoute?.basis).toContain("billing:account_free_tier:not_asserted");
   });
 
+  it("never falls back to paid Gemini when the dispatch policy forbids cross-model fallback", async () => {
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY = "test-google-key";
+    generateTextMock.mockRejectedValue(new Error("AI_RetryError: Failed after 3 attempts. Last error: Rate limit exceeded: free-models-per-day-high-balance."));
+    const { model } = await import("../src/nodeagent/models/adapter");
+    // The same quota exhaustion as above, but under the ladder receipt policy: the free route's failure is the answer.
+    const route = model(NODEAGENT_FREE_AUTO_MODEL, { freeAutoMode: "structured", entrypoint: "system", dispatch: { maxRetries: 0, crossModelFallback: false } });
+
+    await expect(route.next({ system: "Return JSON only.", messages: [{ role: "user", content: "emit a structured edit plan" }], tools: [] })).rejects.toThrow(/Rate limit exceeded/);
+    expect(generateTextMock.mock.calls.map((call) => call[0].model)).toEqual([{ provider: "openrouter", id: OPENROUTER_MODEL }]);
+  });
+
   it("falls back to direct Gemini when every governed free route is cooling", async () => {
     process.env.GOOGLE_GENERATIVE_AI_API_KEY = "test-google-key";
     recordOpenRouterFreeRouteOutcome({
