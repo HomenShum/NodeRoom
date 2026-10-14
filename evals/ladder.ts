@@ -29,9 +29,10 @@ import {
   priceRunStrict,
   requestInputTokenUpperBound,
   type DispatchPolicy,
+  type DispatchRecord,
   type SpendMeter,
 } from "../src/nodeagent/models/adapter";
-import { getModelPricing, resolveModelAlias } from "../src/nodeagent/models/modelCatalog";
+import { getModelPricing, priceTokens, resolveModelAlias } from "../src/nodeagent/models/modelCatalog";
 import { modelMaxOutputTokens } from "../src/nodeagent/models/outputTokens";
 import { selectOpenRouterFreeModels } from "../src/nodeagent/models/openRouterFreeModels";
 import { stableJournalHash } from "../src/nodeagent/core/journal";
@@ -121,6 +122,8 @@ interface LadderBudgetReport {
   estimateUsd: number;
   spentUsd: number;
   requests: number;
+  /** Pre-flight request ceiling (routes x rungs x max steps, fan-out included); `requests` above it fails review (A.0.3). */
+  requestCeiling: number;
   stoppedBy: SpendMeter["stoppedBy"];
 }
 
@@ -141,6 +144,8 @@ interface RungResult {
   checks: Record<string, boolean>;
   /** P1-5: for each FAILING trace-derived check, a pointer at the offending trace event. */
   checkDetails?: Record<string, string>;
+  /** Every provider request this rung issued (metered runs only): echoed model, usage, cost, fallbackUsed. */
+  dispatches?: DispatchRecord[];
   trace: AgentTraceEvent[];
 }
 
@@ -606,6 +611,8 @@ async function runRung(rung: Rung, maker: (rung: Rung) => AgentModel, modelName:
   };
   const t0 = Date.now();
   const deadlineAt = budget.rungTimeoutMs ? t0 + budget.rungTimeoutMs : undefined;
+  const dispatchesFrom = meter?.dispatches.length ?? 0;
+  const rungDispatches = () => (meter ? { dispatches: meter.dispatches.slice(dispatchesFrom) } : {});
   try {
     const runOnce = (goal: string, m: AgentModel, maxSteps: number) => runAgent({
       rt,
@@ -670,6 +677,7 @@ async function runRung(rung: Rung, maker: (rung: Rung) => AgentModel, modelName:
       handoff: result.handoff?.summary,
       reason: pass ? "" : rung.diagnose?.(result, env) ?? result.handoff?.summary ?? "failed",
       checks,
+      ...rungDispatches(),
       trace: combinedTrace,
     };
   } catch (error) {
@@ -686,6 +694,7 @@ async function runRung(rung: Rung, maker: (rung: Rung) => AgentModel, modelName:
       cost: 0,
       error: error instanceof Error ? error.message : String(error),
       checks: { completed: false },
+      ...rungDispatches(),
       trace: [],
     };
   }
@@ -773,6 +782,11 @@ interface ReportReceipt {
   dispatchPolicy: DispatchPolicy | null;
 }
 
+/** Run environment a reviewer needs to reproduce the receipt. No keys, no hostnames, no paths. */
+function receiptEnvironment(): { node: string; platform: string; ci: boolean } {
+  return { node: process.version, platform: process.platform, ci: Boolean(process.env.CI) };
+}
+
 function sha256OfFile(path: string): string | null {
   try { return createHash("sha256").update(readFileSync(path)).digest("hex"); } catch { return null; }
 }
@@ -784,16 +798,22 @@ function writeJsonReport(results: RungResult[], selectedRungs: Rung[], requested
   mkdirSync(dirname(absolute), { recursive: true });
   const real = receipt.budget !== null;
   const identity = real ? readGitIdentity() : undefined;
+  // One flat row per provider request (A.0.3 `rows`), tagged with the rung that issued it.
+  const rows = results.flatMap((r) => (r.dispatches ?? []).map((d) => ({ rung: r.rung, ...d })));
+  const echoedModels = [...new Set(rows.map((r) => r.echoedModel).filter((m): m is string => m !== null))];
   writeFileSync(
     absolute,
     JSON.stringify({
       generatedAt: new Date().toISOString(),
       startedAt: receipt.startedAt,
+      ...(real ? { command: ["tsx", "evals/ladder.ts", ...process.argv.slice(2)].join(" ") } : {}),
       requestedRoutes,
+      ...(real ? { candidateIds: requestedRoutes, echoedModels, rows } : {}),
       rungs: selectedRungs.map((r) => ({ id: r.id, level: r.level, label: r.label })),
       ...(identity ? { testedCommit: identity.commitSha, gitDirty: identity.gitDirty, constantSha256: sha256OfFile("convex/modelDefaults.ts") } : {}),
       budget: receipt.budget,
       dispatchPolicy: receipt.dispatchPolicy,
+      ...(real ? { environment: receiptEnvironment() } : {}),
       results: results.map(publicResult),
     }, null, 2),
   );
@@ -932,6 +952,12 @@ async function scriptedRungShape(rung: Rung, budget: RuntimeBudget): Promise<Run
   return { rung, ctxTokens0, growthTokens, maxSteps };
 }
 
+/** Provider-request ceiling for the grid: routes x rungs x max steps (a free-auto route fans out over its candidates). */
+export function ladderRequestCeiling(routes: string[], shapes: RungShape[], freeAutoCandidates = 1): number {
+  const steps = shapes.reduce((sum, shape) => sum + shape.maxSteps, 0);
+  return routes.reduce((sum, route) => sum + (/free-auto$/i.test(route) ? Math.max(1, freeAutoCandidates) : 1) * steps, 0);
+}
+
 /**
  * Worst-case USD before the first paid request:
  *   Σ_models Σ_rungs Σ_{step=1..maxSteps} ((ctx0 + (step-1)·growth) · inPerM + maxOut · outPerM) / 1e6.
@@ -949,7 +975,7 @@ export function estimateLadderUsd(routes: string[], shapes: RungShape[], freeAut
     const fanOut = /free-auto$/i.test(route) ? Math.max(1, freeAutoCandidates) : 1;
     for (const shape of shapes) {
       for (let step = 1; step <= shape.maxSteps; step++) {
-        total += fanOut * (((shape.ctxTokens0 + (step - 1) * shape.growthTokens) * pricing.inputPer1M + maxOut * pricing.outputPer1M) / 1_000_000);
+        total += fanOut * priceTokens(pricing, shape.ctxTokens0 + (step - 1) * shape.growthTokens, maxOut);
       }
     }
   }
@@ -966,8 +992,9 @@ export async function main() {
 
   let meter: SpendMeter | undefined;
   let estimateUsd = 0;
+  let requestCeiling = 0;
   const budgetReport = (): LadderBudgetReport | null => (meter
-    ? { maxUsd: meter.maxUsd, estimateUsd, spentUsd: meter.spentUsd, requests: meter.requests, stoppedBy: meter.stoppedBy }
+    ? { maxUsd: meter.maxUsd, estimateUsd, spentUsd: meter.spentUsd, requests: meter.requests, requestCeiling, stoppedBy: meter.stoppedBy }
     : null);
   const refuse = (message: string) => {
     console.error(`ladder: ${message}`);
@@ -991,7 +1018,9 @@ export async function main() {
     }
     const shapes: RungShape[] = [];
     for (const rung of selectedRungs) shapes.push(await scriptedRungShape(rung, budget));
-    estimateUsd = estimateLadderUsd(realModels, shapes, optionNumber("--free-auto-top", "LADDER_FREE_AUTO_TOP") ?? 1);
+    const freeAutoCandidates = optionNumber("--free-auto-top", "LADDER_FREE_AUTO_TOP") ?? 1;
+    estimateUsd = estimateLadderUsd(realModels, shapes, freeAutoCandidates);
+    requestCeiling = ladderRequestCeiling(realModels, shapes, freeAutoCandidates);
     console.log(`pre-flight: worst case $${estimateUsd.toFixed(4)} for ${realModels.length} route(s) x ${selectedRungs.length} rung(s); cap $${meter.maxUsd.toFixed(4)}`);
     if (estimateUsd > meter.maxUsd) {
       meter.stoppedBy = "spend_budget";

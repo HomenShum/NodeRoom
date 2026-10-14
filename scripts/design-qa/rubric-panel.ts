@@ -19,7 +19,7 @@
 import "../benchmark/loadEnv";
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { generateObject, type ModelMessage } from "ai";
+import { generateObject, type UserContent } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
 
@@ -59,7 +59,7 @@ const lensSchema = (dims: string[]) => z.object({
 });
 
 async function judgeLens(lens: typeof LENSES[number]) {
-  const content: ModelMessage["content"] = [
+  const content: UserContent = [
     { type: "text", text: [
       `You are the ${lens.key} critic in a design-QA jury for NodeRoom (a calm multiplayer finance-diligence room).`,
       `Judge ONLY your lens: ${lens.brief}`,

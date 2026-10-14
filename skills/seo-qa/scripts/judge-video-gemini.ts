@@ -1,7 +1,7 @@
 import "../../../scripts/benchmark/loadEnv";
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { basename, dirname, extname, join, relative } from "node:path";
+import { basename, extname, join, relative } from "node:path";
 import { generateObject, type ModelMessage } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";

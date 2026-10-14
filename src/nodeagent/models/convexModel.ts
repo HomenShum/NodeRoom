@@ -8,7 +8,7 @@
  */
 
 import type { AgentMessage, AgentModel, AgentModelRouteState, AgentStep, AgentTool, AgentToolChoice, TokenUsage, ToolCall } from "../core/types";
-import { forbidsForcedToolChoice, getModelPricing, getProviderForModel, modelFallbackChains, modelPricing, resolveModelAlias } from "./modelCatalog";
+import { forbidsForcedToolChoice, getModelPricing, getProviderForModel, modelFallbackChains, modelPricing, needsStrictTools, priceTokens, ratesForPrompt, resolveModelAlias } from "./modelCatalog";
 import { modelMaxOutputTokens } from "./outputTokens";
 import {
   isOpenRouterFreeAutoModel,
@@ -216,7 +216,7 @@ export function convexModel(modelId: string, options: ConvexModelOptions = {}): 
 
 export function convexPriceRun(modelId: string, inTok: number, outTok: number): number {
   const pricing = getModelPricing(resolveModelAlias(modelId));
-  return (inTok * (pricing?.inputPer1M ?? 1) + outTok * (pricing?.outputPer1M ?? 5)) / 1_000_000;
+  return pricing ? priceTokens(pricing, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
 }
 
 function exactConvexUsageCost(
@@ -230,10 +230,11 @@ function exactConvexUsageCost(
   if ((usage.cacheCreationInputTokens ?? 0) > 0) return undefined;
   const cachedInputTokens = Math.min(usage.inputTokens, Math.max(0, usage.cachedInputTokens ?? 0));
   const uncachedInputTokens = Math.max(0, usage.inputTokens - cachedInputTokens);
+  const rates = ratesForPrompt(pricing, usage.inputTokens); // long prompts bill at the long-context tier
   return (
-    uncachedInputTokens * pricing.inputPer1M
-    + cachedInputTokens * (pricing.cachedInputPer1M ?? pricing.inputPer1M)
-    + usage.outputTokens * pricing.outputPer1M
+    uncachedInputTokens * rates.inputPer1M
+    + cachedInputTokens * (rates.cachedInputPer1M ?? rates.inputPer1M)
+    + usage.outputTokens * rates.outputPer1M
   ) / 1_000_000;
 }
 
@@ -266,8 +267,9 @@ function convexAttemptCostReservationUsd(
     const budget = Math.max(0, maxCostUsd ?? 0);
     return budget + Math.max(1e-9, Math.max(1, budget) * 1e-9);
   }
-  const inputPer1M = pricing?.inputPer1M ?? UNKNOWN_MODEL_RESERVE_INPUT_PER_1M;
-  const outputPer1M = pricing?.outputPer1M ?? UNKNOWN_MODEL_RESERVE_OUTPUT_PER_1M;
+  const rates = pricing ? ratesForPrompt(pricing, inputTokenUpperBound) : undefined;
+  const inputPer1M = rates?.inputPer1M ?? UNKNOWN_MODEL_RESERVE_INPUT_PER_1M;
+  const outputPer1M = rates?.outputPer1M ?? UNKNOWN_MODEL_RESERVE_OUTPUT_PER_1M;
   if (inputPer1M === 0 && outputPer1M === 0) return 0;
   return (
     inputTokenUpperBound * inputPer1M
@@ -751,7 +753,7 @@ async function providerStep(
       onProviderRequest,
     });
   }
-  if (provider === "anthropic") return anthropicStep(modelId, system, messages, tools, signal, onProviderRequest);
+  if (provider === "anthropic") return anthropicStep(modelId, system, messages, tools, signal, onProviderRequest, toolChoice);
   if (provider === "gemini") {
     if (onTextDelta) {
       const deltas: string[] = [];
@@ -838,7 +840,7 @@ async function openAiCompatibleBlockingStep(args: {
   const res = await postJson<OpenAiChatResponse>(args.endpoint, {
     model: args.modelId,
     messages: [{ role: "system", content: args.system }, ...toOpenAiMessages(args.messages)],
-    tools: args.tools.length ? args.tools.map(openAiTool) : undefined,
+    tools: args.tools.length ? args.tools.map((t) => openAiTool(t, openAiCompatibleStrictTools(args.modelId, args.endpoint, args.toolChoice))) : undefined,
     tool_choice: args.tools.length ? openAiCompatibleToolChoice(args.modelId, args.endpoint, args.toolChoice) : undefined,
     ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens(args.modelId)),
     ...openAiCompatibleProviderOptions(args.modelId, args.endpoint),
@@ -888,7 +890,7 @@ async function openAiCompatibleStreamStep(args: {
       stream: true,
       stream_options: { include_usage: true },
       messages: [{ role: "system", content: args.system }, ...toOpenAiMessages(args.messages)],
-      tools: args.tools.length ? args.tools.map(openAiTool) : undefined,
+      tools: args.tools.length ? args.tools.map((t) => openAiTool(t, openAiCompatibleStrictTools(args.modelId, args.endpoint, args.toolChoice))) : undefined,
       tool_choice: args.tools.length ? openAiCompatibleToolChoice(args.modelId, args.endpoint, args.toolChoice) : undefined,
       ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens(args.modelId)),
       ...openAiCompatibleProviderOptions(args.modelId, args.endpoint),
@@ -956,13 +958,15 @@ async function anthropicStep(
   tools: AgentTool[],
   signal?: AbortSignal,
   onProviderRequest?: () => void,
+  toolChoice?: AgentToolChoice,
 ) {
+  const strict = needsStrictTools(modelId, toolChoice);
   const res = await postJson<AnthropicResponse>("https://api.anthropic.com/v1/messages", {
     model: modelId,
     max_tokens: modelMaxOutputTokens(modelId),
     system,
     messages: toAnthropicMessages(messages),
-    tools: tools.length ? tools.map(anthropicTool) : undefined,
+    tools: tools.length ? tools.map((t) => anthropicTool(t, strict)) : undefined,
   }, {
     "x-api-key": requireEnv("ANTHROPIC_API_KEY"),
     "anthropic-version": "2023-06-01",
@@ -1166,22 +1170,24 @@ function toGeminiContents(messages: AgentMessage[]) {
   });
 }
 
-function openAiTool(tool: AgentTool) {
+function openAiTool(tool: AgentTool, strict = false) {
   return {
     type: "function" as const,
     function: {
       name: tool.name,
       description: tool.description,
       parameters: toolParameters(tool.name),
+      ...(strict ? { strict: true } : {}),
     },
   };
 }
 
-function anthropicTool(tool: AgentTool) {
+function anthropicTool(tool: AgentTool, strict = false) {
   return {
     name: tool.name,
     description: tool.description,
     input_schema: toolParameters(tool.name),
+    ...(strict ? { strict: true } : {}),
   };
 }
 
@@ -1825,6 +1831,11 @@ function openAiCompatibleToolChoice(modelId: string, endpoint: string, requested
     return "auto";
   }
   return choice;
+}
+
+/** Strict tool definitions accompany exactly the `required` -> `auto` downgrade above (SPEC §1.3). */
+function openAiCompatibleStrictTools(modelId: string, endpoint: string, requested?: AgentToolChoice): boolean {
+  return isOpenRouterEndpoint(endpoint) && needsStrictTools(modelId, requested);
 }
 
 function isOpenRouterEndpoint(endpoint: string): boolean {

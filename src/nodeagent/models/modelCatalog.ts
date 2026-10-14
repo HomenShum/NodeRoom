@@ -67,7 +67,28 @@ export interface ModelPricing {
   contextWindow: number; // Max context window
   /** Date the vendor list price was read (A.0.6 agreement test). Present on the 2026-10 refresh rows. */
   pricingAsOf?: string;
+  /**
+   * Higher tier the vendor applies to the WHOLE request once its prompt exceeds `aboveInputTokens`
+   * (SPEC §1.3: claude-haiku-5-5 is $0.10/$0.50 up to 100K prompt tokens, $0.50/$2.50 above). The row's own
+   * rates are the lower tier. `cachedInputPer1M` is omitted when the vendor page does not list it; callers then
+   * charge cached tokens at the tier's input rate rather than guess.
+   */
+  longContext?: { aboveInputTokens: number; inputPer1M: number; outputPer1M: number; cachedInputPer1M?: number };
 }
+
+/** The rates a request with `inputTokens` prompt tokens is billed at: the row's own, or its long-context tier. */
+export function ratesForPrompt(pricing: ModelPricing, inputTokens: number): Pick<ModelPricing, "inputPer1M" | "outputPer1M" | "cachedInputPer1M"> {
+  const tier = pricing.longContext;
+  return tier && inputTokens > tier.aboveInputTokens ? tier : pricing;
+}
+
+/** USD for one request, tier-aware (uncached input). Every cost and reservation path routes through this. */
+export function priceTokens(pricing: ModelPricing, inputTokens: number, outputTokens: number): number {
+  const rates = ratesForPrompt(pricing, inputTokens);
+  return (inputTokens * rates.inputPer1M + outputTokens * rates.outputPer1M) / 1_000_000;
+}
+
+const HAIKU_5_5_LONG_CONTEXT = { aboveInputTokens: 100_000, inputPer1M: 0.50, outputPer1M: 2.50 };
 
 export const modelPricing: Record<string, ModelPricing> = {
   // OpenAI - GPT-5.4 family (official docs, April 2026)
@@ -102,16 +123,16 @@ export const modelPricing: Record<string, ModelPricing> = {
   "gemini-3.5-flash": { inputPer1M: 1.50, outputPer1M: 9.00, contextWindow: 1000000 }, // latest, most-intelligent Flash
   "gpt-5.5": { inputPer1M: 5.00, outputPer1M: 30.00, contextWindow: 400000 }, // OpenAI flagship (newer than 5.4)
   // ── 2026-10 model refresh (SPEC Part A §A.2.9; vendor list prices read 2026-10-10, frontier.json) ──
-  // claude-haiku-5-5 is TIERED: $0.50/$2.50 for prompts above 100K tokens (this row is the <=100K tier).
-  "claude-haiku-5-5": { inputPer1M: 0.10, outputPer1M: 0.50, cachedInputPer1M: 0.01, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
+  // claude-haiku-5-5 is TIERED: the row is the <=100K tier; `longContext` is the $0.50/$2.50 tier above 100K prompt tokens.
+  "claude-haiku-5-5": { inputPer1M: 0.10, outputPer1M: 0.50, cachedInputPer1M: 0.01, contextWindow: 1000000, pricingAsOf: "2026-10-10", longContext: HAIKU_5_5_LONG_CONTEXT },
   "claude-sonnet-5-5": { inputPer1M: 2.00, outputPer1M: 10.00, cachedInputPer1M: 0.10, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
   "claude-opus-5-5": { inputPer1M: 4.00, outputPer1M: 20.00, cachedInputPer1M: 0.20, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
   // OpenRouter transport of the same models (slug form, A.0.5); same list price.
-  "anthropic/claude-haiku-5.5": { inputPer1M: 0.10, outputPer1M: 0.50, cachedInputPer1M: 0.01, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
+  "anthropic/claude-haiku-5.5": { inputPer1M: 0.10, outputPer1M: 0.50, cachedInputPer1M: 0.01, contextWindow: 1000000, pricingAsOf: "2026-10-10", longContext: HAIKU_5_5_LONG_CONTEXT },
   "anthropic/claude-sonnet-5.5": { inputPer1M: 2.00, outputPer1M: 10.00, cachedInputPer1M: 0.10, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
   "anthropic/claude-opus-5.5": { inputPer1M: 4.00, outputPer1M: 20.00, cachedInputPer1M: 0.20, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
   // Exact id behind the claude-opus-4.7 display id (it used to be rewritten to 4-8; see modelAliases).
-  "claude-opus-4-7": { inputPer1M: 5.00, outputPer1M: 25.00, cachedInputPer1M: 0.50, contextWindow: 1000000 },
+  "claude-opus-4-7": { inputPer1M: 5.00, outputPer1M: 25.00, cachedInputPer1M: 0.50, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
   // Gemini Flash intro price: $0.75/$3.75 through 2026-12-31, then $1.50/$7.50 from 2027-01-01 (re-price then).
   "gemini-3.8-flash": { inputPer1M: 0.75, outputPer1M: 3.75, cachedInputPer1M: 0.075, contextWindow: 1048576, pricingAsOf: "2026-10-10" },
   "gemini-3.6-flash": { inputPer1M: 0.75, outputPer1M: 3.75, contextWindow: 1048576, pricingAsOf: "2026-10-10" }, // ladder receipt baseline (3.5 is served as 3.6)
@@ -432,11 +453,9 @@ export function calculateRequestCost(
     return (inputTokens * 0.15 + outputTokens * 0.60) / 1_000_000;
   }
 
-  const inputRate = useCachedInput && pricing.cachedInputPer1M 
-    ? pricing.cachedInputPer1M 
-    : pricing.inputPer1M;
-
-  return (inputTokens * inputRate + outputTokens * pricing.outputPer1M) / 1_000_000;
+  const rates = ratesForPrompt(pricing, inputTokens);
+  const inputRate = useCachedInput && rates.cachedInputPer1M ? rates.cachedInputPer1M : rates.inputPer1M;
+  return (inputTokens * inputRate + outputTokens * rates.outputPer1M) / 1_000_000;
 }
 
 /**
@@ -759,6 +778,20 @@ export function claudeDefaultEffort(modelId: string): "medium" | "high" | undefi
     case "claude-opus-5-5": case "anthropic/claude-opus-5.5": return "medium";
     default: return undefined;
   }
+}
+
+/** `providerOptions` carrying the explicit §1.3 effort for a direct-Anthropic Claude 5.5 id; `{}` for every other id. */
+export function claudeEffortProviderOptions(modelId: string): { providerOptions?: { anthropic: { effort: "medium" | "high" } } } {
+  const effort = claudeDefaultEffort(modelId);
+  return effort && getProviderForModel(modelId) === "anthropic" ? { providerOptions: { anthropic: { effort } } } : {};
+}
+
+/**
+ * SPEC §1.3: where a forced `tool_choice` is replaced by `auto` (Sonnet/Opus 5.5), the tool definitions carry
+ * `strict: true` so the arguments are still schema-valid. True exactly when that downgrade happens.
+ */
+export function needsStrictTools(modelId: string, requested?: "auto" | "required"): boolean {
+  return requested === "required" && forbidsForcedToolChoice(modelId);
 }
 
 /**
