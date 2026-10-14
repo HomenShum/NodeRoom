@@ -11,6 +11,11 @@ npm run eval          # the golden suite, scripted model (deterministic, no keys
 npm run eval:real     # the same suite against the real Anthropic model
 ```
 
+`npm run eval` always uses scripted replay, even when provider credentials are
+configured. `npm run eval:real` requires a non-blank `ANTHROPIC_API_KEY`; if it is
+absent, empty, or whitespace-only, the command exits nonzero before running cases
+or printing a score. Scripted results are not real-model quality evidence.
+
 Professional workflow evals are tracked separately in
 `docs/eval/PROFESSIONAL_WORKFLOW_EVALS.md` and
 `evals/professionalWorkflows.ts`. That suite converts real reviewed CSV/XLSX

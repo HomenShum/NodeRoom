@@ -34,7 +34,7 @@ function scoreInvariants(c: GoldenCase, r: AgentResult): Record<string, boolean>
 }
 
 function pickModel(targets: Record<string, string>, lock?: boolean) {
-  return real && process.env.ANTHROPIC_API_KEY ? anthropicModel() : scriptedModel(recomputeVariancePlan(targets, { lock }));
+  return real ? anthropicModel() : scriptedModel(recomputeVariancePlan(targets, { lock }));
 }
 
 /** M1 — multi-turn: run each turn on the SAME room; assert the shared cell's version strictly
@@ -110,7 +110,7 @@ async function runCase(c: GoldenCase): Promise<Scored> {
     }
   };
 
-  const model = real && process.env.ANTHROPIC_API_KEY ? anthropicModel() : scriptedModel(recomputeVariancePlan(c.targets, { lock: c.lock }));
+  const model = pickModel(c.targets, c.lock);
   const r = await runAgent({ rt, goal: c.goal, model, tools: ROOM_TOOLS, maxSteps: 18, onTrace });
 
   // Release the pre-held lock so the draft smart-merges, then score the result.
@@ -125,6 +125,9 @@ async function runCase(c: GoldenCase): Promise<Scored> {
 }
 
 async function main() {
+  if (real && !process.env.ANTHROPIC_API_KEY?.trim()) {
+    throw new Error("Real evaluation requires a non-blank ANTHROPIC_API_KEY. Set it to run npm run eval:real, or use npm run eval for scripted replay.");
+  }
   const cases = GOLDEN.filter((c) => real || c.scriptable);
   console.log("─".repeat(78));
   console.log(`AGENT EVAL · ${real ? "anthropic (real)" : "scripted (deterministic)"} · ${cases.length} cases`);
