@@ -164,7 +164,9 @@ export async function runStartupDiligenceConvexContractEval(
     goal: jobGoal,
     entrypoint: "public_ask" as const,
     scope: "public_room" as const,
-    modelPolicy: modelForRun,
+    // The contract-only run names no provider model; the job still needs a route the public boundary accepts
+    // (SPEC A.0.10: a model string outside the catalog is refused), so it carries the free route. Never run: the runner is stubbed.
+    modelPolicy: providerGenerated?.resolvedModel ?? "openrouter/free-auto",
     idempotencyKey: `startup-live-eval-${code}`,
     approvalPolicy: "host_review" as const,
     evidencePolicy: "public_only" as const,

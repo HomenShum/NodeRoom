@@ -259,11 +259,22 @@ describe("gemini-3.8-flash (the new DEFAULT_AGENT_MODEL)", () => {
     expectNoSamplingKeys(seen[0].body);
   });
 
-  it("pi-ai adapter default resolves to a routable, priced gemini id (no pi-ai package: it wraps model())", () => {
+  it("pi-ai adapter default: next() puts gemini-3.8-flash on the wire, with no sampling keys (no pi-ai package: it wraps model())", async () => {
+    installFakeTransport(() => geminiOk());
     const m = createPiAiAdapter();
     expect(m.name).toBe("gemini-3.8-flash");
+    await m.next({ system: "s", messages: [{ role: "user", content: "hi" }], tools: [] });
+    expect(seen).toHaveLength(1);
+    expect(seen[0].url).toContain("/models/gemini-3.8-flash:generateContent");
+    expectNoSamplingKeys(seen[0].body);
     expect(getProviderForModel(m.name)).toBe("gemini");
     expect(getModelPricing(m.name)).not.toBeNull();
+  });
+
+  it("pi-ai adapter keeps deriving the provider from an explicit modelName (A.0.4)", async () => {
+    installFakeTransport(() => geminiOk());
+    await createPiAiAdapter({ modelName: "gemini-3.6-flash" }).next({ system: "s", messages: [{ role: "user", content: "hi" }], tools: [] });
+    expect(seen[0].url).toContain("/models/gemini-3.6-flash:generateContent");
   });
 });
 

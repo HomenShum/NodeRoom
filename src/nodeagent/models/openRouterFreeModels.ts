@@ -145,6 +145,25 @@ const FALLBACK_FREE_MODELS: OpenRouterModelInfo[] = [
   },
 ];
 
+/**
+ * The concrete `:free` ids this repo knows by name (SPEC A.0.10: a known free id is dispatched as itself, never rerouted).
+ * Three sources, none invented: the catalog fallback and the preferred list above, and the OpenRouter live `:free` list
+ * read 2026-10-10 (SPEC section 1.2; `dots-3-note-preview` expires 2026-12-31, both `laguna-*` 2026-10-31 - the id stays
+ * valid for persisted rows and the provider answers for itself once it expires).
+ */
+const OPENROUTER_LIVE_FREE_2026_10_10 = [
+  "apodex/apodex-1.1-mini:free", "dots-studio/dots-3-note-preview:free", "liquid/lfm-2.5-2.6b:free",
+  "nvidia/nemotron-3.5-lightning:free", "thinkingmachines/inkling-small:free", "poolside/laguna-s-2.1:free",
+  "thinkingmachines/inkling:free", "poolside/laguna-xs-2.1:free", "cohere/north-mini-code:free",
+  "nvidia/nemotron-3.5-content-safety:free", "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", "google/gemma-4-26b-a4b-it:free",
+  "google/gemma-4-31b-it:free", "nvidia/nemotron-3-super-120b-a12b:free",
+];
+export const OPENROUTER_KNOWN_FREE_IDS: ReadonlySet<string> = new Set(
+  [...FALLBACK_FREE_MODELS.map((m) => m.id), ...DEFAULT_PREFERRED_FREE_MODELS, ...OPENROUTER_LIVE_FREE_2026_10_10]
+    .map((id) => id.toLowerCase()),
+);
+
 export function isOpenRouterFreeAutoModel(modelId: string): boolean {
   return normalizeModelId(modelId) === OPENROUTER_FREE_AUTO_MODEL;
 }

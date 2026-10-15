@@ -29,6 +29,7 @@ import {
 import { parseBulkCompanyIngest } from "../src/nodeagent/skills/finance/bulkIngest";
 import { finalizePublicAgentJobStreamAfterTerminal } from "./agentStreamTerminal";
 import { DEFAULT_AGENT_MODEL, DEFAULT_FILE_EGRESS_MODEL } from "./modelDefaults";
+import { resolveModelAlias, UnknownModelError } from "../src/nodeagent/models/modelCatalog";
 
 // BOUND: cap a single bulk-diligence fan-out so one command can't enqueue unbounded jobs.
 const MAX_BULK_COMPANIES = 50;
@@ -2094,8 +2095,19 @@ function defaultEntrypointForRoute(routePolicy: RoutePolicy): DurableStartEntryp
   return routePolicy === "free_auto" ? "free" : "public_ask";
 }
 
+/** SPEC A.0.10 at the public API boundary: a model string the catalog does not know is refused before a job row persists it. */
+function knownModelPolicy(modelPolicy: string): string {
+  try {
+    resolveModelAlias(modelPolicy);
+  } catch (error) {
+    if (error instanceof UnknownModelError) throw new Error("unknown_model_policy");
+    throw error;
+  }
+  return modelPolicy;
+}
+
 function defaultModelPolicyForRoute(args: { routePolicy: RoutePolicy; entrypoint: DurableStartEntrypoint; mode?: "variance" | "research"; modelPolicy?: string }) {
-  if (args.modelPolicy) return args.modelPolicy;
+  if (args.modelPolicy) return knownModelPolicy(args.modelPolicy);
   if (args.routePolicy === "explicit") throw new Error("explicit_route_requires_modelPolicy");
   if (args.routePolicy === "free_auto" || args.entrypoint === "free") return "openrouter/free-auto";
   if (args.routePolicy === "top_paid") return process.env.AGENT_TOP_PAID_MODEL ?? process.env.AGENT_MODEL ?? "anthropic/claude-sonnet-5.5";
