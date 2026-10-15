@@ -1,7 +1,7 @@
 import type { AgentMessage, AgentModel, AgentStep, AgentTool, AgentToolChoice, RoomTools, ToolCall } from "../core/types";
 import { runAgent } from "../core/runtime";
 import { normalizeInteropModelRoute } from "./modelInterop";
-import { needsStrictTools, resolveModelAlias } from "../models/modelCatalog";
+import { needsStrictTools, lookupModelAlias } from "../models/modelCatalog";
 
 export type LangChainMessageLike = {
   role?: string;
@@ -209,7 +209,7 @@ function argsValue(value: unknown): Record<string, unknown> {
 function langChainToolChoiceConfig(toolChoice: AgentToolChoice | undefined, modelName: string): Record<string, unknown> {
   // Claude 5.5 Sonnet/Opus reject a forced tool_choice (SPEC §1.3): leave it unset so the provider default (auto)
   // applies, and bind the tools with `strict: true` so their arguments are still schema-valid.
-  if (needsStrictTools(resolveModelAlias(modelName), toolChoice)) return { strict: true };
+  if (needsStrictTools(lookupModelAlias(modelName), toolChoice)) return { strict: true };
   return toolChoice === "required" ? { tool_choice: "any" } : {};
 }
 

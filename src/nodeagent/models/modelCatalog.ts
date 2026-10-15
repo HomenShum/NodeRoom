@@ -443,7 +443,7 @@ export function getAvailableModels(task: LlmTask, provider: LlmProvider = "openr
  */
 export function isValidModel(modelName: string, provider: LlmProvider): boolean {
   const allModels = Object.values(llmModelCatalog[provider] ?? {}).flat();
-  const resolved = resolveModelAlias(modelName);
+  const resolved = lookupModelAlias(modelName);
   return allModels.includes(modelName) || allModels.includes(resolved);
 }
 
@@ -812,12 +812,48 @@ export function needsStrictTools(modelId: string, requested?: "auto" | "required
  * Resolve a model alias to its full model ID.
  * If no alias exists, returns the original input.
  */
-export function resolveModelAlias(modelInput: string): string {
-  const normalized = modelInput.toLowerCase().trim();
+export function lookupModelAlias(modelInput: string): string {
+  const hop = (id: string) => (Object.hasOwn(modelAliases, id.toLowerCase().trim()) ? modelAliases[id.toLowerCase().trim()] : id);
   // Resolve up to two hops: a shortcut ("claude-sonnet") -> dotted display id ("claude-sonnet-4.6")
   // -> hyphenated direct-API id ("claude-sonnet-4-6"). Dotted Anthropic ids 404.
-  const once = modelAliases[normalized] ?? modelInput;
-  return modelAliases[once.toLowerCase().trim()] ?? once;
+  return hop(hop(modelInput));
+}
+
+/** Every name the alias table declares, as a key or a target: the catalog knows them even where no price row exists yet. */
+const ALIAS_DECLARED_IDS: ReadonlySet<string> = new Set([...Object.keys(modelAliases), ...Object.values(modelAliases)]);
+
+/** An id that is not priced, not an alias, not a free route and not free-looking (SPEC A.0.10): never a paid default. */
+export class UnknownModelError extends Error {
+  constructor(readonly modelId: string) {
+    super(`unknown model id "${modelId}": not in the catalog, so it cannot be routed (add a verified row to modelCatalog.modelPricing)`);
+    this.name = "UnknownModelError";
+  }
+}
+
+/** `-free` / `:free` suffix: the id CLAIMS to cost nothing. */
+const FREE_LOOKING_ID = /[-:]free$/i;
+
+/**
+ * Route resolution for anything that DISPATCHES (SPEC A.0.10 - cost class preserved, unknown ids fail closed).
+ * A catalog id (priced, or a free route) resolves through the alias table; an unknown free-looking id resolves to
+ * the verified free route `openrouter/free-auto`; every other unknown id throws `UnknownModelError`.
+ * Pricing and telemetry readers, which must tolerate historical ids, use `lookupModelAlias`.
+ */
+export function resolveModelAlias(modelInput: string): string {
+  const resolved = lookupModelAlias(modelInput);
+  // Known = priced, or declared by the alias table (persisted rows may hold "claude-sonnet-4.5" / "claude-sonnet-4-5",
+  // which the table lists but no price row covers: they stay routable, and a metered run still refuses them as unpriced).
+  const known = [resolved, modelInput.trim(), modelInput.toLowerCase().trim()];
+  if (isNodeAgentFreeAutoModel(resolved) || known.some((id) => Object.hasOwn(modelPricing, id) || ALIAS_DECLARED_IDS.has(id))) return resolved;
+  if (FREE_LOOKING_ID.test(resolved.trim())) return OPENROUTER_FREE_AUTO_MODEL;
+  throw new UnknownModelError(modelInput);
+}
+
+/** True when the resolved route costs nothing per token (a zero-priced row, a `:free` id, a free route). */
+export function isFreeModelId(modelId: string): boolean {
+  if (isNodeAgentFreeAutoModel(modelId)) return true;
+  const pricing = getModelPricing(lookupModelAlias(modelId));
+  return pricing != null && pricing.inputPer1M === 0 && pricing.outputPer1M === 0;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

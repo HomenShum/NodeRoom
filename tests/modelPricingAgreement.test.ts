@@ -16,20 +16,24 @@
  *      (catalogPricingAtRun) or a flagged $1/$5 `fallback_estimate`
  *   8. scripts/proofloop-proxy-model-sweep.ts - prices from the live OpenRouter /models catalog fetched when the sweep
  *      runs (dated `fetchedAt` per row); it has no fallback table
- * Sources 7 and 8 are excluded from the numeric agreement below because they own no table: their numbers ARE the
- * OpenRouter response of the run, dated per run, so there is no second hand-typed value to disagree with (1). Both are
- * top-level scripts with no exports; the "no hand-typed price table" test below makes that exclusion executable.
+ * Sources 7 and 8 own no table, but their per-token -> per-1M CONVERSION is code that can disagree with (1) (a x1e5 for
+ * a x1e6 is a tenfold undercharge), so both run on a dated OpenRouter /models fixture below and must produce the
+ * catalog's {inPerM, outPerM} for every OpenRouter-transport row. 7 is loaded through scripts/benchmark/pricingAtRun.ts
+ * (split out of run.ts, which runs the benchmark on import); 8 runs as the script itself in --dry-run.
  * Chat.tsx price chips read (1). A new hand-typed table must be added here or deleted.
  *
  * Vendor list prices were read 2026-10-10 (model-defaults frontier.json, platform.claude.com + ai.google.dev pricing).
  */
-import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { priceRequest, priceRequestStrict, priceRun, reserveDispatch, UnpricedModelError } from "../src/nodeagent/models/adapter";
 import { convexPriceRequest, convexPriceRun } from "../src/nodeagent/models/convexModel";
 import { CREDIT_MODE_SPECS, estimateCostFor } from "../src/nodeagent/core/creditModel";
 import { calculateRequestCost, getModelPricing, modelPricing } from "../src/nodeagent/models/modelCatalog";
 import { modelMaxOutputTokens } from "../src/nodeagent/models/outputTokens";
+import { catalogPricingAtRun, pricingAtRunFor, type RouteSnapshot } from "../scripts/benchmark/pricingAtRun";
 
 const PRICING_AS_OF = "2026-10-10";
 
@@ -128,14 +132,99 @@ describe("pricing sources agree per (id, transport)", () => {
   });
 
   it("sources 7 and 8 (OpenRouter-snapshot readers) hold no hand-typed price table of their own", () => {
-    // run.ts keeps exactly one numeric price pair: the flagged `fallback_estimate` ($1/$5) for an id with no row anywhere.
-    const run = readFileSync("scripts/benchmark/run.ts", "utf8");
-    expect([...run.matchAll(/(?:input|output)Per1M:\s*\d/g)].length).toBe(2);
-    expect(run).toMatch(/source: "fallback_estimate",\s*inputPer1M: 1,\s*outputPer1M: 5,/);
-    expect(run).toMatch(/source: "openrouter_snapshot"/);
+    // pricingAtRun.ts keeps exactly one numeric price pair: the flagged `fallback_estimate` ($1/$5) for an id with no row anywhere.
+    const pricing = readFileSync("scripts/benchmark/pricingAtRun.ts", "utf8");
+    expect([...pricing.matchAll(/(?:input|output)Per1M:\s*\d/g)].length).toBe(2);
+    expect(pricing).toMatch(/source: "fallback_estimate",\s*inputPer1M: 1,\s*outputPer1M: 5,/);
+    expect(pricing).toMatch(/source: "openrouter_snapshot"/);
+    expect(readFileSync("scripts/benchmark/run.ts", "utf8")).toContain('from "./pricingAtRun"'); // run.ts reads the module under test, not a copy
     const sweep = readFileSync("scripts/proofloop-proxy-model-sweep.ts", "utf8");
     expect([...sweep.matchAll(/(?:input|output|cachedInput)Per1M:\s*\d/g)]).toEqual([]);
     expect(sweep).toContain("fetchedAt");
+  });
+
+  describe("sources 7 and 8 on a dated OpenRouter /models fixture", () => {
+    // The OpenRouter /models response of 2026-10-10 (snapshot read for SPEC §1.2), USD per TOKEN as OpenRouter serves it.
+    // Literal strings on purpose: the per-token -> per-1M conversion is what these tests exercise.
+    const FIXTURE_FETCHED_AT = "2026-10-10T00:00:00.000Z";
+    const OPENROUTER_MODELS_2026_10_10 = {
+      data: [
+        { id: "anthropic/claude-haiku-5.5", context_length: 1_000_000, pricing: { prompt: "0.0000001", completion: "0.0000005", input_cache_read: "0.00000001" }, supported_parameters: ["tools"] },
+        { id: "anthropic/claude-sonnet-5.5", context_length: 1_000_000, pricing: { prompt: "0.000002", completion: "0.00001", input_cache_read: "0.0000001" }, supported_parameters: ["tools"] },
+        { id: "anthropic/claude-opus-5.5", context_length: 1_000_000, pricing: { prompt: "0.000004", completion: "0.00002", input_cache_read: "0.0000002" }, supported_parameters: ["tools"] },
+      ],
+    };
+    const openRouterRows = REFRESH_ROWS.filter((r) => r.transport === "openrouter");
+
+    it("the fixture covers every OpenRouter-transport refresh row", () => {
+      expect(openRouterRows.map((r) => r.id).sort()).toEqual(OPENROUTER_MODELS_2026_10_10.data.map((m) => m.id).sort());
+    });
+
+    it("source 7: benchmark/pricingAtRun prices each OpenRouter row from the snapshot at the catalog's {inPerM, outPerM}; the catalog fallback agrees too", () => {
+      const snapshot: RouteSnapshot = {
+        routeSnapshotId: "fixture-2026-10-10",
+        fetchedAt: FIXTURE_FETCHED_AT,
+        source: "openrouter",
+        modelsById: new Map(OPENROUTER_MODELS_2026_10_10.data.map((m) => [m.id, m])),
+      };
+      for (const row of REFRESH_ROWS) {
+        const table = modelPricing[row.id];
+        const fromCatalog = catalogPricingAtRun(row.id);
+        expect(fromCatalog.source, row.id).toBe("catalog");
+        expect({ inPerM: fromCatalog.inputPer1M, outPerM: fromCatalog.outputPer1M }, `${row.id} catalog fallback`).toEqual({ inPerM: table.inputPer1M, outPerM: table.outputPer1M });
+        if (row.transport !== "openrouter") continue;
+        const fromSnapshot = pricingAtRunFor(row.id, snapshot);
+        expect(fromSnapshot.source, row.id).toBe("openrouter_snapshot");
+        expect(fromSnapshot.routeSnapshotId).toBe("fixture-2026-10-10");
+        expect(fromSnapshot.inputPer1M, `${row.id} snapshot input`).toBeCloseTo(table.inputPer1M, 9);
+        expect(fromSnapshot.outputPer1M, `${row.id} snapshot output`).toBeCloseTo(table.outputPer1M, 9);
+        if (table.cachedInputPer1M !== undefined) expect(fromSnapshot.cachedInputPer1M, `${row.id} snapshot cache read`).toBeCloseTo(table.cachedInputPer1M, 9);
+      }
+    });
+
+    describe("source 8: scripts/proofloop-proxy-model-sweep.ts (--dry-run, the script itself)", () => {
+      let dir: string | undefined;
+      afterEach(() => {
+        vi.unstubAllGlobals();
+        vi.restoreAllMocks();
+        if (dir) rmSync(dir, { recursive: true, force: true });
+        dir = undefined;
+      });
+
+      it("records pricingAtRun per model at the catalog's {inPerM, outPerM}", async () => {
+        dir = mkdtempSync(join(tmpdir(), "pricing-sweep-"));
+        const { externalBenchmarkLocalTaskIds } = await import("../proofloop/benchmarks/common/local-tasks");
+        const out = join(dir, "sweep.json");
+        const requested: string[] = [];
+        vi.stubGlobal("fetch", async (input: string | URL | Request) => {
+          requested.push(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
+          return new Response(JSON.stringify(OPENROUTER_MODELS_2026_10_10), { status: 200, headers: { "content-type": "application/json" } });
+        });
+        vi.spyOn(console, "log").mockImplementation(() => {});
+        const argvBefore = process.argv;
+        const exitBefore = process.exitCode;
+        process.argv = ["node", "proofloop-proxy-model-sweep.ts", "--dry-run", "--allow-failures", "--id", externalBenchmarkLocalTaskIds()[0],
+          "--models", openRouterRows.map((r) => r.id).join(","),
+          "--json-out", out, "--md-out", join(dir, "sweep.md"), "--html-out", join(dir, "sweep.html"), "--adapter-out-root", join(dir, "runs")];
+        vi.resetModules();
+        try {
+          await import("../scripts/proofloop-proxy-model-sweep");
+        } finally {
+          process.argv = argvBefore;
+          process.exitCode = exitBefore;
+        }
+        expect(requested).toEqual(["https://openrouter.ai/api/v1/models"]);
+        const rows = JSON.parse(readFileSync(out, "utf8")).rows as Array<{ modelId: string; pricingAtRun: { inputPer1M: number; outputPer1M: number; cachedInputPer1M: number | null; fetchedAt: string } | null }>;
+        expect(rows.map((r) => r.modelId).sort()).toEqual(openRouterRows.map((r) => r.id).sort());
+        for (const row of rows) {
+          const table = modelPricing[row.modelId];
+          expect(row.pricingAtRun, row.modelId).not.toBeNull();
+          expect(row.pricingAtRun!.inputPer1M, `${row.modelId} input`).toBeCloseTo(table.inputPer1M, 9);
+          expect(row.pricingAtRun!.outputPer1M, `${row.modelId} output`).toBeCloseTo(table.outputPer1M, 9);
+          if (table.cachedInputPer1M !== undefined) expect(row.pricingAtRun!.cachedInputPer1M, `${row.modelId} cache read`).toBeCloseTo(table.cachedInputPer1M, 9);
+        }
+      }, 30_000);
+    });
   });
 
   it("the same model costs the same on its direct and OpenRouter transports", () => {

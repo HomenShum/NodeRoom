@@ -479,7 +479,8 @@ describe("benchmark / smoke / eval scripts send the refreshed ids with the expli
       : req.url.includes("generativelanguage.googleapis.com") ? generateContent(text)
         : new Response("{}", { status: 404 });
 
-  it("scripts/benchmark/probe.ts: claude-haiku/sonnet/opus-5-5 go out with their SPEC §1.3 effort and no sampling keys", async () => {
+  it("scripts/benchmark/probe.ts: claude-haiku/sonnet/opus-5-5 go out with their SPEC §1.3 effort and no sampling keys; gpt-6.1-sol reaches OpenAI by its wire id with no temperature", async () => {
+    process.env.OPENAI_API_KEY = "test-openai-key"; // without a key the AI SDK throws before any request, so the OpenAI row was never exercised
     installFakeTransport(respondByWire());
     vi.resetModules();
     vi.spyOn(console, "log").mockImplementation(() => {});
@@ -494,6 +495,13 @@ describe("benchmark / smoke / eval scripts send the refreshed ids with the expli
     }
     expect(seen.some((r) => r.url.includes("/models/gemini-3.8-flash:generateContent"))).toBe(true);
     expect(seen.some((r) => r.url.includes("/models/gemini-3.5-flash-lite:generateContent"))).toBe(true);
+    // SPEC §1.3 gpt-6.1-sol row: sampling removed (400), tools need the Responses API, so the plain probe goes to /v1/responses.
+    const sol = seen.filter((r) => r.url.includes("api.openai.com") && r.body.model === "gpt-6.1-sol");
+    expect(sol, "exactly one probe request names gpt-6.1-sol").toHaveLength(1);
+    expect(sol[0].url).toBe("https://api.openai.com/v1/responses");
+    expect(sol[0].headers.authorization).toBe("Bearer test-openai-key");
+    expectNoSampling(sol[0].body);
+    expect(sol[0].body).not.toHaveProperty("tools");
   });
 
   it("scripts/eval/providerParseSmoke.ts: the gemini default reaches Google (provider is \"gemini\", not \"google\"); claude-haiku-5-5 carries its effort", async () => {

@@ -26,7 +26,9 @@ import {
   forbidsForcedToolChoice,
   getProviderForModel,
   getModelPricing,
+  isFreeModelId,
   isNodeAgentFreeAutoModel,
+  lookupModelAlias,
   needsStrictTools,
   priceAggregateTokens,
   priceTokens,
@@ -92,7 +94,15 @@ function providerFor(modelId: string): LanguageModel {
  * own loop is pinned to 0), so every physical request is one attempt carrying its own reservation.
  * The ladder receipt policy is { maxRetries: 0, crossModelFallback: false }.
  */
-export type DispatchPolicy = { maxRetries: number; crossModelFallback: boolean };
+export type DispatchPolicy = {
+  maxRetries: number;
+  crossModelFallback: boolean;
+  /**
+   * SPEC A.0.10: a free primary never falls back to a paid model unless this is `true` AND the request carries a
+   * `SpendMeter` (`meteredDispatch` reserves the paid model's worst case before the request is issued).
+   */
+  allowPaidFallback?: boolean;
+};
 export const DEFAULT_DISPATCH_POLICY: DispatchPolicy = { maxRetries: 3, crossModelFallback: true };
 
 /**
@@ -219,19 +229,19 @@ export async function judge(modelId: string, prompt: string): Promise<string> {
  * never inferred from a total. A per-request `priceStep` must use `priceRequest`.
  */
 export const priceRun = (modelId: string, inTok: number, outTok: number): number => {
-  const p = getModelPricing(resolveModelAlias(modelId));
+  const p = getModelPricing(lookupModelAlias(modelId));
   return p ? priceAggregateTokens(p, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
 };
 
 /** Cost of ONE provider request (`inTok` is that request's prompt), tier-aware. This is the `priceStep` price. */
 export const priceRequest = (modelId: string, inTok: number, outTok: number): number => {
-  const p = getModelPricing(resolveModelAlias(modelId));
+  const p = getModelPricing(lookupModelAlias(modelId));
   return p ? priceTokens(p, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
 };
 
 /** Same formula as `priceRequest`, but an id with no pricing row throws instead of costing a guessed $1/$5. */
 export const priceRequestStrict = (modelId: string, inTok: number, outTok: number): number => {
-  const p = getModelPricing(resolveModelAlias(modelId));
+  const p = getModelPricing(lookupModelAlias(modelId));
   if (!p) throw new UnpricedModelError(modelId);
   return priceTokens(p, inTok, outTok);
 };
@@ -242,7 +252,7 @@ export const priceRequestStrict = (modelId: string, inTok: number, outTok: numbe
  * Throws `SpendBudgetError` when that exceeds `remainingUsd` (equality is admitted).
  */
 export function reserveDispatch(modelId: string, inputTokenUpperBound: number, remainingUsd: number): number {
-  const resolved = resolveModelAlias(modelId);
+  const resolved = lookupModelAlias(modelId);
   const p = getModelPricing(resolved);
   if (!p) throw new UnpricedModelError(modelId);
   // The prompt upper bound picks the tier, so a long prompt reserves at the long-context rates.
@@ -405,10 +415,14 @@ async function withRetry<T>(fn: () => Promise<T>, signal?: AbortSignal, maxRetri
   throw lastError;
 }
 /** Optional cross-model safety net after the primary path's retries exhaust (e.g. free-tier outage). */
-function fallbackModelFor(modelId: string, policy: DispatchPolicy = DEFAULT_DISPATCH_POLICY): string | undefined {
-  if (!policy.crossModelFallback) return undefined;
+function fallbackModelFor(modelId: string, dispatch: DispatchContext): string | undefined {
+  if (!dispatch.policy.crossModelFallback) return undefined;
   const fb = process.env.AGENT_FALLBACK_MODEL?.trim();
-  return fb && resolveModelAlias(fb) !== modelId ? resolveModelAlias(fb) : undefined;
+  const resolved = fb ? resolveModelAlias(fb) : undefined;
+  if (!resolved || resolved === modelId) return undefined;
+  // Cost class is preserved (A.0.10): free -> paid needs an explicit allowPaidFallback and a meter to reserve against.
+  if (isFreeModelId(modelId) && !isFreeModelId(resolved) && !(dispatch.policy.allowPaidFallback === true && dispatch.meter)) return undefined;
+  return resolved;
 }
 
 async function generateAgentText(
@@ -465,7 +479,7 @@ async function generateAgentText(
     } catch (error) {
       // A refused reservation is the budget's decision, not an outage: no fallback model may be tried after it.
       if (error instanceof SpendBudgetError) throw error;
-      const fb = fallbackModelFor(modelId, dispatch.policy);
+      const fb = fallbackModelFor(modelId, dispatch);
       if (!fb || signal?.aborted) throw error;
       return { ...await call(fb, true), resolvedModel: fb }; // primary exhausted retries → cross-model safety net
     }

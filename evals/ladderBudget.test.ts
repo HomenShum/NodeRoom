@@ -22,10 +22,17 @@ import {
   UnpricedModelError,
   type DispatchPolicy,
 } from "../src/nodeagent/models/adapter";
+import { UnknownModelError } from "../src/nodeagent/models/modelCatalog";
 import { modelMaxOutputTokens } from "../src/nodeagent/models/outputTokens";
 
 const PRICED = "gemini-3.8-flash";
-const UNPRICED = "gemini-9.9-unpriced-test"; // routes to the Google provider, has no pricing row
+// Round 3 (SPEC A.0.10): an id the catalog has never heard of no longer reaches the adapter at all. `UNPRICED` was
+// "routes to the Google provider, has no pricing row" and used to be dispatched; it now throws UnknownModelError at
+// model() (see the A.0.10 test below). The (g) invariants - zero requests, meter untouched, terminal stop - are about an
+// id the adapter CAN route but the catalog cannot price, which is now only an id the alias table declares without a
+// price row: a persisted-room string such as "claude-sonnet-4.5" (resolves to claude-sonnet-4-5, priced nowhere).
+const UNPRICED = "gemini-9.9-unpriced-test";
+const UNPRICED_ALIAS = "claude-sonnet-4.5";
 const RECEIPT: DispatchPolicy = { maxRetries: 0, crossModelFallback: false };
 const TURN = { system: "s", messages: [{ role: "user" as const, content: "hi" }], tools: [] };
 const BOUND = requestInputTokenUpperBound(TURN.system, TURN.messages, TURN.tools);
@@ -194,7 +201,7 @@ describe("(g) zero requests for an unpriced id", () => {
     fakeTransport(() => ok()); // the transport would answer 200 if anything were sent
     for (const maxUsd of [10, 0.01]) {
       const meter = createSpendMeter(maxUsd);
-      const error = await model(UNPRICED, { dispatch: RECEIPT, meter }).next(TURN).then(() => null, (e: unknown) => e);
+      const error = await model(UNPRICED_ALIAS, { dispatch: RECEIPT, meter }).next(TURN).then(() => null, (e: unknown) => e);
       expect(error).toBeInstanceOf(UnpricedModelError);
       expect((error as UnpricedModelError).receipt.stopReason).toBe("spend_budget");
       expect(meter.requests).toBe(0);
@@ -204,9 +211,19 @@ describe("(g) zero requests for an unpriced id", () => {
     expect(calls).toHaveLength(0);
   });
 
+  it("(A.0.10) an id the catalog has never heard of never reaches the adapter: model() throws before any request, metered or not", async () => {
+    fakeTransport(() => ok());
+    const meter = createSpendMeter(10);
+    expect(() => model(UNPRICED, { dispatch: RECEIPT, meter })).toThrow(UnknownModelError);
+    expect(() => model(UNPRICED)).toThrow(UnknownModelError); // the unmetered legacy caller is refused too: no paid default
+    expect(calls).toHaveLength(0);
+    expect(meter.requests).toBe(0);
+    expect(meter.spentUsd).toBe(0);
+  });
+
   it("a priced primary answering four 503s with an unpriced AGENT_FALLBACK_MODEL makes the primary's four requests and none for the fallback", async () => {
     vi.useFakeTimers();
-    process.env.AGENT_FALLBACK_MODEL = UNPRICED;
+    process.env.AGENT_FALLBACK_MODEL = UNPRICED_ALIAS;
     fakeTransport(() => unavailable());
     const meter = createSpendMeter(10);
     const outcome = model(PRICED, { meter }).next(TURN).then(() => null, (e: unknown) => e); // default policy
@@ -221,7 +238,7 @@ describe("(g) zero requests for an unpriced id", () => {
     process.env.AGENT_FALLBACK_MODEL = PRICED; // would be affordable and priced: must still not be dispatched
     fakeTransport(() => ok());
     const meter = createSpendMeter(10);
-    const error = await model(UNPRICED, { meter }).next(TURN).then(() => null, (e: unknown) => e); // default policy: fallback allowed
+    const error = await model(UNPRICED_ALIAS, { meter }).next(TURN).then(() => null, (e: unknown) => e); // default policy: fallback allowed
     expect(error).toBeInstanceOf(UnpricedModelError);
     expect(meter.stoppedBy).toBe("unpriced_model");
     expect(calls).toHaveLength(0);
@@ -251,10 +268,16 @@ describe("(g) zero requests for an unpriced id", () => {
   });
 
   it("an unmetered adapter is unchanged: no reservation, no refusal", async () => {
-    fakeTransport(() => ok());
-    const step = await model(UNPRICED).next(TURN); // no meter: legacy callers are not budget-gated
-    expect(step.text).toBe("ok");
-    expect(calls).toHaveLength(1);
+    const savedKey = process.env.ANTHROPIC_API_KEY;
+    process.env.ANTHROPIC_API_KEY = "test-anthropic-key";
+    try {
+      fakeTransport(() => anthropicAnswer(10, 5));
+      const step = await model(UNPRICED_ALIAS).next(TURN); // no meter: legacy callers are not budget-gated
+      expect(step.text).toBe("done");
+      expect(calls).toHaveLength(1);
+    } finally {
+      if (savedKey === undefined) delete process.env.ANTHROPIC_API_KEY; else process.env.ANTHROPIC_API_KEY = savedKey;
+    }
   });
 });
 
@@ -361,6 +384,35 @@ describe("main(): pre-flight and the grid", () => {
     expect(report?.budget.requests).toBeLessThanOrEqual(report?.budget.requestCeiling);
     expect(report?.results.every((r: { dispatches: unknown[] }) => Array.isArray(r.dispatches))).toBe(true);
   });
+
+  it("a rung that issued charged dispatches and then failed on a provider error reports what it spent, not 0 (round 3)", async () => {
+    // Persona: the operator runs the L1 rung on a paid route; the network resets on the second request. The rung row
+    // used to say cost 0 while its own dispatch rows and the job-wide meter carried the charge (Codex: 0.05301075 vs 0).
+    fakeTransport(() => ok());
+    const probe = await runMain(["--real", PRICED, "--levels=1-1", "--max-cost-usd=0.0001"]);
+    const cap = Math.ceil(probe.report!.budget.estimateUsd * 1e4) / 1e4;
+
+    fakeTransport((n) => {
+      if (n === 1) {
+        return new Response(JSON.stringify({
+          candidates: [{ content: { role: "model", parts: [{ functionCall: { name: "list_artifacts", args: {} } }] }, finishReason: "STOP", index: 0 }],
+          usageMetadata: { promptTokenCount: 2_000, candidatesTokenCount: 40, totalTokenCount: 2_040 },
+          modelVersion: PRICED,
+        }), { status: 200, headers: { "content-type": "application/json" } });
+      }
+      throw Object.assign(new Error("fetch failed: ECONNRESET"), { code: "ECONNRESET" });
+    });
+    const { report } = await runMain(["--real", PRICED, "--levels=1-1", `--max-cost-usd=${cap}`]);
+    expect(calls).toHaveLength(2); // the charged answer, then the reset (receipt policy: no retry, no fallback)
+    const row = report!.results[0];
+    expect(row.error).toMatch(/ECONNRESET/);
+    expect(row.pass).toBe(false);
+    const dispatchCost = row.dispatches.reduce((sum: number, d: { costUsd: number }) => sum + d.costUsd, 0);
+    expect(dispatchCost).toBeGreaterThan(0);
+    expect(row.cost).toBeCloseTo(dispatchCost, 12);
+    expect(row.cost).toBeCloseTo(report!.budget.spentUsd, 12);
+    expect(row.dispatches[0].costUsd).toBeCloseTo(priceRequestStrict(PRICED, 2_000, 40), 12); // the settled one
+  });
 });
 
 // ───────────────────────────── review round 2 ─────────────────────────────
@@ -451,5 +503,26 @@ describe("pre-flight request ceiling follows the candidate limit the adapter enf
     process.env.OPENROUTER_FREE_AUTO_LIMIT = "99";
     expect(ladderRequestCeiling(["openrouter/free-auto"], shapes)).toBe(20 * steps);
     expect(estimateLadderUsd(["openrouter/free-auto"], shapes)).toBe(0); // free route: any fan-out costs nothing
+  });
+
+  it("an alias of a free-auto route fans out like the route it resolves to (dispatch resolves aliases first)", async () => {
+    const { ladderRequestCeiling, estimateLadderUsd } = await import("./ladder");
+    const steps = 3 + 2;
+    delete process.env.OPENROUTER_FREE_AUTO_LIMIT;
+    // 'free' and 'openrouter-auto' used to get a ceiling of 1 step each while one model("free").next() issues up to 8 requests.
+    for (const alias of ["free", "free-auto", "openrouter-auto", "openrouter-free-auto", "FREE", "nodeagent-auto", "nodeagent/free-auto"]) {
+      expect(ladderRequestCeiling([alias], shapes), alias).toBe(8 * steps);
+      if (!alias.startsWith("nodeagent")) expect(() => estimateLadderUsd([alias], shapes), alias).not.toThrow(); // nodeagent/free-auto has no price row: main() refuses it at pre-flight
+    }
+    expect(ladderRequestCeiling(["openrouter/free"], shapes), "the single-model meta route does not fan out").toBe(steps);
+    expect(ladderRequestCeiling(["claude-sonnet"], shapes), "a concrete alias does not fan out").toBe(steps);
+    process.env.OPENROUTER_FREE_AUTO_LIMIT = "3";
+    expect(ladderRequestCeiling(["free", PRICED], shapes)).toBe(3 * steps + steps);
+  });
+
+  it("an unknown route is refused by the ceiling and the estimate instead of being counted as one request (A.0.10)", async () => {
+    const { ladderRequestCeiling, estimateLadderUsd } = await import("./ladder");
+    expect(() => ladderRequestCeiling(["gemini-9-flash-unknown"], shapes)).toThrow(/unknown model id/);
+    expect(() => estimateLadderUsd(["gemini-9-flash-unknown"], shapes)).toThrow(/unknown model id/);
   });
 });

@@ -6,6 +6,7 @@ import { AgentRunError, InMemoryRoomTools, ROOM_TOOLS, runAgent } from "../src/n
 import type { AgentTool } from "../src/nodeagent/core/types";
 import { configuredConvexModelFallbacks, convexModel } from "../src/nodeagent/models/convexModel";
 import { openRouterFreeRouteHealthSnapshot, resetOpenRouterFreeRouteHealth } from "../src/nodeagent/models/openRouterFreeModels";
+import { UnknownModelError } from "../src/nodeagent/models/modelCatalog";
 import { QualityFailoverError } from "../src/nodeagent/models/qualityFailover";
 
 const freeModels = [
@@ -545,12 +546,28 @@ describe("Convex free-auto model routing", () => {
     expect(result.text).toBe("fallback answer");
   });
 
+  // Round 3 (SPEC A.0.10): these two tests used "vendor/unknown-paid-model", an id the catalog has never heard of, which
+  // convexModel() then DISPATCHED to OpenRouter - the defect. An unknown id now throws (first test below). The cost
+  // accounting they guard (conservative reservation; a hard turn budget blocks before the call) is about a route the
+  // adapter can route but the catalog cannot price: only an id the alias table declares without a price row, such as the
+  // persisted-room string "claude-sonnet-4.5" (resolves to claude-sonnet-4-5).
+  const UNPRICED_DECLARED = "claude-sonnet-4.5";
+  const anthropicAnswer = () => new Response(JSON.stringify({
+    content: [{ type: "text", text: "answer" }],
+    usage: { input_tokens: 5, output_tokens: 2 },
+  }), { status: 200, headers: { "Content-Type": "application/json" } });
+
+  it("refuses an unknown paid id at convexModel() before any provider call, with or without a turn budget", async () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    expect(() => convexModel("vendor/unknown-paid-model", { entrypoint: "public_ask" })).toThrow(UnknownModelError);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   it("retains a conservative reservation when catalog pricing cannot be measured exactly", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({
-      choices: [{ message: { content: "answer" } }],
-      usage: { prompt_tokens: 5, completion_tokens: 2 },
-    }), { status: 200, headers: { "Content-Type": "application/json" } })));
-    const step = await convexModel("vendor/unknown-paid-model", { entrypoint: "public_ask" }).next({
+    process.env.ANTHROPIC_API_KEY = "test-anthropic-key";
+    vi.stubGlobal("fetch", vi.fn(async () => anthropicAnswer()));
+    const step = await convexModel(UNPRICED_DECLARED, { entrypoint: "public_ask" }).next({
       system: "Answer.",
       messages: [{ role: "user", content: "hello" }],
       tools: [],
@@ -561,7 +578,7 @@ describe("Convex free-auto model routing", () => {
     const result = await runAgent({
       rt: runtimeTools(),
       goal: "answer the question",
-      model: convexModel("vendor/unknown-paid-model", { entrypoint: "public_ask" }),
+      model: convexModel(UNPRICED_DECLARED, { entrypoint: "public_ask" }),
       tools: [],
       maxSteps: 1,
       priceStep: () => 0.01,
@@ -570,11 +587,12 @@ describe("Convex free-auto model routing", () => {
     expect(result.usage.costUsd).toBeGreaterThan(0);
   });
 
-  it("blocks an unknown paid route before the provider call when a hard turn budget is present", async () => {
+  it("blocks an unpriced paid route before the provider call when a hard turn budget is present", async () => {
+    process.env.ANTHROPIC_API_KEY = "test-anthropic-key";
     const fetchSpy = vi.fn();
     vi.stubGlobal("fetch", fetchSpy);
 
-    const error = await convexModel("vendor/unknown-paid-model", { entrypoint: "public_ask" }).next({
+    const error = await convexModel(UNPRICED_DECLARED, { entrypoint: "public_ask" }).next({
       system: "Answer.",
       messages: [{ role: "user", content: "hello" }],
       tools: [],
@@ -586,7 +604,7 @@ describe("Convex free-auto model routing", () => {
     expect((error as QualityFailoverError).receipt).toMatchObject({
       stopReason: "spend_budget",
       routeAttempts: [],
-      skippedRoutes: [{ routeId: "vendor/unknown-paid-model", reason: "spend_budget" }],
+      skippedRoutes: [{ routeId: "claude-sonnet-4-5", reason: "spend_budget" }],
     });
   });
 

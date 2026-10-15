@@ -4,7 +4,7 @@
  * turn every Claude shortcut / dotted display id into the valid hyphenated API id.
  */
 import { describe, it, expect } from "vitest";
-import { resolveModelAlias } from "../src/nodeagent/models/modelCatalog";
+import { lookupModelAlias, resolveModelAlias, UnknownModelError } from "../src/nodeagent/models/modelCatalog";
 
 describe("resolveModelAlias — Claude dotted -> hyphenated API ids", () => {
   it("maps dotted display ids to the hyphenated API ids the Anthropic API accepts", () => {
@@ -19,8 +19,11 @@ describe("resolveModelAlias — Claude dotted -> hyphenated API ids", () => {
     expect(resolveModelAlias("claude-haiku-5.5")).toBe("claude-haiku-5-5");
     expect(resolveModelAlias("claude-sonnet-5.5")).toBe("claude-sonnet-5-5");
     expect(resolveModelAlias("claude-opus-5.5")).toBe("claude-opus-5-5");
-    // no regex: an unlisted dotted id passes through unchanged instead of being rewritten into a guess
-    expect(resolveModelAlias("claude-future-9.9")).toBe("claude-future-9.9");
+    // no regex: an unlisted dotted id passes through unchanged instead of being rewritten into a guess. Round 3 (SPEC A.0.10):
+    // resolveModelAlias also REFUSES it (it was `.toBe("claude-future-9.9")` and was then dispatched); the no-rewrite
+    // property is asserted on lookupModelAlias, the alias table read that does not route.
+    expect(lookupModelAlias("claude-future-9.9")).toBe("claude-future-9.9");
+    expect(() => resolveModelAlias("claude-future-9.9")).toThrow(UnknownModelError);
     // OpenRouter slugs keep their dots (A.0.5: wire ids per transport)
     expect(resolveModelAlias("anthropic/claude-sonnet-5.5")).toBe("anthropic/claude-sonnet-5.5");
   });

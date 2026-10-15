@@ -33,7 +33,7 @@ import {
   type DispatchRecord,
   type SpendMeter,
 } from "../src/nodeagent/models/adapter";
-import { getModelPricing, priceTokens, resolveModelAlias } from "../src/nodeagent/models/modelCatalog";
+import { getModelPricing, lookupModelAlias, priceTokens, resolveModelAlias } from "../src/nodeagent/models/modelCatalog";
 import { modelMaxOutputTokens } from "../src/nodeagent/models/outputTokens";
 import { selectOpenRouterFreeModels } from "../src/nodeagent/models/openRouterFreeModels";
 import { stableJournalHash } from "../src/nodeagent/core/journal";
@@ -695,7 +695,8 @@ async function runRung(rung: Rung, maker: (rung: Rung) => AgentModel, modelName:
       level: rung.level,
       ms: Date.now() - t0,
       tools: 0,
-      cost: 0,
+      // A rung that failed after issuing charged dispatches still spent that money: the row carries it, as in the try branch.
+      cost: meter ? rungDispatches().dispatches.reduce((sum, d) => sum + d.costUsd, 0) : 0,
       error: error instanceof Error ? error.message : String(error),
       checks: { completed: false },
       ...rungDispatches(),
@@ -963,7 +964,12 @@ async function scriptedRungShape(rung: Rung, budget: RuntimeBudget): Promise<Run
  */
 export function ladderRequestCeiling(routes: string[], shapes: RungShape[], freeAutoCandidates = openRouterFreeAutoLimit()): number {
   const steps = shapes.reduce((sum, shape) => sum + shape.maxSteps, 0);
-  return routes.reduce((sum, route) => sum + (/free-auto$/i.test(route) ? Math.max(1, freeAutoCandidates) : 1) * steps, 0);
+  return routes.reduce((sum, route) => sum + routeFanOut(route, freeAutoCandidates) * steps, 0);
+}
+
+/** Dispatch resolves aliases first ("free", "openrouter-auto" -> openrouter/free-auto), so the fan-out test must too. */
+function routeFanOut(route: string, freeAutoCandidates: number): number {
+  return /free-auto$/i.test(resolveModelAlias(route)) ? Math.max(1, freeAutoCandidates) : 1;
 }
 
 /**
@@ -980,7 +986,7 @@ export function estimateLadderUsd(routes: string[], shapes: RungShape[], freeAut
     const pricing = getModelPricing(resolveModelAlias(route));
     if (!pricing) throw new Error(`no pricing row for "${route}"`);
     const maxOut = modelMaxOutputTokens(resolveModelAlias(route));
-    const fanOut = /free-auto$/i.test(route) ? Math.max(1, freeAutoCandidates) : 1;
+    const fanOut = routeFanOut(route, freeAutoCandidates);
     for (const shape of shapes) {
       for (let step = 1; step <= shape.maxSteps; step++) {
         total += fanOut * priceTokens(pricing, shape.ctxTokens0 + (step - 1) * shape.growthTokens, maxOut);
@@ -1018,7 +1024,7 @@ export async function main() {
       return;
     }
     meter = createSpendMeter(budget.maxCostUsd);
-    const unpriced = realModels.find((id) => !getModelPricing(resolveModelAlias(id)));
+    const unpriced = realModels.find((id) => !getModelPricing(lookupModelAlias(id)));
     if (unpriced) {
       meter.stoppedBy = "unpriced_model";
       refuse(`no pricing row for "${unpriced}"; add a verified row (modelCatalog.modelPricing) before a paid run. No request was made.`);

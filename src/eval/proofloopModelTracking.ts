@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { normalizeInteropModelRoute } from "../nodeagent/integrations/modelInterop";
-import { getModelPricing, priceAggregateTokens, resolveModelAlias } from "../nodeagent/models/modelCatalog";
+import { getModelPricing, priceAggregateTokens, lookupModelAlias } from "../nodeagent/models/modelCatalog";
 
 export type ProofloopModelRole = "planner" | "worker" | "judge" | "verifier";
 export type ProofloopCostAccountingStatus = "actual" | "estimated" | "free" | "unknown";
@@ -180,7 +180,7 @@ export function isProofloopFreeLocalOrNoProviderModel(args: {
   routePolicy?: string;
 }): boolean {
   const id = (args.id ?? "").trim();
-  const resolved = resolveModelAlias(id).toLowerCase();
+  const resolved = lookupModelAlias(id).toLowerCase();
   const provider = (args.provider ?? "").trim().toLowerCase();
   const routePolicy = (args.routePolicy ?? "").trim().toLowerCase();
   if (!id) return false;
@@ -188,7 +188,7 @@ export function isProofloopFreeLocalOrNoProviderModel(args: {
   if (provider === "local" || provider === "none" || provider === "no-provider" || provider === "no_provider") return true;
   if (resolved.startsWith("local/") || resolved === "local") return true;
   if (resolved.endsWith(":free") || resolved.startsWith("openrouter/free")) return true;
-  const pricing = getModelPricing(resolveModelAlias(id));
+  const pricing = getModelPricing(lookupModelAlias(id));
   return pricing != null && pricing.inputPer1M === 0 && pricing.outputPer1M === 0;
 }
 
@@ -272,14 +272,14 @@ function finiteNonNegative(value: number | null | undefined): value is number {
 }
 
 function estimateModelCostUsd(modelId: string, tokensIn: number, tokensOut: number): number | undefined {
-  const pricing = getModelPricing(resolveModelAlias(modelId));
+  const pricing = getModelPricing(lookupModelAlias(modelId));
   if (!pricing) return undefined;
   return Number(priceAggregateTokens(pricing, tokensIn, tokensOut).toFixed(8));
 }
 
 function freeAccountingSource(modelId: string, provider: string): ProofloopCostAccountingSource {
   const normalizedProvider = provider.trim().toLowerCase();
-  const normalizedModel = resolveModelAlias(modelId).toLowerCase();
+  const normalizedModel = lookupModelAlias(modelId).toLowerCase();
   if (normalizedProvider === "none" || normalizedProvider === "no-provider" || normalizedProvider === "no_provider") return "no_provider";
   if (normalizedProvider === "local" || normalizedModel.startsWith("local/") || normalizedModel === "local") return "free_local";
   return "free_provider";
