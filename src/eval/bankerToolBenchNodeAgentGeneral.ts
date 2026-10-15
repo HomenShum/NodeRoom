@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { z } from "zod";
 import { runAgent, type AgentMessage, type AgentModel, type AgentTool, type AgentTraceEvent, type RoomTools } from "../nodeagent";
-import { model as routedModel, priceRun } from "../nodeagent/models/adapter";
+import { model as routedModel, priceRequest, priceRun } from "../nodeagent/models/adapter";
 
 export interface BankerToolBenchSourcePacket {
   schema: string;
@@ -302,7 +302,7 @@ export async function runBankerToolBenchNodeAgentGeneral(
         deadlineAt: toolPlannerDeadlineAt,
         reserveMs,
         spendLimits: { maxTokens: 260_000, maxCostUsd: 8 },
-        priceStep: priceRun,
+        priceStep: priceRequest,
         contextBuilder: async () => [
           {
             role: "user",

@@ -41,3 +41,20 @@ reservation path. Sonnet/Opus 5.5 send `strict: true` tool definitions wherever 
 the explicit §1.3 effort. `.env.example` copies of the changed defaults now match the code.
 
 **Commit**: the commit after `71a1f15` on this branch. **Author**: Homen Shum.
+
+## 2026-10-15 — Review round 2: per-request tiers, call-site tests, free-auto ceiling
+
+The long-context price tier is now chosen per provider request only (`priceRequest`,
+`convexPriceRequest`, reservation, meter settlement, runtime `priceStep`). Usage summed over
+several requests is priced at base-tier rates (`priceRun`, `convexPriceRun`, `creditModel`,
+`proofloopModelTracking`), and the ladder sums settled dispatch costs, so two 60K requests are
+no longer billed as one 120K request. `claude-haiku-5-5` carries its `$0.05` cache-read rate
+above 100K. The five `DEFAULT_AGENT_MODEL` call sites (`convex/agent.ts` x2, `agentJobRunner.ts`,
+`streaming.ts`, `Chat.tsx`) and the remaining judge/benchmark scripts now have tests that fail
+on revert; `qaMatrix` checks both `AGENT_MODEL` fallbacks. The LangChain bridge sends
+`strict: true` on the forced-choice downgrade, `probe.ts` and `providerParseSmoke.ts` send the
+explicit effort, `providerParseSmoke.ts` now reaches Google for Gemini ids, and the ladder
+pre-flight multiplies a free-auto route by `OPENROUTER_FREE_AUTO_LIMIT`. The merge blockers
+above are unchanged.
+
+**Commit**: the commit after `0ff118a` on this branch. **Author**: Homen Shum.

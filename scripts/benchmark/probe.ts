@@ -6,6 +6,7 @@ const { generateText } = await import("ai");
 const { anthropic } = await import("@ai-sdk/anthropic");
 const { openai, createOpenAI } = await import("@ai-sdk/openai");
 const { google } = await import("@ai-sdk/google");
+const { claudeEffortProviderOptions } = await import("../../src/nodeagent/models/modelCatalog");
 const or = createOpenAI({ apiKey: process.env.OPENROUTER_API_KEY, baseURL: "https://openrouter.ai/api/v1" });
 
 const cases: [string, any][] = [
@@ -37,7 +38,7 @@ const cases: [string, any][] = [
 ];
 for (const [name, model] of cases) {
   try {
-    const r = await generateText({ model, prompt: "Reply with the word OK." });
+    const r = await generateText({ model, prompt: "Reply with the word OK.", ...claudeEffortProviderOptions(name) }); // explicit SPEC §1.3 effort on claude-*-5-5
     console.log(`✅ ${name.padEnd(26)} -> "${(r.text || "").slice(0, 16).trim()}"`);
   } catch (e: any) {
     const status = e?.statusCode ?? e?.status ?? "";

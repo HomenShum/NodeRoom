@@ -2,7 +2,7 @@ import "./benchmark/loadEnv";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { z } from "zod";
-import { model, priceRun } from "../src/nodeagent/models/adapter";
+import { model, priceRequest } from "../src/nodeagent/models/adapter";
 import { selectOpenRouterFreeModels } from "../src/nodeagent/models/openRouterFreeModels";
 
 type GaugeRow = {
@@ -132,7 +132,7 @@ for (const candidate of candidates) {
       contextLength,
       inputTokens: response.usage?.inputTokens ?? 0,
       outputTokens: response.usage?.outputTokens ?? 0,
-      estimatedCostUsd: Number(priceRun(candidate.id, response.usage?.inputTokens ?? 0, response.usage?.outputTokens ?? 0).toFixed(8)),
+      estimatedCostUsd: Number(priceRequest(candidate.id, response.usage?.inputTokens ?? 0, response.usage?.outputTokens ?? 0).toFixed(8)),
       durationMs: Date.now() - started,
       attemptedRequests: 1,
       completedRequests: 1,

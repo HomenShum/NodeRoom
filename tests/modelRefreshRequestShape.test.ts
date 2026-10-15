@@ -299,7 +299,7 @@ describe("LangChain bridge tool_choice guard", () => {
     };
     return { chat, bound };
   }
-  it("sends tool_choice any for Haiku 5.5 and for 4.x, and nothing for Sonnet/Opus 5.5", async () => {
+  it("sends tool_choice any for Haiku 5.5 and for 4.x; Sonnet/Opus 5.5 get no forced choice but strict tools", async () => {
     const got: Record<string, unknown> = {};
     for (const id of ["claude-haiku-5-5", "claude-haiku-4-5", "claude-sonnet-5-5", "claude-opus-5-5"]) {
       const { chat, bound } = captured(id);
@@ -309,8 +309,14 @@ describe("LangChain bridge tool_choice guard", () => {
     expect(got).toEqual({
       "claude-haiku-5-5": { tool_choice: "any" },
       "claude-haiku-4-5": { tool_choice: "any" },
-      "claude-sonnet-5-5": {},
-      "claude-opus-5-5": {},
+      "claude-sonnet-5-5": { strict: true }, // SPEC §1.3: forced choice -> auto + strict: true
+      "claude-opus-5-5": { strict: true },
     });
+    // No forced choice requested: nothing is added for any id.
+    for (const id of ["claude-haiku-5-5", "claude-sonnet-5-5"]) {
+      const { chat, bound } = captured(id);
+      await createLangChainAgentModel(chat as any).next({ system: "s", messages: [{ role: "user", content: "hi" }], tools: [NOOP_TOOL], toolChoice: "auto" });
+      expect(bound[0], id).toEqual({});
+    }
   });
 });

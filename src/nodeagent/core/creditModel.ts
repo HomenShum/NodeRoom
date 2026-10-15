@@ -17,14 +17,14 @@
  * agentRuns rows (see PRODUCTION_CALIBRATION), not invented. Re-run the calibration
  * query and update these if the live distribution shifts.
  */
-import { getModelPricing, priceTokens, resolveModelAlias } from "../models/modelCatalog";
+import { getModelPricing, priceAggregateTokens, resolveModelAlias } from "../models/modelCatalog";
 import type { NodeAgentBudgetProfile } from "./budgetProfiles";
 
 /** LLM run cost in USD. Inlined from adapter.priceRun (same modelPricing table) so this
  *  module has NO AI-SDK dependency and is safe to import from Convex functions + scripts. */
 function priceRun(modelId: string, inTok: number, outTok: number): number {
   const p = getModelPricing(resolveModelAlias(modelId));
-  return p ? priceTokens(p, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
+  return p ? priceAggregateTokens(p, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
 }
 
 // ---------------------------------------------------------------------------

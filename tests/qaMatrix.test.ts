@@ -102,19 +102,23 @@ describe("production QA matrix", () => {
     const source = readFileSync(join(root, "convex/agent.ts"), "utf8");
     // The fallback is either a literal or, since the 2026-10 model refresh, the DEFAULT_AGENT_MODEL constant that
     // convex/modelDefaults.ts owns. Both must resolve to an explicit id; the L1-L4 check below is unchanged.
-    const match = source.match(/AGENT_MODEL\s*\?\?\s*(?:"([^"]+)"|(DEFAULT_AGENT_MODEL))/);
-    expect(match, "convex/agent.ts must declare an explicit AGENT_MODEL fallback").toBeTruthy();
+    // EVERY `AGENT_MODEL ?? <fallback>` in the file is checked (public_ask and private_agent), not just the first:
+    // reverting one of them to an unqualified literal must not be masked by the other.
+    const matches = [...source.matchAll(/AGENT_MODEL\s*\?\?\s*(?:"([^"]+)"|(DEFAULT_AGENT_MODEL))/g)];
+    expect(matches.length, "convex/agent.ts must declare an explicit AGENT_MODEL fallback at both the public_ask and private_agent roles").toBeGreaterThanOrEqual(2);
     const constant = readFileSync(join(root, "convex/modelDefaults.ts"), "utf8").match(/export const DEFAULT_AGENT_MODEL\s*=\s*"([^"]+)"/)?.[1];
-    expect(match![1] || constant, "DEFAULT_AGENT_MODEL must be a string literal").toBeTruthy();
-    const fallback = (match![1] ?? constant)!;
-    const route = matrix.modelLadder.routes.find((r) => r.modelRoute === fallback);
-    expect(route, `${fallback} is not recorded in the model ladder`).toBeTruthy();
-    expect([route!.l1, route!.l2, route!.l3, route!.l4], `${fallback} is not L1-L4 safe`).toEqual([
-      "PASS",
-      "PASS",
-      "PASS",
-      "PASS",
-    ]);
+    for (const match of matches) {
+      expect(match[1] || constant, "DEFAULT_AGENT_MODEL must be a string literal").toBeTruthy();
+      const fallback = (match[1] ?? constant)!;
+      const route = matrix.modelLadder.routes.find((r) => r.modelRoute === fallback);
+      expect(route, `${fallback} is not recorded in the model ladder`).toBeTruthy();
+      expect([route!.l1, route!.l2, route!.l3, route!.l4], `${fallback} is not L1-L4 safe`).toEqual([
+        "PASS",
+        "PASS",
+        "PASS",
+        "PASS",
+      ]);
+    }
   });
 
   it("publishes the generated QA cockpit from README", () => {

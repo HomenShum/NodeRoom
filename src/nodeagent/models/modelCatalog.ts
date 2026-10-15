@@ -71,7 +71,7 @@ export interface ModelPricing {
    * Higher tier the vendor applies to the WHOLE request once its prompt exceeds `aboveInputTokens`
    * (SPEC §1.3: claude-haiku-5-5 is $0.10/$0.50 up to 100K prompt tokens, $0.50/$2.50 above). The row's own
    * rates are the lower tier. `cachedInputPer1M` is omitted when the vendor page does not list it; callers then
-   * charge cached tokens at the tier's input rate rather than guess.
+   * charge cached tokens at the tier's input rate rather than guess (Haiku 5.5 lists both: $0.01 and $0.05).
    */
   longContext?: { aboveInputTokens: number; inputPer1M: number; outputPer1M: number; cachedInputPer1M?: number };
 }
@@ -82,13 +82,27 @@ export function ratesForPrompt(pricing: ModelPricing, inputTokens: number): Pick
   return tier && inputTokens > tier.aboveInputTokens ? tier : pricing;
 }
 
-/** USD for one request, tier-aware (uncached input). Every cost and reservation path routes through this. */
+/**
+ * USD for ONE provider request, tier-aware (uncached input). The tier is chosen from this request's own prompt size,
+ * so it is only correct when `inputTokens` is a single request's prompt. Reservations, settlement and per-step
+ * pricing (`priceStep`) route through this; usage summed over several requests must NOT (see `priceAggregateTokens`).
+ */
 export function priceTokens(pricing: ModelPricing, inputTokens: number, outputTokens: number): number {
   const rates = ratesForPrompt(pricing, inputTokens);
   return (inputTokens * rates.inputPer1M + outputTokens * rates.outputPer1M) / 1_000_000;
 }
 
-const HAIKU_5_5_LONG_CONTEXT = { aboveInputTokens: 100_000, inputPer1M: 0.50, outputPer1M: 2.50 };
+/**
+ * USD for usage summed over an unknown number of requests, at the row's own (base-tier) rates. A sum of 60K + 60K
+ * prompts is not one 120K prompt, so no tier is guessed from the total; this is a floor for runs that actually
+ * crossed the long-context tier. Prefer the sum of per-request settled costs (`usage.costUsd`, meter dispatches)
+ * whenever the caller has them.
+ */
+export function priceAggregateTokens(pricing: ModelPricing, inputTokens: number, outputTokens: number): number {
+  return (inputTokens * pricing.inputPer1M + outputTokens * pricing.outputPer1M) / 1_000_000;
+}
+
+const HAIKU_5_5_LONG_CONTEXT = { aboveInputTokens: 100_000, inputPer1M: 0.50, outputPer1M: 2.50, cachedInputPer1M: 0.05 }; // vendor "Cache read $0.01 / $0.05" (frontier.json)
 
 export const modelPricing: Record<string, ModelPricing> = {
   // OpenAI - GPT-5.4 family (official docs, April 2026)
