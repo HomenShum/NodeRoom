@@ -2,7 +2,7 @@ import "./benchmark/loadEnv";
 import { performance } from "node:perf_hooks";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { convexModel, convexPriceRun } from "../src/nodeagent/models/convexModel";
+import { convexModel, convexPriceRequest } from "../src/nodeagent/models/convexModel";
 import type { StartupGeneratedCellPayload, StartupProviderGeneratedContent } from "./startup-diligence-live-eval";
 import {
   runStartupDiligenceConvexContractEval,
@@ -73,7 +73,7 @@ async function generateProviderContent(modelId: string): Promise<StartupProvider
       cellPayload: parsed.cellPayload,
       finalText: parsed.finalText,
       usage: { inputTokens, outputTokens },
-      costUsd: convexPriceRun(model.name, inputTokens, outputTokens),
+      costUsd: convexPriceRequest(model.name, inputTokens, outputTokens),
       ms,
     };
   } finally {

@@ -28,6 +28,7 @@ import {
   getModelPricing,
   isNodeAgentFreeAutoModel,
   needsStrictTools,
+  priceAggregateTokens,
   priceTokens,
   NODEAGENT_FREE_AUTO_MODEL,
   resolveModelAlias,
@@ -212,14 +213,24 @@ export async function judge(modelId: string, prompt: string): Promise<string> {
   return res.text ?? "";
 }
 
-/** Cost from the catalog's pricing (per 1M tokens) — single source of truth, no parallel table. */
+/**
+ * Cost of usage SUMMED over several requests, from the catalog's pricing (per 1M tokens) — single source of truth,
+ * no parallel table. Base-tier rates only: the long-context tier is a property of one request's prompt, so it is
+ * never inferred from a total. A per-request `priceStep` must use `priceRequest`.
+ */
 export const priceRun = (modelId: string, inTok: number, outTok: number): number => {
+  const p = getModelPricing(resolveModelAlias(modelId));
+  return p ? priceAggregateTokens(p, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
+};
+
+/** Cost of ONE provider request (`inTok` is that request's prompt), tier-aware. This is the `priceStep` price. */
+export const priceRequest = (modelId: string, inTok: number, outTok: number): number => {
   const p = getModelPricing(resolveModelAlias(modelId));
   return p ? priceTokens(p, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
 };
 
-/** Same formula as `priceRun`, but an id with no pricing row throws instead of costing a guessed $1/$5. */
-export const priceRunStrict = (modelId: string, inTok: number, outTok: number): number => {
+/** Same formula as `priceRequest`, but an id with no pricing row throws instead of costing a guessed $1/$5. */
+export const priceRequestStrict = (modelId: string, inTok: number, outTok: number): number => {
   const p = getModelPricing(resolveModelAlias(modelId));
   if (!p) throw new UnpricedModelError(modelId);
   return priceTokens(p, inTok, outTok);
@@ -317,7 +328,7 @@ async function meteredDispatch<T extends { usage?: { inputTokens?: number; outpu
   const input = res.usage?.inputTokens;
   const output = res.usage?.outputTokens;
   if (Number.isFinite(input) && Number.isFinite(output)) {
-    const settled = priceRunStrict(modelId, input as number, output as number);
+    const settled = priceRequestStrict(modelId, input as number, output as number);
     meter.spentUsd += settled - reserveUsd;
     record.usage = { inputTokens: input as number, outputTokens: output as number };
     record.costUsd = settled;
@@ -837,7 +848,8 @@ async function generatePromptText(modelId: string, prompt: string): Promise<Gene
   throw new Error(`openrouter/free-auto prompt failed for ${attempted.join(", ")}: ${shortProviderError(lastError)}`);
 }
 
-function openRouterFreeAutoLimit(): number {
+/** Candidates one `openrouter/free-auto` request fans out over (OPENROUTER_FREE_AUTO_LIMIT, default 8, max 20). */
+export function openRouterFreeAutoLimit(): number {
   const raw = Number(envValue("OPENROUTER_FREE_AUTO_LIMIT") ?? 8);
   return Number.isFinite(raw) ? Math.max(1, Math.min(20, raw)) : 8;
 }

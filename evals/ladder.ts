@@ -25,8 +25,9 @@ import { recomputeVariancePlan } from "../src/nodeagent/core/plans";
 import {
   createSpendMeter,
   model as realModel,
-  priceRun,
-  priceRunStrict,
+  priceRequest,
+  openRouterFreeAutoLimit,
+  priceRequestStrict,
   requestInputTokenUpperBound,
   type DispatchPolicy,
   type DispatchRecord,
@@ -626,7 +627,8 @@ async function runRung(rung: Rung, maker: (rung: Rung) => AgentModel, modelName:
       reserveMs: budget.reserveMs,
       onTrace: (event) => rung.onTrace?.(event, env),
       // A metered run hands the runtime the dollars still left job-wide and the strict (throwing) price.
-      ...(meter ? { spendLimits: { maxCostUsd: Math.max(0, meter.maxUsd - meter.spentUsd) }, priceStep: priceRunStrict } : {}),
+      // The tier belongs to one request's prompt, so a step is priced per request (never from aggregated usage).
+      ...(meter ? { spendLimits: { maxCostUsd: Math.max(0, meter.maxUsd - meter.spentUsd) }, priceStep: priceRequestStrict } : { priceStep: priceRequest }),
     });
     let result: AgentResult;
     let slice1: AgentResult | undefined;
@@ -659,9 +661,11 @@ async function runRung(rung: Rung, maker: (rung: Rung) => AgentModel, modelName:
     const combinedTrace = slice1
       ? [...slice1.trace, { step: -1, tool: "slice_boundary", args: { forced: true, slice1Exhausted: slice1.exhausted }, result: { handoff: slice1.handoff?.summary ?? null }, ms: 0 } as AgentTraceEvent, ...result.trace]
       : result.trace;
-    const price = meter ? priceRunStrict : priceRun; // a paid run never costs a guessed $1/$5 row
-    const cost = (result.usage ? price(resolvedModel, result.usage.inputTokens, result.usage.outputTokens) : 0)
-      + (slice1?.usage ? price(resolvedModel, slice1.usage.inputTokens, slice1.usage.outputTokens) : 0);
+    // Per-request costs only: the meter's settled dispatches on a metered run (a paid run never costs a guessed
+    // $1/$5 row), the runtime's per-step priced total otherwise. Never price summed usage: a tier is per request.
+    const cost = meter
+      ? rungDispatches().dispatches.reduce((sum, d) => sum + d.costUsd, 0)
+      : (result.usage?.costUsd ?? 0) + (slice1?.usage?.costUsd ?? 0);
     return {
       pass,
       checkDetails,
@@ -952,8 +956,12 @@ async function scriptedRungShape(rung: Rung, budget: RuntimeBudget): Promise<Run
   return { rung, ctxTokens0, growthTokens, maxSteps };
 }
 
-/** Provider-request ceiling for the grid: routes x rungs x max steps (a free-auto route fans out over its candidates). */
-export function ladderRequestCeiling(routes: string[], shapes: RungShape[], freeAutoCandidates = 1): number {
+/**
+ * Provider-request ceiling for the grid: routes x rungs x max steps. A free-auto route fans out over the candidate
+ * limit the ADAPTER enforces (`openRouterFreeAutoLimit`), not over `--free-auto-top`, which only decides which extra
+ * concrete routes join the grid.
+ */
+export function ladderRequestCeiling(routes: string[], shapes: RungShape[], freeAutoCandidates = openRouterFreeAutoLimit()): number {
   const steps = shapes.reduce((sum, shape) => sum + shape.maxSteps, 0);
   return routes.reduce((sum, route) => sum + (/free-auto$/i.test(route) ? Math.max(1, freeAutoCandidates) : 1) * steps, 0);
 }
@@ -966,7 +974,7 @@ export function ladderRequestCeiling(routes: string[], shapes: RungShape[], free
  * input bytes. A free-auto route fans out over its candidates, so it multiplies by the candidate limit. The
  * request count holds only under RECEIPT_DISPATCH_POLICY: with retries and fallback each step could issue several.
  */
-export function estimateLadderUsd(routes: string[], shapes: RungShape[], freeAutoCandidates = 1): number {
+export function estimateLadderUsd(routes: string[], shapes: RungShape[], freeAutoCandidates = openRouterFreeAutoLimit()): number {
   let total = 0;
   for (const route of routes) {
     const pricing = getModelPricing(resolveModelAlias(route));
@@ -1018,9 +1026,8 @@ export async function main() {
     }
     const shapes: RungShape[] = [];
     for (const rung of selectedRungs) shapes.push(await scriptedRungShape(rung, budget));
-    const freeAutoCandidates = optionNumber("--free-auto-top", "LADDER_FREE_AUTO_TOP") ?? 1;
-    estimateUsd = estimateLadderUsd(realModels, shapes, freeAutoCandidates);
-    requestCeiling = ladderRequestCeiling(realModels, shapes, freeAutoCandidates);
+    estimateUsd = estimateLadderUsd(realModels, shapes);
+    requestCeiling = ladderRequestCeiling(realModels, shapes);
     console.log(`pre-flight: worst case $${estimateUsd.toFixed(4)} for ${realModels.length} route(s) x ${selectedRungs.length} rung(s); cap $${meter.maxUsd.toFixed(4)}`);
     if (estimateUsd > meter.maxUsd) {
       meter.stoppedBy = "spend_budget";

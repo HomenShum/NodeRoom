@@ -49,7 +49,7 @@ const ENV_KEYS = [
   "NODEROOM_FREE_ONLY", "VOICE_FREE_ONLY", "PROVIDER_PARSER_ALLOW_FILE_EGRESS", "PROVIDER_PARSER_GEMINI_MODEL",
   "PROVIDER_PARSER_ANTHROPIC_MODEL", "GEMINI_JUDGE_MODEL", "GEMINI_UI_REVIEW_MODEL", "GEMINI_MEDIA_JUDGE_MODEL",
   "GEMINI_SEO_VIDEO_JUDGE_MODEL", "JUDGE_MODEL", "NODEAGENT_ALLOWED_PROVIDERS", "PROVIDER_EGRESS_ALLOWED_PROVIDERS",
-  "PROVIDER_EGRESS_REQUIRE_ALLOWLIST", "NODEROOM_PRODUCTION",
+  "PROVIDER_EGRESS_REQUIRE_ALLOWLIST", "NODEROOM_PRODUCTION", "STARTUP_DILIGENCE_PROVIDER_MODEL", "AGENT_RESEARCH_MODEL", "OPENROUTER_API_KEY",
 ] as const;
 const savedEnv: Record<string, string | undefined> = {};
 beforeEach(() => {
@@ -214,8 +214,8 @@ const geminiGenerateContent = () => ({ candidates: [{ content: { role: "model", 
  * Execute a judge script's top level with `argv`, with `fetch` faked. The script is allowed to fail after it has
  * sent its request (the canned answer is not a valid verdict); what matters is the request it built.
  */
-async function runJudgeScript(load: () => Promise<unknown>, argv: string[]): Promise<Seen[]> {
-  installFakeTransport(() => geminiGenerateContent());
+async function runJudgeScript(load: () => Promise<unknown>, argv: string[], answer: () => unknown = geminiGenerateContent): Promise<Seen[]> {
+  installFakeTransport(answer);
   vi.resetModules();
   const argvBefore = process.argv;
   process.argv = ["node", "judge-script", ...argv];
@@ -311,6 +311,221 @@ describe("Gemini judge scripts pin gemini-3.6-flash and send no temperature", ()
       expect(temperatureProps, `${file} sends temperature`).toEqual([]);
       expect(model.test(text), `${file} pins ${JUDGE_MODEL}`).toBe(true);
     }
+  });
+});
+
+// ───────────────── review round 2: every other model-bearing script, driven through a fake transport ─────────────────
+
+/**
+ * Run `body` with the process working directory switched to a fresh fixture directory. Scripts that resolve
+ * `process.cwd()` at import (ROOT, docs/..., .tmp-qa/...) then read and write ONLY inside it.
+ */
+async function inFixtureCwd<T>(body: (dir: string) => Promise<T>): Promise<T> {
+  mkdirSync(FIXTURE_ROOT, { recursive: true });
+  const dir = mkdtempSync(join(FIXTURE_ROOT, "cwd-"));
+  const before = process.cwd();
+  process.chdir(dir);
+  try { return await body(dir); } finally { process.chdir(before); rmSync(dir, { recursive: true, force: true }); }
+}
+
+const PNG = Buffer.from("89504e470d0a1a0a", "hex");
+const MP4 = Buffer.from("00000018667479706d703432", "hex");
+
+describe("Gemini scripts that need a fixture tree: the request names gemini-3.6-flash and carries no temperature", () => {
+  afterEach(() => { vi.doUnmock("node:child_process"); });
+
+  function expectJudgeRequest(requests: Seen[], model = JUDGE_MODEL) {
+    expect(requests.length, "the script sent a request").toBeGreaterThan(0);
+    for (const req of requests) {
+      expect(req.url).toContain(`/models/${model}:generateContent`);
+      expectNoSampling(req.body);
+    }
+  }
+
+  it("scripts/gemini-ui-review.ts (generateObject); GEMINI_UI_REVIEW_MODEL and --model keep their precedence", async () => {
+    await inFixtureCwd(async (dir) => {
+      const png = join(dir, "shot.png");
+      writeFileSync(png, PNG);
+      const args = [`--media=${png}`, `--out=${join(dir, "out.json")}`];
+      expectJudgeRequest(await runJudgeScript(() => import("../scripts/gemini-ui-review"), args));
+      process.env.GEMINI_UI_REVIEW_MODEL = "gemini-3.8-flash";
+      expectJudgeRequest(await runJudgeScript(() => import("../scripts/gemini-ui-review"), args), "gemini-3.8-flash");
+      expectJudgeRequest(await runJudgeScript(() => import("../scripts/gemini-ui-review"), [...args, "--model=gemini-3.5-flash-lite"]), "gemini-3.5-flash-lite");
+    });
+  });
+
+  it("scripts/eval/painJudge.ts (generateText); JUDGE_MODEL keeps its precedence", async () => {
+    await inFixtureCwd(async (dir) => {
+      mkdirSync(join(dir, "docs", "eval"), { recursive: true });
+      mkdirSync(join(dir, "docs", "screenshots"), { recursive: true });
+      writeFileSync(join(dir, "docs", "eval", "pain-rubric.json"), "[]");
+      writeFileSync(join(dir, "docs", "eval", "ladder-trace.txt"), "L1 ok");
+      for (const [, name] of readFileSync(resolve(__dirname, "../scripts/eval/painJudge.ts"), "utf8").matchAll(/\["([^"]+\.png)"/g)) writeFileSync(join(dir, "docs", "screenshots", name), PNG);
+      const verdicts = () => ({ candidates: [{ content: { role: "model", parts: [{ text: "[]" }] }, finishReason: "STOP", index: 0 }], usageMetadata: { promptTokenCount: 1, candidatesTokenCount: 1, totalTokenCount: 2 } });
+      const requests = await runJudgeScript(() => import("../scripts/eval/painJudge"), [], verdicts);
+      expectJudgeRequest(requests);
+      process.env.JUDGE_MODEL = "gemini-3.8-flash";
+      expectJudgeRequest(await runJudgeScript(() => import("../scripts/eval/painJudge"), [], verdicts), "gemini-3.8-flash");
+    });
+  });
+
+  it("scripts/judge-state-captures.ts (raw fetch, generationConfig has no temperature); GEMINI_JUDGE_MODEL keeps its precedence", async () => {
+    await inFixtureCwd(async (dir) => {
+      mkdirSync(join(dir, "docs", "qa", "state-captures"), { recursive: true });
+      writeFileSync(join(dir, "docs", "qa", "state-captures", "a.png"), PNG);
+      writeFileSync(join(dir, "docs", "qa", "state-captures", "manifest.json"), JSON.stringify({ captures: [{ surface: "sheet", state: "default", theme: "dark", width: 1280, file: "a.png", mustBeTrue: "renders" }] }));
+      const requests = await runJudgeScript(() => import("../scripts/judge-state-captures"), []);
+      expectJudgeRequest(requests);
+      expect(requests[0].body.generationConfig).toEqual({ responseMimeType: "application/json" });
+      process.env.GEMINI_JUDGE_MODEL = "gemini-3.8-flash";
+      expectJudgeRequest(await runJudgeScript(() => import("../scripts/judge-state-captures"), []), "gemini-3.8-flash");
+    });
+  });
+
+  it("scripts/judge-demo-gif.ts (raw fetch, generationConfig has no temperature); GEMINI_JUDGE_MODEL keeps its precedence", async () => {
+    await inFixtureCwd(async (dir) => {
+      mkdirSync(join(dir, "docs", "eval", "workflow-previews"), { recursive: true });
+      writeFileSync(join(dir, "docs", "eval", "workflow-previews", "demo.gif"), Buffer.from("GIF89a"));
+      // ImageMagick is not assumed on the test machine: answer `magick identify` / `magick -coalesce` the way it would for a one-frame GIF.
+      vi.doMock("node:child_process", async (importOriginal) => ({
+        ...(await importOriginal<typeof import("node:child_process")>()),
+        spawnSync: (_cmd: string, args: string[]) => {
+          if (args[0] === "identify") return { status: 0, stdout: "10\n", stderr: "" };
+          writeFileSync(String(args.at(-1)).replace("%04d", "0000"), PNG);
+          return { status: 0, stdout: "", stderr: "" };
+        },
+      }));
+      const requests = await runJudgeScript(() => import("../scripts/judge-demo-gif"), []);
+      expectJudgeRequest(requests);
+      expect(requests[0].body.generationConfig).toEqual({ responseMimeType: "application/json" });
+      process.env.GEMINI_JUDGE_MODEL = "gemini-3.8-flash";
+      expectJudgeRequest(await runJudgeScript(() => import("../scripts/judge-demo-gif"), []), "gemini-3.8-flash");
+    });
+  });
+
+  it("scripts/spreadsheetbench-chart-visual-grade.ts (generateObject, three chart images); GEMINI_MEDIA_JUDGE_MODEL keeps its precedence", async () => {
+    await inFixtureCwd(async (dir) => {
+      const workbook = join(dir, "book.xlsx");
+      writeFileSync(workbook, "x");
+      // The renderer (Excel COM + pdftoppm) is replaced by files; the model call is the part under test.
+      vi.doMock("node:child_process", async (importOriginal) => ({
+        ...(await importOriginal<typeof import("node:child_process")>()),
+        spawnSync: (cmd: string, args: string[]) => {
+          if (cmd === "powershell") writeFileSync(args[args.indexOf("-Pdf") + 1], "%PDF");
+          else if (cmd === "pdftoppm") writeFileSync(`${args.at(-1)}.png`, PNG);
+          return { status: 0, stdout: "", stderr: "" };
+        },
+      }));
+      const platform = Object.getOwnPropertyDescriptor(process, "platform")!;
+      Object.defineProperty(process, "platform", { value: "win32" }); // the script only renders through Excel COM
+      try {
+        const args = [`--candidate=${workbook}`, `--gold=${workbook}`, `--negative-candidate=${workbook}`, `--out-dir=${join(dir, "out")}`, `--tmp-dir=${join(dir, "tmp")}`];
+        expectJudgeRequest(await runJudgeScript(() => import("../scripts/spreadsheetbench-chart-visual-grade"), args));
+        process.env.GEMINI_MEDIA_JUDGE_MODEL = "gemini-3.8-flash";
+        expectJudgeRequest(await runJudgeScript(() => import("../scripts/spreadsheetbench-chart-visual-grade"), args), "gemini-3.8-flash");
+      } finally {
+        Object.defineProperty(process, "platform", platform);
+      }
+    });
+  });
+
+  it("scripts/gemini-demo-media-judge.ts (generateObject); GEMINI_MEDIA_JUDGE_MODEL keeps its precedence", async () => {
+    await inFixtureCwd(async (dir) => {
+      const mp4 = join(dir, "clip.mp4");
+      writeFileSync(mp4, MP4);
+      const args = [`--input=${mp4}`, `--out=${join(dir, "out")}`, "--run-id=t"];
+      expectJudgeRequest(await runJudgeScript(() => import("../scripts/gemini-demo-media-judge"), args));
+      process.env.GEMINI_MEDIA_JUDGE_MODEL = "gemini-3.8-flash";
+      expectJudgeRequest(await runJudgeScript(() => import("../scripts/gemini-demo-media-judge"), args), "gemini-3.8-flash");
+    });
+  });
+});
+
+describe("model defaults carried by library code and config", () => {
+  it("runSpreadsheetBenchChartVisualProbe reports gemini-3.6-flash by default; the option and GEMINI_MEDIA_JUDGE_MODEL keep their precedence", async () => {
+    const { runSpreadsheetBenchChartVisualProbe } = await import("../src/eval/spreadsheetBenchChartVisualProbe");
+    const probe = (extra: Record<string, unknown> = {}, env: Record<string, string> = {}) =>
+      runSpreadsheetBenchChartVisualProbe({ generatedAt: "2026-10-15T00:00:00.000Z", env: { GOOGLE_GENERATIVE_AI_API_KEY: "k", ...env }, rendererCommands: [], ...extra } as never).vlm.model;
+    delete process.env.GEMINI_MEDIA_JUDGE_MODEL;
+    expect(probe()).toBe(JUDGE_MODEL);
+    process.env.GEMINI_MEDIA_JUDGE_MODEL = "gemini-3.8-flash";
+    expect(probe()).toBe("gemini-3.8-flash");
+    expect(probe({ model: "gemini-3.5-flash-lite" })).toBe("gemini-3.5-flash-lite");
+  });
+
+  it("walkthrough-review: the shipped config and the CLI's built-in default both name gemini-3.6-flash", async () => {
+    const { runWalkthroughReview } = await import("../packages/walkthrough-review-cli/src/core");
+    expect(JSON.parse(readFileSync("walkthrough-review.config.json", "utf8")).defaultModel).toBe(JUDGE_MODEL);
+    await inFixtureCwd(async (dir) => {
+      mkdirSync(join(dir, "docs", "walkthroughs"), { recursive: true });
+      writeFileSync(join(dir, "docs", "walkthroughs", "clip.mp4"), MP4);
+      const run = (config: Record<string, unknown>, input: Record<string, unknown> = {}) => {
+        writeFileSync(join(dir, "wr.config.json"), JSON.stringify({ schemaVersion: 1, commands: {}, ...config }));
+        return runWalkthroughReview({ cwd: dir, configPath: "wr.config.json", dryRun: true, skipCapture: true, skipRender: true, skipGemini: true, media: "docs/walkthroughs/clip.mp4", logger: () => {}, ...input });
+      };
+      expect((await run({})).model).toBe(JUDGE_MODEL); // no defaultModel in the config: the CLI's own default
+      expect((await run({ defaultModel: "gemini-3.8-flash" })).model).toBe("gemini-3.8-flash");
+      expect((await run({ defaultModel: "gemini-3.8-flash" }, { model: "gemini-3.5-flash-lite" })).model).toBe("gemini-3.5-flash-lite");
+    });
+  });
+});
+
+describe("benchmark / smoke / eval scripts send the refreshed ids with the explicit effort", () => {
+  const anthropicMessage = (model: string) => ({ id: "msg_t", type: "message", role: "assistant", model, content: [{ type: "text", text: "OK" }], stop_reason: "end_turn", stop_sequence: null, usage: { input_tokens: 5, output_tokens: 5 } });
+  const generateContent = (text: string) => ({ candidates: [{ content: { role: "model", parts: [{ text }] }, finishReason: "STOP", index: 0 }], usageMetadata: { promptTokenCount: 5, candidatesTokenCount: 5, totalTokenCount: 10 } });
+  /** Answer by wire: Anthropic Messages, Google generateContent; anything else is an HTTP 404 the script reports and moves past. */
+  const respondByWire = (text = "OK") => (req: Seen) =>
+    req.url.includes("api.anthropic.com") ? anthropicMessage(String(req.body.model))
+      : req.url.includes("generativelanguage.googleapis.com") ? generateContent(text)
+        : new Response("{}", { status: 404 });
+
+  it("scripts/benchmark/probe.ts: claude-haiku/sonnet/opus-5-5 go out with their SPEC §1.3 effort and no sampling keys", async () => {
+    installFakeTransport(respondByWire());
+    vi.resetModules();
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    await import("../scripts/benchmark/probe");
+    const claude55 = seen.filter((r) => r.url.includes("api.anthropic.com") && /-5-5$/.test(String(r.body.model)));
+    expect(claude55.map((r) => r.body.model).sort()).toEqual(["claude-haiku-5-5", "claude-opus-5-5", "claude-sonnet-5-5"]);
+    const effort: Record<string, string> = { "claude-haiku-5-5": "medium", "claude-sonnet-5-5": "high", "claude-opus-5-5": "medium" };
+    for (const req of claude55) {
+      expect(req.body.output_config?.effort, String(req.body.model)).toBe(effort[String(req.body.model)]);
+      expectNoSampling(req.body);
+      expect(req.body).not.toHaveProperty("thinking");
+    }
+    expect(seen.some((r) => r.url.includes("/models/gemini-3.8-flash:generateContent"))).toBe(true);
+    expect(seen.some((r) => r.url.includes("/models/gemini-3.5-flash-lite:generateContent"))).toBe(true);
+  });
+
+  it("scripts/eval/providerParseSmoke.ts: the gemini default reaches Google (provider is \"gemini\", not \"google\"); claude-haiku-5-5 carries its effort", async () => {
+    const table = JSON.stringify({ tables: [{ title: "t", columns: ["Company"], rows: [["Acme"]] }] });
+    installFakeTransport((req) => req.url.includes("api.anthropic.com")
+      ? { ...anthropicMessage(String(req.body.model)), content: [{ type: "tool_use", id: "tu_1", name: "json", input: JSON.parse(table) }], stop_reason: "tool_use" }
+      : generateContent(table));
+    vi.resetModules();
+    const argvBefore = process.argv;
+    process.argv = ["node", "providerParseSmoke"]; // no model argument: the script's own defaults (gemini-3.8-flash, gpt-5.4-mini, claude-haiku-5-5); the OpenAI one has no key here and is reported as an error
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    try {
+      await import("../scripts/eval/providerParseSmoke");
+      for (let i = 0; i < 100 && !(seen.some((r) => r.url.includes("api.anthropic.com")) && seen.some((r) => r.url.includes("generativelanguage"))); i++) await new Promise((r) => setTimeout(r, 20));
+    } finally { process.argv = argvBefore; }
+    const google = seen.filter((r) => r.url.includes("generativelanguage.googleapis.com"));
+    expect(google.length, "the Gemini smoke reaches Google").toBeGreaterThan(0);
+    for (const req of google) { expect(req.url).toContain("/models/gemini-3.8-flash:generateContent"); expectNoSampling(req.body); }
+    expect(seen.some((r) => r.url.includes("api.openai.com")), "no Gemini id falls through to OpenAI").toBe(false);
+    const anthropic = seen.filter((r) => r.url.includes("api.anthropic.com"));
+    expect(anthropic.length).toBeGreaterThan(0);
+    for (const req of anthropic) { expect(req.body.model).toBe("claude-haiku-5-5"); expect(req.body.output_config?.effort).toBe("medium"); expectNoSampling(req.body); }
+  });
+
+  it("scripts/startup-diligence-provider-eval.ts: the Gemini candidate is gemini-3.8-flash, the Anthropic one claude-haiku-5-5", async () => {
+    const { runStartupDiligenceProviderEval } = await import("../scripts/startup-diligence-provider-eval");
+    installFakeTransport(respondByWire("not json")); // every candidate is attempted, then the aggregate error lists them in order
+    await expect(runStartupDiligenceProviderEval({ noWrite: true })).rejects.toThrow(/gemini-3\.8-flash[\s\S]*claude-haiku-5-5/);
+    expect(seen[0].url).toContain("/models/gemini-3.8-flash:");
+    const claude = seen.find((r) => r.url.includes("api.anthropic.com"));
+    expect(claude?.body.model).toBe("claude-haiku-5-5");
+    expectNoSampling(claude!.body);
   });
 });
 

@@ -19,7 +19,7 @@ import { SERVER_PRODUCTION_ROOM_TOOLS as PRODUCTION_ROOM_TOOLS } from "../src/no
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/systemPrompt";
 import { injectMemoryIntoSystemPrompt } from "../src/nodemem/memoryContextBuilder";
 import { nodeMemInjectionEnabled, nodeMemRecordingEnabled, nodeMemRoomConfigEnabled } from "./nodemem";
-import { configuredConvexModelFallbacks, convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
+import { configuredConvexModelFallbacks, convexModel as agentModel, convexPriceRequest, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
 import { qualityFailoverRetryAt } from "../src/nodeagent/models/qualityFailover";
 import { authorizedModelForFramePhase } from "../src/nodeagent/models/phaseModel";
 import { buildResearchContext, buildCompanyDeepDiveContext } from "../src/nodeagent/core/worldModel";
@@ -928,7 +928,7 @@ export const runFreeAutoJobSlice = internalAction({
           deadlineAt,
           reserveMs,
           spendLimits,
-          priceStep: (modelName: string, inputTokens: number, outputTokens: number) => priceRun(modelName, inputTokens, outputTokens),
+          priceStep: convexPriceRequest,
           onTextDelta: (delta, step) => onPublicTextDelta(delta, step),
           onStreamEvent: (event) => recordStreamEvent(event),
           onTrace: (event) => {
@@ -961,7 +961,7 @@ export const runFreeAutoJobSlice = internalAction({
         // USD half reachable (P0-4: without it the gate received costUsd=0 and maxCostUsd was dead
         // surface — one env var pointing free-auto at a paid model meant unbounded spend).
         spendLimits,
-        priceStep: (modelName: string, inputTokens: number, outputTokens: number) => priceRun(modelName, inputTokens, outputTokens),
+        priceStep: convexPriceRequest,
         onTextDelta: (delta, step) => onPublicTextDelta(delta, step),
         onStreamEvent: (event) => recordStreamEvent(event),
         onTrace: (event) => {

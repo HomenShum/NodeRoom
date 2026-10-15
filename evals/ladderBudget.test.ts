@@ -15,7 +15,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createSpendMeter,
   model,
-  priceRunStrict,
+  priceRequestStrict,
   requestInputTokenUpperBound,
   reserveDispatch,
   SpendBudgetError,
@@ -80,12 +80,12 @@ describe("meter moves at dispatches (adapter path, fake transport)", () => {
 
     await m.next(TURN);
     expect(meter.requests).toBe(1);
-    expect(meter.spentUsd).toBeCloseTo(priceRunStrict(PRICED, 1_000, 200), 12); // reservation replaced by the priced usage
+    expect(meter.spentUsd).toBeCloseTo(priceRequestStrict(PRICED, 1_000, 200), 12); // reservation replaced by the priced usage
 
     await expect(m.next(TURN)).rejects.toThrow(/ECONNRESET/);
     expect(calls).toHaveLength(2); // maxRetries 0: no retry, no SDK retry, no fallback
     expect(meter.requests).toBe(2);
-    expect(meter.spentUsd).toBeCloseTo(priceRunStrict(PRICED, 1_000, 200) + RESERVE, 12); // the failed dispatch's reservation is retained
+    expect(meter.spentUsd).toBeCloseTo(priceRequestStrict(PRICED, 1_000, 200) + RESERVE, 12); // the failed dispatch's reservation is retained
   });
 
   it("(b) the same sequence (charged response, then ECONNRESET) under the default policy reserves once per attempt and never crosses the cap", async () => {
@@ -94,7 +94,7 @@ describe("meter moves at dispatches (adapter path, fake transport)", () => {
       if (n === 1) return ok(1_000, 200);
       throw Object.assign(new Error("fetch failed: ECONNRESET"), { code: "ECONNRESET" }); // transient: the default policy retries it
     });
-    const first = priceRunStrict(PRICED, 1_000, 200);
+    const first = priceRequestStrict(PRICED, 1_000, 200);
     const meter = createSpendMeter(first + RESERVE * 2.5); // after the charged answer: room for two more reservations, not three
     const m = model(PRICED, { meter }); // default policy: 3 retries, fallback allowed (no AGENT_FALLBACK_MODEL set)
 
@@ -128,7 +128,7 @@ describe("meter moves at dispatches (adapter path, fake transport)", () => {
       resolvedModel: PRICED,
       echoedModel: "gemini-3.6-flash",
       usage: { inputTokens: 1_000, outputTokens: 200 },
-      costUsd: priceRunStrict(PRICED, 1_000, 200),
+      costUsd: priceRequestStrict(PRICED, 1_000, 200),
       fallbackUsed: false,
     }]);
   });
@@ -316,7 +316,7 @@ describe("main(): pre-flight and the grid", () => {
 
     fakeTransport((_n, call) => {
       const tokens = Math.floor(JSON.stringify(call.body).length / 2);
-      billedUsd += priceRunStrict(PRICED, tokens, 50);
+      billedUsd += priceRequestStrict(PRICED, tokens, 50);
       return new Response(JSON.stringify({
         candidates: [{ content: { role: "model", parts: [{ text: "x".repeat(20_000) }, { functionCall: { name: "list_artifacts", args: {} } }] }, finishReason: "STOP", index: 0 }],
         usageMetadata: { promptTokenCount: tokens, candidatesTokenCount: 50, totalTokenCount: tokens + 50 },
@@ -360,5 +360,96 @@ describe("main(): pre-flight and the grid", () => {
     });
     expect(report?.budget.requests).toBeLessThanOrEqual(report?.budget.requestCeiling);
     expect(report?.results.every((r: { dispatches: unknown[] }) => Array.isArray(r.dispatches))).toBe(true);
+  });
+});
+
+// ───────────────────────────── review round 2 ─────────────────────────────
+
+/** An Anthropic Messages answer reporting `inputTokens` / `outputTokens`; `toolUse` makes the step ask for a tool. */
+function anthropicAnswer(inputTokens: number, outputTokens: number, toolUse = false) {
+  return new Response(JSON.stringify({
+    id: "msg_test", type: "message", role: "assistant", model: "claude-haiku-5-5",
+    content: toolUse ? [{ type: "tool_use", id: "tu_1", name: "list_artifacts", input: {} }] : [{ type: "text", text: "done" }],
+    stop_reason: toolUse ? "tool_use" : "end_turn", stop_sequence: null,
+    usage: { input_tokens: inputTokens, output_tokens: outputTokens },
+  }), { status: 200, headers: { "content-type": "application/json" } });
+}
+
+describe("the long-context tier belongs to one request, never to a sum of requests", () => {
+  const HAIKU = "claude-haiku-5-5";
+  const SAVED_ANTHROPIC = process.env.ANTHROPIC_API_KEY;
+  beforeEach(() => { process.env.ANTHROPIC_API_KEY = "test-anthropic-key"; });
+  afterEach(() => { if (SAVED_ANTHROPIC === undefined) delete process.env.ANTHROPIC_API_KEY; else process.env.ANTHROPIC_API_KEY = SAVED_ANTHROPIC; });
+
+  const base = (inTok: number, outTok: number) => (inTok * 0.10 + outTok * 0.50) / 1_000_000;
+
+  it("meter settlement: two 60K/1K dispatches (120K prompt tokens in total) settle at the base tier, one 120K dispatch at the tier", async () => {
+    fakeTransport(() => anthropicAnswer(60_000, 1_000));
+    const meter = createSpendMeter(10);
+    const m = model(HAIKU, { dispatch: RECEIPT, meter });
+    await m.next(TURN);
+    await m.next(TURN);
+    expect(meter.dispatches.map((d) => d.costUsd)).toEqual([base(60_000, 1_000), base(60_000, 1_000)]);
+    expect(meter.spentUsd).toBeCloseTo(0.013, 9); // was $0.065 when the sum was tiered
+
+    fakeTransport(() => anthropicAnswer(120_000, 2_000));
+    const long = createSpendMeter(10);
+    await model(HAIKU, { dispatch: RECEIPT, meter: long }).next(TURN);
+    expect(long.spentUsd).toBeCloseTo((120_000 * 0.50 + 2_000 * 2.50) / 1_000_000, 9); // 0.065: a real 120K prompt IS tiered
+  });
+
+  it("ladder rung cost is the sum of its settled dispatches (two sub-100K requests are not billed as one 120K request)", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ladder-tier-"));
+    const argvBefore = process.argv;
+    const exitBefore = process.exitCode;
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const run = async (cap: string) => {
+        const out = join(dir, `report-${cap}.json`);
+        process.argv = ["node", "ladder.ts", "--real", HAIKU, "--levels=1-1", `--max-cost-usd=${cap}`, "--json-out", out];
+        process.exitCode = undefined;
+        const { main } = await import("./ladder");
+        await main();
+        process.exitCode = exitBefore;
+        try { return JSON.parse(readFileSync(out, "utf8")) as Record<string, any>; } catch { return undefined; }
+      };
+      fakeTransport(() => anthropicAnswer(1, 1));
+      const probe = await run("0.0001");
+      const cap = String(Math.ceil(probe!.budget.estimateUsd * 1e4) / 1e4);
+      // Step 1 asks for a tool, step 2 answers: exactly two dispatches of 60K/1K.
+      fakeTransport((n) => anthropicAnswer(60_000, 1_000, n === 1));
+      const report = await run(cap);
+      expect(calls).toHaveLength(2);
+      const row = report!.results[0];
+      expect(row.dispatches.map((d: { costUsd: number }) => d.costUsd)).toEqual([base(60_000, 1_000), base(60_000, 1_000)]);
+      expect(row.cost).toBeCloseTo(0.013, 9); // was $0.065
+      expect(row.cost).toBeCloseTo(report!.budget.spentUsd, 9);
+    } finally {
+      process.argv = argvBefore;
+      process.exitCode = exitBefore;
+      rmSync(dir, { recursive: true, force: true });
+      vi.restoreAllMocks();
+    }
+  });
+});
+
+describe("pre-flight request ceiling follows the candidate limit the adapter enforces", () => {
+  const shapes = [{ maxSteps: 3, ctxTokens0: 1_000, growthTokens: 0 }, { maxSteps: 2, ctxTokens0: 1_000, growthTokens: 0 }] as never;
+  const SAVED_LIMIT = process.env.OPENROUTER_FREE_AUTO_LIMIT;
+  afterEach(() => { if (SAVED_LIMIT === undefined) delete process.env.OPENROUTER_FREE_AUTO_LIMIT; else process.env.OPENROUTER_FREE_AUTO_LIMIT = SAVED_LIMIT; });
+
+  it("a free-auto route multiplies by OPENROUTER_FREE_AUTO_LIMIT (default 8, max 20), a concrete route by 1", async () => {
+    const { ladderRequestCeiling, estimateLadderUsd } = await import("./ladder");
+    const steps = 3 + 2;
+    delete process.env.OPENROUTER_FREE_AUTO_LIMIT;
+    expect(ladderRequestCeiling([PRICED], shapes)).toBe(steps);
+    expect(ladderRequestCeiling(["openrouter/free-auto"], shapes)).toBe(8 * steps); // Codex observed 8 requests for one step whose ceiling was 1
+    expect(ladderRequestCeiling([PRICED, "openrouter/free-auto"], shapes)).toBe(steps + 8 * steps);
+    process.env.OPENROUTER_FREE_AUTO_LIMIT = "5";
+    expect(ladderRequestCeiling(["openrouter/free-auto"], shapes)).toBe(5 * steps);
+    process.env.OPENROUTER_FREE_AUTO_LIMIT = "99";
+    expect(ladderRequestCeiling(["openrouter/free-auto"], shapes)).toBe(20 * steps);
+    expect(estimateLadderUsd(["openrouter/free-auto"], shapes)).toBe(0); // free route: any fan-out costs nothing
   });
 });

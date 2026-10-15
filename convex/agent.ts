@@ -39,7 +39,7 @@ import { AgentRunError, runAgent } from "../src/nodeagent/core/runtime";
 import type { AgentTraceEvent } from "../src/nodeagent/core/types";
 import { SERVER_PRODUCTION_ROOM_TOOLS as PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/server/productionTools";
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/systemPrompt";
-import { convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
+import { convexModel as agentModel, convexPriceRequest, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
 import { buildResearchContext, buildNoteContext, buildWallContext } from "../src/nodeagent/core/worldModel";
 import { injectMemoryIntoSystemPrompt } from "../src/nodemem/memoryContextBuilder";
 import { nodeMemInjectionEnabled, nodeMemRoomConfigEnabled } from "./nodemem";
@@ -644,7 +644,7 @@ export const runRoomAgent = action({
           maxTokens: envNumber("AGENT_MAX_TOKENS_PER_RUN", 250_000, 1_000, 4_000_000),
           maxCostUsd: envNumber("AGENT_MAX_USD_PER_RUN", 2, 0.01, 100),
         },
-        priceStep: (modelName, inputTokens, outputTokens) => priceRun(modelName, inputTokens, outputTokens),
+        priceStep: convexPriceRequest,
         onTrace: (event) => {
           void recordLiveOperation({
             kind: liveOperationKind(event),

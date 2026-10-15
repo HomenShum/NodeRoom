@@ -8,7 +8,7 @@
  */
 
 import type { AgentMessage, AgentModel, AgentModelRouteState, AgentStep, AgentTool, AgentToolChoice, TokenUsage, ToolCall } from "../core/types";
-import { forbidsForcedToolChoice, getModelPricing, getProviderForModel, modelFallbackChains, modelPricing, needsStrictTools, priceTokens, ratesForPrompt, resolveModelAlias } from "./modelCatalog";
+import { forbidsForcedToolChoice, getModelPricing, getProviderForModel, modelFallbackChains, modelPricing, needsStrictTools, priceAggregateTokens, priceTokens, ratesForPrompt, resolveModelAlias } from "./modelCatalog";
 import { modelMaxOutputTokens } from "./outputTokens";
 import {
   isOpenRouterFreeAutoModel,
@@ -214,7 +214,14 @@ export function convexModel(modelId: string, options: ConvexModelOptions = {}): 
   };
 }
 
+/** Cost of usage SUMMED over several requests: base-tier rates (a tier belongs to one request's prompt). */
 export function convexPriceRun(modelId: string, inTok: number, outTok: number): number {
+  const pricing = getModelPricing(resolveModelAlias(modelId));
+  return pricing ? priceAggregateTokens(pricing, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
+}
+
+/** Cost of ONE provider request (`inTok` is that request's prompt), tier-aware. This is the `priceStep` price. */
+export function convexPriceRequest(modelId: string, inTok: number, outTok: number): number {
   const pricing = getModelPricing(resolveModelAlias(modelId));
   return pricing ? priceTokens(pricing, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
 }
