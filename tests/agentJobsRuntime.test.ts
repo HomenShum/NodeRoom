@@ -71,7 +71,7 @@ describe("agentJobs runtime contract", () => {
       scope: "public_room" as const,
       routePolicy: "explicit" as const,
       runtimePolicy: "workflow_sliced" as const,
-      modelPolicy: "test-model",
+      modelPolicy: "z-ai/glm-5.2",
       idempotencyKey: "job-runtime-central-start",
       approvalPolicy: "auto_commit_safe" as const,
       evidencePolicy: "public_only" as const,
@@ -83,7 +83,7 @@ describe("agentJobs runtime contract", () => {
     expect(blockedStart).toMatchObject({
       reused: false,
       status: "blocked",
-      modelPolicy: "test-model",
+      modelPolicy: "z-ai/glm-5.2",
       routePolicy: "explicit",
       runtimePolicy: "workflow_sliced",
     });
@@ -94,7 +94,7 @@ describe("agentJobs runtime contract", () => {
       scope: "public_room",
       routePolicy: "explicit",
       runtimePolicy: "workflow_sliced",
-      modelPolicy: "test-model",
+      modelPolicy: "z-ai/glm-5.2",
       runtime: "workflow",
     });
     expect(blockedDetail?.job.workflowId).toBeUndefined();
@@ -107,7 +107,7 @@ describe("agentJobs runtime contract", () => {
       scope: "public_room",
       routePolicy: "explicit",
       runtimePolicy: "workflow_sliced",
-      modelPolicy: "test-model",
+      modelPolicy: "z-ai/glm-5.2",
       traceLevel: "standard",
     });
   });
@@ -2841,6 +2841,42 @@ describe("agentJobs runtime contract", () => {
     expect(hostDetail).toBeNull();
     expect(hostAttempts).toEqual([]);
   });
+  // SPEC A.0.10 at the public API boundary. Persona: a client (or a script holding a room token) names a model the
+  // catalog has never heard of; the job row must not persist a string that could only ever fail later, in the runner.
+  describe("unknown model ids are refused at the public mutations", () => {
+    const UNKNOWN = "gemini-not-in-catalog";
+
+    it("createOrReuse refuses an unknown modelPolicy and persists no job", async () => {
+      const { t, proof, roomId, artifactId } = await setupRoom();
+      await expect(t.mutation(api.agentJobs.createOrReuse, { ...jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-unknown-create" }), modelPolicy: UNKNOWN }))
+        .rejects.toThrow("unknown_model_policy");
+      expect(await t.run(async (ctx) => (await ctx.db.query("agentJobs").collect()).length)).toBe(0);
+    });
+
+    it("start refuses an unknown modelPolicy on the explicit route", async () => {
+      const { t, proof, roomId, artifactId } = await setupRoom();
+      await expect(t.mutation(api.agentJobs.start, { ...jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-unknown-start" }), routePolicy: "explicit" as const, modelPolicy: UNKNOWN }))
+        .rejects.toThrow("unknown_model_policy");
+      expect(await t.run(async (ctx) => (await ctx.db.query("agentJobs").collect()).length)).toBe(0);
+    });
+
+    it("startPublicAsk refuses an unknown modelPolicy on the explicit route", async () => {
+      const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+      await expect(t.mutation(api.agentJobs.startPublicAsk, { roomId, requester: proof, goal: "compute the metrics", contextArtifactId: String(artifactId), routePolicy: "explicit" as const, modelPolicy: UNKNOWN }))
+        .rejects.toThrow("unknown_model_policy");
+      expect(await t.run(async (ctx) => (await ctx.db.query("agentJobs").collect()).length)).toBe(0);
+    });
+
+    it("a catalog id, an alias and a declared-but-unpriced id still start (nothing the repo knows is refused)", async () => {
+      const { t, proof, roomId, artifactId } = await setupRoom();
+      for (const [i, modelPolicy] of ["gemini-3.8-flash", "claude-sonnet", "anthropic/claude-fable-5"].entries()) {
+        const started = await t.mutation(api.agentJobs.createOrReuse, { ...jobArgs({ roomId, artifactId, proof, idempotencyKey: `job-known-${i}` }), modelPolicy });
+        const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+        expect(detail?.job.modelPolicy).toBe(modelPolicy);
+      }
+    });
+  });
+
 });
 
 async function setupRoom(options: { seedElement?: boolean; extraMember?: boolean; researchPolicy?: boolean; autoAllow?: boolean } = {}) {
@@ -3052,7 +3088,7 @@ function jobArgs(args: {
     goal: "Verify the unified agent job runtime",
     entrypoint: "public_ask" as const,
     scope: "public_room" as const,
-    modelPolicy: "test-model",
+    modelPolicy: "z-ai/glm-5.2",
     idempotencyKey: args.idempotencyKey,
     approvalPolicy: "auto_commit_safe" as const,
     evidencePolicy: "public_only" as const,

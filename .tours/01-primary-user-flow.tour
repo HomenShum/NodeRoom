@@ -48,7 +48,7 @@
     },
     {
       "file": "convex/agentJobs.ts",
-      "line": 2782,
+      "line": 2794,
       "pattern": "export const startPublicAsk = mutation\\(",
       "title": "Where input becomes trusted (live tier)",
       "description": "This is the real trust boundary. Convex validators reject a malformed payload before a job row exists, and `requireActorProof` checks that this browser is actually a member of this room.\n\nThe client-side parse two steps back exists to decide what the user meant. This decides what they are allowed to do."

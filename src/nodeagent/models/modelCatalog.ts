@@ -30,7 +30,7 @@
 // TYPE DEFINITIONS
 // ═══════════════════════════════════════════════════════════════════════════
 
-import { OPENROUTER_FREE_AUTO_MODEL, OPENROUTER_FREE_META_MODEL, freeOpenRouterPricing } from "./openRouterFreeModels";
+import { OPENROUTER_FREE_AUTO_MODEL, OPENROUTER_FREE_META_MODEL, OPENROUTER_KNOWN_FREE_IDS, freeOpenRouterPricing } from "./openRouterFreeModels";
 import { DEFAULT_AGENT_MODEL } from "../../../convex/modelDefaults";
 
 /** Provider-neutral, free-first NodeAgent route. Concrete providers are resolved by the adapter. */
@@ -145,8 +145,9 @@ export const modelPricing: Record<string, ModelPricing> = {
   "anthropic/claude-haiku-5.5": { inputPer1M: 0.10, outputPer1M: 0.50, cachedInputPer1M: 0.01, contextWindow: 1000000, pricingAsOf: "2026-10-10", longContext: HAIKU_5_5_LONG_CONTEXT },
   "anthropic/claude-sonnet-5.5": { inputPer1M: 2.00, outputPer1M: 10.00, cachedInputPer1M: 0.10, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
   "anthropic/claude-opus-5.5": { inputPer1M: 4.00, outputPer1M: 20.00, cachedInputPer1M: 0.20, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
-  // Exact id behind the claude-opus-4.7 display id (it used to be rewritten to 4-8; see modelAliases).
-  "claude-opus-4-7": { inputPer1M: 5.00, outputPer1M: 25.00, cachedInputPer1M: 0.50, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
+  // Exact id behind the claude-opus-4.7 display id (it used to be rewritten to 4-8; see modelAliases). frontier.json lists
+  // only "$5 in / $25 out" for it, so no cached rate is stated (ModelPricing: omitted when the vendor page does not list it).
+  "claude-opus-4-7": { inputPer1M: 5.00, outputPer1M: 25.00, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
   // Gemini Flash intro price: $0.75/$3.75 through 2026-12-31, then $1.50/$7.50 from 2027-01-01 (re-price then).
   "gemini-3.8-flash": { inputPer1M: 0.75, outputPer1M: 3.75, cachedInputPer1M: 0.075, contextWindow: 1048576, pricingAsOf: "2026-10-10" },
   "gemini-3.6-flash": { inputPer1M: 0.75, outputPer1M: 3.75, contextWindow: 1048576, pricingAsOf: "2026-10-10" }, // ladder receipt baseline (3.5 is served as 3.6)
@@ -822,7 +823,31 @@ export function lookupModelAlias(modelInput: string): string {
 /** Every name the alias table declares, as a key or a target: the catalog knows them even where no price row exists yet. */
 const ALIAS_DECLARED_IDS: ReadonlySet<string> = new Set([...Object.keys(modelAliases), ...Object.values(modelAliases)]);
 
-/** An id that is not priced, not an alias, not a free route and not free-looking (SPEC A.0.10): never a paid default. */
+/**
+ * Ids the repo ships or freezes by name but has no price row for: the mobile picker (`MODEL_REGISTRY`), the benchmark
+ * routes (`SUPPORTED_MODEL_ROUTES`, a frozen promotion table) and the frozen benchmark defaults (SPEC A.2.9: the BTB
+ * identity `gpt-4.1-mini`, the benchmark judge). They resolve exactly as before this PR (A.0.4: caller arguments are
+ * kept); a metered run still refuses them as unpriced (`priceRunStrict`). Keep in step with those sources:
+ * tests/modelKnownIds.test.ts fails when one of them names an id this set and the catalog do not know.
+ */
+const REPO_DECLARED_UNPRICED_IDS: readonly string[] = [
+  // src/landing/modelRegistry.ts MODEL_REGISTRY (the defer row :48 stays as shipped)
+  "anthropic/claude-fable-5", "openai/gpt-5.5", "google/gemini-3.5-flash",
+  // scripts/benchmark/modelEvalConfig.ts SUPPORTED_MODEL_ROUTES (frozen promotion tags)
+  "ibm-granite/granite-4.1-8b", "inclusionai/ring-2.6-1t", "xiaomi/mimo-v2.5", "google/gemini-3.1-flash-lite",
+  "poolside/laguna-xs.2:free", "poolside/laguna-m.1:free",
+  // frozen benchmark defaults: bankertoolbench-nodeagent-clean-sequential.mjs:8 and its OpenRouter form
+  "gpt-4.1-mini", "openai/gpt-4.1-mini",
+  // frozen official judges (SPEC A.2.9 Frozen): finch-official-judge.py:20 / package.json:82, mbabench-official-sweep.py:26
+  "gpt-5-mini", "google/gemini-3-flash-preview",
+];
+
+/** Every name the catalog knows without a price row: alias keys and targets, the declared ids above, the known free ids. */
+const UNPRICED_KNOWN_IDS: ReadonlySet<string> = new Set([
+  ...ALIAS_DECLARED_IDS, ...REPO_DECLARED_UNPRICED_IDS, ...OPENROUTER_KNOWN_FREE_IDS,
+].map((id) => id.toLowerCase()));
+
+/** An id that is not priced, not an alias, not declared by the repo, not a free route and not free-looking (SPEC A.0.10): never a paid default. */
 export class UnknownModelError extends Error {
   constructor(readonly modelId: string) {
     super(`unknown model id "${modelId}": not in the catalog, so it cannot be routed (add a verified row to modelCatalog.modelPricing)`);
@@ -841,10 +866,11 @@ const FREE_LOOKING_ID = /[-:]free$/i;
  */
 export function resolveModelAlias(modelInput: string): string {
   const resolved = lookupModelAlias(modelInput);
-  // Known = priced, or declared by the alias table (persisted rows may hold "claude-sonnet-4.5" / "claude-sonnet-4-5",
-  // which the table lists but no price row covers: they stay routable, and a metered run still refuses them as unpriced).
+  // Known = priced, or declared without a price (persisted rows may hold "claude-sonnet-4.5" / "claude-sonnet-4-5",
+  // which the alias table lists but no price row covers; the picker, benchmark and free catalogs too). A known id is
+  // returned as itself - a concrete `:free` id is never rerouted - and a metered run still refuses an unpriced one.
   const known = [resolved, modelInput.trim(), modelInput.toLowerCase().trim()];
-  if (isNodeAgentFreeAutoModel(resolved) || known.some((id) => Object.hasOwn(modelPricing, id) || ALIAS_DECLARED_IDS.has(id))) return resolved;
+  if (isNodeAgentFreeAutoModel(resolved) || known.some((id) => Object.hasOwn(modelPricing, id) || UNPRICED_KNOWN_IDS.has(id.toLowerCase()))) return resolved;
   if (FREE_LOOKING_ID.test(resolved.trim())) return OPENROUTER_FREE_AUTO_MODEL;
   throw new UnknownModelError(modelInput);
 }

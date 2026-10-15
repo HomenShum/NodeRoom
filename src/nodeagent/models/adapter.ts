@@ -600,8 +600,11 @@ async function generateProviderNeutralAgentText(args: {
     const unavailable = openRouterPrimaryUnavailable(primaryError);
     if (!unavailable || args.signal?.aborted) throw primaryError;
     // The direct Google route is a cross-model fallback (free OpenRouter -> paid Gemini): a policy that forbids
-    // cross-model fallback forbids it, and a refused reservation is never recovered from.
-    if (primaryError instanceof SpendBudgetError || !args.dispatch.policy.crossModelFallback) throw primaryError;
+    // cross-model fallback forbids it, and a refused reservation is never recovered from. Cost class is preserved
+    // (A.0.10): the paid leg also needs an explicit allowPaidFallback and a meter to reserve against, exactly the
+    // guard `fallbackModelFor` applies to every other free -> paid fallback.
+    const paidLegAuthorized = args.dispatch.policy.allowPaidFallback === true && !!args.dispatch.meter;
+    if (primaryError instanceof SpendBudgetError || !args.dispatch.policy.crossModelFallback || !paidLegAuthorized) throw primaryError;
 
     const configuredKey = envValue("GOOGLE_GENERATIVE_AI_API_KEY");
     if (!configuredKey) {

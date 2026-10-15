@@ -207,7 +207,7 @@ describe("room-work entity/facet cache", () => {
       goal: "Room work agent_fill: Fill company_profile for CardioNova.",
       entrypoint: "room_work",
       scope: "public_room",
-      modelPolicy: "test-model",
+      modelPolicy: "z-ai/glm-5.2",
       idempotencyKey: key,
       mode: "research",
     });

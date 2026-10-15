@@ -40,8 +40,8 @@ const PRICING_AS_OF = "2026-10-10";
 /** (canonical id, wire id per transport) -> vendor list price per 1M tokens. */
 type RefreshRow = {
   canonical: string; transport: string; id: string; inPerM: number; outPerM: number;
-  /** Cache-read rate of the row's own tier (vendor page: Haiku 5.5 "Cache read $0.01 / $0.05"). */
-  cachedInPerM?: number;
+  /** Cache-read rate of the row's own tier (vendor page: Haiku 5.5 "Cache read $0.01 / $0.05"); `null` = the vendor page lists none, so the row must carry none. */
+  cachedInPerM?: number | null;
   /** Rates for a prompt above `aboveInputTokens` (SPEC §1.3: claude-haiku-5-5 is $0.50/$2.50 above 100K). */
   longContext?: { aboveInputTokens: number; inPerM: number; outPerM: number; cachedInPerM?: number };
 };
@@ -49,16 +49,16 @@ const HAIKU_LONG = { aboveInputTokens: 100_000, inPerM: 0.50, outPerM: 2.50, cac
 const REFRESH_ROWS: RefreshRow[] = [
   { canonical: "claude-haiku-5-5", transport: "anthropic", id: "claude-haiku-5-5", inPerM: 0.10, outPerM: 0.50, cachedInPerM: 0.01, longContext: HAIKU_LONG }, // <=100K-token tier
   { canonical: "claude-haiku-5-5", transport: "openrouter", id: "anthropic/claude-haiku-5.5", inPerM: 0.10, outPerM: 0.50, cachedInPerM: 0.01, longContext: HAIKU_LONG },
-  { canonical: "claude-sonnet-5-5", transport: "anthropic", id: "claude-sonnet-5-5", inPerM: 2, outPerM: 10 },
+  { canonical: "claude-sonnet-5-5", transport: "anthropic", id: "claude-sonnet-5-5", inPerM: 2, outPerM: 10, cachedInPerM: 0.10 }, // frontier.json "cache read $0.10"
   { canonical: "claude-sonnet-5-5", transport: "openrouter", id: "anthropic/claude-sonnet-5.5", inPerM: 2, outPerM: 10 },
-  { canonical: "claude-opus-5-5", transport: "anthropic", id: "claude-opus-5-5", inPerM: 4, outPerM: 20 },
+  { canonical: "claude-opus-5-5", transport: "anthropic", id: "claude-opus-5-5", inPerM: 4, outPerM: 20, cachedInPerM: 0.20 }, // frontier.json "cache read $0.20"
   { canonical: "claude-opus-5-5", transport: "openrouter", id: "anthropic/claude-opus-5.5", inPerM: 4, outPerM: 20 },
   // Intro price through 2026-12-31; $1.50 / $7.50 from 2027-01-01 (re-price then: NodeRoom CHANGELOG/server/model-defaults.md).
-  { canonical: "gemini-3.8-flash", transport: "google", id: "gemini-3.8-flash", inPerM: 0.75, outPerM: 3.75 },
+  { canonical: "gemini-3.8-flash", transport: "google", id: "gemini-3.8-flash", inPerM: 0.75, outPerM: 3.75, cachedInPerM: 0.075 },
   { canonical: "gemini-3.6-flash", transport: "google", id: "gemini-3.6-flash", inPerM: 0.75, outPerM: 3.75 },
-  { canonical: "gemini-3.5-flash-lite", transport: "google", id: "gemini-3.5-flash-lite", inPerM: 0.30, outPerM: 2.50 },
-  // The id claude-opus-4.7 now resolves to (it used to be rewritten to 4-8); frontier.json + pi-ai catalog agree on $5/$25.
-  { canonical: "claude-opus-4-7", transport: "anthropic", id: "claude-opus-4-7", inPerM: 5, outPerM: 25 },
+  { canonical: "gemini-3.5-flash-lite", transport: "google", id: "gemini-3.5-flash-lite", inPerM: 0.30, outPerM: 2.50, cachedInPerM: 0.03 },
+  // The id claude-opus-4.7 now resolves to (it used to be rewritten to 4-8). frontier.json lists only "$5 in / $25 out": no cached rate.
+  { canonical: "claude-opus-4-7", transport: "anthropic", id: "claude-opus-4-7", inPerM: 5, outPerM: 25, cachedInPerM: null },
 ];
 
 const M = 1_000_000;
@@ -73,7 +73,8 @@ describe("pricing sources agree per (id, transport)", () => {
       expect({ inPerM: table.inputPer1M, outPerM: table.outputPer1M }).toEqual({ inPerM: row.inPerM, outPerM: row.outPerM });
       expect(table.pricingAsOf).toBe(PRICING_AS_OF);
       expect(table.longContext && { aboveInputTokens: table.longContext.aboveInputTokens, inPerM: table.longContext.inputPer1M, outPerM: table.longContext.outputPer1M, cachedInPerM: table.longContext.cachedInputPer1M }).toEqual(row.longContext);
-      if (row.cachedInPerM !== undefined) expect(table.cachedInputPer1M, "cache-read rate of the row's own tier").toBe(row.cachedInPerM);
+      if (row.cachedInPerM === null) expect(table.cachedInputPer1M, "the vendor page lists no cache-read rate").toBeUndefined();
+      else if (row.cachedInPerM !== undefined) expect(table.cachedInputPer1M, "cache-read rate of the row's own tier").toBe(row.cachedInPerM);
 
       // Cost functions, probed at the base tier: 100K prompt tokens (the tier edge itself) or 100K output tokens,
       // scaled to per-million, so the result IS the base per-million price whether or not the row is tiered.
