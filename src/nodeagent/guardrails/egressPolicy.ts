@@ -1,4 +1,4 @@
-import { getProviderForModel, resolveModelAlias, type LlmProvider } from "../models/modelCatalog";
+import { getProviderForModel, lookupModelAlias, type LlmProvider } from "../models/modelCatalog";
 import { providerHealthDecision } from "./providerHealth";
 
 type Env = Record<string, string | undefined>;
@@ -144,7 +144,7 @@ export function providerRouteDecision(args: {
 }): ProviderRouteDecision {
   const env = args.env ?? process.env;
   const requestedModel = args.model.trim();
-  const resolvedModel = resolveModelAlias(requestedModel);
+  const resolvedModel = lookupModelAlias(requestedModel);
   const allowedProviders = providerAllowlist(env);
   const external = isExternalProviderRoute(resolvedModel);
   const provider = external ? getProviderForModel(resolvedModel) : "local";

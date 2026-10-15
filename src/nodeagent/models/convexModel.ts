@@ -8,7 +8,7 @@
  */
 
 import type { AgentMessage, AgentModel, AgentModelRouteState, AgentStep, AgentTool, AgentToolChoice, TokenUsage, ToolCall } from "../core/types";
-import { forbidsForcedToolChoice, getModelPricing, getProviderForModel, modelFallbackChains, modelPricing, needsStrictTools, priceAggregateTokens, priceTokens, ratesForPrompt, resolveModelAlias } from "./modelCatalog";
+import { forbidsForcedToolChoice, getModelPricing, getProviderForModel, isFreeModelId, lookupModelAlias, modelFallbackChains, modelPricing, needsStrictTools, priceAggregateTokens, priceTokens, ratesForPrompt, resolveModelAlias } from "./modelCatalog";
 import { modelMaxOutputTokens } from "./outputTokens";
 import {
   isOpenRouterFreeAutoModel,
@@ -121,6 +121,11 @@ export type ConvexModelOptions = {
   freeAutoMode?: OpenRouterFreeModelMode;
   /** Ordered, already-authorized fallback routes. Pass [] to keep an explicit model exact. */
   fallbackModelIds?: string[];
+  /**
+   * SPEC A.0.10: a free primary never falls back to a paid route unless the caller sets this AND `next()` is handed a
+   * finite `maxCostUsd` (the failover controller reserves each candidate's estimate against it before dispatch).
+   */
+  allowPaidFallback?: boolean;
   /** Checkpointed concrete-route preference/cooldowns from a prior durable slice. */
   routeState?: AgentModelRouteState;
 };
@@ -194,7 +199,10 @@ export function convexModel(modelId: string, options: ConvexModelOptions = {}): 
   // Fallbacks must be authorized by the caller that owns artifact-aware egress context.
   // Non-durable/direct call sites remain exact even when deployment fallback env vars exist.
   const fallbackModelIds = normalizeFallbackModelIds(aliasModelId, options.fallbackModelIds ?? []);
-  const concreteRouteState = hydrateConcreteRouteState(aliasModelId, fallbackModelIds, options.routeState);
+  // Cost class is preserved (A.0.10): without allowPaidFallback and a reservation budget, only same-class routes stay.
+  const sameClassFallbackIds = isFreeModelId(aliasModelId) ? fallbackModelIds.filter(isFreeModelId) : fallbackModelIds;
+  const authorizedFallbackIds = options.allowPaidFallback === true ? fallbackModelIds : sameClassFallbackIds;
+  const concreteRouteState = hydrateConcreteRouteState(aliasModelId, authorizedFallbackIds, options.routeState);
   let resolvedModelId = aliasModelId;
   return {
     get name() {
@@ -207,7 +215,7 @@ export function convexModel(modelId: string, options: ConvexModelOptions = {}): 
       // Gateway PII firewall — redact PII/secrets from the system + user content before the prompt leaves.
       const safeSystem = redactPII(system).text;
       const safeMessages = messages.map((m) => (m.role === "user" && m.content ? { ...m, content: redactPII(m.content).text } : m));
-      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, signal, onTextDelta, toolChoice, freeAutoMode, fallbackModelIds, concreteRouteState, maxCostUsd);
+      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, signal, onTextDelta, toolChoice, freeAutoMode, Number.isFinite(maxCostUsd) ? authorizedFallbackIds : sameClassFallbackIds, concreteRouteState, maxCostUsd);
       resolvedModelId = resolvedModel;
       return step;
     },
@@ -216,13 +224,13 @@ export function convexModel(modelId: string, options: ConvexModelOptions = {}): 
 
 /** Cost of usage SUMMED over several requests: base-tier rates (a tier belongs to one request's prompt). */
 export function convexPriceRun(modelId: string, inTok: number, outTok: number): number {
-  const pricing = getModelPricing(resolveModelAlias(modelId));
+  const pricing = getModelPricing(lookupModelAlias(modelId));
   return pricing ? priceAggregateTokens(pricing, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
 }
 
 /** Cost of ONE provider request (`inTok` is that request's prompt), tier-aware. This is the `priceStep` price. */
 export function convexPriceRequest(modelId: string, inTok: number, outTok: number): number {
-  const pricing = getModelPricing(resolveModelAlias(modelId));
+  const pricing = getModelPricing(lookupModelAlias(modelId));
   return pricing ? priceTokens(pricing, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
 }
 
@@ -230,7 +238,7 @@ function exactConvexUsageCost(
   modelId: string,
   usage: Pick<TokenUsage, "inputTokens" | "outputTokens" | "cachedInputTokens" | "cacheCreationInputTokens">,
 ): number | undefined {
-  const pricing = getModelPricing(resolveModelAlias(modelId));
+  const pricing = getModelPricing(lookupModelAlias(modelId));
   if (!pricing) return undefined;
   // The catalog does not yet carry provider cache-write rates. Never label a
   // cache-creation turn exact by silently charging it at the read/input rate.
@@ -269,7 +277,7 @@ function convexAttemptCostReservationUsd(
   inputTokenUpperBound: number,
   maxCostUsd?: number,
 ): number {
-  const pricing = getModelPricing(resolveModelAlias(modelId));
+  const pricing = getModelPricing(lookupModelAlias(modelId));
   if (!pricing && Number.isFinite(maxCostUsd)) {
     const budget = Math.max(0, maxCostUsd ?? 0);
     return budget + Math.max(1e-9, Math.max(1, budget) * 1e-9);

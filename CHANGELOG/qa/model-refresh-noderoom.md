@@ -58,3 +58,31 @@ pre-flight multiplies a free-auto route by `OPENROUTER_FREE_AUTO_LIMIT`. The mer
 above are unchanged.
 
 **Commit**: the commit after `0ff118a` on this branch. **Author**: Homen Shum.
+
+## 2026-10-15 — Review round 3: cost class preserved, unknown ids fail closed, honest failed-rung cost
+
+Closes the round-1 findings 1 and 2 that rounds 1 and 2 left open (SPEC A.0.10), plus four round-2 defects.
+
+- **Unknown ids fail closed.** `resolveModelAlias` now throws `UnknownModelError` for an id that is not priced, not
+  declared by the alias table and not free-looking, so `model()` and `convexModel()` (and the fallback lists they read)
+  throw before any request. An unknown `-free` / `:free` id resolves to `openrouter/free-auto`. Pricing and telemetry
+  readers (`priceRun`, `reserveDispatch`, `creditModel`, `proofloopModelTracking`, the egress policy, `benchmark/run.ts`,
+  the interop normalizer) read the lenient `lookupModelAlias`, because they must tolerate historical ids and never dispatch.
+- **Free never becomes paid.** A free primary no longer falls back to a paid model: adapter `fallbackModelFor` and
+  `convexModel` drop the paid candidate unless the caller sets `allowPaidFallback: true` and there is a reservation
+  (adapter: a `SpendMeter`, reserved in `meteredDispatch`; Convex: a finite `maxCostUsd`, estimated per candidate by the
+  failover controller). Paid -> paid and paid -> free are unchanged.
+- **Failed rung cost.** `runRung`'s catch branch reports the sum of its settled dispatch costs, not `0`.
+- **Alias fan-out.** `ladderRequestCeiling` / `estimateLadderUsd` resolve the route before testing for free-auto fan-out,
+  so `free` and `openrouter-auto` count 8 requests per step, not 1.
+- **Request shape + pricing agreement.** `probe.ts` `gpt-6.1-sol` is asserted on the wire (URL, `model`, no sampling).
+  `benchmark/run.ts` pricing moved to `scripts/benchmark/pricingAtRun.ts` (run.ts runs the benchmark on import) so
+  `tests/modelPricingAgreement.test.ts` runs it, and the `--dry-run` sweep script, on a dated OpenRouter `/models`
+  fixture; a x1e5 conversion now fails both.
+- **Tests retargeted, not loosened.** `evals/ladderBudget.test.ts` (g), `tests/convexModelFreeAutoMode.test.ts` and
+  `tests/modelAliasClaude.test.ts` used never-heard-of ids that were dispatched; they now assert the refusal, and the
+  original invariants (zero requests, meter untouched, terminal stop, conservative reservation) are kept on the id the
+  alias table declares without a price row (`claude-sonnet-4.5`).
+- **Spec discrepancies left for a human (SPEC section C), not decided here:** see the PR body.
+
+**Commit**: the commit after `55261e8` on this branch. **Author**: Homen Shum.

@@ -20,7 +20,8 @@ import { buildDemoRoom, RESEARCH_COMPANIES } from "../../src/engine/demoRoom";
 import { InMemoryRoomTools } from "../../src/nodeagent/skills/integration/noderoomAdapter";
 import { runAgent } from "../../src/nodeagent/core/runtime";
 import { model, priceRun, judge } from "../../src/nodeagent/models/adapter";
-import { getModelPricing, resolveModelAlias, type ModelPricing } from "../../src/nodeagent/models/modelCatalog";
+import { lookupModelAlias } from "../../src/nodeagent/models/modelCatalog";
+import { costFromPricing, pricingAtRunFor, type PricingAtRun, type RouteSnapshot } from "./pricingAtRun";
 import { fetchSourceReal } from "../../src/nodeagent/skills/search/fetchSource";
 import type { AgentMessage, AgentModel, AgentTool, RoomTools, SourceResult } from "../../src/nodeagent/core/types";
 import { isOpenRouterFreeAutoModel, selectOpenRouterFreeModels, type OpenRouterModelInfo } from "../../src/nodeagent/models/openRouterFreeModels";
@@ -94,23 +95,6 @@ interface RunModelOptions {
   hardTimeoutMs?: number;
   routeSnapshot?: RouteSnapshot;
 }
-
-type PricingAtRun = {
-  source: "openrouter_snapshot" | "catalog" | "fallback_estimate";
-  inputPer1M: number;
-  outputPer1M: number;
-  cachedInputPer1M?: number;
-  contextWindow?: number;
-  routeSnapshotId?: string;
-};
-
-type RouteSnapshot = {
-  routeSnapshotId: string;
-  fetchedAt: string;
-  source: "openrouter" | "unavailable";
-  modelsById: Map<string, OpenRouterModelInfo>;
-  error?: string;
-};
 
 function unique(items: string[]): string[] {
   return [...new Set(items.filter(Boolean))];
@@ -192,52 +176,8 @@ async function loadRouteSnapshot(): Promise<RouteSnapshot> {
   }
 }
 
-function priceFromOpenRouterInfo(info: OpenRouterModelInfo, routeSnapshotId: string): PricingAtRun | undefined {
-  const prompt = Number(info.pricing?.prompt);
-  const completion = Number(info.pricing?.completion);
-  if (!Number.isFinite(prompt) || !Number.isFinite(completion)) return undefined;
-  const cacheRead = Number(info.pricing?.input_cache_read);
-  return {
-    source: "openrouter_snapshot",
-    inputPer1M: prompt * 1_000_000,
-    outputPer1M: completion * 1_000_000,
-    ...(Number.isFinite(cacheRead) ? { cachedInputPer1M: cacheRead * 1_000_000 } : {}),
-    contextWindow: info.context_length ?? info.top_provider?.context_length,
-    routeSnapshotId,
-  };
-}
-
-function catalogPricingAtRun(modelId: string): PricingAtRun {
-  const pricing: ModelPricing | null = getModelPricing(resolveModelAlias(modelId));
-  if (!pricing) {
-    return {
-      source: "fallback_estimate",
-      inputPer1M: 1,
-      outputPer1M: 5,
-    };
-  }
-  return {
-    source: "catalog",
-    inputPer1M: pricing.inputPer1M,
-    outputPer1M: pricing.outputPer1M,
-    ...(pricing.cachedInputPer1M != null ? { cachedInputPer1M: pricing.cachedInputPer1M } : {}),
-    contextWindow: pricing.contextWindow,
-  };
-}
-
-function pricingAtRunFor(modelId: string, snapshot?: RouteSnapshot): PricingAtRun {
-  const resolved = resolveModelAlias(modelId);
-  const fromSnapshot = snapshot?.modelsById.get(resolved);
-  if (fromSnapshot) return priceFromOpenRouterInfo(fromSnapshot, snapshot.routeSnapshotId) ?? catalogPricingAtRun(resolved);
-  return catalogPricingAtRun(resolved);
-}
-
-function costFromPricing(pricing: PricingAtRun, inputTokens: number, outputTokens: number): number {
-  return (inputTokens * pricing.inputPer1M + outputTokens * pricing.outputPer1M) / 1_000_000;
-}
-
 function isOpenRouterRoute(modelId: string): boolean {
-  const resolved = resolveModelAlias(modelId);
+  const resolved = lookupModelAlias(modelId);
   return isOpenRouterFreeAutoModel(resolved) || resolved.includes("/");
 }
 
