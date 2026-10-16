@@ -840,6 +840,21 @@ const REPO_DECLARED_UNPRICED_IDS: readonly string[] = [
   "gpt-4.1-mini", "openai/gpt-4.1-mini",
   // frozen official judges (SPEC A.2.9 Frozen): finch-official-judge.py:20 / package.json:82, mbabench-official-sweep.py:26
   "gpt-5-mini", "google/gemini-3-flash-preview",
+  // scripts/benchmark/modelEvalConfig.ts OPENROUTER_TOP_PAID_AGENT_ROUTES (frozen; `model-eval-matrix --route-set top-paid`
+  // resolves every one through model(id)). SPEC-v9 D1 names this list; origin/main resolved all 19 as themselves.
+  "z-ai/glm-5.2", "moonshotai/kimi-k2.7-code", "nvidia/nemotron-3-ultra-550b-a55b", "qwen/qwen3.7-plus", "minimax/minimax-m3",
+  "stepfun/step-3.7-flash", "qwen/qwen3.7-max", "x-ai/grok-build-0.1", "inclusionai/ring-2.6-1t", "x-ai/grok-4.3",
+  "poolside/laguna-xs.2", "poolside/laguna-m.1", "qwen/qwen3.5-plus-20260420", "qwen/qwen3.6-flash", "qwen/qwen3.6-35b-a3b",
+  "qwen/qwen3.6-27b", "deepseek/deepseek-v4-pro",
+  // SPEC-v9 section 1.2 wire ids, every transport (D1: an id in 1.2 is known). Most carry a price row above; the rest are
+  // known unpriced, and a metered run still refuses them (priceRunStrict). The verified :free ids are OPENROUTER_KNOWN_FREE_IDS.
+  "claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5", "claude-fable-5-1",
+  "anthropic/claude-haiku-5.5", "anthropic/claude-sonnet-5.5", "anthropic/claude-opus-5.5", "anthropic/claude-fable-5.1",
+  "anthropic.claude-haiku-5-5", "anthropic.claude-sonnet-5-5", "anthropic.claude-opus-5-5", "anthropic.claude-fable-5-1",
+  "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-3.1-pro-preview", "gemini-3.8-flash-tts", "gemini-3.8-live",
+  "google/gemini-3.8-flash", "google/gemini-3.6-flash", "google/gemini-3.5-flash-lite", "google/gemini-3.1-pro-preview",
+  "gpt-6.1-sol", "openai/gpt-6.1-sol", "gpt-6-luna", "openai/gpt-6-luna", "gpt-5.4-mini", "openai/gpt-5.4-mini",
+  "moonshotai/kimi-k3", "z-ai/glm-5.3", "minimax/minimax-m3", "nvidia/nemotron-3-super-120b-a12b:free",
 ];
 
 /** Every name the catalog knows without a price row: alias keys and targets, the declared ids above, the known free ids. */

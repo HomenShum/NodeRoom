@@ -1,11 +1,11 @@
 /**
  * 2026-10 model refresh (SPEC Part A §A.2.9, rule A.0.6) — the migrated DEFAULT_AGENT_MODEL call sites.
  *
- * The constant itself is pinned by tests/modelCatalogRefresh.test.ts and the http.ts / agentJobs.ts / adapter.ts /
- * adaptiveRouter.ts sites are driven through their builders elsewhere. These five are not reachable from a unit test
- * without a live Convex deployment (the actions are "use node" bundles bound to a ctx; the Chat composer is a React
- * closure), so each is pinned at the expression that owns the default. Re-inlining "gemini-3.5-flash" (or any literal)
- * at one of them, or dropping the env chain, makes exactly that test fail; the previous suite stayed green for all five.
+ * The constant itself is pinned by tests/modelCatalogRefresh.test.ts. The first three sites below are DRIVEN through their
+ * real handlers by tests/modelRefreshAgentWire.test.ts and the stream route (streaming.ts) by tests/modelRefreshServerRoles.test.ts
+ * (fake Convex ctx + fake fetch: the emitted model and the absence of sampling keys), so a downstream substitution fails there; the regular expressions here only pin where the default
+ * is spelled (re-inlining a literal, dropping the env chain, a third copy). The Chat composer is a React closure and
+ * stays source-pinned.
  *
  *   convex/agent.ts:346          runRoomAgent (public_ask)   process.env.AGENT_MODEL ?? DEFAULT_AGENT_MODEL
  *   convex/agent.ts:783          runPrivateAgent             process.env.AGENT_MODEL ?? DEFAULT_AGENT_MODEL

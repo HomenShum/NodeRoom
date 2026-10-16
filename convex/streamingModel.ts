@@ -8,6 +8,7 @@
  */
 import { redactPII } from "../src/nodeagent/guardrails/gateway";
 import { assertProviderRouteAllowed } from "../src/nodeagent/guardrails/egressPolicy";
+import { resolveModelAlias } from "../src/nodeagent/models/modelCatalog";
 import { openAiCompatibleTokenLimitParam } from "../src/nodeagent/models/openAiTokenLimit";
 
 export type StreamAppend = (text: string) => Promise<void>;
@@ -55,6 +56,8 @@ export async function streamPrivateReplyText(
   userMsg: string,
   append: StreamAppend,
 ): Promise<string> {
+  // SPEC A.0.10: an id the catalog does not know never dispatches (egress policy uses the lenient lookup; convexModel() throws the same error).
+  resolveModelAlias(modelId);
   const route = assertProviderRouteAllowed({ model: modelId, entrypoint: "private_agent", env: process.env });
   const safeSystem = redactPII(system).text;
   const safeUser = redactPII(userMsg).text;

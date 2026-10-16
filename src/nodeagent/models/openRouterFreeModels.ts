@@ -159,8 +159,10 @@ const OPENROUTER_LIVE_FREE_2026_10_10 = [
   "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", "google/gemma-4-26b-a4b-it:free",
   "google/gemma-4-31b-it:free", "nvidia/nemotron-3-super-120b-a12b:free",
 ];
+/** Added by the public list fetched 2026-10-16T11:32Z (SPEC-v9 D2): the newest `:free` row with tools, tool_choice, structured outputs and 1M context; the `top_paid` default. */
+const OPENROUTER_LIVE_FREE_2026_10_16 = ["nvidia/nemotron-3.5-super-vl:free"];
 export const OPENROUTER_KNOWN_FREE_IDS: ReadonlySet<string> = new Set(
-  [...FALLBACK_FREE_MODELS.map((m) => m.id), ...DEFAULT_PREFERRED_FREE_MODELS, ...OPENROUTER_LIVE_FREE_2026_10_10]
+  [...FALLBACK_FREE_MODELS.map((m) => m.id), ...DEFAULT_PREFERRED_FREE_MODELS, ...OPENROUTER_LIVE_FREE_2026_10_10, ...OPENROUTER_LIVE_FREE_2026_10_16]
     .map((id) => id.toLowerCase()),
 );
 

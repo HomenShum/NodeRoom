@@ -17,7 +17,7 @@ import { createLangChainAgentModel } from "../src/nodeagent/integrations/langcha
 import { createPiAiAdapter } from "../src/nodeagent/models/piAiAdapter";
 import { defaultRouteForTask, chooseNodeAgentRoute } from "../src/nodeagent/core/adaptiveRouter";
 import { providerParserModelCandidates } from "../src/nodeagent/models/providerParserLive";
-import { getModelPricing, getProviderForModel, resolveModelAlias } from "../src/nodeagent/models/modelCatalog";
+import { getModelPricing, getProviderForModel, resolveModelAlias, UnknownModelError } from "../src/nodeagent/models/modelCatalog";
 import type { AgentTool } from "../src/nodeagent/core/types";
 
 type Seen = { url: string; headers: Record<string, string>; body: Record<string, any> };
@@ -131,7 +131,7 @@ describe("Claude 5.5 over the direct Anthropic HTTP step (convexModel.anthropicS
 });
 
 describe("anthropic/claude-*-5.5 over OpenRouter (convexModel.openAiCompatibleStep)", () => {
-  it("top_paid default anthropic/claude-sonnet-5.5: forced tool_choice is sent as auto", async () => {
+  it("anthropic/claude-sonnet-5.5 (an operator-set AGENT_TOP_PAID_MODEL): forced tool_choice is sent as auto", async () => {
     installFakeTransport(() => chatOk("anthropic/claude-sonnet-5.5"));
     await convexModel("anthropic/claude-sonnet-5.5").next({
       system: "s", messages: [{ role: "user", content: "hi" }], tools: [NOOP_TOOL], toolChoice: "required",
@@ -239,6 +239,19 @@ describe("capture reasoner (aiSdkReasoner)", () => {
     });
     expect(seen[0].body.model).toBe("claude-sonnet-5-5");
     expect(seen[0].body.output_config?.effort).toBe("high");
+  });
+
+  // SPEC A.0.10 at the public boundary of the migrated capture/reasoning.ts:23 role: convex/capturesNode.ts `capture` hands a
+  // client-supplied modelId to aiSdkReasoner, and the provider is picked by prefix alone. Any room member could drive any
+  // Anthropic or OpenAI id; the resolver now refuses ids the catalog does not know before a request exists.
+  it.each(["claude-not-in-catalog-9", "gpt-not-in-catalog", "o3-not-in-catalog", "claude-opus-9"])("refuses the unknown id %s with zero requests", async (id) => {
+    installFakeTransport(() => ({ ...anthropicOk("claude-haiku-5-5"), content: [{ type: "text", text: "{\"ok\":true}" }] }));
+    let decided: Promise<unknown> | undefined;
+    expect(() => {
+      decided = aiSdkReasoner(id).decide({ system: "s", instruction: "decide", context: { title: "t", url: "https://example.test", a11y: "tree" } as any, schema: z.object({ ok: z.boolean() }) });
+    }).toThrow(UnknownModelError);
+    await decided?.catch(() => undefined);
+    expect(seen).toHaveLength(0);
   });
 });
 

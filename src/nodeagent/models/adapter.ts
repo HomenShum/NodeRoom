@@ -158,11 +158,18 @@ export type ModelAdapterOptions = {
   dispatch?: DispatchPolicy;
   /** When set, every provider request reserves its worst-case cost here before it is issued. */
   meter?: SpendMeter;
+  /**
+   * Eval and smoke scripts only (SPEC-v9 D1: operator overrides stay pass-through). The id was typed by an operator (CLI flag,
+   * `*_LIVE_MODEL`) or picked from the live OpenRouter list: the alias table still applies, but an id the catalog does not
+   * know goes to the provider as written - it does not throw and a concrete `:free` id is not rewritten to the auto router,
+   * so a run is measured under the label it was asked for. Server code never sets this; it stays fail-closed (A.0.10).
+   */
+  operatorSelected?: boolean;
 };
 
 /** Any catalog model behind the SAME seam — swap freely in the benchmark + the action. */
 export function model(modelId: string, options: ModelAdapterOptions = {}): AgentModel {
-  const aliasModelId = resolveModelAlias(modelId);
+  const aliasModelId = options.operatorSelected ? lookupModelAlias(modelId) : resolveModelAlias(modelId);
   const entrypoint = options.entrypoint ?? "system";
   const artifacts = options.artifacts ?? [];
   const freeAutoMode = options.freeAutoMode;

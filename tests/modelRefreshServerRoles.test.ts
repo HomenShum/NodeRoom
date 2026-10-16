@@ -151,6 +151,19 @@ describe("private-reply stream (POST /stream-private-reply -> streamPrivateReply
     await drivePrivateStreamRoute();
     expect(seen[0].url).toContain("/models/gemini-3.6-flash:streamGenerateContent");
   });
+
+  // SPEC A.0.10 at the migrated http.ts:176 role: `AGENT_MODEL ?? DEFAULT_AGENT_MODEL` names the id this stream sends.
+  // Before the guard an AGENT_MODEL the catalog does not know reached models/<id>:streamGenerateContent (convexModel() refuses it).
+  it("an AGENT_MODEL the catalog does not know never reaches the wire", async () => {
+    process.env.AGENT_MODEL = "gemini-not-in-catalog";
+    installFakeTransport(() => sse("hi"));
+    const { appended } = await drivePrivateStreamRoute(); // the route turns the refusal into visible text, never a silent 2xx void
+    expect(appended.join("")).toContain('unknown model id "gemini-not-in-catalog"');
+    expect(seen).toHaveLength(0);
+    const { streamPrivateReplyText } = await import("../convex/streamingModel");
+    await expect(streamPrivateReplyText("claude-not-in-catalog-9", "sys", "user", async () => undefined)).rejects.toMatchObject({ name: "UnknownModelError" }); // by name: the drive helper resets the module graph
+    expect(seen).toHaveLength(0);
+  });
 });
 
 // ───────────────────────────── provider parser ─────────────────────────────
