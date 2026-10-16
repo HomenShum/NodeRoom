@@ -128,6 +128,12 @@ export type ConvexModelOptions = {
   allowPaidFallback?: boolean;
   /** Checkpointed concrete-route preference/cooldowns from a prior durable slice. */
   routeState?: AgentModelRouteState;
+  /**
+   * Eval and smoke scripts only (SPEC-v9 D1: operator overrides stay pass-through; same contract as `ModelAdapterOptions`
+   * in adapter.ts). The id was typed by an operator: the alias table still applies, but an id the catalog does not know
+   * goes to the provider as written instead of throwing. Server code never sets this; it stays fail-closed (A.0.10).
+   */
+  operatorSelected?: boolean;
 };
 
 type ConcreteRouteState = {
@@ -193,7 +199,7 @@ function geminiUsage(usage?: GeminiResponse["usageMetadata"]): TokenUsage | unde
 }
 
 export function convexModel(modelId: string, options: ConvexModelOptions = {}): AgentModel {
-  const aliasModelId = resolveModelAlias(modelId);
+  const aliasModelId = options.operatorSelected ? lookupModelAlias(modelId) : resolveModelAlias(modelId);
   const entrypoint = options.entrypoint ?? "system";
   const freeAutoMode = options.freeAutoMode;
   // Fallbacks must be authorized by the caller that owns artifact-aware egress context.
@@ -1887,7 +1893,8 @@ export function configuredConvexModelFallbacks(
 }
 
 function normalizeFallbackModelIds(modelId: string, values: readonly string[]): string[] {
-  const primary = resolveModelAlias(modelId);
+  // The primary was resolved (or operator-selected) by the caller; only the fallback values are validated here.
+  const primary = lookupModelAlias(modelId);
   const seen = new Set([primary]);
   const result: string[] = [];
   for (const value of values) {

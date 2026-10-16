@@ -2114,9 +2114,10 @@ function defaultModelPolicyForRoute(args: { routePolicy: RoutePolicy; entrypoint
   if (args.modelPolicy) return knownModelPolicy(args.modelPolicy);
   if (args.routePolicy === "explicit") throw new Error("explicit_route_requires_modelPolicy");
   if (args.routePolicy === "free_auto" || args.entrypoint === "free") return "openrouter/free-auto";
-  if (args.routePolicy === "top_paid") return process.env.AGENT_TOP_PAID_MODEL ?? process.env.AGENT_MODEL ?? DEFAULT_TOP_PAID_MODEL;
-  if (args.mode === "research") return process.env.AGENT_RESEARCH_MODEL ?? process.env.AGENT_WORKER_MODEL ?? "minimax/minimax-m3";
-  return process.env.AGENT_ORCHESTRATOR_MODEL ?? process.env.AGENT_MODEL ?? DEFAULT_AGENT_MODEL;
+  // Env defaults are operator-set strings and reach the job row like a caller's argument, so they pass the same boundary check.
+  if (args.routePolicy === "top_paid") return knownModelPolicy(process.env.AGENT_TOP_PAID_MODEL ?? process.env.AGENT_MODEL ?? DEFAULT_TOP_PAID_MODEL);
+  if (args.mode === "research") return knownModelPolicy(process.env.AGENT_RESEARCH_MODEL ?? process.env.AGENT_WORKER_MODEL ?? "minimax/minimax-m3");
+  return knownModelPolicy(process.env.AGENT_ORCHESTRATOR_MODEL ?? process.env.AGENT_MODEL ?? DEFAULT_AGENT_MODEL);
 }
 
 function configuredFileEgressModel() {
@@ -2480,7 +2481,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
   if (promotedForFileEgress) {
     entrypoint = "public_ask";
     routePolicy = "explicit";
-    modelPolicy = configuredFileEgressModel();
+    modelPolicy = knownModelPolicy(configuredFileEgressModel());
   }
   const defaultMaxAttempts = execution === "inline"
     ? 1

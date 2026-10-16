@@ -1233,7 +1233,7 @@ function createPlannerModel(
       },
     };
   }
-  return routedModel(modelId, { entrypoint: "room_work" });
+  return routedModel(modelId, { entrypoint: "room_work", operatorSelected: true });
 }
 
 function createPlannerTools(onPlan: (plan: BankerToolBenchArtifactPlan) => void): AgentTool[] {

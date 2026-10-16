@@ -164,6 +164,19 @@ describe("private-reply stream (POST /stream-private-reply -> streamPrivateReply
     await expect(streamPrivateReplyText("claude-not-in-catalog-9", "sys", "user", async () => undefined)).rejects.toMatchObject({ name: "UnknownModelError" }); // by name: the drive helper resets the module graph
     expect(seen).toHaveLength(0);
   });
+
+  // Review round 6, defect 2. An unknown id that LOOKS free resolves to the verified free route `openrouter/free-auto`; the guard
+  // used to discard that and send the raw string (a Google URL for gemini-*, an OpenRouter body naming vendor/model).
+  it.each(["gemini-3.8-flash:free", "foo/bar:free", "claude-not-in-catalog:free", "gpt-not-in-catalog-free"])("the free-looking unknown id %s is sent as the verified free route, never under its raw name", async (id) => {
+    process.env.OPENROUTER_API_KEY = "test-openrouter-key";
+    installFakeTransport(() => sse("hi"));
+    const { streamPrivateReplyText } = await import("../convex/streamingModel");
+    await streamPrivateReplyText(id, "sys", "user", async () => undefined).catch(() => undefined); // the fake body is Gemini-shaped; only the request matters
+    expect(seen).toHaveLength(1);
+    expect(seen[0].url).toContain("openrouter");
+    expect(seen[0].body.model).toBe("openrouter/free-auto");
+    expect(JSON.stringify(seen[0].body)).not.toContain(id);
+  });
 });
 
 // ───────────────────────────── provider parser ─────────────────────────────
