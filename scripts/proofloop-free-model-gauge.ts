@@ -96,7 +96,7 @@ for (const candidate of candidates) {
   }
 
   try {
-    const route = model(candidate.id);
+    const route = model(candidate.id, { operatorSelected: true });
     const response = await route.next({
       system: "You are running inside the NodeAgent proof-loop harness. Use the provided tool exactly once. Do not answer in prose.",
       messages: [{

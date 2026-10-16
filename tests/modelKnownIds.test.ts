@@ -11,7 +11,8 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { MODEL_REGISTRY } from "../src/landing/modelRegistry";
-import { SUPPORTED_MODEL_ROUTES } from "../scripts/benchmark/modelEvalConfig";
+import { allAgentLlmRoutes, OPENROUTER_TOP_PAID_AGENT_ROUTES, resolveRouteSet, SUPPORTED_MODEL_ROUTES } from "../scripts/benchmark/modelEvalConfig";
+import { DEFAULT_TOP_PAID_MODEL } from "../convex/modelDefaults";
 import { model } from "../src/nodeagent/models/adapter";
 import { convexModel } from "../src/nodeagent/models/convexModel";
 import { llmModelCatalog, lookupModelAlias, resolveModelAlias, UnknownModelError } from "../src/nodeagent/models/modelCatalog";
@@ -33,7 +34,33 @@ function expectUnchanged(id: string) {
   expect(convexModel(id).name).toBe(resolved);
 }
 
+/**
+ * SPEC-v9 section 1.2 wire ids, every transport (D1: an id in 1.2 is known). Typed here from the spec table on purpose:
+ * the spec lives outside this repo, so this is the one place a reader checks the transcription.
+ */
+const SPEC_1_2_WIRE_IDS = [
+  "claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5", "claude-fable-5-1",
+  "anthropic/claude-haiku-5.5", "anthropic/claude-sonnet-5.5", "anthropic/claude-opus-5.5", "anthropic/claude-fable-5.1",
+  "anthropic.claude-haiku-5-5", "anthropic.claude-sonnet-5-5", "anthropic.claude-opus-5-5", "anthropic.claude-fable-5-1",
+  "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-3.1-pro-preview", "gemini-3.8-flash-tts", "gemini-3.8-live",
+  "google/gemini-3.8-flash", "google/gemini-3.6-flash", "google/gemini-3.5-flash-lite", "google/gemini-3.1-pro-preview",
+  "gpt-6.1-sol", "openai/gpt-6.1-sol", "gpt-6-luna", "openai/gpt-6-luna", "gpt-5.4-mini", "openai/gpt-5.4-mini",
+  "moonshotai/kimi-k3", "z-ai/glm-5.3", "minimax/minimax-m3", "nvidia/nemotron-3-super-120b-a12b:free",
+  // the spec's 2026-10-10 live :free list
+  "apodex/apodex-1.1-mini:free", "dots-studio/dots-3-note-preview:free", "liquid/lfm-2.5-2.6b:free", "nvidia/nemotron-3.5-lightning:free",
+  "thinkingmachines/inkling-small:free", "poolside/laguna-s-2.1:free", "thinkingmachines/inkling:free", "poolside/laguna-xs-2.1:free",
+  "cohere/north-mini-code:free", "nvidia/nemotron-3.5-content-safety:free", "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", "google/gemma-4-26b-a4b-it:free", "google/gemma-4-31b-it:free",
+];
+
 describe("every id the repo ships, freezes or lists resolves as itself", () => {
+  it.each(OPENROUTER_TOP_PAID_AGENT_ROUTES.map((r) => r.route))("top-paid route %s (`model-eval-matrix --route-set top-paid` goes through model(id))", expectUnchanged);
+  it.each([...new Set(allAgentLlmRoutes().map((r) => r.route))])("agent route %s", expectUnchanged);
+  it.each(["top-paid", "supported", "champions", "free", "research", "collaboration"])("every id of route set %s", (set) => {
+    for (const id of resolveRouteSet(set)) expectUnchanged(id);
+  });
+  it.each(SPEC_1_2_WIRE_IDS)("SPEC section 1.2 wire id %s", expectUnchanged);
+
   it("the BTB default was read from the frozen script", () => expect(btbDefault).toBe("gpt-4.1-mini"));
 
   it.each(MODEL_REGISTRY.map((m) => m.id))("mobile picker choice %s", expectUnchanged);
@@ -58,5 +85,49 @@ describe("what is still refused or rerouted (A.0.10 is intact)", () => {
   it("an unknown free-looking id still resolves to the verified free route, a known one to itself", () => {
     expect(resolveModelAlias("vendor/not-in-catalog:free")).toBe(OPENROUTER_FREE_AUTO_MODEL);
     expect(resolveModelAlias("nvidia/nemotron-3-super-120b-a12b:free")).toBe("nvidia/nemotron-3-super-120b-a12b:free");
+  });
+});
+
+describe("SPEC-v9 D2: the top_paid default is the newest qualifying :free row of the recorded public OpenRouter list", () => {
+  const snapshot = JSON.parse(readFileSync("docs/eval/openrouter-free-models-2026-10-16.json", "utf8")) as {
+    fetchedAt: string; selected: string; rows: Array<{ id: string; created: number; contextLength: number; outputModalities: string[]; tools: boolean; toolChoice: boolean; structuredOutputs: boolean; expirationDate: string | null }>;
+  };
+
+  it("DEFAULT_TOP_PAID_MODEL is the row a re-selection by the stated criteria returns, and the snapshot records its fetch time", () => {
+    const qualifying = snapshot.rows
+      .filter((r) => r.tools && r.toolChoice && r.structuredOutputs && r.contextLength >= 256_000 && r.outputModalities.includes("text") && r.id.endsWith(":free"))
+      .sort((a, b) => b.created - a.created);
+    expect(qualifying[0].id).toBe(DEFAULT_TOP_PAID_MODEL);
+    expect(snapshot.selected).toBe(DEFAULT_TOP_PAID_MODEL);
+    expect(snapshot.fetchedAt).toBe("2026-10-16T11:32:04Z");
+  });
+
+  it("it resolves as itself, is a free route, and is never rerouted to the auto router", () => {
+    expectUnchanged(DEFAULT_TOP_PAID_MODEL);
+    expect(OPENROUTER_KNOWN_FREE_IDS.has(DEFAULT_TOP_PAID_MODEL)).toBe(true);
+  });
+});
+
+describe("SPEC-v9 D1: an operator-selected id in an eval or smoke script is passed through", () => {
+  // Persona: an evaluator runs `ladder:free --free-auto-top` or `benchmark/run.ts <id>` with a :free row picked from the live
+  // OpenRouter list, or a CLI id this catalog has never seen. origin/main measured it under its own label; the fail-closed
+  // resolver threw (unknown paid id) or measured the auto router under the concrete label (unknown :free id).
+  it.each(["openrouter/owl-alpha:free", "qwen/qwen3.9-coder:free", "acme/paid-unknown-model"])("model(%s, { operatorSelected }) keeps the id as written", (id) => {
+    expect(model(id, { operatorSelected: true }).name).toBe(id);
+  });
+
+  it("server code (no option) is unchanged: an unknown paid id throws, an unknown :free id goes to the verified free route", () => {
+    expect(() => model("acme/paid-unknown-model")).toThrow(UnknownModelError);
+    expect(model("qwen/qwen3.9-coder:free").name).toBe(OPENROUTER_FREE_AUTO_MODEL);
+  });
+
+  it("the alias table still applies to an operator-selected id", () => {
+    expect(model("claude-sonnet", { operatorSelected: true }).name).toBe(lookupModelAlias("claude-sonnet"));
+  });
+
+  it.each(["scripts/benchmark/run.ts", "scripts/proofloop-free-model-gauge.ts", "evals/ladder.ts", "scripts/spreadsheetbench-run.ts", "evals/chatIntakeRuntime.ts"])("%s builds its models with operatorSelected (source pin: these are CLI entry points)", (file) => {
+    const src = readFileSync(file, "utf8");
+    expect(src).toContain("operatorSelected: true");
+    expect(src).not.toMatch(/\b(?:model|realModel)\((?:modelId|candidate\.id|id|route)\)/);
   });
 });

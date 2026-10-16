@@ -1043,7 +1043,7 @@ export async function main() {
   }
 
   const models: { name: string; maker: (rung: Rung) => AgentModel }[] = real
-    ? realModels.map((id) => ({ name: id, maker: () => realModel(id, { dispatch: RECEIPT_DISPATCH_POLICY, meter }) }))
+    ? realModels.map((id) => ({ name: id, maker: () => realModel(id, { dispatch: RECEIPT_DISPATCH_POLICY, meter, operatorSelected: true }) }))
     : [{ name: "scripted", maker: (rung) => rung.scripted() }];
 
   const grid: Record<string, Record<string, boolean>> = {};

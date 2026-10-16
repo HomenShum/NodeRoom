@@ -213,7 +213,7 @@ async function routeSmoke(modelId: string): Promise<{ ok: true; resolvedModels: 
   const timer = setTimeout(() => ctl.abort(), timeoutMs);
   const resolvedModels: string[] = [];
   try {
-    const schemaRoute = model(modelId);
+    const schemaRoute = model(modelId, { operatorSelected: true });
     const schemaStep = await schemaRoute.next({
       system: "You are a route-contract smoke test. Return only JSON, no prose.",
       messages: [{
@@ -236,7 +236,7 @@ async function routeSmoke(modelId: string): Promise<{ ok: true; resolvedModels: 
       };
     }
 
-    const toolRoute = model(modelId);
+    const toolRoute = model(modelId, { operatorSelected: true });
     const smokeTool: AgentTool = {
       name: "report_answer",
       description: "Report a short route-smoke answer.",
@@ -361,7 +361,7 @@ function runModelInChild(modelId: string, options: RunModelOptions, snapshot?: R
 }
 
 function recordingModel(modelId: string): { agentModel: AgentModel; resolvedModels: string[] } {
-  const baseModel = model(modelId);
+  const baseModel = model(modelId, { operatorSelected: true });
   const resolvedModels: string[] = [];
   return {
     resolvedModels,
