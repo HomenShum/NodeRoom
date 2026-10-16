@@ -2,7 +2,7 @@
 import { convexTest } from "convex-test";
 import { internalAction } from "../convex/_generated/server";
 import { v } from "convex/values";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import schema from "../convex/schema";
 import { api, internal } from "../convex/_generated/api";
 import { hashToken } from "../convex/lib";
@@ -2920,6 +2920,57 @@ describe("agentJobs runtime contract", () => {
       const { t, proof, roomId, artifactId } = await setupRoom();
       await expect(t.mutation(api.agentJobs.createOrReuse, { ...jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-marker-running" }), modelPolicy: "not_started" }))
         .rejects.toThrow("unknown_model_policy");
+    });
+
+    // Review round 6, defect 3. Persona: an operator sets a default-model env var on the deployment with a typo or a retired
+    // name and a user starts a job without naming any model. The default reaches the job row exactly like a caller's argument,
+    // so it passes the same boundary check; before this, six env x endpoint combinations persisted the unknown string.
+    describe.each([
+      { env: "AGENT_ORCHESTRATOR_MODEL", args: {} },
+      { env: "AGENT_MODEL", args: {} },
+      { env: "AGENT_TOP_PAID_MODEL", args: { routePolicy: "top_paid" as const } },
+      { env: "AGENT_RESEARCH_MODEL", args: { mode: "research" as const } },
+    ])("an unknown $env default", ({ env, args: extra }) => {
+      const arrange = () => {
+        for (const name of ["AGENT_ORCHESTRATOR_MODEL", "AGENT_MODEL", "AGENT_TOP_PAID_MODEL", "AGENT_RESEARCH_MODEL", "AGENT_WORKER_MODEL"]) vi.stubEnv(name, "");
+        vi.stubEnv(env, UNKNOWN);
+      };
+      afterEach(() => { vi.unstubAllEnvs(); });
+
+      it("is refused by start and persists no job", async () => {
+        arrange();
+        const { t, proof, roomId, artifactId } = await setupRoom();
+        const { modelPolicy: _omit, ...base } = jobArgs({ roomId, artifactId, proof, idempotencyKey: `job-env-start-${env}` });
+        await expect(t.mutation(api.agentJobs.start, { ...base, ...extra })).rejects.toThrow("unknown_model_policy");
+        expect(await t.run(async (ctx) => (await ctx.db.query("agentJobs").collect()).length)).toBe(0);
+      });
+
+      if (!("mode" in extra)) it("is refused by startPublicAsk and persists no job", async () => {
+        arrange();
+        const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+        await expect(t.mutation(api.agentJobs.startPublicAsk, { roomId, requester: proof, goal: "compute the metrics", contextArtifactId: String(artifactId), ...extra }))
+          .rejects.toThrow("unknown_model_policy");
+        expect(await t.run(async (ctx) => (await ctx.db.query("agentJobs").collect()).length)).toBe(0);
+      });
+    });
+
+    it("an unknown file-egress model is refused when a free job is promoted to it, and no job persists", async () => {
+      vi.stubEnv("FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION", "1");
+      vi.stubEnv("AGENT_FILE_EGRESS_MODEL", UNKNOWN);
+      try {
+        const { t, proof, roomId, artifactId, actor } = await setupRoom({ seedElement: true });
+        await t.run((ctx) =>
+          ctx.db.insert("artifacts", {
+            roomId, kind: "note" as const, title: "source_financials.csv", version: 1, order: ["source"], updatedAt: Date.now(), createdBy: actor,
+            visibility: "room" as const, meta: { upload: { fileName: "source_financials.csv", mimeType: "text/csv", size: 96 } },
+          }),
+        );
+        await expect(t.mutation(api.agentJobs.startPublicAsk, { roomId, requester: proof, goal: "compute the uploaded financial metrics", contextArtifactId: String(artifactId), routePolicy: "free_auto" as const }))
+          .rejects.toThrow("unknown_model_policy");
+        expect(await t.run(async (ctx) => (await ctx.db.query("agentJobs").collect()).length)).toBe(0);
+      } finally {
+        vi.unstubAllEnvs();
+      }
     });
   });
 

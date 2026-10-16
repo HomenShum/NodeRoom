@@ -132,6 +132,9 @@ export const modelPricing: Record<string, ModelPricing> = {
   "claude-haiku-4-5": { inputPer1M: 1.00, outputPer1M: 5.00, cachedInputPer1M: 0.10, contextWindow: 200000 },
   "claude-sonnet-4-6": { inputPer1M: 3.00, outputPer1M: 15.00, cachedInputPer1M: 0.30, contextWindow: 1000000 },
   "claude-opus-4-8": { inputPer1M: 5.00, outputPer1M: 25.00, cachedInputPer1M: 0.50, contextWindow: 1000000 },
+  // Retired (kept for persisted rows): the dotted display ids alias to these, as the old regex rewrite did, so they price under either spelling.
+  "claude-opus-4-1": { inputPer1M: 15.00, outputPer1M: 75.00, cachedInputPer1M: 1.50, contextWindow: 200000 },
+  "claude-haiku-3-5": { inputPer1M: 0.80, outputPer1M: 4.00, cachedInputPer1M: 0.08, contextWindow: 200000 },
   // gemini-3.1-flash-lite-preview was shut down → the GA id:
   "gemini-3.1-flash-lite": { inputPer1M: 0.25, outputPer1M: 1.50, contextWindow: 1000000 },
   "gemini-3.5-flash": { inputPer1M: 1.50, outputPer1M: 9.00, contextWindow: 1000000 }, // latest, most-intelligent Flash
@@ -150,7 +153,9 @@ export const modelPricing: Record<string, ModelPricing> = {
   "claude-opus-4-7": { inputPer1M: 5.00, outputPer1M: 25.00, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
   // Gemini Flash intro price: $0.75/$3.75 through 2026-12-31, then $1.50/$7.50 from 2027-01-01 (re-price then).
   "gemini-3.8-flash": { inputPer1M: 0.75, outputPer1M: 3.75, cachedInputPer1M: 0.075, contextWindow: 1048576, pricingAsOf: "2026-10-10" },
-  "gemini-3.6-flash": { inputPer1M: 0.75, outputPer1M: 3.75, contextWindow: 1048576, pricingAsOf: "2026-10-10" }, // ladder receipt baseline (3.5 is served as 3.6)
+  // Ladder receipt baseline (3.5 is served as 3.6). contextWindow: frontier.json marks the 3.6 context UNVERIFIED; the figure is
+  // context_length 1048576 for google/gemini-3.6-flash on the public OpenRouter list (GET /api/v1/models, read 2026-10-16).
+  "gemini-3.6-flash": { inputPer1M: 0.75, outputPer1M: 3.75, contextWindow: 1048576, pricingAsOf: "2026-10-10" },
   "gemini-3.5-flash-lite": { inputPer1M: 0.30, outputPer1M: 2.50, cachedInputPer1M: 0.03, contextWindow: 1048576, pricingAsOf: "2026-10-10" },
   // OpenRouter FREE tier (tool-calling) — needs OPENROUTER_API_KEY to actually run:
   [OPENROUTER_FREE_AUTO_MODEL]: freeOpenRouterPricing(1_000_000),
@@ -676,6 +681,8 @@ export const modelAliases: Record<string, string> = {
   "claude-opus-4.6": "claude-opus-4-6",
   "claude-opus-4.7": "claude-opus-4-7", // was "claude-opus-4-8" (lossy: a 4.7 request silently ran 4.8)
   "claude-opus-4.8": "claude-opus-4-8",
+  "claude-opus-4.1": "claude-opus-4-1", // retired; the old regex sent the hyphenated form
+  "claude-haiku-3.5": "claude-haiku-3-5", // retired; the old regex sent the hyphenated form
   "claude-haiku-5.5": "claude-haiku-5-5",
   "claude-sonnet-5.5": "claude-sonnet-5-5",
   "claude-opus-5.5": "claude-opus-5-5",
@@ -840,6 +847,8 @@ const REPO_DECLARED_UNPRICED_IDS: readonly string[] = [
   "gpt-4.1-mini", "openai/gpt-4.1-mini",
   // frozen official judges (SPEC A.2.9 Frozen): finch-official-judge.py:20 / package.json:82, mbabench-official-sweep.py:26
   "gpt-5-mini", "google/gemini-3-flash-preview",
+  // src/nodeagent/core/adaptiveRouter.ts chooseNodeAgentRoute: the benchmark-lane label (origin/main resolved it as itself).
+  "openrouter/auto",
   // scripts/benchmark/modelEvalConfig.ts OPENROUTER_TOP_PAID_AGENT_ROUTES (frozen; `model-eval-matrix --route-set top-paid`
   // resolves every one through model(id)). SPEC-v9 D1 names this list; origin/main resolved all 19 as themselves.
   "z-ai/glm-5.2", "moonshotai/kimi-k2.7-code", "nvidia/nemotron-3-ultra-550b-a55b", "qwen/qwen3.7-plus", "minimax/minimax-m3",

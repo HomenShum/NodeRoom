@@ -19,7 +19,7 @@ type ProviderDraft = {
 };
 
 async function generateProviderContent(modelId: string): Promise<StartupProviderGeneratedContent> {
-  const model = convexModel(modelId, { entrypoint: "public_ask" });
+  const model = convexModel(modelId, { entrypoint: "public_ask", operatorSelected: true });
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
   const started = performance.now();

@@ -56,9 +56,10 @@ export async function streamPrivateReplyText(
   userMsg: string,
   append: StreamAppend,
 ): Promise<string> {
-  // SPEC A.0.10: an id the catalog does not know never dispatches (egress policy uses the lenient lookup; convexModel() throws the same error).
-  resolveModelAlias(modelId);
-  const route = assertProviderRouteAllowed({ model: modelId, entrypoint: "private_agent", env: process.env });
+  // SPEC A.0.10: an id the catalog does not know never dispatches (convexModel() throws the same error), and the RESOLVED id is
+  // what the egress policy routes: an unknown free-looking id becomes `openrouter/free-auto`, which has no streaming provider,
+  // so assertProviderRouteAllowed refuses it before any request instead of sending the raw string.
+  const route = assertProviderRouteAllowed({ model: resolveModelAlias(modelId), entrypoint: "private_agent", env: process.env });
   const safeSystem = redactPII(system).text;
   const safeUser = redactPII(userMsg).text;
   if (route.provider === "gemini") return geminiStream(route.resolvedModel, safeSystem, safeUser, append);

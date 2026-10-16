@@ -157,3 +157,30 @@ ORX, primary sources behind the ids, prices and dates in this PR (ids and prices
   `docs/eval/openrouter-free-models-2026-10-16.json` (all 15 `:free` rows with the criteria columns).
 - Not verified by a request: no provider call was made. Every `:free` route and the Claude 5.5 ids over OpenRouter are
   request-shape tested against a fake transport only.
+
+## 2026-10-16 — Review round 6: operator ids stay pass-through everywhere, free-looking unknown ids are not sent raw, env defaults checked at the boundary
+
+Closes the round-4 review (SPEC-v9 D1; A.0.4, A.0.5, A.0.6, A.0.10). No check, test or threshold was weakened; no provider call was made.
+
+- **Operator overrides stay pass-through at every CLI entry point (D1, A.0.4).** Round 5 set `operatorSelected` in five scripts and
+  missed the rest. It is now also set in `evals/financeModelLive.ts`, `evals/managedLockPerf.ts`, `evals/professionalRuntimeLive.ts`,
+  `scripts/halo-live-path-calibration.ts`, `scripts/sfn-nonbtb-nodeagent-runner.ts` (`SFN_MODEL_ID`, found by the same search),
+  `src/eval/bankerToolBenchNodeAgentGeneral.ts` (`--model-id`) and `scripts/startup-diligence-provider-eval.ts`. The last one
+  calls `convexModel()`, which had no such option: `ConvexModelOptions.operatorSelected` now has the same contract as
+  `ModelAdapterOptions.operatorSelected`, and `normalizeFallbackModelIds` no longer re-resolves a primary id its caller already
+  resolved. Server code never sets it. `tests/modelKnownIds.test.ts` replaced its five-file regex pin with a scan of every
+  resolver call (balanced parentheses, so multi-line calls count) in twelve entry points.
+- **A free-looking unknown id is no longer sent under its raw name (A.0.10).** `aiSdkReasoner` and `streamPrivateReplyText` called
+  the resolver and threw the result away. Now the RESOLVED id is what dispatches. The streaming path routes `openrouter/free-auto`
+  to OpenRouter like any known free-auto input; the capture seam serves only Anthropic and OpenAI, so it refuses
+  (`capture_reasoner_route_unsupported`) instead of sending a free route to a provider that cannot serve it.
+- **Env defaults and the file-egress promotion pass the public-boundary check (A.0.10).** `defaultModelPolicyForRoute` ran
+  `knownModelPolicy` only on an explicit `modelPolicy`; the `AGENT_ORCHESTRATOR_MODEL` / `AGENT_MODEL` / `AGENT_TOP_PAID_MODEL` /
+  `AGENT_RESEARCH_MODEL` defaults and `configuredFileEgressModel()` now pass it too. Override precedence is unchanged.
+  `.tours/01-primary-user-flow.tour` step 7 moved from `agentJobs.ts:2798` to `:2799` (one comment line was added above it).
+- **Retained dotted ids keep the wire form main sent (A.0.5).** `claude-opus-4.1` and `claude-haiku-3.5` alias to
+  `claude-opus-4-1` and `claude-haiku-3-5` (the old regex did this for every dotted id), with hyphenated price rows at the
+  dotted rows' prices so they still price. `openrouter/auto`, the label `chooseNodeAgentRoute` gives the benchmark lane, is declared
+  known again (unpriced: a metered run still refuses it).
+- **`gemini-3.6-flash` context window (A.0.6).** `frontier.json` marks it UNVERIFIED. The value 1048576 is `context_length` for
+  `google/gemini-3.6-flash` on the public OpenRouter list (`GET /api/v1/models`, read 2026-10-16), now cited in the row.

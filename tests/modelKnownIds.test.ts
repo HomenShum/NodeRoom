@@ -14,8 +14,9 @@ import { MODEL_REGISTRY } from "../src/landing/modelRegistry";
 import { allAgentLlmRoutes, OPENROUTER_TOP_PAID_AGENT_ROUTES, resolveRouteSet, SUPPORTED_MODEL_ROUTES } from "../scripts/benchmark/modelEvalConfig";
 import { DEFAULT_TOP_PAID_MODEL } from "../convex/modelDefaults";
 import { model } from "../src/nodeagent/models/adapter";
+import { chooseNodeAgentRoute, type NodeAgentTaskType } from "../src/nodeagent/core/adaptiveRouter";
 import { convexModel } from "../src/nodeagent/models/convexModel";
-import { llmModelCatalog, lookupModelAlias, resolveModelAlias, UnknownModelError } from "../src/nodeagent/models/modelCatalog";
+import { getModelPricing, llmModelCatalog, lookupModelAlias, modelPricing, resolveModelAlias, UnknownModelError } from "../src/nodeagent/models/modelCatalog";
 import { OPENROUTER_FREE_AUTO_MODEL, OPENROUTER_KNOWN_FREE_IDS } from "../src/nodeagent/models/openRouterFreeModels";
 
 /** Frozen benchmark identity: the default of bankertoolbench-nodeagent-clean-sequential.mjs (SPEC A.2.9 freeze row). */
@@ -56,6 +57,20 @@ const SPEC_1_2_WIRE_IDS = [
 describe("every id the repo ships, freezes or lists resolves as itself", () => {
   it.each(OPENROUTER_TOP_PAID_AGENT_ROUTES.map((r) => r.route))("top-paid route %s (`model-eval-matrix --route-set top-paid` goes through model(id))", expectUnchanged);
   it.each([...new Set(allAgentLlmRoutes().map((r) => r.route))])("agent route %s", expectUnchanged);
+  // Review round 6, defect 4: the benchmark lane labels its decision `openrouter/auto`, and main resolved it as itself.
+  const ROUTER_TASKS: NodeAgentTaskType[] = ["collaboration", "research", "private_consult", "analysis", "router", "spreadsheet", "finance", "benchmark"];
+  it.each(ROUTER_TASKS)("the model chooseNodeAgentRoute names for task %s (any risk, latency or free setting)", (task) => {
+    for (const risk of ["low", "medium", "high"] as const) for (const latency of ["interactive", "batch", "overnight"] as const) for (const freeAllowed of [true, false]) {
+      expectUnchanged(chooseNodeAgentRoute({ task, risk, latency, freeAllowed }).model);
+    }
+  });
+  // Review round 6, defect 4: the old regex hyphenated every dotted claude id. Every dotted claude id the catalog still prices or
+  // chains is kept (retired models stay valid for persisted rows), so each must still map to the hyphenated wire form.
+  it.each(Object.keys(modelPricing).filter((id) => /^claude-[a-z]+-[0-9]+\.[0-9]+$/.test(id)))("dotted retained id %s resolves to its hyphenated wire id and the wire id is priced", (id) => {
+    const wire = id.replace(/\./g, "-");
+    expect(resolveModelAlias(id)).toBe(wire);
+    expect(getModelPricing(wire), `${wire} has no price row`).not.toBeNull();
+  });
   it.each(["top-paid", "supported", "champions", "free", "research", "collaboration"])("every id of route set %s", (set) => {
     for (const id of resolveRouteSet(set)) expectUnchanged(id);
   });
@@ -125,9 +140,43 @@ describe("SPEC-v9 D1: an operator-selected id in an eval or smoke script is pass
     expect(model("claude-sonnet", { operatorSelected: true }).name).toBe(lookupModelAlias("claude-sonnet"));
   });
 
-  it.each(["scripts/benchmark/run.ts", "scripts/proofloop-free-model-gauge.ts", "evals/ladder.ts", "scripts/spreadsheetbench-run.ts", "evals/chatIntakeRuntime.ts"])("%s builds its models with operatorSelected (source pin: these are CLI entry points)", (file) => {
-    const src = readFileSync(file, "utf8");
-    expect(src).toContain("operatorSelected: true");
-    expect(src).not.toMatch(/\b(?:model|realModel)\((?:modelId|candidate\.id|id|route)\)/);
+  it("convexModel keeps the same contract: an operator-selected unknown id is passed through, server code still throws", () => {
+    expect(convexModel("vendor/unknown-x", { operatorSelected: true }).name).toBe("vendor/unknown-x");
+    expect(convexModel("foo/bar:free", { operatorSelected: true }).name).toBe("foo/bar:free");
+    expect(convexModel("claude-sonnet", { operatorSelected: true }).name).toBe(lookupModelAlias("claude-sonnet"));
+    expect(() => convexModel("vendor/unknown-x")).toThrow(UnknownModelError);
+    expect(convexModel("foo/bar:free").name).toBe(OPENROUTER_FREE_AUTO_MODEL);
+  });
+
+  // Source pin: these are CLI entry points whose model id is typed by an operator (flag or env). Every call into the
+  // adapter or convexModel resolver must carry the option, wherever the call sits and however many lines it spans.
+  const OPERATOR_ENTRY_POINTS = [
+    "scripts/benchmark/run.ts", "scripts/proofloop-free-model-gauge.ts", "evals/ladder.ts", "scripts/spreadsheetbench-run.ts",
+    "evals/chatIntakeRuntime.ts", "evals/financeModelLive.ts", "evals/managedLockPerf.ts", "evals/professionalRuntimeLive.ts",
+    "scripts/halo-live-path-calibration.ts", "scripts/startup-diligence-provider-eval.ts", "scripts/sfn-nonbtb-nodeagent-runner.ts",
+    "src/eval/bankerToolBenchNodeAgentGeneral.ts",
+  ];
+  const resolverCalls = (src: string): string[] => {
+    const calls: string[] = [];
+    const callStart = /(?<![\w$])(?:\.)?(?:model|realModel|routedModel|convexModel)\(/g;
+    for (let m = callStart.exec(src); m; m = callStart.exec(src)) {
+      const lineStart = src.lastIndexOf("\n", m.index) + 1;
+      const prefix = src.slice(lineStart, m.index);
+      if (/^\s*(?:\/\/|\*|import\b|(?:export\s+)?(?:async\s+)?function\b)/.test(prefix) || (prefix.split("`").length - 1) % 2 === 1) continue; // comment, declaration, or inside a template string
+      let depth = 0;
+      let i = m.index + m[0].length - 1;
+      for (; i < src.length; i++) {
+        if (src[i] === "(") depth++;
+        else if (src[i] === ")" && --depth === 0) break;
+      }
+      calls.push(src.slice(m.index, i + 1));
+    }
+    return calls;
+  };
+
+  it.each(OPERATOR_ENTRY_POINTS)("%s passes operatorSelected on every resolver call", (file) => {
+    const calls = resolverCalls(readFileSync(file, "utf8"));
+    expect(calls.length, `${file}: no resolver call found, the pin is not looking at anything`).toBeGreaterThan(0);
+    for (const call of calls) expect(call, `${file}: ${call.slice(0, 80)}`).toContain("operatorSelected: true");
   });
 });

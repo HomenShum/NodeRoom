@@ -253,6 +253,24 @@ describe("capture reasoner (aiSdkReasoner)", () => {
     await decided?.catch(() => undefined);
     expect(seen).toHaveLength(0);
   });
+
+  // Review round 6, defect 2. An unknown id that LOOKS free resolves to `openrouter/free-auto`, which this Anthropic/OpenAI seam
+  // cannot serve. The guard used to throw the resolution away and send the raw string to whichever provider its prefix named.
+  it.each(["claude-not-in-catalog:free", "gpt-not-in-catalog-free", "gemini-3.8-flash:free", "foo/bar:free"])("refuses the free-looking unknown id %s with zero requests (not sent under its raw name)", async (id) => {
+    installFakeTransport(() => ({ ...anthropicOk("claude-haiku-5-5"), content: [{ type: "text", text: "{\"ok\":true}" }] }));
+    let decided: Promise<unknown> | undefined;
+    expect(() => {
+      decided = aiSdkReasoner(id).decide({ system: "s", instruction: "decide", context: { title: "t", url: "https://example.test", a11y: "tree" } as any, schema: z.object({ ok: z.boolean() }) });
+    }).toThrow("capture_reasoner_route_unsupported:openrouter/free-auto");
+    await decided?.catch(() => undefined);
+    expect(seen).toHaveLength(0);
+  });
+
+  it("dispatches the RESOLVED id: a dotted display id goes out in its hyphenated wire form", async () => {
+    installFakeTransport(() => ({ ...anthropicOk("claude-opus-4-8"), content: [{ type: "text", text: "{\"ok\":true}" }] }));
+    await aiSdkReasoner("claude-opus-4.8").decide({ system: "s", instruction: "decide", context: { title: "t", url: "https://example.test", a11y: "tree" } as any, schema: z.object({ ok: z.boolean() }) });
+    expect(seen[0].body.model).toBe("claude-opus-4-8");
+  });
 });
 
 describe("gemini-3.8-flash (the new DEFAULT_AGENT_MODEL)", () => {
@@ -270,6 +288,28 @@ describe("gemini-3.8-flash (the new DEFAULT_AGENT_MODEL)", () => {
     await convexModel("gemini-3.8-flash").next({ system: "s", messages: [{ role: "user", content: "hi" }], tools: [] });
     expect(seen[0].url).toContain("/models/gemini-3.8-flash:generateContent");
     expectNoSamplingKeys(seen[0].body);
+  });
+
+  // Review round 6, defect 1 (SPEC-v9 D1). Persona: an evaluator runs the startup-diligence provider eval with an id the catalog has
+  // never seen (`--model` or an env candidate). origin/main measured that id; the fail-closed resolver skipped it and measured
+  // gemini-3.8-flash instead. An operator-selected id reaches the wire as written; server code (no option) still refuses it.
+  it("convexModel({ operatorSelected }) sends an id the catalog does not know as written; without the option it throws before any request", async () => {
+    installFakeTransport(() => geminiOk());
+    await convexModel("gemini-not-in-catalog", { operatorSelected: true }).next({ system: "s", messages: [{ role: "user", content: "hi" }], tools: [] });
+    expect(seen).toHaveLength(1);
+    expect(seen[0].url).toContain("/models/gemini-not-in-catalog:generateContent");
+    expect(() => convexModel("gemini-not-in-catalog")).toThrow(UnknownModelError);
+    expect(seen).toHaveLength(1);
+  });
+
+  // Review round 6, defect 4 (A.0.5 compatibility). The explicit alias table replaced a regex that hyphenated EVERY dotted
+  // claude id; the two retired ids it forgot went out dotted. Both are retired (the provider rejects either spelling), but a persisted
+  // row on one of them must produce the request main produced.
+  it.each([["claude-opus-4.1", "claude-opus-4-1"], ["claude-haiku-3.5", "claude-haiku-3-5"]])("retained dotted id %s goes out as %s on both Anthropic builders", async (id, wire) => {
+    installFakeTransport(() => anthropicOk(wire));
+    await convexModel(id).next({ system: "s", messages: [{ role: "user", content: "hi" }], tools: [] });
+    await adapterModel(id).next({ system: "s", messages: [{ role: "user", content: "hi" }], tools: [] });
+    expect(seen.map((r) => r.body.model)).toEqual([wire, wire]);
   });
 
   it("pi-ai adapter default: next() puts gemini-3.8-flash on the wire, with no sampling keys (no pi-ai package: it wraps model())", async () => {
