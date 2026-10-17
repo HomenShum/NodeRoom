@@ -223,10 +223,13 @@ export function model(modelId: string, options: ModelAdapterOptions = {}): Agent
 /** Back-compat alias (Convex action default). */
 export const anthropicModel = (modelId = "claude-haiku-5-5"): AgentModel => model(modelId);
 
-/** A plain text/JSON completion (no tools) — used by the eval's LLM-judge. */
-export async function judge(modelId: string, prompt: string): Promise<string> {
+/**
+ * A plain text/JSON completion (no tools) — used by the eval's LLM-judge. `operatorSelected` is for eval callers whose
+ * model id was typed by an operator (CLI flag, env): same meaning as in `ModelAdapterOptions` (SPEC-v9 D1).
+ */
+export async function judge(modelId: string, prompt: string, options: Pick<ModelAdapterOptions, "operatorSelected"> = {}): Promise<string> {
   const safePrompt = redactPII(prompt).text;
-  const res = await generatePromptText(resolveModelAlias(modelId), safePrompt);
+  const res = await generatePromptText(options.operatorSelected ? lookupModelAlias(modelId) : resolveModelAlias(modelId), safePrompt);
   return res.text ?? "";
 }
 
