@@ -128,10 +128,12 @@ export type SpendMeter = {
   spentUsd: number;
   requests: number;
   stoppedBy: null | "spend_budget" | "unpriced_model";
-  /** One row per issued request, oldest first, capped at MAX_DISPATCH_RECORDS (`requests` keeps counting). */
+  /** One row per issued request, oldest first, capped at MAX_DISPATCH_RECORDS (`requests` and `spentUsd` keep counting). */
   dispatches: DispatchRecord[];
+  /** Requests issued past the cap that have no row in `dispatches`; a receipt with a non-zero count is incomplete (A.0.3). */
+  droppedDispatches: number;
 };
-export const createSpendMeter = (maxUsd: number): SpendMeter => ({ maxUsd, spentUsd: 0, requests: 0, stoppedBy: null, dispatches: [] });
+export const createSpendMeter = (maxUsd: number): SpendMeter => ({ maxUsd, spentUsd: 0, requests: 0, stoppedBy: null, dispatches: [], droppedDispatches: 0 });
 
 /** A dispatch the budget cannot cover. `receipt.stopReason` is what runtime.ts turns into a `spend_budget` handoff. */
 export class SpendBudgetError extends Error {
@@ -343,6 +345,7 @@ async function meteredDispatch<T extends { usage?: { inputTokens?: number; outpu
     fallbackUsed,
   };
   if (meter.dispatches.length < MAX_DISPATCH_RECORDS) meter.dispatches.push(record);
+  else meter.droppedDispatches += 1;
   const res = await run();
   record.echoedModel = providerEchoedModel(res);
   const input = res.usage?.inputTokens;

@@ -12,6 +12,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { anthropicModel, judge, model as adapterModel } from "../src/nodeagent/models/adapter";
 import { convexModel } from "../src/nodeagent/models/convexModel";
+import { DEFAULT_TOP_PAID_MODEL } from "../convex/modelDefaults";
 import { aiSdkReasoner } from "../src/nodeagent/capture/reasoning";
 import { createLangChainAgentModel } from "../src/nodeagent/integrations/langchain";
 import { createPiAiAdapter } from "../src/nodeagent/models/piAiAdapter";
@@ -165,6 +166,23 @@ describe("anthropic/claude-*-5.5 over OpenRouter (convexModel.openAiCompatibleSt
       ["anthropic/claude-opus-5.5", true],
       ["anthropic/claude-haiku-5.5", undefined],
     ]);
+  });
+});
+
+describe("top_paid code default (SPEC-v9 D2: nvidia/nemotron-3.5-super-vl:free) over OpenRouter", () => {
+  it("the id the top_paid route resolves to goes out as written, with a forced tool_choice and no sampling keys", async () => {
+    // The runner builds this model from job.modelPolicy, which defaultModelPolicyForRoute fills with DEFAULT_TOP_PAID_MODEL.
+    expect(DEFAULT_TOP_PAID_MODEL).toBe("nvidia/nemotron-3.5-super-vl:free");
+    installFakeTransport(() => chatOk("nvidia/nemotron-3.5-super-vl:free"));
+    await convexModel(DEFAULT_TOP_PAID_MODEL).next({
+      system: "s", messages: [{ role: "user", content: "hi" }], tools: [NOOP_TOOL], toolChoice: "required",
+    });
+    expect(seen).toHaveLength(1);
+    const { body, url } = seen[0];
+    expect(url).toBe("https://openrouter.ai/api/v1/chat/completions");
+    expect(body.model).toBe("nvidia/nemotron-3.5-super-vl:free");
+    expect(body.tool_choice).toBe("required"); // §1.3 forbids forcing only on the Claude 5.5 ids
+    expectNoSamplingKeys(body);
   });
 });
 
