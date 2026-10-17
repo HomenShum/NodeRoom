@@ -69,9 +69,13 @@ describe("fallback chains", () => {
 
   it("every member is routable, and the 5.5 ids have chains of their own", () => {
     for (const [key, chain] of chains) for (const id of chain) expect(getProviderForModel(id), `${key} -> ${id}`).not.toBeNull();
-    for (const id of ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5", "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"]) {
+    for (const id of ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"]) {
       expect(modelFallbackChains[id]?.length, id).toBeGreaterThan(0);
     }
+  });
+
+  it("keeps the default route and the other new Gemini ids chain-less, as on main (no unqualified cross-provider failover)", () => {
+    for (const id of ["gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"]) expect(modelFallbackChains[id], id).toBeUndefined();
   });
 
   it("keeps a chain for each retired key so a persisted room on one of them still has an escape route", () => {

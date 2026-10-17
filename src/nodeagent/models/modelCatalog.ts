@@ -1016,12 +1016,12 @@ export const modelFallbackChains: Record<string, string[]> = {
   "claude-opus-4": ["claude-sonnet-5-5", "gpt-5.4-mini", "gemini-3.8-flash"],
   "claude-sonnet-4": ["claude-sonnet-5-5", "gpt-5.4-mini", "gemini-3.8-flash"],
 
-  // Gemini 3.x GA Flash / Flash-Lite + the one Pro → cross-provider advisor/executor lanes. Retired or
+  // Gemini 3.x Pro + retired Gemini keys → cross-provider advisor/executor lanes. Retired or
   // prior-users-only members (gemini-3.1-flash-lite-preview, gemini-2.5-*) are dropped from the values;
   // those ids stay as keys so a persisted room still on one of them has an escape route.
-  "gemini-3.8-flash": ["qwen/qwen3.7-plus", "gemini-3.5-flash-lite", "gpt-5.4-mini", "minimax/minimax-m3"],
-  "gemini-3.6-flash": ["qwen/qwen3.7-plus", "gemini-3.5-flash-lite", "gpt-5.4-mini", "minimax/minimax-m3"],
-  "gemini-3.5-flash-lite": ["qwen/qwen3.7-plus", "gemini-3.8-flash", "gpt-5.4-mini", "minimax/minimax-m3"],
+  // gemini-3.8-flash (DEFAULT_AGENT_MODEL), gemini-3.6-flash and gemini-3.5-flash-lite deliberately have NO key:
+  // origin/main's default route had no failover chain, and a chain would send room content cross-provider
+  // (OpenRouter, OpenAI) on a failed default turn. Adding one is a separate decision.
   "gemini-3.1-pro-preview": ["z-ai/glm-5.2", "gemini-3.8-flash", "moonshotai/kimi-k2.7-code", "gpt-5.4"],
   "gemini-3-flash-preview": ["qwen/qwen3.7-plus", "gemini-3.5-flash-lite", "gpt-5.4-mini", "minimax/minimax-m3"],
   "gemini-3.1-flash-lite-preview": ["qwen/qwen3.7-plus", "gemini-3.8-flash", "gpt-5.4-mini", "minimax/minimax-m3"],

@@ -1083,6 +1083,7 @@ export async function main() {
   recordRunsToStore(results);
 
   if (meter?.stoppedBy) process.exitCode = 1; // a budget stop is an incomplete run, never a pass
+  if (meter?.droppedDispatches) process.exitCode = 1; // requests past the record cap have no receipt row: incomplete, never a pass
   if (Object.values(grid).some((row) => Object.values(row).some((ok) => !ok))) process.exitCode = 1;
 }
 

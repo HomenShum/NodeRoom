@@ -869,7 +869,7 @@ type AgentFailureNotice = {
 const AGENT_MODEL_PRESETS: AgentModelPresetOption[] = [
   { value: "adaptive", label: "Adaptive", badge: "recommended", detail: "Server router chooses the best available NodeAgent route with fallbacks." },
   { value: "free", label: "Free", badge: "$0", detail: "Rotates across healthy $0 models; the final resolved model is shown and terminal failures stay actionable." },
-  { value: "top_paid", label: "Top paid", badge: "best", detail: "Pins the strongest configured paid route for higher-recall work." },
+  { value: "top_paid", label: "Top paid", badge: "operator", detail: "Pins the route the operator configured as top paid (AGENT_TOP_PAID_MODEL, else AGENT_MODEL). With neither set, the server default is a free model." },
   { value: "specific", label: "Specific model", badge: "pin", detail: "Pin one provider/model from the approved NodeAgent catalog." },
 ];
 
