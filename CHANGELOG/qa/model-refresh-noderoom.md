@@ -184,3 +184,19 @@ Closes the round-4 review (SPEC-v9 D1; A.0.4, A.0.5, A.0.6, A.0.10). No check, t
   known again (unpriced: a metered run still refuses it).
 - **`gemini-3.6-flash` context window (A.0.6).** `frontier.json` marks it UNVERIFIED. The value 1048576 is `context_length` for
   `google/gemini-3.6-flash` on the public OpenRouter list (`GET /api/v1/models`, read 2026-10-16), now cited in the row.
+
+## 2026-10-17 — Review round 7: an operator-picked model is the model measured, the private stream refuses the free sentinel, pricing source 6 is exercised
+
+- **The startup-diligence eval measures the model the operator named (D1, A.0.4).** `--model gemini-not-in-catalog` reached the provider,
+  but the contract eval then passed that id to `agentJobs.createOrReuse` as `modelPolicy`, whose public boundary refuses an id outside the
+  catalog (`unknown_model_policy`). The candidate loop swallowed the error, sent a second paid request to `gemini-3.8-flash` and reported
+  that model. The job now always carries the catalog free route (the runner is stubbed, it is never dispatched); the model measured is
+  recorded on the attempt rows as before. Test: one request, one reported model.
+- **`judge()` takes `operatorSelected` (D1, A.0.4).** `evals/professionalLiveCatalog.ts` (`--model`) and `scripts/benchmark/run.ts`
+  (`JUDGE_MODEL`) pass it; `scripts/openrouter-free-discover.ts` keeps the strict resolver for its fixed id. Without the option nothing changes.
+- **The private stream refuses `openrouter/free-auto` before any request (A.0.10).** The sentinel is not an OpenRouter model id (the public
+  `/api/v1/models` list read 2026-10-17 has `openrouter/free` and `openrouter/auto`), so posting it failed every time, and the comment that
+  said the egress policy refused it was false. `streamPrivateReplyText` now throws `private_stream_free_auto_unsupported`.
+- **Tests.** Pricing source 6 (`proofloopModelTracking`) is called by the agreement test for every refresh row, the tier edge and the two retired
+  rows; the retired `claude-opus-4-1` / `claude-haiku-3-5` rows stay undated on purpose (main's prices, no vendor read). The Anthropic
+  `generateObject` parser tests assert no forced `tool_choice`, no `json` tool, native `output_config.format` and a `max_tokens` of at least 64K.

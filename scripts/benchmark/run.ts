@@ -63,7 +63,7 @@ const CHECKS = [
 // Fixed cheap judge (isolated yes/no per the grounded-eval rule — low variance, not a holistic grade).
 const JUDGE = process.env.JUDGE_MODEL || "gemini-3.1-flash-lite";
 async function scoreJudgeCompany(company: string, summary: string, evidence: string): Promise<CompanyJudgeResult> {
-  return judgeCompanyWith(judge, JUDGE, company, summary, evidence);
+  return judgeCompanyWith((id, prompt) => judge(id, prompt, { operatorSelected: true }), JUDGE, company, summary, evidence);
 }
 
 // Default research smoke set. The full supported route matrix lives in

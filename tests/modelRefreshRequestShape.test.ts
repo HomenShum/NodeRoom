@@ -10,7 +10,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
-import { anthropicModel, model as adapterModel } from "../src/nodeagent/models/adapter";
+import { anthropicModel, judge, model as adapterModel } from "../src/nodeagent/models/adapter";
 import { convexModel } from "../src/nodeagent/models/convexModel";
 import { aiSdkReasoner } from "../src/nodeagent/capture/reasoning";
 import { createLangChainAgentModel } from "../src/nodeagent/integrations/langchain";
@@ -300,6 +300,23 @@ describe("gemini-3.8-flash (the new DEFAULT_AGENT_MODEL)", () => {
     expect(seen[0].url).toContain("/models/gemini-not-in-catalog:generateContent");
     expect(() => convexModel("gemini-not-in-catalog")).toThrow(UnknownModelError);
     expect(seen).toHaveLength(1);
+  });
+
+  // Review round 7, defect 2 (SPEC-v9 D1). Persona: an evaluator runs `evals/professionalLiveCatalog --model <id>` or sets JUDGE_MODEL to
+  // an id the catalog has never seen. origin/main sent that id; judge() used the strict resolver, so it threw, and a concrete `:free`
+  // id was rewritten to a different free model - the run was measured under the wrong label.
+  it("judge(id, prompt, { operatorSelected }) sends the id as written; without the option an unknown id throws before any request", async () => {
+    installFakeTransport(() => geminiOk());
+    await judge("gemini-not-in-catalog", "p", { operatorSelected: true });
+    expect(seen).toHaveLength(1);
+    expect(seen[0].url).toContain("/models/gemini-not-in-catalog:generateContent");
+    await expect(judge("gemini-not-in-catalog", "p")).rejects.toBeInstanceOf(UnknownModelError);
+    expect(seen).toHaveLength(1);
+    installFakeTransport(() => chatOk("acme/new-model:free"));
+    await judge("acme/new-model:free", "p", { operatorSelected: true });
+    expect(seen).toHaveLength(1);
+    expect(seen[0].url).toBe("https://openrouter.ai/api/v1/chat/completions");
+    expect(seen[0].body.model).toBe("acme/new-model:free");
   });
 
   // Review round 6, defect 4 (A.0.5 compatibility). The explicit alias table replaced a regex that hyphenated EVERY dotted

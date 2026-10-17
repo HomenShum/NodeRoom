@@ -33,6 +33,7 @@ import { convexPriceRequest, convexPriceRun } from "../src/nodeagent/models/conv
 import { CREDIT_MODE_SPECS, estimateCostFor } from "../src/nodeagent/core/creditModel";
 import { calculateRequestCost, getModelPricing, modelPricing } from "../src/nodeagent/models/modelCatalog";
 import { modelMaxOutputTokens } from "../src/nodeagent/models/outputTokens";
+import { proofloopModelCostFieldsForRun } from "../src/eval/proofloopModelTracking";
 import { catalogPricingAtRun, pricingAtRunFor, type RouteSnapshot } from "../scripts/benchmark/pricingAtRun";
 
 const PRICING_AS_OF = "2026-10-10";
@@ -83,6 +84,11 @@ describe("pricing sources agree per (id, transport)", () => {
         expect(cost(row.id, P, 0) * (M / P), `${source} input`).toBeCloseTo(row.inPerM, 9);
         expect(cost(row.id, 0, M), `${source} output`).toBeCloseTo(row.outPerM, 9);
       }
+      // Source 6 (proofloopModelTracking.estimateModelCostUsd, private) is reached through the exported cost-fields function with
+      // no reported cost: 100K in + 1M out must cost (100K x in + 1M x out) / 1M from the same row, aggregate (base tier).
+      const fields = proofloopModelCostFieldsForRun({ modelId: row.id, tokensIn: P, tokensOut: M });
+      expect(fields.costAccounting.source, `${row.id} proofloop estimate source`).toBe("catalog_estimate");
+      expect(fields.costUsd, "proofloopModelTracking").toBeCloseTo((P * row.inPerM + M * row.outPerM) / M, 7); // the source rounds to 8 decimals
     });
 
     if (row.longContext) {
@@ -102,6 +108,7 @@ describe("pricing sources agree per (id, transport)", () => {
         for (const [source, cost] of [["priceRun", priceRun], ["convexPriceRun", convexPriceRun]] as const) {
           expect(cost(row.id, above, out), `${source} on summed usage`).toBeCloseTo(expectedFlat, 12);
         }
+        expect(proofloopModelCostFieldsForRun({ modelId: row.id, tokensIn: above, tokensOut: out }).costUsd, "proofloopModelTracking on summed usage").toBeCloseTo(expectedFlat, 7);
         // Cache reads above the edge bill at the tier's own cache-read rate (was the tier INPUT rate: $0.50/M, not $0.05/M).
         if (tier.cachedInPerM !== undefined) {
           expect(calculateRequestCost(row.id, above, 0, true), "cached tokens above the edge").toBeCloseTo((above * tier.cachedInPerM) / M, 12);
@@ -243,6 +250,25 @@ describe("pricing sources agree per (id, transport)", () => {
       expect(price, `${mode} model ${spec.model} must be priced`).not.toBeNull();
       const expected = (spec.inputTokensPerRun * price!.inputPer1M + spec.outputTokensPerRun * price!.outputPer1M) / M;
       expect(estimateCostFor(mode).llmUsd).toBeCloseTo(expected, 3); // creditModel rounds to 4 decimals (round4)
+    }
+  });
+
+  // Retired ids kept for persisted rows. Their prices are origin/main's own undated dotted rows moved to the hyphenated wire id
+  // (no vendor page was read for them, so no price was invented and no pricingAsOf is claimed). Every source must still agree on them,
+  // under either spelling.
+  it.each([
+    { dotted: "claude-opus-4.1", id: "claude-opus-4-1", inPerM: 15, outPerM: 75, cachedInPerM: 1.5 },
+    { dotted: "claude-haiku-3.5", id: "claude-haiku-3-5", inPerM: 0.8, outPerM: 4, cachedInPerM: 0.08 },
+  ])("retired $id keeps origin/main's undated price in every source, under either spelling", ({ dotted, id, inPerM, outPerM, cachedInPerM }) => {
+    expect(modelPricing[id]).toMatchObject({ inputPer1M: inPerM, outputPer1M: outPerM, cachedInputPer1M: cachedInPerM });
+    expect(modelPricing[id].pricingAsOf, "undated on purpose: main never dated it").toBeUndefined();
+    const P = 100_000;
+    for (const name of [id, dotted]) {
+      for (const [source, cost] of [["priceRun", priceRun], ["priceRequest", priceRequest], ["priceRequestStrict", priceRequestStrict], ["convexPriceRun", convexPriceRun], ["convexPriceRequest", convexPriceRequest]] as const) {
+        expect(cost(name, P, 0) * (M / P), `${source} ${name} input`).toBeCloseTo(inPerM, 9);
+        expect(cost(name, 0, M), `${source} ${name} output`).toBeCloseTo(outPerM, 9);
+      }
+      expect(proofloopModelCostFieldsForRun({ modelId: name, tokensIn: P, tokensOut: M }).costUsd, `proofloopModelTracking ${name}`).toBeCloseTo((P * inPerM + M * outPerM) / M, 7);
     }
   });
 

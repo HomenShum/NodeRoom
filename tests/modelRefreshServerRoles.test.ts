@@ -165,17 +165,15 @@ describe("private-reply stream (POST /stream-private-reply -> streamPrivateReply
     expect(seen).toHaveLength(0);
   });
 
-  // Review round 6, defect 2. An unknown id that LOOKS free resolves to the verified free route `openrouter/free-auto`; the guard
-  // used to discard that and send the raw string (a Google URL for gemini-*, an OpenRouter body naming vendor/model).
-  it.each(["gemini-3.8-flash:free", "foo/bar:free", "claude-not-in-catalog:free", "gpt-not-in-catalog-free"])("the free-looking unknown id %s is sent as the verified free route, never under its raw name", async (id) => {
+  // Review round 6 defect 2, then round 7. An unknown id that LOOKS free resolves to the internal sentinel `openrouter/free-auto`,
+  // which is not an OpenRouter model id (public /api/v1/models read 2026-10-17 lists `openrouter/free` and `openrouter/auto`).
+  // The stream has no free-model picker, so it refuses before any request: no raw name on the wire, no invalid sentinel either.
+  it.each(["gemini-3.8-flash:free", "foo/bar:free", "claude-not-in-catalog:free", "gpt-not-in-catalog-free", "openrouter/free-auto"])("the free-looking id %s is refused before any request", async (id) => {
     process.env.OPENROUTER_API_KEY = "test-openrouter-key";
     installFakeTransport(() => sse("hi"));
     const { streamPrivateReplyText } = await import("../convex/streamingModel");
-    await streamPrivateReplyText(id, "sys", "user", async () => undefined).catch(() => undefined); // the fake body is Gemini-shaped; only the request matters
-    expect(seen).toHaveLength(1);
-    expect(seen[0].url).toContain("openrouter");
-    expect(seen[0].body.model).toBe("openrouter/free-auto");
-    expect(JSON.stringify(seen[0].body)).not.toContain(id);
+    await expect(streamPrivateReplyText(id, "sys", "user", async () => undefined)).rejects.toThrow(/private_stream_free_auto_unsupported/);
+    expect(seen).toHaveLength(0);
   });
 });
 
@@ -220,6 +218,13 @@ describe("provider parser (providerParserLive.runLiveProviderParser, default can
         expect(req.body).not.toHaveProperty("thinking");
         expect(req.body.output_config?.effort).toBe(c.effort);
         expect(req.body.messages.at(-1).role).toBe("user");
+        // SPEC §1.3: Sonnet 5.5 and Opus 5.5 answer a forced tool_choice (any / a named tool) with 400. generateObject must use the
+        // native structured output (@ai-sdk/anthropic 3.0.120: output_config.format), never a forced `json` tool, so an SDK change
+        // that brings the tool back fails here. `max_tokens` is the SDK's own cap; a 4.5-sized (64K) cap truncates 5.5 replies.
+        expect(req.body.tool_choice, "no forced tool_choice").toBeUndefined();
+        expect(req.body.tools, "no json tool").toBeUndefined();
+        expect(req.body.output_config?.format?.type).toBe("json_schema");
+        expect(req.body.max_tokens).toBeGreaterThanOrEqual(64_000);
       }
     });
   }
@@ -561,6 +566,27 @@ describe("benchmark / smoke / eval scripts send the refreshed ids with the expli
     expect(claude?.body.model).toBe("claude-haiku-5-5");
     expectNoSampling(claude!.body);
   });
+
+  // Review round 7, defect 1 (SPEC-v9 D1). Persona: an evaluator passes `--model gemini-not-in-catalog`. origin/main sent ONE request and
+  // reported that model. The contract eval then handed the provider's resolved id to agentJobs.createOrReuse, whose public boundary
+  // refuses an id outside the catalog (unknown_model_policy): the candidate loop swallowed that, paid for a second request to
+  // gemini-3.8-flash and reported the wrong model. The job now carries the catalog free route; the report names the model measured.
+  it("scripts/startup-diligence-provider-eval.ts: an operator --model the catalog does not know is the only request and the reported model", async () => {
+    const { runStartupDiligenceProviderEval } = await import("../scripts/startup-diligence-provider-eval");
+    const draft = JSON.stringify({
+      cellPayload: { kind: "CellPayload", value: "CardioNova is an AI triage workflow for hospital intake with $1.5M cash.", confidence: 0.8, status: "needs_review", evidence: [{ source: "intake", sourceRef: "cardionova-intake.pdf#page=1", quote: "AI triage workflow for hospital intake" }] },
+      finalText: "CardioNova summary written to the research row and queued for host review with evidence.",
+    });
+    installFakeTransport(respondByWire(draft));
+    const out = await runStartupDiligenceProviderEval({ model: "gemini-not-in-catalog", noWrite: true });
+    expect(seen).toHaveLength(1);
+    expect(seen[0].url).toContain("/models/gemini-not-in-catalog:generateContent");
+    expect(out.errors).toEqual([]);
+    expect(out.providerGenerated.resolvedModel).toBe("gemini-not-in-catalog");
+    expect(JSON.stringify(out.report)).toContain("gemini-not-in-catalog");
+    expect(JSON.stringify(out.report)).not.toContain("gemini-3.8-flash");
+    expect(out.report.pass).toBe(true);
+  }, 60_000);
 });
 
 // ───────────────────────────── .env.example (SPEC §1.4 class N, "example") ─────────────────────────────
