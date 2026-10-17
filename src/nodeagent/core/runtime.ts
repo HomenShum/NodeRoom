@@ -513,7 +513,7 @@ export async function runAgent(opts: {
   spendLimits?: SpendLimits;
   /** P0-4: price a completed step in USD so maxCostUsd actually fires — without this the gate
    *  receives costUsd:0 and the dollar half of the ceiling is dead surface (HONEST_STATUS class).
-   *  Pass priceRun (src/nodeagent/models/adapter.ts) or convexPriceRun (src/nodeagent/models/convexModel.ts) from the caller. */
+   *  Pass priceRequest (src/nodeagent/models/adapter.ts) or convexPriceRequest (src/nodeagent/models/convexModel.ts) from the caller: it prices ONE request, so a tiered row bills each prompt at its own tier. */
   priceStep?: (modelName: string, inputTokens: number, outputTokens: number) => number;
   /** Keep the model's context bounded on long runs. */
   compaction?: CompactionOpts;

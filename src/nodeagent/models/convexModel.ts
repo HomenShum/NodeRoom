@@ -8,7 +8,8 @@
  */
 
 import type { AgentMessage, AgentModel, AgentModelRouteState, AgentStep, AgentTool, AgentToolChoice, TokenUsage, ToolCall } from "../core/types";
-import { getModelPricing, getProviderForModel, modelFallbackChains, modelPricing, resolveModelAlias } from "./modelCatalog";
+import { forbidsForcedToolChoice, getModelPricing, getProviderForModel, isFreeModelId, lookupModelAlias, modelFallbackChains, modelPricing, needsStrictTools, priceAggregateTokens, priceTokens, ratesForPrompt, resolveModelAlias } from "./modelCatalog";
+import { modelMaxOutputTokens } from "./outputTokens";
 import {
   isOpenRouterFreeAutoModel,
   openRouterFreeCandidateTimeoutMs,
@@ -109,7 +110,6 @@ type GeminiResponse = {
 
 const OPENROUTER_REFERER = "https://noderoom.local";
 const OPENROUTER_TITLE = "NodeRoom benchmark";
-const DEFAULT_MAX_OUTPUT_TOKENS = 8_192;
 const UNKNOWN_MODEL_RESERVE_INPUT_PER_1M = Object.values(modelPricing)
   .reduce((highest, pricing) => Math.max(highest, pricing.inputPer1M), 1);
 const UNKNOWN_MODEL_RESERVE_OUTPUT_PER_1M = Object.values(modelPricing)
@@ -121,8 +121,19 @@ export type ConvexModelOptions = {
   freeAutoMode?: OpenRouterFreeModelMode;
   /** Ordered, already-authorized fallback routes. Pass [] to keep an explicit model exact. */
   fallbackModelIds?: string[];
+  /**
+   * SPEC A.0.10: a free primary never falls back to a paid route unless the caller sets this AND `next()` is handed a
+   * finite `maxCostUsd` (the failover controller reserves each candidate's estimate against it before dispatch).
+   */
+  allowPaidFallback?: boolean;
   /** Checkpointed concrete-route preference/cooldowns from a prior durable slice. */
   routeState?: AgentModelRouteState;
+  /**
+   * Eval and smoke scripts only (SPEC-v9 D1: operator overrides stay pass-through; same contract as `ModelAdapterOptions`
+   * in adapter.ts). The id was typed by an operator: the alias table still applies, but an id the catalog does not know
+   * goes to the provider as written instead of throwing. Server code never sets this; it stays fail-closed (A.0.10).
+   */
+  operatorSelected?: boolean;
 };
 
 type ConcreteRouteState = {
@@ -188,13 +199,16 @@ function geminiUsage(usage?: GeminiResponse["usageMetadata"]): TokenUsage | unde
 }
 
 export function convexModel(modelId: string, options: ConvexModelOptions = {}): AgentModel {
-  const aliasModelId = resolveModelAlias(modelId);
+  const aliasModelId = options.operatorSelected ? lookupModelAlias(modelId) : resolveModelAlias(modelId);
   const entrypoint = options.entrypoint ?? "system";
   const freeAutoMode = options.freeAutoMode;
   // Fallbacks must be authorized by the caller that owns artifact-aware egress context.
   // Non-durable/direct call sites remain exact even when deployment fallback env vars exist.
   const fallbackModelIds = normalizeFallbackModelIds(aliasModelId, options.fallbackModelIds ?? []);
-  const concreteRouteState = hydrateConcreteRouteState(aliasModelId, fallbackModelIds, options.routeState);
+  // Cost class is preserved (A.0.10): without allowPaidFallback and a reservation budget, only same-class routes stay.
+  const sameClassFallbackIds = isFreeModelId(aliasModelId) ? fallbackModelIds.filter(isFreeModelId) : fallbackModelIds;
+  const authorizedFallbackIds = options.allowPaidFallback === true ? fallbackModelIds : sameClassFallbackIds;
+  const concreteRouteState = hydrateConcreteRouteState(aliasModelId, authorizedFallbackIds, options.routeState);
   let resolvedModelId = aliasModelId;
   return {
     get name() {
@@ -207,33 +221,41 @@ export function convexModel(modelId: string, options: ConvexModelOptions = {}): 
       // Gateway PII firewall — redact PII/secrets from the system + user content before the prompt leaves.
       const safeSystem = redactPII(system).text;
       const safeMessages = messages.map((m) => (m.role === "user" && m.content ? { ...m, content: redactPII(m.content).text } : m));
-      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, signal, onTextDelta, toolChoice, freeAutoMode, fallbackModelIds, concreteRouteState, maxCostUsd);
+      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, signal, onTextDelta, toolChoice, freeAutoMode, Number.isFinite(maxCostUsd) ? authorizedFallbackIds : sameClassFallbackIds, concreteRouteState, maxCostUsd);
       resolvedModelId = resolvedModel;
       return step;
     },
   };
 }
 
+/** Cost of usage SUMMED over several requests: base-tier rates (a tier belongs to one request's prompt). */
 export function convexPriceRun(modelId: string, inTok: number, outTok: number): number {
-  const pricing = getModelPricing(resolveModelAlias(modelId));
-  return (inTok * (pricing?.inputPer1M ?? 1) + outTok * (pricing?.outputPer1M ?? 5)) / 1_000_000;
+  const pricing = getModelPricing(lookupModelAlias(modelId));
+  return pricing ? priceAggregateTokens(pricing, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
+}
+
+/** Cost of ONE provider request (`inTok` is that request's prompt), tier-aware. This is the `priceStep` price. */
+export function convexPriceRequest(modelId: string, inTok: number, outTok: number): number {
+  const pricing = getModelPricing(lookupModelAlias(modelId));
+  return pricing ? priceTokens(pricing, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
 }
 
 function exactConvexUsageCost(
   modelId: string,
   usage: Pick<TokenUsage, "inputTokens" | "outputTokens" | "cachedInputTokens" | "cacheCreationInputTokens">,
 ): number | undefined {
-  const pricing = getModelPricing(resolveModelAlias(modelId));
+  const pricing = getModelPricing(lookupModelAlias(modelId));
   if (!pricing) return undefined;
   // The catalog does not yet carry provider cache-write rates. Never label a
   // cache-creation turn exact by silently charging it at the read/input rate.
   if ((usage.cacheCreationInputTokens ?? 0) > 0) return undefined;
   const cachedInputTokens = Math.min(usage.inputTokens, Math.max(0, usage.cachedInputTokens ?? 0));
   const uncachedInputTokens = Math.max(0, usage.inputTokens - cachedInputTokens);
+  const rates = ratesForPrompt(pricing, usage.inputTokens); // long prompts bill at the long-context tier
   return (
-    uncachedInputTokens * pricing.inputPer1M
-    + cachedInputTokens * (pricing.cachedInputPer1M ?? pricing.inputPer1M)
-    + usage.outputTokens * pricing.outputPer1M
+    uncachedInputTokens * rates.inputPer1M
+    + cachedInputTokens * (rates.cachedInputPer1M ?? rates.inputPer1M)
+    + usage.outputTokens * rates.outputPer1M
   ) / 1_000_000;
 }
 
@@ -261,17 +283,18 @@ function convexAttemptCostReservationUsd(
   inputTokenUpperBound: number,
   maxCostUsd?: number,
 ): number {
-  const pricing = getModelPricing(resolveModelAlias(modelId));
+  const pricing = getModelPricing(lookupModelAlias(modelId));
   if (!pricing && Number.isFinite(maxCostUsd)) {
     const budget = Math.max(0, maxCostUsd ?? 0);
     return budget + Math.max(1e-9, Math.max(1, budget) * 1e-9);
   }
-  const inputPer1M = pricing?.inputPer1M ?? UNKNOWN_MODEL_RESERVE_INPUT_PER_1M;
-  const outputPer1M = pricing?.outputPer1M ?? UNKNOWN_MODEL_RESERVE_OUTPUT_PER_1M;
+  const rates = pricing ? ratesForPrompt(pricing, inputTokenUpperBound) : undefined;
+  const inputPer1M = rates?.inputPer1M ?? UNKNOWN_MODEL_RESERVE_INPUT_PER_1M;
+  const outputPer1M = rates?.outputPer1M ?? UNKNOWN_MODEL_RESERVE_OUTPUT_PER_1M;
   if (inputPer1M === 0 && outputPer1M === 0) return 0;
   return (
     inputTokenUpperBound * inputPer1M
-    + modelMaxOutputTokens() * outputPer1M
+    + modelMaxOutputTokens(modelId) * outputPer1M
   ) / 1_000_000;
 }
 
@@ -751,7 +774,7 @@ async function providerStep(
       onProviderRequest,
     });
   }
-  if (provider === "anthropic") return anthropicStep(modelId, system, messages, tools, signal, onProviderRequest);
+  if (provider === "anthropic") return anthropicStep(modelId, system, messages, tools, signal, onProviderRequest, toolChoice);
   if (provider === "gemini") {
     if (onTextDelta) {
       const deltas: string[] = [];
@@ -838,9 +861,9 @@ async function openAiCompatibleBlockingStep(args: {
   const res = await postJson<OpenAiChatResponse>(args.endpoint, {
     model: args.modelId,
     messages: [{ role: "system", content: args.system }, ...toOpenAiMessages(args.messages)],
-    tools: args.tools.length ? args.tools.map(openAiTool) : undefined,
+    tools: args.tools.length ? args.tools.map((t) => openAiTool(t, openAiCompatibleStrictTools(args.modelId, args.endpoint, args.toolChoice))) : undefined,
     tool_choice: args.tools.length ? openAiCompatibleToolChoice(args.modelId, args.endpoint, args.toolChoice) : undefined,
-    ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens()),
+    ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens(args.modelId)),
     ...openAiCompatibleProviderOptions(args.modelId, args.endpoint),
   }, {
     ...args.headers,
@@ -888,9 +911,9 @@ async function openAiCompatibleStreamStep(args: {
       stream: true,
       stream_options: { include_usage: true },
       messages: [{ role: "system", content: args.system }, ...toOpenAiMessages(args.messages)],
-      tools: args.tools.length ? args.tools.map(openAiTool) : undefined,
+      tools: args.tools.length ? args.tools.map((t) => openAiTool(t, openAiCompatibleStrictTools(args.modelId, args.endpoint, args.toolChoice))) : undefined,
       tool_choice: args.tools.length ? openAiCompatibleToolChoice(args.modelId, args.endpoint, args.toolChoice) : undefined,
-      ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens()),
+      ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens(args.modelId)),
       ...openAiCompatibleProviderOptions(args.modelId, args.endpoint),
     })),
     signal: args.signal,
@@ -956,13 +979,15 @@ async function anthropicStep(
   tools: AgentTool[],
   signal?: AbortSignal,
   onProviderRequest?: () => void,
+  toolChoice?: AgentToolChoice,
 ) {
+  const strict = needsStrictTools(modelId, toolChoice);
   const res = await postJson<AnthropicResponse>("https://api.anthropic.com/v1/messages", {
     model: modelId,
-    max_tokens: modelMaxOutputTokens(),
+    max_tokens: modelMaxOutputTokens(modelId),
     system,
     messages: toAnthropicMessages(messages),
-    tools: tools.length ? tools.map(anthropicTool) : undefined,
+    tools: tools.length ? tools.map((t) => anthropicTool(t, strict)) : undefined,
   }, {
     "x-api-key": requireEnv("ANTHROPIC_API_KEY"),
     "anthropic-version": "2023-06-01",
@@ -1002,7 +1027,7 @@ async function geminiStep(
     systemInstruction: { parts: [{ text: system }] },
     contents: toGeminiContents(messages),
     tools: tools.length ? [{ functionDeclarations: tools.map(geminiTool) }] : undefined,
-    generationConfig: { maxOutputTokens: modelMaxOutputTokens() },
+    generationConfig: { maxOutputTokens: modelMaxOutputTokens(modelId) },
   }, {}, signal, onProviderRequest);
 
   const parts = res.candidates?.[0]?.content?.parts ?? [];
@@ -1045,7 +1070,7 @@ async function geminiStreamStep(
       systemInstruction: { parts: [{ text: system }] },
       contents: toGeminiContents(messages),
       tools: tools.length ? [{ functionDeclarations: tools.map(geminiTool) }] : undefined,
-      generationConfig: { maxOutputTokens: modelMaxOutputTokens() },
+      generationConfig: { maxOutputTokens: modelMaxOutputTokens(modelId) },
     })),
     signal,
   });
@@ -1166,22 +1191,24 @@ function toGeminiContents(messages: AgentMessage[]) {
   });
 }
 
-function openAiTool(tool: AgentTool) {
+function openAiTool(tool: AgentTool, strict = false) {
   return {
     type: "function" as const,
     function: {
       name: tool.name,
       description: tool.description,
       parameters: toolParameters(tool.name),
+      ...(strict ? { strict: true } : {}),
     },
   };
 }
 
-function anthropicTool(tool: AgentTool) {
+function anthropicTool(tool: AgentTool, strict = false) {
   return {
     name: tool.name,
     description: tool.description,
     input_schema: toolParameters(tool.name),
+    ...(strict ? { strict: true } : {}),
   };
 }
 
@@ -1802,16 +1829,6 @@ function nebiusBaseUrl(): string {
   return envValue("NEBIUS_BASE_URL") ?? "https://api.tokenfactory.nebius.com/v1";
 }
 
-function modelMaxOutputTokens(): number {
-  return envNumber("AGENT_MODEL_MAX_OUTPUT_TOKENS", DEFAULT_MAX_OUTPUT_TOKENS, 1_024, 32_000);
-}
-
-function envNumber(name: string, fallback: number, min: number, max: number): number {
-  const raw = Number(envValue(name) ?? fallback);
-  if (!Number.isFinite(raw)) return fallback;
-  return Math.max(min, Math.min(max, raw));
-}
-
 function openAiCompatibleProviderOptions(modelId: string, endpoint: string): JsonObject {
   // GLM/Qwen hybrid-thinking models served through OpenRouter/vLLM can spend the entire
   // output cap on hidden thinking, and Qwen rejects required tool_choice while thinking.
@@ -1829,7 +1846,17 @@ function openAiCompatibleToolChoice(modelId: string, endpoint: string, requested
   if (choice === "required" && isOpenRouterEndpoint(endpoint) && isOpenRouterQwenHybridThinkingModel(modelId)) {
     return "auto";
   }
+  // Claude 5.5 Sonnet/Opus (and Fable 5.1) answer a forced tool_choice with a 400 (SPEC §1.3). Whether
+  // OpenRouter rewrites it is unobserved, so send `auto`; the harness validates required writes after the turn.
+  if (choice === "required" && isOpenRouterEndpoint(endpoint) && forbidsForcedToolChoice(modelId)) {
+    return "auto";
+  }
   return choice;
+}
+
+/** Strict tool definitions accompany exactly the `required` -> `auto` downgrade above (SPEC §1.3). */
+function openAiCompatibleStrictTools(modelId: string, endpoint: string, requested?: AgentToolChoice): boolean {
+  return isOpenRouterEndpoint(endpoint) && needsStrictTools(modelId, requested);
 }
 
 function isOpenRouterEndpoint(endpoint: string): boolean {
@@ -1866,7 +1893,8 @@ export function configuredConvexModelFallbacks(
 }
 
 function normalizeFallbackModelIds(modelId: string, values: readonly string[]): string[] {
-  const primary = resolveModelAlias(modelId);
+  // The primary was resolved (or operator-selected) by the caller; only the fallback values are validated here.
+  const primary = lookupModelAlias(modelId);
   const seen = new Set([primary]);
   const result: string[] = [];
   for (const value of values) {

@@ -27,14 +27,14 @@
     },
     {
       "file": "src/ui/Chat.tsx",
-      "line": 1878,
+      "line": 1879,
       "pattern": "const send = \\(raw\\?: string",
       "title": "The primary user action",
       "description": "`send` is what the Send button calls. Two separate things happen and it matters that they are separate:\n\n1. The message is posted to the room, with a client-generated `clientMsgId` — that id is how a retry updates the same message instead of double-posting it.\n2. Only then is the text inspected to see whether it was addressed to the assistant."
     },
     {
       "file": "src/ui/Chat.tsx",
-      "line": 1166,
+      "line": 1167,
       "pattern": "function parsePublicNodeAgentRequest",
       "title": "Where text becomes intent",
       "description": "The assistant that can edit the shared sheet is addressable ONLY as a leading `@nodeagent …` directive. Mentioning it mid-sentence does not summon it.\n\nThis decides intent. It does not decide permission — that happens on the server, in the next step but one."
@@ -48,7 +48,7 @@
     },
     {
       "file": "convex/agentJobs.ts",
-      "line": 2782,
+      "line": 2799,
       "pattern": "export const startPublicAsk = mutation\\(",
       "title": "Where input becomes trusted (live tier)",
       "description": "This is the real trust boundary. Convex validators reject a malformed payload before a job row exists, and `requireActorProof` checks that this browser is actually a member of this room.\n\nThe client-side parse two steps back exists to decide what the user meant. This decides what they are allowed to do."

@@ -6,8 +6,10 @@
  *   npm run ladder:real -- gpt-5.4-nano,gemini-3.1-flash-lite
  */
 import "../scripts/benchmark/loadEnv";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { execSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { pathToFileURL } from "node:url";
 import { appendEvalRuns, computeCaseSetHash, DEFAULT_STORE, runKey, type EvalRunRecord } from "./evalStore";
 import { dirname, join, relative, resolve } from "node:path";
 import { z } from "zod";
@@ -20,7 +22,20 @@ import { runAgent } from "../src/nodeagent/core/runtime";
 import type { AgentMessage, AgentModel, AgentResult, AgentTool, AgentTraceEvent, RoomTools } from "../src/nodeagent/core/types";
 import { scriptedModel, type Planner } from "../src/nodeagent/models/scripted";
 import { recomputeVariancePlan } from "../src/nodeagent/core/plans";
-import { model as realModel, priceRun } from "../src/nodeagent/models/adapter";
+import {
+  MAX_DISPATCH_RECORDS,
+  createSpendMeter,
+  model as realModel,
+  priceRequest,
+  openRouterFreeAutoLimit,
+  priceRequestStrict,
+  requestInputTokenUpperBound,
+  type DispatchPolicy,
+  type DispatchRecord,
+  type SpendMeter,
+} from "../src/nodeagent/models/adapter";
+import { getModelPricing, lookupModelAlias, priceTokens, resolveModelAlias } from "../src/nodeagent/models/modelCatalog";
+import { modelMaxOutputTokens } from "../src/nodeagent/models/outputTokens";
 import { selectOpenRouterFreeModels } from "../src/nodeagent/models/openRouterFreeModels";
 import { stableJournalHash } from "../src/nodeagent/core/journal";
 
@@ -97,6 +112,23 @@ interface Rung {
 interface RuntimeBudget {
   rungTimeoutMs?: number;
   reserveMs: number;
+  /** Dollar cap for a --real run (LADDER_MAX_COST_USD / --max-cost-usd). Mandatory when any provider is called. */
+  maxCostUsd?: number;
+}
+
+/** Every --real run: no adapter retries, no cross-model fallback, so one step = at most one reserved request. */
+export const RECEIPT_DISPATCH_POLICY: DispatchPolicy = { maxRetries: 0, crossModelFallback: false };
+
+interface LadderBudgetReport {
+  maxUsd: number;
+  estimateUsd: number;
+  spentUsd: number;
+  requests: number;
+  /** Pre-flight request ceiling (routes x rungs x max steps, fan-out included); `requests` above it fails review (A.0.3). */
+  requestCeiling: number;
+  stoppedBy: SpendMeter["stoppedBy"];
+  /** Requests past the dispatch-record cap: counted in `requests`/`spentUsd` but absent from `rows`. Non-zero means the receipt's rows are incomplete. */
+  dispatchesDropped: number;
 }
 
 interface RungResult {
@@ -116,6 +148,8 @@ interface RungResult {
   checks: Record<string, boolean>;
   /** P1-5: for each FAILING trace-derived check, a pointer at the offending trace event. */
   checkDetails?: Record<string, string>;
+  /** Every provider request this rung issued (metered runs only): echoed model, usage, cost, fallbackUsed. */
+  dispatches?: DispatchRecord[];
   trace: AgentTraceEvent[];
 }
 
@@ -562,7 +596,7 @@ function checkFailurePointers(rung: Rung, result: AgentResult, checks: Record<st
   return out;
 }
 
-async function runRung(rung: Rung, maker: (rung: Rung) => AgentModel, modelName: string, budget: RuntimeBudget): Promise<RungResult> {
+async function runRung(rung: Rung, maker: (rung: Rung) => AgentModel, modelName: string, budget: RuntimeBudget, meter?: SpendMeter): Promise<RungResult> {
   const env = (rung.makeEnv ?? demoEnv)();
   rung.setup?.(env);
   const rt = new CountingRoomTools(env.engine, env.roomId, env.artifactId, env.actor, env.sessionId, env.stats);
@@ -581,6 +615,10 @@ async function runRung(rung: Rung, maker: (rung: Rung) => AgentModel, modelName:
   };
   const t0 = Date.now();
   const deadlineAt = budget.rungTimeoutMs ? t0 + budget.rungTimeoutMs : undefined;
+  const dispatchesFrom = meter?.dispatches.length ?? 0;
+  // Rung cost is the meter's own spend delta, not the sum of recorded rows: rows stop at MAX_DISPATCH_RECORDS, spend does not.
+  const spentFrom = meter?.spentUsd ?? 0;
+  const rungDispatches = () => (meter ? { dispatches: meter.dispatches.slice(dispatchesFrom) } : {});
   try {
     const runOnce = (goal: string, m: AgentModel, maxSteps: number) => runAgent({
       rt,
@@ -593,6 +631,9 @@ async function runRung(rung: Rung, maker: (rung: Rung) => AgentModel, modelName:
       deadlineAt,
       reserveMs: budget.reserveMs,
       onTrace: (event) => rung.onTrace?.(event, env),
+      // A metered run hands the runtime the dollars still left job-wide and the strict (throwing) price.
+      // The tier belongs to one request's prompt, so a step is priced per request (never from aggregated usage).
+      ...(meter ? { spendLimits: { maxCostUsd: Math.max(0, meter.maxUsd - meter.spentUsd) }, priceStep: priceRequestStrict } : { priceStep: priceRequest }),
     });
     let result: AgentResult;
     let slice1: AgentResult | undefined;
@@ -625,8 +666,11 @@ async function runRung(rung: Rung, maker: (rung: Rung) => AgentModel, modelName:
     const combinedTrace = slice1
       ? [...slice1.trace, { step: -1, tool: "slice_boundary", args: { forced: true, slice1Exhausted: slice1.exhausted }, result: { handoff: slice1.handoff?.summary ?? null }, ms: 0 } as AgentTraceEvent, ...result.trace]
       : result.trace;
-    const cost = (result.usage ? priceRun(resolvedModel, result.usage.inputTokens, result.usage.outputTokens) : 0)
-      + (slice1?.usage ? priceRun(resolvedModel, slice1.usage.inputTokens, slice1.usage.outputTokens) : 0);
+    // Per-request costs only: the meter's settled dispatches on a metered run (a paid run never costs a guessed
+    // $1/$5 row), the runtime's per-step priced total otherwise. Never price summed usage: a tier is per request.
+    const cost = meter
+      ? meter.spentUsd - spentFrom
+      : (result.usage?.costUsd ?? 0) + (slice1?.usage?.costUsd ?? 0);
     return {
       pass,
       checkDetails,
@@ -642,6 +686,7 @@ async function runRung(rung: Rung, maker: (rung: Rung) => AgentModel, modelName:
       handoff: result.handoff?.summary,
       reason: pass ? "" : rung.diagnose?.(result, env) ?? result.handoff?.summary ?? "failed",
       checks,
+      ...rungDispatches(),
       trace: combinedTrace,
     };
   } catch (error) {
@@ -655,9 +700,11 @@ async function runRung(rung: Rung, maker: (rung: Rung) => AgentModel, modelName:
       level: rung.level,
       ms: Date.now() - t0,
       tools: 0,
-      cost: 0,
+      // A rung that failed after issuing charged dispatches still spent that money: the row carries it, as in the try branch.
+      cost: meter ? meter.spentUsd - spentFrom : 0,
       error: error instanceof Error ? error.message : String(error),
       checks: { completed: false },
+      ...rungDispatches(),
       trace: [],
     };
   }
@@ -691,6 +738,7 @@ function parseRuntimeBudget(): RuntimeBudget {
   return {
     rungTimeoutMs: optionNumber("--rung-timeout-ms", "LADDER_RUNG_TIMEOUT_MS"),
     reserveMs: optionNumber("--reserve-ms", "LADDER_RESERVE_MS") ?? 5_000,
+    maxCostUsd: optionNumber("--max-cost-usd", "LADDER_MAX_COST_USD"),
   };
 }
 
@@ -737,17 +785,45 @@ async function parseModelRoutes(): Promise<string[]> {
   return routes;
 }
 
-function writeJsonReport(results: RungResult[], selectedRungs: Rung[], requestedRoutes: string[]): void {
+/** What makes a --real report a receipt (SPEC A.0.3): the tested commit, the constant it tested, the spend, the policy. */
+interface ReportReceipt {
+  startedAt: string;
+  budget: LadderBudgetReport | null;
+  dispatchPolicy: DispatchPolicy | null;
+}
+
+/** Run environment a reviewer needs to reproduce the receipt. No keys, no hostnames, no paths. */
+function receiptEnvironment(): { node: string; platform: string; ci: boolean } {
+  return { node: process.version, platform: process.platform, ci: Boolean(process.env.CI) };
+}
+
+function sha256OfFile(path: string): string | null {
+  try { return createHash("sha256").update(readFileSync(path)).digest("hex"); } catch { return null; }
+}
+
+function writeJsonReport(results: RungResult[], selectedRungs: Rung[], requestedRoutes: string[], receipt: ReportReceipt): void {
   const outPath = optionValue("--json-out");
   if (!outPath) return;
   const absolute = resolve(process.cwd(), outPath);
   mkdirSync(dirname(absolute), { recursive: true });
+  const real = receipt.budget !== null;
+  const identity = real ? readGitIdentity() : undefined;
+  // One flat row per provider request (A.0.3 `rows`), tagged with the rung that issued it.
+  const rows = results.flatMap((r) => (r.dispatches ?? []).map((d) => ({ rung: r.rung, ...d })));
+  const echoedModels = [...new Set(rows.map((r) => r.echoedModel).filter((m): m is string => m !== null))];
   writeFileSync(
     absolute,
     JSON.stringify({
       generatedAt: new Date().toISOString(),
+      startedAt: receipt.startedAt,
+      ...(real ? { command: ["tsx", "evals/ladder.ts", ...process.argv.slice(2)].join(" ") } : {}),
       requestedRoutes,
+      ...(real ? { candidateIds: requestedRoutes, echoedModels, rows } : {}),
       rungs: selectedRungs.map((r) => ({ id: r.id, level: r.level, label: r.label })),
+      ...(identity ? { testedCommit: identity.commitSha, gitDirty: identity.gitDirty, constantSha256: sha256OfFile("convex/modelDefaults.ts") } : {}),
+      budget: receipt.budget,
+      dispatchPolicy: receipt.dispatchPolicy,
+      ...(real ? { environment: receiptEnvironment() } : {}),
       results: results.map(publicResult),
     }, null, 2),
   );
@@ -817,7 +893,8 @@ function readGitIdentity(): GitIdentity {
   let commitSha = "nocommit";
   let status = "";
   let diff = "";
-  try { commitSha = execSync("git rev-parse --short HEAD", { stdio: ["ignore", "pipe", "ignore"] }).toString().trim(); } catch { /* not a git repo */ }
+  // Full SHA: the receipt's testedCommit must be an ancestor-checkable 40-hex id (SPEC A.0.3), not a short prefix.
+  try { commitSha = execSync("git rev-parse HEAD", { stdio: ["ignore", "pipe", "ignore"] }).toString().trim(); } catch { /* not a git repo */ }
   try { status = execSync("git status --porcelain=v1", { stdio: ["ignore", "pipe", "ignore"] }).toString(); } catch { /* not a git repo */ }
   try { diff = execSync("git diff --no-ext-diff --binary HEAD --", { stdio: ["ignore", "pipe", "ignore"], maxBuffer: 16 * 1024 * 1024 }).toString(); } catch { /* large or unavailable diff */ }
   const gitDirty = status.trim().length > 0;
@@ -857,24 +934,134 @@ function normalizePath(value: string): string {
   return value.replace(/\\/g, "/");
 }
 
-async function main() {
+/** Opening-context size and per-step growth of one rung, read from a scripted dry run (zero provider requests). */
+interface RungShape {
+  rung: Rung;
+  ctxTokens0: number;
+  growthTokens: number;
+  /** Provider-request upper bound for one model on this rung (resume rungs run two slices). */
+  maxSteps: number;
+}
+
+async function scriptedRungShape(rung: Rung, budget: RuntimeBudget): Promise<RungShape> {
+  const sizes: number[] = [];
+  const probe = (r: Rung): AgentModel => {
+    const base = r.scripted();
+    return {
+      get name() { return base.name; },
+      async next(input) {
+        sizes.push(requestInputTokenUpperBound(input.system, input.messages, input.tools));
+        return base.next(input);
+      },
+    };
+  };
+  await runRung(rung, probe, "scripted", { ...budget, maxCostUsd: undefined });
+  const ctxTokens0 = sizes[0] ?? 0;
+  const growthTokens = sizes.length > 1 ? Math.max(0, ((sizes.at(-1) ?? 0) - ctxTokens0) / (sizes.length - 1)) : 0;
+  const maxSteps = (rung.maxSteps ?? 18) + (rung.resume?.slice1MaxSteps ?? 0);
+  return { rung, ctxTokens0, growthTokens, maxSteps };
+}
+
+/**
+ * Provider-request ceiling for the grid: routes x rungs x max steps. A free-auto route fans out over the candidate
+ * limit the ADAPTER enforces (`openRouterFreeAutoLimit`), not over `--free-auto-top`, which only decides which extra
+ * concrete routes join the grid.
+ */
+export function ladderRequestCeiling(routes: string[], shapes: RungShape[], freeAutoCandidates = openRouterFreeAutoLimit()): number {
+  const steps = shapes.reduce((sum, shape) => sum + shape.maxSteps, 0);
+  return routes.reduce((sum, route) => sum + routeFanOut(route, freeAutoCandidates) * steps, 0);
+}
+
+/** Dispatch resolves aliases first ("free", "openrouter-auto" -> openrouter/free-auto), so the fan-out test must too. */
+function routeFanOut(route: string, freeAutoCandidates: number): number {
+  return /free-auto$/i.test(resolveModelAlias(route)) ? Math.max(1, freeAutoCandidates) : 1;
+}
+
+/**
+ * Worst-case USD before the first paid request:
+ *   Σ_models Σ_rungs Σ_{step=1..maxSteps} ((ctx0 + (step-1)·growth) · inPerM + maxOut · outPerM) / 1e6.
+ * ctx0 and growth come from the scripted dry run, so this is a pre-flight sanity bound ("can the cap cover a full
+ * grid at all?"), not the spend guard: the guard is the per-dispatch reservation, which prices each request's real
+ * input bytes. A free-auto route fans out over its candidates, so it multiplies by the candidate limit. The
+ * request count holds only under RECEIPT_DISPATCH_POLICY: with retries and fallback each step could issue several.
+ */
+export function estimateLadderUsd(routes: string[], shapes: RungShape[], freeAutoCandidates = openRouterFreeAutoLimit()): number {
+  let total = 0;
+  for (const route of routes) {
+    const pricing = getModelPricing(resolveModelAlias(route));
+    if (!pricing) throw new Error(`no pricing row for "${route}"`);
+    const maxOut = modelMaxOutputTokens(resolveModelAlias(route));
+    const fanOut = routeFanOut(route, freeAutoCandidates);
+    for (const shape of shapes) {
+      for (let step = 1; step <= shape.maxSteps; step++) {
+        total += fanOut * priceTokens(pricing, shape.ctxTokens0 + (step - 1) * shape.growthTokens, maxOut);
+      }
+    }
+  }
+  return total;
+}
+
+export async function main() {
   const realModels = await parseModelRoutes();
   const budget = parseRuntimeBudget();
-  const models: { name: string; maker: (rung: Rung) => AgentModel }[] = realModels.length
-    ? realModels.map((id) => ({ name: id, maker: () => realModel(id) }))
-    : [{ name: "scripted", maker: (rung) => rung.scripted() }];
-
+  const startedAt = new Date().toISOString();
   const rungFilter = parseRungFilter();
   const selectedRungs = rungFilter ? RUNGS.filter((r) => rungFilter.has(r.id)) : RUNGS;
+  const real = realModels.length > 0;
+
+  let meter: SpendMeter | undefined;
+  let estimateUsd = 0;
+  let requestCeiling = 0;
+  const budgetReport = (): LadderBudgetReport | null => (meter
+    ? { maxUsd: meter.maxUsd, estimateUsd, spentUsd: meter.spentUsd, requests: meter.requests, requestCeiling, stoppedBy: meter.stoppedBy, dispatchesDropped: meter.droppedDispatches }
+    : null);
+  const refuse = (message: string) => {
+    console.error(`ladder: ${message}`);
+    writeJsonReport([], selectedRungs, realModels, { startedAt, budget: budgetReport(), dispatchPolicy: RECEIPT_DISPATCH_POLICY });
+    process.exitCode = 1;
+  };
+
+  if (real) {
+    // A paid run needs a dollar cap, and every id it will call must have a verified price: no cap, no guessed row.
+    if (budget.maxCostUsd === undefined) {
+      console.error("ladder: --real needs a dollar cap (LADDER_MAX_COST_USD or --max-cost-usd). Refusing to start; no request was made.");
+      process.exitCode = 1;
+      return;
+    }
+    meter = createSpendMeter(budget.maxCostUsd);
+    const unpriced = realModels.find((id) => !getModelPricing(lookupModelAlias(id)));
+    if (unpriced) {
+      meter.stoppedBy = "unpriced_model";
+      refuse(`no pricing row for "${unpriced}"; add a verified row (modelCatalog.modelPricing) before a paid run. No request was made.`);
+      return;
+    }
+    const shapes: RungShape[] = [];
+    for (const rung of selectedRungs) shapes.push(await scriptedRungShape(rung, budget));
+    estimateUsd = estimateLadderUsd(realModels, shapes);
+    requestCeiling = ladderRequestCeiling(realModels, shapes);
+    console.log(`pre-flight: worst case $${estimateUsd.toFixed(4)} for ${realModels.length} route(s) x ${selectedRungs.length} rung(s); cap $${meter.maxUsd.toFixed(4)}`);
+    if (estimateUsd > meter.maxUsd) {
+      meter.stoppedBy = "spend_budget";
+      refuse(`worst-case estimate $${estimateUsd.toFixed(4)} exceeds the $${meter.maxUsd.toFixed(4)} cap. Raise the cap or narrow --levels; no request was made.`);
+      return;
+    }
+  }
+
+  const models: { name: string; maker: (rung: Rung) => AgentModel }[] = real
+    ? realModels.map((id) => ({ name: id, maker: () => realModel(id, { dispatch: RECEIPT_DISPATCH_POLICY, meter, operatorSelected: true }) }))
+    : [{ name: "scripted", maker: (rung) => rung.scripted() }];
 
   const grid: Record<string, Record<string, boolean>> = {};
   const results: RungResult[] = [];
   for (const model of models) {
     grid[model.name] = {};
     for (const rung of selectedRungs) {
+      if (meter?.stoppedBy) break; // the cap is reached: no further rung may spend
       process.stdout.write(`  ${model.name} · ${rung.id} ... `);
-      const res = await runRung(rung, model.maker, model.name, budget);
+      const res = await runRung(rung, model.maker, model.name, budget, meter);
       results.push(res);
+      // The runtime's own pre-call gate can end a rung on the cap before the adapter is asked to dispatch.
+      if (meter && res.stopReason === "spend_budget") meter.stoppedBy ??= "spend_budget";
       grid[model.name][rung.id] = res.pass;
       const stop = "stopReason" in res && res.stopReason !== "done" ? `, ${res.stopReason}` : "";
       const resolved = res.resolvedModel !== model.name ? `, resolved=${res.resolvedModel}` : "";
@@ -891,13 +1078,18 @@ async function main() {
   }
   console.log("-".repeat(72));
   console.log("legend: " + selectedRungs.map((r) => `L${r.level}=${r.label}`).join(" | "));
-  writeJsonReport(results, selectedRungs, models.map((m) => m.name));
+  if (meter) console.log(`spend: $${meter.spentUsd.toFixed(4)} of $${meter.maxUsd.toFixed(4)} over ${meter.requests} provider request(s)${meter.droppedDispatches ? `; ${meter.droppedDispatches} request(s) have no receipt row (cap ${MAX_DISPATCH_RECORDS})` : ""}${meter.stoppedBy ? `; STOPPED by ${meter.stoppedBy} (not a receipt)` : ""}`);
+  writeJsonReport(results, selectedRungs, models.map((m) => m.name), { startedAt, budget: budgetReport(), dispatchPolicy: real ? RECEIPT_DISPATCH_POLICY : null });
   recordRunsToStore(results);
 
+  if (meter?.stoppedBy) process.exitCode = 1; // a budget stop is an incomplete run, never a pass
+  if (meter?.droppedDispatches) process.exitCode = 1; // requests past the record cap have no receipt row: incomplete, never a pass
   if (Object.values(grid).some((row) => Object.values(row).some((ok) => !ok))) process.exitCode = 1;
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

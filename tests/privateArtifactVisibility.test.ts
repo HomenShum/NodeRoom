@@ -148,7 +148,7 @@ describe("private artifact visibility", () => {
       goal: "Research this private upload",
       entrypoint: "public_ask" as const,
       scope: "public_room" as const,
-      modelPolicy: "test-model",
+      modelPolicy: "z-ai/glm-5.2",
       idempotencyKey: "private-artifact-guest-job",
     })).rejects.toThrow(/artifact_not_visible/);
     await expect(t.mutation(api.agentJobs.startFreeAuto, {

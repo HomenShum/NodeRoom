@@ -5,7 +5,7 @@
  * Verifies the architecture invariant: canonical Convex storageId != disposable provider file id.
  *
  *   npx tsx scripts/eval/providerParseSmoke.ts                       # gemini default
- *   npx tsx scripts/eval/providerParseSmoke.ts gemini-3.5-flash,gpt-5.4-mini,claude-haiku-4-5
+ *   npx tsx scripts/eval/providerParseSmoke.ts gemini-3.8-flash,gpt-5.4-mini,claude-haiku-5-5
  */
 import "../benchmark/loadEnv";
 import { z } from "zod";
@@ -13,12 +13,12 @@ import { generateObject } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
-import { getProviderForModel } from "../../src/nodeagent/models/modelCatalog";
-import { priceRun } from "../../src/nodeagent/models/adapter";
+import { claudeEffortProviderOptions, getProviderForModel } from "../../src/nodeagent/models/modelCatalog";
+import { priceRequest } from "../../src/nodeagent/models/adapter";
 import { artifactsFromProviderExtraction, providerFileCacheMeta, type CanonicalFileRef, type ProviderExtraction, type ProviderUploadResult } from "../../src/app/providerParserAdapter";
 import type { CellPayload, ProviderParser } from "../../src/engine/types";
 
-const MODELS = (process.argv[2] || "gemini-3.5-flash,gpt-5.4-mini,claude-haiku-4-5").split(",").map((s) => s.trim());
+const MODELS = (process.argv[2] || "gemini-3.8-flash,gpt-5.4-mini,claude-haiku-5-5").split(",").map((s) => s.trim());
 
 // Synthetic messy diligence text — the ParselyFi/PitchBook archetype (unstructured → structured), no private data.
 const SAMPLE = `Diligence scratch notes (messy):
@@ -41,7 +41,7 @@ const SCHEMA = z.object({
 
 function providerModel(modelId: string) {
   const p = getProviderForModel(modelId);
-  if (p === "google") return createGoogleGenerativeAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY })(modelId);
+  if (p === "gemini") return createGoogleGenerativeAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY })(modelId);
   if (p === "anthropic") return createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY })(modelId);
   if (p === "openrouter") return createOpenAI({ apiKey: process.env.OPENROUTER_API_KEY, baseURL: "https://openrouter.ai/api/v1" }).chat(modelId);
   return createOpenAI({ apiKey: process.env.OPENAI_API_KEY }).chat(modelId); // openai
@@ -50,7 +50,7 @@ function providerModel(modelId: string) {
 async function smoke(modelId: string) {
   const provider = getProviderForModel(modelId) as ProviderParser;
   const t0 = Date.now();
-  const res = await generateObject({ model: providerModel(modelId), schema: SCHEMA, prompt: PROMPT });
+  const res = await generateObject({ model: providerModel(modelId), schema: SCHEMA, prompt: PROMPT, ...claudeEffortProviderOptions(modelId) });
   const ms = Date.now() - t0;
   const extraction = res.object as ProviderExtraction;
 
@@ -60,7 +60,7 @@ async function smoke(modelId: string) {
   const providerFile = providerFileCacheMeta(file, upload);
   const artifacts = artifactsFromProviderExtraction({ file, providerFile, provider, model: modelId, extraction });
 
-  const cost = priceRun(modelId, res.usage?.inputTokens ?? 0, res.usage?.outputTokens ?? 0);
+  const cost = priceRequest(modelId, res.usage?.inputTokens ?? 0, res.usage?.outputTokens ?? 0);
   const art = artifacts[0];
   const tbl = extraction.tables?.[0];
   console.log(`\n=== ${modelId} (${provider}) · ${(ms / 1000).toFixed(1)}s · $${cost.toFixed(4)} ===`);

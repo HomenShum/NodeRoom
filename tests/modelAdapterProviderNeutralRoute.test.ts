@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { normalizeInteropModelRoute } from "../src/nodeagent/integrations/modelInterop";
+import { DEFAULT_AGENT_MODEL } from "../convex/modelDefaults";
 import {
   getProviderForModel,
   NODEAGENT_FREE_AUTO_MODEL,
@@ -34,7 +35,8 @@ vi.mock("@ai-sdk/google", () => ({
 }));
 
 const OPENROUTER_MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
-const GOOGLE_MODEL = "gemini-3.5-flash";
+// The direct-Google fallback id is the default-model constant (was the literal "gemini-3.5-flash", deprecated 2026-10-08).
+const GOOGLE_MODEL = DEFAULT_AGENT_MODEL;
 const ROUTING_ENV = [
   "OPENROUTER_API_KEY",
   "OPENROUTER_FREE_MODEL_CACHE_MS",
@@ -63,9 +65,18 @@ function successfulTurn(modelId: string) {
   };
 }
 
+/**
+ * The paid Gemini leg is a free -> paid fallback (SPEC A.0.10): it needs an explicit allowPaidFallback AND a meter to
+ * reserve against. Every test below that expects the leg to run authorizes it; the default-policy test refuses it.
+ */
 async function runNeutralRoute() {
-  const { model } = await import("../src/nodeagent/models/adapter");
-  const route = model(NODEAGENT_FREE_AUTO_MODEL, { freeAutoMode: "structured", entrypoint: "system" });
+  const { createSpendMeter, model } = await import("../src/nodeagent/models/adapter");
+  const route = model(NODEAGENT_FREE_AUTO_MODEL, {
+    freeAutoMode: "structured",
+    entrypoint: "system",
+    dispatch: { maxRetries: 3, crossModelFallback: true, allowPaidFallback: true },
+    meter: createSpendMeter(1),
+  });
   const step = await route.next({
     system: "Return JSON only.",
     messages: [{ role: "user", content: "emit a structured edit plan" }],
@@ -162,13 +173,45 @@ describe("provider-neutral NodeAgent free-first routing", () => {
           billing: {
             free: false,
             classification: "catalog_priced",
-            inputPer1M: 1.5,
-            outputPer1M: 9,
+            // gemini-3.8-flash vendor list price, read 2026-10-10 (SPEC A.2.9 R-row; pricingAsOf in modelCatalog).
+            // Was 1.5 / 9 for the deprecated gemini-3.5-flash.
+            inputPer1M: 0.75,
+            outputPer1M: 3.75,
           },
         },
       },
     });
     expect(step.providerRoute?.basis).toContain("billing:account_free_tier:not_asserted");
+  });
+
+  it("never dispatches paid Gemini under the default policy: no allowPaidFallback and no meter, so the free failure is the answer", async () => {
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY = "test-google-key";
+    generateTextMock.mockRejectedValue(new Error("AI_RetryError: Failed after 3 attempts. Last error: Rate limit exceeded: free-models-per-day-high-balance."));
+    const { createSpendMeter, model } = await import("../src/nodeagent/models/adapter");
+    // The first failure cools the free route, so later attempts see the cooldown instead of the quota error: both are the free route's own failure.
+    const FREE_FAILURE = /Rate limit exceeded|candidates cooling down/;
+    const turn = { system: "Return JSON only.", messages: [{ role: "user" as const, content: "emit a structured edit plan" }], tools: [] };
+
+    // Default dispatch policy (3 retries, cross-model fallback allowed) - what every unconfigured caller gets.
+    await expect(model(NODEAGENT_FREE_AUTO_MODEL, { freeAutoMode: "structured", entrypoint: "system" }).next(turn)).rejects.toThrow(FREE_FAILURE);
+    // Authorization without a reservation is not enough either, nor a meter without authorization.
+    await expect(model(NODEAGENT_FREE_AUTO_MODEL, { freeAutoMode: "structured", entrypoint: "system", dispatch: { maxRetries: 3, crossModelFallback: true, allowPaidFallback: true } }).next(turn)).rejects.toThrow(FREE_FAILURE);
+    await expect(model(NODEAGENT_FREE_AUTO_MODEL, { freeAutoMode: "structured", entrypoint: "system", meter: createSpendMeter(1) }).next(turn)).rejects.toThrow(FREE_FAILURE);
+
+    const dispatched = generateTextMock.mock.calls.map((call) => call[0].model.provider);
+    expect(dispatched.length).toBeGreaterThan(0);
+    expect(dispatched.every((provider) => provider === "openrouter"), `no paid request was made: ${dispatched.join(",")}`).toBe(true);
+  });
+
+  it("never falls back to paid Gemini when the dispatch policy forbids cross-model fallback", async () => {
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY = "test-google-key";
+    generateTextMock.mockRejectedValue(new Error("AI_RetryError: Failed after 3 attempts. Last error: Rate limit exceeded: free-models-per-day-high-balance."));
+    const { model } = await import("../src/nodeagent/models/adapter");
+    // The same quota exhaustion as above, but under the ladder receipt policy: the free route's failure is the answer.
+    const route = model(NODEAGENT_FREE_AUTO_MODEL, { freeAutoMode: "structured", entrypoint: "system", dispatch: { maxRetries: 0, crossModelFallback: false } });
+
+    await expect(route.next({ system: "Return JSON only.", messages: [{ role: "user", content: "emit a structured edit plan" }], tools: [] })).rejects.toThrow(/Rate limit exceeded/);
+    expect(generateTextMock.mock.calls.map((call) => call[0].model)).toEqual([{ provider: "openrouter", id: OPENROUTER_MODEL }]);
   });
 
   it("falls back to direct Gemini when every governed free route is cooling", async () => {

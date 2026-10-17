@@ -8,6 +8,8 @@
  */
 import { redactPII } from "../src/nodeagent/guardrails/gateway";
 import { assertProviderRouteAllowed } from "../src/nodeagent/guardrails/egressPolicy";
+import { isNodeAgentFreeAutoModel, resolveModelAlias } from "../src/nodeagent/models/modelCatalog";
+import { isOpenRouterFreeAutoModel } from "../src/nodeagent/models/openRouterFreeModels";
 import { openAiCompatibleTokenLimitParam } from "../src/nodeagent/models/openAiTokenLimit";
 
 export type StreamAppend = (text: string) => Promise<void>;
@@ -55,7 +57,13 @@ export async function streamPrivateReplyText(
   userMsg: string,
   append: StreamAppend,
 ): Promise<string> {
-  const route = assertProviderRouteAllowed({ model: modelId, entrypoint: "private_agent", env: process.env });
+  // SPEC A.0.10: an id the catalog does not know never dispatches (convexModel() throws the same error), and the RESOLVED id is
+  // what the egress policy routes: an unknown free-looking id becomes `openrouter/free-auto`. That is an internal sentinel (the
+  // free-model picker resolves it per call; so does `nodeagent/free-auto`), not an OpenRouter model id, and this single-shot stream has no picker, so it is
+  // refused here before any request instead of posting the sentinel or the raw string.
+  const resolved = resolveModelAlias(modelId);
+  if (isOpenRouterFreeAutoModel(resolved) || isNodeAgentFreeAutoModel(resolved)) throw new Error(`private_stream_free_auto_unsupported:${modelId}`);
+  const route = assertProviderRouteAllowed({ model: resolved, entrypoint: "private_agent", env: process.env });
   const safeSystem = redactPII(system).text;
   const safeUser = redactPII(userMsg).text;
   if (route.provider === "gemini") return geminiStream(route.resolvedModel, safeSystem, safeUser, append);

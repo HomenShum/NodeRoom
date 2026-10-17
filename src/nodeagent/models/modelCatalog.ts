@@ -13,18 +13,15 @@
  * - gpt-5.4-mini: Efficient reasoning
  * - gpt-5.4-nano: Ultra-efficient
  *
- * Anthropic (current + compatibility lanes):
- * - claude-opus-4.7: latest flagship
- * - claude-sonnet-4.6: latest balanced lane
- * - claude-haiku-4.5: latest fast lane
+ * Anthropic (5.5 lanes first; 4.x kept as compatibility lanes for persisted rooms):
+ * - claude-opus-5-5 / claude-sonnet-5-5 / claude-haiku-5-5: current flagship / balanced / fast
+ * - claude-opus-4.7 / claude-sonnet-4.6 / claude-haiku-4.5: compatibility lanes
  *
- * Google (6 models):
- * - gemini-3.1-pro-preview: latest flagship preview
- * - gemini-3-flash-preview: fast preview lane
- * - gemini-3.1-flash-lite-preview: low-cost preview lane
- * - gemini-2.5-pro: Stable flagship (1M context)
- * - gemini-2.5-flash: stable efficient lane
- * - gemini-2.5-flash-lite: ultra-efficient stable lane
+ * Google (live lanes; the 2026-10 refresh, SPEC Part A §A.2.9):
+ * - gemini-3.1-pro-preview: the one Pro
+ * - gemini-3.8-flash: GA Flash (DEFAULT_AGENT_MODEL)
+ * - gemini-3.5-flash-lite: low-cost lane
+ * - gemini-3-flash-preview / gemini-3.1-flash-lite-preview / gemini-2.5-*: pricing rows kept for persisted rooms only
  *
  * For model resolution logic, see: convex/domains/agents/mcp_tools/models/
  */
@@ -33,7 +30,8 @@
 // TYPE DEFINITIONS
 // ═══════════════════════════════════════════════════════════════════════════
 
-import { OPENROUTER_FREE_AUTO_MODEL, OPENROUTER_FREE_META_MODEL, freeOpenRouterPricing } from "./openRouterFreeModels";
+import { OPENROUTER_FREE_AUTO_MODEL, OPENROUTER_FREE_META_MODEL, OPENROUTER_KNOWN_FREE_IDS, freeOpenRouterPricing } from "./openRouterFreeModels";
+import { DEFAULT_AGENT_MODEL } from "../../../convex/modelDefaults";
 
 /** Provider-neutral, free-first NodeAgent route. Concrete providers are resolved by the adapter. */
 export const NODEAGENT_FREE_AUTO_MODEL = "nodeagent/free-auto";
@@ -67,7 +65,44 @@ export interface ModelPricing {
   outputPer1M: number;   // Cost per 1M output tokens
   cachedInputPer1M?: number; // Cached input discount (if supported)
   contextWindow: number; // Max context window
+  /** Date the vendor list price was read (A.0.6 agreement test). Present on the 2026-10 refresh rows. */
+  pricingAsOf?: string;
+  /**
+   * Higher tier the vendor applies to the WHOLE request once its prompt exceeds `aboveInputTokens`
+   * (SPEC §1.3: claude-haiku-5-5 is $0.10/$0.50 up to 100K prompt tokens, $0.50/$2.50 above). The row's own
+   * rates are the lower tier. `cachedInputPer1M` is omitted when the vendor page does not list it; callers then
+   * charge cached tokens at the tier's input rate rather than guess (Haiku 5.5 lists both: $0.01 and $0.05).
+   */
+  longContext?: { aboveInputTokens: number; inputPer1M: number; outputPer1M: number; cachedInputPer1M?: number };
 }
+
+/** The rates a request with `inputTokens` prompt tokens is billed at: the row's own, or its long-context tier. */
+export function ratesForPrompt(pricing: ModelPricing, inputTokens: number): Pick<ModelPricing, "inputPer1M" | "outputPer1M" | "cachedInputPer1M"> {
+  const tier = pricing.longContext;
+  return tier && inputTokens > tier.aboveInputTokens ? tier : pricing;
+}
+
+/**
+ * USD for ONE provider request, tier-aware (uncached input). The tier is chosen from this request's own prompt size,
+ * so it is only correct when `inputTokens` is a single request's prompt. Reservations, settlement and per-step
+ * pricing (`priceStep`) route through this; usage summed over several requests must NOT (see `priceAggregateTokens`).
+ */
+export function priceTokens(pricing: ModelPricing, inputTokens: number, outputTokens: number): number {
+  const rates = ratesForPrompt(pricing, inputTokens);
+  return (inputTokens * rates.inputPer1M + outputTokens * rates.outputPer1M) / 1_000_000;
+}
+
+/**
+ * USD for usage summed over an unknown number of requests, at the row's own (base-tier) rates. A sum of 60K + 60K
+ * prompts is not one 120K prompt, so no tier is guessed from the total; this is a floor for runs that actually
+ * crossed the long-context tier. Prefer the sum of per-request settled costs (`usage.costUsd`, meter dispatches)
+ * whenever the caller has them.
+ */
+export function priceAggregateTokens(pricing: ModelPricing, inputTokens: number, outputTokens: number): number {
+  return (inputTokens * pricing.inputPer1M + outputTokens * pricing.outputPer1M) / 1_000_000;
+}
+
+const HAIKU_5_5_LONG_CONTEXT = { aboveInputTokens: 100_000, inputPer1M: 0.50, outputPer1M: 2.50, cachedInputPer1M: 0.05 }; // vendor "Cache read $0.01 / $0.05" (frontier.json)
 
 export const modelPricing: Record<string, ModelPricing> = {
   // OpenAI - GPT-5.4 family (official docs, April 2026)
@@ -97,10 +132,32 @@ export const modelPricing: Record<string, ModelPricing> = {
   "claude-haiku-4-5": { inputPer1M: 1.00, outputPer1M: 5.00, cachedInputPer1M: 0.10, contextWindow: 200000 },
   "claude-sonnet-4-6": { inputPer1M: 3.00, outputPer1M: 15.00, cachedInputPer1M: 0.30, contextWindow: 1000000 },
   "claude-opus-4-8": { inputPer1M: 5.00, outputPer1M: 25.00, cachedInputPer1M: 0.50, contextWindow: 1000000 },
+  // Retired (kept for persisted rows): the dotted display ids alias to these, as the old regex rewrite did, so they price under either spelling.
+  // Prices are origin/main's own "claude-opus-4.1" / "claude-haiku-3.5" rows, whose block header reads "official docs, April 2026" (A.0.6: dated, source cited).
+  "claude-opus-4-1": { inputPer1M: 15.00, outputPer1M: 75.00, cachedInputPer1M: 1.50, contextWindow: 200000, pricingAsOf: "2026-04" },
+  "claude-haiku-3-5": { inputPer1M: 0.80, outputPer1M: 4.00, cachedInputPer1M: 0.08, contextWindow: 200000, pricingAsOf: "2026-04" },
   // gemini-3.1-flash-lite-preview was shut down → the GA id:
   "gemini-3.1-flash-lite": { inputPer1M: 0.25, outputPer1M: 1.50, contextWindow: 1000000 },
   "gemini-3.5-flash": { inputPer1M: 1.50, outputPer1M: 9.00, contextWindow: 1000000 }, // latest, most-intelligent Flash
   "gpt-5.5": { inputPer1M: 5.00, outputPer1M: 30.00, contextWindow: 400000 }, // OpenAI flagship (newer than 5.4)
+  // ── 2026-10 model refresh (SPEC Part A §A.2.9; vendor list prices read 2026-10-10, frontier.json) ──
+  // claude-haiku-5-5 is TIERED: the row is the <=100K tier; `longContext` is the $0.50/$2.50 tier above 100K prompt tokens.
+  "claude-haiku-5-5": { inputPer1M: 0.10, outputPer1M: 0.50, cachedInputPer1M: 0.01, contextWindow: 1000000, pricingAsOf: "2026-10-10", longContext: HAIKU_5_5_LONG_CONTEXT },
+  "claude-sonnet-5-5": { inputPer1M: 2.00, outputPer1M: 10.00, cachedInputPer1M: 0.10, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
+  "claude-opus-5-5": { inputPer1M: 4.00, outputPer1M: 20.00, cachedInputPer1M: 0.20, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
+  // OpenRouter transport of the same models (slug form, A.0.5); same list price.
+  "anthropic/claude-haiku-5.5": { inputPer1M: 0.10, outputPer1M: 0.50, cachedInputPer1M: 0.01, contextWindow: 1000000, pricingAsOf: "2026-10-10", longContext: HAIKU_5_5_LONG_CONTEXT },
+  "anthropic/claude-sonnet-5.5": { inputPer1M: 2.00, outputPer1M: 10.00, cachedInputPer1M: 0.10, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
+  "anthropic/claude-opus-5.5": { inputPer1M: 4.00, outputPer1M: 20.00, cachedInputPer1M: 0.20, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
+  // Exact id behind the claude-opus-4.7 display id (it used to be rewritten to 4-8; see modelAliases). frontier.json lists
+  // only "$5 in / $25 out" for it, so no cached rate is stated (ModelPricing: omitted when the vendor page does not list it).
+  "claude-opus-4-7": { inputPer1M: 5.00, outputPer1M: 25.00, contextWindow: 1000000, pricingAsOf: "2026-10-10" },
+  // Gemini Flash intro price: $0.75/$3.75 through 2026-12-31, then $1.50/$7.50 from 2027-01-01 (re-price then).
+  "gemini-3.8-flash": { inputPer1M: 0.75, outputPer1M: 3.75, cachedInputPer1M: 0.075, contextWindow: 1048576, pricingAsOf: "2026-10-10" },
+  // Ladder receipt baseline (3.5 is served as 3.6). contextWindow: frontier.json marks the 3.6 context UNVERIFIED; the figure is
+  // context_length 1048576 for google/gemini-3.6-flash on the public OpenRouter list (GET /api/v1/models, read 2026-10-16).
+  "gemini-3.6-flash": { inputPer1M: 0.75, outputPer1M: 3.75, contextWindow: 1048576, pricingAsOf: "2026-10-10" },
+  "gemini-3.5-flash-lite": { inputPer1M: 0.30, outputPer1M: 2.50, cachedInputPer1M: 0.03, contextWindow: 1048576, pricingAsOf: "2026-10-10" },
   // OpenRouter FREE tier (tool-calling) — needs OPENROUTER_API_KEY to actually run:
   [OPENROUTER_FREE_AUTO_MODEL]: freeOpenRouterPricing(1_000_000),
   [OPENROUTER_FREE_META_MODEL]: freeOpenRouterPricing(200_000),
@@ -212,7 +269,7 @@ export const tierLimits: Record<UserTier, TierLimits> = {
     tokensPerDay: 10_000,
     maxTokensPerRequest: 2_000,
     allowedProviders: ["openai", "anthropic", "gemini"],
-    allowedModels: ["gpt-5.4-nano", "claude-haiku-4.5", "gemini-3.1-flash-lite-preview"],
+    allowedModels: ["gpt-5.4-nano", "claude-haiku-4.5", "gemini-3.1-flash-lite-preview", "claude-haiku-5-5", "gemini-3.5-flash-lite"],
     costLimitPerDay: 0.01,
   },
   free: {
@@ -220,7 +277,7 @@ export const tierLimits: Record<UserTier, TierLimits> = {
     tokensPerDay: 100_000,
     maxTokensPerRequest: 8_000,
     allowedProviders: ["openai", "anthropic", "gemini"],
-    allowedModels: ["gpt-5.4-mini", "gpt-5.4-nano", "claude-haiku-4.5", "gemini-2.5-flash"],
+    allowedModels: ["gpt-5.4-mini", "gpt-5.4-nano", "claude-haiku-4.5", "gemini-2.5-flash", "claude-haiku-5-5", "gemini-3.5-flash-lite"],
     costLimitPerDay: 0.50,
   },
   pro: {
@@ -269,34 +326,36 @@ export const llmModelCatalog: ModelCatalog = {
     coding: ["gpt-5.4", "gpt-5.4-mini"],
   },
   anthropic: {
-    chat: ["claude-haiku-4.5", "claude-sonnet-4.6"],
-    agent: ["claude-haiku-4.5", "claude-sonnet-4.6", "claude-opus-4.7"],
-    router: ["claude-haiku-4.5"],
-    judge: ["claude-sonnet-4.6", "claude-opus-4.7"],
-    analysis: ["claude-sonnet-4.6", "claude-opus-4.7"],
-    deepResearch: ["claude-sonnet-4.6", "claude-opus-4.7"],
-    vision: ["claude-sonnet-4.6", "claude-opus-4.7"],
-    fileSearch: ["claude-haiku-4.5"],
-    voice: ["claude-haiku-4.5"],
-    coding: ["claude-sonnet-4.6", "claude-opus-4.7"],
+    // 5.5 ids first (add-only; the 4.x ids stay valid for persisted rooms).
+    chat: ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-haiku-4.5", "claude-sonnet-4.6"],
+    agent: ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5", "claude-haiku-4.5", "claude-sonnet-4.6", "claude-opus-4.7"],
+    router: ["claude-haiku-5-5", "claude-haiku-4.5"],
+    judge: ["claude-sonnet-5-5", "claude-opus-5-5", "claude-sonnet-4.6", "claude-opus-4.7"],
+    analysis: ["claude-sonnet-5-5", "claude-opus-5-5", "claude-sonnet-4.6", "claude-opus-4.7"],
+    deepResearch: ["claude-sonnet-5-5", "claude-opus-5-5", "claude-sonnet-4.6", "claude-opus-4.7"],
+    vision: ["claude-sonnet-5-5", "claude-opus-5-5", "claude-sonnet-4.6", "claude-opus-4.7"],
+    fileSearch: ["claude-haiku-5-5", "claude-haiku-4.5"],
+    voice: ["claude-haiku-5-5", "claude-haiku-4.5"],
+    coding: ["claude-sonnet-5-5", "claude-opus-5-5", "claude-sonnet-4.6", "claude-opus-4.7"],
   },
   gemini: {
-    // Gemini 3 (preview) → 2.5 (stable) → 2.0 (deprecated March 31 2026).
-    // Callers can still override explicitly with any model ID.
-    chat: ["gemini-3-flash-preview", "gemini-3.1-flash-lite-preview", "gemini-2.5-flash"],
-    agent: ["gemini-3.1-pro-preview", "gemini-3-flash-preview", "gemini-2.5-pro"],
-    router: ["gemini-3.1-flash-lite-preview", "gemini-2.5-flash-lite"],
-    judge: ["gemini-3.1-pro-preview", "gemini-3-flash-preview", "gemini-2.5-pro"],
-    analysis: ["gemini-3.1-pro-preview", "gemini-3-flash-preview", "gemini-2.5-pro"],
+    // GA Flash (3.8) + Flash-Lite (3.5) + the one Pro (3.1 preview). gemini-3.1-flash-lite-preview was shut
+    // down 2026-05-25; gemini-2.5-* is prior-users-only (OpenRouter expiry 2026-10-20); gemini-3-flash-preview
+    // is deprecated. Their pricing rows stay for persisted rooms. Callers can still override with any id.
+    chat: ["gemini-3.8-flash", "gemini-3.5-flash-lite"],
+    agent: ["gemini-3.1-pro-preview", "gemini-3.8-flash"],
+    router: ["gemini-3.5-flash-lite"],
+    judge: ["gemini-3.1-pro-preview", "gemini-3.8-flash"],
+    analysis: ["gemini-3.1-pro-preview", "gemini-3.8-flash"],
     deepResearch: [
       "deep-research-preview-04-2026",
       "deep-research-max-preview-04-2026",
       "deep-research-pro-preview-12-2025",
     ],
-    vision: ["gemini-3-flash-preview", "gemini-3.1-pro-preview", "gemini-2.5-pro"],
-    fileSearch: ["gemini-3.1-flash-lite-preview", "gemini-2.5-flash-lite"],
-    voice: ["gemini-3.1-flash-lite-preview", "gemini-2.5-flash-lite"],
-    coding: ["gemini-3.1-pro-preview", "gemini-3-flash-preview", "gemini-2.5-pro"],
+    vision: ["gemini-3.8-flash", "gemini-3.1-pro-preview"],
+    fileSearch: ["gemini-3.5-flash-lite"],
+    voice: ["gemini-3.5-flash-lite"],
+    coding: ["gemini-3.1-pro-preview", "gemini-3.8-flash"],
   },
   openrouter: {
     // Kimi K3 (1M ctx) leads the agentic lanes; z-ai/glm-5.2 demoted to fallback so no
@@ -391,7 +450,7 @@ export function getAvailableModels(task: LlmTask, provider: LlmProvider = "openr
  */
 export function isValidModel(modelName: string, provider: LlmProvider): boolean {
   const allModels = Object.values(llmModelCatalog[provider] ?? {}).flat();
-  const resolved = resolveModelAlias(modelName);
+  const resolved = lookupModelAlias(modelName);
   return allModels.includes(modelName) || allModels.includes(resolved);
 }
 
@@ -415,11 +474,9 @@ export function calculateRequestCost(
     return (inputTokens * 0.15 + outputTokens * 0.60) / 1_000_000;
   }
 
-  const inputRate = useCachedInput && pricing.cachedInputPer1M 
-    ? pricing.cachedInputPer1M 
-    : pricing.inputPer1M;
-
-  return (inputTokens * inputRate + outputTokens * pricing.outputPer1M) / 1_000_000;
+  const rates = ratesForPrompt(pricing, inputTokens);
+  const inputRate = useCachedInput && rates.cachedInputPer1M ? rates.cachedInputPer1M : rates.inputPer1M;
+  return (inputTokens * inputRate + outputTokens * rates.outputPer1M) / 1_000_000;
 }
 
 /**
@@ -612,14 +669,26 @@ export const modelAliases: Record<string, string> = {
   "claude": "claude-sonnet-4.6",
   "claude-4": "claude-sonnet-4.6",
   "claude-sonnet": "claude-sonnet-4.6",
-  "claude-opus": "claude-opus-4.7",
+  // The opus shortcuts keep resolving to 4-8 (what "claude-opus-4.7" used to be rewritten to); the dotted
+  // display id below is now exact. Moving the shortcuts to 5.5 is a product decision, not part of this refresh.
+  "claude-opus": "claude-opus-4-8",
   "claude-haiku": "claude-haiku-4.5",
-  // Dotted display ids -> hyphenated direct-API ids (dotted Anthropic ids 404; opus display lags to 4-8).
+  // Dotted display ids -> hyphenated direct-API ids (dotted Anthropic ids 404). Explicit table (A.0.5):
+  // the old /\./g regex rewrite is gone, so every dotted id that may sit in a persisted row is listed.
+  "claude-sonnet-4.5": "claude-sonnet-4-5",
   "claude-sonnet-4.6": "claude-sonnet-4-6",
   "claude-haiku-4.5": "claude-haiku-4-5",
-  "claude-opus-4.7": "claude-opus-4-8",
+  "claude-opus-4.5": "claude-opus-4-5",
+  "claude-opus-4.6": "claude-opus-4-6",
+  "claude-opus-4.7": "claude-opus-4-7", // was "claude-opus-4-8" (lossy: a 4.7 request silently ran 4.8)
+  "claude-opus-4.8": "claude-opus-4-8",
+  "claude-opus-4.1": "claude-opus-4-1", // retired; the old regex sent the hyphenated form
+  "claude-haiku-3.5": "claude-haiku-3-5", // retired; the old regex sent the hyphenated form
+  "claude-haiku-5.5": "claude-haiku-5-5",
+  "claude-sonnet-5.5": "claude-sonnet-5-5",
+  "claude-opus-5.5": "claude-opus-5-5",
   "sonnet": "claude-sonnet-4.6",
-  "opus": "claude-opus-4.7",
+  "opus": "claude-opus-4-8",
   "haiku": "claude-haiku-4.5",
   "anthropic": "claude-sonnet-4.6",
 
@@ -639,7 +708,7 @@ export const modelAliases: Record<string, string> = {
 
   // OpenRouter aliases
   "openrouter": "z-ai/glm-5.2",
-  "auto": "gemini-3.5-flash",
+  "auto": DEFAULT_AGENT_MODEL,
   "free": OPENROUTER_FREE_AUTO_MODEL,
   "free-auto": OPENROUTER_FREE_AUTO_MODEL,
   "openrouter-auto": OPENROUTER_FREE_AUTO_MODEL,
@@ -698,18 +767,144 @@ export const modelAliases: Record<string, string> = {
   "nebius/deepseek-v4-pro": "nebius/deepseek-ai/DeepSeek-V4-Pro",
 };
 
+// ═══════════════════════════════════════════════════════════════════════════
+// CLAUDE 5.5 REQUEST-SHAPE FACTS (SPEC §1.3, keyed by exact wire id, never by pattern)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** Claude 5.5 wire ids: direct `claude-*-5-5`, OpenRouter `anthropic/claude-*-5.5` (SPEC §1.2). */
+const CLAUDE_55_IDS: ReadonlySet<string> = new Set([
+  "claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5",
+  "anthropic/claude-haiku-5.5", "anthropic/claude-sonnet-5.5", "anthropic/claude-opus-5.5",
+]);
+
+/** Ids whose §1.3 row rejects a forced `tool_choice` (`any` / named) with a 400. Haiku 5.5 accepts it. */
+const FORCED_TOOL_CHOICE_FORBIDDEN: ReadonlySet<string> = new Set([
+  "claude-sonnet-5-5", "claude-opus-5-5", "claude-fable-5-1",
+  "anthropic/claude-sonnet-5.5", "anthropic/claude-opus-5.5", "anthropic/claude-fable-5.1",
+]);
+
+/** Thinking counts toward max_tokens on 5.5, so caps sized for 4.5 truncate. */
+export function isClaude55Id(modelId: string): boolean {
+  return CLAUDE_55_IDS.has(modelId.trim().toLowerCase());
+}
+
+/** True when the provider would 400 a forced tool_choice; callers send `auto` and validate after the turn. */
+export function forbidsForcedToolChoice(modelId: string): boolean {
+  return FORCED_TOOL_CHOICE_FORBIDDEN.has(modelId.trim().toLowerCase());
+}
+
+/** Default effort per 5.5 id (SPEC §1.3), sent explicitly so a vendor default change cannot move the lane. */
+export function claudeDefaultEffort(modelId: string): "medium" | "high" | undefined {
+  switch (modelId.trim().toLowerCase()) {
+    case "claude-haiku-5-5": case "anthropic/claude-haiku-5.5": return "medium";
+    case "claude-sonnet-5-5": case "anthropic/claude-sonnet-5.5": return "high";
+    case "claude-opus-5-5": case "anthropic/claude-opus-5.5": return "medium";
+    default: return undefined;
+  }
+}
+
+/** `providerOptions` carrying the explicit §1.3 effort for a direct-Anthropic Claude 5.5 id; `{}` for every other id. */
+export function claudeEffortProviderOptions(modelId: string): { providerOptions?: { anthropic: { effort: "medium" | "high" } } } {
+  const effort = claudeDefaultEffort(modelId);
+  return effort && getProviderForModel(modelId) === "anthropic" ? { providerOptions: { anthropic: { effort } } } : {};
+}
+
+/**
+ * SPEC §1.3: where a forced `tool_choice` is replaced by `auto` (Sonnet/Opus 5.5), the tool definitions carry
+ * `strict: true` so the arguments are still schema-valid. True exactly when that downgrade happens.
+ */
+export function needsStrictTools(modelId: string, requested?: "auto" | "required"): boolean {
+  return requested === "required" && forbidsForcedToolChoice(modelId);
+}
+
 /**
  * Resolve a model alias to its full model ID.
  * If no alias exists, returns the original input.
  */
-export function resolveModelAlias(modelInput: string): string {
-  const normalized = modelInput.toLowerCase().trim();
+export function lookupModelAlias(modelInput: string): string {
+  const hop = (id: string) => (Object.hasOwn(modelAliases, id.toLowerCase().trim()) ? modelAliases[id.toLowerCase().trim()] : id);
   // Resolve up to two hops: a shortcut ("claude-sonnet") -> dotted display id ("claude-sonnet-4.6")
   // -> hyphenated direct-API id ("claude-sonnet-4-6"). Dotted Anthropic ids 404.
-  const once = modelAliases[normalized] ?? modelInput;
-  const twice = modelAliases[once.toLowerCase().trim()] ?? once;
-  if (twice.startsWith("claude-") && twice.includes(".")) return twice.replace(/\./g, "-");
-  return twice;
+  return hop(hop(modelInput));
+}
+
+/** Every name the alias table declares, as a key or a target: the catalog knows them even where no price row exists yet. */
+const ALIAS_DECLARED_IDS: ReadonlySet<string> = new Set([...Object.keys(modelAliases), ...Object.values(modelAliases)]);
+
+/**
+ * Ids the repo ships or freezes by name but has no price row for: the mobile picker (`MODEL_REGISTRY`), the benchmark
+ * routes (`SUPPORTED_MODEL_ROUTES`, a frozen promotion table) and the frozen benchmark defaults (SPEC A.2.9: the BTB
+ * identity `gpt-4.1-mini`, the benchmark judge). They resolve exactly as before this PR (A.0.4: caller arguments are
+ * kept); a metered run still refuses them as unpriced (`priceRunStrict`). Keep in step with those sources:
+ * tests/modelKnownIds.test.ts fails when one of them names an id this set and the catalog do not know.
+ */
+const REPO_DECLARED_UNPRICED_IDS: readonly string[] = [
+  // src/landing/modelRegistry.ts MODEL_REGISTRY (the defer row :48 stays as shipped)
+  "anthropic/claude-fable-5", "openai/gpt-5.5", "google/gemini-3.5-flash",
+  // scripts/benchmark/modelEvalConfig.ts SUPPORTED_MODEL_ROUTES (frozen promotion tags)
+  "ibm-granite/granite-4.1-8b", "inclusionai/ring-2.6-1t", "xiaomi/mimo-v2.5", "google/gemini-3.1-flash-lite",
+  "poolside/laguna-xs.2:free", "poolside/laguna-m.1:free",
+  // frozen benchmark defaults: bankertoolbench-nodeagent-clean-sequential.mjs:8 and its OpenRouter form
+  "gpt-4.1-mini", "openai/gpt-4.1-mini",
+  // frozen official judges (SPEC A.2.9 Frozen): finch-official-judge.py:20 / package.json:82, mbabench-official-sweep.py:26
+  "gpt-5-mini", "google/gemini-3-flash-preview",
+  // src/nodeagent/core/adaptiveRouter.ts chooseNodeAgentRoute: the benchmark-lane label (origin/main resolved it as itself).
+  "openrouter/auto",
+  // scripts/benchmark/modelEvalConfig.ts OPENROUTER_TOP_PAID_AGENT_ROUTES (frozen; `model-eval-matrix --route-set top-paid`
+  // resolves every one through model(id)). SPEC-v9 D1 names this list; origin/main resolved all 19 as themselves.
+  "z-ai/glm-5.2", "moonshotai/kimi-k2.7-code", "nvidia/nemotron-3-ultra-550b-a55b", "qwen/qwen3.7-plus", "minimax/minimax-m3",
+  "stepfun/step-3.7-flash", "qwen/qwen3.7-max", "x-ai/grok-build-0.1", "inclusionai/ring-2.6-1t", "x-ai/grok-4.3",
+  "poolside/laguna-xs.2", "poolside/laguna-m.1", "qwen/qwen3.5-plus-20260420", "qwen/qwen3.6-flash", "qwen/qwen3.6-35b-a3b",
+  "qwen/qwen3.6-27b", "deepseek/deepseek-v4-pro",
+  // SPEC-v9 section 1.2 wire ids, every transport (D1: an id in 1.2 is known). Most carry a price row above; the rest are
+  // known unpriced, and a metered run still refuses them (priceRunStrict). The verified :free ids are OPENROUTER_KNOWN_FREE_IDS.
+  "claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5", "claude-fable-5-1",
+  "anthropic/claude-haiku-5.5", "anthropic/claude-sonnet-5.5", "anthropic/claude-opus-5.5", "anthropic/claude-fable-5.1",
+  "anthropic.claude-haiku-5-5", "anthropic.claude-sonnet-5-5", "anthropic.claude-opus-5-5", "anthropic.claude-fable-5-1",
+  "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-3.1-pro-preview", "gemini-3.8-flash-tts", "gemini-3.8-live",
+  "google/gemini-3.8-flash", "google/gemini-3.6-flash", "google/gemini-3.5-flash-lite", "google/gemini-3.1-pro-preview",
+  "gpt-6.1-sol", "openai/gpt-6.1-sol", "gpt-6-luna", "openai/gpt-6-luna", "gpt-5.4-mini", "openai/gpt-5.4-mini",
+  "moonshotai/kimi-k3", "z-ai/glm-5.3", "minimax/minimax-m3", "nvidia/nemotron-3-super-120b-a12b:free",
+];
+
+/** Every name the catalog knows without a price row: alias keys and targets, the declared ids above, the known free ids. */
+const UNPRICED_KNOWN_IDS: ReadonlySet<string> = new Set([
+  ...ALIAS_DECLARED_IDS, ...REPO_DECLARED_UNPRICED_IDS, ...OPENROUTER_KNOWN_FREE_IDS,
+].map((id) => id.toLowerCase()));
+
+/** An id that is not priced, not an alias, not declared by the repo, not a free route and not free-looking (SPEC A.0.10): never a paid default. */
+export class UnknownModelError extends Error {
+  constructor(readonly modelId: string) {
+    super(`unknown model id "${modelId}": not in the catalog, so it cannot be routed (add a verified row to modelCatalog.modelPricing)`);
+    this.name = "UnknownModelError";
+  }
+}
+
+/** `-free` / `:free` suffix: the id CLAIMS to cost nothing. */
+const FREE_LOOKING_ID = /[-:]free$/i;
+
+/**
+ * Route resolution for anything that DISPATCHES (SPEC A.0.10 - cost class preserved, unknown ids fail closed).
+ * A catalog id (priced, or a free route) resolves through the alias table; an unknown free-looking id resolves to
+ * the verified free route `openrouter/free-auto`; every other unknown id throws `UnknownModelError`.
+ * Pricing and telemetry readers, which must tolerate historical ids, use `lookupModelAlias`.
+ */
+export function resolveModelAlias(modelInput: string): string {
+  const resolved = lookupModelAlias(modelInput);
+  // Known = priced, or declared without a price (persisted rows may hold "claude-sonnet-4.5" / "claude-sonnet-4-5",
+  // which the alias table lists but no price row covers; the picker, benchmark and free catalogs too). A known id is
+  // returned as itself - a concrete `:free` id is never rerouted - and a metered run still refuses an unpriced one.
+  const known = [resolved, modelInput.trim(), modelInput.toLowerCase().trim()];
+  if (isNodeAgentFreeAutoModel(resolved) || known.some((id) => Object.hasOwn(modelPricing, id) || UNPRICED_KNOWN_IDS.has(id.toLowerCase()))) return resolved;
+  if (FREE_LOOKING_ID.test(resolved.trim())) return OPENROUTER_FREE_AUTO_MODEL;
+  throw new UnknownModelError(modelInput);
+}
+
+/** True when the resolved route costs nothing per token (a zero-priced row, a `:free` id, a free route). */
+export function isFreeModelId(modelId: string): boolean {
+  if (isNodeAgentFreeAutoModel(modelId)) return true;
+  const pricing = getModelPricing(lookupModelAlias(modelId));
+  return pricing != null && pricing.inputPer1M === 0 && pricing.outputPer1M === 0;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -806,33 +1001,43 @@ export function validateContextWindow(
 export const modelFallbackChains: Record<string, string[]> = {
   // OpenAI flagship → smaller OpenAI → cross-provider small model
   "gpt-5.4": ["z-ai/glm-5.2", "moonshotai/kimi-k2.7-code", "gemini-3.1-pro-preview", "gpt-5.4-mini", "minimax/minimax-m3"],
-  "gpt-5.4-mini": ["gemini-3.1-flash-lite-preview", "minimax/minimax-m3", "qwen/qwen3.7-plus", "gemini-3-flash-preview", "gpt-5.4-nano"],
+  "gpt-5.4-mini": ["gemini-3.5-flash-lite", "minimax/minimax-m3", "qwen/qwen3.7-plus", "gemini-3.8-flash", "gpt-5.4-nano"],
 
   // Anthropic premium → cheaper Anthropic → cross-provider small model
+  // Claude 5.5 ids (the migration-guide successors); the 4.x keys below stay for persisted rooms.
+  "claude-opus-5-5": ["claude-sonnet-5-5", "z-ai/glm-5.2", "gpt-5.4", "gemini-3.1-pro-preview", "gpt-5.4-mini"],
+  "claude-sonnet-5-5": ["z-ai/glm-5.2", "gpt-5.4-mini", "gemini-3.8-flash", "moonshotai/kimi-k2.7-code", "minimax/minimax-m3"],
+  "claude-haiku-5-5": ["gpt-5.4-nano", "gemini-3.5-flash-lite", "qwen/qwen3.7-plus", "minimax/minimax-m3", "z-ai/glm-4.7-flash"],
   "claude-opus-4.7": ["claude-sonnet-4.6", "z-ai/glm-5.2", "gpt-5.4", "gemini-3.1-pro-preview", "gpt-5.4-mini"],
-  "claude-sonnet-4.6": ["z-ai/glm-5.2", "gpt-5.4-mini", "gemini-3-flash-preview", "moonshotai/kimi-k2.7-code", "minimax/minimax-m3"],
-  "claude-haiku-4.5": ["gpt-5.4-nano", "gemini-3.1-flash-lite-preview", "qwen/qwen3.7-plus", "minimax/minimax-m3", "z-ai/glm-4.7-flash"],
-  "claude-opus-4.1": ["claude-opus-4", "claude-sonnet-4", "claude-haiku-3.5", "gpt-5.4-mini", "gemini-2.5-flash"],
-  "claude-opus-4": ["claude-sonnet-4", "claude-haiku-3.5", "gpt-5.4-mini", "gemini-2.5-flash"],
-  "claude-sonnet-4": ["claude-haiku-3.5", "gpt-5.4-mini", "gemini-2.5-flash"],
+  "claude-sonnet-4.6": ["z-ai/glm-5.2", "gpt-5.4-mini", "gemini-3.8-flash", "moonshotai/kimi-k2.7-code", "minimax/minimax-m3"],
+  "claude-haiku-4.5": ["gpt-5.4-nano", "gemini-3.5-flash-lite", "qwen/qwen3.7-plus", "minimax/minimax-m3", "z-ai/glm-4.7-flash"],
+  // Retired Claude 4 / 4.1 / Haiku 3.5 keys: members that are retired are dropped, the chain points at live ids.
+  "claude-opus-4.1": ["claude-sonnet-5-5", "gpt-5.4-mini", "gemini-3.8-flash"],
+  "claude-opus-4": ["claude-sonnet-5-5", "gpt-5.4-mini", "gemini-3.8-flash"],
+  "claude-sonnet-4": ["claude-sonnet-5-5", "gpt-5.4-mini", "gemini-3.8-flash"],
 
-  // Gemini 3.x preview → stable 2.5 → cross-provider advisor/executor lanes
-  "gemini-3.1-pro-preview": ["z-ai/glm-5.2", "gemini-3-flash-preview", "gemini-2.5-pro", "moonshotai/kimi-k2.7-code", "gpt-5.4"],
-  "gemini-3-flash-preview": ["qwen/qwen3.7-plus", "gemini-3.1-flash-lite-preview", "gemini-2.5-flash", "gpt-5.4-mini", "minimax/minimax-m3"],
-  "gemini-3.1-flash-lite-preview": ["qwen/qwen3.7-plus", "gemini-3-flash-preview", "gemini-2.5-flash-lite", "gpt-5.4-mini", "minimax/minimax-m3"],
-  "gemini-2.5-pro": ["z-ai/glm-5.2", "gemini-3.1-pro-preview", "gemini-3-flash-preview", "moonshotai/kimi-k2.7-code", "gpt-5.4"],
-  "gemini-2.5-flash": ["qwen/qwen3.7-plus", "gemini-3-flash-preview", "gemini-3.1-flash-lite-preview", "gpt-5.4-mini", "minimax/minimax-m3"],
+  // Gemini 3.x Pro + retired Gemini keys → cross-provider advisor/executor lanes. Retired or
+  // prior-users-only members (gemini-3.1-flash-lite-preview, gemini-2.5-*) are dropped from the values;
+  // those ids stay as keys so a persisted room still on one of them has an escape route.
+  // gemini-3.8-flash (DEFAULT_AGENT_MODEL), gemini-3.6-flash and gemini-3.5-flash-lite deliberately have NO key:
+  // origin/main's default route had no failover chain, and a chain would send room content cross-provider
+  // (OpenRouter, OpenAI) on a failed default turn. Adding one is a separate decision.
+  "gemini-3.1-pro-preview": ["z-ai/glm-5.2", "gemini-3.8-flash", "moonshotai/kimi-k2.7-code", "gpt-5.4"],
+  "gemini-3-flash-preview": ["qwen/qwen3.7-plus", "gemini-3.5-flash-lite", "gpt-5.4-mini", "minimax/minimax-m3"],
+  "gemini-3.1-flash-lite-preview": ["qwen/qwen3.7-plus", "gemini-3.8-flash", "gpt-5.4-mini", "minimax/minimax-m3"],
+  "gemini-2.5-pro": ["z-ai/glm-5.2", "gemini-3.1-pro-preview", "gemini-3.8-flash", "moonshotai/kimi-k2.7-code", "gpt-5.4"],
+  "gemini-2.5-flash": ["qwen/qwen3.7-plus", "gemini-3.8-flash", "gemini-3.5-flash-lite", "gpt-5.4-mini", "minimax/minimax-m3"],
   "deep-research-max-preview-04-2026": ["deep-research-preview-04-2026", "gemini-3.1-pro-preview", "gpt-5.4"],
-  "deep-research-preview-04-2026": ["deep-research-max-preview-04-2026", "gemini-3.1-pro-preview", "gemini-2.5-pro"],
+  "deep-research-preview-04-2026": ["deep-research-max-preview-04-2026", "gemini-3.1-pro-preview"],
   "deep-research-pro-preview-12-2025": ["deep-research-preview-04-2026", "deep-research-max-preview-04-2026", "gemini-3.1-pro-preview"],
   "glm-5.2": ["moonshotai/kimi-k2.7-code", "qwen/qwen3.7-plus", "gemini-3.1-pro-preview", "gpt-5.4", "minimax/minimax-m3"],
   "z-ai/glm-5.2": ["moonshotai/kimi-k2.7-code", "qwen/qwen3.7-plus", "gemini-3.1-pro-preview", "gpt-5.4", "minimax/minimax-m3"],
   "nebius/zai-org/GLM-5.2": ["qwen/qwen3.7-plus", "nebius/MiniMaxAI/MiniMax-M2.5", "cohere/north-mini-code:free"],
   "kimi-k2.7-code": ["z-ai/glm-5.2", "qwen/qwen3.7-plus", "gemini-3.1-pro-preview", "gpt-5.4", "minimax/minimax-m3"],
   "moonshotai/kimi-k2.7-code": ["z-ai/glm-5.2", "qwen/qwen3.7-plus", "gemini-3.1-pro-preview", "gpt-5.4", "minimax/minimax-m3"],
-  "qwen/qwen3.7-plus": ["minimax/minimax-m3", "z-ai/glm-5.2", "gemini-3.1-flash-lite-preview", "stepfun/step-3.7-flash"],
-  "minimax-m3": ["qwen/qwen3.7-plus", "gemini-3.1-flash-lite-preview", "gpt-5.4-mini", "gemini-3-flash-preview"],
-  "minimax/minimax-m3": ["qwen/qwen3.7-plus", "gemini-3.1-flash-lite-preview", "gpt-5.4-mini", "gemini-3-flash-preview"],
+  "qwen/qwen3.7-plus": ["minimax/minimax-m3", "z-ai/glm-5.2", "gemini-3.5-flash-lite", "stepfun/step-3.7-flash"],
+  "minimax-m3": ["qwen/qwen3.7-plus", "gemini-3.5-flash-lite", "gpt-5.4-mini", "gemini-3.8-flash"],
+  "minimax/minimax-m3": ["qwen/qwen3.7-plus", "gemini-3.5-flash-lite", "gpt-5.4-mini", "gemini-3.8-flash"],
 };
 
 export function getNextFallback(model: string, attempted: string[]): string | null {

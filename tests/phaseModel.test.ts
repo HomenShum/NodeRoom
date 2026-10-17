@@ -70,9 +70,12 @@ describe("modelForFramePhase", () => {
 
   it("falls back when an artifact-aware egress gate rejects the phase override", () => {
     const env = { AGENT_ORCHESTRATOR_MODEL: "openrouter/free-auto" };
-    expect(authorizedModelForFramePhase("plan", "anthropic/claude-sonnet-4", () => false, env))
-      .toBe("anthropic/claude-sonnet-4");
-    expect(authorizedModelForFramePhase("plan", "anthropic/claude-sonnet-4", () => true, env))
+    // The fallback argument stands in for an operator-set AGENT_TOP_PAID_MODEL; claude-sonnet-4 retired 2026-06-15 (SPEC A.2.9), so the
+    // fixture follows the current wire id. The function under test only passes the argument through.
+    const TOP_PAID_FALLBACK = "anthropic/claude-sonnet-5.5";
+    expect(authorizedModelForFramePhase("plan", TOP_PAID_FALLBACK, () => false, env))
+      .toBe(TOP_PAID_FALLBACK);
+    expect(authorizedModelForFramePhase("plan", TOP_PAID_FALLBACK, () => true, env))
       .toBe("openrouter/free-auto");
   });
 

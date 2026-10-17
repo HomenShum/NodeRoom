@@ -19,7 +19,7 @@ import { SERVER_PRODUCTION_ROOM_TOOLS as PRODUCTION_ROOM_TOOLS } from "../src/no
 import { MANAGED_LOCK_SYSTEM_PROMPT } from "../src/nodeagent/models/prompts/systemPrompt";
 import { injectMemoryIntoSystemPrompt } from "../src/nodemem/memoryContextBuilder";
 import { nodeMemInjectionEnabled, nodeMemRecordingEnabled, nodeMemRoomConfigEnabled } from "./nodemem";
-import { configuredConvexModelFallbacks, convexModel as agentModel, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
+import { configuredConvexModelFallbacks, convexModel as agentModel, convexPriceRequest, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
 import { qualityFailoverRetryAt } from "../src/nodeagent/models/qualityFailover";
 import { authorizedModelForFramePhase } from "../src/nodeagent/models/phaseModel";
 import { buildResearchContext, buildCompanyDeepDiveContext } from "../src/nodeagent/core/worldModel";
@@ -43,6 +43,7 @@ import {
 } from "../src/nodeagent/guardrails/egressPolicy";
 import { makeConvexStepJournal } from "./agentStepJournalClient";
 import { createVerifiedWorkbookWorkflowHook } from "../src/nodeagent/guardrails/workbookWorkflow";
+import { DEFAULT_AGENT_MODEL, DEFAULT_FILE_EGRESS_MODEL } from "./modelDefaults";
 
 const CONVEX_ACTION_LIMIT_MS = 10 * 60_000;
 const DEFAULT_SLICE_BUDGET_MS = 7 * 60_000;
@@ -53,7 +54,6 @@ const DEFAULT_LEASE_EXTRA_MS = 60_000;
 const DEFAULT_RESUME_DELAY_MS = 5_000;
 const DEFAULT_CONTEXT_MAX_CHARS = 24_000;
 const DEFAULT_CONTEXT_KEEP_RECENT = 10;
-const DEFAULT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
 const RESUME_CHECKPOINT_PREFIX = "RESUME CHECKPOINT:";
 const agentJobsClaimSliceRef = makeFunctionReference<"mutation">("agentJobs:claimSlice") as any;
 const agentJobsFinishSliceRef = makeFunctionReference<"mutation">("agentJobs:finishSlice") as any;
@@ -509,7 +509,7 @@ export const runFreeAutoJobSlice = internalAction({
     const roomArtifacts = await ctx.runQuery(artifactsListForRoomRef, { roomId: claimed.roomId }) as Array<{ title?: string; kind?: string; meta?: unknown; visibility?: string }>;
     const egressArtifacts = providerEgressArtifactsForClaimedJob(roomArtifacts, claimed);
     let entrypoint = runnerEntrypoint(claimed);
-    const modelPolicy = claimed.modelPolicy || (entrypoint === "free" ? "openrouter/free-auto" : process.env.AGENT_MODEL ?? "gemini-3.5-flash");
+    const modelPolicy = claimed.modelPolicy || (entrypoint === "free" ? "openrouter/free-auto" : process.env.AGENT_MODEL ?? DEFAULT_AGENT_MODEL);
     let resolvedModelPolicy = modelPolicy === "openrouter/free-auto"
       ? process.env.FREE_AUTO_JOB_MODEL ?? modelPolicy
       : modelPolicy;
@@ -928,7 +928,7 @@ export const runFreeAutoJobSlice = internalAction({
           deadlineAt,
           reserveMs,
           spendLimits,
-          priceStep: (modelName: string, inputTokens: number, outputTokens: number) => priceRun(modelName, inputTokens, outputTokens),
+          priceStep: convexPriceRequest,
           onTextDelta: (delta, step) => onPublicTextDelta(delta, step),
           onStreamEvent: (event) => recordStreamEvent(event),
           onTrace: (event) => {
@@ -961,7 +961,7 @@ export const runFreeAutoJobSlice = internalAction({
         // USD half reachable (P0-4: without it the gate received costUsd=0 and maxCostUsd was dead
         // surface — one env var pointing free-auto at a paid model meant unbounded spend).
         spendLimits,
-        priceStep: (modelName: string, inputTokens: number, outputTokens: number) => priceRun(modelName, inputTokens, outputTokens),
+        priceStep: convexPriceRequest,
         onTextDelta: (delta, step) => onPublicTextDelta(delta, step),
         onStreamEvent: (event) => recordStreamEvent(event),
         onTrace: (event) => {

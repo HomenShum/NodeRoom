@@ -28,13 +28,14 @@ import {
 } from "../src/nodeagent/guardrails/egressPolicy";
 import { parseBulkCompanyIngest } from "../src/nodeagent/skills/finance/bulkIngest";
 import { finalizePublicAgentJobStreamAfterTerminal } from "./agentStreamTerminal";
+import { DEFAULT_AGENT_MODEL, DEFAULT_FILE_EGRESS_MODEL, DEFAULT_TOP_PAID_MODEL } from "./modelDefaults";
+import { resolveModelAlias, UnknownModelError } from "../src/nodeagent/models/modelCatalog";
 
 // BOUND: cap a single bulk-diligence fan-out so one command can't enqueue unbounded jobs.
 const MAX_BULK_COMPANIES = 50;
 const MAX_INVESTIGATION_ELEMENTS = 8_192;
 const MAX_INVESTIGATION_WRITE_IDS = 8_192;
 const LEASE_EXPIRY_GRACE_MS = 30_000;
-const DEFAULT_FILE_EGRESS_MODEL = "z-ai/glm-4.7-flash";
 const INVESTIGATION_RESEARCH_GOAL = "Research every pending or stale company in the exact authorized dataset: claim only its editable research fields, retrieve public sources, write evidence-bearing summary/funding/headcount/recent_signal plus source/source2/last_researched/status, and release every managed lock.";
 const INVESTIGATION_WRITABLE_FIELD_IDS = [
   "summary",
@@ -2094,13 +2095,29 @@ function defaultEntrypointForRoute(routePolicy: RoutePolicy): DurableStartEntryp
   return routePolicy === "free_auto" ? "free" : "public_ask";
 }
 
-function defaultModelPolicyForRoute(args: { routePolicy: RoutePolicy; entrypoint: DurableStartEntrypoint; mode?: "variance" | "research"; modelPolicy?: string }) {
-  if (args.modelPolicy) return args.modelPolicy;
+/** SPEC A.0.10 at the public API boundary: a model string the catalog does not know is refused before a job row persists it. */
+function knownModelPolicy(modelPolicy: string): string {
+  try {
+    resolveModelAlias(modelPolicy);
+  } catch (error) {
+    if (error instanceof UnknownModelError) throw new Error("unknown_model_policy");
+    throw error;
+  }
+  return modelPolicy;
+}
+
+/** `runRoomAgent` records a PlanPreview-blocked run with this marker: no model runs for a blocked job, so there is no id to check. */
+const NO_MODEL_MARKER = "not_started";
+
+function defaultModelPolicyForRoute(args: { routePolicy: RoutePolicy; entrypoint: DurableStartEntrypoint; mode?: "variance" | "research"; modelPolicy?: string; initialStatus?: "running" | "blocked" }) {
+  if (args.modelPolicy === NO_MODEL_MARKER && args.initialStatus === "blocked") return args.modelPolicy;
+  if (args.modelPolicy) return knownModelPolicy(args.modelPolicy);
   if (args.routePolicy === "explicit") throw new Error("explicit_route_requires_modelPolicy");
   if (args.routePolicy === "free_auto" || args.entrypoint === "free") return "openrouter/free-auto";
-  if (args.routePolicy === "top_paid") return process.env.AGENT_TOP_PAID_MODEL ?? process.env.AGENT_MODEL ?? "anthropic/claude-sonnet-4";
-  if (args.mode === "research") return process.env.AGENT_RESEARCH_MODEL ?? process.env.AGENT_WORKER_MODEL ?? "minimax/minimax-m3";
-  return process.env.AGENT_ORCHESTRATOR_MODEL ?? process.env.AGENT_MODEL ?? "gemini-3.5-flash";
+  // Env defaults are operator-set strings and reach the job row like a caller's argument, so they pass the same boundary check.
+  if (args.routePolicy === "top_paid") return knownModelPolicy(process.env.AGENT_TOP_PAID_MODEL ?? process.env.AGENT_MODEL ?? DEFAULT_TOP_PAID_MODEL);
+  if (args.mode === "research") return knownModelPolicy(process.env.AGENT_RESEARCH_MODEL ?? process.env.AGENT_WORKER_MODEL ?? "minimax/minimax-m3");
+  return knownModelPolicy(process.env.AGENT_ORCHESTRATOR_MODEL ?? process.env.AGENT_MODEL ?? DEFAULT_AGENT_MODEL);
 }
 
 function configuredFileEgressModel() {
@@ -2451,7 +2468,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
       throw new Error("investigation_write_scope_empty");
     }
   }
-  let modelPolicy = defaultModelPolicyForRoute({ routePolicy, entrypoint, mode: a.mode, modelPolicy: a.modelPolicy });
+  let modelPolicy = defaultModelPolicyForRoute({ routePolicy, entrypoint, mode: a.mode, modelPolicy: a.modelPolicy, initialStatus: a.initialStatus });
   const egressArtifacts = await providerEgressArtifactsForRoom(ctx, a.roomId, artifact);
   const freeFileEgressDecision = providerEgressDecision({
     model: modelPolicy,
@@ -2464,7 +2481,7 @@ async function startDurableAgentJob(ctx: any, a: DurableStartAgentJobArgs): Prom
   if (promotedForFileEgress) {
     entrypoint = "public_ask";
     routePolicy = "explicit";
-    modelPolicy = configuredFileEgressModel();
+    modelPolicy = knownModelPolicy(configuredFileEgressModel());
   }
   const defaultMaxAttempts = execution === "inline"
     ? 1

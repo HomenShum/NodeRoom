@@ -20,7 +20,8 @@ import { buildDemoRoom, RESEARCH_COMPANIES } from "../../src/engine/demoRoom";
 import { InMemoryRoomTools } from "../../src/nodeagent/skills/integration/noderoomAdapter";
 import { runAgent } from "../../src/nodeagent/core/runtime";
 import { model, priceRun, judge } from "../../src/nodeagent/models/adapter";
-import { getModelPricing, resolveModelAlias, type ModelPricing } from "../../src/nodeagent/models/modelCatalog";
+import { lookupModelAlias } from "../../src/nodeagent/models/modelCatalog";
+import { costFromPricing, pricingAtRunFor, type PricingAtRun, type RouteSnapshot } from "./pricingAtRun";
 import { fetchSourceReal } from "../../src/nodeagent/skills/search/fetchSource";
 import type { AgentMessage, AgentModel, AgentTool, RoomTools, SourceResult } from "../../src/nodeagent/core/types";
 import { isOpenRouterFreeAutoModel, selectOpenRouterFreeModels, type OpenRouterModelInfo } from "../../src/nodeagent/models/openRouterFreeModels";
@@ -62,7 +63,7 @@ const CHECKS = [
 // Fixed cheap judge (isolated yes/no per the grounded-eval rule — low variance, not a holistic grade).
 const JUDGE = process.env.JUDGE_MODEL || "gemini-3.1-flash-lite";
 async function scoreJudgeCompany(company: string, summary: string, evidence: string): Promise<CompanyJudgeResult> {
-  return judgeCompanyWith(judge, JUDGE, company, summary, evidence);
+  return judgeCompanyWith((id, prompt) => judge(id, prompt, { operatorSelected: true }), JUDGE, company, summary, evidence);
 }
 
 // Default research smoke set. The full supported route matrix lives in
@@ -94,23 +95,6 @@ interface RunModelOptions {
   hardTimeoutMs?: number;
   routeSnapshot?: RouteSnapshot;
 }
-
-type PricingAtRun = {
-  source: "openrouter_snapshot" | "catalog" | "fallback_estimate";
-  inputPer1M: number;
-  outputPer1M: number;
-  cachedInputPer1M?: number;
-  contextWindow?: number;
-  routeSnapshotId?: string;
-};
-
-type RouteSnapshot = {
-  routeSnapshotId: string;
-  fetchedAt: string;
-  source: "openrouter" | "unavailable";
-  modelsById: Map<string, OpenRouterModelInfo>;
-  error?: string;
-};
 
 function unique(items: string[]): string[] {
   return [...new Set(items.filter(Boolean))];
@@ -192,52 +176,8 @@ async function loadRouteSnapshot(): Promise<RouteSnapshot> {
   }
 }
 
-function priceFromOpenRouterInfo(info: OpenRouterModelInfo, routeSnapshotId: string): PricingAtRun | undefined {
-  const prompt = Number(info.pricing?.prompt);
-  const completion = Number(info.pricing?.completion);
-  if (!Number.isFinite(prompt) || !Number.isFinite(completion)) return undefined;
-  const cacheRead = Number(info.pricing?.input_cache_read);
-  return {
-    source: "openrouter_snapshot",
-    inputPer1M: prompt * 1_000_000,
-    outputPer1M: completion * 1_000_000,
-    ...(Number.isFinite(cacheRead) ? { cachedInputPer1M: cacheRead * 1_000_000 } : {}),
-    contextWindow: info.context_length ?? info.top_provider?.context_length,
-    routeSnapshotId,
-  };
-}
-
-function catalogPricingAtRun(modelId: string): PricingAtRun {
-  const pricing: ModelPricing | null = getModelPricing(resolveModelAlias(modelId));
-  if (!pricing) {
-    return {
-      source: "fallback_estimate",
-      inputPer1M: 1,
-      outputPer1M: 5,
-    };
-  }
-  return {
-    source: "catalog",
-    inputPer1M: pricing.inputPer1M,
-    outputPer1M: pricing.outputPer1M,
-    ...(pricing.cachedInputPer1M != null ? { cachedInputPer1M: pricing.cachedInputPer1M } : {}),
-    contextWindow: pricing.contextWindow,
-  };
-}
-
-function pricingAtRunFor(modelId: string, snapshot?: RouteSnapshot): PricingAtRun {
-  const resolved = resolveModelAlias(modelId);
-  const fromSnapshot = snapshot?.modelsById.get(resolved);
-  if (fromSnapshot) return priceFromOpenRouterInfo(fromSnapshot, snapshot.routeSnapshotId) ?? catalogPricingAtRun(resolved);
-  return catalogPricingAtRun(resolved);
-}
-
-function costFromPricing(pricing: PricingAtRun, inputTokens: number, outputTokens: number): number {
-  return (inputTokens * pricing.inputPer1M + outputTokens * pricing.outputPer1M) / 1_000_000;
-}
-
 function isOpenRouterRoute(modelId: string): boolean {
-  const resolved = resolveModelAlias(modelId);
+  const resolved = lookupModelAlias(modelId);
   return isOpenRouterFreeAutoModel(resolved) || resolved.includes("/");
 }
 
@@ -273,7 +213,7 @@ async function routeSmoke(modelId: string): Promise<{ ok: true; resolvedModels: 
   const timer = setTimeout(() => ctl.abort(), timeoutMs);
   const resolvedModels: string[] = [];
   try {
-    const schemaRoute = model(modelId);
+    const schemaRoute = model(modelId, { operatorSelected: true });
     const schemaStep = await schemaRoute.next({
       system: "You are a route-contract smoke test. Return only JSON, no prose.",
       messages: [{
@@ -296,7 +236,7 @@ async function routeSmoke(modelId: string): Promise<{ ok: true; resolvedModels: 
       };
     }
 
-    const toolRoute = model(modelId);
+    const toolRoute = model(modelId, { operatorSelected: true });
     const smokeTool: AgentTool = {
       name: "report_answer",
       description: "Report a short route-smoke answer.",
@@ -421,7 +361,7 @@ function runModelInChild(modelId: string, options: RunModelOptions, snapshot?: R
 }
 
 function recordingModel(modelId: string): { agentModel: AgentModel; resolvedModels: string[] } {
-  const baseModel = model(modelId);
+  const baseModel = model(modelId, { operatorSelected: true });
   const resolvedModels: string[] = [];
   return {
     resolvedModels,
