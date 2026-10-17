@@ -133,8 +133,9 @@ export const modelPricing: Record<string, ModelPricing> = {
   "claude-sonnet-4-6": { inputPer1M: 3.00, outputPer1M: 15.00, cachedInputPer1M: 0.30, contextWindow: 1000000 },
   "claude-opus-4-8": { inputPer1M: 5.00, outputPer1M: 25.00, cachedInputPer1M: 0.50, contextWindow: 1000000 },
   // Retired (kept for persisted rows): the dotted display ids alias to these, as the old regex rewrite did, so they price under either spelling.
-  "claude-opus-4-1": { inputPer1M: 15.00, outputPer1M: 75.00, cachedInputPer1M: 1.50, contextWindow: 200000 },
-  "claude-haiku-3-5": { inputPer1M: 0.80, outputPer1M: 4.00, cachedInputPer1M: 0.08, contextWindow: 200000 },
+  // Prices are origin/main's own "claude-opus-4.1" / "claude-haiku-3.5" rows, whose block header reads "official docs, April 2026" (A.0.6: dated, source cited).
+  "claude-opus-4-1": { inputPer1M: 15.00, outputPer1M: 75.00, cachedInputPer1M: 1.50, contextWindow: 200000, pricingAsOf: "2026-04" },
+  "claude-haiku-3-5": { inputPer1M: 0.80, outputPer1M: 4.00, cachedInputPer1M: 0.08, contextWindow: 200000, pricingAsOf: "2026-04" },
   // gemini-3.1-flash-lite-preview was shut down → the GA id:
   "gemini-3.1-flash-lite": { inputPer1M: 0.25, outputPer1M: 1.50, contextWindow: 1000000 },
   "gemini-3.5-flash": { inputPer1M: 1.50, outputPer1M: 9.00, contextWindow: 1000000 }, // latest, most-intelligent Flash

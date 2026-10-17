@@ -23,6 +23,7 @@ import type { AgentMessage, AgentModel, AgentResult, AgentTool, AgentTraceEvent,
 import { scriptedModel, type Planner } from "../src/nodeagent/models/scripted";
 import { recomputeVariancePlan } from "../src/nodeagent/core/plans";
 import {
+  MAX_DISPATCH_RECORDS,
   createSpendMeter,
   model as realModel,
   priceRequest,
@@ -126,6 +127,8 @@ interface LadderBudgetReport {
   /** Pre-flight request ceiling (routes x rungs x max steps, fan-out included); `requests` above it fails review (A.0.3). */
   requestCeiling: number;
   stoppedBy: SpendMeter["stoppedBy"];
+  /** Requests past the dispatch-record cap: counted in `requests`/`spentUsd` but absent from `rows`. Non-zero means the receipt's rows are incomplete. */
+  dispatchesDropped: number;
 }
 
 interface RungResult {
@@ -613,6 +616,8 @@ async function runRung(rung: Rung, maker: (rung: Rung) => AgentModel, modelName:
   const t0 = Date.now();
   const deadlineAt = budget.rungTimeoutMs ? t0 + budget.rungTimeoutMs : undefined;
   const dispatchesFrom = meter?.dispatches.length ?? 0;
+  // Rung cost is the meter's own spend delta, not the sum of recorded rows: rows stop at MAX_DISPATCH_RECORDS, spend does not.
+  const spentFrom = meter?.spentUsd ?? 0;
   const rungDispatches = () => (meter ? { dispatches: meter.dispatches.slice(dispatchesFrom) } : {});
   try {
     const runOnce = (goal: string, m: AgentModel, maxSteps: number) => runAgent({
@@ -664,7 +669,7 @@ async function runRung(rung: Rung, maker: (rung: Rung) => AgentModel, modelName:
     // Per-request costs only: the meter's settled dispatches on a metered run (a paid run never costs a guessed
     // $1/$5 row), the runtime's per-step priced total otherwise. Never price summed usage: a tier is per request.
     const cost = meter
-      ? rungDispatches().dispatches.reduce((sum, d) => sum + d.costUsd, 0)
+      ? meter.spentUsd - spentFrom
       : (result.usage?.costUsd ?? 0) + (slice1?.usage?.costUsd ?? 0);
     return {
       pass,
@@ -696,7 +701,7 @@ async function runRung(rung: Rung, maker: (rung: Rung) => AgentModel, modelName:
       ms: Date.now() - t0,
       tools: 0,
       // A rung that failed after issuing charged dispatches still spent that money: the row carries it, as in the try branch.
-      cost: meter ? rungDispatches().dispatches.reduce((sum, d) => sum + d.costUsd, 0) : 0,
+      cost: meter ? meter.spentUsd - spentFrom : 0,
       error: error instanceof Error ? error.message : String(error),
       checks: { completed: false },
       ...rungDispatches(),
@@ -1008,7 +1013,7 @@ export async function main() {
   let estimateUsd = 0;
   let requestCeiling = 0;
   const budgetReport = (): LadderBudgetReport | null => (meter
-    ? { maxUsd: meter.maxUsd, estimateUsd, spentUsd: meter.spentUsd, requests: meter.requests, requestCeiling, stoppedBy: meter.stoppedBy }
+    ? { maxUsd: meter.maxUsd, estimateUsd, spentUsd: meter.spentUsd, requests: meter.requests, requestCeiling, stoppedBy: meter.stoppedBy, dispatchesDropped: meter.droppedDispatches }
     : null);
   const refuse = (message: string) => {
     console.error(`ladder: ${message}`);
@@ -1073,7 +1078,7 @@ export async function main() {
   }
   console.log("-".repeat(72));
   console.log("legend: " + selectedRungs.map((r) => `L${r.level}=${r.label}`).join(" | "));
-  if (meter) console.log(`spend: $${meter.spentUsd.toFixed(4)} of $${meter.maxUsd.toFixed(4)} over ${meter.requests} provider request(s)${meter.stoppedBy ? `; STOPPED by ${meter.stoppedBy} (not a receipt)` : ""}`);
+  if (meter) console.log(`spend: $${meter.spentUsd.toFixed(4)} of $${meter.maxUsd.toFixed(4)} over ${meter.requests} provider request(s)${meter.droppedDispatches ? `; ${meter.droppedDispatches} request(s) have no receipt row (cap ${MAX_DISPATCH_RECORDS})` : ""}${meter.stoppedBy ? `; STOPPED by ${meter.stoppedBy} (not a receipt)` : ""}`);
   writeJsonReport(results, selectedRungs, models.map((m) => m.name), { startedAt, budget: budgetReport(), dispatchPolicy: real ? RECEIPT_DISPATCH_POLICY : null });
   recordRunsToStore(results);
 

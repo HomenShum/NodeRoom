@@ -253,15 +253,15 @@ describe("pricing sources agree per (id, transport)", () => {
     }
   });
 
-  // Retired ids kept for persisted rows. Their prices are origin/main's own undated dotted rows moved to the hyphenated wire id
-  // (no vendor page was read for them, so no price was invented and no pricingAsOf is claimed). Every source must still agree on them,
-  // under either spelling.
+  // Retired ids kept for persisted rows. Their prices are origin/main's own dotted rows ("official docs, April 2026" in main's block header)
+  // moved to the hyphenated wire id; no vendor page was re-read, so the date is main's month, "2026-04", not a new day. Every source must
+  // still agree on them, under either spelling.
   it.each([
     { dotted: "claude-opus-4.1", id: "claude-opus-4-1", inPerM: 15, outPerM: 75, cachedInPerM: 1.5 },
     { dotted: "claude-haiku-3.5", id: "claude-haiku-3-5", inPerM: 0.8, outPerM: 4, cachedInPerM: 0.08 },
   ])("retired $id keeps origin/main's undated price in every source, under either spelling", ({ dotted, id, inPerM, outPerM, cachedInPerM }) => {
     expect(modelPricing[id]).toMatchObject({ inputPer1M: inPerM, outputPer1M: outPerM, cachedInputPer1M: cachedInPerM });
-    expect(modelPricing[id].pricingAsOf, "undated on purpose: main never dated it").toBeUndefined();
+    expect(modelPricing[id].pricingAsOf, "A.0.6: dated with the month main's block header cites").toBe("2026-04");
     const P = 100_000;
     for (const name of [id, dotted]) {
       for (const [source, cost] of [["priceRun", priceRun], ["priceRequest", priceRequest], ["priceRequestStrict", priceRequestStrict], ["convexPriceRun", convexPriceRun], ["convexPriceRequest", convexPriceRequest]] as const) {

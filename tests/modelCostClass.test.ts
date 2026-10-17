@@ -10,7 +10,7 @@
  * `fetch`, so "no request was made" is observed on the wire, not read off the code.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createSpendMeter, model } from "../src/nodeagent/models/adapter";
+import { createSpendMeter, MAX_DISPATCH_RECORDS, model } from "../src/nodeagent/models/adapter";
 import { convexModel } from "../src/nodeagent/models/convexModel";
 import {
   isFreeModelId,
@@ -221,5 +221,29 @@ describe("a free request never becomes a paid request (Convex path)", () => {
     const step = await convexModel("qwen/qwen3.7-plus", { fallbackModelIds: [PAID] }).next(TURN);
     expect(step.text).toBe("ok");
     expect(calls.map((c) => c.provider)).toEqual(["openrouter", "google"]);
+  });
+});
+
+describe("the spend meter stays honest past its record cap (A.0.3 receipt honesty)", () => {
+  it("request 4097 is counted and priced but has no row, and the shortfall is a number a receipt can carry", async () => {
+    openRouterDownGoogleUp();
+    const meter = createSpendMeter(10_000);
+    const m = model(PAID, { dispatch: { maxRetries: 0, crossModelFallback: false }, meter });
+    for (let i = 0; i < MAX_DISPATCH_RECORDS + 1; i++) await m.next(TURN);
+    expect(meter.requests).toBe(MAX_DISPATCH_RECORDS + 1);
+    expect(meter.dispatches).toHaveLength(MAX_DISPATCH_RECORDS);
+    expect(meter.droppedDispatches).toBe(1);
+    // spentUsd covers all 4097 requests; the rows cover 4096 of them, so a cost taken from rows would understate by exactly one request.
+    const rowsUsd = meter.dispatches.reduce((sum, d) => sum + d.costUsd, 0);
+    expect(meter.spentUsd).toBeGreaterThan(rowsUsd);
+    expect(meter.spentUsd - rowsUsd).toBeCloseTo(meter.dispatches[0].costUsd, 12);
+  });
+
+  it("a run under the cap drops nothing", async () => {
+    openRouterDownGoogleUp();
+    const meter = createSpendMeter(10);
+    await model(PAID, { dispatch: { maxRetries: 0, crossModelFallback: false }, meter }).next(TURN);
+    expect(meter.droppedDispatches).toBe(0);
+    expect(meter.dispatches).toHaveLength(meter.requests);
   });
 });
