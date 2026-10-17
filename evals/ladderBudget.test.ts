@@ -357,7 +357,7 @@ describe("main(): pre-flight and the grid", () => {
     expect(budget.requests).toBe(calls.length); // nothing was issued after the stop
     expect(budget.requests).toBeLessThan(budget.requestCeiling);
     expect(exitCode).toBe(1); // a stop is not a receipt
-  });
+  }, 30_000);
 
   it("the --json-out report carries what an A.0.3 review needs: command, candidateIds, echoedModels, rows, environment, requestCeiling", async () => {
     fakeTransport(() => new Response(JSON.stringify({

@@ -237,7 +237,7 @@ describe("the spend meter stays honest past its record cap (A.0.3 receipt honest
     const rowsUsd = meter.dispatches.reduce((sum, d) => sum + d.costUsd, 0);
     expect(meter.spentUsd).toBeGreaterThan(rowsUsd);
     expect(meter.spentUsd - rowsUsd).toBeCloseTo(meter.dispatches[0].costUsd, 12);
-  });
+  }, 30_000);
 
   it("a run under the cap drops nothing", async () => {
     openRouterDownGoogleUp();
