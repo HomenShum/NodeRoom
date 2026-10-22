@@ -1,6 +1,8 @@
 /**
  * founder_profile — agent tool. Fetches per-founder professional background, education,
  * and social context via Apify's LinkedIn Profile Scraper actor (harvestapi~linkedin-profile-scraper).
+ * URL lookups stay on that actor unless NODEROOM_LINKEDIN_PROFILE_ACTOR is exactly
+ * johnvc/linkedin-profile-api. Name search is unchanged.
  * Returns structured data the agent uses to populate per-founder deep-dive cells and generate
  * outreach talking points.
  *
@@ -15,6 +17,7 @@
  */
 import { z } from "zod";
 import type { AgentTool, RoomTools } from "../../core/types";
+import { linkedInProfileCall, linkedInProfileItemForTool } from "./linkedinProfileActor";
 
 const schema = z.object({
   linkedinUrl: z.string().optional().describe("LinkedIn profile URL (e.g. https://www.linkedin.com/in/jdoe). If omitted, the tool searches by name."),
@@ -38,12 +41,12 @@ interface ApifyProfileResult {
   error?: string;
 }
 
-/** Scrape a LinkedIn profile URL via Apify harvestapi~linkedin-profile-scraper. */
+/** Scrape a LinkedIn profile URL. Default actor is harvestapi~linkedin-profile-scraper. */
 async function fetchApifyLinkedInProfile(linkedinUrl: string, apiKey: string): Promise<ApifyProfileResult> {
-  const actorId = "harvestapi~linkedin-profile-scraper";
-  const runUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${apiKey}`;
+  const call = linkedInProfileCall(linkedinUrl, process.env.NODEROOM_LINKEDIN_PROFILE_ACTOR);
+  const runUrl = `https://api.apify.com/v2/acts/${call.actorPath}/run-sync-get-dataset-items?token=${apiKey}`;
 
-  const body = { urls: [linkedinUrl] };
+  const body = call.body;
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 60_000);
@@ -66,7 +69,10 @@ async function fetchApifyLinkedInProfile(linkedinUrl: string, apiKey: string): P
       return { ok: false, error: "Apify returned no results for this profile URL" };
     }
 
-    const item = items[0];
+    const item = call.optional ? linkedInProfileItemForTool(items) : items[0];
+    if (!item) {
+      return { ok: false, error: "Apify returned no profile row for this profile URL" };
+    }
     return mapApifyProfileItem(item, linkedinUrl);
   } catch (err: any) {
     if (err.name === "AbortError") {
