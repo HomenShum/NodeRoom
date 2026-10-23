@@ -5,7 +5,7 @@ import {
   OPTIONAL_LINKEDIN_PROFILE_ACTOR,
   linkedInProfileCall,
   linkedInProfileItemForTool,
-} from "./linkedinProfileActor.ts";
+} from "./linkedinProfileActor";
 
 const PROFILE_URL = "https://www.linkedin.com/in/example-person";
 
