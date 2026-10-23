@@ -1137,7 +1137,7 @@ This file is the model-facing contract: every production tool must expose a non-
 
 ### founder_profile
 
-- Purpose: Fetch a founder's professional profile via Apify LinkedIn scraper.
+- Purpose: Fetch a founder's professional profile via Apify LinkedIn scraper. URL lookups stay on harvestapi/linkedin-profile-scraper unless NODEROOM_LINKEDIN_PROFILE_ACTOR is exactly johnvc/linkedin-profile-api ([actor](https://apify.com/johnvc/linkedin-profile-api), [Alpha OSINT](https://alphaosint.com/)). Name search is unchanged.
 - When to use: Fetch a founder's professional profile via Apify LinkedIn scraper.
 - When not to use: Do not use as a hidden shortcut around room permissions, privacy boundaries, or artifact freshness.
 - Mutability: mixed.
