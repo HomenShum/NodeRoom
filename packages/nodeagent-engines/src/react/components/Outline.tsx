@@ -111,7 +111,7 @@ function HelperList({ nodes, filterAgentId, onFilter, ended }: { nodes: HelperNo
               {h.totalTokens !== undefined ? <span>{formatTokens(h.totalTokens)} tokens</span> : null}
               {h.durationMs !== undefined ? <span>{formatDuration(h.durationMs)}</span> : null}
             </div>
-            {h.summary ? <p className="naw-small naw-helper-summary">{h.summary}</p> : h.lastTool ? <p className="naw-small naw-muted">last tool: {h.lastTool}</p> : null}
+            {h.summary ? <p className="naw-small naw-helper-summary" title={h.summary.slice(0, 2000)}>{h.summary}</p> : h.lastTool ? <p className="naw-small naw-muted">last tool: {h.lastTool}</p> : null}
             {children.length ? <HelperList nodes={children} filterAgentId={filterAgentId} onFilter={onFilter} ended={ended} /> : null}
           </li>
         );
